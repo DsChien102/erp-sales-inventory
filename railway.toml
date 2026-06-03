@@ -1,0 +1,15 @@
+[build]
+builder = "DOCKERFILE"
+dockerfilePath = "apps/messaging_worker/Dockerfile"
+watchPatterns = [
+  "apps/messaging_worker/**",
+  "modules/**",
+  "packages/vet45_shared/**",
+  "pubspec.yaml",
+  "pubspec.lock",
+]
+
+[deploy]
+healthcheckPath = "/health"
+healthcheckTimeout = 90
+restartPolicyType = "ON_FAILURE"

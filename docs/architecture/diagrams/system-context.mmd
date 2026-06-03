@@ -1,0 +1,20 @@
+flowchart TB
+  subgraph users [Users]
+    Staff[Nhan_vien_cua_hang]
+    Owner[Chu_cua_hang]
+  end
+  subgraph vet45 [Vet45_System]
+    ERP[Flutter_ERP_App]
+    Worker[Messaging_Worker]
+    SB[(Supabase_Postgres)]
+  end
+  subgraph external [External]
+    Auth[Supabase_Auth]
+    MISA[MISA_EInvoice_TH07]
+  end
+  Staff --> ERP
+  Owner --> ERP
+  ERP --> Auth
+  ERP --> SB
+  Worker --> SB
+  ERP -.->|TH07_future| MISA

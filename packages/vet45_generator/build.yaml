@@ -1,0 +1,50 @@
+builders:
+  cqrs_registrar:
+    import: "package:vet45_generator/builder.dart"
+    builder_factories: ["cqrsRegistrarBuilder"]
+    auto_apply: none
+    build_to: source
+    build_extensions:
+      "lib/src/configuration/mediation/mediation_module.dart":
+        - "lib/src/configuration/processing/generated/{{module}}_cqrs_registrar.g.dart"
+  cqrs_internal_registry:
+    import: "package:vet45_generator/internal_registry_builder.dart"
+    builder_factories: ["cqrsInternalRegistryBuilder"]
+    auto_apply: none
+    build_to: source
+    build_extensions:
+      "lib/src/configuration/processing/processing_module.dart":
+        - "lib/src/configuration/processing/generated/{{module}}_internal_command_registry.g.dart"
+  cqrs_infrastructure:
+    import: "package:vet45_generator/infrastructure_builder.dart"
+    builder_factories: ["cqrsInfrastructureBuilder"]
+    auto_apply: none
+    build_to: source
+    build_extensions:
+      "lib/src/configuration/processing/{{module}}_command_pipeline.dart":
+        - "lib/src/configuration/processing/generated/{{module}}_command_bus_extensions.g.dart"
+        - "lib/src/configuration/processing/generated/{{module}}_command_registration.g.dart"
+  cqrs_integration_event_registry:
+    import: "package:vet45_generator/integration_event_registry_builder.dart"
+    builder_factories: ["cqrsIntegrationEventRegistryBuilder"]
+    auto_apply: none
+    build_to: source
+    build_extensions:
+      "lib/src/configuration/processing/processing_module.dart":
+        - "lib/src/configuration/processing/generated/{{module}}_integration_event_registry.g.dart"
+  access_metadata:
+    import: "package:vet45_generator/access_metadata_builder.dart"
+    builder_factories: ["accessMetadataBuilder"]
+    auto_apply: none
+    build_to: source
+    build_extensions:
+      "lib/src/configuration/processing/processing_module.dart":
+        - "lib/src/configuration/processing/generated/{{module}}_access_metadata.g.dart"
+  module_manifest:
+    import: "package:vet45_generator/module_manifest_builder.dart"
+    builder_factories: ["moduleManifestBuilder"]
+    auto_apply: none
+    build_to: source
+    build_extensions:
+      "lib/src/configuration/processing/processing_module.dart":
+        - "lib/src/configuration/processing/generated/{{module}}_module_manifest.g.dart"

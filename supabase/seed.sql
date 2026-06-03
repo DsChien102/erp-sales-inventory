@@ -1,0 +1,2 @@
+-- Vet45 greenfield seed (empty).
+-- Add dev seed data when foundation schema migrations are introduced.

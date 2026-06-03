@@ -1,0 +1,17 @@
+flowchart LR
+  iam[iam]
+  catalog[catalog]
+  sales[sales]
+  partner[partner]
+  inventory[inventory]
+  costing[costing]
+  sales --> catalog
+  sales --> partner
+  sales --> iam
+  sales --> inventory
+  catalog --> inventory
+  catalog --> costing
+  partner --> iam
+  catalog --> iam
+  inventory --> catalog
+  costing --> catalog

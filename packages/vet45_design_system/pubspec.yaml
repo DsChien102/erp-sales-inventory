@@ -1,0 +1,39 @@
+name: vet45_design_system
+description: "VET45 Company Design System Package"
+version: 1.0.0
+publish_to: none
+resolution: workspace
+
+environment:
+  sdk: ^3.11.1
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+dev_dependencies:
+  vet45_lints: ^1.0.0
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/fonts/ttf_Inter/
+    - assets/fonts/ttf_JetBrainsMono/
+  fonts:
+    - family: Inter
+      fonts:
+        - asset: assets/fonts/ttf_Inter/Inter-Regular.ttf
+        - asset: assets/fonts/ttf_Inter/Inter-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/ttf_Inter/Inter-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/ttf_Inter/Inter-Bold.ttf
+          weight: 700
+        - asset: assets/fonts/ttf_Inter/Inter-ExtraBold.ttf
+          weight: 800
+    - family: JetBrains Mono
+      fonts:
+        - asset: assets/fonts/ttf_JetBrainsMono/JetBrainsMono-Regular.ttf

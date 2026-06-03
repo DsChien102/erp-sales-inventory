@@ -1,0 +1,15 @@
+name: vet45_lints
+description: Shared analyzer and linter configuration for the Vet45 monorepo.
+version: 1.0.0
+publish_to: none
+resolution: workspace
+
+environment:
+  sdk: '>=3.11.1 <4.0.0'
+  flutter: '>=3.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+  lints: ^6.0.0

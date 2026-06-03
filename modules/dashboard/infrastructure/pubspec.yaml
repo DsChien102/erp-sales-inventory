@@ -1,0 +1,25 @@
+name: vet45_dashboard_infrastructure
+description: dashboard bounded context — infrastructure layer (skeleton).
+version: 1.0.0
+publish_to: none
+resolution: workspace
+
+environment:
+  sdk: '>=3.11.1 <4.0.0'
+
+dependencies:
+  get_it: ^9.2.1
+  meta: ^1.17.0
+  supabase: ^2.12.2
+  vet45_dashboard_application: ^1.0.0
+  vet45_dashboard_domain: ^1.0.0
+  vet45_dashboard_integration_events: ^1.0.0
+  vet45_shared_application: ^1.0.0
+  vet45_shared_domain: ^1.0.0
+  vet45_shared_infrastructure: ^0.0.1
+
+dev_dependencies:
+  build_runner: ^2.15.0
+  vet45_lints: ^1.0.0
+  test: ^1.26.2
+  vet45_generator: ^0.1.0

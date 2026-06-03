@@ -1,0 +1,51 @@
+# DEPRECATED: CI migrated to CircleCI — see .circleci/config.yml
+# This file is kept temporarily for reference during migration.
+
+stages:
+  - verify
+  - deploy
+
+.messaging_worker_changes:
+  rules:
+    - changes:
+        - apps/messaging_worker/**/*
+        - modules/**/*
+        - packages/vet45_shared/**/*
+        - pubspec.yaml
+        - pubspec.lock
+        - railway.toml
+        - .dockerignore
+
+verify:messaging_worker:
+  stage: verify
+  image: dart:stable
+  extends: .messaging_worker_changes
+  script:
+    - ./apps/messaging_worker/scripts/verify_build.sh
+
+deploy:messaging_worker:staging:
+  stage: deploy
+  extends: .messaging_worker_changes
+  environment:
+    name: staging
+  when: manual
+  script:
+    - ./apps/messaging_worker/scripts/deploy.sh --env staging --secrets --ci
+
+deploy:messaging_worker:production:
+  stage: deploy
+  environment:
+    name: production
+  when: manual
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
+      changes:
+        - apps/messaging_worker/**/*
+        - modules/**/*
+        - packages/vet45_shared/**/*
+        - pubspec.yaml
+        - pubspec.lock
+        - railway.toml
+        - .dockerignore
+  script:
+    - ./apps/messaging_worker/scripts/deploy.sh --env production --secrets --ci

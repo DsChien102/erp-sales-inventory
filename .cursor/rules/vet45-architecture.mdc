@@ -1,0 +1,69 @@
+---
+description: Vet45 modular monolith — layer rules, shared toolkit, CQRS, and backbone usage
+alwaysApply: true
+---
+
+# Vet45 Architecture Backbone
+
+Modular monolith ERP: Flutter client + Postgres/Supabase RPC-first + bounded contexts in `modules/`.
+
+## Layer map (never violate)
+
+```
+apps/erp/features     → module application (via IModuleMediator)
+module presentation   → module application → module domain → packages/vet45_shared/domain
+module infrastructure → module application + packages/vet45_shared/infrastructure
+packages/vet45_shared/*     → never import modules/
+```
+
+Each bounded context: `domain`, `application`, `infrastructure`, `integration_events`, optional `presentation`.
+
+## Shared toolkit (`packages/vet45_shared/*`) — mechanisms only
+
+| Package | Use for |
+|---------|---------|
+| `vet45_shared/domain` | Entity, AggregateRoot, ValueObject, TenantId, BusinessRule |
+| `vet45_shared/application` | ICommand, IQuery, handlers, validators, IExecutionContext, IModuleMediator |
+| `vet45_shared/infrastructure` | CommandBus, QueryBus, DefaultCommandPipeline, ScopedCommandExecutor, IRpcClient |
+| `vet45_adapters` | SupabaseSchemaRpcClient, messaging worker registry, outbox/inbox |
+| `vet45_shared/testing` | InMemoryCommandBus, RecordingQueryBus, fakes, PipelineTestHarness |
+| `vet45_annotations` | CQRS and access metadata for codegen |
+| `vet45_generator` | Handler registration (build-time) |
+
+**Never put in shared:** Product, SalesOrder, Customer, permission codes, module RPC names, aggregates, gateways.
+
+Extract to shared only when **≥2 modules** duplicate the same mechanism.
+
+## Command / query flow (required)
+
+```
+UI → IExecutionContext (tenant/user) → IModuleMediator
+  → ScopedCommandExecutor → CommandBus/QueryBus
+  → DefaultCommandPipeline (validate → log → handler)
+  → port/gateway → Supabase RPC
+```
+
+- **Validators**: pipeline only — not inline in handlers.
+- **Queries**: return DTOs, never aggregates.
+- **Mutations**: domain invariants in Dart + defense in depth in Postgres RPC/RLS.
+- **Cross-module**: `integration_events` package only — no cross-module domain/repository imports.
+
+## Module wiring (mirror catalog/sales/partner)
+
+- `DataAccessModule` → gateways/repos
+- `MediationModule` → `registerGenerated*Handlers` + `DefaultCommandPipeline`
+- IAM: `IamAccessCheckedHandlerOverrides` for optional `IAccessChecker` (codegen skips optional deps)
+
+## Anti-patterns (reject in reviews)
+
+- God aggregate, cross-module table access, anemic domain-only-in-SQL
+- Direct PostgREST writes from UI, Flutter bus for durable messaging
+- New framework abstractions (generic Repository<T>, plugin DSL)
+- Either/Result inside command handlers (map at presentation boundary)
+- Hand-maintaining `.g.dart` — run `melos run codegen`
+
+## Before implementing
+
+1. Read `docs/architecture/05-layered-module-structure.md` and `packages/vet45_shared/README.md`
+2. Mirror reference module: **catalog** (full CQRS), **iam** (auth/tenant)
+3. New use case = folder under `application/lib/src/{area}/{use_case}/` with command, handler, optional validator

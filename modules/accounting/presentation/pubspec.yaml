@@ -1,0 +1,23 @@
+name: vet45_accounting_presentation
+description: accounting bounded context — presentation layer (skeleton).
+version: 1.0.0
+publish_to: none
+resolution: workspace
+
+environment:
+  sdk: '>=3.11.1 <4.0.0'
+  flutter: '>=1.17.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  get_it: ^9.2.1
+  vet45_design_system: ^1.0.0
+  vet45_accounting_application: ^1.0.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  vet45_lints: ^1.0.0
+
+flutter:

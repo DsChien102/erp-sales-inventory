@@ -1,0 +1,21 @@
+name: vet45_adapters
+description: Vet45-specific adapters — Supabase RPC, messaging worker, outbox/inbox, internal commands.
+version: 0.1.0
+publish_to: none
+resolution: workspace
+
+environment:
+  sdk: '>=3.11.1 <4.0.0'
+
+dependencies:
+  json_annotation: ^4.9.0
+  quiver: ^3.2.2
+  supabase: ^2.12.2
+  uuid: ^4.5.3
+  vet45_shared_application: ^1.0.0
+  vet45_shared_infrastructure: ^0.0.1
+
+dev_dependencies:
+  vet45_lints: ^1.0.0
+  lints: ^6.0.0
+  test: ^1.26.2

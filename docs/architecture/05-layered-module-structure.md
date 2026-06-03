@@ -1,0 +1,72 @@
+# Cấu trúc layer trong module
+
+## Bốn layer (+ presentation tùy chọn)
+
+| Layer | Package | Trách nhiệm |
+| ----- | ------- | ----------- |
+| **Domain** | `vet45_{m}_domain` | Aggregates, VOs, rules, domain events, repository **interfaces** |
+| **Application** | `vet45_{m}_application` | Commands, queries, handlers, DTOs, **gateway ports**, `I{X}Module` |
+| **Infrastructure** | `vet45_{m}_infrastructure` | Supabase gateways, repos, `MediationModule`, `DataAccessModule`, startup |
+| **Integration events** | `vet45_{m}_integration_events` | Event types public cho module khác |
+| **Presentation** | `vet45_{m}_presentation` | Widget/screen tái sử dụng (optional) |
+
+**Application không import Infrastructure.** Infrastructure import Application + Domain.
+
+## Handler pattern (command)
+
+**Business command** (user-facing use case) — xem [09-application-commands.md](09-application-commands.md):
+
+```text
+1. Validator (optional) — shape input
+2. IAccessChecker.ensureCan (mutations admin) — khi enforce RBAC
+3. Aggregate method — invariant trong Dart
+4. ICommandGateway — persist RPC
+5. Map domain events → integration events (outbox trong cùng transaction RPC)
+```
+
+**Internal command** — side effect deferred, enqueue `{module}.internal_commands`, xử lý bởi worker; handler trả `void`, không qua auth pipeline đầy đủ.
+
+## Handler pattern (query)
+
+```text
+Query → IQueryHandler → Read gateway / repository → DTO (không aggregate)
+```
+
+## Module reference implementations
+
+| Module | Ghi chú |
+| ------ | ------- |
+| **sales** | Đầy đủ nhất — drafts, checkout, command gateways |
+| **iam** | Foundation — RBAC, RPC-first, full handler registrar |
+| **catalog** | Product lifecycle, integration với inventory |
+| **partner** | Scaffold — TH-03 |
+
+## Cấu trúc application `src/`
+
+```text
+src/
+  ports/              # ICommandGateway, IReadGateway
+  {aggregate_area}/   # một folder per use case
+    create_x/
+      create_x_command.dart
+      create_x_command_handler.dart
+      create_x_command_validator.dart
+  configurations/     # ICommandHandler, buses
+  contracts/          # I{X}Module, CommandBase, QueryBase
+```
+
+## Infrastructure bootstrap
+
+```text
+{X}Startup.initialize(supabase)
+  → DataAccessModule.load()   # gateways, repos
+  → MediationModule.load()    # handlers → CommandBus/QueryBus
+```
+
+Ví dụ: [`modules/iam/infrastructure/lib/src/configuration/iam_startup.dart`](../../modules/iam/infrastructure/lib/src/configuration/iam_startup.dart)
+
+## Liên kết
+
+- [application_layer_skill.md](../application_layer_skill.md)
+- [infrastructure_layer_skill.md](../infrastructure_layer_skill.md)
+- [MODULES_IMPLEMENTATION_TEMPLATE.md](../MODULES_IMPLEMENTATION_TEMPLATE.md)

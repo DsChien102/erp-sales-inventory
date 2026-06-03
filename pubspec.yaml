@@ -1,0 +1,134 @@
+name: vet45
+
+publish_to: none
+
+environment:
+  sdk: '>=3.11.1 <4.0.0'
+
+workspace:
+  - apps/erp
+  - apps/messaging_worker
+  - packages/vet45_lints
+  - packages/vet45_design_system
+  - packages/vet45_annotations
+  - packages/vet45_adapters
+  - packages/vet45_generator
+  - packages/vet45_shared/application
+  - packages/vet45_shared/domain
+  - packages/vet45_shared/infrastructure
+  - packages/vet45_shared/testing
+  - modules/catalog/domain
+  - modules/catalog/application
+  - modules/catalog/infrastructure
+  - modules/catalog/integration_events
+  - modules/catalog/presentation
+  - modules/sales/domain
+  - modules/sales/application
+  - modules/sales/infrastructure
+  - modules/sales/integration_events
+  - modules/sales/presentation
+  - modules/partner/domain
+  - modules/partner/application
+  - modules/partner/infrastructure
+  - modules/partner/integration_events
+  - modules/partner/presentation
+  - modules/iam/domain
+  - modules/iam/application
+  - modules/iam/infrastructure
+  - modules/iam/integration_events
+  - modules/iam/presentation
+  - modules/inventory/domain
+  - modules/inventory/application
+  - modules/inventory/infrastructure
+  - modules/inventory/integration_events
+  - modules/inventory/presentation
+  - modules/costing/domain
+  - modules/costing/application
+  - modules/costing/infrastructure
+  - modules/costing/integration_events
+  - modules/costing/presentation
+  - modules/dashboard/domain
+  - modules/dashboard/application
+  - modules/dashboard/infrastructure
+  - modules/dashboard/integration_events
+  - modules/dashboard/presentation
+  - modules/accounting/domain
+  - modules/accounting/application
+  - modules/accounting/infrastructure
+  - modules/accounting/integration_events
+  - modules/accounting/presentation
+
+dev_dependencies:
+  melos: ^7.8.0
+
+melos:
+  scripts:
+    debug:
+      run: melos run debug:any
+      stdio: inherit
+
+    debug:web:
+      run: cd apps/erp && flutter run -d chrome --flavor development
+      stdio: inherit
+
+    debug:ios:
+      run: cd apps/erp && flutter run -d ios --flavor development
+      stdio: inherit
+
+    debug:any:
+      run: cd apps/erp && flutter run --flavor development
+      stdio: inherit
+
+    debug:dev:
+      run: cd apps/erp && flutter run --flavor development --dart-define-from-file=.env
+      stdio: inherit
+
+    debug:staging:
+      run: cd apps/erp && flutter run --flavor staging --dart-define-from-file=.env.staging
+      stdio: inherit
+
+    debug:prod:
+      run: cd apps/erp && flutter run --flavor production --dart-define-from-file=.env.production
+      stdio: inherit
+
+    build:ios:
+      exec: flutter build ipa --flavor production --dart-define-from-file=.env.production --obfuscate --split-debug-info=build.artifact
+      packageFilters:
+        scope: erp
+
+    build:ios:staging:
+      exec: flutter build ipa --flavor staging --dart-define-from-file=.env.staging --obfuscate --split-debug-info=build.artifact
+      packageFilters:
+        scope: erp
+
+    build:ios:production:
+      exec: flutter build ipa --flavor production --dart-define-from-file=.env.production --obfuscate --split-debug-info=build.artifact
+      packageFilters:
+        scope: erp
+
+    deploy:ios:
+      exec: ./deploy-ios.sh --env production
+      packageFilters:
+        scope: erp
+
+    deploy:ios:staging:
+      exec: ./deploy-ios.sh --env staging
+      packageFilters:
+        scope: erp
+
+    codegen:
+      exec: dart run build_runner build
+      packageFilters:
+        dependOn: build_runner
+      isPrivate: true
+
+    analyze:
+      exec: dart analyze --no-fatal-warnings
+      packageFilters:
+        dirExists: lib
+
+  repository:
+    type: gitlab
+    origin: https://gitlab.hamsa.co
+    owner: vet45
+    name: vet45

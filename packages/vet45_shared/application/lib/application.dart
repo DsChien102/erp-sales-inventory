@@ -1,0 +1,26 @@
+/// CQRS contracts and execution abstractions for Vet45 modules.
+library;
+
+export 'src/access/access_metadata.dart';
+export 'src/cqrs/annotations.dart';
+export 'src/cqrs/command_base.dart';
+export 'src/cqrs/i_command.dart';
+export 'src/cqrs/i_command_handler.dart';
+export 'src/cqrs/i_command_validator.dart';
+export 'src/cqrs/i_query.dart';
+export 'src/cqrs/i_query_handler.dart';
+export 'src/cqrs/i_recurring_command.dart';
+export 'src/cqrs/i_tenant_scoped_command.dart';
+export 'src/cqrs/query_base.dart';
+export 'src/events/domain_event_notification_base.dart';
+export 'src/events/i_domain_event_notification.dart';
+export 'src/events/i_notification_handler.dart';
+export 'src/exceptions/application_exception.dart';
+export 'src/exceptions/validation_exception.dart';
+export 'src/execution/i_current_tenant.dart';
+export 'src/execution/i_current_user.dart';
+export 'src/execution/i_execution_context.dart';
+export 'src/execution/i_module_mediator.dart';
+export 'src/execution/i_permission_checker.dart';
+export 'src/execution/i_tenant_access_checker.dart';
+export 'src/module/generated_module_manifest.dart';

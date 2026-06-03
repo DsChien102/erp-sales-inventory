@@ -1,0 +1,27 @@
+name: vet45_worker
+publish_to: none
+
+environment:
+  sdk: '>=3.11.1 <4.0.0'
+
+workspace:
+  - apps/messaging_worker
+  - packages/vet45_shared/application
+  - packages/vet45_shared/domain
+  - packages/vet45_shared/infrastructure
+  - packages/vet45_adapters
+  - packages/vet45_generator
+  - modules/sales/domain
+  - modules/sales/application
+  - modules/sales/infrastructure
+  - modules/sales/integration_events
+  - modules/catalog/domain
+  - modules/catalog/application
+  - modules/catalog/infrastructure
+  - modules/catalog/integration_events
+  - modules/partner/domain
+  - modules/partner/application
+  - modules/partner/infrastructure
+  - modules/partner/integration_events
+  - modules/inventory/integration_events
+  - modules/costing/integration_events

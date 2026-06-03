@@ -1,0 +1,5 @@
+targets:
+  $default:
+    builders:
+      vet45_generator|cqrs_registrar:
+        enabled: false

@@ -1,0 +1,19 @@
+name: vet45_catalog_integration_events
+description: catalog module integration event contracts (skeleton).
+version: 1.0.0
+publish_to: none
+resolution: workspace
+
+environment:
+  sdk: '>=3.11.1 <4.0.0'
+
+dependencies:
+  json_annotation: ^4.9.0
+  vet45_shared_infrastructure: ^0.0.1
+
+dev_dependencies:
+  vet45_lints: ^1.0.0
+  build_runner: ^2.15.0
+  json_serializable: ^6.9.0
+  lints: ^6.0.0
+  test: ^1.30.0

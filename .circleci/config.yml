@@ -1,0 +1,163 @@
+version: 2.1
+
+x-flutter-ci-image: &flutter-ci-image
+  image: ghcr.io/cirruslabs/flutter:3.41.4
+
+commands:
+  bootstrap_workspace:
+    steps:
+      - run:
+          name: Install Melos
+          command: dart pub global activate melos
+      - run:
+          name: Melos bootstrap + codegen
+          command: |
+            export PATH="$PATH:$HOME/.pub-cache/bin"
+            melos bootstrap
+            cp apps/erp/.env.example apps/erp/.env
+            cd apps/erp && dart run build_runner build --delete-conflicting-outputs
+
+jobs:
+  verify_erp:
+    docker:
+      - <<: *flutter-ci-image
+    environment:
+      CI: true
+    steps:
+      - run:
+          name: Trust gitlab.hamsa.co host key
+          command: mkdir -p ~/.ssh && ssh-keyscan gitlab.hamsa.co >> ~/.ssh/known_hosts
+      - add_ssh_keys:
+          fingerprints:
+            - "SHA256:BjKqeddG2HypPT8wjQGQnBo5v9a1zoqYGpE4DNAlEnk"
+      - checkout
+      - bootstrap_workspace
+      - run:
+          name: Analyze workspace
+          command: export PATH="$PATH:$HOME/.pub-cache/bin" && melos run analyze --no-select
+      - run:
+          name: ERP unit tests
+          command: cd apps/erp && flutter test
+      - run:
+          name: Validate env example files
+          command: |
+            for f in apps/erp/.env.example apps/erp/.env.staging.example apps/erp/.env.production.example; do
+              test -f "$f" || (echo "Missing $f" && exit 1)
+              grep -q 'APP_ENV=' "$f"
+              grep -q 'SUPABASE_CONNECTION_URL=' "$f"
+              grep -q 'SUPABASE_ANON_KEY=' "$f"
+            done
+
+  deploy_messaging_worker_staging:
+    docker:
+      - image: cimg/base:stable
+    steps:
+      - checkout
+      - run:
+          name: Deploy messaging worker (staging)
+          command: ./apps/messaging_worker/scripts/deploy.sh --env staging --secrets --ci
+
+  deploy_messaging_worker_production:
+    docker:
+      - image: cimg/base:stable
+    steps:
+      - checkout
+      - run:
+          name: Deploy messaging worker (production)
+          command: ./apps/messaging_worker/scripts/deploy.sh --env production --secrets --ci
+
+  # macOS jobs — enable when CircleCI macOS executor + signing are configured.
+  # Contexts: vet45-staging, vet45-production, vet45-deploy
+  deploy_erp_ios_staging:
+    macos:
+      xcode: "16.2.0"
+    steps:
+      - checkout
+      - bootstrap_workspace
+      - run:
+          name: Write .env.staging from context
+          command: |
+            cat > apps/erp/.env.staging <<EOF
+            APP_ENV=staging
+            SUPABASE_CONNECTION_URL=${ERP_STAGING_SUPABASE_URL}
+            SUPABASE_ANON_KEY=${ERP_STAGING_SUPABASE_ANON_KEY}
+            LOG_LEVEL=INFO
+            MESSAGING_CLIENT_POLL_ENABLED=false
+            EOF
+      - run:
+          name: Build staging IPA
+          command: ./apps/erp/scripts/build_ios.sh --env staging
+      - run:
+          name: Upload to TestFlight (staging app)
+          command: ./apps/erp/deploy-ios.sh --env staging
+
+  deploy_erp_ios_production:
+    macos:
+      xcode: "16.2.0"
+    steps:
+      - checkout
+      - bootstrap_workspace
+      - run:
+          name: Write .env.production from context
+          command: |
+            cat > apps/erp/.env.production <<EOF
+            APP_ENV=production
+            SUPABASE_CONNECTION_URL=${ERP_PRODUCTION_SUPABASE_URL}
+            SUPABASE_ANON_KEY=${ERP_PRODUCTION_SUPABASE_ANON_KEY}
+            LOG_LEVEL=INFO
+            MESSAGING_CLIENT_POLL_ENABLED=false
+            EOF
+      - run:
+          name: Build production IPA
+          command: ./apps/erp/scripts/build_ios.sh --env production
+      - run:
+          name: Upload to TestFlight (production app)
+          command: ./apps/erp/deploy-ios.sh --env production
+
+workflows:
+  verify:
+    jobs:
+      - verify_erp
+
+  deploy_staging:
+    when:
+      and:
+        - equal: [main, << pipeline.git.branch >>]
+    jobs:
+      - deploy_messaging_worker_staging:
+          context: vet45-staging
+          filters:
+            branches:
+              only: main
+      - hold_staging_erp_deploy:
+          type: approval
+          requires:
+            - deploy_messaging_worker_staging
+      - deploy_erp_ios_staging:
+          context:
+            - vet45-staging
+            - vet45-deploy
+          requires:
+            - hold_staging_erp_deploy
+
+  deploy_production:
+    when:
+      and:
+        - equal: [main, << pipeline.git.branch >>]
+    jobs:
+      - hold_production_deploy:
+          type: approval
+      - deploy_messaging_worker_production:
+          context: vet45-production
+          requires:
+            - hold_production_deploy
+      - hold_production_erp_deploy:
+          type: approval
+          requires:
+            - deploy_messaging_worker_production
+      - deploy_erp_ios_production:
+          context:
+            - vet45-production
+            - vet45-deploy
+          requires:
+            - hold_production_erp_deploy
