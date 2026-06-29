@@ -1304,47 +1304,90 @@ create schema if not exists {{module_name}};
 ```sql
 create table if not exists {{module_name}}.outbox_messages (
   id uuid primary key,
+  tenant_id uuid not null,
   event_type text not null,
   payload jsonb not null,
   occurred_at timestamptz not null default now(),
   processed_at timestamptz null,
   failed_at timestamptz null,
   error text null,
-  retry_count int not null default 0
+  retry_count int not null default 0,
+  claimed_at timestamptz null,
+  claim_token uuid null
 );
+
+create index if not exists outbox_messages_pending_tenant_idx
+  on {{module_name}}.outbox_messages (tenant_id, occurred_at)
+  where processed_at is null and failed_at is null;
 ```
+
+Hoặc dùng DRY installer: `select platform.install_module_messaging('{{module_name}}');` — xem [operations/messaging_schema.md](operations/messaging_schema.md).
 
 ### 12.3 Inbox Table
 
 ```sql
 create table if not exists {{module_name}}.inbox_messages (
   id uuid primary key,
+  tenant_id uuid not null,
   event_type text not null,
   payload jsonb not null,
   occurred_at timestamptz not null,
   processed_at timestamptz null,
   failed_at timestamptz null,
   error text null,
-  retry_count int not null default 0
+  retry_count int not null default 0,
+  claimed_at timestamptz null,
+  claim_token uuid null
 );
+
+create index if not exists inbox_messages_pending_tenant_idx
+  on {{module_name}}.inbox_messages (tenant_id, occurred_at)
+  where processed_at is null and failed_at is null;
 ```
+
+Idempotency: `id` = `IntegrationEvent.id`; insert qua `receive_integration_event` với `ON CONFLICT (id) DO NOTHING`.
 
 ### 12.4 Internal Commands Table
 
 ```sql
 create table if not exists {{module_name}}.internal_commands (
   id uuid primary key,
+  tenant_id uuid not null,
   command_type text not null,
   payload jsonb not null,
+  source_event_id uuid null,
   enqueued_at timestamptz not null default now(),
   processed_at timestamptz null,
   failed_at timestamptz null,
   error text null,
-  retry_count int not null default 0
+  retry_count int not null default 0,
+  claimed_at timestamptz null,
+  claim_token uuid null
 );
+
+create unique index if not exists internal_commands_source_dedup_idx
+  on {{module_name}}.internal_commands (tenant_id, source_event_id, command_type)
+  where source_event_id is not null;
 ```
 
-### 12.5 Command RPC
+Dedup khi enqueue từ integration event: `(tenant_id, source_event_id, command_type)`.
+
+### 12.5 Messaging RPC (worker + helpers)
+
+Mỗi module có bộ RPC (tạo bởi `platform.install_module_messaging`):
+
+```text
+enqueue_outbox_message
+claim_outbox_batch / complete_outbox_message / fail_outbox_message
+receive_integration_event
+claim_inbox_batch / complete_inbox_message / fail_inbox_message
+enqueue_internal_command
+claim_internal_commands_batch / complete_internal_command / fail_internal_command
+```
+
+Chi tiết signature và verify: [operations/messaging_schema.md](operations/messaging_schema.md).
+
+### 12.6 Command RPC
 
 Mutation RPC phải ghi business data và outbox event trong cùng transaction.
 
@@ -1365,12 +1408,14 @@ begin
 
   insert into {{module_name}}.outbox_messages (
     id,
+    tenant_id,
     event_type,
     payload,
     occurred_at
   )
   values (
     gen_random_uuid(),
+    p_tenant_id::uuid,
     '{{module_name}}.{{entity_name}}.{{event_name}}',
     jsonb_build_object(
       'tenant_id', p_tenant_id,

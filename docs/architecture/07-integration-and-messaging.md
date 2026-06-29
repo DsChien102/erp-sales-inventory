@@ -61,3 +61,4 @@ Registry deserialize: `IamIntegrationEventRegistry`, tương tự catalog/sales.
 
 - [integration_event_flow.md](../integration_event_flow.md)
 - [messaging_e2e_checklist.md](../messaging_e2e_checklist.md)
+- [operations/messaging_schema.md](../operations/messaging_schema.md) — Postgres migrations + RPC reference
