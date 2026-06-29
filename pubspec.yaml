@@ -127,6 +127,13 @@ melos:
       packageFilters:
         dirExists: lib
 
+    test:
+      exec: dart test
+      packageFilters:
+        dirExists: test
+        ignore: erp
+      isPrivate: true
+
   repository:
     type: gitlab
     origin: https://gitlab.hamsa.co

@@ -24,6 +24,7 @@ Tài liệu tầng **platform** — áp dụng cho mọi theme (TH-01..TH-11). �
 | [06-cross-cutting-concerns.md](06-cross-cutting-concerns.md) | IAM, tenant, DI, module settings |
 | [07-integration-and-messaging.md](07-integration-and-messaging.md) | Integration events, outbox, worker |
 | [08-data-and-security.md](08-data-and-security.md) | Postgres schema, RLS, multi-tenant |
+| [harness-engineering.md](harness-engineering.md) | Harness Engineering — context, constraints, verification, flywheel |
 
 ## Diagrams
 
@@ -39,3 +40,4 @@ Tài liệu tầng **platform** — áp dụng cho mọi theme (TH-01..TH-11). �
 | Tech lead | 01, 02, 06, 07, 08 |
 | Infra / DB | 07, 08, [infrastructure_layer_skill.md](../infrastructure_layer_skill.md) |
 | Application | 05, [application_layer_skill.md](../application_layer_skill.md) |
+| AI agent / harness | [AGENTS.md](../../AGENTS.md), [harness-engineering.md](harness-engineering.md), [harness/PROGRESS.md](../harness/PROGRESS.md) |

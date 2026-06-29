@@ -16,7 +16,7 @@ Infrastructure triển khai kỹ thuật.
 Presentation hiển thị cho người dùng.
 ```
 
-**Tham chiếu chi tiết:** [reference.md](reference.md) · **Ví dụ thực tế:** [examples.md](examples.md) · Mẫu module: `docs/SALES_MODULES.md`
+**Tham chiếu chi tiết:** [reference.md](reference.md) · **Ví dụ:** [examples.md](examples.md) · Canonical doc: `docs/ddd_domain_modeling_skill.md`
 
 ---
 
@@ -304,4 +304,4 @@ Khi phân tích/thiết kế, agent phải xuất:
 - Chi tiết pattern & decision tree: [reference.md](reference.md)
 - Ví dụ Sales module: [examples.md](examples.md)
 - Template module: `docs/MODULES_IMPLEMENTATION_TEMPLATE.md`
-- Phân tích Sales Theme 1: `docs/SALES_MODULES.md`
+- Harness progress: `docs/harness/PROGRESS.md`

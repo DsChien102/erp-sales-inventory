@@ -18,7 +18,7 @@ commands:
             cd apps/erp && dart run build_runner build --delete-conflicting-outputs
 
 jobs:
-  verify_erp:
+  verify_workspace:
     docker:
       - <<: *flutter-ci-image
     environment:
@@ -36,8 +36,17 @@ jobs:
           name: Analyze workspace
           command: export PATH="$PATH:$HOME/.pub-cache/bin" && melos run analyze --no-select
       - run:
+          name: Harness guards
+          command: ./scripts/ci/verify_harness.sh
+      - run:
+          name: Workspace package tests
+          command: export PATH="$PATH:$HOME/.pub-cache/bin" && melos run test --no-select
+      - run:
           name: ERP unit tests
           command: cd apps/erp && flutter test
+      - run:
+          name: Messaging worker tests
+          command: cd apps/messaging_worker && dart test
       - run:
           name: Validate env example files
           command: |
@@ -117,7 +126,7 @@ jobs:
 workflows:
   verify:
     jobs:
-      - verify_erp
+      - verify_workspace
 
   deploy_staging:
     when:

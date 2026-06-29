@@ -29,11 +29,13 @@ modules/
     presentation/    # optional
 ```
 
-Reference implementation: `modules/sales/application/`.
+**Reference tạm thời:** `packages/vet45_generator/test/fixtures/lib/src/` (CQRS + codegen). Tất cả `modules/*/application/` hiện là skeleton. Golden module **IAM** planned — xem [docs/harness/PROGRESS.md](harness/PROGRESS.md).
 
 ---
 
-## 3. Package Structure (Sales Convention)
+## 3. Package Structure (target convention)
+
+> **Target state.** Layout dưới đây mô tả convention mục tiêu (historically "Sales convention"). Code trong `modules/*/application/` hiện là skeleton — interim reference: `packages/vet45_generator/test/fixtures/lib/src/`.
 
 ### 3.1 Package `lib/` convention — enforce private `src/`
 
@@ -457,6 +459,25 @@ event.id           — inbox deduplication (on conflict do nothing)
 ```
 
 Pass `command.id` to RPC as `p_command_id` / `p_idempotency_key` where infrastructure skill requires it.
+
+---
+
+## 16.1 Handler tests (test harness)
+
+Dùng `vet45_shared_testing` cho application-layer handler tests:
+
+```dart
+import 'package:vet45_shared_testing/shared_testing.dart';
+
+final pipeline = PipelineTestHarness<MyCommand, MyResult>(
+  handler: (cmd) => handler.handle(cmd),
+  behaviors: [validationBehavior],
+).build();
+```
+
+Canonical example: `packages/vet45_shared/testing/test/shared_testing_test.dart`
+
+Layout: `modules/<module>/application/test/<use_case>/<use_case>_handler_test.dart`
 
 ---
 

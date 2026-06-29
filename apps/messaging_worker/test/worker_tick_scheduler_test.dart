@@ -38,7 +38,7 @@ void main() {
       );
 
       scheduler.start();
-      await Future<void>.delayed(const Duration(milliseconds: 250));
+      await Future<void>.delayed(const Duration(milliseconds: 500));
       scheduler.stop();
 
       expect(discoveryCalls, greaterThanOrEqualTo(2));

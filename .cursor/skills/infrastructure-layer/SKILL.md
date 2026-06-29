@@ -228,3 +228,27 @@ When designing or generating infrastructure:
 
 - Full specification: [docs/infrastructure_layer_skill.md](../../../docs/infrastructure_layer_skill.md)
 - Detail index: [reference.md](reference.md)
+
+---
+
+## Test harness
+
+Handler và composition tests dùng `vet45_shared_testing`:
+
+| Utility | Use for |
+| ------- | ------- |
+| `PipelineTestHarness` | Test validation/auth decorators run before handler |
+| `InMemoryCommandBus` | Execute commands without Supabase |
+| `FakeExecutionContext` | Tenant/user context in tests |
+| `FakePermissionChecker` | RBAC decorator tests |
+
+```dart
+<Module>Startup.initializeForTesting(
+  supabase: fakeSupabaseClient,
+  container: GetIt.asNewInstance(),
+);
+```
+
+Canonical example: `packages/vet45_shared/testing/test/shared_testing_test.dart`
+
+Test layout: `test/domain/<aggregate>/`, `test/configuration/<module>_composition_root_test.dart`

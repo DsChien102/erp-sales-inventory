@@ -294,6 +294,26 @@ Code preferences:
 
 ---
 
+## Test harness
+
+Khi viết handler test, dùng `vet45_shared_testing`:
+
+```dart
+import 'package:vet45_shared_testing/shared_testing.dart';
+
+final pipeline = PipelineTestHarness<MyCommand, MyResult>(
+  handler: (cmd) async => handler.handle(cmd),
+  behaviors: [validationBehavior],
+).build();
+
+final bus = InMemoryCommandBus();
+bus.register<MyCommand, MyResult>(pipeline);
+```
+
+Canonical example: `packages/vet45_shared/testing/test/shared_testing_test.dart`
+
+---
+
 ## Anti-patterns (từ chối)
 
 ```text

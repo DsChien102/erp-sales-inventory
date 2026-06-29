@@ -1,6 +1,8 @@
 # Application Layer — Examples
 
-Canonical domain flows: [ddd-domain-modeling/examples.md](../ddd-domain-modeling/examples.md) · Sales code: `modules/sales/application/`
+> **Target state only.** Các ví dụ dưới đây mô tả layout mục tiêu khi module được implement. Code hiện tại trong `modules/sales/application/` chỉ là skeleton — copy pattern từ `packages/vet45_generator/test/fixtures/` cho đến khi IAM golden module (phase 2) hoàn thành.
+
+Canonical domain flows: [ddd-domain-modeling/examples.md](../ddd-domain-modeling/examples.md) · Interim CQRS: `packages/vet45_generator/test/fixtures/lib/src/`
 
 ---
 

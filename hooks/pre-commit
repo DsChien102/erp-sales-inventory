@@ -37,6 +37,10 @@ dart format $staged_files
 # re-stage any files that were just modified by the formatter
 git add --update
 
+# Harness guards (fast, architecture-only)
+./scripts/ci/guard_infra_dart_only.sh
+./scripts/ci/guard_layer_imports.sh
+
 # if we stashed any files, restore them
 if [[ -n $stashable_files ]]; then
   git stash pop --quiet 

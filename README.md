@@ -105,9 +105,13 @@ App Flutter chỉ dùng **anon key**; mutation nghiệp vụ quan trọng đi qu
 melos bootstrap          # Link lại packages sau khi đổi pubspec
 melos run codegen        # build_runner (envied, …) ở các package có cấu hình
 melos run analyze        # dart analyze toàn workspace
-cd apps/erp && flutter test   # Unit test shell app
-cd modules/iam/domain && dart test   # Test theo package
+melos run test           # dart test các package có thư mục test/ (trừ erp)
+./scripts/ci/verify_harness.sh   # Layer guards + doc link checks
+cd apps/erp && flutter test      # Unit/widget test shell app
+cd apps/messaging_worker && dart test
 ```
+
+**AI agents:** đọc [AGENTS.md](AGENTS.md) trước khi implement.
 
 Scaffold module mới: `./scripts/scaffold_module.sh`.
 
@@ -141,13 +145,14 @@ Thiết lập App Store Connect: [docs/operations/testflight-asc-setup.md](docs/
 
 CircleCI (`.circleci/config.yml`):
 
-- **verify** — mọi push/PR: `melos run analyze` + `flutter test`
+- **verify** — mọi push/PR: `melos run analyze`, harness guards, `melos run test`, `flutter test` (erp), `dart test` (messaging_worker)
 - **deploy** — manual: messaging worker và/hoặc iOS staging/production
 
 ## Tài liệu
 
 | Tài liệu | Nội dung |
 | -------- | -------- |
+| [AGENTS.md](AGENTS.md) | Onboarding cho AI coding agents |
 | [docs/architecture/](docs/architecture/) | Kiến trúc nền — modular monolith, layers, messaging |
 | [docs/themes/](docs/themes/) | Theme sản phẩm TH-01..TH-11 |
 | [docs/operations/](docs/operations/) | Môi trường, TestFlight, deploy |

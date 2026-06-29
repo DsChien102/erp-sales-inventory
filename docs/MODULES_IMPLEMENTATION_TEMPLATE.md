@@ -1718,11 +1718,35 @@ Chỉ thêm các phần sau khi thật sự cần:
 - realtime/ (optional, cùng cấp rpc/ — không trong domain/)
 ```
 
-Chi tiết cấu trúc infrastructure: [infrastructure_layer_skill.md](./infrastructure_layer_skill.md). Reference: `modules/sales/infrastructure`.
+Chi tiết cấu trúc infrastructure: [infrastructure_layer_skill.md](./infrastructure_layer_skill.md). Interim reference: `packages/vet45_generator/test/fixtures/`.
 
 ---
 
-## 19. Final Rule
+## 19. Tests (application + domain)
+
+Mirror production layout. Dùng `vet45_shared_testing` cho handler tests:
+
+```text
+modules/<module>/application/test/
+  <use_case>/
+    <use_case>_handler_test.dart    # PipelineTestHarness + InMemoryCommandBus
+
+modules/<module>/domain/test/
+  <aggregate>/
+    <aggregate>_test.dart
+
+modules/<module>/infrastructure/test/
+  domain/<aggregate>/<aggregate>_mapper_test.dart
+  configuration/<module>_composition_root_test.dart
+```
+
+Canonical example: `packages/vet45_shared/testing/test/shared_testing_test.dart`.
+
+Composition tests: `{Module}Startup.initializeForTesting(supabase: fakeClient, container: GetIt.asNewInstance())`.
+
+---
+
+## 20. Final Rule
 
 Khi tạo module mới, hãy giữ nguyên nguyên tắc:
 

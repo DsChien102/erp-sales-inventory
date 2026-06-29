@@ -1,6 +1,6 @@
 # Infrastructure Layer — Canonical Specification
 
-Reference implementation: **`modules/sales/infrastructure`**. Khi refactor Catalog hoặc module mới, mirror cấu trúc này trước khi thêm capability riêng.
+**Reference tạm thời:** layout mục tiêu trong tài liệu này + `packages/vet45_generator/test/fixtures/`. Tất cả `modules/*/infrastructure/` hiện là skeleton (`{Name}Startup` trả stub). Golden module **IAM** planned — xem [docs/harness/PROGRESS.md](harness/PROGRESS.md).
 
 ## 1. Purpose
 
@@ -219,9 +219,18 @@ test/
   errors/
 ```
 
-Use `Fake<Module>RpcClient` for unit tests; composition tests via `<Module>Startup.initializeForTesting(supabase: fakeClient, container: GetIt.asNewInstance())`.
+Use `Fake<Module>RpcClient` for unit tests; composition tests via:
 
-CI guard: `scripts/ci/guard_infra_dart_only.sh` fails if any infra `pubspec.yaml` lists `flutter` or `supabase_flutter`.
+```dart
+static I{Module}Module initializeForTesting({
+  required SupabaseClient supabase,
+  GetIt? container,
+});
+```
+
+IAM golden module (phase 2) implements đầu tiên. Handler tests dùng `vet45_shared_testing` — xem `packages/vet45_shared/testing/test/shared_testing_test.dart`.
+
+CI guards: `scripts/ci/verify_harness.sh` (includes `guard_infra_dart_only.sh`, `guard_layer_imports.sh`).
 
 ---
 

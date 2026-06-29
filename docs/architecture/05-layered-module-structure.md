@@ -32,14 +32,20 @@
 Query → IQueryHandler → Read gateway / repository → DTO (không aggregate)
 ```
 
-## Module reference implementations
+## Module status (hiện tại)
 
-| Module | Ghi chú |
-| ------ | ------- |
-| **sales** | Đầy đủ nhất — drafts, checkout, command gateways |
-| **iam** | Foundation — RBAC, RPC-first, full handler registrar |
-| **catalog** | Product lifecycle, integration với inventory |
-| **partner** | Scaffold — TH-03 |
+Tất cả bounded context trong `modules/` là **greenfield skeleton** — có `I{Name}Module` stub và `{Name}Startup`, chưa có command/handler/gateway. Xem [04-repository-layout.md](04-repository-layout.md).
+
+| Module | Trạng thái | Ghi chú |
+| ------ | ---------- | ------- |
+| catalog, sales, partner, iam, inventory, costing, dashboard, accounting | Skeleton | Scaffold từ `scripts/scaffold_module.sh` |
+| **iam** | Planned golden (phase 2) | Sẽ là reference đầu tiên khi implement |
+
+**Reference tạm thời** (copy pattern từ đây, không từ `modules/sales/`):
+
+- CQRS + codegen: [`packages/vet45_generator/test/fixtures/`](../../packages/vet45_generator/test/fixtures/lib/src/)
+- Pipeline tests: [`packages/vet45_shared/testing/test/shared_testing_test.dart`](../../packages/vet45_shared/testing/test/shared_testing_test.dart)
+- Agent harness: [harness-engineering.md](harness-engineering.md)
 
 ## Cấu trúc application `src/`
 
