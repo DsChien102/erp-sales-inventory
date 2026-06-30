@@ -1,0 +1,22 @@
+import 'package:vet45_partner_application/application.dart';
+import 'package:vet45_shared_application/application.dart';
+import 'package:vet45_shared_infrastructure/infrastructure.dart';
+
+/// Hand-maintained access metadata until partner codegen is enabled.
+final IAccessMetadataRegistry partnerAccessMetadataRegistry =
+    AccessMetadataRegistry(
+  <Type, AccessMetadata>{
+    RegisterPartnerCommand: const AccessMetadata(
+      permission: 'partner.create',
+      requiresTenant: true,
+    ),
+    CheckDuplicatePartnersQuery: const AccessMetadata(
+      permission: 'partner.create',
+      requiresTenant: true,
+    ),
+    SearchPartnersQuery: const AccessMetadata(
+      permission: 'partner.view',
+      requiresTenant: true,
+    ),
+  },
+);

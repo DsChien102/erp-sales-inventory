@@ -69,9 +69,9 @@ Test id: scn_e01_u02_fr06_01 (handler/integration), wgt_e02_u01_fr03_01 (widget 
 
 > Placeholder — điền khi mở slice.
 
-| Req ID | Enforce layer | Artifact | Presentation artifact | Test id | Status |
-| ------ | ------------- | -------- | --------------------- | ------- | ------ |
-| _pending_ | — | — | — | — | placeholder |
+| Req ID | Enforce layer | Artifact | Test id | Status |
+| ------ | ------------- | -------- | ------- | ------ |
+| _pending_ | — | — | — | placeholder |
 
 ---
 
@@ -79,9 +79,9 @@ Test id: scn_e01_u02_fr06_01 (handler/integration), wgt_e02_u01_fr03_01 (widget 
 
 > Placeholder — điền khi mở slice.
 
-| Req ID | Enforce layer | Artifact | Presentation artifact | Test id | Status |
-| ------ | ------------- | -------- | --------------------- | ------- | ------ |
-| _pending_ | — | — | — | — | placeholder |
+| Req ID | Enforce layer | Artifact | Test id | Status |
+| ------ | ------------- | -------- | ------- | ------ |
+| _pending_ | — | — | — | placeholder |
 
 ---
 
