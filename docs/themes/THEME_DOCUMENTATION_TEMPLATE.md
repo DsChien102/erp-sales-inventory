@@ -64,10 +64,25 @@ Link [docs/architecture/README.md](../../architecture/README.md) — không dupl
 
 ```markdown
 <!-- exemplar-complete: deferred | e01/u02 -->
-| Req ID | Enforce layer | Artifact | Test id | Status |
+| Req ID | Enforce layer | Artifact | Presentation artifact | Test id | Status |
 ```
 
-Test id: `scn_e01_u02_fr06_01`
+Test id: `scn_e01_u02_fr06_01` (handler), `wgt_e02_u01_fr03_01` (widget dialog)
+
+---
+
+## FR-{nn}.md / 01-overview.md — UI artifacts (khi FR có UI)
+
+```markdown
+## UI artifacts
+
+| Widget | Package path |
+| ------ | ------------ |
+| PartnerDetailPage | apps/erp/lib/features/partner/presentation/pages/partner_detail_page.dart |
+| DeactivatePartnerDialog | modules/partner/presentation/lib/src/widgets/deactivate_partner_dialog.dart |
+```
+
+Agent tạo widget manifest từ bảng này **trước** khi implement.
 
 ---
 

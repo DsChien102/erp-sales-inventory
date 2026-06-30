@@ -18,6 +18,10 @@ Thứ tự đọc khi implement một FR slice. Platform CQRS/module layout: [do
     - domain → .cursor/skills/ddd-domain-modeling/SKILL.md
     - application → .cursor/skills/application-layer/SKILL.md
     - infrastructure → .cursor/skills/infrastructure-layer/SKILL.md
+10b. FR có UI/Dialog/SCN:
+    - presentation → .cursor/skills/presentation-layer/SKILL.md
+    - đọc UI artifacts trong US/FR
+    - tạo widget manifest (tên file) TRƯỚC khi implement
 11. harness/06-harness-notes.md — pitfalls đã ghi
 ```
 
@@ -28,6 +32,7 @@ melos bootstrap
 melos run analyze
 melos run test
 ./scripts/ci/verify_harness.sh
+cd apps/erp && flutter test test/features/partner/   # khi slice có UI
 ```
 
 ## Reference code (interim)
@@ -37,5 +42,6 @@ melos run test
 | Command + handler + codegen | `packages/vet45_generator/test/fixtures/lib/src/` |
 | Pipeline test | `packages/vet45_shared/testing/test/shared_testing_test.dart` |
 | Module layout | `docs/MODULES_IMPLEMENTATION_TEMPLATE.md` |
+| Page mỏng + widgets tách file | `apps/erp/lib/features/dashboard/presentation/` |
 
 **Không copy** từ `modules/sales/` hoặc `modules/iam/` scaffold — chỉ từ fixtures/shared testing cho đến khi IAM golden land.

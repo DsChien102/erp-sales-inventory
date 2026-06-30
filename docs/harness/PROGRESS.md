@@ -21,6 +21,14 @@ Checklist tiến độ Harness Engineering. Agent đọc file này ở đầu se
 - [x] `guard_theme_structure.sh` + `guard_theme_traceability.sh` (stub)
 - [ ] Exemplar traceability (deferred — placeholder trong `05-traceability.md`)
 
+## Phase 1.6 — Presentation harness
+
+- [x] `presentation-layer` skill + `docs/presentation_layer_skill.md`
+- [x] `vet45-presentation-ui.mdc` (scoped rule)
+- [x] `guard_presentation_size.sh` + `guard_presentation_dialogs.sh`
+- [x] TH-03 ritual + module-map presentation layout
+- [x] Golden reference documented — `apps/erp/lib/features/dashboard/presentation/`
+
 ## Phase 2 — IAM golden module (planned)
 
 - [ ] IAM vertical slice: command + validator + handler + gateway + RPC migration
@@ -39,3 +47,4 @@ Ghi các cải tiến harness sau khi agent fail (ngày + mô tả ngắn):
 | Date | Improvement |
 | ---- | ----------- |
 | 2026-06-29 | Initial harness phase — AGENTS.md, guards, CI, doc reconcile |
+| 2026-06-30 | Presentation harness — skill, UI guards, TH-03 ritual, dashboard golden ref |

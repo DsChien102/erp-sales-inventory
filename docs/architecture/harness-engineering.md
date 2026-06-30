@@ -14,6 +14,7 @@ Mọi kiến thức agent cần phải nằm trong repo:
 | -------- | ------- |
 | [AGENTS.md](../../AGENTS.md) | Onboarding, repo state, verify commands |
 | [.cursor/rules/vet45-architecture.mdc](../../.cursor/rules/vet45-architecture.mdc) | Layer rules (always-on) |
+| [.cursor/rules/vet45-presentation-ui.mdc](../../.cursor/rules/vet45-presentation-ui.mdc) | UI rules (scoped — `presentation/**`) |
 | `.cursor/skills/*` | Workflow theo layer |
 | `docs/*_skill.md` | Canonical spec mirror |
 | [PROGRESS.md](../harness/PROGRESS.md) | Tiến độ harness maturity |
@@ -33,6 +34,8 @@ Ràng buộc kiến trúc được **enforce bằng script/CI**, không chỉ b�
 | Theme doc structure | `scripts/ci/guard_theme_structure.sh` |
 | Theme traceability (when exemplar complete) | `scripts/ci/guard_theme_traceability.sh` |
 | Codegen freshness (strict, tương lai) | `scripts/ci/guard_codegen_fresh.sh` |
+| Presentation file size (≤ 500 lines) | `scripts/ci/guard_presentation_size.sh` |
+| Inline dialogs in pages | `scripts/ci/guard_presentation_dialogs.sh` |
 
 Umbrella: `scripts/ci/verify_harness.sh`
 
@@ -68,6 +71,7 @@ Khi agent fail lặp lại cùng lỗi:
 | Giai đoạn | Reference |
 | --------- | --------- |
 | **Hiện tại (harness phase)** | `packages/vet45_generator/test/fixtures/`, `packages/vet45_shared/testing/` |
+| **Presentation UI (golden)** | `apps/erp/lib/features/dashboard/presentation/` |
 | **Phase 2 (planned)** | Module `iam` — full vertical slice + ERP wiring |
 
 Tất cả `modules/*` hiện là **skeleton** — xem [04-repository-layout.md](04-repository-layout.md).
@@ -118,3 +122,4 @@ Khi module bật `vet45_generator|cqrs_registrar`, CI nên set `GUARD_CODEGEN_ST
 - [codegen-migration.md](codegen-migration.md)
 - [application_layer_skill.md](../application_layer_skill.md)
 - [infrastructure_layer_skill.md](../infrastructure_layer_skill.md)
+- [presentation_layer_skill.md](../presentation_layer_skill.md)

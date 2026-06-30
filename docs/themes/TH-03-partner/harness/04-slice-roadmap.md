@@ -15,9 +15,13 @@ Thứ tự implement vertical slice. Status: `todo` | `in_progress` | `done` | `
 ## Definition of Done (một FR slice)
 
 - [ ] Product FR spec đã đọc (BR/EC/SCN)
+- [ ] Widget manifest khớp FR (dialog/section đã tách file)
+- [ ] Page ≤ 500 dòng (`guard_presentation_size.sh` pass)
+- [ ] Widget test cho dialog xác nhận (khi FR có SCN dialog)
 - [ ] Traceability row trong [05-traceability.md](05-traceability.md) cập nhật khi slice `in_progress`
 - [ ] Code + test theo layer rules
 - [ ] `melos run test` + `./scripts/ci/verify_harness.sh` pass
+- [ ] `cd apps/erp && flutter test` pass (khi slice có UI)
 
 ## Epic → module (planned)
 

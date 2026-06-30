@@ -1,0 +1,34 @@
+---
+description: Flutter presentation UI rules — widget decomposition, file size, dialog extraction
+globs: apps/erp/lib/**/presentation/**,modules/*/presentation/**
+alwaysApply: false
+---
+
+# Vet45 Presentation UI
+
+## Dual path
+
+- **Pages/screens:** `apps/erp/lib/features/<feature>/presentation/pages/`
+- **Reusable dialogs/widgets:** `modules/<module>/presentation/lib/src/widgets/`
+
+`apps/erp` may import `vet45_<module>_presentation`. Module presentation must not import `apps/erp`.
+
+## Hard rules
+
+1. `*_page.dart` / `*_screen.dart` **≤ 500 lines** (`guard_presentation_size.sh`)
+2. **One dialog = one file** — `StatelessWidget` in `widgets/`; no inline `AlertDialog` in pages (`guard_presentation_dialogs.sh`)
+3. No large `Widget _buildXxx()` in `State` — extract class widget or separate file
+4. Page = thin composition: widgets + Bloc/Cubit + `IModuleMediator` — no direct Supabase/PostgREST
+5. Prefer `const` constructors when params are immutable
+
+## Golden reference
+
+- `apps/erp/lib/features/dashboard/presentation/dashboard_page.dart`
+- `apps/erp/lib/features/dashboard/presentation/widgets/dashboard_header.dart`
+
+## Before implementing UI slice
+
+1. Read `.cursor/skills/presentation-layer/SKILL.md`
+2. Read UI artifacts in FR/US spec — create widget manifest first
+3. Implement widgets/dialogs before the page
+4. Verify: `./scripts/ci/verify_harness.sh`

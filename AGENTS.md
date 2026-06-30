@@ -41,6 +41,7 @@ packages/vet45_shared/*     → never import modules/
 | Pipeline + validator + in-memory bus test | `packages/vet45_shared/testing/test/shared_testing_test.dart` |
 | Module layout mục tiêu | `docs/MODULES_IMPLEMENTATION_TEMPLATE.md` |
 | Layer rules (always-on) | `.cursor/rules/vet45-architecture.mdc` |
+| Page mỏng + widgets tách file | `apps/erp/lib/features/dashboard/presentation/` |
 
 ## Skills map
 
@@ -49,9 +50,10 @@ packages/vet45_shared/*     → never import modules/
 | Domain modeling, aggregates, commands | `.cursor/skills/ddd-domain-modeling/SKILL.md` |
 | Application layer (handlers, ports, DTOs) | `.cursor/skills/application-layer/SKILL.md` |
 | Infrastructure (RPC, gateways, startup) | `.cursor/skills/infrastructure-layer/SKILL.md` |
+| Presentation UI (pages, dialogs, widgets) | `.cursor/skills/presentation-layer/SKILL.md` |
 | Harness approach | `docs/architecture/harness-engineering.md` |
 
-Canonical specs (mirror của skills): `docs/application_layer_skill.md`, `docs/infrastructure_layer_skill.md`, `docs/ddd_domain_modeling_skill.md`.
+Canonical specs (mirror của skills): `docs/application_layer_skill.md`, `docs/infrastructure_layer_skill.md`, `docs/ddd_domain_modeling_skill.md`, `docs/presentation_layer_skill.md`.
 
 ## Agent workflow (ritual)
 
@@ -61,12 +63,14 @@ Canonical specs (mirror của skills): `docs/application_layer_skill.md`, `docs/
 2b. Nếu task gắn theme (vd. TH-03): đọc docs/themes/TH-xx-*/README.md
      → harness/00-agent-ritual.md → slice-roadmap → US/FR product spec
 3. Xác định layer → mở skill tương ứng
+     (presentation/UI → presentation-layer skill + UI artifacts trong FR)
 4. Implement (minimal diff, match conventions hiện có)
 5. Verify:
      melos bootstrap
      melos run analyze
      melos run test
      ./scripts/ci/verify_harness.sh
+     cd apps/erp && flutter test   # khi slice có UI
 6. Nếu agent fail lặp lại cùng lỗi → cập nhật harness (guard/doc/skill), không chỉ retry prompt
 ```
 
@@ -84,7 +88,9 @@ cd apps/messaging_worker && dart test
 
 ## Anti-patterns (từ chối)
 
-- God aggregate, cross-module table access, anemic domain-only-in-SQL
+- God aggregate, God Widget (page > 500 dòng), cross-module table access, anemic domain-only-in-SQL
+- Inline dialog (`AlertDialog`) trong `*_page.dart` — tách file `widgets/`
+- `Widget _buildXxx()` subtree lớn trong `State` — tách class widget riêng
 - Direct PostgREST writes từ UI
 - `Either`/`Result` **bên trong** command handlers (map ở presentation boundary)
 - Import `package:.../src/...` từ package khác

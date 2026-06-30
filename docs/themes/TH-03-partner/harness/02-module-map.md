@@ -59,3 +59,21 @@ Xem [01-domain-model.md](01-domain-model.md) cho danh sách event types.
 ## Messaging
 
 Schema `partner`: outbox/inbox/internal_commands — [messaging_schema.md](../../../operations/messaging_schema.md).
+
+## Presentation layout
+
+Dual path — pages trong ERP shell, dialog/widget tái dùng trong module presentation:
+
+```text
+apps/erp/lib/features/partner/presentation/
+  pages/          — route screens (thin composition, ≤ 500 dòng)
+  widgets/        — widget chỉ dùng trong feature partner (ERP shell)
+  bloc/           — feature state (optional)
+
+modules/partner/presentation/
+  lib/src/widgets/ — DeactivatePartnerDialog, ReactivatePartnerDialog, ...
+```
+
+**Import rule:** `apps/erp` → `vet45_partner_presentation`; module presentation **không** import `apps/erp`.
+
+Skill: [.cursor/skills/presentation-layer/SKILL.md](../../../../.cursor/skills/presentation-layer/SKILL.md)

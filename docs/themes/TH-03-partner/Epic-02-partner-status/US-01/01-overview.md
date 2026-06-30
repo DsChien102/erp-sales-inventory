@@ -23,3 +23,13 @@ US này xử lý việc ngừng hoạt động và kích hoạt lại đối tá
 | FR-3 - Ngừng hoạt động đối tác | Cho phép đưa đối tác đang hoạt động sang trạng thái ngừng hoạt động | Hệ thống chuyển trạng thái đối tác từ Đang hoạt động sang Ngừng hoạt động sau khi người dùng xác nhận | Đối tác ngừng hoạt động không được sử dụng trong giao dịch mới; dữ liệu và lịch sử cũ vẫn được giữ lại để truy vết | Đối tác được ngừng hoạt động và không còn xuất hiện như lựa chọn hợp lệ cho giao dịch mới |
 | FR-4 - Kích hoạt lại đối tác | Cho phép sử dụng lại đối tác đã ngừng hoạt động | Hệ thống chuyển trạng thái đối tác từ Ngừng hoạt động sang Đang hoạt động sau khi người dùng xác nhận | Chỉ áp dụng với đối tác đang ở trạng thái Ngừng hoạt động; không áp dụng với đối tác đã bị xóa | Đối tác được kích hoạt lại và có thể được sử dụng trong giao dịch mới theo quyền và điều kiện hợp lệ |
 | FR-5 - Ghi nhận kết quả thay đổi trạng thái | Đảm bảo thao tác thay đổi trạng thái có thể truy vết | Hệ thống lưu trạng thái mới, người thực hiện, thời điểm thực hiện và audit log nếu cần | Không được cập nhật một phần nếu thao tác thất bại; thay đổi trạng thái không làm thay đổi dữ liệu giao dịch cũ | Trạng thái đối tác được cập nhật thành công và có dữ liệu phục vụ truy vết |
+
+## UI artifacts
+
+| Widget | Package path |
+| ------ | ------------ |
+| PartnerDetailPage | `apps/erp/lib/features/partner/presentation/pages/partner_detail_page.dart` |
+| DeactivatePartnerDialog | `modules/partner/presentation/lib/src/widgets/deactivate_partner_dialog.dart` |
+| ReactivatePartnerDialog | `modules/partner/presentation/lib/src/widgets/reactivate_partner_dialog.dart` |
+
+Agent scaffold các file trên theo [presentation-layer skill](../../../../.cursor/skills/presentation-layer/SKILL.md) trước khi implement FR.

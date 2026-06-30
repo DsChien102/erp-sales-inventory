@@ -4,7 +4,7 @@ Ma trận truy vết FR → layer → artifact → test. Quy ước Req ID:
 
 ```text
 e{epic}/u{us}/fr{fr}/{TYPE}-{id}   ví dụ: e01/u02/fr06/SCN-01
-Test id: scn_e01_u02_fr06_01
+Test id: scn_e01_u02_fr06_01 (handler/integration), wgt_e02_u01_fr03_01 (widget dialog)
 ```
 
 <!-- exemplar-complete: deferred -->
@@ -17,9 +17,9 @@ Test id: scn_e01_u02_fr06_01
 
 > Placeholder — điền khi mở slice.
 
-| Req ID | Enforce layer | Artifact | Test id | Status |
-| ------ | ------------- | -------- | ------- | ------ |
-| _pending_ | — | — | — | placeholder |
+| Req ID | Enforce layer | Artifact | Presentation artifact | Test id | Status |
+| ------ | ------------- | -------- | --------------------- | ------- | ------ |
+| _pending_ | — | — | — | — | placeholder |
 
 ---
 
@@ -27,9 +27,9 @@ Test id: scn_e01_u02_fr06_01
 
 > Placeholder — điền khi mở slice.
 
-| Req ID | Enforce layer | Artifact | Test id | Status |
-| ------ | ------------- | -------- | ------- | ------ |
-| _pending_ | — | — | — | placeholder |
+| Req ID | Enforce layer | Artifact | Presentation artifact | Test id | Status |
+| ------ | ------------- | -------- | --------------------- | ------- | ------ |
+| _pending_ | — | — | — | — | placeholder |
 
 ---
 
@@ -37,9 +37,9 @@ Test id: scn_e01_u02_fr06_01
 
 > Placeholder — điền khi mở slice.
 
-| Req ID | Enforce layer | Artifact | Test id | Status |
-| ------ | ------------- | -------- | ------- | ------ |
-| _pending_ | — | — | — | placeholder |
+| Req ID | Enforce layer | Artifact | Presentation artifact | Test id | Status |
+| ------ | ------------- | -------- | --------------------- | ------- | ------ |
+| _pending_ | — | — | — | — | placeholder |
 
 ---
 
@@ -47,9 +47,9 @@ Test id: scn_e01_u02_fr06_01
 
 > Placeholder — điền khi mở slice.
 
-| Req ID | Enforce layer | Artifact | Test id | Status |
-| ------ | ------------- | -------- | ------- | ------ |
-| _pending_ | — | — | — | placeholder |
+| Req ID | Enforce layer | Artifact | Presentation artifact | Test id | Status |
+| ------ | ------------- | -------- | --------------------- | ------- | ------ |
+| _pending_ | — | — | — | — | placeholder |
 
 ---
 
@@ -57,9 +57,9 @@ Test id: scn_e01_u02_fr06_01
 
 > Placeholder — điền khi mở slice.
 
-| Req ID | Enforce layer | Artifact | Test id | Status |
-| ------ | ------------- | -------- | ------- | ------ |
-| _pending_ | — | — | — | placeholder |
+| Req ID | Enforce layer | Artifact | Presentation artifact | Test id | Status |
+| ------ | ------------- | -------- | --------------------- | ------- | ------ |
+| _pending_ | — | — | — | — | placeholder |
 
 ---
 
@@ -67,9 +67,9 @@ Test id: scn_e01_u02_fr06_01
 
 > Placeholder — điền khi mở slice.
 
-| Req ID | Enforce layer | Artifact | Test id | Status |
-| ------ | ------------- | -------- | ------- | ------ |
-| _pending_ | — | — | — | placeholder |
+| Req ID | Enforce layer | Artifact | Presentation artifact | Test id | Status |
+| ------ | ------------- | -------- | --------------------- | ------- | ------ |
+| _pending_ | — | — | — | — | placeholder |
 
 ---
 

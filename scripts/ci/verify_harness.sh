@@ -20,6 +20,12 @@ echo "==> guard_theme_structure"
 echo "==> guard_theme_traceability"
 "$root/scripts/ci/guard_theme_traceability.sh"
 
+echo "==> guard_presentation_size"
+"$root/scripts/ci/guard_presentation_size.sh"
+
+echo "==> guard_presentation_dialogs"
+GUARD_PRESENTATION_DIALOGS_LEGACY=1 "$root/scripts/ci/guard_presentation_dialogs.sh"
+
 echo "==> guard_codegen_fresh"
 "$root/scripts/ci/guard_codegen_fresh.sh"
 
