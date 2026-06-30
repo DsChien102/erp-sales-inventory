@@ -10,6 +10,7 @@ abstract final class CqrsInfrastructureGenerator {
       ..writeln(
         "import 'package:${config.resolvedApplicationPackage}/application.dart';",
       )
+      ..writeln("import 'package:vet45_shared_application/application.dart';")
       ..writeln("import 'package:vet45_shared_infrastructure/infrastructure.dart';")
       ..writeln()
       ..writeln("import '${config.resolvedInternalCommandClientImport}';")
@@ -101,6 +102,7 @@ abstract final class CqrsInfrastructureGenerator {
       ..writeln(
         "import 'package:${config.resolvedApplicationPackage}/application.dart';",
       )
+      ..writeln("import 'package:vet45_shared_application/application.dart';")
       ..writeln("import 'package:vet45_shared_infrastructure/infrastructure.dart';")
       ..writeln()
       ..writeln("import '${config.resolvedInternalCommandClientImport}';")

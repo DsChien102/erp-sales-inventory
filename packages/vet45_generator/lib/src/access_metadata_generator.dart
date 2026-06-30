@@ -96,6 +96,7 @@ abstract final class AccessMetadataGenerator {
       ..writeln('// ignore_for_file: type=lint')
       ..writeln()
       ..writeln("import 'package:${config.resolvedApplicationPackage}/application.dart';")
+      ..writeln("import 'package:vet45_shared_application/application.dart';")
       ..writeln("import 'package:vet45_shared_infrastructure/infrastructure.dart';")
       ..writeln()
       ..writeln(

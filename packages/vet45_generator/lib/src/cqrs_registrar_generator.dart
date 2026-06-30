@@ -235,7 +235,8 @@ abstract final class CqrsRegistrarGenerator {
       ..writeln("import 'package:get_it/get_it.dart';")
       ..writeln(
         "import 'package:${config.resolvedApplicationPackage}/application.dart';",
-      );
+      )
+      ..writeln("import 'package:vet45_shared_application/application.dart';");
 
     if (config.importDomain) {
       buffer.writeln("import 'package:${config.resolvedDomainPackage}/domain.dart';");

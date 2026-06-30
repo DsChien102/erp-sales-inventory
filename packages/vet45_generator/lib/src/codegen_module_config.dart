@@ -25,6 +25,7 @@ final class CodegenModuleConfig {
     this.integrationEventDispatchers = const [],
     this.accessScanGlobs = ModuleNaming.defaultAccessScanGlobs,
     this.accessScanPackage,
+    this.handlerScanPackage,
     this.strictAccessMetadata = false,
     this.moduleManifestScanGlobs = ModuleNaming.defaultModuleManifestScanGlobs,
   });
@@ -69,6 +70,7 @@ final class CodegenModuleConfig {
   final List<IntegrationEventDispatcherConfig> integrationEventDispatchers;
   final List<String> accessScanGlobs;
   final String? accessScanPackage;
+  final String? handlerScanPackage;
   final bool strictAccessMetadata;
   final List<String> moduleManifestScanGlobs;
 
@@ -76,6 +78,9 @@ final class CodegenModuleConfig {
 
   String get resolvedApplicationPackage =>
       applicationPackage ?? ModuleNaming.applicationPackage(moduleName);
+
+  String get resolvedHandlerScanPackage =>
+      handlerScanPackage ?? resolvedApplicationPackage;
 
   String get resolvedDomainPackage =>
       domainPackage ?? ModuleNaming.domainPackage(moduleName);
@@ -208,6 +213,7 @@ final class CodegenModuleConfig {
           (config['access_scan_globs'] as List?)?.cast<String>() ??
           ModuleNaming.defaultAccessScanGlobs,
       accessScanPackage: config['access_scan_package'] as String?,
+      handlerScanPackage: config['handler_scan_package'] as String?,
       strictAccessMetadata: config['strict_access_metadata'] as bool? ?? false,
       moduleManifestScanGlobs:
           (config['module_manifest_scan_globs'] as List?)?.cast<String>() ??

@@ -105,7 +105,7 @@ abstract final class ModuleManifestGenerator {
   ) async {
     final scanPackageRoot = p.normalize(
       PackageConfigResolver.findPackageRoot(
-        packageName: config.scanPackage,
+        packageName: config.resolvedHandlerScanPackage,
         fromDirectory: packageRoot,
       ),
     );
@@ -229,6 +229,7 @@ abstract final class ModuleManifestGenerator {
       ..writeln('// ignore_for_file: type=lint')
       ..writeln()
       ..writeln("import 'package:${config.resolvedApplicationPackage}/application.dart';")
+      ..writeln("import 'package:vet45_shared_application/application.dart';")
       ..writeln()
       ..writeln('final ${config.moduleManifestVariable()} = GeneratedModuleManifest(')
       ..writeln("  name: '${manifest.name}',")

@@ -7,6 +7,7 @@ export 'src/cqrs/command_base.dart';
 export 'src/cqrs/i_command.dart';
 export 'src/cqrs/i_command_handler.dart';
 export 'src/cqrs/i_command_validator.dart';
+export 'src/cqrs/internal_command_base.dart';
 export 'src/cqrs/i_query.dart';
 export 'src/cqrs/i_query_handler.dart';
 export 'src/cqrs/i_recurring_command.dart';
