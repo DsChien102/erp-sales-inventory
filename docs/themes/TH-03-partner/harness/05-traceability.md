@@ -69,21 +69,33 @@ Test id: scn_e01_u02_fr06_01 (handler/integration), wgt_e02_u01_fr03_01 (widget 
 
 ## Epic-02 / US-01 — Dừng sử dụng / sử dụng lại
 
-> Placeholder — điền khi mở slice.
-
-| Req ID | Enforce layer | Artifact | Test id | Status |
-| ------ | ------------- | -------- | ------- | ------ |
-| _pending_ | — | — | — | placeholder |
+| Req ID | Enforce layer | Artifact | Presentation artifact | Test id | Status |
+| ------ | ------------- | -------- | --------------------- | ------- | ------ |
+| FR-01 | — | — | `modules/partner/presentation/lib/src/widgets/partner_detail_menu.dart` | — | placeholder (UI deferred) |
+| FR-01 | — | — | `apps/erp/lib/features/partner/presentation/pages/partner_detail_page.dart` | — | placeholder (UI deferred) |
+| FR-02 | application | `DeactivatePartnerCommand` / `ReactivatePartnerCommand` | — | scn_e02_u01_fr02_01 | done |
+| FR-03 | domain | `BusinessPartner.deactivate` | `modules/partner/presentation/lib/src/widgets/deactivate_partner_dialog.dart` | scn_e02_u01_fr03_01 | done (domain); UI placeholder |
+| FR-03 | infrastructure | `partner.deactivate_partner` RPC | — | scn_e02_u01_fr02_01 | done |
+| FR-04 | domain | `BusinessPartner.reactivate` | `modules/partner/presentation/lib/src/widgets/reactivate_partner_dialog.dart` | — | done (domain); UI placeholder |
+| FR-04 | infrastructure | `partner.reactivate_partner` RPC | — | scn_e02_u01_fr02_01 | done |
+| FR-05 | application | `DeactivatePartnerCommandHandler` / `ReactivatePartnerCommandHandler` | — | scn_e02_u01_fr02_01 | done |
 
 ---
 
 ## Epic-02 / US-02 — Loại bỏ hồ sơ tạo nhầm
 
-> Placeholder — điền khi mở slice.
-
-| Req ID | Enforce layer | Artifact | Test id | Status |
-| ------ | ------------- | -------- | ------- | ------ |
-| _pending_ | — | — | — | placeholder |
+| Req ID | Enforce layer | Artifact | Presentation artifact | Test id | Status |
+| ------ | ------------- | -------- | --------------------- | ------- | ------ |
+| FR-01 | — | — | `modules/partner/presentation/lib/src/widgets/partner_detail_menu.dart` | wgt_e02_u02_fr01_01 | done |
+| FR-01 | — | — | `apps/erp/lib/features/partner/presentation/pages/partner_detail_page.dart` | wgt_e02_u02_fr04_01 | done |
+| FR-02 | application | `DeletePartnerCommand` | — | scn_e02_u02_fr02_01 | done |
+| FR-02 | domain | `PartnerMustHaveNoTransactionHistoryRule` | — | scn_e02_u02_fr02_01 | done |
+| FR-02 | application | `PartnerDetailDto.hasBusinessData` | — | — | done |
+| FR-03 | domain | `BusinessPartner.delete` | `modules/partner/presentation/lib/src/widgets/delete_partner_dialog.dart` | scn_e02_u02_fr03_01 | done |
+| FR-03 | infrastructure | `partner.delete_partner` RPC | — | scn_e02_u02_fr04_01 | done |
+| FR-04 | application | `DeletePartnerCommandHandler` | — | scn_e02_u02_fr04_01 | done |
+| FR-04 | presentation | `PartnerDetailCubit.deletePartner` | — | scn_e02_u02_fr04_01 | done |
+| FR-04 | — | — | `modules/partner/presentation/lib/src/bloc/partner_detail_state.dart` | — | done |
 
 ---
 

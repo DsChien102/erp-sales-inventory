@@ -73,4 +73,82 @@ final class SupabasePartnerCommandGateway implements IPartnerCommandGateway {
       throw mapPartnerRpcError(error);
     }
   }
+
+  @override
+  Future<int> deactivate({
+    required BusinessPartner partner,
+    required int expectedVersion,
+    required String actorId,
+    String? statusNote,
+  }) async {
+    try {
+      final version = await _rpcClient.callScalar<num>(
+        'deactivate_partner',
+        params: PartnerRpcMapper.deactivatePartnerParams(
+          partner: partner,
+          expectedVersion: expectedVersion,
+          actorId: actorId,
+          statusNote: statusNote,
+        ),
+      );
+
+      if (version == null) {
+        throw ApplicationException(
+          'Partner deactivate did not return a version.',
+        );
+      }
+
+      return version.toInt();
+    } on RpcException catch (error) {
+      throw mapPartnerRpcError(error);
+    }
+  }
+
+  @override
+  Future<int> reactivate({
+    required BusinessPartner partner,
+    required int expectedVersion,
+    required String actorId,
+  }) async {
+    try {
+      final version = await _rpcClient.callScalar<num>(
+        'reactivate_partner',
+        params: PartnerRpcMapper.reactivatePartnerParams(
+          partner: partner,
+          expectedVersion: expectedVersion,
+          actorId: actorId,
+        ),
+      );
+
+      if (version == null) {
+        throw ApplicationException(
+          'Partner reactivate did not return a version.',
+        );
+      }
+
+      return version.toInt();
+    } on RpcException catch (error) {
+      throw mapPartnerRpcError(error);
+    }
+  }
+
+  @override
+  Future<void> delete({
+    required BusinessPartner partner,
+    required int expectedVersion,
+    required String actorId,
+  }) async {
+    try {
+      await _rpcClient.callScalar<bool>(
+        'delete_partner',
+        params: PartnerRpcMapper.deletePartnerParams(
+          partner: partner,
+          expectedVersion: expectedVersion,
+          actorId: actorId,
+        ),
+      );
+    } on RpcException catch (error) {
+      throw mapPartnerRpcError(error);
+    }
+  }
 }

@@ -4,10 +4,16 @@ import '../bloc/partner_list_state.dart';
 
 class PartnerDetailMenu extends StatelessWidget {
   final PartnerItemModel partner;
+  final bool canManageStatus;
+  final bool canDelete;
+  final ValueChanged<String>? onActionSelected;
 
   const PartnerDetailMenu({
     super.key,
     required this.partner,
+    this.canManageStatus = false,
+    this.canDelete = false,
+    this.onActionSelected,
   });
 
   @override
@@ -25,19 +31,11 @@ class PartnerDetailMenu extends StatelessWidget {
         borderRadius: BorderRadius.circular(VRadius.card),
         side: BorderSide(color: dynamicColors.borderDefault),
       ),
-      onSelected: (value) {
-        final actionName = value == 'deactivate' 
-            ? 'Ngừng hoạt động' 
-            : (value == 'activate' ? 'Kích hoạt lại' : 'Xóa hồ sơ');
-            
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Chức năng $actionName đang phát triển')),
-        );
-      },
+      onSelected: onActionSelected,
       itemBuilder: (BuildContext context) {
         final items = <PopupMenuEntry<String>>[];
 
-        if (partner.status == 'Đang hoạt động') {
+        if (canManageStatus && partner.status == 'Đang hoạt động') {
           items.add(
             PopupMenuItem<String>(
               value: 'deactivate',
@@ -47,7 +45,7 @@ class PartnerDetailMenu extends StatelessWidget {
               ),
             ),
           );
-        } else if (partner.status == 'Ngừng hoạt động') {
+        } else if (canManageStatus && partner.status == 'Ngừng hoạt động') {
           items.add(
             PopupMenuItem<String>(
               value: 'activate',
@@ -59,16 +57,17 @@ class PartnerDetailMenu extends StatelessWidget {
           );
         }
 
-        // Always show delete for non-deleted partners (assuming validation will happen later)
-        items.add(
-          PopupMenuItem<String>(
-            value: 'delete',
-            child: Text(
-              'Xóa hồ sơ',
-              style: VTypography.bodyDefault.copyWith(color: VColors.danger),
+        if (canDelete) {
+          items.add(
+            PopupMenuItem<String>(
+              value: 'delete',
+              child: Text(
+                'Xóa hồ sơ',
+                style: VTypography.bodyDefault.copyWith(color: VColors.danger),
+              ),
             ),
-          ),
-        );
+          );
+        }
 
         return items;
       },

@@ -18,6 +18,7 @@ final class UpdatePartnerProfileCommand extends CommandBase<UpdatePartnerProfile
     required this.displayName,
     required this.phone,
     required this.roles,
+    required this.currentStatus,
     this.confirmDuplicate = false,
     this.individualName,
     this.businessName,
@@ -44,6 +45,7 @@ final class UpdatePartnerProfileCommand extends CommandBase<UpdatePartnerProfile
   final String displayName;
   final String phone;
   final Set<PartnerRole> roles;
+  final PartnerStatus currentStatus;
   final bool confirmDuplicate;
   final String? individualName;
   final String? businessName;

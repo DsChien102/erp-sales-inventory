@@ -31,6 +31,8 @@ class PartnerDetailCubit extends Cubit<PartnerDetailState> {
       state.copyWith(
         status: PartnerDetailStatus.loading,
         clearErrorMessage: true,
+        clearStatusChangeMessage: true,
+        clearDeleteMessage: true,
       ),
     );
 
@@ -57,6 +59,7 @@ class PartnerDetailCubit extends Cubit<PartnerDetailState> {
         state.copyWith(
           status: PartnerDetailStatus.success,
           partner: PartnerUiMapper.toDetailItem(detail),
+          hasBusinessData: detail.hasBusinessData,
         ),
       );
     } catch (error) {
@@ -66,6 +69,132 @@ class PartnerDetailCubit extends Cubit<PartnerDetailState> {
           errorMessage: partnerErrorMessage(error),
         ),
       );
+    }
+  }
+
+  Future<bool> deactivatePartner() async {
+    return _changeStatus(
+      successMessage: 'Đã ngừng hoạt động đối tác.',
+      commandBuilder: (tenantId, actorId, partner) =>
+          PartnerUiMapper.toDeactivateCommand(
+            tenantId: tenantId,
+            actorId: actorId,
+            partner: partner,
+          ),
+    );
+  }
+
+  Future<bool> reactivatePartner() async {
+    return _changeStatus(
+      successMessage: 'Đã kích hoạt lại đối tác.',
+      commandBuilder: (tenantId, actorId, partner) =>
+          PartnerUiMapper.toReactivateCommand(
+            tenantId: tenantId,
+            actorId: actorId,
+            partner: partner,
+          ),
+    );
+  }
+
+  Future<bool> _changeStatus<T>({
+    required String successMessage,
+    required ICommand<T> Function(
+      String tenantId,
+      String actorId,
+      PartnerItemModel partner,
+    )
+    commandBuilder,
+  }) async {
+    final partner = state.partner;
+    if (partner == null || state.isChangingStatus) {
+      return false;
+    }
+
+    emit(
+      state.copyWith(
+        isChangingStatus: true,
+        clearStatusChangeMessage: true,
+        clearErrorMessage: true,
+      ),
+    );
+
+    try {
+      final tenantId = await _executionContext.requireTenantId();
+      final actorId = await _executionContext.requireUserId();
+      await _partnerModule.executeCommandAsync(
+        commandBuilder(tenantId, actorId, partner),
+      );
+
+      await load(partner.id);
+      emit(
+        state.copyWith(
+          isChangingStatus: false,
+          statusChangeMessage: successMessage,
+        ),
+      );
+      return true;
+    } catch (error) {
+      final message = partnerErrorMessage(error);
+      if (message.contains('tải lại')) {
+        await load(partner.id);
+      }
+      emit(
+        state.copyWith(
+          isChangingStatus: false,
+          statusChangeMessage: message,
+        ),
+      );
+      return false;
+    }
+  }
+
+  Future<bool> deletePartner() async {
+    final partner = state.partner;
+    if (partner == null || state.isDeletingPartner || !state.canDelete) {
+      return false;
+    }
+
+    emit(
+      state.copyWith(
+        isDeletingPartner: true,
+        clearDeleteMessage: true,
+        clearErrorMessage: true,
+      ),
+    );
+
+    try {
+      final tenantId = await _executionContext.requireTenantId();
+      final actorId = await _executionContext.requireUserId();
+      await _partnerModule.executeCommandAsync(
+        PartnerUiMapper.toDeleteCommand(
+          tenantId: tenantId,
+          actorId: actorId,
+          partner: partner,
+          hasBusinessData: state.hasBusinessData,
+        ),
+      );
+
+      emit(
+        state.copyWith(
+          isDeletingPartner: false,
+          wasDeleted: true,
+          clearPartner: true,
+          deleteMessage: 'Đã xóa hồ sơ đối tác.',
+        ),
+      );
+      return true;
+    } catch (error) {
+      final message = partnerErrorMessage(error);
+      if (message.contains('tải lại') || message.contains('giao dịch')) {
+        await load(partner.id);
+      }
+      emit(
+        state.copyWith(
+          isDeletingPartner: false,
+          deleteMessage: message,
+        ),
+      );
+      return false;
     }
   }
 

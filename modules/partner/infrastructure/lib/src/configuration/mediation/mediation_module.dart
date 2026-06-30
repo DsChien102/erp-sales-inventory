@@ -51,6 +51,54 @@ final class PartnerMediationModule {
       ),
     );
 
+    commandBus.register<DeactivatePartnerCommand, DeactivatePartnerResult>(
+      DefaultCommandPipeline.buildBusinessPipeline<
+        DeactivatePartnerCommand,
+        DeactivatePartnerResult,
+        DeactivatePartnerCommandHandler
+      >(
+        container: container,
+        handler: container.get<DeactivatePartnerCommandHandler>(),
+        invoke: (command, handler) => handler.handle(command),
+        accessMetadata: accessMetadata,
+        permissionChecker: permissionChecker,
+        tenantAccessChecker: tenantAccessChecker,
+        logger: commandLogger,
+      ),
+    );
+
+    commandBus.register<ReactivatePartnerCommand, ReactivatePartnerResult>(
+      DefaultCommandPipeline.buildBusinessPipeline<
+        ReactivatePartnerCommand,
+        ReactivatePartnerResult,
+        ReactivatePartnerCommandHandler
+      >(
+        container: container,
+        handler: container.get<ReactivatePartnerCommandHandler>(),
+        invoke: (command, handler) => handler.handle(command),
+        accessMetadata: accessMetadata,
+        permissionChecker: permissionChecker,
+        tenantAccessChecker: tenantAccessChecker,
+        logger: commandLogger,
+      ),
+    );
+
+    commandBus.register<DeletePartnerCommand, DeletePartnerResult>(
+      DefaultCommandPipeline.buildBusinessPipeline<
+        DeletePartnerCommand,
+        DeletePartnerResult,
+        DeletePartnerCommandHandler
+      >(
+        container: container,
+        handler: container.get<DeletePartnerCommandHandler>(),
+        invoke: (command, handler) => handler.handle(command),
+        accessMetadata: accessMetadata,
+        permissionChecker: permissionChecker,
+        tenantAccessChecker: tenantAccessChecker,
+        logger: commandLogger,
+      ),
+    );
+
     queryBus
       ..register<CheckDuplicatePartnersQuery, List<PartnerDuplicateMatchDto>>(
         (query) => container.get<CheckDuplicatePartnersQueryHandler>().handle(

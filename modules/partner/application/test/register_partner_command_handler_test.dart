@@ -30,6 +30,34 @@ class _RecordingPartnerCommandGateway implements IPartnerCommandGateway {
   }) {
     throw UnimplementedError();
   }
+
+  @override
+  Future<int> deactivate({
+    required BusinessPartner partner,
+    required int expectedVersion,
+    required String actorId,
+    String? statusNote,
+  }) {
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<int> reactivate({
+    required BusinessPartner partner,
+    required int expectedVersion,
+    required String actorId,
+  }) {
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<void> delete({
+    required BusinessPartner partner,
+    required int expectedVersion,
+    required String actorId,
+  }) {
+    throw UnimplementedError();
+  }
 }
 
 void main() {

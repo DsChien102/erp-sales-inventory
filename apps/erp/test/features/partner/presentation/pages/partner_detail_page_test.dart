@@ -92,6 +92,8 @@ void main() {
                             child: const Text('Save edit'),
                           ),
                         ),
+                        canManageStatus: false,
+                        canDelete: false,
                       ),
                     ),
                   );

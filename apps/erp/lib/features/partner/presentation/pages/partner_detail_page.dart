@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:vet45_design_system/design_system.dart';
+import 'package:vet45_iam_application/application.dart';
 import 'package:vet45_partner_application/application.dart';
+import 'package:vet45_partner_domain/domain.dart';
 import 'package:vet45_partner_presentation/presentation.dart';
 import 'package:vet45_shared_application/application.dart';
 
@@ -13,12 +15,16 @@ class PartnerDetailPage extends StatefulWidget {
   final String partnerId;
   final PartnerItemModel? initialPartner;
   final WidgetBuilder? editPageBuilder;
+  final bool? canManageStatus;
+  final bool? canDelete;
 
   const PartnerDetailPage({
     super.key,
     required this.partnerId,
     this.initialPartner,
     this.editPageBuilder,
+    this.canManageStatus,
+    this.canDelete,
   });
 
   @override
@@ -28,6 +34,49 @@ class PartnerDetailPage extends StatefulWidget {
 class _PartnerDetailPageState extends State<PartnerDetailPage> {
   int _selectedIndex = 0;
   bool _hasPartnerChanges = false;
+
+  bool get _canManageStatus =>
+      widget.canManageStatus ??
+      getIt<IPrincipalSnapshot>().hasPermission(PartnerPermissions.manageStatus);
+
+  bool get _canDelete =>
+      widget.canDelete ??
+      getIt<IPrincipalSnapshot>().hasPermission(PartnerPermissions.delete);
+
+  Future<void> _handleMenuAction(BuildContext context, String action) async {
+    final cubit = context.read<PartnerDetailCubit>();
+
+    if (action == 'delete') {
+      final partner = cubit.state.partner;
+      if (partner == null || !cubit.state.canDelete) {
+        return;
+      }
+
+      final confirmed = await DeletePartnerDialog.show(
+        context,
+        partnerName: partner.name,
+      );
+      if (!confirmed || !context.mounted) {
+        return;
+      }
+
+      final success = await cubit.deletePartner();
+      if (success) {
+        _hasPartnerChanges = true;
+      }
+      return;
+    }
+
+    final success = switch (action) {
+      'deactivate' => await cubit.deactivatePartner(),
+      'activate' => await cubit.reactivatePartner(),
+      _ => false,
+    };
+
+    if (success) {
+      _hasPartnerChanges = true;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -41,9 +90,25 @@ class _PartnerDetailPageState extends State<PartnerDetailPage> {
       )..load(widget.partnerId),
       child: BlocConsumer<PartnerDetailCubit, PartnerDetailState>(
         listenWhen: (previous, current) =>
-            previous.status != current.status && current.status == PartnerDetailStatus.failure,
+            (previous.status != current.status &&
+                current.status == PartnerDetailStatus.failure) ||
+            previous.statusChangeMessage != current.statusChangeMessage ||
+            previous.deleteMessage != current.deleteMessage ||
+            previous.wasDeleted != current.wasDeleted,
         listener: (context, state) {
-          if (state.errorMessage != null) {
+          if (state.wasDeleted) {
+            VToast.show(
+              context,
+              title: 'Thành công',
+              message: state.deleteMessage ?? 'Đã xóa hồ sơ đối tác.',
+              type: VToastType.success,
+            );
+            Navigator.of(context).pop(true);
+            return;
+          }
+
+          if (state.status == PartnerDetailStatus.failure &&
+              state.errorMessage != null) {
             VToast.show(
               context,
               title: 'Lỗi',
@@ -51,7 +116,32 @@ class _PartnerDetailPageState extends State<PartnerDetailPage> {
               type: VToastType.danger,
             );
             context.pop();
+            return;
           }
+
+          final deleteMessage = state.deleteMessage;
+          if (deleteMessage != null) {
+            VToast.show(
+              context,
+              title: 'Lỗi',
+              message: deleteMessage,
+              type: VToastType.danger,
+            );
+            return;
+          }
+
+          final statusMessage = state.statusChangeMessage;
+          if (statusMessage == null) {
+            return;
+          }
+
+          final isSuccess = statusMessage.startsWith('Đã ');
+          VToast.show(
+            context,
+            title: isSuccess ? 'Thành công' : 'Lỗi',
+            message: statusMessage,
+            type: isSuccess ? VToastType.success : VToastType.danger,
+          );
         },
         builder: (context, state) {
           if (state.status == PartnerDetailStatus.loading && state.partner == null) {
@@ -85,7 +175,25 @@ class _PartnerDetailPageState extends State<PartnerDetailPage> {
                     )
                   : null,
               actions: [
-                PartnerDetailMenu(partner: partner),
+                if (state.isChangingStatus || state.isDeletingPartner)
+                  const Padding(
+                    padding: EdgeInsets.only(right: VSpacing.space2),
+                    child: Center(
+                      child: SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      ),
+                    ),
+                  ),
+                PartnerDetailMenu(
+                  partner: partner,
+                  canManageStatus: _canManageStatus,
+                  canDelete: _canDelete && state.canDelete,
+                  onActionSelected: state.isChangingStatus || state.isDeletingPartner
+                      ? null
+                      : (action) => _handleMenuAction(context, action),
+                ),
               ],
             ),
             body: Column(

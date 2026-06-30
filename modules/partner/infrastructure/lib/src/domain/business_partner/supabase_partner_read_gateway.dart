@@ -30,9 +30,7 @@ final class SupabasePartnerReadGateway implements IPartnerReadGateway {
           'p_tenant_id': tenantId,
           'p_keyword': phoneKeyword == null ? criteria.keyword : null,
           'p_keyword_phone_normalized': phoneKeyword,
-          'p_statuses': criteria.statuses
-              .map((status) => status.name)
-              .toList(growable: false),
+          'p_statuses': criteria.statuses.map((status) => status.name).toList(growable: false),
           'p_role_filter': criteria.roleFilter?.name,
           'p_entity_types': criteria.expandedEntityTypes
               ?.map(PartnerRpcMapper.entityTypeToRpc)
@@ -47,9 +45,7 @@ final class SupabasePartnerReadGateway implements IPartnerReadGateway {
       }
 
       final totalCount = (rows.first['total_count'] as num?)?.toInt() ?? rows.length;
-      final items = rows
-          .map(PartnerListMapper.fromRow)
-          .toList(growable: false);
+      final items = rows.map(PartnerListMapper.fromRow).toList(growable: false);
 
       return PartnerSearchResultDto(
         items: items,
