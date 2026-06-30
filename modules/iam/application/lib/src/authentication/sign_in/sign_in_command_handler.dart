@@ -4,6 +4,7 @@ import '../../ports/i_authenticator.dart';
 import '../../ports/i_iam_session_port.dart';
 import 'sign_in_command.dart';
 
+@CommandHandlerFor(SignInCommand)
 final class SignInCommandHandler implements ICommandHandler<SignInCommand, void> {
   SignInCommandHandler({
     required IAuthenticator authenticator,

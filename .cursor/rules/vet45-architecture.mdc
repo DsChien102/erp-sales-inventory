@@ -65,6 +65,6 @@ UI → IExecutionContext (tenant/user) → IModuleMediator
 ## Before implementing
 
 1. Read `AGENTS.md`, `docs/architecture/05-layered-module-structure.md`, and `packages/vet45_shared/README.md`
-2. Mirror interim reference: `packages/vet45_generator/test/fixtures/` and `packages/vet45_shared/testing/` until **IAM** golden module lands (phase 2)
+2. Mirror golden reference: **`modules/iam/`** (codegen + pipeline); fixtures/testing cho harness primitives
 3. New use case = folder under `application/lib/src/{area}/{use_case}/` with command, handler, optional validator
 4. Verify: `melos run analyze && melos run test && ./scripts/ci/verify_harness.sh`

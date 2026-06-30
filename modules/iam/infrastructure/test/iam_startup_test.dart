@@ -33,5 +33,10 @@ void main() {
     expect(runtime.permissionChecker, isA<IPermissionChecker>());
     expect(runtime.tenantAccessChecker, isA<ITenantAccessChecker>());
     expect(runtime.session.userId, isNull);
+
+    final session = await runtime.module.executeQueryAsync(
+      GetCurrentSessionQuery(),
+    );
+    expect(session.isAuthenticated, isFalse);
   });
 }

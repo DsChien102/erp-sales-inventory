@@ -50,6 +50,47 @@ final class SupabaseIamAccessGateway implements IIamAccessGateway {
   }
 
   @override
+  Future<List<TenantMemberDto>> listTenantMembers(String tenantId) async {
+    try {
+      final rows = await _rpcClient.callList(
+        'list_tenant_members',
+        params: <String, dynamic>{'p_tenant_id': tenantId},
+      );
+      return rows
+          .map(
+            (row) => TenantMemberDto(
+              userId: row['user_id'] as String,
+              role: row['role'] as String,
+              createdAt: DateTime.parse(row['created_at'] as String),
+            ),
+          )
+          .toList(growable: false);
+    } on RpcException catch (error) {
+      throw mapIamRpcError(error);
+    }
+  }
+
+  @override
+  Future<void> assignMemberRole({
+    required String tenantId,
+    required String userId,
+    required String role,
+  }) async {
+    try {
+      await _rpcClient.callScalar<Object?>(
+        'assign_member_role',
+        params: <String, dynamic>{
+          'p_tenant_id': tenantId,
+          'p_user_id': userId,
+          'p_role': role,
+        },
+      );
+    } on RpcException catch (error) {
+      throw mapIamRpcError(error);
+    }
+  }
+
+  @override
   Future<bool> hasPermission({
     required String tenantId,
     required String permission,

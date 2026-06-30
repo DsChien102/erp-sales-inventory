@@ -4,6 +4,7 @@ import '../../ports/i_authenticator.dart';
 import '../../ports/i_iam_session_port.dart';
 import 'sign_out_command.dart';
 
+@CommandHandlerFor(SignOutCommand)
 final class SignOutCommandHandler
     implements ICommandHandler<SignOutCommand, void> {
   SignOutCommandHandler({

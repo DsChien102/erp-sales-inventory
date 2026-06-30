@@ -34,12 +34,16 @@ Generator prefers `@CommandHandlerFor` / `@QueryHandlerFor` over legacy markers.
 Annotate command/query **classes** in application layer:
 
 ```dart
-@RequiresPermission('task.create')
+import 'package:vet45_task_domain/domain.dart';
+
+@RequiresPermission(TaskPermissions.create)
 @RequiresTenant()
 final class CreateTaskCommand extends CommandBase<TaskId> { ... }
 ```
 
 Enable `vet45_generator|access_metadata` builder. Wire optional `IAccessMetadataRegistry` into `DefaultCommandPipeline.buildBusinessPipeline` for auth/tenant decorators.
+
+Permission codes: `abstract final class TaskPermissions { static const create = 'task.create'; }` trong domain — dùng cho `@RequiresPermission`, `@ModuleManifest`, tests; SQL seed comment tham chiếu constant name.
 
 Set `strict_access_metadata: true` in CI to require annotations on all `ICommand` / `IQuery` types.
 
@@ -48,11 +52,18 @@ Set `strict_access_metadata: true` in CI to require annotations on all `ICommand
 Add one infrastructure definition class:
 
 ```dart
-@ModuleManifest(name: 'task', permissions: ['task.create', 'task.view'])
+import 'package:vet45_task_domain/domain.dart';
+
+@ModuleManifest(
+  name: 'task',
+  permissions: [TaskPermissions.create, TaskPermissions.view],
+)
 final class TaskModuleDefinition {}
 ```
 
 Enable `vet45_generator|module_manifest` builder. Use generated manifest for permission inventory and architecture checks — not for runtime DI.
+
+`scan_package` locates `@ModuleManifest` (usually infrastructure). Handlers are scanned from `handler_scan_package` (defaults to `{module}_application`).
 
 ## Compatibility rules
 

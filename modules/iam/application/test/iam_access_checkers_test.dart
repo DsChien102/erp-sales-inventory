@@ -1,5 +1,6 @@
 import 'package:test/test.dart';
 import 'package:vet45_iam_application/application.dart';
+import 'package:vet45_iam_domain/domain.dart';
 import 'package:vet45_shared_application/application.dart';
 import 'package:vet45_shared_testing/shared_testing.dart';
 
@@ -22,7 +23,7 @@ class _FakeAccessGateway implements IIamAccessGateway {
         userId: 'user-1',
         tenantId: tenantId ?? 'tenant-1',
         role: 'staff',
-        permissions: const ['partner.read'],
+        permissions: const [InterimPermissionCodes.partnerRead],
       );
 
   @override
@@ -37,6 +38,17 @@ class _FakeAccessGateway implements IIamAccessGateway {
 
   @override
   Future<List<TenantMembershipDto>> listUserTenants() async => const [];
+
+  @override
+  Future<List<TenantMemberDto>> listTenantMembers(String tenantId) async =>
+      const [];
+
+  @override
+  Future<void> assignMemberRole({
+    required String tenantId,
+    required String userId,
+    required String role,
+  }) async {}
 }
 
 class _FakePrincipalSnapshot implements IPrincipalSnapshot {
@@ -63,7 +75,7 @@ void main() {
         executionContext: FakeExecutionContext(),
       );
 
-      await checker.require('partner.write');
+      await checker.require(InterimPermissionCodes.partnerWrite);
     });
 
     test('denies when permission missing', () async {
@@ -77,7 +89,7 @@ void main() {
       );
 
       expect(
-        () => checker.require('partner.write'),
+        () => checker.require(InterimPermissionCodes.partnerWrite),
         throwsA(isA<ApplicationException>()),
       );
     });

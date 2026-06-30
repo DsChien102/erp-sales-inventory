@@ -29,17 +29,16 @@ Checklist tiến độ Harness Engineering. Agent đọc file này ở đầu se
 - [x] TH-03 ritual + module-map presentation layout
 - [x] Golden reference documented — `apps/erp/lib/features/dashboard/presentation/`
 
-## Phase 2 — IAM golden module (planned)
+## Phase 2 — IAM golden module
 
-- [x] IAM minimal foundation — DB schema `iam` + RPC session/permission + `IamPermissionChecker` / `IamTenantAccessChecker` / `IExecutionContext`
-- [x] `IamMediationModule` hand-wired (SignIn/SignOut/GetCurrentSession) + `AccessMetadataRegistry`
-- [x] `IamStartup.initialize` / `initializeForTesting` — composition root + `IamRuntime`
-- [x] Handler tests — checkers + SignIn + composition
-- [x] Wire `IamStartup` từ `apps/erp/lib/core/di/injection.dart`
-- [x] Migrate ERP auth khỏi legacy `features/auth/` domain+data (login/logout qua `IIamModule`)
-- [ ] IAM vertical slice đầy đủ (SRS Theme 1): aggregates, role management use-cases, codegen
-- [ ] codegen `registerGeneratedIamHandlers` + bật `GUARD_CODEGEN_STRICT=1` trong CI
-- [ ] Cập nhật AGENTS.md — IAM là reference chính thức
+- [x] IAM minimal foundation — DB schema `iam` + RPC session/permission + access checkers
+- [x] Codegen enabled — `registerGeneratedIamHandlers`, `IamCommandPipeline`, `iam_access_metadata.g.dart`
+- [x] Tenant/membership interim — `SwitchActiveTenant`, `ListTenantMembers`, `AssignMemberRole` + RPC migration
+- [x] `GUARD_CODEGEN_STRICT=1` trong `verify_harness.sh`
+- [x] AGENTS.md + `modules/iam/README.md` — IAM là reference chính thức
+- [x] Permission code constants — `IamPermissions` / `InterimPermissionCodes` trong domain; chuẩn hóa trong skills + codegen docs
+- [ ] Permission manifest ownership — gỡ `partner.*`, `settings.einvoice.*` khỏi `IamModuleDefinition`; chuyển sang `@ModuleManifest` của từng module khi bật codegen (xem [interim-domain.md](../../modules/iam/docs/interim-domain.md#cross-module-permission-placeholders-temporary))
+- [ ] IAM vertical slice đầy đủ (SRS Theme 1): aggregates, onboarding, role catalog UI
 
 ## Flywheel log
 
@@ -49,4 +48,5 @@ Ghi các cải tiến harness sau khi agent fail (ngày + mô tả ngắn):
 | ---- | ----------- |
 | 2026-06-29 | Initial harness phase — AGENTS.md, guards, CI, doc reconcile |
 | 2026-06-30 | Presentation harness — skill, UI guards, TH-03 ritual, dashboard golden ref |
-| 2026-06-30 | IAM minimal — DB RBAC, access checkers, ERP auth migration via IIamModule |
+| 2026-06-30 | IAM Phase 2 golden — codegen, tenant/membership interim, CI strict codegen guard |
+| 2026-06-30 | Permission constants — `IamPermissions` domain class; skills/docs anti-pattern hardcode strings |

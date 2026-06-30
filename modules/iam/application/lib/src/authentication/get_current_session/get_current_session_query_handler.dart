@@ -4,6 +4,7 @@ import '../../dto/session_dto.dart';
 import '../../ports/i_iam_session_port.dart';
 import 'get_current_session_query.dart';
 
+@QueryHandlerFor(GetCurrentSessionQuery)
 final class GetCurrentSessionQueryHandler
     implements IQueryHandler<GetCurrentSessionQuery, SessionDto> {
   GetCurrentSessionQueryHandler({required IIamSessionPort sessionPort})

@@ -334,7 +334,7 @@ DefaultCommandPipeline.buildBusinessPipeline<MyCommand, void, MyHandler>(
 );
 ```
 
-Command tenant-scoped: `implements ITenantScopedCommand` + `@RequiresTenant()`. Command cần quyền: `@RequiresPermission('<module>.<action>')`.
+Command tenant-scoped: `implements ITenantScopedCommand` + `@RequiresTenant()`. Command cần quyền: `@RequiresPermission(<Module>Permissions.<action>)` — constant `static const` trong `{module}/domain/`, **không** hardcode string literal trong application/infrastructure.
 
 Reference: `modules/iam/infrastructure/lib/src/configuration/iam_startup.dart`, `modules/iam/infrastructure/lib/src/configuration/mediation/mediation_module.dart`.
 

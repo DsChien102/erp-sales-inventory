@@ -1,6 +1,6 @@
 import 'package:vet45_shared_application/application.dart';
 
 @PublicAccess()
-final class SignOutCommand extends CommandBase<void> {
+final class SignOutCommand extends CommandBase<void> implements ICommand<void> {
   SignOutCommand({String? id}) : super(id);
 }

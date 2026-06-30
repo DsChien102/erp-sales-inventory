@@ -7,6 +7,8 @@ import 'package:vet45_shared_infrastructure/infrastructure.dart';
 
 import '../../domain/access/supabase_iam_access_gateway.dart';
 import '../../domain/auth/supabase_authenticator.dart';
+import '../processing/internal_commands/i_iam_internal_command_client.dart';
+import '../processing/internal_commands/supabase_iam_internal_command_client.dart';
 import '../session/iam_execution_context.dart';
 import '../session/iam_session.dart';
 import '../session/iam_session_coordinator.dart';
@@ -63,22 +65,8 @@ final class IamDataAccessModule {
           accessGateway: container.get<IIamAccessGateway>(),
         ),
       )
-      ..registerSingleton(
-        SignInCommandHandler(
-          authenticator: container.get<IAuthenticator>(),
-          sessionPort: container.get<IIamSessionPort>(),
-        ),
-      )
-      ..registerSingleton(
-        SignOutCommandHandler(
-          authenticator: container.get<IAuthenticator>(),
-          sessionPort: container.get<IIamSessionPort>(),
-        ),
-      )
-      ..registerSingleton(
-        GetCurrentSessionQueryHandler(
-          sessionPort: container.get<IIamSessionPort>(),
-        ),
+      ..registerSingleton<IIamInternalCommandClient>(
+        const SupabaseIamInternalCommandClient(),
       );
   }
 }

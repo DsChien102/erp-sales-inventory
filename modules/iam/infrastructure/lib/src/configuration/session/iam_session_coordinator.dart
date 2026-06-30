@@ -26,6 +26,17 @@ final class IamSessionCoordinator implements IIamSessionPort {
       throw ApplicationException('Not authenticated');
     }
 
+    if (tenantId != null) {
+      final context = await _accessGateway.getSessionContext(
+        tenantId: tenantId,
+      );
+      if (context == null) {
+        throw ApplicationException('Tenant access denied');
+      }
+      _session.apply(context);
+      return;
+    }
+
     var context = await _accessGateway.getSessionContext(tenantId: tenantId);
     if (context == null) {
       final bootstrappedTenantId = await _accessGateway.bootstrapOwner();

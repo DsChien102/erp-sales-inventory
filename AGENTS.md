@@ -7,13 +7,14 @@ Tài liệu này là **điểm vào chính** cho AI coding agents. Nếu thông 
 | Khu vực | Trạng thái |
 | ------- | ---------- |
 | `packages/vet45_shared/*` | Kernel CQRS + pipeline — **có implementation và tests** |
-| `packages/vet45_generator/test/fixtures/` | **Reference CQRS + codegen tạm thời** |
-| `packages/vet45_shared/testing/` | **Reference test harness** (`PipelineTestHarness`, in-memory buses) |
-| `modules/*` (8 bounded contexts) | **Greenfield skeleton** — `I{Name}Module` stub, chưa có command/handler/gateway |
-| `apps/erp/features/auth/` | Auth shell **legacy** — gọi Supabase Auth trực tiếp, **chưa** qua `IModuleMediator` |
+| `modules/iam/` | **Golden module** — codegen bật, auth + tenant/membership interim; xem [modules/iam/README.md](modules/iam/README.md) |
+| `packages/vet45_generator/test/fixtures/` | Reference CQRS tạm (khi chưa cần đọc IAM) |
+| `packages/vet45_shared/testing/` | Test harness (`PipelineTestHarness`, fakes) |
+| `modules/*` (các context khác) | **Greenfield skeleton** — chưa codegen |
+| `apps/erp/features/auth/` | Auth **presentation shell** — login/logout qua `IIamModule` / `IamStartup` |
 | `apps/messaging_worker/` | Worker messaging — có tests |
 
-**Không copy pattern từ `modules/sales/` hoặc `modules/iam/`** — chúng chỉ là scaffold. Golden module **IAM** được lên kế hoạch ở phase 2 (xem [docs/harness/PROGRESS.md](docs/harness/PROGRESS.md)).
+**Copy CQRS + access pattern từ `modules/iam/`** — không copy từ `modules/sales/` (scaffold).
 
 ## Luồng kiến trúc bắt buộc
 
@@ -37,7 +38,8 @@ packages/vet45_shared/*     → never import modules/
 
 | Mục đích | Path |
 | -------- | ---- |
-| Command + handler + `@CommandHandlerFor` | `packages/vet45_generator/test/fixtures/lib/src/` |
+| Golden module (codegen + access + wiring) | `modules/iam/` + [modules/iam/README.md](modules/iam/README.md) |
+| Command + handler + `@CommandHandlerFor` (fixtures) | `packages/vet45_generator/test/fixtures/lib/src/` |
 | Pipeline + validator + in-memory bus test | `packages/vet45_shared/testing/test/shared_testing_test.dart` |
 | Module layout mục tiêu | `docs/MODULES_IMPLEMENTATION_TEMPLATE.md` |
 | Layer rules (always-on) | `.cursor/rules/vet45-architecture.mdc` |
@@ -97,10 +99,11 @@ cd apps/messaging_worker && dart test
 - Application import infrastructure
 - Domain import `supabase`, `flutter`, `get_it`
 - Hand-maintain `.g.dart` — chạy `melos run codegen`
+- Hardcode permission code string — dùng `{Module}Permissions` constant trong `modules/<module>/domain/`
 
 ## Legacy / ngoại lệ hiện tại
 
-`apps/erp/lib/features/auth/` là mini bounded context trong shell app. **Target architecture** là module `iam` qua `IModuleMediator` — không mở rộng pattern auth shell khi implement tính năng mới.
+`apps/erp/features/auth/` giữ presentation (login page). Business auth nằm trong `modules/iam` qua `IIamModule` — không mở rộng direct Supabase calls từ feature shell.
 
 ## Theme harness (TH-03)
 

@@ -8,6 +8,7 @@ import 'package:vet45_shared_infrastructure/infrastructure.dart';
 import 'data_access/data_access_module.dart';
 import 'iam_runtime.dart';
 import 'mediation/mediation_module.dart';
+import 'processing/generated/iam_access_metadata.g.dart';
 import '../iam_module.dart';
 import 'session/iam_session.dart';
 
@@ -53,6 +54,8 @@ abstract final class IamStartup {
       supabase: supabase,
       loggerFactory: loggerFactory,
     );
+
+    container.registerSingleton<IAccessMetadataRegistry>(iamAccessMetadataRegistry);
 
     const IamMediationModule().load(
       container: container,

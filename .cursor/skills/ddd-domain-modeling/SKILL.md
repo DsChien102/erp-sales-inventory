@@ -159,6 +159,8 @@ Phân loại:
 
 Mỗi command map 1 aggregate root (hoặc orchestration rõ ràng draft → order).
 
+**Permission codes (RBAC):** định nghĩa `static const` trong `{module}/domain/` (vd. `IamPermissions`, `PartnerPermissions`). Application dùng constant trong `@RequiresPermission` — không literal string. SQL seed comment tham chiếu tên constant.
+
 Command structure (application layer):
 
 ```text
