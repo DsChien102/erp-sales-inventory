@@ -13,6 +13,7 @@ import '../../features/more/presentation/einvoice_settings/bloc/einvoice_setting
 import '../../features/auth/presentation/pages/login_page.dart';
 import '../../features/dashboard/presentation/dashboard_page.dart';
 import '../../features/dashboard/presentation/models/dashboard_navigation.dart';
+import '../../features/partner/presentation/pages/partner_create_page.dart';
 import '../di/injection.dart';
 
 final appRouter = GoRouter(
@@ -101,6 +102,11 @@ final appRouter = GoRouter(
         final cubit = state.extra as EInvoiceSettingsCubit;
         return EInvoiceAutoPage(cubit: cubit);
       },
+    ),
+    GoRoute(
+      path: '/partner/create',
+      name: 'partner.create',
+      builder: (context, state) => const PartnerCreatePage(),
     ),
   ],
 );

@@ -9,6 +9,7 @@ import 'widgets/metric_tile.dart';
 import 'widgets/revenue_summary_card.dart';
 import 'widgets/task_item.dart';
 import '../../more/presentation/pages/more_page.dart';
+import '../../partner/presentation/pages/partner_list_page.dart';
 
 class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key, this.initialTab = DashboardTab.home});
@@ -126,7 +127,7 @@ class _DashboardPageState extends State<DashboardPage> {
       case DashboardTab.orders:
       case DashboardTab.products:
       case DashboardTab.partners:
-        return const SizedBox.shrink();
+        return const PartnerListPage();
     }
   }
 
