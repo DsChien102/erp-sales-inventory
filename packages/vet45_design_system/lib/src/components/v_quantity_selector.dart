@@ -1,0 +1,172 @@
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import '../tokens/v_colors.dart';
+import '../tokens/v_radius.dart';
+import '../tokens/v_typography.dart';
+import '../foundation/v_context_extensions.dart';
+
+class VQuantitySelector extends StatefulWidget {
+  final int value;
+  final int min;
+  final int max;
+  final ValueChanged<int> onChanged;
+  final bool enabled;
+  final String? hintText;
+
+  const VQuantitySelector({
+    super.key,
+    required this.value,
+    this.min = 0,
+    this.max = 9999,
+    required this.onChanged,
+    this.enabled = true,
+    this.hintText,
+  });
+
+  @override
+  State<VQuantitySelector> createState() => _VQuantitySelectorState();
+}
+
+class _VQuantitySelectorState extends State<VQuantitySelector> {
+  late final TextEditingController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = TextEditingController(text: widget.value > 0 ? '${widget.value}' : '');
+  }
+
+  @override
+  void didUpdateWidget(covariant VQuantitySelector oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    final expectedText = widget.value > 0 ? '${widget.value}' : '';
+    if (_controller.text != expectedText && !FocusScope.of(context).hasFocus) {
+      _controller.text = expectedText;
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _increment() {
+    if (!widget.enabled) return;
+    final currentValue = int.tryParse(_controller.text) ?? widget.min;
+    if (currentValue < widget.max) {
+      final newValue = currentValue + 1;
+      _controller.text = '$newValue';
+      widget.onChanged(newValue);
+    }
+  }
+
+  void _decrement() {
+    if (!widget.enabled) return;
+    final currentValue = int.tryParse(_controller.text) ?? widget.min;
+    if (currentValue > widget.min) {
+      final newValue = currentValue - 1;
+      _controller.text = newValue > 0 ? '$newValue' : '';
+      widget.onChanged(newValue);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.vColors;
+
+    return SizedBox(
+      height: 44,
+      child: TextField(
+        controller: _controller,
+        enabled: widget.enabled,
+        keyboardType: TextInputType.number,
+        inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+        style: VTypography.bodyDefault.copyWith(
+          color: widget.enabled ? colors.textPrimary : colors.textSecondary,
+          fontWeight: FontWeight.w700,
+        ),
+        decoration: InputDecoration(
+          hintText: widget.hintText ?? 'SL trả',
+          hintStyle: VTypography.bodyDefault.copyWith(
+            color: colors.textMuted,
+            fontWeight: FontWeight.normal,
+          ),
+          contentPadding: const EdgeInsets.only(left: 12, right: 32, top: 10, bottom: 10),
+          filled: true,
+          fillColor: widget.enabled ? colors.surface : colors.surfaceAlt,
+          isDense: true,
+          suffixIconConstraints: const BoxConstraints(
+            maxWidth: 28,
+            maxHeight: 44,
+          ),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(VRadius.input),
+            borderSide: BorderSide(
+              color: widget.enabled ? colors.borderStrong : colors.borderDefault,
+            ),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(VRadius.input),
+            borderSide: BorderSide(
+              color: widget.enabled ? colors.borderStrong : colors.borderDefault,
+            ),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(VRadius.input),
+            borderSide: BorderSide(
+              color: colors.primary,
+              width: 2.0,
+            ),
+          ),
+          disabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(VRadius.input),
+            borderSide: BorderSide(
+              color: colors.borderDefault,
+            ),
+          ),
+          errorBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(VRadius.input),
+            borderSide: const BorderSide(color: VColors.danger),
+          ),
+          focusedErrorBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(VRadius.input),
+            borderSide: const BorderSide(color: VColors.danger, width: 2.0),
+          ),
+          suffixIcon: Container(
+            width: 24,
+            margin: const EdgeInsets.only(right: 4),
+            alignment: Alignment.center,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                GestureDetector(
+                  onTap: _increment,
+                  behavior: HitTestBehavior.opaque,
+                  child: Icon(
+                    Icons.arrow_drop_up,
+                    size: 16,
+                    color: widget.enabled ? colors.textSecondary : colors.textMuted,
+                  ),
+                ),
+                GestureDetector(
+                  onTap: _decrement,
+                  behavior: HitTestBehavior.opaque,
+                  child: Icon(
+                    Icons.arrow_drop_down,
+                    size: 16,
+                    color: widget.enabled ? colors.textSecondary : colors.textMuted,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        onChanged: (val) {
+          final parsed = int.tryParse(val) ?? 0;
+          widget.onChanged(parsed);
+        },
+      ),
+    );
+  }
+}
