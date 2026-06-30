@@ -10,6 +10,12 @@ class PartnerItemModel {
   final String email;
   final String taxId;
   final String updatedAt;
+  final String address;
+  final String note;
+  final String profileType;
+  final String creator;
+  final String createdAt;
+  final String updatedBy;
 
   const PartnerItemModel({
     required this.id,
@@ -21,6 +27,12 @@ class PartnerItemModel {
     required this.email,
     required this.taxId,
     required this.updatedAt,
+    this.address = '',
+    this.note = '',
+    this.profileType = '',
+    this.creator = '',
+    this.createdAt = '',
+    this.updatedBy = '',
   });
 }
 

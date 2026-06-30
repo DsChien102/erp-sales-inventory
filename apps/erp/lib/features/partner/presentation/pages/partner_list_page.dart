@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'partner_detail_page.dart';
 import 'package:vet45_design_system/design_system.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../bloc/partner_list_cubit.dart';
@@ -49,7 +50,7 @@ class PartnerListPage extends StatelessWidget {
                     final partner = state.partners[index];
                     return GestureDetector(
                       onTap: () {
-                        // TODO: Navigate to detail (US-04)
+                        Navigator.push(context, MaterialPageRoute(builder: (_) => PartnerDetailPage(partner: partner)));
                       },
                       child: _buildPartnerItem(
                         context,

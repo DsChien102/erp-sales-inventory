@@ -1,0 +1,86 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:vet45_design_system/design_system.dart';
+import '../bloc/partner_detail_cubit.dart';
+import '../bloc/partner_list_state.dart';
+import '../widgets/partner_detail_header.dart';
+import '../widgets/partner_general_info_tab.dart';
+import '../widgets/partner_transaction_history_tab.dart';
+
+class PartnerDetailPage extends StatefulWidget {
+  final PartnerItemModel partner;
+
+  const PartnerDetailPage({
+    super.key,
+    required this.partner,
+  });
+
+  @override
+  State<PartnerDetailPage> createState() => _PartnerDetailPageState();
+}
+
+class _PartnerDetailPageState extends State<PartnerDetailPage> {
+  int _selectedIndex = 0;
+
+  @override
+  Widget build(BuildContext context) {
+    final dynamicColors = context.vColors;
+
+    return BlocProvider(
+      create: (_) => PartnerDetailCubit(),
+      child: Scaffold(
+        backgroundColor: dynamicColors.background,
+        appBar: VAppBar(
+          title: 'Chi tiết KH & NCC',
+          actions: [
+            IconButton(
+              icon: Icon(Icons.more_horiz, color: dynamicColors.textPrimary),
+              onPressed: () {
+                // TODO: actions (e.g. Delete)
+              },
+            ),
+          ],
+        ),
+        body: Column(
+          children: [
+            PartnerDetailHeader(partner: widget.partner),
+            VTabs(
+              tabs: const ['Thông tin chung', 'Lịch sử giao dịch'],
+              selectedIndex: _selectedIndex,
+              onTabSelected: (index) {
+                setState(() {
+                  _selectedIndex = index;
+                });
+              },
+            ),
+            Expanded(
+              child: IndexedStack(
+                index: _selectedIndex,
+                children: [
+                  PartnerGeneralInfoTab(partner: widget.partner),
+                  const PartnerTransactionHistoryTab(),
+                ],
+              ),
+            ),
+          ],
+        ),
+        bottomNavigationBar: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(VSpacing.space4),
+            child: VButton(
+              onPressed: () {
+                // TODO: Chỉnh sửa đối tác
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Chức năng chỉnh sửa đang phát triển')),
+                );
+              },
+              label: 'Chỉnh sửa',
+              leadingIcon: const Icon(Icons.edit_outlined, size: 20, color: Colors.white),
+              variant: VButtonVariant.primary,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}

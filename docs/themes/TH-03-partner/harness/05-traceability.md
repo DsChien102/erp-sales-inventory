@@ -15,41 +15,52 @@ Test id: scn_e01_u02_fr06_01 (handler/integration), wgt_e02_u01_fr03_01 (widget 
 
 ## Epic-01 / US-01 — Tìm kiếm và rà soát danh sách
 
-> Placeholder — điền khi mở slice.
-
 | Req ID | Enforce layer | Artifact | Presentation artifact | Test id | Status |
 | ------ | ------------- | -------- | --------------------- | ------- | ------ |
-| _pending_ | — | — | — | — | placeholder |
+| FR-01 | — | — | `apps/erp/lib/features/partner/presentation/pages/partner_list_page.dart` | — | Implemented (presentation) |
+| FR-02 | — | — | `apps/erp/lib/features/partner/presentation/widgets/partner_search_bar.dart` | — | Implemented (presentation) |
+| FR-03 | — | — | `apps/erp/lib/features/partner/presentation/widgets/partner_filter_dialog.dart` | — | Implemented (presentation) |
+| FR-04 | — | — | `apps/erp/lib/features/partner/presentation/widgets/partner_empty_state.dart` | — | Implemented (presentation) |
+| FR-05 | — | — | `apps/erp/lib/features/partner/presentation/bloc/partner_list_cubit.dart` | — | Implemented (presentation) |
+| FR-05 | — | — | `apps/erp/lib/features/partner/presentation/bloc/partner_list_state.dart` | — | Implemented (presentation) |
 
 ---
 
 ## Epic-01 / US-02 — Ghi nhận đối tác mới
 
-> Placeholder — điền khi mở slice.
-
 | Req ID | Enforce layer | Artifact | Presentation artifact | Test id | Status |
 | ------ | ------------- | -------- | --------------------- | ------- | ------ |
-| _pending_ | — | — | — | — | placeholder |
+| FR-01 | — | — | `apps/erp/lib/features/partner/presentation/pages/partner_create_page.dart` | — | Implemented (presentation) |
+| FR-02 | — | — | `apps/erp/lib/features/partner/presentation/widgets/partner_role_type_section.dart` | — | Implemented (presentation) |
+| FR-03 | — | — | `apps/erp/lib/features/partner/presentation/widgets/partner_form_sections.dart` | — | Implemented (presentation) |
+| FR-04 | — | — | `apps/erp/lib/features/partner/presentation/bloc/partner_create_cubit.dart` | — | Implemented (presentation) |
+| FR-05 | — | — | `apps/erp/lib/features/partner/presentation/bloc/partner_create_state.dart` | — | Implemented (presentation) |
 
 ---
 
 ## Epic-01 / US-03 — Bổ sung và chỉnh sửa
 
-> Placeholder — điền khi mở slice.
-
 | Req ID | Enforce layer | Artifact | Presentation artifact | Test id | Status |
 | ------ | ------------- | -------- | --------------------- | ------- | ------ |
-| _pending_ | — | — | — | — | placeholder |
+| FR-01 | — | — | `apps/erp/lib/features/partner/presentation/pages/partner_edit_page.dart` | — | Implemented (presentation) |
+| FR-02 | — | — | `apps/erp/lib/features/partner/presentation/widgets/partner_form_sections.dart` | — | Implemented (presentation) |
+| FR-03 | — | — | `apps/erp/lib/features/partner/presentation/widgets/partner_role_type_section.dart` | — | Implemented (presentation) |
+| FR-04 | — | — | `apps/erp/lib/features/partner/presentation/bloc/partner_edit_cubit.dart` | — | Implemented (presentation) |
+| FR-05 | — | — | `apps/erp/lib/features/partner/presentation/bloc/partner_edit_state.dart` | — | Implemented (presentation) |
 
 ---
 
 ## Epic-01 / US-04 — Kiểm tra hồ sơ
 
-> Placeholder — điền khi mở slice.
-
 | Req ID | Enforce layer | Artifact | Presentation artifact | Test id | Status |
 | ------ | ------------- | -------- | --------------------- | ------- | ------ |
-| _pending_ | — | — | — | — | placeholder |
+| FR-01 | — | — | `apps/erp/lib/features/partner/presentation/pages/partner_detail_page.dart` | — | Implemented (presentation) |
+| FR-02 | — | — | `apps/erp/lib/features/partner/presentation/widgets/partner_detail_header.dart` | — | Implemented (presentation) |
+| FR-03 | — | — | `apps/erp/lib/features/partner/presentation/widgets/partner_general_info_tab.dart` | — | Implemented (presentation) |
+| FR-04 | — | — | `apps/erp/lib/features/partner/presentation/bloc/partner_detail_cubit.dart` | — | Implemented (presentation) |
+| FR-04 | — | — | `apps/erp/lib/features/partner/presentation/bloc/partner_detail_state.dart` | — | Implemented (presentation) |
+| FR-05 | — | — | `apps/erp/lib/features/partner/presentation/widgets/partner_transaction_history_tab.dart` | — | Implemented (presentation) |
+| FR-05 | — | — | `apps/erp/lib/features/partner/presentation/widgets/partner_transaction_item.dart` | — | Implemented (presentation) |
 
 ---
 
