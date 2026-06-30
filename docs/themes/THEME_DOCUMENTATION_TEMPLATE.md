@@ -1,17 +1,38 @@
-# Template tài liệu theme
+# Template tài liệu theme (harness)
 
-> Copy cấu trúc này khi tạo theme mới (`TH-12-...`). Thay `{{TH-xx}}`, `{{Tên theme}}`, nội dung placeholder.
+> Copy cấu trúc này khi tạo theme mới (`TH-12-...`). Reference: [TH-03-partner/](TH-03-partner/)
+
+## Bốn tầng tài liệu
+
+```text
+T1 Product Foundation     docs/product/ (optional, toàn sản phẩm)
+T2 Platform Architecture  docs/architecture/ (CQRS, module layout — một lần)
+T3 Theme package          docs/themes/TH-xx/ (product + harness per theme)
+T4 Slice / code           modules/, FR harness khi implement
+```
+
+Theme `in_progress` cần **README + harness/** + cây Epic/US/FR.
 
 ## Cấu trúc folder
 
 ```text
 docs/themes/TH-xx-{{slug}}/
-├── README.md
-├── 01-business-scope.md
-├── 02-module-map.md          # File quan trọng nhất
-├── 03-architecture-and-flows.md
-├── 04-implementation-roadmap.md
-└── 05-references.md
+├── README.md                         # Index, status, epic rollup
+├── 01-business-scope.md              # Purpose, scope, epic map
+├── harness/
+│   ├── 00-agent-ritual.md            # Thứ tự đọc khi implement FR
+│   ├── 01-domain-model.md            # Aggregate, commands, events
+│   ├── 02-module-map.md              # Owner/supporting, contracts
+│   ├── 03-architecture-and-flows.md  # Flows, RPC (link T2)
+│   ├── 04-slice-roadmap.md           # Slice order, deps, status
+│   ├── 05-traceability.md            # FR → layer → test id
+│   └── 06-harness-notes.md           # Guards, flywheel
+├── Epic-{nn}-{slug}/
+│   ├── 01-overview.md
+│   └── US-{nn}/
+│       ├── 01-overview.md
+│       └── FR-{nn}.md
+└── references.md                     # optional
 ```
 
 ---
@@ -23,160 +44,46 @@ docs/themes/TH-xx-{{slug}}/
 
 **Trạng thái deliver:** planned | in_progress | mvp | done
 
-## Mục tiêu
-
-(Một đoạn mô tả giá trị sản phẩm.)
-
 ## Module tham gia
-
-| Module | Vai trò | Package |
-| ------ | ------- | ------- |
-| ... | owner / supporting | modules/... |
-
-## Tài liệu trong theme
-
-- [01-business-scope.md](01-business-scope.md)
-- [02-module-map.md](02-module-map.md)
-- ...
+## Epic index (link)
+## Harness: [harness/](harness/)
+## Platform: [docs/architecture/](../../architecture/README.md)
 ```
 
 ---
 
-## 01-business-scope.md
+## harness/00-agent-ritual.md
 
-```markdown
-# {{TH-xx}} — Business scope
+Thứ tự: AGENTS.md → README → slice-roadmap → US/FR → domain-model → skills → verify.
 
-## Purpose
-
-(Tóm tắt từ SRS — không copy business rules.)
-
-## Epic map
-
-| Epic | Mô tả |
-| ---- | ----- |
-| ... | ... |
-
-## In scope
-
-- ...
-
-## Out of scope
-
-- ...
-
-## Actors
-
-- Chủ cửa hàng, nhân viên bán hàng, ...
-```
+Link [docs/architecture/README.md](../../architecture/README.md) — không duplicate CQRS.
 
 ---
 
-## 02-module-map.md
+## harness/05-traceability.md
 
 ```markdown
-# {{TH-xx}} — Module map
-
-## Bảng module
-
-| Module | Vai trò trong theme | Owner / Supporting | Package | Module doc | Trạng thái |
-| ------ | ------------------- | ------------------ | ------- | ---------- | ---------- |
-
-## Sơ đồ phụ thuộc
-
-(mermaid flowchart)
-
-## Public contracts
-
-- Integration events: ...
-- Snapshot DTOs: ...
-- Permissions: link IAM_PERMISSION_MATRIX
-
-## Ghi chú ranh giới
-
-(Điều gì theme không làm trực tiếp — delegate sang module khác.)
+<!-- exemplar-complete: deferred | e01/u02 -->
+| Req ID | Enforce layer | Artifact | Test id | Status |
 ```
+
+Test id: `scn_e01_u02_fr06_01`
 
 ---
 
-## 03-architecture-and-flows.md
+## Trạng thái deliver
 
-```markdown
-# {{TH-xx}} — Architecture & flows
-
-## Luồng chính
-
-(sequence hoặc flowchart mermaid)
-
-## Điểm commit
-
-| Bước | Aggregate / RPC |
-| ---- | ----------------- |
-
-## Read vs write
-
-- Writes: Command → Gateway → RPC
-- Reads: Query → Read gateway / view
-
-## ADR liên quan
-
-- ...
-```
+| Status | Yêu cầu |
+| ------ | ------- |
+| `planned` | README optional; Epic tree khi có SRS |
+| `in_progress` | README + harness/00..06 + Epic/US/FR |
+| `mvp` / `done` | Giống `in_progress` + traceability exemplar |
 
 ---
 
-## 04-implementation-roadmap.md
+## Verify
 
-```markdown
-# {{TH-xx}} — Implementation roadmap
-
-## Phase deliver
-
-| Phase | Phạm vi | Module |
-| ----- | ------- | ------ |
-
-## Epic → checklist
-
-| Epic/US | Module | Command/Query | Trạng thái |
-| ------- | ------ | ------------- | ---------- |
-
-## SQL / RPC
-
-- supabase/migrations/...
-
-## ERP presentation
-
-- apps/erp/lib/features/...
-
-## Definition of Done (theme slice)
-
-- [ ] ...
-```
-
----
-
-## 05-references.md
-
-```markdown
-# {{TH-xx}} — References
-
-## SRS
-
-- ...
-
-## Module blueprints
-
-- docs/Modules/...
-
-## ADR & playbooks
-
-- ...
-
-## Diagrams
-
-- docs/C4/...
-
-## Alias cũ (nếu có)
-
-| Alias | Mã TH-xx |
+```bash
+./scripts/ci/guard_theme_structure.sh
+./scripts/ci/verify_harness.sh
 ```

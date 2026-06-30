@@ -14,6 +14,13 @@ Checklist tiến độ Harness Engineering. Agent đọc file này ở đầu se
 - [x] Pre-commit — guard scripts after `dart format`
 - [x] `docs/ddd_domain_modeling_skill.md` — mirror DDD skill
 
+## Phase 1.5 — TH-03 harness docs
+
+- [x] TH-03 README + harness/ scaffold
+- [x] Epic overview fixes (Epic-01 table, Epic-02/03, US-04 rename)
+- [x] `guard_theme_structure.sh` + `guard_theme_traceability.sh` (stub)
+- [ ] Exemplar traceability (deferred — placeholder trong `05-traceability.md`)
+
 ## Phase 2 — IAM golden module (planned)
 
 - [ ] IAM vertical slice: command + validator + handler + gateway + RPC migration

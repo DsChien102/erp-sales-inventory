@@ -10,7 +10,7 @@ Khung viết theme mới: [THEME_DOCUMENTATION_TEMPLATE.md](THEME_DOCUMENTATION_
 | -- | --- | ---------- | ---------- | ---------- |
 | **TH-01** | Thiết lập cửa hàng | Tenant, user, role, phân quyền, cấu hình ban đầu | — | planned |
 | **TH-02** | Sản phẩm & giá bán | Sản phẩm, SKU, ĐVT, barcode, giá | — | planned |
-| **TH-03** | Khách hàng & NCC | Khách hàng, nhà cung cấp, định danh | — | planned |
+| **TH-03** | Khách hàng & NCC | Khách hàng, nhà cung cấp, định danh | [TH-03-partner/](TH-03-partner/) | in_progress |
 | **TH-04** | Bán hàng & đơn hàng | Đơn, nháp, thanh toán, tra cứu | — | planned |
 | **TH-05** | Công nợ | Phải thu/phải trả, thanh toán, cấn trừ | [TH-05-receivables-payables/](TH-05-receivables-payables/) | planned |
 | **TH-06** | Kho & giá vốn | Tồn kho, nhập/xuất, kiểm kê, giá vốn | [TH-06-inventory-and-costing/](TH-06-inventory-and-costing/) | planned |
@@ -23,6 +23,8 @@ Khung viết theme mới: [THEME_DOCUMENTATION_TEMPLATE.md](THEME_DOCUMENTATION_
 **Trạng thái:** `planned` | `in_progress` | `mvp` | `done`
 
 Dự án đang ở **greenfield baseline** — module packages là skeleton rỗng; viết theme doc khi bắt đầu deliver từng TH-xx.
+
+Theme `in_progress` dùng cấu trúc **README + harness/ + Epic/US/FR** — xem [THEME_DOCUMENTATION_TEMPLATE.md](THEME_DOCUMENTATION_TEMPLATE.md) và [TH-03-partner/](TH-03-partner/).
 
 ## Thêm theme mới (TH-12+)
 

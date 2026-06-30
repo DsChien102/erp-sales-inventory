@@ -1,0 +1,36 @@
+# TH-03 — Harness notes
+
+## Guards áp dụng
+
+| Guard | Script |
+| ----- | ------ |
+| Layer imports | `scripts/ci/guard_layer_imports.sh` |
+| Infra Dart-only | `scripts/ci/guard_infra_dart_only.sh` |
+| Theme docs structure | `scripts/ci/guard_theme_structure.sh` |
+| Theme traceability | `scripts/ci/guard_theme_traceability.sh` |
+| Doc links | `scripts/ci/guard_docs_reference.sh` |
+
+Umbrella: `scripts/ci/verify_harness.sh`
+
+## Verify chain (mỗi slice)
+
+```bash
+melos bootstrap
+melos run analyze
+melos run test
+./scripts/ci/verify_harness.sh
+```
+
+## Flywheel log
+
+| Date | Lỗi / ghi chú | Biện pháp |
+| ---- | ------------- | --------- |
+| 2026-06-30 | Khởi tạo harness/ scaffold TH-03 | README + harness layer + guards |
+| — | Dup-check chỉ UI | Ghi nhớ: RPC tenant-scoped khi implement US-02 FR-5 |
+| — | Permission label tiếng Việt vs code | Bảng mapping trong 02-module-map.md |
+| — | Epic-03 blocked | Chờ sales/inventory/accounting events |
+
+## Liên kết
+
+- [harness-engineering.md](../../../architecture/harness-engineering.md)
+- [PROGRESS.md](../../../harness/PROGRESS.md)

@@ -49,7 +49,7 @@ packages/vet45_shared/*     → never import modules/
 | Domain modeling, aggregates, commands | `.cursor/skills/ddd-domain-modeling/SKILL.md` |
 | Application layer (handlers, ports, DTOs) | `.cursor/skills/application-layer/SKILL.md` |
 | Infrastructure (RPC, gateways, startup) | `.cursor/skills/infrastructure-layer/SKILL.md` |
-| Harness approach | `docs/architecture/harness-agent.md` |
+| Harness approach | `docs/architecture/harness-engineering.md` |
 
 Canonical specs (mirror của skills): `docs/application_layer_skill.md`, `docs/infrastructure_layer_skill.md`, `docs/ddd_domain_modeling_skill.md`.
 
@@ -58,6 +58,8 @@ Canonical specs (mirror của skills): `docs/application_layer_skill.md`, `docs/
 ```text
 1. Đọc AGENTS.md + .cursor/rules/vet45-architecture.mdc
 2. Đọc docs/harness/PROGRESS.md — biết harness đã hoàn thành gì
+2b. Nếu task gắn theme (vd. TH-03): đọc docs/themes/TH-xx-*/README.md
+     → harness/00-agent-ritual.md → slice-roadmap → US/FR product spec
 3. Xác định layer → mở skill tương ứng
 4. Implement (minimal diff, match conventions hiện có)
 5. Verify:
@@ -94,8 +96,16 @@ cd apps/messaging_worker && dart test
 
 `apps/erp/lib/features/auth/` là mini bounded context trong shell app. **Target architecture** là module `iam` qua `IModuleMediator` — không mở rộng pattern auth shell khi implement tính năng mới.
 
+## Theme harness (TH-03)
+
+Theme đang deliver: [docs/themes/TH-03-partner/](docs/themes/TH-03-partner/)
+
+- Ritual: [harness/00-agent-ritual.md](docs/themes/TH-03-partner/harness/00-agent-ritual.md)
+- Slice order: [harness/04-slice-roadmap.md](docs/themes/TH-03-partner/harness/04-slice-roadmap.md)
+
 ## Liên kết
 
-- [docs/architecture/](docs/architecture/) — kiến trúc platform
+- [docs/architecture/](docs/architecture/) — kiến trúc platform (CQRS, module layout)
 - [docs/harness/PROGRESS.md](docs/harness/PROGRESS.md) — tiến độ harness
+- [docs/themes/](docs/themes/) — catalog theme
 - [packages/vet45_shared/README.md](packages/vet45_shared/README.md) — shared toolkit

@@ -17,6 +17,7 @@ Mọi kiến thức agent cần phải nằm trong repo:
 | `.cursor/skills/*` | Workflow theo layer |
 | `docs/*_skill.md` | Canonical spec mirror |
 | [PROGRESS.md](../harness/PROGRESS.md) | Tiến độ harness maturity |
+| `docs/themes/TH-xx/harness/*` | Theme engineering truth (domain-model, module-map, traceability) |
 
 **Nguyên tắc:** Nếu không có trong repo, agent không biết.
 
@@ -29,6 +30,8 @@ Ràng buộc kiến trúc được **enforce bằng script/CI**, không chỉ b�
 | Infrastructure Dart-only | `scripts/ci/guard_infra_dart_only.sh` |
 | Layer import rules | `scripts/ci/guard_layer_imports.sh` |
 | Agent doc links | `scripts/ci/guard_docs_reference.sh` |
+| Theme doc structure | `scripts/ci/guard_theme_structure.sh` |
+| Theme traceability (when exemplar complete) | `scripts/ci/guard_theme_traceability.sh` |
 | Codegen freshness (strict, tương lai) | `scripts/ci/guard_codegen_fresh.sh` |
 
 Umbrella: `scripts/ci/verify_harness.sh`

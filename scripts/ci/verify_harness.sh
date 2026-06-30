@@ -14,6 +14,12 @@ echo "==> guard_layer_imports"
 echo "==> guard_docs_reference"
 "$root/scripts/ci/guard_docs_reference.sh"
 
+echo "==> guard_theme_structure"
+"$root/scripts/ci/guard_theme_structure.sh"
+
+echo "==> guard_theme_traceability"
+"$root/scripts/ci/guard_theme_traceability.sh"
+
 echo "==> guard_codegen_fresh"
 "$root/scripts/ci/guard_codegen_fresh.sh"
 

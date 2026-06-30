@@ -57,8 +57,10 @@ Các nội dung sau không nằm trong phạm vi xử lý chính của Theme Kh�
 
 ## Epic map
 
-| Epic | Mô tả |
-|---|---|
-| Epic 01 - Quản lý danh sách và hồ sơ đối tác | Quản lý hồ sơ gốc của đối tác, bao gồm tra cứu danh sách, ghi nhận đối tác mới, bổ sung/chỉnh sửa thông tin và kiểm tra hồ sơ chi tiết. |
-| Epic 02 - Quản lý trạng thái đối tác | Kiểm soát việc ngừng hoạt động, kích hoạt lại và loại bỏ hồ sơ đối tác tạo nhầm theo điều kiện dữ liệu đã phát sinh. |
-| Epic 03 - Theo dõi lịch sử giao dịch của đối tác | Cho phép xem lịch sử làm việc/giao dịch đã phát sinh với đối tác, hỗ trợ lọc, tìm kiếm và mở chi tiết giao dịch nguồn khi cần. |
+| Epic | Mô tả | Folder |
+| ---- | ----- | ------ |
+| Epic 01 - Quản lý danh sách và hồ sơ đối tác | Quản lý hồ sơ gốc của đối tác, bao gồm tra cứu danh sách, ghi nhận đối tác mới, bổ sung/chỉnh sửa thông tin và kiểm tra hồ sơ chi tiết. | [Epic-01-partner-profile/](Epic-01-partner-profile/) |
+| Epic 02 - Quản lý trạng thái đối tác | Kiểm soát việc ngừng hoạt động, kích hoạt lại và loại bỏ hồ sơ đối tác tạo nhầm theo điều kiện dữ liệu đã phát sinh. | [Epic-02-partner-status/](Epic-02-partner-status/) |
+| Epic 03 - Theo dõi lịch sử giao dịch của đối tác | Cho phép xem lịch sử làm việc/giao dịch đã phát sinh với đối tác, hỗ trợ lọc, tìm kiếm và mở chi tiết giao dịch nguồn khi cần. | [Epic-03-partner-transaction-history/](Epic-03-partner-transaction-history/) |
+
+Harness engineering: [harness/](harness/) · Index: [README.md](README.md)
