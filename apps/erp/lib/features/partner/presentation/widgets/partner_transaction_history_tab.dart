@@ -52,62 +52,11 @@ class PartnerTransactionHistoryTab extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: VSpacing.space3),
-          Row(
-            children: [
-              Text(
-                'STATE DEMO: ',
-                style: VTypography.caption.copyWith(color: dynamicColors.textSecondary),
-              ),
-              const SizedBox(width: 8),
-              _buildDemoButton(
-                context,
-                label: 'ready',
-                isSelected: state.transactionStatus == TransactionHistoryStatus.ready,
-                onTap: () => cubit.setTransactionStatus(TransactionHistoryStatus.ready),
-              ),
-              const SizedBox(width: 8),
-              _buildDemoButton(
-                context,
-                label: 'loading',
-                isSelected: state.transactionStatus == TransactionHistoryStatus.loading,
-                onTap: () => cubit.setTransactionStatus(TransactionHistoryStatus.loading),
-              ),
-              const SizedBox(width: 8),
-              _buildDemoButton(
-                context,
-                label: 'error',
-                isSelected: state.transactionStatus == TransactionHistoryStatus.error,
-                onTap: () => cubit.setTransactionStatus(TransactionHistoryStatus.error),
-              ),
-            ],
-          ),
         ],
       ),
     );
   }
 
-  Widget _buildDemoButton(BuildContext context, {required String label, required bool isSelected, required VoidCallback onTap}) {
-    final dynamicColors = context.vColors;
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-        decoration: BoxDecoration(
-          color: isSelected ? dynamicColors.textPrimary : dynamicColors.surface,
-          borderRadius: BorderRadius.circular(4),
-          border: Border.all(color: dynamicColors.borderDefault),
-        ),
-        child: Text(
-          label,
-          style: VTypography.bodySmall.copyWith(
-            color: isSelected ? dynamicColors.surface : dynamicColors.textSecondary,
-            fontSize: 10,
-          ),
-        ),
-      ),
-    );
-  }
 
   Widget _buildContent(BuildContext context, PartnerDetailState state) {
     if (state.transactionStatus == TransactionHistoryStatus.loading) {

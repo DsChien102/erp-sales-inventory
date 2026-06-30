@@ -8,6 +8,8 @@ import '../bloc/partner_create_cubit.dart';
 import '../bloc/partner_create_state.dart';
 import '../widgets/partner_form_sections.dart';
 import '../widgets/partner_role_type_section.dart';
+import '../widgets/partner_cancel_confirm_dialog.dart';
+import '../widgets/partner_duplicate_warning_dialog.dart';
 
 class PartnerCreatePage extends StatelessWidget {
   const PartnerCreatePage({super.key});
@@ -130,24 +132,7 @@ class _PartnerCreateView extends StatelessWidget {
     if (state.name.isNotEmpty || state.phone.isNotEmpty) {
       showDialog(
         context: context,
-        builder: (dialogContext) => AlertDialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(VRadius.card)),
-          title: Text('Xác nhận thoát', style: VTypography.headingH4),
-          content: Text('Bạn có dữ liệu chưa lưu. Bạn có chắc chắn muốn thoát?', style: VTypography.bodyDefault),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(dialogContext),
-              child: const Text('Tiếp tục nhập'),
-            ),
-            TextButton(
-              onPressed: () {
-                Navigator.pop(dialogContext);
-                context.pop();
-              },
-              child: const Text('Thoát', style: TextStyle(color: VColors.danger)),
-            ),
-          ],
-        ),
+        builder: (dialogContext) => const PartnerCancelConfirmDialog(),
       );
     } else {
       context.pop();
@@ -159,36 +144,10 @@ class _PartnerCreateView extends StatelessWidget {
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (dialogContext) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(VRadius.card)),
-        title: Text('Cảnh báo trùng lặp', style: VTypography.headingH4),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('Hệ thống phát hiện dữ liệu có khả năng trùng:', style: VTypography.bodyDefault),
-            const SizedBox(height: 8),
-            ...warnings.map((w) => Text('- $w', style: VTypography.bodyDefault.copyWith(color: VColors.danger))),
-            const SizedBox(height: 16),
-            Text('Bạn có muốn tiếp tục lưu hồ sơ này?', style: VTypography.bodyDefault),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.pop(dialogContext);
-              cubit.cancelSubmit();
-            },
-            child: const Text('Quay lại kiểm tra'),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.pop(dialogContext);
-              cubit.confirmSubmit();
-            },
-            child: const Text('Vẫn tiếp tục lưu', style: TextStyle(color: VColors.success)),
-          ),
-        ],
+      builder: (dialogContext) => PartnerDuplicateWarningDialog(
+        warnings: warnings,
+        onCancel: () => cubit.cancelSubmit(),
+        onConfirm: () => cubit.confirmSubmit(),
       ),
     );
   }

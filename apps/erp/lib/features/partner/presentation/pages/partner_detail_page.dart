@@ -4,6 +4,7 @@ import 'package:vet45_design_system/design_system.dart';
 import '../bloc/partner_detail_cubit.dart';
 import '../bloc/partner_list_state.dart';
 import '../widgets/partner_detail_header.dart';
+import '../widgets/partner_detail_menu.dart';
 import '../widgets/partner_general_info_tab.dart';
 import '../widgets/partner_transaction_history_tab.dart';
 
@@ -33,12 +34,7 @@ class _PartnerDetailPageState extends State<PartnerDetailPage> {
         appBar: VAppBar(
           title: 'Chi tiết KH & NCC',
           actions: [
-            IconButton(
-              icon: Icon(Icons.more_horiz, color: dynamicColors.textPrimary),
-              onPressed: () {
-                // TODO: actions (e.g. Delete)
-              },
-            ),
+            PartnerDetailMenu(partner: widget.partner),
           ],
         ),
         body: Column(
@@ -64,7 +60,7 @@ class _PartnerDetailPageState extends State<PartnerDetailPage> {
             ),
           ],
         ),
-        bottomNavigationBar: SafeArea(
+        bottomNavigationBar: widget.partner.status == 'Đã xóa' ? null : SafeArea(
           child: Padding(
             padding: const EdgeInsets.all(VSpacing.space4),
             child: VButton(

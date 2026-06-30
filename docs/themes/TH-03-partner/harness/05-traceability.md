@@ -59,6 +59,7 @@ Test id: scn_e01_u02_fr06_01 (handler/integration), wgt_e02_u01_fr03_01 (widget 
 | FR-03 | — | — | `apps/erp/lib/features/partner/presentation/widgets/partner_general_info_tab.dart` | — | Implemented (presentation) |
 | FR-04 | — | — | `apps/erp/lib/features/partner/presentation/bloc/partner_detail_cubit.dart` | — | Implemented (presentation) |
 | FR-04 | — | — | `apps/erp/lib/features/partner/presentation/bloc/partner_detail_state.dart` | — | Implemented (presentation) |
+| FR-05 | — | — | `apps/erp/lib/features/partner/presentation/widgets/partner_detail_menu.dart` | — | Implemented (presentation) |
 | FR-05 | — | — | `apps/erp/lib/features/partner/presentation/widgets/partner_transaction_history_tab.dart` | — | Implemented (presentation) |
 | FR-05 | — | — | `apps/erp/lib/features/partner/presentation/widgets/partner_transaction_item.dart` | — | Implemented (presentation) |
 
