@@ -36,11 +36,12 @@ Infrastructure implements how the module talks to the outside world.
 
 ## 3. Hard rules
 
-1. `*_page.dart` / `*_screen.dart` **≤ 500 lines** — `scripts/ci/guard_presentation_size.sh`
-2. **One dialog = one file** — `StatelessWidget` in `widgets/`; no inline `AlertDialog` in pages — `scripts/ci/guard_presentation_dialogs.sh`
-3. No large `Widget _buildXxx()` in `State` — extract class widget or separate file
-4. Page = thin composition root (widgets + Bloc/Cubit + navigation)
-5. Prefer `const` constructors when parameters are immutable
+1. **Design System First**: You **must** use UI components from the `vet45_design_system` package. Do not build custom UI components from scratch (like buttons, text fields, typography, colors) if a corresponding component exists in the design system.
+2. `*_page.dart` / `*_screen.dart` **≤ 500 lines** — `scripts/ci/guard_presentation_size.sh`. This forces breaking down UI into smaller, reusable widgets to prevent long, unmaintainable code files.
+3. **One dialog = one file** — `StatelessWidget` in `widgets/`; no inline `AlertDialog` in pages — `scripts/ci/guard_presentation_dialogs.sh`
+4. **No large `Widget _buildXxx()` methods**: Do not use `_buildXxx()` for large UI subtrees in `State`. You must extract them into separate stateless or stateful widget classes, preferably in their own files if they are substantial.
+5. Page = thin composition root (widgets + Bloc/Cubit + navigation). A page should mostly be a scaffold composing smaller widgets.
+6. Prefer `const` constructors when parameters are immutable.
 
 Small private widgets (e.g. `_SectionHeader`) in the same file are OK if the page stays ≤ 500 lines.
 
