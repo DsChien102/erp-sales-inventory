@@ -31,13 +31,14 @@ Checklist tiến độ Harness Engineering. Agent đọc file này ở đầu se
 
 ## Phase 2 — IAM golden module (planned)
 
-- [ ] IAM vertical slice: command + validator + handler + gateway + RPC migration
-- [ ] `IamMediationModule` + codegen `registerGeneratedIamHandlers`
-- [x] `IamStartup.initializeForTesting` — contract stub (phase 2 prep)
-- [ ] Handler test với `PipelineTestHarness`
-- [ ] Wire `IamStartup` từ `apps/erp/lib/core/di/injection.dart`
-- [ ] Migrate ERP auth khỏi legacy `features/auth/` pattern
-- [ ] Bật `GUARD_CODEGEN_STRICT=1` trong CI
+- [x] IAM minimal foundation — DB schema `iam` + RPC session/permission + `IamPermissionChecker` / `IamTenantAccessChecker` / `IExecutionContext`
+- [x] `IamMediationModule` hand-wired (SignIn/SignOut/GetCurrentSession) + `AccessMetadataRegistry`
+- [x] `IamStartup.initialize` / `initializeForTesting` — composition root + `IamRuntime`
+- [x] Handler tests — checkers + SignIn + composition
+- [x] Wire `IamStartup` từ `apps/erp/lib/core/di/injection.dart`
+- [x] Migrate ERP auth khỏi legacy `features/auth/` domain+data (login/logout qua `IIamModule`)
+- [ ] IAM vertical slice đầy đủ (SRS Theme 1): aggregates, role management use-cases, codegen
+- [ ] codegen `registerGeneratedIamHandlers` + bật `GUARD_CODEGEN_STRICT=1` trong CI
 - [ ] Cập nhật AGENTS.md — IAM là reference chính thức
 
 ## Flywheel log
@@ -48,3 +49,4 @@ Ghi các cải tiến harness sau khi agent fail (ngày + mô tả ngắn):
 | ---- | ----------- |
 | 2026-06-29 | Initial harness phase — AGENTS.md, guards, CI, doc reconcile |
 | 2026-06-30 | Presentation harness — skill, UI guards, TH-03 ritual, dashboard golden ref |
+| 2026-06-30 | IAM minimal — DB RBAC, access checkers, ERP auth migration via IIamModule |

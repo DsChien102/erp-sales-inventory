@@ -1,15 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:vet45_design_system/design_system.dart';
+import 'package:vet45_iam_application/application.dart';
 
 import '../../../../core/di/injection.dart';
-import '../../../auth/domain/usecases/sign_out_use_case.dart';
+import '../../../../core/errors/exception_mapper.dart';
 
 class MorePage extends StatelessWidget {
   const MorePage({super.key});
 
   Future<void> _logout(BuildContext context) async {
-    final result = await getIt<SignOutUseCase>()();
+    final result = await guard(
+      () => getIt<IIamModule>().executeCommandAsync(SignOutCommand()),
+    );
 
     if (!context.mounted) return;
 

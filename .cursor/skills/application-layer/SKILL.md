@@ -314,6 +314,32 @@ Canonical example: `packages/vet45_shared/testing/test/shared_testing_test.dart`
 
 ---
 
+## IAM access plumbing (minimal — align SRS sau)
+
+Host (`apps/erp/lib/core/di/injection.dart`) khởi tạo `IamStartup` và đăng ký:
+
+- `IExecutionContext`, `IPermissionChecker`, `ITenantAccessChecker`
+- `ICurrentUser` / `ICurrentTenant` (snapshot từ `IamSession`)
+
+Module khác nhận 3 service này qua `<Module>Startup.initialize(...)` và truyền vào `DefaultCommandPipeline.buildBusinessPipeline`:
+
+```dart
+DefaultCommandPipeline.buildBusinessPipeline<MyCommand, void, MyHandler>(
+  container: container,
+  handler: container.get<MyHandler>(),
+  invoke: (command, handler) => handler.handle(command),
+  accessMetadata: moduleAccessMetadataRegistry,
+  permissionChecker: permissionChecker,      // từ IAM host
+  tenantAccessChecker: tenantAccessChecker,  // từ IAM host
+);
+```
+
+Command tenant-scoped: `implements ITenantScopedCommand` + `@RequiresTenant()`. Command cần quyền: `@RequiresPermission('<module>.<action>')`.
+
+Reference: `modules/iam/infrastructure/lib/src/configuration/iam_startup.dart`, `modules/iam/infrastructure/lib/src/configuration/mediation/mediation_module.dart`.
+
+---
+
 ## Anti-patterns (từ chối)
 
 ```text

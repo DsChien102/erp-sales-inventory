@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:vet45_design_system/design_system.dart';
 import 'package:go_router/go_router.dart';
+import 'package:vet45_iam_infrastructure/infrastructure.dart';
+import 'package:vet45_shared_application/application.dart';
 
 import '../../features/more/presentation/pages/system_settings_page.dart';
 import '../../features/more/presentation/einvoice_settings/pages/einvoice_settings_page.dart';
@@ -8,7 +10,6 @@ import '../../features/more/presentation/einvoice_settings/pages/einvoice_connec
 import '../../features/more/presentation/einvoice_settings/pages/einvoice_template_page.dart';
 import '../../features/more/presentation/einvoice_settings/pages/einvoice_auto_page.dart';
 import '../../features/more/presentation/einvoice_settings/bloc/einvoice_settings_cubit.dart';
-import '../../features/auth/domain/usecases/get_auth_state_use_case.dart';
 import '../../features/auth/presentation/pages/login_page.dart';
 import '../../features/dashboard/presentation/dashboard_page.dart';
 import '../../features/dashboard/presentation/models/dashboard_navigation.dart';
@@ -17,14 +18,14 @@ import '../di/injection.dart';
 final appRouter = GoRouter(
   initialLocation: '/',
   redirect: (context, state) {
-    final auth = getIt<GetAuthStateUseCase>()();
+    final isAuthenticated = getIt<ICurrentUser>().userId != null;
     final isLoginRoute = state.matchedLocation == '/login';
 
-    if (!auth.isAuthenticated && !isLoginRoute) {
+    if (!isAuthenticated && !isLoginRoute) {
       return '/login';
     }
 
-    if (auth.isAuthenticated && isLoginRoute) {
+    if (isAuthenticated && isLoginRoute) {
       return '/';
     }
 
@@ -53,8 +54,8 @@ final appRouter = GoRouter(
       path: '/more/einvoice-settings',
       name: 'more.einvoice-settings',
       builder: (context, state) {
-        final authState = getIt<GetAuthStateUseCase>()();
-        if (authState.email == 'no-permission@vet45.com') {
+        final session = getIt<IamSession>();
+        if (!session.hasPermission('settings.einvoice.configure')) {
           WidgetsBinding.instance.addPostFrameCallback((_) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(

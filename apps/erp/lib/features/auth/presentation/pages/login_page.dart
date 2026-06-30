@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:vet45_design_system/design_system.dart';
+import 'package:vet45_iam_application/application.dart';
 
 import '../../../../core/di/injection.dart';
-import '../../domain/usecases/sign_in_use_case.dart';
+import '../../../../core/errors/exception_mapper.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -35,9 +36,13 @@ class _LoginPageState extends State<LoginPage> {
 
     setState(() => _isSubmitting = true);
 
-    final result = await getIt<SignInUseCase>()(
-      email: _emailController.text.trim(),
-      password: _passwordController.text,
+    final result = await guard(
+      () => getIt<IIamModule>().executeCommandAsync(
+        SignInCommand(
+          email: _emailController.text.trim(),
+          password: _passwordController.text,
+        ),
+      ),
     );
 
     if (!mounted) {

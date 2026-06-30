@@ -1,11 +1,9 @@
 import 'package:get_it/get_it.dart';
+import 'package:vet45_iam_application/application.dart';
+import 'package:vet45_iam_infrastructure/infrastructure.dart';
+import 'package:vet45_shared_application/application.dart';
 import 'package:vet45_shared_infrastructure/infrastructure.dart';
 
-import '../../features/auth/data/repositories/supabase_auth_repository.dart';
-import '../../features/auth/domain/repositories/auth_repository.dart';
-import '../../features/auth/domain/usecases/get_auth_state_use_case.dart';
-import '../../features/auth/domain/usecases/sign_in_use_case.dart';
-import '../../features/auth/domain/usecases/sign_out_use_case.dart';
 import '../supabase/supabase_module.dart';
 
 final getIt = GetIt.instance;
@@ -17,16 +15,25 @@ Future<void> initDependencies({required SupabaseModule supabaseModule}) async {
 
   getIt.registerSingleton<SupabaseModule>(supabaseModule);
 
-  getIt.registerLazySingleton<AuthRepository>(
-    () => SupabaseAuthRepository(getIt()),
-  );
-  getIt.registerLazySingleton(() => SignInUseCase(getIt()));
-  getIt.registerLazySingleton(() => SignOutUseCase(getIt()));
-  getIt.registerLazySingleton(() => GetAuthStateUseCase(getIt()));
-
   getIt.registerLazySingleton<ILoggerFactory>(
     () => const LoggingLoggerFactory(),
   );
 
   getIt.registerLazySingleton<IEventsBus>(() => InMemoryEventBusClient());
+
+  final iamRuntime = await IamStartup.initialize(
+    supabase: supabaseModule.client,
+    loggerFactory: getIt<ILoggerFactory>(),
+    integrationEventBus: getIt<IEventsBus>(),
+  );
+
+  getIt
+    ..registerSingleton<IIamModule>(iamRuntime.module)
+    ..registerSingleton<IExecutionContext>(iamRuntime.executionContext)
+    ..registerSingleton<IPermissionChecker>(iamRuntime.permissionChecker)
+    ..registerSingleton<ITenantAccessChecker>(iamRuntime.tenantAccessChecker)
+    ..registerSingleton<IamSession>(iamRuntime.session)
+    ..registerSingleton<ICurrentUser>(iamRuntime.session)
+    ..registerSingleton<ICurrentTenant>(iamRuntime.session)
+    ..registerSingleton<IPrincipalSnapshot>(iamRuntime.session);
 }

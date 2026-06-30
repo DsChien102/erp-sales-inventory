@@ -1,11 +1,16 @@
 import 'package:fpdart/fpdart.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:vet45_shared_application/application.dart';
 
 import 'failure.dart';
 
 /// Maps Supabase/Postgres errors to [Failure] for the domain layer.
 Failure mapExceptionToFailure(Object error, [StackTrace? stackTrace]) {
   if (error is AuthException) {
+    return AuthFailure(error.message);
+  }
+
+  if (error is ApplicationException) {
     return AuthFailure(error.message);
   }
 
