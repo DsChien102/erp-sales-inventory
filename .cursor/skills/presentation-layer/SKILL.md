@@ -52,11 +52,12 @@ Mutations/reads: `IExecutionContext` → `IModuleMediator` — không bypass qua
 
 ## Quy tắc cứng
 
-1. **Page/screen ≤ 500 dòng** — enforce bởi `scripts/ci/guard_presentation_size.sh`
-2. **1 dialog = 1 file** — `StatelessWidget` (ưu tiên `const`) trong `widgets/`, không inline `AlertDialog` trong page
-3. **Không `Widget _buildXxx()`** cho subtree lớn trong `State` — tách class widget riêng hoặc file riêng
-4. **Page = composition root** — compose widgets, wire Bloc/Cubit, navigate; logic nghiệp vụ ở application
-5. **Ưu tiên `const`** khi params immutable — giảm rebuild subtree
+1. **Bắt buộc dùng Design System**: Mọi thành phần UI (Button, TextField, Typography, Colors...) **phải** được sử dụng từ package `vet45_design_system`. Tuyệt đối không tự custom UI từ đầu nếu design system đã có sẵn.
+2. **Page/screen ≤ 500 dòng** — enforce bởi `scripts/ci/guard_presentation_size.sh`. Quy định này bắt buộc bạn phải phân nhỏ UI thành các widget nhỏ hơn (component) ở các file riêng biệt để tránh tình trạng code trải dài, khó bảo trì.
+3. **1 dialog = 1 file** — `StatelessWidget` (ưu tiên `const`) trong `widgets/`, không inline `AlertDialog` trong page
+4. **Không `Widget _buildXxx()`** cho subtree lớn trong `State` — bắt buộc phải tách thành các class widget riêng biệt hoặc tạo file riêng để chia nhỏ giao diện.
+5. **Page = composition root** — compose widgets, wire Bloc/Cubit, navigate; logic nghiệp vụ ở application. Page chỉ nên đóng vai trò là một khung sườn (scaffold) gọi đến các widget con.
+6. **Ưu tiên `const`** khi params immutable — giảm rebuild subtree
 
 Ngoại lệ nhỏ: private widget cục bộ (vd. `_SectionHeader`) OK nếu file page vẫn ≤ 500 dòng và subtree nhỏ.
 
