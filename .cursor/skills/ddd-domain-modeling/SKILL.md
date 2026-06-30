@@ -1,6 +1,6 @@
 ---
 name: ddd-domain-modeling
-description: Analyzes business requirements and designs Tactical DDD models for modular monolith ERP modules — bounded contexts, aggregates, entities, value objects, business rules, commands, queries, and domain events. Use when analyzing epics/user stories, designing a new module domain layer, refactoring God aggregates, naming use cases, or when the user mentions DDD, bounded context, aggregate, value object, domain modeling, or business rules.
+description: Analyzes business requirements and produces Tactical DDD domain model artifacts for ERP modules — bounded contexts, aggregates, value objects, business rules, commands, queries, and domain events. Use when analyzing epics/user stories, writing or updating harness/01-domain-model.md, designing bounded context boundaries, or when the user mentions DDD analysis, domain modeling, or business rules discovery (not domain code implementation).
 ---
 
 # DDD Domain Modeling
@@ -16,18 +16,20 @@ Infrastructure triển khai kỹ thuật.
 Presentation hiển thị cho người dùng.
 ```
 
-**Tham chiếu chi tiết:** [reference.md](reference.md) · **Ví dụ:** [examples.md](examples.md) · Canonical doc: `docs/ddd_domain_modeling_skill.md`
+**Tham chiếu chi tiết:** [reference.md](reference.md) · **Ví dụ:** [examples.md](examples.md) · Canonical doc: `docs/ddd_domain_modeling_skill.md` · **Implement code:** [domain-layer](../domain-layer/SKILL.md)
 
 ---
 
 ## Khi nào dùng
 
 - Phân tích Epic / User Story / Business Rule mới
+- Viết hoặc cập nhật `docs/themes/TH-xx/harness/01-domain-model.md`
 - Thiết kế bounded context và ranh giới module
-- Thiết kế aggregate, entity, value object, business rule
+- Thiết kế aggregate, entity, value object, business rule (ở mức tài liệu)
 - Đặt tên command/query theo **intent nghiệp vụ**
 - Review domain model tránh God Aggregate
-- Chuẩn bị implement `modules/<module>/domain/`
+
+**Không** dùng khi implement Dart trong `modules/*/domain/` — dùng [domain-layer](../domain-layer/SKILL.md).
 
 ---
 
@@ -197,48 +199,16 @@ Không trả aggregate ra presentation.
 
 ## Cấu trúc thư mục domain (project convention)
 
-**Quy tắc `lib/src/`:** mỗi aggregate là một thư mục; value object, policy, service thuộc aggregate nằm **trong** thư mục đó; barrel `lib/domain.dart` export public API.
+Khi document aggregate trong `01-domain-model.md`, ghi folder target theo convention:
 
 ```text
-modules/<module>/domain/
-  pubspec.yaml
-  lib/
-    domain.dart                          # barrel export
-    src/
-      <aggregate_name>/
-        <aggregate>.dart                 # aggregate root
-        <entity>.dart                      # entity con (nếu có)
-        <value_object>.dart                # VO thuộc aggregate
-        <aggregate>_repository.dart
-        <aggregate>_status.dart            # enum nếu cần
-        policies/
-          <policy_name>.dart               # policy thuộc aggregate
-        services/
-          <calculator|helper>.dart         # domain service thuộc aggregate
-        events/
-          <event_name>_domain_event.dart   # một event / file
-        rules/
-          <rule_name>_rule.dart            # một rule / file
-      shared/                              # chỉ calculator/policy dùng chéo nhiều aggregate
-        <cross_aggregate_calculator>.dart
+modules/<module>/domain/lib/src/<aggregate_name>/
+  <aggregate>.dart, rules/, events/, policies/, services/
 ```
 
-**Không** gom nhiều rule vào một file (`product_rules.dart`). Mỗi class `implements IBusinessRule` = một file trong `rules/`.
+Chi tiết implement (templates, một file / rule, tests): [domain-layer](../domain-layer/SKILL.md) · [reference.md](../domain-layer/reference.md).
 
-**Không** gom nhiều event vào một file (`product_domain_events.dart`). Mỗi class extends `DomainEventBase` = một file trong `events/` (`<event_name>_domain_event.dart`).
-
-**VO placement:** VO gắn với một aggregate → đặt cùng thư mục aggregate (ví dụ `ProductName` trong `products/`). Chỉ dùng `shared/` khi logic thực sự cross-aggregate (ví dụ `OrderTotalsCalculator` trong Sales).
-
-Base types từ `vet45_shared_domain`:
-
-```text
-Entity<Id>          — aggregate root & entity con
-ValueObject         — immutable, Equatable
-IBusinessRule       — isBroken() + message
-IAggregateRoot      — marker interface
-IDomainEvent        — domain event contract
-IRepository<T, Id>  — persistence contract
-```
+Base types: `vet45_shared_domain` — `Entity`, `ValueObject`, `IBusinessRule`, `DomainEventBase`, `IAggregateRoot`.
 
 ---
 
@@ -260,6 +230,8 @@ Khi phân tích/thiết kế, agent phải xuất:
 11. Anti-pattern warnings
 12. Review checklist (đã pass chưa)
 ```
+
+**Implement Dart** → [domain-layer](../domain-layer/SKILL.md) (đọc `01-domain-model.md` + `02-module-map.md`).
 
 ---
 
@@ -305,5 +277,6 @@ Khi phân tích/thiết kế, agent phải xuất:
 
 - Chi tiết pattern & decision tree: [reference.md](reference.md)
 - Ví dụ Sales module: [examples.md](examples.md)
+- Implement domain code: [domain-layer](../domain-layer/SKILL.md)
 - Template module: `docs/MODULES_IMPLEMENTATION_TEMPLATE.md`
 - Harness progress: `docs/harness/PROGRESS.md`

@@ -20,10 +20,12 @@ Presentation hiển thị cho người dùng.
 ## Khi nào dùng
 
 - Phân tích Epic / User Story / Business Rule
-- Thiết kế bounded context, aggregate, value object
+- Viết/cập nhật `docs/themes/TH-xx/harness/01-domain-model.md`
+- Thiết kế bounded context, aggregate, value object (tài liệu)
 - Đặt tên command/query theo intent nghiệp vụ
 - Review tránh God Aggregate
-- Chuẩn bị `modules/<module>/domain/`
+
+**Implement code** trong `modules/*/domain/` → [domain_layer_skill.md](domain_layer_skill.md)
 
 ## Quy trình (7 bước)
 
@@ -37,14 +39,7 @@ Presentation hiển thị cho người dùng.
 
 ## Domain folder convention
 
-```text
-modules/<module>/domain/lib/
-  domain.dart
-  src/<aggregate>/
-    <aggregate>.dart
-    rules/<rule_name>_rule.dart
-    events/<event_name>_domain_event.dart
-```
+Document trong `01-domain-model.md` — implement theo [domain_layer_skill.md](domain_layer_skill.md).
 
 Base types: `vet45_shared_domain` — `Entity`, `ValueObject`, `IBusinessRule`, `AggregateRoot`.
 
@@ -73,6 +68,7 @@ Base types: `vet45_shared_domain` — `Entity`, `ValueObject`, `IBusinessRule`, 
 
 ## Liên kết
 
+- [domain_layer_skill.md](domain_layer_skill.md)
 - [application_layer_skill.md](application_layer_skill.md)
 - [MODULES_IMPLEMENTATION_TEMPLATE.md](MODULES_IMPLEMENTATION_TEMPLATE.md)
 - [harness-engineering.md](architecture/harness-engineering.md)

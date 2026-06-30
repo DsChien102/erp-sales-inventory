@@ -15,7 +15,8 @@ Thứ tự đọc khi implement một FR slice. Platform CQRS/module layout: [do
 8. harness/03-architecture-and-flows.md — khi viết RPC/gateway
 9. harness/05-traceability.md — khi slice chuyển in_progress
 10. Skill theo layer:
-    - domain → .cursor/skills/ddd-domain-modeling/SKILL.md
+    - domain modeling (01-domain-model.md) → .cursor/skills/ddd-domain-modeling/SKILL.md
+    - domain implementation (modules/*/domain) → .cursor/skills/domain-layer/SKILL.md
     - application → .cursor/skills/application-layer/SKILL.md
     - infrastructure → .cursor/skills/infrastructure-layer/SKILL.md
 10b. FR có UI/Dialog/SCN:
@@ -40,6 +41,8 @@ cd apps/erp && flutter test test/features/partner/   # khi slice có UI
 | Mục đích | Path |
 | -------- | ---- |
 | Command + handler + codegen | `packages/vet45_generator/test/fixtures/lib/src/` |
+| Domain VO + rule (full) | `modules/accounting/domain/lib/src/money.dart` |
+| Domain interim (thin) | `modules/iam/domain/` |
 | Pipeline test | `packages/vet45_shared/testing/test/shared_testing_test.dart` |
 | Module layout | `docs/MODULES_IMPLEMENTATION_TEMPLATE.md` |
 | Page mỏng + widgets tách file | `apps/erp/lib/features/dashboard/presentation/` |

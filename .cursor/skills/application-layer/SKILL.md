@@ -288,7 +288,7 @@ Code preferences:
 | RPC, repository impl, read gateway impl | Infrastructure |
 | Widget, controller, UI state | Presentation |
 
-**Đọc DDD trước khi viết handler** — command list và aggregate boundary đến từ [ddd-domain-modeling](../ddd-domain-modeling/SKILL.md).
+**Đọc DDD / 01-domain-model trước khi viết handler** — command list và aggregate boundary đến từ [ddd-domain-modeling](../ddd-domain-modeling/SKILL.md). Implement domain trước: [domain-layer](../domain-layer/SKILL.md).
 
 **Đọc infrastructure khi định nghĩa port** — gateway/RPC naming từ [infrastructure-layer](../infrastructure-layer/SKILL.md).
 

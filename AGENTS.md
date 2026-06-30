@@ -49,13 +49,14 @@ packages/vet45_shared/*     → never import modules/
 
 | Task | Skill / doc |
 | ---- | ----------- |
-| Domain modeling, aggregates, commands | `.cursor/skills/ddd-domain-modeling/SKILL.md` |
+| Domain model phân tích (→ `01-domain-model.md`) | `.cursor/skills/ddd-domain-modeling/SKILL.md` |
+| Domain code implement (`modules/*/domain/`) | `.cursor/skills/domain-layer/SKILL.md` |
 | Application layer (handlers, ports, DTOs) | `.cursor/skills/application-layer/SKILL.md` |
 | Infrastructure (RPC, gateways, startup) | `.cursor/skills/infrastructure-layer/SKILL.md` |
 | Presentation UI (pages, dialogs, widgets) | `.cursor/skills/presentation-layer/SKILL.md` |
 | Harness approach | `docs/architecture/harness-engineering.md` |
 
-Canonical specs (mirror của skills): `docs/application_layer_skill.md`, `docs/infrastructure_layer_skill.md`, `docs/ddd_domain_modeling_skill.md`, `docs/presentation_layer_skill.md`.
+Canonical specs (mirror của skills): `docs/application_layer_skill.md`, `docs/domain_layer_skill.md`, `docs/infrastructure_layer_skill.md`, `docs/ddd_domain_modeling_skill.md`, `docs/presentation_layer_skill.md`.
 
 ## Agent workflow (ritual)
 

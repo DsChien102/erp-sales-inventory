@@ -1,7 +1,7 @@
 # TH-03 — Domain model
 
 > Bounded context: **partner** (`modules/partner/`). Schema Postgres: `partner`.
-> Skill: [ddd-domain-modeling](../../../../.cursor/skills/ddd-domain-modeling/SKILL.md)
+> Analyze: [ddd-domain-modeling](../../../../.cursor/skills/ddd-domain-modeling/SKILL.md) · Implement: [domain-layer](../../../../.cursor/skills/domain-layer/SKILL.md)
 
 ```mermaid
 erDiagram
@@ -220,3 +220,7 @@ erDiagram
 - Dup-check chỉ ở UI. Cần có RPC/query tenant-scoped để kiểm tra trùng SĐT, email, MST.
 - Query-time fan-out sang sales/inventory/accounting cho lịch sử. Nên dùng inbox projection/read model.
 - Cho phép xóa đối tác đã phát sinh giao dịch.
+
+## Implement
+
+Code domain từ document này: [domain-layer skill](../../../../.cursor/skills/domain-layer/SKILL.md) → `modules/partner/domain/lib/src/business_partner/`. Commands/handlers: [application-layer](../../../../.cursor/skills/application-layer/SKILL.md).
