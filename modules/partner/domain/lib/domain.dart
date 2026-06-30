@@ -1,2 +1,21 @@
-/// partner domain layer — add aggregates and value objects here.
 library;
+
+export 'src/business_partner/business_partner.dart';
+export 'src/business_partner/business_partner_role.dart';
+export 'src/business_partner/events/partner_registered.dart';
+export 'src/business_partner/repositories/i_business_partner_repository.dart';
+export 'src/business_partner/repositories/i_partner_duplicate_checker.dart';
+export 'src/ids/business_partner_id.dart';
+export 'src/search/partner_search_criteria.dart';
+export 'src/search/search_keyword_normalizer.dart';
+export 'src/shared/entity_type.dart';
+export 'src/shared/partner_role.dart';
+export 'src/shared/partner_status.dart';
+export 'src/shared/profile_category.dart';
+export 'src/value_objects/address.dart';
+export 'src/value_objects/bank_account.dart';
+export 'src/value_objects/email_address.dart';
+export 'src/value_objects/invoice_profile.dart';
+export 'src/value_objects/partner_name.dart';
+export 'src/value_objects/phone_number.dart';
+export 'src/value_objects/tax_code.dart';

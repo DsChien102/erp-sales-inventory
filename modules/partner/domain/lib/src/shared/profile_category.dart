@@ -1,0 +1,4 @@
+enum ProfileCategory {
+  individual,
+  organization,
+}
