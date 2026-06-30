@@ -1,16 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:vet45_design_system/design_system.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import '../bloc/partner_list_cubit.dart';
+import '../bloc/partner_list_state.dart';
+import '../widgets/partner_empty_state.dart';
+import '../widgets/partner_search_bar.dart';
 
 class PartnerListPage extends StatelessWidget {
   const PartnerListPage({super.key});
-
   @override
   Widget build(BuildContext context) {
     final dynamicColors = context.vColors;
 
-    return Scaffold(
-      backgroundColor: dynamicColors.background,
+    return BlocProvider(
+      create: (_) => PartnerListCubit(),
+      child: Scaffold(
+        backgroundColor: dynamicColors.background,
       appBar: VAppBar(
         title: 'Khách hàng & Nhà cung cấp',
         showBackButton: false,
@@ -23,97 +29,53 @@ class PartnerListPage extends StatelessWidget {
       ),
       body: Column(
         children: [
-          Container(
-            color: dynamicColors.surface,
-            padding: const EdgeInsets.all(VSpacing.space4),
-            child: Row(
-              children: [
-                Expanded(
-                  child: VTextField(
-                    hintText: 'Tìm tên, SĐT, email, MST',
-                    prefixIcon: const Icon(Icons.search, size: 20),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(VRadius.input),
-                      borderSide: BorderSide(color: dynamicColors.borderDefault),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(VRadius.input),
-                      borderSide: BorderSide(color: dynamicColors.primary),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: VSpacing.space2),
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: dynamicColors.surface,
-                    borderRadius: BorderRadius.circular(VRadius.input),
-                    border: Border.all(color: dynamicColors.borderDefault),
-                  ),
-                  child: Icon(Icons.tune, color: dynamicColors.textPrimary, size: 20),
-                ),
-              ],
-            ),
-          ),
+          const PartnerSearchBar(),
           Expanded(
-            child: ListView(
-              padding: const EdgeInsets.all(VSpacing.space4),
-              children: [
-                _buildPartnerItem(
-                  context,
-                  avatarText: 'MP',
-                  name: 'Đại lý Chăn nuôi Minh Phát',
-                  role: 'Nhà cung cấp',
-                  roleColor: VColors.warning,
-                  roleBgColor: VColors.warningBg,
-                  status: 'Đang hoạt động',
-                  info: '028 3822 5511 · Cập nhật 18/06/2026',
-                ),
-                const SizedBox(height: VSpacing.space3),
-                _buildPartnerItem(
-                  context,
-                  avatarText: 'TH',
-                  name: 'Trần Thị Hoa',
-                  role: 'Khách hàng',
-                  roleColor: VColors.info,
-                  roleBgColor: VColors.infoBg,
-                  status: 'Đang hoạt động',
-                  info: '0987 654 321 · Cập nhật 15/06/2026',
-                ),
-                const SizedBox(height: VSpacing.space3),
-                _buildPartnerItem(
-                  context,
-                  avatarText: 'ĐT',
-                  name: 'Cửa hàng Đức Thành',
-                  role: 'Nhà cung cấp',
-                  roleColor: VColors.warning,
-                  roleBgColor: VColors.warningBg,
-                  status: 'Đang hoạt động',
-                  info: '0903 888 123 · Cập nhật 12/06/2026',
-                ),
-                const SizedBox(height: VSpacing.space3),
-                _buildPartnerItem(
-                  context,
-                  avatarText: 'VA',
-                  name: 'Nguyễn Văn An',
-                  role: 'Khách hàng',
-                  roleColor: VColors.info,
-                  roleBgColor: VColors.infoBg,
-                  status: 'Đang hoạt động',
-                  info: '0912 345 678 · Cập nhật 30/05/2026',
-                ),
-                const SizedBox(height: 80), // padding for FAB
-              ],
+            child: BlocBuilder<PartnerListCubit, PartnerListState>(
+              builder: (context, state) {
+                if (state.status == PartnerListStatus.loading) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+                
+                if (state.partners.isEmpty) {
+                  return const PartnerEmptyState();
+                }
+
+                return ListView.separated(
+                  padding: const EdgeInsets.all(VSpacing.space4),
+                  itemCount: state.partners.length,
+                  separatorBuilder: (context, index) => const SizedBox(height: VSpacing.space3),
+                  itemBuilder: (context, index) {
+                    final partner = state.partners[index];
+                    return GestureDetector(
+                      onTap: () {
+                        // TODO: Navigate to detail (US-04)
+                      },
+                      child: _buildPartnerItem(
+                        context,
+                        avatarText: partner.avatarText,
+                        name: partner.name,
+                        role: partner.role,
+                        roleColor: partner.role == 'Khách hàng' ? VColors.info : (partner.role == 'Nhà cung cấp' ? VColors.warning : VColors.primary),
+                        roleBgColor: partner.role == 'Khách hàng' ? VColors.infoBg : (partner.role == 'Nhà cung cấp' ? VColors.warningBg : VColors.primary100),
+                        status: partner.status,
+                        info: '${partner.phone.isNotEmpty ? partner.phone + ' · ' : ''}Cập nhật ${partner.updatedAt}',
+                      ),
+                    );
+                  },
+                );
+              },
+              ),
             ),
-          ),
-        ],
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          context.push('/partner/create');
-        },
-        backgroundColor: VColors.success,
-        child: const Icon(Icons.add, color: Colors.white),
+          ],
+        ),
+        floatingActionButton: FloatingActionButton(
+          onPressed: () {
+            context.push('/partner/create');
+          },
+          backgroundColor: VColors.success,
+          child: const Icon(Icons.add, color: Colors.white),
+        ),
       ),
     );
   }
