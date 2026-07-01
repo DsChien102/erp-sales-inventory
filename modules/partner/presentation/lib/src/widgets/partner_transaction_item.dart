@@ -58,126 +58,103 @@ class PartnerTransactionItem extends StatelessWidget {
     final isNegative =
         transaction.amountMinor != null && transaction.amountMinor! < 0;
 
-    return GestureDetector(
-      onTap: () {
-        // FR-04: Navigate to source transaction detail (fallback developed preview)
-        showVConfirmDialog(
-          context: context,
-          title: 'Thông báo',
-          message: 'Chi tiết giao dịch đang được phát triển.',
-          cancelLabel: 'Đóng',
-          actionLabel: 'Xác nhận',
-          onAction: () {},
-        );
-      },
-      child: VCard(
-        child: Padding(
-          padding: const EdgeInsets.all(VSpacing.space3),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Row 1: Icon box, Title & Code, Chevron Right
-              Row(
-                children: [
-                  VIconBox(
-                    iconData: typeIcon,
-                    backgroundColor: dynamicColors.primary.withValues(
-                      alpha: 0.08,
-                    ),
-                    iconColor: dynamicColors.primary,
-                  ),
-                  const SizedBox(width: VSpacing.space3),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          typeLabel,
-                          style: VTypography.headingH4.copyWith(
-                            color: dynamicColors.textPrimary,
-                            fontWeight: FontWeight.bold,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        const SizedBox(height: 2),
-                        Text(
-                          transaction.transactionCode ?? transaction.id,
-                          style: VTypography.bodySmall2.copyWith(
-                            color: dynamicColors.textSecondary,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(width: VSpacing.space2),
-                  Icon(
-                    Icons.chevron_right,
-                    size: 20,
-                    color: dynamicColors.textMuted,
-                  ),
-                ],
-              ),
-              // Divider Line
-              Padding(
-                padding: const EdgeInsets.symmetric(
-                  vertical: VSpacing.space2,
+    // FR-02 BR-08 / FR-01 BR-06: Danh sách lịch sử chỉ đọc — không cho
+    // phép chỉnh sửa, hủy hoặc xử lý nghiệp vụ giao dịch từ màn này.
+    return VCard(
+      child: Padding(
+        padding: const EdgeInsets.all(VSpacing.space3),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Row 1: Icon box + Title & Code
+            Row(
+              children: [
+                VIconBox(
+                  iconData: typeIcon,
+                  backgroundColor: dynamicColors.primary.withValues(alpha: 0.08),
+                  iconColor: dynamicColors.primary,
                 ),
-                child: Divider(
-                  height: 1,
-                  thickness: 1,
-                  color: dynamicColors.borderDefault.withValues(
-                    alpha: 0.5,
-                  ),
-                ),
-              ),
-              // Row 2: Date & Time, Status Badge & Amount
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  // Left: Date with Calendar Icon
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
+                const SizedBox(width: VSpacing.space3),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Icon(
-                        Icons.calendar_today_outlined,
-                        size: 14,
-                        color: dynamicColors.textMuted,
-                      ),
-                      const SizedBox(width: VSpacing.space1),
                       Text(
-                        formatDate(transaction.occurredAt),
-                        style: VTypography.bodySmall.copyWith(
-                          color: dynamicColors.textSecondary,
-                        ),
-                      ),
-                    ],
-                  ),
-                  // Right: Status badge & Amount
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      VBadge(
-                        label: statusLabel,
-                        status: statusBadge,
-                        isSmall: true,
-                      ),
-                      const SizedBox(width: VSpacing.space2),
-                      Text(
-                        formatCurrency(transaction.amountMinor),
-                        style: VTypography.monoNumeric.copyWith(
-                          color: isNegative ? VColors.danger : VColors.success,
+                        typeLabel,
+                        style: VTypography.headingH4.copyWith(
+                          color: dynamicColors.textPrimary,
                           fontWeight: FontWeight.bold,
                         ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        transaction.transactionCode ?? transaction.id,
+                        style: VTypography.bodySmall2.copyWith(
+                          color: dynamicColors.textSecondary,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ],
                   ),
-                ],
+                ),
+              ],
+            ),
+            // Divider Line
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: VSpacing.space2),
+              child: Divider(
+                height: 1,
+                thickness: 1,
+                color: dynamicColors.borderDefault.withValues(alpha: 0.5),
               ),
-            ],
-          ),
+            ),
+            // Row 2: Date & Time | Status Badge & Amount
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                // Left: Date with Calendar Icon
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Icons.calendar_today_outlined,
+                      size: 14,
+                      color: dynamicColors.textMuted,
+                    ),
+                    const SizedBox(width: VSpacing.space1),
+                    Text(
+                      formatDate(transaction.occurredAt),
+                      style: VTypography.bodySmall.copyWith(
+                        color: dynamicColors.textSecondary,
+                      ),
+                    ),
+                  ],
+                ),
+                // Right: Status badge & Amount
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    VBadge(
+                      label: statusLabel,
+                      status: statusBadge,
+                      isSmall: true,
+                    ),
+                    const SizedBox(width: VSpacing.space2),
+                    Text(
+                      formatCurrency(transaction.amountMinor),
+                      style: VTypography.monoNumeric.copyWith(
+                        color: isNegative ? VColors.danger : VColors.success,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ],
         ),
       ),
     );

@@ -6,6 +6,7 @@ class TransactionFilterBottomSheet extends StatefulWidget {
     required this.initialTimeFilter,
     required this.initialTypeFilter,
     required this.initialStatusFilter,
+    required this.partnerRole,
     required this.onApply,
     required this.onReset,
     super.key,
@@ -14,6 +15,7 @@ class TransactionFilterBottomSheet extends StatefulWidget {
   final String initialTimeFilter;
   final String initialTypeFilter;
   final String initialStatusFilter;
+  final String partnerRole;
   final void Function(String time, String type, String status) onApply;
   final VoidCallback onReset;
 
@@ -34,6 +36,26 @@ class _TransactionFilterBottomSheetState
     _tempTime = widget.initialTimeFilter;
     _tempType = widget.initialTypeFilter;
     _tempStatus = widget.initialStatusFilter;
+  }
+
+  // FR-03 EC-03: lọc loại giao dịch theo vai trò đối tác.
+  // Khách hàng (customer): không có Phiếu nhập hàng.
+  // Nhà cung cấp (supplier): không có Đơn bán hàng và Hóa đơn bán hàng.
+  // Cả hai vai trò: hiển thị tất cả loại.
+  List<(String, String)> _typeOptions() {
+    final role = widget.partnerRole.toLowerCase();
+    final isCustomerOnly =
+        role.contains('khách hàng') && !role.contains('nhà cung cấp');
+    final isSupplierOnly =
+        role.contains('nhà cung cấp') && !role.contains('khách hàng');
+
+    return [
+      ('Tất cả', 'all'),
+      if (!isSupplierOnly) ('Đơn bán hàng', 'sales'),
+      if (!isCustomerOnly) ('Phiếu nhập hàng', 'purchase'),
+      if (!isSupplierOnly) ('Hóa đơn bán hàng', 'invoice'),
+      ('Phiếu đổi/trả', 'return'),
+    ];
   }
 
   Widget _buildFilterChip(
@@ -160,13 +182,7 @@ class _TransactionFilterBottomSheetState
             _buildFilterSection(
               context,
               'LOẠI GIAO DỊCH',
-              [
-                ('Tất cả', 'all'),
-                ('Đơn bán hàng', 'sales'),
-                ('Phiếu nhập hàng', 'purchase'),
-                ('Hóa đơn bán hàng', 'invoice'),
-                ('Phiếu đổi/trả', 'return'),
-              ],
+              _typeOptions(),
               _tempType,
               (v) => _tempType = v,
             ),
