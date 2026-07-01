@@ -4,7 +4,7 @@ Source of truth giữa presentation và application layer. Types live in `module
 
 Facade: `IPartnerModule` (`modules/partner/application/lib/src/contracts/i_partner_module.dart`).
 
-**Quy tắc:** FE fake theo contract này — không fake RPC trực tiếp. Scenario ids dùng trong `FakePartnerModule` (`modules/partner/application/test/support/fake_partner_module.dart`).
+**Quy tắc:** FE fake theo contract này — không fake RPC trực tiếp. Scenario ids dùng trong `FakePartnerModule` (`modules/partner/application/lib/src/testing/fake_partner_module.dart`, import `package:vet45_partner_application/testing.dart`).
 
 ---
 
@@ -148,11 +148,11 @@ Package: `vet45_partner_application` — `update_partner_profile/`, `check_dupli
 
 | Symbol | Input (summary) | Success | Errors |
 | ------ | --------------- | ------- | ------ |
-| `DeactivatePartnerCommand` | tenantId, actorId, partnerId, expectedVersion, statusNote? | `DeactivatePartnerResult` | Validation, NotFound, InvalidStatus, PermissionDenied |
-| `ReactivatePartnerCommand` | tenantId, actorId, partnerId, expectedVersion | `ReactivatePartnerResult` | Validation, NotFound, InvalidStatus, PermissionDenied |
-| `GetPartnerDetailQuery` | (pre-check status) | `PartnerDetailDto?` | — |
+| `DeactivatePartnerCommand` | tenantId, actorId, partnerId, expectedVersion, currentStatus, statusNote? | `DeactivatePartnerResult` | Validation, NotFound, InvalidStatus, PermissionDenied |
+| `ReactivatePartnerCommand` | tenantId, actorId, partnerId, expectedVersion, currentStatus | `ReactivatePartnerResult` | Validation, NotFound, InvalidStatus, PermissionDenied |
+| `GetPartnerDetailQuery` | (reload after mutation) | `PartnerDetailDto?` | — |
 
-Package: `vet45_partner_application` — `deactivate_partner/`, `reactivate_partner/` (stub).
+Package: `vet45_partner_application` — `deactivate_partner/`, `reactivate_partner/`.
 
 ### RPC mapping (BE)
 
@@ -181,13 +181,13 @@ Package: `vet45_partner_application` — `deactivate_partner/`, `reactivate_part
 
 ## Epic-02 / US-02 — Loại bỏ hồ sơ tạo nhầm
 
-> Placeholder — điền khi mở slice.
-
 ### Commands / Queries
 
 | Symbol | Input (summary) | Success | Errors |
 | ------ | --------------- | ------- | ------ |
-| `DeletePartnerCommand` | tenantId, actorId, partnerId, expectedVersion | `DeletePartnerResult` | TBD |
+| `DeletePartnerCommand` | tenantId, actorId, partnerId, expectedVersion, hasBusinessData | `DeletePartnerResult` | Validation, NotFound, HasBusinessData, PermissionDenied |
+
+Package: `vet45_partner_application` — `delete_partner/`.
 
 ### RPC mapping (BE)
 
@@ -195,9 +195,16 @@ Package: `vet45_partner_application` — `deactivate_partner/`, `reactivate_part
 | -------- | --- |
 | Soft delete | `partner.delete_partner` |
 
+### Fake scenarios (FE)
+
+| scenario_id | trigger | fake response |
+| ----------- | ------- | ------------- |
+| `delete_ok` | DeletePartnerCommand | success |
+| `delete_has_business_data` | DeletePartnerCommand or detail `hasBusinessData=true` | HasBusinessData error |
+
 ### Parallel notes
 
-- FE có thể fake: **yes** (sau CONTRACT)
+- FE có thể fake: **yes**
 - E2E prerequisite: US-04
 
 ---

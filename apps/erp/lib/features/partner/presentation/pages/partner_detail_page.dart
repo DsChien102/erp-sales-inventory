@@ -67,14 +67,45 @@ class _PartnerDetailPageState extends State<PartnerDetailPage> {
       return;
     }
 
-    final success = switch (action) {
-      'deactivate' => await cubit.deactivatePartner(),
-      'activate' => await cubit.reactivatePartner(),
-      _ => false,
-    };
+    if (action == 'deactivate') {
+      final partner = cubit.state.partner;
+      if (partner == null) {
+        return;
+      }
 
-    if (success) {
-      _hasPartnerChanges = true;
+      final confirmed = await DeactivatePartnerDialog.show(
+        context,
+        partner: partner,
+      );
+      if (!confirmed || !context.mounted) {
+        return;
+      }
+
+      final success = await cubit.deactivatePartner();
+      if (success) {
+        _hasPartnerChanges = true;
+      }
+      return;
+    }
+
+    if (action == 'activate') {
+      final partner = cubit.state.partner;
+      if (partner == null) {
+        return;
+      }
+
+      final confirmed = await ReactivatePartnerDialog.show(
+        context,
+        partner: partner,
+      );
+      if (!confirmed || !context.mounted) {
+        return;
+      }
+
+      final success = await cubit.reactivatePartner();
+      if (success) {
+        _hasPartnerChanges = true;
+      }
     }
   }
 

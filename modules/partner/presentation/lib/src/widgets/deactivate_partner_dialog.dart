@@ -4,16 +4,23 @@ import 'package:vet45_design_system/design_system.dart';
 import '../bloc/partner_list_state.dart';
 
 class DeactivatePartnerDialog extends StatelessWidget {
-  final PartnerItemModel partner;
-  final VoidCallback onCancel;
-  final VoidCallback onConfirm;
-
   const DeactivatePartnerDialog({
     super.key,
     required this.partner,
-    required this.onCancel,
-    required this.onConfirm,
   });
+
+  final PartnerItemModel partner;
+
+  static Future<bool> show(
+    BuildContext context, {
+    required PartnerItemModel partner,
+  }) async {
+    final result = await showDialog<bool>(
+      context: context,
+      builder: (context) => DeactivatePartnerDialog(partner: partner),
+    );
+    return result ?? false;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -24,7 +31,10 @@ class DeactivatePartnerDialog extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(partner.name, style: VTypography.bodyDefault.copyWith(fontWeight: FontWeight.w600)),
+          Text(
+            partner.name,
+            style: VTypography.bodyDefault.copyWith(fontWeight: FontWeight.w600),
+          ),
           const SizedBox(height: 8),
           Text(
             'Đối tác sẽ không được dùng trong giao dịch mới. Hồ sơ và dữ liệu cũ vẫn được giữ.',
@@ -34,17 +44,11 @@ class DeactivatePartnerDialog extends StatelessWidget {
       ),
       actions: [
         TextButton(
-          onPressed: () {
-            Navigator.pop(context);
-            onCancel();
-          },
+          onPressed: () => Navigator.pop(context, false),
           child: const Text('Hủy'),
         ),
         TextButton(
-          onPressed: () {
-            Navigator.pop(context);
-            onConfirm();
-          },
+          onPressed: () => Navigator.pop(context, true),
           child: const Text('Ngừng hoạt động', style: TextStyle(color: VColors.danger)),
         ),
       ],

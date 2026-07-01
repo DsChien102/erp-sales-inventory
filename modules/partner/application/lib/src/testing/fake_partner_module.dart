@@ -26,18 +26,37 @@ abstract final class FakePartnerScenario {
   // Epic-02 US-01 status
   static const deactivateOk = 'deactivate_ok';
   static const reactivateOk = 'reactivate_ok';
+  static const deactivateAlreadyInactive = 'deactivate_already_inactive';
+  static const reactivateAlreadyActive = 'reactivate_already_active';
   static const statusPermissionDenied = 'status_permission_denied';
   static const statusNetworkError = 'status_network_error';
+
+  // Epic-02 US-02 delete
+  static const deleteOk = 'delete_ok';
+  static const deleteHasBusinessData = 'delete_has_business_data';
 }
 
 /// Configurable [IPartnerModule] for widget and presentation tests.
 final class FakePartnerModule implements IPartnerModule {
-  FakePartnerModule({this.scenario = FakePartnerScenario.detailActive});
+  FakePartnerModule({this.scenario = FakePartnerScenario.detailActive})
+      : _detailStatus = _initialStatusForScenario(scenario);
 
   final String scenario;
 
   /// Times [GetPartnerDetailQuery] was executed — useful for refresh flows.
   int detailLoadCount = 0;
+
+  PartnerStatus _detailStatus;
+  int _detailVersion = 1;
+
+  static PartnerStatus _initialStatusForScenario(String scenario) {
+    return switch (scenario) {
+      FakePartnerScenario.detailInactive ||
+      FakePartnerScenario.reactivateOk =>
+        PartnerStatus.inactive,
+      _ => PartnerStatus.active,
+    };
+  }
 
   @override
   Future<TResult> executeCommandAsync<TResult>(ICommand<TResult> command) async {
@@ -125,9 +144,9 @@ final class FakePartnerModule implements IPartnerModule {
       return null as TResult;
     }
 
-    final status = scenario == FakePartnerScenario.detailInactive
-        ? PartnerStatus.inactive
-        : PartnerStatus.active;
+    final version = scenario == FakePartnerScenario.detailRefresh
+        ? detailLoadCount
+        : _detailVersion;
 
     final displayName = switch (scenario) {
       FakePartnerScenario.detailRefresh =>
@@ -141,13 +160,13 @@ final class FakePartnerModule implements IPartnerModule {
       phone: '0912345678',
       roles: const {PartnerRole.customer},
       entityType: EntityType.individual,
-      status: status,
+      status: _detailStatus,
       createdAt: DateTime.parse('2026-07-01T00:00:00Z'),
       updatedAt: DateTime.parse('2026-07-01T00:00:00Z'),
-      version: detailLoadCount,
+      version: version,
       createdBy: 'user-1',
       updatedBy: 'user-1',
-      hasBusinessData: false,
+      hasBusinessData: scenario == FakePartnerScenario.deleteHasBusinessData,
     ) as TResult;
   }
 
@@ -195,11 +214,18 @@ final class FakePartnerModule implements IPartnerModule {
         throw ApplicationException('Permission denied');
       case FakePartnerScenario.statusNetworkError:
         throw ApplicationException('Network error');
+      case FakePartnerScenario.deactivateAlreadyInactive:
+        throw ApplicationException('Invalid partner status');
       case FakePartnerScenario.deactivateOk:
       default:
+        if (_detailStatus == PartnerStatus.inactive) {
+          throw ApplicationException('Invalid partner status');
+        }
+        _detailStatus = PartnerStatus.inactive;
+        _detailVersion = command.expectedVersion + 1;
         return DeactivatePartnerResult(
           businessPartnerId: command.partnerId,
-          version: command.expectedVersion + 1,
+          version: _detailVersion,
         ) as TResult;
     }
   }
@@ -210,16 +236,27 @@ final class FakePartnerModule implements IPartnerModule {
         throw ApplicationException('Permission denied');
       case FakePartnerScenario.statusNetworkError:
         throw ApplicationException('Network error');
+      case FakePartnerScenario.reactivateAlreadyActive:
+        throw ApplicationException('Invalid partner status');
       case FakePartnerScenario.reactivateOk:
       default:
+        if (_detailStatus == PartnerStatus.active) {
+          throw ApplicationException('Invalid partner status');
+        }
+        _detailStatus = PartnerStatus.active;
+        _detailVersion = command.expectedVersion + 1;
         return ReactivatePartnerResult(
           businessPartnerId: command.partnerId,
-          version: command.expectedVersion + 1,
+          version: _detailVersion,
         ) as TResult;
     }
   }
 
   TResult _handleDelete<TResult>(DeletePartnerCommand command) {
+    if (scenario == FakePartnerScenario.deleteHasBusinessData ||
+        command.hasBusinessData) {
+      throw ApplicationException('Partner has business data');
+    }
     return DeletePartnerResult(businessPartnerId: command.partnerId) as TResult;
   }
 }

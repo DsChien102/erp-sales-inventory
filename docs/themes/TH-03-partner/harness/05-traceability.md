@@ -81,7 +81,7 @@ Contracts: [07-api-contracts.md](07-api-contracts.md)
 | FR-01 | FE | §US-01 | presentation | `partner_detail_menu.dart`, `partner_detail_page.dart` | — | done |
 | FR-03 | FE | §US-01 | presentation | `deactivate_partner_dialog.dart` | wgt_e02_u01_fr03_01 | done |
 | FR-04 | FE | §US-01 | presentation | `reactivate_partner_dialog.dart` | wgt_e02_u01_fr04_01 | done |
-| FR-03/04 | E2E | §US-01 | integration | detail → deactivate/reactivate flow | e2e_e02_u01_fr03_01 | in_progress |
+| FR-03/04 | E2E | §US-01 | integration | detail → deactivate/reactivate flow | e2e_e02_u01_fr03_01 | done |
 
 ---
 

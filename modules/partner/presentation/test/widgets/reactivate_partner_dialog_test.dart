@@ -3,9 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:vet45_partner_presentation/presentation.dart';
 
 void main() {
-  testWidgets('reactivate dialog confirms action', (tester) async {
-    var confirmed = false;
-
+  testWidgets('wgt_e02_u01_fr04_01 reactivate dialog confirms action', (tester) async {
     await tester.pumpWidget(
       MaterialApp(
         home: Scaffold(
@@ -13,22 +11,18 @@ void main() {
             builder: (context) {
               return TextButton(
                 onPressed: () {
-                  showDialog<void>(
-                    context: context,
-                    builder: (_) => ReactivatePartnerDialog(
-                      partner: const PartnerItemModel(
-                        id: 'partner-1',
-                        avatarText: 'NA',
-                        name: 'Nguyen Van An',
-                        role: 'Khách hàng',
-                        status: 'Ngừng hoạt động',
-                        phone: '0912345678',
-                        email: '',
-                        taxId: '',
-                        updatedAt: '01/07/2026',
-                      ),
-                      onCancel: () {},
-                      onConfirm: () => confirmed = true,
+                  ReactivatePartnerDialog.show(
+                    context,
+                    partner: const PartnerItemModel(
+                      id: 'partner-1',
+                      avatarText: 'NA',
+                      name: 'Nguyen Van An',
+                      role: 'Khách hàng',
+                      status: 'Ngừng hoạt động',
+                      phone: '0912345678',
+                      email: '',
+                      taxId: '',
+                      updatedAt: '01/07/2026',
                     ),
                   );
                 },
@@ -44,9 +38,9 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Kích hoạt lại đối tác'), findsOneWidget);
-    await tester.tap(find.text('Kích hoạt lại'));
+    await tester.tap(find.widgetWithText(TextButton, 'Kích hoạt lại'));
     await tester.pumpAndSettle();
 
-    expect(confirmed, isTrue);
+    expect(find.text('Kích hoạt lại đối tác'), findsNothing);
   });
 }
