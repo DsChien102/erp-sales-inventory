@@ -5,7 +5,7 @@ import '../tokens/v_radius.dart';
 import '../tokens/v_typography.dart';
 import '../foundation/v_context_extensions.dart';
 
-enum VButtonVariant { primary, secondary, outline, ghost, danger, dangerOutline }
+enum VButtonVariant { primary, secondary, outline, ghost, danger, dangerOutline, warning }
 
 enum VButtonSize { small, medium, large }
 
@@ -72,6 +72,8 @@ class VButton extends StatelessWidget {
             return VColors.dangerBg;
           case VButtonVariant.danger:
             return VColors.dangerBg;
+          case VButtonVariant.warning:
+            return VColors.warningBg;
           default:
             return dynamicColors.borderStrong;
         }
@@ -107,6 +109,11 @@ class VButton extends StatelessWidget {
             return const Color(0xFFB53232);
           }
           return VColors.danger;
+        case VButtonVariant.warning:
+          if (states.contains(WidgetState.pressed) || states.contains(WidgetState.hovered)) {
+            return VColors.warning.withValues(alpha: 0.8);
+          }
+          return VColors.warning;
       }
     }
 
@@ -126,6 +133,7 @@ class VButton extends StatelessWidget {
       switch (variant) {
         case VButtonVariant.primary:
         case VButtonVariant.danger:
+        case VButtonVariant.warning:
           return Colors.white;
         case VButtonVariant.secondary:
           return dynamicColors.primary;

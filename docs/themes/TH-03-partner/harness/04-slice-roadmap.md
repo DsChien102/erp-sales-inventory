@@ -4,10 +4,10 @@ Thứ tự implement vertical slice. Status: `todo` | `in_progress` | `done` | `
 
 | # | Slice | Type | Prerequisites | Status |
 | - | ----- | ---- | ------------- | ------ |
-| 1 | [Epic-01/US-02](../Epic-01-partner-profile/US-02/) — Ghi nhận đối tác mới | write | — | todo |
-| 2 | [Epic-01/US-01](../Epic-01-partner-profile/US-01/) — Tìm kiếm danh sách | read | US-02 (data) | todo |
-| 3 | [Epic-01/US-04](../Epic-01-partner-profile/US-04/) — Kiểm tra hồ sơ | read | US-02 | todo |
-| 4 | [Epic-01/US-03](../Epic-01-partner-profile/US-03/) — Bổ sung/chỉnh sửa | write | US-02 | todo |
+| 1 | [Epic-01/US-02](../Epic-01-partner-profile/US-02/) — Ghi nhận đối tác mới | write | — | done |
+| 2 | [Epic-01/US-01](../Epic-01-partner-profile/US-01/) — Tìm kiếm danh sách | read | US-02 (data) | done |
+| 3 | [Epic-01/US-04](../Epic-01-partner-profile/US-04/) — Kiểm tra hồ sơ | read | US-02 | done |
+| 4 | [Epic-01/US-03](../Epic-01-partner-profile/US-03/) — Bổ sung/chỉnh sửa | write | US-02 | done |
 | 5 | [Epic-02/US-01](../Epic-02-partner-status/US-01/) — Dừng sử dụng / kích hoạt lại | write | US-04 | todo |
 | 6 | [Epic-02/US-02](../Epic-02-partner-status/US-02/) — Loại bỏ hồ sơ tạo nhầm | write | US-04 | todo |
 | 7 | [Epic-03/US-01](../Epic-03-partner-transaction-history/US-01/) — Lịch sử giao dịch | read cross-module | sales/inventory/accounting publish events | **blocked** |

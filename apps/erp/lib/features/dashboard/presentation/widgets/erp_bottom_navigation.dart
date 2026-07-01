@@ -25,7 +25,7 @@ enum ErpTab {
     label: 'KH&NCC',
     icon: Icons.people_outline_rounded,
     routePath: '/partner',
-    enabled: false,
+    enabled: true,
   ),
   more(
     label: 'Thêm',
@@ -69,7 +69,7 @@ class ErpBottomNavigation extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final location = GoRouterState.of(context).matchedLocation;
-    
+
     final int index;
     if (location == '/' || onItemSelected != null) {
       index = selectedIndex;
@@ -91,11 +91,15 @@ class ErpBottomNavigation extends StatelessWidget {
         if (targetTab == currentTab) return;
         context.go(targetTab.routePath);
       },
-      items: ErpTab.values.map((tab) => VBottomNavigationItem(
-        icon: Icon(tab.icon),
-        label: tab.label,
-        enabled: tab.enabled,
-      )).toList(),
+      items: ErpTab.values
+          .map(
+            (tab) => VBottomNavigationItem(
+              icon: Icon(tab.icon),
+              label: tab.label,
+              enabled: tab.enabled,
+            ),
+          )
+          .toList(),
     );
   }
 }

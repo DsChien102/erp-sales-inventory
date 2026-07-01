@@ -8,11 +8,15 @@ environment:
   sdk: '>=3.11.1 <4.0.0'
 
 dependencies:
+  uuid: ^4.5.3
+  vet45_annotations: ^0.1.0
   vet45_partner_domain: ^1.0.0
   vet45_shared_application: ^1.0.0
+  vet45_shared_domain: ^1.0.0
   meta: ^1.17.0
 
 dev_dependencies:
   vet45_lints: ^1.0.0
   lints: ^6.0.0
   test: ^1.25.0
+  vet45_shared_testing: ^0.0.1

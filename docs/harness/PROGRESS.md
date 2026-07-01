@@ -19,7 +19,7 @@ Checklist tiến độ Harness Engineering. Agent đọc file này ở đầu se
 - [x] TH-03 README + harness/ scaffold
 - [x] Epic overview fixes (Epic-01 table, Epic-02/03, US-04 rename)
 - [x] `guard_theme_structure.sh` + `guard_theme_traceability.sh` (stub)
-- [ ] Exemplar traceability (deferred — placeholder trong `05-traceability.md`)
+- [x] Exemplar traceability (updated cho Epic-01 từ US-01 đến US-04)
 
 ## Phase 1.6 — Presentation harness
 
@@ -50,3 +50,6 @@ Ghi các cải tiến harness sau khi agent fail (ngày + mô tả ngắn):
 | 2026-06-30 | Presentation harness — skill, UI guards, TH-03 ritual, dashboard golden ref |
 | 2026-06-30 | IAM Phase 2 golden — codegen, tenant/membership interim, CI strict codegen guard |
 | 2026-06-30 | Permission constants — `IamPermissions` domain class; skills/docs anti-pattern hardcode strings |
+| 2026-06-30 | IAM minimal — DB RBAC, access checkers, ERP auth migration via IIamModule |
+| 2026-06-30 | Implemented Presentation Layer for TH-03 Epic-01 US-03 (Bổ sung và chỉnh sửa) |
+| 2026-06-30 | Updated 05-traceability.md with presentation artifacts mapping for TH-03 Epic-01 (US-01 to US-04) |
