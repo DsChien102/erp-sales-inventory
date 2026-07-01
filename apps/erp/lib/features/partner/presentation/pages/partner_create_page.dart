@@ -3,13 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:vet45_design_system/design_system.dart';
 
-import '../../mock_partner_data.dart';
-import '../bloc/partner_create_cubit.dart';
-import '../bloc/partner_create_state.dart';
-import '../widgets/partner_form_sections.dart';
-import '../widgets/partner_role_type_section.dart';
-import '../widgets/partner_cancel_confirm_dialog.dart';
-import '../widgets/partner_duplicate_warning_dialog.dart';
+import 'package:vet45_partner_presentation/presentation.dart';
 
 class PartnerCreatePage extends StatelessWidget {
   const PartnerCreatePage({super.key});

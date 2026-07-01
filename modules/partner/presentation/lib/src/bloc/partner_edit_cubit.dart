@@ -1,5 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../mock_partner_data.dart';
+import '../models/mock_partner_data.dart';
 import 'partner_edit_state.dart';
 
 class PartnerEditCubit extends Cubit<PartnerEditState> {

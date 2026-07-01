@@ -3,11 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'partner_detail_page.dart';
 import 'package:vet45_design_system/design_system.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../bloc/partner_list_cubit.dart';
-import '../bloc/partner_list_state.dart';
-import '../widgets/partner_empty_state.dart';
-import '../widgets/partner_search_bar.dart';
-import '../widgets/partner_list_item.dart';
+import 'package:vet45_partner_presentation/presentation.dart';
 
 class PartnerListPage extends StatelessWidget {
   const PartnerListPage({super.key});

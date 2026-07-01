@@ -1,12 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:vet45_design_system/design_system.dart';
-import '../bloc/partner_detail_cubit.dart';
-import '../bloc/partner_list_state.dart';
-import '../widgets/partner_detail_header.dart';
-import '../widgets/partner_detail_menu.dart';
-import '../widgets/partner_general_info_tab.dart';
-import '../widgets/partner_transaction_history_tab.dart';
+import 'package:vet45_partner_presentation/presentation.dart';
 
 class PartnerDetailPage extends StatefulWidget {
   final PartnerItemModel partner;
