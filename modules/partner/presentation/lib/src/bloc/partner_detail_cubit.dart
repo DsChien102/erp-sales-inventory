@@ -1,4 +1,4 @@
-import 'dart:convert';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:vet45_partner_application/application.dart';
 import 'package:vet45_partner_domain/domain.dart';
@@ -28,54 +28,7 @@ class PartnerDetailCubit extends Cubit<PartnerDetailState> {
   final IPartnerModule _partnerModule;
   final IExecutionContext _executionContext;
 
-  static const String defaultMockJson = _defaultMockJson;
 
-  static const String _defaultMockJson = '''
-  [
-    {
-      "transactionCode": "GR-2026-0091",
-      "transactionType": "purchase",
-      "occurredAt": "2026-06-18T10:30:00Z",
-      "status": "done",
-      "amountMinor": 12400000
-    },
-    {
-      "transactionCode": "SO-2026-0072",
-      "transactionType": "sales",
-      "occurredAt": "2026-05-29T14:15:00Z",
-      "status": "done",
-      "amountMinor": 8600000
-    },
-    {
-      "transactionCode": "PT-2026-0105",
-      "transactionType": "invoice",
-      "occurredAt": "2026-06-20T10:00:00Z",
-      "status": "done",
-      "amountMinor": 2500000
-    },
-    {
-      "transactionCode": "PC-2026-0033",
-      "transactionType": "purchase",
-      "occurredAt": "2026-06-15T15:30:00Z",
-      "status": "draft",
-      "amountMinor": -5000000
-    },
-    {
-      "transactionCode": "RT-2026-0044",
-      "transactionType": "return",
-      "occurredAt": "2026-06-21T09:00:00Z",
-      "status": "delivered",
-      "amountMinor": -1200000
-    },
-    {
-      "transactionCode": "SO-2026-0005",
-      "transactionType": "sales",
-      "occurredAt": "2026-06-26T11:00:00Z",
-      "status": "cancelled",
-      "amountMinor": 0
-    }
-  ]
-  ''';
 
   Future<void> load(String partnerId) async {
     emit(
@@ -273,56 +226,6 @@ class PartnerDetailCubit extends Cubit<PartnerDetailState> {
         ),
       );
       return false;
-    }
-  }
-
-  void loadTransactionsFromJson(String jsonContent) {
-    try {
-      emit(state.copyWith(historyStatus: PartnerHistoryStatus.loading));
-      final List<dynamic> list = json.decode(jsonContent) as List<dynamic>;
-      final items = list.map((item) {
-        final map = item as Map<String, dynamic>;
-        final code =
-            map['transactionCode'] as String? ?? map['id'] as String? ?? '';
-        final type =
-            map['transactionType'] as String? ?? map['title'] as String? ?? '';
-        final status = map['status'] as String? ?? '';
-        final occurredAt = map['occurredAt'] != null
-            ? DateTime.parse(map['occurredAt'] as String)
-            : (map['date'] != null
-                ? DateTime.parse(map['date'] as String)
-                : DateTime.now());
-        final rawAmountStr = map['amount'] as String?;
-        final cleanStr = rawAmountStr?.replaceAll(RegExp(r'[^\d-]'), '');
-        final parsedFromStr = cleanStr != null ? int.tryParse(cleanStr) : null;
-        final minor = map['amountMinor'] != null
-            ? (map['amountMinor'] as num).toDouble()
-            : (parsedFromStr?.toDouble());
-
-        return PartnerTransactionHistoryItemDto(
-          id: code,
-          partnerId: '',
-          transactionRole: 'customer',
-          transactionType: type,
-          occurredAt: occurredAt,
-          transactionCode: code,
-          status: status,
-          amount: minor,
-          sourceNavigation: const PartnerTransactionSourceNavigationDto(
-            sourceModule: 'sales',
-            sourceType: 'sales_order',
-            sourceId: '',
-          ),
-        );
-      }).toList();
-      emit(
-        state.copyWith(
-          historyStatus: PartnerHistoryStatus.loaded,
-          history: items,
-        ),
-      );
-    } catch (_) {
-      emit(state.copyWith(historyStatus: PartnerHistoryStatus.error));
     }
   }
 }

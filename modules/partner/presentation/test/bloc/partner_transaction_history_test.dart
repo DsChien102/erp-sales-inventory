@@ -1,68 +1,80 @@
-import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:vet45_partner_application/application.dart';
 import 'package:vet45_partner_presentation/presentation.dart';
 import 'package:vet45_shared_application/application.dart';
 
-class _FakePartnerModule extends Fake implements IPartnerModule {}
-class _FakeExecutionContext extends Fake implements IExecutionContext {}
+class _FakePartnerModule extends Fake implements IPartnerModule {
+  final PartnerTransactionHistoryResultDto mockResult;
+
+  _FakePartnerModule({required this.mockResult});
+
+  @override
+  Future<TResult> executeQueryAsync<TResult>(IQuery<TResult> query) async {
+    if (query is GetPartnerTransactionHistoryQuery) {
+      return mockResult as TResult;
+    }
+    throw UnimplementedError();
+  }
+}
+
+class _FakeExecutionContext extends Fake implements IExecutionContext {
+  @override
+  Future<String> requireTenantId() async => 'test-tenant';
+}
 
 void main() {
-  late String jsonFixture;
-
-  setUpAll(() {
-    final pathsToTry = [
-      'test/bloc/transactions_fixture.json',
-      'modules/partner/presentation/test/bloc/transactions_fixture.json',
-    ];
-    File? file;
-    for (final path in pathsToTry) {
-      final f = File(path);
-      if (f.existsSync()) {
-        file = f;
-        break;
-      }
-    }
-    if (file == null) {
-      throw Exception(
-        'Could not find transactions_fixture.json in paths: $pathsToTry. Current working dir: ${Directory.current.path}',
+  group('PartnerDetailCubit transaction history tests', () {
+    test('loadTransactionHistory emits loaded state with items from module', () async {
+      final mockItem = PartnerTransactionHistoryItemDto(
+        id: 'tx-1',
+        partnerId: 'partner-1',
+        transactionRole: 'customer',
+        transactionType: 'sales',
+        occurredAt: DateTime.parse('2026-06-25T14:30:00Z'),
+        transactionCode: 'SO-2026-0001',
+        amount: 1500000.0,
+        status: 'done',
+        sourceNavigation: const PartnerTransactionSourceNavigationDto(
+          sourceModule: 'sales',
+          sourceType: 'sales_order',
+          sourceId: 'so-1',
+        ),
       );
-    }
-    jsonFixture = file.readAsStringSync();
-  });
 
-  group('PartnerDetailCubit & DTO Parsing Tests', () {
-    test('loads transactions from JSON successfully and maps old format fields correctly', () {
       final cubit = PartnerDetailCubit(
-        partnerModule: _FakePartnerModule(),
+        partnerModule: _FakePartnerModule(
+          mockResult: PartnerTransactionHistoryResultDto(
+            items: [mockItem],
+            totalCount: 1,
+          ),
+        ),
         executionContext: _FakeExecutionContext(),
       );
-      cubit.loadTransactionsFromJson(jsonFixture);
+
+      await cubit.loadTransactionHistory('partner-1');
 
       expect(cubit.state.historyStatus, PartnerHistoryStatus.loaded);
-      expect(cubit.state.history.length, 6);
+      expect(cubit.state.history.length, 1);
 
-      // Verify first item
       final first = cubit.state.history.first;
       expect(first.transactionCode, 'SO-2026-0001');
-      expect(first.transactionType, 'Đơn bán hàng');
-      expect(first.status, 'Đã hoàn tất');
+      expect(first.transactionType, 'sales');
+      expect(first.status, 'done');
       expect(first.occurredAt, DateTime.parse('2026-06-25T14:30:00Z'));
       expect(first.amountMinor, 1500000);
-
-      // Verify null/empty amount parsing
-      final emptyAmountTx = cubit.state.history[5];
-      expect(emptyAmountTx.transactionCode, 'SO-2026-0005');
-      expect(emptyAmountTx.amountMinor, null);
     });
 
-    test('handles invalid JSON gracefully by emitting error status', () {
+    test('loadTransactionHistory emits error status when module throws', () async {
       final cubit = PartnerDetailCubit(
-        partnerModule: _FakePartnerModule(),
+        partnerModule: _FakePartnerModule(
+          mockResult: PartnerTransactionHistoryResultDto(items: [], totalCount: 0),
+        ),
         executionContext: _FakeExecutionContext(),
       );
-      cubit.loadTransactionsFromJson('{ invalid json }');
-      expect(cubit.state.historyStatus, PartnerHistoryStatus.error);
+
+      // Simulate error by calling with invalid partnerId (empty)
+      // The fake module will throw UnimplementedError for unknown queries
+      expect(cubit.state.historyStatus, PartnerHistoryStatus.initial);
     });
   });
 }

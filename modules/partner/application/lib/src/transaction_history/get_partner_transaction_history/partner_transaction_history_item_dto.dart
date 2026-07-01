@@ -25,5 +25,5 @@ final class PartnerTransactionHistoryItemDto {
   final String? description;
   final PartnerTransactionSourceNavigationDto sourceNavigation;
 
-  int? get amountMinor => amount != null ? amount!.round() : null;
+  int? get amountMinor => amount?.round();
 }
