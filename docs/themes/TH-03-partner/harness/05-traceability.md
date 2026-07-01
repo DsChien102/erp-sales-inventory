@@ -120,9 +120,48 @@ Codegen ritual: [modules/partner/README.md](../../../../modules/partner/README.m
 | ------ | ---- | ---------- | ------------- | -------- | ------- | ------ |
 | US-01 | CONTRACT | §US-01 | application | `GetPartnerTransactionHistoryQuery` | — | done |
 | FR-01 | BE | §US-01 | application | `GetPartnerTransactionHistoryQueryHandler` | scn_e03_u01_fr01_01 | done |
+| FR-01 | FE | §US-01 | presentation | `partner_detail_page.dart` (scn-02: Mở lịch sử làm việc thành công) | wgt_e03_u01_fr01_02 | done |
+| FR-01 | FE | §US-01 | presentation | `partner_detail_page.dart` (scn-03: Không hiển thị lịch sử khi thiếu quyền) | — | done |
+| FR-01 | FE | §US-01 | presentation | `partner_detail_page.dart` (scn-05: Đối tác chưa có lịch sử làm việc) | wgt_e03_u01_fr01_05 | done |
+| FR-01 | FE | §US-01 | presentation | `partner_detail_page.dart` (scn-01: Chuyển hướng người dùng chưa đăng nhập) | — | todo |
+| FR-01 | FE | §US-01 | presentation | `partner_detail_page.dart` (scn-04: Không hiển thị lịch sử của đối tác ngoài tenant) | — | todo |
+| FR-01 | FE | §US-01 | presentation | `partner_detail_page.dart` (scn-06: Không tải được lịch sử làm việc) | — | todo |
+| FR-01 | E2E | §US-01 | integration | cross-module events | e2e_e03_u01_fr01_01 | blocked |
 | FR-02 | BE | §US-01 | infrastructure | `partner.get_partner_transaction_history` RPC, `SupabasePartnerTransactionHistoryReadGateway` | scn_e03_u01_fr02_01 | done |
+| FR-02 | FE | §US-01 | presentation | `partner_transaction_history_tab.dart` (scn-01: Hiển thị danh sách lịch sử làm việc) | wgt_e03_u01_fr02_01 | done |
+| FR-02 | FE | §US-01 | presentation | `partner_transaction_history_tab.dart` (scn-02: Hiển thị lịch sử theo vai trò Khách hàng) | — | done |
+| FR-02 | FE | §US-01 | presentation | `partner_transaction_history_tab.dart` (scn-03: Hiển thị lịch sử theo vai trò Nhà cung cấp) | — | done |
+| FR-02 | FE | §US-01 | presentation | `partner_transaction_item.dart` (scn-04: Hiển thị lịch sử của đối tác có cả hai vai trò) | wgt_e03_u01_fr02_04 | done |
+| FR-02 | FE | §US-01 | presentation | `partner_transaction_item.dart` (scn-05: Hiển thị dòng lịch sử thiếu mã giao dịch) | — | todo |
+| FR-02 | FE | §US-01 | presentation | `partner_transaction_item.dart` (scn-06: Hiển thị dòng lịch sử thiếu giá trị giao dịch) | — | todo |
+| FR-02 | FE | §US-01 | presentation | `partner_transaction_item.dart` (scn-07: Không làm thay đổi giao dịch nguồn khi hiển thị lịch sử) | — | todo |
+| FR-02 | E2E | §US-01 | integration | display list flow | e2e_e03_u01_fr02_01 | blocked |
 | FR-03 | BE | §US-01 | domain | `PartnerTransactionHistoryCriteria` | scn_e03_u01_fr03_01 | done |
+| FR-03 | FE | §US-01 | presentation | `partner_transaction_filter_bottom_sheet.dart` (scn-01: Tìm lịch sử theo mã giao dịch) | wgt_e03_u01_fr03_01 | done |
+| FR-03 | FE | §US-01 | presentation | `partner_transaction_filter_bottom_sheet.dart` (scn-02: Tìm lịch sử theo diễn giải) | — | done |
+| FR-03 | FE | §US-01 | presentation | `partner_transaction_filter_bottom_sheet.dart` (scn-03: Lọc lịch sử theo loại giao dịch) | wgt_e03_u01_fr03_03 | done |
+| FR-03 | FE | §US-01 | presentation | `partner_transaction_filter_bottom_sheet.dart` (scn-04: Lọc lịch sử theo vai trò liên quan) | wgt_e03_u01_fr03_04 | done |
+| FR-03 | FE | §US-01 | presentation | `partner_transaction_filter_bottom_sheet.dart` (scn-05: Lọc lịch sử theo thời gian) | — | done |
+| FR-03 | FE | §US-01 | presentation | `partner_transaction_filter_bottom_sheet.dart` (scn-06: Kết hợp từ khóa và bộ lọc) | — | done |
+| FR-03 | FE | §US-01 | presentation | `partner_transaction_filter_bottom_sheet.dart` (scn-07: Không có lịch sử phù hợp với điều kiện) | — | done |
+| FR-03 | FE | §US-01 | presentation | `partner_transaction_filter_bottom_sheet.dart` (scn-08: Xóa toàn bộ điều kiện tìm kiếm và lọc) | wgt_e03_u01_fr03_08 | done |
+| FR-03 | FE | §US-01 | presentation | `partner_transaction_filter_bottom_sheet.dart` (scn-09: Không tải được kết quả tìm kiếm hoặc lọc) | — | done |
+| FR-03 | E2E | §US-01 | integration | search & filter flow | e2e_e03_u01_fr03_01 | blocked |
 | FR-04 | BE | §US-01 | infrastructure | `PartnerTransactionHistoryIngestor`, `SalesOrderCheckedOutIntegrationEvent` | scn_e03_u01_fr04_01 | done |
+| FR-04 | FE | §US-01 | presentation | `partner_transaction_history_tab.dart` (scn-01: Mở chi tiết giao dịch nguồn thành công) | — | todo |
+| FR-04 | FE | §US-01 | presentation | `partner_transaction_history_tab.dart` (scn-02: Không có quyền xem chi tiết giao dịch nguồn) | — | todo |
+| FR-04 | FE | §US-01 | presentation | `partner_transaction_history_tab.dart` (scn-03: Giao dịch nguồn không còn tồn tại) | — | todo |
+| FR-04 | FE | §US-01 | presentation | `partner_transaction_history_tab.dart` (scn-04: Giao dịch nguồn không thuộc tenant hiện tại) | — | todo |
+| FR-04 | FE | §US-01 | presentation | `partner_transaction_history_tab.dart` (scn-05: Module nguồn tạm thời không truy cập được) | — | todo |
+| FR-04 | FE | §US-01 | presentation | `partner_transaction_history_tab.dart` (scn-06: Mở chi tiết không làm thay đổi dữ liệu) | — | todo |
+| FR-04 | E2E | §US-01 | integration | source transaction navigation | e2e_e03_u01_fr04_01 | blocked |
 | FR-05 | BE | §US-01 | application | `RecordPartnerTransactionHistoryCommand` | scn_e03_u01_fr05_01 | done |
-| FR-01..05 | FE | §US-01 | presentation | `partner_detail_cubit.dart`, `partner_transaction_history_tab.dart`, `partner_transaction_filter_bottom_sheet.dart` | wgt_e03_u01_fr01_01 | done |
-| FR-01..05 | E2E | §US-01 | integration | cross-module events | e2e_e03_u01_fr01_01 | blocked |
+| FR-05 | FE | §US-01 | presentation | `partner_transaction_history_tab.dart` (scn-01: Xem lịch sử của đối tác đang hoạt động) | — | done |
+| FR-05 | FE | §US-01 | presentation | `partner_transaction_history_tab.dart` (scn-02: Xem lịch sử của đối tác ngừng hoạt động) | — | todo |
+| FR-05 | FE | §US-01 | presentation | `partner_transaction_history_tab.dart` (scn-03: Lịch sử không bị mất sau khi ngừng hoạt động) | — | todo |
+| FR-05 | FE | §US-01 | presentation | `partner_transaction_history_tab.dart` (scn-04: Xem lịch sử của đối tác đã xóa trong luồng được phép) | — | todo |
+| FR-05 | FE | §US-01 | presentation | `partner_transaction_history_tab.dart` (scn-05: Không hiển thị lịch sử của đối tác đã xóa ngoài luồng được phép) | — | todo |
+| FR-05 | FE | §US-01 | presentation | `partner_transaction_history_tab.dart` (scn-06: Đối tác đã xóa nhưng chưa có lịch sử làm việc) | — | todo |
+| FR-05 | FE | §US-01 | presentation | `partner_transaction_history_tab.dart` (scn-07: Xem lịch sử không thay đổi trạng thái đối tác) | — | todo |
+| FR-05 | E2E | §US-01 | integration | deleted partner history view | e2e_e03_u01_fr05_01 | blocked |
+
