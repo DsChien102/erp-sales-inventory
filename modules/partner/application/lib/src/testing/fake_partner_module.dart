@@ -34,6 +34,11 @@ abstract final class FakePartnerScenario {
   // Epic-02 US-02 delete
   static const deleteOk = 'delete_ok';
   static const deleteHasBusinessData = 'delete_has_business_data';
+
+  // Epic-02 Error scenarios for widget/unit tests
+  static const deactivateSaveError = 'deactivate_save_error';
+  static const reactivateSaveError = 'reactivate_save_error';
+  static const deleteSaveError = 'delete_save_error';
 }
 
 /// Configurable [IPartnerModule] for widget and presentation tests.
@@ -52,7 +57,8 @@ final class FakePartnerModule implements IPartnerModule {
   static PartnerStatus _initialStatusForScenario(String scenario) {
     return switch (scenario) {
       FakePartnerScenario.detailInactive ||
-      FakePartnerScenario.reactivateOk =>
+      FakePartnerScenario.reactivateOk ||
+      FakePartnerScenario.reactivateSaveError =>
         PartnerStatus.inactive,
       _ => PartnerStatus.active,
     };
@@ -216,6 +222,8 @@ final class FakePartnerModule implements IPartnerModule {
         throw ApplicationException('Network error');
       case FakePartnerScenario.deactivateAlreadyInactive:
         throw ApplicationException('Invalid partner status');
+      case FakePartnerScenario.deactivateSaveError:
+        throw ApplicationException('Lỗi lưu dữ liệu. Vui lòng thử lại.');
       case FakePartnerScenario.deactivateOk:
       default:
         if (_detailStatus == PartnerStatus.inactive) {
@@ -238,6 +246,8 @@ final class FakePartnerModule implements IPartnerModule {
         throw ApplicationException('Network error');
       case FakePartnerScenario.reactivateAlreadyActive:
         throw ApplicationException('Invalid partner status');
+      case FakePartnerScenario.reactivateSaveError:
+        throw ApplicationException('Lỗi lưu dữ liệu. Vui lòng thử lại.');
       case FakePartnerScenario.reactivateOk:
       default:
         if (_detailStatus == PartnerStatus.active) {
@@ -253,6 +263,9 @@ final class FakePartnerModule implements IPartnerModule {
   }
 
   TResult _handleDelete<TResult>(DeletePartnerCommand command) {
+    if (scenario == FakePartnerScenario.deleteSaveError) {
+      throw ApplicationException('Lỗi xóa hồ sơ. Vui lòng thử lại.');
+    }
     if (scenario == FakePartnerScenario.deleteHasBusinessData ||
         command.hasBusinessData) {
       throw ApplicationException('Partner has business data');
