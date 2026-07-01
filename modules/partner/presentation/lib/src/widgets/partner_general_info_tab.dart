@@ -57,31 +57,6 @@ class PartnerGeneralInfoTab extends StatelessWidget {
           const SizedBox(height: VSpacing.space4),
           _buildSection(
             context,
-            title: 'THÔNG TIN HÓA ĐƠN',
-            children: [
-              _buildRow(
-                context,
-                'Tên trên hóa đơn',
-                _valueOrPlaceholder(partner.billingName),
-                isValueGray: partner.billingName.isEmpty,
-              ),
-              _buildRow(
-                context,
-                'Địa chỉ trên hóa đơn',
-                _valueOrPlaceholder(partner.billingAddress),
-                isValueGray: partner.billingAddress.isEmpty,
-              ),
-              _buildRow(
-                context,
-                'Email nhận hóa đơn',
-                _valueOrPlaceholder(partner.billingEmail),
-                isValueGray: partner.billingEmail.isEmpty,
-              ),
-            ],
-          ),
-          const SizedBox(height: VSpacing.space4),
-          _buildSection(
-            context,
             title: 'GHI CHÚ',
             children: [
               _buildRow(
@@ -192,9 +167,7 @@ class PartnerGeneralInfoTab extends StatelessWidget {
               value,
               textAlign: TextAlign.right,
               style: VTypography.bodyDefault.copyWith(
-                color: isValueGray
-                    ? dynamicColors.textSecondary
-                    : dynamicColors.textPrimary,
+                color: isValueGray ? dynamicColors.textSecondary : dynamicColors.textPrimary,
                 fontStyle: isValueGray ? FontStyle.italic : FontStyle.normal,
               ),
             ),

@@ -1,3 +1,5 @@
+import 'package:vet45_partner_application/application.dart';
+
 enum PartnerEditStatus { initial, loadingData, loadingDataError, ready, saving, duplicateWarning, success, error }
 
 class PartnerEditState {
@@ -21,7 +23,7 @@ class PartnerEditState {
   final String statusKey;
   
   final String? errorMessage;
-  final List<String> duplicateWarnings;
+  final List<PartnerDuplicateMatchDto> duplicateWarnings;
   
   // Track if any changes were made
   final bool hasChanges;
@@ -68,7 +70,7 @@ class PartnerEditState {
     DateTime? createdAt,
     String? statusKey,
     String? errorMessage,
-    List<String>? duplicateWarnings,
+    List<PartnerDuplicateMatchDto>? duplicateWarnings,
     bool? hasChanges,
   }) {
     return PartnerEditState(

@@ -212,7 +212,7 @@ class PartnerEditCubit extends Cubit<PartnerEditState> {
     emit(state.copyWith(status: PartnerEditStatus.ready));
   }
 
-  Future<List<String>> _checkDuplicates() async {
+  Future<List<PartnerDuplicateMatchDto>> _checkDuplicates() async {
     final tenantId = await _executionContext.requireTenantId();
     final matches = await _partnerModule.executeQueryAsync(
       CheckDuplicatePartnersForUpdateQuery(
@@ -224,7 +224,7 @@ class PartnerEditCubit extends Cubit<PartnerEditState> {
       ),
     );
 
-    return matches.map(PartnerUiMapper.duplicateWarning).toList(growable: false);
+    return matches.toList(growable: false);
   }
 
   Future<void> _save({required bool confirmDuplicate}) async {

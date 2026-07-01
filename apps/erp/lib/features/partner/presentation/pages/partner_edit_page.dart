@@ -101,7 +101,7 @@ class _PartnerEditViewState extends State<_PartnerEditView> {
             type: VToastType.danger,
           );
         } else if (state.status == PartnerEditStatus.duplicateWarning) {
-          _showDuplicateWarningDialog(context, state.duplicateWarnings);
+          _showDuplicateWarningBottomSheet(context, state.duplicateWarnings);
         } else if (state.status == PartnerEditStatus.ready && !state.hasChanges) {
           _syncControllersFromState(state);
         } else if (state.status == PartnerEditStatus.success) {
@@ -119,27 +119,40 @@ class _PartnerEditViewState extends State<_PartnerEditView> {
             state.status == PartnerEditStatus.initial ||
             state.status == PartnerEditStatus.loadingData;
 
-        return Scaffold(
-          backgroundColor: dynamicColors.background,
-          appBar: VAppBar(
-            title: 'Chỉnh sửa KH & NCC',
-            actions: [
-              TextButton(
-                onPressed: state.status == PartnerEditStatus.saving || isLoadingData
-                    ? null
-                    : () => _handleCancel(context, state),
-                child: Text(
-                  'Hủy',
-                  style: VTypography.bodyDefault.copyWith(
-                    color: state.status == PartnerEditStatus.saving || isLoadingData
-                        ? dynamicColors.textMuted
-                        : dynamicColors.textSecondary,
+        return PopScope(
+          canPop: !state.hasChanges,
+          onPopInvoked: (didPop) async {
+            if (didPop) return;
+            _handleCancel(context, state);
+          },
+          child: Scaffold(
+            backgroundColor: dynamicColors.background,
+            appBar: VAppBar(
+              title: 'Chỉnh sửa KH & NCC',
+              leading: IconButton(
+                icon: Icon(
+                  Icons.arrow_back,
+                  color: dynamicColors.textPrimary,
+                ),
+                onPressed: () => _handleCancel(context, state),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: state.status == PartnerEditStatus.saving || isLoadingData
+                      ? null
+                      : () => _handleCancel(context, state),
+                  child: Text(
+                    'Hủy',
+                    style: VTypography.bodyDefault.copyWith(
+                      color: state.status == PartnerEditStatus.saving || isLoadingData
+                          ? dynamicColors.textMuted
+                          : dynamicColors.textSecondary,
+                    ),
                   ),
                 ),
-              ),
-              const SizedBox(width: VSpacing.space2),
-            ],
-          ),
+                const SizedBox(width: VSpacing.space2),
+              ],
+            ),
           body: isLoadingData
               ? const Center(child: CircularProgressIndicator())
               : state.status == PartnerEditStatus.loadingDataError
@@ -182,6 +195,7 @@ class _PartnerEditViewState extends State<_PartnerEditView> {
                                 profileType: state.profileType,
                                 onProfileTypeChanged: (v) =>
                                     context.read<PartnerEditCubit>().updateProfileType(v),
+                                nameController: _nameController,
                                 name: state.name,
                                 onNameChanged: (v) =>
                                     context.read<PartnerEditCubit>().updateName(v),
@@ -193,12 +207,15 @@ class _PartnerEditViewState extends State<_PartnerEditView> {
                             const SizedBox(height: VSpacing.space4),
                             VCard(
                               child: PartnerContactInfoSection(
+                                phoneController: _phoneController,
                                 phone: state.phone,
                                 onPhoneChanged: (v) =>
                                     context.read<PartnerEditCubit>().updatePhone(v),
+                                emailController: _emailController,
                                 email: state.email,
                                 onEmailChanged: (v) =>
                                     context.read<PartnerEditCubit>().updateEmail(v),
+                                addressController: _addressController,
                                 address: state.address,
                                 onAddressChanged: (v) =>
                                     context.read<PartnerEditCubit>().updateAddress(v),
@@ -208,6 +225,7 @@ class _PartnerEditViewState extends State<_PartnerEditView> {
                             const SizedBox(height: VSpacing.space4),
                             VCard(
                               child: PartnerTaxInfoSection(
+                                taxIdController: _taxIdController,
                                 taxId: state.taxId,
                                 onTaxIdChanged: (v) =>
                                     context.read<PartnerEditCubit>().updateTaxId(v),
@@ -217,7 +235,22 @@ class _PartnerEditViewState extends State<_PartnerEditView> {
                             ),
                             const SizedBox(height: VSpacing.space4),
                             VCard(
+                              child: PartnerBillingInfoSection(
+                                billingNameController: _billingNameController,
+                                billingAddressController: _billingAddressController,
+                                billingEmailController: _billingEmailController,
+                                onBillingNameChanged: (v) =>
+                                    context.read<PartnerEditCubit>().updateBillingName(v),
+                                onBillingAddressChanged: (v) =>
+                                    context.read<PartnerEditCubit>().updateBillingAddress(v),
+                                onBillingEmailChanged: (v) =>
+                                    context.read<PartnerEditCubit>().updateBillingEmail(v),
+                              ),
+                            ),
+                            const SizedBox(height: VSpacing.space4),
+                            VCard(
                               child: PartnerNoteSection(
+                                noteController: _noteController,
                                 note: state.note,
                                 onNoteChanged: (v) =>
                                     context.read<PartnerEditCubit>().updateNote(v),
@@ -247,6 +280,7 @@ class _PartnerEditViewState extends State<_PartnerEditView> {
                     ),
                   ],
                 ),
+          ),
         );
       },
     );
@@ -276,29 +310,44 @@ class _PartnerEditViewState extends State<_PartnerEditView> {
     );
   }
 
-  void _handleCancel(BuildContext context, PartnerEditState state) {
+  void _handleCancel(BuildContext context, PartnerEditState state) async {
     if (state.hasChanges) {
-      showDialog(
+      final shouldExit = await showVBottomSheet<bool>(
         context: context,
-        builder: (dialogContext) => const PartnerCancelConfirmDialog(),
+        child: const PartnerCancelConfirmBottomSheet(),
       );
+      if (shouldExit == true && context.mounted) {
+        context.pop();
+      }
     } else {
-      context.pop();
+      if (context.mounted) {
+        context.pop();
+      }
     }
   }
 
-  void _showDuplicateWarningDialog(
+  void _showDuplicateWarningBottomSheet(
     BuildContext context,
-    List<String> warnings,
+    List<PartnerDuplicateMatchDto> warnings,
   ) {
     final cubit = context.read<PartnerEditCubit>();
-    showDialog(
+    showVBottomSheet(
       context: context,
-      barrierDismissible: false,
-      builder: (dialogContext) => PartnerDuplicateWarningDialog(
+      child: PartnerDuplicateWarningBottomSheet(
         warnings: warnings,
-        onCancel: () => cubit.cancelSubmit(),
-        onConfirm: () => cubit.confirmSubmit(),
+        onCancel: () {
+          Navigator.pop(context);
+          cubit.cancelSubmit();
+        },
+        onConfirm: () {
+          Navigator.pop(context);
+          cubit.confirmSubmit();
+        },
+        onViewExisting: () {
+          Navigator.pop(context);
+          cubit.cancelSubmit();
+          // TODO: Implement navigation to existing partner
+        },
       ),
     );
   }

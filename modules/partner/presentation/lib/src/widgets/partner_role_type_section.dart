@@ -106,6 +106,7 @@ class PartnerRoleTypeSection extends StatelessWidget {
         const SizedBox(height: VSpacing.space4),
         if (profileType == 'individual')
           VTextField(
+            controller: nameController,
             label: 'Họ và tên',
             isRequired: true,
             hintText: 'VD: Nguyễn Văn An',
@@ -116,6 +117,7 @@ class PartnerRoleTypeSection extends StatelessWidget {
           )
         else ...[
           VTextField(
+            controller: nameController,
             label: 'Tên',
             isRequired: true,
             hintText: 'VD: Công ty TNHH Thú y An Bình',
@@ -126,6 +128,7 @@ class PartnerRoleTypeSection extends StatelessWidget {
           ),
           const SizedBox(height: VSpacing.space4),
           VTextField(
+            // TODO: Pass contactNameController when supported
             label: 'Người liên hệ',
             hintText: 'VD: Anh Minh',
             prefixIcon: const Icon(Icons.person_outline, size: 20),
