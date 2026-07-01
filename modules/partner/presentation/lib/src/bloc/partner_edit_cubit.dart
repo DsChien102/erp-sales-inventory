@@ -114,27 +114,28 @@ class PartnerEditCubit extends Cubit<PartnerEditState> {
   }
 
   void updateRole(String role) =>
-      emit(state.copyWith(role: role, hasChanges: true, errorMessage: null));
+      emit(state.copyWith(role: role, hasChanges: true, errorMessage: null, showValidationErrors: false));
   void updateProfileType(String type) =>
-      emit(state.copyWith(profileType: type, hasChanges: true, errorMessage: null));
+      emit(state.copyWith(profileType: type, hasChanges: true, errorMessage: null, showValidationErrors: false));
   void updateName(String name) =>
-      emit(state.copyWith(name: name, hasChanges: true, errorMessage: null));
+      emit(state.copyWith(name: name, hasChanges: true, errorMessage: null, showValidationErrors: false));
   void updatePhone(String phone) =>
-      emit(state.copyWith(phone: phone, hasChanges: true, errorMessage: null));
+      emit(state.copyWith(phone: phone, hasChanges: true, errorMessage: null, showValidationErrors: false));
   void updateEmail(String email) =>
-      emit(state.copyWith(email: email, hasChanges: true, errorMessage: null));
+      emit(state.copyWith(email: email, hasChanges: true, errorMessage: null, showValidationErrors: false));
   void updateAddress(String address) =>
-      emit(state.copyWith(address: address, hasChanges: true, errorMessage: null));
+      emit(state.copyWith(address: address, hasChanges: true, errorMessage: null, showValidationErrors: false));
   void updateTaxId(String taxId) =>
-      emit(state.copyWith(taxId: taxId, hasChanges: true, errorMessage: null));
+      emit(state.copyWith(taxId: taxId, hasChanges: true, errorMessage: null, showValidationErrors: false));
   void updateBillingName(String value) => emit(
-    state.copyWith(billingName: value, hasChanges: true, errorMessage: null),
+    state.copyWith(billingName: value, hasChanges: true, errorMessage: null, showValidationErrors: false),
   );
   void updateBillingAddress(String value) => emit(
     state.copyWith(
       billingAddress: value,
       hasChanges: true,
       errorMessage: null,
+      showValidationErrors: false,
     ),
   );
   void updateBillingEmail(String value) => emit(
@@ -142,42 +143,47 @@ class PartnerEditCubit extends Cubit<PartnerEditState> {
       billingEmail: value,
       hasChanges: true,
       errorMessage: null,
+      showValidationErrors: false,
     ),
   );
   void updateNote(String note) =>
-      emit(state.copyWith(note: note, hasChanges: true, errorMessage: null));
+      emit(state.copyWith(note: note, hasChanges: true, errorMessage: null, showValidationErrors: false));
+
+  bool _isPhoneValid(String p) {
+    if (p.trim().isEmpty) return false;
+    final trimmed = p.trim();
+    if (!RegExp(r'^[0-9]+$').hasMatch(trimmed)) return false;
+    return trimmed.length >= 8 && trimmed.length <= 15;
+  }
+
+  bool _isEmailValid(String e) {
+    if (e.trim().isEmpty) return true;
+    return RegExp(r"^[A-Za-z0-9.!#$%&'*+/=?^_`{|}~-]+@[A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)+$").hasMatch(e.trim());
+  }
+
+  bool _isTaxIdValid(String t) {
+    if (t.trim().isEmpty) return true;
+    final trimmed = t.trim();
+    return RegExp(r'^[0-9A-Za-z]{8,16}$').hasMatch(trimmed);
+  }
 
   Future<void> submit() async {
-    if (state.name.trim().isEmpty) {
+    if (state.name.trim().isEmpty ||
+        !_isPhoneValid(state.phone) ||
+        !_isEmailValid(state.email) ||
+        !_isTaxIdValid(state.taxId) ||
+        !_isEmailValid(state.billingEmail)) {
       emit(
         state.copyWith(
-          errorMessage: 'Tên đối tác không được để trống.',
-          status: PartnerEditStatus.error,
-        ),
-      );
-      return;
-    }
-    final trimmedPhone = state.phone.trim();
-    if (trimmedPhone.isEmpty) {
-      emit(
-        state.copyWith(
-          errorMessage: 'Số điện thoại không được để trống.',
-          status: PartnerEditStatus.error,
-        ),
-      );
-      return;
-    }
-    if (!RegExp(r'^[0-9]+$').hasMatch(trimmedPhone) || trimmedPhone.length < 8 || trimmedPhone.length > 15) {
-      emit(
-        state.copyWith(
-          errorMessage: 'Số điện thoại chỉ được chứa số và từ 8-15 ký tự.',
+          showValidationErrors: true,
+          errorMessage: 'Thông tin nhập vào chưa hợp lệ. Vui lòng kiểm tra lại.',
           status: PartnerEditStatus.error,
         ),
       );
       return;
     }
 
-    emit(state.copyWith(status: PartnerEditStatus.saving, errorMessage: null));
+    emit(state.copyWith(status: PartnerEditStatus.saving, errorMessage: null, showValidationErrors: false));
 
     try {
       final warnings = await _checkDuplicates();

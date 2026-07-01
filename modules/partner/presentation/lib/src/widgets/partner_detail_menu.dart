@@ -86,7 +86,7 @@ class PartnerDetailMenu extends StatelessWidget {
                   _buildActionItem(
                     context: bottomSheetContext,
                     icon: Icons.delete_outline,
-                    label: 'Xóa KH & NCC',
+                    label: 'Xóa hồ sơ',
                     color: VColors.danger,
                     onTap: () {
                       Navigator.of(bottomSheetContext).pop();

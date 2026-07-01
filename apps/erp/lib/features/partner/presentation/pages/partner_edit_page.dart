@@ -201,7 +201,7 @@ class _PartnerEditViewState extends State<_PartnerEditView> {
                                     context.read<PartnerEditCubit>().updateName(v),
                                 contactName: '', // TODO: Support contactName in Edit
                                 onContactNameChanged: (_) {},
-                                showValidationErrors: false, // TODO: Support validation in Edit
+                                showValidationErrors: state.showValidationErrors,
                               ),
                             ),
                             const SizedBox(height: VSpacing.space4),
@@ -219,7 +219,7 @@ class _PartnerEditViewState extends State<_PartnerEditView> {
                                 address: state.address,
                                 onAddressChanged: (v) =>
                                     context.read<PartnerEditCubit>().updateAddress(v),
-                                showValidationErrors: false,
+                                showValidationErrors: state.showValidationErrors,
                               ),
                             ),
                             const SizedBox(height: VSpacing.space4),
@@ -230,7 +230,7 @@ class _PartnerEditViewState extends State<_PartnerEditView> {
                                 onTaxIdChanged: (v) =>
                                     context.read<PartnerEditCubit>().updateTaxId(v),
                                 profileType: state.profileType,
-                                showValidationErrors: false,
+                                showValidationErrors: state.showValidationErrors,
                               ),
                             ),
                             const SizedBox(height: VSpacing.space4),
@@ -245,6 +245,8 @@ class _PartnerEditViewState extends State<_PartnerEditView> {
                                     context.read<PartnerEditCubit>().updateBillingAddress(v),
                                 onBillingEmailChanged: (v) =>
                                     context.read<PartnerEditCubit>().updateBillingEmail(v),
+                                billingEmail: state.billingEmail,
+                                showValidationErrors: state.showValidationErrors,
                               ),
                             ),
                             const SizedBox(height: VSpacing.space4),

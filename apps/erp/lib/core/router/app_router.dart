@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:vet45_design_system/design_system.dart';
 import 'package:go_router/go_router.dart';
 import 'package:vet45_iam_infrastructure/infrastructure.dart';
+import 'package:vet45_iam_application/application.dart';
 import 'package:vet45_shared_application/application.dart';
 
 import '../../features/more/presentation/pages/system_settings_page.dart';
@@ -17,6 +18,7 @@ import '../../features/partner/presentation/pages/partner_detail_page.dart';
 import '../../features/partner/presentation/pages/partner_create_page.dart';
 import '../../features/partner/presentation/pages/partner_edit_page.dart';
 import 'package:vet45_partner_presentation/presentation.dart';
+import 'package:vet45_partner_domain/domain.dart';
 import '../di/injection.dart';
 
 final appRouter = GoRouter(
@@ -109,12 +111,40 @@ final appRouter = GoRouter(
     GoRoute(
       path: '/partner/create',
       name: 'partner.create',
-      builder: (context, state) => const PartnerCreatePage(),
+      builder: (context, state) {
+        final hasPermission = getIt<IPrincipalSnapshot>().hasPermission(PartnerPermissions.create);
+        if (!hasPermission) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            VToast.show(
+              context,
+              title: 'Lỗi',
+              message: 'Bạn không có quyền phù hợp.',
+              type: VToastType.danger,
+            );
+            context.go('/');
+          });
+          return const Scaffold(body: SizedBox.shrink());
+        }
+        return const PartnerCreatePage();
+      },
     ),
     GoRoute(
       path: '/partner/detail',
       name: 'partner.detail',
       builder: (context, state) {
+        final hasPermission = getIt<IPrincipalSnapshot>().hasPermission(PartnerPermissions.viewDetail);
+        if (!hasPermission) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            VToast.show(
+              context,
+              title: 'Lỗi',
+              message: 'Bạn không có quyền phù hợp.',
+              type: VToastType.danger,
+            );
+            context.go('/');
+          });
+          return const Scaffold(body: SizedBox.shrink());
+        }
         final partner = state.extra as PartnerItemModel;
         return PartnerDetailPage(
           partnerId: partner.id,
@@ -126,6 +156,19 @@ final appRouter = GoRouter(
       path: '/partner/edit',
       name: 'partner.edit',
       builder: (context, state) {
+        final hasPermission = getIt<IPrincipalSnapshot>().hasPermission(PartnerPermissions.update);
+        if (!hasPermission) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            VToast.show(
+              context,
+              title: 'Lỗi',
+              message: 'Bạn không có quyền phù hợp.',
+              type: VToastType.danger,
+            );
+            context.go('/');
+          });
+          return const Scaffold(body: SizedBox.shrink());
+        }
         final partner = state.extra as PartnerItemModel;
         return PartnerEditPage(
           partnerId: partner.id,

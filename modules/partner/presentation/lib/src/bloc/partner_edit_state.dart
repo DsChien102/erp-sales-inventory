@@ -27,6 +27,7 @@ class PartnerEditState {
   
   // Track if any changes were made
   final bool hasChanges;
+  final bool showValidationErrors;
 
   const PartnerEditState({
     this.status = PartnerEditStatus.initial,
@@ -49,6 +50,7 @@ class PartnerEditState {
     this.errorMessage,
     this.duplicateWarnings = const [],
     this.hasChanges = false,
+    this.showValidationErrors = false,
   });
 
   PartnerEditState copyWith({
@@ -72,6 +74,7 @@ class PartnerEditState {
     String? errorMessage,
     List<PartnerDuplicateMatchDto>? duplicateWarnings,
     bool? hasChanges,
+    bool? showValidationErrors,
   }) {
     return PartnerEditState(
       status: status ?? this.status,
@@ -94,6 +97,7 @@ class PartnerEditState {
       errorMessage: errorMessage,
       duplicateWarnings: duplicateWarnings ?? this.duplicateWarnings,
       hasChanges: hasChanges ?? this.hasChanges,
+      showValidationErrors: showValidationErrors ?? this.showValidationErrors,
     );
   }
 }
