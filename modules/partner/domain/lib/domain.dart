@@ -2,6 +2,7 @@ library;
 
 export 'src/business_partner/business_partner.dart';
 export 'src/business_partner/business_partner_role.dart';
+export 'src/business_partner/events/partner_profile_updated.dart';
 export 'src/business_partner/events/partner_registered.dart';
 export 'src/business_partner/repositories/i_business_partner_repository.dart';
 export 'src/business_partner/repositories/i_partner_duplicate_checker.dart';
@@ -9,6 +10,7 @@ export 'src/ids/business_partner_id.dart';
 export 'src/search/partner_search_criteria.dart';
 export 'src/search/search_keyword_normalizer.dart';
 export 'src/shared/entity_type.dart';
+export 'src/shared/partner_permissions.dart';
 export 'src/shared/partner_role.dart';
 export 'src/shared/partner_status.dart';
 export 'src/shared/profile_category.dart';

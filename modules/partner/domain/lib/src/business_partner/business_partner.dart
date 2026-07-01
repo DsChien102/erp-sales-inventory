@@ -10,6 +10,7 @@ import '../value_objects/partner_name.dart';
 import '../value_objects/phone_number.dart';
 import '../value_objects/tax_code.dart';
 import 'business_partner_role.dart';
+import 'events/partner_profile_updated.dart';
 import 'events/partner_registered.dart';
 import 'rules/entity_type_name_consistency_rule.dart';
 import 'rules/partner_must_have_at_least_one_role_rule.dart';
@@ -101,6 +102,115 @@ final class BusinessPartner extends Entity<BusinessPartnerId>
       ),
     );
     return partner;
+  }
+
+  factory BusinessPartner.rehydrate({
+    required BusinessPartnerId id,
+    required TenantId tenantId,
+    required EntityType entityType,
+    required PartnerName displayName,
+    required PhoneNumber phone,
+    required Set<PartnerRole> roles,
+    required PartnerStatus status,
+    required String createdBy,
+    required DateTime createdAt,
+    required String updatedBy,
+    required DateTime updatedAt,
+    required int version,
+    PartnerName? individualName,
+    PartnerName? businessName,
+    PartnerName? companyName,
+    EmailAddress? email,
+    TaxCode? taxCode,
+    Address? address,
+    InvoiceProfile? invoiceProfile,
+    BankAccount? bankAccount,
+    String? note,
+    DateTime? roleCreatedAt,
+  }) {
+    final roleTimestamp = roleCreatedAt ?? createdAt;
+    return BusinessPartner._(
+      id: id,
+      tenantId: tenantId,
+      entityType: entityType,
+      displayName: displayName,
+      individualName: individualName,
+      businessName: businessName,
+      companyName: companyName,
+      phone: phone,
+      email: email,
+      taxCode: taxCode,
+      address: address,
+      invoiceProfile: invoiceProfile,
+      bankAccount: bankAccount,
+      roles: roles
+          .map(
+            (role) => BusinessPartnerRole(role: role, createdAt: roleTimestamp),
+          )
+          .toList(growable: false),
+      status: status,
+      note: note?.trim().isEmpty ?? true ? null : note?.trim(),
+      createdBy: createdBy,
+      createdAt: createdAt,
+      updatedBy: updatedBy,
+      updatedAt: updatedAt,
+      version: version,
+    );
+  }
+
+  BusinessPartner updateProfile({
+    required EntityType entityType,
+    required PartnerName displayName,
+    required PhoneNumber phone,
+    required Set<PartnerRole> roles,
+    required String actorId,
+    DateTime? now,
+    PartnerName? individualName,
+    PartnerName? businessName,
+    PartnerName? companyName,
+    EmailAddress? email,
+    TaxCode? taxCode,
+    Address? address,
+    InvoiceProfile? invoiceProfile,
+    BankAccount? bankAccount,
+    String? note,
+  }) {
+    final updatedAt = now ?? DateTime.now();
+    final updated = BusinessPartner._(
+      id: id,
+      tenantId: tenantId,
+      entityType: entityType,
+      displayName: displayName,
+      individualName: individualName,
+      businessName: businessName,
+      companyName: companyName,
+      phone: phone,
+      email: email,
+      taxCode: taxCode,
+      address: address,
+      invoiceProfile: invoiceProfile,
+      bankAccount: bankAccount,
+      roles: roles
+          .map((role) => BusinessPartnerRole(role: role, createdAt: updatedAt))
+          .toList(growable: false),
+      status: status,
+      note: note?.trim().isEmpty ?? true ? null : note?.trim(),
+      createdBy: createdBy,
+      createdAt: createdAt,
+      updatedBy: actorId,
+      updatedAt: updatedAt,
+      version: version,
+    );
+
+    updated._validateRegisterInvariants();
+    updated.addDomainEvent(
+      PartnerProfileUpdated(
+        partnerId: id,
+        tenantId: tenantId,
+        displayName: displayName.value,
+      ),
+    );
+    return updated;
   }
 
   final TenantId tenantId;
