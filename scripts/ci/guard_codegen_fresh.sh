@@ -13,7 +13,7 @@ fi
 
 export PATH="$PATH:$HOME/.pub-cache/bin"
 melos bootstrap >/dev/null
-melos run codegen
+melos run codegen --no-select
 
 if ! git diff --quiet -- '**/*.g.dart'; then
   echo "ERROR: generated *.g.dart files are stale — run melos run codegen and commit"
