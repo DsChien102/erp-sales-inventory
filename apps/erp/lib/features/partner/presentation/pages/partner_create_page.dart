@@ -42,7 +42,7 @@ class _PartnerCreateView extends StatelessWidget {
             type: VToastType.danger,
           );
         } else if (state.status == PartnerCreateStatus.duplicateWarning) {
-          _showDuplicateWarningDialog(context, state.duplicateWarnings);
+          _showDuplicateWarningBottomSheet(context, state.duplicateWarnings);
         } else if (state.status == PartnerCreateStatus.success) {
           VToast.show(
             context,
@@ -50,7 +50,28 @@ class _PartnerCreateView extends StatelessWidget {
             message: 'Đã lưu KH & NCC thành công!',
             type: VToastType.success,
           );
-          context.pop(true);
+          if (state.createdPartnerId != null) {
+            final model = PartnerItemModel(
+              id: state.createdPartnerId!,
+              avatarText: state.name.isNotEmpty ? state.name[0].toUpperCase() : '?',
+              name: state.name,
+              role: state.role,
+              status: 'Đang hoạt động',
+              phone: state.phone,
+              email: state.email,
+              taxId: state.taxId,
+              updatedAt: 'Vừa xong',
+              address: state.address,
+              note: state.note,
+              profileType: state.profileType,
+              creator: 'Bạn',
+              createdAt: 'Vừa xong',
+              updatedBy: 'Bạn',
+            );
+            context.pushReplacement('/partner/detail', extra: model);
+          } else {
+            context.pop(true);
+          }
         }
       },
       builder: (context, state) {
@@ -193,18 +214,28 @@ class _PartnerCreateView extends StatelessWidget {
     }
   }
 
-  void _showDuplicateWarningDialog(
+  void _showDuplicateWarningBottomSheet(
     BuildContext context,
-    List<String> warnings,
+    List<PartnerDuplicateMatchDto> warnings,
   ) {
     final cubit = context.read<PartnerCreateCubit>();
-    showDialog(
+    showVBottomSheet(
       context: context,
-      barrierDismissible: false,
-      builder: (dialogContext) => PartnerDuplicateWarningDialog(
+      child: PartnerDuplicateWarningBottomSheet(
         warnings: warnings,
-        onCancel: () => cubit.cancelSubmit(),
-        onConfirm: () => cubit.confirmSubmit(),
+        onCancel: () {
+          Navigator.pop(context);
+          cubit.cancelSubmit();
+        },
+        onConfirm: () {
+          Navigator.pop(context);
+          cubit.confirmSubmit();
+        },
+        onViewExisting: () {
+          Navigator.pop(context);
+          cubit.cancelSubmit();
+          // TODO: Implement navigation to existing partner
+        },
       ),
     );
   }

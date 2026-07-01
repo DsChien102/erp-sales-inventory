@@ -36,8 +36,20 @@ class PartnerCreateCubit extends Cubit<PartnerCreateState> {
   void updateNote(String note) =>
       emit(state.copyWith(note: note, errorMessage: null));
 
+  bool _isPhoneValid(String p) {
+    if (p.trim().isEmpty) return false;
+    final trimmed = p.trim();
+    if (!RegExp(r'^[0-9]+$').hasMatch(trimmed)) return false;
+    return trimmed.length >= 8 && trimmed.length <= 15;
+  }
+
+  bool _isEmailValid(String e) {
+    if (e.trim().isEmpty) return true;
+    return RegExp(r"^[A-Za-z0-9.!#$%&'*+/=?^_`{|}~-]+@[A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)+$").hasMatch(e.trim());
+  }
+
   Future<void> submit() async {
-    if (state.name.trim().isEmpty || state.phone.trim().isEmpty) {
+    if (state.name.trim().isEmpty || !_isPhoneValid(state.phone) || !_isEmailValid(state.email)) {
       emit(
         state.copyWith(
           showValidationErrors: true,
@@ -85,7 +97,7 @@ class PartnerCreateCubit extends Cubit<PartnerCreateState> {
     emit(const PartnerCreateState());
   }
 
-  Future<List<String>> _checkDuplicates() async {
+  Future<List<PartnerDuplicateMatchDto>> _checkDuplicates() async {
     final tenantId = await _executionContext.requireTenantId();
     final matches = await _partnerModule.executeQueryAsync(
       CheckDuplicatePartnersQuery(
@@ -96,7 +108,7 @@ class PartnerCreateCubit extends Cubit<PartnerCreateState> {
       ),
     );
 
-    return matches.map(PartnerUiMapper.duplicateWarning).toList(growable: false);
+    return matches.toList(growable: false);
   }
 
   Future<void> _save({required bool confirmDuplicate}) async {
@@ -104,7 +116,7 @@ class PartnerCreateCubit extends Cubit<PartnerCreateState> {
       final tenantId = await _executionContext.requireTenantId();
       final actorId = await _executionContext.requireUserId();
 
-      await _partnerModule.executeCommandAsync(
+      final result = await _partnerModule.executeCommandAsync(
         PartnerUiMapper.toRegisterCommand(
           tenantId: tenantId,
           actorId: actorId,
@@ -120,7 +132,10 @@ class PartnerCreateCubit extends Cubit<PartnerCreateState> {
         ),
       );
 
-      emit(state.copyWith(status: PartnerCreateStatus.success));
+      emit(state.copyWith(
+        status: PartnerCreateStatus.success,
+        createdPartnerId: result.businessPartnerId,
+      ));
     } catch (error) {
       emit(
         state.copyWith(

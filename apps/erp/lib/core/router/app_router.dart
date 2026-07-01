@@ -13,6 +13,7 @@ import '../../features/more/presentation/einvoice_settings/bloc/einvoice_setting
 import '../../features/auth/presentation/pages/login_page.dart';
 import '../../features/dashboard/presentation/dashboard_page.dart';
 import '../../features/dashboard/presentation/models/dashboard_navigation.dart';
+import '../../features/partner/presentation/pages/partner_detail_page.dart';
 import '../../features/partner/presentation/pages/partner_create_page.dart';
 import '../../features/partner/presentation/pages/partner_edit_page.dart';
 import 'package:vet45_partner_presentation/presentation.dart';
@@ -109,6 +110,14 @@ final appRouter = GoRouter(
       path: '/partner/create',
       name: 'partner.create',
       builder: (context, state) => const PartnerCreatePage(),
+    ),
+    GoRoute(
+      path: '/partner/detail',
+      name: 'partner.detail',
+      builder: (context, state) {
+        final partner = state.extra as PartnerItemModel;
+        return PartnerDetailPage(partner: partner);
+      },
     ),
     GoRoute(
       path: '/partner/edit',

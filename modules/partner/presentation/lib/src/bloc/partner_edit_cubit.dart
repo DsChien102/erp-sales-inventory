@@ -157,10 +157,20 @@ class PartnerEditCubit extends Cubit<PartnerEditState> {
       );
       return;
     }
-    if (state.phone.trim().isEmpty) {
+    final trimmedPhone = state.phone.trim();
+    if (trimmedPhone.isEmpty) {
       emit(
         state.copyWith(
           errorMessage: 'Số điện thoại không được để trống.',
+          status: PartnerEditStatus.error,
+        ),
+      );
+      return;
+    }
+    if (!RegExp(r'^[0-9]+$').hasMatch(trimmedPhone) || trimmedPhone.length < 8 || trimmedPhone.length > 15) {
+      emit(
+        state.copyWith(
+          errorMessage: 'Số điện thoại chỉ được chứa số và từ 8-15 ký tự.',
           status: PartnerEditStatus.error,
         ),
       );

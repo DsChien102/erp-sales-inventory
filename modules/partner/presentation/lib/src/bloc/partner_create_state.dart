@@ -1,3 +1,5 @@
+import 'package:vet45_partner_application/application.dart';
+
 enum PartnerCreateStatus { initial, loading, duplicateWarning, success, error }
 
 class PartnerCreateState {
@@ -16,8 +18,9 @@ class PartnerCreateState {
   final String note;
   
   final String? errorMessage;
-  final List<String> duplicateWarnings;
+  final List<PartnerDuplicateMatchDto> duplicateWarnings;
   final bool showValidationErrors;
+  final String? createdPartnerId;
 
   const PartnerCreateState({
     this.status = PartnerCreateStatus.initial,
@@ -36,6 +39,7 @@ class PartnerCreateState {
     this.errorMessage,
     this.duplicateWarnings = const [],
     this.showValidationErrors = false,
+    this.createdPartnerId,
   });
 
   bool get isDirty {
@@ -63,8 +67,9 @@ class PartnerCreateState {
     String? contactName,
     String? note,
     String? errorMessage,
-    List<String>? duplicateWarnings,
+    List<PartnerDuplicateMatchDto>? duplicateWarnings,
     bool? showValidationErrors,
+    String? createdPartnerId,
   }) {
     return PartnerCreateState(
       status: status ?? this.status,
@@ -83,6 +88,7 @@ class PartnerCreateState {
       errorMessage: errorMessage,
       duplicateWarnings: duplicateWarnings ?? this.duplicateWarnings,
       showValidationErrors: showValidationErrors ?? this.showValidationErrors,
+      createdPartnerId: createdPartnerId ?? this.createdPartnerId,
     );
   }
 }

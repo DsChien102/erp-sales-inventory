@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:vet45_design_system/design_system.dart';
 
 class PartnerContactInfoSection extends StatelessWidget {
@@ -31,6 +32,18 @@ class PartnerContactInfoSection extends StatelessWidget {
   Widget build(BuildContext context) {
     final dynamicColors = context.vColors;
 
+    bool isPhoneValid(String p) {
+      if (p.trim().isEmpty) return false;
+      final trimmed = p.trim();
+      if (!RegExp(r'^[0-9]+$').hasMatch(trimmed)) return false;
+      return trimmed.length >= 8 && trimmed.length <= 15;
+    }
+
+    bool isEmailValid(String e) {
+      if (e.trim().isEmpty) return true;
+      return RegExp(r"^[A-Za-z0-9.!#$%&'*+/=?^_`{|}~-]+@[A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)+$").hasMatch(e.trim());
+    }
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -51,10 +64,15 @@ class PartnerContactInfoSection extends StatelessWidget {
           hintText: 'VD: 0912345678',
           prefixIcon: const Icon(Icons.phone_outlined, size: 20),
           keyboardType: TextInputType.phone,
+          inputFormatters: [
+            FilteringTextInputFormatter.digitsOnly,
+          ],
           onChanged: onPhoneChanged,
-          errorText: showValidationErrors && phone.trim().isEmpty
-              ? 'Vui lòng nhập số điện thoại'
-              : null,
+          errorText: (phone.trim().isNotEmpty && !isPhoneValid(phone))
+              ? 'Số điện thoại chỉ được chứa số và từ 8-15 ký tự'
+              : (showValidationErrors && phone.trim().isEmpty
+                  ? 'Vui lòng nhập số điện thoại'
+                  : null),
         ),
         const SizedBox(height: VSpacing.space4),
         VTextField(
@@ -64,6 +82,9 @@ class PartnerContactInfoSection extends StatelessWidget {
           prefixIcon: const Icon(Icons.email_outlined, size: 20),
           keyboardType: TextInputType.emailAddress,
           onChanged: onEmailChanged,
+          errorText: showValidationErrors && !isEmailValid(email)
+              ? 'Email chưa đúng định dạng'
+              : null,
         ),
         const SizedBox(height: VSpacing.space4),
         VTextField(

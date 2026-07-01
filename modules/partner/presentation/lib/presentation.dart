@@ -16,6 +16,7 @@ export 'src/models/partner_filter_counts.dart';
 export 'src/widgets/partner_cancel_confirm_bottom_sheet.dart';
 export 'src/widgets/partner_cancel_confirm_dialog.dart';
 export 'src/widgets/partner_detail_header.dart';
+export 'src/widgets/partner_duplicate_warning_bottom_sheet.dart';
 export 'src/widgets/partner_options_bottom_sheet.dart';
 export 'src/widgets/partner_detail_menu.dart';
 export 'src/widgets/partner_duplicate_warning_dialog.dart';

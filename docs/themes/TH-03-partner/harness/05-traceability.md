@@ -34,7 +34,8 @@ Test id: scn_e01_u02_fr06_01 (handler/integration), wgt_e02_u01_fr03_01 (widget 
 | FR-02 | — | — | `modules/partner/presentation/lib/src/widgets/partner_role_type_section.dart` | — | Implemented (presentation) |
 | FR-03 | — | — | `modules/partner/presentation/lib/src/widgets/partner_form_sections.dart` | — | Implemented (presentation) |
 | FR-04 | — | — | `modules/partner/presentation/lib/src/bloc/partner_create_cubit.dart` | — | Implemented (presentation) |
-| FR-05 | — | — | `modules/partner/presentation/lib/src/bloc/partner_create_state.dart` | — | Implemented (presentation) |
+| FR-05 | — | — | `modules/partner/presentation/lib/src/widgets/partner_duplicate_warning_bottom_sheet.dart` | — | Implemented (presentation) |
+| FR-06 | — | — | `modules/partner/presentation/lib/src/bloc/partner_create_state.dart` | — | Implemented (presentation) |
 
 ---
 
