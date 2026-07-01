@@ -133,7 +133,15 @@ melos:
         ignore:
           - erp
           - messaging_worker
-          - '*_presentation'
+          - vet45_partner_presentation
+      isPrivate: true
+
+    test:flutter:
+      exec: flutter test
+      packageFilters:
+        dirExists: test
+        scope:
+          - vet45_partner_presentation
       isPrivate: true
 
   repository:
