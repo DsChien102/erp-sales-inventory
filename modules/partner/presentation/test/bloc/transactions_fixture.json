@@ -1,0 +1,56 @@
+[
+  {
+    "id": "SO-2026-0001",
+    "title": "Đơn bán hàng",
+    "date": "2026-06-25T14:30:00Z",
+    "status": "Đã hoàn tất",
+    "amount": "1.500.000 đ",
+    "role": "Khách hàng",
+    "description": "Bán phụ kiện vợt Yonex Astrox"
+  },
+  {
+    "id": "GR-2026-0002",
+    "title": "Phiếu nhập hàng",
+    "date": "2026-06-28T09:00:00Z",
+    "status": "Đã hoàn tất",
+    "amount": "25.000.000 đ",
+    "role": "Nhà cung cấp",
+    "description": "Nhập sỉ 50 cây vợt Victor"
+  },
+  {
+    "id": "PT-2026-0003",
+    "title": "Phiếu thu",
+    "date": "2026-06-29T10:15:00Z",
+    "status": "Đã hoàn tất",
+    "amount": "500.000 đ",
+    "role": "Khách hàng",
+    "description": "Thu tiền cọc sân cầu lông"
+  },
+  {
+    "id": "PC-2026-0004",
+    "title": "Phiếu chi",
+    "date": "2026-06-27T16:00:00Z",
+    "status": "Đang xử lý",
+    "amount": "10.000.000 đ",
+    "role": "Nhà cung cấp",
+    "description": "Chi trả tiền thuê kho bãi tháng 6"
+  },
+  {
+    "id": "",
+    "title": "Điều chỉnh công nợ",
+    "date": "2026-06-24T08:00:00Z",
+    "status": "Đã hoàn tất",
+    "amount": "200.000 đ",
+    "role": "Khách hàng",
+    "description": "Bù trừ sai sót hóa đơn cũ"
+  },
+  {
+    "id": "SO-2026-0005",
+    "title": "Đơn bán lẻ",
+    "date": "2026-06-26T11:00:00Z",
+    "status": "Đã hủy",
+    "amount": "",
+    "role": "Khách hàng",
+    "description": "Đơn hàng bị khách hủy ngang"
+  }
+]

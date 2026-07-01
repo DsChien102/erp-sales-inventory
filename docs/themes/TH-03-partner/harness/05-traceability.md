@@ -120,5 +120,5 @@ Codegen ritual: [modules/partner/README.md](../../../../modules/partner/README.m
 | ------ | ---- | ---------- | ------------- | -------- | ------- | ------ |
 | US-01 | CONTRACT | §US-01 | application | `ListPartnerTransactionHistoryQuery` (stub) | — | todo |
 | FR-01..05 | BE | §US-01 | infrastructure | inbox projection handler | — | blocked |
-| FR-01..05 | FE | §US-01 | presentation | `partner_transaction_history_tab.dart` | wgt_e03_u01_fr01_01 | todo |
+| FR-01..05 | FE | §US-01 | presentation | `partner_transaction_history_tab.dart` | wgt_e03_u01_fr01_01 | in_progress |
 | FR-01..05 | E2E | §US-01 | integration | cross-module events | — | blocked |

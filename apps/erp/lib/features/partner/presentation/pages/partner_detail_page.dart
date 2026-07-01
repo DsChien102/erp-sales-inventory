@@ -312,7 +312,7 @@ class _PartnerDetailPageState extends State<PartnerDetailPage> {
                     index: _selectedIndex,
                     children: [
                       PartnerGeneralInfoTab(partner: partner),
-                      const PartnerTransactionHistoryTab(),
+                      PartnerTransactionHistoryTab(partner: partner),
                     ],
                   ),
                 ),
