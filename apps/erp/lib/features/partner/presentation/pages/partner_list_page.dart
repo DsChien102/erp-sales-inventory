@@ -7,7 +7,6 @@ import 'package:vet45_partner_presentation/presentation.dart';
 import 'package:vet45_shared_application/application.dart';
 
 import '../../../../core/di/injection.dart';
-import 'partner_detail_page.dart';
 
 class PartnerListPage extends StatelessWidget {
   const PartnerListPage({super.key});
@@ -53,61 +52,7 @@ class PartnerListPage extends StatelessWidget {
                       if (state.status == PartnerListStatus.loading && state.partners.isEmpty) {
                         return const Center(child: CircularProgressIndicator());
                       }
-            backgroundColor: dynamicColors.background,
-            appBar: VAppBar(
-              title: 'Khách hàng & Nhà cung cấp',
-              showBackButton: false,
-              actions: [
-                IconButton(
-                  icon: Icon(Icons.more_horiz, color: dynamicColors.textPrimary),
-                  onPressed: () {
-                    showVBottomSheet(
-                      context: context,
-                      child: PartnerOptionsBottomSheet(
-                        onExportExcel: () {
-                          // TODO: Implement export excel
-                        },
-                      ),
-                    );
-                  },
-                ),
-              ],
-            ),
-            body: Column(
-              children: [
-                const PartnerSearchBar(),
-                Expanded(
-                  child: BlocBuilder<PartnerListCubit, PartnerListState>(
-                    builder: (context, state) {
-                      if (state.status == PartnerListStatus.loading && state.partners.isEmpty) {
-                        return const Center(child: CircularProgressIndicator());
-                      }
 
-                      if (state.status == PartnerListStatus.failure) {
-                        return Center(
-                          child: Padding(
-                            padding: const EdgeInsets.all(VSpacing.space6),
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Text(
-                                  state.errorMessage ?? 'Không tải được danh sách đối tác',
-                                  style: VTypography.bodyDefault.copyWith(
-                                    color: dynamicColors.textSecondary,
-                                  ),
-                                  textAlign: TextAlign.center,
-                                ),
-                                const SizedBox(height: VSpacing.space4),
-                                VButton(
-                                  onPressed: () => context.read<PartnerListCubit>().load(),
-                                  label: 'Tải lại',
-                                  variant: VButtonVariant.primary,
-                                ),
-                              ],
-                            ),
-                          ),
-                        );
-                      }
                       if (state.status == PartnerListStatus.failure) {
                         return Center(
                           child: Padding(

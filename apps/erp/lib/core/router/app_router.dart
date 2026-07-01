@@ -116,7 +116,10 @@ final appRouter = GoRouter(
       name: 'partner.detail',
       builder: (context, state) {
         final partner = state.extra as PartnerItemModel;
-        return PartnerDetailPage(partner: partner);
+        return PartnerDetailPage(
+          partnerId: partner.id,
+          initialPartner: partner,
+        );
       },
     ),
     GoRoute(
