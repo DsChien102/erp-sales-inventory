@@ -45,6 +45,42 @@ abstract final class PartnerRpcMapper {
     };
   }
 
+  static Map<String, dynamic> updatePartnerParams({
+    required BusinessPartner partner,
+    required Set<PartnerRole> roles,
+    required bool confirmDuplicate,
+    required int expectedVersion,
+    required String actorId,
+  }) {
+    return <String, dynamic>{
+      'p_tenant_id': partner.tenantId.value,
+      'p_partner_id': partner.id.value,
+      'p_expected_version': expectedVersion,
+      'p_entity_type': entityTypeToRpc(partner.entityType),
+      'p_display_name': partner.displayName.value,
+      'p_phone': partner.phone.value,
+      'p_phone_normalized': partner.phone.normalized,
+      'p_roles': rolesToRpc(roles),
+      'p_actor_id': actorId,
+      'p_individual_name': partner.individualName?.value,
+      'p_business_name': partner.businessName?.value,
+      'p_company_name': partner.companyName?.value,
+      'p_email': partner.email?.value,
+      'p_email_normalized': partner.email?.normalized,
+      'p_address': partner.address?.value,
+      'p_tax_code': partner.taxCode?.value,
+      'p_tax_code_normalized': partner.taxCode?.normalized,
+      'p_invoice_name': partner.invoiceProfile?.invoiceName?.value,
+      'p_invoice_address': partner.invoiceProfile?.invoiceAddress?.value,
+      'p_invoice_email': partner.invoiceProfile?.invoiceEmail?.value,
+      'p_bank_name': partner.bankAccount?.bankName.value,
+      'p_bank_account_number': partner.bankAccount?.accountNumber,
+      'p_bank_account_holder': partner.bankAccount?.accountHolder.value,
+      'p_note': partner.note,
+      'p_confirm_duplicate': confirmDuplicate,
+    };
+  }
+
   static Map<String, dynamic> checkDuplicateParams({
     required String tenantId,
     PhoneNumber? phone,

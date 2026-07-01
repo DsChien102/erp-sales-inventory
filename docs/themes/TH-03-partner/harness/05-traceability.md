@@ -42,11 +42,12 @@ Test id: scn_e01_u02_fr06_01 (handler/integration), wgt_e02_u01_fr03_01 (widget 
 
 | Req ID | Enforce layer | Artifact | Presentation artifact | Test id | Status |
 | ------ | ------------- | -------- | --------------------- | ------- | ------ |
-| FR-01 | — | — | `apps/erp/lib/features/partner/presentation/pages/partner_edit_page.dart` | — | Implemented (presentation) |
-| FR-02 | — | — | `modules/partner/presentation/lib/src/widgets/partner_form_sections.dart` | — | Implemented (presentation) |
-| FR-03 | — | — | `modules/partner/presentation/lib/src/widgets/partner_role_type_section.dart` | — | Implemented (presentation) |
-| FR-04 | — | — | `modules/partner/presentation/lib/src/bloc/partner_edit_cubit.dart` | — | Implemented (presentation) |
-| FR-05 | — | — | `modules/partner/presentation/lib/src/bloc/partner_edit_state.dart` | — | Implemented (presentation) |
+| FR-01 | application | `UpdatePartnerProfileCommand` | `apps/erp/lib/features/partner/presentation/pages/partner_edit_page.dart` | — | done |
+| FR-02 | application | `GetPartnerDetailQuery` | `modules/partner/presentation/lib/src/widgets/partner_form_sections.dart` | — | done |
+| FR-03 | infrastructure | `partner.update_partner` RPC | `modules/partner/presentation/lib/src/widgets/partner_role_type_section.dart` | — | done |
+| FR-04 | domain | `BusinessPartner.updateProfile` | `modules/partner/presentation/lib/src/bloc/partner_edit_cubit.dart` | scn_e01_u03_fr04_01 | done |
+| FR-05 | application | `CheckDuplicatePartnersQuery` | `modules/partner/presentation/lib/src/bloc/partner_edit_state.dart` | — | done |
+| FR-06 | application | `UpdatePartnerProfileCommandHandler` | — | scn_e01_u03_fr06_01 | done |
 
 ---
 
@@ -54,14 +55,13 @@ Test id: scn_e01_u02_fr06_01 (handler/integration), wgt_e02_u01_fr03_01 (widget 
 
 | Req ID | Enforce layer | Artifact | Presentation artifact | Test id | Status |
 | ------ | ------------- | -------- | --------------------- | ------- | ------ |
-| FR-01 | — | — | `apps/erp/lib/features/partner/presentation/pages/partner_detail_page.dart` | — | Implemented (presentation) |
-| FR-02 | — | — | `modules/partner/presentation/lib/src/widgets/partner_detail_header.dart` | — | Implemented (presentation) |
-| FR-03 | — | — | `modules/partner/presentation/lib/src/widgets/partner_general_info_tab.dart` | — | Implemented (presentation) |
-| FR-04 | — | — | `modules/partner/presentation/lib/src/bloc/partner_detail_cubit.dart` | — | Implemented (presentation) |
-| FR-04 | — | — | `modules/partner/presentation/lib/src/bloc/partner_detail_state.dart` | — | Implemented (presentation) |
-| FR-05 | — | — | `modules/partner/presentation/lib/src/widgets/partner_detail_menu.dart` | — | Implemented (presentation) |
-| FR-05 | — | — | `modules/partner/presentation/lib/src/widgets/partner_transaction_history_tab.dart` | — | Implemented (presentation) |
-| FR-05 | — | — | `modules/partner/presentation/lib/src/widgets/partner_transaction_item.dart` | — | Implemented (presentation) |
+| FR-01 | application | `GetPartnerDetailQuery` | `apps/erp/lib/features/partner/presentation/pages/partner_detail_page.dart` | — | done |
+| FR-02 | infrastructure | `partner.get_partner_detail` RPC | `modules/partner/presentation/lib/src/widgets/partner_detail_header.dart` | — | done |
+| FR-03 | application | `PartnerDetailDto` | `modules/partner/presentation/lib/src/widgets/partner_general_info_tab.dart` | — | done |
+| FR-04 | application | `GetPartnerDetailQueryHandler` | `modules/partner/presentation/lib/src/bloc/partner_detail_cubit.dart` | scn_e01_u04_fr04_01 | done |
+| FR-04 | — | — | `modules/partner/presentation/lib/src/bloc/partner_detail_state.dart` | — | done |
+| FR-05 | — | — | `modules/partner/presentation/lib/src/widgets/partner_detail_menu.dart` | — | done |
+| FR-05 | — | — | `modules/partner/presentation/lib/src/widgets/partner_transaction_history_tab.dart` | — | placeholder (Epic-03) |
 
 ---
 

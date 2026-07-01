@@ -19,6 +19,17 @@ class _RecordingPartnerCommandGateway implements IPartnerCommandGateway {
     lastIdempotencyKey = idempotencyKey;
     return 'partner-registered-id';
   }
+
+  @override
+  Future<int> update({
+    required BusinessPartner partner,
+    required Set<PartnerRole> roles,
+    required bool confirmDuplicate,
+    required int expectedVersion,
+    required String actorId,
+  }) {
+    throw UnimplementedError();
+  }
 }
 
 void main() {

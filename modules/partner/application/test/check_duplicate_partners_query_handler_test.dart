@@ -4,6 +4,8 @@ import 'package:vet45_partner_domain/domain.dart';
 import 'package:vet45_shared_domain/shared_kernel_domain.dart';
 
 class _FakeDuplicateChecker implements IPartnerDuplicateChecker {
+  BusinessPartnerId? lastExcludePartnerId;
+
   @override
   Future<List<PartnerDuplicateMatch>> findMatches({
     required TenantId tenantId,
@@ -12,6 +14,7 @@ class _FakeDuplicateChecker implements IPartnerDuplicateChecker {
     TaxCode? taxCode,
     BusinessPartnerId? excludePartnerId,
   }) async {
+    lastExcludePartnerId = excludePartnerId;
     return [
       PartnerDuplicateMatch(
         field: PartnerDuplicateField.phone,
@@ -40,5 +43,22 @@ void main() {
     expect(result.first.field, PartnerDuplicateField.phone);
     expect(result.first.businessPartnerId, 'existing-1');
     expect(result.first.displayName, 'Existing Partner');
+  });
+
+  test('CheckDuplicatePartnersForUpdateQueryHandler passes exclude partner id', () async {
+    final duplicateChecker = _FakeDuplicateChecker();
+    final handler = CheckDuplicatePartnersForUpdateQueryHandler(
+      duplicateChecker: duplicateChecker,
+    );
+
+    await handler.handle(
+      CheckDuplicatePartnersForUpdateQuery(
+        tenantId: 'tenant-1',
+        excludePartnerId: 'partner-1',
+        phone: '0987654321',
+      ),
+    );
+
+    expect(duplicateChecker.lastExcludePartnerId, const BusinessPartnerId('partner-1'));
   });
 }

@@ -11,6 +11,27 @@ ApplicationException mapPartnerRpcError(RpcException error) {
     );
   }
 
+  if (message.contains('version conflict')) {
+    return ApplicationException(
+      'Hồ sơ đã được cập nhật bởi người khác. Vui lòng tải lại và thử lại.',
+      cause: error,
+    );
+  }
+
+  if (message.contains('cannot remove role with transaction history')) {
+    return ApplicationException(
+      'Không thể xóa vai trò đã phát sinh giao dịch.',
+      cause: error,
+    );
+  }
+
+  if (message.contains('partner not found')) {
+    return ApplicationException(
+      'Không tìm thấy đối tác.',
+      cause: error,
+    );
+  }
+
   if (message.contains('not authenticated') ||
       message.contains('permission denied') ||
       message.contains('actor mismatch')) {

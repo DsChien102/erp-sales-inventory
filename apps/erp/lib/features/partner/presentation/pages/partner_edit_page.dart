@@ -31,8 +31,51 @@ class PartnerEditPage extends StatelessWidget {
   }
 }
 
-class _PartnerEditView extends StatelessWidget {
+class _PartnerEditView extends StatefulWidget {
   const _PartnerEditView();
+
+  @override
+  State<_PartnerEditView> createState() => _PartnerEditViewState();
+}
+
+class _PartnerEditViewState extends State<_PartnerEditView> {
+  late final TextEditingController _nameController;
+  late final TextEditingController _phoneController;
+  late final TextEditingController _emailController;
+  late final TextEditingController _addressController;
+  late final TextEditingController _taxIdController;
+  late final TextEditingController _billingNameController;
+  late final TextEditingController _billingAddressController;
+  late final TextEditingController _billingEmailController;
+  late final TextEditingController _noteController;
+
+  @override
+  void initState() {
+    super.initState();
+    _nameController = TextEditingController();
+    _phoneController = TextEditingController();
+    _emailController = TextEditingController();
+    _addressController = TextEditingController();
+    _taxIdController = TextEditingController();
+    _billingNameController = TextEditingController();
+    _billingAddressController = TextEditingController();
+    _billingEmailController = TextEditingController();
+    _noteController = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _phoneController.dispose();
+    _emailController.dispose();
+    _addressController.dispose();
+    _taxIdController.dispose();
+    _billingNameController.dispose();
+    _billingAddressController.dispose();
+    _billingEmailController.dispose();
+    _noteController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -40,11 +83,9 @@ class _PartnerEditView extends StatelessWidget {
 
     return BlocConsumer<PartnerEditCubit, PartnerEditState>(
       listenWhen: (previous, current) =>
-          previous.status != current.status ||
-          previous.errorMessage != current.errorMessage,
+          previous.status != current.status || previous.errorMessage != current.errorMessage,
       listener: (context, state) {
-        if (state.status == PartnerEditStatus.error &&
-            state.errorMessage != null) {
+        if (state.status == PartnerEditStatus.error && state.errorMessage != null) {
           VToast.show(
             context,
             title: 'Lỗi',
@@ -61,6 +102,8 @@ class _PartnerEditView extends StatelessWidget {
           );
         } else if (state.status == PartnerEditStatus.duplicateWarning) {
           _showDuplicateWarningDialog(context, state.duplicateWarnings);
+        } else if (state.status == PartnerEditStatus.ready && !state.hasChanges) {
+          _syncControllersFromState(state);
         } else if (state.status == PartnerEditStatus.success) {
           VToast.show(
             context,
@@ -68,11 +111,12 @@ class _PartnerEditView extends StatelessWidget {
             message: 'Đã cập nhật KH & NCC thành công!',
             type: VToastType.success,
           );
-          context.pop();
+          context.pop(true);
         }
       },
       builder: (context, state) {
-        final isLoadingData = state.status == PartnerEditStatus.initial ||
+        final isLoadingData =
+            state.status == PartnerEditStatus.initial ||
             state.status == PartnerEditStatus.loadingData;
 
         return Scaffold(
@@ -81,15 +125,13 @@ class _PartnerEditView extends StatelessWidget {
             title: 'Chỉnh sửa KH & NCC',
             actions: [
               TextButton(
-                onPressed: state.status == PartnerEditStatus.saving ||
-                        isLoadingData
+                onPressed: state.status == PartnerEditStatus.saving || isLoadingData
                     ? null
                     : () => _handleCancel(context, state),
                 child: Text(
                   'Hủy',
                   style: VTypography.bodyDefault.copyWith(
-                    color: state.status == PartnerEditStatus.saving ||
-                            isLoadingData
+                    color: state.status == PartnerEditStatus.saving || isLoadingData
                         ? dynamicColors.textMuted
                         : dynamicColors.textSecondary,
                   ),
@@ -101,119 +143,149 @@ class _PartnerEditView extends StatelessWidget {
           body: isLoadingData
               ? const Center(child: CircularProgressIndicator())
               : state.status == PartnerEditStatus.loadingDataError
-                  ? Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Icon(
-                            Icons.error_outline,
-                            size: 48,
-                            color: VColors.danger,
-                          ),
-                          const SizedBox(height: 16),
-                          Text(
-                            'Không thể tải dữ liệu',
-                            style: VTypography.headingH4,
-                          ),
-                          const SizedBox(height: 16),
-                          VButton(
-                            variant: VButtonVariant.outline,
-                            onPressed: () => context
-                                .read<PartnerEditCubit>()
-                                .loadPartner(state.partnerId),
-                            label: 'Tải lại',
-                          ),
-                        ],
+              ? Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(
+                        Icons.error_outline,
+                        size: 48,
+                        color: VColors.danger,
                       ),
-                    )
-                  : Column(
-                      children: [
-                        Expanded(
-                          child: SingleChildScrollView(
-                            padding: const EdgeInsets.all(VSpacing.space4),
-                            child: Column(
-                              children: [
-                                VCard(
-                                  child: PartnerRoleTypeSection(
-                                    role: state.role,
-                                    onRoleChanged: (v) => context
-                                        .read<PartnerEditCubit>()
-                                        .updateRole(v),
-                                    profileType: state.profileType,
-                                    onProfileTypeChanged: (v) => context
-                                        .read<PartnerEditCubit>()
-                                        .updateProfileType(v),
-                                    onNameChanged: (v) => context
-                                        .read<PartnerEditCubit>()
-                                        .updateName(v),
-                                  ),
-                                ),
-                                const SizedBox(height: VSpacing.space4),
-                                VCard(
-                                  child: PartnerContactInfoSection(
-                                    phone: state.phone,
-                                    onPhoneChanged: (v) => context
-                                        .read<PartnerEditCubit>()
-                                        .updatePhone(v),
-                                    email: state.email,
-                                    onEmailChanged: (v) => context
-                                        .read<PartnerEditCubit>()
-                                        .updateEmail(v),
-                                    address: state.address,
-                                    onAddressChanged: (v) => context
-                                        .read<PartnerEditCubit>()
-                                        .updateAddress(v),
-                                  ),
-                                ),
-                                const SizedBox(height: VSpacing.space4),
-                                VCard(
-                                  child: PartnerTaxInfoSection(
-                                    taxId: state.taxId,
-                                    onTaxIdChanged: (v) => context
-                                        .read<PartnerEditCubit>()
-                                        .updateTaxId(v),
-                                  ),
-                                ),
-                                const SizedBox(height: VSpacing.space4),
-                                VCard(
-                                  child: PartnerNoteSection(
-                                    note: state.note,
-                                    onNoteChanged: (v) => context
-                                        .read<PartnerEditCubit>()
-                                        .updateNote(v),
-                                  ),
-                                ),
-                              ],
+                      const SizedBox(height: 16),
+                      Text(
+                        'Không thể tải dữ liệu',
+                        style: VTypography.headingH4,
+                      ),
+                      const SizedBox(height: 16),
+                      VButton(
+                        variant: VButtonVariant.outline,
+                        onPressed: () =>
+                            context.read<PartnerEditCubit>().loadPartner(state.partnerId),
+                        label: 'Tải lại',
+                      ),
+                    ],
+                  ),
+                )
+              : Column(
+                  children: [
+                    Expanded(
+                      child: SingleChildScrollView(
+                        padding: const EdgeInsets.all(VSpacing.space4),
+                        child: Column(
+                          children: [
+                            VCard(
+                              child: PartnerRoleTypeSection(
+                                role: state.role,
+                                nameController: _nameController,
+                                onRoleChanged: (v) =>
+                                    context.read<PartnerEditCubit>().updateRole(v),
+                                profileType: state.profileType,
+                                onProfileTypeChanged: (v) =>
+                                    context.read<PartnerEditCubit>().updateProfileType(v),
+                                onNameChanged: (v) =>
+                                    context.read<PartnerEditCubit>().updateName(v),
+                              ),
                             ),
-                          ),
-                        ),
-                        Container(
-                          padding: const EdgeInsets.all(VSpacing.space4),
-                          decoration: BoxDecoration(
-                            color: dynamicColors.surface,
-                            boxShadow: VShadows.e2,
-                          ),
-                          child: SafeArea(
-                            top: false,
-                            child: VButton(
-                              onPressed: state.status ==
-                                          PartnerEditStatus.saving ||
-                                      !state.hasChanges
-                                  ? null
-                                  : () => context
-                                      .read<PartnerEditCubit>()
-                                      .submit(),
-                              isLoading:
-                                  state.status == PartnerEditStatus.saving,
-                              fullWidth: true,
-                              label: 'Lưu thay đổi',
+                            const SizedBox(height: VSpacing.space4),
+                            VCard(
+                              child: PartnerContactInfoSection(
+                                phone: state.phone,
+                                phoneController: _phoneController,
+                                onPhoneChanged: (v) =>
+                                    context.read<PartnerEditCubit>().updatePhone(v),
+                                email: state.email,
+                                emailController: _emailController,
+                                onEmailChanged: (v) =>
+                                    context.read<PartnerEditCubit>().updateEmail(v),
+                                address: state.address,
+                                addressController: _addressController,
+                                onAddressChanged: (v) =>
+                                    context.read<PartnerEditCubit>().updateAddress(v),
+                              ),
                             ),
-                          ),
+                            const SizedBox(height: VSpacing.space4),
+                            VCard(
+                              child: PartnerTaxInfoSection(
+                                taxId: state.taxId,
+                                taxIdController: _taxIdController,
+                                onTaxIdChanged: (v) =>
+                                    context.read<PartnerEditCubit>().updateTaxId(v),
+                              ),
+                            ),
+                            const SizedBox(height: VSpacing.space4),
+                            VCard(
+                              child: PartnerBillingInfoSection(
+                                billingNameController: _billingNameController,
+                                billingAddressController: _billingAddressController,
+                                billingEmailController: _billingEmailController,
+                                onBillingNameChanged: (v) =>
+                                    context.read<PartnerEditCubit>().updateBillingName(v),
+                                onBillingAddressChanged: (v) =>
+                                    context.read<PartnerEditCubit>().updateBillingAddress(v),
+                                onBillingEmailChanged: (v) =>
+                                    context.read<PartnerEditCubit>().updateBillingEmail(v),
+                              ),
+                            ),
+                            const SizedBox(height: VSpacing.space4),
+                            VCard(
+                              child: PartnerNoteSection(
+                                note: state.note,
+                                noteController: _noteController,
+                                onNoteChanged: (v) =>
+                                    context.read<PartnerEditCubit>().updateNote(v),
+                              ),
+                            ),
+                          ],
                         ),
-                      ],
+                      ),
                     ),
+                    Container(
+                      padding: const EdgeInsets.all(VSpacing.space4),
+                      decoration: BoxDecoration(
+                        color: dynamicColors.surface,
+                        boxShadow: VShadows.e2,
+                      ),
+                      child: SafeArea(
+                        top: false,
+                        child: VButton(
+                          onPressed: state.status == PartnerEditStatus.saving || !state.hasChanges
+                              ? null
+                              : () => context.read<PartnerEditCubit>().submit(),
+                          isLoading: state.status == PartnerEditStatus.saving,
+                          fullWidth: true,
+                          label: 'Lưu thay đổi',
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
         );
       },
+    );
+  }
+
+  void _syncControllersFromState(PartnerEditState state) {
+    _syncController(_nameController, state.name);
+    _syncController(_phoneController, state.phone);
+    _syncController(_emailController, state.email);
+    _syncController(_addressController, state.address);
+    _syncController(_taxIdController, state.taxId);
+    _syncController(_billingNameController, state.billingName);
+    _syncController(_billingAddressController, state.billingAddress);
+    _syncController(_billingEmailController, state.billingEmail);
+    _syncController(_noteController, state.note);
+  }
+
+  void _syncController(TextEditingController controller, String value) {
+    if (controller.text == value) {
+      return;
+    }
+
+    controller.value = controller.value.copyWith(
+      text: value,
+      selection: TextSelection.collapsed(offset: value.length),
+      composing: TextRange.empty,
     );
   }
 

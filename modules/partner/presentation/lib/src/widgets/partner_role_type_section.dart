@@ -6,6 +6,7 @@ class PartnerRoleTypeSection extends StatelessWidget {
   final ValueChanged<String> onRoleChanged;
   final String profileType;
   final ValueChanged<String> onProfileTypeChanged;
+  final TextEditingController? nameController;
   final ValueChanged<String> onNameChanged;
 
   const PartnerRoleTypeSection({
@@ -14,6 +15,7 @@ class PartnerRoleTypeSection extends StatelessWidget {
     required this.onRoleChanged,
     required this.profileType,
     required this.onProfileTypeChanged,
+    this.nameController,
     required this.onNameChanged,
   });
 
@@ -34,7 +36,7 @@ class PartnerRoleTypeSection extends StatelessWidget {
             ),
           ),
         ),
-        
+
         // Vai trò
         RichText(
           text: TextSpan(
@@ -57,7 +59,7 @@ class PartnerRoleTypeSection extends StatelessWidget {
         _buildRoleItem(context, 'supplier', 'Nhà cung cấp', Icons.storefront_outlined),
         const SizedBox(height: VSpacing.space2),
         _buildRoleItem(context, 'both', 'KH & NCC', Icons.people_outline),
-        
+
         const SizedBox(height: VSpacing.space4),
 
         // Loại hồ sơ
@@ -92,9 +94,10 @@ class PartnerRoleTypeSection extends StatelessWidget {
             ),
           ],
         ),
-        
+
         const SizedBox(height: VSpacing.space4),
         VTextField(
+          controller: nameController,
           label: 'Họ và tên',
           isRequired: true,
           hintText: 'VD: Nguyễn Văn An',

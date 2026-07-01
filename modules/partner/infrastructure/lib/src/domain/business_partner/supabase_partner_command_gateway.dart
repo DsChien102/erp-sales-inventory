@@ -41,4 +41,36 @@ final class SupabasePartnerCommandGateway implements IPartnerCommandGateway {
       throw mapPartnerRpcError(error);
     }
   }
+
+  @override
+  Future<int> update({
+    required BusinessPartner partner,
+    required Set<PartnerRole> roles,
+    required bool confirmDuplicate,
+    required int expectedVersion,
+    required String actorId,
+  }) async {
+    try {
+      final version = await _rpcClient.callScalar<num>(
+        'update_partner',
+        params: PartnerRpcMapper.updatePartnerParams(
+          partner: partner,
+          roles: roles,
+          confirmDuplicate: confirmDuplicate,
+          expectedVersion: expectedVersion,
+          actorId: actorId,
+        ),
+      );
+
+      if (version == null) {
+        throw ApplicationException(
+          'Partner update did not return a version.',
+        );
+      }
+
+      return version.toInt();
+    } on RpcException catch (error) {
+      throw mapPartnerRpcError(error);
+    }
+  }
 }

@@ -6,4 +6,12 @@ abstract interface class IPartnerCommandGateway {
     required bool confirmDuplicate,
     required String idempotencyKey,
   });
+
+  Future<int> update({
+    required BusinessPartner partner,
+    required Set<PartnerRole> roles,
+    required bool confirmDuplicate,
+    required int expectedVersion,
+    required String actorId,
+  });
 }

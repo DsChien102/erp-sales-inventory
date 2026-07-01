@@ -14,6 +14,11 @@ class PartnerEditState {
   final String billingAddress;
   final String billingEmail;
   final String note;
+
+  final int expectedVersion;
+  final String createdBy;
+  final DateTime? createdAt;
+  final String statusKey;
   
   final String? errorMessage;
   final List<String> duplicateWarnings;
@@ -35,6 +40,10 @@ class PartnerEditState {
     this.billingAddress = '',
     this.billingEmail = '',
     this.note = '',
+    this.expectedVersion = 1,
+    this.createdBy = '',
+    this.createdAt,
+    this.statusKey = 'active',
     this.errorMessage,
     this.duplicateWarnings = const [],
     this.hasChanges = false,
@@ -54,6 +63,10 @@ class PartnerEditState {
     String? billingAddress,
     String? billingEmail,
     String? note,
+    int? expectedVersion,
+    String? createdBy,
+    DateTime? createdAt,
+    String? statusKey,
     String? errorMessage,
     List<String>? duplicateWarnings,
     bool? hasChanges,
@@ -72,6 +85,10 @@ class PartnerEditState {
       billingAddress: billingAddress ?? this.billingAddress,
       billingEmail: billingEmail ?? this.billingEmail,
       note: note ?? this.note,
+      expectedVersion: expectedVersion ?? this.expectedVersion,
+      createdBy: createdBy ?? this.createdBy,
+      createdAt: createdAt ?? this.createdAt,
+      statusKey: statusKey ?? this.statusKey,
       errorMessage: errorMessage,
       duplicateWarnings: duplicateWarnings ?? this.duplicateWarnings,
       hasChanges: hasChanges ?? this.hasChanges,

@@ -1,6 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:vet45_partner_application/application.dart';
-import 'package:vet45_partner_domain/domain.dart';
 import 'package:vet45_shared_application/application.dart';
 
 import '../mappers/partner_ui_mapper.dart';
@@ -13,10 +12,10 @@ class PartnerEditCubit extends Cubit<PartnerEditState> {
     required IPartnerModule partnerModule,
     required IExecutionContext executionContext,
     PartnerItemModel? initialPartner,
-  })  : _partnerModule = partnerModule,
-        _executionContext = executionContext,
-        _initialPartner = initialPartner,
-        super(const PartnerEditState());
+  }) : _partnerModule = partnerModule,
+       _executionContext = executionContext,
+       _initialPartner = initialPartner,
+       super(const PartnerEditState());
 
   final IPartnerModule _partnerModule;
   final IExecutionContext _executionContext;
@@ -25,35 +24,16 @@ class PartnerEditCubit extends Cubit<PartnerEditState> {
   Future<void> loadPartner(String partnerId) async {
     emit(state.copyWith(status: PartnerEditStatus.loadingData));
 
-    final initialPartner = _initialPartner;
-    if (initialPartner != null && initialPartner.id == partnerId) {
-      _applyPartnerModel(initialPartner);
-      return;
-    }
-
     try {
       final tenantId = await _executionContext.requireTenantId();
-      final result = await _partnerModule.executeQueryAsync(
-        SearchPartnersQuery(
+      final detail = await _partnerModule.executeQueryAsync(
+        GetPartnerDetailQuery(
           tenantId: tenantId,
-          criteria: PartnerSearchCriteria(
-            statuses: {
-              PartnerStatus.active,
-              PartnerStatus.inactive,
-            },
-          ),
-          limit: 500,
+          partnerId: partnerId,
         ),
       );
 
-      PartnerListItemDto? match;
-      for (final item in result.items) {
-        if (item.id == partnerId) {
-          match = item;
-          break;
-        }
-      }
-      if (match == null) {
+      if (detail == null) {
         emit(
           state.copyWith(
             status: PartnerEditStatus.loadingDataError,
@@ -64,8 +44,14 @@ class PartnerEditCubit extends Cubit<PartnerEditState> {
         return;
       }
 
-      _applyPartnerModel(PartnerUiMapper.toListItem(match));
+      _applyDetail(detail);
     } catch (error) {
+      final initialPartner = _initialPartner;
+      if (initialPartner != null && initialPartner.id == partnerId) {
+        _applyPartnerModel(initialPartner);
+        return;
+      }
+
       emit(
         state.copyWith(
           status: PartnerEditStatus.loadingDataError,
@@ -74,6 +60,32 @@ class PartnerEditCubit extends Cubit<PartnerEditState> {
         ),
       );
     }
+  }
+
+  void _applyDetail(PartnerDetailDto detail) {
+    emit(
+      state.copyWith(
+        status: PartnerEditStatus.ready,
+        partnerId: detail.id,
+        role: PartnerUiMapper.toUiRole(detail.roles),
+        profileType: PartnerUiMapper.toUiProfileType(detail.entityType),
+        name: detail.displayName,
+        phone: detail.phone,
+        email: detail.email ?? '',
+        address: detail.address ?? '',
+        taxId: detail.taxCode ?? '',
+        billingName: detail.invoiceName ?? '',
+        billingAddress: detail.invoiceAddress ?? '',
+        billingEmail: detail.invoiceEmail ?? '',
+        note: detail.note ?? '',
+        expectedVersion: detail.version,
+        createdBy: detail.createdBy,
+        createdAt: detail.createdAt,
+        statusKey: detail.status.name,
+        hasChanges: false,
+        errorMessage: null,
+      ),
+    );
   }
 
   void _applyPartnerModel(PartnerItemModel partner) {
@@ -88,7 +100,13 @@ class PartnerEditCubit extends Cubit<PartnerEditState> {
         email: partner.email,
         address: partner.address,
         taxId: partner.taxId,
+        billingName: partner.billingName,
+        billingAddress: partner.billingAddress,
+        billingEmail: partner.billingEmail,
         note: partner.note,
+        expectedVersion: partner.version,
+        createdBy: partner.creator,
+        statusKey: _statusKeyFromLabel(partner.status),
         hasChanges: false,
         errorMessage: null,
       ),
@@ -109,6 +127,23 @@ class PartnerEditCubit extends Cubit<PartnerEditState> {
       emit(state.copyWith(address: address, hasChanges: true, errorMessage: null));
   void updateTaxId(String taxId) =>
       emit(state.copyWith(taxId: taxId, hasChanges: true, errorMessage: null));
+  void updateBillingName(String value) => emit(
+    state.copyWith(billingName: value, hasChanges: true, errorMessage: null),
+  );
+  void updateBillingAddress(String value) => emit(
+    state.copyWith(
+      billingAddress: value,
+      hasChanges: true,
+      errorMessage: null,
+    ),
+  );
+  void updateBillingEmail(String value) => emit(
+    state.copyWith(
+      billingEmail: value,
+      hasChanges: true,
+      errorMessage: null,
+    ),
+  );
   void updateNote(String note) =>
       emit(state.copyWith(note: note, hasChanges: true, errorMessage: null));
 
@@ -155,12 +190,12 @@ class PartnerEditCubit extends Cubit<PartnerEditState> {
       return;
     }
 
-    await _save();
+    await _save(confirmDuplicate: false);
   }
 
   Future<void> confirmSubmit() async {
     emit(state.copyWith(status: PartnerEditStatus.saving));
-    await _save();
+    await _save(confirmDuplicate: true);
   }
 
   void cancelSubmit() {
@@ -170,26 +205,47 @@ class PartnerEditCubit extends Cubit<PartnerEditState> {
   Future<List<String>> _checkDuplicates() async {
     final tenantId = await _executionContext.requireTenantId();
     final matches = await _partnerModule.executeQueryAsync(
-      CheckDuplicatePartnersQuery(
+      CheckDuplicatePartnersForUpdateQuery(
         tenantId: tenantId,
+        excludePartnerId: state.partnerId,
         phone: state.phone.trim(),
         email: state.email.trim().isEmpty ? null : state.email.trim(),
         taxCode: state.taxId.trim().isEmpty ? null : state.taxId.trim(),
-        excludePartnerId: state.partnerId,
       ),
     );
 
     return matches.map(PartnerUiMapper.duplicateWarning).toList(growable: false);
   }
 
-  Future<void> _save() async {
-    emit(
-      state.copyWith(
-        status: PartnerEditStatus.error,
-        errorMessage:
-            'Chức năng cập nhật đối tác chưa khả dụng trên backend.',
-      ),
-    );
+  Future<void> _save({required bool confirmDuplicate}) async {
+    try {
+      final tenantId = await _executionContext.requireTenantId();
+      final actorId = await _executionContext.requireUserId();
+
+      final result = await _partnerModule.executeCommandAsync(
+        PartnerUiMapper.toUpdateCommand(
+          tenantId: tenantId,
+          actorId: actorId,
+          state: state,
+          confirmDuplicate: confirmDuplicate,
+        ),
+      );
+
+      emit(
+        state.copyWith(
+          status: PartnerEditStatus.success,
+          expectedVersion: result.version,
+          errorMessage: null,
+        ),
+      );
+    } catch (error) {
+      emit(
+        state.copyWith(
+          status: PartnerEditStatus.error,
+          errorMessage: partnerErrorMessage(error),
+        ),
+      );
+    }
   }
 
   static String _uiRoleFromLabel(String role) {
@@ -205,6 +261,13 @@ class PartnerEditCubit extends Cubit<PartnerEditState> {
       'Công ty' => 'company',
       'Hộ kinh doanh' => 'household',
       _ => 'individual',
+    };
+  }
+
+  static String _statusKeyFromLabel(String status) {
+    return switch (status) {
+      'Ngừng hoạt động' => 'inactive',
+      _ => 'active',
     };
   }
 }
