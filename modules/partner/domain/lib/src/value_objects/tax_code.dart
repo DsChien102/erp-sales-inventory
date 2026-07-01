@@ -4,8 +4,9 @@ final class TaxCode extends ValueObject {
   TaxCode(String value)
       : value = value.trim(),
         normalized = value.trim().replaceAll(RegExp(r'[^0-9A-Za-z]'), '').toUpperCase() {
-    if (normalized.isEmpty) {
-      throw DomainException('Tax code must not be empty.');
+    final trimmed = value.trim();
+    if (!RegExp(r'^[0-9A-Za-z]+$').hasMatch(trimmed)) {
+      throw DomainException('Tax code must only contain alphanumeric characters.');
     }
     if (normalized.length < 8 || normalized.length > 16) {
       throw DomainException('Tax code format is invalid.');

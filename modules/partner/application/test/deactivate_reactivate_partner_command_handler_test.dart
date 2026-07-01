@@ -155,4 +155,98 @@ void main() {
       );
     });
   });
+
+  // ─── FR-05 Gateway failure tests ───
+
+  group('DeactivatePartnerCommandHandler — gateway failure', () {
+    test('propagates gateway error (SCN-04/05/06)', () async {
+      final gateway = _FailingPartnerCommandGateway();
+      final handler = DeactivatePartnerCommandHandler(
+        commandGateway: gateway,
+      );
+
+      expect(
+        () => handler.handle(
+          DeactivatePartnerCommand(
+            tenantId: 'tenant-1',
+            actorId: 'user-1',
+            partnerId: 'partner-1',
+            expectedVersion: 1,
+            currentStatus: PartnerStatus.active,
+          ),
+        ),
+        throwsA(isA<Exception>()),
+      );
+    });
+  });
+
+  group('ReactivatePartnerCommandHandler — gateway failure', () {
+    test('propagates gateway error (SCN-04/05/06)', () async {
+      final gateway = _FailingPartnerCommandGateway();
+      final handler = ReactivatePartnerCommandHandler(
+        commandGateway: gateway,
+      );
+
+      expect(
+        () => handler.handle(
+          ReactivatePartnerCommand(
+            tenantId: 'tenant-1',
+            actorId: 'user-1',
+            partnerId: 'partner-1',
+            expectedVersion: 1,
+            currentStatus: PartnerStatus.inactive,
+          ),
+        ),
+        throwsA(isA<Exception>()),
+      );
+    });
+  });
+}
+
+class _FailingPartnerCommandGateway implements IPartnerCommandGateway {
+  @override
+  Future<String> register({
+    required BusinessPartner partner,
+    required bool confirmDuplicate,
+    required String idempotencyKey,
+  }) =>
+      throw UnimplementedError();
+
+  @override
+  Future<int> update({
+    required BusinessPartner partner,
+    required Set<PartnerRole> roles,
+    required bool confirmDuplicate,
+    required int expectedVersion,
+    required String actorId,
+  }) =>
+      throw UnimplementedError();
+
+  @override
+  Future<int> deactivate({
+    required BusinessPartner partner,
+    required int expectedVersion,
+    required String actorId,
+    String? statusNote,
+  }) async {
+    throw Exception('Database write failed');
+  }
+
+  @override
+  Future<int> reactivate({
+    required BusinessPartner partner,
+    required int expectedVersion,
+    required String actorId,
+  }) async {
+    throw Exception('Database write failed');
+  }
+
+  @override
+  Future<void> delete({
+    required BusinessPartner partner,
+    required int expectedVersion,
+    required String actorId,
+  }) async {
+    throw Exception('Database write failed');
+  }
 }

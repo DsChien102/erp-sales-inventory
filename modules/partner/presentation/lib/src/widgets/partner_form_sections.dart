@@ -119,6 +119,12 @@ class PartnerTaxInfoSection extends StatelessWidget {
   Widget build(BuildContext context) {
     final dynamicColors = context.vColors;
 
+    bool isTaxIdValid(String t) {
+      if (t.trim().isEmpty) return true;
+      final trimmed = t.trim();
+      return RegExp(r'^[0-9A-Za-z]{8,16}$').hasMatch(trimmed);
+    }
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -138,6 +144,9 @@ class PartnerTaxInfoSection extends StatelessWidget {
           hintText: 'Nhập mã số thuế nếu có',
           prefixIcon: const Icon(Icons.receipt_long_outlined, size: 20),
           onChanged: onTaxIdChanged,
+          errorText: showValidationErrors && !isTaxIdValid(taxId)
+              ? 'Mã số thuế chưa đúng định dạng'
+              : null,
         ),
         if (profileType != 'individual' && taxId.trim().isEmpty)
           Padding(
@@ -183,6 +192,8 @@ class PartnerBillingInfoSection extends StatelessWidget {
   final ValueChanged<String> onBillingNameChanged;
   final ValueChanged<String> onBillingAddressChanged;
   final ValueChanged<String> onBillingEmailChanged;
+  final String billingEmail;
+  final bool showValidationErrors;
 
   const PartnerBillingInfoSection({
     super.key,
@@ -192,11 +203,18 @@ class PartnerBillingInfoSection extends StatelessWidget {
     required this.onBillingNameChanged,
     required this.onBillingAddressChanged,
     required this.onBillingEmailChanged,
+    required this.billingEmail,
+    required this.showValidationErrors,
   });
 
   @override
   Widget build(BuildContext context) {
     final dynamicColors = context.vColors;
+
+    bool isEmailValid(String e) {
+      if (e.trim().isEmpty) return true;
+      return RegExp(r"^[A-Za-z0-9.!#$%&'*+/=?^_`{|}~-]+@[A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)+$").hasMatch(e.trim());
+    }
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -234,6 +252,9 @@ class PartnerBillingInfoSection extends StatelessWidget {
           prefixIcon: const Icon(Icons.mark_email_read_outlined, size: 20),
           keyboardType: TextInputType.emailAddress,
           onChanged: onBillingEmailChanged,
+          errorText: showValidationErrors && !isEmailValid(billingEmail)
+              ? 'Email chưa đúng định dạng'
+              : null,
         ),
       ],
     );

@@ -48,8 +48,18 @@ class PartnerCreateCubit extends Cubit<PartnerCreateState> {
     return RegExp(r"^[A-Za-z0-9.!#$%&'*+/=?^_`{|}~-]+@[A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)+$").hasMatch(e.trim());
   }
 
+  bool _isTaxIdValid(String t) {
+    if (t.trim().isEmpty) return true;
+    final trimmed = t.trim();
+    return RegExp(r'^[0-9A-Za-z]{8,16}$').hasMatch(trimmed);
+  }
+
   Future<void> submit() async {
-    if (state.name.trim().isEmpty || !_isPhoneValid(state.phone) || !_isEmailValid(state.email)) {
+    if (state.name.trim().isEmpty ||
+        !_isPhoneValid(state.phone) ||
+        !_isEmailValid(state.email) ||
+        !_isTaxIdValid(state.taxId) ||
+        !_isEmailValid(state.billingEmail)) {
       emit(
         state.copyWith(
           showValidationErrors: true,

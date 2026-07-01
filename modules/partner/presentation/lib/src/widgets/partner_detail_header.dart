@@ -21,8 +21,12 @@ class PartnerDetailHeader extends StatelessWidget {
         ? VColors.infoBg
         : (partner.role == 'Nhà cung cấp' ? VColors.warningBg : VColors.successBg); // Use successBg if primary100 not guaranteed
         
-    final statusColor = partner.status == 'Đang hoạt động' ? VColors.success : dynamicColors.textSecondary;
-    final statusBgColor = partner.status == 'Đang hoạt động' ? VColors.successBg : dynamicColors.borderDefault;
+    final statusColor = partner.status == 'Đang hoạt động'
+        ? VColors.success
+        : (partner.status == 'Đã xóa' ? VColors.danger : dynamicColors.textSecondary);
+    final statusBgColor = partner.status == 'Đang hoạt động'
+        ? VColors.successBg
+        : (partner.status == 'Đã xóa' ? VColors.dangerBg : dynamicColors.borderDefault);
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: VSpacing.space4, vertical: VSpacing.space4),

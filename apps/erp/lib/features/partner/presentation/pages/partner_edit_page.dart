@@ -153,133 +153,119 @@ class _PartnerEditViewState extends State<_PartnerEditView> {
                 const SizedBox(width: VSpacing.space2),
               ],
             ),
-          body: isLoadingData
-              ? const Center(child: CircularProgressIndicator())
-              : state.status == PartnerEditStatus.loadingDataError
-              ? Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
+            body: isLoadingData
+                ? const Center(child: CircularProgressIndicator())
+                : state.status == PartnerEditStatus.loadingDataError
+                ? Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(
+                          Icons.error_outline,
+                          size: 48,
+                          color: VColors.danger,
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          'Không thể tải dữ liệu',
+                          style: VTypography.headingH4,
+                        ),
+                        const SizedBox(height: 16),
+                        VButton(
+                          variant: VButtonVariant.outline,
+                          onPressed: () =>
+                              context.read<PartnerEditCubit>().loadPartner(state.partnerId),
+                          label: 'Tải lại',
+                        ),
+                      ],
+                    ),
+                  )
+                : Column(
                     children: [
-                      const Icon(
-                        Icons.error_outline,
-                        size: 48,
-                        color: VColors.danger,
+                      Expanded(
+                        child: SingleChildScrollView(
+                          padding: const EdgeInsets.all(VSpacing.space4),
+                          child: Column(
+                            children: [
+                              VCard(
+                                child: PartnerRoleTypeSection(
+                                  role: state.role,
+                                  onRoleChanged: (v) =>
+                                      context.read<PartnerEditCubit>().updateRole(v),
+                                  profileType: state.profileType,
+                                  onProfileTypeChanged: (v) =>
+                                      context.read<PartnerEditCubit>().updateProfileType(v),
+                                  nameController: _nameController,
+                                  name: state.name,
+                                  onNameChanged: (v) =>
+                                      context.read<PartnerEditCubit>().updateName(v),
+                                  contactName: '', // TODO: Support contactName in Edit
+                                  onContactNameChanged: (_) {},
+                                  showValidationErrors: state.showValidationErrors,
+                                ),
+                              ),
+                              const SizedBox(height: VSpacing.space4),
+                              VCard(
+                                child: PartnerContactInfoSection(
+                                  phoneController: _phoneController,
+                                  phone: state.phone,
+                                  onPhoneChanged: (v) =>
+                                      context.read<PartnerEditCubit>().updatePhone(v),
+                                  emailController: _emailController,
+                                  email: state.email,
+                                  onEmailChanged: (v) =>
+                                      context.read<PartnerEditCubit>().updateEmail(v),
+                                  addressController: _addressController,
+                                  address: state.address,
+                                  onAddressChanged: (v) =>
+                                      context.read<PartnerEditCubit>().updateAddress(v),
+                                  showValidationErrors: state.showValidationErrors,
+                                ),
+                              ),
+                              const SizedBox(height: VSpacing.space4),
+                              VCard(
+                                child: PartnerTaxInfoSection(
+                                  taxIdController: _taxIdController,
+                                  taxId: state.taxId,
+                                  onTaxIdChanged: (v) =>
+                                      context.read<PartnerEditCubit>().updateTaxId(v),
+                                  profileType: state.profileType,
+                                  showValidationErrors: state.showValidationErrors,
+                                ),
+                              ),
+                              const SizedBox(height: VSpacing.space4),
+                              VCard(
+                                child: PartnerNoteSection(
+                                  noteController: _noteController,
+                                  note: state.note,
+                                  onNoteChanged: (v) =>
+                                      context.read<PartnerEditCubit>().updateNote(v),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
                       ),
-                      const SizedBox(height: 16),
-                      Text(
-                        'Không thể tải dữ liệu',
-                        style: VTypography.headingH4,
-                      ),
-                      const SizedBox(height: 16),
-                      VButton(
-                        variant: VButtonVariant.outline,
-                        onPressed: () =>
-                            context.read<PartnerEditCubit>().loadPartner(state.partnerId),
-                        label: 'Tải lại',
+                      Container(
+                        padding: const EdgeInsets.all(VSpacing.space4),
+                        decoration: BoxDecoration(
+                          color: dynamicColors.surface,
+                          boxShadow: VShadows.e2,
+                        ),
+                        child: SafeArea(
+                          top: false,
+                          child: VButton(
+                            onPressed: state.status == PartnerEditStatus.saving || !state.hasChanges
+                                ? null
+                                : () => context.read<PartnerEditCubit>().submit(),
+                            isLoading: state.status == PartnerEditStatus.saving,
+                            fullWidth: true,
+                            label: 'Lưu thay đổi',
+                          ),
+                        ),
                       ),
                     ],
                   ),
-                )
-              : Column(
-                  children: [
-                    Expanded(
-                      child: SingleChildScrollView(
-                        padding: const EdgeInsets.all(VSpacing.space4),
-                        child: Column(
-                          children: [
-                            VCard(
-                              child: PartnerRoleTypeSection(
-                                role: state.role,
-                                onRoleChanged: (v) =>
-                                    context.read<PartnerEditCubit>().updateRole(v),
-                                profileType: state.profileType,
-                                onProfileTypeChanged: (v) =>
-                                    context.read<PartnerEditCubit>().updateProfileType(v),
-                                nameController: _nameController,
-                                name: state.name,
-                                onNameChanged: (v) =>
-                                    context.read<PartnerEditCubit>().updateName(v),
-                                contactName: '', // TODO: Support contactName in Edit
-                                onContactNameChanged: (_) {},
-                                showValidationErrors: false, // TODO: Support validation in Edit
-                              ),
-                            ),
-                            const SizedBox(height: VSpacing.space4),
-                            VCard(
-                              child: PartnerContactInfoSection(
-                                phoneController: _phoneController,
-                                phone: state.phone,
-                                onPhoneChanged: (v) =>
-                                    context.read<PartnerEditCubit>().updatePhone(v),
-                                emailController: _emailController,
-                                email: state.email,
-                                onEmailChanged: (v) =>
-                                    context.read<PartnerEditCubit>().updateEmail(v),
-                                addressController: _addressController,
-                                address: state.address,
-                                onAddressChanged: (v) =>
-                                    context.read<PartnerEditCubit>().updateAddress(v),
-                                showValidationErrors: false,
-                              ),
-                            ),
-                            const SizedBox(height: VSpacing.space4),
-                            VCard(
-                              child: PartnerTaxInfoSection(
-                                taxIdController: _taxIdController,
-                                taxId: state.taxId,
-                                onTaxIdChanged: (v) =>
-                                    context.read<PartnerEditCubit>().updateTaxId(v),
-                                profileType: state.profileType,
-                                showValidationErrors: false,
-                              ),
-                            ),
-                            const SizedBox(height: VSpacing.space4),
-                            VCard(
-                              child: PartnerBillingInfoSection(
-                                billingNameController: _billingNameController,
-                                billingAddressController: _billingAddressController,
-                                billingEmailController: _billingEmailController,
-                                onBillingNameChanged: (v) =>
-                                    context.read<PartnerEditCubit>().updateBillingName(v),
-                                onBillingAddressChanged: (v) =>
-                                    context.read<PartnerEditCubit>().updateBillingAddress(v),
-                                onBillingEmailChanged: (v) =>
-                                    context.read<PartnerEditCubit>().updateBillingEmail(v),
-                              ),
-                            ),
-                            const SizedBox(height: VSpacing.space4),
-                            VCard(
-                              child: PartnerNoteSection(
-                                noteController: _noteController,
-                                note: state.note,
-                                onNoteChanged: (v) =>
-                                    context.read<PartnerEditCubit>().updateNote(v),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    Container(
-                      padding: const EdgeInsets.all(VSpacing.space4),
-                      decoration: BoxDecoration(
-                        color: dynamicColors.surface,
-                        boxShadow: VShadows.e2,
-                      ),
-                      child: SafeArea(
-                        top: false,
-                        child: VButton(
-                          onPressed: state.status == PartnerEditStatus.saving || !state.hasChanges
-                              ? null
-                              : () => context.read<PartnerEditCubit>().submit(),
-                          isLoading: state.status == PartnerEditStatus.saving,
-                          fullWidth: true,
-                          label: 'Lưu thay đổi',
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
           ),
         );
       },

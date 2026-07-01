@@ -5,8 +5,23 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:vet45_partner_application/application.dart';
 import 'package:vet45_partner_application/testing.dart';
 import 'package:vet45_partner_presentation/presentation.dart';
+import 'package:vet45_iam_application/application.dart';
 import 'package:vet45_shared_application/application.dart';
 import 'package:vet45_shared_testing/shared_testing.dart';
+
+final class _FakePrincipalSnapshot implements IPrincipalSnapshot {
+  @override
+  String? get userId => 'user-1';
+
+  @override
+  String? get tenantId => 'tenant-1';
+
+  @override
+  String? get role => 'member';
+
+  @override
+  bool hasPermission(String code) => true;
+}
 
 const _activePartner = PartnerItemModel(
   id: 'partner-1',
@@ -48,7 +63,8 @@ void main() {
       ..registerSingleton<IPartnerModule>(partnerModule)
       ..registerSingleton<IExecutionContext>(
         FakeExecutionContext(tenantId: 'tenant-1', userId: 'user-1'),
-      );
+      )
+      ..registerSingleton<IPrincipalSnapshot>(_FakePrincipalSnapshot());
 
     await tester.pumpWidget(
       MaterialApp(

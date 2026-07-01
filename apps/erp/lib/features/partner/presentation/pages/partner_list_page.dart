@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:vet45_design_system/design_system.dart';
+import 'package:vet45_iam_application/application.dart';
 import 'package:vet45_partner_application/application.dart';
+import 'package:vet45_partner_domain/domain.dart';
 import 'package:vet45_partner_presentation/presentation.dart';
 import 'package:vet45_shared_application/application.dart';
 
@@ -81,7 +83,7 @@ class PartnerListPage extends StatelessWidget {
 
                       if (state.partners.isEmpty) {
                         final hasActiveFilters =
-                            state.searchQuery.isNotEmpty ||
+                            state.searchQuery.trim().isNotEmpty ||
                             state.filterRole != null ||
                             state.filterProfileType != null ||
                             (state.filterStatus != null && state.filterStatus != 'Đang hoạt động');
@@ -120,6 +122,19 @@ class PartnerListPage extends StatelessWidget {
                             final partner = state.partners[index];
                             return GestureDetector(
                               onTap: () async {
+                                final canViewDetail = getIt<IPrincipalSnapshot>().hasPermission(
+                                  PartnerPermissions.viewDetail,
+                                );
+                                if (!canViewDetail) {
+                                  VToast.show(
+                                    context,
+                                    title: 'Lỗi',
+                                    message: 'Bạn không có quyền phù hợp.',
+                                    type: VToastType.danger,
+                                  );
+                                  return;
+                                }
+
                                 await context.push(
                                   '/partner/detail',
                                   extra: partner,
@@ -160,17 +175,20 @@ class PartnerListPage extends StatelessWidget {
                 ),
               ],
             ),
-            floatingActionButton: FloatingActionButton(
-              onPressed: () async {
-                await context.push('/partner/create');
-                if (context.mounted) {
-                  await context.read<PartnerListCubit>().load();
-                }
-              },
-              backgroundColor: VColors.success,
-              shape: const CircleBorder(),
-              child: const Icon(Icons.add, color: Colors.white),
-            ),
+            floatingActionButton:
+                getIt<IPrincipalSnapshot>().hasPermission(PartnerPermissions.create)
+                ? FloatingActionButton(
+                    onPressed: () async {
+                      await context.push('/partner/create');
+                      if (context.mounted) {
+                        await context.read<PartnerListCubit>().load();
+                      }
+                    },
+                    backgroundColor: VColors.success,
+                    shape: const CircleBorder(),
+                    child: const Icon(Icons.add, color: Colors.white),
+                  )
+                : null,
           );
         },
       ),

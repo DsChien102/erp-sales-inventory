@@ -70,6 +70,8 @@ void main() {
                   onBillingNameChanged: (_) {},
                   onBillingAddressChanged: (_) {},
                   onBillingEmailChanged: (_) {},
+                  billingEmail: billingEmailController.text,
+                  showValidationErrors: false,
                 ),
                 PartnerNoteSection(
                   note: noteController.text,
