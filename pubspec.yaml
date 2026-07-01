@@ -117,10 +117,9 @@ melos:
         scope: erp
 
     codegen:
-      exec: dart run build_runner build
+      run: dart run build_runner build --delete-conflicting-outputs
       packageFilters:
-        dependOn: build_runner
-      isPrivate: true
+        dependsOn: build_runner
 
     analyze:
       exec: dart analyze --no-fatal-warnings

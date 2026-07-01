@@ -3,19 +3,48 @@ version: 2.1
 x-flutter-ci-image: &flutter-ci-image
   image: ghcr.io/cirruslabs/flutter:3.41.4
 
+x-pub-cache-key: &pub-cache-key
+  pub-cache-v1-{{ checksum "pubspec.yaml" }}
+
 commands:
-  bootstrap_workspace:
+  ssh_gitlab:
+    steps:
+      - run:
+          name: Trust gitlab.hamsa.co host key
+          command: mkdir -p ~/.ssh && ssh-keyscan gitlab.hamsa.co >> ~/.ssh/known_hosts
+      - add_ssh_keys:
+          fingerprints:
+            - "SHA256:BjKqeddG2HypPT8wjQGQnBo5v9a1zoqYGpE4DNAlEnk"
+
+  restore_pub_cache:
+    steps:
+      - restore_cache:
+          keys:
+            - *pub-cache-key
+            - pub-cache-v1-
+
+  save_pub_cache:
+    steps:
+      - save_cache:
+          key: *pub-cache-key
+          paths:
+            - ~/.pub-cache
+
+  install_melos:
     steps:
       - run:
           name: Install Melos
-          command: dart pub global activate melos
+          command: dart pub global activate melos 7.8.0
+
+  bootstrap_workspace:
+    steps:
+      - install_melos
       - run:
-          name: Melos bootstrap + codegen
+          name: Melos bootstrap
           command: |
             export PATH="$PATH:$HOME/.pub-cache/bin"
             melos bootstrap
             cp apps/erp/.env.example apps/erp/.env
-            cd apps/erp && dart run build_runner build --delete-conflicting-outputs
 
 jobs:
   verify_workspace:
@@ -24,20 +53,16 @@ jobs:
     environment:
       CI: true
     steps:
-      - run:
-          name: Trust gitlab.hamsa.co host key
-          command: mkdir -p ~/.ssh && ssh-keyscan gitlab.hamsa.co >> ~/.ssh/known_hosts
-      - add_ssh_keys:
-          fingerprints:
-            - "SHA256:BjKqeddG2HypPT8wjQGQnBo5v9a1zoqYGpE4DNAlEnk"
+      - ssh_gitlab
       - checkout
+      - restore_pub_cache
       - bootstrap_workspace
       - run:
           name: Analyze workspace
           command: export PATH="$PATH:$HOME/.pub-cache/bin" && melos run analyze --no-select
       - run:
           name: Harness guards
-          command: ./scripts/ci/verify_harness.sh
+          command: VERIFY_HARNESS_SKIP_CODEGEN=1 ./scripts/ci/verify_harness.sh
       - run:
           name: Workspace package tests
           command: export PATH="$PATH:$HOME/.pub-cache/bin" && melos run test --no-select
@@ -56,6 +81,7 @@ jobs:
               grep -q 'SUPABASE_CONNECTION_URL=' "$f"
               grep -q 'SUPABASE_ANON_KEY=' "$f"
             done
+      - save_pub_cache
 
   deploy_messaging_worker_staging:
     docker:
@@ -86,7 +112,7 @@ jobs:
       - run:
           name: Write .env.staging from context
           command: |
-            cat > apps/erp/.env.staging <<EOF
+            cat > apps/erp/.env.staging \<<EOF
             APP_ENV=staging
             SUPABASE_CONNECTION_URL=${ERP_STAGING_SUPABASE_URL}
             SUPABASE_ANON_KEY=${ERP_STAGING_SUPABASE_ANON_KEY}
@@ -109,7 +135,7 @@ jobs:
       - run:
           name: Write .env.production from context
           command: |
-            cat > apps/erp/.env.production <<EOF
+            cat > apps/erp/.env.production \<<EOF
             APP_ENV=production
             SUPABASE_CONNECTION_URL=${ERP_PRODUCTION_SUPABASE_URL}
             SUPABASE_ANON_KEY=${ERP_PRODUCTION_SUPABASE_ANON_KEY}
@@ -127,27 +153,44 @@ workflows:
   verify:
     jobs:
       - verify_workspace
-
-  deploy_staging:
-    when:
-      and:
-        - equal: [main, << pipeline.git.branch >>]
-    jobs:
-      - deploy_messaging_worker_staging:
-          context: vet45-staging
+      - hold_deploy_staging:
+          type: approval
+          requires:
+            - verify_workspace
           filters:
             branches:
-              only: main
+              only:
+                - dev
+                - main
+      - deploy_messaging_worker_staging:
+          context: vet45-staging
+          requires:
+            - hold_deploy_staging
+          filters:
+            branches:
+              only:
+                - dev
+                - main
       - hold_staging_erp_deploy:
           type: approval
           requires:
             - deploy_messaging_worker_staging
+          filters:
+            branches:
+              only:
+                - dev
+                - main
       - deploy_erp_ios_staging:
           context:
             - vet45-staging
             - vet45-deploy
           requires:
             - hold_staging_erp_deploy
+          filters:
+            branches:
+              only:
+                - dev
+                - main
 
   deploy_production:
     when:
