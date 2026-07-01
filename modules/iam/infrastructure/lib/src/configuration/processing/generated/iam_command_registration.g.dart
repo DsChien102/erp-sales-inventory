@@ -2,7 +2,6 @@
 // ignore_for_file: type=lint
 
 import 'package:get_it/get_it.dart';
-import 'package:vet45_iam_application/application.dart';
 import 'package:vet45_shared_application/application.dart';
 import 'package:vet45_shared_infrastructure/infrastructure.dart';
 

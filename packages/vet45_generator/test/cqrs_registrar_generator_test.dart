@@ -69,6 +69,7 @@ void main() {
       expect(output, contains("import 'package:vet45_shared_infrastructure/infrastructure.dart';"));
       expect(output, contains('required TestCommandBus bus'));
       expect(output, isNot(contains('uuid:')));
+      expect(output, isNot(contains('/domain.dart')));
     });
   });
 }

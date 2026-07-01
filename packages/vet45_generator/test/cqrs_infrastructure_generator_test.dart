@@ -35,10 +35,13 @@ void main() {
         output,
         contains("import 'sales_command_bus_extensions.g.dart';"),
       );
+      expect(output, isNot(contains('vet45_sales_application/application.dart')));
     });
 
-    test('generates command bus extensions', () {
+    test('does not import module application barrel', () {
       final output = CqrsInfrastructureGenerator.generateCommandBusExtensions(config);
+
+      expect(output, isNot(contains('vet45_sales_application/application.dart')));
 
       expect(output, contains('extension SalesCommandBusBusinessCommands on CommandBus'));
       expect(output, contains('extension SalesCommandBusInternalCommands on CommandBus'));

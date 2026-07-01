@@ -4,7 +4,6 @@
 import 'package:get_it/get_it.dart';
 import 'package:vet45_iam_application/application.dart';
 import 'package:vet45_shared_application/application.dart';
-import 'package:vet45_iam_domain/domain.dart';
 import 'package:vet45_shared_infrastructure/infrastructure.dart';
 
 import '../internal_commands/supabase_iam_internal_command_client.dart';

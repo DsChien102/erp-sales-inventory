@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:analyzer/dart/analysis/analysis_context_collection.dart';
 import 'package:analyzer/dart/analysis/results.dart';
 import 'package:analyzer/dart/element/element.dart';
@@ -50,7 +52,11 @@ abstract final class CqrsRegistrarGenerator {
 
     descriptors.sort((a, b) => a.sortKey.compareTo(b.sortKey));
     HandlerRegistryValidator.validate(descriptors);
-    return _emitRegistrationFile(descriptors, config);
+    return _emitRegistrationFile(
+      descriptors,
+      config,
+      infrastructurePackageRoot: packageRoot,
+    );
   }
 
   static HandlerDescriptor? _describeClass(ClassElement classElement) {
@@ -226,8 +232,9 @@ abstract final class CqrsRegistrarGenerator {
 
   static String _emitRegistrationFile(
     List<HandlerDescriptor> descriptors,
-    CodegenModuleConfig config,
-  ) {
+    CodegenModuleConfig config, {
+    required String infrastructurePackageRoot,
+  }) {
     final buffer = StringBuffer()
       ..writeln('// GENERATED CODE - DO NOT MODIFY BY HAND')
       ..writeln('// ignore_for_file: type=lint')
@@ -238,7 +245,11 @@ abstract final class CqrsRegistrarGenerator {
       )
       ..writeln("import 'package:vet45_shared_application/application.dart';");
 
-    if (config.importDomain) {
+    if (_requiresDomainImport(
+      descriptors: descriptors,
+      config: config,
+      infrastructurePackageRoot: infrastructurePackageRoot,
+    )) {
       buffer.writeln("import 'package:${config.resolvedDomainPackage}/domain.dart';");
     }
 
@@ -350,5 +361,83 @@ abstract final class CqrsRegistrarGenerator {
         .join(',\n      ');
 
     return '() => ${handler.className}(\n      $args,\n    )';
+  }
+
+  /// Domain barrel is imported only when a handler constructor dependency
+  /// references a type declared in the module domain package.
+  static bool _requiresDomainImport({
+    required List<HandlerDescriptor> descriptors,
+    required CodegenModuleConfig config,
+    required String infrastructurePackageRoot,
+  }) {
+    if (!config.importDomain) {
+      return false;
+    }
+
+    final domainTypes = _collectDomainTypeNames(
+      infrastructurePackageRoot: infrastructurePackageRoot,
+      config: config,
+    );
+    if (domainTypes.isEmpty) {
+      return false;
+    }
+
+    for (final descriptor in descriptors) {
+      for (final dependency in descriptor.dependencies) {
+        if (domainTypes.contains(_baseTypeName(dependency.typeName))) {
+          return true;
+        }
+      }
+    }
+
+    return false;
+  }
+
+  static String _baseTypeName(String typeName) {
+    var normalized = typeName.trim();
+    if (normalized.startsWith('List<') && normalized.endsWith('>')) {
+      normalized = normalized.substring(5, normalized.length - 1);
+    }
+    return normalized.replaceAll('?', '');
+  }
+
+  static Set<String> _collectDomainTypeNames({
+    required String infrastructurePackageRoot,
+    required CodegenModuleConfig config,
+  }) {
+    try {
+      final domainRoot = PackageConfigResolver.findPackageRoot(
+        packageName: config.resolvedDomainPackage,
+        fromDirectory: infrastructurePackageRoot,
+      );
+      final files = PackageConfigResolver.listMatchingDartFiles(
+        packageRoot: domainRoot,
+        scanGlobs: const ['lib/src/**/*.dart'],
+      );
+
+      final types = <String>{};
+      final classPattern = RegExp(
+        r'^(?:abstract\s+)?(?:final\s+)?(?:sealed\s+)?class\s+(\w+)',
+      );
+      final enumPattern = RegExp(r'^enum\s+(\w+)');
+
+      for (final filePath in files) {
+        for (final line in File(filePath).readAsLinesSync()) {
+          final trimmed = line.trim();
+          final classMatch = classPattern.firstMatch(trimmed);
+          if (classMatch != null) {
+            types.add(classMatch.group(1)!);
+          }
+          final enumMatch = enumPattern.firstMatch(trimmed);
+          if (enumMatch != null) {
+            types.add(enumMatch.group(1)!);
+          }
+        }
+      }
+
+      return types;
+    } on Object {
+      return {};
+    }
   }
 }

@@ -1,11 +1,5 @@
 import 'package:flutter/material.dart';
-import '../tokens/v_spacing.dart';
-import '../tokens/v_typography.dart';
 import 'package:vet45_design_system/design_system.dart';
-import '../foundation/v_context_extensions.dart';
-
-import 'package:vet45_design_system/design_system.dart';
-import '../tokens/v_radius.dart';
 
 class VEmptyState extends StatelessWidget {
   final String? iconEmoji;
