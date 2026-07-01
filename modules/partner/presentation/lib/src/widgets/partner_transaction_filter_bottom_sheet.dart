@@ -166,7 +166,7 @@ class _TransactionFilterBottomSheetState
                 ),
               ],
             ),
-            const Divider(),
+            Divider(color: colors.borderDefault, height: 1),
             const SizedBox(height: VSpacing.space3),
             _buildFilterSection(
               context,
