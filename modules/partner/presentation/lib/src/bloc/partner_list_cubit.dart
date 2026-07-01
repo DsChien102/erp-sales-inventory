@@ -45,12 +45,17 @@ class PartnerListCubit extends Cubit<PartnerListState> {
         ),
       );
 
+      final mappedItems = result.items.map(PartnerUiMapper.toListItem).toList();
+      mappedItems.sort((a, b) {
+        if (a.status == 'Đang hoạt động' && b.status != 'Đang hoạt động') return -1;
+        if (a.status != 'Đang hoạt động' && b.status == 'Đang hoạt động') return 1;
+        return 0;
+      });
+
       emit(
         state.copyWith(
           status: PartnerListStatus.success,
-          partners: result.items
-              .map(PartnerUiMapper.toListItem)
-              .toList(growable: false),
+          partners: mappedItems,
           clearErrorMessage: true,
         ),
       );

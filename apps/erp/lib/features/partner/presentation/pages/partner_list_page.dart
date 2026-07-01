@@ -143,8 +143,13 @@ class PartnerListPage extends StatelessWidget {
                                           ? VColors.warningBg
                                           : VColors.primary100),
                                 status: partner.status,
-                                info:
-                                    '${partner.phone.isNotEmpty ? '${partner.phone} · ' : ''}Cập nhật ${partner.updatedAt}',
+                                statusColor: partner.status == 'Ngừng hoạt động'
+                                    ? VColors.textSecondary
+                                    : VColors.success,
+                                statusBgColor: partner.status == 'Ngừng hoạt động'
+                                    ? VColors.neutral200
+                                    : VColors.successBg,
+                                info: partner.phone.isNotEmpty ? partner.phone : '',
                               ),
                             );
                           },

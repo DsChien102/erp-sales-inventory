@@ -139,7 +139,7 @@ class PartnerTaxInfoSection extends StatelessWidget {
           prefixIcon: const Icon(Icons.receipt_long_outlined, size: 20),
           onChanged: onTaxIdChanged,
         ),
-        if (showValidationErrors && profileType != 'individual' && taxId.trim().isEmpty)
+        if (profileType != 'individual' && taxId.trim().isEmpty)
           Padding(
             padding: const EdgeInsets.only(top: VSpacing.space2),
             child: Container(

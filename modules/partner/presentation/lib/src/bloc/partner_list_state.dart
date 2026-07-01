@@ -59,7 +59,7 @@ class PartnerListState {
     this.searchQuery = '',
     this.filterRole,
     this.filterProfileType,
-    this.filterStatus = 'Đang hoạt động',
+    this.filterStatus,
     this.errorMessage,
   });
 

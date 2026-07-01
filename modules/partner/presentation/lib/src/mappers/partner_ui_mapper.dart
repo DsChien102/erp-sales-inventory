@@ -22,7 +22,7 @@ abstract final class PartnerUiMapper {
     final statuses = switch (filterStatus) {
       'Đang hoạt động' => {PartnerStatus.active},
       'Ngừng hoạt động' => {PartnerStatus.inactive},
-      _ => null,
+      _ => {PartnerStatus.active, PartnerStatus.inactive},
     };
 
     final entityType = switch (filterProfileType) {

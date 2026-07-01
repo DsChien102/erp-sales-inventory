@@ -8,6 +8,8 @@ class PartnerListItem extends StatelessWidget {
   final Color roleColor;
   final Color roleBgColor;
   final String status;
+  final Color? statusColor;
+  final Color? statusBgColor;
   final String info;
 
   const PartnerListItem({
@@ -18,6 +20,8 @@ class PartnerListItem extends StatelessWidget {
     required this.roleColor,
     required this.roleBgColor,
     required this.status,
+    this.statusColor,
+    this.statusBgColor,
     required this.info,
   });
 
@@ -72,13 +76,13 @@ class PartnerListItem extends StatelessWidget {
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                       decoration: BoxDecoration(
-                        color: VColors.successBg,
+                        color: statusBgColor ?? VColors.successBg,
                         borderRadius: BorderRadius.circular(4),
                       ),
                       child: Text(
                         status,
                         style: VTypography.bodySmall.copyWith(
-                          color: VColors.success,
+                          color: statusColor ?? VColors.success,
                           fontSize: 10,
                         ),
                       ),

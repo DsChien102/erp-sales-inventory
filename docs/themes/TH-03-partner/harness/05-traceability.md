@@ -18,6 +18,7 @@ Test id: scn_e01_u02_fr06_01 (handler/integration), wgt_e02_u01_fr03_01 (widget 
 | Req ID | Enforce layer | Artifact | Presentation artifact | Test id | Status |
 | ------ | ------------- | -------- | --------------------- | ------- | ------ |
 | FR-01 | — | — | `apps/erp/lib/features/partner/presentation/pages/partner_list_page.dart` | — | Implemented (presentation) |
+| FR-01 | — | — | `modules/partner/presentation/lib/src/widgets/partner_list_item.dart` | — | Implemented (presentation) |
 | FR-02 | — | — | `modules/partner/presentation/lib/src/widgets/partner_search_bar.dart` | — | Implemented (presentation) |
 | FR-03 | — | — | `modules/partner/presentation/lib/src/widgets/partner_filter_dialog.dart` | — | Implemented (presentation) |
 | FR-04 | — | — | `modules/partner/presentation/lib/src/widgets/partner_empty_state.dart` | — | Implemented (presentation) |
