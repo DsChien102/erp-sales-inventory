@@ -6,6 +6,7 @@ class TransactionFilterBottomSheet extends StatefulWidget {
     required this.initialTimeFilter,
     required this.initialTypeFilter,
     required this.initialStatusFilter,
+    required this.initialRoleFilter,
     required this.partnerRole,
     required this.onApply,
     required this.onReset,
@@ -15,11 +16,12 @@ class TransactionFilterBottomSheet extends StatefulWidget {
   final String initialTimeFilter;
   final String initialTypeFilter;
   final String initialStatusFilter;
+  final String initialRoleFilter;
   /// Vai trò đối tác: dùng để lọc loại giao dịch hiển thị trong bộ lọc.
   /// Khách hàng: ẩn Phiếu nhập hàng.
   /// Nhà cung cấp: ẩn Đơn bán hàng.
   final String partnerRole;
-  final void Function(String time, String type, String status) onApply;
+  final void Function(String time, String type, String status, String role) onApply;
   final VoidCallback onReset;
 
   @override
@@ -32,6 +34,7 @@ class _TransactionFilterBottomSheetState
   late String _tempTime;
   late String _tempType;
   late String _tempStatus;
+  late String _tempRole;
 
   @override
   void initState() {
@@ -39,6 +42,7 @@ class _TransactionFilterBottomSheetState
     _tempTime = widget.initialTimeFilter;
     _tempType = widget.initialTypeFilter;
     _tempStatus = widget.initialStatusFilter;
+    _tempRole = widget.initialRoleFilter;
   }
 
   /// Tính danh sách loại giao dịch theo vai trò đối tác.
@@ -200,6 +204,20 @@ class _TransactionFilterBottomSheetState
               _tempStatus,
               (v) => _tempStatus = v,
             ),
+            if (widget.partnerRole == 'Khách hàng & NCC') ...[
+              const SizedBox(height: VSpacing.space4),
+              _buildFilterSection(
+                context,
+                'VAI TRÒ LIÊN QUAN',
+                [
+                  ('Tất cả', 'all'),
+                  ('Khách hàng', 'customer'),
+                  ('Nhà cung cấp', 'supplier'),
+                ],
+                _tempRole,
+                (v) => _tempRole = v,
+              ),
+            ],
             const SizedBox(height: VSpacing.space5),
             Row(
               children: [
@@ -220,7 +238,7 @@ class _TransactionFilterBottomSheetState
                     label: 'Áp dụng',
                     variant: VButtonVariant.primary,
                     onPressed: () {
-                      widget.onApply(_tempTime, _tempType, _tempStatus);
+                      widget.onApply(_tempTime, _tempType, _tempStatus, _tempRole);
                       Navigator.pop(context);
                     },
                   ),

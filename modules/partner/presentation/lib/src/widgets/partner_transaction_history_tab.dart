@@ -60,6 +60,7 @@ class _PartnerTransactionHistoryTabContentState
   String _timeFilter = 'all';
   String _typeFilter = 'all';
   String _statusFilter = 'all';
+  String _roleFilter = 'all';
 
   @override
   void dispose() {
@@ -74,12 +75,14 @@ class _PartnerTransactionHistoryTabContentState
         initialTimeFilter: _timeFilter,
         initialTypeFilter: _typeFilter,
         initialStatusFilter: _statusFilter,
+        initialRoleFilter: _roleFilter,
         partnerRole: widget.partnerRole,
-        onApply: (time, type, status) {
+        onApply: (time, type, status, role) {
           setState(() {
             _timeFilter = time;
             _typeFilter = type;
             _statusFilter = status;
+            _roleFilter = role;
           });
           _fetchFilteredHistory();
         },
@@ -88,6 +91,7 @@ class _PartnerTransactionHistoryTabContentState
             _timeFilter = 'all';
             _typeFilter = 'all';
             _statusFilter = 'all';
+            _roleFilter = 'all';
           });
           _fetchFilteredHistory();
         },
@@ -121,12 +125,18 @@ class _PartnerTransactionHistoryTabContentState
       };
     }
 
+    PartnerRole? roleCriteria;
+    if (_roleFilter != 'all') {
+      roleCriteria = _roleFilter == 'customer' ? PartnerRole.customer : PartnerRole.supplier;
+    }
+
     final keyword = _historySearchController.text.trim();
 
     final criteria = PartnerTransactionHistoryCriteria(
       from: fromDate,
       transactionTypes: types,
       keyword: keyword.isNotEmpty ? keyword : null,
+      transactionRole: roleCriteria,
     );
 
     context.read<PartnerDetailCubit>().loadTransactionHistory(
@@ -137,7 +147,7 @@ class _PartnerTransactionHistoryTabContentState
 
   @override
   Widget build(BuildContext context) {
-    final hasActiveFilters = _timeFilter != 'all' || _typeFilter != 'all' || _statusFilter != 'all';
+    final hasActiveFilters = _timeFilter != 'all' || _typeFilter != 'all' || _statusFilter != 'all' || _roleFilter != 'all';
 
     return Column(
       children: [
