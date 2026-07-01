@@ -32,11 +32,9 @@ class _PartnerCreateView extends StatelessWidget {
 
     return BlocConsumer<PartnerCreateCubit, PartnerCreateState>(
       listenWhen: (previous, current) =>
-          previous.status != current.status ||
-          previous.errorMessage != current.errorMessage,
+          previous.status != current.status || previous.errorMessage != current.errorMessage,
       listener: (context, state) {
-        if (state.status == PartnerCreateStatus.error &&
-            state.errorMessage != null) {
+        if (state.status == PartnerCreateStatus.error && state.errorMessage != null) {
           VToast.show(
             context,
             title: 'Lỗi',
@@ -56,115 +54,142 @@ class _PartnerCreateView extends StatelessWidget {
         }
       },
       builder: (context, state) {
-        return Scaffold(
-          backgroundColor: dynamicColors.background,
-          appBar: VAppBar(
-            title: 'Thêm KH & NCC',
-            actions: [
-              TextButton(
-                onPressed: state.status == PartnerCreateStatus.loading
-                    ? null
-                    : () => _handleCancel(context, state),
-                child: Text(
-                  'Hủy',
-                  style: VTypography.bodyDefault.copyWith(
-                    color: state.status == PartnerCreateStatus.loading
-                        ? dynamicColors.textMuted
-                        : dynamicColors.textSecondary,
+        return PopScope(
+          canPop: !state.isDirty,
+          onPopInvoked: (didPop) async {
+            if (didPop) return;
+            _handleCancel(context, state);
+          },
+          child: Scaffold(
+            backgroundColor: dynamicColors.background,
+            appBar: VAppBar(
+              title: 'Thêm KH & NCC',
+              leading: IconButton(
+                icon: Icon(
+                  Icons.arrow_back,
+                  color: dynamicColors.textPrimary,
+                ),
+                onPressed: () => _handleCancel(context, state),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: state.status == PartnerCreateStatus.loading
+                      ? null
+                      : () => _handleCancel(context, state),
+                  child: Text(
+                    'Hủy',
+                    style: VTypography.bodyDefault.copyWith(
+                      color: state.status == PartnerCreateStatus.loading
+                          ? dynamicColors.textMuted
+                          : dynamicColors.textSecondary,
+                    ),
                   ),
                 ),
-              ),
-              const SizedBox(width: VSpacing.space2),
-            ],
-          ),
-          body: Column(
-            children: [
-              Expanded(
-                child: SingleChildScrollView(
+                const SizedBox(width: VSpacing.space2),
+              ],
+            ),
+            body: Column(
+              children: [
+                Expanded(
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.all(VSpacing.space4),
+                    child: Column(
+                      children: [
+                        VCard(
+                          child: PartnerRoleTypeSection(
+                            role: state.role,
+                            onRoleChanged: (v) => context.read<PartnerCreateCubit>().updateRole(v),
+                            profileType: state.profileType,
+                            onProfileTypeChanged: (v) =>
+                                context.read<PartnerCreateCubit>().updateProfileType(v),
+                            name: state.name,
+                            onNameChanged: (v) => context.read<PartnerCreateCubit>().updateName(v),
+                            contactName: state.contactName,
+                            onContactNameChanged: (v) =>
+                                context.read<PartnerCreateCubit>().updateContactName(v),
+                            showValidationErrors: state.showValidationErrors,
+                          ),
+                        ),
+                        const SizedBox(height: VSpacing.space4),
+                        VCard(
+                          child: PartnerContactInfoSection(
+                            phone: state.phone,
+                            onPhoneChanged: (v) =>
+                                context.read<PartnerCreateCubit>().updatePhone(v),
+                            email: state.email,
+                            onEmailChanged: (v) =>
+                                context.read<PartnerCreateCubit>().updateEmail(v),
+                            address: state.address,
+                            onAddressChanged: (v) =>
+                                context.read<PartnerCreateCubit>().updateAddress(v),
+                            showValidationErrors: state.showValidationErrors,
+                          ),
+                        ),
+                        const SizedBox(height: VSpacing.space4),
+                        VCard(
+                          child: PartnerTaxInfoSection(
+                            taxId: state.taxId,
+                            onTaxIdChanged: (v) =>
+                                context.read<PartnerCreateCubit>().updateTaxId(v),
+                            profileType: state.profileType,
+                            showValidationErrors: state.showValidationErrors,
+                          ),
+                        ),
+                        const SizedBox(height: VSpacing.space4),
+                        VCard(
+                          child: PartnerNoteSection(
+                            note: state.note,
+                            onNoteChanged: (v) => context.read<PartnerCreateCubit>().updateNote(v),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                Container(
                   padding: const EdgeInsets.all(VSpacing.space4),
-                  child: Column(
-                    children: [
-                      VCard(
-                        child: PartnerRoleTypeSection(
-                          role: state.role,
-                          onRoleChanged: (v) =>
-                              context.read<PartnerCreateCubit>().updateRole(v),
-                          profileType: state.profileType,
-                          onProfileTypeChanged: (v) => context
-                              .read<PartnerCreateCubit>()
-                              .updateProfileType(v),
-                          onNameChanged: (v) =>
-                              context.read<PartnerCreateCubit>().updateName(v),
-                        ),
-                      ),
-                      const SizedBox(height: VSpacing.space4),
-                      VCard(
-                        child: PartnerContactInfoSection(
-                          phone: state.phone,
-                          onPhoneChanged: (v) =>
-                              context.read<PartnerCreateCubit>().updatePhone(v),
-                          email: state.email,
-                          onEmailChanged: (v) =>
-                              context.read<PartnerCreateCubit>().updateEmail(v),
-                          address: state.address,
-                          onAddressChanged: (v) => context
-                              .read<PartnerCreateCubit>()
-                              .updateAddress(v),
-                        ),
-                      ),
-                      const SizedBox(height: VSpacing.space4),
-                      VCard(
-                        child: PartnerTaxInfoSection(
-                          taxId: state.taxId,
-                          onTaxIdChanged: (v) =>
-                              context.read<PartnerCreateCubit>().updateTaxId(v),
-                        ),
-                      ),
-                      const SizedBox(height: VSpacing.space4),
-                      VCard(
-                        child: PartnerNoteSection(
-                          note: state.note,
-                          onNoteChanged: (v) =>
-                              context.read<PartnerCreateCubit>().updateNote(v),
-                        ),
-                      ),
-                    ],
+                  decoration: BoxDecoration(
+                    color: dynamicColors.surface,
+                    boxShadow: VShadows.e2,
+                  ),
+                  child: SafeArea(
+                    top: false,
+                    child: VButton(
+                      onPressed: state.status == PartnerCreateStatus.loading
+                          ? null
+                          : () => context.read<PartnerCreateCubit>().submit(),
+                      isLoading: state.status == PartnerCreateStatus.loading,
+                      fullWidth: true,
+                      label: 'Lưu KH & NCC',
+                    ),
                   ),
                 ),
-              ),
-              Container(
-                padding: const EdgeInsets.all(VSpacing.space4),
-                decoration: BoxDecoration(
-                  color: dynamicColors.surface,
-                  boxShadow: VShadows.e2,
-                ),
-                child: SafeArea(
-                  top: false,
-                  child: VButton(
-                    onPressed: state.status == PartnerCreateStatus.loading
-                        ? null
-                        : () => context.read<PartnerCreateCubit>().submit(),
-                    isLoading: state.status == PartnerCreateStatus.loading,
-                    fullWidth: true,
-                    label: 'Lưu KH & NCC',
-                  ),
-                ),
-              ),
-            ],
+              ],
+            ),
           ),
         );
       },
     );
   }
 
-  void _handleCancel(BuildContext context, PartnerCreateState state) {
-    if (state.name.isNotEmpty || state.phone.isNotEmpty) {
-      showDialog(
+  void _handleCancel(BuildContext context, PartnerCreateState state) async {
+    if (state.isDirty) {
+      final shouldExit = await showVBottomSheet<bool>(
         context: context,
-        builder: (dialogContext) => const PartnerCancelConfirmDialog(),
+        child: const PartnerCancelConfirmBottomSheet(),
       );
+      if (shouldExit == true && context.mounted) {
+        context.read<PartnerCreateCubit>().resetForm();
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (context.mounted) {
+            context.pop();
+          }
+        });
+      }
     } else {
-      context.pop();
+      if (context.mounted) {
+        context.pop();
+      }
     }
   }
 

@@ -31,7 +31,16 @@ class PartnerListPage extends StatelessWidget {
               actions: [
                 IconButton(
                   icon: Icon(Icons.more_horiz, color: dynamicColors.textPrimary),
-                  onPressed: () {},
+                  onPressed: () {
+                    showVBottomSheet(
+                      context: context,
+                      child: PartnerOptionsBottomSheet(
+                        onExportExcel: () {
+                          // TODO: Implement export excel
+                        },
+                      ),
+                    );
+                  },
                 ),
               ],
             ),
@@ -96,19 +105,13 @@ class PartnerListPage extends StatelessWidget {
                         itemBuilder: (context, index) {
                           final partner = state.partners[index];
                           return GestureDetector(
-                            onTap: () async {
-                              final updated = await Navigator.push<bool>(
+                            onTap: () {
+                              Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (_) => PartnerDetailPage(
-                                    partnerId: partner.id,
-                                    initialPartner: partner,
-                                  ),
+                                  builder: (_) => PartnerDetailPage(partner: partner),
                                 ),
                               );
-                              if (updated == true && context.mounted) {
-                                await context.read<PartnerListCubit>().load();
-                              }
                             },
                             child: PartnerListItem(
                               avatarText: partner.avatarText,
@@ -144,6 +147,7 @@ class PartnerListPage extends StatelessWidget {
                 }
               },
               backgroundColor: VColors.success,
+              shape: const CircleBorder(),
               child: const Icon(Icons.add, color: Colors.white),
             ),
           );

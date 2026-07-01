@@ -11,6 +11,7 @@ class PartnerContactInfoSection extends StatelessWidget {
   final String address;
   final TextEditingController? addressController;
   final ValueChanged<String> onAddressChanged;
+  final bool showValidationErrors;
 
   const PartnerContactInfoSection({
     super.key,
@@ -23,6 +24,7 @@ class PartnerContactInfoSection extends StatelessWidget {
     required this.address,
     this.addressController,
     required this.onAddressChanged,
+    required this.showValidationErrors,
   });
 
   @override
@@ -50,6 +52,9 @@ class PartnerContactInfoSection extends StatelessWidget {
           prefixIcon: const Icon(Icons.phone_outlined, size: 20),
           keyboardType: TextInputType.phone,
           onChanged: onPhoneChanged,
+          errorText: showValidationErrors && phone.trim().isEmpty
+              ? 'Vui lòng nhập số điện thoại'
+              : null,
         ),
         const SizedBox(height: VSpacing.space4),
         VTextField(
@@ -77,12 +82,16 @@ class PartnerTaxInfoSection extends StatelessWidget {
   final String taxId;
   final TextEditingController? taxIdController;
   final ValueChanged<String> onTaxIdChanged;
+  final String profileType;
+  final bool showValidationErrors;
 
   const PartnerTaxInfoSection({
     super.key,
     required this.taxId,
     this.taxIdController,
     required this.onTaxIdChanged,
+    required this.profileType,
+    required this.showValidationErrors,
   });
 
   @override
@@ -109,6 +118,38 @@ class PartnerTaxInfoSection extends StatelessWidget {
           prefixIcon: const Icon(Icons.receipt_long_outlined, size: 20),
           onChanged: onTaxIdChanged,
         ),
+        if (showValidationErrors && profileType != 'individual' && taxId.trim().isEmpty)
+          Padding(
+            padding: const EdgeInsets.only(top: VSpacing.space2),
+            child: Container(
+              padding: const EdgeInsets.symmetric(
+                horizontal: VSpacing.space3,
+                vertical: VSpacing.space2,
+              ),
+              decoration: BoxDecoration(
+                color: VColors.warningBg,
+                borderRadius: BorderRadius.circular(VRadius.card),
+              ),
+              child: Row(
+                children: [
+                  const Icon(
+                    Icons.warning_amber_rounded,
+                    color: VColors.warning,
+                    size: 16,
+                  ),
+                  const SizedBox(width: VSpacing.space2),
+                  Expanded(
+                    child: Text(
+                      'Tổ chức chưa có mã số thuế. Bạn vẫn có thể lưu và bổ sung sau.',
+                      style: VTypography.bodySmall.copyWith(
+                        color: VColors.warning,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
       ],
     );
   }

@@ -20,7 +20,7 @@ class PartnerCreateCubit extends Cubit<PartnerCreateState> {
   void updateRole(String role) =>
       emit(state.copyWith(role: role, errorMessage: null));
   void updateProfileType(String type) =>
-      emit(state.copyWith(profileType: type, errorMessage: null));
+      emit(state.copyWith(profileType: type, errorMessage: null, showValidationErrors: false));
   void updateName(String name) =>
       emit(state.copyWith(name: name, errorMessage: null));
   void updatePhone(String phone) =>
@@ -31,30 +31,22 @@ class PartnerCreateCubit extends Cubit<PartnerCreateState> {
       emit(state.copyWith(address: address, errorMessage: null));
   void updateTaxId(String taxId) =>
       emit(state.copyWith(taxId: taxId, errorMessage: null));
+  void updateContactName(String contactName) =>
+      emit(state.copyWith(contactName: contactName, errorMessage: null));
   void updateNote(String note) =>
       emit(state.copyWith(note: note, errorMessage: null));
 
   Future<void> submit() async {
-    if (state.name.trim().isEmpty) {
+    if (state.name.trim().isEmpty || state.phone.trim().isEmpty) {
       emit(
         state.copyWith(
-          errorMessage: 'Tên đối tác không được để trống.',
-          status: PartnerCreateStatus.error,
-        ),
-      );
-      return;
-    }
-    if (state.phone.trim().isEmpty) {
-      emit(
-        state.copyWith(
-          errorMessage: 'Số điện thoại không được để trống.',
-          status: PartnerCreateStatus.error,
+          showValidationErrors: true,
         ),
       );
       return;
     }
 
-    emit(state.copyWith(status: PartnerCreateStatus.loading, errorMessage: null));
+    emit(state.copyWith(status: PartnerCreateStatus.loading, errorMessage: null, showValidationErrors: false));
 
     try {
       final warnings = await _checkDuplicates();
@@ -87,6 +79,10 @@ class PartnerCreateCubit extends Cubit<PartnerCreateState> {
 
   void cancelSubmit() {
     emit(state.copyWith(status: PartnerCreateStatus.initial));
+  }
+
+  void resetForm() {
+    emit(const PartnerCreateState());
   }
 
   Future<List<String>> _checkDuplicates() async {

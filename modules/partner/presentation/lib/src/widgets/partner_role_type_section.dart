@@ -8,6 +8,10 @@ class PartnerRoleTypeSection extends StatelessWidget {
   final ValueChanged<String> onProfileTypeChanged;
   final TextEditingController? nameController;
   final ValueChanged<String> onNameChanged;
+  final String name;
+  final String contactName;
+  final ValueChanged<String> onContactNameChanged;
+  final bool showValidationErrors;
 
   const PartnerRoleTypeSection({
     super.key,
@@ -17,6 +21,10 @@ class PartnerRoleTypeSection extends StatelessWidget {
     required this.onProfileTypeChanged,
     this.nameController,
     required this.onNameChanged,
+    required this.name,
+    required this.contactName,
+    required this.onContactNameChanged,
+    required this.showValidationErrors,
   });
 
   @override
@@ -96,13 +104,34 @@ class PartnerRoleTypeSection extends StatelessWidget {
         ),
 
         const SizedBox(height: VSpacing.space4),
-        VTextField(
-          controller: nameController,
-          label: 'Họ và tên',
-          isRequired: true,
-          hintText: 'VD: Nguyễn Văn An',
-          onChanged: onNameChanged,
-        ),
+        if (profileType == 'individual')
+          VTextField(
+            label: 'Họ và tên',
+            isRequired: true,
+            hintText: 'VD: Nguyễn Văn An',
+            onChanged: onNameChanged,
+            errorText: showValidationErrors && name.trim().isEmpty
+                ? 'Vui lòng nhập họ và tên'
+                : null,
+          )
+        else ...[
+          VTextField(
+            label: 'Tên',
+            isRequired: true,
+            hintText: 'VD: Công ty TNHH Thú y An Bình',
+            onChanged: onNameChanged,
+            errorText: showValidationErrors && name.trim().isEmpty
+                ? 'Vui lòng nhập tên tổ chức'
+                : null,
+          ),
+          const SizedBox(height: VSpacing.space4),
+          VTextField(
+            label: 'Người liên hệ',
+            hintText: 'VD: Anh Minh',
+            prefixIcon: const Icon(Icons.person_outline, size: 20),
+            onChanged: onContactNameChanged,
+          ),
+        ],
       ],
     );
   }

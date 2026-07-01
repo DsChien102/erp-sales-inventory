@@ -177,61 +177,48 @@ class _PartnerEditViewState extends State<_PartnerEditView> {
                             VCard(
                               child: PartnerRoleTypeSection(
                                 role: state.role,
-                                nameController: _nameController,
                                 onRoleChanged: (v) =>
                                     context.read<PartnerEditCubit>().updateRole(v),
                                 profileType: state.profileType,
                                 onProfileTypeChanged: (v) =>
                                     context.read<PartnerEditCubit>().updateProfileType(v),
+                                name: state.name,
                                 onNameChanged: (v) =>
                                     context.read<PartnerEditCubit>().updateName(v),
+                                contactName: '', // TODO: Support contactName in Edit
+                                onContactNameChanged: (_) {},
+                                showValidationErrors: false, // TODO: Support validation in Edit
                               ),
                             ),
                             const SizedBox(height: VSpacing.space4),
                             VCard(
                               child: PartnerContactInfoSection(
                                 phone: state.phone,
-                                phoneController: _phoneController,
                                 onPhoneChanged: (v) =>
                                     context.read<PartnerEditCubit>().updatePhone(v),
                                 email: state.email,
-                                emailController: _emailController,
                                 onEmailChanged: (v) =>
                                     context.read<PartnerEditCubit>().updateEmail(v),
                                 address: state.address,
-                                addressController: _addressController,
                                 onAddressChanged: (v) =>
                                     context.read<PartnerEditCubit>().updateAddress(v),
+                                showValidationErrors: false,
                               ),
                             ),
                             const SizedBox(height: VSpacing.space4),
                             VCard(
                               child: PartnerTaxInfoSection(
                                 taxId: state.taxId,
-                                taxIdController: _taxIdController,
                                 onTaxIdChanged: (v) =>
                                     context.read<PartnerEditCubit>().updateTaxId(v),
-                              ),
-                            ),
-                            const SizedBox(height: VSpacing.space4),
-                            VCard(
-                              child: PartnerBillingInfoSection(
-                                billingNameController: _billingNameController,
-                                billingAddressController: _billingAddressController,
-                                billingEmailController: _billingEmailController,
-                                onBillingNameChanged: (v) =>
-                                    context.read<PartnerEditCubit>().updateBillingName(v),
-                                onBillingAddressChanged: (v) =>
-                                    context.read<PartnerEditCubit>().updateBillingAddress(v),
-                                onBillingEmailChanged: (v) =>
-                                    context.read<PartnerEditCubit>().updateBillingEmail(v),
+                                profileType: state.profileType,
+                                showValidationErrors: false,
                               ),
                             ),
                             const SizedBox(height: VSpacing.space4),
                             VCard(
                               child: PartnerNoteSection(
                                 note: state.note,
-                                noteController: _noteController,
                                 onNoteChanged: (v) =>
                                     context.read<PartnerEditCubit>().updateNote(v),
                               ),
