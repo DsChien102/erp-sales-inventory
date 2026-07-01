@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:vet45_design_system/design_system.dart';
-import '../models/partner_transaction_history_item_dto.dart';
+import 'package:vet45_partner_application/application.dart';
 import '../utils/partner_detail_helpers.dart';
 
 class PartnerTransactionItem extends StatelessWidget {
@@ -39,15 +39,15 @@ class PartnerTransactionItem extends StatelessWidget {
       _ => Icons.description_outlined,
     };
 
-    final statusLabel = switch (transaction.status.toLowerCase()) {
+    final statusLabel = switch ((transaction.status ?? '').toLowerCase()) {
       'done' || 'completed' || 'hoanthat' => 'Đã hoàn tất',
       'delivered' || 'giaohang' => 'Đã giao hàng',
       'draft' || 'new' => 'Nhập',
       'cancelled' || 'cancel' || 'huy' => 'Đã hủy',
-      _ => transaction.status,
+      _ => transaction.status ?? '',
     };
 
-    final statusBadge = switch (transaction.status.toLowerCase()) {
+    final statusBadge = switch ((transaction.status ?? '').toLowerCase()) {
       'done' || 'completed' => VBadgeStatus.completed,
       'delivered' => VBadgeStatus.success,
       'draft' || 'new' => VBadgeStatus.info,
@@ -102,7 +102,7 @@ class PartnerTransactionItem extends StatelessWidget {
                         ),
                         const SizedBox(height: 2),
                         Text(
-                          transaction.transactionCode,
+                          transaction.transactionCode ?? transaction.id,
                           style: VTypography.bodySmall2.copyWith(
                             color: dynamicColors.textSecondary,
                           ),

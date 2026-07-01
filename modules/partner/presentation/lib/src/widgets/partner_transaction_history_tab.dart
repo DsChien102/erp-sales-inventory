@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:vet45_design_system/design_system.dart';
+import 'package:vet45_partner_domain/domain.dart';
 import '../bloc/partner_detail_cubit.dart';
 import '../bloc/partner_detail_state.dart';
 import '../bloc/partner_list_state.dart'; // Import PartnerItemModel
-import '../models/partner_transaction_history_item_dto.dart';
 import 'partner_transaction_filter_bottom_sheet.dart';
 import 'partner_transaction_item.dart';
 
@@ -73,6 +73,7 @@ class _PartnerTransactionHistoryTabContentState
             _typeFilter = type;
             _statusFilter = status;
           });
+          _fetchFilteredHistory();
         },
         onReset: () {
           setState(() {
@@ -80,70 +81,55 @@ class _PartnerTransactionHistoryTabContentState
             _typeFilter = 'all';
             _statusFilter = 'all';
           });
+          _fetchFilteredHistory();
         },
       ),
     );
   }
 
-  List<PartnerTransactionHistoryItemDto> _applyFilters(
-    List<PartnerTransactionHistoryItemDto> list,
-  ) {
-    var result = list;
-    final query = _historySearchController.text.trim().toLowerCase();
-    if (query.isNotEmpty) {
-      result = result
-          .where((tx) => tx.transactionCode.toLowerCase().contains(query))
-          .toList();
-    }
+  void _fetchFilteredHistory() {
+    final partnerId = widget.state.partner?.id;
+    if (partnerId == null || partnerId.isEmpty) return;
+
+    DateTime? fromDate;
     if (_timeFilter != 'all') {
       final now = DateTime.now();
-      final cutoff = switch (_timeFilter) {
+      fromDate = switch (_timeFilter) {
         '30d' => now.subtract(const Duration(days: 30)),
         '90d' => now.subtract(const Duration(days: 90)),
         '1y' => now.subtract(const Duration(days: 365)),
-        _ => now,
+        _ => null,
       };
-      result = result.where((tx) => tx.occurredAt.isAfter(cutoff)).toList();
     }
+
+    Set<String>? types;
     if (_typeFilter != 'all') {
-      result = result.where((tx) {
-        final t = tx.transactionType.toLowerCase();
-        return switch (_typeFilter) {
-          'sales' => t.contains('sales') || t.contains('bán hàng'),
-          'purchase' => t.contains('purchase') || t.contains('import') || t.contains('nhập hàng'),
-          'invoice' => t.contains('invoice'),
-          'return' => t.contains('return'),
-          _ => true,
-        };
-      }).toList();
-    }
-    if (_statusFilter != 'all') {
-      result = result.where((tx) {
-        final s = tx.status.toLowerCase();
-        return switch (_statusFilter) {
-          'done' =>
-            s.contains('done') ||
-                s.contains('hoàn tất') ||
-                s.contains('complete'),
-          'delivered' => s.contains('deliver') || s.contains('giao'),
-          'draft' =>
-            s.contains('draft') || s.contains('nhập') || s.contains('new'),
-          'cancelled' => s.contains('cancel') || s.contains('hủy'),
-          _ => true,
-        };
-      }).toList();
+      types = switch (_typeFilter) {
+        'sales' => {'sales_order', 'sales', 'Đơn bán hàng'},
+        'purchase' => {'purchase_order', 'purchase', 'import', 'goods_receipt', 'Phiếu nhập hàng'},
+        'invoice' => {'sales_invoice', 'invoice', 'Hóa đơn bán hàng'},
+        'return' => {'return_order', 'return', 'Phiếu đổi/trả'},
+        _ => null,
+      };
     }
 
-    // Default sort by date descending
-    result.sort((a, b) => b.occurredAt.compareTo(a.occurredAt));
+    final keyword = _historySearchController.text.trim();
 
-    return result;
+    final criteria = PartnerTransactionHistoryCriteria(
+      from: fromDate,
+      transactionTypes: types,
+      keyword: keyword.isNotEmpty ? keyword : null,
+    );
+
+    context.read<PartnerDetailCubit>().loadTransactionHistory(
+      partnerId,
+      criteria: criteria,
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    final hasActiveFilters =
-        _timeFilter != 'all' || _typeFilter != 'all' || _statusFilter != 'all';
+    final hasActiveFilters = _timeFilter != 'all' || _typeFilter != 'all' || _statusFilter != 'all';
 
     return Column(
       children: [
@@ -160,7 +146,7 @@ class _PartnerTransactionHistoryTabContentState
               Expanded(
                 child: _CustomSearchBar(
                   controller: _historySearchController,
-                  onChanged: (_) => setState(() {}),
+                  onChanged: (_) => _fetchFilteredHistory(),
                 ),
               ),
               const SizedBox(width: VSpacing.space2),
@@ -174,8 +160,8 @@ class _PartnerTransactionHistoryTabContentState
         // Content
         Expanded(
           child: switch (widget.state.historyStatus) {
-            PartnerHistoryStatus.initial || PartnerHistoryStatus.loading =>
-              const Center(child: CircularProgressIndicator()),
+            PartnerHistoryStatus.initial ||
+            PartnerHistoryStatus.loading => const Center(child: CircularProgressIndicator()),
             PartnerHistoryStatus.error => const Center(
               child: VEmptyState(
                 iconData: Icons.history_toggle_off_outlined,
@@ -185,7 +171,19 @@ class _PartnerTransactionHistoryTabContentState
             ),
             PartnerHistoryStatus.loaded => Builder(
               builder: (context) {
-                final filtered = _applyFilters(widget.state.history);
+                final filtered = widget.state.history.where((tx) {
+                  if (_statusFilter == 'all') return true;
+                  final s = (tx.status ?? '').toLowerCase();
+                  return switch (_statusFilter) {
+                    'done' =>
+                      s.contains('done') || s.contains('hoàn tất') || s.contains('complete'),
+                    'delivered' => s.contains('deliver') || s.contains('giao'),
+                    'draft' => s.contains('draft') || s.contains('nhập') || s.contains('new'),
+                    'cancelled' => s.contains('cancel') || s.contains('hủy'),
+                    _ => true,
+                  };
+                }).toList();
+
                 if (filtered.isEmpty) {
                   return VEmptyState(
                     iconData: Icons.history,
@@ -200,11 +198,11 @@ class _PartnerTransactionHistoryTabContentState
                 return ListView.separated(
                   padding: const EdgeInsets.all(VSpacing.screenMobile),
                   itemCount: filtered.length,
-                  separatorBuilder: (context, index) =>
-                      const SizedBox(height: VSpacing.space3),
-                  itemBuilder: (context, index) => PartnerTransactionItem(
-                    transaction: filtered[index],
-                  ),
+                  separatorBuilder: (context, index) => const SizedBox(height: VSpacing.space3),
+                  itemBuilder: (context, index) {
+                    final tx = filtered[index];
+                    return PartnerTransactionItem(transaction: tx);
+                  },
                 );
               },
             ),

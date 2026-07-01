@@ -1,5 +1,5 @@
+import 'package:vet45_partner_application/application.dart';
 import 'partner_list_state.dart';
-import '../models/partner_transaction_history_item_dto.dart';
 
 enum PartnerDetailStatus { initial, loading, success, failure }
 

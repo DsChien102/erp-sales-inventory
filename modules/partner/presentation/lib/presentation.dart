@@ -12,7 +12,6 @@ export 'src/bloc/partner_list_cubit.dart';
 export 'src/bloc/partner_list_state.dart';
 
 export 'src/models/partner_filter_counts.dart';
-export 'src/models/partner_transaction_history_item_dto.dart';
 export 'src/utils/partner_detail_helpers.dart';
 
 export 'src/widgets/partner_cancel_confirm_bottom_sheet.dart';

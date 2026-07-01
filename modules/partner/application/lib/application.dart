@@ -36,3 +36,13 @@ export 'src/business_partner/update_partner_profile/update_partner_profile_resul
 export 'src/contracts/i_partner_module.dart';
 export 'src/ports/i_partner_command_gateway.dart';
 export 'src/ports/i_partner_read_gateway.dart';
+export 'src/ports/i_partner_transaction_history_read_gateway.dart';
+export 'src/ports/i_partner_transaction_history_write_gateway.dart';
+export 'src/transaction_history/get_partner_transaction_history/get_partner_transaction_history_query.dart';
+export 'src/transaction_history/get_partner_transaction_history/get_partner_transaction_history_query_handler.dart';
+export 'src/transaction_history/get_partner_transaction_history/partner_transaction_history_item_dto.dart';
+export 'src/transaction_history/get_partner_transaction_history/partner_transaction_history_result_dto.dart';
+export 'src/transaction_history/get_partner_transaction_history/partner_transaction_source_navigation_dto.dart';
+export 'src/transaction_history/partner_transaction_source_permissions.dart';
+export 'src/transaction_history/record_transaction_history/record_partner_transaction_history_command.dart';
+export 'src/transaction_history/record_transaction_history/record_partner_transaction_history_command_handler.dart';

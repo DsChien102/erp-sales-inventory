@@ -12,6 +12,7 @@ export 'src/business_partner/repositories/i_partner_duplicate_checker.dart';
 export 'src/ids/business_partner_id.dart';
 export 'src/search/partner_search_criteria.dart';
 export 'src/search/search_keyword_normalizer.dart';
+export 'src/transaction_history/partner_transaction_history_criteria.dart';
 export 'src/shared/entity_type.dart';
 export 'src/shared/partner_permissions.dart';
 export 'src/shared/partner_role.dart';

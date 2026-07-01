@@ -1,13 +1,13 @@
 import 'dart:convert';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:vet45_partner_application/application.dart';
+import 'package:vet45_partner_domain/domain.dart';
 import 'package:vet45_shared_application/application.dart';
 
 import '../mappers/partner_ui_mapper.dart';
 import '../utils/partner_presentation_errors.dart';
 import 'partner_detail_state.dart';
 import 'partner_list_state.dart';
-import '../models/partner_transaction_history_item_dto.dart';
 
 class PartnerDetailCubit extends Cubit<PartnerDetailState> {
   PartnerDetailCubit({
@@ -113,9 +113,7 @@ class PartnerDetailCubit extends Cubit<PartnerDetailState> {
           hasBusinessData: detail.hasBusinessData,
         ),
       );
-
-      // Trigger transaction history loading asynchronously along with details
-      loadTransactionsFromJson(_defaultMockJson);
+      await loadTransactionHistory(partnerId);
     } catch (error) {
       emit(
         state.copyWith(
@@ -126,25 +124,53 @@ class PartnerDetailCubit extends Cubit<PartnerDetailState> {
     }
   }
 
+  Future<void> loadTransactionHistory(
+    String partnerId, {
+    PartnerTransactionHistoryCriteria? criteria,
+  }) async {
+    emit(state.copyWith(historyStatus: PartnerHistoryStatus.loading));
+    try {
+      final tenantId = await _executionContext.requireTenantId();
+      final result = await _partnerModule.executeQueryAsync(
+        GetPartnerTransactionHistoryQuery(
+          tenantId: tenantId,
+          partnerId: partnerId,
+          criteria: criteria ?? PartnerTransactionHistoryCriteria(),
+        ),
+      );
+
+      emit(
+        state.copyWith(
+          historyStatus: PartnerHistoryStatus.loaded,
+          history: result.items,
+        ),
+      );
+    } catch (_) {
+      emit(state.copyWith(historyStatus: PartnerHistoryStatus.error));
+    }
+  }
+
   Future<bool> deactivatePartner() async {
     return _changeStatus(
       successMessage: 'Đã ngừng hoạt động đối tác.',
-      commandBuilder: (tenantId, actorId, partner) => PartnerUiMapper.toDeactivateCommand(
-        tenantId: tenantId,
-        actorId: actorId,
-        partner: partner,
-      ),
+      commandBuilder: (tenantId, actorId, partner) =>
+          PartnerUiMapper.toDeactivateCommand(
+            tenantId: tenantId,
+            actorId: actorId,
+            partner: partner,
+          ),
     );
   }
 
   Future<bool> reactivatePartner() async {
     return _changeStatus(
       successMessage: 'Đã kích hoạt lại đối tác.',
-      commandBuilder: (tenantId, actorId, partner) => PartnerUiMapper.toReactivateCommand(
-        tenantId: tenantId,
-        actorId: actorId,
-        partner: partner,
-      ),
+      commandBuilder: (tenantId, actorId, partner) =>
+          PartnerUiMapper.toReactivateCommand(
+            tenantId: tenantId,
+            actorId: actorId,
+            partner: partner,
+          ),
     );
   }
 
@@ -254,9 +280,41 @@ class PartnerDetailCubit extends Cubit<PartnerDetailState> {
     try {
       emit(state.copyWith(historyStatus: PartnerHistoryStatus.loading));
       final List<dynamic> list = json.decode(jsonContent) as List<dynamic>;
-      final items = list
-          .map((item) => PartnerTransactionHistoryItemDto.fromJson(item as Map<String, dynamic>))
-          .toList();
+      final items = list.map((item) {
+        final map = item as Map<String, dynamic>;
+        final code =
+            map['transactionCode'] as String? ?? map['id'] as String? ?? '';
+        final type =
+            map['transactionType'] as String? ?? map['title'] as String? ?? '';
+        final status = map['status'] as String? ?? '';
+        final occurredAt = map['occurredAt'] != null
+            ? DateTime.parse(map['occurredAt'] as String)
+            : (map['date'] != null
+                ? DateTime.parse(map['date'] as String)
+                : DateTime.now());
+        final rawAmountStr = map['amount'] as String?;
+        final cleanStr = rawAmountStr?.replaceAll(RegExp(r'[^\d-]'), '');
+        final parsedFromStr = cleanStr != null ? int.tryParse(cleanStr) : null;
+        final minor = map['amountMinor'] != null
+            ? (map['amountMinor'] as num).toDouble()
+            : (parsedFromStr?.toDouble());
+
+        return PartnerTransactionHistoryItemDto(
+          id: code,
+          partnerId: '',
+          transactionRole: 'customer',
+          transactionType: type,
+          occurredAt: occurredAt,
+          transactionCode: code,
+          status: status,
+          amount: minor,
+          sourceNavigation: const PartnerTransactionSourceNavigationDto(
+            sourceModule: 'sales',
+            sourceType: 'sales_order',
+            sourceId: '',
+          ),
+        );
+      }).toList();
       emit(
         state.copyWith(
           historyStatus: PartnerHistoryStatus.loaded,

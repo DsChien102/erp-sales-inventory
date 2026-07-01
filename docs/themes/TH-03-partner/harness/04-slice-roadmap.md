@@ -12,7 +12,7 @@ Thứ tự implement vertical slice. Lane status: `todo` | `in_progress` | `done
 | 4 | [Epic-01/US-03](../Epic-01-partner-profile/US-03/) — Bổ sung/chỉnh sửa | write | done | done | done | done | A | US-02 |
 | 5 | [Epic-02/US-01](../Epic-02-partner-status/US-01/) — Dừng sử dụng / kích hoạt lại | write | done | done | done | done | B | US-04 |
 | 6 | [Epic-02/US-02](../Epic-02-partner-status/US-02/) — Loại bỏ hồ sơ tạo nhầm | write | done | done | done | done | C | US-04 |
-| 7 | [Epic-03/US-01](../Epic-03-partner-transaction-history/US-01/) — Lịch sử giao dịch | read cross-module | todo | **blocked** | todo | **blocked** | D | sales/inventory/accounting events |
+| 7 | [Epic-03/US-01](../Epic-03-partner-transaction-history/US-01/) — Lịch sử giao dịch | read cross-module | done | done | done | **blocked** | D | sales/inventory/accounting events |
 
 ### Parallel groups
 
@@ -21,7 +21,7 @@ Thứ tự implement vertical slice. Lane status: `todo` | `in_progress` | `done
 | A | US-01, US-03, US-04 | Retrofit — đã implement tuần tự; E2E cần US-02 data |
 | B | Epic-02/US-01 | BE ∥ FE sau CONTRACT; E2E via `FakePartnerModule` page test |
 | C | Epic-02/US-02 | Delete soft — done trên branch |
-| D | Epic-03/US-01 | FE + CONTRACT không blocked; BE/E2E blocked |
+| D | Epic-03/US-01 | BE + FE done; E2E blocked chờ cross-module events |
 
 ## Definition of Done (per lane)
 

@@ -59,7 +59,7 @@ Codegen ritual: [modules/partner/README.md](../../../../modules/partner/README.m
 | FR-04 | BE | §US-04 | application | `GetPartnerDetailQueryHandler` | scn_e01_u04_fr04_01 | done |
 | FR-02 | BE | §US-04 | infrastructure | `partner.get_partner_detail` RPC | — | done |
 | FR-01..05 | FE | §US-04 | presentation | `partner_detail_page.dart`, detail cubit/widgets | wgt_e01_u04_fr01_01 | done |
-| FR-05 | FE | §US-04 | presentation | `partner_transaction_history_tab.dart` | — | placeholder (Epic-03) |
+| FR-05 | FE | §US-04 | presentation | `partner_transaction_history_tab.dart` | wgt_e03_u01_fr01_01 | done |
 | FR-01..04 | E2E | §US-04 | integration | detail load via real module | — | done |
 
 ---
@@ -114,11 +114,15 @@ Codegen ritual: [modules/partner/README.md](../../../../modules/partner/README.m
 
 ## Epic-03 / US-01 — Theo dõi lịch sử làm việc
 
-> BE + E2E blocked; FE + CONTRACT có thể tiến.
+> E2E blocked — chờ sales/inventory/accounting publish events end-to-end.
 
 | Req ID | Role | Contract § | Enforce layer | Artifact | Test id | Status |
 | ------ | ---- | ---------- | ------------- | -------- | ------- | ------ |
-| US-01 | CONTRACT | §US-01 | application | `ListPartnerTransactionHistoryQuery` (stub) | — | todo |
-| FR-01..05 | BE | §US-01 | infrastructure | inbox projection handler | — | blocked |
-| FR-01..05 | FE | §US-01 | presentation | `partner_transaction_history_tab.dart` | wgt_e03_u01_fr01_01 | in_progress |
-| FR-01..05 | E2E | §US-01 | integration | cross-module events | — | blocked |
+| US-01 | CONTRACT | §US-01 | application | `GetPartnerTransactionHistoryQuery` | — | done |
+| FR-01 | BE | §US-01 | application | `GetPartnerTransactionHistoryQueryHandler` | scn_e03_u01_fr01_01 | done |
+| FR-02 | BE | §US-01 | infrastructure | `partner.get_partner_transaction_history` RPC, `SupabasePartnerTransactionHistoryReadGateway` | scn_e03_u01_fr02_01 | done |
+| FR-03 | BE | §US-01 | domain | `PartnerTransactionHistoryCriteria` | scn_e03_u01_fr03_01 | done |
+| FR-04 | BE | §US-01 | infrastructure | `PartnerTransactionHistoryIngestor`, `SalesOrderCheckedOutIntegrationEvent` | scn_e03_u01_fr04_01 | done |
+| FR-05 | BE | §US-01 | application | `RecordPartnerTransactionHistoryCommand` | scn_e03_u01_fr05_01 | done |
+| FR-01..05 | FE | §US-01 | presentation | `partner_detail_cubit.dart`, `partner_transaction_history_tab.dart`, `partner_transaction_filter_bottom_sheet.dart` | wgt_e03_u01_fr01_01 | done |
+| FR-01..05 | E2E | §US-01 | integration | cross-module events | e2e_e03_u01_fr01_01 | blocked |
