@@ -37,10 +37,10 @@ void main() {
     await tester.tap(find.text('Open'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Kích hoạt lại đối tác'), findsOneWidget);
-    await tester.tap(find.widgetWithText(TextButton, 'Kích hoạt lại'));
+    expect(find.text('Kích hoạt lại KH & NCC?'), findsOneWidget);
+    await tester.tap(find.text('Kích hoạt lại'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Kích hoạt lại đối tác'), findsNothing);
+    expect(find.text('Kích hoạt lại KH & NCC?'), findsNothing);
   });
 }

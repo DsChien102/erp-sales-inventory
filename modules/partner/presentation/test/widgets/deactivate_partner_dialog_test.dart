@@ -37,12 +37,10 @@ void main() {
     await tester.tap(find.text('Open'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Ngừng hoạt động đối tác'), findsOneWidget);
-    await tester.tap(
-      find.widgetWithText(TextButton, 'Ngừng hoạt động'),
-    );
+    expect(find.text('Ngừng hoạt động KH & NCC?'), findsOneWidget);
+    await tester.tap(find.text('Ngừng hoạt động'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Ngừng hoạt động đối tác'), findsNothing);
+    expect(find.text('Ngừng hoạt động KH & NCC?'), findsNothing);
   });
 }

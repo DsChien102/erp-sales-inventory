@@ -78,9 +78,9 @@ Contracts: [07-api-contracts.md](07-api-contracts.md)
 | FR-04 | BE | §US-01 | domain | `BusinessPartner.reactivate` | — | done |
 | FR-04 | BE | §US-01 | infrastructure | `partner.reactivate_partner` RPC | scn_e02_u01_fr02_01 | done |
 | FR-05 | BE | §US-01 | application | `DeactivatePartnerCommandHandler` / `ReactivatePartnerCommandHandler` | scn_e02_u01_fr02_01 | done |
-| FR-01 | FE | §US-01 | presentation | `partner_detail_menu.dart`, `partner_detail_page.dart` | — | done |
-| FR-03 | FE | §US-01 | presentation | `deactivate_partner_dialog.dart` | wgt_e02_u01_fr03_01 | done |
-| FR-04 | FE | §US-01 | presentation | `reactivate_partner_dialog.dart` | wgt_e02_u01_fr04_01 | done |
+| FR-01 | FE | §US-01 | presentation | `modules/partner/presentation/lib/src/widgets/partner_detail_menu.dart`, `apps/erp/lib/features/partner/presentation/pages/partner_detail_page.dart` | — | done |
+| FR-03 | FE | §US-01 | presentation | `modules/partner/presentation/lib/src/widgets/deactivate_partner_dialog.dart` | wgt_e02_u01_fr03_01 | done |
+| FR-04 | FE | §US-01 | presentation | `modules/partner/presentation/lib/src/widgets/reactivate_partner_dialog.dart` | wgt_e02_u01_fr04_01 | done |
 | FR-03/04 | E2E | §US-01 | integration | detail → deactivate/reactivate flow | e2e_e02_u01_fr03_01 | done |
 
 ---

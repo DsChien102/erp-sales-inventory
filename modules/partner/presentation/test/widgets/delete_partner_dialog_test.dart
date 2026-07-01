@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:vet45_partner_presentation/src/widgets/delete_partner_dialog.dart';
+import 'package:vet45_partner_presentation/presentation.dart';
 
 void main() {
   testWidgets('shows delete confirmation and returns true when confirmed', (tester) async {
@@ -29,10 +29,10 @@ void main() {
     await tester.tap(find.text('Open delete dialog'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Xóa hồ sơ đối tác'), findsOneWidget);
-    expect(find.textContaining('Nguyen Van A'), findsOneWidget);
+    expect(find.text('Xóa KH & NCC?'), findsOneWidget);
+    expect(find.textContaining('danh sách quản lý'), findsOneWidget);
 
-    await tester.tap(find.text('Xóa hồ sơ'));
+    await tester.tap(find.text('Xóa KH & NCC'));
     await tester.pumpAndSettle();
 
     expect(result, isTrue);

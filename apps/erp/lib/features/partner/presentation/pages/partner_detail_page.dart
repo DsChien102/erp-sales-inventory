@@ -48,7 +48,15 @@ class _PartnerDetailPageState extends State<PartnerDetailPage> {
 
     if (action == 'delete') {
       final partner = cubit.state.partner;
-      if (partner == null || !cubit.state.canDelete) {
+      if (partner == null) {
+        return;
+      }
+      
+      if (!cubit.state.canDelete) {
+        final deactivate = await CannotDeletePartnerDialog.show(context);
+        if (deactivate && context.mounted) {
+          await _handleMenuAction(context, 'deactivate');
+        }
         return;
       }
 
@@ -220,7 +228,7 @@ class _PartnerDetailPageState extends State<PartnerDetailPage> {
                 PartnerDetailMenu(
                   partner: partner,
                   canManageStatus: _canManageStatus,
-                  canDelete: _canDelete && state.canDelete,
+                  canDelete: _canDelete,
                   onActionSelected: state.isChangingStatus || state.isDeletingPartner
                       ? null
                       : (action) => _handleMenuAction(context, action),

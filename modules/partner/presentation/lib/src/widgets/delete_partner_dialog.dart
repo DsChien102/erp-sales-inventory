@@ -13,8 +13,10 @@ class DeletePartnerDialog extends StatelessWidget {
     BuildContext context, {
     required String partnerName,
   }) async {
-    final result = await showDialog<bool>(
+    final result = await showModalBottomSheet<bool>(
       context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
       builder: (context) => DeletePartnerDialog(partnerName: partnerName),
     );
     return result ?? false;
@@ -24,48 +26,83 @@ class DeletePartnerDialog extends StatelessWidget {
   Widget build(BuildContext context) {
     final dynamicColors = context.vColors;
 
-    return Dialog(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(VRadius.sheet),
+    return Container(
+      decoration: BoxDecoration(
+        color: dynamicColors.surface,
+        borderRadius: const BorderRadius.vertical(
+          top: Radius.circular(VRadius.sheet),
+        ),
       ),
-      backgroundColor: dynamicColors.surface,
-      elevation: 24,
-      child: Padding(
-        padding: const EdgeInsets.all(VSpacing.space5),
+      child: SafeArea(
         child: Column(
           mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text(
-              'Xóa hồ sơ đối tác',
-              style: VTypography.headingH3.copyWith(
-                color: dynamicColors.textPrimary,
-                fontWeight: FontWeight.w700,
+            Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: VSpacing.space4,
+                vertical: VSpacing.space3,
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    child: Text(
+                      'Xóa KH & NCC?',
+                      style: VTypography.headingH3.copyWith(
+                        color: dynamicColors.textPrimary,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
+                  GestureDetector(
+                    onTap: () => Navigator.of(context).pop(false),
+                    child: Icon(Icons.close, color: dynamicColors.textPrimary, size: 24),
+                  ),
+                ],
               ),
             ),
-            const SizedBox(height: VSpacing.space2),
-            Text(
-              'Hồ sơ "$partnerName" sẽ bị xóa khỏi danh sách làm việc và không còn hiển thị trong danh sách mặc định.',
-              style: VTypography.bodyDefault.copyWith(
-                color: dynamicColors.textSecondary,
+            Divider(color: dynamicColors.borderDefault, height: 1),
+            Padding(
+              padding: const EdgeInsets.all(VSpacing.space4),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'KH & NCC sẽ bị xóa khỏi danh sách quản lý và không thể được chọn cho giao dịch mới.',
+                    style: VTypography.bodyDefault.copyWith(
+                      color: dynamicColors.textPrimary,
+                    ),
+                  ),
+                  const SizedBox(height: VSpacing.space2),
+                  Text(
+                    'Các KH & NCC đã có giao dịch không thể xóa. Hãy ngừng hoạt động KH & NCC thay vì xóa.',
+                    style: VTypography.bodySmall.copyWith(
+                      color: dynamicColors.textSecondary,
+                    ),
+                  ),
+                  const SizedBox(height: VSpacing.space6),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: VButton(
+                          label: 'Hủy',
+                          variant: VButtonVariant.outline,
+                          onPressed: () => Navigator.of(context).pop(false),
+                        ),
+                      ),
+                      const SizedBox(width: VSpacing.space3),
+                      Expanded(
+                        child: VButton(
+                          label: 'Xóa KH & NCC',
+                          variant: VButtonVariant.danger,
+                          onPressed: () => Navigator.of(context).pop(true),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
               ),
-            ),
-            const SizedBox(height: VSpacing.space6),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                VButton(
-                  label: 'Hủy',
-                  variant: VButtonVariant.ghost,
-                  onPressed: () => Navigator.of(context).pop(false),
-                ),
-                const SizedBox(width: VSpacing.space2),
-                VButton(
-                  label: 'Xóa hồ sơ',
-                  variant: VButtonVariant.danger,
-                  onPressed: () => Navigator.of(context).pop(true),
-                ),
-              ],
             ),
           ],
         ),

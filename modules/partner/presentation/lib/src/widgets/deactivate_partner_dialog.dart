@@ -15,8 +15,10 @@ class DeactivatePartnerDialog extends StatelessWidget {
     BuildContext context, {
     required PartnerItemModel partner,
   }) async {
-    final result = await showDialog<bool>(
+    final result = await showModalBottomSheet<bool>(
       context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
       builder: (context) => DeactivatePartnerDialog(partner: partner),
     );
     return result ?? false;
@@ -24,34 +26,89 @@ class DeactivatePartnerDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AlertDialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(VRadius.card)),
-      title: Text('Ngừng hoạt động đối tác', style: VTypography.headingH4),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            partner.name,
-            style: VTypography.bodyDefault.copyWith(fontWeight: FontWeight.w600),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            'Đối tác sẽ không được dùng trong giao dịch mới. Hồ sơ và dữ liệu cũ vẫn được giữ.',
-            style: VTypography.bodyDefault,
-          ),
-        ],
+    final dynamicColors = context.vColors;
+
+    return Container(
+      decoration: BoxDecoration(
+        color: dynamicColors.surface,
+        borderRadius: const BorderRadius.vertical(
+          top: Radius.circular(VRadius.sheet),
+        ),
       ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context, false),
-          child: const Text('Hủy'),
+      child: SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: VSpacing.space4,
+                vertical: VSpacing.space3,
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    child: Text(
+                      'Ngừng hoạt động KH & NCC?',
+                      style: VTypography.headingH3.copyWith(
+                        color: dynamicColors.textPrimary,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
+                  GestureDetector(
+                    onTap: () => Navigator.of(context).pop(false),
+                    child: Icon(Icons.close, color: dynamicColors.textPrimary, size: 24),
+                  ),
+                ],
+              ),
+            ),
+            Divider(color: dynamicColors.borderDefault, height: 1),
+            Padding(
+              padding: const EdgeInsets.all(VSpacing.space4),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'KH & NCC sẽ không thể được chọn cho giao dịch mới. Hồ sơ và lịch sử giao dịch vẫn được giữ lại.',
+                    style: VTypography.bodyDefault.copyWith(
+                      color: dynamicColors.textPrimary,
+                    ),
+                  ),
+                  const SizedBox(height: VSpacing.space2),
+                  Text(
+                    'Bạn có thể kích hoạt lại KH & NCC sau này.',
+                    style: VTypography.bodySmall.copyWith(
+                      color: dynamicColors.textSecondary,
+                    ),
+                  ),
+                  const SizedBox(height: VSpacing.space6),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: VButton(
+                          label: 'Hủy',
+                          variant: VButtonVariant.outline,
+                          onPressed: () => Navigator.of(context).pop(false),
+                        ),
+                      ),
+                      const SizedBox(width: VSpacing.space3),
+                      Expanded(
+                        child: VButton(
+                          label: 'Ngừng hoạt động',
+                          variant: VButtonVariant.warning,
+                          onPressed: () => Navigator.of(context).pop(true),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ],
         ),
-        TextButton(
-          onPressed: () => Navigator.pop(context, true),
-          child: const Text('Ngừng hoạt động', style: TextStyle(color: VColors.danger)),
-        ),
-      ],
+      ),
     );
   }
 }
