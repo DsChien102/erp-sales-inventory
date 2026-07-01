@@ -1,6 +1,7 @@
 import 'package:vet45_partner_application/application.dart';
 import 'package:vet45_partner_domain/domain.dart';
 
+import '../bloc/partner_edit_state.dart';
 import '../bloc/partner_list_state.dart';
 import '../models/partner_filter_counts.dart';
 
@@ -108,6 +109,30 @@ abstract final class PartnerUiMapper {
     );
   }
 
+  static PartnerItemModel toDetailItem(PartnerDetailDto dto) {
+    return PartnerItemModel(
+      id: dto.id,
+      avatarText: _avatarText(dto.displayName),
+      name: dto.displayName,
+      role: _roleLabel(dto.roles),
+      status: _statusLabel(dto.status),
+      phone: dto.phone,
+      email: dto.email ?? '',
+      taxId: dto.taxCode ?? '',
+      address: dto.address ?? '',
+      note: dto.note ?? '',
+      billingName: dto.invoiceName ?? '',
+      billingAddress: dto.invoiceAddress ?? '',
+      billingEmail: dto.invoiceEmail ?? '',
+      profileType: _entityTypeLabel(dto.entityType),
+      creator: dto.createdBy,
+      createdAt: _formatDateTime(dto.createdAt),
+      updatedBy: dto.updatedBy,
+      updatedAt: _formatDateTime(dto.updatedAt),
+      version: dto.version,
+    );
+  }
+
   static Set<PartnerRole> toRoles(String role) {
     return switch (role) {
       'supplier' => {PartnerRole.supplier},
@@ -170,16 +195,45 @@ abstract final class PartnerUiMapper {
       phone: phone.trim(),
       roles: toRoles(role),
       confirmDuplicate: confirmDuplicate,
-      individualName:
-          entityType == EntityType.individual ? trimmedName : null,
-      businessName: entityType == EntityType.householdBusiness
-          ? trimmedName
-          : null,
+      individualName: entityType == EntityType.individual ? trimmedName : null,
+      businessName: entityType == EntityType.householdBusiness ? trimmedName : null,
       companyName: entityType == EntityType.company ? trimmedName : null,
       email: email.trim().isEmpty ? null : email.trim(),
       taxCode: taxId.trim().isEmpty ? null : taxId.trim(),
       address: address.trim().isEmpty ? null : address.trim(),
       note: note.trim().isEmpty ? null : note.trim(),
+    );
+  }
+
+  static UpdatePartnerProfileCommand toUpdateCommand({
+    required String tenantId,
+    required String actorId,
+    required PartnerEditState state,
+    required bool confirmDuplicate,
+  }) {
+    final entityType = toEntityType(state.profileType);
+    final trimmedName = state.name.trim();
+
+    return UpdatePartnerProfileCommand(
+      tenantId: tenantId,
+      actorId: actorId,
+      partnerId: state.partnerId,
+      expectedVersion: state.expectedVersion,
+      entityType: entityType,
+      displayName: trimmedName,
+      phone: state.phone.trim(),
+      roles: toRoles(state.role),
+      confirmDuplicate: confirmDuplicate,
+      individualName: entityType == EntityType.individual ? trimmedName : null,
+      businessName: entityType == EntityType.householdBusiness ? trimmedName : null,
+      companyName: entityType == EntityType.company ? trimmedName : null,
+      email: state.email.trim().isEmpty ? null : state.email.trim(),
+      taxCode: state.taxId.trim().isEmpty ? null : state.taxId.trim(),
+      address: state.address.trim().isEmpty ? null : state.address.trim(),
+      invoiceName: state.billingName.trim().isEmpty ? null : state.billingName.trim(),
+      invoiceAddress: state.billingAddress.trim().isEmpty ? null : state.billingAddress.trim(),
+      invoiceEmail: state.billingEmail.trim().isEmpty ? null : state.billingEmail.trim(),
+      note: state.note.trim().isEmpty ? null : state.note.trim(),
     );
   }
 
@@ -193,11 +247,7 @@ abstract final class PartnerUiMapper {
   }
 
   static String _avatarText(String name) {
-    final parts = name
-        .trim()
-        .split(RegExp(r'\s+'))
-        .where((part) => part.isNotEmpty)
-        .toList();
+    final parts = name.trim().split(RegExp(r'\s+')).where((part) => part.isNotEmpty).toList();
     if (parts.isEmpty) {
       return '?';
     }

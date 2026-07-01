@@ -16,6 +16,10 @@ class PartnerItemModel {
   final String creator;
   final String createdAt;
   final String updatedBy;
+  final String billingName;
+  final String billingAddress;
+  final String billingEmail;
+  final int version;
 
   const PartnerItemModel({
     required this.id,
@@ -33,6 +37,10 @@ class PartnerItemModel {
     this.creator = '',
     this.createdAt = '',
     this.updatedBy = '',
+    this.billingName = '',
+    this.billingAddress = '',
+    this.billingEmail = '',
+    this.version = 1,
   });
 }
 

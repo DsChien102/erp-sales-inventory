@@ -4,6 +4,7 @@ import 'package:vet45_partner_domain/domain.dart';
 import 'package:vet45_shared_infrastructure/infrastructure.dart';
 
 import '../../errors/partner_error_mapper.dart';
+import 'partner_detail_mapper.dart';
 import 'partner_list_mapper.dart';
 import 'partner_rpc_mapper.dart';
 
@@ -54,6 +55,30 @@ final class SupabasePartnerReadGateway implements IPartnerReadGateway {
         items: items,
         totalCount: totalCount,
       );
+    } on RpcException catch (error) {
+      throw mapPartnerRpcError(error);
+    }
+  }
+
+  @override
+  Future<PartnerDetailDto?> getDetail({
+    required String tenantId,
+    required String partnerId,
+  }) async {
+    try {
+      final rows = await _rpcClient.callList(
+        'get_partner_detail',
+        params: <String, dynamic>{
+          'p_tenant_id': tenantId,
+          'p_partner_id': partnerId,
+        },
+      );
+
+      if (rows.isEmpty) {
+        return null;
+      }
+
+      return PartnerDetailMapper.fromRow(rows.first);
     } on RpcException catch (error) {
       throw mapPartnerRpcError(error);
     }

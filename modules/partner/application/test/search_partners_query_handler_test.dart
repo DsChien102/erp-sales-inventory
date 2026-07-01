@@ -35,6 +35,14 @@ class _RecordingPartnerReadGateway implements IPartnerReadGateway {
       totalCount: 1,
     );
   }
+
+  @override
+  Future<PartnerDetailDto?> getDetail({
+    required String tenantId,
+    required String partnerId,
+  }) {
+    throw UnimplementedError();
+  }
 }
 
 void main() {

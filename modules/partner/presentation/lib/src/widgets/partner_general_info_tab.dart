@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:vet45_design_system/design_system.dart';
 import '../bloc/partner_list_state.dart';
 
-/// Hiển thị thông tin tóm tắt từ [SearchPartnersQuery] (US-01).
-/// Các trường đầy đủ (địa chỉ, ghi chú, audit) cần backend US-04.
+/// Hiển thị hồ sơ chi tiết đối tác (US-04).
 class PartnerGeneralInfoTab extends StatelessWidget {
   final PartnerItemModel partner;
 
@@ -23,8 +22,16 @@ class PartnerGeneralInfoTab extends StatelessWidget {
             context,
             title: 'THÔNG TIN CƠ BẢN',
             children: [
-              _buildRow(context, 'Loại hồ sơ', partner.profileType.isNotEmpty ? partner.profileType : 'Chưa cập nhật'),
-              _buildRow(context, 'Mã số thuế', partner.taxId.isNotEmpty ? partner.taxId : 'Chưa cập nhật'),
+              _buildRow(
+                context,
+                'Loại hồ sơ',
+                _valueOrPlaceholder(partner.profileType),
+              ),
+              _buildRow(
+                context,
+                'Mã số thuế',
+                _valueOrPlaceholder(partner.taxId),
+              ),
             ],
           ),
           const SizedBox(height: VSpacing.space4),
@@ -36,8 +43,52 @@ class PartnerGeneralInfoTab extends StatelessWidget {
               _buildRow(
                 context,
                 'Email',
-                partner.email.isNotEmpty ? partner.email : 'Chưa cập nhật',
+                _valueOrPlaceholder(partner.email),
                 isValueGray: partner.email.isEmpty,
+              ),
+              _buildRow(
+                context,
+                'Địa chỉ',
+                _valueOrPlaceholder(partner.address),
+                isValueGray: partner.address.isEmpty,
+              ),
+            ],
+          ),
+          const SizedBox(height: VSpacing.space4),
+          _buildSection(
+            context,
+            title: 'THÔNG TIN HÓA ĐƠN',
+            children: [
+              _buildRow(
+                context,
+                'Tên trên hóa đơn',
+                _valueOrPlaceholder(partner.billingName),
+                isValueGray: partner.billingName.isEmpty,
+              ),
+              _buildRow(
+                context,
+                'Địa chỉ trên hóa đơn',
+                _valueOrPlaceholder(partner.billingAddress),
+                isValueGray: partner.billingAddress.isEmpty,
+              ),
+              _buildRow(
+                context,
+                'Email nhận hóa đơn',
+                _valueOrPlaceholder(partner.billingEmail),
+                isValueGray: partner.billingEmail.isEmpty,
+              ),
+            ],
+          ),
+          const SizedBox(height: VSpacing.space4),
+          _buildSection(
+            context,
+            title: 'GHI CHÚ',
+            children: [
+              _buildRow(
+                context,
+                'Ghi chú',
+                _valueOrPlaceholder(partner.note),
+                isValueGray: partner.note.isEmpty,
               ),
             ],
           ),
@@ -48,22 +99,47 @@ class PartnerGeneralInfoTab extends StatelessWidget {
             children: [
               _buildRow(
                 context,
+                'Người tạo',
+                _valueOrPlaceholder(partner.creator),
+                isValueGray: partner.creator.isEmpty,
+              ),
+              _buildRow(
+                context,
+                'Thời điểm tạo',
+                _valueOrPlaceholder(partner.createdAt),
+                isValueGray: partner.createdAt.isEmpty,
+              ),
+              _buildRow(
+                context,
+                'Người cập nhật',
+                _valueOrPlaceholder(partner.updatedBy),
+                isValueGray: partner.updatedBy.isEmpty,
+              ),
+              _buildRow(
+                context,
                 'Cập nhật lúc',
-                partner.updatedAt.isNotEmpty
-                    ? partner.updatedAt
-                    : 'Chưa cập nhật',
+                _valueOrPlaceholder(partner.updatedAt),
+                isValueGray: partner.updatedAt.isEmpty,
               ),
             ],
           ),
-          const SizedBox(height: 80), // Padding cho bottom navigation
+          const SizedBox(height: 80),
         ],
       ),
     );
   }
 
-  Widget _buildSection(BuildContext context, {required String title, required List<Widget> children}) {
+  static String _valueOrPlaceholder(String value) {
+    return value.isNotEmpty ? value : 'Chưa cập nhật';
+  }
+
+  Widget _buildSection(
+    BuildContext context, {
+    required String title,
+    required List<Widget> children,
+  }) {
     final dynamicColors = context.vColors;
-    
+
     return Container(
       decoration: BoxDecoration(
         color: dynamicColors.surface,
@@ -88,9 +164,14 @@ class PartnerGeneralInfoTab extends StatelessWidget {
     );
   }
 
-  Widget _buildRow(BuildContext context, String label, String value, {bool isValueGray = false}) {
+  Widget _buildRow(
+    BuildContext context,
+    String label,
+    String value, {
+    bool isValueGray = false,
+  }) {
     final dynamicColors = context.vColors;
-    
+
     return Padding(
       padding: const EdgeInsets.only(bottom: VSpacing.space3),
       child: Row(
@@ -111,7 +192,9 @@ class PartnerGeneralInfoTab extends StatelessWidget {
               value,
               textAlign: TextAlign.right,
               style: VTypography.bodyDefault.copyWith(
-                color: isValueGray ? dynamicColors.textSecondary : dynamicColors.textPrimary,
+                color: isValueGray
+                    ? dynamicColors.textSecondary
+                    : dynamicColors.textPrimary,
                 fontStyle: isValueGray ? FontStyle.italic : FontStyle.normal,
               ),
             ),

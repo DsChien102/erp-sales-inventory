@@ -35,17 +35,36 @@ final class PartnerMediationModule {
       ),
     );
 
-    queryBus
-      ..register<
-        CheckDuplicatePartnersQuery,
-        List<PartnerDuplicateMatchDto>
+    commandBus.register<UpdatePartnerProfileCommand, UpdatePartnerProfileResult>(
+      DefaultCommandPipeline.buildBusinessPipeline<
+        UpdatePartnerProfileCommand,
+        UpdatePartnerProfileResult,
+        UpdatePartnerProfileCommandHandler
       >(
+        container: container,
+        handler: container.get<UpdatePartnerProfileCommandHandler>(),
+        invoke: (command, handler) => handler.handle(command),
+        accessMetadata: accessMetadata,
+        permissionChecker: permissionChecker,
+        tenantAccessChecker: tenantAccessChecker,
+        logger: commandLogger,
+      ),
+    );
+
+    queryBus
+      ..register<CheckDuplicatePartnersQuery, List<PartnerDuplicateMatchDto>>(
         (query) => container.get<CheckDuplicatePartnersQueryHandler>().handle(
           query,
         ),
       )
+      ..register<CheckDuplicatePartnersForUpdateQuery, List<PartnerDuplicateMatchDto>>(
+        (query) => container.get<CheckDuplicatePartnersForUpdateQueryHandler>().handle(query),
+      )
       ..register<SearchPartnersQuery, PartnerSearchResultDto>(
         (query) => container.get<SearchPartnersQueryHandler>().handle(query),
+      )
+      ..register<GetPartnerDetailQuery, PartnerDetailDto?>(
+        (query) => container.get<GetPartnerDetailQueryHandler>().handle(query),
       );
   }
 }

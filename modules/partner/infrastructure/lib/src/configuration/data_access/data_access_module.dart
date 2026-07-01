@@ -48,8 +48,16 @@ final class PartnerDataAccessModule {
       ..registerSingleton<ICommandValidator<RegisterPartnerCommand>>(
         RegisterPartnerCommandValidator(),
       )
+      ..registerSingleton<ICommandValidator<UpdatePartnerProfileCommand>>(
+        UpdatePartnerProfileCommandValidator(),
+      )
       ..registerSingleton(
         RegisterPartnerCommandHandler(
+          commandGateway: container.get<IPartnerCommandGateway>(),
+        ),
+      )
+      ..registerSingleton(
+        UpdatePartnerProfileCommandHandler(
           commandGateway: container.get<IPartnerCommandGateway>(),
         ),
       )
@@ -59,7 +67,17 @@ final class PartnerDataAccessModule {
         ),
       )
       ..registerSingleton(
+        CheckDuplicatePartnersForUpdateQueryHandler(
+          duplicateChecker: container.get<IPartnerDuplicateChecker>(),
+        ),
+      )
+      ..registerSingleton(
         SearchPartnersQueryHandler(
+          readGateway: container.get<IPartnerReadGateway>(),
+        ),
+      )
+      ..registerSingleton(
+        GetPartnerDetailQueryHandler(
           readGateway: container.get<IPartnerReadGateway>(),
         ),
       );

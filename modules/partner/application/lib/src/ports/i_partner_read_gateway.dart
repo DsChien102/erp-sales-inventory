@@ -1,6 +1,7 @@
 import 'package:vet45_partner_domain/domain.dart';
 
 import '../business_partner/search_partners/partner_search_result_dto.dart';
+import '../business_partner/get_partner_detail/partner_detail_dto.dart';
 
 abstract interface class IPartnerReadGateway {
   Future<PartnerSearchResultDto> search({
@@ -8,5 +9,10 @@ abstract interface class IPartnerReadGateway {
     required PartnerSearchCriteria criteria,
     int limit = 100,
     int offset = 0,
+  });
+
+  Future<PartnerDetailDto?> getDetail({
+    required String tenantId,
+    required String partnerId,
   });
 }
