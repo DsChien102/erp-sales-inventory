@@ -30,7 +30,7 @@ void main() {
     await tester.tap(find.byIcon(Icons.more_horiz));
     await tester.pumpAndSettle();
 
-    expect(find.text('Xóa hồ sơ'), findsOneWidget);
+    expect(find.text('Xóa KH & NCC'), findsOneWidget);
   });
 
   testWidgets('hides delete action when canDelete is false', (tester) async {
@@ -59,6 +59,6 @@ void main() {
     await tester.tap(find.byIcon(Icons.more_horiz));
     await tester.pumpAndSettle();
 
-    expect(find.text('Xóa hồ sơ'), findsNothing);
+    expect(find.text('Xóa KH & NCC'), findsNothing);
   });
 }
