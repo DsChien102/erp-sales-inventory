@@ -34,7 +34,8 @@ Contracts: [07-api-contracts.md](07-api-contracts.md)
 | ------ | ---- | ---------- | ------------- | -------- | ------- | ------ |
 | US-01 | CONTRACT | §US-01 | application | `SearchPartnersQuery`, `PartnerSearchResultDto` | — | done |
 | FR-01..05 | BE | §US-01 | application | `SearchPartnersQueryHandler` | scn_e01_u01_fr01_01 | done |
-| FR-01..05 | FE | §US-01 | presentation | `partner_list_page.dart`, `partner_list_item.dart`, `partner_list_cubit.dart`, search/filter widgets | — | done |
+| FR-01..05 | BE | §US-01 | infrastructure | `partner.search_partners` RPC, `SupabasePartnerReadGateway` | — | done |
+| FR-01..05 | FE | §US-01 | presentation | `partner_list_page.dart`, `partner_list_item.dart`, `partner_list_cubit.dart`, search/filter widgets, `partner_list_cubit_test.dart` | — | done |
 | FR-01..05 | E2E | §US-01 | integration | list with real data | — | done |
 
 ---

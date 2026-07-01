@@ -43,6 +43,9 @@ class _PartnerDetailPageState extends State<PartnerDetailPage> {
       widget.canDelete ??
       getIt<IPrincipalSnapshot>().hasPermission(PartnerPermissions.delete);
 
+  bool get _canUpdate =>
+      getIt<IPrincipalSnapshot>().hasPermission(PartnerPermissions.update);
+
   Future<void> _handleMenuAction(BuildContext context, String action) async {
     final cubit = context.read<PartnerDetailCubit>();
 
@@ -258,7 +261,7 @@ class _PartnerDetailPageState extends State<PartnerDetailPage> {
                 ),
               ],
             ),
-            bottomNavigationBar: partner.status == 'Đã xóa'
+            bottomNavigationBar: partner.status == 'Đã xóa' || !_canUpdate
                 ? null
                 : SafeArea(
                     child: Padding(

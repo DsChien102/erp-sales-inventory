@@ -28,7 +28,7 @@ final class SupabasePartnerReadGateway implements IPartnerReadGateway {
         'search_partners',
         params: <String, dynamic>{
           'p_tenant_id': tenantId,
-          'p_keyword': phoneKeyword == null ? criteria.keyword : null,
+          'p_keyword': criteria.keyword,
           'p_keyword_phone_normalized': phoneKeyword,
           'p_statuses': criteria.statuses.map((status) => status.name).toList(growable: false),
           'p_role_filter': criteria.roleFilter?.name,
