@@ -71,6 +71,8 @@ Từ product spec (`US/FR` hoặc `01-overview.md`), lấy bảng **UI artifacts
 
 ### 2. Widget manifest (bắt buộc trước implement)
 
+Đọc `harness/07-api-contracts.md` (fake scenario ids) khi slice mới — FE có thể implement song song BE sau CONTRACT.
+
 ```text
 PartnerDetailPage          → apps/erp/.../pages/partner_detail_page.dart
 DeactivatePartnerDialog    → modules/partner/presentation/.../deactivate_partner_dialog.dart
@@ -91,8 +93,11 @@ dialogs/sections (modules/partner/presentation + apps/erp/widgets)
 
 ### 5. Widget test (khi FR có SCN dialog)
 
+Dùng `FakePartnerModule` / `FakeExecutionContext` từ `vet45_partner_application/testing.dart` + `vet45_shared_testing` — scenario ids khớp `07-api-contracts.md`.
+
 ```text
-apps/erp/test/features/<feature>/widgets/<dialog>_test.dart
+modules/partner/presentation/test/widgets/<dialog>_test.dart
+apps/erp/test/features/<feature>/...
 Test id: wgt_e{epic}_u{us}_fr{fr}_{nn}
 ```
 

@@ -3,52 +3,10 @@ import 'package:erp/features/partner/presentation/pages/partner_detail_page.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:vet45_partner_application/application.dart';
-import 'package:vet45_partner_domain/domain.dart';
+import 'package:vet45_partner_application/testing.dart';
 import 'package:vet45_partner_presentation/presentation.dart';
 import 'package:vet45_shared_application/application.dart';
-
-final class _FakeExecutionContext implements IExecutionContext {
-  @override
-  String get correlationId => 'test-correlation';
-
-  @override
-  Future<String> requireTenantId() async => 'tenant-1';
-
-  @override
-  Future<String> requireUserId() async => 'user-1';
-}
-
-final class _FakePartnerModule implements IPartnerModule {
-  int detailLoadCount = 0;
-
-  @override
-  Future<TResult> executeCommandAsync<TResult>(ICommand<TResult> command) {
-    throw UnimplementedError();
-  }
-
-  @override
-  Future<TResult> executeQueryAsync<TResult>(IQuery<TResult> query) async {
-    if (query is GetPartnerDetailQuery) {
-      final detailQuery = query as GetPartnerDetailQuery;
-      detailLoadCount += 1;
-      return PartnerDetailDto(
-            id: detailQuery.partnerId,
-            displayName: detailLoadCount == 1 ? 'Nguyen Van An' : 'Nguyen Van B',
-            phone: '0912345678',
-            roles: const {PartnerRole.customer},
-            entityType: EntityType.individual,
-            status: PartnerStatus.active,
-            createdAt: DateTime.parse('2026-07-01T00:00:00Z'),
-            updatedAt: DateTime.parse('2026-07-01T00:00:00Z'),
-            version: detailLoadCount,
-            createdBy: 'user-1',
-            updatedBy: 'user-1',
-          )
-          as TResult;
-    }
-    throw UnimplementedError('Unexpected query: $query');
-  }
-}
+import 'package:vet45_shared_testing/shared_testing.dart';
 
 void main() {
   setUp(() async {
@@ -56,10 +14,12 @@ void main() {
   });
 
   testWidgets('detail page returns true to list after edit succeeds', (tester) async {
-    final partnerModule = _FakePartnerModule();
+    final partnerModule = FakePartnerModule(scenario: FakePartnerScenario.detailRefresh);
     getIt
       ..registerSingleton<IPartnerModule>(partnerModule)
-      ..registerSingleton<IExecutionContext>(_FakeExecutionContext());
+      ..registerSingleton<IExecutionContext>(
+        FakeExecutionContext(tenantId: 'tenant-1', userId: 'user-1'),
+      );
 
     bool? listRefreshResult;
 

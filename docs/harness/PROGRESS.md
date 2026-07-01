@@ -29,6 +29,15 @@ Checklist tiến độ Harness Engineering. Agent đọc file này ở đầu se
 - [x] TH-03 ritual + module-map presentation layout
 - [x] Golden reference documented — `apps/erp/lib/features/dashboard/presentation/`
 
+## Phase 1.7 — BE/FE harness lanes
+
+- [x] `harness/07-api-contracts.md` + lane columns trong template + `guard_theme_structure.sh`
+- [x] TH-03 backfill Epic-01 traceability (Role BE/FE/E2E)
+- [x] `FakePartnerModule` + `package:vet45_partner_application/testing.dart`
+- [x] Epic-02/US-01 contract-first pilot (deactivate/reactivate)
+- [x] `guard_theme_traceability.sh` — Role column khi exemplar-complete
+- [ ] Roll-up lane % trong `docs/themes/README.md` (optional)
+
 ## Phase 2 — IAM golden module
 
 - [x] IAM minimal foundation — DB schema `iam` + RPC session/permission + access checkers
@@ -52,4 +61,4 @@ Ghi các cải tiến harness sau khi agent fail (ngày + mô tả ngắn):
 | 2026-06-30 | Permission constants — `IamPermissions` domain class; skills/docs anti-pattern hardcode strings |
 | 2026-06-30 | IAM minimal — DB RBAC, access checkers, ERP auth migration via IIamModule |
 | 2026-06-30 | Implemented Presentation Layer for TH-03 Epic-01 US-03 (Bổ sung và chỉnh sửa) |
-| 2026-06-30 | Updated 05-traceability.md with presentation artifacts mapping for TH-03 Epic-01 (US-01 to US-04) |
+| 2026-07-01 | BE/FE harness lanes — 07-api-contracts, FakePartnerModule, Epic-02/US-01 contract-first |

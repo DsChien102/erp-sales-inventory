@@ -33,6 +33,7 @@ cd apps/erp && flutter test test/features/partner/   # khi slice có UI
 | — | Dup-check chỉ UI | Ghi nhớ: RPC tenant-scoped khi implement US-02 FR-5 |
 | — | Permission label tiếng Việt vs code | Bảng mapping trong 02-module-map.md |
 | — | Epic-03 blocked | Chờ sales/inventory/accounting events |
+| 2026-07-01 | BE/FE lane confusion | 07-api-contracts + FakePartnerModule + traceability Role column |
 
 ## Liên kết
 

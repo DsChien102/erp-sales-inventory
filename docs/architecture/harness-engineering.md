@@ -18,7 +18,7 @@ Mọi kiến thức agent cần phải nằm trong repo:
 | `.cursor/skills/*` | Workflow theo layer |
 | `docs/*_skill.md` | Canonical spec mirror |
 | [PROGRESS.md](../harness/PROGRESS.md) | Tiến độ harness maturity |
-| `docs/themes/TH-xx/harness/*` | Theme engineering truth (domain-model, module-map, traceability) |
+| `docs/themes/TH-xx/harness/*` | Theme engineering truth (domain-model, contracts, traceability lanes) |
 
 **Nguyên tắc:** Nếu không có trong repo, agent không biết.
 
@@ -72,9 +72,25 @@ Khi agent fail lặp lại cùng lỗi:
 | --------- | --------- |
 | **Hiện tại (harness phase)** | `packages/vet45_generator/test/fixtures/`, `packages/vet45_shared/testing/` |
 | **Presentation UI (golden)** | `apps/erp/lib/features/dashboard/presentation/` |
-| **Phase 2 (planned)** | Module `iam` — full vertical slice + ERP wiring |
+| **Phase 2 (golden)** | Module `iam` — codegen + ERP auth wiring |
+| **TH-03 partner** | Epic-01 profile CRUD + Epic-02/US-01 status (contract-first lanes) |
 
-Tất cả `modules/*` hiện là **skeleton** — xem [04-repository-layout.md](04-repository-layout.md).
+`modules/partner/` có vertical slice Epic-01; các `modules/*` khác vẫn skeleton — xem [04-repository-layout.md](04-repository-layout.md).
+
+## BE / FE contract-first lanes (theme `in_progress`)
+
+Mỗi theme `in_progress` có `harness/07-api-contracts.md` — Commands/Queries/DTOs + **fake scenario ids** cho FE.
+
+| Lane | Deliverable | Verify |
+| ---- | ----------- | ------ |
+| CONTRACT | Application types + contract doc section | Review / export trong `application.dart` |
+| BE | domain, handler, gateway, RPC | `scn_*` handler tests |
+| FE | UI + cubit + `Fake{Module}Module` | `wgt_*` widget tests |
+| E2E | ERP DI real module | `flutter test` integration |
+
+**Prerequisite trong slice-roadmap chỉ bind lane E2E** — FE fake và BE handler tests có thể chạy song song sau CONTRACT.
+
+FE **không** fake RPC — inject `IPartnerModule` / `FakePartnerModule` (`package:vet45_partner_application/testing.dart`).
 
 ## Test harness
 

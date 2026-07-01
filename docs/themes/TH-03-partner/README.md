@@ -21,14 +21,14 @@ Quản lý hồ sơ đối tác (khách hàng, nhà cung cấp, hoặc cả hai)
 | Nhóm | File |
 | ---- | ---- |
 | Business scope | [01-business-scope.md](01-business-scope.md) |
-| Harness (agent/engineer) | [harness/](harness/) |
+| Harness (agent/engineer) | [harness/](harness/) (incl. [07-api-contracts](harness/07-api-contracts.md)) |
 | Platform architecture | [docs/architecture/](../../architecture/README.md) |
 
 ## Epic index
 
 | Epic | Folder | US | FR | Status |
 | ---- | ------ | -- | -- | ------ |
-| Epic 01 — Hồ sơ đối tác | [Epic-01-partner-profile/](Epic-01-partner-profile/) | US-01..04 | 5+6+6+5 | todo |
+| Epic 01 — Hồ sơ đối tác | [Epic-01-partner-profile/](Epic-01-partner-profile/) | US-01..04 | 5+6+6+5 | **done** |
 | Epic 02 — Trạng thái đối tác | [Epic-02-partner-status/](Epic-02-partner-status/) | US-01..02 | 5+4 | todo |
 | Epic 03 — Lịch sử giao dịch | [Epic-03-partner-transaction-history/](Epic-03-partner-transaction-history/) | US-01 | 5 | blocked |
 

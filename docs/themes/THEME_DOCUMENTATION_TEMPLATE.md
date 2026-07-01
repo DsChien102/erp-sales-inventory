@@ -24,9 +24,10 @@ docs/themes/TH-xx-{{slug}}/
 │   ├── 01-domain-model.md            # Aggregate, commands, events
 │   ├── 02-module-map.md              # Owner/supporting, contracts
 │   ├── 03-architecture-and-flows.md  # Flows, RPC (link T2)
-│   ├── 04-slice-roadmap.md           # Slice order, deps, status
-│   ├── 05-traceability.md            # FR → layer → test id
-│   └── 06-harness-notes.md           # Guards, flywheel
+│   ├── 04-slice-roadmap.md           # Slice order, lane status (Contract/BE/FE/E2E)
+│   ├── 05-traceability.md            # FR → Role → layer → test id
+│   ├── 06-harness-notes.md           # Guards, flywheel
+│   └── 07-api-contracts.md           # Commands/Queries/DTOs + fake scenarios (FE↔BE)
 ├── Epic-{nn}-{slug}/
 │   ├── 01-overview.md
 │   └── US-{nn}/
@@ -60,14 +61,57 @@ Link [docs/architecture/README.md](../../architecture/README.md) — không dupl
 
 ---
 
+## harness/04-slice-roadmap.md — lane columns
+
+Mỗi slice track 4 lane + parallel group. **Prerequisite chỉ bind lane E2E**, không block FE fake / BE handler test.
+
+```markdown
+| # | Slice | Type | Contract | BE | FE | E2E | Parallel group | E2E blocked by |
+```
+
+Status mỗi lane: `todo` | `in_progress` | `done` | `blocked` | `n/a`
+
+**Slice done** = Contract + BE + FE + E2E đều `done` (hoặc `n/a`).
+
+---
+
 ## harness/05-traceability.md
 
 ```markdown
 <!-- exemplar-complete: deferred | e01/u02 -->
-| Req ID | Enforce layer | Artifact | Presentation artifact | Test id | Status |
+| Req ID | Role | Contract § | Enforce layer | Artifact | Test id | Status |
 ```
 
-Test id: `scn_e01_u02_fr06_01` (handler), `wgt_e02_u01_fr03_01` (widget dialog)
+Role: `CONTRACT` | `BE` | `FE` | `E2E`
+
+Test id: `scn_e01_u02_fr06_01` (handler/BE), `wgt_e02_u01_fr03_01` (widget/FE), `e2e_e01_u02_fr06_01` (integration)
+
+---
+
+## harness/07-api-contracts.md
+
+Source of truth giữa BE và FE. Mỗi US một section:
+
+```markdown
+## Epic-{nn} / US-{nn} — {title}
+
+### Commands / Queries
+| Symbol | Input | Success | Errors |
+| RegisterPartnerCommand | ... | RegisterPartnerResult | Validation, PermissionDenied |
+
+### RPC mapping (BE)
+Link [03-architecture-and-flows.md](03-architecture-and-flows.md) — không duplicate RPC chi tiết.
+
+### Fake scenarios (FE)
+| scenario_id | trigger | fake response |
+| save_ok | valid form submit | RegisterPartnerResult with partnerId |
+
+### Parallel notes
+- FE có thể fake: yes/no
+- E2E prerequisite: US-xx (data only)
+```
+
+Contract types live in `modules/<owner>/application/` — doc links symbols, không copy field list dài nếu đã có trong code.
 
 ---
 
@@ -91,7 +135,7 @@ Agent tạo widget manifest từ bảng này **trước** khi implement.
 | Status | Yêu cầu |
 | ------ | ------- |
 | `planned` | README optional; Epic tree khi có SRS |
-| `in_progress` | README + harness/00..06 + Epic/US/FR |
+| `in_progress` | README + harness/00..07 + Epic/US/FR |
 | `mvp` / `done` | Giống `in_progress` + traceability exemplar |
 
 ---

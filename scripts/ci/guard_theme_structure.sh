@@ -27,6 +27,7 @@ harness_files=(
   "04-slice-roadmap.md"
   "05-traceability.md"
   "06-harness-notes.md"
+  "07-api-contracts.md"
 )
 
 is_in_progress_theme() {
