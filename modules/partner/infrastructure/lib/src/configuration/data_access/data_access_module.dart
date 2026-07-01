@@ -51,6 +51,15 @@ final class PartnerDataAccessModule {
       ..registerSingleton<ICommandValidator<UpdatePartnerProfileCommand>>(
         UpdatePartnerProfileCommandValidator(),
       )
+      ..registerSingleton<ICommandValidator<DeactivatePartnerCommand>>(
+        DeactivatePartnerCommandValidator(),
+      )
+      ..registerSingleton<ICommandValidator<ReactivatePartnerCommand>>(
+        ReactivatePartnerCommandValidator(),
+      )
+      ..registerSingleton<ICommandValidator<DeletePartnerCommand>>(
+        DeletePartnerCommandValidator(),
+      )
       ..registerSingleton(
         RegisterPartnerCommandHandler(
           commandGateway: container.get<IPartnerCommandGateway>(),
@@ -58,6 +67,21 @@ final class PartnerDataAccessModule {
       )
       ..registerSingleton(
         UpdatePartnerProfileCommandHandler(
+          commandGateway: container.get<IPartnerCommandGateway>(),
+        ),
+      )
+      ..registerSingleton(
+        DeactivatePartnerCommandHandler(
+          commandGateway: container.get<IPartnerCommandGateway>(),
+        ),
+      )
+      ..registerSingleton(
+        ReactivatePartnerCommandHandler(
+          commandGateway: container.get<IPartnerCommandGateway>(),
+        ),
+      )
+      ..registerSingleton(
+        DeletePartnerCommandHandler(
           commandGateway: container.get<IPartnerCommandGateway>(),
         ),
       )

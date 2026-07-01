@@ -130,6 +130,7 @@ abstract final class PartnerUiMapper {
       updatedBy: dto.updatedBy,
       updatedAt: _formatDateTime(dto.updatedAt),
       version: dto.version,
+      hasBusinessData: dto.hasBusinessData,
     );
   }
 
@@ -205,6 +206,56 @@ abstract final class PartnerUiMapper {
     );
   }
 
+  static DeactivatePartnerCommand toDeactivateCommand({
+    required String tenantId,
+    required String actorId,
+    required PartnerItemModel partner,
+  }) {
+    return DeactivatePartnerCommand(
+      tenantId: tenantId,
+      actorId: actorId,
+      partnerId: partner.id,
+      expectedVersion: partner.version,
+      currentStatus: statusFromLabel(partner.status),
+    );
+  }
+
+  static ReactivatePartnerCommand toReactivateCommand({
+    required String tenantId,
+    required String actorId,
+    required PartnerItemModel partner,
+  }) {
+    return ReactivatePartnerCommand(
+      tenantId: tenantId,
+      actorId: actorId,
+      partnerId: partner.id,
+      expectedVersion: partner.version,
+      currentStatus: statusFromLabel(partner.status),
+    );
+  }
+
+  static DeletePartnerCommand toDeleteCommand({
+    required String tenantId,
+    required String actorId,
+    required PartnerItemModel partner,
+    required bool hasBusinessData,
+  }) {
+    return DeletePartnerCommand(
+      tenantId: tenantId,
+      actorId: actorId,
+      partnerId: partner.id,
+      expectedVersion: partner.version,
+      hasBusinessData: hasBusinessData,
+    );
+  }
+
+  static PartnerStatus statusFromLabel(String label) {
+    return switch (label) {
+      'Ngừng hoạt động' => PartnerStatus.inactive,
+      _ => PartnerStatus.active,
+    };
+  }
+
   static UpdatePartnerProfileCommand toUpdateCommand({
     required String tenantId,
     required String actorId,
@@ -223,6 +274,7 @@ abstract final class PartnerUiMapper {
       displayName: trimmedName,
       phone: state.phone.trim(),
       roles: toRoles(state.role),
+      currentStatus: _statusFromKey(state.statusKey),
       confirmDuplicate: confirmDuplicate,
       individualName: entityType == EntityType.individual ? trimmedName : null,
       businessName: entityType == EntityType.householdBusiness ? trimmedName : null,
@@ -244,6 +296,13 @@ abstract final class PartnerUiMapper {
       PartnerDuplicateField.taxCode => 'Mã số thuế',
     };
     return '$fieldLabel đã tồn tại (${match.displayName}).';
+  }
+
+  static PartnerStatus _statusFromKey(String statusKey) {
+    return switch (statusKey) {
+      'inactive' => PartnerStatus.inactive,
+      _ => PartnerStatus.active,
+    };
   }
 
   static String _avatarText(String name) {

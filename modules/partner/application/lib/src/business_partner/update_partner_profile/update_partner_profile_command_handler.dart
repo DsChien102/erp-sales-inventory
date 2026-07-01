@@ -28,7 +28,7 @@ final class UpdatePartnerProfileCommandHandler
       companyName: _optionalName(command.companyName),
       phone: PhoneNumber(command.phone),
       roles: command.roles,
-      status: PartnerStatus.active,
+      status: command.currentStatus,
       createdBy: command.actorId,
       createdAt: DateTime.fromMillisecondsSinceEpoch(0, isUtc: true),
       updatedBy: command.actorId,

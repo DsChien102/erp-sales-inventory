@@ -2,7 +2,10 @@ library;
 
 export 'src/business_partner/business_partner.dart';
 export 'src/business_partner/business_partner_role.dart';
+export 'src/business_partner/events/partner_deactivated.dart';
+export 'src/business_partner/events/partner_deleted.dart';
 export 'src/business_partner/events/partner_profile_updated.dart';
+export 'src/business_partner/events/partner_reactivated.dart';
 export 'src/business_partner/events/partner_registered.dart';
 export 'src/business_partner/repositories/i_business_partner_repository.dart';
 export 'src/business_partner/repositories/i_partner_duplicate_checker.dart';

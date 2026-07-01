@@ -12,6 +12,11 @@ report() {
   failed=1
 }
 
+is_valid_role() {
+  local role="$1"
+  [[ "$role" == "CONTRACT" || "$role" == "BE" || "$role" == "FE" || "$role" == "E2E" ]]
+}
+
 for theme_dir in "$themes_root"/TH-*/; do
   [[ -d "$theme_dir" ]] || continue
 
@@ -23,13 +28,25 @@ for theme_dir in "$themes_root"/TH-*/; do
     continue
   fi
 
-  # When exemplar is marked complete, every SCN row needs a test id.
+  echo "Checking traceability exemplar: $(basename "$theme_dir")"
+
   while IFS= read -r line; do
-    [[ "$line" =~ SCN ]] || continue
-    if [[ ! "$line" =~ scn_[a-z0-9_]+ ]]; then
-      report "SCN row missing test id in $traceability: $line"
+    [[ "$line" =~ ^\| ]] || continue
+    [[ "$line" =~ Req\ ID ]] && continue
+    [[ "$line" =~ ^\|[[:space:]]*-+[[:space:]]*\| ]] && continue
+    [[ "$line" =~ _pending_ ]] && continue
+    [[ "$line" =~ placeholder ]] && continue
+
+    # Expect: | Req ID | Role | Contract § | ...
+    role="$(echo "$line" | awk -F'|' 'NF >= 3 { gsub(/^ +| +$/, "", $3); print $3 }')"
+    if [[ -z "$role" ]] || ! is_valid_role "$role"; then
+      report "traceability row missing Role (CONTRACT|BE|FE|E2E) in $traceability: $line"
     fi
-  done < <(rg 'SCN' "$traceability" 2>/dev/null || true)
+
+    if [[ "$line" =~ SCN ]] && [[ ! "$line" =~ scn_[a-z0-9_]+ ]]; then
+      report "SCN row missing scn_* test id in $traceability: $line"
+    fi
+  done < "$traceability"
 done
 
 if [[ "$failed" -ne 0 ]]; then

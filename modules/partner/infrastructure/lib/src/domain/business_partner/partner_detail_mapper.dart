@@ -36,6 +36,7 @@ abstract final class PartnerDetailMapper {
       updatedBy: row['updated_by'] as String,
       updatedAt: DateTime.parse(row['updated_at'] as String),
       version: (row['version'] as num).toInt(),
+      hasBusinessData: row['has_business_data'] == true,
     );
   }
 

@@ -10,6 +10,7 @@ Tài liệu này là **điểm vào chính** cho AI coding agents. Nếu thông 
 | `modules/iam/` | **Golden module** — codegen bật, auth + tenant/membership interim; xem [modules/iam/README.md](modules/iam/README.md) |
 | `packages/vet45_generator/test/fixtures/` | Reference CQRS tạm (khi chưa cần đọc IAM) |
 | `packages/vet45_shared/testing/` | Test harness (`PipelineTestHarness`, fakes) |
+| `modules/partner/` | **TH-03 in progress** — Epic-01 profile CRUD done; Epic-02/US-01 status mutations; harness lanes BE/FE/E2E |
 | `modules/*` (các context khác) | **Greenfield skeleton** — chưa codegen |
 | `apps/erp/features/auth/` | Auth **presentation shell** — login/logout qua `IIamModule` / `IamStartup` |
 | `apps/messaging_worker/` | Worker messaging — có tests |
@@ -64,7 +65,7 @@ Canonical specs (mirror của skills): `docs/application_layer_skill.md`, `docs/
 1. Đọc AGENTS.md + .cursor/rules/vet45-architecture.mdc
 2. Đọc docs/harness/PROGRESS.md — biết harness đã hoàn thành gì
 2b. Nếu task gắn theme (vd. TH-03): đọc docs/themes/TH-xx-*/README.md
-     → harness/00-agent-ritual.md → slice-roadmap → US/FR product spec
+     → harness/00-agent-ritual.md → 07-api-contracts → slice-roadmap (lane) → US/FR
 3. Xác định layer → mở skill tương ứng
      (presentation/UI → presentation-layer skill + UI artifacts trong FR)
 4. Implement (minimal diff, match conventions hiện có)
@@ -111,7 +112,8 @@ cd apps/messaging_worker && dart test
 Theme đang deliver: [docs/themes/TH-03-partner/](docs/themes/TH-03-partner/)
 
 - Ritual: [harness/00-agent-ritual.md](docs/themes/TH-03-partner/harness/00-agent-ritual.md)
-- Slice order: [harness/04-slice-roadmap.md](docs/themes/TH-03-partner/harness/04-slice-roadmap.md)
+- Contracts: [harness/07-api-contracts.md](docs/themes/TH-03-partner/harness/07-api-contracts.md)
+- Slice order + lanes: [harness/04-slice-roadmap.md](docs/themes/TH-03-partner/harness/04-slice-roadmap.md)
 
 ## Liên kết
 

@@ -10,9 +10,15 @@ import '../value_objects/partner_name.dart';
 import '../value_objects/phone_number.dart';
 import '../value_objects/tax_code.dart';
 import 'business_partner_role.dart';
+import 'events/partner_deactivated.dart';
+import 'events/partner_deleted.dart';
 import 'events/partner_profile_updated.dart';
+import 'events/partner_reactivated.dart';
 import 'events/partner_registered.dart';
 import 'rules/entity_type_name_consistency_rule.dart';
+import 'rules/partner_must_be_active_to_deactivate_rule.dart';
+import 'rules/partner_must_be_inactive_to_reactivate_rule.dart';
+import 'rules/partner_must_have_no_transaction_history_rule.dart';
 import 'rules/partner_must_have_at_least_one_role_rule.dart';
 import 'rules/partner_name_required_rule.dart';
 import 'rules/phone_required_rule.dart';
@@ -205,6 +211,135 @@ final class BusinessPartner extends Entity<BusinessPartnerId>
     updated._validateRegisterInvariants();
     updated.addDomainEvent(
       PartnerProfileUpdated(
+        partnerId: id,
+        tenantId: tenantId,
+        displayName: displayName.value,
+      ),
+    );
+    return updated;
+  }
+
+  BusinessPartner deactivate({
+    required String actorId,
+    String? statusNote,
+    DateTime? now,
+  }) {
+    checkRule(PartnerMustBeActiveToDeactivateRule(status: status));
+
+    final updatedAt = now ?? DateTime.now();
+    final resolvedNote = statusNote?.trim().isEmpty ?? true ? null : statusNote?.trim();
+    final updated = BusinessPartner._(
+      id: id,
+      tenantId: tenantId,
+      entityType: entityType,
+      displayName: displayName,
+      individualName: individualName,
+      businessName: businessName,
+      companyName: companyName,
+      phone: phone,
+      email: email,
+      taxCode: taxCode,
+      address: address,
+      invoiceProfile: invoiceProfile,
+      bankAccount: bankAccount,
+      roles: roles,
+      status: PartnerStatus.inactive,
+      note: note,
+      createdBy: createdBy,
+      createdAt: createdAt,
+      updatedBy: actorId,
+      updatedAt: updatedAt,
+      version: version,
+    );
+
+    updated.addDomainEvent(
+      PartnerDeactivated(
+        partnerId: id,
+        tenantId: tenantId,
+        statusNote: resolvedNote,
+      ),
+    );
+    return updated;
+  }
+
+  BusinessPartner reactivate({
+    required String actorId,
+    DateTime? now,
+  }) {
+    checkRule(PartnerMustBeInactiveToReactivateRule(status: status));
+
+    final updatedAt = now ?? DateTime.now();
+    final updated = BusinessPartner._(
+      id: id,
+      tenantId: tenantId,
+      entityType: entityType,
+      displayName: displayName,
+      individualName: individualName,
+      businessName: businessName,
+      companyName: companyName,
+      phone: phone,
+      email: email,
+      taxCode: taxCode,
+      address: address,
+      invoiceProfile: invoiceProfile,
+      bankAccount: bankAccount,
+      roles: roles,
+      status: PartnerStatus.active,
+      note: note,
+      createdBy: createdBy,
+      createdAt: createdAt,
+      updatedBy: actorId,
+      updatedAt: updatedAt,
+      version: version,
+    );
+
+    updated.addDomainEvent(
+      PartnerReactivated(
+        partnerId: id,
+        tenantId: tenantId,
+      ),
+    );
+    return updated;
+  }
+
+  BusinessPartner delete({
+    required String actorId,
+    required bool hasTransactionHistory,
+    DateTime? now,
+  }) {
+    checkRule(
+      PartnerMustHaveNoTransactionHistoryRule(
+        hasTransactionHistory: hasTransactionHistory,
+      ),
+    );
+
+    final updatedAt = now ?? DateTime.now();
+    final updated = BusinessPartner._(
+      id: id,
+      tenantId: tenantId,
+      entityType: entityType,
+      displayName: displayName,
+      individualName: individualName,
+      businessName: businessName,
+      companyName: companyName,
+      phone: phone,
+      email: email,
+      taxCode: taxCode,
+      address: address,
+      invoiceProfile: invoiceProfile,
+      bankAccount: bankAccount,
+      roles: roles,
+      status: status,
+      note: note,
+      createdBy: createdBy,
+      createdAt: createdAt,
+      updatedBy: actorId,
+      updatedAt: updatedAt,
+      version: version,
+    );
+
+    updated.addDomainEvent(
+      PartnerDeleted(
         partnerId: id,
         tenantId: tenantId,
         displayName: displayName.value,

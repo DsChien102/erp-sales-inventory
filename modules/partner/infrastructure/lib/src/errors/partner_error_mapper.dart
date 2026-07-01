@@ -25,9 +25,23 @@ ApplicationException mapPartnerRpcError(RpcException error) {
     );
   }
 
+  if (message.contains('partner has transaction history')) {
+    return ApplicationException(
+      'Hồ sơ đã phát sinh giao dịch. Không thể xóa.',
+      cause: error,
+    );
+  }
+
   if (message.contains('partner not found')) {
     return ApplicationException(
       'Không tìm thấy đối tác.',
+      cause: error,
+    );
+  }
+
+  if (message.contains('invalid status transition')) {
+    return ApplicationException(
+      'Trạng thái đối tác đã thay đổi. Vui lòng tải lại và thử lại.',
       cause: error,
     );
   }

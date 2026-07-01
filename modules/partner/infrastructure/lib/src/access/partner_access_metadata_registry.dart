@@ -30,5 +30,17 @@ final IAccessMetadataRegistry partnerAccessMetadataRegistry = AccessMetadataRegi
       permission: PartnerPermissions.update,
       requiresTenant: true,
     ),
+    DeactivatePartnerCommand: const AccessMetadata(
+      permission: PartnerPermissions.manageStatus,
+      requiresTenant: true,
+    ),
+    ReactivatePartnerCommand: const AccessMetadata(
+      permission: PartnerPermissions.manageStatus,
+      requiresTenant: true,
+    ),
+    DeletePartnerCommand: const AccessMetadata(
+      permission: PartnerPermissions.delete,
+      requiresTenant: true,
+    ),
   },
 );

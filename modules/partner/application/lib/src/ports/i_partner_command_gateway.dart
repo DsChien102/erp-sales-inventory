@@ -14,4 +14,23 @@ abstract interface class IPartnerCommandGateway {
     required int expectedVersion,
     required String actorId,
   });
+
+  Future<int> deactivate({
+    required BusinessPartner partner,
+    required int expectedVersion,
+    required String actorId,
+    String? statusNote,
+  });
+
+  Future<int> reactivate({
+    required BusinessPartner partner,
+    required int expectedVersion,
+    required String actorId,
+  });
+
+  Future<void> delete({
+    required BusinessPartner partner,
+    required int expectedVersion,
+    required String actorId,
+  });
 }

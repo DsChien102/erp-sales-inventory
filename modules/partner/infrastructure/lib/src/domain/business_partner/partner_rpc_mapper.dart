@@ -81,6 +81,47 @@ abstract final class PartnerRpcMapper {
     };
   }
 
+  static Map<String, dynamic> deactivatePartnerParams({
+    required BusinessPartner partner,
+    required int expectedVersion,
+    required String actorId,
+    String? statusNote,
+  }) {
+    return <String, dynamic>{
+      'p_tenant_id': partner.tenantId.value,
+      'p_partner_id': partner.id.value,
+      'p_expected_version': expectedVersion,
+      'p_actor_id': actorId,
+      'p_status_note': statusNote,
+    };
+  }
+
+  static Map<String, dynamic> reactivatePartnerParams({
+    required BusinessPartner partner,
+    required int expectedVersion,
+    required String actorId,
+  }) {
+    return <String, dynamic>{
+      'p_tenant_id': partner.tenantId.value,
+      'p_partner_id': partner.id.value,
+      'p_expected_version': expectedVersion,
+      'p_actor_id': actorId,
+    };
+  }
+
+  static Map<String, dynamic> deletePartnerParams({
+    required BusinessPartner partner,
+    required int expectedVersion,
+    required String actorId,
+  }) {
+    return <String, dynamic>{
+      'p_tenant_id': partner.tenantId.value,
+      'p_partner_id': partner.id.value,
+      'p_expected_version': expectedVersion,
+      'p_actor_id': actorId,
+    };
+  }
+
   static Map<String, dynamic> checkDuplicateParams({
     required String tenantId,
     PhoneNumber? phone,

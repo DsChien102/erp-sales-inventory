@@ -4,4 +4,6 @@ abstract final class PartnerPermissions {
   static const create = 'partner.create';
   static const viewDetail = 'partner.view_detail';
   static const update = 'partner.update';
+  static const manageStatus = 'partner.manage_status';
+  static const delete = 'partner.delete';
 }

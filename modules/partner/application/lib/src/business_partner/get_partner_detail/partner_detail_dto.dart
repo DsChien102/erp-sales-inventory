@@ -13,6 +13,7 @@ final class PartnerDetailDto {
     required this.version,
     required this.createdBy,
     required this.updatedBy,
+    this.hasBusinessData = false,
     this.email,
     this.address,
     this.taxCode,
@@ -52,4 +53,5 @@ final class PartnerDetailDto {
   final String updatedBy;
   final DateTime updatedAt;
   final int version;
+  final bool hasBusinessData;
 }

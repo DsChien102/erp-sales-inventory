@@ -41,7 +41,10 @@ class PartnerItemModel {
     this.billingAddress = '',
     this.billingEmail = '',
     this.version = 1,
+    this.hasBusinessData = false,
   });
+
+  final bool hasBusinessData;
 }
 
 class PartnerListState {
