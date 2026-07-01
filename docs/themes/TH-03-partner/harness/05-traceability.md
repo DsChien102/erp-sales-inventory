@@ -61,7 +61,7 @@ Contracts: [07-api-contracts.md](07-api-contracts.md)
 | FR-06 | BE | §US-03 | application | `UpdatePartnerProfileCommandHandler` | scn_e01_u03_fr06_01 | done |
 | FR-04 | BE | §US-03 | domain | `BusinessPartner.updateProfile` | scn_e01_u03_fr04_01 | done |
 | FR-03 | BE | §US-03 | infrastructure | `partner.update_partner` RPC | — | done |
-| FR-01..06 | FE | §US-03 | presentation | `partner_edit_page.dart`, edit cubit/widgets | — | done |
+| FR-01..06 | FE | §US-03 | presentation | `partner_edit_page.dart`, edit cubit/widgets | wgt_e01_u03_fr01_01 | done |
 | FR-06 | E2E | §US-03 | integration | edit save via real module | — | done |
 
 ---

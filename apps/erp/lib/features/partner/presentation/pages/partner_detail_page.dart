@@ -50,6 +50,15 @@ class _PartnerDetailPageState extends State<PartnerDetailPage> {
     final cubit = context.read<PartnerDetailCubit>();
 
     if (action == 'delete') {
+      if (!_canDelete) {
+        VToast.show(
+          context,
+          title: 'Lỗi',
+          message: 'Bạn không có quyền phù hợp.',
+          type: VToastType.danger,
+        );
+        return;
+      }
       final partner = cubit.state.partner;
       if (partner == null) {
         return;
@@ -79,6 +88,15 @@ class _PartnerDetailPageState extends State<PartnerDetailPage> {
     }
 
     if (action == 'deactivate') {
+      if (!_canManageStatus) {
+        VToast.show(
+          context,
+          title: 'Lỗi',
+          message: 'Bạn không có quyền phù hợp.',
+          type: VToastType.danger,
+        );
+        return;
+      }
       final partner = cubit.state.partner;
       if (partner == null) {
         return;
@@ -100,6 +118,15 @@ class _PartnerDetailPageState extends State<PartnerDetailPage> {
     }
 
     if (action == 'activate') {
+      if (!_canManageStatus) {
+        VToast.show(
+          context,
+          title: 'Lỗi',
+          message: 'Bạn không có quyền phù hợp.',
+          type: VToastType.danger,
+        );
+        return;
+      }
       final partner = cubit.state.partner;
       if (partner == null) {
         return;
@@ -157,7 +184,6 @@ class _PartnerDetailPageState extends State<PartnerDetailPage> {
               message: state.errorMessage!,
               type: VToastType.danger,
             );
-            context.pop();
             return;
           }
 
@@ -186,6 +212,37 @@ class _PartnerDetailPageState extends State<PartnerDetailPage> {
           );
         },
         builder: (context, state) {
+          if (state.status == PartnerDetailStatus.failure && state.partner == null) {
+            return Scaffold(
+              backgroundColor: dynamicColors.background,
+              appBar: const VAppBar(title: 'Chi tiết KH & NCC'),
+              body: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(
+                      Icons.error_outline,
+                      size: 48,
+                      color: VColors.danger,
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      'Không thể tải dữ liệu',
+                      style: VTypography.headingH4,
+                    ),
+                    const SizedBox(height: 16),
+                    VButton(
+                      variant: VButtonVariant.outline,
+                      onPressed: () =>
+                          context.read<PartnerDetailCubit>().load(widget.partnerId),
+                      label: 'Tải lại',
+                    ),
+                  ],
+                ),
+              ),
+            );
+          }
+
           if (state.status == PartnerDetailStatus.loading && state.partner == null) {
             return Scaffold(
               backgroundColor: dynamicColors.background,
@@ -231,7 +288,7 @@ class _PartnerDetailPageState extends State<PartnerDetailPage> {
                 PartnerDetailMenu(
                   partner: partner,
                   canManageStatus: _canManageStatus,
-                  canDelete: _canDelete,
+                  canDelete: _canDelete && state.canDelete,
                   onActionSelected: state.isChangingStatus || state.isDeletingPartner
                       ? null
                       : (action) => _handleMenuAction(context, action),
@@ -268,6 +325,15 @@ class _PartnerDetailPageState extends State<PartnerDetailPage> {
                       padding: const EdgeInsets.all(VSpacing.space4),
                       child: VButton(
                         onPressed: () async {
+                          if (!_canUpdate) {
+                            VToast.show(
+                              context,
+                              title: 'Lỗi',
+                              message: 'Bạn không có quyền phù hợp.',
+                              type: VToastType.danger,
+                            );
+                            return;
+                          }
                           final updated = await Navigator.push<bool>(
                             context,
                             MaterialPageRoute(
