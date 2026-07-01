@@ -6,6 +6,7 @@ class TransactionFilterBottomSheet extends StatefulWidget {
     required this.initialTimeFilter,
     required this.initialTypeFilter,
     required this.initialStatusFilter,
+    required this.partnerRole,
     required this.onApply,
     required this.onReset,
     super.key,
@@ -14,6 +15,10 @@ class TransactionFilterBottomSheet extends StatefulWidget {
   final String initialTimeFilter;
   final String initialTypeFilter;
   final String initialStatusFilter;
+  /// Vai trò đối tác: dùng để lọc loại giao dịch hiển thị trong bộ lọc.
+  /// Khách hàng: ẩn Phiếu nhập hàng.
+  /// Nhà cung cấp: ẩn Đơn bán hàng.
+  final String partnerRole;
   final void Function(String time, String type, String status) onApply;
   final VoidCallback onReset;
 
@@ -36,9 +41,24 @@ class _TransactionFilterBottomSheetState
     _tempStatus = widget.initialStatusFilter;
   }
 
-  // FR-03 EC-03 chỉ áp dụng cho bộ lọc VAI TRÒ (Khách hàng / Nhà cung cấp),
-  // không áp dụng cho bộ lọc loại giao dịch. Spec FR-03 BR-02 không định nghĩa
-  // loại giao dịch nào thuộc vai trò nào — hiển thị đầy đủ tất cả loại.
+  /// Tính danh sách loại giao dịch theo vai trò đối tác.
+  /// - Chỉ Khách hàng: ẩn "Phiếu nhập hàng" (purchase).
+  /// - Chỉ Nhà cung cấp: ẩn "Đơn bán hàng" (sales).
+  /// - Cả hai vai trò hoặc không xác định: hiển thị tất cả.
+  List<(String, String)> _typeOptions() {
+    final role = widget.partnerRole.toLowerCase();
+    final isCustomerOnly =
+        role.contains('khách hàng') && !role.contains('nhà cung cấp');
+    final isSupplierOnly =
+        role.contains('nhà cung cấp') && !role.contains('khách hàng');
+    return [
+      ('Tất cả', 'all'),
+      if (!isSupplierOnly) ('Đơn bán hàng', 'sales'),
+      if (!isCustomerOnly) ('Phiếu nhập hàng', 'purchase'),
+      ('Hóa đơn bán hàng', 'invoice'),
+      ('Phiếu đổi/trả', 'return'),
+    ];
+  }
 
   Widget _buildFilterChip(
     BuildContext context,
@@ -164,13 +184,7 @@ class _TransactionFilterBottomSheetState
             _buildFilterSection(
               context,
               'LOẠI GIAO DỊCH',
-              [
-                ('Tất cả', 'all'),
-                ('Đơn bán hàng', 'sales'),
-                ('Phiếu nhập hàng', 'purchase'),
-                ('Hóa đơn bán hàng', 'invoice'),
-                ('Phiếu đổi/trả', 'return'),
-              ],
+              _typeOptions(),
               _tempType,
               (v) => _tempType = v,
             ),

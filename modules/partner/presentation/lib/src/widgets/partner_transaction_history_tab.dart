@@ -33,6 +33,7 @@ class PartnerTransactionHistoryTab extends StatelessWidget {
       builder: (context, state) {
         return _PartnerTransactionHistoryTabContent(
           state: state,
+          partnerRole: partner.role,
         );
       },
     );
@@ -42,9 +43,11 @@ class PartnerTransactionHistoryTab extends StatelessWidget {
 class _PartnerTransactionHistoryTabContent extends StatefulWidget {
   const _PartnerTransactionHistoryTabContent({
     required this.state,
+    required this.partnerRole,
   });
 
   final PartnerDetailState state;
+  final String partnerRole;
 
   @override
   State<_PartnerTransactionHistoryTabContent> createState() =>
@@ -71,6 +74,7 @@ class _PartnerTransactionHistoryTabContentState
         initialTimeFilter: _timeFilter,
         initialTypeFilter: _typeFilter,
         initialStatusFilter: _statusFilter,
+        partnerRole: widget.partnerRole,
         onApply: (time, type, status) {
           setState(() {
             _timeFilter = time;
