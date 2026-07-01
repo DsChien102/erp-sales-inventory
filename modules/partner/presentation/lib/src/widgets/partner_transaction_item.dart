@@ -89,13 +89,22 @@ class PartnerTransactionItem extends StatelessWidget {
                         overflow: TextOverflow.ellipsis,
                       ),
                       const SizedBox(height: 2),
-                      Text(
-                        transaction.transactionCode ?? transaction.id,
-                        style: VTypography.bodySmall2.copyWith(
-                          color: dynamicColors.textSecondary,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Expanded(
+                            child: Text(
+                              transaction.transactionCode ?? transaction.id,
+                              style: VTypography.bodySmall2.copyWith(
+                                color: dynamicColors.textSecondary,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                          const SizedBox(width: VSpacing.space2),
+                          _buildRoleBadge(context, transaction.transactionRole),
+                        ],
                       ),
                     ],
                   ),
@@ -155,6 +164,36 @@ class PartnerTransactionItem extends StatelessWidget {
               ],
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildRoleBadge(BuildContext context, String role) {
+    final colors = context.vColors;
+    final r = role.toLowerCase().trim();
+    if (r != 'customer' && r != 'supplier') {
+      return const SizedBox.shrink();
+    }
+    final isCustomer = r == 'customer';
+    final label = isCustomer ? 'Khách hàng' : 'Nhà cung cấp';
+    final badgeColor = isCustomer 
+        ? colors.primary.withValues(alpha: 0.08) 
+        : Colors.orange.withValues(alpha: 0.08);
+    final textColor = isCustomer ? colors.primary : Colors.orange;
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+      decoration: BoxDecoration(
+        color: badgeColor,
+        borderRadius: BorderRadius.circular(VRadius.r4),
+      ),
+      child: Text(
+        label,
+        style: VTypography.bodySmall.copyWith(
+          color: textColor,
+          fontSize: 10,
+          fontWeight: FontWeight.w600,
         ),
       ),
     );

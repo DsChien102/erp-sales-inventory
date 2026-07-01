@@ -46,11 +46,9 @@ class _TransactionFilterBottomSheetState
   /// - Chỉ Nhà cung cấp: ẩn "Đơn bán hàng" (sales).
   /// - Cả hai vai trò hoặc không xác định: hiển thị tất cả.
   List<(String, String)> _typeOptions() {
-    final role = widget.partnerRole.toLowerCase();
-    final isCustomerOnly =
-        role.contains('khách hàng') && !role.contains('nhà cung cấp');
-    final isSupplierOnly =
-        role.contains('nhà cung cấp') && !role.contains('khách hàng');
+    final role = widget.partnerRole.trim();
+    final isCustomerOnly = role == 'Khách hàng';
+    final isSupplierOnly = role == 'Nhà cung cấp';
     return [
       ('Tất cả', 'all'),
       if (!isSupplierOnly) ('Đơn bán hàng', 'sales'),
