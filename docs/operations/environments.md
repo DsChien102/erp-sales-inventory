@@ -66,9 +66,9 @@ File: [.circleci/config.yml](../../.circleci/config.yml)
 
 | Workflow | Mô tả |
 |---|---|
-| `verify` | Mọi push/PR — `melos analyze` + `flutter test` (Linux) |
-| `deploy_staging` | Manual approval — worker + iOS staging (macOS) |
-| `deploy_production` | Manual approval — worker + iOS production (macOS) |
+| `verify` | Mọi push/PR — `verify_workspace` (không test messaging worker) |
+| `deploy_staging` | Approval → `verify_messaging_worker` → deploy worker / iOS staging |
+| `deploy_production` | Approval → `verify_messaging_worker` → deploy worker / iOS production |
 
 **Contexts cần tạo trên CircleCI:**
 

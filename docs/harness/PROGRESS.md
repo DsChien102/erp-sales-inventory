@@ -7,7 +7,7 @@ Checklist tiến độ Harness Engineering. Agent đọc file này ở đầu se
 - [x] [AGENTS.md](../../AGENTS.md) — agent onboarding
 - [x] Docs reconciled — modules = skeleton, interim references documented
 - [x] [harness-engineering.md](../architecture/harness-engineering.md) — harness definition
-- [x] CI `verify_workspace` — analyze + harness guards + package tests
+- [x] CI `verify_workspace` — analyze + harness guards + package tests (worker test on deploy only)
 - [x] `scripts/ci/verify_harness.sh` + layer import guards
 - [x] `melos run test` — workspace package tests
 - [x] Skills + MODULE template — PipelineTestHarness section

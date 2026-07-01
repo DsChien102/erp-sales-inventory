@@ -69,9 +69,6 @@ jobs:
           name: ERP unit tests
           command: cd apps/erp && flutter test
       - run:
-          name: Messaging worker tests
-          command: cd apps/messaging_worker && dart test
-      - run:
           name: Validate env example files
           command: |
             for f in apps/erp/.env.example apps/erp/.env.staging.example apps/erp/.env.production.example; do
@@ -80,6 +77,24 @@ jobs:
               grep -q 'SUPABASE_CONNECTION_URL=' "$f"
               grep -q 'SUPABASE_ANON_KEY=' "$f"
             done
+      - save_pub_cache
+
+  verify_messaging_worker:
+    docker:
+      - <<: *flutter-ci-image
+    environment:
+      CI: true
+    steps:
+      - ssh_gitlab
+      - checkout
+      - restore_pub_cache
+      - bootstrap_workspace
+      - run:
+          name: Messaging worker tests
+          command: cd apps/messaging_worker && dart test
+      - run:
+          name: Messaging worker compile verify
+          command: ./apps/messaging_worker/scripts/verify_build.sh
       - save_pub_cache
 
   deploy_messaging_worker_staging:
@@ -161,10 +176,13 @@ workflows:
     jobs:
       - hold_deploy_staging:
           type: approval
+      - verify_messaging_worker:
+          requires:
+            - hold_deploy_staging
       - deploy_messaging_worker_staging:
           context: vet45-staging
           requires:
-            - hold_deploy_staging
+            - verify_messaging_worker
       - hold_staging_erp_deploy:
           type: approval
           requires:
@@ -183,10 +201,13 @@ workflows:
     jobs:
       - hold_production_deploy:
           type: approval
+      - verify_messaging_worker:
+          requires:
+            - hold_production_deploy
       - deploy_messaging_worker_production:
           context: vet45-production
           requires:
-            - hold_production_deploy
+            - verify_messaging_worker
       - hold_production_erp_deploy:
           type: approval
           requires:

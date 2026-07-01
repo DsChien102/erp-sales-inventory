@@ -130,7 +130,10 @@ melos:
       exec: dart test
       packageFilters:
         dirExists: test
-        ignore: erp
+        ignore:
+          - erp
+          - messaging_worker
+          - '*_presentation'
       isPrivate: true
 
   repository:

@@ -56,7 +56,7 @@ cd apps/erp && flutter test
 cd apps/messaging_worker && dart test
 ```
 
-CircleCI job `verify_workspace` trên mọi PR; deploy staging (approval) trên `dev`/`main`.
+CircleCI: `verify_workspace` trên mọi PR; `verify_messaging_worker` trong `deploy_staging` / `deploy_production` trước khi deploy worker.
 
 ### 4. Flywheel
 

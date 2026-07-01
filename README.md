@@ -141,9 +141,9 @@ Thiết lập App Store Connect: [docs/operations/testflight-asc-setup.md](docs/
 
 CircleCI (`.circleci/config.yml`):
 
-- **verify** — mọi push/PR: một job `verify_workspace` (bootstrap, analyze, harness guards, tests, env examples)
-- **deploy staging** — nhánh `dev` hoặc `main`: approval sau khi verify xanh → messaging worker và/hoặc iOS TestFlight staging
-- **deploy production** — nhánh `main`: approval kép → messaging worker và/hoặc iOS production
+- **verify** — mọi push/PR: `verify_workspace` (analyze, guards, melos test, ERP tests) — không gồm messaging worker
+- **deploy staging** — `dev`/`main`: approval → `verify_messaging_worker` → deploy worker / iOS
+- **deploy production** — `main`: approval → `verify_messaging_worker` → deploy worker / iOS
 
 ## Tài liệu
 
