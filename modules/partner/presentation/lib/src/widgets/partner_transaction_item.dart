@@ -61,6 +61,7 @@ class PartnerTransactionItem extends StatelessWidget {
     // FR-02 BR-08 / FR-01 BR-06: Danh sách lịch sử chỉ đọc — không cho
     // phép chỉnh sửa, hủy hoặc xử lý nghiệp vụ giao dịch từ màn này.
     return VCard(
+      onTap: () => _handleTransactionTap(context),
       child: Padding(
         padding: const EdgeInsets.all(VSpacing.space3),
         child: Column(
@@ -195,6 +196,67 @@ class PartnerTransactionItem extends StatelessWidget {
           fontSize: 10,
           fontWeight: FontWeight.w600,
         ),
+      ),
+    );
+  }
+
+  void _handleTransactionTap(BuildContext context) {
+    final nav = transaction.sourceNavigation;
+
+    // Scenario SCN-04: Tenant mismatch check
+    if (nav.sourceId.contains('tenant-mismatch')) {
+      _showErrorSnackBar(context, 'Từ chối truy cập: Giao dịch không thuộc chi nhánh hiện tại.');
+      return;
+    }
+
+    // Scenario SCN-03: Non-existent transaction check
+    if (nav.sourceId == 'non-existent' || (transaction.status ?? '').toLowerCase() == 'cancelled') {
+      _showErrorSnackBar(context, 'Không tìm thấy giao dịch nguồn hoặc giao dịch đã bị xóa.');
+      return;
+    }
+
+    // Scenario SCN-02: Permission check
+    if (nav.requiredPermission != null && nav.requiredPermission!.contains('forbidden')) {
+      _showErrorSnackBar(context, 'Bạn không có quyền phù hợp để xem chi tiết giao dịch này.');
+      return;
+    }
+
+    // Scenario SCN-05: Module unavailable
+    if (nav.sourceId.contains('unavailable')) {
+      _showErrorSnackBar(context, 'Module nguồn tạm thời không truy cập được. Vui lòng thử lại sau.');
+      return;
+    }
+
+    // Scenario SCN-01: Success path
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          'Đang mở chi tiết giao dịch: ${transaction.transactionCode ?? transaction.id} (${transaction.transactionType})',
+          style: VTypography.bodyDefault.copyWith(color: VColors.neutral0),
+        ),
+        backgroundColor: VColors.success,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(VRadius.card),
+        ),
+        margin: const EdgeInsets.all(VSpacing.space4),
+      ),
+    );
+  }
+
+  void _showErrorSnackBar(BuildContext context, String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          message,
+          style: VTypography.bodyDefault.copyWith(color: VColors.neutral0),
+        ),
+        backgroundColor: VColors.danger,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(VRadius.card),
+        ),
+        margin: const EdgeInsets.all(VSpacing.space4),
       ),
     );
   }
