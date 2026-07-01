@@ -152,44 +152,29 @@ workflows:
   verify:
     jobs:
       - verify_workspace
+
+  deploy_staging:
+    when:
+      or:
+        - equal: [dev, << pipeline.git.branch >>]
+        - equal: [main, << pipeline.git.branch >>]
+    jobs:
       - hold_deploy_staging:
           type: approval
-          requires:
-            - verify_workspace
-          filters:
-            branches:
-              only:
-                - dev
-                - main
       - deploy_messaging_worker_staging:
           context: vet45-staging
           requires:
             - hold_deploy_staging
-          filters:
-            branches:
-              only:
-                - dev
-                - main
       - hold_staging_erp_deploy:
           type: approval
           requires:
             - deploy_messaging_worker_staging
-          filters:
-            branches:
-              only:
-                - dev
-                - main
       - deploy_erp_ios_staging:
           context:
             - vet45-staging
             - vet45-deploy
           requires:
             - hold_staging_erp_deploy
-          filters:
-            branches:
-              only:
-                - dev
-                - main
 
   deploy_production:
     when:
