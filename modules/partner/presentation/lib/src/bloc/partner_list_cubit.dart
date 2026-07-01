@@ -1,127 +1,121 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:vet45_partner_application/application.dart';
+import 'package:vet45_partner_domain/domain.dart';
+import 'package:vet45_shared_application/application.dart';
+
+import '../mappers/partner_ui_mapper.dart';
+import '../models/partner_filter_counts.dart';
+import '../utils/partner_presentation_errors.dart';
 import 'partner_list_state.dart';
 
 class PartnerListCubit extends Cubit<PartnerListState> {
-  PartnerListCubit() : super(const PartnerListState()) {
-    _loadMockData();
+  PartnerListCubit({
+    required IPartnerModule partnerModule,
+    required IExecutionContext executionContext,
+  })  : _partnerModule = partnerModule,
+        _executionContext = executionContext,
+        super(const PartnerListState()) {
+    load();
   }
 
-  final List<PartnerItemModel> _allPartners = [
-    const PartnerItemModel(
-      id: '1',
-      avatarText: 'MP',
-      name: 'Đại lý Chăn nuôi Minh Phát',
-      role: 'Nhà cung cấp',
-      status: 'Đang hoạt động',
-      phone: '028 3822 5511',
-      email: '',
-      taxId: '0109988776',
-      updatedAt: '11:05 18/06/2026',
-      address: '215 Cộng Hòa, P.13, Tân Bình, TP.HCM',
-      note: '',
-      profileType: 'Công ty',
-      creator: 'Trần Minh',
-      createdAt: '08:00 20/11/2024',
-      updatedBy: 'Lê Quang',
-    ),
-    const PartnerItemModel(
-      id: '2',
-      avatarText: 'TH',
-      name: 'Trần Thị Hoa',
-      role: 'Khách hàng',
-      status: 'Đang hoạt động',
-      phone: '0987 654 321',
-      email: 'hoa@example.com',
-      taxId: '',
-      updatedAt: '15/06/2026',
-    ),
-    const PartnerItemModel(
-      id: '3',
-      avatarText: 'ĐT',
-      name: 'Nguyễn Đức Trí',
-      role: 'Khách hàng & NCC',
-      status: 'Ngừng hoạt động',
-      phone: '0901 234 567',
-      email: 'tri@example.com',
-      taxId: '023131231',
-      updatedAt: '10/06/2026',
-    ),
-    const PartnerItemModel(
-      id: '4',
-      avatarText: 'VA',
-      name: 'Nguyễn Văn An',
-      role: 'Khách hàng',
-      status: 'Đang hoạt động',
-      phone: '0912 345 678',
-      email: 'an@example.com',
-      taxId: '',
-      updatedAt: '30/05/2026',
-    ),
-  ];
+  final IPartnerModule _partnerModule;
+  final IExecutionContext _executionContext;
 
-  void _loadMockData() {
-    emit(state.copyWith(status: PartnerListStatus.loading));
-    
-    // Simulate network delay
-    Future.delayed(const Duration(milliseconds: 500), () {
-      _applyFilters();
-    });
+  Future<void> load() async {
+    emit(
+      state.copyWith(
+        status: PartnerListStatus.loading,
+        clearErrorMessage: true,
+      ),
+    );
+
+    try {
+      final tenantId = await _executionContext.requireTenantId();
+      final criteria = PartnerUiMapper.toSearchCriteria(
+        searchQuery: state.searchQuery,
+        filterRole: state.filterRole,
+        filterProfileType: state.filterProfileType,
+        filterStatus: state.filterStatus,
+      );
+
+      final result = await _partnerModule.executeQueryAsync(
+        SearchPartnersQuery(
+          tenantId: tenantId,
+          criteria: criteria,
+        ),
+      );
+
+      emit(
+        state.copyWith(
+          status: PartnerListStatus.success,
+          partners: result.items
+              .map(PartnerUiMapper.toListItem)
+              .toList(growable: false),
+          clearErrorMessage: true,
+        ),
+      );
+    } catch (error) {
+      emit(
+        state.copyWith(
+          status: PartnerListStatus.failure,
+          errorMessage: partnerErrorMessage(error),
+        ),
+      );
+    }
   }
 
   void search(String query) {
     emit(state.copyWith(searchQuery: query));
-    _applyFilters();
+    load();
   }
 
-  void updateFilter({String? role, String? status}) {
-    emit(state.copyWith(
-      filterRole: role,
-      filterStatus: status,
-      clearRole: role == null,
-      clearStatus: status == null,
-    ));
-    _applyFilters();
+  Future<PartnerFilterCounts> fetchFilterCounts() async {
+    final tenantId = await _executionContext.requireTenantId();
+    final result = await _partnerModule.executeQueryAsync(
+      SearchPartnersQuery(
+        tenantId: tenantId,
+        criteria: PartnerSearchCriteria(
+          keyword: state.searchQuery.trim().isEmpty
+              ? null
+              : state.searchQuery.trim(),
+          statuses: {
+            PartnerStatus.active,
+            PartnerStatus.inactive,
+          },
+        ),
+        limit: 500,
+      ),
+    );
+
+    return PartnerUiMapper.toFilterCounts(result.items);
+  }
+
+  void updateFilter({
+    String? role,
+    String? profileType,
+    String? status,
+  }) {
+    emit(
+      state.copyWith(
+        filterRole: role,
+        filterProfileType: profileType,
+        filterStatus: status,
+        clearRole: role == null,
+        clearProfileType: profileType == null,
+        clearStatus: status == null,
+      ),
+    );
+    load();
   }
 
   void clearFilters() {
-    emit(state.copyWith(
-      clearRole: true,
-      clearStatus: true,
-    ));
-    _applyFilters();
-  }
-
-  void _applyFilters() {
-    var filteredList = _allPartners;
-
-    // Apply search filter
-    if (state.searchQuery.isNotEmpty) {
-      final query = state.searchQuery.toLowerCase();
-      filteredList = filteredList.where((p) {
-        return p.name.toLowerCase().contains(query) ||
-            p.phone.toLowerCase().contains(query) ||
-            p.email.toLowerCase().contains(query) ||
-            p.taxId.toLowerCase().contains(query);
-      }).toList();
-    }
-
-    // Apply role filter
-    if (state.filterRole != null && state.filterRole!.isNotEmpty) {
-      filteredList = filteredList.where((p) {
-        return p.role == state.filterRole;
-      }).toList();
-    }
-
-    // Apply status filter
-    if (state.filterStatus != null && state.filterStatus!.isNotEmpty) {
-      filteredList = filteredList.where((p) {
-        return p.status == state.filterStatus;
-      }).toList();
-    }
-
-    emit(state.copyWith(
-      status: PartnerListStatus.success,
-      partners: filteredList,
-    ));
+    emit(
+      state.copyWith(
+        clearRole: true,
+        clearProfileType: true,
+        clearStatus: true,
+      ),
+    );
+    load();
   }
 }

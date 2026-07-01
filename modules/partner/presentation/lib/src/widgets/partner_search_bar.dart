@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:vet45_design_system/design_system.dart';
+
 import '../bloc/partner_list_cubit.dart';
 import '../bloc/partner_list_state.dart';
+import '../models/partner_filter_counts.dart';
 import 'partner_filter_dialog.dart';
 
 class PartnerSearchBar extends StatefulWidget {
@@ -19,6 +21,20 @@ class _PartnerSearchBarState extends State<PartnerSearchBar> {
   void dispose() {
     _searchController.dispose();
     super.dispose();
+  }
+
+  int _activeFilterCount(PartnerListState state) {
+    var count = 0;
+    if (state.filterRole != null) {
+      count++;
+    }
+    if (state.filterProfileType != null) {
+      count++;
+    }
+    if (state.filterStatus != null && state.filterStatus != 'Đang hoạt động') {
+      count++;
+    }
+    return count;
   }
 
   @override
@@ -62,33 +78,11 @@ class _PartnerSearchBarState extends State<PartnerSearchBar> {
           const SizedBox(width: VSpacing.space2),
           BlocBuilder<PartnerListCubit, PartnerListState>(
             builder: (context, state) {
-              int activeFilters = 0;
-              if (state.filterRole != null) activeFilters++;
-              if (state.filterStatus != null && state.filterStatus != 'Đang hoạt động') activeFilters++;
-              
+              final activeFilters = _activeFilterCount(state);
               final isFilterActive = activeFilters > 0;
 
               return GestureDetector(
-                onTap: () async {
-                  final cubit = context.read<PartnerListCubit>();
-                  
-                  final result = await showModalBottomSheet<Map<String, String?>>(
-                    context: context,
-                    isScrollControlled: true,
-                    backgroundColor: Colors.transparent,
-                    builder: (context) => PartnerFilterDialog(
-                      initialRole: state.filterRole,
-                      initialStatus: state.filterStatus,
-                    ),
-                  );
-
-                  if (result != null) {
-                    cubit.updateFilter(
-                      role: result['role'],
-                      status: result['status'],
-                    );
-                  }
-                },
+                onTap: () => _openFilterSheet(context, state),
                 child: Badge(
                   isLabelVisible: isFilterActive,
                   label: Text('$activeFilters'),
@@ -97,22 +91,68 @@ class _PartnerSearchBarState extends State<PartnerSearchBar> {
                   child: Container(
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: isFilterActive ? VColors.successBg : dynamicColors.surface,
+                      color: isFilterActive
+                          ? VColors.successBg
+                          : dynamicColors.surface,
                       borderRadius: BorderRadius.circular(VRadius.input),
-                      border: Border.all(color: isFilterActive ? VColors.success : dynamicColors.borderDefault),
+                      border: Border.all(
+                        color: isFilterActive
+                            ? VColors.success
+                            : dynamicColors.borderDefault,
+                      ),
                     ),
                     child: Icon(
                       Icons.tune,
-                      color: isFilterActive ? VColors.success : dynamicColors.textPrimary,
+                      color: isFilterActive
+                          ? VColors.success
+                          : dynamicColors.textPrimary,
                       size: 20,
                     ),
                   ),
                 ),
               );
-            }
+            },
           ),
         ],
       ),
     );
+  }
+
+  Future<void> _openFilterSheet(
+    BuildContext context,
+    PartnerListState state,
+  ) async {
+    final cubit = context.read<PartnerListCubit>();
+    PartnerFilterCounts counts = const PartnerFilterCounts();
+
+    try {
+      counts = await cubit.fetchFilterCounts();
+    } catch (_) {
+      // Giữ counts = 0 nếu không tải được facet.
+    }
+
+    if (!context.mounted) {
+      return;
+    }
+
+    final result = await showModalBottomSheet<PartnerFilterResult>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => PartnerFilterDialog(
+        initialRole: state.filterRole,
+        initialProfileType: state.filterProfileType,
+        initialStatus: state.filterStatus,
+        counts: counts,
+      ),
+    );
+
+    if (result != null) {
+      cubit.updateFilter(
+        role: result.role,
+        profileType: result.profileType,
+        status: result.status,
+      );
+    }
   }
 }

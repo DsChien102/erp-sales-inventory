@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:vet45_design_system/design_system.dart';
 import '../bloc/partner_list_state.dart';
 
+/// Hiển thị thông tin tóm tắt từ [SearchPartnersQuery] (US-01).
+/// Các trường đầy đủ (địa chỉ, ghi chú, audit) cần backend US-04.
 class PartnerGeneralInfoTab extends StatelessWidget {
   final PartnerItemModel partner;
 
@@ -31,21 +33,11 @@ class PartnerGeneralInfoTab extends StatelessWidget {
             title: 'THÔNG TIN LIÊN HỆ',
             children: [
               _buildRow(context, 'Số điện thoại', partner.phone),
-              _buildRow(context, 'Email', partner.email.isNotEmpty ? partner.email : 'Chưa cập nhật', isValueGray: partner.email.isEmpty),
-              _buildRow(context, 'Địa chỉ', partner.address.isNotEmpty ? partner.address : 'Chưa cập nhật', isValueGray: partner.address.isEmpty),
-            ],
-          ),
-          const SizedBox(height: VSpacing.space4),
-          _buildSection(
-            context,
-            title: 'GHI CHÚ',
-            children: [
-              Text(
-                partner.note.isNotEmpty ? partner.note : 'Chưa cập nhật',
-                style: VTypography.bodyDefault.copyWith(
-                  color: partner.note.isNotEmpty ? context.vColors.textPrimary : context.vColors.textSecondary,
-                  fontStyle: partner.note.isNotEmpty ? FontStyle.normal : FontStyle.italic,
-                ),
+              _buildRow(
+                context,
+                'Email',
+                partner.email.isNotEmpty ? partner.email : 'Chưa cập nhật',
+                isValueGray: partner.email.isEmpty,
               ),
             ],
           ),
@@ -54,10 +46,13 @@ class PartnerGeneralInfoTab extends StatelessWidget {
             context,
             title: 'THÔNG TIN HỆ THỐNG',
             children: [
-              _buildRow(context, 'Người tạo', partner.creator.isNotEmpty ? partner.creator : 'Chưa cập nhật'),
-              _buildRow(context, 'Thời điểm tạo', partner.createdAt.isNotEmpty ? partner.createdAt : 'Chưa cập nhật'),
-              _buildRow(context, 'Cập nhật bởi', partner.updatedBy.isNotEmpty ? partner.updatedBy : 'Chưa cập nhật'),
-              _buildRow(context, 'Cập nhật lúc', partner.updatedAt.isNotEmpty ? partner.updatedAt : 'Chưa cập nhật'),
+              _buildRow(
+                context,
+                'Cập nhật lúc',
+                partner.updatedAt.isNotEmpty
+                    ? partner.updatedAt
+                    : 'Chưa cập nhật',
+              ),
             ],
           ),
           const SizedBox(height: 80), // Padding cho bottom navigation

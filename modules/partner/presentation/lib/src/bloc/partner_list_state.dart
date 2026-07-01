@@ -41,14 +41,18 @@ class PartnerListState {
   final List<PartnerItemModel> partners;
   final String searchQuery;
   final String? filterRole;
+  final String? filterProfileType;
   final String? filterStatus;
+  final String? errorMessage;
 
   const PartnerListState({
     this.status = PartnerListStatus.initial,
     this.partners = const [],
     this.searchQuery = '',
     this.filterRole,
+    this.filterProfileType,
     this.filterStatus = 'Đang hoạt động',
+    this.errorMessage,
   });
 
   PartnerListState copyWith({
@@ -56,16 +60,24 @@ class PartnerListState {
     List<PartnerItemModel>? partners,
     String? searchQuery,
     String? filterRole,
+    String? filterProfileType,
     String? filterStatus,
+    String? errorMessage,
     bool clearRole = false,
+    bool clearProfileType = false,
     bool clearStatus = false,
+    bool clearErrorMessage = false,
   }) {
     return PartnerListState(
       status: status ?? this.status,
       partners: partners ?? this.partners,
       searchQuery: searchQuery ?? this.searchQuery,
       filterRole: clearRole ? null : (filterRole ?? this.filterRole),
+      filterProfileType:
+          clearProfileType ? null : (filterProfileType ?? this.filterProfileType),
       filterStatus: clearStatus ? null : (filterStatus ?? this.filterStatus),
+      errorMessage:
+          clearErrorMessage ? null : (errorMessage ?? this.errorMessage),
     );
   }
 }

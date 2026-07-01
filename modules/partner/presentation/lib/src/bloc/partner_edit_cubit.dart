@@ -1,88 +1,160 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../models/mock_partner_data.dart';
+import 'package:vet45_partner_application/application.dart';
+import 'package:vet45_partner_domain/domain.dart';
+import 'package:vet45_shared_application/application.dart';
+
+import '../mappers/partner_ui_mapper.dart';
+import '../utils/partner_presentation_errors.dart';
 import 'partner_edit_state.dart';
+import 'partner_list_state.dart';
 
 class PartnerEditCubit extends Cubit<PartnerEditState> {
-  final MockPartnerRepository _repository;
+  PartnerEditCubit({
+    required IPartnerModule partnerModule,
+    required IExecutionContext executionContext,
+    PartnerItemModel? initialPartner,
+  })  : _partnerModule = partnerModule,
+        _executionContext = executionContext,
+        _initialPartner = initialPartner,
+        super(const PartnerEditState());
 
-  PartnerEditCubit(this._repository) : super(const PartnerEditState());
+  final IPartnerModule _partnerModule;
+  final IExecutionContext _executionContext;
+  final PartnerItemModel? _initialPartner;
 
-  void loadPartner(String partnerId) async {
+  Future<void> loadPartner(String partnerId) async {
     emit(state.copyWith(status: PartnerEditStatus.loadingData));
+
+    final initialPartner = _initialPartner;
+    if (initialPartner != null && initialPartner.id == partnerId) {
+      _applyPartnerModel(initialPartner);
+      return;
+    }
+
     try {
-      // Giả lập load dữ liệu từ API
-      await Future.delayed(const Duration(seconds: 1));
-      
-      // Dữ liệu giả lập
-      emit(state.copyWith(
-        status: PartnerEditStatus.ready,
-        partnerId: partnerId,
-        role: 'Khách hàng',
-        profileType: 'individual',
-        name: 'Nguyễn Văn A',
-        phone: '0987654321',
-        email: 'nguyenvana@gmail.com',
-        address: '123 Đường ABC, Quận 1, TP.HCM',
-        hasChanges: false,
-      ));
-    } catch (e) {
-      emit(state.copyWith(
-        status: PartnerEditStatus.loadingDataError,
-        errorMessage: 'Lỗi tải dữ liệu: ${e.toString()}',
-      ));
+      final tenantId = await _executionContext.requireTenantId();
+      final result = await _partnerModule.executeQueryAsync(
+        SearchPartnersQuery(
+          tenantId: tenantId,
+          criteria: PartnerSearchCriteria(
+            statuses: {
+              PartnerStatus.active,
+              PartnerStatus.inactive,
+            },
+          ),
+          limit: 500,
+        ),
+      );
+
+      PartnerListItemDto? match;
+      for (final item in result.items) {
+        if (item.id == partnerId) {
+          match = item;
+          break;
+        }
+      }
+      if (match == null) {
+        emit(
+          state.copyWith(
+            status: PartnerEditStatus.loadingDataError,
+            partnerId: partnerId,
+            errorMessage: 'Không tìm thấy đối tác.',
+          ),
+        );
+        return;
+      }
+
+      _applyPartnerModel(PartnerUiMapper.toListItem(match));
+    } catch (error) {
+      emit(
+        state.copyWith(
+          status: PartnerEditStatus.loadingDataError,
+          partnerId: partnerId,
+          errorMessage: partnerErrorMessage(error),
+        ),
+      );
     }
   }
 
-  void updateRole(String role) => emit(state.copyWith(role: role, hasChanges: true, errorMessage: null));
-  void updateProfileType(String type) => emit(state.copyWith(profileType: type, hasChanges: true, errorMessage: null));
-  void updateName(String name) => emit(state.copyWith(name: name, hasChanges: true, errorMessage: null));
-  void updatePhone(String phone) => emit(state.copyWith(phone: phone, hasChanges: true, errorMessage: null));
-  void updateEmail(String email) => emit(state.copyWith(email: email, hasChanges: true, errorMessage: null));
-  void updateAddress(String address) => emit(state.copyWith(address: address, hasChanges: true, errorMessage: null));
-  void updateTaxId(String taxId) => emit(state.copyWith(taxId: taxId, hasChanges: true, errorMessage: null));
-  void updateNote(String note) => emit(state.copyWith(note: note, hasChanges: true, errorMessage: null));
+  void _applyPartnerModel(PartnerItemModel partner) {
+    emit(
+      state.copyWith(
+        status: PartnerEditStatus.ready,
+        partnerId: partner.id,
+        role: _uiRoleFromLabel(partner.role),
+        profileType: _uiProfileTypeFromLabel(partner.profileType),
+        name: partner.name,
+        phone: partner.phone,
+        email: partner.email,
+        address: partner.address,
+        taxId: partner.taxId,
+        note: partner.note,
+        hasChanges: false,
+        errorMessage: null,
+      ),
+    );
+  }
+
+  void updateRole(String role) =>
+      emit(state.copyWith(role: role, hasChanges: true, errorMessage: null));
+  void updateProfileType(String type) =>
+      emit(state.copyWith(profileType: type, hasChanges: true, errorMessage: null));
+  void updateName(String name) =>
+      emit(state.copyWith(name: name, hasChanges: true, errorMessage: null));
+  void updatePhone(String phone) =>
+      emit(state.copyWith(phone: phone, hasChanges: true, errorMessage: null));
+  void updateEmail(String email) =>
+      emit(state.copyWith(email: email, hasChanges: true, errorMessage: null));
+  void updateAddress(String address) =>
+      emit(state.copyWith(address: address, hasChanges: true, errorMessage: null));
+  void updateTaxId(String taxId) =>
+      emit(state.copyWith(taxId: taxId, hasChanges: true, errorMessage: null));
+  void updateNote(String note) =>
+      emit(state.copyWith(note: note, hasChanges: true, errorMessage: null));
 
   Future<void> submit() async {
-    // 1. Validation
     if (state.name.trim().isEmpty) {
-      emit(state.copyWith(errorMessage: 'Tên đối tác không được để trống.', status: PartnerEditStatus.error));
+      emit(
+        state.copyWith(
+          errorMessage: 'Tên đối tác không được để trống.',
+          status: PartnerEditStatus.error,
+        ),
+      );
       return;
     }
     if (state.phone.trim().isEmpty) {
-      emit(state.copyWith(errorMessage: 'Số điện thoại không được để trống.', status: PartnerEditStatus.error));
+      emit(
+        state.copyWith(
+          errorMessage: 'Số điện thoại không được để trống.',
+          status: PartnerEditStatus.error,
+        ),
+      );
       return;
     }
 
     emit(state.copyWith(status: PartnerEditStatus.saving, errorMessage: null));
 
-    // 2. Check duplicates (mocking)
     try {
-      final warnings = await _repository.checkDuplicate(
-        state.phone.trim(),
-        state.email.trim(),
-        state.taxId.trim(),
-      );
-
-      // Simple mock logic: if the loaded phone hasn't changed, maybe don't warn. 
-      // But for simplicity, we just use the mock repo logic which warns if phone == '0987654321'.
-      // In a real app we'd exclude the current partner's ID from duplicate check.
-      
-      if (warnings.isNotEmpty && state.phone != '0987654321') { // hacky way to prevent duplicate on own data for mock
-        emit(state.copyWith(
-          status: PartnerEditStatus.duplicateWarning,
-          duplicateWarnings: warnings,
-        ));
+      final warnings = await _checkDuplicates();
+      if (warnings.isNotEmpty) {
+        emit(
+          state.copyWith(
+            status: PartnerEditStatus.duplicateWarning,
+            duplicateWarnings: warnings,
+          ),
+        );
         return;
       }
-    } catch (e) {
-      emit(state.copyWith(
-        status: PartnerEditStatus.error,
-        errorMessage: 'Lỗi kiểm tra trùng lặp: ${e.toString()}',
-      ));
+    } catch (error) {
+      emit(
+        state.copyWith(
+          status: PartnerEditStatus.error,
+          errorMessage: 'Lỗi kiểm tra trùng lặp: ${partnerErrorMessage(error)}',
+        ),
+      );
       return;
     }
 
-    // 3. Save if no warning
     await _save();
   }
 
@@ -95,27 +167,44 @@ class PartnerEditCubit extends Cubit<PartnerEditState> {
     emit(state.copyWith(status: PartnerEditStatus.ready));
   }
 
-  Future<void> _save() async {
-    try {
-      final formData = PartnerFormData(
-        role: state.role,
-        type: state.profileType,
-        name: state.name.trim(),
+  Future<List<String>> _checkDuplicates() async {
+    final tenantId = await _executionContext.requireTenantId();
+    final matches = await _partnerModule.executeQueryAsync(
+      CheckDuplicatePartnersQuery(
+        tenantId: tenantId,
         phone: state.phone.trim(),
-        email: state.email.trim(),
-        address: state.address.trim(),
-        taxId: state.taxId.trim(),
-        note: state.note.trim(),
-      );
+        email: state.email.trim().isEmpty ? null : state.email.trim(),
+        taxCode: state.taxId.trim().isEmpty ? null : state.taxId.trim(),
+        excludePartnerId: state.partnerId,
+      ),
+    );
 
-      await _repository.savePartner(formData);
+    return matches.map(PartnerUiMapper.duplicateWarning).toList(growable: false);
+  }
 
-      emit(state.copyWith(status: PartnerEditStatus.success, hasChanges: false));
-    } catch (e) {
-      emit(state.copyWith(
+  Future<void> _save() async {
+    emit(
+      state.copyWith(
         status: PartnerEditStatus.error,
-        errorMessage: e.toString(),
-      ));
-    }
+        errorMessage:
+            'Chức năng cập nhật đối tác chưa khả dụng trên backend.',
+      ),
+    );
+  }
+
+  static String _uiRoleFromLabel(String role) {
+    return switch (role) {
+      'Nhà cung cấp' => 'supplier',
+      'Khách hàng & NCC' => 'both',
+      _ => 'customer',
+    };
+  }
+
+  static String _uiProfileTypeFromLabel(String profileType) {
+    return switch (profileType) {
+      'Công ty' => 'company',
+      'Hộ kinh doanh' => 'household',
+      _ => 'individual',
+    };
   }
 }

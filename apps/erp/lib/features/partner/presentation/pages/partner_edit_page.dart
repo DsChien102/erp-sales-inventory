@@ -2,21 +2,30 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:vet45_design_system/design_system.dart';
-
+import 'package:vet45_partner_application/application.dart';
 import 'package:vet45_partner_presentation/presentation.dart';
+import 'package:vet45_shared_application/application.dart';
+
+import '../../../../core/di/injection.dart';
 
 class PartnerEditPage extends StatelessWidget {
   final String partnerId;
-  
+  final PartnerItemModel? initialPartner;
+
   const PartnerEditPage({
     super.key,
     required this.partnerId,
+    this.initialPartner,
   });
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => PartnerEditCubit(MockPartnerRepository())..loadPartner(partnerId),
+      create: (_) => PartnerEditCubit(
+        partnerModule: getIt<IPartnerModule>(),
+        executionContext: getIt<IExecutionContext>(),
+        initialPartner: initialPartner,
+      )..loadPartner(partnerId),
       child: const _PartnerEditView(),
     );
   }
@@ -30,21 +39,41 @@ class _PartnerEditView extends StatelessWidget {
     final dynamicColors = context.vColors;
 
     return BlocConsumer<PartnerEditCubit, PartnerEditState>(
-      listenWhen: (previous, current) => previous.status != current.status || previous.errorMessage != current.errorMessage,
+      listenWhen: (previous, current) =>
+          previous.status != current.status ||
+          previous.errorMessage != current.errorMessage,
       listener: (context, state) {
-        if (state.status == PartnerEditStatus.error && state.errorMessage != null) {
-          VToast.show(context, title: 'Lỗi', message: state.errorMessage!, type: VToastType.danger);
-        } else if (state.status == PartnerEditStatus.loadingDataError && state.errorMessage != null) {
-          VToast.show(context, title: 'Lỗi tải dữ liệu', message: state.errorMessage!, type: VToastType.danger);
+        if (state.status == PartnerEditStatus.error &&
+            state.errorMessage != null) {
+          VToast.show(
+            context,
+            title: 'Lỗi',
+            message: state.errorMessage!,
+            type: VToastType.danger,
+          );
+        } else if (state.status == PartnerEditStatus.loadingDataError &&
+            state.errorMessage != null) {
+          VToast.show(
+            context,
+            title: 'Lỗi tải dữ liệu',
+            message: state.errorMessage!,
+            type: VToastType.danger,
+          );
         } else if (state.status == PartnerEditStatus.duplicateWarning) {
           _showDuplicateWarningDialog(context, state.duplicateWarnings);
         } else if (state.status == PartnerEditStatus.success) {
-          VToast.show(context, title: 'Thành công', message: 'Đã cập nhật KH & NCC thành công!', type: VToastType.success);
-          context.pop(); // quay lại trang trước
+          VToast.show(
+            context,
+            title: 'Thành công',
+            message: 'Đã cập nhật KH & NCC thành công!',
+            type: VToastType.success,
+          );
+          context.pop();
         }
       },
       builder: (context, state) {
-        final isLoadingData = state.status == PartnerEditStatus.initial || state.status == PartnerEditStatus.loadingData;
+        final isLoadingData = state.status == PartnerEditStatus.initial ||
+            state.status == PartnerEditStatus.loadingData;
 
         return Scaffold(
           backgroundColor: dynamicColors.background,
@@ -52,11 +81,17 @@ class _PartnerEditView extends StatelessWidget {
             title: 'Chỉnh sửa KH & NCC',
             actions: [
               TextButton(
-                onPressed: state.status == PartnerEditStatus.saving || isLoadingData ? null : () => _handleCancel(context, state),
+                onPressed: state.status == PartnerEditStatus.saving ||
+                        isLoadingData
+                    ? null
+                    : () => _handleCancel(context, state),
                 child: Text(
                   'Hủy',
                   style: VTypography.bodyDefault.copyWith(
-                    color: state.status == PartnerEditStatus.saving || isLoadingData ? dynamicColors.textMuted : dynamicColors.textSecondary,
+                    color: state.status == PartnerEditStatus.saving ||
+                            isLoadingData
+                        ? dynamicColors.textMuted
+                        : dynamicColors.textSecondary,
                   ),
                 ),
               ),
@@ -70,13 +105,22 @@ class _PartnerEditView extends StatelessWidget {
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(Icons.error_outline, size: 48, color: VColors.danger),
+                          const Icon(
+                            Icons.error_outline,
+                            size: 48,
+                            color: VColors.danger,
+                          ),
                           const SizedBox(height: 16),
-                          Text('Không thể tải dữ liệu', style: VTypography.headingH4),
+                          Text(
+                            'Không thể tải dữ liệu',
+                            style: VTypography.headingH4,
+                          ),
                           const SizedBox(height: 16),
                           VButton(
                             variant: VButtonVariant.outline,
-                            onPressed: () => context.read<PartnerEditCubit>().loadPartner(state.partnerId),
+                            onPressed: () => context
+                                .read<PartnerEditCubit>()
+                                .loadPartner(state.partnerId),
                             label: 'Tải lại',
                           ),
                         ],
@@ -92,35 +136,51 @@ class _PartnerEditView extends StatelessWidget {
                                 VCard(
                                   child: PartnerRoleTypeSection(
                                     role: state.role,
-                                    onRoleChanged: (v) => context.read<PartnerEditCubit>().updateRole(v),
+                                    onRoleChanged: (v) => context
+                                        .read<PartnerEditCubit>()
+                                        .updateRole(v),
                                     profileType: state.profileType,
-                                    onProfileTypeChanged: (v) => context.read<PartnerEditCubit>().updateProfileType(v),
-                                    onNameChanged: (v) => context.read<PartnerEditCubit>().updateName(v),
+                                    onProfileTypeChanged: (v) => context
+                                        .read<PartnerEditCubit>()
+                                        .updateProfileType(v),
+                                    onNameChanged: (v) => context
+                                        .read<PartnerEditCubit>()
+                                        .updateName(v),
                                   ),
                                 ),
                                 const SizedBox(height: VSpacing.space4),
                                 VCard(
                                   child: PartnerContactInfoSection(
                                     phone: state.phone,
-                                    onPhoneChanged: (v) => context.read<PartnerEditCubit>().updatePhone(v),
+                                    onPhoneChanged: (v) => context
+                                        .read<PartnerEditCubit>()
+                                        .updatePhone(v),
                                     email: state.email,
-                                    onEmailChanged: (v) => context.read<PartnerEditCubit>().updateEmail(v),
+                                    onEmailChanged: (v) => context
+                                        .read<PartnerEditCubit>()
+                                        .updateEmail(v),
                                     address: state.address,
-                                    onAddressChanged: (v) => context.read<PartnerEditCubit>().updateAddress(v),
+                                    onAddressChanged: (v) => context
+                                        .read<PartnerEditCubit>()
+                                        .updateAddress(v),
                                   ),
                                 ),
                                 const SizedBox(height: VSpacing.space4),
                                 VCard(
                                   child: PartnerTaxInfoSection(
                                     taxId: state.taxId,
-                                    onTaxIdChanged: (v) => context.read<PartnerEditCubit>().updateTaxId(v),
+                                    onTaxIdChanged: (v) => context
+                                        .read<PartnerEditCubit>()
+                                        .updateTaxId(v),
                                   ),
                                 ),
                                 const SizedBox(height: VSpacing.space4),
                                 VCard(
                                   child: PartnerNoteSection(
                                     note: state.note,
-                                    onNoteChanged: (v) => context.read<PartnerEditCubit>().updateNote(v),
+                                    onNoteChanged: (v) => context
+                                        .read<PartnerEditCubit>()
+                                        .updateNote(v),
                                   ),
                                 ),
                               ],
@@ -136,10 +196,15 @@ class _PartnerEditView extends StatelessWidget {
                           child: SafeArea(
                             top: false,
                             child: VButton(
-                              onPressed: state.status == PartnerEditStatus.saving || !state.hasChanges 
-                                  ? null 
-                                  : () => context.read<PartnerEditCubit>().submit(),
-                              isLoading: state.status == PartnerEditStatus.saving,
+                              onPressed: state.status ==
+                                          PartnerEditStatus.saving ||
+                                      !state.hasChanges
+                                  ? null
+                                  : () => context
+                                      .read<PartnerEditCubit>()
+                                      .submit(),
+                              isLoading:
+                                  state.status == PartnerEditStatus.saving,
                               fullWidth: true,
                               label: 'Lưu thay đổi',
                             ),
@@ -163,7 +228,10 @@ class _PartnerEditView extends StatelessWidget {
     }
   }
 
-  void _showDuplicateWarningDialog(BuildContext context, List<String> warnings) {
+  void _showDuplicateWarningDialog(
+    BuildContext context,
+    List<String> warnings,
+  ) {
     final cubit = context.read<PartnerEditCubit>();
     showDialog(
       context: context,

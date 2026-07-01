@@ -14,6 +14,8 @@ import '../../features/auth/presentation/pages/login_page.dart';
 import '../../features/dashboard/presentation/dashboard_page.dart';
 import '../../features/dashboard/presentation/models/dashboard_navigation.dart';
 import '../../features/partner/presentation/pages/partner_create_page.dart';
+import '../../features/partner/presentation/pages/partner_edit_page.dart';
+import 'package:vet45_partner_presentation/presentation.dart';
 import '../di/injection.dart';
 
 final appRouter = GoRouter(
@@ -107,6 +109,17 @@ final appRouter = GoRouter(
       path: '/partner/create',
       name: 'partner.create',
       builder: (context, state) => const PartnerCreatePage(),
+    ),
+    GoRoute(
+      path: '/partner/edit',
+      name: 'partner.edit',
+      builder: (context, state) {
+        final partner = state.extra as PartnerItemModel;
+        return PartnerEditPage(
+          partnerId: partner.id,
+          initialPartner: partner,
+        );
+      },
     ),
   ],
 );
