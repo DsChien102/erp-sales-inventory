@@ -44,7 +44,6 @@ commands:
           command: |
             export PATH="$PATH:$HOME/.pub-cache/bin"
             melos bootstrap
-            cp apps/erp/.env.example apps/erp/.env
 
 jobs:
   verify_workspace:

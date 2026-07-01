@@ -14,7 +14,7 @@ Messaging worker Railway: `staging` / `production` — map 1:1 với ERP staging
 
 ```
 apps/erp/
-  .env                    # local dev (gitignored) — envied fallback
+  .env                    # local dev (gitignored)
   .env.example
   .env.staging            # gitignored
   .env.staging.example
@@ -22,7 +22,7 @@ apps/erp/
   .env.production.example
 ```
 
-**Priority:** `--dart-define` / `--dart-define-from-file` > envied (`.env`).
+**Runtime:** `--dart-define-from-file` khi `flutter run` / `flutter build` — keys bake vào binary lúc compile.
 
 Keys bake vào app: `APP_ENV`, `SUPABASE_*`, `LOG_LEVEL`, `MESSAGING_CLIENT_POLL_ENABLED`.
 
@@ -31,16 +31,16 @@ Keys **không** bake vào app (chỉ deploy script): `APP_STORE_CONNECT_*` — g
 ### Setup lần đầu
 
 ```bash
+cp apps/erp/.env.example apps/erp/.env
 cp apps/erp/.env.staging.example apps/erp/.env.staging
 cp apps/erp/.env.production.example apps/erp/.env.production
 # Điền Supabase URL + anon key cho từng file
-melos run codegen
 ```
 
 ## Chạy local
 
 ```bash
-melos run debug              # development flavor + .env (envied)
+melos run debug              # development flavor + .env
 melos run debug:dev          # development flavor + .env (explicit)
 melos run debug:staging      # flavor staging + .env.staging
 melos run debug:prod         # flavor production + .env.production

@@ -6,8 +6,8 @@ Flutter shell cho modular monolith ERP.
 
 | Lệnh | Mô tả |
 |---|---|
-| `melos run debug` | Dev local — flavor `development` + `.env` (envied) |
-| `melos run debug:staging` | Flavor staging |
+| `melos run debug` | Dev local — flavor `development` + `--dart-define-from-file=.env` |
+| `melos run debug:staging` | Flavor staging + `.env.staging` |
 | `melos run build:ios:staging` | IPA staging |
 | `melos run deploy:ios:staging` | Upload TestFlight staging |
 
@@ -20,7 +20,6 @@ cp .env.example .env
 # Điền SUPABASE_CONNECTION_URL, SUPABASE_ANON_KEY
 
 melos bootstrap
-melos run codegen
 melos run debug
 ```
 

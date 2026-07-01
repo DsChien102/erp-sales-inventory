@@ -46,7 +46,7 @@ Xem [adr/iam-multi-tenant-migration.md](../adr/iam-multi-tenant-migration.md):
 ## Secrets
 
 - Service role key chỉ trên worker / CI — không embed trong Flutter client
-- ERP: `.env` + envied (dev) và `--dart-define-from-file=.env.staging|.env.production` (release builds)
+- ERP: `--dart-define-from-file=.env` (dev) hoặc `.env.staging` / `.env.production` (release builds)
 - `APP_ENV` + Flutter flavors (`development` / `staging` / `production`) — xem [operations/environments.md](../operations/environments.md)
 
 ## Liên kết

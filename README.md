@@ -51,14 +51,11 @@ melos bootstrap
 cp apps/erp/.env.example apps/erp/.env
 # Điền SUPABASE_CONNECTION_URL và SUPABASE_ANON_KEY
 
-# 4. Codegen (envied, build_runner)
-melos run codegen
-
-# 5. Chạy app
+# 4. Chạy app
 melos run debug
 ```
 
-Lệnh `melos run debug` chạy `flutter run --flavor development` trong `apps/erp`, đọc config từ `.env` qua [envied](https://pub.dev/packages/envied).
+Lệnh `melos run debug` chạy `flutter run --flavor development --dart-define-from-file=.env` trong `apps/erp`.
 
 ### Môi trường staging / production
 
@@ -66,21 +63,20 @@ Lệnh `melos run debug` chạy `flutter run --flavor development` trong `apps/e
 cp apps/erp/.env.staging.example apps/erp/.env.staging
 cp apps/erp/.env.production.example apps/erp/.env.production
 # Điền Supabase URL + anon key cho từng file
-melos run codegen
 ```
 
 | Lệnh | Mô tả |
 | ---- | ----- |
-| `melos run debug` | Dev local — flavor `development` + `.env` |
+| `melos run debug` | Dev local — flavor `development` + `--dart-define-from-file=.env` |
 | `melos run debug:dev` | Flavor `development` + `.env` (explicit) |
 | `melos run debug:staging` | Flavor staging + `.env.staging` |
 | `melos run debug:prod` | Flavor production + `.env.production` |
-| `melos run debug:web` | Chạy trên Chrome |
-| `melos run debug:ios` | iOS — flavor `development` |
+| `melos run debug:web` | Chạy trên Chrome + `.env` |
+| `melos run debug:ios` | iOS — flavor `development` + `.env` |
 
 Chi tiết flavor, bundle ID, CircleCI: [docs/operations/environments.md](docs/operations/environments.md).
 
-**Ưu tiên config:** `--dart-define` / `--dart-define-from-file` > giá trị trong `.env` (envied).
+**Config:** `--dart-define` / `--dart-define-from-file` (compile-time).
 
 ## Supabase
 
@@ -103,7 +99,7 @@ App Flutter chỉ dùng **anon key**; mutation nghiệp vụ quan trọng đi qu
 
 ```bash
 melos bootstrap          # Link lại packages sau khi đổi pubspec
-melos run codegen        # build_runner (envied, …) ở các package có cấu hình
+melos run codegen        # build_runner ở các module/package có cấu hình
 melos run analyze        # dart analyze toàn workspace
 melos run test           # dart test các package có thư mục test/ (trừ erp)
 ./scripts/ci/verify_harness.sh   # Layer guards + doc link checks

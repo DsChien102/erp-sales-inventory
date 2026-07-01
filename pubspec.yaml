@@ -68,15 +68,15 @@ melos:
       stdio: inherit
 
     debug:web:
-      run: cd apps/erp && flutter run -d chrome --flavor development
+      run: cd apps/erp && flutter run -d chrome --flavor development --dart-define-from-file=.env
       stdio: inherit
 
     debug:ios:
-      run: cd apps/erp && flutter run -d ios --flavor development
+      run: cd apps/erp && flutter run -d ios --flavor development --dart-define-from-file=.env
       stdio: inherit
 
     debug:any:
-      run: cd apps/erp && flutter run --flavor development
+      run: cd apps/erp && flutter run --flavor development --dart-define-from-file=.env
       stdio: inherit
 
     debug:dev:
