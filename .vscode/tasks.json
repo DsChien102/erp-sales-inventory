@@ -1,0 +1,106 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "type": "melos",
+      "script": "debug",
+      "label": "melos: debug",
+      "group": "build"
+    },
+    {
+      "type": "melos",
+      "script": "debug:web",
+      "label": "melos: debug:web",
+      "group": "build"
+    },
+    {
+      "type": "melos",
+      "script": "debug:ios",
+      "label": "melos: debug:ios",
+      "group": "build"
+    },
+    {
+      "type": "melos",
+      "script": "debug:any",
+      "label": "melos: debug:any",
+      "group": "build"
+    },
+    {
+      "type": "melos",
+      "script": "debug:dev",
+      "label": "melos: debug:dev",
+      "group": "build"
+    },
+    {
+      "type": "melos",
+      "script": "debug:staging",
+      "label": "melos: debug:staging",
+      "group": "build"
+    },
+    {
+      "type": "melos",
+      "script": "debug:prod",
+      "label": "melos: debug:prod",
+      "group": "build"
+    },
+    {
+      "type": "melos",
+      "script": "codegen",
+      "label": "melos: codegen",
+      "group": "build"
+    },
+    {
+      "type": "melos",
+      "script": "analyze",
+      "label": "melos: analyze",
+      "group": "test",
+      "problemMatcher": []
+    },
+    {
+      "type": "melos",
+      "script": "test",
+      "label": "melos: test",
+      "group": {
+        "kind": "test",
+        "isDefault": true
+      },
+      "problemMatcher": []
+    },
+    {
+      "type": "melos",
+      "script": "build:ios",
+      "label": "melos: build:ios",
+      "group": "build"
+    },
+    {
+      "type": "melos",
+      "script": "build:ios:staging",
+      "label": "melos: build:ios:staging",
+      "group": "build"
+    },
+    {
+      "type": "melos",
+      "script": "build:ios:production",
+      "label": "melos: build:ios:production",
+      "group": "build"
+    },
+    {
+      "type": "melos",
+      "script": "deploy:ios",
+      "label": "melos: deploy:ios",
+      "group": "build"
+    },
+    {
+      "type": "melos",
+      "script": "deploy:ios:staging",
+      "label": "melos: deploy:ios:staging",
+      "group": "build"
+    },
+    {
+      "label": "CI · analyze → test",
+      "dependsOn": ["melos: analyze", "melos: test"],
+      "dependsOrder": "sequence",
+      "group": "test"
+    }
+  ]
+}

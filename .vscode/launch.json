@@ -1,0 +1,208 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    // ── ERP · debug (melos: debug, debug:any, debug:dev) ─────────────────────
+    {
+      "name": "ERP · development",
+      "type": "dart",
+      "request": "launch",
+      "cwd": "${workspaceFolder}/apps/erp",
+      "program": "lib/main.dart",
+      "args": [
+        "--flavor",
+        "development",
+        "--dart-define-from-file=.env"
+      ]
+    },
+    // ── ERP · debug:web ───────────────────────────────────────────────────────
+    {
+      "name": "ERP · web · development",
+      "type": "dart",
+      "request": "launch",
+      "cwd": "${workspaceFolder}/apps/erp",
+      "program": "lib/main.dart",
+      "deviceId": "chrome",
+      "args": [
+        "--flavor",
+        "development",
+        "--dart-define-from-file=.env"
+      ]
+    },
+    // ── ERP · debug:ios ───────────────────────────────────────────────────────
+    {
+      "name": "ERP · iOS · development",
+      "type": "dart",
+      "request": "launch",
+      "cwd": "${workspaceFolder}/apps/erp",
+      "program": "lib/main.dart",
+      "deviceId": "ios",
+      "args": [
+        "--flavor",
+        "development",
+        "--dart-define-from-file=.env"
+      ]
+    },
+    // ── ERP · debug:staging ───────────────────────────────────────────────────
+    {
+      "name": "ERP · staging",
+      "type": "dart",
+      "request": "launch",
+      "cwd": "${workspaceFolder}/apps/erp",
+      "program": "lib/main.dart",
+      "args": [
+        "--flavor",
+        "staging",
+        "--dart-define-from-file=.env.staging"
+      ]
+    },
+    // ── ERP · debug:prod ──────────────────────────────────────────────────────
+    {
+      "name": "ERP · production",
+      "type": "dart",
+      "request": "launch",
+      "cwd": "${workspaceFolder}/apps/erp",
+      "program": "lib/main.dart",
+      "args": [
+        "--flavor",
+        "production",
+        "--dart-define-from-file=.env.production"
+      ]
+    },
+    // ── messaging_worker ──────────────────────────────────────────────────────
+    {
+      "name": "Messaging worker",
+      "type": "dart",
+      "request": "launch",
+      "cwd": "${workspaceFolder}/apps/messaging_worker",
+      "program": "bin/worker.dart"
+    },
+    // ── melos built-in ────────────────────────────────────────────────────────
+    {
+      "name": "melos · bootstrap",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "melos bootstrap",
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "name": "melos · clean",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "melos clean",
+      "cwd": "${workspaceFolder}"
+    },
+    // ── melos scripts (pubspec.yaml → melos.scripts) ─────────────────────────
+    {
+      "name": "melos · debug",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "melos run debug",
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "name": "melos · debug:web",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "melos run debug:web",
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "name": "melos · debug:ios",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "melos run debug:ios",
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "name": "melos · debug:any",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "melos run debug:any",
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "name": "melos · debug:dev",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "melos run debug:dev",
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "name": "melos · debug:staging",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "melos run debug:staging",
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "name": "melos · debug:prod",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "melos run debug:prod",
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "name": "melos · codegen",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "melos run codegen",
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "name": "melos · analyze",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "melos run analyze",
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "name": "melos · test",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "melos run test",
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "name": "melos · build:ios",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "melos run build:ios",
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "name": "melos · build:ios:staging",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "melos run build:ios:staging",
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "name": "melos · build:ios:production",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "melos run build:ios:production",
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "name": "melos · deploy:ios",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "melos run deploy:ios",
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "name": "melos · deploy:ios:staging",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "melos run deploy:ios:staging",
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "name": "CI · analyze → test",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "melos run analyze && melos run test",
+      "cwd": "${workspaceFolder}"
+    }
+  ]
+}
