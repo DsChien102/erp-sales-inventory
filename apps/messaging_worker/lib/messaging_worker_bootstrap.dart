@@ -42,7 +42,7 @@ final class MessagingWorkerBootstrap {
     final sharedBus = integrationEventBus ?? InMemoryEventBusClient();
     final resolvedLoggerFactory = loggerFactory ?? const NullLoggerFactory();
 
-    final partnerModule = PartnerMessagingModuleFactory.create(
+    final partnerModule = PartnerMessagingModule.create(
       supabase: client,
       loggerFactory: resolvedLoggerFactory,
     );

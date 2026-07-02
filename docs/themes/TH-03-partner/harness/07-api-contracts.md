@@ -213,7 +213,7 @@ Package: `vet45_partner_application` — `delete_partner/`.
 
 ## Epic-03 / US-01 — Lịch sử giao dịch
 
-> CONTRACT implemented — read path qua `GetPartnerTransactionHistoryQuery`; projection write qua inbox ingestor.
+> CONTRACT implemented — read path qua `GetPartnerTransactionHistoryQuery`; projection write qua application consumer handlers + `CommandBus` pipeline.
 
 ### Commands / Queries (FE-facing)
 
@@ -240,11 +240,12 @@ Permission: `PartnerPermissions.viewTransactionHistory` (`partner.view_transacti
 
 | Symbol | Input (summary) | Success | Notes |
 | ------ | --------------- | ------- | ----- |
-| `RecordPartnerTransactionHistoryCommand` | tenantId, businessPartnerId, transactionRole, sourceModule, sourceType, sourceId, transactionDate, optional sourceCode/amount/status/description | `void` | Idempotent upsert vào projection; invoked bởi `PartnerTransactionHistoryIngestor` |
+| `RecordPartnerTransactionHistoryCommand` | tenantId, businessPartnerId, transactionRole, sourceModule, sourceType, sourceId, transactionDate, optional sourceCode/amount/status/description | `void` | Internal command (`InternalCommandBase`); idempotent upsert vào projection; chạy qua `CommandBus` internal pipeline |
 
 Package: `vet45_partner_application` — `transaction_history/record_transaction_history/`.
 
-Ingestor lắng nghe integration events (sales/inventory/accounting) — xem infrastructure `partner_transaction_history_ingestor.dart`.
+Consumer handlers (application layer) lắng nghe integration events (sales/inventory/accounting) và map → `RecordPartnerTransactionHistoryCommand`, thực thi qua `CommandBus`:
+`application/lib/src/integration_events/*_integration_event_handler.dart` (implement `IIntegrationEventNotificationHandler`, wiring qua codegen `createGeneratedPartnerIntegrationEventDispatcher`). Inbox/internal-command drain qua `ProcessInboxCommand` / `ProcessInternalCommandsCommand` (`IRecurringCommand`) trong infrastructure; contract RPC schema `partner` giữ claim-token.
 
 ### RPC mapping (BE)
 

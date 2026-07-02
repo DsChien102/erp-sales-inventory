@@ -30,8 +30,9 @@ Codegen ritual: [modules/partner/README.md](../../../../modules/partner/README.m
 
 | Req ID | Role | Contract § | Enforce layer | Artifact | Test id | Status |
 | ------ | ---- | ---------- | ------------- | -------- | ------- | ------ |
-| TH-03-WORKER | BE | §US-01 | infrastructure | `PartnerMessagingModule`, `PartnerMessagingModuleFactory` | partner_messaging_module_test | done |
-| TH-03-WORKER | BE | §US-01 | infrastructure | `PartnerInboxProcessor`, `PartnerInternalCommandProcessor` | partner_inbox_processor_test, partner_internal_command_processor_test | done |
+| TH-03-WORKER | BE | §US-01 | infrastructure | `PartnerMessagingModule` (delegate `IPartnerModule.executeCommandAsync`) | partner_messaging_module_test | done |
+| TH-03-WORKER | BE | §US-01 | infrastructure | `ProcessInboxCommandHandler`, `ProcessInternalCommandsCommandHandler` (`IRecurringCommand` qua `CommandBus`) | process_inbox_command_handler_test, process_internal_commands_command_handler_test | done |
+| TH-03-WORKER | BE | §US-01 | application | consumer handlers `*_integration_event_handler.dart` (`IIntegrationEventNotificationHandler`) | partner_transaction_history_consumer_handlers_test | done |
 | TH-03-WORKER | BE | — | apps/messaging_worker | `messaging_worker_bootstrap.dart` registry `['partner']` | messaging_worker_loop_test | done |
 | TH-03-WORKER | BE | — | sql | `scripts/supabase/messaging_smoke_test.sql` partner inbox + projection | — | done |
 
@@ -160,7 +161,7 @@ E2E cross-module relay: blocked — xem Epic-03 E2E rows below.
 | FR-03 | FE | §US-01 | presentation | `partner_transaction_filter_bottom_sheet.dart` (scn-08: Xóa toàn bộ điều kiện tìm kiếm và lọc) | wgt_e03_u01_fr03_08 | done |
 | FR-03 | FE | §US-01 | presentation | `partner_transaction_filter_bottom_sheet.dart` (scn-09: Không tải được kết quả tìm kiếm hoặc lọc) | — | done |
 | FR-03 | E2E | §US-01 | integration | search & filter flow | e2e_e03_u01_fr03_01 | blocked |
-| FR-04 | BE | §US-01 | infrastructure | `PartnerTransactionHistoryIngestor`, `SalesOrderCheckedOutIntegrationEvent` | scn_e03_u01_fr04_01 | done |
+| FR-04 | BE | §US-01 | application | `SalesOrderCheckedOutIntegrationEventHandler` (consumer) + `SalesOrderCheckedOutIntegrationEvent` | scn_e03_u01_fr04_01 | done |
 | FR-04 | FE | §US-01 | presentation | `partner_transaction_history_tab.dart` (scn-01: Mở chi tiết giao dịch nguồn thành công) | — | todo |
 | FR-04 | FE | §US-01 | presentation | `partner_transaction_history_tab.dart` (scn-02: Không có quyền xem chi tiết giao dịch nguồn) | — | todo |
 | FR-04 | FE | §US-01 | presentation | `partner_transaction_history_tab.dart` (scn-03: Giao dịch nguồn không còn tồn tại) | — | todo |

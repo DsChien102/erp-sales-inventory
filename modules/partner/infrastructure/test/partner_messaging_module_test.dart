@@ -1,126 +1,74 @@
 import 'package:test/test.dart';
 import 'package:vet45_partner_application/application.dart';
 import 'package:vet45_partner_infrastructure/infrastructure.dart';
-import 'package:vet45_partner_integration_events/integration_events.dart';
+import 'package:vet45_shared_application/application.dart';
 
-final class _ConfigurableRpc implements PartnerSchemaRpc {
-  _ConfigurableRpc({
-    this.inboxRows = const [],
-    this.internalRows = const [],
-  });
+/// Records commands routed through the module mediator and returns canned
+/// had-work flags per recurring command type.
+final class _RecordingPartnerModule implements IPartnerModule {
+  _RecordingPartnerModule({this.inboxWork = false, this.internalWork = false});
 
-  final List<Map<String, dynamic>> inboxRows;
-  final List<Map<String, dynamic>> internalRows;
+  final bool inboxWork;
+  final bool internalWork;
+  final List<ICommand<dynamic>> executed = [];
 
   @override
-  Future<List<Map<String, dynamic>>> callList(
-    String functionName, {
-    Map<String, dynamic>? params,
-  }) async {
-    return switch (functionName) {
-      'claim_inbox_batch' => inboxRows,
-      'claim_internal_commands_batch' => internalRows,
-      _ => const [],
-    };
+  Future<TResult> executeCommandAsync<TResult>(ICommand<TResult> command) async {
+    executed.add(command);
+    if (command is ProcessInboxCommand) {
+      return inboxWork as TResult;
+    }
+    if (command is ProcessInternalCommandsCommand) {
+      return internalWork as TResult;
+    }
+    throw UnsupportedError('Unexpected command: ${command.runtimeType}');
   }
 
   @override
-  Future<T> callScalar<T>(
-    String functionName, {
-    Map<String, dynamic>? params,
-  }) async {
-    return null as T;
+  Future<TResult> executeQueryAsync<TResult>(IQuery<TResult> query) {
+    throw UnimplementedError();
   }
-}
-
-final class _NoopWriteGateway implements IPartnerTransactionHistoryWriteGateway {
-  @override
-  Future<void> upsert(RecordPartnerTransactionHistoryCommand command) async {}
-}
-
-PartnerMessagingModule _module({
-  List<Map<String, dynamic>> inboxRows = const [],
-  List<Map<String, dynamic>> internalRows = const [],
-}) {
-  final rpc = _ConfigurableRpc(
-    inboxRows: inboxRows,
-    internalRows: internalRows,
-  );
-  final recordHandler = RecordPartnerTransactionHistoryCommandHandler(
-    writeGateway: _NoopWriteGateway(),
-  );
-
-  return PartnerMessagingModule(
-    inboxProcessor: PartnerInboxProcessor(
-      rpcClient: rpc,
-      ingestor: PartnerTransactionHistoryIngestor(recordHandler: recordHandler),
-    ),
-    internalCommandProcessor: PartnerInternalCommandProcessor(
-      rpcClient: rpc,
-      recordHandler: recordHandler,
-    ),
-  );
 }
 
 void main() {
   test('exposes partner module name', () {
-    expect(_module().name, 'partner');
+    final module = PartnerMessagingModule(module: _RecordingPartnerModule());
+    expect(module.name, 'partner');
+  });
+
+  test('routes inbox + internal processing through the module command bus', () async {
+    final recording = _RecordingPartnerModule();
+    final module = PartnerMessagingModule(module: recording);
+
+    await module.processMessagingOnce(tenantId: 'tenant-1', batchSize: 25);
+
+    expect(recording.executed, hasLength(2));
+    final inbox = recording.executed[0] as ProcessInboxCommand;
+    final internal = recording.executed[1] as ProcessInternalCommandsCommand;
+    expect(inbox.tenantId, 'tenant-1');
+    expect(inbox.batchSize, 25);
+    expect(internal.tenantId, 'tenant-1');
+    expect(internal.batchSize, 25);
   });
 
   test('returns empty result when both queues are idle', () async {
-    final result = await _module().processMessagingOnce(tenantId: 'tenant-1');
+    final module = PartnerMessagingModule(module: _RecordingPartnerModule());
+
+    final result = await module.processMessagingOnce(tenantId: 'tenant-1');
 
     expect(result.hadInboxWork, isFalse);
     expect(result.hadInternalWork, isFalse);
     expect(result.hadAnyWork, isFalse);
   });
 
-  test('merges inbox and internal work flags', () async {
-    final module = _module(
-      inboxRows: [
-        {
-          'message_id': 'event-1',
-          'claim_token': 'claim-1',
-          'event_type': SalesOrderCheckedOutIntegrationEvent.type,
-          'payload': {
-            'tenant_id': 'tenant-1',
-            'business_partner_id': 'partner-1',
-            'order_id': 'order-1',
-          },
-          'occurred_at': '2026-06-30T12:00:00Z',
-        },
-      ],
+  test('surfaces inbox + internal work flags from the command results', () async {
+    final module = PartnerMessagingModule(
+      module: _RecordingPartnerModule(inboxWork: true, internalWork: true),
     );
 
     final result = await module.processMessagingOnce(tenantId: 'tenant-1');
 
     expect(result.hadInboxWork, isTrue);
-    expect(result.hadInternalWork, isFalse);
-  });
-
-  test('reports internal work when inbox is idle', () async {
-    final module = _module(
-      internalRows: [
-        {
-          'command_id': 'cmd-1',
-          'claim_token': 'claim-1',
-          'command_type': RecordPartnerTransactionHistoryCommand.commandType,
-          'payload': {
-            'tenant_id': 'tenant-1',
-            'business_partner_id': 'partner-1',
-            'transaction_role': 'customer',
-            'source_module': 'sales',
-            'source_type': 'order',
-            'source_id': 'order-1',
-            'transaction_date': '2026-06-30T11:00:00Z',
-          },
-        },
-      ],
-    );
-
-    final result = await module.processMessagingOnce(tenantId: 'tenant-1');
-
-    expect(result.hadInboxWork, isFalse);
     expect(result.hadInternalWork, isTrue);
   });
 }

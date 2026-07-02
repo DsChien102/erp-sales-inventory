@@ -72,6 +72,8 @@ sequenceDiagram
 
 **Không** query-time fan-out sang `sales.orders` từ partner module.
 
+`TransactionHistoryHandler` = consumer handler ở **application layer** (`IIntegrationEventNotificationHandler`, `application/lib/src/integration_events/`). Nó map integration event → `RecordPartnerTransactionHistoryCommand` và thực thi qua `CommandBus` + pipeline. Worker drain `partner_inbox` / `partner.internal_commands` bằng `ProcessInboxCommand` / `ProcessInternalCommandsCommand` (`IRecurringCommand`) — không processor tay, không gọi handler trực tiếp. Contract RPC schema `partner` giữ claim-token; wiring dispatcher do codegen (`cqrs_integration_event_registry`).
+
 ## Read vs write
 
 | | Cơ chế |

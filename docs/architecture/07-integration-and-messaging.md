@@ -28,6 +28,36 @@ sequenceDiagram
   IH->>IH: update read model / stock / ...
 ```
 
+## Luồng consume (target)
+
+Consumer **luôn** là handler ở **application layer** (`IIntegrationEventNotificationHandler`), và inbox/internal-command được xử lý **qua `CommandBus` + `DefaultCommandPipeline`** bằng `IRecurringCommand` — không gọi command handler trực tiếp từ infrastructure.
+
+```mermaid
+sequenceDiagram
+  participant W as MessagingWorker
+  participant CB as CommandBus_Pipeline
+  participant IBH as ProcessInboxCommandHandler
+  participant Reg as IntegrationEventRegistry
+  participant Disp as IntegrationEventDispatcher
+  participant CH as ConsumerHandler_application
+  participant RH as InternalCommandHandler
+  participant GW as Gateway_RPC
+
+  W->>CB: execute ProcessInboxCommand (IRecurringCommand)
+  CB->>IBH: handle
+  IBH->>Reg: deserialize (event_type + payload)
+  IBH->>Disp: publish(event)
+  Disp->>CH: handle(event)
+  CH->>CB: execute internal command
+  CB->>RH: pipeline (validate → log → handler)
+  RH->>GW: idempotent projection write
+```
+
+- **Deserialize** (`{Module}IntegrationEventRegistry`) + inbox draining là concern của infrastructure.
+- **Mapping event → command** là concern của application (consumer handler), không đặt ở infrastructure.
+- Dispatcher wiring do codegen sinh (`createGenerated{Module}IntegrationEventDispatcher`).
+- Reference: `modules/partner/` (inbox projection cho transaction history).
+
 ## Package integration events
 
 ```text
