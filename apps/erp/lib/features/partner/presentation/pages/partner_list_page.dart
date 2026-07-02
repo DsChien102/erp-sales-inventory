@@ -129,8 +129,15 @@ class PartnerListPage extends StatelessWidget {
                 getIt<IPrincipalSnapshot>().hasPermission(PartnerPermissions.create)
                 ? FloatingActionButton(
                     onPressed: () async {
-                      await context.push('/partner/create');
-                      if (context.mounted) {
+                      final result = await context.push('/partner/create');
+                      if (!context.mounted) return;
+                      
+                      if (result is PartnerItemModel) {
+                        await context.push('/partner/detail', extra: result);
+                        if (context.mounted) {
+                          await context.read<PartnerListCubit>().load();
+                        }
+                      } else if (result == true) {
                         await context.read<PartnerListCubit>().load();
                       }
                     },
