@@ -34,6 +34,8 @@ Thứ tự implement vertical slice. Lane status: `todo` | `in_progress` | `done
 ### BE
 
 - [ ] Domain, handler, validator, gateway, RPC migration
+- [ ] Handler annotated `@CommandHandlerFor` / `@QueryHandlerFor`; message `implements ICommand` / `IQuery`
+- [ ] `melos run codegen` + commit `modules/partner/infrastructure/.../generated/*.g.dart`
 - [ ] Handler test `scn_*` pass
 
 ### FE

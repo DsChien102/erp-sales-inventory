@@ -7,7 +7,7 @@ import 'delete_partner_result.dart';
 @RequiresPermission(PartnerPermissions.delete)
 @RequiresTenant()
 final class DeletePartnerCommand extends CommandBase<DeletePartnerResult>
-    implements ITenantScopedCommand {
+    implements ICommand<DeletePartnerResult>, ITenantScopedCommand {
   DeletePartnerCommand({
     String? id,
     required this.tenantId,

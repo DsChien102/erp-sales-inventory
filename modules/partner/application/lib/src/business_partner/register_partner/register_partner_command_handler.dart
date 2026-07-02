@@ -7,6 +7,7 @@ import '../../ports/i_partner_command_gateway.dart';
 import 'register_partner_command.dart';
 import 'register_partner_result.dart';
 
+@CommandHandlerFor(RegisterPartnerCommand)
 final class RegisterPartnerCommandHandler
     implements ICommandHandler<RegisterPartnerCommand, RegisterPartnerResult> {
   RegisterPartnerCommandHandler({

@@ -8,6 +8,7 @@ environment:
   sdk: '>=3.11.1 <4.0.0'
 
 dependencies:
+  vet45_annotations: ^0.1.0
   get_it: ^9.2.1
   meta: ^1.17.0
   supabase: ^2.12.2

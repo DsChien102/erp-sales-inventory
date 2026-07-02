@@ -4,8 +4,8 @@
 
 | Module | Vai trò | Owner / Supporting | Package | Trạng thái |
 | ------ | ------- | ------------------ | ------- | ---------- |
-| partner | Hồ sơ, trạng thái, lịch sử read model | **Owner** | `modules/partner/` | skeleton |
-| iam | Auth, tenant, RBAC | Supporting | `modules/iam/` | skeleton |
+| partner | Hồ sơ, trạng thái, lịch sử read model | **Owner** | `modules/partner/` | **codegen enabled** (Epic-01..02) |
+| iam | Auth, tenant, RBAC | Supporting | `modules/iam/` | golden / codegen |
 | sales | Snapshot KH; publish order events | Supporting | `modules/sales/` | skeleton |
 | inventory | Publish inbound events | Supporting | `modules/inventory/` | skeleton |
 | accounting | Publish receivable events | Supporting | `modules/accounting/` | skeleton |
@@ -38,7 +38,9 @@ Xem [01-domain-model.md](01-domain-model.md) cho danh sách event types.
 | `CustomerSnapshot` | sales |
 | `SupplierSnapshot` | inventory |
 
-## Permissions (planned)
+## Permissions
+
+Constants: `PartnerPermissions` trong `modules/partner/domain/` — dùng trong `@RequiresPermission` trên commands/queries; codegen emit `partner_access_metadata.g.dart`.
 
 | Permission code | Gherkin label (ví dụ) | Epic/US |
 | --------------- | --------------------- | ------- |

@@ -20,6 +20,7 @@ Umbrella: `scripts/ci/verify_harness.sh`
 melos bootstrap
 melos run analyze
 melos run test
+melos run codegen          # sau handler mới (BE lane)
 ./scripts/ci/verify_harness.sh
 cd apps/erp && flutter test test/features/partner/   # khi slice có UI
 ```
@@ -34,6 +35,7 @@ cd apps/erp && flutter test test/features/partner/   # khi slice có UI
 | — | Permission label tiếng Việt vs code | Bảng mapping trong 02-module-map.md |
 | — | Epic-03 blocked | Chờ sales/inventory/accounting events |
 | 2026-07-01 | BE/FE lane confusion | 07-api-contracts + FakePartnerModule + traceability Role column |
+| 2026-07-02 | Partner hand-wired CQRS | Bật codegen (mirror IAM); cập nhật ritual + [modules/partner/README.md](../../../../modules/partner/README.md) |
 
 ## Liên kết
 

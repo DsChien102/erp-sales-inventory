@@ -6,13 +6,15 @@ import 'partner_detail_dto.dart';
 
 @RequiresPermission(PartnerPermissions.viewDetail)
 @RequiresTenant()
-final class GetPartnerDetailQuery extends QueryBase<PartnerDetailDto?> {
+final class GetPartnerDetailQuery extends QueryBase<PartnerDetailDto?>
+    implements IQuery<PartnerDetailDto?>, ITenantScopedCommand {
   GetPartnerDetailQuery({
     String? id,
     required this.tenantId,
     required this.partnerId,
   }) : super(id);
 
+  @override
   final String tenantId;
   final String partnerId;
 }

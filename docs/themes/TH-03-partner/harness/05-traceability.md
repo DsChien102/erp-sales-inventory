@@ -15,6 +15,17 @@ Contracts: [07-api-contracts.md](07-api-contracts.md)
 
 ---
 
+## Platform — Partner codegen (infrastructure)
+
+| Req ID | Role | Contract § | Enforce layer | Artifact | Test id | Status |
+| ------ | ---- | ---------- | ------------- | -------- | ------- | ------ |
+| TH-03-PLATFORM | BE | — | infrastructure | `build.yaml` (4 builders), `PartnerCommandPipeline`, `PartnerModuleDefinition` | — | done |
+| TH-03-PLATFORM | BE | — | infrastructure | `registerGeneratedPartnerHandlers` / `partner_access_metadata.g.dart` | partner_access_metadata_registry_test | done |
+
+Codegen ritual: [modules/partner/README.md](../../../../modules/partner/README.md).
+
+---
+
 ## Epic-01 / US-02 — Ghi nhận đối tác mới
 
 | Req ID | Role | Contract § | Enforce layer | Artifact | Test id | Status |

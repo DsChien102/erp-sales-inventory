@@ -4,6 +4,8 @@ Source of truth giữa presentation và application layer. Types live in `module
 
 Facade: `IPartnerModule` (`modules/partner/application/lib/src/contracts/i_partner_module.dart`).
 
+**Access control:** commands/queries dùng `@RequiresPermission(PartnerPermissions.*)` + `@RequiresTenant()`; codegen emit `partner_access_metadata.g.dart` — xem [modules/partner/README.md](../../../../modules/partner/README.md).
+
 **Quy tắc:** FE fake theo contract này — không fake RPC trực tiếp. Scenario ids dùng trong `FakePartnerModule` (`modules/partner/application/lib/src/testing/fake_partner_module.dart`, import `package:vet45_partner_application/testing.dart`).
 
 ---

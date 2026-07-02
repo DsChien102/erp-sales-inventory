@@ -31,21 +31,23 @@ Thứ tự đọc khi implement một FR slice. Platform CQRS/module layout: [do
 melos bootstrap
 melos run analyze
 melos run test
+melos run codegen          # BE lane: sau handler/validator mới
 ./scripts/ci/verify_harness.sh
 cd apps/erp && flutter test test/features/partner/   # khi slice có UI
 ```
 
-## Reference code (interim)
+## Reference code
 
 | Mục đích | Path |
 | -------- | ---- |
-| Command + handler + codegen | `packages/vet45_generator/test/fixtures/lib/src/` |
+| Codegen + CQRS wiring (golden) | `modules/iam/` + [modules/iam/README.md](../../../../modules/iam/README.md) |
+| Partner codegen + vertical slice | `modules/partner/` + [modules/partner/README.md](../../../../modules/partner/README.md) |
+| Command + handler annotations (fixtures) | `packages/vet45_generator/test/fixtures/lib/src/` |
 | Domain VO + rule (full) | `modules/accounting/domain/lib/src/money.dart` |
-| Domain interim (thin) | `modules/iam/domain/` |
 | Pipeline test | `packages/vet45_shared/testing/test/shared_testing_test.dart` |
 | Module layout | `docs/MODULES_IMPLEMENTATION_TEMPLATE.md` |
 | Page mỏng + widgets tách file | `apps/erp/lib/features/dashboard/presentation/` |
 | FE fake theo contract | `modules/partner/application/lib/testing.dart` (`FakePartnerModule`) |
-| Partner vertical slice | `modules/partner/` + `docs/themes/TH-03-partner/harness/07-api-contracts.md` |
+| API contracts | [harness/07-api-contracts.md](07-api-contracts.md) |
 
-**Không copy** từ `modules/sales/` hoặc `modules/iam/` scaffold — chỉ từ fixtures/shared testing cho đến khi IAM golden land.
+**Copy CQRS + codegen pattern từ `modules/iam/` hoặc `modules/partner/`** — không copy từ `modules/sales/` (scaffold).

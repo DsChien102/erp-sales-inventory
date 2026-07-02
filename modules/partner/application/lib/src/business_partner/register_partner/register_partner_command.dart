@@ -4,10 +4,10 @@ import 'package:vet45_shared_application/application.dart';
 
 import 'register_partner_result.dart';
 
-@RequiresPermission('partner.create')
+@RequiresPermission(PartnerPermissions.create)
 @RequiresTenant()
 final class RegisterPartnerCommand extends CommandBase<RegisterPartnerResult>
-    implements ITenantScopedCommand {
+    implements ICommand<RegisterPartnerResult>, ITenantScopedCommand {
   RegisterPartnerCommand({
     String? id,
     required this.tenantId,

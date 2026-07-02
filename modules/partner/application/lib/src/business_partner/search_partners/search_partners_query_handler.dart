@@ -4,6 +4,7 @@ import '../../ports/i_partner_read_gateway.dart';
 import 'partner_search_result_dto.dart';
 import 'search_partners_query.dart';
 
+@QueryHandlerFor(SearchPartnersQuery)
 final class SearchPartnersQueryHandler
     implements IQueryHandler<SearchPartnersQuery, PartnerSearchResultDto> {
   SearchPartnersQueryHandler({

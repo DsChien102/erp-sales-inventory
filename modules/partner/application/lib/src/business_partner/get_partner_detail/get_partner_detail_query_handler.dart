@@ -4,6 +4,7 @@ import '../../ports/i_partner_read_gateway.dart';
 import 'get_partner_detail_query.dart';
 import 'partner_detail_dto.dart';
 
+@QueryHandlerFor(GetPartnerDetailQuery)
 final class GetPartnerDetailQueryHandler
     implements IQueryHandler<GetPartnerDetailQuery, PartnerDetailDto?> {
   GetPartnerDetailQueryHandler({

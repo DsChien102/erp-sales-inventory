@@ -6,6 +6,7 @@ import '../../ports/i_partner_command_gateway.dart';
 import 'update_partner_profile_command.dart';
 import 'update_partner_profile_result.dart';
 
+@CommandHandlerFor(UpdatePartnerProfileCommand)
 final class UpdatePartnerProfileCommandHandler
     implements ICommandHandler<UpdatePartnerProfileCommand, UpdatePartnerProfileResult> {
   UpdatePartnerProfileCommandHandler({

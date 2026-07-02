@@ -7,7 +7,7 @@ import 'reactivate_partner_result.dart';
 @RequiresPermission(PartnerPermissions.manageStatus)
 @RequiresTenant()
 final class ReactivatePartnerCommand extends CommandBase<ReactivatePartnerResult>
-    implements ITenantScopedCommand {
+    implements ICommand<ReactivatePartnerResult>, ITenantScopedCommand {
   ReactivatePartnerCommand({
     String? id,
     required this.tenantId,

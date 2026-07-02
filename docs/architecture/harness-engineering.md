@@ -33,7 +33,7 @@ Ràng buộc kiến trúc được **enforce bằng script/CI**, không chỉ b�
 | Agent doc links | `scripts/ci/guard_docs_reference.sh` |
 | Theme doc structure | `scripts/ci/guard_theme_structure.sh` |
 | Theme traceability (when exemplar complete) | `scripts/ci/guard_theme_traceability.sh` |
-| Codegen freshness (strict, tương lai) | `scripts/ci/guard_codegen_fresh.sh` |
+| Codegen freshness (strict in verify_harness) | `scripts/ci/guard_codegen_fresh.sh` |
 | Presentation file size (≤ 500 lines) | `scripts/ci/guard_presentation_size.sh` |
 | Inline dialogs in pages | `scripts/ci/guard_presentation_dialogs.sh` |
 
@@ -73,9 +73,9 @@ Khi agent fail lặp lại cùng lỗi:
 | **Hiện tại (harness phase)** | `packages/vet45_generator/test/fixtures/`, `packages/vet45_shared/testing/` |
 | **Presentation UI (golden)** | `apps/erp/lib/features/dashboard/presentation/` |
 | **Phase 2 (golden)** | Module `iam` — codegen + ERP auth wiring |
-| **TH-03 partner** | Epic-01 profile CRUD + Epic-02/US-01 status (contract-first lanes) |
+| **TH-03 partner** | Epic-01..02 BE/FE/E2E + **codegen enabled** — [modules/partner/README.md](../../modules/partner/README.md) |
 
-`modules/partner/` có vertical slice Epic-01; các `modules/*` khác vẫn skeleton — xem [04-repository-layout.md](04-repository-layout.md).
+`modules/partner/` có vertical slice Epic-01..02 và codegen; các `modules/*` khác vẫn skeleton — xem [04-repository-layout.md](04-repository-layout.md).
 
 ## BE / FE contract-first lanes (theme `in_progress`)
 
@@ -122,15 +122,11 @@ static I{Module}Module initializeForTesting({
 
 Dùng `Fake<Module>RpcClient` hoặc in-memory Supabase fake — không gọi production RPC trong unit test.
 
-## Codegen gate (bật sau IAM golden)
+## Codegen gate
 
-`guard_codegen_fresh.sh` mặc định **skip**. Bật strict:
+`verify_harness.sh` chạy `GUARD_CODEGEN_STRICT=1` — mọi module bật `vet45_generator` phải commit `.g.dart` fresh sau `melos run codegen`.
 
-```bash
-GUARD_CODEGEN_STRICT=1 ./scripts/ci/guard_codegen_fresh.sh
-```
-
-Khi module bật `vet45_generator|cqrs_registrar`, CI nên set `GUARD_CODEGEN_STRICT=1`.
+Modules hiện bật codegen: `iam`, `partner`.
 
 ## Liên kết
 

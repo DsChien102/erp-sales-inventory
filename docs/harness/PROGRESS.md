@@ -46,8 +46,15 @@ Checklist tiến độ Harness Engineering. Agent đọc file này ở đầu se
 - [x] `GUARD_CODEGEN_STRICT=1` trong `verify_harness.sh`
 - [x] AGENTS.md + `modules/iam/README.md` — IAM là reference chính thức
 - [x] Permission code constants — `IamPermissions` / `InterimPermissionCodes` trong domain; chuẩn hóa trong skills + codegen docs
-- [ ] Permission manifest ownership — gỡ `partner.*`, `settings.einvoice.*` khỏi `IamModuleDefinition`; chuyển sang `@ModuleManifest` của từng module khi bật codegen (xem [interim-domain.md](../../modules/iam/docs/interim-domain.md#cross-module-permission-placeholders-temporary))
+- [ ] Permission manifest ownership — gỡ `partner.*`, `settings.einvoice.*` khỏi `IamModuleDefinition`; partner đã có `PartnerModuleDefinition` — còn gỡ placeholder khỏi IAM khi modules khác bật manifest
 - [ ] IAM vertical slice đầy đủ (SRS Theme 1): aggregates, onboarding, role catalog UI
+
+## Phase 2.1 — Partner codegen (TH-03)
+
+- [x] Partner codegen enabled — 4 builders, `registerGeneratedPartnerHandlers`, `PartnerCommandPipeline`, `partner_access_metadata.g.dart`
+- [x] `@ModuleManifest` — `PartnerModuleDefinition` + `PartnerPermissions` constants
+- [x] Hand-maintained wiring removed — `data_access` gateways only; mediation via `.g.dart`
+- [x] [modules/partner/README.md](../../modules/partner/README.md) — codegen ritual + handler checklist
 
 ## Flywheel log
 
@@ -62,3 +69,4 @@ Ghi các cải tiến harness sau khi agent fail (ngày + mô tả ngắn):
 | 2026-06-30 | IAM minimal — DB RBAC, access checkers, ERP auth migration via IIamModule |
 | 2026-06-30 | Implemented Presentation Layer for TH-03 Epic-01 US-03 (Bổ sung và chỉnh sửa) |
 | 2026-07-01 | BE/FE harness lanes — 07-api-contracts, FakePartnerModule, Epic-02/US-01 contract-first |
+| 2026-07-02 | Partner codegen — hand-wired mediation/access → generated registrars; TH-03 harness + README updated |

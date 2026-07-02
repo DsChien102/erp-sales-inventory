@@ -5,6 +5,7 @@ import 'package:vet45_shared_domain/shared_kernel_domain.dart';
 import 'check_duplicate_partners_for_update_query.dart';
 import 'partner_duplicate_match_dto.dart';
 
+@QueryHandlerFor(CheckDuplicatePartnersForUpdateQuery)
 final class CheckDuplicatePartnersForUpdateQueryHandler
     implements IQueryHandler<CheckDuplicatePartnersForUpdateQuery, List<PartnerDuplicateMatchDto>> {
   CheckDuplicatePartnersForUpdateQueryHandler({

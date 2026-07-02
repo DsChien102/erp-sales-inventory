@@ -6,6 +6,7 @@ import '../../ports/i_partner_command_gateway.dart';
 import 'deactivate_partner_command.dart';
 import 'deactivate_partner_result.dart';
 
+@CommandHandlerFor(DeactivatePartnerCommand)
 final class DeactivatePartnerCommandHandler
     implements ICommandHandler<DeactivatePartnerCommand, DeactivatePartnerResult> {
   DeactivatePartnerCommandHandler({

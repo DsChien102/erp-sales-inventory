@@ -2,15 +2,14 @@ import 'package:get_it/get_it.dart';
 import 'package:supabase/supabase.dart';
 import 'package:vet45_adapters/vet45_adapters.dart';
 import 'package:vet45_partner_application/application.dart';
-import 'package:vet45_partner_domain/domain.dart';
-import 'package:vet45_shared_application/application.dart';
 import 'package:vet45_shared_infrastructure/infrastructure.dart';
 
 import '../../domain/business_partner/supabase_partner_command_gateway.dart';
 import '../../domain/business_partner/supabase_partner_duplicate_checker.dart';
 import '../../domain/business_partner/supabase_partner_read_gateway.dart';
+import '../processing/internal_commands/supabase_partner_internal_command_client.dart';
 
-/// Registers partner gateways, handlers, and validators.
+/// Registers partner gateways and checkers.
 final class PartnerDataAccessModule {
   const PartnerDataAccessModule();
 
@@ -45,65 +44,8 @@ final class PartnerDataAccessModule {
           rpcClient: container.get<SupabaseSchemaRpcClient>(),
         ),
       )
-      ..registerSingleton<ICommandValidator<RegisterPartnerCommand>>(
-        RegisterPartnerCommandValidator(),
-      )
-      ..registerSingleton<ICommandValidator<UpdatePartnerProfileCommand>>(
-        UpdatePartnerProfileCommandValidator(),
-      )
-      ..registerSingleton<ICommandValidator<DeactivatePartnerCommand>>(
-        DeactivatePartnerCommandValidator(),
-      )
-      ..registerSingleton<ICommandValidator<ReactivatePartnerCommand>>(
-        ReactivatePartnerCommandValidator(),
-      )
-      ..registerSingleton<ICommandValidator<DeletePartnerCommand>>(
-        DeletePartnerCommandValidator(),
-      )
-      ..registerSingleton(
-        RegisterPartnerCommandHandler(
-          commandGateway: container.get<IPartnerCommandGateway>(),
-        ),
-      )
-      ..registerSingleton(
-        UpdatePartnerProfileCommandHandler(
-          commandGateway: container.get<IPartnerCommandGateway>(),
-        ),
-      )
-      ..registerSingleton(
-        DeactivatePartnerCommandHandler(
-          commandGateway: container.get<IPartnerCommandGateway>(),
-        ),
-      )
-      ..registerSingleton(
-        ReactivatePartnerCommandHandler(
-          commandGateway: container.get<IPartnerCommandGateway>(),
-        ),
-      )
-      ..registerSingleton(
-        DeletePartnerCommandHandler(
-          commandGateway: container.get<IPartnerCommandGateway>(),
-        ),
-      )
-      ..registerSingleton(
-        CheckDuplicatePartnersQueryHandler(
-          duplicateChecker: container.get<IPartnerDuplicateChecker>(),
-        ),
-      )
-      ..registerSingleton(
-        CheckDuplicatePartnersForUpdateQueryHandler(
-          duplicateChecker: container.get<IPartnerDuplicateChecker>(),
-        ),
-      )
-      ..registerSingleton(
-        SearchPartnersQueryHandler(
-          readGateway: container.get<IPartnerReadGateway>(),
-        ),
-      )
-      ..registerSingleton(
-        GetPartnerDetailQueryHandler(
-          readGateway: container.get<IPartnerReadGateway>(),
-        ),
+      ..registerSingleton<IPartnerInternalCommandClient>(
+        const SupabasePartnerInternalCommandClient(),
       );
   }
 }

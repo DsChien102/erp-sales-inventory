@@ -1,7 +1,7 @@
 import 'package:test/test.dart';
 import 'package:vet45_partner_application/application.dart';
 import 'package:vet45_partner_domain/domain.dart';
-import 'package:vet45_partner_infrastructure/src/access/partner_access_metadata_registry.dart';
+import 'package:vet45_partner_infrastructure/src/configuration/processing/generated/partner_access_metadata.g.dart';
 
 void main() {
   group('partnerAccessMetadataRegistry', () {
@@ -10,7 +10,7 @@ void main() {
         CheckDuplicatePartnersQuery,
       );
 
-      expect(metadata?.permission, 'partner.create');
+      expect(metadata?.permission, PartnerPermissions.create);
       expect(metadata?.requiresTenant, isTrue);
     });
 

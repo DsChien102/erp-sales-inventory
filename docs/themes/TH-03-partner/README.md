@@ -10,7 +10,7 @@ Quản lý hồ sơ đối tác (khách hàng, nhà cung cấp, hoặc cả hai)
 
 | Module | Vai trò | Package |
 | ------ | ------- | ------- |
-| partner | **Owner** | `modules/partner/` |
+| partner | **Owner** — codegen enabled | `modules/partner/` ([README](../../../modules/partner/README.md)) |
 | iam | Supporting — auth, tenant, permission | `modules/iam/` |
 | sales | Supporting — snapshot, publish transaction events | `modules/sales/` |
 | inventory | Supporting — publish inbound events | `modules/inventory/` |

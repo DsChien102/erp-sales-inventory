@@ -4,9 +4,10 @@ import 'package:vet45_shared_application/application.dart';
 
 import 'partner_search_result_dto.dart';
 
-@RequiresPermission('partner.view')
+@RequiresPermission(PartnerPermissions.view)
 @RequiresTenant()
-final class SearchPartnersQuery extends QueryBase<PartnerSearchResultDto> {
+final class SearchPartnersQuery extends QueryBase<PartnerSearchResultDto>
+    implements IQuery<PartnerSearchResultDto>, ITenantScopedCommand {
   SearchPartnersQuery({
     String? id,
     required this.tenantId,
@@ -15,6 +16,7 @@ final class SearchPartnersQuery extends QueryBase<PartnerSearchResultDto> {
     this.offset = 0,
   }) : super(id);
 
+  @override
   final String tenantId;
   final PartnerSearchCriteria criteria;
   final int limit;

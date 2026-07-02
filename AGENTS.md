@@ -10,7 +10,7 @@ Tài liệu này là **điểm vào chính** cho AI coding agents. Nếu thông 
 | `modules/iam/` | **Golden module** — codegen bật, auth + tenant/membership interim; xem [modules/iam/README.md](modules/iam/README.md) |
 | `packages/vet45_generator/test/fixtures/` | Reference CQRS tạm (khi chưa cần đọc IAM) |
 | `packages/vet45_shared/testing/` | Test harness (`PipelineTestHarness`, fakes) |
-| `modules/partner/` | **TH-03 in progress** — Epic-01 profile CRUD done; Epic-02/US-01 status mutations; harness lanes BE/FE/E2E |
+| `modules/partner/` | **TH-03 in progress** — codegen bật; Epic-01 profile CRUD + Epic-02 status done; xem [modules/partner/README.md](modules/partner/README.md) |
 | `modules/*` (các context khác) | **Greenfield skeleton** — chưa codegen |
 | `apps/erp/features/auth/` | Auth **presentation shell** — login/logout qua `IIamModule` / `IamStartup` |
 | `apps/messaging_worker/` | Worker messaging — có tests |
@@ -40,6 +40,7 @@ packages/vet45_shared/*     → never import modules/
 | Mục đích | Path |
 | -------- | ---- |
 | Golden module (codegen + access + wiring) | `modules/iam/` + [modules/iam/README.md](modules/iam/README.md) |
+| Module codegen (second reference) | `modules/partner/` + [modules/partner/README.md](modules/partner/README.md) |
 | Command + handler + `@CommandHandlerFor` (fixtures) | `packages/vet45_generator/test/fixtures/lib/src/` |
 | Pipeline + validator + in-memory bus test | `packages/vet45_shared/testing/test/shared_testing_test.dart` |
 | Module layout mục tiêu | `docs/MODULES_IMPLEMENTATION_TEMPLATE.md` |
@@ -114,6 +115,7 @@ Theme đang deliver: [docs/themes/TH-03-partner/](docs/themes/TH-03-partner/)
 - Ritual: [harness/00-agent-ritual.md](docs/themes/TH-03-partner/harness/00-agent-ritual.md)
 - Contracts: [harness/07-api-contracts.md](docs/themes/TH-03-partner/harness/07-api-contracts.md)
 - Slice order + lanes: [harness/04-slice-roadmap.md](docs/themes/TH-03-partner/harness/04-slice-roadmap.md)
+- Codegen: [modules/partner/README.md](modules/partner/README.md)
 
 ## Liên kết
 

@@ -7,6 +7,7 @@ import 'package:vet45_shared_infrastructure/infrastructure.dart';
 
 import 'data_access/data_access_module.dart';
 import 'mediation/mediation_module.dart';
+import 'processing/generated/partner_access_metadata.g.dart';
 import '../partner_module.dart';
 
 /// Composition root entry point for the partner bounded context.
@@ -69,12 +70,12 @@ abstract final class PartnerStartup {
       loggerFactory: loggerFactory,
     );
 
+    container.registerSingleton<IAccessMetadataRegistry>(partnerAccessMetadataRegistry);
+
     const PartnerMediationModule().load(
       container: container,
       commandBus: container.get<CommandBus>(),
       queryBus: container.get<QueryBus>(),
-      permissionChecker: permissionChecker,
-      tenantAccessChecker: tenantAccessChecker,
       commandLogger: commandLogger,
     );
 

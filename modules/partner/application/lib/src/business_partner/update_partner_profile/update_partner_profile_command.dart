@@ -7,7 +7,7 @@ import 'update_partner_profile_result.dart';
 @RequiresPermission(PartnerPermissions.update)
 @RequiresTenant()
 final class UpdatePartnerProfileCommand extends CommandBase<UpdatePartnerProfileResult>
-    implements ITenantScopedCommand {
+    implements ICommand<UpdatePartnerProfileResult>, ITenantScopedCommand {
   UpdatePartnerProfileCommand({
     String? id,
     required this.tenantId,

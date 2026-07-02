@@ -1,5 +1,6 @@
 library;
 
+export 'package:vet45_partner_domain/domain.dart' show IPartnerDuplicateChecker;
 export 'src/business_partner/check_duplicate/check_duplicate_partners_for_update_query.dart';
 export 'src/business_partner/check_duplicate/check_duplicate_partners_for_update_query_handler.dart';
 export 'src/business_partner/check_duplicate/check_duplicate_partners_query.dart';

@@ -6,6 +6,7 @@ import '../../ports/i_partner_command_gateway.dart';
 import 'delete_partner_command.dart';
 import 'delete_partner_result.dart';
 
+@CommandHandlerFor(DeletePartnerCommand)
 final class DeletePartnerCommandHandler
     implements ICommandHandler<DeletePartnerCommand, DeletePartnerResult> {
   DeletePartnerCommandHandler({
