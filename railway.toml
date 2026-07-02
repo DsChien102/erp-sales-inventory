@@ -3,7 +3,11 @@ builder = "DOCKERFILE"
 dockerfilePath = "apps/messaging_worker/Dockerfile"
 watchPatterns = [
   "apps/messaging_worker/**",
-  "modules/**",
+  "modules/partner/**",
+  "packages/vet45_generator/**",
+  "packages/vet45_lints/**",
+  "packages/vet45_adapters/**",
+  "packages/vet45_annotations/**",
   "packages/vet45_shared/**",
   "pubspec.yaml",
   "pubspec.lock",

@@ -61,6 +61,22 @@ Validators: `implements ICommandValidator<MyCommand>` — auto-registered by cod
 
 `PartnerCommandPipeline.buildBusinessPipeline` injects generated `partnerAccessMetadataRegistry` + checkers from GetIt.
 
+## Messaging worker
+
+Partner Epic-03 consume path runs in `apps/messaging_worker` — **không** cần full `PartnerStartup` DI.
+
+```dart
+import 'package:vet45_partner_infrastructure/infrastructure.dart';
+
+final partnerModule = PartnerMessagingModuleFactory.create(
+  supabase: serviceRoleClient,
+  loggerFactory: loggerFactory,
+);
+// MessagingModuleRegistry([partnerModule])
+```
+
+Factory builds `PartnerInboxProcessor` + `PartnerInternalCommandProcessor` + `PartnerTransactionHistoryIngestor` with service-role `SupabaseSchemaRpcClient` on schema `partner`. Cross-module E2E vẫn blocked cho đến khi platform outbox relay + source publishers ship.
+
 ## New handler checklist
 
 1. Annotate handler (`@CommandHandlerFor` / `@QueryHandlerFor`)

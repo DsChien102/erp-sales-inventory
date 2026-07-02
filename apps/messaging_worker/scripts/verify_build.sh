@@ -19,9 +19,23 @@ fi
 if command -v docker >/dev/null 2>&1; then
   echo "==> docker build (optional)"
   cd "$ROOT"
-  docker build -f apps/messaging_worker/Dockerfile -t messaging-worker:local . \
-    && echo "    OK: messaging-worker:local" \
-    || echo "    WARN: docker build failed (credentials or network)"
+  docker_build_ok=false
+  if docker build -f apps/messaging_worker/Dockerfile -t messaging-worker:local .; then
+    docker_build_ok=true
+    echo "    OK: messaging-worker:local"
+  else
+    # Work around broken docker-credential-desktop on some macOS setups.
+    DOCKER_NOCREDS="$(mktemp -d)"
+    printf '{"auths":{}}' > "${DOCKER_NOCREDS}/config.json"
+    if DOCKER_CONFIG="${DOCKER_NOCREDS}" docker build -f apps/messaging_worker/Dockerfile -t messaging-worker:local .; then
+      docker_build_ok=true
+      echo "    OK: messaging-worker:local (no credential helper)"
+    fi
+    rm -rf "${DOCKER_NOCREDS}"
+  fi
+  if [[ "$docker_build_ok" != true ]]; then
+    echo "    WARN: docker build failed (credentials or network)"
+  fi
 else
   echo "==> docker not available, skipping image build"
 fi

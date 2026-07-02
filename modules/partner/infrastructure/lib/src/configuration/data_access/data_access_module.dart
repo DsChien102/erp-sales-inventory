@@ -57,11 +57,6 @@ final class PartnerDataAccessModule {
         ),
       )
       ..registerSingleton(
-        GetPartnerTransactionHistoryQueryHandler(
-          readGateway: container.get<IPartnerTransactionHistoryReadGateway>(),
-        ),
-      )
-      ..registerSingleton(
         RecordPartnerTransactionHistoryCommandHandler(
           writeGateway: container.get<IPartnerTransactionHistoryWriteGateway>(),
         ),

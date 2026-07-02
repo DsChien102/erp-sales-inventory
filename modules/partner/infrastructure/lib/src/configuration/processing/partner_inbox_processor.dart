@@ -1,16 +1,15 @@
-import 'package:vet45_adapters/vet45_adapters.dart';
-
+import 'partner_schema_rpc.dart';
 import 'partner_transaction_history_ingestor.dart';
 
 /// Drains `partner.inbox_messages` and projects transaction history rows.
 final class PartnerInboxProcessor {
   PartnerInboxProcessor({
-    required SupabaseSchemaRpcClient rpcClient,
+    required PartnerSchemaRpc rpcClient,
     required PartnerTransactionHistoryIngestor ingestor,
   })  : _rpcClient = rpcClient,
         _ingestor = ingestor;
 
-  final SupabaseSchemaRpcClient _rpcClient;
+  final PartnerSchemaRpc _rpcClient;
   final PartnerTransactionHistoryIngestor _ingestor;
 
   Future<bool> processOnce({

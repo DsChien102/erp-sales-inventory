@@ -1,16 +1,17 @@
-import 'package:vet45_adapters/vet45_adapters.dart';
 import 'package:vet45_partner_application/application.dart';
 import 'package:vet45_partner_domain/domain.dart';
+
+import 'partner_schema_rpc.dart';
 
 /// Drains `partner.internal_commands` for durable projection writes.
 final class PartnerInternalCommandProcessor {
   PartnerInternalCommandProcessor({
-    required SupabaseSchemaRpcClient rpcClient,
+    required PartnerSchemaRpc rpcClient,
     required RecordPartnerTransactionHistoryCommandHandler recordHandler,
   })  : _rpcClient = rpcClient,
         _recordHandler = recordHandler;
 
-  final SupabaseSchemaRpcClient _rpcClient;
+  final PartnerSchemaRpc _rpcClient;
   final RecordPartnerTransactionHistoryCommandHandler _recordHandler;
 
   Future<bool> processOnce({

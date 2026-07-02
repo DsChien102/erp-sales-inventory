@@ -39,6 +39,13 @@ abstract final class FakePartnerScenario {
   static const deactivateSaveError = 'deactivate_save_error';
   static const reactivateSaveError = 'reactivate_save_error';
   static const deleteSaveError = 'delete_save_error';
+
+  // Epic-03 US-01 transaction history
+  static const historyEmpty = 'history_empty';
+  static const historyItems = 'history_items';
+  static const historyFiltered = 'history_filtered';
+  static const historyPermissionDenied = 'history_permission_denied';
+  static const historyError = 'history_error';
 }
 
 /// Configurable [IPartnerModule] for widget and presentation tests.
@@ -97,6 +104,11 @@ final class FakePartnerModule implements IPartnerModule {
     }
     if (query is CheckDuplicatePartnersForUpdateQuery) {
       return _handleCheckDuplicateForUpdate<TResult>();
+    }
+    if (query is GetPartnerTransactionHistoryQuery) {
+      return _handleTransactionHistory<TResult>(
+        query as GetPartnerTransactionHistoryQuery,
+      );
     }
     throw UnimplementedError('Unexpected query: ${query.runtimeType}');
   }
@@ -213,6 +225,65 @@ final class FakePartnerModule implements IPartnerModule {
   }
 
   TResult _handleCheckDuplicateForUpdate<TResult>() => _handleCheckDuplicate<TResult>();
+
+  TResult _handleTransactionHistory<TResult>(GetPartnerTransactionHistoryQuery query) {
+    switch (scenario) {
+      case FakePartnerScenario.historyPermissionDenied:
+        throw ApplicationException('Permission denied');
+      case FakePartnerScenario.historyError:
+        throw ApplicationException('Network error');
+      case FakePartnerScenario.historyEmpty:
+        return const PartnerTransactionHistoryResultDto(
+          items: [],
+          totalCount: 0,
+        ) as TResult;
+      case FakePartnerScenario.historyFiltered:
+        final types = query.criteria.transactionTypes;
+        if (types != null && types.contains('purchase')) {
+          return PartnerTransactionHistoryResultDto(
+            items: [_sampleHistoryItem(query.partnerId, transactionType: 'purchase')],
+            totalCount: 1,
+          ) as TResult;
+        }
+        return const PartnerTransactionHistoryResultDto(
+          items: [],
+          totalCount: 0,
+        ) as TResult;
+      case FakePartnerScenario.historyItems:
+      default:
+        return PartnerTransactionHistoryResultDto(
+          items: [
+            _sampleHistoryItem(query.partnerId, transactionType: 'sales'),
+            _sampleHistoryItem(query.partnerId, transactionType: 'purchase'),
+          ],
+          totalCount: 2,
+        ) as TResult;
+    }
+  }
+
+  PartnerTransactionHistoryItemDto _sampleHistoryItem(
+    String partnerId, {
+    required String transactionType,
+  }) {
+    return PartnerTransactionHistoryItemDto(
+      id: 'history-$transactionType',
+      partnerId: partnerId,
+      transactionRole: transactionType == 'purchase'
+          ? PartnerRole.supplier.name
+          : PartnerRole.customer.name,
+      transactionType: transactionType,
+      occurredAt: DateTime.parse('2026-06-25T14:30:00Z'),
+      transactionCode: transactionType == 'sales' ? 'SO-2026-0001' : 'PO-2026-0001',
+      amount: 1500000,
+      status: 'done',
+      description: 'Sample $transactionType transaction',
+      sourceNavigation: PartnerTransactionSourceNavigationDto(
+        sourceModule: transactionType == 'sales' ? 'sales' : 'inventory',
+        sourceType: transactionType == 'sales' ? 'sales_order' : 'purchase_order',
+        sourceId: 'source-$transactionType',
+      ),
+    );
+  }
 
   TResult _handleDeactivate<TResult>(DeactivatePartnerCommand command) {
     switch (scenario) {

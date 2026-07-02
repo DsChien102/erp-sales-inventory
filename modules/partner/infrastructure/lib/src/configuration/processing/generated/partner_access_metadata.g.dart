@@ -26,6 +26,10 @@ final partnerAccessMetadataRegistry = AccessMetadataRegistry({
     permission: 'partner.view_detail',
     requiresTenant: true,
   ),
+  GetPartnerTransactionHistoryQuery: AccessMetadata(
+    permission: 'partner.view_transaction_history',
+    requiresTenant: true,
+  ),
   ReactivatePartnerCommand: AccessMetadata(
     permission: 'partner.manage_status',
     requiresTenant: true,

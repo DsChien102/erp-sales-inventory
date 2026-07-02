@@ -4,6 +4,7 @@ import '../../ports/i_partner_transaction_history_read_gateway.dart';
 import 'get_partner_transaction_history_query.dart';
 import 'partner_transaction_history_result_dto.dart';
 
+@QueryHandlerFor(GetPartnerTransactionHistoryQuery)
 final class GetPartnerTransactionHistoryQueryHandler
     implements
         IQueryHandler<

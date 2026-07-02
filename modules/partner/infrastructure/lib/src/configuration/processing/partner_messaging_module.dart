@@ -6,6 +6,7 @@ import 'package:vet45_shared_infrastructure/infrastructure.dart';
 import '../../domain/transaction_history/supabase_partner_transaction_history_write_gateway.dart';
 import 'partner_inbox_processor.dart';
 import 'partner_internal_command_processor.dart';
+import 'partner_schema_rpc.dart';
 import 'partner_transaction_history_ingestor.dart';
 
 /// Partner bounded context messaging adapter for `messaging_worker`.
@@ -50,15 +51,16 @@ abstract final class PartnerMessagingModuleFactory {
     ILoggerFactory? loggerFactory,
   }) {
     final resolvedLoggerFactory = loggerFactory ?? const NullLoggerFactory();
-    final rpcClient = SupabaseSchemaRpcClient(
+    final schemaRpcClient = SupabaseSchemaRpcClient(
       supabase: supabase,
       schema: 'partner',
       mapError: (error, [stackTrace]) => RpcException(error.toString()),
       logger: resolvedLoggerFactory.named('partner.messaging.rpc'),
     );
+    final rpcClient = SupabasePartnerSchemaRpc(schemaRpcClient);
 
     final writeGateway = SupabasePartnerTransactionHistoryWriteGateway(
-      rpcClient: rpcClient,
+      rpcClient: schemaRpcClient,
     );
     final recordHandler = RecordPartnerTransactionHistoryCommandHandler(
       writeGateway: writeGateway,

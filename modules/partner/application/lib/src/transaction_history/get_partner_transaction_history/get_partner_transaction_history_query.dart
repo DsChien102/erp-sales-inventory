@@ -7,7 +7,10 @@ import 'partner_transaction_history_result_dto.dart';
 @RequiresPermission(PartnerPermissions.viewTransactionHistory)
 @RequiresTenant()
 final class GetPartnerTransactionHistoryQuery
-    extends QueryBase<PartnerTransactionHistoryResultDto> {
+    extends QueryBase<PartnerTransactionHistoryResultDto>
+    implements
+        IQuery<PartnerTransactionHistoryResultDto>,
+        ITenantScopedCommand {
   GetPartnerTransactionHistoryQuery({
     String? id,
     required this.tenantId,
@@ -17,6 +20,7 @@ final class GetPartnerTransactionHistoryQuery
     this.offset = 0,
   }) : super(id);
 
+  @override
   final String tenantId;
   final String partnerId;
   final PartnerTransactionHistoryCriteria criteria;

@@ -13,11 +13,13 @@ final partnerModuleManifest = GeneratedModuleManifest(
     'partner.update',
     'partner.view',
     'partner.view_detail',
+    'partner.view_transaction_history',
   ],
   commandTypes: [
     DeactivatePartnerCommand,
     DeletePartnerCommand,
     ReactivatePartnerCommand,
+    RecordPartnerTransactionHistoryCommand,
     RegisterPartnerCommand,
     UpdatePartnerProfileCommand,
   ],
@@ -25,6 +27,7 @@ final partnerModuleManifest = GeneratedModuleManifest(
     CheckDuplicatePartnersForUpdateQuery,
     CheckDuplicatePartnersQuery,
     GetPartnerDetailQuery,
+    GetPartnerTransactionHistoryQuery,
     SearchPartnersQuery,
   ],
 );

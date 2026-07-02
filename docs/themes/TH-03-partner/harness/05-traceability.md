@@ -26,6 +26,19 @@ Codegen ritual: [modules/partner/README.md](../../../../modules/partner/README.m
 
 ---
 
+## Platform — Messaging worker (Epic-03 consume)
+
+| Req ID | Role | Contract § | Enforce layer | Artifact | Test id | Status |
+| ------ | ---- | ---------- | ------------- | -------- | ------- | ------ |
+| TH-03-WORKER | BE | §US-01 | infrastructure | `PartnerMessagingModule`, `PartnerMessagingModuleFactory` | partner_messaging_module_test | done |
+| TH-03-WORKER | BE | §US-01 | infrastructure | `PartnerInboxProcessor`, `PartnerInternalCommandProcessor` | partner_inbox_processor_test, partner_internal_command_processor_test | done |
+| TH-03-WORKER | BE | — | apps/messaging_worker | `messaging_worker_bootstrap.dart` registry `['partner']` | messaging_worker_loop_test | done |
+| TH-03-WORKER | BE | — | sql | `scripts/supabase/messaging_smoke_test.sql` partner inbox + projection | — | done |
+
+E2E cross-module relay: blocked — xem Epic-03 E2E rows below.
+
+---
+
 ## Epic-01 / US-02 — Ghi nhận đối tác mới
 
 | Req ID | Role | Contract § | Enforce layer | Artifact | Test id | Status |
