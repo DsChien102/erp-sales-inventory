@@ -9,7 +9,7 @@ Khung viết theme mới: [THEME_DOCUMENTATION_TEMPLATE.md](THEME_DOCUMENTATION_
 | Mã | Tên | Mô tả ngắn | Folder doc | Trạng thái |
 | -- | --- | ---------- | ---------- | ---------- |
 | **TH-01** | Thiết lập cửa hàng | Tenant, user, role, phân quyền | [TH-01-store-setup/](TH-01-store-setup/) | in_progress (IAM interim) |
-| **TH-02** | Sản phẩm & giá bán | Sản phẩm, SKU, ĐVT, barcode, giá | [TH-02-product-pricing/](TH-02-product-pricing/) | planned |
+| **TH-02** | Sản phẩm & giá bán | Sản phẩm, SKU, ĐVT, barcode, giá | [TH-02-product-pricing/](TH-02-product-pricing/) | in_progress |
 | **TH-03** | Khách hàng & NCC | Khách hàng, nhà cung cấp, lịch sử giao dịch | [TH-03-partner/](TH-03-partner/) | in_progress |
 | **TH-04** | Bán hàng & đơn hàng | Đơn, nháp, thanh toán, tra cứu | [TH-04-sales-orders/](TH-04-sales-orders/) | planned |
 | **TH-05** | Công nợ | Phải thu/phải trả, thanh toán, cấn trừ | [TH-05-receivables-payables/](TH-05-receivables-payables/) | planned |
@@ -27,7 +27,7 @@ Khung viết theme mới: [THEME_DOCUMENTATION_TEMPLATE.md](THEME_DOCUMENTATION_
 | Theme | Code / harness | Ghi chú |
 | ----- | -------------- | ------- |
 | TH-01 | `modules/iam/` codegen + ERP auth shell | Chưa có Epic/US tree; xem [TH-01 README](TH-01-store-setup/README.md) |
-| TH-02 | README + Epic/US/FR tree (2 epic, 7 US) | Skeleton doc; `catalog` module greenfield — xem [TH-02 README](TH-02-product-pricing/README.md) |
+| TH-02 | README + `harness/00..07` + Epic/US/FR (2 epic, 7 US) | Harness scaffold; `catalog` module greenfield — xem [TH-02 README](TH-02-product-pricing/README.md) |
 | TH-04–TH-07, TH-09–TH-11 | README + business-scope + module-map | Skeleton doc; module packages greenfield |
 | TH-03 | README + `harness/00..07` + Epic/US/FR | Epic-01/02 BE+FE done; Epic-03 E2E blocked (cross-module publish) |
 | TH-08 | Chưa có folder | Tạo `TH-08-accounting-and-tax/` khi bắt đầu SRS |
