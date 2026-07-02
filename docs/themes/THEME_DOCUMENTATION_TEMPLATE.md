@@ -46,10 +46,19 @@ docs/themes/TH-xx-{{slug}}/
 **Trạng thái deliver:** planned | in_progress | mvp | done
 
 ## Module tham gia
-## Epic index (link)
-## Harness: [harness/](harness/)
+## Epic index
+
+| Epic | Folder | US | FR | Status |
+| ---- | ------ | -- | -- | ------ |
+
+## Tài liệu
+## Harness: [harness/](harness/) (khi in_progress)
 ## Platform: [docs/architecture/](../../architecture/README.md)
 ```
+
+Epic `README.md` — thêm **User stories** catalog (US → folder → FR count).
+
+US `README.md` — thêm **Functional requirements** catalog (FR → tên → link `FR-{nn}.md`).
 
 ---
 
