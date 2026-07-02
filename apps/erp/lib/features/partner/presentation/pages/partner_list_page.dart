@@ -24,10 +24,16 @@ class PartnerListPage extends StatelessWidget {
       ),
       child: Builder(
         builder: (context) {
+          final state = context.watch<PartnerListCubit>().state;
           return Scaffold(
             backgroundColor: dynamicColors.background,
             appBar: VAppBar(
               title: 'Khách hàng & Nhà cung cấp',
+              titleStyle: VTypography.headingH4.copyWith(
+                color: dynamicColors.textPrimary,
+                fontWeight: FontWeight.w700,
+              ),
+              subtitle: '${state.totalCount} hồ sơ',
               showBackButton: false,
               actions: [
                 IconButton(
@@ -129,8 +135,15 @@ class PartnerListPage extends StatelessWidget {
                 getIt<IPrincipalSnapshot>().hasPermission(PartnerPermissions.create)
                 ? FloatingActionButton(
                     onPressed: () async {
-                      await context.push('/partner/create');
-                      if (context.mounted) {
+                      final result = await context.push('/partner/create');
+                      if (!context.mounted) return;
+
+                      if (result is PartnerItemModel) {
+                        await context.push('/partner/detail', extra: result);
+                        if (context.mounted) {
+                          await context.read<PartnerListCubit>().load();
+                        }
+                      } else if (result == true) {
                         await context.read<PartnerListCubit>().load();
                       }
                     },

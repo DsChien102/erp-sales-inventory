@@ -68,7 +68,7 @@ class _PartnerCreateView extends StatelessWidget {
               createdAt: 'Vừa xong',
               updatedBy: 'Bạn',
             );
-            context.pushReplacement('/partner/detail', extra: model);
+            context.pop(model);
           } else {
             context.pop(true);
           }

@@ -64,7 +64,13 @@ class PartnerListCubit extends Cubit<PartnerListState> {
         ),
       );
 
-      final mappedItems = result.items.map(PartnerUiMapper.toListItem).toList();
+      final sortedItems = result.items.toList();
+      sortedItems.sort((a, b) {
+        if (a.status == PartnerStatus.active && b.status != PartnerStatus.active) return -1;
+        if (a.status != PartnerStatus.active && b.status == PartnerStatus.active) return 1;
+        return b.updatedAt.compareTo(a.updatedAt);
+      });
+      final mappedItems = sortedItems.map(PartnerUiMapper.toListItem).toList();
       final partners = reset
           ? mappedItems
           : [...state.partners, ...mappedItems];
