@@ -66,9 +66,7 @@ File: [.circleci/config.yml](../../.circleci/config.yml)
 
 | Workflow | Mô tả |
 |---|---|
-| `verify` | Mọi push/PR — `verify_workspace` (không test messaging worker) |
-| `deploy_staging` | Approval → `verify_messaging_worker` → deploy worker / iOS staging |
-| `deploy_production` | Approval → `verify_messaging_worker` → deploy worker / iOS production |
+| `verify` | Mọi push/PR — `verify_workspace`; trên `dev`/`main` thêm chuỗi deploy staging; trên `main` thêm chuỗi deploy production |
 
 **Contexts cần tạo trên CircleCI:**
 

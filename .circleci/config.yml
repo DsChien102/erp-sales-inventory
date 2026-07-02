@@ -6,6 +6,18 @@ x-flutter-ci-image: &flutter-ci-image
 x-pub-cache-key: &pub-cache-key
   pub-cache-v1-{{ checksum "pubspec.yaml" }}
 
+x-branch-dev-main: &branch-dev-main
+  filters:
+    branches:
+      only:
+        - dev
+        - main
+
+x-branch-main: &branch-main
+  filters:
+    branches:
+      only: main
+
 commands:
   ssh_gitlab:
     steps:
@@ -15,6 +27,11 @@ commands:
       - add_ssh_keys:
           fingerprints:
             - "SHA256:BjKqeddG2HypPT8wjQGQnBo5v9a1zoqYGpE4DNAlEnk"
+
+  checkout_gitlab:
+    steps:
+      - ssh_gitlab
+      - checkout
 
   restore_pub_cache:
     steps:
@@ -52,8 +69,7 @@ jobs:
     environment:
       CI: true
     steps:
-      - ssh_gitlab
-      - checkout
+      - checkout_gitlab
       - restore_pub_cache
       - bootstrap_workspace
       - run:
@@ -79,14 +95,30 @@ jobs:
             done
       - save_pub_cache
 
-  verify_messaging_worker:
+  verify_messaging_worker_staging:
     docker:
       - <<: *flutter-ci-image
     environment:
       CI: true
     steps:
-      - ssh_gitlab
-      - checkout
+      - checkout_gitlab
+      - restore_pub_cache
+      - bootstrap_workspace
+      - run:
+          name: Messaging worker tests
+          command: cd apps/messaging_worker && dart test
+      - run:
+          name: Messaging worker compile verify
+          command: ./apps/messaging_worker/scripts/verify_build.sh
+      - save_pub_cache
+
+  verify_messaging_worker_production:
+    docker:
+      - <<: *flutter-ci-image
+    environment:
+      CI: true
+    steps:
+      - checkout_gitlab
       - restore_pub_cache
       - bootstrap_workspace
       - run:
@@ -101,7 +133,7 @@ jobs:
     docker:
       - image: cimg/base:stable
     steps:
-      - checkout
+      - checkout_gitlab
       - run:
           name: Deploy messaging worker (staging)
           command: ./apps/messaging_worker/scripts/deploy.sh --env staging --secrets --ci
@@ -110,7 +142,7 @@ jobs:
     docker:
       - image: cimg/base:stable
     steps:
-      - checkout
+      - checkout_gitlab
       - run:
           name: Deploy messaging worker (production)
           command: ./apps/messaging_worker/scripts/deploy.sh --env production --secrets --ci
@@ -121,7 +153,7 @@ jobs:
     macos:
       xcode: "16.2.0"
     steps:
-      - checkout
+      - checkout_gitlab
       - bootstrap_workspace
       - run:
           name: Write .env.staging from context
@@ -144,7 +176,7 @@ jobs:
     macos:
       xcode: "16.2.0"
     steps:
-      - checkout
+      - checkout_gitlab
       - bootstrap_workspace
       - run:
           name: Write .env.production from context
@@ -168,53 +200,64 @@ workflows:
     jobs:
       - verify_workspace
 
-  deploy_staging:
-    when:
-      or:
-        - equal: [dev, << pipeline.git.branch >>]
-        - equal: [main, << pipeline.git.branch >>]
-    jobs:
       - hold_deploy_staging:
           type: approval
-      - verify_messaging_worker:
+          requires:
+            - verify_workspace
+          <<: *branch-dev-main
+
+      - verify_messaging_worker_staging:
           requires:
             - hold_deploy_staging
+          <<: *branch-dev-main
+
       - deploy_messaging_worker_staging:
           context: vet45-staging
           requires:
-            - verify_messaging_worker
+            - verify_messaging_worker_staging
+          <<: *branch-dev-main
+
       - hold_staging_erp_deploy:
           type: approval
           requires:
             - deploy_messaging_worker_staging
+          <<: *branch-dev-main
+
       - deploy_erp_ios_staging:
           context:
             - vet45-staging
             - vet45-deploy
           requires:
             - hold_staging_erp_deploy
+          <<: *branch-dev-main
 
-  deploy_production:
-    when:
-      and:
-        - equal: [main, << pipeline.git.branch >>]
-    jobs:
       - hold_production_deploy:
           type: approval
-      - verify_messaging_worker:
+          requires:
+            - verify_workspace
+          <<: *branch-main
+
+      - verify_messaging_worker_production:
           requires:
             - hold_production_deploy
+          <<: *branch-main
+
       - deploy_messaging_worker_production:
           context: vet45-production
           requires:
-            - verify_messaging_worker
+            - verify_messaging_worker_production
+          <<: *branch-main
+
       - hold_production_erp_deploy:
           type: approval
           requires:
             - deploy_messaging_worker_production
+          <<: *branch-main
+
       - deploy_erp_ios_production:
           context:
             - vet45-production
             - vet45-deploy
           requires:
             - hold_production_erp_deploy
+          <<: *branch-main
