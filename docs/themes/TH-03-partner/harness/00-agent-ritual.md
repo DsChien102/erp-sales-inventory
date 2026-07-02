@@ -10,7 +10,7 @@ Thứ tự đọc khi implement một FR slice. Platform CQRS/module layout: [do
 3. TH-03/README.md
 4. harness/04-slice-roadmap.md — lane status (Contract/BE/FE/E2E) + parallel group
 5. harness/07-api-contracts.md — contract + fake scenarios (đọc TRƯỚC khi chọn lane)
-6. Epic-{nn}/US-{nn}/01-overview.md
+6. Epic-{nn}/US-{nn}/README.md
 7. Epic-{nn}/US-{nn}/FR-{nn}.md — BR/EC/UI/SCN (product)
 8. harness/01-domain-model.md + harness/02-module-map.md
 9. harness/03-architecture-and-flows.md — khi viết RPC/gateway (BE lane)

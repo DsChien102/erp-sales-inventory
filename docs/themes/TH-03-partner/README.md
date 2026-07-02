@@ -45,6 +45,6 @@ Test id (khi có): scn_e01_u02_fr06_01
 
 ```text
 Implement TH-03/Epic-01/US-02/FR-06 per docs/themes/TH-03-partner/harness/00-agent-ritual.md.
-Read README → slice-roadmap → US overview → FR spec → harness domain-model + architecture.
+Read README → slice-roadmap → US README → FR spec → harness domain-model + architecture.
 Verify: melos run test && ./scripts/ci/verify_harness.sh
 ```

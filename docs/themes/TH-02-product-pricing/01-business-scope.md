@@ -1,14 +1,15 @@
-# TH-11 — Business scope
+# TH-02 — Business scope
 
 ## Purpose
 
-Kết nối add-ons, webhook, đồng bộ dữ liệu hai chiều với platform bên thứ ba (kế toán, TMĐT, API đối tác).
+Quản lý danh mục sản phẩm, đơn vị tính, barcode, nhóm hàng và chính sách giá bán phục vụ POS và đơn hàng.
 
 ## Epic map (dự kiến)
 
 | Epic | Mô tả |
 | ---- | ----- |
-| E11.1 Connector framework | Adapter, credential vault |
-| E11.2 Sync jobs | Import/export theo lịch |
+| E2.1 Product master | SKU, ĐVT, barcode |
+| E2.2 Pricing | Giá bán, bảng giá |
+| E2.3 Category & search | Nhóm hàng, tìm kiếm |
 
-**SRS:** chưa có.
+**SRS:** chưa có. Module `catalog` hiện là greenfield skeleton.

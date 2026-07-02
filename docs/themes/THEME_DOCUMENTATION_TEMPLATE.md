@@ -29,9 +29,9 @@ docs/themes/TH-xx-{{slug}}/
 │   ├── 06-harness-notes.md           # Guards, flywheel
 │   └── 07-api-contracts.md           # Commands/Queries/DTOs + fake scenarios (FE↔BE)
 ├── Epic-{nn}-{slug}/
-│   ├── 01-overview.md
+│   ├── README.md
 │   └── US-{nn}/
-│       ├── 01-overview.md
+│       ├── README.md
 │       └── FR-{nn}.md
 └── references.md                     # optional
 ```
@@ -115,7 +115,7 @@ Contract types live in `modules/<owner>/application/` — doc links symbols, kh�
 
 ---
 
-## FR-{nn}.md / 01-overview.md — UI artifacts (khi FR có UI)
+## FR-{nn}.md / Epic·US README — UI artifacts (khi FR có UI)
 
 ```markdown
 ## UI artifacts

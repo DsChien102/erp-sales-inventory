@@ -1,15 +1,15 @@
-# TH-10 — Module map
+# TH-01 — Module map
 
 | Module | Vai trò | Owner / Supporting | Trạng thái |
 | ------ | ------- | ------------------ | ---------- |
-| Alerts / Risk* | Rule, alert instance | **Owner** | planned |
-| IAM | Access audit | Supporting | in_progress |
-| Reporting | KPI threshold | Consumer | planned |
-
-Cross-cutting: subscribe integration events + scheduled checks trên read models.
+| iam | Auth, tenant, membership, RBAC | **Owner** | `in_progress` (golden reference) |
+| apps/erp `features/auth/` | Login shell | Presentation | `in_progress` |
 
 ```mermaid
 flowchart LR
-  Events[integration_events] --> Alerts[alerts_module]
-  KPI[TH09_KPI] --> Alerts
+  ERP[apps/erp] --> IIam[IIamModule]
+  IIam --> IAM[modules/iam]
+  IAM --> Supabase[(iam schema)]
 ```
+
+Cross-cutting: mọi bounded context consume `IPermissionChecker` + `ITenantAccessChecker` từ host DI.

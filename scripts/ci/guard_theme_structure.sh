@@ -60,17 +60,26 @@ for theme_dir in "$themes_root"/TH-*/; do
 
   while IFS= read -r -d '' epic_dir; do
     epic_name="$(basename "$epic_dir")"
-    require_file "$epic_dir/01-overview.md" "Epic overview in $theme_name/$epic_name"
+    require_file "$epic_dir/README.md" "Epic overview in $theme_name/$epic_name"
 
     while IFS= read -r -d '' us_dir; do
       us_name="$(basename "$us_dir")"
-      require_file "$us_dir/01-overview.md" "US overview in $theme_name/$epic_name/$us_name"
+      require_file "$us_dir/README.md" "US overview in $theme_name/$epic_name/$us_name"
 
+      if [[ -f "$us_dir/01-overview.md" ]]; then
+        report "legacy 01-overview.md found (rename to README.md): $us_dir/01-overview.md"
+      fi
       if [[ -f "$us_dir/overview.md" ]]; then
-        report "legacy overview.md found (rename to 01-overview.md): $us_dir/overview.md"
+        report "legacy overview.md found (rename to README.md): $us_dir/overview.md"
       fi
     done < <(find "$epic_dir" -mindepth 1 -maxdepth 1 -type d -name 'US-*' -print0 2>/dev/null)
   done < <(find "$theme_dir" -mindepth 1 -maxdepth 1 -type d -name 'Epic-*' -print0 2>/dev/null)
+
+  if [[ -d "$theme_dir" ]]; then
+    while IFS= read -r -d '' legacy; do
+      report "legacy 01-overview.md found (rename to README.md): $legacy"
+    done < <(find "$theme_dir" \( -path '*/Epic-*/*/01-overview.md' -o -path '*/Epic-*/01-overview.md' \) -print0 2>/dev/null)
+  fi
 
   catalog_readme="$themes_root/README.md"
   if ! rg -q "\]\(${theme_name}/\)" "$catalog_readme" 2>/dev/null; then

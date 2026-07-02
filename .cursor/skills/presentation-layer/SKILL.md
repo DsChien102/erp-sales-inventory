@@ -67,7 +67,7 @@ Ngoại lệ nhỏ: private widget cục bộ (vd. `_SectionHeader`) OK nếu fi
 
 ### 1. Đọc FR + UI artifacts
 
-Từ product spec (`US/FR` hoặc `01-overview.md`), lấy bảng **UI artifacts** — danh sách widget và path file. Nếu chưa có, tạo manifest trước khi code.
+Từ product spec (`US/FR` hoặc Epic/US `README.md`), lấy bảng **UI artifacts** — danh sách widget và path file. Nếu chưa có, tạo manifest trước khi code.
 
 ### 2. Widget manifest (bắt buộc trước implement)
 

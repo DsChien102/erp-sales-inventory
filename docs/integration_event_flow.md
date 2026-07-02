@@ -58,4 +58,4 @@ sequenceDiagram
 ## Liên kết theo theme
 
 - [TH-02/03-architecture-and-flows.md](themes/TH-02-catalog-and-pricing/03-architecture-and-flows.md)
-- [TH-04/03-architecture-and-flows.md](themes/TH-04-sales-and-orders/03-architecture-and-flows.md)
+- [TH-04 module map](themes/TH-04-sales-orders/02-module-map.md) · [integration & messaging](architecture/07-integration-and-messaging.md)
