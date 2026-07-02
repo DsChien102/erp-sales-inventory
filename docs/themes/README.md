@@ -27,7 +27,8 @@ Khung viết theme mới: [THEME_DOCUMENTATION_TEMPLATE.md](THEME_DOCUMENTATION_
 | Theme | Code / harness | Ghi chú |
 | ----- | -------------- | ------- |
 | TH-01 | `modules/iam/` codegen + ERP auth shell | Chưa có Epic/US tree; xem [TH-01 README](TH-01-store-setup/README.md) |
-| TH-02, TH-04–TH-07, TH-09–TH-11 | README + business-scope + module-map | Skeleton doc; module packages greenfield |
+| TH-02 | README + Epic/US/FR tree (2 epic, 7 US) | Skeleton doc; `catalog` module greenfield — xem [TH-02 README](TH-02-product-pricing/README.md) |
+| TH-04–TH-07, TH-09–TH-11 | README + business-scope + module-map | Skeleton doc; module packages greenfield |
 | TH-03 | README + `harness/00..07` + Epic/US/FR | Epic-01/02 BE+FE done; Epic-03 E2E blocked (cross-module publish) |
 | TH-08 | Chưa có folder | Tạo `TH-08-accounting-and-tax/` khi bắt đầu SRS |
 
