@@ -16,6 +16,7 @@ class PartnerSearchBar extends StatefulWidget {
 
 class _PartnerSearchBarState extends State<PartnerSearchBar> {
   final TextEditingController _searchController = TextEditingController();
+  bool _isOpeningFilterSheet = false;
 
   @override
   void dispose() {
@@ -122,6 +123,11 @@ class _PartnerSearchBarState extends State<PartnerSearchBar> {
     BuildContext context,
     PartnerListState state,
   ) async {
+    if (_isOpeningFilterSheet) return;
+    setState(() {
+      _isOpeningFilterSheet = true;
+    });
+
     final cubit = context.read<PartnerListCubit>();
     PartnerFilterCounts counts = const PartnerFilterCounts();
 
@@ -130,6 +136,11 @@ class _PartnerSearchBarState extends State<PartnerSearchBar> {
     } catch (_) {
       // Giữ counts = 0 nếu không tải được facet.
     }
+
+    if (!mounted) return;
+    setState(() {
+      _isOpeningFilterSheet = false;
+    });
 
     if (!context.mounted) {
       return;

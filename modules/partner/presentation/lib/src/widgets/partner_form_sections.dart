@@ -122,7 +122,7 @@ class PartnerTaxInfoSection extends StatelessWidget {
     bool isTaxIdValid(String t) {
       if (t.trim().isEmpty) return true;
       final trimmed = t.trim();
-      return RegExp(r'^[0-9A-Za-z]{8,16}$').hasMatch(trimmed);
+      return RegExp(r'^[0-9]{8,16}$').hasMatch(trimmed);
     }
 
     return Column(
@@ -143,6 +143,7 @@ class PartnerTaxInfoSection extends StatelessWidget {
           label: 'Mã số thuế',
           hintText: 'Nhập mã số thuế nếu có',
           prefixIcon: const Icon(Icons.receipt_long_outlined, size: 20),
+          inputFormatters: [FilteringTextInputFormatter.digitsOnly],
           onChanged: onTaxIdChanged,
           errorText: showValidationErrors && !isTaxIdValid(taxId)
               ? 'Mã số thuế chưa đúng định dạng'

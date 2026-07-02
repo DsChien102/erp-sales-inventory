@@ -4,8 +4,9 @@ import '../foundation/v_context_extensions.dart';
 
 class VAppBarTitle extends StatelessWidget {
   final String title;
+  final TextStyle? style;
 
-  const VAppBarTitle({super.key, required this.title});
+  const VAppBarTitle({super.key, required this.title, this.style});
 
   @override
   Widget build(BuildContext context) {
@@ -13,7 +14,7 @@ class VAppBarTitle extends StatelessWidget {
 
     return Text(
       title,
-      style: VTypography.headingH4.copyWith(
+      style: style ?? VTypography.headingH4.copyWith(
         color: dynamicColors.textPrimary,
         fontWeight: FontWeight.w700,
       ),
@@ -38,6 +39,7 @@ class VAppBarSubtitle extends StatelessWidget {
 
 class VAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String title;
+  final TextStyle? titleStyle;
   final String? subtitle;
   final Widget? leading;
   final List<Widget>? actions;
@@ -47,6 +49,7 @@ class VAppBar extends StatelessWidget implements PreferredSizeWidget {
   const VAppBar({
     super.key,
     required this.title,
+    this.titleStyle,
     this.subtitle,
     this.leading,
     this.actions,
@@ -70,12 +73,12 @@ class VAppBar extends StatelessWidget implements PreferredSizeWidget {
                   ? CrossAxisAlignment.center
                   : CrossAxisAlignment.start,
               children: [
-                VAppBarTitle(title: title),
+                VAppBarTitle(title: title, style: titleStyle),
                 const SizedBox(height: 2),
                 VAppBarSubtitle(text: subtitle!),
               ],
             )
-          : VAppBarTitle(title: title),
+          : VAppBarTitle(title: title, style: titleStyle),
       leading:
           leading ??
           (showBackButton && Navigator.of(context).canPop()
