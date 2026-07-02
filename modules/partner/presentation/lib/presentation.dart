@@ -29,6 +29,7 @@ export 'src/widgets/partner_filter_dialog.dart';
 export 'src/widgets/partner_form_sections.dart';
 export 'src/widgets/partner_general_info_tab.dart';
 export 'src/widgets/partner_list_item.dart';
+export 'src/widgets/partner_list_view.dart';
 export 'src/widgets/partner_role_type_section.dart';
 export 'src/widgets/partner_search_bar.dart';
 export 'src/widgets/partner_transaction_history_tab.dart';

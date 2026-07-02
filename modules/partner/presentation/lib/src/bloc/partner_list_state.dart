@@ -50,6 +50,8 @@ class PartnerItemModel {
 class PartnerListState {
   final PartnerListStatus status;
   final List<PartnerItemModel> partners;
+  final int totalCount;
+  final bool isLoadingMore;
   final String searchQuery;
   final String? filterRole;
   final String? filterProfileType;
@@ -59,6 +61,8 @@ class PartnerListState {
   const PartnerListState({
     this.status = PartnerListStatus.initial,
     this.partners = const [],
+    this.totalCount = 0,
+    this.isLoadingMore = false,
     this.searchQuery = '',
     this.filterRole,
     this.filterProfileType,
@@ -66,9 +70,13 @@ class PartnerListState {
     this.errorMessage,
   });
 
+  bool get hasMore => partners.length < totalCount;
+
   PartnerListState copyWith({
     PartnerListStatus? status,
     List<PartnerItemModel>? partners,
+    int? totalCount,
+    bool? isLoadingMore,
     String? searchQuery,
     String? filterRole,
     String? filterProfileType,
@@ -82,6 +90,8 @@ class PartnerListState {
     return PartnerListState(
       status: status ?? this.status,
       partners: partners ?? this.partners,
+      totalCount: totalCount ?? this.totalCount,
+      isLoadingMore: isLoadingMore ?? this.isLoadingMore,
       searchQuery: searchQuery ?? this.searchQuery,
       filterRole: clearRole ? null : (filterRole ?? this.filterRole),
       filterProfileType:

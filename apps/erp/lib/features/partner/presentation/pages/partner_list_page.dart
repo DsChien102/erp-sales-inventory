@@ -109,66 +109,16 @@ class PartnerListPage extends StatelessWidget {
                         );
                       }
 
-                      return RefreshIndicator(
-                        onRefresh: () async {
-                          await context.read<PartnerListCubit>().load();
+                      return PartnerListView(
+                        onPartnerTap: (partner) async {
+                          await context.push(
+                            '/partner/detail',
+                            extra: partner,
+                          );
+                          if (context.mounted) {
+                            await context.read<PartnerListCubit>().load();
+                          }
                         },
-                        child: ListView.separated(
-                          padding: const EdgeInsets.all(VSpacing.space4),
-                          itemCount: state.partners.length,
-                          separatorBuilder: (context, index) =>
-                              const SizedBox(height: VSpacing.space3),
-                          itemBuilder: (context, index) {
-                            final partner = state.partners[index];
-                            return GestureDetector(
-                              onTap: () async {
-                                final canViewDetail = getIt<IPrincipalSnapshot>().hasPermission(
-                                  PartnerPermissions.viewDetail,
-                                );
-                                if (!canViewDetail) {
-                                  VToast.show(
-                                    context,
-                                    title: 'Lỗi',
-                                    message: 'Bạn không có quyền phù hợp.',
-                                    type: VToastType.danger,
-                                  );
-                                  return;
-                                }
-
-                                await context.push(
-                                  '/partner/detail',
-                                  extra: partner,
-                                );
-                                if (context.mounted) {
-                                  await context.read<PartnerListCubit>().load();
-                                }
-                              },
-                              child: PartnerListItem(
-                                avatarText: partner.avatarText,
-                                name: partner.name,
-                                role: partner.role,
-                                roleColor: partner.role == 'Khách hàng'
-                                    ? VColors.info
-                                    : (partner.role == 'Nhà cung cấp'
-                                          ? VColors.warning
-                                          : VColors.primary),
-                                roleBgColor: partner.role == 'Khách hàng'
-                                    ? VColors.infoBg
-                                    : (partner.role == 'Nhà cung cấp'
-                                          ? VColors.warningBg
-                                          : VColors.primary100),
-                                status: partner.status,
-                                statusColor: partner.status == 'Ngừng hoạt động'
-                                    ? VColors.textSecondary
-                                    : VColors.success,
-                                statusBgColor: partner.status == 'Ngừng hoạt động'
-                                    ? VColors.neutral200
-                                    : VColors.successBg,
-                                info: partner.phone.isNotEmpty ? partner.phone : '',
-                              ),
-                            );
-                          },
-                        ),
                       );
                     },
                   ),
