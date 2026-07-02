@@ -115,15 +115,22 @@ void main() {
       );
 
     final router = GoRouter(
-      initialLocation: '/partner/create',
+      initialLocation: '/',
       routes: [
         GoRoute(
           path: '/partner/create',
           builder: (context, state) => const PartnerCreatePage(),
         ),
         GoRoute(
-          path: '/partner/detail',
-          builder: (context, state) => const Scaffold(body: Text('Detail Page')),
+          path: '/',
+          builder: (context, state) => Scaffold(
+            body: Center(
+              child: ElevatedButton(
+                onPressed: () => context.push('/partner/create'),
+                child: const Text('Go to Create'),
+              ),
+            ),
+          ),
         ),
       ],
     );
@@ -131,6 +138,11 @@ void main() {
     return MaterialApp.router(
       routerConfig: router,
     );
+  }
+
+  Future<void> navigateToCreate(WidgetTester tester) async {
+    await tester.tap(find.text('Go to Create'));
+    await tester.pumpAndSettle();
   }
 
   testWidgets('SCN-03 (FR-04): tax code and billing email validations', (tester) async {
@@ -142,6 +154,7 @@ void main() {
       ),
     );
     await tester.pumpAndSettle();
+    await navigateToCreate(tester);
 
     // Fill valid name and phone
     final nameField = find.byWidgetPredicate((w) => w is VTextField && w.label == 'Họ và tên');
@@ -164,19 +177,22 @@ void main() {
     // Tax code error should be visible
     expect(find.text('Mã số thuế chưa đúng định dạng'), findsOneWidget);
 
-    // Enter a tax code that has special characters (length between 8 and 16)
-    await tester.enterText(find.descendant(of: taxField, matching: find.byType(TextField)), '12345678-90a!');
+    // Enter a tax code that is too long (> 16 digits); field only accepts digits
+    await tester.enterText(
+      find.descendant(of: taxField, matching: find.byType(TextField)),
+      '12345678901234567',
+    );
     await tester.pumpAndSettle();
 
-    // Tax code error should be visible because of special characters
+    // Tax code error should be visible because length exceeds 16
     expect(find.text('Mã số thuế chưa đúng định dạng'), findsOneWidget);
 
     // Correct the tax code
     await tester.enterText(find.descendant(of: taxField, matching: find.byType(TextField)), '12345678');
     await tester.pumpAndSettle();
 
-    // The validation error should disappear when value is changed
-    await tester.pumpAndSettle();
+    // The validation error should disappear when value is valid
+    expect(find.text('Mã số thuế chưa đúng định dạng'), findsNothing);
   });
 
   testWidgets('SCN-02 (FR-05): tax code duplicate warning bottom sheet', (tester) async {
@@ -188,6 +204,7 @@ void main() {
       ),
     );
     await tester.pumpAndSettle();
+    await navigateToCreate(tester);
 
     // Fill valid name, phone, and duplicate tax code
     final nameField = find.byWidgetPredicate((w) => w is VTextField && w.label == 'Họ và tên');
@@ -212,9 +229,10 @@ void main() {
     await tester.tap(find.text('Vẫn lưu'));
     await tester.pumpAndSettle();
 
-    // Verify command was executed
+    // Verify command was executed and page popped back to list
     final partnerModule = getIt<IPartnerModule>() as _FakePartnerModule;
     expect(partnerModule.registerCallCount, 1);
+    expect(find.text('Go to Create'), findsOneWidget);
   });
 
   testWidgets('SCN-05 (FR-06): permission revoked at save time displays toast', (tester) async {
@@ -226,6 +244,7 @@ void main() {
       ),
     );
     await tester.pumpAndSettle();
+    await navigateToCreate(tester);
 
     // Fill details
     final nameField = find.byWidgetPredicate((w) => w is VTextField && w.label == 'Họ và tên');
