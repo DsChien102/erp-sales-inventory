@@ -6,7 +6,6 @@ import 'package:go_router/go_router.dart';
 import 'package:vet45_design_system/design_system.dart';
 import 'package:vet45_iam_application/application.dart';
 import 'package:vet45_partner_application/application.dart';
-import 'package:vet45_partner_application/testing.dart';
 import 'package:vet45_partner_domain/domain.dart';
 import 'package:vet45_partner_presentation/presentation.dart';
 import 'package:vet45_shared_application/application.dart';
@@ -18,12 +17,6 @@ final class _FakePrincipalSnapshot implements IPrincipalSnapshot {
   });
 
   Set<String> permissions;
-
-  @override
-  String? get userId => 'user-1';
-
-  @override
-  String? get tenantId => 'tenant-1';
 
   @override
   String? get role => 'member';

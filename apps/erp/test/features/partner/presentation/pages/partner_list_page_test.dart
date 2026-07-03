@@ -5,9 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:vet45_iam_application/application.dart';
 import 'package:vet45_partner_application/application.dart';
 import 'package:vet45_partner_domain/domain.dart';
-import 'package:vet45_partner_presentation/presentation.dart';
 import 'package:vet45_shared_application/application.dart';
-import 'package:vet45_shared_testing/shared_testing.dart';
 
 final class _FakeExecutionContext implements IExecutionContext {
   @override
@@ -55,12 +53,6 @@ final class _FailThenSucceedPartnerModule implements IPartnerModule {
 }
 
 final class _FakePrincipalSnapshot implements IPrincipalSnapshot {
-  @override
-  String? get userId => 'user-1';
-
-  @override
-  String? get tenantId => 'tenant-1';
-
   @override
   String? get role => 'member';
 

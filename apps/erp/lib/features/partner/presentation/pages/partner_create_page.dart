@@ -77,7 +77,7 @@ class _PartnerCreateView extends StatelessWidget {
       builder: (context, state) {
         return PopScope(
           canPop: !state.isDirty,
-          onPopInvoked: (didPop) async {
+          onPopInvokedWithResult: (didPop, result) async {
             if (didPop) return;
             _handleCancel(context, state);
           },

@@ -1,4 +1,3 @@
-import 'package:vet45_partner_application/application.dart';
 import 'package:vet45_shared_application/application.dart';
 
 import '../../ports/i_partner_transaction_history_write_gateway.dart';
