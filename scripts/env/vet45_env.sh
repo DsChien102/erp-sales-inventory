@@ -1,0 +1,118 @@
+#!/usr/bin/env bash
+# Vet45 environment manager — thin wrapper around tools/vet45_env Dart CLI.
+set -euo pipefail
+
+ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
+CLI=(dart run "$ROOT/tools/vet45_env/bin/vet45_env.dart")
+
+usage() {
+  cat <<'EOF'
+Usage: vet45_env.sh <command> [args]
+
+Commands:
+  list                    List environments and active selection
+  use <id>                Set active environment + align supabase link
+  sync [--env <id>]       Align supabase link + generate ERP + worker .env
+  link [--env <id>]       Align supabase link only
+  doctor [--env <id>]     Validate configuration
+  resolve [--env <id>]    Print JSON resolve payload
+  resolve-shell [--env <id>]
+                          Print shell KEY=value exports
+  active                  Print active environment id
+  run <target> <action>   Run app command for active environment
+
+Run targets:
+  erp debug|debug:web|debug:ios
+  worker serve|once|docker
+EOF
+}
+
+load_resolve_shell() {
+  local env_id="${1:-}"
+  local lines
+  if [[ -n "$env_id" ]]; then
+    lines="$("${CLI[@]}" resolve-shell --env "$env_id")"
+  else
+    "${CLI[@]}" sync >/dev/null
+    lines="$("${CLI[@]}" resolve-shell)"
+  fi
+  while IFS= read -r line; do
+    [[ -z "$line" ]] && continue
+    export "$line"
+  done <<<"$lines"
+}
+
+cmd_run() {
+  local target="${1:-}" action="${2:-}"
+  shift 2 || true
+
+  local env_id=""
+  local filtered=()
+  while [[ $# -gt 0 ]]; do
+    if [[ "$1" == --env && $# -ge 2 ]]; then
+      env_id="$2"
+      shift 2
+    else
+      filtered+=("$1")
+      shift
+    fi
+  done
+
+  load_resolve_shell "$env_id"
+
+  case "$target" in
+    erp)
+      cd "$ROOT/apps/erp"
+      case "$action" in
+        debug)
+          flutter run --flavor "$ERP_FLAVOR" --dart-define-from-file="$ERP_ENV_BASENAME" "${filtered[@]}"
+          ;;
+        debug:web)
+          flutter run -d chrome --flavor "$ERP_FLAVOR" --dart-define-from-file="$ERP_ENV_BASENAME" "${filtered[@]}"
+          ;;
+        debug:ios)
+          flutter run -d ios --flavor "$ERP_FLAVOR" --dart-define-from-file="$ERP_ENV_BASENAME" "${filtered[@]}"
+          ;;
+        *)
+          echo "Unknown erp action: $action"
+          exit 64
+          ;;
+      esac
+      ;;
+    worker)
+      export WORKER_ENV_FILE
+      if [[ -n "${WORKER_DOCKER_SUPABASE_URL:-}" ]]; then
+        export WORKER_SUPABASE_URL="$WORKER_DOCKER_SUPABASE_URL"
+      fi
+      exec "$ROOT/scripts/dev/run_messaging_worker.sh" "$action"
+      ;;
+    *)
+      echo "Unknown run target: $target"
+      exit 64
+      ;;
+  esac
+}
+
+main() {
+  local cmd="${1:-}"
+  shift || true
+
+  case "$cmd" in
+    list | use | sync | link | doctor | resolve | resolve-shell | active)
+      "${CLI[@]}" "$cmd" "$@"
+      ;;
+    run)
+      cmd_run "$@"
+      ;;
+    -h | --help | "")
+      usage
+      ;;
+    *)
+      echo "Unknown command: $cmd"
+      usage
+      exit 64
+      ;;
+  esac
+}
+
+main "$@"

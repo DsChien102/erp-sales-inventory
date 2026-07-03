@@ -26,6 +26,9 @@ echo "==> guard_presentation_size"
 echo "==> guard_presentation_dialogs"
 GUARD_PRESENTATION_DIALOGS_LEGACY=1 "$root/scripts/ci/guard_presentation_dialogs.sh"
 
+echo "==> verify_env_manifest"
+"$root/scripts/ci/verify_env_manifest.sh"
+
 if [[ "${VERIFY_HARNESS_SKIP_CODEGEN:-0}" != "1" ]]; then
   echo "==> guard_codegen_fresh"
   GUARD_CODEGEN_STRICT=1 "$root/scripts/ci/guard_codegen_fresh.sh"

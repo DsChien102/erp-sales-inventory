@@ -21,8 +21,8 @@
     },
     {
       "type": "melos",
-      "script": "debug:any",
-      "label": "melos: debug:any",
+      "script": "env:sync",
+      "label": "melos: env:sync",
       "group": "build"
     },
     {

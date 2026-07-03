@@ -63,48 +63,86 @@ dev_dependencies:
 
 melos:
   scripts:
+    env:list:
+      run: ./scripts/env/vet45_env.sh list
+      description: List Vet45 environments and active selection
+
+    env:use:
+      run: ./scripts/env/vet45_env.sh use
+      description: Set active environment (pass id after --)
+
+    env:use:development:
+      run: ./scripts/env/vet45_env.sh use development
+      description: Set active environment to development (default)
+
+    env:use:local:
+      run: ./scripts/env/vet45_env.sh use local
+      description: Set active environment to local (Supabase CLI)
+
+    env:use:staging:
+      run: ./scripts/env/vet45_env.sh use staging
+      description: Set active environment to staging
+
+    env:use:production:
+      run: ./scripts/env/vet45_env.sh use production
+      description: Set active environment to production
+
+    env:sync:
+      run: ./scripts/env/vet45_env.sh sync
+      description: Align supabase link + sync ERP + worker .env files
+
+    env:link:
+      run: ./scripts/env/vet45_env.sh link
+      description: Align supabase link with active environment project ref
+
+    env:doctor:
+      run: ./scripts/env/vet45_env.sh doctor
+      stdio: inherit
+      description: Validate active environment configuration
+
+    env:development:
+      run: ./scripts/env/vet45_env.sh use development && ./scripts/env/vet45_env.sh sync
+      description: Use development (default) and sync app env files
+
+    env:local:
+      run: ./scripts/env/vet45_env.sh use local && ./scripts/env/vet45_env.sh sync
+      description: Use local Supabase and sync app env files
+
     debug:
-      run: melos run debug:any
+      run: ./scripts/env/vet45_env.sh run erp debug
       stdio: inherit
 
     debug:web:
-      run: cd apps/erp && flutter run -d chrome --flavor development --dart-define-from-file=.env
+      run: ./scripts/env/vet45_env.sh run erp debug:web
       stdio: inherit
 
     debug:ios:
-      run: cd apps/erp && flutter run -d ios --flavor development --dart-define-from-file=.env
-      stdio: inherit
-
-    debug:any:
-      run: cd apps/erp && flutter run --flavor development --dart-define-from-file=.env
+      run: ./scripts/env/vet45_env.sh run erp debug:ios
       stdio: inherit
 
     debug:dev:
-      run: cd apps/erp && flutter run --flavor development --dart-define-from-file=.env
+      run: ./scripts/env/vet45_env.sh use development && ./scripts/env/vet45_env.sh sync && ./scripts/env/vet45_env.sh run erp debug
       stdio: inherit
 
     debug:staging:
-      run: cd apps/erp && flutter run --flavor staging --dart-define-from-file=.env.staging
+      run: ./scripts/env/vet45_env.sh use staging && ./scripts/env/vet45_env.sh sync && ./scripts/env/vet45_env.sh run erp debug
       stdio: inherit
 
     debug:prod:
-      run: cd apps/erp && flutter run --flavor production --dart-define-from-file=.env.production
+      run: ./scripts/env/vet45_env.sh use production && ./scripts/env/vet45_env.sh sync && ./scripts/env/vet45_env.sh run erp debug
       stdio: inherit
 
     build:ios:
-      exec: flutter build ipa --flavor production --dart-define-from-file=.env.production --obfuscate --split-debug-info=build.artifact
-      packageFilters:
-        scope: erp
+      run: ./apps/erp/scripts/build_ios.sh --env production
+      description: Build iOS IPA (production) via env manifest + sync
 
     build:ios:staging:
-      exec: flutter build ipa --flavor staging --dart-define-from-file=.env.staging --obfuscate --split-debug-info=build.artifact
-      packageFilters:
-        scope: erp
+      run: ./apps/erp/scripts/build_ios.sh --env staging
+      description: Build iOS IPA (staging) via env manifest + sync
 
     build:ios:production:
-      exec: flutter build ipa --flavor production --dart-define-from-file=.env.production --obfuscate --split-debug-info=build.artifact
-      packageFilters:
-        scope: erp
+      run: ./apps/erp/scripts/build_ios.sh --env production
+      description: Build iOS IPA (production) via env manifest + sync
 
     deploy:ios:
       exec: ./deploy-ios.sh --env production
@@ -144,22 +182,18 @@ melos:
           - vet45_partner_presentation
       isPrivate: true
 
-    worker:setup:
-      run: ./apps/messaging_worker/scripts/setup_env.sh
-      description: Bootstrap apps/messaging_worker/.env from ERP Supabase URL
-
     worker:once:
-      run: ./scripts/dev/run_messaging_worker.sh once
+      run: ./scripts/env/vet45_env.sh run worker once
       stdio: inherit
       description: Run one messaging worker tick (requires Supabase + .env)
 
     worker:serve:
-      run: ./scripts/dev/run_messaging_worker.sh serve
+      run: ./scripts/env/vet45_env.sh run worker serve
       stdio: inherit
       description: Run messaging worker HTTP server locally (port 8080)
 
     worker:docker:
-      run: ./scripts/dev/run_messaging_worker.sh docker
+      run: ./scripts/env/vet45_env.sh run worker docker
       stdio: inherit
       description: Run messaging worker in Docker (Railway-like AOT binary)
 

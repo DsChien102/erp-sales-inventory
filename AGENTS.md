@@ -70,6 +70,8 @@ Canonical specs (mirror của skills): `docs/application_layer_skill.md`, `docs/
 3. Xác định layer → mở skill tương ứng
      (presentation/UI → presentation-layer skill + UI artifacts trong FR)
      (DDL/RPC/RLS → draft SQL vào `supabase/migrations/_drafts/`, không tạo file timestamp)
+     (RPC/worker slice → `melos run env:sync && melos run env:doctor` trước khi test tích hợp;
+      local stack: `supabase start` + `melos run env:local`)
 4. Implement (minimal diff, match conventions hiện có)
 5. Verify:
      melos bootstrap
@@ -84,6 +86,7 @@ Canonical specs (mirror của skills): `docs/application_layer_skill.md`, `docs/
 
 ```bash
 melos bootstrap
+melos run env:doctor       # khi slice cần Supabase / worker
 melos run analyze
 melos run test
 melos run codegen          # khi module bật build_runner
@@ -124,6 +127,7 @@ cd apps/messaging_worker && dart test
 - Domain import `supabase`, `flutter`, `get_it`
 - Hand-maintain `.g.dart` — chạy `melos run codegen`
 - Hardcode permission code string — dùng `{Module}Permissions` constant trong `modules/<module>/domain/`
+- Chỉnh tay `apps/*/.env*` — sửa `config/secrets/<env>.env` rồi `melos run env:sync`
 
 ## Legacy / ngoại lệ hiện tại
 
@@ -140,6 +144,7 @@ Theme đang deliver: [docs/themes/TH-03-partner/](docs/themes/TH-03-partner/)
 
 ## Liên kết
 
+- [docs/operations/environment-manager.md](docs/operations/environment-manager.md) — Melos env manager (`env:*`, active environment)
 - [docs/architecture/](docs/architecture/) — kiến trúc platform (CQRS, module layout)
 - [docs/harness/PROGRESS.md](docs/harness/PROGRESS.md) — tiến độ harness
 - [docs/themes/](docs/themes/) — catalog theme

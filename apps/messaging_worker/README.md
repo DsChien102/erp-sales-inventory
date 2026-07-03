@@ -22,11 +22,12 @@ Config is versioned in [`railway.toml`](../../railway.toml) at the repo root (Do
 From the repo root:
 
 ```bash
-cd apps/messaging_worker
-./scripts/setup_env.sh
-# Edit .env — set SUPABASE_SERVICE_ROLE_KEY from Supabase Dashboard → Settings → API
+cp config/secrets/staging.env.example config/secrets/staging.env
+# Điền Supabase URL + keys
 
-./scripts/deploy.sh --env staging --verify --secrets
+melos run env:use:staging
+melos run env:sync
+./apps/messaging_worker/scripts/deploy.sh --env staging --verify --secrets
 ```
 
 ## Redeploy (daily)
@@ -70,19 +71,14 @@ curl -sf -X POST "https://<worker-host>/tick" \
 ```bash
 # From repo root (recommended)
 supabase start
-melos run worker:setup
+melos run env:local
+melos run env:doctor
 melos run worker:serve    # dart on host
 melos run worker:docker   # docker compose (AOT binary)
 melos run worker:once
 ```
 
-```bash
-cd apps/messaging_worker
-cp .env.example .env   # or ./scripts/setup_env.sh
-set -a && source .env && set +a
-dart run bin/worker.dart --once    # single tick
-dart run bin/worker.dart --serve   # HTTP + self-loop locally
-```
+Environment manager: [docs/operations/environment-manager.md](../../docs/operations/environment-manager.md)
 
 Verify build without deploy:
 
@@ -133,7 +129,6 @@ Trước khi set `MESSAGING_CLIENT_POLL_ENABLED=false` trên ERP staging/product
 
 | Script | Purpose |
 |--------|---------|
-| `scripts/setup_env.sh` | Generate `.env` from ERP Supabase URL |
 | `scripts/set_secrets.sh` | Push vars to Railway (`--ci` for CircleCI) |
 | `scripts/verify_supabase.sh` | Check platform RPC + view |
 | `scripts/verify_build.sh` | Local AOT compile (+ optional Docker) |
