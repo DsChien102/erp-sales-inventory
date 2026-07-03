@@ -79,24 +79,29 @@ cmd_run() {
 
   load_resolve_shell "$env_id"
 
+  # Bash 3.2 + set -u: "${filtered[@]}" on an empty array is unbound; ${filtered+"${filtered[@]}"} is safe.
   case "$target" in
     erp)
       case "$action" in
         debug)
           cd "$ROOT/apps/erp"
-          flutter run --flavor "$ERP_FLAVOR" --dart-define-from-file="$ERP_ENV_BASENAME" "${filtered[@]}"
+          # shellcheck disable=SC2086
+          flutter run --flavor "$ERP_FLAVOR" --dart-define-from-file="$ERP_ENV_BASENAME" ${filtered+"${filtered[@]}"}
           ;;
         debug:web)
           cd "$ROOT/apps/erp"
-          flutter run -d chrome --flavor "$ERP_FLAVOR" --dart-define-from-file="$ERP_ENV_BASENAME" "${filtered[@]}"
+          # shellcheck disable=SC2086
+          flutter run -d chrome --flavor "$ERP_FLAVOR" --dart-define-from-file="$ERP_ENV_BASENAME" ${filtered+"${filtered[@]}"}
           ;;
         debug:ios)
           cd "$ROOT/apps/erp"
-          flutter run -d ios --flavor "$ERP_FLAVOR" --dart-define-from-file="$ERP_ENV_BASENAME" "${filtered[@]}"
+          # shellcheck disable=SC2086
+          flutter run -d ios --flavor "$ERP_FLAVOR" --dart-define-from-file="$ERP_ENV_BASENAME" ${filtered+"${filtered[@]}"}
           ;;
         build-ios)
           require_ios_deploy_env
-          exec "$ROOT/apps/erp/scripts/build_ios.sh" --env "$VET45_ENV_ID" "${filtered[@]}"
+          # shellcheck disable=SC2086
+          exec "$ROOT/apps/erp/scripts/build_ios.sh" --env "$VET45_ENV_ID" ${filtered+"${filtered[@]}"}
           ;;
         deploy-ios)
           require_ios_deploy_env
@@ -120,7 +125,8 @@ cmd_run() {
           ;;
         deploy)
           require_railway_deploy_env
-          exec "$ROOT/apps/messaging_worker/scripts/deploy.sh" --env "$RAILWAY_ENVIRONMENT" "${filtered[@]}"
+          # shellcheck disable=SC2086
+          exec "$ROOT/apps/messaging_worker/scripts/deploy.sh" --env "$RAILWAY_ENVIRONMENT" ${filtered+"${filtered[@]}"}
           ;;
         *)
           echo "Unknown worker action: $action"
