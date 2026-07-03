@@ -79,7 +79,7 @@ melos run deploy:worker -- --secrets   # push secrets + deploy
 
 ## Canonical secrets keys
 
-Use the same names in `config/secrets/*.env`:
+Edit **`config/secrets/<env>.env`** only — see [config/secrets/README.md](../../config/secrets/README.md) for the full layout.
 
 ```dotenv
 SUPABASE_URL=
@@ -91,6 +91,16 @@ WORKER_TICK_SECRET=
 LOG_LEVEL=INFO
 MESSAGING_CLIENT_POLL_ENABLED=false
 
+# Messaging worker (synced to apps/messaging_worker/.env*)
+WORKER_LOG_LEVEL=WARNING
+WORKER_TENANT_BATCH_SIZE=20
+WORKER_MODULE_BATCH_SIZE=10
+WORKER_MAX_ROUNDS_PER_TICK=5
+WORKER_TICK_ACTIVE_SECONDS=3
+WORKER_TICK_IDLE_SECONDS=15
+WORKER_TICK_MAX_IDLE_SECONDS=30
+PORT=8080
+
 # Deploy-only (shared) — config/secrets/deploy.env, not synced to apps/
 APP_STORE_CONNECT_ISSUER_ID=
 APP_STORE_CONNECT_KEY_IDENTIFIER=
@@ -99,7 +109,7 @@ APP_STORE_CONNECT_KEY_IDENTIFIER=
 `env:sync` maps to app-specific files:
 
 - ERP: `SUPABASE_CONNECTION_URL`, `SUPABASE_ANON_KEY`, `APP_ENV`, …
-- Worker: `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, …
+- Worker: all `WORKER_*` + `SUPABASE_URL` / service role from the same secrets file
 - `deploy-ios.sh` reads `APP_STORE_CONNECT_*` from `config/secrets/deploy.env` (`DEPLOY_SECRETS_FILE`)
 
 ## Tooling layout
@@ -129,11 +139,13 @@ Compose reads `WORKER_ENV_FILE` (set by `vet45_env.sh run worker docker`) and ov
 
 ## Railway deploy
 
-Deploy scripts resolve worker env from manifest:
+Deploy scripts read worker config from **`config/secrets/<env>.env`** (via `SECRETS_FILE` / `env:sync`):
 
 ```bash
 ./apps/messaging_worker/scripts/deploy.sh --env staging --secrets
 ```
+
+`WORKER_LOG_LEVEL=WARNING` in secrets keeps Railway logs quiet (RPC/command `INFO` suppressed). Tick summary lines still print.
 
 ## Troubleshooting
 

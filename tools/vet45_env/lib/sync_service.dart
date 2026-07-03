@@ -105,7 +105,7 @@ class SyncService {
       'WORKER_TICK_IDLE_SECONDS': optionalKey(canonical, 'WORKER_TICK_IDLE_SECONDS', '15'),
       'WORKER_TICK_MAX_IDLE_SECONDS': optionalKey(canonical, 'WORKER_TICK_MAX_IDLE_SECONDS', '30'),
       'PORT': optionalKey(canonical, 'PORT', '8080'),
-      'WORKER_LOG_LEVEL': optionalKey(canonical, 'WORKER_LOG_LEVEL', 'INFO'),
+      'WORKER_LOG_LEVEL': optionalKey(canonical, 'WORKER_LOG_LEVEL', 'WARNING'),
     };
   }
 }

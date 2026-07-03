@@ -96,6 +96,7 @@ void main() {
     final worker = loadDotEnv(result.workerEnvFile);
     expect(worker['SUPABASE_URL'], 'http://127.0.0.1:54321');
     expect(worker['WORKER_TICK_SECRET'], 'tick-test');
+    expect(worker['WORKER_LOG_LEVEL'], 'WARNING');
   });
 
   test('sync does not copy APP_STORE_CONNECT keys into erp env', () async {

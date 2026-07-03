@@ -36,9 +36,12 @@ if [[ "$CI_MODE" != true ]]; then
     export "$line"
   done <<<"$RESOLVED"
 
-  ENV_FILE="${WORKER_ENV_FILE}"
+  ENV_FILE="${SECRETS_FILE:-}"
   if [[ ! -f "$ENV_FILE" ]]; then
-    echo "Missing ${ENV_FILE}. Run melos run env:sync -- --env ${MANIFEST_ENV}"
+    ENV_FILE="${WORKER_ENV_FILE}"
+  fi
+  if [[ ! -f "$ENV_FILE" ]]; then
+    echo "Missing secrets for ${MANIFEST_ENV}. Run melos run env:sync -- --env ${MANIFEST_ENV}"
     exit 1
   fi
   # shellcheck disable=SC1090
@@ -76,6 +79,8 @@ railway variable set "WORKER_TICK_ACTIVE_SECONDS=${WORKER_TICK_ACTIVE_SECONDS:-3
 railway variable set "WORKER_TICK_IDLE_SECONDS=${WORKER_TICK_IDLE_SECONDS:-15}" \
   --service "$SERVICE" --environment "$RAILWAY_ENV"
 railway variable set "WORKER_TICK_MAX_IDLE_SECONDS=${WORKER_TICK_MAX_IDLE_SECONDS:-30}" \
+  --service "$SERVICE" --environment "$RAILWAY_ENV"
+railway variable set "WORKER_LOG_LEVEL=${WORKER_LOG_LEVEL:-WARNING}" \
   --service "$SERVICE" --environment "$RAILWAY_ENV"
 
 echo "Railway variables set for ${SERVICE} (${RAILWAY_ENV})."

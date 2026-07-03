@@ -11,6 +11,8 @@ Server-side messaging processor for VET45. Runs adaptive self-loop ticks (~3s wh
 
 Config is versioned in [`railway.toml`](../../railway.toml) at the repo root (Docker build context = monorepo root).
 
+**Runtime env:** edit `config/secrets/<env>.env` (not `apps/messaging_worker/.env*`), then `melos run env:sync`. See [config/secrets/README.md](../../config/secrets/README.md).
+
 ## Prerequisites
 
 1. Migration `supabase/migrations/20260621100001_platform_messaging_discovery.sql` applied; expose `platform` schema in Supabase API settings.
@@ -102,12 +104,15 @@ See [`.gitlab-ci.yml`](../../.gitlab-ci.yml). Jobs:
 
 ### CI/CD variables (per environment)
 
+Set in `config/secrets/<env>.env`; `set_secrets.sh --ci` expects the same names:
+
 | Variable | Notes |
 |----------|--------|
 | `RAILWAY_TOKEN` | Project-scoped token; protected |
 | `SUPABASE_URL` | Staging or production URL |
 | `SUPABASE_SERVICE_ROLE_KEY` | Worker only; never ship to ERP |
 | `WORKER_TICK_SECRET` | Manual `/tick` auth |
+| `WORKER_LOG_LEVEL` | Default `WARNING` — use `FINE`/`INFO` only when debugging |
 
 Use CircleCI **contexts** `vet45-staging` / `vet45-production` for staging vs production (see [docs/operations/environments.md](../../docs/operations/environments.md)).
 
