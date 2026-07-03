@@ -20,10 +20,10 @@ Thực hiện một lần trên [App Store Connect](https://appstoreconnect.appl
 
 1. App Store Connect → Users and Access → Keys
 2. Tạo API key với quyền Developer
-3. Lưu vào `apps/erp/.env` (local) hoặc CircleCI context `vet45-deploy`:
+3. Lưu vào `config/secrets/deploy.env` (local, dùng chung staging + production) hoặc CircleCI context `vet45-deploy`:
    - `APP_STORE_CONNECT_ISSUER_ID`
    - `APP_STORE_CONNECT_KEY_IDENTIFIER`
-   - File `.p8` (không commit)
+   - File `.p8` tại `~/.appstoreconnect/private_keys/AuthKey_<KEY_IDENTIFIER>.p8` (không commit)
 
 ## 4. TestFlight groups
 

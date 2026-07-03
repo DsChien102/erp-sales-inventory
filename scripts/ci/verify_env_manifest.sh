@@ -11,7 +11,7 @@ if [[ ! -f "$manifest" ]]; then
   exit 1
 fi
 
-for example in development local staging production; do
+for example in development local staging production deploy; do
   if [[ ! -f "$root/config/secrets/${example}.env.example" ]]; then
     echo "FAIL: missing config/secrets/${example}.env.example"
     exit 1

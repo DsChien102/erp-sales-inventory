@@ -90,12 +90,17 @@ SUPABASE_SERVICE_ROLE_KEY=
 WORKER_TICK_SECRET=
 LOG_LEVEL=INFO
 MESSAGING_CLIENT_POLL_ENABLED=false
+
+# Deploy-only (shared) — config/secrets/deploy.env, not synced to apps/
+APP_STORE_CONNECT_ISSUER_ID=
+APP_STORE_CONNECT_KEY_IDENTIFIER=
 ```
 
 `env:sync` maps to app-specific files:
 
 - ERP: `SUPABASE_CONNECTION_URL`, `SUPABASE_ANON_KEY`, `APP_ENV`, …
 - Worker: `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, …
+- `deploy-ios.sh` reads `APP_STORE_CONNECT_*` from `config/secrets/deploy.env` (`DEPLOY_SECRETS_FILE`)
 
 ## Tooling layout
 

@@ -75,7 +75,6 @@ class SyncService {
     EnvironmentDefinition env,
     Map<String, String> canonical,
   ) {
-    final existing = loadDotEnv(env.erp.envFile);
     final supabaseUrl = requireKey(canonical, 'SUPABASE_URL');
     final values = <String, String>{
       'APP_ENV': env.erp.appEnv,
@@ -88,13 +87,6 @@ class SyncService {
         'false',
       ),
     };
-    // Preserve deploy-only keys from existing ERP env.
-    for (final key in ['APP_STORE_CONNECT_ISSUER_ID', 'APP_STORE_CONNECT_KEY_IDENTIFIER']) {
-      final preserved = existing[key]?.trim() ?? '';
-      if (preserved.isNotEmpty) {
-        values[key] = preserved;
-      }
-    }
     return values;
   }
 

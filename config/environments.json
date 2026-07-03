@@ -1,5 +1,6 @@
 {
   "default": "development",
+  "deploySecretsFile": "config/secrets/deploy.env",
   "environments": {
     "development": {
       "description": "Remote dev — secrets + supabase link on use/sync",

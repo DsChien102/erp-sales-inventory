@@ -7,11 +7,13 @@ class EnvManifest {
     required this.defaultEnvironmentId,
     required this.environments,
     required this.rootDir,
+    required this.deploySecretsFile,
   });
 
   final String defaultEnvironmentId;
   final Map<String, EnvironmentDefinition> environments;
   final Directory rootDir;
+  final File deploySecretsFile;
 
   static EnvManifest load(Directory rootDir) {
     final file = File('${rootDir.path}/config/environments.json');
@@ -35,10 +37,13 @@ class EnvManifest {
     if (!environments.containsKey(defaultId)) {
       throw StateError('default environment "$defaultId" not found in manifest');
     }
+    final deployRelative =
+        json['deploySecretsFile'] as String? ?? 'config/secrets/deploy.env';
     return EnvManifest(
       defaultEnvironmentId: defaultId,
       environments: environments,
       rootDir: rootDir,
+      deploySecretsFile: File('${rootDir.path}/$deployRelative'),
     );
   }
 

@@ -70,6 +70,7 @@ void main() {
 ''');
     final m = EnvManifest.load(root);
     expect(m.defaultEnvironmentId, 'development');
+    expect(m.deploySecretsFile.path, endsWith('config/secrets/deploy.env'));
   });
 
   test('sync writes erp and worker env from secrets', () async {
@@ -95,6 +96,34 @@ void main() {
     final worker = loadDotEnv(result.workerEnvFile);
     expect(worker['SUPABASE_URL'], 'http://127.0.0.1:54321');
     expect(worker['WORKER_TICK_SECRET'], 'tick-test');
+  });
+
+  test('sync does not copy APP_STORE_CONNECT keys into erp env', () async {
+    Directory('${root.path}/apps/erp').createSync(recursive: true);
+    writeDotEnv(
+      File('${root.path}/config/secrets/local.env'),
+      {
+        'SUPABASE_URL': 'http://127.0.0.1:54321',
+        'SUPABASE_ANON_KEY': 'anon-test',
+        'SUPABASE_SERVICE_ROLE_KEY': 'service-test',
+        'WORKER_TICK_SECRET': 'tick-test',
+        'APP_STORE_CONNECT_ISSUER_ID': 'issuer-from-secrets',
+        'APP_STORE_CONNECT_KEY_IDENTIFIER': 'key-from-secrets',
+      },
+    );
+    writeDotEnv(
+      File('${root.path}/apps/erp/.env'),
+      {
+        'APP_STORE_CONNECT_ISSUER_ID': 'issuer-legacy-erp',
+        'APP_STORE_CONNECT_KEY_IDENTIFIER': 'key-legacy-erp',
+      },
+    );
+
+    final result = await SyncService(manifest: manifest).sync('local');
+    final erp = loadDotEnv(result.erpEnvFile);
+
+    expect(erp.containsKey('APP_STORE_CONNECT_ISSUER_ID'), isFalse);
+    expect(erp.containsKey('APP_STORE_CONNECT_KEY_IDENTIFIER'), isFalse);
   });
 
   test('write and read active environment', () {

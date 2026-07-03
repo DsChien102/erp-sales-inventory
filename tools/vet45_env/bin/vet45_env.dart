@@ -157,6 +157,8 @@ void _cmdResolveShell(EnvManifest manifest, List<String> args) {
   stdout.writeln('ERP_ENV_FILE=${env.erp.envFile.path}');
   stdout.writeln('ERP_ENV_BASENAME=${env.erp.envFile.uri.pathSegments.last}');
   stdout.writeln('WORKER_ENV_FILE=${env.worker.envFile.path}');
+  stdout.writeln('SECRETS_FILE=${env.secretsFile.path}');
+  stdout.writeln('DEPLOY_SECRETS_FILE=${manifest.deploySecretsFile.path}');
   final dockerUrl = env.worker.dockerSupabaseUrl;
   if (dockerUrl != null && dockerUrl.isNotEmpty) {
     stdout.writeln('WORKER_DOCKER_SUPABASE_URL=$dockerUrl');

@@ -4,7 +4,7 @@
 # Usage:
 #   ./apps/erp/deploy-ios.sh [--env staging|production]
 #
-# Requires APP_STORE_CONNECT_* in synced ERP env file (melos run env:sync).
+# Requires APP_STORE_CONNECT_* in config/secrets/deploy.env (shared across envs).
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
@@ -55,17 +55,17 @@ while IFS= read -r line; do
   export "$line"
 done <<<"$RESOLVED"
 
-if [[ ! -f "${ERP_ENV_FILE:-}" ]]; then
-  echo "Missing env file: ${ERP_ENV_FILE:-}"
-  echo "Run: melos run env:sync -- --env ${ENV_NAME}"
+if [[ ! -f "${DEPLOY_SECRETS_FILE:-}" ]]; then
+  echo "Missing deploy secrets: ${DEPLOY_SECRETS_FILE:-}"
+  echo "Run: cp config/secrets/deploy.env.example config/secrets/deploy.env"
   exit 1
 fi
 
 # shellcheck disable=SC1090
-set -a && source "$ERP_ENV_FILE" && set +a
+set -a && source "$DEPLOY_SECRETS_FILE" && set +a
 
-: "${APP_STORE_CONNECT_KEY_IDENTIFIER:?Set APP_STORE_CONNECT_KEY_IDENTIFIER in config/secrets and re-run env:sync}"
-: "${APP_STORE_CONNECT_ISSUER_ID:?Set APP_STORE_CONNECT_ISSUER_ID in config/secrets and re-run env:sync}"
+: "${APP_STORE_CONNECT_KEY_IDENTIFIER:?Set APP_STORE_CONNECT_KEY_IDENTIFIER in ${DEPLOY_SECRETS_FILE}}"
+: "${APP_STORE_CONNECT_ISSUER_ID:?Set APP_STORE_CONNECT_ISSUER_ID in ${DEPLOY_SECRETS_FILE}}"
 
 IPA_GLOB="${APP_DIR}/build/ios/ipa/*.ipa"
 shopt -s nullglob
@@ -84,7 +84,7 @@ EXPECTED_ID="$(expected_bundle_id "$ENV_NAME")"
 echo "==> Uploading ${IPA_PATH}"
 echo "    target ASC env: ${ENV_NAME}"
 echo "    expected bundle id: ${EXPECTED_ID}"
-echo "    env file: ${ERP_ENV_FILE}"
+echo "    deploy secrets: ${DEPLOY_SECRETS_FILE}"
 
 xcrun altool --upload-app --type ios -f "$IPA_PATH" \
   --apiKey "$APP_STORE_CONNECT_KEY_IDENTIFIER" \
