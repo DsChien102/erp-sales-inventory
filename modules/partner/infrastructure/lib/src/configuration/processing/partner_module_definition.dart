@@ -10,6 +10,7 @@ import 'package:vet45_partner_domain/domain.dart';
     PartnerPermissions.update,
     PartnerPermissions.manageStatus,
     PartnerPermissions.delete,
+    PartnerPermissions.viewTransactionHistory,
   ],
 )
 final class PartnerModuleDefinition {}

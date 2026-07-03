@@ -26,3 +26,20 @@ targets:
           module_name: partner
           scan_package: vet45_partner_infrastructure
           handler_scan_package: vet45_partner_application
+      vet45_generator|cqrs_integration_event_registry:
+        enabled: true
+        options:
+          module_name: partner
+          scan_package: vet45_partner_application
+          dispatchers:
+            - id: inbound
+              factory_function: createGeneratedPartnerIntegrationEventDispatcher
+              dispatcher_class: PartnerIntegrationEventDispatcher
+              dispatcher_import: ../partner_integration_event_dispatcher.dart
+              event_packages:
+                - vet45_partner_integration_events
+      vet45_generator|cqrs_internal_registry:
+        enabled: true
+        options:
+          module_name: partner
+          scan_package: vet45_partner_application

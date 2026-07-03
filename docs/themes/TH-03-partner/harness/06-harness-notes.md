@@ -31,10 +31,11 @@ cd apps/erp && flutter test test/features/partner/   # khi slice có UI
 | ---- | ------------- | --------- |
 | 2026-06-30 | Khởi tạo harness/ scaffold TH-03 | README + harness layer + guards |
 | 2026-06-30 | God Widget / inline dialog | presentation-layer skill + UI guards + dashboard golden ref |
-| — | Dup-check chỉ UI | Ghi nhớ: RPC tenant-scoped khi implement US-02 FR-5 |
-| — | Permission label tiếng Việt vs code | Bảng mapping trong 02-module-map.md |
-| — | Epic-03 blocked | Chờ sales/inventory/accounting events |
+| - | Dup-check chỉ UI | Ghi nhớ: RPC tenant-scoped khi implement US-02 FR-5 |
+| - | Permission label tiếng Việt vs code | Bảng mapping trong 02-module-map.md |
+| - | Epic-03 E2E blocked | Chờ sales/inventory/accounting events end-to-end |
 | 2026-07-01 | BE/FE lane confusion | 07-api-contracts + FakePartnerModule + traceability Role column |
+| - | Epic-03 BE done & DTO collision giữa UI demo model và BE application DTO | Dùng application DTO trong presentation; cập nhật traceability ma trận cho BE Epic-03 |
 | 2026-07-02 | Partner hand-wired CQRS | Bật codegen (mirror IAM); cập nhật ritual + [modules/partner/README.md](../../../../modules/partner/README.md) |
 
 ## Liên kết

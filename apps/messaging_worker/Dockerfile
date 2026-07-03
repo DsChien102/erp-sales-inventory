@@ -1,5 +1,3 @@
-# Railway-ready build for the messaging worker.
-# Infrastructure packages are Dart-only (package:supabase); no Flutter SDK required.
 FROM dart:stable AS build
 
 WORKDIR /app
@@ -10,7 +8,6 @@ COPY apps/messaging_worker/docker/workspace.pubspec.yaml ./pubspec.yaml
 RUN dart pub get
 
 WORKDIR /app/apps/messaging_worker
-
 RUN dart compile exe bin/worker.dart -o /worker
 
 FROM debian:bookworm-slim

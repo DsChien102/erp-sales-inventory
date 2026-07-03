@@ -167,7 +167,9 @@ class PartnerGeneralInfoTab extends StatelessWidget {
               value,
               textAlign: TextAlign.right,
               style: VTypography.bodyDefault.copyWith(
-                color: isValueGray ? dynamicColors.textSecondary : dynamicColors.textPrimary,
+                color: isValueGray
+                    ? dynamicColors.textSecondary
+                    : dynamicColors.textPrimary,
                 fontStyle: isValueGray ? FontStyle.italic : FontStyle.normal,
               ),
             ),

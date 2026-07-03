@@ -12,6 +12,7 @@ export 'src/bloc/partner_list_cubit.dart';
 export 'src/bloc/partner_list_state.dart';
 
 export 'src/models/partner_filter_counts.dart';
+export 'src/utils/partner_detail_helpers.dart';
 
 export 'src/widgets/partner_cancel_confirm_bottom_sheet.dart';
 export 'src/widgets/partner_cancel_confirm_dialog.dart';
@@ -33,4 +34,6 @@ export 'src/widgets/partner_list_view.dart';
 export 'src/widgets/partner_role_type_section.dart';
 export 'src/widgets/partner_search_bar.dart';
 export 'src/widgets/partner_transaction_history_tab.dart';
+export 'src/widgets/partner_transaction_filter_bottom_sheet.dart';
 export 'src/widgets/partner_transaction_item.dart';
+

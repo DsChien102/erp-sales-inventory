@@ -1,5 +1,7 @@
+
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:vet45_partner_application/application.dart';
+import 'package:vet45_partner_domain/domain.dart';
 import 'package:vet45_shared_application/application.dart';
 
 import '../mappers/partner_ui_mapper.dart';
@@ -12,19 +14,21 @@ class PartnerDetailCubit extends Cubit<PartnerDetailState> {
     required IPartnerModule partnerModule,
     required IExecutionContext executionContext,
     PartnerItemModel? initialPartner,
-  })  : _partnerModule = partnerModule,
-        _executionContext = executionContext,
-        super(
-          PartnerDetailState(
-            partner: initialPartner,
-            status: initialPartner == null
-                ? PartnerDetailStatus.initial
-                : PartnerDetailStatus.success,
-          ),
-        );
+  }) : _partnerModule = partnerModule,
+       _executionContext = executionContext,
+       super(
+         PartnerDetailState(
+           partner: initialPartner,
+           status: initialPartner == null
+               ? PartnerDetailStatus.initial
+               : PartnerDetailStatus.success,
+         ),
+       );
 
   final IPartnerModule _partnerModule;
   final IExecutionContext _executionContext;
+
+
 
   Future<void> load(String partnerId) async {
     emit(
@@ -62,6 +66,7 @@ class PartnerDetailCubit extends Cubit<PartnerDetailState> {
           hasBusinessData: detail.hasBusinessData,
         ),
       );
+      await loadTransactionHistory(partnerId);
     } catch (error) {
       emit(
         state.copyWith(
@@ -69,6 +74,32 @@ class PartnerDetailCubit extends Cubit<PartnerDetailState> {
           errorMessage: partnerErrorMessage(error),
         ),
       );
+    }
+  }
+
+  Future<void> loadTransactionHistory(
+    String partnerId, {
+    PartnerTransactionHistoryCriteria? criteria,
+  }) async {
+    emit(state.copyWith(historyStatus: PartnerHistoryStatus.loading));
+    try {
+      final tenantId = await _executionContext.requireTenantId();
+      final result = await _partnerModule.executeQueryAsync(
+        GetPartnerTransactionHistoryQuery(
+          tenantId: tenantId,
+          partnerId: partnerId,
+          criteria: criteria ?? PartnerTransactionHistoryCriteria(),
+        ),
+      );
+
+      emit(
+        state.copyWith(
+          historyStatus: PartnerHistoryStatus.loaded,
+          history: result.items,
+        ),
+      );
+    } catch (_) {
+      emit(state.copyWith(historyStatus: PartnerHistoryStatus.error));
     }
   }
 
@@ -196,13 +227,5 @@ class PartnerDetailCubit extends Cubit<PartnerDetailState> {
       );
       return false;
     }
-  }
-
-  void setTransactionStatus(TransactionHistoryStatus status) {
-    emit(state.copyWith(transactionStatus: status));
-  }
-
-  void searchTransactions(String query) {
-    emit(state.copyWith(transactionSearchQuery: query));
   }
 }

@@ -121,7 +121,7 @@ class _PartnerEditViewState extends State<_PartnerEditView> {
 
         return PopScope(
           canPop: !state.hasChanges,
-          onPopInvoked: (didPop) async {
+          onPopInvokedWithResult: (didPop, result) async {
             if (didPop) return;
             _handleCancel(context, state);
           },

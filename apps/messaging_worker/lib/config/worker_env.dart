@@ -1,5 +1,7 @@
 import 'dart:io' show Platform;
 
+import 'package:logging/logging.dart';
+
 import '../worker_tick_policy.dart';
 
 /// Runtime configuration for the messaging worker process.
@@ -14,6 +16,7 @@ final class WorkerEnv {
     this.tickActiveSeconds = 3,
     this.tickIdleSeconds = 15,
     this.tickMaxIdleSeconds = 30,
+    this.logLevel = Level.INFO,
   });
 
   final String supabaseUrl;
@@ -25,6 +28,7 @@ final class WorkerEnv {
   final int tickActiveSeconds;
   final int tickIdleSeconds;
   final int tickMaxIdleSeconds;
+  final Level logLevel;
 
   WorkerTickPolicy toTickPolicy() {
     return WorkerTickPolicy(
@@ -70,6 +74,23 @@ final class WorkerEnv {
         defaultValue: 30,
         maxValue: 300,
       ),
+      logLevel: _parseLogLevel(env['WORKER_LOG_LEVEL']),
+    );
+  }
+
+  static Level _parseLogLevel(String? raw) {
+    if (raw == null || raw.isEmpty) {
+      return Level.INFO;
+    }
+    final normalized = raw.trim().toUpperCase();
+    for (final level in Level.LEVELS) {
+      if (level.name == normalized) {
+        return level;
+      }
+    }
+    throw FormatException(
+      'Unknown WORKER_LOG_LEVEL "$raw". '
+      'Use one of: ${Level.LEVELS.map((l) => l.name).join(', ')}',
     );
   }
 

@@ -7,7 +7,10 @@ import 'package:vet45_shared_infrastructure/infrastructure.dart';
 import '../../domain/business_partner/supabase_partner_command_gateway.dart';
 import '../../domain/business_partner/supabase_partner_duplicate_checker.dart';
 import '../../domain/business_partner/supabase_partner_read_gateway.dart';
+import '../../domain/transaction_history/supabase_partner_transaction_history_read_gateway.dart';
+import '../../domain/transaction_history/supabase_partner_transaction_history_write_gateway.dart';
 import '../processing/internal_commands/supabase_partner_internal_command_client.dart';
+import '../processing/partner_schema_rpc.dart';
 
 /// Registers partner gateways and checkers.
 final class PartnerDataAccessModule {
@@ -44,8 +47,28 @@ final class PartnerDataAccessModule {
           rpcClient: container.get<SupabaseSchemaRpcClient>(),
         ),
       )
+      ..registerSingleton<IPartnerTransactionHistoryReadGateway>(
+        SupabasePartnerTransactionHistoryReadGateway(
+          rpcClient: container.get<SupabaseSchemaRpcClient>(),
+        ),
+      )
+      ..registerSingleton<IPartnerTransactionHistoryWriteGateway>(
+        SupabasePartnerTransactionHistoryWriteGateway(
+          rpcClient: container.get<SupabaseSchemaRpcClient>(),
+        ),
+      )
+      ..registerSingleton(
+        RecordPartnerTransactionHistoryCommandHandler(
+          writeGateway: container.get<IPartnerTransactionHistoryWriteGateway>(),
+        ),
+      )
+      ..registerSingleton<PartnerSchemaRpc>(
+        SupabasePartnerSchemaRpc(container.get<SupabaseSchemaRpcClient>()),
+      )
       ..registerSingleton<IPartnerInternalCommandClient>(
-        const SupabasePartnerInternalCommandClient(),
+        SupabasePartnerInternalCommandClient(
+          rpcClient: container.get<PartnerSchemaRpc>(),
+        ),
       );
   }
 }

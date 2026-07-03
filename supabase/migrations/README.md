@@ -1,6 +1,15 @@
 # Supabase Migration Conventions (Vet45)
 
-Tai lieu nay la quy chuan chung cho tat ca file migration trong `supabase/migrations/`.
+Tai lieu nay la quy chuan chung cho **migration chinh thuc** trong `supabase/migrations/`.
+
+## 0) Draft vs migration chinh thuc
+
+| Loai | Path | Supabase CLI apply? |
+| ---- | ---- | ------------------- |
+| **Draft (agents / slice BE)** | `supabase/migrations/_drafts/<scope>_<description>.sql` | Khong |
+| **Migration chinh thuc** | `supabase/migrations/YYYYMMDDHHMMSS_<scope>_<description>.sql` | Co |
+
+Agents: xem [AGENTS.md](../../AGENTS.md) — **Schema & migration**. Chi promote draft thanh file timestamp khi maintainer/user yeu cau; timestamp phai unique trong ca repo.
 
 ## 1) Dat ten file
 

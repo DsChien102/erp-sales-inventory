@@ -11,12 +11,6 @@ import 'package:vet45_shared_testing/shared_testing.dart';
 
 final class _FakePrincipalSnapshot implements IPrincipalSnapshot {
   @override
-  String? get userId => 'user-1';
-
-  @override
-  String? get tenantId => 'tenant-1';
-
-  @override
   String? get role => 'member';
 
   @override

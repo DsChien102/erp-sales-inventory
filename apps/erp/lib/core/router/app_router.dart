@@ -88,7 +88,15 @@ final appRouter = GoRouter(
       path: '/more/einvoice-settings/connection',
       name: 'more.einvoice-settings.connection',
       builder: (context, state) {
-        final cubit = state.extra as EInvoiceSettingsCubit;
+        final cubit = state.extra as EInvoiceSettingsCubit?;
+        if (cubit == null) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (context.mounted) {
+              context.go('/more/einvoice-settings');
+            }
+          });
+          return const Scaffold(body: Center(child: CircularProgressIndicator()));
+        }
         return EInvoiceConnectionPage(cubit: cubit);
       },
     ),
@@ -96,7 +104,15 @@ final appRouter = GoRouter(
       path: '/more/einvoice-settings/template',
       name: 'more.einvoice-settings.template',
       builder: (context, state) {
-        final cubit = state.extra as EInvoiceSettingsCubit;
+        final cubit = state.extra as EInvoiceSettingsCubit?;
+        if (cubit == null) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (context.mounted) {
+              context.go('/more/einvoice-settings');
+            }
+          });
+          return const Scaffold(body: Center(child: CircularProgressIndicator()));
+        }
         return EInvoiceTemplatePage(cubit: cubit);
       },
     ),
@@ -104,7 +120,15 @@ final appRouter = GoRouter(
       path: '/more/einvoice-settings/auto',
       name: 'more.einvoice-settings.auto',
       builder: (context, state) {
-        final cubit = state.extra as EInvoiceSettingsCubit;
+        final cubit = state.extra as EInvoiceSettingsCubit?;
+        if (cubit == null) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (context.mounted) {
+              context.go('/more/einvoice-settings');
+            }
+          });
+          return const Scaffold(body: Center(child: CircularProgressIndicator()));
+        }
         return EInvoiceAutoPage(cubit: cubit);
       },
     ),
@@ -132,7 +156,9 @@ final appRouter = GoRouter(
       path: '/partner/detail',
       name: 'partner.detail',
       builder: (context, state) {
-        final hasPermission = getIt<IPrincipalSnapshot>().hasPermission(PartnerPermissions.viewDetail);
+        final hasPermission = getIt<IPrincipalSnapshot>().hasPermission(
+          PartnerPermissions.viewDetail,
+        );
         if (!hasPermission) {
           WidgetsBinding.instance.addPostFrameCallback((_) {
             VToast.show(

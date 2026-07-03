@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
 import 'package:vet45_design_system/design_system.dart';
 import 'package:vet45_iam_application/application.dart';
 import 'package:vet45_partner_application/application.dart';
@@ -40,11 +39,9 @@ class _PartnerDetailPageState extends State<PartnerDetailPage> {
       getIt<IPrincipalSnapshot>().hasPermission(PartnerPermissions.manageStatus);
 
   bool get _canDelete =>
-      widget.canDelete ??
-      getIt<IPrincipalSnapshot>().hasPermission(PartnerPermissions.delete);
+      widget.canDelete ?? getIt<IPrincipalSnapshot>().hasPermission(PartnerPermissions.delete);
 
-  bool get _canUpdate =>
-      getIt<IPrincipalSnapshot>().hasPermission(PartnerPermissions.update);
+  bool get _canUpdate => getIt<IPrincipalSnapshot>().hasPermission(PartnerPermissions.update);
 
   Future<void> _handleMenuAction(BuildContext context, String action) async {
     final cubit = context.read<PartnerDetailCubit>();
@@ -63,7 +60,7 @@ class _PartnerDetailPageState extends State<PartnerDetailPage> {
       if (partner == null) {
         return;
       }
-      
+
       if (!cubit.state.canDelete) {
         final deactivate = await CannotDeletePartnerDialog.show(context);
         if (deactivate && context.mounted) {
@@ -159,8 +156,7 @@ class _PartnerDetailPageState extends State<PartnerDetailPage> {
       )..load(widget.partnerId),
       child: BlocConsumer<PartnerDetailCubit, PartnerDetailState>(
         listenWhen: (previous, current) =>
-            (previous.status != current.status &&
-                current.status == PartnerDetailStatus.failure) ||
+            (previous.status != current.status && current.status == PartnerDetailStatus.failure) ||
             previous.statusChangeMessage != current.statusChangeMessage ||
             previous.deleteMessage != current.deleteMessage ||
             previous.wasDeleted != current.wasDeleted,
@@ -176,8 +172,7 @@ class _PartnerDetailPageState extends State<PartnerDetailPage> {
             return;
           }
 
-          if (state.status == PartnerDetailStatus.failure &&
-              state.errorMessage != null) {
+          if (state.status == PartnerDetailStatus.failure && state.errorMessage != null) {
             VToast.show(
               context,
               title: 'Lỗi',
@@ -233,8 +228,7 @@ class _PartnerDetailPageState extends State<PartnerDetailPage> {
                     const SizedBox(height: 16),
                     VButton(
                       variant: VButtonVariant.outline,
-                      onPressed: () =>
-                          context.read<PartnerDetailCubit>().load(widget.partnerId),
+                      onPressed: () => context.read<PartnerDetailCubit>().load(widget.partnerId),
                       label: 'Tải lại',
                     ),
                   ],
@@ -312,13 +306,13 @@ class _PartnerDetailPageState extends State<PartnerDetailPage> {
                     index: _selectedIndex,
                     children: [
                       PartnerGeneralInfoTab(partner: partner),
-                      const PartnerTransactionHistoryTab(),
+                      PartnerTransactionHistoryTab(partner: partner),
                     ],
                   ),
                 ),
               ],
             ),
-            bottomNavigationBar: partner.status == 'Đã xóa' || !_canUpdate
+            bottomNavigationBar: partner.status == 'Đã xóa' || !_canUpdate || _selectedIndex == 1
                 ? null
                 : SafeArea(
                     child: Padding(

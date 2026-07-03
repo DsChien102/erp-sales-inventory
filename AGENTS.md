@@ -69,6 +69,7 @@ Canonical specs (mirror của skills): `docs/application_layer_skill.md`, `docs/
      → harness/00-agent-ritual.md → 07-api-contracts → slice-roadmap (lane) → US/FR
 3. Xác định layer → mở skill tương ứng
      (presentation/UI → presentation-layer skill + UI artifacts trong FR)
+     (DDL/RPC/RLS → draft SQL vào `supabase/migrations/_drafts/`, không tạo file timestamp)
 4. Implement (minimal diff, match conventions hiện có)
 5. Verify:
      melos bootstrap
@@ -91,8 +92,28 @@ cd apps/erp && flutter test
 cd apps/messaging_worker && dart test
 ```
 
+## Schema & migration (agents)
+
+`supabase/migrations/` là **migration chính thức** — Supabase CLI apply theo version (`YYYYMMDDHHMMSS_*.sql`). Trong collaboration, nhiều agent/branch cùng thêm file timestamp dễ gây **trùng version**, `db reset` fail, hoặc sequence lệch.
+
+### Quy tắc bắt buộc
+
+| Việc | Agent được | Agent không được |
+| ---- | ---------- | -------------- |
+| Thiết kế DDL/RPC/RLS cho slice | Viết SQL tạm vào [`supabase/migrations/_drafts/`](supabase/migrations/_drafts/) | Tạo/sửa `supabase/migrations/[0-9]*.sql` |
+| Map contract BE | Cập nhật harness `07-api-contracts.md` + Dart gateway/RPC client | Giả định draft đã apply trên DB |
+| Verify local DB | `melos run test`, harness scripts | `supabase db reset` để “thử” draft SQL (trừ khi user yêu cầu) |
+| Promote migration | — | Tự đổi tên draft → timestamp migration |
+
+**Draft naming:** `<scope>_<short_description>.sql` (không có prefix timestamp). Quy ước chi tiết: [`supabase/migrations/_drafts/README.md`](supabase/migrations/_drafts/README.md).
+
+**Chỉ tạo file `YYYYMMDDHHMMSS_*.sql`** khi user **yêu cầu rõ** promote migration hoặc maintain schema chính thức. Khi promote: timestamp phải unique (`supabase migration list --local`), SQL idempotent, có header theo [`supabase/migrations/README.md`](supabase/migrations/README.md).
+
+**Lane BE không có DB:** implement application/infrastructure với RPC name + params khớp draft; test dùng fakes/in-memory — không block slice vì thiếu migration applied.
+
 ## Anti-patterns (từ chối)
 
+- Tạo `supabase/migrations/2026....sql` trong slice agent thông thường (dùng `_drafts/` thay thế)
 - God aggregate, God Widget (page > 500 dòng), cross-module table access, anemic domain-only-in-SQL
 - Inline dialog (`AlertDialog`) trong `*_page.dart` — tách file `widgets/`
 - `Widget _buildXxx()` subtree lớn trong `State` — tách class widget riêng

@@ -11,6 +11,7 @@ dependencies:
   uuid: ^4.5.3
   vet45_annotations: ^0.1.0
   vet45_partner_domain: ^1.0.0
+  vet45_partner_integration_events: ^1.0.0
   vet45_shared_application: ^1.0.0
   vet45_shared_domain: ^1.0.0
   meta: ^1.17.0

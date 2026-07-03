@@ -95,6 +95,95 @@ begin
     raise exception 'discovery expected tenant with inbox/internal pending, got %', v_pending;
   end if;
 
+  -- Partner inbox claim + projection upsert path (Epic-03 consume smoke)
+  declare
+    v_partner_id uuid := '55555555-5555-4555-8555-555555555555';
+    v_partner_event_id uuid := '66666666-6666-4666-8666-666666666666';
+    v_order_id uuid := '77777777-7777-4777-8777-777777777777';
+    v_partner_claim_token uuid;
+    v_history_count int;
+  begin
+    insert into partner.business_partners (
+      id,
+      tenant_id,
+      entity_type,
+      display_name,
+      individual_name,
+      phone,
+      phone_normalized,
+      created_by,
+      updated_by
+    )
+    values (
+      v_partner_id,
+      v_tenant,
+      'individual',
+      'Smoke Test Partner',
+      'Smoke Test Partner',
+      '0900000000',
+      '0900000000',
+      v_tenant,
+      v_tenant
+    )
+    on conflict (id) do nothing;
+
+    perform partner.receive_integration_event(
+      v_tenant,
+      v_partner_event_id,
+      'sales.order.checked_out',
+      jsonb_build_object(
+        'tenant_id', v_tenant::text,
+        'business_partner_id', v_partner_id::text,
+        'order_id', v_order_id::text,
+        'order_code', 'SO-SMOKE-001',
+        'amount', 250000,
+        'status', 'completed',
+        'transaction_date', '2026-06-30T10:00:00Z'
+      ),
+      now()
+    );
+
+    select claim_token
+    into v_partner_claim_token
+    from partner.claim_inbox_batch(v_tenant, 10)
+    where message_id = v_partner_event_id;
+
+    if v_partner_claim_token is null then
+      raise exception 'partner claim_inbox_batch did not return claim_token';
+    end if;
+
+    perform partner.upsert_transaction_history(
+      v_tenant,
+      v_partner_id,
+      'customer',
+      'sales',
+      'order',
+      v_order_id,
+      '2026-06-30T10:00:00Z'::timestamptz,
+      'SO-SMOKE-001',
+      250000,
+      'completed',
+      'Messaging smoke projection'
+    );
+
+    perform partner.complete_inbox_message(
+      v_tenant,
+      v_partner_event_id,
+      v_partner_claim_token
+    );
+
+    select count(*)
+    into v_history_count
+    from partner.partner_transaction_histories
+    where tenant_id = v_tenant
+      and business_partner_id = v_partner_id
+      and source_id = v_order_id;
+
+    if v_history_count <> 1 then
+      raise exception 'partner projection smoke failed: expected 1 row, got %', v_history_count;
+    end if;
+  end;
+
   raise notice 'messaging smoke test passed';
 end;
 $$;

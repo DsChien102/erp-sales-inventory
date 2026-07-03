@@ -82,6 +82,17 @@ void registerGeneratedPartnerHandlers({
     ),
   );
 
+  PartnerCommandRegistration.registerInternalHandler<RecordPartnerTransactionHistoryCommand, RecordPartnerTransactionHistoryCommandHandler>(
+    container: container,
+    bus: bus,
+    logger: logger,
+    factory: () => RecordPartnerTransactionHistoryCommandHandler(
+      writeGateway: container.get<IPartnerTransactionHistoryWriteGateway>(),
+    ),
+    inner: (command) => container.get<RecordPartnerTransactionHistoryCommandHandler>().handle(command),
+    commandClient: internalCommandClient,
+  );
+
 }
 
 void registerGeneratedPartnerQueries({
@@ -108,6 +119,14 @@ void registerGeneratedPartnerQueries({
     bus: bus,
     factory: () => GetPartnerDetailQueryHandler(
       readGateway: container.get<IPartnerReadGateway>(),
+    ),
+    invoke: (query, handler) => handler.handle(query),
+  );
+
+  PartnerCommandRegistration.registerQueryHandler<GetPartnerTransactionHistoryQuery, PartnerTransactionHistoryResultDto, GetPartnerTransactionHistoryQueryHandler>(
+    bus: bus,
+    factory: () => GetPartnerTransactionHistoryQueryHandler(
+      readGateway: container.get<IPartnerTransactionHistoryReadGateway>(),
     ),
     invoke: (query, handler) => handler.handle(query),
   );

@@ -54,8 +54,15 @@ UI → IExecutionContext (tenant/user) → IModuleMediator
 - `MediationModule` → `registerGenerated*Handlers` + `DefaultCommandPipeline`
 - IAM: `IamAccessCheckedHandlerOverrides` for optional `IAccessChecker` (codegen skips optional deps)
 
+## Schema / Supabase migrations (agents)
+
+- **Draft SQL only:** `supabase/migrations/_drafts/<scope>_<description>.sql` — no `YYYYMMDDHHMMSS_` prefix.
+- **Do not** add or edit `supabase/migrations/[0-9]*.sql` unless the user explicitly requests promoting a canonical migration.
+- Map RPC contracts in theme harness `07-api-contracts.md`; verify with `melos run test` — not `supabase db reset` for draft SQL.
+
 ## Anti-patterns (reject in reviews)
 
+- Agent-authored timestamped files in `supabase/migrations/` during normal slices (duplicate version risk in collaboration)
 - God aggregate, cross-module table access, anemic domain-only-in-SQL
 - Direct PostgREST writes from UI, Flutter bus for durable messaging
 - New framework abstractions (generic Repository<T>, plugin DSL)

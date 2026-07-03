@@ -69,4 +69,8 @@ Ghi các cải tiến harness sau khi agent fail (ngày + mô tả ngắn):
 | 2026-06-30 | IAM minimal — DB RBAC, access checkers, ERP auth migration via IIamModule |
 | 2026-06-30 | Implemented Presentation Layer for TH-03 Epic-01 US-03 (Bổ sung và chỉnh sửa) |
 | 2026-07-01 | BE/FE harness lanes — 07-api-contracts, FakePartnerModule, Epic-02/US-01 contract-first |
+| 2026-06-30 | Updated 05-traceability.md with presentation artifacts mapping for TH-03 Epic-01 (US-01 to US-04) |
+| 2026-07-01 | Implemented BE and updated Traceability Matrix for TH-03 Epic-03 US-01 (Theo dõi lịch sử làm việc) |
 | 2026-07-02 | Partner codegen — hand-wired mediation/access → generated registrars; TH-03 harness + README updated |
+| 2026-07-02 | Partner messaging worker wired — `PartnerMessagingModule` in `messaging_worker` bootstrap |
+| 2026-07-02 | Partner messaging realigned to standard flow — consumer handlers moved to application layer (`IIntegrationEventNotificationHandler` + codegen dispatcher); inbox/internal-command processed via `CommandBus`/`IRecurringCommand`; removed hand-rolled processors/ingestor; RPC claim-token contract kept |

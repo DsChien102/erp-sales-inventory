@@ -32,6 +32,8 @@ Builders in `infrastructure/build.yaml`:
 - `cqrs_infrastructure` → `PartnerCommandPipeline` bus extensions
 - `access_metadata` → `partnerAccessMetadataRegistry` (messages need `implements ICommand` / `IQuery`)
 - `module_manifest` → scans `PartnerModuleDefinition`; handlers from `vet45_partner_application`
+- `cqrs_integration_event_registry` → `createGeneratedPartnerIntegrationEventDispatcher` (scans `*_integration_event_handler.dart` in application)
+- `cqrs_internal_registry` → `createGeneratedPartnerInternalCommandSerializer` (scans `ISerializableInternalCommand` in application)
 
 **Important:** command/query classes must explicitly `implements ICommand<T>` / `IQuery<T>` for access metadata generation.
 
@@ -60,6 +62,43 @@ Validators: `implements ICommandValidator<MyCommand>` — auto-registered by cod
 `PartnerStartup.initialize` receives `IPermissionChecker` + `ITenantAccessChecker` from IAM runtime (host injects checkers).
 
 `PartnerCommandPipeline.buildBusinessPipeline` injects generated `partnerAccessMetadataRegistry` + checkers from GetIt.
+
+## Messaging worker
+
+Partner Epic-03 consume path chạy trong `apps/messaging_worker` qua **cùng composition root** `PartnerStartup` — không còn processor tay tách rời.
+
+```dart
+import 'package:vet45_partner_infrastructure/infrastructure.dart';
+
+final partnerModule = PartnerMessagingModule.create(
+  supabase: serviceRoleClient,
+  loggerFactory: loggerFactory,
+);
+// MessagingModuleRegistry([partnerModule])
+```
+
+`PartnerMessagingModule.create` gọi `PartnerStartup.initializeForMessaging` (allow-all checkers vì recurring processing không đi qua business authorization pipeline) và delegate `processMessagingOnce` về `IPartnerModule.executeCommandAsync`:
+
+```text
+worker → ProcessInboxCommand / ProcessInternalCommandsCommand (IRecurringCommand)
+  → CommandBus → DefaultCommandPipeline
+  → ProcessInboxCommandHandler → PartnerIntegrationEventRegistry (deserialize)
+    → PartnerIntegrationEventDispatcher (codegen) → consumer handler (application layer)
+    → ICommandScheduler.enqueue → partner.internal_commands
+  → ProcessInternalCommandsCommandHandler → claim → CommandsExecutor
+    → CommandBus (internal pipeline + completion decorator)
+    → RecordPartnerTransactionHistoryCommandHandler → write gateway RPC
+```
+
+Điểm mấu chốt (align doc 07):
+
+- **Mapping event → command** nằm ở **application layer** (`application/lib/src/integration_events/*_integration_event_handler.dart` implement `IIntegrationEventNotificationHandler`), không ở infrastructure.
+- Consumer handler **chỉ enqueue** (`ICommandScheduler`); execution thuộc `ProcessInternalCommandsCommandHandler` + `CommandsExecutor`.
+- Inbox / internal-command xử lý **qua `CommandBus` + pipeline** bằng `IRecurringCommand` — không gọi handler trực tiếp.
+- Contract RPC schema `partner` giữ nguyên (claim-token): `claim_inbox_batch` / `complete_inbox_message` / `fail_inbox_message` / `claim_internal_commands_batch` / `complete_internal_command` / `fail_internal_command`.
+- Internal-command serialize/deserialize: `ISerializableInternalCommand` + `InternalCommandSerializer` (`vet45_shared`) + codegen `cqrs_internal_registry`.
+
+Cross-module E2E vẫn blocked cho đến khi platform outbox relay + source publishers ship.
 
 ## New handler checklist
 

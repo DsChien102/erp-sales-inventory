@@ -12,7 +12,7 @@ void main() {
 
   setUpAll(() {
     final packageRoot = resolveGeneratorPackageRoot();
-    fixtureRoot = p.join(packageRoot, 'test/fixtures/lib/src');
+    fixtureRoot = p.canonicalize(p.join(packageRoot, 'test', 'fixtures', 'lib', 'src'));
   });
 
   group('ConstructorDependencyParser', () {

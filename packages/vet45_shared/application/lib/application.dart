@@ -24,4 +24,6 @@ export 'src/execution/i_execution_context.dart';
 export 'src/execution/i_module_mediator.dart';
 export 'src/execution/i_permission_checker.dart';
 export 'src/execution/i_tenant_access_checker.dart';
+export 'src/internal_commands/i_serializable_internal_command.dart';
 export 'src/module/generated_module_manifest.dart';
+export 'src/serialization/internal_command_json.dart';

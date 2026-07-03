@@ -1,23 +1,13 @@
+import 'package:vet45_partner_application/application.dart';
 import 'partner_list_state.dart';
 
 enum PartnerDetailStatus { initial, loading, success, failure }
 
-enum TransactionHistoryStatus { ready, loading, error }
-
-class TransactionItemModel {
-  final String id;
-  final String title;
-  final String date;
-  final String status;
-  final String amount;
-
-  const TransactionItemModel({
-    required this.id,
-    required this.title,
-    required this.date,
-    required this.status,
-    required this.amount,
-  });
+enum PartnerHistoryStatus {
+  initial,
+  loading,
+  loaded,
+  error,
 }
 
 class PartnerDetailState {
@@ -30,9 +20,8 @@ class PartnerDetailState {
   final String? deleteMessage;
   final bool wasDeleted;
   final bool hasBusinessData;
-  final TransactionHistoryStatus transactionStatus;
-  final List<TransactionItemModel> transactions;
-  final String transactionSearchQuery;
+  final PartnerHistoryStatus historyStatus;
+  final List<PartnerTransactionHistoryItemDto> history;
 
   const PartnerDetailState({
     this.status = PartnerDetailStatus.initial,
@@ -44,9 +33,8 @@ class PartnerDetailState {
     this.deleteMessage,
     this.wasDeleted = false,
     this.hasBusinessData = false,
-    this.transactionStatus = TransactionHistoryStatus.ready,
-    this.transactions = const [],
-    this.transactionSearchQuery = '',
+    this.historyStatus = PartnerHistoryStatus.initial,
+    this.history = const [],
   });
 
   bool get canDelete => partner != null && !hasBusinessData && !wasDeleted;
@@ -65,28 +53,23 @@ class PartnerDetailState {
     bool clearDeleteMessage = false,
     bool? wasDeleted,
     bool? hasBusinessData,
-    TransactionHistoryStatus? transactionStatus,
-    List<TransactionItemModel>? transactions,
-    String? transactionSearchQuery,
+    PartnerHistoryStatus? historyStatus,
+    List<PartnerTransactionHistoryItemDto>? history,
   }) {
     return PartnerDetailState(
       status: status ?? this.status,
       partner: clearPartner ? null : (partner ?? this.partner),
-      errorMessage:
-          clearErrorMessage ? null : (errorMessage ?? this.errorMessage),
+      errorMessage: clearErrorMessage ? null : (errorMessage ?? this.errorMessage),
       isChangingStatus: isChangingStatus ?? this.isChangingStatus,
       statusChangeMessage: clearStatusChangeMessage
           ? null
           : (statusChangeMessage ?? this.statusChangeMessage),
       isDeletingPartner: isDeletingPartner ?? this.isDeletingPartner,
-      deleteMessage:
-          clearDeleteMessage ? null : (deleteMessage ?? this.deleteMessage),
+      deleteMessage: clearDeleteMessage ? null : (deleteMessage ?? this.deleteMessage),
       wasDeleted: wasDeleted ?? this.wasDeleted,
       hasBusinessData: hasBusinessData ?? this.hasBusinessData,
-      transactionStatus: transactionStatus ?? this.transactionStatus,
-      transactions: transactions ?? this.transactions,
-      transactionSearchQuery:
-          transactionSearchQuery ?? this.transactionSearchQuery,
+      historyStatus: historyStatus ?? this.historyStatus,
+      history: history ?? this.history,
     );
   }
 }

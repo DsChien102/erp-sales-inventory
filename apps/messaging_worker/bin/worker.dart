@@ -5,8 +5,8 @@ import 'dart:io';
 import 'package:args/args.dart';
 import 'package:messaging_worker/http/worker_http_server.dart';
 import 'package:messaging_worker/messaging_worker_bootstrap.dart';
-import 'package:messaging_worker/messaging_worker_loop.dart';
 import 'package:messaging_worker/worker_tick_scheduler.dart';
+import 'package:vet45_shared_infrastructure/infrastructure.dart';
 
 Future<void> main(List<String> arguments) async {
   final parser = ArgParser()
@@ -37,7 +37,13 @@ Future<void> main(List<String> arguments) async {
     return;
   }
 
-  final context = MessagingWorkerBootstrap.bootstrap();
+  final config = WorkerEnv.fromPlatform();
+  configurePackageLogging(level: config.logLevel);
+
+  final context = MessagingWorkerBootstrap.bootstrap(
+    config: config,
+    loggerFactory: const LoggingLoggerFactory(),
+  );
   final loop = MessagingWorkerLoop(context: context);
 
   if (runOnce) {

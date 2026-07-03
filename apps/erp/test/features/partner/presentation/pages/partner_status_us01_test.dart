@@ -16,10 +16,6 @@ final class _MutablePrincipal implements IPrincipalSnapshot {
   Set<String> permissions;
 
   @override
-  String? get userId => 'user-1';
-  @override
-  String? get tenantId => 'tenant-1';
-  @override
   String? get role => 'member';
   @override
   bool hasPermission(String code) => permissions.contains(code);

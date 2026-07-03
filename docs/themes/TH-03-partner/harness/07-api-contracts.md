@@ -213,25 +213,63 @@ Package: `vet45_partner_application` — `delete_partner/`.
 
 ## Epic-03 / US-01 — Lịch sử giao dịch
 
-> CONTRACT stub — BE projection blocked; FE có thể fake.
+> CONTRACT implemented — read path qua `GetPartnerTransactionHistoryQuery`; projection write qua application consumer handlers + `CommandBus` pipeline.
 
-### Commands / Queries
+### Commands / Queries (FE-facing)
 
 | Symbol | Input (summary) | Success | Errors |
 | ------ | --------------- | ------- | ------ |
-| `ListPartnerTransactionHistoryQuery` | tenantId, partnerId, limit, offset | `PartnerTransactionHistoryResultDto` | PermissionDenied |
+| `GetPartnerTransactionHistoryQuery` | tenantId, partnerId, `PartnerTransactionHistoryCriteria`, limit (default 100), offset (default 0) | `PartnerTransactionHistoryResultDto` (items, totalCount) | PermissionDenied (`partner.view_transaction_history`), partner not found / tenant mismatch (handler/gateway) |
 
-Package: stub when slice opens.
+**`PartnerTransactionHistoryCriteria`** (domain, passed on query):
+
+| Field | Type | Notes |
+| ----- | ---- | ----- |
+| `keyword` | `String?` | Mã giao dịch / ghi chú; trimmed |
+| `transactionTypes` | `Set<String>?` | Loại giao dịch (sales, purchase, invoice, …) |
+| `transactionRole` | `PartnerRole?` | `customer` / `supplier` |
+| `from` / `to` | `DateTime?` | Khoảng thời gian; `from` ≤ `to` |
+
+**`PartnerTransactionHistoryItemDto`** (summary): id, partnerId, transactionRole, transactionType, occurredAt, transactionCode?, amount?, status?, description?, `sourceNavigation` (`PartnerTransactionSourceNavigationDto`).
+
+Package: `vet45_partner_application` — `transaction_history/get_partner_transaction_history/`.
+
+Permission: `PartnerPermissions.viewTransactionHistory` (`partner.view_transaction_history`).
+
+### Internal command (BE / messaging — không gọi từ FE)
+
+| Symbol | Input (summary) | Success | Notes |
+| ------ | --------------- | ------- | ----- |
+| `RecordPartnerTransactionHistoryCommand` | tenantId, businessPartnerId, transactionRole, sourceModule, sourceType, sourceId, transactionDate, optional sourceCode/amount/status/description | `void` | Internal command (`InternalCommandBase`); idempotent upsert vào projection; chạy qua `CommandBus` internal pipeline |
+
+Package: `vet45_partner_application` — `transaction_history/record_transaction_history/`.
+
+Consumer handlers (application layer) lắng nghe integration events (sales/inventory/accounting) và map → `RecordPartnerTransactionHistoryCommand`, thực thi qua `CommandBus`:
+`application/lib/src/integration_events/*_integration_event_handler.dart` (implement `IIntegrationEventNotificationHandler`, wiring qua codegen `createGeneratedPartnerIntegrationEventDispatcher`). Inbox/internal-command drain qua `ProcessInboxCommand` / `ProcessInternalCommandsCommand` (`IRecurringCommand`) trong infrastructure; contract RPC schema `partner` giữ claim-token.
+
+### RPC mapping (BE)
+
+| Use case | RPC / view |
+| -------- | ---------- |
+| List + filter | `partner.get_partner_transaction_history` |
+| Read projection | `partner.v_partner_transaction_history` |
+| Upsert projection | `partner.upsert_transaction_history` |
+
+Migrations: `20260701000002_partner_transaction_history_read.sql`, `20260701000003_partner_transaction_history_upsert.sql`.
 
 ### Fake scenarios (FE)
 
 | scenario_id | trigger | fake response |
 | ----------- | ------- | ------------- |
-| `history_empty` | query | empty list |
-| `history_items` | query | sample transaction rows |
+| `history_empty` | `GetPartnerTransactionHistoryQuery` | `PartnerTransactionHistoryResultDto(items: [], totalCount: 0)` |
+| `history_items` | `GetPartnerTransactionHistoryQuery` | non-empty `PartnerTransactionHistoryItemDto` list (sales/purchase mix) |
+| `history_filtered` | query với `criteria.transactionTypes` / `from`–`to` | subset matching criteria |
+| `history_permission_denied` | query | PermissionDenied |
+| `history_error` | query | throws (network / gateway error) |
+
+Presentation bloc test: `modules/partner/presentation/test/bloc/partner_transaction_history_test.dart` (inline `_FakePartnerModule`).
 
 ### Parallel notes
 
-- FE có thể fake: **yes**
-- E2E blocked by: sales/inventory/accounting publish events
-- BE lane: **blocked** until source modules publish
+- FE có thể fake: **yes** (sau CONTRACT)
+- E2E prerequisite: US-04 (partner detail tab) + **cross-module publish** (sales/inventory/accounting → inbox → projection). Lane E2E `blocked` cho đến khi source modules publish events; **không** block FE unit/widget test hay BE handler tests.
