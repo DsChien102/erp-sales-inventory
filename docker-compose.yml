@@ -1,0 +1,23 @@
+# Local dev stack (messaging worker). Supabase stays on `supabase start` (CLI-managed).
+#
+#   supabase start
+#   melos run worker:setup    # first time
+#   melos run worker:docker   # or worker:serve for dart on host
+#
+services:
+  messaging-worker:
+    build:
+      context: .
+      dockerfile: apps/messaging_worker/Dockerfile
+    image: vet45/messaging-worker:local
+    env_file:
+      - apps/messaging_worker/.env
+    environment:
+      # Host Supabase API from inside the container (override localhost in .env).
+      SUPABASE_URL: ${WORKER_SUPABASE_URL:-http://host.docker.internal:54321}
+      PORT: "8080"
+    ports:
+      - "${WORKER_PORT:-8080}:8080"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: unless-stopped

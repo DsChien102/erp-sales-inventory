@@ -116,13 +116,26 @@ Scaffold module mới: `./scripts/scaffold_module.sh`.
 Worker xử lý outbox/inbox và integration events server-side — không bắt buộc cho dev UI thuần.
 
 ```bash
+supabase start
+melos run worker:setup          # lần đầu — tạo apps/messaging_worker/.env
+melos run worker:serve          # dart trên host → http://localhost:8080/health
+melos run worker:once           # một tick rồi thoát
+melos run worker:docker         # container AOT (giống Railway)
+melos run worker:verify         # compile + optional docker build
+```
+
+Thủ công (tương đương `worker:serve`):
+
+```bash
 cp apps/messaging_worker/.env.example apps/messaging_worker/.env
 # Điền SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, WORKER_TICK_SECRET
 
 cd apps/messaging_worker
-dart run bin/worker.dart --once    # Một tick rồi thoát
-dart run bin/worker.dart --serve   # HTTP /health + /tick (port 8080)
+dart run bin/worker.dart --once
+dart run bin/worker.dart --serve
 ```
+
+Docker Compose: `docker-compose.yml` (service `messaging-worker`). Trong container, Supabase local dùng `host.docker.internal:54321`.
 
 Deploy Railway: `railway.toml` + `apps/messaging_worker/Dockerfile`. Trên staging/production, tắt poll phía client (`MESSAGING_CLIENT_POLL_ENABLED=false`) sau khi worker đã chạy.
 

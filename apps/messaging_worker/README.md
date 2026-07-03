@@ -68,6 +68,15 @@ curl -sf -X POST "https://<worker-host>/tick" \
 ## Local development
 
 ```bash
+# From repo root (recommended)
+supabase start
+melos run worker:setup
+melos run worker:serve    # dart on host
+melos run worker:docker   # docker compose (AOT binary)
+melos run worker:once
+```
+
+```bash
 cd apps/messaging_worker
 cp .env.example .env   # or ./scripts/setup_env.sh
 set -a && source .env && set +a

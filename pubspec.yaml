@@ -144,6 +144,29 @@ melos:
           - vet45_partner_presentation
       isPrivate: true
 
+    worker:setup:
+      run: ./apps/messaging_worker/scripts/setup_env.sh
+      description: Bootstrap apps/messaging_worker/.env from ERP Supabase URL
+
+    worker:once:
+      run: ./scripts/dev/run_messaging_worker.sh once
+      stdio: inherit
+      description: Run one messaging worker tick (requires Supabase + .env)
+
+    worker:serve:
+      run: ./scripts/dev/run_messaging_worker.sh serve
+      stdio: inherit
+      description: Run messaging worker HTTP server locally (port 8080)
+
+    worker:docker:
+      run: ./scripts/dev/run_messaging_worker.sh docker
+      stdio: inherit
+      description: Run messaging worker in Docker (Railway-like AOT binary)
+
+    worker:verify:
+      run: ./apps/messaging_worker/scripts/verify_build.sh
+      description: AOT compile worker and optional Docker image build
+
   repository:
     type: gitlab
     origin: https://gitlab.hamsa.co
