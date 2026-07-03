@@ -25,6 +25,8 @@ export 'src/events_bus/integration_event_json.dart';
 export 'src/events_bus/integration_event_type_registry.dart';
 export 'src/events_bus/in_memory_event_bus_client.dart';
 export 'src/events_bus/tenant_scoped_integration_event.dart';
+export 'src/internal_command/internal_command_mapper.dart';
+export 'src/internal_command/internal_command_serializer.dart';
 export 'src/logging/i_logger.dart';
 export 'src/logging/i_logger_factory.dart';
 export 'src/logging/logging_logger.dart';

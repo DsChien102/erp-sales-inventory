@@ -2,8 +2,12 @@ library;
 
 export 'src/configuration/data_access/data_access_module.dart';
 export 'src/configuration/mediation/mediation_module.dart';
+export 'src/configuration/partner_composition_root.dart';
 export 'src/configuration/partner_startup.dart';
-export 'src/configuration/processing/command_bus_partner_internal_command_dispatcher.dart';
+export 'src/configuration/processing/commands_executor.dart';
+export 'src/configuration/processing/generated/partner_internal_command_registry.g.dart';
+export 'src/configuration/processing/partner_command_pipeline.dart';
+export 'src/configuration/processing/internal_commands/supabase_partner_command_scheduler.dart';
 export 'src/configuration/processing/inbox/process_inbox_command.dart';
 export 'src/configuration/processing/inbox/process_inbox_command_handler.dart';
 export 'src/configuration/processing/inbox/supabase_partner_inbox_client.dart';

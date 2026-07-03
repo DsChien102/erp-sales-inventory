@@ -33,13 +33,13 @@ export 'src/business_partner/update_partner_profile/update_partner_profile_comma
 export 'src/business_partner/update_partner_profile/update_partner_profile_command_handler.dart';
 export 'src/business_partner/update_partner_profile/update_partner_profile_command_validator.dart';
 export 'src/business_partner/update_partner_profile/update_partner_profile_result.dart';
+export 'src/configurations/commands/i_command_scheduler.dart';
 export 'src/contracts/i_partner_module.dart';
 export 'src/integration_events/accounting_payable_created_integration_event_handler.dart';
 export 'src/integration_events/accounting_receivable_created_integration_event_handler.dart';
 export 'src/integration_events/inventory_inbound_recorded_integration_event_handler.dart';
 export 'src/integration_events/sales_order_checked_out_integration_event_handler.dart';
 export 'src/ports/i_partner_command_gateway.dart';
-export 'src/ports/i_partner_internal_command_dispatcher.dart';
 export 'src/ports/i_partner_read_gateway.dart';
 export 'src/ports/i_partner_transaction_history_read_gateway.dart';
 export 'src/ports/i_partner_transaction_history_write_gateway.dart';

@@ -15,6 +15,14 @@ final class PartnerInternalCommandRow {
 
 /// Durable internal-command queue port (partner schema RPC contract).
 abstract interface class IPartnerInternalCommandClient {
+  Future<void> enqueue({
+    required String tenantId,
+    required String commandId,
+    required String commandType,
+    required Map<String, dynamic> payload,
+    String? sourceEventId,
+  });
+
   Future<List<PartnerInternalCommandRow>> claimBatch({
     required String tenantId,
     int batchSize = 10,

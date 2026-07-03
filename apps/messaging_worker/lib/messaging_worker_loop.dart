@@ -52,9 +52,16 @@ final class MessagingWorkerLoop {
 
         for (final module in _registry.modules) {
           try {
-            await module.processMessagingOnce(
+            _log(
+              'tick module start tenant=${tenant.tenantId} module=${module.name}',
+            );
+            final result = await module.processMessagingOnce(
               tenantId: tenant.tenantId,
               batchSize: _config.moduleBatchSize,
+            );
+            _log(
+              'tick module done tenant=${tenant.tenantId} module=${module.name} '
+              'inbox=${result.hadInboxWork} internal=${result.hadInternalWork}',
             );
           } catch (error, stackTrace) {
             errorsCount++;

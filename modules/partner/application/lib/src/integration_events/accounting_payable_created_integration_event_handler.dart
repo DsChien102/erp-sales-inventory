@@ -1,7 +1,7 @@
 import 'package:vet45_partner_domain/domain.dart';
 import 'package:vet45_partner_integration_events/integration_events.dart';
 
-import '../ports/i_partner_internal_command_dispatcher.dart';
+import '../configurations/commands/i_command_scheduler.dart';
 import '../transaction_history/record_transaction_history/record_partner_transaction_history_command.dart';
 
 /// Projects `accounting.payable.created` into partner transaction history (supplier role).
@@ -9,14 +9,14 @@ final class AccountingPayableCreatedIntegrationEventHandler
     implements
         IIntegrationEventNotificationHandler<AccountingPayableCreatedIntegrationEvent> {
   AccountingPayableCreatedIntegrationEventHandler({
-    required IPartnerInternalCommandDispatcher internalCommandDispatcher,
-  }) : _internalCommandDispatcher = internalCommandDispatcher;
+    required ICommandScheduler commandScheduler,
+  }) : _commandScheduler = commandScheduler;
 
-  final IPartnerInternalCommandDispatcher _internalCommandDispatcher;
+  final ICommandScheduler _commandScheduler;
 
   @override
   Future<void> handle(AccountingPayableCreatedIntegrationEvent event) {
-    return _internalCommandDispatcher.dispatch(
+    return _commandScheduler.enqueue(
       RecordPartnerTransactionHistoryCommand(
         tenantId: event.tenantId,
         businessPartnerId: event.businessPartnerId,
@@ -30,6 +30,7 @@ final class AccountingPayableCreatedIntegrationEventHandler
         status: event.status,
         description: event.description,
       ),
+      sourceEventId: event.id,
     );
   }
 }

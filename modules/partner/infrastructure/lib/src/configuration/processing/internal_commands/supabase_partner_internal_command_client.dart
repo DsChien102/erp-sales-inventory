@@ -12,6 +12,26 @@ final class SupabasePartnerInternalCommandClient
   final PartnerSchemaRpc _rpcClient;
 
   @override
+  Future<void> enqueue({
+    required String tenantId,
+    required String commandId,
+    required String commandType,
+    required Map<String, dynamic> payload,
+    String? sourceEventId,
+  }) {
+    return _rpcClient.callScalar<void>(
+      'enqueue_internal_command',
+      params: <String, dynamic>{
+        'p_tenant_id': tenantId,
+        'p_command_type': commandType,
+        'p_payload': payload,
+        'p_source_event_id': ?sourceEventId,
+        'p_command_id': commandId,
+      },
+    );
+  }
+
+  @override
   Future<List<PartnerInternalCommandRow>> claimBatch({
     required String tenantId,
     int batchSize = 10,

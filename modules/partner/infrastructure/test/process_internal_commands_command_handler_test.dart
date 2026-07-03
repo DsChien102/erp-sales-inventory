@@ -1,3 +1,4 @@
+import 'package:get_it/get_it.dart';
 import 'package:test/test.dart';
 import 'package:vet45_partner_application/application.dart';
 import 'package:vet45_partner_infrastructure/infrastructure.dart';
@@ -9,6 +10,15 @@ final class _FakeInternalCommandClient implements IPartnerInternalCommandClient 
   final List<PartnerInternalCommandRow> rows;
   final List<String> completed = [];
   final List<String> failed = [];
+
+  @override
+  Future<void> enqueue({
+    required String tenantId,
+    required String commandId,
+    required String commandType,
+    required Map<String, dynamic> payload,
+    String? sourceEventId,
+  }) async {}
 
   @override
   Future<List<PartnerInternalCommandRow>> claimBatch({
@@ -39,7 +49,7 @@ final class _FakeInternalCommandClient implements IPartnerInternalCommandClient 
 
 PartnerInternalCommandRow _recordRow({
   String commandId = 'cmd-1',
-  String commandType = RecordPartnerTransactionHistoryCommand.commandType,
+  String commandType = RecordPartnerTransactionHistoryCommand.type,
 }) {
   return PartnerInternalCommandRow(
     commandId: commandId,
@@ -57,11 +67,28 @@ PartnerInternalCommandRow _recordRow({
   );
 }
 
+void _registerBus({
+  required CommandBus commandBus,
+  required GetIt container,
+  required IPartnerInternalCommandClient client,
+  required Future<void> Function(RecordPartnerTransactionHistoryCommand command) inner,
+}) {
+  commandBus.register<RecordPartnerTransactionHistoryCommand, void>((command) {
+    final pipeline = PartnerCommandPipeline.buildInternalPipeline<
+        RecordPartnerTransactionHistoryCommand>(
+      container: container,
+      inner: inner,
+      commandClient: client,
+    );
+    return pipeline(command);
+  });
+}
+
 void main() {
   test('returns false when internal command batch is empty', () async {
     final handler = ProcessInternalCommandsCommandHandler(
       commandClient: _FakeInternalCommandClient(rows: const []),
-      commandBus: CommandBus(),
+      serializer: createGeneratedPartnerInternalCommandSerializer(),
     );
 
     final hadWork = await handler.handle(
@@ -73,14 +100,22 @@ void main() {
 
   test('executes command through the bus and completes the row', () async {
     final executed = <RecordPartnerTransactionHistoryCommand>[];
-    final commandBus = CommandBus()
-      ..register<RecordPartnerTransactionHistoryCommand, void>(
-        (command) async => executed.add(command),
-      );
+    final container = GetIt.asNewInstance();
     final client = _FakeInternalCommandClient(rows: [_recordRow()]);
+    final commandBus = CommandBus(container: container);
+    container.registerSingleton<CommandBus>(commandBus);
+    container.registerSingleton<IPartnerInternalCommandClient>(client);
+    _registerBus(
+      commandBus: commandBus,
+      container: container,
+      client: client,
+      inner: (command) async => executed.add(command),
+    );
+    PartnerCompositionRoot.setContainer(container);
+
     final handler = ProcessInternalCommandsCommandHandler(
       commandClient: client,
-      commandBus: commandBus,
+      serializer: createGeneratedPartnerInternalCommandSerializer(),
     );
 
     final hadWork = await handler.handle(
@@ -94,13 +129,17 @@ void main() {
   });
 
   test('fails and skips rows with an unsupported command type', () async {
-    final commandBus = CommandBus();
+    final container = GetIt.asNewInstance();
     final client = _FakeInternalCommandClient(
       rows: [_recordRow(commandType: 'partner.unknown')],
     );
+    final commandBus = CommandBus(container: container);
+    container.registerSingleton<CommandBus>(commandBus);
+    PartnerCompositionRoot.setContainer(container);
+
     final handler = ProcessInternalCommandsCommandHandler(
       commandClient: client,
-      commandBus: commandBus,
+      serializer: createGeneratedPartnerInternalCommandSerializer(),
     );
 
     final hadWork = await handler.handle(
@@ -113,14 +152,22 @@ void main() {
   });
 
   test('fails the row and rethrows when execution throws', () async {
-    final commandBus = CommandBus()
-      ..register<RecordPartnerTransactionHistoryCommand, void>(
-        (command) async => throw StateError('write failed'),
-      );
+    final container = GetIt.asNewInstance();
     final client = _FakeInternalCommandClient(rows: [_recordRow()]);
+    final commandBus = CommandBus(container: container);
+    container.registerSingleton<CommandBus>(commandBus);
+    container.registerSingleton<IPartnerInternalCommandClient>(client);
+    _registerBus(
+      commandBus: commandBus,
+      container: container,
+      client: client,
+      inner: (command) async => throw StateError('write failed'),
+    );
+    PartnerCompositionRoot.setContainer(container);
+
     final handler = ProcessInternalCommandsCommandHandler(
       commandClient: client,
-      commandBus: commandBus,
+      serializer: createGeneratedPartnerInternalCommandSerializer(),
     );
 
     await expectLater(

@@ -10,22 +10,22 @@ PartnerIntegrationEventDispatcher createGeneratedPartnerIntegrationEventDispatch
   final dispatcher = PartnerIntegrationEventDispatcher();
   dispatcher.register<AccountingPayableCreatedIntegrationEvent>(
     AccountingPayableCreatedIntegrationEventHandler(
-      internalCommandDispatcher: container.get<IPartnerInternalCommandDispatcher>(),
+      commandScheduler: container.get<ICommandScheduler>(),
     ),
   );
   dispatcher.register<AccountingReceivableCreatedIntegrationEvent>(
     AccountingReceivableCreatedIntegrationEventHandler(
-      internalCommandDispatcher: container.get<IPartnerInternalCommandDispatcher>(),
+      commandScheduler: container.get<ICommandScheduler>(),
     ),
   );
   dispatcher.register<InventoryInboundRecordedIntegrationEvent>(
     InventoryInboundRecordedIntegrationEventHandler(
-      internalCommandDispatcher: container.get<IPartnerInternalCommandDispatcher>(),
+      commandScheduler: container.get<ICommandScheduler>(),
     ),
   );
   dispatcher.register<SalesOrderCheckedOutIntegrationEvent>(
     SalesOrderCheckedOutIntegrationEventHandler(
-      internalCommandDispatcher: container.get<IPartnerInternalCommandDispatcher>(),
+      commandScheduler: container.get<ICommandScheduler>(),
     ),
   );
   return dispatcher;

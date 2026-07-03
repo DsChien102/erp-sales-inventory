@@ -32,9 +32,9 @@ sequenceDiagram
 | Thành phần | Vai trò |
 | ---------- | ------- |
 | `integration_events` package | Định nghĩa type + JSON schema + `{Module}IntegrationEventRegistry` (deserialize) |
-| Consumer handler (**application layer**) | `IIntegrationEventNotificationHandler` — map event → internal command, dispatch qua `CommandBus` (idempotent) |
+| Consumer handler (**application layer**) | `IIntegrationEventNotificationHandler` — map event → internal command, **enqueue** qua `ICommandScheduler` (idempotent) |
 | Infrastructure outbox writer | Insert row (trong RPC hoặc adapter) |
-| Infrastructure inbox/internal processors | `ProcessInboxCommand` / `ProcessInternalCommandsCommand` (`IRecurringCommand`) chạy qua `CommandBus` + pipeline; deserialize + drain queue |
+| Infrastructure inbox/internal processors | `ProcessInboxCommand` / `ProcessInternalCommandsCommand` (`IRecurringCommand`) chạy qua `CommandBus` + pipeline; inbox deserialize + drain; internal pump claim → `CommandsExecutor` |
 | `messaging_worker` | Poll tenant, gọi `processMessagingOnce` (delegate về module `CommandBus`) |
 
 ## Theme liên quan
@@ -52,7 +52,7 @@ sequenceDiagram
 - [ ] Consumer handler ở **application layer** (`IIntegrationEventNotificationHandler`) — map event → internal command
 - [ ] Dispatcher registry entry (codegen `cqrs_integration_event_registry`)
 - [ ] Command chạy qua `CommandBus` + pipeline (không gọi handler trực tiếp)
-- [ ] Test consumer handler với fake dispatcher/gateway
+- [ ] Test consumer handler với fake `ICommandScheduler`
 - [ ] E2E: [messaging_e2e_checklist.md](messaging_e2e_checklist.md)
 
 ## Liên kết theo theme

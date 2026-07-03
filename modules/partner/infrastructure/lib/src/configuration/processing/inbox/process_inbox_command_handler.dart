@@ -1,5 +1,6 @@
 import 'package:vet45_partner_integration_events/integration_events.dart';
 import 'package:vet45_shared_application/application.dart';
+import 'package:vet45_shared_infrastructure/infrastructure.dart';
 
 import '../partner_integration_event_dispatcher.dart';
 import 'i_partner_inbox_client.dart';
@@ -12,11 +13,14 @@ final class ProcessInboxCommandHandler
   ProcessInboxCommandHandler({
     required IPartnerInboxClient inboxClient,
     required PartnerIntegrationEventDispatcher integrationEventDispatcher,
+    ILogger? logger,
   })  : _inboxClient = inboxClient,
-        _integrationEventDispatcher = integrationEventDispatcher;
+        _integrationEventDispatcher = integrationEventDispatcher,
+        _logger = logger;
 
   final IPartnerInboxClient _inboxClient;
   final PartnerIntegrationEventDispatcher _integrationEventDispatcher;
+  final ILogger? _logger;
 
   @override
   Future<bool> handle(ProcessInboxCommand command) async {
@@ -25,8 +29,13 @@ final class ProcessInboxCommandHandler
       batchSize: command.batchSize,
     );
     if (messages.isEmpty) {
+      _logger?.fine('Inbox idle tenant=${command.tenantId}');
       return false;
     }
+
+    _logger?.info(
+      'Processing inbox tenant=${command.tenantId} count=${messages.length}',
+    );
 
     for (final message in messages) {
       final event = PartnerIntegrationEventRegistry.fromInbox(
@@ -37,6 +46,10 @@ final class ProcessInboxCommandHandler
       );
 
       if (event == null) {
+        _logger?.warning(
+          'Unsupported inbox event tenant=${command.tenantId} '
+          'messageId=${message.messageId} type=${message.eventType}',
+        );
         await _inboxClient.fail(
           tenantId: command.tenantId,
           messageId: message.messageId,
@@ -53,7 +66,17 @@ final class ProcessInboxCommandHandler
           messageId: message.messageId,
           claimToken: message.claimToken,
         );
-      } catch (error) {
+        _logger?.info(
+          'Inbox complete tenant=${command.tenantId} '
+          'messageId=${message.messageId} type=${message.eventType}',
+        );
+      } catch (error, stackTrace) {
+        _logger?.severe(
+          'Inbox failed tenant=${command.tenantId} '
+          'messageId=${message.messageId} type=${message.eventType}',
+          error,
+          stackTrace,
+        );
         await _inboxClient.fail(
           tenantId: command.tenantId,
           messageId: message.messageId,

@@ -4,12 +4,18 @@ import 'package:vet45_partner_domain/domain.dart';
 import 'package:vet45_partner_integration_events/integration_events.dart';
 import 'package:vet45_shared_application/application.dart';
 
-final class _RecordingDispatcher implements IPartnerInternalCommandDispatcher {
+final class _RecordingScheduler implements ICommandScheduler {
   RecordPartnerTransactionHistoryCommand? last;
+  String? lastSourceEventId;
 
   @override
-  Future<void> dispatch(InternalCommandBase<void> command) async {
+  Future<String> enqueue(
+    ICommand<void> command, {
+    String? sourceEventId,
+  }) async {
     last = command as RecordPartnerTransactionHistoryCommand;
+    lastSourceEventId = sourceEventId;
+    return command.id;
   }
 }
 
@@ -17,9 +23,9 @@ void main() {
   final occurredOn = DateTime.parse('2026-06-30T12:00:00Z');
 
   test('sales checkout maps to a customer-role projection command', () async {
-    final dispatcher = _RecordingDispatcher();
+    final scheduler = _RecordingScheduler();
     await SalesOrderCheckedOutIntegrationEventHandler(
-      internalCommandDispatcher: dispatcher,
+      commandScheduler: scheduler,
     ).handle(
       SalesOrderCheckedOutIntegrationEvent(
         id: 'event-1',
@@ -32,7 +38,8 @@ void main() {
       ),
     );
 
-    final command = dispatcher.last!;
+    final command = scheduler.last!;
+    expect(scheduler.lastSourceEventId, 'event-1');
     expect(command.transactionRole, PartnerRole.customer);
     expect(command.sourceModule, 'sales');
     expect(command.sourceType, 'order');
@@ -41,9 +48,9 @@ void main() {
   });
 
   test('inventory inbound maps to a supplier-role projection command', () async {
-    final dispatcher = _RecordingDispatcher();
+    final scheduler = _RecordingScheduler();
     await InventoryInboundRecordedIntegrationEventHandler(
-      internalCommandDispatcher: dispatcher,
+      commandScheduler: scheduler,
     ).handle(
       InventoryInboundRecordedIntegrationEvent(
         id: 'event-2',
@@ -54,7 +61,7 @@ void main() {
       ),
     );
 
-    final command = dispatcher.last!;
+    final command = scheduler.last!;
     expect(command.transactionRole, PartnerRole.supplier);
     expect(command.sourceModule, 'inventory');
     expect(command.sourceType, 'inbound');
@@ -62,9 +69,9 @@ void main() {
   });
 
   test('accounting receivable maps to a customer-role projection command', () async {
-    final dispatcher = _RecordingDispatcher();
+    final scheduler = _RecordingScheduler();
     await AccountingReceivableCreatedIntegrationEventHandler(
-      internalCommandDispatcher: dispatcher,
+      commandScheduler: scheduler,
     ).handle(
       AccountingReceivableCreatedIntegrationEvent(
         id: 'event-3',
@@ -75,7 +82,7 @@ void main() {
       ),
     );
 
-    final command = dispatcher.last!;
+    final command = scheduler.last!;
     expect(command.transactionRole, PartnerRole.customer);
     expect(command.sourceModule, 'accounting');
     expect(command.sourceType, 'receivable');
@@ -83,9 +90,9 @@ void main() {
   });
 
   test('accounting payable maps to a supplier-role projection command', () async {
-    final dispatcher = _RecordingDispatcher();
+    final scheduler = _RecordingScheduler();
     await AccountingPayableCreatedIntegrationEventHandler(
-      internalCommandDispatcher: dispatcher,
+      commandScheduler: scheduler,
     ).handle(
       AccountingPayableCreatedIntegrationEvent(
         id: 'event-4',
@@ -96,7 +103,7 @@ void main() {
       ),
     );
 
-    final command = dispatcher.last!;
+    final command = scheduler.last!;
     expect(command.transactionRole, PartnerRole.supplier);
     expect(command.sourceModule, 'accounting');
     expect(command.sourceType, 'payable');

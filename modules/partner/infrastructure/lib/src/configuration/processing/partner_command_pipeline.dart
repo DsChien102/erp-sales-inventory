@@ -3,6 +3,7 @@ import 'package:vet45_shared_application/application.dart';
 import 'package:vet45_shared_infrastructure/infrastructure.dart';
 
 import 'internal_commands/i_partner_internal_command_client.dart';
+import 'internal_commands/internal_command_completion_decorator.dart';
 
 /// Partner business-command pipeline — injects access metadata and checkers from container.
 abstract final class PartnerCommandPipeline {
@@ -32,9 +33,31 @@ abstract final class PartnerCommandPipeline {
     required IPartnerInternalCommandClient commandClient,
     ILogger? logger,
   }) {
-    return (command) => LoggingCommandHandlerDecorator<TCommand, void>(
-      inner: inner,
-      logger: logger,
-    ).handle(command);
+    var builder = CommandPipelineBuilder<TCommand, void>(inner);
+
+    if (container.isRegistered<ICommandValidator<TCommand>>()) {
+      final validator = container.get<ICommandValidator<TCommand>>();
+      builder = builder.wrap(
+        (command, next) => ValidationCommandHandlerDecorator(
+          validator: validator,
+          inner: next,
+        ).handle(command),
+      );
+    }
+
+    return builder
+        .wrap(
+          (command, next) => LoggingCommandHandlerDecorator(
+            inner: next,
+            logger: logger,
+          ).handle(command),
+        )
+        .wrap(
+          (command, next) => InternalCommandCompletionDecorator(
+            inner: next,
+            commandClient: commandClient,
+          ).handle(command),
+        )
+        .build();
   }
 }

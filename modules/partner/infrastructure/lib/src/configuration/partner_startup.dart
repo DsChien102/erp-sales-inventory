@@ -7,13 +7,15 @@ import 'package:vet45_shared_infrastructure/infrastructure.dart';
 
 import 'data_access/data_access_module.dart';
 import 'mediation/mediation_module.dart';
-import 'processing/command_bus_partner_internal_command_dispatcher.dart';
+import 'partner_composition_root.dart';
 import 'processing/generated/partner_access_metadata.g.dart';
 import 'processing/generated/partner_integration_event_registry.g.dart';
+import 'processing/generated/partner_internal_command_registry.g.dart';
 import 'processing/inbox/process_inbox_command.dart';
 import 'processing/inbox/process_inbox_command_handler.dart';
 import 'processing/inbox/supabase_partner_inbox_client.dart';
 import 'processing/internal_commands/supabase_partner_internal_command_client.dart';
+import 'processing/internal_commands/supabase_partner_command_scheduler.dart';
 import 'processing/internal_commands/process_internal_commands_command.dart';
 import 'processing/internal_commands/process_internal_commands_command_handler.dart';
 import 'processing/partner_integration_event_dispatcher.dart';
@@ -107,6 +109,7 @@ abstract final class PartnerStartup {
       commandLogger: commandLogger,
     );
 
+    PartnerCompositionRoot.setContainer(container);
     _wireMessaging(container);
 
     final module = PartnerModule(container);
@@ -118,16 +121,28 @@ abstract final class PartnerStartup {
   ///
   /// Business + internal command handlers are already registered by
   /// [PartnerMediationModule]; here we add the recurring pump commands and the
-  /// application-facing internal-command dispatcher used by consumer handlers.
+  /// application-facing command scheduler used by consumer handlers.
   static void _wireMessaging(GetIt container) {
-    final commandBus = container.get<CommandBus>();
+    final loggerFactory = container.get<ILoggerFactory>();
+    final messagingLogger = loggerFactory.named('partner.messaging');
     final rpcClient = container.get<PartnerSchemaRpc>();
+    final internalCommandClient = container.get<IPartnerInternalCommandClient>();
 
     final inboxClient = SupabasePartnerInboxClient(rpcClient: rpcClient);
     container.registerSingleton<IPartnerInboxClient>(inboxClient);
 
-    container.registerSingleton<IPartnerInternalCommandDispatcher>(
-      CommandBusPartnerInternalCommandDispatcher(commandBus),
+    final internalCommandSerializer =
+        createGeneratedPartnerInternalCommandSerializer();
+    container.registerSingleton<InternalCommandSerializer>(
+      internalCommandSerializer,
+    );
+
+    container.registerSingleton<ICommandScheduler>(
+      SupabasePartnerCommandScheduler(
+        commandClient: internalCommandClient,
+        serializer: internalCommandSerializer,
+        logger: messagingLogger,
+      ),
     );
 
     final integrationEventDispatcher =
@@ -139,13 +154,16 @@ abstract final class PartnerStartup {
     final processInboxHandler = ProcessInboxCommandHandler(
       inboxClient: inboxClient,
       integrationEventDispatcher: integrationEventDispatcher,
+      logger: messagingLogger,
     );
     final processInternalHandler = ProcessInternalCommandsCommandHandler(
-      commandClient: container.get<IPartnerInternalCommandClient>(),
-      commandBus: commandBus,
+      commandClient: internalCommandClient,
+      serializer: internalCommandSerializer,
+      logger: messagingLogger,
     );
 
-    commandBus
+    container
+        .get<CommandBus>()
       ..register<ProcessInboxCommand, bool>(processInboxHandler.handle)
       ..register<ProcessInternalCommandsCommand, bool>(
         processInternalHandler.handle,

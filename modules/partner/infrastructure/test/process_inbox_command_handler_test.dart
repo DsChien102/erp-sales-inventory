@@ -39,17 +39,20 @@ final class _FakeInboxClient implements IPartnerInboxClient {
   }
 }
 
-final class _RecordingInternalCommandDispatcher
-    implements IPartnerInternalCommandDispatcher {
-  final List<InternalCommandBase<void>> dispatched = [];
-  Object? throwOnDispatch;
+final class _RecordingScheduler implements ICommandScheduler {
+  final List<InternalCommandBase<void>> enqueued = [];
+  Object? throwOnEnqueue;
 
   @override
-  Future<void> dispatch(InternalCommandBase<void> command) async {
-    if (throwOnDispatch != null) {
-      throw throwOnDispatch!;
+  Future<String> enqueue(
+    ICommand<void> command, {
+    String? sourceEventId,
+  }) async {
+    if (throwOnEnqueue != null) {
+      throw throwOnEnqueue!;
     }
-    dispatched.add(command);
+    enqueued.add(command as InternalCommandBase<void>);
+    return command.id;
   }
 }
 
@@ -76,12 +79,12 @@ PartnerInboxMessage _message({
 
 ProcessInboxCommandHandler _handler(
   IPartnerInboxClient inboxClient,
-  IPartnerInternalCommandDispatcher dispatcher,
+  ICommandScheduler scheduler,
 ) {
   final eventDispatcher = PartnerIntegrationEventDispatcher()
     ..register<SalesOrderCheckedOutIntegrationEvent>(
       SalesOrderCheckedOutIntegrationEventHandler(
-        internalCommandDispatcher: dispatcher,
+        commandScheduler: scheduler,
       ),
     );
   return ProcessInboxCommandHandler(
@@ -93,51 +96,51 @@ ProcessInboxCommandHandler _handler(
 void main() {
   test('returns false when inbox batch is empty', () async {
     final client = _FakeInboxClient(rows: const []);
-    final handler = _handler(client, _RecordingInternalCommandDispatcher());
+    final handler = _handler(client, _RecordingScheduler());
 
     final hadWork = await handler.handle(ProcessInboxCommand(tenantId: 'tenant-1'));
 
     expect(hadWork, isFalse);
   });
 
-  test('dispatches to consumer handler and completes the message', () async {
+  test('enqueues via consumer handler and completes the message', () async {
     final client = _FakeInboxClient(
       rows: [_message(eventType: SalesOrderCheckedOutIntegrationEvent.type)],
     );
-    final dispatcher = _RecordingInternalCommandDispatcher();
-    final handler = _handler(client, dispatcher);
+    final scheduler = _RecordingScheduler();
+    final handler = _handler(client, scheduler);
 
     final hadWork = await handler.handle(ProcessInboxCommand(tenantId: 'tenant-1'));
 
     expect(hadWork, isTrue);
     expect(client.completed, ['event-1']);
     expect(client.failed, isEmpty);
-    final command = dispatcher.dispatched.single as RecordPartnerTransactionHistoryCommand;
+    final command = scheduler.enqueued.single as RecordPartnerTransactionHistoryCommand;
     expect(command.sourceId, 'order-1');
     expect(command.sourceCode, 'SO-001');
     expect(command.transactionRole, PartnerRole.customer);
   });
 
-  test('fails unknown event types without dispatching', () async {
+  test('fails unknown event types without enqueueing', () async {
     final client = _FakeInboxClient(rows: [_message(eventType: 'unknown.event')]);
-    final dispatcher = _RecordingInternalCommandDispatcher();
-    final handler = _handler(client, dispatcher);
+    final scheduler = _RecordingScheduler();
+    final handler = _handler(client, scheduler);
 
     final hadWork = await handler.handle(ProcessInboxCommand(tenantId: 'tenant-1'));
 
     expect(hadWork, isTrue);
     expect(client.failed, ['event-1']);
     expect(client.completed, isEmpty);
-    expect(dispatcher.dispatched, isEmpty);
+    expect(scheduler.enqueued, isEmpty);
   });
 
   test('fails message and rethrows when the consumer handler throws', () async {
     final client = _FakeInboxClient(
       rows: [_message(eventType: SalesOrderCheckedOutIntegrationEvent.type)],
     );
-    final dispatcher = _RecordingInternalCommandDispatcher()
-      ..throwOnDispatch = StateError('projection failed');
-    final handler = _handler(client, dispatcher);
+    final scheduler = _RecordingScheduler()
+      ..throwOnEnqueue = StateError('projection failed');
+    final handler = _handler(client, scheduler);
 
     await expectLater(
       handler.handle(ProcessInboxCommand(tenantId: 'tenant-1')),

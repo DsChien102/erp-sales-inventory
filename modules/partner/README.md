@@ -33,6 +33,7 @@ Builders in `infrastructure/build.yaml`:
 - `access_metadata` → `partnerAccessMetadataRegistry` (messages need `implements ICommand` / `IQuery`)
 - `module_manifest` → scans `PartnerModuleDefinition`; handlers from `vet45_partner_application`
 - `cqrs_integration_event_registry` → `createGeneratedPartnerIntegrationEventDispatcher` (scans `*_integration_event_handler.dart` in application)
+- `cqrs_internal_registry` → `createGeneratedPartnerInternalCommandSerializer` (scans `ISerializableInternalCommand` in application)
 
 **Important:** command/query classes must explicitly `implements ICommand<T>` / `IQuery<T>` for access metadata generation.
 
@@ -83,17 +84,19 @@ worker → ProcessInboxCommand / ProcessInternalCommandsCommand (IRecurringComma
   → CommandBus → DefaultCommandPipeline
   → ProcessInboxCommandHandler → PartnerIntegrationEventRegistry (deserialize)
     → PartnerIntegrationEventDispatcher (codegen) → consumer handler (application layer)
-    → IPartnerInternalCommandDispatcher → CommandBus (internal pipeline)
+    → ICommandScheduler.enqueue → partner.internal_commands
+  → ProcessInternalCommandsCommandHandler → claim → CommandsExecutor
+    → CommandBus (internal pipeline + completion decorator)
     → RecordPartnerTransactionHistoryCommandHandler → write gateway RPC
-  → ProcessInternalCommandsCommandHandler → CommandBus (internal pipeline)
 ```
 
 Điểm mấu chốt (align doc 07):
 
 - **Mapping event → command** nằm ở **application layer** (`application/lib/src/integration_events/*_integration_event_handler.dart` implement `IIntegrationEventNotificationHandler`), không ở infrastructure.
+- Consumer handler **chỉ enqueue** (`ICommandScheduler`); execution thuộc `ProcessInternalCommandsCommandHandler` + `CommandsExecutor`.
 - Inbox / internal-command xử lý **qua `CommandBus` + pipeline** bằng `IRecurringCommand` — không gọi handler trực tiếp.
 - Contract RPC schema `partner` giữ nguyên (claim-token): `claim_inbox_batch` / `complete_inbox_message` / `fail_inbox_message` / `claim_internal_commands_batch` / `complete_internal_command` / `fail_internal_command`.
-- Internal-command deserialize (`RecordPartnerTransactionHistoryCommand.fromJson`) là concern của infrastructure; `ISerializableInternalCommand`/`InternalCommandSerializer` (nay ở `vet45_adapters`) **không** dùng ở đây để tránh application → adapters.
+- Internal-command serialize/deserialize: `ISerializableInternalCommand` + `InternalCommandSerializer` (`vet45_shared`) + codegen `cqrs_internal_registry`.
 
 Cross-module E2E vẫn blocked cho đến khi platform outbox relay + source publishers ship.
 
