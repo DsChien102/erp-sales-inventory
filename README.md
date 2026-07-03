@@ -133,11 +133,12 @@ Chi tiết: [docs/operations/environment-manager.md](docs/operations/environment
 ## Build iOS & TestFlight
 
 ```bash
-./apps/erp/scripts/build_ios.sh --env staging
-./apps/erp/deploy-ios.sh --env staging
+melos run env:use:staging
+melos run build:ios       # chỉ build
+melos run deploy:ios      # build + upload
 ```
 
-Hoặc: `melos run build:ios:staging`, `melos run deploy:ios:staging`.
+Hoặc shortcut: `melos run build:ios:staging`, `melos run deploy:ios:staging`.
 
 Thiết lập App Store Connect: [docs/operations/testflight-asc-setup.md](docs/operations/testflight-asc-setup.md).
 

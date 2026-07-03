@@ -32,7 +32,14 @@ melos run env:sync
 
 ## Redeploy (daily)
 
-Code-only redeploy (no secret push):
+Code-only redeploy (no secret push) — active env phải là `staging` hoặc `production`:
+
+```bash
+melos run env:use:staging
+melos run deploy:worker
+```
+
+Hoặc:
 
 ```bash
 ./apps/messaging_worker/scripts/deploy.sh
@@ -42,7 +49,7 @@ Code-only redeploy (no secret push):
 Push secrets when they change:
 
 ```bash
-./apps/messaging_worker/scripts/deploy.sh --secrets
+melos run deploy:worker -- --secrets
 ./apps/messaging_worker/scripts/deploy.sh --env production --secrets
 ```
 

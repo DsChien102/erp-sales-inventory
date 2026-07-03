@@ -133,26 +133,49 @@ melos:
       stdio: inherit
 
     build:ios:
-      run: ./apps/erp/scripts/build_ios.sh --env production
-      description: Build iOS IPA (production) via env manifest + sync
+      run: ./scripts/env/vet45_env.sh run erp build-ios
+      stdio: inherit
+      description: Build iOS IPA — active env (staging|production)
 
     build:ios:staging:
-      run: ./apps/erp/scripts/build_ios.sh --env staging
-      description: Build iOS IPA (staging) via env manifest + sync
+      run: ./scripts/env/vet45_env.sh use staging && ./scripts/env/vet45_env.sh sync && ./scripts/env/vet45_env.sh run erp build-ios
+      stdio: inherit
+      description: Build iOS IPA (staging shortcut)
 
     build:ios:production:
-      run: ./apps/erp/scripts/build_ios.sh --env production
-      description: Build iOS IPA (production) via env manifest + sync
+      run: ./scripts/env/vet45_env.sh use production && ./scripts/env/vet45_env.sh sync && ./scripts/env/vet45_env.sh run erp build-ios
+      stdio: inherit
+      description: Build iOS IPA (production shortcut)
 
     deploy:ios:
-      exec: ./deploy-ios.sh --env production
-      packageFilters:
-        scope: erp
+      run: ./scripts/env/vet45_env.sh run erp deploy-ios
+      stdio: inherit
+      description: Build + upload iOS IPA — active env (staging|production)
 
     deploy:ios:staging:
-      exec: ./deploy-ios.sh --env staging
-      packageFilters:
-        scope: erp
+      run: ./scripts/env/vet45_env.sh use staging && ./scripts/env/vet45_env.sh sync && ./scripts/env/vet45_env.sh run erp deploy-ios
+      stdio: inherit
+      description: Build + upload iOS IPA (staging shortcut)
+
+    deploy:ios:production:
+      run: ./scripts/env/vet45_env.sh use production && ./scripts/env/vet45_env.sh sync && ./scripts/env/vet45_env.sh run erp deploy-ios
+      stdio: inherit
+      description: Build + upload iOS IPA (production shortcut)
+
+    deploy:worker:
+      run: ./scripts/env/vet45_env.sh run worker deploy
+      stdio: inherit
+      description: Deploy messaging worker to Railway — active env (staging|production)
+
+    deploy:worker:staging:
+      run: ./scripts/env/vet45_env.sh use staging && ./scripts/env/vet45_env.sh sync && ./scripts/env/vet45_env.sh run worker deploy
+      stdio: inherit
+      description: Deploy messaging worker (staging shortcut)
+
+    deploy:worker:production:
+      run: ./scripts/env/vet45_env.sh use production && ./scripts/env/vet45_env.sh sync && ./scripts/env/vet45_env.sh run worker deploy
+      stdio: inherit
+      description: Deploy messaging worker (production shortcut)
 
     codegen:
       run: dart run build_runner build --delete-conflicting-outputs

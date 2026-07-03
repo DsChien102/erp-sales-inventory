@@ -11,8 +11,10 @@ Secrets nằm trong `config/secrets/`; `melos run env:sync` sinh `apps/erp/.env*
 | `melos run env:sync` | Sync `.env` theo active environment |
 | `melos run debug` | ERP — active env (mặc định `development`) |
 | `melos run debug:staging` | Staging + sync + run |
-| `melos run build:ios:staging` | IPA staging (qua manifest + sync) |
-| `melos run deploy:ios:staging` | Upload TestFlight staging |
+| `melos run build:ios` | Build IPA — active env (staging\|production) |
+| `melos run deploy:ios` | Build + upload TestFlight — active env |
+| `melos run build:ios:staging` | Shortcut staging build |
+| `melos run deploy:ios:staging` | Shortcut staging build + upload |
 
 Chi tiết: [docs/operations/environment-manager.md](../../docs/operations/environment-manager.md) · [environments.md](../../docs/operations/environments.md)
 

@@ -22,9 +22,28 @@ Commands:
   run <target> <action>   Run app command for active environment
 
 Run targets:
-  erp debug|debug:web|debug:ios
-  worker serve|once|docker
+  erp debug|debug:web|debug:ios|build-ios|deploy-ios
+  worker serve|once|docker|deploy
 EOF
+}
+
+require_ios_deploy_env() {
+  case "${VET45_ENV_ID:-}" in
+    staging | production) ;;
+    *)
+      echo "iOS build/deploy requires active env staging or production (current: ${VET45_ENV_ID:-unknown})"
+      echo "Run: melos run env:use:staging  (or env:use:production)"
+      exit 1
+      ;;
+  esac
+}
+
+require_railway_deploy_env() {
+  if [[ -z "${RAILWAY_ENVIRONMENT:-}" ]]; then
+    echo "Worker deploy requires Railway target (active: ${VET45_ENV_ID:-unknown})"
+    echo "Run: melos run env:use:staging  (or env:use:production)"
+    exit 1
+  fi
 }
 
 load_resolve_shell() {
@@ -62,16 +81,27 @@ cmd_run() {
 
   case "$target" in
     erp)
-      cd "$ROOT/apps/erp"
       case "$action" in
         debug)
+          cd "$ROOT/apps/erp"
           flutter run --flavor "$ERP_FLAVOR" --dart-define-from-file="$ERP_ENV_BASENAME" "${filtered[@]}"
           ;;
         debug:web)
+          cd "$ROOT/apps/erp"
           flutter run -d chrome --flavor "$ERP_FLAVOR" --dart-define-from-file="$ERP_ENV_BASENAME" "${filtered[@]}"
           ;;
         debug:ios)
+          cd "$ROOT/apps/erp"
           flutter run -d ios --flavor "$ERP_FLAVOR" --dart-define-from-file="$ERP_ENV_BASENAME" "${filtered[@]}"
+          ;;
+        build-ios)
+          require_ios_deploy_env
+          exec "$ROOT/apps/erp/scripts/build_ios.sh" --env "$VET45_ENV_ID" "${filtered[@]}"
+          ;;
+        deploy-ios)
+          require_ios_deploy_env
+          "$ROOT/apps/erp/scripts/build_ios.sh" --env "$VET45_ENV_ID"
+          exec "$ROOT/apps/erp/deploy-ios.sh" --env "$VET45_ENV_ID"
           ;;
         *)
           echo "Unknown erp action: $action"
@@ -80,11 +110,23 @@ cmd_run() {
       esac
       ;;
     worker)
-      export WORKER_ENV_FILE
-      if [[ -n "${WORKER_DOCKER_SUPABASE_URL:-}" ]]; then
-        export WORKER_SUPABASE_URL="$WORKER_DOCKER_SUPABASE_URL"
-      fi
-      exec "$ROOT/scripts/dev/run_messaging_worker.sh" "$action"
+      case "$action" in
+        serve | once | docker)
+          export WORKER_ENV_FILE
+          if [[ -n "${WORKER_DOCKER_SUPABASE_URL:-}" ]]; then
+            export WORKER_SUPABASE_URL="$WORKER_DOCKER_SUPABASE_URL"
+          fi
+          exec "$ROOT/scripts/dev/run_messaging_worker.sh" "$action"
+          ;;
+        deploy)
+          require_railway_deploy_env
+          exec "$ROOT/apps/messaging_worker/scripts/deploy.sh" --env "$RAILWAY_ENVIRONMENT" "${filtered[@]}"
+          ;;
+        *)
+          echo "Unknown worker action: $action"
+          exit 64
+          ;;
+      esac
       ;;
     *)
       echo "Unknown run target: $target"

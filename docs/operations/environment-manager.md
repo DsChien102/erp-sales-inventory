@@ -69,6 +69,12 @@ melos run env:doctor            # validate keys + link + Supabase reachability
 melos run debug                 # ERP — active env
 melos run debug:staging         # shortcut: use staging + sync + run
 melos run worker:serve          # worker — active env
+
+# Deploy (active env must be staging|production)
+melos run build:ios             # build IPA only
+melos run deploy:ios            # build + upload TestFlight
+melos run deploy:worker         # Railway worker redeploy
+melos run deploy:worker -- --secrets   # push secrets + deploy
 ```
 
 ## Canonical secrets keys

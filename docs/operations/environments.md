@@ -64,14 +64,23 @@ melos run worker:serve
 ## Build & TestFlight
 
 ```bash
-./apps/erp/scripts/build_ios.sh --env staging
-./apps/erp/deploy-ios.sh --env staging
+melos run env:use:staging
+melos run build:ios              # build only — active env
+melos run deploy:ios             # build + upload — active env
 
-./apps/erp/scripts/build_ios.sh --env production
-./apps/erp/deploy-ios.sh --env production
+# hoặc shortcut:
+melos run build:ios:staging
+melos run deploy:ios:staging
 ```
 
-Hoặc qua Melos: `melos run build:ios:staging`, `melos run deploy:ios:staging`.
+Low-level scripts (same manifest sync):
+
+```bash
+./apps/erp/scripts/build_ios.sh --env staging
+./apps/erp/deploy-ios.sh --env staging
+```
+
+`APP_STORE_CONNECT_*` trong synced ERP env file (giữ qua `env:sync` nếu đã có trong file).
 
 Xem [testflight-asc-setup.md](testflight-asc-setup.md) để tạo app ASC staging/production.
 
@@ -94,6 +103,12 @@ File: [.circleci/config.yml](../../.circleci/config.yml)
 Phase 1: chỉ bật `verify` nếu chưa có macOS executor / signing.
 
 ## Đồng bộ messaging worker
+
+```bash
+melos run env:use:staging
+melos run deploy:worker              # code-only redeploy
+melos run deploy:worker -- --secrets # push Railway secrets + deploy
+```
 
 Trước khi tắt `MESSAGING_CLIENT_POLL_ENABLED` trên staging ERP, deploy worker:
 
