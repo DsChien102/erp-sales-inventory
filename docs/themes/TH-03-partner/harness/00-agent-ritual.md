@@ -14,6 +14,7 @@ Thứ tự đọc khi implement một FR slice. Platform CQRS/module layout: [do
 7. Epic-{nn}/US-{nn}/FR-{nn}.md — BR/EC/UI/SCN (product)
 8. harness/01-domain-model.md + harness/02-module-map.md
 9. harness/03-architecture-and-flows.md — khi viết RPC/gateway (BE lane)
+    - SQL schema: draft vào `supabase/migrations/_drafts/` (AGENTS.md — Schema & migration)
 10. harness/05-traceability.md — cập nhật row theo Role khi slice in_progress
 11. Skill theo layer / lane:
     - CONTRACT: application stubs + 07-api-contracts section

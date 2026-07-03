@@ -204,9 +204,16 @@ When designing or generating infrastructure:
 
 ---
 
+## Supabase schema (agents)
+
+- Viết DDL/RPC tạm vào `supabase/migrations/_drafts/<scope>_<description>.sql` (không prefix timestamp).
+- Không tạo/sửa `supabase/migrations/[0-9]*.sql` trừ khi user yêu cầu promote migration.
+- Chi tiết: [AGENTS.md](../../../AGENTS.md) — **Schema & migration**.
+
 ## Anti-Patterns (reject these)
 
 ```text
+- Timestamped migration files during normal agent slices (use _drafts/)
 - Flat repositories/, read_models/, mappers/ at lib/src root
 - composition/ folder (use configuration/)
 - Dart writes outbox after command without RPC transaction
