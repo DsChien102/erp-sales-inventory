@@ -1,5 +1,14 @@
--- Fix partner.check_duplicate: ORDER BY after UNION ALL must use subquery aliases.
--- Error: 0A000 invalid UNION/INTERSECT/EXCEPT ORDER BY clause
+-- TH-03 Epic-01: granular partner permissions for staff role + check_duplicate update path.
+-- Context: docs/themes/TH-03-partner/harness/02-module-map.md
+
+insert into iam.role_permissions (role, permission)
+values
+  ('staff', 'partner.view'),
+  ('staff', 'partner.create'),
+  ('staff', 'partner.view_detail'),
+  ('staff', 'partner.update'),
+  ('staff', 'partner.view_transaction_history')
+on conflict (role, permission) do nothing;
 
 create or replace function partner.check_duplicate(
   p_tenant_id uuid,
@@ -22,8 +31,11 @@ begin
     raise exception 'not authenticated';
   end if;
 
-  if not iam.has_permission(p_tenant_id, 'partner.create') then
-    raise exception 'permission denied: partner.create';
+  if not (
+    iam.has_permission(p_tenant_id, 'partner.create')
+    or iam.has_permission(p_tenant_id, 'partner.update')
+  ) then
+    raise exception 'permission denied: partner.create or partner.update';
   end if;
 
   return query
