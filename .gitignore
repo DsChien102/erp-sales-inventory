@@ -81,3 +81,12 @@ ios/Runner/GoogleService-Info.plist
 apps/erp/.env
 .gitnexus
 .cursor/settings.json
+**/.env
+**/.env.*
+!**/.env.*.example
+.vet45/
+config/secrets/*.env
+!config/secrets/*.env.example
+/apps/messaging_worker/.env.local
+/apps/messaging_worker/.env.staging
+/apps/messaging_worker/.env.production

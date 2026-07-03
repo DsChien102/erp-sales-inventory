@@ -16,7 +16,7 @@ final class WorkerEnv {
     this.tickActiveSeconds = 3,
     this.tickIdleSeconds = 15,
     this.tickMaxIdleSeconds = 30,
-    this.logLevel = Level.INFO,
+    this.logLevel = Level.WARNING,
   });
 
   final String supabaseUrl;
@@ -80,7 +80,7 @@ final class WorkerEnv {
 
   static Level _parseLogLevel(String? raw) {
     if (raw == null || raw.isEmpty) {
-      return Level.INFO;
+      return Level.WARNING;
     }
     final normalized = raw.trim().toUpperCase();
     for (final level in Level.LEVELS) {

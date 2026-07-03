@@ -4,31 +4,40 @@ Flutter shell cho modular monolith ERP.
 
 ## Môi trường
 
+Secrets nằm trong `config/secrets/`; `melos run env:sync` sinh `apps/erp/.env*` (generated — không chỉnh tay).
+
 | Lệnh | Mô tả |
 |---|---|
-| `melos run debug` | Dev local — flavor `development` + `--dart-define-from-file=.env` |
-| `melos run debug:staging` | Flavor staging + `.env.staging` |
-| `melos run build:ios:staging` | IPA staging |
-| `melos run deploy:ios:staging` | Upload TestFlight staging |
+| `melos run env:sync` | Sync `.env` theo active environment |
+| `melos run debug` | ERP — active env (mặc định `development`) |
+| `melos run debug:staging` | Staging + sync + run |
+| `melos run build:ios` | Build IPA — active env (staging\|production) |
+| `melos run deploy:ios` | Build + upload TestFlight — active env |
+| `melos run build:ios:staging` | Shortcut staging build |
+| `melos run deploy:ios:staging` | Shortcut staging build + upload |
 
-Chi tiết: [docs/operations/environments.md](../../docs/operations/environments.md)
+Chi tiết: [docs/operations/environment-manager.md](../../docs/operations/environment-manager.md) · [environments.md](../../docs/operations/environments.md)
 
 ## Setup
 
 ```bash
-cp .env.example .env
-# Điền SUPABASE_CONNECTION_URL, SUPABASE_ANON_KEY
-
 melos bootstrap
+cp config/secrets/development.env.example config/secrets/development.env
+# Điền Supabase URL + keys (remote dev)
+
+melos run env:sync
+melos run env:doctor
 melos run debug
 ```
 
-Staging/production:
+Supabase CLI local (`supabase start`):
 
 ```bash
-cp .env.staging.example .env.staging
-cp .env.production.example .env.production
+melos run env:local
+melos run debug
 ```
+
+Staging/production secrets: `config/secrets/staging.env`, `config/secrets/production.env` → `melos run env:use:staging` + `env:sync`.
 
 ## iOS release
 

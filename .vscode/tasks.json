@@ -21,8 +21,8 @@
     },
     {
       "type": "melos",
-      "script": "debug:any",
-      "label": "melos: debug:any",
+      "script": "env:sync",
+      "label": "melos: env:sync",
       "group": "build"
     },
     {
@@ -94,6 +94,12 @@
       "type": "melos",
       "script": "deploy:ios:staging",
       "label": "melos: deploy:ios:staging",
+      "group": "build"
+    },
+    {
+      "type": "melos",
+      "script": "deploy:worker",
+      "label": "melos: deploy:worker",
       "group": "build"
     },
     {

@@ -47,32 +47,33 @@ cd vet45
 # 2. Cài dependency workspace
 melos bootstrap
 
-# 3. Cấu hình môi trường ERP
-cp apps/erp/.env.example apps/erp/.env
-# Điền SUPABASE_CONNECTION_URL và SUPABASE_ANON_KEY
+# 3. Cấu hình môi trường
+cp config/secrets/development.env.example config/secrets/development.env
+cp config/secrets/staging.env.example config/secrets/staging.env
+cp config/secrets/production.env.example config/secrets/production.env
+# Điền Supabase URL + keys trong development.env (remote dev) hoặc dùng Supabase CLI local
 
 # 4. Chạy app
+melos run env:sync
 melos run debug
 ```
 
-Lệnh `melos run debug` chạy `flutter run --flavor development --dart-define-from-file=.env` trong `apps/erp`.
+Xem [docs/operations/environment-manager.md](docs/operations/environment-manager.md) cho workflow đầy đủ.
 
-### Môi trường staging / production
-
-```bash
-cp apps/erp/.env.staging.example apps/erp/.env.staging
-cp apps/erp/.env.production.example apps/erp/.env.production
-# Điền Supabase URL + anon key cho từng file
-```
+Lệnh `melos run debug` chạy ERP theo **active environment** (mặc định `development` = remote dev + `supabase link`).
 
 | Lệnh | Mô tả |
 | ---- | ----- |
-| `melos run debug` | Dev local — flavor `development` + `--dart-define-from-file=.env` |
-| `melos run debug:dev` | Flavor `development` + `.env` (explicit) |
-| `melos run debug:staging` | Flavor staging + `.env.staging` |
-| `melos run debug:prod` | Flavor production + `.env.production` |
-| `melos run debug:web` | Chạy trên Chrome + `.env` |
-| `melos run debug:ios` | iOS — flavor `development` + `.env` |
+| `melos run env:development` | Development (mặc định) + sync ERP/worker `.env` |
+| `melos run env:local` | Supabase CLI local + sync ERP/worker `.env` |
+| `melos run env:doctor` | Kiểm tra config môi trường active |
+| `melos run debug` | ERP — active environment |
+| `melos run debug:dev` | Alias: `development` + sync + debug |
+| `melos run debug:staging` | Staging + sync + debug |
+| `melos run debug:prod` | Production + sync + debug |
+| `melos run debug:web` | Chrome + active env |
+| `melos run debug:ios` | iOS + active env |
+| `melos run worker:serve` | Messaging worker HTTP (active env) |
 
 Chi tiết flavor, bundle ID, CircleCI: [docs/operations/environments.md](docs/operations/environments.md).
 
@@ -116,24 +117,28 @@ Scaffold module mới: `./scripts/scaffold_module.sh`.
 Worker xử lý outbox/inbox và integration events server-side — không bắt buộc cho dev UI thuần.
 
 ```bash
-cp apps/messaging_worker/.env.example apps/messaging_worker/.env
-# Điền SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, WORKER_TICK_SECRET
-
-cd apps/messaging_worker
-dart run bin/worker.dart --once    # Một tick rồi thoát
-dart run bin/worker.dart --serve   # HTTP /health + /tick (port 8080)
+# Remote dev: điền config/secrets/development.env rồi melos run env:sync
+# Hoặc Supabase CLI local:
+supabase start
+melos run env:local
+melos run env:doctor
+melos run worker:serve          # dart trên host
+melos run worker:once
+melos run worker:docker         # docker compose
+melos run worker:verify
 ```
 
-Deploy Railway: `railway.toml` + `apps/messaging_worker/Dockerfile`. Trên staging/production, tắt poll phía client (`MESSAGING_CLIENT_POLL_ENABLED=false`) sau khi worker đã chạy.
+Chi tiết: [docs/operations/environment-manager.md](docs/operations/environment-manager.md)
 
 ## Build iOS & TestFlight
 
 ```bash
-./apps/erp/scripts/build_ios.sh --env staging
-./apps/erp/deploy-ios.sh --env staging
+melos run env:use:staging
+melos run build:ios       # chỉ build
+melos run deploy:ios      # build + upload
 ```
 
-Hoặc: `melos run build:ios:staging`, `melos run deploy:ios:staging`.
+Hoặc shortcut: `melos run build:ios:staging`, `melos run deploy:ios:staging`.
 
 Thiết lập App Store Connect: [docs/operations/testflight-asc-setup.md](docs/operations/testflight-asc-setup.md).
 

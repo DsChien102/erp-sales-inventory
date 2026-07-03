@@ -2,18 +2,29 @@
 # Build ERP iOS IPA for staging or production flavor.
 #
 # Usage:
-#   ./apps/erp/scripts/build_ios.sh --env staging|production|development
+#   ./apps/erp/scripts/build_ios.sh --env staging|production|development|local
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 APP_DIR="$(cd "${SCRIPT_DIR}/.." && pwd)"
+ROOT="$(cd "${SCRIPT_DIR}/../../.." && pwd)"
 
 ENV_NAME="production"
 OBFUSCATE_ARGS=(--obfuscate --split-debug-info=build.artifact)
 
 usage() {
-  echo "Usage: $0 [--env staging|production|development]"
+  echo "Usage: $0 [--env staging|production|development|local]"
   exit 1
+}
+
+map_manifest_env() {
+  case "$1" in
+    development) echo "development" ;;
+    local) echo "local" ;;
+    staging) echo "staging" ;;
+    production) echo "production" ;;
+    *) echo "$1" ;;
+  esac
 }
 
 while [[ $# -gt 0 ]]; do
@@ -22,7 +33,7 @@ while [[ $# -gt 0 ]]; do
       ENV_NAME="$2"
       shift 2
       ;;
-    -h|--help)
+    -h | --help)
       usage
       ;;
     *)
@@ -32,34 +43,30 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
-case "$ENV_NAME" in
-  development|staging|production) ;;
-  *)
-    echo "Invalid --env: $ENV_NAME (expected development, staging, or production)"
-    exit 1
-    ;;
-esac
+MANIFEST_ENV="$(map_manifest_env "$ENV_NAME")"
+"$ROOT/scripts/env/vet45_env.sh" sync --env "$MANIFEST_ENV" >/dev/null
 
-ENV_FILE="${APP_DIR}/.env.${ENV_NAME}"
-if [[ "$ENV_NAME" == "development" ]]; then
-  ENV_FILE="${APP_DIR}/.env"
-fi
+RESOLVED="$("$ROOT/scripts/env/vet45_env.sh" resolve-shell --env "$MANIFEST_ENV")"
+while IFS= read -r line; do
+  [[ -z "$line" ]] && continue
+  export "$line"
+done <<<"$RESOLVED"
 
-if [[ ! -f "$ENV_FILE" ]]; then
-  echo "Missing env file: ${ENV_FILE}"
-  echo "Copy from ${ENV_FILE}.example if available."
+if [[ ! -f "$ERP_ENV_FILE" ]]; then
+  echo "Missing env file: ${ERP_ENV_FILE}"
+  echo "Run: melos run env:sync -- --env ${MANIFEST_ENV}"
   exit 1
 fi
 
 echo "==> Building iOS IPA"
-echo "    flavor: ${ENV_NAME}"
-echo "    env file: ${ENV_FILE}"
+echo "    flavor: ${ERP_FLAVOR}"
+echo "    env file: ${ERP_ENV_FILE}"
 
 cd "$APP_DIR"
 
 flutter build ipa \
-  --flavor "$ENV_NAME" \
-  --dart-define-from-file="$ENV_FILE" \
+  --flavor "$ERP_FLAVOR" \
+  --dart-define-from-file="$ERP_ENV_BASENAME" \
   "${OBFUSCATE_ARGS[@]}"
 
 echo "==> IPA ready under ${APP_DIR}/build/ios/ipa/"

@@ -11,6 +11,8 @@ Server-side messaging processor for VET45. Runs adaptive self-loop ticks (~3s wh
 
 Config is versioned in [`railway.toml`](../../railway.toml) at the repo root (Docker build context = monorepo root).
 
+**Runtime env:** edit `config/secrets/<env>.env` (not `apps/messaging_worker/.env*`), then `melos run env:sync`. See [config/secrets/README.md](../../config/secrets/README.md).
+
 ## Prerequisites
 
 1. Migration `supabase/migrations/20260621100001_platform_messaging_discovery.sql` applied; expose `platform` schema in Supabase API settings.
@@ -22,16 +24,24 @@ Config is versioned in [`railway.toml`](../../railway.toml) at the repo root (Do
 From the repo root:
 
 ```bash
-cd apps/messaging_worker
-./scripts/setup_env.sh
-# Edit .env — set SUPABASE_SERVICE_ROLE_KEY from Supabase Dashboard → Settings → API
+cp config/secrets/staging.env.example config/secrets/staging.env
+# Điền Supabase URL + keys
 
-./scripts/deploy.sh --env staging --verify --secrets
+melos run env:use:staging
+melos run env:sync
+./apps/messaging_worker/scripts/deploy.sh --env staging --verify --secrets
 ```
 
 ## Redeploy (daily)
 
-Code-only redeploy (no secret push):
+Code-only redeploy (no secret push) — active env phải là `staging` hoặc `production`:
+
+```bash
+melos run env:use:staging
+melos run deploy:worker
+```
+
+Hoặc:
 
 ```bash
 ./apps/messaging_worker/scripts/deploy.sh
@@ -41,7 +51,7 @@ Code-only redeploy (no secret push):
 Push secrets when they change:
 
 ```bash
-./apps/messaging_worker/scripts/deploy.sh --secrets
+melos run deploy:worker -- --secrets
 ./apps/messaging_worker/scripts/deploy.sh --env production --secrets
 ```
 
@@ -68,12 +78,16 @@ curl -sf -X POST "https://<worker-host>/tick" \
 ## Local development
 
 ```bash
-cd apps/messaging_worker
-cp .env.example .env   # or ./scripts/setup_env.sh
-set -a && source .env && set +a
-dart run bin/worker.dart --once    # single tick
-dart run bin/worker.dart --serve   # HTTP + self-loop locally
+# From repo root (recommended)
+supabase start
+melos run env:local
+melos run env:doctor
+melos run worker:serve    # dart on host
+melos run worker:docker   # docker compose (AOT binary)
+melos run worker:once
 ```
+
+Environment manager: [docs/operations/environment-manager.md](../../docs/operations/environment-manager.md)
 
 Verify build without deploy:
 
@@ -90,12 +104,15 @@ See [`.gitlab-ci.yml`](../../.gitlab-ci.yml). Jobs:
 
 ### CI/CD variables (per environment)
 
+Set in `config/secrets/<env>.env`; `set_secrets.sh --ci` expects the same names:
+
 | Variable | Notes |
 |----------|--------|
 | `RAILWAY_TOKEN` | Project-scoped token; protected |
 | `SUPABASE_URL` | Staging or production URL |
 | `SUPABASE_SERVICE_ROLE_KEY` | Worker only; never ship to ERP |
 | `WORKER_TICK_SECRET` | Manual `/tick` auth |
+| `WORKER_LOG_LEVEL` | Default `WARNING` — use `FINE`/`INFO` only when debugging |
 
 Use CircleCI **contexts** `vet45-staging` / `vet45-production` for staging vs production (see [docs/operations/environments.md](../../docs/operations/environments.md)).
 
@@ -124,7 +141,6 @@ Trước khi set `MESSAGING_CLIENT_POLL_ENABLED=false` trên ERP staging/product
 
 | Script | Purpose |
 |--------|---------|
-| `scripts/setup_env.sh` | Generate `.env` from ERP Supabase URL |
 | `scripts/set_secrets.sh` | Push vars to Railway (`--ci` for CircleCI) |
 | `scripts/verify_supabase.sh` | Check platform RPC + view |
 | `scripts/verify_build.sh` | Local AOT compile (+ optional Docker) |

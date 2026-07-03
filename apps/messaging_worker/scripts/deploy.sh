@@ -40,12 +40,23 @@ export RAILWAY_ENVIRONMENT="$RAILWAY_ENV"
 export RAILWAY_CALLER="${RAILWAY_CALLER:-skill:use-railway@1.3.0}"
 export RAILWAY_AGENT_SESSION="${RAILWAY_AGENT_SESSION:-vet45-messaging-worker-deploy}"
 
-ENV_FILE="${ROOT}/apps/messaging_worker/.env"
-
 load_local_env() {
-  if [[ -f "$ENV_FILE" ]]; then
+  if [[ "$CI_MODE" == true ]]; then
+    return 0
+  fi
+  "$ROOT/scripts/env/vet45_env.sh" sync --env "$RAILWAY_ENV" >/dev/null || true
+  local resolved
+  resolved="$("$ROOT/scripts/env/vet45_env.sh" resolve-shell --env "$RAILWAY_ENV")"
+  local env_file=""
+  while IFS= read -r line; do
+    [[ -z "$line" ]] && continue
+    if [[ "$line" == WORKER_ENV_FILE=* ]]; then
+      env_file="${line#WORKER_ENV_FILE=}"
+    fi
+  done <<<"$resolved"
+  if [[ -n "$env_file" && -f "$env_file" ]]; then
     # shellcheck disable=SC1090
-    set -a && source "$ENV_FILE" && set +a
+    set -a && source "$env_file" && set +a
   fi
 }
 

@@ -1,7 +1,7 @@
 {
   "version": "0.2.0",
   "configurations": [
-    // ── ERP · debug (melos: debug, debug:any, debug:dev) ─────────────────────
+    // ── ERP · debug (run melos run env:sync before F5 if .env stale) ───────
     {
       "name": "ERP · development",
       "type": "dart",
@@ -111,13 +111,6 @@
       "type": "node-terminal",
       "request": "launch",
       "command": "melos run debug:ios",
-      "cwd": "${workspaceFolder}"
-    },
-    {
-      "name": "melos · debug:any",
-      "type": "node-terminal",
-      "request": "launch",
-      "command": "melos run debug:any",
       "cwd": "${workspaceFolder}"
     },
     {
