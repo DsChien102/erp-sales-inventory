@@ -1,294 +1,173 @@
-# TH-02 — Domain model
+# TH-02 — Domain model (v3)
 
 > Bounded context: **catalog** (`modules/catalog/`). Schema Postgres: `catalog`.
+> ERD chi tiết: [appendices/README.md](../appendices/README.md) (Phụ lục E).
 > Analyze: [ddd-domain-modeling](../../../../.cursor/skills/ddd-domain-modeling/SKILL.md) · Implement: [domain-layer](../../../../.cursor/skills/domain-layer/SKILL.md)
+
+## Entity tree (conceptual)
+
+```text
+Product
+├─ Product Image
+├─ Product Unit
+│  └─ Product Unit Price Band
+├─ Product Stock Profile
+├─ Product Base Price Profile
+├─ Product Custom Field Value
+├─ Product Readiness
+└─ Product Change History
+
+Custom Field Group
+└─ Custom Field
+   └─ Product Custom Field Value
+
+Store Price Rule
+└─ Product Unit Price Band (suggest/apply)
+```
 
 ```mermaid
 erDiagram
     PRODUCTS ||--o{ PRODUCT_IMAGES : has
     PRODUCTS ||--o{ PRODUCT_UNITS : has
-    PRODUCTS ||--|| PRODUCT_STOCK : has
-    PRODUCTS ||--o{ PRODUCT_STOCK_MOVEMENTS : has
-    PRODUCTS ||--o{ PRODUCT_PRICES : has
-    PRODUCTS ||--o{ PRODUCT_PRICE_HISTORY : has
-    PRODUCTS ||--o{ CATALOG_AUDIT_LOGS : has
-    STORE_PRICING_SETTINGS ||--|| TENANT : per_tenant
-
-    PRODUCTS {
-        uuid id PK "Required"
-        uuid tenant_id "Required, external reference"
-        string internal_name "Required"
-        string commercial_name "Optional"
-        string sku "Optional, unique per tenant if set"
-        string barcode "Optional, unique per tenant if set"
-        enum status "Required: ACTIVE|INACTIVE|DELETED, default ACTIVE"
-        text description "Optional"
-        text note "Optional"
-        jsonb medical_info "Optional"
-        uuid base_unit_id FK "Required"
-        datetime status_changed_at "Optional"
-        uuid status_changed_by "Optional"
-        datetime deleted_at "Optional"
-        uuid deleted_by "Optional"
-        datetime created_at "Required"
-        uuid created_by "Required"
-        datetime updated_at "Optional"
-        uuid updated_by "Optional"
-        int version "Required, optimistic concurrency"
-    }
-
-    PRODUCT_IMAGES {
-        uuid id PK "Required"
-        uuid product_id FK "Required"
-        string storage_path "Required"
-        int sort_order "Required"
-        boolean is_primary "Required"
-        datetime created_at "Required"
-    }
-
-    PRODUCT_UNITS {
-        uuid id PK "Required"
-        uuid product_id FK "Required"
-        string unit_name "Required"
-        decimal conversion_rate_to_base "Required, > 0"
-        uuid reference_unit_id FK "Optional"
-        enum status "Required: ACTIVE|INACTIVE"
-        datetime created_at "Required"
-    }
-
-    PRODUCT_STOCK {
-        uuid product_id PK FK "Required"
-        decimal quantity "Required, allows negative"
-        datetime updated_at "Required"
-    }
-
-    PRODUCT_STOCK_MOVEMENTS {
-        uuid id PK "Required"
-        uuid product_id FK "Required"
-        decimal quantity_before "Required"
-        decimal quantity_after "Required"
-        decimal delta "Required"
-        string source "Required: create|adjust"
-        uuid actor_id "Required"
-        datetime created_at "Required"
-    }
-
-    STORE_PRICING_SETTINGS {
-        uuid id PK "Required"
-        uuid tenant_id "Required, unique"
-        decimal list_price_ratio "Required, >= 0"
-        decimal floor_price_ratio "Required, >= 0, <= list"
-        datetime created_at "Required"
-        uuid created_by "Required"
-        datetime updated_at "Optional"
-        uuid updated_by "Optional"
-        int version "Required"
-    }
-
-    PRODUCT_PRICES {
-        uuid id PK "Required"
-        uuid product_id FK "Required"
-        enum price_mode "Required: STORE|PRODUCT"
-        uuid unit_id FK "Optional, null = base unit"
-        decimal list_price "Optional, manual override"
-        decimal floor_price "Optional, manual override"
-        boolean use_auto_price "Required, default true for non-base units"
-        datetime created_at "Required"
-        datetime updated_at "Optional"
-    }
-
-    PRODUCT_PRICE_HISTORY {
-        uuid id PK "Required"
-        uuid product_id FK "Required"
-        string change_type "Required"
-        jsonb snapshot "Required"
-        uuid actor_id "Required"
-        datetime created_at "Required"
-    }
-
-    CATALOG_AUDIT_LOGS {
-        uuid id PK "Required"
-        uuid product_id FK "Optional"
-        string action "Required"
-        string field_name "Optional"
-        text old_value "Optional"
-        text new_value "Optional"
-        uuid actor_id "Required"
-        datetime created_at "Required"
-    }
+    PRODUCTS ||--|| PRODUCT_STOCK_PROFILES : has
+    PRODUCTS ||--|| PRODUCT_BASE_PRICE_PROFILES : has
+    PRODUCTS ||--|| PRODUCT_READINESS : has
+    PRODUCTS ||--o{ PRODUCT_CUSTOM_FIELD_VALUES : has
+    PRODUCTS ||--o{ PRODUCT_CHANGE_HISTORY : has
+    PRODUCT_UNITS ||--o{ PRODUCT_UNIT_PRICE_BANDS : has
+    STORE_PRICE_RULES ||--o{ PRODUCT_UNIT_PRICE_BANDS : applies
+    CUSTOM_FIELD_GROUPS ||--o{ CUSTOM_FIELDS : contains
+    CUSTOM_FIELDS ||--o{ PRODUCT_CUSTOM_FIELD_VALUES : defines
 ```
 
-## Lifecycle
-
-```text
-[nháp form] → CreateProduct → ACTIVE
-            → Update profile / images / stock
-            → deactivate → reactivate
-            → manage UOM (add / deactivate / reactivate / delete / change base)
-            → soft delete (DELETED) nếu đủ điều kiện
-```
-
-Pricing (tenant + product):
-
-```text
-SetStorePricingSetting (1/tenant) → products dùng STORE mode inherit ratio
-SetProductPriceMode (STORE|PRODUCT) → SetProductPrice / SetProductUnitPrice
-```
-
-## Aggregates
+## Aggregates (target)
 
 | Aggregate | Folder | Ghi chú |
 | --------- | ------ | ------- |
-| `Product` | `domain/lib/src/product/` | Hồ sơ SP, ảnh, đơn vị đo lường, tồn cơ bản, trạng thái kinh doanh. |
-| `StorePricingSetting` | `domain/lib/src/pricing/` | Tỷ lệ Giá niêm yết / Giá sàn cấp cửa hàng — tối đa 1/tenant. |
-| `ProductPrice` | `domain/lib/src/pricing/` | Cấp áp dụng giá (STORE/PRODUCT), giá theo SP và theo UOM; lịch sử qua projection/history table. |
+| `Product` | `domain/lib/src/product/` | Hồ sơ nhận diện, trạng thái KD, soft delete |
+| `ProductUnit` | `domain/lib/src/unit/` | Đơn vị cơ sở + quy đổi (có thể child của Product tùy slice) |
+| `ProductStockProfile` | `domain/lib/src/stock/` | Basic vs Advanced stock mode |
+| `ProductBasePriceProfile` | `domain/lib/src/pricing/` | Manual vs Costing-module base price |
+| `StorePriceRule` | `domain/lib/src/pricing/` | Quy tắc giá cấp cửa hàng/tenant (1/tenant) |
+| `ProductUnitPriceBand` | `domain/lib/src/pricing/` | Giá niêm yết + Giá sàn theo UOM |
+| `CustomFieldGroup` / `CustomField` | `domain/lib/src/custom_fields/` | Cấu hình ngành |
+| `ProductReadiness` | `domain/lib/src/readiness/` | Trạng thái + blocker (computed hoặc cached) |
 
-## Database tables
-
-| Table | Ghi chú |
-| ----- | ------- |
-| `products` | Bảng trung tâm hồ sơ sản phẩm. |
-| `product_images` | Ảnh sản phẩm; có ảnh đại diện (`is_primary`). |
-| `product_units` | Đơn vị cơ sở + đơn vị quy đổi; `conversion_rate_to_base` tính về base. |
-| `product_stock` | Tồn kho cơ bản theo đơn vị cơ sở (1 row/product). |
-| `product_stock_movements` | Biến động tồn cơ bản (create, adjust) — truy vết delta. |
-| `store_pricing_settings` | Cấu hình tỷ lệ giá cấp cửa hàng (1/tenant). |
-| `product_prices` | Giá theo SP/UOM; manual override hoặc auto từ ratio. |
-| `product_price_history` | Lịch sử thay đổi giá (mode, giá SP, giá UOM). |
-| `catalog_audit_logs` | Audit thay đổi hồ sơ, trạng thái, UOM, giá. |
+**Không** gộp Change History vào aggregate root — projection/table riêng.
 
 ## Value objects
 
 | VO | Mô tả |
 | -- | ----- |
-| `ProductName` | `internalName` bắt buộc; `commercialName` optional. |
-| `Sku` | Optional; không auto-generate; unique per tenant nếu có. |
-| `Barcode` | Optional; unique per tenant nếu có. |
-| `ProductStatus` | `active`, `inactive`, `deleted` (soft delete). |
-| `UnitOfMeasure` | Tên đơn vị; base unit có `conversionRateToBase = 1`. |
-| `ConversionRate` | Số dương > 0; tính tỷ lệ về base qua reference unit. |
-| `StockQuantity` | Cho phép dương, 0, âm; luôn theo base unit. |
-| `MedicalInfo` | Thành phần, chỉ định, chống chỉ định, cách dùng, nguồn gốc — optional. |
-| `PriceMode` | `store`, `product` — cấp áp dụng giá. |
-| `PriceRatio` | Tỷ lệ ≥ 0; floor ≤ list. |
-| `ListPrice` / `FloorPrice` | Giá bán; có thể manual hoặc computed từ giá vốn cơ sở × ratio. |
+| `ProductName` | Tên sản phẩm (bắt buộc); tên thương mại optional |
+| `Sku` / `Barcode` | Optional; unique per tenant nếu có |
+| `ProductStatus` | Đang kinh doanh / Ngừng KD / Đã xóa (soft delete) |
+| `ReadinessStatus` | Chưa hoàn thiện, Sẵn sàng bán, Sẵn sàng nhập, … |
+| `ReadinessBlocker` | Nhóm + mã blocker (thiếu UOM, thiếu giá, …) |
+| `UnitOfMeasure` | Tên đơn vị; vai trò base / conversion |
+| `ConversionRate` | > 0; quy về base |
+| `StockMode` | `basic` \| `advanced` |
+| `StockQuantity` | Theo base unit; policy âm theo tenant |
+| `BasePriceMode` | `manual` \| `costing_module` |
+| `BasePrice` | Giá cơ sở định giá (manual) |
+| `ListPrice` / `FloorPrice` | Khung giá bán |
+| `PriceRatio` | Tỷ lệ gợi ý từ Store Price Rule |
+| `CustomFieldValue` | Typed value theo Custom Field definition |
 
-## Commands
+## Commands (by epic)
 
 | Command | Epic/US | Ghi chú |
 | ------- | ------- | ------- |
-| `CreateProductCommand` | Epic-01/US-01 | Tạo hồ sơ + ảnh + tồn khởi tạo; default ACTIVE. |
-| `UpdateProductProfileCommand` | Epic-01/US-03 | Cập nhật tên, SKU, barcode, medical, mô tả — không đổi status/UOM/ảnh/tồn/giá. |
-| `UpdateProductImagesCommand` | Epic-01/US-03 | Thêm/xóa/đổi ảnh đại diện. |
-| `AdjustBasicStockCommand` | Epic-01/US-03 | Chỉnh tồn cơ bản trực tiếp; ghi delta movement. |
-| `DeactivateProductCommand` | Epic-01/US-04 | ACTIVE → INACTIVE; chặn nếu nghiệp vụ chưa hoàn tất. |
-| `ReactivateProductCommand` | Epic-01/US-04 | INACTIVE → ACTIVE; cần tên + base unit hợp lệ. |
-| `DeleteProductCommand` | Epic-01/US-04 | Soft delete → DELETED; stock=0 + chưa phát sinh nghiệp vụ. |
-| `AddProductUnitCommand` | Epic-01/US-05 | Thêm đơn vị quy đổi. |
-| `DeactivateProductUnitCommand` | Epic-01/US-05 | Ngừng sử dụng đơn vị. |
-| `ReactivateProductUnitCommand` | Epic-01/US-05 | Sử dụng lại đơn vị đã ngừng. |
-| `DeleteProductUnitCommand` | Epic-01/US-05 | Xóa đơn vị đủ điều kiện. |
-| `ChangeBaseUnitCommand` | Epic-01/US-05 | Đổi đơn vị cơ sở; quy đổi tồn; tính lại rates. |
-| `SetStorePricingSettingCommand` | Epic-02/US-01 | Thiết lập/cập nhật tỷ lệ giá cấp cửa hàng. |
-| `UnsetStorePricingSettingCommand` | Epic-02/US-01 | Gỡ thiết lập tỷ lệ cấp cửa hàng. |
-| `SetProductPriceModeCommand` | Epic-02/US-02 | Chọn STORE hoặc PRODUCT. |
-| `SetProductPriceCommand` | Epic-02/US-02 | Giá niêm yết/sàn cấp sản phẩm (base unit). |
-| `SetProductUnitPriceCommand` | Epic-02/US-02 | Giá manual theo UOM; hoặc reset về auto. |
-
-## Queries
-
-| Query | Epic/US | Ghi chú |
-| ----- | ------- | ------- |
-| `SearchProductsQuery` | Epic-01/US-02 | Keyword + filter status + stock status; paginated. |
-| `GetProductDetailQuery` | Epic-01/US-02 | Chi tiết đầy đủ; ẩn DELETED. |
-| `CheckDuplicateProductCodeQuery` | Epic-01/US-01, US-03 | Dup SKU/barcode tenant-scoped. |
-| `GetStorePricingSettingQuery` | Epic-02/US-01 | Tỷ lệ giá cấp cửa hàng hiện hành. |
-| `GetProductPriceQuery` | Epic-02/US-02 | Giá computed/current theo SP + UOM. |
-| `GetProductPriceHistoryQuery` | Epic-02/US-02 | Lịch sử thay đổi giá SP. |
+| `CreateProductCommand` | EPIC-02/US-01 | Guided minimal create |
+| `CheckDuplicateProductCodeQuery` | EPIC-02/US-01 | SKU/barcode tenant-scoped |
+| `SetProductBaseUnitCommand` | EPIC-02/US-01, EPIC-04/US-01 | Đơn vị cơ sở |
+| `SetInitialStockCommand` | EPIC-02/US-02, EPIC-05/US-02 | Basic stock ban đầu |
+| `SetManualBasePriceCommand` | EPIC-02/US-02, EPIC-06/US-01 | Giá cơ sở thủ công |
+| `SetInitialPriceBandCommand` | EPIC-02/US-02, EPIC-06/US-03 | Khung giá ban đầu (optional step) |
+| `SearchProductsQuery` | EPIC-01/US-01 | + readiness filter |
+| `GetProductControlCenterQuery` | EPIC-01/US-02 | Detail + checklist + actions |
+| `GetProductChangeHistoryQuery` | EPIC-01/US-02, EPIC-07/US-04 | Lịch sử thay đổi |
+| `AddProductUnitCommand` | EPIC-04/US-02 | Đơn vị quy đổi |
+| `DeactivateProductUnitCommand` | EPIC-04/US-02 | |
+| `ReactivateProductUnitCommand` | EPIC-04/US-02 | |
+| `ChangeBaseUnitCommand` | EPIC-04/US-03 | Preview + controlled change |
+| `AdjustBasicStockCommand` | EPIC-05/US-02 | Không tạo phiếu kho |
+| `SetStockModeCommand` | EPIC-05/US-01, US-04 | Basic → Advanced |
+| `SetStorePriceRuleCommand` | EPIC-06/US-02 | Store-level rule |
+| `SetProductUnitPriceBandCommand` | EPIC-06/US-03 | List + floor per UOM |
+| `UpdateProductProfileCommand` | EPIC-07/US-01 | Nhận diện, không đổi mode |
+| `UpdateProductImagesCommand` | EPIC-07/US-01 | |
+| `DeactivateProductCommand` | EPIC-07/US-02 | |
+| `ReactivateProductCommand` | EPIC-07/US-02 | |
+| `DeleteProductCommand` | EPIC-07/US-03 | Soft delete |
+| `RestoreProductCommand` | EPIC-07/US-03 | Khôi phục |
+| `UpsertCustomFieldValuesCommand` | EPIC-03/US-02 | Theo ngành |
+| `InitializeIndustryFieldsCommand` | EPIC-03/US-01 | Từ onboarding |
 
 ## Domain events
 
 | Event | Khi |
 | ----- | --- |
-| `ProductCreated` | Sau khi tạo SP thành công. |
-| `ProductProfileUpdated` | Sau khi cập nhật hồ sơ. |
-| `ProductImagesUpdated` | Sau khi cập nhật ảnh. |
-| `ProductStockAdjusted` | Sau khi chỉnh tồn cơ bản. |
-| `ProductDeactivated` | Sau khi ngừng kinh doanh. |
-| `ProductReactivated` | Sau khi kinh doanh lại. |
-| `ProductDeleted` | Sau khi soft delete. |
-| `ProductUnitAdded` | Sau khi thêm UOM. |
-| `ProductBaseUnitChanged` | Sau khi đổi đơn vị cơ sở. |
-| `StorePricingSettingChanged` | Sau khi set/unset tỷ lệ cấp cửa hàng. |
-| `ProductPriceChanged` | Sau khi đổi mode/giá SP/UOM. |
+| `ProductCreated` | Sau guided create |
+| `ProductReadinessChanged` | Blocker resolved/added |
+| `ProductProfileUpdated` | Sửa hồ sơ |
+| `ProductStockAdjusted` | Basic stock adjust |
+| `ProductBaseUnitChanged` | Đổi đơn vị cơ sở |
+| `ProductPriceBandChanged` | Khung giá thay đổi |
+| `ProductDeactivated` / `ProductReactivated` | Trạng thái KD |
+| `ProductDeleted` / `ProductRestored` | Soft delete / restore |
+| `StorePriceRuleChanged` | Cấp cửa hàng |
+| `CustomFieldValuesUpdated` | Giá trị ngành |
 
 ## Integration events — publish
 
 | Type | Khi |
 | ---- | --- |
 | `catalog.product.created` | CreateProduct |
+| `catalog.product.readiness_changed` | Readiness update |
 | `catalog.product.profile_updated` | Update profile |
-| `catalog.product.images_updated` | Update images |
-| `catalog.product.stock_adjusted` | Adjust stock |
-| `catalog.product.deactivated` | Deactivate |
-| `catalog.product.reactivated` | Reactivate |
-| `catalog.product.deleted` | Soft delete |
+| `catalog.product.stock_adjusted` | Adjust basic stock |
 | `catalog.product.unit_changed` | UOM mutations |
-| `catalog.pricing.store_setting_changed` | Set/unset store pricing |
-| `catalog.product.price_changed` | Price mode/price changes |
+| `catalog.product.price_band_changed` | Price band |
+| `catalog.pricing.store_rule_changed` | Store price rule |
+| `catalog.product.deactivated` / `reactivated` / `deleted` | Lifecycle |
 
 ## Integration events — consume
 
 | Source | Event | Mục đích |
 | ------ | ----- | -------- |
-| costing (TH-06) | `costing.base_cost.updated` | Read reference cho tính giá — **không consume ở MVP slice đầu**; query cross-module read gateway khi cần hiển thị giá vốn. |
+| onboarding | `onboarding.tenant.configured` | Khởi tạo custom field groups (EPIC-03) |
+| costing | `costing.base_cost.updated` | Read model cho Costing-module base price (Growth) |
+| inventory | `inventory.stock.summary_updated` | Read model Advanced stock (Growth) |
 
-## Data rules
+## Data rules (v3 highlights)
 
 | Rule ID | Rule |
 | ------- | ---- |
-| DR-01 | Mỗi sản phẩm phải có `internal_name` và đơn vị đo lường cơ sở. |
-| DR-02 | SKU và barcode optional; không auto-generate; unique per tenant nếu có. |
-| DR-03 | Sản phẩm mới mặc định `active`. |
-| DR-04 | Tồn khởi tạo default 0; cho phép âm; luôn theo base unit. |
-| DR-05 | Chỉnh tồn cơ bản không tạo phiếu nhập/công nợ — thuộc TH-06. |
-| DR-06 | `inactive` vẫn xem được; không chọn cho giao dịch mới. |
-| DR-07 | Soft delete (`deleted`) chỉ khi stock=0 và chưa phát sinh nghiệp vụ. |
-| DR-08 | Mỗi SP có đúng 1 base unit; base unit `conversion_rate_to_base = 1`. |
-| DR-09 | Không trùng tên đơn vị trong cùng SP; không vòng lặp quy đổi. |
-| DR-10 | Đổi base unit quy đổi tồn; không đổi snapshot giao dịch cũ. |
-| DR-11 | Store pricing: 1 setting/tenant; floor ratio ≤ list ratio. |
-| DR-12 | Product mới default price mode = STORE. |
-| DR-13 | Giá theo UOM: auto = base price × conversion rate; manual override ưu tiên. |
-| DR-14 | Thay đổi giá chỉ ảnh hưởng giao dịch mới; không sửa dòng đơn cũ. |
-| DR-15 | Giá vốn hiện hành / cơ sở định giá do TH-06 cung cấp — catalog chỉ đọc. |
-
-## Constraints & indexes
-
-| Type | Target | Rule |
-| ---- | ------ | ---- |
-| Primary key | `products.id` | Khóa chính sản phẩm. |
-| Unique | `products.tenant_id + sku` | WHERE sku IS NOT NULL. |
-| Unique | `products.tenant_id + barcode` | WHERE barcode IS NOT NULL. |
-| Unique | `store_pricing_settings.tenant_id` | 1 setting/tenant. |
-| Unique | `product_units.product_id + unit_name` | Không trùng tên đơn vị/SP. |
-| Foreign key | `product_units.product_id` | → `products.id`. |
-| Foreign key | `product_stock.product_id` | → `products.id`. |
-| Index | `products.tenant_id` | Lọc theo tenant. |
-| Index | `products.internal_name` | Tìm kiếm. |
-| Index | `products.status` | Lọc ACTIVE/INACTIVE. |
-| Check | `products.status` | `active`, `inactive`, `deleted`. |
-| Check | `store_pricing_settings` | `floor_price_ratio <= list_price_ratio`. |
+| DR-01 | Tên sản phẩm bắt buộc; guided create không ép toàn bộ field |
+| DR-02 | SKU/barcode optional; unique per tenant |
+| DR-03 | Readiness tách khỏi trạng thái kinh doanh |
+| DR-04 | Basic stock theo base unit; không tạo phiếu nhập |
+| DR-05 | Advanced stock: read-only trong Product |
+| DR-06 | Manual base price (Foundation); costing read (Growth) |
+| DR-07 | Giá sàn ≤ Giá niêm yết |
+| DR-08 | Custom fields thay medical_info hard-code |
+| DR-09 | Soft delete; bảo toàn snapshot giao dịch |
+| DR-10 | Đổi base unit: preview tác động; không sửa snapshot cũ |
 
 ## Anti-patterns
 
-- God aggregate gộp pricing history và stock movements vào `Product` aggregate root.
-- Query-time fan-out sang costing/inventory để tính giá vốn — dùng read gateway/DTO.
-- Dup-check SKU/barcode chỉ ở UI — cần RPC tenant-scoped.
-- Hard delete sản phẩm đã phát sinh nghiệp vụ.
-- Tự tính lại giá niêm yết/sàn khi đổi base unit (US-05/FR-05 BR-07).
-- Tạo phiếu nhập khi chỉnh tồn cơ bản từ hồ sơ SP.
+- God aggregate gộp readiness history + change history vào `Product`
+- Hard-code thông tin thú y vào `Product` entity
+- Chỉnh tồn trực tiếp khi `StockMode = advanced`
+- Tính giá cuối sau khuyến mãi trong catalog
+- Dup-check SKU/barcode chỉ ở UI
+- Hiển thị `ACTIVE` / `READY_TO_SELL` cho end user
 
 ## Implement
 
-Code domain từ document này: [domain-layer skill](../../../../.cursor/skills/domain-layer/SKILL.md) → `modules/catalog/domain/lib/src/`. Commands/handlers: [application-layer](../../../../.cursor/skills/application-layer/SKILL.md).
+Code domain: [domain-layer skill](../../../../.cursor/skills/domain-layer/SKILL.md) → `modules/catalog/domain/lib/src/`.
+
+Commands/handlers: [application-layer](../../../../.cursor/skills/application-layer/SKILL.md).
+
+**Lưu ý:** Harness code (`modules/catalog/`) chưa cập nhật theo v3 — cập nhật khi slice EPIC-02/US-01 CONTRACT lane bắt đầu.

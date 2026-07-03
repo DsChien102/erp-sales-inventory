@@ -29,12 +29,13 @@ cd apps/erp && flutter test test/features/catalog/   # khi slice có UI
 
 | Date | Lỗi / ghi chú | Biện pháp |
 | ---- | ------------- | --------- |
+| 2026-07-03 | **Spec v3 migration** — 7 epics, readiness, guided create, custom fields, base price, stock/base price modes | Regenerated EPIC-* tree từ Desktop v3; reset traceability + slice roadmap; 07-api-contracts partial |
 | 2026-07-02 | Khởi tạo harness/ scaffold TH-02 | README + harness layer + flip in_progress |
-| — | Dup-check SKU/barcode chỉ UI | Ghi nhớ: RPC tenant-scoped unique index khi implement US-01 |
-| — | Giá vốn từ TH-06 | Catalog chỉ read gateway; không consume event ở slice đầu |
-| — | Tồn cơ bản vs TH-06 | AdjustBasicStock ≠ phiếu điều chỉnh kho — doc boundary trong 02-module-map |
-| — | Đổi base unit không auto-reprice | US-05/FR-05 BR-07 — không tính lại giá trong command |
-| — | Epic folder naming | TH-02 dùng `EPIC-01-product/` (khác TH-03 `Epic-01-*`) — guard chỉ check `US-*` |
+| — | Dup-check SKU/barcode chỉ UI | RPC tenant-scoped unique index khi implement EPIC-02/US-01 |
+| — | Giá vốn từ costing | Catalog read gateway; Growth tier only |
+| — | Basic vs Advanced stock | Basic = chỉnh trong Product; Advanced = read inventory |
+| — | medical_info removed | Dùng custom fields (EPIC-03) |
+| — | Epic folder naming | `EPIC-{nn}-{slug}/` — guard check `US-*` |
 
 ## Liên kết
 
