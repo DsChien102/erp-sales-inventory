@@ -1,12 +1,14 @@
-# TH-02 — Architecture & flows
+# TH-02 — Architecture & flows (v3)
 
 Tuân theo [05-layered-module-structure.md](../../../architecture/05-layered-module-structure.md) và [02-architecture-style.md](../../../architecture/02-architecture-style.md) (CQRS, RPC-first).
 
-## Luồng ghi nhận sản phẩm (Epic-01/US-01)
+User flows chi tiết: [appendices/README.md](../appendices/README.md) (Phụ lục B).
+
+## Luồng guided create (EPIC-02/US-01)
 
 ```mermaid
 sequenceDiagram
-  participant UI as ERP_Presentation
+  participant UI as ERP_GuidedCreate
   participant Med as ICatalogModule
   participant Pipe as CommandPipeline
   participant H as CreateProductHandler
@@ -21,22 +23,32 @@ sequenceDiagram
   H->>GW: create
   GW->>RPC: RPC
   RPC->>OB: catalog.product.created
-  RPC-->>H: productId
-  H-->>UI: ProductId
+  RPC-->>H: productId + readiness seed
+  H-->>UI: CreateProductResult
 ```
 
-Ảnh upload và tồn khởi tạo nằm trong cùng transaction RPC — không tạo dữ liệu rời rạc (FR US-01/FR-02 EC-06, FR-03 EC-05).
+Sau create: readiness checklist + gợi ý bước tiếp (EPIC-02/US-03) → Product Control Center (EPIC-01/US-02).
 
-## Luồng tra cứu (Epic-01/US-02)
+## Luồng tra cứu + readiness (EPIC-01/US-01)
 
 ```text
-UI → ICatalogModule.executeQueryAsync(SearchProductsQuery | GetProductDetailQuery)
+UI → ICatalogModule.executeQueryAsync(SearchProductsQuery | ScanBarcodeQuery)
   → QueryBus → Handler
-  → ICatalogReadGateway → catalog.v_* views
-  → DTO (kèm giá computed, tồn, UOM summary)
+  → ICatalogReadGateway → catalog.v_product_list (kèm readiness chip)
+  → ProductSearchResultDto
 ```
 
-## Dup-check SKU / barcode (Epic-01/US-01 FR-01)
+## Product Control Center (EPIC-01/US-02)
+
+```text
+UI → GetProductControlCenterQuery
+  → aggregate read model: profile, units, stock source, base price source,
+    price bands, readiness checklist, contextual actions, history preview
+```
+
+Không dùng một nút "Sửa" chung — actions theo permission + status + readiness.
+
+## Dup-check SKU / barcode (EPIC-02/US-01 FR-02)
 
 ```text
 1. Optional pre-check: catalog.check_duplicate (read, tenant-scoped)
