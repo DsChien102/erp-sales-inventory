@@ -2,7 +2,7 @@
 
 Tuân theo [05-layered-module-structure.md](../../../architecture/05-layered-module-structure.md) và [02-architecture-style.md](../../../architecture/02-architecture-style.md) (CQRS, RPC-first).
 
-User flows chi tiết: [appendices/README.md](../appendices/README.md) (Phụ lục B).
+User flows chi tiết: [APPENDICES.md](../APPENDICES.md) (Phụ lục B).
 
 ## Luồng guided create (EPIC-02/US-01)
 

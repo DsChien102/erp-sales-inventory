@@ -1,7 +1,7 @@
 # TH-02 — Domain model (v3)
 
 > Bounded context: **catalog** (`modules/catalog/`). Schema Postgres: `catalog`.
-> ERD chi tiết: [appendices/README.md](../appendices/README.md) (Phụ lục E).
+> ERD chi tiết: [APPENDICES.md](../APPENDICES.md) (Phụ lục E).
 > Analyze: [ddd-domain-modeling](../../../../.cursor/skills/ddd-domain-modeling/SKILL.md) · Implement: [domain-layer](../../../../.cursor/skills/domain-layer/SKILL.md)
 
 ## Entity tree (conceptual)

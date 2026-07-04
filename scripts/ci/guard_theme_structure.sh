@@ -52,7 +52,14 @@ for theme_dir in "$themes_root"/TH-*/; do
   theme_name="$(basename "$theme_dir")"
   echo "Checking in_progress theme: $theme_name"
 
-  require_file "$theme_dir/01-business-scope.md" "01-business-scope.md in $theme_name"
+  if [[ -f "$theme_dir/OVERVIEWS.md" ]]; then
+    :
+  elif [[ -f "$theme_dir/01-business-scope.md" ]]; then
+    # Legacy name; prefer OVERVIEWS.md for new/updated themes.
+    :
+  else
+    report "missing OVERVIEWS.md in $theme_name: $theme_dir/OVERVIEWS.md"
+  fi
 
   for harness_file in "${harness_files[@]}"; do
     require_file "$theme_dir/harness/$harness_file" "harness/$harness_file in $theme_name"

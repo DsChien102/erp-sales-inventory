@@ -27,9 +27,9 @@ Theme không chỉ lưu danh sách sản phẩm mà đưa sản phẩm vào **tr
 
 | Nhóm | File |
 | ---- | ---- |
-| Business scope (v3 overview) | [01-business-scope.md](01-business-scope.md) |
-| Module map | [02-module-map.md](02-module-map.md) |
-| Phụ lục (flows, ERD, permissions) | [appendices/](appendices/) |
+| Overview (v3) | [OVERVIEWS.md](OVERVIEWS.md) |
+| Module map | [harness/02-module-map.md](harness/02-module-map.md) |
+| Phụ lục (flows, ERD, permissions) | [APPENDICES.md](APPENDICES.md) |
 | Platform architecture | [docs/architecture/](../../architecture/README.md) |
 
 ## Epic index

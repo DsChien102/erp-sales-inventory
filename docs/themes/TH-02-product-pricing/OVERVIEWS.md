@@ -1,6 +1,6 @@
 # TH-02 — Business scope
 
-> Nguồn: Theme 2 v3. Chi tiết Epic/US/FR: [README.md](README.md). Phụ lục: [appendices/](appendices/).
+> Nguồn: Theme 2 v3. Chi tiết Epic/US/FR: [README.md](README.md). Phụ lục: [APPENDICES.md](APPENDICES.md).
 
 ## Giới thiệu
 

@@ -28,7 +28,7 @@ Khung viết theme mới: [THEME_DOCUMENTATION_TEMPLATE.md](THEME_DOCUMENTATION_
 | ----- | -------------- | ------- |
 | TH-01 | `modules/iam/` codegen + ERP auth shell | Chưa có Epic/US tree; xem [TH-01 README](TH-01-store-setup/README.md) |
 | TH-02 | README + `harness/00..07` + Epic/US/FR (2 epic, 7 US) | Harness scaffold; `catalog` module greenfield — xem [TH-02 README](TH-02-product-pricing/README.md) |
-| TH-04–TH-07, TH-09–TH-11 | README + business-scope + module-map | Skeleton doc; module packages greenfield |
+| TH-04–TH-07, TH-09–TH-11 | README + scope doc + module-map | Skeleton doc; module packages greenfield |
 | TH-03 | README + `harness/00..07` + Epic/US/FR | Epic-01/02 BE+FE done; Epic-03 E2E blocked (cross-module publish) |
 | TH-08 | Chưa có folder | Tạo `TH-08-accounting-and-tax/` khi bắt đầu SRS |
 
@@ -39,7 +39,8 @@ Theme `in_progress` dùng **README + harness/ + Epic/US/FR** — xem [THEME_DOCU
 ```text
 docs/themes/TH-xx-{{slug}}/
 ├── README.md                    # Index theme (status, epic rollup)
-├── 01-business-scope.md
+├── OVERVIEWS.md                 # Purpose, scope, epic map (legacy: 01-business-scope.md)
+├── APPENDICES.md                # optional — flows, ERD, permissions
 ├── harness/                     # Bắt buộc khi in_progress
 ├── Epic-{nn}-{slug}/
 │   ├── README.md                # Epic overview (trước: 01-overview.md)

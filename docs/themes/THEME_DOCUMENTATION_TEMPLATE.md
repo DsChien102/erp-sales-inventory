@@ -18,7 +18,8 @@ Theme `in_progress` cần **README + harness/** + cây Epic/US/FR.
 ```text
 docs/themes/TH-xx-{{slug}}/
 ├── README.md                         # Index, status, epic rollup
-├── 01-business-scope.md              # Purpose, scope, epic map
+├── OVERVIEWS.md                      # Purpose, scope, epic map
+├── APPENDICES.md                     # optional — flows, ERD, permissions
 ├── harness/
 │   ├── 00-agent-ritual.md            # Thứ tự đọc khi implement FR
 │   ├── 01-domain-model.md            # Aggregate, commands, events

@@ -10,6 +10,16 @@
 | iam | Auth, tenant, RBAC (`catalog.*`) | Supporting | `modules/iam/` | in_progress |
 | onboarding | Ngành, gói tenant → custom field seed | Supporting (read) | TBD | planned |
 
+## Downstream consumers
+
+| Theme / Module | Dùng dữ liệu TH-02 cho |
+| -------------- | ----------------------- |
+| TH-04 Bán hàng | Snapshot SP, readiness, đơn vị bán, Giá niêm yết / Giá sàn |
+| TH-06 Kho & giá vốn | Item linkage; stock summary (Advanced); base cost feed |
+| Promotions | Giá niêm yết (trước KM), Giá sàn (ngưỡng) |
+| TH-07 Hóa đơn | Mô tả hàng trên hóa đơn |
+| TH-09 Dashboard | KPI doanh thu theo SP/nhóm hàng |
+
 ## Sơ đồ phụ thuộc (v3)
 
 ```mermaid
@@ -22,6 +32,8 @@ flowchart LR
   Catalog -->|khung giá| Promotions[promotions]
   Catalog -->|outbox| Events[integration_events]
 ```
+
+Chi tiết integration diagrams: [APPENDICES.md](../APPENDICES.md) (Phụ lục D).
 
 ## Snapshot DTOs (cho module khác)
 
@@ -50,14 +62,25 @@ Constants: `CatalogPermissions` trong `modules/catalog/domain/`.
 | `catalog.custom_fields.manage` | Cấu hình custom fields | EPIC-03/US-01 |
 | `catalog.pricing.manage_store_rule` | Store Price Rule | EPIC-06/US-02 |
 
-Ma trận đầy đủ: [appendices/README.md](../appendices/README.md) (Phụ lục F).
+Ma trận đầy đủ: [APPENDICES.md](../APPENDICES.md) (Phụ lục F).
 
-## Ranh giới
+## Ranh giới (v3)
+
+| Nội dung | Thuộc catalog | Module khác |
+| -------- | ------------- | ----------- |
+| Hồ sơ SP, ảnh, readiness, custom fields | ✓ | |
+| Basic stock (Foundation) | ✓ | |
+| Advanced stock, phiếu kho | | inventory |
+| Manual base price (Foundation) | ✓ | |
+| FIFO/FILO/bình quân giá vốn | | costing |
+| Giá niêm yết, Giá sàn, Store Price Rule | ✓ | |
+| Giá cuối sau khuyến mãi | | promotions / sales |
+| Giao dịch bán, snapshot đơn | | sales |
+
+Ghi chú agent:
 
 - Catalog **không** tạo đơn bán, phiếu nhập, phiếu kho chi tiết, hóa đơn, giá sau KM
-- Basic stock: nhập/chỉnh trong Product (Foundation)
 - Advanced stock: **read-only** stock summary từ inventory
-- Manual base price: nhập trong Product (Foundation)
 - Costing-module base price: **read-only** từ costing (Growth)
 - Custom fields thay `medical_info` — không hard-code ngành vào Product
 
@@ -75,4 +98,4 @@ modules/catalog/presentation/
 
 Skill: [.cursor/skills/presentation-layer/SKILL.md](../../../../.cursor/skills/presentation-layer/SKILL.md)
 
-Theme map: [02-module-map.md](../02-module-map.md)
+Cross-theme: [TH-04 module map](../../TH-04-sales-orders/02-module-map.md) · [TH-06 module map](../../TH-06-inventory-and-costing/02-module-map.md)
