@@ -3,7 +3,7 @@
 **Trạng thái deliver:** `in_progress`  
 **Spec version:** v3 (2026-07)
 
-Master data sản phẩm, readiness, đơn vị tính, tồn kho cơ bản, Giá cơ sở định giá, khung giá bán (Giá niêm yết / Giá sàn) và custom fields theo ngành — nền tảng cho bán hàng (TH-04), kho (TH-06) và báo cáo.
+Master data sản phẩm, readiness, đơn vị tính, tồn kho cơ bản, Giá cơ sở định giá, khung giá bán (Giá niêm yết / Giá sàn) và **thông tin bổ sung** (nhóm & trường cấu hình được) — nền tảng cho bán hàng (TH-04), kho (TH-06) và báo cáo.
 
 ## Triết lý v3
 
@@ -12,7 +12,7 @@ Theme không chỉ lưu danh sách sản phẩm mà đưa sản phẩm vào **tr
 - **Product Readiness** — checklist + blocker rõ ràng
 - **Guided Product Creation** — tạo tối thiểu rồi hoàn thiện dần
 - **Product Control Center** — màn chi tiết điều phối hành động theo ngữ cảnh
-- **Custom fields** — thay `medical_info` hard-coded; retail-first, industry-extensible
+- **Thông tin bổ sung** — nhóm & trường thông tin (tenant-configurable); retail-first, industry-extensible; không hard-code ngành vào Product
 
 ## Module tham gia
 

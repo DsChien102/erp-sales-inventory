@@ -8,7 +8,7 @@ Facade: `ICatalogModule` (`modules/catalog/application/lib/src/contracts/i_catal
 
 **Quy tắc:** FE fake theo contract này — không fake RPC trực tiếp. Scenarios trong `FakeCatalogModule` (`package:vet45_catalog_application/testing.dart`).
 
-> **Migration note (2026-07):** Spec v3 thay cấu trúc Epic cũ (EPIC-01-product / EPIC-02-pricing). Contracts dưới đây theo slice roadmap mới; bổ sung section khi từng slice vào CONTRACT lane.
+> **Migration note (2026-07):** Spec v3; contracts theo [04-slice-roadmap.md](04-slice-roadmap.md). Bổ sung section khi từng slice vào CONTRACT lane. FR/US `pending` / `out_of_scope` không implement.
 
 ---
 
@@ -97,15 +97,65 @@ Package: `vet45_catalog_application` — `guided_create/`, `check_duplicate/`.
 | ------ | --------------- | ------- | ------ |
 | `GetProductControlCenterQuery` | tenantId, productId | `ProductControlCenterDto` | PermissionDenied, NotFound |
 
-`ProductControlCenterDto` gồm: profile summary, units, stock source, base price source, price bands, readiness checklist, contextual actions[], change history preview.
+`ProductControlCenterDto` gồm:
+
+| Field | Ghi chú |
+| ----- | ------- |
+| profile summary | hồ sơ nhận diện, trạng thái KD |
+| units, stock source, base price source, price bands | cards vận hành |
+| `customFieldGroupCards[]` | group id, name, icon, sortOrder, fields[], values, requiredMissing |
+| `readinessSummary` | early — status + top blockers (không thay FR-04) |
+| `checklist[]` | **pending** (EPIC-01/US-02/FR-04) — không implement UI đầy đủ |
+| contextual actions[] | theo permission + status + readiness |
+| change history preview | FR-06 |
 
 ### Fake scenarios (FE)
 
 | scenario_id | trigger | fake response |
 | ----------- | ------- | ------------- |
-| `pcc_incomplete` | product missing price | checklist + "Thiết lập giá" action |
+| `pcc_incomplete` | product missing price | readinessSummary blockers + "Thiết lập giá" action |
 | `pcc_ready_to_sell` | all blockers cleared | readiness = Sẵn sàng bán |
 | `pcc_inactive` | inactive product | limited actions |
+| `pcc_custom_field_cards` | active groups | cards sau khung giá, trước ghi chú |
+
+---
+
+## EPIC-03 / US-01 — Cấu hình nhóm & trường (slice #16)
+
+### Commands / Queries
+
+| Symbol | Input (summary) | Success | Errors |
+| ------ | --------------- | ------- | ------ |
+| `InitializeCustomFieldTemplateCommand` | tenantId, templateId? | groups/fields created | PermissionDenied |
+| `UpsertCustomFieldGroupCommand` | tenantId, groupId?, name, icon?, active | group | Validation, PermissionDenied |
+| `ReorderCustomFieldGroupsCommand` | tenantId, orderedGroupIds[] | void | Validation |
+| `UpsertCustomFieldCommand` | tenantId, groupId, fieldId?, name, fieldType, options? | field | Validation |
+| `ConfigureCustomFieldAttributesCommand` | tenantId, fieldId, required, searchable, filterable, displayOnList | field | Validation |
+| `ReorderCustomFieldsCommand` | tenantId, groupId, orderedFieldIds[] | void | Validation |
+| `ListCustomFieldConfigQuery` | tenantId | groups + fields | PermissionDenied |
+
+### RPC mapping (BE)
+
+| Use case | RPC |
+| -------- | --- |
+| Init template | `catalog.initialize_custom_field_template` |
+| Upsert group / field | `catalog.upsert_custom_field_group` / `catalog.upsert_custom_field` |
+| Reorder | `catalog.reorder_custom_field_groups` / `catalog.reorder_custom_fields` |
+| Attributes | `catalog.configure_custom_field_attributes` |
+
+### Fake scenarios (FE)
+
+| scenario_id | trigger | fake response |
+| ----------- | ------- | ------------- |
+| `cf_template_seed_ok` | InitializeCustomFieldTemplateCommand | default groups |
+| `cf_group_upsert_ok` | UpsertCustomFieldGroupCommand | group active |
+| `cf_field_required_on` | ConfigureCustomFieldAttributesCommand required=true | warning + field updated |
+| `cf_permission_denied` | no catalog.custom_fields.manage | PermissionDenied |
+
+### Parallel notes
+
+- FE có thể fake: **yes** (admin UI cấu hình)
+- E2E prerequisite: onboarding template optional
 
 ---
 
@@ -113,11 +163,15 @@ Package: `vet45_catalog_application` — `guided_create/`, `check_duplicate/`.
 
 | Slice | Contract section | Status |
 | ----- | ---------------- | ------ |
-| EPIC-04 US-01..03 | UOM commands/queries | todo |
-| EPIC-05 US-02 | Basic stock adjust | todo |
-| EPIC-06 US-01..03 | Base price, store rule, price band | todo |
+| EPIC-02 US-03 | Hoàn tất create + readiness summary | todo |
+| EPIC-04 US-01..02 | UOM base + conversion (không US-03; FR-02 roles **pending**) | todo |
+| EPIC-05 US-01..02 | Stock profile + basic stock adjust | todo |
+| EPIC-06 US-01..03 | Manual base price, store rule, price band | todo |
+| EPIC-06 US-04 | ProductPriceBandSnapshot consumers | todo |
 | EPIC-07 US-01..04 | Lifecycle, change history | todo |
-| EPIC-03 US-01..03 | Custom fields | todo |
-| Growth | Advanced stock read, costing base price read | blocked |
+| EPIC-03 US-02 | UpsertCustomFieldValuesCommand | todo |
+| EPIC-03 US-03 | Search/filter/display on list | todo |
+| EPIC-04 US-03 | Change base unit | **out_of_scope** |
+| Growth (EPIC-05 US-03/04, costing read, EPIC-04 US-04) | Advanced stock / costing / UOM export | **pending** (module ngoài) |
 
 Chi tiết FR: [EPIC index](../README.md).
