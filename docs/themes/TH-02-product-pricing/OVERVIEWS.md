@@ -1,14 +1,14 @@
-# TH-02 — Business scope
+# TH-02 — Overview
 
-> Nguồn: Theme 2 v3. Chi tiết Epic/US/FR: [README.md](README.md). Phụ lục: [APPENDICES.md](APPENDICES.md).
+> Nguồn: Theme 2 v3 (`theme_snapshot.md`). Chi tiết Epic/US/FR: [README.md](README.md). Phụ lục: [APPENDICES.md](APPENDICES.md).
 
 ## Giới thiệu
 
-**TH-02: Sản phẩm & Giá bán** giúp người dùng quản lý dữ liệu nền liên quan đến sản phẩm trong VET45, bao gồm hồ sơ sản phẩm, thông tin nhận diện, ảnh sản phẩm, đơn vị đo lường, tồn kho cơ bản, Giá cơ sở định giá, Giá niêm yết, Giá sàn, trạng thái kinh doanh, thông tin đặc thù ngành và lịch sử thay đổi quan trọng.
+**Theme 2: Sản phẩm & Giá bán** giúp người dùng quản lý dữ liệu nền liên quan đến sản phẩm trong VET45, bao gồm hồ sơ sản phẩm, thông tin nhận diện, ảnh sản phẩm, đơn vị đo lường, tồn kho cơ bản, Giá cơ sở định giá, Giá niêm yết, Giá sàn, trạng thái kinh doanh, thông tin bổ sung và lịch sử thay đổi quan trọng.
 
 Theme này là một mắt xích nền trong chuỗi vận hành của VET45. Dữ liệu sản phẩm không đứng độc lập, mà được sử dụng lại bởi nhiều nghiệp vụ phía sau như bán hàng, nhập hàng, tồn kho, giá vốn, hóa đơn, ghi sổ, báo cáo và quản trị hiệu quả theo sản phẩm.
 
-VET45 trước mắt tập trung vào bán lẻ ngành thú y, nhưng sản phẩm được thiết kế theo hướng **retail-first, industry-extensible**. Điều này có nghĩa là hệ thống cần phục vụ tốt ngành thú y ở giai đoạn đầu, nhưng không được khóa cứng dữ liệu sản phẩm vào các trường chuyên biệt như thành phần, chỉ định, chống chỉ định, cách dùng hoặc thời gian ngưng sử dụng. Những thông tin này cần được chuyển sang mô hình **custom fields theo ngành** để sau này có thể mở rộng sang ngành khác.
+VET45 trước mắt tập trung vào bán lẻ ngành thú y, nhưng sản phẩm được thiết kế theo hướng **retail-first, industry-extensible**. Điều này có nghĩa là hệ thống cần phục vụ tốt ngành thú y ở giai đoạn đầu, nhưng không được khóa cứng dữ liệu sản phẩm vào các trường chuyên biệt như thành phần, chỉ định, chống chỉ định, cách dùng hoặc thời gian ngưng sử dụng. Những thông tin này cần được chuyển sang mô hình **nhóm & trường thông tin bổ sung** để sau này có thể mở rộng sang ngành khác. Trong Guided creation, mỗi group active trở thành **card riêng có đánh số tự động**, nằm sau **Khung giá bán** và trước **Ghi chú**.
 
 ## Phạm vi của Theme
 
@@ -21,7 +21,7 @@ VET45 trước mắt tập trung vào bán lẻ ngành thú y, nhưng sản ph�
 |Tồn kho|Tồn kho cơ bản trong Foundation, stock summary khi dùng tồn kho nâng cao|
 |Giá cơ sở định giá|Nhập thủ công trong Foundation, hoặc đọc từ module Giá vốn ở gói nâng cao|
 |Khung giá bán|Giá niêm yết, Giá sàn, quy tắc tính giá, giá theo đơn vị|
-|Thông tin ngành|Custom field groups, custom fields, custom field values theo sản phẩm|
+|Thông tin bổ sung|Custom field groups, custom fields, custom field values theo sản phẩm|
 |Vòng đời sản phẩm|Đang kinh doanh, ngừng kinh doanh, đã xóa|
 |Readiness|Trạng thái sản phẩm đã đủ sẵn sàng để nhập, bán, quản trị chưa|
 |Truy vết|Lịch sử thay đổi quan trọng về hồ sơ, đơn vị, tồn kho, giá, trạng thái|
@@ -63,12 +63,12 @@ Vì vậy, trọng tâm của Theme không phải là “tạo/sửa/xóa sản 
 |Khái niệm|Diễn giải|Hệ quả thiết kế|
 |---|---|---|
 |**Product Readiness**|Sản phẩm không chỉ “đã được tạo”, mà cần đủ dữ liệu để vận hành an toàn.|Mỗi sản phẩm cần có readiness status, checklist và blocker rõ ràng.|
-|**Guided Product Creation**|Tạo sản phẩm là một hành trình có hướng dẫn, không phải một form lớn chứa tất cả field.|Flow tạo mới đi từ dữ liệu tối thiểu đến các bước hoàn thiện như đơn vị, tồn kho, giá và thông tin ngành.|
+|**Guided Product Creation**|Tạo sản phẩm là một hành trình có hướng dẫn, không phải một form lớn chứa tất cả field.|Flow tạo mới đi từ dữ liệu tối thiểu đến các bước hoàn thiện như đơn vị, tồn kho, giá và thông tin bổ sung.|
 |**Product Control Center**|Màn chi tiết sản phẩm là trung tâm điều phối dữ liệu và hành động của sản phẩm.|Không dùng một nút “Sửa” chung; thay vào đó có các hành động theo ngữ cảnh.|
 |**Progressive Completion**|Người dùng có thể tạo sản phẩm tối thiểu trước, rồi hoàn thiện dần.|Dữ liệu chưa có được ghi nhận thành readiness blocker thay vì ép nhập toàn bộ ngay từ đầu.|
 |**Contextual Action**|Hành động hiển thị phụ thuộc vào quyền, trạng thái kinh doanh, readiness và mode của tenant.|UI chỉ hiển thị hoặc ưu tiên hành động phù hợp với tình trạng hiện tại của sản phẩm.|
 |**Source-aware Product Data**|Một số dữ liệu được nhập trực tiếp trong Product, một số dữ liệu được đọc từ module chuyên trách.|Product cần phân biệt rõ Basic stock vs Advanced stock, Manual base price vs Costing-module base price.|
-|**Extensible Product Model**|Product cần đủ lean cho Foundation nhưng vẫn mở rộng được sang ngành khác và gói cao hơn.|Thông tin đặc thù ngành dùng custom fields; tồn kho, giá vốn, khuyến mãi được tách ranh giới rõ.|
+|**Extensible Product Model**|Product cần đủ lean cho Foundation nhưng vẫn mở rộng được sang ngành khác và gói cao hơn.|Thông tin bổ sung dùng custom fields; tồn kho, giá vốn, khuyến mãi được tách ranh giới rõ.|
 
 ### Nguyên tắc thiết kế chính
 
@@ -79,7 +79,7 @@ Vì vậy, trọng tâm của Theme không phải là “tạo/sửa/xóa sản 
 |Tồn kho được chuẩn hóa theo đơn vị cơ sở|Trong Basic stock, tồn kho được ghi nhận theo đơn vị cơ sở; các đơn vị khác chỉ là cách quy đổi.|
 |Giá cơ sở định giá là input của khung giá bán|Theme 2 không tính giá vốn nâng cao; hệ thống dùng Giá cơ sở định giá làm mốc để thiết lập Giá niêm yết và Giá sàn.|
 |Giá bán được quản trị bằng khung giá|Theme 2 quản lý Giá niêm yết và Giá sàn, không quản lý giá cuối cùng sau khuyến mãi.|
-|Thông tin ngành phải cấu hình được|Không hard-code thông tin thú y vào Product; các thông tin như thành phần, chỉ định, chống chỉ định, cách dùng được quản lý bằng custom fields.|
+|Thông tin bổ sung phải cấu hình được|Không hard-code thông tin thú y vào Product; các thông tin như thành phần, chỉ định, chống chỉ định, cách dùng được quản lý bằng custom fields.|
 |Dữ liệu hiện hành không được phá vỡ dữ liệu lịch sử|Thay đổi tên, đơn vị, giá, tồn kho hoặc trạng thái hiện hành không được làm sai giao dịch, chứng từ hoặc báo cáo đã phát sinh.|
 
 ### Ranh giới thiết kế quan trọng
@@ -91,7 +91,7 @@ Vì vậy, trọng tâm của Theme không phải là “tạo/sửa/xóa sản 
 |Tồn kho|Basic stock hoặc đọc stock summary từ module Kho|Phiếu nhập, phiếu xuất, kiểm kê, điều chuyển kho nâng cao|
 |Giá cơ sở định giá|Nhập thủ công hoặc đọc từ module Giá vốn|Tính giá vốn FIFO, FILO, bình quân|
 |Khung giá bán|Giá niêm yết, Giá sàn theo đơn vị bán<br>|Coupon, discount, loyalty, giá cuối cùng sau khuyến mãi|
-|Thông tin ngành|Custom field groups, custom fields, custom field values|Logic chuyên môn sâu của từng ngành nếu nằm ngoài dữ liệu sản phẩm|
+|Thông tin bổ sung|Custom field groups, custom fields, custom field values|Logic chuyên môn sâu của từng ngành nếu nằm ngoài dữ liệu sản phẩm|
 |Lịch sử|Product Change History cho thay đổi quan trọng|Audit log kỹ thuật cấp thấp nếu không cần hiển thị nghiệp vụ|
 
 ### Nguyên tắc UX
@@ -136,7 +136,7 @@ Hành trình này mô tả cách người dùng biến một sản phẩm ngoài
 |P6|Thiết lập Giá cơ sở định giá hoặc nguồn giá cơ sở|Có mốc chi phí dùng để tính khung giá bán|Có manual base price hoặc base price source|
 |P7|Thiết lập Giá niêm yết và Giá sàn|Tạo khung giá bán chuẩn|Có price band hợp lệ|
 |P8|Bổ sung đơn vị quy đổi|Cho phép bán/nhập/xem theo nhiều đơn vị|Có các đơn vị quy đổi hợp lệ nếu cần|
-|P9|Bổ sung thông tin đặc thù ngành|Ghi nhận dữ liệu chuyên biệt theo ngành|Có custom field values nếu cần|
+|P9|Bổ sung thông tin bổ sung|Ghi nhận dữ liệu chuyên biệt theo ngành|Có custom field values nếu cần|
 |P10|Kiểm tra readiness|Biết sản phẩm đã sẵn sàng vận hành chưa|Có readiness status/checklist|
 |P11|Sử dụng trong vận hành|Sản phẩm được dùng bởi các module khác|Dữ liệu sản phẩm đi vào bán hàng, nhập hàng, kho, báo cáo|
 |P12|Bảo trì vòng đời|Cập nhật khi thực tế thay đổi|Sản phẩm được sửa, ngừng, kinh doanh lại hoặc xóa nếu đủ điều kiện|
@@ -156,7 +156,7 @@ Các nhóm readiness:
 |Tồn kho|Sản phẩm đã có tồn kho cơ bản hoặc nguồn tồn kho hợp lệ chưa?|
 |Giá cơ sở định giá|Sản phẩm đã có Giá cơ sở định giá hoặc nguồn giá cơ sở chưa?|
 |Khung giá bán|Sản phẩm đã có Giá niêm yết và Giá sàn hợp lệ chưa?|
-|Thông tin ngành|Sản phẩm đã có các custom fields bắt buộc theo ngành chưa?|
+|Thông tin bổ sung|Đối với nhóm và trường thông tin bổ sung, các field được đánh dấu required là dữ liệu bắt buộc. Khi người dùng tạo hoặc sửa sản phẩm, hệ thống không cho lưu nếu các field required trong nhóm đang hoạt động chưa được điền hợp lệ.<br>Các field không required có thể bỏ trống và không ảnh hưởng readiness.|
 |Vòng đời|Sản phẩm có được phép dùng trong giao dịch mới không?|
 
 Các trạng thái readiness đề xuất:
@@ -196,7 +196,7 @@ Ví dụ checklist sau khi tạo sản phẩm:
 
 ○ Đơn vị quy đổi
 
-○ Thông tin ngành
+○ Thông tin bổ sung
 
 ## Các khái niệm cốt lõi
 
@@ -207,7 +207,7 @@ Ví dụ checklist sau khi tạo sản phẩm:
 |**Tồn kho / nguồn tồn kho**|Cho biết sản phẩm có dữ liệu tồn kho cơ bản hoặc nguồn tồn kho nâng cao hợp lệ hay chưa.|
 |**Giá cơ sở định giá**|Mốc chi phí dùng để thiết lập hoặc kiểm tra Giá niêm yết, Giá sàn và khung giá bán.|
 |**Khung giá bán**|Gồm Giá niêm yết và Giá sàn theo đơn vị bán. Theme 2 quản lý khung giá bán, không tính giá bán cuối cùng sau khuyến mãi.|
-|**Custom fields theo ngành**|Cho phép mở rộng thông tin sản phẩm theo ngành mà không hard-code vào Product. Với ngành thú y có thể gồm thành phần, chỉ định, chống chỉ định, cách dùng, thời gian ngưng sử dụng.|
+|**Nhóm & trường thông tin bổ sung**|Tenant có thể cấu hình nhiều nhóm thông tin bổ sung cho sản phẩm. Mỗi nhóm gồm nhiều trường thông tin. Mỗi nhóm có tên, icon, thứ tự hiển thị và trạng thái. Các nhóm đang hoạt động được hiển thị như các card riêng trong flow tạo sản phẩm và Product Control Center.|
 |**Vòng đời, lịch sử và snapshot**|Kiểm soát việc sản phẩm đang kinh doanh, ngừng kinh doanh, đã xóa mềm; đồng thời bảo toàn thay đổi quan trọng và dữ liệu đã phát sinh.|
 
 Tóm lại, các khái niệm trên là lớp ngôn ngữ chung để đọc các Epic/FR phía sau. Mục này chỉ nhằm thống nhất cách hiểu, không cố gắng mô tả toàn bộ quan hệ xử lý của Theme 2.
@@ -400,7 +400,7 @@ Store Price Rule
 |**Product Base Price Profile**|Lưu cấu hình Giá cơ sở định giá của sản phẩm, bao gồm Manual base price hoặc nguồn giá cơ sở từ module Giá vốn.|
 |**Store Price Rule**|Lưu quy tắc định giá cấp cửa hàng hoặc tenant, dùng để gợi ý hoặc hỗ trợ thiết lập Giá niêm yết và Giá sàn.|
 |**Product Unit Price Band**|Lưu khung giá bán theo sản phẩm, đơn vị bán và cửa hàng nếu có, gồm Giá niêm yết và Giá sàn.|
-|**Custom Field Group**|Nhóm các custom fields theo ngành hoặc theo nhu cầu cấu hình của tenant.|
+|**Custom Field Group**|Nhóm các nhóm & trường thông tin bổ sung hoặc theo nhu cầu cấu hình của tenant.|
 |**Custom Field**|Định nghĩa field mở rộng như tên field, kiểu dữ liệu, required, searchable, filterable, display on list và trạng thái field.|
 |**Product Custom Field Value**|Lưu giá trị custom field theo từng sản phẩm.|
 |**Product Readiness**|Lưu hoặc phản ánh trạng thái sẵn sàng vận hành của sản phẩm và các blocker chính.|
@@ -420,7 +420,7 @@ Nguyên tắc entity chính:
 
 ## Yêu cầu xuyên suốt của Theme 2
 
-Mục này mô tả các yêu cầu áp dụng cho toàn bộ Theme 2, bất kể người dùng đang tạo sản phẩm, xem danh sách, quản lý đơn vị, chỉnh tồn kho, thiết lập giá, bổ sung thông tin ngành hay thay đổi trạng thái sản phẩm.
+Mục này mô tả các yêu cầu áp dụng cho toàn bộ Theme 2, bất kể người dùng đang tạo sản phẩm, xem danh sách, quản lý đơn vị, chỉnh tồn kho, thiết lập giá, bổ sung thông tin bổ sung hay thay đổi trạng thái sản phẩm.
 
 Các yêu cầu này không thuộc riêng một Epic hoặc FR cụ thể. Chúng là luật nền mà mọi Epic/FR trong Theme 2 phải tuân thủ.
 
@@ -474,7 +474,7 @@ Ma trận này không thay thế Business rules trong từng FR. Mục tiêu c�
 |**Tồn kho cơ bản**|Cần có đơn vị cơ sở; không âm theo chính sách mặc định.|Chặn lưu / cảnh báo theo chính sách|Không cho lưu tồn kho hoặc hiển thị cảnh báo nếu chính sách tenant cho phép tồn âm.|
 |**Giá cơ sở định giá**|Không âm; cần có đơn vị áp dụng hoặc nguồn giá hợp lệ.|Readiness blocker / chặn lưu nếu nhập sai|Ghi blocker “Thiếu Giá cơ sở định giá” hoặc báo lỗi tại field giá.|
 |**Khung giá bán**|Giá sàn không được lớn hơn Giá niêm yết.|Chặn lưu|Không cho lưu price band.|
-|**Custom fields**|Đúng kiểu dữ liệu, đúng option, đủ field bắt buộc nếu có.|Chặn lưu / readiness blocker|Báo lỗi field hoặc ghi blocker “Thiếu thông tin ngành bắt buộc”.|
+|**Custom fields**|Đúng kiểu dữ liệu, đúng option, đủ field bắt buộc nếu có.|Chặn lưu / readiness blocker|Báo lỗi field hoặc ghi blocker “Thiếu thông tin bổ sung bắt buộc”.|
 |**Trạng thái sản phẩm**|Ngừng kinh doanh, kinh doanh lại, xóa mềm hoặc khôi phục cần quyền và điều kiện phù hợp.|Chặn hành động|Không cho thực hiện nếu thiếu quyền hoặc không đủ điều kiện.|
 |**Mode tích hợp**|Không cho chỉnh dữ liệu trực tiếp nếu dữ liệu thuộc module chuyên trách.|Ẩn/khóa UI / chặn hành động|Khóa chỉnh tồn kho trong Advanced stock; khóa chỉnh Giá cơ sở trong Costing-module base price nếu chính sách yêu cầu.|
 

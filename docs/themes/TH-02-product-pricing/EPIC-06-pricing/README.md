@@ -46,11 +46,11 @@ Giá cơ sở định giá
 
 ## User stories
 
-| US | Tên | Folder | FR |
-| -- | --- | ------ | -- |
-| US-01 | Quản lý Giá cơ sở định giá của sản phẩm | [US-01/](US-01/) | 4 |
-| US-02 | Thiết lập quy tắc định giá cấp cửa hàng | [US-02/](US-02/) | 4 |
-| US-03 | Quản lý Product Unit Price Band | [US-03/](US-03/) | 4 |
-| US-04 | Cung cấp khung giá cho Sales và Promotions | [US-04/](US-04/) | 4 |
+| US | Tên | Folder | FR | Status |
+| -- | --- | ------ | -- | ------ |
+| US-01 | Quản lý Giá cơ sở định giá của sản phẩm | [US-01/](US-01/) | 4 | in_scope |
+| US-02 | Thiết lập quy tắc định giá cấp cửa hàng | [US-02/](US-02/) | 4 | in_scope |
+| US-03 | Quản lý Product Unit Price Band | [US-03/](US-03/) | 4 | in_scope |
+| US-04 | Cung cấp khung giá cho Sales và Promotions | [US-04/](US-04/) | 4 | in_scope |
 
 Theme index: [README.md](../README.md)

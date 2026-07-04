@@ -1,18 +1,20 @@
-# US 01: Khởi tạo cấu hình thông tin đặc thù theo ngành
+# US 01: Cấu hình nhóm và trường thông tin sản phẩm
 
 ## Objective
 
-**Là** chủ cửa hàng hoặc admin tenant,  
-**Tôi muốn** hệ thống khởi tạo bộ thông tin đặc thù ngành dựa trên ngành kinh doanh đã chọn,  
-**Để** tenant có sẵn cấu trúc dữ liệu phù hợp mà không phải tự cấu hình từ đầu.
+**Là** admin tenant,
+**Tôi muốn** cấu hình các nhóm và trường thông tin bổ sung cho sản phẩm,
+**Để** hệ thống phù hợp với cách vận hành thực tế của cửa hàng.
 
 ## Functional requirements
 
-| FR | Tên | Spec |
-| -- | --- | ---- |
-| FR-01 | Nhận ngành kinh doanh từ Onboarding | [FR-01.md](FR-01.md) |
-| FR-02 | Khởi tạo Custom Field Group mặc định | [FR-02.md](FR-02.md) |
-| FR-03 | Khởi tạo Custom Field mặc định | [FR-03.md](FR-03.md) |
-| FR-04 | Cấu hình thuộc tính custom field | [FR-04.md](FR-04.md) |
+| FR | Tên | Spec | Status |
+| -- | --- | ---- | ------ |
+| FR-01 | Khởi tạo nhóm và trường thông tin mặc định từ template nếu có | [FR-01.md](FR-01.md) | in_scope |
+| FR-02 | Tạo, sửa và tạm tắt nhóm thông tin | [FR-02.md](FR-02.md) | in_scope |
+| FR-03 | Sắp xếp thứ tự nhóm thông tin | [FR-03.md](FR-03.md) | in_scope |
+| FR-04 | Tạo, sửa và tạm tắt trường thông tin | [FR-04.md](FR-04.md) | in_scope |
+| FR-05 | Cấu hình thuộc tính trường thông tin | [FR-05.md](FR-05.md) | in_scope |
+| FR-06 | Sắp xếp thứ tự trường trong nhóm | [FR-06.md](FR-06.md) | in_scope |
 
-Epic: [EPIC-03-industry-fields/README.md](../README.md) · Theme: [TH-02 README.md](../../README.md)
+Epic: [../README.md](../README.md) · Theme: [../../README.md](../../README.md)

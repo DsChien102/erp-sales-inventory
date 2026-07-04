@@ -24,17 +24,15 @@ Nguyên tắc cốt lõi của Epic này:
 
 - Hành động nguy hiểm phải có xác nhận rõ ràng.
 
-    
-
 ---
 
 ## User stories
 
-| US | Tên | Folder | FR |
-| -- | --- | ------ | -- |
-| US-01 | Bảo trì hồ sơ sản phẩm sau khi tạo | [US-01/](US-01/) | 4 |
-| US-02 | Ngừng kinh doanh và kinh doanh lại sản phẩm | [US-02/](US-02/) | 4 |
-| US-03 | Xóa mềm sản phẩm có kiểm soát | [US-03/](US-03/) | 4 |
-| US-04 | Truy vết và kiểm soát thay đổi sản phẩm | [US-04/](US-04/) | 4 |
+| US | Tên | Folder | FR | Status |
+| -- | --- | ------ | -- | ------ |
+| US-01 | Bảo trì hồ sơ sản phẩm sau khi tạo | [US-01/](US-01/) | 4 | in_scope |
+| US-02 | Ngừng kinh doanh và kinh doanh lại sản phẩm | [US-02/](US-02/) | 4 | in_scope |
+| US-03 | Xóa mềm sản phẩm có kiểm soát | [US-03/](US-03/) | 4 | in_scope |
+| US-04 | Truy vết và kiểm soát thay đổi sản phẩm | [US-04/](US-04/) | 4 | in_scope |
 
 Theme index: [README.md](../README.md)

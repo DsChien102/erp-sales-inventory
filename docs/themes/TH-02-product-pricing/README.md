@@ -38,7 +38,7 @@ Theme không chỉ lưu danh sách sản phẩm mà đưa sản phẩm vào **tr
 | ---- | ------ | -- | -- | ------ |
 | 01 — Tra cứu & điều hướng readiness | [EPIC-01-discovery-readiness/](EPIC-01-discovery-readiness/) | 2 | 10 | todo |
 | 02 — Tạo sản phẩm có hướng dẫn | [EPIC-02-guided-creation/](EPIC-02-guided-creation/) | 3 | 12 | todo |
-| 03 — Thông tin đặc thù ngành | [EPIC-03-industry-fields/](EPIC-03-industry-fields/) | 3 | 12 | todo |
+| 03 — Thông tin bổ sung | [EPIC-03-industry-fields/](EPIC-03-industry-fields/) | 3 | 14 | todo |
 | 04 — Đơn vị đo lường | [EPIC-04-units/](EPIC-04-units/) | 4 | 15 | todo |
 | 05 — Chế độ tồn kho | [EPIC-05-stock/](EPIC-05-stock/) | 4 | 15 | todo |
 | 06 — Định giá & khung giá bán | [EPIC-06-pricing/](EPIC-06-pricing/) | 4 | 16 | todo |

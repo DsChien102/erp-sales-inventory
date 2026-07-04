@@ -1,6 +1,6 @@
 # TH-02 — Phụ lục
 
-Nguồn: Theme 2 v3 — flow catalog, user flows, state diagrams, integration, ERD, permissions.
+Nguồn: Theme 2 v3 (`theme_snapshot.md`) — flow catalog, user flows, state diagrams, integration, ERD, permissions.
 
 | Phụ lục | Nội dung |
 | ------- | -------- |
@@ -30,7 +30,7 @@ Bảng này tổng hợp các flow cần thiết kế hoặc vẽ sơ đồ cho 
 |UXF-07|Quản lý Giá cơ sở định giá thủ công|Nhập/chỉnh manual base price trong Foundation|Epic 2.6|User flow|Must-have|
 |UXF-08|Xem Giá cơ sở từ module Giá vốn|Hiển thị base price read-only khi dùng Costing module|Epic 2.6|Integration flow|Should-have|
 |UXF-09|Quản lý khung giá bán|Thiết lập Giá niêm yết, Giá sàn theo sản phẩm/đơn vị|Epic 2.6|User flow|Must-have|
-|UXF-10|Quản lý custom fields|Nhập thông tin đặc thù ngành theo custom field groups|Epic 2.3|User flow|Should-have|
+|UXF-10|Quản lý custom fields|Nhập thông tin bổ sung theo custom field groups|Epic 2.3|User flow|Should-have|
 |UXF-11|Ngừng kinh doanh / kinh doanh lại|Kiểm soát trạng thái sử dụng trong giao dịch mới|Epic 2.7|User flow / State diagram|Must-have|
 |UXF-12|Xóa sản phẩm / khôi phục|Xóa mềm, bảo toàn dữ liệu lịch sử và khôi phục nếu đủ điều kiện|Epic 2.7|User flow / State diagram|Should-have|
 
@@ -49,8 +49,6 @@ Các flow được chia thành ba nhóm triển khai:
 Phụ lục B mô tả các flow người dùng chính của Theme 2. Mỗi flow được viết ở mức đủ để BA, UX và Dev cùng hiểu: ai thực hiện, bắt đầu từ đâu, điều kiện trước là gì, đi qua các bước nào, có nhánh ngoại lệ nào và kết quả cuối là gì.
 
 Các flow dưới đây tập trung vào hành vi người dùng. Các flow thiên về tích hợp hệ thống như **UXF-06 — Xem tồn kho nâng cao** và **UXF-08 — Xem Giá cơ sở từ module Giá vốn** sẽ được triển khai kỹ hơn ở **Phụ lục D — Integration diagrams**.
-
----
 
 ### UXF-01 — Guided Product Creation
 
@@ -235,8 +233,6 @@ Các flow dưới đây tập trung vào hành vi người dùng. Các flow thi�
     J --> K[Cập nhật readiness]
     K --> D    ```
 
----
-
 ### UXF-03 — Product Control Center
 
 **Mục tiêu:** Biến màn chi tiết sản phẩm thành trung tâm điều phối dữ liệu và hành động theo ngữ cảnh, không chỉ là màn xem/sửa thông tin.
@@ -324,8 +320,6 @@ Các flow dưới đây tập trung vào hành vi người dùng. Các flow thi�
     J3 --> K
     J4 --> K
     J5 --> K    ```
-
----
 
 ### UXF-04 — Quản lý đơn vị đo lường
 
@@ -418,8 +412,6 @@ Các flow dưới đây tập trung vào hành vi người dùng. Các flow thi�
     K -- Có --> N
     N --> O[Cập nhật readiness và lịch sử]    ```
 
----
-
 ### UXF-05 — Quản lý tồn kho cơ bản
 
 **Mục tiêu:** Cho phép người dùng Foundation nhập hoặc chỉnh tồn kho trực tiếp trong Product khi tenant dùng Basic stock mode.
@@ -504,8 +496,6 @@ Các flow dưới đây tập trung vào hành vi người dùng. Các flow thi�
     I -- Có --> J[Lưu thay đổi]
     J --> K[Ghi lịch sử tồn kho]
     K --> L[Cập nhật readiness]    ```
-
----
 
 ### UXF-07 — Quản lý Giá cơ sở định giá thủ công
 
@@ -593,8 +583,6 @@ flowchart TD
     K -- Có --> K1[Gợi ý kiểm tra lại khung giá]
     K -- Không --> L[Hoàn tất]```
 
----
-
 ### UXF-09 — Quản lý khung giá bán
 
 **Mục tiêu:** Cho phép người dùng thiết lập Giá niêm yết và Giá sàn theo từng đơn vị bán của sản phẩm.
@@ -612,8 +600,6 @@ flowchart TD
 - Người dùng có quyền quản lý giá.
 
 - Nếu có Giá cơ sở định giá, hệ thống có thể dùng để cảnh báo/gợi ý giá.
-
-    
 
 **Main flow:**
 
@@ -637,8 +623,6 @@ flowchart TD
 
 10. Hệ thống cập nhật Product Unit Price Band, ghi lịch sử và cập nhật readiness.
 
-    
-
 **Alternative flows:**
 
 - AF-01. Sản phẩm chưa có đơn vị bán → hệ thống yêu cầu thiết lập đơn vị bán trước.
@@ -650,8 +634,6 @@ flowchart TD
 - AF-04. Giá thấp hơn Giá cơ sở → cảnh báo hoặc chặn theo chính sách tenant.
 
 - AF-05. Có nhiều đơn vị bán → mỗi đơn vị cần price band riêng nếu được dùng cho bán hàng.
-
-    
 
 **Output:**
 
@@ -683,15 +665,13 @@ flowchart TD
     K --> L[Cập nhật Product Unit Price Band]
     L --> M[Cập nhật readiness và lịch sử]    ```
 
----
+### UXF-10 — Quản lý nhóm & trường thông tin
 
-### UXF-10 — Quản lý custom fields
-
-**Mục tiêu:** Cho phép người dùng nhập và cập nhật thông tin đặc thù ngành theo custom field groups đã được tenant cấu hình.
+**Mục tiêu:** Cho phép người dùng nhập và cập nhật thông tin bổ sung theo custom field groups đã được tenant cấu hình.
 
 **Actor:** Owner, Product Manager, Admin hoặc người dùng có quyền chỉnh thông tin sản phẩm.
 
-**Trigger:** Người dùng mở section thông tin ngành trong Product Control Center hoặc flow tạo sản phẩm.
+**Trigger:** Người dùng mở section thông tin bổ sung trong Product Control Center hoặc flow tạo sản phẩm.
 
 **Preconditions:**
 
@@ -701,11 +681,25 @@ flowchart TD
 
 - Người dùng có quyền nhập/chỉnh custom field values.
 
-    
-
 **Main flow:**
 
-1. Người dùng mở section thông tin ngành.
+Thiết lập > Sản phẩm > Nhóm & trường thông tin
+
+→ Tạo nhóm
+
+→ Chọn icon
+
+→ Nhập tên nhóm
+
+→ Thêm trường
+
+→ Cấu hình required/searchable/filterable/display on list
+
+→ Sắp xếp nhóm / field
+
+→ Nhóm hiển thị thành card trong Product Control Center và Guided creation
+
+1. Người dùng mở section thông tin bổ sung.
 
 2. Hệ thống hiển thị các Custom Field Group đang hoạt động.
 
@@ -722,8 +716,6 @@ flowchart TD
 8. Hệ thống cập nhật readiness nếu field bắt buộc ảnh hưởng readiness.
 
 9. Product Control Center hiển thị dữ liệu mới nhất.
-
-    
 
 **Alternative flows:**
 
@@ -743,7 +735,7 @@ flowchart TD
 
 - Product Custom Field Values được lưu.
 
-- Readiness thông tin ngành được cập nhật.
+- Readiness thông tin bổ sung được cập nhật.
 
 - Custom fields có thể dùng cho tìm kiếm, lọc hoặc báo cáo nếu được cấu hình.
 
@@ -1055,7 +1047,7 @@ Readiness thực tế là một **checklist nhiều chiều**, vì một sản p
 |`MISSING_STOCK_SETUP`|Thiếu thiết lập tồn kho|Chưa có stock mode hoặc nguồn tồn kho hợp lệ|
 |`MISSING_BASE_PRICE`|Thiếu Giá cơ sở|Chưa có Giá cơ sở định giá hoặc nguồn Giá cơ sở|
 |`MISSING_PRICE_BAND`|Thiếu giá bán|Chưa có Giá niêm yết/Giá sàn hợp lệ|
-|`MISSING_CUSTOM_FIELDS`|Thiếu thông tin ngành|Thiếu custom fields bắt buộc|
+|`MISSING_CUSTOM_FIELDS`|Thiếu thông tin bổ sung|Thiếu custom fields bắt buộc|
 |`READY_FOR_PURCHASE`|Sẵn sàng nhập hàng|Đủ dữ liệu để dùng trong nhập hàng|
 |`READY_FOR_SALE`|Sẵn sàng bán|Đủ dữ liệu để dùng trong bán hàng|
 |`NOT_SELLABLE_BY_LIFECYCLE`|Không bán do trạng thái|Dữ liệu có thể đủ nhưng sản phẩm ngừng KD/đã xóa|
@@ -1749,7 +1741,7 @@ Reporting đọc dữ liệu sản phẩm, readiness, trạng thái, custom fiel
 |Product identity|Product|Nhóm báo cáo theo sản phẩm|
 |Product status|Product|Lọc Đang KD / Ngừng KD / Đã xóa|
 |Readiness|Product Readiness|Báo cáo chất lượng dữ liệu nền|
-|Custom fields|Product Custom Field Value|Lọc/nhóm theo thông tin ngành|
+|Custom fields|Product Custom Field Value|Lọc/nhóm theo thông tin bổ sung|
 |Đơn vị|Product Unit|Diễn giải số lượng nếu cần|
 |Giá niêm yết/Giá sàn|Product Unit Price Band|Phân tích khung giá hiện hành|
 |Lịch sử thay đổi|Product Change History|Truy vết thay đổi|
@@ -1815,7 +1807,7 @@ Onboarding không quản lý dữ liệu sản phẩm sau khi tenant đã vận 
 |Product Custom Field Value|Product|Người dùng nhập theo từng sản phẩm|
 |Thay đổi cấu hình sau onboarding|Product setup / Admin|Không thuộc Onboarding|
 
-**Flow khởi tạo custom fields theo ngành**
+**Flow khởi tạo nhóm & trường thông tin bổ sung**
 
 ```mermaid
 sequenceDiagram
@@ -1942,7 +1934,7 @@ erDiagram
 |`Product Base Price Profile`|Xác định Giá cơ sở định giá được nhập thủ công hay đọc từ module Giá vốn|
 |`Store Price Rule`|Quy tắc gợi ý giá theo cửa hàng hoặc tenant|
 |`Product Unit Price Band`|Giá niêm yết và Giá sàn theo từng đơn vị bán|
-|`Custom Field Group`|Nhóm thông tin đặc thù ngành|
+|`Custom Field Group`|Nhóm thông tin bổ sung|
 |`Custom Field`|Định nghĩa field đặc thù ngành|
 |`Product Custom Field Value`|Giá trị custom field của từng sản phẩm|
 |`Product Readiness`|Trạng thái/checklist readiness của sản phẩm|
@@ -2165,6 +2157,7 @@ Quy tắc chính:
 |---|---|---|
 |`Custom Field Group`|`id`|Khóa chính|
 |`Custom Field Group`|`tenant_id`|Phân tách dữ liệu theo tenant|
+|`Custom Field Group`|`icon`|Lưu unicode icon hoặc mã icon được hệ thống hỗ trợ. Icon dùng để hiển thị card nhóm thông tin trong Product Control Center và các màn liên quan. Hệ thống cung cấp bộ unicode icons giới hạn để đảm bảo hiển thị nhất quán.|
 |`Custom Field Group`|`name`|Tên nhóm, ví dụ: Thông tin thuốc|
 |`Custom Field Group`|`description`|Mô tả|
 |`Custom Field Group`|`sort_order`|Thứ tự hiển thị|
@@ -2281,7 +2274,7 @@ Các loại thay đổi nên ghi nhận:
 |`BASIC_STOCK_UPDATED`|Chỉnh tồn kho cơ bản|
 |`BASE_PRICE_UPDATED`|Chỉnh Giá cơ sở định giá|
 |`PRICE_BAND_UPDATED`|Chỉnh Giá niêm yết/Giá sàn|
-|`CUSTOM_FIELD_UPDATED`|Sửa thông tin ngành|
+|`CUSTOM_FIELD_UPDATED`|Sửa thông tin bổ sung|
 |`STATUS_CHANGED`|Ngừng KD / Kinh doanh lại|
 |`SOFT_DELETED`|Xóa mềm sản phẩm|
 |`RESTORED`|Khôi phục sản phẩm|

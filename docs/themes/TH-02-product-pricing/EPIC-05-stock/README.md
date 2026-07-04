@@ -22,17 +22,15 @@ Nguyên tắc cốt lõi của Epic này:
 
 - Các thay đổi tồn kho cơ bản phải có lịch sử để truy vết.
 
-    
-
 ---
 
 ## User stories
 
-| US | Tên | Folder | FR |
-| -- | --- | ------ | -- |
-| US-01 | Quản lý Stock Profile của sản phẩm | [US-01/](US-01/) | 3 |
-| US-02 | Quản lý tồn kho cơ bản trong Foundation | [US-02/](US-02/) | 4 |
-| US-03 | Hiển thị tồn kho nâng cao từ module Kho | [US-03/](US-03/) | 4 |
-| US-04 | Chuyển đổi từ Basic stock sang Advanced stock | [US-04/](US-04/) | 4 |
+| US | Tên | Folder | FR | Status |
+| -- | --- | ------ | -- | ------ |
+| US-01 | Quản lý Stock Profile của sản phẩm | [US-01/](US-01/) | 3 | in_scope |
+| US-02 | Quản lý tồn kho cơ bản trong Foundation | [US-02/](US-02/) | 4 | in_scope |
+| US-03 | Hiển thị tồn kho nâng cao từ module Kho | [US-03/](US-03/) | 4 | pending |
+| US-04 | Chuyển đổi từ Basic stock sang Advanced stock | [US-04/](US-04/) | 4 | pending |
 
 Theme index: [README.md](../README.md)
