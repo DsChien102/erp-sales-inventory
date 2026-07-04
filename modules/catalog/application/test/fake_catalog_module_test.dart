@@ -20,7 +20,7 @@ void main() {
         ),
       );
 
-      expect(result.productId, 'product-new-1');
+      expect(result.productId, startsWith('product-new-'));
       expect(result.readinessSummary.status, ReadinessStatus.incomplete);
       expect(
         result.readinessSummary.blockers.map((b) => b.code),
@@ -107,7 +107,7 @@ void main() {
         ),
       );
 
-      expect(result.productId, 'product-new-1');
+      expect(result.productId, startsWith('product-new-'));
       expect(
         result.readinessSummary.blockers.map((b) => b.code),
         contains(ReadinessBlockerCode.missingImage),

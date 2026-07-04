@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 enum DashboardTab {
   home(enabled: true),
   orders(enabled: false),
-  products(enabled: false),
+  products(enabled: true),
   partners(enabled: true),
   more(enabled: true);
 

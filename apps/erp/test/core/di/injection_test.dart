@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:vet45_iam_application/application.dart';
 import 'package:vet45_iam_infrastructure/infrastructure.dart';
+import 'package:vet45_catalog_application/application.dart';
 import 'package:vet45_partner_application/application.dart';
 import 'package:vet45_shared_application/application.dart';
 
@@ -20,6 +21,7 @@ class _FakeSupabaseClient extends Fake implements SupabaseClient {
 
 void main() {
   setUp(() async {
+    TestWidgetsFlutterBinding.ensureInitialized();
     await getIt.reset();
   });
 
@@ -33,5 +35,6 @@ void main() {
     expect(getIt.isRegistered<IamSession>(), isTrue);
     expect(getIt.isRegistered<ICurrentUser>(), isTrue);
     expect(getIt.isRegistered<IPartnerModule>(), isTrue);
+    expect(getIt.isRegistered<ICatalogModule>(), isTrue);
   });
 }

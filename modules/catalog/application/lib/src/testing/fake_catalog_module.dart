@@ -12,11 +12,30 @@ abstract final class FakeCatalogScenario {
   static const guidedCreatePermissionDenied = 'guided_create_permission_denied';
 }
 
+class _StoredProduct {
+  const _StoredProduct({
+    required this.id,
+    required this.name,
+    required this.sku,
+    required this.barcode,
+    required this.baseUnit,
+  });
+
+  final String id;
+  final String name;
+  final String sku;
+  final String barcode;
+  final String baseUnit;
+}
+
 /// Configurable [ICatalogModule] for widget and presentation tests.
 final class FakeCatalogModule implements ICatalogModule {
-  FakeCatalogModule({this.scenario = FakeCatalogScenario.guidedCreateOk});
+  FakeCatalogModule({this.scenario = FakeCatalogScenario.guidedCreateOk})
+      : _products = [];
 
   final String scenario;
+  final List<_StoredProduct> _products;
+  int _nextProductId = 1;
 
   @override
   Future<TResult> executeCommandAsync<TResult>(ICommand<TResult> command) async {
@@ -55,54 +74,55 @@ final class FakeCatalogModule implements ICatalogModule {
       case FakeCatalogScenario.guidedCreateMissingName:
         throw ValidationException('Product name is required.');
       case FakeCatalogScenario.guidedCreateNoImages:
-        return CreateProductResult(
-          productId: 'product-new-1',
-          readinessSummary: ReadinessSummaryDto(
-            status: ReadinessStatus.incomplete,
-            blockers: [
-              if (command.baseUnitName == null ||
-                  command.baseUnitName!.trim().isEmpty)
-                const ReadinessBlockerDto(
-                  code: ReadinessBlockerCode.missingBaseUnit,
-                  message: 'Thiếu đơn vị cơ sở',
-                  group: 'units',
-                ),
-              const ReadinessBlockerDto(
-                code: ReadinessBlockerCode.missingImage,
-                message: 'Chưa có ảnh sản phẩm',
-                group: 'profile',
-              ),
-              const ReadinessBlockerDto(
-                code: ReadinessBlockerCode.missingPrice,
-                message: 'Thiếu giá',
-                group: 'pricing',
-              ),
-            ],
-          ),
-        ) as TResult;
+        return _persistCreate(command, includeImageBlocker: true) as TResult;
       case FakeCatalogScenario.guidedCreateOk:
       default:
-        return CreateProductResult(
-          productId: 'product-new-1',
-          readinessSummary: ReadinessSummaryDto(
-            status: ReadinessStatus.incomplete,
-            blockers: [
-              if (command.baseUnitName == null ||
-                  command.baseUnitName!.trim().isEmpty)
-                const ReadinessBlockerDto(
-                  code: ReadinessBlockerCode.missingBaseUnit,
-                  message: 'Thiếu đơn vị cơ sở',
-                  group: 'units',
-                ),
-              const ReadinessBlockerDto(
-                code: ReadinessBlockerCode.missingPrice,
-                message: 'Thiếu giá',
-                group: 'pricing',
-              ),
-            ],
-          ),
-        ) as TResult;
+        return _persistCreate(command) as TResult;
     }
+  }
+
+  CreateProductResult _persistCreate(
+    CreateProductCommand command, {
+    bool includeImageBlocker = false,
+  }) {
+    final productId = 'product-new-${_nextProductId++}';
+
+    _products.add(
+      _StoredProduct(
+        id: productId,
+        name: command.productName,
+        sku: command.sku ?? '',
+        barcode: command.barcode ?? '',
+        baseUnit: command.baseUnitName ?? '',
+      ),
+    );
+
+    return CreateProductResult(
+      productId: productId,
+      readinessSummary: ReadinessSummaryDto(
+        status: ReadinessStatus.incomplete,
+        blockers: [
+          if (command.baseUnitName == null ||
+              command.baseUnitName!.trim().isEmpty)
+            const ReadinessBlockerDto(
+              code: ReadinessBlockerCode.missingBaseUnit,
+              message: 'Thiếu đơn vị cơ sở',
+              group: 'units',
+            ),
+          if (includeImageBlocker)
+            const ReadinessBlockerDto(
+              code: ReadinessBlockerCode.missingImage,
+              message: 'Chưa có ảnh sản phẩm',
+              group: 'profile',
+            ),
+          const ReadinessBlockerDto(
+            code: ReadinessBlockerCode.missingPrice,
+            message: 'Thiếu giá',
+            group: 'pricing',
+          ),
+        ],
+      ),
+    );
   }
 
   TResult _handleCheckDuplicate<TResult>(
@@ -136,7 +156,39 @@ final class FakeCatalogModule implements ICatalogModule {
         }
         return <ProductDuplicateMatchDto>[] as TResult;
       default:
-        return <ProductDuplicateMatchDto>[] as TResult;
+        final matches = <ProductDuplicateMatchDto>[];
+        final sku = query.sku?.trim();
+        if (sku != null && sku.isNotEmpty) {
+          for (final product in _products) {
+            if (product.sku == sku && product.id != query.excludeProductId) {
+              matches.add(
+                ProductDuplicateMatchDto(
+                  field: ProductDuplicateField.sku,
+                  productId: product.id,
+                  productName: product.name,
+                  matchedValue: sku,
+                ),
+              );
+            }
+          }
+        }
+        final barcode = query.barcode?.trim();
+        if (barcode != null && barcode.isNotEmpty) {
+          for (final product in _products) {
+            if (product.barcode == barcode &&
+                product.id != query.excludeProductId) {
+              matches.add(
+                ProductDuplicateMatchDto(
+                  field: ProductDuplicateField.barcode,
+                  productId: product.id,
+                  productName: product.name,
+                  matchedValue: barcode,
+                ),
+              );
+            }
+          }
+        }
+        return matches as TResult;
     }
   }
 }

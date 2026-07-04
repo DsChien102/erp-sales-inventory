@@ -35,7 +35,7 @@ Codegen ritual: mirror [modules/partner/README.md](../../../../modules/partner/R
 | FR-02 | BE | §EPIC-02-US-01 | application | `CheckDuplicateProductCodeQueryHandler`, `IProductDuplicateChecker`, draft RPC | scn_e02_u01_fr02_01 | done |
 | FR-03 | BE | §EPIC-02-US-01 | application | Base unit in create flow + readiness blocker | scn_e02_u01_fr03_01 | done |
 | FR-04 | BE | §EPIC-02-US-01 | application | Initial status active + readiness seed + change history (RPC) | scn_e02_u01_fr04_01 | done |
-| FR-01..04 | FE | §EPIC-02-US-01 | presentation | Guided create flow, form widgets | wgt_e02_u01_fr01_01 | todo |
+| FR-01..04 | FE | §EPIC-02-US-01 | presentation | Guided create flow (`ProductGuidedCreatePage`, steps 1–3); fake via `package:vet45_catalog_application/testing.dart` | wgt_e02_u01_fr01_01 (`product_guided_create_page_test.dart`) | done |
 | FR-01 | E2E | §EPIC-02-US-01 | integration | ERP via `ICatalogModule` | e2e_e02_u01_fr01_01 | todo |
 
 ---

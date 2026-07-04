@@ -20,7 +20,7 @@ void main() {
       final collection = AnalysisContextCollection(
         includedPaths: [fixtureRoot],
       );
-      final filePath = p.join(fixtureRoot, 'checkout_command_handler.dart');
+      final filePath = p.canonicalize(p.join(fixtureRoot, 'checkout_command_handler.dart'));
       final result = await collection.contextFor(filePath).currentSession.getResolvedLibrary(filePath);
       expect(result, isA<ResolvedLibraryResult>());
 
@@ -46,7 +46,7 @@ void main() {
       final collection = AnalysisContextCollection(
         includedPaths: [fixtureRoot],
       );
-      final filePath = p.join(fixtureRoot, 'attach_customer_command_handler.dart');
+      final filePath = p.canonicalize(p.join(fixtureRoot, 'attach_customer_command_handler.dart'));
       final result = await collection.contextFor(filePath).currentSession.getResolvedLibrary(filePath);
       expect(result, isA<ResolvedLibraryResult>());
 
