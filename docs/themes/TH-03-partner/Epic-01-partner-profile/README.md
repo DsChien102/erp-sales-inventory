@@ -2,11 +2,9 @@
 
 ## Epic overview
 
-Epic này quản lý hồ sơ gốc của đối tác trong hệ thống, bao gồm khách hàng, nhà cung cấp và đối tác vừa là khách hàng vừa là nhà cung cấp. Đây là lớp dữ liệu nền giúp hệ thống biết đối tác là ai, thuộc vai trò nào, có thông tin liên hệ nào, có thông tin thuế hay chưa và có thể được sử dụng trong các nghiệp vụ nào.
+Epic này cho phép người dùng xây dựng và quản lý hồ sơ khách hàng ngay từ lần ghi nhận đầu tiên. Hệ thống hỗ trợ hai loại hồ sơ gồm Khách hàng cá nhân và Khách hàng tổ chức (bao gồm Công ty và Hộ kinh doanh), với các nhóm thông tin phù hợp cho từng loại.
 
-Giá trị chính của epic này là tạo ra một nguồn dữ liệu đối tác đủ tin cậy cho các module khác như bán hàng, nhập hàng, công nợ, hóa đơn và lịch sử giao dịch. Khi hồ sơ đối tác được chuẩn hóa từ đầu, hệ thống hạn chế được các lỗi như tạo trùng khách hàng/NCC, chọn sai đối tác khi lập chứng từ, thiếu thông tin xuất hóa đơn hoặc khó đối chiếu công nợ sau này.
-
-Phạm vi của epic tập trung vào tạo mới và cập nhật hồ sơ đối tác, bao gồm loại đối tác, loại hồ sơ, thông tin liên hệ, thông tin thuế, ghi chú, cảnh báo trùng dữ liệu và ghi nhận thông tin tạo/cập nhật. Epic này không xử lý chi tiết giao dịch phát sinh như đơn bán, phiếu nhập, thanh toán, công nợ hoặc phát hành hóa đơn.
+Ngoài các thông tin nhận diện cơ bản, người dùng có thể lưu thông tin liên hệ, tên thường gọi, cách gọi, nhiều số điện thoại, địa chỉ, thông tin người liên hệ, thông tin tổ chức, địa chỉ xuất hóa đơn, email nhận hóa đơn, mã số thuế và ghi chú nội bộ. Việc chuẩn hóa hồ sơ ngay từ đầu giúp giảm thao tác nhập liệu trong các quy trình bán hàng, xuất hóa đơn điện tử và chăm sóc khách hàng về sau.
 
 ## User roles
 

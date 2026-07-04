@@ -20,17 +20,15 @@ Nguyên tắc cốt lõi của Epic này:
 
 - Đổi đơn vị cơ sở là thao tác nhạy cảm và cần kiểm soát chặt.
 
-    
-
 ---
 
 ## User stories
 
-| US | Tên | Folder | FR |
-| -- | --- | ------ | -- |
-| US-01 | Thiết lập đơn vị cơ sở cho sản phẩm | [US-01/](US-01/) | 3 |
-| US-02 | Quản lý đơn vị quy đổi của sản phẩm | [US-02/](US-02/) | 4 |
-| US-03 | Đổi đơn vị cơ sở có kiểm soát | [US-03/](US-03/) | 4 |
-| US-04 | Cung cấp đơn vị đo lường cho các module khác | [US-04/](US-04/) | 4 |
+| US | Tên | Folder | FR | Status |
+| -- | --- | ------ | -- | ------ |
+| US-01 | Thiết lập đơn vị cơ sở cho sản phẩm | [US-01/](US-01/) | 3 | in_scope |
+| US-02 | Quản lý đơn vị quy đổi của sản phẩm | [US-02/](US-02/) | 4 | in_scope |
+| US-03 | Đổi đơn vị cơ sở có kiểm soát | [US-03/](US-03/) | 4 | out_of_scope |
+| US-04 | Cung cấp đơn vị đo lường cho các module khác | [US-04/](US-04/) | 4 | pending |
 
 Theme index: [README.md](../README.md)

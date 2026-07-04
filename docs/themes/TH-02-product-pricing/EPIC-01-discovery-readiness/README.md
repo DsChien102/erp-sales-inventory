@@ -12,9 +12,9 @@ Epic này là điểm vào chính của Theme 2. Từ danh sách sản phẩm, n
 
 ## User stories
 
-| US | Tên | Folder | FR |
-| -- | --- | ------ | -- |
-| US-01 | Tra cứu và điều hướng danh mục sản phẩm | [US-01/](US-01/) | 4 |
-| US-02 | Xem chi tiết sản phẩm như một trung tâm điều phối | [US-02/](US-02/) | 6 |
+| US | Tên | Folder | FR | Status |
+| -- | --- | ------ | -- | ------ |
+| US-01 | Tra cứu và điều hướng danh mục sản phẩm | [US-01/](US-01/) | 4 | in_scope |
+| US-02 | Xem chi tiết sản phẩm như một trung tâm điều phối | [US-02/](US-02/) | 6 | in_scope |
 
 Theme index: [README.md](../README.md)

@@ -3,7 +3,7 @@
 **Trạng thái deliver:** `in_progress`  
 **Spec version:** v3 (2026-07)
 
-Master data sản phẩm, readiness, đơn vị tính, tồn kho cơ bản, Giá cơ sở định giá, khung giá bán (Giá niêm yết / Giá sàn) và custom fields theo ngành — nền tảng cho bán hàng (TH-04), kho (TH-06) và báo cáo.
+Master data sản phẩm, readiness, đơn vị tính, tồn kho cơ bản, Giá cơ sở định giá, khung giá bán (Giá niêm yết / Giá sàn) và **thông tin bổ sung** (nhóm & trường cấu hình được) — nền tảng cho bán hàng (TH-04), kho (TH-06) và báo cáo.
 
 ## Triết lý v3
 
@@ -12,7 +12,7 @@ Theme không chỉ lưu danh sách sản phẩm mà đưa sản phẩm vào **tr
 - **Product Readiness** — checklist + blocker rõ ràng
 - **Guided Product Creation** — tạo tối thiểu rồi hoàn thiện dần
 - **Product Control Center** — màn chi tiết điều phối hành động theo ngữ cảnh
-- **Custom fields** — thay `medical_info` hard-coded; retail-first, industry-extensible
+- **Thông tin bổ sung** — nhóm & trường thông tin (tenant-configurable); retail-first, industry-extensible; không hard-code ngành vào Product
 
 ## Module tham gia
 
@@ -27,9 +27,9 @@ Theme không chỉ lưu danh sách sản phẩm mà đưa sản phẩm vào **tr
 
 | Nhóm | File |
 | ---- | ---- |
-| Business scope (v3 overview) | [01-business-scope.md](01-business-scope.md) |
-| Module map | [02-module-map.md](02-module-map.md) |
-| Phụ lục (flows, ERD, permissions) | [appendices/](appendices/) |
+| Overview (v3) | [OVERVIEWS.md](OVERVIEWS.md) |
+| Module map | [harness/02-module-map.md](harness/02-module-map.md) |
+| Phụ lục (flows, ERD, permissions) | [APPENDICES.md](APPENDICES.md) |
 | Platform architecture | [docs/architecture/](../../architecture/README.md) |
 
 ## Epic index
@@ -38,7 +38,7 @@ Theme không chỉ lưu danh sách sản phẩm mà đưa sản phẩm vào **tr
 | ---- | ------ | -- | -- | ------ |
 | 01 — Tra cứu & điều hướng readiness | [EPIC-01-discovery-readiness/](EPIC-01-discovery-readiness/) | 2 | 10 | todo |
 | 02 — Tạo sản phẩm có hướng dẫn | [EPIC-02-guided-creation/](EPIC-02-guided-creation/) | 3 | 12 | todo |
-| 03 — Thông tin đặc thù ngành | [EPIC-03-industry-fields/](EPIC-03-industry-fields/) | 3 | 12 | todo |
+| 03 — Thông tin bổ sung | [EPIC-03-industry-fields/](EPIC-03-industry-fields/) | 3 | 14 | todo |
 | 04 — Đơn vị đo lường | [EPIC-04-units/](EPIC-04-units/) | 4 | 15 | todo |
 | 05 — Chế độ tồn kho | [EPIC-05-stock/](EPIC-05-stock/) | 4 | 15 | todo |
 | 06 — Định giá & khung giá bán | [EPIC-06-pricing/](EPIC-06-pricing/) | 4 | 16 | todo |
