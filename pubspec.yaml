@@ -121,15 +121,15 @@ melos:
       stdio: inherit
 
     debug:dev:
-      run: ./scripts/env/vet45_env.sh use development && ./scripts/env/vet45_env.sh sync && ./scripts/env/vet45_env.sh run erp debug
+      run: ./scripts/env/vet45_env.sh use development && ./scripts/env/vet45_env.sh sync --target erp && ./scripts/env/vet45_env.sh run erp debug
       stdio: inherit
 
     debug:staging:
-      run: ./scripts/env/vet45_env.sh use staging && ./scripts/env/vet45_env.sh sync && ./scripts/env/vet45_env.sh run erp debug
+      run: ./scripts/env/vet45_env.sh use staging && ./scripts/env/vet45_env.sh sync --target erp && ./scripts/env/vet45_env.sh run erp debug
       stdio: inherit
 
     debug:prod:
-      run: ./scripts/env/vet45_env.sh use production && ./scripts/env/vet45_env.sh sync && ./scripts/env/vet45_env.sh run erp debug
+      run: ./scripts/env/vet45_env.sh use production && ./scripts/env/vet45_env.sh sync --target erp && ./scripts/env/vet45_env.sh run erp debug
       stdio: inherit
 
     build:ios:
@@ -138,12 +138,12 @@ melos:
       description: Build iOS IPA — active env (staging|production)
 
     build:ios:staging:
-      run: ./scripts/env/vet45_env.sh use staging && ./scripts/env/vet45_env.sh sync && ./scripts/env/vet45_env.sh run erp build-ios
+      run: ./scripts/env/vet45_env.sh use staging && ./scripts/env/vet45_env.sh sync --target erp && ./scripts/env/vet45_env.sh run erp build-ios
       stdio: inherit
       description: Build iOS IPA (staging shortcut)
 
     build:ios:production:
-      run: ./scripts/env/vet45_env.sh use production && ./scripts/env/vet45_env.sh sync && ./scripts/env/vet45_env.sh run erp build-ios
+      run: ./scripts/env/vet45_env.sh use production && ./scripts/env/vet45_env.sh sync --target erp && ./scripts/env/vet45_env.sh run erp build-ios
       stdio: inherit
       description: Build iOS IPA (production shortcut)
 
@@ -153,12 +153,12 @@ melos:
       description: Build + upload iOS IPA — active env (staging|production)
 
     deploy:ios:staging:
-      run: ./scripts/env/vet45_env.sh use staging && ./scripts/env/vet45_env.sh sync && ./scripts/env/vet45_env.sh run erp deploy-ios
+      run: ./scripts/env/vet45_env.sh use staging && ./scripts/env/vet45_env.sh sync --target erp && ./scripts/env/vet45_env.sh run erp deploy-ios
       stdio: inherit
       description: Build + upload iOS IPA (staging shortcut)
 
     deploy:ios:production:
-      run: ./scripts/env/vet45_env.sh use production && ./scripts/env/vet45_env.sh sync && ./scripts/env/vet45_env.sh run erp deploy-ios
+      run: ./scripts/env/vet45_env.sh use production && ./scripts/env/vet45_env.sh sync --target erp && ./scripts/env/vet45_env.sh run erp deploy-ios
       stdio: inherit
       description: Build + upload iOS IPA (production shortcut)
 
@@ -168,12 +168,12 @@ melos:
       description: Deploy messaging worker to Railway — active env (staging|production)
 
     deploy:worker:staging:
-      run: ./scripts/env/vet45_env.sh use staging && ./scripts/env/vet45_env.sh sync && ./scripts/env/vet45_env.sh run worker deploy
+      run: ./scripts/env/vet45_env.sh use staging && ./scripts/env/vet45_env.sh sync --target worker && ./scripts/env/vet45_env.sh run worker deploy
       stdio: inherit
       description: Deploy messaging worker (staging shortcut)
 
     deploy:worker:production:
-      run: ./scripts/env/vet45_env.sh use production && ./scripts/env/vet45_env.sh sync && ./scripts/env/vet45_env.sh run worker deploy
+      run: ./scripts/env/vet45_env.sh use production && ./scripts/env/vet45_env.sh sync --target worker && ./scripts/env/vet45_env.sh run worker deploy
       stdio: inherit
       description: Deploy messaging worker (production shortcut)
 

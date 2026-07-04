@@ -1,20 +1,33 @@
 {
   "version": "0.2.0",
   "configurations": [
-    // ── ERP · debug (run melos run env:sync before F5 if .env stale) ───────
+    // ── ERP · Dart (preLaunchTask syncs target erp only — missing worker secrets do not block) ──
     {
       "name": "ERP · development",
       "type": "dart",
       "request": "launch",
       "cwd": "${workspaceFolder}/apps/erp",
       "program": "lib/main.dart",
+      "preLaunchTask": "env:sync erp · development",
       "args": [
         "--flavor",
         "development",
         "--dart-define-from-file=.env"
       ]
     },
-    // ── ERP · debug:web ───────────────────────────────────────────────────────
+    {
+      "name": "ERP · local",
+      "type": "dart",
+      "request": "launch",
+      "cwd": "${workspaceFolder}/apps/erp",
+      "program": "lib/main.dart",
+      "preLaunchTask": "env:sync erp · local",
+      "args": [
+        "--flavor",
+        "development",
+        "--dart-define-from-file=.env"
+      ]
+    },
     {
       "name": "ERP · web · development",
       "type": "dart",
@@ -22,13 +35,13 @@
       "cwd": "${workspaceFolder}/apps/erp",
       "program": "lib/main.dart",
       "deviceId": "chrome",
+      "preLaunchTask": "env:sync erp · development",
       "args": [
         "--flavor",
         "development",
         "--dart-define-from-file=.env"
       ]
     },
-    // ── ERP · debug:ios ───────────────────────────────────────────────────────
     {
       "name": "ERP · iOS · development",
       "type": "dart",
@@ -36,45 +49,75 @@
       "cwd": "${workspaceFolder}/apps/erp",
       "program": "lib/main.dart",
       "deviceId": "ios",
+      "preLaunchTask": "env:sync erp · development",
       "args": [
         "--flavor",
         "development",
         "--dart-define-from-file=.env"
       ]
     },
-    // ── ERP · debug:staging ───────────────────────────────────────────────────
     {
       "name": "ERP · staging",
       "type": "dart",
       "request": "launch",
       "cwd": "${workspaceFolder}/apps/erp",
       "program": "lib/main.dart",
+      "preLaunchTask": "env:sync erp · staging",
       "args": [
         "--flavor",
         "staging",
         "--dart-define-from-file=.env.staging"
       ]
     },
-    // ── ERP · debug:prod ──────────────────────────────────────────────────────
     {
       "name": "ERP · production",
       "type": "dart",
       "request": "launch",
       "cwd": "${workspaceFolder}/apps/erp",
       "program": "lib/main.dart",
+      "preLaunchTask": "env:sync erp · production",
       "args": [
         "--flavor",
         "production",
         "--dart-define-from-file=.env.production"
       ]
     },
-    // ── messaging_worker ──────────────────────────────────────────────────────
+    // ── messaging_worker (sync target worker + load generated envFile) ────────
     {
-      "name": "Messaging worker",
+      "name": "Messaging worker · development",
       "type": "dart",
       "request": "launch",
       "cwd": "${workspaceFolder}/apps/messaging_worker",
-      "program": "bin/worker.dart"
+      "program": "bin/worker.dart",
+      "args": ["--serve"],
+      "preLaunchTask": "env:sync worker · development",
+    },
+    {
+      "name": "Messaging worker · local",
+      "type": "dart",
+      "request": "launch",
+      "cwd": "${workspaceFolder}/apps/messaging_worker",
+      "program": "bin/worker.dart",
+      "args": ["--serve"],
+      "preLaunchTask": "env:sync worker · local",
+    },
+    {
+      "name": "Messaging worker · staging",
+      "type": "dart",
+      "request": "launch",
+      "cwd": "${workspaceFolder}/apps/messaging_worker",
+      "program": "bin/worker.dart",
+      "args": ["--serve"],
+      "preLaunchTask": "env:sync worker · staging",
+    },
+    {
+      "name": "Messaging worker · production",
+      "type": "dart",
+      "request": "launch",
+      "cwd": "${workspaceFolder}/apps/messaging_worker",
+      "program": "bin/worker.dart",
+      "args": ["--serve"],
+      "preLaunchTask": "env:sync worker · production",
     },
     // ── melos built-in ────────────────────────────────────────────────────────
     {
@@ -91,7 +134,7 @@
       "command": "melos clean",
       "cwd": "${workspaceFolder}"
     },
-    // ── melos scripts (pubspec.yaml → melos.scripts) ─────────────────────────
+    // ── melos scripts (already enforce env via vet45_env.sh) ─────────────────
     {
       "name": "melos · debug",
       "type": "node-terminal",
@@ -132,6 +175,13 @@
       "type": "node-terminal",
       "request": "launch",
       "command": "melos run debug:prod",
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "name": "melos · worker:serve",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "melos run worker:serve",
       "cwd": "${workspaceFolder}"
     },
     {

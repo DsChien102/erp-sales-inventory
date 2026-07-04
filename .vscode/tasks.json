@@ -2,111 +2,124 @@
   "version": "2.0.0",
   "tasks": [
     {
-      "type": "melos",
-      "script": "debug",
-      "label": "melos: debug",
-      "group": "build"
-    },
-    {
-      "type": "melos",
-      "script": "debug:web",
-      "label": "melos: debug:web",
-      "group": "build"
-    },
-    {
-      "type": "melos",
-      "script": "debug:ios",
-      "label": "melos: debug:ios",
-      "group": "build"
-    },
-    {
-      "type": "melos",
-      "script": "env:sync",
-      "label": "melos: env:sync",
-      "group": "build"
-    },
-    {
-      "type": "melos",
-      "script": "debug:dev",
-      "label": "melos: debug:dev",
-      "group": "build"
-    },
-    {
-      "type": "melos",
-      "script": "debug:staging",
-      "label": "melos: debug:staging",
-      "group": "build"
-    },
-    {
-      "type": "melos",
-      "script": "debug:prod",
-      "label": "melos: debug:prod",
-      "group": "build"
-    },
-    {
-      "type": "melos",
-      "script": "codegen",
-      "label": "melos: codegen",
-      "group": "build"
-    },
-    {
-      "type": "melos",
-      "script": "analyze",
-      "label": "melos: analyze",
-      "group": "test",
-      "problemMatcher": []
-    },
-    {
-      "type": "melos",
-      "script": "test",
-      "label": "melos: test",
-      "group": {
-        "kind": "test",
-        "isDefault": true
+      "label": "env:sync erp · development",
+      "type": "shell",
+      "command": "./scripts/env/vet45_env.sh use development && ./scripts/env/vet45_env.sh sync --target erp --env development",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "presentation": {
+        "reveal": "silent",
+        "panel": "shared",
+        "showReuseMessage": false,
+        "close": true
       },
       "problemMatcher": []
     },
     {
-      "type": "melos",
-      "script": "build:ios",
-      "label": "melos: build:ios",
-      "group": "build"
+      "label": "env:sync erp · local",
+      "type": "shell",
+      "command": "./scripts/env/vet45_env.sh use local && ./scripts/env/vet45_env.sh sync --target erp --env local",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "presentation": {
+        "reveal": "silent",
+        "panel": "shared",
+        "showReuseMessage": false,
+        "close": true
+      },
+      "problemMatcher": []
     },
     {
-      "type": "melos",
-      "script": "build:ios:staging",
-      "label": "melos: build:ios:staging",
-      "group": "build"
+      "label": "env:sync erp · staging",
+      "type": "shell",
+      "command": "./scripts/env/vet45_env.sh use staging && ./scripts/env/vet45_env.sh sync --target erp --env staging",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "presentation": {
+        "reveal": "silent",
+        "panel": "shared",
+        "showReuseMessage": false,
+        "close": true
+      },
+      "problemMatcher": []
     },
     {
-      "type": "melos",
-      "script": "build:ios:production",
-      "label": "melos: build:ios:production",
-      "group": "build"
+      "label": "env:sync erp · production",
+      "type": "shell",
+      "command": "./scripts/env/vet45_env.sh use production && ./scripts/env/vet45_env.sh sync --target erp --env production",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "presentation": {
+        "reveal": "silent",
+        "panel": "shared",
+        "showReuseMessage": false,
+        "close": true
+      },
+      "problemMatcher": []
     },
     {
-      "type": "melos",
-      "script": "deploy:ios",
-      "label": "melos: deploy:ios",
-      "group": "build"
+      "label": "env:sync worker · development",
+      "type": "shell",
+      "command": "./scripts/env/vet45_env.sh use development && ./scripts/env/vet45_env.sh sync --target worker --env development",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "presentation": {
+        "reveal": "silent",
+        "panel": "shared",
+        "showReuseMessage": false,
+        "close": true
+      },
+      "problemMatcher": []
     },
     {
-      "type": "melos",
-      "script": "deploy:ios:staging",
-      "label": "melos: deploy:ios:staging",
-      "group": "build"
+      "label": "env:sync worker · local",
+      "type": "shell",
+      "command": "./scripts/env/vet45_env.sh use local && ./scripts/env/vet45_env.sh sync --target worker --env local",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "presentation": {
+        "reveal": "silent",
+        "panel": "shared",
+        "showReuseMessage": false,
+        "close": true
+      },
+      "problemMatcher": []
     },
     {
-      "type": "melos",
-      "script": "deploy:worker",
-      "label": "melos: deploy:worker",
-      "group": "build"
+      "label": "env:sync worker · staging",
+      "type": "shell",
+      "command": "./scripts/env/vet45_env.sh use staging && ./scripts/env/vet45_env.sh sync --target worker --env staging",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "presentation": {
+        "reveal": "silent",
+        "panel": "shared",
+        "showReuseMessage": false,
+        "close": true
+      },
+      "problemMatcher": []
     },
     {
-      "label": "CI · analyze → test",
-      "dependsOn": ["melos: analyze", "melos: test"],
-      "dependsOrder": "sequence",
-      "group": "test"
+      "label": "env:sync worker · production",
+      "type": "shell",
+      "command": "./scripts/env/vet45_env.sh use production && ./scripts/env/vet45_env.sh sync --target worker --env production",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "presentation": {
+        "reveal": "silent",
+        "panel": "shared",
+        "showReuseMessage": false,
+        "close": true
+      },
+      "problemMatcher": []
     }
   ]
 }
