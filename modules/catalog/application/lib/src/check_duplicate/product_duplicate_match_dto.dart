@@ -12,4 +12,14 @@ final class ProductDuplicateMatchDto {
   final String productId;
   final String productName;
   final String matchedValue;
+
+  factory ProductDuplicateMatchDto.fromDomain(ProductDuplicateMatch match) {
+    return ProductDuplicateMatchDto(
+      field: match.field,
+      productId: match.productId.value,
+      productName: match.productName,
+      matchedValue: match.matchedValue,
+    );
+  }
 }
+

@@ -19,8 +19,8 @@ Tổng product: **7 epic, 24 US, 98 FR** (xem [README.md](../README.md#epic-inde
 
 | Req ID | Role | Contract § | Enforce layer | Artifact | Test id | Status |
 | ------ | ---- | ---------- | ------------- | -------- | ------- | ------ |
-| TH-02-PLATFORM | BE | — | infrastructure | `build.yaml`, `CatalogCommandPipeline`, `CatalogModuleDefinition` | — | todo |
-| TH-02-PLATFORM | BE | — | infrastructure | `registerGeneratedCatalogHandlers`, `catalog_access_metadata.g.dart` | catalog_access_metadata_registry_test | todo |
+| TH-02-PLATFORM | BE | — | infrastructure | `build.yaml`, `CatalogCommandPipeline`, `CatalogModuleDefinition` | — | done |
+| TH-02-PLATFORM | BE | — | infrastructure | `registerGeneratedCatalogHandlers`, `catalog_access_metadata.g.dart` | catalog_access_metadata_registry_test | done |
 
 Codegen ritual: mirror [modules/partner/README.md](../../../../modules/partner/README.md).
 
@@ -31,10 +31,10 @@ Codegen ritual: mirror [modules/partner/README.md](../../../../modules/partner/R
 | Req ID | Role | Contract § | Enforce layer | Artifact | Test id | Status |
 | ------ | ---- | ---------- | ------------- | -------- | ------- | ------ |
 | US-01 | CONTRACT | §EPIC-02-US-01 | application | `CreateProductCommand`, `CheckDuplicateProductCodeQuery`, DTOs, `FakeCatalogModule` (`package:vet45_catalog_application/testing.dart`) | fake_catalog_module_test | done |
-| FR-01 | BE | §EPIC-02-US-01 | application | Create handler (nhận diện + ảnh) | scn_e02_u01_fr01_01 | todo |
-| FR-02 | BE | §EPIC-02-US-01 | application | Dup check query/handler | scn_e02_u01_fr02_01 | todo |
-| FR-03 | BE | §EPIC-02-US-01 | application | Base unit in create flow | scn_e02_u01_fr03_01 | todo |
-| FR-04 | BE | §EPIC-02-US-01 | application | Initial status + readiness seed | scn_e02_u01_fr04_01 | todo |
+| FR-01 | BE | §EPIC-02-US-01 | application | `CreateProductCommandHandler`, `Product.create` (nhận diện + ảnh) | scn_e02_u01_fr01_01 | done |
+| FR-02 | BE | §EPIC-02-US-01 | application | `CheckDuplicateProductCodeQueryHandler`, `IProductDuplicateChecker`, draft RPC | scn_e02_u01_fr02_01 | done |
+| FR-03 | BE | §EPIC-02-US-01 | application | Base unit in create flow + readiness blocker | scn_e02_u01_fr03_01 | done |
+| FR-04 | BE | §EPIC-02-US-01 | application | Initial status active + readiness seed + change history (RPC) | scn_e02_u01_fr04_01 | done |
 | FR-01..04 | FE | §EPIC-02-US-01 | presentation | Guided create flow, form widgets | wgt_e02_u01_fr01_01 | todo |
 | FR-01 | E2E | §EPIC-02-US-01 | integration | ERP via `ICatalogModule` | e2e_e02_u01_fr01_01 | todo |
 

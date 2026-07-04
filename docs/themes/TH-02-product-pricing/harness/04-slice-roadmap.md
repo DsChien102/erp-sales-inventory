@@ -10,7 +10,7 @@ Foundation MVP: Epic 02 (guided create) → Epic 01 (discovery/control center) �
 
 | # | Slice | Type | Contract | BE | FE | E2E | Parallel group | E2E blocked by / notes |
 | - | ----- | ---- | -------- | -- | -- | --- | -------------- | ---------------------- |
-| 1 | [EPIC-02/US-01](../EPIC-02-guided-creation/US-01/) — Guided create (nhận diện, dup, UOM, khởi tạo) | write | done | todo | todo | todo | — | — |
+| 1 | [EPIC-02/US-01](../EPIC-02-guided-creation/US-01/) — Guided create (nhận diện, dup, UOM, khởi tạo) | write | done | done | todo | todo | — | — |
 | 2 | [EPIC-02/US-02](../EPIC-02-guided-creation/US-02/) — Dữ liệu vận hành ban đầu (tồn, base price, giá) | write | todo | todo | todo | todo | A | US-01 |
 | 3 | [EPIC-02/US-03](../EPIC-02-guided-creation/US-03/) — Hoàn tất + readiness **summary** | write | todo | todo | todo | todo | A | US-01 |
 | 4 | [EPIC-01/US-01](../EPIC-01-discovery-readiness/US-01/) — Tìm kiếm, lọc, danh sách + readiness chip | read | todo | todo | todo | todo | B | US-01 (data) |

@@ -14,7 +14,7 @@ Facade: `ICatalogModule` (`modules/catalog/application/lib/src/contracts/i_catal
 
 ## EPIC-02 / US-01 — Guided create (slice #1)
 
-**Status:** CONTRACT `done`
+**Status:** CONTRACT `done` · BE `done`
 
 ### Commands / Queries
 
