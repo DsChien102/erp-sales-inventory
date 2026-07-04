@@ -14,14 +14,29 @@ Facade: `ICatalogModule` (`modules/catalog/application/lib/src/contracts/i_catal
 
 ## EPIC-02 / US-01 — Guided create (slice #1)
 
+**Status:** CONTRACT `done`
+
 ### Commands / Queries
 
 | Symbol | Input (summary) | Success | Errors |
 | ------ | --------------- | ------- | ------ |
-| `CreateProductCommand` | tenantId, actorId, productName, commercialName?, sku?, barcode?, description?, note?, images[], baseUnitName | `CreateProductResult` (productId, readinessSummary) | Validation, PermissionDenied, DuplicateSku, DuplicateBarcode |
+| `CreateProductCommand` | tenantId, actorId, productName, commercialName?, sku?, barcode?, description?, note?, images[] (`ProductImageInput`), baseUnitName? | `CreateProductResult` (productId, readinessSummary) | `ValidationException`, PermissionDenied (`ApplicationException`), `DuplicateSkuException`, `DuplicateBarcodeException` |
 | `CheckDuplicateProductCodeQuery` | tenantId, sku?, barcode?, excludeProductId? | `List<ProductDuplicateMatchDto>` | PermissionDenied |
 
-Package: `vet45_catalog_application` — `guided_create/`, `check_duplicate/`.
+Package: `vet45_catalog_application` — `guided_create/`, `check_duplicate/`, `readiness/`.
+
+Supporting types:
+
+| Type | Fields |
+| ---- | ------ |
+| `ProductImageInput` | storageKey, url?, isPrimary, sortOrder |
+| `ReadinessSummaryDto` | status (`ReadinessStatus`), blockers (`ReadinessBlockerDto[]`) |
+| `ReadinessBlockerDto` | code, message, group? |
+| `ProductDuplicateMatchDto` | field (`ProductDuplicateField`), productId, productName, matchedValue |
+
+`baseUnitName` optional (FR-03): thiếu → readiness blocker `missing_base_unit`, không fail create.
+
+Permissions: `@RequiresPermission(CatalogPermissions.create)` (`catalog.product.create`) + `@RequiresTenant()`.
 
 ### RPC mapping (BE)
 
@@ -34,16 +49,18 @@ Package: `vet45_catalog_application` — `guided_create/`, `check_duplicate/`.
 
 | scenario_id | trigger | fake response |
 | ----------- | ------- | ------------- |
-| `guided_create_ok` | CreateProductCommand valid + baseUnit | `CreateProductResult` + readiness blockers |
-| `guided_create_dup_sku` | sku trùng tenant | DuplicateSku |
-| `guided_create_dup_barcode` | barcode trùng tenant | DuplicateBarcode |
-| `guided_create_missing_name` | thiếu tên | validation error |
-| `guided_create_no_images` | no images | success, optional image blocker |
-| `guided_create_permission_denied` | no catalog.product.create | PermissionDenied |
+| `guided_create_ok` | CreateProductCommand valid + baseUnit | `CreateProductResult` + readiness blockers (vd. `missing_price`) |
+| `guided_create_dup_sku` | sku trùng tenant | `DuplicateSkuException` |
+| `guided_create_dup_barcode` | barcode trùng tenant | `DuplicateBarcodeException` |
+| `guided_create_missing_name` | thiếu tên | `ValidationException` |
+| `guided_create_no_images` | no images | success + optional `missing_image` blocker |
+| `guided_create_permission_denied` | no catalog.product.create | `ApplicationException` (Permission denied) |
+
+`FakeCatalogModule` — `package:vet45_catalog_application/testing.dart`.
 
 ### Parallel notes
 
-- FE có thể fake: **yes** (sau CONTRACT)
+- FE có thể fake: **yes**
 - E2E prerequisite: —
 
 ---

@@ -185,4 +185,4 @@ Code domain: [domain-layer skill](../../../../.cursor/skills/domain-layer/SKILL.
 
 Commands/handlers: [application-layer](../../../../.cursor/skills/application-layer/SKILL.md).
 
-**Lưu ý:** `modules/catalog/` vẫn skeleton — cập nhật khi slice EPIC-02/US-01 CONTRACT lane bắt đầu.
+**Lưu ý:** EPIC-02/US-01 CONTRACT done (`CatalogPermissions`, readiness codes, application commands/DTOs, `FakeCatalogModule`). Domain aggregate `Product` + handlers = BE lane.

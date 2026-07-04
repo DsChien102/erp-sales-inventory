@@ -30,7 +30,7 @@ Codegen ritual: mirror [modules/partner/README.md](../../../../modules/partner/R
 
 | Req ID | Role | Contract § | Enforce layer | Artifact | Test id | Status |
 | ------ | ---- | ---------- | ------------- | -------- | ------- | ------ |
-| US-01 | CONTRACT | §EPIC-02-US-01 | application | `CreateProductCommand`, `CheckDuplicateProductCodeQuery`, DTOs | — | todo |
+| US-01 | CONTRACT | §EPIC-02-US-01 | application | `CreateProductCommand`, `CheckDuplicateProductCodeQuery`, DTOs, `FakeCatalogModule` (`package:vet45_catalog_application/testing.dart`) | fake_catalog_module_test | done |
 | FR-01 | BE | §EPIC-02-US-01 | application | Create handler (nhận diện + ảnh) | scn_e02_u01_fr01_01 | todo |
 | FR-02 | BE | §EPIC-02-US-01 | application | Dup check query/handler | scn_e02_u01_fr02_01 | todo |
 | FR-03 | BE | §EPIC-02-US-01 | application | Base unit in create flow | scn_e02_u01_fr03_01 | todo |

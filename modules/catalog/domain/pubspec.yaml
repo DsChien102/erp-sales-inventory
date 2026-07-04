@@ -1,5 +1,5 @@
 name: vet45_catalog_domain
-description: catalog bounded context — domain layer (skeleton).
+description: catalog bounded context — domain layer.
 version: 1.0.0
 publish_to: none
 resolution: workspace
