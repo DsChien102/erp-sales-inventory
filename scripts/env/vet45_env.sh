@@ -12,9 +12,11 @@ Usage: vet45_env.sh <command> [args]
 Commands:
   list                    List environments and active selection
   use <id>                Set active environment + align supabase link
-  sync [--env <id>]       Align supabase link + generate ERP + worker .env
+  sync [--env <id>] [--target <id>]
+                          Align supabase link + generate target .env files
   link [--env <id>]       Align supabase link only
-  doctor [--env <id>]     Validate configuration
+  doctor [--env <id>] [--target <id>] [--offline]
+                          Validate configuration (per-target key deps)
   resolve [--env <id>]    Print JSON resolve payload
   resolve-shell [--env <id>]
                           Print shell KEY=value exports
@@ -47,14 +49,23 @@ require_railway_deploy_env() {
 }
 
 load_resolve_shell() {
-  local env_id="${1:-}"
+  local target="${1:-}"
+  local env_id="${2:-}"
   local lines
-  if [[ -n "$env_id" ]]; then
-    lines="$("${CLI[@]}" resolve-shell --env "$env_id")"
-  else
-    "${CLI[@]}" sync >/dev/null
-    lines="$("${CLI[@]}" resolve-shell)"
+  local sync_args=()
+  local resolve_args=()
+
+  if [[ -n "$target" ]]; then
+    sync_args+=(--target "$target")
   fi
+  if [[ -n "$env_id" ]]; then
+    sync_args+=(--env "$env_id")
+    resolve_args+=(--env "$env_id")
+  fi
+
+  # Sync only the run target so missing unrelated secrets do not block.
+  "${CLI[@]}" sync "${sync_args[@]}" >/dev/null
+  lines="$("${CLI[@]}" resolve-shell "${resolve_args[@]}")"
   while IFS= read -r line; do
     [[ -z "$line" ]] && continue
     export "$line"
@@ -77,7 +88,7 @@ cmd_run() {
     fi
   done
 
-  load_resolve_shell "$env_id"
+  load_resolve_shell "$target" "$env_id"
 
   # Bash 3.2 + set -u: "${filtered[@]}" on an empty array is unbound; ${filtered+"${filtered[@]}"} is safe.
   case "$target" in
@@ -105,6 +116,8 @@ cmd_run() {
           ;;
         deploy-ios)
           require_ios_deploy_env
+          # Validate shared deploy secrets without requiring worker keys.
+          "${CLI[@]}" doctor --target deploy --offline --env "$VET45_ENV_ID"
           "$ROOT/apps/erp/scripts/build_ios.sh" --env "$VET45_ENV_ID"
           exec "$ROOT/apps/erp/deploy-ios.sh" --env "$VET45_ENV_ID"
           ;;

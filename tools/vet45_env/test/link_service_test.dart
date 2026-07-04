@@ -7,6 +7,8 @@ import 'package:vet45_env/project_ref.dart';
 import 'package:vet45_env/secrets_loader.dart';
 import 'package:vet45_env/supabase_cli.dart';
 
+import 'test_manifest_fixture.dart';
+
 void main() {
   group('ProjectRefResolver', () {
     test('parses hosted supabase URL', () {
@@ -23,14 +25,15 @@ void main() {
         if (root.existsSync()) root.deleteSync(recursive: true);
       });
       Directory('${root.path}/config/secrets').createSync(recursive: true);
-      File('${root.path}/config/environments.json').writeAsStringSync('''
+      File('${root.path}/config/environments.json').writeAsStringSync(
+        manifestWithEnv(
+          '''
 {
-  "default": "staging",
-  "environments": {
-    "staging": {
-      "description": "test",
-      "secretsFile": "config/secrets/staging.env",
-      "supabaseSource": "secrets",
+  "staging": {
+    "description": "test",
+    "secretsFile": "config/secrets/staging.env",
+    "supabaseSource": "secrets",
+    "targets": {
       "erp": {
         "flavor": "staging",
         "envFile": "apps/erp/.env.staging",
@@ -42,7 +45,10 @@ void main() {
     }
   }
 }
-''');
+''',
+          defaultId: 'staging',
+        ),
+      );
       writeDotEnv(
         File('${root.path}/config/secrets/staging.env'),
         {'SUPABASE_URL': 'https://myprojref.supabase.co'},
@@ -57,15 +63,16 @@ void main() {
         if (root.existsSync()) root.deleteSync(recursive: true);
       });
       Directory('${root.path}/config/secrets').createSync(recursive: true);
-      File('${root.path}/config/environments.json').writeAsStringSync('''
+      File('${root.path}/config/environments.json').writeAsStringSync(
+        manifestWithEnv(
+          '''
 {
-  "default": "staging",
-  "environments": {
-    "staging": {
-      "description": "test",
-      "secretsFile": "config/secrets/staging.env",
-      "supabaseSource": "secrets",
-      "supabaseProjectRef": "explicitref",
+  "staging": {
+    "description": "test",
+    "secretsFile": "config/secrets/staging.env",
+    "supabaseSource": "secrets",
+    "supabaseProjectRef": "explicitref",
+    "targets": {
       "erp": {
         "flavor": "staging",
         "envFile": "apps/erp/.env.staging",
@@ -77,7 +84,10 @@ void main() {
     }
   }
 }
-''');
+''',
+          defaultId: 'staging',
+        ),
+      );
       writeDotEnv(
         File('${root.path}/config/secrets/staging.env'),
         {'SUPABASE_URL': 'https://otherref.supabase.co'},
@@ -96,14 +106,15 @@ void main() {
       root = await Directory.systemTemp.createTemp('vet45_link_test_');
       Directory('${root.path}/config/secrets').createSync(recursive: true);
       Directory('${root.path}/supabase/.temp').createSync(recursive: true);
-      File('${root.path}/config/environments.json').writeAsStringSync('''
+      File('${root.path}/config/environments.json').writeAsStringSync(
+        manifestWithEnv(
+          '''
 {
-  "default": "staging",
-  "environments": {
-    "staging": {
-      "description": "test staging",
-      "secretsFile": "config/secrets/staging.env",
-      "supabaseSource": "secrets",
+  "staging": {
+    "description": "test staging",
+    "secretsFile": "config/secrets/staging.env",
+    "supabaseSource": "secrets",
+    "targets": {
       "erp": {
         "flavor": "staging",
         "envFile": "apps/erp/.env.staging",
@@ -112,12 +123,14 @@ void main() {
       "worker": {
         "envFile": "apps/messaging_worker/.env.staging"
       }
-    },
-    "local": {
-      "description": "test local",
-      "secretsFile": "config/secrets/local.env",
-      "supabaseSource": "supabase_cli",
-      "syncSupabaseLink": false,
+    }
+  },
+  "local": {
+    "description": "test local",
+    "secretsFile": "config/secrets/local.env",
+    "supabaseSource": "supabase_cli",
+    "syncSupabaseLink": false,
+    "targets": {
       "erp": {
         "flavor": "development",
         "envFile": "apps/erp/.env",
@@ -129,7 +142,10 @@ void main() {
     }
   }
 }
-''');
+''',
+          defaultId: 'staging',
+        ),
+      );
       writeDotEnv(
         File('${root.path}/config/secrets/staging.env'),
         {
@@ -159,7 +175,8 @@ void main() {
     });
 
     test('skips when already linked', () async {
-      File('${root.path}/supabase/.temp/project-ref').writeAsStringSync('targetref');
+      File('${root.path}/supabase/.temp/project-ref')
+          .writeAsStringSync('targetref');
 
       final result = await SupabaseLinkService(
         manifest: manifest,

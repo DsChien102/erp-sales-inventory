@@ -1,19 +1,65 @@
 {
   "default": "development",
-  "deploySecretsFile": "config/secrets/deploy.env",
+  "targets": {
+    "erp": {
+      "description": "Flutter ERP",
+      "keys": [
+        { "name": "APP_ENV", "fromManifest": "appEnv" },
+        {
+          "name": "SUPABASE_CONNECTION_URL",
+          "from": "SUPABASE_URL",
+          "required": true
+        },
+        { "name": "SUPABASE_ANON_KEY", "required": true },
+        { "name": "LOG_LEVEL", "default": "INFO" },
+        { "name": "MESSAGING_CLIENT_POLL_ENABLED", "default": "false" }
+      ]
+    },
+    "worker": {
+      "description": "Messaging worker",
+      "keys": [
+        { "name": "SUPABASE_URL", "required": true },
+        { "name": "SUPABASE_SERVICE_ROLE_KEY", "required": true },
+        {
+          "name": "WORKER_TICK_SECRET",
+          "required": true,
+          "autoGenerate": true
+        },
+        { "name": "WORKER_LOG_LEVEL", "default": "WARNING" },
+        { "name": "WORKER_TENANT_BATCH_SIZE", "default": "20" },
+        { "name": "WORKER_MODULE_BATCH_SIZE", "default": "10" },
+        { "name": "WORKER_MAX_ROUNDS_PER_TICK", "default": "5" },
+        { "name": "WORKER_TICK_ACTIVE_SECONDS", "default": "3" },
+        { "name": "WORKER_TICK_IDLE_SECONDS", "default": "15" },
+        { "name": "WORKER_TICK_MAX_IDLE_SECONDS", "default": "30" },
+        { "name": "PORT", "default": "8080" }
+      ]
+    },
+    "deploy": {
+      "description": "iOS TestFlight (shared)",
+      "secretsFile": "config/secrets/deploy.env",
+      "writeEnvFile": false,
+      "keys": [
+        { "name": "APP_STORE_CONNECT_ISSUER_ID", "required": true },
+        { "name": "APP_STORE_CONNECT_KEY_IDENTIFIER", "required": true }
+      ]
+    }
+  },
   "environments": {
     "development": {
       "description": "Remote dev — secrets + supabase link on use/sync",
       "secretsFile": "config/secrets/development.env",
       "supabaseSource": "secrets",
-      "erp": {
-        "flavor": "development",
-        "envFile": "apps/erp/.env",
-        "appEnv": "development"
-      },
-      "worker": {
-        "envFile": "apps/messaging_worker/.env",
-        "dockerSupabaseUrl": "http://host.docker.internal:54321"
+      "targets": {
+        "erp": {
+          "envFile": "apps/erp/.env",
+          "flavor": "development",
+          "appEnv": "development"
+        },
+        "worker": {
+          "envFile": "apps/messaging_worker/.env",
+          "dockerSupabaseUrl": "http://host.docker.internal:54321"
+        }
       }
     },
     "local": {
@@ -21,14 +67,16 @@
       "secretsFile": "config/secrets/local.env",
       "supabaseSource": "supabase_cli",
       "syncSupabaseLink": false,
-      "erp": {
-        "flavor": "development",
-        "envFile": "apps/erp/.env",
-        "appEnv": "development"
-      },
-      "worker": {
-        "envFile": "apps/messaging_worker/.env",
-        "dockerSupabaseUrl": "http://host.docker.internal:54321"
+      "targets": {
+        "erp": {
+          "envFile": "apps/erp/.env",
+          "flavor": "development",
+          "appEnv": "development"
+        },
+        "worker": {
+          "envFile": "apps/messaging_worker/.env",
+          "dockerSupabaseUrl": "http://host.docker.internal:54321"
+        }
       }
     },
     "staging": {
@@ -36,13 +84,15 @@
       "secretsFile": "config/secrets/staging.env",
       "supabaseSource": "secrets",
       "railwayEnvironment": "staging",
-      "erp": {
-        "flavor": "staging",
-        "envFile": "apps/erp/.env.staging",
-        "appEnv": "staging"
-      },
-      "worker": {
-        "envFile": "apps/messaging_worker/.env.staging"
+      "targets": {
+        "erp": {
+          "envFile": "apps/erp/.env.staging",
+          "flavor": "staging",
+          "appEnv": "staging"
+        },
+        "worker": {
+          "envFile": "apps/messaging_worker/.env.staging"
+        }
       }
     },
     "production": {
@@ -50,13 +100,15 @@
       "secretsFile": "config/secrets/production.env",
       "supabaseSource": "secrets",
       "railwayEnvironment": "production",
-      "erp": {
-        "flavor": "production",
-        "envFile": "apps/erp/.env.production",
-        "appEnv": "production"
-      },
-      "worker": {
-        "envFile": "apps/messaging_worker/.env.production"
+      "targets": {
+        "erp": {
+          "envFile": "apps/erp/.env.production",
+          "flavor": "production",
+          "appEnv": "production"
+        },
+        "worker": {
+          "envFile": "apps/messaging_worker/.env.production"
+        }
       }
     }
   }

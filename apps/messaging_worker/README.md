@@ -11,7 +11,7 @@ Server-side messaging processor for VET45. Runs adaptive self-loop ticks (~3s wh
 
 Config is versioned in [`railway.toml`](../../railway.toml) at the repo root (Docker build context = monorepo root).
 
-**Runtime env:** edit `config/secrets/<env>.env` (not `apps/messaging_worker/.env*`), then `melos run env:sync`. See [config/secrets/README.md](../../config/secrets/README.md).
+**Runtime env:** edit `config/secrets/<env>.env` (not `apps/messaging_worker/.env*`), then `melos run env:sync -- --target worker` (or full `env:sync`). Key deps for the `worker` target are declared in [`config/environments.json`](../../config/environments.json). See [config/secrets/README.md](../../config/secrets/README.md).
 
 ## Prerequisites
 
