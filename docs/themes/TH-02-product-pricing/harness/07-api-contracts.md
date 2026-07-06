@@ -170,6 +170,20 @@ Draft: `supabase/migrations/_drafts/catalog_product_readiness.sql`
 
 `FakeCatalogModule` — `package:vet45_catalog_application/testing.dart`.
 
+### E2E scenarios (ERP integration)
+
+File: `apps/erp/test/features/catalog/presentation/pages/product_readiness_e2e_test.dart` — shared harness: `apps/erp/test/features/catalog/catalog_e2e_harness.dart`.
+
+| test_id | FakeCatalogScenario | Assert |
+| ------- | ------------------- | ------ |
+| `e2e_e02_u03_fr01_01` | `guided_create_ok` | PCC banner + checklist sections (blockers) |
+| `e2e_e02_u03_fr02_04` | `guided_create_ok` | Success → PCC; validation fail → stay on create |
+| `e2e_e02_u03_fr03_01` | `readiness_many_blockers` | Checklist page: missing base unit + CTA |
+| `e2e_e02_u03_fr04_01` | `readiness_refresh_after_unit` | Base unit complete; price band still missing |
+| `e2e_e02_u03_fr01_05` | `readiness_ready_to_sell` | Badge `Sẵn sàng bán`; no required blockers |
+
+Pattern: `initDependencies` → override `ICatalogModule` with `FakeCatalogModule` (mirror US-01 E2E). No live Supabase for slice #3.
+
 ### Parallel notes
 
 - FE có thể fake: **yes**

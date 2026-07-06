@@ -66,25 +66,8 @@ class _ProductControlCenterView extends StatelessWidget {
     final dynamicColors = context.vColors;
     final isReady = product.readinessStatus == ProductReadinessStatus.ready;
 
-<<<<<<< HEAD
-    // Determine missing items for Slice 1 and Slice 2
-    final missingList = <String>[];
-    if (product.baseUnit == null || product.baseUnit!.trim().isEmpty) {
-      missingList.add('Đơn vị cơ sở');
-    }
-    if (product.images == null || product.images!.isEmpty) {
-      missingList.add('Ảnh sản phẩm');
-    }
-    if (product.stockQty == null) {
-      missingList.add('Tồn kho khởi tạo');
-    }
-    if (product.listPrice == null) {
-      missingList.add('Khung giá bán');
-    }
-
-=======
->>>>>>> 5631adba (feat: implement product readiness checklist UI and integrate with control center BLoC)
     return Scaffold(
+      key: const Key('wgt_e02_u03_fr01_01'),
       backgroundColor: dynamicColors.background,
       appBar: AppBar(
         backgroundColor: dynamicColors.surface,
@@ -201,6 +184,7 @@ class _ProductControlCenterView extends StatelessWidget {
                 // Readiness Alert Banner using warning colors from VColorScheme
                 if (readinessView != null && blockersCount > 0) ...[
                   GestureDetector(
+                    key: const Key('btn_readiness_checklist_banner'),
                     onTap: () {
                       context.push(
                         '/products/items/pcc/checklist',
@@ -217,24 +201,6 @@ class _ProductControlCenterView extends StatelessWidget {
                       ),
                       child: Row(
                         children: [
-<<<<<<< HEAD
-                          Text(
-                            product.listPrice != null
-                                ? 'Giá niêm yết: ${_formatCurrency(product.listPrice)}'
-                                : 'Giá niêm yết: --',
-                            style: VTypography.bodyDefault.copyWith(
-                              color: dynamicColors.textPrimary,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            product.stockQty != null
-                                ? 'Tồn (${product.baseUnit ?? 'cơ sở'}): ${product.stockQty}'
-                                : 'Tồn (${product.baseUnit ?? 'cơ sở'}): Chưa thiết lập',
-                            style: VTypography.bodySmall.copyWith(
-                              color: dynamicColors.textSecondary,
-=======
                           Icon(
                             Icons.error_outline,
                             color: dynamicColors.warning,
@@ -260,7 +226,6 @@ class _ProductControlCenterView extends StatelessWidget {
                                   ),
                                 ),
                               ],
->>>>>>> 5631adba (feat: implement product readiness checklist UI and integrate with control center BLoC)
                             ),
                           ),
                         ],
@@ -296,95 +261,8 @@ class _ProductControlCenterView extends StatelessWidget {
                 const SizedBox(height: 16),
               ],
             ),
-<<<<<<< HEAD
-
-            _buildSectionCard(
-              context: context,
-              icon: Icons.camera_alt_outlined,
-              title: 'Ảnh sản phẩm',
-              subtitle: (product.images == null || product.images!.isEmpty)
-                  ? 'Chưa có ảnh'
-                  : 'Đã có ${product.images!.length} ảnh',
-              onEdit: () {
-                VToast.show(
-                  context,
-                  title: 'Chỉnh sửa',
-                  message: 'Chức năng sửa ảnh sẽ khả dụng trong slice tiếp theo.',
-                  type: VToastType.info,
-                );
-              },
-            ),
-
-            _buildSectionCard(
-              context: context,
-              icon: Icons.straighten,
-              title: 'Đơn vị đo lường',
-              subtitle: 'Cơ sở: ${product.baseUnit ?? 'Chưa thiết lập'}',
-              onEdit: () {
-                VToast.show(
-                  context,
-                  title: 'Chỉnh sửa',
-                  message: 'Chức năng sửa đơn vị sẽ khả dụng trong slice tiếp theo.',
-                  type: VToastType.info,
-                );
-              },
-            ),
-
-            _buildSectionCard(
-              context: context,
-              icon: Icons.inventory_2_outlined,
-              title: 'Tồn kho khởi tạo',
-              subtitle: product.stockQty != null
-                  ? 'Tồn kho: ${product.stockQty} ${product.baseUnit ?? ''}'
-                  : 'Chưa thiết lập tồn kho',
-              onEdit: () {
-                VToast.show(
-                  context,
-                  title: 'Chỉnh sửa',
-                  message: 'Chức năng sửa tồn kho sẽ khả dụng trong slice tiếp theo.',
-                  type: VToastType.info,
-                );
-              },
-            ),
-
-            _buildSectionCard(
-              context: context,
-              icon: Icons.payments_outlined,
-              title: 'Giá vốn cơ sở',
-              subtitle: product.baseCost != null
-                  ? 'Giá vốn: ${_formatCurrency(product.baseCost)}${product.baseUnit != null && product.baseUnit!.isNotEmpty ? ' (${product.baseUnit})' : ''}'
-                  : 'Chưa thiết lập giá vốn',
-              onEdit: () {
-                VToast.show(
-                  context,
-                  title: 'Chỉnh sửa',
-                  message: 'Chức năng sửa giá vốn sẽ khả dụng trong slice tiếp theo.',
-                  type: VToastType.info,
-                );
-              },
-            ),
-
-            _buildSectionCard(
-              context: context,
-              key: const Key('wgt_pcc_price_band_card'),
-              icon: Icons.local_offer_outlined,
-              title: 'Khung giá bán',
-              subtitle: _priceBandSubtitle(product),
-              onEdit: () {
-                VToast.show(
-                  context,
-                  title: 'Chỉnh sửa',
-                  message: 'Chức năng sửa khung giá bán sẽ khả dụng trong slice tiếp theo.',
-                  type: VToastType.info,
-                );
-              },
-            ),
-          ],
-        ),
-=======
           );
         },
->>>>>>> 5631adba (feat: implement product readiness checklist UI and integrate with control center BLoC)
       ),
     );
   }

@@ -22,6 +22,7 @@ class ProductReadinessChecklistPage extends StatelessWidget {
     final dynamicColors = context.vColors;
 
     return Scaffold(
+      key: const Key('wgt_e02_u03_checklist'),
       backgroundColor: dynamicColors.background,
       appBar: AppBar(
         backgroundColor: dynamicColors.surface,
