@@ -46,10 +46,10 @@ Codegen ritual: mirror [modules/partner/README.md](../../../../modules/partner/R
 | Req ID | Role | Contract § | Enforce layer | Artifact | Test id | Status |
 | ------ | ---- | ---------- | ------------- | -------- | ------- | ------ |
 | US-02 | CONTRACT | §EPIC-02-US-02 | application | `SetInitialStockCommand`, `SetManualBasePriceCommand`, DTOs, `FakeCatalogModule` | — | done |
-| FR-01 | BE | §EPIC-02-US-02 | application | `SetInitialStockCommandHandler` | — | todo |
-| FR-02 | BE | §EPIC-02-US-02 | application | `SetManualBasePriceCommandHandler` | — | todo |
-| FR-01..03 | FE | §EPIC-02-US-02 | presentation | `product_guided_step_inventory.dart`, `product_guided_step_base_cost.dart`, `product_guided_step_price_bands.dart` | — | done |
-| FR-01..03 | E2E | §EPIC-02-US-02 | integration | ERP via `ICatalogModule` (`CatalogStartup` + `product_guided_create_e2e_test.dart`) | e2e_e02_u02_fr01_01 | todo |
+| FR-01 | BE | §EPIC-02-US-02 | application | `SetInitialStockCommandHandler` | scn_e02_u02_fr01_01 | done |
+| FR-02 | BE | §EPIC-02-US-02 | application | `SetManualBasePriceCommandHandler` | scn_e02_u02_fr02_01 | done |
+| FR-01..03 | FE | §EPIC-02-US-02 | presentation | `product_guided_step_inventory.dart`, `product_guided_step_base_cost.dart`, `product_guided_step_price_bands.dart` | wgt_e02_u02_fr01_01 | done |
+| FR-01..03 | E2E | §EPIC-02-US-02 | integration | ERP via `ICatalogModule` (`CatalogStartup` + `product_guided_create_e2e_test.dart`) | e2e_e02_u02_fr01_01 | done |
 
 ---
 

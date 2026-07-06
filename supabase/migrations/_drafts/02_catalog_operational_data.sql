@@ -165,9 +165,9 @@ $$;
 create or replace function catalog.set_initial_price_band(
   p_tenant_id uuid,
   p_product_id uuid,
-  p_product_unit_id uuid,
   p_list_price numeric,
-  p_floor_price numeric
+  p_floor_price numeric,
+  p_product_unit_id uuid default null
 )
 returns void
 language plpgsql
@@ -176,6 +176,7 @@ set search_path = catalog, iam, pg_temp
 as $$
 declare
   v_actor_id uuid;
+  v_product_unit_id uuid;
   v_has_image boolean;
   v_has_unit boolean;
   v_blockers jsonb;
@@ -198,8 +199,23 @@ begin
     raise exception 'floor_price_greater_than_list_price';
   end if;
 
+  v_product_unit_id := p_product_unit_id;
+  if v_product_unit_id is null then
+    select pu.id
+    into v_product_unit_id
+    from catalog.product_units pu
+    where pu.product_id = p_product_id
+      and pu.tenant_id = p_tenant_id
+      and pu.is_base_unit = true
+    limit 1;
+  end if;
+
+  if v_product_unit_id is null then
+    raise exception 'base_unit_not_found';
+  end if;
+
   insert into catalog.product_unit_price_bands (tenant_id, product_id, product_unit_id, list_price_amount, floor_price_amount, updated_at)
-  values (p_tenant_id, p_product_id, p_product_unit_id, p_list_price, p_floor_price, now())
+  values (p_tenant_id, p_product_id, v_product_unit_id, p_list_price, p_floor_price, now())
   on conflict (product_id, product_unit_id) do update set
     list_price_amount = excluded.list_price_amount,
     floor_price_amount = excluded.floor_price_amount,
@@ -236,7 +252,7 @@ begin
     p_tenant_id,
     p_product_id,
     'set_initial_price_band',
-    jsonb_build_object('product_unit_id', p_product_unit_id, 'list_price', p_list_price, 'floor_price', p_floor_price, 'readiness_status', v_new_status),
+    jsonb_build_object('product_unit_id', v_product_unit_id, 'list_price', p_list_price, 'floor_price', p_floor_price, 'readiness_status', v_new_status),
     v_actor_id
   );
 end;

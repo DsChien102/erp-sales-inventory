@@ -56,5 +56,24 @@ void main() {
       expect(params['p_list_price'], 120000.0);
       expect(params['p_floor_price'], 100000.0);
     });
+
+    test('setInitialPriceBandParams omits unit id when base unit not specified', () {
+      final band = ProductUnitPriceBand(
+        id: 'band-1',
+        tenantId: 'tenant-1',
+        productId: 'prod-1',
+        listPrice: ListPrice(amount: 120000.0),
+        floorPrice: FloorPrice(amount: 100000.0),
+      );
+      final params = ProductRpcMapper.setInitialPriceBandParams(
+        productId: 'prod-1',
+        tenantId: 'tenant-1',
+        priceBand: band,
+      );
+
+      expect(params.containsKey('p_product_unit_id'), isFalse);
+      expect(params['p_list_price'], 120000.0);
+      expect(params['p_floor_price'], 100000.0);
+    });
   });
 }

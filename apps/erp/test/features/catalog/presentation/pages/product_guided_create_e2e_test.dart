@@ -156,6 +156,11 @@ void main() {
     expect(find.text('Tồn (Hộp): 150'), findsOneWidget);
     expect(find.text('Giá niêm yết: 6.750 đ'), findsOneWidget);
     expect(find.text('Tồn kho: 150 Hộp'), findsOneWidget);
-    expect(find.text('Giá vốn: 5.000 đ · Giá bán: 6.750 đ'), findsOneWidget);
+    expect(find.text('Giá vốn: 5.000 đ (Hộp)'), findsOneWidget);
+    expect(find.text('Khung giá bán'), findsOneWidget);
+    expect(
+      find.text('Niêm yết: 6.750 đ · Sàn: 5.750 đ · Đơn vị: Hộp'),
+      findsOneWidget,
+    );
   });
 }

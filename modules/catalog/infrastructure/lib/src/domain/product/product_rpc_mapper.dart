@@ -89,7 +89,8 @@ abstract final class ProductRpcMapper {
     return <String, dynamic>{
       'p_tenant_id': tenantId,
       'p_product_id': productId,
-      'p_product_unit_id': priceBand.productUnitId,
+      if (priceBand.productUnitId != null)
+        'p_product_unit_id': priceBand.productUnitId,
       'p_list_price': priceBand.listPrice?.amount,
       'p_floor_price': priceBand.floorPrice?.amount,
     };

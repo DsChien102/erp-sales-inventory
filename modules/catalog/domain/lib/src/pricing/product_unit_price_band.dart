@@ -7,7 +7,7 @@ final class ProductUnitPriceBand extends ValueObject {
     required this.id,
     required this.tenantId,
     required this.productId,
-    required this.productUnitId,
+    this.productUnitId,
     this.listPrice,
     this.floorPrice,
     this.storePriceRuleId,
@@ -16,7 +16,7 @@ final class ProductUnitPriceBand extends ValueObject {
   final String id;
   final String tenantId;
   final String productId;
-  final String productUnitId;
+  final String? productUnitId;
   final ListPrice? listPrice;
   final FloorPrice? floorPrice;
   final String? storePriceRuleId;

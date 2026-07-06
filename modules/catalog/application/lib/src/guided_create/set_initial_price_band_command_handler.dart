@@ -32,12 +32,12 @@ final class SetInitialPriceBandCommandHandler
       throw FloorPriceGreaterThanListPriceException(rule.message);
     }
 
-    final unitId = command.productUnitId ?? 'base_unit';
+    final unitSuffix = command.productUnitId ?? 'initial';
     final priceBand = ProductUnitPriceBand(
-      id: '${command.productId}_$unitId',
+      id: '${command.productId}_$unitSuffix',
       tenantId: command.tenantId,
       productId: command.productId,
-      productUnitId: unitId,
+      productUnitId: command.productUnitId,
       listPrice: ListPrice(amount: listPriceVal),
       floorPrice: FloorPrice(amount: floorPriceVal),
     );

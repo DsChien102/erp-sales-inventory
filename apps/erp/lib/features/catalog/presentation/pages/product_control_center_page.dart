@@ -324,15 +324,31 @@ class ProductControlCenterPage extends StatelessWidget {
             _buildSectionCard(
               context: context,
               icon: Icons.payments_outlined,
-              title: 'Giá vốn & Định giá',
+              title: 'Giá vốn cơ sở',
               subtitle: product.baseCost != null
-                  ? 'Giá vốn: ${_formatCurrency(product.baseCost)} · Giá bán: ${product.listPrice != null ? _formatCurrency(product.listPrice) : 'Chưa thiết lập'}'
-                  : 'Chưa thiết lập định giá',
+                  ? 'Giá vốn: ${_formatCurrency(product.baseCost)}${product.baseUnit != null && product.baseUnit!.isNotEmpty ? ' (${product.baseUnit})' : ''}'
+                  : 'Chưa thiết lập giá vốn',
               onEdit: () {
                 VToast.show(
                   context,
                   title: 'Chỉnh sửa',
-                  message: 'Chức năng sửa định giá sẽ khả dụng trong slice tiếp theo.',
+                  message: 'Chức năng sửa giá vốn sẽ khả dụng trong slice tiếp theo.',
+                  type: VToastType.info,
+                );
+              },
+            ),
+
+            _buildSectionCard(
+              context: context,
+              key: const Key('wgt_pcc_price_band_card'),
+              icon: Icons.local_offer_outlined,
+              title: 'Khung giá bán',
+              subtitle: _priceBandSubtitle(product),
+              onEdit: () {
+                VToast.show(
+                  context,
+                  title: 'Chỉnh sửa',
+                  message: 'Chức năng sửa khung giá bán sẽ khả dụng trong slice tiếp theo.',
                   type: VToastType.info,
                 );
               },
@@ -357,15 +373,35 @@ class ProductControlCenterPage extends StatelessWidget {
     return '${buffer.toString()} đ';
   }
 
+  String _priceBandSubtitle(ProductListItemModel product) {
+    if (product.listPrice == null && product.floorPrice == null) {
+      return 'Chưa thiết lập khung giá bán';
+    }
+
+    final listPart = product.listPrice != null
+        ? 'Niêm yết: ${_formatCurrency(product.listPrice)}'
+        : 'Niêm yết: --';
+    final floorPart = product.floorPrice != null
+        ? 'Sàn: ${_formatCurrency(product.floorPrice)}'
+        : 'Sàn: --';
+    final unit = product.baseUnit?.trim();
+    final unitSuffix =
+        unit != null && unit.isNotEmpty ? ' · Đơn vị: $unit' : '';
+
+    return '$listPart · $floorPart$unitSuffix';
+  }
+
   Widget _buildSectionCard({
     required BuildContext context,
     required IconData icon,
     required String title,
     required String subtitle,
     required VoidCallback onEdit,
+    Key? key,
   }) {
     final dynamicColors = context.vColors;
     return Padding(
+      key: key,
       padding: const EdgeInsets.symmetric(
         horizontal: 16,
         vertical: 8,

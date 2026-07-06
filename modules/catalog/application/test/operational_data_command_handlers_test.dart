@@ -174,6 +174,22 @@ void main() {
       expect(gateway.lastPriceBand!.floorPrice!.amount, 80000.0);
     });
 
+    test('omitted product unit id leaves null for RPC base-unit resolution', () async {
+      final gateway = _RecordingProductCommandGateway();
+      final handler = SetInitialPriceBandCommandHandler(commandGateway: gateway);
+
+      await handler.handle(
+        SetInitialPriceBandCommand(
+          tenantId: 'tenant-1',
+          productId: 'prod-1',
+          listPrice: 100000.0,
+          floorPrice: 80000.0,
+        ),
+      );
+
+      expect(gateway.lastPriceBand!.productUnitId, isNull);
+    });
+
     test('floor price greater than list price throws exception', () async {
       final gateway = _RecordingProductCommandGateway();
       final handler = SetInitialPriceBandCommandHandler(commandGateway: gateway);
