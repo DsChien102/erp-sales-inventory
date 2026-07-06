@@ -1,8 +1,8 @@
-import '../readiness/product_readiness_view_dto.dart';
+import 'package:vet45_catalog_domain/domain.dart';
 
-/// Read port for product readiness view (BE lane: gateway + RPC).
+/// Read port for product readiness facts (BE lane: gateway + RPC).
 abstract interface class IProductReadinessReadPort {
-  Future<ProductReadinessViewDto> getByProductId({
+  Future<ProductReadinessFacts?> loadFacts({
     required String tenantId,
     required String productId,
   });

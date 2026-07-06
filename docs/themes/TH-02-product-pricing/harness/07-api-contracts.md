@@ -95,7 +95,7 @@ Permissions: `@RequiresPermission(CatalogPermissions.create)` (`catalog.product.
 
 ## EPIC-02 / US-03 — Hoàn tất create + readiness summary (slice #3)
 
-**Status:** CONTRACT `done` · BE `todo`
+**Status:** CONTRACT `done` · BE `done`
 
 ### Commands / Queries
 
@@ -142,6 +142,18 @@ Priority: base unit → stock/base price (tenant mode) → price band → custom
 | Use case | RPC |
 | -------- | --- |
 | Readiness view | `catalog.get_product_readiness` |
+
+**Params:** `p_tenant_id uuid`, `p_product_id uuid`
+
+**Response (facts row):** `product_id`, `product_name`, `has_base_unit`, `has_images`, `has_stock`, `has_base_price`, `has_price_band`, `has_required_custom_fields`, `stock_mode` (`basic` \| `advanced`), `base_price_mode` (`manual` \| `costing_module`)
+
+**Foundation MVP (US-03 BE):** RPC hardcodes `stock_mode = basic`, `base_price_mode = manual`; `has_stock`, `has_base_price`, `has_price_band` = `false` until EPIC-05/US-02 and EPIC-06 slices extend joins. Domain `ProductReadinessEvaluator` + application `ProductReadinessViewAssembler` compute blockers/checklist/actions from facts.
+
+**Permission:** `iam.has_permission(p_tenant_id, 'catalog.product.view_detail')` — mirror US-01 read paths.
+
+**Not found:** empty result → gateway maps `ApplicationException('Product not found')`.
+
+Draft: `supabase/migrations/_drafts/catalog_product_readiness.sql`
 
 ### Fake scenarios (FE)
 

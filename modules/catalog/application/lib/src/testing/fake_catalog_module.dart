@@ -64,8 +64,8 @@ class _StoredProduct {
   bool useStoreRule = false;
   final String? notes;
   final bool hasRequiredCustomFields;
-  final String stockMode;
-  final String basePriceMode;
+  final StockMode stockMode;
+  final BasePriceMode basePriceMode;
   final bool pricePermissionDenied;
 
   bool get hasBaseUnit => baseUnit.trim().isNotEmpty;
@@ -283,8 +283,8 @@ final class FakeCatalogModule implements ICatalogModule {
     bool hasBasePrice = false,
     bool hasPriceBand = false,
     bool hasRequiredCustomFields = true,
-    String stockMode = FakeProductReadinessBuilder.stockModeBasic,
-    String basePriceMode = FakeProductReadinessBuilder.basePriceModeManual,
+    StockMode stockMode = FakeProductReadinessBuilder.stockModeBasic,
+    BasePriceMode basePriceMode = FakeProductReadinessBuilder.basePriceModeManual,
     bool pricePermissionDenied = false,
   }) {
     final productId = 'product-new-${_nextProductId++}';

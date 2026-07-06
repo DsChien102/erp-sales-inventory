@@ -33,6 +33,8 @@ export 'src/readiness/contextual_action_id.dart';
 export 'src/readiness/contextual_action_priority.dart';
 export 'src/readiness/get_product_readiness_query.dart';
 export 'src/readiness/get_product_readiness_query_handler.dart';
+export 'src/readiness/product_readiness_permission_context.dart';
+export 'src/readiness/product_readiness_view_assembler.dart';
 export 'src/readiness/product_readiness_view_dto.dart';
 export 'src/readiness/readiness_blocker_dto.dart';
 export 'src/readiness/readiness_checklist_group.dart';

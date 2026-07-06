@@ -7,7 +7,7 @@ import 'package:vet45_shared_infrastructure/infrastructure.dart';
 import '../../domain/product/supabase_product_command_gateway.dart';
 import '../../domain/product/supabase_product_duplicate_checker.dart';
 import '../../domain/product/supabase_product_image_upload_gateway.dart';
-import '../../domain/product/unimplemented_product_readiness_read_port.dart';
+import '../../domain/product/supabase_product_readiness_read_gateway.dart';
 import '../processing/internal_commands/supabase_catalog_internal_command_client.dart';
 
 /// Registers catalog gateways and checkers.
@@ -47,7 +47,9 @@ final class CatalogDataAccessModule {
         ),
       )
       ..registerSingleton<IProductReadinessReadPort>(
-        const UnimplementedProductReadinessReadPort(),
+        SupabaseProductReadinessReadGateway(
+          rpcClient: container.get<SupabaseSchemaRpcClient>(),
+        ),
       )
       ..registerSingleton<ICatalogInternalCommandClient>(
         const SupabaseCatalogInternalCommandClient(),

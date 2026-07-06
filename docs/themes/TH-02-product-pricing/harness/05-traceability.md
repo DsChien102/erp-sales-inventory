@@ -62,7 +62,7 @@ Codegen ritual: mirror [modules/partner/README.md](../../../../modules/partner/R
 | FR-02 | CONTRACT | §EPIC-02-US-03 | application | `productId` + readiness view for post-create navigation | scn_e02_u03_fr02_04 | done |
 | FR-03 | CONTRACT | §EPIC-02-US-03 | application | `ContextualActionDto` + `primaryActionId` | scn_e02_u03_fr03_01, scn_e02_u03_fr03_03 | done |
 | FR-04 | CONTRACT | §EPIC-02-US-03 | application | `GetProductReadinessQuery` refresh path | scn_e02_u03_fr04_01 | done |
-| FR-01..04 | BE | §EPIC-02-US-03 | application + infrastructure | `GetProductReadinessQueryHandler`, `IProductReadinessReadPort` gateway, RPC `catalog.get_product_readiness` | scn_e02_u03_fr01_01 | todo |
+| FR-01..04 | BE | §EPIC-02-US-03 | application + domain + infrastructure | `GetProductReadinessQueryHandler`, `ProductReadinessEvaluator`, `ProductReadinessViewAssembler`, `IProductReadinessReadPort`, `SupabaseProductReadinessReadGateway`, draft RPC `catalog.get_product_readiness` | scn_e02_u03_fr01_01, scn_e02_u03_fr03_03, scn_e02_u03_fr04_01 | done |
 | FR-01..04 | FE | §EPIC-02-US-03 | presentation | Post-create result + readiness checklist UI | wgt_e02_u03_fr01_01 | todo |
 | FR-01 | E2E | §EPIC-02-US-03 | integration | Readiness query via `ICatalogModule` | e2e_e02_u03_fr01_01 | todo |
 

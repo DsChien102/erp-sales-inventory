@@ -100,6 +100,7 @@ void registerGeneratedCatalogQueries({
     bus: bus,
     factory: () => GetProductReadinessQueryHandler(
       readinessReadPort: container.get<IProductReadinessReadPort>(),
+      permissionChecker: container.get<IPermissionChecker>(),
     ),
     invoke: (query, handler) => handler.handle(query),
   );
