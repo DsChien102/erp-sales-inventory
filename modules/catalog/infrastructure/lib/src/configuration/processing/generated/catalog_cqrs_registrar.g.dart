@@ -96,11 +96,36 @@ void registerGeneratedCatalogQueries({
     invoke: (query, handler) => handler.handle(query),
   );
 
+  CatalogCommandRegistration.registerQueryHandler<GetProductControlCenterQuery, ProductControlCenterDto, GetProductControlCenterQueryHandler>(
+    bus: bus,
+    factory: () => GetProductControlCenterQueryHandler(
+      readGateway: container.get<ICatalogReadGateway>(),
+      permissionChecker: container.get<IPermissionChecker>(),
+    ),
+    invoke: (query, handler) => handler.handle(query),
+  );
+
   CatalogCommandRegistration.registerQueryHandler<GetProductReadinessQuery, ProductReadinessViewDto, GetProductReadinessQueryHandler>(
     bus: bus,
     factory: () => GetProductReadinessQueryHandler(
       readinessReadPort: container.get<IProductReadinessReadPort>(),
       permissionChecker: container.get<IPermissionChecker>(),
+    ),
+    invoke: (query, handler) => handler.handle(query),
+  );
+
+  CatalogCommandRegistration.registerQueryHandler<ScanBarcodeQuery, ProductListItemDto?, ScanBarcodeQueryHandler>(
+    bus: bus,
+    factory: () => ScanBarcodeQueryHandler(
+      readGateway: container.get<ICatalogReadGateway>(),
+    ),
+    invoke: (query, handler) => handler.handle(query),
+  );
+
+  CatalogCommandRegistration.registerQueryHandler<SearchProductsQuery, ProductSearchResultDto, SearchProductsQueryHandler>(
+    bus: bus,
+    factory: () => SearchProductsQueryHandler(
+      readGateway: container.get<ICatalogReadGateway>(),
     ),
     invoke: (query, handler) => handler.handle(query),
   );

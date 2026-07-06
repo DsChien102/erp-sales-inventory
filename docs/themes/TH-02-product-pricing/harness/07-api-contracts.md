@@ -193,7 +193,7 @@ Pattern: `initDependencies` → override `ICatalogModule` with `FakeCatalogModul
 
 ## EPIC-01 / US-01 — Tra cứu danh mục (slice #4)
 
-**Status:** CONTRACT `done` · BE `todo` · FE `todo`
+**Status:** CONTRACT `done` · BE `done` · FE `todo`
 
 ### Commands / Queries
 
@@ -255,7 +255,7 @@ Tests: `scn_contract_e01_u01_*` trong `fake_catalog_module_test.dart`.
 
 ## EPIC-01 / US-02 — Product Control Center (slice #5)
 
-**Status:** CONTRACT `done` · BE `todo` · FE `todo`
+**Status:** CONTRACT `done` · BE `done` · FE `todo`
 
 ### Commands / Queries
 

@@ -14,12 +14,24 @@ final catalogAccessMetadataRegistry = AccessMetadataRegistry({
     permission: 'catalog.product.create',
     requiresTenant: true,
   ),
+  GetProductControlCenterQuery: AccessMetadata(
+    permission: 'catalog.product.view_detail',
+    requiresTenant: true,
+  ),
   GetProductReadinessQuery: AccessMetadata(
     permission: 'catalog.product.view_detail',
     requiresTenant: true,
   ),
   RequestProductImageUploadCommand: AccessMetadata(
     permission: 'catalog.product.create',
+    requiresTenant: true,
+  ),
+  ScanBarcodeQuery: AccessMetadata(
+    permission: 'catalog.product.view',
+    requiresTenant: true,
+  ),
+  SearchProductsQuery: AccessMetadata(
+    permission: 'catalog.product.view',
     requiresTenant: true,
   ),
   SetInitialPriceBandCommand: AccessMetadata(

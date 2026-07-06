@@ -13,8 +13,8 @@ Foundation MVP: Epic 02 (guided create) → Epic 01 (discovery/control center) �
 | 1 | [EPIC-02/US-01](../EPIC-02-guided-creation/US-01/) — Guided create (nhận diện, dup, UOM, khởi tạo) | write | done | done | done | done | — | — |
 | 2 | [EPIC-02/US-02](../EPIC-02-guided-creation/US-02/) — Dữ liệu vận hành ban đầu (tồn, base price, giá) | write | done | done | done | done | A | US-01 |
 | 3 | [EPIC-02/US-03](../EPIC-02-guided-creation/US-03/) — Hoàn tất + readiness **summary** | write | done | done | done | todo | A | US-01 |
-| 4 | [EPIC-01/US-01](../EPIC-01-discovery-readiness/US-01/) — Tìm kiếm, lọc, danh sách + readiness chip | read | done | todo | todo | todo | B | US-01 (data) |
-| 5 | [EPIC-01/US-02](../EPIC-01-discovery-readiness/US-02/) — Product Control Center | read | done | todo | todo | todo | B | US-01; **FR-04 checklist pending** (làm FR-01..03, FR-05..06) |
+| 4 | [EPIC-01/US-01](../EPIC-01-discovery-readiness/US-01/) — Tìm kiếm, lọc, danh sách + readiness chip | read | done | done | todo | todo | B | US-01 (data) |
+| 5 | [EPIC-01/US-02](../EPIC-01-discovery-readiness/US-02/) — Product Control Center | read | done | done | todo | todo | B | US-01; **FR-04 checklist pending** (làm FR-01..03, FR-05..06) |
 | 6 | [EPIC-04/US-01](../EPIC-04-units/US-01/) — Đơn vị cơ sở | write | todo | todo | todo | todo | C | US-01 |
 | 7 | [EPIC-04/US-02](../EPIC-04-units/US-02/) — Đơn vị quy đổi | write | todo | todo | todo | todo | C | US-01; **FR-02 unit roles pending** |
 | 8 | [EPIC-05/US-01](../EPIC-05-stock/US-01/) + [US-02](../EPIC-05-stock/US-02/) — Stock profile + Basic stock | write | todo | todo | todo | todo | D | US-01 |

@@ -1,4 +1,4 @@
-import '../control_center/product_control_center_dto.dart';
+import '../control_center/product_control_center_read_model.dart';
 import '../product_search/product_list_item_dto.dart';
 import '../product_search/product_search_result_dto.dart';
 import 'package:vet45_catalog_domain/domain.dart';
@@ -17,7 +17,7 @@ abstract interface class ICatalogReadGateway {
     required String barcode,
   });
 
-  Future<ProductControlCenterDto> getControlCenter({
+  Future<ProductControlCenterReadModel?> loadControlCenter({
     required String tenantId,
     required String productId,
   });
