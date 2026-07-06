@@ -249,6 +249,8 @@ Mở đầy đủ khi CONTRACT lane bắt đầu.
 | FR-02 | BE | §EPIC-06-US-03 | application | `PriceBandWarningCalculator` + handler warn-only gate | scn_e06_u03_fr02_* | done |
 | FR-03 | BE | §EPIC-06-US-03 | application + infrastructure | `_product_operational_facts` multi-unit `has_price_band` + readiness result | scn_e06_u03_fr03_* | done |
 | FR-04 | BE | §EPIC-06-US-03 | infrastructure | Change history in `set_product_unit_price_band` RPC | — | done |
+| FR-01..03 | FE | §EPIC-06-US-03 | presentation | `ProductPriceBandsPage`, `EditProductUnitPriceBandPage`, `PriceBandCalculationTypeSelector`, cubits | wgt_e06_u03_fr01_01 | done |
+| FR-01..03 | E2E | §EPIC-06-US-03 | erp | E2E test cho price bands `product_price_bands_e2e_test.dart` | e2e_e06_u03_fr01_01 | done |
 
 ---
 

@@ -193,10 +193,7 @@ Widget buildCatalogDiscoveryRouter() {
         builder: (context, state) {
           final args = state.extra as ProductPriceBandsRouteArgs;
           return ProductPriceBandsPage(
-            product: args.product,
-            basePriceCard: args.basePriceCard,
-            priceBandCard: args.priceBandCard,
-            unitName: args.unitName,
+            args: args,
           );
         },
       ),
@@ -205,9 +202,7 @@ Widget buildCatalogDiscoveryRouter() {
         builder: (context, state) {
           final args = state.extra as EditProductUnitPriceBandRouteArgs;
           return EditProductUnitPriceBandPage(
-            tenantId: 'tenant-1',
-            productId: args.product.id,
-            unitName: args.unitName,
+            args: args,
           );
         },
       ),
@@ -257,10 +252,7 @@ Widget buildPccPriceBandRouter(ProductListItemModel product) {
         builder: (context, state) {
           final args = state.extra as ProductPriceBandsRouteArgs;
           return ProductPriceBandsPage(
-            product: args.product,
-            basePriceCard: args.basePriceCard,
-            priceBandCard: args.priceBandCard,
-            unitName: args.unitName,
+            args: args,
           );
         },
       ),
@@ -269,9 +261,7 @@ Widget buildPccPriceBandRouter(ProductListItemModel product) {
         builder: (context, state) {
           final args = state.extra as EditProductUnitPriceBandRouteArgs;
           return EditProductUnitPriceBandPage(
-            tenantId: 'tenant-1',
-            productId: args.product.id,
-            unitName: args.unitName,
+            args: args,
           );
         },
       ),
