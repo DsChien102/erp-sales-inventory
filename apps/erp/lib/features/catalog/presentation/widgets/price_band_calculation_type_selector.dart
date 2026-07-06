@@ -125,20 +125,23 @@ class _PriceBandCalculationTypeSelectorState extends State<PriceBandCalculationT
     required ValueChanged<PriceBandCalculationType?> onChanged,
   }) {
     final dynamicColors = context.vColors;
-    return RadioListTile<PriceBandCalculationType>(
-      title: Text(
-        title,
-        style: VTypography.bodyDefault.copyWith(color: dynamicColors.textPrimary),
+    return Material(
+      color: Colors.transparent,
+      child: RadioListTile<PriceBandCalculationType>(
+        title: Text(
+          title,
+          style: VTypography.bodyDefault.copyWith(color: dynamicColors.textPrimary),
+        ),
+        subtitle: Text(
+          subtitle,
+          style: VTypography.bodySmall.copyWith(color: dynamicColors.textSecondary),
+        ),
+        value: value,
+        groupValue: groupValue,
+        onChanged: onChanged,
+        contentPadding: const EdgeInsets.symmetric(horizontal: 8),
+        activeColor: dynamicColors.success,
       ),
-      subtitle: Text(
-        subtitle,
-        style: VTypography.bodySmall.copyWith(color: dynamicColors.textSecondary),
-      ),
-      value: value,
-      groupValue: groupValue,
-      onChanged: onChanged,
-      contentPadding: const EdgeInsets.symmetric(horizontal: 8),
-      activeColor: dynamicColors.success,
     );
   }
 
