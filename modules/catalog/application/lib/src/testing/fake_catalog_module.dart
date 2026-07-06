@@ -2,6 +2,9 @@ import 'package:vet45_catalog_application/application.dart';
 import 'package:vet45_catalog_domain/domain.dart';
 import 'package:vet45_shared_application/application.dart';
 
+import 'fake_product_readiness_builder.dart';
+
+/// Scenario ids aligned with `docs/themes/TH-02-product-pricing/harness/07-api-contracts.md`.
 abstract final class FakeCatalogScenario {
   static const guidedCreateOk = 'guided_create_ok';
   static const guidedCreateDupSku = 'guided_create_dup_sku';
@@ -15,6 +18,16 @@ abstract final class FakeCatalogScenario {
   static const initialStockSkip = 'initial_stock_skip';
   static const manualBasePriceOk = 'manual_base_price_ok';
   static const priceBandFromStoreRule = 'price_band_from_store_rule';
+
+  static const readinessManyBlockers = 'readiness_many_blockers';
+  static const readinessReadyToSell = 'readiness_ready_to_sell';
+  static const readinessAdvancedStockPending = 'readiness_advanced_stock_pending';
+  static const readinessCostingBasePricePending =
+      'readiness_costing_base_price_pending';
+  static const readinessMissingCustomFields = 'readiness_missing_custom_fields';
+  static const readinessNoPricePermission = 'readiness_no_price_permission';
+  static const readinessRefreshAfterUnit = 'readiness_refresh_after_unit';
+  static const readinessPermissionDenied = 'readiness_permission_denied';
 }
 
 class _StoredProduct {
@@ -31,6 +44,10 @@ class _StoredProduct {
     this.listPrice,
     this.floorPrice,
     this.notes,
+    this.hasRequiredCustomFields = true,
+    this.stockMode = FakeProductReadinessBuilder.stockModeBasic,
+    this.basePriceMode = FakeProductReadinessBuilder.basePriceModeManual,
+    this.pricePermissionDenied = false,
   });
 
   final String id;
@@ -46,6 +63,20 @@ class _StoredProduct {
   double? floorPrice;
   bool useStoreRule = false;
   final String? notes;
+  final bool hasRequiredCustomFields;
+  final String stockMode;
+  final String basePriceMode;
+  final bool pricePermissionDenied;
+
+  bool get hasBaseUnit => baseUnit.trim().isNotEmpty;
+
+  bool get hasImages => images.isNotEmpty;
+
+  bool get hasStock => stockQty != null;
+
+  bool get hasBasePrice => baseCost != null;
+
+  bool get hasPriceBand => listPrice != null && floorPrice != null;
 }
 
 final class FakeCatalogModule implements ICatalogModule {
@@ -149,6 +180,11 @@ final class FakeCatalogModule implements ICatalogModule {
         query as CheckDuplicateProductCodeQuery,
       );
     }
+    if (query is GetProductReadinessQuery) {
+      return _handleGetProductReadiness<TResult>(
+        query as GetProductReadinessQuery,
+      );
+    }
     throw UnimplementedError('Unexpected query: ${query.runtimeType}');
   }
 
@@ -157,6 +193,7 @@ final class FakeCatalogModule implements ICatalogModule {
   ) {
     switch (scenario) {
       case FakeCatalogScenario.guidedCreatePermissionDenied:
+      case FakeCatalogScenario.readinessPermissionDenied:
         throw ApplicationException('Permission denied');
       case FakeCatalogScenario.guidedCreateUploadInvalidType:
         throw ValidationException('Unsupported image content type.');
@@ -176,6 +213,7 @@ final class FakeCatalogModule implements ICatalogModule {
   TResult _handleCreateProduct<TResult>(CreateProductCommand command) {
     switch (scenario) {
       case FakeCatalogScenario.guidedCreatePermissionDenied:
+      case FakeCatalogScenario.readinessPermissionDenied:
         throw ApplicationException('Permission denied');
       case FakeCatalogScenario.guidedCreateDupSku:
         throw DuplicateSkuException(
@@ -192,7 +230,46 @@ final class FakeCatalogModule implements ICatalogModule {
       case FakeCatalogScenario.guidedCreateMissingName:
         throw ValidationException('Product name is required.');
       case FakeCatalogScenario.guidedCreateNoImages:
-        return _persistCreate(command, includeImageBlocker: true) as TResult;
+        return _persistCreate(command) as TResult;
+      case FakeCatalogScenario.readinessReadyToSell:
+        return _persistCreate(
+          command,
+          hasStock: true,
+          hasBasePrice: true,
+          hasPriceBand: true,
+        ) as TResult;
+      case FakeCatalogScenario.readinessManyBlockers:
+        return _persistCreate(
+          command,
+          hasImages: false,
+        ) as TResult;
+      case FakeCatalogScenario.readinessAdvancedStockPending:
+        return _persistCreate(
+          command,
+          stockMode: FakeProductReadinessBuilder.stockModeAdvanced,
+        ) as TResult;
+      case FakeCatalogScenario.readinessCostingBasePricePending:
+        return _persistCreate(
+          command,
+          basePriceMode: FakeProductReadinessBuilder.basePriceModeCosting,
+        ) as TResult;
+      case FakeCatalogScenario.readinessMissingCustomFields:
+        return _persistCreate(
+          command,
+          hasRequiredCustomFields: false,
+        ) as TResult;
+      case FakeCatalogScenario.readinessNoPricePermission:
+        return _persistCreate(
+          command,
+          hasStock: true,
+          hasBasePrice: true,
+          pricePermissionDenied: true,
+        ) as TResult;
+      case FakeCatalogScenario.readinessRefreshAfterUnit:
+        return _persistCreate(
+          command,
+          hasBasePrice: true,
+        ) as TResult;
       case FakeCatalogScenario.guidedCreateOk:
       default:
         return _persistCreate(command) as TResult;
@@ -201,47 +278,85 @@ final class FakeCatalogModule implements ICatalogModule {
 
   CreateProductResult _persistCreate(
     CreateProductCommand command, {
-    bool includeImageBlocker = false,
+    bool hasImages = true,
+    bool hasStock = false,
+    bool hasBasePrice = false,
+    bool hasPriceBand = false,
+    bool hasRequiredCustomFields = true,
+    String stockMode = FakeProductReadinessBuilder.stockModeBasic,
+    String basePriceMode = FakeProductReadinessBuilder.basePriceModeManual,
+    bool pricePermissionDenied = false,
   }) {
     final productId = 'product-new-${_nextProductId++}';
+    final images = hasImages
+        ? command.images.map((img) => img.storageKey).toList()
+        : <String>[];
 
-    _products.add(
-      _StoredProduct(
-        id: productId,
-        name: command.productName,
-        tradeName: command.commercialName,
-        sku: command.sku ?? '',
-        barcode: command.barcode ?? '',
-        baseUnit: command.baseUnitName ?? '',
-        images: command.images.map((img) => img.storageKey).toList(),
-        notes: command.note,
-      ),
+    final product = _StoredProduct(
+      id: productId,
+      name: command.productName,
+      tradeName: command.commercialName,
+      sku: command.sku ?? '',
+      barcode: command.barcode ?? '',
+      baseUnit: command.baseUnitName ?? '',
+      images: images,
+      stockQty: hasStock ? 0 : null,
+      baseCost: hasBasePrice ? 0 : null,
+      listPrice: hasPriceBand ? 1 : null,
+      floorPrice: hasPriceBand ? 1 : null,
+      notes: command.note,
+      hasRequiredCustomFields: hasRequiredCustomFields,
+      stockMode: stockMode,
+      basePriceMode: basePriceMode,
+      pricePermissionDenied: pricePermissionDenied,
     );
 
+    _products.add(product);
+
+    final view = _buildReadinessView(product);
     return CreateProductResult(
       productId: productId,
-      readinessSummary: ReadinessSummaryDto(
-        status: ReadinessStatus.incomplete,
-        blockers: [
-          if (command.baseUnitName == null || command.baseUnitName!.trim().isEmpty)
-            const ReadinessBlockerDto(
-              code: ReadinessBlockerCode.missingBaseUnit,
-              message: 'Thiếu đơn vị cơ sở',
-              group: 'units',
-            ),
-          if (includeImageBlocker)
-            const ReadinessBlockerDto(
-              code: ReadinessBlockerCode.missingImage,
-              message: 'Chưa có ảnh sản phẩm',
-              group: 'profile',
-            ),
-          const ReadinessBlockerDto(
-            code: ReadinessBlockerCode.missingPrice,
-            message: 'Thiếu giá',
-            group: 'pricing',
-          ),
-        ],
-      ),
+      readinessSummary: view.readinessSummary,
+    );
+  }
+
+  TResult _handleGetProductReadiness<TResult>(
+    GetProductReadinessQuery query,
+  ) {
+    if (scenario == FakeCatalogScenario.readinessPermissionDenied) {
+      throw ApplicationException('Permission denied');
+    }
+
+    final product = _findProduct(query.productId);
+    if (product == null) {
+      throw ApplicationException('Product not found');
+    }
+
+    return _buildReadinessView(product) as TResult;
+  }
+
+  _StoredProduct? _findProduct(String productId) {
+    for (final product in _products) {
+      if (product.id == productId) {
+        return product;
+      }
+    }
+    return null;
+  }
+
+  ProductReadinessViewDto _buildReadinessView(_StoredProduct product) {
+    return FakeProductReadinessBuilder.build(
+      productId: product.id,
+      productName: product.name,
+      hasBaseUnit: product.hasBaseUnit,
+      hasImages: product.hasImages,
+      hasStock: product.hasStock,
+      hasBasePrice: product.hasBasePrice,
+      hasPriceBand: product.hasPriceBand,
+      hasRequiredCustomFields: product.hasRequiredCustomFields,
+      stockMode: product.stockMode,
+      basePriceMode: product.basePriceMode,
+      pricePermissionDenied: product.pricePermissionDenied,
     );
   }
 

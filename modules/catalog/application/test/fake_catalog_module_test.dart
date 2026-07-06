@@ -254,6 +254,279 @@ void main() {
         ),
       );
     });
+
+    test('scn_e02_u03_fr01_01 readiness_many_blockers checklist', () async {
+      final module = FakeCatalogModule(
+        scenario: FakeCatalogScenario.readinessManyBlockers,
+      );
+
+      final createResult = await module.executeCommandAsync(
+        CreateProductCommand(
+          tenantId: 'tenant-1',
+          actorId: 'user-1',
+          productName: 'Thuốc A',
+        ),
+      );
+
+      final view = await module.executeQueryAsync(
+        GetProductReadinessQuery(
+          tenantId: 'tenant-1',
+          productId: createResult.productId,
+        ),
+      );
+
+      expect(view.readinessSummary.status, ReadinessStatus.incomplete);
+      expect(
+        view.checklist.map((item) => item.status),
+        contains(ReadinessChecklistItemStatus.missing),
+      );
+      expect(
+        view.readinessSummary.blockers.map((b) => b.code),
+        containsAll([
+          ReadinessBlockerCode.missingBaseUnit,
+          ReadinessBlockerCode.missingStock,
+          ReadinessBlockerCode.missingPrice,
+          ReadinessBlockerCode.missingPriceBand,
+        ]),
+      );
+    });
+
+    test('scn_e02_u03_fr01_02 readiness_ready_to_sell', () async {
+      final module = FakeCatalogModule(
+        scenario: FakeCatalogScenario.readinessReadyToSell,
+      );
+
+      final createResult = await module.executeCommandAsync(
+        CreateProductCommand(
+          tenantId: 'tenant-1',
+          actorId: 'user-1',
+          productName: 'Thuốc B',
+          baseUnitName: 'Lọ',
+          images: const [
+            ProductImageInput(
+              storageKey: 'tenant-1/staging/slot-1/original.jpeg',
+              isPrimary: true,
+              sortOrder: 0,
+            ),
+          ],
+        ),
+      );
+
+      final view = await module.executeQueryAsync(
+        GetProductReadinessQuery(
+          tenantId: 'tenant-1',
+          productId: createResult.productId,
+        ),
+      );
+
+      expect(view.readinessSummary.status, ReadinessStatus.readyToSell);
+      expect(view.primaryActionId, ContextualActionId.createAnotherProduct);
+      expect(view.readinessSummary.blockers, isEmpty);
+    });
+
+    test('scn_e02_u03_fr01_03 readiness_advanced_stock_pending', () async {
+      final module = FakeCatalogModule(
+        scenario: FakeCatalogScenario.readinessAdvancedStockPending,
+      );
+
+      final createResult = await module.executeCommandAsync(
+        CreateProductCommand(
+          tenantId: 'tenant-1',
+          actorId: 'user-1',
+          productName: 'Thuốc C',
+          baseUnitName: 'Lọ',
+        ),
+      );
+
+      final view = await module.executeQueryAsync(
+        GetProductReadinessQuery(
+          tenantId: 'tenant-1',
+          productId: createResult.productId,
+        ),
+      );
+
+      final stockItem = view.checklist.singleWhere(
+        (item) => item.group == ReadinessChecklistGroup.stock,
+      );
+      expect(stockItem.status, ReadinessChecklistItemStatus.pendingExternal);
+      expect(
+        view.readinessSummary.blockers.map((b) => b.code),
+        contains(ReadinessBlockerCode.pendingStockFromInventory),
+      );
+      expect(
+        view.suggestedActions.map((a) => a.actionId),
+        isNot(contains(ContextualActionId.setInitialStock)),
+      );
+    });
+
+    test('scn_e02_u03_fr01_04 readiness_costing_base_price_pending', () async {
+      final module = FakeCatalogModule(
+        scenario: FakeCatalogScenario.readinessCostingBasePricePending,
+      );
+
+      final createResult = await module.executeCommandAsync(
+        CreateProductCommand(
+          tenantId: 'tenant-1',
+          actorId: 'user-1',
+          productName: 'Thuốc D',
+          baseUnitName: 'Lọ',
+        ),
+      );
+
+      final view = await module.executeQueryAsync(
+        GetProductReadinessQuery(
+          tenantId: 'tenant-1',
+          productId: createResult.productId,
+        ),
+      );
+
+      final basePriceItem = view.checklist.singleWhere(
+        (item) => item.group == ReadinessChecklistGroup.basePrice,
+      );
+      expect(basePriceItem.status, ReadinessChecklistItemStatus.pendingExternal);
+      expect(
+        view.readinessSummary.blockers.map((b) => b.code),
+        contains(ReadinessBlockerCode.pendingBasePriceFromCosting),
+      );
+    });
+
+    test('scn_e02_u03_fr01_05 readiness_missing_custom_fields', () async {
+      final module = FakeCatalogModule(
+        scenario: FakeCatalogScenario.readinessMissingCustomFields,
+      );
+
+      final createResult = await module.executeCommandAsync(
+        CreateProductCommand(
+          tenantId: 'tenant-1',
+          actorId: 'user-1',
+          productName: 'Thuốc E',
+          baseUnitName: 'Lọ',
+        ),
+      );
+
+      final view = await module.executeQueryAsync(
+        GetProductReadinessQuery(
+          tenantId: 'tenant-1',
+          productId: createResult.productId,
+        ),
+      );
+
+      expect(
+        view.readinessSummary.blockers.map((b) => b.code),
+        contains(ReadinessBlockerCode.missingRequiredCustomFields),
+      );
+    });
+
+    test('scn_e02_u03_fr03_01 suggests set_base_unit when missing unit', () async {
+      final module = FakeCatalogModule(
+        scenario: FakeCatalogScenario.readinessManyBlockers,
+      );
+
+      final createResult = await module.executeCommandAsync(
+        CreateProductCommand(
+          tenantId: 'tenant-1',
+          actorId: 'user-1',
+          productName: 'Thuốc F',
+        ),
+      );
+
+      final view = await module.executeQueryAsync(
+        GetProductReadinessQuery(
+          tenantId: 'tenant-1',
+          productId: createResult.productId,
+        ),
+      );
+
+      expect(view.primaryActionId, ContextualActionId.setBaseUnit);
+      expect(
+        view.suggestedActions.singleWhere(
+          (a) => a.actionId == ContextualActionId.setBaseUnit,
+        ).label,
+        'Thiết lập đơn vị cơ sở',
+      );
+    });
+
+    test('scn_e02_u03_fr03_03 readiness_no_price_permission', () async {
+      final module = FakeCatalogModule(
+        scenario: FakeCatalogScenario.readinessNoPricePermission,
+      );
+
+      final createResult = await module.executeCommandAsync(
+        CreateProductCommand(
+          tenantId: 'tenant-1',
+          actorId: 'user-1',
+          productName: 'Thuốc G',
+          baseUnitName: 'Lọ',
+        ),
+      );
+
+      final view = await module.executeQueryAsync(
+        GetProductReadinessQuery(
+          tenantId: 'tenant-1',
+          productId: createResult.productId,
+        ),
+      );
+
+      expect(
+        view.readinessSummary.blockers.map((b) => b.code),
+        contains(ReadinessBlockerCode.missingPriceBand),
+      );
+      final priceAction = view.suggestedActions.singleWhere(
+        (a) => a.actionId == ContextualActionId.setPriceBand,
+      );
+      expect(priceAction.enabled, isFalse);
+    });
+
+    test('scn_e02_u03_fr04_01 readiness_refresh_after_unit', () async {
+      final module = FakeCatalogModule(
+        scenario: FakeCatalogScenario.readinessRefreshAfterUnit,
+      );
+
+      final createResult = await module.executeCommandAsync(
+        CreateProductCommand(
+          tenantId: 'tenant-1',
+          actorId: 'user-1',
+          productName: 'Thuốc H',
+          baseUnitName: 'Lọ',
+        ),
+      );
+
+      final view = await module.executeQueryAsync(
+        GetProductReadinessQuery(
+          tenantId: 'tenant-1',
+          productId: createResult.productId,
+        ),
+      );
+
+      final unitItem = view.checklist.singleWhere(
+        (item) => item.group == ReadinessChecklistGroup.units,
+      );
+      expect(unitItem.status, ReadinessChecklistItemStatus.complete);
+      expect(
+        view.readinessSummary.blockers.map((b) => b.code),
+        isNot(contains(ReadinessBlockerCode.missingBaseUnit)),
+      );
+      expect(
+        view.readinessSummary.blockers.map((b) => b.code),
+        contains(ReadinessBlockerCode.missingPriceBand),
+      );
+    });
+
+    test('scn_e02_u03_fr02_04 readiness_permission_denied', () async {
+      final module = FakeCatalogModule(
+        scenario: FakeCatalogScenario.readinessPermissionDenied,
+      );
+
+      await expectLater(
+        module.executeQueryAsync(
+          GetProductReadinessQuery(
+            tenantId: 'tenant-1',
+            productId: 'product-new-1',
+          ),
+        ),
+        throwsA(isA<ApplicationException>()),
+      );
+    });
   });
 
   group('CreateProductCommandValidator', () {

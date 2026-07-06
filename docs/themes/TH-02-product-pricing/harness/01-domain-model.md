@@ -88,6 +88,7 @@ erDiagram
 | `SetInitialStockCommand` | EPIC-02/US-02, EPIC-05/US-02 | Basic stock ban đầu |
 | `SetManualBasePriceCommand` | EPIC-02/US-02, EPIC-06/US-01 | Giá cơ sở thủ công |
 | `SetInitialPriceBandCommand` | EPIC-02/US-02, EPIC-06/US-03 | Khung giá ban đầu (optional step) |
+| `GetProductReadinessQuery` | EPIC-02/US-03 | Checklist + suggested actions + refresh |
 | `SearchProductsQuery` | EPIC-01/US-01 | + readiness filter; sau EPIC-03/US-03: searchable fields |
 | `GetProductControlCenterQuery` | EPIC-01/US-02 | Detail + cards + readinessSummary + actions; checklist chi tiết **pending** (FR-04) |
 | `GetProductChangeHistoryQuery` | EPIC-01/US-02, EPIC-07/US-04 | Lịch sử thay đổi |

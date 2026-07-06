@@ -29,6 +29,7 @@ final catalogModuleManifest = GeneratedModuleManifest(
   ],
   queryTypes: [
     CheckDuplicateProductCodeQuery,
+    GetProductReadinessQuery,
   ],
 );
 

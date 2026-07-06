@@ -96,5 +96,13 @@ void registerGeneratedCatalogQueries({
     invoke: (query, handler) => handler.handle(query),
   );
 
+  CatalogCommandRegistration.registerQueryHandler<GetProductReadinessQuery, ProductReadinessViewDto, GetProductReadinessQueryHandler>(
+    bus: bus,
+    factory: () => GetProductReadinessQueryHandler(
+      readinessReadPort: container.get<IProductReadinessReadPort>(),
+    ),
+    invoke: (query, handler) => handler.handle(query),
+  );
+
 }
 
