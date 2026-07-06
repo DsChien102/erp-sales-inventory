@@ -79,7 +79,7 @@ Permissions: `@RequiresPermission(CatalogPermissions.create)` (`catalog.product.
 | Symbol | Input (summary) | Success | Errors |
 | ------ | --------------- | ------- | ------ |
 | `SetInitialStockCommand` | tenantId, productId, quantity (`double`, basic mode) | `SetInitialStockResult` (productId, quantity, unitName?, readinessSummary) | Validation, NotBasicStockMode, MissingBaseUnit |
-| `SetManualBasePriceCommand` | tenantId, productId, basePrice, currency | void | Validation, NotManualBasePriceMode |
+| `SetManualBasePriceCommand` | tenantId, productId, basePrice, currency | `SetManualBasePriceResult` | Validation, NotManualBasePriceMode, MissingBaseUnit |
 | `SetInitialPriceBandCommand` | tenantId, productId, listPrice?, floorPrice?, useStoreRule? | void | Validation, MissingBasePrice |
 
 ### Fake scenarios (FE)
@@ -280,7 +280,7 @@ Package: `vet45_catalog_application` — `control_center/`.
 | `profile` | `ProductProfileSummaryDto` | FR-01 | name, tradeName, sku, barcode, businessStatus, images |
 | `units` | `ProductUnitsCardDto` | FR-02 | baseUnitName, conversionUnits[] |
 | `stock` | `ProductStockCardDto` | FR-02 | mode, quantity, pendingExternal |
-| `basePrice` | `ProductBasePriceCardDto` | FR-02 | mode, amount, currency |
+| `basePrice` | `ProductBasePriceCardDto` | FR-02 | mode, sourceLabel, amount, currency, baseUnitName, canEdit |
 | `priceBand` | `ProductPriceBandCardDto` | FR-02 | listPrice, floorPrice, unitName |
 | `customFieldGroupCards` | `CustomFieldGroupCardDto[]` | FR-03 | **empty** đến EPIC-03 |
 | `readinessSummary` | `ReadinessSummaryDto` | early | reuse US-03 |
@@ -568,6 +568,106 @@ File: `apps/erp/test/features/catalog/presentation/pages/product_stock_e2e_test.
 
 ---
 
+## EPIC-06 / US-01 — Manual base price (slice #9)
+
+**Status:** CONTRACT `done` · BE `done` · FE `done` · E2E `done`
+
+### Commands / Queries
+
+| Symbol | Input (summary) | Success | Errors |
+| ------ | --------------- | ------- | ------ |
+| `SetManualBasePriceCommand` | tenantId, productId, basePrice (`double`, `>= 0`), currency (`VND` default), mode=`manual` | `SetManualBasePriceResult` | Validation, `MissingBaseUnitException`, `NotManualBasePriceModeException` |
+
+Package: `vet45_catalog_application` — `pricing/`.
+
+Read path (PCC): `GetProductControlCenterQuery` → `ProductBasePriceCardDto`.
+
+### `SetManualBasePriceResult`
+
+| Field | Type | Notes |
+| ----- | ---- | ----- |
+| `productId` | `String` | |
+| `basePrice` | `double` | amount per base unit |
+| `currency` | `String` | default `VND` |
+| `unitName` | `String?` | base unit label |
+| `readinessSummary` | `ReadinessSummaryDto` | refresh after mutation (FR-04) |
+
+### `ProductBasePriceCardDto` (read-side)
+
+| Field | Type | Notes |
+| ----- | ---- | ----- |
+| `mode` | `BasePriceMode` | `manual` \| `costingModule` |
+| `sourceLabel` | `String` | `"Nhập thủ công"` \| `"Từ module Giá vốn"` |
+| `amount` | `double?` | manual amount when configured |
+| `currency` | `String` | default `VND` |
+| `baseUnitName` | `String?` | FR-02 UI — giá theo đơn vị cơ sở |
+| `canEdit` | `bool` | manual mode + có base unit |
+| `isPendingExternal` | `bool` | costing module mode |
+| `isMissing` | `bool` | manual mode chưa có giá |
+| `missingMessage` | `String?` | `"Thiếu Giá cơ sở định giá"` |
+
+**Scope / rules:**
+
+- FR-01 mode display + FR-02 manual entry contract in scope.
+- FR-03 costing-module **read gateway** (`ICostingModuleGateway`) = **pending** slice #23 — card chỉ projection `isPendingExternal` + blocker `pending_base_price_from_costing`.
+- Nhập giá yêu cầu đơn vị cơ sở (`MissingBaseUnitException`).
+- Giá `>= 0` (giá `0` hợp lệ theo tenant policy Foundation MVP).
+- Port write: `IProductCommandGateway.setManualBasePrice` (existing).
+
+### RPC mapping (BE)
+
+| Use case | RPC |
+| -------- | --- |
+| Set manual base price | `catalog.set_manual_base_price` |
+
+**Params:** `p_tenant_id uuid`, `p_product_id uuid`, `p_mode text` (`manual`), `p_base_price numeric`, `p_currency text` (default `VND`)
+
+**Permission:** `iam.has_permission(p_tenant_id, 'catalog.product.manage_pricing')`
+
+**Guards:** `_ensure_product_has_base_unit`; `not_manual_base_price_mode` if mode ≠ manual; negative price → `validation_exception`
+
+**Side effects:** upsert `catalog.product_base_price_profiles`; `product_change_history` action `set_manual_base_price`
+
+**Create product seed (FR-01):** `create_product` inserts default `product_base_price_profiles` row (`mode = manual`, `base_price_amount = null`)
+
+Draft: `supabase/migrations/_drafts/07_catalog_manual_base_price.sql`
+
+### Fake scenarios (FE)
+
+| scenario_id | trigger | fake response |
+| ----------- | ------- | ------------- |
+| `scn_contract_e06_u01_fr01_01` | PCC `product-1` | manual mode + source `"Nhập thủ công"` + amount |
+| `scn_contract_e06_u01_fr01_02` | PCC `product-8` | costing mode + `isPendingExternal` |
+| `scn_contract_e06_u01_fr01_03` | PCC `product-7` | manual + `isMissing` |
+| `scn_contract_e06_u01_fr02_01` | `SetManualBasePriceCommand` on `product-7` | `SetManualBasePriceResult` |
+| `scn_contract_e06_u01_fr02_02` | set on `product-6` | `MissingBaseUnitException` |
+| `scn_contract_e06_u01_fr02_03` | negative price | `ValidationException` |
+| `scn_contract_e06_u01_fr04_01` | set price on `product-7` | readiness bỏ blocker `missing_price` |
+
+Fake seed: `product-7` (manual, có base unit, thiếu giá), `product-8` (costing mode).
+
+### E2E (integration)
+
+File: `apps/erp/test/features/catalog/presentation/pages/product_manual_base_price_e2e_test.dart` — shared harness: `apps/erp/test/features/catalog/catalog_e2e_harness.dart`.
+
+| test_id | scenario | harness | asserts |
+| ------- | -------- | ------- | ------- |
+| `e2e_e06_u01_fr01_01` | `pccReadyToSell` | `buildCatalogDiscoveryRouter()` → PCC | card `Giá cơ sở` + `80.000 đ`, **Sửa** visible |
+| `e2e_e06_u01_fr01_02` | default (`product-8`) | local PCC router | tap **Sửa** không mở manual base price page |
+| `e2e_e06_u01_fr01_03` | default (`product-7`) | local PCC router | `Thiếu Giá cơ sở định giá` |
+| `e2e_e06_u01_fr02_01` | `scnContractE06U01Fr02_01` | local PCC router → edit page | set `45000` → PCC refresh `45.000 đ` |
+| `e2e_e06_u01_fr02_02` | default (`product-6`) | local PCC router | **Sửa** disabled (thiếu đơn vị) |
+| `e2e_e06_u01_fr04_01` | `guided_create_ok` + `createMinimalProduct` | post-create → set price | card bỏ `Thiếu Giá cơ sở định giá` |
+
+Widget keys: `wgt_e06_u01_fr01_01` (manual base price page), `input_base_price_amount`, `btn_manual_base_price_save`.
+
+### Parallel notes
+
+- FE có thể fake: **yes**
+- E2E prerequisite: US-01 (data)
+
+---
+
 ## EPIC-03 / US-01 — Cấu hình nhóm & trường (slice #16)
 
 ### Commands / Queries
@@ -614,7 +714,8 @@ File: `apps/erp/test/features/catalog/presentation/pages/product_stock_e2e_test.
 | EPIC-04 US-01 | Base unit set + tenant unit picker | done |
 | EPIC-04 US-02 | UOM conversion (không US-03; FR-02 roles **pending**) | done |
 | EPIC-05 US-01..02 | Stock profile + basic stock adjust | done |
-| EPIC-06 US-01..03 | Manual base price, store rule, price band | todo |
+| EPIC-06 US-01 | Manual base price (FR-03 costing read **pending**) | done |
+| EPIC-06 US-02..03 | Store rule, price band | todo |
 | EPIC-06 US-04 | ProductPriceBandSnapshot consumers | todo |
 | EPIC-07 US-01..04 | Lifecycle, change history | todo |
 | EPIC-03 US-02 | UpsertCustomFieldValuesCommand | todo |

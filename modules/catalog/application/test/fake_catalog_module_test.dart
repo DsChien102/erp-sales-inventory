@@ -230,13 +230,17 @@ void main() {
         scenario: FakeCatalogScenario.manualBasePriceOk,
       );
 
-      await module.executeCommandAsync(
+      final result = await module.executeCommandAsync(
         SetManualBasePriceCommand(
           tenantId: 'tenant-1',
           productId: 'product-1',
           basePrice: 90000.0,
         ),
       );
+
+      expect(result.productId, 'product-1');
+      expect(result.basePrice, 90000.0);
+      expect(result.unitName, 'Hộp');
     });
 
     test('price_band_from_store_rule sets price band without error', () async {
@@ -1292,6 +1296,147 @@ void main() {
       expect(
         result.readinessSummary.blockers.map((b) => b.code),
         isNot(contains(ReadinessBlockerCode.missingStock)),
+      );
+    });
+  });
+
+  group('EPIC-06 / US-01 manual base price contract', () {
+    test('scn_contract_e06_u01_fr01_01 manual mode card on product-1', () async {
+      final module = FakeCatalogModule(
+        scenario: FakeCatalogScenario.scnContractE06U01Fr01_01,
+      );
+
+      final result = await module.executeQueryAsync(
+        GetProductControlCenterQuery(
+          tenantId: 'tenant-1',
+          productId: 'product-1',
+        ),
+      );
+
+      expect(result.basePrice.mode, BasePriceMode.manual);
+      expect(result.basePrice.sourceLabel, 'Nhập thủ công');
+      expect(result.basePrice.amount, 80000);
+      expect(result.basePrice.baseUnitName, 'Hộp');
+      expect(result.basePrice.canEdit, isTrue);
+      expect(result.basePrice.isMissing, isFalse);
+    });
+
+    test('scn_contract_e06_u01_fr01_02 costing mode card is pending external', () async {
+      final module = FakeCatalogModule(
+        scenario: FakeCatalogScenario.scnContractE06U01Fr01_02,
+      );
+
+      final result = await module.executeQueryAsync(
+        GetProductControlCenterQuery(
+          tenantId: 'tenant-1',
+          productId: 'product-8',
+        ),
+      );
+
+      expect(result.basePrice.mode, BasePriceMode.costingModule);
+      expect(result.basePrice.sourceLabel, 'Từ module Giá vốn');
+      expect(result.basePrice.isPendingExternal, isTrue);
+      expect(result.basePrice.canEdit, isFalse);
+    });
+
+    test('scn_contract_e06_u01_fr01_03 manual mode missing base price', () async {
+      final module = FakeCatalogModule(
+        scenario: FakeCatalogScenario.scnContractE06U01Fr01_03,
+      );
+
+      final result = await module.executeQueryAsync(
+        GetProductControlCenterQuery(
+          tenantId: 'tenant-1',
+          productId: 'product-7',
+        ),
+      );
+
+      expect(result.basePrice.mode, BasePriceMode.manual);
+      expect(result.basePrice.isMissing, isTrue);
+      expect(result.basePrice.missingMessage, 'Thiếu Giá cơ sở định giá');
+      expect(result.basePrice.baseUnitName, 'Lọ');
+    });
+
+    test('scn_contract_e06_u01_fr02_01 set manual base price returns result', () async {
+      final module = FakeCatalogModule(
+        scenario: FakeCatalogScenario.scnContractE06U01Fr02_01,
+      );
+
+      final result = await module.executeCommandAsync(
+        SetManualBasePriceCommand(
+          tenantId: 'tenant-1',
+          productId: 'product-7',
+          basePrice: 75000.0,
+        ),
+      );
+
+      expect(result.productId, 'product-7');
+      expect(result.basePrice, 75000.0);
+      expect(result.unitName, 'Lọ');
+      expect(result.readinessSummary.blockers.map((b) => b.code), isNot(contains(ReadinessBlockerCode.missingPrice)));
+    });
+
+    test('scn_contract_e06_u01_fr02_02 missing base unit rejected', () async {
+      final module = FakeCatalogModule(
+        scenario: FakeCatalogScenario.scnContractE06U01Fr02_02,
+      );
+
+      await expectLater(
+        module.executeCommandAsync(
+          SetManualBasePriceCommand(
+            tenantId: 'tenant-1',
+            productId: 'product-6',
+            basePrice: 50000.0,
+          ),
+        ),
+        throwsA(isA<MissingBaseUnitException>()),
+      );
+    });
+
+    test('scn_contract_e06_u01_fr02_03 negative base price rejected', () async {
+      final module = FakeCatalogModule(
+        scenario: FakeCatalogScenario.scnContractE06U01Fr02_03,
+      );
+
+      await expectLater(
+        module.executeCommandAsync(
+          SetManualBasePriceCommand(
+            tenantId: 'tenant-1',
+            productId: 'product-7',
+            basePrice: -1.0,
+          ),
+        ),
+        throwsA(isA<ValidationException>()),
+      );
+    });
+
+    test('scn_contract_e06_u01_fr04_01 readiness clears missing_price after set', () async {
+      final module = FakeCatalogModule(
+        scenario: FakeCatalogScenario.scnContractE06U01Fr04_01,
+      );
+
+      final before = await module.executeQueryAsync(
+        GetProductReadinessQuery(
+          tenantId: 'tenant-1',
+          productId: 'product-7',
+        ),
+      );
+      expect(
+        before.readinessSummary.blockers.map((b) => b.code),
+        contains(ReadinessBlockerCode.missingPrice),
+      );
+
+      final result = await module.executeCommandAsync(
+        SetManualBasePriceCommand(
+          tenantId: 'tenant-1',
+          productId: 'product-7',
+          basePrice: 60000.0,
+        ),
+      );
+
+      expect(
+        result.readinessSummary.blockers.map((b) => b.code),
+        isNot(contains(ReadinessBlockerCode.missingPrice)),
       );
     });
   });

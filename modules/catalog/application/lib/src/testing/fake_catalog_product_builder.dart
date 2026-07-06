@@ -160,7 +160,10 @@ abstract final class FakeCatalogProductBuilder {
       ),
       basePrice: ProductBasePriceCardDto(
         mode: basePriceMode,
+        sourceLabel: ProductBasePriceCardDto.sourceLabelFor(basePriceMode),
         amount: baseCost,
+        baseUnitName: hasBaseUnit ? baseUnit : null,
+        canEdit: basePriceMode == BasePriceMode.manual && hasBaseUnit,
         isPendingExternal: basePriceMode == BasePriceMode.costingModule,
         isMissing: basePriceMode == BasePriceMode.manual && !hasBasePrice,
         missingMessage: basePriceMode == BasePriceMode.manual && !hasBasePrice

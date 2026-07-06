@@ -16,6 +16,7 @@ abstract interface class IProductCommandGateway {
     required String productId,
     required String tenantId,
     required ProductBasePriceProfile profile,
+    String currency = 'VND',
   });
 
   Future<void> setInitialPriceBand({

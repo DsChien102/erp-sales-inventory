@@ -57,6 +57,12 @@ void main() {
       expect(error, isA<NotBasicStockModeException>());
     });
 
+    test('maps not manual base price mode', () {
+      final error = mapCatalogRpcError(RpcException('not_manual_base_price_mode'));
+
+      expect(error, isA<NotManualBasePriceModeException>());
+    });
+
     test('maps stale stock quantity', () {
       final error = mapCatalogRpcError(RpcException('stale_stock_quantity'));
 

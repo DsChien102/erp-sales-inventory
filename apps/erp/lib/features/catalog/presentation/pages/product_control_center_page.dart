@@ -9,6 +9,7 @@ import 'package:vet45_design_system/design_system.dart';
 import 'package:vet45_catalog_presentation/presentation.dart';
 import 'product_readiness_checklist_page.dart';
 import 'product_measurement_units_page.dart';
+import 'product_manual_base_price_page.dart';
 
 import '../widgets/product_control_center_operational_section.dart';
 import '../widgets/product_control_center_profile_card.dart';
@@ -62,7 +63,7 @@ class _ProductControlCenterView extends StatelessWidget {
     if (readinessView == null) return;
 
     final controlCenter = cubit.state.controlCenter;
-    final updatedProduct = controlCenter != null 
+    final updatedProduct = controlCenter != null
         ? product.copyWith(baseUnit: controlCenter.units.baseUnitName)
         : product;
 
@@ -162,16 +163,15 @@ class _ProductControlCenterView extends StatelessWidget {
           actions: [
             BlocBuilder<ProductControlCenterCubit, ProductControlCenterState>(
               builder: (context, state) {
-                final isReady = state.controlCenter?.readinessSummary.status ==
-                    ReadinessStatus.readyToSell;
+                final isReady =
+                    state.controlCenter?.readinessSummary.status == ReadinessStatus.readyToSell;
 
                 return Center(
                   child: Padding(
                     padding: const EdgeInsets.only(right: 16),
                     child: VBadge(
                       label: isReady ? 'Sẵn sàng bán' : 'Thiếu dữ liệu',
-                      status:
-                          isReady ? VBadgeStatus.success : VBadgeStatus.danger,
+                      status: isReady ? VBadgeStatus.success : VBadgeStatus.danger,
                       isSmall: true,
                     ),
                   ),
@@ -183,7 +183,8 @@ class _ProductControlCenterView extends StatelessWidget {
         body: BlocBuilder<ProductControlCenterCubit, ProductControlCenterState>(
           builder: (context, state) {
             final controlCenter = state.controlCenter;
-            final isLoading = state.status == ProductControlCenterStatus.loading ||
+            final isLoading =
+                state.status == ProductControlCenterStatus.loading ||
                 state.status == ProductControlCenterStatus.initial;
 
             if (state.status == ProductControlCenterStatus.failure) {
@@ -197,8 +198,7 @@ class _ProductControlCenterView extends StatelessWidget {
               );
             }
 
-            final blockersCount =
-                controlCenter?.readinessSummary.blockers.length ?? 0;
+            final blockersCount = controlCenter?.readinessSummary.blockers.length ?? 0;
 
             return SingleChildScrollView(
               child: Column(
@@ -272,7 +272,8 @@ class _ProductControlCenterView extends StatelessWidget {
                     ProductControlCenterSectionCard(
                       title: 'Hồ sơ sản phẩm',
                       icon: Icons.assignment_outlined,
-                      subtitle: '${controlCenter.profile.sku ?? 'Chưa có mã SKU'} · ${controlCenter.profile.barcode ?? 'Chưa có mã vạch'}',
+                      subtitle:
+                          '${controlCenter.profile.sku ?? 'Chưa có mã SKU'} · ${controlCenter.profile.barcode ?? 'Chưa có mã vạch'}',
                       onEdit: () => _showEditPlaceholder(context),
                     ),
                     ProductControlCenterSectionCard(
@@ -313,7 +314,21 @@ class _ProductControlCenterView extends StatelessWidget {
                           }
                         }
                       },
-                      onEditBasePrice: () => _showEditPlaceholder(context),
+                      onEditBasePrice: controlCenter.basePrice.canEdit
+                          ? () async {
+                              await context.push(
+                                '/products/items/pcc/manual-base-price',
+                                extra: ProductManualBasePriceRouteArgs(
+                                  product: product,
+                                  basePriceCard: controlCenter.basePrice,
+                                ),
+                              );
+                              if (!context.mounted) return;
+                              context.read<ProductControlCenterCubit>().loadControlCenter(product.id);
+                            }
+                          : controlCenter.basePrice.mode == BasePriceMode.costingModule
+                              ? () => _showEditPlaceholder(context)
+                              : null,
                       onEditPriceBand: () => _showEditPlaceholder(context),
                     ),
                     ...controlCenter.customFieldGroupCards.map((group) {
@@ -326,8 +341,10 @@ class _ProductControlCenterView extends StatelessWidget {
                       } else if (nameLower.contains('tuân thủ')) {
                         iconData = Icons.lock_outline;
                       }
-                      
-                      final filledCount = group.fields.where((f) => f.displayValue != null && f.displayValue!.isNotEmpty).length;
+
+                      final filledCount = group.fields
+                          .where((f) => f.displayValue != null && f.displayValue!.isNotEmpty)
+                          .length;
                       return ProductControlCenterSectionCard(
                         title: group.name,
                         icon: iconData,
@@ -346,7 +363,7 @@ class _ProductControlCenterView extends StatelessWidget {
                     ProductControlCenterSectionCard(
                       title: 'Lịch sử thay đổi',
                       icon: Icons.history,
-                      subtitle: controlCenter.changeHistoryPreview.isNotEmpty 
+                      subtitle: controlCenter.changeHistoryPreview.isNotEmpty
                           ? '${controlCenter.changeHistoryPreview.first.summary} · ${controlCenter.changeHistoryPreview.first.occurredAt.toString().substring(0, 10)}'
                           : 'Tạo sản phẩm · 2026-07-06',
                       actionText: 'Xem',

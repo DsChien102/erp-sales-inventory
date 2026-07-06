@@ -36,6 +36,20 @@ void main() {
       expect(params['p_currency'], 'VND');
     });
 
+    test('setManualBasePriceParams forwards custom currency', () {
+      final profile = ProductBasePriceProfile.manual(
+        basePrice: BasePrice(amount: 1000.0),
+      );
+      final params = ProductRpcMapper.setManualBasePriceParams(
+        productId: 'prod-1',
+        tenantId: 'tenant-1',
+        profile: profile,
+        currency: 'USD',
+      );
+
+      expect(params['p_currency'], 'USD');
+    });
+
     test('setInitialPriceBandParams maps price band to RPC parameters', () {
       final band = ProductUnitPriceBand(
         id: 'band-1',

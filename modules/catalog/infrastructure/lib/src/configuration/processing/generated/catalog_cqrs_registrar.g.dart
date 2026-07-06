@@ -128,13 +128,14 @@ void registerGeneratedCatalogHandlers({
     ),
   );
 
-  CatalogCommandRegistration.registerBusinessHandler<SetManualBasePriceCommand, void, SetManualBasePriceCommandHandler>(
+  CatalogCommandRegistration.registerBusinessHandler<SetManualBasePriceCommand, SetManualBasePriceResult, SetManualBasePriceCommandHandler>(
     container: container,
     bus: bus,
     logger: logger,
     factory: () => SetManualBasePriceCommandHandler(
       commandGateway: container.get<IProductCommandGateway>(),
       readinessReadPort: container.get<IProductReadinessReadPort>(),
+      unitGateway: container.get<ICatalogUnitGateway>(),
     ),
   );
 

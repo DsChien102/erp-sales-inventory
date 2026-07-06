@@ -55,6 +55,13 @@ abstract final class FakeCatalogScenario {
   static const scnContractE05U02Fr02_03 = 'scn_contract_e05_u02_fr02_03';
   static const scnContractE05U02Fr03_01 = 'scn_contract_e05_u02_fr03_01';
   static const scnContractE05U02Fr04_01 = 'scn_contract_e05_u02_fr04_01';
+  static const scnContractE06U01Fr01_01 = 'scn_contract_e06_u01_fr01_01';
+  static const scnContractE06U01Fr01_02 = 'scn_contract_e06_u01_fr01_02';
+  static const scnContractE06U01Fr01_03 = 'scn_contract_e06_u01_fr01_03';
+  static const scnContractE06U01Fr02_01 = 'scn_contract_e06_u01_fr02_01';
+  static const scnContractE06U01Fr02_02 = 'scn_contract_e06_u01_fr02_02';
+  static const scnContractE06U01Fr02_03 = 'scn_contract_e06_u01_fr02_03';
+  static const scnContractE06U01Fr04_01 = 'scn_contract_e06_u01_fr04_01';
 }
 
 class _TenantUnit {
@@ -281,13 +288,36 @@ final class FakeCatalogModule implements ICatalogModule {
           images: ['https://picsum.photos/200/304'],
           updatedAt: DateTime.utc(2026, 1, 20),
         ),
+        _StoredProduct(
+          id: 'product-7',
+          name: 'Thuốc thiếu giá',
+          tradeName: 'No Price Drug',
+          sku: 'SP0007',
+          barcode: '8930000000007',
+          baseUnit: 'Lọ',
+          images: ['https://picsum.photos/200/305'],
+          stockQty: 10,
+          updatedAt: DateTime.utc(2026, 1, 15),
+        ),
+        _StoredProduct(
+          id: 'product-8',
+          name: 'Thuốc giá vốn module',
+          tradeName: 'Costing Drug',
+          sku: 'SP0008',
+          barcode: '8930000000008',
+          baseUnit: 'Lọ',
+          images: ['https://picsum.photos/200/306'],
+          stockQty: 20,
+          basePriceMode: FakeProductReadinessBuilder.basePriceModeCosting,
+          updatedAt: DateTime.utc(2026, 1, 10),
+        ),
       ];
 
   final String scenario;
   final List<_TenantUnit> _tenantUnits;
   final List<_ProductUnit> _productUnits;
   final List<_StoredProduct> _products;
-  int _nextProductId = 6;
+  int _nextProductId = 8;
   int _nextProductUnitId = 1;
 
   @override
@@ -369,12 +399,22 @@ final class FakeCatalogModule implements ICatalogModule {
       if (cmd.mode != 'manual') {
         throw NotManualBasePriceModeException();
       }
+      if (cmd.basePrice < 0) {
+        throw ValidationException('Giá vốn cơ sở không được âm.');
+      }
       final prod = _products.firstWhere((p) => p.id == cmd.productId);
       if (!prod.hasBaseUnit) {
         throw MissingBaseUnitException();
       }
       prod.baseCost = cmd.basePrice;
-      return null as TResult;
+      return SetManualBasePriceResult(
+            productId: prod.id,
+            basePrice: cmd.basePrice,
+            currency: cmd.currency,
+            unitName: prod.baseUnit,
+            readinessSummary: _readinessSummaryFor(prod),
+          )
+          as TResult;
     } else if (command is SetInitialPriceBandCommand) {
       final cmd = command as SetInitialPriceBandCommand;
       final useRule = cmd.useStoreRule ?? false;

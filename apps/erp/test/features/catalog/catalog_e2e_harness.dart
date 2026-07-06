@@ -3,6 +3,7 @@ import 'package:erp/core/supabase/supabase_module.dart';
 import 'package:erp/features/catalog/presentation/pages/product_catalog_tab_page.dart';
 import 'package:erp/features/catalog/presentation/pages/product_control_center_page.dart';
 import 'package:erp/features/catalog/presentation/pages/product_guided_create_page.dart';
+import 'package:erp/features/catalog/presentation/pages/product_manual_base_price_page.dart';
 import 'package:erp/features/catalog/presentation/pages/product_measurement_units_page.dart';
 import 'package:erp/features/catalog/presentation/pages/product_readiness_checklist_page.dart';
 import 'package:erp/features/catalog/presentation/pages/product_stock_adjustment_page.dart';
@@ -115,6 +116,16 @@ Widget buildCatalogPostCreateRouter() {
           return ProductStockAdjustmentPage(args: args);
         },
       ),
+      GoRoute(
+        path: '/products/items/pcc/manual-base-price',
+        builder: (context, state) {
+          final args = state.extra as ProductManualBasePriceRouteArgs;
+          return ProductManualBasePricePage(
+            product: args.product,
+            basePriceCard: args.basePriceCard,
+          );
+        },
+      ),
     ],
   );
 
@@ -164,6 +175,16 @@ Widget buildCatalogDiscoveryRouter() {
           return ProductStockAdjustmentPage(args: args);
         },
       ),
+      GoRoute(
+        path: '/products/items/pcc/manual-base-price',
+        builder: (context, state) {
+          final args = state.extra as ProductManualBasePriceRouteArgs;
+          return ProductManualBasePricePage(
+            product: args.product,
+            basePriceCard: args.basePriceCard,
+          );
+        },
+      ),
     ],
   );
 
@@ -174,6 +195,13 @@ Future<void> tapEditStock(WidgetTester tester) async {
   final stockCard = find.widgetWithText(ProductControlCenterSectionCard, 'Tồn kho');
   await tester.ensureVisible(stockCard);
   await tester.tap(find.descendant(of: stockCard, matching: find.text('Sửa')));
+  await tester.pumpAndSettle();
+}
+
+Future<void> tapEditBasePrice(WidgetTester tester) async {
+  final basePriceCard = find.widgetWithText(ProductControlCenterSectionCard, 'Giá cơ sở');
+  await tester.ensureVisible(basePriceCard);
+  await tester.tap(find.descendant(of: basePriceCard, matching: find.text('Sửa')));
   await tester.pumpAndSettle();
 }
 

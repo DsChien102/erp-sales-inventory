@@ -8,6 +8,8 @@ export 'src/bloc/product_measurement_units_cubit.dart';
 export 'src/bloc/product_measurement_units_state.dart';
 export 'src/bloc/product_list_cubit.dart';
 export 'src/bloc/product_list_state.dart';
+export 'src/bloc/product_manual_base_price_cubit.dart';
+export 'src/bloc/product_manual_base_price_state.dart';
 export 'src/catalog_presentation_module.dart';
 export 'src/mappers/catalog_ui_mapper.dart';
 export 'src/models/product_business_status.dart';
