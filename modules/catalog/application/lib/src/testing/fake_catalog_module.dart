@@ -2,7 +2,9 @@ import 'package:vet45_catalog_application/application.dart';
 import 'package:vet45_catalog_domain/domain.dart';
 import 'package:vet45_shared_application/application.dart';
 
+import 'fake_catalog_custom_field_store.dart';
 import 'fake_catalog_product_builder.dart';
+import 'fake_catalog_scenario.dart';
 import 'fake_product_readiness_builder.dart';
 
 /// Scenario ids aligned with `docs/themes/TH-02-product-pricing/harness/07-api-contracts.md`.
@@ -287,7 +289,11 @@ class _StoredProduct {
 
 final class FakeCatalogModule implements ICatalogModule {
   FakeCatalogModule({this.scenario = FakeCatalogScenario.guidedCreateOk})
-    : _tenantUnits = [
+    : _customFieldStore = FakeCatalogCustomFieldStore(
+        scenario: scenario,
+        productsMissingRequiredCount: 3,
+      ),
+      _tenantUnits = [
         _TenantUnit(id: 'unit-lo', name: 'Lọ'),
         _TenantUnit(id: 'unit-hop', name: 'Hộp'),
         _TenantUnit(id: 'unit-vi', name: 'Vỉ'),
@@ -559,6 +565,7 @@ final class FakeCatalogModule implements ICatalogModule {
   }
 
   final String scenario;
+  final FakeCatalogCustomFieldStore _customFieldStore;
   final List<_TenantUnit> _tenantUnits;
   final List<_ProductUnit> _productUnits;
   final List<_StoredProduct> _products;
@@ -751,6 +758,37 @@ final class FakeCatalogModule implements ICatalogModule {
         command as ReactivateProductConversionUnitCommand,
       );
     }
+    if (command is InitializeCustomFieldTemplateCommand) {
+      return _customFieldStore.initializeTemplate(
+            command as InitializeCustomFieldTemplateCommand,
+          )
+          as TResult;
+    }
+    if (command is UpsertCustomFieldGroupCommand) {
+      return _customFieldStore.upsertGroup(
+            command as UpsertCustomFieldGroupCommand,
+          )
+          as TResult;
+    }
+    if (command is ReorderCustomFieldGroupsCommand) {
+      _customFieldStore.reorderGroups(
+        command as ReorderCustomFieldGroupsCommand,
+      );
+      return null as TResult;
+    }
+    if (command is UpsertCustomFieldCommand) {
+      return _customFieldStore.upsertField(command as UpsertCustomFieldCommand) as TResult;
+    }
+    if (command is ConfigureCustomFieldAttributesCommand) {
+      return _customFieldStore.configureAttributes(
+            command as ConfigureCustomFieldAttributesCommand,
+          )
+          as TResult;
+    }
+    if (command is ReorderCustomFieldsCommand) {
+      _customFieldStore.reorderFields(command as ReorderCustomFieldsCommand);
+      return null as TResult;
+    }
     throw UnimplementedError('Unexpected command: ${command.runtimeType}');
   }
 
@@ -812,6 +850,12 @@ final class FakeCatalogModule implements ICatalogModule {
       return _handleListProductUnitPriceBands<TResult>(
         query as ListProductUnitPriceBandsQuery,
       );
+    }
+    if (query is ListCustomFieldConfigQuery) {
+      return _customFieldStore.listConfig(
+            (query as ListCustomFieldConfigQuery).tenantId,
+          )
+          as TResult;
     }
     throw UnimplementedError('Unexpected query: ${query.runtimeType}');
   }
@@ -1610,25 +1654,31 @@ final class FakeCatalogModule implements ICatalogModule {
   }
 
   ProductControlCenterDto _toControlCenterDto(_StoredProduct product) {
-    final customFieldCards = scenario == FakeCatalogScenario.pccCustomFieldCards
-        ? [
-            const CustomFieldGroupCardDto(
-              groupId: 'group-vet-info',
-              name: 'Thông tin thuốc',
-              iconKey: 'medication',
-              sortOrder: 1,
-              fields: [
-                CustomFieldCardFieldDto(
-                  fieldId: 'field-withdrawal',
-                  name: 'Thời gian ngưng sử dụng',
-                  fieldType: 'text',
-                  displayValue: '7 ngày',
-                  sortOrder: 1,
-                ),
-              ],
-            ),
-          ]
-        : const <CustomFieldGroupCardDto>[];
+    final customFieldCards = switch (scenario) {
+      FakeCatalogScenario.pccCustomFieldCards => () {
+        if (_customFieldStore.toActiveGroupCards().isNotEmpty) {
+          return _customFieldStore.toActiveGroupCards();
+        }
+        return [
+          const CustomFieldGroupCardDto(
+            groupId: 'group-vet-info',
+            name: 'Thông tin thuốc',
+            iconKey: 'medication',
+            sortOrder: 1,
+            fields: [
+              CustomFieldCardFieldDto(
+                fieldId: 'field-withdrawal',
+                name: 'Thời gian ngưng sử dụng',
+                fieldType: 'text',
+                displayValue: '7 ngày',
+                sortOrder: 1,
+              ),
+            ],
+          ),
+        ];
+      }(),
+      _ => const <CustomFieldGroupCardDto>[],
+    };
 
     final history = [
       ...product.statusHistory,

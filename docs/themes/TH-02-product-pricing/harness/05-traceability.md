@@ -105,11 +105,9 @@ Early: `readinessSummary` trên PCC (không thay FR-04 checklist đầy đủ).
 
 ## EPIC-03 / US-01 — Cấu hình nhóm & trường (slice #16)
 
-Mở đầy đủ khi CONTRACT lane bắt đầu.
-
 | Req ID | Role | Contract § | Enforce layer | Artifact | Test id | Status |
 | ------ | ---- | ---------- | ------------- | -------- | ------- | ------ |
-| US-01 | CONTRACT | §EPIC-03-US-01 | application | Template init, upsert group/field, reorder, attributes | — | todo |
+| US-01 | CONTRACT | §EPIC-03-US-01 | application | `InitializeCustomFieldTemplateCommand`, `UpsertCustomFieldGroupCommand`, `ReorderCustomFieldGroupsCommand`, `UpsertCustomFieldCommand`, `ConfigureCustomFieldAttributesCommand`, `ReorderCustomFieldsCommand`, `ListCustomFieldConfigQuery`, DTOs, `ICatalogCustomFieldConfigGateway`, `FakeCatalogModule` | scn_contract_e03_u01_* | done |
 | FR-01 | BE | §EPIC-03-US-01 | application | `InitializeCustomFieldTemplateCommand` | scn_e03_u01_fr01_01 | todo |
 | FR-02 | BE | §EPIC-03-US-01 | application | Upsert group | scn_e03_u01_fr02_01 | todo |
 | FR-03 | BE | §EPIC-03-US-01 | application | Reorder groups | scn_e03_u01_fr03_01 | todo |

@@ -17,6 +17,22 @@ modules/catalog/
     lib/src/domain/     # Supabase RPC adapters
 ```
 
+### Application layout (`custom_fields` — golden for new areas)
+
+```text
+application/lib/src/custom_fields/
+  shared/                                    # cross-use-case DTOs
+  initialize_custom_field_template/
+  upsert_custom_field_group/
+  reorder_custom_field_groups/
+  upsert_custom_field/
+  configure_custom_field_attributes/
+  reorder_custom_fields/
+  list_custom_field_config/
+```
+
+Mỗi `<use_case>/` chứa command/query (+ handler/validator khi có BE). Legacy areas (`guided_create/`, `units/`) vẫn flat — refactor dần; **area mới** phải theo layout trên. Guard: `scripts/ci/guard_application_use_case_layout.sh`.
+
 ## Codegen ritual
 
 ```bash
