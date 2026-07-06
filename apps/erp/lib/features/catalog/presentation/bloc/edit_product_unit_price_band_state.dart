@@ -99,4 +99,17 @@ class EditProductUnitPriceBandLoaded extends EditProductUnitPriceBandState {
   }
 }
 
+class EditProductUnitPriceBandNeedsOverwriteConfirm
+    extends EditProductUnitPriceBandState {
+  const EditProductUnitPriceBandNeedsOverwriteConfirm({
+    required this.loaded,
+    this.existingListPrice,
+    this.existingFloorPrice,
+  });
+
+  final EditProductUnitPriceBandLoaded loaded;
+  final double? existingListPrice;
+  final double? existingFloorPrice;
+}
+
 class EditProductUnitPriceBandSuccess extends EditProductUnitPriceBandState {}

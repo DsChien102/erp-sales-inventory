@@ -7,6 +7,7 @@ import 'package:get_it/get_it.dart';
 import '../bloc/edit_product_unit_price_band_cubit.dart';
 import '../bloc/edit_product_unit_price_band_state.dart';
 import '../widgets/price_band_calculation_type_selector.dart';
+import '../widgets/price_band_overwrite_dialog.dart';
 
 String _formatCurrency(double? amount) {
   if (amount == null) return '—';
@@ -41,19 +42,32 @@ class EditProductUnitPriceBandPage extends StatelessWidget {
         moduleMediator: GetIt.instance<ICatalogModule>(),
       )..loadInitialData(),
       child: BlocListener<EditProductUnitPriceBandCubit, EditProductUnitPriceBandState>(
-        listener: (context, state) {
+        listener: (context, state) async {
           if (state is EditProductUnitPriceBandSuccess) {
             Navigator.of(context).pop(true);
+          } else if (state is EditProductUnitPriceBandNeedsOverwriteConfirm) {
+            final confirmed = await showPriceBandOverwriteDialog(
+              context,
+              existingListPrice: state.existingListPrice,
+              existingFloorPrice: state.existingFloorPrice,
+            );
+            if (!context.mounted) return;
+            if (confirmed == true) {
+              await context.read<EditProductUnitPriceBandCubit>().confirmOverwrite();
+            } else {
+              context.read<EditProductUnitPriceBandCubit>().cancelOverwrite();
+            }
           } else if (state is EditProductUnitPriceBandLoaded && state.error != null) {
             VToast.show(
-              context, 
-              title: 'Lỗi', 
+              context,
+              title: 'Lỗi',
               message: state.error!,
               type: VToastType.danger,
             );
           }
         },
         child: Scaffold(
+          key: const Key('wgt_e06_u02_fr02_01'),
           backgroundColor: dynamicColors.background,
           appBar: VAppBar(
             title: 'Khung giá bán',
@@ -166,6 +180,7 @@ class EditProductUnitPriceBandPage extends StatelessWidget {
             const SizedBox(width: 16),
             Expanded(
               child: VButton(
+                key: const Key('btn_price_band_save'),
                 label: 'Lưu',
                 variant: VButtonVariant.primary,
                 isLoading: state.isSubmitting,

@@ -202,6 +202,7 @@ class _PriceBandCalculationTypeSelectorState extends State<PriceBandCalculationT
     final dynamicColors = context.vColors;
     
     return Container(
+      key: const Key('wgt_e06_u02_fr03_01'),
       padding: const EdgeInsets.all(16.0),
       decoration: BoxDecoration(
         color: dynamicColors.surface,
@@ -212,7 +213,9 @@ class _PriceBandCalculationTypeSelectorState extends State<PriceBandCalculationT
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Khung của cửa hàng đang áp dụng',
+            state.suggestion.storePriceRuleName != null
+                ? 'Khung của cửa hàng: ${state.suggestion.storePriceRuleName}'
+                : 'Khung của cửa hàng đang áp dụng',
             style: VTypography.bodyDefault.copyWith(
               color: dynamicColors.textSecondary,
             ),
@@ -389,6 +392,7 @@ class _PriceBandCalculationTypeSelectorState extends State<PriceBandCalculationT
               Expanded(
                 flex: 3,
                 child: VTextField(
+                  key: const Key('input_price_band_list'),
                   controller: _manualListPriceCtrl,
                   keyboardType: const TextInputType.numberWithOptions(decimal: true),
                   suffixText: 'đ',
@@ -413,6 +417,7 @@ class _PriceBandCalculationTypeSelectorState extends State<PriceBandCalculationT
               Expanded(
                 flex: 3,
                 child: VTextField(
+                  key: const Key('input_price_band_floor'),
                   controller: _manualFloorPriceCtrl,
                   keyboardType: const TextInputType.numberWithOptions(decimal: true),
                   suffixText: 'đ',

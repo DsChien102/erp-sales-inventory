@@ -35,8 +35,7 @@ class EditProductUnitPriceBandCubit extends Cubit<EditProductUnitPriceBandState>
         selectedType: PriceBandCalculationType.storeRule,
       ));
     } catch (e) {
-      // In a real app, handle error properly
-      emit(EditProductUnitPriceBandInitial()); // or Error state
+      emit(EditProductUnitPriceBandInitial());
     }
   }
 
@@ -85,7 +84,7 @@ class EditProductUnitPriceBandCubit extends Cubit<EditProductUnitPriceBandState>
     }
   }
 
-  Future<void> submit() async {
+  Future<void> submit({bool confirmOverwrite = false}) async {
     final currentState = state;
     if (currentState is! EditProductUnitPriceBandLoaded || !currentState.canSubmit) {
       return;
@@ -102,7 +101,7 @@ class EditProductUnitPriceBandCubit extends Cubit<EditProductUnitPriceBandState>
             productUnitId: productUnitId,
             storePriceRuleId: currentState.suggestion.storePriceRuleId,
             basePriceVersion: currentState.suggestion.basePriceVersion,
-            confirmOverwrite: true, // Auto confirm for now, or handle in UI
+            confirmOverwrite: confirmOverwrite,
           ),
         );
       } else {
@@ -117,13 +116,34 @@ class EditProductUnitPriceBandCubit extends Cubit<EditProductUnitPriceBandState>
           ),
         );
       }
-      
+
       emit(EditProductUnitPriceBandSuccess());
+    } on PriceBandOverwriteRequiredException catch (e) {
+      emit(EditProductUnitPriceBandNeedsOverwriteConfirm(
+        loaded: currentState.copyWith(isSubmitting: false, clearError: true),
+        existingListPrice: e.existingListPrice,
+        existingFloorPrice: e.existingFloorPrice,
+      ));
     } catch (e) {
       emit(currentState.copyWith(
         isSubmitting: false,
-        error: e.toString(), // or specific validation error message
+        error: e.toString(),
       ));
+    }
+  }
+
+  Future<void> confirmOverwrite() async {
+    final currentState = state;
+    if (currentState is EditProductUnitPriceBandNeedsOverwriteConfirm) {
+      emit(currentState.loaded);
+      await submit(confirmOverwrite: true);
+    }
+  }
+
+  void cancelOverwrite() {
+    final currentState = state;
+    if (currentState is EditProductUnitPriceBandNeedsOverwriteConfirm) {
+      emit(currentState.loaded);
     }
   }
 }

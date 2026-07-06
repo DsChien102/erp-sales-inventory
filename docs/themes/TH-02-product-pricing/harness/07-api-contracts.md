@@ -670,7 +670,7 @@ Widget keys: `wgt_e06_u01_fr01_01` (manual base price page), `input_base_price_a
 
 ## EPIC-06 / US-02 — Store Price Rule (slice #10)
 
-**Status:** CONTRACT `done` · BE `done` · FE `todo` · E2E `todo`
+**Status:** CONTRACT `done` · BE `done` · FE `done` · E2E `done`
 
 ### Commands / Queries
 
@@ -751,6 +751,21 @@ Draft: [`supabase/migrations/_drafts/08_catalog_store_price_rule.sql`](../../../
 Fake seed: `tenant-1` rule `"Mặc định bán lẻ"` (listMarkup `0.5`, floorMarkup `0.25`); `product-4` has base price, no band; `product-2` manual override band.
 
 Tests: `scn_contract_e06_u02_*` in `fake_catalog_module_test.dart` (group `EPIC-06 / US-02 contract`).
+
+### E2E scenarios (ERP)
+
+| test_id | FR | trigger | assert |
+| ------- | -- | ------- | ------ |
+| `e2e_e06_u02_fr02_01` | FR-02 | PCC `product-4` → editor | suggested 37.500 / 31.250 đ; rule name |
+| `e2e_e06_u02_fr02_02` | FR-02 | PCC `product-7` (no base price) | unavailable reason; save disabled |
+| `e2e_e06_u02_fr02_03` | FR-02 | inactive rule scenario | unavailable reason; save disabled |
+| `e2e_e06_u02_fr03_01` | FR-03 | apply rule `product-4` | band saved; PCC refreshed |
+| `e2e_e06_u02_fr03_02` | FR-03 | apply on `product-1` | overwrite dialog; cancel / confirm |
+| `e2e_e06_u02_fr04_01` | FR-04 | PCC `product-2` | subtitle `Giá riêng` |
+
+**FR-01 E2E:** deferred (no tenant Store Price Rule settings page in Foundation MVP).
+
+**E2E file:** `apps/erp/test/features/catalog/presentation/pages/product_store_price_rule_e2e_test.dart`
 
 ### Parallel notes
 
