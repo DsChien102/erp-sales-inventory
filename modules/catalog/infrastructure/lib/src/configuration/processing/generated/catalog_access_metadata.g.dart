@@ -50,6 +50,10 @@ final catalogAccessMetadataRegistry = AccessMetadataRegistry({
     permission: 'catalog.pricing.manage_store_rule',
     requiresTenant: true,
   ),
+  ListProductUnitPriceBandsQuery: AccessMetadata(
+    permission: 'catalog.product.view_detail',
+    requiresTenant: true,
+  ),
   ListProductUnitsQuery: AccessMetadata(
     permission: 'catalog.product.manage_units',
     requiresTenant: true,

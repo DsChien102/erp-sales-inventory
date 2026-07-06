@@ -245,6 +245,10 @@ Mở đầy đủ khi CONTRACT lane bắt đầu.
 | FR-02 | CONTRACT | §EPIC-06-US-03 | application | `PriceBandValidationWarningDto`, `confirmAcknowledgeWarnings` warn-only | scn_contract_e06_u03_fr02_* | done |
 | FR-03 | CONTRACT | §EPIC-06-US-03 | application | `readinessSummary` on result; multi-unit partial blocker | scn_contract_e06_u03_fr03_* | done |
 | FR-04 | CONTRACT | §EPIC-06-US-03 | application | Change history via BE RPC spec; read `changeHistoryPreview` | — | done (doc) |
+| FR-01 | BE | §EPIC-06-US-03 | application + infrastructure | `SetProductUnitPriceBandCommandHandler`, `ListProductUnitPriceBandsQueryHandler`, `SupabaseProductPriceBandGateway`, draft RPC | scn_e06_u03_fr01_* | done |
+| FR-02 | BE | §EPIC-06-US-03 | application | `PriceBandWarningCalculator` + handler warn-only gate | scn_e06_u03_fr02_* | done |
+| FR-03 | BE | §EPIC-06-US-03 | application + infrastructure | `_product_operational_facts` multi-unit `has_price_band` + readiness result | scn_e06_u03_fr03_* | done |
+| FR-04 | BE | §EPIC-06-US-03 | infrastructure | Change history in `set_product_unit_price_band` RPC | — | done |
 
 ---
 

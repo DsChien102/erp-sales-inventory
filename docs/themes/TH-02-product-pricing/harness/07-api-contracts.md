@@ -774,7 +774,7 @@ Tests: `scn_contract_e06_u02_*` in `fake_catalog_module_test.dart` (group `EPIC-
 
 ## EPIC-06 / US-03 — Product Unit Price Band (slice #11)
 
-**Status:** CONTRACT `done` · BE `todo` · FE `todo` · E2E `todo`
+**Status:** CONTRACT `done` · BE `done` · FE `todo` · E2E `todo`
 
 ### Commands / Queries
 
@@ -815,15 +815,21 @@ Permissions:
 - `SetProductUnitPriceBandCommand` → `@RequiresPermission(CatalogPermissions.managePricing)`
 - `ListProductUnitPriceBandsQuery` → `@RequiresPermission(CatalogPermissions.viewDetail)`
 
-### RPC mapping (BE — planned)
+### RPC mapping (BE)
 
-| Use case | RPC | Notes |
-| -------- | --- | ----- |
-| Set price band | `catalog.set_product_unit_price_band` | Upsert per `product_unit_id`; change history |
-| List bands per unit | `catalog.list_product_unit_price_bands` | Rows for price band editor |
-| Readiness facts | existing readiness/PCC RPCs | `has_price_band` when all active units complete |
+| Use case | RPC / view | Params (summary) | Notes |
+| -------- | ---------- | ---------------- | ----- |
+| Set price band | `catalog.set_product_unit_price_band` | `p_tenant_id`, `p_product_id`, `p_list_price`, `p_floor_price`, `p_product_unit_id?`, `p_source_type?`, `p_store_price_rule_id?` | Upsert per unit; `is_custom_override=true` when `source_type=manual` |
+| List bands per unit | `catalog.list_product_unit_price_bands` | `p_tenant_id`, `p_product_id` | Rows for active `product_units`; left join bands + store rule name |
+| Readiness facts | `catalog._product_operational_facts` (redefined) | existing | `has_price_band` true when **all** active units have valid band |
 
-Draft (BE lane): `supabase/migrations/_drafts/09_catalog_product_unit_price_band.sql`
+**Guards:** `inactive_product_unit`, `floor_price_greater_than_list_price`, `validation_exception` (negative prices), `missing base unit`, `product not found`
+
+**Change history:** `set_product_unit_price_band` action with `product_unit_id`, list/floor, previous values, `source_type`, `store_price_rule_id`
+
+Draft: [`supabase/migrations/_drafts/09_catalog_product_unit_price_band.sql`](../../../../supabase/migrations/_drafts/09_catalog_product_unit_price_band.sql)
+
+**BE tests:** `product_unit_price_band_handlers_test.dart` (`scn_e06_u03_*`), `product_price_band_rpc_mapper_test.dart`
 
 ### Fake scenarios (FE)
 

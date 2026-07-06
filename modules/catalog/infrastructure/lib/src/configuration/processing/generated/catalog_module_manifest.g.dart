@@ -32,6 +32,7 @@ final catalogModuleManifest = GeneratedModuleManifest(
     SetInitialStockCommand,
     SetManualBasePriceCommand,
     SetProductBaseUnitCommand,
+    SetProductUnitPriceBandCommand,
     SetStorePriceRuleCommand,
   ],
   queryTypes: [
@@ -41,6 +42,7 @@ final catalogModuleManifest = GeneratedModuleManifest(
     GetProductReadinessQuery,
     GetProductStockHistoryQuery,
     GetStorePriceRuleQuery,
+    ListProductUnitPriceBandsQuery,
     ListProductUnitsQuery,
     ListTenantMeasurementUnitsQuery,
     ScanBarcodeQuery,
