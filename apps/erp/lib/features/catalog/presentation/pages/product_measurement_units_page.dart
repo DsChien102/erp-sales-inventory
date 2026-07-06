@@ -6,7 +6,6 @@ import 'package:vet45_catalog_application/application.dart';
 import 'package:vet45_shared_application/application.dart';
 import 'package:vet45_design_system/design_system.dart';
 import 'package:vet45_catalog_presentation/presentation.dart';
-import 'package:vet45_design_system/design_system.dart';
 
 import '../widgets/product_conversion_unit_item.dart';
 import '../widgets/product_measurement_units_bottom_bar.dart';

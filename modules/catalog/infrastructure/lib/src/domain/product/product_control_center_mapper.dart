@@ -1,6 +1,7 @@
 import 'package:vet45_catalog_application/application.dart';
 import 'package:vet45_catalog_domain/domain.dart';
 
+import '../pricing/store_price_rule_rpc_mapper.dart';
 import 'product_readiness_facts_mapper.dart';
 
 abstract final class ProductControlCenterMapper {
@@ -78,6 +79,11 @@ abstract final class ProductControlCenterMapper {
       basePriceCurrency: json['base_price_currency'] as String? ?? 'VND',
       listPrice: _toDouble(json['list_price']),
       floorPrice: _toDouble(json['floor_price']),
+      priceBandSourceType: StorePriceRuleRpcMapper.sourceTypeFromRpc(
+        json['price_band_source_type'] as String?,
+      ),
+      storePriceRuleName: json['store_price_rule_name'] as String?,
+      isCustomOverride: json['is_custom_override'] as bool? ?? false,
       changeHistoryPreview: history,
     );
   }

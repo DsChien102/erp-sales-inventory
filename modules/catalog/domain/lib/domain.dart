@@ -15,6 +15,8 @@ export 'src/pricing/floor_price.dart';
 export 'src/pricing/list_price.dart';
 export 'src/pricing/product_base_price_profile.dart';
 export 'src/pricing/product_unit_price_band.dart';
+export 'src/pricing/rules/markup_ratio_must_be_non_negative_rule.dart';
+export 'src/pricing/rules/suggested_floor_not_greater_than_list_rule.dart';
 export 'src/pricing/store_price_rule.dart';
 export 'src/product/events/product_base_price_updated.dart';
 export 'src/product/events/product_created.dart';

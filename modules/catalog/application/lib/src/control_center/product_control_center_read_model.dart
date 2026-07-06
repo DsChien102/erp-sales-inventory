@@ -2,6 +2,7 @@ import 'package:vet45_catalog_domain/domain.dart';
 
 import '../control_center/product_change_history_entry_dto.dart';
 import '../control_center/product_conversion_unit_dto.dart';
+import '../pricing/store_rule/price_band_source_type.dart';
 
 /// Raw control-center projection loaded from RPC before permission-aware assembly.
 final class ProductControlCenterReadModel {
@@ -26,6 +27,9 @@ final class ProductControlCenterReadModel {
     this.basePriceCurrency = 'VND',
     this.listPrice,
     this.floorPrice,
+    this.priceBandSourceType,
+    this.storePriceRuleName,
+    this.isCustomOverride = false,
     this.changeHistoryPreview = const [],
   });
 
@@ -49,5 +53,8 @@ final class ProductControlCenterReadModel {
   final String basePriceCurrency;
   final double? listPrice;
   final double? floorPrice;
+  final PriceBandSourceType? priceBandSourceType;
+  final String? storePriceRuleName;
+  final bool isCustomOverride;
   final List<ProductChangeHistoryEntryDto> changeHistoryPreview;
 }

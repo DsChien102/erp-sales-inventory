@@ -78,7 +78,19 @@ class ProductControlCenterOperationalSection extends StatelessWidget {
     final unit = priceBand.unitName?.trim();
     final unitSuffix = unit != null && unit.isNotEmpty ? ' · Đơn vị: $unit' : '';
 
-    return '$listPart · $floorPart$unitSuffix';
+    final metadataSuffix = () {
+      if (priceBand.isCustomOverride) {
+        return ' · Giá riêng';
+      }
+      if (priceBand.sourceType == PriceBandSourceType.ruleBased &&
+          priceBand.storePriceRuleName != null &&
+          priceBand.storePriceRuleName!.trim().isNotEmpty) {
+        return ' · ${priceBand.storePriceRuleName}';
+      }
+      return '';
+    }();
+
+    return '$listPart · $floorPart$unitSuffix$metadataSuffix';
   }
 }
 

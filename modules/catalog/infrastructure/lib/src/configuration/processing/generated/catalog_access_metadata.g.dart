@@ -14,6 +14,10 @@ final catalogAccessMetadataRegistry = AccessMetadataRegistry({
     permission: 'catalog.product.manage_stock',
     requiresTenant: true,
   ),
+  ApplyStorePriceRuleCommand: AccessMetadata(
+    permission: 'catalog.product.manage_pricing',
+    requiresTenant: true,
+  ),
   CheckDuplicateMeasurementUnitNameQuery: AccessMetadata(
     permission: 'catalog.product.manage_units',
     requiresTenant: true,
@@ -40,6 +44,10 @@ final catalogAccessMetadataRegistry = AccessMetadataRegistry({
   ),
   GetProductStockHistoryQuery: AccessMetadata(
     permission: 'catalog.product.view_history',
+    requiresTenant: true,
+  ),
+  GetStorePriceRuleQuery: AccessMetadata(
+    permission: 'catalog.pricing.manage_store_rule',
     requiresTenant: true,
   ),
   ListProductUnitsQuery: AccessMetadata(
@@ -80,6 +88,18 @@ final catalogAccessMetadataRegistry = AccessMetadataRegistry({
   ),
   SetProductBaseUnitCommand: AccessMetadata(
     permission: 'catalog.product.manage_units',
+    requiresTenant: true,
+  ),
+  SetProductUnitPriceBandCommand: AccessMetadata(
+    permission: 'catalog.product.manage_pricing',
+    requiresTenant: true,
+  ),
+  SetStorePriceRuleCommand: AccessMetadata(
+    permission: 'catalog.pricing.manage_store_rule',
+    requiresTenant: true,
+  ),
+  SuggestProductUnitPriceQuery: AccessMetadata(
+    permission: 'catalog.product.manage_pricing',
     requiresTenant: true,
   ),
 });

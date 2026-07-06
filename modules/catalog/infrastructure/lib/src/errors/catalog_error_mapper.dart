@@ -35,6 +35,30 @@ Object mapCatalogRpcError(RpcException error) {
     return NotManualBasePriceModeException();
   }
 
+  if (message.contains('store_price_rule_not_found')) {
+    return StorePriceRuleNotFoundException();
+  }
+
+  if (message.contains('store_price_rule_inactive')) {
+    return StorePriceRuleInactiveException();
+  }
+
+  if (message.contains('price_band_overwrite_required')) {
+    return PriceBandOverwriteRequiredException();
+  }
+
+  if (message.contains('stale_base_price')) {
+    return StaleBasePriceException();
+  }
+
+  if (message.contains('missing_base_price')) {
+    return MissingBasePriceException();
+  }
+
+  if (message.contains('floor_price_greater_than_list_price')) {
+    return FloorPriceGreaterThanListPriceException();
+  }
+
   if (message.contains('stale_stock_quantity')) {
     return StaleStockQuantityException();
   }

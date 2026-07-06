@@ -5,14 +5,25 @@ final class StorePriceRule extends ValueObject {
     required this.id,
     required this.tenantId,
     required this.name,
-    required this.ratio,
+    required this.listMarkupRatio,
+    required this.floorMarkupRatio,
+    this.isActive = true,
   });
 
   final String id;
   final String tenantId;
   final String name;
-  final double ratio;
+  final double listMarkupRatio;
+  final double floorMarkupRatio;
+  final bool isActive;
 
   @override
-  List<Object?> get props => [id, tenantId, name, ratio];
+  List<Object?> get props => [
+        id,
+        tenantId,
+        name,
+        listMarkupRatio,
+        floorMarkupRatio,
+        isActive,
+      ];
 }

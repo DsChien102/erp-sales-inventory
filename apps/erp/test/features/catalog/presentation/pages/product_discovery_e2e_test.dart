@@ -1,6 +1,5 @@
 import 'package:erp/core/di/injection.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:vet45_catalog_application/testing.dart';
 
@@ -30,6 +29,7 @@ void main() {
       'Amoxicillin',
     );
     await tester.testTextInput.receiveAction(TextInputAction.done);
+    await tester.pump(const Duration(milliseconds: 500));
     await tester.pumpAndSettle();
 
     expect(find.textContaining('Amoxicillin 500mg'), findsOneWidget);
@@ -49,7 +49,7 @@ void main() {
     expect(find.byKey(const Key('wgt_e01_u02_fr01_01')), findsOneWidget);
     expect(find.text('Vitamin B Complex'), findsWidgets);
     expect(find.text('Thiếu dữ liệu'), findsOneWidget);
-    expect(find.text('Đơn vị'), findsOneWidget);
+    expect(find.text('Đơn vị đo lường'), findsOneWidget);
     expect(find.text('Tồn kho'), findsOneWidget);
     expect(find.text('Khung giá'), findsOneWidget);
     expect(find.textContaining('Chai'), findsWidgets);

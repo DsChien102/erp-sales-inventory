@@ -1440,4 +1440,189 @@ void main() {
       );
     });
   });
+
+  group('EPIC-06 / US-02 contract', () {
+    test('scn_contract_e06_u02_fr01_01 creates store price rule', () async {
+      final module = FakeCatalogModule(
+        scenario: FakeCatalogScenario.scnContractE06U02Fr01_01,
+      );
+
+      final result = await module.executeCommandAsync(
+        SetStorePriceRuleCommand(
+          tenantId: 'tenant-new',
+          name: 'Mặc định bán lẻ',
+          listMarkupRatio: 0.4,
+          floorMarkupRatio: 0.2,
+        ),
+      );
+
+      expect(result.rule.name, 'Mặc định bán lẻ');
+      expect(result.rule.listMarkupRatio, 0.4);
+      expect(result.rule.status, StorePriceRuleStatus.active);
+    });
+
+    test('scn_contract_e06_u02_fr01_02 rejects invalid markup ratio', () async {
+      final module = FakeCatalogModule(
+        scenario: FakeCatalogScenario.scnContractE06U02Fr01_02,
+      );
+
+      await expectLater(
+        module.executeCommandAsync(
+          SetStorePriceRuleCommand(
+            tenantId: 'tenant-1',
+            name: 'Invalid rule',
+            listMarkupRatio: -0.1,
+            floorMarkupRatio: 0.2,
+          ),
+        ),
+        throwsA(isA<ValidationException>()),
+      );
+    });
+
+    test('scn_contract_e06_u02_fr01_03 returns null when tenant has no rule', () async {
+      final module = FakeCatalogModule(
+        scenario: FakeCatalogScenario.scnContractE06U02Fr01_03,
+      );
+
+      final rule = await module.executeQueryAsync(
+        GetStorePriceRuleQuery(tenantId: 'tenant-no-rule'),
+      );
+
+      expect(rule, isNull);
+    });
+
+    test('scn_contract_e06_u02_fr01_04 can deactivate store price rule', () async {
+      final module = FakeCatalogModule(
+        scenario: FakeCatalogScenario.scnContractE06U02Fr01_04,
+      );
+
+      final result = await module.executeCommandAsync(
+        SetStorePriceRuleCommand(
+          tenantId: 'tenant-1',
+          name: 'Mặc định bán lẻ',
+          listMarkupRatio: 0.5,
+          floorMarkupRatio: 0.25,
+          status: StorePriceRuleStatus.inactive,
+        ),
+      );
+
+      expect(result.rule.status, StorePriceRuleStatus.inactive);
+    });
+
+    test('scn_contract_e06_u02_fr02_01 suggests list and floor from base price', () async {
+      final module = FakeCatalogModule(
+        scenario: FakeCatalogScenario.scnContractE06U02Fr02_01,
+      );
+
+      final suggestion = await module.executeQueryAsync(
+        SuggestProductUnitPriceQuery(
+          tenantId: 'tenant-1',
+          productId: 'product-4',
+        ),
+      );
+
+      expect(suggestion.canSuggest, isTrue);
+      expect(suggestion.suggestedListPrice, 37500);
+      expect(suggestion.suggestedFloorPrice, 31250);
+      expect(suggestion.storePriceRuleName, 'Mặc định bán lẻ');
+    });
+
+    test('scn_contract_e06_u02_fr02_02 cannot suggest without base price', () async {
+      final module = FakeCatalogModule(
+        scenario: FakeCatalogScenario.scnContractE06U02Fr02_02,
+      );
+
+      final suggestion = await module.executeQueryAsync(
+        SuggestProductUnitPriceQuery(
+          tenantId: 'tenant-1',
+          productId: 'product-7',
+        ),
+      );
+
+      expect(suggestion.canSuggest, isFalse);
+      expect(suggestion.unavailableReason, contains('Giá cơ sở'));
+    });
+
+    test('scn_contract_e06_u02_fr02_03 inactive rule cannot suggest', () async {
+      final module = FakeCatalogModule(
+        scenario: FakeCatalogScenario.scnContractE06U02Fr02_03,
+      );
+
+      final suggestion = await module.executeQueryAsync(
+        SuggestProductUnitPriceQuery(
+          tenantId: 'tenant-1',
+          productId: 'product-4',
+        ),
+      );
+
+      expect(suggestion.canSuggest, isFalse);
+      expect(suggestion.unavailableReason, contains('không hoạt động'));
+    });
+
+    test('scn_contract_e06_u02_fr03_01 applies rule to product without band', () async {
+      final module = FakeCatalogModule(
+        scenario: FakeCatalogScenario.scnContractE06U02Fr03_01,
+      );
+
+      final result = await module.executeCommandAsync(
+        ApplyStorePriceRuleCommand(
+          tenantId: 'tenant-1',
+          productId: 'product-4',
+        ),
+      );
+
+      expect(result.listPrice, 37500);
+      expect(result.floorPrice, 31250);
+      expect(result.sourceType, PriceBandSourceType.ruleBased);
+    });
+
+    test('scn_contract_e06_u02_fr03_02 requires confirm to overwrite band', () async {
+      final module = FakeCatalogModule(
+        scenario: FakeCatalogScenario.scnContractE06U02Fr03_02,
+      );
+
+      await expectLater(
+        module.executeCommandAsync(
+          ApplyStorePriceRuleCommand(
+            tenantId: 'tenant-1',
+            productId: 'product-1',
+          ),
+        ),
+        throwsA(isA<PriceBandOverwriteRequiredException>()),
+      );
+    });
+
+    test('scn_contract_e06_u02_fr03_03 rejects stale base price version', () async {
+      final module = FakeCatalogModule(
+        scenario: FakeCatalogScenario.scnContractE06U02Fr03_03,
+      );
+
+      await expectLater(
+        module.executeCommandAsync(
+          ApplyStorePriceRuleCommand(
+            tenantId: 'tenant-1',
+            productId: 'product-4',
+            basePriceVersion: 0,
+          ),
+        ),
+        throwsA(isA<StaleBasePriceException>()),
+      );
+    });
+
+    test('scn_contract_e06_u02_fr04_01 pcc shows custom override label', () async {
+      final module = FakeCatalogModule(
+        scenario: FakeCatalogScenario.scnContractE06U02Fr04_01,
+      );
+
+      final pcc = await module.executeQueryAsync(
+        GetProductControlCenterQuery(
+          tenantId: 'tenant-1',
+          productId: 'product-2',
+        ),
+      );
+
+      expect(pcc.priceBand.isCustomOverride, isTrue);
+      expect(pcc.priceBand.sourceType, PriceBandSourceType.manual);
+    });
+  });
 }

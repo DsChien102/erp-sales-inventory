@@ -12,6 +12,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:get_it/get_it.dart';
+import 'package:erp/features/catalog/presentation/pages/product_price_bands_page.dart';
+import 'package:erp/features/catalog/presentation/pages/edit_product_unit_price_band_page.dart';
 import 'package:vet45_catalog_application/application.dart';
 import 'package:vet45_catalog_application/testing.dart';
 import 'package:vet45_catalog_presentation/presentation.dart';
@@ -185,6 +188,29 @@ Widget buildCatalogDiscoveryRouter() {
           );
         },
       ),
+      GoRoute(
+        path: '/products/items/pcc/price-bands',
+        builder: (context, state) {
+          final args = state.extra as ProductPriceBandsRouteArgs;
+          return ProductPriceBandsPage(
+            product: args.product,
+            basePriceCard: args.basePriceCard,
+            priceBandCard: args.priceBandCard,
+            unitName: args.unitName,
+          );
+        },
+      ),
+      GoRoute(
+        path: '/products/items/pcc/edit-price-band',
+        builder: (context, state) {
+          final args = state.extra as EditProductUnitPriceBandRouteArgs;
+          return EditProductUnitPriceBandPage(
+            tenantId: 'tenant-1',
+            productId: args.product.id,
+            unitName: args.unitName,
+          );
+        },
+      ),
     ],
   );
 
@@ -203,6 +229,56 @@ Future<void> tapEditBasePrice(WidgetTester tester) async {
   await tester.ensureVisible(basePriceCard);
   await tester.tap(find.descendant(of: basePriceCard, matching: find.text('Sửa')));
   await tester.pumpAndSettle();
+}
+
+Future<void> tapEditPriceBand(WidgetTester tester) async {
+  final priceBandCard = find.widgetWithText(ProductControlCenterSectionCard, 'Khung giá');
+  await tester.ensureVisible(priceBandCard);
+  await tester.tap(find.descendant(of: priceBandCard, matching: find.text('Sửa')));
+  await tester.pumpAndSettle();
+}
+
+Future<void> openPriceBandEditor(WidgetTester tester) async {
+  await tapEditPriceBand(tester);
+  await tester.tap(find.text('Sửa'));
+  await tester.pumpAndSettle();
+}
+
+Widget buildPccPriceBandRouter(ProductListItemModel product) {
+  final router = GoRouter(
+    initialLocation: '/products/items/pcc',
+    routes: [
+      GoRoute(
+        path: '/products/items/pcc',
+        builder: (context, state) => ProductControlCenterPage(product: product),
+      ),
+      GoRoute(
+        path: '/products/items/pcc/price-bands',
+        builder: (context, state) {
+          final args = state.extra as ProductPriceBandsRouteArgs;
+          return ProductPriceBandsPage(
+            product: args.product,
+            basePriceCard: args.basePriceCard,
+            priceBandCard: args.priceBandCard,
+            unitName: args.unitName,
+          );
+        },
+      ),
+      GoRoute(
+        path: '/products/items/pcc/edit-price-band',
+        builder: (context, state) {
+          final args = state.extra as EditProductUnitPriceBandRouteArgs;
+          return EditProductUnitPriceBandPage(
+            tenantId: 'tenant-1',
+            productId: args.product.id,
+            unitName: args.unitName,
+          );
+        },
+      ),
+    ],
+  );
+
+  return MaterialApp.router(routerConfig: router);
 }
 
 Future<void> createMinimalProduct(

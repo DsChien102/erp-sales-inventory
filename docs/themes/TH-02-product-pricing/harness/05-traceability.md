@@ -213,6 +213,29 @@ Mở đầy đủ khi CONTRACT lane bắt đầu.
 
 ---
 
+## EPIC-06 / US-02 — Store Price Rule (slice #10)
+
+| Req ID | Role | Contract § | Enforce layer | Artifact | Test id | Status |
+| ------ | ---- | ---------- | ------------- | -------- | ------- | ------ |
+| US-02 | CONTRACT | §EPIC-06-US-02 | application | Store rule + suggestion + apply commands/queries, DTOs, `FakeCatalogModule` | scn_contract_e06_u02_* | done |
+| FR-01 | CONTRACT | §EPIC-06-US-02 | application | `GetStorePriceRuleQuery`, `SetStorePriceRuleCommand`, `StorePriceRuleDto` | scn_contract_e06_u02_fr01_* | done |
+| FR-02 | CONTRACT | §EPIC-06-US-02 | application | `SuggestProductUnitPriceQuery`, `ProductUnitPriceSuggestionDto` | scn_contract_e06_u02_fr02_* | done |
+| FR-03 | CONTRACT | §EPIC-06-US-02 | application | `ApplyStorePriceRuleCommand`, `ApplyStorePriceRuleResult` | scn_contract_e06_u02_fr03_* | done |
+| FR-04 | CONTRACT | §EPIC-06-US-02 | application | `ProductPriceBandCardDto` override fields; `SetProductUnitPriceBandCommand` stub (slice #11) | scn_contract_e06_u02_fr04_01 | done |
+| FR-01 | BE | §EPIC-06-US-02 | application + infrastructure | `GetStorePriceRuleQueryHandler`, `SetStorePriceRuleCommandHandler`, `SupabaseStorePriceRuleGateway`, draft RPC | scn_e06_u02_fr01_01 | done |
+| FR-02 | BE | §EPIC-06-US-02 | application + infrastructure | `SuggestProductUnitPriceQueryHandler`, `suggest_product_unit_price` RPC | scn_e06_u02_fr02_01 | done |
+| FR-03 | BE | §EPIC-06-US-02 | application + infrastructure | `ApplyStorePriceRuleCommandHandler`, `apply_store_price_rule` RPC | scn_e06_u02_fr03_01 | done |
+| FR-04 | BE | §EPIC-06-US-02 | application + infrastructure | PCC price band metadata projection | scn_e06_u02_fr04_01 | done |
+| FR-02 | FE | §EPIC-06-US-02 | presentation | `edit_product_unit_price_band_page.dart`, `price_band_calculation_type_selector.dart` | wgt_e06_u02_fr02_01 | done |
+| FR-03 | FE | §EPIC-06-US-02 | presentation | Overwrite dialog + cubit apply flow | dlg_price_band_overwrite | done |
+| FR-04 | FE | §EPIC-06-US-02 | presentation | PCC price band `Giá riêng` / rule label | wgt_e01_u02_fr01_01 | done |
+| FR-01 | E2E | §EPIC-06-US-02 | erp | Tenant rule settings page | — | **deferred** |
+| FR-02 | E2E | §EPIC-06-US-02 | erp | Suggestion in price band editor | e2e_e06_u02_fr02_* | done |
+| FR-03 | E2E | §EPIC-06-US-02 | erp | Apply rule + overwrite confirm | e2e_e06_u02_fr03_01..02 | done |
+| FR-04 | E2E | §EPIC-06-US-02 | erp | PCC custom override label | e2e_e06_u02_fr04_01 | done |
+
+---
+
 ## EPIC-04 / US-03 — Đổi đơn vị cơ sở
 
 | Req ID | Role | Contract § | Enforce layer | Artifact | Test id | Status |

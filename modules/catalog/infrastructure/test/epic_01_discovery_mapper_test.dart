@@ -1,4 +1,5 @@
 import 'package:test/test.dart';
+import 'package:vet45_catalog_application/application.dart';
 import 'package:vet45_catalog_domain/domain.dart';
 
 import 'package:vet45_catalog_infrastructure/src/domain/product/product_control_center_mapper.dart';
@@ -69,6 +70,9 @@ void main() {
         'base_price_currency': 'VND',
         'list_price': 120000,
         'floor_price': 95000,
+        'price_band_source_type': 'manual',
+        'store_price_rule_name': null,
+        'is_custom_override': true,
         'has_base_unit': true,
         'has_images': true,
         'has_stock': true,
@@ -91,6 +95,8 @@ void main() {
       expect(model.conversionUnits.single.name, 'Vỉ');
       expect(model.changeHistoryPreview, hasLength(1));
       expect(model.facts.hasPriceBand, isTrue);
+      expect(model.priceBandSourceType, PriceBandSourceType.manual);
+      expect(model.isCustomOverride, isTrue);
     });
   });
 }

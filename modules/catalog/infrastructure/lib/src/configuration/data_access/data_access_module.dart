@@ -4,6 +4,7 @@ import 'package:vet45_adapters/vet45_adapters.dart';
 import 'package:vet45_catalog_application/application.dart';
 import 'package:vet45_shared_infrastructure/infrastructure.dart';
 
+import '../../domain/pricing/supabase_store_price_rule_gateway.dart';
 import '../../domain/product/supabase_catalog_read_gateway.dart';
 import '../../domain/product/supabase_catalog_unit_gateway.dart';
 import '../../domain/product/supabase_product_command_gateway.dart';
@@ -72,6 +73,11 @@ final class CatalogDataAccessModule {
       )
       ..registerSingleton<IProductStockReadPort>(
         SupabaseProductStockReadGateway(
+          rpcClient: container.get<SupabaseSchemaRpcClient>(),
+        ),
+      )
+      ..registerSingleton<IStorePriceRuleGateway>(
+        SupabaseStorePriceRuleGateway(
           rpcClient: container.get<SupabaseSchemaRpcClient>(),
         ),
       )
