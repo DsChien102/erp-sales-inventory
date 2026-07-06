@@ -159,7 +159,7 @@ final appRouter = GoRouter(
       name: 'products.items.pcc.checklist',
       builder: (context, state) {
         final args = state.extra as ProductReadinessChecklistRouteArgs;
-        return ProductReadinessChecklistPage(readinessView: args.readinessView);
+        return ProductReadinessChecklistPage(readinessView: args.readinessView, product: args.product);
       },
     ),
     GoRoute(

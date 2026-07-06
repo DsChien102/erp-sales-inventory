@@ -61,10 +61,20 @@ class _ProductControlCenterView extends StatelessWidget {
     final readinessView = cubit.state.readinessView;
     if (readinessView == null) return;
 
-    context.push(
+    final controlCenter = cubit.state.controlCenter;
+    final updatedProduct = controlCenter != null 
+        ? product.copyWith(baseUnit: controlCenter.units.baseUnitName)
+        : product;
+
+    await context.push(
       '/products/items/pcc/checklist',
-      extra: ProductReadinessChecklistRouteArgs(readinessView: readinessView),
+      extra: ProductReadinessChecklistRouteArgs(
+        readinessView: readinessView,
+        product: updatedProduct,
+      ),
     );
+    if (!context.mounted) return;
+    context.read<ProductControlCenterCubit>().loadControlCenter(product.id);
   }
 
   Widget _buildDangerSection(BuildContext context) {
@@ -276,11 +286,16 @@ class _ProductControlCenterView extends StatelessWidget {
                       stock: controlCenter.stock,
                       basePrice: controlCenter.basePrice,
                       priceBand: controlCenter.priceBand,
-                      onEditUnits: () {
-                        context.push(
-                          '/products/items/pcc/measurement-units',
-                          extra: ProductMeasurementUnitsRouteArgs(product: product),
+                      onEditUnits: () async {
+                        final updatedProduct = product.copyWith(
+                          baseUnit: controlCenter.units.baseUnitName,
                         );
+                        await context.push(
+                          '/products/items/pcc/measurement-units',
+                          extra: ProductMeasurementUnitsRouteArgs(product: updatedProduct),
+                        );
+                        if (!context.mounted) return;
+                        context.read<ProductControlCenterCubit>().loadControlCenter(product.id);
                       },
                       onEditStock: () => _showEditPlaceholder(context),
                       onEditBasePrice: () => _showEditPlaceholder(context),
