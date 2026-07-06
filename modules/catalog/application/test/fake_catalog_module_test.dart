@@ -1373,7 +1373,10 @@ void main() {
       expect(result.productId, 'product-7');
       expect(result.basePrice, 75000.0);
       expect(result.unitName, 'Lọ');
-      expect(result.readinessSummary.blockers.map((b) => b.code), isNot(contains(ReadinessBlockerCode.missingPrice)));
+      expect(
+        result.readinessSummary.blockers.map((b) => b.code),
+        isNot(contains(ReadinessBlockerCode.missingPrice)),
+      );
     });
 
     test('scn_contract_e06_u01_fr02_02 missing base unit rejected', () async {
@@ -1646,8 +1649,9 @@ void main() {
       expect(result.floorPrice, 31250);
       expect(result.sourceType, PriceBandSourceType.manual);
       expect(
-        result.readinessSummary.blockers
-            .any((b) => b.code == ReadinessBlockerCode.missingPriceBand),
+        result.readinessSummary.blockers.any(
+          (b) => b.code == ReadinessBlockerCode.missingPriceBand,
+        ),
         isFalse,
       );
     });
@@ -1797,8 +1801,9 @@ void main() {
       );
 
       expect(
-        result.readinessSummary.blockers
-            .any((b) => b.code == ReadinessBlockerCode.missingPriceBand),
+        result.readinessSummary.blockers.any(
+          (b) => b.code == ReadinessBlockerCode.missingPriceBand,
+        ),
         isFalse,
       );
     });
@@ -1819,10 +1824,316 @@ void main() {
       );
 
       expect(
-        result.readinessSummary.blockers
-            .any((b) => b.code == ReadinessBlockerCode.missingPriceBand),
+        result.readinessSummary.blockers.any(
+          (b) => b.code == ReadinessBlockerCode.missingPriceBand,
+        ),
         isTrue,
       );
     });
+  });
+
+  group('EPIC-07 / US-01 product profile maintenance contract', () {
+    test('scn_contract_e07_u01_fr01_01 updates profile and readiness', () async {
+      final module = FakeCatalogModule(
+        scenario: FakeCatalogScenario.scnContractE07U01Fr01_01,
+      );
+
+      final result = await module.executeCommandAsync(
+        UpdateProductProfileCommand(
+          tenantId: 'tenant-1',
+          actorId: 'user-1',
+          productId: 'product-1',
+          productName: 'Amoxicillin 500mg hộp mới',
+          commercialName: 'Amo 500',
+          sku: 'SKU-001-NEW',
+          barcode: '8930000000099',
+          description: 'Mô tả mới',
+          note: 'Ghi chú mới',
+          expectedVersion: 1,
+        ),
+      );
+
+      expect(result.productId, 'product-1');
+      expect(result.profile.name, 'Amoxicillin 500mg hộp mới');
+      expect(result.profile.tradeName, 'Amo 500');
+      expect(result.profile.sku, 'SKU-001-NEW');
+      expect(result.profile.barcode, '8930000000099');
+      expect(result.profile.description, 'Mô tả mới');
+      expect(result.profile.note, 'Ghi chú mới');
+      expect(result.version, 2);
+      expect(result.readinessSummary.status, ReadinessStatus.readyToSell);
+    });
+
+    test('scn_contract_e07_u01_fr01_02 rejects blank product name', () async {
+      final module = FakeCatalogModule(
+        scenario: FakeCatalogScenario.scnContractE07U01Fr01_02,
+      );
+
+      await expectLater(
+        module.executeCommandAsync(
+          UpdateProductProfileCommand(
+            tenantId: 'tenant-1',
+            actorId: 'user-1',
+            productId: 'product-1',
+            productName: '   ',
+          ),
+        ),
+        throwsA(isA<ValidationException>()),
+      );
+    });
+
+    test('scn_contract_e07_u01_fr01_03 rejects duplicate sku', () async {
+      final module = FakeCatalogModule(
+        scenario: FakeCatalogScenario.scnContractE07U01Fr01_03,
+      );
+
+      await expectLater(
+        module.executeCommandAsync(
+          UpdateProductProfileCommand(
+            tenantId: 'tenant-1',
+            actorId: 'user-1',
+            productId: 'product-1',
+            productName: 'Amoxicillin 500mg',
+            sku: 'SP0002',
+          ),
+        ),
+        throwsA(
+          isA<DuplicateSkuException>().having(
+            (e) => e.existingProductId,
+            'existingProductId',
+            'product-2',
+          ),
+        ),
+      );
+    });
+
+    test(
+      'scn_contract_e07_u01_fr03_01 rejects duplicate barcode including inactive product',
+      () async {
+        final module = FakeCatalogModule(
+          scenario: FakeCatalogScenario.scnContractE07U01Fr03_01,
+        );
+
+        await expectLater(
+          module.executeCommandAsync(
+            UpdateProductProfileCommand(
+              tenantId: 'tenant-1',
+              actorId: 'user-1',
+              productId: 'product-1',
+              productName: 'Amoxicillin 500mg',
+              barcode: '8930000000005',
+            ),
+          ),
+          throwsA(
+            isA<DuplicateBarcodeException>().having(
+              (e) => e.existingProductId,
+              'existingProductId',
+              'product-5',
+            ),
+          ),
+        );
+      },
+    );
+
+    test('scn_contract_e07_u01_fr01_04 rejects soft-deleted product updates', () async {
+      final module = FakeCatalogModule(
+        scenario: FakeCatalogScenario.scnContractE07U01Fr01_04,
+      );
+
+      await expectLater(
+        module.executeCommandAsync(
+          UpdateProductProfileCommand(
+            tenantId: 'tenant-1',
+            actorId: 'user-1',
+            productId: 'product-7',
+            productName: 'Soft deleted product',
+          ),
+        ),
+        throwsA(
+          isA<ApplicationException>().having(
+            (e) => e.message,
+            'message',
+            contains('soft-deleted'),
+          ),
+        ),
+      );
+    });
+
+    test('scn_contract_e07_u01_fr01_05 rejects stale expected version', () async {
+      final module = FakeCatalogModule(
+        scenario: FakeCatalogScenario.scnContractE07U01Fr01_05,
+      );
+
+      await expectLater(
+        module.executeCommandAsync(
+          UpdateProductProfileCommand(
+            tenantId: 'tenant-1',
+            actorId: 'user-1',
+            productId: 'product-1',
+            productName: 'Amoxicillin 500mg',
+            expectedVersion: 0,
+          ),
+        ),
+        throwsA(
+          isA<StaleProductVersionException>()
+              .having((e) => e.expectedVersion, 'expectedVersion', 0)
+              .having((e) => e.currentVersion, 'currentVersion', 1),
+        ),
+      );
+    });
+
+    test('scn_contract_e07_u01_fr02_01 replaces image snapshot and primary', () async {
+      final module = FakeCatalogModule(
+        scenario: FakeCatalogScenario.scnContractE07U01Fr02_01,
+      );
+
+      final result = await module.executeCommandAsync(
+        UpdateProductImagesCommand(
+          tenantId: 'tenant-1',
+          actorId: 'user-1',
+          productId: 'product-1',
+          images: const [
+            ProductImageMutationInput(
+              imageId: 'image-new-2',
+              storageKey: 'tenant-1/products/product-1/image-new-2.webp',
+              url: 'https://cdn.fake/image-new-2.webp',
+              isPrimary: true,
+              sortOrder: 0,
+            ),
+            ProductImageMutationInput(
+              imageId: 'image-new-1',
+              storageKey: 'tenant-1/products/product-1/image-new-1.webp',
+              url: 'https://cdn.fake/image-new-1.webp',
+              sortOrder: 1,
+            ),
+          ],
+          expectedVersion: 1,
+        ),
+      );
+
+      expect(result.productId, 'product-1');
+      expect(result.images.map((image) => image.imageId), [
+        'image-new-2',
+        'image-new-1',
+      ]);
+      expect(result.images.singleWhere((image) => image.isPrimary).imageId, 'image-new-2');
+      expect(result.primaryImageUrl, 'https://cdn.fake/image-new-2.webp');
+      expect(result.version, 2);
+    });
+
+    test(
+      'scn_contract_e07_u01_fr02_02 promotes first remaining image when primary is removed',
+      () async {
+        final module = FakeCatalogModule(
+          scenario: FakeCatalogScenario.scnContractE07U01Fr02_02,
+        );
+
+        final result = await module.executeCommandAsync(
+          UpdateProductImagesCommand(
+            tenantId: 'tenant-1',
+            actorId: 'user-1',
+            productId: 'product-1',
+            images: const [
+              ProductImageMutationInput(
+                imageId: 'image-remaining',
+                storageKey: 'tenant-1/products/product-1/image-remaining.webp',
+                url: 'https://cdn.fake/image-remaining.webp',
+                sortOrder: 0,
+              ),
+            ],
+          ),
+        );
+
+        expect(result.images, hasLength(1));
+        expect(result.images.single.isPrimary, isTrue);
+        expect(result.primaryImageUrl, 'https://cdn.fake/image-remaining.webp');
+      },
+    );
+
+    test(
+      'scn_contract_e07_u01_fr02_03 allows deleting all images and refreshes readiness',
+      () async {
+        final module = FakeCatalogModule(
+          scenario: FakeCatalogScenario.scnContractE07U01Fr02_03,
+        );
+
+        final result = await module.executeCommandAsync(
+          UpdateProductImagesCommand(
+            tenantId: 'tenant-1',
+            actorId: 'user-1',
+            productId: 'product-1',
+            images: const [],
+          ),
+        );
+
+        expect(result.images, isEmpty);
+        expect(result.primaryImageUrl, isNull);
+        expect(
+          result.readinessSummary.blockers.map((b) => b.code),
+          contains(ReadinessBlockerCode.missingImage),
+        );
+      },
+    );
+
+    test('scn_contract_e07_u01_fr02_04 rejects invalid maintenance upload type', () async {
+      final module = FakeCatalogModule(
+        scenario: FakeCatalogScenario.scnContractE07U01Fr02_04,
+      );
+
+      await expectLater(
+        module.executeCommandAsync(
+          RequestProductMaintenanceImageUploadCommand(
+            tenantId: 'tenant-1',
+            actorId: 'user-1',
+            productId: 'product-1',
+            fileName: 'photo.gif',
+            contentType: 'image/gif',
+            byteSize: 1024,
+          ),
+        ),
+        throwsA(isA<ValidationException>()),
+      );
+    });
+
+    test(
+      'scn_contract_e07_u01_fr04_01 returns refreshed readiness after profile and image updates',
+      () async {
+        final module = FakeCatalogModule(
+          scenario: FakeCatalogScenario.scnContractE07U01Fr04_01,
+        );
+
+        final profileResult = await module.executeCommandAsync(
+          UpdateProductProfileCommand(
+            tenantId: 'tenant-1',
+            actorId: 'user-1',
+            productId: 'product-4',
+            productName: 'Vitamin B Complex cập nhật',
+            sku: 'SKU-004-NEW',
+          ),
+        );
+        final imageResult = await module.executeCommandAsync(
+          UpdateProductImagesCommand(
+            tenantId: 'tenant-1',
+            actorId: 'user-1',
+            productId: 'product-4',
+            images: const [
+              ProductImageMutationInput(
+                storageKey: 'tenant-1/products/product-4/image-1.webp',
+                url: 'https://cdn.fake/product-4-image-1.webp',
+                isPrimary: true,
+                sortOrder: 0,
+              ),
+            ],
+          ),
+        );
+
+        expect(profileResult.readinessSummary.status, ReadinessStatus.incomplete);
+        expect(imageResult.readinessSummary.status, ReadinessStatus.incomplete);
+        expect(
+          imageResult.readinessSummary.blockers.map((b) => b.code),
+          isNot(contains(ReadinessBlockerCode.missingImage)),
+        );
+      },
+    );
   });
 }

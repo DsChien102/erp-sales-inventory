@@ -254,6 +254,21 @@ Mở đầy đủ khi CONTRACT lane bắt đầu.
 
 ---
 
+## EPIC-07 / US-01 — Bảo trì hồ sơ (slice #12)
+
+| Req ID | Role | Contract § | Enforce layer | Artifact | Test id | Status |
+| ------ | ---- | ---------- | ------------- | -------- | ------- | ------ |
+| US-01 | CONTRACT | §EPIC-07-US-01 | application | `UpdateProductProfileCommand`, `UpdateProductImagesCommand`, `RequestProductMaintenanceImageUploadCommand`, DTOs, `FakeCatalogModule` | scn_contract_e07_u01_* | done |
+| FR-01 | CONTRACT | §EPIC-07-US-01 | application | Profile edit contract + duplicate SKU + version conflict | scn_contract_e07_u01_fr01_01..05 | done |
+| FR-02 | CONTRACT | §EPIC-07-US-01 | application | Image snapshot replacement + maintenance upload slot | scn_contract_e07_u01_fr02_01..04 | done |
+| FR-03 | CONTRACT | §EPIC-07-US-01 | application | Duplicate barcode including inactive products; open transaction warning deferred | scn_contract_e07_u01_fr03_01 | done |
+| FR-04 | CONTRACT | §EPIC-07-US-01 | application | Mutation results include refreshed `readinessSummary` | scn_contract_e07_u01_fr04_01 | done |
+| FR-01..04 | BE | §EPIC-07-US-01 | application + infrastructure | Domain behavior, handlers, gateway, RPC draft | scn_e07_u01_* | todo |
+| FR-01..04 | FE | §EPIC-07-US-01 | presentation | PCC actions/forms for profile and image maintenance | wgt_e07_u01_* | todo |
+| FR-01..04 | E2E | §EPIC-07-US-01 | erp | ERP via `ICatalogModule` | e2e_e07_u01_* | todo |
+
+---
+
 ## EPIC-04 / US-03 — Đổi đơn vị cơ sở
 
 | Req ID | Role | Contract § | Enforce layer | Artifact | Test id | Status |
