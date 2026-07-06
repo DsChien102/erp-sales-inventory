@@ -337,6 +337,82 @@ Widget keys: `wgt_e01_u02_fr01_01` (PCC), `btn_readiness_checklist_banner` (chec
 
 ---
 
+## EPIC-04 / US-01 — Đơn vị cơ sở (slice #6)
+
+**Status:** CONTRACT `done` · BE `todo` · FE `todo`
+
+### Commands / Queries
+
+| Symbol | Input (summary) | Success | Errors |
+| ------ | --------------- | ------- | ------ |
+| `SetProductBaseUnitCommand` | tenantId, productId, `BaseUnitSelection` | `SetProductBaseUnitResult` | PermissionDenied, NotFound, `DuplicateMeasurementUnitNameException`, ValidationException |
+| `ListTenantMeasurementUnitsQuery` | tenantId, keyword?, limit | `List<TenantMeasurementUnitDto>` | PermissionDenied |
+| `CheckDuplicateMeasurementUnitNameQuery` | tenantId, name | `bool isDuplicate` | PermissionDenied |
+
+Package: `vet45_catalog_application` — `units/`.
+
+**`BaseUnitSelection`:**
+
+| Variant | Fields | Use |
+| ------- | ------ | --- |
+| `ExistingTenantUnit` | `unitId` | Chọn từ danh sách tenant (FR-01) |
+| `NewTenantUnit` | `name` | Tạo nhanh đơn vị mới (FR-01, BR-05/BR-06) |
+
+**`SetProductBaseUnitResult`:** `productId`, `baseUnitName`, `readinessSummary` — FR-03 refresh ngay sau set.
+
+**`TenantMeasurementUnitDto`:** `id`, `name`, `isActive`.
+
+Permissions: `@RequiresPermission(CatalogPermissions.manageUnits)` + `@RequiresTenant()`.
+
+Port: `ICatalogUnitGateway.listTenantUnits`, `isDuplicateUnitName`, `setProductBaseUnit`.
+
+**Scope:** chỉ gán đơn vị cơ sở khi sản phẩm **chưa có** base unit hợp lệ — đổi base unit (US-03) **out_of_scope**.
+
+### FR-02 dependency gating (document only)
+
+Không thêm query gates — FE derive từ `readinessSummary` / `hasBaseUnit`. Các command phụ thuộc đơn vị throw `MissingBaseUnitException` (domain):
+
+| Command | Requires base unit |
+| ------- | ------------------ |
+| `SetInitialStockCommand` | yes |
+| `SetManualBasePriceCommand` | yes |
+| `SetInitialPriceBandCommand` | yes |
+| Slice #7 conversion unit commands | yes (lane sau) |
+
+### RPC mapping (BE — draft, lane sau)
+
+| Use case | RPC |
+| -------- | --- |
+| List picker | `catalog.list_tenant_measurement_units` |
+| Dup-check name | `catalog.check_duplicate_measurement_unit_name` |
+| Set base unit | `catalog.set_product_base_unit` |
+
+**Tenant unit master (BE design note):** `catalog.tenant_measurement_units` (`tenant_id`, `name`, `name_normalized`, `is_active`) — draft `05_catalog_units.sql`; CONTRACT không promote migration.
+
+**`catalog.set_product_base_unit` params:** `p_tenant_id`, `p_product_id`, `p_tenant_unit_id uuid` (nullable), `p_new_unit_name text` (nullable) — exactly one of id/name.
+
+### Fake scenarios (FE)
+
+| scenario_id | trigger | fake response |
+| ----------- | ------- | ------------- |
+| `list_tenant_units` | `ListTenantMeasurementUnitsQuery` | seed `Lọ`, `Hộp`, `Vỉ` |
+| `set_base_unit_existing` | `SetProductBaseUnitCommand(ExistingTenantUnit)` | `product-6` → `Lọ`; readiness bỏ `missing_base_unit` |
+| `set_base_unit_create_new` | `SetProductBaseUnitCommand(NewTenantUnit)` | thêm unit tenant + gán product |
+| `set_base_unit_duplicate` | `NewTenantUnit("Lọ")` | `DuplicateMeasurementUnitNameException` |
+| `set_base_unit_inactive_unit` | `ExistingTenantUnit` inactive | `ValidationException` |
+| `unit_dependencies_locked` | `GetProductReadinessQuery` / stock without unit | blocker + `set_base_unit` action; stock → `MissingBaseUnitException` |
+
+`FakeCatalogModule` — `package:vet45_catalog_application/testing.dart`.
+
+Tests: `scn_contract_e04_u01_*` trong `fake_catalog_module_test.dart`.
+
+### Parallel notes
+
+- FE có thể fake: **yes**
+- E2E prerequisite: US-01 (data)
+
+---
+
 ## EPIC-03 / US-01 — Cấu hình nhóm & trường (slice #16)
 
 ### Commands / Queries
@@ -380,7 +456,8 @@ Widget keys: `wgt_e01_u02_fr01_01` (PCC), `btn_readiness_checklist_banner` (chec
 
 | Slice | Contract section | Status |
 | ----- | ---------------- | ------ |
-| EPIC-04 US-01..02 | UOM base + conversion (không US-03; FR-02 roles **pending**) | todo |
+| EPIC-04 US-01 | Base unit set + tenant unit picker | done |
+| EPIC-04 US-02 | UOM conversion (không US-03; FR-02 roles **pending**) | todo |
 | EPIC-05 US-01..02 | Stock profile + basic stock adjust | todo |
 | EPIC-06 US-01..03 | Manual base price, store rule, price band | todo |
 | EPIC-06 US-04 | ProductPriceBandSnapshot consumers | todo |

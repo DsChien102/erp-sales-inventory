@@ -120,6 +120,22 @@ Mở đầy đủ khi CONTRACT lane bắt đầu.
 
 ---
 
+## EPIC-04 / US-01 — Đơn vị cơ sở (slice #6)
+
+| Req ID | Role | Contract § | Enforce layer | Artifact | Test id | Status |
+| ------ | ---- | ---------- | ------------- | -------- | ------- | ------ |
+| US-01 | CONTRACT | §EPIC-04-US-01 | application | `SetProductBaseUnitCommand`, `ListTenantMeasurementUnitsQuery`, `CheckDuplicateMeasurementUnitNameQuery`, DTOs, `ICatalogUnitGateway`, `FakeCatalogModule` | scn_contract_e04_u01_* | done |
+| FR-01 | CONTRACT | §EPIC-04-US-01 | application | Chọn/tạo base unit types | scn_contract_e04_u01_fr01_* | done |
+| FR-02 | CONTRACT | §EPIC-04-US-01 | application | Dependency gating documented + fake readiness | scn_contract_e04_u01_fr02_* | done |
+| FR-03 | CONTRACT | §EPIC-04-US-01 | application | Readiness refresh via result / `GetProductReadinessQuery` | scn_contract_e04_u01_fr03_* | done |
+| FR-01 | BE | §EPIC-04-US-01 | application | `SetProductBaseUnitCommandHandler`, gateway, draft RPC | scn_e04_u01_fr01_01 | todo |
+| FR-02 | BE | §EPIC-04-US-01 | application | Domain gating on dependent commands | scn_e04_u01_fr02_01 | todo |
+| FR-03 | BE | §EPIC-04-US-01 | application | Readiness refresh after set | scn_e04_u01_fr03_01 | todo |
+| FR-01..03 | FE | §EPIC-04-US-01 | presentation | Base unit setup UI / PCC action | wgt_e04_u01_fr01_01 | todo |
+| FR-01 | E2E | §EPIC-04-US-01 | integration | Set base unit E2E | e2e_e04_u01_fr01_01 | todo |
+
+---
+
 ## EPIC-04 / US-02 — Đơn vị quy đổi (slice #7)
 
 | Req ID | Role | Contract § | Enforce layer | Artifact | Test id | Status |

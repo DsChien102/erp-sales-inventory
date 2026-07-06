@@ -39,6 +39,25 @@ abstract final class FakeCatalogScenario {
   static const pccReadyToSell = 'pcc_ready_to_sell';
   static const pccInactive = 'pcc_inactive';
   static const pccCustomFieldCards = 'pcc_custom_field_cards';
+
+  static const listTenantUnits = 'list_tenant_units';
+  static const setBaseUnitExisting = 'set_base_unit_existing';
+  static const setBaseUnitCreateNew = 'set_base_unit_create_new';
+  static const setBaseUnitDuplicate = 'set_base_unit_duplicate';
+  static const setBaseUnitInactiveUnit = 'set_base_unit_inactive_unit';
+  static const unitDependenciesLocked = 'unit_dependencies_locked';
+}
+
+class _TenantUnit {
+  _TenantUnit({
+    required this.id,
+    required this.name,
+    this.isActive = true,
+  });
+
+  final String id;
+  final String name;
+  bool isActive;
 }
 
 class _StoredProduct {
@@ -70,7 +89,7 @@ class _StoredProduct {
   final String? tradeName;
   final String sku;
   final String barcode;
-  final String baseUnit;
+  String baseUnit;
   final List<String> images;
   int? stockQty;
   double? baseCost;
@@ -100,7 +119,13 @@ class _StoredProduct {
 
 final class FakeCatalogModule implements ICatalogModule {
   FakeCatalogModule({this.scenario = FakeCatalogScenario.guidedCreateOk})
-      : _products = [
+      : _tenantUnits = [
+          _TenantUnit(id: 'unit-lo', name: 'Lọ'),
+          _TenantUnit(id: 'unit-hop', name: 'Hộp'),
+          _TenantUnit(id: 'unit-vi', name: 'Vỉ'),
+          _TenantUnit(id: 'unit-inactive', name: 'Thùng', isActive: false),
+        ],
+        _products = [
           _StoredProduct(
             id: 'product-1',
             name: 'Amoxicillin 500mg',
@@ -171,9 +196,20 @@ final class FakeCatalogModule implements ICatalogModule {
             businessStatus: ProductStatus.inactive,
             updatedAt: DateTime.utc(2026, 2, 5),
           ),
+          _StoredProduct(
+            id: 'product-6',
+            name: 'Thuốc thiếu đơn vị',
+            tradeName: 'No Unit Drug',
+            sku: 'SP0006',
+            barcode: '8930000000006',
+            baseUnit: '',
+            images: ['https://picsum.photos/200/304'],
+            updatedAt: DateTime.utc(2026, 1, 20),
+          ),
         ];
 
   final String scenario;
+  final List<_TenantUnit> _tenantUnits;
   final List<_StoredProduct> _products;
   int _nextProductId = 6;
 
@@ -187,6 +223,9 @@ final class FakeCatalogModule implements ICatalogModule {
         throw NotBasicStockModeException();
       }
       final prod = _products.firstWhere((p) => p.id == cmd.productId);
+      if (!prod.hasBaseUnit) {
+        throw MissingBaseUnitException();
+      }
       prod.stockQty = cmd.quantity;
       return null as TResult;
     } else if (command is SetManualBasePriceCommand) {
@@ -195,6 +234,9 @@ final class FakeCatalogModule implements ICatalogModule {
         throw NotManualBasePriceModeException();
       }
       final prod = _products.firstWhere((p) => p.id == cmd.productId);
+      if (!prod.hasBaseUnit) {
+        throw MissingBaseUnitException();
+      }
       prod.baseCost = cmd.basePrice;
       return null as TResult;
     } else if (command is SetInitialPriceBandCommand) {
@@ -209,6 +251,9 @@ final class FakeCatalogModule implements ICatalogModule {
         throw FloorPriceGreaterThanListPriceException();
       }
       final prod = _products.firstWhere((p) => p.id == cmd.productId);
+      if (!prod.hasBaseUnit) {
+        throw MissingBaseUnitException();
+      }
       prod.listPrice = cmd.listPrice;
       prod.floorPrice = cmd.floorPrice;
       prod.useStoreRule = useRule;
@@ -217,6 +262,11 @@ final class FakeCatalogModule implements ICatalogModule {
     if (command is RequestProductImageUploadCommand) {
       return _handleRequestUpload<TResult>(
         command as RequestProductImageUploadCommand,
+      );
+    }
+    if (command is SetProductBaseUnitCommand) {
+      return _handleSetProductBaseUnit<TResult>(
+        command as SetProductBaseUnitCommand,
       );
     }
     throw UnimplementedError('Unexpected command: ${command.runtimeType}');
@@ -243,6 +293,16 @@ final class FakeCatalogModule implements ICatalogModule {
     if (query is GetProductControlCenterQuery) {
       return _handleGetProductControlCenter<TResult>(
         query as GetProductControlCenterQuery,
+      );
+    }
+    if (query is ListTenantMeasurementUnitsQuery) {
+      return _handleListTenantUnits<TResult>(
+        query as ListTenantMeasurementUnitsQuery,
+      );
+    }
+    if (query is CheckDuplicateMeasurementUnitNameQuery) {
+      return _handleCheckDuplicateUnitName<TResult>(
+        query as CheckDuplicateMeasurementUnitNameQuery,
       );
     }
     throw UnimplementedError('Unexpected query: ${query.runtimeType}');
@@ -636,6 +696,116 @@ final class FakeCatalogModule implements ICatalogModule {
       basePriceMode: product.basePriceMode,
       pricePermissionDenied: product.pricePermissionDenied,
     );
+  }
+
+  String _normalizeUnitName(String name) => name.trim().toLowerCase();
+
+  TResult _handleListTenantUnits<TResult>(
+    ListTenantMeasurementUnitsQuery query,
+  ) {
+    final keyword = query.keyword?.trim().toLowerCase();
+    final units = _tenantUnits.where((unit) {
+      if (keyword == null || keyword.isEmpty) {
+        return true;
+      }
+      return unit.name.toLowerCase().contains(keyword);
+    }).take(query.limit);
+
+    return units
+        .map(
+          (unit) => TenantMeasurementUnitDto(
+            id: unit.id,
+            name: unit.name,
+            isActive: unit.isActive,
+          ),
+        )
+        .toList(growable: false) as TResult;
+  }
+
+  TResult _handleCheckDuplicateUnitName<TResult>(
+    CheckDuplicateMeasurementUnitNameQuery query,
+  ) {
+    if (scenario == FakeCatalogScenario.setBaseUnitDuplicate) {
+      return true as TResult;
+    }
+
+    final normalized = _normalizeUnitName(query.name);
+    final isDuplicate = _tenantUnits.any(
+      (unit) => _normalizeUnitName(unit.name) == normalized,
+    );
+    return isDuplicate as TResult;
+  }
+
+  TResult _handleSetProductBaseUnit<TResult>(
+    SetProductBaseUnitCommand command,
+  ) {
+    final product = _findProduct(command.productId);
+    if (product == null) {
+      throw ApplicationException('Product not found');
+    }
+    if (product.hasBaseUnit) {
+      throw ValidationException(
+        'Product already has a base unit; change base unit is out of scope.',
+      );
+    }
+
+    final selection = command.selection;
+    late final String unitName;
+
+    if (selection is ExistingTenantUnit) {
+      _TenantUnit? unit;
+      for (final item in _tenantUnits) {
+        if (item.id == selection.unitId) {
+          unit = item;
+          break;
+        }
+      }
+      if (unit == null) {
+        throw ValidationException('Measurement unit not found.');
+      }
+      if (!unit.isActive) {
+        throw ValidationException('Measurement unit is inactive.');
+      }
+      unitName = unit.name;
+    } else if (selection is NewTenantUnit) {
+      final name = selection.name.trim();
+      if (name.isEmpty) {
+        throw ValidationException('Unit name must not be empty.');
+      }
+      final normalized = _normalizeUnitName(name);
+      _TenantUnit? existing;
+      for (final unit in _tenantUnits) {
+        if (_normalizeUnitName(unit.name) == normalized) {
+          existing = unit;
+          break;
+        }
+      }
+      if (existing != null) {
+        throw DuplicateMeasurementUnitNameException(
+          name: name,
+          existingUnitId: existing.id,
+        );
+      }
+      if (scenario == FakeCatalogScenario.setBaseUnitDuplicate) {
+        throw DuplicateMeasurementUnitNameException(
+          name: name,
+          existingUnitId: 'unit-lo',
+        );
+      }
+      final newId = 'unit-new-${_tenantUnits.length + 1}';
+      _tenantUnits.add(_TenantUnit(id: newId, name: name));
+      unitName = name;
+    } else {
+      throw ValidationException('Invalid base unit selection.');
+    }
+
+    product.baseUnit = unitName;
+
+    return SetProductBaseUnitResult(
+      productId: product.id,
+      baseUnitName: unitName,
+      readinessSummary: _readinessSummaryFor(product),
+    ) as TResult;
   }
 
   TResult _handleCheckDuplicate<TResult>(CheckDuplicateProductCodeQuery query) {

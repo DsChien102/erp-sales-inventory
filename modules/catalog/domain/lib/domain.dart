@@ -1,6 +1,7 @@
 /// catalog domain layer — aggregates, value objects, and shared codes.
 library;
 
+export 'src/exceptions/duplicate_measurement_unit_name_exception.dart';
 export 'src/exceptions/floor_price_greater_than_list_price_exception.dart';
 export 'src/exceptions/missing_base_price_exception.dart';
 export 'src/exceptions/missing_base_unit_exception.dart';
