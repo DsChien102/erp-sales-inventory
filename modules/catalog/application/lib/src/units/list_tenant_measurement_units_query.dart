@@ -6,8 +6,7 @@ import 'tenant_measurement_unit_dto.dart';
 
 @RequiresPermission(CatalogPermissions.manageUnits)
 @RequiresTenant()
-final class ListTenantMeasurementUnitsQuery
-    extends QueryBase<List<TenantMeasurementUnitDto>>
+final class ListTenantMeasurementUnitsQuery extends QueryBase<List<TenantMeasurementUnitDto>>
     implements IQuery<List<TenantMeasurementUnitDto>>, ITenantScopedCommand {
   ListTenantMeasurementUnitsQuery({
     String? id,

@@ -7,8 +7,7 @@ import 'set_product_base_unit_result.dart';
 
 @RequiresPermission(CatalogPermissions.manageUnits)
 @RequiresTenant()
-final class SetProductBaseUnitCommand
-    extends CommandBase<SetProductBaseUnitResult>
+final class SetProductBaseUnitCommand extends CommandBase<SetProductBaseUnitResult>
     implements ICommand<SetProductBaseUnitResult>, ITenantScopedCommand {
   SetProductBaseUnitCommand({
     String? id,

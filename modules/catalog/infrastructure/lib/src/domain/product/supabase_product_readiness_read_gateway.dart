@@ -7,8 +7,7 @@ import '../../errors/catalog_error_mapper.dart';
 import 'product_readiness_facts_mapper.dart';
 import 'product_rpc_mapper.dart';
 
-final class SupabaseProductReadinessReadGateway
-    implements IProductReadinessReadPort {
+final class SupabaseProductReadinessReadGateway implements IProductReadinessReadPort {
   SupabaseProductReadinessReadGateway({
     required SupabaseSchemaRpcClient rpcClient,
   }) : _rpcClient = rpcClient;

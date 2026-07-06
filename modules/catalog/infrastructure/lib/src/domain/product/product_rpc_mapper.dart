@@ -1,3 +1,4 @@
+import 'package:vet45_catalog_application/application.dart';
 import 'package:vet45_catalog_domain/domain.dart';
 
 abstract final class ProductRpcMapper {
@@ -89,8 +90,7 @@ abstract final class ProductRpcMapper {
     return <String, dynamic>{
       'p_tenant_id': tenantId,
       'p_product_id': productId,
-      if (priceBand.productUnitId != null)
-        'p_product_unit_id': priceBand.productUnitId,
+      if (priceBand.productUnitId != null) 'p_product_unit_id': priceBand.productUnitId,
       'p_list_price': priceBand.listPrice?.amount,
       'p_floor_price': priceBand.floorPrice?.amount,
     };
@@ -145,6 +145,46 @@ abstract final class ProductRpcMapper {
     };
   }
 
+  static Map<String, dynamic> listTenantUnitsParams({
+    required String tenantId,
+    String? keyword,
+    required int limit,
+  }) {
+    return <String, dynamic>{
+      'p_tenant_id': tenantId,
+      'p_keyword': keyword,
+      'p_limit': limit,
+    };
+  }
+
+  static Map<String, dynamic> checkDuplicateUnitNameParams({
+    required String tenantId,
+    required String name,
+  }) {
+    return <String, dynamic>{
+      'p_tenant_id': tenantId,
+      'p_name': name,
+    };
+  }
+
+  static Map<String, dynamic> setProductBaseUnitParams(
+    SetProductBaseUnitCommand command,
+  ) {
+    final selection = command.selection;
+    return <String, dynamic>{
+      'p_tenant_id': command.tenantId,
+      'p_product_id': command.productId,
+      'p_tenant_unit_id': switch (selection) {
+        ExistingTenantUnit(:final unitId) => unitId,
+        NewTenantUnit() => null,
+      },
+      'p_new_unit_name': switch (selection) {
+        ExistingTenantUnit() => null,
+        NewTenantUnit(:final name) => name,
+      },
+    };
+  }
+
   static String? _readinessFilterToRpc(ProductReadinessFilter? filter) {
     return switch (filter) {
       ProductReadinessFilter.readyToSell => 'ready_to_sell',
@@ -158,6 +198,14 @@ abstract final class ProductRpcMapper {
       ReadinessStatus.incomplete => 'incomplete',
       ReadinessStatus.readyToSell => 'ready_to_sell',
       ReadinessStatus.readyToReceive => 'ready_to_receive',
+    };
+  }
+
+  static ReadinessStatus readinessStatusFromRpc(String? value) {
+    return switch (value) {
+      'ready_to_sell' => ReadinessStatus.readyToSell,
+      'ready_to_receive' => ReadinessStatus.readyToReceive,
+      _ => ReadinessStatus.incomplete,
     };
   }
 

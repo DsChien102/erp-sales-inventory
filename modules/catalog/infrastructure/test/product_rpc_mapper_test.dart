@@ -1,4 +1,5 @@
 import 'package:test/test.dart';
+import 'package:vet45_catalog_application/application.dart';
 import 'package:vet45_catalog_domain/domain.dart';
 import 'package:vet45_catalog_infrastructure/src/domain/product/product_rpc_mapper.dart';
 
@@ -74,6 +75,60 @@ void main() {
       expect(params.containsKey('p_product_unit_id'), isFalse);
       expect(params['p_list_price'], 120000.0);
       expect(params['p_floor_price'], 100000.0);
+    });
+  });
+
+  group('ProductRpcMapper (EPIC-04/US-01 units)', () {
+    test('listTenantUnitsParams maps picker params', () {
+      final params = ProductRpcMapper.listTenantUnitsParams(
+        tenantId: 'tenant-1',
+        keyword: 'lo',
+        limit: 20,
+      );
+
+      expect(params['p_tenant_id'], 'tenant-1');
+      expect(params['p_keyword'], 'lo');
+      expect(params['p_limit'], 20);
+    });
+
+    test('checkDuplicateUnitNameParams maps duplicate-check params', () {
+      final params = ProductRpcMapper.checkDuplicateUnitNameParams(
+        tenantId: 'tenant-1',
+        name: 'Lọ',
+      );
+
+      expect(params['p_tenant_id'], 'tenant-1');
+      expect(params['p_name'], 'Lọ');
+    });
+
+    test('setProductBaseUnitParams maps existing unit selection', () {
+      final params = ProductRpcMapper.setProductBaseUnitParams(
+        SetProductBaseUnitCommand(
+          tenantId: 'tenant-1',
+          productId: 'product-6',
+          selection: const ExistingTenantUnit('unit-lo'),
+        ),
+      );
+
+      expect(params['p_tenant_id'], 'tenant-1');
+      expect(params['p_product_id'], 'product-6');
+      expect(params['p_tenant_unit_id'], 'unit-lo');
+      expect(params['p_new_unit_name'], isNull);
+    });
+
+    test('setProductBaseUnitParams maps new unit selection', () {
+      final params = ProductRpcMapper.setProductBaseUnitParams(
+        SetProductBaseUnitCommand(
+          tenantId: 'tenant-1',
+          productId: 'product-6',
+          selection: const NewTenantUnit('Vỉ'),
+        ),
+      );
+
+      expect(params['p_tenant_id'], 'tenant-1');
+      expect(params['p_product_id'], 'product-6');
+      expect(params['p_tenant_unit_id'], isNull);
+      expect(params['p_new_unit_name'], 'Vỉ');
     });
   });
 }

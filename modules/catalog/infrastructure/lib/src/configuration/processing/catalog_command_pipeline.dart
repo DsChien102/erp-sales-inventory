@@ -24,9 +24,8 @@ abstract final class CatalogCommandPipeline {
     );
   }
 
-  static CommandStep<TCommand, void> buildInternalPipeline<
-    TCommand extends InternalCommandBase<void>
-  >({
+  static CommandStep<TCommand, void>
+  buildInternalPipeline<TCommand extends InternalCommandBase<void>>({
     required GetIt container,
     required Future<void> Function(TCommand command) inner,
     required ICatalogInternalCommandClient commandClient,

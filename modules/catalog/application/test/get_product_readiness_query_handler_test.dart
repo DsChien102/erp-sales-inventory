@@ -53,8 +53,7 @@ void main() {
       expect(view.primaryActionId, ContextualActionId.setBaseUnit);
     });
 
-    test('scn_e02_u03_fr03_03 disables price action without pricing permission',
-        () async {
+    test('scn_e02_u03_fr03_03 disables price action without pricing permission', () async {
       final port = _FakeReadinessReadPort()
         ..factsToReturn = const ProductReadinessFacts(
           productId: 'product-2',

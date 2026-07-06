@@ -2,6 +2,7 @@ import 'package:vet45_catalog_domain/domain.dart';
 import 'package:vet45_shared_application/application.dart';
 
 import '../ports/i_product_command_gateway.dart';
+import '../ports/i_product_readiness_read_port.dart';
 import 'set_initial_price_band_command.dart';
 
 @CommandHandlerFor(SetInitialPriceBandCommand)
@@ -9,9 +10,12 @@ final class SetInitialPriceBandCommandHandler
     implements ICommandHandler<SetInitialPriceBandCommand, void> {
   SetInitialPriceBandCommandHandler({
     required IProductCommandGateway commandGateway,
-  }) : _commandGateway = commandGateway;
+    required IProductReadinessReadPort readinessReadPort,
+  }) : _commandGateway = commandGateway,
+       _readinessReadPort = readinessReadPort;
 
   final IProductCommandGateway _commandGateway;
+  final IProductReadinessReadPort _readinessReadPort;
 
   @override
   Future<void> handle(SetInitialPriceBandCommand command) async {
@@ -31,6 +35,7 @@ final class SetInitialPriceBandCommandHandler
     if (rule.isBroken()) {
       throw FloorPriceGreaterThanListPriceException(rule.message);
     }
+    await _ensureBaseUnit(command.tenantId, command.productId);
 
     final unitSuffix = command.productUnitId ?? 'initial';
     final priceBand = ProductUnitPriceBand(
@@ -47,5 +52,15 @@ final class SetInitialPriceBandCommandHandler
       tenantId: command.tenantId,
       priceBand: priceBand,
     );
+  }
+
+  Future<void> _ensureBaseUnit(String tenantId, String productId) async {
+    final facts = await _readinessReadPort.loadFacts(
+      tenantId: tenantId,
+      productId: productId,
+    );
+    if (facts == null || !facts.hasBaseUnit) {
+      throw MissingBaseUnitException();
+    }
   }
 }

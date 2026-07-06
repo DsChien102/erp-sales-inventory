@@ -6,8 +6,7 @@ import 'product_control_center_dto.dart';
 
 @RequiresPermission(CatalogPermissions.viewDetail)
 @RequiresTenant()
-final class GetProductControlCenterQuery
-    extends QueryBase<ProductControlCenterDto>
+final class GetProductControlCenterQuery extends QueryBase<ProductControlCenterDto>
     implements IQuery<ProductControlCenterDto>, ITenantScopedCommand {
   GetProductControlCenterQuery({
     String? id,

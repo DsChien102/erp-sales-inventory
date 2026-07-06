@@ -7,11 +7,7 @@ import 'product_duplicate_match_dto.dart';
 
 @QueryHandlerFor(CheckDuplicateProductCodeQuery)
 final class CheckDuplicateProductCodeQueryHandler
-    implements
-        IQueryHandler<
-          CheckDuplicateProductCodeQuery,
-          List<ProductDuplicateMatchDto>
-        > {
+    implements IQueryHandler<CheckDuplicateProductCodeQuery, List<ProductDuplicateMatchDto>> {
   CheckDuplicateProductCodeQueryHandler({
     required IProductDuplicateChecker duplicateChecker,
   }) : _duplicateChecker = duplicateChecker;
@@ -26,14 +22,10 @@ final class CheckDuplicateProductCodeQueryHandler
       tenantId: TenantId(query.tenantId),
       sku: _optionalSku(query.sku),
       barcode: _optionalBarcode(query.barcode),
-      excludeProductId: query.excludeProductId == null
-          ? null
-          : ProductId(query.excludeProductId!),
+      excludeProductId: query.excludeProductId == null ? null : ProductId(query.excludeProductId!),
     );
 
-    return matches
-        .map(ProductDuplicateMatchDto.fromDomain)
-        .toList(growable: false);
+    return matches.map(ProductDuplicateMatchDto.fromDomain).toList(growable: false);
   }
 
   Sku? _optionalSku(String? value) {

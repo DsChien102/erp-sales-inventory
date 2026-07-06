@@ -6,8 +6,7 @@ import 'product_image_upload_slot_dto.dart';
 
 @RequiresPermission(CatalogPermissions.create)
 @RequiresTenant()
-final class RequestProductImageUploadCommand
-    extends CommandBase<ProductImageUploadSlotDto>
+final class RequestProductImageUploadCommand extends CommandBase<ProductImageUploadSlotDto>
     implements ICommand<ProductImageUploadSlotDto>, ITenantScopedCommand {
   RequestProductImageUploadCommand({
     String? id,

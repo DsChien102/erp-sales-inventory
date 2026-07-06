@@ -52,11 +52,38 @@ class _RecordingProductCommandGateway implements IProductCommandGateway {
   }
 }
 
+class _FakeProductReadinessReadPort implements IProductReadinessReadPort {
+  _FakeProductReadinessReadPort({required this.hasBaseUnit});
+
+  final bool hasBaseUnit;
+  String? lastTenantId;
+  String? lastProductId;
+
+  @override
+  Future<ProductReadinessFacts?> loadFacts({
+    required String tenantId,
+    required String productId,
+  }) async {
+    lastTenantId = tenantId;
+    lastProductId = productId;
+    return ProductReadinessFacts.forCreate(
+      productId: productId,
+      productName: 'Thuốc A',
+      hasBaseUnit: hasBaseUnit,
+      hasImages: true,
+    );
+  }
+}
+
 void main() {
   group('SetInitialStockCommandHandler & Validator', () {
     test('valid basic stock sets initial stock on gateway', () async {
       final gateway = _RecordingProductCommandGateway();
-      final handler = SetInitialStockCommandHandler(commandGateway: gateway);
+      final readinessPort = _FakeProductReadinessReadPort(hasBaseUnit: true);
+      final handler = SetInitialStockCommandHandler(
+        commandGateway: gateway,
+        readinessReadPort: readinessPort,
+      );
       final validator = SetInitialStockCommandValidator();
 
       final command = SetInitialStockCommand(
@@ -71,6 +98,7 @@ void main() {
       expect(gateway.lastProductId, 'prod-1');
       expect(gateway.lastTenantId, 'tenant-1');
       expect(gateway.lastStockProfile?.initialStock, 100.0);
+      expect(readinessPort.lastProductId, 'prod-1');
     });
 
     test('negative quantity throws ValidationException', () async {
@@ -101,12 +129,35 @@ void main() {
         throwsA(isA<NotBasicStockModeException>()),
       );
     });
+
+    test('scn_e04_u01_fr02_01 missing base unit blocks initial stock', () async {
+      final gateway = _RecordingProductCommandGateway();
+      final handler = SetInitialStockCommandHandler(
+        commandGateway: gateway,
+        readinessReadPort: _FakeProductReadinessReadPort(hasBaseUnit: false),
+      );
+
+      await expectLater(
+        handler.handle(
+          SetInitialStockCommand(
+            tenantId: 'tenant-1',
+            productId: 'prod-1',
+            quantity: 10,
+          ),
+        ),
+        throwsA(isA<MissingBaseUnitException>()),
+      );
+      expect(gateway.lastStockProfile, isNull);
+    });
   });
 
   group('SetManualBasePriceCommandHandler & Validator', () {
     test('valid manual base price sets profile on gateway', () async {
       final gateway = _RecordingProductCommandGateway();
-      final handler = SetManualBasePriceCommandHandler(commandGateway: gateway);
+      final handler = SetManualBasePriceCommandHandler(
+        commandGateway: gateway,
+        readinessReadPort: _FakeProductReadinessReadPort(hasBaseUnit: true),
+      );
       final validator = SetManualBasePriceCommandValidator();
 
       final command = SetManualBasePriceCommand(
@@ -151,12 +202,35 @@ void main() {
         throwsA(isA<NotManualBasePriceModeException>()),
       );
     });
+
+    test('scn_e04_u01_fr02_02 missing base unit blocks manual base price', () async {
+      final gateway = _RecordingProductCommandGateway();
+      final handler = SetManualBasePriceCommandHandler(
+        commandGateway: gateway,
+        readinessReadPort: _FakeProductReadinessReadPort(hasBaseUnit: false),
+      );
+
+      await expectLater(
+        handler.handle(
+          SetManualBasePriceCommand(
+            tenantId: 'tenant-1',
+            productId: 'prod-1',
+            basePrice: 10000.0,
+          ),
+        ),
+        throwsA(isA<MissingBaseUnitException>()),
+      );
+      expect(gateway.lastPriceProfile, isNull);
+    });
   });
 
   group('SetInitialPriceBandCommandHandler & Validator', () {
     test('valid price band sets band on gateway', () async {
       final gateway = _RecordingProductCommandGateway();
-      final handler = SetInitialPriceBandCommandHandler(commandGateway: gateway);
+      final handler = SetInitialPriceBandCommandHandler(
+        commandGateway: gateway,
+        readinessReadPort: _FakeProductReadinessReadPort(hasBaseUnit: true),
+      );
       final validator = SetInitialPriceBandCommandValidator();
 
       final command = SetInitialPriceBandCommand(
@@ -176,7 +250,10 @@ void main() {
 
     test('omitted product unit id leaves null for RPC base-unit resolution', () async {
       final gateway = _RecordingProductCommandGateway();
-      final handler = SetInitialPriceBandCommandHandler(commandGateway: gateway);
+      final handler = SetInitialPriceBandCommandHandler(
+        commandGateway: gateway,
+        readinessReadPort: _FakeProductReadinessReadPort(hasBaseUnit: true),
+      );
 
       await handler.handle(
         SetInitialPriceBandCommand(
@@ -192,7 +269,10 @@ void main() {
 
     test('floor price greater than list price throws exception', () async {
       final gateway = _RecordingProductCommandGateway();
-      final handler = SetInitialPriceBandCommandHandler(commandGateway: gateway);
+      final handler = SetInitialPriceBandCommandHandler(
+        commandGateway: gateway,
+        readinessReadPort: _FakeProductReadinessReadPort(hasBaseUnit: true),
+      );
       final validator = SetInitialPriceBandCommandValidator();
 
       final command = SetInitialPriceBandCommand(
@@ -212,10 +292,12 @@ void main() {
       );
     });
 
-    test('useStoreRule true without base price throws MissingBasePriceException',
-        () async {
+    test('useStoreRule true without base price throws MissingBasePriceException', () async {
       final gateway = _RecordingProductCommandGateway();
-      final handler = SetInitialPriceBandCommandHandler(commandGateway: gateway);
+      final handler = SetInitialPriceBandCommandHandler(
+        commandGateway: gateway,
+        readinessReadPort: _FakeProductReadinessReadPort(hasBaseUnit: true),
+      );
 
       final command = SetInitialPriceBandCommand(
         tenantId: 'tenant-1',
@@ -227,6 +309,27 @@ void main() {
         () => handler.handle(command),
         throwsA(isA<MissingBasePriceException>()),
       );
+    });
+
+    test('scn_e04_u01_fr02_03 missing base unit blocks price band', () async {
+      final gateway = _RecordingProductCommandGateway();
+      final handler = SetInitialPriceBandCommandHandler(
+        commandGateway: gateway,
+        readinessReadPort: _FakeProductReadinessReadPort(hasBaseUnit: false),
+      );
+
+      await expectLater(
+        handler.handle(
+          SetInitialPriceBandCommand(
+            tenantId: 'tenant-1',
+            productId: 'prod-1',
+            listPrice: 100000.0,
+            floorPrice: 80000.0,
+          ),
+        ),
+        throwsA(isA<MissingBaseUnitException>()),
+      );
+      expect(gateway.lastPriceBand, isNull);
     });
   });
 }

@@ -6,6 +6,10 @@ import 'package:vet45_shared_application/application.dart';
 import 'package:vet45_shared_infrastructure/infrastructure.dart';
 
 final catalogAccessMetadataRegistry = AccessMetadataRegistry({
+  CheckDuplicateMeasurementUnitNameQuery: AccessMetadata(
+    permission: 'catalog.product.manage_units',
+    requiresTenant: true,
+  ),
   CheckDuplicateProductCodeQuery: AccessMetadata(
     permission: 'catalog.product.create',
     requiresTenant: true,
@@ -20,6 +24,10 @@ final catalogAccessMetadataRegistry = AccessMetadataRegistry({
   ),
   GetProductReadinessQuery: AccessMetadata(
     permission: 'catalog.product.view_detail',
+    requiresTenant: true,
+  ),
+  ListTenantMeasurementUnitsQuery: AccessMetadata(
+    permission: 'catalog.product.manage_units',
     requiresTenant: true,
   ),
   RequestProductImageUploadCommand: AccessMetadata(
@@ -46,5 +54,8 @@ final catalogAccessMetadataRegistry = AccessMetadataRegistry({
     permission: 'catalog.product.manage_pricing',
     requiresTenant: true,
   ),
+  SetProductBaseUnitCommand: AccessMetadata(
+    permission: 'catalog.product.manage_units',
+    requiresTenant: true,
+  ),
 });
-

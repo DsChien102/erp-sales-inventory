@@ -13,8 +13,8 @@ final class SupabaseProductImageUploadGateway implements IProductImageUploadPort
   SupabaseProductImageUploadGateway({
     required SupabaseClient supabase,
     required SupabaseSchemaRpcClient rpcClient,
-  })  : _supabase = supabase,
-        _rpcClient = rpcClient;
+  }) : _supabase = supabase,
+       _rpcClient = rpcClient;
 
   final SupabaseClient _supabase;
   final SupabaseSchemaRpcClient _rpcClient;
@@ -44,10 +44,7 @@ final class SupabaseProductImageUploadGateway implements IProductImageUploadPort
       final storageKey = row['storage_key']?.toString();
       final expiresRaw = row['expires_at'];
 
-      if (slotId == null ||
-          slotId.isEmpty ||
-          storageKey == null ||
-          storageKey.isEmpty) {
+      if (slotId == null || slotId.isEmpty || storageKey == null || storageKey.isEmpty) {
         throw ApplicationException('Invalid image upload slot response.');
       }
 

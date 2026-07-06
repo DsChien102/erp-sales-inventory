@@ -439,9 +439,11 @@ void main() {
 
       expect(view.primaryActionId, ContextualActionId.setBaseUnit);
       expect(
-        view.suggestedActions.singleWhere(
-          (a) => a.actionId == ContextualActionId.setBaseUnit,
-        ).label,
+        view.suggestedActions
+            .singleWhere(
+              (a) => a.actionId == ContextualActionId.setBaseUnit,
+            )
+            .label,
         'Thiết lập đơn vị cơ sở',
       );
     });
@@ -718,8 +720,7 @@ void main() {
       expect(units.map((unit) => unit.name), containsAll(['Lọ', 'Hộp', 'Vỉ']));
     });
 
-    test('scn_contract_e04_u01_fr01_02 sets existing tenant unit on product',
-        () async {
+    test('scn_contract_e04_u01_fr01_02 sets existing tenant unit on product', () async {
       final module = FakeCatalogModule(
         scenario: FakeCatalogScenario.setBaseUnitExisting,
       );
@@ -739,8 +740,7 @@ void main() {
       );
     });
 
-    test('scn_contract_e04_u01_fr01_03 creates new tenant unit and assigns',
-        () async {
+    test('scn_contract_e04_u01_fr01_03 creates new tenant unit and assigns', () async {
       final module = FakeCatalogModule(
         scenario: FakeCatalogScenario.setBaseUnitCreateNew,
       );
@@ -820,8 +820,7 @@ void main() {
       );
     });
 
-    test('scn_contract_e04_u01_fr02_02 shows readiness blocker and set_base_unit action',
-        () async {
+    test('scn_contract_e04_u01_fr02_02 shows readiness blocker and set_base_unit action', () async {
       final module = FakeCatalogModule(
         scenario: FakeCatalogScenario.unitDependenciesLocked,
       );
@@ -840,8 +839,7 @@ void main() {
       expect(view.primaryActionId, ContextualActionId.setBaseUnit);
     });
 
-    test('scn_contract_e04_u01_fr03_01 clears readiness blocker after set base unit',
-        () async {
+    test('scn_contract_e04_u01_fr03_01 clears readiness blocker after set base unit', () async {
       final module = FakeCatalogModule(
         scenario: FakeCatalogScenario.setBaseUnitExisting,
       );

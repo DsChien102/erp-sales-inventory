@@ -190,8 +190,7 @@ void main() {
   });
 
   group('ProductListItemAssembler', () {
-    test('scn_e01_u01_fr03_01 maps readiness blocker when price band missing',
-        () {
+    test('scn_e01_u01_fr03_01 maps readiness blocker when price band missing', () {
       final row = ProductListItemReadRow(
         id: 'product-4',
         name: 'Vitamin B Complex',
@@ -221,8 +220,7 @@ void main() {
 
   group('GetProductControlCenterQueryHandler', () {
     test('scn_e01_u02_fr01_01 returns profile summary', () async {
-      final gateway = _FakeCatalogReadGateway()
-        ..controlCenterResult = _sampleControlCenterModel();
+      final gateway = _FakeCatalogReadGateway()..controlCenterResult = _sampleControlCenterModel();
       final handler = GetProductControlCenterQueryHandler(
         readGateway: gateway,
         permissionChecker: FakePermissionChecker(),
@@ -262,8 +260,7 @@ void main() {
     });
 
     test('scn_e01_u02_fr03_01 returns empty custom field cards', () async {
-      final gateway = _FakeCatalogReadGateway()
-        ..controlCenterResult = _sampleControlCenterModel();
+      final gateway = _FakeCatalogReadGateway()..controlCenterResult = _sampleControlCenterModel();
       final handler = GetProductControlCenterQueryHandler(
         readGateway: gateway,
         permissionChecker: FakePermissionChecker(),
@@ -280,8 +277,7 @@ void main() {
       expect(result.checklist, isEmpty);
     });
 
-    test('scn_e01_u02_fr05_01 suggests set_price_band when missing band',
-        () async {
+    test('scn_e01_u02_fr05_01 suggests set_price_band when missing band', () async {
       final gateway = _FakeCatalogReadGateway()
         ..controlCenterResult = _sampleControlCenterModel(hasPriceBand: false);
       final handler = GetProductControlCenterQueryHandler(
@@ -302,10 +298,8 @@ void main() {
       );
     });
 
-    test('scn_e01_u02_fr06_01 includes history when view_history granted',
-        () async {
-      final gateway = _FakeCatalogReadGateway()
-        ..controlCenterResult = _sampleControlCenterModel();
+    test('scn_e01_u02_fr06_01 includes history when view_history granted', () async {
+      final gateway = _FakeCatalogReadGateway()..controlCenterResult = _sampleControlCenterModel();
       final handler = GetProductControlCenterQueryHandler(
         readGateway: gateway,
         permissionChecker: FakePermissionChecker(),
@@ -322,10 +316,8 @@ void main() {
       expect(result.changeHistoryPreview.first.changeType, 'product_created');
     });
 
-    test('scn_e01_u02_fr06_01 hides history without view_history permission',
-        () async {
-      final gateway = _FakeCatalogReadGateway()
-        ..controlCenterResult = _sampleControlCenterModel();
+    test('scn_e01_u02_fr06_01 hides history without view_history permission', () async {
+      final gateway = _FakeCatalogReadGateway()..controlCenterResult = _sampleControlCenterModel();
       final handler = GetProductControlCenterQueryHandler(
         readGateway: gateway,
         permissionChecker: FakePermissionChecker(

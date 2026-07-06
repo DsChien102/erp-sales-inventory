@@ -6,8 +6,7 @@ import 'product_duplicate_match_dto.dart';
 
 @RequiresPermission(CatalogPermissions.create)
 @RequiresTenant()
-final class CheckDuplicateProductCodeQuery
-    extends QueryBase<List<ProductDuplicateMatchDto>>
+final class CheckDuplicateProductCodeQuery extends QueryBase<List<ProductDuplicateMatchDto>>
     implements IQuery<List<ProductDuplicateMatchDto>>, ITenantScopedCommand {
   CheckDuplicateProductCodeQuery({
     String? id,

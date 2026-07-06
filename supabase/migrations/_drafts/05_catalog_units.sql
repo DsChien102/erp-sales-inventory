@@ -1,0 +1,517 @@
+-- Catalog units (EPIC-04/US-01): tenant measurement units, base-unit assignment, and base-unit guards.
+-- Context: TH-02/EPIC-04/US-01 BE; docs/themes/TH-02-product-pricing/harness/*
+-- Safety: idempotent draft only; do not promote without a unique timestamp migration review.
+
+create table if not exists catalog.tenant_measurement_units (
+  id uuid primary key default gen_random_uuid(),
+  tenant_id uuid not null,
+  name text not null,
+  name_normalized text not null,
+  is_active boolean not null default true,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  constraint chk_tenant_measurement_units_name_not_blank
+    check (length(btrim(name)) > 0),
+  constraint chk_tenant_measurement_units_name_normalized_not_blank
+    check (length(btrim(name_normalized)) > 0)
+);
+
+create unique index if not exists uq_tenant_measurement_units_name_normalized
+  on catalog.tenant_measurement_units (tenant_id, name_normalized);
+
+create index if not exists idx_tenant_measurement_units_tenant_active
+  on catalog.tenant_measurement_units (tenant_id, is_active, name);
+
+alter table catalog.product_units
+  add column if not exists tenant_measurement_unit_id uuid null
+    references catalog.tenant_measurement_units (id);
+
+create or replace function catalog._normalize_measurement_unit_name(p_name text)
+returns text
+language sql
+immutable
+as $$
+  select nullif(lower(btrim(coalesce(p_name, ''))), '');
+$$;
+
+create or replace function catalog._product_has_active_base_unit(
+  p_tenant_id uuid,
+  p_product_id uuid
+)
+returns boolean
+language sql
+stable
+security definer
+set search_path = catalog, pg_temp
+as $$
+  select exists (
+    select 1
+    from catalog.product_units pu
+    left join catalog.tenant_measurement_units tu
+      on tu.id = pu.tenant_measurement_unit_id
+     and tu.tenant_id = p_tenant_id
+    where pu.product_id = p_product_id
+      and pu.tenant_id = p_tenant_id
+      and pu.is_base_unit = true
+      and (
+        pu.tenant_measurement_unit_id is null
+        or tu.is_active = true
+      )
+  );
+$$;
+
+create or replace function catalog._readiness_blockers_from_facts(
+  p_has_base_unit boolean,
+  p_has_images boolean,
+  p_has_stock boolean,
+  p_has_base_price boolean,
+  p_has_price_band boolean,
+  p_has_required_custom_fields boolean,
+  p_stock_mode text,
+  p_base_price_mode text
+)
+returns jsonb
+language plpgsql
+immutable
+as $$
+declare
+  v_blockers jsonb := '[]'::jsonb;
+begin
+  if not p_has_base_unit then
+    v_blockers := v_blockers || '[{"code": "missing_base_unit", "group": "required", "message": "Sản phẩm thiếu Đơn vị cơ sở"}]'::jsonb;
+  end if;
+  if not p_has_images then
+    v_blockers := v_blockers || '[{"code": "missing_image", "group": "recommended", "message": "Sản phẩm chưa có ảnh"}]'::jsonb;
+  end if;
+  if p_stock_mode = 'basic' and not p_has_stock then
+    v_blockers := v_blockers || '[{"code": "missing_stock", "group": "required", "message": "Sản phẩm chưa có tồn kho ban đầu"}]'::jsonb;
+  end if;
+  if p_base_price_mode = 'manual' and not p_has_base_price then
+    v_blockers := v_blockers || '[{"code": "missing_price", "group": "required", "message": "Sản phẩm chưa có Giá cơ sở định giá"}]'::jsonb;
+  end if;
+  if not p_has_price_band then
+    v_blockers := v_blockers || '[{"code": "missing_price_band", "group": "required", "message": "Sản phẩm chưa có khung giá bán"}]'::jsonb;
+  end if;
+  if not p_has_required_custom_fields then
+    v_blockers := v_blockers || '[{"code": "missing_required_custom_fields", "group": "required", "message": "Sản phẩm thiếu thông tin bắt buộc"}]'::jsonb;
+  end if;
+  return v_blockers;
+end;
+$$;
+
+create or replace function catalog.list_tenant_measurement_units(
+  p_tenant_id uuid,
+  p_keyword text default null,
+  p_limit int default 50
+)
+returns table (
+  id uuid,
+  name text,
+  is_active boolean
+)
+language plpgsql
+security definer
+set search_path = catalog, iam, pg_temp
+as $$
+declare
+  v_keyword text := catalog._normalize_measurement_unit_name(p_keyword);
+begin
+  if auth.uid() is null then
+    raise exception 'not authenticated';
+  end if;
+
+  if not iam.has_permission(p_tenant_id, 'catalog.product.manage_units') then
+    raise exception 'permission denied: catalog.product.manage_units';
+  end if;
+
+  return query
+  select tu.id, tu.name, tu.is_active
+  from catalog.tenant_measurement_units tu
+  where tu.tenant_id = p_tenant_id
+    and (
+      v_keyword is null
+      or tu.name_normalized like '%' || v_keyword || '%'
+    )
+  order by tu.is_active desc, tu.name asc
+  limit least(greatest(coalesce(p_limit, 50), 1), 100);
+end;
+$$;
+
+create or replace function catalog.check_duplicate_measurement_unit_name(
+  p_tenant_id uuid,
+  p_name text
+)
+returns boolean
+language plpgsql
+security definer
+set search_path = catalog, iam, pg_temp
+as $$
+declare
+  v_name_normalized text := catalog._normalize_measurement_unit_name(p_name);
+begin
+  if auth.uid() is null then
+    raise exception 'not authenticated';
+  end if;
+
+  if not iam.has_permission(p_tenant_id, 'catalog.product.manage_units') then
+    raise exception 'permission denied: catalog.product.manage_units';
+  end if;
+
+  if v_name_normalized is null then
+    raise exception 'validation_exception: Unit name must not be empty.';
+  end if;
+
+  return exists (
+    select 1
+    from catalog.tenant_measurement_units tu
+    where tu.tenant_id = p_tenant_id
+      and tu.name_normalized = v_name_normalized
+  );
+end;
+$$;
+
+create or replace function catalog.set_product_base_unit(
+  p_tenant_id uuid,
+  p_product_id uuid,
+  p_tenant_unit_id uuid default null,
+  p_new_unit_name text default null
+)
+returns jsonb
+language plpgsql
+security definer
+set search_path = catalog, iam, pg_temp
+as $$
+declare
+  v_actor_id uuid;
+  v_tenant_unit_id uuid;
+  v_unit_name text;
+  v_name_normalized text;
+  v_facts record;
+  v_blockers jsonb;
+  v_status catalog.product_readiness_status;
+begin
+  v_actor_id := auth.uid();
+  if v_actor_id is null then
+    raise exception 'not authenticated';
+  end if;
+
+  if not iam.has_permission(p_tenant_id, 'catalog.product.manage_units') then
+    raise exception 'permission denied: catalog.product.manage_units';
+  end if;
+
+  if not exists (
+    select 1
+    from catalog.products p
+    where p.id = p_product_id
+      and p.tenant_id = p_tenant_id
+      and p.deleted_at is null
+  ) then
+    raise exception 'product not found';
+  end if;
+
+  if catalog._product_has_active_base_unit(p_tenant_id, p_product_id) then
+    raise exception 'validation_exception: Product already has a base unit; change base unit is out of scope.';
+  end if;
+
+  if (p_tenant_unit_id is null and catalog._normalize_measurement_unit_name(p_new_unit_name) is null)
+     or (p_tenant_unit_id is not null and catalog._normalize_measurement_unit_name(p_new_unit_name) is not null) then
+    raise exception 'validation_exception: Exactly one base unit selection is required.';
+  end if;
+
+  if p_tenant_unit_id is not null then
+    select tu.id, tu.name
+    into v_tenant_unit_id, v_unit_name
+    from catalog.tenant_measurement_units tu
+    where tu.id = p_tenant_unit_id
+      and tu.tenant_id = p_tenant_id
+      and tu.is_active = true;
+
+    if v_tenant_unit_id is null then
+      raise exception 'validation_exception: Measurement unit is inactive or not found.';
+    end if;
+  else
+    v_unit_name := btrim(p_new_unit_name);
+    v_name_normalized := catalog._normalize_measurement_unit_name(v_unit_name);
+
+    if length(v_unit_name) > 80 then
+      raise exception 'validation_exception: Unit name is too long.';
+    end if;
+
+    select tu.id
+    into v_tenant_unit_id
+    from catalog.tenant_measurement_units tu
+    where tu.tenant_id = p_tenant_id
+      and tu.name_normalized = v_name_normalized;
+
+    if v_tenant_unit_id is not null then
+      raise exception 'duplicate measurement unit "%"', v_unit_name;
+    end if;
+
+    insert into catalog.tenant_measurement_units (
+      tenant_id,
+      name,
+      name_normalized,
+      is_active,
+      updated_at
+    )
+    values (
+      p_tenant_id,
+      v_unit_name,
+      v_name_normalized,
+      true,
+      now()
+    )
+    returning id into v_tenant_unit_id;
+  end if;
+
+  insert into catalog.product_units (
+    tenant_id,
+    product_id,
+    tenant_measurement_unit_id,
+    unit_name,
+    is_base_unit,
+    conversion_rate_to_base,
+    updated_at
+  )
+  values (
+    p_tenant_id,
+    p_product_id,
+    v_tenant_unit_id,
+    v_unit_name,
+    true,
+    1,
+    now()
+  );
+
+  select *
+  into v_facts
+  from catalog._product_operational_facts(p_tenant_id, p_product_id);
+
+  v_blockers := catalog._readiness_blockers_from_facts(
+    v_facts.has_base_unit,
+    v_facts.has_images,
+    v_facts.has_stock,
+    v_facts.has_base_price,
+    v_facts.has_price_band,
+    v_facts.has_required_custom_fields,
+    v_facts.stock_mode,
+    v_facts.base_price_mode
+  );
+
+  v_status := case
+    when catalog._product_readiness_is_ready(
+      v_facts.has_base_unit,
+      v_facts.has_images,
+      v_facts.has_stock,
+      v_facts.has_base_price,
+      v_facts.has_price_band,
+      v_facts.has_required_custom_fields,
+      v_facts.stock_mode,
+      v_facts.base_price_mode
+    ) then 'ready_to_sell'::catalog.product_readiness_status
+    else 'incomplete'::catalog.product_readiness_status
+  end;
+
+  insert into catalog.product_readiness (product_id, tenant_id, status, blockers, updated_at)
+  values (p_product_id, p_tenant_id, v_status, v_blockers, now())
+  on conflict (product_id) do update set
+    status = excluded.status,
+    blockers = excluded.blockers,
+    updated_at = now();
+
+  insert into catalog.product_change_history (tenant_id, product_id, action, payload, actor_id)
+  values (
+    p_tenant_id,
+    p_product_id,
+    'set_product_base_unit',
+    jsonb_build_object('tenant_measurement_unit_id', v_tenant_unit_id, 'unit_name', v_unit_name, 'readiness_status', v_status),
+    v_actor_id
+  );
+
+  return jsonb_build_object(
+    'product_id', p_product_id,
+    'base_unit_name', v_unit_name,
+    'readiness_status', v_status::text,
+    'readiness_blockers', v_blockers
+  );
+end;
+$$;
+
+create or replace function catalog._ensure_product_has_base_unit(
+  p_tenant_id uuid,
+  p_product_id uuid
+)
+returns void
+language plpgsql
+stable
+security definer
+set search_path = catalog, pg_temp
+as $$
+begin
+  if not catalog._product_has_active_base_unit(p_tenant_id, p_product_id) then
+    raise exception 'missing base unit';
+  end if;
+end;
+$$;
+
+-- Guard operational RPCs created by 02_catalog_operational_data.sql.
+create or replace function catalog.set_initial_stock(
+  p_tenant_id uuid,
+  p_product_id uuid,
+  p_mode text,
+  p_initial_stock numeric
+)
+returns void
+language plpgsql
+security definer
+set search_path = catalog, iam, pg_temp
+as $$
+declare
+  v_actor_id uuid;
+begin
+  v_actor_id := auth.uid();
+  if v_actor_id is null then
+    raise exception 'not authenticated';
+  end if;
+  if not iam.has_permission(p_tenant_id, 'catalog.product.manage_stock') then
+    raise exception 'permission denied: catalog.product.manage_stock';
+  end if;
+  if not exists (select 1 from catalog.products where id = p_product_id and tenant_id = p_tenant_id) then
+    raise exception 'product not found';
+  end if;
+  perform catalog._ensure_product_has_base_unit(p_tenant_id, p_product_id);
+  if p_mode <> 'basic' then
+    raise exception 'not_basic_stock_mode';
+  end if;
+  if p_initial_stock < 0 then
+    raise exception 'validation_exception: initial stock cannot be negative';
+  end if;
+
+  insert into catalog.product_stock_profiles (product_id, tenant_id, mode, initial_stock, updated_at)
+  values (p_product_id, p_tenant_id, p_mode, p_initial_stock, now())
+  on conflict (product_id) do update set
+    mode = excluded.mode,
+    initial_stock = excluded.initial_stock,
+    updated_at = now();
+
+  insert into catalog.product_change_history (tenant_id, product_id, action, payload, actor_id)
+  values (p_tenant_id, p_product_id, 'set_initial_stock', jsonb_build_object('mode', p_mode, 'initial_stock', p_initial_stock), v_actor_id);
+end;
+$$;
+
+create or replace function catalog.set_manual_base_price(
+  p_tenant_id uuid,
+  p_product_id uuid,
+  p_mode text,
+  p_base_price numeric,
+  p_currency text default 'VND'
+)
+returns void
+language plpgsql
+security definer
+set search_path = catalog, iam, pg_temp
+as $$
+declare
+  v_actor_id uuid;
+begin
+  v_actor_id := auth.uid();
+  if v_actor_id is null then
+    raise exception 'not authenticated';
+  end if;
+  if not iam.has_permission(p_tenant_id, 'catalog.product.manage_pricing') then
+    raise exception 'permission denied: catalog.product.manage_pricing';
+  end if;
+  if not exists (select 1 from catalog.products where id = p_product_id and tenant_id = p_tenant_id) then
+    raise exception 'product not found';
+  end if;
+  perform catalog._ensure_product_has_base_unit(p_tenant_id, p_product_id);
+  if p_mode <> 'manual' then
+    raise exception 'not_manual_base_price_mode';
+  end if;
+  if p_base_price is not null and p_base_price < 0 then
+    raise exception 'validation_exception: base price cannot be negative';
+  end if;
+
+  insert into catalog.product_base_price_profiles (product_id, tenant_id, mode, base_price_amount, currency, updated_at)
+  values (p_product_id, p_tenant_id, p_mode, p_base_price, coalesce(p_currency, 'VND'), now())
+  on conflict (product_id) do update set
+    mode = excluded.mode,
+    base_price_amount = excluded.base_price_amount,
+    currency = excluded.currency,
+    updated_at = now();
+
+  insert into catalog.product_change_history (tenant_id, product_id, action, payload, actor_id)
+  values (p_tenant_id, p_product_id, 'set_manual_base_price', jsonb_build_object('mode', p_mode, 'base_price', p_base_price, 'currency', p_currency), v_actor_id);
+end;
+$$;
+
+create or replace function catalog.set_initial_price_band(
+  p_tenant_id uuid,
+  p_product_id uuid,
+  p_list_price numeric,
+  p_floor_price numeric,
+  p_product_unit_id uuid default null
+)
+returns void
+language plpgsql
+security definer
+set search_path = catalog, iam, pg_temp
+as $$
+declare
+  v_actor_id uuid;
+  v_product_unit_id uuid;
+begin
+  v_actor_id := auth.uid();
+  if v_actor_id is null then
+    raise exception 'not authenticated';
+  end if;
+  if not iam.has_permission(p_tenant_id, 'catalog.product.manage_pricing') then
+    raise exception 'permission denied: catalog.product.manage_pricing';
+  end if;
+  if not exists (select 1 from catalog.products where id = p_product_id and tenant_id = p_tenant_id) then
+    raise exception 'product not found';
+  end if;
+  perform catalog._ensure_product_has_base_unit(p_tenant_id, p_product_id);
+  if p_floor_price is not null and p_list_price is not null and p_floor_price > p_list_price then
+    raise exception 'floor_price_greater_than_list_price';
+  end if;
+
+  v_product_unit_id := p_product_unit_id;
+  if v_product_unit_id is null then
+    select pu.id into v_product_unit_id
+    from catalog.product_units pu
+    where pu.product_id = p_product_id
+      and pu.tenant_id = p_tenant_id
+      and pu.is_base_unit = true
+    limit 1;
+  end if;
+  if v_product_unit_id is null then
+    raise exception 'missing base unit';
+  end if;
+
+  insert into catalog.product_unit_price_bands (tenant_id, product_id, product_unit_id, list_price_amount, floor_price_amount, updated_at)
+  values (p_tenant_id, p_product_id, v_product_unit_id, p_list_price, p_floor_price, now())
+  on conflict (product_id, product_unit_id) do update set
+    list_price_amount = excluded.list_price_amount,
+    floor_price_amount = excluded.floor_price_amount,
+    updated_at = now();
+
+  insert into catalog.product_change_history (tenant_id, product_id, action, payload, actor_id)
+  values (p_tenant_id, p_product_id, 'set_initial_price_band', jsonb_build_object('product_unit_id', v_product_unit_id, 'list_price', p_list_price, 'floor_price', p_floor_price), v_actor_id);
+end;
+$$;
+
+revoke all on function catalog.list_tenant_measurement_units(uuid, text, int)
+  from public, anon;
+grant execute on function catalog.list_tenant_measurement_units(uuid, text, int)
+  to authenticated, service_role;
+
+revoke all on function catalog.check_duplicate_measurement_unit_name(uuid, text)
+  from public, anon;
+grant execute on function catalog.check_duplicate_measurement_unit_name(uuid, text)
+  to authenticated, service_role;
+
+revoke all on function catalog.set_product_base_unit(uuid, uuid, uuid, text)
+  from public, anon;
+grant execute on function catalog.set_product_base_unit(uuid, uuid, uuid, text)
+  to authenticated, service_role;
