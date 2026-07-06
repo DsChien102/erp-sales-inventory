@@ -23,6 +23,7 @@ dependencies:
   vet45_partner_application: ^1.0.0
   vet45_partner_infrastructure: ^1.0.0
   vet45_partner_presentation: ^1.0.0
+  vet45_catalog_domain: ^1.0.0
   vet45_catalog_application: ^1.0.0
   vet45_catalog_infrastructure: ^1.0.0
   vet45_catalog_presentation: ^1.0.0

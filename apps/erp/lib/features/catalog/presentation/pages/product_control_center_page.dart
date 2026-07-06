@@ -56,8 +56,6 @@ class _ProductControlCenterView extends StatelessWidget {
         return Icons.list_alt_outlined;
       case ReadinessChecklistGroup.lifecycle:
         return Icons.check_circle_outline;
-      default:
-        return Icons.info_outline;
     }
   }
 
@@ -270,23 +268,7 @@ class _ProductControlCenterView extends StatelessWidget {
     return '${buffer.toString()} đ';
   }
 
-  String _priceBandSubtitle(ProductListItemModel product) {
-    if (product.listPrice == null && product.floorPrice == null) {
-      return 'Chưa thiết lập khung giá bán';
-    }
 
-    final listPart = product.listPrice != null
-        ? 'Niêm yết: ${_formatCurrency(product.listPrice)}'
-        : 'Niêm yết: --';
-    final floorPart = product.floorPrice != null
-        ? 'Sàn: ${_formatCurrency(product.floorPrice)}'
-        : 'Sàn: --';
-    final unit = product.baseUnit?.trim();
-    final unitSuffix =
-        unit != null && unit.isNotEmpty ? ' · Đơn vị: $unit' : '';
-
-    return '$listPart · $floorPart$unitSuffix';
-  }
 
   Widget _buildSectionCard({
     required BuildContext context,
