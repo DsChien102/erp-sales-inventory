@@ -95,7 +95,7 @@ Permissions: `@RequiresPermission(CatalogPermissions.create)` (`catalog.product.
 
 ## EPIC-02 / US-03 — Hoàn tất create + readiness summary (slice #3)
 
-**Status:** CONTRACT `done` · BE `done`
+**Status:** CONTRACT `done` · BE `done` · FE `done`
 
 ### Commands / Queries
 

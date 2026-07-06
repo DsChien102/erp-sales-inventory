@@ -11,8 +11,13 @@ Foundation MVP: Epic 02 (guided create) → Epic 01 (discovery/control center) �
 | # | Slice | Type | Contract | BE | FE | E2E | Parallel group | E2E blocked by / notes |
 | - | ----- | ---- | -------- | -- | -- | --- | -------------- | ---------------------- |
 | 1 | [EPIC-02/US-01](../EPIC-02-guided-creation/US-01/) — Guided create (nhận diện, dup, UOM, khởi tạo) | write | done | done | done | done | — | — |
+<<<<<<< HEAD
 | 2 | [EPIC-02/US-02](../EPIC-02-guided-creation/US-02/) — Dữ liệu vận hành ban đầu (tồn, base price, giá) | write | done | done | done | done | A | US-01 |
 | 3 | [EPIC-02/US-03](../EPIC-02-guided-creation/US-03/) — Hoàn tất + readiness **summary** | write | done | done | todo | todo | A | US-01 |
+=======
+| 2 | [EPIC-02/US-02](../EPIC-02-guided-creation/US-02/) — Dữ liệu vận hành ban đầu (tồn, base price, giá) | write | todo | todo | todo | todo | A | US-01 |
+| 3 | [EPIC-02/US-03](../EPIC-02-guided-creation/US-03/) — Hoàn tất + readiness **summary** | write | done | done | done | todo | A | US-01 |
+>>>>>>> 5631adba (feat: implement product readiness checklist UI and integrate with control center BLoC)
 | 4 | [EPIC-01/US-01](../EPIC-01-discovery-readiness/US-01/) — Tìm kiếm, lọc, danh sách + readiness chip | read | todo | todo | todo | todo | B | US-01 (data) |
 | 5 | [EPIC-01/US-02](../EPIC-01-discovery-readiness/US-02/) — Product Control Center | read | todo | todo | todo | todo | B | US-01; **FR-04 checklist pending** (làm FR-01..03, FR-05..06) |
 | 6 | [EPIC-04/US-01](../EPIC-04-units/US-01/) — Đơn vị cơ sở | write | todo | todo | todo | todo | C | US-01 |
