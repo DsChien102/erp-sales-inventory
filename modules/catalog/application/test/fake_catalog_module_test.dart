@@ -529,6 +529,182 @@ void main() {
     });
   });
 
+  group('EPIC-01 / US-01 search contract', () {
+    test('scn_contract_e01_u01_search_empty', () async {
+      final module = FakeCatalogModule(scenario: FakeCatalogScenario.searchEmpty);
+
+      final result = await module.executeQueryAsync(
+        SearchProductsQuery(
+          tenantId: 'tenant-1',
+          criteria: ProductSearchCriteria(),
+        ),
+      );
+
+      expect(result.items, isEmpty);
+      expect(result.totalCount, 0);
+    });
+
+    test('scn_contract_e01_u01_search_with_readiness', () async {
+      final module = FakeCatalogModule(
+        scenario: FakeCatalogScenario.searchWithReadiness,
+      );
+
+      final result = await module.executeQueryAsync(
+        SearchProductsQuery(
+          tenantId: 'tenant-1',
+          criteria: ProductSearchCriteria(),
+        ),
+      );
+
+      expect(result.items.length, greaterThanOrEqualTo(3));
+      expect(
+        result.items.map((item) => item.readinessSummary.status).toSet(),
+        contains(ReadinessStatus.incomplete),
+      );
+      expect(
+        result.items.map((item) => item.readinessSummary.status).toSet(),
+        contains(ReadinessStatus.readyToSell),
+      );
+    });
+
+    test('scn_contract_e01_u01_search_filters_incomplete_readiness', () async {
+      final module = FakeCatalogModule(
+        scenario: FakeCatalogScenario.searchWithReadiness,
+      );
+
+      final result = await module.executeQueryAsync(
+        SearchProductsQuery(
+          tenantId: 'tenant-1',
+          criteria: ProductSearchCriteria(
+            readinessFilter: ProductReadinessFilter.incomplete,
+          ),
+        ),
+      );
+
+      expect(result.items, isNotEmpty);
+      for (final item in result.items) {
+        expect(item.readinessSummary.status, ReadinessStatus.incomplete);
+      }
+    });
+
+    test('scn_contract_e01_u01_barcode_match', () async {
+      final module = FakeCatalogModule(
+        scenario: FakeCatalogScenario.barcodeExactMatch,
+      );
+
+      final result = await module.executeQueryAsync(
+        ScanBarcodeQuery(
+          tenantId: 'tenant-1',
+          barcode: '8930000000001',
+        ),
+      );
+
+      expect(result, isNotNull);
+      expect(result!.id, 'product-1');
+      expect(result.barcode, '8930000000001');
+      expect(result.readinessSummary.status, ReadinessStatus.readyToSell);
+    });
+
+    test('scn_contract_e01_u01_barcode_not_found', () async {
+      final module = FakeCatalogModule(
+        scenario: FakeCatalogScenario.barcodeNotFound,
+      );
+
+      final result = await module.executeQueryAsync(
+        ScanBarcodeQuery(
+          tenantId: 'tenant-1',
+          barcode: '9999999999999',
+        ),
+      );
+
+      expect(result, isNull);
+    });
+  });
+
+  group('EPIC-01 / US-02 control center contract', () {
+    test('scn_contract_e01_u02_pcc_incomplete', () async {
+      final module = FakeCatalogModule(scenario: FakeCatalogScenario.pccIncomplete);
+
+      final result = await module.executeQueryAsync(
+        GetProductControlCenterQuery(
+          tenantId: 'tenant-1',
+          productId: 'product-4',
+        ),
+      );
+
+      expect(result.profile.name, 'Vitamin B Complex');
+      expect(result.priceBand.isMissing, isTrue);
+      expect(result.readinessSummary.status, ReadinessStatus.incomplete);
+      expect(result.checklist, isEmpty);
+      expect(
+        result.contextualActions.map((a) => a.actionId),
+        contains(ContextualActionId.setPriceBand),
+      );
+    });
+
+    test('scn_contract_e01_u02_pcc_ready', () async {
+      final module = FakeCatalogModule(scenario: FakeCatalogScenario.pccReadyToSell);
+
+      final result = await module.executeQueryAsync(
+        GetProductControlCenterQuery(
+          tenantId: 'tenant-1',
+          productId: 'product-1',
+        ),
+      );
+
+      expect(result.profile.name, 'Amoxicillin 500mg');
+      expect(result.readinessSummary.status, ReadinessStatus.readyToSell);
+      expect(result.units.baseUnitName, 'Hộp');
+      expect(result.stock.quantity, 150);
+      expect(result.checklist, isEmpty);
+    });
+
+    test('scn_contract_e01_u02_pcc_inactive', () async {
+      final module = FakeCatalogModule(scenario: FakeCatalogScenario.pccInactive);
+
+      final result = await module.executeQueryAsync(
+        GetProductControlCenterQuery(
+          tenantId: 'tenant-1',
+          productId: 'product-5',
+        ),
+      );
+
+      expect(result.profile.businessStatus, ProductStatus.inactive);
+      expect(result.profile.name, 'Ibuprofen 400mg');
+    });
+
+    test('scn_contract_e01_u02_pcc_custom_field_cards', () async {
+      final module = FakeCatalogModule(
+        scenario: FakeCatalogScenario.pccCustomFieldCards,
+      );
+
+      final result = await module.executeQueryAsync(
+        GetProductControlCenterQuery(
+          tenantId: 'tenant-1',
+          productId: 'product-1',
+        ),
+      );
+
+      expect(result.customFieldGroupCards, hasLength(1));
+      expect(result.customFieldGroupCards.first.name, 'Thông tin thuốc');
+      expect(result.customFieldGroupCards.first.fields, isNotEmpty);
+    });
+
+    test('scn_contract_e01_u02_pcc_change_history_preview', () async {
+      final module = FakeCatalogModule(scenario: FakeCatalogScenario.pccReadyToSell);
+
+      final result = await module.executeQueryAsync(
+        GetProductControlCenterQuery(
+          tenantId: 'tenant-1',
+          productId: 'product-1',
+        ),
+      );
+
+      expect(result.changeHistoryPreview, isNotEmpty);
+      expect(result.changeHistoryPreview.first.changeType, 'product_created');
+    });
+  });
+
   group('CreateProductCommandValidator', () {
     final validator = CreateProductCommandValidator();
 

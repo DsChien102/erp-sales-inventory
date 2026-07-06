@@ -193,25 +193,69 @@ Pattern: `initDependencies` → override `ICatalogModule` with `FakeCatalogModul
 
 ## EPIC-01 / US-01 — Tra cứu danh mục (slice #4)
 
+**Status:** CONTRACT `done` · BE `todo` · FE `todo`
+
 ### Commands / Queries
 
 | Symbol | Input (summary) | Success | Errors |
 | ------ | --------------- | ------- | ------ |
-| `SearchProductsQuery` | tenantId, criteria (keyword, businessStatus, readinessStatus), limit, offset | `ProductSearchResultDto` | PermissionDenied |
+| `SearchProductsQuery` | tenantId, `ProductSearchCriteria`, limit, offset | `ProductSearchResultDto` | PermissionDenied |
 | `ScanBarcodeQuery` | tenantId, barcode | `ProductListItemDto?` | PermissionDenied |
+
+Package: `vet45_catalog_application` — `product_search/`. Criteria: `vet45_catalog_domain` — `search/product_search_criteria.dart`.
+
+Supporting types:
+
+| Type | Fields |
+| ---- | ------ |
+| `ProductSearchCriteria` | keyword?, businessStatuses (`Set<ProductStatus>`, default `{active}`), readinessFilter?, includeSoftDeleted (default false), sortOrder |
+| `ProductReadinessFilter` | `readyToSell`, `incomplete` |
+| `ProductSortOrder` | `updatedAtDesc` |
+| `ProductListItemDto` | id, name, tradeName?, sku?, barcode?, primaryImageUrl?, businessStatus, isSoftDeleted, readinessSummary, listPrice?, floorPrice?, baseUnit?, stockQuantity?, stockLabel?, updatedAt |
+| `ProductSearchResultDto` | items[], totalCount |
+
+Readiness chip trên list: FE derive từ `readinessSummary.status` + `blockers.first` (FR-03).
+
+Permissions: `@RequiresPermission(CatalogPermissions.view)` + `@RequiresTenant()`.
+
+Port: `ICatalogReadGateway.search`, `ICatalogReadGateway.findByBarcode`.
+
+### RPC mapping (BE)
+
+| Use case | RPC |
+| -------- | --- |
+| Search list | `catalog.search_products` |
+| Barcode scan | `catalog.find_product_by_barcode` (hoặc search với exact barcode match) |
+
+**`catalog.search_products` params:** `p_tenant_id`, `p_keyword`, `p_business_statuses text[]`, `p_readiness_filter text`, `p_include_soft_deleted boolean`, `p_limit int`, `p_offset int`
+
+**Response row:** list item fields + `readiness_status`, `top_blocker_code`, `top_blocker_message` (hoặc join `catalog.v_product_list`).
+
+Draft view: `catalog.v_product_list` — xem [03-architecture-and-flows.md](03-architecture-and-flows.md).
 
 ### Fake scenarios (FE)
 
 | scenario_id | trigger | fake response |
 | ----------- | ------- | ------------- |
-| `search_empty` | SearchProductsQuery | empty + create CTA |
-| `search_with_readiness` | filtered readiness | items with readiness chips |
-| `barcode_exact_match` | ScanBarcodeQuery | single product |
-| `barcode_not_found` | unknown barcode | empty + create CTA |
+| `search_empty` | SearchProductsQuery | `items: []`, `totalCount: 0` |
+| `search_with_readiness` | SearchProductsQuery default | seed products với readiness đa dạng (ready + incomplete) |
+| `barcode_exact_match` | ScanBarcodeQuery known barcode | single `ProductListItemDto` |
+| `barcode_not_found` | ScanBarcodeQuery unknown | `null` |
+
+`FakeCatalogModule` — `package:vet45_catalog_application/testing.dart`.
+
+Tests: `scn_contract_e01_u01_*` trong `fake_catalog_module_test.dart`.
+
+### Parallel notes
+
+- FE có thể fake: **yes**
+- E2E prerequisite: US-01 (data)
 
 ---
 
 ## EPIC-01 / US-02 — Product Control Center (slice #5)
+
+**Status:** CONTRACT `done` · BE `todo` · FE `todo`
 
 ### Commands / Queries
 
@@ -219,26 +263,61 @@ Pattern: `initDependencies` → override `ICatalogModule` with `FakeCatalogModul
 | ------ | --------------- | ------- | ------ |
 | `GetProductControlCenterQuery` | tenantId, productId | `ProductControlCenterDto` | PermissionDenied, NotFound |
 
-`ProductControlCenterDto` gồm:
+Package: `vet45_catalog_application` — `control_center/`.
 
-| Field | Ghi chú |
-| ----- | ------- |
-| profile summary | hồ sơ nhận diện, trạng thái KD |
-| units, stock source, base price source, price bands | cards vận hành |
-| `customFieldGroupCards[]` | group id, name, icon, sortOrder, fields[], values, requiredMissing |
-| `readinessSummary` | early — status + top blockers (không thay FR-04) |
-| `checklist[]` | **pending** (EPIC-01/US-02/FR-04) — không implement UI đầy đủ |
-| `contextualActions[]` | reuse `ContextualActionDto` từ US-03 |
-| change history preview | FR-06 |
+`ProductControlCenterDto`:
+
+| Field | Type | FR | Ghi chú Foundation |
+| ----- | ---- | -- | ------------------ |
+| `profile` | `ProductProfileSummaryDto` | FR-01 | name, tradeName, sku, barcode, businessStatus, images |
+| `units` | `ProductUnitsCardDto` | FR-02 | baseUnitName, conversionUnits[] |
+| `stock` | `ProductStockCardDto` | FR-02 | mode, quantity, pendingExternal |
+| `basePrice` | `ProductBasePriceCardDto` | FR-02 | mode, amount, currency |
+| `priceBand` | `ProductPriceBandCardDto` | FR-02 | listPrice, floorPrice, unitName |
+| `customFieldGroupCards` | `CustomFieldGroupCardDto[]` | FR-03 | **empty** đến EPIC-03 |
+| `readinessSummary` | `ReadinessSummaryDto` | early | reuse US-03 |
+| `checklist` | `ReadinessChecklistItemDto[]` | FR-04 | **pending** — luôn `[]` |
+| `contextualActions` | `ContextualActionDto[]` | FR-05 | reuse US-03 assembler |
+| `changeHistoryPreview` | `ProductChangeHistoryEntryDto[]` | FR-06 | 1–3 entries preview |
+| `primaryActionId` | `String?` | FR-05 | top blocker action |
+
+Card DTOs: `ProductProfileSummaryDto`, `ProductUnitsCardDto`, `ProductConversionUnitDto`, `ProductStockCardDto`, `ProductBasePriceCardDto`, `ProductPriceBandCardDto`, `CustomFieldGroupCardDto`, `CustomFieldCardFieldDto`, `ProductChangeHistoryEntryDto`.
+
+**Quan hệ queries:** PCC load `GetProductControlCenterQuery`; checklist sub-page vẫn có thể dùng `GetProductReadinessQuery` (US-03). Không gộp hai query.
+
+Permissions: `@RequiresPermission(CatalogPermissions.viewDetail)` + `@RequiresTenant()`. Change history preview: `catalog.product.view_history`.
+
+Port: `ICatalogReadGateway.getControlCenter`.
+
+### RPC mapping (BE)
+
+| Use case | RPC |
+| -------- | --- |
+| Control center aggregate | `catalog.get_product_control_center` |
+
+**Params:** `p_tenant_id uuid`, `p_product_id uuid`
+
+**Response:** JSON aggregate hoặc composite row — profile, operational cards, readiness facts, change history preview (join `catalog.product_change_history`).
+
+Foundation: `stock_mode = basic`, `base_price_mode = manual`; custom field cards `[]` until EPIC-03.
 
 ### Fake scenarios (FE)
 
 | scenario_id | trigger | fake response |
 | ----------- | ------- | ------------- |
-| `pcc_incomplete` | product missing price | readinessSummary blockers + "Thiết lập giá" action |
-| `pcc_ready_to_sell` | all blockers cleared | readiness = Sẵn sàng bán |
-| `pcc_inactive` | inactive product | limited actions |
-| `pcc_custom_field_cards` | active groups | cards sau khung giá, trước ghi chú |
+| `pcc_incomplete` | product-4 thiếu price band | readinessSummary blockers + `set_price_band` action |
+| `pcc_ready_to_sell` | product-1 đủ dữ liệu | readiness `readyToSell` |
+| `pcc_inactive` | product-5 inactive | profile.businessStatus = inactive |
+| `pcc_custom_field_cards` | stub group card | 1 group "Thông tin thuốc" (layout test; data thật EPIC-03) |
+
+`FakeCatalogModule` — `package:vet45_catalog_application/testing.dart`.
+
+Tests: `scn_contract_e01_u02_*` trong `fake_catalog_module_test.dart`.
+
+### Parallel notes
+
+- FE có thể fake: **yes**
+- E2E prerequisite: US-01; FR-04 checklist **pending**
 
 ---
 
