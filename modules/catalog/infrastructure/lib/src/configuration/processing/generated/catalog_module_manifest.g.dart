@@ -23,6 +23,7 @@ final catalogModuleManifest = GeneratedModuleManifest(
   commandTypes: [
     AddProductConversionUnitCommand,
     AdjustBasicStockCommand,
+    ApplyStorePriceRuleCommand,
     CreateProductCommand,
     DeactivateProductConversionUnitCommand,
     ReactivateProductConversionUnitCommand,
@@ -31,6 +32,7 @@ final catalogModuleManifest = GeneratedModuleManifest(
     SetInitialStockCommand,
     SetManualBasePriceCommand,
     SetProductBaseUnitCommand,
+    SetStorePriceRuleCommand,
   ],
   queryTypes: [
     CheckDuplicateMeasurementUnitNameQuery,
@@ -38,10 +40,12 @@ final catalogModuleManifest = GeneratedModuleManifest(
     GetProductControlCenterQuery,
     GetProductReadinessQuery,
     GetProductStockHistoryQuery,
+    GetStorePriceRuleQuery,
     ListProductUnitsQuery,
     ListTenantMeasurementUnitsQuery,
     ScanBarcodeQuery,
     SearchProductsQuery,
+    SuggestProductUnitPriceQuery,
   ],
 );
 

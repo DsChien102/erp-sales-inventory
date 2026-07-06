@@ -222,6 +222,10 @@ Mở đầy đủ khi CONTRACT lane bắt đầu.
 | FR-02 | CONTRACT | §EPIC-06-US-02 | application | `SuggestProductUnitPriceQuery`, `ProductUnitPriceSuggestionDto` | scn_contract_e06_u02_fr02_* | done |
 | FR-03 | CONTRACT | §EPIC-06-US-02 | application | `ApplyStorePriceRuleCommand`, `ApplyStorePriceRuleResult` | scn_contract_e06_u02_fr03_* | done |
 | FR-04 | CONTRACT | §EPIC-06-US-02 | application | `ProductPriceBandCardDto` override fields; `SetProductUnitPriceBandCommand` stub (slice #11) | scn_contract_e06_u02_fr04_01 | done |
+| FR-01 | BE | §EPIC-06-US-02 | application + infrastructure | `GetStorePriceRuleQueryHandler`, `SetStorePriceRuleCommandHandler`, `SupabaseStorePriceRuleGateway`, draft RPC | scn_e06_u02_fr01_01 | done |
+| FR-02 | BE | §EPIC-06-US-02 | application + infrastructure | `SuggestProductUnitPriceQueryHandler`, `suggest_product_unit_price` RPC | scn_e06_u02_fr02_01 | done |
+| FR-03 | BE | §EPIC-06-US-02 | application + infrastructure | `ApplyStorePriceRuleCommandHandler`, `apply_store_price_rule` RPC | scn_e06_u02_fr03_01 | done |
+| FR-04 | BE | §EPIC-06-US-02 | application + infrastructure | PCC price band metadata projection | scn_e06_u02_fr04_01 | done |
 
 ---
 

@@ -17,6 +17,9 @@ void registerGeneratedCatalogValidators(GetIt container) {
     ..registerFactory<ICommandValidator<AdjustBasicStockCommand>>(
       AdjustBasicStockCommandValidator.new,
     )
+    ..registerFactory<ICommandValidator<ApplyStorePriceRuleCommand>>(
+      ApplyStorePriceRuleCommandValidator.new,
+    )
     ..registerFactory<ICommandValidator<CreateProductCommand>>(
       CreateProductCommandValidator.new,
     )
@@ -40,6 +43,9 @@ void registerGeneratedCatalogValidators(GetIt container) {
     )
     ..registerFactory<ICommandValidator<SetProductBaseUnitCommand>>(
       SetProductBaseUnitCommandValidator.new,
+    )
+    ..registerFactory<ICommandValidator<SetStorePriceRuleCommand>>(
+      SetStorePriceRuleCommandValidator.new,
     )
     ;
 }
@@ -67,6 +73,16 @@ void registerGeneratedCatalogHandlers({
     logger: logger,
     factory: () => AdjustBasicStockCommandHandler(
       stockGateway: container.get<ICatalogStockGateway>(),
+      readinessReadPort: container.get<IProductReadinessReadPort>(),
+    ),
+  );
+
+  CatalogCommandRegistration.registerBusinessHandler<ApplyStorePriceRuleCommand, ApplyStorePriceRuleResult, ApplyStorePriceRuleCommandHandler>(
+    container: container,
+    bus: bus,
+    logger: logger,
+    factory: () => ApplyStorePriceRuleCommandHandler(
+      storePriceRuleGateway: container.get<IStorePriceRuleGateway>(),
       readinessReadPort: container.get<IProductReadinessReadPort>(),
     ),
   );
@@ -148,6 +164,15 @@ void registerGeneratedCatalogHandlers({
     ),
   );
 
+  CatalogCommandRegistration.registerBusinessHandler<SetStorePriceRuleCommand, SetStorePriceRuleResult, SetStorePriceRuleCommandHandler>(
+    container: container,
+    bus: bus,
+    logger: logger,
+    factory: () => SetStorePriceRuleCommandHandler(
+      storePriceRuleGateway: container.get<IStorePriceRuleGateway>(),
+    ),
+  );
+
 }
 
 void registerGeneratedCatalogQueries({
@@ -197,6 +222,14 @@ void registerGeneratedCatalogQueries({
     invoke: (query, handler) => handler.handle(query),
   );
 
+  CatalogCommandRegistration.registerQueryHandler<GetStorePriceRuleQuery, StorePriceRuleDto?, GetStorePriceRuleQueryHandler>(
+    bus: bus,
+    factory: () => GetStorePriceRuleQueryHandler(
+      storePriceRuleGateway: container.get<IStorePriceRuleGateway>(),
+    ),
+    invoke: (query, handler) => handler.handle(query),
+  );
+
   CatalogCommandRegistration.registerQueryHandler<ListProductUnitsQuery, ProductUnitsDto, ListProductUnitsQueryHandler>(
     bus: bus,
     factory: () => ListProductUnitsQueryHandler(
@@ -225,6 +258,14 @@ void registerGeneratedCatalogQueries({
     bus: bus,
     factory: () => SearchProductsQueryHandler(
       readGateway: container.get<ICatalogReadGateway>(),
+    ),
+    invoke: (query, handler) => handler.handle(query),
+  );
+
+  CatalogCommandRegistration.registerQueryHandler<SuggestProductUnitPriceQuery, ProductUnitPriceSuggestionDto, SuggestProductUnitPriceQueryHandler>(
+    bus: bus,
+    factory: () => SuggestProductUnitPriceQueryHandler(
+      storePriceRuleGateway: container.get<IStorePriceRuleGateway>(),
     ),
     invoke: (query, handler) => handler.handle(query),
   );

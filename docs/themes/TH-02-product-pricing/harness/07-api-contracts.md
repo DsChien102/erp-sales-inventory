@@ -670,7 +670,7 @@ Widget keys: `wgt_e06_u01_fr01_01` (manual base price page), `input_base_price_a
 
 ## EPIC-06 / US-02 — Store Price Rule (slice #10)
 
-**Status:** CONTRACT `done` · BE `todo` · FE `todo` · E2E `todo`
+**Status:** CONTRACT `done` · BE `done` · FE `todo` · E2E `todo`
 
 ### Commands / Queries
 
@@ -712,16 +712,25 @@ Permissions:
 - `GetStorePriceRuleQuery`, `SetStorePriceRuleCommand` → `@RequiresPermission(CatalogPermissions.manageStorePriceRule)` (`catalog.pricing.manage_store_rule`)
 - `SuggestProductUnitPriceQuery`, `ApplyStorePriceRuleCommand` → `@RequiresPermission(CatalogPermissions.managePricing)`
 
-### RPC mapping (BE — draft, not applied in CONTRACT lane)
+### RPC mapping (BE)
 
-| Use case | RPC / view |
-| -------- | ---------- |
-| Upsert store rule | `catalog.set_store_price_rule` |
-| Read store rule | `catalog.v_store_price_rule` |
-| Suggest unit price | `catalog.suggest_product_unit_price` |
-| Apply rule to product | `catalog.apply_store_price_rule` |
+| Use case | RPC / view | Params (summary) | Notes |
+| -------- | ---------- | ---------------- | ----- |
+| Upsert store rule | `catalog.set_store_price_rule` | `p_tenant_id`, `p_name`, `p_list_markup_ratio`, `p_floor_markup_ratio`, `p_status` | Returns rule row |
+| Read store rule | `catalog.get_store_price_rule` | `p_tenant_id` | 0–1 row |
+| Suggest unit price | `catalog.suggest_product_unit_price` | `p_tenant_id`, `p_product_id`, `p_product_unit_id?` | Soft-fail via `can_suggest=false` |
+| Apply rule to product | `catalog.apply_store_price_rule` | `p_tenant_id`, `p_product_id`, `p_product_unit_id?`, `p_store_price_rule_id?`, `p_confirm_overwrite`, `p_base_price_version?` | Returns applied list/floor |
+| PCC price band metadata | `catalog.get_product_control_center` | existing | Adds `price_band_source_type`, `store_price_rule_name`, `is_custom_override` |
 
-Draft BE target: `supabase/migrations/_drafts/08_catalog_store_price_rule.sql` (BE lane).
+**`base_price_version`:** `floor(extract(epoch from product_base_price_profiles.updated_at) * 1000)::bigint`
+
+**Guards:** `store_price_rule_not_found`, `store_price_rule_inactive`, `price_band_overwrite_required`, `stale_base_price`, `missing_base_price`, `missing base unit`
+
+**Change history:** `apply_store_price_rule` action on apply
+
+Draft: [`supabase/migrations/_drafts/08_catalog_store_price_rule.sql`](../../../../supabase/migrations/_drafts/08_catalog_store_price_rule.sql)
+
+**BE tests:** `store_price_rule_handlers_test.dart` (`scn_e06_u02_*`), `store_price_rule_rpc_mapper_test.dart`
 
 ### Fake scenarios (FE)
 
