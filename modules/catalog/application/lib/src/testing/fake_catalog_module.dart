@@ -73,6 +73,15 @@ abstract final class FakeCatalogScenario {
   static const scnContractE06U02Fr03_02 = 'scn_contract_e06_u02_fr03_02';
   static const scnContractE06U02Fr03_03 = 'scn_contract_e06_u02_fr03_03';
   static const scnContractE06U02Fr04_01 = 'scn_contract_e06_u02_fr04_01';
+  static const scnContractE06U03Fr01_01 = 'scn_contract_e06_u03_fr01_01';
+  static const scnContractE06U03Fr01_02 = 'scn_contract_e06_u03_fr01_02';
+  static const scnContractE06U03Fr01_03 = 'scn_contract_e06_u03_fr01_03';
+  static const scnContractE06U03Fr01_04 = 'scn_contract_e06_u03_fr01_04';
+  static const scnContractE06U03Fr02_01 = 'scn_contract_e06_u03_fr02_01';
+  static const scnContractE06U03Fr02_02 = 'scn_contract_e06_u03_fr02_02';
+  static const scnContractE06U03Fr02_03 = 'scn_contract_e06_u03_fr02_03';
+  static const scnContractE06U03Fr03_01 = 'scn_contract_e06_u03_fr03_01';
+  static const scnContractE06U03Fr03_02 = 'scn_contract_e06_u03_fr03_02';
 }
 
 class _TenantUnit {
@@ -95,6 +104,13 @@ class _ProductUnit {
     required this.conversionRateToBase,
     required this.isBaseUnit,
     required this.isActive,
+    this.listPrice,
+    this.floorPrice,
+    this.priceBandSourceType,
+    this.storePriceRuleId,
+    this.storePriceRuleName,
+    this.isCustomOverride = false,
+    this.hasConversionRate = true,
   });
 
   final String id;
@@ -103,6 +119,15 @@ class _ProductUnit {
   final double conversionRateToBase;
   final bool isBaseUnit;
   bool isActive;
+  double? listPrice;
+  double? floorPrice;
+  PriceBandSourceType? priceBandSourceType;
+  String? storePriceRuleId;
+  String? storePriceRuleName;
+  bool isCustomOverride;
+  final bool hasConversionRate;
+
+  bool get hasCompletePriceBand => listPrice != null && floorPrice != null;
 }
 
 class _StockMovement {
@@ -242,6 +267,9 @@ final class FakeCatalogModule implements ICatalogModule {
           conversionRateToBase: 1,
           isBaseUnit: true,
           isActive: true,
+          listPrice: 120000,
+          floorPrice: 95000,
+          priceBandSourceType: PriceBandSourceType.manual,
         ),
         _ProductUnit(
           id: 'product-1-unit-vi',
@@ -250,6 +278,9 @@ final class FakeCatalogModule implements ICatalogModule {
           conversionRateToBase: 10,
           isBaseUnit: false,
           isActive: true,
+          listPrice: 1200000,
+          floorPrice: 950000,
+          priceBandSourceType: PriceBandSourceType.manual,
         ),
         _ProductUnit(
           id: 'product-1-unit-thung',
@@ -258,6 +289,59 @@ final class FakeCatalogModule implements ICatalogModule {
           conversionRateToBase: 100,
           isBaseUnit: false,
           isActive: false,
+        ),
+        _ProductUnit(
+          id: 'product-9-base',
+          productId: 'product-9',
+          name: 'Lọ',
+          conversionRateToBase: 1,
+          isBaseUnit: true,
+          isActive: true,
+        ),
+        _ProductUnit(
+          id: 'product-9-hop',
+          productId: 'product-9',
+          name: 'Hộp',
+          conversionRateToBase: 10,
+          isBaseUnit: false,
+          isActive: true,
+        ),
+        _ProductUnit(
+          id: 'product-10-base',
+          productId: 'product-10',
+          name: 'Lọ',
+          conversionRateToBase: 1,
+          isBaseUnit: true,
+          isActive: true,
+          listPrice: 120000,
+          floorPrice: 95000,
+          priceBandSourceType: PriceBandSourceType.manual,
+          isCustomOverride: true,
+        ),
+        _ProductUnit(
+          id: 'product-10-hop',
+          productId: 'product-10',
+          name: 'Hộp',
+          conversionRateToBase: 10,
+          isBaseUnit: false,
+          isActive: true,
+        ),
+        _ProductUnit(
+          id: 'product-11-base',
+          productId: 'product-11',
+          name: 'Lọ',
+          conversionRateToBase: 1,
+          isBaseUnit: true,
+          isActive: true,
+        ),
+        _ProductUnit(
+          id: 'product-11-hop',
+          productId: 'product-11',
+          name: 'Hộp',
+          conversionRateToBase: 10,
+          isBaseUnit: false,
+          isActive: true,
+          hasConversionRate: false,
         ),
       ],
       _products = [
@@ -366,6 +450,46 @@ final class FakeCatalogModule implements ICatalogModule {
           basePriceMode: FakeProductReadinessBuilder.basePriceModeCosting,
           updatedAt: DateTime.utc(2026, 1, 10),
         ),
+        _StoredProduct(
+          id: 'product-9',
+          name: 'Thuốc multi UOM',
+          tradeName: 'Multi UOM Drug',
+          sku: 'SP0009',
+          barcode: '8930000000009',
+          baseUnit: 'Lọ',
+          images: ['https://picsum.photos/200/307'],
+          stockQty: 50,
+          baseCost: 10000,
+          updatedAt: DateTime.utc(2026, 1, 5),
+        ),
+        _StoredProduct(
+          id: 'product-10',
+          name: 'Thuốc band partial',
+          tradeName: 'Partial Band Drug',
+          sku: 'SP0010',
+          barcode: '8930000000010',
+          baseUnit: 'Lọ',
+          images: ['https://picsum.photos/200/308'],
+          stockQty: 30,
+          baseCost: 80000,
+          listPrice: 120000,
+          floorPrice: 95000,
+          priceBandSourceType: PriceBandSourceType.manual,
+          isCustomOverride: true,
+          updatedAt: DateTime.utc(2026, 1, 4),
+        ),
+        _StoredProduct(
+          id: 'product-11',
+          name: 'Thuốc band warn',
+          tradeName: 'Warn Band Drug',
+          sku: 'SP0011',
+          barcode: '8930000000011',
+          baseUnit: 'Lọ',
+          images: ['https://picsum.photos/200/309'],
+          stockQty: 25,
+          baseCost: 100000,
+          updatedAt: DateTime.utc(2026, 1, 3),
+        ),
       ],
       _storeRules = {
         'tenant-1': _StorePriceRule(
@@ -382,7 +506,7 @@ final class FakeCatalogModule implements ICatalogModule {
   final List<_ProductUnit> _productUnits;
   final List<_StoredProduct> _products;
   final Map<String, _StorePriceRule> _storeRules;
-  int _nextProductId = 8;
+  int _nextProductId = 11;
   int _nextProductUnitId = 1;
 
   @override
@@ -506,8 +630,8 @@ final class FakeCatalogModule implements ICatalogModule {
         command as ApplyStorePriceRuleCommand,
       );
     } else if (command is SetProductUnitPriceBandCommand) {
-      throw UnimplementedError(
-        'SetProductUnitPriceBandCommand is implemented in slice #11.',
+      return _handleSetProductUnitPriceBand<TResult>(
+        command as SetProductUnitPriceBandCommand,
       );
     }
     if (command is RequestProductImageUploadCommand) {
@@ -585,6 +709,11 @@ final class FakeCatalogModule implements ICatalogModule {
     if (query is SuggestProductUnitPriceQuery) {
       return _handleSuggestProductUnitPrice<TResult>(
         query as SuggestProductUnitPriceQuery,
+      );
+    }
+    if (query is ListProductUnitPriceBandsQuery) {
+      return _handleListProductUnitPriceBands<TResult>(
+        query as ListProductUnitPriceBandsQuery,
       );
     }
     throw UnimplementedError('Unexpected query: ${query.runtimeType}');
@@ -1008,7 +1137,7 @@ final class FakeCatalogModule implements ICatalogModule {
       hasImages: product.hasImages,
       hasStock: product.hasStock,
       hasBasePrice: product.hasBasePrice,
-      hasPriceBand: product.hasPriceBand,
+      hasPriceBand: _productHasPriceBand(product),
       hasRequiredCustomFields: product.hasRequiredCustomFields,
       stockMode: product.stockMode,
       basePriceMode: product.basePriceMode,
@@ -1032,7 +1161,7 @@ final class FakeCatalogModule implements ICatalogModule {
       hasImages: product.hasImages,
       hasStock: product.hasStock,
       hasBasePrice: product.hasBasePrice,
-      hasPriceBand: product.hasPriceBand,
+      hasPriceBand: _productHasPriceBand(product),
       hasRequiredCustomFields: product.hasRequiredCustomFields,
       stockMode: product.stockMode,
       basePriceMode: product.basePriceMode,
@@ -1546,7 +1675,7 @@ final class FakeCatalogModule implements ICatalogModule {
       throw StaleBasePriceException();
     }
 
-    if (product.hasPriceBand && !command.confirmOverwrite) {
+    if (_productHasPriceBand(product) && !command.confirmOverwrite) {
       throw PriceBandOverwriteRequiredException(
         existingListPrice: product.listPrice,
         existingFloorPrice: product.floorPrice,
@@ -1574,6 +1703,278 @@ final class FakeCatalogModule implements ICatalogModule {
           floorPrice: prices.floorPrice,
           storePriceRuleId: rule.id,
           sourceType: PriceBandSourceType.ruleBased,
+          readinessSummary: _readinessSummaryFor(product),
+        )
+        as TResult;
+  }
+
+  bool _productHasStructuredUnits(String productId) {
+    return _productUnits.any((unit) => unit.productId == productId);
+  }
+
+  bool _productHasPriceBand(_StoredProduct product) {
+    final activeUnits = _productUnits
+        .where((unit) => unit.productId == product.id && unit.isActive)
+        .toList(growable: false);
+    if (activeUnits.isNotEmpty) {
+      return activeUnits.every((unit) => unit.hasCompletePriceBand);
+    }
+    return product.hasPriceBand;
+  }
+
+  List<_ProductUnit> _activeUnitsForProduct(String productId) {
+    return _productUnits
+        .where((unit) => unit.productId == productId && unit.isActive)
+        .toList(growable: false);
+  }
+
+  _ProductUnit? _resolveBaseUnit(String productId) {
+    for (final unit in _productUnits) {
+      if (unit.productId == productId && unit.isBaseUnit) {
+        return unit;
+      }
+    }
+    return null;
+  }
+
+  void _syncProductPriceBandSummary(_StoredProduct product) {
+    final baseUnit = _resolveBaseUnit(product.id);
+    if (baseUnit != null && baseUnit.hasCompletePriceBand) {
+      product
+        ..listPrice = baseUnit.listPrice
+        ..floorPrice = baseUnit.floorPrice
+        ..priceBandSourceType = baseUnit.priceBandSourceType
+        ..storePriceRuleId = baseUnit.storePriceRuleId
+        ..storePriceRuleName = baseUnit.storePriceRuleName
+        ..isCustomOverride = baseUnit.isCustomOverride;
+      return;
+    }
+
+    if (!_productHasPriceBand(product)) {
+      product
+        ..listPrice = null
+        ..floorPrice = null
+        ..priceBandSourceType = null
+        ..storePriceRuleId = null
+        ..storePriceRuleName = null
+        ..isCustomOverride = false;
+    }
+  }
+
+  double? _comparableBasePriceForUnit(_StoredProduct product, _ProductUnit unit) {
+    if (!product.hasBasePrice) {
+      return null;
+    }
+    if (unit.isBaseUnit) {
+      return product.baseCost;
+    }
+    if (!unit.hasConversionRate || unit.conversionRateToBase <= 0) {
+      return null;
+    }
+    return product.baseCost! * unit.conversionRateToBase;
+  }
+
+  List<PriceBandValidationWarningDto> _computePriceBandWarnings({
+    required _StoredProduct product,
+    required _ProductUnit unit,
+    required double listPrice,
+    required double floorPrice,
+  }) {
+    final comparableBase = _comparableBasePriceForUnit(product, unit);
+    if (comparableBase == null) {
+      if (!unit.isBaseUnit && product.hasBasePrice) {
+        return [
+          PriceBandValidationWarningDto(
+            code: 'cannot_compare_base_price',
+            severity: PriceBandValidationWarningSeverity.warning,
+            message: 'Không thể so sánh chắc chắn với Giá cơ sở do thiếu tỷ lệ quy đổi.',
+            field: PriceBandValidationField.listPrice,
+            baseUnitName: product.baseUnit,
+          ),
+        ];
+      }
+      return const [];
+    }
+
+    final warnings = <PriceBandValidationWarningDto>[];
+    if (listPrice < comparableBase) {
+      warnings.add(
+        PriceBandValidationWarningDto(
+          code: 'list_price_below_base_price',
+          severity: PriceBandValidationWarningSeverity.warning,
+          message: 'Giá niêm yết thấp hơn Giá cơ sở định giá.',
+          field: PriceBandValidationField.listPrice,
+          comparedBasePrice: comparableBase,
+          baseUnitName: product.baseUnit,
+        ),
+      );
+    }
+    if (floorPrice < comparableBase) {
+      warnings.add(
+        PriceBandValidationWarningDto(
+          code: 'floor_price_below_base_price',
+          severity: PriceBandValidationWarningSeverity.strongWarning,
+          message: 'Giá sàn thấp hơn Giá cơ sở định giá.',
+          field: PriceBandValidationField.floorPrice,
+          comparedBasePrice: comparableBase,
+          baseUnitName: product.baseUnit,
+        ),
+      );
+    }
+    return warnings;
+  }
+
+  ProductUnitPriceBandRowDto _toPriceBandRowDto(_ProductUnit unit) {
+    return ProductUnitPriceBandRowDto(
+      productUnitId: unit.id,
+      unitName: unit.name,
+      isBaseUnit: unit.isBaseUnit,
+      isActive: unit.isActive,
+      listPrice: unit.listPrice,
+      floorPrice: unit.floorPrice,
+      isMissing: !unit.hasCompletePriceBand,
+      sourceType: unit.priceBandSourceType,
+      storePriceRuleName: unit.storePriceRuleName,
+      isCustomOverride: unit.isCustomOverride,
+    );
+  }
+
+  TResult _handleListProductUnitPriceBands<TResult>(
+    ListProductUnitPriceBandsQuery query,
+  ) {
+    final product = _findProduct(query.productId);
+    if (product == null) {
+      throw ApplicationException('Product not found');
+    }
+    if (!product.hasBaseUnit) {
+      throw MissingBaseUnitException();
+    }
+
+    final structuredUnits = _activeUnitsForProduct(product.id);
+    if (structuredUnits.isEmpty) {
+      final syntheticId = '${product.id}-base';
+      return ProductUnitPriceBandsDto(
+            productId: product.id,
+            baseUnitName: product.baseUnit,
+            rows: [
+              ProductUnitPriceBandRowDto(
+                productUnitId: syntheticId,
+                unitName: product.baseUnit,
+                isBaseUnit: true,
+                isActive: true,
+                listPrice: product.listPrice,
+                floorPrice: product.floorPrice,
+                isMissing: !product.hasPriceBand,
+                sourceType: product.priceBandSourceType,
+                storePriceRuleName: product.storePriceRuleName,
+                isCustomOverride: product.isCustomOverride,
+              ),
+            ],
+          )
+          as TResult;
+    }
+
+    return ProductUnitPriceBandsDto(
+          productId: product.id,
+          baseUnitName: product.baseUnit,
+          rows: structuredUnits.map(_toPriceBandRowDto).toList(growable: false),
+        )
+        as TResult;
+  }
+
+  TResult _handleSetProductUnitPriceBand<TResult>(
+    SetProductUnitPriceBandCommand command,
+  ) {
+    if (command.listPrice < 0 || command.floorPrice < 0) {
+      throw ValidationException('Giá không được âm.');
+    }
+    if (command.floorPrice > command.listPrice) {
+      throw FloorPriceGreaterThanListPriceException();
+    }
+
+    final product = _findProduct(command.productId);
+    if (product == null) {
+      throw ApplicationException('Product not found');
+    }
+    if (!product.hasBaseUnit) {
+      throw MissingBaseUnitException();
+    }
+
+    if (_productHasStructuredUnits(product.id)) {
+      final unitId = command.productUnitId ?? _resolveBaseUnit(product.id)?.id;
+      final unit = unitId == null ? null : _findProductUnit(product.id, unitId);
+      if (unit == null) {
+        throw ApplicationException('Product unit not found');
+      }
+      if (!unit.isActive) {
+        throw InactiveProductUnitException();
+      }
+
+      final warnings = _computePriceBandWarnings(
+        product: product,
+        unit: unit,
+        listPrice: command.listPrice,
+        floorPrice: command.floorPrice,
+      );
+      if (warnings.isNotEmpty && !command.confirmAcknowledgeWarnings) {
+        throw PriceBandWarningsRequireAcknowledgmentException(warnings: warnings);
+      }
+
+      unit
+        ..listPrice = command.listPrice
+        ..floorPrice = command.floorPrice
+        ..priceBandSourceType = command.sourceType
+        ..storePriceRuleId = command.storePriceRuleId
+        ..isCustomOverride = command.sourceType == PriceBandSourceType.manual;
+
+      _syncProductPriceBandSummary(product);
+
+      return SetProductUnitPriceBandResult(
+            productId: product.id,
+            productUnitId: unit.id,
+            listPrice: command.listPrice,
+            floorPrice: command.floorPrice,
+            sourceType: command.sourceType,
+            storePriceRuleId: command.storePriceRuleId,
+            warnings: warnings,
+            readinessSummary: _readinessSummaryFor(product),
+          )
+          as TResult;
+    }
+
+    final syntheticUnit = _ProductUnit(
+      id: '${product.id}-base',
+      productId: product.id,
+      name: product.baseUnit,
+      conversionRateToBase: 1,
+      isBaseUnit: true,
+      isActive: true,
+    );
+    final warnings = _computePriceBandWarnings(
+      product: product,
+      unit: syntheticUnit,
+      listPrice: command.listPrice,
+      floorPrice: command.floorPrice,
+    );
+    if (warnings.isNotEmpty && !command.confirmAcknowledgeWarnings) {
+      throw PriceBandWarningsRequireAcknowledgmentException(warnings: warnings);
+    }
+
+    product
+      ..listPrice = command.listPrice
+      ..floorPrice = command.floorPrice
+      ..priceBandSourceType = command.sourceType
+      ..storePriceRuleId = command.storePriceRuleId
+      ..isCustomOverride = command.sourceType == PriceBandSourceType.manual;
+
+    return SetProductUnitPriceBandResult(
+          productId: product.id,
+          productUnitId: command.productUnitId,
+          listPrice: command.listPrice,
+          floorPrice: command.floorPrice,
+          sourceType: command.sourceType,
+          storePriceRuleId: command.storePriceRuleId,
+          warnings: warnings,
           readinessSummary: _readinessSummaryFor(product),
         )
         as TResult;

@@ -59,6 +59,10 @@ Object mapCatalogRpcError(RpcException error) {
     return FloorPriceGreaterThanListPriceException();
   }
 
+  if (message.contains('inactive_product_unit')) {
+    return InactiveProductUnitException();
+  }
+
   if (message.contains('stale_stock_quantity')) {
     return StaleStockQuantityException();
   }

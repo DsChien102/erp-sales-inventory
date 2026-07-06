@@ -1,5 +1,5 @@
 import '../../readiness/readiness_summary_dto.dart';
-import 'price_band_source_type.dart';
+import '../price_band/price_band_source_type.dart';
 
 final class ApplyStorePriceRuleResult {
   const ApplyStorePriceRuleResult({

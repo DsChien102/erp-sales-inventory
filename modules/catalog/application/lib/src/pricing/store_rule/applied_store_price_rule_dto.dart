@@ -1,4 +1,4 @@
-import 'price_band_source_type.dart';
+import '../price_band/price_band_source_type.dart';
 
 /// RPC apply result before readiness refresh in the handler.
 final class AppliedStorePriceRuleDto {

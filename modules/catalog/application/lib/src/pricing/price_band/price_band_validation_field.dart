@@ -1,0 +1,4 @@
+enum PriceBandValidationField {
+  listPrice,
+  floorPrice,
+}

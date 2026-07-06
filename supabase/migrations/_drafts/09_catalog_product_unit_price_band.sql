@@ -1,0 +1,372 @@
+-- EPIC-06/US-03: Product Unit Price Band — manual set/list + multi-unit readiness.
+-- Context: docs/themes/TH-02-product-pricing/harness/07-api-contracts.md (slice #11)
+-- Depends on: 03_catalog_product_readiness, 05_catalog_units, 08_catalog_store_price_rule
+-- Safety: idempotent draft only
+
+create or replace function catalog._product_operational_facts(
+  p_tenant_id uuid,
+  p_product_id uuid
+)
+returns table (
+  has_base_unit boolean,
+  has_images boolean,
+  has_stock boolean,
+  has_base_price boolean,
+  has_price_band boolean,
+  has_required_custom_fields boolean,
+  stock_mode text,
+  base_price_mode text
+)
+language sql
+stable
+security definer
+set search_path = catalog, pg_temp
+as $$
+  select
+    exists (
+      select 1
+      from catalog.product_units u
+      where u.product_id = p_product_id
+        and u.tenant_id = p_tenant_id
+        and u.is_base_unit = true
+    ) as has_base_unit,
+    exists (
+      select 1
+      from catalog.product_images i
+      where i.product_id = p_product_id
+        and i.tenant_id = p_tenant_id
+    ) as has_images,
+    exists (
+      select 1
+      from catalog.product_stock_profiles sp
+      where sp.product_id = p_product_id
+        and sp.tenant_id = p_tenant_id
+    ) as has_stock,
+    exists (
+      select 1
+      from catalog.product_base_price_profiles bp
+      where bp.product_id = p_product_id
+        and bp.tenant_id = p_tenant_id
+        and bp.base_price_amount is not null
+    ) as has_base_price,
+    case
+      when exists (
+        select 1
+        from catalog.product_units pu
+        where pu.product_id = p_product_id
+          and pu.tenant_id = p_tenant_id
+      ) then not exists (
+        select 1
+        from catalog.product_units pu
+        where pu.product_id = p_product_id
+          and pu.tenant_id = p_tenant_id
+          and pu.is_active = true
+          and not exists (
+            select 1
+            from catalog.product_unit_price_bands pb
+            where pb.product_unit_id = pu.id
+              and pb.product_id = p_product_id
+              and pb.tenant_id = p_tenant_id
+              and pb.list_price_amount is not null
+              and pb.floor_price_amount is not null
+              and pb.floor_price_amount <= pb.list_price_amount
+          )
+      )
+      else exists (
+        select 1
+        from catalog.product_unit_price_bands pb
+        join catalog.product_units bu
+          on bu.id = pb.product_unit_id
+         and bu.product_id = p_product_id
+         and bu.tenant_id = p_tenant_id
+         and bu.is_base_unit = true
+        where pb.product_id = p_product_id
+          and pb.tenant_id = p_tenant_id
+          and pb.list_price_amount is not null
+          and pb.floor_price_amount is not null
+      )
+    end as has_price_band,
+    true as has_required_custom_fields,
+    coalesce(
+      (
+        select sp.mode
+        from catalog.product_stock_profiles sp
+        where sp.product_id = p_product_id
+          and sp.tenant_id = p_tenant_id
+        limit 1
+      ),
+      'basic'
+    ) as stock_mode,
+    coalesce(
+      (
+        select case
+          when bp.mode = 'costingModule' then 'costing_module'
+          else 'manual'
+        end
+        from catalog.product_base_price_profiles bp
+        where bp.product_id = p_product_id
+          and bp.tenant_id = p_tenant_id
+        limit 1
+      ),
+      'manual'
+    ) as base_price_mode;
+$$;
+
+create or replace function catalog.set_product_unit_price_band(
+  p_tenant_id uuid,
+  p_product_id uuid,
+  p_list_price numeric,
+  p_floor_price numeric,
+  p_product_unit_id uuid default null,
+  p_source_type text default 'manual',
+  p_store_price_rule_id uuid default null
+)
+returns table (
+  product_id uuid,
+  product_unit_id uuid,
+  list_price numeric,
+  floor_price numeric,
+  source_type text,
+  store_price_rule_id uuid
+)
+language plpgsql
+security definer
+set search_path = catalog, iam, pg_temp
+as $$
+declare
+  v_actor_id uuid;
+  v_unit_id uuid;
+  v_existing_list numeric;
+  v_existing_floor numeric;
+  v_is_custom_override boolean;
+begin
+  v_actor_id := auth.uid();
+  if v_actor_id is null then
+    raise exception 'not authenticated';
+  end if;
+
+  if not iam.has_permission(p_tenant_id, 'catalog.product.manage_pricing') then
+    raise exception 'permission denied: catalog.product.manage_pricing';
+  end if;
+
+  if not exists (
+    select 1
+    from catalog.products
+    where id = p_product_id
+      and tenant_id = p_tenant_id
+      and deleted_at is null
+  ) then
+    raise exception 'product not found';
+  end if;
+
+  perform catalog._ensure_product_has_base_unit(p_tenant_id, p_product_id);
+
+  if p_list_price < 0 or p_floor_price < 0 then
+    raise exception 'validation_exception: Giá không được âm.';
+  end if;
+
+  if p_floor_price > p_list_price then
+    raise exception 'floor_price_greater_than_list_price';
+  end if;
+
+  if p_source_type not in ('manual', 'ruleBased') then
+    raise exception 'validation_exception: source_type không hợp lệ.';
+  end if;
+
+  if p_product_unit_id is null then
+    v_unit_id := catalog._resolve_base_product_unit_id(
+      p_tenant_id,
+      p_product_id,
+      null
+    );
+  else
+    select pu.id
+    into v_unit_id
+    from catalog.product_units pu
+    where pu.id = p_product_unit_id
+      and pu.product_id = p_product_id
+      and pu.tenant_id = p_tenant_id;
+  end if;
+
+  if v_unit_id is null then
+    raise exception 'product unit not found';
+  end if;
+
+  if not exists (
+    select 1
+    from catalog.product_units pu
+    where pu.id = v_unit_id
+      and pu.is_active = true
+  ) then
+    raise exception 'inactive_product_unit';
+  end if;
+
+  select pb.list_price_amount, pb.floor_price_amount
+  into v_existing_list, v_existing_floor
+  from catalog.product_unit_price_bands pb
+  where pb.product_id = p_product_id
+    and pb.product_unit_id = v_unit_id
+  limit 1;
+
+  v_is_custom_override := p_source_type = 'manual';
+
+  insert into catalog.product_unit_price_bands (
+    tenant_id,
+    product_id,
+    product_unit_id,
+    list_price_amount,
+    floor_price_amount,
+    store_price_rule_id,
+    source_type,
+    is_custom_override,
+    updated_at
+  )
+  values (
+    p_tenant_id,
+    p_product_id,
+    v_unit_id,
+    p_list_price,
+    p_floor_price,
+    p_store_price_rule_id,
+    p_source_type,
+    v_is_custom_override,
+    now()
+  )
+  on conflict on constraint uq_product_unit_price_bands_unit do update set
+    list_price_amount = excluded.list_price_amount,
+    floor_price_amount = excluded.floor_price_amount,
+    store_price_rule_id = excluded.store_price_rule_id,
+    source_type = excluded.source_type,
+    is_custom_override = excluded.is_custom_override,
+    updated_at = now();
+
+  insert into catalog.product_change_history (tenant_id, product_id, action, payload, actor_id)
+  values (
+    p_tenant_id,
+    p_product_id,
+    'set_product_unit_price_band',
+    jsonb_build_object(
+      'product_unit_id', v_unit_id,
+      'list_price', p_list_price,
+      'floor_price', p_floor_price,
+      'previous_list_price', v_existing_list,
+      'previous_floor_price', v_existing_floor,
+      'source_type', p_source_type,
+      'store_price_rule_id', p_store_price_rule_id
+    ),
+    v_actor_id
+  );
+
+  return query
+  select
+    p_product_id,
+    v_unit_id,
+    p_list_price,
+    p_floor_price,
+    p_source_type,
+    p_store_price_rule_id;
+end;
+$$;
+
+create or replace function catalog.list_product_unit_price_bands(
+  p_tenant_id uuid,
+  p_product_id uuid
+)
+returns table (
+  product_id uuid,
+  base_unit_name text,
+  currency text,
+  product_unit_id uuid,
+  unit_name text,
+  is_base_unit boolean,
+  is_active boolean,
+  list_price numeric,
+  floor_price numeric,
+  source_type text,
+  store_price_rule_name text,
+  is_custom_override boolean
+)
+language plpgsql
+security definer
+set search_path = catalog, iam, pg_temp
+as $$
+declare
+  v_base_unit_name text;
+  v_currency text;
+begin
+  if auth.uid() is null then
+    raise exception 'not authenticated';
+  end if;
+
+  if not iam.has_permission(p_tenant_id, 'catalog.product.view_detail') then
+    raise exception 'permission denied: catalog.product.view_detail';
+  end if;
+
+  if not exists (
+    select 1
+    from catalog.products
+    where id = p_product_id
+      and tenant_id = p_tenant_id
+      and deleted_at is null
+  ) then
+    raise exception 'product not found';
+  end if;
+
+  perform catalog._ensure_product_has_base_unit(p_tenant_id, p_product_id);
+
+  select pu.unit_name
+  into v_base_unit_name
+  from catalog.product_units pu
+  where pu.product_id = p_product_id
+    and pu.tenant_id = p_tenant_id
+    and pu.is_base_unit = true
+  limit 1;
+
+  select coalesce(bp.currency, 'VND')
+  into v_currency
+  from catalog.product_base_price_profiles bp
+  where bp.product_id = p_product_id
+    and bp.tenant_id = p_tenant_id
+  limit 1;
+
+  v_currency := coalesce(v_currency, 'VND');
+
+  return query
+  select
+    p_product_id,
+    v_base_unit_name,
+    v_currency,
+    pu.id,
+    pu.unit_name,
+    pu.is_base_unit,
+    pu.is_active,
+    pb.list_price_amount,
+    pb.floor_price_amount,
+    pb.source_type,
+    sr.name,
+    coalesce(pb.is_custom_override, false)
+  from catalog.product_units pu
+  left join catalog.product_unit_price_bands pb
+    on pb.product_unit_id = pu.id
+   and pb.product_id = p_product_id
+   and pb.tenant_id = p_tenant_id
+  left join catalog.store_price_rules sr
+    on sr.id = pb.store_price_rule_id
+  where pu.product_id = p_product_id
+    and pu.tenant_id = p_tenant_id
+    and pu.is_active = true
+  order by pu.is_base_unit desc, pu.unit_name asc;
+end;
+$$;
+
+revoke all on function catalog.set_product_unit_price_band(
+  uuid, uuid, numeric, numeric, uuid, text, uuid
+) from public, anon;
+grant execute on function catalog.set_product_unit_price_band(
+  uuid, uuid, numeric, numeric, uuid, text, uuid
+) to authenticated, service_role;
+
+revoke all on function catalog.list_product_unit_price_bands(uuid, uuid)
+  from public, anon;
+grant execute on function catalog.list_product_unit_price_bands(uuid, uuid)
+  to authenticated, service_role;

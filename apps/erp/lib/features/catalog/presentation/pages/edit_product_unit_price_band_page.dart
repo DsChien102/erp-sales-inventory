@@ -1,126 +1,147 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:vet45_design_system/design_system.dart';
-import 'package:vet45_catalog_application/application.dart';
 import 'package:get_it/get_it.dart';
+import 'package:go_router/go_router.dart';
+import 'package:vet45_catalog_application/application.dart';
+import 'package:vet45_catalog_presentation/presentation.dart';
+import 'package:vet45_design_system/design_system.dart';
+import 'package:vet45_shared_application/application.dart';
 
-import '../bloc/edit_product_unit_price_band_cubit.dart';
-import '../bloc/edit_product_unit_price_band_state.dart';
 import '../widgets/price_band_calculation_type_selector.dart';
-import '../widgets/price_band_overwrite_dialog.dart';
 
-String _formatCurrency(double? amount) {
-  if (amount == null) return '—';
-  final str = amount.toStringAsFixed(0);
-  final formatted = str.replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (m) => '${m[1]}.');
-  return '$formatted đ';
+class EditProductUnitPriceBandRouteArgs {
+  final ProductUnitPriceBandRowDto row;
+  final String productId;
+  final String productName;
+
+  EditProductUnitPriceBandRouteArgs({
+    required this.row,
+    required this.productId,
+    this.productName = '',
+  });
 }
 
 class EditProductUnitPriceBandPage extends StatelessWidget {
   const EditProductUnitPriceBandPage({
     super.key,
-    required this.tenantId,
-    required this.productId,
-    this.productUnitId,
-    this.unitName,
+    required this.args,
   });
 
-  final String tenantId;
-  final String productId;
-  final String? productUnitId;
-  final String? unitName;
+  final EditProductUnitPriceBandRouteArgs args;
 
   @override
   Widget build(BuildContext context) {
-    final dynamicColors = context.vColors;
-
     return BlocProvider(
       create: (context) => EditProductUnitPriceBandCubit(
-        tenantId: tenantId,
-        productId: productId,
-        productUnitId: productUnitId,
         moduleMediator: GetIt.instance<ICatalogModule>(),
+        executionContext: GetIt.instance<IExecutionContext>(),
+        productId: args.productId,
+        productUnitId: args.row.productUnitId,
       )..loadInitialData(),
-      child: BlocListener<EditProductUnitPriceBandCubit, EditProductUnitPriceBandState>(
-        listener: (context, state) async {
+      child: BlocConsumer<EditProductUnitPriceBandCubit, EditProductUnitPriceBandState>(
+        listener: (context, state) {
           if (state is EditProductUnitPriceBandSuccess) {
-            Navigator.of(context).pop(true);
-          } else if (state is EditProductUnitPriceBandNeedsOverwriteConfirm) {
-            final confirmed = await showPriceBandOverwriteDialog(
-              context,
-              existingListPrice: state.existingListPrice,
-              existingFloorPrice: state.existingFloorPrice,
-            );
-            if (!context.mounted) return;
-            if (confirmed == true) {
-              await context.read<EditProductUnitPriceBandCubit>().confirmOverwrite();
-            } else {
-              context.read<EditProductUnitPriceBandCubit>().cancelOverwrite();
-            }
-          } else if (state is EditProductUnitPriceBandLoaded && state.error != null) {
             VToast.show(
               context,
-              title: 'Lỗi',
-              message: state.error!,
-              type: VToastType.danger,
+              title: 'Thành công',
+              message: 'Đã cập nhật khung giá bán.',
+              type: VToastType.success,
             );
+            context.pop(true); // Return true to signal refresh
+          } else if (state is EditProductUnitPriceBandLoaded && state.error != null) {
+            if (state.error == 'WARNING_REQUIRE_ACK') {
+              _showWarningAckDialog(context);
+            } else {
+              VToast.show(
+                context,
+                title: 'Lỗi',
+                message: state.error!,
+                type: VToastType.danger,
+              );
+            }
           }
         },
-        child: Scaffold(
-          key: const Key('wgt_e06_u02_fr02_01'),
-          backgroundColor: dynamicColors.background,
-          appBar: VAppBar(
-            title: 'Khung giá bán',
-            titleStyle: VTypography.headingH3.copyWith(fontWeight: FontWeight.bold),
-            subtitle: unitName ?? 'Đơn vị cơ sở',
-            leading: IconButton(
-              icon: Icon(Icons.arrow_back, color: dynamicColors.textPrimary),
-              onPressed: () => Navigator.of(context).pop(),
+        builder: (context, state) {
+          final isLoading =
+              state is EditProductUnitPriceBandInitial || state is EditProductUnitPriceBandLoading;
+          final isSubmitting = state is EditProductUnitPriceBandLoaded && state.isSubmitting;
+          final canSubmit = state is EditProductUnitPriceBandLoaded && state.canSubmit;
+
+          return Scaffold(
+            appBar: VAppBar(
+              title: 'Khung giá bán',
+              titleStyle: VTypography.headingH3.copyWith(fontWeight: FontWeight.bold),
+              subtitle: args.productName.isNotEmpty ? args.productName : null,
+              centerTitle: false,
+              leading: IconButton(
+                icon: const Icon(Icons.arrow_back),
+                onPressed: () => context.pop(),
+              ),
             ),
-          ),
-          body: BlocBuilder<EditProductUnitPriceBandCubit, EditProductUnitPriceBandState>(
-            builder: (context, state) {
-              if (state is EditProductUnitPriceBandLoading) {
-                return const Center(child: CircularProgressIndicator());
-              }
-
-              if (state is! EditProductUnitPriceBandLoaded) {
-                return const Center(child: Text('Lỗi tải dữ liệu'));
-              }
-
-              return Column(
-                children: [
-                  Expanded(
-                    child: SingleChildScrollView(
+            body: isLoading
+                ? const Center(child: CircularProgressIndicator())
+                : SingleChildScrollView(
+                    child: Padding(
                       padding: const EdgeInsets.all(16.0),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                          _buildBasePriceCard(context, state),
-                          const SizedBox(height: 16),
-                          const PriceBandCalculationTypeSelector(),
+                          if (state is EditProductUnitPriceBandLoaded) ...[
+                            _buildTopCard(context, state),
+                            const SizedBox(height: 16),
+                            const PriceBandCalculationTypeSelector(),
+                          ],
                         ],
                       ),
                     ),
                   ),
-                  _buildBottomBar(context, state),
-                ],
-              );
-            },
-          ),
-        ),
+            bottomNavigationBar: SafeArea(
+              child: Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: context.vColors.surface,
+                  border: Border(
+                    top: BorderSide(color: context.vColors.borderDefault),
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: VButton(
+                        label: 'Hủy',
+                        variant: VButtonVariant.secondary,
+                        onPressed: () => context.pop(),
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: VButton(
+                        label: 'Lưu thay đổi',
+                        variant: VButtonVariant.primary,
+                        onPressed: canSubmit
+                            ? () => context.read<EditProductUnitPriceBandCubit>().save()
+                            : null,
+                        isLoading: isSubmitting,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          );
+        },
       ),
     );
   }
 
-  Widget _buildBasePriceCard(BuildContext context, EditProductUnitPriceBandLoaded state) {
+  Widget _buildTopCard(BuildContext context, EditProductUnitPriceBandLoaded state) {
     final dynamicColors = context.vColors;
 
     return Container(
-      padding: const EdgeInsets.all(16.0),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: dynamicColors.surface,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(8),
         border: Border.all(color: dynamicColors.borderDefault),
       ),
       child: Row(
@@ -132,64 +153,52 @@ class EditProductUnitPriceBandPage extends StatelessWidget {
             children: [
               Text(
                 'Giá vốn cơ sở',
-                style: VTypography.bodyDefault.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
+                style: VTypography.bodyDefault.copyWith(fontWeight: FontWeight.bold),
               ),
-              const SizedBox(height: 2),
+              const SizedBox(height: 4),
               Text(
-                '1 ${unitName ?? 'Đơn vị cơ sở'}',
-                style: VTypography.bodySmall.copyWith(
-                  color: dynamicColors.textSecondary,
-                ),
+                '1 ${args.row.unitName.toLowerCase()}',
+                style: VTypography.bodySmall.copyWith(color: dynamicColors.textSecondary),
               ),
             ],
           ),
           Text(
-            _formatCurrency(state.suggestion.basePrice),
-            style: VTypography.headingH4.copyWith(
-              fontWeight: FontWeight.bold,
-            ),
+            state.suggestion.basePrice > 0
+                ? '${state.suggestion.basePrice.toStringAsFixed(0)} đ'
+                : '—',
+            style: VTypography.headingH4.copyWith(fontWeight: FontWeight.bold),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildBottomBar(BuildContext context, EditProductUnitPriceBandLoaded state) {
-    final dynamicColors = context.vColors;
-
-    return Container(
-      padding: const EdgeInsets.all(16.0),
-      decoration: BoxDecoration(
-        color: dynamicColors.surface,
-        border: Border(
-          top: BorderSide(color: dynamicColors.borderDefault),
-        ),
-      ),
-      child: SafeArea(
-        child: Row(
-          children: [
-            Expanded(
-              child: VButton(
-                label: 'Hủy',
-                variant: VButtonVariant.secondary,
-                onPressed: () => Navigator.of(context).pop(),
-              ),
+  void _showWarningAckDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (ctx) {
+        return AlertDialog(
+          title: const Text('Cảnh báo'),
+          content: const Text(
+            'Khung giá bạn thiết lập có thể vi phạm biên lợi nhuận hoặc giá sàn thấp hơn giá vốn. Bạn có chắc chắn muốn lưu?',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(ctx).pop(),
+              child: const Text('Hủy'),
             ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: VButton(
-                key: const Key('btn_price_band_save'),
-                label: 'Lưu',
-                variant: VButtonVariant.primary,
-                isLoading: state.isSubmitting,
-                onPressed: state.canSubmit ? () => context.read<EditProductUnitPriceBandCubit>().submit() : null,
-              ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(ctx).pop();
+                context.read<EditProductUnitPriceBandCubit>().save(
+                  confirmAcknowledgeWarnings: true,
+                );
+              },
+              child: const Text('Tiếp tục lưu'),
             ),
           ],
-        ),
-      ),
+        );
+      },
     );
   }
 }

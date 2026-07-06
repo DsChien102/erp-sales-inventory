@@ -202,24 +202,15 @@ final appRouter = GoRouter(
       name: 'products.items.pcc.price-bands',
       builder: (context, state) {
         final args = state.extra as ProductPriceBandsRouteArgs;
-        return ProductPriceBandsPage(
-          product: args.product,
-          basePriceCard: args.basePriceCard,
-          priceBandCard: args.priceBandCard,
-          unitName: args.unitName,
-        );
+        return ProductPriceBandsPage(args: args);
       },
     ),
     GoRoute(
-      path: '/products/items/pcc/edit-price-band',
-      name: 'products.items.pcc.edit-price-band',
+      path: '/products/items/pcc/price-bands/edit',
+      name: 'products.items.pcc.price-bands.edit',
       builder: (context, state) {
         final args = state.extra as EditProductUnitPriceBandRouteArgs;
-        return EditProductUnitPriceBandPage(
-          tenantId: GetIt.instance<ICurrentTenant>().tenantId!,
-          productId: args.product.id,
-          unitName: args.unitName,
-        );
+        return EditProductUnitPriceBandPage(args: args);
       },
     ),
     GoRoute(

@@ -680,7 +680,6 @@ Widget keys: `wgt_e06_u01_fr01_01` (manual base price page), `input_base_price_a
 | `SetStorePriceRuleCommand` | tenantId, name, listMarkupRatio, floorMarkupRatio, status? | `SetStorePriceRuleResult` | Validation, PermissionDenied |
 | `SuggestProductUnitPriceQuery` | tenantId, productId, productUnitId? | `ProductUnitPriceSuggestionDto` | PermissionDenied, NotFound, `MissingBaseUnitException` |
 | `ApplyStorePriceRuleCommand` | tenantId, productId, productUnitId?, storePriceRuleId?, confirmOverwrite?, basePriceVersion? | `ApplyStorePriceRuleResult` | Validation, `MissingBaseUnitException`, `MissingBasePriceException`, `StorePriceRuleNotFoundException`, `StorePriceRuleInactiveException`, `PriceBandOverwriteRequiredException`, `StaleBasePriceException` |
-| `SetProductUnitPriceBandCommand` | tenantId, productId, productUnitId?, listPrice, floorPrice, sourceType?, storePriceRuleId? | `SetProductUnitPriceBandResult` | **stub slice #11** — types only |
 
 Package: `vet45_catalog_application` — `pricing/store_rule/`.
 
@@ -693,8 +692,7 @@ Supporting types:
 | `StorePriceCalculationType` | `markup` (Foundation; `margin` deferred) |
 | `ProductUnitPriceSuggestionDto` | productId, productUnitId?, unitName?, basePrice, currency, suggestedListPrice?, suggestedFloorPrice?, storePriceRuleId?, storePriceRuleName?, basePriceVersion?, canSuggest, unavailableReason? |
 | `ApplyStorePriceRuleResult` | productId, productUnitId?, listPrice, floorPrice, storePriceRuleId, sourceType, readinessSummary |
-| `PriceBandSourceType` | `ruleBased` \| `manual` |
-| `SetProductUnitPriceBandResult` | stub slice #11 |
+| `PriceBandSourceType` | `ruleBased` \| `manual` — shared with §EPIC-06/US-03 |
 
 Read path (PCC): `GetProductControlCenterQuery` → `ProductPriceBandCardDto` extended with `sourceType`, `storePriceRuleName`, `isCustomOverride`.
 
@@ -702,9 +700,9 @@ Read path (PCC): `GetProductControlCenterQuery` → `ProductPriceBandCardDto` ex
 
 - Foundation MVP: **1 Store Price Rule per tenant** (`GetStorePriceRuleQuery` returns `null` or single rule). Multi-rule list + EC-04 deferred.
 - Formula (markup): `suggestedListPrice = round(basePrice × (1 + listMarkupRatio))`, `suggestedFloorPrice = round(basePrice × (1 + floorMarkupRatio))`; `floor ≤ list`.
-- Suggestion is **preview only** (FR-02 BR-02); persist via `ApplyStorePriceRuleCommand` or manual `SetProductUnitPriceBandCommand` (slice #11).
+- Suggestion is **preview only** (FR-02 BR-02); persist via `ApplyStorePriceRuleCommand` or manual `SetProductUnitPriceBandCommand` (§EPIC-06/US-03).
 - `SetInitialPriceBandCommand.useStoreRule` is **deprecated** — use `SuggestProductUnitPriceQuery` + `ApplyStorePriceRuleCommand` instead.
-- Multi-UOM suggestion per conversion unit deferred to slice #11; contract uses base unit when `productUnitId` omitted.
+- Multi-UOM suggestion per conversion unit: see `SuggestProductUnitPriceQuery` with `productUnitId`; manual persist per unit via §EPIC-06/US-03.
 - Port: `IStorePriceRuleGateway` (contract interface; BE implements in infrastructure).
 
 Permissions:
@@ -774,6 +772,90 @@ Tests: `scn_contract_e06_u02_*` in `fake_catalog_module_test.dart` (group `EPIC-
 
 ---
 
+## EPIC-06 / US-03 — Product Unit Price Band (slice #11)
+
+**Status:** CONTRACT `done` · BE `done` · FE `todo` · E2E `todo`
+
+### Commands / Queries
+
+| Symbol | Input (summary) | Success | Errors |
+| ------ | --------------- | ------- | ------ |
+| `SetProductUnitPriceBandCommand` | tenantId, productId, listPrice, floorPrice, productUnitId?, sourceType?, storePriceRuleId?, confirmAcknowledgeWarnings? | `SetProductUnitPriceBandResult` | Validation, `MissingBaseUnitException`, `InactiveProductUnitException`, `FloorPriceGreaterThanListPriceException`, `PriceBandWarningsRequireAcknowledgmentException` |
+| `ListProductUnitPriceBandsQuery` | tenantId, productId | `ProductUnitPriceBandsDto` | PermissionDenied, NotFound, `MissingBaseUnitException` |
+
+Package: `vet45_catalog_application` — `pricing/price_band/`.
+
+Supporting types:
+
+| Type | Fields |
+| ---- | ------ |
+| `SetProductUnitPriceBandResult` | productId, productUnitId?, listPrice, floorPrice, sourceType, storePriceRuleId?, warnings[], readinessSummary |
+| `ProductUnitPriceBandsDto` | productId, baseUnitName, currency, rows[] |
+| `ProductUnitPriceBandRowDto` | productUnitId, unitName, isBaseUnit, isActive, listPrice?, floorPrice?, isMissing, sourceType?, storePriceRuleName?, isCustomOverride |
+| `PriceBandValidationWarningDto` | code, severity, message, field, comparedBasePrice?, baseUnitName? |
+| `PriceBandValidationWarningSeverity` | `warning` \| `strongWarning` |
+| `PriceBandValidationField` | `listPrice` \| `floorPrice` |
+| `PriceBandSourceType` | `ruleBased` \| `manual` (shared with US-02) |
+
+Read path (PCC summary): `GetProductControlCenterQuery` → `ProductPriceBandCardDto` (base unit summary).
+
+**Scope / rules:**
+
+- FR-01: Giá niêm yết + Giá sàn theo từng **đơn vị đang active**; `productUnitId` omit → base unit.
+- FR-02 Foundation MVP: **warn-only** so với Giá cơ sở — `confirmAcknowledgeWarnings=true` để lưu khi có warnings; block policy deferred.
+- Warning codes: `list_price_below_base_price`, `floor_price_below_base_price`, `cannot_compare_base_price` (thiếu tỷ lệ quy đổi).
+- FR-03: `readinessSummary` refresh; `missing_price_band` chỉ clear khi **mọi** đơn vị active có band hợp lệ.
+- FR-04: change history qua BE RPC `set_product_unit_price_band`; read qua PCC `changeHistoryPreview` (không thêm query mới ở contract).
+- Unit sales roles (EPIC-04/FR-02) **pending** — Foundation coi mọi đơn vị active cần band.
+- `SetInitialPriceBandCommand` (guided create slice #2) giữ nguyên — không deprecate.
+- Port: `IProductPriceBandGateway` (BE lane implement).
+
+Permissions:
+
+- `SetProductUnitPriceBandCommand` → `@RequiresPermission(CatalogPermissions.managePricing)`
+- `ListProductUnitPriceBandsQuery` → `@RequiresPermission(CatalogPermissions.viewDetail)`
+
+### RPC mapping (BE)
+
+| Use case | RPC / view | Params (summary) | Notes |
+| -------- | ---------- | ---------------- | ----- |
+| Set price band | `catalog.set_product_unit_price_band` | `p_tenant_id`, `p_product_id`, `p_list_price`, `p_floor_price`, `p_product_unit_id?`, `p_source_type?`, `p_store_price_rule_id?` | Upsert per unit; `is_custom_override=true` when `source_type=manual` |
+| List bands per unit | `catalog.list_product_unit_price_bands` | `p_tenant_id`, `p_product_id` | Rows for active `product_units`; left join bands + store rule name |
+| Readiness facts | `catalog._product_operational_facts` (redefined) | existing | `has_price_band` true when **all** active units have valid band |
+
+**Guards:** `inactive_product_unit`, `floor_price_greater_than_list_price`, `validation_exception` (negative prices), `missing base unit`, `product not found`
+
+**Change history:** `set_product_unit_price_band` action with `product_unit_id`, list/floor, previous values, `source_type`, `store_price_rule_id`
+
+Draft: [`supabase/migrations/_drafts/09_catalog_product_unit_price_band.sql`](../../../../supabase/migrations/_drafts/09_catalog_product_unit_price_band.sql)
+
+**BE tests:** `product_unit_price_band_handlers_test.dart` (`scn_e06_u03_*`), `product_price_band_rpc_mapper_test.dart`
+
+### Fake scenarios (FE)
+
+| scenario_id | trigger | fake response |
+| ----------- | ------- | ------------- |
+| `scn_contract_e06_u03_fr01_01` | `SetProductUnitPriceBandCommand` `product-4` | band saved + readiness updated |
+| `scn_contract_e06_u03_fr01_02` | floor > list | `FloorPriceGreaterThanListPriceException` |
+| `scn_contract_e06_u03_fr01_03` | `ListProductUnitPriceBandsQuery` `product-9` | 2 rows Lọ/Hộp, both missing |
+| `scn_contract_e06_u03_fr01_04` | set on inactive unit `product-1-unit-thung` | `InactiveProductUnitException` |
+| `scn_contract_e06_u03_fr02_01` | list < base on `product-11`, no confirm | `PriceBandWarningsRequireAcknowledgmentException` |
+| `scn_contract_e06_u03_fr02_02` | same with `confirmAcknowledgeWarnings=true` | success + warnings |
+| `scn_contract_e06_u03_fr02_03` | conversion unit `product-11-hop` unknown rate | `cannot_compare_base_price` warning |
+| `scn_contract_e06_u03_fr03_01` | set band `product-4` | readiness bỏ `missing_price_band` |
+| `scn_contract_e06_u03_fr03_02` | set base only on `product-9` | blocker còn (Hộp thiếu) |
+
+Fake seed: `product-9` (multi-UOM, no band), `product-10` (Lọ có band, Hộp thiếu), `product-11` (base 100k, warn path).
+
+Tests: `scn_contract_e06_u03_*` in `fake_catalog_module_test.dart` (group `EPIC-06 / US-03 contract`).
+
+### Parallel notes
+
+- FE có thể fake: **yes**
+- E2E prerequisite: US-01 (data), UOM (slice #6–7)
+
+---
+
 ## EPIC-03 / US-01 — Cấu hình nhóm & trường (slice #16)
 
 ### Commands / Queries
@@ -822,7 +904,7 @@ Tests: `scn_contract_e06_u02_*` in `fake_catalog_module_test.dart` (group `EPIC-
 | EPIC-05 US-01..02 | Stock profile + basic stock adjust | done |
 | EPIC-06 US-01 | Manual base price (FR-03 costing read **pending**) | done |
 | EPIC-06 US-02 | Store Price Rule | done |
-| EPIC-06 US-03 | Product Unit Price Band | todo |
+| EPIC-06 US-03 | Product Unit Price Band | done |
 | EPIC-06 US-04 | ProductPriceBandSnapshot consumers | todo |
 | EPIC-07 US-01..04 | Lifecycle, change history | todo |
 | EPIC-03 US-02 | UpsertCustomFieldValuesCommand | todo |

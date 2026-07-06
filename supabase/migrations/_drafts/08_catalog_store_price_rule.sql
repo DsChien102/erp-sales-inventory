@@ -478,7 +478,7 @@ begin
     false,
     now()
   )
-  on conflict (product_id, product_unit_id) do update set
+  on conflict on constraint uq_product_unit_price_bands_unit do update set
     list_price_amount = excluded.list_price_amount,
     floor_price_amount = excluded.floor_price_amount,
     store_price_rule_id = excluded.store_price_rule_id,

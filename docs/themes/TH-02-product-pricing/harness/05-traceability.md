@@ -221,7 +221,7 @@ Mở đầy đủ khi CONTRACT lane bắt đầu.
 | FR-01 | CONTRACT | §EPIC-06-US-02 | application | `GetStorePriceRuleQuery`, `SetStorePriceRuleCommand`, `StorePriceRuleDto` | scn_contract_e06_u02_fr01_* | done |
 | FR-02 | CONTRACT | §EPIC-06-US-02 | application | `SuggestProductUnitPriceQuery`, `ProductUnitPriceSuggestionDto` | scn_contract_e06_u02_fr02_* | done |
 | FR-03 | CONTRACT | §EPIC-06-US-02 | application | `ApplyStorePriceRuleCommand`, `ApplyStorePriceRuleResult` | scn_contract_e06_u02_fr03_* | done |
-| FR-04 | CONTRACT | §EPIC-06-US-02 | application | `ProductPriceBandCardDto` override fields; `SetProductUnitPriceBandCommand` stub (slice #11) | scn_contract_e06_u02_fr04_01 | done |
+| FR-04 | CONTRACT | §EPIC-06-US-02 | application | `ProductPriceBandCardDto` override fields; manual band via §EPIC-06-US-03 | scn_contract_e06_u02_fr04_01 | done |
 | FR-01 | BE | §EPIC-06-US-02 | application + infrastructure | `GetStorePriceRuleQueryHandler`, `SetStorePriceRuleCommandHandler`, `SupabaseStorePriceRuleGateway`, draft RPC | scn_e06_u02_fr01_01 | done |
 | FR-02 | BE | §EPIC-06-US-02 | application + infrastructure | `SuggestProductUnitPriceQueryHandler`, `suggest_product_unit_price` RPC | scn_e06_u02_fr02_01 | done |
 | FR-03 | BE | §EPIC-06-US-02 | application + infrastructure | `ApplyStorePriceRuleCommandHandler`, `apply_store_price_rule` RPC | scn_e06_u02_fr03_01 | done |
@@ -233,6 +233,24 @@ Mở đầy đủ khi CONTRACT lane bắt đầu.
 | FR-02 | E2E | §EPIC-06-US-02 | erp | Suggestion in price band editor | e2e_e06_u02_fr02_* | done |
 | FR-03 | E2E | §EPIC-06-US-02 | erp | Apply rule + overwrite confirm | e2e_e06_u02_fr03_01..02 | done |
 | FR-04 | E2E | §EPIC-06-US-02 | erp | PCC custom override label | e2e_e06_u02_fr04_01 | done |
+
+---
+
+## EPIC-06 / US-03 — Product Unit Price Band (slice #11)
+
+| Req ID | Role | Contract § | Enforce layer | Artifact | Test id | Status |
+| ------ | ---- | ---------- | ------------- | -------- | ------- | ------ |
+| US-03 | CONTRACT | §EPIC-06-US-03 | application | Price band command/query, DTOs, `FakeCatalogModule`, `IProductPriceBandGateway` | scn_contract_e06_u03_* | done |
+| FR-01 | CONTRACT | §EPIC-06-US-03 | application | `SetProductUnitPriceBandCommand`, `ListProductUnitPriceBandsQuery`, per-unit rows | scn_contract_e06_u03_fr01_* | done |
+| FR-02 | CONTRACT | §EPIC-06-US-03 | application | `PriceBandValidationWarningDto`, `confirmAcknowledgeWarnings` warn-only | scn_contract_e06_u03_fr02_* | done |
+| FR-03 | CONTRACT | §EPIC-06-US-03 | application | `readinessSummary` on result; multi-unit partial blocker | scn_contract_e06_u03_fr03_* | done |
+| FR-04 | CONTRACT | §EPIC-06-US-03 | application | Change history via BE RPC spec; read `changeHistoryPreview` | — | done (doc) |
+| FR-01 | BE | §EPIC-06-US-03 | application + infrastructure | `SetProductUnitPriceBandCommandHandler`, `ListProductUnitPriceBandsQueryHandler`, `SupabaseProductPriceBandGateway`, draft RPC | scn_e06_u03_fr01_* | done |
+| FR-02 | BE | §EPIC-06-US-03 | application | `PriceBandWarningCalculator` + handler warn-only gate | scn_e06_u03_fr02_* | done |
+| FR-03 | BE | §EPIC-06-US-03 | application + infrastructure | `_product_operational_facts` multi-unit `has_price_band` + readiness result | scn_e06_u03_fr03_* | done |
+| FR-04 | BE | §EPIC-06-US-03 | infrastructure | Change history in `set_product_unit_price_band` RPC | — | done |
+| FR-01..03 | FE | §EPIC-06-US-03 | presentation | `ProductPriceBandsPage`, `EditProductUnitPriceBandPage`, `PriceBandCalculationTypeSelector`, cubits | wgt_e06_u03_fr01_01 | done |
+| FR-01..03 | E2E | §EPIC-06-US-03 | erp | E2E test cho price bands `product_price_bands_e2e_test.dart` | e2e_e06_u03_fr01_01 | done |
 
 ---
 
