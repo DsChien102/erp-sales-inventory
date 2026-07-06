@@ -149,6 +149,7 @@ Mở đầy đủ khi CONTRACT lane bắt đầu.
 | FR-02 | BE | §EPIC-04-US-02 | application | Unit roles (bán/nhập/hiển thị) | — | **pending** |
 | FR-03 | BE | §EPIC-04-US-02 | application | Deactivate unit | scn_e04_u02_fr03_01 | todo |
 | FR-04 | BE | §EPIC-04-US-02 | application | Reactivate unit | scn_e04_u02_fr04_01 | todo |
+| FR-01..04 | FE | §EPIC-04-US-02 | presentation | `product_measurement_units_page.dart`, `product_measurement_units_cubit.dart` | wgt_e04_u01_fr01_01 | done |
 
 ---
 

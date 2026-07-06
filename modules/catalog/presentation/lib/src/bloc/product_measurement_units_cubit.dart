@@ -20,6 +20,7 @@ class ProductMeasurementUnitsCubit extends Cubit<ProductMeasurementUnitsState> {
       baseUnitName: initialBaseUnitName,
     ));
     loadTenantUnits();
+    loadProductUnits();
   }
 
   Future<void> loadTenantUnits({String? keyword}) async {
@@ -41,6 +42,25 @@ class ProductMeasurementUnitsCubit extends Cubit<ProductMeasurementUnitsState> {
         status: ProductMeasurementUnitsStatus.failure,
         errorMessage: e.toString(),
       ));
+    }
+  }
+
+  Future<void> loadProductUnits() async {
+    try {
+      final tenantId = await _executionContext.requireTenantId();
+      final query = ListProductUnitsQuery(
+        tenantId: tenantId,
+        productId: state.productId,
+        includeInactive: true,
+      );
+      final productUnits = await _catalogModule.executeQueryAsync(query);
+      emit(state.copyWith(
+        productUnits: productUnits,
+        baseUnitName: productUnits.baseUnitName ?? state.baseUnitName,
+      ));
+    } catch (e) {
+      // It's okay if it fails (e.g., not found), we just don't have units yet.
+      // Or we can log the error.
     }
   }
 
@@ -68,9 +88,71 @@ class ProductMeasurementUnitsCubit extends Cubit<ProductMeasurementUnitsState> {
       ));
       // Reload units just in case a new unit was added
       loadTenantUnits();
+      loadProductUnits();
     } catch (e) {
       emit(state.copyWith(
         saveStatus: ProductMeasurementUnitsStatus.failure,
+        errorMessage: e.toString(),
+      ));
+    }
+  }
+
+  Future<void> addConversionUnit(String unitName, double conversionRateToBase) async {
+    emit(state.copyWith(unitMutationStatus: ProductMeasurementUnitsStatus.loading));
+    try {
+      final tenantId = await _executionContext.requireTenantId();
+      final command = AddProductConversionUnitCommand(
+        tenantId: tenantId,
+        productId: state.productId,
+        unitName: unitName,
+        conversionRateToBase: conversionRateToBase,
+      );
+      await _catalogModule.executeCommandAsync(command);
+      emit(state.copyWith(unitMutationStatus: ProductMeasurementUnitsStatus.success));
+      await loadProductUnits();
+    } catch (e) {
+      emit(state.copyWith(
+        unitMutationStatus: ProductMeasurementUnitsStatus.failure,
+        errorMessage: e.toString(),
+      ));
+    }
+  }
+
+  Future<void> deactivateConversionUnit(String productUnitId) async {
+    emit(state.copyWith(unitMutationStatus: ProductMeasurementUnitsStatus.loading));
+    try {
+      final tenantId = await _executionContext.requireTenantId();
+      final command = DeactivateProductConversionUnitCommand(
+        tenantId: tenantId,
+        productId: state.productId,
+        productUnitId: productUnitId,
+      );
+      await _catalogModule.executeCommandAsync(command);
+      emit(state.copyWith(unitMutationStatus: ProductMeasurementUnitsStatus.success));
+      await loadProductUnits();
+    } catch (e) {
+      emit(state.copyWith(
+        unitMutationStatus: ProductMeasurementUnitsStatus.failure,
+        errorMessage: e.toString(),
+      ));
+    }
+  }
+
+  Future<void> reactivateConversionUnit(String productUnitId) async {
+    emit(state.copyWith(unitMutationStatus: ProductMeasurementUnitsStatus.loading));
+    try {
+      final tenantId = await _executionContext.requireTenantId();
+      final command = ReactivateProductConversionUnitCommand(
+        tenantId: tenantId,
+        productId: state.productId,
+        productUnitId: productUnitId,
+      );
+      await _catalogModule.executeCommandAsync(command);
+      emit(state.copyWith(unitMutationStatus: ProductMeasurementUnitsStatus.success));
+      await loadProductUnits();
+    } catch (e) {
+      emit(state.copyWith(
+        unitMutationStatus: ProductMeasurementUnitsStatus.failure,
         errorMessage: e.toString(),
       ));
     }
