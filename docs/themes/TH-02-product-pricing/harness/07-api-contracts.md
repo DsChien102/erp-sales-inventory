@@ -668,6 +668,88 @@ Widget keys: `wgt_e06_u01_fr01_01` (manual base price page), `input_base_price_a
 
 ---
 
+## EPIC-06 / US-02 — Store Price Rule (slice #10)
+
+**Status:** CONTRACT `done` · BE `todo` · FE `todo` · E2E `todo`
+
+### Commands / Queries
+
+| Symbol | Input (summary) | Success | Errors |
+| ------ | --------------- | ------- | ------ |
+| `GetStorePriceRuleQuery` | tenantId | `StorePriceRuleDto?` | PermissionDenied |
+| `SetStorePriceRuleCommand` | tenantId, name, listMarkupRatio, floorMarkupRatio, status? | `SetStorePriceRuleResult` | Validation, PermissionDenied |
+| `SuggestProductUnitPriceQuery` | tenantId, productId, productUnitId? | `ProductUnitPriceSuggestionDto` | PermissionDenied, NotFound, `MissingBaseUnitException` |
+| `ApplyStorePriceRuleCommand` | tenantId, productId, productUnitId?, storePriceRuleId?, confirmOverwrite?, basePriceVersion? | `ApplyStorePriceRuleResult` | Validation, `MissingBaseUnitException`, `MissingBasePriceException`, `StorePriceRuleNotFoundException`, `StorePriceRuleInactiveException`, `PriceBandOverwriteRequiredException`, `StaleBasePriceException` |
+| `SetProductUnitPriceBandCommand` | tenantId, productId, productUnitId?, listPrice, floorPrice, sourceType?, storePriceRuleId? | `SetProductUnitPriceBandResult` | **stub slice #11** — types only |
+
+Package: `vet45_catalog_application` — `pricing/store_rule/`.
+
+Supporting types:
+
+| Type | Fields |
+| ---- | ------ |
+| `StorePriceRuleDto` | id, tenantId, name, status, calculationType, listMarkupRatio, floorMarkupRatio, updatedAt? |
+| `StorePriceRuleStatus` | `active` \| `inactive` |
+| `StorePriceCalculationType` | `markup` (Foundation; `margin` deferred) |
+| `ProductUnitPriceSuggestionDto` | productId, productUnitId?, unitName?, basePrice, currency, suggestedListPrice?, suggestedFloorPrice?, storePriceRuleId?, storePriceRuleName?, basePriceVersion?, canSuggest, unavailableReason? |
+| `ApplyStorePriceRuleResult` | productId, productUnitId?, listPrice, floorPrice, storePriceRuleId, sourceType, readinessSummary |
+| `PriceBandSourceType` | `ruleBased` \| `manual` |
+| `SetProductUnitPriceBandResult` | stub slice #11 |
+
+Read path (PCC): `GetProductControlCenterQuery` → `ProductPriceBandCardDto` extended with `sourceType`, `storePriceRuleName`, `isCustomOverride`.
+
+**Scope / rules:**
+
+- Foundation MVP: **1 Store Price Rule per tenant** (`GetStorePriceRuleQuery` returns `null` or single rule). Multi-rule list + EC-04 deferred.
+- Formula (markup): `suggestedListPrice = round(basePrice × (1 + listMarkupRatio))`, `suggestedFloorPrice = round(basePrice × (1 + floorMarkupRatio))`; `floor ≤ list`.
+- Suggestion is **preview only** (FR-02 BR-02); persist via `ApplyStorePriceRuleCommand` or manual `SetProductUnitPriceBandCommand` (slice #11).
+- `SetInitialPriceBandCommand.useStoreRule` is **deprecated** — use `SuggestProductUnitPriceQuery` + `ApplyStorePriceRuleCommand` instead.
+- Multi-UOM suggestion per conversion unit deferred to slice #11; contract uses base unit when `productUnitId` omitted.
+- Port: `IStorePriceRuleGateway` (contract interface; BE implements in infrastructure).
+
+Permissions:
+
+- `GetStorePriceRuleQuery`, `SetStorePriceRuleCommand` → `@RequiresPermission(CatalogPermissions.manageStorePriceRule)` (`catalog.pricing.manage_store_rule`)
+- `SuggestProductUnitPriceQuery`, `ApplyStorePriceRuleCommand` → `@RequiresPermission(CatalogPermissions.managePricing)`
+
+### RPC mapping (BE — draft, not applied in CONTRACT lane)
+
+| Use case | RPC / view |
+| -------- | ---------- |
+| Upsert store rule | `catalog.set_store_price_rule` |
+| Read store rule | `catalog.v_store_price_rule` |
+| Suggest unit price | `catalog.suggest_product_unit_price` |
+| Apply rule to product | `catalog.apply_store_price_rule` |
+
+Draft BE target: `supabase/migrations/_drafts/08_catalog_store_price_rule.sql` (BE lane).
+
+### Fake scenarios (FE)
+
+| scenario_id | trigger | fake response |
+| ----------- | ------- | ------------- |
+| `scn_contract_e06_u02_fr01_01` | `SetStorePriceRuleCommand` valid on new tenant | `SetStorePriceRuleResult` active rule |
+| `scn_contract_e06_u02_fr01_02` | negative listMarkupRatio | `ValidationException` |
+| `scn_contract_e06_u02_fr01_03` | `GetStorePriceRuleQuery` on `tenant-no-rule` | `null` |
+| `scn_contract_e06_u02_fr01_04` | `SetStorePriceRuleCommand` status `inactive` | inactive rule |
+| `scn_contract_e06_u02_fr02_01` | `SuggestProductUnitPriceQuery` `product-4` | list/floor from rule + base 25k |
+| `scn_contract_e06_u02_fr02_02` | suggest `product-7` (no base price) | `canSuggest=false` |
+| `scn_contract_e06_u02_fr02_03` | inactive rule scenario | `canSuggest=false` |
+| `scn_contract_e06_u02_fr03_01` | `ApplyStorePriceRuleCommand` `product-4` | price band + `ruleBased` |
+| `scn_contract_e06_u02_fr03_02` | apply `product-1` without confirm | `PriceBandOverwriteRequiredException` |
+| `scn_contract_e06_u02_fr03_03` | stale `basePriceVersion` | `StaleBasePriceException` |
+| `scn_contract_e06_u02_fr04_01` | PCC `product-2` | `isCustomOverride=true`, `sourceType=manual` |
+
+Fake seed: `tenant-1` rule `"Mặc định bán lẻ"` (listMarkup `0.5`, floorMarkup `0.25`); `product-4` has base price, no band; `product-2` manual override band.
+
+Tests: `scn_contract_e06_u02_*` in `fake_catalog_module_test.dart` (group `EPIC-06 / US-02 contract`).
+
+### Parallel notes
+
+- FE có thể fake: **yes**
+- E2E prerequisite: US-01 (data); manual base price (slice #9) for suggest/apply happy paths
+
+---
+
 ## EPIC-03 / US-01 — Cấu hình nhóm & trường (slice #16)
 
 ### Commands / Queries
@@ -715,7 +797,8 @@ Widget keys: `wgt_e06_u01_fr01_01` (manual base price page), `input_base_price_a
 | EPIC-04 US-02 | UOM conversion (không US-03; FR-02 roles **pending**) | done |
 | EPIC-05 US-01..02 | Stock profile + basic stock adjust | done |
 | EPIC-06 US-01 | Manual base price (FR-03 costing read **pending**) | done |
-| EPIC-06 US-02..03 | Store rule, price band | todo |
+| EPIC-06 US-02 | Store Price Rule | done |
+| EPIC-06 US-03 | Product Unit Price Band | todo |
 | EPIC-06 US-04 | ProductPriceBandSnapshot consumers | todo |
 | EPIC-07 US-01..04 | Lifecycle, change history | todo |
 | EPIC-03 US-02 | UpsertCustomFieldValuesCommand | todo |

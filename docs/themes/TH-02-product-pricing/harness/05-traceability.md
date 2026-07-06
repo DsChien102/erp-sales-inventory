@@ -213,6 +213,18 @@ Mở đầy đủ khi CONTRACT lane bắt đầu.
 
 ---
 
+## EPIC-06 / US-02 — Store Price Rule (slice #10)
+
+| Req ID | Role | Contract § | Enforce layer | Artifact | Test id | Status |
+| ------ | ---- | ---------- | ------------- | -------- | ------- | ------ |
+| US-02 | CONTRACT | §EPIC-06-US-02 | application | Store rule + suggestion + apply commands/queries, DTOs, `FakeCatalogModule` | scn_contract_e06_u02_* | done |
+| FR-01 | CONTRACT | §EPIC-06-US-02 | application | `GetStorePriceRuleQuery`, `SetStorePriceRuleCommand`, `StorePriceRuleDto` | scn_contract_e06_u02_fr01_* | done |
+| FR-02 | CONTRACT | §EPIC-06-US-02 | application | `SuggestProductUnitPriceQuery`, `ProductUnitPriceSuggestionDto` | scn_contract_e06_u02_fr02_* | done |
+| FR-03 | CONTRACT | §EPIC-06-US-02 | application | `ApplyStorePriceRuleCommand`, `ApplyStorePriceRuleResult` | scn_contract_e06_u02_fr03_* | done |
+| FR-04 | CONTRACT | §EPIC-06-US-02 | application | `ProductPriceBandCardDto` override fields; `SetProductUnitPriceBandCommand` stub (slice #11) | scn_contract_e06_u02_fr04_01 | done |
+
+---
+
 ## EPIC-04 / US-03 — Đổi đơn vị cơ sở
 
 | Req ID | Role | Contract § | Enforce layer | Artifact | Test id | Status |

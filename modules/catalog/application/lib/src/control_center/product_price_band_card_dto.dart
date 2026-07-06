@@ -1,3 +1,5 @@
+import '../pricing/store_rule/price_band_source_type.dart';
+
 /// Price band card on Product Control Center (EPIC-01/US-02/FR-02).
 final class ProductPriceBandCardDto {
   const ProductPriceBandCardDto({
@@ -6,6 +8,9 @@ final class ProductPriceBandCardDto {
     this.unitName,
     this.isMissing = false,
     this.missingMessage,
+    this.sourceType,
+    this.storePriceRuleName,
+    this.isCustomOverride = false,
   });
 
   final double? listPrice;
@@ -13,4 +18,7 @@ final class ProductPriceBandCardDto {
   final String? unitName;
   final bool isMissing;
   final String? missingMessage;
+  final PriceBandSourceType? sourceType;
+  final String? storePriceRuleName;
+  final bool isCustomOverride;
 }

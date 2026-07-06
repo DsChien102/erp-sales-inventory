@@ -62,6 +62,17 @@ abstract final class FakeCatalogScenario {
   static const scnContractE06U01Fr02_02 = 'scn_contract_e06_u01_fr02_02';
   static const scnContractE06U01Fr02_03 = 'scn_contract_e06_u01_fr02_03';
   static const scnContractE06U01Fr04_01 = 'scn_contract_e06_u01_fr04_01';
+  static const scnContractE06U02Fr01_01 = 'scn_contract_e06_u02_fr01_01';
+  static const scnContractE06U02Fr01_02 = 'scn_contract_e06_u02_fr01_02';
+  static const scnContractE06U02Fr01_03 = 'scn_contract_e06_u02_fr01_03';
+  static const scnContractE06U02Fr01_04 = 'scn_contract_e06_u02_fr01_04';
+  static const scnContractE06U02Fr02_01 = 'scn_contract_e06_u02_fr02_01';
+  static const scnContractE06U02Fr02_02 = 'scn_contract_e06_u02_fr02_02';
+  static const scnContractE06U02Fr02_03 = 'scn_contract_e06_u02_fr02_03';
+  static const scnContractE06U02Fr03_01 = 'scn_contract_e06_u02_fr03_01';
+  static const scnContractE06U02Fr03_02 = 'scn_contract_e06_u02_fr03_02';
+  static const scnContractE06U02Fr03_03 = 'scn_contract_e06_u02_fr03_03';
+  static const scnContractE06U02Fr04_01 = 'scn_contract_e06_u02_fr04_01';
 }
 
 class _TenantUnit {
@@ -116,6 +127,37 @@ class _StockMovement {
   final String? reason;
 }
 
+class _StorePriceRule {
+  _StorePriceRule({
+    required this.id,
+    required this.tenantId,
+    required this.name,
+    required this.listMarkupRatio,
+    required this.floorMarkupRatio,
+    this.status = StorePriceRuleStatus.active,
+    DateTime? updatedAt,
+  }) : updatedAt = updatedAt ?? DateTime.utc(2026, 1, 1);
+
+  final String id;
+  final String tenantId;
+  String name;
+  double listMarkupRatio;
+  double floorMarkupRatio;
+  StorePriceRuleStatus status;
+  DateTime updatedAt;
+
+  StorePriceRuleDto toDto() => StorePriceRuleDto(
+        id: id,
+        tenantId: tenantId,
+        name: name,
+        status: status,
+        calculationType: StorePriceCalculationType.markup,
+        listMarkupRatio: listMarkupRatio,
+        floorMarkupRatio: floorMarkupRatio,
+        updatedAt: updatedAt,
+      );
+}
+
 class _StoredProduct {
   _StoredProduct({
     required this.id,
@@ -129,6 +171,10 @@ class _StoredProduct {
     this.baseCost,
     this.listPrice,
     this.floorPrice,
+    this.priceBandSourceType,
+    this.storePriceRuleId,
+    this.storePriceRuleName,
+    this.isCustomOverride = false,
     this.notes,
     this.hasRequiredCustomFields = true,
     this.stockMode = FakeProductReadinessBuilder.stockModeBasic,
@@ -151,6 +197,10 @@ class _StoredProduct {
   double? baseCost;
   double? listPrice;
   double? floorPrice;
+  PriceBandSourceType? priceBandSourceType;
+  String? storePriceRuleId;
+  String? storePriceRuleName;
+  bool isCustomOverride;
   bool useStoreRule = false;
   final String? notes;
   final String? description = null;
@@ -171,6 +221,9 @@ class _StoredProduct {
   bool get hasBasePrice => baseCost != null;
 
   bool get hasPriceBand => listPrice != null && floorPrice != null;
+
+  int? get basePriceVersion =>
+      baseCost == null ? null : StorePriceSuggestionCalculator.basePriceVersionFor(baseCost!);
 }
 
 final class FakeCatalogModule implements ICatalogModule {
@@ -235,6 +288,8 @@ final class FakeCatalogModule implements ICatalogModule {
           baseCost: 15000,
           listPrice: 25000,
           floorPrice: 18000,
+          priceBandSourceType: PriceBandSourceType.manual,
+          isCustomOverride: true,
           updatedAt: DateTime.utc(2026, 5, 15),
         ),
         _StoredProduct(
@@ -311,12 +366,22 @@ final class FakeCatalogModule implements ICatalogModule {
           basePriceMode: FakeProductReadinessBuilder.basePriceModeCosting,
           updatedAt: DateTime.utc(2026, 1, 10),
         ),
-      ];
+      ],
+      _storeRules = {
+        'tenant-1': _StorePriceRule(
+          id: 'rule-tenant-1',
+          tenantId: 'tenant-1',
+          name: 'Mặc định bán lẻ',
+          listMarkupRatio: 0.5,
+          floorMarkupRatio: 0.25,
+        ),
+      };
 
   final String scenario;
   final List<_TenantUnit> _tenantUnits;
   final List<_ProductUnit> _productUnits;
   final List<_StoredProduct> _products;
+  final Map<String, _StorePriceRule> _storeRules;
   int _nextProductId = 8;
   int _nextProductUnitId = 1;
 
@@ -432,6 +497,18 @@ final class FakeCatalogModule implements ICatalogModule {
       prod.floorPrice = cmd.floorPrice;
       prod.useStoreRule = useRule;
       return null as TResult;
+    } else if (command is SetStorePriceRuleCommand) {
+      return _handleSetStorePriceRule<TResult>(
+        command as SetStorePriceRuleCommand,
+      );
+    } else if (command is ApplyStorePriceRuleCommand) {
+      return _handleApplyStorePriceRule<TResult>(
+        command as ApplyStorePriceRuleCommand,
+      );
+    } else if (command is SetProductUnitPriceBandCommand) {
+      throw UnimplementedError(
+        'SetProductUnitPriceBandCommand is implemented in slice #11.',
+      );
     }
     if (command is RequestProductImageUploadCommand) {
       return _handleRequestUpload<TResult>(
@@ -500,6 +577,14 @@ final class FakeCatalogModule implements ICatalogModule {
     if (query is GetProductStockHistoryQuery) {
       return _handleGetProductStockHistory<TResult>(
         query as GetProductStockHistoryQuery,
+      );
+    }
+    if (query is GetStorePriceRuleQuery) {
+      return _handleGetStorePriceRule<TResult>(query as GetStorePriceRuleQuery);
+    }
+    if (query is SuggestProductUnitPriceQuery) {
+      return _handleSuggestProductUnitPrice<TResult>(
+        query as SuggestProductUnitPriceQuery,
       );
     }
     throw UnimplementedError('Unexpected query: ${query.runtimeType}');
@@ -829,6 +914,9 @@ final class FakeCatalogModule implements ICatalogModule {
       baseCost: product.baseCost,
       listPrice: product.listPrice,
       floorPrice: product.floorPrice,
+      priceBandSourceType: product.priceBandSourceType,
+      storePriceRuleName: product.storePriceRuleName,
+      isCustomOverride: product.isCustomOverride,
       hasRequiredCustomFields: product.hasRequiredCustomFields,
       stockMode: product.stockMode,
       basePriceMode: product.basePriceMode,
@@ -1301,5 +1389,193 @@ final class FakeCatalogModule implements ICatalogModule {
         }
         return matches as TResult;
     }
+  }
+
+  _StorePriceRule? _storeRuleForTenant(String tenantId) {
+    if (scenario == FakeCatalogScenario.scnContractE06U02Fr01_03 &&
+        tenantId == 'tenant-no-rule') {
+      return null;
+    }
+    final rule = _storeRules[tenantId];
+    if (rule == null) {
+      return null;
+    }
+    if (scenario == FakeCatalogScenario.scnContractE06U02Fr02_03) {
+      return _StorePriceRule(
+        id: rule.id,
+        tenantId: rule.tenantId,
+        name: rule.name,
+        listMarkupRatio: rule.listMarkupRatio,
+        floorMarkupRatio: rule.floorMarkupRatio,
+        status: StorePriceRuleStatus.inactive,
+        updatedAt: rule.updatedAt,
+      );
+    }
+    return rule;
+  }
+
+  TResult _handleGetStorePriceRule<TResult>(GetStorePriceRuleQuery query) {
+    final rule = _storeRuleForTenant(query.tenantId);
+    return rule?.toDto() as TResult;
+  }
+
+  TResult _handleSetStorePriceRule<TResult>(SetStorePriceRuleCommand command) {
+    if (scenario == FakeCatalogScenario.scnContractE06U02Fr01_02 ||
+        command.listMarkupRatio < 0 ||
+        command.floorMarkupRatio < 0) {
+      throw ValidationException('Tỷ lệ cộng thêm không hợp lệ.');
+    }
+
+    final existing = _storeRules[command.tenantId];
+    final status = command.status;
+    if (existing != null) {
+      existing
+        ..name = command.name
+        ..listMarkupRatio = command.listMarkupRatio
+        ..floorMarkupRatio = command.floorMarkupRatio
+        ..status = status
+        ..updatedAt = DateTime.utc(2026, 7, 6);
+      return SetStorePriceRuleResult(rule: existing.toDto()) as TResult;
+    }
+
+    final rule = _StorePriceRule(
+      id: 'rule-${command.tenantId}',
+      tenantId: command.tenantId,
+      name: command.name,
+      listMarkupRatio: command.listMarkupRatio,
+      floorMarkupRatio: command.floorMarkupRatio,
+      status: status,
+      updatedAt: DateTime.utc(2026, 7, 6),
+    );
+    _storeRules[command.tenantId] = rule;
+    return SetStorePriceRuleResult(rule: rule.toDto()) as TResult;
+  }
+
+  TResult _handleSuggestProductUnitPrice<TResult>(
+    SuggestProductUnitPriceQuery query,
+  ) {
+    final product = _findProduct(query.productId);
+    if (product == null) {
+      throw ApplicationException('Product not found');
+    }
+    if (!product.hasBaseUnit) {
+      throw MissingBaseUnitException();
+    }
+
+    if (scenario == FakeCatalogScenario.scnContractE06U02Fr02_02 ||
+        !product.hasBasePrice) {
+      return ProductUnitPriceSuggestionDto(
+            productId: product.id,
+            productUnitId: query.productUnitId,
+            unitName: product.baseUnit,
+            basePrice: product.baseCost ?? 0,
+            currency: 'VND',
+            canSuggest: false,
+            unavailableReason: 'Cần có Giá cơ sở định giá trước',
+          )
+          as TResult;
+    }
+
+    final rule = _storeRuleForTenant(query.tenantId);
+    if (rule == null || rule.status != StorePriceRuleStatus.active) {
+      return ProductUnitPriceSuggestionDto(
+            productId: product.id,
+            productUnitId: query.productUnitId,
+            unitName: product.baseUnit,
+            basePrice: product.baseCost!,
+            currency: 'VND',
+            canSuggest: false,
+            unavailableReason: rule == null
+                ? 'Tenant chưa có Store Price Rule'
+                : 'Store Price Rule đang không hoạt động',
+          )
+          as TResult;
+    }
+
+    final prices = StorePriceSuggestionCalculator.suggest(
+      basePrice: product.baseCost!,
+      listMarkupRatio: rule.listMarkupRatio,
+      floorMarkupRatio: rule.floorMarkupRatio,
+    );
+
+    return ProductUnitPriceSuggestionDto(
+          productId: product.id,
+          productUnitId: query.productUnitId,
+          unitName: product.baseUnit,
+          basePrice: product.baseCost!,
+          currency: 'VND',
+          suggestedListPrice: prices.listPrice,
+          suggestedFloorPrice: prices.floorPrice,
+          storePriceRuleId: rule.id,
+          storePriceRuleName: rule.name,
+          basePriceVersion: product.basePriceVersion,
+          canSuggest: true,
+        )
+        as TResult;
+  }
+
+  TResult _handleApplyStorePriceRule<TResult>(ApplyStorePriceRuleCommand command) {
+    final product = _findProduct(command.productId);
+    if (product == null) {
+      throw ApplicationException('Product not found');
+    }
+    if (!product.hasBaseUnit) {
+      throw MissingBaseUnitException();
+    }
+    if (!product.hasBasePrice) {
+      throw MissingBasePriceException();
+    }
+
+    final rule = _storeRuleForTenant(command.tenantId);
+    if (rule == null) {
+      throw StorePriceRuleNotFoundException();
+    }
+    if (rule.status != StorePriceRuleStatus.active) {
+      throw StorePriceRuleInactiveException();
+    }
+    if (command.storePriceRuleId != null && command.storePriceRuleId != rule.id) {
+      throw StorePriceRuleNotFoundException();
+    }
+
+    if (scenario == FakeCatalogScenario.scnContractE06U02Fr03_03) {
+      throw StaleBasePriceException();
+    }
+
+    if (command.basePriceVersion != null &&
+        command.basePriceVersion != product.basePriceVersion) {
+      throw StaleBasePriceException();
+    }
+
+    if (product.hasPriceBand && !command.confirmOverwrite) {
+      throw PriceBandOverwriteRequiredException(
+        existingListPrice: product.listPrice,
+        existingFloorPrice: product.floorPrice,
+      );
+    }
+
+    final prices = StorePriceSuggestionCalculator.suggest(
+      basePrice: product.baseCost!,
+      listMarkupRatio: rule.listMarkupRatio,
+      floorMarkupRatio: rule.floorMarkupRatio,
+    );
+
+    product
+      ..listPrice = prices.listPrice
+      ..floorPrice = prices.floorPrice
+      ..priceBandSourceType = PriceBandSourceType.ruleBased
+      ..storePriceRuleId = rule.id
+      ..storePriceRuleName = rule.name
+      ..isCustomOverride = false;
+
+    return ApplyStorePriceRuleResult(
+          productId: product.id,
+          productUnitId: command.productUnitId,
+          listPrice: prices.listPrice,
+          floorPrice: prices.floorPrice,
+          storePriceRuleId: rule.id,
+          sourceType: PriceBandSourceType.ruleBased,
+          readinessSummary: _readinessSummaryFor(product),
+        )
+        as TResult;
   }
 }
