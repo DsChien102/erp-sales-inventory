@@ -19,6 +19,13 @@ class ProductGuidedCreateState {
     this.imageDrafts = const [],
     this.coverImageIndex = 0,
     this.baseUnit = '',
+    this.initialStock = '',
+    this.baseCost = '',
+    this.pricingMethod = 'storeRule',
+    this.customAutoMarkup = '35',
+    this.customAutoFloorMarkup = '15',
+    this.manualListPrice = '',
+    this.manualFloorPrice = '',
     this.activeStepIndex = 0,
     this.status = ProductGuidedCreateStatus.initial,
     this.errorMessage,
@@ -38,6 +45,14 @@ class ProductGuidedCreateState {
   final int coverImageIndex;
   final String baseUnit;
 
+  final String initialStock;
+  final String baseCost;
+  final String pricingMethod; // 'storeRule', 'customAuto', 'manual'
+  final String customAutoMarkup;
+  final String customAutoFloorMarkup;
+  final String manualListPrice;
+  final String manualFloorPrice;
+
   final int activeStepIndex;
   final ProductGuidedCreateStatus status;
   final String? errorMessage;
@@ -48,7 +63,7 @@ class ProductGuidedCreateState {
   final String? duplicateProductName;
   final ProductListItemModel? createdProduct;
 
-  static const stepCount = 3;
+  static const stepCount = 6;
   static const maxImages = 8;
 
   bool get isStep1Valid => name.trim().isNotEmpty;
@@ -71,6 +86,13 @@ class ProductGuidedCreateState {
     List<ProductImageDraft>? imageDrafts,
     int? coverImageIndex,
     String? baseUnit,
+    String? initialStock,
+    String? baseCost,
+    String? pricingMethod,
+    String? customAutoMarkup,
+    String? customAutoFloorMarkup,
+    String? manualListPrice,
+    String? manualFloorPrice,
     int? activeStepIndex,
     ProductGuidedCreateStatus? status,
     String? errorMessage,
@@ -93,6 +115,13 @@ class ProductGuidedCreateState {
       imageDrafts: imageDrafts ?? this.imageDrafts,
       coverImageIndex: coverImageIndex ?? this.coverImageIndex,
       baseUnit: baseUnit ?? this.baseUnit,
+      initialStock: initialStock ?? this.initialStock,
+      baseCost: baseCost ?? this.baseCost,
+      pricingMethod: pricingMethod ?? this.pricingMethod,
+      customAutoMarkup: customAutoMarkup ?? this.customAutoMarkup,
+      customAutoFloorMarkup: customAutoFloorMarkup ?? this.customAutoFloorMarkup,
+      manualListPrice: manualListPrice ?? this.manualListPrice,
+      manualFloorPrice: manualFloorPrice ?? this.manualFloorPrice,
       activeStepIndex: activeStepIndex ?? this.activeStepIndex,
       status: status ?? this.status,
       errorMessage: clearError ? null : (errorMessage ?? this.errorMessage),

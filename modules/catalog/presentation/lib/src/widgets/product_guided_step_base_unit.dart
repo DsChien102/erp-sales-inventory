@@ -43,7 +43,7 @@ class ProductGuidedStepBaseUnit extends StatelessWidget {
         ProductGuidedFields.buildNavigationButtons(
           context,
           showSkip: true,
-          showNext: false,
+          showNext: true,
         ),
       ],
     );

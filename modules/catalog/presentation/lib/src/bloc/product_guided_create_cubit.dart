@@ -232,6 +232,34 @@ class ProductGuidedCreateCubit extends Cubit<ProductGuidedCreateState> {
     emit(state.copyWith(baseUnit: val));
   }
 
+  void updateInitialStock(String val) {
+    emit(state.copyWith(initialStock: val));
+  }
+
+  void updateBaseCost(String val) {
+    emit(state.copyWith(baseCost: val));
+  }
+
+  void updatePricingMethod(String val) {
+    emit(state.copyWith(pricingMethod: val));
+  }
+
+  void updateCustomAutoMarkup(String val) {
+    emit(state.copyWith(customAutoMarkup: val));
+  }
+
+  void updateCustomAutoFloorMarkup(String val) {
+    emit(state.copyWith(customAutoFloorMarkup: val));
+  }
+
+  void updateManualListPrice(String val) {
+    emit(state.copyWith(manualListPrice: val));
+  }
+
+  void updateManualFloorPrice(String val) {
+    emit(state.copyWith(manualFloorPrice: val));
+  }
+
   void setStep(int idx) {
     if (state.activeStepIndex == idx) {
       emit(state.copyWith(activeStepIndex: -1));
@@ -301,9 +329,33 @@ class ProductGuidedCreateCubit extends Cubit<ProductGuidedCreateState> {
         ),
       );
 
+      final productId = createResult.productId;
+
+      final stockQty = int.tryParse(state.initialStock.trim());
+      if (stockQty != null) {
+        await _catalogModule.executeCommandAsync(
+          SetInitialStockCommand(
+            tenantId: tenantId,
+            productId: productId,
+            quantity: stockQty,
+          ),
+        );
+      }
+
+      final baseCostVal = double.tryParse(state.baseCost.trim());
+      if (baseCostVal != null) {
+        await _catalogModule.executeCommandAsync(
+          SetManualBasePriceCommand(
+            tenantId: tenantId,
+            productId: productId,
+            basePrice: baseCostVal,
+          ),
+        );
+      }
+
       final productModel = CatalogUiMapper.toListItemModelFromCreate(
         state: state,
-        productId: createResult.productId,
+        productId: productId,
         readinessSummary: createResult.readinessSummary,
       );
 

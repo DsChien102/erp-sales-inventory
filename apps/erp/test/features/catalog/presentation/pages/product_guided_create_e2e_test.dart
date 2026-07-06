@@ -104,4 +104,54 @@ void main() {
     expect(find.text('Existing Product'), findsWidgets);
     expect(find.text('Thiếu dữ liệu'), findsOneWidget);
   });
+
+  testWidgets('e2e_e02_u02_fr01_01: guided create with initial stock and base cost', (
+    tester,
+  ) async {
+    await setUpErpCatalogE2E();
+
+    await tester.pumpWidget(buildGuidedCreateRouter());
+    await tester.pumpAndSettle();
+
+    // Fill Step 1 Name
+    await tester.enterText(find.byKey(const Key('input_guided_name')), 'Paracetamol 500mg');
+    await tester.pump();
+
+    // Open Step 3: Đơn vị cơ sở
+    final step3Finder = find.text('3. Đơn vị cơ sở');
+    await tester.ensureVisible(step3Finder);
+    await tester.tap(step3Finder);
+    await tester.pumpAndSettle();
+
+    // Fill Base Unit
+    await tester.enterText(find.byKey(const Key('input_guided_base_unit')), 'Hộp');
+    await tester.pump();
+
+    // Open Step 4: Tồn kho khởi tạo
+    final step4Finder = find.text('4. Tồn kho khởi tạo');
+    await tester.ensureVisible(step4Finder);
+    await tester.tap(step4Finder);
+    await tester.pumpAndSettle();
+
+    // Fill Initial Stock
+    await tester.enterText(find.byKey(const Key('input_guided_initial_stock')), '150');
+    await tester.pump();
+
+    // Open Step 5: Giá vốn cơ sở
+    final step5Finder = find.text('5. Giá vốn cơ sở');
+    await tester.ensureVisible(step5Finder);
+    await tester.tap(step5Finder);
+    await tester.pumpAndSettle();
+
+    // Fill Base Cost
+    await tester.enterText(find.byKey(const Key('input_guided_base_cost')), '5000');
+    await tester.pump();
+
+    // Save product
+    await tester.tap(find.byKey(const Key('btn_guided_save')));
+    await tester.pumpAndSettle();
+
+    // Verify PCC is reached and shows the created product
+    expect(find.text('Paracetamol 500mg'), findsWidgets);
+  });
 }
