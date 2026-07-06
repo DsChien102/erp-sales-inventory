@@ -12,9 +12,11 @@ class CatalogUiMapper {
     required ReadinessSummaryDto readinessSummary,
   }) {
     final readiness = _readinessFromSummary(readinessSummary, state.baseUnit);
-    final coverUrl = state.images.isNotEmpty
-        ? state.images[state.coverImageIndex.clamp(0, state.images.length - 1)]
+    final coverDraft = state.imageDrafts.isNotEmpty
+        ? state.imageDrafts[
+            state.coverImageIndex.clamp(0, state.imageDrafts.length - 1)]
         : null;
+    final coverPath = coverDraft?.localPath;
 
     return ProductListItemModel(
       id: productId,
@@ -22,11 +24,11 @@ class CatalogUiMapper {
       tradeName: state.tradeName.isNotEmpty ? state.tradeName : state.name,
       sku: state.sku.isNotEmpty ? state.sku : null,
       barcode: state.barcode.isNotEmpty ? state.barcode : null,
-      imageUrl: coverUrl != null && coverUrl.startsWith('http') ? coverUrl : null,
+      imageUrl: coverPath != null && coverPath.startsWith('http') ? coverPath : null,
       businessStatus: ProductBusinessStatus.active,
       readinessStatus: readiness,
       baseUnit: state.baseUnit.isNotEmpty ? state.baseUnit : null,
-      images: state.images,
+      images: state.imageDrafts.map((d) => d.localPath).toList(),
     );
   }
 

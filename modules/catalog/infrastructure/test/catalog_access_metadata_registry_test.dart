@@ -22,5 +22,13 @@ void main() {
       expect(metadata?.permission, CatalogPermissions.create);
       expect(metadata?.requiresTenant, isTrue);
     });
+    test('maps request image upload command to catalog.product.create', () {
+      final metadata = catalogAccessMetadataRegistry.forType(
+        RequestProductImageUploadCommand,
+      );
+
+      expect(metadata?.permission, CatalogPermissions.create);
+      expect(metadata?.requiresTenant, isTrue);
+    });
   });
 }

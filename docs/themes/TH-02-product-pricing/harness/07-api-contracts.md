@@ -20,6 +20,7 @@ Facade: `ICatalogModule` (`modules/catalog/application/lib/src/contracts/i_catal
 
 | Symbol | Input (summary) | Success | Errors |
 | ------ | --------------- | ------- | ------ |
+| `RequestProductImageUploadCommand` | tenantId, actorId, fileName, contentType, byteSize | `ProductImageUploadSlotDto` | `ValidationException`, PermissionDenied |
 | `CreateProductCommand` | tenantId, actorId, productName, commercialName?, sku?, barcode?, description?, note?, images[] (`ProductImageInput`), baseUnitName? | `CreateProductResult` (productId, readinessSummary) | `ValidationException`, PermissionDenied (`ApplicationException`), `DuplicateSkuException`, `DuplicateBarcodeException` |
 | `CheckDuplicateProductCodeQuery` | tenantId, sku?, barcode?, excludeProductId? | `List<ProductDuplicateMatchDto>` | PermissionDenied |
 
@@ -29,7 +30,8 @@ Supporting types:
 
 | Type | Fields |
 | ---- | ------ |
-| `ProductImageInput` | storageKey, url?, isPrimary, sortOrder |
+| `ProductImageUploadSlotDto` | slotId, storageKey, signedUploadUrl, expiresAt |
+| `ProductImageInput` | storageKey, slotId?, url?, isPrimary, sortOrder |
 | `ReadinessSummaryDto` | status (`ReadinessStatus`), blockers (`ReadinessBlockerDto[]`) |
 | `ReadinessBlockerDto` | code, message, group? |
 | `ProductDuplicateMatchDto` | field (`ProductDuplicateField`), productId, productName, matchedValue |
@@ -42,6 +44,7 @@ Permissions: `@RequiresPermission(CatalogPermissions.create)` (`catalog.product.
 
 | Use case | RPC |
 | -------- | --- |
+| Reserve image upload slot | `catalog.request_product_image_upload` |
 | Create (minimal) | `catalog.create_product` |
 | Dup check | `catalog.check_duplicate_product_code` |
 
@@ -54,6 +57,8 @@ Permissions: `@RequiresPermission(CatalogPermissions.create)` (`catalog.product.
 | `guided_create_dup_barcode` | barcode trùng tenant | `DuplicateBarcodeException` |
 | `guided_create_missing_name` | thiếu tên | `ValidationException` |
 | `guided_create_no_images` | no images | success + optional `missing_image` blocker |
+| `guided_create_upload_slot_ok` | RequestProductImageUploadCommand valid | `ProductImageUploadSlotDto` |
+| `guided_create_upload_invalid_type` | unsupported content type | `ValidationException` |
 | `guided_create_permission_denied` | no catalog.product.create | `ApplicationException` (Permission denied) |
 
 `FakeCatalogModule` — `package:vet45_catalog_application/testing.dart`.

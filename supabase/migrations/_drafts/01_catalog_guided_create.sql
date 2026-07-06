@@ -1,6 +1,7 @@
--- Catalog guided create: schema + create_product + check_duplicate_product_code.
+-- Catalog guided create: schema, product CRUD RPCs, image upload slots, storage RLS.
 -- Context: TH-02/EPIC-02/US-01 BE; docs/themes/TH-02-product-pricing/harness/*
 -- Safety: idempotent ; low lock impact on empty/new schema
+-- Storage bucket: catalog-product-images (see supabase/config.toml)
 
 create schema if not exists catalog;
 
@@ -71,6 +72,31 @@ create unique index if not exists uq_products_tenant_barcode_normalized
   on catalog.products (tenant_id, barcode_normalized)
   where barcode_normalized is not null;
 
+create table if not exists catalog.image_upload_slots (
+  id uuid primary key default gen_random_uuid(),
+  tenant_id uuid not null,
+  storage_key text not null,
+  actor_id uuid not null,
+  file_name text not null,
+  content_type text not null,
+  byte_size bigint not null,
+  status text not null default 'pending'
+    check (status in ('pending', 'uploaded', 'consumed', 'expired')),
+  expires_at timestamptz not null,
+  consumed_at timestamptz null,
+  created_at timestamptz not null default now(),
+  constraint chk_image_upload_slots_storage_key_not_blank
+    check (length(btrim(storage_key)) > 0),
+  constraint chk_image_upload_slots_byte_size_positive
+    check (byte_size > 0)
+);
+
+create unique index if not exists uq_image_upload_slots_storage_key
+  on catalog.image_upload_slots (storage_key);
+
+create index if not exists idx_image_upload_slots_tenant_status
+  on catalog.image_upload_slots (tenant_id, status, expires_at);
+
 create table if not exists catalog.product_images (
   id uuid primary key default gen_random_uuid(),
   tenant_id uuid not null,
@@ -79,6 +105,9 @@ create table if not exists catalog.product_images (
   file_url text null,
   is_primary boolean not null default false,
   sort_order integer not null default 0,
+  processing_status text not null default 'ready'
+    check (processing_status in ('pending', 'processing', 'ready', 'failed')),
+  upload_slot_id uuid null references catalog.image_upload_slots (id),
   created_at timestamptz not null default now(),
   constraint chk_product_images_storage_key_not_blank
     check (length(btrim(storage_key)) > 0)
@@ -86,6 +115,14 @@ create table if not exists catalog.product_images (
 
 create index if not exists idx_product_images_product_id
   on catalog.product_images (product_id);
+
+alter table catalog.product_images
+  add column if not exists processing_status text not null default 'ready'
+    check (processing_status in ('pending', 'processing', 'ready', 'failed'));
+
+alter table catalog.product_images
+  add column if not exists upload_slot_id uuid null
+    references catalog.image_upload_slots (id);
 
 create table if not exists catalog.product_units (
   id uuid primary key default gen_random_uuid(),
@@ -126,6 +163,43 @@ create table if not exists catalog.product_change_history (
 
 create index if not exists idx_product_change_history_product_id
   on catalog.product_change_history (product_id, created_at desc);
+
+create or replace function catalog._catalog_storage_tenant_id(p_name text)
+returns uuid
+language sql
+immutable
+as $$
+  select nullif((storage.foldername(p_name))[1], '')::uuid;
+$$;
+
+create or replace function catalog._catalog_storage_is_staging_path(p_name text)
+returns boolean
+language sql
+immutable
+as $$
+  select coalesce((storage.foldername(p_name))[2], '') = 'staging';
+$$;
+
+create or replace function catalog._catalog_storage_is_products_path(p_name text)
+returns boolean
+language sql
+immutable
+as $$
+  select coalesce((storage.foldername(p_name))[2], '') = 'products';
+$$;
+
+create or replace function catalog._catalog_storage_tenant_allowed(p_name text)
+returns boolean
+language sql
+stable
+security definer
+set search_path = catalog, iam, storage, pg_temp
+as $$
+  select iam.has_permission(
+    catalog._catalog_storage_tenant_id(p_name),
+    'catalog.product.create'
+  );
+$$;
 
 create or replace function catalog.check_duplicate_product_code(
   p_tenant_id uuid,
@@ -187,6 +261,140 @@ begin
 end;
 $$;
 
+create or replace function catalog._image_extension_from_name(p_file_name text)
+returns text
+language plpgsql
+immutable
+as $$
+declare
+  v_ext text;
+begin
+  v_ext := lower(regexp_replace(coalesce(p_file_name, ''), '^.*\.', ''));
+  if v_ext in ('jpg', 'jpeg', 'png', 'webp') then
+    if v_ext = 'jpg' then
+      return 'jpeg';
+    end if;
+    return v_ext;
+  end if;
+  return 'jpeg';
+end;
+$$;
+
+create or replace function catalog.request_product_image_upload(
+  p_tenant_id uuid,
+  p_file_name text,
+  p_content_type text,
+  p_byte_size bigint,
+  p_actor_id uuid default auth.uid()
+)
+returns table (
+  slot_id uuid,
+  storage_key text,
+  expires_at timestamptz
+)
+language plpgsql
+security definer
+set search_path = catalog, iam, pg_temp
+as $$
+declare
+  v_slot_id uuid := gen_random_uuid();
+  v_ext text;
+  v_storage_key text;
+  v_expires_at timestamptz := now() + interval '1 hour';
+begin
+  if auth.uid() is null then
+    raise exception 'not authenticated';
+  end if;
+
+  if p_actor_id is null or p_actor_id <> auth.uid() then
+    raise exception 'actor mismatch';
+  end if;
+
+  if not iam.has_permission(p_tenant_id, 'catalog.product.create') then
+    raise exception 'permission denied: catalog.product.create';
+  end if;
+
+  if length(btrim(coalesce(p_file_name, ''))) = 0 then
+    raise exception 'file name is required';
+  end if;
+
+  if p_byte_size is null or p_byte_size <= 0 then
+    raise exception 'byte size must be positive';
+  end if;
+
+  if p_byte_size > 10485760 then
+    raise exception 'file too large';
+  end if;
+
+  if lower(coalesce(p_content_type, '')) not in (
+    'image/jpeg', 'image/png', 'image/webp'
+  ) then
+    raise exception 'unsupported content type';
+  end if;
+
+  v_ext := catalog._image_extension_from_name(p_file_name);
+  v_storage_key := p_tenant_id::text || '/staging/' || v_slot_id::text || '/original.' || v_ext;
+
+  insert into catalog.image_upload_slots (
+    id,
+    tenant_id,
+    storage_key,
+    actor_id,
+    file_name,
+    content_type,
+    byte_size,
+    status,
+    expires_at
+  )
+  values (
+    v_slot_id,
+    p_tenant_id,
+    v_storage_key,
+    p_actor_id,
+    btrim(p_file_name),
+    lower(p_content_type),
+    p_byte_size,
+    'pending',
+    v_expires_at
+  );
+
+  return query
+  select v_slot_id, v_storage_key, v_expires_at;
+end;
+$$;
+
+create or replace function catalog._consume_image_upload_slot(
+  p_tenant_id uuid,
+  p_storage_key text,
+  p_actor_id uuid
+)
+returns uuid
+language plpgsql
+security definer
+set search_path = catalog, pg_temp
+as $$
+declare
+  v_slot_id uuid;
+begin
+  update catalog.image_upload_slots s
+  set
+    status = 'consumed',
+    consumed_at = now()
+  where s.tenant_id = p_tenant_id
+    and s.storage_key = btrim(p_storage_key)
+    and s.status in ('pending', 'uploaded')
+    and s.expires_at > now()
+    and s.actor_id = p_actor_id
+  returning s.id into v_slot_id;
+
+  if v_slot_id is null then
+    raise exception 'invalid or expired image upload slot';
+  end if;
+
+  return v_slot_id;
+end;
+$$;
+
 create or replace function catalog.create_product(
   p_tenant_id uuid,
   p_name text,
@@ -215,6 +423,8 @@ declare
   v_image jsonb;
   v_outbox_payload jsonb;
   v_readiness_status catalog.product_readiness_status;
+  v_storage_key text;
+  v_slot_id uuid;
 begin
   if auth.uid() is null then
     raise exception 'not authenticated';
@@ -327,21 +537,42 @@ begin
   if p_images is not null and jsonb_typeof(p_images) = 'array' then
     for v_image in select * from jsonb_array_elements(p_images)
     loop
+      v_storage_key := btrim(v_image ->> 'storage_key');
+      if v_storage_key is null or length(v_storage_key) = 0 then
+        continue;
+      end if;
+
+      begin
+        v_slot_id := catalog._consume_image_upload_slot(
+          p_tenant_id,
+          v_storage_key,
+          p_actor_id
+        );
+      exception
+        when others then
+          -- AF-04: skip invalid image, continue create with remaining images.
+          continue;
+      end;
+
       insert into catalog.product_images (
         tenant_id,
         product_id,
         storage_key,
         file_url,
         is_primary,
-        sort_order
+        sort_order,
+        processing_status,
+        upload_slot_id
       )
       values (
         p_tenant_id,
         v_product_id,
-        btrim(v_image ->> 'storage_key'),
+        v_storage_key,
         nullif(btrim(coalesce(v_image ->> 'url', '')), ''),
         coalesce((v_image ->> 'is_primary')::boolean, false),
-        coalesce((v_image ->> 'sort_order')::integer, 0)
+        coalesce((v_image ->> 'sort_order')::integer, 0),
+        'ready',
+        v_slot_id
       );
     end loop;
   end if;
@@ -412,6 +643,77 @@ begin
 end;
 $$;
 
+-- ---------------------------------------------------------------------------
+-- Storage: bucket catalog-product-images + RLS (signed upload / read)
+-- Path layout: {tenant_id}/staging/{slot_id}/original.{ext}
+--              {tenant_id}/products/{product_id}/{image_id}/...
+-- ---------------------------------------------------------------------------
+
+insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
+values (
+  'catalog-product-images',
+  'catalog-product-images',
+  false,
+  10485760,
+  array['image/jpeg', 'image/png', 'image/webp']::text[]
+)
+on conflict (id) do update
+set
+  public = excluded.public,
+  file_size_limit = excluded.file_size_limit,
+  allowed_mime_types = excluded.allowed_mime_types;
+
+drop policy if exists catalog_product_images_staging_insert on storage.objects;
+create policy catalog_product_images_staging_insert
+on storage.objects
+for insert
+to authenticated
+with check (
+  bucket_id = 'catalog-product-images'
+  and catalog._catalog_storage_is_staging_path(name)
+  and catalog._catalog_storage_tenant_allowed(name)
+);
+
+drop policy if exists catalog_product_images_staging_select on storage.objects;
+create policy catalog_product_images_staging_select
+on storage.objects
+for select
+to authenticated
+using (
+  bucket_id = 'catalog-product-images'
+  and catalog._catalog_storage_is_staging_path(name)
+  and catalog._catalog_storage_tenant_allowed(name)
+);
+
+drop policy if exists catalog_product_images_staging_update on storage.objects;
+create policy catalog_product_images_staging_update
+on storage.objects
+for update
+to authenticated
+using (
+  bucket_id = 'catalog-product-images'
+  and catalog._catalog_storage_is_staging_path(name)
+  and catalog._catalog_storage_tenant_allowed(name)
+)
+with check (
+  bucket_id = 'catalog-product-images'
+  and catalog._catalog_storage_is_staging_path(name)
+  and catalog._catalog_storage_tenant_allowed(name)
+);
+
+drop policy if exists catalog_product_images_products_select on storage.objects;
+create policy catalog_product_images_products_select
+on storage.objects
+for select
+to authenticated
+using (
+  bucket_id = 'catalog-product-images'
+  and catalog._catalog_storage_is_products_path(name)
+  and catalog._catalog_storage_tenant_allowed(name)
+);
+
+-- Orphan staging cleanup: implement cron/job in a later slice.
+
 revoke all on schema catalog from public, anon;
 grant usage on schema catalog to authenticated, service_role;
 
@@ -422,6 +724,13 @@ revoke all on function catalog.check_duplicate_product_code(uuid, text, text, uu
   from public, anon;
 grant execute on function catalog.check_duplicate_product_code(uuid, text, text, uuid)
   to authenticated, service_role;
+
+revoke all on function catalog.request_product_image_upload(
+  uuid, text, text, bigint, uuid
+) from public, anon;
+grant execute on function catalog.request_product_image_upload(
+  uuid, text, text, bigint, uuid
+) to authenticated, service_role;
 
 revoke all on function catalog.create_product(
   uuid, text, uuid, text, text, text, text, text, jsonb, text, text, jsonb, uuid

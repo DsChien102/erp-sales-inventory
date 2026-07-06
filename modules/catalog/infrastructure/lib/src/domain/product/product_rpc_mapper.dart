@@ -18,6 +18,7 @@ abstract final class ProductRpcMapper {
           .map(
             (image) => <String, dynamic>{
               'storage_key': image.storageKey,
+              'slot_id': image.slotId,
               'url': image.url,
               'is_primary': image.isPrimary,
               'sort_order': image.sortOrder,

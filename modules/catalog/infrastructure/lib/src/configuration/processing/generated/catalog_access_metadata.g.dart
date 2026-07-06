@@ -14,5 +14,9 @@ final catalogAccessMetadataRegistry = AccessMetadataRegistry({
     permission: 'catalog.product.create',
     requiresTenant: true,
   ),
+  RequestProductImageUploadCommand: AccessMetadata(
+    permission: 'catalog.product.create',
+    requiresTenant: true,
+  ),
 });
 

@@ -22,6 +22,7 @@ final catalogModuleManifest = GeneratedModuleManifest(
   ],
   commandTypes: [
     CreateProductCommand,
+    RequestProductImageUploadCommand,
   ],
   queryTypes: [
     CheckDuplicateProductCodeQuery,

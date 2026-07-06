@@ -23,16 +23,24 @@ class ProductGuidedStepImages extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         ProductImagePickerPanel(
-          images: state.images,
+          drafts: state.imageDrafts,
           coverImageIndex: state.coverImageIndex,
-          onChanged: (images, coverIndex) {
-            cubit.setImages(images, coverIndex);
-          },
+          maxImages: ProductGuidedCreateState.maxImages,
+          onPickFromGallery: () => cubit.pickImagesFromGallery(),
+          onSetCover: cubit.setCoverImageIndex,
+          onRemoveAt: cubit.removeImageAt,
         ),
-        if (state.images.isEmpty) ...[
+        if (state.imageDrafts.isEmpty) ...[
           const SizedBox(height: VSpacing.space2),
           Text(
             'Chưa có ảnh',
+            style: VTypography.caption.copyWith(color: dynamicColors.textSecondary),
+          ),
+        ],
+        if (state.hasUploadFailures) ...[
+          const SizedBox(height: VSpacing.space2),
+          Text(
+            'Một số ảnh tải lên thất bại — bạn vẫn có thể lưu sản phẩm với ảnh đã tải thành công.',
             style: VTypography.caption.copyWith(color: dynamicColors.textSecondary),
           ),
         ],

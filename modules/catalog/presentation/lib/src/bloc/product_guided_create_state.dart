@@ -1,8 +1,10 @@
+import '../models/product_image_draft.dart';
 import '../models/product_list_item_model.dart';
 
 enum ProductGuidedCreateStatus {
   initial,
   loading,
+  uploadingImages,
   success,
   error,
 }
@@ -14,7 +16,7 @@ class ProductGuidedCreateState {
     this.tradeName = '',
     this.sku = '',
     this.barcode = '',
-    this.images = const [],
+    this.imageDrafts = const [],
     this.coverImageIndex = 0,
     this.baseUnit = '',
     this.activeStepIndex = 0,
@@ -32,7 +34,7 @@ class ProductGuidedCreateState {
   final String tradeName;
   final String sku;
   final String barcode;
-  final List<String> images;
+  final List<ProductImageDraft> imageDrafts;
   final int coverImageIndex;
   final String baseUnit;
 
@@ -47,17 +49,26 @@ class ProductGuidedCreateState {
   final ProductListItemModel? createdProduct;
 
   static const stepCount = 3;
+  static const maxImages = 8;
 
   bool get isStep1Valid => name.trim().isNotEmpty;
   bool get hasDuplicateError => skuError != null || barcodeError != null;
-  bool get canSubmit => isStep1Valid && !hasDuplicateError;
+  bool get isUploadingImages =>
+      imageDrafts.any((d) => d.status == ProductImageUploadStatus.uploading);
+  bool get hasUploadFailures =>
+      imageDrafts.any((d) => d.status == ProductImageUploadStatus.failed);
+  bool get canSubmit =>
+      isStep1Valid &&
+      !hasDuplicateError &&
+      !isUploadingImages &&
+      status != ProductGuidedCreateStatus.loading;
 
   ProductGuidedCreateState copyWith({
     String? name,
     String? tradeName,
     String? sku,
     String? barcode,
-    List<String>? images,
+    List<ProductImageDraft>? imageDrafts,
     int? coverImageIndex,
     String? baseUnit,
     int? activeStepIndex,
@@ -79,7 +90,7 @@ class ProductGuidedCreateState {
       tradeName: tradeName ?? this.tradeName,
       sku: sku ?? this.sku,
       barcode: barcode ?? this.barcode,
-      images: images ?? this.images,
+      imageDrafts: imageDrafts ?? this.imageDrafts,
       coverImageIndex: coverImageIndex ?? this.coverImageIndex,
       baseUnit: baseUnit ?? this.baseUnit,
       activeStepIndex: activeStepIndex ?? this.activeStepIndex,

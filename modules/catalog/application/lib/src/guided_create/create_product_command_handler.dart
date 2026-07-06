@@ -48,6 +48,7 @@ final class CreateProductCommandHandler
   ProductImage _toImage(ProductImageInput input) {
     return ProductImage(
       storageKey: input.storageKey,
+      slotId: input.slotId,
       url: input.url,
       isPrimary: input.isPrimary,
       sortOrder: input.sortOrder,

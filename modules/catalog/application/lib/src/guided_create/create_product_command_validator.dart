@@ -15,5 +15,13 @@ final class CreateProductCommandValidator
     if (command.productName.trim().isEmpty) {
       throw ValidationException('Product name is required.');
     }
+    if (command.images.length > 8) {
+      throw ValidationException('A product can have at most 8 images.');
+    }
+    final primaryCount =
+        command.images.where((image) => image.isPrimary).length;
+    if (primaryCount > 1) {
+      throw ValidationException('Only one primary image is allowed.');
+    }
   }
 }

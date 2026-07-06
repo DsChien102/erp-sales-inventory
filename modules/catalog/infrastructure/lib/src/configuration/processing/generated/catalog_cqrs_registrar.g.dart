@@ -14,6 +14,9 @@ void registerGeneratedCatalogValidators(GetIt container) {
     ..registerFactory<ICommandValidator<CreateProductCommand>>(
       CreateProductCommandValidator.new,
     )
+    ..registerFactory<ICommandValidator<RequestProductImageUploadCommand>>(
+      RequestProductImageUploadCommandValidator.new,
+    )
     ;
 }
 
@@ -31,6 +34,15 @@ void registerGeneratedCatalogHandlers({
     logger: logger,
     factory: () => CreateProductCommandHandler(
       commandGateway: container.get<IProductCommandGateway>(),
+    ),
+  );
+
+  CatalogCommandRegistration.registerBusinessHandler<RequestProductImageUploadCommand, ProductImageUploadSlotDto, RequestProductImageUploadCommandHandler>(
+    container: container,
+    bus: bus,
+    logger: logger,
+    factory: () => RequestProductImageUploadCommandHandler(
+      uploadPort: container.get<IProductImageUploadPort>(),
     ),
   );
 

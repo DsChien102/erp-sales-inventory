@@ -114,6 +114,45 @@ void main() {
       );
     });
 
+    test('guided_create_upload_slot_ok returns upload slot', () async {
+      final module = FakeCatalogModule(
+        scenario: FakeCatalogScenario.guidedCreateUploadSlotOk,
+      );
+
+      final result = await module.executeCommandAsync(
+        RequestProductImageUploadCommand(
+          tenantId: 'tenant-1',
+          actorId: 'user-1',
+          fileName: 'photo.jpg',
+          contentType: 'image/jpeg',
+          byteSize: 2048,
+        ),
+      );
+
+      expect(result.slotId, startsWith('slot-'));
+      expect(result.storageKey, contains('staging'));
+      expect(result.signedUploadUrl, isNotEmpty);
+    });
+
+    test('guided_create_upload_invalid_type throws ValidationException', () async {
+      final module = FakeCatalogModule(
+        scenario: FakeCatalogScenario.guidedCreateUploadInvalidType,
+      );
+
+      await expectLater(
+        module.executeCommandAsync(
+          RequestProductImageUploadCommand(
+            tenantId: 'tenant-1',
+            actorId: 'user-1',
+            fileName: 'photo.gif',
+            contentType: 'image/gif',
+            byteSize: 1024,
+          ),
+        ),
+        throwsA(isA<ValidationException>()),
+      );
+    });
+
     test(
       'guided_create_permission_denied throws ApplicationException',
       () async {

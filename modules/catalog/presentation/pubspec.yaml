@@ -14,6 +14,7 @@ dependencies:
   flutter_bloc: ^9.1.1
   get_it: ^9.2.1
   image_picker: ^1.1.2
+  http: ^1.2.2
   vet45_design_system: ^1.0.0
   vet45_catalog_application: ^1.0.0
   vet45_catalog_domain: ^1.0.0

@@ -1,8 +1,11 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:vet45_catalog_application/application.dart';
 import 'package:vet45_catalog_domain/domain.dart';
 import 'package:vet45_shared_application/application.dart';
 import '../mappers/catalog_ui_mapper.dart';
+import '../models/product_image_draft.dart';
+import '../services/product_image_upload_client.dart';
 import 'product_guided_create_state.dart';
 
 class ProductGuidedCreateCubit extends Cubit<ProductGuidedCreateState> {
@@ -15,6 +18,7 @@ class ProductGuidedCreateCubit extends Cubit<ProductGuidedCreateState> {
 
   final ICatalogModule _catalogModule;
   final IExecutionContext _executionContext;
+  final ImagePicker _picker = ImagePicker();
 
   void updateName(String val) {
     emit(state.copyWith(name: val, clearError: true));
@@ -96,11 +100,132 @@ class ProductGuidedCreateCubit extends Cubit<ProductGuidedCreateState> {
     }
   }
 
-  void setImages(List<String> images, int coverImageIndex) {
+  Future<void> pickImagesFromGallery() async {
+    if (state.imageDrafts.length >= ProductGuidedCreateState.maxImages) {
+      return;
+    }
+
+    try {
+      final picked = await _picker.pickMultiImage(imageQuality: 85);
+      if (picked.isEmpty) {
+        return;
+      }
+
+      final remaining = ProductGuidedCreateState.maxImages - state.imageDrafts.length;
+      final toAdd = picked.take(remaining).toList();
+      await _uploadPickedFiles(toAdd);
+    } catch (_) {
+      emit(state.copyWith(
+        errorMessage: 'Không mở được thư viện ảnh.',
+        status: ProductGuidedCreateStatus.error,
+      ));
+    }
+  }
+
+  Future<void> _uploadPickedFiles(List<XFile> files) async {
+    if (files.isEmpty) {
+      return;
+    }
+
+    final tenantId = await _executionContext.requireTenantId();
+    final actorId = await _executionContext.requireUserId();
+
+    var drafts = [...state.imageDrafts];
+    for (final file in files) {
+      drafts = [
+        ...drafts,
+        ProductImageDraft(localPath: file.path, status: ProductImageUploadStatus.uploading),
+      ];
+      emit(state.copyWith(
+        imageDrafts: drafts,
+        coverImageIndex: state.coverImageIndex.clamp(0, drafts.length - 1),
+        status: ProductGuidedCreateStatus.uploadingImages,
+        clearError: true,
+      ));
+
+      final index = drafts.length - 1;
+      final fileName = file.name.isNotEmpty ? file.name : file.path.split('/').last;
+      final contentType = ProductImageUploadClient.contentTypeForFileName(fileName);
+
+      try {
+        final bytes = await file.readAsBytes();
+        final slot = await _catalogModule.executeCommandAsync(
+          RequestProductImageUploadCommand(
+            tenantId: tenantId,
+            actorId: actorId,
+            fileName: fileName,
+            contentType: contentType,
+            byteSize: bytes.length,
+          ),
+        );
+
+        await ProductImageUploadClient.uploadBytes(
+          signedUploadUrl: slot.signedUploadUrl,
+          bytes: bytes,
+          contentType: contentType,
+        );
+
+        drafts = [...drafts];
+        drafts[index] = ProductImageDraft(
+          localPath: file.path,
+          storageKey: slot.storageKey,
+          slotId: slot.slotId,
+          status: ProductImageUploadStatus.uploaded,
+        );
+      } on ValidationException catch (e) {
+        drafts = [...drafts];
+        drafts[index] = ProductImageDraft(
+          localPath: file.path,
+          status: ProductImageUploadStatus.failed,
+          errorMessage: e.message,
+        );
+      } on ApplicationException catch (e) {
+        drafts = [...drafts];
+        drafts[index] = ProductImageDraft(
+          localPath: file.path,
+          status: ProductImageUploadStatus.failed,
+          errorMessage: e.message,
+        );
+      } catch (_) {
+        drafts = [...drafts];
+        drafts[index] = ProductImageDraft(
+          localPath: file.path,
+          status: ProductImageUploadStatus.failed,
+          errorMessage: 'Upload ảnh thất bại.',
+        );
+      }
+
+      emit(state.copyWith(
+        imageDrafts: drafts,
+        coverImageIndex: state.coverImageIndex.clamp(0, drafts.length - 1),
+        status: ProductGuidedCreateStatus.initial,
+      ));
+    }
+  }
+
+  void setCoverImageIndex(int index) {
+    if (state.imageDrafts.isEmpty) {
+      return;
+    }
     emit(state.copyWith(
-      images: images,
-      coverImageIndex: images.isEmpty ? 0 : coverImageIndex.clamp(0, images.length - 1),
+      coverImageIndex: index.clamp(0, state.imageDrafts.length - 1),
     ));
+  }
+
+  void removeImageAt(int index) {
+    if (index < 0 || index >= state.imageDrafts.length) {
+      return;
+    }
+    final next = [...state.imageDrafts]..removeAt(index);
+    var cover = state.coverImageIndex;
+    if (cover >= next.length) {
+      cover = next.isEmpty ? 0 : next.length - 1;
+    } else if (index < cover) {
+      cover -= 1;
+    } else if (index == cover && next.isNotEmpty) {
+      cover = 0;
+    }
+    emit(state.copyWith(imageDrafts: next, coverImageIndex: cover));
   }
 
   void updateBaseUnit(String val) {
@@ -136,6 +261,14 @@ class ProductGuidedCreateCubit extends Cubit<ProductGuidedCreateState> {
         showValidationErrors: true,
         status: ProductGuidedCreateStatus.error,
         errorMessage: 'Vui lòng nhập tên nội bộ sản phẩm.',
+      ));
+      return;
+    }
+
+    if (state.isUploadingImages) {
+      emit(state.copyWith(
+        status: ProductGuidedCreateStatus.error,
+        errorMessage: 'Đang tải ảnh lên, vui lòng đợi.',
       ));
       return;
     }
@@ -217,16 +350,20 @@ class ProductGuidedCreateCubit extends Cubit<ProductGuidedCreateState> {
   }
 
   List<ProductImageInput> _toImageInputs() {
-    if (state.images.isEmpty) {
+    final uploaded = state.imageDrafts
+        .where((draft) => draft.isUploaded && draft.storageKey != null)
+        .toList();
+    if (uploaded.isEmpty) {
       return const [];
     }
 
-    return state.images.asMap().entries.map((entry) {
-      final path = entry.value;
-      final isPrimary = entry.key == state.coverImageIndex;
+    return uploaded.asMap().entries.map((entry) {
+      final draft = entry.value;
+      final originalIndex = state.imageDrafts.indexOf(draft);
+      final isPrimary = originalIndex == state.coverImageIndex;
       return ProductImageInput(
-        storageKey: path,
-        url: path.startsWith('http') ? path : null,
+        storageKey: draft.storageKey!,
+        slotId: draft.slotId,
         isPrimary: isPrimary,
         sortOrder: entry.key,
       );

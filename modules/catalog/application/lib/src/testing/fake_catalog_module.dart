@@ -9,6 +9,8 @@ abstract final class FakeCatalogScenario {
   static const guidedCreateDupBarcode = 'guided_create_dup_barcode';
   static const guidedCreateMissingName = 'guided_create_missing_name';
   static const guidedCreateNoImages = 'guided_create_no_images';
+  static const guidedCreateUploadSlotOk = 'guided_create_upload_slot_ok';
+  static const guidedCreateUploadInvalidType = 'guided_create_upload_invalid_type';
   static const guidedCreatePermissionDenied = 'guided_create_permission_denied';
 }
 
@@ -42,6 +44,11 @@ final class FakeCatalogModule implements ICatalogModule {
     if (command is CreateProductCommand) {
       return _handleCreateProduct<TResult>(command as CreateProductCommand);
     }
+    if (command is RequestProductImageUploadCommand) {
+      return _handleRequestUpload<TResult>(
+        command as RequestProductImageUploadCommand,
+      );
+    }
     throw UnimplementedError('Unexpected command: ${command.runtimeType}');
   }
 
@@ -53,6 +60,27 @@ final class FakeCatalogModule implements ICatalogModule {
       );
     }
     throw UnimplementedError('Unexpected query: ${query.runtimeType}');
+  }
+
+  TResult _handleRequestUpload<TResult>(
+    RequestProductImageUploadCommand command,
+  ) {
+    switch (scenario) {
+      case FakeCatalogScenario.guidedCreatePermissionDenied:
+        throw ApplicationException('Permission denied');
+      case FakeCatalogScenario.guidedCreateUploadInvalidType:
+        throw ValidationException('Unsupported image content type.');
+      case FakeCatalogScenario.guidedCreateUploadSlotOk:
+      default:
+        final slotId = 'slot-$_nextProductId';
+        return ProductImageUploadSlotDto(
+          slotId: slotId,
+          storageKey:
+              '${command.tenantId}/staging/$slotId/original.jpeg',
+          signedUploadUrl: 'https://storage.fake/upload/$slotId',
+          expiresAt: DateTime.now().toUtc().add(const Duration(hours: 1)),
+        ) as TResult;
+    }
   }
 
   TResult _handleCreateProduct<TResult>(CreateProductCommand command) {
