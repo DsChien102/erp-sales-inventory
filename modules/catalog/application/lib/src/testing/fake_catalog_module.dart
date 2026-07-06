@@ -45,6 +45,16 @@ abstract final class FakeCatalogScenario {
   static const setBaseUnitDuplicate = 'set_base_unit_duplicate';
   static const setBaseUnitInactiveUnit = 'set_base_unit_inactive_unit';
   static const unitDependenciesLocked = 'unit_dependencies_locked';
+  static const scnContractE05U01Fr01_01 = 'scn_contract_e05_u01_fr01_01';
+  static const scnContractE05U01Fr02_01 = 'scn_contract_e05_u01_fr02_01';
+  static const scnContractE05U01Fr03_01 = 'scn_contract_e05_u01_fr03_01';
+  static const scnContractE05U02Fr01_01 = 'scn_contract_e05_u02_fr01_01';
+  static const scnContractE05U02Fr01_02 = 'scn_contract_e05_u02_fr01_02';
+  static const scnContractE05U02Fr02_01 = 'scn_contract_e05_u02_fr02_01';
+  static const scnContractE05U02Fr02_02 = 'scn_contract_e05_u02_fr02_02';
+  static const scnContractE05U02Fr02_03 = 'scn_contract_e05_u02_fr02_03';
+  static const scnContractE05U02Fr03_01 = 'scn_contract_e05_u02_fr03_01';
+  static const scnContractE05U02Fr04_01 = 'scn_contract_e05_u02_fr04_01';
 }
 
 class _TenantUnit {
@@ -77,6 +87,28 @@ class _ProductUnit {
   bool isActive;
 }
 
+class _StockMovement {
+  const _StockMovement({
+    required this.id,
+    required this.occurredAt,
+    required this.actorDisplayName,
+    required this.movementType,
+    required this.quantityBefore,
+    required this.quantityAfter,
+    required this.delta,
+    this.reason,
+  });
+
+  final String id;
+  final DateTime occurredAt;
+  final String actorDisplayName;
+  final StockMovementType movementType;
+  final double quantityBefore;
+  final double quantityAfter;
+  final double delta;
+  final String? reason;
+}
+
 class _StoredProduct {
   _StoredProduct({
     required this.id,
@@ -91,13 +123,11 @@ class _StoredProduct {
     this.listPrice,
     this.floorPrice,
     this.notes,
-    this.description,
     this.hasRequiredCustomFields = true,
     this.stockMode = FakeProductReadinessBuilder.stockModeBasic,
     this.basePriceMode = FakeProductReadinessBuilder.basePriceModeManual,
     this.pricePermissionDenied = false,
     this.businessStatus = ProductStatus.active,
-    this.isSoftDeleted = false,
     DateTime? updatedAt,
   }) : updatedAt = updatedAt ?? DateTime.utc(2026, 1, 1);
 
@@ -109,18 +139,20 @@ class _StoredProduct {
   String baseUnit;
   final List<String> images;
   int? stockQty;
+  int stockVersion = 1;
+  List<_StockMovement> stockMovements = const [];
   double? baseCost;
   double? listPrice;
   double? floorPrice;
   bool useStoreRule = false;
   final String? notes;
-  final String? description;
+  final String? description = null;
   final bool hasRequiredCustomFields;
   final StockMode stockMode;
   final BasePriceMode basePriceMode;
   final bool pricePermissionDenied;
   final ProductStatus businessStatus;
-  final bool isSoftDeleted;
+  final bool isSoftDeleted = false;
   final DateTime updatedAt;
 
   bool get hasBaseUnit => baseUnit.trim().isNotEmpty;
@@ -271,8 +303,67 @@ final class FakeCatalogModule implements ICatalogModule {
       if (!prod.hasBaseUnit) {
         throw MissingBaseUnitException();
       }
-      prod.stockQty = cmd.quantity;
-      return null as TResult;
+      final previousQty = (prod.stockQty ?? 0).toDouble();
+      prod.stockQty = cmd.quantity.toInt();
+      prod.stockVersion += 1;
+      prod.stockMovements = [
+        ...prod.stockMovements,
+        _StockMovement(
+          id: 'movement-${prod.id}-${prod.stockMovements.length + 1}',
+          occurredAt: DateTime.now(),
+          actorDisplayName: 'Nguyễn Văn A',
+          movementType: StockMovementType.initial,
+          quantityBefore: previousQty,
+          quantityAfter: cmd.quantity,
+          delta: cmd.quantity - previousQty,
+        ),
+      ];
+      return SetInitialStockResult(
+            productId: prod.id,
+            quantity: cmd.quantity,
+            unitName: prod.baseUnit,
+            readinessSummary: _readinessSummaryFor(prod),
+          )
+          as TResult;
+    } else if (command is AdjustBasicStockCommand) {
+      final cmd = command as AdjustBasicStockCommand;
+      final prod = _products.firstWhere((p) => p.id == cmd.productId);
+      if (!prod.hasBaseUnit) {
+        throw MissingBaseUnitException();
+      }
+      if (prod.stockMode.isAdvanced) {
+        throw NotBasicStockModeException();
+      }
+      if (cmd.newQuantity < 0) {
+        throw ValidationException('Số lượng tồn kho không được âm.');
+      }
+      final previousQty = (prod.stockQty ?? 0).toDouble();
+      if (cmd.expectedQuantity != null && cmd.expectedQuantity != previousQty) {
+        throw StaleStockQuantityException();
+      }
+      prod.stockQty = cmd.newQuantity.toInt();
+      prod.stockVersion += 1;
+      prod.stockMovements = [
+        ...prod.stockMovements,
+        _StockMovement(
+          id: 'movement-${prod.id}-${prod.stockMovements.length + 1}',
+          occurredAt: DateTime.now(),
+          actorDisplayName: 'Nguyễn Văn A',
+          movementType: StockMovementType.adjust,
+          quantityBefore: previousQty,
+          quantityAfter: cmd.newQuantity,
+          delta: cmd.newQuantity - previousQty,
+          reason: cmd.reason,
+        ),
+      ];
+      return AdjustBasicStockResult(
+            productId: prod.id,
+            previousQuantity: previousQty,
+            newQuantity: cmd.newQuantity,
+            unitName: prod.baseUnit,
+            readinessSummary: _readinessSummaryFor(prod),
+          )
+          as TResult;
     } else if (command is SetManualBasePriceCommand) {
       final cmd = command as SetManualBasePriceCommand;
       if (cmd.mode != 'manual') {
@@ -365,6 +456,11 @@ final class FakeCatalogModule implements ICatalogModule {
     }
     if (query is ListProductUnitsQuery) {
       return _handleListProductUnits<TResult>(query as ListProductUnitsQuery);
+    }
+    if (query is GetProductStockHistoryQuery) {
+      return _handleGetProductStockHistory<TResult>(
+        query as GetProductStockHistoryQuery,
+      );
     }
     throw UnimplementedError('Unexpected query: ${query.runtimeType}');
   }
@@ -577,6 +673,46 @@ final class FakeCatalogModule implements ICatalogModule {
     return _toControlCenterDto(product) as TResult;
   }
 
+  TResult _handleGetProductStockHistory<TResult>(
+    GetProductStockHistoryQuery query,
+  ) {
+    final product = _findProduct(query.productId);
+    if (product == null) {
+      throw ApplicationException('Product not found');
+    }
+    if (product.stockMode.isAdvanced) {
+      return ProductStockHistoryDto(
+            productId: product.id,
+            unitName: product.baseUnit,
+            isHistoricalBasicOnly: true,
+            movements: const [],
+          )
+          as TResult;
+    }
+    final rows = product.stockMovements
+        .take(query.limit)
+        .map(
+          (movement) => ProductStockMovementDto(
+            id: movement.id,
+            occurredAt: movement.occurredAt,
+            actorDisplayName: movement.actorDisplayName,
+            movementType: movement.movementType,
+            quantityBefore: movement.quantityBefore,
+            quantityAfter: movement.quantityAfter,
+            delta: movement.delta,
+            reason: movement.reason,
+          ),
+        )
+        .toList(growable: false);
+    return ProductStockHistoryDto(
+          productId: product.id,
+          unitName: product.baseUnit,
+          isHistoricalBasicOnly: true,
+          movements: rows,
+        )
+        as TResult;
+  }
+
   _StoredProduct? _resolveControlCenterProduct(String productId) {
     if (scenario == FakeCatalogScenario.pccIncomplete) {
       return _findProduct('product-4') ?? _findProduct(productId);
@@ -634,6 +770,7 @@ final class FakeCatalogModule implements ICatalogModule {
       isSoftDeleted: product.isSoftDeleted,
       baseUnit: product.baseUnit,
       stockQty: product.stockQty,
+      stockVersion: product.stockVersion,
       baseCost: product.baseCost,
       listPrice: product.listPrice,
       floorPrice: product.floorPrice,

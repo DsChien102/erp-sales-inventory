@@ -78,7 +78,7 @@ Permissions: `@RequiresPermission(CatalogPermissions.create)` (`catalog.product.
 
 | Symbol | Input (summary) | Success | Errors |
 | ------ | --------------- | ------- | ------ |
-| `SetInitialStockCommand` | tenantId, productId, quantity (basic mode) | void | Validation, NotBasicStockMode |
+| `SetInitialStockCommand` | tenantId, productId, quantity (`double`, basic mode) | `SetInitialStockResult` (productId, quantity, unitName?, readinessSummary) | Validation, NotBasicStockMode, MissingBaseUnit |
 | `SetManualBasePriceCommand` | tenantId, productId, basePrice, currency | void | Validation, NotManualBasePriceMode |
 | `SetInitialPriceBandCommand` | tenantId, productId, listPrice?, floorPrice?, useStoreRule? | void | Validation, MissingBasePrice |
 
@@ -415,7 +415,7 @@ Tests: `scn_contract_e04_u01_*` trong `fake_catalog_module_test.dart`.
 
 ## EPIC-04 / US-02 — Đơn vị quy đổi (slice #7)
 
-**Status:** CONTRACT `done` · BE `todo` · FE `todo`
+**Status:** CONTRACT `done` · BE `done` · FE `todo`
 
 ### Commands / Queries
 
@@ -448,7 +448,7 @@ Port: `ICatalogUnitGateway.listProductUnits`, `addConversionUnit`, `deactivateCo
 - Base unit cannot be deactivated through this slice. US-03 change base unit remains **out_of_scope**.
 - `conversionRateToBase` is `double` and must be `> 0`; precision policy is deferred to BE.
 
-### RPC mapping (BE — later lane)
+### RPC mapping (BE)
 
 | Use case | RPC |
 | -------- | --- |
@@ -457,7 +457,9 @@ Port: `ICatalogUnitGateway.listProductUnits`, `addConversionUnit`, `deactivateCo
 | Deactivate conversion unit | `catalog.deactivate_product_conversion_unit` |
 | Reactivate conversion unit | `catalog.reactivate_product_conversion_unit` |
 
-No timestamp migration in CONTRACT lane; BE lane may extend `supabase/migrations/_drafts/05_catalog_units.sql`.
+Draft: `supabase/migrations/_drafts/05_catalog_units.sql` — handlers via `SupabaseCatalogUnitGateway` + `ProductRpcMapper`.
+
+**BE tests:** `set_product_base_unit_command_handler_test.dart` (group `Product conversion unit handlers`), `product_rpc_mapper_test.dart` (EPIC-04/US-02 conversion units).
 
 ### Fake scenarios (FE)
 
@@ -480,6 +482,73 @@ Tests: `scn_contract_e04_u02_*` trong `fake_catalog_module_test.dart`.
 
 - FE có thể fake: **yes**
 - E2E prerequisite: US-01 (data), US-01 base unit readiness
+
+---
+
+## EPIC-05 / US-01 + US-02 — Stock profile + basic stock (slice #8)
+
+**Status:** CONTRACT `done` · BE `todo` · FE `todo`
+
+### Commands / Queries
+
+| Symbol | Input (summary) | Success | Errors |
+| ------ | --------------- | ------- | ------ |
+| `AdjustBasicStockCommand` | tenantId, productId, newQuantity (`double`), reason?, expectedQuantity? | `AdjustBasicStockResult` (productId, previousQuantity, newQuantity, unitName?, readinessSummary) | Validation, `MissingBaseUnitException`, `NotBasicStockModeException`, `StaleStockQuantityException` |
+| `GetProductStockHistoryQuery` | tenantId, productId, limit=50 | `ProductStockHistoryDto` | PermissionDenied, NotFound |
+
+`SetInitialStockCommand` updated from `void` to `SetInitialStockResult` and now accepts `double quantity`.
+
+### Stock card contract (US-01 read-side)
+
+`ProductStockCardDto` (trong `GetProductControlCenterQuery` response):
+
+| Field | Type | Notes |
+| ----- | ---- | ----- |
+| `mode` | `StockMode` | `basic` \| `advanced` |
+| `source` | `StockDataSource` | `basicProfile` \| `inventoryModule` |
+| `sourceLabel` | `String` | "Tồn kho cơ bản" hoặc "Tồn kho từ module Kho" |
+| `quantity` | `int?` | read quantity for card |
+| `isConfigured` | `bool` | có nguồn tồn hợp lệ (qty=0 vẫn true) |
+| `isOutOfStock` | `bool` | `isConfigured && quantity == 0` |
+| `canAdjust` | `bool` | chỉ `basic` + có base unit |
+| `currentVersion` | `int?` | optimistic concurrency hint |
+
+### Supporting types
+
+| Type | Fields |
+| ---- | ------ |
+| `SetInitialStockResult` | productId, quantity, unitName?, readinessSummary |
+| `AdjustBasicStockResult` | productId, previousQuantity, newQuantity, unitName?, readinessSummary |
+| `ProductStockMovementDto` | id, occurredAt, actorDisplayName, movementType (`initial` \| `adjust`), quantityBefore, quantityAfter, delta, reason? |
+| `ProductStockHistoryDto` | productId, unitName?, isHistoricalBasicOnly, movements[] |
+
+### RPC mapping (BE — later lane)
+
+| Use case | RPC |
+| -------- | --- |
+| Set initial stock | `catalog.set_initial_stock` |
+| Adjust basic stock | `catalog.adjust_basic_stock` |
+| Read stock history | `catalog.get_product_stock_history` |
+
+### Fake scenarios (FE)
+
+| scenario_id | trigger | fake response |
+| ----------- | ------- | ------------- |
+| `scn_contract_e05_u01_fr01_01` | PCC `product-1` | stock mode basic + source `Tồn kho cơ bản` |
+| `scn_contract_e05_u01_fr02_01` | advanced stock product | source inventory + read-only (`canAdjust=false`) |
+| `scn_contract_e05_u01_fr03_01` | quantity = 0 | `isOutOfStock=true`, không tạo blocker `missing_stock` |
+| `scn_contract_e05_u02_fr01_01` | `SetInitialStockCommand` valid | `SetInitialStockResult` + readiness refresh |
+| `scn_contract_e05_u02_fr01_02` | set stock khi thiếu base unit | `MissingBaseUnitException` |
+| `scn_contract_e05_u02_fr02_01` | `AdjustBasicStockCommand` valid | `AdjustBasicStockResult` |
+| `scn_contract_e05_u02_fr02_02` | adjust âm | `ValidationException` |
+| `scn_contract_e05_u02_fr02_03` | expectedQuantity stale | `StaleStockQuantityException` |
+| `scn_contract_e05_u02_fr03_01` | `GetProductStockHistoryQuery` | history movements (`initial`, `adjust`) |
+| `scn_contract_e05_u02_fr04_01` | set/adjust stock | readiness bỏ blocker `missing_stock` |
+
+### Parallel notes
+
+- FE có thể fake: **yes**
+- E2E prerequisite: US-01 (data)
 
 ---
 
@@ -528,7 +597,7 @@ Tests: `scn_contract_e04_u02_*` trong `fake_catalog_module_test.dart`.
 | ----- | ---------------- | ------ |
 | EPIC-04 US-01 | Base unit set + tenant unit picker | done |
 | EPIC-04 US-02 | UOM conversion (không US-03; FR-02 roles **pending**) | done |
-| EPIC-05 US-01..02 | Stock profile + basic stock adjust | todo |
+| EPIC-05 US-01..02 | Stock profile + basic stock adjust | done |
 | EPIC-06 US-01..03 | Manual base price, store rule, price band | todo |
 | EPIC-06 US-04 | ProductPriceBandSnapshot consumers | todo |
 | EPIC-07 US-01..04 | Lifecycle, change history | todo |

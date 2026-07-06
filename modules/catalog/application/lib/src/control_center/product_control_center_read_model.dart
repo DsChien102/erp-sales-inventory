@@ -21,6 +21,7 @@ final class ProductControlCenterReadModel {
     this.conversionUnits = const [],
     required this.facts,
     this.stockQuantity,
+    this.stockVersion,
     this.basePriceAmount,
     this.basePriceCurrency = 'VND',
     this.listPrice,
@@ -43,6 +44,7 @@ final class ProductControlCenterReadModel {
   final List<ProductConversionUnitDto> conversionUnits;
   final ProductReadinessFacts facts;
   final int? stockQuantity;
+  final int? stockVersion;
   final double? basePriceAmount;
   final String basePriceCurrency;
   final double? listPrice;

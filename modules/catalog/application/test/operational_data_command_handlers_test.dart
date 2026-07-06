@@ -89,7 +89,7 @@ void main() {
       final command = SetInitialStockCommand(
         tenantId: 'tenant-1',
         productId: 'prod-1',
-        quantity: 100,
+        quantity: 100.0,
       );
 
       await validator.validate(command);
@@ -106,7 +106,7 @@ void main() {
       final command = SetInitialStockCommand(
         tenantId: 'tenant-1',
         productId: 'prod-1',
-        quantity: -5,
+        quantity: -5.0,
       );
 
       expect(
@@ -120,7 +120,7 @@ void main() {
       final command = SetInitialStockCommand(
         tenantId: 'tenant-1',
         productId: 'prod-1',
-        quantity: 10,
+        quantity: 10.0,
         mode: 'advanced',
       );
 
@@ -142,7 +142,7 @@ void main() {
           SetInitialStockCommand(
             tenantId: 'tenant-1',
             productId: 'prod-1',
-            quantity: 10,
+            quantity: 10.0,
           ),
         ),
         throwsA(isA<MissingBaseUnitException>()),

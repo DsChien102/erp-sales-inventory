@@ -220,7 +220,7 @@ void main() {
         SetInitialStockCommand(
           tenantId: 'tenant-1',
           productId: 'product-1',
-          quantity: 200,
+          quantity: 200.0,
         ),
       );
     });
@@ -813,7 +813,7 @@ void main() {
           SetInitialStockCommand(
             tenantId: 'tenant-1',
             productId: 'product-6',
-            quantity: 10,
+            quantity: 10.0,
           ),
         ),
         throwsA(isA<MissingBaseUnitException>()),
@@ -1073,6 +1073,225 @@ void main() {
           actorId: 'user-1',
           productName: 'Amoxicillin 100ml',
         ),
+      );
+    });
+  });
+
+  group('EPIC-05 / US-01..02 stock contract', () {
+    test('scn_contract_e05_u01_fr01_01 stock profile basic source label', () async {
+      final module = FakeCatalogModule(
+        scenario: FakeCatalogScenario.scnContractE05U01Fr01_01,
+      );
+
+      final result = await module.executeQueryAsync(
+        GetProductControlCenterQuery(
+          tenantId: 'tenant-1',
+          productId: 'product-1',
+        ),
+      );
+
+      expect(result.stock.mode, StockMode.basic);
+      expect(result.stock.source, StockDataSource.basicProfile);
+      expect(result.stock.sourceLabel, 'Tồn kho cơ bản');
+      expect(result.stock.canAdjust, isTrue);
+    });
+
+    test('scn_contract_e05_u01_fr02_01 advanced stock read-only source', () async {
+      final module = FakeCatalogModule(
+        scenario: FakeCatalogScenario.readinessAdvancedStockPending,
+      );
+
+      final created = await module.executeCommandAsync(
+        CreateProductCommand(
+          tenantId: 'tenant-1',
+          actorId: 'user-1',
+          productName: 'Thuốc stock advanced',
+          baseUnitName: 'Lọ',
+        ),
+      );
+
+      final result = await module.executeQueryAsync(
+        GetProductControlCenterQuery(
+          tenantId: 'tenant-1',
+          productId: created.productId,
+        ),
+      );
+
+      expect(result.stock.mode, StockMode.advanced);
+      expect(result.stock.source, StockDataSource.inventoryModule);
+      expect(result.stock.sourceLabel, 'Tồn kho từ module Kho');
+      expect(result.stock.canAdjust, isFalse);
+      expect(result.stock.isPendingExternal, isTrue);
+    });
+
+    test('scn_contract_e05_u01_fr03_01 zero quantity is out-of-stock, configured', () async {
+      final module = FakeCatalogModule(
+        scenario: FakeCatalogScenario.scnContractE05U01Fr03_01,
+      );
+
+      final result = await module.executeQueryAsync(
+        GetProductControlCenterQuery(
+          tenantId: 'tenant-1',
+          productId: 'product-3',
+        ),
+      );
+
+      expect(result.stock.isConfigured, isTrue);
+      expect(result.stock.isOutOfStock, isTrue);
+      expect(
+        result.readinessSummary.blockers.map((b) => b.code),
+        isNot(contains(ReadinessBlockerCode.missingStock)),
+      );
+    });
+
+    test('scn_contract_e05_u02_fr01_01 set initial stock returns readiness summary', () async {
+      final module = FakeCatalogModule(
+        scenario: FakeCatalogScenario.scnContractE05U02Fr01_01,
+      );
+
+      final result = await module.executeCommandAsync(
+        SetInitialStockCommand(
+          tenantId: 'tenant-1',
+          productId: 'product-1',
+          quantity: 250.0,
+        ),
+      );
+
+      expect(result.productId, 'product-1');
+      expect(result.quantity, 250.0);
+      expect(result.readinessSummary.status, isNotNull);
+    });
+
+    test('scn_contract_e05_u02_fr01_02 set initial stock without base unit fails', () async {
+      final module = FakeCatalogModule(
+        scenario: FakeCatalogScenario.scnContractE05U02Fr01_02,
+      );
+
+      await expectLater(
+        module.executeCommandAsync(
+          SetInitialStockCommand(
+            tenantId: 'tenant-1',
+            productId: 'product-6',
+            quantity: 10.0,
+          ),
+        ),
+        throwsA(isA<MissingBaseUnitException>()),
+      );
+    });
+
+    test('scn_contract_e05_u02_fr02_01 adjust basic stock success', () async {
+      final module = FakeCatalogModule(
+        scenario: FakeCatalogScenario.scnContractE05U02Fr02_01,
+      );
+
+      final result = await module.executeCommandAsync(
+        AdjustBasicStockCommand(
+          tenantId: 'tenant-1',
+          productId: 'product-1',
+          newQuantity: 25.0,
+          reason: 'Kiểm kê thực tế',
+          expectedQuantity: 150.0,
+        ),
+      );
+
+      expect(result.previousQuantity, 150.0);
+      expect(result.newQuantity, 25.0);
+    });
+
+    test('scn_contract_e05_u02_fr02_02 adjust basic stock negative rejected', () async {
+      final module = FakeCatalogModule(
+        scenario: FakeCatalogScenario.scnContractE05U02Fr02_02,
+      );
+
+      await expectLater(
+        module.executeCommandAsync(
+          AdjustBasicStockCommand(
+            tenantId: 'tenant-1',
+            productId: 'product-1',
+            newQuantity: -1.0,
+          ),
+        ),
+        throwsA(isA<ValidationException>()),
+      );
+    });
+
+    test('scn_contract_e05_u02_fr02_03 stale quantity rejected', () async {
+      final module = FakeCatalogModule(
+        scenario: FakeCatalogScenario.scnContractE05U02Fr02_03,
+      );
+
+      await expectLater(
+        module.executeCommandAsync(
+          AdjustBasicStockCommand(
+            tenantId: 'tenant-1',
+            productId: 'product-1',
+            newQuantity: 20.0,
+            expectedQuantity: 999.0,
+          ),
+        ),
+        throwsA(isA<StaleStockQuantityException>()),
+      );
+    });
+
+    test('scn_contract_e05_u02_fr03_01 get stock history movements', () async {
+      final module = FakeCatalogModule(
+        scenario: FakeCatalogScenario.scnContractE05U02Fr03_01,
+      );
+
+      await module.executeCommandAsync(
+        SetInitialStockCommand(
+          tenantId: 'tenant-1',
+          productId: 'product-1',
+          quantity: 50.0,
+        ),
+      );
+      await module.executeCommandAsync(
+        AdjustBasicStockCommand(
+          tenantId: 'tenant-1',
+          productId: 'product-1',
+          newQuantity: 45.0,
+          expectedQuantity: 50.0,
+          reason: 'Điều chỉnh kho',
+        ),
+      );
+
+      final history = await module.executeQueryAsync(
+        GetProductStockHistoryQuery(
+          tenantId: 'tenant-1',
+          productId: 'product-1',
+        ),
+      );
+
+      expect(history.movements, isNotEmpty);
+      expect(history.movements.first.movementType, StockMovementType.initial);
+      expect(history.movements.last.movementType, StockMovementType.adjust);
+    });
+
+    test('scn_contract_e05_u02_fr04_01 readiness refreshes after stock update', () async {
+      final module = FakeCatalogModule(
+        scenario: FakeCatalogScenario.scnContractE05U02Fr04_01,
+      );
+
+      final created = await module.executeCommandAsync(
+        CreateProductCommand(
+          tenantId: 'tenant-1',
+          actorId: 'user-1',
+          productName: 'Thuốc mới có đơn vị',
+          baseUnitName: 'Lọ',
+        ),
+      );
+
+      final result = await module.executeCommandAsync(
+        SetInitialStockCommand(
+          tenantId: 'tenant-1',
+          productId: created.productId,
+          quantity: 20.0,
+        ),
+      );
+
+      expect(
+        result.readinessSummary.blockers.map((b) => b.code),
+        isNot(contains(ReadinessBlockerCode.missingStock)),
       );
     });
   });

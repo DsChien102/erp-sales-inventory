@@ -90,6 +90,7 @@ abstract final class FakeCatalogProductBuilder {
     bool isSoftDeleted = false,
     String? baseUnit,
     int? stockQty,
+    int? stockVersion,
     double? baseCost,
     double? listPrice,
     double? floorPrice,
@@ -141,8 +142,18 @@ abstract final class FakeCatalogProductBuilder {
       ),
       stock: ProductStockCardDto(
         mode: stockMode,
+        source: stockMode == StockMode.advanced
+            ? StockDataSource.inventoryModule
+            : StockDataSource.basicProfile,
+        sourceLabel: stockMode == StockMode.advanced
+            ? 'Tồn kho từ module Kho'
+            : 'Tồn kho cơ bản',
         quantity: stockQty,
         unitName: hasBaseUnit ? baseUnit : null,
+        isConfigured: hasStock,
+        isOutOfStock: hasStock && stockQty == 0,
+        canAdjust: stockMode == StockMode.basic && hasBaseUnit,
+        currentVersion: stockVersion,
         isPendingExternal: stockMode == StockMode.advanced,
         isMissing: stockMode == StockMode.basic && !hasStock,
         missingMessage: stockMode == StockMode.basic && !hasStock ? 'Thiếu tồn kho' : null,
