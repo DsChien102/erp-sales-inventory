@@ -23,6 +23,9 @@ final catalogModuleManifest = GeneratedModuleManifest(
   commandTypes: [
     CreateProductCommand,
     RequestProductImageUploadCommand,
+    SetInitialPriceBandCommand,
+    SetInitialStockCommand,
+    SetManualBasePriceCommand,
   ],
   queryTypes: [
     CheckDuplicateProductCodeQuery,

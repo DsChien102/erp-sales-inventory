@@ -11,6 +11,10 @@ abstract final class FakeCatalogScenario {
   static const guidedCreateUploadSlotOk = 'guided_create_upload_slot_ok';
   static const guidedCreateUploadInvalidType = 'guided_create_upload_invalid_type';
   static const guidedCreatePermissionDenied = 'guided_create_permission_denied';
+  static const initialStockOk = 'initial_stock_ok';
+  static const initialStockSkip = 'initial_stock_skip';
+  static const manualBasePriceOk = 'manual_base_price_ok';
+  static const priceBandFromStoreRule = 'price_band_from_store_rule';
 }
 
 class _StoredProduct {
@@ -26,7 +30,6 @@ class _StoredProduct {
     this.baseCost,
     this.listPrice,
     this.floorPrice,
-    this.useStoreRule = false,
     this.notes,
   });
 
@@ -41,7 +44,7 @@ class _StoredProduct {
   double? baseCost;
   double? listPrice;
   double? floorPrice;
-  bool useStoreRule;
+  bool useStoreRule = false;
   final String? notes;
 }
 
@@ -100,13 +103,35 @@ final class FakeCatalogModule implements ICatalogModule {
       return _handleCreateProduct<TResult>(command as CreateProductCommand);
     } else if (command is SetInitialStockCommand) {
       final cmd = command as SetInitialStockCommand;
+      if (cmd.mode != 'basic') {
+        throw NotBasicStockModeException();
+      }
       final prod = _products.firstWhere((p) => p.id == cmd.productId);
       prod.stockQty = cmd.quantity;
       return null as TResult;
     } else if (command is SetManualBasePriceCommand) {
       final cmd = command as SetManualBasePriceCommand;
+      if (cmd.mode != 'manual') {
+        throw NotManualBasePriceModeException();
+      }
       final prod = _products.firstWhere((p) => p.id == cmd.productId);
       prod.baseCost = cmd.basePrice;
+      return null as TResult;
+    } else if (command is SetInitialPriceBandCommand) {
+      final cmd = command as SetInitialPriceBandCommand;
+      final useRule = cmd.useStoreRule ?? false;
+      if (useRule && (cmd.listPrice == null || cmd.floorPrice == null)) {
+        throw MissingBasePriceException();
+      }
+      if (cmd.listPrice != null &&
+          cmd.floorPrice != null &&
+          cmd.floorPrice! > cmd.listPrice!) {
+        throw FloorPriceGreaterThanListPriceException();
+      }
+      final prod = _products.firstWhere((p) => p.id == cmd.productId);
+      prod.listPrice = cmd.listPrice;
+      prod.floorPrice = cmd.floorPrice;
+      prod.useStoreRule = useRule;
       return null as TResult;
     }
     if (command is RequestProductImageUploadCommand) {

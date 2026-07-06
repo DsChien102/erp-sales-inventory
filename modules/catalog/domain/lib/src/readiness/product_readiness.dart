@@ -21,6 +21,8 @@ final class ProductReadiness extends ValueObject {
       if (!hasBaseUnit) ReadinessBlocker.missingBaseUnit(),
       if (!hasImages) ReadinessBlocker.missingImage(),
       ReadinessBlocker.missingPrice(),
+      ReadinessBlocker.missingPriceBand(),
+      ReadinessBlocker.missingStock(),
     ];
 
     return ProductReadiness(
@@ -31,6 +33,29 @@ final class ProductReadiness extends ValueObject {
     );
   }
 
+  bool hasBlocker(String code) => blockers.any((b) => b.code == code);
+
+  ProductReadiness removeBlocker(String code) {
+    if (!hasBlocker(code)) return this;
+    final newBlockers = blockers.where((b) => b.code != code).toList();
+    return ProductReadiness(
+      status: newBlockers.isEmpty
+          ? ReadinessStatus.readyToSell
+          : ReadinessStatus.incomplete,
+      blockers: List.unmodifiable(newBlockers),
+    );
+  }
+
+  ProductReadiness addBlocker(ReadinessBlocker blocker) {
+    if (hasBlocker(blocker.code)) return this;
+    final newBlockers = [...blockers, blocker];
+    return ProductReadiness(
+      status: ReadinessStatus.incomplete,
+      blockers: List.unmodifiable(newBlockers),
+    );
+  }
+
   @override
   List<Object?> get props => [status, blockers];
 }
+

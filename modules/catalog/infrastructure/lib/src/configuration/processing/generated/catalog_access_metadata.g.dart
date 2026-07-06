@@ -18,5 +18,17 @@ final catalogAccessMetadataRegistry = AccessMetadataRegistry({
     permission: 'catalog.product.create',
     requiresTenant: true,
   ),
+  SetInitialPriceBandCommand: AccessMetadata(
+    permission: 'catalog.product.manage_pricing',
+    requiresTenant: true,
+  ),
+  SetInitialStockCommand: AccessMetadata(
+    permission: 'catalog.product.manage_stock',
+    requiresTenant: true,
+  ),
+  SetManualBasePriceCommand: AccessMetadata(
+    permission: 'catalog.product.manage_pricing',
+    requiresTenant: true,
+  ),
 });
 

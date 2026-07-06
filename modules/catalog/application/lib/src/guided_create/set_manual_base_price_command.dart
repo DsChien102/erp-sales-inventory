@@ -12,6 +12,7 @@ final class SetManualBasePriceCommand extends CommandBase<void>
     required this.productId,
     required this.basePrice,
     this.currency = 'VND',
+    this.mode = 'manual',
   }) : super(id);
 
   @override
@@ -19,4 +20,5 @@ final class SetManualBasePriceCommand extends CommandBase<void>
   final String productId;
   final double basePrice;
   final String currency;
+  final String mode;
 }

@@ -11,10 +11,12 @@ final class SetInitialStockCommand extends CommandBase<void>
     required this.tenantId,
     required this.productId,
     required this.quantity,
+    this.mode = 'basic',
   }) : super(id);
 
   @override
   final String tenantId;
   final String productId;
   final int quantity;
+  final String mode;
 }

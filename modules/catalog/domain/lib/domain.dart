@@ -1,13 +1,30 @@
 /// catalog domain layer — aggregates, value objects, and shared codes.
 library;
 
+export 'src/exceptions/floor_price_greater_than_list_price_exception.dart';
+export 'src/exceptions/missing_base_price_exception.dart';
+export 'src/exceptions/missing_base_unit_exception.dart';
+export 'src/exceptions/not_basic_stock_mode_exception.dart';
+export 'src/exceptions/not_manual_base_price_mode_exception.dart';
 export 'src/ids/product_id.dart';
+export 'src/pricing/base_price.dart';
+export 'src/pricing/base_price_mode.dart';
+export 'src/pricing/floor_price.dart';
+export 'src/pricing/list_price.dart';
+export 'src/pricing/product_base_price_profile.dart';
+export 'src/pricing/product_unit_price_band.dart';
+export 'src/pricing/store_price_rule.dart';
+export 'src/product/events/product_base_price_updated.dart';
 export 'src/product/events/product_created.dart';
+export 'src/product/events/product_price_band_changed.dart';
+export 'src/product/events/product_stock_adjusted.dart';
 export 'src/product/product.dart';
 export 'src/product/product_base_unit.dart';
 export 'src/product/product_image.dart';
 export 'src/product/repositories/i_product_duplicate_checker.dart';
 export 'src/product/rules/at_most_one_primary_image_rule.dart';
+export 'src/product/rules/base_unit_required_for_stock_rule.dart';
+export 'src/product/rules/floor_price_not_greater_than_list_price_rule.dart';
 export 'src/product/rules/product_name_required_rule.dart';
 export 'src/readiness/product_readiness.dart';
 export 'src/readiness/readiness_blocker.dart';
@@ -16,6 +33,9 @@ export 'src/readiness/readiness_status.dart';
 export 'src/shared/catalog_permissions.dart';
 export 'src/shared/product_duplicate_field.dart';
 export 'src/shared/product_status.dart';
+export 'src/stock/product_stock_profile.dart';
+export 'src/stock/stock_mode.dart';
 export 'src/value_objects/barcode.dart';
 export 'src/value_objects/product_name.dart';
 export 'src/value_objects/sku.dart';
+

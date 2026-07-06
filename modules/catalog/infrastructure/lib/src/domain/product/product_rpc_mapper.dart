@@ -54,6 +54,47 @@ abstract final class ProductRpcMapper {
     };
   }
 
+  static Map<String, dynamic> setInitialStockParams({
+    required String productId,
+    required String tenantId,
+    required ProductStockProfile profile,
+  }) {
+    return <String, dynamic>{
+      'p_tenant_id': tenantId,
+      'p_product_id': productId,
+      'p_mode': profile.mode.name,
+      'p_initial_stock': profile.initialStock,
+    };
+  }
+
+  static Map<String, dynamic> setManualBasePriceParams({
+    required String productId,
+    required String tenantId,
+    required ProductBasePriceProfile profile,
+  }) {
+    return <String, dynamic>{
+      'p_tenant_id': tenantId,
+      'p_product_id': productId,
+      'p_mode': profile.mode.name,
+      'p_base_price': profile.basePrice?.amount,
+      'p_currency': 'VND',
+    };
+  }
+
+  static Map<String, dynamic> setInitialPriceBandParams({
+    required String productId,
+    required String tenantId,
+    required ProductUnitPriceBand priceBand,
+  }) {
+    return <String, dynamic>{
+      'p_tenant_id': tenantId,
+      'p_product_id': productId,
+      'p_product_unit_id': priceBand.productUnitId,
+      'p_list_price': priceBand.listPrice?.amount,
+      'p_floor_price': priceBand.floorPrice?.amount,
+    };
+  }
+
   static String readinessStatusToRpc(ReadinessStatus status) {
     return switch (status) {
       ReadinessStatus.incomplete => 'incomplete',
