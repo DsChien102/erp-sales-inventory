@@ -24,6 +24,7 @@ import '../../features/catalog/presentation/pages/product_control_center_page.da
 import '../../features/catalog/presentation/pages/product_readiness_checklist_page.dart';
 import '../../features/catalog/presentation/pages/product_measurement_units_page.dart';
 import '../../features/catalog/presentation/pages/product_stock_adjustment_page.dart';
+import '../../features/catalog/presentation/pages/product_manual_base_price_page.dart';
 import '../di/injection.dart';
 
 final appRouter = GoRouter(
@@ -160,7 +161,10 @@ final appRouter = GoRouter(
       name: 'products.items.pcc.checklist',
       builder: (context, state) {
         final args = state.extra as ProductReadinessChecklistRouteArgs;
-        return ProductReadinessChecklistPage(readinessView: args.readinessView, product: args.product);
+        return ProductReadinessChecklistPage(
+          readinessView: args.readinessView,
+          product: args.product,
+        );
       },
     ),
     GoRoute(
@@ -177,6 +181,17 @@ final appRouter = GoRouter(
       builder: (context, state) {
         final args = state.extra as ProductStockAdjustmentRouteArgs;
         return ProductStockAdjustmentPage(args: args);
+      },
+    ),
+    GoRoute(
+      path: '/products/items/pcc/manual-base-price',
+      name: 'products.items.pcc.manual-base-price',
+      builder: (context, state) {
+        final args = state.extra as ProductManualBasePriceRouteArgs;
+        return ProductManualBasePricePage(
+          product: args.product,
+          basePriceCard: args.basePriceCard,
+        );
       },
     ),
     GoRoute(
