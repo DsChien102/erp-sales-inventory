@@ -681,11 +681,26 @@ final class FakeCatalogModule implements ICatalogModule {
       throw ApplicationException('Product not found');
     }
     if (product.stockMode.isAdvanced) {
+      final rows = product.stockMovements
+          .take(query.limit)
+          .map(
+            (movement) => ProductStockMovementDto(
+              id: movement.id,
+              occurredAt: movement.occurredAt,
+              actorDisplayName: movement.actorDisplayName,
+              movementType: movement.movementType,
+              quantityBefore: movement.quantityBefore,
+              quantityAfter: movement.quantityAfter,
+              delta: movement.delta,
+              reason: movement.reason,
+            ),
+          )
+          .toList(growable: false);
       return ProductStockHistoryDto(
             productId: product.id,
             unitName: product.baseUnit,
             isHistoricalBasicOnly: true,
-            movements: const [],
+            movements: rows,
           )
           as TResult;
     }

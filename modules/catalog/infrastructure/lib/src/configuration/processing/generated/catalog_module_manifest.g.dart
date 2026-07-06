@@ -22,6 +22,7 @@ final catalogModuleManifest = GeneratedModuleManifest(
   ],
   commandTypes: [
     AddProductConversionUnitCommand,
+    AdjustBasicStockCommand,
     CreateProductCommand,
     DeactivateProductConversionUnitCommand,
     ReactivateProductConversionUnitCommand,
@@ -36,6 +37,7 @@ final catalogModuleManifest = GeneratedModuleManifest(
     CheckDuplicateProductCodeQuery,
     GetProductControlCenterQuery,
     GetProductReadinessQuery,
+    GetProductStockHistoryQuery,
     ListProductUnitsQuery,
     ListTenantMeasurementUnitsQuery,
     ScanBarcodeQuery,

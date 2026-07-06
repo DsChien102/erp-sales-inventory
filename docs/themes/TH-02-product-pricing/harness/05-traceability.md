@@ -174,6 +174,13 @@ Mở đầy đủ khi CONTRACT lane bắt đầu.
 | FR-02 | CONTRACT | §EPIC-05-US-01-US-02 | application | `AdjustBasicStockCommand` + stale quantity error | scn_contract_e05_u02_fr02_* | done |
 | FR-03 | CONTRACT | §EPIC-05-US-01-US-02 | application | `GetProductStockHistoryQuery` + movement projection | scn_contract_e05_u02_fr03_01 | done |
 | FR-04 | CONTRACT | §EPIC-05-US-01-US-02 | application | readiness refresh after stock update | scn_contract_e05_u02_fr04_01 | done |
+| FR-01 | BE | §EPIC-05-US-01-US-02 | application + infrastructure | PCC stock card (`ProductControlCenterAssembler`, `get_product_control_center` + `stock_version`) | scn_e05_u01_fr01_01 | done |
+| FR-02 | BE | §EPIC-05-US-01-US-02 | application | Advanced stock read-only card projection | scn_e05_u01_fr02_01 | done |
+| FR-03 | BE | §EPIC-05-US-01-US-02 | application | `isConfigured` / `isOutOfStock` distinction (qty=0) | scn_e05_u01_fr03_01 | done |
+| FR-01 | BE | §EPIC-05-US-01-US-02 | application + infrastructure | `SetInitialStockCommandHandler` + draft RPC `set_initial_stock` (movements) | scn_e05_u02_fr01_01 | done |
+| FR-02 | BE | §EPIC-05-US-01-US-02 | application + infrastructure | `AdjustBasicStockCommandHandler`, `SupabaseCatalogStockGateway`, draft RPC `adjust_basic_stock` | scn_e05_u02_fr02_01 | done |
+| FR-03 | BE | §EPIC-05-US-01-US-02 | application + infrastructure | `GetProductStockHistoryQueryHandler`, `SupabaseProductStockReadGateway`, draft RPC `get_product_stock_history` | scn_e05_u02_fr03_01 | done |
+| FR-04 | BE | §EPIC-05-US-01-US-02 | application | readiness refresh after set/adjust stock | scn_e05_u02_fr04_01 | done |
 
 ---
 

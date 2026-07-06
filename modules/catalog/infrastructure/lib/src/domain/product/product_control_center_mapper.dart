@@ -73,6 +73,7 @@ abstract final class ProductControlCenterMapper {
       conversionUnits: conversionUnits,
       facts: facts,
       stockQuantity: _toInt(json['stock_qty']),
+      stockVersion: _toInt(json['stock_version']),
       basePriceAmount: _toDouble(json['base_price_amount']),
       basePriceCurrency: json['base_price_currency'] as String? ?? 'VND',
       listPrice: _toDouble(json['list_price']),

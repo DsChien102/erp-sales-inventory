@@ -226,6 +226,30 @@ abstract final class ProductRpcMapper {
     };
   }
 
+  static Map<String, dynamic> adjustBasicStockParams(
+    AdjustBasicStockCommand command,
+  ) {
+    return <String, dynamic>{
+      'p_tenant_id': command.tenantId,
+      'p_product_id': command.productId,
+      'p_new_quantity': command.newQuantity,
+      'p_reason': command.reason,
+      'p_expected_quantity': command.expectedQuantity,
+    };
+  }
+
+  static Map<String, dynamic> getProductStockHistoryParams({
+    required String tenantId,
+    required String productId,
+    required int limit,
+  }) {
+    return <String, dynamic>{
+      'p_tenant_id': tenantId,
+      'p_product_id': productId,
+      'p_limit': limit,
+    };
+  }
+
   static ProductUnitDto productUnitDtoFromRow(Map<String, dynamic> row) {
     return ProductUnitDto(
       id: row['id'] as String,

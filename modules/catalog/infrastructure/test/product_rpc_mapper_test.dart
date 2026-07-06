@@ -224,4 +224,36 @@ void main() {
       expect(result.unit.isActive, isTrue);
     });
   });
+
+  group('ProductRpcMapper (EPIC-05 basic stock)', () {
+    test('adjustBasicStockParams maps command to RPC parameters', () {
+      final params = ProductRpcMapper.adjustBasicStockParams(
+        AdjustBasicStockCommand(
+          tenantId: 'tenant-1',
+          productId: 'product-1',
+          newQuantity: 25.0,
+          reason: 'Kiểm kê',
+          expectedQuantity: 150.0,
+        ),
+      );
+
+      expect(params['p_tenant_id'], 'tenant-1');
+      expect(params['p_product_id'], 'product-1');
+      expect(params['p_new_quantity'], 25.0);
+      expect(params['p_reason'], 'Kiểm kê');
+      expect(params['p_expected_quantity'], 150.0);
+    });
+
+    test('getProductStockHistoryParams maps query inputs', () {
+      final params = ProductRpcMapper.getProductStockHistoryParams(
+        tenantId: 'tenant-1',
+        productId: 'product-1',
+        limit: 20,
+      );
+
+      expect(params['p_tenant_id'], 'tenant-1');
+      expect(params['p_product_id'], 'product-1');
+      expect(params['p_limit'], 20);
+    });
+  });
 }

@@ -53,9 +53,13 @@ class _RecordingProductCommandGateway implements IProductCommandGateway {
 }
 
 class _FakeProductReadinessReadPort implements IProductReadinessReadPort {
-  _FakeProductReadinessReadPort({required this.hasBaseUnit});
+  _FakeProductReadinessReadPort({
+    required this.hasBaseUnit,
+    this.hasStock = false,
+  });
 
   final bool hasBaseUnit;
+  final bool hasStock;
   String? lastTenantId;
   String? lastProductId;
 
@@ -66,12 +70,74 @@ class _FakeProductReadinessReadPort implements IProductReadinessReadPort {
   }) async {
     lastTenantId = tenantId;
     lastProductId = productId;
-    return ProductReadinessFacts.forCreate(
+    return ProductReadinessFacts(
       productId: productId,
       productName: 'Thuốc A',
       hasBaseUnit: hasBaseUnit,
       hasImages: true,
+      hasStock: hasStock,
+      hasBasePrice: false,
+      hasPriceBand: false,
+      hasRequiredCustomFields: true,
     );
+  }
+}
+
+class _RecordingCatalogUnitGateway implements ICatalogUnitGateway {
+  @override
+  Future<List<TenantMeasurementUnitDto>> listTenantUnits({
+    required String tenantId,
+    String? keyword,
+    required int limit,
+  }) async {
+    return const [];
+  }
+
+  @override
+  Future<bool> isDuplicateUnitName({
+    required String tenantId,
+    required String name,
+  }) async {
+    return false;
+  }
+
+  @override
+  Future<SetProductBaseUnitResult> setProductBaseUnit({
+    required SetProductBaseUnitCommand command,
+  }) async {
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<ProductUnitsDto> listProductUnits({
+    required ListProductUnitsQuery query,
+  }) async {
+    return ProductUnitsDto(
+      productId: query.productId,
+      baseUnitName: 'Lọ',
+      units: const [],
+    );
+  }
+
+  @override
+  Future<ProductUnitMutationResult> addConversionUnit({
+    required AddProductConversionUnitCommand command,
+  }) async {
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<ProductUnitMutationResult> deactivateConversionUnit({
+    required DeactivateProductConversionUnitCommand command,
+  }) async {
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<ProductUnitMutationResult> reactivateConversionUnit({
+    required ReactivateProductConversionUnitCommand command,
+  }) async {
+    throw UnimplementedError();
   }
 }
 
@@ -83,6 +149,7 @@ void main() {
       final handler = SetInitialStockCommandHandler(
         commandGateway: gateway,
         readinessReadPort: readinessPort,
+        unitGateway: _RecordingCatalogUnitGateway(),
       );
       final validator = SetInitialStockCommandValidator();
 
@@ -93,12 +160,40 @@ void main() {
       );
 
       await validator.validate(command);
-      await handler.handle(command);
+      final result = await handler.handle(command);
 
       expect(gateway.lastProductId, 'prod-1');
       expect(gateway.lastTenantId, 'tenant-1');
       expect(gateway.lastStockProfile?.initialStock, 100.0);
       expect(readinessPort.lastProductId, 'prod-1');
+      expect(result.productId, 'prod-1');
+      expect(result.quantity, 100.0);
+      expect(result.unitName, 'Lọ');
+      expect(result.readinessSummary, isNotNull);
+    });
+
+    test('scn_e05_u02_fr01_01 set initial stock returns result with readiness', () async {
+      final gateway = _RecordingProductCommandGateway();
+      final readinessPort = _FakeProductReadinessReadPort(
+        hasBaseUnit: true,
+        hasStock: true,
+      );
+      final handler = SetInitialStockCommandHandler(
+        commandGateway: gateway,
+        readinessReadPort: readinessPort,
+        unitGateway: _RecordingCatalogUnitGateway(),
+      );
+
+      final result = await handler.handle(
+        SetInitialStockCommand(
+          tenantId: 'tenant-1',
+          productId: 'prod-1',
+          quantity: 50.0,
+        ),
+      );
+
+      expect(result.quantity, 50.0);
+      expect(result.readinessSummary.status, ReadinessStatus.incomplete);
     });
 
     test('negative quantity throws ValidationException', () async {
@@ -135,6 +230,7 @@ void main() {
       final handler = SetInitialStockCommandHandler(
         commandGateway: gateway,
         readinessReadPort: _FakeProductReadinessReadPort(hasBaseUnit: false),
+        unitGateway: _RecordingCatalogUnitGateway(),
       );
 
       await expectLater(

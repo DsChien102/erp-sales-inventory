@@ -10,6 +10,8 @@ import '../../domain/product/supabase_product_command_gateway.dart';
 import '../../domain/product/supabase_product_duplicate_checker.dart';
 import '../../domain/product/supabase_product_image_upload_gateway.dart';
 import '../../domain/product/supabase_product_readiness_read_gateway.dart';
+import '../../domain/stock/supabase_catalog_stock_gateway.dart';
+import '../../domain/stock/supabase_product_stock_read_gateway.dart';
 import '../processing/internal_commands/supabase_catalog_internal_command_client.dart';
 
 /// Registers catalog gateways and checkers.
@@ -60,6 +62,16 @@ final class CatalogDataAccessModule {
       )
       ..registerSingleton<ICatalogUnitGateway>(
         SupabaseCatalogUnitGateway(
+          rpcClient: container.get<SupabaseSchemaRpcClient>(),
+        ),
+      )
+      ..registerSingleton<ICatalogStockGateway>(
+        SupabaseCatalogStockGateway(
+          rpcClient: container.get<SupabaseSchemaRpcClient>(),
+        ),
+      )
+      ..registerSingleton<IProductStockReadPort>(
+        SupabaseProductStockReadGateway(
           rpcClient: container.get<SupabaseSchemaRpcClient>(),
         ),
       )

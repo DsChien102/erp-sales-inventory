@@ -51,6 +51,18 @@ void main() {
       expect(error, isA<MissingBaseUnitException>());
     });
 
+    test('maps not basic stock mode', () {
+      final error = mapCatalogRpcError(RpcException('not_basic_stock_mode'));
+
+      expect(error, isA<NotBasicStockModeException>());
+    });
+
+    test('maps stale stock quantity', () {
+      final error = mapCatalogRpcError(RpcException('stale_stock_quantity'));
+
+      expect(error, isA<StaleStockQuantityException>());
+    });
+
     test('maps validation exceptions', () {
       final error = mapCatalogRpcError(
         RpcException('validation_exception: Measurement unit is inactive.'),

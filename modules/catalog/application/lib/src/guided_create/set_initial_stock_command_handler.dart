@@ -3,7 +3,9 @@ import 'package:vet45_shared_application/application.dart';
 
 import '../ports/i_product_readiness_read_port.dart';
 import '../ports/i_product_command_gateway.dart';
+import '../ports/i_catalog_unit_gateway.dart';
 import '../readiness/readiness_summary_dto.dart';
+import '../units/list_product_units_query.dart';
 import 'set_initial_stock_command.dart';
 import '../stock/set_initial_stock_result.dart';
 
@@ -13,11 +15,14 @@ final class SetInitialStockCommandHandler
   SetInitialStockCommandHandler({
     required IProductCommandGateway commandGateway,
     required IProductReadinessReadPort readinessReadPort,
+    required ICatalogUnitGateway unitGateway,
   }) : _commandGateway = commandGateway,
-       _readinessReadPort = readinessReadPort;
+       _readinessReadPort = readinessReadPort,
+       _unitGateway = unitGateway;
 
   final IProductCommandGateway _commandGateway;
   final IProductReadinessReadPort _readinessReadPort;
+  final ICatalogUnitGateway _unitGateway;
 
   @override
   Future<SetInitialStockResult> handle(SetInitialStockCommand command) async {
@@ -44,10 +49,17 @@ final class SetInitialStockCommandHandler
       throw ApplicationException('Product not found');
     }
     final readiness = ProductReadinessEvaluator.compute(facts);
+    final units = await _unitGateway.listProductUnits(
+      query: ListProductUnitsQuery(
+        tenantId: command.tenantId,
+        productId: command.productId,
+      ),
+    );
 
     return SetInitialStockResult(
       productId: command.productId,
       quantity: command.quantity,
+      unitName: units.baseUnitName,
       readinessSummary: ReadinessSummaryDto.fromDomain(readiness),
     );
   }

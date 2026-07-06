@@ -32,13 +32,6 @@ final class GetProductStockHistoryQueryHandler
     if (facts == null) {
       throw ApplicationException('Product not found');
     }
-    if (facts.stockMode.isAdvanced) {
-      return ProductStockHistoryDto(
-        productId: query.productId,
-        isHistoricalBasicOnly: true,
-        movements: const [],
-      );
-    }
     final rows = await _stockReadPort.listMovements(
       tenantId: query.tenantId,
       productId: query.productId,
@@ -46,7 +39,7 @@ final class GetProductStockHistoryQueryHandler
     );
     return ProductStockHistoryDto(
       productId: query.productId,
-      isHistoricalBasicOnly: true,
+      isHistoricalBasicOnly: facts.stockMode.isAdvanced,
       movements: rows
           .map(
             (row) => ProductStockMovementDto(
