@@ -26,13 +26,15 @@ final catalogModuleManifest = GeneratedModuleManifest(
     SetInitialPriceBandCommand,
     SetInitialStockCommand,
     SetManualBasePriceCommand,
+    SetProductBaseUnitCommand,
   ],
   queryTypes: [
+    CheckDuplicateMeasurementUnitNameQuery,
     CheckDuplicateProductCodeQuery,
     GetProductControlCenterQuery,
     GetProductReadinessQuery,
+    ListTenantMeasurementUnitsQuery,
     ScanBarcodeQuery,
     SearchProductsQuery,
   ],
 );
-

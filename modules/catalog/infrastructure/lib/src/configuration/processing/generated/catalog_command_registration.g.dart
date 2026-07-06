@@ -9,8 +9,8 @@ import '../internal_commands/supabase_catalog_internal_command_client.dart';
 import 'catalog_command_bus_extensions.g.dart';
 
 abstract final class CatalogCommandRegistration {
-  static void registerBusinessHandler<
-      TCommand extends ICommand<TResult>, TResult, THandler extends Object>({
+  static void
+  registerBusinessHandler<TCommand extends ICommand<TResult>, TResult, THandler extends Object>({
     required GetIt container,
     required CommandBus bus,
     required THandler Function() factory,
@@ -28,8 +28,7 @@ abstract final class CatalogCommandRegistration {
     );
   }
 
-  static Future<TResult> _defaultInvoke<
-      TCommand extends ICommand<TResult>, TResult, THandler>(
+  static Future<TResult> _defaultInvoke<TCommand extends ICommand<TResult>, TResult, THandler>(
     TCommand command,
     THandler handler,
   ) {
@@ -43,8 +42,8 @@ abstract final class CatalogCommandRegistration {
     );
   }
 
-  static void registerInternalHandler<
-      TCommand extends InternalCommandBase<void>, THandler extends Object>({
+  static void
+  registerInternalHandler<TCommand extends InternalCommandBase<void>, THandler extends Object>({
     required GetIt container,
     required CommandBus bus,
     required THandler Function() factory,
@@ -64,8 +63,8 @@ abstract final class CatalogCommandRegistration {
     );
   }
 
-  static void registerQueryHandler<
-      TQuery extends IQuery<TResult>, TResult, THandler extends Object>({
+  static void
+  registerQueryHandler<TQuery extends IQuery<TResult>, TResult, THandler extends Object>({
     required QueryBus bus,
     required THandler Function() factory,
     required Future<TResult> Function(TQuery query, THandler handler) invoke,

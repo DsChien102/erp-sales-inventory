@@ -1,8 +1,9 @@
 import 'package:vet45_catalog_application/application.dart';
+import 'package:vet45_catalog_domain/domain.dart';
 import 'package:vet45_shared_application/application.dart';
 import 'package:vet45_shared_infrastructure/infrastructure.dart';
 
-ApplicationException mapCatalogRpcError(RpcException error) {
+Object mapCatalogRpcError(RpcException error) {
   final message = error.message.toLowerCase();
 
   if (message.contains('duplicate sku')) {
@@ -13,6 +14,20 @@ ApplicationException mapCatalogRpcError(RpcException error) {
     return DuplicateBarcodeException(
       barcode: _extractQuoted(error.message) ?? '',
     );
+  }
+
+  if (message.contains('duplicate measurement unit')) {
+    return DuplicateMeasurementUnitNameException(
+      name: _extractQuoted(error.message) ?? '',
+    );
+  }
+
+  if (message.contains('missing base unit') || message.contains('base_unit_not_found')) {
+    return MissingBaseUnitException();
+  }
+
+  if (message.contains('validation_exception')) {
+    return ValidationException(_stripPrefix(error.message));
   }
 
   if (message.contains('product name is required')) {
@@ -30,6 +45,10 @@ ApplicationException mapCatalogRpcError(RpcException error) {
   }
 
   return ApplicationException(error.message, cause: error);
+}
+
+String _stripPrefix(String message) {
+  return message.replaceFirst(RegExp(r'^validation_exception:\s*'), '');
 }
 
 String? _extractQuoted(String message) {

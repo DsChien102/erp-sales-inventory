@@ -25,8 +25,7 @@ abstract final class ProductControlCenterAssembler {
       permissions: permissions,
     );
 
-    final hasBaseUnit =
-        model.baseUnitName != null && model.baseUnitName!.trim().isNotEmpty;
+    final hasBaseUnit = model.baseUnitName != null && model.baseUnitName!.trim().isNotEmpty;
     final hasStock = model.stockQuantity != null;
     final hasBasePrice = model.basePriceAmount != null;
     final hasPriceBand = model.listPrice != null && model.floorPrice != null;
@@ -66,12 +65,10 @@ abstract final class ProductControlCenterAssembler {
         amount: model.basePriceAmount,
         currency: model.basePriceCurrency,
         isPendingExternal: model.facts.basePriceMode == BasePriceMode.costingModule,
-        isMissing:
-            model.facts.basePriceMode == BasePriceMode.manual && !hasBasePrice,
-        missingMessage:
-            model.facts.basePriceMode == BasePriceMode.manual && !hasBasePrice
-                ? 'Thiếu Giá cơ sở định giá'
-                : null,
+        isMissing: model.facts.basePriceMode == BasePriceMode.manual && !hasBasePrice,
+        missingMessage: model.facts.basePriceMode == BasePriceMode.manual && !hasBasePrice
+            ? 'Thiếu Giá cơ sở định giá'
+            : null,
       ),
       priceBand: ProductPriceBandCardDto(
         listPrice: model.listPrice,
@@ -84,8 +81,7 @@ abstract final class ProductControlCenterAssembler {
       readinessSummary: ReadinessSummaryDto.fromDomain(readiness),
       checklist: const [],
       contextualActions: readinessView.suggestedActions,
-      changeHistoryPreview:
-          includeChangeHistory ? model.changeHistoryPreview : const [],
+      changeHistoryPreview: includeChangeHistory ? model.changeHistoryPreview : const [],
       primaryActionId: readinessView.primaryActionId,
     );
   }

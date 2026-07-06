@@ -145,9 +145,7 @@ abstract final class FakeCatalogProductBuilder {
         unitName: hasBaseUnit ? baseUnit : null,
         isPendingExternal: stockMode == StockMode.advanced,
         isMissing: stockMode == StockMode.basic && !hasStock,
-        missingMessage: stockMode == StockMode.basic && !hasStock
-            ? 'Thiếu tồn kho'
-            : null,
+        missingMessage: stockMode == StockMode.basic && !hasStock ? 'Thiếu tồn kho' : null,
       ),
       basePrice: ProductBasePriceCardDto(
         mode: basePriceMode,

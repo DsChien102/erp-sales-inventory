@@ -439,9 +439,11 @@ void main() {
 
       expect(view.primaryActionId, ContextualActionId.setBaseUnit);
       expect(
-        view.suggestedActions.singleWhere(
-          (a) => a.actionId == ContextualActionId.setBaseUnit,
-        ).label,
+        view.suggestedActions
+            .singleWhere(
+              (a) => a.actionId == ContextualActionId.setBaseUnit,
+            )
+            .label,
         'Thiết lập đơn vị cơ sở',
       );
     });
@@ -702,6 +704,175 @@ void main() {
 
       expect(result.changeHistoryPreview, isNotEmpty);
       expect(result.changeHistoryPreview.first.changeType, 'product_created');
+    });
+  });
+
+  group('EPIC-04 / US-01 base unit contract', () {
+    test('scn_contract_e04_u01_fr01_01 lists tenant measurement units', () async {
+      final module = FakeCatalogModule(
+        scenario: FakeCatalogScenario.listTenantUnits,
+      );
+
+      final units = await module.executeQueryAsync(
+        ListTenantMeasurementUnitsQuery(tenantId: 'tenant-1'),
+      );
+
+      expect(units.map((unit) => unit.name), containsAll(['Lọ', 'Hộp', 'Vỉ']));
+    });
+
+    test('scn_contract_e04_u01_fr01_02 sets existing tenant unit on product', () async {
+      final module = FakeCatalogModule(
+        scenario: FakeCatalogScenario.setBaseUnitExisting,
+      );
+
+      final result = await module.executeCommandAsync(
+        SetProductBaseUnitCommand(
+          tenantId: 'tenant-1',
+          productId: 'product-6',
+          selection: const ExistingTenantUnit('unit-lo'),
+        ),
+      );
+
+      expect(result.baseUnitName, 'Lọ');
+      expect(
+        result.readinessSummary.blockers.map((b) => b.code),
+        isNot(contains(ReadinessBlockerCode.missingBaseUnit)),
+      );
+    });
+
+    test('scn_contract_e04_u01_fr01_03 creates new tenant unit and assigns', () async {
+      final module = FakeCatalogModule(
+        scenario: FakeCatalogScenario.setBaseUnitCreateNew,
+      );
+
+      final result = await module.executeCommandAsync(
+        SetProductBaseUnitCommand(
+          tenantId: 'tenant-1',
+          productId: 'product-6',
+          selection: const NewTenantUnit('Túi'),
+        ),
+      );
+
+      expect(result.baseUnitName, 'Túi');
+
+      final units = await module.executeQueryAsync(
+        ListTenantMeasurementUnitsQuery(tenantId: 'tenant-1'),
+      );
+      expect(units.map((unit) => unit.name), contains('Túi'));
+    });
+
+    test('scn_contract_e04_u01_fr01_04 rejects duplicate unit name', () async {
+      final module = FakeCatalogModule(
+        scenario: FakeCatalogScenario.setBaseUnitDuplicate,
+      );
+
+      final isDuplicate = await module.executeQueryAsync(
+        CheckDuplicateMeasurementUnitNameQuery(
+          tenantId: 'tenant-1',
+          name: 'Lọ',
+        ),
+      );
+      expect(isDuplicate, isTrue);
+
+      await expectLater(
+        module.executeCommandAsync(
+          SetProductBaseUnitCommand(
+            tenantId: 'tenant-1',
+            productId: 'product-6',
+            selection: const NewTenantUnit('Lọ'),
+          ),
+        ),
+        throwsA(isA<DuplicateMeasurementUnitNameException>()),
+      );
+    });
+
+    test('scn_contract_e04_u01_fr01_05 rejects inactive tenant unit', () async {
+      final module = FakeCatalogModule(
+        scenario: FakeCatalogScenario.setBaseUnitInactiveUnit,
+      );
+
+      await expectLater(
+        module.executeCommandAsync(
+          SetProductBaseUnitCommand(
+            tenantId: 'tenant-1',
+            productId: 'product-6',
+            selection: const ExistingTenantUnit('unit-inactive'),
+          ),
+        ),
+        throwsA(isA<ValidationException>()),
+      );
+    });
+
+    test('scn_contract_e04_u01_fr02_01 blocks stock without base unit', () async {
+      final module = FakeCatalogModule(
+        scenario: FakeCatalogScenario.unitDependenciesLocked,
+      );
+
+      await expectLater(
+        module.executeCommandAsync(
+          SetInitialStockCommand(
+            tenantId: 'tenant-1',
+            productId: 'product-6',
+            quantity: 10,
+          ),
+        ),
+        throwsA(isA<MissingBaseUnitException>()),
+      );
+    });
+
+    test('scn_contract_e04_u01_fr02_02 shows readiness blocker and set_base_unit action', () async {
+      final module = FakeCatalogModule(
+        scenario: FakeCatalogScenario.unitDependenciesLocked,
+      );
+
+      final view = await module.executeQueryAsync(
+        GetProductReadinessQuery(
+          tenantId: 'tenant-1',
+          productId: 'product-6',
+        ),
+      );
+
+      expect(
+        view.readinessSummary.blockers.map((b) => b.code),
+        contains(ReadinessBlockerCode.missingBaseUnit),
+      );
+      expect(view.primaryActionId, ContextualActionId.setBaseUnit);
+    });
+
+    test('scn_contract_e04_u01_fr03_01 clears readiness blocker after set base unit', () async {
+      final module = FakeCatalogModule(
+        scenario: FakeCatalogScenario.setBaseUnitExisting,
+      );
+
+      final before = await module.executeQueryAsync(
+        GetProductReadinessQuery(
+          tenantId: 'tenant-1',
+          productId: 'product-6',
+        ),
+      );
+      expect(
+        before.readinessSummary.blockers.map((b) => b.code),
+        contains(ReadinessBlockerCode.missingBaseUnit),
+      );
+
+      await module.executeCommandAsync(
+        SetProductBaseUnitCommand(
+          tenantId: 'tenant-1',
+          productId: 'product-6',
+          selection: const ExistingTenantUnit('unit-lo'),
+        ),
+      );
+
+      final after = await module.executeQueryAsync(
+        GetProductReadinessQuery(
+          tenantId: 'tenant-1',
+          productId: 'product-6',
+        ),
+      );
+      expect(
+        after.readinessSummary.blockers.map((b) => b.code),
+        isNot(contains(ReadinessBlockerCode.missingBaseUnit)),
+      );
     });
   });
 

@@ -37,8 +37,7 @@ final class SupabaseCatalogReadGateway implements ICatalogReadGateway {
         return const ProductSearchResultDto(items: [], totalCount: 0);
       }
 
-      final totalCount =
-          (rows.first['total_count'] as num?)?.toInt() ?? rows.length;
+      final totalCount = (rows.first['total_count'] as num?)?.toInt() ?? rows.length;
       final items = rows
           .map(ProductListItemMapper.fromRow)
           .map(ProductListItemAssembler.toDto)

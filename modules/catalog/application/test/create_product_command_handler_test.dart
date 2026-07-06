@@ -44,8 +44,7 @@ class _RecordingProductCommandGateway implements IProductCommandGateway {
 
 void main() {
   group('CreateProductCommandHandler', () {
-    test('scn_e02_u01_fr01_01 creates product with images and primary default',
-        () async {
+    test('scn_e02_u01_fr01_01 creates product with images and primary default', () async {
       final gateway = _RecordingProductCommandGateway();
       final handler = CreateProductCommandHandler(commandGateway: gateway);
 
@@ -74,8 +73,7 @@ void main() {
       );
     });
 
-    test('scn_e02_u01_fr02_01 propagates DuplicateSkuException from gateway',
-        () async {
+    test('scn_e02_u01_fr02_01 propagates DuplicateSkuException from gateway', () async {
       final gateway = _RecordingProductCommandGateway()
         ..throwOnCreate = DuplicateSkuException(
           sku: 'SKU-001',
@@ -130,8 +128,7 @@ void main() {
       );
     });
 
-    test('scn_e02_u01_fr04_01 seeds active status and missing_price readiness',
-        () async {
+    test('scn_e02_u01_fr04_01 seeds active status and missing_price readiness', () async {
       final gateway = _RecordingProductCommandGateway();
       final handler = CreateProductCommandHandler(commandGateway: gateway);
 

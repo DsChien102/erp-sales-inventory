@@ -15,7 +15,7 @@ Foundation MVP: Epic 02 (guided create) → Epic 01 (discovery/control center) �
 | 3 | [EPIC-02/US-03](../EPIC-02-guided-creation/US-03/) — Hoàn tất + readiness **summary** | write | done | done | done | todo | A | US-01 |
 | 4 | [EPIC-01/US-01](../EPIC-01-discovery-readiness/US-01/) — Tìm kiếm, lọc, danh sách + readiness chip | read | done | done | done | done | B | US-01 (data) |
 | 5 | [EPIC-01/US-02](../EPIC-01-discovery-readiness/US-02/) — Product Control Center | read | done | done | done | done | B | US-01; **FR-04 checklist pending** (làm FR-01..03, FR-05..06) |
-| 6 | [EPIC-04/US-01](../EPIC-04-units/US-01/) — Đơn vị cơ sở | write | todo | todo | todo | todo | C | US-01 |
+| 6 | [EPIC-04/US-01](../EPIC-04-units/US-01/) — Đơn vị cơ sở | write | done | done | done | done | C | US-01 |
 | 7 | [EPIC-04/US-02](../EPIC-04-units/US-02/) — Đơn vị quy đổi | write | todo | todo | todo | todo | C | US-01; **FR-02 unit roles pending** |
 | 8 | [EPIC-05/US-01](../EPIC-05-stock/US-01/) + [US-02](../EPIC-05-stock/US-02/) — Stock profile + Basic stock | write | todo | todo | todo | todo | D | US-01 |
 | 9 | [EPIC-06/US-01](../EPIC-06-pricing/US-01/) — Manual base price | write | todo | todo | todo | todo | E | US-01 |
@@ -37,27 +37,35 @@ Foundation MVP: Epic 02 (guided create) → Epic 01 (discovery/control center) �
 
 ### Parallel groups
 
-| Group | Slices | Ghi chú |
-| ----- | ------ | ------- |
-| A | EPIC-02 US-02, US-03 | Hoàn thiện guided creation flow |
-| B | EPIC-01 US-01, US-02 | Discovery + control center (không FR-04 checklist) |
-| C | EPIC-04 US-01, US-02 | UOM foundation (không FR-02 roles) |
-| D | EPIC-05 US-01, US-02 | Stock profile + basic stock |
-| E | EPIC-06 US-01 manual, US-02 store rule | Pricing foundation |
-| F | EPIC-06 US-03, US-04 | Price band + snapshot consumers |
-| G | EPIC-07 US-01, US-02 | Profile + status |
-| H | EPIC-07 US-03 | Soft delete |
-| J | EPIC-03 US-01..03 | Thông tin bổ sung — sau core SP |
-| K | Growth integrations | **pending** until inventory/costing |
-| L | Change history | Sau core mutations |
+
+| Group | Slices                                 | Ghi chú                                            |
+| ----- | -------------------------------------- | -------------------------------------------------- |
+| A     | EPIC-02 US-02, US-03                   | Hoàn thiện guided creation flow                    |
+| B     | EPIC-01 US-01, US-02                   | Discovery + control center (không FR-04 checklist) |
+| C     | EPIC-04 US-01, US-02                   | UOM foundation (không FR-02 roles)                 |
+| D     | EPIC-05 US-01, US-02                   | Stock profile + basic stock                        |
+| E     | EPIC-06 US-01 manual, US-02 store rule | Pricing foundation                                 |
+| F     | EPIC-06 US-03, US-04                   | Price band + snapshot consumers                    |
+| G     | EPIC-07 US-01, US-02                   | Profile + status                                   |
+| H     | EPIC-07 US-03                          | Soft delete                                        |
+| J     | EPIC-03 US-01..03                      | Thông tin bổ sung — sau core SP                    |
+| K     | Growth integrations                    | **pending** until inventory/costing                |
+| L     | Change history                         | Sau core mutations                                 |
+
+
+
 
 ## Definition of Done (per lane)
+
+
 
 ### CONTRACT
 
 - [ ] Commands/Queries/DTOs exported trong `modules/catalog/application/`
 - [ ] Section trong [07-api-contracts.md](07-api-contracts.md) + fake scenario table
 - [ ] BE + FE sign-off (review PR)
+
+
 
 ### BE
 
@@ -66,11 +74,15 @@ Foundation MVP: Epic 02 (guided create) → Epic 01 (discovery/control center) �
 - [ ] `melos run codegen` + commit generated `*.g.dart`
 - [ ] Handler test `scn_*` pass
 
+
+
 ### FE
 
 - [ ] UI wired `ICatalogModule` / `IModuleMediator`
 - [ ] Widget test `wgt_*` với `FakeCatalogModule` (khi FR có SCN)
 - [ ] Product Control Center: contextual actions, custom field group cards, readinessSummary
+
+
 
 ### E2E
 
@@ -78,15 +90,20 @@ Foundation MVP: Epic 02 (guided create) → Epic 01 (discovery/control center) �
 - [ ] `melos run test` + `./scripts/ci/verify_harness.sh` pass
 - [ ] `cd apps/erp && flutter test` pass (khi slice có UI)
 
+
+
 ### Chung
 
 - [ ] FR spec đã đọc (BR/EC/SCN); bỏ qua FR `pending` / `out_of_scope`
 - [ ] Traceability rows trong [05-traceability.md](05-traceability.md) cập nhật
 - [ ] Page ≤ 500 dòng (`guard_presentation_size.sh`)
 
+
+
 ## Epic → module
 
-| Epic | Owner module | Ghi chú |
-| ---- | ------------ | ------- |
-| EPIC-01..07 | catalog | Readiness, lifecycle, pricing, UOM, stock profile, thông tin bổ sung |
-| Growth reads | catalog + inventory/costing gateways | Read-only; **pending** |
+
+| Epic         | Owner module                         | Ghi chú                                                              |
+| ------------ | ------------------------------------ | -------------------------------------------------------------------- |
+| EPIC-01..07  | catalog                              | Readiness, lifecycle, pricing, UOM, stock profile, thông tin bổ sung |
+| Growth reads | catalog + inventory/costing gateways | Read-only; **pending**                                               |

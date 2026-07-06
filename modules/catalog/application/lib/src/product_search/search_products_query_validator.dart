@@ -2,8 +2,7 @@ import 'package:vet45_shared_application/application.dart';
 
 import 'search_products_query.dart';
 
-final class SearchProductsQueryValidator
-    implements ICommandValidator<SearchProductsQuery> {
+final class SearchProductsQueryValidator implements ICommandValidator<SearchProductsQuery> {
   @override
   Future<void> validate(SearchProductsQuery query) async {
     if (query.tenantId.trim().isEmpty) {

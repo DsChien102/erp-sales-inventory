@@ -10,8 +10,7 @@ abstract final class ProductReadinessFactsMapper {
       hasStock: row['has_stock'] as bool? ?? false,
       hasBasePrice: row['has_base_price'] as bool? ?? false,
       hasPriceBand: row['has_price_band'] as bool? ?? false,
-      hasRequiredCustomFields:
-          row['has_required_custom_fields'] as bool? ?? true,
+      hasRequiredCustomFields: row['has_required_custom_fields'] as bool? ?? true,
       stockMode: stockModeFromRpc(row['stock_mode'] as String?),
       basePriceMode: basePriceModeFromRpc(row['base_price_mode'] as String?),
     );

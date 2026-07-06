@@ -16,8 +16,7 @@ abstract final class ProductControlCenterMapper {
       hasStock: json['has_stock'] as bool? ?? false,
       hasBasePrice: json['has_base_price'] as bool? ?? false,
       hasPriceBand: json['has_price_band'] as bool? ?? false,
-      hasRequiredCustomFields:
-          json['has_required_custom_fields'] as bool? ?? true,
+      hasRequiredCustomFields: json['has_required_custom_fields'] as bool? ?? true,
       stockMode: ProductReadinessFactsMapper.stockModeFromRpc(
         json['stock_mode'] as String?,
       ),
@@ -30,33 +29,31 @@ abstract final class ProductControlCenterMapper {
         .map((item) => item.toString())
         .toList(growable: false);
 
-    final conversionUnits =
-        (json['conversion_units'] as List<dynamic>? ?? const [])
-            .map((item) {
-              final map = Map<String, dynamic>.from(item as Map);
-              return ProductConversionUnitDto(
-                name: map['name'] as String,
-                conversionRate: (map['conversion_rate'] as num).toDouble(),
-                isActive: map['is_active'] as bool? ?? true,
-              );
-            })
-            .toList(growable: false);
+    final conversionUnits = (json['conversion_units'] as List<dynamic>? ?? const [])
+        .map((item) {
+          final map = Map<String, dynamic>.from(item as Map);
+          return ProductConversionUnitDto(
+            name: map['name'] as String,
+            conversionRate: (map['conversion_rate'] as num).toDouble(),
+            isActive: map['is_active'] as bool? ?? true,
+          );
+        })
+        .toList(growable: false);
 
-    final history =
-        (json['change_history_preview'] as List<dynamic>? ?? const [])
-            .map((item) {
-              final map = Map<String, dynamic>.from(item as Map);
-              return ProductChangeHistoryEntryDto(
-                id: map['id'] as String,
-                occurredAt: DateTime.parse(map['occurred_at'] as String),
-                actorDisplayName: map['actor_display_name'] as String,
-                changeType: map['change_type'] as String,
-                summary: map['summary'] as String,
-                valueBefore: map['value_before'] as String?,
-                valueAfter: map['value_after'] as String?,
-              );
-            })
-            .toList(growable: false);
+    final history = (json['change_history_preview'] as List<dynamic>? ?? const [])
+        .map((item) {
+          final map = Map<String, dynamic>.from(item as Map);
+          return ProductChangeHistoryEntryDto(
+            id: map['id'] as String,
+            occurredAt: DateTime.parse(map['occurred_at'] as String),
+            actorDisplayName: map['actor_display_name'] as String,
+            changeType: map['change_type'] as String,
+            summary: map['summary'] as String,
+            valueBefore: map['value_before'] as String?,
+            valueAfter: map['value_after'] as String?,
+          );
+        })
+        .toList(growable: false);
 
     return ProductControlCenterReadModel(
       productId: productId,

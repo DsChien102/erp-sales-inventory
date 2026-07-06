@@ -3,6 +3,7 @@ import 'package:erp/core/supabase/supabase_module.dart';
 import 'package:erp/features/catalog/presentation/pages/product_catalog_tab_page.dart';
 import 'package:erp/features/catalog/presentation/pages/product_control_center_page.dart';
 import 'package:erp/features/catalog/presentation/pages/product_guided_create_page.dart';
+import 'package:erp/features/catalog/presentation/pages/product_measurement_units_page.dart';
 import 'package:erp/features/catalog/presentation/pages/product_readiness_checklist_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -61,7 +62,14 @@ Widget buildCatalogPostCreateRouter() {
         path: '/products/items/pcc/checklist',
         builder: (context, state) {
           final args = state.extra as ProductReadinessChecklistRouteArgs;
-          return ProductReadinessChecklistPage(readinessView: args.readinessView);
+          return ProductReadinessChecklistPage(readinessView: args.readinessView, product: args.product);
+        },
+      ),
+      GoRoute(
+        path: '/products/items/pcc/units',
+        builder: (context, state) {
+          final args = state.extra as ProductMeasurementUnitsRouteArgs;
+          return ProductMeasurementUnitsPage(product: args.product);
         },
       ),
     ],
@@ -96,7 +104,14 @@ Widget buildCatalogDiscoveryRouter() {
         path: '/products/items/pcc/checklist',
         builder: (context, state) {
           final args = state.extra as ProductReadinessChecklistRouteArgs;
-          return ProductReadinessChecklistPage(readinessView: args.readinessView);
+          return ProductReadinessChecklistPage(readinessView: args.readinessView, product: args.product);
+        },
+      ),
+      GoRoute(
+        path: '/products/items/pcc/units',
+        builder: (context, state) {
+          final args = state.extra as ProductMeasurementUnitsRouteArgs;
+          return ProductMeasurementUnitsPage(product: args.product);
         },
       ),
     ],

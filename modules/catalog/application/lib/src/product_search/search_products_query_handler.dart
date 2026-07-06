@@ -11,8 +11,8 @@ final class SearchProductsQueryHandler
   SearchProductsQueryHandler({
     required ICatalogReadGateway readGateway,
     SearchProductsQueryValidator? validator,
-  })  : _readGateway = readGateway,
-        _validator = validator ?? SearchProductsQueryValidator();
+  }) : _readGateway = readGateway,
+       _validator = validator ?? SearchProductsQueryValidator();
 
   final ICatalogReadGateway _readGateway;
   final SearchProductsQueryValidator _validator;

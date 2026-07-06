@@ -10,13 +10,12 @@ import 'product_readiness_view_dto.dart';
 
 @QueryHandlerFor(GetProductReadinessQuery)
 final class GetProductReadinessQueryHandler
-    implements
-        IQueryHandler<GetProductReadinessQuery, ProductReadinessViewDto> {
+    implements IQueryHandler<GetProductReadinessQuery, ProductReadinessViewDto> {
   GetProductReadinessQueryHandler({
     required IProductReadinessReadPort readinessReadPort,
     required IPermissionChecker permissionChecker,
-  })  : _readinessReadPort = readinessReadPort,
-        _permissionChecker = permissionChecker;
+  }) : _readinessReadPort = readinessReadPort,
+       _permissionChecker = permissionChecker;
 
   final IProductReadinessReadPort _readinessReadPort;
   final IPermissionChecker _permissionChecker;

@@ -12,8 +12,8 @@ final class GetProductControlCenterQueryHandler
   GetProductControlCenterQueryHandler({
     required ICatalogReadGateway readGateway,
     required IPermissionChecker permissionChecker,
-  })  : _readGateway = readGateway,
-        _permissionChecker = permissionChecker;
+  }) : _readGateway = readGateway,
+       _permissionChecker = permissionChecker;
 
   final ICatalogReadGateway _readGateway;
   final IPermissionChecker _permissionChecker;
@@ -31,10 +31,8 @@ final class GetProductControlCenterQueryHandler
       throw ApplicationException('Product not found');
     }
 
-    final permissions =
-        await ProductReadinessPermissionResolver.resolve(_permissionChecker);
-    final includeHistory =
-        await ProductReadinessPermissionResolver.canViewHistory(
+    final permissions = await ProductReadinessPermissionResolver.resolve(_permissionChecker);
+    final includeHistory = await ProductReadinessPermissionResolver.canViewHistory(
       _permissionChecker,
     );
 

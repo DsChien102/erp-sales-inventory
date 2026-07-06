@@ -3,8 +3,7 @@ import 'package:vet45_shared_application/application.dart';
 
 import 'set_initial_stock_command.dart';
 
-final class SetInitialStockCommandValidator
-    implements ICommandValidator<SetInitialStockCommand> {
+final class SetInitialStockCommandValidator implements ICommandValidator<SetInitialStockCommand> {
   @override
   Future<void> validate(SetInitialStockCommand command) async {
     if (command.tenantId.trim().isEmpty) {

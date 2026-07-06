@@ -6,11 +6,7 @@ import 'request_product_image_upload_command.dart';
 
 @CommandHandlerFor(RequestProductImageUploadCommand)
 final class RequestProductImageUploadCommandHandler
-    implements
-        ICommandHandler<
-          RequestProductImageUploadCommand,
-          ProductImageUploadSlotDto
-        > {
+    implements ICommandHandler<RequestProductImageUploadCommand, ProductImageUploadSlotDto> {
   RequestProductImageUploadCommandHandler({
     required IProductImageUploadPort uploadPort,
   }) : _uploadPort = uploadPort;

@@ -126,8 +126,7 @@ abstract final class ProductReadinessViewAssembler {
             ? ReadinessChecklistItemStatus.complete
             : ReadinessChecklistItemStatus.missing,
         kind: ReadinessItemKind.required,
-        blockerCode:
-            facts.hasBaseUnit ? null : ReadinessBlockerCode.missingBaseUnit,
+        blockerCode: facts.hasBaseUnit ? null : ReadinessBlockerCode.missingBaseUnit,
       ),
     );
   }
@@ -160,9 +159,7 @@ abstract final class ProductReadinessViewAssembler {
               ? ReadinessChecklistItemStatus.complete
               : ReadinessChecklistItemStatus.pendingExternal,
           kind: ReadinessItemKind.external,
-          blockerCode: facts.hasStock
-              ? null
-              : ReadinessBlockerCode.pendingStockFromInventory,
+          blockerCode: facts.hasStock ? null : ReadinessBlockerCode.pendingStockFromInventory,
           description: 'Nguồn tồn kho từ module Kho',
         ),
       );
@@ -221,9 +218,7 @@ abstract final class ProductReadinessViewAssembler {
               ? ReadinessChecklistItemStatus.complete
               : ReadinessChecklistItemStatus.pendingExternal,
           kind: ReadinessItemKind.external,
-          blockerCode: facts.hasBasePrice
-              ? null
-              : ReadinessBlockerCode.pendingBasePriceFromCosting,
+          blockerCode: facts.hasBasePrice ? null : ReadinessBlockerCode.pendingBasePriceFromCosting,
           description: 'Nguồn giá từ module Giá vốn',
         ),
       );
@@ -261,9 +256,7 @@ abstract final class ProductReadinessViewAssembler {
     ProductReadinessFacts facts,
     ProductReadinessPermissionContext permissions,
   ) {
-    if (!facts.hasPriceBand &&
-        facts.hasBaseUnit &&
-        facts.hasBasePrice) {
+    if (!facts.hasPriceBand && facts.hasBaseUnit && facts.hasBasePrice) {
       actions.add(
         ContextualActionDto(
           actionId: ContextualActionId.setPriceBand,
@@ -284,8 +277,7 @@ abstract final class ProductReadinessViewAssembler {
             ? ReadinessChecklistItemStatus.complete
             : ReadinessChecklistItemStatus.missing,
         kind: ReadinessItemKind.required,
-        blockerCode:
-            facts.hasPriceBand ? null : ReadinessBlockerCode.missingPriceBand,
+        blockerCode: facts.hasPriceBand ? null : ReadinessBlockerCode.missingPriceBand,
       ),
     );
   }
