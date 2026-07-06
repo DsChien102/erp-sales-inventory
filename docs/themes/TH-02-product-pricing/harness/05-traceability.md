@@ -181,6 +181,7 @@ Mở đầy đủ khi CONTRACT lane bắt đầu.
 | FR-02 | BE | §EPIC-05-US-01-US-02 | application + infrastructure | `AdjustBasicStockCommandHandler`, `SupabaseCatalogStockGateway`, draft RPC `adjust_basic_stock` | scn_e05_u02_fr02_01 | done |
 | FR-03 | BE | §EPIC-05-US-01-US-02 | application + infrastructure | `GetProductStockHistoryQueryHandler`, `SupabaseProductStockReadGateway`, draft RPC `get_product_stock_history` | scn_e05_u02_fr03_01 | done |
 | FR-04 | BE | §EPIC-05-US-01-US-02 | application | readiness refresh after set/adjust stock | scn_e05_u02_fr04_01 | done |
+| FR-01..04 | FE | §EPIC-05-US-01-US-02 | presentation | `product_stock_adjustment_page.dart` | wgt_e05_u01_fr01_01 | done |
 
 ---
 

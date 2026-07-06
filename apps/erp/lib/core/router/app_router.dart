@@ -23,6 +23,7 @@ import '../../features/catalog/presentation/pages/product_guided_create_page.dar
 import '../../features/catalog/presentation/pages/product_control_center_page.dart';
 import '../../features/catalog/presentation/pages/product_readiness_checklist_page.dart';
 import '../../features/catalog/presentation/pages/product_measurement_units_page.dart';
+import '../../features/catalog/presentation/pages/product_stock_adjustment_page.dart';
 import '../di/injection.dart';
 
 final appRouter = GoRouter(
@@ -168,6 +169,14 @@ final appRouter = GoRouter(
       builder: (context, state) {
         final args = state.extra as ProductMeasurementUnitsRouteArgs;
         return ProductMeasurementUnitsPage(product: args.product);
+      },
+    ),
+    GoRoute(
+      path: '/products/items/pcc/stock',
+      name: 'products.items.pcc.stock',
+      builder: (context, state) {
+        final args = state.extra as ProductStockAdjustmentRouteArgs;
+        return ProductStockAdjustmentPage(args: args);
       },
     ),
     GoRoute(

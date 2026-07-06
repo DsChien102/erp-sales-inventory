@@ -487,7 +487,7 @@ Tests: `scn_contract_e04_u02_*` trong `fake_catalog_module_test.dart`.
 
 ## EPIC-05 / US-01 + US-02 — Stock profile + basic stock (slice #8)
 
-**Status:** CONTRACT `done` · BE `done` · FE `todo`
+**Status:** CONTRACT `done` · BE `done` · FE `done`
 
 ### Commands / Queries
 

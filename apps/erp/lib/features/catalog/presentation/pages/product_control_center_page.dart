@@ -12,7 +12,7 @@ import 'product_measurement_units_page.dart';
 
 import '../widgets/product_control_center_operational_section.dart';
 import '../widgets/product_control_center_profile_card.dart';
-import 'product_readiness_checklist_page.dart';
+import 'product_stock_adjustment_page.dart';
 
 class ProductControlCenterRouteArgs {
   final ProductListItemModel product;
@@ -297,7 +297,22 @@ class _ProductControlCenterView extends StatelessWidget {
                         if (!context.mounted) return;
                         context.read<ProductControlCenterCubit>().loadControlCenter(product.id);
                       },
-                      onEditStock: () => _showEditPlaceholder(context),
+                      onEditStock: () async {
+                        if (controlCenter.stock.canAdjust) {
+                          final didChange = await context.push<bool>(
+                            '/products/items/pcc/stock',
+                            extra: ProductStockAdjustmentRouteArgs(
+                              product: product,
+                              currentQuantity: controlCenter.stock.quantity,
+                              unitName: controlCenter.stock.unitName,
+                              stockVersion: controlCenter.stock.currentVersion,
+                            ),
+                          );
+                          if (didChange == true && context.mounted) {
+                            context.read<ProductControlCenterCubit>().loadControlCenter(product.id);
+                          }
+                        }
+                      },
                       onEditBasePrice: () => _showEditPlaceholder(context),
                       onEditPriceBand: () => _showEditPlaceholder(context),
                     ),
