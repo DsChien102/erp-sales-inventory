@@ -14,6 +14,7 @@ import 'product_manual_base_price_page.dart';
 import '../widgets/product_control_center_operational_section.dart';
 import '../widgets/product_control_center_profile_card.dart';
 import 'product_stock_adjustment_page.dart';
+import 'product_price_bands_page.dart';
 
 class ProductControlCenterRouteArgs {
   final ProductListItemModel product;
@@ -329,7 +330,19 @@ class _ProductControlCenterView extends StatelessWidget {
                           : controlCenter.basePrice.mode == BasePriceMode.costingModule
                               ? () => _showEditPlaceholder(context)
                               : null,
-                      onEditPriceBand: () => _showEditPlaceholder(context),
+                      onEditPriceBand: () async {
+                        await context.push(
+                          '/products/items/pcc/price-bands',
+                          extra: ProductPriceBandsRouteArgs(
+                            product: product,
+                            basePriceCard: controlCenter.basePrice,
+                            priceBandCard: controlCenter.priceBand,
+                            unitName: controlCenter.units.baseUnitName,
+                          ),
+                        );
+                        if (!context.mounted) return;
+                        context.read<ProductControlCenterCubit>().loadControlCenter(product.id);
+                      },
                     ),
                     ...controlCenter.customFieldGroupCards.map((group) {
                       IconData iconData = Icons.assignment_outlined;

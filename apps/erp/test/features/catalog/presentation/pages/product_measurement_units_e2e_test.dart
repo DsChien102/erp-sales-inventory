@@ -5,10 +5,9 @@ import 'package:erp/features/catalog/presentation/pages/product_readiness_checkl
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
-import 'package:vet45_catalog_application/application.dart';
 import 'package:vet45_catalog_application/testing.dart';
 import 'package:vet45_catalog_presentation/presentation.dart';
-import 'package:vet45_shared_application/application.dart';
+import 'package:vet45_shared_testing/shared_testing.dart';
 
 import '../../catalog_e2e_harness.dart';
 

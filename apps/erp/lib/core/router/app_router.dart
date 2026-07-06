@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:vet45_iam_infrastructure/infrastructure.dart';
 import 'package:vet45_iam_application/application.dart';
 import 'package:vet45_shared_application/application.dart';
+import 'package:get_it/get_it.dart';
 
 import '../../features/more/presentation/pages/system_settings_page.dart';
 import '../../features/more/presentation/einvoice_settings/pages/einvoice_settings_page.dart';
@@ -25,6 +26,8 @@ import '../../features/catalog/presentation/pages/product_readiness_checklist_pa
 import '../../features/catalog/presentation/pages/product_measurement_units_page.dart';
 import '../../features/catalog/presentation/pages/product_stock_adjustment_page.dart';
 import '../../features/catalog/presentation/pages/product_manual_base_price_page.dart';
+import '../../features/catalog/presentation/pages/product_price_bands_page.dart';
+import '../../features/catalog/presentation/pages/edit_product_unit_price_band_page.dart';
 import '../di/injection.dart';
 
 final appRouter = GoRouter(
@@ -191,6 +194,31 @@ final appRouter = GoRouter(
         return ProductManualBasePricePage(
           product: args.product,
           basePriceCard: args.basePriceCard,
+        );
+      },
+    ),
+    GoRoute(
+      path: '/products/items/pcc/price-bands',
+      name: 'products.items.pcc.price-bands',
+      builder: (context, state) {
+        final args = state.extra as ProductPriceBandsRouteArgs;
+        return ProductPriceBandsPage(
+          product: args.product,
+          basePriceCard: args.basePriceCard,
+          priceBandCard: args.priceBandCard,
+          unitName: args.unitName,
+        );
+      },
+    ),
+    GoRoute(
+      path: '/products/items/pcc/edit-price-band',
+      name: 'products.items.pcc.edit-price-band',
+      builder: (context, state) {
+        final args = state.extra as EditProductUnitPriceBandRouteArgs;
+        return EditProductUnitPriceBandPage(
+          tenantId: GetIt.instance<ICurrentTenant>().tenantId!,
+          productId: args.product.id,
+          unitName: args.unitName,
         );
       },
     ),

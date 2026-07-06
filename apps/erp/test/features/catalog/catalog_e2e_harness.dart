@@ -12,6 +12,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:get_it/get_it.dart';
+import 'package:erp/features/catalog/presentation/pages/product_price_bands_page.dart';
+import 'package:erp/features/catalog/presentation/pages/edit_product_unit_price_band_page.dart';
 import 'package:vet45_catalog_application/application.dart';
 import 'package:vet45_catalog_application/testing.dart';
 import 'package:vet45_catalog_presentation/presentation.dart';
@@ -182,6 +185,29 @@ Widget buildCatalogDiscoveryRouter() {
           return ProductManualBasePricePage(
             product: args.product,
             basePriceCard: args.basePriceCard,
+          );
+        },
+      ),
+      GoRoute(
+        path: '/products/items/pcc/price-bands',
+        builder: (context, state) {
+          final args = state.extra as ProductPriceBandsRouteArgs;
+          return ProductPriceBandsPage(
+            product: args.product,
+            basePriceCard: args.basePriceCard,
+            priceBandCard: args.priceBandCard,
+            unitName: args.unitName,
+          );
+        },
+      ),
+      GoRoute(
+        path: '/products/items/pcc/edit-price-band',
+        builder: (context, state) {
+          final args = state.extra as EditProductUnitPriceBandRouteArgs;
+          return EditProductUnitPriceBandPage(
+            tenantId: GetIt.instance<ICurrentTenant>().tenantId!,
+            productId: args.product.id,
+            unitName: args.unitName,
           );
         },
       ),
