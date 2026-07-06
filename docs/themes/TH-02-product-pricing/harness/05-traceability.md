@@ -76,11 +76,11 @@ Codegen ritual: mirror [modules/partner/README.md](../../../../modules/partner/R
 
 | Req ID | Role | Contract § | Enforce layer | Artifact | Test id | Status |
 | ------ | ---- | ---------- | ------------- | -------- | ------- | ------ |
-| US-01 | CONTRACT | §EPIC-01-US-01 | application | `SearchProductsQuery`, readiness filter DTOs | — | todo |
-| FR-01 | BE | §EPIC-01-US-01 | application | Search + barcode handler | scn_e01_u01_fr01_01 | todo |
-| FR-03 | BE | §EPIC-01-US-01 | application | Readiness chip in list DTO | scn_e01_u01_fr03_01 | todo |
-| FR-01..04 | FE | §EPIC-01-US-01 | presentation | Product list page + filters | wgt_e01_u01_fr01_01 | todo |
-| FR-01 | E2E | §EPIC-01-US-01 | integration | Search E2E | e2e_e01_u01_fr01_01 | todo |
+| US-01 | CONTRACT | §EPIC-01-US-01 | application | `SearchProductsQuery`, `ScanBarcodeQuery`, `ProductListItemDto`, `ProductSearchCriteria`, `ICatalogReadGateway`, `FakeCatalogModule` | scn_contract_e01_u01_* | done |
+| FR-01 | BE | §EPIC-01-US-01 | application | Search + barcode handler | scn_e01_u01_fr01_01 | done |
+| FR-03 | BE | §EPIC-01-US-01 | application | Readiness chip in list DTO | scn_e01_u01_fr03_01 | done |
+| FR-01..04 | FE | §EPIC-01-US-01 | presentation | Product list page + filters | wgt_e01_u01_fr01_01 | done |
+| FR-01 | E2E | §EPIC-01-US-01 | integration | Search E2E | e2e_e01_u01_fr01_01 | done |
 
 ---
 
@@ -88,16 +88,16 @@ Codegen ritual: mirror [modules/partner/README.md](../../../../modules/partner/R
 
 | Req ID | Role | Contract § | Enforce layer | Artifact | Test id | Status |
 | ------ | ---- | ---------- | ------------- | -------- | ------- | ------ |
-| US-02 | CONTRACT | §EPIC-01-US-02 | application | `GetProductControlCenterQuery`, action DTOs, `customFieldGroupCards` | — | todo |
-| FR-01 | BE | §EPIC-01-US-02 | application | Profile summary projection | scn_e01_u02_fr01_01 | todo |
-| FR-02 | BE | §EPIC-01-US-02 | application | Units / stock / base price / price band cards | scn_e01_u02_fr02_01 | todo |
-| FR-03 | BE | §EPIC-01-US-02 | application | Custom field group cards | scn_e01_u02_fr03_01 | todo |
+| US-02 | CONTRACT | §EPIC-01-US-02 | application | `GetProductControlCenterQuery`, `ProductControlCenterDto`, card DTOs, `ICatalogReadGateway`, `FakeCatalogModule` | scn_contract_e01_u02_* | done |
+| FR-01 | BE | §EPIC-01-US-02 | application | Profile summary projection | scn_e01_u02_fr01_01 | done |
+| FR-02 | BE | §EPIC-01-US-02 | application | Units / stock / base price / price band cards | scn_e01_u02_fr02_01 | done |
+| FR-03 | BE | §EPIC-01-US-02 | application | Custom field group cards | scn_e01_u02_fr03_01 | done |
 | FR-04 | BE | §EPIC-01-US-02 | application | Readiness checklist projection | — | **pending** |
 | FR-04 | FE | §EPIC-01-US-02 | presentation | Checklist UI đầy đủ | — | **pending** |
-| FR-05 | BE | §EPIC-01-US-02 | application | Contextual actions by permission/status | scn_e01_u02_fr05_01 | todo |
-| FR-06 | BE | §EPIC-01-US-02 | application | Change history preview | scn_e01_u02_fr06_01 | todo |
-| FR-01..03,05..06 | FE | §EPIC-01-US-02 | presentation | `product_control_center_page.dart` | wgt_e01_u02_fr01_01 | todo |
-| FR-01 | E2E | §EPIC-01-US-02 | integration | Detail E2E | e2e_e01_u02_fr01_01 | todo |
+| FR-05 | BE | §EPIC-01-US-02 | application | Contextual actions by permission/status | scn_e01_u02_fr05_01 | done |
+| FR-06 | BE | §EPIC-01-US-02 | application | Change history preview | scn_e01_u02_fr06_01 | done |
+| FR-01..03,05..06 | FE | §EPIC-01-US-02 | presentation | `product_control_center_page.dart` | wgt_e01_u02_fr01_01 | done |
+| FR-01 | E2E | §EPIC-01-US-02 | integration | Detail E2E | e2e_e01_u02_fr01_01 | done |
 
 Early: `readinessSummary` trên PCC (không thay FR-04 checklist đầy đủ).
 

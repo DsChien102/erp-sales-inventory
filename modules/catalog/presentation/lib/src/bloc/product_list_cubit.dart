@@ -1,0 +1,105 @@
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:vet45_catalog_application/application.dart';
+import 'package:vet45_catalog_domain/domain.dart';
+import 'package:vet45_shared_application/application.dart';
+
+import 'product_list_state.dart';
+
+class ProductListCubit extends Cubit<ProductListState> {
+  ProductListCubit({
+    required IModuleMediator mediator,
+    required IExecutionContext executionContext,
+  })  : _mediator = mediator,
+        _executionContext = executionContext,
+        super(const ProductListInitial());
+
+  final IModuleMediator _mediator;
+  final IExecutionContext _executionContext;
+
+  static const int _pageSize = 20;
+  
+  int? globalTotalCount;
+
+  Future<void> fetchProducts({
+    ProductSearchCriteria? criteria,
+    bool isRefresh = false,
+  }) async {
+    try {
+      final tenantId = await _executionContext.requireTenantId();
+      if (tenantId.isEmpty) {
+        emit(const ProductListError('Missing tenant id'));
+        return;
+      }
+
+      final currentCriteria = criteria ??
+          (state is ProductListLoaded
+              ? (state as ProductListLoaded).criteria
+              : ProductSearchCriteria());
+
+      final currentState = state;
+      List<ProductListItemDto> currentItems = [];
+      int offset = 0;
+
+      if (!isRefresh && currentState is ProductListLoaded) {
+        if (currentState.hasReachedMax && criteria == null) return;
+        currentItems = currentState.items;
+        offset = currentItems.length;
+      }
+
+      emit(
+        ProductListLoading(
+          criteria: currentCriteria,
+          items: isRefresh ? [] : currentItems,
+          isFirstLoad: isRefresh || currentItems.isEmpty,
+        ),
+      );
+
+      final query = SearchProductsQuery(
+        tenantId: tenantId,
+        criteria: currentCriteria,
+        limit: _pageSize,
+        offset: isRefresh ? 0 : offset,
+      );
+
+      final result = await _mediator.executeQueryAsync(query);
+
+      final isAllCriteria = currentCriteria.keyword == null &&
+          currentCriteria.readinessFilter == null &&
+          currentCriteria.activeOnly &&
+          !currentCriteria.includeSoftDeleted;
+
+      if (isAllCriteria) {
+        globalTotalCount = result.totalCount;
+      }
+
+      final newItems = isRefresh ? result.items : currentItems + result.items;
+      final hasReachedMax = newItems.length >= result.totalCount || result.items.isEmpty;
+
+      emit(
+        ProductListLoaded(
+          criteria: currentCriteria,
+          items: newItems,
+          totalCount: result.totalCount,
+          hasReachedMax: hasReachedMax,
+        ),
+      );
+    } catch (e) {
+      emit(ProductListError(e.toString()));
+    }
+  }
+
+  void searchByKeyword(String keyword) {
+    final currentCriteria = state is ProductListLoaded
+        ? (state as ProductListLoaded).criteria
+        : ProductSearchCriteria();
+        
+    final newCriteria = ProductSearchCriteria(
+      keyword: keyword.isEmpty ? null : keyword,
+      businessStatuses: currentCriteria.businessStatuses,
+      readinessFilter: currentCriteria.readinessFilter,
+      includeSoftDeleted: currentCriteria.includeSoftDeleted,
+      sortOrder: currentCriteria.sortOrder,
+    );
+    fetchProducts(criteria: newCriteria, isRefresh: true);
+  }
+}

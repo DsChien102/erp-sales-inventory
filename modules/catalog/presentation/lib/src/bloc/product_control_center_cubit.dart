@@ -14,8 +14,28 @@ class ProductControlCenterCubit extends Cubit<ProductControlCenterState> {
   final ICatalogModule _catalogModule;
   final IExecutionContext _executionContext;
 
-  Future<void> loadReadiness(String productId) async {
+  Future<void> loadControlCenter(String productId) async {
     emit(state.copyWith(status: ProductControlCenterStatus.loading));
+    try {
+      final tenantId = await _executionContext.requireTenantId();
+      final query = GetProductControlCenterQuery(
+        tenantId: tenantId,
+        productId: productId,
+      );
+      final controlCenter = await _catalogModule.executeQueryAsync(query);
+      emit(state.copyWith(
+        status: ProductControlCenterStatus.success,
+        controlCenter: controlCenter,
+      ));
+    } catch (e) {
+      emit(state.copyWith(
+        status: ProductControlCenterStatus.failure,
+        errorMessage: e.toString(),
+      ));
+    }
+  }
+
+  Future<void> loadReadinessForChecklist(String productId) async {
     try {
       final tenantId = await _executionContext.requireTenantId();
       final query = GetProductReadinessQuery(
@@ -23,15 +43,9 @@ class ProductControlCenterCubit extends Cubit<ProductControlCenterState> {
         productId: productId,
       );
       final readinessView = await _catalogModule.executeQueryAsync(query);
-      emit(state.copyWith(
-        status: ProductControlCenterStatus.success,
-        readinessView: readinessView,
-      ));
+      emit(state.copyWith(readinessView: readinessView));
     } catch (e) {
-      emit(state.copyWith(
-        status: ProductControlCenterStatus.failure,
-        errorMessage: e.toString(),
-      ));
+      emit(state.copyWith(errorMessage: e.toString()));
     }
   }
 }

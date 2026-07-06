@@ -4,6 +4,7 @@ import 'package:vet45_shared_application/application.dart';
 import '../ports/i_product_readiness_read_port.dart';
 import 'get_product_readiness_query.dart';
 import 'product_readiness_permission_context.dart';
+import 'product_readiness_permission_resolver.dart';
 import 'product_readiness_view_assembler.dart';
 import 'product_readiness_view_dto.dart';
 
@@ -41,23 +42,7 @@ final class GetProductReadinessQueryHandler
     );
   }
 
-  Future<ProductReadinessPermissionContext> _resolvePermissions() async {
-    return ProductReadinessPermissionContext(
-      canManageUnits: await _can(CatalogPermissions.manageUnits),
-      canManageStock: await _can(CatalogPermissions.manageStock),
-      canManagePricing: await _can(CatalogPermissions.managePricing),
-      canUpdateProduct: await _can(CatalogPermissions.update),
-      canCreateProduct: await _can(CatalogPermissions.create),
-      canViewDetail: await _can(CatalogPermissions.viewDetail),
-    );
-  }
-
-  Future<bool> _can(String permissionCode) async {
-    try {
-      await _permissionChecker.require(permissionCode);
-      return true;
-    } on ApplicationException {
-      return false;
-    }
+  Future<ProductReadinessPermissionContext> _resolvePermissions() {
+    return ProductReadinessPermissionResolver.resolve(_permissionChecker);
   }
 }

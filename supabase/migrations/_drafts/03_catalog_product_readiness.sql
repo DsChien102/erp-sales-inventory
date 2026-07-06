@@ -1,10 +1,92 @@
--- EPIC-02/US-03: product readiness facts RPC for GetProductReadinessQuery.
+-- EPIC-02/US-03 + EPIC-01: product readiness facts (shared helper + GetProductReadinessQuery).
 -- Context: docs/themes/TH-02-product-pricing/harness/07-api-contracts.md
--- Foundation MVP: stock_mode = basic, base_price_mode = manual (hardcoded).
--- TODO EPIC-05/US-01: join catalog.product_stock_profiles for stock_mode + has_stock
--- TODO EPIC-06/US-01: join catalog.product_base_price_profiles for base_price_mode + has_base_price
--- TODO EPIC-06/US-03: join product_unit_price_bands for has_price_band
+-- Foundation MVP: stock_mode / base_price_mode from operational profiles when present.
 -- TODO EPIC-03: compute has_required_custom_fields from custom field config
+
+create or replace function catalog._product_operational_facts(
+  p_tenant_id uuid,
+  p_product_id uuid
+)
+returns table (
+  has_base_unit boolean,
+  has_images boolean,
+  has_stock boolean,
+  has_base_price boolean,
+  has_price_band boolean,
+  has_required_custom_fields boolean,
+  stock_mode text,
+  base_price_mode text
+)
+language sql
+stable
+security definer
+set search_path = catalog, pg_temp
+as $$
+  select
+    exists (
+      select 1
+      from catalog.product_units u
+      where u.product_id = p_product_id
+        and u.tenant_id = p_tenant_id
+        and u.is_base_unit = true
+    ) as has_base_unit,
+    exists (
+      select 1
+      from catalog.product_images i
+      where i.product_id = p_product_id
+        and i.tenant_id = p_tenant_id
+    ) as has_images,
+    exists (
+      select 1
+      from catalog.product_stock_profiles sp
+      where sp.product_id = p_product_id
+        and sp.tenant_id = p_tenant_id
+    ) as has_stock,
+    exists (
+      select 1
+      from catalog.product_base_price_profiles bp
+      where bp.product_id = p_product_id
+        and bp.tenant_id = p_tenant_id
+        and bp.base_price_amount is not null
+    ) as has_base_price,
+    exists (
+      select 1
+      from catalog.product_unit_price_bands pb
+      join catalog.product_units bu
+        on bu.id = pb.product_unit_id
+       and bu.product_id = p_product_id
+       and bu.tenant_id = p_tenant_id
+       and bu.is_base_unit = true
+      where pb.product_id = p_product_id
+        and pb.tenant_id = p_tenant_id
+        and pb.list_price_amount is not null
+        and pb.floor_price_amount is not null
+    ) as has_price_band,
+    true as has_required_custom_fields,
+    coalesce(
+      (
+        select sp.mode
+        from catalog.product_stock_profiles sp
+        where sp.product_id = p_product_id
+          and sp.tenant_id = p_tenant_id
+        limit 1
+      ),
+      'basic'
+    ) as stock_mode,
+    coalesce(
+      (
+        select case
+          when bp.mode = 'costingModule' then 'costing_module'
+          else 'manual'
+        end
+        from catalog.product_base_price_profiles bp
+        where bp.product_id = p_product_id
+          and bp.tenant_id = p_tenant_id
+        limit 1
+      ),
+      'manual'
+    ) as base_price_mode;
+$$;
 
 create or replace function catalog.get_product_readiness(
   p_tenant_id uuid,
@@ -39,31 +121,26 @@ begin
   select
     p.id as product_id,
     p.name as product_name,
-    exists (
-      select 1
-      from catalog.product_units u
-      where u.product_id = p.id
-        and u.tenant_id = p_tenant_id
-        and u.is_base_unit = true
-    ) as has_base_unit,
-    exists (
-      select 1
-      from catalog.product_images i
-      where i.product_id = p.id
-        and i.tenant_id = p_tenant_id
-    ) as has_images,
-    false as has_stock,
-    false as has_base_price,
-    false as has_price_band,
-    true as has_required_custom_fields,
-    'basic'::text as stock_mode,
-    'manual'::text as base_price_mode
+    f.has_base_unit,
+    f.has_images,
+    f.has_stock,
+    f.has_base_price,
+    f.has_price_band,
+    f.has_required_custom_fields,
+    f.stock_mode,
+    f.base_price_mode
   from catalog.products p
+  cross join lateral catalog._product_operational_facts(p_tenant_id, p.id) f
   where p.tenant_id = p_tenant_id
     and p.id = p_product_id
     and p.deleted_at is null;
 end;
 $$;
+
+revoke all on function catalog._product_operational_facts(uuid, uuid)
+  from public, anon;
+grant execute on function catalog._product_operational_facts(uuid, uuid)
+  to authenticated, service_role;
 
 revoke all on function catalog.get_product_readiness(uuid, uuid)
   from public, anon;

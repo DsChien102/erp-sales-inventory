@@ -1,5 +1,6 @@
 import 'package:erp/core/di/injection.dart';
 import 'package:erp/core/supabase/supabase_module.dart';
+import 'package:erp/features/catalog/presentation/pages/product_catalog_tab_page.dart';
 import 'package:erp/features/catalog/presentation/pages/product_control_center_page.dart';
 import 'package:erp/features/catalog/presentation/pages/product_guided_create_page.dart';
 import 'package:erp/features/catalog/presentation/pages/product_readiness_checklist_page.dart';
@@ -71,6 +72,38 @@ Widget buildCatalogPostCreateRouter() {
 
 /// Back-compat alias for US-01 E2E (same routes; checklist route unused).
 Widget buildGuidedCreateRouter() => buildCatalogPostCreateRouter();
+
+Widget buildCatalogDiscoveryRouter() {
+  final router = GoRouter(
+    initialLocation: '/products/items',
+    routes: [
+      GoRoute(
+        path: '/products/items',
+        builder: (context, state) => const ProductCatalogTabPage(),
+      ),
+      GoRoute(
+        path: '/products/items/new',
+        builder: (context, state) => const ProductGuidedCreatePage(),
+      ),
+      GoRoute(
+        path: '/products/items/pcc',
+        builder: (context, state) {
+          final args = state.extra as ProductControlCenterRouteArgs;
+          return ProductControlCenterPage(product: args.product);
+        },
+      ),
+      GoRoute(
+        path: '/products/items/pcc/checklist',
+        builder: (context, state) {
+          final args = state.extra as ProductReadinessChecklistRouteArgs;
+          return ProductReadinessChecklistPage(readinessView: args.readinessView);
+        },
+      ),
+    ],
+  );
+
+  return MaterialApp.router(routerConfig: router);
+}
 
 Future<void> createMinimalProduct(
   WidgetTester tester, {

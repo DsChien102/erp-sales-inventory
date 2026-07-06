@@ -106,6 +106,53 @@ abstract final class ProductRpcMapper {
     };
   }
 
+  static Map<String, dynamic> searchProductsParams({
+    required String tenantId,
+    required ProductSearchCriteria criteria,
+    required int limit,
+    required int offset,
+  }) {
+    return <String, dynamic>{
+      'p_tenant_id': tenantId,
+      'p_keyword': criteria.keyword,
+      'p_business_statuses': criteria.businessStatuses
+          .map((status) => status.name)
+          .toList(growable: false),
+      'p_readiness_filter': _readinessFilterToRpc(criteria.readinessFilter),
+      'p_include_soft_deleted': criteria.includeSoftDeleted,
+      'p_limit': limit,
+      'p_offset': offset,
+    };
+  }
+
+  static Map<String, dynamic> findByBarcodeParams({
+    required String tenantId,
+    required String barcode,
+  }) {
+    return <String, dynamic>{
+      'p_tenant_id': tenantId,
+      'p_barcode': barcode,
+    };
+  }
+
+  static Map<String, dynamic> getProductControlCenterParams({
+    required String tenantId,
+    required String productId,
+  }) {
+    return <String, dynamic>{
+      'p_tenant_id': tenantId,
+      'p_product_id': productId,
+    };
+  }
+
+  static String? _readinessFilterToRpc(ProductReadinessFilter? filter) {
+    return switch (filter) {
+      ProductReadinessFilter.readyToSell => 'ready_to_sell',
+      ProductReadinessFilter.incomplete => 'incomplete',
+      null => null,
+    };
+  }
+
   static String readinessStatusToRpc(ReadinessStatus status) {
     return switch (status) {
       ReadinessStatus.incomplete => 'incomplete',

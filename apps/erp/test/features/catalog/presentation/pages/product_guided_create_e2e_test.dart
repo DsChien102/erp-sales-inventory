@@ -113,9 +113,11 @@ void main() {
     expect(find.text('Paracetamol 500mg'), findsWidgets);
     expect(find.text('Tồn (Hộp): 150'), findsOneWidget);
     expect(find.text('Giá niêm yết: 6.750 đ'), findsOneWidget);
-    expect(find.text('Tồn kho: 150 Hộp'), findsOneWidget);
-    expect(find.text('Giá vốn: 5.000 đ (Hộp)'), findsOneWidget);
-    expect(find.text('Khung giá bán'), findsOneWidget);
+    expect(find.text('Tồn kho'), findsOneWidget);
+    expect(find.textContaining('150 Hộp'), findsOneWidget);
+    expect(find.text('Giá cơ sở'), findsOneWidget);
+    expect(find.textContaining('5.000 đ'), findsOneWidget);
+    expect(find.text('Khung giá'), findsOneWidget);
     expect(
       find.text('Niêm yết: 6.750 đ · Sàn: 5.750 đ · Đơn vị: Hộp'),
       findsOneWidget,
@@ -168,7 +170,7 @@ void main() {
     expect(find.text('Paracetamol skip price'), findsWidgets);
     expect(find.text('Thiếu dữ liệu'), findsOneWidget);
     expect(find.text('Giá niêm yết: --'), findsOneWidget);
-    expect(find.text('Chưa thiết lập khung giá bán'), findsOneWidget);
+    expect(find.textContaining('Thiếu khung giá'), findsOneWidget);
     expect(find.text('Cần bổ sung (2)'), findsOneWidget);
   });
 }

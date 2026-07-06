@@ -12,19 +12,19 @@ abstract final class ProductReadinessFactsMapper {
       hasPriceBand: row['has_price_band'] as bool? ?? false,
       hasRequiredCustomFields:
           row['has_required_custom_fields'] as bool? ?? true,
-      stockMode: _stockModeFromRpc(row['stock_mode'] as String?),
-      basePriceMode: _basePriceModeFromRpc(row['base_price_mode'] as String?),
+      stockMode: stockModeFromRpc(row['stock_mode'] as String?),
+      basePriceMode: basePriceModeFromRpc(row['base_price_mode'] as String?),
     );
   }
 
-  static StockMode _stockModeFromRpc(String? value) {
+  static StockMode stockModeFromRpc(String? value) {
     return switch (value) {
       'advanced' => StockMode.advanced,
       _ => StockMode.basic,
     };
   }
 
-  static BasePriceMode _basePriceModeFromRpc(String? value) {
+  static BasePriceMode basePriceModeFromRpc(String? value) {
     return switch (value) {
       'costing_module' => BasePriceMode.costingModule,
       _ => BasePriceMode.manual,
