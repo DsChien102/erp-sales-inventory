@@ -7,6 +7,8 @@ import 'package:vet45_catalog_domain/domain.dart';
 import 'package:vet45_shared_application/application.dart';
 import 'package:vet45_design_system/design_system.dart';
 import 'package:vet45_catalog_presentation/presentation.dart';
+import 'product_readiness_checklist_page.dart';
+import 'product_measurement_units_page.dart';
 
 import '../widgets/product_control_center_operational_section.dart';
 import '../widgets/product_control_center_profile_card.dart';
@@ -62,6 +64,63 @@ class _ProductControlCenterView extends StatelessWidget {
     context.push(
       '/products/items/pcc/checklist',
       extra: ProductReadinessChecklistRouteArgs(readinessView: readinessView),
+    );
+  }
+
+  Widget _buildDangerSection(BuildContext context) {
+    final dynamicColors = context.vColors;
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: GestureDetector(
+        onTap: () => _showEditPlaceholder(context),
+        child: Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: dynamicColors.dangerBg,
+            border: Border.all(
+              color: dynamicColors.danger.withValues(alpha: 0.3),
+            ),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Row(
+            children: [
+              VIconBox(
+                iconData: Icons.error_outline,
+                size: 40,
+                iconSize: 20,
+                backgroundColor: dynamicColors.surface,
+                iconColor: dynamicColors.danger,
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Nâng cao',
+                      style: VTypography.bodyDefault.copyWith(
+                        color: dynamicColors.danger,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      'Ngừng kinh doanh · Xoá sản phẩm',
+                      style: VTypography.bodySmall.copyWith(
+                        color: dynamicColors.danger,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Icon(
+                Icons.chevron_right,
+                color: dynamicColors.danger,
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 
@@ -199,14 +258,72 @@ class _ProductControlCenterView extends StatelessWidget {
                       padding: EdgeInsets.all(32),
                       child: Center(child: CircularProgressIndicator()),
                     )
-                  else if (controlCenter != null)
+                  else if (controlCenter != null) ...[
+                    ProductControlCenterSectionCard(
+                      title: 'Hồ sơ sản phẩm',
+                      icon: Icons.assignment_outlined,
+                      subtitle: '${controlCenter.profile.sku ?? 'Chưa có mã SKU'} · ${controlCenter.profile.barcode ?? 'Chưa có mã vạch'}',
+                      onEdit: () => _showEditPlaceholder(context),
+                    ),
+                    ProductControlCenterSectionCard(
+                      title: 'Ảnh sản phẩm',
+                      icon: Icons.camera_alt_outlined,
+                      subtitle: '${controlCenter.profile.images.length} ảnh',
+                      onEdit: () => _showEditPlaceholder(context),
+                    ),
                     ProductControlCenterOperationalSection(
                       units: controlCenter.units,
                       stock: controlCenter.stock,
                       basePrice: controlCenter.basePrice,
                       priceBand: controlCenter.priceBand,
+                      onEditUnits: () {
+                        context.push(
+                          '/products/items/pcc/measurement-units',
+                          extra: ProductMeasurementUnitsRouteArgs(product: product),
+                        );
+                      },
+                      onEditStock: () => _showEditPlaceholder(context),
+                      onEditBasePrice: () => _showEditPlaceholder(context),
+                      onEditPriceBand: () => _showEditPlaceholder(context),
+                    ),
+                    ...controlCenter.customFieldGroupCards.map((group) {
+                      IconData iconData = Icons.assignment_outlined;
+                      final nameLower = group.name.toLowerCase();
+                      if (nameLower.contains('thuốc')) {
+                        iconData = Icons.medication_outlined;
+                      } else if (nameLower.contains('quy cách') || nameLower.contains('bảo quản')) {
+                        iconData = Icons.inventory_2_outlined;
+                      } else if (nameLower.contains('tuân thủ')) {
+                        iconData = Icons.lock_outline;
+                      }
+                      
+                      final filledCount = group.fields.where((f) => f.displayValue != null && f.displayValue!.isNotEmpty).length;
+                      return ProductControlCenterSectionCard(
+                        title: group.name,
+                        icon: iconData,
+                        subtitle: '$filledCount/${group.fields.length} trường đã điền',
+                        onEdit: () => _showEditPlaceholder(context),
+                      );
+                    }),
+                    ProductControlCenterSectionCard(
+                      title: 'Ghi chú',
+                      icon: Icons.description_outlined,
+                      subtitle: controlCenter.profile.note?.isNotEmpty == true
+                          ? 'Đã điền ghi chú'
+                          : 'Chưa có ghi chú',
                       onEdit: () => _showEditPlaceholder(context),
                     ),
+                    ProductControlCenterSectionCard(
+                      title: 'Lịch sử thay đổi',
+                      icon: Icons.history,
+                      subtitle: controlCenter.changeHistoryPreview.isNotEmpty 
+                          ? '${controlCenter.changeHistoryPreview.first.summary} · ${controlCenter.changeHistoryPreview.first.occurredAt.toString().substring(0, 10)}'
+                          : 'Tạo sản phẩm · 2026-07-06',
+                      actionText: 'Xem',
+                      onEdit: () => _showEditPlaceholder(context),
+                    ),
+                    _buildDangerSection(context),
+                  ],
                   const SizedBox(height: 16),
                 ],
               ),

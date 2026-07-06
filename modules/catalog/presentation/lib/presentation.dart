@@ -4,6 +4,8 @@ export 'src/bloc/product_control_center_cubit.dart';
 export 'src/bloc/product_control_center_state.dart';
 export 'src/bloc/product_guided_create_cubit.dart';
 export 'src/bloc/product_guided_create_state.dart';
+export 'src/bloc/product_measurement_units_cubit.dart';
+export 'src/bloc/product_measurement_units_state.dart';
 export 'src/bloc/product_list_cubit.dart';
 export 'src/bloc/product_list_state.dart';
 export 'src/catalog_presentation_module.dart';

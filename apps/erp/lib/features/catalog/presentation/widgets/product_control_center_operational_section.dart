@@ -11,14 +11,20 @@ class ProductControlCenterOperationalSection extends StatelessWidget {
     required this.stock,
     required this.basePrice,
     required this.priceBand,
-    this.onEdit,
+    this.onEditUnits,
+    this.onEditStock,
+    this.onEditBasePrice,
+    this.onEditPriceBand,
   });
 
   final ProductUnitsCardDto units;
   final ProductStockCardDto stock;
   final ProductBasePriceCardDto basePrice;
   final ProductPriceBandCardDto priceBand;
-  final VoidCallback? onEdit;
+  final VoidCallback? onEditUnits;
+  final VoidCallback? onEditStock;
+  final VoidCallback? onEditBasePrice;
+  final VoidCallback? onEditPriceBand;
 
   @override
   Widget build(BuildContext context) {
@@ -26,11 +32,11 @@ class ProductControlCenterOperationalSection extends StatelessWidget {
       children: [
         ProductControlCenterSectionCard(
           icon: Icons.straighten,
-          title: 'Đơn vị',
+          title: 'Đơn vị đo lường',
           subtitle: units.isMissing
               ? (units.missingMessage ?? 'Chưa thiết lập')
               : units.baseUnitName ?? 'Chưa thiết lập',
-          onEdit: onEdit,
+          onEdit: onEditUnits,
         ),
         ProductControlCenterSectionCard(
           icon: Icons.inventory_2_outlined,
@@ -38,7 +44,7 @@ class ProductControlCenterOperationalSection extends StatelessWidget {
           subtitle: stock.isMissing
               ? (stock.missingMessage ?? 'Chưa thiết lập')
               : '${stock.quantity ?? 0}${stock.unitName != null ? ' ${stock.unitName}' : ''}',
-          onEdit: onEdit,
+          onEdit: onEditStock,
         ),
         ProductControlCenterSectionCard(
           icon: Icons.monetization_on_outlined,
@@ -46,13 +52,13 @@ class ProductControlCenterOperationalSection extends StatelessWidget {
           subtitle: basePrice.isMissing
               ? (basePrice.missingMessage ?? 'Chưa thiết lập')
               : formatCatalogCurrency(basePrice.amount),
-          onEdit: onEdit,
+          onEdit: onEditBasePrice,
         ),
         ProductControlCenterSectionCard(
           icon: Icons.local_offer_outlined,
           title: 'Khung giá',
           subtitle: _priceBandSubtitle(),
-          onEdit: onEdit,
+          onEdit: onEditPriceBand,
         ),
       ],
     );
@@ -70,8 +76,7 @@ class ProductControlCenterOperationalSection extends StatelessWidget {
         ? 'Sàn: ${formatCatalogCurrency(priceBand.floorPrice)}'
         : 'Sàn: --';
     final unit = priceBand.unitName?.trim();
-    final unitSuffix =
-        unit != null && unit.isNotEmpty ? ' · Đơn vị: $unit' : '';
+    final unitSuffix = unit != null && unit.isNotEmpty ? ' · Đơn vị: $unit' : '';
 
     return '$listPart · $floorPart$unitSuffix';
   }
@@ -84,12 +89,14 @@ class ProductControlCenterSectionCard extends StatelessWidget {
     required this.title,
     required this.subtitle,
     this.onEdit,
+    this.actionText = 'Sửa',
   });
 
   final IconData icon;
   final String title;
   final String subtitle;
   final VoidCallback? onEdit;
+  final String actionText;
 
   @override
   Widget build(BuildContext context) {
@@ -97,50 +104,53 @@ class ProductControlCenterSectionCard extends StatelessWidget {
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      child: VCard(
-        padding: const EdgeInsets.all(16),
-        child: Row(
-          children: [
-            VIconBox(
-              iconData: icon,
-              size: 40,
-              iconSize: 20,
-              backgroundColor: dynamicColors.surfaceBrand,
-              iconColor: dynamicColors.primary,
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: VTypography.bodyDefault.copyWith(
-                      color: dynamicColors.textPrimary,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    subtitle,
-                    style: VTypography.bodySmall.copyWith(
-                      color: dynamicColors.textSecondary,
-                    ),
-                  ),
-                ],
+      child: GestureDetector(
+        onTap: onEdit,
+        child: VCard(
+          padding: const EdgeInsets.all(16),
+          child: Row(
+            children: [
+              VIconBox(
+                iconData: icon,
+                size: 40,
+                iconSize: 20,
+                backgroundColor: dynamicColors.surfaceBrand,
+                iconColor: dynamicColors.primary,
               ),
-            ),
-            TextButton(
-              onPressed: onEdit,
-              child: Text(
-                'Sửa',
-                style: VTypography.bodyDefault.copyWith(
-                  color: dynamicColors.primary,
-                  fontWeight: FontWeight.bold,
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: VTypography.bodyDefault.copyWith(
+                        color: dynamicColors.textPrimary,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      subtitle,
+                      style: VTypography.bodySmall.copyWith(
+                        color: dynamicColors.textSecondary,
+                      ),
+                    ),
+                  ],
                 ),
               ),
-            ),
-          ],
+              TextButton(
+                onPressed: onEdit,
+                child: Text(
+                  actionText,
+                  style: VTypography.bodyDefault.copyWith(
+                    color: dynamicColors.primary,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

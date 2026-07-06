@@ -59,15 +59,17 @@ class ProductReadinessChecklistBody extends StatelessWidget {
         final blocker = blockers[index];
         final ctaLabel = _getCallToAction(blocker.code);
 
-        return Container(
-          padding: const EdgeInsets.all(VSpacing.space4),
-          decoration: BoxDecoration(
-            color: dynamicColors.surface,
-            borderRadius: BorderRadius.circular(VRadius.r8),
-            border: Border.all(color: dynamicColors.borderDefault),
-          ),
-          child: Row(
-            children: [
+        return GestureDetector(
+          onTap: () => onActionTap?.call(blocker.code),
+          child: Container(
+            padding: const EdgeInsets.all(VSpacing.space4),
+            decoration: BoxDecoration(
+              color: dynamicColors.surface,
+              borderRadius: BorderRadius.circular(VRadius.r8),
+              border: Border.all(color: dynamicColors.borderDefault),
+            ),
+            child: Row(
+              children: [
               Icon(
                 Icons.error_outline,
                 color: dynamicColors.warning,
@@ -106,8 +108,9 @@ class ProductReadinessChecklistBody extends StatelessWidget {
                 ),
             ],
           ),
-        );
-      },
-    );
-  }
+        ),
+      );
+    },
+  );
+}
 }
