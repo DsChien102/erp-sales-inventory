@@ -22,6 +22,8 @@ export 'src/product/events/product_stock_adjusted.dart';
 export 'src/product/product.dart';
 export 'src/product/product_base_unit.dart';
 export 'src/product/product_image.dart';
+export 'src/product/product_unit.dart';
+export 'src/product/product_unit_set.dart';
 export 'src/product/repositories/i_product_duplicate_checker.dart';
 export 'src/product/rules/at_most_one_primary_image_rule.dart';
 export 'src/product/rules/base_unit_required_for_stock_rule.dart';
@@ -44,4 +46,3 @@ export 'src/stock/stock_mode.dart';
 export 'src/value_objects/barcode.dart';
 export 'src/value_objects/product_name.dart';
 export 'src/value_objects/sku.dart';
-

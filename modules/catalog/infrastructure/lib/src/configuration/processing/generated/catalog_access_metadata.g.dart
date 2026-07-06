@@ -6,6 +6,10 @@ import 'package:vet45_shared_application/application.dart';
 import 'package:vet45_shared_infrastructure/infrastructure.dart';
 
 final catalogAccessMetadataRegistry = AccessMetadataRegistry({
+  AddProductConversionUnitCommand: AccessMetadata(
+    permission: 'catalog.product.manage_units',
+    requiresTenant: true,
+  ),
   CheckDuplicateMeasurementUnitNameQuery: AccessMetadata(
     permission: 'catalog.product.manage_units',
     requiresTenant: true,
@@ -18,6 +22,10 @@ final catalogAccessMetadataRegistry = AccessMetadataRegistry({
     permission: 'catalog.product.create',
     requiresTenant: true,
   ),
+  DeactivateProductConversionUnitCommand: AccessMetadata(
+    permission: 'catalog.product.manage_units',
+    requiresTenant: true,
+  ),
   GetProductControlCenterQuery: AccessMetadata(
     permission: 'catalog.product.view_detail',
     requiresTenant: true,
@@ -26,7 +34,15 @@ final catalogAccessMetadataRegistry = AccessMetadataRegistry({
     permission: 'catalog.product.view_detail',
     requiresTenant: true,
   ),
+  ListProductUnitsQuery: AccessMetadata(
+    permission: 'catalog.product.manage_units',
+    requiresTenant: true,
+  ),
   ListTenantMeasurementUnitsQuery: AccessMetadata(
+    permission: 'catalog.product.manage_units',
+    requiresTenant: true,
+  ),
+  ReactivateProductConversionUnitCommand: AccessMetadata(
     permission: 'catalog.product.manage_units',
     requiresTenant: true,
   ),
@@ -59,3 +75,4 @@ final catalogAccessMetadataRegistry = AccessMetadataRegistry({
     requiresTenant: true,
   ),
 });
+

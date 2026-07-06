@@ -185,6 +185,79 @@ abstract final class ProductRpcMapper {
     };
   }
 
+  static Map<String, dynamic> listProductUnitsParams(
+    ListProductUnitsQuery query,
+  ) {
+    return <String, dynamic>{
+      'p_tenant_id': query.tenantId,
+      'p_product_id': query.productId,
+      'p_include_inactive': query.includeInactive,
+    };
+  }
+
+  static Map<String, dynamic> addConversionUnitParams(
+    AddProductConversionUnitCommand command,
+  ) {
+    return <String, dynamic>{
+      'p_tenant_id': command.tenantId,
+      'p_product_id': command.productId,
+      'p_unit_name': command.unitName,
+      'p_conversion_rate_to_base': command.conversionRateToBase,
+    };
+  }
+
+  static Map<String, dynamic> deactivateConversionUnitParams(
+    DeactivateProductConversionUnitCommand command,
+  ) {
+    return <String, dynamic>{
+      'p_tenant_id': command.tenantId,
+      'p_product_id': command.productId,
+      'p_product_unit_id': command.productUnitId,
+    };
+  }
+
+  static Map<String, dynamic> reactivateConversionUnitParams(
+    ReactivateProductConversionUnitCommand command,
+  ) {
+    return <String, dynamic>{
+      'p_tenant_id': command.tenantId,
+      'p_product_id': command.productId,
+      'p_product_unit_id': command.productUnitId,
+    };
+  }
+
+  static ProductUnitDto productUnitDtoFromRow(Map<String, dynamic> row) {
+    return ProductUnitDto(
+      id: row['id'] as String,
+      name: row['name'] as String,
+      conversionRateToBase: (row['conversion_rate_to_base'] as num).toDouble(),
+      isBaseUnit: row['is_base_unit'] as bool,
+      isActive: row['is_active'] as bool? ?? true,
+    );
+  }
+
+  static ProductUnitsDto productUnitsDtoFromRows({
+    required String productId,
+    required String baseUnitName,
+    required List<Map<String, dynamic>> rows,
+  }) {
+    return ProductUnitsDto(
+      productId: productId,
+      baseUnitName: baseUnitName,
+      units: rows.map(productUnitDtoFromRow).toList(growable: false),
+    );
+  }
+
+  static ProductUnitMutationResult productUnitMutationResultFromRow(
+    Map<String, dynamic> row,
+  ) {
+    final unitValue = row['unit'];
+    return ProductUnitMutationResult(
+      productId: row['product_id'] as String,
+      unit: productUnitDtoFromRow(Map<String, dynamic>.from(unitValue as Map)),
+    );
+  }
+
   static String? _readinessFilterToRpc(ProductReadinessFilter? filter) {
     return switch (filter) {
       ProductReadinessFilter.readyToSell => 'ready_to_sell',

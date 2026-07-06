@@ -9,15 +9,16 @@ import '../internal_commands/supabase_catalog_internal_command_client.dart';
 import '../catalog_command_pipeline.dart';
 
 extension CatalogCommandBusBusinessCommands on CommandBus {
-  void
-  registerBusinessCommand<TCommand extends ICommand<TResult>, TResult, THandler extends Object>({
+  void registerBusinessCommand<
+      TCommand extends ICommand<TResult>, TResult, THandler extends Object>({
     required GetIt container,
     required Future<TResult> Function(TCommand command, THandler handler) invoke,
     ILogger? logger,
   }) {
     register<TCommand, TResult>((command) {
       final handler = container.get<THandler>();
-      final pipeline = CatalogCommandPipeline.buildBusinessPipeline<TCommand, TResult, THandler>(
+      final pipeline = CatalogCommandPipeline.buildBusinessPipeline<
+          TCommand, TResult, THandler>(
         container: container,
         handler: handler,
         invoke: invoke,

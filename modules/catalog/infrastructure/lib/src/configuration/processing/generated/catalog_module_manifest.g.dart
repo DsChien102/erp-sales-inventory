@@ -21,7 +21,10 @@ final catalogModuleManifest = GeneratedModuleManifest(
     'catalog.product.view_history',
   ],
   commandTypes: [
+    AddProductConversionUnitCommand,
     CreateProductCommand,
+    DeactivateProductConversionUnitCommand,
+    ReactivateProductConversionUnitCommand,
     RequestProductImageUploadCommand,
     SetInitialPriceBandCommand,
     SetInitialStockCommand,
@@ -33,8 +36,10 @@ final catalogModuleManifest = GeneratedModuleManifest(
     CheckDuplicateProductCodeQuery,
     GetProductControlCenterQuery,
     GetProductReadinessQuery,
+    ListProductUnitsQuery,
     ListTenantMeasurementUnitsQuery,
     ScanBarcodeQuery,
     SearchProductsQuery,
   ],
 );
+

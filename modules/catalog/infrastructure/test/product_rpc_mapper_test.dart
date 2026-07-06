@@ -131,4 +131,97 @@ void main() {
       expect(params['p_new_unit_name'], 'Vỉ');
     });
   });
+
+  group('ProductRpcMapper (EPIC-04/US-02 conversion units)', () {
+    test('listProductUnitsParams maps query params', () {
+      final params = ProductRpcMapper.listProductUnitsParams(
+        ListProductUnitsQuery(
+          tenantId: 'tenant-1',
+          productId: 'product-1',
+          includeInactive: true,
+        ),
+      );
+
+      expect(params['p_tenant_id'], 'tenant-1');
+      expect(params['p_product_id'], 'product-1');
+      expect(params['p_include_inactive'], isTrue);
+    });
+
+    test('addConversionUnitParams maps command params', () {
+      final params = ProductRpcMapper.addConversionUnitParams(
+        AddProductConversionUnitCommand(
+          tenantId: 'tenant-1',
+          productId: 'product-1',
+          unitName: 'Thùng',
+          conversionRateToBase: 100,
+        ),
+      );
+
+      expect(params['p_tenant_id'], 'tenant-1');
+      expect(params['p_product_id'], 'product-1');
+      expect(params['p_unit_name'], 'Thùng');
+      expect(params['p_conversion_rate_to_base'], 100);
+    });
+
+    test('deactivateConversionUnitParams maps command params', () {
+      final params = ProductRpcMapper.deactivateConversionUnitParams(
+        DeactivateProductConversionUnitCommand(
+          tenantId: 'tenant-1',
+          productId: 'product-1',
+          productUnitId: 'product-1-unit-vi',
+        ),
+      );
+
+      expect(params['p_tenant_id'], 'tenant-1');
+      expect(params['p_product_id'], 'product-1');
+      expect(params['p_product_unit_id'], 'product-1-unit-vi');
+    });
+
+    test('reactivateConversionUnitParams maps command params', () {
+      final params = ProductRpcMapper.reactivateConversionUnitParams(
+        ReactivateProductConversionUnitCommand(
+          tenantId: 'tenant-1',
+          productId: 'product-1',
+          productUnitId: 'product-1-unit-thung',
+        ),
+      );
+
+      expect(params['p_tenant_id'], 'tenant-1');
+      expect(params['p_product_id'], 'product-1');
+      expect(params['p_product_unit_id'], 'product-1-unit-thung');
+    });
+
+    test('productUnitDtoFromRow maps RPC row fields', () {
+      final dto = ProductRpcMapper.productUnitDtoFromRow({
+        'id': 'product-1-unit-vi',
+        'name': 'Vỉ',
+        'conversion_rate_to_base': 10,
+        'is_base_unit': false,
+        'is_active': true,
+      });
+
+      expect(dto.id, 'product-1-unit-vi');
+      expect(dto.name, 'Vỉ');
+      expect(dto.conversionRateToBase, 10);
+      expect(dto.isBaseUnit, isFalse);
+      expect(dto.isActive, isTrue);
+    });
+
+    test('productUnitMutationResultFromRow maps mutation result row', () {
+      final result = ProductRpcMapper.productUnitMutationResultFromRow({
+        'product_id': 'product-1',
+        'unit': {
+          'id': 'product-1-unit-thung',
+          'name': 'Thùng',
+          'conversion_rate_to_base': 100,
+          'is_base_unit': false,
+          'is_active': true,
+        },
+      });
+
+      expect(result.productId, 'product-1');
+      expect(result.unit.name, 'Thùng');
+      expect(result.unit.isActive, isTrue);
+    });
+  });
 }

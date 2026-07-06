@@ -33,6 +33,18 @@ void main() {
       expect(error, isA<DuplicateMeasurementUnitNameException>());
     });
 
+    test('maps duplicate product unit name', () {
+      final error = mapCatalogRpcError(
+        RpcException('duplicate product unit "Thùng"'),
+      );
+
+      expect(error, isA<DuplicateMeasurementUnitNameException>());
+      expect(
+        (error as DuplicateMeasurementUnitNameException).name,
+        'Thùng',
+      );
+    });
+
     test('maps missing base unit', () {
       final error = mapCatalogRpcError(RpcException('missing base unit'));
 
