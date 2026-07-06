@@ -73,8 +73,11 @@ abstract final class ProductControlCenterAssembler {
       ),
       basePrice: ProductBasePriceCardDto(
         mode: model.facts.basePriceMode,
+        sourceLabel: ProductBasePriceCardDto.sourceLabelFor(model.facts.basePriceMode),
         amount: model.basePriceAmount,
         currency: model.basePriceCurrency,
+        baseUnitName: hasBaseUnit ? model.baseUnitName : null,
+        canEdit: model.facts.basePriceMode == BasePriceMode.manual && hasBaseUnit,
         isPendingExternal: model.facts.basePriceMode == BasePriceMode.costingModule,
         isMissing: model.facts.basePriceMode == BasePriceMode.manual && !hasBasePrice,
         missingMessage: model.facts.basePriceMode == BasePriceMode.manual && !hasBasePrice

@@ -192,6 +192,23 @@ Mở đầy đủ khi CONTRACT lane bắt đầu.
 
 ---
 
+## EPIC-06 / US-01 — Manual base price (slice #9)
+
+| Req ID | Role | Contract § | Enforce layer | Artifact | Test id | Status |
+| ------ | ---- | ---------- | ------------- | -------- | ------- | ------ |
+| US-01 | CONTRACT | §EPIC-06-US-01 | application | `SetManualBasePriceCommand`, `SetManualBasePriceResult`, `ProductBasePriceCardDto`, `FakeCatalogModule` | scn_contract_e06_u01_* | done |
+| FR-01 | CONTRACT | §EPIC-06-US-01 | application | Base price mode + source label on PCC card | scn_contract_e06_u01_fr01_* | done |
+| FR-02 | CONTRACT | §EPIC-06-US-01 | application | Manual base price command + gating | scn_contract_e06_u01_fr02_* | done |
+| FR-03 | CONTRACT | §EPIC-06-US-01 | application | Costing read gateway | — | **pending** (slice #23) |
+| FR-04 | CONTRACT | §EPIC-06-US-01 | application | Readiness refresh via result | scn_contract_e06_u01_fr04_01 | done |
+| FR-01 | BE | §EPIC-06-US-01 | application + infrastructure | `SetManualBasePriceCommandHandler`, gateway, draft RPC | scn_e06_u01_fr01_01 | todo |
+| FR-02 | BE | §EPIC-06-US-01 | application | Manual entry + base unit gating | scn_e06_u01_fr02_01 | todo |
+| FR-03 | BE | §EPIC-06-US-01 | application | Costing module read | — | **pending** |
+| FR-04 | BE | §EPIC-06-US-01 | application | Readiness refresh after set | scn_e06_u01_fr04_01 | todo |
+| FR-01..04 | FE | §EPIC-06-US-01 | presentation | PCC base price card + edit flow | wgt_e06_u01_fr01_01 | todo |
+
+---
+
 ## EPIC-04 / US-03 — Đổi đơn vị cơ sở
 
 | Req ID | Role | Contract § | Enforce layer | Artifact | Test id | Status |

@@ -56,10 +56,14 @@ class _FakeProductReadinessReadPort implements IProductReadinessReadPort {
   _FakeProductReadinessReadPort({
     required this.hasBaseUnit,
     this.hasStock = false,
+    this.hasBasePrice = false,
+    this.hasPriceBand = false,
   });
 
   final bool hasBaseUnit;
   final bool hasStock;
+  final bool hasBasePrice;
+  final bool hasPriceBand;
   String? lastTenantId;
   String? lastProductId;
 
@@ -76,8 +80,8 @@ class _FakeProductReadinessReadPort implements IProductReadinessReadPort {
       hasBaseUnit: hasBaseUnit,
       hasImages: true,
       hasStock: hasStock,
-      hasBasePrice: false,
-      hasPriceBand: false,
+      hasBasePrice: hasBasePrice,
+      hasPriceBand: hasPriceBand,
       hasRequiredCustomFields: true,
     );
   }
@@ -252,7 +256,13 @@ void main() {
       final gateway = _RecordingProductCommandGateway();
       final handler = SetManualBasePriceCommandHandler(
         commandGateway: gateway,
-        readinessReadPort: _FakeProductReadinessReadPort(hasBaseUnit: true),
+        readinessReadPort: _FakeProductReadinessReadPort(
+          hasBaseUnit: true,
+          hasBasePrice: true,
+          hasStock: true,
+          hasPriceBand: true,
+        ),
+        unitGateway: _RecordingCatalogUnitGateway(),
       );
       final validator = SetManualBasePriceCommandValidator();
 
@@ -263,11 +273,15 @@ void main() {
       );
 
       await validator.validate(command);
-      await handler.handle(command);
+      final result = await handler.handle(command);
 
       expect(gateway.lastProductId, 'prod-1');
       expect(gateway.lastTenantId, 'tenant-1');
       expect(gateway.lastPriceProfile?.basePrice?.amount, 50000.0);
+      expect(result.productId, 'prod-1');
+      expect(result.basePrice, 50000.0);
+      expect(result.unitName, 'Lọ');
+      expect(result.readinessSummary.blockers, isEmpty);
     });
 
     test('negative base price throws ValidationException', () async {
@@ -304,6 +318,7 @@ void main() {
       final handler = SetManualBasePriceCommandHandler(
         commandGateway: gateway,
         readinessReadPort: _FakeProductReadinessReadPort(hasBaseUnit: false),
+        unitGateway: _RecordingCatalogUnitGateway(),
       );
 
       await expectLater(
