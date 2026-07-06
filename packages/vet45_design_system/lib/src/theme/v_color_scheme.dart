@@ -23,6 +23,16 @@ class VColorScheme extends ThemeExtension<VColorScheme> {
   final Color disabledBorder;
   final Color disabledFg;
 
+  // Semantic and status colors
+  final Color success;
+  final Color successBg;
+  final Color warning;
+  final Color warningBg;
+  final Color danger;
+  final Color dangerBg;
+  final Color info;
+  final Color infoBg;
+
   const VColorScheme({
     required this.background,
     required this.surface,
@@ -43,6 +53,14 @@ class VColorScheme extends ThemeExtension<VColorScheme> {
     required this.disabledBg,
     required this.disabledBorder,
     required this.disabledFg,
+    required this.success,
+    required this.successBg,
+    required this.warning,
+    required this.warningBg,
+    required this.danger,
+    required this.dangerBg,
+    required this.info,
+    required this.infoBg,
   });
 
   // Light theme color scheme mapping
@@ -66,6 +84,14 @@ class VColorScheme extends ThemeExtension<VColorScheme> {
     disabledBg: VColors.neutral100,
     disabledBorder: VColors.neutral200,
     disabledFg: VColors.neutral400,
+    success: VColors.success,
+    successBg: VColors.successBg,
+    warning: VColors.warning,
+    warningBg: VColors.warningBg,
+    danger: VColors.danger,
+    dangerBg: VColors.dangerBg,
+    info: VColors.info,
+    infoBg: VColors.infoBg,
   );
 
   // Dark theme color scheme mapping
@@ -89,6 +115,14 @@ class VColorScheme extends ThemeExtension<VColorScheme> {
     disabledBg: VColors.neutral700,
     disabledBorder: VColors.neutral600,
     disabledFg: VColors.neutral500,
+    success: VColors.success,
+    successBg: VColors.neutral700,
+    warning: VColors.warning,
+    warningBg: VColors.neutral700,
+    danger: VColors.danger,
+    dangerBg: VColors.neutral700,
+    info: VColors.info,
+    infoBg: VColors.neutral700,
   );
 
   @override
@@ -112,6 +146,14 @@ class VColorScheme extends ThemeExtension<VColorScheme> {
     Color? disabledBg,
     Color? disabledBorder,
     Color? disabledFg,
+    Color? success,
+    Color? successBg,
+    Color? warning,
+    Color? warningBg,
+    Color? danger,
+    Color? dangerBg,
+    Color? info,
+    Color? infoBg,
   }) {
     return VColorScheme(
       background: background ?? this.background,
@@ -133,6 +175,14 @@ class VColorScheme extends ThemeExtension<VColorScheme> {
       disabledBg: disabledBg ?? this.disabledBg,
       disabledBorder: disabledBorder ?? this.disabledBorder,
       disabledFg: disabledFg ?? this.disabledFg,
+      success: success ?? this.success,
+      successBg: successBg ?? this.successBg,
+      warning: warning ?? this.warning,
+      warningBg: warningBg ?? this.warningBg,
+      danger: danger ?? this.danger,
+      dangerBg: dangerBg ?? this.dangerBg,
+      info: info ?? this.info,
+      infoBg: infoBg ?? this.infoBg,
     );
   }
 
@@ -161,6 +211,14 @@ class VColorScheme extends ThemeExtension<VColorScheme> {
       disabledBg: Color.lerp(disabledBg, other.disabledBg, t)!,
       disabledBorder: Color.lerp(disabledBorder, other.disabledBorder, t)!,
       disabledFg: Color.lerp(disabledFg, other.disabledFg, t)!,
+      success: Color.lerp(success, other.success, t)!,
+      successBg: Color.lerp(successBg, other.successBg, t)!,
+      warning: Color.lerp(warning, other.warning, t)!,
+      warningBg: Color.lerp(warningBg, other.warningBg, t)!,
+      danger: Color.lerp(danger, other.danger, t)!,
+      dangerBg: Color.lerp(dangerBg, other.dangerBg, t)!,
+      info: Color.lerp(info, other.info, t)!,
+      infoBg: Color.lerp(infoBg, other.infoBg, t)!,
     );
   }
 }

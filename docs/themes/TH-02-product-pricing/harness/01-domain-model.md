@@ -185,4 +185,4 @@ Code domain: [domain-layer skill](../../../../.cursor/skills/domain-layer/SKILL.
 
 Commands/handlers: [application-layer](../../../../.cursor/skills/application-layer/SKILL.md).
 
-**Lưu ý:** `modules/catalog/` vẫn skeleton — cập nhật khi slice EPIC-02/US-01 CONTRACT lane bắt đầu.
+**Lưu ý:** EPIC-02/US-01 CONTRACT + BE done — `Product.create`, readiness seed, handlers, gateways, draft SQL `catalog_guided_create.sql`, IAM-style codegen. FE/E2E còn lại.

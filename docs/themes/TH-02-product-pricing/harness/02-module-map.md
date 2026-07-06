@@ -4,7 +4,7 @@
 
 | Module | Vai trò | Owner / Supporting | Package | Trạng thái |
 | ------ | ------- | ------------------ | ------- | ---------- |
-| catalog | Product master, readiness, UOM, stock/base price profiles, price band, nhóm & trường thông tin bổ sung | **Owner** | `modules/catalog/` | planned (skeleton) |
+| catalog | Product master, readiness, UOM, stock/base price profiles, price band, nhóm & trường thông tin bổ sung | **Owner** | `modules/catalog/` | in_progress (EPIC-02/US-01 BE done) |
 | inventory | Advanced stock summary read | Supporting | `modules/inventory/` | planned |
 | costing | Costing-module base price read (Growth) | Supporting | `modules/costing/` | planned |
 | iam | Auth, tenant, RBAC (`catalog.*`) | Supporting | `modules/iam/` | in_progress |

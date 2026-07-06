@@ -19,6 +19,8 @@ import '../../features/partner/presentation/pages/partner_create_page.dart';
 import '../../features/partner/presentation/pages/partner_edit_page.dart';
 import 'package:vet45_partner_presentation/presentation.dart';
 import 'package:vet45_partner_domain/domain.dart';
+import '../../features/catalog/presentation/pages/product_guided_create_page.dart';
+import '../../features/catalog/presentation/pages/product_control_center_page.dart';
 import '../di/injection.dart';
 
 final appRouter = GoRouter(
@@ -130,6 +132,24 @@ final appRouter = GoRouter(
           return const Scaffold(body: Center(child: CircularProgressIndicator()));
         }
         return EInvoiceAutoPage(cubit: cubit);
+      },
+    ),
+    GoRoute(
+      path: '/products/items',
+      name: 'products.items',
+      builder: (context, state) => const DashboardPage(initialTab: DashboardTab.products),
+    ),
+    GoRoute(
+      path: '/products/items/new',
+      name: 'products.items.new',
+      builder: (context, state) => const ProductGuidedCreatePage(),
+    ),
+    GoRoute(
+      path: '/products/items/pcc',
+      name: 'products.items.pcc',
+      builder: (context, state) {
+        final args = state.extra as ProductControlCenterRouteArgs;
+        return ProductControlCenterPage(product: args.product);
       },
     ),
     GoRoute(
