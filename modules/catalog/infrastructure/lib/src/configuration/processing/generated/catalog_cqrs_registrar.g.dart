@@ -14,6 +14,9 @@ void registerGeneratedCatalogValidators(GetIt container) {
     ..registerFactory<ICommandValidator<AddProductConversionUnitCommand>>(
       AddProductConversionUnitCommandValidator.new,
     )
+    ..registerFactory<ICommandValidator<AdjustBasicStockCommand>>(
+      AdjustBasicStockCommandValidator.new,
+    )
     ..registerFactory<ICommandValidator<CreateProductCommand>>(
       CreateProductCommandValidator.new,
     )
@@ -55,6 +58,16 @@ void registerGeneratedCatalogHandlers({
     logger: logger,
     factory: () => AddProductConversionUnitCommandHandler(
       unitGateway: container.get<ICatalogUnitGateway>(),
+    ),
+  );
+
+  CatalogCommandRegistration.registerBusinessHandler<AdjustBasicStockCommand, AdjustBasicStockResult, AdjustBasicStockCommandHandler>(
+    container: container,
+    bus: bus,
+    logger: logger,
+    factory: () => AdjustBasicStockCommandHandler(
+      stockGateway: container.get<ICatalogStockGateway>(),
+      readinessReadPort: container.get<IProductReadinessReadPort>(),
     ),
   );
 
@@ -104,13 +117,14 @@ void registerGeneratedCatalogHandlers({
     ),
   );
 
-  CatalogCommandRegistration.registerBusinessHandler<SetInitialStockCommand, void, SetInitialStockCommandHandler>(
+  CatalogCommandRegistration.registerBusinessHandler<SetInitialStockCommand, SetInitialStockResult, SetInitialStockCommandHandler>(
     container: container,
     bus: bus,
     logger: logger,
     factory: () => SetInitialStockCommandHandler(
       commandGateway: container.get<IProductCommandGateway>(),
       readinessReadPort: container.get<IProductReadinessReadPort>(),
+      unitGateway: container.get<ICatalogUnitGateway>(),
     ),
   );
 
@@ -169,6 +183,15 @@ void registerGeneratedCatalogQueries({
     factory: () => GetProductReadinessQueryHandler(
       readinessReadPort: container.get<IProductReadinessReadPort>(),
       permissionChecker: container.get<IPermissionChecker>(),
+    ),
+    invoke: (query, handler) => handler.handle(query),
+  );
+
+  CatalogCommandRegistration.registerQueryHandler<GetProductStockHistoryQuery, ProductStockHistoryDto, GetProductStockHistoryQueryHandler>(
+    bus: bus,
+    factory: () => GetProductStockHistoryQueryHandler(
+      stockReadPort: container.get<IProductStockReadPort>(),
+      readinessReadPort: container.get<IProductReadinessReadPort>(),
     ),
     invoke: (query, handler) => handler.handle(query),
   );

@@ -27,6 +27,14 @@ Object mapCatalogRpcError(RpcException error) {
     return MissingBaseUnitException();
   }
 
+  if (message.contains('not_basic_stock_mode')) {
+    return NotBasicStockModeException();
+  }
+
+  if (message.contains('stale_stock_quantity')) {
+    return StaleStockQuantityException();
+  }
+
   if (message.contains('validation_exception')) {
     return ValidationException(_stripPrefix(error.message));
   }

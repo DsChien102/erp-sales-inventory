@@ -2,10 +2,12 @@ import 'package:vet45_annotations/vet45_annotations.dart';
 import 'package:vet45_catalog_domain/domain.dart';
 import 'package:vet45_shared_application/application.dart';
 
+import '../stock/set_initial_stock_result.dart';
+
 @RequiresPermission(CatalogPermissions.manageStock)
 @RequiresTenant()
-final class SetInitialStockCommand extends CommandBase<void>
-    implements ICommand<void>, ITenantScopedCommand {
+final class SetInitialStockCommand extends CommandBase<SetInitialStockResult>
+    implements ICommand<SetInitialStockResult>, ITenantScopedCommand {
   SetInitialStockCommand({
     String? id,
     required this.tenantId,
@@ -17,6 +19,6 @@ final class SetInitialStockCommand extends CommandBase<void>
   @override
   final String tenantId;
   final String productId;
-  final int quantity;
+  final double quantity;
   final String mode;
 }

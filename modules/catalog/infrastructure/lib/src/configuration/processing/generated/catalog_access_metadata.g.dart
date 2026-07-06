@@ -10,6 +10,10 @@ final catalogAccessMetadataRegistry = AccessMetadataRegistry({
     permission: 'catalog.product.manage_units',
     requiresTenant: true,
   ),
+  AdjustBasicStockCommand: AccessMetadata(
+    permission: 'catalog.product.manage_stock',
+    requiresTenant: true,
+  ),
   CheckDuplicateMeasurementUnitNameQuery: AccessMetadata(
     permission: 'catalog.product.manage_units',
     requiresTenant: true,
@@ -32,6 +36,10 @@ final catalogAccessMetadataRegistry = AccessMetadataRegistry({
   ),
   GetProductReadinessQuery: AccessMetadata(
     permission: 'catalog.product.view_detail',
+    requiresTenant: true,
+  ),
+  GetProductStockHistoryQuery: AccessMetadata(
+    permission: 'catalog.product.view_history',
     requiresTenant: true,
   ),
   ListProductUnitsQuery: AccessMetadata(

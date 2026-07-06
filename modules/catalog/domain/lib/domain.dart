@@ -6,6 +6,7 @@ export 'src/exceptions/floor_price_greater_than_list_price_exception.dart';
 export 'src/exceptions/missing_base_price_exception.dart';
 export 'src/exceptions/missing_base_unit_exception.dart';
 export 'src/exceptions/not_basic_stock_mode_exception.dart';
+export 'src/exceptions/stale_stock_quantity_exception.dart';
 export 'src/exceptions/not_manual_base_price_mode_exception.dart';
 export 'src/ids/product_id.dart';
 export 'src/pricing/base_price.dart';

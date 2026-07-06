@@ -10,6 +10,7 @@ import 'product_price_band_card_dto.dart';
 import 'product_profile_summary_dto.dart';
 import 'product_stock_card_dto.dart';
 import 'product_units_card_dto.dart';
+import '../stock/stock_data_source.dart';
 
 /// Assembles [ProductControlCenterDto] from RPC read model + permissions.
 abstract final class ProductControlCenterAssembler {
@@ -52,8 +53,18 @@ abstract final class ProductControlCenterAssembler {
       ),
       stock: ProductStockCardDto(
         mode: model.facts.stockMode,
+        source: model.facts.stockMode == StockMode.advanced
+            ? StockDataSource.inventoryModule
+            : StockDataSource.basicProfile,
+        sourceLabel: model.facts.stockMode == StockMode.advanced
+            ? 'Tồn kho từ module Kho'
+            : 'Tồn kho cơ bản',
         quantity: model.stockQuantity,
         unitName: hasBaseUnit ? model.baseUnitName : null,
+        isConfigured: hasStock,
+        isOutOfStock: hasStock && model.stockQuantity == 0,
+        canAdjust: model.facts.stockMode == StockMode.basic && hasBaseUnit,
+        currentVersion: model.stockVersion,
         isPendingExternal: model.facts.stockMode == StockMode.advanced,
         isMissing: model.facts.stockMode == StockMode.basic && !hasStock,
         missingMessage: model.facts.stockMode == StockMode.basic && !hasStock

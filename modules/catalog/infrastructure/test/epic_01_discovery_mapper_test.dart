@@ -63,6 +63,7 @@ void main() {
         ],
         'stock_mode': 'basic',
         'stock_qty': 150,
+        'stock_version': 3,
         'base_price_mode': 'manual',
         'base_price_amount': 80000,
         'base_price_currency': 'VND',
@@ -86,6 +87,7 @@ void main() {
       });
 
       expect(model.productId, 'product-1');
+      expect(model.stockVersion, 3);
       expect(model.conversionUnits.single.name, 'Vỉ');
       expect(model.changeHistoryPreview, hasLength(1));
       expect(model.facts.hasPriceBand, isTrue);

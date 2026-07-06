@@ -145,7 +145,7 @@ Mở đầy đủ khi CONTRACT lane bắt đầu.
 | FR-02 | CONTRACT | §EPIC-04-US-02 | application | Unit roles documented only; no role fields/toggles | — | **pending** |
 | FR-03 | CONTRACT | §EPIC-04-US-02 | application | Deactivate conversion unit contract | scn_contract_e04_u02_fr03_* | done |
 | FR-04 | CONTRACT | §EPIC-04-US-02 | application | Reactivate conversion unit contract | scn_contract_e04_u02_fr04_* | done |
-| FR-01 | BE | §EPIC-04-US-02 | application | Add conversion unit | scn_e04_u02_fr01_01 | todo |
+| FR-01 | BE | §EPIC-04-US-02 | application + infrastructure | `ListProductUnitsQueryHandler`, `AddProductConversionUnitCommandHandler`, `SupabaseCatalogUnitGateway`, draft RPC `list_product_units` / `add_product_conversion_unit` | scn_e04_u02_fr01_01 | done |
 | FR-02 | BE | §EPIC-04-US-02 | application | Unit roles (bán/nhập/hiển thị) | — | **pending** |
 | FR-03 | BE | §EPIC-04-US-02 | application | Deactivate unit | scn_e04_u02_fr03_01 | todo |
 | FR-04 | BE | §EPIC-04-US-02 | application | Reactivate unit | scn_e04_u02_fr04_01 | todo |
@@ -156,6 +156,39 @@ Mở đầy đủ khi CONTRACT lane bắt đầu.
 | FR-01 EC-03/04 | E2E | §EPIC-04-US-02 | integration | Duplicate conversion unit | e2e_e04_u02_fr01_04 | done |
 | FR-03 | E2E | §EPIC-04-US-02 | integration | Deactivate conversion unit | e2e_e04_u02_fr03_01 | done |
 | FR-04 | E2E | §EPIC-04-US-02 | integration | Reactivate conversion unit | e2e_e04_u02_fr04_01 | done |
+| FR-03 | BE | §EPIC-04-US-02 | application + infrastructure | `DeactivateProductConversionUnitCommandHandler`, gateway, draft RPC `deactivate_product_conversion_unit` | scn_e04_u02_fr03_01 | done |
+| FR-04 | BE | §EPIC-04-US-02 | application + infrastructure | `ReactivateProductConversionUnitCommandHandler`, gateway, draft RPC `reactivate_product_conversion_unit` | scn_e04_u02_fr04_01 | done |
+
+---
+
+## EPIC-05 / US-01..02 — Stock profile + basic stock (slice #8)
+
+| Req ID | Role | Contract § | Enforce layer | Artifact | Test id | Status |
+| ------ | ---- | ---------- | ------------- | -------- | ------- | ------ |
+| US-01 | CONTRACT | §EPIC-05-US-01-US-02 | application | `ProductStockCardDto` mở rộng (`source`, `isConfigured`, `isOutOfStock`, `canAdjust`, `currentVersion`), `StockDataSource`, `FakeCatalogModule` | scn_contract_e05_u01_* | done |
+| FR-01 | CONTRACT | §EPIC-05-US-01-US-02 | application | Stock profile card hiển thị mode/source | scn_contract_e05_u01_fr01_01 | done |
+| FR-02 | CONTRACT | §EPIC-05-US-01-US-02 | application | Advanced source read-only contract | scn_contract_e05_u01_fr02_01 | done |
+| FR-03 | CONTRACT | §EPIC-05-US-01-US-02 | application | Distinguish configured vs out-of-stock | scn_contract_e05_u01_fr03_01 | done |
+| US-02 | CONTRACT | §EPIC-05-US-01-US-02 | application | `AdjustBasicStockCommand`, `GetProductStockHistoryQuery`, movement/history DTOs, stock ports, `SetInitialStockResult` | scn_contract_e05_u02_* | done |
+| FR-01 | CONTRACT | §EPIC-05-US-01-US-02 | application | `SetInitialStockCommand` result + readiness refresh | scn_contract_e05_u02_fr01_* | done |
+| FR-02 | CONTRACT | §EPIC-05-US-01-US-02 | application | `AdjustBasicStockCommand` + stale quantity error | scn_contract_e05_u02_fr02_* | done |
+| FR-03 | CONTRACT | §EPIC-05-US-01-US-02 | application | `GetProductStockHistoryQuery` + movement projection | scn_contract_e05_u02_fr03_01 | done |
+| FR-04 | CONTRACT | §EPIC-05-US-01-US-02 | application | readiness refresh after stock update | scn_contract_e05_u02_fr04_01 | done |
+| FR-01 | BE | §EPIC-05-US-01-US-02 | application + infrastructure | PCC stock card (`ProductControlCenterAssembler`, `get_product_control_center` + `stock_version`) | scn_e05_u01_fr01_01 | done |
+| FR-02 | BE | §EPIC-05-US-01-US-02 | application | Advanced stock read-only card projection | scn_e05_u01_fr02_01 | done |
+| FR-03 | BE | §EPIC-05-US-01-US-02 | application | `isConfigured` / `isOutOfStock` distinction (qty=0) | scn_e05_u01_fr03_01 | done |
+| FR-01 | BE | §EPIC-05-US-01-US-02 | application + infrastructure | `SetInitialStockCommandHandler` + draft RPC `set_initial_stock` (movements) | scn_e05_u02_fr01_01 | done |
+| FR-02 | BE | §EPIC-05-US-01-US-02 | application + infrastructure | `AdjustBasicStockCommandHandler`, `SupabaseCatalogStockGateway`, draft RPC `adjust_basic_stock` | scn_e05_u02_fr02_01 | done |
+| FR-03 | BE | §EPIC-05-US-01-US-02 | application + infrastructure | `GetProductStockHistoryQueryHandler`, `SupabaseProductStockReadGateway`, draft RPC `get_product_stock_history` | scn_e05_u02_fr03_01 | done |
+| FR-04 | BE | §EPIC-05-US-01-US-02 | application | readiness refresh after set/adjust stock | scn_e05_u02_fr04_01 | done |
+| FR-01..04 | FE | §EPIC-05-US-01-US-02 | presentation | `product_stock_adjustment_page.dart` | wgt_e05_u01_fr01_01 | done |
+| FR-01 | E2E | §EPIC-05-US-01-US-02 | erp | PCC basic stock card | e2e_e05_u01_fr01_01 | done |
+| FR-02 | E2E | §EPIC-05-US-01-US-02 | erp | Advanced stock read-only (no navigation) | e2e_e05_u01_fr02_01 | done |
+| FR-03 | E2E | §EPIC-05-US-01-US-02 | erp | Zero qty configured, not missing | e2e_e05_u01_fr03_01 | done |
+| FR-01 | E2E | §EPIC-05-US-01-US-02 | erp | Set initial stock from PCC | e2e_e05_u02_fr01_01 | done |
+| FR-02 | E2E | §EPIC-05-US-01-US-02 | erp | Adjust stock with reason | e2e_e05_u02_fr02_01 | done |
+| FR-03 | E2E | §EPIC-05-US-01-US-02 | erp | Stock history UI | — | n/a |
+| FR-04 | E2E | §EPIC-05-US-01-US-02 | erp | Readiness refresh after set stock | e2e_e05_u02_fr04_01 | done |
 
 ---
 

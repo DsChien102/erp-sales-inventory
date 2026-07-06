@@ -5,6 +5,8 @@ import 'package:erp/features/catalog/presentation/pages/product_control_center_p
 import 'package:erp/features/catalog/presentation/pages/product_guided_create_page.dart';
 import 'package:erp/features/catalog/presentation/pages/product_measurement_units_page.dart';
 import 'package:erp/features/catalog/presentation/pages/product_readiness_checklist_page.dart';
+import 'package:erp/features/catalog/presentation/pages/product_stock_adjustment_page.dart';
+import 'package:erp/features/catalog/presentation/widgets/product_control_center_operational_section.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
@@ -106,6 +108,13 @@ Widget buildCatalogPostCreateRouter() {
           return ProductMeasurementUnitsPage(product: args.product);
         },
       ),
+      GoRoute(
+        path: '/products/items/pcc/stock',
+        builder: (context, state) {
+          final args = state.extra as ProductStockAdjustmentRouteArgs;
+          return ProductStockAdjustmentPage(args: args);
+        },
+      ),
     ],
   );
 
@@ -148,10 +157,24 @@ Widget buildCatalogDiscoveryRouter() {
           return ProductMeasurementUnitsPage(product: args.product);
         },
       ),
+      GoRoute(
+        path: '/products/items/pcc/stock',
+        builder: (context, state) {
+          final args = state.extra as ProductStockAdjustmentRouteArgs;
+          return ProductStockAdjustmentPage(args: args);
+        },
+      ),
     ],
   );
 
   return MaterialApp.router(routerConfig: router);
+}
+
+Future<void> tapEditStock(WidgetTester tester) async {
+  final stockCard = find.widgetWithText(ProductControlCenterSectionCard, 'Tồn kho');
+  await tester.ensureVisible(stockCard);
+  await tester.tap(find.descendant(of: stockCard, matching: find.text('Sửa')));
+  await tester.pumpAndSettle();
 }
 
 Future<void> createMinimalProduct(

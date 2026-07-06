@@ -341,7 +341,7 @@ class ProductGuidedCreateCubit extends Cubit<ProductGuidedCreateState> {
 
       final productId = createResult.productId;
 
-      final stockQty = int.tryParse(state.initialStock.trim());
+      final stockQty = double.tryParse(state.initialStock.trim());
       if (stockQty != null) {
         await _catalogModule.executeCommandAsync(
           SetInitialStockCommand(
