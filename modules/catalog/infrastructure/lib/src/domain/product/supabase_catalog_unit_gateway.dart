@@ -86,6 +86,77 @@ final class SupabaseCatalogUnitGateway implements ICatalogUnitGateway {
     }
   }
 
+  @override
+  Future<ProductUnitsDto> listProductUnits({
+    required ListProductUnitsQuery query,
+  }) async {
+    try {
+      final rows = await _rpcClient.callList(
+        'list_product_units',
+        params: ProductRpcMapper.listProductUnitsParams(query),
+      );
+      final baseUnitName =
+          rows
+              .where((row) => row['is_base_unit'] == true)
+              .map((row) => row['name'] as String)
+              .firstOrNull ??
+          '';
+
+      return ProductRpcMapper.productUnitsDtoFromRows(
+        productId: query.productId,
+        baseUnitName: baseUnitName,
+        rows: rows,
+      );
+    } on RpcException catch (error) {
+      throw mapCatalogRpcError(error);
+    }
+  }
+
+  @override
+  Future<ProductUnitMutationResult> addConversionUnit({
+    required AddProductConversionUnitCommand command,
+  }) async {
+    try {
+      final row = await _rpcClient.callMap(
+        'add_product_conversion_unit',
+        params: ProductRpcMapper.addConversionUnitParams(command),
+      );
+      return ProductRpcMapper.productUnitMutationResultFromRow(row);
+    } on RpcException catch (error) {
+      throw mapCatalogRpcError(error);
+    }
+  }
+
+  @override
+  Future<ProductUnitMutationResult> deactivateConversionUnit({
+    required DeactivateProductConversionUnitCommand command,
+  }) async {
+    try {
+      final row = await _rpcClient.callMap(
+        'deactivate_product_conversion_unit',
+        params: ProductRpcMapper.deactivateConversionUnitParams(command),
+      );
+      return ProductRpcMapper.productUnitMutationResultFromRow(row);
+    } on RpcException catch (error) {
+      throw mapCatalogRpcError(error);
+    }
+  }
+
+  @override
+  Future<ProductUnitMutationResult> reactivateConversionUnit({
+    required ReactivateProductConversionUnitCommand command,
+  }) async {
+    try {
+      final row = await _rpcClient.callMap(
+        'reactivate_product_conversion_unit',
+        params: ProductRpcMapper.reactivateConversionUnitParams(command),
+      );
+      return ProductRpcMapper.productUnitMutationResultFromRow(row);
+    } on RpcException catch (error) {
+      throw mapCatalogRpcError(error);
+    }
+  }
+
   ReadinessSummaryDto _readinessSummaryFromRow(Map<String, dynamic> row) {
     final blockersValue = row['readiness_blockers'];
     final blockers = blockersValue is List

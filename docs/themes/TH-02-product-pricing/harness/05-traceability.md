@@ -140,10 +140,22 @@ Mở đầy đủ khi CONTRACT lane bắt đầu.
 
 | Req ID | Role | Contract § | Enforce layer | Artifact | Test id | Status |
 | ------ | ---- | ---------- | ------------- | -------- | ------- | ------ |
+| US-02 | CONTRACT | §EPIC-04-US-02 | application | `ListProductUnitsQuery`, conversion unit commands, DTOs, `ICatalogUnitGateway`, `FakeCatalogModule` | scn_contract_e04_u02_* | done |
+| FR-01 | CONTRACT | §EPIC-04-US-02 | application | Add conversion unit contract | scn_contract_e04_u02_fr01_* | done |
+| FR-02 | CONTRACT | §EPIC-04-US-02 | application | Unit roles documented only; no role fields/toggles | — | **pending** |
+| FR-03 | CONTRACT | §EPIC-04-US-02 | application | Deactivate conversion unit contract | scn_contract_e04_u02_fr03_* | done |
+| FR-04 | CONTRACT | §EPIC-04-US-02 | application | Reactivate conversion unit contract | scn_contract_e04_u02_fr04_* | done |
 | FR-01 | BE | §EPIC-04-US-02 | application | Add conversion unit | scn_e04_u02_fr01_01 | todo |
 | FR-02 | BE | §EPIC-04-US-02 | application | Unit roles (bán/nhập/hiển thị) | — | **pending** |
 | FR-03 | BE | §EPIC-04-US-02 | application | Deactivate unit | scn_e04_u02_fr03_01 | todo |
 | FR-04 | BE | §EPIC-04-US-02 | application | Reactivate unit | scn_e04_u02_fr04_01 | todo |
+| FR-01..04 | FE | §EPIC-04-US-02 | presentation | `product_measurement_units_page.dart`, `product_measurement_units_cubit.dart` | wgt_e04_u01_fr01_01 | done |
+| FR-01 | E2E | §EPIC-04-US-02 | integration | Add conversion unit E2E | e2e_e04_u02_fr01_01 | done |
+| FR-01 EC-01 | E2E | §EPIC-04-US-02 | integration | Gating without base unit | e2e_e04_u02_fr01_02 | done |
+| FR-01 EC-02 | E2E | §EPIC-04-US-02 | integration | Invalid rate validation | e2e_e04_u02_fr01_03 | done |
+| FR-01 EC-03/04 | E2E | §EPIC-04-US-02 | integration | Duplicate conversion unit | e2e_e04_u02_fr01_04 | done |
+| FR-03 | E2E | §EPIC-04-US-02 | integration | Deactivate conversion unit | e2e_e04_u02_fr03_01 | done |
+| FR-04 | E2E | §EPIC-04-US-02 | integration | Reactivate conversion unit | e2e_e04_u02_fr04_01 | done |
 
 ---
 

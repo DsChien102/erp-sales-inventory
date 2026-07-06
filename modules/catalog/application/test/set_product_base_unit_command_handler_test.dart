@@ -2,21 +2,30 @@ import 'package:test/test.dart';
 import 'package:vet45_catalog_application/application.dart';
 import 'package:vet45_catalog_domain/domain.dart';
 import 'package:vet45_shared_application/application.dart';
+import 'package:vet45_shared_domain/shared_kernel_domain.dart';
 
 final class _RecordingCatalogUnitGateway implements ICatalogUnitGateway {
   _RecordingCatalogUnitGateway({
     this.result,
     this.duplicate = false,
     this.units = const [],
+    this.productUnitsResult,
+    this.mutationResult,
     this.throwOnSet,
   });
 
   SetProductBaseUnitResult? result;
   bool duplicate;
   List<TenantMeasurementUnitDto> units;
+  ProductUnitsDto? productUnitsResult;
+  ProductUnitMutationResult? mutationResult;
   Object? throwOnSet;
 
   SetProductBaseUnitCommand? lastSetCommand;
+  ListProductUnitsQuery? lastListProductUnitsQuery;
+  AddProductConversionUnitCommand? lastAddConversionUnitCommand;
+  DeactivateProductConversionUnitCommand? lastDeactivateConversionUnitCommand;
+  ReactivateProductConversionUnitCommand? lastReactivateConversionUnitCommand;
   String? lastTenantId;
   String? lastKeyword;
   int? lastLimit;
@@ -55,7 +64,73 @@ final class _RecordingCatalogUnitGateway implements ICatalogUnitGateway {
     }
     return result!;
   }
+
+  @override
+  Future<ProductUnitsDto> listProductUnits({
+    required ListProductUnitsQuery query,
+  }) async {
+    lastListProductUnitsQuery = query;
+    return productUnitsResult!;
+  }
+
+  @override
+  Future<ProductUnitMutationResult> addConversionUnit({
+    required AddProductConversionUnitCommand command,
+  }) async {
+    lastAddConversionUnitCommand = command;
+    return mutationResult!;
+  }
+
+  @override
+  Future<ProductUnitMutationResult> deactivateConversionUnit({
+    required DeactivateProductConversionUnitCommand command,
+  }) async {
+    lastDeactivateConversionUnitCommand = command;
+    return mutationResult!;
+  }
+
+  @override
+  Future<ProductUnitMutationResult> reactivateConversionUnit({
+    required ReactivateProductConversionUnitCommand command,
+  }) async {
+    lastReactivateConversionUnitCommand = command;
+    return mutationResult!;
+  }
 }
+
+const _productOneUnits = ProductUnitsDto(
+  productId: 'product-1',
+  baseUnitName: 'Hộp',
+  units: [
+    ProductUnitDto(
+      id: 'product-1-base',
+      name: 'Hộp',
+      conversionRateToBase: 1,
+      isBaseUnit: true,
+      isActive: true,
+    ),
+    ProductUnitDto(
+      id: 'product-1-unit-vi',
+      name: 'Vỉ',
+      conversionRateToBase: 10,
+      isBaseUnit: false,
+      isActive: true,
+    ),
+    ProductUnitDto(
+      id: 'product-1-unit-thung',
+      name: 'Thùng',
+      conversionRateToBase: 100,
+      isBaseUnit: false,
+      isActive: false,
+    ),
+  ],
+);
+
+const _productSixUnits = ProductUnitsDto(
+  productId: 'product-6',
+  baseUnitName: '',
+  units: [],
+);
 
 void main() {
   group('SetProductBaseUnitCommandHandler & Validator', () {
@@ -262,6 +337,221 @@ void main() {
           CheckDuplicateMeasurementUnitNameQuery(
             tenantId: 'tenant-1',
             name: ' ',
+          ),
+        ),
+        throwsA(isA<ValidationException>()),
+      );
+    });
+  });
+
+  group('Product conversion unit handlers', () {
+    test('lists product units through gateway', () async {
+      final gateway = _RecordingCatalogUnitGateway(
+        productUnitsResult: _productOneUnits,
+      );
+      final handler = ListProductUnitsQueryHandler(unitGateway: gateway);
+
+      final result = await handler.handle(
+        ListProductUnitsQuery(
+          tenantId: 'tenant-1',
+          productId: 'product-1',
+          includeInactive: true,
+        ),
+      );
+
+      expect(result.productId, 'product-1');
+      expect(result.units, hasLength(3));
+      expect(gateway.lastListProductUnitsQuery?.includeInactive, isTrue);
+    });
+
+    test('adds conversion after domain validation', () async {
+      const added = ProductUnitDto(
+        id: 'product-1-unit-new',
+        name: 'Thùng',
+        conversionRateToBase: 100,
+        isBaseUnit: false,
+        isActive: true,
+      );
+      final command = AddProductConversionUnitCommand(
+        tenantId: 'tenant-1',
+        productId: 'product-1',
+        unitName: 'Thùng',
+        conversionRateToBase: 100,
+      );
+      final gateway = _RecordingCatalogUnitGateway(
+        productUnitsResult: _productOneUnits,
+        mutationResult: const ProductUnitMutationResult(
+          productId: 'product-1',
+          unit: added,
+        ),
+      );
+      final handler = AddProductConversionUnitCommandHandler(
+        unitGateway: gateway,
+      );
+
+      final result = await handler.handle(command);
+
+      expect(result.unit, same(added));
+      expect(gateway.lastListProductUnitsQuery?.productId, 'product-1');
+      expect(gateway.lastListProductUnitsQuery?.includeInactive, isTrue);
+      expect(gateway.lastAddConversionUnitCommand, same(command));
+    });
+
+    test('add conversion blocks before gateway mutation when base unit is missing', () async {
+      final gateway = _RecordingCatalogUnitGateway(
+        productUnitsResult: _productSixUnits,
+        mutationResult: const ProductUnitMutationResult(
+          productId: 'product-6',
+          unit: ProductUnitDto(
+            id: 'unused',
+            name: 'Hộp',
+            conversionRateToBase: 10,
+            isBaseUnit: false,
+            isActive: true,
+          ),
+        ),
+      );
+      final handler = AddProductConversionUnitCommandHandler(
+        unitGateway: gateway,
+      );
+
+      await expectLater(
+        handler.handle(
+          AddProductConversionUnitCommand(
+            tenantId: 'tenant-1',
+            productId: 'product-6',
+            unitName: 'Hộp',
+            conversionRateToBase: 10,
+          ),
+        ),
+        throwsA(isA<MissingBaseUnitException>()),
+      );
+      expect(gateway.lastAddConversionUnitCommand, isNull);
+    });
+
+    test('deactivates conversion after domain validation', () async {
+      final command = DeactivateProductConversionUnitCommand(
+        tenantId: 'tenant-1',
+        productId: 'product-1',
+        productUnitId: 'product-1-unit-vi',
+      );
+      final gateway = _RecordingCatalogUnitGateway(
+        productUnitsResult: _productOneUnits,
+        mutationResult: const ProductUnitMutationResult(
+          productId: 'product-1',
+          unit: ProductUnitDto(
+            id: 'product-1-unit-vi',
+            name: 'Vỉ',
+            conversionRateToBase: 10,
+            isBaseUnit: false,
+            isActive: false,
+          ),
+        ),
+      );
+      final handler = DeactivateProductConversionUnitCommandHandler(
+        unitGateway: gateway,
+      );
+
+      final result = await handler.handle(command);
+
+      expect(result.unit.isActive, isFalse);
+      expect(gateway.lastDeactivateConversionUnitCommand, same(command));
+    });
+
+    test('deactivate base unit blocks before gateway mutation', () async {
+      final gateway = _RecordingCatalogUnitGateway(
+        productUnitsResult: _productOneUnits,
+        mutationResult: const ProductUnitMutationResult(
+          productId: 'product-1',
+          unit: ProductUnitDto(
+            id: 'product-1-base',
+            name: 'Hộp',
+            conversionRateToBase: 1,
+            isBaseUnit: true,
+            isActive: false,
+          ),
+        ),
+      );
+      final handler = DeactivateProductConversionUnitCommandHandler(
+        unitGateway: gateway,
+      );
+
+      await expectLater(
+        handler.handle(
+          DeactivateProductConversionUnitCommand(
+            tenantId: 'tenant-1',
+            productId: 'product-1',
+            productUnitId: 'product-1-base',
+          ),
+        ),
+        throwsA(isA<DomainException>()),
+      );
+      expect(gateway.lastDeactivateConversionUnitCommand, isNull);
+    });
+
+    test('reactivates conversion after domain validation', () async {
+      final command = ReactivateProductConversionUnitCommand(
+        tenantId: 'tenant-1',
+        productId: 'product-1',
+        productUnitId: 'product-1-unit-thung',
+      );
+      final gateway = _RecordingCatalogUnitGateway(
+        productUnitsResult: _productOneUnits,
+        mutationResult: const ProductUnitMutationResult(
+          productId: 'product-1',
+          unit: ProductUnitDto(
+            id: 'product-1-unit-thung',
+            name: 'Thùng',
+            conversionRateToBase: 100,
+            isBaseUnit: false,
+            isActive: true,
+          ),
+        ),
+      );
+      final handler = ReactivateProductConversionUnitCommandHandler(
+        unitGateway: gateway,
+      );
+
+      final result = await handler.handle(command);
+
+      expect(result.unit.isActive, isTrue);
+      expect(gateway.lastReactivateConversionUnitCommand, same(command));
+    });
+
+    test('validators reject blank ids and invalid rate', () async {
+      await expectLater(
+        ListProductUnitsQueryValidator().validate(
+          ListProductUnitsQuery(tenantId: 'tenant-1', productId: ' '),
+        ),
+        throwsA(isA<ValidationException>()),
+      );
+      await expectLater(
+        AddProductConversionUnitCommandValidator().validate(
+          AddProductConversionUnitCommand(
+            tenantId: 'tenant-1',
+            productId: 'product-1',
+            unitName: 'Vỉ',
+            conversionRateToBase: 0,
+          ),
+        ),
+        throwsA(isA<ValidationException>()),
+      );
+      await expectLater(
+        DeactivateProductConversionUnitCommandValidator().validate(
+          DeactivateProductConversionUnitCommand(
+            tenantId: 'tenant-1',
+            productId: 'product-1',
+            productUnitId: ' ',
+          ),
+        ),
+        throwsA(isA<ValidationException>()),
+      );
+      await expectLater(
+        ReactivateProductConversionUnitCommandValidator().validate(
+          ReactivateProductConversionUnitCommand(
+            tenantId: ' ',
+            productId: 'product-1',
+            productUnitId: 'product-1-unit-vi',
           ),
         ),
         throwsA(isA<ValidationException>()),

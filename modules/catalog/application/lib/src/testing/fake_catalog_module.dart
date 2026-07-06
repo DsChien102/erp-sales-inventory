@@ -59,6 +59,24 @@ class _TenantUnit {
   bool isActive;
 }
 
+class _ProductUnit {
+  _ProductUnit({
+    required this.id,
+    required this.productId,
+    required this.name,
+    required this.conversionRateToBase,
+    required this.isBaseUnit,
+    required this.isActive,
+  });
+
+  final String id;
+  final String productId;
+  final String name;
+  final double conversionRateToBase;
+  final bool isBaseUnit;
+  bool isActive;
+}
+
 class _StoredProduct {
   _StoredProduct({
     required this.id,
@@ -123,6 +141,32 @@ final class FakeCatalogModule implements ICatalogModule {
         _TenantUnit(id: 'unit-hop', name: 'Hộp'),
         _TenantUnit(id: 'unit-vi', name: 'Vỉ'),
         _TenantUnit(id: 'unit-inactive', name: 'Thùng', isActive: false),
+      ],
+      _productUnits = [
+        _ProductUnit(
+          id: 'product-1-base',
+          productId: 'product-1',
+          name: 'Hộp',
+          conversionRateToBase: 1,
+          isBaseUnit: true,
+          isActive: true,
+        ),
+        _ProductUnit(
+          id: 'product-1-unit-vi',
+          productId: 'product-1',
+          name: 'Vỉ',
+          conversionRateToBase: 10,
+          isBaseUnit: false,
+          isActive: true,
+        ),
+        _ProductUnit(
+          id: 'product-1-unit-thung',
+          productId: 'product-1',
+          name: 'Thùng',
+          conversionRateToBase: 100,
+          isBaseUnit: false,
+          isActive: false,
+        ),
       ],
       _products = [
         _StoredProduct(
@@ -209,8 +253,10 @@ final class FakeCatalogModule implements ICatalogModule {
 
   final String scenario;
   final List<_TenantUnit> _tenantUnits;
+  final List<_ProductUnit> _productUnits;
   final List<_StoredProduct> _products;
   int _nextProductId = 6;
+  int _nextProductUnitId = 1;
 
   @override
   Future<TResult> executeCommandAsync<TResult>(ICommand<TResult> command) async {
@@ -266,6 +312,21 @@ final class FakeCatalogModule implements ICatalogModule {
         command as SetProductBaseUnitCommand,
       );
     }
+    if (command is AddProductConversionUnitCommand) {
+      return _handleAddProductConversionUnit<TResult>(
+        command as AddProductConversionUnitCommand,
+      );
+    }
+    if (command is DeactivateProductConversionUnitCommand) {
+      return _handleDeactivateProductConversionUnit<TResult>(
+        command as DeactivateProductConversionUnitCommand,
+      );
+    }
+    if (command is ReactivateProductConversionUnitCommand) {
+      return _handleReactivateProductConversionUnit<TResult>(
+        command as ReactivateProductConversionUnitCommand,
+      );
+    }
     throw UnimplementedError('Unexpected command: ${command.runtimeType}');
   }
 
@@ -301,6 +362,9 @@ final class FakeCatalogModule implements ICatalogModule {
       return _handleCheckDuplicateUnitName<TResult>(
         query as CheckDuplicateMeasurementUnitNameQuery,
       );
+    }
+    if (query is ListProductUnitsQuery) {
+      return _handleListProductUnits<TResult>(query as ListProductUnitsQuery);
     }
     throw UnimplementedError('Unexpected query: ${query.runtimeType}');
   }
@@ -801,6 +865,16 @@ final class FakeCatalogModule implements ICatalogModule {
     }
 
     product.baseUnit = unitName;
+    _productUnits.add(
+      _ProductUnit(
+        id: '${product.id}-base',
+        productId: product.id,
+        name: unitName,
+        conversionRateToBase: 1,
+        isBaseUnit: true,
+        isActive: true,
+      ),
+    );
 
     return SetProductBaseUnitResult(
           productId: product.id,
@@ -808,6 +882,167 @@ final class FakeCatalogModule implements ICatalogModule {
           readinessSummary: _readinessSummaryFor(product),
         )
         as TResult;
+  }
+
+  TResult _handleListProductUnits<TResult>(ListProductUnitsQuery query) {
+    final product = _findProduct(query.productId);
+    if (product == null) {
+      throw ApplicationException('Product not found');
+    }
+
+    return _productUnitsDto(product, includeInactive: query.includeInactive) as TResult;
+  }
+
+  TResult _handleAddProductConversionUnit<TResult>(
+    AddProductConversionUnitCommand command,
+  ) {
+    final product = _findProduct(command.productId);
+    if (product == null) {
+      throw ApplicationException('Product not found');
+    }
+    if (!product.hasBaseUnit) {
+      throw MissingBaseUnitException();
+    }
+
+    final unitName = command.unitName.trim();
+    if (unitName.isEmpty) {
+      throw ValidationException('Unit name must not be empty.');
+    }
+    if (command.conversionRateToBase <= 0) {
+      throw ValidationException('Conversion rate must be greater than zero.');
+    }
+
+    final duplicate = _findActiveProductUnitByName(product.id, unitName);
+    if (duplicate != null) {
+      throw DuplicateMeasurementUnitNameException(
+        name: unitName,
+        existingUnitId: duplicate.id,
+      );
+    }
+
+    final unit = _ProductUnit(
+      id: '${product.id}-unit-new-${_nextProductUnitId++}',
+      productId: product.id,
+      name: unitName,
+      conversionRateToBase: command.conversionRateToBase,
+      isBaseUnit: false,
+      isActive: true,
+    );
+    _productUnits.add(unit);
+
+    return ProductUnitMutationResult(
+          productId: product.id,
+          unit: _toProductUnitDto(unit),
+        )
+        as TResult;
+  }
+
+  TResult _handleDeactivateProductConversionUnit<TResult>(
+    DeactivateProductConversionUnitCommand command,
+  ) {
+    final product = _findProduct(command.productId);
+    if (product == null) {
+      throw ApplicationException('Product not found');
+    }
+
+    final unit = _findProductUnit(command.productId, command.productUnitId);
+    if (unit == null) {
+      throw ApplicationException('Product unit not found');
+    }
+    if (unit.isBaseUnit) {
+      throw ValidationException('Base unit cannot be deactivated here.');
+    }
+
+    unit.isActive = false;
+    return ProductUnitMutationResult(
+          productId: product.id,
+          unit: _toProductUnitDto(unit),
+        )
+        as TResult;
+  }
+
+  TResult _handleReactivateProductConversionUnit<TResult>(
+    ReactivateProductConversionUnitCommand command,
+  ) {
+    final product = _findProduct(command.productId);
+    if (product == null) {
+      throw ApplicationException('Product not found');
+    }
+
+    final unit = _findProductUnit(command.productId, command.productUnitId);
+    if (unit == null) {
+      throw ApplicationException('Product unit not found');
+    }
+    if (unit.isBaseUnit) {
+      throw ValidationException('Base unit cannot be reactivated here.');
+    }
+    if (unit.conversionRateToBase <= 0) {
+      throw ValidationException('Conversion rate must be greater than zero.');
+    }
+
+    final duplicate = _findActiveProductUnitByName(product.id, unit.name);
+    if (duplicate != null && duplicate.id != unit.id) {
+      throw DuplicateMeasurementUnitNameException(
+        name: unit.name,
+        existingUnitId: duplicate.id,
+      );
+    }
+
+    unit.isActive = true;
+    return ProductUnitMutationResult(
+          productId: product.id,
+          unit: _toProductUnitDto(unit),
+        )
+        as TResult;
+  }
+
+  ProductUnitsDto _productUnitsDto(
+    _StoredProduct product, {
+    required bool includeInactive,
+  }) {
+    final units = _productUnits
+        .where(
+          (unit) => unit.productId == product.id && (includeInactive || unit.isActive),
+        )
+        .map(_toProductUnitDto)
+        .toList(growable: false);
+
+    return ProductUnitsDto(
+      productId: product.id,
+      baseUnitName: product.baseUnit,
+      units: units,
+    );
+  }
+
+  ProductUnitDto _toProductUnitDto(_ProductUnit unit) {
+    return ProductUnitDto(
+      id: unit.id,
+      name: unit.name,
+      conversionRateToBase: unit.conversionRateToBase,
+      isBaseUnit: unit.isBaseUnit,
+      isActive: unit.isActive,
+    );
+  }
+
+  _ProductUnit? _findProductUnit(String productId, String productUnitId) {
+    for (final unit in _productUnits) {
+      if (unit.productId == productId && unit.id == productUnitId) {
+        return unit;
+      }
+    }
+    return null;
+  }
+
+  _ProductUnit? _findActiveProductUnitByName(String productId, String name) {
+    final normalized = _normalizeUnitName(name);
+    for (final unit in _productUnits) {
+      if (unit.productId == productId &&
+          unit.isActive &&
+          _normalizeUnitName(unit.name) == normalized) {
+        return unit;
+      }
+    }
+    return null;
   }
 
   TResult _handleCheckDuplicate<TResult>(CheckDuplicateProductCodeQuery query) {

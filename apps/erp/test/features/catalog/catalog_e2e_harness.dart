@@ -11,8 +11,42 @@ import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:vet45_catalog_application/application.dart';
 import 'package:vet45_catalog_application/testing.dart';
+import 'package:vet45_catalog_presentation/presentation.dart';
 import 'package:vet45_shared_application/application.dart';
 import 'package:vet45_shared_testing/shared_testing.dart';
+
+ProductListItemModel productWithBaseUnit() {
+  return const ProductListItemModel(
+    id: 'product-1',
+    name: 'Amoxicillin 500mg',
+    businessStatus: ProductBusinessStatus.active,
+    readinessStatus: ProductReadinessStatus.ready,
+    baseUnit: 'Hộp',
+  );
+}
+
+ProductListItemModel productWithoutBaseUnit() {
+  return const ProductListItemModel(
+    id: 'product-6',
+    name: 'Thuốc thiếu đơn vị',
+    businessStatus: ProductBusinessStatus.active,
+    readinessStatus: ProductReadinessStatus.needsReview,
+  );
+}
+
+Widget buildMeasurementUnitsRouter(ProductListItemModel product) {
+  final router = GoRouter(
+    initialLocation: '/products/items/pcc/units',
+    routes: [
+      GoRoute(
+        path: '/products/items/pcc/units',
+        builder: (context, state) => ProductMeasurementUnitsPage(product: product),
+      ),
+    ],
+  );
+
+  return MaterialApp.router(routerConfig: router);
+}
 
 class FakeGoTrueClient extends Fake implements GoTrueClient {
   @override

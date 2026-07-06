@@ -26,6 +26,12 @@ alter table catalog.product_units
   add column if not exists tenant_measurement_unit_id uuid null
     references catalog.tenant_measurement_units (id);
 
+alter table catalog.product_units
+  add column if not exists is_active boolean not null default true;
+
+alter table catalog.product_units
+  add column if not exists unit_name_normalized text null;
+
 create or replace function catalog._normalize_measurement_unit_name(p_name text)
 returns text
 language sql
@@ -33,6 +39,18 @@ immutable
 as $$
   select nullif(lower(btrim(coalesce(p_name, ''))), '');
 $$;
+
+update catalog.product_units
+set unit_name_normalized = catalog._normalize_measurement_unit_name(unit_name)
+where unit_name_normalized is null;
+
+create unique index if not exists uq_product_units_active_name_normalized
+  on catalog.product_units (tenant_id, product_id, unit_name_normalized)
+  where is_active = true;
+
+create unique index if not exists uq_product_units_one_active_base
+  on catalog.product_units (product_id)
+  where is_base_unit = true and is_active = true;
 
 create or replace function catalog._product_has_active_base_unit(
   p_tenant_id uuid,
@@ -53,6 +71,7 @@ as $$
     where pu.product_id = p_product_id
       and pu.tenant_id = p_tenant_id
       and pu.is_base_unit = true
+      and pu.is_active = true
       and (
         pu.tenant_measurement_unit_id is null
         or tu.is_active = true
@@ -354,6 +373,301 @@ begin
 end;
 $$;
 
+create or replace function catalog.list_product_units(
+  p_tenant_id uuid,
+  p_product_id uuid,
+  p_include_inactive boolean default false
+)
+returns table (
+  id uuid,
+  name text,
+  conversion_rate_to_base numeric,
+  is_base_unit boolean,
+  is_active boolean
+)
+language plpgsql
+security definer
+set search_path = catalog, iam, pg_temp
+as $$
+begin
+  if auth.uid() is null then
+    raise exception 'not authenticated';
+  end if;
+
+  if not iam.has_permission(p_tenant_id, 'catalog.product.manage_units') then
+    raise exception 'permission denied: catalog.product.manage_units';
+  end if;
+
+  if not exists (
+    select 1
+    from catalog.products p
+    where p.id = p_product_id
+      and p.tenant_id = p_tenant_id
+      and p.deleted_at is null
+  ) then
+    raise exception 'product not found';
+  end if;
+
+  return query
+  select
+    pu.id,
+    pu.unit_name as name,
+    pu.conversion_rate_to_base,
+    pu.is_base_unit,
+    pu.is_active
+  from catalog.product_units pu
+  where pu.tenant_id = p_tenant_id
+    and pu.product_id = p_product_id
+    and (p_include_inactive or pu.is_active = true)
+  order by pu.is_base_unit desc, pu.is_active desc, pu.unit_name asc;
+end;
+$$;
+
+create or replace function catalog._product_unit_json(p_unit_id uuid)
+returns jsonb
+language sql
+stable
+security definer
+set search_path = catalog, pg_temp
+as $$
+  select jsonb_build_object(
+    'id', pu.id,
+    'name', pu.unit_name,
+    'conversion_rate_to_base', pu.conversion_rate_to_base,
+    'is_base_unit', pu.is_base_unit,
+    'is_active', pu.is_active
+  )
+  from catalog.product_units pu
+  where pu.id = p_unit_id;
+$$;
+
+create or replace function catalog.add_product_conversion_unit(
+  p_tenant_id uuid,
+  p_product_id uuid,
+  p_unit_name text,
+  p_conversion_rate_to_base numeric
+)
+returns jsonb
+language plpgsql
+security definer
+set search_path = catalog, iam, pg_temp
+as $$
+declare
+  v_actor_id uuid;
+  v_unit_name text := btrim(coalesce(p_unit_name, ''));
+  v_name_normalized text := catalog._normalize_measurement_unit_name(p_unit_name);
+  v_product_unit_id uuid;
+begin
+  v_actor_id := auth.uid();
+  if v_actor_id is null then
+    raise exception 'not authenticated';
+  end if;
+
+  if not iam.has_permission(p_tenant_id, 'catalog.product.manage_units') then
+    raise exception 'permission denied: catalog.product.manage_units';
+  end if;
+
+  if not exists (
+    select 1
+    from catalog.products p
+    where p.id = p_product_id
+      and p.tenant_id = p_tenant_id
+      and p.deleted_at is null
+  ) then
+    raise exception 'product not found';
+  end if;
+
+  perform catalog._ensure_product_has_base_unit(p_tenant_id, p_product_id);
+
+  if v_name_normalized is null then
+    raise exception 'validation_exception: Unit name must not be empty.';
+  end if;
+  if length(v_unit_name) > 80 then
+    raise exception 'validation_exception: Unit name is too long.';
+  end if;
+  if p_conversion_rate_to_base is null or p_conversion_rate_to_base <= 0 then
+    raise exception 'validation_exception: Conversion rate must be greater than zero.';
+  end if;
+
+  if exists (
+    select 1
+    from catalog.product_units pu
+    where pu.tenant_id = p_tenant_id
+      and pu.product_id = p_product_id
+      and pu.is_active = true
+      and pu.unit_name_normalized = v_name_normalized
+  ) then
+    raise exception 'duplicate product unit "%"', v_unit_name;
+  end if;
+
+  insert into catalog.product_units (
+    tenant_id,
+    product_id,
+    unit_name,
+    unit_name_normalized,
+    is_base_unit,
+    conversion_rate_to_base,
+    is_active,
+    updated_at
+  )
+  values (
+    p_tenant_id,
+    p_product_id,
+    v_unit_name,
+    v_name_normalized,
+    false,
+    p_conversion_rate_to_base,
+    true,
+    now()
+  )
+  returning id into v_product_unit_id;
+
+  insert into catalog.product_change_history (tenant_id, product_id, action, payload, actor_id)
+  values (
+    p_tenant_id,
+    p_product_id,
+    'add_product_conversion_unit',
+    jsonb_build_object('product_unit_id', v_product_unit_id, 'unit_name', v_unit_name, 'conversion_rate_to_base', p_conversion_rate_to_base),
+    v_actor_id
+  );
+
+  return jsonb_build_object(
+    'product_id', p_product_id,
+    'unit', catalog._product_unit_json(v_product_unit_id)
+  );
+end;
+$$;
+
+create or replace function catalog.deactivate_product_conversion_unit(
+  p_tenant_id uuid,
+  p_product_id uuid,
+  p_product_unit_id uuid
+)
+returns jsonb
+language plpgsql
+security definer
+set search_path = catalog, iam, pg_temp
+as $$
+declare
+  v_actor_id uuid;
+  v_unit record;
+begin
+  v_actor_id := auth.uid();
+  if v_actor_id is null then
+    raise exception 'not authenticated';
+  end if;
+
+  if not iam.has_permission(p_tenant_id, 'catalog.product.manage_units') then
+    raise exception 'permission denied: catalog.product.manage_units';
+  end if;
+
+  select *
+  into v_unit
+  from catalog.product_units pu
+  where pu.id = p_product_unit_id
+    and pu.product_id = p_product_id
+    and pu.tenant_id = p_tenant_id;
+
+  if v_unit.id is null then
+    raise exception 'product unit not found';
+  end if;
+  if v_unit.is_base_unit then
+    raise exception 'validation_exception: Base unit cannot be deactivated here.';
+  end if;
+
+  update catalog.product_units
+  set is_active = false,
+      updated_at = now()
+  where id = p_product_unit_id;
+
+  insert into catalog.product_change_history (tenant_id, product_id, action, payload, actor_id)
+  values (
+    p_tenant_id,
+    p_product_id,
+    'deactivate_product_conversion_unit',
+    jsonb_build_object('product_unit_id', p_product_unit_id, 'unit_name', v_unit.unit_name),
+    v_actor_id
+  );
+
+  return jsonb_build_object(
+    'product_id', p_product_id,
+    'unit', catalog._product_unit_json(p_product_unit_id)
+  );
+end;
+$$;
+
+create or replace function catalog.reactivate_product_conversion_unit(
+  p_tenant_id uuid,
+  p_product_id uuid,
+  p_product_unit_id uuid
+)
+returns jsonb
+language plpgsql
+security definer
+set search_path = catalog, iam, pg_temp
+as $$
+declare
+  v_actor_id uuid;
+  v_unit record;
+begin
+  v_actor_id := auth.uid();
+  if v_actor_id is null then
+    raise exception 'not authenticated';
+  end if;
+
+  if not iam.has_permission(p_tenant_id, 'catalog.product.manage_units') then
+    raise exception 'permission denied: catalog.product.manage_units';
+  end if;
+
+  select *
+  into v_unit
+  from catalog.product_units pu
+  where pu.id = p_product_unit_id
+    and pu.product_id = p_product_id
+    and pu.tenant_id = p_tenant_id;
+
+  if v_unit.id is null then
+    raise exception 'product unit not found';
+  end if;
+  if v_unit.is_base_unit then
+    raise exception 'validation_exception: Base unit cannot be reactivated here.';
+  end if;
+  if v_unit.conversion_rate_to_base <= 0 then
+    raise exception 'validation_exception: Conversion rate must be greater than zero.';
+  end if;
+  if exists (
+    select 1
+    from catalog.product_units pu
+    where pu.tenant_id = p_tenant_id
+      and pu.product_id = p_product_id
+      and pu.id <> p_product_unit_id
+      and pu.is_active = true
+      and pu.unit_name_normalized = v_unit.unit_name_normalized
+  ) then
+    raise exception 'duplicate product unit "%"', v_unit.unit_name;
+  end if;
+
+  update catalog.product_units
+  set is_active = true,
+      updated_at = now()
+  where id = p_product_unit_id;
+
+  insert into catalog.product_change_history (tenant_id, product_id, action, payload, actor_id)
+  values (
+    p_tenant_id,
+    p_product_id,
+    'reactivate_product_conversion_unit',
+    jsonb_build_object('product_unit_id', p_product_unit_id, 'unit_name', v_unit.unit_name),
+    v_actor_id
+  );
+
+  return jsonb_build_object(
+    'product_id', p_product_id,
+    'unit', catalog._product_unit_json(p_product_unit_id)
+  );
+end;
+$$;
+
 -- Guard operational RPCs created by 02_catalog_operational_data.sql.
 create or replace function catalog.set_initial_stock(
   p_tenant_id uuid,
@@ -514,4 +828,24 @@ grant execute on function catalog.check_duplicate_measurement_unit_name(uuid, te
 revoke all on function catalog.set_product_base_unit(uuid, uuid, uuid, text)
   from public, anon;
 grant execute on function catalog.set_product_base_unit(uuid, uuid, uuid, text)
+  to authenticated, service_role;
+
+revoke all on function catalog.list_product_units(uuid, uuid, boolean)
+  from public, anon;
+grant execute on function catalog.list_product_units(uuid, uuid, boolean)
+  to authenticated, service_role;
+
+revoke all on function catalog.add_product_conversion_unit(uuid, uuid, text, numeric)
+  from public, anon;
+grant execute on function catalog.add_product_conversion_unit(uuid, uuid, text, numeric)
+  to authenticated, service_role;
+
+revoke all on function catalog.deactivate_product_conversion_unit(uuid, uuid, uuid)
+  from public, anon;
+grant execute on function catalog.deactivate_product_conversion_unit(uuid, uuid, uuid)
+  to authenticated, service_role;
+
+revoke all on function catalog.reactivate_product_conversion_unit(uuid, uuid, uuid)
+  from public, anon;
+grant execute on function catalog.reactivate_product_conversion_unit(uuid, uuid, uuid)
   to authenticated, service_role;

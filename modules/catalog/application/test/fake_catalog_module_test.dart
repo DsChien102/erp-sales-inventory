@@ -876,6 +876,180 @@ void main() {
     });
   });
 
+  group('EPIC-04 / US-02 conversion unit contract', () {
+    test('scn_contract_e04_u02_fr01_01 adds conversion unit', () async {
+      final module = FakeCatalogModule();
+
+      final result = await module.executeCommandAsync(
+        AddProductConversionUnitCommand(
+          tenantId: 'tenant-1',
+          productId: 'product-1',
+          unitName: 'Thùng',
+          conversionRateToBase: 100,
+        ),
+      );
+
+      expect(result.productId, 'product-1');
+      expect(result.unit.name, 'Thùng');
+      expect(result.unit.conversionRateToBase, 100);
+      expect(result.unit.isBaseUnit, isFalse);
+      expect(result.unit.isActive, isTrue);
+
+      final units = await module.executeQueryAsync(
+        ListProductUnitsQuery(
+          tenantId: 'tenant-1',
+          productId: 'product-1',
+          includeInactive: true,
+        ),
+      );
+      expect(units.baseUnitName, 'Hộp');
+      expect(
+        units.units.where((unit) => unit.name == 'Thùng' && unit.isActive),
+        hasLength(1),
+      );
+    });
+
+    test('scn_contract_e04_u02_fr01_02 rejects add without base unit', () async {
+      final module = FakeCatalogModule();
+
+      await expectLater(
+        module.executeCommandAsync(
+          AddProductConversionUnitCommand(
+            tenantId: 'tenant-1',
+            productId: 'product-6',
+            unitName: 'Hộp',
+            conversionRateToBase: 10,
+          ),
+        ),
+        throwsA(isA<MissingBaseUnitException>()),
+      );
+    });
+
+    test('scn_contract_e04_u02_fr01_03 rejects invalid conversion rate', () async {
+      final module = FakeCatalogModule();
+
+      await expectLater(
+        module.executeCommandAsync(
+          AddProductConversionUnitCommand(
+            tenantId: 'tenant-1',
+            productId: 'product-1',
+            unitName: 'Thùng',
+            conversionRateToBase: 0,
+          ),
+        ),
+        throwsA(isA<ValidationException>()),
+      );
+    });
+
+    test('scn_contract_e04_u02_fr01_04 rejects duplicate active or base unit', () async {
+      final module = FakeCatalogModule();
+
+      await expectLater(
+        module.executeCommandAsync(
+          AddProductConversionUnitCommand(
+            tenantId: 'tenant-1',
+            productId: 'product-1',
+            unitName: 'Vỉ',
+            conversionRateToBase: 10,
+          ),
+        ),
+        throwsA(isA<DuplicateMeasurementUnitNameException>()),
+      );
+
+      await expectLater(
+        module.executeCommandAsync(
+          AddProductConversionUnitCommand(
+            tenantId: 'tenant-1',
+            productId: 'product-1',
+            unitName: 'Hộp',
+            conversionRateToBase: 1,
+          ),
+        ),
+        throwsA(isA<DuplicateMeasurementUnitNameException>()),
+      );
+    });
+
+    test('scn_contract_e04_u02_fr03_01 deactivates conversion unit', () async {
+      final module = FakeCatalogModule();
+
+      final result = await module.executeCommandAsync(
+        DeactivateProductConversionUnitCommand(
+          tenantId: 'tenant-1',
+          productId: 'product-1',
+          productUnitId: 'product-1-unit-vi',
+        ),
+      );
+
+      expect(result.unit.isActive, isFalse);
+
+      final units = await module.executeQueryAsync(
+        ListProductUnitsQuery(
+          tenantId: 'tenant-1',
+          productId: 'product-1',
+          includeInactive: true,
+        ),
+      );
+      final deactivated = units.units.singleWhere(
+        (unit) => unit.id == 'product-1-unit-vi',
+      );
+      expect(deactivated.isActive, isFalse);
+    });
+
+    test('scn_contract_e04_u02_fr03_02 rejects deactivating base unit', () async {
+      final module = FakeCatalogModule();
+
+      await expectLater(
+        module.executeCommandAsync(
+          DeactivateProductConversionUnitCommand(
+            tenantId: 'tenant-1',
+            productId: 'product-1',
+            productUnitId: 'product-1-base',
+          ),
+        ),
+        throwsA(isA<ValidationException>()),
+      );
+    });
+
+    test('scn_contract_e04_u02_fr04_01 reactivates conversion unit', () async {
+      final module = FakeCatalogModule();
+
+      final result = await module.executeCommandAsync(
+        ReactivateProductConversionUnitCommand(
+          tenantId: 'tenant-1',
+          productId: 'product-1',
+          productUnitId: 'product-1-unit-thung',
+        ),
+      );
+
+      expect(result.unit.name, 'Thùng');
+      expect(result.unit.isActive, isTrue);
+    });
+
+    test('scn_contract_e04_u02_fr04_02 rejects duplicate active on reactivate', () async {
+      final module = FakeCatalogModule();
+
+      await module.executeCommandAsync(
+        AddProductConversionUnitCommand(
+          tenantId: 'tenant-1',
+          productId: 'product-1',
+          unitName: 'Thùng',
+          conversionRateToBase: 100,
+        ),
+      );
+
+      await expectLater(
+        module.executeCommandAsync(
+          ReactivateProductConversionUnitCommand(
+            tenantId: 'tenant-1',
+            productId: 'product-1',
+            productUnitId: 'product-1-unit-thung',
+          ),
+        ),
+        throwsA(isA<DuplicateMeasurementUnitNameException>()),
+      );
+    });
+  });
+
   group('CreateProductCommandValidator', () {
     final validator = CreateProductCommandValidator();
 

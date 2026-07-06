@@ -16,7 +16,8 @@ Object mapCatalogRpcError(RpcException error) {
     );
   }
 
-  if (message.contains('duplicate measurement unit')) {
+  if (message.contains('duplicate measurement unit') ||
+      message.contains('duplicate product unit')) {
     return DuplicateMeasurementUnitNameException(
       name: _extractQuoted(error.message) ?? '',
     );

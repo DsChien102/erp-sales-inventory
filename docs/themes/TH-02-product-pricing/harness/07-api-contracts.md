@@ -413,6 +413,76 @@ Tests: `scn_contract_e04_u01_*` trong `fake_catalog_module_test.dart`.
 
 ---
 
+## EPIC-04 / US-02 — Đơn vị quy đổi (slice #7)
+
+**Status:** CONTRACT `done` · BE `todo` · FE `todo`
+
+### Commands / Queries
+
+| Symbol | Input (summary) | Success | Errors |
+| ------ | --------------- | ------- | ------ |
+| `ListProductUnitsQuery` | tenantId, productId, includeInactive=false | `ProductUnitsDto` | PermissionDenied, NotFound |
+| `AddProductConversionUnitCommand` | tenantId, productId, unitName, conversionRateToBase | `ProductUnitMutationResult` | PermissionDenied, NotFound, `MissingBaseUnitException`, `DuplicateMeasurementUnitNameException`, `ValidationException` |
+| `DeactivateProductConversionUnitCommand` | tenantId, productId, productUnitId | `ProductUnitMutationResult` | PermissionDenied, NotFound, `ValidationException` |
+| `ReactivateProductConversionUnitCommand` | tenantId, productId, productUnitId | `ProductUnitMutationResult` | PermissionDenied, NotFound, `DuplicateMeasurementUnitNameException`, `ValidationException` |
+
+Package: `vet45_catalog_application` — `units/`.
+
+Supporting types:
+
+| Type | Fields |
+| ---- | ------ |
+| `ProductUnitDto` | id, name, conversionRateToBase, isBaseUnit, isActive |
+| `ProductUnitsDto` | productId, baseUnitName, units (`ProductUnitDto[]`) |
+| `ProductUnitMutationResult` | productId, unit (`ProductUnitDto`) |
+
+Permissions: `@RequiresPermission(CatalogPermissions.manageUnits)` + `@RequiresTenant()`.
+
+Port: `ICatalogUnitGateway.listProductUnits`, `addConversionUnit`, `deactivateConversionUnit`, `reactivateConversionUnit`.
+
+**Scope / rules:**
+
+- FR-01 add conversion unit, FR-03 deactivate conversion unit, FR-04 reactivate conversion unit are in contract.
+- FR-02 unit roles is **pending**; no role fields, role toggles, default sale/import/display flags, or role validation appear in this contract.
+- Adding conversion units requires an existing valid base unit; missing base unit throws `MissingBaseUnitException`.
+- Base unit cannot be deactivated through this slice. US-03 change base unit remains **out_of_scope**.
+- `conversionRateToBase` is `double` and must be `> 0`; precision policy is deferred to BE.
+
+### RPC mapping (BE — later lane)
+
+| Use case | RPC |
+| -------- | --- |
+| List product units | `catalog.list_product_units` |
+| Add conversion unit | `catalog.add_product_conversion_unit` |
+| Deactivate conversion unit | `catalog.deactivate_product_conversion_unit` |
+| Reactivate conversion unit | `catalog.reactivate_product_conversion_unit` |
+
+No timestamp migration in CONTRACT lane; BE lane may extend `supabase/migrations/_drafts/05_catalog_units.sql`.
+
+### Fake scenarios (FE)
+
+| scenario_id | trigger | fake response |
+| ----------- | ------- | ------------- |
+| `scn_contract_e04_u02_fr01_01` | add conversion unit to `product-1` | new active `ProductUnitDto`; list returns base `Hộp` |
+| `scn_contract_e04_u02_fr01_02` | add conversion unit to `product-6` | `MissingBaseUnitException` |
+| `scn_contract_e04_u02_fr01_03` | zero/negative rate | `ValidationException` |
+| `scn_contract_e04_u02_fr01_04` | duplicate active unit or duplicate base unit name | `DuplicateMeasurementUnitNameException` |
+| `scn_contract_e04_u02_fr03_01` | deactivate `product-1-unit-vi` | list with inactive shows `isActive=false` |
+| `scn_contract_e04_u02_fr03_02` | deactivate `product-1-base` | `ValidationException` |
+| `scn_contract_e04_u02_fr04_01` | reactivate `product-1-unit-thung` | `isActive=true` |
+| `scn_contract_e04_u02_fr04_02` | reactivate while active duplicate exists | `DuplicateMeasurementUnitNameException` |
+
+Seed data in `FakeCatalogModule`: `product-1` base `Hộp`, active conversion `Vỉ` rate `10`, inactive conversion `Thùng` rate `100`; `product-6` has no base unit.
+
+Tests: `scn_contract_e04_u02_*` trong `fake_catalog_module_test.dart`.
+
+### Parallel notes
+
+- FE có thể fake: **yes**
+- E2E prerequisite: US-01 (data), US-01 base unit readiness
+
+---
+
 ## EPIC-03 / US-01 — Cấu hình nhóm & trường (slice #16)
 
 ### Commands / Queries
@@ -457,7 +527,7 @@ Tests: `scn_contract_e04_u01_*` trong `fake_catalog_module_test.dart`.
 | Slice | Contract section | Status |
 | ----- | ---------------- | ------ |
 | EPIC-04 US-01 | Base unit set + tenant unit picker | done |
-| EPIC-04 US-02 | UOM conversion (không US-03; FR-02 roles **pending**) | todo |
+| EPIC-04 US-02 | UOM conversion (không US-03; FR-02 roles **pending**) | done |
 | EPIC-05 US-01..02 | Stock profile + basic stock adjust | todo |
 | EPIC-06 US-01..03 | Manual base price, store rule, price band | todo |
 | EPIC-06 US-04 | ProductPriceBandSnapshot consumers | todo |

@@ -11,6 +11,8 @@ final class ProductMeasurementUnitsState extends Equatable {
     this.errorMessage,
     this.productId = '',
     this.baseUnitName,
+    this.productUnits,
+    this.unitMutationStatus = ProductMeasurementUnitsStatus.initial,
   });
 
   final ProductMeasurementUnitsStatus status;
@@ -19,6 +21,11 @@ final class ProductMeasurementUnitsState extends Equatable {
   final String? errorMessage;
   final String productId;
   final String? baseUnitName;
+  final ProductUnitsDto? productUnits;
+  final ProductMeasurementUnitsStatus unitMutationStatus;
+
+  List<ProductUnitDto> get conversionUnits => 
+      productUnits?.units.where((u) => !u.isBaseUnit).toList() ?? [];
 
   ProductMeasurementUnitsState copyWith({
     ProductMeasurementUnitsStatus? status,
@@ -27,6 +34,8 @@ final class ProductMeasurementUnitsState extends Equatable {
     String? errorMessage,
     String? productId,
     String? baseUnitName,
+    ProductUnitsDto? productUnits,
+    ProductMeasurementUnitsStatus? unitMutationStatus,
   }) {
     return ProductMeasurementUnitsState(
       status: status ?? this.status,
@@ -35,9 +44,20 @@ final class ProductMeasurementUnitsState extends Equatable {
       errorMessage: errorMessage ?? this.errorMessage,
       productId: productId ?? this.productId,
       baseUnitName: baseUnitName ?? this.baseUnitName,
+      productUnits: productUnits ?? this.productUnits,
+      unitMutationStatus: unitMutationStatus ?? this.unitMutationStatus,
     );
   }
 
   @override
-  List<Object?> get props => [status, tenantUnits, saveStatus, errorMessage, productId, baseUnitName];
+  List<Object?> get props => [
+        status,
+        tenantUnits,
+        saveStatus,
+        errorMessage,
+        productId,
+        baseUnitName,
+        productUnits,
+        unitMutationStatus,
+      ];
 }
