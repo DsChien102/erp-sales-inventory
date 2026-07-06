@@ -11,7 +11,6 @@ class CatalogUiMapper {
     required String productId,
     required ReadinessSummaryDto readinessSummary,
   }) {
-    final readiness = _readinessFromSummary(readinessSummary, state.baseUnit);
     final coverDraft = state.imageDrafts.isNotEmpty
         ? state.imageDrafts[
             state.coverImageIndex.clamp(0, state.imageDrafts.length - 1)]
@@ -27,11 +26,25 @@ class CatalogUiMapper {
     if (state.pricingMethod == 'manual') {
       listPrice = double.tryParse(state.manualListPrice.trim());
       floorPrice = double.tryParse(state.manualFloorPrice.trim());
-    } else if (state.pricingMethod == 'auto' && baseCost != null) {
-      final markup = double.tryParse(state.customAutoMarkup.trim()) ?? 0;
-      final floorMarkup = double.tryParse(state.customAutoFloorMarkup.trim()) ?? 0;
+    } else if (state.pricingMethod == 'storeRule' && baseCost != null) {
+      listPrice = baseCost * 1.35;
+      floorPrice = baseCost * 1.15;
+    } else if ((state.pricingMethod == 'customAuto' || state.pricingMethod == 'auto') && baseCost != null) {
+      final markup = double.tryParse(state.customAutoMarkup.trim()) ?? 35.0;
+      final floorMarkup = double.tryParse(state.customAutoFloorMarkup.trim()) ?? 15.0;
       listPrice = baseCost * (1 + markup / 100);
       floorPrice = baseCost * (1 + floorMarkup / 100);
+    }
+
+    ProductReadinessStatus readiness;
+    if (state.baseUnit.trim().isEmpty) {
+      readiness = ProductReadinessStatus.missingBaseUnit;
+    } else if (stockQty == null) {
+      readiness = ProductReadinessStatus.missingStockSource;
+    } else if (listPrice == null) {
+      readiness = ProductReadinessStatus.missingPriceBand;
+    } else {
+      readiness = ProductReadinessStatus.ready;
     }
 
     return ProductListItemModel(

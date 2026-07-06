@@ -353,6 +353,40 @@ class ProductGuidedCreateCubit extends Cubit<ProductGuidedCreateState> {
         );
       }
 
+      double? listPrice;
+      double? floorPrice;
+      bool useStoreRule = false;
+
+      if (state.pricingMethod == 'manual') {
+        listPrice = double.tryParse(state.manualListPrice.trim());
+        floorPrice = double.tryParse(state.manualFloorPrice.trim());
+      } else if (state.pricingMethod == 'storeRule') {
+        useStoreRule = true;
+        if (baseCostVal != null) {
+          listPrice = baseCostVal * 1.35;
+          floorPrice = baseCostVal * 1.15;
+        }
+      } else if (state.pricingMethod == 'customAuto' || state.pricingMethod == 'auto') {
+        if (baseCostVal != null) {
+          final markup = double.tryParse(state.customAutoMarkup.trim()) ?? 35.0;
+          final floorMarkup = double.tryParse(state.customAutoFloorMarkup.trim()) ?? 15.0;
+          listPrice = baseCostVal * (1 + markup / 100);
+          floorPrice = baseCostVal * (1 + floorMarkup / 100);
+        }
+      }
+
+      if (state.pricingMethod.isNotEmpty) {
+        await _catalogModule.executeCommandAsync(
+          SetInitialPriceBandCommand(
+            tenantId: tenantId,
+            productId: productId,
+            listPrice: listPrice,
+            floorPrice: floorPrice,
+            useStoreRule: useStoreRule,
+          ),
+        );
+      }
+
       final productModel = CatalogUiMapper.toListItemModelFromCreate(
         state: state,
         productId: productId,
