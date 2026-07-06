@@ -259,7 +259,14 @@ class _ProductGuidedStepPriceBandsState extends State<ProductGuidedStepPriceBand
         ],
 
         const SizedBox(height: VSpacing.space4),
-        ProductGuidedFields.buildNavigationButtons(context, showSkip: true),
+        ProductGuidedFields.buildNavigationButtons(
+          context,
+          showSkip: true,
+          skipKey: const Key('btn_guided_price_band_skip'),
+          nextKey: const Key('btn_guided_price_band_confirm'),
+          onSkip: cubit.deferPriceBandStep,
+          onNext: cubit.confirmPriceBandStep,
+        ),
       ],
     );
   }

@@ -282,6 +282,16 @@ class ProductGuidedCreateCubit extends Cubit<ProductGuidedCreateState> {
     }
   }
 
+  void deferPriceBandStep() {
+    emit(state.copyWith(priceBandConfigured: false));
+    nextStep();
+  }
+
+  void confirmPriceBandStep() {
+    emit(state.copyWith(priceBandConfigured: true));
+    nextStep();
+  }
+
   Future<void> submit() async {
     if (!state.isStep1Valid) {
       emit(state.copyWith(
@@ -357,25 +367,14 @@ class ProductGuidedCreateCubit extends Cubit<ProductGuidedCreateState> {
       double? floorPrice;
       bool useStoreRule = false;
 
-      if (state.pricingMethod == 'manual') {
-        listPrice = double.tryParse(state.manualListPrice.trim());
-        floorPrice = double.tryParse(state.manualFloorPrice.trim());
-      } else if (state.pricingMethod == 'storeRule') {
-        useStoreRule = true;
-        if (baseCostVal != null) {
-          listPrice = baseCostVal * 1.35;
-          floorPrice = baseCostVal * 1.15;
-        }
-      } else if (state.pricingMethod == 'customAuto' || state.pricingMethod == 'auto') {
-        if (baseCostVal != null) {
-          final markup = double.tryParse(state.customAutoMarkup.trim()) ?? 35.0;
-          final floorMarkup = double.tryParse(state.customAutoFloorMarkup.trim()) ?? 15.0;
-          listPrice = baseCostVal * (1 + markup / 100);
-          floorPrice = baseCostVal * (1 + floorMarkup / 100);
-        }
+      if (state.priceBandConfigured) {
+        final resolved = CatalogUiMapper.resolvePriceBand(state);
+        listPrice = resolved.listPrice;
+        floorPrice = resolved.floorPrice;
+        useStoreRule = state.pricingMethod == 'storeRule';
       }
 
-      if (state.pricingMethod.isNotEmpty) {
+      if (state.priceBandConfigured) {
         await _catalogModule.executeCommandAsync(
           SetInitialPriceBandCommand(
             tenantId: tenantId,

@@ -147,6 +147,15 @@ void main() {
     await tester.enterText(find.byKey(const Key('input_guided_base_cost')), '5000');
     await tester.pump();
 
+    // Confirm step 6 price band (store rule preview)
+    final step6Finder = find.text('6. Khung giá bán');
+    await tester.ensureVisible(step6Finder);
+    await tester.tap(step6Finder);
+    await tester.pumpAndSettle();
+    await tester.ensureVisible(find.byKey(const Key('btn_guided_price_band_confirm')));
+    await tester.tap(find.byKey(const Key('btn_guided_price_band_confirm')));
+    await tester.pumpAndSettle();
+
     // Save product
     await tester.tap(find.byKey(const Key('btn_guided_save')));
     await tester.pumpAndSettle();
@@ -162,5 +171,55 @@ void main() {
       find.text('Niêm yết: 6.750 đ · Sàn: 5.750 đ · Đơn vị: Hộp'),
       findsOneWidget,
     );
+  });
+
+  testWidgets('e2e_e02_u02_fr03_01: skip price band defers setup and shows blocker', (
+    tester,
+  ) async {
+    await setUpErpCatalogE2E();
+
+    await tester.pumpWidget(buildGuidedCreateRouter());
+    await tester.pumpAndSettle();
+
+    await tester.enterText(find.byKey(const Key('input_guided_name')), 'Paracetamol skip price');
+    await tester.pump();
+
+    final step3Finder = find.text('3. Đơn vị cơ sở');
+    await tester.ensureVisible(step3Finder);
+    await tester.tap(step3Finder);
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byKey(const Key('input_guided_base_unit')), 'Hộp');
+    await tester.pump();
+
+    final step4Finder = find.text('4. Tồn kho khởi tạo');
+    await tester.ensureVisible(step4Finder);
+    await tester.tap(step4Finder);
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byKey(const Key('input_guided_initial_stock')), '150');
+    await tester.pump();
+
+    final step5Finder = find.text('5. Giá vốn cơ sở');
+    await tester.ensureVisible(step5Finder);
+    await tester.tap(step5Finder);
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byKey(const Key('input_guided_base_cost')), '5000');
+    await tester.pump();
+
+    final step6Finder = find.text('6. Khung giá bán');
+    await tester.ensureVisible(step6Finder);
+    await tester.tap(step6Finder);
+    await tester.pumpAndSettle();
+    await tester.ensureVisible(find.byKey(const Key('btn_guided_price_band_skip')));
+    await tester.tap(find.byKey(const Key('btn_guided_price_band_skip')));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byKey(const Key('btn_guided_save')));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Paracetamol skip price'), findsWidgets);
+    expect(find.text('Thiếu dữ liệu'), findsOneWidget);
+    expect(find.text('Giá niêm yết: --'), findsOneWidget);
+    expect(find.text('Chưa thiết lập khung giá bán'), findsOneWidget);
+    expect(find.text('Cần bổ sung (2)'), findsOneWidget);
   });
 }

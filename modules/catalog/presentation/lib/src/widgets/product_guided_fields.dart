@@ -62,6 +62,10 @@ class ProductGuidedFields {
     BuildContext context, {
     required bool showSkip,
     bool showNext = true,
+    VoidCallback? onSkip,
+    VoidCallback? onNext,
+    Key? skipKey,
+    Key? nextKey,
   }) {
     final dynamicColors = context.vColors;
     final cubit = context.read<ProductGuidedCreateCubit>();
@@ -71,7 +75,8 @@ class ProductGuidedFields {
       children: [
         if (showSkip)
           TextButton(
-            onPressed: cubit.nextStep,
+            key: skipKey,
+            onPressed: onSkip ?? cubit.nextStep,
             child: Text(
               'Bỏ qua',
               style: VTypography.bodyDefault.copyWith(color: dynamicColors.textSecondary),
@@ -81,8 +86,9 @@ class ProductGuidedFields {
           const SizedBox.shrink(),
         if (showNext)
           VButton(
+            key: nextKey,
             label: 'Tiếp',
-            onPressed: cubit.nextStep,
+            onPressed: onNext ?? cubit.nextStep,
           )
         else
           const SizedBox.shrink(),

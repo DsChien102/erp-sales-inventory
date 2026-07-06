@@ -26,6 +26,7 @@ class ProductGuidedCreateState {
     this.customAutoFloorMarkup = '15',
     this.manualListPrice = '',
     this.manualFloorPrice = '',
+    this.priceBandConfigured = false,
     this.activeStepIndex = 0,
     this.status = ProductGuidedCreateStatus.initial,
     this.errorMessage,
@@ -52,6 +53,8 @@ class ProductGuidedCreateState {
   final String customAutoFloorMarkup;
   final String manualListPrice;
   final String manualFloorPrice;
+  /// True when user confirms step 6 (Khung giá bán) via "Tiếp".
+  final bool priceBandConfigured;
 
   final int activeStepIndex;
   final ProductGuidedCreateStatus status;
@@ -93,6 +96,7 @@ class ProductGuidedCreateState {
     String? customAutoFloorMarkup,
     String? manualListPrice,
     String? manualFloorPrice,
+    bool? priceBandConfigured,
     int? activeStepIndex,
     ProductGuidedCreateStatus? status,
     String? errorMessage,
@@ -122,6 +126,7 @@ class ProductGuidedCreateState {
       customAutoFloorMarkup: customAutoFloorMarkup ?? this.customAutoFloorMarkup,
       manualListPrice: manualListPrice ?? this.manualListPrice,
       manualFloorPrice: manualFloorPrice ?? this.manualFloorPrice,
+      priceBandConfigured: priceBandConfigured ?? this.priceBandConfigured,
       activeStepIndex: activeStepIndex ?? this.activeStepIndex,
       status: status ?? this.status,
       errorMessage: clearError ? null : (errorMessage ?? this.errorMessage),
