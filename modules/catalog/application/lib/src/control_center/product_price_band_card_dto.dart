@@ -1,4 +1,4 @@
-import '../pricing/store_rule/price_band_source_type.dart';
+import '../pricing/price_band/price_band_source_type.dart';
 
 /// Price band card on Product Control Center (EPIC-01/US-02/FR-02).
 final class ProductPriceBandCardDto {

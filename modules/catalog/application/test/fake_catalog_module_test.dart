@@ -1625,4 +1625,204 @@ void main() {
       expect(pcc.priceBand.sourceType, PriceBandSourceType.manual);
     });
   });
+
+  group('EPIC-06 / US-03 contract', () {
+    test('scn_contract_e06_u03_fr01_01 sets price band on base unit', () async {
+      final module = FakeCatalogModule(
+        scenario: FakeCatalogScenario.scnContractE06U03Fr01_01,
+      );
+
+      final result = await module.executeCommandAsync(
+        SetProductUnitPriceBandCommand(
+          tenantId: 'tenant-1',
+          productId: 'product-4',
+          listPrice: 37500,
+          floorPrice: 31250,
+        ),
+      );
+
+      expect(result.productId, 'product-4');
+      expect(result.listPrice, 37500);
+      expect(result.floorPrice, 31250);
+      expect(result.sourceType, PriceBandSourceType.manual);
+      expect(
+        result.readinessSummary.blockers
+            .any((b) => b.code == ReadinessBlockerCode.missingPriceBand),
+        isFalse,
+      );
+    });
+
+    test('scn_contract_e06_u03_fr01_02 rejects floor greater than list', () async {
+      final module = FakeCatalogModule(
+        scenario: FakeCatalogScenario.scnContractE06U03Fr01_02,
+      );
+
+      await expectLater(
+        module.executeCommandAsync(
+          SetProductUnitPriceBandCommand(
+            tenantId: 'tenant-1',
+            productId: 'product-4',
+            listPrice: 100000,
+            floorPrice: 110000,
+          ),
+        ),
+        throwsA(isA<FloorPriceGreaterThanListPriceException>()),
+      );
+    });
+
+    test('scn_contract_e06_u03_fr01_03 lists price bands per active unit', () async {
+      final module = FakeCatalogModule(
+        scenario: FakeCatalogScenario.scnContractE06U03Fr01_03,
+      );
+
+      final result = await module.executeQueryAsync(
+        ListProductUnitPriceBandsQuery(
+          tenantId: 'tenant-1',
+          productId: 'product-9',
+        ),
+      );
+
+      expect(result.rows, hasLength(2));
+      expect(result.rows.map((row) => row.unitName), containsAll(['Lọ', 'Hộp']));
+      expect(result.rows.every((row) => row.isMissing), isTrue);
+    });
+
+    test('scn_contract_e06_u03_fr01_04 rejects inactive unit', () async {
+      final module = FakeCatalogModule(
+        scenario: FakeCatalogScenario.scnContractE06U03Fr01_04,
+      );
+
+      await expectLater(
+        module.executeCommandAsync(
+          SetProductUnitPriceBandCommand(
+            tenantId: 'tenant-1',
+            productId: 'product-1',
+            productUnitId: 'product-1-unit-thung',
+            listPrice: 1000000,
+            floorPrice: 900000,
+          ),
+        ),
+        throwsA(isA<InactiveProductUnitException>()),
+      );
+    });
+
+    test('scn_contract_e06_u03_fr02_01 requires acknowledgment for warnings', () async {
+      final module = FakeCatalogModule(
+        scenario: FakeCatalogScenario.scnContractE06U03Fr02_01,
+      );
+
+      await expectLater(
+        module.executeCommandAsync(
+          SetProductUnitPriceBandCommand(
+            tenantId: 'tenant-1',
+            productId: 'product-11',
+            listPrice: 95000,
+            floorPrice: 90000,
+          ),
+        ),
+        throwsA(isA<PriceBandWarningsRequireAcknowledgmentException>()),
+      );
+    });
+
+    test('scn_contract_e06_u03_fr02_02 saves with warnings when confirmed', () async {
+      final module = FakeCatalogModule(
+        scenario: FakeCatalogScenario.scnContractE06U03Fr02_02,
+      );
+
+      final result = await module.executeCommandAsync(
+        SetProductUnitPriceBandCommand(
+          tenantId: 'tenant-1',
+          productId: 'product-11',
+          listPrice: 95000,
+          floorPrice: 90000,
+          confirmAcknowledgeWarnings: true,
+        ),
+      );
+
+      expect(result.warnings, isNotEmpty);
+      expect(
+        result.warnings.any((w) => w.code == 'list_price_below_base_price'),
+        isTrue,
+      );
+      expect(result.listPrice, 95000);
+    });
+
+    test('scn_contract_e06_u03_fr02_03 warns when conversion rate unknown', () async {
+      final module = FakeCatalogModule(
+        scenario: FakeCatalogScenario.scnContractE06U03Fr02_03,
+      );
+
+      await expectLater(
+        module.executeCommandAsync(
+          SetProductUnitPriceBandCommand(
+            tenantId: 'tenant-1',
+            productId: 'product-11',
+            productUnitId: 'product-11-hop',
+            listPrice: 950000,
+            floorPrice: 900000,
+          ),
+        ),
+        throwsA(isA<PriceBandWarningsRequireAcknowledgmentException>()),
+      );
+
+      final result = await module.executeCommandAsync(
+        SetProductUnitPriceBandCommand(
+          tenantId: 'tenant-1',
+          productId: 'product-11',
+          productUnitId: 'product-11-hop',
+          listPrice: 950000,
+          floorPrice: 900000,
+          confirmAcknowledgeWarnings: true,
+        ),
+      );
+
+      expect(
+        result.warnings.any((w) => w.code == 'cannot_compare_base_price'),
+        isTrue,
+      );
+    });
+
+    test('scn_contract_e06_u03_fr03_01 clears missing price band blocker', () async {
+      final module = FakeCatalogModule(
+        scenario: FakeCatalogScenario.scnContractE06U03Fr03_01,
+      );
+
+      final result = await module.executeCommandAsync(
+        SetProductUnitPriceBandCommand(
+          tenantId: 'tenant-1',
+          productId: 'product-4',
+          listPrice: 37500,
+          floorPrice: 31250,
+        ),
+      );
+
+      expect(
+        result.readinessSummary.blockers
+            .any((b) => b.code == ReadinessBlockerCode.missingPriceBand),
+        isFalse,
+      );
+    });
+
+    test('scn_contract_e06_u03_fr03_02 keeps blocker when another unit lacks band', () async {
+      final module = FakeCatalogModule(
+        scenario: FakeCatalogScenario.scnContractE06U03Fr03_02,
+      );
+
+      final result = await module.executeCommandAsync(
+        SetProductUnitPriceBandCommand(
+          tenantId: 'tenant-1',
+          productId: 'product-9',
+          productUnitId: 'product-9-base',
+          listPrice: 15000,
+          floorPrice: 12000,
+        ),
+      );
+
+      expect(
+        result.readinessSummary.blockers
+            .any((b) => b.code == ReadinessBlockerCode.missingPriceBand),
+        isTrue,
+      );
+    });
+  });
 }

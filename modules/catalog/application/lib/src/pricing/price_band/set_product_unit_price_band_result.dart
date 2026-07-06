@@ -1,7 +1,7 @@
 import '../../readiness/readiness_summary_dto.dart';
 import 'price_band_source_type.dart';
+import 'price_band_validation_warning_dto.dart';
 
-/// Stub result for slice #11 — manual price band override.
 final class SetProductUnitPriceBandResult {
   const SetProductUnitPriceBandResult({
     required this.productId,
@@ -11,6 +11,7 @@ final class SetProductUnitPriceBandResult {
     required this.readinessSummary,
     this.productUnitId,
     this.storePriceRuleId,
+    this.warnings = const [],
   });
 
   final String productId;
@@ -19,5 +20,6 @@ final class SetProductUnitPriceBandResult {
   final double floorPrice;
   final PriceBandSourceType sourceType;
   final String? storePriceRuleId;
+  final List<PriceBandValidationWarningDto> warnings;
   final ReadinessSummaryDto readinessSummary;
 }

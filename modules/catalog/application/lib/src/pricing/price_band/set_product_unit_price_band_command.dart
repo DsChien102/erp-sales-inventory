@@ -5,7 +5,6 @@ import 'package:vet45_shared_application/application.dart';
 import 'price_band_source_type.dart';
 import 'set_product_unit_price_band_result.dart';
 
-/// Stub command for slice #11 — manual price band entry / override.
 @RequiresPermission(CatalogPermissions.managePricing)
 @RequiresTenant()
 final class SetProductUnitPriceBandCommand
@@ -20,6 +19,7 @@ final class SetProductUnitPriceBandCommand
     this.productUnitId,
     this.sourceType = PriceBandSourceType.manual,
     this.storePriceRuleId,
+    this.confirmAcknowledgeWarnings = false,
   }) : super(id);
 
   @override
@@ -30,4 +30,5 @@ final class SetProductUnitPriceBandCommand
   final double floorPrice;
   final PriceBandSourceType sourceType;
   final String? storePriceRuleId;
+  final bool confirmAcknowledgeWarnings;
 }
