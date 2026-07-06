@@ -140,6 +140,11 @@ Mở đầy đủ khi CONTRACT lane bắt đầu.
 
 | Req ID | Role | Contract § | Enforce layer | Artifact | Test id | Status |
 | ------ | ---- | ---------- | ------------- | -------- | ------- | ------ |
+| US-02 | CONTRACT | §EPIC-04-US-02 | application | `ListProductUnitsQuery`, conversion unit commands, DTOs, `ICatalogUnitGateway`, `FakeCatalogModule` | scn_contract_e04_u02_* | done |
+| FR-01 | CONTRACT | §EPIC-04-US-02 | application | Add conversion unit contract | scn_contract_e04_u02_fr01_* | done |
+| FR-02 | CONTRACT | §EPIC-04-US-02 | application | Unit roles documented only; no role fields/toggles | — | **pending** |
+| FR-03 | CONTRACT | §EPIC-04-US-02 | application | Deactivate conversion unit contract | scn_contract_e04_u02_fr03_* | done |
+| FR-04 | CONTRACT | §EPIC-04-US-02 | application | Reactivate conversion unit contract | scn_contract_e04_u02_fr04_* | done |
 | FR-01 | BE | §EPIC-04-US-02 | application | Add conversion unit | scn_e04_u02_fr01_01 | todo |
 | FR-02 | BE | §EPIC-04-US-02 | application | Unit roles (bán/nhập/hiển thị) | — | **pending** |
 | FR-03 | BE | §EPIC-04-US-02 | application | Deactivate unit | scn_e04_u02_fr03_01 | todo |

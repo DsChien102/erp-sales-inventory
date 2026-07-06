@@ -86,6 +86,42 @@ final class SupabaseCatalogUnitGateway implements ICatalogUnitGateway {
     }
   }
 
+  @override
+  Future<ProductUnitsDto> listProductUnits({
+    required ListProductUnitsQuery query,
+  }) {
+    throw UnimplementedError(
+      'catalog.list_product_units is planned for TH-02 slice #7 BE.',
+    );
+  }
+
+  @override
+  Future<ProductUnitMutationResult> addConversionUnit({
+    required AddProductConversionUnitCommand command,
+  }) {
+    throw UnimplementedError(
+      'catalog.add_product_conversion_unit is planned for TH-02 slice #7 BE.',
+    );
+  }
+
+  @override
+  Future<ProductUnitMutationResult> deactivateConversionUnit({
+    required DeactivateProductConversionUnitCommand command,
+  }) {
+    throw UnimplementedError(
+      'catalog.deactivate_product_conversion_unit is planned for TH-02 slice #7 BE.',
+    );
+  }
+
+  @override
+  Future<ProductUnitMutationResult> reactivateConversionUnit({
+    required ReactivateProductConversionUnitCommand command,
+  }) {
+    throw UnimplementedError(
+      'catalog.reactivate_product_conversion_unit is planned for TH-02 slice #7 BE.',
+    );
+  }
+
   ReadinessSummaryDto _readinessSummaryFromRow(Map<String, dynamic> row) {
     final blockersValue = row['readiness_blockers'];
     final blockers = blockersValue is List

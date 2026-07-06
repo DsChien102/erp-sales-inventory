@@ -55,6 +55,34 @@ final class _RecordingCatalogUnitGateway implements ICatalogUnitGateway {
     }
     return result!;
   }
+
+  @override
+  Future<ProductUnitsDto> listProductUnits({
+    required ListProductUnitsQuery query,
+  }) {
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<ProductUnitMutationResult> addConversionUnit({
+    required AddProductConversionUnitCommand command,
+  }) {
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<ProductUnitMutationResult> deactivateConversionUnit({
+    required DeactivateProductConversionUnitCommand command,
+  }) {
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<ProductUnitMutationResult> reactivateConversionUnit({
+    required ReactivateProductConversionUnitCommand command,
+  }) {
+    throw UnimplementedError();
+  }
 }
 
 void main() {
