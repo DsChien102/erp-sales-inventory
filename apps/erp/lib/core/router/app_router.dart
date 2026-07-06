@@ -21,6 +21,7 @@ import 'package:vet45_partner_presentation/presentation.dart';
 import 'package:vet45_partner_domain/domain.dart';
 import '../../features/catalog/presentation/pages/product_guided_create_page.dart';
 import '../../features/catalog/presentation/pages/product_control_center_page.dart';
+import '../../features/catalog/presentation/pages/product_readiness_checklist_page.dart';
 import '../di/injection.dart';
 
 final appRouter = GoRouter(
@@ -150,6 +151,14 @@ final appRouter = GoRouter(
       builder: (context, state) {
         final args = state.extra as ProductControlCenterRouteArgs;
         return ProductControlCenterPage(product: args.product);
+      },
+    ),
+    GoRoute(
+      path: '/products/items/pcc/checklist',
+      name: 'products.items.pcc.checklist',
+      builder: (context, state) {
+        final args = state.extra as ProductReadinessChecklistRouteArgs;
+        return ProductReadinessChecklistPage(readinessView: args.readinessView);
       },
     ),
     GoRoute(

@@ -1,58 +1,10 @@
 import 'package:erp/core/di/injection.dart';
-import 'package:erp/core/supabase/supabase_module.dart';
-import 'package:erp/features/catalog/presentation/pages/product_control_center_page.dart';
-import 'package:erp/features/catalog/presentation/pages/product_guided_create_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:go_router/go_router.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:vet45_catalog_application/application.dart';
 import 'package:vet45_catalog_application/testing.dart';
-import 'package:vet45_shared_application/application.dart';
-import 'package:vet45_shared_testing/shared_testing.dart';
 
-class _FakeGoTrueClient extends Fake implements GoTrueClient {
-  @override
-  User? get currentUser => null;
-}
-
-class _FakeSupabaseClient extends Fake implements SupabaseClient {
-  @override
-  GoTrueClient get auth => _FakeGoTrueClient();
-}
-
-Future<void> setUpErpCatalogE2E({String scenario = FakeCatalogScenario.guidedCreateOk}) async {
-  await getIt.reset();
-  await initDependencies(supabaseModule: SupabaseModule(_FakeSupabaseClient()));
-  await getIt.unregister<ICatalogModule>();
-  await getIt.unregister<IExecutionContext>();
-  getIt
-    ..registerSingleton<ICatalogModule>(FakeCatalogModule(scenario: scenario))
-    ..registerSingleton<IExecutionContext>(
-      FakeExecutionContext(tenantId: 'tenant-1', userId: 'user-1'),
-    );
-}
-
-Widget buildGuidedCreateRouter() {
-  final router = GoRouter(
-    initialLocation: '/products/items/new',
-    routes: [
-      GoRoute(
-        path: '/products/items/new',
-        builder: (context, state) => const ProductGuidedCreatePage(),
-      ),
-      GoRoute(
-        path: '/products/items/pcc',
-        builder: (context, state) {
-          final args = state.extra as ProductControlCenterRouteArgs;
-          return ProductControlCenterPage(product: args.product);
-        },
-      ),
-    ],
-  );
-
-  return MaterialApp.router(routerConfig: router);
-}
+import '../../catalog_e2e_harness.dart';
 
 void main() {
   setUp(() async {
@@ -74,10 +26,7 @@ void main() {
 
     expect(find.byKey(const Key('wgt_e02_u01_fr01_01')), findsOneWidget);
 
-    await tester.enterText(find.byKey(const Key('input_guided_name')), 'Amoxicillin 100ml');
-    await tester.pump();
-    await tester.tap(find.byKey(const Key('btn_guided_save')));
-    await tester.pumpAndSettle();
+    await createMinimalProduct(tester, name: 'Amoxicillin 100ml');
 
     expect(find.text('Amoxicillin 100ml'), findsWidgets);
   });

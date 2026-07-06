@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
+import 'package:vet45_catalog_application/application.dart';
+import 'package:vet45_shared_application/application.dart';
 import 'package:vet45_design_system/design_system.dart';
 import 'package:vet45_catalog_presentation/presentation.dart';
+import 'product_readiness_checklist_page.dart';
 
 class ProductControlCenterRouteArgs {
   final ProductListItemModel product;
@@ -18,30 +23,58 @@ class ProductControlCenterPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (_) => ProductControlCenterCubit(
+        catalogModule: GetIt.instance<ICatalogModule>(),
+        executionContext: GetIt.instance<IExecutionContext>(),
+      )..loadReadiness(product.id),
+      child: _ProductControlCenterView(product: product),
+    );
+  }
+}
+
+class _ProductControlCenterView extends StatelessWidget {
+  const _ProductControlCenterView({required this.product});
+
+  final ProductListItemModel product;
+
+  IconData _getIconForChecklistGroup(ReadinessChecklistGroup group) {
+    switch (group) {
+      case ReadinessChecklistGroup.profile:
+        return Icons.assignment_outlined;
+      case ReadinessChecklistGroup.images:
+        return Icons.camera_alt_outlined;
+      case ReadinessChecklistGroup.units:
+        return Icons.straighten;
+      case ReadinessChecklistGroup.stock:
+        return Icons.inventory_2_outlined;
+      case ReadinessChecklistGroup.basePrice:
+        return Icons.monetization_on_outlined;
+      case ReadinessChecklistGroup.priceBand:
+        return Icons.local_offer_outlined;
+      case ReadinessChecklistGroup.customFields:
+        return Icons.list_alt_outlined;
+      case ReadinessChecklistGroup.lifecycle:
+        return Icons.check_circle_outline;
+      default:
+        return Icons.info_outline;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final dynamicColors = context.vColors;
     final isReady = product.readinessStatus == ProductReadinessStatus.ready;
 
-    // Determine missing items for Slice 1 and Slice 2
-    final missingList = <String>[];
-    if (product.baseUnit == null || product.baseUnit!.trim().isEmpty) {
-      missingList.add('Đơn vị cơ sở');
-    }
-    if (product.images == null || product.images!.isEmpty) {
-      missingList.add('Ảnh sản phẩm');
-    }
-    if (product.stockQty == null) {
-      missingList.add('Tồn kho khởi tạo');
-    }
-    if (product.listPrice == null) {
-      missingList.add('Khung giá bán');
-    }
-
     return Scaffold(
+      key: const Key('wgt_e02_u03_fr01_01'),
       backgroundColor: dynamicColors.background,
-      appBar: AppBar(
-        backgroundColor: dynamicColors.surface,
-        surfaceTintColor: Colors.transparent,
-        elevation: 0,
+      appBar: VAppBar(
+        title: product.name,
+        titleStyle: VTypography.headingH3.copyWith(
+          color: dynamicColors.textPrimary,
+          fontWeight: FontWeight.bold,
+        ),
         leading: IconButton(
           icon: Icon(Icons.arrow_back, color: dynamicColors.textPrimary),
           onPressed: () {
@@ -52,309 +85,173 @@ class ProductControlCenterPage extends StatelessWidget {
             }
           },
         ),
-        title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              product.name,
-              style: VTypography.headingH3.copyWith(
-                color: dynamicColors.textPrimary,
-                fontWeight: FontWeight.bold,
+        actions: [
+          Center(
+            child: Padding(
+              padding: const EdgeInsets.only(right: 16),
+              child: VBadge(
+                label: isReady ? 'Sẵn sàng bán' : 'Thiếu dữ liệu',
+                status: isReady ? VBadgeStatus.success : VBadgeStatus.danger,
+                isSmall: true,
               ),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
             ),
-            const SizedBox(height: 2),
-            VBadge(
-              label: isReady ? 'Sẵn sàng bán' : 'Thiếu dữ liệu',
-              status: isReady ? VBadgeStatus.success : VBadgeStatus.danger,
-              isSmall: true,
-            ),
-          ],
-        ),
-        bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(1),
-          child: Container(color: dynamicColors.borderDefault, height: 1),
-        ),
+          ),
+        ],
       ),
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            // Hero Header Card using VCard
-            Padding(
-              padding: const EdgeInsets.all(16),
-              child: VCard(
-                padding: const EdgeInsets.all(16),
-                child: Row(
-                  children: [
-                    // Thumbnail image box using dynamic VIconBox placeholder
-                    (product.images != null && product.images!.isNotEmpty)
-                        ? ClipRRect(
-                            borderRadius: BorderRadius.circular(8),
-                            child: Image.network(
-                              product.images!.first,
-                              width: 64,
-                              height: 64,
-                              fit: BoxFit.cover,
-                              errorBuilder: (context, error, stackTrace) => VIconBox(
+      body: BlocBuilder<ProductControlCenterCubit, ProductControlCenterState>(
+        builder: (context, state) {
+          final readinessView = state.readinessView;
+          final isLoading = state.status == ProductControlCenterStatus.loading ||
+              state.status == ProductControlCenterStatus.initial;
+          
+          final blockersCount = readinessView?.readinessSummary.blockers.length ?? 0;
+
+          return SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                // Hero Header Card using VCard
+                Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: VCard(
+                    padding: const EdgeInsets.all(16),
+                    child: Row(
+                      children: [
+                        // Thumbnail image box using dynamic VIconBox placeholder
+                        (product.images != null && product.images!.isNotEmpty)
+                            ? ClipRRect(
+                                borderRadius: BorderRadius.circular(8),
+                                child: Image.network(
+                                  product.images!.first,
+                                  width: 64,
+                                  height: 64,
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (context, error, stackTrace) => VIconBox(
+                                    size: 64,
+                                    iconSize: 32,
+                                    iconData: Icons.image_outlined,
+                                    backgroundColor: dynamicColors.surfaceAlt,
+                                    iconColor: dynamicColors.textMuted,
+                                  ),
+                                ),
+                              )
+                            : VIconBox(
                                 size: 64,
                                 iconSize: 32,
                                 iconData: Icons.image_outlined,
                                 backgroundColor: dynamicColors.surfaceAlt,
                                 iconColor: dynamicColors.textMuted,
                               ),
-                            ),
-                          )
-                        : VIconBox(
-                            size: 64,
-                            iconSize: 32,
-                            iconData: Icons.image_outlined,
-                            backgroundColor: dynamicColors.surfaceAlt,
-                            iconColor: dynamicColors.textMuted,
+                        const SizedBox(width: 16),
+                        // Price and Stock details
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Giá niêm yết: --',
+                                style: VTypography.bodyDefault.copyWith(
+                                  color: dynamicColors.textPrimary,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                'Tồn (${product.baseUnit ?? 'cơ sở'}): Chưa thiết lập',
+                                style: VTypography.bodySmall.copyWith(
+                                  color: dynamicColors.textSecondary,
+                                ),
+                              ),
+                            ],
                           ),
-                    const SizedBox(width: 16),
-                    // Price and Stock details
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+
+                // Readiness Alert Banner using warning colors from VColorScheme
+                if (readinessView != null && blockersCount > 0) ...[
+                  GestureDetector(
+                    key: const Key('btn_readiness_checklist_banner'),
+                    onTap: () {
+                      context.push(
+                        '/products/items/pcc/checklist',
+                        extra: ProductReadinessChecklistRouteArgs(readinessView: readinessView),
+                      );
+                    },
+                    child: Container(
+                      margin: const EdgeInsets.symmetric(horizontal: 16),
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: dynamicColors.warningBg,
+                        border: Border.all(color: dynamicColors.warning.withValues(alpha: 0.3)),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Row(
                         children: [
-                          Text(
-                            product.listPrice != null
-                                ? 'Giá niêm yết: ${_formatCurrency(product.listPrice)}'
-                                : 'Giá niêm yết: --',
-                            style: VTypography.bodyDefault.copyWith(
-                              color: dynamicColors.textPrimary,
-                              fontWeight: FontWeight.w600,
-                            ),
+                          Icon(
+                            Icons.error_outline,
+                            color: dynamicColors.warning,
+                            size: 24,
                           ),
-                          const SizedBox(height: 4),
-                          Text(
-                            product.stockQty != null
-                                ? 'Tồn (${product.baseUnit ?? 'cơ sở'}): ${product.stockQty}'
-                                : 'Tồn (${product.baseUnit ?? 'cơ sở'}): Chưa thiết lập',
-                            style: VTypography.bodySmall.copyWith(
-                              color: dynamicColors.textSecondary,
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Cần bổ sung ($blockersCount)',
+                                  style: VTypography.bodyDefault.copyWith(
+                                    color: dynamicColors.warning,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                const SizedBox(height: 2),
+                                Text(
+                                  'Bấm để xem checklist và bổ sung từng mục.',
+                                  style: VTypography.bodySmall.copyWith(
+                                    color: dynamicColors.warning,
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
                         ],
                       ),
                     ),
-                  ],
-                ),
-              ),
-            ),
-
-            // Readiness Alert Banner using warning colors from VColorScheme
-            if (missingList.isNotEmpty) ...[
-              GestureDetector(
-                onTap: () {
-                  showModalBottomSheet(
-                    context: context,
-                    backgroundColor: dynamicColors.surface,
-                    shape: const RoundedRectangleBorder(
-                      borderRadius: BorderRadius.vertical(
-                        top: Radius.circular(16),
-                      ),
-                    ),
-                    builder: (context) {
-                      return SafeArea(
-                        child: Padding(
-                          padding: const EdgeInsets.all(16),
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
-                              Text(
-                                'Checklist cần bổ sung',
-                                style: VTypography.headingH3.copyWith(
-                                  fontWeight: FontWeight.bold,
-                                  color: dynamicColors.textPrimary,
-                                ),
-                              ),
-                              const SizedBox(height: 16),
-                              ...missingList.map(
-                                (item) => Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                    vertical: 8,
-                                  ),
-                                  child: Row(
-                                    children: [
-                                      Icon(
-                                        Icons.warning_amber_rounded,
-                                        color: dynamicColors.warning,
-                                        size: 20,
-                                      ),
-                                      const SizedBox(width: 8),
-                                      Expanded(
-                                        child: Text(
-                                          item,
-                                          style: VTypography.bodyDefault.copyWith(
-                                            color: dynamicColors.textPrimary,
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(height: 16),
-                              VButton(
-                                label: 'Đóng',
-                                onPressed: () => Navigator.pop(context),
-                              ),
-                            ],
-                          ),
-                        ),
-                      );
-                    },
-                  );
-                },
-                child: Container(
-                  margin: const EdgeInsets.symmetric(horizontal: 16),
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: dynamicColors.warningBg,
-                    border: Border.all(color: dynamicColors.warning.withValues(alpha: 0.3)),
-                    borderRadius: BorderRadius.circular(12),
                   ),
-                  child: Row(
-                    children: [
-                      Icon(
-                        Icons.warning_amber_rounded,
-                        color: dynamicColors.warning,
-                        size: 24,
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Cần bổ sung (${missingList.length})',
-                              style: VTypography.bodyDefault.copyWith(
-                                color: dynamicColors.warning,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            const SizedBox(height: 2),
-                            Text(
-                              'Bấm để xem checklist và bổ sung từng mục.',
-                              style: VTypography.bodySmall.copyWith(
-                                color: dynamicColors.warning,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      Icon(Icons.chevron_right, color: dynamicColors.warning),
-                    ],
-                  ),
-                ),
-              ),
-              const SizedBox(height: 8),
-            ],
+                  const SizedBox(height: 8),
+                ],
 
-            // Slice 1 Sections/Cards
-            _buildSectionCard(
-              context: context,
-              icon: Icons.assignment_outlined,
-              title: 'Hồ sơ sản phẩm',
-              subtitle: product.sku ?? 'Chưa thiết lập SKU',
-              onEdit: () {
-                VToast.show(
-                  context,
-                  title: 'Chỉnh sửa',
-                  message: 'Chức năng sửa thông tin sẽ khả dụng trong slice tiếp theo.',
-                  type: VToastType.info,
-                );
-              },
+                if (isLoading)
+                  const Padding(
+                    padding: EdgeInsets.all(32),
+                    child: Center(child: CircularProgressIndicator()),
+                  )
+                else if (readinessView != null)
+                  ...readinessView.checklist.map((item) {
+                    final isComplete = item.status == ReadinessChecklistItemStatus.complete;
+                    return _buildSectionCard(
+                      context: context,
+                      icon: _getIconForChecklistGroup(item.group),
+                      title: item.label,
+                      subtitle: item.description ?? (isComplete ? 'Hoàn tất' : 'Chưa thiết lập'),
+                      onEdit: () {
+                        VToast.show(
+                          context,
+                          title: 'Chỉnh sửa',
+                          message: 'Chức năng sửa thông tin sẽ khả dụng trong slice tiếp theo.',
+                          type: VToastType.info,
+                        );
+                      },
+                    );
+                  }),
+                const SizedBox(height: 16),
+              ],
             ),
-
-            _buildSectionCard(
-              context: context,
-              icon: Icons.camera_alt_outlined,
-              title: 'Ảnh sản phẩm',
-              subtitle: (product.images == null || product.images!.isEmpty)
-                  ? 'Chưa có ảnh'
-                  : 'Đã có ${product.images!.length} ảnh',
-              onEdit: () {
-                VToast.show(
-                  context,
-                  title: 'Chỉnh sửa',
-                  message: 'Chức năng sửa ảnh sẽ khả dụng trong slice tiếp theo.',
-                  type: VToastType.info,
-                );
-              },
-            ),
-
-            _buildSectionCard(
-              context: context,
-              icon: Icons.straighten,
-              title: 'Đơn vị đo lường',
-              subtitle: 'Cơ sở: ${product.baseUnit ?? 'Chưa thiết lập'}',
-              onEdit: () {
-                VToast.show(
-                  context,
-                  title: 'Chỉnh sửa',
-                  message: 'Chức năng sửa đơn vị sẽ khả dụng trong slice tiếp theo.',
-                  type: VToastType.info,
-                );
-              },
-            ),
-
-            _buildSectionCard(
-              context: context,
-              icon: Icons.inventory_2_outlined,
-              title: 'Tồn kho khởi tạo',
-              subtitle: product.stockQty != null
-                  ? 'Tồn kho: ${product.stockQty} ${product.baseUnit ?? ''}'
-                  : 'Chưa thiết lập tồn kho',
-              onEdit: () {
-                VToast.show(
-                  context,
-                  title: 'Chỉnh sửa',
-                  message: 'Chức năng sửa tồn kho sẽ khả dụng trong slice tiếp theo.',
-                  type: VToastType.info,
-                );
-              },
-            ),
-
-            _buildSectionCard(
-              context: context,
-              icon: Icons.payments_outlined,
-              title: 'Giá vốn cơ sở',
-              subtitle: product.baseCost != null
-                  ? 'Giá vốn: ${_formatCurrency(product.baseCost)}${product.baseUnit != null && product.baseUnit!.isNotEmpty ? ' (${product.baseUnit})' : ''}'
-                  : 'Chưa thiết lập giá vốn',
-              onEdit: () {
-                VToast.show(
-                  context,
-                  title: 'Chỉnh sửa',
-                  message: 'Chức năng sửa giá vốn sẽ khả dụng trong slice tiếp theo.',
-                  type: VToastType.info,
-                );
-              },
-            ),
-
-            _buildSectionCard(
-              context: context,
-              key: const Key('wgt_pcc_price_band_card'),
-              icon: Icons.local_offer_outlined,
-              title: 'Khung giá bán',
-              subtitle: _priceBandSubtitle(product),
-              onEdit: () {
-                VToast.show(
-                  context,
-                  title: 'Chỉnh sửa',
-                  message: 'Chức năng sửa khung giá bán sẽ khả dụng trong slice tiếp theo.',
-                  type: VToastType.info,
-                );
-              },
-            ),
-          ],
-        ),
+          );
+        },
       ),
     );
   }

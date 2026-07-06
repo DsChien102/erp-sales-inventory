@@ -81,6 +81,8 @@ final class Product extends Entity<ProductId> implements IAggregateRoot {
       note: _optionalText(note),
       status: ProductStatus.active,
       readiness: ProductReadiness.seedFromCreate(
+        productId: id.value,
+        productName: name.value,
         hasBaseUnit: baseUnit != null,
         hasImages: normalizedImages.isNotEmpty,
       ),

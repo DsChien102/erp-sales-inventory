@@ -33,6 +33,33 @@ sequenceDiagram
 
 Sau create: readiness **summary/blocker** + gợi ý bước tiếp (EPIC-02/US-03) → Product Control Center (EPIC-01/US-02). Checklist đầy đủ trên PCC = EPIC-01/US-02/FR-04 (**pending**).
 
+## Luồng readiness summary (EPIC-02/US-03)
+
+```mermaid
+sequenceDiagram
+  participant UI as ERP_PostCreate
+  participant Med as ICatalogModule
+  participant H as GetProductReadinessHandler
+  participant Port as IProductReadinessReadPort
+  participant Eval as ProductReadinessEvaluator
+  participant Asm as ProductReadinessViewAssembler
+  participant RPC as catalog_get_product_readiness
+
+  UI->>Med: GetProductReadinessQuery
+  Med->>H: handle
+  H->>Port: loadFacts
+  Port->>RPC: RPC
+  RPC-->>Port: facts row
+  Port-->>H: ProductReadinessFacts
+  H->>Eval: compute
+  Eval-->>H: ProductReadiness
+  H->>Asm: assemble + IPermissionChecker
+  Asm-->>H: ProductReadinessViewDto
+  H-->>UI: checklist + suggestedActions
+```
+
+Foundation: RPC trả facts với `stock_mode=basic`, `base_price_mode=manual`; evaluator/assembler không phụ thuộc infrastructure.
+
 ## Luồng tra cứu + readiness (EPIC-01/US-01)
 
 ```text

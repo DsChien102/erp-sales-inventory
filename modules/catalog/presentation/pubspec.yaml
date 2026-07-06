@@ -19,6 +19,7 @@ dependencies:
   vet45_catalog_application: ^1.0.0
   vet45_catalog_domain: ^1.0.0
   vet45_shared_application: ^1.0.0
+  equatable: ^2.1.0
 
 dev_dependencies:
   vet45_shared_testing: ^0.0.1

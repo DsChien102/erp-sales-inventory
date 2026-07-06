@@ -1,5 +1,7 @@
 import 'package:vet45_shared_domain/shared_kernel_domain.dart';
 
+import 'product_readiness_evaluator.dart';
+import 'product_readiness_facts.dart';
 import 'readiness_blocker.dart';
 import 'readiness_status.dart';
 
@@ -14,22 +16,18 @@ final class ProductReadiness extends ValueObject {
 
   /// Seeds readiness after guided minimal create.
   factory ProductReadiness.seedFromCreate({
+    required String productId,
+    required String productName,
     required bool hasBaseUnit,
     required bool hasImages,
   }) {
-    final blockers = <ReadinessBlocker>[
-      if (!hasBaseUnit) ReadinessBlocker.missingBaseUnit(),
-      if (!hasImages) ReadinessBlocker.missingImage(),
-      ReadinessBlocker.missingPrice(),
-      ReadinessBlocker.missingPriceBand(),
-      ReadinessBlocker.missingStock(),
-    ];
-
-    return ProductReadiness(
-      status: blockers.isEmpty
-          ? ReadinessStatus.readyToSell
-          : ReadinessStatus.incomplete,
-      blockers: List.unmodifiable(blockers),
+    return ProductReadinessEvaluator.compute(
+      ProductReadinessFacts.forCreate(
+        productId: productId,
+        productName: productName,
+        hasBaseUnit: hasBaseUnit,
+        hasImages: hasImages,
+      ),
     );
   }
 

@@ -14,6 +14,10 @@ final catalogAccessMetadataRegistry = AccessMetadataRegistry({
     permission: 'catalog.product.create',
     requiresTenant: true,
   ),
+  GetProductReadinessQuery: AccessMetadata(
+    permission: 'catalog.product.view_detail',
+    requiresTenant: true,
+  ),
   RequestProductImageUploadCommand: AccessMetadata(
     permission: 'catalog.product.create',
     requiresTenant: true,

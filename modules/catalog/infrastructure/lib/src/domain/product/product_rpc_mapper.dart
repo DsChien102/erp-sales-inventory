@@ -96,6 +96,16 @@ abstract final class ProductRpcMapper {
     };
   }
 
+  static Map<String, dynamic> getProductReadinessParams({
+    required String tenantId,
+    required String productId,
+  }) {
+    return <String, dynamic>{
+      'p_tenant_id': tenantId,
+      'p_product_id': productId,
+    };
+  }
+
   static String readinessStatusToRpc(ReadinessStatus status) {
     return switch (status) {
       ReadinessStatus.incomplete => 'incomplete',

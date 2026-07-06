@@ -53,6 +53,25 @@ Codegen ritual: mirror [modules/partner/README.md](../../../../modules/partner/R
 
 ---
 
+## EPIC-02 / US-03 — Hoàn tất create + readiness summary (slice #3)
+
+| Req ID | Role | Contract § | Enforce layer | Artifact | Test id | Status |
+| ------ | ---- | ---------- | ------------- | -------- | ------- | ------ |
+| US-03 | CONTRACT | §EPIC-02-US-03 | application | `GetProductReadinessQuery`, `ProductReadinessViewDto`, `ReadinessChecklistItemDto`, `ContextualActionDto`, `IProductReadinessReadPort`, `FakeCatalogModule` | fake_catalog_module_test | done |
+| FR-01 | CONTRACT | §EPIC-02-US-03 | application | Checklist groups + item status enums | scn_e02_u03_fr01_01..05 | done |
+| FR-02 | CONTRACT | §EPIC-02-US-03 | application | `productId` + readiness view for post-create navigation | scn_e02_u03_fr02_04 | done |
+| FR-03 | CONTRACT | §EPIC-02-US-03 | application | `ContextualActionDto` + `primaryActionId` | scn_e02_u03_fr03_01, scn_e02_u03_fr03_03 | done |
+| FR-04 | CONTRACT | §EPIC-02-US-03 | application | `GetProductReadinessQuery` refresh path | scn_e02_u03_fr04_01 | done |
+| FR-01..04 | BE | §EPIC-02-US-03 | application + domain + infrastructure | `GetProductReadinessQueryHandler`, `ProductReadinessEvaluator`, `ProductReadinessViewAssembler`, `IProductReadinessReadPort`, `SupabaseProductReadinessReadGateway`, draft RPC `catalog.get_product_readiness` | scn_e02_u03_fr01_01, scn_e02_u03_fr03_03, scn_e02_u03_fr04_01 | done |
+| FR-01..04 | FE | §EPIC-02-US-03 | presentation | Post-create result + readiness checklist UI | wgt_e02_u03_fr01_01 | done |
+| FR-01 | E2E | §EPIC-02-US-03 | integration | Post-create PCC readiness blockers via `ICatalogModule` | e2e_e02_u03_fr01_01 | done |
+| FR-01 | E2E | §EPIC-02-US-03 | integration | Ready-to-sell badge after full fake create | e2e_e02_u03_fr01_05 | done |
+| FR-02 | E2E | §EPIC-02-US-03 | integration | Navigate to PCC on success; stay on form on failure | e2e_e02_u03_fr02_04 | done |
+| FR-03 | E2E | §EPIC-02-US-03 | integration | Checklist blocker + CTA for missing base unit | e2e_e02_u03_fr03_01 | done |
+| FR-04 | E2E | §EPIC-02-US-03 | integration | Refresh readiness on PCC load after base unit create | e2e_e02_u03_fr04_01 | done |
+
+---
+
 ## EPIC-01 / US-01 — Tra cứu danh mục (slice #4)
 
 | Req ID | Role | Contract § | Enforce layer | Artifact | Test id | Status |

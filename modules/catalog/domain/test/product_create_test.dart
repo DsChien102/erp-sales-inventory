@@ -22,6 +22,8 @@ void main() {
         containsAll([
           ReadinessBlockerCode.missingPrice,
           ReadinessBlockerCode.missingImage,
+          ReadinessBlockerCode.missingStock,
+          ReadinessBlockerCode.missingPriceBand,
         ]),
       );
       expect(

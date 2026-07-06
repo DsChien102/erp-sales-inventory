@@ -93,6 +93,104 @@ Permissions: `@RequiresPermission(CatalogPermissions.create)` (`catalog.product.
 
 ---
 
+## EPIC-02 / US-03 — Hoàn tất create + readiness summary (slice #3)
+
+**Status:** CONTRACT `done` · BE `done` · FE `done`
+
+### Commands / Queries
+
+| Symbol | Input (summary) | Success | Errors |
+| ------ | --------------- | ------- | ------ |
+| `GetProductReadinessQuery` | tenantId, productId | `ProductReadinessViewDto` | PermissionDenied, NotFound |
+
+Package: `vet45_catalog_application` — `readiness/`.
+
+Supporting types:
+
+| Type | Fields |
+| ---- | ------ |
+| `ReadinessSummaryDto` | status, blockers[] (reuse US-01) |
+| `ReadinessBlockerDto` | code, message, group? |
+| `ReadinessChecklistItemDto` | group, label, status, kind, blockerCode?, description? |
+| `ContextualActionDto` | actionId, label, priority, enabled, requiredPermission?, targetModule? |
+| `ProductReadinessViewDto` | productId, productName, readinessSummary, checklist[], suggestedActions[], primaryActionId? |
+
+Enums: `ReadinessChecklistItemStatus`, `ReadinessChecklistGroup`, `ReadinessItemKind`, `ContextualActionPriority`, `ContextualActionId`.
+
+`CreateProductResult.readinessSummary` — dùng ngay sau create; `GetProductReadinessQuery` — refresh sau mutation (FR-04) hoặc mở lại sản phẩm.
+
+Permissions: `@RequiresPermission(CatalogPermissions.viewDetail)` + `@RequiresTenant()`.
+
+### Blocker → action matrix
+
+| Blocker code | Checklist group | Action id | Permission | Mode |
+| ------------ | --------------- | --------- | ---------- | ---- |
+| `missing_base_unit` | units | `set_base_unit` | `catalog.product.manage_units` | Foundation |
+| `missing_image` | images | — | — | recommended only |
+| `missing_price` | basePrice | `set_manual_base_price` | `catalog.product.manage_pricing` | manual base price |
+| `pending_base_price_from_costing` | basePrice | `open_costing` | `catalog.product.view_detail` | costing module (**pending**) |
+| `missing_stock` | stock | `set_initial_stock` | `catalog.product.manage_stock` | basic stock |
+| `pending_stock_from_inventory` | stock | `open_inventory` | `catalog.product.view_detail` | advanced stock (**pending**) |
+| `missing_price_band` | priceBand | `set_price_band` | `catalog.product.manage_pricing` | |
+| `missing_required_custom_fields` | customFields | `fill_custom_fields` | `catalog.product.update` | EPIC-03 |
+| (ready to sell) | — | `create_another_product` | `catalog.product.create` | |
+
+Priority: base unit → stock/base price (tenant mode) → price band → custom fields.
+
+### RPC mapping (BE)
+
+| Use case | RPC |
+| -------- | --- |
+| Readiness view | `catalog.get_product_readiness` |
+
+**Params:** `p_tenant_id uuid`, `p_product_id uuid`
+
+**Response (facts row):** `product_id`, `product_name`, `has_base_unit`, `has_images`, `has_stock`, `has_base_price`, `has_price_band`, `has_required_custom_fields`, `stock_mode` (`basic` \| `advanced`), `base_price_mode` (`manual` \| `costing_module`)
+
+**Foundation MVP (US-03 BE):** RPC hardcodes `stock_mode = basic`, `base_price_mode = manual`; `has_stock`, `has_base_price`, `has_price_band` = `false` until EPIC-05/US-02 and EPIC-06 slices extend joins. Domain `ProductReadinessEvaluator` + application `ProductReadinessViewAssembler` compute blockers/checklist/actions from facts.
+
+**Permission:** `iam.has_permission(p_tenant_id, 'catalog.product.view_detail')` — mirror US-01 read paths.
+
+**Not found:** empty result → gateway maps `ApplicationException('Product not found')`.
+
+Draft: `supabase/migrations/_drafts/catalog_product_readiness.sql`
+
+### Fake scenarios (FE)
+
+| scenario_id | trigger | fake response |
+| ----------- | ------- | ------------- |
+| `readiness_many_blockers` | GetProductReadinessQuery after minimal create | incomplete + many checklist `missing` |
+| `readiness_ready_to_sell` | create with full data + query | `readyToSell`, primary `create_another_product` |
+| `readiness_advanced_stock_pending` | advanced stock mode product | stock `pendingExternal`, no `set_initial_stock` |
+| `readiness_costing_base_price_pending` | costing base price mode | basePrice `pendingExternal` |
+| `readiness_missing_custom_fields` | missing required custom fields | blocker `missing_required_custom_fields` |
+| `readiness_no_price_permission` | missing price band, no pricing perm | blocker visible, `set_price_band` disabled |
+| `readiness_refresh_after_unit` | product with unit + base price | unit complete, price band still missing |
+| `readiness_permission_denied` | no view_detail | PermissionDenied |
+
+`FakeCatalogModule` — `package:vet45_catalog_application/testing.dart`.
+
+### E2E scenarios (ERP integration)
+
+File: `apps/erp/test/features/catalog/presentation/pages/product_readiness_e2e_test.dart` — shared harness: `apps/erp/test/features/catalog/catalog_e2e_harness.dart`.
+
+| test_id | FakeCatalogScenario | Assert |
+| ------- | ------------------- | ------ |
+| `e2e_e02_u03_fr01_01` | `guided_create_ok` | PCC banner + checklist sections (blockers) |
+| `e2e_e02_u03_fr02_04` | `guided_create_ok` | Success → PCC; validation fail → stay on create |
+| `e2e_e02_u03_fr03_01` | `readiness_many_blockers` | Checklist page: missing base unit + CTA |
+| `e2e_e02_u03_fr04_01` | `readiness_refresh_after_unit` | Base unit complete; price band still missing |
+| `e2e_e02_u03_fr01_05` | `readiness_ready_to_sell` | Badge `Sẵn sàng bán`; no required blockers |
+
+Pattern: `initDependencies` → override `ICatalogModule` with `FakeCatalogModule` (mirror US-01 E2E). No live Supabase for slice #3.
+
+### Parallel notes
+
+- FE có thể fake: **yes**
+- E2E prerequisite: US-01
+
+---
+
 ## EPIC-01 / US-01 — Tra cứu danh mục (slice #4)
 
 ### Commands / Queries
@@ -130,7 +228,7 @@ Permissions: `@RequiresPermission(CatalogPermissions.create)` (`catalog.product.
 | `customFieldGroupCards[]` | group id, name, icon, sortOrder, fields[], values, requiredMissing |
 | `readinessSummary` | early — status + top blockers (không thay FR-04) |
 | `checklist[]` | **pending** (EPIC-01/US-02/FR-04) — không implement UI đầy đủ |
-| contextual actions[] | theo permission + status + readiness |
+| `contextualActions[]` | reuse `ContextualActionDto` từ US-03 |
 | change history preview | FR-06 |
 
 ### Fake scenarios (FE)
@@ -187,7 +285,6 @@ Permissions: `@RequiresPermission(CatalogPermissions.create)` (`catalog.product.
 
 | Slice | Contract section | Status |
 | ----- | ---------------- | ------ |
-| EPIC-02 US-03 | Hoàn tất create + readiness summary | todo |
 | EPIC-04 US-01..02 | UOM base + conversion (không US-03; FR-02 roles **pending**) | todo |
 | EPIC-05 US-01..02 | Stock profile + basic stock adjust | todo |
 | EPIC-06 US-01..03 | Manual base price, store rule, price band | todo |

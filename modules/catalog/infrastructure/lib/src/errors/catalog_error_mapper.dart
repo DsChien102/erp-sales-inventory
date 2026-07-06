@@ -19,6 +19,10 @@ ApplicationException mapCatalogRpcError(RpcException error) {
     return ApplicationException('Product name is required.');
   }
 
+  if (message.contains('product not found')) {
+    return ApplicationException('Product not found');
+  }
+
   if (message.contains('not authenticated') ||
       message.contains('permission denied') ||
       message.contains('actor mismatch')) {

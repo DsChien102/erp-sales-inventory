@@ -1,0 +1,48 @@
+import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:vet45_catalog_application/application.dart';
+import 'package:vet45_catalog_presentation/presentation.dart';
+import 'package:vet45_design_system/design_system.dart';
+
+class ProductReadinessChecklistRouteArgs {
+  final ProductReadinessViewDto readinessView;
+  const ProductReadinessChecklistRouteArgs({required this.readinessView});
+}
+
+class ProductReadinessChecklistPage extends StatelessWidget {
+  const ProductReadinessChecklistPage({
+    super.key,
+    required this.readinessView,
+  });
+
+  final ProductReadinessViewDto readinessView;
+
+  @override
+  Widget build(BuildContext context) {
+    final dynamicColors = context.vColors;
+
+    return Scaffold(
+      key: const Key('wgt_e02_u03_checklist'),
+      backgroundColor: dynamicColors.background,
+      appBar: VAppBar(
+        title: 'Sẵn sàng vận hành',
+        titleStyle: VTypography.headingH3.copyWith(
+          color: dynamicColors.textPrimary,
+          fontWeight: FontWeight.bold,
+        ),
+        subtitle: readinessView.productName,
+      ),
+      body: ProductReadinessChecklistBody(
+        readinessView: readinessView,
+        onActionTap: (actionId) {
+          VToast.show(
+            context,
+            title: 'Thao tác',
+            message: 'Tính năng ($actionId) đang được xây dựng.',
+            type: VToastType.info,
+          );
+        },
+      ),
+    );
+  }
+}

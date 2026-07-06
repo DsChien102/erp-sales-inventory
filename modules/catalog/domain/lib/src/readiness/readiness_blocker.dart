@@ -39,10 +39,30 @@ final class ReadinessBlocker extends ValueObject {
 
   factory ReadinessBlocker.missingStock() => const ReadinessBlocker(
         code: ReadinessBlockerCode.missingStock,
-        message: 'Chưa thiết lập tồn kho',
+        message: 'Thiếu tồn kho',
         group: 'stock',
       );
 
+  factory ReadinessBlocker.missingRequiredCustomFields() =>
+      const ReadinessBlocker(
+        code: ReadinessBlockerCode.missingRequiredCustomFields,
+        message: 'Thiếu thông tin bổ sung bắt buộc',
+        group: 'custom_fields',
+      );
+
+  factory ReadinessBlocker.pendingStockFromInventory() =>
+      const ReadinessBlocker(
+        code: ReadinessBlockerCode.pendingStockFromInventory,
+        message: 'Chờ dữ liệu tồn kho từ module Kho',
+        group: 'stock',
+      );
+
+  factory ReadinessBlocker.pendingBasePriceFromCosting() =>
+      const ReadinessBlocker(
+        code: ReadinessBlockerCode.pendingBasePriceFromCosting,
+        message: 'Chờ Giá cơ sở từ module Giá vốn',
+        group: 'pricing',
+      );
 
   @override
   List<Object?> get props => [code, message, group];
