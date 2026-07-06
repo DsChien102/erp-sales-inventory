@@ -1,22 +1,38 @@
-# Epic-02 — Quản lý trạng thái đối tác
+## Epic 3.2: Quản lý trạng thái và vòng đời đối tác
 
-## Epic overview
+### Epic overview
 
-Epic này kiểm soát việc ngừng hoạt động, kích hoạt lại và loại bỏ hồ sơ đối tác tạo nhầm theo điều kiện dữ liệu đã phát sinh.
+Epic này tập trung vào việc quản lý trạng thái sử dụng và vòng đời của hồ sơ đối tác sau khi đã được tạo trong hệ thống.
 
-Trong vận hành, đối tác có thể tạm ngừng hợp tác hoặc bị tạo nhầm. Epic này đảm bảo thay đổi trạng thái không làm mất dữ liệu giao dịch đã phát sinh, và chỉ cho xóa hồ sơ khi chưa có giao dịch liên quan.
+Trong VET45, một đối tác có thể đang hoạt động, tạm ngừng giao dịch hoặc không còn được phép sử dụng trong giao dịch mới. Tuy nhiên, nếu đối tác đã từng phát sinh dữ liệu nghiệp vụ, hệ thống cần giữ hồ sơ để đảm bảo lịch sử giao dịch, chứng từ, công nợ và audit log vẫn có thể truy vết được.
 
-Epic này **không** xử lý chỉnh sửa hồ sơ (Epic-01), **không** xử lý lịch sử giao dịch (Epic-03).
+Epic này bao gồm các nghiệp vụ như ngừng hoạt động đối tác, kích hoạt lại đối tác và xóa đối tác khi đủ điều kiện.
 
-## User stories
+Trạng thái sử dụng của đối tác chỉ gồm:
 
-| US | Tên | Folder |
-| -- | --- | ------ |
-| US-01 | Dừng sử dụng và sử dụng lại đối tác | [US-01/](US-01/) |
-| US-02 | Loại bỏ hồ sơ đối tác tạo nhầm | [US-02/](US-02/) |
+- Đang hoạt động
+- Ngừng hoạt động
 
-## Out of scope
+Không sử dụng trạng thái Đã xóa trong nghiệp vụ. Xóa là thao tác loại bỏ hồ sơ khỏi database và chỉ được phép khi đối tác chưa phát sinh dữ liệu nghiệp vụ.
 
-- Cập nhật thông tin hồ sơ (Epic-01/US-03)
-- Xem lịch sử giao dịch (Epic-03)
-- Xử lý đơn bán, phiếu nhập, công nợ, hóa đơn
+### Business value
+
+Epic này giúp cửa hàng kiểm soát đối tác nào còn được sử dụng trong giao dịch mới, đồng thời vẫn giữ được dữ liệu lịch sử đối với các đối tác đã từng phát sinh nghiệp vụ.
+
+Việc phân biệt rõ Ngừng hoạt động và Xóa giúp hệ thống tránh mất dữ liệu quan trọng, tránh sai lệch lịch sử giao dịch, đồng thời giúp người dùng dọn dẹp các hồ sơ tạo nhầm hoặc chưa từng sử dụng.
+
+### User roles
+
+| Role | Permission / Involvement |
+|---|---|
+| Chủ cửa hàng | Có quyền ngừng hoạt động, kích hoạt lại hoặc xóa đối tác nếu đủ điều kiện. |
+| Kế toán | Cần xem trạng thái đối tác và lịch sử liên quan để đảm bảo không ảnh hưởng công nợ, hóa đơn hoặc chứng từ. |
+| Nhân viên bán hàng | Chỉ sử dụng được đối tác Đang hoạt động trong giao dịch mới; vẫn có thể xem hồ sơ Ngừng hoạt động nếu được phân quyền. |
+| Thủ kho | Chỉ sử dụng được nhà cung cấp Đang hoạt động trong nghiệp vụ nhập hàng nếu được phân quyền. |
+
+### User stories
+
+| User story | User story name | Mục tiêu |
+|---|---|---|
+| US-3.2.1 | Ngừng hoạt động và kích hoạt lại đối tác | Giúp người dùng kiểm soát đối tác có còn được sử dụng trong giao dịch mới hay không. |
+| US-3.2.2 | Xóa đối tác đủ điều kiện | Giúp người dùng xóa hồ sơ tạo nhầm hoặc chưa từng phát sinh nghiệp vụ. |
