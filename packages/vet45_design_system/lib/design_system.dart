@@ -34,6 +34,7 @@ export 'src/components/v_tabs.dart';
 export 'src/components/v_empty_state.dart';
 export 'src/components/v_toast.dart';
 export 'src/components/v_dropdown.dart';
+export 'src/components/v_searchable_dropdown.dart';
 export 'src/components/v_quantity_selector.dart';
 export 'src/components/v_date_picker_field.dart';
 export 'src/components/v_home_header.dart';
