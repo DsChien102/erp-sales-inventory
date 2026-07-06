@@ -24,39 +24,13 @@ class ProductReadinessChecklistPage extends StatelessWidget {
     return Scaffold(
       key: const Key('wgt_e02_u03_checklist'),
       backgroundColor: dynamicColors.background,
-      appBar: AppBar(
-        backgroundColor: dynamicColors.surface,
-        surfaceTintColor: Colors.transparent,
-        elevation: 0,
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: dynamicColors.textPrimary),
-          onPressed: () => context.pop(),
+      appBar: VAppBar(
+        title: 'Sẵn sàng vận hành',
+        titleStyle: VTypography.headingH3.copyWith(
+          color: dynamicColors.textPrimary,
+          fontWeight: FontWeight.bold,
         ),
-        title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              'Sẵn sàng vận hành',
-              style: VTypography.headingH3.copyWith(
-                color: dynamicColors.textPrimary,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            Text(
-              readinessView.productName,
-              style: VTypography.bodySmall.copyWith(
-                color: dynamicColors.textSecondary,
-              ),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ],
-        ),
-        bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(1),
-          child: Container(color: dynamicColors.borderDefault, height: 1),
-        ),
+        subtitle: readinessView.productName,
       ),
       body: ProductReadinessChecklistBody(
         readinessView: readinessView,

@@ -69,10 +69,12 @@ class _ProductControlCenterView extends StatelessWidget {
     return Scaffold(
       key: const Key('wgt_e02_u03_fr01_01'),
       backgroundColor: dynamicColors.background,
-      appBar: AppBar(
-        backgroundColor: dynamicColors.surface,
-        surfaceTintColor: Colors.transparent,
-        elevation: 0,
+      appBar: VAppBar(
+        title: product.name,
+        titleStyle: VTypography.headingH3.copyWith(
+          color: dynamicColors.textPrimary,
+          fontWeight: FontWeight.bold,
+        ),
         leading: IconButton(
           icon: Icon(Icons.arrow_back, color: dynamicColors.textPrimary),
           onPressed: () {
@@ -83,31 +85,18 @@ class _ProductControlCenterView extends StatelessWidget {
             }
           },
         ),
-        title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              product.name,
-              style: VTypography.headingH3.copyWith(
-                color: dynamicColors.textPrimary,
-                fontWeight: FontWeight.bold,
+        actions: [
+          Center(
+            child: Padding(
+              padding: const EdgeInsets.only(right: 16),
+              child: VBadge(
+                label: isReady ? 'Sẵn sàng bán' : 'Thiếu dữ liệu',
+                status: isReady ? VBadgeStatus.success : VBadgeStatus.danger,
+                isSmall: true,
               ),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
             ),
-            const SizedBox(height: 2),
-            VBadge(
-              label: isReady ? 'Sẵn sàng bán' : 'Thiếu dữ liệu',
-              status: isReady ? VBadgeStatus.success : VBadgeStatus.danger,
-              isSmall: true,
-            ),
-          ],
-        ),
-        bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(1),
-          child: Container(color: dynamicColors.borderDefault, height: 1),
-        ),
+          ),
+        ],
       ),
       body: BlocBuilder<ProductControlCenterCubit, ProductControlCenterState>(
         builder: (context, state) {

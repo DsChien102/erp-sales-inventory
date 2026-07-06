@@ -62,7 +62,7 @@ class ProductReadinessChecklistBody extends StatelessWidget {
         return Container(
           padding: const EdgeInsets.all(VSpacing.space4),
           decoration: BoxDecoration(
-            color: dynamicColors.background,
+            color: dynamicColors.surface,
             borderRadius: BorderRadius.circular(VRadius.r8),
             border: Border.all(color: dynamicColors.borderDefault),
           ),
