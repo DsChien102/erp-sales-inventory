@@ -182,6 +182,13 @@ Mở đầy đủ khi CONTRACT lane bắt đầu.
 | FR-03 | BE | §EPIC-05-US-01-US-02 | application + infrastructure | `GetProductStockHistoryQueryHandler`, `SupabaseProductStockReadGateway`, draft RPC `get_product_stock_history` | scn_e05_u02_fr03_01 | done |
 | FR-04 | BE | §EPIC-05-US-01-US-02 | application | readiness refresh after set/adjust stock | scn_e05_u02_fr04_01 | done |
 | FR-01..04 | FE | §EPIC-05-US-01-US-02 | presentation | `product_stock_adjustment_page.dart` | wgt_e05_u01_fr01_01 | done |
+| FR-01 | E2E | §EPIC-05-US-01-US-02 | erp | PCC basic stock card | e2e_e05_u01_fr01_01 | done |
+| FR-02 | E2E | §EPIC-05-US-01-US-02 | erp | Advanced stock read-only (no navigation) | e2e_e05_u01_fr02_01 | done |
+| FR-03 | E2E | §EPIC-05-US-01-US-02 | erp | Zero qty configured, not missing | e2e_e05_u01_fr03_01 | done |
+| FR-01 | E2E | §EPIC-05-US-01-US-02 | erp | Set initial stock from PCC | e2e_e05_u02_fr01_01 | done |
+| FR-02 | E2E | §EPIC-05-US-01-US-02 | erp | Adjust stock with reason | e2e_e05_u02_fr02_01 | done |
+| FR-03 | E2E | §EPIC-05-US-01-US-02 | erp | Stock history UI | — | n/a |
+| FR-04 | E2E | §EPIC-05-US-01-US-02 | erp | Readiness refresh after set stock | e2e_e05_u02_fr04_01 | done |
 
 ---
 

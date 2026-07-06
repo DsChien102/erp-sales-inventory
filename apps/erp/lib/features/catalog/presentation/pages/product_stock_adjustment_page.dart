@@ -130,6 +130,7 @@ class _ProductStockAdjustmentPageState extends State<ProductStockAdjustmentPage>
     final unitName = widget.args.unitName ?? widget.args.product.baseUnit ?? '';
 
     return Scaffold(
+      key: const Key('wgt_e05_u01_fr01_01'),
       backgroundColor: dynamicColors.background,
       appBar: VAppBar(
         showBackButton: true,
@@ -184,6 +185,7 @@ class _ProductStockAdjustmentPageState extends State<ProductStockAdjustmentPage>
             ),
             const SizedBox(height: 8),
             TextFormField(
+              key: const Key('input_stock_quantity'),
               controller: _quantityController,
               keyboardType: const TextInputType.numberWithOptions(decimal: true),
               style: VTypography.bodyDefault.copyWith(color: dynamicColors.textPrimary),
@@ -331,6 +333,7 @@ class _ProductStockAdjustmentPageState extends State<ProductStockAdjustmentPage>
                 ),
               ),
               ElevatedButton(
+                key: const Key('btn_stock_save'),
                 onPressed: _isSubmitting ? null : _submit,
                 style: ElevatedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),

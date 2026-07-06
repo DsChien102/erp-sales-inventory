@@ -545,6 +545,22 @@ Tests: `scn_contract_e04_u02_*` trong `fake_catalog_module_test.dart`.
 | `scn_contract_e05_u02_fr03_01` | `GetProductStockHistoryQuery` | history movements (`initial`, `adjust`) |
 | `scn_contract_e05_u02_fr04_01` | set/adjust stock | readiness bỏ blocker `missing_stock` |
 
+### E2E (integration)
+
+| test_id | scenario | harness | asserts |
+| ------- | -------- | ------- | ------- |
+| `e2e_e05_u01_fr01_01` | `pcc_ready_to_sell` | `buildCatalogDiscoveryRouter()` → PCC | stock card `150 Hộp`, **Sửa** visible |
+| `e2e_e05_u01_fr02_01` | `readiness_advanced_stock_pending` | `buildCatalogPostCreateRouter()` + create | tap **Sửa** tồn kho không mở stock page |
+| `e2e_e05_u01_fr03_01` | default (`product-3`) | discovery → PCC | `0 Lọ`, không `Thiếu tồn kho` |
+| `e2e_e05_u02_fr01_01` | `guided_create_ok` + `createMinimalProduct` | PCC → stock page | initial set `30` → PCC refresh |
+| `e2e_e05_u02_fr02_01` | `pcc_ready_to_sell` (`product-1`) | local PCC router | adjust `150`→`25` + reason chip |
+| `e2e_e05_u02_fr04_01` | `guided_create_ok` + base unit | PCC → set stock | card bỏ `Thiếu tồn kho` |
+| FR-03 history | — | — | **n/a** (no history UI) |
+
+Widget keys: `wgt_e05_u01_fr01_01` (stock page), `input_stock_quantity`, `btn_stock_save`.
+
+File: `apps/erp/test/features/catalog/presentation/pages/product_stock_e2e_test.dart`.
+
 ### Parallel notes
 
 - FE có thể fake: **yes**
