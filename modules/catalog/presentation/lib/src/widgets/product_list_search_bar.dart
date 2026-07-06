@@ -40,6 +40,7 @@ class _ProductListSearchBarState extends State<ProductListSearchBar> {
         children: [
           Expanded(
             child: VTextField(
+              key: const Key('input_product_search'),
               controller: _controller,
               hintText: 'Tìm tên, SKU, barcode...',
               prefixIcon: const Icon(Icons.search),

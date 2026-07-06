@@ -246,6 +246,14 @@ Draft view: `catalog.v_product_list` — xem [03-architecture-and-flows.md](03-a
 
 Tests: `scn_contract_e01_u01_*` trong `fake_catalog_module_test.dart`.
 
+### E2E (integration)
+
+| test_id | scenario | harness | asserts |
+| ------- | -------- | ------- | ------- |
+| `e2e_e01_u01_fr01_01` | `search_with_readiness` | `buildCatalogDiscoveryRouter()` + `setUpErpCatalogE2E` | list load, keyword filter via `input_product_search` |
+
+Widget keys: `wgt_e01_u01_fr01_01` (list page), `input_product_search` (search field).
+
 ### Parallel notes
 
 - FE có thể fake: **yes**
@@ -313,6 +321,14 @@ Foundation: `stock_mode = basic`, `base_price_mode = manual`; custom field cards
 `FakeCatalogModule` — `package:vet45_catalog_application/testing.dart`.
 
 Tests: `scn_contract_e01_u02_*` trong `fake_catalog_module_test.dart`.
+
+### E2E (integration)
+
+| test_id | scenario | harness | asserts |
+| ------- | -------- | ------- | ------- |
+| `e2e_e01_u02_fr01_01` | `pcc_incomplete` | `buildCatalogDiscoveryRouter()` + list→tap→PCC | `GetProductControlCenterQuery` operational cards (Đơn vị, Tồn kho, Khung giá), readiness badge |
+
+Widget keys: `wgt_e01_u02_fr01_01` (PCC), `btn_readiness_checklist_banner` (checklist CTA — loads `GetProductReadinessQuery` on tap).
 
 ### Parallel notes
 

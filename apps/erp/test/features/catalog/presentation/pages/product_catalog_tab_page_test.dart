@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
+import 'package:vet45_catalog_application/application.dart';
 import 'package:vet45_catalog_application/testing.dart';
 import 'package:vet45_shared_application/application.dart';
 import 'package:erp/features/catalog/presentation/pages/product_catalog_tab_page.dart';
@@ -27,7 +28,7 @@ void main() {
   Widget buildTestableWidget({required FakeCatalogModule catalogModule}) {
     getIt
       ..registerSingleton<IExecutionContext>(_FakeExecutionContext())
-      ..registerSingleton<IModuleMediator>(catalogModule);
+      ..registerSingleton<ICatalogModule>(catalogModule);
 
     final router = GoRouter(
       initialLocation: '/products',
@@ -51,7 +52,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byKey(const Key('wgt_e01_u01_fr01_01')), findsOneWidget);
-    expect(find.text('Tìm theo tên, SKU, barcode...'), findsOneWidget);
+    expect(find.text('Tìm tên, SKU, barcode...'), findsOneWidget);
     expect(find.text('Không tìm thấy sản phẩm'), findsOneWidget);
   });
 }
