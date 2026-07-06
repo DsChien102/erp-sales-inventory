@@ -206,6 +206,10 @@ Mở đầy đủ khi CONTRACT lane bắt đầu.
 | FR-03 | BE | §EPIC-06-US-01 | application | Costing module read | — | **pending** |
 | FR-04 | BE | §EPIC-06-US-01 | application | Readiness refresh after set | scn_e06_u01_fr04_01 | done |
 | FR-01..04 | FE | §EPIC-06-US-01 | presentation | `apps/erp/lib/features/catalog/presentation/pages/product_manual_base_price_page.dart`, `apps/erp/lib/features/catalog/presentation/pages/product_control_center_page.dart`, `modules/catalog/presentation/lib/src/bloc/product_manual_base_price_cubit.dart` | wgt_e06_u01_fr01_01 | done |
+| FR-01 | E2E | §EPIC-06-US-01 | erp | PCC base price card (manual / costing / missing) | e2e_e06_u01_fr01_01..03 | done |
+| FR-02 | E2E | §EPIC-06-US-01 | erp | Manual base price entry + base unit gating | e2e_e06_u01_fr02_01..02 | done |
+| FR-03 | E2E | §EPIC-06-US-01 | erp | Costing module read | — | **pending** (slice #23) |
+| FR-04 | E2E | §EPIC-06-US-01 | erp | Readiness refresh after set price | e2e_e06_u01_fr04_01 | done |
 
 ---
 

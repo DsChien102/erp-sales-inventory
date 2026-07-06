@@ -570,7 +570,7 @@ File: `apps/erp/test/features/catalog/presentation/pages/product_stock_e2e_test.
 
 ## EPIC-06 / US-01 — Manual base price (slice #9)
 
-**Status:** CONTRACT `done` · BE `done` · FE `todo` · E2E `todo`
+**Status:** CONTRACT `done` · BE `done` · FE `done` · E2E `done`
 
 ### Commands / Queries
 
@@ -645,6 +645,21 @@ Draft: `supabase/migrations/_drafts/07_catalog_manual_base_price.sql`
 | `scn_contract_e06_u01_fr04_01` | set price on `product-7` | readiness bỏ blocker `missing_price` |
 
 Fake seed: `product-7` (manual, có base unit, thiếu giá), `product-8` (costing mode).
+
+### E2E (integration)
+
+File: `apps/erp/test/features/catalog/presentation/pages/product_manual_base_price_e2e_test.dart` — shared harness: `apps/erp/test/features/catalog/catalog_e2e_harness.dart`.
+
+| test_id | scenario | harness | asserts |
+| ------- | -------- | ------- | ------- |
+| `e2e_e06_u01_fr01_01` | `pccReadyToSell` | `buildCatalogDiscoveryRouter()` → PCC | card `Giá cơ sở` + `80.000 đ`, **Sửa** visible |
+| `e2e_e06_u01_fr01_02` | default (`product-8`) | local PCC router | tap **Sửa** không mở manual base price page |
+| `e2e_e06_u01_fr01_03` | default (`product-7`) | local PCC router | `Thiếu Giá cơ sở định giá` |
+| `e2e_e06_u01_fr02_01` | `scnContractE06U01Fr02_01` | local PCC router → edit page | set `45000` → PCC refresh `45.000 đ` |
+| `e2e_e06_u01_fr02_02` | default (`product-6`) | local PCC router | **Sửa** disabled (thiếu đơn vị) |
+| `e2e_e06_u01_fr04_01` | `guided_create_ok` + `createMinimalProduct` | post-create → set price | card bỏ `Thiếu Giá cơ sở định giá` |
+
+Widget keys: `wgt_e06_u01_fr01_01` (manual base price page), `input_base_price_amount`, `btn_manual_base_price_save`.
 
 ### Parallel notes
 

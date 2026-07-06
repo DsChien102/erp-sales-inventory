@@ -13,7 +13,6 @@ import 'product_manual_base_price_page.dart';
 
 import '../widgets/product_control_center_operational_section.dart';
 import '../widgets/product_control_center_profile_card.dart';
-import 'product_manual_base_price_page.dart';
 import 'product_stock_adjustment_page.dart';
 
 class ProductControlCenterRouteArgs {
@@ -315,21 +314,21 @@ class _ProductControlCenterView extends StatelessWidget {
                           }
                         }
                       },
-                      onEditBasePrice: () async {
-                        if (controlCenter.basePrice.mode == BasePriceMode.manual) {
-                          await context.push(
-                            '/products/items/pcc/manual-base-price',
-                            extra: ProductManualBasePriceRouteArgs(
-                              product: product,
-                              basePriceCard: controlCenter.basePrice,
-                            ),
-                          );
-                          if (!context.mounted) return;
-                          context.read<ProductControlCenterCubit>().loadControlCenter(product.id);
-                        } else {
-                          _showEditPlaceholder(context);
-                        }
-                      },
+                      onEditBasePrice: controlCenter.basePrice.canEdit
+                          ? () async {
+                              await context.push(
+                                '/products/items/pcc/manual-base-price',
+                                extra: ProductManualBasePriceRouteArgs(
+                                  product: product,
+                                  basePriceCard: controlCenter.basePrice,
+                                ),
+                              );
+                              if (!context.mounted) return;
+                              context.read<ProductControlCenterCubit>().loadControlCenter(product.id);
+                            }
+                          : controlCenter.basePrice.mode == BasePriceMode.costingModule
+                              ? () => _showEditPlaceholder(context)
+                              : null,
                       onEditPriceBand: () => _showEditPlaceholder(context),
                     ),
                     ...controlCenter.customFieldGroupCards.map((group) {

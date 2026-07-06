@@ -132,6 +132,7 @@ class _ProductManualBasePriceViewState extends State<_ProductManualBasePriceView
       },
       builder: (context, state) {
         return Scaffold(
+          key: const Key('wgt_e06_u01_fr01_01'),
           backgroundColor: dynamicColors.background,
           appBar: VAppBar(
             title: 'Giá vốn cơ sở',
@@ -191,6 +192,7 @@ class _ProductManualBasePriceViewState extends State<_ProductManualBasePriceView
                     ),
                     const SizedBox(height: 8),
                     VTextField(
+                      key: const Key('input_base_price_amount'),
                       controller: _priceController,
                       hintText: 'Ví dụ: 45000',
                       keyboardType: TextInputType.number,
@@ -236,6 +238,7 @@ class _ProductManualBasePriceViewState extends State<_ProductManualBasePriceView
                         const SizedBox(width: 16),
                         Expanded(
                           child: VButton(
+                            key: const Key('btn_manual_base_price_save'),
                             label: 'Lưu thay đổi',
                             isLoading: state.status == ProductManualBasePriceStatus.loading,
                             onPressed: () => _onSave(context),
