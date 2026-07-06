@@ -18,6 +18,22 @@ class CatalogUiMapper {
         : null;
     final coverPath = coverDraft?.localPath;
 
+    final stockQty = int.tryParse(state.initialStock.trim());
+    final baseCost = double.tryParse(state.baseCost.trim());
+
+    double? listPrice;
+    double? floorPrice;
+
+    if (state.pricingMethod == 'manual') {
+      listPrice = double.tryParse(state.manualListPrice.trim());
+      floorPrice = double.tryParse(state.manualFloorPrice.trim());
+    } else if (state.pricingMethod == 'auto' && baseCost != null) {
+      final markup = double.tryParse(state.customAutoMarkup.trim()) ?? 0;
+      final floorMarkup = double.tryParse(state.customAutoFloorMarkup.trim()) ?? 0;
+      listPrice = baseCost * (1 + markup / 100);
+      floorPrice = baseCost * (1 + floorMarkup / 100);
+    }
+
     return ProductListItemModel(
       id: productId,
       name: state.name.trim(),
@@ -29,6 +45,10 @@ class CatalogUiMapper {
       readinessStatus: readiness,
       baseUnit: state.baseUnit.isNotEmpty ? state.baseUnit : null,
       images: state.imageDrafts.map((d) => d.localPath).toList(),
+      stockQty: stockQty,
+      baseCost: baseCost,
+      listPrice: listPrice,
+      floorPrice: floorPrice,
     );
   }
 

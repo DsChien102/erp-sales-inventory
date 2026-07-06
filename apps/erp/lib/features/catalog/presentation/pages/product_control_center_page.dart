@@ -21,13 +21,19 @@ class ProductControlCenterPage extends StatelessWidget {
     final dynamicColors = context.vColors;
     final isReady = product.readinessStatus == ProductReadinessStatus.ready;
 
-    // Determine missing items for Slice 1
+    // Determine missing items for Slice 1 and Slice 2
     final missingList = <String>[];
     if (product.baseUnit == null || product.baseUnit!.trim().isEmpty) {
       missingList.add('Đơn vị cơ sở');
     }
     if (product.images == null || product.images!.isEmpty) {
       missingList.add('Ảnh sản phẩm');
+    }
+    if (product.stockQty == null) {
+      missingList.add('Tồn kho khởi tạo');
+    }
+    if (product.listPrice == null) {
+      missingList.add('Khung giá bán');
     }
 
     return Scaffold(
@@ -115,7 +121,9 @@ class ProductControlCenterPage extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Giá niêm yết: --',
+                            product.listPrice != null
+                                ? 'Giá niêm yết: ${_formatCurrency(product.listPrice)}'
+                                : 'Giá niêm yết: --',
                             style: VTypography.bodyDefault.copyWith(
                               color: dynamicColors.textPrimary,
                               fontWeight: FontWeight.w600,
@@ -123,7 +131,9 @@ class ProductControlCenterPage extends StatelessWidget {
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            'Tồn (${product.baseUnit ?? 'cơ sở'}): Chưa thiết lập',
+                            product.stockQty != null
+                                ? 'Tồn (${product.baseUnit ?? 'cơ sở'}): ${product.stockQty}'
+                                : 'Tồn (${product.baseUnit ?? 'cơ sở'}): Chưa thiết lập',
                             style: VTypography.bodySmall.copyWith(
                               color: dynamicColors.textSecondary,
                             ),
@@ -293,10 +303,58 @@ class ProductControlCenterPage extends StatelessWidget {
                 );
               },
             ),
+
+            _buildSectionCard(
+              context: context,
+              icon: Icons.inventory_2_outlined,
+              title: 'Tồn kho khởi tạo',
+              subtitle: product.stockQty != null
+                  ? 'Tồn kho: ${product.stockQty} ${product.baseUnit ?? ''}'
+                  : 'Chưa thiết lập tồn kho',
+              onEdit: () {
+                VToast.show(
+                  context,
+                  title: 'Chỉnh sửa',
+                  message: 'Chức năng sửa tồn kho sẽ khả dụng trong slice tiếp theo.',
+                  type: VToastType.info,
+                );
+              },
+            ),
+
+            _buildSectionCard(
+              context: context,
+              icon: Icons.payments_outlined,
+              title: 'Giá vốn & Định giá',
+              subtitle: product.baseCost != null
+                  ? 'Giá vốn: ${_formatCurrency(product.baseCost)} · Giá bán: ${product.listPrice != null ? _formatCurrency(product.listPrice) : 'Chưa thiết lập'}'
+                  : 'Chưa thiết lập định giá',
+              onEdit: () {
+                VToast.show(
+                  context,
+                  title: 'Chỉnh sửa',
+                  message: 'Chức năng sửa định giá sẽ khả dụng trong slice tiếp theo.',
+                  type: VToastType.info,
+                );
+              },
+            ),
           ],
         ),
       ),
     );
+  }
+
+  String _formatCurrency(double? value) {
+    if (value == null) return '--';
+    final intVal = value.round();
+    final buffer = StringBuffer();
+    final s = intVal.toString();
+    for (var i = 0; i < s.length; i++) {
+      if (i > 0 && (s.length - i) % 3 == 0) {
+        buffer.write('.');
+      }
+      buffer.write(s[i]);
+    }
+    return '${buffer.toString()} đ';
   }
 
   Widget _buildSectionCard({
