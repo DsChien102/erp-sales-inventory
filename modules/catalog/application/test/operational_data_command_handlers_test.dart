@@ -9,6 +9,7 @@ class _RecordingProductCommandGateway implements IProductCommandGateway {
   ProductStockProfile? lastStockProfile;
   ProductBasePriceProfile? lastPriceProfile;
   ProductUnitPriceBand? lastPriceBand;
+  String? lastCurrency;
 
   @override
   Future<String> create({
@@ -34,10 +35,12 @@ class _RecordingProductCommandGateway implements IProductCommandGateway {
     required String productId,
     required String tenantId,
     required ProductBasePriceProfile profile,
+    String currency = 'VND',
   }) async {
     lastProductId = productId;
     lastTenantId = tenantId;
     lastPriceProfile = profile;
+    lastCurrency = currency;
   }
 
   @override
@@ -252,7 +255,7 @@ void main() {
   });
 
   group('SetManualBasePriceCommandHandler & Validator', () {
-    test('valid manual base price sets profile on gateway', () async {
+    test('scn_e06_u01_fr02_01 set manual base price returns result with readiness', () async {
       final gateway = _RecordingProductCommandGateway();
       final handler = SetManualBasePriceCommandHandler(
         commandGateway: gateway,
@@ -270,6 +273,7 @@ void main() {
         tenantId: 'tenant-1',
         productId: 'prod-1',
         basePrice: 50000.0,
+        currency: 'VND',
       );
 
       await validator.validate(command);
@@ -278,8 +282,10 @@ void main() {
       expect(gateway.lastProductId, 'prod-1');
       expect(gateway.lastTenantId, 'tenant-1');
       expect(gateway.lastPriceProfile?.basePrice?.amount, 50000.0);
+      expect(gateway.lastCurrency, 'VND');
       expect(result.productId, 'prod-1');
       expect(result.basePrice, 50000.0);
+      expect(result.currency, 'VND');
       expect(result.unitName, 'Lọ');
       expect(result.readinessSummary.blockers, isEmpty);
     });
@@ -313,7 +319,7 @@ void main() {
       );
     });
 
-    test('scn_e04_u01_fr02_02 missing base unit blocks manual base price', () async {
+    test('scn_e06_u01_fr02_02 missing base unit blocks manual base price', () async {
       final gateway = _RecordingProductCommandGateway();
       final handler = SetManualBasePriceCommandHandler(
         commandGateway: gateway,
@@ -332,6 +338,32 @@ void main() {
         throwsA(isA<MissingBaseUnitException>()),
       );
       expect(gateway.lastPriceProfile, isNull);
+    });
+
+    test('scn_e06_u01_fr04_01 readiness clears missing_price after set', () async {
+      final gateway = _RecordingProductCommandGateway();
+      final handler = SetManualBasePriceCommandHandler(
+        commandGateway: gateway,
+        readinessReadPort: _FakeProductReadinessReadPort(
+          hasBaseUnit: true,
+          hasBasePrice: true,
+          hasStock: true,
+        ),
+        unitGateway: _RecordingCatalogUnitGateway(),
+      );
+
+      final result = await handler.handle(
+        SetManualBasePriceCommand(
+          tenantId: 'tenant-1',
+          productId: 'prod-1',
+          basePrice: 80000.0,
+        ),
+      );
+
+      expect(
+        result.readinessSummary.blockers.map((b) => b.code),
+        isNot(contains(ReadinessBlockerCode.missingPrice)),
+      );
     });
   });
 

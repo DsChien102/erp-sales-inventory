@@ -570,7 +570,7 @@ File: `apps/erp/test/features/catalog/presentation/pages/product_stock_e2e_test.
 
 ## EPIC-06 / US-01 — Manual base price (slice #9)
 
-**Status:** CONTRACT `done` · BE `todo` · FE `todo` · E2E `todo`
+**Status:** CONTRACT `done` · BE `done` · FE `todo` · E2E `todo`
 
 ### Commands / Queries
 
@@ -614,13 +614,23 @@ Read path (PCC): `GetProductControlCenterQuery` → `ProductBasePriceCardDto`.
 - Giá `>= 0` (giá `0` hợp lệ theo tenant policy Foundation MVP).
 - Port write: `IProductCommandGateway.setManualBasePrice` (existing).
 
-### RPC mapping (BE — later lane)
+### RPC mapping (BE)
 
 | Use case | RPC |
 | -------- | --- |
 | Set manual base price | `catalog.set_manual_base_price` |
 
-Draft: `supabase/migrations/_drafts/02_catalog_operational_data.sql`
+**Params:** `p_tenant_id uuid`, `p_product_id uuid`, `p_mode text` (`manual`), `p_base_price numeric`, `p_currency text` (default `VND`)
+
+**Permission:** `iam.has_permission(p_tenant_id, 'catalog.product.manage_pricing')`
+
+**Guards:** `_ensure_product_has_base_unit`; `not_manual_base_price_mode` if mode ≠ manual; negative price → `validation_exception`
+
+**Side effects:** upsert `catalog.product_base_price_profiles`; `product_change_history` action `set_manual_base_price`
+
+**Create product seed (FR-01):** `create_product` inserts default `product_base_price_profiles` row (`mode = manual`, `base_price_amount = null`)
+
+Draft: `supabase/migrations/_drafts/07_catalog_manual_base_price.sql`
 
 ### Fake scenarios (FE)
 

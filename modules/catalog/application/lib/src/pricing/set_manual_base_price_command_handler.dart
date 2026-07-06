@@ -39,6 +39,7 @@ final class SetManualBasePriceCommandHandler
       productId: command.productId,
       tenantId: command.tenantId,
       profile: profile,
+      currency: command.currency,
     );
 
     final facts = await _readinessReadPort.loadFacts(

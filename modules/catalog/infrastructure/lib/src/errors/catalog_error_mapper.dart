@@ -31,6 +31,10 @@ Object mapCatalogRpcError(RpcException error) {
     return NotBasicStockModeException();
   }
 
+  if (message.contains('not_manual_base_price_mode')) {
+    return NotManualBasePriceModeException();
+  }
+
   if (message.contains('stale_stock_quantity')) {
     return StaleStockQuantityException();
   }

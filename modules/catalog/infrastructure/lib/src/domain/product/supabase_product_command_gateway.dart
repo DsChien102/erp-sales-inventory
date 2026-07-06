@@ -63,6 +63,7 @@ final class SupabaseProductCommandGateway implements IProductCommandGateway {
     required String productId,
     required String tenantId,
     required ProductBasePriceProfile profile,
+    String currency = 'VND',
   }) async {
     try {
       await _rpcClient.callScalar<void>(
@@ -71,6 +72,7 @@ final class SupabaseProductCommandGateway implements IProductCommandGateway {
           productId: productId,
           tenantId: tenantId,
           profile: profile,
+          currency: currency,
         ),
       );
     } on RpcException catch (error) {

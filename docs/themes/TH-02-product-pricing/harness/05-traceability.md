@@ -201,10 +201,10 @@ Mở đầy đủ khi CONTRACT lane bắt đầu.
 | FR-02 | CONTRACT | §EPIC-06-US-01 | application | Manual base price command + gating | scn_contract_e06_u01_fr02_* | done |
 | FR-03 | CONTRACT | §EPIC-06-US-01 | application | Costing read gateway | — | **pending** (slice #23) |
 | FR-04 | CONTRACT | §EPIC-06-US-01 | application | Readiness refresh via result | scn_contract_e06_u01_fr04_01 | done |
-| FR-01 | BE | §EPIC-06-US-01 | application + infrastructure | `SetManualBasePriceCommandHandler`, gateway, draft RPC | scn_e06_u01_fr01_01 | todo |
-| FR-02 | BE | §EPIC-06-US-01 | application | Manual entry + base unit gating | scn_e06_u01_fr02_01 | todo |
+| FR-01 | BE | §EPIC-06-US-01 | application + infrastructure | `SetManualBasePriceCommandHandler`, gateway, draft RPC | scn_e06_u01_fr01_01 | done |
+| FR-02 | BE | §EPIC-06-US-01 | application | Manual entry + base unit gating | scn_e06_u01_fr02_01 | done |
 | FR-03 | BE | §EPIC-06-US-01 | application | Costing module read | — | **pending** |
-| FR-04 | BE | §EPIC-06-US-01 | application | Readiness refresh after set | scn_e06_u01_fr04_01 | todo |
+| FR-04 | BE | §EPIC-06-US-01 | application | Readiness refresh after set | scn_e06_u01_fr04_01 | done |
 | FR-01..04 | FE | §EPIC-06-US-01 | presentation | `apps/erp/lib/features/catalog/presentation/pages/product_manual_base_price_page.dart`, `apps/erp/lib/features/catalog/presentation/pages/product_control_center_page.dart`, `modules/catalog/presentation/lib/src/bloc/product_manual_base_price_cubit.dart` | wgt_e06_u01_fr01_01 | done |
 
 ---

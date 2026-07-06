@@ -72,13 +72,14 @@ abstract final class ProductRpcMapper {
     required String productId,
     required String tenantId,
     required ProductBasePriceProfile profile,
+    String currency = 'VND',
   }) {
     return <String, dynamic>{
       'p_tenant_id': tenantId,
       'p_product_id': productId,
       'p_mode': profile.mode.name,
       'p_base_price': profile.basePrice?.amount,
-      'p_currency': 'VND',
+      'p_currency': currency,
     };
   }
 
