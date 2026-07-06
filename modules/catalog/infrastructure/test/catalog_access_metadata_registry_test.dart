@@ -30,5 +30,32 @@ void main() {
       expect(metadata?.permission, CatalogPermissions.create);
       expect(metadata?.requiresTenant, isTrue);
     });
+
+    test('maps set initial stock command to manage_stock', () {
+      final metadata = catalogAccessMetadataRegistry.forType(
+        SetInitialStockCommand,
+      );
+
+      expect(metadata?.permission, CatalogPermissions.manageStock);
+      expect(metadata?.requiresTenant, isTrue);
+    });
+
+    test('maps set manual base price command to manage_pricing', () {
+      final metadata = catalogAccessMetadataRegistry.forType(
+        SetManualBasePriceCommand,
+      );
+
+      expect(metadata?.permission, CatalogPermissions.managePricing);
+      expect(metadata?.requiresTenant, isTrue);
+    });
+
+    test('maps set initial price band command to manage_pricing', () {
+      final metadata = catalogAccessMetadataRegistry.forType(
+        SetInitialPriceBandCommand,
+      );
+
+      expect(metadata?.permission, CatalogPermissions.managePricing);
+      expect(metadata?.requiresTenant, isTrue);
+    });
   });
 }

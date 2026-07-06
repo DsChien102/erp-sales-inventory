@@ -210,6 +210,50 @@ void main() {
 
       expect(matches, isEmpty);
     });
+
+    test('initial_stock_ok sets stock quantity without error', () async {
+      final module = FakeCatalogModule(
+        scenario: FakeCatalogScenario.initialStockOk,
+      );
+
+      await module.executeCommandAsync(
+        SetInitialStockCommand(
+          tenantId: 'tenant-1',
+          productId: 'product-1',
+          quantity: 200,
+        ),
+      );
+    });
+
+    test('manual_base_price_ok sets base cost without error', () async {
+      final module = FakeCatalogModule(
+        scenario: FakeCatalogScenario.manualBasePriceOk,
+      );
+
+      await module.executeCommandAsync(
+        SetManualBasePriceCommand(
+          tenantId: 'tenant-1',
+          productId: 'product-1',
+          basePrice: 90000.0,
+        ),
+      );
+    });
+
+    test('price_band_from_store_rule sets price band without error', () async {
+      final module = FakeCatalogModule(
+        scenario: FakeCatalogScenario.priceBandFromStoreRule,
+      );
+
+      await module.executeCommandAsync(
+        SetInitialPriceBandCommand(
+          tenantId: 'tenant-1',
+          productId: 'product-1',
+          listPrice: 150000.0,
+          floorPrice: 110000.0,
+          useStoreRule: true,
+        ),
+      );
+    });
   });
 
   group('CreateProductCommandValidator', () {

@@ -21,13 +21,19 @@ class ProductControlCenterPage extends StatelessWidget {
     final dynamicColors = context.vColors;
     final isReady = product.readinessStatus == ProductReadinessStatus.ready;
 
-    // Determine missing items for Slice 1
+    // Determine missing items for Slice 1 and Slice 2
     final missingList = <String>[];
     if (product.baseUnit == null || product.baseUnit!.trim().isEmpty) {
       missingList.add('Đơn vị cơ sở');
     }
     if (product.images == null || product.images!.isEmpty) {
       missingList.add('Ảnh sản phẩm');
+    }
+    if (product.stockQty == null) {
+      missingList.add('Tồn kho khởi tạo');
+    }
+    if (product.listPrice == null) {
+      missingList.add('Khung giá bán');
     }
 
     return Scaffold(
@@ -115,7 +121,9 @@ class ProductControlCenterPage extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Giá niêm yết: --',
+                            product.listPrice != null
+                                ? 'Giá niêm yết: ${_formatCurrency(product.listPrice)}'
+                                : 'Giá niêm yết: --',
                             style: VTypography.bodyDefault.copyWith(
                               color: dynamicColors.textPrimary,
                               fontWeight: FontWeight.w600,
@@ -123,7 +131,9 @@ class ProductControlCenterPage extends StatelessWidget {
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            'Tồn (${product.baseUnit ?? 'cơ sở'}): Chưa thiết lập',
+                            product.stockQty != null
+                                ? 'Tồn (${product.baseUnit ?? 'cơ sở'}): ${product.stockQty}'
+                                : 'Tồn (${product.baseUnit ?? 'cơ sở'}): Chưa thiết lập',
                             style: VTypography.bodySmall.copyWith(
                               color: dynamicColors.textSecondary,
                             ),
@@ -293,10 +303,92 @@ class ProductControlCenterPage extends StatelessWidget {
                 );
               },
             ),
+
+            _buildSectionCard(
+              context: context,
+              icon: Icons.inventory_2_outlined,
+              title: 'Tồn kho khởi tạo',
+              subtitle: product.stockQty != null
+                  ? 'Tồn kho: ${product.stockQty} ${product.baseUnit ?? ''}'
+                  : 'Chưa thiết lập tồn kho',
+              onEdit: () {
+                VToast.show(
+                  context,
+                  title: 'Chỉnh sửa',
+                  message: 'Chức năng sửa tồn kho sẽ khả dụng trong slice tiếp theo.',
+                  type: VToastType.info,
+                );
+              },
+            ),
+
+            _buildSectionCard(
+              context: context,
+              icon: Icons.payments_outlined,
+              title: 'Giá vốn cơ sở',
+              subtitle: product.baseCost != null
+                  ? 'Giá vốn: ${_formatCurrency(product.baseCost)}${product.baseUnit != null && product.baseUnit!.isNotEmpty ? ' (${product.baseUnit})' : ''}'
+                  : 'Chưa thiết lập giá vốn',
+              onEdit: () {
+                VToast.show(
+                  context,
+                  title: 'Chỉnh sửa',
+                  message: 'Chức năng sửa giá vốn sẽ khả dụng trong slice tiếp theo.',
+                  type: VToastType.info,
+                );
+              },
+            ),
+
+            _buildSectionCard(
+              context: context,
+              key: const Key('wgt_pcc_price_band_card'),
+              icon: Icons.local_offer_outlined,
+              title: 'Khung giá bán',
+              subtitle: _priceBandSubtitle(product),
+              onEdit: () {
+                VToast.show(
+                  context,
+                  title: 'Chỉnh sửa',
+                  message: 'Chức năng sửa khung giá bán sẽ khả dụng trong slice tiếp theo.',
+                  type: VToastType.info,
+                );
+              },
+            ),
           ],
         ),
       ),
     );
+  }
+
+  String _formatCurrency(double? value) {
+    if (value == null) return '--';
+    final intVal = value.round();
+    final buffer = StringBuffer();
+    final s = intVal.toString();
+    for (var i = 0; i < s.length; i++) {
+      if (i > 0 && (s.length - i) % 3 == 0) {
+        buffer.write('.');
+      }
+      buffer.write(s[i]);
+    }
+    return '${buffer.toString()} đ';
+  }
+
+  String _priceBandSubtitle(ProductListItemModel product) {
+    if (product.listPrice == null && product.floorPrice == null) {
+      return 'Chưa thiết lập khung giá bán';
+    }
+
+    final listPart = product.listPrice != null
+        ? 'Niêm yết: ${_formatCurrency(product.listPrice)}'
+        : 'Niêm yết: --';
+    final floorPart = product.floorPrice != null
+        ? 'Sàn: ${_formatCurrency(product.floorPrice)}'
+        : 'Sàn: --';
+    final unit = product.baseUnit?.trim();
+    final unitSuffix =
+        unit != null && unit.isNotEmpty ? ' · Đơn vị: $unit' : '';
+
+    return '$listPart · $floorPart$unitSuffix';
   }
 
   Widget _buildSectionCard({
@@ -305,9 +397,11 @@ class ProductControlCenterPage extends StatelessWidget {
     required String title,
     required String subtitle,
     required VoidCallback onEdit,
+    Key? key,
   }) {
     final dynamicColors = context.vColors;
     return Padding(
+      key: key,
       padding: const EdgeInsets.symmetric(
         horizontal: 16,
         vertical: 8,

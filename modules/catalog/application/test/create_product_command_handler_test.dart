@@ -19,6 +19,27 @@ class _RecordingProductCommandGateway implements IProductCommandGateway {
     lastIdempotencyKey = idempotencyKey;
     return 'product-registered-id';
   }
+
+  @override
+  Future<void> setInitialStock({
+    required String productId,
+    required String tenantId,
+    required ProductStockProfile profile,
+  }) async {}
+
+  @override
+  Future<void> setManualBasePrice({
+    required String productId,
+    required String tenantId,
+    required ProductBasePriceProfile profile,
+  }) async {}
+
+  @override
+  Future<void> setInitialPriceBand({
+    required String productId,
+    required String tenantId,
+    required ProductUnitPriceBand priceBand,
+  }) async {}
 }
 
 void main() {

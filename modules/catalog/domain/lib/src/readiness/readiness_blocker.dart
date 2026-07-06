@@ -31,6 +31,19 @@ final class ReadinessBlocker extends ValueObject {
         group: 'pricing',
       );
 
+  factory ReadinessBlocker.missingPriceBand() => const ReadinessBlocker(
+        code: ReadinessBlockerCode.missingPriceBand,
+        message: 'Thiếu khung giá bán',
+        group: 'pricing',
+      );
+
+  factory ReadinessBlocker.missingStock() => const ReadinessBlocker(
+        code: ReadinessBlockerCode.missingStock,
+        message: 'Chưa thiết lập tồn kho',
+        group: 'stock',
+      );
+
+
   @override
   List<Object?> get props => [code, message, group];
 }

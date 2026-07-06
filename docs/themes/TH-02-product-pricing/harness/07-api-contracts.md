@@ -72,6 +72,8 @@ Permissions: `@RequiresPermission(CatalogPermissions.create)` (`catalog.product.
 
 ## EPIC-02 / US-02 — Dữ liệu vận hành ban đầu (slice #2)
 
+**Status:** CONTRACT `done` · BE `todo`
+
 ### Commands / Queries
 
 | Symbol | Input (summary) | Success | Errors |

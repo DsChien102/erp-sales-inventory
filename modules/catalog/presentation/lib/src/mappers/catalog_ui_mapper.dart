@@ -6,17 +6,73 @@ import '../models/product_list_item_model.dart';
 import '../models/product_readiness_status.dart';
 
 class CatalogUiMapper {
+  static ({double? listPrice, double? floorPrice}) resolvePriceBand(
+    ProductGuidedCreateState state,
+  ) {
+    if (!state.priceBandConfigured) {
+      return (listPrice: null, floorPrice: null);
+    }
+
+    final baseCost = double.tryParse(state.baseCost.trim());
+
+    if (state.pricingMethod == 'manual') {
+      return (
+        listPrice: double.tryParse(state.manualListPrice.trim()),
+        floorPrice: double.tryParse(state.manualFloorPrice.trim()),
+      );
+    }
+
+    if (baseCost == null) {
+      return (listPrice: null, floorPrice: null);
+    }
+
+    if (state.pricingMethod == 'storeRule') {
+      return (
+        listPrice: baseCost * 1.35,
+        floorPrice: baseCost * 1.15,
+      );
+    }
+
+    if (state.pricingMethod == 'customAuto' || state.pricingMethod == 'auto') {
+      final markup = double.tryParse(state.customAutoMarkup.trim()) ?? 35.0;
+      final floorMarkup = double.tryParse(state.customAutoFloorMarkup.trim()) ?? 15.0;
+      return (
+        listPrice: baseCost * (1 + markup / 100),
+        floorPrice: baseCost * (1 + floorMarkup / 100),
+      );
+    }
+
+    return (listPrice: null, floorPrice: null);
+  }
+
   static ProductListItemModel toListItemModelFromCreate({
     required ProductGuidedCreateState state,
     required String productId,
     required ReadinessSummaryDto readinessSummary,
   }) {
-    final readiness = _readinessFromSummary(readinessSummary, state.baseUnit);
     final coverDraft = state.imageDrafts.isNotEmpty
         ? state.imageDrafts[
             state.coverImageIndex.clamp(0, state.imageDrafts.length - 1)]
         : null;
     final coverPath = coverDraft?.localPath;
+
+    final stockQty = int.tryParse(state.initialStock.trim());
+    final baseCost = double.tryParse(state.baseCost.trim());
+
+    final priceBand = resolvePriceBand(state);
+    final listPrice = priceBand.listPrice;
+    final floorPrice = priceBand.floorPrice;
+
+    ProductReadinessStatus readiness;
+    if (state.baseUnit.trim().isEmpty) {
+      readiness = ProductReadinessStatus.missingBaseUnit;
+    } else if (stockQty == null) {
+      readiness = ProductReadinessStatus.missingStockSource;
+    } else if (listPrice == null || floorPrice == null) {
+      readiness = ProductReadinessStatus.missingPriceBand;
+    } else {
+      readiness = ProductReadinessStatus.ready;
+    }
 
     return ProductListItemModel(
       id: productId,
@@ -29,6 +85,10 @@ class CatalogUiMapper {
       readinessStatus: readiness,
       baseUnit: state.baseUnit.isNotEmpty ? state.baseUnit : null,
       images: state.imageDrafts.map((d) => d.localPath).toList(),
+      stockQty: stockQty,
+      baseCost: baseCost,
+      listPrice: listPrice,
+      floorPrice: floorPrice,
     );
   }
 

@@ -17,6 +17,15 @@ void registerGeneratedCatalogValidators(GetIt container) {
     ..registerFactory<ICommandValidator<RequestProductImageUploadCommand>>(
       RequestProductImageUploadCommandValidator.new,
     )
+    ..registerFactory<ICommandValidator<SetInitialPriceBandCommand>>(
+      SetInitialPriceBandCommandValidator.new,
+    )
+    ..registerFactory<ICommandValidator<SetInitialStockCommand>>(
+      SetInitialStockCommandValidator.new,
+    )
+    ..registerFactory<ICommandValidator<SetManualBasePriceCommand>>(
+      SetManualBasePriceCommandValidator.new,
+    )
     ;
 }
 
@@ -43,6 +52,33 @@ void registerGeneratedCatalogHandlers({
     logger: logger,
     factory: () => RequestProductImageUploadCommandHandler(
       uploadPort: container.get<IProductImageUploadPort>(),
+    ),
+  );
+
+  CatalogCommandRegistration.registerBusinessHandler<SetInitialPriceBandCommand, void, SetInitialPriceBandCommandHandler>(
+    container: container,
+    bus: bus,
+    logger: logger,
+    factory: () => SetInitialPriceBandCommandHandler(
+      commandGateway: container.get<IProductCommandGateway>(),
+    ),
+  );
+
+  CatalogCommandRegistration.registerBusinessHandler<SetInitialStockCommand, void, SetInitialStockCommandHandler>(
+    container: container,
+    bus: bus,
+    logger: logger,
+    factory: () => SetInitialStockCommandHandler(
+      commandGateway: container.get<IProductCommandGateway>(),
+    ),
+  );
+
+  CatalogCommandRegistration.registerBusinessHandler<SetManualBasePriceCommand, void, SetManualBasePriceCommandHandler>(
+    container: container,
+    bus: bus,
+    logger: logger,
+    factory: () => SetManualBasePriceCommandHandler(
+      commandGateway: container.get<IProductCommandGateway>(),
     ),
   );
 

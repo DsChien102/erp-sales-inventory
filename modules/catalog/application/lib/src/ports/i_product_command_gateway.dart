@@ -5,4 +5,22 @@ abstract interface class IProductCommandGateway {
     required Product product,
     required String idempotencyKey,
   });
+
+  Future<void> setInitialStock({
+    required String productId,
+    required String tenantId,
+    required ProductStockProfile profile,
+  });
+
+  Future<void> setManualBasePrice({
+    required String productId,
+    required String tenantId,
+    required ProductBasePriceProfile profile,
+  });
+
+  Future<void> setInitialPriceBand({
+    required String productId,
+    required String tenantId,
+    required ProductUnitPriceBand priceBand,
+  });
 }
