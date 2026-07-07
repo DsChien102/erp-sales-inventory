@@ -675,6 +675,11 @@ final class FakeCatalogModule implements ICatalogModule {
       _customFieldStore.reorderFields(command as ReorderCustomFieldsCommand);
       return null as TResult;
     }
+    if (command is UpsertCustomFieldValuesCommand) {
+      return _handleUpsertCustomFieldValues<TResult>(
+        command as UpsertCustomFieldValuesCommand,
+      );
+    }
     throw UnimplementedError('Unexpected command: ${command.runtimeType}');
   }
 
@@ -743,7 +748,35 @@ final class FakeCatalogModule implements ICatalogModule {
           )
           as TResult;
     }
+    if (query is GetProductCustomFieldValuesQuery) {
+      final customFieldQuery = query as GetProductCustomFieldValuesQuery;
+      return _customFieldStore.getValues(
+            tenantId: customFieldQuery.tenantId,
+            productId: customFieldQuery.productId,
+            includeInactiveValues: customFieldQuery.includeInactiveValues,
+          )
+          as TResult;
+    }
     throw UnimplementedError('Unexpected query: ${query.runtimeType}');
+  }
+
+  TResult _handleUpsertCustomFieldValues<TResult>(
+    UpsertCustomFieldValuesCommand command,
+  ) {
+    final product = _findProduct(command.productId);
+    if (product == null) {
+      throw ApplicationException('Product not found');
+    }
+    _customFieldStore.upsertValues(command);
+    return UpsertCustomFieldValuesResult(
+          productId: product.id,
+          values: _customFieldStore.getValues(
+            tenantId: command.tenantId,
+            productId: product.id,
+          ),
+          readinessSummary: _readinessSummaryFor(product),
+        )
+        as TResult;
   }
 
   TResult _handleRequestMaintenanceUpload<TResult>(
@@ -1540,10 +1573,13 @@ final class FakeCatalogModule implements ICatalogModule {
   }
 
   ProductControlCenterDto _toControlCenterDto(_StoredProduct product) {
+    final configuredCustomFieldCards = _customFieldStore.toActiveGroupCards(
+      productId: product.id,
+    );
     final customFieldCards = switch (scenario) {
       FakeCatalogScenario.pccCustomFieldCards => () {
-        if (_customFieldStore.toActiveGroupCards().isNotEmpty) {
-          return _customFieldStore.toActiveGroupCards();
+        if (configuredCustomFieldCards.isNotEmpty) {
+          return configuredCustomFieldCards;
         }
         return [
           const CustomFieldGroupCardDto(
@@ -1563,7 +1599,7 @@ final class FakeCatalogModule implements ICatalogModule {
           ),
         ];
       }(),
-      _ => const <CustomFieldGroupCardDto>[],
+      _ => configuredCustomFieldCards,
     };
 
     final history = [
@@ -1597,7 +1633,7 @@ final class FakeCatalogModule implements ICatalogModule {
       priceBandSourceType: product.priceBandSourceType,
       storePriceRuleName: product.storePriceRuleName,
       isCustomOverride: product.isCustomOverride,
-      hasRequiredCustomFields: product.hasRequiredCustomFields,
+      hasRequiredCustomFields: _productHasRequiredCustomFields(product),
       stockMode: product.stockMode,
       basePriceMode: product.basePriceMode,
       pricePermissionDenied: product.pricePermissionDenied,
@@ -1689,7 +1725,7 @@ final class FakeCatalogModule implements ICatalogModule {
       hasStock: product.hasStock,
       hasBasePrice: product.hasBasePrice,
       hasPriceBand: _productHasPriceBand(product),
-      hasRequiredCustomFields: product.hasRequiredCustomFields,
+      hasRequiredCustomFields: _productHasRequiredCustomFields(product),
       stockMode: product.stockMode,
       basePriceMode: product.basePriceMode,
     );
@@ -1704,6 +1740,10 @@ final class FakeCatalogModule implements ICatalogModule {
     return null;
   }
 
+  bool _productHasRequiredCustomFields(_StoredProduct product) {
+    return product.hasRequiredCustomFields && _customFieldStore.hasRequiredValues(product.id);
+  }
+
   ProductReadinessViewDto _buildReadinessView(_StoredProduct product) {
     return FakeProductReadinessBuilder.build(
       productId: product.id,
@@ -1713,7 +1753,7 @@ final class FakeCatalogModule implements ICatalogModule {
       hasStock: product.hasStock,
       hasBasePrice: product.hasBasePrice,
       hasPriceBand: _productHasPriceBand(product),
-      hasRequiredCustomFields: product.hasRequiredCustomFields,
+      hasRequiredCustomFields: _productHasRequiredCustomFields(product),
       stockMode: product.stockMode,
       basePriceMode: product.basePriceMode,
       pricePermissionDenied: product.pricePermissionDenied,

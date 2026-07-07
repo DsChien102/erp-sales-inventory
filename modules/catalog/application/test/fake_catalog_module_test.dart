@@ -1339,6 +1339,252 @@ void main() {
     });
   });
 
+  group('EPIC-03 / US-02 custom field values contract', () {
+    Future<({String groupId, String textFieldId, String numberFieldId})>
+    seedCustomFieldValuesConfig(FakeCatalogModule module) async {
+      final group = await module.executeCommandAsync(
+        UpsertCustomFieldGroupCommand(
+          tenantId: 'tenant-1',
+          name: 'Thông tin thuốc',
+          iconKey: 'medication',
+        ),
+      );
+      final textField = await module.executeCommandAsync(
+        UpsertCustomFieldCommand(
+          tenantId: 'tenant-1',
+          groupId: group.groupId,
+          name: 'Thành phần',
+          fieldType: CustomFieldType.text,
+        ),
+      );
+      final numberField = await module.executeCommandAsync(
+        UpsertCustomFieldCommand(
+          tenantId: 'tenant-1',
+          groupId: group.groupId,
+          name: 'Thời gian ngưng sử dụng',
+          fieldType: CustomFieldType.number,
+        ),
+      );
+      return (
+        groupId: group.groupId,
+        textFieldId: textField.fieldId,
+        numberFieldId: numberField.fieldId,
+      );
+    }
+
+    test('scn_contract_e03_u02_fr01_01 renders active groups and fields sorted', () async {
+      final module = FakeCatalogModule(
+        scenario: FakeCatalogScenario.scnContractE03U02Fr01_01,
+      );
+
+      await module.executeCommandAsync(
+        InitializeCustomFieldTemplateCommand(tenantId: 'tenant-1'),
+      );
+
+      final values = await module.executeQueryAsync(
+        GetProductCustomFieldValuesQuery(
+          tenantId: 'tenant-1',
+          productId: 'product-1',
+        ),
+      );
+
+      expect(values.productId, 'product-1');
+      expect(values.groups.map((group) => group.name), [
+        'Thông tin thuốc',
+        'Quy cách & bảo quản',
+      ]);
+      expect(values.groups.first.fields.map((field) => field.name), [
+        'Thành phần',
+        'Chỉ định',
+      ]);
+    });
+
+    test('scn_contract_e03_u02_fr02_01 saves text value and shows it on PCC', () async {
+      final module = FakeCatalogModule(
+        scenario: FakeCatalogScenario.scnContractE03U02Fr02_01,
+      );
+      final config = await seedCustomFieldValuesConfig(module);
+
+      final result = await module.executeCommandAsync(
+        UpsertCustomFieldValuesCommand(
+          tenantId: 'tenant-1',
+          productId: 'product-1',
+          values: [
+            ProductCustomFieldValueInput(
+              fieldId: config.textFieldId,
+              textValue: 'Vitamin A, D, E',
+            ),
+          ],
+        ),
+      );
+
+      expect(result.productId, 'product-1');
+      expect(result.values.groups.single.fields.first.displayValue, 'Vitamin A, D, E');
+
+      final pcc = await module.executeQueryAsync(
+        GetProductControlCenterQuery(
+          tenantId: 'tenant-1',
+          productId: 'product-1',
+        ),
+      );
+      expect(pcc.customFieldGroupCards.single.name, 'Thông tin thuốc');
+      expect(pcc.customFieldGroupCards.single.fields.first.displayValue, 'Vitamin A, D, E');
+    });
+
+    test('scn_contract_e03_u02_fr02_02 rejects invalid typed values', () async {
+      final module = FakeCatalogModule(
+        scenario: FakeCatalogScenario.scnContractE03U02Fr02_02,
+      );
+      final config = await seedCustomFieldValuesConfig(module);
+
+      await expectLater(
+        module.executeCommandAsync(
+          UpsertCustomFieldValuesCommand(
+            tenantId: 'tenant-1',
+            productId: 'product-1',
+            values: [
+              ProductCustomFieldValueInput(
+                fieldId: config.numberFieldId,
+                textValue: 'bảy ngày',
+              ),
+            ],
+          ),
+        ),
+        throwsA(
+          isA<CustomFieldValueValidationException>().having(
+            (e) => e.errors.single.fieldId,
+            'fieldId',
+            config.numberFieldId,
+          ),
+        ),
+      );
+    });
+
+    test('scn_contract_e03_u02_fr03_01 reports missing required field at field level', () async {
+      final module = FakeCatalogModule(
+        scenario: FakeCatalogScenario.scnContractE03U02Fr03_01,
+      );
+      final config = await seedCustomFieldValuesConfig(module);
+
+      await module.executeCommandAsync(
+        ConfigureCustomFieldAttributesCommand(
+          tenantId: 'tenant-1',
+          fieldId: config.textFieldId,
+          isRequired: true,
+          isSearchable: false,
+          isFilterable: false,
+          displayOnList: false,
+        ),
+      );
+
+      await expectLater(
+        module.executeCommandAsync(
+          UpsertCustomFieldValuesCommand(
+            tenantId: 'tenant-1',
+            productId: 'product-1',
+            values: const [],
+          ),
+        ),
+        throwsA(
+          isA<CustomFieldValueValidationException>().having(
+            (e) => e.errors.single.message,
+            'message',
+            'Vui lòng nhập Thành phần',
+          ),
+        ),
+      );
+    });
+
+    test('scn_contract_e03_u02_fr03_02 filling required field clears readiness blocker', () async {
+      final module = FakeCatalogModule(
+        scenario: FakeCatalogScenario.scnContractE03U02Fr03_02,
+      );
+      final config = await seedCustomFieldValuesConfig(module);
+
+      await module.executeCommandAsync(
+        ConfigureCustomFieldAttributesCommand(
+          tenantId: 'tenant-1',
+          fieldId: config.textFieldId,
+          isRequired: true,
+          isSearchable: false,
+          isFilterable: false,
+          displayOnList: false,
+        ),
+      );
+
+      final result = await module.executeCommandAsync(
+        UpsertCustomFieldValuesCommand(
+          tenantId: 'tenant-1',
+          productId: 'product-1',
+          values: [
+            ProductCustomFieldValueInput(
+              fieldId: config.textFieldId,
+              textValue: 'Vitamin A, D, E',
+            ),
+          ],
+        ),
+      );
+
+      expect(
+        result.readinessSummary.blockers.map((blocker) => blocker.code),
+        isNot(contains(ReadinessBlockerCode.missingRequiredCustomFields)),
+      );
+    });
+
+    test('scn_contract_e03_u02_fr04_01 preserves inactive field values', () async {
+      final module = FakeCatalogModule(
+        scenario: FakeCatalogScenario.scnContractE03U02Fr04_01,
+      );
+      final config = await seedCustomFieldValuesConfig(module);
+
+      await module.executeCommandAsync(
+        UpsertCustomFieldValuesCommand(
+          tenantId: 'tenant-1',
+          productId: 'product-1',
+          values: [
+            ProductCustomFieldValueInput(
+              fieldId: config.textFieldId,
+              textValue: 'Dữ liệu cũ',
+            ),
+          ],
+        ),
+      );
+      await module.executeCommandAsync(
+        UpsertCustomFieldCommand(
+          tenantId: 'tenant-1',
+          groupId: config.groupId,
+          fieldId: config.textFieldId,
+          name: 'Thành phần',
+          fieldType: CustomFieldType.text,
+          isActive: false,
+        ),
+      );
+
+      final activeOnly = await module.executeQueryAsync(
+        GetProductCustomFieldValuesQuery(
+          tenantId: 'tenant-1',
+          productId: 'product-1',
+        ),
+      );
+      expect(
+        activeOnly.groups.single.fields.map((field) => field.fieldId),
+        isNot(contains(config.textFieldId)),
+      );
+
+      final withInactive = await module.executeQueryAsync(
+        GetProductCustomFieldValuesQuery(
+          tenantId: 'tenant-1',
+          productId: 'product-1',
+          includeInactiveValues: true,
+        ),
+      );
+      final preserved = withInactive.groups.single.fields.firstWhere(
+        (field) => field.fieldId == config.textFieldId,
+      );
+      expect(preserved.displayValue, 'Dữ liệu cũ');
+    });
+  });
+
   group('CreateProductCommandValidator', () {
     final validator = CreateProductCommandValidator();
 
