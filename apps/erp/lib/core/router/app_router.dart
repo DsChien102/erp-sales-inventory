@@ -4,7 +4,6 @@ import 'package:go_router/go_router.dart';
 import 'package:vet45_iam_infrastructure/infrastructure.dart';
 import 'package:vet45_iam_application/application.dart';
 import 'package:vet45_shared_application/application.dart';
-import 'package:go_router/go_router.dart';
 import 'package:vet45_catalog_presentation/presentation.dart';
 
 import '../../features/more/presentation/pages/system_settings_page.dart';
@@ -31,6 +30,11 @@ import '../../features/catalog/presentation/pages/product_price_bands_page.dart'
 import '../../features/catalog/presentation/pages/edit_product_unit_price_band_page.dart';
 import '../../features/catalog/presentation/pages/product_profile_maintenance_page.dart';
 import '../../features/catalog/presentation/pages/product_images_maintenance_page.dart';
+import '../../features/catalog/presentation/pages/settings/product_settings_page.dart';
+import '../../features/catalog/presentation/pages/settings/custom_field_groups_page.dart';
+import '../../features/catalog/presentation/pages/settings/upsert_custom_field_group_page.dart';
+import '../../features/catalog/presentation/pages/settings/custom_field_group_detail_page.dart';
+import '../../features/catalog/presentation/pages/settings/upsert_custom_field_page.dart';
 import '../di/injection.dart';
 
 final appRouter = GoRouter(
@@ -300,6 +304,65 @@ final appRouter = GoRouter(
           partnerId: partner.id,
           initialPartner: partner,
         );
+      },
+    ),
+    GoRoute(
+      path: '/more/product-settings',
+      name: 'more.product-settings',
+      builder: (context, state) {
+        // We will just let anyone with view permission access the settings and do checking later, or use manage permission.
+        return const ProductSettingsPage();
+      },
+    ),
+    GoRoute(
+      path: '/more/product-settings/custom-fields',
+      name: 'more.product-settings.custom-fields',
+      builder: (context, state) => const CustomFieldGroupsPage(),
+    ),
+    GoRoute(
+      path: '/more/product-settings/custom-fields/upsert-group',
+      name: 'more.product-settings.custom-fields.upsert-group',
+      builder: (context, state) {
+        final cubit = state.extra as CustomFieldConfigCubit?;
+        if (cubit == null) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (context.mounted) context.go('/more/product-settings/custom-fields');
+          });
+          return const Scaffold(body: Center(child: CircularProgressIndicator()));
+        }
+        final groupId = state.uri.queryParameters['groupId'];
+        return UpsertCustomFieldGroupPage(cubit: cubit, initialGroupId: groupId);
+      },
+    ),
+    GoRoute(
+      path: '/more/product-settings/custom-fields/:groupId',
+      name: 'more.product-settings.custom-fields.detail',
+      builder: (context, state) {
+        final groupId = state.pathParameters['groupId']!;
+        final cubit = state.extra as CustomFieldConfigCubit?;
+        if (cubit == null) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (context.mounted) context.go('/more/product-settings/custom-fields');
+          });
+          return const Scaffold(body: Center(child: CircularProgressIndicator()));
+        }
+        return CustomFieldGroupDetailPage(groupId: groupId, cubit: cubit);
+      },
+    ),
+    GoRoute(
+      path: '/more/product-settings/custom-fields/:groupId/upsert-field',
+      name: 'more.product-settings.custom-fields.upsert-field',
+      builder: (context, state) {
+        final groupId = state.pathParameters['groupId']!;
+        final cubit = state.extra as CustomFieldConfigCubit?;
+        if (cubit == null) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (context.mounted) context.go('/more/product-settings/custom-fields');
+          });
+          return const Scaffold(body: Center(child: CircularProgressIndicator()));
+        }
+        final fieldId = state.uri.queryParameters['fieldId'];
+        return UpsertCustomFieldPage(groupId: groupId, cubit: cubit, initialFieldId: fieldId);
       },
     ),
   ],

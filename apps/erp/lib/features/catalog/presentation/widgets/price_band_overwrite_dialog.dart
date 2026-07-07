@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:vet45_design_system/design_system.dart';
 
 import 'product_control_center_formatters.dart';
 

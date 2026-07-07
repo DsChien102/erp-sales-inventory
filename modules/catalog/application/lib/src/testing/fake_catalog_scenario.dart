@@ -31,6 +31,7 @@ abstract final class FakeCatalogScenario {
   static const pccReadyToSell = 'pcc_ready_to_sell';
   static const pccInactive = 'pcc_inactive';
   static const pccCustomFieldCards = 'pcc_custom_field_cards';
+  static const pccProfileMaintenanceImages = 'pcc_profile_maintenance_images';
 
   static const listTenantUnits = 'list_tenant_units';
   static const setBaseUnitExisting = 'set_base_unit_existing';
@@ -79,6 +80,37 @@ abstract final class FakeCatalogScenario {
   static const scnContractE06U03Fr02_03 = 'scn_contract_e06_u03_fr02_03';
   static const scnContractE06U03Fr03_01 = 'scn_contract_e06_u03_fr03_01';
   static const scnContractE06U03Fr03_02 = 'scn_contract_e06_u03_fr03_02';
+
+  static const scnContractE07U01Fr01_01 = 'scn_contract_e07_u01_fr01_01';
+  static const scnContractE07U01Fr01_02 = 'scn_contract_e07_u01_fr01_02';
+  static const scnContractE07U01Fr01_03 = 'scn_contract_e07_u01_fr01_03';
+  static const scnContractE07U01Fr01_04 = 'scn_contract_e07_u01_fr01_04';
+  static const scnContractE07U01Fr01_05 = 'scn_contract_e07_u01_fr01_05';
+  static const scnContractE07U01Fr02_01 = 'scn_contract_e07_u01_fr02_01';
+  static const scnContractE07U01Fr02_02 = 'scn_contract_e07_u01_fr02_02';
+  static const scnContractE07U01Fr02_03 = 'scn_contract_e07_u01_fr02_03';
+  static const scnContractE07U01Fr02_04 = 'scn_contract_e07_u01_fr02_04';
+  static const scnContractE07U01Fr03_01 = 'scn_contract_e07_u01_fr03_01';
+  static const scnContractE07U01Fr04_01 = 'scn_contract_e07_u01_fr04_01';
+  static const scnContractE07U02Fr01_01 = 'scn_contract_e07_u02_fr01_01';
+  static const scnContractE07U02Fr01_02 = 'scn_contract_e07_u02_fr01_02';
+  static const scnContractE07U02Fr01_03 = 'scn_contract_e07_u02_fr01_03';
+  static const scnContractE07U02Fr01_04 = 'scn_contract_e07_u02_fr01_04';
+  static const scnContractE07U02Fr02_01 = 'scn_contract_e07_u02_fr02_01';
+  static const scnContractE07U02Fr02_02 = 'scn_contract_e07_u02_fr02_02';
+  static const scnContractE07U02Fr02_03 = 'scn_contract_e07_u02_fr02_03';
+  static const scnContractE07U02Fr03_01 = 'scn_contract_e07_u02_fr03_01';
+  static const scnContractE07U02Fr04_01 = 'scn_contract_e07_u02_fr04_01';
+  static const scnContractE07U03Fr01_01 = 'scn_contract_e07_u03_fr01_01';
+  static const scnContractE07U03Fr01_02 = 'scn_contract_e07_u03_fr01_02';
+  static const scnContractE07U03Fr01_03 = 'scn_contract_e07_u03_fr01_03';
+  static const scnContractE07U03Fr02_01 = 'scn_contract_e07_u03_fr02_01';
+  static const scnContractE07U03Fr02_02 = 'scn_contract_e07_u03_fr02_02';
+  static const scnContractE07U03Fr02_03 = 'scn_contract_e07_u03_fr02_03';
+  static const scnContractE07U03Fr03_01 = 'scn_contract_e07_u03_fr03_01';
+  static const scnContractE07U03Fr03_02 = 'scn_contract_e07_u03_fr03_02';
+  static const scnContractE07U03Fr03_03 = 'scn_contract_e07_u03_fr03_03';
+  static const scnContractE07U03Fr04_01 = 'scn_contract_e07_u03_fr04_01';
 
   static const cfTemplateSeedOk = 'cf_template_seed_ok';
   static const cfTemplateReinitNoOverwrite = 'cf_template_reinit_no_overwrite';

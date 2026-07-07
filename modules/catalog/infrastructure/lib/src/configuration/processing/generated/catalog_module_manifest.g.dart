@@ -29,6 +29,7 @@ final catalogModuleManifest = GeneratedModuleManifest(
     DeactivateProductCommand,
     DeactivateProductConversionUnitCommand,
     DeleteProductCommand,
+    InitializeCustomFieldTemplateCommand,
     ReactivateProductCommand,
     ReactivateProductConversionUnitCommand,
     ReorderCustomFieldGroupsCommand,
@@ -44,6 +45,8 @@ final catalogModuleManifest = GeneratedModuleManifest(
     SetStorePriceRuleCommand,
     UpdateProductImagesCommand,
     UpdateProductProfileCommand,
+    UpsertCustomFieldCommand,
+    UpsertCustomFieldGroupCommand,
   ],
   queryTypes: [
     CheckDuplicateMeasurementUnitNameQuery,
@@ -62,3 +65,4 @@ final catalogModuleManifest = GeneratedModuleManifest(
     SuggestProductUnitPriceQuery,
   ],
 );
+

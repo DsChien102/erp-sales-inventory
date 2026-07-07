@@ -114,7 +114,7 @@ Early: `readinessSummary` trên PCC (không thay FR-04 checklist đầy đủ).
 | FR-04 | BE | §EPIC-03-US-01 | application | Upsert field handler + gateway | scn_e03_u01_fr04_01 | done |
 | FR-05 | BE | §EPIC-03-US-01 | application | Configure attributes handler + gateway | scn_e03_u01_fr05_01 | done |
 | FR-06 | BE | §EPIC-03-US-01 | application | Reorder fields handler + gateway | scn_e03_u01_fr06_01 | done |
-| FR-01..06 | FE | §EPIC-03-US-01 | presentation | Admin cấu hình nhóm & trường | wgt_e03_u01_fr01_01 | todo |
+| FR-01..06 | FE | §EPIC-03-US-01 | presentation | `custom_field_groups_page.dart`, `upsert_custom_field_group_page.dart`, `custom_field_group_detail_page.dart`, `upsert_custom_field_page.dart`, `custom_field_config_cubit.dart` | wgt_e03_u01_fr01_01 | done |
 
 ---
 

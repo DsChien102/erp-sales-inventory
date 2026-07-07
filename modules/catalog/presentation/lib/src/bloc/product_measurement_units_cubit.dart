@@ -7,18 +7,20 @@ class ProductMeasurementUnitsCubit extends Cubit<ProductMeasurementUnitsState> {
   ProductMeasurementUnitsCubit({
     required ICatalogModule catalogModule,
     required IExecutionContext executionContext,
-  })  : _catalogModule = catalogModule,
-        _executionContext = executionContext,
-        super(const ProductMeasurementUnitsState());
+  }) : _catalogModule = catalogModule,
+       _executionContext = executionContext,
+       super(const ProductMeasurementUnitsState());
 
   final ICatalogModule _catalogModule;
   final IExecutionContext _executionContext;
 
   void init(String productId, String? initialBaseUnitName) {
-    emit(state.copyWith(
-      productId: productId,
-      baseUnitName: initialBaseUnitName,
-    ));
+    emit(
+      state.copyWith(
+        productId: productId,
+        baseUnitName: initialBaseUnitName,
+      ),
+    );
     loadTenantUnits();
     loadProductUnits();
   }
@@ -33,15 +35,19 @@ class ProductMeasurementUnitsCubit extends Cubit<ProductMeasurementUnitsState> {
         limit: 50,
       );
       final units = await _catalogModule.executeQueryAsync(query);
-      emit(state.copyWith(
-        status: ProductMeasurementUnitsStatus.success,
-        tenantUnits: units,
-      ));
+      emit(
+        state.copyWith(
+          status: ProductMeasurementUnitsStatus.success,
+          tenantUnits: units,
+        ),
+      );
     } catch (e) {
-      emit(state.copyWith(
-        status: ProductMeasurementUnitsStatus.failure,
-        errorMessage: e.toString(),
-      ));
+      emit(
+        state.copyWith(
+          status: ProductMeasurementUnitsStatus.failure,
+          errorMessage: e.toString(),
+        ),
+      );
     }
   }
 
@@ -54,10 +60,12 @@ class ProductMeasurementUnitsCubit extends Cubit<ProductMeasurementUnitsState> {
         includeInactive: true,
       );
       final productUnits = await _catalogModule.executeQueryAsync(query);
-      emit(state.copyWith(
-        productUnits: productUnits,
-        baseUnitName: productUnits.baseUnitName ?? state.baseUnitName,
-      ));
+      emit(
+        state.copyWith(
+          productUnits: productUnits,
+          baseUnitName: productUnits.baseUnitName,
+        ),
+      );
     } catch (e) {
       // It's okay if it fails (e.g., not found), we just don't have units yet.
       // Or we can log the error.
@@ -82,18 +90,22 @@ class ProductMeasurementUnitsCubit extends Cubit<ProductMeasurementUnitsState> {
         selection: selection,
       );
       await _catalogModule.executeCommandAsync(command);
-      emit(state.copyWith(
-        saveStatus: ProductMeasurementUnitsStatus.success,
-        baseUnitName: displayUnitName,
-      ));
+      emit(
+        state.copyWith(
+          saveStatus: ProductMeasurementUnitsStatus.success,
+          baseUnitName: displayUnitName,
+        ),
+      );
       // Reload units just in case a new unit was added
       loadTenantUnits();
       loadProductUnits();
     } catch (e) {
-      emit(state.copyWith(
-        saveStatus: ProductMeasurementUnitsStatus.failure,
-        errorMessage: e.toString(),
-      ));
+      emit(
+        state.copyWith(
+          saveStatus: ProductMeasurementUnitsStatus.failure,
+          errorMessage: e.toString(),
+        ),
+      );
     }
   }
 
@@ -111,10 +123,12 @@ class ProductMeasurementUnitsCubit extends Cubit<ProductMeasurementUnitsState> {
       emit(state.copyWith(unitMutationStatus: ProductMeasurementUnitsStatus.success));
       await loadProductUnits();
     } catch (e) {
-      emit(state.copyWith(
-        unitMutationStatus: ProductMeasurementUnitsStatus.failure,
-        errorMessage: e.toString(),
-      ));
+      emit(
+        state.copyWith(
+          unitMutationStatus: ProductMeasurementUnitsStatus.failure,
+          errorMessage: e.toString(),
+        ),
+      );
     }
   }
 
@@ -131,10 +145,12 @@ class ProductMeasurementUnitsCubit extends Cubit<ProductMeasurementUnitsState> {
       emit(state.copyWith(unitMutationStatus: ProductMeasurementUnitsStatus.success));
       await loadProductUnits();
     } catch (e) {
-      emit(state.copyWith(
-        unitMutationStatus: ProductMeasurementUnitsStatus.failure,
-        errorMessage: e.toString(),
-      ));
+      emit(
+        state.copyWith(
+          unitMutationStatus: ProductMeasurementUnitsStatus.failure,
+          errorMessage: e.toString(),
+        ),
+      );
     }
   }
 
@@ -151,10 +167,12 @@ class ProductMeasurementUnitsCubit extends Cubit<ProductMeasurementUnitsState> {
       emit(state.copyWith(unitMutationStatus: ProductMeasurementUnitsStatus.success));
       await loadProductUnits();
     } catch (e) {
-      emit(state.copyWith(
-        unitMutationStatus: ProductMeasurementUnitsStatus.failure,
-        errorMessage: e.toString(),
-      ));
+      emit(
+        state.copyWith(
+          unitMutationStatus: ProductMeasurementUnitsStatus.failure,
+          errorMessage: e.toString(),
+        ),
+      );
     }
   }
 }

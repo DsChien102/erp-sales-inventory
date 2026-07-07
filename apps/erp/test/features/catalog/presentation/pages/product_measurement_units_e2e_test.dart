@@ -7,7 +7,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:vet45_catalog_application/testing.dart';
 import 'package:vet45_catalog_presentation/presentation.dart';
-import 'package:vet45_shared_testing/shared_testing.dart';
 
 import '../../catalog_e2e_harness.dart';
 
@@ -52,7 +51,10 @@ void main() {
           path: '/products/items/pcc/checklist',
           builder: (context, state) {
             final args = state.extra as ProductReadinessChecklistRouteArgs;
-            return ProductReadinessChecklistPage(readinessView: args.readinessView, product: args.product);
+            return ProductReadinessChecklistPage(
+              readinessView: args.readinessView,
+              product: args.product,
+            );
           },
         ),
         GoRoute(
@@ -87,7 +89,7 @@ void main() {
 
     // Now in Measurement Units Page
     expect(find.text('ĐƠN VỊ CƠ SỞ'), findsOneWidget);
-    
+
     // Tap the outline button to add a new unit
     expect(find.text('Thiết lập đơn vị cơ sở'), findsOneWidget);
     await tester.tap(find.text('Thiết lập đơn vị cơ sở'));
