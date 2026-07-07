@@ -127,11 +127,13 @@ class ProductCustomFieldGroupEditCubit extends Cubit<ProductCustomFieldGroupEdit
       await _catalogModule.executeCommandAsync<UpsertCustomFieldValuesResult>(command);
       emit(ProductCustomFieldGroupEditSuccess());
     } on CustomFieldValueValidationException catch (e) {
-      // We could map specific field errors if the backend provides them in e.details, 
-      // but for now we just show a general error or parse if possible.
+      final fieldErrors = {
+        for (final error in e.errors) error.fieldId: error.message,
+      };
       emit(loaded.copyWith(
         isSubmitting: false,
-        error: e.message,
+        validationErrors: fieldErrors,
+        error: fieldErrors.isEmpty ? e.message : null,
       ));
     } on ApplicationException catch (e) {
       emit(loaded.copyWith(isSubmitting: false, error: e.message));

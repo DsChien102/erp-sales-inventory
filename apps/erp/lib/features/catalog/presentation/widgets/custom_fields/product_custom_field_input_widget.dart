@@ -92,9 +92,11 @@ class _ProductCustomFieldInputWidgetState extends State<ProductCustomFieldInputW
           FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*')),
         ],
         onChanged: (val) {
+          final parsed = double.tryParse(val);
           widget.onChanged(ProductCustomFieldValueInput(
             fieldId: widget.field.fieldId,
-            numberValue: double.tryParse(val),
+            numberValue: parsed,
+            textValue: val.isNotEmpty && parsed == null ? val : null,
           ));
         },
       );

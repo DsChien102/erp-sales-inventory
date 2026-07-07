@@ -448,6 +448,54 @@ final class FakeCatalogModule implements ICatalogModule {
         'https://cdn.fake/image-b.webp',
       ];
     }
+    if (scenario == FakeCatalogScenario.e2eCfValuesOk) {
+      _seedE2eCustomFieldConfig();
+    } else if (scenario == FakeCatalogScenario.e2eCfValuesSaveOk) {
+      _seedE2eCustomFieldConfig(addNumberField: true);
+    } else if (scenario == FakeCatalogScenario.e2eCfValuesRequired) {
+      _seedE2eCustomFieldConfig(requireThanhPhan: true);
+    }
+  }
+
+  void _seedE2eCustomFieldConfig({
+    bool addNumberField = false,
+    bool requireThanhPhan = false,
+  }) {
+    _customFieldStore.initializeTemplate(
+      InitializeCustomFieldTemplateCommand(tenantId: 'tenant-1'),
+    );
+
+    final config = _customFieldStore.listConfig('tenant-1');
+    final drugGroup = config.groups.firstWhere(
+      (group) => group.name == 'Thông tin thuốc',
+    );
+
+    if (addNumberField) {
+      _customFieldStore.upsertField(
+        UpsertCustomFieldCommand(
+          tenantId: 'tenant-1',
+          groupId: drugGroup.groupId,
+          name: 'Thời gian ngưng sử dụng',
+          fieldType: CustomFieldType.number,
+        ),
+      );
+    }
+
+    if (requireThanhPhan) {
+      final thanhPhan = drugGroup.fields.firstWhere(
+        (field) => field.name == 'Thành phần',
+      );
+      _customFieldStore.configureAttributes(
+        ConfigureCustomFieldAttributesCommand(
+          tenantId: 'tenant-1',
+          fieldId: thanhPhan.fieldId,
+          isRequired: true,
+          isSearchable: false,
+          isFilterable: false,
+          displayOnList: false,
+        ),
+      );
+    }
   }
 
   final String scenario;

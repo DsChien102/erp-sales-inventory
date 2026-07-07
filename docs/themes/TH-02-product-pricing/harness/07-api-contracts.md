@@ -1201,6 +1201,9 @@ BE lane will add draft SQL under `supabase/migrations/_drafts/`; CONTRACT lane d
 | `scn_contract_e03_u02_fr03_01` | required active field missing | `CustomFieldValueValidationException` with business message |
 | `scn_contract_e03_u02_fr03_02` | required value filled | result readiness has no `missing_required_custom_fields` blocker |
 | `scn_contract_e03_u02_fr04_01` | field/group deactivated after value saved | active query hides old value; `includeInactiveValues=true` returns preserved value |
+| `e2e_cf_values_ok` | E2E PCC open product with template seeded | 2 active group cards, empty values |
+| `e2e_cf_values_save_ok` | E2E save text/number values | template + number field `Thời gian ngưng sử dụng` |
+| `e2e_cf_values_required` | E2E required field + readiness | `Thành phần` required; product-1 missing value |
 
 `FakeCatalogModule` — `package:vet45_catalog_application/testing.dart`.
 
