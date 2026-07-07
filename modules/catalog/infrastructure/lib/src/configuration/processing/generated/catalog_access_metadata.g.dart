@@ -167,4 +167,3 @@ final catalogAccessMetadataRegistry = AccessMetadataRegistry({
     requiresTenant: true,
   ),
 });
-

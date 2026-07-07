@@ -65,4 +65,3 @@ final catalogModuleManifest = GeneratedModuleManifest(
     SuggestProductUnitPriceQuery,
   ],
 );
-
