@@ -1,6 +1,7 @@
 import 'package:vet45_catalog_application/application.dart';
 import 'package:vet45_catalog_domain/domain.dart';
 
+import '../custom_fields/custom_field_rpc_mapper.dart';
 import '../pricing/store_price_rule_rpc_mapper.dart';
 import 'product_readiness_facts_mapper.dart';
 
@@ -84,8 +85,24 @@ abstract final class ProductControlCenterMapper {
       ),
       storePriceRuleName: json['store_price_rule_name'] as String?,
       isCustomOverride: json['is_custom_override'] as bool? ?? false,
+      customFieldGroupCards: _customFieldGroupCardsFromJson(
+        json['custom_field_group_cards'],
+      ),
       changeHistoryPreview: history,
     );
+  }
+
+  static List<CustomFieldGroupCardDto> _customFieldGroupCardsFromJson(
+    Object? value,
+  ) {
+    if (value is! List) {
+      return const [];
+    }
+
+    return value
+        .whereType<Map<String, dynamic>>()
+        .map(CustomFieldRpcMapper.customFieldGroupCardFromJson)
+        .toList(growable: false);
   }
 
   static ProductStatus _businessStatusFromRpc(String? value) {

@@ -20,11 +20,15 @@ export 'src/custom_fields/list_custom_field_config/list_custom_field_config_quer
 export 'src/custom_fields/product_values/custom_field_value_validation_error_dto.dart';
 export 'src/custom_fields/product_values/custom_field_value_validation_exception.dart';
 export 'src/custom_fields/product_values/get_product_custom_field_values_query.dart';
+export 'src/custom_fields/product_values/get_product_custom_field_values_query_handler.dart';
+export 'src/custom_fields/product_values/get_product_custom_field_values_query_validator.dart';
 export 'src/custom_fields/product_values/product_custom_field_value_field_dto.dart';
 export 'src/custom_fields/product_values/product_custom_field_value_group_dto.dart';
 export 'src/custom_fields/product_values/product_custom_field_value_input.dart';
 export 'src/custom_fields/product_values/product_custom_field_values_dto.dart';
 export 'src/custom_fields/product_values/upsert_custom_field_values_command.dart';
+export 'src/custom_fields/product_values/upsert_custom_field_values_command_handler.dart';
+export 'src/custom_fields/product_values/upsert_custom_field_values_command_validator.dart';
 export 'src/custom_fields/product_values/upsert_custom_field_values_result.dart';
 export 'src/custom_fields/reorder_custom_field_groups/reorder_custom_field_groups_command.dart';
 export 'src/custom_fields/reorder_custom_field_groups/reorder_custom_field_groups_command_handler.dart';

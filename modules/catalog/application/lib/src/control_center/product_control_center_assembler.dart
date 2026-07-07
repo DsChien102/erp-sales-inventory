@@ -94,7 +94,7 @@ abstract final class ProductControlCenterAssembler {
         storePriceRuleName: model.storePriceRuleName,
         isCustomOverride: model.isCustomOverride,
       ),
-      customFieldGroupCards: const [],
+      customFieldGroupCards: model.customFieldGroupCards,
       readinessSummary: ReadinessSummaryDto.fromDomain(readiness),
       checklist: const [],
       contextualActions: readinessView.suggestedActions,

@@ -5,6 +5,8 @@ import 'package:vet45_catalog_domain/domain.dart';
 import 'package:vet45_shared_application/application.dart';
 import 'package:vet45_shared_infrastructure/infrastructure.dart';
 
+import '../domain/custom_fields/custom_field_rpc_mapper.dart';
+
 Object mapCatalogRpcError(RpcException error) {
   final message = error.message.toLowerCase();
 
@@ -63,6 +65,45 @@ Object mapCatalogRpcError(RpcException error) {
 
   if (message.contains('inactive_product_unit')) {
     return InactiveProductUnitException();
+  }
+
+  if (message.contains('duplicate custom field group name')) {
+    return DuplicateCustomFieldGroupNameException(
+      name: _extractQuoted(error.message) ?? '',
+    );
+  }
+
+  if (message.contains('duplicate custom field name')) {
+    return DuplicateCustomFieldNameException(
+      name: _extractQuoted(error.message) ?? '',
+      groupId: '',
+    );
+  }
+
+  if (message.contains('custom field group not found')) {
+    return CustomFieldGroupNotFoundException(groupId: '');
+  }
+
+  if (message.contains('custom_field_value_validation')) {
+    final errors = CustomFieldRpcMapper.validationErrorsFromJson(
+      _extractJsonArray(error.message),
+    );
+    if (errors.isNotEmpty) {
+      return CustomFieldValueValidationException(errors: errors);
+    }
+    return CustomFieldValueValidationException(
+      errors: [
+        CustomFieldValueValidationErrorDto(
+          fieldId: '',
+          code: 'invalid',
+          message: _stripKnownPrefix(error.message),
+        ),
+      ],
+    );
+  }
+
+  if (message.contains('custom field not found')) {
+    return CustomFieldNotFoundException(fieldId: _extractQuoted(error.message) ?? '');
   }
 
   if (message.contains('stale_stock_quantity')) {
@@ -133,14 +174,13 @@ String? _extractQuoted(String message) {
 List<ProductBusinessStatusWarningDto> _extractBusinessStatusWarnings(
   String message,
 ) {
-  final jsonStart = message.indexOf('[');
-  if (jsonStart < 0) {
+  final decoded = _extractJsonArray(message);
+  if (decoded == null) {
     return const [];
   }
 
   try {
-    final decoded = jsonDecode(message.substring(jsonStart));
-    return (decoded as List<dynamic>)
+    return decoded
         .map((item) {
           final map = Map<String, dynamic>.from(item as Map);
           return ProductBusinessStatusWarningDto(
@@ -153,5 +193,19 @@ List<ProductBusinessStatusWarningDto> _extractBusinessStatusWarnings(
     return const [];
   } on TypeError {
     return const [];
+  }
+}
+
+List<dynamic>? _extractJsonArray(String message) {
+  final jsonStart = message.indexOf('[');
+  if (jsonStart < 0) {
+    return null;
+  }
+
+  try {
+    final decoded = jsonDecode(message.substring(jsonStart));
+    return decoded is List<dynamic> ? decoded : null;
+  } on FormatException {
+    return null;
   }
 }

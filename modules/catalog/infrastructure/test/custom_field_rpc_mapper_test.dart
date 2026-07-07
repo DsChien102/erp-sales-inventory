@@ -103,5 +103,118 @@ void main() {
       expect(result.existingProductsMissingCount, 5);
       expect(result.field.isRequired, isTrue);
     });
+
+    test('maps product custom field value params', () {
+      final getParams = CustomFieldRpcMapper.getProductCustomFieldValuesParams(
+        tenantId: 'tenant-1',
+        productId: 'product-1',
+        includeInactiveValues: true,
+      );
+
+      expect(getParams['p_tenant_id'], 'tenant-1');
+      expect(getParams['p_product_id'], 'product-1');
+      expect(getParams['p_include_inactive_values'], isTrue);
+
+      final command = UpsertCustomFieldValuesCommand(
+        tenantId: 'tenant-1',
+        productId: 'product-1',
+        values: [
+          ProductCustomFieldValueInput(
+            fieldId: 'field-1',
+            textValue: 'Vitamin A',
+          ),
+          ProductCustomFieldValueInput(
+            fieldId: 'field-2',
+            numberValue: 7,
+          ),
+          ProductCustomFieldValueInput(
+            fieldId: 'field-3',
+            dateValue: DateTime.utc(2026, 7, 7),
+          ),
+        ],
+      );
+
+      final upsertParams = CustomFieldRpcMapper.upsertProductCustomFieldValuesParams(
+        command: command,
+      );
+      expect(upsertParams['p_tenant_id'], 'tenant-1');
+      expect(upsertParams['p_product_id'], 'product-1');
+      expect(upsertParams['p_values'], [
+        {
+          'field_id': 'field-1',
+          'text_value': 'Vitamin A',
+        },
+        {
+          'field_id': 'field-2',
+          'number_value': 7.0,
+        },
+        {
+          'field_id': 'field-3',
+          'date_value': '2026-07-07',
+        },
+      ]);
+    });
+
+    test('maps product custom field values response', () {
+      final values = CustomFieldRpcMapper.productCustomFieldValuesFromJson({
+        'product_id': 'product-1',
+        'groups': [
+          {
+            'group_id': 'group-1',
+            'name': 'Thông tin thuốc',
+            'icon_key': 'pill',
+            'sort_order': 0,
+            'fields': [
+              {
+                'field_id': 'field-1',
+                'group_id': 'group-1',
+                'name': 'Thành phần',
+                'field_type': 'text',
+                'options': [],
+                'is_required': true,
+                'is_missing': false,
+                'sort_order': 0,
+                'display_value': 'Vitamin A',
+                'text_value': 'Vitamin A',
+              },
+              {
+                'field_id': 'field-2',
+                'group_id': 'group-1',
+                'name': 'Hạn dùng',
+                'field_type': 'date',
+                'options': [],
+                'sort_order': 1,
+                'display_value': '2026-07-07',
+                'date_value': '2026-07-07',
+              },
+            ],
+          },
+        ],
+      });
+
+      expect(values.productId, 'product-1');
+      expect(values.groups.single.name, 'Thông tin thuốc');
+      expect(values.groups.single.fields.first.isRequired, isTrue);
+      expect(values.groups.single.fields.first.displayValue, 'Vitamin A');
+      expect(values.groups.single.fields.last.dateValue, DateTime.utc(2026, 7, 7));
+    });
+
+    test('maps upsert product custom field values result', () {
+      final result = CustomFieldRpcMapper.upsertProductCustomFieldValuesResultFromJson({
+        'product_id': 'product-1',
+        'values': {
+          'product_id': 'product-1',
+          'groups': [],
+        },
+        'readiness_summary': {
+          'status': 'readyToSell',
+          'blockers': [],
+        },
+      });
+
+      expect(result.productId, 'product-1');
+      expect(result.values.productId, 'product-1');
+      expect(result.readinessSummary.status, ReadinessStatus.readyToSell);
+    });
   });
 }
