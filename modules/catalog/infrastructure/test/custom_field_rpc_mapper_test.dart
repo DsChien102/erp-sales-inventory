@@ -216,5 +216,88 @@ void main() {
       expect(result.values.productId, 'product-1');
       expect(result.readinessSummary.status, ReadinessStatus.readyToSell);
     });
+
+    test('maps list custom field filter options params and response', () {
+      final params = CustomFieldRpcMapper.listCustomFieldFilterOptionsParams(
+        tenantId: 'tenant-1',
+        maxOptionsPerField: 25,
+      );
+
+      expect(params['p_tenant_id'], 'tenant-1');
+      expect(params['p_max_options_per_field'], 25);
+
+      final options = CustomFieldRpcMapper.filterOptionsFromJson([
+        {
+          'field_id': 'field-1',
+          'group_id': 'group-1',
+          'group_name': 'Thông tin thuốc',
+          'field_name': 'Dạng dùng',
+          'field_type': 'singleSelect',
+          'options': [
+            {
+              'option_id': 'opt-1',
+              'label': 'Dung dịch',
+              'sort_order': 0,
+              'is_active': true,
+            },
+          ],
+          'sort_order': 10,
+        },
+      ]);
+
+      expect(options.single.fieldName, 'Dạng dùng');
+      expect(options.single.options.single.label, 'Dung dịch');
+    });
+
+    test('maps product custom field snapshot params and response', () {
+      final params = CustomFieldRpcMapper.getProductCustomFieldSnapshotParams(
+        tenantId: 'tenant-1',
+        productIds: ['product-1', 'product-2'],
+        includeInactiveValues: true,
+      );
+
+      expect(params['p_tenant_id'], 'tenant-1');
+      expect(params['p_product_ids'], ['product-1', 'product-2']);
+      expect(params['p_include_inactive_values'], isTrue);
+
+      final snapshot = CustomFieldRpcMapper.snapshotFromJson({
+        'products': {
+          'product-1': [
+            {
+              'product_id': 'product-1',
+              'field_id': 'field-1',
+              'group_id': 'group-1',
+              'group_name': 'Thông tin thuốc',
+              'field_name': 'Dạng dùng',
+              'field_type': 'singleSelect',
+              'display_value': 'Dung dịch',
+              'option_id': 'opt-1',
+              'option_label': 'Dung dịch',
+              'is_active': true,
+            },
+          ],
+        },
+      });
+
+      expect(snapshot.products['product-1']!.single.displayValue, 'Dung dịch');
+      expect(snapshot.products['product-1']!.single.isActive, isTrue);
+    });
+
+    test('maps custom field list values from search row json', () {
+      final values = CustomFieldRpcMapper.listValuesFromJson([
+        {
+          'field_id': 'field-1',
+          'group_id': 'group-1',
+          'group_name': 'Thông tin thuốc',
+          'field_name': 'Dạng dùng',
+          'field_type': 'singleSelect',
+          'display_value': 'Dung dịch',
+          'sort_order': 10,
+        },
+      ]);
+
+      expect(values.single.displayValue, 'Dung dịch');
+      expect(values.single.sortOrder, 10);
+    });
   });
 }

@@ -787,6 +787,202 @@ final class FakeCatalogCustomFieldStore {
     return true;
   }
 
+  void seedSearchContractData({bool deactivateFilterableField = false}) {
+    if (_groups.isNotEmpty) {
+      return;
+    }
+    final group = _StoredCustomFieldGroup(
+      groupId: 'cf-group-medicine',
+      tenantId: 'tenant-1',
+      name: 'Thông tin thuốc',
+      sortOrder: 1,
+    );
+    _groups.add(group);
+
+    final dosageForm = _StoredCustomField(
+      fieldId: 'cf-dosage-form',
+      groupId: group.groupId,
+      name: 'Dạng dùng',
+      fieldType: CustomFieldType.singleSelect,
+      options: [
+        _StoredCustomFieldOption(optionId: 'opt-solution', label: 'Dung dịch', sortOrder: 1),
+        _StoredCustomFieldOption(optionId: 'opt-tablet', label: 'Viên nén', sortOrder: 2),
+      ],
+      isSearchable: true,
+      isFilterable: true,
+      displayOnList: true,
+      sortOrder: 1,
+      isActive: !deactivateFilterableField,
+    );
+    final indication = _StoredCustomField(
+      fieldId: 'cf-indication',
+      groupId: group.groupId,
+      name: 'Chỉ định',
+      fieldType: CustomFieldType.text,
+      isSearchable: true,
+      displayOnList: false,
+      sortOrder: 2,
+    );
+    _fields.addAll([dosageForm, indication]);
+
+    _productValues[_valueKey('product-1', dosageForm.fieldId)] =
+        _StoredProductCustomFieldValue(
+      productId: 'product-1',
+      fieldId: dosageForm.fieldId,
+      optionId: 'opt-solution',
+    );
+    _productValues[_valueKey('product-1', indication.fieldId)] =
+        _StoredProductCustomFieldValue(
+      productId: 'product-1',
+      fieldId: indication.fieldId,
+      textValue: 'hỗ trợ tiêu hóa',
+    );
+  }
+
+  List<CustomFieldListValueDto> listDisplayValuesForProduct(String productId) {
+    final values = <CustomFieldListValueDto>[];
+    for (final group in _groups.where((group) => group.isActive)) {
+      for (final field in _fieldsForGroup(group.groupId)) {
+        if (!field.isActive || !field.displayOnList) {
+          continue;
+        }
+        final displayValue = _displayValue(field, _findValue(productId, field.fieldId));
+        if (displayValue == null || displayValue.trim().isEmpty) {
+          continue;
+        }
+        values.add(
+          CustomFieldListValueDto(
+            fieldId: field.fieldId,
+            groupId: group.groupId,
+            groupName: group.name,
+            fieldName: field.name,
+            fieldType: field.fieldType.name,
+            displayValue: displayValue,
+            sortOrder: group.sortOrder * 1000 + field.sortOrder,
+          ),
+        );
+      }
+    }
+    values.sort((a, b) => a.sortOrder.compareTo(b.sortOrder));
+    return values;
+  }
+
+  bool matchesSearchKeyword(String productId, String keyword) {
+    final lower = keyword.toLowerCase();
+    for (final group in _groups.where((group) => group.isActive)) {
+      for (final field in _fieldsForGroup(group.groupId)) {
+        if (!field.isActive || !field.isSearchable) {
+          continue;
+        }
+        final value = _displayValue(field, _findValue(productId, field.fieldId));
+        if (value != null && value.toLowerCase().contains(lower)) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  bool matchesFilters(String productId, List<CustomFieldFilterCriteria> filters) {
+    for (final filter in filters) {
+      final field = _findField(filter.fieldId);
+      if (field == null || !field.isActive || !field.isFilterable) {
+        return false;
+      }
+      final value = _findValue(productId, field.fieldId);
+      if (filter.optionId != null && value?.optionId != filter.optionId) {
+        return false;
+      }
+      if (filter.booleanValue != null && value?.booleanValue != filter.booleanValue) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  List<CustomFieldFilterOptionDto> listFilterOptions({
+    required String tenantId,
+    required int maxOptionsPerField,
+  }) {
+    final options = <CustomFieldFilterOptionDto>[];
+    for (final group in _groupsForTenant(tenantId).where((group) => group.isActive)) {
+      for (final field in _fieldsForGroup(group.groupId)) {
+        if (!field.isActive || !field.isFilterable) {
+          continue;
+        }
+        if (field.fieldType != CustomFieldType.singleSelect &&
+            field.fieldType != CustomFieldType.boolean) {
+          continue;
+        }
+        final fieldOptions = field.fieldType == CustomFieldType.singleSelect
+            ? field.options
+                  .where((option) => option.isActive)
+                  .take(maxOptionsPerField)
+                  .map(_toOptionDto)
+                  .toList()
+            : <CustomFieldSelectOptionDto>[];
+        options.add(
+          CustomFieldFilterOptionDto(
+            fieldId: field.fieldId,
+            groupId: group.groupId,
+            groupName: group.name,
+            fieldName: field.name,
+            fieldType: field.fieldType.name,
+            options: fieldOptions,
+            sortOrder: group.sortOrder * 1000 + field.sortOrder,
+          ),
+        );
+      }
+    }
+    options.sort((a, b) => a.sortOrder.compareTo(b.sortOrder));
+    return options;
+  }
+
+  ProductCustomFieldSnapshotDto getSnapshot({
+    required String tenantId,
+    required List<String> productIds,
+    required bool includeInactiveValues,
+  }) {
+    final products = <String, List<ProductCustomFieldSnapshotFieldDto>>{};
+    for (final productId in productIds) {
+      final fields = <ProductCustomFieldSnapshotFieldDto>[];
+      for (final group in _groupsForTenant(tenantId)) {
+        if (!group.isActive && !includeInactiveValues) {
+          continue;
+        }
+        for (final field in _fieldsForGroup(group.groupId)) {
+          if (!field.isActive && !includeInactiveValues) {
+            continue;
+          }
+          final value = _findValue(productId, field.fieldId);
+          if (value == null || value.isEmpty) {
+            continue;
+          }
+          fields.add(
+            ProductCustomFieldSnapshotFieldDto(
+              productId: productId,
+              fieldId: field.fieldId,
+              groupId: group.groupId,
+              groupName: group.name,
+              fieldName: field.name,
+              fieldType: field.fieldType.name,
+              displayValue: _displayValue(field, value),
+              textValue: value.textValue,
+              numberValue: value.numberValue,
+              dateValue: value.dateValue,
+              booleanValue: value.booleanValue,
+              optionId: value.optionId,
+              optionLabel: _optionLabel(field, value.optionId),
+              isActive: field.isActive && group.isActive,
+            ),
+          );
+        }
+      }
+      products[productId] = fields;
+    }
+    return ProductCustomFieldSnapshotDto(products: products);
+  }
+
   CustomFieldValueValidationErrorDto? _validateInput(
     _StoredCustomFieldGroup group,
     _StoredCustomField field,

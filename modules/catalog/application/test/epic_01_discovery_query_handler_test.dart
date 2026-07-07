@@ -53,6 +53,14 @@ class _FakeCatalogReadGateway implements ICatalogReadGateway {
     lastProductId = productId;
     return controlCenterResult;
   }
+
+  @override
+  Future<List<CustomFieldFilterOptionDto>> listCustomFieldFilterOptions({
+    required String tenantId,
+    required int maxOptionsPerField,
+  }) async {
+    return const [];
+  }
 }
 
 ProductListItemDto _sampleListItem({

@@ -91,8 +91,7 @@ void registerGeneratedCatalogValidators(GetIt container) {
     )
     ..registerFactory<ICommandValidator<UpsertCustomFieldValuesCommand>>(
       UpsertCustomFieldValuesCommandValidator.new,
-    )
-    ;
+    );
 }
 
 void registerGeneratedCatalogHandlers({
@@ -103,7 +102,11 @@ void registerGeneratedCatalogHandlers({
 }) {
   registerGeneratedCatalogValidators(container);
 
-  CatalogCommandRegistration.registerBusinessHandler<AddProductConversionUnitCommand, ProductUnitMutationResult, AddProductConversionUnitCommandHandler>(
+  CatalogCommandRegistration.registerBusinessHandler<
+    AddProductConversionUnitCommand,
+    ProductUnitMutationResult,
+    AddProductConversionUnitCommandHandler
+  >(
     container: container,
     bus: bus,
     logger: logger,
@@ -112,7 +115,11 @@ void registerGeneratedCatalogHandlers({
     ),
   );
 
-  CatalogCommandRegistration.registerBusinessHandler<AdjustBasicStockCommand, AdjustBasicStockResult, AdjustBasicStockCommandHandler>(
+  CatalogCommandRegistration.registerBusinessHandler<
+    AdjustBasicStockCommand,
+    AdjustBasicStockResult,
+    AdjustBasicStockCommandHandler
+  >(
     container: container,
     bus: bus,
     logger: logger,
@@ -122,7 +129,11 @@ void registerGeneratedCatalogHandlers({
     ),
   );
 
-  CatalogCommandRegistration.registerBusinessHandler<ApplyStorePriceRuleCommand, ApplyStorePriceRuleResult, ApplyStorePriceRuleCommandHandler>(
+  CatalogCommandRegistration.registerBusinessHandler<
+    ApplyStorePriceRuleCommand,
+    ApplyStorePriceRuleResult,
+    ApplyStorePriceRuleCommandHandler
+  >(
     container: container,
     bus: bus,
     logger: logger,
@@ -132,7 +143,11 @@ void registerGeneratedCatalogHandlers({
     ),
   );
 
-  CatalogCommandRegistration.registerBusinessHandler<ConfigureCustomFieldAttributesCommand, ConfigureCustomFieldAttributesResult, ConfigureCustomFieldAttributesCommandHandler>(
+  CatalogCommandRegistration.registerBusinessHandler<
+    ConfigureCustomFieldAttributesCommand,
+    ConfigureCustomFieldAttributesResult,
+    ConfigureCustomFieldAttributesCommandHandler
+  >(
     container: container,
     bus: bus,
     logger: logger,
@@ -141,7 +156,11 @@ void registerGeneratedCatalogHandlers({
     ),
   );
 
-  CatalogCommandRegistration.registerBusinessHandler<CreateProductCommand, CreateProductResult, CreateProductCommandHandler>(
+  CatalogCommandRegistration.registerBusinessHandler<
+    CreateProductCommand,
+    CreateProductResult,
+    CreateProductCommandHandler
+  >(
     container: container,
     bus: bus,
     logger: logger,
@@ -150,7 +169,11 @@ void registerGeneratedCatalogHandlers({
     ),
   );
 
-  CatalogCommandRegistration.registerBusinessHandler<DeactivateProductCommand, ChangeProductBusinessStatusResult, DeactivateProductCommandHandler>(
+  CatalogCommandRegistration.registerBusinessHandler<
+    DeactivateProductCommand,
+    ChangeProductBusinessStatusResult,
+    DeactivateProductCommandHandler
+  >(
     container: container,
     bus: bus,
     logger: logger,
@@ -159,7 +182,11 @@ void registerGeneratedCatalogHandlers({
     ),
   );
 
-  CatalogCommandRegistration.registerBusinessHandler<DeactivateProductConversionUnitCommand, ProductUnitMutationResult, DeactivateProductConversionUnitCommandHandler>(
+  CatalogCommandRegistration.registerBusinessHandler<
+    DeactivateProductConversionUnitCommand,
+    ProductUnitMutationResult,
+    DeactivateProductConversionUnitCommandHandler
+  >(
     container: container,
     bus: bus,
     logger: logger,
@@ -168,7 +195,11 @@ void registerGeneratedCatalogHandlers({
     ),
   );
 
-  CatalogCommandRegistration.registerBusinessHandler<DeleteProductCommand, ChangeProductSoftDeleteResult, DeleteProductCommandHandler>(
+  CatalogCommandRegistration.registerBusinessHandler<
+    DeleteProductCommand,
+    ChangeProductSoftDeleteResult,
+    DeleteProductCommandHandler
+  >(
     container: container,
     bus: bus,
     logger: logger,
@@ -177,7 +208,11 @@ void registerGeneratedCatalogHandlers({
     ),
   );
 
-  CatalogCommandRegistration.registerBusinessHandler<InitializeCustomFieldTemplateCommand, InitializeCustomFieldTemplateResult, InitializeCustomFieldTemplateCommandHandler>(
+  CatalogCommandRegistration.registerBusinessHandler<
+    InitializeCustomFieldTemplateCommand,
+    InitializeCustomFieldTemplateResult,
+    InitializeCustomFieldTemplateCommandHandler
+  >(
     container: container,
     bus: bus,
     logger: logger,
@@ -186,7 +221,11 @@ void registerGeneratedCatalogHandlers({
     ),
   );
 
-  CatalogCommandRegistration.registerBusinessHandler<ReactivateProductCommand, ChangeProductBusinessStatusResult, ReactivateProductCommandHandler>(
+  CatalogCommandRegistration.registerBusinessHandler<
+    ReactivateProductCommand,
+    ChangeProductBusinessStatusResult,
+    ReactivateProductCommandHandler
+  >(
     container: container,
     bus: bus,
     logger: logger,
@@ -195,7 +234,11 @@ void registerGeneratedCatalogHandlers({
     ),
   );
 
-  CatalogCommandRegistration.registerBusinessHandler<ReactivateProductConversionUnitCommand, ProductUnitMutationResult, ReactivateProductConversionUnitCommandHandler>(
+  CatalogCommandRegistration.registerBusinessHandler<
+    ReactivateProductConversionUnitCommand,
+    ProductUnitMutationResult,
+    ReactivateProductConversionUnitCommandHandler
+  >(
     container: container,
     bus: bus,
     logger: logger,
@@ -204,7 +247,11 @@ void registerGeneratedCatalogHandlers({
     ),
   );
 
-  CatalogCommandRegistration.registerBusinessHandler<ReorderCustomFieldGroupsCommand, void, ReorderCustomFieldGroupsCommandHandler>(
+  CatalogCommandRegistration.registerBusinessHandler<
+    ReorderCustomFieldGroupsCommand,
+    void,
+    ReorderCustomFieldGroupsCommandHandler
+  >(
     container: container,
     bus: bus,
     logger: logger,
@@ -213,7 +260,11 @@ void registerGeneratedCatalogHandlers({
     ),
   );
 
-  CatalogCommandRegistration.registerBusinessHandler<ReorderCustomFieldsCommand, void, ReorderCustomFieldsCommandHandler>(
+  CatalogCommandRegistration.registerBusinessHandler<
+    ReorderCustomFieldsCommand,
+    void,
+    ReorderCustomFieldsCommandHandler
+  >(
     container: container,
     bus: bus,
     logger: logger,
@@ -222,7 +273,11 @@ void registerGeneratedCatalogHandlers({
     ),
   );
 
-  CatalogCommandRegistration.registerBusinessHandler<RequestProductImageUploadCommand, ProductImageUploadSlotDto, RequestProductImageUploadCommandHandler>(
+  CatalogCommandRegistration.registerBusinessHandler<
+    RequestProductImageUploadCommand,
+    ProductImageUploadSlotDto,
+    RequestProductImageUploadCommandHandler
+  >(
     container: container,
     bus: bus,
     logger: logger,
@@ -231,7 +286,11 @@ void registerGeneratedCatalogHandlers({
     ),
   );
 
-  CatalogCommandRegistration.registerBusinessHandler<RequestProductMaintenanceImageUploadCommand, ProductImageUploadSlotDto, RequestProductMaintenanceImageUploadCommandHandler>(
+  CatalogCommandRegistration.registerBusinessHandler<
+    RequestProductMaintenanceImageUploadCommand,
+    ProductImageUploadSlotDto,
+    RequestProductMaintenanceImageUploadCommandHandler
+  >(
     container: container,
     bus: bus,
     logger: logger,
@@ -240,7 +299,11 @@ void registerGeneratedCatalogHandlers({
     ),
   );
 
-  CatalogCommandRegistration.registerBusinessHandler<RestoreProductCommand, ChangeProductSoftDeleteResult, RestoreProductCommandHandler>(
+  CatalogCommandRegistration.registerBusinessHandler<
+    RestoreProductCommand,
+    ChangeProductSoftDeleteResult,
+    RestoreProductCommandHandler
+  >(
     container: container,
     bus: bus,
     logger: logger,
@@ -249,7 +312,11 @@ void registerGeneratedCatalogHandlers({
     ),
   );
 
-  CatalogCommandRegistration.registerBusinessHandler<SetInitialPriceBandCommand, void, SetInitialPriceBandCommandHandler>(
+  CatalogCommandRegistration.registerBusinessHandler<
+    SetInitialPriceBandCommand,
+    void,
+    SetInitialPriceBandCommandHandler
+  >(
     container: container,
     bus: bus,
     logger: logger,
@@ -259,7 +326,11 @@ void registerGeneratedCatalogHandlers({
     ),
   );
 
-  CatalogCommandRegistration.registerBusinessHandler<SetInitialStockCommand, SetInitialStockResult, SetInitialStockCommandHandler>(
+  CatalogCommandRegistration.registerBusinessHandler<
+    SetInitialStockCommand,
+    SetInitialStockResult,
+    SetInitialStockCommandHandler
+  >(
     container: container,
     bus: bus,
     logger: logger,
@@ -270,7 +341,11 @@ void registerGeneratedCatalogHandlers({
     ),
   );
 
-  CatalogCommandRegistration.registerBusinessHandler<SetManualBasePriceCommand, SetManualBasePriceResult, SetManualBasePriceCommandHandler>(
+  CatalogCommandRegistration.registerBusinessHandler<
+    SetManualBasePriceCommand,
+    SetManualBasePriceResult,
+    SetManualBasePriceCommandHandler
+  >(
     container: container,
     bus: bus,
     logger: logger,
@@ -281,7 +356,11 @@ void registerGeneratedCatalogHandlers({
     ),
   );
 
-  CatalogCommandRegistration.registerBusinessHandler<SetProductBaseUnitCommand, SetProductBaseUnitResult, SetProductBaseUnitCommandHandler>(
+  CatalogCommandRegistration.registerBusinessHandler<
+    SetProductBaseUnitCommand,
+    SetProductBaseUnitResult,
+    SetProductBaseUnitCommandHandler
+  >(
     container: container,
     bus: bus,
     logger: logger,
@@ -290,7 +369,11 @@ void registerGeneratedCatalogHandlers({
     ),
   );
 
-  CatalogCommandRegistration.registerBusinessHandler<SetProductUnitPriceBandCommand, SetProductUnitPriceBandResult, SetProductUnitPriceBandCommandHandler>(
+  CatalogCommandRegistration.registerBusinessHandler<
+    SetProductUnitPriceBandCommand,
+    SetProductUnitPriceBandResult,
+    SetProductUnitPriceBandCommandHandler
+  >(
     container: container,
     bus: bus,
     logger: logger,
@@ -302,7 +385,11 @@ void registerGeneratedCatalogHandlers({
     ),
   );
 
-  CatalogCommandRegistration.registerBusinessHandler<SetStorePriceRuleCommand, SetStorePriceRuleResult, SetStorePriceRuleCommandHandler>(
+  CatalogCommandRegistration.registerBusinessHandler<
+    SetStorePriceRuleCommand,
+    SetStorePriceRuleResult,
+    SetStorePriceRuleCommandHandler
+  >(
     container: container,
     bus: bus,
     logger: logger,
@@ -311,7 +398,11 @@ void registerGeneratedCatalogHandlers({
     ),
   );
 
-  CatalogCommandRegistration.registerBusinessHandler<UpdateProductImagesCommand, UpdateProductImagesResult, UpdateProductImagesCommandHandler>(
+  CatalogCommandRegistration.registerBusinessHandler<
+    UpdateProductImagesCommand,
+    UpdateProductImagesResult,
+    UpdateProductImagesCommandHandler
+  >(
     container: container,
     bus: bus,
     logger: logger,
@@ -320,7 +411,11 @@ void registerGeneratedCatalogHandlers({
     ),
   );
 
-  CatalogCommandRegistration.registerBusinessHandler<UpdateProductProfileCommand, UpdateProductProfileResult, UpdateProductProfileCommandHandler>(
+  CatalogCommandRegistration.registerBusinessHandler<
+    UpdateProductProfileCommand,
+    UpdateProductProfileResult,
+    UpdateProductProfileCommandHandler
+  >(
     container: container,
     bus: bus,
     logger: logger,
@@ -329,7 +424,11 @@ void registerGeneratedCatalogHandlers({
     ),
   );
 
-  CatalogCommandRegistration.registerBusinessHandler<UpsertCustomFieldCommand, CustomFieldDefinitionDto, UpsertCustomFieldCommandHandler>(
+  CatalogCommandRegistration.registerBusinessHandler<
+    UpsertCustomFieldCommand,
+    CustomFieldDefinitionDto,
+    UpsertCustomFieldCommandHandler
+  >(
     container: container,
     bus: bus,
     logger: logger,
@@ -338,7 +437,11 @@ void registerGeneratedCatalogHandlers({
     ),
   );
 
-  CatalogCommandRegistration.registerBusinessHandler<UpsertCustomFieldGroupCommand, CustomFieldGroupConfigDto, UpsertCustomFieldGroupCommandHandler>(
+  CatalogCommandRegistration.registerBusinessHandler<
+    UpsertCustomFieldGroupCommand,
+    CustomFieldGroupConfigDto,
+    UpsertCustomFieldGroupCommandHandler
+  >(
     container: container,
     bus: bus,
     logger: logger,
@@ -347,7 +450,11 @@ void registerGeneratedCatalogHandlers({
     ),
   );
 
-  CatalogCommandRegistration.registerBusinessHandler<UpsertCustomFieldValuesCommand, UpsertCustomFieldValuesResult, UpsertCustomFieldValuesCommandHandler>(
+  CatalogCommandRegistration.registerBusinessHandler<
+    UpsertCustomFieldValuesCommand,
+    UpsertCustomFieldValuesResult,
+    UpsertCustomFieldValuesCommandHandler
+  >(
     container: container,
     bus: bus,
     logger: logger,
@@ -355,14 +462,17 @@ void registerGeneratedCatalogHandlers({
       customFieldValueGateway: container.get<ICatalogCustomFieldValueGateway>(),
     ),
   );
-
 }
 
 void registerGeneratedCatalogQueries({
   required QueryBus bus,
   required GetIt container,
 }) {
-  CatalogCommandRegistration.registerQueryHandler<CheckDuplicateMeasurementUnitNameQuery, bool, CheckDuplicateMeasurementUnitNameQueryHandler>(
+  CatalogCommandRegistration.registerQueryHandler<
+    CheckDuplicateMeasurementUnitNameQuery,
+    bool,
+    CheckDuplicateMeasurementUnitNameQueryHandler
+  >(
     bus: bus,
     factory: () => CheckDuplicateMeasurementUnitNameQueryHandler(
       unitGateway: container.get<ICatalogUnitGateway>(),
@@ -370,7 +480,11 @@ void registerGeneratedCatalogQueries({
     invoke: (query, handler) => handler.handle(query),
   );
 
-  CatalogCommandRegistration.registerQueryHandler<CheckDuplicateProductCodeQuery, List<ProductDuplicateMatchDto>, CheckDuplicateProductCodeQueryHandler>(
+  CatalogCommandRegistration.registerQueryHandler<
+    CheckDuplicateProductCodeQuery,
+    List<ProductDuplicateMatchDto>,
+    CheckDuplicateProductCodeQueryHandler
+  >(
     bus: bus,
     factory: () => CheckDuplicateProductCodeQueryHandler(
       duplicateChecker: container.get<IProductDuplicateChecker>(),
@@ -378,7 +492,11 @@ void registerGeneratedCatalogQueries({
     invoke: (query, handler) => handler.handle(query),
   );
 
-  CatalogCommandRegistration.registerQueryHandler<CheckProductDeletionEligibilityQuery, ProductDeletionEligibilityDto, CheckProductDeletionEligibilityQueryHandler>(
+  CatalogCommandRegistration.registerQueryHandler<
+    CheckProductDeletionEligibilityQuery,
+    ProductDeletionEligibilityDto,
+    CheckProductDeletionEligibilityQueryHandler
+  >(
     bus: bus,
     factory: () => CheckProductDeletionEligibilityQueryHandler(
       deletionGateway: container.get<IProductDeletionGateway>(),
@@ -386,7 +504,11 @@ void registerGeneratedCatalogQueries({
     invoke: (query, handler) => handler.handle(query),
   );
 
-  CatalogCommandRegistration.registerQueryHandler<GetProductControlCenterQuery, ProductControlCenterDto, GetProductControlCenterQueryHandler>(
+  CatalogCommandRegistration.registerQueryHandler<
+    GetProductControlCenterQuery,
+    ProductControlCenterDto,
+    GetProductControlCenterQueryHandler
+  >(
     bus: bus,
     factory: () => GetProductControlCenterQueryHandler(
       readGateway: container.get<ICatalogReadGateway>(),
@@ -395,7 +517,23 @@ void registerGeneratedCatalogQueries({
     invoke: (query, handler) => handler.handle(query),
   );
 
-  CatalogCommandRegistration.registerQueryHandler<GetProductCustomFieldValuesQuery, ProductCustomFieldValuesDto, GetProductCustomFieldValuesQueryHandler>(
+  CatalogCommandRegistration.registerQueryHandler<
+    GetProductCustomFieldSnapshotQuery,
+    ProductCustomFieldSnapshotDto,
+    GetProductCustomFieldSnapshotQueryHandler
+  >(
+    bus: bus,
+    factory: () => GetProductCustomFieldSnapshotQueryHandler(
+      readGateway: container.get<ICatalogCustomFieldReadGateway>(),
+    ),
+    invoke: (query, handler) => handler.handle(query),
+  );
+
+  CatalogCommandRegistration.registerQueryHandler<
+    GetProductCustomFieldValuesQuery,
+    ProductCustomFieldValuesDto,
+    GetProductCustomFieldValuesQueryHandler
+  >(
     bus: bus,
     factory: () => GetProductCustomFieldValuesQueryHandler(
       customFieldValueGateway: container.get<ICatalogCustomFieldValueGateway>(),
@@ -403,7 +541,11 @@ void registerGeneratedCatalogQueries({
     invoke: (query, handler) => handler.handle(query),
   );
 
-  CatalogCommandRegistration.registerQueryHandler<GetProductReadinessQuery, ProductReadinessViewDto, GetProductReadinessQueryHandler>(
+  CatalogCommandRegistration.registerQueryHandler<
+    GetProductReadinessQuery,
+    ProductReadinessViewDto,
+    GetProductReadinessQueryHandler
+  >(
     bus: bus,
     factory: () => GetProductReadinessQueryHandler(
       readinessReadPort: container.get<IProductReadinessReadPort>(),
@@ -412,7 +554,11 @@ void registerGeneratedCatalogQueries({
     invoke: (query, handler) => handler.handle(query),
   );
 
-  CatalogCommandRegistration.registerQueryHandler<GetProductStockHistoryQuery, ProductStockHistoryDto, GetProductStockHistoryQueryHandler>(
+  CatalogCommandRegistration.registerQueryHandler<
+    GetProductStockHistoryQuery,
+    ProductStockHistoryDto,
+    GetProductStockHistoryQueryHandler
+  >(
     bus: bus,
     factory: () => GetProductStockHistoryQueryHandler(
       stockReadPort: container.get<IProductStockReadPort>(),
@@ -421,7 +567,11 @@ void registerGeneratedCatalogQueries({
     invoke: (query, handler) => handler.handle(query),
   );
 
-  CatalogCommandRegistration.registerQueryHandler<GetStorePriceRuleQuery, StorePriceRuleDto?, GetStorePriceRuleQueryHandler>(
+  CatalogCommandRegistration.registerQueryHandler<
+    GetStorePriceRuleQuery,
+    StorePriceRuleDto?,
+    GetStorePriceRuleQueryHandler
+  >(
     bus: bus,
     factory: () => GetStorePriceRuleQueryHandler(
       storePriceRuleGateway: container.get<IStorePriceRuleGateway>(),
@@ -429,7 +579,11 @@ void registerGeneratedCatalogQueries({
     invoke: (query, handler) => handler.handle(query),
   );
 
-  CatalogCommandRegistration.registerQueryHandler<ListCustomFieldConfigQuery, CustomFieldConfigViewDto, ListCustomFieldConfigQueryHandler>(
+  CatalogCommandRegistration.registerQueryHandler<
+    ListCustomFieldConfigQuery,
+    CustomFieldConfigViewDto,
+    ListCustomFieldConfigQueryHandler
+  >(
     bus: bus,
     factory: () => ListCustomFieldConfigQueryHandler(
       customFieldConfigGateway: container.get<ICatalogCustomFieldConfigGateway>(),
@@ -437,7 +591,23 @@ void registerGeneratedCatalogQueries({
     invoke: (query, handler) => handler.handle(query),
   );
 
-  CatalogCommandRegistration.registerQueryHandler<ListProductUnitPriceBandsQuery, ProductUnitPriceBandsDto, ListProductUnitPriceBandsQueryHandler>(
+  CatalogCommandRegistration.registerQueryHandler<
+    ListCustomFieldFilterOptionsQuery,
+    List<CustomFieldFilterOptionDto>,
+    ListCustomFieldFilterOptionsQueryHandler
+  >(
+    bus: bus,
+    factory: () => ListCustomFieldFilterOptionsQueryHandler(
+      readGateway: container.get<ICatalogReadGateway>(),
+    ),
+    invoke: (query, handler) => handler.handle(query),
+  );
+
+  CatalogCommandRegistration.registerQueryHandler<
+    ListProductUnitPriceBandsQuery,
+    ProductUnitPriceBandsDto,
+    ListProductUnitPriceBandsQueryHandler
+  >(
     bus: bus,
     factory: () => ListProductUnitPriceBandsQueryHandler(
       priceBandGateway: container.get<IProductPriceBandGateway>(),
@@ -445,7 +615,11 @@ void registerGeneratedCatalogQueries({
     invoke: (query, handler) => handler.handle(query),
   );
 
-  CatalogCommandRegistration.registerQueryHandler<ListProductUnitsQuery, ProductUnitsDto, ListProductUnitsQueryHandler>(
+  CatalogCommandRegistration.registerQueryHandler<
+    ListProductUnitsQuery,
+    ProductUnitsDto,
+    ListProductUnitsQueryHandler
+  >(
     bus: bus,
     factory: () => ListProductUnitsQueryHandler(
       unitGateway: container.get<ICatalogUnitGateway>(),
@@ -453,7 +627,11 @@ void registerGeneratedCatalogQueries({
     invoke: (query, handler) => handler.handle(query),
   );
 
-  CatalogCommandRegistration.registerQueryHandler<ListTenantMeasurementUnitsQuery, List<TenantMeasurementUnitDto>, ListTenantMeasurementUnitsQueryHandler>(
+  CatalogCommandRegistration.registerQueryHandler<
+    ListTenantMeasurementUnitsQuery,
+    List<TenantMeasurementUnitDto>,
+    ListTenantMeasurementUnitsQueryHandler
+  >(
     bus: bus,
     factory: () => ListTenantMeasurementUnitsQueryHandler(
       unitGateway: container.get<ICatalogUnitGateway>(),
@@ -461,7 +639,11 @@ void registerGeneratedCatalogQueries({
     invoke: (query, handler) => handler.handle(query),
   );
 
-  CatalogCommandRegistration.registerQueryHandler<ScanBarcodeQuery, ProductListItemDto?, ScanBarcodeQueryHandler>(
+  CatalogCommandRegistration.registerQueryHandler<
+    ScanBarcodeQuery,
+    ProductListItemDto?,
+    ScanBarcodeQueryHandler
+  >(
     bus: bus,
     factory: () => ScanBarcodeQueryHandler(
       readGateway: container.get<ICatalogReadGateway>(),
@@ -469,7 +651,11 @@ void registerGeneratedCatalogQueries({
     invoke: (query, handler) => handler.handle(query),
   );
 
-  CatalogCommandRegistration.registerQueryHandler<SearchProductsQuery, ProductSearchResultDto, SearchProductsQueryHandler>(
+  CatalogCommandRegistration.registerQueryHandler<
+    SearchProductsQuery,
+    ProductSearchResultDto,
+    SearchProductsQueryHandler
+  >(
     bus: bus,
     factory: () => SearchProductsQueryHandler(
       readGateway: container.get<ICatalogReadGateway>(),
@@ -477,13 +663,15 @@ void registerGeneratedCatalogQueries({
     invoke: (query, handler) => handler.handle(query),
   );
 
-  CatalogCommandRegistration.registerQueryHandler<SuggestProductUnitPriceQuery, ProductUnitPriceSuggestionDto, SuggestProductUnitPriceQueryHandler>(
+  CatalogCommandRegistration.registerQueryHandler<
+    SuggestProductUnitPriceQuery,
+    ProductUnitPriceSuggestionDto,
+    SuggestProductUnitPriceQueryHandler
+  >(
     bus: bus,
     factory: () => SuggestProductUnitPriceQueryHandler(
       storePriceRuleGateway: container.get<IStorePriceRuleGateway>(),
     ),
     invoke: (query, handler) => handler.handle(query),
   );
-
 }
-

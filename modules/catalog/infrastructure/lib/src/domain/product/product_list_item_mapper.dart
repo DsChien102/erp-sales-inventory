@@ -1,6 +1,7 @@
 import 'package:vet45_catalog_application/application.dart';
 import 'package:vet45_catalog_domain/domain.dart';
 
+import '../custom_fields/custom_field_rpc_mapper.dart';
 import 'product_readiness_facts_mapper.dart';
 
 abstract final class ProductListItemMapper {
@@ -39,6 +40,9 @@ abstract final class ProductListItemMapper {
       floorPrice: _toDouble(row['floor_price']),
       baseUnit: row['base_unit_name'] as String?,
       stockQuantity: _toInt(row['stock_qty']),
+      customFieldValues: CustomFieldRpcMapper.listValuesFromJson(
+        row['custom_field_values'],
+      ),
       updatedAt: DateTime.parse(row['updated_at'] as String),
     );
   }

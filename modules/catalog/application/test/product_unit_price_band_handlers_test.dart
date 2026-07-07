@@ -165,6 +165,14 @@ class _FakeCatalogReadGateway implements ICatalogReadGateway {
       basePriceAmount: basePriceAmount,
     );
   }
+
+  @override
+  Future<List<CustomFieldFilterOptionDto>> listCustomFieldFilterOptions({
+    required String tenantId,
+    required int maxOptionsPerField,
+  }) async {
+    throw UnimplementedError();
+  }
 }
 
 class _FakeProductReadinessReadPort implements IProductReadinessReadPort {

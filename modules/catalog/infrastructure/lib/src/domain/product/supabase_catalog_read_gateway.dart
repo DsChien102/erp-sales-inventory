@@ -4,6 +4,7 @@ import 'package:vet45_catalog_domain/domain.dart';
 import 'package:vet45_shared_infrastructure/infrastructure.dart';
 
 import '../../errors/catalog_error_mapper.dart';
+import '../custom_fields/custom_field_rpc_mapper.dart';
 import 'product_control_center_mapper.dart';
 import 'product_list_item_mapper.dart';
 import 'product_rpc_mapper.dart';
@@ -104,6 +105,26 @@ final class SupabaseCatalogReadGateway implements ICatalogReadGateway {
           : Map<String, dynamic>.from(payload);
 
       return ProductControlCenterMapper.fromJson(json);
+    } on RpcException catch (error) {
+      throw mapCatalogRpcError(error);
+    }
+  }
+
+  @override
+  Future<List<CustomFieldFilterOptionDto>> listCustomFieldFilterOptions({
+    required String tenantId,
+    required int maxOptionsPerField,
+  }) async {
+    try {
+      final result = await _rpcClient.callScalar<Object?>(
+        'list_custom_field_filter_options',
+        params: CustomFieldRpcMapper.listCustomFieldFilterOptionsParams(
+          tenantId: tenantId,
+          maxOptionsPerField: maxOptionsPerField,
+        ),
+      );
+
+      return CustomFieldRpcMapper.filterOptionsFromJson(result);
     } on RpcException catch (error) {
       throw mapCatalogRpcError(error);
     }

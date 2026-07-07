@@ -1,6 +1,8 @@
 import '../readiness/readiness_summary_dto.dart';
 import 'package:vet45_catalog_domain/domain.dart';
 
+import 'custom_field_list_value_dto.dart';
+
 /// List row DTO for product search and barcode scan (EPIC-01/US-01).
 final class ProductListItemDto {
   const ProductListItemDto({
@@ -18,6 +20,7 @@ final class ProductListItemDto {
     this.baseUnit,
     this.stockQuantity,
     this.stockLabel,
+    this.customFieldValues = const [],
     required this.updatedAt,
   });
 
@@ -35,5 +38,6 @@ final class ProductListItemDto {
   final String? baseUnit;
   final int? stockQuantity;
   final String? stockLabel;
+  final List<CustomFieldListValueDto> customFieldValues;
   final DateTime updatedAt;
 }

@@ -56,6 +56,7 @@ abstract final class FakeCatalogProductBuilder {
     bool hasBasePrice = true,
     bool hasPriceBand = true,
     bool hasBaseUnit = true,
+    List<CustomFieldListValueDto> customFieldValues = const [],
   }) {
     final stockLabel = stockQuantity != null ? '$stockQuantity' : null;
     return ProductListItemDto(
@@ -73,6 +74,7 @@ abstract final class FakeCatalogProductBuilder {
       baseUnit: baseUnit?.isEmpty == true ? null : baseUnit,
       stockQuantity: stockQuantity,
       stockLabel: stockLabel,
+      customFieldValues: customFieldValues,
       updatedAt: updatedAt ?? DateTime.utc(2026, 1, 1),
     );
   }

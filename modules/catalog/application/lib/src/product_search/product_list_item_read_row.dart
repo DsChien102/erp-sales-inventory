@@ -1,5 +1,7 @@
 import 'package:vet45_catalog_domain/domain.dart';
 
+import 'custom_field_list_value_dto.dart';
+
 /// Intermediate row mapped from catalog search / barcode RPC.
 final class ProductListItemReadRow {
   const ProductListItemReadRow({
@@ -16,6 +18,7 @@ final class ProductListItemReadRow {
     this.floorPrice,
     this.baseUnit,
     this.stockQuantity,
+    this.customFieldValues = const [],
     required this.updatedAt,
   });
 
@@ -32,5 +35,6 @@ final class ProductListItemReadRow {
   final double? floorPrice;
   final String? baseUnit;
   final int? stockQuantity;
+  final List<CustomFieldListValueDto> customFieldValues;
   final DateTime updatedAt;
 }

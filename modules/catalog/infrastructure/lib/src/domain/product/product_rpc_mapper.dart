@@ -314,7 +314,25 @@ abstract final class ProductRpcMapper {
       'p_include_soft_deleted': criteria.includeSoftDeleted,
       'p_limit': limit,
       'p_offset': offset,
+      'p_custom_field_filters': customFieldFiltersToRpc(criteria.customFieldFilters),
     };
+  }
+
+  static List<Map<String, dynamic>> customFieldFiltersToRpc(
+    List<CustomFieldFilterCriteria> filters,
+  ) {
+    return filters
+        .map((filter) {
+          final json = <String, dynamic>{'field_id': filter.fieldId};
+          if (filter.optionId != null) {
+            json['option_id'] = filter.optionId;
+          }
+          if (filter.booleanValue != null) {
+            json['boolean_value'] = filter.booleanValue;
+          }
+          return json;
+        })
+        .toList(growable: false);
   }
 
   static Map<String, dynamic> findByBarcodeParams({
