@@ -14,6 +14,8 @@ export 'src/bloc/product_price_bands_cubit.dart';
 export 'src/bloc/product_price_bands_state.dart';
 export 'src/bloc/edit_product_unit_price_band_cubit.dart';
 export 'src/bloc/edit_product_unit_price_band_state.dart';
+export 'src/bloc/product_soft_delete_cubit.dart';
+export 'src/bloc/product_soft_delete_state.dart';
 export 'src/catalog_presentation_module.dart';
 export 'src/mappers/catalog_ui_mapper.dart';
 export 'src/models/product_business_status.dart';

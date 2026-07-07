@@ -135,7 +135,7 @@ class _ProductCatalogTabPageState extends State<ProductCatalogTabPage> {
     );
   }
 
-  void _navigateToProduct(BuildContext context, ProductListItemDto dto) {
+  Future<void> _navigateToProduct(BuildContext context, ProductListItemDto dto) async {
     final readinessStatus = dto.readinessSummary.status == ReadinessStatus.readyToSell
         ? ProductReadinessStatus.ready
         : ProductReadinessStatus.needsReview;
@@ -160,10 +160,14 @@ class _ProductCatalogTabPageState extends State<ProductCatalogTabPage> {
       stockLabel: dto.stockLabel,
     );
 
-    context.push(
+    final result = await context.push<bool>(
       '/products/items/pcc',
       extra: ProductControlCenterRouteArgs(product: model),
     );
+
+    if (result == true && context.mounted) {
+      _cubit.fetchProducts(isRefresh: true);
+    }
   }
 
   @override

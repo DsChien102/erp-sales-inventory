@@ -11,11 +11,11 @@ import 'product_readiness_checklist_page.dart';
 import 'product_measurement_units_page.dart';
 import 'product_manual_base_price_page.dart';
 import 'product_price_bands_page.dart';
-
 import '../widgets/product_control_center_operational_section.dart';
 import '../widgets/product_control_center_profile_card.dart';
 import '../widgets/product_control_center_danger_section.dart';
 import '../widgets/product_lifecycle_bottom_sheets.dart';
+import '../widgets/product_delete_confirm_dialog.dart';
 import 'product_stock_adjustment_page.dart';
 
 class ProductControlCenterRouteArgs {
@@ -413,7 +413,17 @@ class _ProductControlCenterView extends StatelessWidget {
                             onConfirm: () => _handleReactivate(context),
                           );
                         },
-                        onDelete: () => _showEditPlaceholder(context),
+                        onDelete: () {
+                          ProductDeleteConfirmDialog.show(
+                            context,
+                            cubit: ProductSoftDeleteCubit(
+                              mediator: GetIt.instance<ICatalogModule>(),
+                              executionContext: GetIt.instance<IExecutionContext>(),
+                            ),
+                            productId: product.id,
+                            productName: product.name,
+                          );
+                        },
                       ),
                     ],
                     const SizedBox(height: 16),
