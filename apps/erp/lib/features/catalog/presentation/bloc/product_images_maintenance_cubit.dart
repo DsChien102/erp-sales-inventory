@@ -4,7 +4,6 @@ import 'package:image_picker/image_picker.dart';
 import 'package:vet45_catalog_application/application.dart';
 import 'package:vet45_catalog_presentation/presentation.dart';
 import 'package:vet45_shared_application/application.dart';
-import '../../../../core/supabase/supabase_module.dart';
 
 enum ProductImagesMaintenanceStatus {
   initial,
@@ -19,7 +18,6 @@ class ProductImageStateItem extends Equatable {
     required this.storageKey,
     this.imageId,
     this.slotId,
-    this.url,
     this.localPath,
     this.isPrimary = false,
   });
@@ -27,7 +25,6 @@ class ProductImageStateItem extends Equatable {
   final String? imageId;
   final String storageKey;
   final String? slotId;
-  final String? url;
   final String? localPath;
   final bool isPrimary;
 
@@ -35,7 +32,6 @@ class ProductImageStateItem extends Equatable {
     String? imageId,
     String? storageKey,
     String? slotId,
-    String? url,
     String? localPath,
     bool? isPrimary,
   }) {
@@ -43,14 +39,13 @@ class ProductImageStateItem extends Equatable {
       imageId: imageId ?? this.imageId,
       storageKey: storageKey ?? this.storageKey,
       slotId: slotId ?? this.slotId,
-      url: url ?? this.url,
       localPath: localPath ?? this.localPath,
       isPrimary: isPrimary ?? this.isPrimary,
     );
   }
 
   @override
-  List<Object?> get props => [imageId, storageKey, slotId, url, localPath, isPrimary];
+  List<Object?> get props => [imageId, storageKey, slotId, localPath, isPrimary];
 }
 
 class ProductImagesMaintenanceState extends Equatable {
@@ -88,19 +83,7 @@ class ProductImagesMaintenanceCubit extends Cubit<ProductImagesMaintenanceState>
     required this.productId,
     required List<String> initialImages,
   }) : super(ProductImagesMaintenanceState(
-          images: initialImages
-              .map((urlOrKey) {
-                final isUrl = urlOrKey.startsWith('http');
-                final publicUrl = isUrl 
-                    ? urlOrKey 
-                    : SupabaseModule.instance.storage.from('catalog-product-images').getPublicUrl(urlOrKey);
-                return ProductImageStateItem(
-                    storageKey: isUrl ? urlOrKey : urlOrKey,
-                    url: publicUrl,
-                    isPrimary: urlOrKey == initialImages.first,
-                  );
-              })
-              .toList(),
+          images: _initialImageItems(initialImages),
         ));
 
   final ICatalogModule catalogModule;
@@ -108,10 +91,27 @@ class ProductImagesMaintenanceCubit extends Cubit<ProductImagesMaintenanceState>
   final String productId;
   final ImagePicker _picker = ImagePicker();
 
+  static List<ProductImageStateItem> _initialImageItems(List<String> initialImages) {
+    if (initialImages.isEmpty) {
+      return const [];
+    }
+
+    return initialImages.asMap().entries.map((entry) {
+      final index = entry.key;
+      final reference = entry.value;
+      final storageKey =
+          ProductImageDisplayResolver.normalizeToStorageKey(reference) ?? reference;
+
+      return ProductImageStateItem(
+        storageKey: storageKey,
+        isPrimary: index == 0,
+      );
+    }).toList(growable: false);
+  }
+
   void addImage({
     required String storageKey,
     required String slotId,
-    required String url,
     String? localPath,
   }) {
     if (state.images.length >= 8) {
@@ -127,7 +127,6 @@ class ProductImagesMaintenanceCubit extends Cubit<ProductImagesMaintenanceState>
     final newItem = ProductImageStateItem(
       storageKey: storageKey,
       slotId: slotId,
-      url: url,
       localPath: localPath,
       isPrimary: isFirst,
     );
@@ -231,7 +230,7 @@ class ProductImagesMaintenanceCubit extends Cubit<ProductImagesMaintenanceState>
         );
 
         final slot = await catalogModule.executeCommandAsync(command);
-        
+
         await ProductImageUploadClient.uploadBytes(
           signedUploadUrl: slot.signedUploadUrl,
           bytes: bytes,
@@ -241,7 +240,6 @@ class ProductImagesMaintenanceCubit extends Cubit<ProductImagesMaintenanceState>
         addImage(
           storageKey: slot.storageKey,
           slotId: slot.slotId,
-          url: slot.signedUploadUrl, // Placeholder URL for UI until submitted
           localPath: file.path,
         );
       } on ValidationException catch (e) {
@@ -268,7 +266,6 @@ class ProductImagesMaintenanceCubit extends Cubit<ProductImagesMaintenanceState>
           imageId: img.imageId,
           storageKey: img.storageKey,
           slotId: img.slotId,
-          url: img.url,
           isPrimary: img.isPrimary,
           sortOrder: i,
         );

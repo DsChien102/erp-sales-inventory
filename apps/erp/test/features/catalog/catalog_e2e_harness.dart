@@ -6,6 +6,8 @@ import 'package:erp/features/catalog/presentation/pages/product_guided_create_pa
 import 'package:erp/features/catalog/presentation/pages/product_manual_base_price_page.dart';
 import 'package:erp/features/catalog/presentation/pages/product_measurement_units_page.dart';
 import 'package:erp/features/catalog/presentation/pages/product_readiness_checklist_page.dart';
+import 'package:erp/features/catalog/presentation/pages/product_images_maintenance_page.dart';
+import 'package:erp/features/catalog/presentation/pages/product_profile_maintenance_page.dart';
 import 'package:erp/features/catalog/presentation/pages/product_stock_adjustment_page.dart';
 import 'package:erp/features/catalog/presentation/widgets/product_control_center_operational_section.dart';
 import 'package:flutter/material.dart';
@@ -203,6 +205,72 @@ Widget buildCatalogDiscoveryRouter() {
           final args = state.extra as EditProductUnitPriceBandRouteArgs;
           return EditProductUnitPriceBandPage(
             args: args,
+          );
+        },
+      ),
+      GoRoute(
+        path: '/products/items/pcc/profile-maintenance',
+        builder: (context, state) {
+          final product = state.extra as ProductListItemModel;
+          return ProductProfileMaintenancePage(product: product);
+        },
+      ),
+      GoRoute(
+        path: '/products/items/pcc/images-maintenance',
+        builder: (context, state) {
+          final product = state.extra as ProductListItemModel;
+          return ProductImagesMaintenancePage(product: product);
+        },
+      ),
+    ],
+  );
+
+  return MaterialApp.router(routerConfig: router);
+}
+
+Future<void> tapEditProfile(WidgetTester tester) async {
+  final profileCard = find.widgetWithText(ProductControlCenterSectionCard, 'Hồ sơ sản phẩm');
+  await tester.ensureVisible(profileCard);
+  await tester.tap(profileCard);
+  await tester.pumpAndSettle();
+}
+
+Future<void> tapEditImages(WidgetTester tester) async {
+  final imagesCard = find.widgetWithText(ProductControlCenterSectionCard, 'Ảnh sản phẩm');
+  await tester.ensureVisible(imagesCard);
+  await tester.tap(imagesCard);
+  await tester.pumpAndSettle();
+}
+
+Widget buildPccMaintenanceRouter(ProductListItemModel product) {
+  final router = GoRouter(
+    initialLocation: '/products/items/pcc',
+    routes: [
+      GoRoute(
+        path: '/products/items/pcc',
+        builder: (context, state) => ProductControlCenterPage(product: product),
+      ),
+      GoRoute(
+        path: '/products/items/pcc/profile-maintenance',
+        builder: (context, state) {
+          final maintenanceProduct = state.extra as ProductListItemModel;
+          return ProductProfileMaintenancePage(product: maintenanceProduct);
+        },
+      ),
+      GoRoute(
+        path: '/products/items/pcc/images-maintenance',
+        builder: (context, state) {
+          final maintenanceProduct = state.extra as ProductListItemModel;
+          return ProductImagesMaintenancePage(product: maintenanceProduct);
+        },
+      ),
+      GoRoute(
+        path: '/products/items/pcc/checklist',
+        builder: (context, state) {
+          final args = state.extra as ProductReadinessChecklistRouteArgs;
+          return ProductReadinessChecklistPage(
+            readinessView: args.readinessView,
+            product: args.product,
           );
         },
       ),

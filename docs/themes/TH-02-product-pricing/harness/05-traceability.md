@@ -265,7 +265,14 @@ Mở đầy đủ khi CONTRACT lane bắt đầu.
 | FR-04 | CONTRACT | §EPIC-07-US-01 | application | Mutation results include refreshed `readinessSummary` | scn_contract_e07_u01_fr04_01 | done |
 | FR-01..04 | BE | §EPIC-07-US-01 | application + infrastructure | `UpdateProductProfileCommandHandler`, `UpdateProductImagesCommandHandler`, `RequestProductMaintenanceImageUploadCommandHandler`, gateways, generated access metadata, draft RPC `10_catalog_product_profile_maintenance.sql` | product_profile_maintenance_handlers_test, product_rpc_mapper_test, catalog_access_metadata_registry_test | done |
 | FR-01..04 | FE | §EPIC-07-US-01 | presentation | `product_profile_maintenance_page.dart`, `product_images_maintenance_page.dart` | wgt_e07_u01_fr01_01, wgt_e07_u01_fr02_01 | done |
-| FR-01..04 | E2E | §EPIC-07-US-01 | erp | ERP via `ICatalogModule` | e2e_e07_u01_* | todo |
+| FR-01 | E2E | §EPIC-07-US-01 | erp | Profile edit happy path + PCC refresh | e2e_e07_u01_fr01_01 | done |
+| FR-01 | E2E | §EPIC-07-US-01 | erp | Blank name client validation | e2e_e07_u01_fr01_02 | done |
+| FR-01 | E2E | §EPIC-07-US-01 | erp | Duplicate SKU field error | e2e_e07_u01_fr01_03 | done |
+| FR-03 | E2E | §EPIC-07-US-01 | erp | Duplicate barcode (inactive product) | e2e_e07_u01_fr03_01 | done |
+| FR-02 | E2E | §EPIC-07-US-01 | erp | PCC → images gallery | e2e_e07_u01_fr02_01 | done |
+| FR-02 | E2E | §EPIC-07-US-01 | erp | Remove primary → promote remaining | e2e_e07_u01_fr02_02 | done |
+| FR-02 | E2E | §EPIC-07-US-01 | erp | Delete all images → `0 ảnh` on PCC | e2e_e07_u01_fr02_03 | done |
+| FR-04 | E2E | §EPIC-07-US-01 | erp | Delete images → readiness missing-image blocker | e2e_e07_u01_fr04_01 | done |
 
 ---
 

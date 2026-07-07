@@ -24,4 +24,6 @@ export 'src/widgets/product_guided_create_body.dart';
 export 'src/widgets/product_list_item_tile.dart';
 export 'src/widgets/product_list_search_bar.dart';
 export 'src/widgets/product_readiness_checklist_body.dart';
+export 'src/services/product_image_display_resolver.dart';
 export 'src/services/product_image_upload_client.dart';
+export 'src/widgets/catalog_storage_image.dart';

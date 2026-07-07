@@ -92,7 +92,7 @@ begin
       p.sku,
       p.barcode,
       (
-        select i.file_url
+        select coalesce(i.file_url, i.storage_key)
         from catalog.product_images i
         where i.product_id = p.id
           and i.tenant_id = p_tenant_id
@@ -268,7 +268,7 @@ begin
     p.sku,
     p.barcode,
     (
-      select i.file_url
+      select coalesce(i.file_url, i.storage_key)
       from catalog.product_images i
       where i.product_id = p.id
         and i.tenant_id = p_tenant_id
@@ -363,16 +363,16 @@ begin
     'business_status', p.business_status::text,
     'is_soft_deleted', (p.deleted_at is not null),
     'primary_image_url', (
-      select i.file_url
+      select coalesce(i.file_url, i.storage_key)
       from catalog.product_images i
       where i.product_id = p.id and i.tenant_id = p_tenant_id
       order by i.is_primary desc, i.sort_order asc
       limit 1
     ),
     'images', coalesce((
-      select jsonb_agg(i.file_url order by i.is_primary desc, i.sort_order asc)
+      select jsonb_agg(coalesce(i.file_url, i.storage_key) order by i.is_primary desc, i.sort_order asc)
       from catalog.product_images i
-      where i.product_id = p.id and i.tenant_id = p_tenant_id and i.file_url is not null
+      where i.product_id = p.id and i.tenant_id = p_tenant_id
     ), '[]'::jsonb),
     'base_unit_name', (
       select u.unit_name

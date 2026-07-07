@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:vet45_catalog_application/application.dart';
+import 'package:vet45_catalog_presentation/presentation.dart';
 import 'package:vet45_design_system/design_system.dart';
 
 import 'product_control_center_formatters.dart';
@@ -19,7 +20,7 @@ class ProductControlCenterProfileCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final dynamicColors = context.vColors;
-    final imageUrl = profile.primaryImageUrl;
+    final imageReference = profile.primaryImageUrl;
 
     final listPriceText = priceBand.isMissing
         ? 'Giá niêm yết: --'
@@ -36,21 +37,19 @@ class ProductControlCenterProfileCard extends StatelessWidget {
         padding: const EdgeInsets.all(16),
         child: Row(
           children: [
-            if (imageUrl != null && imageUrl.isNotEmpty)
-              ClipRRect(
+            if (imageReference != null && imageReference.isNotEmpty)
+              CatalogStorageImage(
+                storageReference: imageReference,
+                width: 64,
+                height: 64,
+                fit: BoxFit.cover,
                 borderRadius: BorderRadius.circular(8),
-                child: Image.network(
-                  imageUrl,
-                  width: 64,
-                  height: 64,
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) => VIconBox(
-                    size: 64,
-                    iconSize: 32,
-                    iconData: Icons.image_outlined,
-                    backgroundColor: dynamicColors.surfaceAlt,
-                    iconColor: dynamicColors.textMuted,
-                  ),
+                placeholder: VIconBox(
+                  size: 64,
+                  iconSize: 32,
+                  iconData: Icons.image_outlined,
+                  backgroundColor: dynamicColors.surfaceAlt,
+                  iconColor: dynamicColors.textMuted,
                 ),
               )
             else

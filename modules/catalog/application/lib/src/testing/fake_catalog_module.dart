@@ -38,6 +38,7 @@ abstract final class FakeCatalogScenario {
   static const pccReadyToSell = 'pcc_ready_to_sell';
   static const pccInactive = 'pcc_inactive';
   static const pccCustomFieldCards = 'pcc_custom_field_cards';
+  static const pccProfileMaintenanceImages = 'pcc_profile_maintenance_images';
 
   static const listTenantUnits = 'list_tenant_units';
   static const setBaseUnitExisting = 'set_base_unit_existing';
@@ -512,7 +513,15 @@ final class FakeCatalogModule implements ICatalogModule {
           listMarkupRatio: 0.5,
           floorMarkupRatio: 0.25,
         ),
-      };
+      } {
+    if (scenario == FakeCatalogScenario.pccProfileMaintenanceImages) {
+      final product = _products.firstWhere((p) => p.id == 'product-1');
+      product.images = [
+        'https://cdn.fake/image-a.webp',
+        'https://cdn.fake/image-b.webp',
+      ];
+    }
+  }
 
   final String scenario;
   final List<_TenantUnit> _tenantUnits;
@@ -1214,6 +1223,9 @@ final class FakeCatalogModule implements ICatalogModule {
       return _findProduct('product-4') ?? _findProduct(productId);
     }
     if (scenario == FakeCatalogScenario.pccReadyToSell) {
+      return _findProduct('product-1') ?? _findProduct(productId);
+    }
+    if (scenario == FakeCatalogScenario.pccProfileMaintenanceImages) {
       return _findProduct('product-1') ?? _findProduct(productId);
     }
     if (scenario == FakeCatalogScenario.pccInactive) {

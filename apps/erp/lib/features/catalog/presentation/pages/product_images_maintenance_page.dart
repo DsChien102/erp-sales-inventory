@@ -1,6 +1,3 @@
-import 'dart:io';
-
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -91,32 +88,30 @@ class _ProductImagesMaintenanceView extends StatelessWidget {
                             clipBehavior: Clip.none,
                             children: [
                               Container(
-                                width: 100,
-                                height: 100,
                                 decoration: BoxDecoration(
-                                  color: dynamicColors.surfaceAlt,
                                   borderRadius: BorderRadius.circular(8),
                                   border: Border.all(
-                                    color: image.isPrimary ? dynamicColors.success : dynamicColors.borderDefault,
+                                    color: image.isPrimary
+                                        ? dynamicColors.success
+                                        : dynamicColors.borderDefault,
                                     width: image.isPrimary ? 2 : 1,
                                   ),
-                                  image: (image.localPath != null && image.localPath!.isNotEmpty)
-                                      ? DecorationImage(
-                                          image: kIsWeb 
-                                              ? NetworkImage(image.localPath!) 
-                                              : FileImage(File(image.localPath!)) as ImageProvider,
-                                          fit: BoxFit.cover,
-                                        )
-                                      : (image.url != null && image.url!.isNotEmpty
-                                          ? DecorationImage(
-                                              image: NetworkImage(image.url!),
-                                              fit: BoxFit.cover,
-                                            )
-                                          : null),
                                 ),
-                                child: (image.localPath == null || image.localPath!.isEmpty) && (image.url == null || image.url!.isEmpty)
-                                    ? Icon(Icons.image, color: dynamicColors.textSecondary)
-                                    : null,
+                                child: CatalogStorageImage(
+                                  storageReference: image.storageKey,
+                                  localPath: image.localPath,
+                                  width: 100,
+                                  height: 100,
+                                  fit: BoxFit.cover,
+                                  borderRadius: BorderRadius.circular(8),
+                                  placeholder: ColoredBox(
+                                    color: dynamicColors.surfaceAlt,
+                                    child: Icon(
+                                      Icons.image,
+                                      color: dynamicColors.textSecondary,
+                                    ),
+                                  ),
+                                ),
                               ),
                               if (image.isPrimary)
                                 Positioned(
@@ -234,6 +229,7 @@ class _ProductImagesMaintenanceView extends StatelessWidget {
                   child: BlocBuilder<ProductImagesMaintenanceCubit, ProductImagesMaintenanceState>(
                     builder: (context, state) {
                       return VButton(
+                        key: const Key('btn_images_maintenance_save'),
                         onPressed: state.status == ProductImagesMaintenanceStatus.submitting
                             ? null
                             : () => context.read<ProductImagesMaintenanceCubit>().submit(),

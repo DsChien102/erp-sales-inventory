@@ -108,6 +108,7 @@ class _ProductProfileMaintenanceViewState extends State<_ProductProfileMaintenan
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   VTextField(
+                    key: const Key('input_profile_name'),
                     controller: _nameController,
                     label: 'Tên nội bộ *',
                     hintText: 'Tên nội bộ',
@@ -127,6 +128,7 @@ class _ProductProfileMaintenanceViewState extends State<_ProductProfileMaintenan
                     children: [
                       Expanded(
                         child: VTextField(
+                          key: const Key('input_profile_sku'),
                           controller: _skuController,
                           label: 'SKU',
                           hintText: 'Mã SKU',
@@ -137,6 +139,7 @@ class _ProductProfileMaintenanceViewState extends State<_ProductProfileMaintenan
                       const SizedBox(width: 16),
                       Expanded(
                         child: VTextField(
+                          key: const Key('input_profile_barcode'),
                           controller: _barcodeController,
                           label: 'Barcode',
                           hintText: 'Mã vạch',
@@ -179,6 +182,7 @@ class _ProductProfileMaintenanceViewState extends State<_ProductProfileMaintenan
                   child: BlocBuilder<ProductProfileMaintenanceCubit, ProductProfileMaintenanceState>(
                     builder: (context, state) {
                       return VButton(
+                        key: const Key('btn_profile_maintenance_save'),
                         onPressed: state.status == ProductProfileMaintenanceStatus.submitting
                             ? null
                             : () => context.read<ProductProfileMaintenanceCubit>().submit(),
