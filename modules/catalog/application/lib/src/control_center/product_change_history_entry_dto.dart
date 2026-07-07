@@ -1,3 +1,5 @@
+import '../lifecycle/change_history/product_change_category.dart';
+
 /// Change history preview row on Product Control Center (EPIC-01/US-02/FR-06).
 final class ProductChangeHistoryEntryDto {
   const ProductChangeHistoryEntryDto({
@@ -8,6 +10,9 @@ final class ProductChangeHistoryEntryDto {
     required this.summary,
     this.valueBefore,
     this.valueAfter,
+    this.changeCategory,
+    this.source = 'user',
+    this.isSensitiveMasked = false,
   });
 
   final String id;
@@ -17,4 +22,7 @@ final class ProductChangeHistoryEntryDto {
   final String summary;
   final String? valueBefore;
   final String? valueAfter;
+  final ProductChangeCategory? changeCategory;
+  final String source;
+  final bool isSensitiveMasked;
 }

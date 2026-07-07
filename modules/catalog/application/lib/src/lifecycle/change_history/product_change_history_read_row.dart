@@ -1,0 +1,42 @@
+import '../../control_center/product_change_history_entry_dto.dart';
+import 'product_change_category.dart';
+
+/// Gateway read row before mapping to [ProductChangeHistoryEntryDto].
+final class ProductChangeHistoryReadRow {
+  const ProductChangeHistoryReadRow({
+    required this.id,
+    required this.occurredAt,
+    required this.actorDisplayName,
+    required this.changeType,
+    required this.summary,
+    required this.changeCategory,
+    required this.source,
+    required this.isSensitiveMasked,
+    this.valueBefore,
+    this.valueAfter,
+  });
+
+  final String id;
+  final DateTime occurredAt;
+  final String actorDisplayName;
+  final String changeType;
+  final String summary;
+  final ProductChangeCategory changeCategory;
+  final String source;
+  final bool isSensitiveMasked;
+  final String? valueBefore;
+  final String? valueAfter;
+
+  ProductChangeHistoryEntryDto toDto() => ProductChangeHistoryEntryDto(
+    id: id,
+    occurredAt: occurredAt,
+    actorDisplayName: actorDisplayName,
+    changeType: changeType,
+    summary: summary,
+    valueBefore: valueBefore,
+    valueAfter: valueAfter,
+    changeCategory: changeCategory,
+    source: source,
+    isSensitiveMasked: isSensitiveMasked,
+  );
+}

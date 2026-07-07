@@ -50,6 +50,10 @@ final catalogAccessMetadataRegistry = AccessMetadataRegistry({
     permission: 'catalog.product.delete',
     requiresTenant: true,
   ),
+  GetProductChangeHistoryQuery: AccessMetadata(
+    permission: 'catalog.product.view_history',
+    requiresTenant: true,
+  ),
   GetProductControlCenterQuery: AccessMetadata(
     permission: 'catalog.product.view_detail',
     requiresTenant: true,
