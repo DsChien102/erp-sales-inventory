@@ -83,6 +83,10 @@ Object mapCatalogRpcError(RpcException error) {
     );
   }
 
+  if (message.contains('product_delete_blocked') || message.contains('product_restore_blocked')) {
+    return ValidationException(_stripKnownPrefix(error.message));
+  }
+
   if (message.contains('validation_exception')) {
     return ValidationException(_stripPrefix(error.message));
   }
@@ -106,6 +110,10 @@ Object mapCatalogRpcError(RpcException error) {
 
 String _stripPrefix(String message) {
   return message.replaceFirst(RegExp(r'^validation_exception:\s*'), '');
+}
+
+String _stripKnownPrefix(String message) {
+  return message.replaceFirst(RegExp(r'^[a-z_]+:\s*'), '');
 }
 
 String? _extractQuoted(String message) {

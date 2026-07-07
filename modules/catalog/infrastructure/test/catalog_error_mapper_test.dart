@@ -79,6 +79,36 @@ void main() {
       expect(error.currentVersion, 1);
     });
 
+    test('maps product delete blocked as validation exception', () {
+      final error = mapCatalogRpcError(
+        RpcException('product_delete_blocked: open_transaction'),
+      );
+
+      expect(error, isA<ValidationException>());
+      expect((error as ValidationException).message, contains('open_transaction'));
+    });
+
+    test('maps product restore blocked as validation exception', () {
+      final error = mapCatalogRpcError(
+        RpcException('product_restore_blocked: duplicate active references'),
+      );
+
+      expect(error, isA<ValidationException>());
+      expect(
+        (error as ValidationException).message,
+        contains('duplicate active references'),
+      );
+    });
+
+    test('maps soft deleted product locked as application exception', () {
+      final error = mapCatalogRpcError(
+        RpcException('soft_deleted_product_locked'),
+      );
+
+      expect(error, isA<ApplicationException>());
+      expect((error as ApplicationException).message, contains('soft_deleted_product_locked'));
+    });
+
     test('maps product business status warning acknowledgment', () {
       final error = mapCatalogRpcError(
         RpcException(

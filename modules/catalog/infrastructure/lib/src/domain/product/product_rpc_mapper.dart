@@ -162,6 +162,40 @@ abstract final class ProductRpcMapper {
     };
   }
 
+  static Map<String, dynamic> checkProductDeletionEligibilityParams(
+    CheckProductDeletionEligibilityQuery query,
+  ) {
+    return <String, dynamic>{
+      'p_tenant_id': query.tenantId,
+      'p_product_id': query.productId,
+    };
+  }
+
+  static Map<String, dynamic> deleteProductParams(
+    DeleteProductCommand command,
+  ) {
+    return <String, dynamic>{
+      'p_tenant_id': command.tenantId,
+      'p_actor_id': command.actorId,
+      'p_product_id': command.productId,
+      'p_reason': _optionalText(command.reason),
+      'p_expected_version': command.expectedVersion,
+      'p_confirm_acknowledge_warnings': command.confirmAcknowledgeWarnings,
+    };
+  }
+
+  static Map<String, dynamic> restoreProductParams(
+    RestoreProductCommand command,
+  ) {
+    return <String, dynamic>{
+      'p_tenant_id': command.tenantId,
+      'p_actor_id': command.actorId,
+      'p_product_id': command.productId,
+      'p_reason': _optionalText(command.reason),
+      'p_expected_version': command.expectedVersion,
+    };
+  }
+
   static Map<String, dynamic> requestMaintenanceImageUploadParams(
     RequestProductMaintenanceImageUploadCommand command,
   ) {
@@ -224,6 +258,32 @@ abstract final class ProductRpcMapper {
       version: _intValue(row['version']) ?? 1,
       reason: row['reason'] as String?,
       warnings: _warningDtos(row['warnings']),
+      historyEntry: _historyEntry(row['history_entry']),
+    );
+  }
+
+  static ProductDeletionEligibilityDto productDeletionEligibilityFromRow(
+    Map<String, dynamic> row,
+  ) {
+    return ProductDeletionEligibilityDto(
+      productId: row['product_id'] as String,
+      canDelete: row['can_delete'] as bool? ?? false,
+      issues: _deletionIssues(row['issues']),
+      suggestedActionId: row['suggested_action_id'] as String?,
+    );
+  }
+
+  static ChangeProductSoftDeleteResult changeProductSoftDeleteResultFromRow(
+    Map<String, dynamic> row,
+  ) {
+    return ChangeProductSoftDeleteResult(
+      productId: row['product_id'] as String,
+      isSoftDeleted: row['is_soft_deleted'] as bool? ?? false,
+      businessStatus: _productStatusFromRpc(row['business_status'] as String?),
+      readinessSummary: _readinessSummaryFromRow(row),
+      version: _intValue(row['version']) ?? 1,
+      reason: row['reason'] as String?,
+      issues: _deletionIssues(row['issues']),
       historyEntry: _historyEntry(row['history_entry']),
     );
   }
@@ -508,6 +568,29 @@ abstract final class ProductRpcMapper {
           );
         })
         .toList(growable: false);
+  }
+
+  static List<ProductDeletionIssueDto> _deletionIssues(Object? value) {
+    return (value as List<dynamic>? ?? const [])
+        .map((item) {
+          final map = Map<String, dynamic>.from(item as Map);
+          return ProductDeletionIssueDto(
+            code: map['code'] as String,
+            message: map['message'] as String,
+            severity: _deletionIssueSeverityFromRpc(map['severity'] as String?),
+          );
+        })
+        .toList(growable: false);
+  }
+
+  static ProductDeletionIssueSeverity _deletionIssueSeverityFromRpc(
+    String? value,
+  ) {
+    return switch (value) {
+      'blocker' => ProductDeletionIssueSeverity.blocker,
+      'recommendation' => ProductDeletionIssueSeverity.recommendation,
+      _ => ProductDeletionIssueSeverity.warning,
+    };
   }
 
   static ProductChangeHistoryEntryDto? _historyEntry(Object? value) {

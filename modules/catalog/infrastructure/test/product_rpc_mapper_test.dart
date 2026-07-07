@@ -216,6 +216,173 @@ void main() {
     });
   });
 
+  group('ProductRpcMapper (EPIC-07/US-03 product soft delete)', () {
+    test('checkProductDeletionEligibilityParams maps query to RPC parameters', () {
+      final params = ProductRpcMapper.checkProductDeletionEligibilityParams(
+        CheckProductDeletionEligibilityQuery(
+          tenantId: 'tenant-1',
+          productId: 'product-6',
+        ),
+      );
+
+      expect(params['p_tenant_id'], 'tenant-1');
+      expect(params['p_product_id'], 'product-6');
+    });
+
+    test('deleteProductParams maps command to RPC parameters', () {
+      final params = ProductRpcMapper.deleteProductParams(
+        DeleteProductCommand(
+          tenantId: 'tenant-1',
+          actorId: 'user-1',
+          productId: 'product-6',
+          reason: 'Dọn danh mục',
+          expectedVersion: 1,
+          confirmAcknowledgeWarnings: true,
+        ),
+      );
+
+      expect(params['p_tenant_id'], 'tenant-1');
+      expect(params['p_actor_id'], 'user-1');
+      expect(params['p_product_id'], 'product-6');
+      expect(params['p_reason'], 'Dọn danh mục');
+      expect(params['p_expected_version'], 1);
+      expect(params['p_confirm_acknowledge_warnings'], isTrue);
+    });
+
+    test('restoreProductParams maps command to RPC parameters', () {
+      final params = ProductRpcMapper.restoreProductParams(
+        RestoreProductCommand(
+          tenantId: 'tenant-1',
+          actorId: 'user-1',
+          productId: 'product-7',
+          reason: 'Khôi phục nhầm xóa',
+          expectedVersion: 2,
+        ),
+      );
+
+      expect(params['p_tenant_id'], 'tenant-1');
+      expect(params['p_actor_id'], 'user-1');
+      expect(params['p_product_id'], 'product-7');
+      expect(params['p_reason'], 'Khôi phục nhầm xóa');
+      expect(params['p_expected_version'], 2);
+    });
+
+    test('productDeletionEligibilityFromRow maps issue severities', () {
+      final result = ProductRpcMapper.productDeletionEligibilityFromRow({
+        'product_id': 'product-4',
+        'can_delete': false,
+        'suggested_action_id': 'deactivate_product',
+        'issues': [
+          {
+            'code': ProductDeletionIssueCode.openTransaction,
+            'message': 'Sản phẩm đang được dùng trong giao dịch mở.',
+            'severity': 'blocker',
+          },
+          {
+            'code': ProductDeletionIssueCode.hasHistoricalTransactions,
+            'message': 'Sản phẩm có giao dịch lịch sử.',
+            'severity': 'warning',
+          },
+          {
+            'code': ProductDeletionIssueCode.hasStock,
+            'message': 'Sản phẩm vẫn còn tồn kho.',
+            'severity': 'recommendation',
+          },
+          {
+            'code': ProductDeletionIssueCode.activePromotion,
+            'message': 'Sản phẩm đang nằm trong chương trình khuyến mãi.',
+            'severity': 'warning',
+          },
+        ],
+      });
+
+      expect(result.productId, 'product-4');
+      expect(result.canDelete, isFalse);
+      expect(result.suggestedActionId, 'deactivate_product');
+      expect(result.issues, hasLength(4));
+      expect(result.blockers.single.code, ProductDeletionIssueCode.openTransaction);
+      expect(
+        result.warnings.map((issue) => issue.code),
+        containsAll([
+          ProductDeletionIssueCode.hasHistoricalTransactions,
+          ProductDeletionIssueCode.activePromotion,
+        ]),
+      );
+      expect(
+        result.issues
+            .singleWhere((issue) => issue.code == ProductDeletionIssueCode.hasStock)
+            .severity,
+        ProductDeletionIssueSeverity.recommendation,
+      );
+    });
+
+    test('changeProductSoftDeleteResultFromRow maps delete result row', () {
+      final result = ProductRpcMapper.changeProductSoftDeleteResultFromRow({
+        'product_id': 'product-6',
+        'is_soft_deleted': true,
+        'business_status': 'active',
+        'readiness_status': 'ready_to_sell',
+        'readiness_blockers': [],
+        'version': 2,
+        'reason': 'Dọn danh mục',
+        'issues': [
+          {
+            'code': ProductDeletionIssueCode.hasHistoricalTransactions,
+            'message': 'Sản phẩm có giao dịch lịch sử.',
+            'severity': 'warning',
+          },
+        ],
+        'history_entry': {
+          'id': 'history-delete-1',
+          'occurred_at': '2026-07-07T11:00:00.000Z',
+          'actor_display_name': 'user-1',
+          'change_type': 'product_soft_deleted',
+          'summary': 'Xóa mềm sản phẩm',
+          'value_before': 'false',
+          'value_after': 'true',
+        },
+      });
+
+      expect(result.productId, 'product-6');
+      expect(result.isSoftDeleted, isTrue);
+      expect(result.businessStatus, ProductStatus.active);
+      expect(result.readinessSummary.status, ReadinessStatus.readyToSell);
+      expect(result.version, 2);
+      expect(result.reason, 'Dọn danh mục');
+      expect(result.issues.single.code, ProductDeletionIssueCode.hasHistoricalTransactions);
+      expect(result.historyEntry?.valueBefore, 'false');
+      expect(result.historyEntry?.valueAfter, 'true');
+    });
+
+    test('changeProductSoftDeleteResultFromRow maps restore result row', () {
+      final result = ProductRpcMapper.changeProductSoftDeleteResultFromRow({
+        'product_id': 'product-7',
+        'is_soft_deleted': false,
+        'business_status': 'inactive',
+        'readiness_status': 'incomplete',
+        'readiness_blockers': [
+          {
+            'code': ReadinessBlockerCode.missingPriceBand,
+            'message': 'Thiếu khung giá bán',
+            'group': 'priceBand',
+          },
+        ],
+        'version': 3,
+        'reason': 'Khôi phục nhầm xóa',
+      });
+
+      expect(result.productId, 'product-7');
+      expect(result.isSoftDeleted, isFalse);
+      expect(result.businessStatus, ProductStatus.inactive);
+      expect(result.readinessSummary.status, ReadinessStatus.incomplete);
+      expect(
+        result.readinessSummary.blockers.single.code,
+        ReadinessBlockerCode.missingPriceBand,
+      );
+      expect(result.version, 3);
+    });
+  });
+
   group('ProductRpcMapper (US-02 Operational Data)', () {
     test('setInitialStockParams maps stock profile to RPC parameters', () {
       final profile = ProductStockProfile.basic(initialStock: 150.0);

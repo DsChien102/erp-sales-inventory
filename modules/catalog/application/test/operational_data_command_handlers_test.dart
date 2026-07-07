@@ -81,6 +81,20 @@ class _RecordingProductCommandGateway implements IProductCommandGateway {
   ) async {
     throw UnimplementedError();
   }
+
+  @override
+  Future<ChangeProductSoftDeleteResult> deleteProduct(
+    DeleteProductCommand command,
+  ) async {
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<ChangeProductSoftDeleteResult> restoreProduct(
+    RestoreProductCommand command,
+  ) async {
+    throw UnimplementedError();
+  }
 }
 
 class _FakeProductReadinessReadPort implements IProductReadinessReadPort {

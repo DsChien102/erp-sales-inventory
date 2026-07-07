@@ -11,11 +11,12 @@ import 'product_readiness_checklist_page.dart';
 import 'product_measurement_units_page.dart';
 import 'product_manual_base_price_page.dart';
 import 'product_price_bands_page.dart';
-
 import '../widgets/product_control_center_operational_section.dart';
 import '../widgets/product_control_center_profile_card.dart';
 import '../widgets/product_control_center_danger_section.dart';
 import '../widgets/product_lifecycle_bottom_sheets.dart';
+import '../widgets/product_delete_confirm_dialog.dart';
+import '../widgets/product_restore_confirm_dialog.dart';
 import 'product_stock_adjustment_page.dart';
 
 class ProductControlCenterRouteArgs {
@@ -150,13 +151,23 @@ class _ProductControlCenterView extends StatelessWidget {
                 builder: (context, state) {
                   final isReady =
                       state.controlCenter?.readinessSummary.status == ReadinessStatus.readyToSell;
+                  final isSoftDeleted =
+                      state.controlCenter?.profile.isSoftDeleted ?? product.isSoftDeleted;
 
                   return Center(
                     child: Padding(
                       padding: const EdgeInsets.only(right: 16),
                       child: VBadge(
-                        label: isReady ? 'Sẵn sàng bán' : 'Thiếu dữ liệu',
-                        status: isReady ? VBadgeStatus.success : VBadgeStatus.danger,
+                        label: isSoftDeleted
+                            ? 'Đã xóa'
+                            : isReady
+                            ? 'Sẵn sàng bán'
+                            : 'Thiếu dữ liệu',
+                        status: isSoftDeleted
+                            ? VBadgeStatus.locked
+                            : isReady
+                            ? VBadgeStatus.success
+                            : VBadgeStatus.danger,
                         isSmall: true,
                       ),
                     ),
@@ -184,6 +195,7 @@ class _ProductControlCenterView extends StatelessWidget {
               }
 
               final blockersCount = controlCenter?.readinessSummary.blockers.length ?? 0;
+              final isSoftDeleted = controlCenter?.profile.isSoftDeleted ?? product.isSoftDeleted;
 
               return SingleChildScrollView(
                 child: Column(
@@ -259,79 +271,95 @@ class _ProductControlCenterView extends StatelessWidget {
                         icon: Icons.assignment_outlined,
                         subtitle:
                             '${controlCenter.profile.sku ?? 'Chưa có mã SKU'} · ${controlCenter.profile.barcode ?? 'Chưa có mã vạch'}',
-                        onEdit: () async {
-                          final updatedProduct = product.copyWith(
-                            name: controlCenter.profile.name,
-                            tradeName: controlCenter.profile.tradeName,
-                            sku: controlCenter.profile.sku,
-                            barcode: controlCenter.profile.barcode,
-                            images: controlCenter.profile.images,
-                            imageUrl: controlCenter.profile.primaryImageUrl,
-                          );
-                          await context.push(
-                            '/products/items/pcc/profile-maintenance',
-                            extra: updatedProduct,
-                          );
-                          if (!context.mounted) return;
-                          context.read<ProductControlCenterCubit>().loadControlCenter(product.id);
-                        },
+                        onEdit: isSoftDeleted
+                            ? null
+                            : () async {
+                                final updatedProduct = product.copyWith(
+                                  name: controlCenter.profile.name,
+                                  tradeName: controlCenter.profile.tradeName,
+                                  sku: controlCenter.profile.sku,
+                                  barcode: controlCenter.profile.barcode,
+                                  images: controlCenter.profile.images,
+                                  imageUrl: controlCenter.profile.primaryImageUrl,
+                                );
+                                await context.push(
+                                  '/products/items/pcc/profile-maintenance',
+                                  extra: updatedProduct,
+                                );
+                                if (!context.mounted) return;
+                                context.read<ProductControlCenterCubit>().loadControlCenter(
+                                  product.id,
+                                );
+                              },
                       ),
                       ProductControlCenterSectionCard(
                         title: 'Ảnh sản phẩm',
                         icon: Icons.camera_alt_outlined,
                         subtitle: '${controlCenter.profile.images.length} ảnh',
-                        onEdit: () async {
-                          final updatedProduct = product.copyWith(
-                            name: controlCenter.profile.name,
-                            tradeName: controlCenter.profile.tradeName,
-                            sku: controlCenter.profile.sku,
-                            barcode: controlCenter.profile.barcode,
-                            images: controlCenter.profile.images,
-                            imageUrl: controlCenter.profile.primaryImageUrl,
-                          );
-                          await context.push(
-                            '/products/items/pcc/images-maintenance',
-                            extra: updatedProduct,
-                          );
-                          if (!context.mounted) return;
-                          context.read<ProductControlCenterCubit>().loadControlCenter(product.id);
-                        },
+                        onEdit: isSoftDeleted
+                            ? null
+                            : () async {
+                                final updatedProduct = product.copyWith(
+                                  name: controlCenter.profile.name,
+                                  tradeName: controlCenter.profile.tradeName,
+                                  sku: controlCenter.profile.sku,
+                                  barcode: controlCenter.profile.barcode,
+                                  images: controlCenter.profile.images,
+                                  imageUrl: controlCenter.profile.primaryImageUrl,
+                                );
+                                await context.push(
+                                  '/products/items/pcc/images-maintenance',
+                                  extra: updatedProduct,
+                                );
+                                if (!context.mounted) return;
+                                context.read<ProductControlCenterCubit>().loadControlCenter(
+                                  product.id,
+                                );
+                              },
                       ),
                       ProductControlCenterOperationalSection(
                         units: controlCenter.units,
                         stock: controlCenter.stock,
                         basePrice: controlCenter.basePrice,
                         priceBand: controlCenter.priceBand,
-                        onEditUnits: () async {
-                          final updatedProduct = product.copyWith(
-                            baseUnit: controlCenter.units.baseUnitName,
-                          );
-                          await context.push(
-                            '/products/items/pcc/measurement-units',
-                            extra: ProductMeasurementUnitsRouteArgs(product: updatedProduct),
-                          );
-                          if (!context.mounted) return;
-                          context.read<ProductControlCenterCubit>().loadControlCenter(product.id);
-                        },
-                        onEditStock: () async {
-                          if (controlCenter.stock.canAdjust) {
-                            final didChange = await context.push<bool>(
-                              '/products/items/pcc/stock',
-                              extra: ProductStockAdjustmentRouteArgs(
-                                product: product,
-                                currentQuantity: controlCenter.stock.quantity,
-                                unitName: controlCenter.stock.unitName,
-                                stockVersion: controlCenter.stock.currentVersion,
-                              ),
-                            );
-                            if (didChange == true && context.mounted) {
-                              context.read<ProductControlCenterCubit>().loadControlCenter(
-                                product.id,
-                              );
-                            }
-                          }
-                        },
-                        onEditBasePrice: controlCenter.basePrice.canEdit
+                        onEditUnits: isSoftDeleted
+                            ? null
+                            : () async {
+                                final updatedProduct = product.copyWith(
+                                  baseUnit: controlCenter.units.baseUnitName,
+                                );
+                                await context.push(
+                                  '/products/items/pcc/measurement-units',
+                                  extra: ProductMeasurementUnitsRouteArgs(product: updatedProduct),
+                                );
+                                if (!context.mounted) return;
+                                context.read<ProductControlCenterCubit>().loadControlCenter(
+                                  product.id,
+                                );
+                              },
+                        onEditStock: isSoftDeleted
+                            ? null
+                            : () async {
+                                if (controlCenter.stock.canAdjust) {
+                                  final didChange = await context.push<bool>(
+                                    '/products/items/pcc/stock',
+                                    extra: ProductStockAdjustmentRouteArgs(
+                                      product: product,
+                                      currentQuantity: controlCenter.stock.quantity,
+                                      unitName: controlCenter.stock.unitName,
+                                      stockVersion: controlCenter.stock.currentVersion,
+                                    ),
+                                  );
+                                  if (didChange == true && context.mounted) {
+                                    context.read<ProductControlCenterCubit>().loadControlCenter(
+                                      product.id,
+                                    );
+                                  }
+                                }
+                              },
+                        onEditBasePrice: isSoftDeleted
+                            ? null
+                            : controlCenter.basePrice.canEdit
                             ? () async {
                                 await context.push(
                                   '/products/items/pcc/manual-base-price',
@@ -348,17 +376,21 @@ class _ProductControlCenterView extends StatelessWidget {
                             : controlCenter.basePrice.mode == BasePriceMode.costingModule
                             ? () => _showEditPlaceholder(context)
                             : null,
-                        onEditPriceBand: () async {
-                          await context.push(
-                            '/products/items/pcc/price-bands',
-                            extra: ProductPriceBandsRouteArgs(
-                              productId: product.id,
-                              productName: product.name,
-                            ),
-                          );
-                          if (!context.mounted) return;
-                          context.read<ProductControlCenterCubit>().loadControlCenter(product.id);
-                        },
+                        onEditPriceBand: isSoftDeleted
+                            ? null
+                            : () async {
+                                await context.push(
+                                  '/products/items/pcc/price-bands',
+                                  extra: ProductPriceBandsRouteArgs(
+                                    productId: product.id,
+                                    productName: product.name,
+                                  ),
+                                );
+                                if (!context.mounted) return;
+                                context.read<ProductControlCenterCubit>().loadControlCenter(
+                                  product.id,
+                                );
+                              },
                       ),
                       ...controlCenter.customFieldGroupCards.map((group) {
                         IconData iconData = Icons.assignment_outlined;
@@ -401,6 +433,7 @@ class _ProductControlCenterView extends StatelessWidget {
                       ),
                       ProductControlCenterDangerSection(
                         businessStatus: controlCenter.profile.businessStatus,
+                        isSoftDeleted: isSoftDeleted,
                         onDeactivate: () {
                           showProductDeactivateBottomSheet(
                             context: context,
@@ -413,7 +446,34 @@ class _ProductControlCenterView extends StatelessWidget {
                             onConfirm: () => _handleReactivate(context),
                           );
                         },
-                        onDelete: () => _showEditPlaceholder(context),
+                        onDelete: () {
+                          ProductDeleteConfirmDialog.show(
+                            context,
+                            cubit: ProductSoftDeleteCubit(
+                              mediator: GetIt.instance<ICatalogModule>(),
+                              executionContext: GetIt.instance<IExecutionContext>(),
+                            ),
+                            productId: product.id,
+                            productName: product.name,
+                          );
+                        },
+                        onRestore: () {
+                          ProductRestoreConfirmDialog.show(
+                            context,
+                            cubit: ProductSoftDeleteCubit(
+                              mediator: GetIt.instance<ICatalogModule>(),
+                              executionContext: GetIt.instance<IExecutionContext>(),
+                            ),
+                            productId: product.id,
+                            productName: product.name,
+                            readinessSummary: controlCenter.readinessSummary,
+                            onRestored: () {
+                              context.read<ProductControlCenterCubit>().loadControlCenter(
+                                product.id,
+                              );
+                            },
+                          );
+                        },
                       ),
                     ],
                     const SizedBox(height: 16),

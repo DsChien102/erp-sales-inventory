@@ -22,6 +22,7 @@ enum ProductListFilter {
   readyToSell('Sẵn sàng bán'),
   incomplete('Thiếu dữ liệu'),
   inactive('Ngừng KD'),
+  deleted('Đã xóa'),
   inStock('Còn hàng'),
   outOfStock('Hết hàng'),
   negativeStock('Tồn âm');
@@ -68,7 +69,7 @@ class _ProductCatalogTabPageState extends State<ProductCatalogTabPage> {
     setState(() {
       _selectedFilter = filter;
     });
-    
+
     final keyword = _cubit.state is ProductListLoaded
         ? (_cubit.state as ProductListLoaded).criteria.keyword
         : null;
@@ -76,13 +77,25 @@ class _ProductCatalogTabPageState extends State<ProductCatalogTabPage> {
     ProductSearchCriteria newCriteria;
     switch (filter) {
       case ProductListFilter.readyToSell:
-        newCriteria = ProductSearchCriteria(keyword: keyword, readinessFilter: ProductReadinessFilter.readyToSell);
+        newCriteria = ProductSearchCriteria(
+          keyword: keyword,
+          readinessFilter: ProductReadinessFilter.readyToSell,
+        );
         break;
       case ProductListFilter.incomplete:
-        newCriteria = ProductSearchCriteria(keyword: keyword, readinessFilter: ProductReadinessFilter.incomplete);
+        newCriteria = ProductSearchCriteria(
+          keyword: keyword,
+          readinessFilter: ProductReadinessFilter.incomplete,
+        );
         break;
       case ProductListFilter.inactive:
-        newCriteria = ProductSearchCriteria(keyword: keyword, businessStatuses: {ProductStatus.inactive});
+        newCriteria = ProductSearchCriteria(
+          keyword: keyword,
+          businessStatuses: {ProductStatus.inactive},
+        );
+        break;
+      case ProductListFilter.deleted:
+        newCriteria = ProductSearchCriteria(keyword: keyword, includeSoftDeleted: true);
         break;
       default:
         // Stock filters and 'all' fallback to generic search, UI does local filtering for stock
@@ -94,7 +107,7 @@ class _ProductCatalogTabPageState extends State<ProductCatalogTabPage> {
 
   Widget _buildFilterChips(BuildContext context, dynamic dynamicColors, ProductListState state) {
     final globalCount = _cubit.globalTotalCount;
-    
+
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -135,13 +148,15 @@ class _ProductCatalogTabPageState extends State<ProductCatalogTabPage> {
     );
   }
 
-  void _navigateToProduct(BuildContext context, ProductListItemDto dto) {
+  Future<void> _navigateToProduct(BuildContext context, ProductListItemDto dto) async {
     final readinessStatus = dto.readinessSummary.status == ReadinessStatus.readyToSell
         ? ProductReadinessStatus.ready
         : ProductReadinessStatus.needsReview;
 
-    final businessStatus = dto.businessStatus == ProductStatus.active 
-        ? ProductBusinessStatus.active 
+    final businessStatus = dto.isSoftDeleted
+        ? ProductBusinessStatus.softDeleted
+        : dto.businessStatus == ProductStatus.active
+        ? ProductBusinessStatus.active
         : ProductBusinessStatus.inactive;
 
     final model = ProductListItemModel(
@@ -158,12 +173,17 @@ class _ProductCatalogTabPageState extends State<ProductCatalogTabPage> {
       baseUnit: dto.baseUnit,
       stockQty: dto.stockQuantity,
       stockLabel: dto.stockLabel,
+      isSoftDeleted: dto.isSoftDeleted,
     );
 
-    context.push(
+    final result = await context.push<bool>(
       '/products/items/pcc',
       extra: ProductControlCenterRouteArgs(product: model),
     );
+
+    if (result == true && context.mounted) {
+      _cubit.fetchProducts(isRefresh: true);
+    }
   }
 
   @override
@@ -185,7 +205,9 @@ class _ProductCatalogTabPageState extends State<ProductCatalogTabPage> {
                   color: dynamicColors.textPrimary,
                   fontWeight: FontWeight.w700,
                 ),
-                subtitle: _cubit.globalTotalCount != null ? '${_cubit.globalTotalCount} sản phẩm' : null,
+                subtitle: _cubit.globalTotalCount != null
+                    ? '${_cubit.globalTotalCount} sản phẩm'
+                    : null,
                 showBackButton: false,
                 actions: [
                   IconButton(
@@ -207,7 +229,8 @@ class _ProductCatalogTabPageState extends State<ProductCatalogTabPage> {
             Expanded(
               child: BlocBuilder<ProductListCubit, ProductListState>(
                 builder: (context, state) {
-                  if (state is ProductListInitial || (state is ProductListLoading && state.isFirstLoad)) {
+                  if (state is ProductListInitial ||
+                      (state is ProductListLoading && state.isFirstLoad)) {
                     return const Center(child: CircularProgressIndicator());
                   }
 

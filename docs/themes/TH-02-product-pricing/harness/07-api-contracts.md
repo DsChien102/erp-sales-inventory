@@ -934,7 +934,7 @@ Tests: `scn_contract_e07_u01_*` in `fake_catalog_module_test.dart` (group `EPIC-
 
 ## EPIC-07 / US-02 — Ngừng KD / KD lại (slice #13)
 
-**Status:** CONTRACT `done` · BE `todo` · FE `todo` · E2E `todo`
+**Status:** CONTRACT `done` · BE `done` · FE `done` · E2E `done`
 
 ### Commands
 
@@ -998,6 +998,77 @@ Tests: `scn_contract_e07_u02_*` in `fake_catalog_module_test.dart` (group `EPIC-
 
 ---
 
+## EPIC-07 / US-03 — Xóa mềm / khôi phục (slice #14)
+
+**Status:** CONTRACT `done` · BE `todo` · FE `todo` · E2E `todo`
+
+### Commands / Queries
+
+| Symbol | Input (summary) | Success | Errors |
+| ------ | --------------- | ------- | ------ |
+| `CheckProductDeletionEligibilityQuery` | tenantId, productId | `ProductDeletionEligibilityDto` | PermissionDenied, NotFound |
+| `DeleteProductCommand` | tenantId, actorId, productId, reason?, expectedVersion?, confirmAcknowledgeWarnings | `ChangeProductSoftDeleteResult` (`isSoftDeleted=true`) | PermissionDenied, NotFound, Validation, `StaleProductVersionException` |
+| `RestoreProductCommand` | tenantId, actorId, productId, reason?, expectedVersion? | `ChangeProductSoftDeleteResult` (`isSoftDeleted=false`, `businessStatus=inactive`, readiness refreshed) | PermissionDenied, NotFound, Validation, `StaleProductVersionException`, `DuplicateSkuException`, `DuplicateBarcodeException` |
+
+Package: `vet45_catalog_application` — `lifecycle/`.
+
+Supporting types:
+
+| Type | Fields |
+| ---- | ------ |
+| `ProductDeletionEligibilityDto` | productId, canDelete, issues[], suggestedActionId? |
+| `ProductDeletionIssueDto` | code, message, severity |
+| `ProductDeletionIssueCode` | `has_historical_transactions`, `has_stock`, `open_transaction`, `active_promotion` |
+| `ProductDeletionIssueSeverity` | `warning`, `blocker`, `recommendation` |
+| `ChangeProductSoftDeleteResult` | productId, isSoftDeleted, businessStatus, readinessSummary, version, reason?, issues[], historyEntry? |
+
+Permissions: `@RequiresPermission(CatalogPermissions.delete)` + `@RequiresTenant()`.
+
+### Contract rules
+
+- Soft delete remains a separate `isSoftDeleted` flag; do not add `ProductStatus.deleted`.
+- `DeleteProductCommand` preserves profile, UOM, images, stock, pricing, custom fields, business status, readiness inputs, and change history. It only marks `isSoftDeleted=true`, increments version, and records history.
+- Eligibility blockers such as `open_transaction` prevent delete even when warnings are acknowledged. Warnings can suggest `deactivate_product` instead.
+- Default product search excludes soft-deleted products through `ProductSearchCriteria.includeSoftDeleted=false`; admin/history views must opt in explicitly.
+- Restore is allowed only for soft-deleted products. Restore checks SKU/barcode conflicts against non-deleted products.
+- Restored products return to `ProductStatus.inactive` and must show refreshed readiness blockers instead of claiming ready-to-sell.
+- Soft-deleted products remain read-only for normal maintenance; profile/image maintenance remains locked until restored.
+- Sales/Promotions dependency checks are contract fakes only in this lane; BE can connect module facts later.
+
+### RPC mapping (BE — later lane)
+
+| Use case | RPC | Notes |
+| -------- | --- | ----- |
+| Check delete eligibility | `catalog.check_product_deletion_eligibility` | Dependency facts, warning/blocker issue list, suggested deactivate action |
+| Soft delete product | `catalog.delete_product` | Version check, dependency guard, soft-delete flag, change history |
+| Restore product | `catalog.restore_product` | Version check, duplicate SKU/barcode guard, restore as inactive, readiness refresh, change history |
+
+No SQL draft is created in CONTRACT lane.
+
+### Fake scenarios (FE)
+
+| scenario_id | trigger | fake response |
+| ----------- | ------- | ------------- |
+| `scn_contract_e07_u03_fr01_01` | eligibility for `product-6` | `canDelete=true`, no issues |
+| `scn_contract_e07_u03_fr01_02` | eligibility/delete for `product-4` with open transaction | blocker `open_transaction`; delete throws `ValidationException` |
+| `scn_contract_e07_u03_fr01_03` | historical data on `product-1` | warning `has_historical_transactions`, suggested `deactivate_product` |
+| `scn_contract_e07_u03_fr02_01` | delete `product-6` | `isSoftDeleted=true`, version increment, history entry |
+| `scn_contract_e07_u03_fr02_02` | stale `expectedVersion` | `StaleProductVersionException` |
+| `scn_contract_e07_u03_fr02_03` | search after delete | default excludes; `includeSoftDeleted=true` includes deleted row |
+| `scn_contract_e07_u03_fr03_01` | restore deleted `product-7` | `isSoftDeleted=false`, `businessStatus=inactive`, readiness blockers returned |
+| `scn_contract_e07_u03_fr03_02` | restore duplicate SKU | `DuplicateSkuException` |
+| `scn_contract_e07_u03_fr03_03` | restore duplicate barcode | `DuplicateBarcodeException` |
+| `scn_contract_e07_u03_fr04_01` | PCC after delete | preserved units, stock, base price, price band, history |
+
+Tests: `scn_contract_e07_u03_*` in `fake_catalog_module_test.dart` (group `EPIC-07 / US-03 product soft delete contract`); E2E coverage in `apps/erp/test/features/catalog/presentation/pages/product_soft_delete_e2e_test.dart`.
+
+### Parallel notes
+
+- FE có thể fake: **yes**
+- E2E prerequisite: US-01 (data)
+
+---
+
 ## EPIC-03 / US-01 — Cấu hình nhóm & trường (slice #16)
 
 ### Commands / Queries
@@ -1050,7 +1121,8 @@ Tests: `scn_contract_e07_u02_*` in `fake_catalog_module_test.dart` (group `EPIC-
 | EPIC-06 US-04 | ProductPriceBandSnapshot consumers | todo |
 | EPIC-07 US-01 | Product profile maintenance | done |
 | EPIC-07 US-02 | Lifecycle business status | done |
-| EPIC-07 US-03..04 | Soft delete, change history | todo |
+| EPIC-07 US-03 | Soft delete / restore | done |
+| EPIC-07 US-04 | Change history | todo |
 | EPIC-03 US-02 | UpsertCustomFieldValuesCommand | todo |
 | EPIC-03 US-03 | Search/filter/display on list | todo |
 | EPIC-04 US-03 | Change base unit | **out_of_scope** |

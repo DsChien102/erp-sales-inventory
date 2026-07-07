@@ -291,6 +291,21 @@ Mở đầy đủ khi CONTRACT lane bắt đầu.
 
 ---
 
+## EPIC-07 / US-03 — Xóa mềm / khôi phục (slice #14)
+
+| Req ID | Role | Contract § | Enforce layer | Artifact | Test id | Status |
+| ------ | ---- | ---------- | ------------- | -------- | ------- | ------ |
+| US-03 | CONTRACT | §EPIC-07-US-03 | application | `CheckProductDeletionEligibilityQuery`, `DeleteProductCommand`, `RestoreProductCommand`, `ChangeProductSoftDeleteResult`, deletion issue DTOs, `FakeCatalogModule` | scn_contract_e07_u03_* | done |
+| FR-01 | CONTRACT | §EPIC-07-US-03 | application | Delete eligibility, blockers, warnings, suggested `deactivate_product` action | scn_contract_e07_u03_fr01_01..03 | done |
+| FR-02 | CONTRACT | §EPIC-07-US-03 | application | Soft delete flag, version guard, search exclusion, history entry | scn_contract_e07_u03_fr02_01..03 | done |
+| FR-03 | CONTRACT | §EPIC-07-US-03 | application | Restore soft-deleted product as inactive; duplicate SKU/barcode guards; refreshed readiness | scn_contract_e07_u03_fr03_01..03 | done |
+| FR-04 | CONTRACT | §EPIC-07-US-03 | application | Preserved PCC operational data and change history after soft delete | scn_contract_e07_u03_fr04_01 | done |
+| FR-01..04 | BE | §EPIC-07-US-03 | application + infrastructure | `CheckProductDeletionEligibilityQueryHandler`, `DeleteProductCommandHandler`, `RestoreProductCommandHandler`, validators, `IProductDeletionGateway`, `SupabaseProductDeletionGateway`, `SupabaseProductCommandGateway` delete/restore, draft SQL `12_catalog_product_soft_delete.sql`, generated access metadata | product_soft_delete_handlers_test; product_rpc_mapper_test; catalog_error_mapper_test | done |
+| FR-01..04 | FE | §EPIC-07-US-03 | presentation | `ProductSoftDeleteCubit`, `ProductLifecycleActionSheet`, `ProductDeleteConfirmDialog`, `ProductRestoreConfirmDialog`, deleted filter/read-only PCC | wgt_e07_u03_delete | done |
+| FR-01..04 | E2E | §EPIC-07-US-03 | erp | ERP via `ICatalogModule` + `FakeCatalogModule` scenarios | e2e_e07_u03_fr01_01..03; e2e_e07_u03_fr02_01; e2e_e07_u03_fr02_03; e2e_e07_u03_fr03_01..03; e2e_e07_u03_fr04_01 | done |
+
+---
+
 ## EPIC-04 / US-03 — Đổi đơn vị cơ sở
 
 | Req ID | Role | Contract § | Enforce layer | Artifact | Test id | Status |

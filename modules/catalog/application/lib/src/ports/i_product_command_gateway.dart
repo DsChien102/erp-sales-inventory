@@ -3,8 +3,11 @@ import 'package:vet45_catalog_domain/domain.dart';
 import '../lifecycle/update_product_images_command.dart';
 import '../lifecycle/update_product_images_result.dart';
 import '../lifecycle/change_product_business_status_result.dart';
+import '../lifecycle/change_product_soft_delete_result.dart';
 import '../lifecycle/deactivate_product_command.dart';
+import '../lifecycle/delete_product_command.dart';
 import '../lifecycle/reactivate_product_command.dart';
+import '../lifecycle/restore_product_command.dart';
 import '../lifecycle/update_product_profile_command.dart';
 import '../lifecycle/update_product_profile_result.dart';
 
@@ -47,5 +50,13 @@ abstract interface class IProductCommandGateway {
 
   Future<ChangeProductBusinessStatusResult> reactivateProduct(
     ReactivateProductCommand command,
+  );
+
+  Future<ChangeProductSoftDeleteResult> deleteProduct(
+    DeleteProductCommand command,
+  );
+
+  Future<ChangeProductSoftDeleteResult> restoreProduct(
+    RestoreProductCommand command,
   );
 }

@@ -4,20 +4,25 @@ import 'package:vet45_design_system/design_system.dart';
 
 class ProductControlCenterDangerSection extends StatefulWidget {
   final ProductStatus businessStatus;
+  final bool isSoftDeleted;
   final VoidCallback onDeactivate;
   final VoidCallback onReactivate;
   final VoidCallback onDelete;
+  final VoidCallback onRestore;
 
   const ProductControlCenterDangerSection({
     super.key,
     required this.businessStatus,
+    required this.isSoftDeleted,
     required this.onDeactivate,
     required this.onReactivate,
     required this.onDelete,
+    required this.onRestore,
   });
 
   @override
-  State<ProductControlCenterDangerSection> createState() => _ProductControlCenterDangerSectionState();
+  State<ProductControlCenterDangerSection> createState() =>
+      _ProductControlCenterDangerSectionState();
 }
 
 class _ProductControlCenterDangerSectionState extends State<ProductControlCenterDangerSection> {
@@ -45,6 +50,9 @@ class _ProductControlCenterDangerSectionState extends State<ProductControlCenter
   Widget build(BuildContext context) {
     final dynamicColors = context.vColors;
     final isActive = widget.businessStatus == ProductStatus.active;
+    final subtitle = widget.isSoftDeleted
+        ? 'Khôi phục sản phẩm'
+        : 'Ngừng kinh doanh · Xoá sản phẩm';
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -52,6 +60,7 @@ class _ProductControlCenterDangerSectionState extends State<ProductControlCenter
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           GestureDetector(
+            key: const Key('btn_product_lifecycle_danger_toggle'),
             onTap: _toggleExpanded,
             child: Container(
               padding: const EdgeInsets.all(16),
@@ -87,7 +96,7 @@ class _ProductControlCenterDangerSectionState extends State<ProductControlCenter
                         ),
                         const SizedBox(height: 2),
                         Text(
-                          'Ngừng kinh doanh · Xoá sản phẩm',
+                          subtitle,
                           style: VTypography.bodySmall.copyWith(
                             color: dynamicColors.danger,
                           ),
@@ -116,7 +125,14 @@ class _ProductControlCenterDangerSectionState extends State<ProductControlCenter
               ),
               child: Column(
                 children: [
-                  if (isActive)
+                  if (widget.isSoftDeleted)
+                    _ActionItem(
+                      icon: Icons.restore_outlined,
+                      label: 'Khôi phục',
+                      color: dynamicColors.danger,
+                      onTap: widget.onRestore,
+                    )
+                  else if (isActive)
                     _ActionItem(
                       icon: Icons.do_not_disturb_alt,
                       label: 'Ngừng kinh doanh',
@@ -130,18 +146,20 @@ class _ProductControlCenterDangerSectionState extends State<ProductControlCenter
                       color: dynamicColors.danger,
                       onTap: widget.onReactivate,
                     ),
-                  Divider(
-                    height: 1,
-                    color: dynamicColors.danger.withValues(alpha: 0.1),
-                    indent: 16,
-                    endIndent: 16,
-                  ),
-                  _ActionItem(
-                    icon: Icons.delete_outline,
-                    label: 'Xoá sản phẩm',
-                    color: dynamicColors.danger,
-                    onTap: widget.onDelete,
-                  ),
+                  if (!widget.isSoftDeleted) ...[
+                    Divider(
+                      height: 1,
+                      color: dynamicColors.danger.withValues(alpha: 0.1),
+                      indent: 16,
+                      endIndent: 16,
+                    ),
+                    _ActionItem(
+                      icon: Icons.delete_outline,
+                      label: 'Xoá sản phẩm',
+                      color: dynamicColors.danger,
+                      onTap: widget.onDelete,
+                    ),
+                  ],
                 ],
               ),
             ),

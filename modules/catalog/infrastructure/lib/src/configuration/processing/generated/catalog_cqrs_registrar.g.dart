@@ -23,8 +23,17 @@ void registerGeneratedCatalogValidators(GetIt container) {
     ..registerFactory<ICommandValidator<CreateProductCommand>>(
       CreateProductCommandValidator.new,
     )
+    ..registerFactory<ICommandValidator<DeactivateProductCommand>>(
+      DeactivateProductCommandValidator.new,
+    )
     ..registerFactory<ICommandValidator<DeactivateProductConversionUnitCommand>>(
       DeactivateProductConversionUnitCommandValidator.new,
+    )
+    ..registerFactory<ICommandValidator<DeleteProductCommand>>(
+      DeleteProductCommandValidator.new,
+    )
+    ..registerFactory<ICommandValidator<ReactivateProductCommand>>(
+      ReactivateProductCommandValidator.new,
     )
     ..registerFactory<ICommandValidator<ReactivateProductConversionUnitCommand>>(
       ReactivateProductConversionUnitCommandValidator.new,
@@ -34,6 +43,9 @@ void registerGeneratedCatalogValidators(GetIt container) {
     )
     ..registerFactory<ICommandValidator<RequestProductMaintenanceImageUploadCommand>>(
       RequestProductMaintenanceImageUploadCommandValidator.new,
+    )
+    ..registerFactory<ICommandValidator<RestoreProductCommand>>(
+      RestoreProductCommandValidator.new,
     )
     ..registerFactory<ICommandValidator<SetInitialPriceBandCommand>>(
       SetInitialPriceBandCommandValidator.new,
@@ -126,6 +138,15 @@ void registerGeneratedCatalogHandlers({
     ),
   );
 
+  CatalogCommandRegistration.registerBusinessHandler<DeleteProductCommand, ChangeProductSoftDeleteResult, DeleteProductCommandHandler>(
+    container: container,
+    bus: bus,
+    logger: logger,
+    factory: () => DeleteProductCommandHandler(
+      commandGateway: container.get<IProductCommandGateway>(),
+    ),
+  );
+
   CatalogCommandRegistration.registerBusinessHandler<ReactivateProductCommand, ChangeProductBusinessStatusResult, ReactivateProductCommandHandler>(
     container: container,
     bus: bus,
@@ -159,6 +180,15 @@ void registerGeneratedCatalogHandlers({
     logger: logger,
     factory: () => RequestProductMaintenanceImageUploadCommandHandler(
       uploadPort: container.get<IProductImageUploadPort>(),
+    ),
+  );
+
+  CatalogCommandRegistration.registerBusinessHandler<RestoreProductCommand, ChangeProductSoftDeleteResult, RestoreProductCommandHandler>(
+    container: container,
+    bus: bus,
+    logger: logger,
+    factory: () => RestoreProductCommandHandler(
+      commandGateway: container.get<IProductCommandGateway>(),
     ),
   );
 
@@ -260,6 +290,14 @@ void registerGeneratedCatalogQueries({
     bus: bus,
     factory: () => CheckDuplicateProductCodeQueryHandler(
       duplicateChecker: container.get<IProductDuplicateChecker>(),
+    ),
+    invoke: (query, handler) => handler.handle(query),
+  );
+
+  CatalogCommandRegistration.registerQueryHandler<CheckProductDeletionEligibilityQuery, ProductDeletionEligibilityDto, CheckProductDeletionEligibilityQueryHandler>(
+    bus: bus,
+    factory: () => CheckProductDeletionEligibilityQueryHandler(
+      deletionGateway: container.get<IProductDeletionGateway>(),
     ),
     invoke: (query, handler) => handler.handle(query),
   );

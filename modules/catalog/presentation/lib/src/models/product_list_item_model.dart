@@ -2,12 +2,8 @@ import 'product_business_status.dart';
 
 import 'product_readiness_status.dart';
 
-
-
 class ProductListItemModel {
-
   const ProductListItemModel({
-
     required this.id,
 
     required this.name,
@@ -23,6 +19,8 @@ class ProductListItemModel {
     required this.businessStatus,
 
     required this.readinessStatus,
+
+    this.isSoftDeleted = false,
 
     this.listPriceLabel,
 
@@ -43,10 +41,7 @@ class ProductListItemModel {
     this.notes,
 
     this.images,
-
   });
-
-
 
   final String id;
 
@@ -63,6 +58,8 @@ class ProductListItemModel {
   final ProductBusinessStatus businessStatus;
 
   final ProductReadinessStatus readinessStatus;
+
+  final bool isSoftDeleted;
 
   final String? listPriceLabel;
 
@@ -84,38 +81,25 @@ class ProductListItemModel {
 
   final List<String>? images;
 
-
-
   String get displaySubtitle {
-
     final parts = <String>[];
 
     if (sku != null && sku!.isNotEmpty) {
-
       parts.add(sku!);
-
     }
 
     if (barcode != null && barcode!.isNotEmpty) {
-
       parts.add(barcode!);
-
     }
 
     if (parts.isEmpty) {
-
       return '—';
-
     }
 
     return parts.join(' · ');
-
   }
 
-
-
   ProductListItemModel copyWith({
-
     String? id,
 
     String? name,
@@ -131,6 +115,8 @@ class ProductListItemModel {
     ProductBusinessStatus? businessStatus,
 
     ProductReadinessStatus? readinessStatus,
+
+    bool? isSoftDeleted,
 
     String? listPriceLabel,
 
@@ -151,11 +137,8 @@ class ProductListItemModel {
     String? notes,
 
     List<String>? images,
-
   }) {
-
     return ProductListItemModel(
-
       id: id ?? this.id,
 
       name: name ?? this.name,
@@ -171,6 +154,8 @@ class ProductListItemModel {
       businessStatus: businessStatus ?? this.businessStatus,
 
       readinessStatus: readinessStatus ?? this.readinessStatus,
+
+      isSoftDeleted: isSoftDeleted ?? this.isSoftDeleted,
 
       listPriceLabel: listPriceLabel ?? this.listPriceLabel,
 
@@ -191,11 +176,6 @@ class ProductListItemModel {
       notes: notes ?? this.notes,
 
       images: images ?? this.images,
-
     );
-
   }
-
 }
-
-
