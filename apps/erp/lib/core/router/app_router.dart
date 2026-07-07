@@ -23,6 +23,7 @@ import 'package:vet45_partner_domain/domain.dart';
 import 'package:vet45_catalog_presentation/presentation.dart';
 import 'package:erp/features/catalog/presentation/pages/product_custom_field_group_edit_page.dart';
 import 'package:erp/features/catalog/presentation/pages/product_guided_create_page.dart';
+import '../../features/catalog/presentation/pages/product_guided_create_page.dart';
 import '../../features/catalog/presentation/pages/product_control_center_page.dart';
 import '../../features/catalog/presentation/pages/product_readiness_checklist_page.dart';
 import '../../features/catalog/presentation/pages/product_measurement_units_page.dart';
