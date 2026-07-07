@@ -108,4 +108,14 @@ final class SupabaseCatalogReadGateway implements ICatalogReadGateway {
       throw mapCatalogRpcError(error);
     }
   }
+
+  @override
+  Future<List<CustomFieldFilterOptionDto>> listCustomFieldFilterOptions({
+    required String tenantId,
+    required int maxOptionsPerField,
+  }) async {
+    throw UnimplementedError(
+      'listCustomFieldFilterOptions is not implemented until slice #18 BE.',
+    );
+  }
 }

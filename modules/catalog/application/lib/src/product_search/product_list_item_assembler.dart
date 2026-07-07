@@ -1,6 +1,7 @@
 import 'package:vet45_catalog_domain/domain.dart';
 
 import '../readiness/readiness_summary_dto.dart';
+import 'custom_field_list_value_dto.dart';
 import 'product_list_item_dto.dart';
 import 'product_list_item_read_row.dart';
 
@@ -25,6 +26,7 @@ abstract final class ProductListItemAssembler {
       baseUnit: row.baseUnit,
       stockQuantity: row.stockQuantity,
       stockLabel: stockLabel,
+      customFieldValues: row.customFieldValues,
       updatedAt: row.updatedAt,
     );
   }

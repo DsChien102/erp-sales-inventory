@@ -805,6 +805,25 @@ final class FakeCatalogModule implements ICatalogModule {
           )
           as TResult;
     }
+    if (query is ListCustomFieldFilterOptionsQuery) {
+      _assertCatalogReadPermission();
+      final filterQuery = query as ListCustomFieldFilterOptionsQuery;
+      return _customFieldStore.listFilterOptions(
+            tenantId: filterQuery.tenantId,
+            maxOptionsPerField: filterQuery.maxOptionsPerField,
+          )
+          as TResult;
+    }
+    if (query is GetProductCustomFieldSnapshotQuery) {
+      _assertCatalogDetailPermission();
+      final snapshotQuery = query as GetProductCustomFieldSnapshotQuery;
+      return _customFieldStore.getSnapshot(
+            tenantId: snapshotQuery.tenantId,
+            productIds: snapshotQuery.productIds,
+            includeInactiveValues: snapshotQuery.includeInactiveValues,
+          )
+          as TResult;
+    }
     throw UnimplementedError('Unexpected query: ${query.runtimeType}');
   }
 
@@ -1494,6 +1513,7 @@ final class FakeCatalogModule implements ICatalogModule {
   }
 
   TResult _handleSearchProducts<TResult>(SearchProductsQuery query) {
+    _assertCatalogReadPermission();
     if (scenario == FakeCatalogScenario.searchEmpty) {
       return const ProductSearchResultDto(items: [], totalCount: 0) as TResult;
     }
@@ -1704,6 +1724,10 @@ final class FakeCatalogModule implements ICatalogModule {
       if (!_matchesReadinessFilter(product, criteria.readinessFilter)) {
         return false;
       }
+      if (criteria.customFieldFilters.isNotEmpty &&
+          !_customFieldStore.matchesFilters(product.id, criteria.customFieldFilters)) {
+        return false;
+      }
       return true;
     }).toList()..sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
   }
@@ -1727,7 +1751,19 @@ final class FakeCatalogModule implements ICatalogModule {
         return true;
       }
     }
-    return false;
+    return _customFieldStore.matchesSearchKeyword(product.id, keyword);
+  }
+
+  void _assertCatalogReadPermission() {
+    if (scenario == FakeCatalogScenario.customFieldSearchPermissionDenied) {
+      throw ApplicationException('Permission denied');
+    }
+  }
+
+  void _assertCatalogDetailPermission() {
+    if (scenario == FakeCatalogScenario.customFieldSearchPermissionDenied) {
+      throw ApplicationException('Permission denied');
+    }
   }
 
   bool _matchesReadinessFilter(
@@ -1761,6 +1797,7 @@ final class FakeCatalogModule implements ICatalogModule {
       baseUnit: product.baseUnit,
       stockQuantity: product.stockQty,
       updatedAt: product.updatedAt,
+      customFieldValues: _customFieldStore.listDisplayValuesForProduct(product.id),
     );
   }
 

@@ -45,6 +45,7 @@ export 'src/readiness/readiness_blocker.dart';
 export 'src/readiness/readiness_blocker_code.dart';
 export 'src/readiness/readiness_status.dart';
 export 'src/search/product_readiness_filter.dart';
+export 'src/search/custom_field_filter_criteria.dart';
 export 'src/search/product_search_criteria.dart';
 export 'src/search/product_sort_order.dart';
 export 'src/shared/catalog_permissions.dart';

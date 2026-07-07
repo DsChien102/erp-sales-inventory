@@ -136,6 +136,18 @@ Early: `readinessSummary` trên PCC (không thay FR-04 checklist đầy đủ).
 
 ---
 
+## EPIC-03 / US-03 — Search / filter / display on list (slice #18)
+
+| Req ID | Role | Contract § | Enforce layer | Artifact | Test id | Status |
+| ------ | ---- | ---------- | ------------- | -------- | ------- | ------ |
+| US-03 | CONTRACT | §EPIC-03-US-03 | application | `SearchProductsQuery`, `ListCustomFieldFilterOptionsQuery`, `GetProductCustomFieldSnapshotQuery`, custom field list/filter/snapshot DTOs, `FakeCatalogModule` | scn_contract_e03_u03_* | done |
+| FR-01 | CONTRACT | §EPIC-03-US-03 | application | `ProductListItemDto.customFieldValues` ordered by group/field sort | scn_contract_e03_u03_fr01_01 | done |
+| FR-02 | CONTRACT | §EPIC-03-US-03 | application | `ProductSearchCriteria.keyword` matches active searchable custom fields | scn_contract_e03_u03_fr02_01 | done |
+| FR-03 | CONTRACT | §EPIC-03-US-03 | application | `CustomFieldFilterCriteria` + `ListCustomFieldFilterOptionsQuery` for active filterable fields | scn_contract_e03_u03_fr03_01..02 | done |
+| FR-04 | CONTRACT | §EPIC-03-US-03 | application | `GetProductCustomFieldSnapshotQuery` current values for other modules | scn_contract_e03_u03_fr04_01 | done |
+
+---
+
 ## EPIC-04 / US-01 — Đơn vị cơ sở (slice #6)
 
 | Req ID | Role | Contract § | Enforce layer | Artifact | Test id | Status |

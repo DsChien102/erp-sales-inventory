@@ -1216,6 +1216,72 @@ Tests: `scn_contract_e03_u02_*` trong `fake_catalog_module_test.dart`.
 
 ---
 
+## EPIC-03 / US-03 — Search / filter / display on list (slice #18)
+
+**Status:** CONTRACT `done` · BE `todo`
+
+### Commands / Queries
+
+| Symbol | Input (summary) | Success | Errors |
+| ------ | --------------- | ------- | ------ |
+| `SearchProductsQuery` | tenantId, `ProductSearchCriteria(keyword?, businessStatuses?, readinessFilter?, includeSoftDeleted?, sortOrder?, customFieldFilters[])`, limit, offset | `ProductSearchResultDto` with `ProductListItemDto.customFieldValues[]` | PermissionDenied |
+| `ListCustomFieldFilterOptionsQuery` | tenantId, maxOptionsPerField=50 | `List<CustomFieldFilterOptionDto>` | PermissionDenied, ValidationException |
+| `GetProductCustomFieldSnapshotQuery` | tenantId, productIds[], includeInactiveValues=false | `ProductCustomFieldSnapshotDto` | PermissionDenied, ValidationException |
+
+Package: `vet45_catalog_application` — `product_search/`, `custom_fields/product_read/`.
+
+Supporting types:
+
+| Type | Fields |
+| ---- | ------ |
+| `CustomFieldFilterCriteria` | fieldId, optionId?, textValue?, numberValue?, booleanValue?, dateValue? |
+| `CustomFieldListValueDto` | fieldId, groupId, groupName, fieldName, fieldType, displayValue, sortOrder |
+| `CustomFieldFilterOptionDto` | fieldId, groupId, groupName, fieldName, fieldType, options[], sortOrder |
+| `ProductCustomFieldSnapshotFieldDto` | productId, fieldId, groupId, groupName, fieldName, fieldType, displayValue?, typed value fields, optionLabel?, isActive |
+| `ProductCustomFieldSnapshotDto` | products (`Map<String, List<ProductCustomFieldSnapshotFieldDto>>`) |
+
+`ProductListItemDto.customFieldValues` only contains active fields where `displayOnList=true`, sorted by group sort order then field sort order. UI may truncate the list for mobile; the contract still returns the ordered list.
+
+Permissions: list/search/filter uses `@RequiresPermission(CatalogPermissions.view)`; snapshot query uses `@RequiresPermission(CatalogPermissions.viewDetail)`; all use `@RequiresTenant()`.
+
+Search behavior: `SearchProductsQuery.criteria.keyword` matches product name/tradeName/sku/barcode plus active searchable custom fields. Foundation supports `text` and `singleSelect` searchable fields.
+
+Filter behavior: `ProductSearchCriteria.customFieldFilters` matches active filterable fields. Foundation supports exact `singleSelect` option filters and exact boolean filters; text filters may be accepted by contract but BE can return no options for text-heavy fields to avoid noisy panels.
+
+FR-04 behavior: `GetProductCustomFieldSnapshotQuery` returns current product-owned custom field data for other modules. Historical transaction snapshots must be copied by the consuming module at transaction time; this query does not mutate config or values.
+
+### RPC mapping (BE)
+
+| Use case | RPC |
+| -------- | --- |
+| Search list with display/search/filter custom fields | `catalog.search_products` |
+| Filter option metadata | `catalog.list_custom_field_filter_options` |
+| Product custom field snapshot/current values | `catalog.get_product_custom_field_snapshot` |
+
+BE lane will extend existing search RPC/view and add draft SQL under `supabase/migrations/_drafts/`; CONTRACT lane does not create timestamped migrations or draft SQL.
+
+### Fake scenarios (FE)
+
+| scenario_id | trigger | fake response |
+| ----------- | ------- | ------------- |
+| `scn_contract_e03_u03_fr01_01` | SearchProductsQuery default after displayOnList field/value seed | product rows include ordered `customFieldValues` with "Dạng dùng = Dung dịch" |
+| `scn_contract_e03_u03_fr02_01` | SearchProductsQuery keyword "tiêu hóa" | returns product matched only through searchable custom field "Chỉ định" |
+| `scn_contract_e03_u03_fr03_01` | ListCustomFieldFilterOptionsQuery + filter `Dạng dùng = Dung dịch` | option metadata includes active single-select field; filtered search returns matching products only |
+| `scn_contract_e03_u03_fr03_02` | filterable field deactivated after value saved | filter options exclude the field and search filter does not match inactive config |
+| `scn_contract_e03_u03_fr04_01` | GetProductCustomFieldSnapshotQuery for product ids | returns grouped current custom field values; no config mutation |
+| `scn_contract_e03_u03_permission_denied` | no catalog view/viewDetail permission | ApplicationException (Permission denied) |
+
+`FakeCatalogModule` — `package:vet45_catalog_application/testing.dart`.
+
+Tests: `scn_contract_e03_u03_*` trong `fake_catalog_module_test.dart`.
+
+### Parallel notes
+
+- FE có thể fake: **yes**
+- E2E prerequisite: EPIC-03/US-01 config + EPIC-03/US-02 values
+
+---
+
 ## Sections TODO (theo slice roadmap)
 
 | Slice | Contract section | Status |
@@ -1232,7 +1298,7 @@ Tests: `scn_contract_e03_u02_*` trong `fake_catalog_module_test.dart`.
 | EPIC-07 US-03 | Soft delete / restore | done |
 | EPIC-07 US-04 | Change history | done |
 | EPIC-03 US-02 | UpsertCustomFieldValuesCommand | done |
-| EPIC-03 US-03 | Search/filter/display on list | todo |
+| EPIC-03 US-03 | Search/filter/display on list | done |
 | EPIC-04 US-03 | Change base unit | **out_of_scope** |
 | Growth (EPIC-05 US-03/04, costing read, EPIC-04 US-04) | Advanced stock / costing / UOM export | **pending** (module ngoài) |
 

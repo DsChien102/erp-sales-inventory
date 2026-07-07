@@ -1585,6 +1585,139 @@ void main() {
     });
   });
 
+  group('EPIC-03 / US-03 custom field search contract', () {
+    test('scn_contract_e03_u03_fr01_01 exposes display-on-list values', () async {
+      final module = FakeCatalogModule(
+        scenario: FakeCatalogScenario.customFieldSearchDisplay,
+      );
+
+      final result = await module.executeQueryAsync(
+        SearchProductsQuery(
+          tenantId: 'tenant-1',
+          criteria: ProductSearchCriteria(),
+        ),
+      );
+
+      final product = result.items.firstWhere((item) => item.id == 'product-1');
+      expect(
+        product.customFieldValues.map((value) => value.fieldName),
+        contains('Dạng dùng'),
+      );
+      expect(
+        product.customFieldValues.map((value) => value.displayValue),
+        contains('Dung dịch'),
+      );
+    });
+
+    test('scn_contract_e03_u03_fr03_01 lists filterable custom field options', () async {
+      final module = FakeCatalogModule(
+        scenario: FakeCatalogScenario.customFieldFilterable,
+      );
+
+      final options = await module.executeQueryAsync(
+        ListCustomFieldFilterOptionsQuery(tenantId: 'tenant-1'),
+      );
+
+      final dosageForm = options.singleWhere(
+        (option) => option.fieldName == 'Dạng dùng',
+      );
+      expect(
+        dosageForm.options.map((option) => option.label),
+        contains('Dung dịch'),
+      );
+    });
+
+    test('scn_contract_e03_u03_fr02_01 searches via searchable custom field', () async {
+      final module = FakeCatalogModule(
+        scenario: FakeCatalogScenario.customFieldSearchable,
+      );
+
+      final result = await module.executeQueryAsync(
+        SearchProductsQuery(
+          tenantId: 'tenant-1',
+          criteria: ProductSearchCriteria(keyword: 'tiêu hóa'),
+        ),
+      );
+
+      expect(result.items.map((item) => item.id), contains('product-1'));
+    });
+
+    test('scn_contract_e03_u03_fr03_01 filters by single-select custom field', () async {
+      final module = FakeCatalogModule(
+        scenario: FakeCatalogScenario.customFieldFilterable,
+      );
+
+      final options = await module.executeQueryAsync(
+        ListCustomFieldFilterOptionsQuery(tenantId: 'tenant-1'),
+      );
+      final dosageForm = options.singleWhere(
+        (option) => option.fieldName == 'Dạng dùng',
+      );
+      final solution = dosageForm.options.singleWhere(
+        (option) => option.label == 'Dung dịch',
+      );
+
+      final result = await module.executeQueryAsync(
+        SearchProductsQuery(
+          tenantId: 'tenant-1',
+          criteria: ProductSearchCriteria(
+            customFieldFilters: [
+              CustomFieldFilterCriteria(
+                fieldId: dosageForm.fieldId,
+                optionId: solution.optionId,
+              ),
+            ],
+          ),
+        ),
+      );
+
+      expect(result.items.map((item) => item.id), contains('product-1'));
+      expect(result.items.every((item) => item.id == 'product-1'), isTrue);
+    });
+
+    test('scn_contract_e03_u03_fr03_02 excludes inactive filterable config', () async {
+      final module = FakeCatalogModule(
+        scenario: FakeCatalogScenario.customFieldFilterInactive,
+      );
+
+      final options = await module.executeQueryAsync(
+        ListCustomFieldFilterOptionsQuery(tenantId: 'tenant-1'),
+      );
+
+      expect(options.map((option) => option.fieldName), isNot(contains('Dạng dùng')));
+    });
+
+    test('scn_contract_e03_u03_fr04_01 returns product custom field snapshots', () async {
+      final module = FakeCatalogModule(
+        scenario: FakeCatalogScenario.customFieldSnapshot,
+      );
+
+      final snapshot = await module.executeQueryAsync(
+        GetProductCustomFieldSnapshotQuery(
+          tenantId: 'tenant-1',
+          productIds: const ['product-1'],
+        ),
+      );
+
+      final fields = snapshot.products['product-1'] ?? const [];
+      expect(fields.map((field) => field.fieldName), contains('Dạng dùng'));
+      expect(fields.map((field) => field.displayValue), contains('Dung dịch'));
+    });
+
+    test('scn_contract_e03_u03_permission_denied blocks custom field search reads', () async {
+      final module = FakeCatalogModule(
+        scenario: FakeCatalogScenario.customFieldSearchPermissionDenied,
+      );
+
+      await expectLater(
+        module.executeQueryAsync(
+          ListCustomFieldFilterOptionsQuery(tenantId: 'tenant-1'),
+        ),
+        throwsA(isA<ApplicationException>()),
+      );
+    });
+  });
+
   group('CreateProductCommandValidator', () {
     final validator = CreateProductCommandValidator();
 
