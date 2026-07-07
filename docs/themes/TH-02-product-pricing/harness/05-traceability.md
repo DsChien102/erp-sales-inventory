@@ -150,6 +150,7 @@ Early: `readinessSummary` trên PCC (không thay FR-04 checklist đầy đủ).
 | FR-03 | BE | §EPIC-03-US-03 | application + infrastructure | `ListCustomFieldFilterOptionsQuery`, `CustomFieldFilterCriteria`, `list_custom_field_filter_options` RPC | scn_e03_u03_fr03_01..02 | done |
 | FR-04 | BE | §EPIC-03-US-03 | application + infrastructure | `GetProductCustomFieldSnapshotQuery`, `ICatalogCustomFieldReadGateway`, `get_product_custom_field_snapshot` RPC | scn_e03_u03_fr04_01 | done |
 | FR-01..03 | FE | §EPIC-03-US-03 | presentation | (Không có giao diện UI) | — | n/a |
+| FR-02 | E2E | §EPIC-03-US-03 | erp | E2E custom fields keyword search | e2e_e03_u03_fr02_01 | done |
 
 ---
 
