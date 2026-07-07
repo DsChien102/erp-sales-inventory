@@ -858,7 +858,7 @@ Tests: `scn_contract_e06_u03_*` in `fake_catalog_module_test.dart` (group `EPIC-
 
 ## EPIC-06 / US-04 — Price band snapshot for consumers (slice #19)
 
-**Status:** CONTRACT `done` · BE `done` · FE `n/a` · E2E `todo`
+**Status:** CONTRACT `done` · BE `done` · FE `n/a` · E2E `done`
 
 ### Commands / Queries
 
@@ -916,6 +916,21 @@ Draft: [`supabase/migrations/_drafts/15_catalog_product_price_band_snapshot.sql`
 `FakeCatalogModule` — `package:vet45_catalog_application/testing.dart`.
 
 Tests: `scn_contract_e06_u04_*` in `fake_catalog_module_test.dart`.
+
+### E2E (integration via mediator — no catalog UI)
+
+| scenario_id | trigger | expected |
+| ----------- | ------- | -------- |
+| `e2e_e06_u04_fr01_01` | `GetProductPriceBandSnapshotQuery` `product-5` + base unit via `ICatalogModule` | `listPrice=45000`, `listPriceMissing=false` |
+| `e2e_e06_u04_fr02_01` | `product-1-base` | `floorPrice=95000`, `listPrice=120000` |
+| `e2e_e06_u04_fr01_03` | `product-9-base` | `listPriceMissing=true` |
+| `e2e_e06_u04_fr01_02` | `product-1-unit-thung` | `isUnitActive=false`, prices missing |
+| `e2e_e06_u04_fr04_01` | happy path | `capturedAt` set; identity fields for Sales snapshot copy |
+| `e2e_e06_u04_batch` | 2 items in one query | both products returned |
+
+**E2E file:** `apps/erp/test/features/catalog/product_price_band_snapshot_e2e_test.dart`
+
+Harness: `setUpErpCatalogE2E` + `getIt<ICatalogModule>().executeQueryAsync` (FakeCatalogModule scenarios).
 
 ### Parallel notes
 

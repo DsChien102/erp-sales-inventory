@@ -293,7 +293,7 @@ Early: `readinessSummary` trên PCC (không thay FR-04 checklist đầy đủ).
 | FR-01 | BE | §EPIC-06-US-04 | application + infrastructure | `GetProductPriceBandSnapshotQueryHandler`, `get_product_price_band_snapshot` RPC | scn_e06_u04_fr01_* | done |
 | FR-02 | BE | §EPIC-06-US-04 | application + infrastructure | Floor mask via `manage_pricing` in RPC | scn_e06_u04_fr02_* | done |
 | FR-04 | BE | §EPIC-06-US-04 | application | Handler sets `capturedAt` after gateway read | scn_e06_u04_fr04_01 | done |
-| US-04 | E2E | §EPIC-06-US-04 | erp | Integration test via mediator | — | todo |
+| US-04 | E2E | §EPIC-06-US-04 | erp | `product_price_band_snapshot_e2e_test.dart` via `ICatalogModule` | e2e_e06_u04_* | done |
 
 ---
 
