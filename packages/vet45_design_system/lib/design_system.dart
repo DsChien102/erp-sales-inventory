@@ -17,6 +17,7 @@ export 'src/theme/v_density.dart';
 // Utilities (Foundation)
 export 'src/foundation/v_context_extensions.dart';
 export 'src/foundation/v_component_contracts.dart';
+export 'src/audit/v_component_audit_snapshot.dart';
 
 // Primitives
 export 'src/primitives/v_badge.dart';

@@ -27,6 +27,7 @@ Main tabs in the preview:
 - `Cards & Badges`: card states and badge statuses
 - `New Specs`: tabs, overlays, table, empty state, toggles
 - `Missing Components`: direct coverage for `VAppBar`, `VDatePickerField`, `VFloatingActionButton`, and `VIcon`
+- `UI Audit`: matrix để audit nhanh toàn bộ component và mức độ readiness (example/semantics/tone/state)
 
 Component coverage in example includes:
 - Primitives: `VBadge`, `VIcon`, `VIconBox`

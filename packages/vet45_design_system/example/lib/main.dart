@@ -47,6 +47,7 @@ class _PreviewHomeScreenState extends State<PreviewHomeScreen> {
                 'Cards & Badges',
                 'New Specs',
                 'Missing Components',
+                'UI Audit',
               ],
               selectedIndex: _currentTab,
               isScrollable: true,
@@ -70,6 +71,7 @@ class _PreviewHomeScreenState extends State<PreviewHomeScreen> {
             CardsBadgesPreviewTab(),
             NewSpecsPreviewTab(),
             MissingComponentsPreviewTab(),
+            UIAuditTab(),
           ],
         ),
       ),
@@ -1669,5 +1671,161 @@ class _MissingComponentsPreviewTabState extends State<MissingComponentsPreviewTa
         ],
       ),
     );
+  }
+}
+
+/// --- UI AUDIT TAB ---
+class UIAuditTab extends StatelessWidget {
+  const UIAuditTab({super.key});
+
+  static const Set<String> _exampleCoverage = {
+    'VBadge',
+    'VIcon',
+    'VIconBox',
+    'VButton',
+    'VTextField',
+    'VDropdown',
+    'VTabs',
+    'VToast',
+    'VTable',
+    'VAppBar',
+    'VDatePickerField',
+    'VFloatingActionButton',
+    'VBottomSheet',
+    'VModal',
+    'VHomeHeader',
+    'VBottomNavigationBar',
+    'VEmptyState',
+    'VCheckbox',
+    'VSwitch',
+    'VQuickActionButton',
+    'VSearchBar',
+    'VQuantitySelector',
+    'VCard',
+    'VTodoItem',
+    'VActivityItem',
+    'VMetricCard',
+    'VCreateOrderButton',
+    'VRevenueCard',
+  };
+
+  @override
+  Widget build(BuildContext context) {
+    final rows = vComponentAuditEntries;
+    final total = rows.length;
+    final withSemantics = rows.where((e) => e.hasSemantics).length;
+    final withTone = rows.where((e) => e.hasTone).length;
+    final withState = rows.where((e) => e.hasState).length;
+    final covered = rows.where((e) => _exampleCoverage.contains(_componentName(e))).length;
+
+    return ListView(
+      padding: const EdgeInsets.all(VSpacing.screenMobile),
+      children: [
+        Text('Design System UI Audit', style: VTypography.headingH2),
+        const SizedBox(height: VSpacing.space2),
+        Text(
+          'Tab này dùng để rà soát nhanh coverage và readiness của toàn bộ component public trong design system.',
+          style: VTypography.bodyDefault.copyWith(color: VColors.textSecondary),
+        ),
+        const SizedBox(height: VSpacing.space1),
+        Text(
+          'Snapshot generated at: $vComponentAuditGeneratedAt',
+          style: VTypography.caption.copyWith(color: VColors.textMuted),
+        ),
+        const SizedBox(height: VSpacing.space3),
+        VCard(
+          child: Wrap(
+            spacing: VSpacing.space2,
+            runSpacing: VSpacing.space2,
+            children: [
+              _metricChip('Tổng component', '$total'),
+              _metricChip('Đã có demo', '$covered/$total'),
+              _metricChip('Có Semantics', '$withSemantics/$total'),
+              _metricChip('Có tone contract', '$withTone/$total'),
+              _metricChip('Có state contract', '$withState/$total'),
+            ],
+          ),
+        ),
+        const SizedBox(height: VSpacing.space3),
+        VCard(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('Command audit tự động', style: VTypography.headingH4),
+              const SizedBox(height: VSpacing.space2),
+              Text(
+                'cd packages/vet45_design_system && dart run tool/component_audit.dart',
+                style: VTypography.monoNumeric.copyWith(fontSize: 12),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: VSpacing.space3),
+        Text('Component matrix', style: VTypography.headingH3),
+        const SizedBox(height: VSpacing.space2),
+        VCard(
+          padding: EdgeInsets.zero,
+          child: VTable(
+            headers: const [
+              VTableHeader(title: 'Component'),
+              VTableHeader(title: 'Category'),
+              VTableHeader(title: 'Example'),
+              VTableHeader(title: 'Semantics'),
+              VTableHeader(title: 'Tone'),
+              VTableHeader(title: 'State'),
+            ],
+            rows: rows
+                .map(
+                  (e) => [
+                    Text(_componentName(e)),
+                    Text(_displayCategory(e.category)),
+                    _statusBadge(_exampleCoverage.contains(_componentName(e))),
+                    _statusBadge(e.hasSemantics),
+                    _statusBadge(e.hasTone),
+                    _statusBadge(e.hasState),
+                  ],
+                )
+                .toList(),
+            stripedRows: true,
+            semanticLabel: 'UI audit matrix',
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _metricChip(String label, String value) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: VSpacing.space2, vertical: VSpacing.space1),
+      decoration: BoxDecoration(
+        color: VColors.neutral100,
+        borderRadius: BorderRadius.circular(VRadius.pill),
+      ),
+      child: Text('$label: $value', style: VTypography.bodySmall),
+    );
+  }
+
+  Widget _statusBadge(bool yes) {
+    return VBadge(
+      label: yes ? 'Yes' : 'No',
+      status: yes ? VBadgeStatus.success : VBadgeStatus.draft,
+      isSmall: true,
+    );
+  }
+
+  String _componentName(VComponentAuditEntry entry) {
+    final preferred = entry.classNames.where((name) => name.startsWith('V')).toList();
+    if (preferred.isNotEmpty) {
+      return preferred.first;
+    }
+    if (entry.classNames.isNotEmpty) {
+      return entry.classNames.first;
+    }
+    return entry.exportPath.split('/').last;
+  }
+
+  String _displayCategory(String category) {
+    if (category.isEmpty) return category;
+    return '${category[0].toUpperCase()}${category.substring(1)}';
   }
 }
