@@ -49,6 +49,7 @@ abstract final class FakeCatalogScenario {
   static const scnContractE05U02Fr02_03 = 'scn_contract_e05_u02_fr02_03';
   static const scnContractE05U02Fr03_01 = 'scn_contract_e05_u02_fr03_01';
   static const scnContractE05U02Fr04_01 = 'scn_contract_e05_u02_fr04_01';
+
   static const scnContractE06U01Fr01_01 = 'scn_contract_e06_u01_fr01_01';
   static const scnContractE06U01Fr01_02 = 'scn_contract_e06_u01_fr01_02';
   static const scnContractE06U01Fr01_03 = 'scn_contract_e06_u01_fr01_03';
@@ -56,6 +57,7 @@ abstract final class FakeCatalogScenario {
   static const scnContractE06U01Fr02_02 = 'scn_contract_e06_u01_fr02_02';
   static const scnContractE06U01Fr02_03 = 'scn_contract_e06_u01_fr02_03';
   static const scnContractE06U01Fr04_01 = 'scn_contract_e06_u01_fr04_01';
+
   static const scnContractE06U02Fr01_01 = 'scn_contract_e06_u02_fr01_01';
   static const scnContractE06U02Fr01_02 = 'scn_contract_e06_u02_fr01_02';
   static const scnContractE06U02Fr01_03 = 'scn_contract_e06_u02_fr01_03';
@@ -67,6 +69,7 @@ abstract final class FakeCatalogScenario {
   static const scnContractE06U02Fr03_02 = 'scn_contract_e06_u02_fr03_02';
   static const scnContractE06U02Fr03_03 = 'scn_contract_e06_u02_fr03_03';
   static const scnContractE06U02Fr04_01 = 'scn_contract_e06_u02_fr04_01';
+
   static const scnContractE06U03Fr01_01 = 'scn_contract_e06_u03_fr01_01';
   static const scnContractE06U03Fr01_02 = 'scn_contract_e06_u03_fr01_02';
   static const scnContractE06U03Fr01_03 = 'scn_contract_e06_u03_fr01_03';

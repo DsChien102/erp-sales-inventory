@@ -24,12 +24,15 @@ final catalogModuleManifest = GeneratedModuleManifest(
     AddProductConversionUnitCommand,
     AdjustBasicStockCommand,
     ApplyStorePriceRuleCommand,
+    ConfigureCustomFieldAttributesCommand,
     CreateProductCommand,
     DeactivateProductCommand,
     DeactivateProductConversionUnitCommand,
     DeleteProductCommand,
     ReactivateProductCommand,
     ReactivateProductConversionUnitCommand,
+    ReorderCustomFieldGroupsCommand,
+    ReorderCustomFieldsCommand,
     RequestProductImageUploadCommand,
     RequestProductMaintenanceImageUploadCommand,
     RestoreProductCommand,
@@ -50,6 +53,7 @@ final catalogModuleManifest = GeneratedModuleManifest(
     GetProductReadinessQuery,
     GetProductStockHistoryQuery,
     GetStorePriceRuleQuery,
+    ListCustomFieldConfigQuery,
     ListProductUnitPriceBandsQuery,
     ListProductUnitsQuery,
     ListTenantMeasurementUnitsQuery,
@@ -58,4 +62,3 @@ final catalogModuleManifest = GeneratedModuleManifest(
     SuggestProductUnitPriceQuery,
   ],
 );
-

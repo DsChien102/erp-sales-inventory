@@ -2,18 +2,6 @@ import 'package:vet45_catalog_application/application.dart';
 import 'package:vet45_catalog_domain/domain.dart';
 import 'package:vet45_shared_application/application.dart';
 
-import '../../ports/i_catalog_read_gateway.dart';
-import '../../ports/i_catalog_unit_gateway.dart';
-import '../../ports/i_product_price_band_gateway.dart';
-import '../../ports/i_product_readiness_read_port.dart';
-import '../../readiness/readiness_summary_dto.dart';
-import '../../units/list_product_units_query.dart';
-import '../../units/product_unit_dto.dart';
-import 'list_product_unit_price_bands_query.dart';
-import 'price_band_warning_calculator.dart';
-import 'set_product_unit_price_band_command.dart';
-import 'set_product_unit_price_band_result.dart';
-
 @CommandHandlerFor(SetProductUnitPriceBandCommand)
 final class SetProductUnitPriceBandCommandHandler
     implements ICommandHandler<SetProductUnitPriceBandCommand, SetProductUnitPriceBandResult> {

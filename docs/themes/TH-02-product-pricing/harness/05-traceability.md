@@ -108,12 +108,12 @@ Early: `readinessSummary` trên PCC (không thay FR-04 checklist đầy đủ).
 | Req ID | Role | Contract § | Enforce layer | Artifact | Test id | Status |
 | ------ | ---- | ---------- | ------------- | -------- | ------- | ------ |
 | US-01 | CONTRACT | §EPIC-03-US-01 | application | `InitializeCustomFieldTemplateCommand`, `UpsertCustomFieldGroupCommand`, `ReorderCustomFieldGroupsCommand`, `UpsertCustomFieldCommand`, `ConfigureCustomFieldAttributesCommand`, `ReorderCustomFieldsCommand`, `ListCustomFieldConfigQuery`, DTOs, `ICatalogCustomFieldConfigGateway`, `FakeCatalogModule` | scn_contract_e03_u01_* | done |
-| FR-01 | BE | §EPIC-03-US-01 | application | `InitializeCustomFieldTemplateCommand` | scn_e03_u01_fr01_01 | todo |
-| FR-02 | BE | §EPIC-03-US-01 | application | Upsert group | scn_e03_u01_fr02_01 | todo |
-| FR-03 | BE | §EPIC-03-US-01 | application | Reorder groups | scn_e03_u01_fr03_01 | todo |
-| FR-04 | BE | §EPIC-03-US-01 | application | Upsert field | scn_e03_u01_fr04_01 | todo |
-| FR-05 | BE | §EPIC-03-US-01 | application | Configure attributes | scn_e03_u01_fr05_01 | todo |
-| FR-06 | BE | §EPIC-03-US-01 | application | Reorder fields | scn_e03_u01_fr06_01 | todo |
+| FR-01 | BE | §EPIC-03-US-01 | application | `InitializeCustomFieldTemplateCommandHandler`, gateway, draft RPC | scn_e03_u01_fr01_01 (`custom_field_config_command_handlers_test.dart`) | done |
+| FR-02 | BE | §EPIC-03-US-01 | application | Upsert group handler + gateway | scn_e03_u01_fr02_01 | done |
+| FR-03 | BE | §EPIC-03-US-01 | application | Reorder groups handler + gateway | scn_e03_u01_fr03_01 | done |
+| FR-04 | BE | §EPIC-03-US-01 | application | Upsert field handler + gateway | scn_e03_u01_fr04_01 | done |
+| FR-05 | BE | §EPIC-03-US-01 | application | Configure attributes handler + gateway | scn_e03_u01_fr05_01 | done |
+| FR-06 | BE | §EPIC-03-US-01 | application | Reorder fields handler + gateway | scn_e03_u01_fr06_01 | done |
 | FR-01..06 | FE | §EPIC-03-US-01 | presentation | Admin cấu hình nhóm & trường | wgt_e03_u01_fr01_01 | todo |
 
 ---

@@ -1071,7 +1071,7 @@ Tests: `scn_contract_e07_u03_*` in `fake_catalog_module_test.dart` (group `EPIC-
 
 ## EPIC-03 / US-01 — Cấu hình nhóm & trường (slice #16)
 
-**Status:** CONTRACT `done` · BE `todo`
+**Status:** CONTRACT `done` · BE `done`
 
 ### Commands / Queries
 
@@ -1120,7 +1120,9 @@ Port: `ICatalogCustomFieldConfigGateway` — `listConfig`, `initializeTemplate`,
 | Attributes | `catalog.configure_custom_field_attributes` |
 | List config | `catalog.list_custom_field_config` |
 
-Draft SQL (BE lane): `supabase/migrations/_drafts/06_catalog_custom_fields.sql`
+Draft SQL (BE lane): `supabase/migrations/_drafts/08_catalog_custom_fields.sql`
+
+Gateway: `modules/catalog/infrastructure/lib/src/domain/custom_fields/supabase_catalog_custom_field_config_gateway.dart`
 
 ### Fake scenarios (FE)
 

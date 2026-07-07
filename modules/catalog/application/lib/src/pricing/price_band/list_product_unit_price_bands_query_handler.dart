@@ -1,7 +1,6 @@
 import 'package:vet45_shared_application/application.dart';
 
 import '../../ports/i_product_price_band_gateway.dart';
-import '../../units/product_unit_dto.dart';
 import 'list_product_unit_price_bands_query.dart';
 import 'list_product_unit_price_bands_query_validator.dart';
 import 'product_unit_price_bands_dto.dart';

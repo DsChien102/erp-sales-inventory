@@ -1,6 +1,3 @@
-import 'package:vet45_catalog_domain/domain.dart';
-import 'package:vet45_shared_application/application.dart';
-
 import '../../units/product_unit_dto.dart';
 import 'price_band_validation_field.dart';
 import 'price_band_validation_warning_dto.dart';
@@ -25,8 +22,7 @@ abstract final class PriceBandWarningCalculator {
           PriceBandValidationWarningDto(
             code: 'cannot_compare_base_price',
             severity: PriceBandValidationWarningSeverity.warning,
-            message:
-                'Không thể so sánh chắc chắn với Giá cơ sở do thiếu tỷ lệ quy đổi.',
+            message: 'Không thể so sánh chắc chắn với Giá cơ sở do thiếu tỷ lệ quy đổi.',
             field: PriceBandValidationField.listPrice,
             baseUnitName: baseUnitName,
           ),
