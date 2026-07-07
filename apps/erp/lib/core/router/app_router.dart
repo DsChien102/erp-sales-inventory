@@ -20,6 +20,7 @@ import '../../features/partner/presentation/pages/partner_create_page.dart';
 import '../../features/partner/presentation/pages/partner_edit_page.dart';
 import 'package:vet45_partner_presentation/presentation.dart';
 import 'package:vet45_partner_domain/domain.dart';
+import 'package:vet45_catalog_presentation/presentation.dart';
 import '../../features/catalog/presentation/pages/product_guided_create_page.dart';
 import '../../features/catalog/presentation/pages/product_control_center_page.dart';
 import '../../features/catalog/presentation/pages/product_readiness_checklist_page.dart';
