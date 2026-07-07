@@ -128,6 +128,7 @@ Early: `readinessSummary` trên PCC (không thay FR-04 checklist đầy đủ).
 | FR-02 | CONTRACT | §EPIC-03-US-02 | application | `ProductCustomFieldValueInput`, typed values, field-level validation exception, PCC display value | scn_contract_e03_u02_fr02_01..02 | done |
 | FR-03 | CONTRACT | §EPIC-03-US-02 | application | Required field validation + readiness refresh via `UpsertCustomFieldValuesResult.readinessSummary` | scn_contract_e03_u02_fr03_01..02 | done |
 | FR-04 | CONTRACT | §EPIC-03-US-02 | application | Preserve inactive group/field values; hide from active query unless `includeInactiveValues=true` | scn_contract_e03_u02_fr04_01 | done |
+| FR-01..04 | FE | §EPIC-03-US-02 | presentation | `product_custom_field_group_edit_page.dart`, `product_custom_field_group_edit_cubit.dart`, `product_custom_field_input_widget.dart`, `app_router.dart` | wgt_e03_u02_fr01_01 | done |
 
 ---
 
