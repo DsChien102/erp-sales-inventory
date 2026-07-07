@@ -2135,5 +2135,238 @@ void main() {
         );
       },
     );
+
+    group('EPIC-07 / US-02 product business status contract', () {
+      test('scn_contract_e07_u02_fr01_01 deactivates active product', () async {
+        final module = FakeCatalogModule(
+          scenario: FakeCatalogScenario.scnContractE07U02Fr01_01,
+        );
+
+        final result = await module.executeCommandAsync(
+          DeactivateProductCommand(
+            tenantId: 'tenant-1',
+            actorId: 'user-1',
+            productId: 'product-4',
+            reason: 'Ngừng kinh doanh theo mùa',
+          ),
+        );
+
+        expect(result.productId, 'product-4');
+        expect(result.previousStatus, ProductStatus.active);
+        expect(result.currentStatus, ProductStatus.inactive);
+        expect(result.reason, 'Ngừng kinh doanh theo mùa');
+        expect(result.version, 2);
+
+        final pcc = await module.executeQueryAsync(
+          GetProductControlCenterQuery(
+            tenantId: 'tenant-1',
+            productId: 'product-4',
+          ),
+        );
+        expect(pcc.profile.businessStatus, ProductStatus.inactive);
+      });
+
+      test(
+        'scn_contract_e07_u02_fr01_02 requires warning acknowledgment for stocked product',
+        () async {
+          final module = FakeCatalogModule(
+            scenario: FakeCatalogScenario.scnContractE07U02Fr01_02,
+          );
+
+          await expectLater(
+            module.executeCommandAsync(
+              DeactivateProductCommand(
+                tenantId: 'tenant-1',
+                actorId: 'user-1',
+                productId: 'product-1',
+              ),
+            ),
+            throwsA(
+              isA<ProductBusinessStatusWarningsRequireAcknowledgmentException>().having(
+                (e) => e.warnings.map((warning) => warning.code),
+                'warning codes',
+                contains(ProductBusinessStatusWarningCode.hasStock),
+              ),
+            ),
+          );
+
+          final result = await module.executeCommandAsync(
+            DeactivateProductCommand(
+              tenantId: 'tenant-1',
+              actorId: 'user-1',
+              productId: 'product-1',
+              confirmAcknowledgeWarnings: true,
+            ),
+          );
+
+          expect(result.currentStatus, ProductStatus.inactive);
+          expect(
+            result.warnings.map((warning) => warning.code),
+            contains(ProductBusinessStatusWarningCode.hasStock),
+          );
+        },
+      );
+
+      test('scn_contract_e07_u02_fr01_03 denies missing manage status permission', () async {
+        final module = FakeCatalogModule(
+          scenario: FakeCatalogScenario.scnContractE07U02Fr01_03,
+        );
+
+        await expectLater(
+          module.executeCommandAsync(
+            DeactivateProductCommand(
+              tenantId: 'tenant-1',
+              actorId: 'user-1',
+              productId: 'product-4',
+            ),
+          ),
+          throwsA(
+            isA<ApplicationException>().having(
+              (e) => e.message,
+              'message',
+              contains('Permission denied'),
+            ),
+          ),
+        );
+      });
+
+      test('scn_contract_e07_u02_fr01_04 rejects already inactive product', () async {
+        final module = FakeCatalogModule(
+          scenario: FakeCatalogScenario.scnContractE07U02Fr01_04,
+        );
+
+        await expectLater(
+          module.executeCommandAsync(
+            DeactivateProductCommand(
+              tenantId: 'tenant-1',
+              actorId: 'user-1',
+              productId: 'product-5',
+            ),
+          ),
+          throwsA(
+            isA<ValidationException>().having(
+              (e) => e.message,
+              'message',
+              contains('already inactive'),
+            ),
+          ),
+        );
+      });
+
+      test('scn_contract_e07_u02_fr02_01 reactivates inactive ready product', () async {
+        final module = FakeCatalogModule(
+          scenario: FakeCatalogScenario.scnContractE07U02Fr02_01,
+        );
+
+        final result = await module.executeCommandAsync(
+          ReactivateProductCommand(
+            tenantId: 'tenant-1',
+            actorId: 'user-1',
+            productId: 'product-5',
+            reason: 'Kinh doanh lại',
+          ),
+        );
+
+        expect(result.previousStatus, ProductStatus.inactive);
+        expect(result.currentStatus, ProductStatus.active);
+        expect(result.readinessSummary.status, ReadinessStatus.readyToSell);
+      });
+
+      test(
+        'scn_contract_e07_u02_fr02_02 reactivates incomplete product with blockers',
+        () async {
+          final module = FakeCatalogModule(
+            scenario: FakeCatalogScenario.scnContractE07U02Fr02_02,
+          );
+
+          final result = await module.executeCommandAsync(
+            ReactivateProductCommand(
+              tenantId: 'tenant-1',
+              actorId: 'user-1',
+              productId: 'product-4',
+            ),
+          );
+
+          expect(result.currentStatus, ProductStatus.active);
+          expect(result.readinessSummary.status, ReadinessStatus.incomplete);
+          expect(
+            result.readinessSummary.blockers.map((b) => b.code),
+            contains(ReadinessBlockerCode.missingPriceBand),
+          );
+        },
+      );
+
+      test('scn_contract_e07_u02_fr02_03 rejects soft-deleted product reactivation', () async {
+        final module = FakeCatalogModule(
+          scenario: FakeCatalogScenario.scnContractE07U02Fr02_03,
+        );
+
+        await expectLater(
+          module.executeCommandAsync(
+            ReactivateProductCommand(
+              tenantId: 'tenant-1',
+              actorId: 'user-1',
+              productId: 'product-7',
+            ),
+          ),
+          throwsA(
+            isA<ApplicationException>().having(
+              (e) => e.message,
+              'message',
+              contains('soft-deleted'),
+            ),
+          ),
+        );
+      });
+
+      test('scn_contract_e07_u02_fr03_01 search excludes inactive by default', () async {
+        final module = FakeCatalogModule(
+          scenario: FakeCatalogScenario.scnContractE07U02Fr03_01,
+        );
+
+        final defaultResult = await module.executeQueryAsync(
+          SearchProductsQuery(
+            tenantId: 'tenant-1',
+            criteria: ProductSearchCriteria(keyword: 'Doxycycline'),
+          ),
+        );
+        expect(defaultResult.items, isEmpty);
+
+        final adminResult = await module.executeQueryAsync(
+          SearchProductsQuery(
+            tenantId: 'tenant-1',
+            criteria: ProductSearchCriteria(
+              keyword: 'Doxycycline',
+              businessStatuses: {ProductStatus.active, ProductStatus.inactive},
+            ),
+          ),
+        );
+        expect(adminResult.items.single.businessStatus, ProductStatus.inactive);
+      });
+
+      test(
+        'scn_contract_e07_u02_fr04_01 returns status history preview data',
+        () async {
+          final module = FakeCatalogModule(
+            scenario: FakeCatalogScenario.scnContractE07U02Fr04_01,
+          );
+
+          final result = await module.executeCommandAsync(
+            DeactivateProductCommand(
+              tenantId: 'tenant-1',
+              actorId: 'user-1',
+              productId: 'product-4',
+              reason: 'Hết vòng đời sản phẩm',
+            ),
+          );
+
+          expect(result.historyEntry, isNotNull);
+          expect(result.historyEntry!.changeType, 'product_status_changed');
+          expect(result.historyEntry!.valueBefore, ProductStatus.active.name);
+          expect(result.historyEntry!.valueAfter, ProductStatus.inactive.name);
+          expect(result.historyEntry!.summary, contains('Ngừng kinh doanh'));
+        },
+      );
+    });
   });
 }

@@ -108,12 +108,30 @@ void registerGeneratedCatalogHandlers({
     ),
   );
 
+  CatalogCommandRegistration.registerBusinessHandler<DeactivateProductCommand, ChangeProductBusinessStatusResult, DeactivateProductCommandHandler>(
+    container: container,
+    bus: bus,
+    logger: logger,
+    factory: () => DeactivateProductCommandHandler(
+      commandGateway: container.get<IProductCommandGateway>(),
+    ),
+  );
+
   CatalogCommandRegistration.registerBusinessHandler<DeactivateProductConversionUnitCommand, ProductUnitMutationResult, DeactivateProductConversionUnitCommandHandler>(
     container: container,
     bus: bus,
     logger: logger,
     factory: () => DeactivateProductConversionUnitCommandHandler(
       unitGateway: container.get<ICatalogUnitGateway>(),
+    ),
+  );
+
+  CatalogCommandRegistration.registerBusinessHandler<ReactivateProductCommand, ChangeProductBusinessStatusResult, ReactivateProductCommandHandler>(
+    container: container,
+    bus: bus,
+    logger: logger,
+    factory: () => ReactivateProductCommandHandler(
+      commandGateway: container.get<IProductCommandGateway>(),
     ),
   );
 

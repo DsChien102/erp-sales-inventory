@@ -276,6 +276,21 @@ Mở đầy đủ khi CONTRACT lane bắt đầu.
 
 ---
 
+## EPIC-07 / US-02 — Ngừng KD / KD lại (slice #13)
+
+| Req ID | Role | Contract § | Enforce layer | Artifact | Test id | Status |
+| ------ | ---- | ---------- | ------------- | -------- | ------- | ------ |
+| US-02 | CONTRACT | §EPIC-07-US-02 | application | `DeactivateProductCommand`, `ReactivateProductCommand`, `ChangeProductBusinessStatusResult`, warning DTOs, `FakeCatalogModule` | scn_contract_e07_u02_* | done |
+| FR-01 | CONTRACT | §EPIC-07-US-02 | application | Deactivate active product, warning acknowledgment, permission/invalid-state guards | scn_contract_e07_u02_fr01_01..04 | done |
+| FR-02 | CONTRACT | §EPIC-07-US-02 | application | Reactivate inactive product; allow incomplete readiness with blockers; block soft-deleted product | scn_contract_e07_u02_fr02_01..03 | done |
+| FR-03 | CONTRACT | §EPIC-07-US-02 | application | Default search excludes inactive; explicit admin criteria can include inactive | scn_contract_e07_u02_fr03_01 | done |
+| FR-04 | CONTRACT | §EPIC-07-US-02 | application | Status change result includes before/after history preview data | scn_contract_e07_u02_fr04_01 | done |
+| FR-01..04 | BE | §EPIC-07-US-02 | application + infrastructure | Handlers, gateway/RPC, draft SQL, generated access metadata | scn_e07_u02_* | todo |
+| FR-01..04 | FE | §EPIC-07-US-02 | presentation | PCC status actions + confirm dialogs | wgt_e07_u02_* | todo |
+| FR-01..04 | E2E | §EPIC-07-US-02 | erp | ERP via `ICatalogModule` | e2e_e07_u02_* | todo |
+
+---
+
 ## EPIC-04 / US-03 — Đổi đơn vị cơ sở
 
 | Req ID | Role | Contract § | Enforce layer | Artifact | Test id | Status |

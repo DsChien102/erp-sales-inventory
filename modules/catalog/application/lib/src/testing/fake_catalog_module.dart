@@ -94,6 +94,15 @@ abstract final class FakeCatalogScenario {
   static const scnContractE07U01Fr02_04 = 'scn_contract_e07_u01_fr02_04';
   static const scnContractE07U01Fr03_01 = 'scn_contract_e07_u01_fr03_01';
   static const scnContractE07U01Fr04_01 = 'scn_contract_e07_u01_fr04_01';
+  static const scnContractE07U02Fr01_01 = 'scn_contract_e07_u02_fr01_01';
+  static const scnContractE07U02Fr01_02 = 'scn_contract_e07_u02_fr01_02';
+  static const scnContractE07U02Fr01_03 = 'scn_contract_e07_u02_fr01_03';
+  static const scnContractE07U02Fr01_04 = 'scn_contract_e07_u02_fr01_04';
+  static const scnContractE07U02Fr02_01 = 'scn_contract_e07_u02_fr02_01';
+  static const scnContractE07U02Fr02_02 = 'scn_contract_e07_u02_fr02_02';
+  static const scnContractE07U02Fr02_03 = 'scn_contract_e07_u02_fr02_03';
+  static const scnContractE07U02Fr03_01 = 'scn_contract_e07_u02_fr03_01';
+  static const scnContractE07U02Fr04_01 = 'scn_contract_e07_u02_fr04_01';
 }
 
 class _TenantUnit {
@@ -246,7 +255,8 @@ class _StoredProduct {
   final StockMode stockMode;
   final BasePriceMode basePriceMode;
   final bool pricePermissionDenied;
-  final ProductStatus businessStatus;
+  ProductStatus businessStatus;
+  List<ProductChangeHistoryEntryDto> statusHistory = const [];
   bool isSoftDeleted = false;
   DateTime updatedAt;
   int version = 1;
@@ -504,6 +514,21 @@ final class FakeCatalogModule implements ICatalogModule {
           baseCost: 100000,
           updatedAt: DateTime.utc(2026, 1, 3),
         ),
+        _StoredProduct(
+          id: 'product-12',
+          name: 'Doxycycline 100mg',
+          tradeName: 'Doxy 100',
+          sku: 'SP0012',
+          barcode: '8930000000012',
+          baseUnit: 'Hộp',
+          images: ['https://picsum.photos/200/310'],
+          stockQty: 15,
+          baseCost: 22000,
+          listPrice: 35000,
+          floorPrice: 28000,
+          businessStatus: ProductStatus.inactive,
+          updatedAt: DateTime.utc(2026, 1, 2),
+        ),
       ],
       _storeRules = {
         'tenant-1': _StorePriceRule(
@@ -664,6 +689,16 @@ final class FakeCatalogModule implements ICatalogModule {
     if (command is UpdateProductImagesCommand) {
       return _handleUpdateProductImages<TResult>(
         command as UpdateProductImagesCommand,
+      );
+    }
+    if (command is DeactivateProductCommand) {
+      return _handleDeactivateProduct<TResult>(
+        command as DeactivateProductCommand,
+      );
+    }
+    if (command is ReactivateProductCommand) {
+      return _handleReactivateProduct<TResult>(
+        command as ReactivateProductCommand,
       );
     }
     if (command is RequestProductMaintenanceImageUploadCommand) {
@@ -838,6 +873,132 @@ final class FakeCatalogModule implements ICatalogModule {
           primaryImageUrl: _primaryImageUrl(images),
           readinessSummary: _readinessSummaryFor(product),
           version: product.version,
+        )
+        as TResult;
+  }
+
+  TResult _handleDeactivateProduct<TResult>(DeactivateProductCommand command) {
+    if (scenario == FakeCatalogScenario.scnContractE07U02Fr01_03) {
+      throw ApplicationException('Permission denied');
+    }
+
+    final product = _findProduct(command.productId);
+    if (product == null) {
+      throw ApplicationException('Product not found');
+    }
+    _ensureStatusChangeAllowed(product, command.expectedVersion);
+    if (product.businessStatus == ProductStatus.inactive) {
+      throw ValidationException('Product is already inactive.');
+    }
+
+    final warnings = _businessStatusWarningsFor(product);
+    if (warnings.isNotEmpty && !command.confirmAcknowledgeWarnings) {
+      throw ProductBusinessStatusWarningsRequireAcknowledgmentException(
+        warnings: warnings,
+      );
+    }
+
+    return _changeProductStatus<TResult>(
+      product: product,
+      nextStatus: ProductStatus.inactive,
+      actorId: command.actorId,
+      reason: command.reason,
+      warnings: warnings,
+    );
+  }
+
+  TResult _handleReactivateProduct<TResult>(ReactivateProductCommand command) {
+    final product = _findProduct(command.productId);
+    if (product == null) {
+      throw ApplicationException('Product not found');
+    }
+    if (scenario == FakeCatalogScenario.scnContractE07U02Fr02_02 && product.id == 'product-4') {
+      product.businessStatus = ProductStatus.inactive;
+    }
+    _ensureStatusChangeAllowed(product, command.expectedVersion);
+    if (product.businessStatus == ProductStatus.active) {
+      throw ValidationException('Product is already active.');
+    }
+
+    return _changeProductStatus<TResult>(
+      product: product,
+      nextStatus: ProductStatus.active,
+      actorId: command.actorId,
+      reason: command.reason,
+    );
+  }
+
+  void _ensureStatusChangeAllowed(_StoredProduct product, int? expectedVersion) {
+    if (_isSoftDeletedForStatusChange(product)) {
+      throw ApplicationException(
+        'Product is soft-deleted and cannot change business status.',
+      );
+    }
+    if (expectedVersion != null && expectedVersion != product.version) {
+      throw StaleProductVersionException(
+        expectedVersion: expectedVersion,
+        currentVersion: product.version,
+      );
+    }
+  }
+
+  bool _isSoftDeletedForStatusChange(_StoredProduct product) {
+    return product.isSoftDeleted ||
+        (scenario == FakeCatalogScenario.scnContractE07U02Fr02_03 && product.id == 'product-7');
+  }
+
+  List<ProductBusinessStatusWarningDto> _businessStatusWarningsFor(
+    _StoredProduct product,
+  ) {
+    if (scenario == FakeCatalogScenario.scnContractE07U02Fr01_02 &&
+        product.stockQty != null &&
+        product.stockQty! > 0) {
+      return const [
+        ProductBusinessStatusWarningDto(
+          code: ProductBusinessStatusWarningCode.hasStock,
+          message: 'Sản phẩm vẫn còn tồn kho hiện hành.',
+        ),
+      ];
+    }
+    return const [];
+  }
+
+  TResult _changeProductStatus<TResult>({
+    required _StoredProduct product,
+    required ProductStatus nextStatus,
+    required String actorId,
+    required String? reason,
+    List<ProductBusinessStatusWarningDto> warnings = const [],
+  }) {
+    final previousStatus = product.businessStatus;
+    product.businessStatus = nextStatus;
+    _markUpdated(product);
+
+    final historyEntry = ProductChangeHistoryEntryDto(
+      id: 'history-${product.id}-status-${product.version}',
+      occurredAt: product.updatedAt,
+      actorDisplayName: actorId,
+      changeType: 'product_status_changed',
+      summary: nextStatus == ProductStatus.inactive
+          ? 'Ngừng kinh doanh sản phẩm'
+          : 'Kinh doanh lại sản phẩm',
+      valueBefore: previousStatus.name,
+      valueAfter: nextStatus.name,
+    );
+    product.statusHistory = [
+      historyEntry,
+      ...product.statusHistory,
+    ];
+
+    return ChangeProductBusinessStatusResult(
+          productId: product.id,
+          previousStatus: previousStatus,
+          currentStatus: nextStatus,
+          readinessSummary: _readinessSummaryFor(product),
+          version: product.version,
+          reason: _optionalText(reason),
+          warnings: warnings,
+          historyEntry: historyEntry,
         )
         as TResult;
   }
@@ -1256,6 +1417,7 @@ final class FakeCatalogModule implements ICatalogModule {
         : const <CustomFieldGroupCardDto>[];
 
     final history = [
+      ...product.statusHistory,
       ProductChangeHistoryEntryDto(
         id: 'history-${product.id}-1',
         occurredAt: product.updatedAt,

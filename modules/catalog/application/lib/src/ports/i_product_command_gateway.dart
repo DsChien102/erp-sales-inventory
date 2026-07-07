@@ -2,6 +2,9 @@ import 'package:vet45_catalog_domain/domain.dart';
 
 import '../lifecycle/update_product_images_command.dart';
 import '../lifecycle/update_product_images_result.dart';
+import '../lifecycle/change_product_business_status_result.dart';
+import '../lifecycle/deactivate_product_command.dart';
+import '../lifecycle/reactivate_product_command.dart';
 import '../lifecycle/update_product_profile_command.dart';
 import '../lifecycle/update_product_profile_result.dart';
 
@@ -36,5 +39,13 @@ abstract interface class IProductCommandGateway {
 
   Future<UpdateProductImagesResult> updateProductImages(
     UpdateProductImagesCommand command,
+  );
+
+  Future<ChangeProductBusinessStatusResult> deactivateProduct(
+    DeactivateProductCommand command,
+  );
+
+  Future<ChangeProductBusinessStatusResult> reactivateProduct(
+    ReactivateProductCommand command,
   );
 }

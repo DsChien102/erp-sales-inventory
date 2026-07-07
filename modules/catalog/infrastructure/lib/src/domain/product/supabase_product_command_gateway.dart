@@ -139,4 +139,22 @@ final class SupabaseProductCommandGateway implements IProductCommandGateway {
       throw mapCatalogRpcError(error);
     }
   }
+
+  @override
+  Future<ChangeProductBusinessStatusResult> deactivateProduct(
+    DeactivateProductCommand command,
+  ) async {
+    throw UnimplementedError(
+      'EPIC-07/US-02 BE lane will implement catalog.deactivate_product.',
+    );
+  }
+
+  @override
+  Future<ChangeProductBusinessStatusResult> reactivateProduct(
+    ReactivateProductCommand command,
+  ) async {
+    throw UnimplementedError(
+      'EPIC-07/US-02 BE lane will implement catalog.reactivate_product.',
+    );
+  }
 }
