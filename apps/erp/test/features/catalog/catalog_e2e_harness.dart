@@ -9,12 +9,15 @@ import 'package:erp/features/catalog/presentation/pages/product_readiness_checkl
 import 'package:erp/features/catalog/presentation/pages/product_images_maintenance_page.dart';
 import 'package:erp/features/catalog/presentation/pages/product_profile_maintenance_page.dart';
 import 'package:erp/features/catalog/presentation/pages/product_stock_adjustment_page.dart';
+import 'package:erp/features/catalog/presentation/pages/settings/custom_field_group_detail_page.dart';
+import 'package:erp/features/catalog/presentation/pages/settings/custom_field_groups_page.dart';
+import 'package:erp/features/catalog/presentation/pages/settings/upsert_custom_field_group_page.dart';
+import 'package:erp/features/catalog/presentation/pages/settings/upsert_custom_field_page.dart';
 import 'package:erp/features/catalog/presentation/widgets/product_control_center_operational_section.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:get_it/get_it.dart';
 import 'package:erp/features/catalog/presentation/pages/product_price_bands_page.dart';
 import 'package:erp/features/catalog/presentation/pages/edit_product_unit_price_band_page.dart';
 import 'package:vet45_catalog_application/application.dart';
@@ -220,6 +223,54 @@ Widget buildCatalogDiscoveryRouter() {
         builder: (context, state) {
           final product = state.extra as ProductListItemModel;
           return ProductImagesMaintenancePage(product: product);
+        },
+      ),
+    ],
+  );
+
+  return MaterialApp.router(routerConfig: router);
+}
+
+Widget buildCustomFieldSettingsRouter() {
+  final router = GoRouter(
+    initialLocation: '/more/product-settings/custom-fields',
+    routes: [
+      GoRoute(
+        path: '/more/product-settings/custom-fields',
+        builder: (context, state) => const CustomFieldGroupsPage(),
+      ),
+      GoRoute(
+        path: '/more/product-settings/custom-fields/upsert-group',
+        builder: (context, state) {
+          final cubit = state.extra as CustomFieldConfigCubit?;
+          if (cubit == null) {
+            return const Scaffold(body: Center(child: CircularProgressIndicator()));
+          }
+          final groupId = state.uri.queryParameters['groupId'];
+          return UpsertCustomFieldGroupPage(cubit: cubit, initialGroupId: groupId);
+        },
+      ),
+      GoRoute(
+        path: '/more/product-settings/custom-fields/:groupId',
+        builder: (context, state) {
+          final groupId = state.pathParameters['groupId']!;
+          final cubit = state.extra as CustomFieldConfigCubit?;
+          if (cubit == null) {
+            return const Scaffold(body: Center(child: CircularProgressIndicator()));
+          }
+          return CustomFieldGroupDetailPage(groupId: groupId, cubit: cubit);
+        },
+      ),
+      GoRoute(
+        path: '/more/product-settings/custom-fields/:groupId/upsert-field',
+        builder: (context, state) {
+          final groupId = state.pathParameters['groupId']!;
+          final cubit = state.extra as CustomFieldConfigCubit?;
+          if (cubit == null) {
+            return const Scaffold(body: Center(child: CircularProgressIndicator()));
+          }
+          final fieldId = state.uri.queryParameters['fieldId'];
+          return UpsertCustomFieldPage(groupId: groupId, cubit: cubit, initialFieldId: fieldId);
         },
       ),
     ],
