@@ -1,6 +1,6 @@
 ---
-description: Flutter presentation UI rules — widget decomposition, file size, dialog extraction
-globs: apps/erp/lib/**/presentation/**,modules/*/presentation/**
+description: Flutter presentation UI rules — widget decomposition, dialog extraction, and async query integration
+globs: apps/erp/lib/**/presentation/**,modules/*/presentation/**,packages/vet45_async_query/**
 alwaysApply: false
 ---
 
@@ -20,6 +20,11 @@ alwaysApply: false
 3. No large `Widget _buildXxx()` in `State` — extract class widget or separate file
 4. Page = thin composition: widgets + Bloc/Cubit + `IModuleMediator` — no direct Supabase/PostgREST
 5. Prefer `const` constructors when params are immutable
+6. Khi dùng `vet45_async_query`, query/mutation function phải đi qua module facade (`executeQueryAsync`/`executeCommandAsync`)
+7. Query key phải stable, serializable, có tenant scope cho tenant data; không dùng UUID/random làm key
+8. Sau mutation, ưu tiên `invalidateQueries` thay vì gọi `load()` thủ công lặp lại
+9. Không force unwrap `result.data!` trước khi đảm bảo `hasData` (tránh null ở pending+idle)
+10. Tránh duplicate state machine: đã dùng `UseQuery` thì không tạo thêm loading/error machine trùng lặp trong widget tree
 
 ## Golden reference
 
@@ -31,4 +36,5 @@ alwaysApply: false
 1. Read `.cursor/skills/presentation-layer/SKILL.md`
 2. Read UI artifacts in FR/US spec — create widget manifest first
 3. Implement widgets/dialogs before the page
-4. Verify: `./scripts/ci/verify_harness.sh`
+4. Nếu tích hợp async query, đọc `packages/vet45_async_query/docs/AGENT_INTEGRATION_PLAYBOOK.md`
+5. Verify: `./scripts/ci/verify_harness.sh`

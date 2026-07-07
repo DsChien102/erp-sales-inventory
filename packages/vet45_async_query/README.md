@@ -134,6 +134,12 @@ dart test
 cd packages/async_query_flutter && flutter test
 ```
 
+## Agent integration docs
+
+- Integration playbook for AI agents: `docs/AGENT_INTEGRATION_PLAYBOOK.md`
+- Cursor skill for migration/integration: `.cursor/skills/async-query-integration/SKILL.md`
+- Cursor rule for guardrails: `.cursor/rules/vet45-async-query.mdc`
+
 ## Comparison with manual Cubit pattern
 
 Without `async_query`, each screen implements its own `loading/success/failure` state, manual refetch after mutations, and no cross-screen cache. With `async_query`:

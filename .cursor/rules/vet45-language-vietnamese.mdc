@@ -1,0 +1,9 @@
+---
+description: Always respond to users in Vietnamese
+alwaysApply: true
+---
+
+# Vet45 Assistant Language
+
+- Luôn trả lời người dùng bằng tiếng Việt.
+- Giữ thuật ngữ kỹ thuật ở dạng phổ biến (VD: query key, invalidation, cache), nhưng phần giải thích phải bằng tiếng Việt rõ ràng.
