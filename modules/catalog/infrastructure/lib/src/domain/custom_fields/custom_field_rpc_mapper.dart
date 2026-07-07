@@ -426,4 +426,137 @@ abstract final class CustomFieldRpcMapper {
     }
     return double.tryParse(value.toString());
   }
+
+  static Map<String, dynamic> listCustomFieldFilterOptionsParams({
+    required String tenantId,
+    required int maxOptionsPerField,
+  }) {
+    return <String, dynamic>{
+      'p_tenant_id': tenantId,
+      'p_max_options_per_field': maxOptionsPerField,
+    };
+  }
+
+  static List<CustomFieldFilterOptionDto> filterOptionsFromJson(Object? value) {
+    if (value is! List) {
+      return const [];
+    }
+
+    return value
+        .whereType<Map<String, dynamic>>()
+        .map(filterOptionFromJson)
+        .toList(growable: false);
+  }
+
+  static CustomFieldFilterOptionDto filterOptionFromJson(
+    Map<String, dynamic> row,
+  ) {
+    final optionsRaw = row['options'];
+    final options = optionsRaw is List
+        ? optionsRaw
+              .whereType<Map<String, dynamic>>()
+              .map(selectOptionFromJson)
+              .toList(growable: false)
+        : const <CustomFieldSelectOptionDto>[];
+
+    return CustomFieldFilterOptionDto(
+      fieldId: row['field_id'] as String,
+      groupId: row['group_id'] as String,
+      groupName: row['group_name'] as String,
+      fieldName: row['field_name'] as String,
+      fieldType: row['field_type'] as String,
+      options: options,
+      sortOrder: (row['sort_order'] as num?)?.toInt() ?? 0,
+    );
+  }
+
+  static CustomFieldSelectOptionDto selectOptionFromJson(
+    Map<String, dynamic> row,
+  ) {
+    return CustomFieldSelectOptionDto(
+      optionId: row['option_id'] as String,
+      label: row['label'] as String,
+      sortOrder: (row['sort_order'] as num?)?.toInt() ?? 0,
+      isActive: row['is_active'] as bool? ?? true,
+    );
+  }
+
+  static Map<String, dynamic> getProductCustomFieldSnapshotParams({
+    required String tenantId,
+    required List<String> productIds,
+    required bool includeInactiveValues,
+  }) {
+    return <String, dynamic>{
+      'p_tenant_id': tenantId,
+      'p_product_ids': productIds,
+      'p_include_inactive_values': includeInactiveValues,
+    };
+  }
+
+  static ProductCustomFieldSnapshotDto snapshotFromJson(
+    Map<String, dynamic> row,
+  ) {
+    final productsRaw = row['products'];
+    if (productsRaw is! Map) {
+      return const ProductCustomFieldSnapshotDto(products: {});
+    }
+
+    final products = <String, List<ProductCustomFieldSnapshotFieldDto>>{};
+    for (final entry in productsRaw.entries) {
+      final fieldsRaw = entry.value;
+      if (fieldsRaw is! List) {
+        continue;
+      }
+      products[entry.key.toString()] = fieldsRaw
+          .whereType<Map<String, dynamic>>()
+          .map(snapshotFieldFromJson)
+          .toList(growable: false);
+    }
+
+    return ProductCustomFieldSnapshotDto(products: products);
+  }
+
+  static ProductCustomFieldSnapshotFieldDto snapshotFieldFromJson(
+    Map<String, dynamic> row,
+  ) {
+    return ProductCustomFieldSnapshotFieldDto(
+      productId: row['product_id'] as String,
+      fieldId: row['field_id'] as String,
+      groupId: row['group_id'] as String,
+      groupName: row['group_name'] as String,
+      fieldName: row['field_name'] as String,
+      fieldType: row['field_type'] as String,
+      displayValue: row['display_value'] as String?,
+      textValue: row['text_value'] as String?,
+      numberValue: _toDouble(row['number_value']),
+      dateValue: _toDate(row['date_value']),
+      booleanValue: row['boolean_value'] as bool?,
+      optionId: row['option_id'] as String?,
+      optionLabel: row['option_label'] as String?,
+      isActive: row['is_active'] as bool? ?? true,
+    );
+  }
+
+  static List<CustomFieldListValueDto> listValuesFromJson(Object? value) {
+    if (value is! List) {
+      return const [];
+    }
+
+    return value
+        .whereType<Map<String, dynamic>>()
+        .map(listValueFromJson)
+        .toList(growable: false);
+  }
+
+  static CustomFieldListValueDto listValueFromJson(Map<String, dynamic> row) {
+    return CustomFieldListValueDto(
+      fieldId: row['field_id'] as String,
+      groupId: row['group_id'] as String,
+      groupName: row['group_name'] as String,
+      fieldName: row['field_name'] as String,
+      fieldType: row['field_type'] as String,
+      displayValue: row['display_value'] as String,
+      sortOrder: (row['sort_order'] as num?)?.toInt() ?? 0,
+    );
+  }
 }

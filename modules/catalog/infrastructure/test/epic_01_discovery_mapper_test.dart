@@ -38,6 +38,45 @@ void main() {
       expect(row.stockQuantity, 150);
       expect(row.businessStatus, ProductStatus.active);
     });
+
+    test('maps custom field values on search row', () {
+      final row = ProductListItemMapper.fromRow({
+        'product_id': 'product-1',
+        'name': 'Amoxicillin 500mg',
+        'trade_name': 'Amox 500',
+        'sku': 'SP0001',
+        'barcode': '8930000000001',
+        'primary_image_url': 'https://example.com/a.jpg',
+        'business_status': 'active',
+        'is_soft_deleted': false,
+        'base_unit_name': 'Hộp',
+        'stock_qty': 150,
+        'list_price': 120000,
+        'floor_price': 95000,
+        'updated_at': '2026-06-01T10:00:00Z',
+        'has_base_unit': true,
+        'has_images': true,
+        'has_stock': true,
+        'has_base_price': true,
+        'has_price_band': true,
+        'has_required_custom_fields': true,
+        'stock_mode': 'basic',
+        'base_price_mode': 'manual',
+        'custom_field_values': [
+          {
+            'field_id': 'field-1',
+            'group_id': 'group-1',
+            'group_name': 'Thông tin thuốc',
+            'field_name': 'Dạng dùng',
+            'field_type': 'singleSelect',
+            'display_value': 'Dung dịch',
+            'sort_order': 10,
+          },
+        ],
+      });
+
+      expect(row.customFieldValues.single.displayValue, 'Dung dịch');
+    });
   });
 
   group('ProductControlCenterMapper', () {

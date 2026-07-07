@@ -1218,7 +1218,7 @@ Tests: `scn_contract_e03_u02_*` trong `fake_catalog_module_test.dart`.
 
 ## EPIC-03 / US-03 — Search / filter / display on list (slice #18)
 
-**Status:** CONTRACT `done` · BE `todo`
+**Status:** CONTRACT `done` · BE `done`
 
 ### Commands / Queries
 
@@ -1258,7 +1258,11 @@ FR-04 behavior: `GetProductCustomFieldSnapshotQuery` returns current product-own
 | Filter option metadata | `catalog.list_custom_field_filter_options` |
 | Product custom field snapshot/current values | `catalog.get_product_custom_field_snapshot` |
 
-BE lane will extend existing search RPC/view and add draft SQL under `supabase/migrations/_drafts/`; CONTRACT lane does not create timestamped migrations or draft SQL.
+`search_products` extended params: `p_custom_field_filters jsonb` (array of `{field_id, option_id?, boolean_value?}`). Response adds `custom_field_values jsonb` array per row (`field_id`, `group_id`, `group_name`, `field_name`, `field_type`, `display_value`, `sort_order`).
+
+`list_custom_field_filter_options` returns jsonb array of filter metadata (`field_id`, `group_id`, `group_name`, `field_name`, `field_type`, `options[]`, `sort_order`).
+
+`get_product_custom_field_snapshot` returns `{ products: { "<product_id>": [ snapshot field rows ] } }` with typed values + `is_active`. Draft SQL: `supabase/migrations/_drafts/14_catalog_custom_field_search.sql`.
 
 ### Fake scenarios (FE)
 

@@ -518,6 +518,18 @@ void registerGeneratedCatalogQueries({
   );
 
   CatalogCommandRegistration.registerQueryHandler<
+    GetProductCustomFieldSnapshotQuery,
+    ProductCustomFieldSnapshotDto,
+    GetProductCustomFieldSnapshotQueryHandler
+  >(
+    bus: bus,
+    factory: () => GetProductCustomFieldSnapshotQueryHandler(
+      readGateway: container.get<ICatalogCustomFieldReadGateway>(),
+    ),
+    invoke: (query, handler) => handler.handle(query),
+  );
+
+  CatalogCommandRegistration.registerQueryHandler<
     GetProductCustomFieldValuesQuery,
     ProductCustomFieldValuesDto,
     GetProductCustomFieldValuesQueryHandler
@@ -575,6 +587,18 @@ void registerGeneratedCatalogQueries({
     bus: bus,
     factory: () => ListCustomFieldConfigQueryHandler(
       customFieldConfigGateway: container.get<ICatalogCustomFieldConfigGateway>(),
+    ),
+    invoke: (query, handler) => handler.handle(query),
+  );
+
+  CatalogCommandRegistration.registerQueryHandler<
+    ListCustomFieldFilterOptionsQuery,
+    List<CustomFieldFilterOptionDto>,
+    ListCustomFieldFilterOptionsQueryHandler
+  >(
+    bus: bus,
+    factory: () => ListCustomFieldFilterOptionsQueryHandler(
+      readGateway: container.get<ICatalogReadGateway>(),
     ),
     invoke: (query, handler) => handler.handle(query),
   );

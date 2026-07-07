@@ -649,4 +649,39 @@ void main() {
       expect(params['p_limit'], 20);
     });
   });
+
+  group('ProductRpcMapper (EPIC-03/US-03 custom field search)', () {
+    test('searchProductsParams maps custom field filters', () {
+      final params = ProductRpcMapper.searchProductsParams(
+        tenantId: 'tenant-1',
+        criteria: ProductSearchCriteria(
+          keyword: 'tiêu hóa',
+          customFieldFilters: [
+            CustomFieldFilterCriteria(
+              fieldId: 'field-1',
+              optionId: 'opt-1',
+            ),
+            CustomFieldFilterCriteria(
+              fieldId: 'field-2',
+              booleanValue: true,
+            ),
+          ],
+        ),
+        limit: 20,
+        offset: 0,
+      );
+
+      expect(params['p_keyword'], 'tiêu hóa');
+      expect(params['p_custom_field_filters'], [
+        {
+          'field_id': 'field-1',
+          'option_id': 'opt-1',
+        },
+        {
+          'field_id': 'field-2',
+          'boolean_value': true,
+        },
+      ]);
+    });
+  });
 }

@@ -54,6 +54,10 @@ final catalogAccessMetadataRegistry = AccessMetadataRegistry({
     permission: 'catalog.product.view_detail',
     requiresTenant: true,
   ),
+  GetProductCustomFieldSnapshotQuery: AccessMetadata(
+    permission: 'catalog.product.view_detail',
+    requiresTenant: true,
+  ),
   GetProductCustomFieldValuesQuery: AccessMetadata(
     permission: 'catalog.product.view_detail',
     requiresTenant: true,
@@ -76,6 +80,10 @@ final catalogAccessMetadataRegistry = AccessMetadataRegistry({
   ),
   ListCustomFieldConfigQuery: AccessMetadata(
     permission: 'catalog.custom_fields.manage',
+    requiresTenant: true,
+  ),
+  ListCustomFieldFilterOptionsQuery: AccessMetadata(
+    permission: 'catalog.product.view',
     requiresTenant: true,
   ),
   ListProductUnitPriceBandsQuery: AccessMetadata(
