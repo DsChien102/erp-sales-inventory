@@ -129,6 +129,93 @@ void main() {
     });
   });
 
+  group('ProductRpcMapper (EPIC-07/US-02 product business status)', () {
+    test('deactivateProductParams maps command to RPC parameters', () {
+      final params = ProductRpcMapper.deactivateProductParams(
+        DeactivateProductCommand(
+          tenantId: 'tenant-1',
+          actorId: 'user-1',
+          productId: 'product-4',
+          reason: 'Ngừng theo mùa',
+          expectedVersion: 1,
+          confirmAcknowledgeWarnings: true,
+        ),
+      );
+
+      expect(params['p_tenant_id'], 'tenant-1');
+      expect(params['p_actor_id'], 'user-1');
+      expect(params['p_product_id'], 'product-4');
+      expect(params['p_reason'], 'Ngừng theo mùa');
+      expect(params['p_expected_version'], 1);
+      expect(params['p_confirm_acknowledge_warnings'], isTrue);
+    });
+
+    test('reactivateProductParams maps command to RPC parameters', () {
+      final params = ProductRpcMapper.reactivateProductParams(
+        ReactivateProductCommand(
+          tenantId: 'tenant-1',
+          actorId: 'user-1',
+          productId: 'product-5',
+          reason: 'Kinh doanh lại',
+          expectedVersion: 2,
+        ),
+      );
+
+      expect(params['p_tenant_id'], 'tenant-1');
+      expect(params['p_actor_id'], 'user-1');
+      expect(params['p_product_id'], 'product-5');
+      expect(params['p_reason'], 'Kinh doanh lại');
+      expect(params['p_expected_version'], 2);
+    });
+
+    test('changeProductBusinessStatusResultFromRow maps result row', () {
+      final result = ProductRpcMapper.changeProductBusinessStatusResultFromRow({
+        'product_id': 'product-4',
+        'previous_status': 'active',
+        'current_status': 'inactive',
+        'readiness_status': 'incomplete',
+        'readiness_blockers': [
+          {
+            'code': ReadinessBlockerCode.missingPriceBand,
+            'message': 'Thiếu khung giá bán',
+            'group': 'priceBand',
+          },
+        ],
+        'version': 2,
+        'reason': 'Ngừng theo mùa',
+        'warnings': [
+          {
+            'code': ProductBusinessStatusWarningCode.hasStock,
+            'message': 'Sản phẩm vẫn còn tồn kho hiện hành.',
+          },
+        ],
+        'history_entry': {
+          'id': 'history-1',
+          'occurred_at': '2026-07-07T09:00:00.000Z',
+          'actor_display_name': 'user-1',
+          'change_type': 'product_status_changed',
+          'summary': 'Ngừng kinh doanh sản phẩm',
+          'value_before': 'active',
+          'value_after': 'inactive',
+        },
+      });
+
+      expect(result.productId, 'product-4');
+      expect(result.previousStatus, ProductStatus.active);
+      expect(result.currentStatus, ProductStatus.inactive);
+      expect(result.readinessSummary.status, ReadinessStatus.incomplete);
+      expect(
+        result.readinessSummary.blockers.single.code,
+        ReadinessBlockerCode.missingPriceBand,
+      );
+      expect(result.version, 2);
+      expect(result.reason, 'Ngừng theo mùa');
+      expect(result.warnings.single.code, ProductBusinessStatusWarningCode.hasStock);
+      expect(result.historyEntry?.valueBefore, ProductStatus.active.name);
+      expect(result.historyEntry?.valueAfter, ProductStatus.inactive.name);
+    });
+  });
+
   group('ProductRpcMapper (US-02 Operational Data)', () {
     test('setInitialStockParams maps stock profile to RPC parameters', () {
       final profile = ProductStockProfile.basic(initialStock: 150.0);

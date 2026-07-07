@@ -137,6 +137,31 @@ abstract final class ProductRpcMapper {
     };
   }
 
+  static Map<String, dynamic> deactivateProductParams(
+    DeactivateProductCommand command,
+  ) {
+    return <String, dynamic>{
+      'p_tenant_id': command.tenantId,
+      'p_actor_id': command.actorId,
+      'p_product_id': command.productId,
+      'p_reason': _optionalText(command.reason),
+      'p_expected_version': command.expectedVersion,
+      'p_confirm_acknowledge_warnings': command.confirmAcknowledgeWarnings,
+    };
+  }
+
+  static Map<String, dynamic> reactivateProductParams(
+    ReactivateProductCommand command,
+  ) {
+    return <String, dynamic>{
+      'p_tenant_id': command.tenantId,
+      'p_actor_id': command.actorId,
+      'p_product_id': command.productId,
+      'p_reason': _optionalText(command.reason),
+      'p_expected_version': command.expectedVersion,
+    };
+  }
+
   static Map<String, dynamic> requestMaintenanceImageUploadParams(
     RequestProductMaintenanceImageUploadCommand command,
   ) {
@@ -185,6 +210,21 @@ abstract final class ProductRpcMapper {
       primaryImageUrl: row['primary_image_url'] as String?,
       readinessSummary: _readinessSummaryFromRow(row),
       version: _intValue(row['version']) ?? 1,
+    );
+  }
+
+  static ChangeProductBusinessStatusResult changeProductBusinessStatusResultFromRow(
+    Map<String, dynamic> row,
+  ) {
+    return ChangeProductBusinessStatusResult(
+      productId: row['product_id'] as String,
+      previousStatus: _productStatusFromRpc(row['previous_status'] as String?),
+      currentStatus: _productStatusFromRpc(row['current_status'] as String?),
+      readinessSummary: _readinessSummaryFromRow(row),
+      version: _intValue(row['version']) ?? 1,
+      reason: row['reason'] as String?,
+      warnings: _warningDtos(row['warnings']),
+      historyEntry: _historyEntry(row['history_entry']),
     );
   }
 
@@ -456,6 +496,35 @@ abstract final class ProductRpcMapper {
           );
         })
         .toList(growable: false);
+  }
+
+  static List<ProductBusinessStatusWarningDto> _warningDtos(Object? value) {
+    return (value as List<dynamic>? ?? const [])
+        .map((item) {
+          final map = Map<String, dynamic>.from(item as Map);
+          return ProductBusinessStatusWarningDto(
+            code: map['code'] as String,
+            message: map['message'] as String,
+          );
+        })
+        .toList(growable: false);
+  }
+
+  static ProductChangeHistoryEntryDto? _historyEntry(Object? value) {
+    if (value == null) {
+      return null;
+    }
+
+    final map = Map<String, dynamic>.from(value as Map);
+    return ProductChangeHistoryEntryDto(
+      id: map['id'] as String,
+      occurredAt: DateTime.parse(map['occurred_at'] as String),
+      actorDisplayName: map['actor_display_name'] as String,
+      changeType: map['change_type'] as String,
+      summary: map['summary'] as String,
+      valueBefore: map['value_before'] as String?,
+      valueAfter: map['value_after'] as String?,
+    );
   }
 
   static int? _intValue(Object? value) {

@@ -79,6 +79,24 @@ void main() {
       expect(error.currentVersion, 1);
     });
 
+    test('maps product business status warning acknowledgment', () {
+      final error = mapCatalogRpcError(
+        RpcException(
+          'product_business_status_warnings_require_acknowledgment: '
+          '[{"code":"has_stock","message":"Sản phẩm vẫn còn tồn kho hiện hành."}]',
+        ),
+      );
+
+      expect(
+        error,
+        isA<ProductBusinessStatusWarningsRequireAcknowledgmentException>(),
+      );
+      expect(
+        (error as ProductBusinessStatusWarningsRequireAcknowledgmentException).warnings.single.code,
+        ProductBusinessStatusWarningCode.hasStock,
+      );
+    });
+
     test('maps validation exceptions', () {
       final error = mapCatalogRpcError(
         RpcException('validation_exception: Measurement unit is inactive.'),

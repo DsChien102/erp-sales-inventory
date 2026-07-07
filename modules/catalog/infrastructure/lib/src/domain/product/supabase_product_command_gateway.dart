@@ -144,17 +144,39 @@ final class SupabaseProductCommandGateway implements IProductCommandGateway {
   Future<ChangeProductBusinessStatusResult> deactivateProduct(
     DeactivateProductCommand command,
   ) async {
-    throw UnimplementedError(
-      'EPIC-07/US-02 BE lane will implement catalog.deactivate_product.',
-    );
+    try {
+      final rows = await _rpcClient.callList(
+        'deactivate_product',
+        params: ProductRpcMapper.deactivateProductParams(command),
+      );
+
+      if (rows.isEmpty) {
+        throw ApplicationException('Product deactivate did not return a result.');
+      }
+
+      return ProductRpcMapper.changeProductBusinessStatusResultFromRow(rows.first);
+    } on RpcException catch (error) {
+      throw mapCatalogRpcError(error);
+    }
   }
 
   @override
   Future<ChangeProductBusinessStatusResult> reactivateProduct(
     ReactivateProductCommand command,
   ) async {
-    throw UnimplementedError(
-      'EPIC-07/US-02 BE lane will implement catalog.reactivate_product.',
-    );
+    try {
+      final rows = await _rpcClient.callList(
+        'reactivate_product',
+        params: ProductRpcMapper.reactivateProductParams(command),
+      );
+
+      if (rows.isEmpty) {
+        throw ApplicationException('Product reactivate did not return a result.');
+      }
+
+      return ProductRpcMapper.changeProductBusinessStatusResultFromRow(rows.first);
+    } on RpcException catch (error) {
+      throw mapCatalogRpcError(error);
+    }
   }
 }
