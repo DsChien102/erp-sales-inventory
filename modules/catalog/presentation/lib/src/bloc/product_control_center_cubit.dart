@@ -48,4 +48,67 @@ class ProductControlCenterCubit extends Cubit<ProductControlCenterState> {
       emit(state.copyWith(errorMessage: e.toString()));
     }
   }
+  Future<void> deactivateProduct(String productId, {bool confirmAcknowledgeWarnings = false}) async {
+    emit(state.copyWith(actionStatus: ProductLifecycleActionStatus.loading, clearActionWarnings: true));
+    try {
+      final tenantId = await _executionContext.requireTenantId();
+      final actorId = await _executionContext.requireUserId();
+
+      final command = DeactivateProductCommand(
+        tenantId: tenantId,
+        actorId: actorId,
+        productId: productId,
+        confirmAcknowledgeWarnings: confirmAcknowledgeWarnings,
+      );
+
+      await _catalogModule.executeCommandAsync(command);
+      
+      emit(state.copyWith(actionStatus: ProductLifecycleActionStatus.success));
+      // Reload control center after success
+      await loadControlCenter(productId);
+    } on ProductBusinessStatusWarningsRequireAcknowledgmentException catch (e) {
+      emit(state.copyWith(
+        actionStatus: ProductLifecycleActionStatus.warning,
+        actionWarnings: e.warnings,
+      ));
+    } catch (e) {
+      emit(state.copyWith(
+        actionStatus: ProductLifecycleActionStatus.failure,
+        actionErrorMessage: e.toString(),
+      ));
+    }
+  }
+
+  Future<void> reactivateProduct(String productId) async {
+    emit(state.copyWith(actionStatus: ProductLifecycleActionStatus.loading, clearActionWarnings: true));
+    try {
+      final tenantId = await _executionContext.requireTenantId();
+      final actorId = await _executionContext.requireUserId();
+
+      final command = ReactivateProductCommand(
+        tenantId: tenantId,
+        actorId: actorId,
+        productId: productId,
+      );
+
+      await _catalogModule.executeCommandAsync(command);
+      
+      emit(state.copyWith(actionStatus: ProductLifecycleActionStatus.success));
+      // Reload control center after success
+      await loadControlCenter(productId);
+    } catch (e) {
+      emit(state.copyWith(
+        actionStatus: ProductLifecycleActionStatus.failure,
+        actionErrorMessage: e.toString(),
+      ));
+    }
+  }
+
+  void resetActionState() {
+    emit(state.copyWith(
+      actionStatus: ProductLifecycleActionStatus.initial,
+      clearActionWarnings: true,
+      actionErrorMessage: null,
+    ));
+  }
 }
