@@ -1,5 +1,10 @@
 import 'package:vet45_catalog_domain/domain.dart';
 
+import '../lifecycle/update_product_images_command.dart';
+import '../lifecycle/update_product_images_result.dart';
+import '../lifecycle/update_product_profile_command.dart';
+import '../lifecycle/update_product_profile_result.dart';
+
 abstract interface class IProductCommandGateway {
   Future<String> create({
     required Product product,
@@ -24,4 +29,12 @@ abstract interface class IProductCommandGateway {
     required String tenantId,
     required ProductUnitPriceBand priceBand,
   });
+
+  Future<UpdateProductProfileResult> updateProductProfile(
+    UpdateProductProfileCommand command,
+  );
+
+  Future<UpdateProductImagesResult> updateProductImages(
+    UpdateProductImagesCommand command,
+  );
 }

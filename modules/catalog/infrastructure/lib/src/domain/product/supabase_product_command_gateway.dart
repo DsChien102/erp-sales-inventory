@@ -99,4 +99,44 @@ final class SupabaseProductCommandGateway implements IProductCommandGateway {
       throw mapCatalogRpcError(error);
     }
   }
+
+  @override
+  Future<UpdateProductProfileResult> updateProductProfile(
+    UpdateProductProfileCommand command,
+  ) async {
+    try {
+      final rows = await _rpcClient.callList(
+        'update_product_profile',
+        params: ProductRpcMapper.updateProductProfileParams(command),
+      );
+
+      if (rows.isEmpty) {
+        throw ApplicationException('Product update did not return a result.');
+      }
+
+      return ProductRpcMapper.updateProductProfileResultFromRow(rows.first);
+    } on RpcException catch (error) {
+      throw mapCatalogRpcError(error);
+    }
+  }
+
+  @override
+  Future<UpdateProductImagesResult> updateProductImages(
+    UpdateProductImagesCommand command,
+  ) async {
+    try {
+      final rows = await _rpcClient.callList(
+        'update_product_images',
+        params: ProductRpcMapper.updateProductImagesParams(command),
+      );
+
+      if (rows.isEmpty) {
+        throw ApplicationException('Product image update did not return a result.');
+      }
+
+      return ProductRpcMapper.updateProductImagesResultFromRow(rows.first);
+    } on RpcException catch (error) {
+      throw mapCatalogRpcError(error);
+    }
+  }
 }

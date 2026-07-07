@@ -41,6 +41,20 @@ class _RecordingProductCommandGateway implements IProductCommandGateway {
     required String tenantId,
     required ProductUnitPriceBand priceBand,
   }) async {}
+
+  @override
+  Future<UpdateProductProfileResult> updateProductProfile(
+    UpdateProductProfileCommand command,
+  ) async {
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<UpdateProductImagesResult> updateProductImages(
+    UpdateProductImagesCommand command,
+  ) async {
+    throw UnimplementedError();
+  }
 }
 
 void main() {

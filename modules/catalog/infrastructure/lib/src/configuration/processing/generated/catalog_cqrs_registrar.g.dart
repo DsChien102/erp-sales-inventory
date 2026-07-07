@@ -32,6 +32,9 @@ void registerGeneratedCatalogValidators(GetIt container) {
     ..registerFactory<ICommandValidator<RequestProductImageUploadCommand>>(
       RequestProductImageUploadCommandValidator.new,
     )
+    ..registerFactory<ICommandValidator<RequestProductMaintenanceImageUploadCommand>>(
+      RequestProductMaintenanceImageUploadCommandValidator.new,
+    )
     ..registerFactory<ICommandValidator<SetInitialPriceBandCommand>>(
       SetInitialPriceBandCommandValidator.new,
     )
@@ -49,6 +52,12 @@ void registerGeneratedCatalogValidators(GetIt container) {
     )
     ..registerFactory<ICommandValidator<SetStorePriceRuleCommand>>(
       SetStorePriceRuleCommandValidator.new,
+    )
+    ..registerFactory<ICommandValidator<UpdateProductImagesCommand>>(
+      UpdateProductImagesCommandValidator.new,
+    )
+    ..registerFactory<ICommandValidator<UpdateProductProfileCommand>>(
+      UpdateProductProfileCommandValidator.new,
     )
     ;
 }
@@ -126,6 +135,15 @@ void registerGeneratedCatalogHandlers({
     ),
   );
 
+  CatalogCommandRegistration.registerBusinessHandler<RequestProductMaintenanceImageUploadCommand, ProductImageUploadSlotDto, RequestProductMaintenanceImageUploadCommandHandler>(
+    container: container,
+    bus: bus,
+    logger: logger,
+    factory: () => RequestProductMaintenanceImageUploadCommandHandler(
+      uploadPort: container.get<IProductImageUploadPort>(),
+    ),
+  );
+
   CatalogCommandRegistration.registerBusinessHandler<SetInitialPriceBandCommand, void, SetInitialPriceBandCommandHandler>(
     container: container,
     bus: bus,
@@ -185,6 +203,24 @@ void registerGeneratedCatalogHandlers({
     logger: logger,
     factory: () => SetStorePriceRuleCommandHandler(
       storePriceRuleGateway: container.get<IStorePriceRuleGateway>(),
+    ),
+  );
+
+  CatalogCommandRegistration.registerBusinessHandler<UpdateProductImagesCommand, UpdateProductImagesResult, UpdateProductImagesCommandHandler>(
+    container: container,
+    bus: bus,
+    logger: logger,
+    factory: () => UpdateProductImagesCommandHandler(
+      commandGateway: container.get<IProductCommandGateway>(),
+    ),
+  );
+
+  CatalogCommandRegistration.registerBusinessHandler<UpdateProductProfileCommand, UpdateProductProfileResult, UpdateProductProfileCommandHandler>(
+    container: container,
+    bus: bus,
+    logger: logger,
+    factory: () => UpdateProductProfileCommandHandler(
+      commandGateway: container.get<IProductCommandGateway>(),
     ),
   );
 

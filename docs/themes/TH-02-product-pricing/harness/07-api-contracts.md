@@ -858,7 +858,7 @@ Tests: `scn_contract_e06_u03_*` in `fake_catalog_module_test.dart` (group `EPIC-
 
 ## EPIC-07 / US-01 — Bảo trì hồ sơ (slice #12)
 
-**Status:** CONTRACT `done` · BE `todo` · FE `todo`
+**Status:** CONTRACT `done` · BE `done` · FE `todo`
 
 ### Commands / Queries
 
