@@ -20,6 +20,9 @@ void registerGeneratedCatalogValidators(GetIt container) {
     ..registerFactory<ICommandValidator<ApplyStorePriceRuleCommand>>(
       ApplyStorePriceRuleCommandValidator.new,
     )
+    ..registerFactory<ICommandValidator<ConfigureCustomFieldAttributesCommand>>(
+      ConfigureCustomFieldAttributesCommandValidator.new,
+    )
     ..registerFactory<ICommandValidator<CreateProductCommand>>(
       CreateProductCommandValidator.new,
     )
@@ -32,11 +35,20 @@ void registerGeneratedCatalogValidators(GetIt container) {
     ..registerFactory<ICommandValidator<DeleteProductCommand>>(
       DeleteProductCommandValidator.new,
     )
+    ..registerFactory<ICommandValidator<InitializeCustomFieldTemplateCommand>>(
+      InitializeCustomFieldTemplateCommandValidator.new,
+    )
     ..registerFactory<ICommandValidator<ReactivateProductCommand>>(
       ReactivateProductCommandValidator.new,
     )
     ..registerFactory<ICommandValidator<ReactivateProductConversionUnitCommand>>(
       ReactivateProductConversionUnitCommandValidator.new,
+    )
+    ..registerFactory<ICommandValidator<ReorderCustomFieldGroupsCommand>>(
+      ReorderCustomFieldGroupsCommandValidator.new,
+    )
+    ..registerFactory<ICommandValidator<ReorderCustomFieldsCommand>>(
+      ReorderCustomFieldsCommandValidator.new,
     )
     ..registerFactory<ICommandValidator<RequestProductImageUploadCommand>>(
       RequestProductImageUploadCommandValidator.new,
@@ -70,6 +82,12 @@ void registerGeneratedCatalogValidators(GetIt container) {
     )
     ..registerFactory<ICommandValidator<UpdateProductProfileCommand>>(
       UpdateProductProfileCommandValidator.new,
+    )
+    ..registerFactory<ICommandValidator<UpsertCustomFieldCommand>>(
+      UpsertCustomFieldCommandValidator.new,
+    )
+    ..registerFactory<ICommandValidator<UpsertCustomFieldGroupCommand>>(
+      UpsertCustomFieldGroupCommandValidator.new,
     )
     ;
 }
@@ -111,6 +129,15 @@ void registerGeneratedCatalogHandlers({
     ),
   );
 
+  CatalogCommandRegistration.registerBusinessHandler<ConfigureCustomFieldAttributesCommand, ConfigureCustomFieldAttributesResult, ConfigureCustomFieldAttributesCommandHandler>(
+    container: container,
+    bus: bus,
+    logger: logger,
+    factory: () => ConfigureCustomFieldAttributesCommandHandler(
+      customFieldConfigGateway: container.get<ICatalogCustomFieldConfigGateway>(),
+    ),
+  );
+
   CatalogCommandRegistration.registerBusinessHandler<CreateProductCommand, CreateProductResult, CreateProductCommandHandler>(
     container: container,
     bus: bus,
@@ -147,6 +174,15 @@ void registerGeneratedCatalogHandlers({
     ),
   );
 
+  CatalogCommandRegistration.registerBusinessHandler<InitializeCustomFieldTemplateCommand, InitializeCustomFieldTemplateResult, InitializeCustomFieldTemplateCommandHandler>(
+    container: container,
+    bus: bus,
+    logger: logger,
+    factory: () => InitializeCustomFieldTemplateCommandHandler(
+      customFieldConfigGateway: container.get<ICatalogCustomFieldConfigGateway>(),
+    ),
+  );
+
   CatalogCommandRegistration.registerBusinessHandler<ReactivateProductCommand, ChangeProductBusinessStatusResult, ReactivateProductCommandHandler>(
     container: container,
     bus: bus,
@@ -162,6 +198,24 @@ void registerGeneratedCatalogHandlers({
     logger: logger,
     factory: () => ReactivateProductConversionUnitCommandHandler(
       unitGateway: container.get<ICatalogUnitGateway>(),
+    ),
+  );
+
+  CatalogCommandRegistration.registerBusinessHandler<ReorderCustomFieldGroupsCommand, void, ReorderCustomFieldGroupsCommandHandler>(
+    container: container,
+    bus: bus,
+    logger: logger,
+    factory: () => ReorderCustomFieldGroupsCommandHandler(
+      customFieldConfigGateway: container.get<ICatalogCustomFieldConfigGateway>(),
+    ),
+  );
+
+  CatalogCommandRegistration.registerBusinessHandler<ReorderCustomFieldsCommand, void, ReorderCustomFieldsCommandHandler>(
+    container: container,
+    bus: bus,
+    logger: logger,
+    factory: () => ReorderCustomFieldsCommandHandler(
+      customFieldConfigGateway: container.get<ICatalogCustomFieldConfigGateway>(),
     ),
   );
 
@@ -272,6 +326,24 @@ void registerGeneratedCatalogHandlers({
     ),
   );
 
+  CatalogCommandRegistration.registerBusinessHandler<UpsertCustomFieldCommand, CustomFieldDefinitionDto, UpsertCustomFieldCommandHandler>(
+    container: container,
+    bus: bus,
+    logger: logger,
+    factory: () => UpsertCustomFieldCommandHandler(
+      customFieldConfigGateway: container.get<ICatalogCustomFieldConfigGateway>(),
+    ),
+  );
+
+  CatalogCommandRegistration.registerBusinessHandler<UpsertCustomFieldGroupCommand, CustomFieldGroupConfigDto, UpsertCustomFieldGroupCommandHandler>(
+    container: container,
+    bus: bus,
+    logger: logger,
+    factory: () => UpsertCustomFieldGroupCommandHandler(
+      customFieldConfigGateway: container.get<ICatalogCustomFieldConfigGateway>(),
+    ),
+  );
+
 }
 
 void registerGeneratedCatalogQueries({
@@ -333,6 +405,14 @@ void registerGeneratedCatalogQueries({
     bus: bus,
     factory: () => GetStorePriceRuleQueryHandler(
       storePriceRuleGateway: container.get<IStorePriceRuleGateway>(),
+    ),
+    invoke: (query, handler) => handler.handle(query),
+  );
+
+  CatalogCommandRegistration.registerQueryHandler<ListCustomFieldConfigQuery, CustomFieldConfigViewDto, ListCustomFieldConfigQueryHandler>(
+    bus: bus,
+    factory: () => ListCustomFieldConfigQueryHandler(
+      customFieldConfigGateway: container.get<ICatalogCustomFieldConfigGateway>(),
     ),
     invoke: (query, handler) => handler.handle(query),
   );

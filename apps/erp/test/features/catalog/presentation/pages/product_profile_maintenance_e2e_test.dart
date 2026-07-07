@@ -7,15 +7,15 @@ import 'package:vet45_catalog_presentation/presentation.dart';
 
 import '../../catalog_e2e_harness.dart';
 
-ProductListItemModel _product1() {
-  return const ProductListItemModel(
-    id: 'product-1',
-    name: 'Amoxicillin 500mg',
-    businessStatus: ProductBusinessStatus.active,
-    readinessStatus: ProductReadinessStatus.ready,
-    baseUnit: 'Hộp',
-  );
-}
+// ProductListItemModel _product1() {
+//   return const ProductListItemModel(
+//     id: 'product-1',
+//     name: 'Amoxicillin 500mg',
+//     businessStatus: ProductBusinessStatus.active,
+//     readinessStatus: ProductReadinessStatus.ready,
+//     baseUnit: 'Hộp',
+//   );
+// }
 
 ProductListItemModel _product4() {
   return const ProductListItemModel(
@@ -73,10 +73,15 @@ void main() {
     await tapEditProfile(tester);
     expect(find.byKey(const Key('input_profile_name')), findsOneWidget);
     expect(
-      tester.widget<TextField>(find.descendant(
-        of: find.byKey(const Key('input_profile_name')),
-        matching: find.byType(TextField),
-      )).controller?.text,
+      tester
+          .widget<TextField>(
+            find.descendant(
+              of: find.byKey(const Key('input_profile_name')),
+              matching: find.byType(TextField),
+            ),
+          )
+          .controller
+          ?.text,
       updatedName,
     );
   });
@@ -168,7 +173,9 @@ void main() {
     expect(find.textContaining('0 ảnh'), findsWidgets);
   });
 
-  testWidgets('e2e_e07_u01_fr04_01: deleting images adds readiness blocker on incomplete product', (tester) async {
+  testWidgets('e2e_e07_u01_fr04_01: deleting images adds readiness blocker on incomplete product', (
+    tester,
+  ) async {
     await setUpErpCatalogE2E(scenario: FakeCatalogScenario.pccIncomplete);
 
     await tester.pumpWidget(buildPccMaintenanceRouter(_product4()));

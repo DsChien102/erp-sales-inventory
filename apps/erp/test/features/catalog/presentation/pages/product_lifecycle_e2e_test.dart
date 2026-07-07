@@ -1,7 +1,5 @@
 import 'package:erp/core/di/injection.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:vet45_catalog_application/application.dart';
 import 'package:vet45_catalog_application/testing.dart';
 import 'package:vet45_catalog_presentation/presentation.dart';
 
@@ -42,7 +40,7 @@ void main() {
     // pccReadyToSell scenario returns product-1, which doesn't trigger warnings for this scenario.
     await tester.pumpWidget(buildPccMaintenanceRouter(_product1()));
     await tester.pumpAndSettle();
-    
+
     // Expand the danger section
     final dangerSection = find.text('Nâng cao');
     await tester.ensureVisible(dangerSection);
@@ -57,7 +55,7 @@ void main() {
 
     // Verify bottom sheet appears
     expect(find.text('Ngừng kinh doanh sản phẩm này?'), findsOneWidget);
-    
+
     // Tap confirm
     await tester.tap(find.text('Ngừng kinh doanh').last);
     await tester.pumpAndSettle();
@@ -66,7 +64,9 @@ void main() {
     expect(find.text('Kinh doanh lại'), findsWidgets);
   });
 
-  testWidgets('e2e_e07_u02_fr01_02: deactivate product with stock shows warnings in bottom sheet', (tester) async {
+  testWidgets('e2e_e07_u02_fr01_02: deactivate product with stock shows warnings in bottom sheet', (
+    tester,
+  ) async {
     await setUpErpCatalogE2E(scenario: FakeCatalogScenario.scnContractE07U02Fr01_02);
 
     await tester.pumpWidget(buildPccMaintenanceRouter(_product1()));
@@ -86,7 +86,7 @@ void main() {
 
     // Verify bottom sheet appears without warnings initially
     expect(find.text('Ngừng kinh doanh sản phẩm này?'), findsOneWidget);
-    
+
     // Tap confirm
     await tester.tap(find.text('Ngừng kinh doanh').last);
     await tester.pumpAndSettle();

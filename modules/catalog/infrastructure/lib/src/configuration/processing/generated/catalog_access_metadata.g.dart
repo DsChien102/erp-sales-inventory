@@ -30,6 +30,10 @@ final catalogAccessMetadataRegistry = AccessMetadataRegistry({
     permission: 'catalog.product.delete',
     requiresTenant: true,
   ),
+  ConfigureCustomFieldAttributesCommand: AccessMetadata(
+    permission: 'catalog.custom_fields.manage',
+    requiresTenant: true,
+  ),
   CreateProductCommand: AccessMetadata(
     permission: 'catalog.product.create',
     requiresTenant: true,
@@ -62,6 +66,14 @@ final catalogAccessMetadataRegistry = AccessMetadataRegistry({
     permission: 'catalog.pricing.manage_store_rule',
     requiresTenant: true,
   ),
+  InitializeCustomFieldTemplateCommand: AccessMetadata(
+    permission: 'catalog.custom_fields.manage',
+    requiresTenant: true,
+  ),
+  ListCustomFieldConfigQuery: AccessMetadata(
+    permission: 'catalog.custom_fields.manage',
+    requiresTenant: true,
+  ),
   ListProductUnitPriceBandsQuery: AccessMetadata(
     permission: 'catalog.product.view_detail',
     requiresTenant: true,
@@ -80,6 +92,14 @@ final catalogAccessMetadataRegistry = AccessMetadataRegistry({
   ),
   ReactivateProductConversionUnitCommand: AccessMetadata(
     permission: 'catalog.product.manage_units',
+    requiresTenant: true,
+  ),
+  ReorderCustomFieldGroupsCommand: AccessMetadata(
+    permission: 'catalog.custom_fields.manage',
+    requiresTenant: true,
+  ),
+  ReorderCustomFieldsCommand: AccessMetadata(
+    permission: 'catalog.custom_fields.manage',
     requiresTenant: true,
   ),
   RequestProductImageUploadCommand: AccessMetadata(
@@ -136,6 +156,14 @@ final catalogAccessMetadataRegistry = AccessMetadataRegistry({
   ),
   UpdateProductProfileCommand: AccessMetadata(
     permission: 'catalog.product.update',
+    requiresTenant: true,
+  ),
+  UpsertCustomFieldCommand: AccessMetadata(
+    permission: 'catalog.custom_fields.manage',
+    requiresTenant: true,
+  ),
+  UpsertCustomFieldGroupCommand: AccessMetadata(
+    permission: 'catalog.custom_fields.manage',
     requiresTenant: true,
   ),
 });

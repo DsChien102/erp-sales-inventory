@@ -2,3 +2,4 @@
 library;
 
 export 'src/testing/fake_catalog_module.dart';
+export 'src/testing/fake_catalog_scenario.dart';

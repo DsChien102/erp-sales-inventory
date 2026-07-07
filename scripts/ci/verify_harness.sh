@@ -11,6 +11,9 @@ echo "==> guard_infra_dart_only"
 echo "==> guard_layer_imports"
 "$root/scripts/ci/guard_layer_imports.sh"
 
+echo "==> guard_application_use_case_layout"
+"$root/scripts/ci/guard_application_use_case_layout.sh"
+
 echo "==> guard_docs_reference"
 "$root/scripts/ci/guard_docs_reference.sh"
 

@@ -6,12 +6,8 @@ import 'package:go_router/go_router.dart';
 import 'package:vet45_catalog_application/application.dart';
 import 'package:vet45_catalog_application/testing.dart';
 import 'package:vet45_shared_application/application.dart';
-import 'package:vet45_shared_testing/shared_testing.dart';
 import 'package:vet45_catalog_presentation/presentation.dart';
-import 'package:vet45_shared_application/application.dart';
-
 import 'package:erp/features/catalog/presentation/pages/product_price_bands_page.dart';
-import 'package:erp/core/router/app_router.dart';
 
 final class _FakeExecutionContext implements IExecutionContext {
   @override
@@ -72,10 +68,8 @@ void main() {
     return MaterialApp.router(routerConfig: router);
   }
 
-  testWidgets('clicking price band section navigates to ProductPriceBandsPage',
-      (tester) async {
-    final catalogModule =
-        FakeCatalogModule(scenario: FakeCatalogScenario.pccReadyToSell);
+  testWidgets('clicking price band section navigates to ProductPriceBandsPage', (tester) async {
+    final catalogModule = FakeCatalogModule(scenario: FakeCatalogScenario.pccReadyToSell);
     final product = _sampleProduct(
       id: 'product-1',
       name: 'Amoxicillin 500mg',
@@ -89,10 +83,10 @@ void main() {
     // Tap on the price band card
     final priceBandFinder = find.text('Khung giá');
     expect(priceBandFinder, findsWidgets);
-    
+
     await tester.ensureVisible(priceBandFinder.first);
     await tester.pumpAndSettle();
-    
+
     await tester.tap(priceBandFinder.first);
     await tester.pumpAndSettle();
 
@@ -117,10 +111,11 @@ class FakeModuleMediator implements IModuleMediator {
     if (query is ListProductUnitPriceBandsQuery) {
       final q = query as ListProductUnitPriceBandsQuery;
       return ProductUnitPriceBandsDto(
-        productId: q.productId,
-        baseUnitName: 'Lọ',
-        rows: [],
-      ) as TResult;
+            productId: q.productId,
+            baseUnitName: 'Lọ',
+            rows: [],
+          )
+          as TResult;
     }
     throw UnimplementedError();
   }

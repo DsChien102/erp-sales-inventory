@@ -1071,17 +1071,44 @@ Tests: `scn_contract_e07_u03_*` in `fake_catalog_module_test.dart` (group `EPIC-
 
 ## EPIC-03 / US-01 — Cấu hình nhóm & trường (slice #16)
 
+**Status:** CONTRACT `done` · BE `done`
+
 ### Commands / Queries
 
 | Symbol | Input (summary) | Success | Errors |
 | ------ | --------------- | ------- | ------ |
-| `InitializeCustomFieldTemplateCommand` | tenantId, templateId? | groups/fields created | PermissionDenied |
-| `UpsertCustomFieldGroupCommand` | tenantId, groupId?, name, icon?, active | group | Validation, PermissionDenied |
-| `ReorderCustomFieldGroupsCommand` | tenantId, orderedGroupIds[] | void | Validation |
-| `UpsertCustomFieldCommand` | tenantId, groupId, fieldId?, name, fieldType, options? | field | Validation |
-| `ConfigureCustomFieldAttributesCommand` | tenantId, fieldId, required, searchable, filterable, displayOnList | field | Validation |
-| `ReorderCustomFieldsCommand` | tenantId, groupId, orderedFieldIds[] | void | Validation |
-| `ListCustomFieldConfigQuery` | tenantId | groups + fields | PermissionDenied |
+| `InitializeCustomFieldTemplateCommand` | tenantId, templateId? | `InitializeCustomFieldTemplateResult` | `ValidationException`, PermissionDenied |
+| `UpsertCustomFieldGroupCommand` | tenantId, groupId?, name, iconKey?, isActive | `CustomFieldGroupConfigDto` | `ValidationException`, `DuplicateCustomFieldGroupNameException`, `CustomFieldGroupNotFoundException`, PermissionDenied |
+| `ReorderCustomFieldGroupsCommand` | tenantId, orderedGroupIds[] | void | `ValidationException`, `CustomFieldGroupNotFoundException` |
+| `UpsertCustomFieldCommand` | tenantId, groupId, fieldId?, name, fieldType, options?, isActive | `CustomFieldDefinitionDto` | `ValidationException`, `DuplicateCustomFieldNameException`, `CustomFieldGroupNotFoundException`, `CustomFieldNotFoundException` |
+| `ConfigureCustomFieldAttributesCommand` | tenantId, fieldId, isRequired, isSearchable, isFilterable, displayOnList | `ConfigureCustomFieldAttributesResult` | `ValidationException`, `CustomFieldNotFoundException` |
+| `ReorderCustomFieldsCommand` | tenantId, groupId, orderedFieldIds[] | void | `ValidationException`, `CustomFieldGroupNotFoundException`, `CustomFieldNotFoundException` |
+| `ListCustomFieldConfigQuery` | tenantId | `CustomFieldConfigViewDto` | PermissionDenied |
+
+Package: `vet45_catalog_application` — `custom_fields/`.
+
+Supporting types:
+
+| Type | Fields |
+| ---- | ------ |
+| `CustomFieldGroupConfigDto` | groupId, name, iconKey?, sortOrder, status, fieldCount, requiredFieldCount, fields[] |
+| `CustomFieldDefinitionDto` | fieldId, groupId, name, fieldType, options[], isRequired, isSearchable, isFilterable, displayOnList, sortOrder, status |
+| `CustomFieldSelectOptionDto` | optionId, label, sortOrder, isActive |
+| `CustomFieldConfigViewDto` | groups[] (sorted by sortOrder) |
+| `InitializeCustomFieldTemplateResult` | groupsCreated, fieldsCreated, skippedCount |
+| `ConfigureCustomFieldAttributesResult` | field, existingProductsMissingCount |
+
+Domain enums ( `vet45_catalog_domain` ): `CustomFieldType` (`text`, `number`, `date`, `boolean`, `singleSelect`), `CustomFieldConfigStatus` (`active`, `inactive`).
+
+**Upsert:** `groupId?` / `fieldId?` null = create; non-null = update. `isActive: false` = tạm tắt (DR-12 — không xóa giá trị đã nhập).
+
+**Template (FR-01):** `templateId` optional; fake default `vet_pharmacy_default`. Re-init không ghi đè group/field đã tồn tại (match normalized name) — BR-05.
+
+Permissions: `@RequiresPermission(CatalogPermissions.manageCustomFields)` (`catalog.custom_fields.manage`) + `@RequiresTenant()`.
+
+Port: `ICatalogCustomFieldConfigGateway` — `listConfig`, `initializeTemplate`, `upsertGroup`, `reorderGroups`, `upsertField`, `configureAttributes`, `reorderFields`.
+
+**PCC read model:** `CustomFieldGroupCardDto` / `CustomFieldCardFieldDto` (control_center/) — tách biệt khỏi config DTOs; populate từ config + values (slice #17).
 
 ### RPC mapping (BE)
 
@@ -1091,15 +1118,31 @@ Tests: `scn_contract_e07_u03_*` in `fake_catalog_module_test.dart` (group `EPIC-
 | Upsert group / field | `catalog.upsert_custom_field_group` / `catalog.upsert_custom_field` |
 | Reorder | `catalog.reorder_custom_field_groups` / `catalog.reorder_custom_fields` |
 | Attributes | `catalog.configure_custom_field_attributes` |
+| List config | `catalog.list_custom_field_config` |
+
+Draft SQL (BE lane): `supabase/migrations/_drafts/08_catalog_custom_fields.sql`
+
+Gateway: `modules/catalog/infrastructure/lib/src/domain/custom_fields/supabase_catalog_custom_field_config_gateway.dart`
 
 ### Fake scenarios (FE)
 
 | scenario_id | trigger | fake response |
 | ----------- | ------- | ------------- |
-| `cf_template_seed_ok` | InitializeCustomFieldTemplateCommand | default groups |
+| `cf_template_seed_ok` | InitializeCustomFieldTemplateCommand | 2 groups + 3 fields (vet pharmacy template) |
+| `cf_template_reinit_no_overwrite` | Init lần 2 sau khi sửa group | `skippedCount > 0`, tên đã sửa giữ nguyên |
 | `cf_group_upsert_ok` | UpsertCustomFieldGroupCommand | group active |
-| `cf_field_required_on` | ConfigureCustomFieldAttributesCommand required=true | warning + field updated |
-| `cf_permission_denied` | no catalog.custom_fields.manage | PermissionDenied |
+| `cf_group_duplicate_name` | trùng tên nhóm active | `DuplicateCustomFieldGroupNameException` |
+| `cf_group_deactivate_ok` | isActive=false | status inactive, name preserved |
+| `cf_reorder_groups_ok` | ReorderCustomFieldGroupsCommand | sortOrder updated |
+| `cf_field_upsert_text` | UpsertCustomFieldCommand text | field created |
+| `cf_field_single_select_no_options` | singleSelect, no options | `ValidationException` |
+| `cf_field_required_on` | ConfigureCustomFieldAttributesCommand required=true | `existingProductsMissingCount > 0` |
+| `cf_reorder_fields_ok` | ReorderCustomFieldsCommand | field sortOrder updated |
+| `cf_permission_denied` | no catalog.custom_fields.manage | `ApplicationException` (Permission denied) |
+
+`FakeCatalogModule` — `package:vet45_catalog_application/testing.dart`.
+
+Tests: `scn_contract_e03_u01_*` trong `fake_catalog_module_test.dart`.
 
 ### Parallel notes
 
@@ -1122,7 +1165,7 @@ Tests: `scn_contract_e07_u03_*` in `fake_catalog_module_test.dart` (group `EPIC-
 | EPIC-07 US-01 | Product profile maintenance | done |
 | EPIC-07 US-02 | Lifecycle business status | done |
 | EPIC-07 US-03 | Soft delete / restore | done |
-| EPIC-07 US-04 | Change history | todo |
+| EPIC-07 US-04 | Change history | done |
 | EPIC-03 US-02 | UpsertCustomFieldValuesCommand | todo |
 | EPIC-03 US-03 | Search/filter/display on list | todo |
 | EPIC-04 US-03 | Change base unit | **out_of_scope** |

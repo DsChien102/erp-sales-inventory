@@ -1,5 +1,4 @@
 import 'package:erp/core/di/injection.dart';
-import 'package:erp/features/catalog/presentation/pages/product_control_center_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:vet45_catalog_application/testing.dart';

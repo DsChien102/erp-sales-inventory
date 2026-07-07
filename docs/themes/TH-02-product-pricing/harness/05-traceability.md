@@ -105,18 +105,17 @@ Early: `readinessSummary` trên PCC (không thay FR-04 checklist đầy đủ).
 
 ## EPIC-03 / US-01 — Cấu hình nhóm & trường (slice #16)
 
-Mở đầy đủ khi CONTRACT lane bắt đầu.
-
 | Req ID | Role | Contract § | Enforce layer | Artifact | Test id | Status |
 | ------ | ---- | ---------- | ------------- | -------- | ------- | ------ |
-| US-01 | CONTRACT | §EPIC-03-US-01 | application | Template init, upsert group/field, reorder, attributes | — | todo |
-| FR-01 | BE | §EPIC-03-US-01 | application | `InitializeCustomFieldTemplateCommand` | scn_e03_u01_fr01_01 | todo |
-| FR-02 | BE | §EPIC-03-US-01 | application | Upsert group | scn_e03_u01_fr02_01 | todo |
-| FR-03 | BE | §EPIC-03-US-01 | application | Reorder groups | scn_e03_u01_fr03_01 | todo |
-| FR-04 | BE | §EPIC-03-US-01 | application | Upsert field | scn_e03_u01_fr04_01 | todo |
-| FR-05 | BE | §EPIC-03-US-01 | application | Configure attributes | scn_e03_u01_fr05_01 | todo |
-| FR-06 | BE | §EPIC-03-US-01 | application | Reorder fields | scn_e03_u01_fr06_01 | todo |
-| FR-01..06 | FE | §EPIC-03-US-01 | presentation | Admin cấu hình nhóm & trường | wgt_e03_u01_fr01_01 | todo |
+| US-01 | CONTRACT | §EPIC-03-US-01 | application | `InitializeCustomFieldTemplateCommand`, `UpsertCustomFieldGroupCommand`, `ReorderCustomFieldGroupsCommand`, `UpsertCustomFieldCommand`, `ConfigureCustomFieldAttributesCommand`, `ReorderCustomFieldsCommand`, `ListCustomFieldConfigQuery`, DTOs, `ICatalogCustomFieldConfigGateway`, `FakeCatalogModule` | scn_contract_e03_u01_* | done |
+| FR-01 | BE | §EPIC-03-US-01 | application | `InitializeCustomFieldTemplateCommandHandler`, gateway, draft RPC | scn_e03_u01_fr01_01 (`custom_field_config_command_handlers_test.dart`) | done |
+| FR-02 | BE | §EPIC-03-US-01 | application | Upsert group handler + gateway | scn_e03_u01_fr02_01 | done |
+| FR-03 | BE | §EPIC-03-US-01 | application | Reorder groups handler + gateway | scn_e03_u01_fr03_01 | done |
+| FR-04 | BE | §EPIC-03-US-01 | application | Upsert field handler + gateway | scn_e03_u01_fr04_01 | done |
+| FR-05 | BE | §EPIC-03-US-01 | application | Configure attributes handler + gateway | scn_e03_u01_fr05_01 | done |
+| FR-06 | BE | §EPIC-03-US-01 | application | Reorder fields handler + gateway | scn_e03_u01_fr06_01 | done |
+| FR-01..06 | FE | §EPIC-03-US-01 | presentation | `custom_field_groups_page.dart`, `upsert_custom_field_group_page.dart`, `custom_field_group_detail_page.dart`, `upsert_custom_field_page.dart`, `custom_field_config_cubit.dart` | wgt_e03_u01_fr01_01 | done |
+| FR-01..06 | E2E | §EPIC-03-US-01 | integration | Custom field settings integration flow via ERP DI real module (`buildCustomFieldSettingsRouter`) | e2e_e03_u01_fr01_01, e2e_e03_u01_fr02_01, e2e_e03_u01_fr03_01, e2e_e03_u01_fr04_02, e2e_e03_u01_fr05_01, e2e_e03_u01_fr06_01 (`product_custom_field_config_e2e_test.dart`) | done |
 
 ---
 

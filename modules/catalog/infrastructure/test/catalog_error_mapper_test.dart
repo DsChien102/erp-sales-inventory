@@ -138,5 +138,41 @@ void main() {
         contains('Measurement unit is inactive.'),
       );
     });
+
+    test('maps duplicate custom field group name', () {
+      final error = mapCatalogRpcError(
+        RpcException('duplicate custom field group name "Thông tin thuốc"'),
+      );
+
+      expect(error, isA<DuplicateCustomFieldGroupNameException>());
+      expect(
+        (error as DuplicateCustomFieldGroupNameException).name,
+        'Thông tin thuốc',
+      );
+    });
+
+    test('maps duplicate custom field name', () {
+      final error = mapCatalogRpcError(
+        RpcException('duplicate custom field name "Thành phần"'),
+      );
+
+      expect(error, isA<DuplicateCustomFieldNameException>());
+    });
+
+    test('maps custom field group not found', () {
+      final error = mapCatalogRpcError(
+        RpcException('custom field group not found'),
+      );
+
+      expect(error, isA<CustomFieldGroupNotFoundException>());
+    });
+
+    test('maps custom field not found', () {
+      final error = mapCatalogRpcError(
+        RpcException('custom field not found'),
+      );
+
+      expect(error, isA<CustomFieldNotFoundException>());
+    });
   });
 }

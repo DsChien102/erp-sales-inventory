@@ -1054,6 +1054,291 @@ void main() {
     });
   });
 
+  group('EPIC-03 / US-01 custom field config contract', () {
+    test('scn_contract_e03_u01_fr01_01 seeds template groups and fields', () async {
+      final module = FakeCatalogModule(
+        scenario: FakeCatalogScenario.cfTemplateSeedOk,
+      );
+
+      final result = await module.executeCommandAsync(
+        InitializeCustomFieldTemplateCommand(tenantId: 'tenant-1'),
+      );
+
+      expect(result.groupsCreated, 2);
+      expect(result.fieldsCreated, 3);
+
+      final config = await module.executeQueryAsync(
+        ListCustomFieldConfigQuery(tenantId: 'tenant-1'),
+      );
+      expect(config.groups, hasLength(2));
+      expect(config.groups.first.name, 'Thông tin thuốc');
+      expect(config.groups.first.iconKey, '💊');
+      expect(config.groups.first.fields, hasLength(2));
+    });
+
+    test('scn_contract_e03_u01_fr01_02 re-init does not overwrite edited field', () async {
+      final module = FakeCatalogModule(
+        scenario: FakeCatalogScenario.cfTemplateReinitNoOverwrite,
+      );
+
+      await module.executeCommandAsync(
+        InitializeCustomFieldTemplateCommand(tenantId: 'tenant-1'),
+      );
+
+      final configBefore = await module.executeQueryAsync(
+        ListCustomFieldConfigQuery(tenantId: 'tenant-1'),
+      );
+      final group = configBefore.groups.first;
+      final field = group.fields.first;
+
+      await module.executeCommandAsync(
+        UpsertCustomFieldCommand(
+          tenantId: 'tenant-1',
+          groupId: group.groupId,
+          fieldId: field.fieldId,
+          name: 'Thành phần (đã sửa)',
+          fieldType: field.fieldType,
+        ),
+      );
+
+      final reinit = await module.executeCommandAsync(
+        InitializeCustomFieldTemplateCommand(tenantId: 'tenant-1'),
+      );
+
+      expect(reinit.skippedCount, greaterThan(0));
+
+      final configAfter = await module.executeQueryAsync(
+        ListCustomFieldConfigQuery(tenantId: 'tenant-1'),
+      );
+      final updatedField = configAfter.groups
+          .expand((g) => g.fields)
+          .firstWhere((f) => f.fieldId == field.fieldId);
+      expect(updatedField.name, 'Thành phần (đã sửa)');
+    });
+
+    test('scn_contract_e03_u01_fr02_01 upserts new group for tenant', () async {
+      final module = FakeCatalogModule(
+        scenario: FakeCatalogScenario.cfGroupUpsertOk,
+      );
+
+      final group = await module.executeCommandAsync(
+        UpsertCustomFieldGroupCommand(
+          tenantId: 'tenant-1',
+          name: 'Thông tin thuốc',
+        ),
+      );
+
+      expect(group.groupId, startsWith('cf-group-'));
+      expect(group.name, 'Thông tin thuốc');
+      expect(group.status, CustomFieldConfigStatus.active);
+    });
+
+    test('scn_contract_e03_u01_fr02_02 upserts group with icon', () async {
+      final module = FakeCatalogModule(
+        scenario: FakeCatalogScenario.cfGroupUpsertOk,
+      );
+
+      final group = await module.executeCommandAsync(
+        UpsertCustomFieldGroupCommand(
+          tenantId: 'tenant-1',
+          name: 'Thông tin thuốc',
+          iconKey: '💊',
+        ),
+      );
+
+      expect(group.iconKey, '💊');
+    });
+
+    test('scn_contract_e03_u01_fr02_03 deactivates group preserving data', () async {
+      final module = FakeCatalogModule(
+        scenario: FakeCatalogScenario.cfGroupDeactivateOk,
+      );
+
+      final created = await module.executeCommandAsync(
+        UpsertCustomFieldGroupCommand(
+          tenantId: 'tenant-1',
+          name: 'Thông tin thuốc',
+        ),
+      );
+
+      final deactivated = await module.executeCommandAsync(
+        UpsertCustomFieldGroupCommand(
+          tenantId: 'tenant-1',
+          groupId: created.groupId,
+          name: 'Thông tin thuốc',
+          isActive: false,
+        ),
+      );
+
+      expect(deactivated.status, CustomFieldConfigStatus.inactive);
+      expect(deactivated.name, 'Thông tin thuốc');
+    });
+
+    test('scn_contract_e03_u01_fr02_04 rejects duplicate active group name', () async {
+      final module = FakeCatalogModule(
+        scenario: FakeCatalogScenario.cfGroupDuplicateName,
+      );
+
+      await expectLater(
+        module.executeCommandAsync(
+          UpsertCustomFieldGroupCommand(
+            tenantId: 'tenant-1',
+            name: 'Thông tin thuốc',
+          ),
+        ),
+        throwsA(isA<DuplicateCustomFieldGroupNameException>()),
+      );
+    });
+
+    test('scn_contract_e03_u01_fr03_01 reorders groups in config view', () async {
+      final module = FakeCatalogModule(
+        scenario: FakeCatalogScenario.cfReorderGroupsOk,
+      );
+
+      await module.executeCommandAsync(
+        InitializeCustomFieldTemplateCommand(tenantId: 'tenant-1'),
+      );
+
+      final before = await module.executeQueryAsync(
+        ListCustomFieldConfigQuery(tenantId: 'tenant-1'),
+      );
+      final reorderedIds = before.groups.reversed.map((g) => g.groupId).toList();
+
+      await module.executeCommandAsync(
+        ReorderCustomFieldGroupsCommand(
+          tenantId: 'tenant-1',
+          orderedGroupIds: reorderedIds,
+        ),
+      );
+
+      final after = await module.executeQueryAsync(
+        ListCustomFieldConfigQuery(tenantId: 'tenant-1'),
+      );
+      expect(after.groups.map((g) => g.groupId), reorderedIds);
+    });
+
+    test('scn_contract_e03_u01_fr04_01 upserts text field in group', () async {
+      final module = FakeCatalogModule(
+        scenario: FakeCatalogScenario.cfFieldUpsertText,
+      );
+
+      final group = await module.executeCommandAsync(
+        UpsertCustomFieldGroupCommand(
+          tenantId: 'tenant-1',
+          name: 'Thông tin thuốc',
+        ),
+      );
+
+      final field = await module.executeCommandAsync(
+        UpsertCustomFieldCommand(
+          tenantId: 'tenant-1',
+          groupId: group.groupId,
+          name: 'Thành phần',
+          fieldType: CustomFieldType.text,
+        ),
+      );
+
+      expect(field.fieldId, startsWith('cf-field-'));
+      expect(field.name, 'Thành phần');
+      expect(field.fieldType, CustomFieldType.text);
+    });
+
+    test('scn_contract_e03_u01_fr04_02 rejects single select without options', () async {
+      final module = FakeCatalogModule(
+        scenario: FakeCatalogScenario.cfFieldSingleSelectNoOptions,
+      );
+
+      final group = await module.executeCommandAsync(
+        UpsertCustomFieldGroupCommand(
+          tenantId: 'tenant-1',
+          name: 'Thông tin thuốc',
+        ),
+      );
+
+      await expectLater(
+        module.executeCommandAsync(
+          UpsertCustomFieldCommand(
+            tenantId: 'tenant-1',
+            groupId: group.groupId,
+            name: 'Dạng bào chế',
+            fieldType: CustomFieldType.singleSelect,
+          ),
+        ),
+        throwsA(isA<ValidationException>()),
+      );
+    });
+
+    test('scn_contract_e03_u01_fr05_01 configure required returns missing count', () async {
+      final module = FakeCatalogModule(
+        scenario: FakeCatalogScenario.cfFieldRequiredOn,
+      );
+
+      await module.executeCommandAsync(
+        InitializeCustomFieldTemplateCommand(tenantId: 'tenant-1'),
+      );
+      final config = await module.executeQueryAsync(
+        ListCustomFieldConfigQuery(tenantId: 'tenant-1'),
+      );
+      final fieldId = config.groups.first.fields.first.fieldId;
+
+      final result = await module.executeCommandAsync(
+        ConfigureCustomFieldAttributesCommand(
+          tenantId: 'tenant-1',
+          fieldId: fieldId,
+          isRequired: true,
+          isSearchable: false,
+          isFilterable: false,
+          displayOnList: false,
+        ),
+      );
+
+      expect(result.field.isRequired, isTrue);
+      expect(result.existingProductsMissingCount, greaterThan(0));
+    });
+
+    test('scn_contract_e03_u01_fr06_01 reorders fields within group', () async {
+      final module = FakeCatalogModule(
+        scenario: FakeCatalogScenario.cfReorderFieldsOk,
+      );
+
+      await module.executeCommandAsync(
+        InitializeCustomFieldTemplateCommand(tenantId: 'tenant-1'),
+      );
+      final config = await module.executeQueryAsync(
+        ListCustomFieldConfigQuery(tenantId: 'tenant-1'),
+      );
+      final group = config.groups.first;
+      final reorderedFieldIds = group.fields.reversed.map((f) => f.fieldId).toList();
+
+      await module.executeCommandAsync(
+        ReorderCustomFieldsCommand(
+          tenantId: 'tenant-1',
+          groupId: group.groupId,
+          orderedFieldIds: reorderedFieldIds,
+        ),
+      );
+
+      final after = await module.executeQueryAsync(
+        ListCustomFieldConfigQuery(tenantId: 'tenant-1'),
+      );
+      final updatedGroup = after.groups.firstWhere((g) => g.groupId == group.groupId);
+      expect(updatedGroup.fields.map((f) => f.fieldId), reorderedFieldIds);
+    });
+
+    test('scn_contract_e03_u01_perm_01 denies without manage permission', () async {
+      final module = FakeCatalogModule(
+        scenario: FakeCatalogScenario.cfPermissionDenied,
+      );
+
+      await expectLater(
+        module.executeQueryAsync(
+          ListCustomFieldConfigQuery(tenantId: 'tenant-1'),
+        ),
+        throwsA(isA<ApplicationException>()),
+      );
+    });
+  });
+
   group('CreateProductCommandValidator', () {
     final validator = CreateProductCommandValidator();
 
