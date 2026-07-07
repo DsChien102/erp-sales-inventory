@@ -3,6 +3,7 @@ import '../tokens/v_radius.dart';
 import '../tokens/v_spacing.dart';
 import '../tokens/v_typography.dart';
 import '../foundation/v_context_extensions.dart';
+import '../foundation/v_component_contracts.dart';
 
 String _removeVietnameseTones(String str) {
   str = str.replaceAll(RegExp(r'[àáạảãâầấậẩẫăằắặẳẵ]'), 'a');
@@ -29,6 +30,10 @@ class VSearchableDropdown<T> extends StatelessWidget {
   final bool enabled;
   final String? hintText;
   final String? label;
+  final VComponentTone tone;
+  final VComponentEmphasis emphasis;
+  final VComponentState state;
+  final String? semanticLabel;
 
   const VSearchableDropdown({
     super.key,
@@ -38,13 +43,28 @@ class VSearchableDropdown<T> extends StatelessWidget {
     this.enabled = true,
     this.hintText,
     this.label,
+    this.tone = VComponentTone.neutral,
+    this.emphasis = VComponentEmphasis.medium,
+    this.state = VComponentState.enabled,
+    this.semanticLabel,
   });
 
   @override
   Widget build(BuildContext context) {
     final colors = context.vColors;
 
-    return Column(
+    final bool isEnabled = enabled && state != VComponentState.disabled;
+    final Color borderColor = switch (tone) {
+      VComponentTone.primary => colors.primary,
+      VComponentTone.danger => Colors.red,
+      _ => colors.borderDefault,
+    };
+
+    return Semantics(
+      label: semanticLabel ?? label ?? hintText ?? 'Searchable dropdown',
+      textField: true,
+      enabled: isEnabled,
+      child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -61,7 +81,7 @@ class VSearchableDropdown<T> extends StatelessWidget {
           builder: (context, constraints) {
             return DropdownMenu<T>(
               width: constraints.maxWidth,
-              enabled: enabled,
+              enabled: isEnabled,
               initialSelection: value,
               hintText: hintText,
               enableSearch: true,
@@ -75,7 +95,7 @@ class VSearchableDropdown<T> extends StatelessWidget {
               },
               requestFocusOnTap: true,
               menuHeight: 300,
-              textStyle: VTypography.bodyDefault.copyWith(color: enabled ? colors.textPrimary : colors.textMuted),
+              textStyle: VTypography.bodyDefault.copyWith(color: isEnabled ? colors.textPrimary : colors.textMuted),
               menuStyle: MenuStyle(
                 backgroundColor: WidgetStatePropertyAll(colors.surface),
                 surfaceTintColor: const WidgetStatePropertyAll(Colors.transparent),
@@ -88,12 +108,15 @@ class VSearchableDropdown<T> extends StatelessWidget {
               ),
               inputDecorationTheme: InputDecorationTheme(
                 filled: true,
-                fillColor: enabled ? colors.surface : colors.surfaceAlt,
+                fillColor: isEnabled ? colors.surface : colors.surfaceAlt,
                 contentPadding: const EdgeInsets.symmetric(horizontal: VSpacing.space3),
                 hintStyle: VTypography.bodyDefault.copyWith(color: colors.textMuted),
                 enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(VRadius.input),
-                  borderSide: BorderSide(color: colors.borderDefault),
+                  borderSide: BorderSide(
+                    color: borderColor,
+                    width: emphasis == VComponentEmphasis.strong ? 1.5 : 1,
+                  ),
                 ),
                 disabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(VRadius.input),
@@ -111,6 +134,7 @@ class VSearchableDropdown<T> extends StatelessWidget {
           },
         ),
       ],
+    ),
     );
   }
 }

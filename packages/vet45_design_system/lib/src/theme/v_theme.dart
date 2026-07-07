@@ -3,11 +3,16 @@ import '../tokens/v_colors.dart';
 import '../tokens/v_radius.dart';
 import '../tokens/v_typography.dart';
 import 'v_color_scheme.dart';
+import 'v_density.dart';
 
 class VTheme {
   VTheme._();
 
   static ThemeData get lightTheme {
+    return lightThemeForDensity(VDensityMode.comfortable);
+  }
+
+  static ThemeData lightThemeForDensity(VDensityMode densityMode) {
     return ThemeData(
       useMaterial3: true,
       brightness: Brightness.light,
@@ -20,6 +25,7 @@ class VTheme {
       ),
       extensions: [
         VColorScheme.light,
+        VDensity.fromMode(densityMode),
       ],
       appBarTheme: const AppBarTheme(
         backgroundColor: VColors.surface,
@@ -77,6 +83,10 @@ class VTheme {
   }
 
   static ThemeData get darkTheme {
+    return darkThemeForDensity(VDensityMode.comfortable);
+  }
+
+  static ThemeData darkThemeForDensity(VDensityMode densityMode) {
     return ThemeData(
       useMaterial3: true,
       brightness: Brightness.dark,
@@ -89,6 +99,7 @@ class VTheme {
       ),
       extensions: [
         VColorScheme.dark,
+        VDensity.fromMode(densityMode),
       ],
       appBarTheme: const AppBarTheme(
         backgroundColor: VColors.neutral700,

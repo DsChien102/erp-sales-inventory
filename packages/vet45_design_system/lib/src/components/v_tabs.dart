@@ -2,12 +2,15 @@ import 'package:flutter/material.dart';
 import '../tokens/v_spacing.dart';
 import '../tokens/v_typography.dart';
 import '../foundation/v_context_extensions.dart';
+import '../foundation/v_component_contracts.dart';
 
 class VTabs extends StatelessWidget {
   final List<String> tabs;
   final int selectedIndex;
   final ValueChanged<int> onTabSelected;
   final bool isScrollable;
+  final VComponentTone tone;
+  final String? semanticLabel;
 
   const VTabs({
     super.key,
@@ -15,18 +18,29 @@ class VTabs extends StatelessWidget {
     required this.selectedIndex,
     required this.onTabSelected,
     this.isScrollable = false,
+    this.tone = VComponentTone.primary,
+    this.semanticLabel,
   });
 
   @override
   Widget build(BuildContext context) {
     final dynamicColors = context.vColors;
 
+    final Color activeColor = switch (tone) {
+      VComponentTone.warning => Colors.orange,
+      VComponentTone.danger => Colors.red,
+      _ => dynamicColors.primary,
+    };
+
     Widget buildTab(int index, String label) {
       final isSelected = index == selectedIndex;
-      return GestureDetector(
-        behavior: HitTestBehavior.opaque,
-        onTap: () => onTabSelected(index),
-        child: Container(
+      return Semantics(
+        button: true,
+        selected: isSelected,
+        label: label,
+        child: InkWell(
+          onTap: () => onTabSelected(index),
+          child: Container(
           padding: const EdgeInsets.symmetric(
             horizontal: VSpacing.space4,
             vertical: VSpacing.space3,
@@ -34,7 +48,7 @@ class VTabs extends StatelessWidget {
           decoration: BoxDecoration(
             border: Border(
               bottom: BorderSide(
-                color: isSelected ? dynamicColors.primary : Colors.transparent,
+                color: isSelected ? activeColor : Colors.transparent,
                 width: 2,
               ),
             ),
@@ -43,9 +57,10 @@ class VTabs extends StatelessWidget {
             label,
             style: VTypography.bodyDefault.copyWith(
               fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
-              color: isSelected ? dynamicColors.primary : dynamicColors.textSecondary,
+              color: isSelected ? activeColor : dynamicColors.textSecondary,
             ),
           ),
+        ),
         ),
       );
     }
@@ -69,7 +84,10 @@ class VTabs extends StatelessWidget {
       );
     }
 
-    return Container(
+    return Semantics(
+      label: semanticLabel ?? 'Tabs',
+      explicitChildNodes: true,
+      child: Container(
       decoration: BoxDecoration(
         border: Border(
           bottom: BorderSide(
@@ -79,6 +97,7 @@ class VTabs extends StatelessWidget {
         ),
       ),
       child: content,
+    ),
     );
   }
 }

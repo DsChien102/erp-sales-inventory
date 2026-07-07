@@ -12,9 +12,11 @@ export 'src/tokens/v_duration.dart';
 // Theme
 export 'src/theme/v_theme.dart';
 export 'src/theme/v_color_scheme.dart';
+export 'src/theme/v_density.dart';
 
 // Utilities (Foundation)
 export 'src/foundation/v_context_extensions.dart';
+export 'src/foundation/v_component_contracts.dart';
 
 // Primitives
 export 'src/primitives/v_badge.dart';
