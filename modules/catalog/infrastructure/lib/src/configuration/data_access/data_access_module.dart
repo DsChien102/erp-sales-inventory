@@ -9,6 +9,7 @@ import '../../domain/pricing/supabase_store_price_rule_gateway.dart';
 import '../../domain/product/supabase_catalog_read_gateway.dart';
 import '../../domain/product/supabase_catalog_unit_gateway.dart';
 import '../../domain/product/supabase_product_command_gateway.dart';
+import '../../domain/product/supabase_product_deletion_gateway.dart';
 import '../../domain/product/supabase_product_duplicate_checker.dart';
 import '../../domain/product/supabase_product_image_upload_gateway.dart';
 import '../../domain/product/supabase_product_readiness_read_gateway.dart';
@@ -38,6 +39,11 @@ final class CatalogDataAccessModule {
       )
       ..registerSingleton<IProductCommandGateway>(
         SupabaseProductCommandGateway(
+          rpcClient: container.get<SupabaseSchemaRpcClient>(),
+        ),
+      )
+      ..registerSingleton<IProductDeletionGateway>(
+        SupabaseProductDeletionGateway(
           rpcClient: container.get<SupabaseSchemaRpcClient>(),
         ),
       )

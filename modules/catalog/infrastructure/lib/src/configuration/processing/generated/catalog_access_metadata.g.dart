@@ -26,6 +26,10 @@ final catalogAccessMetadataRegistry = AccessMetadataRegistry({
     permission: 'catalog.product.create',
     requiresTenant: true,
   ),
+  CheckProductDeletionEligibilityQuery: AccessMetadata(
+    permission: 'catalog.product.delete',
+    requiresTenant: true,
+  ),
   CreateProductCommand: AccessMetadata(
     permission: 'catalog.product.create',
     requiresTenant: true,
@@ -36,6 +40,10 @@ final catalogAccessMetadataRegistry = AccessMetadataRegistry({
   ),
   DeactivateProductConversionUnitCommand: AccessMetadata(
     permission: 'catalog.product.manage_units',
+    requiresTenant: true,
+  ),
+  DeleteProductCommand: AccessMetadata(
+    permission: 'catalog.product.delete',
     requiresTenant: true,
   ),
   GetProductControlCenterQuery: AccessMetadata(
@@ -80,6 +88,10 @@ final catalogAccessMetadataRegistry = AccessMetadataRegistry({
   ),
   RequestProductMaintenanceImageUploadCommand: AccessMetadata(
     permission: 'catalog.product.update',
+    requiresTenant: true,
+  ),
+  RestoreProductCommand: AccessMetadata(
+    permission: 'catalog.product.delete',
     requiresTenant: true,
   ),
   ScanBarcodeQuery: AccessMetadata(

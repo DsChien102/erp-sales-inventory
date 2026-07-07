@@ -300,7 +300,7 @@ Mở đầy đủ khi CONTRACT lane bắt đầu.
 | FR-02 | CONTRACT | §EPIC-07-US-03 | application | Soft delete flag, version guard, search exclusion, history entry | scn_contract_e07_u03_fr02_01..03 | done |
 | FR-03 | CONTRACT | §EPIC-07-US-03 | application | Restore soft-deleted product as inactive; duplicate SKU/barcode guards; refreshed readiness | scn_contract_e07_u03_fr03_01..03 | done |
 | FR-04 | CONTRACT | §EPIC-07-US-03 | application | Preserved PCC operational data and change history after soft delete | scn_contract_e07_u03_fr04_01 | done |
-| FR-01..04 | BE | §EPIC-07-US-03 | application + infrastructure | Handlers, validators, gateway/RPC, draft SQL, generated access metadata | scn_e07_u03_* | todo |
+| FR-01..04 | BE | §EPIC-07-US-03 | application + infrastructure | `CheckProductDeletionEligibilityQueryHandler`, `DeleteProductCommandHandler`, `RestoreProductCommandHandler`, validators, `IProductDeletionGateway`, `SupabaseProductDeletionGateway`, `SupabaseProductCommandGateway` delete/restore, draft SQL `12_catalog_product_soft_delete.sql`, generated access metadata | product_soft_delete_handlers_test; product_rpc_mapper_test; catalog_error_mapper_test | done |
 | FR-01..04 | FE | §EPIC-07-US-03 | presentation | PCC dangerous action, confirm dialogs, deleted-product read-only state, restore action | wgt_e07_u03_* | todo |
 | FR-01..04 | E2E | §EPIC-07-US-03 | erp | ERP via `ICatalogModule` | e2e_e07_u03_* | todo |
 
