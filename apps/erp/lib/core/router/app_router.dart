@@ -4,7 +4,8 @@ import 'package:go_router/go_router.dart';
 import 'package:vet45_iam_infrastructure/infrastructure.dart';
 import 'package:vet45_iam_application/application.dart';
 import 'package:vet45_shared_application/application.dart';
-import 'package:get_it/get_it.dart';
+import 'package:go_router/go_router.dart';
+import 'package:vet45_catalog_presentation/presentation.dart';
 
 import '../../features/more/presentation/pages/system_settings_page.dart';
 import '../../features/more/presentation/einvoice_settings/pages/einvoice_settings_page.dart';
@@ -28,6 +29,8 @@ import '../../features/catalog/presentation/pages/product_stock_adjustment_page.
 import '../../features/catalog/presentation/pages/product_manual_base_price_page.dart';
 import '../../features/catalog/presentation/pages/product_price_bands_page.dart';
 import '../../features/catalog/presentation/pages/edit_product_unit_price_band_page.dart';
+import '../../features/catalog/presentation/pages/product_profile_maintenance_page.dart';
+import '../../features/catalog/presentation/pages/product_images_maintenance_page.dart';
 import '../di/injection.dart';
 
 final appRouter = GoRouter(
@@ -211,6 +214,22 @@ final appRouter = GoRouter(
       builder: (context, state) {
         final args = state.extra as EditProductUnitPriceBandRouteArgs;
         return EditProductUnitPriceBandPage(args: args);
+      },
+    ),
+    GoRoute(
+      path: '/products/items/pcc/profile-maintenance',
+      name: 'products.items.pcc.profile-maintenance',
+      builder: (context, state) {
+        final product = state.extra as ProductListItemModel;
+        return ProductProfileMaintenancePage(product: product);
+      },
+    ),
+    GoRoute(
+      path: '/products/items/pcc/images-maintenance',
+      name: 'products.items.pcc.images-maintenance',
+      builder: (context, state) {
+        final product = state.extra as ProductListItemModel;
+        return ProductImagesMaintenancePage(product: product);
       },
     ),
     GoRoute(

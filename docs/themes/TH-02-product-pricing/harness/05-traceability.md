@@ -264,7 +264,7 @@ Mở đầy đủ khi CONTRACT lane bắt đầu.
 | FR-03 | CONTRACT | §EPIC-07-US-01 | application | Duplicate barcode including inactive products; open transaction warning deferred | scn_contract_e07_u01_fr03_01 | done |
 | FR-04 | CONTRACT | §EPIC-07-US-01 | application | Mutation results include refreshed `readinessSummary` | scn_contract_e07_u01_fr04_01 | done |
 | FR-01..04 | BE | §EPIC-07-US-01 | application + infrastructure | `UpdateProductProfileCommandHandler`, `UpdateProductImagesCommandHandler`, `RequestProductMaintenanceImageUploadCommandHandler`, gateways, generated access metadata, draft RPC `10_catalog_product_profile_maintenance.sql` | product_profile_maintenance_handlers_test, product_rpc_mapper_test, catalog_access_metadata_registry_test | done |
-| FR-01..04 | FE | §EPIC-07-US-01 | presentation | PCC actions/forms for profile and image maintenance | wgt_e07_u01_* | todo |
+| FR-01..04 | FE | §EPIC-07-US-01 | presentation | `product_profile_maintenance_page.dart`, `product_images_maintenance_page.dart` | wgt_e07_u01_fr01_01, wgt_e07_u01_fr02_01 | done |
 | FR-01..04 | E2E | §EPIC-07-US-01 | erp | ERP via `ICatalogModule` | e2e_e07_u01_* | todo |
 
 ---

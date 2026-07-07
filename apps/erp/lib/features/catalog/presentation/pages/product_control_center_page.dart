@@ -276,13 +276,43 @@ class _ProductControlCenterView extends StatelessWidget {
                       icon: Icons.assignment_outlined,
                       subtitle:
                           '${controlCenter.profile.sku ?? 'Chưa có mã SKU'} · ${controlCenter.profile.barcode ?? 'Chưa có mã vạch'}',
-                      onEdit: () => _showEditPlaceholder(context),
+                      onEdit: () async {
+                        final updatedProduct = product.copyWith(
+                          name: controlCenter.profile.name,
+                          tradeName: controlCenter.profile.tradeName,
+                          sku: controlCenter.profile.sku,
+                          barcode: controlCenter.profile.barcode,
+                          images: controlCenter.profile.images,
+                          imageUrl: controlCenter.profile.primaryImageUrl,
+                        );
+                        await context.push(
+                          '/products/items/pcc/profile-maintenance',
+                          extra: updatedProduct,
+                        );
+                        if (!context.mounted) return;
+                        context.read<ProductControlCenterCubit>().loadControlCenter(product.id);
+                      },
                     ),
                     ProductControlCenterSectionCard(
                       title: 'Ảnh sản phẩm',
                       icon: Icons.camera_alt_outlined,
                       subtitle: '${controlCenter.profile.images.length} ảnh',
-                      onEdit: () => _showEditPlaceholder(context),
+                      onEdit: () async {
+                        final updatedProduct = product.copyWith(
+                          name: controlCenter.profile.name,
+                          tradeName: controlCenter.profile.tradeName,
+                          sku: controlCenter.profile.sku,
+                          barcode: controlCenter.profile.barcode,
+                          images: controlCenter.profile.images,
+                          imageUrl: controlCenter.profile.primaryImageUrl,
+                        );
+                        await context.push(
+                          '/products/items/pcc/images-maintenance',
+                          extra: updatedProduct,
+                        );
+                        if (!context.mounted) return;
+                        context.read<ProductControlCenterCubit>().loadControlCenter(product.id);
+                      },
                     ),
                     ProductControlCenterOperationalSection(
                       units: controlCenter.units,
