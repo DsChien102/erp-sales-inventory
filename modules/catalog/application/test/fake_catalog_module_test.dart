@@ -2368,5 +2368,291 @@ void main() {
         },
       );
     });
+
+    group('EPIC-07 / US-03 product soft delete contract', () {
+      test(
+        'scn_contract_e07_u03_fr01_01 eligibility allows product without dependencies',
+        () async {
+          final module = FakeCatalogModule(
+            scenario: FakeCatalogScenario.scnContractE07U03Fr01_01,
+          );
+
+          final result = await module.executeQueryAsync(
+            CheckProductDeletionEligibilityQuery(
+              tenantId: 'tenant-1',
+              productId: 'product-6',
+            ),
+          );
+
+          expect(result.productId, 'product-6');
+          expect(result.canDelete, isTrue);
+          expect(result.issues, isEmpty);
+          expect(result.suggestedActionId, isNull);
+        },
+      );
+
+      test('scn_contract_e07_u03_fr01_02 open transaction blocks delete', () async {
+        final module = FakeCatalogModule(
+          scenario: FakeCatalogScenario.scnContractE07U03Fr01_02,
+        );
+
+        final result = await module.executeQueryAsync(
+          CheckProductDeletionEligibilityQuery(
+            tenantId: 'tenant-1',
+            productId: 'product-4',
+          ),
+        );
+
+        expect(result.canDelete, isFalse);
+        expect(
+          result.issues.map((issue) => issue.code),
+          contains(ProductDeletionIssueCode.openTransaction),
+        );
+        expect(
+          result.issues.map((issue) => issue.severity),
+          contains(ProductDeletionIssueSeverity.blocker),
+        );
+
+        await expectLater(
+          module.executeCommandAsync(
+            DeleteProductCommand(
+              tenantId: 'tenant-1',
+              actorId: 'user-1',
+              productId: 'product-4',
+              confirmAcknowledgeWarnings: true,
+            ),
+          ),
+          throwsA(
+            isA<ValidationException>().having(
+              (e) => e.message,
+              'message',
+              contains('cannot be deleted'),
+            ),
+          ),
+        );
+      });
+
+      test('scn_contract_e07_u03_fr01_03 historical data warns and suggests deactivate', () async {
+        final module = FakeCatalogModule(
+          scenario: FakeCatalogScenario.scnContractE07U03Fr01_03,
+        );
+
+        final result = await module.executeQueryAsync(
+          CheckProductDeletionEligibilityQuery(
+            tenantId: 'tenant-1',
+            productId: 'product-1',
+          ),
+        );
+
+        expect(result.canDelete, isTrue);
+        expect(result.suggestedActionId, 'deactivate_product');
+        expect(
+          result.issues.map((issue) => issue.code),
+          contains(ProductDeletionIssueCode.hasHistoricalTransactions),
+        );
+        expect(
+          result.issues.map((issue) => issue.severity),
+          contains(ProductDeletionIssueSeverity.warning),
+        );
+      });
+
+      test('scn_contract_e07_u03_fr02_01 delete soft-deletes and writes history', () async {
+        final module = FakeCatalogModule(
+          scenario: FakeCatalogScenario.scnContractE07U03Fr02_01,
+        );
+
+        final result = await module.executeCommandAsync(
+          DeleteProductCommand(
+            tenantId: 'tenant-1',
+            actorId: 'user-1',
+            productId: 'product-6',
+            reason: 'Không còn sử dụng',
+          ),
+        );
+
+        expect(result.productId, 'product-6');
+        expect(result.isSoftDeleted, isTrue);
+        expect(result.businessStatus, ProductStatus.active);
+        expect(result.version, 2);
+        expect(result.reason, 'Không còn sử dụng');
+        expect(result.historyEntry, isNotNull);
+        expect(result.historyEntry!.changeType, 'product_soft_deleted');
+
+        final pcc = await module.executeQueryAsync(
+          GetProductControlCenterQuery(
+            tenantId: 'tenant-1',
+            productId: 'product-6',
+          ),
+        );
+        expect(pcc.profile.isSoftDeleted, isTrue);
+        expect(pcc.changeHistoryPreview.first.changeType, 'product_soft_deleted');
+      });
+
+      test('scn_contract_e07_u03_fr02_02 stale expected version is rejected', () async {
+        final module = FakeCatalogModule(
+          scenario: FakeCatalogScenario.scnContractE07U03Fr02_02,
+        );
+
+        await expectLater(
+          module.executeCommandAsync(
+            DeleteProductCommand(
+              tenantId: 'tenant-1',
+              actorId: 'user-1',
+              productId: 'product-6',
+              expectedVersion: 0,
+            ),
+          ),
+          throwsA(
+            isA<StaleProductVersionException>()
+                .having((e) => e.expectedVersion, 'expectedVersion', 0)
+                .having((e) => e.currentVersion, 'currentVersion', 1),
+          ),
+        );
+      });
+
+      test('scn_contract_e07_u03_fr02_03 search excludes soft-deleted by default', () async {
+        final module = FakeCatalogModule(
+          scenario: FakeCatalogScenario.scnContractE07U03Fr02_03,
+        );
+
+        await module.executeCommandAsync(
+          DeleteProductCommand(
+            tenantId: 'tenant-1',
+            actorId: 'user-1',
+            productId: 'product-6',
+          ),
+        );
+
+        final defaultResult = await module.executeQueryAsync(
+          SearchProductsQuery(
+            tenantId: 'tenant-1',
+            criteria: ProductSearchCriteria(keyword: 'Thuốc thiếu đơn vị'),
+          ),
+        );
+        expect(defaultResult.items, isEmpty);
+
+        final includeDeletedResult = await module.executeQueryAsync(
+          SearchProductsQuery(
+            tenantId: 'tenant-1',
+            criteria: ProductSearchCriteria(
+              keyword: 'Thuốc thiếu đơn vị',
+              includeSoftDeleted: true,
+            ),
+          ),
+        );
+        expect(includeDeletedResult.items.single.isSoftDeleted, isTrue);
+      });
+
+      test('scn_contract_e07_u03_fr03_01 restores as inactive with readiness', () async {
+        final module = FakeCatalogModule(
+          scenario: FakeCatalogScenario.scnContractE07U03Fr03_01,
+        );
+
+        await module.executeCommandAsync(
+          DeleteProductCommand(
+            tenantId: 'tenant-1',
+            actorId: 'user-1',
+            productId: 'product-7',
+          ),
+        );
+
+        final result = await module.executeCommandAsync(
+          RestoreProductCommand(
+            tenantId: 'tenant-1',
+            actorId: 'user-1',
+            productId: 'product-7',
+            reason: 'Khôi phục do xóa nhầm',
+          ),
+        );
+
+        expect(result.isSoftDeleted, isFalse);
+        expect(result.businessStatus, ProductStatus.inactive);
+        expect(result.reason, 'Khôi phục do xóa nhầm');
+        expect(result.readinessSummary.status, ReadinessStatus.incomplete);
+        expect(
+          result.readinessSummary.blockers.map((b) => b.code),
+          contains(ReadinessBlockerCode.missingPrice),
+        );
+        expect(result.historyEntry!.changeType, 'product_restored');
+      });
+
+      test('scn_contract_e07_u03_fr03_02 restore duplicate SKU is rejected', () async {
+        final module = FakeCatalogModule(
+          scenario: FakeCatalogScenario.scnContractE07U03Fr03_02,
+        );
+
+        await expectLater(
+          module.executeCommandAsync(
+            RestoreProductCommand(
+              tenantId: 'tenant-1',
+              actorId: 'user-1',
+              productId: 'product-7',
+            ),
+          ),
+          throwsA(
+            isA<DuplicateSkuException>().having(
+              (e) => e.sku,
+              'sku',
+              'SP0001',
+            ),
+          ),
+        );
+      });
+
+      test('scn_contract_e07_u03_fr03_03 restore duplicate barcode is rejected', () async {
+        final module = FakeCatalogModule(
+          scenario: FakeCatalogScenario.scnContractE07U03Fr03_03,
+        );
+
+        await expectLater(
+          module.executeCommandAsync(
+            RestoreProductCommand(
+              tenantId: 'tenant-1',
+              actorId: 'user-1',
+              productId: 'product-7',
+            ),
+          ),
+          throwsA(
+            isA<DuplicateBarcodeException>().having(
+              (e) => e.barcode,
+              'barcode',
+              '8930000000001',
+            ),
+          ),
+        );
+      });
+
+      test('scn_contract_e07_u03_fr04_01 preserved PCC data remains readable', () async {
+        final module = FakeCatalogModule(
+          scenario: FakeCatalogScenario.scnContractE07U03Fr04_01,
+        );
+
+        await module.executeCommandAsync(
+          DeleteProductCommand(
+            tenantId: 'tenant-1',
+            actorId: 'user-1',
+            productId: 'product-1',
+            reason: 'Dọn danh mục',
+          ),
+        );
+
+        final pcc = await module.executeQueryAsync(
+          GetProductControlCenterQuery(
+            tenantId: 'tenant-1',
+            productId: 'product-1',
+          ),
+        );
+
+        expect(pcc.profile.isSoftDeleted, isTrue);
+        expect(pcc.units.baseUnitName, 'Hộp');
+        expect(pcc.stock.quantity, 150);
+        expect(pcc.basePrice.amount, 80000);
+        expect(pcc.priceBand.listPrice, 120000);
+        expect(
+          pcc.changeHistoryPreview.map((entry) => entry.changeType),
+          contains('product_soft_deleted'),
+        );
+      });
+    });
   });
 }

@@ -103,6 +103,16 @@ abstract final class FakeCatalogScenario {
   static const scnContractE07U02Fr02_03 = 'scn_contract_e07_u02_fr02_03';
   static const scnContractE07U02Fr03_01 = 'scn_contract_e07_u02_fr03_01';
   static const scnContractE07U02Fr04_01 = 'scn_contract_e07_u02_fr04_01';
+  static const scnContractE07U03Fr01_01 = 'scn_contract_e07_u03_fr01_01';
+  static const scnContractE07U03Fr01_02 = 'scn_contract_e07_u03_fr01_02';
+  static const scnContractE07U03Fr01_03 = 'scn_contract_e07_u03_fr01_03';
+  static const scnContractE07U03Fr02_01 = 'scn_contract_e07_u03_fr02_01';
+  static const scnContractE07U03Fr02_02 = 'scn_contract_e07_u03_fr02_02';
+  static const scnContractE07U03Fr02_03 = 'scn_contract_e07_u03_fr02_03';
+  static const scnContractE07U03Fr03_01 = 'scn_contract_e07_u03_fr03_01';
+  static const scnContractE07U03Fr03_02 = 'scn_contract_e07_u03_fr03_02';
+  static const scnContractE07U03Fr03_03 = 'scn_contract_e07_u03_fr03_03';
+  static const scnContractE07U03Fr04_01 = 'scn_contract_e07_u03_fr04_01';
 }
 
 class _TenantUnit {
@@ -701,6 +711,16 @@ final class FakeCatalogModule implements ICatalogModule {
         command as ReactivateProductCommand,
       );
     }
+    if (command is DeleteProductCommand) {
+      return _handleDeleteProduct<TResult>(
+        command as DeleteProductCommand,
+      );
+    }
+    if (command is RestoreProductCommand) {
+      return _handleRestoreProduct<TResult>(
+        command as RestoreProductCommand,
+      );
+    }
     if (command is RequestProductMaintenanceImageUploadCommand) {
       return _handleRequestMaintenanceUpload<TResult>(
         command as RequestProductMaintenanceImageUploadCommand,
@@ -755,6 +775,11 @@ final class FakeCatalogModule implements ICatalogModule {
     if (query is GetProductControlCenterQuery) {
       return _handleGetProductControlCenter<TResult>(
         query as GetProductControlCenterQuery,
+      );
+    }
+    if (query is CheckProductDeletionEligibilityQuery) {
+      return _handleCheckProductDeletionEligibility<TResult>(
+        query as CheckProductDeletionEligibilityQuery,
       );
     }
     if (query is ListTenantMeasurementUnitsQuery) {
@@ -928,6 +953,165 @@ final class FakeCatalogModule implements ICatalogModule {
     );
   }
 
+  TResult _handleDeleteProduct<TResult>(DeleteProductCommand command) {
+    final product = _findProduct(command.productId);
+    if (product == null) {
+      throw ApplicationException('Product not found');
+    }
+    _ensureSoftDeleteVersion(product, command.expectedVersion);
+    if (product.isSoftDeleted) {
+      throw ValidationException('Product is already soft-deleted.');
+    }
+
+    final eligibility = _deletionEligibilityFor(product);
+    if (!eligibility.canDelete) {
+      throw ValidationException('Product cannot be deleted because dependencies are blocking it.');
+    }
+    if (eligibility.warnings.isNotEmpty && !command.confirmAcknowledgeWarnings) {
+      throw ValidationException('Product deletion warnings require acknowledgment.');
+    }
+
+    product.isSoftDeleted = true;
+    _markUpdated(product);
+
+    final historyEntry = ProductChangeHistoryEntryDto(
+      id: 'history-${product.id}-soft-delete-${product.version}',
+      occurredAt: product.updatedAt,
+      actorDisplayName: command.actorId,
+      changeType: 'product_soft_deleted',
+      summary: 'Xóa mềm sản phẩm',
+      valueBefore: 'false',
+      valueAfter: 'true',
+    );
+    product.statusHistory = [
+      historyEntry,
+      ...product.statusHistory,
+    ];
+
+    return ChangeProductSoftDeleteResult(
+          productId: product.id,
+          isSoftDeleted: product.isSoftDeleted,
+          businessStatus: product.businessStatus,
+          readinessSummary: _readinessSummaryFor(product),
+          version: product.version,
+          reason: _optionalText(command.reason),
+          issues: eligibility.issues,
+          historyEntry: historyEntry,
+        )
+        as TResult;
+  }
+
+  TResult _handleRestoreProduct<TResult>(RestoreProductCommand command) {
+    final product = _findProduct(command.productId);
+    if (product == null) {
+      throw ApplicationException('Product not found');
+    }
+    _prepareSoftDeletedRestoreScenario(product);
+    _ensureSoftDeleteVersion(product, command.expectedVersion);
+    if (!product.isSoftDeleted) {
+      throw ValidationException('Only soft-deleted products can be restored.');
+    }
+    _ensureUniqueActiveSku(product, product.sku);
+    _ensureUniqueActiveBarcode(product, product.barcode);
+
+    product.isSoftDeleted = false;
+    product.businessStatus = ProductStatus.inactive;
+    _markUpdated(product);
+
+    final historyEntry = ProductChangeHistoryEntryDto(
+      id: 'history-${product.id}-restore-${product.version}',
+      occurredAt: product.updatedAt,
+      actorDisplayName: command.actorId,
+      changeType: 'product_restored',
+      summary: 'Khôi phục sản phẩm đã xóa mềm',
+      valueBefore: 'true',
+      valueAfter: 'false',
+    );
+    product.statusHistory = [
+      historyEntry,
+      ...product.statusHistory,
+    ];
+
+    return ChangeProductSoftDeleteResult(
+          productId: product.id,
+          isSoftDeleted: product.isSoftDeleted,
+          businessStatus: product.businessStatus,
+          readinessSummary: _readinessSummaryFor(product),
+          version: product.version,
+          reason: _optionalText(command.reason),
+          historyEntry: historyEntry,
+        )
+        as TResult;
+  }
+
+  TResult _handleCheckProductDeletionEligibility<TResult>(
+    CheckProductDeletionEligibilityQuery query,
+  ) {
+    final product = _findProduct(query.productId);
+    if (product == null) {
+      throw ApplicationException('Product not found');
+    }
+    return _deletionEligibilityFor(product) as TResult;
+  }
+
+  ProductDeletionEligibilityDto _deletionEligibilityFor(_StoredProduct product) {
+    final issues = <ProductDeletionIssueDto>[];
+    String? suggestedActionId;
+
+    if (scenario == FakeCatalogScenario.scnContractE07U03Fr01_02 && product.id == 'product-4') {
+      issues.add(
+        const ProductDeletionIssueDto(
+          code: ProductDeletionIssueCode.openTransaction,
+          message: 'Sản phẩm đang nằm trong giao dịch mở.',
+          severity: ProductDeletionIssueSeverity.blocker,
+        ),
+      );
+    }
+
+    if (scenario == FakeCatalogScenario.scnContractE07U03Fr01_03 && product.id == 'product-1') {
+      issues.add(
+        const ProductDeletionIssueDto(
+          code: ProductDeletionIssueCode.hasHistoricalTransactions,
+          message: 'Sản phẩm có giao dịch lịch sử cần bảo toàn.',
+          severity: ProductDeletionIssueSeverity.warning,
+        ),
+      );
+      suggestedActionId = 'deactivate_product';
+    }
+
+    final canDelete = !issues.any(
+      (issue) => issue.severity == ProductDeletionIssueSeverity.blocker,
+    );
+    return ProductDeletionEligibilityDto(
+      productId: product.id,
+      canDelete: canDelete,
+      issues: issues,
+      suggestedActionId: suggestedActionId,
+    );
+  }
+
+  void _ensureSoftDeleteVersion(_StoredProduct product, int? expectedVersion) {
+    if (expectedVersion != null && expectedVersion != product.version) {
+      throw StaleProductVersionException(
+        expectedVersion: expectedVersion,
+        currentVersion: product.version,
+      );
+    }
+  }
+
+  void _prepareSoftDeletedRestoreScenario(_StoredProduct product) {
+    if (product.id != 'product-7') {
+      return;
+    }
+    if (scenario == FakeCatalogScenario.scnContractE07U03Fr03_02) {
+      product.isSoftDeleted = true;
+      product.sku = 'SP0001';
+    } else if (scenario == FakeCatalogScenario.scnContractE07U03Fr03_03) {
+      product.isSoftDeleted = true;
+      product.barcode = '8930000000001';
+    }
+  }
+
   void _ensureStatusChangeAllowed(_StoredProduct product, int? expectedVersion) {
     if (_isSoftDeletedForStatusChange(product)) {
       throw ApplicationException(
@@ -1041,6 +1225,36 @@ final class FakeCatalogModule implements ICatalogModule {
     }
     for (final product in _products) {
       if (product.id != target.id && product.barcode == barcode) {
+        throw DuplicateBarcodeException(
+          barcode: barcode,
+          existingProductId: product.id,
+          existingProductName: product.name,
+        );
+      }
+    }
+  }
+
+  void _ensureUniqueActiveSku(_StoredProduct target, String sku) {
+    if (sku.isEmpty) {
+      return;
+    }
+    for (final product in _products) {
+      if (product.id != target.id && !product.isSoftDeleted && product.sku == sku) {
+        throw DuplicateSkuException(
+          sku: sku,
+          existingProductId: product.id,
+          existingProductName: product.name,
+        );
+      }
+    }
+  }
+
+  void _ensureUniqueActiveBarcode(_StoredProduct target, String barcode) {
+    if (barcode.isEmpty) {
+      return;
+    }
+    for (final product in _products) {
+      if (product.id != target.id && !product.isSoftDeleted && product.barcode == barcode) {
         throw DuplicateBarcodeException(
           barcode: barcode,
           existingProductId: product.id,
