@@ -4,7 +4,7 @@ enum DashboardTab {
   home(enabled: true),
   orders(enabled: false),
   products(enabled: true),
-  partners(enabled: true),
+  partners(enabled: false),
   more(enabled: true);
 
   const DashboardTab({required this.enabled});

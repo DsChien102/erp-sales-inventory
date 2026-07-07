@@ -31,12 +31,19 @@ cd apps/erp && flutter test test/features/partner/   # khi slice có UI
 | ---- | ------------- | --------- |
 | 2026-06-30 | Khởi tạo harness/ scaffold TH-03 | README + harness layer + guards |
 | 2026-06-30 | God Widget / inline dialog | presentation-layer skill + UI guards + dashboard golden ref |
-| - | Dup-check chỉ UI | Ghi nhớ: RPC tenant-scoped khi implement US-02 FR-5 |
-| - | Permission label tiếng Việt vs code | Bảng mapping trong 02-module-map.md |
+| - | Dup-check chỉ UI | Ghi nhớ: RPC tenant-scoped khi implement US-02 |
 | - | Epic-03 E2E blocked | Chờ sales/inventory/accounting events end-to-end |
 | 2026-07-01 | BE/FE lane confusion | 07-api-contracts + FakePartnerModule + traceability Role column |
-| - | Epic-03 BE done & DTO collision giữa UI demo model và BE application DTO | Dùng application DTO trong presentation; cập nhật traceability ma trận cho BE Epic-03 |
-| 2026-07-02 | Partner hand-wired CQRS | Bật codegen (mirror IAM); cập nhật ritual + [modules/partner/README.md](../../../../modules/partner/README.md) |
+| 2026-07-02 | Partner hand-wired CQRS | Bật codegen (mirror IAM) |
+| **2026-07-07** | **Product spec v2 (Person/Organization) lệch harness + code cũ** | **Reboot: gỡ code partner + migrations cũ; viết lại harness v2 (Partner root, soft delete, contact, transform); reset slice S1..S9 todo; rebuild greenfield từ iam golden** |
+
+## Pitfalls (v2)
+
+- Không dùng lại model `entity_type = individual|household_business|company` — đã thay bằng `partner_type = person|organization`.
+- Soft delete = `status = deleted`, không hard delete Phase 1.
+- Transaction history = EP-01/US-07 (không còn Epic-03 folder).
+- US spec = một file `US-{nn}.md` (không còn `FR-{nn}.md` riêng).
+- Dup-check: warn-only Phase 1, không merge.
 
 ## Liên kết
 

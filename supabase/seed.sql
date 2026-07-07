@@ -5,8 +5,6 @@
 
 insert into iam.role_permissions (role, permission)
 values
-  ('staff', 'partner.read'),          -- InterimPermissionCodes.partnerRead
-  ('staff', 'partner.write'),         -- InterimPermissionCodes.partnerWrite
   ('staff', 'settings.einvoice.configure'), -- InterimPermissionCodes.settingsEinvoiceConfigure
   ('staff', 'iam.members.read')       -- IamPermissions.membersRead
 on conflict do nothing;

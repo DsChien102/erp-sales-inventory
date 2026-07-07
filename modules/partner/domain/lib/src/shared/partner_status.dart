@@ -1,4 +1,0 @@
-enum PartnerStatus {
-  active,
-  inactive,
-}

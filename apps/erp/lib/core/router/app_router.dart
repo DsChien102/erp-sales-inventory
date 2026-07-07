@@ -2,27 +2,25 @@ import 'package:flutter/material.dart';
 import 'package:vet45_design_system/design_system.dart';
 import 'package:go_router/go_router.dart';
 import 'package:vet45_iam_infrastructure/infrastructure.dart';
-import 'package:vet45_iam_application/application.dart';
 import 'package:vet45_shared_application/application.dart';
 import 'package:vet45_catalog_presentation/presentation.dart';
 
+// More Pages
 import '../../features/more/presentation/pages/system_settings_page.dart';
 import '../../features/more/presentation/einvoice_settings/pages/einvoice_settings_page.dart';
 import '../../features/more/presentation/einvoice_settings/pages/einvoice_connection_page.dart';
 import '../../features/more/presentation/einvoice_settings/pages/einvoice_template_page.dart';
 import '../../features/more/presentation/einvoice_settings/pages/einvoice_auto_page.dart';
 import '../../features/more/presentation/einvoice_settings/bloc/einvoice_settings_cubit.dart';
+
+// Auth
 import '../../features/auth/presentation/pages/login_page.dart';
+
+// Dashboard
 import '../../features/dashboard/presentation/dashboard_page.dart';
 import '../../features/dashboard/presentation/models/dashboard_navigation.dart';
-import '../../features/partner/presentation/pages/partner_detail_page.dart';
-import '../../features/partner/presentation/pages/partner_create_page.dart';
-import '../../features/partner/presentation/pages/partner_edit_page.dart';
-import 'package:vet45_partner_presentation/presentation.dart';
-import 'package:vet45_partner_domain/domain.dart';
-import 'package:vet45_catalog_presentation/presentation.dart';
-import 'package:erp/features/catalog/presentation/pages/product_custom_field_group_edit_page.dart';
-import 'package:erp/features/catalog/presentation/pages/product_guided_create_page.dart';
+
+// Catalog
 import '../../features/catalog/presentation/pages/product_guided_create_page.dart';
 import '../../features/catalog/presentation/pages/product_control_center_page.dart';
 import '../../features/catalog/presentation/pages/product_readiness_checklist_page.dart';
@@ -30,15 +28,17 @@ import '../../features/catalog/presentation/pages/product_measurement_units_page
 import '../../features/catalog/presentation/pages/product_stock_adjustment_page.dart';
 import '../../features/catalog/presentation/pages/product_manual_base_price_page.dart';
 import '../../features/catalog/presentation/pages/product_price_bands_page.dart';
-import '../../features/catalog/presentation/pages/edit_product_unit_price_band_page.dart';
 import '../../features/catalog/presentation/pages/product_profile_maintenance_page.dart';
 import '../../features/catalog/presentation/pages/product_images_maintenance_page.dart';
 import '../../features/catalog/presentation/pages/product_change_history_page.dart';
+import '../../features/catalog/presentation/pages/product_custom_field_group_edit_page.dart';
+import '../../features/catalog/presentation/pages/edit_product_unit_price_band_page.dart';
 import '../../features/catalog/presentation/pages/settings/product_settings_page.dart';
 import '../../features/catalog/presentation/pages/settings/custom_field_groups_page.dart';
 import '../../features/catalog/presentation/pages/settings/upsert_custom_field_group_page.dart';
 import '../../features/catalog/presentation/pages/settings/custom_field_group_detail_page.dart';
 import '../../features/catalog/presentation/pages/settings/upsert_custom_field_page.dart';
+
 import '../di/injection.dart';
 
 final appRouter = GoRouter(
@@ -257,76 +257,6 @@ final appRouter = GoRouter(
         return ProductChangeHistoryPage(
           productId: product.id,
           productName: product.name,
-        );
-      },
-    ),
-    GoRoute(
-      path: '/partner/create',
-      name: 'partner.create',
-      builder: (context, state) {
-        final hasPermission = getIt<IPrincipalSnapshot>().hasPermission(PartnerPermissions.create);
-        if (!hasPermission) {
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            VToast.show(
-              context,
-              title: 'Lỗi',
-              message: 'Bạn không có quyền phù hợp.',
-              type: VToastType.danger,
-            );
-            context.go('/');
-          });
-          return const Scaffold(body: SizedBox.shrink());
-        }
-        return const PartnerCreatePage();
-      },
-    ),
-    GoRoute(
-      path: '/partner/detail',
-      name: 'partner.detail',
-      builder: (context, state) {
-        final hasPermission = getIt<IPrincipalSnapshot>().hasPermission(
-          PartnerPermissions.viewDetail,
-        );
-        if (!hasPermission) {
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            VToast.show(
-              context,
-              title: 'Lỗi',
-              message: 'Bạn không có quyền phù hợp.',
-              type: VToastType.danger,
-            );
-            context.go('/');
-          });
-          return const Scaffold(body: SizedBox.shrink());
-        }
-        final partner = state.extra as PartnerItemModel;
-        return PartnerDetailPage(
-          partnerId: partner.id,
-          initialPartner: partner,
-        );
-      },
-    ),
-    GoRoute(
-      path: '/partner/edit',
-      name: 'partner.edit',
-      builder: (context, state) {
-        final hasPermission = getIt<IPrincipalSnapshot>().hasPermission(PartnerPermissions.update);
-        if (!hasPermission) {
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            VToast.show(
-              context,
-              title: 'Lỗi',
-              message: 'Bạn không có quyền phù hợp.',
-              type: VToastType.danger,
-            );
-            context.go('/');
-          });
-          return const Scaffold(body: SizedBox.shrink());
-        }
-        final partner = state.extra as PartnerItemModel;
-        return PartnerEditPage(
-          partnerId: partner.id,
-          initialPartner: partner,
         );
       },
     ),

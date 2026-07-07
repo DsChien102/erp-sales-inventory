@@ -25,7 +25,7 @@ enum ErpTab {
     label: 'KH&NCC',
     icon: Icons.people_outline_rounded,
     routePath: '/partner',
-    enabled: true,
+    enabled: false,
   ),
   more(
     label: 'Thêm',

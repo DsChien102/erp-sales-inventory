@@ -48,7 +48,7 @@ UI → IExecutionContext (tenant/user) → IModuleMediator
 - **Mutations**: domain invariants in Dart + defense in depth in Postgres RPC/RLS.
 - **Cross-module**: `integration_events` package only — no cross-module domain/repository imports.
 
-## Module wiring (mirror catalog/sales/partner)
+## Module wiring (mirror iam/; partner greenfield — rebuild from TH-03 harness)
 
 - `DataAccessModule` → gateways/repos
 - `MediationModule` → `registerGenerated*Handlers` + `DefaultCommandPipeline`

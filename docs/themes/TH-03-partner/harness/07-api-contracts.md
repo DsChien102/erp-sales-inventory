@@ -1,275 +1,173 @@
-# TH-03 — API contracts (FE ↔ BE)
+# TH-03 — API contracts (FE ↔ BE) v2
 
-Source of truth giữa presentation và application layer. Types live in `modules/partner/application/`. RPC mapping: [03-architecture-and-flows.md](03-architecture-and-flows.md).
+Source of truth giữa presentation và application layer. Types sẽ live in `modules/partner/application/` (chưa tạo).
 
-Facade: `IPartnerModule` (`modules/partner/application/lib/src/contracts/i_partner_module.dart`).
+Facade: `IPartnerModule` (planned).
 
-**Access control:** commands/queries dùng `@RequiresPermission(PartnerPermissions.*)` + `@RequiresTenant()`; codegen emit `partner_access_metadata.g.dart` — xem [modules/partner/README.md](../../../../modules/partner/README.md).
+**Reboot 2026-07-07:** Contracts dưới đây là **planned** — map từ Theme spec CMD-01..13. FE fake theo contract này qua `FakePartnerModule` (chưa tạo).
 
-**Quy tắc:** FE fake theo contract này — không fake RPC trực tiếp. Scenario ids dùng trong `FakePartnerModule` (`modules/partner/application/lib/src/testing/fake_partner_module.dart`, import `package:vet45_partner_application/testing.dart`).
+**Access control:** `@RequiresPermission(PartnerPermissions.*)` + `@RequiresTenant()`; codegen emit `partner_access_metadata.g.dart`.
+
+**Blocked codes:** `NO_PERMISSION`, `NOT_FOUND`, `VALIDATION_ERROR`, `DUPLICATE_WARNING`, `INVALID_STATUS`, `HAS_TRANSACTIONS`, `STATE_CHANGED`, `SYSTEM_ERROR`.
 
 ---
 
-## Epic-01 / US-02 — Ghi nhận đối tác mới
+## CMD catalog overview
+
+| CMD | Symbol | Type | Permission | US |
+| --- | ------ | ---- | ---------- | -- |
+| CMD-01 | `SearchPartnersQuery` | Query | `partner.view` | EP-01/US-01 |
+| CMD-02 | `GetPartnerDetailQuery` | Query | `partner.detail.view` | EP-01/US-04 |
+| CMD-03 | `CreatePartnerCommand` | Command | `partner.create` | EP-01/US-02 |
+| CMD-04 | `UpdatePartnerProfileCommand` | Command | `partner.update` | EP-01/US-03 |
+| CMD-05 | `AddOrganizationContactCommand` | Command | `partner.contact.manage` | EP-01/US-05 |
+| CMD-06 | `UpdateOrganizationContactCommand` | Command | `partner.contact.manage` | EP-01/US-05 |
+| CMD-07 | `RemoveOrganizationContactCommand` | Command | `partner.contact.manage` | EP-01/US-05 |
+| CMD-08 | `TransformPersonToOrganizationCommand` | Command | `partner.transform` | EP-01/US-06 |
+| CMD-09 | `DeactivatePartnerCommand` | Command | `partner.status.manage` | EP-02/US-01 |
+| CMD-10 | `ReactivatePartnerCommand` | Command | `partner.status.manage` | EP-02/US-01 |
+| CMD-11 | `CheckDeleteEligibilityQuery` | Query | `partner.delete` | EP-02/US-02 |
+| CMD-12 | `SoftDeletePartnerCommand` | Command | `partner.delete` | EP-02/US-02 |
+| CMD-13 | `GetPartnerHistoryQuery` | Query | `partner.history.view` | EP-01/US-07 |
+| — | `CheckDuplicatePartnersQuery` | Query | create/update flow | EP-01/US-02,03 |
+| — | `RecordPartnerHistoryCommand` | Command (internal) | — | EP-01/US-07 |
+
+---
+
+## §S1 — EP-01/US-02 — Tạo Partner mới
 
 ### Commands / Queries
 
 | Symbol | Input (summary) | Success | Errors |
 | ------ | --------------- | ------- | ------ |
-| `RegisterPartnerCommand` | tenantId, actorId, entityType, displayName, phone, roles, confirmDuplicate, optional profile fields | `RegisterPartnerResult` (businessPartnerId, hasTaxCodeWarning) | Validation, PermissionDenied, DuplicateNotConfirmed |
-| `CheckDuplicatePartnersQuery` | tenantId, phone?, email?, taxCode? | `List<PartnerDuplicateMatchDto>` | PermissionDenied |
-
-Package: `vet45_partner_application` — `register_partner/`, `check_duplicate/`.
+| `CreatePartnerCommand` | tenantId, actorId, partnerType, roles[], personProfile \| organizationProfile, confirmDuplicate | `CreatePartnerResult` (partnerId, warnings[]) | VALIDATION_ERROR, DUPLICATE_WARNING, NO_PERMISSION |
+| `CheckDuplicatePartnersQuery` | tenantId, phone?, email?, taxCode?, name? | `List<PartnerDuplicateMatchDto>` | NO_PERMISSION |
 
 ### RPC mapping (BE)
 
 | Use case | RPC |
 | -------- | --- |
-| Register | `partner.register_partner` |
+| Create | `partner.create_partner` |
 | Dup check | `partner.check_duplicate` |
 
 ### Fake scenarios (FE)
 
 | scenario_id | trigger | fake response |
 | ----------- | ------- | ------------- |
-| `register_save_ok` | RegisterPartnerCommand valid | `RegisterPartnerResult(businessPartnerId: 'partner-new-1')` |
-| `register_dup_warning` | CheckDuplicatePartnersQuery | non-empty `PartnerDuplicateMatchDto` list |
-| `register_dup_confirmed` | RegisterPartnerCommand confirmDuplicate=true | `RegisterPartnerResult` |
-| `register_validation_error` | invalid command | throws validation error |
-| `register_permission_denied` | no partner.create | PermissionDenied |
-
-### Parallel notes
-
-- FE có thể fake: **yes** (sau CONTRACT)
-- E2E prerequisite: —
+| `create_person_ok` | CreatePartnerCommand person | `CreatePartnerResult(partnerId: 'p-new-1')` |
+| `create_organization_ok` | CreatePartnerCommand organization | `CreatePartnerResult(partnerId: 'p-new-2')` |
+| `create_dup_warning` | CheckDuplicatePartnersQuery | non-empty duplicate list |
+| `create_dup_confirmed` | confirmDuplicate=true | `CreatePartnerResult` |
+| `create_validation_error` | invalid payload | VALIDATION_ERROR |
+| `create_permission_denied` | no partner.create | NO_PERMISSION |
 
 ---
 
-## Epic-01 / US-01 — Tìm kiếm danh sách
+## §S2 — EP-01/US-01 — Tìm kiếm danh sách
 
-### Commands / Queries
+| Symbol | Input | Success | Errors |
+| ------ | ----- | ------- | ------ |
+| `SearchPartnersQuery` | tenantId, q?, partnerType?, role?, status?, page, limit, sort | `PartnerSearchResultDto` | NO_PERMISSION |
 
-| Symbol | Input (summary) | Success | Errors |
-| ------ | --------------- | ------- | ------ |
-| `SearchPartnersQuery` | tenantId, PartnerSearchCriteria, limit, offset | `PartnerSearchResultDto` (items, totalCount) | PermissionDenied |
-
-Package: `vet45_partner_application` — `search_partners/`.
-
-### RPC mapping (BE)
-
-| Use case | RPC / view |
-| -------- | ---------- |
-| Search | `partner.search_partners` / `partner.v_partner_list` |
-
-### Fake scenarios (FE)
+RPC: `partner.search_partners` / `partner.v_partner_list`
 
 | scenario_id | trigger | fake response |
 | ----------- | ------- | ------------- |
 | `search_empty` | SearchPartnersQuery | empty items |
-| `search_results` | SearchPartnersQuery | list of `PartnerListItemDto` |
-| `search_filtered` | criteria with role/status | filtered subset |
-
-### Parallel notes
-
-- FE có thể fake: **yes**
-- E2E prerequisite: US-02 (data) — **chỉ lane E2E**
+| `search_mixed_types` | default | Person + Organization items |
+| `search_filtered_status` | status=inactive | filtered subset |
 
 ---
 
-## Epic-01 / US-04 — Kiểm tra hồ sơ
+## §S3 — EP-01/US-04 — Xem hồ sơ chi tiết
 
-### Commands / Queries
+| Symbol | Input | Success | Errors |
+| ------ | ----- | ------- | ------ |
+| `GetPartnerDetailQuery` | tenantId, partnerId | `PartnerDetailDto` (profile, roles, contacts?, available_actions) | NOT_FOUND, NO_PERMISSION |
 
-| Symbol | Input (summary) | Success | Errors |
-| ------ | --------------- | ------- | ------ |
-| `GetPartnerDetailQuery` | tenantId, partnerId | `PartnerDetailDto?` | PermissionDenied, NotFound (null) |
-
-Package: `vet45_partner_application` — `get_partner_detail/`.
-
-### RPC mapping (BE)
-
-| Use case | RPC / view |
-| -------- | ---------- |
-| Detail | `partner.get_partner_detail` |
-
-### Fake scenarios (FE)
+RPC: `partner.get_partner_detail`
 
 | scenario_id | trigger | fake response |
 | ----------- | ------- | ------------- |
-| `detail_active` | GetPartnerDetailQuery | `PartnerDetailDto` status=active |
-| `detail_inactive` | GetPartnerDetailQuery | `PartnerDetailDto` status=inactive |
-| `detail_not_found` | GetPartnerDetailQuery | null |
-| `detail_refresh` | sequential loads | version increments (edit return flow) |
-
-### Parallel notes
-
-- FE có thể fake: **yes**
-- E2E prerequisite: US-02 (partner id)
+| `detail_person_active` | person partner | PersonDetailDto + actions |
+| `detail_organization_with_contacts` | org partner | OrganizationDetailDto + contacts |
+| `detail_deleted` | deleted partner | NOT_FOUND or restricted view per spec |
 
 ---
 
-## Epic-01 / US-03 — Bổ sung và chỉnh sửa
+## §S4 — EP-01/US-03 — Cập nhật hồ sơ
 
-### Commands / Queries
+| Symbol | Input | Success | Errors |
+| ------ | ----- | ------- | ------ |
+| `UpdatePartnerProfileCommand` | partnerId, profile fields, roles[], confirmDuplicate, expectedVersion | `UpdatePartnerProfileResult` | VALIDATION_ERROR, DUPLICATE_WARNING, STATE_CHANGED, INVALID_STATUS |
 
-| Symbol | Input (summary) | Success | Errors |
-| ------ | --------------- | ------- | ------ |
-| `UpdatePartnerProfileCommand` | tenantId, actorId, partnerId, expectedVersion, profile fields, confirmDuplicate | `UpdatePartnerProfileResult` | Validation, ConcurrencyConflict, DuplicateNotConfirmed |
-| `CheckDuplicatePartnersForUpdateQuery` | tenantId, phone?, email?, taxCode?, excludePartnerId | `List<PartnerDuplicateMatchDto>` | PermissionDenied |
-| `GetPartnerDetailQuery` | (load for edit) | `PartnerDetailDto?` | — |
-
-Package: `vet45_partner_application` — `update_partner_profile/`, `check_duplicate/`.
-
-### RPC mapping (BE)
-
-| Use case | RPC |
-| -------- | --- |
-| Update | `partner.update_partner` |
-| Dup check (update) | `partner.check_duplicate` |
-
-### Fake scenarios (FE)
-
-| scenario_id | trigger | fake response |
-| ----------- | ------- | ------------- |
-| `update_save_ok` | UpdatePartnerProfileCommand valid | `UpdatePartnerProfileResult` |
-| `update_dup_warning` | CheckDuplicatePartnersForUpdateQuery | non-empty matches |
-| `update_concurrency` | stale expectedVersion | ConcurrencyConflict |
-
-### Parallel notes
-
-- FE có thể fake: **yes**
-- E2E prerequisite: US-02 (partner id)
+RPC: `partner.update_partner`
 
 ---
 
-## Epic-02 / US-01 — Dừng sử dụng / kích hoạt lại
+## §S5 — EP-01/US-05 — Quản lý người liên hệ
 
-> CONTRACT implemented — Epic-02/US-01 pilot for contract-first parallel lanes.
+| Symbol | Input | Success | Errors |
+| ------ | ----- | ------- | ------ |
+| `AddOrganizationContactCommand` | organizationPartnerId, personPartnerId \| newPersonProfile, contactRole?, isPrimary | `AddOrganizationContactResult` | VALIDATION_ERROR, NO_PERMISSION |
+| `UpdateOrganizationContactCommand` | organizationPartnerId, personPartnerId, contactRole?, isPrimary | void / result | VALIDATION_ERROR |
+| `RemoveOrganizationContactCommand` | organizationPartnerId, personPartnerId | void | NOT_FOUND |
 
-### Commands / Queries
-
-| Symbol | Input (summary) | Success | Errors |
-| ------ | --------------- | ------- | ------ |
-| `DeactivatePartnerCommand` | tenantId, actorId, partnerId, expectedVersion, currentStatus, statusNote? | `DeactivatePartnerResult` | Validation, NotFound, InvalidStatus, PermissionDenied |
-| `ReactivatePartnerCommand` | tenantId, actorId, partnerId, expectedVersion, currentStatus | `ReactivatePartnerResult` | Validation, NotFound, InvalidStatus, PermissionDenied |
-| `GetPartnerDetailQuery` | (reload after mutation) | `PartnerDetailDto?` | — |
-
-Package: `vet45_partner_application` — `deactivate_partner/`, `reactivate_partner/`.
-
-### RPC mapping (BE)
-
-| Use case | RPC |
-| -------- | --- |
-| Deactivate | `partner.deactivate_partner` |
-| Reactivate | `partner.reactivate_partner` |
-
-### Fake scenarios (FE)
-
-| scenario_id | trigger | fake response |
-| ----------- | ------- | ------------- |
-| `deactivate_ok` | DeactivatePartnerCommand | success, status→inactive |
-| `reactivate_ok` | ReactivatePartnerCommand | success, status→active |
-| `deactivate_already_inactive` | DeactivatePartnerCommand | InvalidStatus |
-| `reactivate_already_active` | ReactivatePartnerCommand | InvalidStatus |
-| `status_permission_denied` | either command | PermissionDenied |
-| `status_network_error` | either command | throws |
-
-### Parallel notes
-
-- FE có thể fake: **yes** (sau CONTRACT)
-- E2E prerequisite: US-04 (partner detail context)
+RPC: `partner.add_organization_contact`, `partner.update_organization_contact`, `partner.remove_organization_contact`
 
 ---
 
-## Epic-02 / US-02 — Loại bỏ hồ sơ tạo nhầm
+## §S6 — EP-01/US-06 — Transform Person→Organization
 
-### Commands / Queries
+| Symbol | Input | Success | Errors |
+| ------ | ----- | ------- | ------ |
+| `TransformPersonToOrganizationCommand` | partnerId, organizationProfile, expectedVersion | `TransformPartnerResult` (same partnerId) | INVALID_STATUS (not person), VALIDATION_ERROR, STATE_CHANGED |
 
-| Symbol | Input (summary) | Success | Errors |
-| ------ | --------------- | ------- | ------ |
-| `DeletePartnerCommand` | tenantId, actorId, partnerId, expectedVersion, hasBusinessData | `DeletePartnerResult` | Validation, NotFound, HasBusinessData, PermissionDenied |
-
-Package: `vet45_partner_application` — `delete_partner/`.
-
-### RPC mapping (BE)
-
-| Use case | RPC |
-| -------- | --- |
-| Soft delete | `partner.delete_partner` |
-
-### Fake scenarios (FE)
-
-| scenario_id | trigger | fake response |
-| ----------- | ------- | ------------- |
-| `delete_ok` | DeletePartnerCommand | success |
-| `delete_has_business_data` | DeletePartnerCommand or detail `hasBusinessData=true` | HasBusinessData error |
-
-### Parallel notes
-
-- FE có thể fake: **yes**
-- E2E prerequisite: US-04
+RPC: `partner.transform_to_organization`
 
 ---
 
-## Epic-03 / US-01 — Lịch sử giao dịch
+## §S7 — EP-02/US-01 — Ngừng hoạt động / kích hoạt lại
 
-> CONTRACT implemented — read path qua `GetPartnerTransactionHistoryQuery`; projection write qua application consumer handlers + `CommandBus` pipeline.
+| Symbol | Input | Success | Errors |
+| ------ | ----- | ------- | ------ |
+| `DeactivatePartnerCommand` | partnerId, reason?, expectedVersion | `DeactivatePartnerResult` | INVALID_STATUS, NO_PERMISSION |
+| `ReactivatePartnerCommand` | partnerId, reason?, expectedVersion | `ReactivatePartnerResult` | INVALID_STATUS |
 
-### Commands / Queries (FE-facing)
+RPC: `partner.deactivate_partner`, `partner.reactivate_partner`
 
-| Symbol | Input (summary) | Success | Errors |
-| ------ | --------------- | ------- | ------ |
-| `GetPartnerTransactionHistoryQuery` | tenantId, partnerId, `PartnerTransactionHistoryCriteria`, limit (default 100), offset (default 0) | `PartnerTransactionHistoryResultDto` (items, totalCount) | PermissionDenied (`partner.view_transaction_history`), partner not found / tenant mismatch (handler/gateway) |
+---
 
-**`PartnerTransactionHistoryCriteria`** (domain, passed on query):
+## §S8 — EP-02/US-02 — Xóa mềm
 
-| Field | Type | Notes |
-| ----- | ---- | ----- |
-| `keyword` | `String?` | Mã giao dịch / ghi chú; trimmed |
-| `transactionTypes` | `Set<String>?` | Loại giao dịch (sales, purchase, invoice, …) |
-| `transactionRole` | `PartnerRole?` | `customer` / `supplier` |
-| `from` / `to` | `DateTime?` | Khoảng thời gian; `from` ≤ `to` |
+| Symbol | Input | Success | Errors |
+| ------ | ----- | ------- | ------ |
+| `CheckDeleteEligibilityQuery` | partnerId | `DeleteEligibilityDto` (eligible, reason?) | NOT_FOUND |
+| `SoftDeletePartnerCommand` | partnerId, reason?, expectedVersion | `SoftDeletePartnerResult` | HAS_TRANSACTIONS, INVALID_STATUS |
 
-**`PartnerTransactionHistoryItemDto`** (summary): id, partnerId, transactionRole, transactionType, occurredAt, transactionCode?, amount?, status?, description?, `sourceNavigation` (`PartnerTransactionSourceNavigationDto`).
+RPC: `partner.check_delete_eligibility`, `partner.soft_delete_partner`
 
-Package: `vet45_partner_application` — `transaction_history/get_partner_transaction_history/`.
+---
 
-Permission: `PartnerPermissions.viewTransactionHistory` (`partner.view_transaction_history`).
+## §S9 — EP-01/US-07 — Lịch sử làm việc
 
-### Internal command (BE / messaging — không gọi từ FE)
+| Symbol | Input | Success | Errors |
+| ------ | ----- | ------- | ------ |
+| `GetPartnerHistoryQuery` | partnerId, role?, transactionType?, dateFrom?, dateTo?, page | `PartnerHistoryResultDto` | NO_PERMISSION |
+| `RecordPartnerHistoryCommand` | internal — projection upsert | void | — |
 
-| Symbol | Input (summary) | Success | Notes |
-| ------ | --------------- | ------- | ----- |
-| `RecordPartnerTransactionHistoryCommand` | tenantId, businessPartnerId, transactionRole, sourceModule, sourceType, sourceId, transactionDate, optional sourceCode/amount/status/description | `void` | Internal command (`InternalCommandBase`); idempotent upsert vào projection; chạy qua `CommandBus` internal pipeline |
-
-Package: `vet45_partner_application` — `transaction_history/record_transaction_history/`.
-
-Consumer handlers (application layer) lắng nghe integration events (sales/inventory/accounting) và map → `RecordPartnerTransactionHistoryCommand`, thực thi qua `CommandBus`:
-`application/lib/src/integration_events/*_integration_event_handler.dart` (implement `IIntegrationEventNotificationHandler`, wiring qua codegen `createGeneratedPartnerIntegrationEventDispatcher`). Inbox/internal-command drain qua `ProcessInboxCommand` / `ProcessInternalCommandsCommand` (`IRecurringCommand`) trong infrastructure; contract RPC schema `partner` giữ claim-token.
-
-### RPC mapping (BE)
-
-| Use case | RPC / view |
-| -------- | ---------- |
-| List + filter | `partner.get_partner_transaction_history` |
-| Read projection | `partner.v_partner_transaction_history` |
-| Upsert projection | `partner.upsert_transaction_history` |
-
-Migrations: `20260701000002_partner_transaction_history_read.sql`, `20260701000003_partner_transaction_history_upsert.sql`.
-
-### Fake scenarios (FE)
+RPC: `partner.get_partner_history`, `partner.upsert_partner_history` (internal)
 
 | scenario_id | trigger | fake response |
 | ----------- | ------- | ------------- |
-| `history_empty` | `GetPartnerTransactionHistoryQuery` | `PartnerTransactionHistoryResultDto(items: [], totalCount: 0)` |
-| `history_items` | `GetPartnerTransactionHistoryQuery` | non-empty `PartnerTransactionHistoryItemDto` list (sales/purchase mix) |
-| `history_filtered` | query với `criteria.transactionTypes` / `from`–`to` | subset matching criteria |
-| `history_permission_denied` | query | PermissionDenied |
-| `history_error` | query | throws (network / gateway error) |
+| `history_empty` | GetPartnerHistoryQuery | empty list |
+| `history_mixed` | default | sales + inventory rows |
+| `history_no_source_permission` | can_open_source=false | items without deep link |
 
-Presentation bloc test: `modules/partner/presentation/test/bloc/partner_transaction_history_test.dart` (inline `_FakePartnerModule`).
+---
 
-### Parallel notes
+## Parallel notes
 
-- FE có thể fake: **yes** (sau CONTRACT)
-- E2E prerequisite: US-04 (partner detail tab) + **cross-module publish** (sales/inventory/accounting → inbox → projection). Lane E2E `blocked` cho đến khi source modules publish events; **không** block FE unit/widget test hay BE handler tests.
+- FE có thể fake sau CONTRACT lane — không cần RPC/DB
+- E2E prerequisite: xem [04-slice-roadmap.md](04-slice-roadmap.md)
+- S9 E2E **blocked** until cross-module events ship

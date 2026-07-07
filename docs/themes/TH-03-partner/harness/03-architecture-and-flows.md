@@ -2,57 +2,88 @@
 
 Tuân theo [05-layered-module-structure.md](../../../architecture/05-layered-module-structure.md) và [02-architecture-style.md](../../../architecture/02-architecture-style.md) (CQRS, RPC-first).
 
-## Luồng ghi nhận đối tác (Epic-01/US-02)
+**Reboot 2026-07-07:** Code partner cũ đã gỡ. Flows dưới đây là **target** cho rebuild — mirror golden [modules/iam/](../../../../modules/iam/README.md).
+
+## Luồng tạo Partner (EP-01/US-02, CMD-03)
 
 ```mermaid
 sequenceDiagram
   participant UI as ERP_Presentation
   participant Med as IPartnerModule
   participant Pipe as CommandPipeline
-  participant H as RegisterPartnerHandler
+  participant H as CreatePartnerHandler
   participant GW as PartnerCommandGateway
-  participant RPC as partner_register_partner
+  participant RPC as partner_create_partner
   participant OB as partner_outbox
 
-  UI->>Med: RegisterPartnerCommand
+  UI->>Med: CreatePartnerCommand
   Med->>Pipe: execute
   Pipe->>Pipe: auth + validator
   Pipe->>H: handle
-  H->>GW: register
+  H->>GW: create
   GW->>RPC: RPC
-  RPC->>OB: partner.partner.registered
+  RPC->>OB: partner.partner.created
   RPC-->>H: partnerId
-  H-->>UI: PartnerId
+  H-->>UI: CreatePartnerResult
 ```
 
-## Luồng tra cứu (Epic-01/US-01, US-04)
+**Person vs Organization:** command payload chứa `partnerType` + `personProfile` hoặc `organizationProfile` + `roles[]`.
+
+## Luồng tra cứu (EP-01/US-01, US-04)
 
 ```text
 UI → IPartnerModule.executeQueryAsync(SearchPartnersQuery | GetPartnerDetailQuery)
   → QueryBus → Handler
   → IPartnerReadGateway → partner.v_* views
-  → DTO
+  → DTO (+ available_actions cho detail)
 ```
 
-## Dup-check (Epic-01/US-02 FR-5)
+## Dup-check (EP-01/US-02, US-03)
 
 ```text
-1. Optional pre-check: partner.check_duplicate (read, tenant-scoped)
-2. UI cảnh báo, user confirm
-3. RegisterPartnerCommand kèm confirmDuplicate=true
+1. Pre-check: partner.check_duplicate (read, tenant-scoped)
+2. UI cảnh báo DUPLICATE_WARNING, user confirm
+3. CreatePartnerCommand / UpdatePartnerProfileCommand kèm confirmDuplicate=true
 4. RPC validate tenant-scoped (defense in depth)
 ```
 
-## Điểm commit
+## Transform Person → Organization (EP-01/US-06, CMD-08)
+
+```text
+1. UI xác nhận transform (permission partner.transform)
+2. TransformPersonToOrganizationCommand(partnerId, organizationProfile, ...)
+3. RPC: đổi partner_type, tạo organization_profile, giữ partner_id/roles/status
+4. Person profile cũ → OrganizationContact is_primary=true
+5. Action log action_type=transform
+```
+
+## Organization contacts (EP-01/US-05, CMD-05..07)
+
+```text
+Add: tạo Person Partner mới HOẶC link Person có sẵn → OrganizationContact
+Update: contact_role, is_primary (enforce max 1 primary)
+Remove: xóa OrganizationContact row; Person Partner vẫn tồn tại
+```
+
+## Điểm commit (RPC target — draft SQL)
 
 | Bước | RPC |
 | ---- | --- |
-| Ghi nhận mới | `partner.register_partner` |
+| Tạo mới | `partner.create_partner` |
 | Cập nhật | `partner.update_partner` |
-| Đổi trạng thái | `partner.deactivate_partner` / `partner.reactivate_partner` |
-| Xóa mềm | `partner.delete_partner` |
+| Add contact | `partner.add_organization_contact` |
+| Update contact | `partner.update_organization_contact` |
+| Remove contact | `partner.remove_organization_contact` |
+| Transform | `partner.transform_to_organization` |
+| Ngừng / kích hoạt | `partner.deactivate_partner` / `partner.reactivate_partner` |
+| Xóa mềm | `partner.soft_delete_partner` |
+| Eligibility | `partner.check_delete_eligibility` |
+| Dup check | `partner.check_duplicate` |
+| Search / detail / history | `partner.search_partners` / `partner.get_partner_detail` / `partner.get_partner_history` |
 
-## Epic-03 — Read model lịch sử (inbox projection)
+Draft SQL: `supabase/migrations/_drafts/partner_v2_*.sql` — tạo khi slice BE bắt đầu.
+
+## EP-01/US-07 — Read model lịch sử (inbox projection)
 
 ```mermaid
 sequenceDiagram
@@ -60,19 +91,21 @@ sequenceDiagram
   participant OB as sales_outbox
   participant W as messaging_worker
   participant IB as partner_inbox
-  participant Proj as TransactionHistoryHandler
-  participant RM as partner_transaction_history
+  participant Proj as HistoryConsumerHandler
+  participant RM as partner_history_views
 
   Sales->>OB: sales.order.checked_out
   W->>OB: claim
   W->>IB: receive
   W->>Proj: dispatch
-  Proj->>RM: INSERT projection row
+  Proj->>RM: upsert projection row
 ```
 
 **Không** query-time fan-out sang `sales.orders` từ partner module.
 
-`TransactionHistoryHandler` = consumer handler ở **application layer** (`IIntegrationEventNotificationHandler`, `application/lib/src/integration_events/`). Nó map integration event → `RecordPartnerTransactionHistoryCommand` và **enqueue** qua `ICommandScheduler` (không execute trực tiếp). Worker drain `partner_inbox` rồi `partner.internal_commands` bằng `ProcessInboxCommand` / `ProcessInternalCommandsCommand` (`IRecurringCommand`) — claim → `CommandsExecutor` → `CommandBus` pipeline. Contract RPC schema `partner` giữ claim-token; wiring dispatcher do codegen (`cqrs_integration_event_registry`).
+Consumer handler ở **application layer** (`IIntegrationEventNotificationHandler`) → map event → `RecordPartnerHistoryCommand` → enqueue qua `ICommandScheduler`. Worker drain inbox + internal_commands.
+
+**E2E blocked** cho đến khi sales/inventory/accounting publish events end-to-end.
 
 ## Read vs write
 
@@ -80,7 +113,8 @@ sequenceDiagram
 | - | ------ |
 | Writes | Command → Gateway → RPC (+ outbox same txn) |
 | Reads | Query → Read gateway → `partner.v_*` views |
-| History | Query → `partner.v_partner_transaction_history` |
+| History | Query → `partner.v_partner_history` |
+| Action log | Append trong RPC mutation txn |
 
 ## Liên kết
 

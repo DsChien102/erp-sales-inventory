@@ -1,6 +1,5 @@
 import 'package:supabase/supabase.dart';
 import 'package:vet45_adapters/vet45_adapters.dart';
-import 'package:vet45_partner_infrastructure/infrastructure.dart';
 import 'package:vet45_shared_infrastructure/infrastructure.dart';
 
 import 'config/worker_env.dart';
@@ -40,14 +39,8 @@ final class MessagingWorkerBootstrap {
           serviceRoleKey: resolvedConfig.supabaseServiceRoleKey,
         );
     final sharedBus = integrationEventBus ?? InMemoryEventBusClient();
-    final resolvedLoggerFactory = loggerFactory ?? const NullLoggerFactory();
 
-    final partnerModule = PartnerMessagingModule.create(
-      supabase: client,
-      loggerFactory: resolvedLoggerFactory,
-    );
-
-    final registry = MessagingModuleRegistry([partnerModule]);
+    final registry = MessagingModuleRegistry(const []);
 
     return MessagingWorkerContext(
       supabaseClient: client,

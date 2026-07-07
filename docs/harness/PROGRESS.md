@@ -51,10 +51,9 @@ Checklist tiến độ Harness Engineering. Agent đọc file này ở đầu se
 
 ## Phase 2.1 — Partner codegen (TH-03)
 
-- [x] Partner codegen enabled — 4 builders, `registerGeneratedPartnerHandlers`, `PartnerCommandPipeline`, `partner_access_metadata.g.dart`
-- [x] `@ModuleManifest` — `PartnerModuleDefinition` + `PartnerPermissions` constants
-- [x] Hand-maintained wiring removed — `data_access` gateways only; mediation via `.g.dart`
-- [x] [modules/partner/README.md](../../modules/partner/README.md) — codegen ritual + handler checklist
+- [x] Partner codegen enabled (2026-07-02) — 4 builders, generated handlers, `PartnerModuleDefinition`
+- [x] Partner messaging worker wired (2026-07-02)
+- [ ] **Reboot 2026-07-07** — gỡ code partner cũ + migrations schema v1; harness v2 (Partner/Person/Organization); rebuild greenfield từ `modules/iam/` theo slice S1..S9
 
 ## Flywheel log
 
@@ -74,3 +73,4 @@ Ghi các cải tiến harness sau khi agent fail (ngày + mô tả ngắn):
 | 2026-07-02 | Partner codegen — hand-wired mediation/access → generated registrars; TH-03 harness + README updated |
 | 2026-07-02 | Partner messaging worker wired — `PartnerMessagingModule` in `messaging_worker` bootstrap |
 | 2026-07-02 | Partner messaging realigned to standard flow — consumer handlers moved to application layer (`IIntegrationEventNotificationHandler` + codegen dispatcher); inbox/internal-command processed via `CommandBus`/`IRecurringCommand`; removed hand-rolled processors/ingestor; RPC claim-token contract kept |
+| 2026-07-07 | TH-03 partner reboot — product spec v2 (Person/Organization) lệch code cũ; gỡ `modules/partner/`, ERP partner UI, migrations v1; viết lại harness 00-07; slice S1..S9 reset todo |

@@ -14,7 +14,3 @@ workspace:
   - packages/vet45_shared/domain
   - packages/vet45_shared/infrastructure
   - packages/vet45_shared/testing
-  - modules/partner/domain
-  - modules/partner/application
-  - modules/partner/infrastructure
-  - modules/partner/integration_events

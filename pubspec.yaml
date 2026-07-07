@@ -27,11 +27,6 @@ workspace:
   - modules/sales/infrastructure
   - modules/sales/integration_events
   - modules/sales/presentation
-  - modules/partner/domain
-  - modules/partner/application
-  - modules/partner/infrastructure
-  - modules/partner/integration_events
-  - modules/partner/presentation
   - modules/iam/domain
   - modules/iam/application
   - modules/iam/infrastructure
@@ -211,15 +206,6 @@ melos:
         ignore:
           - erp
           - messaging_worker
-          - vet45_partner_presentation
-      isPrivate: true
-
-    test:flutter:
-      exec: flutter test
-      packageFilters:
-        dirExists: test
-        scope:
-          - vet45_partner_presentation
       isPrivate: true
 
     worker:once:
