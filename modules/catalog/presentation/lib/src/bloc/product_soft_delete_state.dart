@@ -1,7 +1,16 @@
 import 'package:equatable/equatable.dart';
 import 'package:vet45_catalog_application/application.dart';
 
-enum ProductSoftDeleteStatus { initial, checkingEligibility, eligibilityChecked, deleting, success, error }
+enum ProductSoftDeleteStatus {
+  initial,
+  checkingEligibility,
+  eligibilityChecked,
+  deleting,
+  restoring,
+  success,
+  restored,
+  error,
+}
 
 class ProductSoftDeleteState extends Equatable {
   const ProductSoftDeleteState({

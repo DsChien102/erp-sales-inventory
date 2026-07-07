@@ -934,7 +934,7 @@ Tests: `scn_contract_e07_u01_*` in `fake_catalog_module_test.dart` (group `EPIC-
 
 ## EPIC-07 / US-02 — Ngừng KD / KD lại (slice #13)
 
-**Status:** CONTRACT `done` · BE `todo` · FE `todo` · E2E `todo`
+**Status:** CONTRACT `done` · BE `done` · FE `done` · E2E `done`
 
 ### Commands
 
@@ -1060,7 +1060,7 @@ No SQL draft is created in CONTRACT lane.
 | `scn_contract_e07_u03_fr03_03` | restore duplicate barcode | `DuplicateBarcodeException` |
 | `scn_contract_e07_u03_fr04_01` | PCC after delete | preserved units, stock, base price, price band, history |
 
-Tests: `scn_contract_e07_u03_*` in `fake_catalog_module_test.dart` (group `EPIC-07 / US-03 product soft delete contract`).
+Tests: `scn_contract_e07_u03_*` in `fake_catalog_module_test.dart` (group `EPIC-07 / US-03 product soft delete contract`); E2E coverage in `apps/erp/test/features/catalog/presentation/pages/product_soft_delete_e2e_test.dart`.
 
 ### Parallel notes
 

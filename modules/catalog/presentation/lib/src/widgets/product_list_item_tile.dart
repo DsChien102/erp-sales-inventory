@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:vet45_catalog_application/application.dart';
-import 'package:vet45_catalog_domain/domain.dart';
 import 'package:vet45_catalog_presentation/presentation.dart';
 import 'package:vet45_design_system/design_system.dart';
 
@@ -17,7 +16,6 @@ class ProductListItemTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final dynamicColors = context.vColors;
-    final typography = VTypography.bodyDefault;
 
     return InkWell(
       onTap: onTap,
@@ -37,14 +35,29 @@ class ProductListItemTile extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    '${item.name}${item.sku != null ? ' — ${item.sku}' : ''}',
-                    style: VTypography.bodyDefault.copyWith(
-                      color: dynamicColors.textPrimary,
-                      fontWeight: FontWeight.w600,
-                    ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: Text(
+                          '${item.name}${item.sku != null ? ' — ${item.sku}' : ''}',
+                          style: VTypography.bodyDefault.copyWith(
+                            color: dynamicColors.textPrimary,
+                            fontWeight: FontWeight.w600,
+                          ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      if (item.isSoftDeleted) ...[
+                        const SizedBox(width: 8),
+                        const VBadge(
+                          label: 'Đã xóa',
+                          status: VBadgeStatus.locked,
+                          isSmall: true,
+                        ),
+                      ],
+                    ],
                   ),
                   if (item.tradeName != null && item.tradeName!.isNotEmpty) ...[
                     const SizedBox(height: 2),
