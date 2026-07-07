@@ -932,6 +932,72 @@ Tests: `scn_contract_e07_u01_*` in `fake_catalog_module_test.dart` (group `EPIC-
 
 ---
 
+## EPIC-07 / US-02 — Ngừng KD / KD lại (slice #13)
+
+**Status:** CONTRACT `done` · BE `todo` · FE `todo` · E2E `todo`
+
+### Commands
+
+| Symbol | Input (summary) | Success | Errors |
+| ------ | --------------- | ------- | ------ |
+| `DeactivateProductCommand` | tenantId, actorId, productId, reason?, expectedVersion?, confirmAcknowledgeWarnings | `ChangeProductBusinessStatusResult` (`currentStatus=inactive`) | PermissionDenied, NotFound, Validation, `StaleProductVersionException`, `ProductBusinessStatusWarningsRequireAcknowledgmentException` |
+| `ReactivateProductCommand` | tenantId, actorId, productId, reason?, expectedVersion? | `ChangeProductBusinessStatusResult` (`currentStatus=active`, readinessSummary refreshed) | PermissionDenied, NotFound, Validation, `StaleProductVersionException` |
+
+Package: `vet45_catalog_application` — `lifecycle/`.
+
+Supporting types:
+
+| Type | Fields |
+| ---- | ------ |
+| `ChangeProductBusinessStatusResult` | productId, previousStatus, currentStatus, readinessSummary, version, reason?, warnings[], historyEntry? |
+| `ProductBusinessStatusWarningDto` | code, message |
+| `ProductBusinessStatusWarningCode` | `has_stock`, `open_transaction`, `active_promotion` |
+| `ProductBusinessStatusWarningsRequireAcknowledgmentException` | warnings[] |
+
+Permissions: `@RequiresPermission(CatalogPermissions.manageStatus)` + `@RequiresTenant()`.
+
+### Contract rules
+
+- Business status uses existing `ProductStatus.active` / `ProductStatus.inactive`; soft delete remains separate (`isSoftDeleted`).
+- Deactivate preserves profile, UOM, stock, pricing, custom fields, readiness, and history; it only changes business status and records history.
+- Deactivate may return warnings that require explicit acknowledgment. CONTRACT fake covers `has_stock`; open transactions and promotions are documented for BE/FE but require downstream module contracts.
+- Reactivation is allowed even when readiness blockers remain. Result returns refreshed `readinessSummary`; UI must show blockers instead of claiming ready-to-sell.
+- Soft-deleted products cannot be deactivated/reactivated in this slice. Restore belongs to EPIC-07/US-03.
+- Default product selection/search for new transactions excludes inactive products by using `ProductSearchCriteria.businessStatuses` default `{active}`. Admin/history views may opt into inactive with explicit criteria.
+- Sales/Promotions enforcement is downstream behavior. Catalog does not create sales-order or promotion guards in this CONTRACT lane.
+
+### RPC mapping (BE — later lane)
+
+| Use case | RPC | Notes |
+| -------- | --- | ----- |
+| Deactivate product | `catalog.deactivate_product` | Status update, warning checks, version check, change history, readiness refresh |
+| Reactivate product | `catalog.reactivate_product` | Status update, soft-delete guard, version check, change history, readiness refresh |
+
+No SQL draft is created in CONTRACT lane.
+
+### Fake scenarios (FE)
+
+| scenario_id | trigger | fake response |
+| ----------- | ------- | ------------- |
+| `scn_contract_e07_u02_fr01_01` | deactivate active `product-4` | status `inactive`, version increment, PCC status updates |
+| `scn_contract_e07_u02_fr01_02` | deactivate stocked `product-1` without confirm | `ProductBusinessStatusWarningsRequireAcknowledgmentException` (`has_stock`); succeeds with confirm |
+| `scn_contract_e07_u02_fr01_03` | missing manage-status permission | `ApplicationException('Permission denied')` |
+| `scn_contract_e07_u02_fr01_04` | deactivate already inactive product | `ValidationException` |
+| `scn_contract_e07_u02_fr02_01` | reactivate inactive ready product | status `active`, readiness `readyToSell` |
+| `scn_contract_e07_u02_fr02_02` | reactivate inactive incomplete product | status `active`, readiness remains incomplete with blockers |
+| `scn_contract_e07_u02_fr02_03` | reactivate soft-deleted product | `ApplicationException` lock |
+| `scn_contract_e07_u02_fr03_01` | search inactive product | default search excludes; explicit active+inactive returns inactive row |
+| `scn_contract_e07_u02_fr04_01` | status change with reason | result includes historyEntry before/after status + actor/time summary |
+
+Tests: `scn_contract_e07_u02_*` in `fake_catalog_module_test.dart` (group `EPIC-07 / US-02 product business status contract`).
+
+### Parallel notes
+
+- FE có thể fake: **yes**
+- E2E prerequisite: US-01 (data)
+
+---
+
 ## EPIC-03 / US-01 — Cấu hình nhóm & trường (slice #16)
 
 ### Commands / Queries
@@ -983,7 +1049,8 @@ Tests: `scn_contract_e07_u01_*` in `fake_catalog_module_test.dart` (group `EPIC-
 | EPIC-06 US-03 | Product Unit Price Band | done |
 | EPIC-06 US-04 | ProductPriceBandSnapshot consumers | todo |
 | EPIC-07 US-01 | Product profile maintenance | done |
-| EPIC-07 US-02..04 | Lifecycle status, soft delete, change history | todo |
+| EPIC-07 US-02 | Lifecycle business status | done |
+| EPIC-07 US-03..04 | Soft delete, change history | todo |
 | EPIC-03 US-02 | UpsertCustomFieldValuesCommand | todo |
 | EPIC-03 US-03 | Search/filter/display on list | todo |
 | EPIC-04 US-03 | Change base unit | **out_of_scope** |

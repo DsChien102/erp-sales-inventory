@@ -30,6 +30,10 @@ final catalogAccessMetadataRegistry = AccessMetadataRegistry({
     permission: 'catalog.product.create',
     requiresTenant: true,
   ),
+  DeactivateProductCommand: AccessMetadata(
+    permission: 'catalog.product.manage_status',
+    requiresTenant: true,
+  ),
   DeactivateProductConversionUnitCommand: AccessMetadata(
     permission: 'catalog.product.manage_units',
     requiresTenant: true,
@@ -60,6 +64,10 @@ final catalogAccessMetadataRegistry = AccessMetadataRegistry({
   ),
   ListTenantMeasurementUnitsQuery: AccessMetadata(
     permission: 'catalog.product.manage_units',
+    requiresTenant: true,
+  ),
+  ReactivateProductCommand: AccessMetadata(
+    permission: 'catalog.product.manage_status',
     requiresTenant: true,
   ),
   ReactivateProductConversionUnitCommand: AccessMetadata(

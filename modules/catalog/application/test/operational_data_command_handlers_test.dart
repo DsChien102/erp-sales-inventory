@@ -67,6 +67,20 @@ class _RecordingProductCommandGateway implements IProductCommandGateway {
   ) async {
     throw UnimplementedError();
   }
+
+  @override
+  Future<ChangeProductBusinessStatusResult> deactivateProduct(
+    DeactivateProductCommand command,
+  ) async {
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<ChangeProductBusinessStatusResult> reactivateProduct(
+    ReactivateProductCommand command,
+  ) async {
+    throw UnimplementedError();
+  }
 }
 
 class _FakeProductReadinessReadPort implements IProductReadinessReadPort {

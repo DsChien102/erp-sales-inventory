@@ -139,4 +139,44 @@ final class SupabaseProductCommandGateway implements IProductCommandGateway {
       throw mapCatalogRpcError(error);
     }
   }
+
+  @override
+  Future<ChangeProductBusinessStatusResult> deactivateProduct(
+    DeactivateProductCommand command,
+  ) async {
+    try {
+      final rows = await _rpcClient.callList(
+        'deactivate_product',
+        params: ProductRpcMapper.deactivateProductParams(command),
+      );
+
+      if (rows.isEmpty) {
+        throw ApplicationException('Product deactivate did not return a result.');
+      }
+
+      return ProductRpcMapper.changeProductBusinessStatusResultFromRow(rows.first);
+    } on RpcException catch (error) {
+      throw mapCatalogRpcError(error);
+    }
+  }
+
+  @override
+  Future<ChangeProductBusinessStatusResult> reactivateProduct(
+    ReactivateProductCommand command,
+  ) async {
+    try {
+      final rows = await _rpcClient.callList(
+        'reactivate_product',
+        params: ProductRpcMapper.reactivateProductParams(command),
+      );
+
+      if (rows.isEmpty) {
+        throw ApplicationException('Product reactivate did not return a result.');
+      }
+
+      return ProductRpcMapper.changeProductBusinessStatusResultFromRow(rows.first);
+    } on RpcException catch (error) {
+      throw mapCatalogRpcError(error);
+    }
+  }
 }

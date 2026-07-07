@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:vet45_catalog_application/application.dart';
 import 'package:vet45_catalog_domain/domain.dart';
 import 'package:vet45_shared_application/application.dart';
@@ -75,6 +77,12 @@ Object mapCatalogRpcError(RpcException error) {
     );
   }
 
+  if (message.contains('product_business_status_warnings_require_acknowledgment')) {
+    return ProductBusinessStatusWarningsRequireAcknowledgmentException(
+      warnings: _extractBusinessStatusWarnings(error.message),
+    );
+  }
+
   if (message.contains('validation_exception')) {
     return ValidationException(_stripPrefix(error.message));
   }
@@ -112,4 +120,30 @@ String? _extractQuoted(String message) {
     int.tryParse(expected?.group(1) ?? '') ?? 0,
     int.tryParse(current?.group(1) ?? '') ?? 0,
   );
+}
+
+List<ProductBusinessStatusWarningDto> _extractBusinessStatusWarnings(
+  String message,
+) {
+  final jsonStart = message.indexOf('[');
+  if (jsonStart < 0) {
+    return const [];
+  }
+
+  try {
+    final decoded = jsonDecode(message.substring(jsonStart));
+    return (decoded as List<dynamic>)
+        .map((item) {
+          final map = Map<String, dynamic>.from(item as Map);
+          return ProductBusinessStatusWarningDto(
+            code: map['code'] as String,
+            message: map['message'] as String,
+          );
+        })
+        .toList(growable: false);
+  } on FormatException {
+    return const [];
+  } on TypeError {
+    return const [];
+  }
 }
