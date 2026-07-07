@@ -285,6 +285,15 @@ Early: `readinessSummary` trên PCC (không thay FR-04 checklist đầy đủ).
 | FR-04 | BE | §EPIC-06-US-03 | infrastructure | Change history in `set_product_unit_price_band` RPC | — | done |
 | FR-01..03 | FE | §EPIC-06-US-03 | presentation | `ProductPriceBandsPage`, `EditProductUnitPriceBandPage`, `PriceBandCalculationTypeSelector`, cubits | wgt_e06_u03_fr01_01 | done |
 | FR-01..03 | E2E | §EPIC-06-US-03 | erp | E2E test cho price bands `product_price_bands_e2e_test.dart` | e2e_e06_u03_fr01_01 | done |
+| US-04 | CONTRACT | §EPIC-06-US-04 | application | `GetProductPriceBandSnapshotQuery`, snapshot DTOs, `FakeCatalogModule`, `IProductPriceBandGateway` | scn_contract_e06_u04_* | done |
+| FR-01 | CONTRACT | §EPIC-06-US-04 | application | `listPrice` + `listPriceMissing` per product/unit | scn_contract_e06_u04_fr01_* | done |
+| FR-02 | CONTRACT | §EPIC-06-US-04 | application | `floorPrice` + `floorPriceMissing` + `floorPriceHidden` | scn_contract_e06_u04_fr02_* | done |
+| FR-03 | CONTRACT | §EPIC-06-US-04 | application | Consumer boundary — no promo/final price fields | — | done (doc) |
+| FR-04 | CONTRACT | §EPIC-06-US-04 | application | `capturedAt` on snapshot items for Sales copy | scn_contract_e06_u04_fr04_01 | done |
+| FR-01 | BE | §EPIC-06-US-04 | application + infrastructure | `GetProductPriceBandSnapshotQueryHandler`, `get_product_price_band_snapshot` RPC | scn_e06_u04_fr01_* | done |
+| FR-02 | BE | §EPIC-06-US-04 | application + infrastructure | Floor mask via `manage_pricing` in RPC | scn_e06_u04_fr02_* | done |
+| FR-04 | BE | §EPIC-06-US-04 | application | Handler sets `capturedAt` after gateway read | scn_e06_u04_fr04_01 | done |
+| US-04 | E2E | §EPIC-06-US-04 | erp | `product_price_band_snapshot_e2e_test.dart` via `ICatalogModule` | e2e_e06_u04_* | done |
 
 ---
 

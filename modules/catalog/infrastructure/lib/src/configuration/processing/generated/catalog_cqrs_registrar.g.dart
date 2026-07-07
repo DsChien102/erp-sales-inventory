@@ -541,11 +541,15 @@ void registerGeneratedCatalogQueries({
     invoke: (query, handler) => handler.handle(query),
   );
 
-  CatalogCommandRegistration.registerQueryHandler<
-    GetProductReadinessQuery,
-    ProductReadinessViewDto,
-    GetProductReadinessQueryHandler
-  >(
+  CatalogCommandRegistration.registerQueryHandler<GetProductPriceBandSnapshotQuery, ProductPriceBandSnapshotDto, GetProductPriceBandSnapshotQueryHandler>(
+    bus: bus,
+    factory: () => GetProductPriceBandSnapshotQueryHandler(
+      priceBandGateway: container.get<IProductPriceBandGateway>(),
+    ),
+    invoke: (query, handler) => handler.handle(query),
+  );
+
+  CatalogCommandRegistration.registerQueryHandler<GetProductReadinessQuery, ProductReadinessViewDto, GetProductReadinessQueryHandler>(
     bus: bus,
     factory: () => GetProductReadinessQueryHandler(
       readinessReadPort: container.get<IProductReadinessReadPort>(),

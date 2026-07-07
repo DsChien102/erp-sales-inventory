@@ -39,6 +39,14 @@ class _RecordingProductPriceBandGateway implements IProductPriceBandGateway {
   }
 
   @override
+  Future<ProductPriceBandSnapshotDto> getPriceBandSnapshot({
+    required String tenantId,
+    required List<ProductPriceBandSnapshotRequest> items,
+  }) async {
+    throw UnimplementedError();
+  }
+
+  @override
   Future<void> setProductUnitPriceBand({
     required String tenantId,
     required String productId,

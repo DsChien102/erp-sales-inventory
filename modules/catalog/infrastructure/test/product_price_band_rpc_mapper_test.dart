@@ -1,5 +1,6 @@
 import 'package:test/test.dart';
 import 'package:vet45_catalog_application/application.dart';
+import 'package:vet45_catalog_domain/domain.dart';
 import 'package:vet45_catalog_infrastructure/src/domain/pricing/product_price_band_rpc_mapper.dart';
 
 void main() {
@@ -62,6 +63,49 @@ void main() {
       expect(dto.rows.first.isMissing, isFalse);
       expect(dto.rows.last.isMissing, isTrue);
       expect(dto.rows.first.sourceType, PriceBandSourceType.manual);
+    });
+
+    test('maps snapshot params and json payload', () {
+      final params = ProductPriceBandRpcMapper.getPriceBandSnapshotParams(
+        tenantId: 'tenant-1',
+        items: const [
+          ProductPriceBandSnapshotRequest(
+            productId: 'product-1',
+            productUnitId: 'product-1-base',
+          ),
+        ],
+      );
+
+      expect(params['p_tenant_id'], 'tenant-1');
+      expect(params['p_items'], [
+        {
+          'product_id': 'product-1',
+          'product_unit_id': 'product-1-base',
+        },
+      ]);
+
+      final dto = ProductPriceBandRpcMapper.snapshotFromJson({
+        'items': [
+          {
+            'product_id': 'product-1',
+            'product_unit_id': 'product-1-base',
+            'unit_name': 'Hộp',
+            'currency': 'VND',
+            'list_price': 120000,
+            'list_price_missing': false,
+            'floor_price': 95000,
+            'floor_price_missing': false,
+            'floor_price_hidden': false,
+            'is_unit_active': true,
+            'product_business_status': 'active',
+          },
+        ],
+      });
+
+      expect(dto.items, hasLength(1));
+      expect(dto.items.single.listPrice, 120000);
+      expect(dto.items.single.floorPrice, 95000);
+      expect(dto.items.single.productBusinessStatus, ProductStatus.active);
     });
   });
 }
