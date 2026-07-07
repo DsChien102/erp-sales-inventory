@@ -123,4 +123,15 @@ abstract final class FakeCatalogScenario {
   static const cfFieldRequiredOn = 'cf_field_required_on';
   static const cfReorderFieldsOk = 'cf_reorder_fields_ok';
   static const cfPermissionDenied = 'cf_permission_denied';
+
+  static const scnContractE03U02Fr01_01 = 'scn_contract_e03_u02_fr01_01';
+  static const scnContractE03U02Fr02_01 = 'scn_contract_e03_u02_fr02_01';
+  static const scnContractE03U02Fr02_02 = 'scn_contract_e03_u02_fr02_02';
+  static const scnContractE03U02Fr03_01 = 'scn_contract_e03_u02_fr03_01';
+  static const scnContractE03U02Fr03_02 = 'scn_contract_e03_u02_fr03_02';
+  static const scnContractE03U02Fr04_01 = 'scn_contract_e03_u02_fr04_01';
+
+  static const e2eCfValuesOk = 'e2e_cf_values_ok';
+  static const e2eCfValuesSaveOk = 'e2e_cf_values_save_ok';
+  static const e2eCfValuesRequired = 'e2e_cf_values_required';
 }

@@ -50,6 +50,20 @@ void main() {
       expect(upload?.requiresTenant, isTrue);
     });
 
+    test('maps product custom field value query and command', () {
+      final query = catalogAccessMetadataRegistry.forType(
+        GetProductCustomFieldValuesQuery,
+      );
+      final command = catalogAccessMetadataRegistry.forType(
+        UpsertCustomFieldValuesCommand,
+      );
+
+      expect(query?.permission, CatalogPermissions.viewDetail);
+      expect(command?.permission, CatalogPermissions.update);
+      expect(query?.requiresTenant, isTrue);
+      expect(command?.requiresTenant, isTrue);
+    });
+
     test('maps set initial stock command to manage_stock', () {
       final metadata = catalogAccessMetadataRegistry.forType(
         SetInitialStockCommand,

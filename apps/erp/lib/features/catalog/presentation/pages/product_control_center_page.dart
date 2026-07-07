@@ -10,6 +10,8 @@ import 'package:vet45_catalog_presentation/presentation.dart';
 import 'product_readiness_checklist_page.dart';
 import 'product_measurement_units_page.dart';
 import 'product_manual_base_price_page.dart';
+import 'product_custom_field_group_edit_page.dart';
+import 'product_guided_create_page.dart';
 import 'product_price_bands_page.dart';
 import '../widgets/product_control_center_operational_section.dart';
 import '../widgets/product_control_center_profile_card.dart';
@@ -411,7 +413,20 @@ class _ProductControlCenterView extends StatelessWidget {
                           title: group.name,
                           icon: iconData,
                           subtitle: '$filledCount/${group.fields.length} trường đã điền',
-                          onEdit: () => _showEditPlaceholder(context),
+                          onEdit: () async {
+                            await context.push(
+                              '/products/items/pcc/custom-fields/edit',
+                              extra: ProductCustomFieldGroupEditRouteArgs(
+                                productId: product.id,
+                                productName: product.name,
+                                groupId: group.groupId,
+                              ),
+                            );
+                            if (!context.mounted) return;
+                            context.read<ProductControlCenterCubit>().loadControlCenter(
+                                  product.id,
+                                );
+                          },
                         );
                       }),
                       ProductControlCenterSectionCard(

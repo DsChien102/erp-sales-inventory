@@ -2,6 +2,7 @@ import 'package:erp/core/di/injection.dart';
 import 'package:erp/core/supabase/supabase_module.dart';
 import 'package:erp/features/catalog/presentation/pages/product_catalog_tab_page.dart';
 import 'package:erp/features/catalog/presentation/pages/product_control_center_page.dart';
+import 'package:erp/features/catalog/presentation/pages/product_custom_field_group_edit_page.dart';
 import 'package:erp/features/catalog/presentation/pages/product_guided_create_page.dart';
 import 'package:erp/features/catalog/presentation/pages/product_manual_base_price_page.dart';
 import 'package:erp/features/catalog/presentation/pages/product_measurement_units_page.dart';
@@ -225,6 +226,13 @@ Widget buildCatalogDiscoveryRouter() {
           return ProductImagesMaintenancePage(product: product);
         },
       ),
+      GoRoute(
+        path: '/products/items/pcc/custom-fields/edit',
+        builder: (context, state) {
+          final args = state.extra as ProductCustomFieldGroupEditRouteArgs;
+          return ProductCustomFieldGroupEditPage(args: args);
+        },
+      ),
     ],
   );
 
@@ -349,6 +357,13 @@ Future<void> tapEditPriceBand(WidgetTester tester) async {
   final priceBandCard = find.widgetWithText(ProductControlCenterSectionCard, 'Khung giá');
   await tester.ensureVisible(priceBandCard);
   await tester.tap(find.descendant(of: priceBandCard, matching: find.text('Sửa')));
+  await tester.pumpAndSettle();
+}
+
+Future<void> tapEditCustomFieldGroup(WidgetTester tester, String groupName) async {
+  final card = find.widgetWithText(ProductControlCenterSectionCard, groupName);
+  await tester.ensureVisible(card);
+  await tester.tap(find.descendant(of: card, matching: find.text('Sửa')));
   await tester.pumpAndSettle();
 }
 

@@ -82,6 +82,54 @@ abstract final class CustomFieldRpcMapper {
     return <String, dynamic>{'p_tenant_id': tenantId};
   }
 
+  static Map<String, dynamic> getProductCustomFieldValuesParams({
+    required String tenantId,
+    required String productId,
+    bool includeInactiveValues = false,
+  }) {
+    return <String, dynamic>{
+      'p_tenant_id': tenantId,
+      'p_product_id': productId,
+      'p_include_inactive_values': includeInactiveValues,
+    };
+  }
+
+  static Map<String, dynamic> upsertProductCustomFieldValuesParams({
+    required UpsertCustomFieldValuesCommand command,
+  }) {
+    return <String, dynamic>{
+      'p_tenant_id': command.tenantId,
+      'p_product_id': command.productId,
+      'p_values': command.values
+          .map(productCustomFieldValueInputToJson)
+          .toList(
+            growable: false,
+          ),
+    };
+  }
+
+  static Map<String, dynamic> productCustomFieldValueInputToJson(
+    ProductCustomFieldValueInput input,
+  ) {
+    final json = <String, dynamic>{'field_id': input.fieldId};
+    if (input.textValue != null) {
+      json['text_value'] = input.textValue;
+    }
+    if (input.numberValue != null) {
+      json['number_value'] = input.numberValue;
+    }
+    if (input.dateValue != null) {
+      json['date_value'] = _dateOnly(input.dateValue!);
+    }
+    if (input.booleanValue != null) {
+      json['boolean_value'] = input.booleanValue;
+    }
+    if (input.optionId != null) {
+      json['option_id'] = input.optionId;
+    }
+    return json;
+  }
+
   static InitializeCustomFieldTemplateResult initializeTemplateResult(
     Map<String, dynamic> row,
   ) {
@@ -102,8 +150,7 @@ abstract final class CustomFieldRpcMapper {
 
     return ConfigureCustomFieldAttributesResult(
       field: fieldFromJson(fieldRow),
-      existingProductsMissingCount:
-          (row['existing_products_missing_count'] as num?)?.toInt() ?? 0,
+      existingProductsMissingCount: (row['existing_products_missing_count'] as num?)?.toInt() ?? 0,
     );
   }
 
@@ -121,13 +168,166 @@ abstract final class CustomFieldRpcMapper {
     );
   }
 
-  static CustomFieldGroupConfigDto groupFromJson(Map<String, dynamic> row) {
+  static ProductCustomFieldValuesDto productCustomFieldValuesFromJson(
+    Map<String, dynamic> row,
+  ) {
+    final groupsRaw = row['groups'];
+    final groups = groupsRaw is List
+        ? groupsRaw
+              .whereType<Map<String, dynamic>>()
+              .map(productCustomFieldValueGroupFromJson)
+              .toList(growable: false)
+        : const <ProductCustomFieldValueGroupDto>[];
+
+    return ProductCustomFieldValuesDto(
+      productId: row['product_id'] as String,
+      groups: groups,
+    );
+  }
+
+  static UpsertCustomFieldValuesResult upsertProductCustomFieldValuesResultFromJson(
+    Map<String, dynamic> row,
+  ) {
+    final valuesRow = Map<String, dynamic>.from(row['values'] as Map);
+    final readinessRow = Map<String, dynamic>.from(
+      row['readiness_summary'] as Map,
+    );
+
+    return UpsertCustomFieldValuesResult(
+      productId: row['product_id'] as String,
+      values: productCustomFieldValuesFromJson(valuesRow),
+      readinessSummary: readinessSummaryFromJson(readinessRow),
+    );
+  }
+
+  static ProductCustomFieldValueGroupDto productCustomFieldValueGroupFromJson(
+    Map<String, dynamic> row,
+  ) {
     final fieldsRaw = row['fields'];
     final fields = fieldsRaw is List
         ? fieldsRaw
               .whereType<Map<String, dynamic>>()
-              .map(fieldFromJson)
+              .map(productCustomFieldValueFieldFromJson)
               .toList(growable: false)
+        : const <ProductCustomFieldValueFieldDto>[];
+
+    return ProductCustomFieldValueGroupDto(
+      groupId: row['group_id'] as String,
+      name: row['name'] as String,
+      iconKey: row['icon_key'] as String?,
+      sortOrder: (row['sort_order'] as num?)?.toInt() ?? 0,
+      fields: fields,
+    );
+  }
+
+  static ProductCustomFieldValueFieldDto productCustomFieldValueFieldFromJson(
+    Map<String, dynamic> row,
+  ) {
+    final optionsRaw = row['options'];
+    final options = optionsRaw is List
+        ? optionsRaw.whereType<Map<String, dynamic>>().map(optionFromJson).toList(growable: false)
+        : const <CustomFieldSelectOptionDto>[];
+
+    return ProductCustomFieldValueFieldDto(
+      fieldId: row['field_id'] as String,
+      groupId: row['group_id'] as String,
+      name: row['name'] as String,
+      fieldType: row['field_type'] as String,
+      options: options,
+      isRequired: row['is_required'] as bool? ?? false,
+      isMissing: row['is_missing'] as bool? ?? false,
+      sortOrder: (row['sort_order'] as num?)?.toInt() ?? 0,
+      displayValue: row['display_value'] as String?,
+      textValue: row['text_value'] as String?,
+      numberValue: _toDouble(row['number_value']),
+      dateValue: _toDate(row['date_value']),
+      booleanValue: row['boolean_value'] as bool?,
+      optionId: row['option_id'] as String?,
+    );
+  }
+
+  static CustomFieldGroupCardDto customFieldGroupCardFromJson(
+    Map<String, dynamic> row,
+  ) {
+    final fieldsRaw = row['fields'];
+    final fields = fieldsRaw is List
+        ? fieldsRaw
+              .whereType<Map<String, dynamic>>()
+              .map(customFieldCardFieldFromJson)
+              .toList(growable: false)
+        : const <CustomFieldCardFieldDto>[];
+
+    return CustomFieldGroupCardDto(
+      groupId: row['group_id'] as String,
+      name: row['name'] as String,
+      iconKey: row['icon_key'] as String?,
+      sortOrder: (row['sort_order'] as num?)?.toInt() ?? 0,
+      fields: fields,
+      hasRequiredMissing: row['has_required_missing'] as bool? ?? false,
+    );
+  }
+
+  static CustomFieldCardFieldDto customFieldCardFieldFromJson(
+    Map<String, dynamic> row,
+  ) {
+    return CustomFieldCardFieldDto(
+      fieldId: row['field_id'] as String,
+      name: row['name'] as String,
+      fieldType: row['field_type'] as String,
+      displayValue: row['display_value'] as String?,
+      isRequired: row['is_required'] as bool? ?? false,
+      isMissing: row['is_missing'] as bool? ?? false,
+      sortOrder: (row['sort_order'] as num?)?.toInt() ?? 0,
+    );
+  }
+
+  static ReadinessSummaryDto readinessSummaryFromJson(
+    Map<String, dynamic> row,
+  ) {
+    final blockersRaw = row['blockers'];
+    final blockers = blockersRaw is List
+        ? blockersRaw
+              .whereType<Map<String, dynamic>>()
+              .map(
+                (blocker) => ReadinessBlockerDto(
+                  code: blocker['code'] as String,
+                  message: blocker['message'] as String,
+                  group: blocker['group'] as String?,
+                ),
+              )
+              .toList(growable: false)
+        : const <ReadinessBlockerDto>[];
+
+    return ReadinessSummaryDto(
+      status: readinessStatusFromRpc(row['status'] as String?),
+      blockers: blockers,
+    );
+  }
+
+  static List<CustomFieldValueValidationErrorDto> validationErrorsFromJson(
+    Object? value,
+  ) {
+    if (value is! List) {
+      return const [];
+    }
+
+    return value
+        .whereType<Map<String, dynamic>>()
+        .map(
+          (error) => CustomFieldValueValidationErrorDto(
+            fieldId: error['field_id'] as String,
+            groupId: error['group_id'] as String?,
+            code: error['code'] as String? ?? 'invalid',
+            message: error['message'] as String,
+          ),
+        )
+        .toList(growable: false);
+  }
+
+  static CustomFieldGroupConfigDto groupFromJson(Map<String, dynamic> row) {
+    final fieldsRaw = row['fields'];
+    final fields = fieldsRaw is List
+        ? fieldsRaw.whereType<Map<String, dynamic>>().map(fieldFromJson).toList(growable: false)
         : const <CustomFieldDefinitionDto>[];
 
     return CustomFieldGroupConfigDto(
@@ -145,10 +345,7 @@ abstract final class CustomFieldRpcMapper {
   static CustomFieldDefinitionDto fieldFromJson(Map<String, dynamic> row) {
     final optionsRaw = row['options'];
     final options = optionsRaw is List
-        ? optionsRaw
-              .whereType<Map<String, dynamic>>()
-              .map(optionFromJson)
-              .toList(growable: false)
+        ? optionsRaw.whereType<Map<String, dynamic>>().map(optionFromJson).toList(growable: false)
         : const <CustomFieldSelectOptionDto>[];
 
     return CustomFieldDefinitionDto(
@@ -175,6 +372,13 @@ abstract final class CustomFieldRpcMapper {
     );
   }
 
+  static ReadinessStatus readinessStatusFromRpc(String? value) {
+    return switch (value) {
+      'readyToSell' || 'ready_to_sell' => ReadinessStatus.readyToSell,
+      _ => ReadinessStatus.incomplete,
+    };
+  }
+
   static CustomFieldType fieldTypeFromRpc(String? value) {
     return CustomFieldType.values.firstWhere(
       (type) => type.name == value,
@@ -187,5 +391,39 @@ abstract final class CustomFieldRpcMapper {
       (status) => status.name == value,
       orElse: () => CustomFieldConfigStatus.active,
     );
+  }
+
+  static String _dateOnly(DateTime dateTime) {
+    final utc = dateTime.toUtc();
+    final year = utc.year.toString().padLeft(4, '0');
+    final month = utc.month.toString().padLeft(2, '0');
+    final day = utc.day.toString().padLeft(2, '0');
+    return '$year-$month-$day';
+  }
+
+  static DateTime? _toDate(Object? value) {
+    if (value == null) {
+      return null;
+    }
+    final raw = value.toString();
+    final dateOnly = RegExp(r'^(\d{4})-(\d{2})-(\d{2})$').firstMatch(raw);
+    if (dateOnly != null) {
+      return DateTime.utc(
+        int.parse(dateOnly.group(1)!),
+        int.parse(dateOnly.group(2)!),
+        int.parse(dateOnly.group(3)!),
+      );
+    }
+    return DateTime.parse(raw).toUtc();
+  }
+
+  static double? _toDouble(Object? value) {
+    if (value == null) {
+      return null;
+    }
+    if (value is num) {
+      return value.toDouble();
+    }
+    return double.tryParse(value.toString());
   }
 }

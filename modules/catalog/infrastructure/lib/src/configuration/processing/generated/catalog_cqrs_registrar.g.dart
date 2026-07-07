@@ -89,6 +89,9 @@ void registerGeneratedCatalogValidators(GetIt container) {
     ..registerFactory<ICommandValidator<UpsertCustomFieldGroupCommand>>(
       UpsertCustomFieldGroupCommandValidator.new,
     )
+    ..registerFactory<ICommandValidator<UpsertCustomFieldValuesCommand>>(
+      UpsertCustomFieldValuesCommandValidator.new,
+    )
     ;
 }
 
@@ -344,6 +347,15 @@ void registerGeneratedCatalogHandlers({
     ),
   );
 
+  CatalogCommandRegistration.registerBusinessHandler<UpsertCustomFieldValuesCommand, UpsertCustomFieldValuesResult, UpsertCustomFieldValuesCommandHandler>(
+    container: container,
+    bus: bus,
+    logger: logger,
+    factory: () => UpsertCustomFieldValuesCommandHandler(
+      customFieldValueGateway: container.get<ICatalogCustomFieldValueGateway>(),
+    ),
+  );
+
 }
 
 void registerGeneratedCatalogQueries({
@@ -379,6 +391,14 @@ void registerGeneratedCatalogQueries({
     factory: () => GetProductControlCenterQueryHandler(
       readGateway: container.get<ICatalogReadGateway>(),
       permissionChecker: container.get<IPermissionChecker>(),
+    ),
+    invoke: (query, handler) => handler.handle(query),
+  );
+
+  CatalogCommandRegistration.registerQueryHandler<GetProductCustomFieldValuesQuery, ProductCustomFieldValuesDto, GetProductCustomFieldValuesQueryHandler>(
+    bus: bus,
+    factory: () => GetProductCustomFieldValuesQueryHandler(
+      customFieldValueGateway: container.get<ICatalogCustomFieldValueGateway>(),
     ),
     invoke: (query, handler) => handler.handle(query),
   );

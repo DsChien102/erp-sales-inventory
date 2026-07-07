@@ -119,6 +119,23 @@ Early: `readinessSummary` trên PCC (không thay FR-04 checklist đầy đủ).
 
 ---
 
+## EPIC-03 / US-02 — Giá trị thông tin bổ sung trên SP (slice #17)
+
+| Req ID | Role | Contract § | Enforce layer | Artifact | Test id | Status |
+| ------ | ---- | ---------- | ------------- | -------- | ------- | ------ |
+| US-02 | CONTRACT | §EPIC-03-US-02 | application | `GetProductCustomFieldValuesQuery`, `UpsertCustomFieldValuesCommand`, value DTOs, `ICatalogCustomFieldValueGateway`, `FakeCatalogModule` | scn_contract_e03_u02_* | done |
+| FR-01 | CONTRACT | §EPIC-03-US-02 | application | `ProductCustomFieldValuesDto` group/card projection sorted by config | scn_contract_e03_u02_fr01_01 | done |
+| FR-02 | CONTRACT | §EPIC-03-US-02 | application | `ProductCustomFieldValueInput`, typed values, field-level validation exception, PCC display value | scn_contract_e03_u02_fr02_01..02 | done |
+| FR-03 | CONTRACT | §EPIC-03-US-02 | application | Required field validation + readiness refresh via `UpsertCustomFieldValuesResult.readinessSummary` | scn_contract_e03_u02_fr03_01..02 | done |
+| FR-04 | CONTRACT | §EPIC-03-US-02 | application | Preserve inactive group/field values; hide from active query unless `includeInactiveValues=true` | scn_contract_e03_u02_fr04_01 | done |
+| FR-01..04 | FE | §EPIC-03-US-02 | presentation | `product_custom_field_group_edit_page.dart`, `product_custom_field_group_edit_cubit.dart`, `product_custom_field_input_widget.dart`, `app_router.dart` | wgt_e03_u02_fr01_01 | done |
+| FR-01 | E2E | §EPIC-03-US-02 | integration | PCC custom field group cards via ERP DI (`product_custom_field_values_e2e_test.dart`) | e2e_e03_u02_fr01_01 | done |
+| FR-02 | E2E | §EPIC-03-US-02 | integration | Save text value + invalid number field validation | e2e_e03_u02_fr02_01, e2e_e03_u02_fr02_02 | done |
+| FR-03 | E2E | §EPIC-03-US-02 | integration | Required field validation + readiness refresh | e2e_e03_u02_fr03_01, e2e_e03_u02_fr03_02 | done |
+| FR-04 | E2E | §EPIC-03-US-02 | integration | Preserve inactive values (contract only) | — | n/a |
+
+---
+
 ## EPIC-04 / US-01 — Đơn vị cơ sở (slice #6)
 
 | Req ID | Role | Contract § | Enforce layer | Artifact | Test id | Status |

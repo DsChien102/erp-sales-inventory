@@ -102,4 +102,26 @@ void main() {
     expect(find.textContaining('Hộp'), findsWidgets);
     expect(find.textContaining('150'), findsWidgets);
   });
+
+  testWidgets('wgt_e03_u02_fr01_01: custom field cards display in PCC',
+      (tester) async {
+    final catalogModule =
+        FakeCatalogModule(scenario: FakeCatalogScenario.pccCustomFieldCards);
+    final product = _sampleProduct(
+      id: 'product-5',
+      name: 'Thuốc bổ sung',
+    );
+
+    await tester.pumpWidget(
+      buildTestableWidget(catalogModule: catalogModule, product: product),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('Thuốc bổ sung'), findsWidgets);
+    
+    // Check if custom field group cards are displayed based on Fake data.
+    // In FakeCatalogScenario.pccCustomFieldCards, there's a group "Thông tin thuốc"
+    expect(find.text('Thông tin thuốc'), findsOneWidget);
+    expect(find.textContaining('trường đã điền'), findsWidgets);
+  });
 }

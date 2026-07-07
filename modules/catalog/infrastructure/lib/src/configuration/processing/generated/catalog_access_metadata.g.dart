@@ -54,6 +54,10 @@ final catalogAccessMetadataRegistry = AccessMetadataRegistry({
     permission: 'catalog.product.view_detail',
     requiresTenant: true,
   ),
+  GetProductCustomFieldValuesQuery: AccessMetadata(
+    permission: 'catalog.product.view_detail',
+    requiresTenant: true,
+  ),
   GetProductReadinessQuery: AccessMetadata(
     permission: 'catalog.product.view_detail',
     requiresTenant: true,
@@ -164,6 +168,10 @@ final catalogAccessMetadataRegistry = AccessMetadataRegistry({
   ),
   UpsertCustomFieldGroupCommand: AccessMetadata(
     permission: 'catalog.custom_fields.manage',
+    requiresTenant: true,
+  ),
+  UpsertCustomFieldValuesCommand: AccessMetadata(
+    permission: 'catalog.product.update',
     requiresTenant: true,
   ),
 });

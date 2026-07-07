@@ -2,6 +2,7 @@ import 'package:vet45_catalog_domain/domain.dart';
 
 import '../control_center/product_change_history_entry_dto.dart';
 import '../control_center/product_conversion_unit_dto.dart';
+import '../control_center/custom_field_group_card_dto.dart';
 import '../pricing/price_band/price_band_source_type.dart';
 
 /// Raw control-center projection loaded from RPC before permission-aware assembly.
@@ -30,6 +31,7 @@ final class ProductControlCenterReadModel {
     this.priceBandSourceType,
     this.storePriceRuleName,
     this.isCustomOverride = false,
+    this.customFieldGroupCards = const [],
     this.changeHistoryPreview = const [],
   });
 
@@ -56,5 +58,6 @@ final class ProductControlCenterReadModel {
   final PriceBandSourceType? priceBandSourceType;
   final String? storePriceRuleName;
   final bool isCustomOverride;
+  final List<CustomFieldGroupCardDto> customFieldGroupCards;
   final List<ProductChangeHistoryEntryDto> changeHistoryPreview;
 }

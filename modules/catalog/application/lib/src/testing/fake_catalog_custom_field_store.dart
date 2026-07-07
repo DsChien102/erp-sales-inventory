@@ -18,6 +18,33 @@ class _StoredCustomFieldOption {
   bool isActive;
 }
 
+class _StoredProductCustomFieldValue {
+  _StoredProductCustomFieldValue({
+    required this.productId,
+    required this.fieldId,
+    this.textValue,
+    this.numberValue,
+    this.dateValue,
+    this.booleanValue,
+    this.optionId,
+  });
+
+  final String productId;
+  final String fieldId;
+  String? textValue;
+  double? numberValue;
+  DateTime? dateValue;
+  bool? booleanValue;
+  String? optionId;
+
+  bool get isEmpty =>
+      (textValue == null || textValue!.trim().isEmpty) &&
+      numberValue == null &&
+      dateValue == null &&
+      booleanValue == null &&
+      (optionId == null || optionId!.trim().isEmpty);
+}
+
 class _StoredCustomField {
   _StoredCustomField({
     required this.fieldId,
@@ -95,6 +122,7 @@ final class FakeCatalogCustomFieldStore {
 
   final List<_StoredCustomFieldGroup> _groups = [];
   final List<_StoredCustomField> _fields = [];
+  final Map<String, _StoredProductCustomFieldValue> _productValues = {};
   int _nextGroupId = 1;
   int _nextFieldId = 1;
   int _nextOptionId = 1;
@@ -152,6 +180,65 @@ final class FakeCatalogCustomFieldStore {
   List<_StoredCustomFieldGroup> _groupsForTenant(String tenantId) {
     return _groups.where((group) => group.tenantId == tenantId).toList()
       ..sort((a, b) => a.sortOrder.compareTo(b.sortOrder));
+  }
+
+  String _valueKey(String productId, String fieldId) => '$productId::$fieldId';
+
+  _StoredProductCustomFieldValue? _findValue(String productId, String fieldId) {
+    return _productValues[_valueKey(productId, fieldId)];
+  }
+
+  String? _displayValue(
+    _StoredCustomField field,
+    _StoredProductCustomFieldValue? value,
+  ) {
+    if (value == null || value.isEmpty) {
+      return null;
+    }
+    return switch (field.fieldType) {
+      CustomFieldType.text => value.textValue,
+      CustomFieldType.number => _formatNumber(value.numberValue),
+      CustomFieldType.date => _formatDate(value.dateValue),
+      CustomFieldType.boolean =>
+        value.booleanValue == null ? null : (value.booleanValue! ? 'Có' : 'Không'),
+      CustomFieldType.singleSelect => _optionLabel(field, value.optionId),
+    };
+  }
+
+  String? _formatNumber(double? value) {
+    if (value == null) {
+      return null;
+    }
+    if (value == value.roundToDouble()) {
+      return value.toInt().toString();
+    }
+    return value.toString();
+  }
+
+  String? _formatDate(DateTime? value) {
+    if (value == null) {
+      return null;
+    }
+    final month = value.month.toString().padLeft(2, '0');
+    final day = value.day.toString().padLeft(2, '0');
+    return '${value.year}-$month-$day';
+  }
+
+  String? _optionLabel(_StoredCustomField field, String? optionId) {
+    if (optionId == null || optionId.trim().isEmpty) {
+      return null;
+    }
+    for (final option in field.options) {
+      if (option.optionId == optionId) {
+        return option.label;
+      }
+    }
+    return optionId;
+  }
+
+  bool _hasValue(String productId, _StoredCustomField field) {
+    final value = _findValue(productId, field.fieldId);
+    return value != null && !value.isEmpty;
   }
 
   _StoredCustomFieldGroup? _findActiveGroupByName(
@@ -221,9 +308,7 @@ final class FakeCatalogCustomFieldStore {
       isFilterable: field.isFilterable,
       displayOnList: field.displayOnList,
       sortOrder: field.sortOrder,
-      status: field.isActive
-          ? CustomFieldConfigStatus.active
-          : CustomFieldConfigStatus.inactive,
+      status: field.isActive ? CustomFieldConfigStatus.active : CustomFieldConfigStatus.inactive,
     );
   }
 
@@ -235,30 +320,35 @@ final class FakeCatalogCustomFieldStore {
       name: group.name,
       iconKey: group.iconKey,
       sortOrder: group.sortOrder,
-      status: group.isActive
-          ? CustomFieldConfigStatus.active
-          : CustomFieldConfigStatus.inactive,
+      status: group.isActive ? CustomFieldConfigStatus.active : CustomFieldConfigStatus.inactive,
       fieldCount: activeFields.length,
       requiredFieldCount: activeFields.where((field) => field.isRequired).length,
       fields: fields.map(_toFieldDto).toList(),
     );
   }
 
-  List<CustomFieldGroupCardDto> toActiveGroupCards() {
+  List<CustomFieldGroupCardDto> toActiveGroupCards({String? productId}) {
     final cards = <CustomFieldGroupCardDto>[];
     for (final group in _groups.where((g) => g.isActive)) {
-      final fields = _fieldsForGroup(group.groupId)
-          .where((field) => field.isActive)
-          .map(
-            (field) => CustomFieldCardFieldDto(
-              fieldId: field.fieldId,
-              name: field.name,
-              fieldType: field.fieldType.name,
-              sortOrder: field.sortOrder,
-              isRequired: field.isRequired,
-            ),
-          )
-          .toList();
+      var hasRequiredMissing = false;
+      final fields = _fieldsForGroup(group.groupId).where((field) => field.isActive).map(
+        (field) {
+          final value = productId == null ? null : _findValue(productId, field.fieldId);
+          final isMissing = field.isRequired && (productId == null || !_hasValue(productId, field));
+          if (isMissing) {
+            hasRequiredMissing = true;
+          }
+          return CustomFieldCardFieldDto(
+            fieldId: field.fieldId,
+            name: field.name,
+            fieldType: field.fieldType.name,
+            displayValue: _displayValue(field, value),
+            sortOrder: field.sortOrder,
+            isRequired: field.isRequired,
+            isMissing: isMissing,
+          );
+        },
+      ).toList();
       cards.add(
         CustomFieldGroupCardDto(
           groupId: group.groupId,
@@ -266,6 +356,7 @@ final class FakeCatalogCustomFieldStore {
           iconKey: group.iconKey,
           sortOrder: group.sortOrder,
           fields: fields,
+          hasRequiredMissing: hasRequiredMissing,
         ),
       );
     }
@@ -457,9 +548,7 @@ final class FakeCatalogCustomFieldStore {
       field.options = command.options
           .map(
             (option) => _StoredCustomFieldOption(
-              optionId: option.optionId.isNotEmpty
-                  ? option.optionId
-                  : 'cf-option-$_nextOptionId++',
+              optionId: option.optionId.isNotEmpty ? option.optionId : 'cf-option-$_nextOptionId++',
               label: option.label,
               sortOrder: option.sortOrder,
               isActive: option.isActive,
@@ -488,9 +577,7 @@ final class FakeCatalogCustomFieldStore {
       options: command.options
           .map(
             (option) => _StoredCustomFieldOption(
-              optionId: option.optionId.isNotEmpty
-                  ? option.optionId
-                  : 'cf-option-$_nextOptionId++',
+              optionId: option.optionId.isNotEmpty ? option.optionId : 'cf-option-$_nextOptionId++',
               label: option.label,
               sortOrder: option.sortOrder,
               isActive: option.isActive,
@@ -524,9 +611,7 @@ final class FakeCatalogCustomFieldStore {
     field.isFilterable = command.isFilterable;
     field.displayOnList = command.displayOnList;
 
-    final missingCount = !wasRequired && command.isRequired
-        ? productsMissingRequiredCount
-        : 0;
+    final missingCount = !wasRequired && command.isRequired ? productsMissingRequiredCount : 0;
 
     return ConfigureCustomFieldAttributesResult(
       field: _toFieldDto(field),
@@ -561,5 +646,212 @@ final class FakeCatalogCustomFieldStore {
     _assertCustomFieldPermission();
     final groups = _groupsForTenant(tenantId).map(_toGroupDto).toList();
     return CustomFieldConfigViewDto(groups: groups);
+  }
+
+  ProductCustomFieldValuesDto getValues({
+    required String tenantId,
+    required String productId,
+    bool includeInactiveValues = false,
+  }) {
+    final groups = <ProductCustomFieldValueGroupDto>[];
+    for (final group in _groupsForTenant(tenantId)) {
+      if (!group.isActive && !includeInactiveValues) {
+        continue;
+      }
+      final fields = <ProductCustomFieldValueFieldDto>[];
+      for (final field in _fieldsForGroup(group.groupId)) {
+        final value = _findValue(productId, field.fieldId);
+        if (!field.isActive && (!includeInactiveValues || value == null)) {
+          continue;
+        }
+        final isMissing =
+            group.isActive && field.isActive && field.isRequired && !_hasValue(productId, field);
+        fields.add(
+          ProductCustomFieldValueFieldDto(
+            fieldId: field.fieldId,
+            groupId: group.groupId,
+            name: field.name,
+            fieldType: field.fieldType.name,
+            options: field.options.map(_toOptionDto).toList(),
+            isRequired: field.isRequired,
+            isMissing: isMissing,
+            sortOrder: field.sortOrder,
+            displayValue: _displayValue(field, value),
+            textValue: value?.textValue,
+            numberValue: value?.numberValue,
+            dateValue: value?.dateValue,
+            booleanValue: value?.booleanValue,
+            optionId: value?.optionId,
+          ),
+        );
+      }
+      if (group.isActive || fields.isNotEmpty) {
+        groups.add(
+          ProductCustomFieldValueGroupDto(
+            groupId: group.groupId,
+            name: group.name,
+            iconKey: group.iconKey,
+            sortOrder: group.sortOrder,
+            fields: fields,
+          ),
+        );
+      }
+    }
+    groups.sort((a, b) => a.sortOrder.compareTo(b.sortOrder));
+    return ProductCustomFieldValuesDto(productId: productId, groups: groups);
+  }
+
+  void upsertValues(UpsertCustomFieldValuesCommand command) {
+    final byFieldId = {
+      for (final value in command.values) value.fieldId: value,
+    };
+    final errors = <CustomFieldValueValidationErrorDto>[];
+
+    for (final group in _groupsForTenant(command.tenantId).where((g) => g.isActive)) {
+      for (final field in _fieldsForGroup(group.groupId).where((f) => f.isActive)) {
+        final input = byFieldId[field.fieldId];
+        if (input != null) {
+          final error = _validateInput(group, field, input);
+          if (error != null) {
+            errors.add(error);
+          }
+        }
+        final hasIncomingValue = input != null && !input.isEmpty;
+        final hasStoredValue = _hasValue(command.productId, field);
+        if (field.isRequired && !hasIncomingValue && !hasStoredValue) {
+          errors.add(
+            CustomFieldValueValidationErrorDto(
+              fieldId: field.fieldId,
+              groupId: group.groupId,
+              code: 'required',
+              message: 'Vui lòng nhập ${field.name}',
+            ),
+          );
+        }
+      }
+    }
+
+    if (errors.isNotEmpty) {
+      throw CustomFieldValueValidationException(errors: errors);
+    }
+
+    for (final input in command.values) {
+      final field = _findField(input.fieldId);
+      if (field == null) {
+        throw CustomFieldNotFoundException(fieldId: input.fieldId);
+      }
+      final group = _findGroup(field.groupId);
+      if (group == null || group.tenantId != command.tenantId) {
+        throw CustomFieldNotFoundException(fieldId: input.fieldId);
+      }
+      if (!group.isActive || !field.isActive) {
+        throw CustomFieldValueValidationException(
+          errors: [
+            CustomFieldValueValidationErrorDto(
+              fieldId: field.fieldId,
+              groupId: group.groupId,
+              code: 'inactive_field',
+              message: '${field.name} đang tạm tắt.',
+            ),
+          ],
+        );
+      }
+      final key = _valueKey(command.productId, field.fieldId);
+      if (input.isEmpty) {
+        _productValues.remove(key);
+        continue;
+      }
+      _productValues[key] = _StoredProductCustomFieldValue(
+        productId: command.productId,
+        fieldId: field.fieldId,
+        textValue: input.textValue?.trim(),
+        numberValue: input.numberValue,
+        dateValue: input.dateValue,
+        booleanValue: input.booleanValue,
+        optionId: input.optionId,
+      );
+    }
+  }
+
+  bool hasRequiredValues(String productId) {
+    for (final group in _groups.where((g) => g.isActive)) {
+      for (final field in _fieldsForGroup(group.groupId)) {
+        if (!field.isActive || !field.isRequired) {
+          continue;
+        }
+        if (!_hasValue(productId, field)) {
+          return false;
+        }
+      }
+    }
+    return true;
+  }
+
+  CustomFieldValueValidationErrorDto? _validateInput(
+    _StoredCustomFieldGroup group,
+    _StoredCustomField field,
+    ProductCustomFieldValueInput input,
+  ) {
+    if (input.isEmpty) {
+      return null;
+    }
+    final hasCorrectValue = switch (field.fieldType) {
+      CustomFieldType.text =>
+        input.textValue != null &&
+            input.numberValue == null &&
+            input.dateValue == null &&
+            input.booleanValue == null &&
+            input.optionId == null,
+      CustomFieldType.number =>
+        input.numberValue != null &&
+            input.textValue == null &&
+            input.dateValue == null &&
+            input.booleanValue == null &&
+            input.optionId == null,
+      CustomFieldType.date =>
+        input.dateValue != null &&
+            input.textValue == null &&
+            input.numberValue == null &&
+            input.booleanValue == null &&
+            input.optionId == null,
+      CustomFieldType.boolean =>
+        input.booleanValue != null &&
+            input.textValue == null &&
+            input.numberValue == null &&
+            input.dateValue == null &&
+            input.optionId == null,
+      CustomFieldType.singleSelect =>
+        input.optionId != null &&
+            input.textValue == null &&
+            input.numberValue == null &&
+            input.dateValue == null &&
+            input.booleanValue == null,
+    };
+    if (!hasCorrectValue) {
+      return CustomFieldValueValidationErrorDto(
+        fieldId: field.fieldId,
+        groupId: group.groupId,
+        code: 'invalid_type',
+        message: '${field.name} không đúng kiểu dữ liệu.',
+      );
+    }
+    if (field.fieldType == CustomFieldType.singleSelect) {
+      _StoredCustomFieldOption? option;
+      for (final candidate in field.options) {
+        if (candidate.optionId == input.optionId) {
+          option = candidate;
+          break;
+        }
+      }
+      if (option == null || !option.isActive) {
+        return CustomFieldValueValidationErrorDto(
+          fieldId: field.fieldId,
+          groupId: group.groupId,
+          code: 'invalid_option',
+          message: '${field.name} không có lựa chọn hợp lệ.',
+        );
+      }
+    }
+    return null;
   }
 }

@@ -46,7 +46,6 @@ class CustomFieldConfigCubit extends Cubit<CustomFieldConfigState> {
   Future<void> reorderGroups(int oldIndex, int newIndex) async {
     final groups = _reorderItems(state.groups, oldIndex, newIndex);
     if (groups == null) return;
-
     final orderedIds = groups.map((e) => e.groupId).toList();
 
     // Optimistic update
@@ -180,7 +179,6 @@ class CustomFieldConfigCubit extends Cubit<CustomFieldConfigState> {
       return false;
     }
   }
-
   /// ReorderableListView passes [newIndex] relative to the list before removal.
   /// When dragging down, decrement [newIndex] after [oldIndex] is removed.
   List<T>? _reorderItems<T>(List<T> items, int oldIndex, int newIndex) {

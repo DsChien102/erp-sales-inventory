@@ -1,0 +1,879 @@
+-- Catalog custom field values (EPIC-03/US-02): product-level values + readiness/PCC cards.
+-- Context: TH-02 slice #17 BE; docs/themes/TH-02-product-pricing/harness/07-api-contracts.md
+-- Depends on: _catalog_custom_fields.sql and previous catalog product drafts.
+-- Safety: idempotent draft only; do not promote without a unique timestamp migration review.
+
+create or replace function catalog._assert_product_permission(
+  p_tenant_id uuid,
+  p_permission text
+)
+returns void
+language plpgsql
+security definer
+set search_path = catalog, iam, pg_temp
+as $$
+begin
+  if auth.uid() is null then
+    raise exception 'not authenticated';
+  end if;
+
+  if not iam.has_permission(p_tenant_id, p_permission) then
+    raise exception 'permission denied: %', p_permission;
+  end if;
+end;
+$$;
+
+create or replace function catalog._product_custom_field_display_value(
+  p_field_type text,
+  p_value_text text,
+  p_value_number numeric,
+  p_value_date date,
+  p_value_boolean boolean,
+  p_option_label text
+)
+returns text
+language sql
+immutable
+as $$
+  select case p_field_type
+    when 'text' then p_value_text
+    when 'number' then p_value_number::text
+    when 'date' then p_value_date::text
+    when 'boolean' then case
+      when p_value_boolean is true then 'Có'
+      when p_value_boolean is false then 'Không'
+      else null
+    end
+    when 'singleSelect' then p_option_label
+    else null
+  end;
+$$;
+
+create or replace function catalog._product_has_required_custom_fields(
+  p_tenant_id uuid,
+  p_product_id uuid
+)
+returns boolean
+language sql
+stable
+security definer
+set search_path = catalog, pg_temp
+as $$
+  select not exists (
+    select 1
+    from catalog.custom_field_groups g
+    join catalog.custom_fields f
+      on f.group_id = g.id
+     and f.tenant_id = p_tenant_id
+     and f.status = 'active'
+     and f.is_required
+    left join catalog.product_custom_field_values v
+      on v.product_id = p_product_id
+     and v.custom_field_id = f.id
+     and v.tenant_id = p_tenant_id
+    where g.tenant_id = p_tenant_id
+      and g.status = 'active'
+      and not catalog._custom_field_value_is_valid(
+        f.field_type,
+        v.value_text,
+        v.value_number,
+        v.value_date,
+        v.value_boolean,
+        v.value_option_id
+      )
+  );
+$$;
+
+create or replace function catalog._product_custom_field_value_field_json(
+  p_tenant_id uuid,
+  p_product_id uuid,
+  p_field_id uuid
+)
+returns jsonb
+language sql
+stable
+security definer
+set search_path = catalog, pg_temp
+as $$
+  select jsonb_build_object(
+    'field_id', f.id,
+    'group_id', f.group_id,
+    'name', f.name,
+    'field_type', f.field_type,
+    'options', coalesce(
+      (
+        select jsonb_agg(catalog._custom_field_option_to_json(o) order by o.sort_order, o.label)
+        from catalog.custom_field_options o
+        where o.field_id = f.id
+          and (o.is_active or v.value_option_id = o.id)
+      ),
+      '[]'::jsonb
+    ),
+    'is_required', f.is_required,
+    'is_missing',
+      f.is_required
+      and not catalog._custom_field_value_is_valid(
+        f.field_type,
+        v.value_text,
+        v.value_number,
+        v.value_date,
+        v.value_boolean,
+        v.value_option_id
+      ),
+    'sort_order', f.sort_order,
+    'display_value', catalog._product_custom_field_display_value(
+      f.field_type,
+      v.value_text,
+      v.value_number,
+      v.value_date,
+      v.value_boolean,
+      o.label
+    ),
+    'text_value', v.value_text,
+    'number_value', v.value_number,
+    'date_value', v.value_date,
+    'boolean_value', v.value_boolean,
+    'option_id', v.value_option_id
+  )
+  from catalog.custom_fields f
+  left join catalog.product_custom_field_values v
+    on v.product_id = p_product_id
+   and v.custom_field_id = f.id
+   and v.tenant_id = p_tenant_id
+  left join catalog.custom_field_options o
+    on o.id = v.value_option_id
+  where f.id = p_field_id
+    and f.tenant_id = p_tenant_id;
+$$;
+
+create or replace function catalog._product_custom_field_values_json(
+  p_tenant_id uuid,
+  p_product_id uuid,
+  p_include_inactive_values boolean default false
+)
+returns jsonb
+language sql
+stable
+security definer
+set search_path = catalog, pg_temp
+as $$
+  select jsonb_build_object(
+    'product_id', p_product_id,
+    'groups', coalesce(
+      (
+        select jsonb_agg(
+          jsonb_build_object(
+            'group_id', g.id,
+            'name', g.name,
+            'icon_key', g.icon_key,
+            'sort_order', g.sort_order,
+            'fields', coalesce(fields.items, '[]'::jsonb)
+          )
+          order by g.sort_order, g.name
+        )
+        from catalog.custom_field_groups g
+        cross join lateral (
+          select coalesce(
+            jsonb_agg(catalog._product_custom_field_value_field_json(p_tenant_id, p_product_id, f.id)
+              order by f.sort_order, f.name),
+            '[]'::jsonb
+          ) as items
+          from catalog.custom_fields f
+          left join catalog.product_custom_field_values v
+            on v.product_id = p_product_id
+           and v.custom_field_id = f.id
+           and v.tenant_id = p_tenant_id
+          where f.group_id = g.id
+            and f.tenant_id = p_tenant_id
+            and (
+              f.status = 'active'
+              or (coalesce(p_include_inactive_values, false) and v.id is not null)
+            )
+        ) fields
+        where g.tenant_id = p_tenant_id
+          and (
+            g.status = 'active'
+            or (
+              coalesce(p_include_inactive_values, false)
+              and jsonb_array_length(fields.items) > 0
+            )
+          )
+      ),
+      '[]'::jsonb
+    )
+  );
+$$;
+
+create or replace function catalog._product_custom_field_group_cards_json(
+  p_tenant_id uuid,
+  p_product_id uuid
+)
+returns jsonb
+language sql
+stable
+security definer
+set search_path = catalog, pg_temp
+as $$
+  select coalesce(
+    jsonb_agg(
+      jsonb_build_object(
+        'group_id', g.id,
+        'name', g.name,
+        'icon_key', g.icon_key,
+        'sort_order', g.sort_order,
+        'has_required_missing', coalesce(cards.has_required_missing, false),
+        'fields', coalesce(cards.fields, '[]'::jsonb)
+      )
+      order by g.sort_order, g.name
+    ),
+    '[]'::jsonb
+  )
+  from catalog.custom_field_groups g
+  cross join lateral (
+    select
+      bool_or(
+        f.is_required
+        and not catalog._custom_field_value_is_valid(
+          f.field_type,
+          v.value_text,
+          v.value_number,
+          v.value_date,
+          v.value_boolean,
+          v.value_option_id
+        )
+      ) as has_required_missing,
+      coalesce(
+        jsonb_agg(
+          jsonb_build_object(
+            'field_id', f.id,
+            'name', f.name,
+            'field_type', f.field_type,
+            'display_value', catalog._product_custom_field_display_value(
+              f.field_type,
+              v.value_text,
+              v.value_number,
+              v.value_date,
+              v.value_boolean,
+              o.label
+            ),
+            'is_required', f.is_required,
+            'is_missing',
+              f.is_required
+              and not catalog._custom_field_value_is_valid(
+                f.field_type,
+                v.value_text,
+                v.value_number,
+                v.value_date,
+                v.value_boolean,
+                v.value_option_id
+              ),
+            'sort_order', f.sort_order
+          )
+          order by f.sort_order, f.name
+        ),
+        '[]'::jsonb
+      ) as fields
+    from catalog.custom_fields f
+    left join catalog.product_custom_field_values v
+      on v.product_id = p_product_id
+     and v.custom_field_id = f.id
+     and v.tenant_id = p_tenant_id
+    left join catalog.custom_field_options o
+      on o.id = v.value_option_id
+    where f.group_id = g.id
+      and f.tenant_id = p_tenant_id
+      and f.status = 'active'
+  ) cards
+  where g.tenant_id = p_tenant_id
+    and g.status = 'active';
+$$;
+
+create or replace function catalog._product_readiness_summary_json(
+  p_tenant_id uuid,
+  p_product_id uuid
+)
+returns jsonb
+language sql
+stable
+security definer
+set search_path = catalog, pg_temp
+as $$
+  with facts as (
+    select *
+    from catalog._product_operational_facts(p_tenant_id, p_product_id)
+  ),
+  blockers as (
+    select *
+    from (
+      values
+        ('missing_base_unit', 'Thiếu đơn vị cơ sở', 'units', not (select has_base_unit from facts)),
+        ('missing_image', 'Thiếu ảnh sản phẩm', 'images', not (select has_images from facts)),
+        ('missing_stock', 'Thiếu tồn kho', 'stock',
+          (select stock_mode = 'basic' and not has_stock from facts)),
+        ('pending_stock_from_inventory', 'Chờ tồn kho từ module Kho', 'stock',
+          (select stock_mode = 'advanced' and not has_stock from facts)),
+        ('missing_price', 'Thiếu Giá cơ sở định giá', 'basePrice',
+          (select base_price_mode = 'manual' and not has_base_price from facts)),
+        ('pending_base_price_from_costing', 'Chờ giá vốn từ module Giá vốn', 'basePrice',
+          (select base_price_mode = 'costing_module' and not has_base_price from facts)),
+        ('missing_price_band', 'Thiếu khung giá bán', 'priceBand',
+          not (select has_price_band from facts)),
+        ('missing_required_custom_fields', 'Thiếu thông tin bắt buộc', 'customFields',
+          not (select has_required_custom_fields from facts))
+    ) as b(code, message, group_name, active)
+    where active
+  )
+  select jsonb_build_object(
+    'status',
+      case when exists (
+        select 1
+        from blockers b
+        where b.code <> 'missing_image'
+      )
+      then 'incomplete'
+      else 'readyToSell'
+      end,
+    'blockers', coalesce(
+      (
+        select jsonb_agg(jsonb_build_object(
+          'code', b.code,
+          'message', b.message,
+          'group', b.group_name
+        ))
+        from blockers b
+      ),
+      '[]'::jsonb
+    )
+  );
+$$;
+
+create or replace function catalog._product_operational_facts(
+  p_tenant_id uuid,
+  p_product_id uuid
+)
+returns table (
+  has_base_unit boolean,
+  has_images boolean,
+  has_stock boolean,
+  has_base_price boolean,
+  has_price_band boolean,
+  has_required_custom_fields boolean,
+  stock_mode text,
+  base_price_mode text
+)
+language sql
+stable
+security definer
+set search_path = catalog, pg_temp
+as $$
+  select
+    exists (
+      select 1
+      from catalog.product_units u
+      where u.product_id = p_product_id
+        and u.tenant_id = p_tenant_id
+        and u.is_base_unit = true
+    ) as has_base_unit,
+    exists (
+      select 1
+      from catalog.product_images i
+      where i.product_id = p_product_id
+        and i.tenant_id = p_tenant_id
+    ) as has_images,
+    exists (
+      select 1
+      from catalog.product_stock_profiles sp
+      where sp.product_id = p_product_id
+        and sp.tenant_id = p_tenant_id
+    ) as has_stock,
+    exists (
+      select 1
+      from catalog.product_base_price_profiles bp
+      where bp.product_id = p_product_id
+        and bp.tenant_id = p_tenant_id
+        and bp.base_price_amount is not null
+    ) as has_base_price,
+    exists (
+      select 1
+      from catalog.product_unit_price_bands pb
+      join catalog.product_units bu
+        on bu.id = pb.product_unit_id
+       and bu.product_id = p_product_id
+       and bu.tenant_id = p_tenant_id
+       and bu.is_base_unit = true
+      where pb.product_id = p_product_id
+        and pb.tenant_id = p_tenant_id
+        and pb.list_price_amount is not null
+        and pb.floor_price_amount is not null
+    ) as has_price_band,
+    catalog._product_has_required_custom_fields(p_tenant_id, p_product_id)
+      as has_required_custom_fields,
+    coalesce(
+      (
+        select sp.mode
+        from catalog.product_stock_profiles sp
+        where sp.product_id = p_product_id
+          and sp.tenant_id = p_tenant_id
+        limit 1
+      ),
+      'basic'
+    ) as stock_mode,
+    coalesce(
+      (
+        select case
+          when bp.mode = 'costingModule' then 'costing_module'
+          else 'manual'
+        end
+        from catalog.product_base_price_profiles bp
+        where bp.product_id = p_product_id
+          and bp.tenant_id = p_tenant_id
+        limit 1
+      ),
+      'manual'
+    ) as base_price_mode;
+$$;
+
+create or replace function catalog.get_product_custom_field_values(
+  p_tenant_id uuid,
+  p_product_id uuid,
+  p_include_inactive_values boolean default false
+)
+returns jsonb
+language plpgsql
+security definer
+set search_path = catalog, iam, pg_temp
+as $$
+begin
+  perform catalog._assert_product_permission(p_tenant_id, 'catalog.product.view_detail');
+
+  if not exists (
+    select 1
+    from catalog.products p
+    where p.tenant_id = p_tenant_id
+      and p.id = p_product_id
+      and p.deleted_at is null
+  ) then
+    raise exception 'product not found';
+  end if;
+
+  return catalog._product_custom_field_values_json(
+    p_tenant_id,
+    p_product_id,
+    coalesce(p_include_inactive_values, false)
+  );
+end;
+$$;
+
+create or replace function catalog.upsert_product_custom_field_values(
+  p_tenant_id uuid,
+  p_product_id uuid,
+  p_values jsonb
+)
+returns jsonb
+language plpgsql
+security definer
+set search_path = catalog, iam, pg_temp
+as $$
+declare
+  v_value jsonb;
+  v_field catalog.custom_fields%rowtype;
+  v_group catalog.custom_field_groups%rowtype;
+  v_errors jsonb := '[]'::jsonb;
+  v_text text;
+  v_number numeric;
+  v_date date;
+  v_boolean boolean;
+  v_option_id uuid;
+  v_value_count int;
+begin
+  perform catalog._assert_product_permission(p_tenant_id, 'catalog.product.update');
+
+  if not exists (
+    select 1
+    from catalog.products p
+    where p.tenant_id = p_tenant_id
+      and p.id = p_product_id
+      and p.deleted_at is null
+  ) then
+    raise exception 'product not found';
+  end if;
+
+  if p_values is null or jsonb_typeof(p_values) <> 'array' then
+    raise exception 'validation_exception: Values must be an array.';
+  end if;
+
+  for v_value in select value from jsonb_array_elements(p_values)
+  loop
+    select *
+    into v_field
+    from catalog.custom_fields f
+    where f.id = (v_value ->> 'field_id')::uuid
+      and f.tenant_id = p_tenant_id;
+
+    if not found then
+      raise exception 'custom field not found "%"', v_value ->> 'field_id';
+    end if;
+
+    select *
+    into v_group
+    from catalog.custom_field_groups g
+    where g.id = v_field.group_id
+      and g.tenant_id = p_tenant_id;
+
+    if v_group.status <> 'active' or v_field.status <> 'active' then
+      v_errors := v_errors || jsonb_build_array(jsonb_build_object(
+        'field_id', v_field.id,
+        'group_id', v_group.id,
+        'code', 'inactive_field',
+        'message', v_field.name || ' đang tạm tắt.'
+      ));
+      continue;
+    end if;
+
+    v_text := nullif(btrim(v_value ->> 'text_value'), '');
+    v_number := case when v_value ? 'number_value' then (v_value ->> 'number_value')::numeric else null end;
+    v_date := case when v_value ? 'date_value' then (v_value ->> 'date_value')::date else null end;
+    v_boolean := case when v_value ? 'boolean_value' then (v_value ->> 'boolean_value')::boolean else null end;
+    v_option_id := case when v_value ? 'option_id' then (v_value ->> 'option_id')::uuid else null end;
+    v_value_count :=
+      (case when v_text is not null then 1 else 0 end) +
+      (case when v_number is not null then 1 else 0 end) +
+      (case when v_date is not null then 1 else 0 end) +
+      (case when v_boolean is not null then 1 else 0 end) +
+      (case when v_option_id is not null then 1 else 0 end);
+
+    if v_value_count > 1 then
+      v_errors := v_errors || jsonb_build_array(jsonb_build_object(
+        'field_id', v_field.id,
+        'group_id', v_group.id,
+        'code', 'invalid_type',
+        'message', v_field.name || ' không đúng kiểu dữ liệu.'
+      ));
+      continue;
+    end if;
+
+    if v_value_count = 1 and not catalog._custom_field_value_is_valid(
+      v_field.field_type,
+      v_text,
+      v_number,
+      v_date,
+      v_boolean,
+      v_option_id
+    ) then
+      v_errors := v_errors || jsonb_build_array(jsonb_build_object(
+        'field_id', v_field.id,
+        'group_id', v_group.id,
+        'code', 'invalid_type',
+        'message', v_field.name || ' không đúng kiểu dữ liệu.'
+      ));
+      continue;
+    end if;
+
+    if v_field.field_type = 'singleSelect'
+       and v_option_id is not null
+       and not exists (
+         select 1
+         from catalog.custom_field_options o
+         where o.id = v_option_id
+           and o.field_id = v_field.id
+           and o.tenant_id = p_tenant_id
+           and o.is_active
+       ) then
+      v_errors := v_errors || jsonb_build_array(jsonb_build_object(
+        'field_id', v_field.id,
+        'group_id', v_group.id,
+        'code', 'invalid_option',
+        'message', v_field.name || ' không có lựa chọn hợp lệ.'
+      ));
+    end if;
+  end loop;
+
+  if jsonb_array_length(v_errors) > 0 then
+    raise exception 'custom_field_value_validation: %', v_errors::text;
+  end if;
+
+  for v_value in select value from jsonb_array_elements(p_values)
+  loop
+    select *
+    into v_field
+    from catalog.custom_fields f
+    where f.id = (v_value ->> 'field_id')::uuid
+      and f.tenant_id = p_tenant_id;
+
+    v_text := nullif(btrim(v_value ->> 'text_value'), '');
+    v_number := case when v_value ? 'number_value' then (v_value ->> 'number_value')::numeric else null end;
+    v_date := case when v_value ? 'date_value' then (v_value ->> 'date_value')::date else null end;
+    v_boolean := case when v_value ? 'boolean_value' then (v_value ->> 'boolean_value')::boolean else null end;
+    v_option_id := case when v_value ? 'option_id' then (v_value ->> 'option_id')::uuid else null end;
+    v_value_count :=
+      (case when v_text is not null then 1 else 0 end) +
+      (case when v_number is not null then 1 else 0 end) +
+      (case when v_date is not null then 1 else 0 end) +
+      (case when v_boolean is not null then 1 else 0 end) +
+      (case when v_option_id is not null then 1 else 0 end);
+
+    if v_value_count = 0 then
+      delete from catalog.product_custom_field_values v
+      where v.tenant_id = p_tenant_id
+        and v.product_id = p_product_id
+        and v.custom_field_id = v_field.id;
+    else
+      insert into catalog.product_custom_field_values (
+        tenant_id,
+        product_id,
+        custom_field_id,
+        value_text,
+        value_number,
+        value_date,
+        value_boolean,
+        value_option_id
+      )
+      values (
+        p_tenant_id,
+        p_product_id,
+        v_field.id,
+        v_text,
+        v_number,
+        v_date,
+        v_boolean,
+        v_option_id
+      )
+      on conflict (product_id, custom_field_id) do update set
+        value_text = excluded.value_text,
+        value_number = excluded.value_number,
+        value_date = excluded.value_date,
+        value_boolean = excluded.value_boolean,
+        value_option_id = excluded.value_option_id,
+        updated_at = now();
+    end if;
+  end loop;
+
+  select coalesce(
+    jsonb_agg(jsonb_build_object(
+      'field_id', f.id,
+      'group_id', g.id,
+      'code', 'required',
+      'message', 'Vui lòng nhập ' || f.name
+    )),
+    '[]'::jsonb
+  )
+  into v_errors
+  from catalog.custom_field_groups g
+  join catalog.custom_fields f
+    on f.group_id = g.id
+   and f.tenant_id = p_tenant_id
+   and f.status = 'active'
+   and f.is_required
+  left join catalog.product_custom_field_values v
+    on v.product_id = p_product_id
+   and v.custom_field_id = f.id
+   and v.tenant_id = p_tenant_id
+  where g.tenant_id = p_tenant_id
+    and g.status = 'active'
+    and not catalog._custom_field_value_is_valid(
+      f.field_type,
+      v.value_text,
+      v.value_number,
+      v.value_date,
+      v.value_boolean,
+      v.value_option_id
+    );
+
+  if jsonb_array_length(v_errors) > 0 then
+    raise exception 'custom_field_value_validation: %', v_errors::text;
+  end if;
+
+  return jsonb_build_object(
+    'product_id', p_product_id,
+    'values', catalog._product_custom_field_values_json(p_tenant_id, p_product_id, false),
+    'readiness_summary', catalog._product_readiness_summary_json(p_tenant_id, p_product_id)
+  );
+end;
+$$;
+
+create or replace function catalog.get_product_control_center(
+  p_tenant_id uuid,
+  p_product_id uuid
+)
+returns jsonb
+language plpgsql
+security definer
+set search_path = catalog, iam, pg_temp
+as $$
+declare
+  v_result jsonb;
+begin
+  perform catalog._assert_product_permission(p_tenant_id, 'catalog.product.view_detail');
+
+  select jsonb_build_object(
+    'product_id', p.id,
+    'name', p.name,
+    'trade_name', p.trade_name,
+    'sku', p.sku,
+    'barcode', p.barcode,
+    'description', p.description,
+    'note', p.note,
+    'business_status', p.business_status::text,
+    'is_soft_deleted', (p.deleted_at is not null),
+    'primary_image_url', (
+      select i.file_url
+      from catalog.product_images i
+      where i.product_id = p.id and i.tenant_id = p_tenant_id
+      order by i.is_primary desc, i.sort_order asc
+      limit 1
+    ),
+    'images', coalesce((
+      select jsonb_agg(i.file_url order by i.is_primary desc, i.sort_order asc)
+      from catalog.product_images i
+      where i.product_id = p.id and i.tenant_id = p_tenant_id and i.file_url is not null
+    ), '[]'::jsonb),
+    'base_unit_name', (
+      select u.unit_name
+      from catalog.product_units u
+      where u.product_id = p.id and u.is_base_unit = true
+      limit 1
+    ),
+    'conversion_units', coalesce((
+      select jsonb_agg(jsonb_build_object(
+        'name', u.unit_name,
+        'conversion_rate', u.conversion_rate_to_base,
+        'is_active', true
+      ) order by u.created_at)
+      from catalog.product_units u
+      where u.product_id = p.id
+        and u.tenant_id = p_tenant_id
+        and u.is_base_unit = false
+    ), '[]'::jsonb),
+    'stock_mode', f.stock_mode,
+    'stock_qty', (
+      select sp.initial_stock
+      from catalog.product_stock_profiles sp
+      where sp.product_id = p.id
+      limit 1
+    ),
+    'stock_version', (
+      select sp.stock_version
+      from catalog.product_stock_profiles sp
+      where sp.product_id = p.id
+      limit 1
+    ),
+    'base_price_mode', f.base_price_mode,
+    'base_price_amount', (
+      select bp.base_price_amount
+      from catalog.product_base_price_profiles bp
+      where bp.product_id = p.id
+      limit 1
+    ),
+    'base_price_currency', coalesce((
+      select bp.currency
+      from catalog.product_base_price_profiles bp
+      where bp.product_id = p.id
+      limit 1
+    ), 'VND'),
+    'list_price', (
+      select pb.list_price_amount
+      from catalog.product_unit_price_bands pb
+      join catalog.product_units bu on bu.id = pb.product_unit_id and bu.is_base_unit = true
+      where pb.product_id = p.id
+      limit 1
+    ),
+    'floor_price', (
+      select pb.floor_price_amount
+      from catalog.product_unit_price_bands pb
+      join catalog.product_units bu on bu.id = pb.product_unit_id and bu.is_base_unit = true
+      where pb.product_id = p.id
+      limit 1
+    ),
+    'price_band_source_type', (
+      select pb.source_type
+      from catalog.product_unit_price_bands pb
+      join catalog.product_units bu on bu.id = pb.product_unit_id and bu.is_base_unit = true
+      where pb.product_id = p.id
+      limit 1
+    ),
+    'store_price_rule_name', (
+      select sr.name
+      from catalog.product_unit_price_bands pb
+      join catalog.product_units bu on bu.id = pb.product_unit_id and bu.is_base_unit = true
+      left join catalog.store_price_rules sr on sr.id = pb.store_price_rule_id
+      where pb.product_id = p.id
+      limit 1
+    ),
+    'is_custom_override', coalesce((
+      select pb.is_custom_override
+      from catalog.product_unit_price_bands pb
+      join catalog.product_units bu on bu.id = pb.product_unit_id and bu.is_base_unit = true
+      where pb.product_id = p.id
+      limit 1
+    ), false),
+    'has_base_unit', f.has_base_unit,
+    'has_images', f.has_images,
+    'has_stock', f.has_stock,
+    'has_base_price', f.has_base_price,
+    'has_price_band', f.has_price_band,
+    'has_required_custom_fields', f.has_required_custom_fields,
+    'custom_field_group_cards',
+      catalog._product_custom_field_group_cards_json(p_tenant_id, p.id),
+    'change_history_preview', coalesce((
+      select jsonb_agg(jsonb_build_object(
+        'id', h.id,
+        'occurred_at', h.created_at,
+        'actor_display_name', left(h.actor_id::text, 8),
+        'change_type', h.action,
+        'summary', h.action,
+        'value_before', h.payload ->> 'value_before',
+        'value_after', h.payload ->> 'value_after'
+      ) order by h.created_at desc)
+      from (
+        select *
+        from catalog.product_change_history h
+        where h.product_id = p.id and h.tenant_id = p_tenant_id
+        order by h.created_at desc
+        limit 3
+      ) h
+    ), '[]'::jsonb)
+  )
+  into v_result
+  from catalog.products p
+  cross join lateral catalog._product_operational_facts(p_tenant_id, p.id) f
+  where p.tenant_id = p_tenant_id
+    and p.id = p_product_id
+    and p.deleted_at is null;
+
+  if v_result is null then
+    raise exception 'product not found';
+  end if;
+
+  return v_result;
+end;
+$$;
+
+revoke all on function catalog._assert_product_permission(uuid, text) from public, anon;
+grant execute on function catalog._assert_product_permission(uuid, text) to authenticated, service_role;
+
+revoke all on function catalog._product_custom_field_display_value(text, text, numeric, date, boolean, text) from public, anon;
+grant execute on function catalog._product_custom_field_display_value(text, text, numeric, date, boolean, text) to authenticated, service_role;
+
+revoke all on function catalog._product_has_required_custom_fields(uuid, uuid) from public, anon;
+grant execute on function catalog._product_has_required_custom_fields(uuid, uuid) to authenticated, service_role;
+
+revoke all on function catalog._product_custom_field_value_field_json(uuid, uuid, uuid) from public, anon;
+grant execute on function catalog._product_custom_field_value_field_json(uuid, uuid, uuid) to authenticated, service_role;
+
+revoke all on function catalog._product_custom_field_values_json(uuid, uuid, boolean) from public, anon;
+grant execute on function catalog._product_custom_field_values_json(uuid, uuid, boolean) to authenticated, service_role;
+
+revoke all on function catalog._product_custom_field_group_cards_json(uuid, uuid) from public, anon;
+grant execute on function catalog._product_custom_field_group_cards_json(uuid, uuid) to authenticated, service_role;
+
+revoke all on function catalog._product_readiness_summary_json(uuid, uuid) from public, anon;
+grant execute on function catalog._product_readiness_summary_json(uuid, uuid) to authenticated, service_role;
+
+revoke all on function catalog.get_product_custom_field_values(uuid, uuid, boolean) from public, anon;
+grant execute on function catalog.get_product_custom_field_values(uuid, uuid, boolean) to authenticated, service_role;
+
+revoke all on function catalog.upsert_product_custom_field_values(uuid, uuid, jsonb) from public, anon;
+grant execute on function catalog.upsert_product_custom_field_values(uuid, uuid, jsonb) to authenticated, service_role;
+
+revoke all on function catalog.get_product_control_center(uuid, uuid) from public, anon;
+grant execute on function catalog.get_product_control_center(uuid, uuid) to authenticated, service_role;

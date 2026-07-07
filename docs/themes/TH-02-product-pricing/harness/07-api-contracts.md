@@ -1151,6 +1151,71 @@ Tests: `scn_contract_e03_u01_*` trong `fake_catalog_module_test.dart`.
 
 ---
 
+## EPIC-03 / US-02 — Giá trị thông tin bổ sung trên SP (slice #17)
+
+**Status:** CONTRACT `done` · BE `todo`
+
+### Commands / Queries
+
+| Symbol | Input (summary) | Success | Errors |
+| ------ | --------------- | ------- | ------ |
+| `GetProductCustomFieldValuesQuery` | tenantId, productId, includeInactiveValues=false | `ProductCustomFieldValuesDto` | PermissionDenied, NotFound |
+| `UpsertCustomFieldValuesCommand` | tenantId, productId, values[] | `UpsertCustomFieldValuesResult` | `CustomFieldValueValidationException`, `CustomFieldNotFoundException`, PermissionDenied |
+
+Package: `vet45_catalog_application` — `custom_fields/product_values/`.
+
+Supporting types:
+
+| Type | Fields |
+| ---- | ------ |
+| `ProductCustomFieldValueInput` | fieldId, textValue?, numberValue?, dateValue?, booleanValue?, optionId? |
+| `ProductCustomFieldValueFieldDto` | fieldId, groupId, name, fieldType, options[], isRequired, isMissing, sortOrder, displayValue?, typed value fields |
+| `ProductCustomFieldValueGroupDto` | groupId, name, iconKey?, sortOrder, fields[] |
+| `ProductCustomFieldValuesDto` | productId, groups[] |
+| `UpsertCustomFieldValuesResult` | productId, values, readinessSummary |
+| `CustomFieldValueValidationErrorDto` | fieldId, groupId?, code, message |
+| `CustomFieldValueValidationException` | errors[] |
+
+Permissions: query uses `@RequiresPermission(CatalogPermissions.viewDetail)`; command uses `@RequiresPermission(CatalogPermissions.update)`; both use `@RequiresTenant()`.
+
+Port: `ICatalogCustomFieldValueGateway` — `getValues`, `upsertValues`.
+
+PCC read model: `CustomFieldGroupCardDto` / `CustomFieldCardFieldDto` now populate `displayValue`, `isMissing`, and `hasRequiredMissing` from active config + product values. Inactive group/field values are preserved and only returned by value query when `includeInactiveValues=true`.
+
+### RPC mapping (BE)
+
+| Use case | RPC |
+| -------- | --- |
+| Get product custom field values | `catalog.get_product_custom_field_values` |
+| Upsert product custom field values | `catalog.upsert_product_custom_field_values` |
+
+BE lane will add draft SQL under `supabase/migrations/_drafts/`; CONTRACT lane does not create timestamped migrations or draft SQL.
+
+### Fake scenarios (FE)
+
+| scenario_id | trigger | fake response |
+| ----------- | ------- | ------------- |
+| `scn_contract_e03_u02_fr01_01` | GetProductCustomFieldValuesQuery after template seed | active groups/cards sorted by group and field sort order |
+| `scn_contract_e03_u02_fr02_01` | UpsertCustomFieldValuesCommand text field | saved value returned and visible on PCC card |
+| `scn_contract_e03_u02_fr02_02` | wrong typed value / invalid option | `CustomFieldValueValidationException` with field-level error |
+| `scn_contract_e03_u02_fr03_01` | required active field missing | `CustomFieldValueValidationException` with business message |
+| `scn_contract_e03_u02_fr03_02` | required value filled | result readiness has no `missing_required_custom_fields` blocker |
+| `scn_contract_e03_u02_fr04_01` | field/group deactivated after value saved | active query hides old value; `includeInactiveValues=true` returns preserved value |
+| `e2e_cf_values_ok` | E2E PCC open product with template seeded | 2 active group cards, empty values |
+| `e2e_cf_values_save_ok` | E2E save text/number values | template + number field `Thời gian ngưng sử dụng` |
+| `e2e_cf_values_required` | E2E required field + readiness | `Thành phần` required; product-1 missing value |
+
+`FakeCatalogModule` — `package:vet45_catalog_application/testing.dart`.
+
+Tests: `scn_contract_e03_u02_*` trong `fake_catalog_module_test.dart`.
+
+### Parallel notes
+
+- FE có thể fake: **yes**
+- E2E prerequisite: EPIC-03/US-01 config
+
+---
+
 ## Sections TODO (theo slice roadmap)
 
 | Slice | Contract section | Status |
@@ -1166,7 +1231,7 @@ Tests: `scn_contract_e03_u01_*` trong `fake_catalog_module_test.dart`.
 | EPIC-07 US-02 | Lifecycle business status | done |
 | EPIC-07 US-03 | Soft delete / restore | done |
 | EPIC-07 US-04 | Change history | done |
-| EPIC-03 US-02 | UpsertCustomFieldValuesCommand | todo |
+| EPIC-03 US-02 | UpsertCustomFieldValuesCommand | done |
 | EPIC-03 US-03 | Search/filter/display on list | todo |
 | EPIC-04 US-03 | Change base unit | **out_of_scope** |
 | Growth (EPIC-05 US-03/04, costing read, EPIC-04 US-04) | Advanced stock / costing / UOM export | **pending** (module ngoài) |
