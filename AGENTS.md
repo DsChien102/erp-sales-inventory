@@ -11,6 +11,7 @@ Tài liệu này là **điểm vào chính** cho AI coding agents. Nếu thông 
 | `packages/vet45_generator/test/fixtures/` | Reference CQRS tạm (khi chưa cần đọc IAM) |
 | `packages/vet45_shared/testing/` | Test harness (`PipelineTestHarness`, fakes) |
 | `modules/partner/` | **TH-03 in progress** — codegen bật; Epic-01 profile CRUD + Epic-02 status done; xem [modules/partner/README.md](modules/partner/README.md) |
+| `packages/vet45_async_query/` | Async server-state toolkit (TanStack Query style) — core + Flutter adapter + example; xem [packages/vet45_async_query/README.md](packages/vet45_async_query/README.md) |
 | `modules/*` (các context khác) | **Greenfield skeleton** — chưa codegen |
 | `apps/erp/features/auth/` | Auth **presentation shell** — login/logout qua `IIamModule` / `IamStartup` |
 | `apps/messaging_worker/` | Worker messaging — có tests |
@@ -56,6 +57,7 @@ packages/vet45_shared/*     → never import modules/
 | Application layer (handlers, ports, DTOs) | `.cursor/skills/application-layer/SKILL.md` |
 | Infrastructure (RPC, gateways, startup) | `.cursor/skills/infrastructure-layer/SKILL.md` |
 | Presentation UI (pages, dialogs, widgets) | `.cursor/skills/presentation-layer/SKILL.md` |
+| Tích hợp async server-state cache (`vet45_async_query`) | `.cursor/rules/vet45-presentation-ui.mdc` + `packages/vet45_async_query/docs/AGENT_INTEGRATION_PLAYBOOK.md` |
 | Harness approach | `docs/architecture/harness-engineering.md` |
 
 Canonical specs (mirror của skills): `docs/application_layer_skill.md`, `docs/domain_layer_skill.md`, `docs/infrastructure_layer_skill.md`, `docs/ddd_domain_modeling_skill.md`, `docs/presentation_layer_skill.md`.
@@ -69,6 +71,7 @@ Canonical specs (mirror của skills): `docs/application_layer_skill.md`, `docs/
      → harness/00-agent-ritual.md → 07-api-contracts → slice-roadmap (lane) → US/FR
 3. Xác định layer → mở skill tương ứng
      (presentation/UI → presentation-layer skill + UI artifacts trong FR)
+     (async query integration/migration → vet45-presentation-ui rule + playbook)
      (DDL/RPC/RLS → draft SQL vào `supabase/migrations/_drafts/`, không tạo file timestamp)
      (RPC/worker slice → `melos run env:sync && melos run env:doctor` trước khi test tích hợp;
       local stack: `supabase start` + `melos run env:local`)
@@ -149,3 +152,4 @@ Theme đang deliver: [docs/themes/TH-03-partner/](docs/themes/TH-03-partner/)
 - [docs/harness/PROGRESS.md](docs/harness/PROGRESS.md) — tiến độ harness
 - [docs/themes/](docs/themes/) — catalog theme
 - [packages/vet45_shared/README.md](packages/vet45_shared/README.md) — shared toolkit
+- [packages/vet45_async_query/docs/AGENT_INTEGRATION_PLAYBOOK.md](packages/vet45_async_query/docs/AGENT_INTEGRATION_PLAYBOOK.md) — async query integration guide

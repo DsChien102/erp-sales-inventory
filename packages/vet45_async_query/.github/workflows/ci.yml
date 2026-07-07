@@ -1,0 +1,44 @@
+name: Analyze and Test
+
+on:
+  push:
+    paths:
+      - 'async_query/**'
+  pull_request:
+    paths:
+      - 'async_query/**'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: async_query
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dart-lang/setup-dart@v1
+        with:
+          sdk: stable
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+
+      - name: Install dependencies
+        run: |
+          dart pub get
+          cd packages/async_query_flutter && flutter pub get
+          cd ../../example && flutter pub get
+
+      - name: Analyze
+        run: |
+          dart analyze --fatal-infos
+          cd packages/async_query_flutter && dart analyze --fatal-infos
+
+      - name: Test core
+        run: dart test
+
+      - name: Test Flutter
+        run: cd packages/async_query_flutter && flutter test
