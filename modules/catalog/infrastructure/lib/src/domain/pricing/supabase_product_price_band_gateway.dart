@@ -36,6 +36,25 @@ final class SupabaseProductPriceBandGateway implements IProductPriceBandGateway 
   }
 
   @override
+  Future<ProductPriceBandSnapshotDto> getPriceBandSnapshot({
+    required String tenantId,
+    required List<ProductPriceBandSnapshotRequest> items,
+  }) async {
+    try {
+      final row = await _rpcClient.callMap(
+        'get_product_price_band_snapshot',
+        params: ProductPriceBandRpcMapper.getPriceBandSnapshotParams(
+          tenantId: tenantId,
+          items: items,
+        ),
+      );
+      return ProductPriceBandRpcMapper.snapshotFromJson(row);
+    } on RpcException catch (error) {
+      throw mapCatalogRpcError(error);
+    }
+  }
+
+  @override
   Future<void> setProductUnitPriceBand({
     required String tenantId,
     required String productId,

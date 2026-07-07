@@ -856,6 +856,74 @@ Tests: `scn_contract_e06_u03_*` in `fake_catalog_module_test.dart` (group `EPIC-
 
 ---
 
+## EPIC-06 / US-04 — Price band snapshot for consumers (slice #19)
+
+**Status:** CONTRACT `done` · BE `done` · FE `n/a` · E2E `todo`
+
+### Commands / Queries
+
+| Symbol | Input (summary) | Success | Errors |
+| ------ | --------------- | ------- | ------ |
+| `GetProductPriceBandSnapshotQuery` | tenantId, `items[]` (`productId`, `productUnitId`) | `ProductPriceBandSnapshotDto` | PermissionDenied, ValidationException, NotFound |
+
+Package: `vet45_catalog_application` — `pricing/price_band_snapshot/`.
+
+Supporting types:
+
+| Type | Fields |
+| ---- | ------ |
+| `ProductPriceBandSnapshotRequest` | productId, productUnitId |
+| `ProductPriceBandSnapshotItemDto` | productId, productUnitId, unitName, currency, listPrice?, listPriceMissing, floorPrice?, floorPriceMissing, floorPriceHidden, isUnitActive, productBusinessStatus, capturedAt |
+| `ProductPriceBandSnapshotDto` | items[] |
+
+Permissions:
+
+- `GetProductPriceBandSnapshotQuery` → `@RequiresPermission(CatalogPermissions.view)` + `@RequiresTenant()`
+- `floorPrice` masked at RPC when caller lacks `catalog.product.manage_pricing`; `floorPriceMissing` still returned so Sales knows threshold data is absent or hidden
+
+**Scope / rules:**
+
+- FR-01: Giá niêm yết theo product + active selling unit; `listPriceMissing=true` when absent — never treat null as valid price
+- FR-02: Giá sàn cùng grain; `floorPriceMissing` when absent; `floorPriceHidden` when permission masks internal pricing
+- FR-03: Consumer API returns only list/floor frame — no promo/final sale price, no store-rule metadata, no base price
+- FR-04: `capturedAt` set in application handler after read; Sales/Promotions copy into transaction snapshot — catalog does not persist order history
+
+Port: extend `IProductPriceBandGateway.getPriceBandSnapshot`.
+
+### RPC mapping (BE)
+
+| Use case | RPC | Params (summary) | Notes |
+| -------- | --- | ---------------- | ----- |
+| Price band snapshot | `catalog.get_product_price_band_snapshot` | `p_tenant_id`, `p_items` jsonb array of `{product_id, product_unit_id}` | Batch 1..100; fail fast on missing product/unit; floor masked without `manage_pricing` |
+
+Draft: [`supabase/migrations/_drafts/15_catalog_product_price_band_snapshot.sql`](../../../../supabase/migrations/_drafts/15_catalog_product_price_band_snapshot.sql)
+
+**BE tests:** `product_price_band_snapshot_handlers_test.dart` (`scn_e06_u04_*`), `product_price_band_rpc_mapper_test.dart`
+
+### Fake scenarios (FE / contract)
+
+| scenario_id | trigger | fake response |
+| ----------- | ------- | ------------- |
+| `scn_contract_e06_u04_fr01_01` | `product-5` + `${product-5}-base` | `listPrice=45000`, `listPriceMissing=false` |
+| `scn_contract_e06_u04_fr01_03` | `product-9-base` | `listPriceMissing=true` |
+| `scn_contract_e06_u04_fr01_02` | `product-1-unit-thung` | `isUnitActive=false`, prices missing |
+| `scn_contract_e06_u04_fr02_01` | `product-1-base` | `floorPrice=95000`, `floorPriceMissing=false` |
+| `scn_contract_e06_u04_fr02_03` | `product-snapshot-partial-base` | `listPrice=100000`, `floorPriceMissing=true` |
+| `scn_contract_e06_u04_fr04_01` | happy path item | `capturedAt` set; identity + prices for Sales copy |
+| `scn_contract_e06_u04_permission_denied` | no `catalog.product.view` | `ApplicationException` (Permission denied) |
+| `scn_contract_e06_u04_validation` | empty items / >100 | `ValidationException` |
+
+`FakeCatalogModule` — `package:vet45_catalog_application/testing.dart`.
+
+Tests: `scn_contract_e06_u04_*` in `fake_catalog_module_test.dart`.
+
+### Parallel notes
+
+- FE: **n/a**
+- E2E prerequisite: US-03 (price band data)
+
+---
+
 ## EPIC-07 / US-01 — Bảo trì hồ sơ (slice #12)
 
 **Status:** CONTRACT `done` · BE `done` · FE `todo`
@@ -1296,7 +1364,7 @@ Tests: `scn_contract_e03_u03_*` trong `fake_catalog_module_test.dart`.
 | EPIC-06 US-01 | Manual base price (FR-03 costing read **pending**) | done |
 | EPIC-06 US-02 | Store Price Rule | done |
 | EPIC-06 US-03 | Product Unit Price Band | done |
-| EPIC-06 US-04 | ProductPriceBandSnapshot consumers | todo |
+| EPIC-06 US-04 | ProductPriceBandSnapshot consumers | done |
 | EPIC-07 US-01 | Product profile maintenance | done |
 | EPIC-07 US-02 | Lifecycle business status | done |
 | EPIC-07 US-03 | Soft delete / restore | done |

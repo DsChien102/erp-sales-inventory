@@ -81,6 +81,16 @@ abstract final class FakeCatalogScenario {
   static const scnContractE06U03Fr03_01 = 'scn_contract_e06_u03_fr03_01';
   static const scnContractE06U03Fr03_02 = 'scn_contract_e06_u03_fr03_02';
 
+  static const scnContractE06U04Fr01_01 = 'scn_contract_e06_u04_fr01_01';
+  static const scnContractE06U04Fr01_02 = 'scn_contract_e06_u04_fr01_02';
+  static const scnContractE06U04Fr01_03 = 'scn_contract_e06_u04_fr01_03';
+  static const scnContractE06U04Fr02_01 = 'scn_contract_e06_u04_fr02_01';
+  static const scnContractE06U04Fr02_03 = 'scn_contract_e06_u04_fr02_03';
+  static const scnContractE06U04Fr04_01 = 'scn_contract_e06_u04_fr04_01';
+  static const scnContractE06U04PermissionDenied =
+      'scn_contract_e06_u04_permission_denied';
+  static const scnContractE06U04Validation = 'scn_contract_e06_u04_validation';
+
   static const scnContractE07U01Fr01_01 = 'scn_contract_e07_u01_fr01_01';
   static const scnContractE07U01Fr01_02 = 'scn_contract_e07_u01_fr01_02';
   static const scnContractE07U01Fr01_03 = 'scn_contract_e07_u01_fr01_03';

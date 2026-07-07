@@ -62,6 +62,10 @@ final catalogAccessMetadataRegistry = AccessMetadataRegistry({
     permission: 'catalog.product.view_detail',
     requiresTenant: true,
   ),
+  GetProductPriceBandSnapshotQuery: AccessMetadata(
+    permission: 'catalog.product.view',
+    requiresTenant: true,
+  ),
   GetProductReadinessQuery: AccessMetadata(
     permission: 'catalog.product.view_detail',
     requiresTenant: true,

@@ -2496,6 +2496,186 @@ void main() {
     });
   });
 
+  group('EPIC-06 / US-04 contract', () {
+    test('scn_contract_e06_u04_fr01_01 returns list price for product-5 base unit', () async {
+      final module = FakeCatalogModule(
+        scenario: FakeCatalogScenario.scnContractE06U04Fr01_01,
+      );
+
+      final result = await module.executeQueryAsync(
+        GetProductPriceBandSnapshotQuery(
+          tenantId: 'tenant-1',
+          items: const [
+            ProductPriceBandSnapshotRequest(
+              productId: 'product-5',
+              productUnitId: 'product-5-base',
+            ),
+          ],
+        ),
+      );
+
+      expect(result.items.single.listPrice, 45000);
+      expect(result.items.single.listPriceMissing, isFalse);
+    });
+
+    test('scn_contract_e06_u04_fr01_03 returns missing list price', () async {
+      final module = FakeCatalogModule(
+        scenario: FakeCatalogScenario.scnContractE06U04Fr01_03,
+      );
+
+      final result = await module.executeQueryAsync(
+        GetProductPriceBandSnapshotQuery(
+          tenantId: 'tenant-1',
+          items: const [
+            ProductPriceBandSnapshotRequest(
+              productId: 'product-9',
+              productUnitId: 'product-9-base',
+            ),
+          ],
+        ),
+      );
+
+      expect(result.items.single.listPriceMissing, isTrue);
+      expect(result.items.single.listPrice, isNull);
+    });
+
+    test('scn_contract_e06_u04_fr01_02 returns inactive unit without prices', () async {
+      final module = FakeCatalogModule(
+        scenario: FakeCatalogScenario.scnContractE06U04Fr01_02,
+      );
+
+      final result = await module.executeQueryAsync(
+        GetProductPriceBandSnapshotQuery(
+          tenantId: 'tenant-1',
+          items: const [
+            ProductPriceBandSnapshotRequest(
+              productId: 'product-1',
+              productUnitId: 'product-1-unit-thung',
+            ),
+          ],
+        ),
+      );
+
+      expect(result.items.single.isUnitActive, isFalse);
+      expect(result.items.single.listPriceMissing, isTrue);
+    });
+
+    test('scn_contract_e06_u04_fr02_01 returns floor price', () async {
+      final module = FakeCatalogModule(
+        scenario: FakeCatalogScenario.scnContractE06U04Fr02_01,
+      );
+
+      final result = await module.executeQueryAsync(
+        GetProductPriceBandSnapshotQuery(
+          tenantId: 'tenant-1',
+          items: const [
+            ProductPriceBandSnapshotRequest(
+              productId: 'product-1',
+              productUnitId: 'product-1-base',
+            ),
+          ],
+        ),
+      );
+
+      expect(result.items.single.floorPrice, 95000);
+      expect(result.items.single.floorPriceMissing, isFalse);
+    });
+
+    test('scn_contract_e06_u04_fr02_03 returns list with missing floor', () async {
+      final module = FakeCatalogModule(
+        scenario: FakeCatalogScenario.scnContractE06U04Fr02_03,
+      );
+
+      final result = await module.executeQueryAsync(
+        GetProductPriceBandSnapshotQuery(
+          tenantId: 'tenant-1',
+          items: const [
+            ProductPriceBandSnapshotRequest(
+              productId: 'product-snapshot-partial',
+              productUnitId: 'product-snapshot-partial-base',
+            ),
+          ],
+        ),
+      );
+
+      expect(result.items.single.listPrice, 100000);
+      expect(result.items.single.floorPriceMissing, isTrue);
+      expect(result.items.single.floorPrice, isNull);
+    });
+
+    test('scn_contract_e06_u04_fr04_01 returns capturedAt for Sales copy', () async {
+      final module = FakeCatalogModule(
+        scenario: FakeCatalogScenario.scnContractE06U04Fr04_01,
+      );
+      final before = DateTime.now().toUtc();
+
+      final result = await module.executeQueryAsync(
+        GetProductPriceBandSnapshotQuery(
+          tenantId: 'tenant-1',
+          items: const [
+            ProductPriceBandSnapshotRequest(
+              productId: 'product-1',
+              productUnitId: 'product-1-base',
+            ),
+          ],
+        ),
+      );
+
+      final after = DateTime.now().toUtc();
+      expect(
+        result.items.single.capturedAt.isAfter(
+          before.subtract(const Duration(seconds: 1)),
+        ),
+        isTrue,
+      );
+      expect(
+        result.items.single.capturedAt.isBefore(
+          after.add(const Duration(seconds: 1)),
+        ),
+        isTrue,
+      );
+      expect(result.items.single.productId, 'product-1');
+      expect(result.items.single.unitName, isNotEmpty);
+    });
+
+    test('scn_contract_e06_u04_permission_denied rejects without view', () async {
+      final module = FakeCatalogModule(
+        scenario: FakeCatalogScenario.scnContractE06U04PermissionDenied,
+      );
+
+      await expectLater(
+        module.executeQueryAsync(
+          GetProductPriceBandSnapshotQuery(
+            tenantId: 'tenant-1',
+            items: const [
+              ProductPriceBandSnapshotRequest(
+                productId: 'product-1',
+                productUnitId: 'product-1-base',
+              ),
+            ],
+          ),
+        ),
+        throwsA(isA<ApplicationException>()),
+      );
+    });
+
+    test('scn_contract_e06_u04_validation rejects empty items', () async {
+      final module = FakeCatalogModule(
+        scenario: FakeCatalogScenario.scnContractE06U04Validation,
+      );
+
+      await expectLater(
+        module.executeQueryAsync(
+          GetProductPriceBandSnapshotQuery(
+            tenantId: 'tenant-1',
+            items: const [],
+          ),
+        ),
+        throwsA(isA<ValidationException>()),
+      );
+    });
+  });
+
   group('EPIC-07 / US-01 product profile maintenance contract', () {
     test('scn_contract_e07_u01_fr01_01 updates profile and readiness', () async {
       final module = FakeCatalogModule(

@@ -269,6 +269,15 @@ final class FakeCatalogModule implements ICatalogModule {
           isActive: true,
           hasConversionRate: false,
         ),
+        _ProductUnit(
+          id: 'product-snapshot-partial-base',
+          productId: 'product-snapshot-partial',
+          name: 'Lọ',
+          conversionRateToBase: 1,
+          isBaseUnit: true,
+          isActive: true,
+          listPrice: 100000,
+        ),
       ],
       _products = [
         _StoredProduct(
@@ -430,6 +439,18 @@ final class FakeCatalogModule implements ICatalogModule {
           floorPrice: 28000,
           businessStatus: ProductStatus.inactive,
           updatedAt: DateTime.utc(2026, 1, 2),
+        ),
+        _StoredProduct(
+          id: 'product-snapshot-partial',
+          name: 'Snapshot Partial Band',
+          tradeName: 'Partial Band',
+          sku: 'SP0013',
+          barcode: '8930000000013',
+          baseUnit: 'Lọ',
+          images: ['https://picsum.photos/200/311'],
+          stockQty: 5,
+          baseCost: 80000,
+          updatedAt: DateTime.utc(2026, 1, 1),
         ),
       ],
       _storeRules = {
@@ -788,6 +809,11 @@ final class FakeCatalogModule implements ICatalogModule {
     if (query is ListProductUnitPriceBandsQuery) {
       return _handleListProductUnitPriceBands<TResult>(
         query as ListProductUnitPriceBandsQuery,
+      );
+    }
+    if (query is GetProductPriceBandSnapshotQuery) {
+      return _handleGetProductPriceBandSnapshot<TResult>(
+        query as GetProductPriceBandSnapshotQuery,
       );
     }
     if (query is ListCustomFieldConfigQuery) {
@@ -1755,7 +1781,8 @@ final class FakeCatalogModule implements ICatalogModule {
   }
 
   void _assertCatalogReadPermission() {
-    if (scenario == FakeCatalogScenario.customFieldSearchPermissionDenied) {
+    if (scenario == FakeCatalogScenario.customFieldSearchPermissionDenied ||
+        scenario == FakeCatalogScenario.scnContractE06U04PermissionDenied) {
       throw ApplicationException('Permission denied');
     }
   }
@@ -2509,6 +2536,103 @@ final class FakeCatalogModule implements ICatalogModule {
       sourceType: unit.priceBandSourceType,
       storePriceRuleName: unit.storePriceRuleName,
       isCustomOverride: unit.isCustomOverride,
+    );
+  }
+
+  TResult _handleGetProductPriceBandSnapshot<TResult>(
+    GetProductPriceBandSnapshotQuery query,
+  ) {
+    _assertCatalogReadPermission();
+
+    if (scenario == FakeCatalogScenario.scnContractE06U04Validation) {
+      if (query.items.isEmpty) {
+        throw ValidationException('At least one item is required.');
+      }
+      if (query.items.length > 100) {
+        throw ValidationException('At most 100 items can be read at once.');
+      }
+    }
+
+    final capturedAt = DateTime.now().toUtc();
+    final items = query.items
+        .map(
+          (item) => _buildPriceBandSnapshotItem(
+            item: item,
+            capturedAt: capturedAt,
+          ),
+        )
+        .toList(growable: false);
+
+    return ProductPriceBandSnapshotDto(items: items) as TResult;
+  }
+
+  ProductPriceBandSnapshotItemDto _buildPriceBandSnapshotItem({
+    required ProductPriceBandSnapshotRequest item,
+    required DateTime capturedAt,
+  }) {
+    final product = _findProduct(item.productId);
+    if (product == null || product.isSoftDeleted) {
+      throw ApplicationException('Product not found');
+    }
+
+    final structuredUnit = _findProductUnit(item.productId, item.productUnitId);
+    if (structuredUnit != null) {
+      return _snapshotItemFromUnit(
+        product: product,
+        unit: structuredUnit,
+        capturedAt: capturedAt,
+      );
+    }
+
+    final syntheticBaseId = '${product.id}-base';
+    if (item.productUnitId == syntheticBaseId) {
+      if (!product.hasBaseUnit) {
+        throw ApplicationException('Product not found');
+      }
+      final listPrice = product.listPrice;
+      final floorPrice = product.floorPrice;
+      final floorHidden = product.pricePermissionDenied;
+      return ProductPriceBandSnapshotItemDto(
+        productId: product.id,
+        productUnitId: syntheticBaseId,
+        unitName: product.baseUnit,
+        currency: 'VND',
+        listPrice: listPrice,
+        listPriceMissing: listPrice == null,
+        floorPrice: floorHidden ? null : floorPrice,
+        floorPriceMissing: floorPrice == null,
+        floorPriceHidden: floorHidden,
+        isUnitActive: true,
+        productBusinessStatus: product.businessStatus,
+        capturedAt: capturedAt,
+      );
+    }
+
+    throw ApplicationException('Product not found');
+  }
+
+  ProductPriceBandSnapshotItemDto _snapshotItemFromUnit({
+    required _StoredProduct product,
+    required _ProductUnit unit,
+    required DateTime capturedAt,
+  }) {
+    final floorHidden = product.pricePermissionDenied;
+    final listPrice = unit.isActive ? unit.listPrice : null;
+    final floorPrice = unit.isActive && !floorHidden ? unit.floorPrice : null;
+
+    return ProductPriceBandSnapshotItemDto(
+      productId: product.id,
+      productUnitId: unit.id,
+      unitName: unit.name,
+      currency: 'VND',
+      listPrice: listPrice,
+      listPriceMissing: listPrice == null,
+      floorPrice: floorPrice,
+      floorPriceMissing: unit.floorPrice == null,
+      floorPriceHidden: floorHidden,
+      isUnitActive: unit.isActive,
+      productBusinessStatus: product.businessStatus,
+      capturedAt: capturedAt,
     );
   }
 
