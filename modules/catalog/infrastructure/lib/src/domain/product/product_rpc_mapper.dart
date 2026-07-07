@@ -97,6 +97,97 @@ abstract final class ProductRpcMapper {
     };
   }
 
+  static Map<String, dynamic> updateProductProfileParams(
+    UpdateProductProfileCommand command,
+  ) {
+    return <String, dynamic>{
+      'p_tenant_id': command.tenantId,
+      'p_actor_id': command.actorId,
+      'p_product_id': command.productId,
+      'p_name': command.productName.trim(),
+      'p_trade_name': _optionalText(command.commercialName),
+      'p_sku': _optionalText(command.sku),
+      'p_barcode': _optionalText(command.barcode),
+      'p_description': _optionalText(command.description),
+      'p_note': _optionalText(command.note),
+      'p_expected_version': command.expectedVersion,
+    };
+  }
+
+  static Map<String, dynamic> updateProductImagesParams(
+    UpdateProductImagesCommand command,
+  ) {
+    return <String, dynamic>{
+      'p_tenant_id': command.tenantId,
+      'p_actor_id': command.actorId,
+      'p_product_id': command.productId,
+      'p_images': command.images
+          .map(
+            (image) => <String, dynamic>{
+              'image_id': image.imageId,
+              'storage_key': image.storageKey,
+              'slot_id': image.slotId,
+              'url': image.url,
+              'is_primary': image.isPrimary,
+              'sort_order': image.sortOrder,
+            },
+          )
+          .toList(growable: false),
+      'p_expected_version': command.expectedVersion,
+    };
+  }
+
+  static Map<String, dynamic> requestMaintenanceImageUploadParams(
+    RequestProductMaintenanceImageUploadCommand command,
+  ) {
+    return <String, dynamic>{
+      'p_tenant_id': command.tenantId,
+      'p_product_id': command.productId,
+      'p_file_name': command.fileName,
+      'p_content_type': command.contentType,
+      'p_byte_size': command.byteSize,
+      'p_actor_id': command.actorId,
+    };
+  }
+
+  static UpdateProductProfileResult updateProductProfileResultFromRow(
+    Map<String, dynamic> row,
+  ) {
+    final productId = row['product_id'] as String;
+    return UpdateProductProfileResult(
+      productId: productId,
+      profile: ProductProfileSummaryDto(
+        productId: productId,
+        name: row['name'] as String,
+        tradeName: row['trade_name'] as String?,
+        sku: row['sku'] as String?,
+        barcode: row['barcode'] as String?,
+        businessStatus: _productStatusFromRpc(
+          row['business_status'] as String?,
+        ),
+        isSoftDeleted: row['is_soft_deleted'] as bool? ?? false,
+        primaryImageUrl: row['primary_image_url'] as String?,
+        images: _stringList(row['images']),
+        description: row['description'] as String?,
+        note: row['note'] as String?,
+      ),
+      readinessSummary: _readinessSummaryFromRow(row),
+      version: _intValue(row['version']) ?? 1,
+    );
+  }
+
+  static UpdateProductImagesResult updateProductImagesResultFromRow(
+    Map<String, dynamic> row,
+  ) {
+    return UpdateProductImagesResult(
+      productId: row['product_id'] as String,
+      images: _imageDtos(row['images']),
+      primaryImageUrl: row['primary_image_url'] as String?,
+      readinessSummary: _readinessSummaryFromRow(row),
+      version: _intValue(row['version']) ?? 1,
+    );
+  }
+
   static Map<String, dynamic> getProductReadinessParams({
     required String tenantId,
     required String productId,
@@ -313,5 +404,67 @@ abstract final class ProductRpcMapper {
       'barcode' => ProductDuplicateField.barcode,
       _ => throw ArgumentError('Unknown duplicate field: $value'),
     };
+  }
+
+  static String? _optionalText(String? value) {
+    final trimmed = value?.trim();
+    if (trimmed == null || trimmed.isEmpty) {
+      return null;
+    }
+    return trimmed;
+  }
+
+  static ProductStatus _productStatusFromRpc(String? value) {
+    return switch (value) {
+      'inactive' => ProductStatus.inactive,
+      _ => ProductStatus.active,
+    };
+  }
+
+  static ReadinessSummaryDto _readinessSummaryFromRow(Map<String, dynamic> row) {
+    return ReadinessSummaryDto(
+      status: readinessStatusFromRpc(row['readiness_status'] as String?),
+      blockers: (row['readiness_blockers'] as List<dynamic>? ?? const [])
+          .map((item) {
+            final map = Map<String, dynamic>.from(item as Map);
+            return ReadinessBlockerDto(
+              code: map['code'] as String,
+              message: map['message'] as String,
+              group: map['group'] as String?,
+            );
+          })
+          .toList(growable: false),
+    );
+  }
+
+  static List<String> _stringList(Object? value) {
+    return (value as List<dynamic>? ?? const [])
+        .map((item) => item.toString())
+        .toList(growable: false);
+  }
+
+  static List<ProductImageDto> _imageDtos(Object? value) {
+    return (value as List<dynamic>? ?? const [])
+        .map((item) {
+          final map = Map<String, dynamic>.from(item as Map);
+          return ProductImageDto(
+            imageId: map['image_id'] as String,
+            storageKey: map['storage_key'] as String,
+            url: map['url'] as String?,
+            isPrimary: map['is_primary'] as bool? ?? false,
+            sortOrder: _intValue(map['sort_order']) ?? 0,
+          );
+        })
+        .toList(growable: false);
+  }
+
+  static int? _intValue(Object? value) {
+    if (value == null) {
+      return null;
+    }
+    if (value is num) {
+      return value.round();
+    }
+    return int.tryParse(value.toString());
   }
 }

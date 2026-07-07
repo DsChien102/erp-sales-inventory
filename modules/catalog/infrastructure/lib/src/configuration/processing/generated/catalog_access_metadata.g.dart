@@ -70,6 +70,10 @@ final catalogAccessMetadataRegistry = AccessMetadataRegistry({
     permission: 'catalog.product.create',
     requiresTenant: true,
   ),
+  RequestProductMaintenanceImageUploadCommand: AccessMetadata(
+    permission: 'catalog.product.update',
+    requiresTenant: true,
+  ),
   ScanBarcodeQuery: AccessMetadata(
     permission: 'catalog.product.view',
     requiresTenant: true,
@@ -104,6 +108,14 @@ final catalogAccessMetadataRegistry = AccessMetadataRegistry({
   ),
   SuggestProductUnitPriceQuery: AccessMetadata(
     permission: 'catalog.product.manage_pricing',
+    requiresTenant: true,
+  ),
+  UpdateProductImagesCommand: AccessMetadata(
+    permission: 'catalog.product.update',
+    requiresTenant: true,
+  ),
+  UpdateProductProfileCommand: AccessMetadata(
+    permission: 'catalog.product.update',
     requiresTenant: true,
   ),
 });

@@ -856,6 +856,82 @@ Tests: `scn_contract_e06_u03_*` in `fake_catalog_module_test.dart` (group `EPIC-
 
 ---
 
+## EPIC-07 / US-01 — Bảo trì hồ sơ (slice #12)
+
+**Status:** CONTRACT `done` · BE `done` · FE `todo`
+
+### Commands / Queries
+
+| Symbol | Input (summary) | Success | Errors |
+| ------ | --------------- | ------- | ------ |
+| `UpdateProductProfileCommand` | tenantId, actorId, productId, productName, commercialName?, sku?, barcode?, description?, note?, expectedVersion? | `UpdateProductProfileResult` | `ValidationException`, `DuplicateSkuException`, `DuplicateBarcodeException`, `StaleProductVersionException`, PermissionDenied, NotFound, soft-deleted lock |
+| `UpdateProductImagesCommand` | tenantId, actorId, productId, images[], expectedVersion? | `UpdateProductImagesResult` | `ValidationException`, `StaleProductVersionException`, PermissionDenied, NotFound, soft-deleted lock |
+| `RequestProductMaintenanceImageUploadCommand` | tenantId, actorId, productId, fileName, contentType, byteSize | `ProductImageUploadSlotDto` | `ValidationException`, PermissionDenied, NotFound, soft-deleted lock |
+
+Package: `vet45_catalog_application` — `lifecycle/`.
+
+Supporting types:
+
+| Type | Fields |
+| ---- | ------ |
+| `ProductImageMutationInput` | imageId?, storageKey, slotId?, url?, isPrimary, sortOrder |
+| `ProductImageDto` | imageId, storageKey, url?, isPrimary, sortOrder |
+| `UpdateProductProfileResult` | productId, profile (`ProductProfileSummaryDto`), readinessSummary, version |
+| `UpdateProductImagesResult` | productId, images[], primaryImageUrl?, readinessSummary, version |
+| `StaleProductVersionException` | expectedVersion, currentVersion |
+
+Permissions:
+
+- `UpdateProductProfileCommand` → `@RequiresPermission(CatalogPermissions.update)` + `@RequiresTenant()`
+- `UpdateProductImagesCommand` → `@RequiresPermission(CatalogPermissions.update)` + `@RequiresTenant()`
+- `RequestProductMaintenanceImageUploadCommand` → `@RequiresPermission(CatalogPermissions.update)` + `@RequiresTenant()`
+
+### Contract rules
+
+- Profile maintenance edits only identification/profile fields: name, commercial name, SKU, barcode, description, note. It does not change operational modes, UOM, stock, base price, price band, status, or soft-delete state.
+- Product name is required after trim. Empty optional profile fields are persisted as absent values.
+- SKU/barcode uniqueness is tenant-scoped and includes inactive / soft-deleted products until BE policy changes explicitly.
+- Image maintenance uses snapshot semantics: submitted `images[]` replaces the current visible gallery. If images are present but none is primary, the first sorted image is promoted to primary.
+- Deleting all images is allowed; the result returns `images=[]`, `primaryImageUrl=null`, and refreshed readiness may include `missing_image`.
+- `expectedVersion` is optional optimistic concurrency. If provided and stale, return `StaleProductVersionException`.
+- Soft-deleted product profile/image maintenance is locked in this contract. Restore flow belongs to EPIC-07/US-03.
+- FR-03 open transaction warning is **deferred** until TH-04/Sales or another operational module exposes a lookup contract. Slice #12 adds no warning flag, no lookup port, and no cross-module dependency.
+
+### RPC mapping (BE — later lane)
+
+| Use case | RPC | Notes |
+| -------- | --- | ----- |
+| Update profile | `catalog.update_product_profile` | Update profile fields, duplicate checks, version check, change history, readiness refresh |
+| Update image snapshot | `catalog.update_product_images` | Replace visible gallery, normalize primary image, change history, readiness refresh |
+| Request maintenance upload | reuse upload-slot RPC or maintenance wrapper | Must use `catalog.product.update`, not `catalog.product.create` |
+
+No SQL draft is created in CONTRACT lane.
+
+### Fake scenarios (FE)
+
+| scenario_id | trigger | fake response |
+| ----------- | ------- | ------------- |
+| `scn_contract_e07_u01_fr01_01` | valid `UpdateProductProfileCommand` | updated `ProductProfileSummaryDto`, readiness, version increment |
+| `scn_contract_e07_u01_fr01_02` | blank product name | `ValidationException` |
+| `scn_contract_e07_u01_fr01_03` | duplicate SKU | `DuplicateSkuException` |
+| `scn_contract_e07_u01_fr03_01` | duplicate barcode on inactive product | `DuplicateBarcodeException` |
+| `scn_contract_e07_u01_fr01_04` | update soft-deleted product | `ApplicationException` lock |
+| `scn_contract_e07_u01_fr01_05` | stale `expectedVersion` | `StaleProductVersionException` |
+| `scn_contract_e07_u01_fr02_01` | replace gallery + explicit primary | images sorted, primary preserved |
+| `scn_contract_e07_u01_fr02_02` | remove current primary, one image remains | first remaining image promoted |
+| `scn_contract_e07_u01_fr02_03` | submit empty gallery | no primary + `missing_image` readiness blocker |
+| `scn_contract_e07_u01_fr02_04` | invalid upload content type | `ValidationException` |
+| `scn_contract_e07_u01_fr04_01` | profile/image update on incomplete product | refreshed readiness returned |
+
+Tests: `scn_contract_e07_u01_*` in `fake_catalog_module_test.dart` (group `EPIC-07 / US-01 product profile maintenance contract`).
+
+### Parallel notes
+
+- FE có thể fake: **yes**
+- E2E prerequisite: US-01 (data)
+
+---
+
 ## EPIC-03 / US-01 — Cấu hình nhóm & trường (slice #16)
 
 ### Commands / Queries
@@ -906,7 +982,8 @@ Tests: `scn_contract_e06_u03_*` in `fake_catalog_module_test.dart` (group `EPIC-
 | EPIC-06 US-02 | Store Price Rule | done |
 | EPIC-06 US-03 | Product Unit Price Band | done |
 | EPIC-06 US-04 | ProductPriceBandSnapshot consumers | todo |
-| EPIC-07 US-01..04 | Lifecycle, change history | todo |
+| EPIC-07 US-01 | Product profile maintenance | done |
+| EPIC-07 US-02..04 | Lifecycle status, soft delete, change history | todo |
 | EPIC-03 US-02 | UpsertCustomFieldValuesCommand | todo |
 | EPIC-03 US-03 | Search/filter/display on list | todo |
 | EPIC-04 US-03 | Change base unit | **out_of_scope** |

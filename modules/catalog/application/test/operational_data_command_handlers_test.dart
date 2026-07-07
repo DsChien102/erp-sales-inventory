@@ -53,6 +53,20 @@ class _RecordingProductCommandGateway implements IProductCommandGateway {
     lastTenantId = tenantId;
     lastPriceBand = priceBand;
   }
+
+  @override
+  Future<UpdateProductProfileResult> updateProductProfile(
+    UpdateProductProfileCommand command,
+  ) async {
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<UpdateProductImagesResult> updateProductImages(
+    UpdateProductImagesCommand command,
+  ) async {
+    throw UnimplementedError();
+  }
 }
 
 class _FakeProductReadinessReadPort implements IProductReadinessReadPort {

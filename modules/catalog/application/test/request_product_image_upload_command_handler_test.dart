@@ -17,6 +17,13 @@ class _RecordingUploadPort implements IProductImageUploadPort {
       expiresAt: DateTime.utc(2026, 7, 5, 12),
     );
   }
+
+  @override
+  Future<ProductImageUploadSlotDto> reserveMaintenanceUploadSlot(
+    RequestProductMaintenanceImageUploadCommand command,
+  ) async {
+    throw UnimplementedError();
+  }
 }
 
 void main() {

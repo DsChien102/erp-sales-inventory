@@ -5,6 +5,7 @@ import 'package:vet45_shared_application/application.dart';
 import 'package:vet45_shared_infrastructure/infrastructure.dart';
 
 import '../../errors/catalog_error_mapper.dart';
+import 'product_rpc_mapper.dart';
 
 /// Supabase Storage bucket for catalog product images.
 const catalogProductImagesBucket = 'catalog-product-images';
@@ -33,6 +34,48 @@ final class SupabaseProductImageUploadGateway implements IProductImageUploadPort
           'p_byte_size': command.byteSize,
           'p_actor_id': command.actorId,
         },
+      );
+
+      if (rows.isEmpty) {
+        throw ApplicationException('Image upload slot was not created.');
+      }
+
+      final row = rows.first;
+      final slotId = row['slot_id']?.toString();
+      final storageKey = row['storage_key']?.toString();
+      final expiresRaw = row['expires_at'];
+
+      if (slotId == null || slotId.isEmpty || storageKey == null || storageKey.isEmpty) {
+        throw ApplicationException('Invalid image upload slot response.');
+      }
+
+      final expiresAt = _parseExpiresAt(expiresRaw);
+
+      final signed = await _supabase.storage
+          .from(catalogProductImagesBucket)
+          .createSignedUploadUrl(storageKey);
+
+      return ProductImageUploadSlotDto(
+        slotId: slotId,
+        storageKey: storageKey,
+        signedUploadUrl: signed.signedUrl,
+        expiresAt: expiresAt,
+      );
+    } on StorageException catch (error) {
+      throw ApplicationException(error.message);
+    } on RpcException catch (error) {
+      throw mapCatalogRpcError(error);
+    }
+  }
+
+  @override
+  Future<ProductImageUploadSlotDto> reserveMaintenanceUploadSlot(
+    RequestProductMaintenanceImageUploadCommand command,
+  ) async {
+    try {
+      final rows = await _rpcClient.callList(
+        'request_product_maintenance_image_upload',
+        params: ProductRpcMapper.requestMaintenanceImageUploadParams(command),
       );
 
       if (rows.isEmpty) {

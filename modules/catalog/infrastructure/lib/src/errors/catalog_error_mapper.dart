@@ -67,6 +67,14 @@ Object mapCatalogRpcError(RpcException error) {
     return StaleStockQuantityException();
   }
 
+  if (message.contains('stale_product_version')) {
+    final versions = _extractExpectedCurrent(error.message);
+    return StaleProductVersionException(
+      expectedVersion: versions.$1,
+      currentVersion: versions.$2,
+    );
+  }
+
   if (message.contains('validation_exception')) {
     return ValidationException(_stripPrefix(error.message));
   }
@@ -95,4 +103,13 @@ String _stripPrefix(String message) {
 String? _extractQuoted(String message) {
   final match = RegExp(r'"([^"]+)"').firstMatch(message);
   return match?.group(1);
+}
+
+(int, int) _extractExpectedCurrent(String message) {
+  final expected = RegExp(r'expected=(\d+)').firstMatch(message);
+  final current = RegExp(r'current=(\d+)').firstMatch(message);
+  return (
+    int.tryParse(expected?.group(1) ?? '') ?? 0,
+    int.tryParse(current?.group(1) ?? '') ?? 0,
+  );
 }

@@ -31,6 +31,25 @@ void main() {
       expect(metadata?.requiresTenant, isTrue);
     });
 
+    test('maps product maintenance commands to catalog.product.update', () {
+      final profile = catalogAccessMetadataRegistry.forType(
+        UpdateProductProfileCommand,
+      );
+      final images = catalogAccessMetadataRegistry.forType(
+        UpdateProductImagesCommand,
+      );
+      final upload = catalogAccessMetadataRegistry.forType(
+        RequestProductMaintenanceImageUploadCommand,
+      );
+
+      expect(profile?.permission, CatalogPermissions.update);
+      expect(images?.permission, CatalogPermissions.update);
+      expect(upload?.permission, CatalogPermissions.update);
+      expect(profile?.requiresTenant, isTrue);
+      expect(images?.requiresTenant, isTrue);
+      expect(upload?.requiresTenant, isTrue);
+    });
+
     test('maps set initial stock command to manage_stock', () {
       final metadata = catalogAccessMetadataRegistry.forType(
         SetInitialStockCommand,

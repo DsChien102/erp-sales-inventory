@@ -38,6 +38,7 @@ abstract final class FakeCatalogScenario {
   static const pccReadyToSell = 'pcc_ready_to_sell';
   static const pccInactive = 'pcc_inactive';
   static const pccCustomFieldCards = 'pcc_custom_field_cards';
+  static const pccProfileMaintenanceImages = 'pcc_profile_maintenance_images';
 
   static const listTenantUnits = 'list_tenant_units';
   static const setBaseUnitExisting = 'set_base_unit_existing';
@@ -82,6 +83,17 @@ abstract final class FakeCatalogScenario {
   static const scnContractE06U03Fr02_03 = 'scn_contract_e06_u03_fr02_03';
   static const scnContractE06U03Fr03_01 = 'scn_contract_e06_u03_fr03_01';
   static const scnContractE06U03Fr03_02 = 'scn_contract_e06_u03_fr03_02';
+  static const scnContractE07U01Fr01_01 = 'scn_contract_e07_u01_fr01_01';
+  static const scnContractE07U01Fr01_02 = 'scn_contract_e07_u01_fr01_02';
+  static const scnContractE07U01Fr01_03 = 'scn_contract_e07_u01_fr01_03';
+  static const scnContractE07U01Fr01_04 = 'scn_contract_e07_u01_fr01_04';
+  static const scnContractE07U01Fr01_05 = 'scn_contract_e07_u01_fr01_05';
+  static const scnContractE07U01Fr02_01 = 'scn_contract_e07_u01_fr02_01';
+  static const scnContractE07U01Fr02_02 = 'scn_contract_e07_u01_fr02_02';
+  static const scnContractE07U01Fr02_03 = 'scn_contract_e07_u01_fr02_03';
+  static const scnContractE07U01Fr02_04 = 'scn_contract_e07_u01_fr02_04';
+  static const scnContractE07U01Fr03_01 = 'scn_contract_e07_u01_fr03_01';
+  static const scnContractE07U01Fr04_01 = 'scn_contract_e07_u01_fr04_01';
 }
 
 class _TenantUnit {
@@ -172,15 +184,15 @@ class _StorePriceRule {
   DateTime updatedAt;
 
   StorePriceRuleDto toDto() => StorePriceRuleDto(
-        id: id,
-        tenantId: tenantId,
-        name: name,
-        status: status,
-        calculationType: StorePriceCalculationType.markup,
-        listMarkupRatio: listMarkupRatio,
-        floorMarkupRatio: floorMarkupRatio,
-        updatedAt: updatedAt,
-      );
+    id: id,
+    tenantId: tenantId,
+    name: name,
+    status: status,
+    calculationType: StorePriceCalculationType.markup,
+    listMarkupRatio: listMarkupRatio,
+    floorMarkupRatio: floorMarkupRatio,
+    updatedAt: updatedAt,
+  );
 }
 
 class _StoredProduct {
@@ -210,12 +222,13 @@ class _StoredProduct {
   }) : updatedAt = updatedAt ?? DateTime.utc(2026, 1, 1);
 
   final String id;
-  final String name;
-  final String? tradeName;
-  final String sku;
-  final String barcode;
+  String name;
+  String? tradeName;
+  String sku;
+  String barcode;
   String baseUnit;
-  final List<String> images;
+  List<String> images;
+  List<ProductImageDto>? imageDetails;
   int? stockQty;
   int stockVersion = 1;
   List<_StockMovement> stockMovements = const [];
@@ -227,15 +240,16 @@ class _StoredProduct {
   String? storePriceRuleName;
   bool isCustomOverride;
   bool useStoreRule = false;
-  final String? notes;
-  final String? description = null;
+  String? notes;
+  String? description;
   final bool hasRequiredCustomFields;
   final StockMode stockMode;
   final BasePriceMode basePriceMode;
   final bool pricePermissionDenied;
   final ProductStatus businessStatus;
-  final bool isSoftDeleted = false;
-  final DateTime updatedAt;
+  bool isSoftDeleted = false;
+  DateTime updatedAt;
+  int version = 1;
 
   bool get hasBaseUnit => baseUnit.trim().isNotEmpty;
 
@@ -499,7 +513,15 @@ final class FakeCatalogModule implements ICatalogModule {
           listMarkupRatio: 0.5,
           floorMarkupRatio: 0.25,
         ),
-      };
+      } {
+    if (scenario == FakeCatalogScenario.pccProfileMaintenanceImages) {
+      final product = _products.firstWhere((p) => p.id == 'product-1');
+      product.images = [
+        'https://cdn.fake/image-a.webp',
+        'https://cdn.fake/image-b.webp',
+      ];
+    }
+  }
 
   final String scenario;
   final List<_TenantUnit> _tenantUnits;
@@ -634,6 +656,21 @@ final class FakeCatalogModule implements ICatalogModule {
         command as SetProductUnitPriceBandCommand,
       );
     }
+    if (command is UpdateProductProfileCommand) {
+      return _handleUpdateProductProfile<TResult>(
+        command as UpdateProductProfileCommand,
+      );
+    }
+    if (command is UpdateProductImagesCommand) {
+      return _handleUpdateProductImages<TResult>(
+        command as UpdateProductImagesCommand,
+      );
+    }
+    if (command is RequestProductMaintenanceImageUploadCommand) {
+      return _handleRequestMaintenanceUpload<TResult>(
+        command as RequestProductMaintenanceImageUploadCommand,
+      );
+    }
     if (command is RequestProductImageUploadCommand) {
       return _handleRequestUpload<TResult>(
         command as RequestProductImageUploadCommand,
@@ -717,6 +754,205 @@ final class FakeCatalogModule implements ICatalogModule {
       );
     }
     throw UnimplementedError('Unexpected query: ${query.runtimeType}');
+  }
+
+  TResult _handleRequestMaintenanceUpload<TResult>(
+    RequestProductMaintenanceImageUploadCommand command,
+  ) {
+    final product = _findProduct(command.productId);
+    if (product == null) {
+      throw ApplicationException('Product not found');
+    }
+    if (_isSoftDeletedForMaintenance(product)) {
+      throw ApplicationException('Product is soft-deleted and cannot be updated.');
+    }
+    if (scenario == FakeCatalogScenario.scnContractE07U01Fr02_04) {
+      throw ValidationException('Unsupported image content type.');
+    }
+    if (!_isSupportedImageContentType(command.contentType)) {
+      throw ValidationException('Unsupported image content type.');
+    }
+
+    final slotId = 'slot-maintenance-${command.productId}-${product.version}';
+    return ProductImageUploadSlotDto(
+          slotId: slotId,
+          storageKey: '${command.tenantId}/staging/$slotId/original.jpeg',
+          signedUploadUrl: 'https://storage.fake/upload/$slotId',
+          expiresAt: DateTime.now().toUtc().add(const Duration(hours: 1)),
+        )
+        as TResult;
+  }
+
+  TResult _handleUpdateProductProfile<TResult>(
+    UpdateProductProfileCommand command,
+  ) {
+    final product = _findProduct(command.productId);
+    if (product == null) {
+      throw ApplicationException('Product not found');
+    }
+    _ensureMaintenanceAllowed(product, command.expectedVersion);
+
+    final productName = command.productName.trim();
+    if (productName.isEmpty) {
+      throw ValidationException('Product name is required.');
+    }
+    final sku = _optionalText(command.sku) ?? '';
+    final barcode = _optionalText(command.barcode) ?? '';
+    _ensureUniqueSku(product, sku);
+    _ensureUniqueBarcode(product, barcode);
+
+    product.name = productName;
+    product.tradeName = _optionalText(command.commercialName);
+    product.sku = sku;
+    product.barcode = barcode;
+    product.description = _optionalText(command.description);
+    product.notes = _optionalText(command.note);
+    _markUpdated(product);
+
+    return UpdateProductProfileResult(
+          productId: product.id,
+          profile: _toProfileSummary(product),
+          readinessSummary: _readinessSummaryFor(product),
+          version: product.version,
+        )
+        as TResult;
+  }
+
+  TResult _handleUpdateProductImages<TResult>(
+    UpdateProductImagesCommand command,
+  ) {
+    final product = _findProduct(command.productId);
+    if (product == null) {
+      throw ApplicationException('Product not found');
+    }
+    _ensureMaintenanceAllowed(product, command.expectedVersion);
+
+    final images = _normalizeImageMutationInputs(command.images);
+    product.imageDetails = images;
+    product.images = images.map((image) => image.url ?? image.storageKey).toList(growable: false);
+    _markUpdated(product);
+
+    return UpdateProductImagesResult(
+          productId: product.id,
+          images: images,
+          primaryImageUrl: _primaryImageUrl(images),
+          readinessSummary: _readinessSummaryFor(product),
+          version: product.version,
+        )
+        as TResult;
+  }
+
+  void _ensureMaintenanceAllowed(_StoredProduct product, int? expectedVersion) {
+    if (_isSoftDeletedForMaintenance(product)) {
+      throw ApplicationException('Product is soft-deleted and cannot be updated.');
+    }
+    if (expectedVersion != null && expectedVersion != product.version) {
+      throw StaleProductVersionException(
+        expectedVersion: expectedVersion,
+        currentVersion: product.version,
+      );
+    }
+  }
+
+  bool _isSoftDeletedForMaintenance(_StoredProduct product) {
+    return product.isSoftDeleted ||
+        (scenario == FakeCatalogScenario.scnContractE07U01Fr01_04 && product.id == 'product-7');
+  }
+
+  void _ensureUniqueSku(_StoredProduct target, String sku) {
+    if (sku.isEmpty) {
+      return;
+    }
+    for (final product in _products) {
+      if (product.id != target.id && product.sku == sku) {
+        throw DuplicateSkuException(
+          sku: sku,
+          existingProductId: product.id,
+          existingProductName: product.name,
+        );
+      }
+    }
+  }
+
+  void _ensureUniqueBarcode(_StoredProduct target, String barcode) {
+    if (barcode.isEmpty) {
+      return;
+    }
+    for (final product in _products) {
+      if (product.id != target.id && product.barcode == barcode) {
+        throw DuplicateBarcodeException(
+          barcode: barcode,
+          existingProductId: product.id,
+          existingProductName: product.name,
+        );
+      }
+    }
+  }
+
+  List<ProductImageDto> _normalizeImageMutationInputs(
+    List<ProductImageMutationInput> inputs,
+  ) {
+    if (inputs.isEmpty) {
+      return const [];
+    }
+
+    final sorted = [...inputs]..sort((a, b) => a.sortOrder.compareTo(b.sortOrder));
+    final hasPrimary = sorted.any((image) => image.isPrimary);
+    return [
+      for (var index = 0; index < sorted.length; index++)
+        ProductImageDto(
+          imageId: sorted[index].imageId ?? 'image-${index + 1}',
+          storageKey: sorted[index].storageKey,
+          url: sorted[index].url,
+          isPrimary: hasPrimary ? sorted[index].isPrimary : index == 0,
+          sortOrder: index,
+        ),
+    ];
+  }
+
+  String? _primaryImageUrl(List<ProductImageDto> images) {
+    for (final image in images) {
+      if (image.isPrimary) {
+        return image.url ?? image.storageKey;
+      }
+    }
+    return null;
+  }
+
+  ProductProfileSummaryDto _toProfileSummary(_StoredProduct product) {
+    return ProductProfileSummaryDto(
+      productId: product.id,
+      name: product.name,
+      tradeName: product.tradeName,
+      sku: product.sku.isEmpty ? null : product.sku,
+      barcode: product.barcode.isEmpty ? null : product.barcode,
+      businessStatus: product.businessStatus,
+      isSoftDeleted: product.isSoftDeleted,
+      primaryImageUrl: product.images.isNotEmpty ? product.images.first : null,
+      images: product.images,
+      description: product.description,
+      note: product.notes,
+    );
+  }
+
+  void _markUpdated(_StoredProduct product) {
+    product.version += 1;
+    product.updatedAt = DateTime.now().toUtc();
+  }
+
+  bool _isSupportedImageContentType(String contentType) {
+    return switch (contentType) {
+      'image/jpeg' || 'image/png' || 'image/webp' => true,
+      _ => false,
+    };
+  }
+
+  String? _optionalText(String? value) {
+    final trimmed = value?.trim();
+    if (trimmed == null || trimmed.isEmpty) {
+      return null;
+    }
+    return trimmed;
   }
 
   TResult _handleRequestUpload<TResult>(
@@ -987,6 +1223,9 @@ final class FakeCatalogModule implements ICatalogModule {
       return _findProduct('product-4') ?? _findProduct(productId);
     }
     if (scenario == FakeCatalogScenario.pccReadyToSell) {
+      return _findProduct('product-1') ?? _findProduct(productId);
+    }
+    if (scenario == FakeCatalogScenario.pccProfileMaintenanceImages) {
       return _findProduct('product-1') ?? _findProduct(productId);
     }
     if (scenario == FakeCatalogScenario.pccInactive) {
@@ -1521,8 +1760,7 @@ final class FakeCatalogModule implements ICatalogModule {
   }
 
   _StorePriceRule? _storeRuleForTenant(String tenantId) {
-    if (scenario == FakeCatalogScenario.scnContractE06U02Fr01_03 &&
-        tenantId == 'tenant-no-rule') {
+    if (scenario == FakeCatalogScenario.scnContractE06U02Fr01_03 && tenantId == 'tenant-no-rule') {
       return null;
     }
     final rule = _storeRules[tenantId];
@@ -1591,8 +1829,7 @@ final class FakeCatalogModule implements ICatalogModule {
       throw MissingBaseUnitException();
     }
 
-    if (scenario == FakeCatalogScenario.scnContractE06U02Fr02_02 ||
-        !product.hasBasePrice) {
+    if (scenario == FakeCatalogScenario.scnContractE06U02Fr02_02 || !product.hasBasePrice) {
       return ProductUnitPriceSuggestionDto(
             productId: product.id,
             productUnitId: query.productUnitId,
@@ -1670,8 +1907,7 @@ final class FakeCatalogModule implements ICatalogModule {
       throw StaleBasePriceException();
     }
 
-    if (command.basePriceVersion != null &&
-        command.basePriceVersion != product.basePriceVersion) {
+    if (command.basePriceVersion != null && command.basePriceVersion != product.basePriceVersion) {
       throw StaleBasePriceException();
     }
 

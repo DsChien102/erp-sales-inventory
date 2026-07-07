@@ -4,6 +4,131 @@ import 'package:vet45_catalog_domain/domain.dart';
 import 'package:vet45_catalog_infrastructure/src/domain/product/product_rpc_mapper.dart';
 
 void main() {
+  group('ProductRpcMapper (EPIC-07/US-01 profile maintenance)', () {
+    test('updateProductProfileParams maps command to RPC parameters', () {
+      final params = ProductRpcMapper.updateProductProfileParams(
+        UpdateProductProfileCommand(
+          tenantId: 'tenant-1',
+          actorId: 'user-1',
+          productId: 'product-1',
+          productName: '  Thuốc A mới  ',
+          commercialName: 'Trade A',
+          sku: 'SKU-NEW',
+          barcode: '8930000000099',
+          description: 'Desc',
+          note: 'Note',
+          expectedVersion: 1,
+        ),
+      );
+
+      expect(params['p_tenant_id'], 'tenant-1');
+      expect(params['p_actor_id'], 'user-1');
+      expect(params['p_product_id'], 'product-1');
+      expect(params['p_name'], 'Thuốc A mới');
+      expect(params['p_trade_name'], 'Trade A');
+      expect(params['p_sku'], 'SKU-NEW');
+      expect(params['p_barcode'], '8930000000099');
+      expect(params['p_description'], 'Desc');
+      expect(params['p_note'], 'Note');
+      expect(params['p_expected_version'], 1);
+    });
+
+    test('updateProductImagesParams maps image snapshot to RPC parameters', () {
+      final params = ProductRpcMapper.updateProductImagesParams(
+        UpdateProductImagesCommand(
+          tenantId: 'tenant-1',
+          actorId: 'user-1',
+          productId: 'product-1',
+          images: const [
+            ProductImageMutationInput(
+              imageId: 'image-2',
+              storageKey: 'tenant-1/products/product-1/image-2.webp',
+              slotId: 'slot-2',
+              url: 'https://cdn.fake/image-2.webp',
+              isPrimary: true,
+              sortOrder: 0,
+            ),
+          ],
+          expectedVersion: 3,
+        ),
+      );
+
+      expect(params['p_tenant_id'], 'tenant-1');
+      expect(params['p_actor_id'], 'user-1');
+      expect(params['p_product_id'], 'product-1');
+      expect(params['p_expected_version'], 3);
+      expect(params['p_images'], [
+        {
+          'image_id': 'image-2',
+          'storage_key': 'tenant-1/products/product-1/image-2.webp',
+          'slot_id': 'slot-2',
+          'url': 'https://cdn.fake/image-2.webp',
+          'is_primary': true,
+          'sort_order': 0,
+        },
+      ]);
+    });
+
+    test('updateProductProfileResultFromRow maps refreshed profile and readiness', () {
+      final result = ProductRpcMapper.updateProductProfileResultFromRow({
+        'product_id': 'product-1',
+        'name': 'Thuốc A mới',
+        'trade_name': 'Trade A',
+        'sku': 'SKU-NEW',
+        'barcode': '8930000000099',
+        'description': 'Desc',
+        'note': 'Note',
+        'business_status': 'active',
+        'is_soft_deleted': false,
+        'primary_image_url': 'https://cdn.fake/image.webp',
+        'images': ['https://cdn.fake/image.webp'],
+        'readiness_status': 'ready_to_sell',
+        'readiness_blockers': [],
+        'version': 2,
+      });
+
+      expect(result.productId, 'product-1');
+      expect(result.profile.name, 'Thuốc A mới');
+      expect(result.profile.primaryImageUrl, 'https://cdn.fake/image.webp');
+      expect(result.readinessSummary.status, ReadinessStatus.readyToSell);
+      expect(result.version, 2);
+    });
+
+    test('updateProductImagesResultFromRow maps visible gallery result', () {
+      final result = ProductRpcMapper.updateProductImagesResultFromRow({
+        'product_id': 'product-1',
+        'images': [
+          {
+            'image_id': 'image-1',
+            'storage_key': 'tenant-1/products/product-1/image-1.webp',
+            'url': 'https://cdn.fake/image-1.webp',
+            'is_primary': true,
+            'sort_order': 0,
+          },
+        ],
+        'primary_image_url': 'https://cdn.fake/image-1.webp',
+        'readiness_status': 'incomplete',
+        'readiness_blockers': [
+          {
+            'code': ReadinessBlockerCode.missingPrice,
+            'message': 'Thiếu giá cơ sở',
+            'group': 'basePrice',
+          },
+        ],
+        'version': 2,
+      });
+
+      expect(result.productId, 'product-1');
+      expect(result.images.single.imageId, 'image-1');
+      expect(result.images.single.isPrimary, isTrue);
+      expect(result.primaryImageUrl, 'https://cdn.fake/image-1.webp');
+      expect(
+        result.readinessSummary.blockers.single.code,
+        ReadinessBlockerCode.missingPrice,
+      );
+    });
+  });
+
   group('ProductRpcMapper (US-02 Operational Data)', () {
     test('setInitialStockParams maps stock profile to RPC parameters', () {
       final profile = ProductStockProfile.basic(initialStock: 150.0);

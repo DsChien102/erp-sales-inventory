@@ -69,6 +69,16 @@ void main() {
       expect(error, isA<StaleStockQuantityException>());
     });
 
+    test('maps stale product version', () {
+      final error = mapCatalogRpcError(
+        RpcException('stale_product_version: expected=0 current=1'),
+      );
+
+      expect(error, isA<StaleProductVersionException>());
+      expect((error as StaleProductVersionException).expectedVersion, 0);
+      expect(error.currentVersion, 1);
+    });
+
     test('maps validation exceptions', () {
       final error = mapCatalogRpcError(
         RpcException('validation_exception: Measurement unit is inactive.'),

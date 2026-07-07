@@ -22,7 +22,7 @@ Foundation MVP: Epic 02 (guided create) → Epic 01 (discovery/control center) �
 | 9   | [EPIC-06/US-01](../EPIC-06-pricing/US-01/) — Manual base price                                            | write | done     | done    | done    | done    | E              | US-01                                                         |
 | 10  | [EPIC-06/US-02](../EPIC-06-pricing/US-02/) — Store Price Rule                                             | write | done     | done    | done    | done    | E              | —                                                             |
 | 11  | [EPIC-06/US-03](../EPIC-06-pricing/US-03/) — Product Unit Price Band                                      | write | done     | done    | done    | done    | F              | US-01, US-02 (UOM)                                            |
-| 12  | [EPIC-07/US-01](../EPIC-07-lifecycle/US-01/) — Bảo trì hồ sơ                                              | write | todo     | todo    | todo    | todo    | G              | US-01                                                         |
+| 12  | [EPIC-07/US-01](../EPIC-07-lifecycle/US-01/) — Bảo trì hồ sơ                                              | write | done     | done    | done    | done    | G              | US-01                                                         |
 | 13  | [EPIC-07/US-02](../EPIC-07-lifecycle/US-02/) — Ngừng KD / KD lại                                          | write | todo     | todo    | todo    | todo    | G              | US-01                                                         |
 | 14  | [EPIC-07/US-03](../EPIC-07-lifecycle/US-03/) — Xóa mềm / khôi phục                                        | write | todo     | todo    | todo    | todo    | H              | US-01                                                         |
 | 15  | [EPIC-04/US-03](../EPIC-04-units/US-03/) — Đổi đơn vị cơ sở                                               | write | n/a      | n/a     | n/a     | n/a     | —              | **out_of_scope**                                              |
@@ -111,5 +111,3 @@ Foundation MVP: Epic 02 (guided create) → Epic 01 (discovery/control center) �
 | ------------ | ------------------------------------ | -------------------------------------------------------------------- |
 | EPIC-01..07  | catalog                              | Readiness, lifecycle, pricing, UOM, stock profile, thông tin bổ sung |
 | Growth reads | catalog + inventory/costing gateways | Read-only; **pending**                                               |
-
-

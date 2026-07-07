@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:vet45_catalog_application/application.dart';
 import 'package:vet45_catalog_domain/domain.dart';
+import 'package:vet45_catalog_presentation/presentation.dart';
 import 'package:vet45_design_system/design_system.dart';
 
 class ProductListItemTile extends StatelessWidget {
@@ -85,16 +86,15 @@ class ProductListItemTile extends StatelessWidget {
   }
 
   Widget _buildImage(dynamic colors) {
-    if (item.primaryImageUrl != null && item.primaryImageUrl!.isNotEmpty) {
-      return ClipRRect(
+    final reference = item.primaryImageUrl;
+    if (reference != null && reference.isNotEmpty) {
+      return CatalogStorageImage(
+        storageReference: reference,
+        width: 60,
+        height: 60,
+        fit: BoxFit.cover,
         borderRadius: BorderRadius.circular(8),
-        child: Image.network(
-          item.primaryImageUrl!,
-          width: 60,
-          height: 60,
-          fit: BoxFit.cover,
-          errorBuilder: (_, __, ___) => _buildPlaceholder(colors),
-        ),
+        placeholder: _buildPlaceholder(colors),
       );
     }
     return _buildPlaceholder(colors);
