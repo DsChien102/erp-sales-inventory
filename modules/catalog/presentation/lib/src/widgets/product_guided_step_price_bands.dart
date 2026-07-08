@@ -195,6 +195,7 @@ class _ProductGuidedStepPriceBandsState extends State<ProductGuidedStepPriceBand
           ),
         ] else if (widget.state.pricingMethod == 'manual') ...[
           Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Expanded(
                 child: Column(
@@ -226,6 +227,8 @@ class _ProductGuidedStepPriceBandsState extends State<ProductGuidedStepPriceBand
                       keyboardType: TextInputType.number,
                       decoration: ProductGuidedFields.buildInputDecoration(context, '0').copyWith(
                         suffixText: '₫',
+                        errorText: widget.state.manualPriceError,
+                        errorMaxLines: 2,
                       ),
                       style: VTypography.bodyDefault.copyWith(color: dynamicColors.textPrimary),
                       onChanged: cubit.updateManualFloorPrice,

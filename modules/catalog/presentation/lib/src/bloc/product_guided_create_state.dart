@@ -35,6 +35,7 @@ class ProductGuidedCreateState {
     this.barcodeError,
     this.duplicateProductId,
     this.duplicateProductName,
+    this.manualPriceError,
     this.createdProduct,
   });
 
@@ -64,6 +65,7 @@ class ProductGuidedCreateState {
   final String? barcodeError;
   final String? duplicateProductId;
   final String? duplicateProductName;
+  final String? manualPriceError;
   final ProductListItemModel? createdProduct;
 
   static const stepCount = 6;
@@ -109,6 +111,8 @@ class ProductGuidedCreateState {
     String? duplicateProductId,
     String? duplicateProductName,
     bool clearDuplicateMatch = false,
+    String? manualPriceError,
+    bool clearManualPriceError = false,
     ProductListItemModel? createdProduct,
   }) {
     return ProductGuidedCreateState(
@@ -137,6 +141,7 @@ class ProductGuidedCreateState {
           clearDuplicateMatch ? null : (duplicateProductId ?? this.duplicateProductId),
       duplicateProductName:
           clearDuplicateMatch ? null : (duplicateProductName ?? this.duplicateProductName),
+      manualPriceError: clearManualPriceError ? null : (manualPriceError ?? this.manualPriceError),
       createdProduct: createdProduct ?? this.createdProduct,
     );
   }

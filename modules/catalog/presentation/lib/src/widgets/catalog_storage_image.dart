@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import '../services/product_image_display_resolver.dart';
 
 /// Displays a catalog product image from local preview, storage key, or URL ref.
-class CatalogStorageImage extends StatelessWidget {
+class CatalogStorageImage extends StatefulWidget {
   const CatalogStorageImage({
     super.key,
     this.storageReference,
@@ -29,37 +29,67 @@ class CatalogStorageImage extends StatelessWidget {
   final ProductImageDisplayResolver? resolver;
 
   @override
+  State<CatalogStorageImage> createState() => _CatalogStorageImageState();
+}
+
+class _CatalogStorageImageState extends State<CatalogStorageImage> {
+  Future<String?>? _resolveFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _initFuture();
+  }
+
+  @override
+  void didUpdateWidget(CatalogStorageImage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.storageReference != oldWidget.storageReference) {
+      _initFuture();
+    }
+  }
+
+  void _initFuture() {
+    final reference = widget.storageReference?.trim();
+    if (reference != null && reference.isNotEmpty) {
+      final imageResolver = widget.resolver ?? ProductImageDisplayResolver.instance;
+      _resolveFuture = imageResolver.resolve(reference);
+    } else {
+      _resolveFuture = null;
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     final child = _buildContent();
-    if (borderRadius == null) {
+    if (widget.borderRadius == null) {
       return child;
     }
     return ClipRRect(
-      borderRadius: borderRadius!,
+      borderRadius: widget.borderRadius!,
       child: child,
     );
   }
 
   Widget _buildContent() {
-    final local = localPath?.trim();
+    final local = widget.localPath?.trim();
     if (local != null && local.isNotEmpty) {
       return Image(
         image: kIsWeb ? NetworkImage(local) : FileImage(File(local)),
-        width: width,
-        height: height,
-        fit: fit,
+        width: widget.width,
+        height: widget.height,
+        fit: widget.fit,
         errorBuilder: (_, __, ___) => _placeholder(),
       );
     }
 
-    final reference = storageReference?.trim();
-    if (reference == null || reference.isEmpty) {
+    final reference = widget.storageReference?.trim();
+    if (reference == null || reference.isEmpty || _resolveFuture == null) {
       return _placeholder();
     }
 
-    final imageResolver = resolver ?? ProductImageDisplayResolver.instance;
     return FutureBuilder<String?>(
-      future: imageResolver.resolve(reference),
+      future: _resolveFuture,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return _loading();
@@ -72,9 +102,9 @@ class CatalogStorageImage extends StatelessWidget {
 
         return Image.network(
           url,
-          width: width,
-          height: height,
-          fit: fit,
+          width: widget.width,
+          height: widget.height,
+          fit: widget.fit,
           errorBuilder: (_, __, ___) => _placeholder(),
         );
       },
@@ -83,9 +113,9 @@ class CatalogStorageImage extends StatelessWidget {
 
   Widget _placeholder() {
     return SizedBox(
-      width: width,
-      height: height,
-      child: placeholder ??
+      width: widget.width,
+      height: widget.height,
+      child: widget.placeholder ??
           const ColoredBox(
             color: Color(0xFFECECEC),
             child: Center(
@@ -97,8 +127,8 @@ class CatalogStorageImage extends StatelessWidget {
 
   Widget _loading() {
     return SizedBox(
-      width: width,
-      height: height,
+      width: widget.width,
+      height: widget.height,
       child: const Center(
         child: SizedBox(
           width: 20,

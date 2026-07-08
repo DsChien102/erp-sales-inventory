@@ -44,7 +44,8 @@ class ProductImagePickerPanel extends StatelessWidget {
 
         return Container(
           width: 100,
-          margin: const EdgeInsets.only(right: VSpacing.space2),
+          height: 100,
+          padding: EdgeInsets.all(isCover ? 0 : 1),
           decoration: BoxDecoration(
             border: Border.all(
               color: isCover ? VColors.success : dynamicColors.borderDefault,
@@ -53,83 +54,69 @@ class ProductImagePickerPanel extends StatelessWidget {
             borderRadius: BorderRadius.circular(VRadius.card),
           ),
           child: ClipRRect(
-            borderRadius: BorderRadius.circular(VRadius.card),
-            child: Stack(
-              fit: StackFit.expand,
-              children: [
-                imageChild,
-                if (draft.status == ProductImageUploadStatus.uploading)
-                  Container(
-                    color: Colors.black.withValues(alpha: 0.35),
-                    child: const Center(
-                      child: SizedBox(
-                        width: 22,
-                        height: 22,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      ),
-                    ),
-                  ),
-                if (draft.status == ProductImageUploadStatus.failed)
-                  Container(
-                    color: Colors.black.withValues(alpha: 0.45),
-                    alignment: Alignment.center,
-                    padding: const EdgeInsets.all(4),
-                    child: Text(
-                      draft.errorMessage ?? 'Lỗi',
-                      textAlign: TextAlign.center,
-                      style: VTypography.caption.copyWith(color: Colors.white, fontSize: 8),
-                    ),
-                  ),
-                if (isCover)
-                  Positioned(
-                    top: 4,
-                    left: 4,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                      decoration: BoxDecoration(
-                        color: VColors.success,
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                      child: Text(
-                        'Ảnh bìa',
-                        style: VTypography.caption.copyWith(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 9,
+            borderRadius: BorderRadius.circular(isCover ? VRadius.card - 2 : VRadius.card - 1),
+            child: GestureDetector(
+              onTap: () => onSetCover(index),
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                  imageChild,
+                  if (draft.status == ProductImageUploadStatus.uploading)
+                    Container(
+                      color: Colors.black.withValues(alpha: 0.35),
+                      child: const Center(
+                        child: SizedBox(
+                          width: 22,
+                          height: 22,
+                          child: CircularProgressIndicator(strokeWidth: 2),
                         ),
                       ),
                     ),
-                  ),
-                Positioned(
-                  top: 2,
-                  right: 2,
-                  child: GestureDetector(
-                    onTap: () => onRemoveAt(index),
-                    child: CircleAvatar(
-                      radius: 10,
-                      backgroundColor: Colors.black.withValues(alpha: 0.55),
-                      child: const Icon(Icons.close, size: 12, color: Colors.white),
-                    ),
-                  ),
-                ),
-                Positioned(
-                  bottom: 0,
-                  left: 0,
-                  right: 0,
-                  child: GestureDetector(
-                    onTap: () => onSetCover(index),
-                    child: Container(
+                  if (draft.status == ProductImageUploadStatus.failed)
+                    Container(
                       color: Colors.black.withValues(alpha: 0.45),
-                      padding: const EdgeInsets.symmetric(vertical: 3),
+                      alignment: Alignment.center,
+                      padding: const EdgeInsets.all(4),
                       child: Text(
-                        'Đặt ảnh bìa',
+                        draft.errorMessage ?? 'Lỗi',
                         textAlign: TextAlign.center,
-                        style: VTypography.caption.copyWith(color: Colors.white, fontSize: 9),
+                        style: VTypography.caption.copyWith(color: Colors.white, fontSize: 8),
+                      ),
+                    ),
+                  if (isCover)
+                    Positioned(
+                      top: 4,
+                      left: 4,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: VColors.success,
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: Text(
+                          'Mặc định',
+                          style: VTypography.caption.copyWith(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 9,
+                          ),
+                        ),
+                      ),
+                    ),
+                  Positioned(
+                    top: 4,
+                    right: 4,
+                    child: GestureDetector(
+                      onTap: () => onRemoveAt(index),
+                      child: CircleAvatar(
+                        radius: 12,
+                        backgroundColor: Colors.black.withValues(alpha: 0.55),
+                        child: const Icon(Icons.close, size: 14, color: Colors.white),
                       ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         );
@@ -144,19 +131,6 @@ class ProductImagePickerPanel extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text(
-          'Ảnh sản phẩm',
-          style: VTypography.bodyDefault.copyWith(
-            color: dynamicColors.textPrimary,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        const SizedBox(height: VSpacing.space1),
-        Text(
-          'Chọn từ thư viện — tối đa $maxImages ảnh. Ảnh được tải lên trước khi lưu sản phẩm.',
-          style: VTypography.bodySmall.copyWith(color: dynamicColors.textSecondary),
-        ),
-        const SizedBox(height: VSpacing.space3),
         if (drafts.isEmpty)
           GestureDetector(
             onTap: onPickFromGallery,
@@ -181,27 +155,33 @@ class ProductImagePickerPanel extends StatelessWidget {
             ),
           )
         else
-          SizedBox(
-            height: 108,
-            child: ListView(
-              scrollDirection: Axis.horizontal,
-              children: [
-                ...drafts.asMap().entries.map((e) => _imageTile(e.value, e.key)),
-                if (drafts.length < maxImages)
-                  GestureDetector(
-                    onTap: onPickFromGallery,
-                    child: Container(
-                      width: 100,
-                      decoration: BoxDecoration(
-                        border: Border.all(color: dynamicColors.borderDefault),
-                        borderRadius: BorderRadius.circular(VRadius.card),
-                      ),
-                      child: Icon(Icons.add_photo_alternate_outlined, color: dynamicColors.textSecondary),
+          Wrap(
+            spacing: VSpacing.space2,
+            runSpacing: VSpacing.space2,
+            children: [
+              ...drafts.asMap().entries.map((e) => _imageTile(e.value, e.key)),
+              if (drafts.length < maxImages)
+                GestureDetector(
+                  onTap: onPickFromGallery,
+                  child: Container(
+                    width: 100,
+                    height: 100,
+                    decoration: BoxDecoration(
+                      border: Border.all(color: dynamicColors.borderDefault),
+                      borderRadius: BorderRadius.circular(VRadius.card),
                     ),
+                    child: Icon(Icons.add_photo_alternate_outlined, color: dynamicColors.textSecondary),
                   ),
-              ],
-            ),
+                ),
+            ],
           ),
+        if (drafts.isNotEmpty) ...[
+          const SizedBox(height: VSpacing.space3),
+          Text(
+            'Chạm vào ảnh để đặt làm ảnh mặc định. Tối đa $maxImages ảnh.',
+            style: VTypography.bodySmall.copyWith(color: dynamicColors.textSecondary),
+          ),
+        ],
       ],
     );
   }
