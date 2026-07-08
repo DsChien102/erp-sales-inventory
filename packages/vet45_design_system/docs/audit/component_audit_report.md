@@ -1,6 +1,6 @@
 # Component Audit Report
 
-- Generated at: `2026-07-07T16:17:50.587166`
+- Generated at: `2026-07-08T15:06:12.125354`
 - Scope: public exports in `lib/design_system.dart` for primitives/components/business
 
 | Category | Export | Exists | Public classes | Semantics | Tone | Emphasis | State | semanticLabel |

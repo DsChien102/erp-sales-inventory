@@ -962,6 +962,13 @@ class _FieldsPreviewTabState extends State<FieldsPreviewTab> {
   String? _dropdownValue = 'Reason 1';
   int _quantity = 2;
   String? _externalEmailError;
+  int? _moneyValue;
+  int? _requiredMoneyValue;
+  num? _integerValue;
+  num? _decimalValue;
+  String? _selectValue;
+  String? _requiredSelectValue;
+  String? _searchableSelectValue;
 
   @override
   void dispose() {
@@ -1111,6 +1118,95 @@ class _FieldsPreviewTabState extends State<FieldsPreviewTab> {
                 _quantity = val;
               });
             },
+          ),
+        ),
+        _buildItem(
+          'VMoneyField (Optional)',
+          VMoneyField(
+            label: 'Số tiền',
+            hintText: '0',
+            value: _moneyValue,
+            helperText: 'Nhập số tiền VND, tự format phân cách nghìn.',
+            onChanged: (val) => setState(() => _moneyValue = val),
+          ),
+        ),
+        _buildItem(
+          'VMoneyField (Required, min 1000, max 100000000)',
+          VMoneyField(
+            label: 'Số tiền bắt buộc',
+            hintText: '0',
+            value: _requiredMoneyValue,
+            isRequired: true,
+            min: 1000,
+            max: 100000000,
+            onChanged: (val) => setState(() => _requiredMoneyValue = val),
+          ),
+        ),
+        _buildItem(
+          'VNumberField (Integer)',
+          VNumberField(
+            label: 'Số lượng',
+            hintText: '0',
+            value: _integerValue,
+            min: 0,
+            max: 9999,
+            onChanged: (val) => setState(() => _integerValue = val),
+          ),
+        ),
+        _buildItem(
+          'VNumberField (Decimal)',
+          VNumberField(
+            label: 'Tỷ lệ (%)',
+            hintText: '0',
+            value: _decimalValue,
+            allowDecimal: true,
+            decimalPlaces: 2,
+            min: 0,
+            max: 100,
+            suffixText: '%',
+            onChanged: (val) => setState(() => _decimalValue = val),
+          ),
+        ),
+        _buildItem(
+          'VSelect (Basic)',
+          VSelect<String>(
+            label: 'Lý do',
+            value: _selectValue,
+            hintText: 'Chọn lý do...',
+            items: const [
+              DropdownMenuItem(value: 'defect', child: Text('Sản phẩm lỗi')),
+              DropdownMenuItem(value: 'return', child: Text('Khách trả hàng')),
+              DropdownMenuItem(value: 'other', child: Text('Lý do khác')),
+            ],
+            onChanged: (val) => setState(() => _selectValue = val),
+          ),
+        ),
+        _buildItem(
+          'VSelect (Required)',
+          VSelect<String>(
+            label: 'Trạng thái',
+            value: _requiredSelectValue,
+            isRequired: true,
+            items: const [
+              DropdownMenuItem(value: 'active', child: Text('Đang hoạt động')),
+              DropdownMenuItem(value: 'inactive', child: Text('Ngừng hoạt động')),
+            ],
+            onChanged: (val) => setState(() => _requiredSelectValue = val),
+          ),
+        ),
+        _buildItem(
+          'VSelect (Searchable)',
+          VSelect<String>(
+            label: 'Tỉnh/Thành',
+            value: _searchableSelectValue,
+            searchable: true,
+            items: const [
+              DropdownMenuItem(value: 'hcm', child: Text('Hồ Chí Minh')),
+              DropdownMenuItem(value: 'hn', child: Text('Hà Nội')),
+              DropdownMenuItem(value: 'dn', child: Text('Đà Nẵng')),
+              DropdownMenuItem(value: 'hp', child: Text('Hải Phòng')),
+            ],
+            onChanged: (val) => setState(() => _searchableSelectValue = val),
           ),
         ),
       ],
