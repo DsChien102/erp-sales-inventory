@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:vet45_env/doctor_service.dart';
 import 'package:vet45_env/link_service.dart';
 import 'package:vet45_env/manifest.dart';
+import 'package:vet45_env/run_service.dart';
 import 'package:vet45_env/sync_service.dart';
 
 Future<void> main(List<String> args) async {
@@ -24,6 +25,10 @@ Future<void> main(List<String> args) async {
         _cmdList(manifest);
       case 'use':
         await _cmdUse(manifest, rest);
+      case 'use-and-sync':
+        await _cmdUseAndSync(manifest, rest);
+      case 'use-sync-run':
+        await _cmdUseSyncRun(manifest, rest);
       case 'sync':
         await _cmdSync(manifest, rest);
       case 'link':
@@ -34,6 +39,8 @@ Future<void> main(List<String> args) async {
         _cmdResolve(manifest, rest);
       case 'resolve-shell':
         _cmdResolveShell(manifest, rest);
+      case 'run':
+        await _cmdRun(manifest, rest);
       case 'active':
         stdout.writeln(readActive(root) ?? manifest.defaultEnvironmentId);
       default:
@@ -47,6 +54,15 @@ Future<void> main(List<String> args) async {
   }
 }
 
+RunService _runService(EnvManifest manifest) {
+  return RunService(
+    manifest: manifest,
+    syncService: SyncService(manifest: manifest),
+    linkService: SupabaseLinkService(manifest: manifest),
+    doctorService: DoctorService(manifest: manifest, skipNetwork: true),
+  );
+}
+
 void _printUsage() {
   stdout.writeln('''
 Usage: dart run tools/vet45_env <command> [args]
@@ -54,18 +70,29 @@ Usage: dart run tools/vet45_env <command> [args]
 Commands:
   list                 List environments and active selection
   use <id>             Set active environment and align supabase link
+  use-and-sync <id> [--target <id>]
+                       Set active + sync (no run)
+  use-sync-run <id> <target> <action> [args...]
+                       Set active + sync target + run (Melos shortcuts)
   sync [--env <id>] [--target <id>]
                        Align supabase link + generate target .env files
   link [--env <id>]    Align supabase link only (no env file sync)
   doctor [--env <id>] [--target <id>] [--offline]
                        Validate configuration (per-target key deps)
+  run <target> <action> [args...]
+                       Run erp/worker for active env (cross-platform)
   resolve [--env <id>] Print JSON paths (flavor, env files)
   resolve-shell [--env <id>] Print shell KEY=value lines for scripts
   active               Print active environment id
 
+Run targets:
+  erp debug|debug:web|debug:ios|build-ios|deploy-ios
+  worker serve|once|docker|deploy
+
 Flags:
-  --skip-link          Skip supabase link on use/sync
-  --target <id>        Limit sync/doctor to one registered target (erp, worker, deploy)
+  --skip-link          Skip supabase link on use/sync/use-and-sync
+  --target <id>        Limit sync/doctor to one registered target
+  --env <id>           Environment for sync/doctor/run
   --offline            Skip network checks in doctor
 ''');
 }
@@ -110,6 +137,68 @@ Future<void> _cmdUse(EnvManifest manifest, List<String> args) async {
   stdout.writeln('Active environment: $id');
 }
 
+Future<void> _cmdUseAndSync(EnvManifest manifest, List<String> args) async {
+  final skipLink = args.contains('--skip-link');
+  final filtered = args.where((a) => a != '--skip-link').toList();
+  final targetId = _parseTargetFlag(filtered);
+  final id = _parseIdArg(filtered, manifest);
+  await _runService(manifest).useAndSync(
+    id,
+    targetId: targetId,
+    skipLink: skipLink,
+  );
+}
+
+Future<void> _cmdUseSyncRun(EnvManifest manifest, List<String> args) async {
+  final skipLink = args.contains('--skip-link');
+  final filtered = args.where((a) => a != '--skip-link').toList();
+  if (filtered.length < 3) {
+    stderr.writeln('Usage: use-sync-run <env> <target> <action> [args...]');
+    exit(64);
+  }
+  final envId = filtered[0];
+  final target = filtered[1];
+  final action = filtered[2];
+  final extra = filtered.skip(3).toList();
+  final code = await _runService(manifest).useSyncRun(
+    envId,
+    target,
+    action,
+    extraArgs: extra,
+    skipLink: skipLink,
+  );
+  if (code != 0) {
+    exit(code);
+  }
+}
+
+Future<void> _cmdRun(EnvManifest manifest, List<String> args) async {
+  if (args.length < 2) {
+    stderr.writeln('Usage: run <target> <action> [args...]');
+    exit(64);
+  }
+  final target = args[0];
+  final action = args[1];
+  final rest = args.skip(2).toList();
+  final envId = _hasEnvFlag(rest)
+      ? _parseEnvFlag(rest, manifest)
+      : null;
+  final extra = _extraArgsAfterFlags(rest);
+  final code = await _runService(manifest).run(
+    target,
+    action,
+    extraArgs: extra,
+    environmentId: envId,
+  );
+  if (code != 0) {
+    exit(code);
+  }
+}
+
+bool _hasEnvFlag(List<String> args) {
+  return args.contains('--env');
+}
+
 Future<void> _cmdSync(EnvManifest manifest, List<String> args) async {
   final skipLink = args.contains('--skip-link');
   final filtered = args.where((a) => a != '--skip-link').toList();
@@ -145,9 +234,17 @@ Future<void> _cmdLink(EnvManifest manifest, List<String> args) async {
 }
 
 String _parseIdArg(List<String> args, EnvManifest manifest) {
-  for (final arg in args) {
-    if (!arg.startsWith('-')) {
-      return arg;
+  for (var i = 0; i < args.length; i++) {
+    if (args[i] == '--target' && i + 1 < args.length) {
+      i++;
+      continue;
+    }
+    if (args[i] == '--env' && i + 1 < args.length) {
+      i++;
+      continue;
+    }
+    if (!args[i].startsWith('-')) {
+      return args[i];
     }
   }
   return manifest.defaultEnvironmentId;
@@ -159,7 +256,6 @@ String _parseEnvFlag(List<String> args, EnvManifest manifest) {
       return args[i + 1];
     }
     if (args[i] == '--target') {
-      // skip value
       i++;
       continue;
     }
@@ -168,6 +264,24 @@ String _parseEnvFlag(List<String> args, EnvManifest manifest) {
     }
   }
   return readActive(manifest.rootDir) ?? manifest.defaultEnvironmentId;
+}
+
+List<String> _extraArgsAfterFlags(List<String> args) {
+  final result = <String>[];
+  for (var i = 0; i < args.length; i++) {
+    if (args[i] == '--env' && i + 1 < args.length) {
+      i++;
+      continue;
+    }
+    if (args[i] == '--target' && i + 1 < args.length) {
+      i++;
+      continue;
+    }
+    if (!args[i].startsWith('-')) {
+      result.add(args[i]);
+    }
+  }
+  return result;
 }
 
 String? _parseTargetFlag(List<String> args) {
@@ -238,7 +352,6 @@ void _cmdResolveShell(EnvManifest manifest, List<String> args) {
     }
   }
 
-  // Backward-compatible aliases for Melos / deploy scripts.
   final erp = env.erp;
   if (erp != null) {
     if (erp.flavor != null) {

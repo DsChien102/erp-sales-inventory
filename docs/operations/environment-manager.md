@@ -152,9 +152,35 @@ APP_STORE_CONNECT_KEY_IDENTIFIER=
 
 ```
 config/environments.json
-tools/vet45_env/           # Dart CLI (list, use, sync, doctor, resolve-shell)
-scripts/env/vet45_env.sh   # Melos entrypoint + `run erp|worker`
+tools/vet45_env/           # Dart CLI (list, use, sync, doctor, run, resolve-shell)
+scripts/env/vet45_env.sh   # Unix shim → dart run (optional)
+scripts/env/vet45_env.bat  # Windows CMD shim → dart run
 ```
+
+Cross-platform entry (Windows, macOS, Linux):
+
+```bash
+dart run tools/vet45_env/bin/vet45_env.dart list
+dart run tools/vet45_env/bin/vet45_env.dart sync --target erp
+dart run tools/vet45_env/bin/vet45_env.dart run erp debug
+dart run tools/vet45_env/bin/vet45_env.dart use-sync-run staging erp debug
+```
+
+Melos scripts call `dart run` directly (no bash `&&` chains).
+
+### Windows notes
+
+| Requirement | Notes |
+| ----------- | ----- |
+| Dart SDK + Flutter in `PATH` | Required for `melos run debug`; vet45_env resolves `flutter.bat` via `where` / `FLUTTER_ROOT` on Windows |
+| Supabase CLI | `supabase` on PATH for `env:local` |
+| Git Bash | Optional; needed for `deploy:worker` / legacy `.sh` deploy scripts via `bash` |
+| iOS build/deploy | macOS only — `debug:ios`, `build:ios`, `deploy:ios` exit with clear message on Windows |
+| Docker Desktop | For `melos run worker:docker`; uses `host.docker.internal` |
+
+On Windows CMD: `scripts\env\vet45_env.bat sync --target erp`
+
+VS Code `preLaunchTask` uses `dart run tools/vet45_env/... use-and-sync` (see `.vscode/tasks.json`).
 
 Low-level CLI (from repo root):
 
