@@ -224,6 +224,21 @@ melos:
       run: ./apps/messaging_worker/scripts/verify_build.sh
       description: AOT compile worker and optional Docker image build
 
+    design-system:example:
+      run: cd packages/vet45_design_system/example && flutter pub get && flutter run
+      stdio: inherit
+      description: Run vet45_design_system preview example app
+
+    design-system:example:web:
+      run: cd packages/vet45_design_system/example && flutter pub get && flutter run -d chrome
+      stdio: inherit
+      description: Run vet45_design_system preview example app on Chrome
+
+    design-system:example:ios:
+      run: cd packages/vet45_design_system/example && flutter pub get && flutter run -d ios
+      stdio: inherit
+      description: Run vet45_design_system preview example app on iOS simulator
+
   repository:
     type: gitlab
     origin: https://gitlab.hamsa.co

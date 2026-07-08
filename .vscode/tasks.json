@@ -120,6 +120,49 @@
         "close": true
       },
       "problemMatcher": []
+    },
+    {
+      "label": "design-system:example pub get",
+      "type": "shell",
+      "command": "flutter pub get",
+      "options": {
+        "cwd": "${workspaceFolder}/packages/vet45_design_system/example"
+      },
+      "presentation": {
+        "reveal": "silent",
+        "panel": "shared",
+        "showReuseMessage": false,
+        "close": true
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "melos run design-system:example",
+      "type": "shell",
+      "command": "melos run design-system:example",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "focus": true
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "melos run design-system:example:web",
+      "type": "shell",
+      "command": "melos run design-system:example:web",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "focus": true
+      },
+      "problemMatcher": []
     }
   ]
 }

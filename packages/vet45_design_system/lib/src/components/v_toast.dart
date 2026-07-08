@@ -4,6 +4,7 @@ import '../tokens/v_spacing.dart';
 import '../tokens/v_radius.dart';
 import '../tokens/v_shadows.dart';
 import '../tokens/v_typography.dart';
+import '../foundation/v_component_contracts.dart';
 
 enum VToastType { success, warning, danger, info }
 
@@ -13,6 +14,8 @@ class VToast extends StatelessWidget {
   final VToastType type;
   final VoidCallback? onTap;
   final VoidCallback? onClose;
+  final VComponentEmphasis emphasis;
+  final String? semanticLabel;
 
   const VToast({
     super.key,
@@ -21,6 +24,8 @@ class VToast extends StatelessWidget {
     required this.type,
     this.onTap,
     this.onClose,
+    this.emphasis = VComponentEmphasis.strong,
+    this.semanticLabel,
   });
 
   static void show(
@@ -118,16 +123,19 @@ class VToast extends StatelessWidget {
           color: type == VToastType.success
               ? VColors.neutral0.withValues(alpha: 0.06)
               : textColor.withValues(alpha: 0.12),
-          width: 1,
+          width: emphasis == VComponentEmphasis.strong ? 1.5 : 1,
         ),
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(VRadius.r16),
         child: Material(
           color: Colors.transparent,
-          child: InkWell(
-            onTap: onTap,
-            child: Padding(
+          child: Semantics(
+            liveRegion: true,
+            label: semanticLabel ?? title,
+            child: InkWell(
+              onTap: onTap,
+              child: Padding(
               padding: const EdgeInsets.symmetric(
                 horizontal: VSpacing.space4,
                 vertical: 14,
@@ -160,6 +168,7 @@ class VToast extends StatelessWidget {
                   ),
                 ],
               ),
+            ),
             ),
           ),
         ),

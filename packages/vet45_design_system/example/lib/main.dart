@@ -46,6 +46,8 @@ class _PreviewHomeScreenState extends State<PreviewHomeScreen> {
                 'Fields',
                 'Cards & Badges',
                 'New Specs',
+                'Missing Components',
+                'UI Audit',
               ],
               selectedIndex: _currentTab,
               isScrollable: true,
@@ -68,6 +70,8 @@ class _PreviewHomeScreenState extends State<PreviewHomeScreen> {
             FieldsPreviewTab(),
             CardsBadgesPreviewTab(),
             NewSpecsPreviewTab(),
+            MissingComponentsPreviewTab(),
+            UIAuditTab(),
           ],
         ),
       ),
@@ -951,15 +955,34 @@ class _FieldsPreviewTabState extends State<FieldsPreviewTab> {
   final _controller1 = TextEditingController();
   final _controller2 = TextEditingController();
   final _controller3 = TextEditingController();
+  final _optionalEmailController = TextEditingController();
+  final _requiredEmailController = TextEditingController();
+  final _externalEmailController = TextEditingController();
   bool _obscure = true;
   String? _dropdownValue = 'Reason 1';
   int _quantity = 2;
+  String? _externalEmailError;
+  int? _moneyValue;
+  int? _requiredMoneyValue;
+  num? _integerValue;
+  num? _decimalValue;
+  String? _selectValue;
+  String? _requiredSelectValue;
+  String? _searchableSelectValue;
+  List<String> _companyNameSelected = const ['hidden'];
+  List<String> _notificationSelected = const ['email'];
+  List<String> _requiredChoiceSelected = const [];
+  final _companyNameHintController = TextEditingController();
 
   @override
   void dispose() {
     _controller1.dispose();
     _controller2.dispose();
     _controller3.dispose();
+    _optionalEmailController.dispose();
+    _requiredEmailController.dispose();
+    _externalEmailController.dispose();
+    _companyNameHintController.dispose();
     super.dispose();
   }
 
@@ -1018,6 +1041,53 @@ class _FieldsPreviewTabState extends State<FieldsPreviewTab> {
           ),
         ),
         _buildItem(
+          'VEmailField (Optional, built-in validation)',
+          VEmailField(
+            controller: _optionalEmailController,
+            label: 'Email',
+            hintText: 'customer@gmail.com',
+            helperText: 'Validation chạy sau debounce khi gõ.',
+          ),
+        ),
+        _buildItem(
+          'VEmailField (Required)',
+          VEmailField(
+            controller: _requiredEmailController,
+            label: 'Email bắt buộc',
+            hintText: 'invoice@example.com',
+            isRequired: true,
+          ),
+        ),
+        _buildItem(
+          'VEmailField (External error override)',
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              VEmailField(
+                controller: _externalEmailController,
+                label: 'Email có lỗi từ parent',
+                hintText: 'user@domain.com',
+                errorText: _externalEmailError,
+                onChanged: (_) {
+                  if (_externalEmailError != null) {
+                    setState(() => _externalEmailError = null);
+                  }
+                },
+              ),
+              const SizedBox(height: VSpacing.space2),
+              VButton(
+                label: 'Set external error',
+                variant: VButtonVariant.outline,
+                onPressed: () {
+                  setState(() {
+                    _externalEmailError = 'Email đã tồn tại trong hệ thống';
+                  });
+                },
+              ),
+            ],
+          ),
+        ),
+        _buildItem(
           'VDropdown Selector',
           VDropdown<String>(
             value: _dropdownValue,
@@ -1053,6 +1123,169 @@ class _FieldsPreviewTabState extends State<FieldsPreviewTab> {
                 _quantity = val;
               });
             },
+          ),
+        ),
+        _buildItem(
+          'VMoneyField (Optional)',
+          VMoneyField(
+            label: 'Số tiền',
+            hintText: '0',
+            value: _moneyValue,
+            helperText: 'Nhập số tiền VND, tự format phân cách nghìn.',
+            onChanged: (val) => setState(() => _moneyValue = val),
+          ),
+        ),
+        _buildItem(
+          'VMoneyField (Required, min 1000, max 100000000)',
+          VMoneyField(
+            label: 'Số tiền bắt buộc',
+            hintText: '0',
+            value: _requiredMoneyValue,
+            isRequired: true,
+            min: 1000,
+            max: 100000000,
+            onChanged: (val) => setState(() => _requiredMoneyValue = val),
+          ),
+        ),
+        _buildItem(
+          'VNumberField (Integer)',
+          VNumberField(
+            label: 'Số lượng',
+            hintText: '0',
+            value: _integerValue,
+            min: 0,
+            max: 9999,
+            onChanged: (val) => setState(() => _integerValue = val),
+          ),
+        ),
+        _buildItem(
+          'VNumberField (Decimal)',
+          VNumberField(
+            label: 'Tỷ lệ (%)',
+            hintText: '0',
+            value: _decimalValue,
+            allowDecimal: true,
+            decimalPlaces: 2,
+            min: 0,
+            max: 100,
+            suffixText: '%',
+            onChanged: (val) => setState(() => _decimalValue = val),
+          ),
+        ),
+        _buildItem(
+          'VSelect (Basic)',
+          VSelect<String>(
+            label: 'Lý do',
+            value: _selectValue,
+            hintText: 'Chọn lý do...',
+            items: const [
+              DropdownMenuItem(value: 'defect', child: Text('Sản phẩm lỗi')),
+              DropdownMenuItem(value: 'return', child: Text('Khách trả hàng')),
+              DropdownMenuItem(value: 'other', child: Text('Lý do khác')),
+            ],
+            onChanged: (val) => setState(() => _selectValue = val),
+          ),
+        ),
+        _buildItem(
+          'VSelect (Required)',
+          VSelect<String>(
+            label: 'Trạng thái',
+            value: _requiredSelectValue,
+            isRequired: true,
+            items: const [
+              DropdownMenuItem(value: 'active', child: Text('Đang hoạt động')),
+              DropdownMenuItem(value: 'inactive', child: Text('Ngừng hoạt động')),
+            ],
+            onChanged: (val) => setState(() => _requiredSelectValue = val),
+          ),
+        ),
+        _buildItem(
+          'VSelect (Searchable)',
+          VSelect<String>(
+            label: 'Tỉnh/Thành',
+            value: _searchableSelectValue,
+            searchable: true,
+            items: const [
+              DropdownMenuItem(value: 'hcm', child: Text('Hồ Chí Minh')),
+              DropdownMenuItem(value: 'hn', child: Text('Hà Nội')),
+              DropdownMenuItem(value: 'dn', child: Text('Đà Nẵng')),
+              DropdownMenuItem(value: 'hp', child: Text('Hải Phòng')),
+            ],
+            onChanged: (val) => setState(() => _searchableSelectValue = val),
+          ),
+        ),
+        _buildItem(
+          'VChoiceList (Single choice)',
+          VChoiceList<String>(
+            title: 'Tên công ty',
+            selected: _companyNameSelected,
+            helperText: 'Chọn cách hiển thị tên công ty trên hóa đơn.',
+            choices: [
+              const VChoiceOption(
+                value: 'hidden',
+                label: 'Ẩn',
+                helpText: 'Không hiển thị tên công ty trên hóa đơn.',
+              ),
+              const VChoiceOption(
+                value: 'optional',
+                label: 'Tùy chọn',
+                helpText: 'Khách hàng có thể bật/tắt khi thanh toán.',
+              ),
+              VChoiceOption(
+                value: 'required',
+                label: 'Bắt buộc',
+                helpText: 'Luôn yêu cầu nhập tên công ty.',
+                childBuilder: (isSelected) => isSelected
+                    ? VTextField(
+                        controller: _companyNameHintController,
+                        label: 'Gợi ý nhập',
+                        hintText: 'VD: Công ty TNHH ABC',
+                      )
+                    : const SizedBox.shrink(),
+              ),
+            ],
+            onChanged: (values) => setState(() => _companyNameSelected = values),
+          ),
+        ),
+        _buildItem(
+          'VChoiceList (Multiple choice)',
+          VChoiceList<String>(
+            title: 'Thông báo',
+            allowMultiple: true,
+            selected: _notificationSelected,
+            minSelections: 1,
+            choices: const [
+              VChoiceOption(
+                value: 'email',
+                label: 'Email',
+                helpText: 'Nhận cập nhật đơn hàng qua email.',
+              ),
+              VChoiceOption(
+                value: 'sms',
+                label: 'SMS',
+                helpText: 'Nhận tin nhắn khi giao hàng.',
+              ),
+              VChoiceOption(
+                value: 'push',
+                label: 'Push notification',
+                helpText: 'Thông báo đẩy trên ứng dụng.',
+              ),
+            ],
+            onChanged: (values) => setState(() => _notificationSelected = values),
+          ),
+        ),
+        _buildItem(
+          'VChoiceList (Required)',
+          VChoiceList<String>(
+            title: 'Phương thức thanh toán',
+            isRequired: true,
+            selected: _requiredChoiceSelected,
+            choices: const [
+              VChoiceOption(value: 'cash', label: 'Tiền mặt'),
+              VChoiceOption(value: 'transfer', label: 'Chuyển khoản'),
+              VChoiceOption(value: 'card', label: 'Thẻ'),
+            ],
+            onChanged: (values) => setState(() => _requiredChoiceSelected = values),
           ),
         ),
       ],
@@ -1522,5 +1755,306 @@ class _NewSpecsPreviewTabState extends State<NewSpecsPreviewTab> {
         const SizedBox(height: 32),
       ],
     );
+  }
+}
+
+/// --- MISSING COMPONENTS PREVIEW TAB ---
+class MissingComponentsPreviewTab extends StatefulWidget {
+  const MissingComponentsPreviewTab({super.key});
+
+  @override
+  State<MissingComponentsPreviewTab> createState() =>
+      _MissingComponentsPreviewTabState();
+}
+
+class _MissingComponentsPreviewTabState extends State<MissingComponentsPreviewTab> {
+  DateTime? _selectedDate;
+  bool _centerTitle = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView(
+      padding: const EdgeInsets.all(VSpacing.screenMobile),
+      children: [
+        _section(
+          title: 'VAppBar',
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(VRadius.card),
+            child: SizedBox(
+              height: 172,
+              child: Scaffold(
+                appBar: VAppBar(
+                  title: 'Partner Profile',
+                  subtitle: 'Retail customer · Active',
+                  centerTitle: _centerTitle,
+                  showBackButton: false,
+                  actions: [
+                    IconButton(
+                      onPressed: () {},
+                      icon: const VIcon(iconData: Icons.more_vert),
+                    ),
+                  ],
+                ),
+                body: Padding(
+                  padding: const EdgeInsets.all(VSpacing.space3),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      VSwitch(
+                        value: _centerTitle,
+                        label: 'Center title',
+                        onChanged: (value) {
+                          setState(() {
+                            _centerTitle = value;
+                          });
+                        },
+                      ),
+                      const SizedBox(height: VSpacing.space2),
+                      Text(
+                        'Demo app bar with title, subtitle, actions and divider.',
+                        style: VTypography.caption.copyWith(
+                          color: VColors.textSecondary,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+        _section(
+          title: 'VDatePickerField',
+          child: VDatePickerField(
+            value: _selectedDate,
+            label: 'Invoice date',
+            required: true,
+            hintText: 'Select invoice date',
+            onTap: () async {
+              final picked = await showDatePicker(
+                context: context,
+                initialDate: _selectedDate ?? DateTime.now(),
+                firstDate: DateTime(2020),
+                lastDate: DateTime(2035),
+              );
+              if (picked == null || !mounted) {
+                return;
+              }
+              setState(() {
+                _selectedDate = picked;
+              });
+            },
+          ),
+        ),
+        _section(
+          title: 'VFloatingActionButton',
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              VFloatingActionButton(
+                iconData: Icons.add,
+                onTap: () {},
+              ),
+              VFloatingActionButton(
+                iconData: Icons.qr_code_scanner,
+                backgroundColor: VColors.info,
+                onTap: () {},
+              ),
+              VFloatingActionButton(
+                iconData: Icons.print_outlined,
+                backgroundColor: VColors.warning,
+                iconColor: VColors.neutral900,
+                onTap: () {},
+              ),
+            ],
+          ),
+        ),
+        _section(
+          title: 'VIcon (primitive)',
+          child: Wrap(
+            spacing: VSpacing.space3,
+            runSpacing: VSpacing.space3,
+            children: const [
+              VIcon(iconData: Icons.home_rounded),
+              VIcon(iconData: Icons.person_outline, size: 18),
+              VIcon(iconData: Icons.warning_amber_rounded, color: VColors.warning),
+              VIcon(iconData: Icons.check_circle, color: VColors.success, size: 28),
+              VIcon(iconData: Icons.error_outline, color: VColors.danger, size: 28),
+            ],
+          ),
+        ),
+        const SizedBox(height: VSpacing.space6),
+      ],
+    );
+  }
+
+  Widget _section({required String title, required Widget child}) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: VSpacing.space4),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(title, style: VTypography.headingH3),
+          const SizedBox(height: VSpacing.space2),
+          VCard(child: child),
+        ],
+      ),
+    );
+  }
+}
+
+/// --- UI AUDIT TAB ---
+class UIAuditTab extends StatelessWidget {
+  const UIAuditTab({super.key});
+
+  static const Set<String> _exampleCoverage = {
+    'VBadge',
+    'VIcon',
+    'VIconBox',
+    'VButton',
+    'VTextField',
+    'VDropdown',
+    'VTabs',
+    'VToast',
+    'VTable',
+    'VAppBar',
+    'VDatePickerField',
+    'VFloatingActionButton',
+    'VBottomSheet',
+    'VModal',
+    'VHomeHeader',
+    'VBottomNavigationBar',
+    'VEmptyState',
+    'VCheckbox',
+    'VSwitch',
+    'VQuickActionButton',
+    'VSearchBar',
+    'VQuantitySelector',
+    'VCard',
+    'VTodoItem',
+    'VActivityItem',
+    'VMetricCard',
+    'VCreateOrderButton',
+    'VRevenueCard',
+  };
+
+  @override
+  Widget build(BuildContext context) {
+    final rows = vComponentAuditEntries;
+    final total = rows.length;
+    final withSemantics = rows.where((e) => e.hasSemantics).length;
+    final withTone = rows.where((e) => e.hasTone).length;
+    final withState = rows.where((e) => e.hasState).length;
+    final covered = rows.where((e) => _exampleCoverage.contains(_componentName(e))).length;
+
+    return ListView(
+      padding: const EdgeInsets.all(VSpacing.screenMobile),
+      children: [
+        Text('Design System UI Audit', style: VTypography.headingH2),
+        const SizedBox(height: VSpacing.space2),
+        Text(
+          'Tab này dùng để rà soát nhanh coverage và readiness của toàn bộ component public trong design system.',
+          style: VTypography.bodyDefault.copyWith(color: VColors.textSecondary),
+        ),
+        const SizedBox(height: VSpacing.space1),
+        Text(
+          'Snapshot generated at: $vComponentAuditGeneratedAt',
+          style: VTypography.caption.copyWith(color: VColors.textMuted),
+        ),
+        const SizedBox(height: VSpacing.space3),
+        VCard(
+          child: Wrap(
+            spacing: VSpacing.space2,
+            runSpacing: VSpacing.space2,
+            children: [
+              _metricChip('Tổng component', '$total'),
+              _metricChip('Đã có demo', '$covered/$total'),
+              _metricChip('Có Semantics', '$withSemantics/$total'),
+              _metricChip('Có tone contract', '$withTone/$total'),
+              _metricChip('Có state contract', '$withState/$total'),
+            ],
+          ),
+        ),
+        const SizedBox(height: VSpacing.space3),
+        VCard(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('Command audit tự động', style: VTypography.headingH4),
+              const SizedBox(height: VSpacing.space2),
+              Text(
+                'cd packages/vet45_design_system && dart run tool/component_audit.dart',
+                style: VTypography.monoNumeric.copyWith(fontSize: 12),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: VSpacing.space3),
+        Text('Component matrix', style: VTypography.headingH3),
+        const SizedBox(height: VSpacing.space2),
+        VCard(
+          padding: EdgeInsets.zero,
+          child: VTable(
+            headers: const [
+              VTableHeader(title: 'Component'),
+              VTableHeader(title: 'Category'),
+              VTableHeader(title: 'Example'),
+              VTableHeader(title: 'Semantics'),
+              VTableHeader(title: 'Tone'),
+              VTableHeader(title: 'State'),
+            ],
+            rows: rows
+                .map(
+                  (e) => [
+                    Text(_componentName(e)),
+                    Text(_displayCategory(e.category)),
+                    _statusBadge(_exampleCoverage.contains(_componentName(e))),
+                    _statusBadge(e.hasSemantics),
+                    _statusBadge(e.hasTone),
+                    _statusBadge(e.hasState),
+                  ],
+                )
+                .toList(),
+            stripedRows: true,
+            semanticLabel: 'UI audit matrix',
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _metricChip(String label, String value) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: VSpacing.space2, vertical: VSpacing.space1),
+      decoration: BoxDecoration(
+        color: VColors.neutral100,
+        borderRadius: BorderRadius.circular(VRadius.pill),
+      ),
+      child: Text('$label: $value', style: VTypography.bodySmall),
+    );
+  }
+
+  Widget _statusBadge(bool yes) {
+    return VBadge(
+      label: yes ? 'Yes' : 'No',
+      status: yes ? VBadgeStatus.success : VBadgeStatus.draft,
+      isSmall: true,
+    );
+  }
+
+  String _componentName(VComponentAuditEntry entry) {
+    final preferred = entry.classNames.where((name) => name.startsWith('V')).toList();
+    if (preferred.isNotEmpty) {
+      return preferred.first;
+    }
+    if (entry.classNames.isNotEmpty) {
+      return entry.classNames.first;
+    }
+    return entry.exportPath.split('/').last;
+  }
+
+  String _displayCategory(String category) {
+    if (category.isEmpty) return category;
+    return '${category[0].toUpperCase()}${category.substring(1)}';
   }
 }

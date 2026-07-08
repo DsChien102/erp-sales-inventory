@@ -119,6 +119,33 @@
       "args": ["--serve"],
       "preLaunchTask": "env:sync worker · production",
     },
+    // ── Design system example (no env sync required) ─────────────────────────
+    {
+      "name": "Design system · example",
+      "type": "dart",
+      "request": "launch",
+      "cwd": "${workspaceFolder}/packages/vet45_design_system/example",
+      "program": "lib/main.dart",
+      "preLaunchTask": "design-system:example pub get"
+    },
+    {
+      "name": "Design system · example · web",
+      "type": "dart",
+      "request": "launch",
+      "cwd": "${workspaceFolder}/packages/vet45_design_system/example",
+      "program": "lib/main.dart",
+      "deviceId": "chrome",
+      "preLaunchTask": "design-system:example pub get"
+    },
+    {
+      "name": "Design system · example · iOS",
+      "type": "dart",
+      "request": "launch",
+      "cwd": "${workspaceFolder}/packages/vet45_design_system/example",
+      "program": "lib/main.dart",
+      "deviceId": "ios",
+      "preLaunchTask": "design-system:example pub get"
+    },
     // ── melos built-in ────────────────────────────────────────────────────────
     {
       "name": "melos · bootstrap",
@@ -203,6 +230,20 @@
       "type": "node-terminal",
       "request": "launch",
       "command": "melos run test",
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "name": "melos · design-system:example",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "melos run design-system:example",
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "name": "melos · design-system:example:web",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "melos run design-system:example:web",
       "cwd": "${workspaceFolder}"
     },
     {
