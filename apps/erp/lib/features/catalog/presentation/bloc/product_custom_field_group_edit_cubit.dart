@@ -23,7 +23,7 @@ class ProductCustomFieldGroupEditCubit extends Cubit<ProductCustomFieldGroupEdit
       final query = GetProductCustomFieldValuesQuery(
         tenantId: tenantId,
         productId: productId,
-        includeInactiveValues: false,
+        includeInactiveValues: true,
       );
 
       final result = await _catalogModule.executeQueryAsync<ProductCustomFieldValuesDto>(query);
@@ -126,10 +126,15 @@ class ProductCustomFieldGroupEditCubit extends Cubit<ProductCustomFieldGroupEdit
     try {
       final tenantId = await _context.requireTenantId();
 
+      final activeValues = loaded.inputs.values.where((input) {
+        final field = loaded.group.fields.firstWhere((f) => f.fieldId == input.fieldId);
+        return field.isActive;
+      }).toList();
+
       final command = UpsertCustomFieldValuesCommand(
         tenantId: tenantId,
         productId: productId,
-        values: loaded.inputs.values.toList(),
+        values: activeValues,
       );
 
       await _catalogModule.executeCommandAsync<UpsertCustomFieldValuesResult>(command);

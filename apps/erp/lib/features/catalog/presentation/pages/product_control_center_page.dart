@@ -387,10 +387,12 @@ class _ProductControlCenterViewState extends State<_ProductControlCenterView> {
                         final filledCount = group.fields
                             .where((f) => f.displayValue != null && f.displayValue!.isNotEmpty)
                             .length;
+                        final allInactive = group.fields.every((f) => !f.isActive);
                         return ProductControlCenterSectionCard(
                           title: group.name,
                           icon: iconData,
                           subtitle: '$filledCount/${group.fields.length} trường đã điền',
+                          actionText: allInactive ? 'Xem' : 'Sửa',
                           onEdit: () async {
                             await context.push(
                               '/products/items/pcc/custom-fields/edit',

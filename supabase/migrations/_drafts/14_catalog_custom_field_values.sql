@@ -133,9 +133,13 @@ as $$
     'number_value', v.value_number,
     'date_value', v.value_date,
     'boolean_value', v.value_boolean,
-    'option_id', v.value_option_id
+    'option_id', v.value_option_id,
+    'is_active', f.status = 'active' and g.status = 'active'
   )
   from catalog.custom_fields f
+  join catalog.custom_field_groups g
+    on g.id = f.group_id
+   and g.tenant_id = p_tenant_id
   left join catalog.product_custom_field_values v
     on v.product_id = p_product_id
    and v.custom_field_id = f.id
@@ -186,7 +190,7 @@ as $$
           where f.group_id = g.id
             and f.tenant_id = p_tenant_id
             and (
-              f.status = 'active'
+              (g.status = 'active' and f.status = 'active')
               or (coalesce(p_include_inactive_values, false) and v.id is not null)
             )
         ) fields
@@ -267,7 +271,8 @@ as $$
                 v.value_boolean,
                 v.value_option_id
               ),
-            'sort_order', f.sort_order
+            'sort_order', f.sort_order,
+            'is_active', f.status = 'active' and g.status = 'active'
           )
           order by f.sort_order, f.name
         ),
@@ -282,10 +287,11 @@ as $$
       on o.id = v.value_option_id
     where f.group_id = g.id
       and f.tenant_id = p_tenant_id
-      and f.status = 'active'
+      and ((g.status = 'active' and f.status = 'active') or v.id is not null)
   ) cards
   where g.tenant_id = p_tenant_id
-    and g.status = 'active';
+    and (g.status = 'active' or jsonb_array_length(cards.fields) > 0);
+
 $$;
 
 create or replace function catalog._product_readiness_summary_json(

@@ -243,6 +243,7 @@ abstract final class CustomFieldRpcMapper {
       dateValue: _toDate(row['date_value']),
       booleanValue: row['boolean_value'] as bool?,
       optionId: row['option_id'] as String?,
+      isActive: row['is_active'] as bool? ?? true,
     );
   }
 
@@ -278,6 +279,7 @@ abstract final class CustomFieldRpcMapper {
       isRequired: row['is_required'] as bool? ?? false,
       isMissing: row['is_missing'] as bool? ?? false,
       sortOrder: (row['sort_order'] as num?)?.toInt() ?? 0,
+      isActive: row['is_active'] as bool? ?? true,
     );
   }
 
