@@ -542,10 +542,7 @@ abstract final class CustomFieldRpcMapper {
       return const [];
     }
 
-    return value
-        .whereType<Map<String, dynamic>>()
-        .map(listValueFromJson)
-        .toList(growable: false);
+    return value.whereType<Map<String, dynamic>>().map(listValueFromJson).toList(growable: false);
   }
 
   static CustomFieldListValueDto listValueFromJson(Map<String, dynamic> row) {

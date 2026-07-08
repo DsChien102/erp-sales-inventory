@@ -148,6 +148,17 @@ class _ProductCatalogTabPageState extends State<ProductCatalogTabPage> {
     );
   }
 
+  void _navigateToProductModel(BuildContext context, ProductListItemModel model) {
+    context.push(
+      '/products/items/pcc',
+      extra: ProductControlCenterRouteArgs(product: model),
+    ).then((_) {
+      if (mounted) {
+        _cubit.fetchProducts(isRefresh: true);
+      }
+    });
+  }
+
   Future<void> _navigateToProduct(BuildContext context, ProductListItemDto dto) async {
     final readinessStatus = dto.readinessSummary.status == ReadinessStatus.readyToSell
         ? ProductReadinessStatus.ready
@@ -176,12 +187,12 @@ class _ProductCatalogTabPageState extends State<ProductCatalogTabPage> {
       isSoftDeleted: dto.isSoftDeleted,
     );
 
-    final result = await context.push<bool>(
+    await context.push(
       '/products/items/pcc',
       extra: ProductControlCenterRouteArgs(product: model),
     );
 
-    if (result == true && context.mounted) {
+    if (context.mounted) {
       _cubit.fetchProducts(isRefresh: true);
     }
   }
@@ -259,7 +270,16 @@ class _ProductCatalogTabPageState extends State<ProductCatalogTabPage> {
                         description: 'Hãy thử tìm kiếm với từ khóa khác hoặc tạo sản phẩm mới.',
                         actionLabel: 'Tạo sản phẩm',
                         actionLeadingIcon: const Icon(Icons.add, size: 18),
-                        onActionPressed: () => context.push('/products/items/new'),
+                        onActionPressed: () async {
+                          final createdProduct = await context.push<ProductListItemModel>('/products/items/new');
+                          if (!context.mounted) return;
+                          if (createdProduct != null) {
+                            _cubit.fetchProducts(isRefresh: true);
+                            _navigateToProductModel(context, createdProduct);
+                          } else {
+                            _cubit.fetchProducts(isRefresh: true);
+                          }
+                        },
                       ),
                     );
                   }
@@ -295,7 +315,16 @@ class _ProductCatalogTabPageState extends State<ProductCatalogTabPage> {
         floatingActionButton: VFloatingActionButton(
           key: const Key('btn_create_product'),
           iconData: Icons.add,
-          onTap: () => context.push('/products/items/new'),
+          onTap: () async {
+            final createdProduct = await context.push<ProductListItemModel>('/products/items/new');
+            if (!context.mounted) return;
+            if (createdProduct != null) {
+              _cubit.fetchProducts(isRefresh: true);
+              _navigateToProductModel(context, createdProduct);
+            } else {
+              _cubit.fetchProducts(isRefresh: true);
+            }
+          },
           backgroundColor: dynamicColors.success,
         ),
       ),

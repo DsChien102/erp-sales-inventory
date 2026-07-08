@@ -56,7 +56,8 @@ class ProductCustomFieldGroupEditPage extends StatelessWidget {
           }
         },
         builder: (context, state) {
-          if (state is ProductCustomFieldGroupEditInitial || state is ProductCustomFieldGroupEditLoading) {
+          if (state is ProductCustomFieldGroupEditInitial ||
+              state is ProductCustomFieldGroupEditLoading) {
             return const Scaffold(
               body: Center(child: CircularProgressIndicator()),
             );
@@ -89,16 +90,19 @@ class ProductCustomFieldGroupEditPage extends StatelessWidget {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.stretch,
                             children: state.group.fields.map((field) {
-                              final input = state.inputs[field.fieldId] ??
+                              final input =
+                                  state.inputs[field.fieldId] ??
                                   ProductCustomFieldValueInput(fieldId: field.fieldId);
                               final errorText = state.validationErrors[field.fieldId];
-      
+
                               return ProductCustomFieldInputWidget(
                                 field: field,
                                 input: input,
                                 errorText: errorText,
                                 onChanged: (newInput) {
-                                  context.read<ProductCustomFieldGroupEditCubit>().updateInput(newInput);
+                                  context.read<ProductCustomFieldGroupEditCubit>().updateInput(
+                                    newInput,
+                                  );
                                 },
                               );
                             }).toList(),
@@ -133,7 +137,9 @@ class ProductCustomFieldGroupEditPage extends StatelessWidget {
                             variant: VButtonVariant.primary,
                             onPressed: state.isSubmitting
                                 ? null
-                                : () => context.read<ProductCustomFieldGroupEditCubit>().submit(args.productId),
+                                : () => context.read<ProductCustomFieldGroupEditCubit>().submit(
+                                    args.productId,
+                                  ),
                             isLoading: state.isSubmitting,
                           ),
                         ),

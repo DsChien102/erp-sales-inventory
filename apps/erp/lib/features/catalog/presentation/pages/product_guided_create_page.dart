@@ -40,10 +40,7 @@ class _ProductGuidedCreateView extends StatelessWidget {
               message: 'Sản phẩm đã được khởi tạo!',
               type: VToastType.success,
             );
-            context.pushReplacement(
-              '/products/items/pcc',
-              extra: ProductControlCenterRouteArgs(product: state.createdProduct!),
-            );
+            context.pop(state.createdProduct!);
           } else if (state.status == ProductGuidedCreateStatus.error &&
               state.errorMessage != null &&
               !state.hasDuplicateError) {

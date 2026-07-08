@@ -178,6 +178,7 @@ final appRouter = GoRouter(
         return ProductReadinessChecklistPage(
           readinessView: args.readinessView,
           product: args.product,
+          defaultCustomFieldGroupId: args.defaultCustomFieldGroupId,
         );
       },
     ),

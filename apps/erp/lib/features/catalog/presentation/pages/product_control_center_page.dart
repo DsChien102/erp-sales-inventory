@@ -47,10 +47,18 @@ class ProductControlCenterPage extends StatelessWidget {
   }
 }
 
-class _ProductControlCenterView extends StatelessWidget {
+class _ProductControlCenterView extends StatefulWidget {
   const _ProductControlCenterView({required this.product});
 
   final ProductListItemModel product;
+
+  @override
+  State<_ProductControlCenterView> createState() => _ProductControlCenterViewState();
+}
+
+class _ProductControlCenterViewState extends State<_ProductControlCenterView> {
+  ProductListItemModel get product => widget.product;
+  bool _isBottomSheetOpen = false;
 
   void _showEditPlaceholder(BuildContext context) {
     VToast.show(
@@ -74,11 +82,14 @@ class _ProductControlCenterView extends StatelessWidget {
         ? product.copyWith(baseUnit: controlCenter.units.baseUnitName)
         : product;
 
+    final firstGroupId = controlCenter?.customFieldGroupCards.firstOrNull?.groupId;
+
     await context.push(
       '/products/items/pcc/checklist',
       extra: ProductReadinessChecklistRouteArgs(
         readinessView: readinessView,
         product: updatedProduct,
+        defaultCustomFieldGroupId: firstGroupId,
       ),
     );
     if (!context.mounted) return;
@@ -120,11 +131,19 @@ class _ProductControlCenterView extends StatelessWidget {
           );
           context.read<ProductControlCenterCubit>().resetActionState();
         } else if (state.actionStatus == ProductLifecycleActionStatus.warning) {
+          if (_isBottomSheetOpen) return;
+          _isBottomSheetOpen = true;
           showProductDeactivateBottomSheet(
             context: context,
             warnings: state.actionWarnings,
             onConfirm: () => _handleDeactivate(context, confirmAcknowledgeWarnings: true),
-          );
+          ).then((_) {
+            if (mounted) {
+              setState(() {
+                _isBottomSheetOpen = false;
+              });
+            }
+          });
           context.read<ProductControlCenterCubit>().resetActionState();
         }
       },
@@ -383,8 +402,8 @@ class _ProductControlCenterView extends StatelessWidget {
                             );
                             if (!context.mounted) return;
                             context.read<ProductControlCenterCubit>().loadControlCenter(
-                                  product.id,
-                                );
+                              product.id,
+                            );
                           },
                         );
                       }),
@@ -413,17 +432,35 @@ class _ProductControlCenterView extends StatelessWidget {
                       ProductControlCenterDangerSection(
                         businessStatus: controlCenter.profile.businessStatus,
                         isSoftDeleted: isSoftDeleted,
-                        onDeactivate: () {
-                          showProductDeactivateBottomSheet(
+                        onDeactivate: () async {
+                          if (_isBottomSheetOpen) return;
+                          setState(() {
+                            _isBottomSheetOpen = true;
+                          });
+                          await showProductDeactivateBottomSheet(
                             context: context,
                             onConfirm: () => _handleDeactivate(context),
                           );
+                          if (mounted) {
+                            setState(() {
+                              _isBottomSheetOpen = false;
+                            });
+                          }
                         },
-                        onReactivate: () {
-                          showProductReactivateBottomSheet(
+                        onReactivate: () async {
+                          if (_isBottomSheetOpen) return;
+                          setState(() {
+                            _isBottomSheetOpen = true;
+                          });
+                          await showProductReactivateBottomSheet(
                             context: context,
                             onConfirm: () => _handleReactivate(context),
                           );
+                          if (mounted) {
+                            setState(() {
+                              _isBottomSheetOpen = false;
+                            });
+                          }
                         },
                         onDelete: () {
                           ProductDeleteConfirmDialog.show(
