@@ -46,6 +46,7 @@ class _PreviewHomeScreenState extends State<PreviewHomeScreen> {
                 'Fields',
                 'Cards & Badges',
                 'New Specs',
+                'Missing Components',
               ],
               selectedIndex: _currentTab,
               isScrollable: true,
@@ -68,6 +69,7 @@ class _PreviewHomeScreenState extends State<PreviewHomeScreen> {
             FieldsPreviewTab(),
             CardsBadgesPreviewTab(),
             NewSpecsPreviewTab(),
+            MissingComponentsPreviewTab(),
           ],
         ),
       ),
@@ -1521,6 +1523,151 @@ class _NewSpecsPreviewTabState extends State<NewSpecsPreviewTab> {
         ),
         const SizedBox(height: 32),
       ],
+    );
+  }
+}
+
+/// --- MISSING COMPONENTS PREVIEW TAB ---
+class MissingComponentsPreviewTab extends StatefulWidget {
+  const MissingComponentsPreviewTab({super.key});
+
+  @override
+  State<MissingComponentsPreviewTab> createState() =>
+      _MissingComponentsPreviewTabState();
+}
+
+class _MissingComponentsPreviewTabState extends State<MissingComponentsPreviewTab> {
+  DateTime? _selectedDate;
+  bool _centerTitle = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView(
+      padding: const EdgeInsets.all(VSpacing.screenMobile),
+      children: [
+        _section(
+          title: 'VAppBar',
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(VRadius.card),
+            child: SizedBox(
+              height: 172,
+              child: Scaffold(
+                appBar: VAppBar(
+                  title: 'Partner Profile',
+                  subtitle: 'Retail customer · Active',
+                  centerTitle: _centerTitle,
+                  showBackButton: false,
+                  actions: [
+                    IconButton(
+                      onPressed: () {},
+                      icon: const VIcon(iconData: Icons.more_vert),
+                    ),
+                  ],
+                ),
+                body: Padding(
+                  padding: const EdgeInsets.all(VSpacing.space3),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      VSwitch(
+                        value: _centerTitle,
+                        label: 'Center title',
+                        onChanged: (value) {
+                          setState(() {
+                            _centerTitle = value;
+                          });
+                        },
+                      ),
+                      const SizedBox(height: VSpacing.space2),
+                      Text(
+                        'Demo app bar with title, subtitle, actions and divider.',
+                        style: VTypography.caption.copyWith(
+                          color: VColors.textSecondary,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+        _section(
+          title: 'VDatePickerField',
+          child: VDatePickerField(
+            value: _selectedDate,
+            label: 'Invoice date',
+            required: true,
+            hintText: 'Select invoice date',
+            onTap: () async {
+              final picked = await showDatePicker(
+                context: context,
+                initialDate: _selectedDate ?? DateTime.now(),
+                firstDate: DateTime(2020),
+                lastDate: DateTime(2035),
+              );
+              if (picked == null || !mounted) {
+                return;
+              }
+              setState(() {
+                _selectedDate = picked;
+              });
+            },
+          ),
+        ),
+        _section(
+          title: 'VFloatingActionButton',
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              VFloatingActionButton(
+                iconData: Icons.add,
+                onTap: () {},
+              ),
+              VFloatingActionButton(
+                iconData: Icons.qr_code_scanner,
+                backgroundColor: VColors.info,
+                onTap: () {},
+              ),
+              VFloatingActionButton(
+                iconData: Icons.print_outlined,
+                backgroundColor: VColors.warning,
+                iconColor: VColors.neutral900,
+                onTap: () {},
+              ),
+            ],
+          ),
+        ),
+        _section(
+          title: 'VIcon (primitive)',
+          child: Wrap(
+            spacing: VSpacing.space3,
+            runSpacing: VSpacing.space3,
+            children: const [
+              VIcon(iconData: Icons.home_rounded),
+              VIcon(iconData: Icons.person_outline, size: 18),
+              VIcon(iconData: Icons.warning_amber_rounded, color: VColors.warning),
+              VIcon(iconData: Icons.check_circle, color: VColors.success, size: 28),
+              VIcon(iconData: Icons.error_outline, color: VColors.danger, size: 28),
+            ],
+          ),
+        ),
+        const SizedBox(height: VSpacing.space6),
+      ],
+    );
+  }
+
+  Widget _section({required String title, required Widget child}) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: VSpacing.space4),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(title, style: VTypography.headingH3),
+          const SizedBox(height: VSpacing.space2),
+          VCard(child: child),
+        ],
+      ),
     );
   }
 }
