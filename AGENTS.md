@@ -100,7 +100,7 @@ cd apps/messaging_worker && dart test
 
 ## Schema & migration (agents)
 
-`supabase/migrations/` là **migration chính thức** — Supabase CLI apply theo version (`YYYYMMDDHHMMSS_*.sql`). Trong collaboration, nhiều agent/branch cùng thêm file timestamp dễ gây **trùng version**, `db reset` fail, hoặc sequence lệch.
+`supabase/migrations/` là **migration chính thức** — Supabase CLI apply theo version (`YYYYMMDDxxx_*.sql`). Trong collaboration, nhiều agent/branch cùng thêm file timestamp dễ gây **trùng version**, `db reset` fail, hoặc sequence lệch.
 
 ### Quy tắc bắt buộc
 
@@ -113,7 +113,7 @@ cd apps/messaging_worker && dart test
 
 **Draft naming:** `<scope>_<short_description>.sql` (không có prefix timestamp). Quy ước chi tiết: [`supabase/migrations/_drafts/README.md`](supabase/migrations/_drafts/README.md).
 
-**Chỉ tạo file `YYYYMMDDHHMMSS_*.sql`** khi user **yêu cầu rõ** promote migration hoặc maintain schema chính thức. Khi promote: timestamp phải unique (`supabase migration list --local`), SQL idempotent, có header theo [`supabase/migrations/README.md`](supabase/migrations/README.md).
+**Chỉ tạo file `YYYYMMDDxxx_*.sql`** khi user **yêu cầu rõ** promote migration hoặc maintain schema chính thức. Khi promote: dùng `melos run migrate:promote-drafts` hoặc đảm bảo id unique (`supabase migration list --local`), SQL idempotent, có header theo [`supabase/migrations/README.md`](supabase/migrations/README.md).
 
 **Lane BE không có DB:** implement application/infrastructure với RPC name + params khớp draft; test dùng fakes/in-memory — không block slice vì thiếu migration applied.
 

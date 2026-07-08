@@ -56,7 +56,7 @@ UI → IExecutionContext (tenant/user) → IModuleMediator
 
 ## Schema / Supabase migrations (agents)
 
-- **Draft SQL only:** `supabase/migrations/_drafts/<scope>_<description>.sql` — no `YYYYMMDDHHMMSS_` prefix.
+- **Draft SQL only:** `supabase/migrations/_drafts/<scope>_<description>.sql` — no `YYYYMMDDxxx_` prefix.
 - **Do not** add or edit `supabase/migrations/[0-9]*.sql` unless the user explicitly requests promoting a canonical migration.
 - Map RPC contracts in theme harness `07-api-contracts.md`; verify with `melos run test` — not `supabase db reset` for draft SQL.
 

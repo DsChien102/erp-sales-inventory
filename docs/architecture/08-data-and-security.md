@@ -15,7 +15,7 @@
 | `sales` | Sales |
 | `partner` | Partner |
 
-Migration chính thức: `supabase/migrations/` (`YYYYMMDDHHMMSS_*.sql`). SQL thiết kế tạm (agents): `supabase/migrations/_drafts/` — xem [AGENTS.md](../../AGENTS.md).
+Migration chính thức: `supabase/migrations/` (`YYYYMMDDxxx_*.sql`; legacy `YYYYMMDDHHMMSS_*.sql` vẫn apply được). SQL thiết kế tạm (agents): `supabase/migrations/_drafts/` — xem [AGENTS.md](../../AGENTS.md).
 
 ## RPC-first security
 
