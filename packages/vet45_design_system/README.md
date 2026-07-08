@@ -19,6 +19,15 @@ cd packages/vet45_design_system/example
 flutter run
 ```
 
+Or from repo root:
+
+```bash
+melos run design-system:example
+melos run design-system:example:web
+```
+
+VS Code: **Run and Debug** → `Design system · example` (hoặc `melos · design-system:example`).
+
 Main tabs in the preview:
 - `Mockup App`: business-oriented page composition
 - `Tokens`: color, typography, spacing, radius, and shadows

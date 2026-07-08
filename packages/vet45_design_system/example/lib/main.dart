@@ -969,6 +969,10 @@ class _FieldsPreviewTabState extends State<FieldsPreviewTab> {
   String? _selectValue;
   String? _requiredSelectValue;
   String? _searchableSelectValue;
+  List<String> _companyNameSelected = const ['hidden'];
+  List<String> _notificationSelected = const ['email'];
+  List<String> _requiredChoiceSelected = const [];
+  final _companyNameHintController = TextEditingController();
 
   @override
   void dispose() {
@@ -978,6 +982,7 @@ class _FieldsPreviewTabState extends State<FieldsPreviewTab> {
     _optionalEmailController.dispose();
     _requiredEmailController.dispose();
     _externalEmailController.dispose();
+    _companyNameHintController.dispose();
     super.dispose();
   }
 
@@ -1207,6 +1212,80 @@ class _FieldsPreviewTabState extends State<FieldsPreviewTab> {
               DropdownMenuItem(value: 'hp', child: Text('Hải Phòng')),
             ],
             onChanged: (val) => setState(() => _searchableSelectValue = val),
+          ),
+        ),
+        _buildItem(
+          'VChoiceList (Single choice)',
+          VChoiceList<String>(
+            title: 'Tên công ty',
+            selected: _companyNameSelected,
+            helperText: 'Chọn cách hiển thị tên công ty trên hóa đơn.',
+            choices: [
+              const VChoiceOption(
+                value: 'hidden',
+                label: 'Ẩn',
+                helpText: 'Không hiển thị tên công ty trên hóa đơn.',
+              ),
+              const VChoiceOption(
+                value: 'optional',
+                label: 'Tùy chọn',
+                helpText: 'Khách hàng có thể bật/tắt khi thanh toán.',
+              ),
+              VChoiceOption(
+                value: 'required',
+                label: 'Bắt buộc',
+                helpText: 'Luôn yêu cầu nhập tên công ty.',
+                childBuilder: (isSelected) => isSelected
+                    ? VTextField(
+                        controller: _companyNameHintController,
+                        label: 'Gợi ý nhập',
+                        hintText: 'VD: Công ty TNHH ABC',
+                      )
+                    : const SizedBox.shrink(),
+              ),
+            ],
+            onChanged: (values) => setState(() => _companyNameSelected = values),
+          ),
+        ),
+        _buildItem(
+          'VChoiceList (Multiple choice)',
+          VChoiceList<String>(
+            title: 'Thông báo',
+            allowMultiple: true,
+            selected: _notificationSelected,
+            minSelections: 1,
+            choices: const [
+              VChoiceOption(
+                value: 'email',
+                label: 'Email',
+                helpText: 'Nhận cập nhật đơn hàng qua email.',
+              ),
+              VChoiceOption(
+                value: 'sms',
+                label: 'SMS',
+                helpText: 'Nhận tin nhắn khi giao hàng.',
+              ),
+              VChoiceOption(
+                value: 'push',
+                label: 'Push notification',
+                helpText: 'Thông báo đẩy trên ứng dụng.',
+              ),
+            ],
+            onChanged: (values) => setState(() => _notificationSelected = values),
+          ),
+        ),
+        _buildItem(
+          'VChoiceList (Required)',
+          VChoiceList<String>(
+            title: 'Phương thức thanh toán',
+            isRequired: true,
+            selected: _requiredChoiceSelected,
+            choices: const [
+              VChoiceOption(value: 'cash', label: 'Tiền mặt'),
+              VChoiceOption(value: 'transfer', label: 'Chuyển khoản'),
+              VChoiceOption(value: 'card', label: 'Thẻ'),
+            ],
+            onChanged: (values) => setState(() => _requiredChoiceSelected = values),
           ),
         ),
       ],
