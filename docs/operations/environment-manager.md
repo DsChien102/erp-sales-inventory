@@ -172,7 +172,7 @@ Melos scripts call `dart run` directly (no bash `&&` chains).
 
 | Requirement | Notes |
 | ----------- | ----- |
-| Dart SDK + Flutter in `PATH` | Required for `melos run debug` |
+| Dart SDK + Flutter in `PATH` | Required for `melos run debug`; vet45_env resolves `flutter.bat` via `where` / `FLUTTER_ROOT` on Windows |
 | Supabase CLI | `supabase` on PATH for `env:local` |
 | Git Bash | Optional; needed for `deploy:worker` / legacy `.sh` deploy scripts via `bash` |
 | iOS build/deploy | macOS only — `debug:ios`, `build:ios`, `deploy:ios` exit with clear message on Windows |

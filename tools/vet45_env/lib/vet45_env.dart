@@ -1,6 +1,7 @@
 library;
 
 export 'doctor_service.dart';
+export 'executable_resolver.dart';
 export 'key_resolver.dart';
 export 'link_service.dart';
 export 'process_runner.dart';
