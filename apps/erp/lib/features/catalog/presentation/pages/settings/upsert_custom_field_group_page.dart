@@ -204,7 +204,22 @@ class _UpsertCustomFieldGroupPageState extends State<UpsertCustomFieldGroupPage>
                   ),
                   Switch(
                     value: _isActive,
-                    onChanged: (val) => setState(() => _isActive = val),
+                    onChanged: (val) {
+                      if (!val) {
+                        showVConfirmDialog(
+                          context: context,
+                          title: 'Tạm tắt nhóm thông tin',
+                          message:
+                              'Dữ liệu đã nhập trên sản phẩm sẽ được giữ lại. '
+                              'Nhóm đang tạm tắt sẽ không hiển thị khi tạo hoặc sửa sản phẩm mới.',
+                          cancelLabel: 'Hủy',
+                          actionLabel: 'Xác nhận',
+                          onAction: () => setState(() => _isActive = false),
+                        );
+                      } else {
+                        setState(() => _isActive = true);
+                      }
+                    },
                     activeThumbColor: colors.primary,
                   ),
                 ],

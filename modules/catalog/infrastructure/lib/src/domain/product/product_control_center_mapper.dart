@@ -100,8 +100,10 @@ abstract final class ProductControlCenterMapper {
     }
 
     return value
-        .whereType<Map<String, dynamic>>()
-        .map(CustomFieldRpcMapper.customFieldGroupCardFromJson)
+        .whereType<Map>()
+        .map((item) => CustomFieldRpcMapper.customFieldGroupCardFromJson(
+              Map<String, dynamic>.from(item),
+            ))
         .toList(growable: false);
   }
 
