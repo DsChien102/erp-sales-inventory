@@ -19,6 +19,7 @@ import '../widgets/product_control_center_danger_section.dart';
 import '../widgets/product_lifecycle_bottom_sheets.dart';
 import '../widgets/product_delete_confirm_dialog.dart';
 import '../widgets/product_restore_confirm_dialog.dart';
+import '../widgets/product_control_center_readiness_banner.dart';
 import 'product_stock_adjustment_page.dart';
 
 class ProductControlCenterRouteArgs {
@@ -213,51 +214,9 @@ class _ProductControlCenterView extends StatelessWidget {
                       const SizedBox(height: 96),
 
                     if (controlCenter != null && blockersCount > 0) ...[
-                      GestureDetector(
-                        key: const Key('btn_readiness_checklist_banner'),
+                      ProductControlCenterReadinessBanner(
+                        blockersCount: blockersCount,
                         onTap: () => _openChecklist(context),
-                        child: Container(
-                          margin: const EdgeInsets.symmetric(horizontal: 16),
-                          padding: const EdgeInsets.all(16),
-                          decoration: BoxDecoration(
-                            color: dynamicColors.warningBg,
-                            border: Border.all(
-                              color: dynamicColors.warning.withValues(alpha: 0.3),
-                            ),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Row(
-                            children: [
-                              Icon(
-                                Icons.error_outline,
-                                color: dynamicColors.warning,
-                                size: 24,
-                              ),
-                              const SizedBox(width: 8),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      'Cần bổ sung ($blockersCount)',
-                                      style: VTypography.bodyDefault.copyWith(
-                                        color: dynamicColors.warning,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 2),
-                                    Text(
-                                      'Bấm để xem checklist và bổ sung từng mục.',
-                                      style: VTypography.bodySmall.copyWith(
-                                        color: dynamicColors.warning,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
                       ),
                       const SizedBox(height: 8),
                     ],
@@ -444,7 +403,12 @@ class _ProductControlCenterView extends StatelessWidget {
                             ? '${controlCenter.changeHistoryPreview.first.summary} · ${controlCenter.changeHistoryPreview.first.occurredAt.toString().substring(0, 10)}'
                             : 'Tạo sản phẩm · 2026-07-06',
                         actionText: 'Xem',
-                        onEdit: () => _showEditPlaceholder(context),
+                        onEdit: () {
+                          context.push(
+                            '/products/items/pcc/change-history',
+                            extra: product,
+                          );
+                        },
                       ),
                       ProductControlCenterDangerSection(
                         businessStatus: controlCenter.profile.businessStatus,

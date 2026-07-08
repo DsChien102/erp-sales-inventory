@@ -33,6 +33,7 @@ import '../../features/catalog/presentation/pages/product_price_bands_page.dart'
 import '../../features/catalog/presentation/pages/edit_product_unit_price_band_page.dart';
 import '../../features/catalog/presentation/pages/product_profile_maintenance_page.dart';
 import '../../features/catalog/presentation/pages/product_images_maintenance_page.dart';
+import '../../features/catalog/presentation/pages/product_change_history_page.dart';
 import '../../features/catalog/presentation/pages/settings/product_settings_page.dart';
 import '../../features/catalog/presentation/pages/settings/custom_field_groups_page.dart';
 import '../../features/catalog/presentation/pages/settings/upsert_custom_field_group_page.dart';
@@ -245,6 +246,17 @@ final appRouter = GoRouter(
       builder: (context, state) {
         final product = state.extra as ProductListItemModel;
         return ProductImagesMaintenancePage(product: product);
+      },
+    ),
+    GoRoute(
+      path: '/products/items/pcc/change-history',
+      name: 'products.items.pcc.change-history',
+      builder: (context, state) {
+        final product = state.extra as ProductListItemModel;
+        return ProductChangeHistoryPage(
+          productId: product.id,
+          productName: product.name,
+        );
       },
     ),
     GoRoute(
