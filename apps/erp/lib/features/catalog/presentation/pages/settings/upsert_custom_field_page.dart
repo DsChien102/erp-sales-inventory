@@ -315,7 +315,22 @@ class _UpsertCustomFieldPageState extends State<UpsertCustomFieldPage> {
                     'Bắt buộc',
                     'Tham gia tính readiness của sản phẩm',
                     _isRequired,
-                    (v) => setState(() => _isRequired = v),
+                    (v) {
+                      if (v) {
+                        showVConfirmDialog(
+                          context: context,
+                          title: 'Bật bắt buộc cho trường',
+                          message:
+                              'Sản phẩm hiện tại chưa điền trường này có thể phát sinh blocker readiness. '
+                              'Dữ liệu hiện có không bị xóa.',
+                          cancelLabel: 'Hủy',
+                          actionLabel: 'Xác nhận',
+                          onAction: () => setState(() => _isRequired = true),
+                        );
+                      } else {
+                        setState(() => _isRequired = v);
+                      }
+                    },
                     colors,
                   ),
                   const Divider(height: 1, color: VColors.borderDefault),
