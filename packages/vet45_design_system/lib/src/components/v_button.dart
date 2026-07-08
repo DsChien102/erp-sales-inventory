@@ -4,6 +4,7 @@ import '../tokens/v_spacing.dart';
 import '../tokens/v_radius.dart';
 import '../tokens/v_typography.dart';
 import '../foundation/v_context_extensions.dart';
+import '../foundation/v_component_contracts.dart';
 
 enum VButtonVariant { primary, secondary, outline, ghost, danger, dangerOutline, warning }
 
@@ -19,6 +20,9 @@ class VButton extends StatelessWidget {
   final VButtonSize size;
   final bool flexibleText;
   final Color? foregroundColor;
+  final VComponentTone? tone;
+  final VComponentEmphasis emphasis;
+  final String? semanticLabel;
 
   const VButton({
     super.key,
@@ -31,6 +35,9 @@ class VButton extends StatelessWidget {
     this.size = VButtonSize.medium,
     this.flexibleText = true,
     this.foregroundColor,
+    this.tone,
+    this.emphasis = VComponentEmphasis.strong,
+    this.semanticLabel,
   });
 
   @override
@@ -45,21 +52,27 @@ class VButton extends StatelessWidget {
 
     switch (size) {
       case VButtonSize.small:
-        height = 36;
+        height = context.vDensity.controlHeightSmall;
         padding = const EdgeInsets.symmetric(horizontal: VSpacing.space3);
         textStyle = VTypography.bodySmall.copyWith(fontWeight: FontWeight.w600);
         break;
       case VButtonSize.medium:
-        height = 44;
+        height = context.vDensity.controlHeightMedium;
         padding = const EdgeInsets.symmetric(horizontal: VSpacing.space4);
         textStyle = VTypography.bodyDefault.copyWith(fontWeight: FontWeight.w600);
         break;
       case VButtonSize.large:
-        height = 52;
+        height = context.vDensity.controlHeightLarge;
         padding = const EdgeInsets.symmetric(horizontal: VSpacing.space6);
         textStyle = VTypography.headingH4.copyWith(fontWeight: FontWeight.w600);
         break;
     }
+
+    final VComponentTone resolvedTone = tone ?? switch (variant) {
+      VButtonVariant.warning => VComponentTone.warning,
+      VButtonVariant.danger || VButtonVariant.dangerOutline => VComponentTone.danger,
+      _ => VComponentTone.primary,
+    };
 
     // Colors mapping based on variant and state
     Color? getBgColor(Set<WidgetState> states) {
@@ -80,6 +93,18 @@ class VButton extends StatelessWidget {
       }
       switch (variant) {
         case VButtonVariant.primary:
+          if (resolvedTone == VComponentTone.warning) {
+            if (states.contains(WidgetState.pressed) || states.contains(WidgetState.hovered)) {
+              return VColors.warning.withValues(alpha: 0.8);
+            }
+            return VColors.warning;
+          }
+          if (resolvedTone == VComponentTone.danger) {
+            if (states.contains(WidgetState.pressed) || states.contains(WidgetState.hovered)) {
+              return const Color(0xFFB53232);
+            }
+            return VColors.danger;
+          }
           if (states.contains(WidgetState.pressed) || states.contains(WidgetState.hovered)) {
             return dynamicColors.primaryPressed;
           }
@@ -87,6 +112,9 @@ class VButton extends StatelessWidget {
         case VButtonVariant.secondary:
           if (states.contains(WidgetState.pressed) || states.contains(WidgetState.hovered)) {
             return VColors.primary100;
+          }
+          if (emphasis == VComponentEmphasis.subtle) {
+            return dynamicColors.surface;
           }
           return dynamicColors.surfaceBrand;
         case VButtonVariant.outline:
@@ -248,6 +276,11 @@ class VButton extends StatelessWidget {
       );
     }
 
-    return buttonWidget;
+    return Semantics(
+      button: true,
+      enabled: isEnabled,
+      label: semanticLabel ?? label,
+      child: buttonWidget,
+    );
   }
 }

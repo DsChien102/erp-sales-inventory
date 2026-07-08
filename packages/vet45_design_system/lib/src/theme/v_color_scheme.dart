@@ -13,7 +13,15 @@ class VColorScheme extends ThemeExtension<VColorScheme> {
   final Color textSecondary;
   final Color textMuted;
   final Color primary;
+  final Color primaryHover;
   final Color primaryPressed;
+  final Color primaryFocus;
+  final Color surfaceHover;
+  final Color surfacePressed;
+  final Color focusRing;
+  final Color disabledBg;
+  final Color disabledBorder;
+  final Color disabledFg;
 
   const VColorScheme({
     required this.background,
@@ -26,7 +34,15 @@ class VColorScheme extends ThemeExtension<VColorScheme> {
     required this.textSecondary,
     required this.textMuted,
     required this.primary,
+    required this.primaryHover,
     required this.primaryPressed,
+    required this.primaryFocus,
+    required this.surfaceHover,
+    required this.surfacePressed,
+    required this.focusRing,
+    required this.disabledBg,
+    required this.disabledBorder,
+    required this.disabledFg,
   });
 
   // Light theme color scheme mapping
@@ -41,7 +57,15 @@ class VColorScheme extends ThemeExtension<VColorScheme> {
     textSecondary: VColors.textSecondary,
     textMuted: VColors.textMuted,
     primary: VColors.primary,
+    primaryHover: VColors.primary600,
     primaryPressed: VColors.primaryPressed,
+    primaryFocus: VColors.primary500,
+    surfaceHover: VColors.neutral50,
+    surfacePressed: VColors.neutral100,
+    focusRing: VColors.primary200,
+    disabledBg: VColors.neutral100,
+    disabledBorder: VColors.neutral200,
+    disabledFg: VColors.neutral400,
   );
 
   // Dark theme color scheme mapping
@@ -56,7 +80,15 @@ class VColorScheme extends ThemeExtension<VColorScheme> {
     textSecondary: VColors.neutral300,
     textMuted: VColors.neutral400,
     primary: VColors.primary400,
+    primaryHover: VColors.primary300,
     primaryPressed: VColors.primary300,
+    primaryFocus: VColors.primary400,
+    surfaceHover: VColors.neutral600,
+    surfacePressed: VColors.neutral500,
+    focusRing: VColors.primary700,
+    disabledBg: VColors.neutral700,
+    disabledBorder: VColors.neutral600,
+    disabledFg: VColors.neutral500,
   );
 
   @override
@@ -71,7 +103,15 @@ class VColorScheme extends ThemeExtension<VColorScheme> {
     Color? textSecondary,
     Color? textMuted,
     Color? primary,
+    Color? primaryHover,
     Color? primaryPressed,
+    Color? primaryFocus,
+    Color? surfaceHover,
+    Color? surfacePressed,
+    Color? focusRing,
+    Color? disabledBg,
+    Color? disabledBorder,
+    Color? disabledFg,
   }) {
     return VColorScheme(
       background: background ?? this.background,
@@ -84,7 +124,15 @@ class VColorScheme extends ThemeExtension<VColorScheme> {
       textSecondary: textSecondary ?? this.textSecondary,
       textMuted: textMuted ?? this.textMuted,
       primary: primary ?? this.primary,
+      primaryHover: primaryHover ?? this.primaryHover,
       primaryPressed: primaryPressed ?? this.primaryPressed,
+      primaryFocus: primaryFocus ?? this.primaryFocus,
+      surfaceHover: surfaceHover ?? this.surfaceHover,
+      surfacePressed: surfacePressed ?? this.surfacePressed,
+      focusRing: focusRing ?? this.focusRing,
+      disabledBg: disabledBg ?? this.disabledBg,
+      disabledBorder: disabledBorder ?? this.disabledBorder,
+      disabledFg: disabledFg ?? this.disabledFg,
     );
   }
 
@@ -104,7 +152,15 @@ class VColorScheme extends ThemeExtension<VColorScheme> {
       textSecondary: Color.lerp(textSecondary, other.textSecondary, t)!,
       textMuted: Color.lerp(textMuted, other.textMuted, t)!,
       primary: Color.lerp(primary, other.primary, t)!,
+      primaryHover: Color.lerp(primaryHover, other.primaryHover, t)!,
       primaryPressed: Color.lerp(primaryPressed, other.primaryPressed, t)!,
+      primaryFocus: Color.lerp(primaryFocus, other.primaryFocus, t)!,
+      surfaceHover: Color.lerp(surfaceHover, other.surfaceHover, t)!,
+      surfacePressed: Color.lerp(surfacePressed, other.surfacePressed, t)!,
+      focusRing: Color.lerp(focusRing, other.focusRing, t)!,
+      disabledBg: Color.lerp(disabledBg, other.disabledBg, t)!,
+      disabledBorder: Color.lerp(disabledBorder, other.disabledBorder, t)!,
+      disabledFg: Color.lerp(disabledFg, other.disabledFg, t)!,
     );
   }
 }

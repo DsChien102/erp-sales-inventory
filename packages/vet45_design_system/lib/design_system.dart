@@ -12,9 +12,12 @@ export 'src/tokens/v_duration.dart';
 // Theme
 export 'src/theme/v_theme.dart';
 export 'src/theme/v_color_scheme.dart';
+export 'src/theme/v_density.dart';
 
 // Utilities (Foundation)
 export 'src/foundation/v_context_extensions.dart';
+export 'src/foundation/v_component_contracts.dart';
+export 'src/audit/v_component_audit_snapshot.dart';
 
 // Primitives
 export 'src/primitives/v_badge.dart';
@@ -25,6 +28,7 @@ export 'src/primitives/v_icon_box.dart';
 export 'src/components/v_button.dart';
 export 'src/components/v_card.dart';
 export 'src/components/v_checkbox.dart';
+export 'src/components/v_radio.dart';
 export 'src/components/v_switch.dart';
 export 'src/components/v_floating_action_button.dart';
 export 'src/components/v_text_field.dart';
@@ -34,6 +38,7 @@ export 'src/components/v_tabs.dart';
 export 'src/components/v_empty_state.dart';
 export 'src/components/v_toast.dart';
 export 'src/components/v_dropdown.dart';
+export 'src/components/v_searchable_dropdown.dart';
 export 'src/components/v_quantity_selector.dart';
 export 'src/components/v_date_picker_field.dart';
 export 'src/components/v_home_header.dart';
@@ -42,6 +47,21 @@ export 'src/components/v_modal.dart';
 export 'src/components/v_bottom_sheet.dart';
 export 'src/components/v_app_bar.dart';
 export 'src/components/v_table.dart';
+
+// Forms
+export 'src/forms/validators/v_email_validator.dart';
+export 'src/forms/validators/v_money_validator.dart';
+export 'src/forms/validators/v_number_validator.dart';
+export 'src/forms/validators/v_select_validator.dart';
+export 'src/forms/validators/v_choice_list_validator.dart';
+export 'src/forms/formatters/v_money_input_formatter.dart';
+export 'src/forms/formatters/v_number_input_formatter.dart';
+export 'src/forms/models/v_choice_option.dart';
+export 'src/forms/v_email_field.dart';
+export 'src/forms/v_money_field.dart';
+export 'src/forms/v_number_field.dart';
+export 'src/forms/v_select.dart';
+export 'src/forms/v_choice_list.dart';
 
 // Business Components
 export 'src/business/v_todo_item.dart';

@@ -3,6 +3,7 @@ import '../tokens/v_radius.dart';
 import '../tokens/v_spacing.dart';
 import '../tokens/v_typography.dart';
 import '../foundation/v_context_extensions.dart';
+import '../foundation/v_component_contracts.dart';
 
 class VDropdown<T> extends StatelessWidget {
   final T? value;
@@ -11,6 +12,10 @@ class VDropdown<T> extends StatelessWidget {
   final bool enabled;
   final String? hintText;
   final String? label;
+  final VComponentTone tone;
+  final VComponentEmphasis emphasis;
+  final VComponentState state;
+  final String? semanticLabel;
 
   const VDropdown({
     super.key,
@@ -20,6 +25,10 @@ class VDropdown<T> extends StatelessWidget {
     this.enabled = true,
     this.hintText,
     this.label,
+    this.tone = VComponentTone.neutral,
+    this.emphasis = VComponentEmphasis.medium,
+    this.state = VComponentState.enabled,
+    this.semanticLabel,
   });
 
   @override
@@ -33,7 +42,18 @@ class VDropdown<T> extends StatelessWidget {
       selectedItem = null;
     }
 
-    return Column(
+    final bool isEnabled = enabled && state != VComponentState.disabled;
+    final Color borderColor = switch (tone) {
+      VComponentTone.primary => colors.primary,
+      VComponentTone.danger => Colors.red,
+      _ => isEnabled ? colors.borderStrong : colors.borderDefault,
+    };
+
+    return Semantics(
+      label: semanticLabel ?? label ?? hintText ?? 'Dropdown',
+      textField: true,
+      enabled: isEnabled,
+      child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -49,7 +69,7 @@ class VDropdown<T> extends StatelessWidget {
         LayoutBuilder(
           builder: (context, constraints) {
             return PopupMenuButton<T>(
-              enabled: enabled,
+              enabled: isEnabled,
               offset: const Offset(
                 0,
                 48,
@@ -90,10 +110,11 @@ class VDropdown<T> extends StatelessWidget {
                   horizontal: VSpacing.space3,
                 ),
                 decoration: BoxDecoration(
-                  color: enabled ? colors.surface : colors.surfaceAlt,
+                  color: isEnabled ? colors.surface : colors.surfaceAlt,
                   borderRadius: BorderRadius.circular(VRadius.input),
                   border: Border.all(
-                    color: enabled ? colors.borderStrong : colors.borderDefault,
+                    color: borderColor,
+                    width: emphasis == VComponentEmphasis.strong ? 1.5 : 1,
                   ),
                 ),
                 child: Row(
@@ -112,7 +133,7 @@ class VDropdown<T> extends StatelessWidget {
                     ),
                     Icon(
                       Icons.keyboard_arrow_down,
-                      color: enabled ? colors.textSecondary : colors.textMuted,
+                      color: isEnabled ? colors.textSecondary : colors.textMuted,
                     ),
                   ],
                 ),
@@ -121,6 +142,7 @@ class VDropdown<T> extends StatelessWidget {
           },
         ),
       ],
+    ),
     );
   }
 }

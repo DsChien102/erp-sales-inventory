@@ -4,7 +4,7 @@
     {
       "label": "env:sync erp · development",
       "type": "shell",
-      "command": "./scripts/env/vet45_env.sh use development && ./scripts/env/vet45_env.sh sync --target erp --env development",
+      "command": "dart run tools/vet45_env/bin/vet45_env.dart use-and-sync development --target erp",
       "options": {
         "cwd": "${workspaceFolder}"
       },
@@ -19,7 +19,7 @@
     {
       "label": "env:sync erp · local",
       "type": "shell",
-      "command": "./scripts/env/vet45_env.sh use local && ./scripts/env/vet45_env.sh sync --target erp --env local",
+      "command": "dart run tools/vet45_env/bin/vet45_env.dart use-and-sync local --target erp",
       "options": {
         "cwd": "${workspaceFolder}"
       },
@@ -34,7 +34,7 @@
     {
       "label": "env:sync erp · staging",
       "type": "shell",
-      "command": "./scripts/env/vet45_env.sh use staging && ./scripts/env/vet45_env.sh sync --target erp --env staging",
+      "command": "dart run tools/vet45_env/bin/vet45_env.dart use-and-sync staging --target erp",
       "options": {
         "cwd": "${workspaceFolder}"
       },
@@ -49,7 +49,7 @@
     {
       "label": "env:sync erp · production",
       "type": "shell",
-      "command": "./scripts/env/vet45_env.sh use production && ./scripts/env/vet45_env.sh sync --target erp --env production",
+      "command": "dart run tools/vet45_env/bin/vet45_env.dart use-and-sync production --target erp",
       "options": {
         "cwd": "${workspaceFolder}"
       },
@@ -64,7 +64,7 @@
     {
       "label": "env:sync worker · development",
       "type": "shell",
-      "command": "./scripts/env/vet45_env.sh use development && ./scripts/env/vet45_env.sh sync --target worker --env development",
+      "command": "dart run tools/vet45_env/bin/vet45_env.dart use-and-sync development --target worker",
       "options": {
         "cwd": "${workspaceFolder}"
       },
@@ -79,7 +79,7 @@
     {
       "label": "env:sync worker · local",
       "type": "shell",
-      "command": "./scripts/env/vet45_env.sh use local && ./scripts/env/vet45_env.sh sync --target worker --env local",
+      "command": "dart run tools/vet45_env/bin/vet45_env.dart use-and-sync local --target worker",
       "options": {
         "cwd": "${workspaceFolder}"
       },
@@ -94,7 +94,7 @@
     {
       "label": "env:sync worker · staging",
       "type": "shell",
-      "command": "./scripts/env/vet45_env.sh use staging && ./scripts/env/vet45_env.sh sync --target worker --env staging",
+      "command": "dart run tools/vet45_env/bin/vet45_env.dart use-and-sync staging --target worker",
       "options": {
         "cwd": "${workspaceFolder}"
       },
@@ -109,7 +109,7 @@
     {
       "label": "env:sync worker · production",
       "type": "shell",
-      "command": "./scripts/env/vet45_env.sh use production && ./scripts/env/vet45_env.sh sync --target worker --env production",
+      "command": "dart run tools/vet45_env/bin/vet45_env.dart use-and-sync production --target worker",
       "options": {
         "cwd": "${workspaceFolder}"
       },
@@ -118,6 +118,49 @@
         "panel": "shared",
         "showReuseMessage": false,
         "close": true
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "design-system:example pub get",
+      "type": "shell",
+      "command": "flutter pub get",
+      "options": {
+        "cwd": "${workspaceFolder}/packages/vet45_design_system/example"
+      },
+      "presentation": {
+        "reveal": "silent",
+        "panel": "shared",
+        "showReuseMessage": false,
+        "close": true
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "melos run design-system:example",
+      "type": "shell",
+      "command": "melos run design-system:example",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "focus": true
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "melos run design-system:example:web",
+      "type": "shell",
+      "command": "melos run design-system:example:web",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "focus": true
       },
       "problemMatcher": []
     }

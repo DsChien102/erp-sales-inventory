@@ -18,6 +18,9 @@ Map<String, String> loadDotEnv(File file) {
     }
     final key = trimmed.substring(0, eq).trim();
     var value = trimmed.substring(eq + 1).trim();
+    if (value.endsWith('\r')) {
+      value = value.substring(0, value.length - 1);
+    }
     if ((value.startsWith('"') && value.endsWith('"')) ||
         (value.startsWith("'") && value.endsWith("'"))) {
       value = value.substring(1, value.length - 1);

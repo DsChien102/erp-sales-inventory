@@ -64,116 +64,116 @@ dev_dependencies:
 melos:
   scripts:
     env:list:
-      run: ./scripts/env/vet45_env.sh list
+      run: dart run tools/vet45_env/bin/vet45_env.dart list
       description: List Vet45 environments and active selection
 
     env:use:
-      run: ./scripts/env/vet45_env.sh use
+      run: dart run tools/vet45_env/bin/vet45_env.dart use
       description: Set active environment (pass id after --)
 
     env:use:development:
-      run: ./scripts/env/vet45_env.sh use development
+      run: dart run tools/vet45_env/bin/vet45_env.dart use development
       description: Set active environment to development (default)
 
     env:use:local:
-      run: ./scripts/env/vet45_env.sh use local
+      run: dart run tools/vet45_env/bin/vet45_env.dart use local
       description: Set active environment to local (Supabase CLI)
 
     env:use:staging:
-      run: ./scripts/env/vet45_env.sh use staging
+      run: dart run tools/vet45_env/bin/vet45_env.dart use staging
       description: Set active environment to staging
 
     env:use:production:
-      run: ./scripts/env/vet45_env.sh use production
+      run: dart run tools/vet45_env/bin/vet45_env.dart use production
       description: Set active environment to production
 
     env:sync:
-      run: ./scripts/env/vet45_env.sh sync
+      run: dart run tools/vet45_env/bin/vet45_env.dart sync
       description: Align supabase link + sync ERP + worker .env files
 
     env:link:
-      run: ./scripts/env/vet45_env.sh link
+      run: dart run tools/vet45_env/bin/vet45_env.dart link
       description: Align supabase link with active environment project ref
 
     env:doctor:
-      run: ./scripts/env/vet45_env.sh doctor
+      run: dart run tools/vet45_env/bin/vet45_env.dart doctor
       stdio: inherit
       description: Validate active environment configuration
 
     env:development:
-      run: ./scripts/env/vet45_env.sh use development && ./scripts/env/vet45_env.sh sync
+      run: dart run tools/vet45_env/bin/vet45_env.dart use-and-sync development
       description: Use development (default) and sync app env files
 
     env:local:
-      run: ./scripts/env/vet45_env.sh use local && ./scripts/env/vet45_env.sh sync
+      run: dart run tools/vet45_env/bin/vet45_env.dart use-and-sync local
       description: Use local Supabase and sync app env files
 
     debug:
-      run: ./scripts/env/vet45_env.sh run erp debug
+      run: dart run tools/vet45_env/bin/vet45_env.dart run erp debug
       stdio: inherit
 
     debug:web:
-      run: ./scripts/env/vet45_env.sh run erp debug:web
+      run: dart run tools/vet45_env/bin/vet45_env.dart run erp debug:web
       stdio: inherit
 
     debug:ios:
-      run: ./scripts/env/vet45_env.sh run erp debug:ios
+      run: dart run tools/vet45_env/bin/vet45_env.dart run erp debug:ios
       stdio: inherit
 
     debug:dev:
-      run: ./scripts/env/vet45_env.sh use development && ./scripts/env/vet45_env.sh sync --target erp && ./scripts/env/vet45_env.sh run erp debug
+      run: dart run tools/vet45_env/bin/vet45_env.dart use-sync-run development erp debug
       stdio: inherit
 
     debug:staging:
-      run: ./scripts/env/vet45_env.sh use staging && ./scripts/env/vet45_env.sh sync --target erp && ./scripts/env/vet45_env.sh run erp debug
+      run: dart run tools/vet45_env/bin/vet45_env.dart use-sync-run staging erp debug
       stdio: inherit
 
     debug:prod:
-      run: ./scripts/env/vet45_env.sh use production && ./scripts/env/vet45_env.sh sync --target erp && ./scripts/env/vet45_env.sh run erp debug
+      run: dart run tools/vet45_env/bin/vet45_env.dart use-sync-run production erp debug
       stdio: inherit
 
     build:ios:
-      run: ./scripts/env/vet45_env.sh run erp build-ios
+      run: dart run tools/vet45_env/bin/vet45_env.dart run erp build-ios
       stdio: inherit
       description: Build iOS IPA — active env (staging|production)
 
     build:ios:staging:
-      run: ./scripts/env/vet45_env.sh use staging && ./scripts/env/vet45_env.sh sync --target erp && ./scripts/env/vet45_env.sh run erp build-ios
+      run: dart run tools/vet45_env/bin/vet45_env.dart use-sync-run staging erp build-ios
       stdio: inherit
       description: Build iOS IPA (staging shortcut)
 
     build:ios:production:
-      run: ./scripts/env/vet45_env.sh use production && ./scripts/env/vet45_env.sh sync --target erp && ./scripts/env/vet45_env.sh run erp build-ios
+      run: dart run tools/vet45_env/bin/vet45_env.dart use-sync-run production erp build-ios
       stdio: inherit
       description: Build iOS IPA (production shortcut)
 
     deploy:ios:
-      run: ./scripts/env/vet45_env.sh run erp deploy-ios
+      run: dart run tools/vet45_env/bin/vet45_env.dart run erp deploy-ios
       stdio: inherit
       description: Build + upload iOS IPA — active env (staging|production)
 
     deploy:ios:staging:
-      run: ./scripts/env/vet45_env.sh use staging && ./scripts/env/vet45_env.sh sync --target erp && ./scripts/env/vet45_env.sh run erp deploy-ios
+      run: dart run tools/vet45_env/bin/vet45_env.dart use-sync-run staging erp deploy-ios
       stdio: inherit
       description: Build + upload iOS IPA (staging shortcut)
 
     deploy:ios:production:
-      run: ./scripts/env/vet45_env.sh use production && ./scripts/env/vet45_env.sh sync --target erp && ./scripts/env/vet45_env.sh run erp deploy-ios
+      run: dart run tools/vet45_env/bin/vet45_env.dart use-sync-run production erp deploy-ios
       stdio: inherit
       description: Build + upload iOS IPA (production shortcut)
 
     deploy:worker:
-      run: ./scripts/env/vet45_env.sh run worker deploy
+      run: dart run tools/vet45_env/bin/vet45_env.dart run worker deploy
       stdio: inherit
       description: Deploy messaging worker to Railway — active env (staging|production)
 
     deploy:worker:staging:
-      run: ./scripts/env/vet45_env.sh use staging && ./scripts/env/vet45_env.sh sync --target worker && ./scripts/env/vet45_env.sh run worker deploy
+      run: dart run tools/vet45_env/bin/vet45_env.dart use-sync-run staging worker deploy
       stdio: inherit
       description: Deploy messaging worker (staging shortcut)
 
     deploy:worker:production:
-      run: ./scripts/env/vet45_env.sh use production && ./scripts/env/vet45_env.sh sync --target worker && ./scripts/env/vet45_env.sh run worker deploy
+      run: dart run tools/vet45_env/bin/vet45_env.dart use-sync-run production worker deploy
       stdio: inherit
       description: Deploy messaging worker (production shortcut)
 
@@ -206,23 +206,38 @@ melos:
       isPrivate: true
 
     worker:once:
-      run: ./scripts/env/vet45_env.sh run worker once
+      run: dart run tools/vet45_env/bin/vet45_env.dart run worker once
       stdio: inherit
       description: Run one messaging worker tick (requires Supabase + .env)
 
     worker:serve:
-      run: ./scripts/env/vet45_env.sh run worker serve
+      run: dart run tools/vet45_env/bin/vet45_env.dart run worker serve
       stdio: inherit
       description: Run messaging worker HTTP server locally (port 8080)
 
     worker:docker:
-      run: ./scripts/env/vet45_env.sh run worker docker
+      run: dart run tools/vet45_env/bin/vet45_env.dart run worker docker
       stdio: inherit
       description: Run messaging worker in Docker (Railway-like AOT binary)
 
     worker:verify:
       run: ./apps/messaging_worker/scripts/verify_build.sh
       description: AOT compile worker and optional Docker image build
+
+    design-system:example:
+      run: cd packages/vet45_design_system/example && flutter pub get && flutter run
+      stdio: inherit
+      description: Run vet45_design_system preview example app
+
+    design-system:example:web:
+      run: cd packages/vet45_design_system/example && flutter pub get && flutter run -d chrome
+      stdio: inherit
+      description: Run vet45_design_system preview example app on Chrome
+
+    design-system:example:ios:
+      run: cd packages/vet45_design_system/example && flutter pub get && flutter run -d ios
+      stdio: inherit
+      description: Run vet45_design_system preview example app on iOS simulator
 
   repository:
     type: gitlab

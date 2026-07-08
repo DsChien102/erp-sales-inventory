@@ -5,6 +5,7 @@ import '../tokens/v_spacing.dart';
 import '../tokens/v_radius.dart';
 import '../tokens/v_typography.dart';
 import '../foundation/v_context_extensions.dart';
+import '../foundation/v_component_contracts.dart';
 
 enum VTextFieldVariant { standard, inline }
 
@@ -37,6 +38,10 @@ class VTextField extends StatelessWidget {
   final InputBorder? enabledBorder;
   final InputBorder? focusedBorder;
   final VTextFieldVariant variant;
+  final VComponentTone tone;
+  final VComponentEmphasis emphasis;
+  final VComponentState state;
+  final String? semanticLabel;
 
   const VTextField({
     super.key,
@@ -68,6 +73,10 @@ class VTextField extends StatelessWidget {
     this.enabledBorder,
     this.focusedBorder,
     this.variant = VTextFieldVariant.standard,
+    this.tone = VComponentTone.neutral,
+    this.emphasis = VComponentEmphasis.medium,
+    this.state = VComponentState.enabled,
+    this.semanticLabel,
   });
 
   @override
@@ -75,25 +84,32 @@ class VTextField extends StatelessWidget {
     final dynamicColors = context.vColors;
     final isInline = variant == VTextFieldVariant.inline;
 
+    final bool isEnabled = enabled && state != VComponentState.disabled;
+    final Color toneBorderColor = switch (tone) {
+      VComponentTone.primary => dynamicColors.primary,
+      VComponentTone.danger => VColors.danger,
+      _ => dynamicColors.borderStrong,
+    };
+
     final defaultStyle = isInline
         ? VTypography.bodyDefault.copyWith(
-            color: enabled ? dynamicColors.textPrimary : dynamicColors.textSecondary,
+            color: isEnabled ? dynamicColors.textPrimary : dynamicColors.textSecondary,
             fontWeight: FontWeight.w700,
           )
         : VTypography.bodyDefault.copyWith(
-            color: enabled ? dynamicColors.textPrimary : dynamicColors.textSecondary,
+            color: isEnabled ? dynamicColors.textPrimary : dynamicColors.textSecondary,
           );
 
     final defaultContentPadding = isInline
         ? const EdgeInsets.symmetric(vertical: 6)
-        : const EdgeInsets.symmetric(
-            horizontal: VSpacing.space4,
-            vertical: VSpacing.space3,
+        : EdgeInsets.symmetric(
+            horizontal: context.vDensity.fieldHorizontalPadding,
+            vertical: context.vDensity.fieldVerticalPadding,
           );
 
     final defaultFillColor = isInline
         ? dynamicColors.background
-        : (enabled ? dynamicColors.surface : dynamicColors.surfaceAlt);
+        : (isEnabled ? dynamicColors.surface : dynamicColors.surfaceAlt);
 
     final defaultBorder = isInline
         ? OutlineInputBorder(
@@ -102,7 +118,10 @@ class VTextField extends StatelessWidget {
           )
         : OutlineInputBorder(
             borderRadius: BorderRadius.circular(VRadius.input),
-            borderSide: BorderSide(color: dynamicColors.borderStrong),
+            borderSide: BorderSide(
+              color: toneBorderColor,
+              width: emphasis == VComponentEmphasis.strong ? 1.5 : 1,
+            ),
           );
 
     final defaultEnabledBorder = isInline
@@ -112,7 +131,10 @@ class VTextField extends StatelessWidget {
           )
         : OutlineInputBorder(
             borderRadius: BorderRadius.circular(VRadius.input),
-            borderSide: BorderSide(color: dynamicColors.borderStrong),
+            borderSide: BorderSide(
+              color: toneBorderColor,
+              width: emphasis == VComponentEmphasis.strong ? 1.5 : 1,
+            ),
           );
 
     final defaultFocusedBorder = isInline
@@ -127,7 +149,7 @@ class VTextField extends StatelessWidget {
 
     final textFieldWidget = TextField(
       controller: controller,
-      enabled: enabled,
+      enabled: isEnabled,
       obscureText: obscureText,
       keyboardType: keyboardType,
       onChanged: onChanged,
@@ -204,10 +226,19 @@ class VTextField extends StatelessWidget {
     );
 
     if (isInline) {
-      return textFieldWidget;
+      return Semantics(
+        textField: true,
+        enabled: isEnabled,
+        label: semanticLabel ?? label ?? hintText ?? 'Text field',
+        child: textFieldWidget,
+      );
     }
 
-    return Column(
+    return Semantics(
+      textField: true,
+      enabled: isEnabled,
+      label: semanticLabel ?? label ?? hintText ?? 'Text field',
+      child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -215,7 +246,7 @@ class VTextField extends StatelessWidget {
           RichText(
             text: TextSpan(
               style: VTypography.headingH4.copyWith(
-                color: enabled ? dynamicColors.textPrimary : dynamicColors.textMuted,
+                color: isEnabled ? dynamicColors.textPrimary : dynamicColors.textMuted,
               ),
               children: [
                 TextSpan(text: label!),
@@ -231,6 +262,7 @@ class VTextField extends StatelessWidget {
         ],
         textFieldWidget,
       ],
+    ),
     );
   }
 }
