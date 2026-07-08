@@ -955,15 +955,22 @@ class _FieldsPreviewTabState extends State<FieldsPreviewTab> {
   final _controller1 = TextEditingController();
   final _controller2 = TextEditingController();
   final _controller3 = TextEditingController();
+  final _optionalEmailController = TextEditingController();
+  final _requiredEmailController = TextEditingController();
+  final _externalEmailController = TextEditingController();
   bool _obscure = true;
   String? _dropdownValue = 'Reason 1';
   int _quantity = 2;
+  String? _externalEmailError;
 
   @override
   void dispose() {
     _controller1.dispose();
     _controller2.dispose();
     _controller3.dispose();
+    _optionalEmailController.dispose();
+    _requiredEmailController.dispose();
+    _externalEmailController.dispose();
     super.dispose();
   }
 
@@ -1019,6 +1026,53 @@ class _FieldsPreviewTabState extends State<FieldsPreviewTab> {
             hintText: 'VET45_HCM_01',
             enabled: false,
             prefixIcon: Icon(Icons.store),
+          ),
+        ),
+        _buildItem(
+          'VEmailField (Optional, built-in validation)',
+          VEmailField(
+            controller: _optionalEmailController,
+            label: 'Email',
+            hintText: 'customer@gmail.com',
+            helperText: 'Validation chạy sau debounce khi gõ.',
+          ),
+        ),
+        _buildItem(
+          'VEmailField (Required)',
+          VEmailField(
+            controller: _requiredEmailController,
+            label: 'Email bắt buộc',
+            hintText: 'invoice@example.com',
+            isRequired: true,
+          ),
+        ),
+        _buildItem(
+          'VEmailField (External error override)',
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              VEmailField(
+                controller: _externalEmailController,
+                label: 'Email có lỗi từ parent',
+                hintText: 'user@domain.com',
+                errorText: _externalEmailError,
+                onChanged: (_) {
+                  if (_externalEmailError != null) {
+                    setState(() => _externalEmailError = null);
+                  }
+                },
+              ),
+              const SizedBox(height: VSpacing.space2),
+              VButton(
+                label: 'Set external error',
+                variant: VButtonVariant.outline,
+                onPressed: () {
+                  setState(() {
+                    _externalEmailError = 'Email đã tồn tại trong hệ thống';
+                  });
+                },
+              ),
+            ],
           ),
         ),
         _buildItem(

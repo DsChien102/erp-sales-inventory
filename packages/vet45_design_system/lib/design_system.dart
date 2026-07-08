@@ -47,6 +47,10 @@ export 'src/components/v_bottom_sheet.dart';
 export 'src/components/v_app_bar.dart';
 export 'src/components/v_table.dart';
 
+// Forms
+export 'src/forms/validators/v_email_validator.dart';
+export 'src/forms/v_email_field.dart';
+
 // Business Components
 export 'src/business/v_todo_item.dart';
 export 'src/business/v_activity_item.dart';
