@@ -23,6 +23,11 @@ if [[ ! -x "$root/scripts/env/vet45_env.sh" ]]; then
   exit 1
 fi
 
+if [[ ! -f "$root/scripts/env/vet45_env.bat" ]]; then
+  echo "FAIL: missing scripts/env/vet45_env.bat"
+  exit 1
+fi
+
 echo "==> vet45_env dart test"
 (cd "$root/tools/vet45_env" && dart test)
 
