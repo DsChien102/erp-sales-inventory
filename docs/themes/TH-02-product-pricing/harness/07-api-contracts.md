@@ -1152,6 +1152,74 @@ Tests: `scn_contract_e07_u03_*` in `fake_catalog_module_test.dart` (group `EPIC-
 
 ---
 
+## EPIC-07 / US-04 — Change history (slice #20)
+
+**Status:** CONTRACT `done` · BE `done` · FE `todo` · E2E `todo`
+
+### Commands / Queries
+
+| Symbol | Input (summary) | Success | Errors |
+| ------ | --------------- | ------- | ------ |
+| `GetProductChangeHistoryQuery` | tenantId, productId, limit?, offset?, changeCategories? | `ProductChangeHistoryResultDto` | PermissionDenied, ValidationException, NotFound |
+
+Package: `vet45_catalog_application` — `lifecycle/change_history/`.
+
+Supporting types:
+
+| Type | Fields |
+| ---- | ------ |
+| `ProductChangeHistoryResultDto` | productId, items[], totalCount |
+| `ProductChangeHistoryEntryDto` | id, occurredAt, actorDisplayName, changeType, summary, valueBefore?, valueAfter?, changeCategory?, source, isSensitiveMasked |
+| `ProductChangeCategory` | profile, images, units, stock, pricing, customFields, status, lifecycle, other |
+
+Permissions:
+
+- `GetProductChangeHistoryQuery` → `@RequiresPermission(CatalogPermissions.viewHistory)` + `@RequiresTenant()`
+- Pricing entries: `valueBefore`/`valueAfter` masked at RPC when caller lacks `catalog.product.manage_pricing` (`isSensitiveMasked=true`)
+- Stock entries: masked when caller lacks `catalog.product.manage_stock`
+
+**Scope / rules:**
+
+- **FR-01 (write):** already recorded by mutation RPCs (`create_product`, `update_product_profile`, `set_manual_base_price`, `set_product_unit_price_band`, `product_status_changed`, `product_soft_deleted`, …). No new write command in this slice.
+- **FR-02:** paginated read, newest first; optional `changeCategories` filter; empty list when no history
+- **FR-03:** deny without `view_history`; mask sensitive price/stock values per manage permissions
+- **FR-04:** optimistic concurrency remains on mutation commands via `expectedVersion` → `StaleProductVersionException` (US-01, US-02, US-03, pricing, stock)
+
+Port: `IProductChangeHistoryGateway.listHistory`.
+
+**Relation to PCC:** `GetProductControlCenterQuery.changeHistoryPreview` stays a 1–3 entry preview; full history uses `GetProductChangeHistoryQuery`.
+
+### RPC mapping (BE)
+
+| Use case | RPC | Params (summary) | Notes |
+| -------- | --- | ---------------- | ----- |
+| List change history | `catalog.get_product_change_history` | `p_tenant_id`, `p_product_id`, `p_limit`, `p_offset`, `p_categories text[]` | Returns `{ items: [...], total_count }`; soft-deleted products allowed |
+
+Draft: [`supabase/migrations/_drafts/17_catalog_product_change_history.sql`](../../../../supabase/migrations/_drafts/17_catalog_product_change_history.sql)
+
+**BE tests:** `product_change_history_handlers_test.dart` (`scn_e07_u04_*`), `product_change_history_rpc_mapper_test.dart`
+
+### Fake scenarios (FE / contract)
+
+| scenario_id | trigger | fake response |
+| ----------- | ------- | ------------- |
+| `scn_contract_e07_u04_fr02_01` | `product-1` | multiple entries, newest first |
+| `scn_contract_e07_u04_fr02_02` | `product-6` | empty history |
+| `scn_contract_e07_u04_fr02_03` | filter `pricing` on `product-1` | only pricing category rows |
+| `scn_contract_e07_u04_fr03_01` | deny `view_history` | `ApplicationException` (Permission denied) |
+| `scn_contract_e07_u04_fr03_02` | `view_history` without `manage_pricing` | pricing rows `isSensitiveMasked=true`, values null |
+
+`FakeCatalogModule` — `package:vet45_catalog_application/testing.dart`.
+
+Tests: `scn_contract_e07_u04_*` in `fake_catalog_module_test.dart`.
+
+### Parallel notes
+
+- FE có thể fake: **yes**
+- E2E prerequisite: US-01 (data with history entries from prior mutations)
+
+---
+
 ## EPIC-03 / US-01 — Cấu hình nhóm & trường (slice #16)
 
 **Status:** CONTRACT `done` · BE `done`

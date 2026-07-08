@@ -4,6 +4,7 @@ import 'package:vet45_adapters/vet45_adapters.dart';
 import 'package:vet45_catalog_application/application.dart';
 import 'package:vet45_shared_infrastructure/infrastructure.dart';
 
+import '../../domain/lifecycle/supabase_product_change_history_gateway.dart';
 import '../../domain/pricing/supabase_product_price_band_gateway.dart';
 import '../../domain/pricing/supabase_store_price_rule_gateway.dart';
 import '../../domain/custom_fields/supabase_catalog_custom_field_config_gateway.dart';
@@ -108,6 +109,11 @@ final class CatalogDataAccessModule {
       )
       ..registerSingleton<IProductPriceBandGateway>(
         SupabaseProductPriceBandGateway(
+          rpcClient: container.get<SupabaseSchemaRpcClient>(),
+        ),
+      )
+      ..registerSingleton<IProductChangeHistoryGateway>(
+        SupabaseProductChangeHistoryGateway(
           rpcClient: container.get<SupabaseSchemaRpcClient>(),
         ),
       )

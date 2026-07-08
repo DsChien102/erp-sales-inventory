@@ -816,6 +816,11 @@ final class FakeCatalogModule implements ICatalogModule {
         query as GetProductPriceBandSnapshotQuery,
       );
     }
+    if (query is GetProductChangeHistoryQuery) {
+      return _handleGetProductChangeHistory<TResult>(
+        query as GetProductChangeHistoryQuery,
+      );
+    }
     if (query is ListCustomFieldConfigQuery) {
       return _customFieldStore.listConfig(
             (query as ListCustomFieldConfigQuery).tenantId,
@@ -1789,6 +1794,13 @@ final class FakeCatalogModule implements ICatalogModule {
 
   void _assertCatalogDetailPermission() {
     if (scenario == FakeCatalogScenario.customFieldSearchPermissionDenied) {
+      throw ApplicationException('Permission denied');
+    }
+  }
+
+  void _assertViewHistoryPermission() {
+    if (scenario == FakeCatalogScenario.scnContractE07U04Fr03_01 ||
+        scenario == FakeCatalogScenario.scnContractE07U04PermissionDenied) {
       throw ApplicationException('Permission denied');
     }
   }
@@ -2775,5 +2787,136 @@ final class FakeCatalogModule implements ICatalogModule {
           readinessSummary: _readinessSummaryFor(product),
         )
         as TResult;
+  }
+
+  TResult _handleGetProductChangeHistory<TResult>(
+    GetProductChangeHistoryQuery query,
+  ) {
+    _assertViewHistoryPermission();
+
+    if (scenario == FakeCatalogScenario.scnContractE07U04Validation) {
+      if (query.limit < 1 || query.limit > 100) {
+        throw ValidationException('Limit must be between 1 and 100.');
+      }
+      if (query.offset < 0) {
+        throw ValidationException('Offset must be zero or greater.');
+      }
+    }
+
+    final product = _findProduct(query.productId);
+    if (product == null) {
+      throw ApplicationException('Product not found');
+    }
+
+    final maskPricing =
+        scenario == FakeCatalogScenario.scnContractE07U04Fr03_02 ||
+        product.pricePermissionDenied;
+
+    var entries = _buildFullChangeHistoryForProduct(product);
+    if (query.changeCategories.isNotEmpty) {
+      final allowed = query.changeCategories.toSet();
+      entries = entries
+          .where(
+            (entry) =>
+                entry.changeCategory != null &&
+                allowed.contains(entry.changeCategory),
+          )
+          .toList(growable: false);
+    }
+
+    entries = entries
+        .map(
+          (entry) => _maskChangeHistoryEntry(
+            entry: entry,
+            maskPricing: maskPricing,
+          ),
+        )
+        .toList(growable: false);
+
+    entries.sort((a, b) => b.occurredAt.compareTo(a.occurredAt));
+
+    final start = query.offset.clamp(0, entries.length);
+    final end = (query.offset + query.limit).clamp(0, entries.length);
+    final page = entries.sublist(start, end);
+
+    return ProductChangeHistoryResultDto(
+          productId: query.productId,
+          items: page,
+          totalCount: entries.length,
+        )
+        as TResult;
+  }
+
+  List<ProductChangeHistoryEntryDto> _buildFullChangeHistoryForProduct(
+    _StoredProduct product,
+  ) {
+    if (scenario == FakeCatalogScenario.scnContractE07U04Fr02_02 &&
+        product.id == 'product-6') {
+      return const [];
+    }
+
+    if (product.id != 'product-1' &&
+        product.statusHistory.isEmpty &&
+        scenario != FakeCatalogScenario.scnContractE07U04Fr02_01) {
+      return product.statusHistory;
+    }
+
+    final seeded = <ProductChangeHistoryEntryDto>[
+      ProductChangeHistoryEntryDto(
+        id: 'history-${product.id}-pricing',
+        occurredAt: DateTime.utc(2026, 6, 2, 10),
+        actorDisplayName: 'Nguyễn Văn A',
+        changeType: 'set_product_unit_price_band',
+        summary: 'Cập nhật khung giá',
+        valueBefore: '120000',
+        valueAfter: '125000',
+        changeCategory: ProductChangeCategory.pricing,
+      ),
+      ProductChangeHistoryEntryDto(
+        id: 'history-${product.id}-profile',
+        occurredAt: DateTime.utc(2026, 6, 1, 9),
+        actorDisplayName: 'Nguyễn Văn A',
+        changeType: 'update_product_profile',
+        summary: 'Cập nhật hồ sơ sản phẩm',
+        valueBefore: 'Amoxicillin 500mg',
+        valueAfter: 'Amoxicillin 500mg (revised)',
+        changeCategory: ProductChangeCategory.profile,
+      ),
+      ProductChangeHistoryEntryDto(
+        id: 'history-${product.id}-created',
+        occurredAt: DateTime.utc(2026, 5, 1, 8),
+        actorDisplayName: 'Hệ thống',
+        changeType: 'CREATED',
+        summary: 'Tạo sản phẩm',
+        valueAfter: product.name,
+        changeCategory: ProductChangeCategory.profile,
+        source: 'system',
+      ),
+      ...product.statusHistory,
+    ];
+
+    return seeded;
+  }
+
+  ProductChangeHistoryEntryDto _maskChangeHistoryEntry({
+    required ProductChangeHistoryEntryDto entry,
+    required bool maskPricing,
+  }) {
+    if (!maskPricing || entry.changeCategory != ProductChangeCategory.pricing) {
+      return entry;
+    }
+
+    return ProductChangeHistoryEntryDto(
+      id: entry.id,
+      occurredAt: entry.occurredAt,
+      actorDisplayName: entry.actorDisplayName,
+      changeType: entry.changeType,
+      summary: 'Thay đổi giá (ẩn)',
+      valueBefore: null,
+      valueAfter: null,
+      changeCategory: entry.changeCategory,
+      source: entry.source,
+      isSensitiveMasked: true,
+    );
   }
 }

@@ -53,6 +53,7 @@ final catalogModuleManifest = GeneratedModuleManifest(
     CheckDuplicateMeasurementUnitNameQuery,
     CheckDuplicateProductCodeQuery,
     CheckProductDeletionEligibilityQuery,
+    GetProductChangeHistoryQuery,
     GetProductControlCenterQuery,
     GetProductCustomFieldSnapshotQuery,
     GetProductCustomFieldValuesQuery,

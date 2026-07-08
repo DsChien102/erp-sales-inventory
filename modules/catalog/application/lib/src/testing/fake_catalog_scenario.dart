@@ -122,6 +122,15 @@ abstract final class FakeCatalogScenario {
   static const scnContractE07U03Fr03_03 = 'scn_contract_e07_u03_fr03_03';
   static const scnContractE07U03Fr04_01 = 'scn_contract_e07_u03_fr04_01';
 
+  static const scnContractE07U04Fr02_01 = 'scn_contract_e07_u04_fr02_01';
+  static const scnContractE07U04Fr02_02 = 'scn_contract_e07_u04_fr02_02';
+  static const scnContractE07U04Fr02_03 = 'scn_contract_e07_u04_fr02_03';
+  static const scnContractE07U04Fr03_01 = 'scn_contract_e07_u04_fr03_01';
+  static const scnContractE07U04Fr03_02 = 'scn_contract_e07_u04_fr03_02';
+  static const scnContractE07U04PermissionDenied =
+      'scn_contract_e07_u04_permission_denied';
+  static const scnContractE07U04Validation = 'scn_contract_e07_u04_validation';
+
   static const cfTemplateSeedOk = 'cf_template_seed_ok';
   static const cfTemplateReinitNoOverwrite = 'cf_template_reinit_no_overwrite';
   static const cfGroupUpsertOk = 'cf_group_upsert_ok';

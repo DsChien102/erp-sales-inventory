@@ -3499,4 +3499,104 @@ void main() {
       });
     });
   });
+
+  group('EPIC-07 / US-04 change history contract', () {
+    test('scn_contract_e07_u04_fr02_01 exposes paginated history newest first', () async {
+      final module = FakeCatalogModule(
+        scenario: FakeCatalogScenario.scnContractE07U04Fr02_01,
+      );
+
+      final result = await module.executeQueryAsync(
+        GetProductChangeHistoryQuery(
+          tenantId: 'tenant-1',
+          productId: 'product-1',
+          limit: 10,
+        ),
+      );
+
+      expect(result.totalCount, greaterThanOrEqualTo(3));
+      expect(result.items.first.changeType, 'set_product_unit_price_band');
+      for (var index = 0; index < result.items.length - 1; index++) {
+        expect(
+          result.items[index].occurredAt.compareTo(
+            result.items[index + 1].occurredAt,
+          ),
+          greaterThanOrEqualTo(0),
+        );
+      }
+    });
+
+    test('scn_contract_e07_u04_fr02_02 returns empty history', () async {
+      final module = FakeCatalogModule(
+        scenario: FakeCatalogScenario.scnContractE07U04Fr02_02,
+      );
+
+      final result = await module.executeQueryAsync(
+        GetProductChangeHistoryQuery(
+          tenantId: 'tenant-1',
+          productId: 'product-6',
+        ),
+      );
+
+      expect(result.items, isEmpty);
+      expect(result.totalCount, 0);
+    });
+
+    test('scn_contract_e07_u04_fr02_03 filters pricing category only', () async {
+      final module = FakeCatalogModule(
+        scenario: FakeCatalogScenario.scnContractE07U04Fr02_03,
+      );
+
+      final result = await module.executeQueryAsync(
+        GetProductChangeHistoryQuery(
+          tenantId: 'tenant-1',
+          productId: 'product-1',
+          changeCategories: const [ProductChangeCategory.pricing],
+        ),
+      );
+
+      expect(result.items, isNotEmpty);
+      expect(
+        result.items.every(
+          (entry) => entry.changeCategory == ProductChangeCategory.pricing,
+        ),
+        isTrue,
+      );
+    });
+
+    test('scn_contract_e07_u04_fr03_01 denies without view_history', () async {
+      final module = FakeCatalogModule(
+        scenario: FakeCatalogScenario.scnContractE07U04Fr03_01,
+      );
+
+      await expectLater(
+        module.executeQueryAsync(
+          GetProductChangeHistoryQuery(
+            tenantId: 'tenant-1',
+            productId: 'product-1',
+          ),
+        ),
+        throwsA(isA<ApplicationException>()),
+      );
+    });
+
+    test('scn_contract_e07_u04_fr03_02 masks pricing without manage_pricing', () async {
+      final module = FakeCatalogModule(
+        scenario: FakeCatalogScenario.scnContractE07U04Fr03_02,
+      );
+
+      final result = await module.executeQueryAsync(
+        GetProductChangeHistoryQuery(
+          tenantId: 'tenant-1',
+          productId: 'product-1',
+          changeCategories: const [ProductChangeCategory.pricing],
+        ),
+      );
+
+      final pricing = result.items.single;
+      expect(pricing.isSensitiveMasked, isTrue);
+      expect(pricing.valueBefore, isNull);
+      expect(pricing.valueAfter, isNull);
+    });
+  });
 }

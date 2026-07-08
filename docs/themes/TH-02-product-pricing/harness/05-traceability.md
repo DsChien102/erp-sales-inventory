@@ -349,6 +349,21 @@ Early: `readinessSummary` trên PCC (không thay FR-04 checklist đầy đủ).
 
 ---
 
+## EPIC-07 / US-04 — Change history (slice #20)
+
+| Req ID | Role | Contract § | Enforce layer | Artifact | Test id | Status |
+| ------ | ---- | ---------- | ------------- | -------- | ------- | ------ |
+| US-04 | CONTRACT | §EPIC-07-US-04 | application | `GetProductChangeHistoryQuery`, `ProductChangeHistoryResultDto`, `ProductChangeCategory`, `IProductChangeHistoryGateway`, extended `ProductChangeHistoryEntryDto` | scn_contract_e07_u04_* | done |
+| FR-01 | CONTRACT | §EPIC-07-US-04 | — | Write-side via existing mutation RPCs (doc reference) | — | done (doc) |
+| FR-02 | CONTRACT | §EPIC-07-US-04 | application | Paginated read + category filter | scn_contract_e07_u04_fr02_* | done |
+| FR-03 | CONTRACT | §EPIC-07-US-04 | application | `view_history` gate + sensitive mask scenarios | scn_contract_e07_u04_fr03_* | done |
+| FR-04 | CONTRACT | §EPIC-07-US-04 | — | `expectedVersion` on mutations (doc reference) | — | done (doc) |
+| FR-02 | BE | §EPIC-07-US-04 | application + infrastructure | `GetProductChangeHistoryQueryHandler`, `get_product_change_history` RPC | scn_e07_u04_fr02_* | done |
+| FR-03 | BE | §EPIC-07-US-04 | infrastructure | Price/stock mask in RPC via `manage_pricing` / `manage_stock` | scn_e07_u04_fr03_* | done |
+| FR-01..04 | FE | §EPIC-07-US-04 | presentation | `ProductChangeHistoryPage`, `ProductChangeHistoryCubit` | wgt_e07_u04_fr02_01..02; wgt_e07_u04_fr03_01 | done |
+
+---
+
 ## EPIC-04 / US-03 — Đổi đơn vị cơ sở
 
 | Req ID | Role | Contract § | Enforce layer | Artifact | Test id | Status |

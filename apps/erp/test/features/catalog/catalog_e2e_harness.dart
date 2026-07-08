@@ -21,9 +21,11 @@ import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:erp/features/catalog/presentation/pages/product_price_bands_page.dart';
 import 'package:erp/features/catalog/presentation/pages/edit_product_unit_price_band_page.dart';
-import 'package:vet45_catalog_application/application.dart';
+import 'package:vet45_catalog_application/application.dart' hide ProductChangeHistoryPage;
 import 'package:vet45_catalog_application/testing.dart';
 import 'package:vet45_catalog_presentation/presentation.dart';
+
+import 'package:erp/features/catalog/presentation/pages/product_change_history_page.dart';
 import 'package:vet45_shared_application/application.dart';
 import 'package:vet45_shared_testing/shared_testing.dart';
 
@@ -231,6 +233,16 @@ Widget buildCatalogDiscoveryRouter() {
         builder: (context, state) {
           final args = state.extra as ProductCustomFieldGroupEditRouteArgs;
           return ProductCustomFieldGroupEditPage(args: args);
+        },
+      ),
+      GoRoute(
+        path: '/products/items/pcc/change-history',
+        builder: (context, state) {
+          final product = state.extra as ProductListItemModel;
+          return ProductChangeHistoryPage(
+            productId: product.id,
+            productName: product.name,
+          );
         },
       ),
     ],
