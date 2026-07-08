@@ -8,6 +8,7 @@ final class CustomFieldCardFieldDto {
     this.isRequired = false,
     this.isMissing = false,
     this.sortOrder = 0,
+    this.isActive = true,
   });
 
   final String fieldId;
@@ -17,4 +18,6 @@ final class CustomFieldCardFieldDto {
   final bool isRequired;
   final bool isMissing;
   final int sortOrder;
+  final bool isActive;
 }
+

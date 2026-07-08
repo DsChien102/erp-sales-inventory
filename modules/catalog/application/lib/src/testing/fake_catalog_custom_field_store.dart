@@ -825,14 +825,12 @@ final class FakeCatalogCustomFieldStore {
     );
     _fields.addAll([dosageForm, indication]);
 
-    _productValues[_valueKey('product-1', dosageForm.fieldId)] =
-        _StoredProductCustomFieldValue(
+    _productValues[_valueKey('product-1', dosageForm.fieldId)] = _StoredProductCustomFieldValue(
       productId: 'product-1',
       fieldId: dosageForm.fieldId,
       optionId: 'opt-solution',
     );
-    _productValues[_valueKey('product-1', indication.fieldId)] =
-        _StoredProductCustomFieldValue(
+    _productValues[_valueKey('product-1', indication.fieldId)] = _StoredProductCustomFieldValue(
       productId: 'product-1',
       fieldId: indication.fieldId,
       textValue: 'hỗ trợ tiêu hóa',

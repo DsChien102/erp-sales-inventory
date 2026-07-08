@@ -74,6 +74,7 @@ class _ProductCustomFieldInputWidgetState extends State<ProductCustomFieldInputW
         isRequired: widget.field.isRequired,
         controller: _textController,
         errorText: widget.errorText,
+        enabled: widget.field.isActive,
         onChanged: (val) {
           widget.onChanged(ProductCustomFieldValueInput(
             fieldId: widget.field.fieldId,
@@ -87,6 +88,7 @@ class _ProductCustomFieldInputWidgetState extends State<ProductCustomFieldInputW
         isRequired: widget.field.isRequired,
         controller: _textController,
         errorText: widget.errorText,
+        enabled: widget.field.isActive,
         keyboardType: const TextInputType.numberWithOptions(decimal: true),
         inputFormatters: [
           FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*')),
@@ -105,6 +107,7 @@ class _ProductCustomFieldInputWidgetState extends State<ProductCustomFieldInputW
         label: widget.field.name,
         value: widget.input.optionId,
         hintText: '— Chọn —',
+        enabled: widget.field.isActive,
         items: widget.field.options.map((opt) {
           return DropdownMenuItem<String>(
             value: opt.optionId,
@@ -122,12 +125,14 @@ class _ProductCustomFieldInputWidgetState extends State<ProductCustomFieldInputW
       return VSwitch(
         label: widget.field.name + (widget.field.isRequired ? ' *' : ''),
         value: widget.input.booleanValue ?? false,
-        onChanged: (val) {
-          widget.onChanged(ProductCustomFieldValueInput(
-            fieldId: widget.field.fieldId,
-            booleanValue: val,
-          ));
-        },
+        onChanged: widget.field.isActive
+            ? (val) {
+                widget.onChanged(ProductCustomFieldValueInput(
+                  fieldId: widget.field.fieldId,
+                  booleanValue: val,
+                ));
+              }
+            : null,
       );
     } else if (widget.field.fieldType == CustomFieldType.date.name) {
       return VDatePickerField(
@@ -135,6 +140,7 @@ class _ProductCustomFieldInputWidgetState extends State<ProductCustomFieldInputW
         required: widget.field.isRequired,
         value: widget.input.dateValue,
         onTap: () async {
+          if (!widget.field.isActive) return;
           final date = await showDatePicker(
             context: context,
             initialDate: widget.input.dateValue ?? DateTime.now(),

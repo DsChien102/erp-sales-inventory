@@ -17,6 +17,7 @@ final class ProductCustomFieldValueFieldDto {
     this.dateValue,
     this.booleanValue,
     this.optionId,
+    this.isActive = true,
   });
 
   final String fieldId;
@@ -33,4 +34,5 @@ final class ProductCustomFieldValueFieldDto {
   final DateTime? dateValue;
   final bool? booleanValue;
   final String? optionId;
+  final bool isActive;
 }
