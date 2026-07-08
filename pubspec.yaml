@@ -239,6 +239,10 @@ melos:
       stdio: inherit
       description: Run vet45_design_system preview example app on iOS simulator
 
+    migrate:promote-drafts:
+      run: dart run tools/vet45_supabase_migrate/bin/promote_drafts.dart
+      description: Promote supabase/migrations/_drafts SQL files to timestamped migrations
+
   repository:
     type: gitlab
     origin: https://gitlab.hamsa.co

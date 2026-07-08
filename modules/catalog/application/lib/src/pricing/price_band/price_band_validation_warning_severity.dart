@@ -1,0 +1,4 @@
+enum PriceBandValidationWarningSeverity {
+  warning,
+  strongWarning,
+}

@@ -15,7 +15,7 @@ Thư mục này chứa **SQL thiết kế tạm** — **không** được Supaba
 
 Ví dụ: `partner_transaction_history_read.sql`, `iam_tenant_membership_ops.sql`
 
-**Không** dùng prefix `YYYYMMDDHHMMSS_` — format đó chỉ dành cho migration chính thức ở thư mục cha `supabase/migrations/`.
+**Không** dùng prefix `YYYYMMDDxxx_` — format đó chỉ dành cho migration chính thức ở thư mục cha `supabase/migrations/`.
 
 ## Nội dung
 
@@ -27,8 +27,8 @@ Ví dụ: `partner_transaction_history_read.sql`, `iam_tenant_membership_ops.sql
 
 Chỉ **maintainer hoặc khi user yêu cầu rõ**:
 
-1. Chọn timestamp **duy nhất** (không trùng file hiện có): `supabase migration list --local`
-2. Tạo `../YYYYMMDDHHMMSS_<scope>_<short_description>.sql` từ nội dung draft
+1. Chọn migration id **duy nhất** (không trùng file hiện có): `supabase migration list --local`
+2. Promote bằng `melos run migrate:promote-drafts -- --write`, hoặc tạo thủ công `../YYYYMMDDxxx_<scope>_<short_description>.sql`
 3. Chạy `supabase db reset` local để verify sequence
 4. Xóa hoặc archive draft tương ứng
 

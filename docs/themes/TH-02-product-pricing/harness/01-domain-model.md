@@ -88,6 +88,7 @@ erDiagram
 | `SetInitialStockCommand` | EPIC-02/US-02, EPIC-05/US-02 | Basic stock ban đầu |
 | `SetManualBasePriceCommand` | EPIC-02/US-02, EPIC-06/US-01 | Giá cơ sở thủ công |
 | `SetInitialPriceBandCommand` | EPIC-02/US-02, EPIC-06/US-03 | Khung giá ban đầu (optional step) |
+| `GetProductReadinessQuery` | EPIC-02/US-03 | Checklist + suggested actions + refresh |
 | `SearchProductsQuery` | EPIC-01/US-01 | + readiness filter; sau EPIC-03/US-03: searchable fields |
 | `GetProductControlCenterQuery` | EPIC-01/US-02 | Detail + cards + readinessSummary + actions; checklist chi tiết **pending** (FR-04) |
 | `GetProductChangeHistoryQuery` | EPIC-01/US-02, EPIC-07/US-04 | Lịch sử thay đổi |
@@ -185,4 +186,4 @@ Code domain: [domain-layer skill](../../../../.cursor/skills/domain-layer/SKILL.
 
 Commands/handlers: [application-layer](../../../../.cursor/skills/application-layer/SKILL.md).
 
-**Lưu ý:** `modules/catalog/` vẫn skeleton — cập nhật khi slice EPIC-02/US-01 CONTRACT lane bắt đầu.
+**Lưu ý:** EPIC-02/US-01 CONTRACT + BE done — `Product.create`, readiness seed, handlers, gateways, draft SQL `catalog_guided_create.sql`, IAM-style codegen. FE/E2E còn lại.

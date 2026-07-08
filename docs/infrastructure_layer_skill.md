@@ -187,7 +187,7 @@ ERP [`MessagingWorkerScheduler`](../../apps/erp/lib/core/messaging/messaging_wor
 
 Internal commands: `ISerializableInternalCommand` + codegen registry; dedup via `(tenant_id, source_event_id, command_type)`.
 
-**Postgres schema:** migration chính thức trong `supabase/migrations/YYYYMMDDHHMMSS_*.sql`; agents viết draft tại `supabase/migrations/_drafts/` ([AGENTS.md](../AGENTS.md)). Ví dụ messaging: `20260623000001_platform_messaging_foundation.sql` + `20260623000002_*`. Ops: [operations/messaging_schema.md](../operations/messaging_schema.md).
+**Postgres schema:** migration chính thức trong `supabase/migrations/YYYYMMDDxxx_*.sql`; agents viết draft tại `supabase/migrations/_drafts/` ([AGENTS.md](../AGENTS.md)). Ví dụ messaging: `20260623000001_platform_messaging_foundation.sql` (legacy 14-digit) + `20260709001_*` (format mới). Ops: [operations/messaging_schema.md](../operations/messaging_schema.md).
 
 ---
 

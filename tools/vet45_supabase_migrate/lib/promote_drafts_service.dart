@@ -1,0 +1,281 @@
+import 'dart:io';
+
+const draftsRelativePath = 'supabase/migrations/_drafts';
+const migrationsRelativePath = 'supabase/migrations';
+
+const migrationIdLength = 11;
+const migrationDateLength = 8;
+const migrationSequenceLength = 3;
+const maxDailyMigrationSequence = 999;
+
+final _draftOrderPrefix = RegExp(r'^(\d+)_(.+)$');
+final _migrationIdPrefix = RegExp(r'^(\d{11})_');
+
+class PromoteDraftsOptions {
+  const PromoteDraftsOptions({
+    required this.repoRoot,
+    this.startTimestamp,
+    this.referenceTime,
+    this.dryRun = false,
+    this.force = false,
+  });
+
+  final Directory repoRoot;
+  final String? startTimestamp;
+
+  /// Defaults to [DateTime.now] when allocating date-based timestamps.
+  final DateTime? referenceTime;
+  final bool dryRun;
+  final bool force;
+}
+
+class PlannedMigration {
+  const PlannedMigration({
+    required this.timestamp,
+    required this.outputFileName,
+    required this.sourceDraftName,
+    required this.sql,
+  });
+
+  final String timestamp;
+  final String outputFileName;
+  final String sourceDraftName;
+  final String sql;
+
+  int get lineCount => sql.split('\n').length;
+}
+
+class PromoteDraftsResult {
+  const PromoteDraftsResult({
+    required this.planned,
+    required this.written,
+  });
+
+  final List<PlannedMigration> planned;
+  final List<File> written;
+}
+
+class PromoteDraftsService {
+  Directory draftsDir(Directory repoRoot) =>
+      Directory('${repoRoot.path}/$draftsRelativePath');
+
+  Directory migrationsDir(Directory repoRoot) =>
+      Directory('${repoRoot.path}/$migrationsRelativePath');
+
+  List<File> listDraftSqlFiles(Directory draftsDirectory) {
+    if (!draftsDirectory.existsSync()) {
+      throw StateError('Drafts directory not found: ${draftsDirectory.path}');
+    }
+
+    final drafts = draftsDirectory
+        .listSync()
+        .whereType<File>()
+        .where((file) => file.path.endsWith('.sql'))
+        .toList();
+
+    drafts.sort((a, b) => _compareDraftFiles(a.path, b.path));
+    return drafts;
+  }
+
+  String migrationSlug(String draftFileName) {
+    final baseName = _basename(draftFileName).replaceAll('.sql', '');
+    final match = _draftOrderPrefix.firstMatch(baseName);
+    return match?.group(2) ?? baseName;
+  }
+
+  int? draftOrderNumber(String draftFileName) {
+    final baseName = _basename(draftFileName).replaceAll('.sql', '');
+    final match = _draftOrderPrefix.firstMatch(baseName);
+    return match == null ? null : int.parse(match.group(1)!);
+  }
+
+  String migrationDatePrefix(DateTime dateTime) {
+    final year = dateTime.year.toString().padLeft(4, '0');
+    final month = dateTime.month.toString().padLeft(2, '0');
+    final day = dateTime.day.toString().padLeft(2, '0');
+    return '$year$month$day';
+  }
+
+  int maxMigrationSequenceOnDate(
+    Directory migrationsDirectory,
+    String datePrefix,
+  ) {
+    if (!migrationsDirectory.existsSync()) {
+      return 0;
+    }
+
+    var maxSequence = 0;
+    for (final entry in migrationsDirectory.listSync()) {
+      if (entry is! File || !entry.path.endsWith('.sql')) {
+        continue;
+      }
+
+      final match = _migrationIdPrefix.firstMatch(_basename(entry.path));
+      if (match == null) {
+        continue;
+      }
+
+      final migrationId = match.group(1)!;
+      if (!migrationId.startsWith(datePrefix)) {
+        continue;
+      }
+
+      final sequence = int.tryParse(
+        migrationId.substring(migrationDateLength, migrationIdLength),
+      );
+      if (sequence != null && sequence > maxSequence) {
+        maxSequence = sequence;
+      }
+    }
+
+    return maxSequence;
+  }
+
+  List<String> allocateTimestamps({
+    required int count,
+    required Directory migrationsDirectory,
+    String? startTimestamp,
+    DateTime? referenceTime,
+  }) {
+    if (count <= 0) {
+      return const [];
+    }
+
+    if (startTimestamp != null) {
+      final base = _parseMigrationId(startTimestamp);
+      return List.generate(count, (index) {
+        final next = base + index;
+        return _formatMigrationId(next);
+      });
+    }
+
+    final datePrefix = migrationDatePrefix(referenceTime ?? DateTime.now());
+    final baseSequence =
+        maxMigrationSequenceOnDate(migrationsDirectory, datePrefix) + 1;
+
+    return List.generate(count, (index) {
+      final sequence = baseSequence + index;
+      if (sequence > maxDailyMigrationSequence) {
+        throw StateError(
+          'Daily migration limit ($maxDailyMigrationSequence) exceeded for $datePrefix',
+        );
+      }
+
+      return _formatMigrationId(
+        int.parse(
+          '$datePrefix${sequence.toString().padLeft(migrationSequenceLength, '0')}',
+        ),
+      );
+    });
+  }
+
+  String _formatMigrationId(int value) {
+    return value.toString().padLeft(migrationIdLength, '0');
+  }
+
+  String buildSql({
+    required String draftContent,
+    required String sourceDraftName,
+  }) {
+    final body = draftContent.trimRight();
+    return '''
+-- Promoted from _drafts/$sourceDraftName
+-- Generated by tools/vet45_supabase_migrate/bin/promote_drafts.dart
+
+$body
+''';
+  }
+
+  List<PlannedMigration> plan(PromoteDraftsOptions options) {
+    final drafts = listDraftSqlFiles(draftsDir(options.repoRoot));
+    if (drafts.isEmpty) {
+      throw StateError('No .sql drafts found in ${draftsDir(options.repoRoot).path}');
+    }
+
+    final timestamps = allocateTimestamps(
+      count: drafts.length,
+      migrationsDirectory: migrationsDir(options.repoRoot),
+      startTimestamp: options.startTimestamp,
+      referenceTime: options.referenceTime,
+    );
+
+    final planned = <PlannedMigration>[];
+    for (var index = 0; index < drafts.length; index++) {
+      final draft = drafts[index];
+      final sourceDraftName = _basename(draft.path);
+      final slug = migrationSlug(sourceDraftName);
+      final timestamp = timestamps[index];
+      final outputFileName = '${timestamp}_$slug.sql';
+      final sql = buildSql(
+        draftContent: draft.readAsStringSync(),
+        sourceDraftName: sourceDraftName,
+      );
+
+      planned.add(
+        PlannedMigration(
+          timestamp: timestamp,
+          outputFileName: outputFileName,
+          sourceDraftName: sourceDraftName,
+          sql: sql,
+        ),
+      );
+    }
+
+    return planned;
+  }
+
+  PromoteDraftsResult promote(PromoteDraftsOptions options) {
+    final planned = plan(options);
+    if (options.dryRun) {
+      return PromoteDraftsResult(planned: planned, written: const []);
+    }
+
+    final outputDir = migrationsDir(options.repoRoot);
+    if (!outputDir.existsSync()) {
+      outputDir.createSync(recursive: true);
+    }
+
+    final written = <File>[];
+    for (final migration in planned) {
+      final target = File('${outputDir.path}/${migration.outputFileName}');
+      if (target.existsSync() && !options.force) {
+        throw StateError(
+          'Refusing to overwrite existing migration: ${target.path}. Use --force.',
+        );
+      }
+
+      target.writeAsStringSync(migration.sql);
+      written.add(target);
+    }
+
+    return PromoteDraftsResult(planned: planned, written: written);
+  }
+
+  int _compareDraftFiles(String leftPath, String rightPath) {
+    final leftName = _basename(leftPath);
+    final rightName = _basename(rightPath);
+
+    final leftOrder = draftOrderNumber(leftName);
+    final rightOrder = draftOrderNumber(rightName);
+
+    if (leftOrder != null && rightOrder != null) {
+      final byNumber = leftOrder.compareTo(rightOrder);
+      if (byNumber != 0) {
+        return byNumber;
+      }
+    }
+
+    return leftName.compareTo(rightName);
+  }
+
+  int _parseMigrationId(String value) {
+    if (!RegExp(r'^\d{11}$').hasMatch(value)) {
+      throw FormatException(
+        'Migration id must be YYYYMMDDxxx (11 digits): $value',
+      );
+    }
+    return int.parse(value);
+  }
+
+  String _basename(String path) => path.split(Platform.pathSeparator).last;
+}

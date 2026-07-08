@@ -18,8 +18,8 @@ enum ErpTab {
   products(
     label: 'Sản phẩm',
     icon: Icons.inventory_2_outlined,
-    routePath: '/catalogue/products',
-    enabled: false,
+    routePath: '/products/items',
+    enabled: true,
   ),
   partners(
     label: 'KH&NCC',

@@ -1,5 +1,5 @@
 name: vet45_catalog_infrastructure
-description: catalog bounded context — infrastructure layer (skeleton).
+description: catalog bounded context — infrastructure layer.
 version: 1.0.0
 publish_to: none
 resolution: workspace
@@ -11,6 +11,8 @@ dependencies:
   get_it: ^9.2.1
   meta: ^1.17.0
   supabase: ^2.12.2
+  vet45_adapters: ^0.1.0
+  vet45_annotations: ^0.1.0
   vet45_catalog_application: ^1.0.0
   vet45_catalog_domain: ^1.0.0
   vet45_catalog_integration_events: ^1.0.0
@@ -24,3 +26,5 @@ dev_dependencies:
   lints: ^6.0.0
   test: ^1.26.2
   vet45_generator: ^0.1.0
+  vet45_shared_testing: ^0.0.1
+

@@ -7,16 +7,19 @@ Tai lieu nay la quy chuan chung cho **migration chinh thuc** trong `supabase/mig
 | Loai | Path | Supabase CLI apply? |
 | ---- | ---- | ------------------- |
 | **Draft (agents / slice BE)** | `supabase/migrations/_drafts/<scope>_<description>.sql` | Khong |
-| **Migration chinh thuc** | `supabase/migrations/YYYYMMDDHHMMSS_<scope>_<description>.sql` | Co |
+| **Migration chinh thuc** | `supabase/migrations/YYYYMMDDxxx_<scope>_<description>.sql` | Co |
 
 Agents: xem [AGENTS.md](../../AGENTS.md) — **Schema & migration**. Chi promote draft thanh file timestamp khi maintainer/user yeu cau; timestamp phai unique trong ca repo.
 
 ## 1) Dat ten file
 
-- Dung format: `YYYYMMDDHHMMSS_<scope>_<short_description>.sql`
+- Dung format: `YYYYMMDDxxx_<scope>_<short_description>.sql`
+  - `YYYYMMDD` = ngay tao migration (local date)
+  - `xxx` = thu tu migration trong ngay do (`001`..`999`, zero-pad 3 chu so)
 - Vi du:
-  - `20260630000001_iam_foundation.sql`
-  - `20260630000002_partner_theme_foundation.sql`
+  - `20260630001_iam_foundation.sql`
+  - `20260630002_partner_theme_foundation.sql`
+  - `20260709001_catalog_guided_create.sql`
 - `<scope>` uu tien theo bounded context: `iam`, `partner`, `sales`, `platform`, ...
 - `<short_description>` ngan gon, dung `snake_case`, mo ta "why" hon la "how".
 

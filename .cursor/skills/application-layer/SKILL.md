@@ -108,6 +108,28 @@ modules/<module>/application/
 
 Nhóm theo **feature area** (aggregate cluster), không nhóm theo `commands/` / `queries/` global.
 
+**Bắt buộc (module mới + area đã guarded):** mỗi use case một subfolder — không đặt `*_command.dart` / `*_query.dart` phẳng ngay dưới `<feature_area>/`.
+
+```text
+# ĐÚNG — mirror modules/partner/application/
+custom_fields/
+  shared/                          # DTO dùng chéo use case
+    custom_field_definition_dto.dart
+  upsert_custom_field_group/
+    upsert_custom_field_group_command.dart
+  list_custom_field_config/
+    list_custom_field_config_query.dart
+
+# SAI — flat feature area (bị guard_application_use_case_layout.sh với custom_fields)
+custom_fields/
+  upsert_custom_field_group_command.dart
+  list_custom_field_config_query.dart
+```
+
+DTO dùng chung trong cùng feature area → `<feature_area>/shared/`. Port vẫn ở `src/ports/`.
+
+CI: `scripts/ci/guard_application_use_case_layout.sh` (thêm path vào `guarded_areas` khi mở feature area mới).
+
 ### 4. Implement command
 
 **Naming:** intent nghiệp vụ, không CRUD — xem [ddd-domain-modeling](../ddd-domain-modeling/SKILL.md).

@@ -73,6 +73,59 @@ class SystemSettingsPage extends StatelessWidget {
               ],
             ),
           ),
+          const SizedBox(height: VSpacing.space3),
+          VCard(
+            onTap: () => context.push('/more/product-settings'),
+            padding: const EdgeInsets.symmetric(
+              horizontal: VSpacing.space4,
+              vertical: VSpacing.space3 + 2,
+            ),
+            child: Row(
+              children: [
+                VIconBox(
+                  iconData: Icons.inventory_2_outlined,
+                  size: 44,
+                  iconSize: 20,
+                  backgroundColor: colors.surfaceBrand,
+                  iconColor: colors.primary,
+                  borderRadius: VRadius.r12,
+                ),
+                const SizedBox(width: VSpacing.space3),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        'Sản phẩm',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: VTypography.headingH4.copyWith(
+                          color: colors.textPrimary,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                      const SizedBox(height: 3),
+                      Text(
+                        'Giá bán, nhóm thông tin và trường tuỳ biến cho sản phẩm',
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: VTypography.bodySmall.copyWith(
+                          color: colors.textSecondary,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: VSpacing.space2),
+                Icon(
+                  Icons.chevron_right,
+                  color: colors.textSecondary,
+                  size: 20,
+                ),
+              ],
+            ),
+          ),
         ],
       ),
     );

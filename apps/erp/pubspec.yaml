@@ -23,10 +23,15 @@ dependencies:
   vet45_partner_application: ^1.0.0
   vet45_partner_infrastructure: ^1.0.0
   vet45_partner_presentation: ^1.0.0
+  vet45_catalog_domain: ^1.0.0
+  vet45_catalog_application: ^1.0.0
+  vet45_catalog_infrastructure: ^1.0.0
+  vet45_catalog_presentation: ^1.0.0
   vet45_shared_application: ^1.0.0
   vet45_shared_infrastructure: ^0.0.1
   logging: ^1.3.0
   supabase: ^2.13.0
+  image_picker: ^1.2.3
 
 dev_dependencies:
   vet45_lints: ^1.0.0
