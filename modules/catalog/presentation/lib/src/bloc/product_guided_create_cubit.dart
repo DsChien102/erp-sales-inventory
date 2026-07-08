@@ -12,9 +12,9 @@ class ProductGuidedCreateCubit extends Cubit<ProductGuidedCreateState> {
   ProductGuidedCreateCubit({
     required ICatalogModule catalogModule,
     required IExecutionContext executionContext,
-  })  : _catalogModule = catalogModule,
-        _executionContext = executionContext,
-        super(const ProductGuidedCreateState());
+  }) : _catalogModule = catalogModule,
+       _executionContext = executionContext,
+       super(const ProductGuidedCreateState());
 
   final ICatalogModule _catalogModule;
   final IExecutionContext _executionContext;
@@ -29,32 +29,38 @@ class ProductGuidedCreateCubit extends Cubit<ProductGuidedCreateState> {
   }
 
   void updateSku(String val) {
-    emit(state.copyWith(
-      sku: val,
-      clearSkuError: true,
-      clearDuplicateMatch: true,
-      clearError: true,
-    ));
+    emit(
+      state.copyWith(
+        sku: val,
+        clearSkuError: true,
+        clearDuplicateMatch: true,
+        clearError: true,
+      ),
+    );
   }
 
   void updateBarcode(String val) {
-    emit(state.copyWith(
-      barcode: val,
-      clearBarcodeError: true,
-      clearDuplicateMatch: true,
-      clearError: true,
-    ));
+    emit(
+      state.copyWith(
+        barcode: val,
+        clearBarcodeError: true,
+        clearDuplicateMatch: true,
+        clearError: true,
+      ),
+    );
   }
 
   Future<void> checkDuplicateCodes() async {
     final sku = state.sku.trim();
     final barcode = state.barcode.trim();
     if (sku.isEmpty && barcode.isEmpty) {
-      emit(state.copyWith(
-        clearSkuError: true,
-        clearBarcodeError: true,
-        clearDuplicateMatch: true,
-      ));
+      emit(
+        state.copyWith(
+          clearSkuError: true,
+          clearBarcodeError: true,
+          clearDuplicateMatch: true,
+        ),
+      );
       return;
     }
 
@@ -86,15 +92,17 @@ class ProductGuidedCreateCubit extends Cubit<ProductGuidedCreateState> {
         }
       }
 
-      emit(state.copyWith(
-        skuError: skuError,
-        barcodeError: barcodeError,
-        duplicateProductId: duplicateProductId,
-        duplicateProductName: duplicateProductName,
-        clearSkuError: skuError == null,
-        clearBarcodeError: barcodeError == null,
-        clearDuplicateMatch: duplicateProductId == null,
-      ));
+      emit(
+        state.copyWith(
+          skuError: skuError,
+          barcodeError: barcodeError,
+          duplicateProductId: duplicateProductId,
+          duplicateProductName: duplicateProductName,
+          clearSkuError: skuError == null,
+          clearBarcodeError: barcodeError == null,
+          clearDuplicateMatch: duplicateProductId == null,
+        ),
+      );
     } catch (_) {
       // Non-blocking: submit will re-check.
     }
@@ -115,10 +123,12 @@ class ProductGuidedCreateCubit extends Cubit<ProductGuidedCreateState> {
       final toAdd = picked.take(remaining).toList();
       await _uploadPickedFiles(toAdd);
     } catch (_) {
-      emit(state.copyWith(
-        errorMessage: 'Không mở được thư viện ảnh.',
-        status: ProductGuidedCreateStatus.error,
-      ));
+      emit(
+        state.copyWith(
+          errorMessage: 'Không mở được thư viện ảnh.',
+          status: ProductGuidedCreateStatus.error,
+        ),
+      );
     }
   }
 
@@ -136,12 +146,14 @@ class ProductGuidedCreateCubit extends Cubit<ProductGuidedCreateState> {
         ...drafts,
         ProductImageDraft(localPath: file.path, status: ProductImageUploadStatus.uploading),
       ];
-      emit(state.copyWith(
-        imageDrafts: drafts,
-        coverImageIndex: state.coverImageIndex.clamp(0, drafts.length - 1),
-        status: ProductGuidedCreateStatus.uploadingImages,
-        clearError: true,
-      ));
+      emit(
+        state.copyWith(
+          imageDrafts: drafts,
+          coverImageIndex: state.coverImageIndex.clamp(0, drafts.length - 1),
+          status: ProductGuidedCreateStatus.uploadingImages,
+          clearError: true,
+        ),
+      );
 
       final index = drafts.length - 1;
       final fileName = file.name.isNotEmpty ? file.name : file.path.split('/').last;
@@ -195,11 +207,13 @@ class ProductGuidedCreateCubit extends Cubit<ProductGuidedCreateState> {
         );
       }
 
-      emit(state.copyWith(
-        imageDrafts: drafts,
-        coverImageIndex: state.coverImageIndex.clamp(0, drafts.length - 1),
-        status: ProductGuidedCreateStatus.initial,
-      ));
+      emit(
+        state.copyWith(
+          imageDrafts: drafts,
+          coverImageIndex: state.coverImageIndex.clamp(0, drafts.length - 1),
+          status: ProductGuidedCreateStatus.initial,
+        ),
+      );
     }
   }
 
@@ -207,9 +221,11 @@ class ProductGuidedCreateCubit extends Cubit<ProductGuidedCreateState> {
     if (state.imageDrafts.isEmpty) {
       return;
     }
-    emit(state.copyWith(
-      coverImageIndex: index.clamp(0, state.imageDrafts.length - 1),
-    ));
+    emit(
+      state.copyWith(
+        coverImageIndex: index.clamp(0, state.imageDrafts.length - 1),
+      ),
+    );
   }
 
   void removeImageAt(int index) {
@@ -253,20 +269,22 @@ class ProductGuidedCreateCubit extends Cubit<ProductGuidedCreateState> {
   }
 
   void updateManualListPrice(String val) {
-    emit(state.copyWith(manualListPrice: val));
+    emit(state.copyWith(manualListPrice: val, clearManualPriceError: true, clearError: true));
   }
 
   void updateManualFloorPrice(String val) {
-    emit(state.copyWith(manualFloorPrice: val));
+    emit(state.copyWith(manualFloorPrice: val, clearManualPriceError: true, clearError: true));
   }
 
   void setStep(int idx) {
     if (state.activeStepIndex == idx) {
       emit(state.copyWith(activeStepIndex: -1));
     } else {
-      emit(state.copyWith(
-        activeStepIndex: idx.clamp(0, ProductGuidedCreateState.stepCount - 1),
-      ));
+      emit(
+        state.copyWith(
+          activeStepIndex: idx.clamp(0, ProductGuidedCreateState.stepCount - 1),
+        ),
+      );
     }
   }
 
@@ -294,33 +312,69 @@ class ProductGuidedCreateCubit extends Cubit<ProductGuidedCreateState> {
 
   Future<void> submit() async {
     if (!state.isStep1Valid) {
-      emit(state.copyWith(
-        activeStepIndex: 0,
-        showValidationErrors: true,
-        status: ProductGuidedCreateStatus.error,
-        errorMessage: 'Vui lòng nhập tên nội bộ sản phẩm.',
-      ));
+      emit(
+        state.copyWith(
+          activeStepIndex: 0,
+          showValidationErrors: true,
+          status: ProductGuidedCreateStatus.error,
+          errorMessage: 'Vui lòng nhập tên nội bộ sản phẩm.',
+        ),
+      );
       return;
     }
 
     if (state.isUploadingImages) {
-      emit(state.copyWith(
-        status: ProductGuidedCreateStatus.error,
-        errorMessage: 'Đang tải ảnh lên, vui lòng đợi.',
-      ));
+      emit(
+        state.copyWith(
+          status: ProductGuidedCreateStatus.error,
+          errorMessage: 'Đang tải ảnh lên, vui lòng đợi.',
+        ),
+      );
       return;
     }
 
     await checkDuplicateCodes();
     if (state.hasDuplicateError) {
-      emit(state.copyWith(
-        activeStepIndex: 0,
-        status: ProductGuidedCreateStatus.initial,
-      ));
+      emit(
+        state.copyWith(
+          activeStepIndex: 0,
+          status: ProductGuidedCreateStatus.initial,
+        ),
+      );
       return;
     }
 
-    emit(state.copyWith(status: ProductGuidedCreateStatus.loading, clearError: true));
+    bool shouldSavePriceBand = state.priceBandConfigured;
+    if (!shouldSavePriceBand && state.baseUnit.trim().isNotEmpty) {
+      if (state.pricingMethod == 'manual' &&
+          (state.manualListPrice.trim().isNotEmpty || state.manualFloorPrice.trim().isNotEmpty)) {
+        shouldSavePriceBand = true;
+      }
+    }
+
+    if (shouldSavePriceBand && state.pricingMethod == 'manual') {
+      final listPrice = double.tryParse(state.manualListPrice.trim()) ?? 0.0;
+      final floorPrice = double.tryParse(state.manualFloorPrice.trim()) ?? 0.0;
+      if (floorPrice > listPrice) {
+        emit(
+          state.copyWith(
+            activeStepIndex: 5,
+            showValidationErrors: true,
+            status: ProductGuidedCreateStatus.error,
+            errorMessage: 'Giá sàn không được lớn hơn giá niêm yết.',
+            manualPriceError: 'Giá sàn phải ≤ giá niêm yết',
+            priceBandConfigured: true,
+          ),
+        );
+        return;
+      }
+    }
+
+    emit(state.copyWith(
+      status: ProductGuidedCreateStatus.loading, 
+      clearError: true,
+      priceBandConfigured: shouldSavePriceBand,
+    ));
 
     try {
       final tenantId = await _executionContext.requireTenantId();
@@ -392,45 +446,57 @@ class ProductGuidedCreateCubit extends Cubit<ProductGuidedCreateState> {
         readinessSummary: createResult.readinessSummary,
       );
 
-      emit(state.copyWith(
-        status: ProductGuidedCreateStatus.success,
-        createdProduct: productModel,
-      ));
+      emit(
+        state.copyWith(
+          status: ProductGuidedCreateStatus.success,
+          createdProduct: productModel,
+        ),
+      );
     } on DuplicateSkuException catch (e) {
-      emit(state.copyWith(
-        activeStepIndex: 0,
-        status: ProductGuidedCreateStatus.initial,
-        skuError: 'SKU "${e.sku}" đã được sử dụng',
-        duplicateProductId: e.existingProductId,
-        duplicateProductName: e.existingProductName,
-        clearError: true,
-      ));
+      emit(
+        state.copyWith(
+          activeStepIndex: 0,
+          status: ProductGuidedCreateStatus.initial,
+          skuError: 'SKU "${e.sku}" đã được sử dụng',
+          duplicateProductId: e.existingProductId,
+          duplicateProductName: e.existingProductName,
+          clearError: true,
+        ),
+      );
     } on DuplicateBarcodeException catch (e) {
-      emit(state.copyWith(
-        activeStepIndex: 0,
-        status: ProductGuidedCreateStatus.initial,
-        barcodeError: 'Barcode "${e.barcode}" đã được sử dụng',
-        duplicateProductId: e.existingProductId,
-        duplicateProductName: e.existingProductName,
-        clearError: true,
-      ));
+      emit(
+        state.copyWith(
+          activeStepIndex: 0,
+          status: ProductGuidedCreateStatus.initial,
+          barcodeError: 'Barcode "${e.barcode}" đã được sử dụng',
+          duplicateProductId: e.existingProductId,
+          duplicateProductName: e.existingProductName,
+          clearError: true,
+        ),
+      );
     } on ValidationException catch (e) {
-      emit(state.copyWith(
-        activeStepIndex: 0,
-        showValidationErrors: true,
-        status: ProductGuidedCreateStatus.error,
-        errorMessage: e.message,
-      ));
+      emit(
+        state.copyWith(
+          activeStepIndex: 0,
+          showValidationErrors: true,
+          status: ProductGuidedCreateStatus.error,
+          errorMessage: e.message,
+        ),
+      );
     } on ApplicationException catch (e) {
-      emit(state.copyWith(
-        status: ProductGuidedCreateStatus.error,
-        errorMessage: e.message,
-      ));
+      emit(
+        state.copyWith(
+          status: ProductGuidedCreateStatus.error,
+          errorMessage: e.message,
+        ),
+      );
     } catch (_) {
-      emit(state.copyWith(
-        status: ProductGuidedCreateStatus.error,
-        errorMessage: 'Lỗi hệ thống khi tạo sản phẩm.',
-      ));
+      emit(
+        state.copyWith(
+          status: ProductGuidedCreateStatus.error,
+          errorMessage: 'Lỗi hệ thống khi tạo sản phẩm.',
+        ),
+      );
     }
   }
 

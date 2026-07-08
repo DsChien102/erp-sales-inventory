@@ -82,77 +82,74 @@ class _ProductImagesMaintenanceView extends StatelessWidget {
                       ...state.images.asMap().entries.map((entry) {
                         final index = entry.key;
                         final image = entry.value;
-                        return GestureDetector(
-                          onTap: () => context.read<ProductImagesMaintenanceCubit>().setPrimaryImage(index),
-                          child: Stack(
-                            clipBehavior: Clip.none,
-                            children: [
-                              Container(
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(8),
-                                  border: Border.all(
-                                    color: image.isPrimary
-                                        ? dynamicColors.success
-                                        : dynamicColors.borderDefault,
-                                    width: image.isPrimary ? 2 : 1,
-                                  ),
-                                ),
-                                child: CatalogStorageImage(
-                                  storageReference: image.storageKey,
-                                  localPath: image.localPath,
-                                  width: 100,
-                                  height: 100,
-                                  fit: BoxFit.cover,
-                                  borderRadius: BorderRadius.circular(8),
-                                  placeholder: ColoredBox(
-                                    color: dynamicColors.surfaceAlt,
-                                    child: Icon(
-                                      Icons.image,
-                                      color: dynamicColors.textSecondary,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              if (image.isPrimary)
-                                Positioned(
-                                  top: 4,
-                                  left: 4,
-                                  child: Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                                    decoration: BoxDecoration(
-                                      color: dynamicColors.success,
-                                      borderRadius: BorderRadius.circular(4),
-                                    ),
-                                    child: Text(
-                                      'Mặc định',
-                                      style: VTypography.bodySmall.copyWith(
-                                        color: dynamicColors.surface,
-                                        fontSize: 10,
-                                        fontWeight: FontWeight.bold,
+                        final isCover = image.isPrimary;
+                        return Container(
+                          width: 100,
+                          height: 100,
+                          padding: EdgeInsets.all(isCover ? 0 : 1),
+                          decoration: BoxDecoration(
+                            border: Border.all(
+                              color: isCover ? VColors.success : dynamicColors.borderDefault,
+                              width: isCover ? 2 : 1,
+                            ),
+                            borderRadius: BorderRadius.circular(VRadius.card),
+                          ),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(isCover ? VRadius.card - 2 : VRadius.card - 1),
+                            child: GestureDetector(
+                              onTap: () => context.read<ProductImagesMaintenanceCubit>().setPrimaryImage(index),
+                              child: Stack(
+                                fit: StackFit.expand,
+                                children: [
+                                  CatalogStorageImage(
+                                    storageReference: image.storageKey,
+                                    localPath: image.localPath,
+                                    width: 100,
+                                    height: 100,
+                                    fit: BoxFit.cover,
+                                    placeholder: ColoredBox(
+                                      color: dynamicColors.surfaceAlt,
+                                      child: Icon(
+                                        Icons.image,
+                                        color: dynamicColors.textSecondary,
                                       ),
                                     ),
                                   ),
-                                ),
-                              Positioned(
-                                top: -6,
-                                right: -6,
-                                child: GestureDetector(
-                                  onTap: () => context.read<ProductImagesMaintenanceCubit>().removeImage(index),
-                                  child: Container(
-                                    padding: const EdgeInsets.all(4),
-                                    decoration: const BoxDecoration(
-                                      color: Colors.black87,
-                                      shape: BoxShape.circle,
+                                  if (isCover)
+                                    Positioned(
+                                      top: 4,
+                                      left: 4,
+                                      child: Container(
+                                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                        decoration: BoxDecoration(
+                                          color: VColors.success,
+                                          borderRadius: BorderRadius.circular(4),
+                                        ),
+                                        child: Text(
+                                          'Mặc định',
+                                          style: VTypography.caption.copyWith(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 9,
+                                          ),
+                                        ),
+                                      ),
                                     ),
-                                    child: const Icon(
-                                      Icons.close,
-                                      color: Colors.white,
-                                      size: 14,
+                                  Positioned(
+                                    top: 4,
+                                    right: 4,
+                                    child: GestureDetector(
+                                      onTap: () => context.read<ProductImagesMaintenanceCubit>().removeImage(index),
+                                      child: CircleAvatar(
+                                        radius: 12,
+                                        backgroundColor: Colors.black.withValues(alpha: 0.55),
+                                        child: const Icon(Icons.close, size: 14, color: Colors.white),
+                                      ),
                                     ),
                                   ),
-                                ),
+                                ],
                               ),
-                            ],
+                            ),
                           ),
                         );
                       }),
@@ -165,28 +162,13 @@ class _ProductImagesMaintenanceView extends StatelessWidget {
                             width: 100,
                             height: 100,
                             decoration: BoxDecoration(
+                              border: Border.all(color: dynamicColors.borderDefault),
+                              borderRadius: BorderRadius.circular(VRadius.card),
                               color: dynamicColors.surface,
-                              borderRadius: BorderRadius.circular(8),
-                              border: Border.all(
-                                color: dynamicColors.borderDefault,
-                                style: BorderStyle.solid,
-                              ),
                             ),
                             child: state.status == ProductImagesMaintenanceStatus.uploading
                                 ? const Center(child: CircularProgressIndicator())
-                                : Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Icon(Icons.add, color: dynamicColors.textSecondary),
-                                      const SizedBox(height: 4),
-                                      Text(
-                                        'Thêm',
-                                        style: VTypography.bodySmall.copyWith(
-                                          color: dynamicColors.textSecondary,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
+                                : Icon(Icons.add_photo_alternate_outlined, color: dynamicColors.textSecondary),
                           ),
                         ),
                     ],
