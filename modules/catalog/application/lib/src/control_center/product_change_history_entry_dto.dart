@@ -13,6 +13,7 @@ final class ProductChangeHistoryEntryDto {
     this.changeCategory,
     this.source = 'user',
     this.isSensitiveMasked = false,
+    this.reason,
   });
 
   final String id;
@@ -25,4 +26,5 @@ final class ProductChangeHistoryEntryDto {
   final ProductChangeCategory? changeCategory;
   final String source;
   final bool isSensitiveMasked;
+  final String? reason;
 }

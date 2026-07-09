@@ -14,6 +14,7 @@ final class ProductChangeHistoryReadRow {
     required this.isSensitiveMasked,
     this.valueBefore,
     this.valueAfter,
+    this.reason,
   });
 
   final String id;
@@ -26,6 +27,7 @@ final class ProductChangeHistoryReadRow {
   final bool isSensitiveMasked;
   final String? valueBefore;
   final String? valueAfter;
+  final String? reason;
 
   ProductChangeHistoryEntryDto toDto() => ProductChangeHistoryEntryDto(
     id: id,
@@ -38,5 +40,6 @@ final class ProductChangeHistoryReadRow {
     changeCategory: changeCategory,
     source: source,
     isSensitiveMasked: isSensitiveMasked,
+    reason: reason,
   );
 }

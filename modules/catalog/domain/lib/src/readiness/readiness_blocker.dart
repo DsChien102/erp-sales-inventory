@@ -39,7 +39,7 @@ final class ReadinessBlocker extends ValueObject {
 
   factory ReadinessBlocker.missingStock() => const ReadinessBlocker(
         code: ReadinessBlockerCode.missingStock,
-        message: 'Thiếu tồn kho',
+        message: 'Thiếu thiết lập tồn kho',
         group: 'stock',
       );
 
