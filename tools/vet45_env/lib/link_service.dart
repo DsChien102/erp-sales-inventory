@@ -5,6 +5,7 @@ import 'profile_registry.dart';
 import 'project_ref.dart';
 import 'secrets_loader.dart';
 import 'supabase_cli.dart';
+import 'supabase_context.dart';
 
 class LinkResult {
   LinkResult._({
@@ -77,24 +78,11 @@ class SupabaseLinkService {
       return LinkResult.alreadyLinked(targetRef);
     }
 
-    final cli = cliOverride ?? _cliForContext(ctx);
+    final cli = cliOverride ??
+        supabaseCliForContext(manifest, ctx, fallback: _cli);
     final dbPassword = _readDbPassword(ctx);
     await cli.linkProject(projectRef: targetRef, dbPassword: dbPassword);
     return LinkResult.linked(targetRef);
-  }
-
-  SupabaseCli _cliForContext(WorkspaceContext ctx) {
-    final authEnv = loadProfileAuthEnvironment(ctx);
-    if (authEnv.isEmpty) {
-      return _cli;
-    }
-    return SupabaseCli(
-      workdir: manifest.rootDir,
-      processEnvironment: {
-        ...Platform.environment,
-        ...authEnv,
-      },
-    );
   }
 
   String? _readDbPassword(WorkspaceContext ctx) {

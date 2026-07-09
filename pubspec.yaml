@@ -108,6 +108,11 @@ melos:
       run: dart run tools/vet45_env/bin/vet45_env.dart link
       description: Align supabase link with active environment project ref
 
+    supabase:
+      run: dart run tools/vet45_env/bin/vet45_env.dart supabase
+      stdio: inherit
+      description: Run supabase CLI with active profile auth.env token
+
     env:doctor:
       run: dart run tools/vet45_env/bin/vet45_env.dart doctor
       stdio: inherit

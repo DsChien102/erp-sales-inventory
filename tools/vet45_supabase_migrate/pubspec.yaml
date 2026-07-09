@@ -1,6 +1,7 @@
 name: vet45_supabase_migrate
 description: Promote Supabase SQL drafts to timestamped migrations.
 publish_to: none
+resolution: workspace
 
 environment:
   sdk: '>=3.11.1 <4.0.0'

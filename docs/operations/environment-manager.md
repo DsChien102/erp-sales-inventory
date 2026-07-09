@@ -32,6 +32,8 @@ melos run profile:init -- acme --description "Client Acme"
 melos run profile:use -- acme
 # Set SUPABASE_ACCESS_TOKEN in config/profiles/acme/secrets/auth.env
 melos run env:sync -- --profile acme --env staging
+melos run supabase -- db push
+melos run supabase -- --profile acme migration list
 ```
 
 See [config/profiles/README.md](../../config/profiles/README.md).
@@ -94,6 +96,7 @@ cp config/secrets/production.env.example config/secrets/production.env
 
 melos run env:sync
 melos run env:doctor -- --target erp   # or full doctor once deploy.env exists
+melos run supabase -- db push          # supabase CLI with profile auth.env token
 ```
 
 Templates ship in `tools/vet45_env/templates/config/`. Refresh scaffold files with `melos run env:init -- --force` (never overwrites filled `*.env` secrets).
@@ -137,6 +140,8 @@ melos run env:doctor -- --target erp
 melos run debug                 # ERP — syncs erp only, then flutter run
 melos run debug:staging         # shortcut: use staging + sync + run
 melos run worker:serve          # worker — syncs worker only
+melos run supabase -- db push   # supabase CLI with profile auth.env token
+melos run supabase -- migration list
 
 # Deploy (active env must be staging|production)
 melos run build:ios             # build IPA only
