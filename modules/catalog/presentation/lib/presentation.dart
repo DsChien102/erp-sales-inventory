@@ -40,3 +40,4 @@ export 'src/widgets/image_picker/product_image_grid_item.dart';
 export 'src/widgets/image_picker/product_image_add_sheet.dart';
 export 'src/widgets/image_picker/product_image_delete_dialog.dart';
 export 'src/widgets/image_picker/product_image_gallery_viewer.dart';
+export 'src/widgets/custom_fields/product_custom_field_input_widget.dart';

@@ -68,7 +68,17 @@ class CustomFieldGroupDetailPage extends StatelessWidget {
   }
 
   Widget _buildBody(BuildContext context, CustomFieldGroupConfigDto group, VColorScheme colors) {
-    final fields = group.fields;
+    final fields = List<CustomFieldDefinitionDto>.from(group.fields);
+    
+    // Sort inactive fields to the bottom, keeping their relative order otherwise.
+    fields.sort((a, b) {
+      final aActive = a.status == CustomFieldConfigStatus.active ? 1 : 0;
+      final bActive = b.status == CustomFieldConfigStatus.active ? 1 : 0;
+      if (aActive != bActive) {
+        return bActive.compareTo(aActive); // 1 comes before 0, so active is first.
+      }
+      return a.sortOrder.compareTo(b.sortOrder);
+    });
 
     final statusColor = group.status == CustomFieldConfigStatus.active
         ? VColors.success
@@ -160,7 +170,20 @@ class CustomFieldGroupDetailPage extends StatelessWidget {
           SliverReorderableList(
             itemCount: fields.length,
             onReorder: (oldIndex, newIndex) {
-              cubit.reorderFields(groupId, oldIndex, newIndex);
+              final originalOldField = fields[oldIndex];
+              final origOldIdx = group.fields.indexWhere((f) => f.fieldId == originalOldField.fieldId);
+              
+              int origNewIdx;
+              if (newIndex < fields.length) {
+                final originalNewField = fields[newIndex];
+                origNewIdx = group.fields.indexWhere((f) => f.fieldId == originalNewField.fieldId);
+              } else {
+                origNewIdx = group.fields.length;
+              }
+
+              if (origOldIdx != -1 && origNewIdx != -1) {
+                cubit.reorderFields(groupId, origOldIdx, origNewIdx);
+              }
             },
             itemBuilder: (context, index) {
               final field = fields[index];
@@ -253,6 +276,8 @@ class CustomFieldGroupDetailPage extends StatelessWidget {
     if (field.displayOnList) attrs.add('Hiển thị');
     final attrString = attrs.join(' • ');
 
+    final isInactive = field.status != CustomFieldConfigStatus.active;
+
     return Container(
       key: ValueKey(field.fieldId),
       margin: const EdgeInsets.only(
@@ -283,18 +308,37 @@ class CustomFieldGroupDetailPage extends StatelessWidget {
                 children: [
                   Row(
                     children: [
-                      Text(
-                        field.name,
-                        style: VTypography.headingH4.copyWith(
-                          fontWeight: FontWeight.w600,
-                          color: VColors.textPrimary,
+                      Flexible(
+                        child: Text(
+                          field.name,
+                          style: VTypography.headingH4.copyWith(
+                            fontWeight: FontWeight.w600,
+                            color: isInactive ? VColors.textSecondary : VColors.textPrimary,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
                       ),
                       if (field.isRequired) ...[
                         const SizedBox(width: 4),
                         Text('*', style: VTypography.headingH4.copyWith(color: VColors.danger)),
+                      ],
+                      if (isInactive) ...[
+                        const SizedBox(width: 8),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: VColors.neutral100,
+                            borderRadius: BorderRadius.circular(VRadius.pill),
+                          ),
+                          child: Text(
+                            'Tạm tắt',
+                            style: VTypography.caption.copyWith(
+                              color: VColors.textMuted,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
                       ],
                     ],
                   ),

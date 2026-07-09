@@ -11,17 +11,56 @@ import '../widgets/image_picker/product_image_add_sheet.dart';
 import '../widgets/tenant_measurement_unit_search_field.dart';
 import 'product_guided_create_state.dart';
 
+
 class ProductGuidedCreateCubit extends Cubit<ProductGuidedCreateState> {
   ProductGuidedCreateCubit({
     required ICatalogModule catalogModule,
     required IExecutionContext executionContext,
   }) : _catalogModule = catalogModule,
        _executionContext = executionContext,
-       super(const ProductGuidedCreateState());
+       super(const ProductGuidedCreateState()) {
+    loadCustomFieldGroups();
+  }
 
   final ICatalogModule _catalogModule;
   final IExecutionContext _executionContext;
   final ImagePicker _picker = ImagePicker();
+
+  Future<void> loadCustomFieldGroups() async {
+    emit(state.copyWith(isCustomFieldsLoading: true));
+    try {
+      final tenantId = await _executionContext.requireTenantId();
+      final config = await _catalogModule.executeQueryAsync(
+        ListCustomFieldConfigQuery(tenantId: tenantId),
+      );
+      final activeGroups = config.groups
+          .where((g) => g.status == CustomFieldConfigStatus.active)
+          .toList();
+      emit(
+        state.copyWith(
+          customFieldGroups: activeGroups,
+          isCustomFieldsLoading: false,
+        ),
+      );
+    } catch (_) {
+      emit(state.copyWith(isCustomFieldsLoading: false));
+    }
+  }
+
+  void updateCustomFieldValue(ProductCustomFieldValueInput input) {
+    final values = Map<String, ProductCustomFieldValueInput>.from(state.customFieldValues);
+    values[input.fieldId] = input;
+
+    final errors = Map<String, String>.from(state.customFieldValidationErrors);
+    errors.remove(input.fieldId);
+
+    emit(
+      state.copyWith(
+        customFieldValues: values,
+        customFieldValidationErrors: errors,
+      ),
+    );
+  }
 
   Future<void> loadTenantMeasurementUnits() async {
     if (state.tenantUnits.isNotEmpty || state.isTenantUnitsLoading) {
@@ -384,9 +423,8 @@ class ProductGuidedCreateCubit extends Cubit<ProductGuidedCreateState> {
   void updateManualFloorPrice(String val) {
     emit(state.copyWith(manualFloorPrice: val, clearManualPriceError: true, clearError: true));
   }
-
   void setStep(int idx) {
-    final clamped = idx.clamp(0, ProductGuidedCreateState.stepCount - 1);
+    final clamped = idx.clamp(0, state.stepCount - 1);
     if (state.activeStepIndex == idx) {
       emit(state.copyWith(activeStepIndex: -1));
     } else {
@@ -396,7 +434,7 @@ class ProductGuidedCreateCubit extends Cubit<ProductGuidedCreateState> {
   }
 
   void nextStep() {
-    if (state.activeStepIndex < ProductGuidedCreateState.stepCount - 1) {
+    if (state.activeStepIndex < state.stepCount - 1) {
       final nextIndex = state.activeStepIndex + 1;
       emit(state.copyWith(activeStepIndex: nextIndex));
       _onStepEntered(nextIndex);
@@ -528,6 +566,35 @@ class ProductGuidedCreateCubit extends Cubit<ProductGuidedCreateState> {
       priceBandConfigured: shouldSavePriceBand,
     ));
 
+    // Validate custom fields BEFORE creating the product to avoid duplicate/split products
+    final validationErrors = <String, String>{};
+    int? firstFailedGroupIndex;
+
+    for (int i = 0; i < state.customFieldGroups.length; i++) {
+      final group = state.customFieldGroups[i];
+      for (final field in group.fields) {
+        if (field.isRequired && field.status == CustomFieldConfigStatus.active) {
+          final val = state.customFieldValues[field.fieldId];
+          if (val == null || val.isEmpty) {
+            validationErrors[field.fieldId] = 'Trường này là bắt buộc';
+            firstFailedGroupIndex ??= i;
+          }
+        }
+      }
+    }
+
+    if (validationErrors.isNotEmpty) {
+      emit(
+        state.copyWith(
+          status: ProductGuidedCreateStatus.error,
+          errorMessage: 'Vui lòng điền đầy đủ các trường bắt buộc.',
+          customFieldValidationErrors: validationErrors,
+          activeStepIndex: 6 + firstFailedGroupIndex!,
+        ),
+      );
+      return;
+    }
+
     try {
       final tenantId = await _executionContext.requireTenantId();
       final actorId = await _executionContext.requireUserId();
@@ -596,6 +663,24 @@ class ProductGuidedCreateCubit extends Cubit<ProductGuidedCreateState> {
             ),
           );
         }
+      }
+
+      // Save custom fields
+      final activeValues = state.customFieldValues.values.where((input) {
+        final field = state.customFieldGroups
+            .expand((g) => g.fields)
+            .firstWhere((f) => f.fieldId == input.fieldId);
+        return field.status == CustomFieldConfigStatus.active;
+      }).toList();
+
+      if (activeValues.isNotEmpty) {
+        await _catalogModule.executeCommandAsync(
+          UpsertCustomFieldValuesCommand(
+            tenantId: tenantId,
+            productId: productId,
+            values: activeValues,
+          ),
+        );
       }
 
       final productModel = CatalogUiMapper.toListItemModelFromCreate(

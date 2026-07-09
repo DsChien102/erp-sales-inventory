@@ -9,6 +9,7 @@ import 'product_guided_step_images.dart';
 import 'product_guided_step_inventory.dart';
 import 'product_guided_step_base_cost.dart';
 import 'product_guided_step_price_bands.dart';
+import 'product_guided_step_custom_fields.dart';
 
 /// Slice #2 (EPIC-02/US-02): 6 accordion steps — mirror Lovable `#/products/items/new`.
 class ProductGuidedCreateBody extends StatelessWidget {
@@ -91,6 +92,31 @@ class ProductGuidedCreateBody extends StatelessWidget {
                       isExpanded: state.activeStepIndex == 5,
                       child: ProductGuidedStepPriceBands(state: state),
                     ),
+                    ...List.generate(state.customFieldGroups.length, (index) {
+                      final group = state.customFieldGroups[index];
+                      final stepIdx = 6 + index;
+                      final filledCount = group.fields.where((f) {
+                        final val = state.customFieldValues[f.fieldId];
+                        return val != null && !val.isEmpty;
+                      }).length;
+
+                      return Column(
+                        children: [
+                          const SizedBox(height: VSpacing.space2),
+                          _buildStep(
+                            context: context,
+                            stepIndex: stepIdx,
+                            title: '${stepIdx + 1}. ${group.name}',
+                            subtitle: '$filledCount/${group.fields.length} trường đã điền',
+                            isExpanded: state.activeStepIndex == stepIdx,
+                            child: ProductGuidedStepCustomFields(
+                              state: state,
+                              group: group,
+                            ),
+                          ),
+                        ],
+                      );
+                    }),
                   ],
                 ),
               ),
