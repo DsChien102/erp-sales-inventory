@@ -45,6 +45,10 @@ class ProductGuidedCreateState {
     this.createdProduct,
     this.tenantUnits = const [],
     this.isTenantUnitsLoading = false,
+    this.customFieldGroups = const [],
+    this.isCustomFieldsLoading = false,
+    this.customFieldValues = const {},
+    this.customFieldValidationErrors = const {},
   });
 
   final String name;
@@ -83,8 +87,12 @@ class ProductGuidedCreateState {
   final ProductListItemModel? createdProduct;
   final List<TenantMeasurementUnitDto> tenantUnits;
   final bool isTenantUnitsLoading;
+  final List<CustomFieldGroupConfigDto> customFieldGroups;
+  final bool isCustomFieldsLoading;
+  final Map<String, ProductCustomFieldValueInput> customFieldValues;
+  final Map<String, String> customFieldValidationErrors;
 
-  static const stepCount = 6;
+  static const baseStepCount = 6;
   static const maxImages = 8;
 
   bool get isStep1Valid => name.trim().isNotEmpty;
@@ -136,6 +144,8 @@ class ProductGuidedCreateState {
       initialStock.trim().isNotEmpty ||
       baseCost.trim().isNotEmpty;
 
+  int get stepCount => 6 + customFieldGroups.length;
+
   ProductGuidedCreateState copyWith({
     String? name,
     String? tradeName,
@@ -176,6 +186,10 @@ class ProductGuidedCreateState {
     ProductListItemModel? createdProduct,
     List<TenantMeasurementUnitDto>? tenantUnits,
     bool? isTenantUnitsLoading,
+    List<CustomFieldGroupConfigDto>? customFieldGroups,
+    bool? isCustomFieldsLoading,
+    Map<String, ProductCustomFieldValueInput>? customFieldValues,
+    Map<String, String>? customFieldValidationErrors,
   }) {
     return ProductGuidedCreateState(
       name: name ?? this.name,
@@ -222,6 +236,11 @@ class ProductGuidedCreateState {
       createdProduct: createdProduct ?? this.createdProduct,
       tenantUnits: tenantUnits ?? this.tenantUnits,
       isTenantUnitsLoading: isTenantUnitsLoading ?? this.isTenantUnitsLoading,
+      customFieldGroups: customFieldGroups ?? this.customFieldGroups,
+      isCustomFieldsLoading: isCustomFieldsLoading ?? this.isCustomFieldsLoading,
+      customFieldValues: customFieldValues ?? this.customFieldValues,
+      customFieldValidationErrors: customFieldValidationErrors ?? this.customFieldValidationErrors,
     );
   }
 }
+

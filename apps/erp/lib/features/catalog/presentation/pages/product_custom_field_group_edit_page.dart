@@ -1,6 +1,6 @@
 import 'package:erp/features/catalog/presentation/bloc/product_custom_field_group_edit_cubit.dart';
 import 'package:erp/features/catalog/presentation/bloc/product_custom_field_group_edit_state.dart';
-import 'package:erp/features/catalog/presentation/widgets/custom_fields/product_custom_field_input_widget.dart';
+import 'package:vet45_catalog_presentation/presentation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';

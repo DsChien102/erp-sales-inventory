@@ -93,17 +93,31 @@ class _CustomFieldGroupsPageState extends State<CustomFieldGroupsPage> {
               );
             }
 
+            final groups = List<CustomFieldGroupConfigDto>.from(state.groups);
+            // Sort inactive groups to the bottom, keeping their relative order otherwise.
+            groups.sort((a, b) {
+              final aActive = a.status.name == 'active' ? 1 : 0;
+              final bActive = b.status.name == 'active' ? 1 : 0;
+              if (aActive != bActive) {
+                return bActive.compareTo(aActive);
+              }
+              return a.sortOrder.compareTo(b.sortOrder);
+            });
+
             return CustomScrollView(
               slivers: [
                 SliverPadding(
-                  padding: const EdgeInsets.all(VSpacing.screenMobile),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: VSpacing.screenMobile,
+                    vertical: VSpacing.space3,
+                  ),
                   sliver: SliverToBoxAdapter(
                     child: Container(
                       padding: const EdgeInsets.all(VSpacing.space3),
                       decoration: BoxDecoration(
                         color: VColors.infoBg,
                         borderRadius: BorderRadius.circular(VRadius.r8),
-                        border: Border.all(color: VColors.info.withOpacity(0.2)),
+                        border: Border.all(color: VColors.info.withValues(alpha: 0.2)),
                       ),
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -136,12 +150,25 @@ class _CustomFieldGroupsPageState extends State<CustomFieldGroupsPage> {
                   ),
                 ),
                 SliverReorderableList(
-                  itemCount: state.groups.length,
+                  itemCount: groups.length,
                   onReorder: (oldIndex, newIndex) {
-                    _cubit.reorderGroups(oldIndex, newIndex);
+                    final originalOldGroup = groups[oldIndex];
+                    final origOldIdx = state.groups.indexWhere((g) => g.groupId == originalOldGroup.groupId);
+                    
+                    int origNewIdx;
+                    if (newIndex < groups.length) {
+                      final originalNewGroup = groups[newIndex];
+                      origNewIdx = state.groups.indexWhere((g) => g.groupId == originalNewGroup.groupId);
+                    } else {
+                      origNewIdx = state.groups.length;
+                    }
+
+                    if (origOldIdx != -1 && origNewIdx != -1) {
+                      _cubit.reorderGroups(origOldIdx, origNewIdx);
+                    }
                   },
                   itemBuilder: (context, index) {
-                    final group = state.groups[index];
+                    final group = groups[index];
                     return _buildGroupCard(context, group, index);
                   },
                 ),
