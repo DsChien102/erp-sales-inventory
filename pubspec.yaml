@@ -53,6 +53,7 @@ workspace:
   - modules/accounting/integration_events
   - modules/accounting/presentation
   - tools/vet45_env
+  - tools/vet45_supabase_migrate
 
 dev_dependencies:
   melos: ^7.8.0
