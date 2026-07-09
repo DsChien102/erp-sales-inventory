@@ -8,6 +8,7 @@ import '../mappers/catalog_ui_mapper.dart';
 import '../models/product_image_draft.dart';
 import '../services/product_image_upload_client.dart';
 import '../widgets/image_picker/product_image_add_sheet.dart';
+import '../widgets/tenant_measurement_unit_search_field.dart';
 import 'product_guided_create_state.dart';
 
 class ProductGuidedCreateCubit extends Cubit<ProductGuidedCreateState> {
@@ -22,18 +23,28 @@ class ProductGuidedCreateCubit extends Cubit<ProductGuidedCreateState> {
   final IExecutionContext _executionContext;
   final ImagePicker _picker = ImagePicker();
 
-  Future<void> loadTenantUnits({String? keyword}) async {
+  Future<void> loadTenantMeasurementUnits() async {
+    if (state.tenantUnits.isNotEmpty || state.isTenantUnitsLoading) {
+      return;
+    }
+
+    emit(state.copyWith(isTenantUnitsLoading: true));
     try {
       final tenantId = await _executionContext.requireTenantId();
-      final query = ListTenantMeasurementUnitsQuery(
-        tenantId: tenantId,
-        keyword: keyword,
-        limit: 50,
+      final units = await _catalogModule.executeQueryAsync(
+        ListTenantMeasurementUnitsQuery(
+          tenantId: tenantId,
+          limit: 50,
+        ),
       );
-      final units = await _catalogModule.executeQueryAsync(query);
-      emit(state.copyWith(tenantUnits: units));
-    } catch (e) {
-      // Ignore errors silently for now as this is just autocomplete
+      emit(
+        state.copyWith(
+          tenantUnits: units,
+          isTenantUnitsLoading: false,
+        ),
+      );
+    } catch (_) {
+      emit(state.copyWith(isTenantUnitsLoading: false));
     }
   }
 
@@ -380,21 +391,31 @@ class ProductGuidedCreateCubit extends Cubit<ProductGuidedCreateState> {
       emit(state.copyWith(activeStepIndex: -1));
     } else {
       emit(state.copyWith(activeStepIndex: clamped));
-      if (clamped == 5) {
-        loadStorePriceRule();
-      }
+      _onStepEntered(clamped);
     }
   }
 
   void nextStep() {
     if (state.activeStepIndex < ProductGuidedCreateState.stepCount - 1) {
-      emit(state.copyWith(activeStepIndex: state.activeStepIndex + 1));
+      final nextIndex = state.activeStepIndex + 1;
+      emit(state.copyWith(activeStepIndex: nextIndex));
+      _onStepEntered(nextIndex);
     }
   }
 
   void prevStep() {
     if (state.activeStepIndex > 0) {
-      emit(state.copyWith(activeStepIndex: state.activeStepIndex - 1));
+      final previousIndex = state.activeStepIndex - 1;
+      emit(state.copyWith(activeStepIndex: previousIndex));
+      _onStepEntered(previousIndex);
+    }
+  }
+
+  void _onStepEntered(int stepIndex) {
+    if (stepIndex == 2) {
+      loadTenantMeasurementUnits();
+    } else if (stepIndex == 5) {
+      loadStorePriceRule();
     }
   }
 
@@ -520,11 +541,12 @@ class ProductGuidedCreateCubit extends Cubit<ProductGuidedCreateState> {
           sku: state.sku.trim().isNotEmpty ? state.sku.trim() : null,
           barcode: state.barcode.trim().isNotEmpty ? state.barcode.trim() : null,
           images: _toImageInputs(),
-          baseUnitName: state.baseUnit.trim().isNotEmpty ? state.baseUnit.trim() : null,
         ),
       );
 
       final productId = createResult.productId;
+
+      await _setBaseUnitIfProvided(tenantId: tenantId, productId: productId);
 
       final stockQty = double.tryParse(state.initialStock.trim());
       if (stockQty != null) {
@@ -634,6 +656,37 @@ class ProductGuidedCreateCubit extends Cubit<ProductGuidedCreateState> {
         ),
       );
     }
+  }
+
+  BaseUnitSelection _resolveBaseUnitSelection(String baseUnit) {
+    final trimmed = baseUnit.trim();
+    for (final unit in state.tenantUnits) {
+      if (isSameMeasurementUnitName(trimmed, unit.name)) {
+        return ExistingTenantUnit(unit.id);
+      }
+    }
+    return NewTenantUnit(trimmed.toLowerCase());
+  }
+
+  Future<void> _setBaseUnitIfProvided({
+    required String tenantId,
+    required String productId,
+  }) async {
+    if (state.baseUnit.trim().isEmpty) {
+      return;
+    }
+
+    if (state.tenantUnits.isEmpty && !state.isTenantUnitsLoading) {
+      await loadTenantMeasurementUnits();
+    }
+
+    await _catalogModule.executeCommandAsync(
+      SetProductBaseUnitCommand(
+        tenantId: tenantId,
+        productId: productId,
+        selection: _resolveBaseUnitSelection(state.baseUnit),
+      ),
+    );
   }
 
   List<ProductImageInput> _toImageInputs() {

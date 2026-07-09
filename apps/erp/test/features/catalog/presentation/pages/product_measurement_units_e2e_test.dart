@@ -111,6 +111,36 @@ void main() {
     await tester.pumpAndSettle();
   });
 
+  testWidgets('e2e_e04_u01_fr03_01: base unit search dropdown only shows on match', (
+    tester,
+  ) async {
+    await setUpErpCatalogE2E(scenario: FakeCatalogScenario.unitDependenciesLocked);
+
+    await tester.pumpWidget(buildMeasurementUnitsRouter(productWithoutBaseUnit()));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Thiết lập đơn vị cơ sở'));
+    await tester.pumpAndSettle();
+
+    final inputFinder = find.byKey(const Key('input_base_unit_name'));
+    await tester.tap(inputFinder);
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('dropdown_tenant_measurement_unit_matches')), findsNothing);
+
+    await tester.enterText(inputFinder, 'Hộ');
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('dropdown_tenant_measurement_unit_matches')), findsOneWidget);
+    expect(find.text('Hộp'), findsOneWidget);
+
+    await tester.tap(find.byKey(const Key('dropdown_tenant_measurement_unit_item_unit-hop')));
+    await tester.pumpAndSettle();
+
+    expect(find.widgetWithText(TextField, 'Hộp'), findsOneWidget);
+    expect(find.byKey(const Key('dropdown_tenant_measurement_unit_matches')), findsNothing);
+  });
+
   testWidgets('e2e_e04_u01_fr01_02_duplicate: cannot create duplicate base unit', (tester) async {
     await setUpErpCatalogE2E(scenario: FakeCatalogScenario.setBaseUnitDuplicate);
 
@@ -164,6 +194,39 @@ void main() {
 
       expect(find.textContaining('1 chai = 5'), findsOneWidget);
       expect(find.byKey(const Key('btn_add_conversion_unit')), findsOneWidget);
+    });
+
+    testWidgets('e2e_e04_u02_fr01_01b: conversion unit search dropdown only shows on match', (
+      tester,
+    ) async {
+      await setUpErpCatalogE2E();
+
+      await tester.pumpWidget(buildMeasurementUnitsRouter(productWithBaseUnit()));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byKey(const Key('btn_add_conversion_unit')));
+      await tester.pumpAndSettle();
+
+      final inputFinder = find.byKey(const Key('input_conversion_unit_name'));
+      await tester.tap(inputFinder);
+      await tester.pumpAndSettle();
+
+      expect(find.byKey(const Key('dropdown_conversion_unit_matches')), findsNothing);
+
+      await tester.enterText(inputFinder, 'Lọ');
+      await tester.pumpAndSettle();
+
+      expect(find.byKey(const Key('dropdown_conversion_unit_matches')), findsOneWidget);
+      expect(
+        find.byKey(const Key('dropdown_tenant_measurement_unit_item_unit-lo')),
+        findsOneWidget,
+      );
+
+      await tester.enterText(inputFinder, 'Hộ');
+      await tester.pumpAndSettle();
+
+      expect(find.byKey(const Key('dropdown_conversion_unit_matches')), findsOneWidget);
+      expect(find.textContaining('Hộp (đơn vị cơ sở)'), findsOneWidget);
     });
 
     testWidgets('e2e_e04_u02_fr01_02: product without base unit shows gating message', (

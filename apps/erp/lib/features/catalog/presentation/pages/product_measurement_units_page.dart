@@ -50,32 +50,31 @@ class _ProductMeasurementUnitsViewState extends State<_ProductMeasurementUnitsVi
   final _baseUnitController = TextEditingController();
   final _conversionUnitNameController = TextEditingController();
   final _conversionUnitRatioController = TextEditingController();
-  final _conversionUnitNameFocusNode = FocusNode();
-  final _layerLink = LayerLink();
-  final _overlayController = OverlayPortalController();
-  double _overlayWidth = 0;
   bool _isAddingConversionUnit = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _conversionUnitNameFocusNode.addListener(() {
-      if (_conversionUnitNameFocusNode.hasFocus) {
-        _overlayController.show();
-      } else {
-        _overlayController.hide();
-      }
-      setState(() {});
-    });
-  }
 
   @override
   void dispose() {
     _baseUnitController.dispose();
     _conversionUnitNameController.dispose();
     _conversionUnitRatioController.dispose();
-    _conversionUnitNameFocusNode.dispose();
     super.dispose();
+  }
+
+  List<TenantMeasurementUnitDto> _availableConversionUnitSuggestions(
+    ProductMeasurementUnitsState state,
+  ) {
+    return excludeTenantMeasurementUnits(
+      state.tenantUnits,
+      state.conversionUnits.map((unit) => unit.name),
+    );
+  }
+
+  List<String> _disabledConversionUnitNames(ProductMeasurementUnitsState state) {
+    final baseUnitName = state.baseUnitName?.trim();
+    if (baseUnitName == null || baseUnitName.isEmpty) {
+      return const [];
+    }
+    return [baseUnitName];
   }
 
   void _onSaveBaseUnit(BuildContext context, ProductMeasurementUnitsState state) {
@@ -252,12 +251,13 @@ class _ProductMeasurementUnitsViewState extends State<_ProductMeasurementUnitsVi
                             ),
                           ),
                           const SizedBox(height: 8),
-                          VTextField(
+                          TenantMeasurementUnitSearchField(
                             controller: _baseUnitController,
+                            units: state.tenantUnits,
+                            onChanged: (_) => setState(() {}),
                             hintText: 'hộp, chai, gói, lọ, kg...',
-                            onChanged: (val) {
-                              setState(() {}); // trigger rebuild to update lowercase hint
-                            },
+                            useVTextField: true,
+                            fieldKey: const Key('input_base_unit_name'),
                           ),
                           const SizedBox(height: 8),
                           Text(
@@ -391,59 +391,29 @@ class _ProductMeasurementUnitsViewState extends State<_ProductMeasurementUnitsVi
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Expanded(
-                                  child: LayoutBuilder(
-                                    builder: (context, constraints) {
-                                      _overlayWidth = constraints.maxWidth;
-                                      return Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            'Tên đơn vị',
-                                            style: VTypography.bodySmall.copyWith(
-                                              color: dynamicColors.textSecondary,
-                                            ),
-                                          ),
-                                          const SizedBox(height: 8),
-                                          CompositedTransformTarget(
-                                            link: _layerLink,
-                                            child: VTextField(
-                                              key: const Key('input_conversion_unit_name'),
-                                              controller: _conversionUnitNameController,
-                                              focusNode: _conversionUnitNameFocusNode,
-                                              hintText: 'hộp, thùng...',
-                                              onChanged: (val) {
-                                                setState(() {});
-                                              },
-                                            ),
-                                          ),
-                                          OverlayPortal(
-                                            controller: _overlayController,
-                                            overlayChildBuilder: (context) {
-                                              return Positioned(
-                                                width: _overlayWidth,
-                                                child: CompositedTransformFollower(
-                                                  link: _layerLink,
-                                                  showWhenUnlinked: false,
-                                                  targetAnchor: Alignment.bottomLeft,
-                                                  followerAnchor: Alignment.topLeft,
-                                                  offset: const Offset(0, 4),
-                                                  child: Material(
-                                                    elevation: 8,
-                                                    color: dynamicColors.surface,
-                                                    shape: RoundedRectangleBorder(
-                                                      borderRadius: BorderRadius.circular(VRadius.input),
-                                                      side: BorderSide(color: dynamicColors.borderDefault),
-                                                    ),
-                                                    clipBehavior: Clip.antiAlias,
-                                                    child: _buildAutocompleteList(context, state),
-                                                  ),
-                                                ),
-                                              );
-                                            },
-                                          ),
-                                        ],
-                                      );
-                                    },
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        'Tên đơn vị',
+                                        style: VTypography.bodySmall.copyWith(
+                                          color: dynamicColors.textSecondary,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 8),
+                                      TenantMeasurementUnitSearchField(
+                                        controller: _conversionUnitNameController,
+                                        units: _availableConversionUnitSuggestions(state),
+                                        disabledUnitNames: _disabledConversionUnitNames(state),
+                                        onChanged: (_) => setState(() {}),
+                                        hintText: 'hộp, thùng...',
+                                        useVTextField: true,
+                                        fieldKey: const Key('input_conversion_unit_name'),
+                                        dropdownKey: const Key(
+                                          'dropdown_conversion_unit_matches',
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ),
                                 const SizedBox(width: 16),
@@ -525,6 +495,18 @@ class _ProductMeasurementUnitsViewState extends State<_ProductMeasurementUnitsVi
                                       );
                                       return;
                                     }
+                                    final baseUnitName = state.baseUnitName;
+                                    if (baseUnitName != null &&
+                                        isSameMeasurementUnitName(name, baseUnitName)) {
+                                      VToast.show(
+                                        context,
+                                        title: 'Lỗi',
+                                        message:
+                                            'Không thể dùng đơn vị cơ sở làm đơn vị quy đổi',
+                                        type: VToastType.danger,
+                                      );
+                                      return;
+                                    }
 
                                     context.read<ProductMeasurementUnitsCubit>().addConversionUnit(
                                       name,
@@ -546,119 +528,6 @@ class _ProductMeasurementUnitsViewState extends State<_ProductMeasurementUnitsVi
           bottomNavigationBar: const ProductMeasurementUnitsBottomBar(),
         );
       },
-    );
-  }
-
-  Widget _buildAutocompleteList(BuildContext context, ProductMeasurementUnitsState state) {
-    final dynamicColors = context.vColors;
-    final query = _conversionUnitNameController.text.trim().toLowerCase();
-    
-    final addedUnitNames = state.conversionUnits.map((u) => u.name.trim().toLowerCase()).toSet();
-    if (state.baseUnitName != null) {
-      addedUnitNames.add(state.baseUnitName!.trim().toLowerCase());
-    }
-
-    final availableUnits = state.tenantUnits
-        .where((u) => !addedUnitNames.contains(u.name.trim().toLowerCase()))
-        .toList();
-
-    List<TenantMeasurementUnitDto> filteredUnits = availableUnits;
-    if (query.isNotEmpty) {
-      filteredUnits = availableUnits
-          .where((u) => u.name.toLowerCase().contains(query))
-          .toList();
-    }
-
-    if (query.isEmpty) {
-      if (availableUnits.isEmpty) return const SizedBox.shrink();
-      return Container(
-        padding: const EdgeInsets.all(12),
-        constraints: const BoxConstraints(maxHeight: 250),
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text('Đơn vị đã có trong cửa hàng', style: VTypography.bodySmall.copyWith(color: dynamicColors.textSecondary)),
-              const SizedBox(height: 8),
-              ...availableUnits.map((u) => _buildAutocompleteItem(context, u)),
-            ],
-          ),
-        ),
-      );
-    } else {
-      if (filteredUnits.isEmpty) {
-        return Container(
-          padding: const EdgeInsets.all(12),
-          constraints: const BoxConstraints(maxHeight: 250),
-          child: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text('Không tìm thấy đơn vị phù hợp', style: VTypography.bodySmall.copyWith(color: dynamicColors.textSecondary)),
-                const SizedBox(height: 8),
-                Listener(
-                  onPointerDown: (_) {
-                    _conversionUnitNameFocusNode.unfocus();
-                  },
-                  child: Container(
-                    color: Colors.transparent,
-                    padding: const EdgeInsets.symmetric(vertical: 8),
-                    child: Row(
-                      children: [
-                        const Icon(Icons.add, color: VColors.success, size: 18),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: Text('Tạo đơn vị mới: "$query"', style: VTypography.bodyDefault.copyWith(color: VColors.success)),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        );
-      } else {
-        return Container(
-          padding: const EdgeInsets.all(12),
-          constraints: const BoxConstraints(maxHeight: 250),
-          child: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                ...filteredUnits.map((u) => _buildAutocompleteItem(context, u)),
-              ],
-            ),
-          ),
-        );
-      }
-    }
-  }
-
-  Widget _buildAutocompleteItem(BuildContext context, TenantMeasurementUnitDto u) {
-    final dynamicColors = context.vColors;
-    return Listener(
-      onPointerDown: (_) {
-        _conversionUnitNameController.text = u.name;
-        _conversionUnitNameFocusNode.unfocus();
-        setState(() {});
-      },
-      child: Container(
-        color: Colors.transparent,
-        padding: const EdgeInsets.symmetric(vertical: 8),
-        child: Row(
-          children: [
-            Icon(Icons.sell_outlined, size: 18, color: dynamicColors.textPrimary),
-            const SizedBox(width: 8),
-            Expanded(
-              child: Text(u.name, style: VTypography.bodyDefault.copyWith(color: dynamicColors.textPrimary)),
-            ),
-          ],
-        ),
-      ),
     );
   }
 }

@@ -44,6 +44,7 @@ class ProductGuidedCreateState {
     this.manualPriceError,
     this.createdProduct,
     this.tenantUnits = const [],
+    this.isTenantUnitsLoading = false,
   });
 
   final String name;
@@ -81,6 +82,7 @@ class ProductGuidedCreateState {
   final String? manualPriceError;
   final ProductListItemModel? createdProduct;
   final List<TenantMeasurementUnitDto> tenantUnits;
+  final bool isTenantUnitsLoading;
 
   static const stepCount = 6;
   static const maxImages = 8;
@@ -173,6 +175,7 @@ class ProductGuidedCreateState {
     bool clearManualPriceError = false,
     ProductListItemModel? createdProduct,
     List<TenantMeasurementUnitDto>? tenantUnits,
+    bool? isTenantUnitsLoading,
   }) {
     return ProductGuidedCreateState(
       name: name ?? this.name,
@@ -218,6 +221,7 @@ class ProductGuidedCreateState {
       manualPriceError: clearManualPriceError ? null : (manualPriceError ?? this.manualPriceError),
       createdProduct: createdProduct ?? this.createdProduct,
       tenantUnits: tenantUnits ?? this.tenantUnits,
+      isTenantUnitsLoading: isTenantUnitsLoading ?? this.isTenantUnitsLoading,
     );
   }
 }
