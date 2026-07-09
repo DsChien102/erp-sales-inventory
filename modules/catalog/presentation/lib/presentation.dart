@@ -18,6 +18,8 @@ export 'src/bloc/custom_field_config_cubit.dart';
 export 'src/bloc/custom_field_config_state.dart';
 export 'src/bloc/product_soft_delete_cubit.dart';
 export 'src/bloc/product_soft_delete_state.dart';
+export 'src/bloc/store_price_rule_change_history_cubit.dart';
+export 'src/bloc/store_price_rule_change_history_state.dart';
 export 'src/bloc/store_price_rule_settings_cubit.dart';
 export 'src/bloc/store_price_rule_settings_state.dart';
 export 'src/catalog_presentation_module.dart';

@@ -445,6 +445,14 @@ void registerGeneratedCatalogQueries({
     invoke: (query, handler) => handler.handle(query),
   );
 
+  CatalogCommandRegistration.registerQueryHandler<GetStorePriceRuleChangeHistoryQuery, StorePriceRuleChangeHistoryResultDto, GetStorePriceRuleChangeHistoryQueryHandler>(
+    bus: bus,
+    factory: () => GetStorePriceRuleChangeHistoryQueryHandler(
+      storePriceRuleGateway: container.get<IStorePriceRuleGateway>(),
+    ),
+    invoke: (query, handler) => handler.handle(query),
+  );
+
   CatalogCommandRegistration.registerQueryHandler<GetStorePriceRuleQuery, StorePriceRuleDto?, GetStorePriceRuleQueryHandler>(
     bus: bus,
     factory: () => GetStorePriceRuleQueryHandler(

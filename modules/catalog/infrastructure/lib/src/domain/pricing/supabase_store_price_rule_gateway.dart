@@ -4,6 +4,7 @@ import 'package:vet45_shared_application/application.dart';
 import 'package:vet45_shared_infrastructure/infrastructure.dart';
 
 import '../../errors/catalog_error_mapper.dart';
+import 'store_price_rule_change_history_rpc_mapper.dart';
 import 'store_price_rule_rpc_mapper.dart';
 
 final class SupabaseStorePriceRuleGateway implements IStorePriceRuleGateway {
@@ -100,6 +101,28 @@ final class SupabaseStorePriceRuleGateway implements IStorePriceRuleGateway {
         throw ApplicationException('Apply store price rule did not return a result.');
       }
       return StorePriceRuleRpcMapper.appliedFromRow(rows.first);
+    } on RpcException catch (error) {
+      throw mapCatalogRpcError(error);
+    }
+  }
+
+  @override
+  Future<StorePriceRuleChangeHistoryResultDto> listChangeHistory({
+    required String tenantId,
+    int limit = 50,
+    int offset = 0,
+  }) async {
+    try {
+      final json = await _rpcClient.callMap(
+        'get_store_price_rule_change_history',
+        params: StorePriceRuleChangeHistoryRpcMapper.params(
+          tenantId: tenantId,
+          limit: limit,
+          offset: offset,
+        ),
+      );
+
+      return StorePriceRuleChangeHistoryRpcMapper.resultFromJson(json);
     } on RpcException catch (error) {
       throw mapCatalogRpcError(error);
     }

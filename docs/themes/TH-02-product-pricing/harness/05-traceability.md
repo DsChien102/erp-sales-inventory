@@ -270,6 +270,17 @@ Early: `readinessSummary` trên PCC (không thay FR-04 checklist đầy đủ).
 
 ---
 
+## EPIC-06 / US-02 — Store Price Rule change history (slice #25)
+
+| Req ID | Role | Contract § | Enforce layer | Artifact | Test id | Status |
+| ------ | ---- | ---------- | ------------- | -------- | ------- | ------ |
+| US-02 ext | CONTRACT | §EPIC-06-US-02 | application | `GetStorePriceRuleChangeHistoryQuery`, DTOs, `IStorePriceRuleGateway.listChangeHistory` | scn_e06_u02_hist_* | done |
+| US-02 ext | BE | §EPIC-06-US-02 | application + infrastructure | Handler, `get_store_price_rule_change_history` RPC, draft `04_catalog_store_price_rule_change_history.sql` | scn_e06_u02_hist_* | done |
+| US-02 ext | FE | §EPIC-06-US-02 | presentation + erp | `StorePriceRuleChangeHistoryCubit`, `store_price_rule_change_history_page.dart` | wgt_e06_u02_hist_01 | done |
+| US-02 ext | E2E | §EPIC-06-US-02 | erp | Mediator history after saves | e2e_e06_u02_hist_01 | done |
+
+---
+
 ## EPIC-06 / US-03 — Product Unit Price Band (slice #11)
 
 | Req ID | Role | Contract § | Enforce layer | Artifact | Test id | Status |

@@ -60,6 +60,7 @@ final catalogModuleManifest = GeneratedModuleManifest(
     GetProductPriceBandSnapshotQuery,
     GetProductReadinessQuery,
     GetProductStockHistoryQuery,
+    GetStorePriceRuleChangeHistoryQuery,
     GetStorePriceRuleQuery,
     ListCustomFieldConfigQuery,
     ListCustomFieldFilterOptionsQuery,

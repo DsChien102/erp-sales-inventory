@@ -78,6 +78,10 @@ final catalogAccessMetadataRegistry = AccessMetadataRegistry({
     permission: 'catalog.product.view_history',
     requiresTenant: true,
   ),
+  GetStorePriceRuleChangeHistoryQuery: AccessMetadata(
+    permission: 'catalog.pricing.manage_store_rule',
+    requiresTenant: true,
+  ),
   GetStorePriceRuleQuery: AccessMetadata(
     permission: 'catalog.pricing.manage_store_rule',
     requiresTenant: true,

@@ -7,16 +7,18 @@ import 'package:vet45_catalog_presentation/presentation.dart';
 import 'package:vet45_design_system/design_system.dart';
 import 'package:vet45_shared_application/application.dart';
 
+import '../../widgets/store_price_rule_change_history_entry_card.dart';
+
 class StorePriceRuleChangeHistoryPage extends StatelessWidget {
   const StorePriceRuleChangeHistoryPage({super.key});
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => StorePriceRuleSettingsCubit(
+      create: (context) => StorePriceRuleChangeHistoryCubit(
         moduleMediator: GetIt.instance<ICatalogModule>(),
         executionContext: GetIt.instance<IExecutionContext>(),
-      )..loadRule(),
+      )..load(),
       child: const _ChangeHistoryBody(),
     );
   }
@@ -35,184 +37,114 @@ class _ChangeHistoryBody extends StatelessWidget {
         title: 'Lịch sử thay đổi',
         showBackButton: true,
       ),
-      body: BlocBuilder<StorePriceRuleSettingsCubit,
-          StorePriceRuleSettingsState>(
+      body: BlocBuilder<StorePriceRuleChangeHistoryCubit,
+          StorePriceRuleChangeHistoryState>(
         builder: (context, state) {
-          if (state is StorePriceRuleSettingsLoading ||
-              state is StorePriceRuleSettingsInitial) {
+          if (state is StorePriceRuleChangeHistoryLoading ||
+              state is StorePriceRuleChangeHistoryInitial) {
             return const Center(child: CircularProgressIndicator());
           }
 
-          StorePriceRuleDto? rule;
-          if (state is StorePriceRuleSettingsLoaded) {
-            rule = state.rule;
+          if (state is StorePriceRuleChangeHistoryError) {
+            return Center(
+              child: Text(
+                state.message,
+                style: VTypography.bodyDefault.copyWith(
+                  color: colors.textSecondary,
+                ),
+              ),
+            );
           }
 
-          return _buildContent(context, rule);
+          if (state is! StorePriceRuleChangeHistoryLoaded) {
+            return const SizedBox.shrink();
+          }
+
+          return _buildContent(context, state);
         },
       ),
     );
   }
 
-  Widget _buildContent(BuildContext context, StorePriceRuleDto? rule) {
+  Widget _buildContent(
+    BuildContext context,
+    StorePriceRuleChangeHistoryLoaded state,
+  ) {
     final colors = context.vColors;
 
-    return ListView(
-      padding: const EdgeInsets.symmetric(
-        horizontal: VSpacing.screenMobile,
-        vertical: VSpacing.space4,
-      ),
-      children: [
-        // Info card
-        Container(
-          padding: const EdgeInsets.all(VSpacing.space3),
-          decoration: BoxDecoration(
-            color: colors.surfaceBrand,
-            borderRadius: BorderRadius.circular(VRadius.r12),
-          ),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Icon(Icons.info_outline, size: 18, color: colors.primary),
-              const SizedBox(width: VSpacing.space2),
-              Expanded(
-                child: Text(
-                  'Lịch sử chỉ ghi nhận các thay đổi khung giá cửa hàng.',
-                  style: VTypography.bodySmall.copyWith(
-                    color: colors.textPrimary,
-                  ),
-                ),
-              ),
-            ],
-          ),
+    if (state.items.isEmpty) {
+      return ListView(
+        padding: const EdgeInsets.symmetric(
+          horizontal: VSpacing.screenMobile,
+          vertical: VSpacing.space4,
         ),
-        const SizedBox(height: VSpacing.space4),
+        children: [
+          _infoCard(context),
+          const SizedBox(height: VSpacing.space4),
+          _emptyState(context),
+        ],
+      );
+    }
 
-        // Current rule entry (or empty state)
-        if (rule != null) _buildHistoryEntry(context, rule) else _buildEmptyState(context),
-      ],
+    return NotificationListener<ScrollNotification>(
+      onNotification: (notification) {
+        if (notification.metrics.pixels >=
+                notification.metrics.maxScrollExtent - 200 &&
+            state.canLoadMore &&
+            !state.isLoadingMore) {
+          context.read<StorePriceRuleChangeHistoryCubit>().loadMore();
+        }
+        return false;
+      },
+      child: ListView(
+        padding: const EdgeInsets.symmetric(
+          horizontal: VSpacing.screenMobile,
+          vertical: VSpacing.space4,
+        ),
+        children: [
+          _infoCard(context),
+          const SizedBox(height: VSpacing.space4),
+          ...state.items.map(
+            (entry) => Padding(
+              padding: const EdgeInsets.only(bottom: VSpacing.space3),
+              child: StorePriceRuleChangeHistoryEntryCard(entry: entry),
+            ),
+          ),
+          if (state.isLoadingMore)
+            const Center(child: CircularProgressIndicator()),
+        ],
+      ),
     );
   }
 
-  Widget _buildHistoryEntry(BuildContext context, StorePriceRuleDto rule) {
+  Widget _infoCard(BuildContext context) {
     final colors = context.vColors;
-    final dateText = rule.updatedAt != null
-        ? _formatDateTime(rule.updatedAt!)
-        : '—';
-
-    final listPercent = (rule.listMarkupRatio * 100).toStringAsFixed(1);
-    final floorPercent = (rule.floorMarkupRatio * 100).toStringAsFixed(1);
-
     return Container(
-      padding: const EdgeInsets.all(VSpacing.space4),
+      padding: const EdgeInsets.all(VSpacing.space3),
       decoration: BoxDecoration(
-        color: colors.surface,
+        color: colors.surfaceBrand,
         borderRadius: BorderRadius.circular(VRadius.r12),
-        border: Border.all(color: colors.borderDefault),
       ),
-      child: Column(
+      child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Header: date + badge
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                dateText,
-                style: VTypography.bodyDefault.copyWith(
-                  color: colors.textPrimary,
-                  fontWeight: FontWeight.w700,
-                ),
+          Icon(Icons.info_outline, size: 18, color: colors.primary),
+          const SizedBox(width: VSpacing.space2),
+          Expanded(
+            child: Text(
+              'Lịch sử chỉ ghi nhận các thay đổi khung giá cửa hàng.',
+              style: VTypography.bodySmall.copyWith(
+                color: colors.textPrimary,
               ),
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: VSpacing.space2,
-                  vertical: 2,
-                ),
-                decoration: BoxDecoration(
-                  color: colors.surfaceBrand,
-                  borderRadius: BorderRadius.circular(VRadius.r4),
-                ),
-                child: Text(
-                  'Hiện tại',
-                  style: VTypography.caption.copyWith(
-                    color: colors.primary,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 4),
-          Text(
-            'Bởi: Bạn',
-            style: VTypography.bodySmall.copyWith(
-              color: colors.textSecondary,
             ),
-          ),
-          const SizedBox(height: VSpacing.space3),
-
-          // Giá niêm yết
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                'Giá niêm yết',
-                style: VTypography.bodyDefault.copyWith(
-                  color: colors.textPrimary,
-                ),
-              ),
-              Text(
-                '+$listPercent%',
-                style: VTypography.bodyDefault.copyWith(
-                  color: colors.textPrimary,
-                  fontWeight: FontWeight.w700,
-                  fontFeatures: [const FontFeature.tabularFigures()],
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: VSpacing.space2),
-
-          // Giá sàn
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                'Giá sàn',
-                style: VTypography.bodyDefault.copyWith(
-                  color: colors.textPrimary,
-                ),
-              ),
-              Row(
-                children: [
-                  Text(
-                    '$floorPercent%',
-                    style: VTypography.bodyDefault.copyWith(
-                      color: colors.textPrimary,
-                      fontWeight: FontWeight.w700,
-                      fontFeatures: [const FontFeature.tabularFigures()],
-                    ),
-                  ),
-                  const SizedBox(width: 4),
-                  Text(
-                    '(—)',
-                    style: VTypography.bodySmall.copyWith(
-                      color: colors.textSecondary,
-                    ),
-                  ),
-                ],
-              ),
-            ],
           ),
         ],
       ),
     );
   }
 
-  Widget _buildEmptyState(BuildContext context) {
+  Widget _emptyState(BuildContext context) {
     final colors = context.vColors;
-
     return Center(
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: VSpacing.space8),
@@ -235,14 +167,5 @@ class _ChangeHistoryBody extends StatelessWidget {
         ),
       ),
     );
-  }
-
-  String _formatDateTime(DateTime dt) {
-    final h = dt.hour.toString().padLeft(2, '0');
-    final m = dt.minute.toString().padLeft(2, '0');
-    final d = dt.day.toString().padLeft(2, '0');
-    final mo = dt.month.toString().padLeft(2, '0');
-    final y = dt.year;
-    return '$h:$m $d/$mo/$y';
   }
 }

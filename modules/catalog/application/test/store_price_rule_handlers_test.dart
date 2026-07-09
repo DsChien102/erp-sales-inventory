@@ -86,6 +86,15 @@ class _RecordingStorePriceRuleGateway implements IStorePriceRuleGateway {
     );
     return storedRule!;
   }
+
+  @override
+  Future<StorePriceRuleChangeHistoryResultDto> listChangeHistory({
+    required String tenantId,
+    int limit = 50,
+    int offset = 0,
+  }) {
+    throw UnimplementedError();
+  }
 }
 
 class _FakeProductReadinessReadPort implements IProductReadinessReadPort {
