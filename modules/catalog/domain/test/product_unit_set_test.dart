@@ -126,6 +126,30 @@ void main() {
       expect(unit.isActive, isFalse);
     });
 
+    test('deleteConversionUnit returns conversion unit when not base', () {
+      final set = ProductUnitSet(
+        productId: 'product-1',
+        units: [baseUnit(), activeVi()],
+      );
+
+      final unit = set.deleteConversionUnit('product-1-unit-vi');
+
+      expect(unit.id, 'product-1-unit-vi');
+      expect(unit.isBaseUnit, isFalse);
+    });
+
+    test('deleting base unit throws DomainException', () {
+      final set = ProductUnitSet(
+        productId: 'product-1',
+        units: [baseUnit(), activeVi()],
+      );
+
+      expect(
+        () => set.deleteConversionUnit('product-1-base'),
+        throwsA(isA<DomainException>()),
+      );
+    });
+
     test('deactivating base unit throws DomainException', () {
       final set = ProductUnitSet(
         productId: 'product-1',

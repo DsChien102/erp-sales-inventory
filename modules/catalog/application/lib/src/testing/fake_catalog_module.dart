@@ -32,6 +32,7 @@ class _ProductUnit {
     this.priceBandSourceType,
     this.isCustomOverride = false,
     this.hasConversionRate = true,
+    this.hasTransactionUsage = false,
   });
 
   final String id;
@@ -47,6 +48,7 @@ class _ProductUnit {
   String? storePriceRuleName;
   bool isCustomOverride;
   final bool hasConversionRate;
+  bool hasTransactionUsage;
 
   bool get hasCompletePriceBand => listPrice != null && floorPrice != null;
 }
@@ -749,6 +751,11 @@ final class FakeCatalogModule implements ICatalogModule {
     if (command is ReactivateProductConversionUnitCommand) {
       return _handleReactivateProductConversionUnit<TResult>(
         command as ReactivateProductConversionUnitCommand,
+      );
+    }
+    if (command is DeleteProductConversionUnitCommand) {
+      return _handleDeleteProductConversionUnit<TResult>(
+        command as DeleteProductConversionUnitCommand,
       );
     }
     if (command is InitializeCustomFieldTemplateCommand) {
@@ -2161,6 +2168,29 @@ final class FakeCatalogModule implements ICatalogModule {
           unit: _toProductUnitDto(unit),
         )
         as TResult;
+  }
+
+  TResult _handleDeleteProductConversionUnit<TResult>(
+    DeleteProductConversionUnitCommand command,
+  ) {
+    final product = _findProduct(command.productId);
+    if (product == null) {
+      throw ApplicationException('Product not found');
+    }
+
+    final unit = _findProductUnit(command.productId, command.productUnitId);
+    if (unit == null) {
+      throw ApplicationException('Product unit not found');
+    }
+    if (unit.isBaseUnit) {
+      throw ValidationException('Base unit cannot be deleted here.');
+    }
+    if (unit.hasCompletePriceBand || unit.hasTransactionUsage) {
+      throw ProductConversionUnitDeleteBlockedException();
+    }
+
+    _productUnits.remove(unit);
+    return null as TResult;
   }
 
   ProductUnitsDto _productUnitsDto(

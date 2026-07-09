@@ -13,6 +13,7 @@ final class ProductMeasurementUnitsState extends Equatable {
     this.baseUnitName,
     this.productUnits,
     this.unitMutationStatus = ProductMeasurementUnitsStatus.initial,
+    this.deleteBlockedUnitId,
   });
 
   final ProductMeasurementUnitsStatus status;
@@ -23,6 +24,7 @@ final class ProductMeasurementUnitsState extends Equatable {
   final String? baseUnitName;
   final ProductUnitsDto? productUnits;
   final ProductMeasurementUnitsStatus unitMutationStatus;
+  final String? deleteBlockedUnitId;
 
   List<ProductUnitDto> get conversionUnits => 
       productUnits?.units.where((u) => !u.isBaseUnit).toList() ?? [];
@@ -36,6 +38,8 @@ final class ProductMeasurementUnitsState extends Equatable {
     String? baseUnitName,
     ProductUnitsDto? productUnits,
     ProductMeasurementUnitsStatus? unitMutationStatus,
+    String? deleteBlockedUnitId,
+    bool clearDeleteBlockedUnitId = false,
   }) {
     return ProductMeasurementUnitsState(
       status: status ?? this.status,
@@ -46,6 +50,9 @@ final class ProductMeasurementUnitsState extends Equatable {
       baseUnitName: baseUnitName ?? this.baseUnitName,
       productUnits: productUnits ?? this.productUnits,
       unitMutationStatus: unitMutationStatus ?? this.unitMutationStatus,
+      deleteBlockedUnitId: clearDeleteBlockedUnitId
+          ? null
+          : (deleteBlockedUnitId ?? this.deleteBlockedUnitId),
     );
   }
 
@@ -59,5 +66,6 @@ final class ProductMeasurementUnitsState extends Equatable {
         baseUnitName,
         productUnits,
         unitMutationStatus,
+        deleteBlockedUnitId,
       ];
 }

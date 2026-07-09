@@ -4,6 +4,8 @@ import 'package:vet45_catalog_application/application.dart';
 import 'package:vet45_catalog_presentation/presentation.dart';
 import 'package:vet45_design_system/design_system.dart';
 
+import 'product_conversion_unit_delete_confirm_dialog.dart';
+
 class ProductConversionUnitItem extends StatefulWidget {
   const ProductConversionUnitItem({
     super.key,
@@ -118,13 +120,20 @@ class _ProductConversionUnitItemState extends State<ProductConversionUnitItem> {
                         ),
                         const SizedBox(width: 8),
                         ElevatedButton(
+                          key: Key('btn_delete_conversion_unit_${widget.unit.id}'),
                           onPressed: () {
-                            VToast.show(
+                            ProductConversionUnitDeleteConfirmDialog.show(
                               context,
-                              title: 'Thông báo',
-                              message: 'Tính năng xoá đơn vị đang phát triển',
-                              type: VToastType.info,
+                              unitName: widget.unit.name,
+                              onConfirm: () {
+                                context
+                                    .read<ProductMeasurementUnitsCubit>()
+                                    .deleteConversionUnit(widget.unit.id);
+                              },
                             );
+                            setState(() {
+                              _isExpanded = false;
+                            });
                           },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: dynamicColors.danger,

@@ -29,6 +29,7 @@ final catalogModuleManifest = GeneratedModuleManifest(
     DeactivateProductCommand,
     DeactivateProductConversionUnitCommand,
     DeleteProductCommand,
+    DeleteProductConversionUnitCommand,
     InitializeCustomFieldTemplateCommand,
     ReactivateProductCommand,
     ReactivateProductConversionUnitCommand,

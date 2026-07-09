@@ -170,9 +170,48 @@ class ProductMeasurementUnitsCubit extends Cubit<ProductMeasurementUnitsState> {
       emit(
         state.copyWith(
           unitMutationStatus: ProductMeasurementUnitsStatus.failure,
-          errorMessage: e.toString(),
+          errorMessage: e is ApplicationException ? e.message : e.toString(),
         ),
       );
     }
+  }
+
+  Future<void> deleteConversionUnit(String productUnitId) async {
+    emit(
+      state.copyWith(
+        unitMutationStatus: ProductMeasurementUnitsStatus.loading,
+        clearDeleteBlockedUnitId: true,
+      ),
+    );
+    try {
+      final tenantId = await _executionContext.requireTenantId();
+      final command = DeleteProductConversionUnitCommand(
+        tenantId: tenantId,
+        productId: state.productId,
+        productUnitId: productUnitId,
+      );
+      await _catalogModule.executeCommandAsync(command);
+      emit(state.copyWith(unitMutationStatus: ProductMeasurementUnitsStatus.success));
+      await loadProductUnits();
+    } on ProductConversionUnitDeleteBlockedException catch (e) {
+      emit(
+        state.copyWith(
+          unitMutationStatus: ProductMeasurementUnitsStatus.failure,
+          errorMessage: e.message,
+          deleteBlockedUnitId: productUnitId,
+        ),
+      );
+    } catch (e) {
+      emit(
+        state.copyWith(
+          unitMutationStatus: ProductMeasurementUnitsStatus.failure,
+          errorMessage: e is ApplicationException ? e.message : e.toString(),
+        ),
+      );
+    }
+  }
+
+  void clearDeleteBlocked() {
+    emit(state.copyWith(clearDeleteBlockedUnitId: true));
   }
 }

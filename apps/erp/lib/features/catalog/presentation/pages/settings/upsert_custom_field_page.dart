@@ -60,12 +60,22 @@ class _UpsertCustomFieldPageState extends State<UpsertCustomFieldPage> {
   Future<void> _handleSave() async {
     final name = _nameController.text.trim();
     if (name.isEmpty) {
-      VToast.show(context, title: 'Lỗi', message: 'Tên trường không được để trống', type: VToastType.danger);
+      VToast.show(
+        context,
+        title: 'Lỗi',
+        message: 'Tên trường không được để trống',
+        type: VToastType.danger,
+      );
       return;
     }
 
     if (_fieldType == CustomFieldType.singleSelect && _options.isEmpty) {
-      VToast.show(context, title: 'Lỗi', message: 'Cần có ít nhất 1 tùy chọn', type: VToastType.danger);
+      VToast.show(
+        context,
+        title: 'Lỗi',
+        message: 'Cần có ít nhất 1 tùy chọn',
+        type: VToastType.danger,
+      );
       return;
     }
 
@@ -88,14 +98,22 @@ class _UpsertCustomFieldPageState extends State<UpsertCustomFieldPage> {
 
   void _addOption() {
     setState(() {
-      _options.add(CustomFieldSelectOptionDto(
-        optionId: DateTime.now().millisecondsSinceEpoch.toString(),
-        label: 'Tùy chọn ${_options.length + 1}',
-      ));
+      _options.add(
+        CustomFieldSelectOptionDto(
+          optionId: DateTime.now().millisecondsSinceEpoch.toString(),
+          label: 'Tùy chọn ${_options.length + 1}',
+        ),
+      );
     });
   }
 
-  Widget _buildPropertyRow(String label, String? subtitle, bool value, ValueChanged<bool> onChanged, VColorScheme colors) {
+  Widget _buildPropertyRow(
+    String label,
+    String? subtitle,
+    bool value,
+    ValueChanged<bool> onChanged,
+    VColorScheme colors,
+  ) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
       child: Row(
@@ -107,7 +125,10 @@ class _UpsertCustomFieldPageState extends State<UpsertCustomFieldPage> {
               children: [
                 Text(
                   label,
-                  style: VTypography.bodyDefault.copyWith(color: VColors.textPrimary, fontWeight: FontWeight.w500),
+                  style: VTypography.bodyDefault.copyWith(
+                    color: VColors.textPrimary,
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
                 if (subtitle != null) ...[
                   const SizedBox(height: 2),
@@ -194,9 +215,11 @@ class _UpsertCustomFieldPageState extends State<UpsertCustomFieldPage> {
             VDropdown<CustomFieldType>(
               label: 'Kiểu dữ liệu *',
               value: _fieldType,
-              onChanged: widget.initialFieldId == null ? (val) {
-                if (val != null) setState(() => _fieldType = val);
-              } : null, // Not allowed to change fieldType if editing (Image 3)
+              onChanged: widget.initialFieldId == null
+                  ? (val) {
+                      if (val != null) setState(() => _fieldType = val);
+                    }
+                  : null, // Not allowed to change fieldType if editing (Image 3)
               items: const [
                 DropdownMenuItem(value: CustomFieldType.text, child: Text('Text')),
                 DropdownMenuItem(value: CustomFieldType.number, child: Text('Số')),
@@ -218,7 +241,7 @@ class _UpsertCustomFieldPageState extends State<UpsertCustomFieldPage> {
               label: 'Nhóm *',
               enabled: false,
             ),
-            
+
             if (_fieldType == CustomFieldType.singleSelect) ...[
               const SizedBox(height: VSpacing.space6),
               Row(
@@ -239,34 +262,36 @@ class _UpsertCustomFieldPageState extends State<UpsertCustomFieldPage> {
                 ],
               ),
               const SizedBox(height: VSpacing.space3),
-              ..._options.map((opt) => Padding(
-                padding: const EdgeInsets.only(bottom: 8.0),
-                child: Row(
-                  children: [
-                    const Icon(Icons.drag_indicator, color: VColors.textMuted, size: 16),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                        decoration: BoxDecoration(
-                          color: colors.surface,
-                          borderRadius: BorderRadius.circular(VRadius.r8),
-                          border: Border.all(color: VColors.borderDefault),
+              ..._options.map(
+                (opt) => Padding(
+                  padding: const EdgeInsets.only(bottom: 8.0),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.drag_indicator, color: VColors.textMuted, size: 16),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                          decoration: BoxDecoration(
+                            color: colors.surface,
+                            borderRadius: BorderRadius.circular(VRadius.r8),
+                            border: Border.all(color: VColors.borderDefault),
+                          ),
+                          child: Text(opt.label),
                         ),
-                        child: Text(opt.label),
                       ),
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.delete_outline, color: VColors.danger),
-                      onPressed: () {
-                        setState(() {
-                          _options.remove(opt);
-                        });
-                      },
-                    ),
-                  ],
+                      IconButton(
+                        icon: const Icon(Icons.delete_outline, color: VColors.danger),
+                        onPressed: () {
+                          setState(() {
+                            _options.remove(opt);
+                          });
+                        },
+                      ),
+                    ],
+                  ),
                 ),
-              )),
+              ),
             ],
 
             const SizedBox(height: VSpacing.space6),
@@ -286,17 +311,41 @@ class _UpsertCustomFieldPageState extends State<UpsertCustomFieldPage> {
               ),
               child: Column(
                 children: [
-                  _buildPropertyRow('Bắt buộc', 'Tham gia tính readiness của sản phẩm', _isRequired, (v) => setState(() => _isRequired = v), colors),
+                  _buildPropertyRow(
+                    'Bắt buộc',
+                    'Tham gia tính readiness của sản phẩm',
+                    _isRequired,
+                    (v) => setState(() => _isRequired = v),
+                    colors,
+                  ),
                   const Divider(height: 1, color: VColors.borderDefault),
-                  _buildPropertyRow('Cho phép tìm kiếm', null, _isSearchable, (v) => setState(() => _isSearchable = v), colors),
+                  _buildPropertyRow(
+                    'Cho phép tìm kiếm',
+                    null,
+                    _isSearchable,
+                    (v) => setState(() => _isSearchable = v),
+                    colors,
+                  ),
                   const Divider(height: 1, color: VColors.borderDefault),
-                  _buildPropertyRow('Cho phép lọc', null, _isFilterable, (v) => setState(() => _isFilterable = v), colors),
+                  _buildPropertyRow(
+                    'Cho phép lọc',
+                    null,
+                    _isFilterable,
+                    (v) => setState(() => _isFilterable = v),
+                    colors,
+                  ),
                   const Divider(height: 1, color: VColors.borderDefault),
-                  _buildPropertyRow('Hiển thị trên danh sách sản phẩm', 'Danh sách sản phẩm chỉ hiển thị giới hạn field.', _displayOnList, (v) => setState(() => _displayOnList = v), colors),
+                  _buildPropertyRow(
+                    'Hiển thị trên danh sách sản phẩm',
+                    'Danh sách sản phẩm chỉ hiển thị giới hạn field.',
+                    _displayOnList,
+                    (v) => setState(() => _displayOnList = v),
+                    colors,
+                  ),
                 ],
               ),
             ),
-            
+
             if (widget.initialFieldId != null) ...[
               const SizedBox(height: VSpacing.space6),
               Text(
@@ -313,7 +362,13 @@ class _UpsertCustomFieldPageState extends State<UpsertCustomFieldPage> {
                   borderRadius: BorderRadius.circular(VRadius.r12),
                   border: Border.all(color: VColors.borderDefault),
                 ),
-                child: _buildPropertyRow('Đang dùng', null, _isActive, (v) => setState(() => _isActive = v), colors),
+                child: _buildPropertyRow(
+                  'Đang dùng',
+                  null,
+                  _isActive,
+                  (v) => setState(() => _isActive = v),
+                  colors,
+                ),
               ),
             ],
             const SizedBox(height: 40),

@@ -127,6 +127,20 @@ void main() {
       );
     });
 
+    test('maps product conversion unit delete blocked', () {
+      final error = mapCatalogRpcError(
+        RpcException(
+          'product_conversion_unit_delete_blocked: Đơn vị đã được dùng trong giao dịch. Hãy dùng "Tắt đơn vị" để bảo toàn lịch sử.',
+        ),
+      );
+
+      expect(error, isA<ProductConversionUnitDeleteBlockedException>());
+      expect(
+        (error as ProductConversionUnitDeleteBlockedException).message,
+        contains('Tắt đơn vị'),
+      );
+    });
+
     test('maps validation exceptions', () {
       final error = mapCatalogRpcError(
         RpcException('validation_exception: Measurement unit is inactive.'),

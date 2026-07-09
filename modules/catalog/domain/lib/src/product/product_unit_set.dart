@@ -70,6 +70,14 @@ final class ProductUnitSet {
     return unit.activate();
   }
 
+  ProductUnit deleteConversionUnit(String productUnitId) {
+    final unit = _requireUnit(productUnitId);
+    if (unit.isBaseUnit) {
+      throw DomainException('Base unit cannot be deleted here.');
+    }
+    return unit;
+  }
+
   ProductUnit _requireUnit(String productUnitId) {
     for (final unit in units) {
       if (unit.id == productUnitId) {

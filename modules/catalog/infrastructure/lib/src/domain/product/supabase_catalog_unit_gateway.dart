@@ -157,6 +157,20 @@ final class SupabaseCatalogUnitGateway implements ICatalogUnitGateway {
     }
   }
 
+  @override
+  Future<void> deleteConversionUnit({
+    required DeleteProductConversionUnitCommand command,
+  }) async {
+    try {
+      await _rpcClient.callList(
+        'delete_product_conversion_unit',
+        params: ProductRpcMapper.deleteConversionUnitParams(command),
+      );
+    } on RpcException catch (error) {
+      throw mapCatalogRpcError(error);
+    }
+  }
+
   ReadinessSummaryDto _readinessSummaryFromRow(Map<String, dynamic> row) {
     final blockersValue = row['readiness_blockers'];
     final blockers = blockersValue is List
