@@ -1,3 +1,4 @@
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:vet45_catalog_application/application.dart';
@@ -6,6 +7,7 @@ import 'package:vet45_shared_application/application.dart';
 import '../mappers/catalog_ui_mapper.dart';
 import '../models/product_image_draft.dart';
 import '../services/product_image_upload_client.dart';
+import '../widgets/image_picker/product_image_add_sheet.dart';
 import 'product_guided_create_state.dart';
 
 class ProductGuidedCreateCubit extends Cubit<ProductGuidedCreateState> {
@@ -108,24 +110,44 @@ class ProductGuidedCreateCubit extends Cubit<ProductGuidedCreateState> {
     }
   }
 
-  Future<void> pickImagesFromGallery() async {
+  Future<void> pickImages(ProductImageSource source) async {
     if (state.imageDrafts.length >= ProductGuidedCreateState.maxImages) {
       return;
     }
 
     try {
-      final picked = await _picker.pickMultiImage(imageQuality: 85);
-      if (picked.isEmpty) {
+      final remaining = ProductGuidedCreateState.maxImages - state.imageDrafts.length;
+      List<String> paths = [];
+
+      if (source == ProductImageSource.camera) {
+        final picked = await _picker.pickImage(source: ImageSource.camera, imageQuality: 85);
+        if (picked != null) {
+          paths.add(picked.path);
+        }
+      } else if (source == ProductImageSource.gallery) {
+        final picked = await _picker.pickMultiImage(imageQuality: 85);
+        paths.addAll(picked.map((e) => e.path));
+      } else if (source == ProductImageSource.file) {
+        final result = await FilePicker.pickFiles(
+          type: FileType.custom,
+          allowedExtensions: ['jpg', 'jpeg', 'png', 'heic', 'webp'],
+          allowMultiple: true,
+        );
+        if (result != null) {
+          paths.addAll(result.paths.whereType<String>());
+        }
+      }
+
+      if (paths.isEmpty) {
         return;
       }
 
-      final remaining = ProductGuidedCreateState.maxImages - state.imageDrafts.length;
-      final toAdd = picked.take(remaining).toList();
+      final toAdd = paths.take(remaining).map((p) => XFile(p)).toList();
       await _uploadPickedFiles(toAdd);
     } catch (_) {
       emit(
         state.copyWith(
-          errorMessage: 'Không mở được thư viện ảnh.',
+          errorMessage: 'Không mở được trình chọn ảnh.',
           status: ProductGuidedCreateStatus.error,
         ),
       );

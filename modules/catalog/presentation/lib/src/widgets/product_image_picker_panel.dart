@@ -1,9 +1,10 @@
-import 'dart:io';
-
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:vet45_design_system/design_system.dart';
 import '../models/product_image_draft.dart';
+import 'image_picker/product_image_grid_item.dart';
+import 'image_picker/product_image_add_sheet.dart';
+import 'image_picker/product_image_gallery_viewer.dart';
+import 'image_picker/product_image_delete_dialog.dart';
 
 /// Multi-image picker with upload status indicators.
 class ProductImagePickerPanel extends StatelessWidget {
@@ -11,7 +12,7 @@ class ProductImagePickerPanel extends StatelessWidget {
     super.key,
     required this.drafts,
     required this.coverImageIndex,
-    required this.onPickFromGallery,
+    required this.onPickImage,
     required this.onSetCover,
     required this.onRemoveAt,
     this.maxImages = 8,
@@ -19,169 +20,145 @@ class ProductImagePickerPanel extends StatelessWidget {
 
   final List<ProductImageDraft> drafts;
   final int coverImageIndex;
-  final VoidCallback onPickFromGallery;
+  final void Function(ProductImageSource) onPickImage;
   final void Function(int index) onSetCover;
   final void Function(int index) onRemoveAt;
   final int maxImages;
 
-  Widget _imageTile(ProductImageDraft draft, int index) {
-    return Builder(
-      builder: (context) {
-        final dynamicColors = context.vColors;
-        final isCover = coverImageIndex == index;
-        final path = draft.localPath;
+  Future<void> _showAddImageOptions(BuildContext context) async {
+    final source = await ProductImageAddSheet.show(context);
+    if (!context.mounted) return;
+    if (source != null) {
+      onPickImage(source);
+    }
+  }
 
-        Widget imageChild;
-        if (path.startsWith('http')) {
-          imageChild = Image.network(path, fit: BoxFit.cover);
-        } else if (!kIsWeb && File(path).existsSync()) {
-          imageChild = Image.file(File(path), fit: BoxFit.cover);
-        } else {
-          imageChild = Center(
-            child: Icon(Icons.broken_image_outlined, color: dynamicColors.textMuted),
-          );
-        }
+  Future<void> _handleRemove(BuildContext context, int index) async {
+    final confirm = await ProductImageDeleteDialog.show(context);
+    if (confirm) {
+      onRemoveAt(index);
+    }
+  }
 
-        return Container(
-          width: 100,
-          height: 100,
-          padding: EdgeInsets.all(isCover ? 0 : 1),
-          decoration: BoxDecoration(
-            border: Border.all(
-              color: isCover ? VColors.success : dynamicColors.borderDefault,
-              width: isCover ? 2 : 1,
-            ),
-            borderRadius: BorderRadius.circular(VRadius.card),
+  void _openGallery(BuildContext context) {
+    if (drafts.isEmpty) return;
+
+    final images = drafts
+        .map(
+          (draft) => GalleryImageItem(
+            localPath: draft.localPath,
+            storageKey: draft.storageKey,
           ),
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(isCover ? VRadius.card - 2 : VRadius.card - 1),
-            child: GestureDetector(
-              onTap: () => onSetCover(index),
-              child: Stack(
-                fit: StackFit.expand,
-                children: [
-                  imageChild,
-                  if (draft.status == ProductImageUploadStatus.uploading)
-                    Container(
-                      color: Colors.black.withValues(alpha: 0.35),
-                      child: const Center(
-                        child: SizedBox(
-                          width: 22,
-                          height: 22,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        ),
-                      ),
-                    ),
-                  if (draft.status == ProductImageUploadStatus.failed)
-                    Container(
-                      color: Colors.black.withValues(alpha: 0.45),
-                      alignment: Alignment.center,
-                      padding: const EdgeInsets.all(4),
-                      child: Text(
-                        draft.errorMessage ?? 'Lỗi',
-                        textAlign: TextAlign.center,
-                        style: VTypography.caption.copyWith(color: Colors.white, fontSize: 8),
-                      ),
-                    ),
-                  if (isCover)
-                    Positioned(
-                      top: 4,
-                      left: 4,
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                        decoration: BoxDecoration(
-                          color: VColors.success,
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                        child: Text(
-                          'Mặc định',
-                          style: VTypography.caption.copyWith(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 9,
-                          ),
-                        ),
-                      ),
-                    ),
-                  Positioned(
-                    top: 4,
-                    right: 4,
-                    child: GestureDetector(
-                      onTap: () => onRemoveAt(index),
-                      child: CircleAvatar(
-                        radius: 12,
-                        backgroundColor: Colors.black.withValues(alpha: 0.55),
-                        child: const Icon(Icons.close, size: 14, color: Colors.white),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        );
-      },
+        )
+        .toList();
+
+    ProductImageGalleryViewer.show(
+      context,
+      images: images,
+      primaryIndex: coverImageIndex,
     );
   }
 
   @override
   Widget build(BuildContext context) {
     final dynamicColors = context.vColors;
+    final canAddMore = drafts.length < maxImages;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        if (drafts.isEmpty)
-          GestureDetector(
-            onTap: onPickFromGallery,
-            child: Container(
-              height: 120,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(VRadius.card),
-                border: Border.all(color: dynamicColors.borderDefault),
-                color: dynamicColors.surface,
-              ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.photo_library_outlined, size: 36, color: dynamicColors.textSecondary),
-                  const SizedBox(height: VSpacing.space1),
-                  Text(
-                    'Chọn ảnh từ thư viện',
-                    style: VTypography.bodyDefault.copyWith(color: dynamicColors.textSecondary),
+        GridView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 3,
+            crossAxisSpacing: 12,
+            mainAxisSpacing: 12,
+            childAspectRatio: 1,
+          ),
+          itemCount: drafts.length + (canAddMore ? 1 : 0),
+          itemBuilder: (context, index) {
+            if (index < drafts.length) {
+              final draft = drafts[index];
+              return ProductImageGridItem(
+                localPath: draft.localPath,
+                storageKey: draft.storageKey,
+                isPrimary: coverImageIndex == index,
+                isUploading: draft.status == ProductImageUploadStatus.uploading,
+                isFailed: draft.status == ProductImageUploadStatus.failed,
+                errorMessage: draft.errorMessage,
+                onSetPrimary: () => onSetCover(index),
+                onRemove: () => _handleRemove(context, index),
+              );
+            } else {
+              return GestureDetector(
+                onTap: () => _showAddImageOptions(context),
+                child: Container(
+                  decoration: BoxDecoration(
+                    border: Border.all(
+                      color: dynamicColors.borderDefault,
+                      style: BorderStyle.solid,
+                    ),
+                    borderRadius: BorderRadius.circular(VRadius.card),
+                    color: dynamicColors.surface,
                   ),
-                ],
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.add, size: 24, color: dynamicColors.textSecondary),
+                      const SizedBox(height: 4),
+                      Text(
+                        'Thêm',
+                        style: VTypography.bodySmall.copyWith(
+                          color: dynamicColors.textSecondary,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            }
+          },
+        ),
+        if (drafts.isNotEmpty) ...[
+          const SizedBox(height: 16),
+          Align(
+            alignment: Alignment.centerLeft,
+            child: GestureDetector(
+              onTap: () => _openGallery(context),
+              child: Text(
+                'Xem gallery',
+                style: VTypography.bodyDefault.copyWith(
+                  color: dynamicColors.primary,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
+            ),
+          ),
+        ],
+        const SizedBox(height: 16),
+        if (!canAddMore)
+          RichText(
+            text: TextSpan(
+              style: VTypography.bodySmall.copyWith(color: dynamicColors.textSecondary),
+              children: [
+                TextSpan(
+                  text: 'Đã đạt tối đa $maxImages ảnh. ',
+                  style: VTypography.bodySmall.copyWith(
+                    color: VColors.warning,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const TextSpan(text: 'Xóa bớt ảnh nếu muốn thêm ảnh mới.'),
+              ],
             ),
           )
         else
-          Wrap(
-            spacing: VSpacing.space2,
-            runSpacing: VSpacing.space2,
-            children: [
-              ...drafts.asMap().entries.map((e) => _imageTile(e.value, e.key)),
-              if (drafts.length < maxImages)
-                GestureDetector(
-                  onTap: onPickFromGallery,
-                  child: Container(
-                    width: 100,
-                    height: 100,
-                    decoration: BoxDecoration(
-                      border: Border.all(color: dynamicColors.borderDefault),
-                      borderRadius: BorderRadius.circular(VRadius.card),
-                    ),
-                    child: Icon(Icons.add_photo_alternate_outlined, color: dynamicColors.textSecondary),
-                  ),
-                ),
-            ],
-          ),
-        if (drafts.isNotEmpty) ...[
-          const SizedBox(height: VSpacing.space3),
           Text(
             'Chạm vào ảnh để đặt làm ảnh mặc định. Tối đa $maxImages ảnh.',
             style: VTypography.bodySmall.copyWith(color: dynamicColors.textSecondary),
           ),
-        ],
       ],
     );
   }

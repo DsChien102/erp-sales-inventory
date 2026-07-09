@@ -21,6 +21,7 @@ dependencies:
   vet45_shared_application: ^1.0.0
   equatable: ^2.1.0
   supabase_flutter: ^2.14.1
+  file_picker: ^11.0.2
 
 dev_dependencies:
   vet45_shared_testing: ^0.0.1

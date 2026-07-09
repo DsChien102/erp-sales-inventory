@@ -35,3 +35,7 @@ export 'src/widgets/product_readiness_checklist_body.dart';
 export 'src/services/product_image_display_resolver.dart';
 export 'src/services/product_image_upload_client.dart';
 export 'src/widgets/catalog_storage_image.dart';
+export 'src/widgets/image_picker/product_image_grid_item.dart';
+export 'src/widgets/image_picker/product_image_add_sheet.dart';
+export 'src/widgets/image_picker/product_image_delete_dialog.dart';
+export 'src/widgets/image_picker/product_image_gallery_viewer.dart';

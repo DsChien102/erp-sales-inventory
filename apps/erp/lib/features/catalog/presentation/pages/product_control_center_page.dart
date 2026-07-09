@@ -505,7 +505,10 @@ class _ProductControlCenterViewState extends State<_ProductControlCenterView> {
                         },
                       ),
                     ],
-                    const SizedBox(height: 16),
+                    SafeArea(
+                      top: false,
+                      child: const SizedBox(height: 32),
+                    ),
                   ],
                 ),
               );

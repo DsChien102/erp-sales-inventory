@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:vet45_catalog_application/application.dart';
@@ -179,7 +180,7 @@ class ProductImagesMaintenanceCubit extends Cubit<ProductImagesMaintenanceState>
     emit(state.copyWith(images: newImages));
   }
 
-  Future<void> pickImagesFromGallery() async {
+  Future<void> pickImages(ProductImageSource source) async {
     final maxAllowed = 8 - state.images.length;
     if (maxAllowed <= 0) {
       emit(state.copyWith(
@@ -191,17 +192,37 @@ class ProductImagesMaintenanceCubit extends Cubit<ProductImagesMaintenanceState>
     }
 
     try {
-      final picked = await _picker.pickMultiImage(imageQuality: 85);
-      if (picked.isEmpty) {
+      List<String> paths = [];
+
+      if (source == ProductImageSource.camera) {
+        final picked = await _picker.pickImage(source: ImageSource.camera, imageQuality: 85);
+        if (picked != null) {
+          paths.add(picked.path);
+        }
+      } else if (source == ProductImageSource.gallery) {
+        final picked = await _picker.pickMultiImage(imageQuality: 85);
+        paths.addAll(picked.map((e) => e.path));
+      } else if (source == ProductImageSource.file) {
+        final result = await FilePicker.pickFiles(
+          type: FileType.custom,
+          allowedExtensions: ['jpg', 'jpeg', 'png', 'heic', 'webp'],
+          allowMultiple: true,
+        );
+        if (result != null) {
+          paths.addAll(result.paths.whereType<String>());
+        }
+      }
+
+      if (paths.isEmpty) {
         return;
       }
 
-      final toAdd = picked.take(maxAllowed).toList();
+      final toAdd = paths.take(maxAllowed).map((p) => XFile(p)).toList();
       await _uploadPickedFiles(toAdd);
     } catch (_) {
       emit(state.copyWith(
         status: ProductImagesMaintenanceStatus.failure,
-        errorMessage: 'Không mở được thư viện ảnh.',
+        errorMessage: 'Không mở được trình chọn ảnh.',
       ));
     }
   }

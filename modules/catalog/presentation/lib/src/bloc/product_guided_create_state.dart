@@ -64,6 +64,7 @@ class ProductGuidedCreateState {
   final double? storeRuleListMarkupRatio;
   final double? storeRuleFloorMarkupRatio;
   final String? storePriceRuleUnavailableReason;
+
   /// True when user confirms step 6 (Khung giá bán) via "Tiếp".
   final bool priceBandConfigured;
 
@@ -85,8 +86,7 @@ class ProductGuidedCreateState {
   bool get hasDuplicateError => skuError != null || barcodeError != null;
   bool get isUploadingImages =>
       imageDrafts.any((d) => d.status == ProductImageUploadStatus.uploading);
-  bool get hasUploadFailures =>
-      imageDrafts.any((d) => d.status == ProductImageUploadStatus.failed);
+  bool get hasUploadFailures => imageDrafts.any((d) => d.status == ProductImageUploadStatus.failed);
   bool get canSubmit =>
       isStep1Valid &&
       !hasDuplicateError &&
@@ -98,8 +98,7 @@ class ProductGuidedCreateState {
       storeRuleFloorMarkupRatio != null &&
       storePriceRuleUnavailableReason == null;
 
-  bool get canConfirmStoreRulePriceBand =>
-      pricingMethod != 'storeRule' || isStorePriceRuleReady;
+  bool get canConfirmStoreRulePriceBand => pricingMethod != 'storeRule' || isStorePriceRuleReady;
 
   double? get parsedCustomAutoMarkupPercent {
     final value = double.tryParse(customAutoMarkup.trim());
@@ -121,8 +120,16 @@ class ProductGuidedCreateState {
     return floorPercent <= listPercent;
   }
 
-  bool get canConfirmPriceBandStep =>
-      canConfirmStoreRulePriceBand && canConfirmCustomAutoPriceBand;
+  bool get canConfirmPriceBandStep => canConfirmStoreRulePriceBand && canConfirmCustomAutoPriceBand;
+  bool get hasAnyData =>
+      name.trim().isNotEmpty ||
+      tradeName.trim().isNotEmpty ||
+      sku.trim().isNotEmpty ||
+      barcode.trim().isNotEmpty ||
+      imageDrafts.isNotEmpty ||
+      baseUnit.trim().isNotEmpty ||
+      initialStock.trim().isNotEmpty ||
+      baseCost.trim().isNotEmpty;
 
   ProductGuidedCreateState copyWith({
     String? name,
@@ -198,10 +205,12 @@ class ProductGuidedCreateState {
       showValidationErrors: showValidationErrors ?? this.showValidationErrors,
       skuError: clearSkuError ? null : (skuError ?? this.skuError),
       barcodeError: clearBarcodeError ? null : (barcodeError ?? this.barcodeError),
-      duplicateProductId:
-          clearDuplicateMatch ? null : (duplicateProductId ?? this.duplicateProductId),
-      duplicateProductName:
-          clearDuplicateMatch ? null : (duplicateProductName ?? this.duplicateProductName),
+      duplicateProductId: clearDuplicateMatch
+          ? null
+          : (duplicateProductId ?? this.duplicateProductId),
+      duplicateProductName: clearDuplicateMatch
+          ? null
+          : (duplicateProductName ?? this.duplicateProductName),
       manualPriceError: clearManualPriceError ? null : (manualPriceError ?? this.manualPriceError),
       createdProduct: createdProduct ?? this.createdProduct,
     );

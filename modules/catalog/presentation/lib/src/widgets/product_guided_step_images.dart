@@ -26,7 +26,7 @@ class ProductGuidedStepImages extends StatelessWidget {
           drafts: state.imageDrafts,
           coverImageIndex: state.coverImageIndex,
           maxImages: ProductGuidedCreateState.maxImages,
-          onPickFromGallery: () => cubit.pickImagesFromGallery(),
+          onPickImage: cubit.pickImages,
           onSetCover: cubit.setCoverImageIndex,
           onRemoveAt: cubit.removeImageAt,
         ),
