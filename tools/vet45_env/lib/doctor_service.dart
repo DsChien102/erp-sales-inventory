@@ -2,20 +2,26 @@ import 'dart:io';
 
 import 'key_resolver.dart';
 import 'manifest.dart';
+import 'profile_registry.dart';
 import 'project_ref.dart';
 import 'secrets_loader.dart';
 import 'supabase_cli.dart';
 
 class DoctorReport {
-  DoctorReport({required this.environmentId, required this.checks});
+  DoctorReport({
+    required this.profileId,
+    required this.environmentId,
+    required this.checks,
+  });
 
+  final String profileId;
   final String environmentId;
   final List<DoctorCheck> checks;
 
   bool get ok => checks.every((c) => c.passed || c.skipped);
 
   void printReport() {
-    stdout.writeln('Environment: $environmentId');
+    stdout.writeln('Profile: $profileId  Environment: $environmentId');
     for (final check in checks) {
       final icon = check.passed
           ? 'OK'
@@ -55,48 +61,51 @@ class DoctorService {
   final bool skipNetwork;
 
   Future<DoctorReport> run(
-    String environmentId, {
+    WorkspaceContext ctx, {
     String? targetId,
   }) async {
-    final env = manifest.getEnvironment(environmentId);
+    final env = ctx.environment;
     final checks = <DoctorCheck>[];
 
     checks.add(DoctorCheck(name: 'manifest entry', passed: true));
+    checks.add(
+      DoctorCheck(
+        name: 'profile secrets root',
+        passed: ctx.profile.secretsDirectory(manifest.rootDir).existsSync(),
+        detail: ctx.profile.secretsRoot,
+      ),
+    );
 
     final targetIds = _resolveTargetIds(targetId);
     final hasWritableTarget = targetIds.any(
       (id) => manifest.getTarget(id).writeEnvFile,
     );
-    // Env-level secrets / link only matter for targets that write app .env files.
     if (hasWritableTarget) {
-      _checkSupabaseLink(env, checks);
-      await _checkSecretsSource(env, checks);
+      _checkProfileAuth(ctx, checks);
+      _checkSupabaseLink(ctx, checks);
+      await _checkSecretsSource(ctx, checks);
     }
 
     final targetOk = <String, bool>{};
-
     for (final id in targetIds) {
       final target = manifest.getTarget(id);
       final ok = target.writeEnvFile
           ? _checkWritableTarget(env, target, checks)
-          : _checkSecretsOnlyTarget(env, target, checks);
+          : _checkSecretsOnlyTarget(ctx, target, checks);
       targetOk[id] = ok;
     }
 
-    final erpOk = targetOk['erp'] == true;
-    final workerOk = targetOk['worker'] == true;
-    if (erpOk && workerOk) {
+    if (targetOk['erp'] == true && targetOk['worker'] == true) {
       _checkHostAlignment(env, checks);
     }
 
     if (!skipNetwork) {
-      final pingUrl = _pingUrl(env, erpOk: erpOk, workerOk: workerOk);
+      final pingUrl = _pingUrl(env, erpOk: targetOk['erp'] == true, workerOk: targetOk['worker'] == true);
       if (pingUrl != null && pingUrl.isNotEmpty) {
-        final reachable = await _pingSupabase(pingUrl);
         checks.add(
           DoctorCheck(
             name: 'supabase http',
-            passed: reachable,
+            passed: await _pingSupabase(pingUrl),
             detail: pingUrl,
           ),
         );
@@ -112,7 +121,11 @@ class DoctorService {
       );
     }
 
-    return DoctorReport(environmentId: environmentId, checks: checks);
+    return DoctorReport(
+      profileId: ctx.profileId,
+      environmentId: env.id,
+      checks: checks,
+    );
   }
 
   List<String> _resolveTargetIds(String? targetId) {
@@ -123,10 +136,26 @@ class DoctorService {
     return manifest.targets.keys.toList()..sort();
   }
 
-  void _checkSupabaseLink(
-    EnvironmentDefinition env,
-    List<DoctorCheck> checks,
-  ) {
+  void _checkProfileAuth(WorkspaceContext ctx, List<DoctorCheck> checks) {
+    if (!ctx.environment.syncSupabaseLink) {
+      return;
+    }
+    final auth = loadProfileAuthEnvironment(ctx);
+    final hasToken = auth.containsKey('SUPABASE_ACCESS_TOKEN');
+    checks.add(
+      DoctorCheck(
+        name: 'profile supabase token',
+        passed: hasToken,
+        skipped: !hasToken,
+        detail: hasToken
+            ? 'SUPABASE_ACCESS_TOKEN set'
+            : 'optional; set SUPABASE_ACCESS_TOKEN in profile auth.env',
+      ),
+    );
+  }
+
+  void _checkSupabaseLink(WorkspaceContext ctx, List<DoctorCheck> checks) {
+    final env = ctx.environment;
     if (!env.syncSupabaseLink) {
       checks.add(
         DoctorCheck(
@@ -138,7 +167,7 @@ class DoctorService {
       );
       return;
     }
-    final targetRef = ProjectRefResolver.resolve(env);
+    final targetRef = ProjectRefResolver.resolve(env, ctx.secretsFile);
     if (targetRef == null) {
       checks.add(
         DoctorCheck(
@@ -161,17 +190,18 @@ class DoctorService {
   }
 
   Future<void> _checkSecretsSource(
-    EnvironmentDefinition env,
+    WorkspaceContext ctx,
     List<DoctorCheck> checks,
   ) async {
+    final env = ctx.environment;
+    final secretsFile = ctx.secretsFile;
     if (env.supabaseSource == 'secrets') {
-      final exists = env.secretsFile.existsSync();
-      if (exists) {
+      if (secretsFile.existsSync()) {
         checks.add(
           DoctorCheck(
             name: 'secrets file',
             passed: true,
-            detail: env.secretsFile.path,
+            detail: secretsFile.path,
           ),
         );
       } else if (env.cliFallback) {
@@ -190,7 +220,7 @@ class DoctorService {
             DoctorCheck(
               name: 'secrets file',
               passed: false,
-              detail: 'missing ${env.secretsFile.path}; CLI unavailable: $e',
+              detail: 'missing ${secretsFile.path}; CLI unavailable: $e',
             ),
           );
         }
@@ -199,7 +229,7 @@ class DoctorService {
           DoctorCheck(
             name: 'secrets file',
             passed: false,
-            detail: 'missing ${env.secretsFile.path}',
+            detail: 'missing ${secretsFile.path}',
           ),
         );
       }
@@ -213,8 +243,8 @@ class DoctorService {
       checks.add(
         DoctorCheck(
           name: 'supabase cli',
-          passed: env.secretsFile.existsSync(),
-          detail: env.secretsFile.existsSync()
+          passed: secretsFile.existsSync(),
+          detail: secretsFile.existsSync()
               ? 'CLI unavailable; using secrets override'
               : '$e',
         ),
@@ -253,26 +283,20 @@ class DoctorService {
     }
 
     final values = loadDotEnv(envFile);
-    final missing = KeyResolver.missingRequired(
-      target: target,
-      values: values,
-    );
+    final missing = KeyResolver.missingRequired(target: target, values: values);
     for (final key in target.keys.where((k) => k.required)) {
-      final ok = !missing.contains(key.name);
       checks.add(
         DoctorCheck(
           name: '${target.id} ${key.name}',
-          passed: ok,
+          passed: !missing.contains(key.name),
         ),
       );
     }
-    // fromManifest fields (e.g. APP_ENV) always required after sync.
     for (final key in target.keys.where((k) => k.fromManifest != null)) {
-      final ok = (values[key.name] ?? '').trim().isNotEmpty;
       checks.add(
         DoctorCheck(
           name: '${target.id} ${key.name}',
-          passed: ok,
+          passed: (values[key.name] ?? '').trim().isNotEmpty,
         ),
       );
     }
@@ -280,11 +304,11 @@ class DoctorService {
   }
 
   bool _checkSecretsOnlyTarget(
-    EnvironmentDefinition env,
+    WorkspaceContext ctx,
     TargetDefinition target,
     List<DoctorCheck> checks,
   ) {
-    final secretsFile = target.secretsSource(env);
+    final secretsFile = target.secretsSource(ctx);
     final exists = secretsFile.existsSync();
     checks.add(
       DoctorCheck(
@@ -298,10 +322,7 @@ class DoctorService {
     }
 
     final values = loadDotEnv(secretsFile);
-    final missing = KeyResolver.missingRequired(
-      target: target,
-      values: values,
-    );
+    final missing = KeyResolver.missingRequired(target: target, values: values);
     for (final key in target.keys.where((k) => k.required)) {
       checks.add(
         DoctorCheck(

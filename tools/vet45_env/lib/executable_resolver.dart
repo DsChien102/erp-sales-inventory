@@ -10,14 +10,15 @@ String resolveExecutable(String name) {
     return name;
   }
 
-  final fromPath = _lookupOnPath(name);
-  if (fromPath != null) {
-    return fromPath;
-  }
-
+  // Prefer known SDK roots before `where` (avoids extensionless bash scripts).
   final fromEnv = _lookupFromKnownRoots(name);
   if (fromEnv != null) {
     return fromEnv;
+  }
+
+  final fromPath = _lookupOnPath(name);
+  if (fromPath != null) {
+    return fromPath;
   }
 
   return name;
@@ -35,7 +36,6 @@ bool useShellOnWindows(String executable) {
   if (lower.endsWith('.bat') || lower.endsWith('.cmd')) {
     return true;
   }
-  // Bare command name (flutter, dart, docker) — shell resolves PATH + .bat.
   return !_isExplicitPath(executable);
 }
 
@@ -56,7 +56,27 @@ String? _lookupOnPath(String name) {
     final lines = '${result.stdout}'
         .split(RegExp(r'[\r\n]+'))
         .map((line) => line.trim())
-        .where((line) => line.isNotEmpty);
+        .where((line) => line.isNotEmpty)
+        .toList();
+
+    if (name == 'flutter') {
+      for (final line in lines) {
+        final lower = line.toLowerCase();
+        if (lower.endsWith('.bat') || lower.endsWith('.cmd')) {
+          if (File(line).existsSync()) {
+            return line;
+          }
+        }
+      }
+      for (final line in lines) {
+        final lower = line.toLowerCase();
+        if (lower.endsWith('.exe') && File(line).existsSync()) {
+          return line;
+        }
+      }
+      return null;
+    }
+
     for (final line in lines) {
       if (File(line).existsSync()) {
         return line;

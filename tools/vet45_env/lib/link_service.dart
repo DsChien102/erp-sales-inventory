@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'manifest.dart';
+import 'profile_registry.dart';
 import 'project_ref.dart';
 import 'secrets_loader.dart';
 import 'supabase_cli.dart';
@@ -32,7 +33,9 @@ class LinkResult {
   void printSummary() {
     switch (action) {
       case LinkAction.skipped:
-        stdout.writeln('Supabase link: skipped${detail == null ? '' : ' ($detail)'}');
+        stdout.writeln(
+          'Supabase link: skipped${detail == null ? '' : ' ($detail)'}',
+        );
       case LinkAction.alreadyLinked:
         stdout.writeln('Supabase link: already linked to $projectRef');
       case LinkAction.linked:
@@ -53,13 +56,16 @@ class SupabaseLinkService {
   final EnvManifest manifest;
   final SupabaseCli _cli;
 
-  Future<LinkResult> ensureLinked(String environmentId) async {
-    final env = manifest.getEnvironment(environmentId);
+  Future<LinkResult> ensureLinked(
+    WorkspaceContext ctx, {
+    SupabaseCli? cliOverride,
+  }) async {
+    final env = ctx.environment;
     if (!env.syncSupabaseLink) {
       return LinkResult.skipped('syncSupabaseLink disabled for ${env.id}');
     }
 
-    final targetRef = ProjectRefResolver.resolve(env);
+    final targetRef = ProjectRefResolver.resolve(env, ctx.secretsFile);
     if (targetRef == null) {
       return LinkResult.skipped(
         'no hosted project ref (set supabaseProjectRef or SUPABASE_URL in secrets)',
@@ -71,16 +77,31 @@ class SupabaseLinkService {
       return LinkResult.alreadyLinked(targetRef);
     }
 
-    final dbPassword = _readDbPassword(env);
-    await _cli.linkProject(projectRef: targetRef, dbPassword: dbPassword);
+    final cli = cliOverride ?? _cliForContext(ctx);
+    final dbPassword = _readDbPassword(ctx);
+    await cli.linkProject(projectRef: targetRef, dbPassword: dbPassword);
     return LinkResult.linked(targetRef);
   }
 
-  String? _readDbPassword(EnvironmentDefinition env) {
-    if (!env.secretsFile.existsSync()) {
+  SupabaseCli _cliForContext(WorkspaceContext ctx) {
+    final authEnv = loadProfileAuthEnvironment(ctx);
+    if (authEnv.isEmpty) {
+      return _cli;
+    }
+    return SupabaseCli(
+      workdir: manifest.rootDir,
+      processEnvironment: {
+        ...Platform.environment,
+        ...authEnv,
+      },
+    );
+  }
+
+  String? _readDbPassword(WorkspaceContext ctx) {
+    if (!ctx.secretsFile.existsSync()) {
       return null;
     }
-    final secrets = loadDotEnv(env.secretsFile);
+    final secrets = loadDotEnv(ctx.secretsFile);
     final password = secrets['SUPABASE_DB_PASSWORD']?.trim() ?? '';
     return password.isEmpty ? null : password;
   }

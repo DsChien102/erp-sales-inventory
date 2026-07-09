@@ -1,4 +1,7 @@
+import 'dart:io';
+
 import 'manifest.dart';
+import 'profile_registry.dart';
 import 'secrets_loader.dart';
 
 /// Resolves hosted Supabase project ref for an environment.
@@ -6,17 +9,17 @@ class ProjectRefResolver {
   static const hostedUrlPattern = r'^([a-z0-9]+)\.supabase\.co$';
 
   /// Manifest `supabaseProjectRef` → secrets `SUPABASE_PROJECT_REF` → `SUPABASE_URL` host.
-  static String? resolve(EnvironmentDefinition env) {
+  static String? resolve(EnvironmentDefinition env, File secretsFile) {
     final manifestRef = env.supabaseProjectRef?.trim() ?? '';
     if (manifestRef.isNotEmpty) {
       return manifestRef;
     }
 
-    if (!env.secretsFile.existsSync()) {
+    if (!secretsFile.existsSync()) {
       return null;
     }
 
-    final secrets = loadDotEnv(env.secretsFile);
+    final secrets = loadDotEnv(secretsFile);
     final secretsRef = secrets['SUPABASE_PROJECT_REF']?.trim() ?? '';
     if (secretsRef.isNotEmpty) {
       return secretsRef;
@@ -35,7 +38,8 @@ class ProjectRefResolver {
     if (uri == null || uri.host.isEmpty) {
       return null;
     }
-    final match = RegExp(hostedUrlPattern, caseSensitive: false).firstMatch(uri.host);
+    final match =
+        RegExp(hostedUrlPattern, caseSensitive: false).firstMatch(uri.host);
     return match?.group(1);
   }
 

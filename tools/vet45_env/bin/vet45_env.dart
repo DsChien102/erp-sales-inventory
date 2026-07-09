@@ -1,9 +1,12 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:vet45_env/config_init_service.dart';
 import 'package:vet45_env/doctor_service.dart';
 import 'package:vet45_env/link_service.dart';
 import 'package:vet45_env/manifest.dart';
+import 'package:vet45_env/profile_init_service.dart';
+import 'package:vet45_env/profile_registry.dart';
 import 'package:vet45_env/run_service.dart';
 import 'package:vet45_env/sync_service.dart';
 
@@ -15,9 +18,19 @@ Future<void> main(List<String> args) async {
 
   final rootPath = findRepoRoot();
   final root = Directory(rootPath);
-  final manifest = EnvManifest.load(root);
   final command = args.first;
   final rest = args.skip(1).toList();
+
+  if (command == 'init') {
+    await _cmdInit(root, rest);
+    return;
+  }
+
+  if (command != '--help' && command != '-h') {
+    requireConfigInitialized(root);
+  }
+
+  final manifest = EnvManifest.load(root);
 
   try {
     switch (command) {
@@ -42,7 +55,9 @@ Future<void> main(List<String> args) async {
       case 'run':
         await _cmdRun(manifest, rest);
       case 'active':
-        stdout.writeln(readActive(root) ?? manifest.defaultEnvironmentId);
+        _cmdActive(manifest);
+      case 'profile':
+        await _cmdProfile(manifest, rest);
       default:
         stderr.writeln('Unknown command: $command');
         _printUsage();
@@ -63,27 +78,30 @@ RunService _runService(EnvManifest manifest) {
   );
 }
 
+ActiveState _defaultState(EnvManifest manifest) => readActiveState(
+      manifest.rootDir,
+      defaultProfileId: manifest.profiles.defaultProfileId,
+      defaultEnvironmentId: manifest.defaultEnvironmentId,
+    );
+
 void _printUsage() {
   stdout.writeln('''
 Usage: dart run tools/vet45_env <command> [args]
 
 Commands:
-  list                 List environments and active selection
-  use <id>             Set active environment and align supabase link
-  use-and-sync <id> [--target <id>]
-                       Set active + sync (no run)
+  init [--force]       Scaffold local config/ from bundled templates (first-time)
+  list                 List profiles, environments, and active selection
+  use <id>             Set active environment (and optional supabase link)
+  use-and-sync <id> [--target <id>] [--profile <id>]
   use-sync-run <id> <target> <action> [args...]
-                       Set active + sync target + run (Melos shortcuts)
-  sync [--env <id>] [--target <id>]
-                       Align supabase link + generate target .env files
-  link [--env <id>]    Align supabase link only (no env file sync)
-  doctor [--env <id>] [--target <id>] [--offline]
-                       Validate configuration (per-target key deps)
-  run <target> <action> [args...]
-                       Run erp/worker for active env (cross-platform)
-  resolve [--env <id>] Print JSON paths (flavor, env files)
-  resolve-shell [--env <id>] Print shell KEY=value lines for scripts
-  active               Print active environment id
+  sync [--env <id>] [--target <id>] [--profile <id>]
+  link [--env <id>] [--profile <id>]
+  doctor [--env <id>] [--target <id>] [--profile <id>] [--offline]
+  run <target> <action> [args...] [--env <id>] [--profile <id>]
+  resolve [--env <id>] [--profile <id>]
+  resolve-shell [--env <id>] [--profile <id>]
+  active               Print active profile + environment
+  profile list|use|init
 
 Run targets:
   erp debug|debug:web|debug:ios|build-ios|deploy-ios
@@ -93,13 +111,56 @@ Flags:
   --skip-link          Skip supabase link on use/sync/use-and-sync
   --target <id>        Limit sync/doctor to one registered target
   --env <id>           Environment for sync/doctor/run
+  --profile <id>       Configuration profile (secrets root / Supabase account)
   --offline            Skip network checks in doctor
 ''');
 }
 
+Future<void> _cmdInit(Directory root, List<String> args) async {
+  final force = args.contains('--force');
+  final service = ConfigInitService(repoRoot: root);
+  try {
+    final result = await service.init(force: force);
+    if (result.created.isEmpty && result.skipped.isNotEmpty) {
+      stdout.writeln('Config already initialized (${result.skipped.length} files kept).');
+      stdout.writeln('Use --force to refresh scaffold files.');
+      return;
+    }
+    stdout.writeln('Initialized config at ${root.path}/config');
+    for (final path in result.created) {
+      stdout.writeln('  created $path');
+    }
+    if (result.skipped.isNotEmpty) {
+      stdout.writeln('  skipped ${result.skipped.length} existing file(s)');
+    }
+    stdout.writeln('');
+    stdout.writeln('Next:');
+    stdout.writeln(
+      '  cp config/secrets/development.env.example config/secrets/development.env',
+    );
+    stdout.writeln('  # fill secrets, then: melos run env:sync');
+  } on StateError catch (e) {
+    stderr.writeln(e.message);
+    exit(1);
+  }
+}
+
 void _cmdList(EnvManifest manifest) {
-  final active = readActive(manifest.rootDir) ?? manifest.defaultEnvironmentId;
-  stdout.writeln('Active: $active (default: ${manifest.defaultEnvironmentId})');
+  final state = _defaultState(manifest);
+  stdout.writeln(
+    'Active: profile=${state.profileId} environment=${state.environmentId} '
+    '(defaults: ${manifest.profiles.defaultProfileId} / ${manifest.defaultEnvironmentId})',
+  );
+  stdout.writeln('');
+  stdout.writeln('Profiles:');
+  for (final entry in manifest.profiles.profiles.entries) {
+    final marker = entry.key == state.profileId ? '*' : ' ';
+    final profile = entry.value;
+    stdout.writeln(
+      '$marker ${entry.key.padRight(12)} ${profile.description}\n'
+      '             secrets: ${profile.secretsRoot}',
+    );
+  }
   stdout.writeln('');
   stdout.writeln('Targets:');
   for (final entry in manifest.targets.entries) {
@@ -112,8 +173,9 @@ void _cmdList(EnvManifest manifest) {
     );
   }
   stdout.writeln('');
+  stdout.writeln('Environments:');
   for (final entry in manifest.environments.entries) {
-    final marker = entry.key == active ? '*' : ' ';
+    final marker = entry.key == state.environmentId ? '*' : ' ';
     final env = entry.value;
     final bindingLines = env.bindings.entries.map((b) {
       final path = b.value.envFile?.path ?? '(no envFile)';
@@ -125,25 +187,61 @@ void _cmdList(EnvManifest manifest) {
   }
 }
 
+void _cmdActive(EnvManifest manifest) {
+  final state = _defaultState(manifest);
+  stdout.writeln('profile=${state.profileId}');
+  stdout.writeln('environment=${state.environmentId}');
+}
+
+Future<void> _cmdProfile(EnvManifest manifest, List<String> args) async {
+  if (args.isEmpty || args.first == '--help') {
+    stderr.writeln('Usage: profile list|use <id>|init <id>');
+    exit(64);
+  }
+  switch (args.first) {
+    case 'list':
+      _cmdList(manifest);
+    case 'use':
+      final filtered = args.skip(1).toList();
+      final id = _parseProfileIdArg(filtered, manifest);
+      await _runService(manifest).useProfile(id);
+    case 'init':
+      final filtered = args.skip(1).where((a) => a != '--skip-link').toList();
+      final id = _parseProfileIdArg(filtered, manifest);
+      final description = _parseDescriptionFlag(filtered);
+      await ProfileInitService(manifest: manifest).init(id, description: description);
+    default:
+      stderr.writeln('Unknown profile command: ${args.first}');
+      exit(64);
+  }
+}
+
 Future<void> _cmdUse(EnvManifest manifest, List<String> args) async {
   final skipLink = args.contains('--skip-link');
-  final id = _parseIdArg(args, manifest);
-  manifest.getEnvironment(id);
+  final filtered = args.where((a) => a != '--skip-link').toList();
+  final profileId = _parseProfileFlag(filtered);
+  final id = _parseIdArg(filtered, manifest);
+  final ctx = manifest.context(profileId: profileId, environmentId: id);
   if (!skipLink) {
-    (await SupabaseLinkService(manifest: manifest).ensureLinked(id))
+    (await SupabaseLinkService(manifest: manifest).ensureLinked(ctx))
         .printSummary();
   }
-  writeActive(manifest.rootDir, id);
-  stdout.writeln('Active environment: $id');
+  writeActiveState(
+    manifest.rootDir,
+    ActiveState(profileId: ctx.profileId, environmentId: id),
+  );
+  stdout.writeln('Active: profile=${ctx.profileId} environment=$id');
 }
 
 Future<void> _cmdUseAndSync(EnvManifest manifest, List<String> args) async {
   final skipLink = args.contains('--skip-link');
   final filtered = args.where((a) => a != '--skip-link').toList();
+  final profileId = _parseProfileFlag(filtered);
   final targetId = _parseTargetFlag(filtered);
   final id = _parseIdArg(filtered, manifest);
   await _runService(manifest).useAndSync(
     id,
+    profileId: profileId,
     targetId: targetId,
     skipLink: skipLink,
   );
@@ -156,14 +254,16 @@ Future<void> _cmdUseSyncRun(EnvManifest manifest, List<String> args) async {
     stderr.writeln('Usage: use-sync-run <env> <target> <action> [args...]');
     exit(64);
   }
+  final profileId = _parseProfileFlag(filtered);
   final envId = filtered[0];
   final target = filtered[1];
   final action = filtered[2];
-  final extra = filtered.skip(3).toList();
+  final extra = _extraArgsAfterFlags(filtered.skip(3).toList());
   final code = await _runService(manifest).useSyncRun(
     envId,
     target,
     action,
+    profileId: profileId,
     extraArgs: extra,
     skipLink: skipLink,
   );
@@ -180,14 +280,14 @@ Future<void> _cmdRun(EnvManifest manifest, List<String> args) async {
   final target = args[0];
   final action = args[1];
   final rest = args.skip(2).toList();
-  final envId = _hasEnvFlag(rest)
-      ? _parseEnvFlag(rest, manifest)
-      : null;
+  final profileId = _parseProfileFlag(rest);
+  final envId = _hasEnvFlag(rest) ? _parseEnvFlag(rest, manifest) : null;
   final extra = _extraArgsAfterFlags(rest);
   final code = await _runService(manifest).run(
     target,
     action,
     extraArgs: extra,
+    profileId: profileId,
     environmentId: envId,
   );
   if (code != 0) {
@@ -195,24 +295,23 @@ Future<void> _cmdRun(EnvManifest manifest, List<String> args) async {
   }
 }
 
-bool _hasEnvFlag(List<String> args) {
-  return args.contains('--env');
-}
+bool _hasEnvFlag(List<String> args) => args.contains('--env');
 
 Future<void> _cmdSync(EnvManifest manifest, List<String> args) async {
   final skipLink = args.contains('--skip-link');
   final filtered = args.where((a) => a != '--skip-link').toList();
+  final profileId = _parseProfileFlag(filtered);
   final targetId = _parseTargetFlag(filtered);
-  final id = _parseEnvFlag(_withoutTargetFlag(filtered), manifest);
+  final envId = _parseEnvFlag(_withoutTargetFlag(_withoutProfileFlag(filtered)), manifest);
+  final ctx = manifest.context(profileId: profileId, environmentId: envId);
   if (!skipLink) {
-    (await SupabaseLinkService(manifest: manifest).ensureLinked(id))
+    (await SupabaseLinkService(manifest: manifest).ensureLinked(ctx))
         .printSummary();
   }
-  final result = await SyncService(manifest: manifest).sync(
-    id,
-    targetId: targetId,
+  final result = await SyncService(manifest: manifest).sync(ctx, targetId: targetId);
+  stdout.writeln(
+    'Synced profile=${result.profileId} environment=${result.environmentId}',
   );
-  stdout.writeln('Synced environment: ${result.environmentId}');
   if (result.writtenFiles.isEmpty && result.failures.isEmpty) {
     stdout.writeln('  (no writable targets)');
   }
@@ -228,18 +327,33 @@ Future<void> _cmdSync(EnvManifest manifest, List<String> args) async {
 }
 
 Future<void> _cmdLink(EnvManifest manifest, List<String> args) async {
-  final id = _parseEnvFlag(args, manifest);
-  (await SupabaseLinkService(manifest: manifest).ensureLinked(id))
+  final profileId = _parseProfileFlag(args);
+  final envId = _parseEnvFlag(_withoutProfileFlag(args), manifest);
+  final ctx = manifest.context(profileId: profileId, environmentId: envId);
+  (await SupabaseLinkService(manifest: manifest).ensureLinked(ctx))
       .printSummary();
+}
+
+String _parseProfileIdArg(List<String> args, EnvManifest manifest) {
+  final fromFlag = _parseProfileFlag(args);
+  if (fromFlag != null) {
+    return fromFlag;
+  }
+  for (var i = 0; i < args.length; i++) {
+    if (_isFlagWithValue(args, i)) {
+      i++;
+      continue;
+    }
+    if (!args[i].startsWith('-')) {
+      return args[i];
+    }
+  }
+  return manifest.profiles.defaultProfileId;
 }
 
 String _parseIdArg(List<String> args, EnvManifest manifest) {
   for (var i = 0; i < args.length; i++) {
-    if (args[i] == '--target' && i + 1 < args.length) {
-      i++;
-      continue;
-    }
-    if (args[i] == '--env' && i + 1 < args.length) {
+    if (_isFlagWithValue(args, i)) {
       i++;
       continue;
     }
@@ -255,7 +369,7 @@ String _parseEnvFlag(List<String> args, EnvManifest manifest) {
     if (args[i] == '--env' && i + 1 < args.length) {
       return args[i + 1];
     }
-    if (args[i] == '--target') {
+    if (_isFlagWithValue(args, i)) {
       i++;
       continue;
     }
@@ -263,17 +377,31 @@ String _parseEnvFlag(List<String> args, EnvManifest manifest) {
       return args[i];
     }
   }
-  return readActive(manifest.rootDir) ?? manifest.defaultEnvironmentId;
+  return _defaultState(manifest).environmentId;
+}
+
+String? _parseProfileFlag(List<String> args) {
+  for (var i = 0; i < args.length; i++) {
+    if (args[i] == '--profile' && i + 1 < args.length) {
+      return args[i + 1];
+    }
+  }
+  return null;
+}
+
+String? _parseDescriptionFlag(List<String> args) {
+  for (var i = 0; i < args.length; i++) {
+    if (args[i] == '--description' && i + 1 < args.length) {
+      return args[i + 1];
+    }
+  }
+  return null;
 }
 
 List<String> _extraArgsAfterFlags(List<String> args) {
   final result = <String>[];
   for (var i = 0; i < args.length; i++) {
-    if (args[i] == '--env' && i + 1 < args.length) {
-      i++;
-      continue;
-    }
-    if (args[i] == '--target' && i + 1 < args.length) {
+    if (_isFlagWithValue(args, i)) {
       i++;
       continue;
     }
@@ -293,6 +421,14 @@ String? _parseTargetFlag(List<String> args) {
   return null;
 }
 
+bool _isFlagWithValue(List<String> args, int i) {
+  return (args[i] == '--target' ||
+          args[i] == '--env' ||
+          args[i] == '--profile' ||
+          args[i] == '--description') &&
+      i + 1 < args.length;
+}
+
 List<String> _withoutTargetFlag(List<String> args) {
   final result = <String>[];
   for (var i = 0; i < args.length; i++) {
@@ -305,15 +441,32 @@ List<String> _withoutTargetFlag(List<String> args) {
   return result;
 }
 
+List<String> _withoutProfileFlag(List<String> args) {
+  final result = <String>[];
+  for (var i = 0; i < args.length; i++) {
+    if (args[i] == '--profile') {
+      i++;
+      continue;
+    }
+    result.add(args[i]);
+  }
+  return result;
+}
+
 Future<void> _cmdDoctor(EnvManifest manifest, List<String> args) async {
   final skipNetwork = args.contains('--offline');
   final filtered = args.where((a) => a != '--offline').toList();
+  final profileId = _parseProfileFlag(filtered);
   final targetId = _parseTargetFlag(filtered);
-  final id = _parseEnvFlag(_withoutTargetFlag(filtered), manifest);
+  final envId = _parseEnvFlag(
+    _withoutTargetFlag(_withoutProfileFlag(filtered)),
+    manifest,
+  );
+  final ctx = manifest.context(profileId: profileId, environmentId: envId);
   final report = await DoctorService(
     manifest: manifest,
     skipNetwork: skipNetwork,
-  ).run(id, targetId: targetId);
+  ).run(ctx, targetId: targetId);
   report.printReport();
   if (!report.ok) {
     exit(1);
@@ -321,18 +474,24 @@ Future<void> _cmdDoctor(EnvManifest manifest, List<String> args) async {
 }
 
 void _cmdResolve(EnvManifest manifest, List<String> args) {
-  final id = _parseEnvFlag(args, manifest);
-  final env = manifest.getEnvironment(id);
-  final payload = env.toResolveJson(manifest.targets);
+  final profileId = _parseProfileFlag(args);
+  final envId = _parseEnvFlag(_withoutProfileFlag(args), manifest);
+  final ctx = manifest.context(profileId: profileId, environmentId: envId);
+  final payload = ctx.environment.toResolveJson(manifest.targets, ctx);
   payload['deploySecretsFile'] = manifest.deploySecretsFile.path;
   stdout.writeln(jsonEncode(payload));
 }
 
 void _cmdResolveShell(EnvManifest manifest, List<String> args) {
-  final id = _parseEnvFlag(args, manifest);
-  final env = manifest.getEnvironment(id);
-  stdout.writeln('VET45_ENV_ID=$id');
-  stdout.writeln('SECRETS_FILE=${env.secretsFile.path}');
+  final profileId = _parseProfileFlag(args);
+  final envId = _parseEnvFlag(_withoutProfileFlag(args), manifest);
+  final ctx = manifest.context(profileId: profileId, environmentId: envId);
+  final env = ctx.environment;
+  stdout.writeln('VET45_PROFILE=${ctx.profileId}');
+  stdout.writeln('VET45_ENV_ID=${env.id}');
+  stdout.writeln('SECRETS_ROOT=${ctx.profile.secretsRoot}');
+  stdout.writeln('SECRETS_FILE=${ctx.secretsFile.path}');
+  stdout.writeln('AUTH_FILE=${ctx.authFile.path}');
   stdout.writeln('DEPLOY_SECRETS_FILE=${manifest.deploySecretsFile.path}');
 
   for (final entry in env.bindings.entries) {

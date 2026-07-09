@@ -1,19 +1,25 @@
 #!/usr/bin/env bash
-# Validate Vet45 environment manifest and vet45_env package tests.
+# Validate Vet45 environment manager templates and package tests.
 set -euo pipefail
 
 root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 cd "$root"
 
-manifest="$root/config/environments.json"
+templates="$root/tools/vet45_env/templates/config"
+manifest="$templates/environments.json"
 if [[ ! -f "$manifest" ]]; then
   echo "FAIL: missing $manifest"
   exit 1
 fi
 
-for example in development local staging production deploy; do
-  if [[ ! -f "$root/config/secrets/${example}.env.example" ]]; then
-    echo "FAIL: missing config/secrets/${example}.env.example"
+if [[ ! -f "$templates/profiles.json" ]]; then
+  echo "FAIL: missing $templates/profiles.json"
+  exit 1
+fi
+
+for example in development local staging production deploy auth; do
+  if [[ ! -f "$templates/secrets/${example}.env.example" ]]; then
+    echo "FAIL: missing $templates/secrets/${example}.env.example"
     exit 1
   fi
 done
@@ -31,7 +37,19 @@ fi
 echo "==> vet45_env dart test"
 (cd "$root/tools/vet45_env" && dart test)
 
-echo "==> vet45_env list"
-dart run "$root/tools/vet45_env/bin/vet45_env.dart" list >/dev/null
+echo "==> vet45_env init (temp smoke)"
+tmp="$(mktemp -d)"
+trap 'rm -rf "$tmp"' EXIT
+mkdir -p "$tmp/tools/vet45_env"
+cp -R "$root/tools/vet45_env/bin" "$tmp/tools/vet45_env/"
+cp -R "$root/tools/vet45_env/lib" "$tmp/tools/vet45_env/"
+cp -R "$root/tools/vet45_env/templates" "$tmp/tools/vet45_env/"
+cp "$root/tools/vet45_env/pubspec.yaml" "$tmp/tools/vet45_env/pubspec.yaml"
+sed -i '' '/resolution: workspace/d' "$tmp/tools/vet45_env/pubspec.yaml" 2>/dev/null || \
+  sed -i '/resolution: workspace/d' "$tmp/tools/vet45_env/pubspec.yaml"
+printf 'name: vet45\npublish_to: none\nenvironment:\n  sdk: ">=3.11.1 <4.0.0"\n' > "$tmp/pubspec.yaml"
+(cd "$tmp/tools/vet45_env" && dart pub get >/dev/null)
+(cd "$tmp" && dart run tools/vet45_env/bin/vet45_env.dart init >/dev/null)
+test -f "$tmp/config/environments.json"
 
-echo "OK: environment manifest verified"
+echo "OK: environment manager verified"

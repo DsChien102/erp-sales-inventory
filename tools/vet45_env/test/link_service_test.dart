@@ -31,7 +31,6 @@ void main() {
 {
   "staging": {
     "description": "test",
-    "secretsFile": "config/secrets/staging.env",
     "supabaseSource": "secrets",
     "targets": {
       "erp": {
@@ -49,12 +48,14 @@ void main() {
           defaultId: 'staging',
         ),
       );
+      final secretsFile = File('${root.path}/config/secrets/staging.env');
       writeDotEnv(
-        File('${root.path}/config/secrets/staging.env'),
+        secretsFile,
         {'SUPABASE_URL': 'https://myprojref.supabase.co'},
       );
-      final env = EnvManifest.load(root).getEnvironment('staging');
-      expect(ProjectRefResolver.resolve(env), 'myprojref');
+      final manifest = EnvManifest.load(root);
+      final env = manifest.getEnvironment('staging');
+      expect(ProjectRefResolver.resolve(env, secretsFile), 'myprojref');
     });
 
     test('manifest supabaseProjectRef takes priority', () async {
@@ -69,7 +70,6 @@ void main() {
 {
   "staging": {
     "description": "test",
-    "secretsFile": "config/secrets/staging.env",
     "supabaseSource": "secrets",
     "supabaseProjectRef": "explicitref",
     "targets": {
@@ -88,12 +88,14 @@ void main() {
           defaultId: 'staging',
         ),
       );
+      final secretsFile = File('${root.path}/config/secrets/staging.env');
       writeDotEnv(
-        File('${root.path}/config/secrets/staging.env'),
+        secretsFile,
         {'SUPABASE_URL': 'https://otherref.supabase.co'},
       );
-      final env = EnvManifest.load(root).getEnvironment('staging');
-      expect(ProjectRefResolver.resolve(env), 'explicitref');
+      final manifest = EnvManifest.load(root);
+      final env = manifest.getEnvironment('staging');
+      expect(ProjectRefResolver.resolve(env, secretsFile), 'explicitref');
     });
   });
 
@@ -112,7 +114,6 @@ void main() {
 {
   "staging": {
     "description": "test staging",
-    "secretsFile": "config/secrets/staging.env",
     "supabaseSource": "secrets",
     "targets": {
       "erp": {
@@ -127,7 +128,6 @@ void main() {
   },
   "local": {
     "description": "test local",
-    "secretsFile": "config/secrets/local.env",
     "supabaseSource": "supabase_cli",
     "syncSupabaseLink": false,
     "targets": {
@@ -168,7 +168,7 @@ void main() {
       final result = await SupabaseLinkService(
         manifest: manifest,
         supabaseCli: cli,
-      ).ensureLinked('staging');
+      ).ensureLinked(testContext(manifest, 'staging'));
 
       expect(result.action, LinkAction.linked);
       expect(cli.linkedRef, 'targetref');
@@ -181,7 +181,7 @@ void main() {
       final result = await SupabaseLinkService(
         manifest: manifest,
         supabaseCli: cli,
-      ).ensureLinked('staging');
+      ).ensureLinked(testContext(manifest, 'staging'));
 
       expect(result.action, LinkAction.alreadyLinked);
       expect(cli.linkCalls, 0);
@@ -191,7 +191,7 @@ void main() {
       final result = await SupabaseLinkService(
         manifest: manifest,
         supabaseCli: cli,
-      ).ensureLinked('local');
+      ).ensureLinked(testContext(manifest, 'local'));
 
       expect(result.action, LinkAction.skipped);
       expect(cli.linkCalls, 0);
