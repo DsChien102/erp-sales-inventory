@@ -20,6 +20,7 @@ import '../widgets/product_lifecycle_bottom_sheets.dart';
 import '../widgets/product_delete_confirm_dialog.dart';
 import '../widgets/product_restore_confirm_dialog.dart';
 import '../widgets/product_control_center_readiness_banner.dart';
+import '../utils/product_change_history_formatters.dart';
 import 'product_stock_adjustment_page.dart';
 
 class ProductControlCenterRouteArgs {
@@ -421,8 +422,18 @@ class _ProductControlCenterViewState extends State<_ProductControlCenterView> {
                         title: 'Lịch sử thay đổi',
                         icon: Icons.history,
                         subtitle: controlCenter.changeHistoryPreview.isNotEmpty
-                            ? '${controlCenter.changeHistoryPreview.first.summary} · ${controlCenter.changeHistoryPreview.first.occurredAt.toString().substring(0, 10)}'
-                            : 'Tạo sản phẩm · 2026-07-06',
+                            ? () {
+                                final preview = controlCenter.changeHistoryPreview.first;
+                                final summary = formatProductChangeHistorySummary(
+                                  summary: preview.summary,
+                                  changeType: preview.changeType,
+                                );
+                                final date = formatProductChangeHistoryDateTime(
+                                  preview.occurredAt,
+                                ).substring(0, 10);
+                                return '$summary · $date';
+                              }()
+                            : 'Chưa có lịch sử',
                         actionText: 'Xem',
                         onEdit: () {
                           context.push(

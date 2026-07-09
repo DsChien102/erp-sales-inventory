@@ -6,10 +6,12 @@ final class ProductUnitPriceBandsDto {
     required this.baseUnitName,
     required this.rows,
     this.currency = 'VND',
+    this.basePrice,
   });
 
   final String productId;
   final String baseUnitName;
   final String currency;
+  final double? basePrice;
   final List<ProductUnitPriceBandRowDto> rows;
 }

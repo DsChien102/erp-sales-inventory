@@ -101,18 +101,28 @@ abstract final class ProductPriceBandRpcMapper {
     final productId = first['product_id'] as String;
     final baseUnitName = first['base_unit_name'] as String? ?? '';
     final currency = first['currency'] as String? ?? 'VND';
+    final basePrice = _readOptionalPrice(first, 'base_price', 'base_price_amount');
 
     return ProductUnitPriceBandsDto(
       productId: productId,
       baseUnitName: baseUnitName,
       currency: currency,
+      basePrice: basePrice,
       rows: rows.map(rowFromListRpc).toList(growable: false),
     );
   }
 
+  static double? _readOptionalPrice(
+    Map<String, dynamic> row,
+    String key,
+    String legacyKey,
+  ) {
+    return (row[key] as num?)?.toDouble() ?? (row[legacyKey] as num?)?.toDouble();
+  }
+
   static ProductUnitPriceBandRowDto rowFromListRpc(Map<String, dynamic> row) {
-    final listPrice = (row['list_price'] as num?)?.toDouble();
-    final floorPrice = (row['floor_price'] as num?)?.toDouble();
+    final listPrice = _readOptionalPrice(row, 'list_price', 'list_price_amount');
+    final floorPrice = _readOptionalPrice(row, 'floor_price', 'floor_price_amount');
     final isMissing = listPrice == null || floorPrice == null;
 
     return ProductUnitPriceBandRowDto(

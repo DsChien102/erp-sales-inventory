@@ -35,6 +35,7 @@ Foundation MVP: Epic 02 (guided create) → Epic 01 (discovery/control center) �
 | 22  | [EPIC-05/US-04](../EPIC-05-stock/US-04/) — Basic → Advanced switch                                        | write | pending  | pending | pending | pending | K              | **pending**                                                   |
 | 23  | [EPIC-06/US-01](../EPIC-06-pricing/US-01/) FR-03 — Costing base price read                                | read  | pending  | pending | pending | pending | K              | **pending** (costing module)                                  |
 | 24  | [EPIC-04/US-04](../EPIC-04-units/US-04/) — Cung cấp UOM cho module khác                                   | read  | pending  | pending | pending | pending | —              | **pending**                                                   |
+| 25  | [EPIC-06/US-02](../EPIC-06-pricing/US-02/) — Store Price Rule change history                               | read  | done     | done    | done    | done    | E              | Slice #10                                                     |
 
 
 

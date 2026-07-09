@@ -23,12 +23,7 @@ class ProductSettingsPage extends StatelessWidget {
         children: [
           VCard(
             onTap: () {
-              VToast.show(
-                context,
-                title: 'Thông báo',
-                message: 'Tính năng đang phát triển',
-                type: VToastType.info,
-              );
+              context.push('/more/product-settings/store-price-rule');
             },
             padding: const EdgeInsets.symmetric(
               horizontal: VSpacing.space4,

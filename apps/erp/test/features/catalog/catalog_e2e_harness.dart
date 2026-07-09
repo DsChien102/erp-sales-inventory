@@ -91,10 +91,43 @@ Future<void> setUpErpCatalogE2E({
     );
 }
 
+class _GuidedCreateE2ELauncher extends StatefulWidget {
+  const _GuidedCreateE2ELauncher();
+
+  @override
+  State<_GuidedCreateE2ELauncher> createState() => _GuidedCreateE2ELauncherState();
+}
+
+class _GuidedCreateE2ELauncherState extends State<_GuidedCreateE2ELauncher> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _openGuidedCreate());
+  }
+
+  Future<void> _openGuidedCreate() async {
+    final createdProduct = await context.push<ProductListItemModel>('/products/items/new');
+    if (!mounted) return;
+    if (createdProduct != null) {
+      context.go(
+        '/products/items/pcc',
+        extra: ProductControlCenterRouteArgs(product: createdProduct),
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) => const Scaffold(body: SizedBox.shrink());
+}
+
 Widget buildCatalogPostCreateRouter() {
   final router = GoRouter(
-    initialLocation: '/products/items/new',
+    initialLocation: '/products/items',
     routes: [
+      GoRoute(
+        path: '/products/items',
+        builder: (context, state) => const _GuidedCreateE2ELauncher(),
+      ),
       GoRoute(
         path: '/products/items/new',
         builder: (context, state) => const ProductGuidedCreatePage(),

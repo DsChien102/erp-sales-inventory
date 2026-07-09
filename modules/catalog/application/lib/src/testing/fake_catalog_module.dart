@@ -73,6 +73,42 @@ class _StockMovement {
   final String? reason;
 }
 
+class _StorePriceRuleHistoryEntry {
+  _StorePriceRuleHistoryEntry({
+    required this.id,
+    required this.occurredAt,
+    required this.summary,
+    this.listMarkupBefore,
+    required this.listMarkupAfter,
+    this.floorMarkupBefore,
+    required this.floorMarkupAfter,
+    this.actorDisplayName = 'fake-user',
+  });
+
+  final String id;
+  final DateTime occurredAt;
+  final String summary;
+  final double? listMarkupBefore;
+  final double listMarkupAfter;
+  final double? floorMarkupBefore;
+  final double floorMarkupAfter;
+  final String actorDisplayName;
+
+  StorePriceRuleChangeHistoryEntryDto toDto({required bool isCurrent}) {
+    return StorePriceRuleChangeHistoryEntryDto(
+      id: id,
+      occurredAt: occurredAt,
+      actorDisplayName: actorDisplayName,
+      summary: summary,
+      listMarkupBefore: listMarkupBefore,
+      listMarkupAfter: listMarkupAfter,
+      floorMarkupBefore: floorMarkupBefore,
+      floorMarkupAfter: floorMarkupAfter,
+      isCurrent: isCurrent,
+    );
+  }
+}
+
 class _StorePriceRule {
   _StorePriceRule({
     required this.id,
@@ -525,6 +561,8 @@ final class FakeCatalogModule implements ICatalogModule {
   final List<_ProductUnit> _productUnits;
   final List<_StoredProduct> _products;
   final Map<String, _StorePriceRule> _storeRules;
+  final Map<String, List<_StorePriceRuleHistoryEntry>> _storeRuleHistory = {};
+  int _nextStoreRuleHistoryId = 1;
   int _nextProductId = 11;
   int _nextProductUnitId = 1;
 
@@ -800,6 +838,11 @@ final class FakeCatalogModule implements ICatalogModule {
     }
     if (query is GetStorePriceRuleQuery) {
       return _handleGetStorePriceRule<TResult>(query as GetStorePriceRuleQuery);
+    }
+    if (query is GetStorePriceRuleChangeHistoryQuery) {
+      return _handleGetStorePriceRuleChangeHistory<TResult>(
+        query as GetStorePriceRuleChangeHistoryQuery,
+      );
     }
     if (query is SuggestProductUnitPriceQuery) {
       return _handleSuggestProductUnitPrice<TResult>(
@@ -2271,6 +2314,16 @@ final class FakeCatalogModule implements ICatalogModule {
 
     final existing = _storeRules[command.tenantId];
     final status = command.status;
+    final isCreate = existing == null;
+    final isNoOp = !isCreate &&
+        existing!.name == command.name &&
+        existing.listMarkupRatio == command.listMarkupRatio &&
+        existing.floorMarkupRatio == command.floorMarkupRatio &&
+        existing.status == status;
+
+    final listBefore = existing?.listMarkupRatio;
+    final floorBefore = existing?.floorMarkupRatio;
+
     if (existing != null) {
       existing
         ..name = command.name
@@ -2278,6 +2331,16 @@ final class FakeCatalogModule implements ICatalogModule {
         ..floorMarkupRatio = command.floorMarkupRatio
         ..status = status
         ..updatedAt = DateTime.utc(2026, 7, 6);
+      if (!isNoOp) {
+        _appendStoreRuleHistory(
+          tenantId: command.tenantId,
+          summary: 'Cập nhật khung giá cửa hàng',
+          listBefore: listBefore,
+          listAfter: command.listMarkupRatio,
+          floorBefore: floorBefore,
+          floorAfter: command.floorMarkupRatio,
+        );
+      }
       return SetStorePriceRuleResult(rule: existing.toDto()) as TResult;
     }
 
@@ -2291,7 +2354,52 @@ final class FakeCatalogModule implements ICatalogModule {
       updatedAt: DateTime.utc(2026, 7, 6),
     );
     _storeRules[command.tenantId] = rule;
+    _appendStoreRuleHistory(
+      tenantId: command.tenantId,
+      summary: 'Tạo khung giá cửa hàng',
+      listAfter: command.listMarkupRatio,
+      floorAfter: command.floorMarkupRatio,
+    );
     return SetStorePriceRuleResult(rule: rule.toDto()) as TResult;
+  }
+
+  void _appendStoreRuleHistory({
+    required String tenantId,
+    required String summary,
+    double? listBefore,
+    required double listAfter,
+    double? floorBefore,
+    required double floorAfter,
+  }) {
+    final history = _storeRuleHistory.putIfAbsent(tenantId, () => []);
+    history.add(
+      _StorePriceRuleHistoryEntry(
+        id: 'srh-${_nextStoreRuleHistoryId++}',
+        occurredAt: DateTime.utc(2026, 7, 6, history.length + 9),
+        summary: summary,
+        listMarkupBefore: listBefore,
+        listMarkupAfter: listAfter,
+        floorMarkupBefore: floorBefore,
+        floorMarkupAfter: floorAfter,
+      ),
+    );
+  }
+
+  TResult _handleGetStorePriceRuleChangeHistory<TResult>(
+    GetStorePriceRuleChangeHistoryQuery query,
+  ) {
+    final history = _storeRuleHistory[query.tenantId] ?? const [];
+    final sorted = [...history]
+      ..sort((a, b) => b.occurredAt.compareTo(a.occurredAt));
+    final newestId = sorted.isEmpty ? null : sorted.first.id;
+    final page = sorted.skip(query.offset).take(query.limit).toList();
+
+    return StorePriceRuleChangeHistoryResultDto(
+      items: page
+          .map((entry) => entry.toDto(isCurrent: entry.id == newestId))
+          .toList(growable: false),
+      totalCount: history.length,
+    ) as TResult;
   }
 
   TResult _handleSuggestProductUnitPrice<TResult>(
@@ -2665,6 +2773,7 @@ final class FakeCatalogModule implements ICatalogModule {
       return ProductUnitPriceBandsDto(
             productId: product.id,
             baseUnitName: product.baseUnit,
+            basePrice: product.baseCost,
             rows: [
               ProductUnitPriceBandRowDto(
                 productUnitId: syntheticId,
@@ -2686,6 +2795,7 @@ final class FakeCatalogModule implements ICatalogModule {
     return ProductUnitPriceBandsDto(
           productId: product.id,
           baseUnitName: product.baseUnit,
+          basePrice: product.baseCost,
           rows: structuredUnits.map(_toPriceBandRowDto).toList(growable: false),
         )
         as TResult;

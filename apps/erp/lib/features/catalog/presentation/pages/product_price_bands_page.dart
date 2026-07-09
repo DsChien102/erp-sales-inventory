@@ -102,13 +102,18 @@ class ProductPriceBandsPage extends StatelessWidget {
         final row = data.rows[index - 1];
         return Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-          child: _buildUnitCard(context, row, data.productId),
+          child: _buildUnitCard(context, row, data),
         );
       },
     );
   }
 
-  Widget _buildUnitCard(BuildContext context, ProductUnitPriceBandRowDto row, String productId) {
+  Widget _buildUnitCard(
+    BuildContext context,
+    ProductUnitPriceBandRowDto row,
+    ProductUnitPriceBandsDto data,
+  ) {
+    final productId = data.productId;
     final dynamicColors = context.vColors;
 
     if (!row.isActive) {
@@ -192,7 +197,7 @@ class ProductPriceBandsPage extends StatelessWidget {
             ),
           ],
           const SizedBox(height: 16),
-          _buildPriceRow(context, 'Giá cơ sở', null), // Assuming basePrice isn't in row DTO right now
+          _buildPriceRow(context, 'Giá cơ sở', data.basePrice),
           const SizedBox(height: 8),
           _buildPriceRow(context, 'Giá niêm yết', row.listPrice),
           const SizedBox(height: 8),

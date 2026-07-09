@@ -677,6 +677,7 @@ Widget keys: `wgt_e06_u01_fr01_01` (manual base price page), `input_base_price_a
 | Symbol | Input (summary) | Success | Errors |
 | ------ | --------------- | ------- | ------ |
 | `GetStorePriceRuleQuery` | tenantId | `StorePriceRuleDto?` | PermissionDenied |
+| `GetStorePriceRuleChangeHistoryQuery` | tenantId, limit?, offset? | `StorePriceRuleChangeHistoryResultDto` | PermissionDenied, ValidationException |
 | `SetStorePriceRuleCommand` | tenantId, name, listMarkupRatio, floorMarkupRatio, status? | `SetStorePriceRuleResult` | Validation, PermissionDenied |
 | `SuggestProductUnitPriceQuery` | tenantId, productId, productUnitId? | `ProductUnitPriceSuggestionDto` | PermissionDenied, NotFound, `MissingBaseUnitException` |
 | `ApplyStorePriceRuleCommand` | tenantId, productId, productUnitId?, storePriceRuleId?, confirmOverwrite?, basePriceVersion? | `ApplyStorePriceRuleResult` | Validation, `MissingBaseUnitException`, `MissingBasePriceException`, `StorePriceRuleNotFoundException`, `StorePriceRuleInactiveException`, `PriceBandOverwriteRequiredException`, `StaleBasePriceException` |
@@ -716,6 +717,7 @@ Permissions:
 | -------- | ---------- | ---------------- | ----- |
 | Upsert store rule | `catalog.set_store_price_rule` | `p_tenant_id`, `p_name`, `p_list_markup_ratio`, `p_floor_markup_ratio`, `p_status` | Returns rule row |
 | Read store rule | `catalog.get_store_price_rule` | `p_tenant_id` | 0–1 row |
+| List store rule history | `catalog.get_store_price_rule_change_history` | `p_tenant_id`, `p_limit`, `p_offset` | Returns `{ items, total_count }` |
 | Suggest unit price | `catalog.suggest_product_unit_price` | `p_tenant_id`, `p_product_id`, `p_product_unit_id?` | Soft-fail via `can_suggest=false` |
 | Apply rule to product | `catalog.apply_store_price_rule` | `p_tenant_id`, `p_product_id`, `p_product_unit_id?`, `p_store_price_rule_id?`, `p_confirm_overwrite`, `p_base_price_version?` | Returns applied list/floor |
 | PCC price band metadata | `catalog.get_product_control_center` | existing | Adds `price_band_source_type`, `store_price_rule_name`, `is_custom_override` |
@@ -724,11 +726,11 @@ Permissions:
 
 **Guards:** `store_price_rule_not_found`, `store_price_rule_inactive`, `price_band_overwrite_required`, `stale_base_price`, `missing_base_price`, `missing base unit`
 
-**Change history:** `apply_store_price_rule` action on apply
+**Change history:** `apply_store_price_rule` action on apply; tenant rule config history via `set_store_price_rule` → `store_price_rule_change_history` (slice #25)
 
-Draft: [`supabase/migrations/_drafts/08_catalog_store_price_rule.sql`](../../../../supabase/migrations/_drafts/08_catalog_store_price_rule.sql)
+Draft: [`supabase/migrations/_drafts/08_catalog_store_price_rule.sql`](../../../../supabase/migrations/_drafts/08_catalog_store_price_rule.sql) · history: [`04_catalog_store_price_rule_change_history.sql`](../../../../supabase/migrations/_drafts/04_catalog_store_price_rule_change_history.sql)
 
-**BE tests:** `store_price_rule_handlers_test.dart` (`scn_e06_u02_*`), `store_price_rule_rpc_mapper_test.dart`
+**BE tests:** `store_price_rule_handlers_test.dart` (`scn_e06_u02_*`), `store_price_rule_change_history_handlers_test.dart` (`scn_e06_u02_hist_*`), `store_price_rule_rpc_mapper_test.dart`, `store_price_rule_change_history_rpc_mapper_test.dart`
 
 ### Fake scenarios (FE)
 
@@ -745,10 +747,13 @@ Draft: [`supabase/migrations/_drafts/08_catalog_store_price_rule.sql`](../../../
 | `scn_contract_e06_u02_fr03_02` | apply `product-1` without confirm | `PriceBandOverwriteRequiredException` |
 | `scn_contract_e06_u02_fr03_03` | stale `basePriceVersion` | `StaleBasePriceException` |
 | `scn_contract_e06_u02_fr04_01` | PCC `product-2` | `isCustomOverride=true`, `sourceType=manual` |
+| `scn_e06_u02_hist_01` | two `SetStorePriceRuleCommand` + `GetStorePriceRuleChangeHistoryQuery` | 2 items; newest `isCurrent` |
+| `scn_e06_u02_hist_02` | no-op `SetStorePriceRuleCommand` | history count unchanged |
+| `scn_e06_u02_hist_03` | first create on new tenant | `listMarkupBefore == null` |
 
 Fake seed: `tenant-1` rule `"Mặc định bán lẻ"` (listMarkup `0.5`, floorMarkup `0.25`); `product-4` has base price, no band; `product-2` manual override band.
 
-Tests: `scn_contract_e06_u02_*` in `fake_catalog_module_test.dart` (group `EPIC-06 / US-02 contract`).
+Tests: `scn_contract_e06_u02_*` in `fake_catalog_module_test.dart` (group `EPIC-06 / US-02 contract`); `scn_e06_u02_hist_*` in group `EPIC-06 / US-02 store rule history`.
 
 ### E2E scenarios (ERP)
 
@@ -760,10 +765,12 @@ Tests: `scn_contract_e06_u02_*` in `fake_catalog_module_test.dart` (group `EPIC-
 | `e2e_e06_u02_fr03_01` | FR-03 | apply rule `product-4` | band saved; PCC refreshed |
 | `e2e_e06_u02_fr03_02` | FR-03 | apply on `product-1` | overwrite dialog; cancel / confirm |
 | `e2e_e06_u02_fr04_01` | FR-04 | PCC `product-2` | subtitle `Giá riêng` |
+| `e2e_e06_u02_hist_01` | history | two saves + history query | 2 items; first `isCurrent` |
+| `wgt_e06_u02_hist_01` | history UI | history page after saves | actor from BE; badge `Hiện tại` |
 
 **FR-01 E2E:** deferred (no tenant Store Price Rule settings page in Foundation MVP).
 
-**E2E file:** `apps/erp/test/features/catalog/presentation/pages/product_store_price_rule_e2e_test.dart`
+**E2E file:** `apps/erp/test/features/catalog/presentation/pages/product_store_price_rule_e2e_test.dart` · history: `store_price_rule_change_history_e2e_test.dart`, `store_price_rule_change_history_wgt_test.dart`
 
 ### Parallel notes
 

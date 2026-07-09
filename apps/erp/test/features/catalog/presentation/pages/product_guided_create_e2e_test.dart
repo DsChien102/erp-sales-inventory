@@ -112,14 +112,14 @@ void main() {
     // Verify PCC is reached and shows the created product
     expect(find.text('Paracetamol 500mg'), findsWidgets);
     expect(find.text('Tồn (Hộp): 150'), findsOneWidget);
-    expect(find.text('Giá niêm yết: 6.750 đ'), findsOneWidget);
+    expect(find.text('Giá niêm yết: 7.500 đ'), findsOneWidget);
     expect(find.text('Tồn kho'), findsOneWidget);
     expect(find.textContaining('150 Hộp'), findsOneWidget);
     expect(find.text('Giá cơ sở'), findsOneWidget);
     expect(find.textContaining('5.000 đ'), findsOneWidget);
     expect(find.text('Khung giá'), findsOneWidget);
     expect(
-      find.text('Niêm yết: 6.750 đ · Sàn: 5.750 đ · Đơn vị: Hộp'),
+      find.text('Niêm yết: 7.500 đ · Sàn: 6.250 đ · Đơn vị: Hộp · Mặc định bán lẻ'),
       findsOneWidget,
     );
   });

@@ -2293,6 +2293,86 @@ void main() {
     });
   });
 
+  group('EPIC-06 / US-02 store rule history', () {
+    test('scn_e06_u02_hist_01 returns two entries after two updates', () async {
+      final module = FakeCatalogModule();
+
+      await module.executeCommandAsync(
+        SetStorePriceRuleCommand(
+          tenantId: 'tenant-1',
+          name: 'Mặc định bán lẻ',
+          listMarkupRatio: 0.12,
+          floorMarkupRatio: 0.10,
+        ),
+      );
+      await module.executeCommandAsync(
+        SetStorePriceRuleCommand(
+          tenantId: 'tenant-1',
+          name: 'Mặc định bán lẻ',
+          listMarkupRatio: 0.15,
+          floorMarkupRatio: 0.10,
+        ),
+      );
+
+      final history = await module.executeQueryAsync(
+        GetStorePriceRuleChangeHistoryQuery(tenantId: 'tenant-1'),
+      );
+
+      expect(history.items, hasLength(2));
+      expect(history.items.first.isCurrent, isTrue);
+      expect(history.items.first.listMarkupAfter, 0.15);
+      expect(history.totalCount, 2);
+    });
+
+    test('scn_e06_u02_hist_02 skips no-op save', () async {
+      final module = FakeCatalogModule();
+
+      await module.executeCommandAsync(
+        SetStorePriceRuleCommand(
+          tenantId: 'tenant-1',
+          name: 'Mặc định bán lẻ',
+          listMarkupRatio: 0.12,
+          floorMarkupRatio: 0.10,
+        ),
+      );
+      await module.executeCommandAsync(
+        SetStorePriceRuleCommand(
+          tenantId: 'tenant-1',
+          name: 'Mặc định bán lẻ',
+          listMarkupRatio: 0.12,
+          floorMarkupRatio: 0.10,
+        ),
+      );
+
+      final history = await module.executeQueryAsync(
+        GetStorePriceRuleChangeHistoryQuery(tenantId: 'tenant-1'),
+      );
+
+      expect(history.items, hasLength(1));
+    });
+
+    test('scn_e06_u02_hist_03 first create has null before values', () async {
+      final module = FakeCatalogModule();
+
+      await module.executeCommandAsync(
+        SetStorePriceRuleCommand(
+          tenantId: 'tenant-new',
+          name: 'Rule mới',
+          listMarkupRatio: 0.2,
+          floorMarkupRatio: 0.1,
+        ),
+      );
+
+      final history = await module.executeQueryAsync(
+        GetStorePriceRuleChangeHistoryQuery(tenantId: 'tenant-new'),
+      );
+
+      expect(history.items.single.listMarkupBefore, isNull);
+      expect(history.items.single.floorMarkupBefore, isNull);
+      expect(history.items.single.summary, 'Tạo khung giá cửa hàng');
+    });
+  });
+
   group('EPIC-06 / US-03 contract', () {
     test('scn_contract_e06_u03_fr01_01 sets price band on base unit', () async {
       final module = FakeCatalogModule(

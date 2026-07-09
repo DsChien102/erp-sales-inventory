@@ -3,6 +3,7 @@ import 'package:vet45_design_system/design_system.dart';
 import 'package:go_router/go_router.dart';
 import 'package:vet45_iam_infrastructure/infrastructure.dart';
 import 'package:vet45_shared_application/application.dart';
+import 'package:vet45_catalog_application/application.dart' hide ProductChangeHistoryPage;
 import 'package:vet45_catalog_presentation/presentation.dart';
 
 // More Pages
@@ -38,6 +39,9 @@ import '../../features/catalog/presentation/pages/settings/custom_field_groups_p
 import '../../features/catalog/presentation/pages/settings/upsert_custom_field_group_page.dart';
 import '../../features/catalog/presentation/pages/settings/custom_field_group_detail_page.dart';
 import '../../features/catalog/presentation/pages/settings/upsert_custom_field_page.dart';
+import '../../features/catalog/presentation/pages/settings/store_price_rule_settings_page.dart';
+import '../../features/catalog/presentation/pages/settings/edit_store_price_rule_page.dart';
+import '../../features/catalog/presentation/pages/settings/store_price_rule_change_history_page.dart';
 
 import '../di/injection.dart';
 
@@ -318,6 +322,24 @@ final appRouter = GoRouter(
         final fieldId = state.uri.queryParameters['fieldId'];
         return UpsertCustomFieldPage(groupId: groupId, cubit: cubit, initialFieldId: fieldId);
       },
+    ),
+    GoRoute(
+      path: '/more/product-settings/store-price-rule',
+      name: 'more.product-settings.store-price-rule',
+      builder: (context, state) => const StorePriceRuleSettingsPage(),
+    ),
+    GoRoute(
+      path: '/more/product-settings/store-price-rule/edit',
+      name: 'more.product-settings.store-price-rule.edit',
+      builder: (context, state) {
+        final rule = state.extra as StorePriceRuleDto?;
+        return EditStorePriceRulePage(existingRule: rule);
+      },
+    ),
+    GoRoute(
+      path: '/more/product-settings/store-price-rule/history',
+      name: 'more.product-settings.store-price-rule.history',
+      builder: (context, state) => const StorePriceRuleChangeHistoryPage(),
     ),
   ],
 );

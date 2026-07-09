@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:vet45_catalog_application/application.dart';
 import 'package:vet45_design_system/design_system.dart';
 
+import '../utils/product_change_history_formatters.dart';
+
 class ProductChangeHistoryItem extends StatelessWidget {
   const ProductChangeHistoryItem({
     super.key,
@@ -13,7 +15,11 @@ class ProductChangeHistoryItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final dynamicColors = context.vColors;
-    final dateStr = entry.occurredAt.toString().substring(0, 16); // YYYY-MM-DD HH:MM
+    final dateStr = formatProductChangeHistoryDateTime(entry.occurredAt);
+    final summaryText = formatProductChangeHistorySummary(
+      summary: entry.summary,
+      changeType: entry.changeType,
+    );
     
     // Mask sensitive values
     final showMasked = entry.isSensitiveMasked;
@@ -44,7 +50,7 @@ class ProductChangeHistoryItem extends StatelessWidget {
             children: [
               Expanded(
                 child: Text(
-                  entry.summary,
+                  summaryText,
                   style: VTypography.bodyDefault.copyWith(
                     fontWeight: FontWeight.bold,
                     color: dynamicColors.textPrimary,
