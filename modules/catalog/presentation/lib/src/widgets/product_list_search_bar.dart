@@ -38,7 +38,8 @@ class _ProductListSearchBarState extends State<ProductListSearchBar> {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.vColors;
+    final dynamicColors = context.vColors;
+    final isFilterActive = widget.activeFiltersCount > 0;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Row(
@@ -61,45 +62,36 @@ class _ProductListSearchBarState extends State<ProductListSearchBar> {
           ),
           if (widget.onFilterPressed != null) ...[
             const SizedBox(width: 8),
-            Stack(
-              clipBehavior: Clip.none,
-              children: [
-                IconButton(
-                  key: const Key('btn_filter_custom_fields'),
-                  icon: Icon(
-                    Icons.filter_alt_outlined,
-                    color: widget.activeFiltersCount > 0 ? colors.primary : colors.textSecondary,
-                  ),
-                  onPressed: widget.onFilterPressed,
-                ),
-                if (widget.activeFiltersCount > 0)
-                  Positioned(
-                    right: 4,
-                    top: 4,
-                    child: Container(
-                      padding: const EdgeInsets.all(4),
-                      decoration: BoxDecoration(
-                        color: colors.primary,
-                        shape: BoxShape.circle,
-                      ),
-                      constraints: const BoxConstraints(
-                        minWidth: 16,
-                        minHeight: 16,
-                      ),
-                      child: Center(
-                        child: Text(
-                          '${widget.activeFiltersCount}',
-                          style: TextStyle(
-                            color: colors.textSecondary,
-                            fontSize: 9,
-                            fontWeight: FontWeight.bold,
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                      ),
+            GestureDetector(
+              key: const Key('btn_filter_custom_fields'),
+              onTap: widget.onFilterPressed,
+              child: Badge(
+                isLabelVisible: isFilterActive,
+                label: Text('${widget.activeFiltersCount}'),
+                backgroundColor: VColors.success,
+                offset: const Offset(4, -4),
+                child: Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: isFilterActive
+                        ? VColors.successBg
+                        : dynamicColors.surface,
+                    borderRadius: BorderRadius.circular(VRadius.input),
+                    border: Border.all(
+                      color: isFilterActive
+                          ? VColors.success
+                          : dynamicColors.borderDefault,
                     ),
                   ),
-              ],
+                  child: Icon(
+                    Icons.tune,
+                    color: isFilterActive
+                        ? VColors.success
+                        : dynamicColors.textPrimary,
+                    size: 20,
+                  ),
+                ),
+              ),
             ),
           ],
         ],

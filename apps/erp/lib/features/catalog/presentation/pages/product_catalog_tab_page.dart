@@ -324,7 +324,7 @@ class _ProductCatalogTabPageState extends State<ProductCatalogTabPage> {
           children: [
             ProductListSearchBar(
               onSearch: _onSearch,
-              onFilterPressed: _filterOptions.isNotEmpty ? _showFilterBottomSheet : null,
+              onFilterPressed: _showFilterBottomSheet,
               activeFiltersCount: _customFieldFilters.length,
             ),
             BlocBuilder<ProductListCubit, ProductListState>(

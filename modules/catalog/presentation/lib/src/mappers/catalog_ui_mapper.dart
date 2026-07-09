@@ -95,7 +95,7 @@ class CatalogUiMapper {
     return ProductListItemModel(
       id: productId,
       name: state.name.trim(),
-      tradeName: state.tradeName.isNotEmpty ? state.tradeName : state.name,
+      tradeName: state.tradeName.isNotEmpty ? state.tradeName : null,
       sku: state.sku.isNotEmpty ? state.sku : null,
       barcode: state.barcode.isNotEmpty ? state.barcode : null,
       imageUrl: coverPath != null && coverPath.startsWith('http') ? coverPath : null,

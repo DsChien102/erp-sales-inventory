@@ -379,7 +379,9 @@ class _ProductControlCenterViewState extends State<_ProductControlCenterView> {
                         return ProductControlCenterSectionCard(
                           title: group.name,
                           emoji: group.iconKey?.isNotEmpty == true ? group.iconKey : null,
-                          icon: group.iconKey?.isNotEmpty == true ? null : Icons.assignment_outlined,
+                          icon: group.iconKey?.isNotEmpty == true
+                              ? null
+                              : Icons.assignment_outlined,
                           hasError: group.hasRequiredMissing,
                           subtitle: '$filledCount/${group.fields.length} trường đã điền',
                           actionText: allInactive ? 'Xem' : 'Sửa',
@@ -431,6 +433,7 @@ class _ProductControlCenterViewState extends State<_ProductControlCenterView> {
                           );
                         },
                       ),
+                      const SizedBox(height: 40),
                       ProductControlCenterDangerSection(
                         businessStatus: controlCenter.profile.businessStatus,
                         isSoftDeleted: isSoftDeleted,

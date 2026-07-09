@@ -51,7 +51,18 @@ class _CustomFieldFilterSheetState extends State<CustomFieldFilterSheet> {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          ...widget.options.map((opt) => _buildFieldFilter(colors, opt)),
+          if (widget.options.isEmpty)
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 32),
+              child: Center(
+                child: Text(
+                  'Chưa có thuộc tính mở rộng nào.',
+                  style: VTypography.bodyDefault.copyWith(color: colors.textSecondary),
+                ),
+              ),
+            )
+          else
+            ...widget.options.map((opt) => _buildFieldFilter(colors, opt)),
           const SizedBox(height: 16),
           Row(
             children: [
@@ -64,6 +75,8 @@ class _CustomFieldFilterSheetState extends State<CustomFieldFilterSheet> {
                         _selectedOptionIds[key] = null;
                       }
                     });
+                    Navigator.of(context).pop();
+                    widget.onApply([]);
                   },
                   child: const Text('Bỏ lọc'),
                 ),
