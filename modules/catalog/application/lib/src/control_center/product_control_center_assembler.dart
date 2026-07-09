@@ -68,7 +68,7 @@ abstract final class ProductControlCenterAssembler {
         isPendingExternal: model.facts.stockMode == StockMode.advanced,
         isMissing: model.facts.stockMode == StockMode.basic && !hasStock,
         missingMessage: model.facts.stockMode == StockMode.basic && !hasStock
-            ? 'Thiếu tồn kho'
+            ? 'Thiếu thiết lập tồn kho'
             : null,
       ),
       basePrice: ProductBasePriceCardDto(

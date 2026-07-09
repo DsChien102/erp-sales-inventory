@@ -43,7 +43,7 @@ class ProductControlCenterOperationalSection extends StatelessWidget {
           title: 'Tồn kho',
           subtitle: stock.isMissing
               ? (stock.missingMessage ?? 'Chưa thiết lập')
-              : '${stock.quantity ?? 0}${stock.unitName != null ? ' ${stock.unitName}' : ''}',
+              : '${stock.quantity ?? 0}${stock.unitName != null ? ' ${stock.unitName}' : ''}${stock.isOutOfStock ? ' (Hết hàng)' : ''}',
           onEdit: onEditStock,
         ),
         ProductControlCenterSectionCard(

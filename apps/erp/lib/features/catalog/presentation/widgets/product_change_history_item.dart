@@ -74,6 +74,16 @@ class ProductChangeHistoryItem extends StatelessWidget {
               ),
             ),
           ],
+          if (entry.reason != null && entry.reason!.isNotEmpty) ...[
+            const SizedBox(height: 4),
+            Text(
+              'Lý do: ${entry.reason}',
+              style: VTypography.bodyDefault.copyWith(
+                color: dynamicColors.textSecondary,
+                fontStyle: FontStyle.italic,
+              ),
+            ),
+          ],
           const SizedBox(height: 4),
           Text(
             'bởi ${entry.actorDisplayName}',

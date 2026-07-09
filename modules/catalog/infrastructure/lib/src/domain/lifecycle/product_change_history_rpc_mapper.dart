@@ -50,6 +50,7 @@ abstract final class ProductChangeHistoryRpcMapper {
       isSensitiveMasked: item['is_sensitive_masked'] as bool? ?? false,
       valueBefore: item['value_before'] as String?,
       valueAfter: item['value_after'] as String?,
+      reason: item['reason'] as String?,
     );
   }
 }

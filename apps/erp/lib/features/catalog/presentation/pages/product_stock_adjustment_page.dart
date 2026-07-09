@@ -133,155 +133,74 @@ class _ProductStockAdjustmentPageState extends State<ProductStockAdjustmentPage>
 
     final bool hasBaseUnit = widget.args.unitName != null && widget.args.unitName!.isNotEmpty;
 
-    return Scaffold(
-      key: const Key('wgt_e05_u01_fr01_01'),
-      backgroundColor: dynamicColors.background,
-      appBar: VAppBar(
-        showBackButton: true,
-        title: 'Tồn kho',
-        titleStyle: VTypography.headingH3.copyWith(
-          color: dynamicColors.textPrimary,
-          fontWeight: FontWeight.bold,
+    return GestureDetector(
+      onTap: () => FocusScope.of(context).unfocus(),
+      behavior: HitTestBehavior.translucent,
+      child: Scaffold(
+        key: const Key('wgt_e05_u01_fr01_01'),
+        backgroundColor: dynamicColors.background,
+        appBar: VAppBar(
+          showBackButton: true,
+          title: 'Tồn kho',
+          titleStyle: VTypography.headingH3.copyWith(
+            color: dynamicColors.textPrimary,
+            fontWeight: FontWeight.bold,
+          ),
+          subtitle: unitName.isNotEmpty ? unitName : widget.args.product.name,
         ),
-        subtitle: unitName.isNotEmpty ? unitName : widget.args.product.name,
-      ),
-      body: hasBaseUnit
-          ? Form(
-              key: _formKey,
-              child: ListView(
-                padding: const EdgeInsets.all(16.0),
-                children: [
-                  // Tồn hiện tại (Read-only view)
-                  Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              decoration: BoxDecoration(
-                border: Border.all(color: dynamicColors.borderDefault),
-                borderRadius: BorderRadius.circular(VRadius.input),
-                color: dynamicColors.background,
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'Tồn hiện tại',
-                    style: VTypography.bodyDefault.copyWith(
-                      color: dynamicColors.textPrimary,
-                    ),
-                  ),
-                  Text(
-                    _isInitial ? 'Chưa thiết lập' : '${widget.args.currentQuantity}',
-                    style: VTypography.bodyDefault.copyWith(
-                      fontWeight: FontWeight.w600,
-                      color: dynamicColors.textPrimary,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 24),
-
-            // Tồn mới
-            Text(
-              'Tồn mới ($unitName)',
-              style: VTypography.bodyDefault.copyWith(
-                color: dynamicColors.textPrimary,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            const SizedBox(height: 8),
-            TextFormField(
-              key: const Key('input_stock_quantity'),
-              controller: _quantityController,
-              keyboardType: const TextInputType.numberWithOptions(decimal: true),
-              style: VTypography.bodyDefault.copyWith(color: dynamicColors.textPrimary),
-              decoration: InputDecoration(
-                hintText: 'Nhập số tồn thực tế',
-                hintStyle: VTypography.bodyDefault.copyWith(color: dynamicColors.textMuted),
-                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                border: OutlineInputBorder(
+        body: hasBaseUnit
+            ? Form(
+                key: _formKey,
+                child: ListView(
+                  padding: const EdgeInsets.all(16.0),
+                  children: [
+                    // Tồn hiện tại (Read-only view)
+                    Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                decoration: BoxDecoration(
+                  border: Border.all(color: dynamicColors.borderDefault),
                   borderRadius: BorderRadius.circular(VRadius.input),
-                  borderSide: BorderSide(color: dynamicColors.borderDefault),
+                  color: dynamicColors.background,
                 ),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(VRadius.input),
-                  borderSide: BorderSide(color: dynamicColors.borderDefault),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(VRadius.input),
-                  borderSide: BorderSide(color: dynamicColors.primary),
-                ),
-              ),
-              validator: (value) {
-                if (value == null || value.trim().isEmpty) {
-                  return 'Vui lòng nhập số tồn thực tế';
-                }
-                final qty = double.tryParse(value);
-                if (qty == null) {
-                  return 'Số lượng không hợp lệ';
-                }
-                if (qty < 0) {
-                  return 'Tồn kho không được âm';
-                }
-                return null;
-              },
-            ),
-
-            if (!_isInitial) ...[
-              const SizedBox(height: 24),
-              // Lý do
-              Text(
-                'Lý do',
-                style: VTypography.bodySmall.copyWith(
-                  color: dynamicColors.textSecondary,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: _predefinedReasons.map((reason) {
-                  final isSelected = _selectedReason == reason;
-                  return ChoiceChip(
-                    label: Text(
-                      reason,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Tồn hiện tại',
                       style: VTypography.bodyDefault.copyWith(
-                        color: isSelected ? dynamicColors.surface : dynamicColors.textPrimary,
+                        color: dynamicColors.textPrimary,
                       ),
                     ),
-                    selected: isSelected,
-                    onSelected: (selected) {
-                      setState(() {
-                        _selectedReason = selected ? reason : null;
-                      });
-                    },
-                    showCheckmark: false,
-                    selectedColor: dynamicColors.success,
-                    backgroundColor: dynamicColors.background,
-                    side: BorderSide(
-                      color: isSelected ? dynamicColors.success : dynamicColors.borderDefault,
+                    Text(
+                      _isInitial ? 'Chưa thiết lập' : '${widget.args.currentQuantity}',
+                      style: VTypography.bodyDefault.copyWith(
+                        fontWeight: FontWeight.w600,
+                        color: dynamicColors.textPrimary,
+                      ),
                     ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                  );
-                }).toList(),
+                  ],
+                ),
               ),
               const SizedBox(height: 24),
-
-              // Ghi chú
+  
+              // Tồn mới
               Text(
-                'Ghi chú (không bắt buộc)',
-                style: VTypography.bodySmall.copyWith(
-                  color: dynamicColors.textSecondary,
+                'Tồn mới ($unitName)',
+                style: VTypography.bodyDefault.copyWith(
+                  color: dynamicColors.textPrimary,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
               const SizedBox(height: 8),
               TextFormField(
-                controller: _noteController,
-                maxLines: 4,
+                key: const Key('input_stock_quantity'),
+                controller: _quantityController,
+                keyboardType: const TextInputType.numberWithOptions(decimal: true),
                 style: VTypography.bodyDefault.copyWith(color: dynamicColors.textPrimary),
                 decoration: InputDecoration(
-                  contentPadding: const EdgeInsets.all(16),
+                  hintText: 'Nhập số tồn thực tế',
+                  hintStyle: VTypography.bodyDefault.copyWith(color: dynamicColors.textMuted),
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(VRadius.input),
                     borderSide: BorderSide(color: dynamicColors.borderDefault),
@@ -295,52 +214,137 @@ class _ProductStockAdjustmentPageState extends State<ProductStockAdjustmentPage>
                     borderSide: BorderSide(color: dynamicColors.primary),
                   ),
                 ),
+                validator: (value) {
+                  if (value == null || value.trim().isEmpty) {
+                    return 'Vui lòng nhập số tồn thực tế';
+                  }
+                  final qty = double.tryParse(value);
+                  if (qty == null) {
+                    return 'Số lượng không hợp lệ';
+                  }
+                  if (qty < 0) {
+                    return 'Tồn kho không được âm';
+                  }
+                  return null;
+                },
               ),
-            ],
-
-            const SizedBox(height: 24),
-            Text(
-              'Thay đổi sẽ ghi vào Lịch sử. Ở Growth, tồn được đọc từ module Kho (read-only).',
-              style: VTypography.bodySmall.copyWith(
-                color: dynamicColors.textSecondary,
-              ),
-            ),
-          ],
-        ),
-      ) : _buildMissingBaseUnit(context),
-      bottomNavigationBar: hasBaseUnit ? SafeArea(
-        child: Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: dynamicColors.background,
-            border: Border(
-              top: BorderSide(color: dynamicColors.borderDefault),
-            ),
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Expanded(
-                child: VButton(
-                  label: 'Hủy',
-                  variant: VButtonVariant.outline,
-                  onPressed: _isSubmitting ? null : () => context.pop(),
+  
+              if (!_isInitial) ...[
+                const SizedBox(height: 24),
+                // Lý do
+                Text(
+                  'Lý do',
+                  style: VTypography.bodySmall.copyWith(
+                    color: dynamicColors.textSecondary,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: _predefinedReasons.map((reason) {
+                    final isSelected = _selectedReason == reason;
+                    return ChoiceChip(
+                      label: Text(
+                        reason,
+                        style: VTypography.bodyDefault.copyWith(
+                          color: isSelected ? dynamicColors.surface : dynamicColors.textPrimary,
+                        ),
+                      ),
+                      selected: isSelected,
+                      onSelected: (selected) {
+                        setState(() {
+                          _selectedReason = selected ? reason : null;
+                        });
+                      },
+                      showCheckmark: false,
+                      selectedColor: dynamicColors.success,
+                      backgroundColor: dynamicColors.background,
+                      side: BorderSide(
+                        color: isSelected ? dynamicColors.success : dynamicColors.borderDefault,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                    );
+                  }).toList(),
+                ),
+                const SizedBox(height: 24),
+  
+                // Ghi chú
+                Text(
+                  'Ghi chú (không bắt buộc)',
+                  style: VTypography.bodySmall.copyWith(
+                    color: dynamicColors.textSecondary,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                TextFormField(
+                  controller: _noteController,
+                  maxLines: 4,
+                  style: VTypography.bodyDefault.copyWith(color: dynamicColors.textPrimary),
+                  decoration: InputDecoration(
+                    contentPadding: const EdgeInsets.all(16),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(VRadius.input),
+                      borderSide: BorderSide(color: dynamicColors.borderDefault),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(VRadius.input),
+                      borderSide: BorderSide(color: dynamicColors.borderDefault),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(VRadius.input),
+                      borderSide: BorderSide(color: dynamicColors.primary),
+                    ),
+                  ),
+                ),
+              ],
+  
+              const SizedBox(height: 24),
+              Text(
+                'Thay đổi sẽ ghi vào Lịch sử. Ở Growth, tồn được đọc từ module Kho (read-only).',
+                style: VTypography.bodySmall.copyWith(
+                  color: dynamicColors.textSecondary,
                 ),
               ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: VButton(
-                  key: const Key('btn_stock_save'),
-                  label: 'Lưu thay đổi',
-                  variant: VButtonVariant.primary,
-                  isLoading: _isSubmitting,
-                  onPressed: _isSubmitting ? null : _submit,
-                ),
-              ),
             ],
           ),
-        ),
-      ) : null,
+        ) : _buildMissingBaseUnit(context),
+        bottomNavigationBar: hasBaseUnit ? SafeArea(
+          child: Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: dynamicColors.background,
+              border: Border(
+                top: BorderSide(color: dynamicColors.borderDefault),
+              ),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: VButton(
+                    label: 'Hủy',
+                    variant: VButtonVariant.outline,
+                    onPressed: _isSubmitting ? null : () => context.pop(),
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: VButton(
+                    key: const Key('btn_stock_save'),
+                    label: 'Lưu thay đổi',
+                    variant: VButtonVariant.primary,
+                    isLoading: _isSubmitting,
+                    onPressed: _isSubmitting ? null : _submit,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ) : null,
+      ),
     );
   }
 

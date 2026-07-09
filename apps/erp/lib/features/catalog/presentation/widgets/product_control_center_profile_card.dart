@@ -29,7 +29,7 @@ class ProductControlCenterProfileCard extends StatelessWidget {
     final stockUnit = stock.unitName ?? 'cơ sở';
     final stockText = stock.isMissing
         ? 'Tồn ($stockUnit): Chưa thiết lập'
-        : 'Tồn ($stockUnit): ${stock.quantity ?? 0}';
+        : 'Tồn ($stockUnit): ${stock.quantity ?? 0}${stock.isOutOfStock ? ' (Hết hàng)' : ''}';
 
     return Padding(
       padding: const EdgeInsets.all(16),
