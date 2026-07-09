@@ -6,10 +6,12 @@ class SupabaseCli {
   SupabaseCli({
     this.executable = 'supabase',
     this.workdir,
+    this.processEnvironment,
   });
 
   final String executable;
   final Directory? workdir;
+  final Map<String, String>? processEnvironment;
 
   Future<Map<String, String>> readStatusEnv() async {
     final result = await _run(['status', '-o', 'env']);
@@ -26,8 +28,9 @@ class SupabaseCli {
   Map<String, String> toCanonical(Map<String, String> statusEnv) {
     final apiUrl = statusEnv['API_URL'] ?? statusEnv['SUPABASE_URL'] ?? '';
     final anonKey = statusEnv['ANON_KEY'] ?? statusEnv['SUPABASE_ANON_KEY'] ?? '';
-    final serviceRole =
-        statusEnv['SERVICE_ROLE_KEY'] ?? statusEnv['SUPABASE_SERVICE_ROLE_KEY'] ?? '';
+    final serviceRole = statusEnv['SERVICE_ROLE_KEY'] ??
+        statusEnv['SUPABASE_SERVICE_ROLE_KEY'] ??
+        '';
     return {
       if (apiUrl.isNotEmpty) 'SUPABASE_URL': apiUrl,
       if (anonKey.isNotEmpty) 'SUPABASE_ANON_KEY': anonKey,
@@ -35,7 +38,6 @@ class SupabaseCli {
     };
   }
 
-  /// Reads current `supabase link` target from `supabase/.temp/`.
   static String? readLinkedProjectRef(Directory? workdir) {
     if (workdir == null) {
       return null;
@@ -47,12 +49,14 @@ class SupabaseCli {
         return ref;
       }
     }
-    final linkedFile = File('${workdir.path}/supabase/.temp/linked-project.json');
+    final linkedFile =
+        File('${workdir.path}/supabase/.temp/linked-project.json');
     if (!linkedFile.existsSync()) {
       return null;
     }
     try {
-      final json = jsonDecode(linkedFile.readAsStringSync()) as Map<String, dynamic>;
+      final json =
+          jsonDecode(linkedFile.readAsStringSync()) as Map<String, dynamic>;
       final ref = json['ref'] as String? ?? '';
       return ref.isEmpty ? null : ref;
     } on Object {
@@ -60,7 +64,6 @@ class SupabaseCli {
     }
   }
 
-  /// Runs `supabase link --project-ref` (non-interactive with `--yes`).
   Future<void> linkProject({
     required String projectRef,
     String? dbPassword,
@@ -80,7 +83,7 @@ class SupabaseCli {
       final stdout = '${result.stdout}'.trim();
       throw StateError(
         'supabase link --project-ref $projectRef failed (exit ${result.exitCode}). '
-        'Try: supabase login\n'
+        'Set SUPABASE_ACCESS_TOKEN in the profile auth.env file.\n'
         '${stderr.isEmpty ? stdout : stderr}',
       );
     }
@@ -112,6 +115,7 @@ class SupabaseCli {
       executable,
       args,
       workingDirectory: workdir?.path,
+      environment: processEnvironment,
     );
   }
 }

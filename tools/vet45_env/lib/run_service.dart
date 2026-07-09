@@ -4,6 +4,7 @@ import 'doctor_service.dart';
 import 'link_service.dart';
 import 'manifest.dart';
 import 'process_runner.dart';
+import 'profile_registry.dart';
 import 'resolve_service.dart';
 import 'secrets_loader.dart';
 import 'sync_service.dart';
@@ -26,31 +27,47 @@ class RunService {
 
   Directory get _root => manifest.rootDir;
 
-  /// Switch active env, optional supabase link, then sync [targetId].
+  Future<void> useProfile(String profileId) async {
+    manifest.profiles.getProfile(profileId);
+    final state = readActiveState(
+      manifest.rootDir,
+      defaultProfileId: manifest.profiles.defaultProfileId,
+      defaultEnvironmentId: manifest.defaultEnvironmentId,
+    );
+    writeActiveState(
+      manifest.rootDir,
+      ActiveState(profileId: profileId, environmentId: state.environmentId),
+    );
+    stdout.writeln('Active profile: $profileId');
+  }
+
   Future<void> useAndSync(
     String environmentId, {
+    String? profileId,
     String? targetId,
     bool skipLink = false,
   }) async {
-    manifest.getEnvironment(environmentId);
+    final ctx = _writeEnvironment(environmentId, profileId: profileId);
     if (!skipLink) {
-      (await linkService.ensureLinked(environmentId)).printSummary();
+      (await linkService.ensureLinked(ctx)).printSummary();
     }
-    writeActive(manifest.rootDir, environmentId);
-    stdout.writeln('Active environment: $environmentId');
-    await _syncOrExit(environmentId, targetId: targetId);
+    stdout.writeln(
+      'Active: profile=${ctx.profileId} environment=${ctx.environmentId}',
+    );
+    await _syncOrExit(ctx, targetId: targetId);
   }
 
-  /// use + sync + run in one command (Melos shortcuts without `&&`).
   Future<int> useSyncRun(
     String environmentId,
     String target,
     String action, {
+    String? profileId,
     List<String> extraArgs = const [],
     bool skipLink = false,
   }) async {
     await useAndSync(
       environmentId,
+      profileId: profileId,
       targetId: target,
       skipLink: skipLink,
     );
@@ -58,6 +75,7 @@ class RunService {
       target,
       action,
       extraArgs: extraArgs,
+      profileId: profileId,
       environmentId: environmentId,
       skipSync: true,
     );
@@ -67,31 +85,51 @@ class RunService {
     String target,
     String action, {
     List<String> extraArgs = const [],
+    String? profileId,
     String? environmentId,
     bool skipSync = false,
   }) async {
-    final envId = environmentId ??
-        readActive(manifest.rootDir) ??
-        manifest.defaultEnvironmentId;
+    final ctx = manifest.context(
+      profileId: profileId,
+      environmentId: environmentId,
+    );
 
     if (!skipSync) {
-      await _syncOrExit(envId, targetId: target);
+      await _syncOrExit(ctx, targetId: target);
     }
-    final ctx = ResolvedRunContext.fromManifest(manifest, envId);
+    final resolved = ResolvedRunContext.fromWorkspace(ctx, manifest);
 
     switch (target) {
       case 'erp':
-        return _runErp(ctx, action, extraArgs);
+        return _runErp(resolved, action, extraArgs);
       case 'worker':
-        return _runWorker(ctx, action, extraArgs);
+        return _runWorker(resolved, action, extraArgs);
       default:
         stderr.writeln('Unknown run target: $target');
         return 64;
     }
   }
 
-  Future<void> _syncOrExit(String environmentId, {String? targetId}) async {
-    final result = await syncService.sync(environmentId, targetId: targetId);
+  WorkspaceContext _writeEnvironment(
+    String environmentId, {
+    String? profileId,
+  }) {
+    manifest.getEnvironment(environmentId);
+    final state = readActiveState(
+      manifest.rootDir,
+      defaultProfileId: manifest.profiles.defaultProfileId,
+      defaultEnvironmentId: manifest.defaultEnvironmentId,
+    );
+    final next = ActiveState(
+      profileId: profileId ?? state.profileId,
+      environmentId: environmentId,
+    );
+    writeActiveState(manifest.rootDir, next);
+    return manifest.context(profileId: next.profileId, environmentId: environmentId);
+  }
+
+  Future<void> _syncOrExit(WorkspaceContext ctx, {String? targetId}) async {
+    final result = await syncService.sync(ctx, targetId: targetId);
     if (!result.ok) {
       for (final entry in result.failures.entries) {
         stderr.writeln('sync failed for ${entry.key}: ${entry.value}');
@@ -110,7 +148,9 @@ class RunService {
     final erpDir = '${_root.path}/apps/erp';
 
     if (flavor == null || envBasename == null || ctx.erpEnvFile == null) {
-      stderr.writeln('ERP binding missing for environment ${ctx.environmentId}');
+      stderr.writeln(
+        'ERP binding missing for profile ${ctx.profileId} / ${ctx.environmentId}',
+      );
       return 1;
     }
     if (!File(ctx.erpEnvFile!).existsSync()) {
@@ -172,7 +212,7 @@ class RunService {
       case 'deploy-ios':
         _requireIosDeployEnv(ctx.environmentId);
         final doctor = await doctorService.run(
-          ctx.environmentId,
+          manifest.context(environmentId: ctx.environmentId, profileId: ctx.profileId),
           targetId: 'deploy',
         );
         if (!doctor.ok) {
@@ -203,7 +243,9 @@ class RunService {
   ) async {
     final workerEnvFile = ctx.workerEnvFile;
     if (workerEnvFile == null) {
-      stderr.writeln('Worker binding missing for environment ${ctx.environmentId}');
+      stderr.writeln(
+        'Worker binding missing for profile ${ctx.profileId} / ${ctx.environmentId}',
+      );
       return 1;
     }
     if (!File(workerEnvFile).existsSync()) {
@@ -233,15 +275,11 @@ class RunService {
 
   Future<int> _runWorkerDart(String envFilePath, String modeFlag) async {
     final dotenv = loadDotEnv(File(envFilePath));
-    final environment = {
-      ...Platform.environment,
-      ...dotenv,
-    };
     return _process.run(
       'dart',
       ['run', 'bin/worker.dart', modeFlag],
       workingDirectory: '${_root.path}/apps/messaging_worker',
-      environment: environment,
+      environment: {...Platform.environment, ...dotenv},
     );
   }
 
@@ -276,7 +314,9 @@ class RunService {
     final reachable = await _pingSupabase(url);
     if (!reachable) {
       stderr.writeln('ERROR: Supabase not reachable at $url');
-      stderr.writeln('       Run: supabase start && melos run env:sync -- --target worker');
+      stderr.writeln(
+        '       Run: supabase start && melos run env:sync -- --target worker',
+      );
       exit(1);
     }
   }
@@ -320,10 +360,7 @@ class RunService {
     }
   }
 
-  Future<int> _runMacOsShellScript(
-    String scriptPath,
-    List<String> args,
-  ) async {
+  Future<int> _runMacOsShellScript(String scriptPath, List<String> args) async {
     if (!Platform.isMacOS) {
       stderr.writeln('This action requires macOS: $scriptPath');
       return 64;
@@ -331,10 +368,13 @@ class RunService {
     return _runShellScript(scriptPath, args);
   }
 
-  /// Runs a bash script (Git Bash on Windows, native bash on macOS/Linux).
   Future<int> _runShellScript(String scriptPath, List<String> args) async {
     if (Platform.isWindows) {
-      return _process.run('bash', [scriptPath, ...args], workingDirectory: _root.path);
+      return _process.run(
+        'bash',
+        [scriptPath, ...args],
+        workingDirectory: _root.path,
+      );
     }
     return _process.run(scriptPath, args, workingDirectory: _root.path);
   }

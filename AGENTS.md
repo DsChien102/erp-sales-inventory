@@ -78,6 +78,7 @@ Canonical specs (mirror của skills): `docs/application_layer_skill.md`, `docs/
 4. Implement (minimal diff, match conventions hiện có)
 5. Verify:
      melos bootstrap
+     melos run env:init          # first-time per clone (scaffold local config/)
      melos run analyze
      melos run test
      ./scripts/ci/verify_harness.sh
@@ -89,6 +90,7 @@ Canonical specs (mirror của skills): `docs/application_layer_skill.md`, `docs/
 
 ```bash
 melos bootstrap
+melos run env:init         # first-time per clone (scaffold local config/)
 melos run env:doctor       # khi slice cần Supabase / worker
 melos run analyze
 melos run test

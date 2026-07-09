@@ -1,8 +1,10 @@
 import 'manifest.dart';
+import 'profile_registry.dart';
 
 /// Resolved paths and fields for running app targets after env sync.
 class ResolvedRunContext {
   ResolvedRunContext({
+    required this.profileId,
     required this.environmentId,
     required this.secretsFile,
     required this.deploySecretsFile,
@@ -14,6 +16,7 @@ class ResolvedRunContext {
     this.workerDockerSupabaseUrl,
   });
 
+  final String profileId;
   final String environmentId;
   final String secretsFile;
   final String deploySecretsFile;
@@ -24,16 +27,14 @@ class ResolvedRunContext {
   final String? workerEnvFile;
   final String? workerDockerSupabaseUrl;
 
-  factory ResolvedRunContext.fromManifest(
-    EnvManifest manifest,
-    String environmentId,
-  ) {
-    final env = manifest.getEnvironment(environmentId);
+  factory ResolvedRunContext.fromWorkspace(WorkspaceContext ctx, EnvManifest manifest) {
+    final env = ctx.environment;
     final erp = env.erp;
     final worker = env.worker;
     return ResolvedRunContext(
-      environmentId: environmentId,
-      secretsFile: env.secretsFile.path,
+      profileId: ctx.profileId,
+      environmentId: env.id,
+      secretsFile: ctx.secretsFile.path,
       deploySecretsFile: manifest.deploySecretsFile.path,
       railwayEnvironment: env.railwayEnvironment,
       erpFlavor: erp?.flavor,

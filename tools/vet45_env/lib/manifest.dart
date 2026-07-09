@@ -1,6 +1,9 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'profile_registry.dart';
+export 'repo_root.dart';
+
 /// Loaded [config/environments.json] with validation.
 class EnvManifest {
   EnvManifest({
@@ -9,6 +12,7 @@ class EnvManifest {
     required this.environments,
     required this.rootDir,
     required this.deploySecretsFile,
+    required this.profiles,
   });
 
   final String defaultEnvironmentId;
@@ -16,6 +20,7 @@ class EnvManifest {
   final Map<String, EnvironmentDefinition> environments;
   final Directory rootDir;
   final File deploySecretsFile;
+  final ProfileRegistry profiles;
 
   static EnvManifest load(Directory rootDir) {
     final file = File('${rootDir.path}/config/environments.json');
@@ -58,6 +63,7 @@ class EnvManifest {
       environments: environments,
       rootDir: rootDir,
       deploySecretsFile: File('${rootDir.path}/$deployRelative'),
+      profiles: ProfileRegistry.load(rootDir),
     );
   }
 
@@ -93,8 +99,24 @@ class EnvManifest {
     return env;
   }
 
-  EnvironmentDefinition resolve(String? id) {
-    return getEnvironment(id ?? readActive(rootDir) ?? defaultEnvironmentId);
+  WorkspaceContext context({
+    String? profileId,
+    String? environmentId,
+  }) {
+    return WorkspaceContext.resolve(
+      manifest: this,
+      profileId: profileId,
+      environmentId: environmentId,
+    );
+  }
+
+  EnvironmentDefinition resolveEnvironment(String? id) {
+    final state = readActiveState(
+      rootDir,
+      defaultProfileId: profiles.defaultProfileId,
+      defaultEnvironmentId: defaultEnvironmentId,
+    );
+    return getEnvironment(id ?? state.environmentId);
   }
 }
 
@@ -138,9 +160,9 @@ class TargetDefinition {
     );
   }
 
-  /// Secrets source for this target (own file or environment secrets).
-  File secretsSource(EnvironmentDefinition env) =>
-      secretsFile ?? env.secretsFile;
+  /// Secrets source for this target (shared deploy file or profile env secrets).
+  File secretsSource(WorkspaceContext ctx) =>
+      secretsFile ?? ctx.secretsFile;
 }
 
 class TargetKeySpec {
@@ -160,7 +182,6 @@ class TargetKeySpec {
   final String? defaultValue;
   final bool autoGenerate;
 
-  /// Canonical secrets key this entry reads from.
   String get sourceKey => from ?? name;
 
   factory TargetKeySpec.fromJson(Map<String, dynamic> json) {
@@ -222,7 +243,6 @@ class EnvironmentDefinition {
   EnvironmentDefinition({
     required this.id,
     required this.description,
-    required this.secretsFile,
     required this.supabaseSource,
     required this.bindings,
     this.railwayEnvironment,
@@ -233,7 +253,6 @@ class EnvironmentDefinition {
 
   final String id;
   final String description;
-  final File secretsFile;
   final String supabaseSource;
   final Map<String, TargetBinding> bindings;
   final String? railwayEnvironment;
@@ -252,8 +271,6 @@ class EnvironmentDefinition {
     required Directory rootDir,
     required Map<String, TargetDefinition> targets,
   }) {
-    final secretsRelative =
-        json['secretsFile'] as String? ?? 'config/secrets/$id.env';
     final rawBindings = json['targets'] as Map<String, dynamic>? ?? {};
     final bindings = <String, TargetBinding>{};
     for (final entry in rawBindings.entries) {
@@ -269,7 +286,6 @@ class EnvironmentDefinition {
       );
     }
 
-    // Writable targets must have a binding with envFile.
     for (final entry in bindings.entries) {
       final target = targets[entry.key]!;
       if (target.writeEnvFile && entry.value.envFile == null) {
@@ -282,7 +298,6 @@ class EnvironmentDefinition {
     return EnvironmentDefinition(
       id: id,
       description: json['description'] as String? ?? id,
-      secretsFile: File('${rootDir.path}/$secretsRelative'),
       supabaseSource: json['supabaseSource'] as String? ?? 'secrets',
       railwayEnvironment: json['railwayEnvironment'] as String?,
       cliFallback: json['cliFallback'] as bool? ?? false,
@@ -293,7 +308,10 @@ class EnvironmentDefinition {
     );
   }
 
-  Map<String, dynamic> toResolveJson(Map<String, TargetDefinition> targets) {
+  Map<String, dynamic> toResolveJson(
+    Map<String, TargetDefinition> targets,
+    WorkspaceContext ctx,
+  ) {
     final targetsJson = <String, dynamic>{};
     for (final entry in bindings.entries) {
       final binding = entry.value;
@@ -312,10 +330,11 @@ class EnvironmentDefinition {
     return {
       'id': id,
       'description': description,
+      'profileId': ctx.profileId,
+      'secretsRoot': ctx.profile.secretsRoot,
       'supabaseSource': supabaseSource,
       'railwayEnvironment': railwayEnvironment,
       'targets': targetsJson,
-      // Backward-compatible aliases for existing scripts/docs.
       if (erp != null)
         'erp': {
           'flavor': erp!.flavor,
@@ -327,7 +346,8 @@ class EnvironmentDefinition {
           'envFile': worker!.envFile?.path,
           'dockerSupabaseUrl': worker!.dockerSupabaseUrl,
         },
-      'secretsFile': secretsFile.path,
+      'secretsFile': ctx.secretsFile.path,
+      'authFile': ctx.authFile.path,
       'cliFallback': cliFallback,
       'syncSupabaseLink': syncSupabaseLink,
       if (supabaseProjectRef != null) 'supabaseProjectRef': supabaseProjectRef,
@@ -352,21 +372,4 @@ void writeActive(Directory rootDir, String environmentId) {
     dir.createSync(recursive: true);
   }
   activeFile(rootDir).writeAsStringSync('$environmentId\n');
-}
-
-String findRepoRoot({String? start}) {
-  var dir = Directory(start ?? Directory.current.path);
-  while (true) {
-    if (File('${dir.path}/config/environments.json').existsSync()) {
-      return dir.path;
-    }
-    final parent = dir.parent;
-    if (parent.path == dir.path) {
-      throw StateError(
-        'Could not find repo root (config/environments.json). '
-        'Run from the Vet45 monorepo.',
-      );
-    }
-    dir = parent;
-  }
 }

@@ -1,3 +1,6 @@
+import 'package:vet45_env/manifest.dart';
+import 'package:vet45_env/profile_registry.dart';
+
 /// Shared minimal targets registry for unit tests.
 const testTargetsJson = '''
   "targets": {
@@ -56,3 +59,6 @@ String manifestWithEnv(String environmentsJson, {String defaultId = 'local'}) {
 }
 ''';
 }
+
+WorkspaceContext testContext(EnvManifest manifest, String environmentId) =>
+    manifest.context(environmentId: environmentId);

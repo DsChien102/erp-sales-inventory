@@ -48,7 +48,6 @@
   "environments": {
     "development": {
       "description": "Remote dev — secrets + supabase link on use/sync",
-      "secretsFile": "config/secrets/development.env",
       "supabaseSource": "secrets",
       "targets": {
         "erp": {
@@ -64,7 +63,6 @@
     },
     "local": {
       "description": "Local supabase start — supabase status only, no link",
-      "secretsFile": "config/secrets/local.env",
       "supabaseSource": "supabase_cli",
       "syncSupabaseLink": false,
       "targets": {
@@ -81,7 +79,6 @@
     },
     "staging": {
       "description": "Remote Supabase staging + staging flavor",
-      "secretsFile": "config/secrets/staging.env",
       "supabaseSource": "secrets",
       "railwayEnvironment": "staging",
       "targets": {
@@ -97,7 +94,6 @@
     },
     "production": {
       "description": "Remote Supabase production + production flavor",
-      "secretsFile": "config/secrets/production.env",
       "supabaseSource": "secrets",
       "railwayEnvironment": "production",
       "targets": {

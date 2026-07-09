@@ -26,7 +26,6 @@ void main() {
 {
   "local": {
     "description": "test local",
-    "secretsFile": "config/secrets/local.env",
     "supabaseSource": "secrets",
     "targets": {
       "erp": {

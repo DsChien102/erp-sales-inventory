@@ -57,15 +57,32 @@ workspace:
   - modules/accounting/infrastructure
   - modules/accounting/integration_events
   - modules/accounting/presentation
+  - tools/vet45_env
 
 dev_dependencies:
   melos: ^7.8.0
 
 melos:
   scripts:
+    env:init:
+      run: dart run tools/vet45_env/bin/vet45_env.dart init
+      description: Scaffold local config/ from bundled templates (first-time setup)
+
     env:list:
       run: dart run tools/vet45_env/bin/vet45_env.dart list
-      description: List Vet45 environments and active selection
+      description: List profiles, environments, and active selection
+
+    profile:list:
+      run: dart run tools/vet45_env/bin/vet45_env.dart profile list
+      description: List configuration profiles
+
+    profile:use:
+      run: dart run tools/vet45_env/bin/vet45_env.dart profile use
+      description: Set active profile (pass id after --)
+
+    profile:init:
+      run: dart run tools/vet45_env/bin/vet45_env.dart profile init
+      description: Scaffold a new profile under config/profiles/
 
     env:use:
       run: dart run tools/vet45_env/bin/vet45_env.dart use

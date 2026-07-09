@@ -6,11 +6,35 @@ Melos-centric workflow to keep ERP, messaging worker, and Supabase targets align
 
 | Artifact | Purpose |
 | -------- | ------- |
-| [`config/environments.json`](../../config/environments.json) | Targets registry (key deps) + per-env bindings (paths, flavors) |
-| `config/secrets/<env>.env` | Gitignored secrets per environment |
+| `tools/vet45_env/templates/config/` | Committed templates — copied to local `config/` by `env:init` |
+| [`config/environments.json`](../../config/environments.json) | Targets registry (key deps) + per-env bindings (local, after init) |
+| [`config/profiles.json`](../../config/profiles.json) | Profile registry (`secretsRoot` per workspace/client) |
+| `config/secrets/<env>.env` | Default profile secrets per environment |
+| `config/secrets/auth.env` | Default profile Supabase CLI token (optional) |
 | `config/secrets/deploy.env` | Shared iOS TestFlight credentials (deploy target) |
-| `.vet45/active` | Gitignored pointer to active environment id |
+| `.vet45/state.json` | Gitignored `{ profile, environment }` |
+| `.vet45/active` | Legacy environment id pointer (still updated) |
 | Generated `apps/*/.env*` | Output consumed by Flutter (`--dart-define-from-file`) and worker |
+
+## Configuration profiles
+
+Use profiles when you switch between Supabase accounts or client secret bundles. The **default** profile keeps the existing `config/secrets/` layout.
+
+| Artifact | Scope |
+| -------- | ----- |
+| `config/profiles/<id>/secrets/<env>.env` | Per-profile environment secrets |
+| `config/profiles/<id>/secrets/auth.env` | Per-profile `SUPABASE_ACCESS_TOKEN` |
+| `config/secrets/deploy.env` | Shared across all profiles |
+
+```bash
+melos run profile:list
+melos run profile:init -- acme --description "Client Acme"
+melos run profile:use -- acme
+# Set SUPABASE_ACCESS_TOKEN in config/profiles/acme/secrets/auth.env
+melos run env:sync -- --profile acme --env staging
+```
+
+See [config/profiles/README.md](../../config/profiles/README.md).
 
 ## Targets and key dependencies
 
@@ -55,11 +79,15 @@ Host alignment (erp vs worker Supabase URL) runs only when both targets pass.
 
 ## First-time setup
 
+`config/` is **local-only** (gitignored). Scaffold it once per clone:
+
 ```bash
 melos bootstrap
+melos run env:init
 cp config/secrets/development.env.example config/secrets/development.env
 cp config/secrets/staging.env.example config/secrets/staging.env
 cp config/secrets/production.env.example config/secrets/production.env
+# Optional: cp config/secrets/auth.env.example config/secrets/auth.env
 # Optional iOS deploy: cp config/secrets/deploy.env.example config/secrets/deploy.env
 # Fill Supabase URL + keys in config/secrets/*.env
 # Local stack only: supabase start && melos run env:local
@@ -67,6 +95,10 @@ cp config/secrets/production.env.example config/secrets/production.env
 melos run env:sync
 melos run env:doctor -- --target erp   # or full doctor once deploy.env exists
 ```
+
+Templates ship in `tools/vet45_env/templates/config/`. Refresh scaffold files with `melos run env:init -- --force` (never overwrites filled `*.env` secrets).
+
+Existing clones that still track `config/` in git: run `git rm -r --cached config/` once, then keep using your local files.
 
 ## Supabase CLI link (env → project ref)
 

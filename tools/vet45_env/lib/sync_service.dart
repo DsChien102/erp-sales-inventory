@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'key_resolver.dart';
 import 'manifest.dart';
+import 'profile_registry.dart';
 import 'secrets_loader.dart';
 import 'supabase_cli.dart';
 
@@ -17,16 +18,12 @@ class SyncService {
   final EnvManifest manifest;
   final SupabaseCli _supabaseCli;
 
-  /// Sync writable targets for [environmentId].
-  ///
-  /// When [targetId] is set, only that target is synced.
-  /// Missing keys for one target do not block writes for other targets.
   Future<SyncResult> sync(
-    String environmentId, {
+    WorkspaceContext ctx, {
     String? targetId,
   }) async {
-    final env = manifest.getEnvironment(environmentId);
-    final canonical = await _loadCanonical(env);
+    final env = ctx.environment;
+    final canonical = await _loadCanonical(ctx);
 
     final targetIds = _resolveTargetIds(env, targetId);
     final written = <String, File>{};
@@ -39,12 +36,13 @@ class SyncService {
       }
       final binding = env.binding(id);
       if (binding?.envFile == null) {
-        failures[id] = 'no envFile binding for target "$id" in environment "${env.id}"';
+        failures[id] =
+            'no envFile binding for target "$id" in environment "${env.id}"';
         continue;
       }
 
       try {
-        _applyAutoGenerate(target, canonical, env);
+        _applyAutoGenerate(target, canonical, ctx);
         final values = KeyResolver.resolve(
           target: target,
           binding: binding,
@@ -60,7 +58,8 @@ class SyncService {
     }
 
     return SyncResult(
-      environmentId: environmentId,
+      profileId: ctx.profileId,
+      environmentId: env.id,
       writtenFiles: written,
       failures: failures,
     );
@@ -77,17 +76,19 @@ class SyncService {
       ..sort();
   }
 
-  Future<Map<String, String>> _loadCanonical(EnvironmentDefinition env) async {
-    final fromSecrets = loadDotEnv(env.secretsFile);
+  Future<Map<String, String>> _loadCanonical(WorkspaceContext ctx) async {
+    final env = ctx.environment;
+    final fromSecrets = loadDotEnv(ctx.secretsFile);
+    final cli = _cliForContext(ctx);
     if (env.supabaseSource == 'supabase_cli') {
-      final status = await _supabaseCli.readStatusEnv();
-      final fromCli = _supabaseCli.toCanonical(status);
+      final status = await cli.readStatusEnv();
+      final fromCli = cli.toCanonical(status);
       return {...fromCli, ...fromSecrets};
     }
     if (env.cliFallback) {
       try {
-        final status = await _supabaseCli.readStatusEnv();
-        final fromCli = _supabaseCli.toCanonical(status);
+        final status = await cli.readStatusEnv();
+        final fromCli = cli.toCanonical(status);
         return {...fromCli, ...fromSecrets};
       } on Object {
         return Map<String, String>.from(fromSecrets);
@@ -96,10 +97,24 @@ class SyncService {
     return Map<String, String>.from(fromSecrets);
   }
 
+  SupabaseCli _cliForContext(WorkspaceContext ctx) {
+    final authEnv = loadProfileAuthEnvironment(ctx);
+    if (authEnv.isEmpty) {
+      return _supabaseCli;
+    }
+    return SupabaseCli(
+      workdir: manifest.rootDir,
+      processEnvironment: {
+        ...Platform.environment,
+        ...authEnv,
+      },
+    );
+  }
+
   void _applyAutoGenerate(
     TargetDefinition target,
     Map<String, String> canonical,
-    EnvironmentDefinition env,
+    WorkspaceContext ctx,
   ) {
     for (final key in target.keys) {
       if (!key.autoGenerate) {
@@ -113,7 +128,7 @@ class SyncService {
       final generated = generateTickSecret();
       canonical[sourceKey] = generated;
 
-      final secretsFile = target.secretsSource(env);
+      final secretsFile = target.secretsSource(ctx);
       if (!secretsFile.existsSync()) {
         secretsFile.parent.createSync(recursive: true);
       }
@@ -122,7 +137,8 @@ class SyncService {
       writeDotEnv(
         secretsFile,
         secrets,
-        header: '# Vet45 secrets for ${env.id} — safe to add overrides',
+        header:
+            '# Vet45 secrets for profile ${ctx.profileId} / ${ctx.environmentId}',
       );
     }
   }
@@ -130,11 +146,13 @@ class SyncService {
 
 class SyncResult {
   SyncResult({
+    required this.profileId,
     required this.environmentId,
     required this.writtenFiles,
     required this.failures,
   });
 
+  final String profileId;
   final String environmentId;
   final Map<String, File> writtenFiles;
   final Map<String, String> failures;

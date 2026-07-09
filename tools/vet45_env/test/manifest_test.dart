@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:test/test.dart';
 import 'package:vet45_env/doctor_service.dart';
 import 'package:vet45_env/manifest.dart';
+import 'package:vet45_env/profile_registry.dart';
 import 'package:vet45_env/secrets_loader.dart';
 import 'package:vet45_env/sync_service.dart';
 
@@ -20,7 +21,6 @@ void main() {
 {
   "local": {
     "description": "test local",
-    "secretsFile": "config/secrets/local.env",
     "supabaseSource": "secrets",
     "targets": {
       "erp": {
@@ -51,6 +51,7 @@ void main() {
     expect(manifest.targets.keys, containsAll(['erp', 'worker', 'deploy']));
     expect(manifest.getEnvironment('local').erp?.flavor, 'development');
     expect(manifest.deploySecretsFile.path, endsWith('config/secrets/deploy.env'));
+    expect(manifest.profiles.defaultProfileId, 'default');
   });
 
   test('default environment id falls back to development', () {
@@ -60,7 +61,6 @@ void main() {
 {
   "development": {
     "description": "test dev",
-    "secretsFile": "config/secrets/development.env",
     "supabaseSource": "secrets",
     "targets": {
       "erp": {
@@ -89,7 +89,6 @@ void main() {
 {
   "local": {
     "description": "bad",
-    "secretsFile": "config/secrets/local.env",
     "supabaseSource": "secrets",
     "targets": {
       "unknown_app": {
@@ -123,7 +122,9 @@ void main() {
       },
     );
 
-    final result = await SyncService(manifest: manifest).sync('local');
+    final result = await SyncService(manifest: manifest).sync(
+      testContext(manifest, 'local'),
+    );
 
     expect(result.ok, isTrue);
     expect(result.erpEnvFile!.existsSync(), isTrue);
@@ -160,7 +161,9 @@ void main() {
       },
     );
 
-    final result = await SyncService(manifest: manifest).sync('local');
+    final result = await SyncService(manifest: manifest).sync(
+      testContext(manifest, 'local'),
+    );
     final erp = loadDotEnv(result.erpEnvFile!);
 
     expect(erp.containsKey('APP_STORE_CONNECT_ISSUER_ID'), isFalse);
@@ -173,11 +176,12 @@ void main() {
       {
         'SUPABASE_URL': 'http://127.0.0.1:54321',
         'SUPABASE_ANON_KEY': 'anon-test',
-        // no service role / tick secret
       },
     );
 
-    final result = await SyncService(manifest: manifest).sync('local');
+    final result = await SyncService(manifest: manifest).sync(
+      testContext(manifest, 'local'),
+    );
 
     expect(result.ok, isFalse);
     expect(result.failures.keys, contains('worker'));
@@ -203,7 +207,7 @@ void main() {
     );
 
     final result = await SyncService(manifest: manifest).sync(
-      'local',
+      testContext(manifest, 'local'),
       targetId: 'erp',
     );
 
@@ -223,7 +227,7 @@ void main() {
     );
 
     final erpOnly = await SyncService(manifest: manifest).sync(
-      'local',
+      testContext(manifest, 'local'),
       targetId: 'erp',
     );
     expect(erpOnly.ok, isTrue);
@@ -233,7 +237,7 @@ void main() {
     expect(secretsAfterErp.containsKey('WORKER_TICK_SECRET'), isFalse);
 
     final workerOnly = await SyncService(manifest: manifest).sync(
-      'local',
+      testContext(manifest, 'local'),
       targetId: 'worker',
     );
     expect(workerOnly.ok, isTrue);
@@ -253,12 +257,15 @@ void main() {
         'SUPABASE_ANON_KEY': 'anon-test',
       },
     );
-    await SyncService(manifest: manifest).sync('local', targetId: 'erp');
+    await SyncService(manifest: manifest).sync(
+      testContext(manifest, 'local'),
+      targetId: 'erp',
+    );
 
     final report = await DoctorService(
       manifest: manifest,
       skipNetwork: true,
-    ).run('local', targetId: 'erp');
+    ).run(testContext(manifest, 'local'), targetId: 'erp');
 
     expect(report.ok, isTrue);
     expect(
@@ -271,7 +278,7 @@ void main() {
     final report = await DoctorService(
       manifest: manifest,
       skipNetwork: true,
-    ).run('local', targetId: 'deploy');
+    ).run(testContext(manifest, 'local'), targetId: 'deploy');
 
     expect(report.ok, isFalse);
     expect(
@@ -292,13 +299,28 @@ void main() {
     final report = await DoctorService(
       manifest: manifest,
       skipNetwork: true,
-    ).run('local', targetId: 'deploy');
+    ).run(testContext(manifest, 'local'), targetId: 'deploy');
 
     expect(report.ok, isTrue);
   });
 
   test('write and read active environment', () {
     writeActive(root, 'local');
+    expect(readActive(root), 'local');
+  });
+
+  test('write and read active state with profile', () {
+    writeActiveState(
+      root,
+      ActiveState(profileId: 'default', environmentId: 'local'),
+    );
+    final state = readActiveState(
+      root,
+      defaultProfileId: 'default',
+      defaultEnvironmentId: 'development',
+    );
+    expect(state.profileId, 'default');
+    expect(state.environmentId, 'local');
     expect(readActive(root), 'local');
   });
 }
