@@ -17,7 +17,7 @@ class ProductGuidedCreatePage extends StatelessWidget {
       create: (_) => ProductGuidedCreateCubit(
         catalogModule: GetIt.instance<ICatalogModule>(),
         executionContext: GetIt.instance<IExecutionContext>(),
-      ),
+      )..loadTenantUnits(),
       child: const _ProductGuidedCreateView(),
     );
   }

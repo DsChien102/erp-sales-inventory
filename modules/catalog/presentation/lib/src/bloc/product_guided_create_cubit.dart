@@ -22,6 +22,21 @@ class ProductGuidedCreateCubit extends Cubit<ProductGuidedCreateState> {
   final IExecutionContext _executionContext;
   final ImagePicker _picker = ImagePicker();
 
+  Future<void> loadTenantUnits({String? keyword}) async {
+    try {
+      final tenantId = await _executionContext.requireTenantId();
+      final query = ListTenantMeasurementUnitsQuery(
+        tenantId: tenantId,
+        keyword: keyword,
+        limit: 50,
+      );
+      final units = await _catalogModule.executeQueryAsync(query);
+      emit(state.copyWith(tenantUnits: units));
+    } catch (e) {
+      // Ignore errors silently for now as this is just autocomplete
+    }
+  }
+
   void updateName(String val) {
     emit(state.copyWith(name: val, clearError: true));
   }
