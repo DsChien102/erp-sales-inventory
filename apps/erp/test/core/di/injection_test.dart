@@ -4,7 +4,6 @@ import 'package:vet45_catalog_application/application.dart';
 import 'package:vet45_catalog_application/testing.dart';
 import 'package:vet45_iam_application/application.dart';
 import 'package:vet45_iam_infrastructure/infrastructure.dart';
-import 'package:vet45_partner_application/application.dart';
 import 'package:vet45_shared_application/application.dart';
 
 import 'package:erp/core/di/injection.dart';
@@ -35,7 +34,6 @@ void main() {
     expect(getIt.isRegistered<ITenantAccessChecker>(), isTrue);
     expect(getIt.isRegistered<IamSession>(), isTrue);
     expect(getIt.isRegistered<ICurrentUser>(), isTrue);
-    expect(getIt.isRegistered<IPartnerModule>(), isTrue);
     expect(getIt.isRegistered<ICatalogModule>(), isTrue);
     expect(getIt<ICatalogModule>(), isNot(isA<FakeCatalogModule>()));
   });

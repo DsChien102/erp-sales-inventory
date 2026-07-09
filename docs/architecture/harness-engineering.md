@@ -73,9 +73,9 @@ Khi agent fail lặp lại cùng lỗi:
 | **Hiện tại (harness phase)** | `packages/vet45_generator/test/fixtures/`, `packages/vet45_shared/testing/` |
 | **Presentation UI (golden)** | `apps/erp/lib/features/dashboard/presentation/` |
 | **Phase 2 (golden)** | Module `iam` — codegen + ERP auth wiring |
-| **TH-03 partner** | Epic-01..02 BE/FE/E2E + **codegen enabled** — [modules/partner/README.md](../../modules/partner/README.md) |
+| **TH-03 partner** | Harness v2 synced — **greenfield reboot**; rebuild từ `modules/iam/` — [docs/themes/TH-03-partner/harness/](../themes/TH-03-partner/harness/) |
 
-`modules/partner/` có vertical slice Epic-01..02 và codegen; các `modules/*` khác vẫn skeleton — xem [04-repository-layout.md](04-repository-layout.md).
+`modules/partner/` đã gỡ (2026-07-07); các `modules/*` khác vẫn skeleton — xem [04-repository-layout.md](04-repository-layout.md).
 
 ## BE / FE contract-first lanes (theme `in_progress`)
 
@@ -90,7 +90,7 @@ Mỗi theme `in_progress` có `harness/07-api-contracts.md` — Commands/Queries
 
 **Prerequisite trong slice-roadmap chỉ bind lane E2E** — FE fake và BE handler tests có thể chạy song song sau CONTRACT.
 
-FE **không** fake RPC — inject `IPartnerModule` / `FakePartnerModule` (`package:vet45_partner_application/testing.dart`).
+FE **không** fake RPC — inject `IPartnerModule` / `FakePartnerModule` (planned trong `modules/partner/application/` khi rebuild).
 
 ## Test harness
 

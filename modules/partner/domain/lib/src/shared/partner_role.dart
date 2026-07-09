@@ -1,4 +1,0 @@
-enum PartnerRole {
-  customer,
-  supplier,
-}

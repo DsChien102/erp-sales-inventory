@@ -4,19 +4,21 @@ Tài liệu này là **điểm vào chính** cho AI coding agents. Nếu thông 
 
 ## Trạng thái repo (đọc trước khi implement)
 
-| Khu vực | Trạng thái |
-| ------- | ---------- |
-| `packages/vet45_shared/*` | Kernel CQRS + pipeline — **có implementation và tests** |
-| `modules/iam/` | **Golden module** — codegen bật, auth + tenant/membership interim; xem [modules/iam/README.md](modules/iam/README.md) |
-| `packages/vet45_generator/test/fixtures/` | Reference CQRS tạm (khi chưa cần đọc IAM) |
-| `packages/vet45_shared/testing/` | Test harness (`PipelineTestHarness`, fakes) |
-| `modules/partner/` | **TH-03 in progress** — codegen bật; Epic-01 profile CRUD + Epic-02 status done; xem [modules/partner/README.md](modules/partner/README.md) |
-| `packages/vet45_async_query/` | Async server-state toolkit (TanStack Query style) — core + Flutter adapter + example; xem [packages/vet45_async_query/README.md](packages/vet45_async_query/README.md) |
-| `modules/*` (các context khác) | **Greenfield skeleton** — chưa codegen |
-| `apps/erp/features/auth/` | Auth **presentation shell** — login/logout qua `IIamModule` / `IamStartup` |
-| `apps/messaging_worker/` | Worker messaging — có tests |
 
-**Copy CQRS + access pattern từ `modules/iam/`** — không copy từ `modules/sales/` (scaffold).
+| Khu vực                                   | Trạng thái                                                                                                                                                             |
+| ----------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `packages/vet45_shared/*`                 | Kernel CQRS + pipeline — **có implementation và tests**                                                                                                                |
+| `modules/iam/`                            | **Golden module** — codegen bật, auth + tenant/membership interim; xem [modules/iam/README.md](modules/iam/README.md)                                                  |
+| `packages/vet45_generator/test/fixtures/` | Reference CQRS tạm (khi chưa cần đọc IAM)                                                                                                                              |
+| `packages/vet45_shared/testing/`          | Test harness (`PipelineTestHarness`, fakes)                                                                                                                            |
+| `packages/vet45_async_query/`             | Async server-state toolkit (TanStack Query style) — core + Flutter adapter + example; xem [packages/vet45_async_query/README.md](packages/vet45_async_query/README.md) |
+| `modules/partner/`                        | **TH-03 reboot** — greenfield, chờ rebuild; harness v2 synced; xem [docs/themes/TH-03-partner/](docs/themes/TH-03-partner/)                                            |
+| `modules/*` (các context khác)            | **Greenfield skeleton** — chưa codegen                                                                                                                                 |
+| `apps/erp/features/auth/`                 | Auth **presentation shell** — login/logout qua `IIamModule` / `IamStartup`                                                                                             |
+| `apps/messaging_worker/`                  | Worker messaging — có tests                                                                                                                                            |
+
+
+**Copy CQRS + access pattern từ** `modules/iam/` — không copy từ `modules/sales/` (scaffold).
 
 ## Luồng kiến trúc bắt buộc
 
@@ -36,29 +38,37 @@ module infrastructure → module application + packages/vet45_shared/infrastruct
 packages/vet45_shared/*     → never import modules/
 ```
 
+
+
 ## Reference tạm thời (copy từ đây)
 
-| Mục đích | Path |
-| -------- | ---- |
-| Golden module (codegen + access + wiring) | `modules/iam/` + [modules/iam/README.md](modules/iam/README.md) |
-| Module codegen (second reference) | `modules/partner/` + [modules/partner/README.md](modules/partner/README.md) |
-| Command + handler + `@CommandHandlerFor` (fixtures) | `packages/vet45_generator/test/fixtures/lib/src/` |
-| Pipeline + validator + in-memory bus test | `packages/vet45_shared/testing/test/shared_testing_test.dart` |
-| Module layout mục tiêu | `docs/MODULES_IMPLEMENTATION_TEMPLATE.md` |
-| Layer rules (always-on) | `.cursor/rules/vet45-architecture.mdc` |
-| Page mỏng + widgets tách file | `apps/erp/lib/features/dashboard/presentation/` |
+
+| Mục đích                                            | Path                                                                     |
+| --------------------------------------------------- | ------------------------------------------------------------------------ |
+| Golden module (codegen + access + wiring)           | `modules/iam/` + [modules/iam/README.md](modules/iam/README.md)          |
+| TH-03 harness (partner greenfield)                  | [docs/themes/TH-03-partner/harness/](docs/themes/TH-03-partner/harness/) |
+| Command + handler + `@CommandHandlerFor` (fixtures) | `packages/vet45_generator/test/fixtures/lib/src/`                        |
+| Pipeline + validator + in-memory bus test           | `packages/vet45_shared/testing/test/shared_testing_test.dart`            |
+| Module layout mục tiêu                              | `docs/MODULES_IMPLEMENTATION_TEMPLATE.md`                                |
+| Layer rules (always-on)                             | `.cursor/rules/vet45-architecture.mdc`                                   |
+| Page mỏng + widgets tách file                       | `apps/erp/lib/features/dashboard/presentation/`                          |
+
+
+
 
 ## Skills map
 
-| Task | Skill / doc |
-| ---- | ----------- |
-| Domain model phân tích (→ `01-domain-model.md`) | `.cursor/skills/ddd-domain-modeling/SKILL.md` |
-| Domain code implement (`modules/*/domain/`) | `.cursor/skills/domain-layer/SKILL.md` |
-| Application layer (handlers, ports, DTOs) | `.cursor/skills/application-layer/SKILL.md` |
-| Infrastructure (RPC, gateways, startup) | `.cursor/skills/infrastructure-layer/SKILL.md` |
-| Presentation UI (pages, dialogs, widgets) | `.cursor/skills/presentation-layer/SKILL.md` |
+
+| Task                                                    | Skill / doc                                                                                                 |
+| ------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| Domain model phân tích (→ `01-domain-model.md`)         | `.cursor/skills/ddd-domain-modeling/SKILL.md`                                                               |
+| Domain code implement (`modules/*/domain/`)             | `.cursor/skills/domain-layer/SKILL.md`                                                                      |
+| Application layer (handlers, ports, DTOs)               | `.cursor/skills/application-layer/SKILL.md`                                                                 |
+| Infrastructure (RPC, gateways, startup)                 | `.cursor/skills/infrastructure-layer/SKILL.md`                                                              |
+| Presentation UI (pages, dialogs, widgets)               | `.cursor/skills/presentation-layer/SKILL.md`                                                                |
 | Tích hợp async server-state cache (`vet45_async_query`) | `.cursor/rules/vet45-presentation-ui.mdc` + `packages/vet45_async_query/docs/AGENT_INTEGRATION_PLAYBOOK.md` |
-| Harness approach | `docs/architecture/harness-engineering.md` |
+| Harness approach                                        | `docs/architecture/harness-engineering.md`                                                                  |
+
 
 Canonical specs (mirror của skills): `docs/application_layer_skill.md`, `docs/domain_layer_skill.md`, `docs/infrastructure_layer_skill.md`, `docs/ddd_domain_modeling_skill.md`, `docs/presentation_layer_skill.md`.
 
@@ -86,6 +96,8 @@ Canonical specs (mirror của skills): `docs/application_layer_skill.md`, `docs/
 6. Nếu agent fail lặp lại cùng lỗi → cập nhật harness (guard/doc/skill), không chỉ retry prompt
 ```
 
+
+
 ## Lệnh verify
 
 ```bash
@@ -100,20 +112,23 @@ cd apps/erp && flutter test
 cd apps/messaging_worker && dart test
 ```
 
+
+
 ## Schema & migration (agents)
 
 `supabase/migrations/` là **migration chính thức** — Supabase CLI apply theo version (`YYYYMMDDxxx_*.sql`). Trong collaboration, nhiều agent/branch cùng thêm file timestamp dễ gây **trùng version**, `db reset` fail, hoặc sequence lệch.
 
 ### Quy tắc bắt buộc
 
-| Việc | Agent được | Agent không được |
-| ---- | ---------- | -------------- |
-| Thiết kế DDL/RPC/RLS cho slice | Viết SQL tạm vào [`supabase/migrations/_drafts/`](supabase/migrations/_drafts/) | Tạo/sửa `supabase/migrations/[0-9]*.sql` |
-| Map contract BE | Cập nhật harness `07-api-contracts.md` + Dart gateway/RPC client | Giả định draft đã apply trên DB |
-| Verify local DB | `melos run test`, harness scripts | `supabase db reset` để “thử” draft SQL (trừ khi user yêu cầu) |
-| Promote migration | — | Tự đổi tên draft → timestamp migration |
 
-**Draft naming:** `<scope>_<short_description>.sql` (không có prefix timestamp). Quy ước chi tiết: [`supabase/migrations/_drafts/README.md`](supabase/migrations/_drafts/README.md).
+| Việc                           | Agent được                                                                      | Agent không được                                              |
+| ------------------------------ | ------------------------------------------------------------------------------- | ------------------------------------------------------------- |
+| Thiết kế DDL/RPC/RLS cho slice | Viết SQL tạm vào `[supabase/migrations/_drafts/](supabase/migrations/_drafts/)` | Tạo/sửa `supabase/migrations/[0-9]*.sql`                      |
+| Map contract BE                | Cập nhật harness `07-api-contracts.md` + Dart gateway/RPC client                | Giả định draft đã apply trên DB                               |
+| Verify local DB                | `melos run test`, harness scripts                                               | `supabase db reset` để “thử” draft SQL (trừ khi user yêu cầu) |
+| Promote migration              | —                                                                               | Tự đổi tên draft → timestamp migration                        |
+
+**Draft naming:** `<scope>_<short_description>.sql` (không có prefix timestamp). Quy ước chi tiết: `[supabase/migrations/_drafts/README.md](supabase/migrations/_drafts/README.md)`.
 
 **Chỉ tạo file `YYYYMMDDxxx_*.sql`** khi user **yêu cầu rõ** promote migration hoặc maintain schema chính thức. Khi promote: dùng `melos run migrate:promote-drafts` hoặc đảm bảo id unique (`supabase migration list --local`), SQL idempotent, có header theo [`supabase/migrations/README.md`](supabase/migrations/README.md).
 
@@ -134,6 +149,8 @@ cd apps/messaging_worker && dart test
 - Hardcode permission code string — dùng `{Module}Permissions` constant trong `modules/<module>/domain/`
 - Chỉnh tay `apps/*/.env*` — sửa `config/secrets/<env>.env` rồi `melos run env:sync`
 
+
+
 ## Legacy / ngoại lệ hiện tại
 
 `apps/erp/features/auth/` giữ presentation (login page). Business auth nằm trong `modules/iam` qua `IIamModule` — không mở rộng direct Supabase calls từ feature shell.
@@ -145,7 +162,10 @@ Theme đang deliver: [docs/themes/TH-03-partner/](docs/themes/TH-03-partner/)
 - Ritual: [harness/00-agent-ritual.md](docs/themes/TH-03-partner/harness/00-agent-ritual.md)
 - Contracts: [harness/07-api-contracts.md](docs/themes/TH-03-partner/harness/07-api-contracts.md)
 - Slice order + lanes: [harness/04-slice-roadmap.md](docs/themes/TH-03-partner/harness/04-slice-roadmap.md)
-- Codegen: [modules/partner/README.md](modules/partner/README.md)
+- Domain model v2: [harness/01-domain-model.md](docs/themes/TH-03-partner/harness/01-domain-model.md)
+- Golden module (rebuild): `modules/iam/` — partner chưa có code
+
+
 
 ## Liên kết
 
@@ -155,3 +175,4 @@ Theme đang deliver: [docs/themes/TH-03-partner/](docs/themes/TH-03-partner/)
 - [docs/themes/](docs/themes/) — catalog theme
 - [packages/vet45_shared/README.md](packages/vet45_shared/README.md) — shared toolkit
 - [packages/vet45_async_query/docs/AGENT_INTEGRATION_PLAYBOOK.md](packages/vet45_async_query/docs/AGENT_INTEGRATION_PLAYBOOK.md) — async query integration guide
+

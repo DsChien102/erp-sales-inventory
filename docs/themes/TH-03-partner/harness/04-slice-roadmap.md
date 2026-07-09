@@ -1,64 +1,67 @@
-# TH-03 — Slice roadmap
+# TH-03 — Slice roadmap (v2)
 
 Thứ tự implement vertical slice. Lane status: `todo` | `in_progress` | `done` | `blocked` | `n/a`.
 
-**Slice done** = Contract + BE + FE + E2E đều `done` (hoặc `n/a`). **Prerequisite chỉ bind lane E2E** — không block FE fake / BE handler unit test.
+**Reboot 2026-07-07:** Toàn bộ lane reset `todo` — code partner cũ đã gỡ; rebuild greenfield theo domain model v2.
+
+**Slice done** = Contract + BE + FE + E2E đều `done` (hoặc `n/a`). **Prerequisite chỉ bind lane E2E** — FE fake và BE unit test chạy song song sau CONTRACT.
 
 | # | Slice | Type | Contract | BE | FE | E2E | Parallel group | E2E blocked by |
 | - | ----- | ---- | -------- | -- | -- | --- | -------------- | -------------- |
-| 1 | [Epic-01/US-02](../Epic-01-partner-profile/US-02/) — Ghi nhận đối tác mới | write | done | done | done | done | — | — |
-| 2 | [Epic-01/US-01](../Epic-01-partner-profile/US-01/) — Tìm kiếm danh sách | read | done | done | done | done | A | US-02 (data) |
-| 3 | [Epic-01/US-04](../Epic-01-partner-profile/US-04/) — Kiểm tra hồ sơ | read | done | done | done | done | A | US-02 |
-| 4 | [Epic-01/US-03](../Epic-01-partner-profile/US-03/) — Bổ sung/chỉnh sửa | write | done | done | done | done | A | US-02 |
-| 5 | [Epic-02/US-01](../Epic-02-partner-status/US-01/) — Dừng sử dụng / kích hoạt lại | write | done | done | done | done | B | US-04 |
-| 6 | [Epic-02/US-02](../Epic-02-partner-status/US-02/) — Loại bỏ hồ sơ tạo nhầm | write | done | done | done | done | C | US-04 |
-| 7 | [Epic-03/US-01](../Epic-03-partner-transaction-history/US-01/) — Lịch sử giao dịch | read cross-module | done | done | done | **blocked** | D | sales/inventory/accounting events |
+| S1 | [EP-01/US-02](../Epic-01-partner-profile/US-02.md) — Tạo Partner (Person + Organization) | write | todo | todo | todo | todo | — | — |
+| S2 | [EP-01/US-01](../Epic-01-partner-profile/US-01.md) — Tìm kiếm danh sách | read | todo | todo | todo | todo | A | S1 (data) |
+| S3 | [EP-01/US-04](../Epic-01-partner-profile/US-04.md) — Xem hồ sơ chi tiết | read | todo | todo | todo | todo | A | S1 |
+| S4 | [EP-01/US-03](../Epic-01-partner-profile/US-03.md) — Cập nhật hồ sơ + role | write | todo | todo | todo | todo | A | S1 |
+| S5 | [EP-01/US-05](../Epic-01-partner-profile/US-05.md) — Quản lý người liên hệ | write | todo | todo | todo | todo | B | S3 (org detail) |
+| S6 | [EP-01/US-06](../Epic-01-partner-profile/US-06.md) — Transform Person→Organization | write | todo | todo | todo | todo | B | S3 |
+| S7 | [EP-02/US-01](../Epic-02-partner-status/US-01.md) — Ngừng hoạt động / kích hoạt lại | write | todo | todo | todo | todo | C | S3 |
+| S8 | [EP-02/US-02](../Epic-02-partner-status/US-02.md) — Xóa mềm | write | todo | todo | todo | todo | C | S3 |
+| S9 | [EP-01/US-07](../Epic-01-partner-profile/US-07.md) — Lịch sử làm việc | read cross-module | todo | todo | todo | **blocked** | D | sales/inventory/accounting events |
 
 ### Parallel groups
 
 | Group | Slices | Ghi chú |
 | ----- | ------ | ------- |
-| A | US-01, US-03, US-04 | Retrofit — đã implement tuần tự; E2E cần US-02 data |
-| B | Epic-02/US-01 | BE ∥ FE sau CONTRACT; E2E via `FakePartnerModule` page test |
-| C | Epic-02/US-02 | Delete soft — done trên branch |
-| D | Epic-03/US-01 | BE + FE done; E2E blocked chờ cross-module events |
+| A | S2, S3, S4 | Sau S1 CONTRACT; E2E cần S1 data |
+| B | S5, S6 | Cần Organization detail (S3) cho E2E |
+| C | S7, S8 | Status lifecycle |
+| D | S9 | BE+FE có thể làm trước; E2E blocked cross-module |
 
 ## Definition of Done (per lane)
 
 ### CONTRACT
 
-- [ ] Commands/Queries/DTOs exported trong `modules/<owner>/application/`
+- [ ] Commands/Queries/DTOs exported trong `modules/partner/application/`
 - [ ] Section trong [07-api-contracts.md](07-api-contracts.md) + fake scenario table
 - [ ] BE + FE sign-off (review PR)
 
 ### BE
 
-- [ ] Domain, handler, validator, gateway, RPC migration
-- [ ] Handler annotated `@CommandHandlerFor` / `@QueryHandlerFor`; message `implements ICommand` / `IQuery`
-- [ ] `melos run codegen` + commit `modules/partner/infrastructure/.../generated/*.g.dart`
+- [ ] Domain, handler, validator, gateway, draft SQL trong `_drafts/`
+- [ ] Handler annotated `@CommandHandlerFor` / `@QueryHandlerFor`
+- [ ] `melos run codegen` + commit `generated/*.g.dart`
 - [ ] Handler test `scn_*` pass
 
 ### FE
 
-- [ ] UI + cubit wired `IPartnerModule` / `IModuleMediator`
-- [ ] Widget test `wgt_*` với `FakePartnerModule` scenario (khi FR có dialog/SCN)
+- [ ] UI + cubit wired `IPartnerModule`
+- [ ] Widget test `wgt_*` với `FakePartnerModule` scenario
 
 ### E2E
 
-- [ ] ERP DI real module; integration / flutter test qua mediator thật
+- [ ] ERP DI real module; integration / flutter test qua mediator
 - [ ] `melos run test` + `./scripts/ci/verify_harness.sh` pass
-- [ ] `cd apps/erp && flutter test` pass (khi slice có UI)
+- [ ] `cd apps/erp && flutter test` pass
 
-### Chung (mọi lane)
+### Chung
 
-- [ ] Product FR spec đã đọc (BR/EC/SCN)
-- [ ] Traceability rows trong [05-traceability.md](05-traceability.md) cập nhật theo Role
-- [ ] Page ≤ 500 dòng (`guard_presentation_size.sh` pass)
+- [ ] US spec đã đọc (FR/BR/EC/SCN trong `US-{nn}.md`)
+- [ ] Traceability rows trong [05-traceability.md](05-traceability.md) cập nhật
+- [ ] Page ≤ 500 dòng
 
 ## Epic → module
 
 | Epic/US | Owner module | Ghi chú |
 | ------- | ------------ | ------- |
-| Epic-01 | partner | Core profile CRUD |
-| Epic-02 | partner | Status mutations |
-| Epic-03 | partner (read) + sales/inventory/accounting (publish) | Inbox projection |
+| EP-01 | partner | Profile CRUD, contact, transform, history read |
+| EP-02 | partner | Status lifecycle + soft delete |

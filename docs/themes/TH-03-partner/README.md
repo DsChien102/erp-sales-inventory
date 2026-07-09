@@ -1,16 +1,18 @@
 # TH-03: Khách hàng & NCC
 
-**Trạng thái deliver:** `in_progress`
+**Trạng thái deliver:** `in_progress` (reboot greenfield — harness v2 synced 2026-07-07)
 
 ## Mục tiêu
 
 Quản lý hồ sơ đối tác (khách hàng, nhà cung cấp, hoặc cả hai) làm lớp dữ liệu nền cho bán hàng, nhập hàng, hóa đơn, công nợ và tra cứu lịch sử giao dịch.
 
+**Domain model v2:** Partner (root) + Person/Organization (profile type) + Customer/Supplier (transaction role) + OrganizationContact + soft delete (`active`/`inactive`/`deleted`).
+
 ## Module tham gia
 
 | Module | Vai trò | Package |
 | ------ | ------- | ------- |
-| partner | **Owner** — codegen enabled | `modules/partner/` ([README](../../../modules/partner/README.md)) |
+| partner | **Owner** — greenfield, chờ rebuild | `modules/partner/` (chưa có) |
 | iam | Supporting — auth, tenant, permission | `modules/iam/` |
 | sales | Supporting — snapshot, publish transaction events | `modules/sales/` |
 | inventory | Supporting — publish inbound events | `modules/inventory/` |
@@ -20,31 +22,35 @@ Quản lý hồ sơ đối tác (khách hàng, nhà cung cấp, hoặc cả hai)
 
 | Nhóm | File |
 | ---- | ---- |
-| Business scope | [01-business-scope.md](01-business-scope.md) |
-| Harness (agent/engineer) | [harness/](harness/) (incl. [07-api-contracts](harness/07-api-contracts.md)) |
+| **Product spec (canonical)** | [Theme-3-partner.md](Theme-3-partner.md) |
+| Business scope (tóm tắt) | [01-business-scope.md](01-business-scope.md) |
+| Harness (agent/engineer) | [harness/](harness/) |
 | Platform architecture | [docs/architecture/](../../architecture/README.md) |
 
 ## Epic index
 
-| Epic | Folder | US | FR | Status |
-| ---- | ------ | -- | -- | ------ |
-| Epic 01 — Hồ sơ đối tác | [Epic-01-partner-profile/](Epic-01-partner-profile/) | US-01..04 | 5+6+6+5 | **done** |
-| Epic 02 — Trạng thái đối tác | [Epic-02-partner-status/](Epic-02-partner-status/) | US-01..02 | 5+4 | todo |
-| Epic 03 — Lịch sử giao dịch | [Epic-03-partner-transaction-history/](Epic-03-partner-transaction-history/) | US-01 | 5 | blocked |
+| Epic | Folder | US specs | Status |
+| ---- | ------ | -------- | ------ |
+| EP-01 — Danh sách, hồ sơ & lịch sử | [Epic-01-partner-profile/](Epic-01-partner-profile/) | [US-01](Epic-01-partner-profile/US-01.md) … [US-07](Epic-01-partner-profile/US-07.md) | planned |
+| EP-02 — Trạng thái đối tác | [Epic-02-partner-status/](Epic-02-partner-status/) | [US-01](Epic-02-partner-status/US-01.md), [US-02](Epic-02-partner-status/US-02.md) | planned |
 
-Chi tiết slice order và phụ thuộc: [harness/04-slice-roadmap.md](harness/04-slice-roadmap.md).
+Slice order: [harness/04-slice-roadmap.md](harness/04-slice-roadmap.md) (S1..S9).
 
 ## Quy ước ID
 
 ```text
-TH-03 / Epic-{nn} / US-{nn} / FR-{nn} / BR-{nn} / SCN-{nn}
-Test id (khi có): scn_e01_u02_fr06_01
+TH-03 / EP-{nn} / US-{nn} / FR-{nn} / BR-{nn} / SCN-{nn}
 ```
+
+- **US** = một file markdown `US-{nn}.md` trong folder epic (FR table + Scenarios + UI/API contract).
+- **SCN** = scenario Gherkin trong US (`SCN-01` … `SCN-07`).
+- **FR** = functional requirement checklist — section 2 trong file US.
 
 ## Agent prompt mẫu
 
 ```text
-Implement TH-03/Epic-01/US-02/FR-06 per docs/themes/TH-03-partner/harness/00-agent-ritual.md.
-Read README → slice-roadmap → US README → FR spec → harness domain-model + architecture.
+Implement TH-03 slice S1 (EP-01/US-02) per docs/themes/TH-03-partner/Epic-01-partner-profile/US-02.md.
+Read README → harness/04-slice-roadmap.md → harness/07-api-contracts.md §S1 → harness/01-domain-model.md.
+Golden module: modules/iam/ (codegen + pipeline).
 Verify: melos run test && ./scripts/ci/verify_harness.sh
 ```

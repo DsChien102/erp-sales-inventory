@@ -1,42 +1,39 @@
-## Epic 3.1: Quản lý danh sách và hồ sơ đối tác
+# EP-01 — Quản lý danh sách, hồ sơ và lịch sử đối tác
 
-### Epic overview
+**Master spec:** [Theme-3-partner.md](../Theme-3-partner.md) §5
 
-Epic này tập trung vào việc quản lý hồ sơ đối tác trong VET45, bao gồm khách hàng, nhà cung cấp hoặc một đối tác có cả hai vai trò.
+## Mục tiêu epic
 
-Trong phạm vi Epic này, hệ thống quản lý một hồ sơ Business Partner duy nhất trong tenant. Vai trò Khách hàng và Nhà cung cấp chỉ thể hiện cách đối tác được sử dụng trong nghiệp vụ, không tạo ra nhiều hồ sơ riêng cho cùng một đối tác.
+Bao phủ luồng người dùng từ tìm đối tác, tạo mới, xem/chỉnh sửa hồ sơ, quản lý người liên hệ, transform Cá nhân → Tổ chức và xem lịch sử làm việc.
 
-Epic này bao gồm các nghiệp vụ chính như tra cứu danh sách đối tác, ghi nhận hồ sơ mới, xem chi tiết hồ sơ, cập nhật thông tin, thay đổi vai trò đối tác và thay đổi loại hồ sơ giữa Cá nhân và Tổ chức.
+## Phạm vi
 
-Hồ sơ đối tác được phân thành hai loại chính:
+| Nhóm | Nội dung |
+| ---- | -------- |
+| Danh sách | Tìm kiếm, lọc, xem danh sách Partner |
+| Tạo mới | Tạo Person hoặc Organization |
+| Cập nhật | Bổ sung/chỉnh sửa thông tin hiện tại |
+| Hồ sơ | Xem chi tiết Person/Organization |
+| Contact | Quản lý người liên hệ của Organization |
+| Transform | Chuyển Person thành Organization |
+| History | Xem lịch sử làm việc read-only |
 
-- Cá nhân
-- Tổ chức
+**Ngoài phạm vi:** lifecycle status và soft delete → [EP-02](../Epic-02-partner-status/).
 
-Hồ sơ Tổ chức bao gồm Công ty và Hộ kinh doanh. Trong MVP, Công ty và Hộ kinh doanh không được tách thành hai loại hồ sơ riêng, mà cùng sử dụng cấu trúc hồ sơ Tổ chức.
+## User stories
 
-Epic này cũng chuẩn hóa bộ thông tin của đối tác gồm thông tin nhận diện, thông tin liên hệ, thông tin người liên hệ, địa chỉ, thông tin xuất hóa đơn, mã số thuế, trạng thái và ghi chú nội bộ.
+| US | Tên | Spec |
+| -- | --- | ---- |
+| US-01 | Tìm kiếm và rà soát danh sách đối tác | [US-01.md](US-01.md) |
+| US-02 | Ghi nhận đối tác mới | [US-02.md](US-02.md) |
+| US-03 | Bổ sung và chỉnh sửa thông tin đối tác | [US-03.md](US-03.md) |
+| US-04 | Kiểm tra hồ sơ đối tác | [US-04.md](US-04.md) |
+| US-05 | Quản lý người liên hệ của tổ chức | [US-05.md](US-05.md) |
+| US-06 | Chuyển cá nhân thành tổ chức | [US-06.md](US-06.md) |
+| US-07 | Theo dõi lịch sử làm việc với đối tác | [US-07.md](US-07.md) |
 
-### Business value
+## Cấu trúc đặc tả
 
-Epic này giúp cửa hàng chuẩn hóa dữ liệu khách hàng và nhà cung cấp ngay từ gốc, tránh việc cùng một đối tác bị tạo nhiều hồ sơ khác nhau trong hệ thống.
+Mỗi `US-{nn}.md` gồm 9 section: Business Context, FR, BR, EC, UI Contract, Design Contract, Data/API, **Scenarios**, AC & OQ.
 
-Khi dữ liệu đối tác được quản lý thống nhất, các module khác như Bán hàng, Nhập hàng, Công nợ, Hóa đơn điện tử, Kho và Báo cáo có thể cùng tham chiếu một nguồn dữ liệu nhất quán. Điều này giúp giảm sai sót khi lập giao dịch, dễ tra cứu lịch sử, dễ đối soát công nợ và hỗ trợ dữ liệu hóa đơn khi cần.
-
-### User roles
-
-| Role | Permission / Involvement |
-|---|---|
-| Chủ cửa hàng | Có toàn quyền xem, tạo, cập nhật, đổi vai trò, đổi loại hồ sơ và kiểm tra thông tin đối tác. |
-| Kế toán | Xem và cập nhật thông tin đối tác phục vụ công nợ, hóa đơn, chứng từ và đối soát. |
-| Nhân viên bán hàng | Xem, tìm kiếm, ghi nhận hoặc cập nhật thông tin khách hàng phục vụ bán hàng. |
-| Thủ kho | Xem thông tin nhà cung cấp liên quan đến nghiệp vụ nhập hàng nếu được phân quyền. |
-
-### User stories
-
-| User story | User story name | Mục tiêu |
-|---|---|---|
-| US-3.1.1 | Tìm kiếm và rà soát danh sách đối tác | Giúp người dùng tìm nhanh đúng khách hàng/NCC cần kiểm tra hoặc sử dụng. |
-| US-3.1.2 | Ghi nhận đối tác mới | Giúp người dùng tạo hồ sơ đối tác mới theo vai trò và loại hồ sơ phù hợp. |
-| US-3.1.3 | Bổ sung và chỉnh sửa hồ sơ đối tác | Giúp người dùng cập nhật thông tin, vai trò và loại hồ sơ của đối tác khi dữ liệu thay đổi. |
-| US-3.1.4 | Kiểm tra hồ sơ đối tác | Giúp người dùng xem chi tiết thông tin hồ sơ đối tác theo loại hồ sơ hiện tại. |
+FR specs cũ (`FR-*.md` trong thư mục US) đã archive — [_archive/fr-specs-legacy/](../_archive/fr-specs-legacy/).

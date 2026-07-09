@@ -10,7 +10,7 @@ class _FakeSupabaseClient extends Fake implements SupabaseClient {}
 
 void main() {
   group('MessagingWorkerBootstrap', () {
-    test('wires shared integration bus and partner messaging module', () {
+    test('wires shared integration bus with empty module registry', () {
       final sharedBus = InMemoryEventBusClient();
       final context = MessagingWorkerBootstrap.bootstrap(
         config: const WorkerEnv(
@@ -26,10 +26,7 @@ void main() {
       );
 
       expect(identical(context.integrationEventBus, sharedBus), isTrue);
-      expect(
-        context.registry.modules.map((module) => module.name).toList(),
-        ['partner'],
-      );
+      expect(context.registry.modules.map((module) => module.name).toList(), isEmpty);
     });
   });
 
