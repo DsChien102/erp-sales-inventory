@@ -12,6 +12,8 @@ class ProductPriceBandsInitial extends ProductPriceBandsState {}
 
 class ProductPriceBandsLoading extends ProductPriceBandsState {}
 
+class ProductPriceBandsMissingBaseUnit extends ProductPriceBandsState {}
+
 class ProductPriceBandsLoaded extends ProductPriceBandsState {
   final ProductUnitPriceBandsDto data;
 

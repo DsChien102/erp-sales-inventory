@@ -354,9 +354,7 @@ class _ProductControlCenterViewState extends State<_ProductControlCenterView> {
                                   product.id,
                                 );
                               }
-                            : controlCenter.basePrice.mode == BasePriceMode.costingModule
-                            ? () => _showEditPlaceholder(context)
-                            : null,
+                            : () => _showEditPlaceholder(context),
                         onEditPriceBand: isSoftDeleted
                             ? null
                             : () async {
@@ -374,24 +372,17 @@ class _ProductControlCenterViewState extends State<_ProductControlCenterView> {
                               },
                       ),
                       ...controlCenter.customFieldGroupCards.map((group) {
-                        IconData iconData = Icons.assignment_outlined;
-                        final nameLower = group.name.toLowerCase();
-                        if (nameLower.contains('thuốc')) {
-                          iconData = Icons.medication_outlined;
-                        } else if (nameLower.contains('quy cách') ||
-                            nameLower.contains('bảo quản')) {
-                          iconData = Icons.inventory_2_outlined;
-                        } else if (nameLower.contains('tuân thủ')) {
-                          iconData = Icons.lock_outline;
-                        }
-
                         final filledCount = group.fields
                             .where((f) => f.displayValue != null && f.displayValue!.isNotEmpty)
                             .length;
                         final allInactive = group.fields.every((f) => !f.isActive);
                         return ProductControlCenterSectionCard(
                           title: group.name,
-                          icon: iconData,
+                          emoji: group.iconKey?.isNotEmpty == true ? group.iconKey : null,
+                          icon: group.iconKey?.isNotEmpty == true
+                              ? null
+                              : Icons.assignment_outlined,
+                          hasError: group.hasRequiredMissing,
                           subtitle: '$filledCount/${group.fields.length} trường đã điền',
                           actionText: allInactive ? 'Xem' : 'Sửa',
                           onEdit: () async {
@@ -442,6 +433,7 @@ class _ProductControlCenterViewState extends State<_ProductControlCenterView> {
                           );
                         },
                       ),
+                      const SizedBox(height: 40),
                       ProductControlCenterDangerSection(
                         businessStatus: controlCenter.profile.businessStatus,
                         isSoftDeleted: isSoftDeleted,

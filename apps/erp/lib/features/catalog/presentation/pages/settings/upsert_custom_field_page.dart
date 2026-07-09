@@ -31,7 +31,10 @@ class _UpsertCustomFieldPageState extends State<UpsertCustomFieldPage> {
   bool _isSearchable = false;
   bool _isFilterable = false;
   bool _isActive = true;
-  final List<CustomFieldSelectOptionDto> _options = [];
+  final List<String> _optionIds = [];
+  final Map<String, TextEditingController> _optionControllers = {};
+  final Map<String, bool> _optionActiveFlags = {};
+  final Map<String, int> _optionSortOrders = {};
 
   @override
   void initState() {
@@ -46,7 +49,12 @@ class _UpsertCustomFieldPageState extends State<UpsertCustomFieldPage> {
       _isSearchable = field.isSearchable;
       _isFilterable = field.isFilterable;
       _isActive = field.status.name == 'active';
-      _options.addAll(field.options);
+      for (final opt in field.options) {
+        _optionIds.add(opt.optionId);
+        _optionControllers[opt.optionId] = TextEditingController(text: opt.label);
+        _optionActiveFlags[opt.optionId] = opt.isActive;
+        _optionSortOrders[opt.optionId] = opt.sortOrder;
+      }
     }
   }
 
@@ -54,6 +62,9 @@ class _UpsertCustomFieldPageState extends State<UpsertCustomFieldPage> {
   void dispose() {
     _nameController.dispose();
     _descriptionController.dispose();
+    for (final c in _optionControllers.values) {
+      c.dispose();
+    }
     super.dispose();
   }
 
@@ -69,7 +80,7 @@ class _UpsertCustomFieldPageState extends State<UpsertCustomFieldPage> {
       return;
     }
 
-    if (_fieldType == CustomFieldType.singleSelect && _options.isEmpty) {
+    if (_fieldType == CustomFieldType.singleSelect && _optionIds.isEmpty) {
       VToast.show(
         context,
         title: 'Lỗi',
@@ -79,12 +90,40 @@ class _UpsertCustomFieldPageState extends State<UpsertCustomFieldPage> {
       return;
     }
 
+    // Validate: tất cả option phải có label
+    for (final id in _optionIds) {
+      final label = _optionControllers[id]?.text.trim() ?? '';
+      if (label.isEmpty) {
+        VToast.show(
+          context,
+          title: 'Lỗi',
+          message: 'Tên tùy chọn không được để trống',
+          type: VToastType.danger,
+        );
+        return;
+      }
+    }
+
+    // Build options từ controllers
+    final builtOptions = _fieldType == CustomFieldType.singleSelect
+        ? _optionIds.asMap().entries.map((entry) {
+            final idx = entry.key;
+            final id = entry.value;
+            return CustomFieldSelectOptionDto(
+              optionId: id,
+              label: _optionControllers[id]!.text.trim(),
+              sortOrder: idx,
+              isActive: _optionActiveFlags[id] ?? true,
+            );
+          }).toList()
+        : null;
+
     final success = await widget.cubit.upsertField(
       fieldId: widget.initialFieldId,
       groupId: widget.groupId,
       name: name,
       fieldType: _fieldType,
-      options: _fieldType == CustomFieldType.singleSelect ? _options : null,
+      options: builtOptions,
       isRequired: _isRequired,
       displayOnList: _displayOnList,
       isSearchable: _isSearchable,
@@ -98,12 +137,26 @@ class _UpsertCustomFieldPageState extends State<UpsertCustomFieldPage> {
 
   void _addOption() {
     setState(() {
-      _options.add(
-        CustomFieldSelectOptionDto(
-          optionId: DateTime.now().millisecondsSinceEpoch.toString(),
-          label: 'Tùy chọn ${_options.length + 1}',
-        ),
+      final newId = DateTime.now().millisecondsSinceEpoch.toString();
+      _optionIds.add(newId);
+      _optionControllers[newId] = TextEditingController();
+      _optionActiveFlags[newId] = true;
+      _optionSortOrders[newId] = _optionIds.length - 1;
+    });
+    // Focus vào field mới thêm sau khi rebuild
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _optionControllers[_optionIds.last]?.selection = TextSelection.fromPosition(
+        const TextPosition(offset: 0),
       );
+    });
+  }
+
+  void _removeOption(String optionId) {
+    setState(() {
+      _optionIds.remove(optionId);
+      _optionControllers.remove(optionId)?.dispose();
+      _optionActiveFlags.remove(optionId);
+      _optionSortOrders.remove(optionId);
     });
   }
 
@@ -262,36 +315,31 @@ class _UpsertCustomFieldPageState extends State<UpsertCustomFieldPage> {
                 ],
               ),
               const SizedBox(height: VSpacing.space3),
-              ..._options.map(
-                (opt) => Padding(
+              ..._optionIds.map((optId) {
+                final controller = _optionControllers[optId]!;
+                return Padding(
+                  key: ValueKey(optId),
                   padding: const EdgeInsets.only(bottom: 8.0),
                   child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       const Icon(Icons.drag_indicator, color: VColors.textMuted, size: 16),
                       const SizedBox(width: 8),
                       Expanded(
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                          decoration: BoxDecoration(
-                            color: colors.surface,
-                            borderRadius: BorderRadius.circular(VRadius.r8),
-                            border: Border.all(color: VColors.borderDefault),
-                          ),
-                          child: Text(opt.label),
+                        child: VTextField(
+                          controller: controller,
+                          hintText: 'Nhập tên tùy chọn',
+                          onSubmitted: (_) => FocusScope.of(context).nextFocus(),
                         ),
                       ),
                       IconButton(
                         icon: const Icon(Icons.delete_outline, color: VColors.danger),
-                        onPressed: () {
-                          setState(() {
-                            _options.remove(opt);
-                          });
-                        },
+                        onPressed: () => _removeOption(optId),
                       ),
                     ],
                   ),
-                ),
-              ),
+                );
+              }),
             ],
 
             const SizedBox(height: VSpacing.space6),
@@ -315,7 +363,22 @@ class _UpsertCustomFieldPageState extends State<UpsertCustomFieldPage> {
                     'Bắt buộc',
                     'Tham gia tính readiness của sản phẩm',
                     _isRequired,
-                    (v) => setState(() => _isRequired = v),
+                    (v) {
+                      if (v) {
+                        showVConfirmDialog(
+                          context: context,
+                          title: 'Bật bắt buộc cho trường',
+                          message:
+                              'Sản phẩm hiện tại chưa điền trường này có thể phát sinh blocker readiness. '
+                              'Dữ liệu hiện có không bị xóa.',
+                          cancelLabel: 'Hủy',
+                          actionLabel: 'Xác nhận',
+                          onAction: () => setState(() => _isRequired = true),
+                        );
+                      } else {
+                        setState(() => _isRequired = v);
+                      }
+                    },
                     colors,
                   ),
                   const Divider(height: 1, color: VColors.borderDefault),

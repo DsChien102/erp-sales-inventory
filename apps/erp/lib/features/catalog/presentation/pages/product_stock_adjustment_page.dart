@@ -6,6 +6,8 @@ import 'package:vet45_shared_application/application.dart';
 import 'package:vet45_design_system/design_system.dart';
 import 'package:vet45_catalog_presentation/presentation.dart';
 
+import '../widgets/dashed_border_container.dart';
+
 class ProductStockAdjustmentRouteArgs {
   final ProductListItemModel product;
   final int? currentQuantity;
@@ -129,6 +131,8 @@ class _ProductStockAdjustmentPageState extends State<ProductStockAdjustmentPage>
     final dynamicColors = context.vColors;
     final unitName = widget.args.unitName ?? widget.args.product.baseUnit ?? '';
 
+    final bool hasBaseUnit = widget.args.unitName != null && widget.args.unitName!.isNotEmpty;
+
     return Scaffold(
       key: const Key('wgt_e05_u01_fr01_01'),
       backgroundColor: dynamicColors.background,
@@ -141,13 +145,14 @@ class _ProductStockAdjustmentPageState extends State<ProductStockAdjustmentPage>
         ),
         subtitle: unitName.isNotEmpty ? unitName : widget.args.product.name,
       ),
-      body: Form(
-        key: _formKey,
-        child: ListView(
-          padding: const EdgeInsets.all(16.0),
-          children: [
-            // Tồn hiện tại (Read-only view)
-            Container(
+      body: hasBaseUnit
+          ? Form(
+              key: _formKey,
+              child: ListView(
+                padding: const EdgeInsets.all(16.0),
+                children: [
+                  // Tồn hiện tại (Read-only view)
+                  Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               decoration: BoxDecoration(
                 border: Border.all(color: dynamicColors.borderDefault),
@@ -302,8 +307,8 @@ class _ProductStockAdjustmentPageState extends State<ProductStockAdjustmentPage>
             ),
           ],
         ),
-      ),
-      bottomNavigationBar: SafeArea(
+      ) : _buildMissingBaseUnit(context),
+      bottomNavigationBar: hasBaseUnit ? SafeArea(
         child: Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
@@ -315,54 +320,100 @@ class _ProductStockAdjustmentPageState extends State<ProductStockAdjustmentPage>
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              OutlinedButton(
-                onPressed: _isSubmitting ? null : () => context.pop(),
-                style: OutlinedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-                  side: BorderSide(color: dynamicColors.borderDefault),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(VRadius.input),
-                  ),
-                ),
-                child: Text(
-                  'Huỷ',
-                  style: VTypography.bodyDefault.copyWith(
-                    color: dynamicColors.textPrimary,
-                    fontWeight: FontWeight.bold,
-                  ),
+              Expanded(
+                child: VButton(
+                  label: 'Hủy',
+                  variant: VButtonVariant.outline,
+                  onPressed: _isSubmitting ? null : () => context.pop(),
                 ),
               ),
-              ElevatedButton(
-                key: const Key('btn_stock_save'),
-                onPressed: _isSubmitting ? null : _submit,
-                style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-                  backgroundColor: dynamicColors.success,
-                  foregroundColor: dynamicColors.surface,
-                  disabledBackgroundColor: dynamicColors.success.withValues(alpha: 0.4),
-                  disabledForegroundColor: dynamicColors.surface,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(VRadius.input),
-                  ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: VButton(
+                  key: const Key('btn_stock_save'),
+                  label: 'Lưu thay đổi',
+                  variant: VButtonVariant.primary,
+                  isLoading: _isSubmitting,
+                  onPressed: _isSubmitting ? null : _submit,
                 ),
-                child: _isSubmitting
-                    ? const SizedBox(
-                        width: 20,
-                        height: 20,
-                        child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
-                      )
-                    : Text(
-                        'Lưu thay đổi',
-                        style: VTypography.bodyDefault.copyWith(
-                          color: dynamicColors.surface,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
               ),
             ],
           ),
         ),
-      ),
+      ) : null,
+    );
+  }
+
+  Widget _buildMissingBaseUnit(BuildContext context) {
+    final dynamicColors = context.vColors;
+    
+    return Column(
+      children: [
+        Expanded(
+          child: SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: DashedBorderContainer(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    RichText(
+                      text: TextSpan(
+                        style: VTypography.bodyDefault.copyWith(
+                          color: dynamicColors.textPrimary,
+                        ),
+                        children: [
+                          const TextSpan(text: 'Cần thiết lập '),
+                          TextSpan(
+                            text: 'đơn vị cơ sở',
+                            style: VTypography.bodyDefault.copyWith(
+                              color: dynamicColors.textPrimary,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const TextSpan(text: ' cho sản phẩm trước khi thiết lập tồn kho.'),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      'Tồn kho được tính theo đơn vị cơ sở của sản phẩm.',
+                      style: VTypography.bodySmall.copyWith(
+                        color: dynamicColors.textSecondary,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+        SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Row(
+              children: [
+                Expanded(
+                  child: VButton(
+                    label: 'Hủy',
+                    variant: VButtonVariant.outline,
+                    onPressed: () => context.pop(),
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: VButton(
+                    label: 'Lưu thay đổi',
+                    variant: VButtonVariant.primary,
+                    onPressed: null,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

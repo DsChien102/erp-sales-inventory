@@ -7,6 +7,7 @@ import 'package:vet45_shared_application/application.dart';
 import 'package:vet45_design_system/design_system.dart';
 import 'package:vet45_catalog_presentation/presentation.dart';
 
+import '../widgets/dashed_border_container.dart';
 import '../widgets/product_control_center_formatters.dart';
 
 class ProductManualBasePriceRouteArgs {
@@ -109,7 +110,8 @@ class _ProductManualBasePriceViewState extends State<_ProductManualBasePriceView
   @override
   Widget build(BuildContext context) {
     final dynamicColors = context.vColors;
-    final baseUnitName = widget.product.baseUnit ?? 'đơn vị cơ sở';
+    final hasBaseUnit = widget.product.baseUnit != null && widget.product.baseUnit!.isNotEmpty;
+    final baseUnitName = hasBaseUnit ? widget.product.baseUnit! : 'đơn vị cơ sở';
 
     return BlocConsumer<ProductManualBasePriceCubit, ProductManualBasePriceState>(
       listener: (context, state) {
@@ -146,110 +148,148 @@ class _ProductManualBasePriceViewState extends State<_ProductManualBasePriceView
               onPressed: () => context.pop(),
             ),
           ),
-          body: SingleChildScrollView(
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: VCard(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    // Current base price read-only display
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                      decoration: BoxDecoration(
-                        border: Border.all(color: dynamicColors.textSecondary.withValues(alpha: 0.2)),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            'Giá vốn hiện tại',
-                            style: VTypography.bodyDefault.copyWith(
-                              color: dynamicColors.textSecondary,
+          body: Column(
+            children: [
+              Expanded(
+                child: SingleChildScrollView(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: hasBaseUnit
+                        ? VCard(
+                            padding: const EdgeInsets.all(16),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                // Current base price read-only display
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                                  decoration: BoxDecoration(
+                                    border: Border.all(color: dynamicColors.textSecondary.withValues(alpha: 0.2)),
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text(
+                                        'Giá vốn hiện tại',
+                                        style: VTypography.bodyDefault.copyWith(
+                                          color: dynamicColors.textSecondary,
+                                        ),
+                                      ),
+                                      Text(
+                                        widget.basePriceCard.isMissing
+                                            ? '—'
+                                            : formatCatalogCurrency(widget.basePriceCard.amount),
+                                        style: VTypography.bodyDefault.copyWith(
+                                          color: dynamicColors.textPrimary,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                const SizedBox(height: 16),
+                                
+                                Text(
+                                  'Giá vốn mới (${widget.basePriceCard.currency == 'VND' ? 'đ' : widget.basePriceCard.currency} / 1 $baseUnitName)',
+                                  style: VTypography.bodySmall.copyWith(
+                                    color: dynamicColors.textSecondary,
+                                  ),
+                                ),
+                                const SizedBox(height: 8),
+                                VTextField(
+                                  key: const Key('input_base_price_amount'),
+                                  controller: _priceController,
+                                  hintText: 'Ví dụ: 45000',
+                                  keyboardType: TextInputType.number,
+                                ),
+                                const SizedBox(height: 8),
+                                Text(
+                                  'Giá vốn cơ sở luôn gắn với đơn vị cơ sở của sản phẩm ($baseUnitName).',
+                                  style: VTypography.bodySmall.copyWith(
+                                    color: dynamicColors.textSecondary,
+                                  ),
+                                ),
+                                
+                                const SizedBox(height: 16),
+                                Text(
+                                  'Ghi chú',
+                                  style: VTypography.bodySmall.copyWith(
+                                    color: dynamicColors.textSecondary,
+                                  ),
+                                ),
+                                const SizedBox(height: 8),
+                                VTextField(
+                                  controller: _noteController,
+                                  hintText: 'Nhập ghi chú...',
+                                  maxLines: 4,
+                                ),
+                              ],
+                            ),
+                          )
+                        : DashedBorderContainer(
+                            padding: const EdgeInsets.all(16),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                RichText(
+                                  text: TextSpan(
+                                    style: VTypography.bodyDefault.copyWith(
+                                      color: dynamicColors.textPrimary,
+                                    ),
+                                    children: [
+                                      const TextSpan(text: 'Cần thiết lập '),
+                                      TextSpan(
+                                        text: 'đơn vị cơ sở',
+                                        style: VTypography.bodyDefault.copyWith(
+                                          color: dynamicColors.textPrimary,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      const TextSpan(text: ' cho sản phẩm trước khi nhập giá vốn cơ sở.'),
+                                    ],
+                                  ),
+                                ),
+                                const SizedBox(height: 8),
+                                Text(
+                                  'Giá vốn cơ sở luôn gắn với đơn vị cơ sở của sản phẩm.',
+                                  style: VTypography.bodySmall.copyWith(
+                                    color: dynamicColors.textSecondary,
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
-                          Text(
-                            widget.basePriceCard.isMissing
-                                ? '—'
-                                : formatCatalogCurrency(widget.basePriceCard.amount),
-                            style: VTypography.bodyDefault.copyWith(
-                              color: dynamicColors.textPrimary,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    
-                    Text(
-                      'Giá vốn mới (${widget.basePriceCard.currency == 'VND' ? 'đ' : widget.basePriceCard.currency} / 1 $baseUnitName)',
-                      style: VTypography.bodySmall.copyWith(
-                        color: dynamicColors.textSecondary,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    VTextField(
-                      key: const Key('input_base_price_amount'),
-                      controller: _priceController,
-                      hintText: 'Ví dụ: 45000',
-                      keyboardType: TextInputType.number,
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      'Giá vốn cơ sở luôn gắn với đơn vị cơ sở của sản phẩm ($baseUnitName).',
-                      style: VTypography.bodySmall.copyWith(
-                        color: dynamicColors.textSecondary,
-                      ),
-                    ),
-                    
-                    const SizedBox(height: 16),
-                    Text(
-                      'Ghi chú',
-                      style: VTypography.bodySmall.copyWith(
-                        color: dynamicColors.textSecondary,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    VTextField(
-                      controller: _noteController,
-                      hintText: 'Nhập ghi chú...',
-                      maxLines: 4,
-                    ),
-                    
-                    const SizedBox(height: 32),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        Expanded(
-                          child: TextButton(
-                            onPressed: () => context.pop(),
-                            child: Text(
-                              'Huỷ',
-                              style: VTypography.bodyDefault.copyWith(
-                                color: dynamicColors.textPrimary,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          child: VButton(
-                            key: const Key('btn_manual_base_price_save'),
-                            label: 'Lưu thay đổi',
-                            isLoading: state.status == ProductManualBasePriceStatus.loading,
-                            onPressed: () => _onSave(context),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
+                  ),
                 ),
               ),
-            ),
+              SafeArea(
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: VButton(
+                          label: 'Hủy',
+                          variant: VButtonVariant.outline,
+                          onPressed: () => context.pop(),
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: VButton(
+                          key: const Key('btn_manual_base_price_save'),
+                          label: 'Lưu thay đổi',
+                          variant: VButtonVariant.primary,
+                          isLoading: state.status == ProductManualBasePriceStatus.loading,
+                          onPressed: hasBaseUnit ? () => _onSave(context) : null,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
           ),
         );
       },
