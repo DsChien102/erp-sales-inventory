@@ -3,7 +3,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:vet45_design_system/design_system.dart';
 import '../bloc/product_guided_create_cubit.dart';
 import '../bloc/product_guided_create_state.dart';
-import 'product_barcode_entry_dialog.dart';
 import 'product_guided_fields.dart';
 
 class ProductGuidedStepIdentification extends StatelessWidget {
@@ -90,16 +89,7 @@ class ProductGuidedStepIdentification extends StatelessWidget {
                     ).copyWith(
                       suffixIcon: IconButton(
                         icon: Icon(Icons.qr_code_scanner, color: dynamicColors.primary),
-                        onPressed: () async {
-                          final code = await showDialog<String>(
-                            context: context,
-                            builder: (context) => const ProductBarcodeEntryDialog(),
-                          );
-                          if (code != null) {
-                            cubit.updateBarcode(code);
-                            await cubit.checkDuplicateCodes();
-                          }
-                        },
+                        onPressed: () {},
                       ),
                     ),
                     style: VTypography.bodyDefault.copyWith(color: dynamicColors.textPrimary),

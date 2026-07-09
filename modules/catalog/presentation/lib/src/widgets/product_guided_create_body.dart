@@ -25,9 +25,12 @@ class ProductGuidedCreateBody extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<ProductGuidedCreateCubit, ProductGuidedCreateState>(
       builder: (context, state) {
-        return Column(
-          children: [
-            Expanded(
+        return GestureDetector(
+          onTap: () => FocusScope.of(context).unfocus(),
+          behavior: HitTestBehavior.translucent,
+          child: Column(
+            children: [
+              Expanded(
               child: SingleChildScrollView(
                 padding: const EdgeInsets.all(VSpacing.space4),
                 child: Column(
@@ -94,9 +97,9 @@ class ProductGuidedCreateBody extends StatelessWidget {
             ),
             _buildStickyFooter(context, state),
           ],
-        );
-      },
-    );
+        ),
+      );
+    });
   }
 
   Widget _buildStep({
@@ -162,7 +165,7 @@ class ProductGuidedCreateBody extends StatelessWidget {
             Expanded(
               child: VButton(
                 label: 'Hủy',
-                variant: VButtonVariant.secondary,
+                variant: VButtonVariant.outline,
                 onPressed: state.status == ProductGuidedCreateStatus.loading ? null : onCancel,
               ),
             ),
@@ -171,7 +174,7 @@ class ProductGuidedCreateBody extends StatelessWidget {
               child: VButton(
                 key: const Key('btn_guided_save'),
                 label: 'Lưu sản phẩm',
-                onPressed: state.status == ProductGuidedCreateStatus.loading
+                onPressed: (!state.hasAnyData || state.status == ProductGuidedCreateStatus.loading)
                     ? null
                     : () => context.read<ProductGuidedCreateCubit>().submit(),
               ),
