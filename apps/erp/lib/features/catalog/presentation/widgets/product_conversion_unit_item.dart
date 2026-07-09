@@ -6,7 +6,7 @@ import 'package:vet45_design_system/design_system.dart';
 
 import 'product_conversion_unit_delete_confirm_dialog.dart';
 
-class ProductConversionUnitItem extends StatefulWidget {
+class ProductConversionUnitItem extends StatelessWidget {
   const ProductConversionUnitItem({
     super.key,
     required this.unit,
@@ -17,151 +17,147 @@ class ProductConversionUnitItem extends StatefulWidget {
   final String baseUnitName;
 
   @override
-  State<ProductConversionUnitItem> createState() => _ProductConversionUnitItemState();
-}
-
-class _ProductConversionUnitItemState extends State<ProductConversionUnitItem> {
-  bool _isExpanded = false;
-
-  @override
   Widget build(BuildContext context) {
     final dynamicColors = context.vColors;
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 8.0),
-      child: GestureDetector(
-        onLongPress: () {
-          setState(() {
-            _isExpanded = true;
-          });
-        },
-        child: Container(
-          padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            border: Border.all(color: dynamicColors.borderDefault),
-            borderRadius: BorderRadius.circular(8),
-            color: dynamicColors.surface,
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      child: Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          border: Border.all(color: dynamicColors.borderDefault),
+          borderRadius: BorderRadius.circular(8),
+          color: dynamicColors.surface,
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: dynamicColors.surfaceAlt,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Icon(Icons.inventory_2_outlined, color: dynamicColors.textSecondary, size: 24),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        widget.unit.name,
-                        style: VTypography.bodyDefault.copyWith(
-                          fontWeight: FontWeight.bold,
-                          color: widget.unit.isActive
-                              ? dynamicColors.textPrimary
-                              : dynamicColors.textSecondary,
-                          decoration: widget.unit.isActive ? null : TextDecoration.lineThrough,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        '1 ${widget.unit.name} = ${widget.unit.conversionRateToBase} ${widget.baseUnitName}',
-                        style: VTypography.bodySmall.copyWith(color: dynamicColors.textSecondary),
-                      ),
-                    ],
-                  ),
-                  InkWell(
-                    key: Key('btn_expand_conversion_unit_${widget.unit.id}'),
-                    onTap: () {
-                      setState(() {
-                        _isExpanded = true;
-                      });
-                    },
-                    child: Text(
-                      'Giữ để mở',
-                      style: VTypography.bodySmall.copyWith(color: dynamicColors.textSecondary),
+                  Text(
+                    unit.name,
+                    style: VTypography.bodyDefault.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: unit.isActive
+                          ? dynamicColors.textPrimary
+                          : dynamicColors.textSecondary,
+                      decoration: unit.isActive ? null : TextDecoration.lineThrough,
                     ),
+                  ),
+                  const SizedBox(height: 4),
+                  // Muted text below unit name as in design
+                  Text(
+                    unit.name,
+                    style: VTypography.bodySmall.copyWith(color: dynamicColors.textSecondary),
                   ),
                 ],
               ),
-              if (_isExpanded) ...[
-                const SizedBox(height: 12),
-                Divider(color: dynamicColors.borderDefault, height: 1),
-                const SizedBox(height: 12),
+            ),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Text(
+                  '${unit.conversionRateToBase} x $baseUnitName',
+                  style: VTypography.bodyDefault.copyWith(
+                    color: dynamicColors.textPrimary,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(height: 8),
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    Row(
-                      children: [
-                        OutlinedButton(
-                          key: Key('btn_toggle_conversion_unit_${widget.unit.id}'),
-                          onPressed: () {
-                            if (widget.unit.isActive) {
-                              context.read<ProductMeasurementUnitsCubit>().deactivateConversionUnit(
-                                widget.unit.id,
-                              );
-                            } else {
-                              context.read<ProductMeasurementUnitsCubit>().reactivateConversionUnit(
-                                widget.unit.id,
-                              );
-                            }
-                            setState(() {
-                              _isExpanded = false;
-                            });
-                          },
-                          style: OutlinedButton.styleFrom(
-                            side: BorderSide(color: dynamicColors.borderDefault),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                          ),
-                          child: Text(
-                            widget.unit.isActive ? 'Tắt đơn vị' : 'Bật đơn vị',
-                            style: VTypography.bodyDefault.copyWith(
-                              color: dynamicColors.textPrimary,
-                            ),
-                          ),
+                    OutlinedButton(
+                      onPressed: () {
+                        VToast.show(
+                          context, 
+                          title: 'Thông báo', 
+                          message: 'Tính năng sửa đơn vị đang phát triển', 
+                          type: VToastType.info,
+                        );
+                      },
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
+                        minimumSize: const Size(0, 32),
+                        side: BorderSide(color: dynamicColors.borderDefault),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                      ),
+                      child: Text('Sửa', style: VTypography.bodySmall.copyWith(color: dynamicColors.textPrimary)),
+                    ),
+                    const SizedBox(width: 8),
+                    Theme(
+                      data: Theme.of(context).copyWith(
+                        splashColor: Colors.transparent,
+                        highlightColor: Colors.transparent,
+                      ),
+                      child: PopupMenuButton<String>(
+                        key: Key('btn_more_conversion_unit_${unit.id}'),
+                        icon: Icon(Icons.more_horiz, color: dynamicColors.textSecondary),
+                        padding: EdgeInsets.zero,
+                        position: PopupMenuPosition.under,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          side: BorderSide(color: dynamicColors.borderDefault),
                         ),
-                        const SizedBox(width: 8),
-                        ElevatedButton(
-                          key: Key('btn_delete_conversion_unit_${widget.unit.id}'),
-                          onPressed: () {
+                        onSelected: (val) {
+                          if (val == 'toggle') {
+                            if (unit.isActive) {
+                              context.read<ProductMeasurementUnitsCubit>().deactivateConversionUnit(unit.id);
+                            } else {
+                              context.read<ProductMeasurementUnitsCubit>().reactivateConversionUnit(unit.id);
+                            }
+                          } else if (val == 'delete') {
                             ProductConversionUnitDeleteConfirmDialog.show(
                               context,
-                              unitName: widget.unit.name,
+                              unitName: unit.name,
                               onConfirm: () {
-                                context
-                                    .read<ProductMeasurementUnitsCubit>()
-                                    .deleteConversionUnit(widget.unit.id);
+                                context.read<ProductMeasurementUnitsCubit>().deleteConversionUnit(unit.id);
                               },
                             );
-                            setState(() {
-                              _isExpanded = false;
-                            });
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: dynamicColors.danger,
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                          }
+                        },
+                        itemBuilder: (context) => [
+                          PopupMenuItem(
+                            key: Key('btn_toggle_conversion_unit_${unit.id}'),
+                            value: 'toggle',
+                            child: Row(
+                              children: [
+                                Icon(unit.isActive ? Icons.visibility_off : Icons.visibility, size: 20),
+                                const SizedBox(width: 12),
+                                Text(unit.isActive ? 'Tắt đơn vị' : 'Bật đơn vị'),
+                              ],
+                            ),
                           ),
-                          child: Text(
-                            'Xoá',
-                            style: VTypography.bodyDefault.copyWith(color: Colors.white),
+                          PopupMenuItem(
+                            key: Key('btn_delete_conversion_unit_${unit.id}'),
+                            value: 'delete',
+                            child: Row(
+                              children: [
+                                const Icon(Icons.delete_outline, size: 20, color: VColors.danger),
+                                const SizedBox(width: 12),
+                                Text('Xoá', style: VTypography.bodyDefault.copyWith(color: VColors.danger)),
+                              ],
+                            ),
                           ),
-                        ),
-                      ],
-                    ),
-                    TextButton(
-                      onPressed: () {
-                        setState(() {
-                          _isExpanded = false;
-                        });
-                      },
-                      child: Text(
-                        'Đóng',
-                        style: VTypography.bodyDefault.copyWith(color: dynamicColors.textSecondary),
+                        ],
                       ),
                     ),
                   ],
                 ),
               ],
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

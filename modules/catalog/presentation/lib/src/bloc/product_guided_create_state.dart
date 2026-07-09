@@ -1,3 +1,4 @@
+import 'package:vet45_catalog_application/application.dart';
 import '../models/product_image_draft.dart';
 import '../models/product_list_item_model.dart';
 
@@ -42,6 +43,8 @@ class ProductGuidedCreateState {
     this.duplicateProductName,
     this.manualPriceError,
     this.createdProduct,
+    this.tenantUnits = const [],
+    this.isTenantUnitsLoading = false,
   });
 
   final String name;
@@ -78,6 +81,8 @@ class ProductGuidedCreateState {
   final String? duplicateProductName;
   final String? manualPriceError;
   final ProductListItemModel? createdProduct;
+  final List<TenantMeasurementUnitDto> tenantUnits;
+  final bool isTenantUnitsLoading;
 
   static const stepCount = 6;
   static const maxImages = 8;
@@ -169,6 +174,8 @@ class ProductGuidedCreateState {
     String? manualPriceError,
     bool clearManualPriceError = false,
     ProductListItemModel? createdProduct,
+    List<TenantMeasurementUnitDto>? tenantUnits,
+    bool? isTenantUnitsLoading,
   }) {
     return ProductGuidedCreateState(
       name: name ?? this.name,
@@ -213,6 +220,8 @@ class ProductGuidedCreateState {
           : (duplicateProductName ?? this.duplicateProductName),
       manualPriceError: clearManualPriceError ? null : (manualPriceError ?? this.manualPriceError),
       createdProduct: createdProduct ?? this.createdProduct,
+      tenantUnits: tenantUnits ?? this.tenantUnits,
+      isTenantUnitsLoading: isTenantUnitsLoading ?? this.isTenantUnitsLoading,
     );
   }
 }

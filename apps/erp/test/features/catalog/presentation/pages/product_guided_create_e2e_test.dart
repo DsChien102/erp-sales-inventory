@@ -124,6 +124,78 @@ void main() {
     );
   });
 
+  testWidgets('e2e_e02_u01_fr03_01: base unit dropdown lists all units and filters on type', (
+    tester,
+  ) async {
+    await setUpErpCatalogE2E();
+
+    await tester.pumpWidget(buildGuidedCreateRouter());
+    await tester.pumpAndSettle();
+
+    final step3Finder = find.text('3. Đơn vị cơ sở');
+    await tester.ensureVisible(step3Finder);
+    await tester.tap(step3Finder);
+    await tester.pumpAndSettle();
+
+    final inputFinder = find.byKey(const Key('input_guided_base_unit'));
+    await tester.tap(inputFinder);
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('dropdown_tenant_measurement_unit_matches')), findsOneWidget);
+    expect(find.text('Hộp'), findsOneWidget);
+    expect(find.text('Lọ'), findsOneWidget);
+    expect(find.text('Vỉ'), findsOneWidget);
+
+    await tester.enterText(inputFinder, 'Hộ');
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('dropdown_tenant_measurement_unit_matches')), findsOneWidget);
+    expect(find.text('Hộp'), findsOneWidget);
+    expect(find.text('Lọ'), findsNothing);
+
+    await tester.tap(find.byKey(const Key('dropdown_tenant_measurement_unit_item_unit-hop')));
+    await tester.pumpAndSettle();
+
+    expect(find.widgetWithText(TextField, 'Hộp'), findsOneWidget);
+    expect(find.byKey(const Key('dropdown_tenant_measurement_unit_matches')), findsNothing);
+
+    await tester.enterText(inputFinder, 'xyz123');
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('dropdown_tenant_measurement_unit_matches')), findsNothing);
+  });
+
+  testWidgets('e2e_e02_u01_fr03_02: base unit dropdown shows when reaching step 3 via Tiếp', (
+    tester,
+  ) async {
+    await setUpErpCatalogE2E();
+
+    await tester.pumpWidget(buildGuidedCreateRouter());
+    await tester.pumpAndSettle();
+
+    await tester.enterText(find.byKey(const Key('input_guided_name')), 'Thuoc test');
+    await tester.pump();
+
+    final firstNext = find.text('Tiếp');
+    await tester.ensureVisible(firstNext);
+    await tester.tap(firstNext);
+    await tester.pumpAndSettle();
+
+    final secondNext = find.text('Tiếp');
+    await tester.ensureVisible(secondNext);
+    await tester.tap(secondNext);
+    await tester.pumpAndSettle();
+
+    final inputFinder = find.byKey(const Key('input_guided_base_unit'));
+    await tester.ensureVisible(inputFinder);
+    await tester.tap(inputFinder);
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('dropdown_tenant_measurement_unit_matches')), findsOneWidget);
+    expect(find.text('Hộp'), findsOneWidget);
+    expect(find.text('Lọ'), findsOneWidget);
+  });
+
   testWidgets('e2e_e02_u02_fr03_01: skip price band defers setup and shows blocker', (
     tester,
   ) async {
@@ -172,5 +244,39 @@ void main() {
     expect(find.text('Giá niêm yết: --'), findsOneWidget);
     expect(find.textContaining('Thiếu khung giá'), findsOneWidget);
     expect(find.text('Cần bổ sung (2)'), findsOneWidget);
+  });
+
+  testWidgets('guided create registers new base unit in tenant master list', (
+    tester,
+  ) async {
+    await setUpErpCatalogE2E();
+    final catalog = getIt<ICatalogModule>() as FakeCatalogModule;
+
+    final unitsBefore = await catalog.executeQueryAsync(
+      ListTenantMeasurementUnitsQuery(tenantId: 'tenant-1', limit: 50),
+    );
+    expect(unitsBefore.any((unit) => unit.name == 'chai'), isFalse);
+
+    await tester.pumpWidget(buildGuidedCreateRouter());
+    await tester.pumpAndSettle();
+
+    await tester.enterText(find.byKey(const Key('input_guided_name')), 'Thuoc chai');
+    await tester.pump();
+
+    final step3Finder = find.text('3. Đơn vị cơ sở');
+    await tester.ensureVisible(step3Finder);
+    await tester.tap(step3Finder);
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byKey(const Key('input_guided_base_unit')), 'chai');
+    await tester.pump();
+
+    await tester.tap(find.byKey(const Key('btn_guided_save')));
+    await tester.pumpAndSettle();
+
+    final unitsAfter = await catalog.executeQueryAsync(
+      ListTenantMeasurementUnitsQuery(tenantId: 'tenant-1', limit: 50),
+    );
+    expect(unitsAfter.any((unit) => unit.name == 'chai'), isTrue);
+    expect(find.text('Thuoc chai'), findsWidgets);
   });
 }

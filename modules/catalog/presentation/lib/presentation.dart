@@ -29,6 +29,7 @@ export 'src/models/product_list_item_model.dart';
 export 'src/models/product_readiness_status.dart';
 export 'src/models/secondary_unit_input.dart';
 export 'src/widgets/product_guided_create_body.dart';
+export 'src/widgets/tenant_measurement_unit_search_field.dart';
 export 'src/widgets/product_list_item_tile.dart';
 export 'src/widgets/product_list_search_bar.dart';
 export 'src/widgets/product_readiness_checklist_body.dart';

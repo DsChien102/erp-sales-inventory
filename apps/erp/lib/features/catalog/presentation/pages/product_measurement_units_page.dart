@@ -60,6 +60,23 @@ class _ProductMeasurementUnitsViewState extends State<_ProductMeasurementUnitsVi
     super.dispose();
   }
 
+  List<TenantMeasurementUnitDto> _availableConversionUnitSuggestions(
+    ProductMeasurementUnitsState state,
+  ) {
+    return excludeTenantMeasurementUnits(
+      state.tenantUnits,
+      state.conversionUnits.map((unit) => unit.name),
+    );
+  }
+
+  List<String> _disabledConversionUnitNames(ProductMeasurementUnitsState state) {
+    final baseUnitName = state.baseUnitName?.trim();
+    if (baseUnitName == null || baseUnitName.isEmpty) {
+      return const [];
+    }
+    return [baseUnitName];
+  }
+
   void _onSaveBaseUnit(BuildContext context, ProductMeasurementUnitsState state) {
     final text = _baseUnitController.text.trim().toLowerCase();
     if (text.isEmpty) {
@@ -234,12 +251,13 @@ class _ProductMeasurementUnitsViewState extends State<_ProductMeasurementUnitsVi
                             ),
                           ),
                           const SizedBox(height: 8),
-                          VTextField(
+                          TenantMeasurementUnitSearchField(
                             controller: _baseUnitController,
+                            units: state.tenantUnits,
+                            onChanged: (_) => setState(() {}),
                             hintText: 'hộp, chai, gói, lọ, kg...',
-                            onChanged: (val) {
-                              setState(() {}); // trigger rebuild to update lowercase hint
-                            },
+                            useVTextField: true,
+                            fieldKey: const Key('input_base_unit_name'),
                           ),
                           const SizedBox(height: 8),
                           Text(
@@ -370,6 +388,7 @@ class _ProductMeasurementUnitsViewState extends State<_ProductMeasurementUnitsVi
                             )
                           else ...[
                             Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Expanded(
                                   child: Column(
@@ -382,13 +401,17 @@ class _ProductMeasurementUnitsViewState extends State<_ProductMeasurementUnitsVi
                                         ),
                                       ),
                                       const SizedBox(height: 8),
-                                      VTextField(
-                                        key: const Key('input_conversion_unit_name'),
+                                      TenantMeasurementUnitSearchField(
                                         controller: _conversionUnitNameController,
+                                        units: _availableConversionUnitSuggestions(state),
+                                        disabledUnitNames: _disabledConversionUnitNames(state),
+                                        onChanged: (_) => setState(() {}),
                                         hintText: 'hộp, thùng...',
-                                        onChanged: (val) {
-                                          setState(() {});
-                                        },
+                                        useVTextField: true,
+                                        fieldKey: const Key('input_conversion_unit_name'),
+                                        dropdownKey: const Key(
+                                          'dropdown_conversion_unit_matches',
+                                        ),
                                       ),
                                     ],
                                   ),
@@ -418,7 +441,7 @@ class _ProductMeasurementUnitsViewState extends State<_ProductMeasurementUnitsVi
                             ),
                             const SizedBox(height: 8),
                             Text(
-                              'Sẽ lưu ở dạng chữ thường: ${_conversionUnitNameController.text.toLowerCase()}',
+                              'Sẽ lưu ở dạng chữ thường: ${_conversionUnitNameController.text.trim().isEmpty ? '—' : _conversionUnitNameController.text.trim().toLowerCase()}',
                               style: VTypography.bodySmall.copyWith(
                                 color: dynamicColors.textSecondary,
                               ),
@@ -468,6 +491,18 @@ class _ProductMeasurementUnitsViewState extends State<_ProductMeasurementUnitsVi
                                         context,
                                         title: 'Lỗi',
                                         message: 'Tỷ lệ quy đổi phải > 0',
+                                        type: VToastType.danger,
+                                      );
+                                      return;
+                                    }
+                                    final baseUnitName = state.baseUnitName;
+                                    if (baseUnitName != null &&
+                                        isSameMeasurementUnitName(name, baseUnitName)) {
+                                      VToast.show(
+                                        context,
+                                        title: 'Lỗi',
+                                        message:
+                                            'Không thể dùng đơn vị cơ sở làm đơn vị quy đổi',
                                         type: VToastType.danger,
                                       );
                                       return;
