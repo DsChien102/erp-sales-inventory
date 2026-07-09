@@ -26,6 +26,7 @@ final class _RecordingCatalogUnitGateway implements ICatalogUnitGateway {
   AddProductConversionUnitCommand? lastAddConversionUnitCommand;
   DeactivateProductConversionUnitCommand? lastDeactivateConversionUnitCommand;
   ReactivateProductConversionUnitCommand? lastReactivateConversionUnitCommand;
+  DeleteProductConversionUnitCommand? lastDeleteConversionUnitCommand;
   String? lastTenantId;
   String? lastKeyword;
   int? lastLimit;
@@ -95,6 +96,13 @@ final class _RecordingCatalogUnitGateway implements ICatalogUnitGateway {
   }) async {
     lastReactivateConversionUnitCommand = command;
     return mutationResult!;
+  }
+
+  @override
+  Future<void> deleteConversionUnit({
+    required DeleteProductConversionUnitCommand command,
+  }) async {
+    lastDeleteConversionUnitCommand = command;
   }
 }
 
@@ -516,6 +524,45 @@ void main() {
 
       expect(result.unit.isActive, isTrue);
       expect(gateway.lastReactivateConversionUnitCommand, same(command));
+    });
+
+    test('deletes conversion after domain validation', () async {
+      final command = DeleteProductConversionUnitCommand(
+        tenantId: 'tenant-1',
+        productId: 'product-1',
+        productUnitId: 'product-1-unit-vi',
+      );
+      final gateway = _RecordingCatalogUnitGateway(
+        productUnitsResult: _productOneUnits,
+      );
+      final handler = DeleteProductConversionUnitCommandHandler(
+        unitGateway: gateway,
+      );
+
+      await handler.handle(command);
+
+      expect(gateway.lastDeleteConversionUnitCommand, same(command));
+    });
+
+    test('delete base unit blocks before gateway mutation', () async {
+      final gateway = _RecordingCatalogUnitGateway(
+        productUnitsResult: _productOneUnits,
+      );
+      final handler = DeleteProductConversionUnitCommandHandler(
+        unitGateway: gateway,
+      );
+
+      await expectLater(
+        handler.handle(
+          DeleteProductConversionUnitCommand(
+            tenantId: 'tenant-1',
+            productId: 'product-1',
+            productUnitId: 'product-1-base',
+          ),
+        ),
+        throwsA(isA<DomainException>()),
+      );
+      expect(gateway.lastDeleteConversionUnitCommand, isNull);
     });
 
     test('validators reject blank ids and invalid rate', () async {

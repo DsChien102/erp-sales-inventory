@@ -67,6 +67,12 @@ Object mapCatalogRpcError(RpcException error) {
     return InactiveProductUnitException();
   }
 
+  if (message.contains('product_conversion_unit_delete_blocked')) {
+    return ProductConversionUnitDeleteBlockedException(
+      message: _stripKnownPrefix(error.message),
+    );
+  }
+
   if (message.contains('duplicate custom field group name')) {
     return DuplicateCustomFieldGroupNameException(
       name: _extractQuoted(error.message) ?? '',

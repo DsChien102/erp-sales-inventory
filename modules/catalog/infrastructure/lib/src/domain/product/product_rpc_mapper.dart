@@ -436,6 +436,16 @@ abstract final class ProductRpcMapper {
     };
   }
 
+  static Map<String, dynamic> deleteConversionUnitParams(
+    DeleteProductConversionUnitCommand command,
+  ) {
+    return <String, dynamic>{
+      'p_tenant_id': command.tenantId,
+      'p_product_id': command.productId,
+      'p_product_unit_id': command.productUnitId,
+    };
+  }
+
   static Map<String, dynamic> adjustBasicStockParams(
     AdjustBasicStockCommand command,
   ) {

@@ -7,6 +7,7 @@ import 'package:vet45_shared_application/application.dart';
 import 'package:vet45_design_system/design_system.dart';
 import 'package:vet45_catalog_presentation/presentation.dart';
 
+import '../widgets/product_conversion_unit_delete_blocked_dialog.dart';
 import '../widgets/product_conversion_unit_item.dart';
 import '../widgets/product_measurement_units_bottom_bar.dart';
 
@@ -88,7 +89,8 @@ class _ProductMeasurementUnitsViewState extends State<_ProductMeasurementUnitsVi
     return BlocConsumer<ProductMeasurementUnitsCubit, ProductMeasurementUnitsState>(
       listenWhen: (previous, current) =>
           previous.saveStatus != current.saveStatus ||
-          previous.unitMutationStatus != current.unitMutationStatus,
+          previous.unitMutationStatus != current.unitMutationStatus ||
+          previous.deleteBlockedUnitId != current.deleteBlockedUnitId,
       listener: (context, state) {
         if (state.saveStatus == ProductMeasurementUnitsStatus.success) {
           VToast.show(
@@ -122,12 +124,28 @@ class _ProductMeasurementUnitsViewState extends State<_ProductMeasurementUnitsVi
             _conversionUnitRatioController.clear();
           });
         } else if (state.unitMutationStatus == ProductMeasurementUnitsStatus.failure) {
-          VToast.show(
-            context,
-            title: 'Lỗi',
-            message: state.errorMessage ?? 'Có lỗi xảy ra',
-            type: VToastType.danger,
-          );
+          final blockedUnitId = state.deleteBlockedUnitId;
+          if (blockedUnitId != null) {
+            final cubit = context.read<ProductMeasurementUnitsCubit>();
+            ProductConversionUnitDeleteBlockedDialog.show(
+              context,
+              message: state.errorMessage ??
+                  'Không thể xóa đơn vị này vì đã có dữ liệu phụ thuộc. '
+                  'Hãy dùng "Tắt đơn vị" để bảo toàn lịch sử.',
+              onDeactivate: () {
+                cubit.clearDeleteBlocked();
+                cubit.deactivateConversionUnit(blockedUnitId);
+              },
+            );
+            cubit.clearDeleteBlocked();
+          } else {
+            VToast.show(
+              context,
+              title: 'Lỗi',
+              message: state.errorMessage ?? 'Có lỗi xảy ra',
+              type: VToastType.danger,
+            );
+          }
         }
       },
       builder: (context, state) {

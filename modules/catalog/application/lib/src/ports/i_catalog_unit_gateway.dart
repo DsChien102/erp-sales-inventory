@@ -1,5 +1,6 @@
 import '../units/add_product_conversion_unit_command.dart';
 import '../units/deactivate_product_conversion_unit_command.dart';
+import '../units/delete_product_conversion_unit_command.dart';
 import '../units/list_product_units_query.dart';
 import '../units/product_unit_mutation_result.dart';
 import '../units/product_units_dto.dart';
@@ -39,5 +40,9 @@ abstract interface class ICatalogUnitGateway {
 
   Future<ProductUnitMutationResult> reactivateConversionUnit({
     required ReactivateProductConversionUnitCommand command,
+  });
+
+  Future<void> deleteConversionUnit({
+    required DeleteProductConversionUnitCommand command,
   });
 }

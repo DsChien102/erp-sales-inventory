@@ -188,6 +188,13 @@ class _RecordingCatalogUnitGateway implements ICatalogUnitGateway {
   }) async {
     throw UnimplementedError();
   }
+
+  @override
+  Future<void> deleteConversionUnit({
+    required DeleteProductConversionUnitCommand command,
+  }) async {
+    throw UnimplementedError();
+  }
 }
 
 void main() {

@@ -584,6 +584,20 @@ void main() {
       expect(params['p_product_unit_id'], 'product-1-unit-thung');
     });
 
+    test('deleteConversionUnitParams maps command params', () {
+      final params = ProductRpcMapper.deleteConversionUnitParams(
+        DeleteProductConversionUnitCommand(
+          tenantId: 'tenant-1',
+          productId: 'product-1',
+          productUnitId: 'product-1-unit-vi',
+        ),
+      );
+
+      expect(params['p_tenant_id'], 'tenant-1');
+      expect(params['p_product_id'], 'product-1');
+      expect(params['p_product_unit_id'], 'product-1-unit-vi');
+    });
+
     test('productUnitDtoFromRow maps RPC row fields', () {
       final dto = ProductRpcMapper.productUnitDtoFromRow({
         'id': 'product-1-unit-vi',

@@ -35,6 +35,9 @@ void registerGeneratedCatalogValidators(GetIt container) {
     ..registerFactory<ICommandValidator<DeleteProductCommand>>(
       DeleteProductCommandValidator.new,
     )
+    ..registerFactory<ICommandValidator<DeleteProductConversionUnitCommand>>(
+      DeleteProductConversionUnitCommandValidator.new,
+    )
     ..registerFactory<ICommandValidator<InitializeCustomFieldTemplateCommand>>(
       InitializeCustomFieldTemplateCommandValidator.new,
     )
@@ -174,6 +177,15 @@ void registerGeneratedCatalogHandlers({
     logger: logger,
     factory: () => DeleteProductCommandHandler(
       commandGateway: container.get<IProductCommandGateway>(),
+    ),
+  );
+
+  CatalogCommandRegistration.registerBusinessHandler<DeleteProductConversionUnitCommand, void, DeleteProductConversionUnitCommandHandler>(
+    container: container,
+    bus: bus,
+    logger: logger,
+    factory: () => DeleteProductConversionUnitCommandHandler(
+      unitGateway: container.get<ICatalogUnitGateway>(),
     ),
   );
 
