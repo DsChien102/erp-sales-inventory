@@ -257,7 +257,68 @@ class ProductGuidedCreateCubit extends Cubit<ProductGuidedCreateState> {
   }
 
   void updatePricingMethod(String val) {
-    emit(state.copyWith(pricingMethod: val));
+    emit(state.copyWith(pricingMethod: val, clearError: true));
+    if (val == 'storeRule') {
+      loadStorePriceRule();
+    }
+  }
+
+  Future<void> loadStorePriceRule() async {
+    if (state.isStorePriceRuleLoading) {
+      return;
+    }
+
+    emit(state.copyWith(
+      isStorePriceRuleLoading: true,
+      clearStorePriceRuleUnavailable: true,
+      clearStorePriceRule: true,
+    ));
+
+    try {
+      final tenantId = await _executionContext.requireTenantId();
+      final rule = await _catalogModule.executeQueryAsync(
+        GetStorePriceRuleQuery(tenantId: tenantId),
+      );
+
+      if (rule == null) {
+        emit(
+          state.copyWith(
+            isStorePriceRuleLoading: false,
+            storePriceRuleUnavailableReason:
+                'Chưa cấu hình khung giá cửa hàng. Vui lòng thiết lập trong Cài đặt sản phẩm.',
+          ),
+        );
+        return;
+      }
+
+      if (!rule.isActive) {
+        emit(
+          state.copyWith(
+            isStorePriceRuleLoading: false,
+            storePriceRuleUnavailableReason:
+                'Khung giá cửa hàng đang không hoạt động.',
+          ),
+        );
+        return;
+      }
+
+      emit(
+        state.copyWith(
+          isStorePriceRuleLoading: false,
+          storePriceRuleName: rule.name,
+          storeRuleListMarkupRatio: rule.listMarkupRatio,
+          storeRuleFloorMarkupRatio: rule.floorMarkupRatio,
+          clearStorePriceRuleUnavailable: true,
+        ),
+      );
+    } catch (e) {
+      emit(
+        state.copyWith(
+          isStorePriceRuleLoading: false,
+          storePriceRuleUnavailableReason: e.toString(),
+        ),
+      );
+    }
   }
 
   void updateCustomAutoMarkup(String val) {
@@ -277,14 +338,14 @@ class ProductGuidedCreateCubit extends Cubit<ProductGuidedCreateState> {
   }
 
   void setStep(int idx) {
+    final clamped = idx.clamp(0, ProductGuidedCreateState.stepCount - 1);
     if (state.activeStepIndex == idx) {
       emit(state.copyWith(activeStepIndex: -1));
     } else {
-      emit(
-        state.copyWith(
-          activeStepIndex: idx.clamp(0, ProductGuidedCreateState.stepCount - 1),
-        ),
-      );
+      emit(state.copyWith(activeStepIndex: clamped));
+      if (clamped == 5) {
+        loadStorePriceRule();
+      }
     }
   }
 
@@ -306,7 +367,40 @@ class ProductGuidedCreateCubit extends Cubit<ProductGuidedCreateState> {
   }
 
   void confirmPriceBandStep() {
-    emit(state.copyWith(priceBandConfigured: true));
+    if (!state.canConfirmPriceBandStep) {
+      if (state.pricingMethod == 'storeRule') {
+        emit(
+          state.copyWith(
+            errorMessage: state.storePriceRuleUnavailableReason ??
+                'Không thể áp dụng khung giá cửa hàng.',
+          ),
+        );
+        return;
+      }
+      if (state.pricingMethod == 'customAuto') {
+        final listPercent = state.parsedCustomAutoMarkupPercent;
+        final floorPercent = state.parsedCustomAutoFloorMarkupPercent;
+        if (listPercent == null || floorPercent == null) {
+          emit(
+            state.copyWith(
+              errorMessage: 'Vui lòng nhập tỷ lệ lãi cơ sở và giá sàn hợp lệ.',
+            ),
+          );
+          return;
+        }
+        if (floorPercent > listPercent) {
+          emit(
+            state.copyWith(
+              errorMessage: 'Tỷ lệ giá sàn không được lớn hơn tỷ lệ lãi cơ sở.',
+            ),
+          );
+          return;
+        }
+      }
+      return;
+    }
+
+    emit(state.copyWith(priceBandConfigured: true, clearError: true));
     nextStep();
   }
 
@@ -419,25 +513,30 @@ class ProductGuidedCreateCubit extends Cubit<ProductGuidedCreateState> {
 
       double? listPrice;
       double? floorPrice;
-      bool useStoreRule = false;
 
       if (state.priceBandConfigured) {
-        final resolved = CatalogUiMapper.resolvePriceBand(state);
-        listPrice = resolved.listPrice;
-        floorPrice = resolved.floorPrice;
-        useStoreRule = state.pricingMethod == 'storeRule';
-      }
+        if (state.pricingMethod == 'storeRule') {
+          await _catalogModule.executeCommandAsync(
+            ApplyStorePriceRuleCommand(
+              tenantId: tenantId,
+              productId: productId,
+            ),
+          );
+        } else {
+          final resolved = CatalogUiMapper.resolvePriceBand(state);
+          listPrice = resolved.listPrice;
+          floorPrice = resolved.floorPrice;
 
-      if (state.priceBandConfigured) {
-        await _catalogModule.executeCommandAsync(
-          SetInitialPriceBandCommand(
-            tenantId: tenantId,
-            productId: productId,
-            listPrice: listPrice,
-            floorPrice: floorPrice,
-            useStoreRule: useStoreRule,
-          ),
-        );
+          await _catalogModule.executeCommandAsync(
+            SetInitialPriceBandCommand(
+              tenantId: tenantId,
+              productId: productId,
+              listPrice: listPrice,
+              floorPrice: floorPrice,
+              useStoreRule: false,
+            ),
+          );
+        }
       }
 
       final productModel = CatalogUiMapper.toListItemModelFromCreate(

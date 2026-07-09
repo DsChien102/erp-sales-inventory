@@ -115,15 +115,6 @@ class _EditStorePriceRulePageState extends State<EditStorePriceRulePage> {
       child: BlocConsumer<StorePriceRuleSettingsCubit,
           StorePriceRuleSettingsState>(
         listener: (context, state) {
-          if (state is StorePriceRuleSettingsSaved) {
-            VToast.show(
-              context,
-              title: 'Thành công',
-              message: 'Đã cập nhật khung giá cửa hàng.',
-              type: VToastType.success,
-            );
-            context.pop(true);
-          }
           if (state is StorePriceRuleSettingsError) {
             VToast.show(
               context,
@@ -194,16 +185,26 @@ class _EditStorePriceRulePageState extends State<EditStorePriceRulePage> {
                         label: 'Lưu',
                         variant: VButtonVariant.primary,
                         isLoading: isSaving,
-                        onPressed: _canSubmit
-                            ? () {
+                        onPressed: _canSubmit && !isSaving
+                            ? () async {
                                 final listMarkup = _parseListMarkup()!;
                                 final floorMarkup = _parseFloorMarkup()!;
-                                context
+                                final success = await context
                                     .read<StorePriceRuleSettingsCubit>()
                                     .saveRule(
                                       listMarkupRatio: listMarkup / 100,
                                       floorMarkupRatio: floorMarkup / 100,
                                     );
+                                if (!context.mounted || !success) {
+                                  return;
+                                }
+                                VToast.show(
+                                  context,
+                                  title: 'Thành công',
+                                  message: 'Đã cập nhật khung giá cửa hàng.',
+                                  type: VToastType.success,
+                                );
+                                context.pop(true);
                               }
                             : null,
                       ),

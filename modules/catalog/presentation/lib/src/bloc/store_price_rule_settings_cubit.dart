@@ -16,7 +16,22 @@ class StorePriceRuleSettingsCubit
   final IModuleMediator _moduleMediator;
   final IExecutionContext _executionContext;
 
+  StorePriceRuleDto? get _currentRule {
+    final current = state;
+    if (current is StorePriceRuleSettingsLoaded) {
+      return current.rule;
+    }
+    if (current is StorePriceRuleSettingsSaving) {
+      return current.previousRule;
+    }
+    if (current is StorePriceRuleSettingsError) {
+      return current.previousRule;
+    }
+    return null;
+  }
+
   Future<void> loadRule() async {
+    final previousRule = _currentRule;
     emit(StorePriceRuleSettingsLoading());
     try {
       final tenantId = await _executionContext.requireTenantId();
@@ -25,38 +40,41 @@ class StorePriceRuleSettingsCubit
           await _moduleMediator.executeQueryAsync<StorePriceRuleDto?>(query);
       emit(StorePriceRuleSettingsLoaded(rule: rule));
     } catch (e) {
-      emit(StorePriceRuleSettingsError(message: e.toString()));
+      emit(StorePriceRuleSettingsError(
+        message: e.toString(),
+        previousRule: previousRule,
+      ));
     }
   }
 
-  Future<void> saveRule({
+  Future<bool> saveRule({
     required double listMarkupRatio,
     required double floorMarkupRatio,
   }) async {
-    StorePriceRuleDto? previousRule;
-    if (state is StorePriceRuleSettingsLoaded) {
-      previousRule = (state as StorePriceRuleSettingsLoaded).rule;
-    }
+    final previousRule = _currentRule;
 
     emit(StorePriceRuleSettingsSaving(previousRule: previousRule));
     try {
       final tenantId = await _executionContext.requireTenantId();
       final command = SetStorePriceRuleCommand(
         tenantId: tenantId,
-        name: 'Khung giá cửa hàng',
+        name: previousRule?.name ?? 'Khung giá cửa hàng',
         listMarkupRatio: listMarkupRatio,
         floorMarkupRatio: floorMarkupRatio,
+        status: previousRule?.status ?? StorePriceRuleStatus.active,
       );
       final result =
           await _moduleMediator.executeCommandAsync<SetStorePriceRuleResult>(
         command,
       );
-      emit(StorePriceRuleSettingsSaved(rule: result.rule));
+      emit(StorePriceRuleSettingsLoaded(rule: result.rule));
+      return true;
     } catch (e) {
       emit(StorePriceRuleSettingsError(
         message: e.toString(),
         previousRule: previousRule,
       ));
+      return false;
     }
   }
 }

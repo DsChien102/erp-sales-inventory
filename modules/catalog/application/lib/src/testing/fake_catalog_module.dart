@@ -2665,6 +2665,7 @@ final class FakeCatalogModule implements ICatalogModule {
       return ProductUnitPriceBandsDto(
             productId: product.id,
             baseUnitName: product.baseUnit,
+            basePrice: product.baseCost,
             rows: [
               ProductUnitPriceBandRowDto(
                 productUnitId: syntheticId,
@@ -2686,6 +2687,7 @@ final class FakeCatalogModule implements ICatalogModule {
     return ProductUnitPriceBandsDto(
           productId: product.id,
           baseUnitName: product.baseUnit,
+          basePrice: product.baseCost,
           rows: structuredUnits.map(_toPriceBandRowDto).toList(growable: false),
         )
         as TResult;

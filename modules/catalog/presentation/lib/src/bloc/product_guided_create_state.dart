@@ -22,10 +22,15 @@ class ProductGuidedCreateState {
     this.initialStock = '',
     this.baseCost = '',
     this.pricingMethod = 'storeRule',
-    this.customAutoMarkup = '35',
-    this.customAutoFloorMarkup = '15',
+    this.customAutoMarkup = '',
+    this.customAutoFloorMarkup = '',
     this.manualListPrice = '',
     this.manualFloorPrice = '',
+    this.isStorePriceRuleLoading = false,
+    this.storePriceRuleName,
+    this.storeRuleListMarkupRatio,
+    this.storeRuleFloorMarkupRatio,
+    this.storePriceRuleUnavailableReason,
     this.priceBandConfigured = false,
     this.activeStepIndex = 0,
     this.status = ProductGuidedCreateStatus.initial,
@@ -54,6 +59,11 @@ class ProductGuidedCreateState {
   final String customAutoFloorMarkup;
   final String manualListPrice;
   final String manualFloorPrice;
+  final bool isStorePriceRuleLoading;
+  final String? storePriceRuleName;
+  final double? storeRuleListMarkupRatio;
+  final double? storeRuleFloorMarkupRatio;
+  final String? storePriceRuleUnavailableReason;
   /// True when user confirms step 6 (Khung giá bán) via "Tiếp".
   final bool priceBandConfigured;
 
@@ -83,6 +93,37 @@ class ProductGuidedCreateState {
       !isUploadingImages &&
       status != ProductGuidedCreateStatus.loading;
 
+  bool get isStorePriceRuleReady =>
+      storeRuleListMarkupRatio != null &&
+      storeRuleFloorMarkupRatio != null &&
+      storePriceRuleUnavailableReason == null;
+
+  bool get canConfirmStoreRulePriceBand =>
+      pricingMethod != 'storeRule' || isStorePriceRuleReady;
+
+  double? get parsedCustomAutoMarkupPercent {
+    final value = double.tryParse(customAutoMarkup.trim());
+    if (value == null || value < 0) return null;
+    return value;
+  }
+
+  double? get parsedCustomAutoFloorMarkupPercent {
+    final value = double.tryParse(customAutoFloorMarkup.trim());
+    if (value == null || value < 0) return null;
+    return value;
+  }
+
+  bool get canConfirmCustomAutoPriceBand {
+    if (pricingMethod != 'customAuto') return true;
+    final listPercent = parsedCustomAutoMarkupPercent;
+    final floorPercent = parsedCustomAutoFloorMarkupPercent;
+    if (listPercent == null || floorPercent == null) return false;
+    return floorPercent <= listPercent;
+  }
+
+  bool get canConfirmPriceBandStep =>
+      canConfirmStoreRulePriceBand && canConfirmCustomAutoPriceBand;
+
   ProductGuidedCreateState copyWith({
     String? name,
     String? tradeName,
@@ -98,6 +139,13 @@ class ProductGuidedCreateState {
     String? customAutoFloorMarkup,
     String? manualListPrice,
     String? manualFloorPrice,
+    bool? isStorePriceRuleLoading,
+    String? storePriceRuleName,
+    double? storeRuleListMarkupRatio,
+    double? storeRuleFloorMarkupRatio,
+    String? storePriceRuleUnavailableReason,
+    bool clearStorePriceRuleUnavailable = false,
+    bool clearStorePriceRule = false,
     bool? priceBandConfigured,
     int? activeStepIndex,
     ProductGuidedCreateStatus? status,
@@ -130,6 +178,19 @@ class ProductGuidedCreateState {
       customAutoFloorMarkup: customAutoFloorMarkup ?? this.customAutoFloorMarkup,
       manualListPrice: manualListPrice ?? this.manualListPrice,
       manualFloorPrice: manualFloorPrice ?? this.manualFloorPrice,
+      isStorePriceRuleLoading: isStorePriceRuleLoading ?? this.isStorePriceRuleLoading,
+      storePriceRuleName: clearStorePriceRule
+          ? null
+          : (storePriceRuleName ?? this.storePriceRuleName),
+      storeRuleListMarkupRatio: clearStorePriceRule
+          ? null
+          : (storeRuleListMarkupRatio ?? this.storeRuleListMarkupRatio),
+      storeRuleFloorMarkupRatio: clearStorePriceRule
+          ? null
+          : (storeRuleFloorMarkupRatio ?? this.storeRuleFloorMarkupRatio),
+      storePriceRuleUnavailableReason: clearStorePriceRuleUnavailable
+          ? null
+          : (storePriceRuleUnavailableReason ?? this.storePriceRuleUnavailableReason),
       priceBandConfigured: priceBandConfigured ?? this.priceBandConfigured,
       activeStepIndex: activeStepIndex ?? this.activeStepIndex,
       status: status ?? this.status,

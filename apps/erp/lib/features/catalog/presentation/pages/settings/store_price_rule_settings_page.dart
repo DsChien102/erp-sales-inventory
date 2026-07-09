@@ -38,10 +38,6 @@ class _StorePriceRuleSettingsBody extends StatelessWidget {
       body: BlocConsumer<StorePriceRuleSettingsCubit,
           StorePriceRuleSettingsState>(
         listener: (context, state) {
-          if (state is StorePriceRuleSettingsSaved) {
-            // Reload to show updated data
-            context.read<StorePriceRuleSettingsCubit>().loadRule();
-          }
           if (state is StorePriceRuleSettingsError) {
             VToast.show(
               context,
@@ -49,10 +45,6 @@ class _StorePriceRuleSettingsBody extends StatelessWidget {
               message: state.message,
               type: VToastType.danger,
             );
-            // Fallback to loaded state with previous rule
-            if (state.previousRule != null) {
-              context.read<StorePriceRuleSettingsCubit>().loadRule();
-            }
           }
         },
         builder: (context, state) {
@@ -62,26 +54,49 @@ class _StorePriceRuleSettingsBody extends StatelessWidget {
           }
 
           StorePriceRuleDto? rule;
+          String? errorMessage;
           if (state is StorePriceRuleSettingsLoaded) {
             rule = state.rule;
           } else if (state is StorePriceRuleSettingsSaving) {
             rule = state.previousRule;
+          } else if (state is StorePriceRuleSettingsError) {
+            rule = state.previousRule;
+            errorMessage = state.message;
           }
 
-          return _buildContent(context, rule);
+          return _buildContent(
+            context,
+            rule: rule,
+            errorMessage: errorMessage,
+            onRetry: errorMessage != null
+                ? () => context.read<StorePriceRuleSettingsCubit>().loadRule()
+                : null,
+          );
         },
       ),
     );
   }
 
-  Widget _buildContent(BuildContext context, StorePriceRuleDto? rule) {
-
+  Widget _buildContent(
+    BuildContext context, {
+    required StorePriceRuleDto? rule,
+    String? errorMessage,
+    VoidCallback? onRetry,
+  }) {
     return ListView(
       padding: const EdgeInsets.symmetric(
         horizontal: VSpacing.screenMobile,
         vertical: VSpacing.space4,
       ),
       children: [
+        if (errorMessage != null) ...[
+          _buildErrorBanner(
+            context,
+            message: errorMessage,
+            onRetry: onRetry,
+          ),
+          const SizedBox(height: VSpacing.space4),
+        ],
         // — Top info card "Khung giá cửa hàng"
         _buildInfoCard(context),
         const SizedBox(height: VSpacing.space5),
@@ -97,6 +112,41 @@ class _StorePriceRuleSettingsBody extends StatelessWidget {
         // — Lịch sử thay đổi
         _buildChangeHistoryCard(context),
       ],
+    );
+  }
+
+  Widget _buildErrorBanner(
+    BuildContext context, {
+    required String message,
+    VoidCallback? onRetry,
+  }) {
+    final colors = context.vColors;
+
+    return Container(
+      padding: const EdgeInsets.all(VSpacing.space3),
+      decoration: BoxDecoration(
+        color: colors.dangerBg,
+        borderRadius: BorderRadius.circular(VRadius.r12),
+        border: Border.all(color: colors.danger.withValues(alpha: 0.3)),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(Icons.error_outline, size: 18, color: colors.danger),
+          const SizedBox(width: VSpacing.space2),
+          Expanded(
+            child: Text(
+              message,
+              style: VTypography.bodySmall.copyWith(color: colors.danger),
+            ),
+          ),
+          if (onRetry != null)
+            TextButton(
+              onPressed: onRetry,
+              child: const Text('Thử lại'),
+            ),
+        ],
+      ),
     );
   }
 
@@ -166,9 +216,9 @@ class _StorePriceRuleSettingsBody extends StatelessWidget {
 
     final hasRule = rule != null;
     final listMarkupPercent =
-        hasRule ? (rule.listMarkupRatio * 100).toStringAsFixed(1) : '—';
+        hasRule ? (rule.listMarkupRatio * 100).toStringAsFixed(1) : null;
     final floorMarkupPercent =
-        hasRule ? (rule.floorMarkupRatio * 100).toStringAsFixed(1) : '—';
+        hasRule ? (rule.floorMarkupRatio * 100).toStringAsFixed(1) : null;
 
     return Container(
       padding: const EdgeInsets.all(VSpacing.space4),
@@ -228,6 +278,16 @@ class _StorePriceRuleSettingsBody extends StatelessWidget {
             ],
           ),
           const SizedBox(height: VSpacing.space4),
+          if (!hasRule)
+            Padding(
+              padding: const EdgeInsets.only(bottom: VSpacing.space3),
+              child: Text(
+                'Chưa cấu hình khung giá cửa hàng. Nhấn Sửa để thiết lập tỷ lệ lãi và giá sàn.',
+                style: VTypography.bodySmall.copyWith(
+                  color: colors.textSecondary,
+                ),
+              ),
+            ),
 
           // Giá niêm yết row
           _buildRatioRow(
@@ -237,7 +297,8 @@ class _StorePriceRuleSettingsBody extends StatelessWidget {
             iconBgColor: colors.successBg,
             label: 'Giá niêm yết',
             sublabel: 'Tỷ lệ lãi so với Giá cơ sở',
-            valueText: hasRule ? '+$listMarkupPercent%' : '—',
+            valueText:
+                listMarkupPercent != null ? '+$listMarkupPercent%' : '—',
             valueColor: colors.success,
           ),
           const Padding(
@@ -253,7 +314,7 @@ class _StorePriceRuleSettingsBody extends StatelessWidget {
             iconBgColor: colors.dangerBg,
             label: 'Giá sàn',
             sublabel: 'Tỷ lệ sàn so với Giá cơ sở',
-            valueText: hasRule ? '$floorMarkupPercent%' : '—',
+            valueText: floorMarkupPercent != null ? '$floorMarkupPercent%' : '—',
             valueColor: colors.danger,
           ),
         ],

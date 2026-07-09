@@ -30,6 +30,10 @@ class _ProductGuidedStepPriceBandsState extends State<ProductGuidedStepPriceBand
     _customFloorMarkupController = TextEditingController(text: widget.state.customAutoFloorMarkup);
     _manualListPriceController = TextEditingController(text: widget.state.manualListPrice);
     _manualFloorPriceController = TextEditingController(text: widget.state.manualFloorPrice);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      context.read<ProductGuidedCreateCubit>().loadStorePriceRule();
+    });
   }
 
   @override
@@ -142,13 +146,40 @@ class _ProductGuidedStepPriceBandsState extends State<ProductGuidedStepPriceBand
 
         // Display Inputs and Previews depending on selected method
         if (widget.state.pricingMethod == 'storeRule') ...[
-          _buildCalculatedPriceDisplay(
-            context: context,
-            baseCost: baseCost,
-            markupPercent: 35,
-            floorPercent: 15,
-            labelSuffix: 'Cửa hàng',
-          ),
+          if (widget.state.isStorePriceRuleLoading)
+            const Padding(
+              padding: EdgeInsets.symmetric(vertical: VSpacing.space3),
+              child: Center(child: CircularProgressIndicator()),
+            )
+          else if (widget.state.storePriceRuleUnavailableReason != null)
+            Container(
+              padding: const EdgeInsets.all(VSpacing.space3),
+              decoration: BoxDecoration(
+                color: dynamicColors.warningBg,
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: dynamicColors.warning.withValues(alpha: 0.3)),
+              ),
+              child: Text(
+                widget.state.storePriceRuleUnavailableReason!,
+                style: VTypography.bodySmall.copyWith(color: dynamicColors.warning),
+              ),
+            )
+          else ...[
+            if (widget.state.storePriceRuleName != null) ...[
+              Text(
+                'Quy tắc: ${widget.state.storePriceRuleName}',
+                style: VTypography.bodySmall.copyWith(color: dynamicColors.textSecondary),
+              ),
+              const SizedBox(height: VSpacing.space3),
+            ],
+            _buildCalculatedPriceDisplay(
+              context: context,
+              baseCost: baseCost,
+              markupPercent: (widget.state.storeRuleListMarkupRatio ?? 0) * 100,
+              floorPercent: (widget.state.storeRuleFloorMarkupRatio ?? 0) * 100,
+              labelSuffix: 'Cửa hàng',
+            ),
+          ],
         ] else if (widget.state.pricingMethod == 'customAuto') ...[
           Row(
             children: [
@@ -159,8 +190,8 @@ class _ProductGuidedStepPriceBandsState extends State<ProductGuidedStepPriceBand
                     ProductGuidedFields.buildLabel(context, 'Lãi cơ sở (%)'),
                     TextField(
                       controller: _customMarkupController,
-                      keyboardType: TextInputType.number,
-                      decoration: ProductGuidedFields.buildInputDecoration(context, '35'),
+                      keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                      decoration: ProductGuidedFields.buildInputDecoration(context, ''),
                       style: VTypography.bodyDefault.copyWith(color: dynamicColors.textPrimary),
                       onChanged: cubit.updateCustomAutoMarkup,
                     ),
@@ -175,8 +206,8 @@ class _ProductGuidedStepPriceBandsState extends State<ProductGuidedStepPriceBand
                     ProductGuidedFields.buildLabel(context, 'Giá sàn (%)'),
                     TextField(
                       controller: _customFloorMarkupController,
-                      keyboardType: TextInputType.number,
-                      decoration: ProductGuidedFields.buildInputDecoration(context, '15'),
+                      keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                      decoration: ProductGuidedFields.buildInputDecoration(context, ''),
                       style: VTypography.bodyDefault.copyWith(color: dynamicColors.textPrimary),
                       onChanged: cubit.updateCustomAutoFloorMarkup,
                     ),
@@ -186,13 +217,20 @@ class _ProductGuidedStepPriceBandsState extends State<ProductGuidedStepPriceBand
             ],
           ),
           const SizedBox(height: VSpacing.space4),
-          _buildCalculatedPriceDisplay(
-            context: context,
-            baseCost: baseCost,
-            markupPercent: double.tryParse(widget.state.customAutoMarkup) ?? 35.0,
-            floorPercent: double.tryParse(widget.state.customAutoFloorMarkup) ?? 15.0,
-            labelSuffix: 'Cấu hình riêng',
-          ),
+          if (widget.state.parsedCustomAutoMarkupPercent != null &&
+              widget.state.parsedCustomAutoFloorMarkupPercent != null)
+            _buildCalculatedPriceDisplay(
+              context: context,
+              baseCost: baseCost,
+              markupPercent: widget.state.parsedCustomAutoMarkupPercent!,
+              floorPercent: widget.state.parsedCustomAutoFloorMarkupPercent!,
+              labelSuffix: 'Cấu hình riêng',
+            )
+          else
+            Text(
+              'Nhập tỷ lệ % để xem gợi ý giá.',
+              style: VTypography.bodySmall.copyWith(color: dynamicColors.textMuted),
+            ),
         ] else if (widget.state.pricingMethod == 'manual') ...[
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,

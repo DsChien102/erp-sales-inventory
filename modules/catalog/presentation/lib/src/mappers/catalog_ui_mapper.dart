@@ -27,18 +27,36 @@ class CatalogUiMapper {
     }
 
     if (state.pricingMethod == 'storeRule') {
+      final listRatio = state.storeRuleListMarkupRatio;
+      final floorRatio = state.storeRuleFloorMarkupRatio;
+      if (listRatio == null || floorRatio == null) {
+        return (listPrice: null, floorPrice: null);
+      }
+      final suggested = StorePriceSuggestionCalculator.suggest(
+        basePrice: baseCost,
+        listMarkupRatio: listRatio,
+        floorMarkupRatio: floorRatio,
+      );
       return (
-        listPrice: baseCost * 1.35,
-        floorPrice: baseCost * 1.15,
+        listPrice: suggested.listPrice,
+        floorPrice: suggested.floorPrice,
       );
     }
 
     if (state.pricingMethod == 'customAuto' || state.pricingMethod == 'auto') {
-      final markup = double.tryParse(state.customAutoMarkup.trim()) ?? 35.0;
-      final floorMarkup = double.tryParse(state.customAutoFloorMarkup.trim()) ?? 15.0;
+      final markup = double.tryParse(state.customAutoMarkup.trim());
+      final floorMarkup = double.tryParse(state.customAutoFloorMarkup.trim());
+      if (markup == null || floorMarkup == null) {
+        return (listPrice: null, floorPrice: null);
+      }
+      final suggested = StorePriceSuggestionCalculator.suggest(
+        basePrice: baseCost,
+        listMarkupRatio: markup / 100,
+        floorMarkupRatio: floorMarkup / 100,
+      );
       return (
-        listPrice: baseCost * (1 + markup / 100),
-        floorPrice: baseCost * (1 + floorMarkup / 100),
+        listPrice: suggested.listPrice,
+        floorPrice: suggested.floorPrice,
       );
     }
 
@@ -90,28 +108,6 @@ class CatalogUiMapper {
       listPrice: listPrice,
       floorPrice: floorPrice,
     );
-  }
-
-  static ProductReadinessStatus _readinessFromSummary(
-    ReadinessSummaryDto summary,
-    String baseUnit,
-  ) {
-    if (summary.status == ReadinessStatus.readyToSell) {
-      return ProductReadinessStatus.ready;
-    }
-
-    final codes = summary.blockers.map((b) => b.code).toSet();
-    if (codes.contains(ReadinessBlockerCode.missingBaseUnit) || baseUnit.trim().isEmpty) {
-      return ProductReadinessStatus.missingBaseUnit;
-    }
-    if (codes.contains(ReadinessBlockerCode.missingPrice) ||
-        codes.contains(ReadinessBlockerCode.missingPriceBand)) {
-      return ProductReadinessStatus.missingPriceBand;
-    }
-    if (codes.contains(ReadinessBlockerCode.missingStock)) {
-      return ProductReadinessStatus.missingStockSource;
-    }
-    return ProductReadinessStatus.needsReview;
   }
 
   /// Minimal PCC stub when opening a duplicate match (slice #1).
