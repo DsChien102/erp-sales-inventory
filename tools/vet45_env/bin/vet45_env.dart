@@ -8,6 +8,8 @@ import 'package:vet45_env/manifest.dart';
 import 'package:vet45_env/profile_init_service.dart';
 import 'package:vet45_env/profile_registry.dart';
 import 'package:vet45_env/run_service.dart';
+import 'package:vet45_env/supabase_command_args.dart';
+import 'package:vet45_env/supabase_delegate_service.dart';
 import 'package:vet45_env/sync_service.dart';
 
 Future<void> main(List<String> args) async {
@@ -58,6 +60,8 @@ Future<void> main(List<String> args) async {
         _cmdActive(manifest);
       case 'profile':
         await _cmdProfile(manifest, rest);
+      case 'supabase':
+        await _cmdSupabase(manifest, rest);
       default:
         stderr.writeln('Unknown command: $command');
         _printUsage();
@@ -102,6 +106,8 @@ Commands:
   resolve-shell [--env <id>] [--profile <id>]
   active               Print active profile + environment
   profile list|use|init
+  supabase [--profile <id>] [--env <id>] <args...>
+                       Run supabase CLI with profile auth.env token
 
 Run targets:
   erp debug|debug:web|debug:ios|build-ios|deploy-ios
@@ -214,6 +220,28 @@ Future<void> _cmdProfile(EnvManifest manifest, List<String> args) async {
       stderr.writeln('Unknown profile command: ${args.first}');
       exit(64);
   }
+}
+
+Future<void> _cmdSupabase(EnvManifest manifest, List<String> args) async {
+  final parsed = SupabaseCommandArgs.parse(
+    args,
+    defaultEnvironmentId: _defaultState(manifest).environmentId,
+  );
+  if (parsed.supabaseArgs.isEmpty) {
+    stderr.writeln(
+      'Usage: supabase [--profile <id>] [--env <id>] <supabase-args...>',
+    );
+    exit(64);
+  }
+  final ctx = manifest.context(
+    profileId: parsed.profileId,
+    environmentId: parsed.environmentId,
+  );
+  final code = await SupabaseDelegateService(manifest: manifest).run(
+    ctx,
+    parsed.supabaseArgs,
+  );
+  exit(code);
 }
 
 Future<void> _cmdUse(EnvManifest manifest, List<String> args) async {

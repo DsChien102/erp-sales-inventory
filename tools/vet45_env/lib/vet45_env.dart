@@ -13,5 +13,8 @@ export 'manifest.dart';
 export 'resolve_service.dart';
 export 'run_service.dart';
 export 'secrets_loader.dart';
+export 'supabase_command_args.dart';
 export 'supabase_cli.dart';
+export 'supabase_context.dart';
+export 'supabase_delegate_service.dart';
 export 'sync_service.dart';

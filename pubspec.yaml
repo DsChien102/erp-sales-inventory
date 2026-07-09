@@ -53,6 +53,7 @@ workspace:
   - modules/accounting/integration_events
   - modules/accounting/presentation
   - tools/vet45_env
+  - tools/vet45_supabase_migrate
 
 dev_dependencies:
   melos: ^7.8.0
@@ -106,6 +107,11 @@ melos:
     env:link:
       run: dart run tools/vet45_env/bin/vet45_env.dart link
       description: Align supabase link with active environment project ref
+
+    supabase:
+      run: dart run tools/vet45_env/bin/vet45_env.dart supabase
+      stdio: inherit
+      description: Run supabase CLI with active profile auth.env token
 
     env:doctor:
       run: dart run tools/vet45_env/bin/vet45_env.dart doctor
