@@ -9,15 +9,15 @@ class ProductListCubit extends Cubit<ProductListState> {
   ProductListCubit({
     required IModuleMediator mediator,
     required IExecutionContext executionContext,
-  })  : _mediator = mediator,
-        _executionContext = executionContext,
-        super(const ProductListInitial());
+  }) : _mediator = mediator,
+       _executionContext = executionContext,
+       super(const ProductListInitial());
 
   final IModuleMediator _mediator;
   final IExecutionContext _executionContext;
 
   static const int _pageSize = 20;
-  
+
   int? globalTotalCount;
 
   Future<void> fetchProducts({
@@ -31,7 +31,8 @@ class ProductListCubit extends Cubit<ProductListState> {
         return;
       }
 
-      final currentCriteria = criteria ??
+      final currentCriteria =
+          criteria ??
           (state is ProductListLoaded
               ? (state as ProductListLoaded).criteria
               : ProductSearchCriteria());
@@ -63,7 +64,8 @@ class ProductListCubit extends Cubit<ProductListState> {
 
       final result = await _mediator.executeQueryAsync(query);
 
-      final isAllCriteria = currentCriteria.keyword == null &&
+      final isAllCriteria =
+          currentCriteria.keyword == null &&
           currentCriteria.readinessFilter == null &&
           currentCriteria.activeOnly &&
           !currentCriteria.includeSoftDeleted;
@@ -92,13 +94,14 @@ class ProductListCubit extends Cubit<ProductListState> {
     final currentCriteria = state is ProductListLoaded
         ? (state as ProductListLoaded).criteria
         : ProductSearchCriteria();
-        
+
     final newCriteria = ProductSearchCriteria(
       keyword: keyword.isEmpty ? null : keyword,
       businessStatuses: currentCriteria.businessStatuses,
       readinessFilter: currentCriteria.readinessFilter,
       includeSoftDeleted: currentCriteria.includeSoftDeleted,
       sortOrder: currentCriteria.sortOrder,
+      customFieldFilters: currentCriteria.customFieldFilters,
     );
     fetchProducts(criteria: newCriteria, isRefresh: true);
   }

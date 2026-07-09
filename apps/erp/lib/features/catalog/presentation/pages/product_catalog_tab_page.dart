@@ -9,6 +9,7 @@ import 'package:vet45_design_system/design_system.dart';
 import 'package:vet45_shared_application/application.dart';
 
 import 'product_control_center_page.dart';
+import '../widgets/custom_field_filter_sheet.dart';
 
 class ProductCatalogTabPage extends StatefulWidget {
   const ProductCatalogTabPage({super.key});
@@ -35,6 +36,8 @@ class _ProductCatalogTabPageState extends State<ProductCatalogTabPage> {
   final ScrollController _scrollController = ScrollController();
   late final ProductListCubit _cubit;
   ProductListFilter _selectedFilter = ProductListFilter.all;
+  List<CustomFieldFilterCriteria> _customFieldFilters = [];
+  List<CustomFieldFilterOptionDto> _filterOptions = [];
 
   @override
   void initState() {
@@ -45,6 +48,7 @@ class _ProductCatalogTabPageState extends State<ProductCatalogTabPage> {
     )..fetchProducts();
 
     _scrollController.addListener(_onScroll);
+    _loadFilterOptions();
   }
 
   @override
@@ -52,6 +56,23 @@ class _ProductCatalogTabPageState extends State<ProductCatalogTabPage> {
     _scrollController.dispose();
     _cubit.close();
     super.dispose();
+  }
+
+  Future<void> _loadFilterOptions() async {
+    try {
+      final catalogModule = GetIt.instance<ICatalogModule>();
+      final executionContext = GetIt.instance<IExecutionContext>();
+      final tenantId = await executionContext.requireTenantId();
+      final query = ListCustomFieldFilterOptionsQuery(tenantId: tenantId);
+      final options = await catalogModule.executeQueryAsync(query);
+      if (mounted) {
+        setState(() {
+          _filterOptions = options;
+        });
+      }
+    } catch (_) {
+      // Ignore filter options loading errors
+    }
   }
 
   void _onScroll() {
@@ -62,6 +83,65 @@ class _ProductCatalogTabPageState extends State<ProductCatalogTabPage> {
 
   void _onSearch(String query) {
     _cubit.searchByKeyword(query);
+  }
+
+  void _showFilterBottomSheet() {
+    showVBottomSheet(
+      context: context,
+      title: 'Lọc sản phẩm',
+      child: CustomFieldFilterSheet(
+        options: _filterOptions,
+        initialFilters: _customFieldFilters,
+        onApply: (newFilters) {
+          setState(() {
+            _customFieldFilters = newFilters;
+          });
+
+          final keyword = _cubit.state is ProductListLoaded
+              ? (_cubit.state as ProductListLoaded).criteria.keyword
+              : null;
+
+          ProductSearchCriteria newCriteria;
+          switch (_selectedFilter) {
+            case ProductListFilter.readyToSell:
+              newCriteria = ProductSearchCriteria(
+                keyword: keyword,
+                readinessFilter: ProductReadinessFilter.readyToSell,
+                customFieldFilters: _customFieldFilters,
+              );
+              break;
+            case ProductListFilter.incomplete:
+              newCriteria = ProductSearchCriteria(
+                keyword: keyword,
+                readinessFilter: ProductReadinessFilter.incomplete,
+                customFieldFilters: _customFieldFilters,
+              );
+              break;
+            case ProductListFilter.inactive:
+              newCriteria = ProductSearchCriteria(
+                keyword: keyword,
+                businessStatuses: {ProductStatus.inactive},
+                customFieldFilters: _customFieldFilters,
+              );
+              break;
+            case ProductListFilter.deleted:
+              newCriteria = ProductSearchCriteria(
+                keyword: keyword,
+                includeSoftDeleted: true,
+                customFieldFilters: _customFieldFilters,
+              );
+              break;
+            default:
+              newCriteria = ProductSearchCriteria(
+                keyword: keyword,
+                customFieldFilters: _customFieldFilters,
+              );
+              break;
+          }
+          _cubit.fetchProducts(criteria: newCriteria, isRefresh: true);
+        },
+      ),
+    );
   }
 
   void _onFilterChanged(ProductListFilter filter) {
@@ -80,26 +160,36 @@ class _ProductCatalogTabPageState extends State<ProductCatalogTabPage> {
         newCriteria = ProductSearchCriteria(
           keyword: keyword,
           readinessFilter: ProductReadinessFilter.readyToSell,
+          customFieldFilters: _customFieldFilters,
         );
         break;
       case ProductListFilter.incomplete:
         newCriteria = ProductSearchCriteria(
           keyword: keyword,
           readinessFilter: ProductReadinessFilter.incomplete,
+          customFieldFilters: _customFieldFilters,
         );
         break;
       case ProductListFilter.inactive:
         newCriteria = ProductSearchCriteria(
           keyword: keyword,
           businessStatuses: {ProductStatus.inactive},
+          customFieldFilters: _customFieldFilters,
         );
         break;
       case ProductListFilter.deleted:
-        newCriteria = ProductSearchCriteria(keyword: keyword, includeSoftDeleted: true);
+        newCriteria = ProductSearchCriteria(
+          keyword: keyword,
+          includeSoftDeleted: true,
+          customFieldFilters: _customFieldFilters,
+        );
         break;
       default:
         // Stock filters and 'all' fallback to generic search, UI does local filtering for stock
-        newCriteria = ProductSearchCriteria(keyword: keyword);
+        newCriteria = ProductSearchCriteria(
+          keyword: keyword,
+          customFieldFilters: _customFieldFilters,
+        );
         break;
     }
     _cubit.fetchProducts(criteria: newCriteria, isRefresh: true);
@@ -232,7 +322,11 @@ class _ProductCatalogTabPageState extends State<ProductCatalogTabPage> {
         ),
         body: Column(
           children: [
-            ProductListSearchBar(onSearch: _onSearch),
+            ProductListSearchBar(
+              onSearch: _onSearch,
+              onFilterPressed: _filterOptions.isNotEmpty ? _showFilterBottomSheet : null,
+              activeFiltersCount: _customFieldFilters.length,
+            ),
             BlocBuilder<ProductListCubit, ProductListState>(
               builder: (context, state) => _buildFilterChips(context, dynamicColors, state),
             ),

@@ -63,7 +63,7 @@ abstract final class ProductControlCenterAssembler {
         unitName: hasBaseUnit ? model.baseUnitName : null,
         isConfigured: hasStock,
         isOutOfStock: hasStock && model.stockQuantity == 0,
-        canAdjust: model.facts.stockMode == StockMode.basic && hasBaseUnit,
+        canAdjust: model.facts.stockMode == StockMode.basic,
         currentVersion: model.stockVersion,
         isPendingExternal: model.facts.stockMode == StockMode.advanced,
         isMissing: model.facts.stockMode == StockMode.basic && !hasStock,
@@ -77,7 +77,7 @@ abstract final class ProductControlCenterAssembler {
         amount: model.basePriceAmount,
         currency: model.basePriceCurrency,
         baseUnitName: hasBaseUnit ? model.baseUnitName : null,
-        canEdit: model.facts.basePriceMode == BasePriceMode.manual && hasBaseUnit,
+        canEdit: model.facts.basePriceMode == BasePriceMode.manual,
         isPendingExternal: model.facts.basePriceMode == BasePriceMode.costingModule,
         isMissing: model.facts.basePriceMode == BasePriceMode.manual && !hasBasePrice,
         missingMessage: model.facts.basePriceMode == BasePriceMode.manual && !hasBasePrice

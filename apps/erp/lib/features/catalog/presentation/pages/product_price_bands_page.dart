@@ -7,6 +7,7 @@ import 'package:vet45_catalog_presentation/presentation.dart';
 import 'package:vet45_design_system/design_system.dart';
 import 'package:vet45_shared_application/application.dart';
 
+import '../widgets/dashed_border_container.dart';
 import 'edit_product_unit_price_band_page.dart';
 
 class ProductPriceBandsRouteArgs {
@@ -40,6 +41,7 @@ class ProductPriceBandsPage extends StatelessWidget {
           final isLoading = state is ProductPriceBandsInitial || state is ProductPriceBandsLoading;
 
           return Scaffold(
+            backgroundColor: context.vColors.background,
             appBar: VAppBar(
               title: 'Khung giá bán',
               titleStyle: VTypography.headingH3.copyWith(fontWeight: FontWeight.bold),
@@ -54,12 +56,87 @@ class ProductPriceBandsPage extends StatelessWidget {
                 ? const Center(child: CircularProgressIndicator())
                 : state is ProductPriceBandsFailure
                 ? Center(child: Text(state.error))
+                : state is ProductPriceBandsMissingBaseUnit
+                ? _buildMissingBaseUnit(context)
                 : state is ProductPriceBandsLoaded
                 ? _buildContent(context, state.data)
                 : const SizedBox.shrink(),
           );
         },
       ),
+    );
+  }
+
+  Widget _buildMissingBaseUnit(BuildContext context) {
+    final dynamicColors = context.vColors;
+    
+    return Column(
+      children: [
+        Expanded(
+          child: SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: DashedBorderContainer(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    RichText(
+                      text: TextSpan(
+                        style: VTypography.bodyDefault.copyWith(
+                          color: dynamicColors.textPrimary,
+                        ),
+                        children: [
+                          const TextSpan(text: 'Cần thiết lập '),
+                          TextSpan(
+                            text: 'đơn vị cơ sở',
+                            style: VTypography.bodyDefault.copyWith(
+                              color: dynamicColors.textPrimary,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const TextSpan(text: ' cho sản phẩm trước khi thiết lập khung giá bán.'),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      'Khung giá bán được tính theo đơn vị cơ sở của sản phẩm.',
+                      style: VTypography.bodySmall.copyWith(
+                        color: dynamicColors.textSecondary,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+        SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Row(
+              children: [
+                Expanded(
+                  child: VButton(
+                    label: 'Hủy',
+                    variant: VButtonVariant.outline,
+                    onPressed: () => context.pop(),
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: VButton(
+                    label: 'Lưu thay đổi',
+                    variant: VButtonVariant.primary,
+                    onPressed: null,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
     );
   }
 

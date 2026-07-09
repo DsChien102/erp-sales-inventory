@@ -68,6 +68,29 @@ class ProductListItemTile extends StatelessWidget {
                       ),
                     ),
                   ],
+                  if (item.customFieldValues.isNotEmpty) ...[
+                    const SizedBox(height: 6),
+                    Wrap(
+                      spacing: 6,
+                      runSpacing: 4,
+                      children: item.customFieldValues.map((cf) {
+                        return Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: dynamicColors.surfaceAlt,
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                          child: Text(
+                            '${cf.fieldName}: ${cf.displayValue}',
+                            style: VTypography.bodySmall.copyWith(
+                              color: dynamicColors.textSecondary,
+                              fontSize: 11,
+                            ),
+                          ),
+                        );
+                      }).toList(),
+                    ),
+                  ],
                   const SizedBox(height: 8),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
