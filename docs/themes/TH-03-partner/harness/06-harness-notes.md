@@ -36,6 +36,7 @@ cd apps/erp && flutter test test/features/partner/   # khi slice có UI
 | 2026-07-01 | BE/FE lane confusion | 07-api-contracts + FakePartnerModule + traceability Role column |
 | 2026-07-02 | Partner hand-wired CQRS | Bật codegen (mirror IAM) |
 | **2026-07-07** | **Product spec v2 (Person/Organization) lệch harness + code cũ** | **Reboot: gỡ code partner + migrations cũ; viết lại harness v2 (Partner root, soft delete, contact, transform); reset slice S1..S9 todo; rebuild greenfield từ iam golden** |
+| 2026-07-09 | Theme spec gom UI chi tiết vào Appendix A / Screen Groups | US chỉ giữ `Design Reference`; agent đọc SG tương ứng trước FE/widget manifest |
 
 ## Pitfalls (v2)
 
@@ -43,6 +44,7 @@ cd apps/erp && flutter test test/features/partner/   # khi slice có UI
 - Soft delete = `status = deleted`, không hard delete Phase 1.
 - Transaction history = EP-01/US-07 (không còn Epic-03 folder).
 - US spec = một file `US-{nn}.md` (không còn `FR-{nn}.md` riêng).
+- UI Contract, Low-fi wireframes và Visual Design nằm trong Theme spec Appendix A / Screen Groups; không nhân bản chi tiết thiết kế vào từng US.
 - Dup-check: warn-only Phase 1, không merge.
 
 ## Liên kết
