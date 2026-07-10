@@ -70,10 +70,14 @@ class _PartnerListPageState extends State<PartnerListPage> {
   }
 
   Future<void> _openPartnerDetail(String partnerId) async {
-    await context.push('/partner/$partnerId');
+    final deleted = await context.push<bool>('/partner/$partnerId');
     if (!mounted) return;
-    // Refresh after detail (transform / edit / deactivate may change list row).
+    // Refresh after detail (edit / status / soft-delete / transform).
     await _cubit.fetchPartners(isRefresh: true);
+    if (!mounted) return;
+    if (deleted == true) {
+      showPartnerSoftDeleteSuccessToast(context);
+    }
   }
 
   Future<void> _openFilterSheet(PartnerListState state) async {

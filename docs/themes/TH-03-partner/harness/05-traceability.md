@@ -117,8 +117,8 @@ Codegen ritual: mirror [modules/iam/README.md](../../../../modules/iam/README.md
 | ------ | ---- | ---------- | ------------- | -------- | ------- | ------ |
 | US-01 | CONTRACT | §S7 | application | `DeactivatePartnerCommand`, `ReactivatePartnerCommand` | — | done |
 | FR-01..07 | BE | §S7 | application | status command handlers | scn_e02_u01_fr01_01 | done |
-| FR-01..07 | FE | §S7 | presentation | deactivate/reactivate dialogs | wgt_e02_u01_fr01_01 | todo |
-| FR-01 | E2E | §S7 | integration | status flow | e2e_e02_u01_fr01_01 | todo |
+| FR-01..07 | FE | §S7 | presentation | action sheet, deactivate/reactivate sheets, status cubit | wgt_e02_u01_fr01_01, wgt_e02_u01_fr05_01, wgt_e02_u01_fr03_01 | done |
+| FR-01 | E2E | §S7 | integration | deactivate/reactivate via mediator + ERP lifecycle | e2e_e02_u01_fr01_01, partner_status_lifecycle_e2e_test | done |
 
 ---
 
@@ -128,8 +128,8 @@ Codegen ritual: mirror [modules/iam/README.md](../../../../modules/iam/README.md
 | ------ | ---- | ---------- | ------------- | -------- | ------- | ------ |
 | US-02 | CONTRACT | §S8 | application | `CheckDeleteEligibilityQuery`, `SoftDeletePartnerCommand` | — | done |
 | FR-01..07 | BE | §S8 | application | eligibility + soft delete handlers | scn_e02_u02_fr01_01 | done |
-| FR-01..07 | FE | §S8 | presentation | delete confirm, HAS_TRANSACTIONS blocked UI | wgt_e02_u02_fr01_01 | todo |
-| FR-01 | E2E | §S8 | integration | soft delete flow | e2e_e02_u02_fr01_01 | todo |
+| FR-01..07 | FE | §S8 | presentation | soft-delete confirm, D-09 blocked sheet | wgt_e02_u02_fr05_01, wgt_e02_u02_fr04_01 | done |
+| FR-01 | E2E | §S8 | integration | eligibility + soft delete via mediator + ERP lifecycle | e2e_e02_u02_fr01_01, partner_status_lifecycle_e2e_test | done |
 
 ---
 

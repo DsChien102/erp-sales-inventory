@@ -65,12 +65,24 @@ enum FakePartnerScenario {
   transformPermissionDenied,
   transformStateChanged,
   transformDupWarning,
+  deactivatePermissionDenied,
+  deactivateStateChanged,
+  deactivateInvalidStatus,
+  reactivatePermissionDenied,
+  reactivateStateChanged,
+  reactivateInvalidStatus,
+  softDeletePermissionDenied,
+  softDeleteStateChanged,
+  softDeleteHasTransactions,
+  softDeleteNotEligible,
 }
 /// In-memory partner module for FE/widget tests.
 final class FakePartnerModule implements IPartnerModule {
   FakePartnerModule({this.scenario = FakePartnerScenario.defaultMixed});
 
   final FakePartnerScenario scenario;
+  final Map<String, PartnerStatus> _statusOverrides = {};
+  final Map<String, int> _versionOverrides = {};
 
   @override
   Future<TResult> executeCommandAsync<TResult>(ICommand<TResult> command) {
@@ -206,28 +218,94 @@ final class FakePartnerModule implements IPartnerModule {
   }
 
   Future<TResult> _handleDeactivate<TResult>(DeactivatePartnerCommand command) {
+    switch (scenario) {
+      case FakePartnerScenario.deactivatePermissionDenied:
+        throw const PartnerBlockedException(
+          PartnerBlockedCodes.noPermission,
+          message: 'Missing partner.status.manage',
+        );
+      case FakePartnerScenario.deactivateStateChanged:
+        throw const PartnerBlockedException(
+          PartnerBlockedCodes.stateChanged,
+          message: 'Partner version mismatch',
+        );
+      case FakePartnerScenario.deactivateInvalidStatus:
+        throw const PartnerBlockedException(
+          PartnerBlockedCodes.invalidStatus,
+          message: 'Partner is not active',
+        );
+      default:
+        break;
+    }
+    final nextVersion = command.expectedVersion + 1;
+    _statusOverrides[command.partnerId] = PartnerStatus.inactive;
+    _versionOverrides[command.partnerId] = nextVersion;
     return Future.value(
       DeactivatePartnerResult(
         partnerId: command.partnerId,
-        expectedVersion: command.expectedVersion + 1,
+        expectedVersion: nextVersion,
       ) as TResult,
     );
   }
 
   Future<TResult> _handleReactivate<TResult>(ReactivatePartnerCommand command) {
+    switch (scenario) {
+      case FakePartnerScenario.reactivatePermissionDenied:
+        throw const PartnerBlockedException(
+          PartnerBlockedCodes.noPermission,
+          message: 'Missing partner.status.manage',
+        );
+      case FakePartnerScenario.reactivateStateChanged:
+        throw const PartnerBlockedException(
+          PartnerBlockedCodes.stateChanged,
+          message: 'Partner version mismatch',
+        );
+      case FakePartnerScenario.reactivateInvalidStatus:
+        throw const PartnerBlockedException(
+          PartnerBlockedCodes.invalidStatus,
+          message: 'Partner is not inactive',
+        );
+      default:
+        break;
+    }
+    final nextVersion = command.expectedVersion + 1;
+    _statusOverrides[command.partnerId] = PartnerStatus.active;
+    _versionOverrides[command.partnerId] = nextVersion;
     return Future.value(
       ReactivatePartnerResult(
         partnerId: command.partnerId,
-        expectedVersion: command.expectedVersion + 1,
+        expectedVersion: nextVersion,
       ) as TResult,
     );
   }
 
   Future<TResult> _handleSoftDelete<TResult>(SoftDeletePartnerCommand command) {
+    switch (scenario) {
+      case FakePartnerScenario.softDeletePermissionDenied:
+        throw const PartnerBlockedException(
+          PartnerBlockedCodes.noPermission,
+          message: 'Missing partner.delete',
+        );
+      case FakePartnerScenario.softDeleteStateChanged:
+        throw const PartnerBlockedException(
+          PartnerBlockedCodes.stateChanged,
+          message: 'Partner version mismatch',
+        );
+      case FakePartnerScenario.softDeleteHasTransactions:
+        throw const PartnerBlockedException(
+          PartnerBlockedCodes.hasTransactions,
+          message: 'Partner has transactions',
+        );
+      default:
+        break;
+    }
+    final nextVersion = command.expectedVersion + 1;
+    _statusOverrides[command.partnerId] = PartnerStatus.deleted;
+    _versionOverrides[command.partnerId] = nextVersion;
     return Future.value(
       SoftDeletePartnerResult(
         partnerId: command.partnerId,
-        expectedVersion: command.expectedVersion + 1,
+        expectedVersion: nextVersion,
       ) as TResult,
     );
   }
@@ -296,6 +374,7 @@ final class FakePartnerModule implements IPartnerModule {
   }
 
   Future<TResult> _handleGetDetail<TResult>(GetPartnerDetailQuery query) {
+    final PartnerDetailDto dto;
     switch (scenario) {
       case FakePartnerScenario.detailDeleted:
         throw const PartnerBlockedException(
@@ -303,102 +382,151 @@ final class FakePartnerModule implements IPartnerModule {
           message: 'Partner not found',
         );
       case FakePartnerScenario.detailOrganizationWithContacts:
-        return Future.value(
-          PartnerDetailDto(
-            partnerId: query.partnerId,
-            partnerType: PartnerType.organization,
-            status: PartnerStatus.active,
-            displayName: 'Công ty ABC',
-            roles: const [PartnerRoleType.customer, PartnerRoleType.supplier],
-            availableActions: const [
-              PartnerAvailableAction.update,
-              PartnerAvailableAction.manageContacts,
-              PartnerAvailableAction.deactivate,
-              PartnerAvailableAction.viewHistory,
-            ],
-            expectedVersion: 1,
-            createdAt: DateTime.utc(2026, 1, 15, 8, 30),
-            updatedAt: DateTime.utc(2026, 3, 1, 10, 0),
-            organizationProfile: const OrganizationProfileDto(
-              organizationType: OrganizationType.company,
-              organizationName: 'Công ty ABC',
-              phone: '0901234567',
-              email: 'contact@abc.vn',
-              taxCode: '0312345678',
-              invoice: InvoiceProfileInput(
-                invoiceName: 'Công ty ABC',
-                invoiceEmail: 'accounting@abc.vn',
-                invoiceAddress: '1 Lê Lợi, Quận 1, TP.HCM',
-              ),
+        dto = PartnerDetailDto(
+          partnerId: query.partnerId,
+          partnerType: PartnerType.organization,
+          status: PartnerStatus.active,
+          displayName: 'Công ty ABC',
+          roles: const [PartnerRoleType.customer, PartnerRoleType.supplier],
+          availableActions: const [
+            PartnerAvailableAction.update,
+            PartnerAvailableAction.manageContacts,
+            PartnerAvailableAction.deactivate,
+            PartnerAvailableAction.delete,
+            PartnerAvailableAction.viewHistory,
+          ],
+          expectedVersion: 1,
+          createdAt: DateTime.utc(2026, 1, 15, 8, 30),
+          updatedAt: DateTime.utc(2026, 3, 1, 10, 0),
+          organizationProfile: const OrganizationProfileDto(
+            organizationType: OrganizationType.company,
+            organizationName: 'Công ty ABC',
+            phone: '0901234567',
+            email: 'contact@abc.vn',
+            taxCode: '0312345678',
+            invoice: InvoiceProfileInput(
+              invoiceName: 'Công ty ABC',
+              invoiceEmail: 'accounting@abc.vn',
+              invoiceAddress: '1 Lê Lợi, Quận 1, TP.HCM',
             ),
-            contacts: const [
-              PartnerContactDto(
-                personPartnerId: 'p-contact-1',
-                displayName: 'Trần Thị B',
-                title: 'Chị',
-                phone: '0907654321',
-                phone2: '0281111222',
-                email: 'tranthib@abc.vn',
-                contactRole: 'Kế toán',
-                isPrimary: true,
-              ),
-            ],
-          ) as TResult,
+          ),
+          contacts: const [
+            PartnerContactDto(
+              personPartnerId: 'p-contact-1',
+              displayName: 'Trần Thị B',
+              title: 'Chị',
+              phone: '0907654321',
+              phone2: '0281111222',
+              email: 'tranthib@abc.vn',
+              contactRole: 'Kế toán',
+              isPrimary: true,
+            ),
+          ],
         );
       case FakePartnerScenario.detailPersonActive:
       case FakePartnerScenario.defaultMixed:
-        return Future.value(
-          PartnerDetailDto(
-            partnerId: query.partnerId,
-            partnerType: PartnerType.person,
-            status: PartnerStatus.active,
-            displayName: 'Nguyễn Văn A',
-            roles: const [PartnerRoleType.customer],
-            availableActions: const [
-              PartnerAvailableAction.update,
-              PartnerAvailableAction.transform,
-              PartnerAvailableAction.deactivate,
-              PartnerAvailableAction.viewHistory,
-            ],
-            expectedVersion: 1,
-            createdAt: DateTime.utc(2026, 1, 10, 9, 0),
-            updatedAt: DateTime.utc(2026, 2, 20, 14, 15),
-            personProfile: PersonProfileDto(
-              title: PersonTitle('Ông'),
-              fullName: 'Nguyễn Văn A',
-              phone: '0901234567',
-              email: 'nguyenvana@example.com',
-              taxCode: '0101234567',
-              invoice: InvoiceProfileInput(
-                invoiceName: 'Nguyễn Văn A',
-                invoiceEmail: 'invoice@example.com',
-                invoiceAddress: '12 Nguyễn Huệ, Quận 1, TP.HCM',
-              ),
-              delivery: DeliveryAddressInput(
-                province: 'Thành phố Hồ Chí Minh',
-                commune: 'Phường Bến Nghé',
-                address: '12 Nguyễn Huệ',
-              ),
+      case FakePartnerScenario.softDeleteNotEligible:
+      case FakePartnerScenario.softDeleteHasTransactions:
+        dto = PartnerDetailDto(
+          partnerId: query.partnerId,
+          partnerType: PartnerType.person,
+          status: PartnerStatus.active,
+          displayName: 'Nguyễn Văn A',
+          roles: const [PartnerRoleType.customer],
+          availableActions: const [
+            PartnerAvailableAction.update,
+            PartnerAvailableAction.transform,
+            PartnerAvailableAction.deactivate,
+            PartnerAvailableAction.delete,
+            PartnerAvailableAction.viewHistory,
+          ],
+          expectedVersion: 1,
+          createdAt: DateTime.utc(2026, 1, 10, 9, 0),
+          updatedAt: DateTime.utc(2026, 2, 20, 14, 15),
+          personProfile: PersonProfileDto(
+            title: PersonTitle('Ông'),
+            fullName: 'Nguyễn Văn A',
+            phone: '0901234567',
+            email: 'nguyenvana@example.com',
+            taxCode: '0101234567',
+            invoice: InvoiceProfileInput(
+              invoiceName: 'Nguyễn Văn A',
+              invoiceEmail: 'invoice@example.com',
+              invoiceAddress: '12 Nguyễn Huệ, Quận 1, TP.HCM',
             ),
-          ) as TResult,
+            delivery: DeliveryAddressInput(
+              province: 'Thành phố Hồ Chí Minh',
+              commune: 'Phường Bến Nghé',
+              address: '12 Nguyễn Huệ',
+            ),
+          ),
         );
       default:
-        return Future.value(
-          PartnerDetailDto(
-            partnerId: query.partnerId,
-            partnerType: PartnerType.person,
-            status: PartnerStatus.active,
-            displayName: 'Partner',
-            roles: const [PartnerRoleType.customer],
-            availableActions: const [PartnerAvailableAction.update],
-            expectedVersion: 1,
-            personProfile: const PersonProfileDto(
-              fullName: 'Partner',
-              phone: '0900000000',
-            ),
-          ) as TResult,
+        dto = PartnerDetailDto(
+          partnerId: query.partnerId,
+          partnerType: PartnerType.person,
+          status: PartnerStatus.active,
+          displayName: 'Partner',
+          roles: const [PartnerRoleType.customer],
+          availableActions: const [PartnerAvailableAction.update],
+          expectedVersion: 1,
+          personProfile: const PersonProfileDto(
+            fullName: 'Partner',
+            phone: '0900000000',
+          ),
         );
     }
+    return Future.value(_applyStatusOverride(dto) as TResult);
+  }
+
+  PartnerDetailDto _applyStatusOverride(PartnerDetailDto dto) {
+    final status = _statusOverrides[dto.partnerId];
+    if (status == null) return dto;
+
+    final version = _versionOverrides[dto.partnerId] ?? dto.expectedVersion;
+    final actions = _actionsForStatus(
+      partnerType: dto.partnerType,
+      status: status,
+      base: dto.availableActions,
+    );
+    return PartnerDetailDto(
+      partnerId: dto.partnerId,
+      partnerType: dto.partnerType,
+      status: status,
+      displayName: dto.displayName,
+      roles: dto.roles,
+      availableActions: actions,
+      expectedVersion: version,
+      personProfile: dto.personProfile,
+      organizationProfile: dto.organizationProfile,
+      contacts: dto.contacts,
+      createdAt: dto.createdAt,
+      updatedAt: dto.updatedAt,
+    );
+  }
+
+  List<PartnerAvailableAction> _actionsForStatus({
+    required PartnerType partnerType,
+    required PartnerStatus status,
+    required List<PartnerAvailableAction> base,
+  }) {
+    final kept = base
+        .where(
+          (action) =>
+              action != PartnerAvailableAction.deactivate &&
+              action != PartnerAvailableAction.reactivate &&
+              action != PartnerAvailableAction.transform,
+        )
+        .toList();
+    if (status == PartnerStatus.active) {
+      kept.add(PartnerAvailableAction.deactivate);
+      if (partnerType == PartnerType.person) {
+        kept.add(PartnerAvailableAction.transform);
+      }
+    } else if (status == PartnerStatus.inactive) {
+      kept.add(PartnerAvailableAction.reactivate);
+    }
+    return kept;
   }
 
   Future<TResult> _handleCheckDuplicate<TResult>(
@@ -432,6 +560,15 @@ final class FakePartnerModule implements IPartnerModule {
   Future<TResult> _handleDeleteEligibility<TResult>(
     CheckDeleteEligibilityQuery query,
   ) {
+    if (scenario == FakePartnerScenario.softDeleteNotEligible ||
+        scenario == FakePartnerScenario.softDeleteHasTransactions) {
+      return Future.value(
+        const DeleteEligibilityDto(
+          eligible: false,
+          reason: 'HAS_TRANSACTIONS',
+        ) as TResult,
+      );
+    }
     return Future.value(
       const DeleteEligibilityDto(eligible: true) as TResult,
     );
