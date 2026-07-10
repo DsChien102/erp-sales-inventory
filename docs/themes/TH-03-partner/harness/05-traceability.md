@@ -78,8 +78,12 @@ Codegen ritual: mirror [modules/iam/README.md](../../../../modules/iam/README.md
 | ------ | ---- | ---------- | ------------- | -------- | ------- | ------ |
 | US-03 | CONTRACT | §S4 | application | `UpdatePartnerProfileCommand`, dup check for update | — | done |
 | FR-01..07 | BE | §S4 | application | `UpdatePartnerProfileCommandHandler` | scn_e01_u03_fr01_01 | done |
-| FR-01..07 | FE | §S4 | presentation | edit page, role selector | wgt_e01_u03_fr01_01 | todo |
-| FR-01 | E2E | §S4 | integration | update flow | e2e_e01_u03_fr01_01 | todo |
+| FR-01..07 | FE | §S4 | presentation | shared create/edit form + `UpdatePartnerProfileCommand`; edit save gated by `isDirty`; `VToast` create/update success; list refresh on return from detail | wgt_e01_u03_fr01_01 | done |
+| FR-01 | E2E | §S4 | integration | update via mediator + ERP detail→edit→save + success toast | e2e_e01_u03_fr01_01 | done |
+| FR-06 | FE | §S4 | presentation | `modules/partner/presentation/lib/src/widgets/partner_create_success_toast.dart` (`VToast.show`) | — | done |
+| FR-06 | FE | §S4 | presentation | `apps/erp/lib/features/partner/presentation/pages/partner_detail_page.dart` (update toast + reload) | — | done |
+| FR-06 | FE | §S4 | presentation | `apps/erp/lib/features/partner/presentation/pages/partner_list_page.dart` (refresh after detail/create) | — | done |
+| FR-03 | FE | §S4 | presentation | `modules/partner/presentation/lib/src/bloc/partner_create_state.dart` (`canSubmit` requires dirty in edit) | — | done |
 
 ---
 

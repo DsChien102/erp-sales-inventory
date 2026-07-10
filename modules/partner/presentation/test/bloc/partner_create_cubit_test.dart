@@ -8,15 +8,47 @@ import 'package:vet45_shared_testing/shared_testing.dart';
 
 final class _RecordingPartnerModule implements IPartnerModule {
   final commands = <ICommand<Object?>>[];
+  final queries = <IQuery<Object?>>[];
+  PartnerDetailDto? detailOverride;
 
   @override
   Future<TResult> executeCommandAsync<TResult>(ICommand<TResult> command) async {
     commands.add(command as ICommand<Object?>);
+    if (command is UpdatePartnerProfileCommand) {
+      final update = command as UpdatePartnerProfileCommand;
+      return UpdatePartnerProfileResult(
+            partnerId: update.partnerId,
+            expectedVersion: update.expectedVersion + 1,
+          )
+          as TResult;
+    }
     return const CreatePartnerResult(partnerId: 'p-created') as TResult;
   }
 
   @override
   Future<TResult> executeQueryAsync<TResult>(IQuery<TResult> query) async {
+    queries.add(query as IQuery<Object?>);
+    if (query is GetPartnerDetailQuery) {
+      final detailQuery = query as GetPartnerDetailQuery;
+      final detail =
+          detailOverride ??
+          PartnerDetailDto(
+            partnerId: detailQuery.partnerId,
+            partnerType: PartnerType.person,
+            status: PartnerStatus.active,
+            displayName: 'Nguyễn Văn A',
+            roles: const [PartnerRoleType.customer],
+            availableActions: const [PartnerAvailableAction.update],
+            expectedVersion: 3,
+            personProfile: const PersonProfileDto(
+              fullName: 'Nguyễn Văn A',
+              phone: '0901234567',
+              email: 'a@example.com',
+              taxCode: '0101234567',
+            ),
+          );
+      return detail as TResult;
+    }
     return <PartnerDuplicateMatchDto>[] as TResult;
   }
 }
@@ -207,5 +239,91 @@ void main() {
     expect(cubit.state.status, PartnerCreateStatus.blocked);
     expect(cubit.state.fullName, 'Nguyễn Văn Minh');
     expect(cubit.state.isReadOnly, isTrue);
+  });
+
+  test('edit mode loadForEdit hydrates profile and hides primary contact', () async {
+    final module = _RecordingPartnerModule();
+    final cubit = PartnerCreateCubit.edit(
+      partnerId: 'p-1',
+      partnerModule: module,
+      executionContext: executionContext,
+    );
+
+    expect(cubit.state.isEditMode, isTrue);
+    expect(cubit.state.status, PartnerCreateStatus.loading);
+    expect(cubit.state.sections, isNot(contains(PartnerCreateSection.primaryContact)));
+
+    await cubit.loadForEdit();
+
+    expect(cubit.state.status, PartnerCreateStatus.initial);
+    expect(cubit.state.partnerId, 'p-1');
+    expect(cubit.state.expectedVersion, 3);
+    expect(cubit.state.fullName, 'Nguyễn Văn A');
+    expect(cubit.state.phone, '0901234567');
+    expect(cubit.state.email, 'a@example.com');
+    expect(cubit.state.taxCode, '0101234567');
+    expect(cubit.state.roles, [PartnerRoleType.customer]);
+    expect(cubit.state.isDirty, isFalse);
+    expect(cubit.state.canSubmit, isFalse);
+
+    cubit.updateFullName('Nguyễn Văn B');
+    expect(cubit.state.isDirty, isTrue);
+    expect(cubit.state.canSubmit, isTrue);
+  });
+
+  test('edit submit maps to UpdatePartnerProfileCommand and excludes self on dup check', () async {
+    final module = _RecordingPartnerModule();
+    final cubit = PartnerCreateCubit.edit(
+      partnerId: 'p-1',
+      partnerModule: module,
+      executionContext: executionContext,
+    );
+    await cubit.loadForEdit();
+
+    cubit.updateFullName('Nguyễn Văn B');
+    await cubit.submit();
+
+    final dupQuery = module.queries.whereType<CheckDuplicatePartnersQuery>().single;
+    expect(dupQuery.excludePartnerId, 'p-1');
+
+    final command = module.commands.single as UpdatePartnerProfileCommand;
+    expect(command.partnerId, 'p-1');
+    expect(command.expectedVersion, 3);
+    expect(command.personProfile?.fullName, 'Nguyễn Văn B');
+    expect(command.personProfile?.phone, '0901234567');
+    expect(cubit.state.status, PartnerCreateStatus.success);
+    expect(cubit.state.expectedVersion, 4);
+  });
+
+  test('edit organization load hydrates org fields', () async {
+    final module = _RecordingPartnerModule()
+      ..detailOverride = PartnerDetailDto(
+        partnerId: 'p-org',
+        partnerType: PartnerType.organization,
+        status: PartnerStatus.active,
+        displayName: 'Công ty ABC',
+        roles: const [PartnerRoleType.supplier],
+        availableActions: const [PartnerAvailableAction.update],
+        expectedVersion: 2,
+        organizationProfile: const OrganizationProfileDto(
+          organizationType: OrganizationType.company,
+          organizationName: 'Công ty ABC',
+          phone: '02812345678',
+          email: 'contact@abc.vn',
+        ),
+      );
+    final cubit = PartnerCreateCubit.edit(
+      partnerId: 'p-org',
+      partnerModule: module,
+      executionContext: executionContext,
+    );
+
+    await cubit.loadForEdit();
+
+    expect(cubit.state.partnerType, PartnerType.organization);
+    expect(cubit.state.organizationName, 'Công ty ABC');
+    expect(cubit.state.organizationTypeLabel, 'Công ty/TNHH');
+    expect(cubit.state.phone, '02812345678');
+    expect(cubit.state.sections, isNot(contains(PartnerCreateSection.primaryContact)));
   });
 }

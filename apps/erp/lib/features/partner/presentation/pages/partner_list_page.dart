@@ -61,7 +61,7 @@ class _PartnerListPageState extends State<PartnerListPage> {
     if (!mounted) return;
 
     if (createdPartnerId != null) {
-      _showCreatedHandoffSnackBar(createdPartnerId);
+      // Detail page shows VToast via ?created=1; refresh again after handoff.
       await context.push('/partner/$createdPartnerId?created=1');
       if (mounted) {
         await _cubit.fetchPartners(isRefresh: true);
@@ -98,24 +98,11 @@ class _PartnerListPageState extends State<PartnerListPage> {
     }
   }
 
-  void _showCreatedHandoffSnackBar(String partnerId) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          'Đã tạo KH & NCC. Chi tiết hồ sơ sẽ có ở bản cập nhật tiếp theo.',
-          style: VTypography.bodyDefault.copyWith(color: VColors.neutral0),
-        ),
-        action: SnackBarAction(
-          label: 'Đóng',
-          textColor: VColors.neutral0,
-          onPressed: () {},
-        ),
-        backgroundColor: VColors.success,
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(VRadius.card)),
-        margin: const EdgeInsets.all(VSpacing.space4),
-      ),
-    );
+  Future<void> _openPartnerDetail(String partnerId) async {
+    await context.push('/partner/$partnerId');
+    if (mounted) {
+      await _cubit.fetchPartners(isRefresh: true);
+    }
   }
 
   @override
@@ -327,7 +314,7 @@ class _PartnerListPageState extends State<PartnerListPage> {
                         final item = items[index];
                         return PartnerListItemTile(
                           item: item,
-                          onTap: () => context.push('/partner/${item.partnerId}'),
+                          onTap: () => _openPartnerDetail(item.partnerId),
                         );
                       },
                     ),

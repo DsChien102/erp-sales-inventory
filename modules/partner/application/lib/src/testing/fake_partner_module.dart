@@ -377,20 +377,24 @@ final class FakePartnerModule implements IPartnerModule {
     if (scenario == FakePartnerScenario.createDupWarning ||
         scenario == FakePartnerScenario.createExactDuplicate ||
         scenario == FakePartnerScenario.createDupConfirmed) {
-      return Future.value(
-        [
-          PartnerDuplicateMatchDto(
-            partnerId: 'p-dup-1',
-            displayName: 'Nguyễn Văn Trùng',
-            matchedField: PartnerDuplicateMatchField.phone,
-            matchLevel: scenario == FakePartnerScenario.createExactDuplicate
-                ? PartnerDuplicateMatchLevel.exact
-                : PartnerDuplicateMatchLevel.possible,
-            partnerType: PartnerType.person,
-            matchedValue: '0901234567',
-          ),
-        ] as TResult,
-      );
+      final matches = [
+        PartnerDuplicateMatchDto(
+          partnerId: 'p-dup-1',
+          displayName: 'Nguyễn Văn Trùng',
+          matchedField: PartnerDuplicateMatchField.phone,
+          matchLevel: scenario == FakePartnerScenario.createExactDuplicate
+              ? PartnerDuplicateMatchLevel.exact
+              : PartnerDuplicateMatchLevel.possible,
+          partnerType: PartnerType.person,
+          matchedValue: '0901234567',
+        ),
+      ];
+      final filtered = query.excludePartnerId == null
+          ? matches
+          : matches
+                .where((m) => m.partnerId != query.excludePartnerId)
+                .toList(growable: false);
+      return Future.value(filtered as TResult);
     }
     return Future.value(<PartnerDuplicateMatchDto>[] as TResult);
   }

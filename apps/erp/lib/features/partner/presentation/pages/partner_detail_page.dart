@@ -49,6 +49,14 @@ class _PartnerDetailPageState extends State<PartnerDetailPage> {
     super.dispose();
   }
 
+  Future<void> _openEdit(String partnerId) async {
+    final updated = await context.push<bool>('/partner/$partnerId/edit');
+    if (updated != true || !mounted) return;
+    await _cubit.loadDetail(widget.partnerId);
+    if (!mounted) return;
+    showPartnerUpdateSuccessToast(context);
+  }
+
   void _showActionSheet(BuildContext context, PartnerDetailDto dto) {
     showModalBottomSheet(
       context: context,
@@ -216,9 +224,12 @@ class _PartnerDetailPageState extends State<PartnerDetailPage> {
                                 label: 'Chỉnh sửa',
                                 variant: VButtonVariant.outline,
                                 foregroundColor: colors.success,
-                                onPressed: () {
-                                  // Action to navigate to edit page (Slice 4)
-                                },
+                                onPressed:
+                                    dto.availableActions.contains(
+                                          PartnerAvailableAction.update,
+                                        )
+                                    ? () => _openEdit(dto.partnerId)
+                                    : null,
                               ),
                             ),
                             const SizedBox(width: VSpacing.space3),

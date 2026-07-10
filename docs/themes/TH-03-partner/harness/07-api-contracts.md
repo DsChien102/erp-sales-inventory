@@ -8,7 +8,7 @@ Facade: `IPartnerModule` — `modules/partner/application/lib/src/contracts/i_pa
 
 **BE lane 2026-07-10:** Domain aggregate, handlers, gateways, `PartnerStartup`, codegen `generated/*.g.dart`; draft SQL `supabase/migrations/_drafts/partner_v2_*.sql` (chưa promote migration; có thể apply thủ công qua SQL editor).
 
-**E2E lane 2026-07-10:** ERP `PartnerStartup` wired trong `apps/erp/lib/core/di/injection.dart`; integration test `e2e_e01_u02_fr06_01` qua mediator + RPC test double.
+**E2E lane 2026-07-10:** ERP `PartnerStartup` wired trong `apps/erp/lib/core/di/injection.dart`; integration tests `e2e_e01_u02_fr06_01` (create), `e2e_e01_u04_fr01_01` (detail), `e2e_e01_u03_fr01_01` (update) qua mediator + RPC test double / ERP UI.
 
 **Access control:** `@RequiresPermission(PartnerPermissions.*)` + `@RequiresTenant()`; codegen emit `partner_access_metadata.g.dart`.
 
