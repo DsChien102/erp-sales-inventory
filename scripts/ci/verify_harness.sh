@@ -40,4 +40,7 @@ if [[ "${VERIFY_HARNESS_SKIP_CODEGEN:-0}" != "1" ]]; then
   GUARD_CODEGEN_STRICT=1 "$root/scripts/ci/guard_codegen_fresh.sh"
 fi
 
+echo "==> migrate_verify_policy"
+melos run migrate:verify-policy -- --strict
+
 echo "OK: all harness guards passed"

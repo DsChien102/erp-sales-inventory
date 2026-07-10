@@ -12,6 +12,7 @@ Future<void> main(List<String> args) async {
   final dryRun = args.contains('--dry-run');
   final write = args.contains('--write');
   final force = args.contains('--force');
+  final bundleIntent = args.contains('--bundle-intent');
 
   if (!dryRun && !write) {
     stderr.writeln('error: specify --dry-run or --write');
@@ -36,6 +37,7 @@ Future<void> main(List<String> args) async {
         startTimestamp: startTimestamp,
         dryRun: dryRun,
         force: force,
+        bundleIntent: bundleIntent,
       ),
     );
 
@@ -69,7 +71,14 @@ void _printPlan({
   for (final migration in planned) {
     totalLines += migration.lineCount;
     stdout.writeln('- ${migration.outputFileName}');
-    stdout.writeln('  source: _drafts/${migration.sourceDraftName}');
+    if (migration.sourceDraftNames.length == 1) {
+      stdout.writeln('  source: _drafts/${migration.sourceDraftNames.first}');
+    } else {
+      stdout.writeln('  sources:');
+      for (final source in migration.sourceDraftNames) {
+        stdout.writeln('    - _drafts/$source');
+      }
+    }
     stdout.writeln('  lines: ${migration.lineCount}');
     stdout.writeln('');
   }
@@ -91,6 +100,7 @@ Options:
   --dry-run              Print the promotion plan without writing files
   --write                Write timestamped migration files
   --force                Overwrite existing migration files with the same name
+  --bundle-intent        Merge drafts sharing _patch_<intent>_ into one migration
   --start-timestamp ID   11-digit migration id (YYYYMMDDxxx) for the first file
   -h, --help             Show this help
 

@@ -78,6 +78,16 @@ Infrastructure MUST NOT depend on:
 
 Do **not** use Dart-side `IDomainEventsBus` or post-command outbox writers for atomic paths.
 
+### 3b. Author Supabase SQL (drafts → promote)
+
+```text
+_drafts/NNN_<scope>_patch_<intent>_<part>.sql   # atomic authoring
+melos run migrate:promote-drafts -- --write [--bundle-intent]
+REGISTRY.yaml + melos run migrate:verify-policy -- --strict
+```
+
+Patch/surgical headers require `Kind`, `Intent`, `Touches` — every `create or replace function` in body must appear in `Touches`. Never copy unchanged RPC bodies from older migrations. Full policy: [supabase/migrations/README.md](../../../supabase/migrations/README.md).
+
 ### 4. Generate skeleton (Meetings + Sales canonical)
 
 ```text

@@ -254,6 +254,33 @@ When migrating e.g. Catalog infrastructure:
 
 ---
 
+## 11. Supabase migrations (BE slices)
+
+Infrastructure authors RPC/DDL in **drafts**, not timestamped migrations (unless user requests promote).
+
+```text
+Authoring (atomic)     _drafts/NNN_<scope>_patch_<intent>_<part>.sql
+Promote (cohesive)     melos run migrate:promote-drafts -- --write [--bundle-intent]
+Ownership              supabase/migrations/REGISTRY.yaml
+CI                     melos run migrate:verify-policy -- --strict
+```
+
+| Kind | Use when | Limit |
+|------|----------|-------|
+| `bootstrap` | Greenfield subsystem (grandfathered catalog chain) | N/A — skip strict lint |
+| `patch` | US/FR behavior change + related DDL | ≤8 functions, same `-- Intent:` |
+| `surgical` | Hotfix 1–3 RPC/columns | ≤3 functions |
+
+**Golden rules:**
+
+- `-- Touches:` must list every `create or replace function` in the file body
+- Do **not** copy unchanged RPC bodies from older migrations
+- After promote: update `REGISTRY.yaml` owners for all functions in `Touches`
+
+See [`supabase/migrations/README.md`](../../supabase/migrations/README.md) and [`_drafts/README.md`](../../supabase/migrations/_drafts/README.md).
+
+---
+
 ## Related docs
 
 - E2E checklist: [messaging_e2e_checklist.md](./messaging_e2e_checklist.md)

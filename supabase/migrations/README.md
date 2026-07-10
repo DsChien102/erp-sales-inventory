@@ -28,12 +28,37 @@ Agents: xem [AGENTS.md](../../AGENTS.md) — **Schema & migration**. Chi promote
 Moi migration bat dau bang comment header:
 
 ```sql
--- <Title>: <1-line intent>
--- Context: <ticket/theme/us/fr hoac ly do thay doi>
--- Safety: <idempotent|one-way> ; <expected lock/data impact>
+-- Title: catalog patch inline sku/barcode normalization
+-- Kind: patch
+-- Intent: catalog_sku_barcode_inline_normalize
+-- Context: TH-02 / US-xx / FR-xx
+-- Touches: _normalize_product_sku, create_product, search_products
+-- Safety: idempotent ; medium
+-- Depends on: 20260710001_catalog_product_reference_id
 ```
 
+| Kind | Khi dung | Gom duoc | Gioi han goi y |
+|------|----------|----------|----------------|
+| `bootstrap` | Greenfield subsystem (29 file catalog hien tai — grandfather) | schema + indexes + helpers + RPC khoi tao | Khong ap lint strict |
+| `patch` | US/FR thay doi hanh vi | DDL lien quan + RPC **thuc su doi** cung intent | ≤8 functions, cung `-- Intent:` |
+| `surgical` | Hotfix 1 RPC / 1 cot | 1–3 statement | ≤3 functions |
+
+**Quy tac vang (chong regression):**
+
+- Patch **khong** `create or replace` RPC khong nam trong `-- Touches:`
+- **Khong** copy body RPC tu migration cu "cho dong bo"
+- DDL cross-cutting (cot moi) **tach** khoi RPC khong lien quan
+
 Neu migration chua RLS/policy/function quyen, ghi ro trong header.
+
+## 2b) Cohesive slice + surgical patch
+
+- **Authoring:** draft atomic (1 object / file) trong `_drafts/` — xem [_drafts/README.md](_drafts/README.md)
+- **Apply:** promote gom theo intent (`--bundle-intent`) → 1 timestamp = 1 intent
+- **Ownership:** `REGISTRY.yaml` — migration cuoi cung dinh nghia moi RPC
+- **CI:** `melos run migrate:verify-policy -- --strict` — `Touches` phai khop body
+
+File trong `REGISTRY.yaml → bootstrap_grandfathered` (29 migration bundled hien tai) duoc mien kiem tra strict.
 
 ## 3) Nguyen tac viet SQL
 
@@ -85,12 +110,15 @@ Neu migration chua RLS/policy/function quyen, ghi ro trong header.
   - `supabase db reset` (neu co local db)
   - `supabase migration list --local`
   - `melos run test`
+  - `melos run migrate:verify-policy -- --strict`
   - `./scripts/ci/verify_harness.sh`
 
 ## 8) Checklist review migration
 
 - [ ] File name dung convention timestamp + scope + description
-- [ ] Header co context + safety
+- [ ] Header co Kind, Intent, Touches (patch/surgical), Context, Safety, Depends on
+- [ ] Touches khop moi `create or replace function` trong body
+- [ ] REGISTRY.yaml cap nhat owner cho RPC trong Touches (sau promote)
 - [ ] Idempotent primitives duoc dung hop ly
 - [ ] RLS + policy + grant/revoke day du
 - [ ] Index phu hop filter/sort/search thuc te

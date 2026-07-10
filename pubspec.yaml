@@ -252,6 +252,14 @@ melos:
       run: dart run tools/vet45_supabase_migrate/bin/promote_drafts.dart
       description: Promote supabase/migrations/_drafts SQL files to timestamped migrations
 
+    migrate:seed-registry:
+      run: dart run tools/vet45_supabase_migrate/bin/seed_registry.dart
+      description: Scan migrations and build supabase/migrations/REGISTRY.yaml
+
+    migrate:verify-policy:
+      run: dart run tools/vet45_supabase_migrate/bin/verify_migration_policy.dart
+      description: Verify cohesive migration policy (Kind, Touches, REGISTRY)
+
   repository:
     type: gitlab
     origin: https://gitlab.hamsa.co

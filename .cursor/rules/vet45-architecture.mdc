@@ -57,12 +57,15 @@ UI → IExecutionContext (tenant/user) → IModuleMediator
 ## Schema / Supabase migrations (agents)
 
 - **Draft SQL only:** `supabase/migrations/_drafts/<scope>_<description>.sql` — no `YYYYMMDDxxx_` prefix.
+- **Cohesive model:** authoring atomic drafts; promote 1 timestamp = 1 intent (`--bundle-intent`); header `Kind` / `Intent` / `Touches` required on new patch/surgical migrations.
+- **REGISTRY:** `supabase/migrations/REGISTRY.yaml` tracks last-owning migration per RPC; update on promote.
 - **Do not** add or edit `supabase/migrations/[0-9]*.sql` unless the user explicitly requests promoting a canonical migration.
-- Map RPC contracts in theme harness `07-api-contracts.md`; verify with `melos run test` — not `supabase db reset` for draft SQL.
+- Map RPC contracts in theme harness `07-api-contracts.md`; verify with `melos run test` + `melos run migrate:verify-policy` — not `supabase db reset` for draft SQL.
 
 ## Anti-patterns (reject in reviews)
 
 - Agent-authored timestamped files in `supabase/migrations/` during normal slices (duplicate version risk in collaboration)
+- Patch migration touching RPC not listed in `-- Touches:` or copying unchanged RPC bodies from older migrations
 - God aggregate, cross-module table access, anemic domain-only-in-SQL
 - Direct PostgREST writes from UI, Flutter bus for durable messaging
 - New framework abstractions (generic Repository<T>, plugin DSL)

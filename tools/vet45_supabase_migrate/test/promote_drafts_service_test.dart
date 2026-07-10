@@ -107,6 +107,52 @@ void main() {
     expect(planned[0].sql, contains('Promoted from _drafts/01_catalog_a.sql'));
   });
 
+  test('bundle-intent merges patch drafts into one migration', () {
+    writeDraft(
+      '001_catalog_patch_sku_barcode_schema.sql',
+      '''
+-- Kind: patch
+-- Intent: catalog_sku_barcode_inline_normalize
+-- Touches: _normalize_product_sku
+
+-- schema ddl
+select 1;
+''',
+    );
+    writeDraft(
+      '002_catalog_patch_sku_barcode_rpcs.sql',
+      '''
+-- Kind: patch
+-- Intent: catalog_sku_barcode_inline_normalize
+-- Touches: create_product
+
+-- rpc body
+select 2;
+''',
+    );
+
+    final planned = service.plan(
+      PromoteDraftsOptions(
+        repoRoot: tempDir,
+        startTimestamp: '20990101001',
+        dryRun: true,
+        bundleIntent: true,
+      ),
+    );
+
+    expect(planned, hasLength(1));
+    expect(
+      planned[0].outputFileName,
+      '20990101001_catalog_patch_sku_barcode.sql',
+    );
+    expect(planned[0].sourceDraftNames, hasLength(2));
+    expect(planned[0].sql, contains('-- Kind: patch'));
+    expect(planned[0].sql, contains('_normalize_product_sku'));
+    expect(planned[0].sql, contains('create_product'));
+    expect(planned[0].sql, contains('select 1'));
+    expect(planned[0].sql, contains('select 2'));
+  });
+
   test('write refuses to overwrite without force', () {
     writeDraft('01_catalog_a.sql', '-- a');
     writeMigration('20990101001_catalog_a.sql');

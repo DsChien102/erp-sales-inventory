@@ -1,0 +1,146 @@
+# RPC ownership registry — last migration defining each function.
+# Update when promoting Kind: patch|surgical migrations.
+# Regenerate owners: melos run migrate:seed-registry -- --write
+
+catalog:
+  _assert_custom_fields_permission: 20260709013_catalog_custom_fields.sql
+  _assert_product_permission: 20260709014_catalog_custom_field_values.sql
+  _base32_sha256_prefix: 20260710001_catalog_product_reference_id.sql
+  _catalog_storage_is_products_path: 20260709001_catalog_guided_create.sql
+  _catalog_storage_is_staging_path: 20260709001_catalog_guided_create.sql
+  _catalog_storage_tenant_allowed: 20260709001_catalog_guided_create.sql
+  _catalog_storage_tenant_id: 20260709001_catalog_guided_create.sql
+  _compute_suggested_prices: 20260709008_catalog_store_price_rule.sql
+  _consume_image_upload_slot: 20260709001_catalog_guided_create.sql
+  _count_products_missing_field_value: 20260709013_catalog_custom_fields.sql
+  _custom_field_group_to_json: 20260709013_catalog_custom_fields.sql
+  _custom_field_option_to_json: 20260709013_catalog_custom_fields.sql
+  _custom_field_to_json: 20260709013_catalog_custom_fields.sql
+  _custom_field_value_is_valid: 20260709013_catalog_custom_fields.sql
+  _ensure_product_has_base_unit: 20260709005_catalog_units.sql
+  _image_extension_from_name: 20260709001_catalog_guided_create.sql
+  _normalize_custom_field_name: 20260709013_catalog_custom_fields.sql
+  _normalize_measurement_unit_name: 20260709005_catalog_units.sql
+  _normalize_product_maintenance_images: 20260709010_catalog_product_profile_maintenance.sql
+  _product_base_unit_name: 20260709006_catalog_basic_stock.sql
+  _product_business_status_result_row: 20260709011_catalog_product_business_status.sql
+  _product_business_status_warnings: 20260709011_catalog_product_business_status.sql
+  _product_change_history_category: 20260709017_catalog_product_change_history.sql
+  _product_conversion_unit_delete_blocked_reason: 20260709023_catalog_delete_product_conversion_unit.sql
+  _product_custom_field_display_value: 20260709014_catalog_custom_field_values.sql
+  _product_custom_field_group_cards_json: 20260709014_catalog_custom_field_values.sql
+  _product_custom_field_list_values_json: 20260709015_catalog_custom_field_search.sql
+  _product_custom_field_value_field_json: 20260709014_catalog_custom_field_values.sql
+  _product_custom_field_values_json: 20260709014_catalog_custom_field_values.sql
+  _product_deletion_has_blocker: 20260709012_catalog_product_soft_delete.sql
+  _product_deletion_issues: 20260709012_catalog_product_soft_delete.sql
+  _product_has_active_base_unit: 20260709005_catalog_units.sql
+  _product_has_required_custom_fields: 20260709014_catalog_custom_field_values.sql
+  _product_maintenance_result_row: 20260709010_catalog_product_profile_maintenance.sql
+  _product_matches_custom_field_filters: 20260709015_catalog_custom_field_search.sql
+  _product_matches_custom_field_keyword: 20260709015_catalog_custom_field_search.sql
+  _product_operational_facts: 20260709014_catalog_custom_field_values.sql
+  _product_readiness_is_ready: 20260709004_catalog_product_discovery.sql
+  _product_readiness_summary_json: 20260709014_catalog_custom_field_values.sql
+  _product_reference_id_from_uuid: 20260710001_catalog_product_reference_id.sql
+  _product_soft_delete_result_row: 20260709012_catalog_product_soft_delete.sql
+  _product_unit_has_sales_transaction_usage: 20260709023_catalog_delete_product_conversion_unit.sql
+  _product_unit_json: 20260709005_catalog_units.sql
+  _readiness_blockers_from_facts: 20260709005_catalog_units.sql
+  _refresh_product_readiness: 20260709010_catalog_product_profile_maintenance.sql
+  _resolve_base_product_unit_id: 20260709008_catalog_store_price_rule.sql
+  add_product_conversion_unit: 20260709005_catalog_units.sql
+  adjust_basic_stock: 20260709006_catalog_basic_stock.sql
+  apply_store_price_rule: 20260709008_catalog_store_price_rule.sql
+  check_duplicate_measurement_unit_name: 20260709005_catalog_units.sql
+  check_duplicate_product_code: 20260709001_catalog_guided_create.sql
+  check_product_deletion_eligibility: 20260709012_catalog_product_soft_delete.sql
+  configure_custom_field_attributes: 20260709013_catalog_custom_fields.sql
+  create_product: 20260710001_catalog_product_reference_id.sql
+  deactivate_product: 20260709011_catalog_product_business_status.sql
+  deactivate_product_conversion_unit: 20260709005_catalog_units.sql
+  delete_product: 20260709012_catalog_product_soft_delete.sql
+  delete_product_conversion_unit: 20260709023_catalog_delete_product_conversion_unit.sql
+  find_product_by_barcode: 20260709004_catalog_product_discovery.sql
+  get_product_change_history: 20260709021_catalog_change_history_summary_vi.sql
+  get_product_control_center: 20260709018_catalog_product_image_read_fix.sql
+  get_product_custom_field_snapshot: 20260709015_catalog_custom_field_search.sql
+  get_product_custom_field_values: 20260709014_catalog_custom_field_values.sql
+  get_product_price_band_snapshot: 20260709016_catalog_product_price_band_snapshot.sql
+  get_product_readiness: 20260709003_catalog_product_readiness.sql
+  get_product_stock_history: 20260709006_catalog_basic_stock.sql
+  get_store_price_rule: 20260709008_catalog_store_price_rule.sql
+  get_store_price_rule_change_history: 20260709022_catalog_store_price_rule_change_history.sql
+  initialize_custom_field_template: 20260709013_catalog_custom_fields.sql
+  list_custom_field_config: 20260709013_catalog_custom_fields.sql
+  list_custom_field_filter_options: 20260709015_catalog_custom_field_search.sql
+  list_product_unit_price_bands: 20260709020_catalog_list_price_bands_base_price.sql
+  list_product_units: 20260709005_catalog_units.sql
+  list_tenant_measurement_units: 20260709005_catalog_units.sql
+  reactivate_product: 20260709011_catalog_product_business_status.sql
+  reactivate_product_conversion_unit: 20260709005_catalog_units.sql
+  reorder_custom_field_groups: 20260709013_catalog_custom_fields.sql
+  reorder_custom_fields: 20260709013_catalog_custom_fields.sql
+  request_product_image_upload: 20260709001_catalog_guided_create.sql
+  request_product_maintenance_image_upload: 20260709010_catalog_product_profile_maintenance.sql
+  restore_product: 20260709012_catalog_product_soft_delete.sql
+  search_products: 20260709015_catalog_custom_field_search.sql
+  set_initial_price_band: 20260709005_catalog_units.sql
+  set_initial_stock: 20260709006_catalog_basic_stock.sql
+  set_manual_base_price: 20260709007_catalog_manual_base_price.sql
+  set_product_base_unit: 20260709005_catalog_units.sql
+  set_product_unit_price_band: 20260709009_catalog_product_unit_price_band.sql
+  set_store_price_rule: 20260709022_catalog_store_price_rule_change_history.sql
+  suggest_product_unit_price: 20260709008_catalog_store_price_rule.sql
+  update_product_images: 20260709010_catalog_product_profile_maintenance.sql
+  update_product_profile: 20260709010_catalog_product_profile_maintenance.sql
+  upsert_custom_field: 20260709013_catalog_custom_fields.sql
+  upsert_custom_field_group: 20260709013_catalog_custom_fields.sql
+  upsert_product_custom_field_values: 20260709014_catalog_custom_field_values.sql
+
+iam:
+  assign_member_role: 20260701000001_iam_tenant_membership_ops.sql
+  bootstrap_owner: 20260630000001_iam_foundation.sql
+  get_session_context: 20260630000001_iam_foundation.sql
+  has_permission: 20260630000001_iam_foundation.sql
+  list_tenant_members: 20260701000001_iam_tenant_membership_ops.sql
+  list_user_tenants: 20260630000001_iam_foundation.sql
+
+platform:
+  install_module_messaging: 20260623000001_platform_messaging_foundation.sql
+  list_tenants_with_pending_messaging: 20260623000001_platform_messaging_foundation.sql
+  rebuild_messaging_backlog_stats_view: 20260623000001_platform_messaging_foundation.sql
+
+bootstrap_grandfathered:
+  - 20260623000001_platform_messaging_foundation.sql
+  - 20260623000002_install_module_messaging_modules.sql
+  - 20260630000001_iam_foundation.sql
+  - 20260701000001_iam_tenant_membership_ops.sql
+  - 20260709001_catalog_guided_create.sql
+  - 20260709002_catalog_operational_data.sql
+  - 20260709003_catalog_product_readiness.sql
+  - 20260709004_catalog_product_discovery.sql
+  - 20260709005_catalog_units.sql
+  - 20260709006_catalog_basic_stock.sql
+  - 20260709007_catalog_manual_base_price.sql
+  - 20260709008_catalog_store_price_rule.sql
+  - 20260709009_catalog_product_unit_price_band.sql
+  - 20260709010_catalog_product_profile_maintenance.sql
+  - 20260709011_catalog_product_business_status.sql
+  - 20260709012_catalog_product_soft_delete.sql
+  - 20260709013_catalog_custom_fields.sql
+  - 20260709014_catalog_custom_field_values.sql
+  - 20260709015_catalog_custom_field_search.sql
+  - 20260709016_catalog_product_price_band_snapshot.sql
+  - 20260709017_catalog_product_change_history.sql
+  - 20260709018_catalog_product_image_read_fix.sql
+  - 20260709019_catalog_store_price_rule_fix_ambiguous_tenant.sql
+  - 20260709020_catalog_list_price_bands_base_price.sql
+  - 20260709021_catalog_change_history_summary_vi.sql
+  - 20260709022_catalog_store_price_rule_change_history.sql
+  - 20260709023_catalog_delete_product_conversion_unit.sql
+  - 20260710001_catalog_product_reference_id.sql
+
+# Phase 2 pilot: split _drafts/catalog_product_sku_barcode_inline_normalize.sql
+#   into 001_catalog_patch_sku_barcode_schema.sql + 002_catalog_patch_sku_barcode_rpcs.sql
+#   then promote with: melos run migrate:promote-drafts -- --write --bundle-intent

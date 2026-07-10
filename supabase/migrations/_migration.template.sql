@@ -1,60 +1,37 @@
--- <Title>: <1-line intent>
--- Context: <Theme/Epic/US/FR or ticket id>
--- Safety: idempotent ; <low|medium|high lock/data impact>
+-- Title: catalog patch inline sku/barcode normalization
+-- Kind: patch
+-- Intent: catalog_sku_barcode_inline_normalize
+-- Context: TH-02 / US-xx / FR-xx
+-- Touches: _normalize_product_sku, create_product
+-- Safety: idempotent ; medium
+-- Depends on: 20260710001_catalog_product_reference_id
 
--- 1) Extensions (if needed)
--- create extension if not exists pg_trgm;
+-- 1) DDL / helpers / triggers for this intent only
+-- create or replace function catalog._normalize_product_sku(p_sku text)
+-- returns text
+-- language sql
+-- immutable
+-- as $$
+--   select nullif(trim(both from p_sku), '');
+-- $$;
 
--- 2) Schema
--- create schema if not exists <schema_name>;
-
--- 3) Types / enums
--- do $$
--- begin
---   if not exists (select 1 from pg_type where typname = '<type_name>') then
---     create type <schema_name>.<type_name> as enum ('value_1', 'value_2');
---   end if;
--- end $$;
-
--- 4) Tables
--- create table if not exists <schema_name>.<table_name> (
---   id uuid primary key default gen_random_uuid(),
---   tenant_id uuid not null,
---   created_at timestamptz not null default now()
--- );
-
--- 5) Indexes
--- create index if not exists idx_<table>_tenant_created_at
---   on <schema_name>.<table_name> (tenant_id, created_at desc);
-
--- 6) Functions / triggers (optional)
--- create or replace function <schema_name>.<function_name>()
--- returns trigger
+-- 2) RPC that actually change for this intent (must match Touches)
+-- create or replace function catalog.create_product(...)
+-- returns ...
 -- language plpgsql
+-- security definer
+-- set search_path = catalog, pg_temp
 -- as $$
 -- begin
---   return new;
+--   ...
 -- end;
 -- $$;
 
--- drop trigger if exists trg_<table>_<purpose> on <schema_name>.<table_name>;
--- create trigger trg_<table>_<purpose>
--- before update on <schema_name>.<table_name>
--- for each row
--- execute function <schema_name>.<function_name>();
+-- 3) Grants
+-- revoke all on function catalog.create_product(...) from public, anon;
+-- grant execute on function catalog.create_product(...) to authenticated;
 
--- 7) Security (RLS + policies + grants)
--- alter table <schema_name>.<table_name> enable row level security;
---
--- drop policy if exists p_<table>_tenant_isolation on <schema_name>.<table_name>;
--- create policy p_<table>_tenant_isolation
--- on <schema_name>.<table_name>
--- using (tenant_id = ((auth.jwt() ->> 'tenant_id')::uuid))
--- with check (tenant_id = ((auth.jwt() ->> 'tenant_id')::uuid));
---
--- revoke all on table <schema_name>.<table_name> from public, anon;
--- grant select, insert, update on <schema_name>.<table_name> to authenticated;
-
--- 8) Notes
--- - Why this migration exists
--- - Known follow-ups / assumptions
+-- Notes:
+-- - Patch/surgical: only CREATE OR REPLACE functions listed in Touches
+-- - Do not copy unchanged RPC bodies from older migrations
+-- - After promote: update supabase/migrations/REGISTRY.yaml owners
