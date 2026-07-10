@@ -99,20 +99,14 @@ class PartnerListItemTile extends StatelessWidget {
                         ),
                       ),
                       if (item.status == PartnerStatus.active)
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                          decoration: BoxDecoration(
-                            color: VColors.success.withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(4),
-                          ),
-                          child: Text(
-                            'Đang hoạt động',
-                            style: VTypography.bodySmall.copyWith(
-                              color: VColors.success,
-                              fontSize: 11,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
+                        _StatusBadge(
+                          label: 'Đang hoạt động',
+                          color: VColors.success,
+                        )
+                      else if (item.status == PartnerStatus.inactive)
+                        _StatusBadge(
+                          label: 'Ngừng hoạt động',
+                          color: VColors.warning,
                         ),
                     ],
                   ),
@@ -164,6 +158,35 @@ class PartnerListItemTile extends StatelessWidget {
     if (roles.contains(PartnerRoleType.customer)) return 'Khách hàng';
     if (roles.contains(PartnerRoleType.supplier)) return 'Nhà cung cấp';
     return 'Chưa có vai trò';
+  }
+}
+
+class _StatusBadge extends StatelessWidget {
+  const _StatusBadge({
+    required this.label,
+    required this.color,
+  });
+
+  final String label;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(4),
+      ),
+      child: Text(
+        label,
+        style: VTypography.bodySmall.copyWith(
+          color: color,
+          fontSize: 11,
+          fontWeight: FontWeight.w500,
+        ),
+      ),
+    );
   }
 }
 

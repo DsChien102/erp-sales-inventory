@@ -73,6 +73,12 @@ class _PartnerDetailPageState extends State<PartnerDetailPage> {
     showPartnerUpdateSuccessToast(context);
   }
 
+  Future<void> _openContacts(String partnerId) async {
+    await context.push('/partner/$partnerId/contacts');
+    if (!mounted) return;
+    await _cubit.loadDetail(widget.partnerId);
+  }
+
   Future<void> _showActionSheet(
     BuildContext pageContext,
     PartnerDetailDto dto,
@@ -87,10 +93,16 @@ class _PartnerDetailPageState extends State<PartnerDetailPage> {
     await _handleAction(pageContext, dto, action);
   }
 
-  void _showAddMethodSheet(BuildContext context) {
+  void _showAddMethodSheet(
+    BuildContext context, {
+    List<String> excludePersonPartnerIds = const [],
+  }) {
     runPartnerDetailAddContactFlow(
       context: context,
       partnerId: widget.partnerId,
+      partnerModule: widget.partnerModule,
+      executionContext: widget.executionContext,
+      excludePersonPartnerIds: excludePersonPartnerIds,
       onReload: () => _cubit.loadDetail(widget.partnerId),
     );
   }
@@ -308,10 +320,13 @@ class _PartnerDetailPageState extends State<PartnerDetailPage> {
                             if (!isPerson) ...[
                               PartnerDetailContactsCard(
                                 dto: dto,
-                                onTapAdd: () => _showAddMethodSheet(context),
-                                onTapViewAll: () {
-                                  context.push('/partner/${dto.partnerId}/contacts');
-                                },
+                                onTapAdd: () => _showAddMethodSheet(
+                                  context,
+                                  excludePersonPartnerIds: dto.contacts
+                                      .map((c) => c.personPartnerId)
+                                      .toList(),
+                                ),
+                                onTapViewAll: () => _openContacts(dto.partnerId),
                               ),
                               const SizedBox(height: VSpacing.space2),
                             ],
