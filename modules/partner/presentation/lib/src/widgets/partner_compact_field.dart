@@ -93,17 +93,50 @@ abstract final class PartnerCompactField {
   }
 }
 
-class PartnerCompactTextField extends StatelessWidget {
+class PartnerCompactTextField extends StatefulWidget {
   const PartnerCompactTextField({
     super.key,
+    this.initialValue,
     this.hintText,
     this.keyboardType,
     this.onChanged,
   });
 
+  final String? initialValue;
   final String? hintText;
   final TextInputType? keyboardType;
   final ValueChanged<String>? onChanged;
+
+  @override
+  State<PartnerCompactTextField> createState() => _PartnerCompactTextFieldState();
+}
+
+class _PartnerCompactTextFieldState extends State<PartnerCompactTextField> {
+  late final TextEditingController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = TextEditingController(text: widget.initialValue ?? '');
+  }
+
+  @override
+  void didUpdateWidget(covariant PartnerCompactTextField oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    final next = widget.initialValue ?? '';
+    if (oldWidget.initialValue != widget.initialValue && _controller.text != next) {
+      _controller.value = TextEditingValue(
+        text: next,
+        selection: TextSelection.collapsed(offset: next.length),
+      );
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -111,44 +144,99 @@ class PartnerCompactTextField extends StatelessWidget {
       height: PartnerCompactField.controlHeight,
       width: double.infinity,
       child: TextField(
-        keyboardType: keyboardType,
-        onChanged: onChanged,
+        controller: _controller,
+        keyboardType: widget.keyboardType,
+        onChanged: widget.onChanged,
+        onTapOutside: (_) => FocusManager.instance.primaryFocus?.unfocus(),
         style: PartnerCompactField.valueStyle(context),
         textAlignVertical: TextAlignVertical.center,
         decoration: PartnerCompactField.inputDecoration(
           context,
-          hintText: hintText,
+          hintText: widget.hintText,
         ),
       ),
     );
   }
 }
 
-class PartnerCompactMultilineTextField extends StatelessWidget {
+class PartnerCompactMultilineTextField extends StatefulWidget {
   const PartnerCompactMultilineTextField({
     super.key,
+    this.initialValue,
     this.hintText,
     this.minLines = 2,
     this.maxLines = 3,
+    this.maxLength,
     this.onChanged,
   });
 
+  final String? initialValue;
   final String? hintText;
   final int minLines;
   final int maxLines;
+  final int? maxLength;
   final ValueChanged<String>? onChanged;
+
+  @override
+  State<PartnerCompactMultilineTextField> createState() =>
+      _PartnerCompactMultilineTextFieldState();
+}
+
+class _PartnerCompactMultilineTextFieldState
+    extends State<PartnerCompactMultilineTextField> {
+  late final TextEditingController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = TextEditingController(text: widget.initialValue ?? '');
+  }
+
+  @override
+  void didUpdateWidget(covariant PartnerCompactMultilineTextField oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    final next = widget.initialValue ?? '';
+    if (oldWidget.initialValue != widget.initialValue && _controller.text != next) {
+      _controller.value = TextEditingValue(
+        text: next,
+        selection: TextSelection.collapsed(offset: next.length),
+      );
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return TextField(
-      minLines: minLines,
-      maxLines: maxLines,
-      onChanged: onChanged,
+      controller: _controller,
+      minLines: widget.minLines,
+      maxLines: widget.maxLines,
+      maxLength: widget.maxLength,
+      onChanged: widget.onChanged,
+      onTapOutside: (_) => FocusManager.instance.primaryFocus?.unfocus(),
       style: PartnerCompactField.valueStyle(context),
       textAlignVertical: TextAlignVertical.top,
+      buildCounter: widget.maxLength == null
+          ? null
+          : (
+              _, {
+              required currentLength,
+              required isFocused,
+              required maxLength,
+            }) =>
+              null,
       decoration: PartnerCompactField.inputDecoration(
         context,
-        hintText: hintText,
+        hintText: widget.hintText,
+      ).copyWith(
+        contentPadding: widget.maxLength == null
+            ? null
+            : const EdgeInsets.fromLTRB(12, 11, 12, 32),
       ),
     );
   }

@@ -10,6 +10,7 @@ final class PartnerListItemDto {
     required this.roles,
     this.phone,
     this.email,
+    this.taxCode,
     this.updatedAt,
   });
 
@@ -20,5 +21,6 @@ final class PartnerListItemDto {
   final List<PartnerRoleType> roles;
   final String? phone;
   final String? email;
+  final String? taxCode;
   final DateTime? updatedAt;
 }

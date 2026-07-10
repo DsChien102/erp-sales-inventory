@@ -183,9 +183,8 @@ final appRouter = GoRouter(
           executionContext: getIt<IExecutionContext>(),
           onCreated: (partnerId) {
             if (context.mounted) {
-              context.pushReplacement(
-                '/partner/$partnerId?created=1',
-              );
+              // Return id to PartnerListPage so it can refresh before handoff.
+              context.pop(partnerId);
             }
           },
           onOpenExisting: (partnerId) {

@@ -71,6 +71,13 @@ void main() {
             'matched_value': '0901234567',
           },
           {
+            'partner_id': 'p-dup-tax',
+            'display_name': 'Trùng MST',
+            'matched_field': 'tax_code',
+            'partner_type': 'organization',
+            'matched_value': '0312345678',
+          },
+          {
             'partner_id': 'p-dup-name',
             'display_name': 'Trùng tên',
             'matched_field': 'name',
@@ -84,13 +91,18 @@ void main() {
         CheckDuplicatePartnersQuery(
           tenantId: tenantId,
           phone: '0901234567',
+          taxCode: '0312345678',
           name: 'Nguyễn Văn A',
         ),
       );
 
-      expect(matches, hasLength(2));
+      expect(matches, hasLength(3));
       expect(
         matches.firstWhere((m) => m.matchedField == PartnerDuplicateMatchField.phone).matchLevel,
+        PartnerDuplicateMatchLevel.exact,
+      );
+      expect(
+        matches.firstWhere((m) => m.matchedField == PartnerDuplicateMatchField.taxCode).matchLevel,
         PartnerDuplicateMatchLevel.exact,
       );
       expect(

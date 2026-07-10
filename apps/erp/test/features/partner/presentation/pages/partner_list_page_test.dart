@@ -53,7 +53,7 @@ void main() {
               partnerType: partnerType,
               partnerModule: partnerModule,
               executionContext: getIt<IExecutionContext>(),
-              onCreated: (_) {},
+              onCreated: (partnerId) => context.pop(partnerId),
               onOpenExisting: (_) {},
             );
           },

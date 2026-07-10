@@ -70,6 +70,7 @@ class PartnerPrimaryContactSection extends StatelessWidget {
             errorText: state.errors['primaryContactName'],
             field: PartnerCompactTextField(
               key: const Key('input_primary_contact_name'),
+              initialValue: state.primaryContactName,
               onChanged: cubit.updatePrimaryContactName,
             ),
           ),
@@ -81,6 +82,7 @@ class PartnerPrimaryContactSection extends StatelessWidget {
             errorText: state.errors['primaryContactPhone'],
             field: PartnerCompactTextField(
               key: const Key('input_primary_contact_phone'),
+              initialValue: state.primaryContactPhone,
               keyboardType: TextInputType.phone,
               onChanged: cubit.updatePrimaryContactPhone,
             ),
@@ -93,6 +95,7 @@ class PartnerPrimaryContactSection extends StatelessWidget {
             errorText: state.errors['primaryContactSecondaryPhone'],
             field: PartnerCompactTextField(
               key: const Key('input_primary_contact_secondary_phone'),
+              initialValue: state.primaryContactSecondaryPhone,
               keyboardType: TextInputType.phone,
               onChanged: cubit.updatePrimaryContactSecondaryPhone,
             ),
@@ -105,6 +108,7 @@ class PartnerPrimaryContactSection extends StatelessWidget {
             errorText: state.errors['primaryContactEmail'],
             field: PartnerCompactTextField(
               key: const Key('input_primary_contact_email'),
+              initialValue: state.primaryContactEmail,
               keyboardType: TextInputType.emailAddress,
               onChanged: cubit.updatePrimaryContactEmail,
             ),

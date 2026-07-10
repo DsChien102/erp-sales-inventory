@@ -34,33 +34,24 @@ class PartnerNoteSection extends StatelessWidget {
           const SizedBox(height: VSpacing.space2),
           Stack(
             children: [
-              TextField(
+              PartnerCompactMultilineTextField(
                 key: const Key('input_note'),
+                initialValue: note,
                 minLines: 4,
                 maxLines: 6,
                 maxLength: maxNoteLength,
                 onChanged: cubit.updateNote,
-                style: PartnerCompactField.valueStyle(context),
-                textAlignVertical: TextAlignVertical.top,
-                buildCounter: (
-                  _, {
-                  required currentLength,
-                  required isFocused,
-                  required maxLength,
-                }) =>
-                    null,
-                decoration: PartnerCompactField.inputDecoration(context).copyWith(
-                  contentPadding: const EdgeInsets.fromLTRB(12, 11, 12, 32),
-                ),
               ),
               Positioned(
                 right: 12,
                 bottom: 10,
-                child: Text(
-                  '${note.length}/$maxNoteLength',
-                  style: VTypography.bodySmall.copyWith(
-                    color: context.vColors.textMuted,
-                    fontSize: 12,
+                child: IgnorePointer(
+                  child: Text(
+                    '${note.length}/$maxNoteLength',
+                    style: VTypography.bodySmall.copyWith(
+                      color: context.vColors.textMuted,
+                      fontSize: 12,
+                    ),
                   ),
                 ),
               ),

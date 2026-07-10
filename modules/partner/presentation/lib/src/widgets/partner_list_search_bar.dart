@@ -24,10 +24,22 @@ class _PartnerListSearchBarState extends State<PartnerListSearchBar> {
   Timer? _debounce;
 
   @override
+  void initState() {
+    super.initState();
+    _controller.addListener(_onControllerChanged);
+  }
+
+  @override
   void dispose() {
     _debounce?.cancel();
-    _controller.dispose();
+    _controller
+      ..removeListener(_onControllerChanged)
+      ..dispose();
     super.dispose();
+  }
+
+  void _onControllerChanged() {
+    if (mounted) setState(() {});
   }
 
   void _onSearchChanged(String value) {
@@ -37,8 +49,17 @@ class _PartnerListSearchBarState extends State<PartnerListSearchBar> {
     });
   }
 
+  void _clearSearch() {
+    _debounce?.cancel();
+    _controller.clear();
+    widget.onSearch('');
+  }
+
   @override
   Widget build(BuildContext context) {
+    final colors = context.vColors;
+    final hasQuery = _controller.text.isNotEmpty;
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: VSpacing.space4, vertical: VSpacing.space2),
       child: Row(
@@ -49,6 +70,18 @@ class _PartnerListSearchBarState extends State<PartnerListSearchBar> {
               controller: _controller,
               hintText: 'Tìm tên, SĐT, email, MST...',
               prefixIcon: const Icon(Icons.search),
+              suffixIcon: hasQuery
+                  ? IconButton(
+                      key: const Key('btn_clear_partner_search'),
+                      tooltip: 'Xóa tìm kiếm',
+                      icon: Icon(
+                        Icons.close_rounded,
+                        size: 20,
+                        color: colors.textSecondary,
+                      ),
+                      onPressed: _clearSearch,
+                    )
+                  : null,
               onChanged: _onSearchChanged,
             ),
           ),
@@ -65,20 +98,20 @@ class _PartnerListSearchBarState extends State<PartnerListSearchBar> {
                     height: 44,
                     decoration: BoxDecoration(
                       color: widget.activeFilterCount > 0
-                          ? context.vColors.primary.withValues(alpha: 0.1)
-                          : context.vColors.surface,
+                          ? colors.primary.withValues(alpha: 0.1)
+                          : colors.surface,
                       border: Border.all(
                         color: widget.activeFilterCount > 0
-                            ? context.vColors.primary
-                            : context.vColors.borderDefault,
+                            ? colors.primary
+                            : colors.borderDefault,
                       ),
                       borderRadius: BorderRadius.circular(VRadius.button),
                     ),
                     child: Icon(
                       Icons.tune,
                       color: widget.activeFilterCount > 0
-                          ? context.vColors.primary
-                          : context.vColors.textPrimary,
+                          ? colors.primary
+                          : colors.textPrimary,
                       size: 20,
                     ),
                   ),
@@ -89,7 +122,7 @@ class _PartnerListSearchBarState extends State<PartnerListSearchBar> {
                       child: Container(
                         padding: const EdgeInsets.all(4),
                         decoration: BoxDecoration(
-                          color: context.vColors.primary,
+                          color: colors.primary,
                           shape: BoxShape.circle,
                         ),
                         child: Text(

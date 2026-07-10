@@ -88,6 +88,7 @@ class _PartnerDeliverySectionState extends State<PartnerDeliverySection> {
               ),
             ),
             _DeliveryDetailAddressField(
+              initialValue: state.deliveryAddress,
               onChanged: cubit.updateDeliveryAddress,
             ),
           ],
@@ -108,8 +109,12 @@ class _PartnerDeliverySectionState extends State<PartnerDeliverySection> {
 }
 
 class _DeliveryDetailAddressField extends StatelessWidget {
-  const _DeliveryDetailAddressField({required this.onChanged});
+  const _DeliveryDetailAddressField({
+    required this.initialValue,
+    required this.onChanged,
+  });
 
+  final String initialValue;
   final ValueChanged<String> onChanged;
 
   @override
@@ -134,6 +139,7 @@ class _DeliveryDetailAddressField extends StatelessWidget {
           const SizedBox(height: VSpacing.space2),
           PartnerCompactMultilineTextField(
             key: const Key('input_delivery_address'),
+            initialValue: initialValue,
             hintText: 'Số nhà, tên đường...',
             minLines: 3,
             maxLines: 5,

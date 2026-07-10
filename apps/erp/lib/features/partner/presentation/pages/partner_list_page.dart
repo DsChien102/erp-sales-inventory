@@ -55,11 +55,17 @@ class _PartnerListPageState extends State<PartnerListPage> {
       extra: partnerType,
     );
     if (!mounted) return;
+
+    // Always refresh when returning from create (success or cancel).
+    await _cubit.fetchPartners(isRefresh: true);
+    if (!mounted) return;
+
     if (createdPartnerId != null) {
-      await _cubit.fetchPartners(isRefresh: true);
       _showCreatedHandoffSnackBar(createdPartnerId);
-    } else {
-      await _cubit.fetchPartners(isRefresh: true);
+      await context.push('/partner/$createdPartnerId?created=1');
+      if (mounted) {
+        await _cubit.fetchPartners(isRefresh: true);
+      }
     }
   }
 
@@ -137,6 +143,7 @@ class _PartnerListPageState extends State<PartnerListPage> {
       child: Scaffold(
         key: const Key('wgt_e01_u02_fr01_02'),
         backgroundColor: colors.background,
+        resizeToAvoidBottomInset: false,
         appBar: PreferredSize(
           preferredSize: const Size.fromHeight(64),
           child: BlocBuilder<PartnerListCubit, PartnerListState>(
@@ -367,51 +374,60 @@ class _CustomEmptyState extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = context.vColors;
-    return Padding(
-      padding: const EdgeInsets.all(VSpacing.space6),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          VIconBox(
-            iconData: iconData,
-            size: 64,
-            iconSize: 28,
-            backgroundColor: colors.surfaceAlt,
-            iconColor: iconColor ?? colors.textSecondary,
-            borderRadius: VRadius.r16,
-          ),
-          const SizedBox(height: VSpacing.space4),
-          Text(
-            title,
-            style: VTypography.headingH3.copyWith(
-              color: colors.textPrimary,
-              fontWeight: FontWeight.w700,
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return SingleChildScrollView(
+          child: ConstrainedBox(
+            constraints: BoxConstraints(minHeight: constraints.maxHeight),
+            child: Padding(
+              padding: const EdgeInsets.all(VSpacing.space6),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  VIconBox(
+                    iconData: iconData,
+                    size: 64,
+                    iconSize: 28,
+                    backgroundColor: colors.surfaceAlt,
+                    iconColor: iconColor ?? colors.textSecondary,
+                    borderRadius: VRadius.r16,
+                  ),
+                  const SizedBox(height: VSpacing.space4),
+                  Text(
+                    title,
+                    style: VTypography.headingH3.copyWith(
+                      color: colors.textPrimary,
+                      fontWeight: FontWeight.w700,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: VSpacing.space2),
+                  Text(
+                    description,
+                    style: VTypography.bodyDefault.copyWith(
+                      color: colors.textSecondary,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  if (actionLabel != null && onActionPressed != null) ...[
+                    const SizedBox(height: VSpacing.space6),
+                    VButton(
+                      label: actionLabel!,
+                      onPressed: onActionPressed!,
+                      leadingIcon: actionLeadingIcon,
+                      size: VButtonSize.medium,
+                      variant: VButtonVariant.outline,
+                      foregroundColor: buttonColor,
+                    ),
+                  ],
+                ],
+              ),
             ),
-            textAlign: TextAlign.center,
           ),
-          const SizedBox(height: VSpacing.space2),
-          Text(
-            description,
-            style: VTypography.bodyDefault.copyWith(
-              color: colors.textSecondary,
-            ),
-            textAlign: TextAlign.center,
-          ),
-          if (actionLabel != null && onActionPressed != null) ...[
-            const SizedBox(height: VSpacing.space6),
-            VButton(
-              label: actionLabel!,
-              onPressed: onActionPressed!,
-              leadingIcon: actionLeadingIcon,
-              size: VButtonSize.medium,
-              variant: VButtonVariant.outline,
-              foregroundColor: buttonColor,
-            ),
-          ],
-        ],
-      ),
+        );
+      },
     );
   }
 }

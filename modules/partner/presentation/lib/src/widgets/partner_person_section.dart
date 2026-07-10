@@ -35,6 +35,7 @@ class PartnerPersonSection extends StatelessWidget {
           errorText: state.errors['fullName'],
           field: PartnerCompactTextField(
             key: const Key('input_full_name'),
+            initialValue: state.fullName,
             onChanged: cubit.updateFullName,
           ),
         ),
@@ -42,6 +43,7 @@ class PartnerPersonSection extends StatelessWidget {
           label: 'Tên thường gọi',
           field: PartnerCompactTextField(
             key: const Key('input_nickname'),
+            initialValue: state.nickname,
             hintText: 'Nhập tên thường gọi',
             onChanged: cubit.updateNickname,
           ),
@@ -52,6 +54,7 @@ class PartnerPersonSection extends StatelessWidget {
           errorText: state.errors['phone'],
           field: PartnerCompactTextField(
             key: const Key('input_phone'),
+            initialValue: state.phone,
             hintText: 'Nhập SĐT chính',
             keyboardType: TextInputType.phone,
             onChanged: cubit.updatePhone,
@@ -62,6 +65,7 @@ class PartnerPersonSection extends StatelessWidget {
           errorText: state.errors['secondaryPhone'],
           field: PartnerCompactTextField(
             key: const Key('input_secondary_phone'),
+            initialValue: state.secondaryPhone,
             hintText: 'Nhập SĐT phụ',
             keyboardType: TextInputType.phone,
             onChanged: cubit.updateSecondaryPhone,
@@ -72,6 +76,7 @@ class PartnerPersonSection extends StatelessWidget {
           errorText: state.errors['email'],
           field: PartnerCompactTextField(
             key: const Key('input_email'),
+            initialValue: state.email,
             keyboardType: TextInputType.emailAddress,
             onChanged: cubit.updateEmail,
           ),

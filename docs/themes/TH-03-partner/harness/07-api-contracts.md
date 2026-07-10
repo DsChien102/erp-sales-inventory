@@ -76,6 +76,9 @@ Facade: `IPartnerModule` — `modules/partner/application/lib/src/contracts/i_pa
 
 RPC: `partner.search_partners` / `partner.v_partner_list`
 
+`p_query` matches (ilike): `display_name`, `phone`, `email`, `tax_code` (MST).
+If `p_query` contains `@`, search **email only**.
+
 | scenario_id | trigger | fake response |
 | ----------- | ------- | ------------- |
 | `search_empty` | SearchPartnersQuery | empty items |

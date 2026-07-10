@@ -35,34 +35,40 @@ class PartnerCreateForm extends StatelessWidget {
       listener: _showDuplicate,
       child: BlocBuilder<PartnerCreateCubit, PartnerCreateState>(
         builder: (context, state) {
-          return Column(
-            children: [
-              Expanded(
-                child: ListView(
-                  padding: const EdgeInsets.all(VSpacing.space4),
-                  children: [
-                    _LockedTypeCard(partnerType: state.partnerType),
-                    if (state.generalError != null) ...[
+          return GestureDetector(
+            onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
+            behavior: HitTestBehavior.opaque,
+            child: Column(
+              children: [
+                Expanded(
+                  child: ListView(
+                    keyboardDismissBehavior:
+                        ScrollViewKeyboardDismissBehavior.onDrag,
+                    padding: const EdgeInsets.all(VSpacing.space4),
+                    children: [
+                      _LockedTypeCard(partnerType: state.partnerType),
+                      if (state.generalError != null) ...[
+                        const SizedBox(height: VSpacing.space3),
+                        _MessageCard(
+                          message: state.generalError!,
+                          blocked: state.isReadOnly,
+                        ),
+                      ],
                       const SizedBox(height: VSpacing.space3),
-                      _MessageCard(
-                        message: state.generalError!,
-                        blocked: state.isReadOnly,
-                      ),
+                      ..._sections(context, state),
+                      const SizedBox(height: VSpacing.space4),
                     ],
-                    const SizedBox(height: VSpacing.space3),
-                    ..._sections(context, state),
-                    const SizedBox(height: VSpacing.space4),
-                  ],
+                  ),
                 ),
-              ),
-              _StickyActions(
-                onCancel: onCancel,
-                onSubmit: context.read<PartnerCreateCubit>().submit,
-                isLoading: state.isSubmitting,
-                isReadOnly: state.isReadOnly,
-                canSubmit: state.canSubmit,
-              ),
-            ],
+                _StickyActions(
+                  onCancel: onCancel,
+                  onSubmit: context.read<PartnerCreateCubit>().submit,
+                  isLoading: state.isSubmitting,
+                  isReadOnly: state.isReadOnly,
+                  canSubmit: state.canSubmit,
+                ),
+              ],
+            ),
           );
         },
       ),
