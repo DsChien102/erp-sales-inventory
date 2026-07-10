@@ -73,6 +73,7 @@ class _PartnerDetailPageState extends State<PartnerDetailPage> {
     return BlocProvider.value(
       value: _cubit,
       child: Scaffold(
+        key: const Key('wgt_e01_u04_fr01_01'),
         backgroundColor: colors.surface,
         appBar: const VAppBar(
           title: 'Hồ sơ KH & NCC',
@@ -492,11 +493,11 @@ class _PartnerDetailPageState extends State<PartnerDetailPage> {
     required VoidCallback onTap,
   }) {
     final colors = context.vColors;
-    return Container(
-      decoration: BoxDecoration(
-        color: colors.surface,
+    return Material(
+      color: colors.surface,
+      shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(VRadius.card),
-        border: Border.all(color: colors.borderDefault),
+        side: BorderSide(color: colors.borderDefault),
       ),
       child: ListTile(
         dense: true,

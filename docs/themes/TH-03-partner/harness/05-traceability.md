@@ -68,7 +68,7 @@ Codegen ritual: mirror [modules/iam/README.md](../../../../modules/iam/README.md
 | US-04 | CONTRACT | §S3 | application | `GetPartnerDetailQuery`, `PartnerDetailDto` + `available_actions` | fake_partner_module_test | done |
 | FR-01..07 | BE | §S3 | application | `GetPartnerDetailQueryHandler` | scn_e01_u04_fr01_01 | done |
 | FR-01..07 | FE | §S3 | presentation | `partner_detail_page.dart`, `partner_detail_contacts_card.dart`, `partner_detail_action_sheet.dart`, `partner_detail_error_state.dart` | wgt_e01_u04_fr01_01 | done |
-| FR-01 | E2E | §S3 | integration | detail load | e2e_e01_u04_fr01_01 | todo |
+| FR-01 | E2E | §S3 | integration | detail load via mediator + ERP UI | e2e_e01_u04_fr01_01 | done |
 
 ---
 

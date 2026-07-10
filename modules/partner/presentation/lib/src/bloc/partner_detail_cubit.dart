@@ -26,10 +26,18 @@ final class PartnerDetailCubit extends Cubit<PartnerDetailState> {
         ),
       );
       emit(PartnerDetailLoaded(result));
+    } on PartnerBlockedException catch (e) {
+      emit(PartnerDetailError(
+        e.toString(),
+        isNotFound: e.code == PartnerBlockedCodes.notFound,
+        isNoPermission: e.code == PartnerBlockedCodes.noPermission,
+      ));
     } catch (e) {
       final errorStr = e.toString();
-      final isNotFound = errorStr.contains('NOT_FOUND') || errorStr.contains('not found');
-      final isNoPermission = errorStr.contains('NO_PERMISSION') || errorStr.contains('permission denied');
+      final isNotFound =
+          errorStr.contains('NOT_FOUND') || errorStr.contains('not found');
+      final isNoPermission = errorStr.contains('NO_PERMISSION') ||
+          errorStr.contains('permission denied');
       emit(PartnerDetailError(
         errorStr,
         isNotFound: isNotFound,

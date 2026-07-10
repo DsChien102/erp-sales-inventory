@@ -35,17 +35,26 @@ class PartnerDetailContactsCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = context.vColors;
+    final shape = RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(VRadius.card),
+      side: BorderSide(color: colors.borderDefault),
+    );
+
     if (dto.contacts.isEmpty) {
-      return Container(
-        decoration: BoxDecoration(
-          color: colors.surface,
-          borderRadius: BorderRadius.circular(VRadius.card),
-          border: Border.all(color: colors.borderDefault),
-        ),
+      return Material(
+        color: colors.surface,
+        shape: shape,
         child: ListTile(
           dense: true,
-          contentPadding: const EdgeInsets.symmetric(horizontal: VSpacing.space4, vertical: 0),
-          leading: Icon(Icons.people_alt_outlined, color: colors.textSecondary, size: 20),
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: VSpacing.space4,
+            vertical: 0,
+          ),
+          leading: Icon(
+            Icons.people_alt_outlined,
+            color: colors.textSecondary,
+            size: 20,
+          ),
           title: Text(
             'Người liên hệ',
             style: VTypography.bodyDefault.copyWith(
@@ -64,19 +73,24 @@ class PartnerDetailContactsCard extends StatelessWidget {
       orElse: () => dto.contacts.first,
     );
 
-    return Container(
-      decoration: BoxDecoration(
-        color: colors.surface,
-        borderRadius: BorderRadius.circular(VRadius.card),
-        border: Border.all(color: colors.borderDefault),
-      ),
+    return Material(
+      color: colors.surface,
+      shape: shape,
+      clipBehavior: Clip.antiAlias,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           ListTile(
             dense: true,
-            contentPadding: const EdgeInsets.symmetric(horizontal: VSpacing.space4, vertical: 0),
-            leading: Icon(Icons.people_alt_outlined, color: colors.textSecondary, size: 20),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: VSpacing.space4,
+              vertical: 0,
+            ),
+            leading: Icon(
+              Icons.people_alt_outlined,
+              color: colors.textSecondary,
+              size: 20,
+            ),
             title: Text(
               'Người liên hệ',
               style: VTypography.bodyDefault.copyWith(
@@ -121,7 +135,10 @@ class PartnerDetailContactsCard extends StatelessWidget {
                     primaryContact.displayName.trim().isNotEmpty
                         ? primaryContact.displayName.substring(0, 1).toUpperCase()
                         : '?',
-                    style: VTypography.bodyDefault.copyWith(fontWeight: FontWeight.w600, color: colors.textPrimary),
+                    style: VTypography.bodyDefault.copyWith(
+                      fontWeight: FontWeight.w600,
+                      color: colors.textPrimary,
+                    ),
                   ),
                 ),
                 const SizedBox(width: VSpacing.space3),
@@ -148,13 +165,18 @@ class PartnerDetailContactsCard extends StatelessWidget {
                       if (primaryContact.contactRole != null)
                         Text(
                           primaryContact.contactRole!,
-                          style: VTypography.bodySmall.copyWith(color: colors.textSecondary),
+                          style: VTypography.bodySmall.copyWith(
+                            color: colors.textSecondary,
+                          ),
                         ),
-                      if (primaryContact.phone != null && primaryContact.phone!.isNotEmpty) ...[
+                      if (primaryContact.phone != null &&
+                          primaryContact.phone!.isNotEmpty) ...[
                         const SizedBox(height: 2),
                         Text(
                           primaryContact.phone!,
-                          style: VTypography.bodySmall.copyWith(color: colors.textSecondary),
+                          style: VTypography.bodySmall.copyWith(
+                            color: colors.textSecondary,
+                          ),
                         ),
                       ],
                     ],
@@ -168,7 +190,11 @@ class PartnerDetailContactsCard extends StatelessWidget {
             InkWell(
               onTap: onTapViewAll,
               child: Padding(
-                padding: const EdgeInsets.only(right: VSpacing.space4, bottom: VSpacing.space3, top: VSpacing.space3),
+                padding: const EdgeInsets.only(
+                  right: VSpacing.space4,
+                  bottom: VSpacing.space3,
+                  top: VSpacing.space3,
+                ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
@@ -180,7 +206,11 @@ class PartnerDetailContactsCard extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(width: 4),
-                    Icon(Icons.chevron_right_rounded, size: 16, color: colors.success),
+                    Icon(
+                      Icons.chevron_right_rounded,
+                      size: 16,
+                      color: colors.success,
+                    ),
                   ],
                 ),
               ),
