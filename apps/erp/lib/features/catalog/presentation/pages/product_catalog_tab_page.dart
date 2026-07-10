@@ -351,23 +351,47 @@ class _ProductCatalogTabPageState extends State<ProductCatalogTabPage> {
                   }
 
                   if (items.isEmpty && state is! ProductListLoading) {
+                    final hasProducts = (_cubit.globalTotalCount ?? 0) > 0;
+                    final isFiltered = _selectedFilter != ProductListFilter.all;
+
+                    final String title;
+                    final String? description;
+                    final String? actionLabel;
+                    final Future<void> Function()? onActionPressed;
+
+                    if (!hasProducts) {
+                      title = 'Chưa có sản phẩm nào được tạo';
+                      description = null;
+                      actionLabel = 'Tạo sản phẩm';
+                      onActionPressed = () async {
+                        final createdProduct = await context.push<ProductListItemModel>('/products/items/new');
+                        if (!context.mounted) return;
+                        if (createdProduct != null) {
+                          _cubit.fetchProducts(isRefresh: true);
+                          _navigateToProductModel(context, createdProduct);
+                        } else {
+                          _cubit.fetchProducts(isRefresh: true);
+                        }
+                      };
+                    } else {
+                      title = isFiltered
+                          ? 'Không tìm thấy sản phẩm ${_selectedFilter.label}'
+                          : 'Không tìm thấy sản phẩm';
+                      description = 'Hãy thử tìm kiếm với từ khóa khác hoặc tạo sản phẩm mới.';
+                      actionLabel = null;
+                      onActionPressed = null;
+                    }
+
                     return Center(
                       child: VEmptyState(
                         iconData: Icons.inventory_2_outlined,
-                        title: 'Không tìm thấy sản phẩm',
-                        description: 'Hãy thử tìm kiếm với từ khóa khác hoặc tạo sản phẩm mới.',
-                        actionLabel: 'Tạo sản phẩm',
-                        actionLeadingIcon: const Icon(Icons.add, size: 18),
-                        onActionPressed: () async {
-                          final createdProduct = await context.push<ProductListItemModel>('/products/items/new');
-                          if (!context.mounted) return;
-                          if (createdProduct != null) {
-                            _cubit.fetchProducts(isRefresh: true);
-                            _navigateToProductModel(context, createdProduct);
-                          } else {
-                            _cubit.fetchProducts(isRefresh: true);
-                          }
-                        },
+                        title: title,
+                        description: description,
+                        actionLabel: actionLabel,
+                        actionLeadingIcon: actionLabel != null
+                            ? const Icon(Icons.add, size: 18)
+                            : null,
+                        onActionPressed: onActionPressed,
                       ),
                     );
                   }
