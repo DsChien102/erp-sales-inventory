@@ -196,6 +196,28 @@ final appRouter = GoRouter(
       },
     ),
     GoRoute(
+      path: '/partner/:partnerId/edit',
+      name: 'partner.edit',
+      builder: (context, state) {
+        final partnerId = state.pathParameters['partnerId']!;
+        return PartnerCreatePage.edit(
+          partnerId: partnerId,
+          partnerModule: getIt<IPartnerModule>(),
+          executionContext: getIt<IExecutionContext>(),
+          onUpdated: (id) {
+            if (context.mounted) {
+              context.pop(true);
+            }
+          },
+          onOpenExisting: (existingId) {
+            if (context.mounted) {
+              context.pushReplacement('/partner/$existingId');
+            }
+          },
+        );
+      },
+    ),
+    GoRoute(
       path: '/partner/:partnerId',
       name: 'partner.detail',
       builder: (context, state) {

@@ -2,8 +2,11 @@ import 'package:equatable/equatable.dart';
 import 'package:vet45_partner_application/application.dart';
 import 'package:vet45_partner_domain/domain.dart';
 
+enum PartnerFormMode { create, edit }
+
 enum PartnerCreateStatus {
   initial,
+  loading,
   submitting,
   duplicate,
   success,
@@ -23,6 +26,9 @@ enum PartnerCreateSection {
 final class PartnerCreateState extends Equatable {
   const PartnerCreateState({
     required this.partnerType,
+    this.mode = PartnerFormMode.create,
+    this.partnerId,
+    this.expectedVersion,
     this.roles = const [],
     this.activeSection = PartnerCreateSection.role,
     this.completedSections = const {},
@@ -60,6 +66,9 @@ final class PartnerCreateState extends Equatable {
   });
 
   final PartnerType partnerType;
+  final PartnerFormMode mode;
+  final String? partnerId;
+  final int? expectedVersion;
   final List<PartnerRoleType> roles;
   final PartnerCreateSection? activeSection;
   final Set<PartnerCreateSection> completedSections;
@@ -70,6 +79,8 @@ final class PartnerCreateState extends Equatable {
   final List<PartnerDuplicateMatchDto> duplicateMatches;
   final PartnerDuplicateMatchLevel? duplicateLevel;
   final String? createdPartnerId;
+
+  bool get isEditMode => mode == PartnerFormMode.edit;
 
   final String personTitle;
   final String fullName;
@@ -101,33 +112,52 @@ final class PartnerCreateState extends Equatable {
 
   bool get isReadOnly => status == PartnerCreateStatus.blocked;
   bool get isSubmitting => status == PartnerCreateStatus.submitting;
+  bool get isLoading => status == PartnerCreateStatus.loading;
 
   bool get canSubmit {
-    if (isReadOnly || roles.isEmpty) return false;
+    if (isReadOnly || isLoading || roles.isEmpty) return false;
+    // Edit mode: save stays disabled until the user changes something.
+    if (isEditMode && !isDirty) return false;
     if (partnerType == PartnerType.person) {
       return fullName.trim().isNotEmpty && phone.trim().isNotEmpty;
     }
     return organizationName.trim().isNotEmpty && phone.trim().isNotEmpty;
   }
 
-  List<PartnerCreateSection> get sections => partnerType == PartnerType.person
-      ? const [
-          PartnerCreateSection.role,
-          PartnerCreateSection.main,
-          PartnerCreateSection.invoice,
-          PartnerCreateSection.delivery,
-          PartnerCreateSection.note,
-        ]
-      : const [
-          PartnerCreateSection.role,
-          PartnerCreateSection.main,
-          PartnerCreateSection.primaryContact,
-          PartnerCreateSection.invoice,
-          PartnerCreateSection.delivery,
-          PartnerCreateSection.note,
-        ];
+  List<PartnerCreateSection> get sections {
+    if (partnerType == PartnerType.person) {
+      return const [
+        PartnerCreateSection.role,
+        PartnerCreateSection.main,
+        PartnerCreateSection.invoice,
+        PartnerCreateSection.delivery,
+        PartnerCreateSection.note,
+      ];
+    }
+    if (isEditMode) {
+      return const [
+        PartnerCreateSection.role,
+        PartnerCreateSection.main,
+        PartnerCreateSection.invoice,
+        PartnerCreateSection.delivery,
+        PartnerCreateSection.note,
+      ];
+    }
+    return const [
+      PartnerCreateSection.role,
+      PartnerCreateSection.main,
+      PartnerCreateSection.primaryContact,
+      PartnerCreateSection.invoice,
+      PartnerCreateSection.delivery,
+      PartnerCreateSection.note,
+    ];
+  }
 
   PartnerCreateState copyWith({
+    PartnerType? partnerType,
+    PartnerFormMode? mode,
+    String? partnerId,
+    int? expectedVersion,
     List<PartnerRoleType>? roles,
     PartnerCreateSection? activeSection,
     bool clearActiveSection = false,
@@ -168,7 +198,10 @@ final class PartnerCreateState extends Equatable {
     String? note,
   }) {
     return PartnerCreateState(
-      partnerType: partnerType,
+      partnerType: partnerType ?? this.partnerType,
+      mode: mode ?? this.mode,
+      partnerId: partnerId ?? this.partnerId,
+      expectedVersion: expectedVersion ?? this.expectedVersion,
       roles: roles ?? this.roles,
       activeSection: clearActiveSection
           ? null
@@ -213,6 +246,9 @@ final class PartnerCreateState extends Equatable {
   @override
   List<Object?> get props => [
     partnerType,
+    mode,
+    partnerId,
+    expectedVersion,
     roles,
     activeSection,
     completedSections,
@@ -249,3 +285,4 @@ final class PartnerCreateState extends Equatable {
     note,
   ];
 }
+

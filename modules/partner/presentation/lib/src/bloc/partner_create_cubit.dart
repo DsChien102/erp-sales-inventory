@@ -1,9 +1,10 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:vet45_design_system/design_system.dart';
 import 'package:vet45_partner_application/application.dart';
 import 'package:vet45_partner_domain/domain.dart';
 import 'package:vet45_shared_application/application.dart';
 
+import 'partner_create_draft_mapper.dart';
+import 'partner_create_form_validator.dart';
 import 'partner_create_state.dart';
 
 final class PartnerCreateCubit extends Cubit<PartnerCreateState> {
@@ -15,12 +16,84 @@ final class PartnerCreateCubit extends Cubit<PartnerCreateState> {
        _executionContext = executionContext,
        super(PartnerCreateState(partnerType: partnerType));
 
+  /// Edit mode — call [loadForEdit] after construction.
+  PartnerCreateCubit.edit({
+    required String partnerId,
+    required IPartnerModule partnerModule,
+    required IExecutionContext executionContext,
+  }) : _partnerModule = partnerModule,
+       _executionContext = executionContext,
+       super(
+         PartnerCreateState(
+           partnerType: PartnerType.person,
+           mode: PartnerFormMode.edit,
+           partnerId: partnerId,
+           status: PartnerCreateStatus.loading,
+           activeSection: null,
+         ),
+       );
+
   final IPartnerModule _partnerModule;
   final IExecutionContext _executionContext;
 
   bool get canConfirmDuplicate =>
       state.status == PartnerCreateStatus.duplicate &&
       state.duplicateLevel == PartnerDuplicateMatchLevel.possible;
+
+  Future<void> loadForEdit() async {
+    final partnerId = state.partnerId;
+    if (!state.isEditMode || partnerId == null) return;
+
+    emit(state.copyWith(status: PartnerCreateStatus.loading, clearGeneralError: true));
+    try {
+      final tenantId = await _executionContext.requireTenantId();
+      final detail = await _partnerModule.executeQueryAsync(
+        GetPartnerDetailQuery(tenantId: tenantId, partnerId: partnerId),
+      );
+      emit(_hydrateFromDetail(detail));
+    } catch (error) {
+      _mapFailure(error);
+    }
+  }
+
+  PartnerCreateState _hydrateFromDetail(PartnerDetailDto detail) {
+    final person = detail.personProfile;
+    final org = detail.organizationProfile;
+    final invoice = person?.invoice ?? org?.invoice;
+    final delivery = person?.delivery ?? org?.delivery;
+
+    return PartnerCreateState(
+      partnerType: detail.partnerType,
+      mode: PartnerFormMode.edit,
+      partnerId: detail.partnerId,
+      expectedVersion: detail.expectedVersion,
+      roles: List.unmodifiable(detail.roles),
+      activeSection: PartnerCreateSection.role,
+      completedSections: const {},
+      isDirty: false,
+      status: PartnerCreateStatus.initial,
+      personTitle: person?.title?.value ?? '',
+      fullName: person?.fullName ?? '',
+      nickname: person?.nickname ?? '',
+      phone: person?.phone ?? org?.phone ?? '',
+      secondaryPhone: person?.phone2 ?? '',
+      email: person?.email ?? org?.email ?? '',
+      organizationTypeLabel: org == null
+          ? ''
+          : PartnerCreateDraftMapper.organizationTypeLabel(org.organizationType),
+      organizationName: org?.organizationName ?? '',
+      shortName: org?.shortName ?? '',
+      internationalName: org?.intlName ?? '',
+      taxCode: person?.taxCode ?? org?.taxCode ?? '',
+      invoiceName: invoice?.invoiceName ?? '',
+      invoiceAddress: invoice?.invoiceAddress ?? '',
+      invoiceEmail: invoice?.invoiceEmail ?? '',
+      deliveryProvince: delivery?.province ?? '',
+      deliveryCommune: delivery?.commune ?? '',
+      deliveryAddress: delivery?.address ?? '',
+      note: person?.note ?? org?.note ?? '',
+    );
+  }
 
   void setActiveSection(PartnerCreateSection section) {
     if (!state.sections.contains(section)) return;
@@ -36,7 +109,7 @@ final class PartnerCreateCubit extends Cubit<PartnerCreateState> {
   void continueActiveSection() {
     final section = state.activeSection;
     if (section == null) return;
-    final errors = _validateSection(section);
+    final errors = PartnerCreateFormValidator.validateSection(state, section);
     if (errors.isNotEmpty) {
       emit(
         state.copyWith(
@@ -136,13 +209,16 @@ final class PartnerCreateCubit extends Cubit<PartnerCreateState> {
   }
 
   Future<void> submit() async {
-    if (state.isReadOnly || state.isSubmitting) return;
-    final errors = _validateAll();
+    if (state.isReadOnly || state.isSubmitting || state.isLoading) return;
+    final errors = PartnerCreateFormValidator.validateAll(state);
     if (errors.isNotEmpty) {
       emit(
         state.copyWith(
           errors: errors,
-          activeSection: _firstErrorSection(errors),
+          activeSection: PartnerCreateFormValidator.firstErrorSection(
+            state,
+            errors,
+          ),
           status: PartnerCreateStatus.failure,
         ),
       );
@@ -163,10 +239,17 @@ final class PartnerCreateCubit extends Cubit<PartnerCreateState> {
       final matches = await _partnerModule.executeQueryAsync(
         CheckDuplicatePartnersQuery(
           tenantId: tenantId,
-          phone: _nullable(_normalizePhone(state.phone)),
-          email: _nullable(state.email.trim()),
-          taxCode: _nullable(_digitsOnly(state.taxCode)),
-          name: _nullable(_displayName),
+          phone: PartnerCreateDraftMapper.nullable(
+            PartnerCreateDraftMapper.normalizePhone(state.phone),
+          ),
+          email: PartnerCreateDraftMapper.nullable(state.email.trim()),
+          taxCode: PartnerCreateDraftMapper.nullable(
+            PartnerCreateFormValidator.digitsOnly(state.taxCode),
+          ),
+          name: PartnerCreateDraftMapper.nullable(
+            PartnerCreateDraftMapper.displayName(state),
+          ),
+          excludePartnerId: state.isEditMode ? state.partnerId : null,
         ),
       );
       if (matches.isNotEmpty) {
@@ -185,7 +268,7 @@ final class PartnerCreateCubit extends Cubit<PartnerCreateState> {
         );
         return;
       }
-      await _create(confirmDuplicate: false);
+      await _persist(confirmDuplicate: false);
     } catch (error) {
       _mapFailure(error);
     }
@@ -195,7 +278,7 @@ final class PartnerCreateCubit extends Cubit<PartnerCreateState> {
     if (!canConfirmDuplicate) return;
     emit(state.copyWith(status: PartnerCreateStatus.submitting));
     try {
-      await _create(confirmDuplicate: true);
+      await _persist(confirmDuplicate: true);
     } catch (error) {
       _mapFailure(error);
     }
@@ -204,6 +287,14 @@ final class PartnerCreateCubit extends Cubit<PartnerCreateState> {
   void dismissDuplicate() {
     if (state.status == PartnerCreateStatus.duplicate) {
       emit(state.copyWith(status: PartnerCreateStatus.initial, clearDuplicate: true));
+    }
+  }
+
+  Future<void> _persist({required bool confirmDuplicate}) async {
+    if (state.isEditMode) {
+      await _updateProfile(confirmDuplicate: confirmDuplicate);
+    } else {
+      await _create(confirmDuplicate: confirmDuplicate);
     }
   }
 
@@ -216,13 +307,16 @@ final class PartnerCreateCubit extends Cubit<PartnerCreateState> {
         actorId: actorId,
         partnerType: state.partnerType,
         roles: state.roles,
-        personProfile: state.partnerType == PartnerType.person ? _personProfile : null,
+        personProfile: state.partnerType == PartnerType.person
+            ? PartnerCreateDraftMapper.personProfile(state)
+            : null,
         organizationProfile: state.partnerType == PartnerType.organization
-            ? _organizationProfile
+            ? PartnerCreateDraftMapper.organizationProfile(state)
             : null,
         organizationPrimaryContact:
-            state.partnerType == PartnerType.organization && state.primaryContactEnabled
-            ? _primaryContactProfile
+            state.partnerType == PartnerType.organization &&
+                state.primaryContactEnabled
+            ? PartnerCreateDraftMapper.primaryContactProfile(state)
             : null,
         confirmDuplicate: confirmDuplicate,
       ),
@@ -237,168 +331,46 @@ final class PartnerCreateCubit extends Cubit<PartnerCreateState> {
     );
   }
 
-  PersonProfileInput get _personProfile => PersonProfileInput(
-    title: _personTitle(state.personTitle),
-    fullName: state.fullName.trim(),
-    nickname: _nullable(state.nickname.trim()),
-    phone: _normalizePhone(state.phone),
-    phone2: _nullable(_normalizePhone(state.secondaryPhone)),
-    email: _nullable(state.email.trim()),
-    taxCode: _nullable(_digitsOnly(state.taxCode)),
-    invoice: _invoiceProfile,
-    delivery: _deliveryAddress,
-    note: _nullable(state.note.trim()),
-  );
-
-  OrganizationProfileInput get _organizationProfile => OrganizationProfileInput(
-    organizationType: _resolveOrganizationType(state.organizationTypeLabel),
-    organizationName: state.organizationName.trim(),
-    shortName: _nullable(state.shortName.trim()),
-    intlName: _nullable(state.internationalName.trim()),
-    phone: _normalizePhone(state.phone),
-    email: _nullable(state.email.trim()),
-    taxCode: _nullable(_digitsOnly(state.taxCode)),
-    invoice: _invoiceProfile,
-    delivery: _deliveryAddress,
-    note: _nullable(state.note.trim()),
-  );
-
-  PersonProfileInput get _primaryContactProfile => PersonProfileInput(
-    title: _personTitle(state.primaryContactTitle),
-    fullName: state.primaryContactName.trim(),
-    phone: _normalizePhone(state.primaryContactPhone),
-    phone2: _nullable(_normalizePhone(state.primaryContactSecondaryPhone)),
-    email: _nullable(state.primaryContactEmail.trim()),
-  );
-
-  InvoiceProfileInput? get _invoiceProfile {
-    final name = _nullable(state.invoiceName.trim());
-    final address = _nullable(state.invoiceAddress.trim());
-    final email = _nullable(state.invoiceEmail.trim());
-    if (name == null && address == null && email == null) return null;
-    return InvoiceProfileInput(
-      invoiceName: name,
-      invoiceAddress: address,
-      invoiceEmail: email,
-    );
-  }
-
-  DeliveryAddressInput? get _deliveryAddress {
-    final province = _nullable(state.deliveryProvince.trim());
-    final commune = _nullable(state.deliveryCommune.trim());
-    final address = _nullable(state.deliveryAddress.trim());
-    if (province == null && commune == null && address == null) return null;
-    return DeliveryAddressInput(
-      province: province,
-      commune: commune,
-      address: address,
-    );
-  }
-
-  Map<String, String> _validateAll() {
-    final errors = <String, String>{};
-    for (final section in state.sections) {
-      errors.addAll(_validateSection(section));
-    }
-    return errors;
-  }
-
-  Map<String, String> _validateSection(PartnerCreateSection section) {
-    final errors = <String, String>{};
-    switch (section) {
-      case PartnerCreateSection.role:
-        if (state.roles.isEmpty) {
-          errors['roles'] = 'Vui lòng chọn vai trò giao dịch';
-        }
-      case PartnerCreateSection.main:
-        if (state.partnerType == PartnerType.person && state.fullName.trim().isEmpty) {
-          errors['fullName'] = 'Vui lòng nhập họ và tên';
-        }
-        if (state.partnerType == PartnerType.organization &&
-            state.organizationName.trim().isEmpty) {
-          errors['organizationName'] = 'Vui lòng nhập tên tổ chức';
-        }
-        _validatePhone(state.phone, 'phone', errors, required: true);
-        _validateEmail(state.email, 'email', errors);
-        _validatePhone(state.secondaryPhone, 'secondaryPhone', errors);
-      case PartnerCreateSection.primaryContact:
-        if (state.primaryContactEnabled) {
-          if (state.primaryContactName.trim().isEmpty) {
-            errors['primaryContactName'] = 'Vui lòng nhập họ và tên người liên hệ';
-          }
-          _validatePhone(
-            state.primaryContactPhone,
-            'primaryContactPhone',
-            errors,
-            required: true,
-          );
-          _validatePhone(
-            state.primaryContactSecondaryPhone,
-            'primaryContactSecondaryPhone',
-            errors,
-          );
-          _validateEmail(state.primaryContactEmail, 'primaryContactEmail', errors);
-        }
-      case PartnerCreateSection.invoice:
-        final taxDigits = _digitsOnly(state.taxCode);
-        if (state.taxCode.trim().isNotEmpty && taxDigits.length != 10 && taxDigits.length != 13) {
-          errors['taxCode'] = 'MST phải có 10 hoặc 13 chữ số';
-        }
-        _validateEmail(state.invoiceEmail, 'invoiceEmail', errors);
-      case PartnerCreateSection.delivery:
-      case PartnerCreateSection.note:
-        break;
-    }
-    return errors;
-  }
-
-  void _validatePhone(
-    String value,
-    String key,
-    Map<String, String> errors, {
-    bool required = false,
-  }) {
-    final trimmed = value.trim();
-    if (trimmed.isEmpty) {
-      if (required) errors[key] = 'Vui lòng nhập số điện thoại';
+  Future<void> _updateProfile({required bool confirmDuplicate}) async {
+    final partnerId = state.partnerId;
+    final expectedVersion = state.expectedVersion;
+    if (partnerId == null || expectedVersion == null) {
+      emit(
+        state.copyWith(
+          status: PartnerCreateStatus.failure,
+          generalError: 'Không tải được hồ sơ để chỉnh sửa.',
+        ),
+      );
       return;
     }
-    final allowed = RegExp(r'^\+?[0-9\s.\-()]+$').hasMatch(trimmed);
-    final digits = _digitsOnly(trimmed);
-    if (!allowed || digits.length < 8 || digits.length > 15) {
-      errors[key] = 'Số điện thoại phải có từ 8 đến 15 chữ số';
-    }
-  }
 
-  void _validateEmail(String value, String key, Map<String, String> errors) {
-    final error = VEmailValidator.validate(value, isRequired: false);
-    if (error != null) errors[key] = error;
-  }
-
-  PartnerCreateSection _firstErrorSection(Map<String, String> errors) {
-    const keysBySection = {
-      PartnerCreateSection.role: ['roles'],
-      PartnerCreateSection.main: [
-        'fullName',
-        'organizationName',
-        'phone',
-        'secondaryPhone',
-        'email',
-      ],
-      PartnerCreateSection.primaryContact: [
-        'primaryContactName',
-        'primaryContactPhone',
-        'primaryContactSecondaryPhone',
-        'primaryContactEmail',
-      ],
-      PartnerCreateSection.invoice: ['taxCode', 'invoiceEmail'],
-      PartnerCreateSection.delivery: <String>[],
-      PartnerCreateSection.note: <String>[],
-    };
-    for (final section in state.sections) {
-      if (keysBySection[section]!.any(errors.containsKey)) return section;
-    }
-    return state.activeSection ?? state.sections.first;
+    final tenantId = await _executionContext.requireTenantId();
+    final actorId = await _executionContext.requireUserId();
+    final result = await _partnerModule.executeCommandAsync(
+      UpdatePartnerProfileCommand(
+        tenantId: tenantId,
+        actorId: actorId,
+        partnerId: partnerId,
+        roles: state.roles,
+        expectedVersion: expectedVersion,
+        personProfile: state.partnerType == PartnerType.person
+            ? PartnerCreateDraftMapper.personProfile(state)
+            : null,
+        organizationProfile: state.partnerType == PartnerType.organization
+            ? PartnerCreateDraftMapper.organizationProfile(state)
+            : null,
+        confirmDuplicate: confirmDuplicate,
+      ),
+    );
+    emit(
+      state.copyWith(
+        status: PartnerCreateStatus.success,
+        createdPartnerId: result.partnerId,
+        expectedVersion: result.expectedVersion,
+        isDirty: false,
+        clearDuplicate: true,
+      ),
+    );
   }
 
   void _mapFailure(Object error) {
@@ -407,18 +379,38 @@ final class PartnerCreateCubit extends Cubit<PartnerCreateState> {
         emit(
           state.copyWith(
             status: PartnerCreateStatus.blocked,
-            generalError: 'Bạn chưa có quyền tạo KH & NCC.',
+            generalError: state.isEditMode
+                ? 'Bạn chưa có quyền chỉnh sửa KH & NCC.'
+                : 'Bạn chưa có quyền tạo KH & NCC.',
           ),
         );
         return;
       }
       if (error.code == PartnerBlockedCodes.duplicateWarning) {
-        // Fallback khi create RPC báo trùng nhưng chưa có list match (sheet cần matches).
         emit(
           state.copyWith(
             status: PartnerCreateStatus.failure,
             generalError:
                 'Đã tồn tại hồ sơ trùng MST/SĐT/email. Vui lòng kiểm tra lại.',
+          ),
+        );
+        return;
+      }
+      if (error.code == PartnerBlockedCodes.stateChanged) {
+        emit(
+          state.copyWith(
+            status: PartnerCreateStatus.failure,
+            generalError:
+                'Hồ sơ đã được cập nhật bởi người khác. Vui lòng tải lại rồi thử lại.',
+          ),
+        );
+        return;
+      }
+      if (error.code == PartnerBlockedCodes.notFound) {
+        emit(
+          state.copyWith(
+            status: PartnerCreateStatus.failure,
+            generalError: 'Không tìm thấy hồ sơ hoặc bạn không có quyền xem.',
           ),
         );
         return;
@@ -437,55 +429,5 @@ final class PartnerCreateCubit extends Cubit<PartnerCreateState> {
         generalError: 'Không thể lưu dữ liệu. Vui lòng thử lại.',
       ),
     );
-  }
-
-  String get _displayName => state.partnerType == PartnerType.person
-      ? state.fullName.trim()
-      : state.organizationName.trim();
-
-  static String _normalizePhone(String value) {
-    final trimmed = value.trim();
-    final digits = _digitsOnly(trimmed);
-    return trimmed.startsWith('+') && digits.isNotEmpty ? '+$digits' : digits;
-  }
-
-  static String _digitsOnly(String value) => value.replaceAll(RegExp(r'\D'), '');
-  static String? _nullable(String value) => value.isEmpty ? null : value;
-  static PersonTitle? _personTitle(String value) =>
-      value.trim().isEmpty ? null : PersonTitle(value.trim());
-
-  static OrganizationType _resolveOrganizationType(String value) {
-    final normalized = _removeVietnameseTones(value.trim().toLowerCase());
-    if (normalized.isEmpty) return OrganizationType.other;
-
-    if (normalized.contains('ho kinh doanh') ||
-        normalized.contains('business household') ||
-        normalized == 'businesshousehold' ||
-        normalized == 'business_household') {
-      return OrganizationType.businessHousehold;
-    }
-
-    if (normalized.contains('cong ty') ||
-        normalized.contains('tnhh') ||
-        normalized == 'company') {
-      return OrganizationType.company;
-    }
-
-    if (normalized == 'khac' || normalized == 'other') {
-      return OrganizationType.other;
-    }
-
-    return OrganizationType.other;
-  }
-
-  static String _removeVietnameseTones(String str) {
-    str = str.replaceAll(RegExp(r'[àáạảãâầấậẩẫăằắặẳẵ]'), 'a');
-    str = str.replaceAll(RegExp(r'[èéẹẻẽêềếệểễ]'), 'e');
-    str = str.replaceAll(RegExp(r'[ìíịỉĩ]'), 'i');
-    str = str.replaceAll(RegExp(r'[òóọỏõôồốộổỗơờớợởỡ]'), 'o');
-    str = str.replaceAll(RegExp(r'[ùúụủũưừứựửữ]'), 'u');
-    str = str.replaceAll(RegExp(r'[ỳýỵỷỹ]'), 'y');
-    str = str.replaceAll(RegExp(r'[đ]'), 'd');
-    return str;
   }
 }

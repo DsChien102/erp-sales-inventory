@@ -35,6 +35,9 @@ class PartnerCreateForm extends StatelessWidget {
       listener: _showDuplicate,
       child: BlocBuilder<PartnerCreateCubit, PartnerCreateState>(
         builder: (context, state) {
+          if (state.isLoading) {
+            return const Center(child: CircularProgressIndicator());
+          }
           return GestureDetector(
             onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
             behavior: HitTestBehavior.opaque,
@@ -66,6 +69,7 @@ class PartnerCreateForm extends StatelessWidget {
                   isLoading: state.isSubmitting,
                   isReadOnly: state.isReadOnly,
                   canSubmit: state.canSubmit,
+                  saveLabel: state.isEditMode ? 'Lưu thay đổi' : 'Lưu & Xem',
                 ),
               ],
             ),
@@ -139,7 +143,8 @@ class PartnerCreateForm extends StatelessWidget {
               expandedTrailingText: null,
               key: const Key('section_main'),
             ),
-            if (state.partnerType == PartnerType.organization)
+            if (state.partnerType == PartnerType.organization &&
+                !state.isEditMode)
               (
                 section: PartnerCreateSection.primaryContact,
                 title: '4. Người liên hệ chính',
@@ -152,7 +157,8 @@ class PartnerCreateForm extends StatelessWidget {
               ),
             (
               section: PartnerCreateSection.invoice,
-              title: '${state.partnerType == PartnerType.person ? 4 : 5}. Hóa đơn / thuế',
+              title:
+                  '${state.partnerType == PartnerType.person || state.isEditMode ? 4 : 5}. Hóa đơn / thuế',
               child: const PartnerInvoiceSection(),
               summary: _emptyToNull(state.taxCode),
               expandedTrailingText: null,
@@ -160,7 +166,8 @@ class PartnerCreateForm extends StatelessWidget {
             ),
             (
               section: PartnerCreateSection.delivery,
-              title: '${state.partnerType == PartnerType.person ? 5 : 6}. Địa chỉ giao hàng',
+              title:
+                  '${state.partnerType == PartnerType.person || state.isEditMode ? 5 : 6}. Địa chỉ giao hàng',
               child: const PartnerDeliverySection(),
               summary: _emptyToNull(state.deliveryProvince) ?? 'Tùy chọn',
               expandedTrailingText: null,
@@ -168,7 +175,8 @@ class PartnerCreateForm extends StatelessWidget {
             ),
             (
               section: PartnerCreateSection.note,
-              title: '${state.partnerType == PartnerType.person ? 6 : 7}. Ghi chú',
+              title:
+                  '${state.partnerType == PartnerType.person || state.isEditMode ? 6 : 7}. Ghi chú',
               child: const PartnerNoteSection(),
               summary: state.note.trim().isEmpty ? 'Tùy chọn' : 'Đã nhập',
               expandedTrailingText: null,
@@ -263,6 +271,7 @@ class _StickyActions extends StatelessWidget {
     required this.isLoading,
     required this.isReadOnly,
     required this.canSubmit,
+    required this.saveLabel,
   });
 
   final VoidCallback onCancel;
@@ -270,6 +279,7 @@ class _StickyActions extends StatelessWidget {
   final bool isLoading;
   final bool isReadOnly;
   final bool canSubmit;
+  final String saveLabel;
 
   @override
   Widget build(BuildContext context) {
@@ -299,7 +309,7 @@ class _StickyActions extends StatelessWidget {
           Expanded(
             child: VButton(
               key: const Key('btn_save_view'),
-              label: 'Lưu & Xem',
+              label: saveLabel,
               isLoading: isLoading,
               onPressed: canPressSave ? onSubmit : null,
             ),
