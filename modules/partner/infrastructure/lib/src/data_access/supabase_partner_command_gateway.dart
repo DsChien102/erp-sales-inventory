@@ -14,7 +14,7 @@ final class SupabasePartnerCommandGateway implements IPartnerCommandGateway {
   @override
   Future<CreatePartnerResult> createPartner(CreatePartnerCommand command) async {
     try {
-      final result = await _rpcClient.callMap(
+      final result = await _callFirstRow(
         'create_partner',
         params: PartnerRpcMapper.createPartnerParams(command),
       );
@@ -29,7 +29,7 @@ final class SupabasePartnerCommandGateway implements IPartnerCommandGateway {
     UpdatePartnerProfileCommand command,
   ) async {
     try {
-      final result = await _rpcClient.callMap(
+      final result = await _callFirstRow(
         'update_partner',
         params: PartnerRpcMapper.updatePartnerParams(command),
       );
@@ -44,7 +44,7 @@ final class SupabasePartnerCommandGateway implements IPartnerCommandGateway {
     TransformPersonToOrganizationCommand command,
   ) async {
     try {
-      final result = await _rpcClient.callMap(
+      final result = await _callFirstRow(
         'transform_to_organization',
         params: PartnerRpcMapper.transformPartnerParams(command),
       );
@@ -59,7 +59,7 @@ final class SupabasePartnerCommandGateway implements IPartnerCommandGateway {
     AddOrganizationContactCommand command,
   ) async {
     try {
-      final result = await _rpcClient.callMap(
+      final result = await _callFirstRow(
         'add_organization_contact',
         params: PartnerRpcMapper.addContactParams(command),
       );
@@ -102,7 +102,7 @@ final class SupabasePartnerCommandGateway implements IPartnerCommandGateway {
     DeactivatePartnerCommand command,
   ) async {
     try {
-      final result = await _rpcClient.callMap(
+      final result = await _callFirstRow(
         'deactivate_partner',
         params: PartnerRpcMapper.deactivatePartnerParams(command),
       );
@@ -117,7 +117,7 @@ final class SupabasePartnerCommandGateway implements IPartnerCommandGateway {
     ReactivatePartnerCommand command,
   ) async {
     try {
-      final result = await _rpcClient.callMap(
+      final result = await _callFirstRow(
         'reactivate_partner',
         params: PartnerRpcMapper.reactivatePartnerParams(command),
       );
@@ -132,7 +132,7 @@ final class SupabasePartnerCommandGateway implements IPartnerCommandGateway {
     SoftDeletePartnerCommand command,
   ) async {
     try {
-      final result = await _rpcClient.callMap(
+      final result = await _callFirstRow(
         'soft_delete_partner',
         params: PartnerRpcMapper.softDeletePartnerParams(command),
       );
@@ -140,5 +140,17 @@ final class SupabasePartnerCommandGateway implements IPartnerCommandGateway {
     } on RpcException catch (error) {
       throw mapPartnerRpcError(error);
     }
+  }
+
+  /// Partner write RPCs return `table (...)`; PostgREST responds with a JSON array.
+  Future<Map<String, dynamic>> _callFirstRow(
+    String functionName, {
+    Map<String, dynamic>? params,
+  }) async {
+    final rows = await _rpcClient.callList(functionName, params: params);
+    if (rows.isEmpty) {
+      return <String, dynamic>{};
+    }
+    return rows.first;
   }
 }

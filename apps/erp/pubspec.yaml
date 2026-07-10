@@ -23,6 +23,10 @@ dependencies:
   vet45_catalog_application: ^1.0.0
   vet45_catalog_infrastructure: ^1.0.0
   vet45_catalog_presentation: ^1.0.0
+  vet45_partner_application: ^1.0.0
+  vet45_partner_domain: ^1.0.0
+  vet45_partner_infrastructure: ^1.0.0
+  vet45_partner_presentation: ^1.0.0
   vet45_shared_application: ^1.0.0
   vet45_shared_infrastructure: ^0.0.1
   logging: ^1.3.0
@@ -41,3 +45,5 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+  assets:
+    - assets/data/vn_administrative_units.json

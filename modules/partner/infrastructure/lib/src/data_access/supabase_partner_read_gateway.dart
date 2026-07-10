@@ -17,7 +17,7 @@ final class SupabasePartnerReadGateway
     SearchPartnersQuery query,
   ) async {
     try {
-      final result = await _rpcClient.callMap(
+      final result = await _callFirstRow(
         'search_partners',
         params: PartnerReadRpcMapper.searchParams(query),
       );
@@ -45,7 +45,7 @@ final class SupabasePartnerReadGateway
     CheckDeleteEligibilityQuery query,
   ) async {
     try {
-      final result = await _rpcClient.callMap(
+      final result = await _callFirstRow(
         'check_delete_eligibility',
         params: PartnerReadRpcMapper.deleteEligibilityParams(query),
       );
@@ -60,7 +60,7 @@ final class SupabasePartnerReadGateway
     GetPartnerHistoryQuery query,
   ) async {
     try {
-      final result = await _rpcClient.callMap(
+      final result = await _callFirstRow(
         'get_partner_history',
         params: PartnerReadRpcMapper.historyParams(query),
       );
@@ -68,6 +68,18 @@ final class SupabasePartnerReadGateway
     } on RpcException catch (error) {
       throw mapPartnerRpcError(error);
     }
+  }
+
+  /// Read RPCs that `returns table (...)` come back from PostgREST as a JSON array.
+  Future<Map<String, dynamic>> _callFirstRow(
+    String functionName, {
+    Map<String, dynamic>? params,
+  }) async {
+    final rows = await _rpcClient.callList(functionName, params: params);
+    if (rows.isEmpty) {
+      return <String, dynamic>{};
+    }
+    return rows.first;
   }
 }
 

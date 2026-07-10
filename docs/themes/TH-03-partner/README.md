@@ -12,7 +12,7 @@ Quản lý hồ sơ đối tác (khách hàng, nhà cung cấp, hoặc cả hai)
 
 | Module | Vai trò | Package |
 | ------ | ------- | ------- |
-| partner | **Owner** — greenfield, chờ rebuild | `modules/partner/` (chưa có) |
+| partner | **Owner** — rebuild in progress; CONTRACT + S1 FE hoàn tất | `modules/partner/` |
 | iam | Supporting — auth, tenant, permission | `modules/iam/` |
 | sales | Supporting — snapshot, publish transaction events | `modules/sales/` |
 | inventory | Supporting — publish inbound events | `modules/inventory/` |

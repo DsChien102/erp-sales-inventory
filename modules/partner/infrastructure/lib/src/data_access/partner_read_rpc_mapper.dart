@@ -6,7 +6,7 @@ abstract final class PartnerReadRpcMapper {
   static Map<String, dynamic> searchParams(SearchPartnersQuery query) {
     return <String, dynamic>{
       'p_tenant_id': query.tenantId,
-      'p_q': query.query,
+      'p_query': query.query,
       'p_partner_type': query.partnerType?.name,
       'p_role': query.role?.name,
       'p_status': query.status?.name,
@@ -73,7 +73,6 @@ abstract final class PartnerReadRpcMapper {
       'p_amount': command.amount,
       'p_currency': command.currency,
       'p_can_open_source': command.canOpenSource,
-      'p_command_id': command.id,
     };
   }
 
@@ -183,6 +182,11 @@ abstract final class PartnerReadRpcMapper {
             matchedField: PartnerDuplicateMatchField.values.byName(
               row['matched_field'] as String,
             ),
+            matchLevel: _deriveMatchLevel(
+              PartnerDuplicateMatchField.values.byName(
+                row['matched_field'] as String,
+              ),
+            ),
             partnerType: PartnerType.values.byName(
               row['partner_type'] as String,
             ),
@@ -190,6 +194,17 @@ abstract final class PartnerReadRpcMapper {
           ),
         )
         .toList(growable: false);
+  }
+
+  static PartnerDuplicateMatchLevel _deriveMatchLevel(
+    PartnerDuplicateMatchField field,
+  ) {
+    return switch (field) {
+      PartnerDuplicateMatchField.phone ||
+      PartnerDuplicateMatchField.email ||
+      PartnerDuplicateMatchField.taxCode => PartnerDuplicateMatchLevel.exact,
+      PartnerDuplicateMatchField.name => PartnerDuplicateMatchLevel.possible,
+    };
   }
 
   static PersonProfileDto? _personDto(Object? raw) {
@@ -204,6 +219,8 @@ abstract final class PartnerReadRpcMapper {
       phone2: raw['phone2'] as String?,
       email: raw['email'] as String?,
       taxCode: raw['tax_code'] as String?,
+      invoice: _invoiceDto(raw['invoice']),
+      delivery: _deliveryDto(raw['delivery']),
       note: raw['note'] as String?,
     );
   }
@@ -223,7 +240,51 @@ abstract final class PartnerReadRpcMapper {
       email: raw['email'] as String?,
       taxCode: raw['tax_code'] as String?,
       companyAddress: raw['company_address'] as String?,
+      invoice: _invoiceDto(raw['invoice']),
+      delivery: _deliveryDto(raw['delivery']),
       note: raw['note'] as String?,
     );
+  }
+
+  static InvoiceProfileInput? _invoiceDto(Object? raw) {
+    final map = _asStringKeyedMap(raw);
+    if (map == null) return null;
+    final name = _nullableString(map['name'] ?? map['invoice_name']);
+    final address = _nullableString(map['address'] ?? map['invoice_address']);
+    final email = _nullableString(map['email'] ?? map['invoice_email']);
+    if (name == null && address == null && email == null) return null;
+    return InvoiceProfileInput(
+      invoiceName: name,
+      invoiceAddress: address,
+      invoiceEmail: email,
+    );
+  }
+
+  static DeliveryAddressInput? _deliveryDto(Object? raw) {
+    final map = _asStringKeyedMap(raw);
+    if (map == null) return null;
+    final province = _nullableString(map['province']);
+    final commune = _nullableString(map['commune']);
+    final address = _nullableString(map['address']);
+    if (province == null && commune == null && address == null) return null;
+    return DeliveryAddressInput(
+      province: province,
+      commune: commune,
+      address: address,
+    );
+  }
+
+  static Map<String, dynamic>? _asStringKeyedMap(Object? raw) {
+    if (raw is Map<String, dynamic>) return raw;
+    if (raw is Map) {
+      return raw.map((key, value) => MapEntry(key.toString(), value));
+    }
+    return null;
+  }
+
+  static String? _nullableString(Object? value) {
+    if (value == null) return null;
+    final text = value.toString().trim();
+    return text.isEmpty ? null : text;
   }
 }

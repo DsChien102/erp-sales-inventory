@@ -2365,12 +2365,18 @@ SG-02 cover toàn bộ flow tạo mới và chỉnh sửa hồ sơ KH & NCC. M�
 |ID|Screen / State|Purpose|
 |---|---|---|
 |D-01|Create action sheet|Chọn tạo `Cá nhân` hoặc `Tổ chức`|
-|D-02|Create/Edit Person form|Tạo hoặc chỉnh sửa hồ sơ cá nhân|
-|D-03|Create/Edit Organization form|Tạo hoặc chỉnh sửa hồ sơ tổ chức|
-|D-04|Duplicate warning|Cảnh báo có KH & NCC có thể trùng|
-|D-05|Leave form confirmation|Cảnh báo khi rời form có thay đổi chưa lưu|
-|D-06|Save success|Thông báo lưu thành công và điều hướng phù hợp|
-|D-07|Save error / No permission / Source changed|Các state lỗi hoặc bị chặn khi lưu|
+|D-02|Person — Loại hồ sơ & vai trò|Xác nhận loại Cá nhân và chọn vai trò giao dịch|
+|D-03|Person — Thông tin cá nhân|Nhập thông tin nhận diện bắt buộc của cá nhân|
+|D-04|Organization — Thông tin tổ chức|Xác nhận loại Tổ chức, chọn vai trò và nhập thông tin tổ chức|
+|D-05|Organization — Người liên hệ chính|Nhập người liên hệ chính nếu có|
+|D-06|Hóa đơn / thuế|Nhập MST và thông tin xuất hóa đơn|
+|D-07|Địa chỉ giao hàng|Nhập địa chỉ giao hàng mặc định|
+|D-08|Ghi chú|Nhập ghi chú nội bộ nếu có|
+|D-09A|Possible duplicate bottom sheet|Cảnh báo hồ sơ có thể trùng và cho phép xác nhận tiếp tục|
+|D-09B|Exact duplicate bottom sheet|Chặn tạo mới khi hồ sơ trùng khớp hoàn toàn|
+|D-10|Save success handoff|Hiển thị toast và chuyển tới hồ sơ vừa tạo|
+
+Leave form confirmation, inline validation, save error, no-permission và source-changed là state phụ của create/edit flow, không cấp D-ID riêng.
 
 #### UI Contract
 
@@ -2388,7 +2394,7 @@ SG-02 cover toàn bộ flow tạo mới và chỉnh sửa hồ sơ KH & NCC. M�
 
 - UI-07: `Loại hồ sơ` được xác định từ entry point tạo mới hoặc hồ sơ hiện tại, không cho đổi trực tiếp trong edit mode.
 
-- UI-08: CTA chính dùng `Lưu KH & NCC` khi tạo mới và `Lưu thay đổi` khi chỉnh sửa.
+- UI-08: CTA chính dùng `Lưu & Xem` khi tạo mới và `Lưu thay đổi` khi chỉnh sửa.
 
 - UI-09: CTA chính sticky bottom nếu form dài.
 
@@ -2464,7 +2470,7 @@ D-01 — Create action sheet
 ```
 
 ```Plain Text
-D-02 — Create/Edit Person form
+D-02/D-03 — Create/Edit Person flow
 ┌─────────────────────────────┐
 │ 9:41                  100%  │
 │ ←        Tạo cá nhân        │
@@ -2490,12 +2496,12 @@ D-02 — Create/Edit Person form
 │ │ Tên hóa đơn             │ │
 │ │ [                    ]  │ │
 │ └─────────────────────────┘ │
-│        [Lưu KH & NCC]       │
+│          [Lưu & Xem]        │
 └─────────────────────────────┘
 ```
 
 ```Plain Text
-D-03 — Create/Edit Organization form
+D-04/D-05 — Create/Edit Organization flow
 ┌─────────────────────────────┐
 │ 9:41                  100%  │
 │ ←        Tạo tổ chức        │
@@ -2523,12 +2529,12 @@ D-03 — Create/Edit Organization form
 │ │ Địa chỉ hóa đơn         │ │
 │ │ [                    ]  │ │
 │ └─────────────────────────┘ │
-│        [Lưu KH & NCC]       │
+│          [Lưu & Xem]        │
 └─────────────────────────────┘
 ```
 
 ```Plain Text
-D-04 — Duplicate warning
+D-09A/B — Duplicate warning
 ┌─────────────────────────────┐
 │ ←        Tạo tổ chức        │
 │                             │
@@ -2558,7 +2564,7 @@ D-04 — Duplicate warning
 ```
 
 ```Plain Text
-D-05 — Leave form confirmation
+Auxiliary state — Leave form confirmation
 ┌─────────────────────────────┐
 │ ←      Chỉnh sửa cá nhân    │
 │                             │
@@ -2583,7 +2589,7 @@ D-05 — Leave form confirmation
 ```
 
 ```Plain Text
-D-06 — Save success
+D-10 — Save success
 ┌─────────────────────────────┐
 │ 9:41                  100%  │
 │ ←       Hồ sơ KH & NCC  ⋯   │
@@ -2607,7 +2613,7 @@ D-06 — Save success
 ```
 
 ```Plain Text
-D-07 — Save error / No permission / Source changed
+Auxiliary states — Save error / No permission / Source changed
 ┌─────────────────────────────┐
 │ 9:41                  100%  │
 │ ←      Chỉnh sửa tổ chức    │
@@ -4945,6 +4951,5 @@ Mục tiêu UX là giúp người dùng hiểu rõ:
 |Export lịch sử|CSV/Excel/PDF tùy nhu cầu|
 |CRM nâng cao|Segment, hạng khách, chăm sóc khách hàng|
 |Customer/Supplier analytics|Tổng mua, tổng bán, công nợ, tần suất giao dịch|
-
 
 

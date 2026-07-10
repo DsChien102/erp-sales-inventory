@@ -26,6 +26,28 @@ void main() {
       expect(result.partnerId, 'p-new-1');
     });
 
+    test('organization create keeps optional primary contact in command', () {
+      const primaryContact = PersonProfileInput(
+        fullName: 'Trần Thị Lan',
+        phone: '0903456789',
+      );
+
+      final command = CreatePartnerCommand(
+        tenantId: 't-1',
+        actorId: 'u-1',
+        partnerType: PartnerType.organization,
+        roles: const [PartnerRoleType.supplier],
+        organizationProfile: const OrganizationProfileInput(
+          organizationType: OrganizationType.company,
+          organizationName: 'Công ty TNHH An Phát',
+          phone: '02812345678',
+        ),
+        organizationPrimaryContact: primaryContact,
+      );
+
+      expect(command.organizationPrimaryContact, same(primaryContact));
+    });
+
     test('search_mixed_types returns person and organization rows', () async {
       final module = FakePartnerModule(
         scenario: FakePartnerScenario.searchMixedTypes,
@@ -68,6 +90,38 @@ void main() {
           ),
         ),
       );
+    });
+
+    test('create_dup_warning query returns possible match', () async {
+      final module = FakePartnerModule(
+        scenario: FakePartnerScenario.createDupWarning,
+      );
+
+      final matches = await module.executeQueryAsync(
+        CheckDuplicatePartnersQuery(
+          tenantId: 't-1',
+          phone: '0901234567',
+        ),
+      );
+
+      expect(matches, hasLength(1));
+      expect(matches.single.matchLevel, PartnerDuplicateMatchLevel.possible);
+    });
+
+    test('create_exact_duplicate query returns exact match', () async {
+      final module = FakePartnerModule(
+        scenario: FakePartnerScenario.createExactDuplicate,
+      );
+
+      final matches = await module.executeQueryAsync(
+        CheckDuplicatePartnersQuery(
+          tenantId: 't-1',
+          taxCode: '0101234567',
+        ),
+      );
+
+      expect(matches, hasLength(1));
+      expect(matches.single.matchLevel, PartnerDuplicateMatchLevel.exact);
     });
   });
 }
