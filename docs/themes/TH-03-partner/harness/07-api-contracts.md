@@ -6,7 +6,9 @@ Facade: `IPartnerModule` — `modules/partner/application/lib/src/contracts/i_pa
 
 **CONTRACT lane 2026-07-10:** Commands/queries/DTOs implemented; FE fake qua `FakePartnerModule` (`modules/partner/application/lib/testing.dart`).
 
-**BE lane 2026-07-10:** Domain aggregate, handlers, gateways, `PartnerStartup`, codegen `generated/*.g.dart`; draft SQL `supabase/migrations/_drafts/partner_v2_*.sql` (chưa promote migration).
+**BE lane 2026-07-10:** Domain aggregate, handlers, gateways, `PartnerStartup`, codegen `generated/*.g.dart`; draft SQL `supabase/migrations/_drafts/partner_v2_*.sql` (chưa promote migration; có thể apply thủ công qua SQL editor).
+
+**E2E lane 2026-07-10:** ERP `PartnerStartup` wired trong `apps/erp/lib/core/di/injection.dart`; integration test `e2e_e01_u02_fr06_01` qua mediator + RPC test double.
 
 **Access control:** `@RequiresPermission(PartnerPermissions.*)` + `@RequiresTenant()`; codegen emit `partner_access_metadata.g.dart`.
 
@@ -43,7 +45,7 @@ Facade: `IPartnerModule` — `modules/partner/application/lib/src/contracts/i_pa
 | Symbol | Input (summary) | Success | Errors |
 | ------ | --------------- | ------- | ------ |
 | `CreatePartnerCommand` | tenantId, actorId, partnerType, roles[], personProfile \| organizationProfile, organizationPrimaryContact?, confirmDuplicate | `CreatePartnerResult` (partnerId, warnings[]) | VALIDATION_ERROR, DUPLICATE_WARNING, NO_PERMISSION |
-| `CheckDuplicatePartnersQuery` | tenantId, phone?, email?, taxCode?, name? | `List<PartnerDuplicateMatchDto>` (`matchLevel`: possible/exact) | NO_PERMISSION |
+| `CheckDuplicatePartnersQuery` | tenantId, phone?, email?, taxCode?, name? | `List<PartnerDuplicateMatchDto>` (`matchLevel`: possible/exact — **derive** từ `matched_field`: phone/email/taxCode → exact, name → possible) | NO_PERMISSION |
 
 ### RPC mapping (BE) — drafted
 

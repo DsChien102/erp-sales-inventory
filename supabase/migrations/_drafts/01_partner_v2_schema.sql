@@ -118,13 +118,9 @@ create table if not exists partner.person_profiles (
   full_name text not null,
   nickname text null,
   phone text not null,
-  phone_normalized text not null,
   phone2 text null,
-  phone2_normalized text null,
   email text null,
-  email_normalized text null,
   tax_code text null,
-  tax_code_normalized text null,
   invoice_name text null,
   invoice_address text null,
   invoice_email text null,
@@ -146,17 +142,15 @@ create table if not exists partner.organization_profiles (
   short_name text null,
   intl_name text null,
   phone text not null,
-  phone_normalized text not null,
   email text null,
-  email_normalized text null,
   tax_code text null,
-  tax_code_normalized text null,
   company_address text null,
   invoice_name text null,
   invoice_address text null,
   invoice_email text null,
   delivery_province text null,
   delivery_commune text null,
+  delivery_address text null,
   note text null,
   constraint chk_organization_profiles_name_not_blank
     check (length(btrim(organization_name)) > 0),
@@ -244,26 +238,26 @@ create index if not exists idx_partners_tenant_display_name
   on partner.partners (tenant_id, display_name);
 
 create index if not exists idx_person_profiles_tenant_phone
-  on partner.person_profiles (tenant_id, phone_normalized);
+  on partner.person_profiles (tenant_id, phone);
 
 create index if not exists idx_person_profiles_tenant_email
-  on partner.person_profiles (tenant_id, email_normalized)
-  where email_normalized is not null;
+  on partner.person_profiles (tenant_id, email)
+  where email is not null;
 
 create index if not exists idx_person_profiles_tenant_tax_code
-  on partner.person_profiles (tenant_id, tax_code_normalized)
-  where tax_code_normalized is not null;
+  on partner.person_profiles (tenant_id, tax_code)
+  where tax_code is not null;
 
 create index if not exists idx_organization_profiles_tenant_phone
-  on partner.organization_profiles (tenant_id, phone_normalized);
+  on partner.organization_profiles (tenant_id, phone);
 
 create index if not exists idx_organization_profiles_tenant_email
-  on partner.organization_profiles (tenant_id, email_normalized)
-  where email_normalized is not null;
+  on partner.organization_profiles (tenant_id, email)
+  where email is not null;
 
 create index if not exists idx_organization_profiles_tenant_tax_code
-  on partner.organization_profiles (tenant_id, tax_code_normalized)
-  where tax_code_normalized is not null;
+  on partner.organization_profiles (tenant_id, tax_code)
+  where tax_code is not null;
 
 create index if not exists idx_partner_roles_tenant_partner
   on partner.partner_roles (tenant_id, partner_id);
@@ -299,30 +293,6 @@ as $$
   );
 $$;
 
-create or replace function partner._normalize_phone(p_phone text)
-returns text
-language sql
-immutable
-as $$
-  select nullif(regexp_replace(lower(btrim(coalesce(p_phone, ''))), '[^0-9+]', '', 'g'), '');
-$$;
-
-create or replace function partner._normalize_email(p_email text)
-returns text
-language sql
-immutable
-as $$
-  select nullif(lower(btrim(coalesce(p_email, ''))), '');
-$$;
-
-create or replace function partner._normalize_tax_code(p_tax_code text)
-returns text
-language sql
-immutable
-as $$
-  select nullif(lower(btrim(coalesce(p_tax_code, ''))), '');
-$$;
-
 create or replace function partner._profile_phone(p_partner_id uuid)
 returns text
 language sql
@@ -352,15 +322,6 @@ $$;
 
 revoke all on function partner._tenant_member(uuid) from public, anon;
 grant execute on function partner._tenant_member(uuid) to authenticated;
-
-revoke all on function partner._normalize_phone(text) from public, anon;
-grant execute on function partner._normalize_phone(text) to authenticated;
-
-revoke all on function partner._normalize_email(text) from public, anon;
-grant execute on function partner._normalize_email(text) to authenticated;
-
-revoke all on function partner._normalize_tax_code(text) from public, anon;
-grant execute on function partner._normalize_tax_code(text) to authenticated;
 
 revoke all on function partner._profile_phone(uuid) from public, anon;
 grant execute on function partner._profile_phone(uuid) to authenticated;

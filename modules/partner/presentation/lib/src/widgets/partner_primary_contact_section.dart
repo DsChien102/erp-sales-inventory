@@ -3,9 +3,17 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:vet45_design_system/design_system.dart';
 
 import '../bloc/partner_create_cubit.dart';
+import 'partner_compact_field.dart';
+import 'partner_form_field_row.dart';
 
 class PartnerPrimaryContactSection extends StatelessWidget {
   const PartnerPrimaryContactSection({super.key});
+
+  static const _rowLayout = (
+    dense: true,
+    labelWidth: PartnerFormFieldRow.contactLabelWidth,
+    labelFieldGap: PartnerFormFieldRow.contactLabelFieldGap,
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -14,53 +22,106 @@ class PartnerPrimaryContactSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        VCheckbox(
-          value: state.primaryContactEnabled,
-          label: 'Thêm người liên hệ chính',
-          onChanged: (value) => cubit.setPrimaryContactEnabled(value ?? false),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(
+            VSpacing.space4,
+            0,
+            VSpacing.space4,
+            VSpacing.space1,
+          ),
+          child: Align(
+            alignment: Alignment.centerLeft,
+            child: VCheckbox(
+              value: state.primaryContactEnabled,
+              label: 'Thêm người liên hệ chính',
+              onChanged: (value) => cubit.setPrimaryContactEnabled(value ?? false),
+            ),
+          ),
         ),
         if (state.primaryContactEnabled) ...[
-          const SizedBox(height: VSpacing.space3),
-          VDropdown<String>(
-            value: state.primaryContactTitle.isEmpty ? null : state.primaryContactTitle,
+          PartnerFormFieldRow(
             label: 'Danh xưng',
-            items: const [
-              'Ông',
-              'Bà',
-              'Anh',
-              'Chị',
-            ].map((value) => DropdownMenuItem(value: value, child: Text(value))).toList(),
-            onChanged: (value) => cubit.updatePrimaryContactTitle(value ?? ''),
+            dense: _rowLayout.dense,
+            labelWidth: _rowLayout.labelWidth,
+            labelFieldGap: _rowLayout.labelFieldGap,
+            field: PartnerCompactDropdown<String>(
+              value: state.primaryContactTitle.isEmpty
+                  ? null
+                  : state.primaryContactTitle,
+              hintText: 'Chọn',
+              items: const [
+                'Ông',
+                'Bà',
+                'Anh',
+                'Chị',
+              ]
+                  .map(
+                    (value) => DropdownMenuItem(value: value, child: Text(value)),
+                  )
+                  .toList(),
+              onChanged: (value) => cubit.updatePrimaryContactTitle(value ?? ''),
+            ),
           ),
-          const SizedBox(height: VSpacing.space3),
-          VTextField(
-            key: const Key('input_primary_contact_name'),
+          PartnerFormFieldRow(
             label: 'Họ và tên',
-            isRequired: true,
+            dense: _rowLayout.dense,
+            labelWidth: _rowLayout.labelWidth,
+            labelFieldGap: _rowLayout.labelFieldGap,
             errorText: state.errors['primaryContactName'],
-            onChanged: cubit.updatePrimaryContactName,
+            field: PartnerCompactTextField(
+              key: const Key('input_primary_contact_name'),
+              onChanged: cubit.updatePrimaryContactName,
+            ),
           ),
-          const SizedBox(height: VSpacing.space3),
-          VTextField(
-            key: const Key('input_primary_contact_phone'),
+          PartnerFormFieldRow(
             label: 'SĐT chính',
-            isRequired: true,
-            keyboardType: TextInputType.phone,
+            dense: _rowLayout.dense,
+            labelWidth: _rowLayout.labelWidth,
+            labelFieldGap: _rowLayout.labelFieldGap,
             errorText: state.errors['primaryContactPhone'],
-            onChanged: cubit.updatePrimaryContactPhone,
+            field: PartnerCompactTextField(
+              key: const Key('input_primary_contact_phone'),
+              keyboardType: TextInputType.phone,
+              onChanged: cubit.updatePrimaryContactPhone,
+            ),
           ),
-          const SizedBox(height: VSpacing.space3),
-          VTextField(
+          PartnerFormFieldRow(
             label: 'SĐT phụ',
-            keyboardType: TextInputType.phone,
+            dense: _rowLayout.dense,
+            labelWidth: _rowLayout.labelWidth,
+            labelFieldGap: _rowLayout.labelFieldGap,
             errorText: state.errors['primaryContactSecondaryPhone'],
-            onChanged: cubit.updatePrimaryContactSecondaryPhone,
+            field: PartnerCompactTextField(
+              key: const Key('input_primary_contact_secondary_phone'),
+              keyboardType: TextInputType.phone,
+              onChanged: cubit.updatePrimaryContactSecondaryPhone,
+            ),
           ),
-          const SizedBox(height: VSpacing.space3),
-          VEmailField(
+          PartnerFormFieldRow(
             label: 'Email',
+            dense: _rowLayout.dense,
+            labelWidth: _rowLayout.labelWidth,
+            labelFieldGap: _rowLayout.labelFieldGap,
             errorText: state.errors['primaryContactEmail'],
-            onChanged: cubit.updatePrimaryContactEmail,
+            field: PartnerCompactTextField(
+              key: const Key('input_primary_contact_email'),
+              keyboardType: TextInputType.emailAddress,
+              onChanged: cubit.updatePrimaryContactEmail,
+            ),
+          ),
+          PartnerFormFieldRow(
+            label: 'Là liên hệ chính',
+            dense: _rowLayout.dense,
+            labelWidth: _rowLayout.labelWidth,
+            labelFieldGap: _rowLayout.labelFieldGap,
+            field: Align(
+              alignment: Alignment.centerRight,
+              child: VSwitch(
+                key: const Key('switch_primary_contact'),
+                value: true,
+                onChanged: null,
+              ),
+            ),
           ),
         ],
       ],

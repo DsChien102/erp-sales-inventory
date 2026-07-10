@@ -47,6 +47,7 @@ import '../../features/catalog/presentation/pages/settings/store_price_rule_chan
 
 // Partner
 import '../../features/partner/presentation/pages/partner_create_page.dart';
+import '../../features/partner/presentation/pages/partner_detail_page.dart';
 
 import '../di/injection.dart';
 
@@ -180,12 +181,32 @@ final appRouter = GoRouter(
           partnerType: partnerType,
           partnerModule: getIt<IPartnerModule>(),
           executionContext: getIt<IExecutionContext>(),
-          onCreated: (_) {},
-          onOpenExisting: (partnerId) {
-            if (context.mounted && context.canPop()) {
-              context.pop(partnerId);
+          onCreated: (partnerId) {
+            if (context.mounted) {
+              context.pushReplacement(
+                '/partner/$partnerId?created=1',
+              );
             }
           },
+          onOpenExisting: (partnerId) {
+            if (context.mounted) {
+              context.pushReplacement('/partner/$partnerId');
+            }
+          },
+        );
+      },
+    ),
+    GoRoute(
+      path: '/partner/:partnerId',
+      name: 'partner.detail',
+      builder: (context, state) {
+        final partnerId = state.pathParameters['partnerId']!;
+        final showCreateSuccessToast = state.uri.queryParameters['created'] == '1';
+        return PartnerDetailPage(
+          partnerId: partnerId,
+          partnerModule: getIt<IPartnerModule>(),
+          executionContext: getIt<IExecutionContext>(),
+          showCreateSuccessToast: showCreateSuccessToast,
         );
       },
     ),

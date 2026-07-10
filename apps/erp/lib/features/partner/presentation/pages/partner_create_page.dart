@@ -67,17 +67,7 @@ class _PartnerCreateViewState extends State<_PartnerCreateView> {
       listener: (context, state) {
         final partnerId = state.createdPartnerId;
         if (partnerId == null) return;
-        VToast.show(
-          context,
-          title: 'Thành công',
-          message: 'Đã tạo KH & NCC thành công',
-          type: VToastType.success,
-        );
         widget.onCreated(partnerId);
-        final navigator = Navigator.of(context);
-        if (navigator.canPop()) {
-          navigator.pop(partnerId);
-        }
       },
       child: PopScope<Object?>(
         canPop: _allowPop || !state.isDirty,

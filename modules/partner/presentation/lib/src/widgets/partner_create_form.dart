@@ -15,6 +15,7 @@ import 'partner_organization_section.dart';
 import 'partner_person_section.dart';
 import 'partner_primary_contact_section.dart';
 import 'partner_role_section.dart';
+import 'partner_section_shell.dart';
 
 class PartnerCreateForm extends StatelessWidget {
   const PartnerCreateForm({
@@ -59,6 +60,7 @@ class PartnerCreateForm extends StatelessWidget {
                 onSubmit: context.read<PartnerCreateCubit>().submit,
                 isLoading: state.isSubmitting,
                 isReadOnly: state.isReadOnly,
+                canSubmit: state.canSubmit,
               ),
             ],
           );
@@ -105,60 +107,67 @@ class PartnerCreateForm extends StatelessWidget {
             String title,
             Widget child,
             String? summary,
+            String? expandedTrailingText,
             Key key,
           })
         >[
-          (
-            section: PartnerCreateSection.role,
-            title: '2. Vai trò giao dịch',
-            child: const PartnerRoleSection(),
-            summary: _roleSummary(state.roles),
-            key: const Key('section_role'),
-          ),
-          (
-            section: PartnerCreateSection.main,
-            title: state.partnerType == PartnerType.person
-                ? '3. Thông tin cá nhân'
-                : '3. Thông tin tổ chức',
-            child: state.partnerType == PartnerType.person
-                ? const PartnerPersonSection()
-                : const PartnerOrganizationSection(),
-            summary: state.partnerType == PartnerType.person
-                ? _emptyToNull(state.fullName)
-                : _emptyToNull(state.organizationName),
-            key: const Key('section_main'),
-          ),
-          if (state.partnerType == PartnerType.organization)
             (
-              section: PartnerCreateSection.primaryContact,
-              title: '4. Người liên hệ chính',
-              child: const PartnerPrimaryContactSection(),
-              summary: state.primaryContactEnabled
-                  ? _emptyToNull(state.primaryContactName) ?? 'Đã bật'
-                  : 'Tùy chọn',
-              key: const Key('section_primary_contact'),
+              section: PartnerCreateSection.role,
+              title: '2. Vai trò giao dịch',
+              child: const PartnerRoleSection(),
+              summary: _roleSummary(state.roles),
+              expandedTrailingText: null,
+              key: const Key('section_role'),
             ),
-          (
-            section: PartnerCreateSection.invoice,
-            title: '${state.partnerType == PartnerType.person ? 4 : 5}. Hóa đơn / thuế',
-            child: const PartnerInvoiceSection(),
-            summary: _emptyToNull(state.taxCode),
-            key: const Key('section_invoice'),
-          ),
-          (
-            section: PartnerCreateSection.delivery,
-            title: '${state.partnerType == PartnerType.person ? 5 : 6}. Địa chỉ giao hàng',
-            child: const PartnerDeliverySection(),
-            summary: _emptyToNull(state.deliveryProvince) ?? 'Tùy chọn',
-            key: const Key('section_delivery'),
-          ),
-          (
-            section: PartnerCreateSection.note,
-            title: '${state.partnerType == PartnerType.person ? 6 : 7}. Ghi chú',
-            child: const PartnerNoteSection(),
-            summary: state.note.trim().isEmpty ? 'Tùy chọn' : 'Đã nhập',
-            key: const Key('section_note'),
-          ),
+            (
+              section: PartnerCreateSection.main,
+              title: state.partnerType == PartnerType.person
+                  ? '3. Thông tin cá nhân'
+                  : '3. Thông tin tổ chức',
+              child: state.partnerType == PartnerType.person
+                  ? const PartnerPersonSection()
+                  : const PartnerOrganizationSection(),
+              summary: state.partnerType == PartnerType.person
+                  ? _emptyToNull(state.fullName)
+                  : _emptyToNull(state.organizationName),
+              expandedTrailingText: null,
+              key: const Key('section_main'),
+            ),
+            if (state.partnerType == PartnerType.organization)
+              (
+                section: PartnerCreateSection.primaryContact,
+                title: '4. Người liên hệ chính',
+                child: const PartnerPrimaryContactSection(),
+                summary: state.primaryContactEnabled
+                    ? _emptyToNull(state.primaryContactName) ?? 'Đã bật'
+                    : 'Tùy chọn',
+                expandedTrailingText: 'Tùy chọn',
+                key: const Key('section_primary_contact'),
+              ),
+            (
+              section: PartnerCreateSection.invoice,
+              title: '${state.partnerType == PartnerType.person ? 4 : 5}. Hóa đơn / thuế',
+              child: const PartnerInvoiceSection(),
+              summary: _emptyToNull(state.taxCode),
+              expandedTrailingText: null,
+              key: const Key('section_invoice'),
+            ),
+            (
+              section: PartnerCreateSection.delivery,
+              title: '${state.partnerType == PartnerType.person ? 5 : 6}. Địa chỉ giao hàng',
+              child: const PartnerDeliverySection(),
+              summary: _emptyToNull(state.deliveryProvince) ?? 'Tùy chọn',
+              expandedTrailingText: null,
+              key: const Key('section_delivery'),
+            ),
+            (
+              section: PartnerCreateSection.note,
+              title: '${state.partnerType == PartnerType.person ? 6 : 7}. Ghi chú',
+              child: const PartnerNoteSection(),
+              summary: state.note.trim().isEmpty ? 'Tùy chọn' : 'Đã nhập',
+              expandedTrailingText: null,
+              key: const Key('section_note'),
+            ),
         ];
 
     return entries
@@ -171,6 +180,7 @@ class PartnerCreateForm extends StatelessWidget {
               isExpanded: state.activeSection == entry.section,
               isCompleted: state.completedSections.contains(entry.section),
               summary: entry.summary,
+              expandedTrailingText: entry.expandedTrailingText,
               onTap: () => cubit.setActiveSection(entry.section),
               onSkip: cubit.skipActiveSection,
               onNext: cubit.continueActiveSection,
@@ -198,30 +208,15 @@ class _LockedTypeCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.vColors;
-    return VCard(
-      child: Row(
-        children: [
-          Expanded(
-            child: Text(
-              '1. Loại hồ sơ',
-              style: VTypography.bodyDefault.copyWith(
-                color: colors.textPrimary,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-          ),
-          Text(
-            partnerType == PartnerType.person ? 'Cá nhân' : 'Tổ chức',
-            style: VTypography.bodySmall.copyWith(color: colors.textSecondary),
-          ),
-          const SizedBox(width: VSpacing.space2),
-          VIcon(
-            iconData: Icons.lock_outline,
-            size: 16,
-            color: colors.textMuted,
-          ),
-        ],
+    return PartnerSectionShell(
+      child: PartnerSectionHeader(
+        title: '1. Loại hồ sơ',
+        trailingText: partnerType == PartnerType.person ? 'Cá nhân' : 'Tổ chức',
+        trailingIcon: VIcon(
+          iconData: Icons.lock_outline,
+          size: 16,
+          color: context.vColors.textMuted,
+        ),
       ),
     );
   }
@@ -261,16 +256,19 @@ class _StickyActions extends StatelessWidget {
     required this.onSubmit,
     required this.isLoading,
     required this.isReadOnly,
+    required this.canSubmit,
   });
 
   final VoidCallback onCancel;
   final VoidCallback onSubmit;
   final bool isLoading;
   final bool isReadOnly;
+  final bool canSubmit;
 
   @override
   Widget build(BuildContext context) {
     final colors = context.vColors;
+    final canPressSave = canSubmit && !isReadOnly && !isLoading;
     return Container(
       padding: const EdgeInsets.fromLTRB(
         VSpacing.space4,
@@ -297,7 +295,7 @@ class _StickyActions extends StatelessWidget {
               key: const Key('btn_save_view'),
               label: 'Lưu & Xem',
               isLoading: isLoading,
-              onPressed: isReadOnly || isLoading ? null : onSubmit,
+              onPressed: canPressSave ? onSubmit : null,
             ),
           ),
         ],

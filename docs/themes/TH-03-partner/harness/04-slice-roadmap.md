@@ -8,7 +8,7 @@ Thứ tự implement vertical slice. Lane status: `todo` | `in_progress` | `done
 
 | # | Slice | Type | Contract | BE | FE | E2E | Parallel group | E2E blocked by |
 | - | ----- | ---- | -------- | -- | -- | --- | -------------- | -------------- |
-| S1 | [EP-01/US-02](../Epic-01-partner-profile/US-02.md) — Tạo Partner (Person + Organization) | write | done | done | done | todo | — | — |
+| S1 | [EP-01/US-02](../Epic-01-partner-profile/US-02.md) — Tạo Partner (Person + Organization) | write | done | done | done | done | — | — |
 | S2 | [EP-01/US-01](../Epic-01-partner-profile/US-01.md) — Tìm kiếm danh sách | read | done | done | todo | todo | A | S1 (data) |
 | S3 | [EP-01/US-04](../Epic-01-partner-profile/US-04.md) — Xem hồ sơ chi tiết | read | done | done | todo | todo | A | S1 |
 | S4 | [EP-01/US-03](../Epic-01-partner-profile/US-03.md) — Cập nhật hồ sơ + role | write | done | done | todo | todo | A | S1 |
@@ -49,9 +49,9 @@ Thứ tự implement vertical slice. Lane status: `todo` | `in_progress` | `done
 
 ### E2E
 
-- [ ] ERP DI real module; integration / flutter test qua mediator
-- [ ] `melos run test` + `./scripts/ci/verify_harness.sh` pass
-- [ ] `cd apps/erp && flutter test` pass
+- [x] ERP DI real module; integration / flutter test qua mediator
+- [x] `melos run test` + `./scripts/ci/verify_harness.sh` pass
+- [x] `cd apps/erp && flutter test` pass (partner + DI scope)
 
 ### Chung
 

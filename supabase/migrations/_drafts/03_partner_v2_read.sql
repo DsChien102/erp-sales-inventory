@@ -5,6 +5,10 @@
 -- Contracts: SearchPartnersQuery, GetPartnerDetailQuery, CheckDuplicatePartnersQuery,
 --            CheckDeleteEligibilityQuery, GetPartnerHistoryQuery
 
+-- Org delivery detail address (additive; safe if already present).
+alter table partner.organization_profiles
+  add column if not exists delivery_address text null;
+
 -- ---------------------------------------------------------------------------
 -- Views
 -- ---------------------------------------------------------------------------
@@ -99,7 +103,7 @@ select
       'delivery', jsonb_build_object(
         'province', op.delivery_province,
         'commune', op.delivery_commune,
-        'address', null
+        'address', op.delivery_address
       ),
       'note', op.note
     )
@@ -372,9 +376,9 @@ security definer
 set search_path = partner, iam, pg_temp
 as $$
 declare
-  v_phone text := partner._normalize_phone(p_phone);
-  v_email text := partner._normalize_email(p_email);
-  v_tax_code text := partner._normalize_tax_code(p_tax_code);
+  v_phone text := nullif(btrim(coalesce(p_phone, '')), '');
+  v_email text := nullif(lower(btrim(coalesce(p_email, ''))), '');
+  v_tax_code text := nullif(btrim(coalesce(p_tax_code, '')), '');
   v_name text := nullif(lower(btrim(coalesce(p_name, ''))), '');
 begin
   if auth.uid() is null then
@@ -402,7 +406,7 @@ begin
     where p.tenant_id = p_tenant_id
       and p.status <> 'deleted'
       and v_phone is not null
-      and pp.phone_normalized = v_phone
+      and btrim(pp.phone) = v_phone
       and (p_exclude_partner_id is null or p.partner_id <> p_exclude_partner_id)
     union all
     select
@@ -416,7 +420,7 @@ begin
     where p.tenant_id = p_tenant_id
       and p.status <> 'deleted'
       and v_phone is not null
-      and op.phone_normalized = v_phone
+      and btrim(op.phone) = v_phone
       and (p_exclude_partner_id is null or p.partner_id <> p_exclude_partner_id)
     union all
     select
@@ -431,7 +435,7 @@ begin
     where p.tenant_id = p_tenant_id
       and p.status <> 'deleted'
       and v_email is not null
-      and coalesce(pp.email_normalized, op.email_normalized) = v_email
+      and lower(btrim(coalesce(pp.email, op.email, ''))) = v_email
       and (p_exclude_partner_id is null or p.partner_id <> p_exclude_partner_id)
     union all
     select
@@ -446,7 +450,7 @@ begin
     where p.tenant_id = p_tenant_id
       and p.status <> 'deleted'
       and v_tax_code is not null
-      and coalesce(pp.tax_code_normalized, op.tax_code_normalized) = v_tax_code
+      and btrim(coalesce(pp.tax_code, op.tax_code, '')) = v_tax_code
       and (p_exclude_partner_id is null or p.partner_id <> p_exclude_partner_id)
     union all
     select
@@ -463,7 +467,7 @@ begin
       and v_name is not null
       and v_phone is not null
       and lower(p.display_name) = v_name
-      and coalesce(pp.phone_normalized, op.phone_normalized) = v_phone
+      and btrim(coalesce(pp.phone, op.phone, '')) = v_phone
       and (p_exclude_partner_id is null or p.partner_id <> p_exclude_partner_id)
   ) m
   order by m.matched_field, m.display_name;

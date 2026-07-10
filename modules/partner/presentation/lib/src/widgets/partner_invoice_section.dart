@@ -4,6 +4,8 @@ import 'package:vet45_design_system/design_system.dart';
 import 'package:vet45_partner_domain/domain.dart';
 
 import '../bloc/partner_create_cubit.dart';
+import 'partner_compact_field.dart';
+import 'partner_form_field_row.dart';
 
 class PartnerInvoiceSection extends StatelessWidget {
   const PartnerInvoiceSection({super.key});
@@ -14,41 +16,99 @@ class PartnerInvoiceSection extends StatelessWidget {
     final state = context.watch<PartnerCreateCubit>().state;
     return Column(
       children: [
-        VTextField(
-          key: const Key('input_tax_code'),
-          label: state.partnerType == PartnerType.person ? 'MST cá nhân' : 'MST',
-          keyboardType: TextInputType.number,
+        PartnerFormFieldRow(
+          label: 'MST',
+          isRequired: true,
           errorText: state.errors['taxCode'],
-          onChanged: cubit.updateTaxCode,
+          field: PartnerCompactTextField(
+            key: const Key('input_tax_code'),
+            keyboardType: TextInputType.number,
+            onChanged: cubit.updateTaxCode,
+          ),
         ),
-        const SizedBox(height: VSpacing.space3),
-        VTextField(
+        PartnerFormFieldRow(
           label: 'Tên xuất hóa đơn',
-          onChanged: cubit.updateInvoiceName,
+          isRequired: true,
+          field: PartnerCompactTextField(
+            onChanged: cubit.updateInvoiceName,
+          ),
         ),
-        const SizedBox(height: VSpacing.space3),
-        VEmailField(
+        PartnerFormFieldRow(
           label: 'Email nhận hóa đơn',
           errorText: state.errors['invoiceEmail'],
-          onChanged: cubit.updateInvoiceEmail,
+          field: PartnerCompactTextField(
+            keyboardType: TextInputType.emailAddress,
+            onChanged: cubit.updateInvoiceEmail,
+          ),
         ),
-        const SizedBox(height: VSpacing.space3),
-        VTextField(
-          label: 'Địa chỉ xuất hóa đơn',
-          minLines: 2,
-          maxLines: 3,
+        _InvoiceAddressField(
           onChanged: cubit.updateInvoiceAddress,
         ),
-        if (state.partnerType == PartnerType.organization && state.taxCode.trim().isEmpty) ...[
-          const SizedBox(height: VSpacing.space3),
-          _InvoiceWarning(),
+        if (state.taxCode.trim().isEmpty &&
+            state.partnerType == PartnerType.organization) ...[
+          const Padding(
+            padding: EdgeInsets.fromLTRB(
+              VSpacing.space4,
+              VSpacing.space1,
+              VSpacing.space4,
+              VSpacing.space2,
+            ),
+            child: _InvoiceWarning(),
+          ),
         ],
       ],
     );
   }
 }
 
+class _InvoiceAddressField extends StatelessWidget {
+  const _InvoiceAddressField({required this.onChanged});
+
+  final ValueChanged<String> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(
+        VSpacing.space4,
+        VSpacing.space2,
+        VSpacing.space4,
+        VSpacing.space2,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          RichText(
+            text: TextSpan(
+              style: VTypography.bodySmall.copyWith(
+                color: context.vColors.textSecondary,
+                fontSize: 14,
+              ),
+              children: const [
+                TextSpan(text: 'Địa chỉ xuất hóa đơn'),
+                TextSpan(
+                  text: ' *',
+                  style: TextStyle(color: VColors.danger),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: VSpacing.space2),
+          PartnerCompactMultilineTextField(
+            key: const Key('input_invoice_address'),
+            minLines: 3,
+            maxLines: 5,
+            onChanged: onChanged,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 class _InvoiceWarning extends StatelessWidget {
+  const _InvoiceWarning();
+
   @override
   Widget build(BuildContext context) {
     return VCard(

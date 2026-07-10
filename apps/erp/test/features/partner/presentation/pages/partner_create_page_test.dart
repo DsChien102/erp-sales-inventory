@@ -26,7 +26,7 @@ void main() {
 
     await tester.tap(find.byKey(const Key('role_customer')));
     await tester.tap(find.byKey(const Key('btn_next')));
-    await tester.pump();
+    await tester.pumpAndSettle();
     await tester.enterText(
       find.byKey(const Key('input_full_name')),
       'Nguyễn Văn Minh',
@@ -35,10 +35,10 @@ void main() {
       find.byKey(const Key('input_phone')),
       '0901234567',
     );
+    await tester.pumpAndSettle();
     await tester.tap(find.byKey(const Key('btn_save_view')));
     await tester.pumpAndSettle();
 
-    expect(find.text('Đã tạo KH & NCC thành công'), findsOneWidget);
     expect(createdId, 'p-new-1');
   });
 
@@ -62,7 +62,7 @@ void main() {
 
     await tester.tap(find.byKey(const Key('role_supplier')));
     await tester.tap(find.byKey(const Key('btn_next')));
-    await tester.pump();
+    await tester.pumpAndSettle();
     await tester.enterText(
       find.byKey(const Key('input_organization_name')),
       'Công ty TNHH An Phát',
@@ -71,10 +71,10 @@ void main() {
       find.byKey(const Key('input_phone')),
       '02812345678',
     );
+    await tester.pumpAndSettle();
     await tester.tap(find.byKey(const Key('btn_save_view')));
     await tester.pumpAndSettle();
 
-    expect(find.text('Đã tạo KH & NCC thành công'), findsOneWidget);
     expect(createdId, 'p-new-2');
   });
 

@@ -39,7 +39,7 @@ final class PartnerCreateState extends Equatable {
     this.phone = '',
     this.secondaryPhone = '',
     this.email = '',
-    this.organizationType = OrganizationType.company,
+    this.organizationTypeLabel = '',
     this.organizationName = '',
     this.shortName = '',
     this.internationalName = '',
@@ -78,7 +78,7 @@ final class PartnerCreateState extends Equatable {
   final String secondaryPhone;
   final String email;
 
-  final OrganizationType organizationType;
+  final String organizationTypeLabel;
   final String organizationName;
   final String shortName;
   final String internationalName;
@@ -101,6 +101,14 @@ final class PartnerCreateState extends Equatable {
 
   bool get isReadOnly => status == PartnerCreateStatus.blocked;
   bool get isSubmitting => status == PartnerCreateStatus.submitting;
+
+  bool get canSubmit {
+    if (isReadOnly || roles.isEmpty) return false;
+    if (partnerType == PartnerType.person) {
+      return fullName.trim().isNotEmpty && phone.trim().isNotEmpty;
+    }
+    return organizationName.trim().isNotEmpty && phone.trim().isNotEmpty;
+  }
 
   List<PartnerCreateSection> get sections => partnerType == PartnerType.person
       ? const [
@@ -140,7 +148,7 @@ final class PartnerCreateState extends Equatable {
     String? phone,
     String? secondaryPhone,
     String? email,
-    OrganizationType? organizationType,
+    String? organizationTypeLabel,
     String? organizationName,
     String? shortName,
     String? internationalName,
@@ -179,7 +187,8 @@ final class PartnerCreateState extends Equatable {
       phone: phone ?? this.phone,
       secondaryPhone: secondaryPhone ?? this.secondaryPhone,
       email: email ?? this.email,
-      organizationType: organizationType ?? this.organizationType,
+      organizationTypeLabel:
+          organizationTypeLabel ?? this.organizationTypeLabel,
       organizationName: organizationName ?? this.organizationName,
       shortName: shortName ?? this.shortName,
       internationalName: internationalName ?? this.internationalName,
@@ -220,7 +229,7 @@ final class PartnerCreateState extends Equatable {
     phone,
     secondaryPhone,
     email,
-    organizationType,
+    organizationTypeLabel,
     organizationName,
     shortName,
     internationalName,

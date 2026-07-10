@@ -78,8 +78,8 @@ final class PartnerCreateCubit extends Cubit<PartnerCreateState> {
   void updateSecondaryPhone(String value) => _update(state.copyWith(secondaryPhone: value));
   void updateEmail(String value) =>
       _update(state.copyWith(email: value), clearErrors: const ['email']);
-  void updateOrganizationType(OrganizationType value) =>
-      _update(state.copyWith(organizationType: value));
+  void updateOrganizationType(String value) =>
+      _update(state.copyWith(organizationTypeLabel: value));
   void updateOrganizationName(String value) => _update(
     state.copyWith(organizationName: value),
     clearErrors: const ['organizationName'],
@@ -112,7 +112,9 @@ final class PartnerCreateCubit extends Cubit<PartnerCreateState> {
     state.copyWith(invoiceEmail: value),
     clearErrors: const ['invoiceEmail'],
   );
-  void updateDeliveryProvince(String value) => _update(state.copyWith(deliveryProvince: value));
+  void updateDeliveryProvince(String value) => _update(
+    state.copyWith(deliveryProvince: value, deliveryCommune: ''),
+  );
   void updateDeliveryCommune(String value) => _update(state.copyWith(deliveryCommune: value));
   void updateDeliveryAddress(String value) => _update(state.copyWith(deliveryAddress: value));
   void updateNote(String value) => _update(state.copyWith(note: value));
@@ -249,7 +251,7 @@ final class PartnerCreateCubit extends Cubit<PartnerCreateState> {
   );
 
   OrganizationProfileInput get _organizationProfile => OrganizationProfileInput(
-    organizationType: state.organizationType,
+    organizationType: _resolveOrganizationType(state.organizationTypeLabel),
     organizationName: state.organizationName.trim(),
     shortName: _nullable(state.shortName.trim()),
     intlName: _nullable(state.internationalName.trim()),
@@ -444,4 +446,39 @@ final class PartnerCreateCubit extends Cubit<PartnerCreateState> {
   static String? _nullable(String value) => value.isEmpty ? null : value;
   static PersonTitle? _personTitle(String value) =>
       value.trim().isEmpty ? null : PersonTitle(value.trim());
+
+  static OrganizationType _resolveOrganizationType(String value) {
+    final normalized = _removeVietnameseTones(value.trim().toLowerCase());
+    if (normalized.isEmpty) return OrganizationType.other;
+
+    if (normalized.contains('ho kinh doanh') ||
+        normalized.contains('business household') ||
+        normalized == 'businesshousehold' ||
+        normalized == 'business_household') {
+      return OrganizationType.businessHousehold;
+    }
+
+    if (normalized.contains('cong ty') ||
+        normalized.contains('tnhh') ||
+        normalized == 'company') {
+      return OrganizationType.company;
+    }
+
+    if (normalized == 'khac' || normalized == 'other') {
+      return OrganizationType.other;
+    }
+
+    return OrganizationType.other;
+  }
+
+  static String _removeVietnameseTones(String str) {
+    str = str.replaceAll(RegExp(r'[àáạảãâầấậẩẫăằắặẳẵ]'), 'a');
+    str = str.replaceAll(RegExp(r'[èéẹẻẽêềếệểễ]'), 'e');
+    str = str.replaceAll(RegExp(r'[ìíịỉĩ]'), 'i');
+    str = str.replaceAll(RegExp(r'[òóọỏõôồốộổỗơờớợởỡ]'), 'o');
+    str = str.replaceAll(RegExp(r'[ùúụủũưừứựửữ]'), 'u');
+    str = str.replaceAll(RegExp(r'[ỳýỵỷỹ]'), 'y');
+    str = str.replaceAll(RegExp(r'[đ]'), 'd');
+    return str;
+  }
 }

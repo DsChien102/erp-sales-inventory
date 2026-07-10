@@ -3,6 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:vet45_design_system/design_system.dart';
 
 import '../bloc/partner_create_cubit.dart';
+import 'partner_compact_field.dart';
+import 'partner_form_field_row.dart';
 
 class PartnerPersonSection extends StatelessWidget {
   const PartnerPersonSection({super.key});
@@ -13,55 +15,66 @@ class PartnerPersonSection extends StatelessWidget {
     final state = context.watch<PartnerCreateCubit>().state;
     return Column(
       children: [
-        VDropdown<String>(
-          value: state.personTitle.isEmpty ? null : state.personTitle,
+        PartnerFormFieldRow(
           label: 'Danh xưng',
-          hintText: 'Chọn danh xưng',
-          items: const [
-            'Ông',
-            'Bà',
-            'Anh',
-            'Chị',
-          ].map((value) => DropdownMenuItem(value: value, child: Text(value))).toList(),
-          onChanged: (value) => cubit.updatePersonTitle(value ?? ''),
+          field: PartnerCompactDropdown<String>(
+            value: state.personTitle.isEmpty ? null : state.personTitle,
+            hintText: 'Chọn',
+            items: const [
+              'Ông',
+              'Bà',
+              'Anh',
+              'Chị',
+            ].map((value) => DropdownMenuItem(value: value, child: Text(value))).toList(),
+            onChanged: (value) => cubit.updatePersonTitle(value ?? ''),
+          ),
         ),
-        const SizedBox(height: VSpacing.space3),
-        VTextField(
-          key: const Key('input_full_name'),
+        PartnerFormFieldRow(
           label: 'Họ và tên',
           isRequired: true,
           errorText: state.errors['fullName'],
-          onChanged: cubit.updateFullName,
+          field: PartnerCompactTextField(
+            key: const Key('input_full_name'),
+            onChanged: cubit.updateFullName,
+          ),
         ),
-        const SizedBox(height: VSpacing.space3),
-        VTextField(
-          key: const Key('input_nickname'),
+        PartnerFormFieldRow(
           label: 'Tên thường gọi',
-          onChanged: cubit.updateNickname,
+          field: PartnerCompactTextField(
+            key: const Key('input_nickname'),
+            hintText: 'Nhập tên thường gọi',
+            onChanged: cubit.updateNickname,
+          ),
         ),
-        const SizedBox(height: VSpacing.space3),
-        VTextField(
-          key: const Key('input_phone'),
+        PartnerFormFieldRow(
           label: 'SĐT chính',
           isRequired: true,
-          keyboardType: TextInputType.phone,
           errorText: state.errors['phone'],
-          onChanged: cubit.updatePhone,
+          field: PartnerCompactTextField(
+            key: const Key('input_phone'),
+            hintText: 'Nhập SĐT chính',
+            keyboardType: TextInputType.phone,
+            onChanged: cubit.updatePhone,
+          ),
         ),
-        const SizedBox(height: VSpacing.space3),
-        VTextField(
-          key: const Key('input_secondary_phone'),
+        PartnerFormFieldRow(
           label: 'SĐT phụ',
-          keyboardType: TextInputType.phone,
           errorText: state.errors['secondaryPhone'],
-          onChanged: cubit.updateSecondaryPhone,
+          field: PartnerCompactTextField(
+            key: const Key('input_secondary_phone'),
+            hintText: 'Nhập SĐT phụ',
+            keyboardType: TextInputType.phone,
+            onChanged: cubit.updateSecondaryPhone,
+          ),
         ),
-        const SizedBox(height: VSpacing.space3),
-        VEmailField(
-          key: const Key('input_email'),
+        PartnerFormFieldRow(
           label: 'Email',
           errorText: state.errors['email'],
-          onChanged: cubit.updateEmail,
+          field: PartnerCompactTextField(
+            key: const Key('input_email'),
+            keyboardType: TextInputType.emailAddress,
+            onChanged: cubit.updateEmail,
+          ),
         ),
       ],
     );

@@ -51,37 +51,9 @@ class _PartnerListPageState extends State<PartnerListPage> {
     final partnerType = await showPartnerCreateActionSheet(context);
     if (!mounted || partnerType == null) return;
 
-    final createdPartnerId = await context.push<String>(
-      '/partner/new',
-      extra: partnerType,
-    );
+    await context.push('/partner/new', extra: partnerType);
     if (!mounted) return;
-    if (createdPartnerId != null) {
-      await _cubit.fetchPartners(isRefresh: true);
-      _showCreatedHandoffSnackBar(createdPartnerId);
-    } else {
-      await _cubit.fetchPartners(isRefresh: true);
-    }
-  }
-
-  void _showCreatedHandoffSnackBar(String partnerId) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          'Đã tạo KH & NCC. Chi tiết hồ sơ sẽ có ở bản cập nhật tiếp theo.',
-          style: VTypography.bodyDefault.copyWith(color: VColors.neutral0),
-        ),
-        action: SnackBarAction(
-          label: 'Đóng',
-          textColor: VColors.neutral0,
-          onPressed: () {},
-        ),
-        backgroundColor: VColors.success,
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(VRadius.card)),
-        margin: const EdgeInsets.all(VSpacing.space4),
-      ),
-    );
+    await _cubit.fetchPartners(isRefresh: true);
   }
 
   @override
@@ -173,15 +145,7 @@ class _PartnerListPageState extends State<PartnerListPage> {
                         final item = items[index];
                         return PartnerListItemTile(
                           item: item,
-                          onTap: () {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(
-                                  'Hồ sơ ${item.displayName} — chi tiết sẽ có ở bản cập nhật tiếp theo.',
-                                ),
-                              ),
-                            );
-                          },
+                          onTap: () => context.push('/partner/${item.partnerId}'),
                         );
                       },
                     ),

@@ -13,6 +13,7 @@ void main() {
             partnerId: 'p-dup',
             displayName: 'Nguyễn Văn A',
             matchedField: PartnerDuplicateMatchField.phone,
+            matchLevel: PartnerDuplicateMatchLevel.exact,
             partnerType: PartnerType.person,
             matchedValue: '0901234567',
           ),

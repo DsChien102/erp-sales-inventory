@@ -51,7 +51,7 @@ void main() {
   Future<void> enterValidPerson(WidgetTester tester) async {
     await tester.tap(find.byKey(const Key('role_customer')));
     await tester.tap(find.byKey(const Key('btn_next')));
-    await tester.pump();
+    await tester.pumpAndSettle();
     await tester.enterText(
       find.byKey(const Key('input_full_name')),
       'Nguyễn Văn Minh',
@@ -60,6 +60,7 @@ void main() {
       find.byKey(const Key('input_phone')),
       '0901234567',
     );
+    await tester.pumpAndSettle();
   }
 
   testWidgets('section header toggles expand and collapse', (tester) async {
@@ -100,14 +101,40 @@ void main() {
   ) async {
     await tester.pumpWidget(buildForm(type: PartnerType.person));
 
+    await tester.tap(find.byKey(const Key('btn_next')));
+    await tester.pump();
+    expect(find.text('Vui lòng chọn vai trò giao dịch'), findsOneWidget);
+
+    await tester.tap(find.byKey(const Key('role_customer')));
+    await tester.tap(find.byKey(const Key('btn_next')));
+    await tester.pump();
+
+    expect(
+      tester.widget<VButton>(find.byKey(const Key('btn_save_view'))).onPressed,
+      isNull,
+    );
+
+    await tester.enterText(
+      find.byKey(const Key('input_full_name')),
+      'Nguyễn Văn Minh',
+    );
+    await tester.enterText(
+      find.byKey(const Key('input_phone')),
+      '0901234567',
+    );
+    await tester.enterText(
+      find.byKey(const Key('input_email')),
+      'invalid-email',
+    );
+    await tester.pumpAndSettle();
+
     await tester.tap(find.byKey(const Key('btn_save_view')));
     await tester.pump();
 
-    expect(find.text('Vui lòng chọn vai trò giao dịch'), findsOneWidget);
+    expect(find.text('Email không hợp lệ'), findsOneWidget);
     final context = tester.element(find.byType(PartnerCreateForm));
     final state = context.read<PartnerCreateCubit>().state;
-    expect(state.errors['fullName'], 'Vui lòng nhập họ và tên');
-    expect(state.errors['phone'], 'Vui lòng nhập số điện thoại');
+    expect(state.errors['email'], 'Email không hợp lệ');
   });
 
   testWidgets('wgt_e01_u02_fr05_01: organization includes optional contact', (
@@ -143,6 +170,9 @@ void main() {
     expect(find.byKey(const Key('duplicate_possible')), findsOneWidget);
     expect(find.text('Có thể là hồ sơ trùng'), findsOneWidget);
     expect(find.text('Tiếp tục tạo mới'), findsOneWidget);
+    expect(find.byKey(const Key('btn_view_duplicate_detail')), findsOneWidget);
+    expect(find.text('SĐT: 0901234567'), findsOneWidget);
+    expect(find.byKey(const Key('btn_back_from_duplicate')), findsNothing);
 
     await tester.tap(find.byKey(const Key('btn_continue_create')));
     await tester.pumpAndSettle();
@@ -171,6 +201,8 @@ void main() {
     expect(find.byKey(const Key('duplicate_exact')), findsOneWidget);
     expect(find.text('Trùng khớp hoàn toàn'), findsOneWidget);
     expect(find.byKey(const Key('btn_continue_create')), findsNothing);
+    expect(find.byKey(const Key('btn_view_duplicate_detail')), findsNothing);
+    expect(find.byKey(const Key('btn_back_from_duplicate')), findsOneWidget);
 
     await tester.tap(find.byKey(const Key('btn_open_duplicate')));
     await tester.pumpAndSettle();

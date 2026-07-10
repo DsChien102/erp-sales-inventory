@@ -25,3 +25,5 @@ dev_dependencies:
   vet45_shared_testing: ^0.0.1
 
 flutter:
+  assets:
+    - assets/data/vn_administrative_units.json

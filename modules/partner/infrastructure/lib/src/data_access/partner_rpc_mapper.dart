@@ -6,7 +6,6 @@ abstract final class PartnerRpcMapper {
     return <String, dynamic>{
       'p_tenant_id': command.tenantId,
       'p_actor_id': command.actorId,
-      'p_command_id': command.id,
       'p_partner_type': command.partnerType.name,
       'p_roles': command.roles.map((r) => r.name).toList(),
       'p_person_profile': _personInput(command.personProfile),
@@ -22,7 +21,6 @@ abstract final class PartnerRpcMapper {
       'p_tenant_id': command.tenantId,
       'p_actor_id': command.actorId,
       'p_partner_id': command.partnerId,
-      'p_command_id': command.id,
       'p_roles': command.roles.map((r) => r.name).toList(),
       'p_person_profile': _personInput(command.personProfile),
       'p_organization_profile': _organizationInput(command.organizationProfile),
@@ -38,7 +36,6 @@ abstract final class PartnerRpcMapper {
       'p_tenant_id': command.tenantId,
       'p_actor_id': command.actorId,
       'p_partner_id': command.partnerId,
-      'p_command_id': command.id,
       'p_organization_profile': _organizationInput(command.organizationProfile),
       'p_expected_version': command.expectedVersion,
     };
@@ -55,7 +52,6 @@ abstract final class PartnerRpcMapper {
       'p_new_person_profile': _personInput(command.newPersonProfile),
       'p_contact_role': command.contactRole,
       'p_is_primary': command.isPrimary,
-      'p_command_id': command.id,
     };
   }
 
@@ -69,7 +65,6 @@ abstract final class PartnerRpcMapper {
       'p_person_partner_id': command.personPartnerId,
       'p_contact_role': command.contactRole,
       'p_is_primary': command.isPrimary,
-      'p_command_id': command.id,
     };
   }
 
@@ -81,7 +76,6 @@ abstract final class PartnerRpcMapper {
       'p_actor_id': command.actorId,
       'p_organization_partner_id': command.organizationPartnerId,
       'p_person_partner_id': command.personPartnerId,
-      'p_command_id': command.id,
     };
   }
 
@@ -94,7 +88,6 @@ abstract final class PartnerRpcMapper {
       'p_partner_id': command.partnerId,
       'p_reason': command.reason,
       'p_expected_version': command.expectedVersion,
-      'p_command_id': command.id,
     };
   }
 
@@ -107,7 +100,6 @@ abstract final class PartnerRpcMapper {
       'p_partner_id': command.partnerId,
       'p_reason': command.reason,
       'p_expected_version': command.expectedVersion,
-      'p_command_id': command.id,
     };
   }
 
@@ -120,7 +112,6 @@ abstract final class PartnerRpcMapper {
       'p_partner_id': command.partnerId,
       'p_reason': command.reason,
       'p_expected_version': command.expectedVersion,
-      'p_command_id': command.id,
     };
   }
 
@@ -197,9 +188,12 @@ abstract final class PartnerRpcMapper {
       'phone2': input.phone2,
       'email': input.email,
       'tax_code': input.taxCode,
+      // Nested (current SQL) + flat (fallback / older SQL).
+      'invoice': _invoiceNested(input.invoice),
       'invoice_name': input.invoice?.invoiceName,
       'invoice_address': input.invoice?.invoiceAddress,
       'invoice_email': input.invoice?.invoiceEmail,
+      'delivery': _deliveryNested(input.delivery),
       'delivery_province': input.delivery?.province,
       'delivery_commune': input.delivery?.commune,
       'delivery_address': input.delivery?.address,
@@ -222,13 +216,36 @@ abstract final class PartnerRpcMapper {
       'email': input.email,
       'tax_code': input.taxCode,
       'company_address': input.companyAddress,
+      'invoice': _invoiceNested(input.invoice),
       'invoice_name': input.invoice?.invoiceName,
       'invoice_address': input.invoice?.invoiceAddress,
       'invoice_email': input.invoice?.invoiceEmail,
+      'delivery': _deliveryNested(input.delivery),
       'delivery_province': input.delivery?.province,
       'delivery_commune': input.delivery?.commune,
       'delivery_address': input.delivery?.address,
       'note': input.note,
+    };
+  }
+
+  /// Nested shape expected by `partner._insert_*_profile` (`invoice.name/address/email`).
+  /// Also keep flat keys as fallback for older SQL that reads `invoice_address` at root.
+  static Map<String, dynamic>? _invoiceNested(InvoiceProfileInput? invoice) {
+    if (invoice == null) return null;
+    return <String, dynamic>{
+      'name': invoice.invoiceName,
+      'address': invoice.invoiceAddress,
+      'email': invoice.invoiceEmail,
+    };
+  }
+
+  /// Nested shape expected by `partner._insert_*_profile` (`delivery.province/commune/address`).
+  static Map<String, dynamic>? _deliveryNested(DeliveryAddressInput? delivery) {
+    if (delivery == null) return null;
+    return <String, dynamic>{
+      'province': delivery.province,
+      'commune': delivery.commune,
+      'address': delivery.address,
     };
   }
 

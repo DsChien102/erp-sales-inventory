@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:vet45_design_system/design_system.dart';
 
+import 'partner_section_shell.dart';
+
 class PartnerFormSection extends StatelessWidget {
   const PartnerFormSection({
     super.key,
@@ -12,6 +14,7 @@ class PartnerFormSection extends StatelessWidget {
     required this.onNext,
     required this.child,
     this.summary,
+    this.expandedTrailingText,
   });
 
   final String title;
@@ -22,82 +25,43 @@ class PartnerFormSection extends StatelessWidget {
   final VoidCallback onNext;
   final Widget child;
   final String? summary;
+  final String? expandedTrailingText;
 
   @override
   Widget build(BuildContext context) {
     final colors = context.vColors;
-    return VCard(
-      padding: EdgeInsets.zero,
+    return PartnerSectionShell(
       child: Column(
         children: [
-          InkWell(
+          PartnerSectionHeader(
+            title: title,
+            trailingText: isExpanded ? expandedTrailingText : summary,
+            trailingIcon: _trailingIcon(colors),
             onTap: onTap,
-            child: Padding(
-              padding: const EdgeInsets.all(VSpacing.space4),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      title,
-                      style: VTypography.bodyDefault.copyWith(
-                        color: colors.textPrimary,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                  ),
-                  if (!isExpanded && summary != null) ...[
-                    Flexible(
-                      child: Text(
-                        summary!,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: VTypography.bodySmall.copyWith(
-                          color: colors.textSecondary,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: VSpacing.space2),
-                  ],
-                  if (isCompleted)
-                    VIcon(
-                      iconData: Icons.check_circle,
-                      size: 18,
-                      color: colors.primary,
-                    )
-                  else
-                    VIcon(
-                      iconData: isExpanded ? Icons.expand_less : Icons.expand_more,
-                      size: 20,
-                      color: colors.textSecondary,
-                    ),
-                ],
-              ),
-            ),
           ),
           if (isExpanded) ...[
-            Divider(height: 1, color: colors.borderDefault),
+            child,
             Padding(
-              padding: const EdgeInsets.all(VSpacing.space4),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
+              padding: const EdgeInsets.fromLTRB(
+                VSpacing.space4,
+                VSpacing.space2,
+                VSpacing.space4,
+                VSpacing.space3,
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  child,
-                  const SizedBox(height: VSpacing.space4),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      VButton(
-                        key: const Key('btn_skip'),
-                        label: 'Bỏ qua',
-                        variant: VButtonVariant.ghost,
-                        onPressed: onSkip,
-                      ),
-                      VButton(
-                        key: const Key('btn_next'),
-                        label: 'Tiếp',
-                        onPressed: onNext,
-                      ),
-                    ],
+                  VButton(
+                    key: const Key('btn_skip'),
+                    label: 'Bỏ qua',
+                    variant: VButtonVariant.ghost,
+                    foregroundColor: colors.primary,
+                    onPressed: onSkip,
+                  ),
+                  VButton(
+                    key: const Key('btn_next'),
+                    label: 'Tiếp',
+                    onPressed: onNext,
                   ),
                 ],
               ),
@@ -105,6 +69,28 @@ class PartnerFormSection extends StatelessWidget {
           ],
         ],
       ),
+    );
+  }
+
+  Widget _trailingIcon(VColorScheme colors) {
+    if (isExpanded) {
+      return VIcon(
+        iconData: Icons.expand_less,
+        size: 20,
+        color: colors.textSecondary,
+      );
+    }
+    if (isCompleted) {
+      return VIcon(
+        iconData: Icons.check_circle,
+        size: 18,
+        color: colors.primary,
+      );
+    }
+    return VIcon(
+      iconData: Icons.expand_more,
+      size: 20,
+      color: colors.textSecondary,
     );
   }
 }
