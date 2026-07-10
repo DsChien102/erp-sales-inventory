@@ -62,6 +62,9 @@ enum FakePartnerScenario {
   historyEmpty,
   historyMixed,
   historyNoSourcePermission,
+  transformPermissionDenied,
+  transformStateChanged,
+  transformDupWarning,
 }
 /// In-memory partner module for FE/widget tests.
 final class FakePartnerModule implements IPartnerModule {
@@ -162,9 +165,33 @@ final class FakePartnerModule implements IPartnerModule {
   Future<TResult> _handleTransform<TResult>(
     TransformPersonToOrganizationCommand command,
   ) {
-    return Future.value(
-      TransformPartnerResult(partnerId: command.partnerId) as TResult,
-    );
+    switch (scenario) {
+      case FakePartnerScenario.transformPermissionDenied:
+        throw const PartnerBlockedException(
+          PartnerBlockedCodes.noPermission,
+          message: 'Missing partner.transform',
+        );
+      case FakePartnerScenario.transformStateChanged:
+        throw const PartnerBlockedException(
+          PartnerBlockedCodes.stateChanged,
+          message: 'Partner version mismatch',
+        );
+      case FakePartnerScenario.transformDupWarning:
+        if (!command.confirmDuplicate) {
+          throw const PartnerBlockedException(
+            PartnerBlockedCodes.duplicateWarning,
+            message:
+                'PostgrestException(message: {"code":"DUPLICATE_WARNING","field":"phone"}, code: P0001)',
+          );
+        }
+        return Future.value(
+          TransformPartnerResult(partnerId: command.partnerId) as TResult,
+        );
+      default:
+        return Future.value(
+          TransformPartnerResult(partnerId: command.partnerId) as TResult,
+        );
+    }
   }
 
   Future<TResult> _handleAddContact<TResult>(
@@ -308,7 +335,10 @@ final class FakePartnerModule implements IPartnerModule {
               PartnerContactDto(
                 personPartnerId: 'p-contact-1',
                 displayName: 'Trần Thị B',
+                title: 'Chị',
                 phone: '0907654321',
+                phone2: '0281111222',
+                email: 'tranthib@abc.vn',
                 contactRole: 'Kế toán',
                 isPrimary: true,
               ),

@@ -16,6 +16,7 @@ final class TransformPersonToOrganizationCommand
     required this.partnerId,
     required this.organizationProfile,
     required this.expectedVersion,
+    this.confirmDuplicate = false,
   }) : super(id);
 
   @override
@@ -24,4 +25,5 @@ final class TransformPersonToOrganizationCommand
   final String partnerId;
   final OrganizationProfileInput organizationProfile;
   final int expectedVersion;
+  final bool confirmDuplicate;
 }

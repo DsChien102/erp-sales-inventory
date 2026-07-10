@@ -4,7 +4,7 @@ import 'package:vet45_partner_application/application.dart';
 
 import 'partner_detail_expandable_card.dart';
 
-/// Card «Người liên hệ» (org) — tap header để mở/đóng.
+/// Card «Người liên hệ» (org) — preview + thêm / xem tất cả (S5).
 class PartnerDetailContactsCard extends StatelessWidget {
   const PartnerDetailContactsCard({
     super.key,
@@ -25,11 +25,25 @@ class PartnerDetailContactsCard extends StatelessWidget {
     final contacts = dto.contacts;
 
     return PartnerDetailExpandableCard(
-      title: 'Người liên hệ',
+      title: 'Người liên hệ chính',
       icon: Icons.people_alt_outlined,
       initiallyExpanded: initiallyExpanded,
       trailingWhenCollapsed: contacts.isEmpty
-          ? null
+          ? Container(
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+              decoration: BoxDecoration(
+                color: colors.warning.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Text(
+                'Chưa có',
+                style: VTypography.bodySmall.copyWith(
+                  color: colors.warning,
+                  fontSize: 10,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            )
           : Container(
               padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
               decoration: BoxDecoration(
@@ -144,8 +158,8 @@ class _ContactsListBody extends StatelessWidget {
       const Color(0xFF9C27B0),
       const Color(0xFF00BCD4),
     ];
-    int sum = 0;
-    for (int i = 0; i < displayName.length; i++) {
+    var sum = 0;
+    for (var i = 0; i < displayName.length; i++) {
       sum += displayName.codeUnitAt(i);
     }
     return palette[sum % palette.length];
@@ -153,7 +167,7 @@ class _ContactsListBody extends StatelessWidget {
 
   String _getInitials(String displayName) {
     final words = displayName.trim().split(RegExp(r'\s+'));
-    if (words.isEmpty) return '?';
+    if (words.isEmpty || words.first.isEmpty) return '?';
     if (words.length == 1) {
       return words.first[0].toUpperCase();
     }
@@ -187,9 +201,9 @@ class _ContactsListBody extends StatelessWidget {
     final displayContacts = sorted.take(2).toList();
 
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        for (int i = 0; i < displayContacts.length; i++) ...[
+        for (var i = 0; i < displayContacts.length; i++) ...[
           if (i > 0) const SizedBox(height: VSpacing.space3),
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -242,6 +256,16 @@ class _ContactsListBody extends StatelessWidget {
                       const SizedBox(height: 2),
                       Text(
                         displayContacts[i].phone!,
+                        style: VTypography.bodySmall.copyWith(
+                          color: colors.textSecondary,
+                        ),
+                      ),
+                    ],
+                    if (displayContacts[i].email != null &&
+                        displayContacts[i].email!.isNotEmpty) ...[
+                      const SizedBox(height: 2),
+                      Text(
+                        displayContacts[i].email!,
                         style: VTypography.bodySmall.copyWith(
                           color: colors.textSecondary,
                         ),

@@ -69,6 +69,13 @@ class _PartnerListPageState extends State<PartnerListPage> {
     }
   }
 
+  Future<void> _openPartnerDetail(String partnerId) async {
+    await context.push('/partner/$partnerId');
+    if (!mounted) return;
+    // Refresh after detail (transform / edit / deactivate may change list row).
+    await _cubit.fetchPartners(isRefresh: true);
+  }
+
   Future<void> _openFilterSheet(PartnerListState state) async {
     final result = await PartnerFilterBottomSheet.show(
       context,
@@ -95,13 +102,6 @@ class _PartnerListPageState extends State<PartnerListPage> {
     );
     if (result != null && result != state.sortOption) {
       _cubit.applyFilters(sortOption: result);
-    }
-  }
-
-  Future<void> _openPartnerDetail(String partnerId) async {
-    await context.push('/partner/$partnerId');
-    if (mounted) {
-      await _cubit.fetchPartners(isRefresh: true);
     }
   }
 

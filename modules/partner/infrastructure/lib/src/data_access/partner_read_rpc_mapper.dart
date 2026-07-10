@@ -126,7 +126,9 @@ abstract final class PartnerReadRpcMapper {
             (c) => PartnerContactDto(
               personPartnerId: (c as Map)['person_partner_id'] as String,
               displayName: c['display_name'] as String,
+              title: c['title'] as String?,
               phone: c['phone'] as String?,
+              phone2: c['phone2'] as String?,
               email: c['email'] as String?,
               contactRole: c['contact_role'] as String?,
               isPrimary: c['is_primary'] as bool? ?? false,

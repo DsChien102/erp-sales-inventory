@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:vet45_design_system/design_system.dart';
 import 'package:vet45_partner_application/application.dart';
+import 'package:vet45_partner_domain/domain.dart';
 
 import 'partner_detail_formatters.dart';
 import 'partner_detail_section.dart';
@@ -13,8 +14,6 @@ class PartnerDetailOverviewTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = context.vColors;
-    final phone = PartnerDetailFormatters.primaryPhone(detail)?.trim() ?? '';
-    final email = PartnerDetailFormatters.primaryEmail(detail)?.trim() ?? '';
     final taxCode = PartnerDetailFormatters.taxCode(detail)?.trim() ?? '';
     final invoice = PartnerDetailFormatters.invoice(detail);
     final invoiceName = invoice?.invoiceName?.trim() ?? '';
@@ -23,8 +22,12 @@ class PartnerDetailOverviewTab extends StatelessWidget {
     final delivery = PartnerDetailFormatters.formatDeliveryAddress(
       PartnerDetailFormatters.delivery(detail),
     ).trim();
+    final note = PartnerDetailFormatters.note(detail)?.trim() ?? '';
     final createdDate = PartnerDetailFormatters.createdDateLabel(detail);
     final createdActivity = PartnerDetailFormatters.createdActivityText(detail);
+    final mainTitle = detail.partnerType == PartnerType.person
+        ? 'Thông tin cá nhân'
+        : 'Thông tin tổ chức';
 
     return ColoredBox(
       color: colors.background,
@@ -37,8 +40,8 @@ class PartnerDetailOverviewTab extends StatelessWidget {
         ),
         children: [
           PartnerDetailSectionCard(
-            title: 'Thông tin chính',
-            child: _mainInfoBody(phone: phone, email: email),
+            title: mainTitle,
+            child: _mainInfoBody(),
           ),
           const SizedBox(height: VSpacing.space2),
           PartnerDetailSectionCard(
@@ -64,6 +67,18 @@ class PartnerDetailOverviewTab extends StatelessWidget {
           ),
           const SizedBox(height: VSpacing.space2),
           PartnerDetailSectionCard(
+            title: 'Ghi chú',
+            child: note.isEmpty
+                ? const PartnerDetailEmptyHint(message: 'Chưa có ghi chú.')
+                : Text(
+                    note,
+                    style: VTypography.bodyDefault.copyWith(
+                      color: colors.textPrimary,
+                    ),
+                  ),
+          ),
+          const SizedBox(height: VSpacing.space2),
+          PartnerDetailSectionCard(
             title: 'Địa chỉ gần đây',
             child: createdDate == null
                 ? const PartnerDetailEmptyHint(message: 'Chưa có hoạt động gần đây.')
@@ -82,32 +97,78 @@ class PartnerDetailOverviewTab extends StatelessWidget {
     );
   }
 
-  Widget _mainInfoBody({required String phone, required String email}) {
-    final rows = <Widget>[];
-    if (phone.isNotEmpty) {
-      rows.add(
+  Widget _mainInfoBody() {
+    if (detail.partnerType == PartnerType.person) {
+      final profile = detail.personProfile;
+      return Column(
+        children: [
+          PartnerDetailInfoRow(
+            label: 'Danh xưng',
+            value: _orEmpty(profile?.title?.value),
+          ),
+          PartnerDetailInfoRow(
+            label: 'Họ và tên',
+            value: _orEmpty(profile?.fullName),
+          ),
+          PartnerDetailInfoRow(
+            label: 'Tên thường gọi',
+            value: _orEmpty(profile?.nickname),
+          ),
+          PartnerDetailInfoRow(
+            label: 'SĐT chính',
+            value: _orEmpty(profile?.phone),
+          ),
+          PartnerDetailInfoRow(
+            label: 'SĐT phụ',
+            value: _orEmpty(profile?.phone2),
+          ),
+          PartnerDetailInfoRow(
+            label: 'Email',
+            value: _orEmpty(profile?.email),
+            isLast: true,
+          ),
+        ],
+      );
+    }
+
+    final profile = detail.organizationProfile;
+    final typeLabel = switch (profile?.organizationType) {
+      OrganizationType.company => 'Công ty',
+      OrganizationType.businessHousehold => 'Hộ kinh doanh',
+      OrganizationType.other => 'Khác',
+      null => '',
+    };
+    return Column(
+      children: [
+        PartnerDetailInfoRow(label: 'Loại tổ chức', value: _orEmpty(typeLabel)),
+        PartnerDetailInfoRow(
+          label: 'Tên tổ chức',
+          value: _orEmpty(profile?.organizationName),
+        ),
+        PartnerDetailInfoRow(
+          label: 'Tên viết tắt',
+          value: _orEmpty(profile?.shortName),
+        ),
+        PartnerDetailInfoRow(
+          label: 'Tên quốc tế',
+          value: _orEmpty(profile?.intlName),
+        ),
         PartnerDetailInfoRow(
           label: 'SĐT chính',
-          value: phone,
-          trailingIcon: Icons.phone_outlined,
-          isLast: email.isEmpty,
+          value: _orEmpty(profile?.phone),
         ),
-      );
-    }
-    if (email.isNotEmpty) {
-      rows.add(
         PartnerDetailInfoRow(
           label: 'Email',
-          value: email,
-          trailingIcon: Icons.mail_outline,
+          value: _orEmpty(profile?.email),
           isLast: true,
         ),
-      );
-    }
-    if (rows.isEmpty) {
-      return const PartnerDetailEmptyHint(message: 'Chưa có thông tin liên hệ.');
-    }
-    return Column(children: rows);
+      ],
+    );
+  }
+
+  String _orEmpty(String? value) {
+    final trimmed = value?.trim() ?? '';
+    return trimmed.isEmpty ? '—' : trimmed;
   }
 
   Widget _invoiceBody({
