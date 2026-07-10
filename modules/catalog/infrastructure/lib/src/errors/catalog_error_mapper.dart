@@ -14,6 +14,12 @@ Object mapCatalogRpcError(RpcException error) {
     return DuplicateSkuException(sku: _extractQuoted(error.message) ?? '');
   }
 
+  if (message.contains('duplicate reference_id')) {
+    return DuplicateReferenceIdException(
+      referenceId: _extractQuoted(error.message) ?? '',
+    );
+  }
+
   if (message.contains('duplicate barcode')) {
     return DuplicateBarcodeException(
       barcode: _extractQuoted(error.message) ?? '',

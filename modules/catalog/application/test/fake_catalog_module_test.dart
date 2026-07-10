@@ -76,6 +76,47 @@ void main() {
       );
     });
 
+    test('guided_create_dup_reference throws DuplicateReferenceIdException', () async {
+      final module = FakeCatalogModule(
+        scenario: FakeCatalogScenario.guidedCreateDupReference,
+      );
+
+      await expectLater(
+        module.executeCommandAsync(
+          CreateProductCommand(
+            tenantId: 'tenant-1',
+            actorId: 'user-1',
+            productName: 'Thuốc A',
+            referenceId: 'SP-0001',
+          ),
+        ),
+        throwsA(
+          isA<DuplicateReferenceIdException>().having(
+            (e) => e.referenceId,
+            'referenceId',
+            'SP-0001',
+          ),
+        ),
+      );
+    });
+
+    test('guided_create_explicit_reference persists import reference internally', () async {
+      final module = FakeCatalogModule(
+        scenario: FakeCatalogScenario.guidedCreateExplicitReference,
+      );
+
+      final result = await module.executeCommandAsync<CreateProductResult>(
+        CreateProductCommand(
+          tenantId: 'tenant-1',
+          actorId: 'user-1',
+          productName: 'Thuốc legacy',
+          referenceId: 'SP-0001',
+        ),
+      );
+
+      expect(result.productId, startsWith('product-new-'));
+    });
+
     test('guided_create_missing_name throws ValidationException', () async {
       final module = FakeCatalogModule(
         scenario: FakeCatalogScenario.guidedCreateMissingName,

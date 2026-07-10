@@ -12,6 +12,11 @@ void main() {
       expect(error, isA<DuplicateSkuException>());
     });
 
+    test('maps duplicate reference_id', () {
+      final error = mapCatalogRpcError(RpcException('duplicate reference_id'));
+      expect(error, isA<DuplicateReferenceIdException>());
+    });
+
     test('maps duplicate barcode', () {
       final error = mapCatalogRpcError(RpcException('duplicate barcode'));
       expect(error, isA<DuplicateBarcodeException>());

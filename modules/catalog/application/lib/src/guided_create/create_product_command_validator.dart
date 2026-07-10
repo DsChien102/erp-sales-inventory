@@ -1,4 +1,6 @@
+import 'package:vet45_catalog_domain/domain.dart';
 import 'package:vet45_shared_application/application.dart';
+import 'package:vet45_shared_domain/shared_kernel_domain.dart';
 
 import 'create_product_command.dart';
 
@@ -13,6 +15,14 @@ final class CreateProductCommandValidator implements ICommandValidator<CreatePro
     }
     if (command.productName.trim().isEmpty) {
       throw ValidationException('Product name is required.');
+    }
+    final referenceId = command.referenceId?.trim();
+    if (referenceId != null && referenceId.isNotEmpty) {
+      try {
+        ProductReferenceId(referenceId);
+      } on DomainException catch (error) {
+        throw ValidationException(error.message);
+      }
     }
     if (command.images.length > 8) {
       throw ValidationException('A product can have at most 8 images.');

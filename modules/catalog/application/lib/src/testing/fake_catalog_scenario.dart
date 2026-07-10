@@ -1,6 +1,8 @@
 /// Scenario ids aligned with `docs/themes/TH-02-product-pricing/harness/07-api-contracts.md`.
 abstract final class FakeCatalogScenario {
   static const guidedCreateOk = 'guided_create_ok';
+  static const guidedCreateDupReference = 'guided_create_dup_reference';
+  static const guidedCreateExplicitReference = 'guided_create_explicit_reference';
   static const guidedCreateDupSku = 'guided_create_dup_sku';
   static const guidedCreateDupBarcode = 'guided_create_dup_barcode';
   static const guidedCreateMissingName = 'guided_create_missing_name';

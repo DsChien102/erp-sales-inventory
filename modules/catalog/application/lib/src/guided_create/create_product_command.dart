@@ -14,6 +14,7 @@ final class CreateProductCommand extends CommandBase<CreateProductResult>
     required this.tenantId,
     required this.actorId,
     required this.productName,
+    this.referenceId,
     this.commercialName,
     this.sku,
     this.barcode,
@@ -28,6 +29,7 @@ final class CreateProductCommand extends CommandBase<CreateProductResult>
 
   final String actorId;
   final String productName;
+  final String? referenceId;
   final String? commercialName;
   final String? sku;
   final String? barcode;

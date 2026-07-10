@@ -8,6 +8,7 @@ void main() {
       final product = Product.create(
         id: const ProductId('p-1'),
         tenantId: const TenantId('tenant-1'),
+        referenceId: ProductReferenceId('SP-0001'),
         name: ProductName('Thuốc A'),
         actorId: 'user-1',
       );
@@ -26,6 +27,7 @@ void main() {
       final product = Product.create(
         id: const ProductId('p-2'),
         tenantId: const TenantId('tenant-1'),
+        referenceId: ProductReferenceId('SP-0001'),
         name: ProductName('Thuốc B'),
         actorId: 'user-1',
         baseUnit: ProductBaseUnit('Hộp'),
@@ -45,6 +47,7 @@ void main() {
       final product = Product.create(
         id: const ProductId('p-3'),
         tenantId: const TenantId('tenant-1'),
+        referenceId: ProductReferenceId('SP-0001'),
         name: ProductName('Thuốc C'),
         actorId: 'user-1',
         baseUnit: ProductBaseUnit('Lọ'),
@@ -69,6 +72,7 @@ void main() {
       final product = Product.create(
         id: const ProductId('p-4'),
         tenantId: const TenantId('tenant-1'),
+        referenceId: ProductReferenceId('SP-0001'),
         name: ProductName('Thuốc D'),
         actorId: 'user-1',
       );
@@ -87,6 +91,7 @@ void main() {
       final product = Product.create(
         id: const ProductId('p-5'),
         tenantId: const TenantId('tenant-1'),
+        referenceId: ProductReferenceId('SP-0001'),
         name: ProductName('Thuốc E'),
         actorId: 'user-1',
       );
@@ -109,6 +114,7 @@ void main() {
       final product = Product.create(
         id: const ProductId('p-6'),
         tenantId: const TenantId('tenant-1'),
+        referenceId: ProductReferenceId('SP-0001'),
         name: ProductName('Thuốc F'),
         actorId: 'user-1',
       );
@@ -128,6 +134,7 @@ void main() {
       final product = Product.create(
         id: const ProductId('p-7'),
         tenantId: const TenantId('tenant-1'),
+        referenceId: ProductReferenceId('SP-0001'),
         name: ProductName('Thuốc G'),
         actorId: 'user-1',
       );
@@ -152,6 +159,7 @@ void main() {
       final product = Product.create(
         id: const ProductId('p-8'),
         tenantId: const TenantId('tenant-1'),
+        referenceId: ProductReferenceId('SP-0001'),
         name: ProductName('Thuốc H'),
         actorId: 'user-1',
         baseUnit: ProductBaseUnit('Hộp'),

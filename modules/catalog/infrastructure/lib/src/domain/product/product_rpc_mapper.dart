@@ -9,6 +9,7 @@ abstract final class ProductRpcMapper {
     return <String, dynamic>{
       'p_tenant_id': product.tenantId.value,
       'p_name': product.name.value,
+      'p_reference_id': product.referenceId.value,
       'p_actor_id': product.createdBy,
       'p_trade_name': product.commercialName?.value,
       'p_sku': product.sku?.value,

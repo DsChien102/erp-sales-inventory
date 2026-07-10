@@ -63,6 +63,7 @@ erDiagram
 | VO | Mô tả |
 | -- | ----- |
 | `ProductName` | Tên sản phẩm (bắt buộc); tên thương mại optional |
+| `ProductReferenceId` | Mã sản phẩm nội bộ (bắt buộc); unique per tenant (case-sensitive); immutable sau create. Dual mode: hash tự động (guided create) hoặc explicit legacy (`SP-0001`, import). **Không hiển thị UI** |
 | `Sku` / `Barcode` | Optional; unique per tenant nếu có |
 | `ProductStatus` | Đang kinh doanh / Ngừng KD / Đã xóa (soft delete) |
 | `ReadinessStatus` | Chưa hoàn thiện, Sẵn sàng bán, Sẵn sàng nhập, … |
@@ -159,6 +160,7 @@ erDiagram
 | ------- | ---- |
 | DR-01 | Tên sản phẩm bắt buộc; guided create không ép toàn bộ field |
 | DR-02 | SKU/barcode optional; unique per tenant |
+| DR-02b | `ProductReferenceId` bắt buộc; unique per tenant (case-sensitive, exact match); immutable sau create. **Không expose UI** — chỉ dùng import/tracking DB. Guided create: hash tự động. Import: explicit legacy (`SP-0001`) qua `CreateProductCommand.referenceId?` |
 | DR-03 | Readiness tách khỏi trạng thái kinh doanh |
 | DR-04 | Basic stock theo base unit; không tạo phiếu nhập |
 | DR-05 | Advanced stock: read-only trong Product |
