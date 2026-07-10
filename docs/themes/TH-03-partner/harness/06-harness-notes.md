@@ -37,6 +37,7 @@ cd apps/erp && flutter test test/features/partner/   # khi slice có UI
 | 2026-07-02 | Partner hand-wired CQRS | Bật codegen (mirror IAM) |
 | **2026-07-07** | **Product spec v2 (Person/Organization) lệch harness + code cũ** | **Reboot: gỡ code partner + migrations cũ; viết lại harness v2 (Partner root, soft delete, contact, transform); reset slice S1..S9 todo; rebuild greenfield từ iam golden** |
 | 2026-07-09 | Theme spec gom UI chi tiết vào Appendix A / Screen Groups | US chỉ giữ `Design Reference`; agent đọc SG tương ứng trước FE/widget manifest |
+| 2026-07-10 | S5: edit contact gọi `UpdatePartnerProfile` → exclusive rule; toast mất khi pop | Edit chỉ `UpdateOrganizationContactCommand` + RPC `p_person_profile`; toast/reload ở trang cha |
 
 ## Pitfalls (v2)
 

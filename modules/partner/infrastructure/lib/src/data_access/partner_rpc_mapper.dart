@@ -65,6 +65,8 @@ abstract final class PartnerRpcMapper {
       'p_person_partner_id': command.personPartnerId,
       'p_contact_role': command.contactRole,
       'p_is_primary': command.isPrimary,
+      'p_note': command.note,
+      'p_person_profile': _personInput(command.personProfile),
     };
   }
 

@@ -118,10 +118,19 @@ RPC: `partner.update_partner`
 | Symbol | Input | Success | Errors |
 | ------ | ----- | ------- | ------ |
 | `AddOrganizationContactCommand` | organizationPartnerId, personPartnerId \| newPersonProfile, contactRole?, isPrimary | `AddOrganizationContactResult` | VALIDATION_ERROR, NO_PERMISSION |
-| `UpdateOrganizationContactCommand` | organizationPartnerId, personPartnerId, contactRole?, isPrimary | void / result | VALIDATION_ERROR |
+| `UpdateOrganizationContactCommand` | organizationPartnerId, personPartnerId, contactRole?, isPrimary?, note?, **personProfile?** | void | VALIDATION_ERROR, NOT_FOUND |
 | `RemoveOrganizationContactCommand` | organizationPartnerId, personPartnerId | void | NOT_FOUND |
 
 RPC: `partner.add_organization_contact`, `partner.update_organization_contact`, `partner.remove_organization_contact`
+
+### FE UX (SG-04)
+
+| Event | UI contract |
+| ----- | ----------- |
+| Add/edit contact success | Pop form → parent `VToast.show` + reload contacts/detail |
+| Edit contact | Single `UpdateOrganizationContactCommand` (person fields + link) — **not** `UpdatePartnerProfileCommand` |
+
+RPC `update_organization_contact` params: `p_contact_role`, `p_is_primary`, `p_note`, `p_person_profile` (optional jsonb).
 
 ---
 

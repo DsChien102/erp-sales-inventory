@@ -48,6 +48,9 @@ import '../../features/catalog/presentation/pages/settings/store_price_rule_chan
 // Partner
 import '../../features/partner/presentation/pages/partner_create_page.dart';
 import '../../features/partner/presentation/pages/partner_detail_page.dart';
+import '../../features/partner/presentation/pages/partner_contacts_page.dart';
+import '../../features/partner/presentation/pages/partner_contact_form_page.dart';
+import '../../features/partner/presentation/pages/partner_contact_select_page.dart';
 
 import '../di/injection.dart';
 
@@ -228,6 +231,62 @@ final appRouter = GoRouter(
           partnerModule: getIt<IPartnerModule>(),
           executionContext: getIt<IExecutionContext>(),
           showCreateSuccessToast: showCreateSuccessToast,
+        );
+      },
+    ),
+    GoRoute(
+      path: '/partner/:partnerId/contacts',
+      name: 'partner.contacts',
+      builder: (context, state) {
+        final partnerId = state.pathParameters['partnerId']!;
+        return PartnerContactsPage(
+          partnerId: partnerId,
+          partnerModule: getIt<IPartnerModule>(),
+          executionContext: getIt<IExecutionContext>(),
+        );
+      },
+    ),
+    GoRoute(
+      path: '/partner/:partnerId/contacts/new',
+      name: 'partner.contacts.new',
+      builder: (context, state) {
+        final partnerId = state.pathParameters['partnerId']!;
+        final contact = state.extra as PartnerContactDto?;
+        return PartnerContactFormPage(
+          partnerId: partnerId,
+          contact: contact,
+          partnerModule: getIt<IPartnerModule>(),
+          executionContext: getIt<IExecutionContext>(),
+        );
+      },
+    ),
+    GoRoute(
+      path: '/partner/:partnerId/contacts/select',
+      name: 'partner.contacts.select',
+      builder: (context, state) {
+        final partnerId = state.pathParameters['partnerId']!;
+        final excludeIds = state.extra as List<String>? ?? const [];
+        return PartnerContactSelectPage(
+          partnerId: partnerId,
+          partnerModule: getIt<IPartnerModule>(),
+          executionContext: getIt<IExecutionContext>(),
+          excludePersonPartnerIds: excludeIds,
+        );
+      },
+    ),
+    GoRoute(
+      path: '/partner/:partnerId/contacts/:contactId/edit',
+      name: 'partner.contacts.edit',
+      builder: (context, state) {
+        final partnerId = state.pathParameters['partnerId']!;
+        final contactId = state.pathParameters['contactId']!;
+        final contact = state.extra as PartnerContactDto?;
+        return PartnerContactFormPage(
+          partnerId: partnerId,
+          contactId: contactId,
+          contact: contact,
+          partnerModule: getIt<IPartnerModule>(),
+          executionContext: getIt<IExecutionContext>(),
         );
       },
     ),
