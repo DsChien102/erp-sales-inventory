@@ -56,7 +56,7 @@ Codegen ritual: mirror [modules/iam/README.md](../../../../modules/iam/README.md
 | ------ | ---- | ---------- | ------------- | -------- | ------- | ------ |
 | US-01 | CONTRACT | §S2 | application | `SearchPartnersQuery`, `PartnerSearchResultDto` | fake_partner_module_test | done |
 | FR-01..07 | BE | §S2 | application | `SearchPartnersQueryHandler` | scn_e01_u01_fr01_01 | done |
-| FR-01..07 | FE | §S2 | presentation | `partner_list_page.dart`, list cubit, filters | wgt_e01_u01_fr01_01 | todo |
+| FR-01..07 | FE | §S2 | presentation | `partner_list_page.dart`, list cubit, filters | wgt_e01_u01_fr01_01 | done |
 | FR-01 | E2E | §S2 | integration | list with real data | e2e_e01_u01_fr01_01 | todo |
 
 ---
