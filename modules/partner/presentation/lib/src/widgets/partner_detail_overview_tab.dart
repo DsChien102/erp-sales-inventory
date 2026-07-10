@@ -16,8 +16,10 @@ class PartnerDetailOverviewTab extends StatelessWidget {
     final phone = PartnerDetailFormatters.primaryPhone(detail)?.trim() ?? '';
     final email = PartnerDetailFormatters.primaryEmail(detail)?.trim() ?? '';
     final taxCode = PartnerDetailFormatters.taxCode(detail)?.trim() ?? '';
-    final invoiceAddress =
-        PartnerDetailFormatters.invoice(detail)?.invoiceAddress?.trim() ?? '';
+    final invoice = PartnerDetailFormatters.invoice(detail);
+    final invoiceName = invoice?.invoiceName?.trim() ?? '';
+    final invoiceEmail = invoice?.invoiceEmail?.trim() ?? '';
+    final invoiceAddress = invoice?.invoiceAddress?.trim() ?? '';
     final delivery = PartnerDetailFormatters.formatDeliveryAddress(
       PartnerDetailFormatters.delivery(detail),
     ).trim();
@@ -41,7 +43,12 @@ class PartnerDetailOverviewTab extends StatelessWidget {
           const SizedBox(height: VSpacing.space2),
           PartnerDetailSectionCard(
             title: 'Hóa đơn / thuế',
-            child: _invoiceBody(taxCode: taxCode, invoiceAddress: invoiceAddress),
+            child: _invoiceBody(
+              taxCode: taxCode,
+              invoiceName: invoiceName,
+              invoiceEmail: invoiceEmail,
+              invoiceAddress: invoiceAddress,
+            ),
           ),
           const SizedBox(height: VSpacing.space2),
           PartnerDetailSectionCard(
@@ -105,30 +112,31 @@ class PartnerDetailOverviewTab extends StatelessWidget {
 
   Widget _invoiceBody({
     required String taxCode,
+    required String invoiceName,
+    required String invoiceEmail,
     required String invoiceAddress,
   }) {
-    final rows = <Widget>[];
-    if (taxCode.isNotEmpty) {
-      rows.add(
+    const empty = '—';
+    return Column(
+      children: [
         PartnerDetailInfoRow(
           label: 'MST',
-          value: taxCode,
-          isLast: invoiceAddress.isEmpty,
+          value: taxCode.isEmpty ? empty : taxCode,
         ),
-      );
-    }
-    if (invoiceAddress.isNotEmpty) {
-      rows.add(
         PartnerDetailInfoRow(
-          label: 'Địa chỉ xuất HĐ',
-          value: invoiceAddress,
+          label: 'Tên xuất hóa đơn',
+          value: invoiceName.isEmpty ? empty : invoiceName,
+        ),
+        PartnerDetailInfoRow(
+          label: 'Email nhận hóa đơn',
+          value: invoiceEmail.isEmpty ? empty : invoiceEmail,
+        ),
+        PartnerDetailInfoRow(
+          label: 'Địa chỉ xuất hóa đơn',
+          value: invoiceAddress.isEmpty ? empty : invoiceAddress,
           isLast: true,
         ),
-      );
-    }
-    if (rows.isEmpty) {
-      return const PartnerDetailEmptyHint(message: 'Chưa có thông tin hóa đơn / thuế.');
-    }
-    return Column(children: rows);
+      ],
+    );
   }
 }

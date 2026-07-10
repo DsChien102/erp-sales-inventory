@@ -210,6 +210,7 @@ final appRouter = GoRouter(
         );
       },
     ),
+
     GoRoute(
       path: '/products/items/new',
       name: 'products.items.new',
