@@ -13,6 +13,7 @@ export 'src/partner/queries/check_duplicate/check_duplicate_partners_query.dart'
 export 'src/partner/queries/check_duplicate/check_duplicate_partners_query_handler.dart';
 export 'src/partner/queries/check_duplicate/partner_duplicate_match_dto.dart';
 export 'src/partner/queries/check_duplicate/partner_duplicate_match_field.dart';
+export 'src/partner/queries/check_duplicate/partner_duplicate_match_level.dart';
 export 'src/partner/commands/create_partner/create_partner_command.dart';
 export 'src/partner/commands/create_partner/create_partner_command_handler.dart';
 export 'src/partner/commands/create_partner/create_partner_command_validator.dart';

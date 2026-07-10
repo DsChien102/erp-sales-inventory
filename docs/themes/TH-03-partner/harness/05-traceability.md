@@ -45,7 +45,7 @@ Codegen ritual: mirror [modules/iam/README.md](../../../../modules/iam/README.md
 | US-02 | CONTRACT | §S1 | application | `CreatePartnerCommand`, `CheckDuplicatePartnersQuery`, DTOs | fake_partner_module_test | done |
 | FR-01..07 | BE | §S1 | application | `CreatePartnerCommandHandler` (Person + Organization) | scn_e01_u02_fr01_01 | done |
 | FR-05 | BE | §S1 | application | `CheckDuplicatePartnersQueryHandler` | scn_e01_u02_fr05_01 | done |
-| FR-01..07 | FE | §S1 | presentation | create person/org flow, dup warning dialog | wgt_e01_u02_fr01_01 | todo |
+| FR-01..07 | FE | §S1 | presentation | create person/org flow, dup warning dialog | wgt_e01_u02_fr01_01 | done |
 | FR-06 | E2E | §S1 | integration | ERP via `IPartnerModule` | e2e_e01_u02_fr06_01 | todo |
 
 ---

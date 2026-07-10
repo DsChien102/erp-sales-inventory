@@ -9,6 +9,7 @@ import '../partner/queries/check_delete_eligibility/delete_eligibility_dto.dart'
 import '../partner/queries/check_duplicate/check_duplicate_partners_query.dart';
 import '../partner/queries/check_duplicate/partner_duplicate_match_dto.dart';
 import '../partner/queries/check_duplicate/partner_duplicate_match_field.dart';
+import '../partner/queries/check_duplicate/partner_duplicate_match_level.dart';
 import '../partner/commands/create_partner/create_partner_command.dart';
 import '../partner/commands/create_partner/create_partner_result.dart';
 import '../partner/commands/deactivate_partner/deactivate_partner_command.dart';
@@ -46,6 +47,7 @@ enum FakePartnerScenario {
   createPersonOk,
   createOrganizationOk,
   createDupWarning,
+  createExactDuplicate,
   createDupConfirmed,
   createValidationError,
   createPermissionDenied,
@@ -59,7 +61,6 @@ enum FakePartnerScenario {
   historyMixed,
   historyNoSourcePermission,
 }
-
 /// In-memory partner module for FE/widget tests.
 final class FakePartnerModule implements IPartnerModule {
   FakePartnerModule({this.scenario = FakePartnerScenario.defaultMixed});
@@ -349,13 +350,17 @@ final class FakePartnerModule implements IPartnerModule {
     CheckDuplicatePartnersQuery query,
   ) {
     if (scenario == FakePartnerScenario.createDupWarning ||
+        scenario == FakePartnerScenario.createExactDuplicate ||
         scenario == FakePartnerScenario.createDupConfirmed) {
       return Future.value(
-        const [
+        [
           PartnerDuplicateMatchDto(
             partnerId: 'p-dup-1',
             displayName: 'Nguyễn Văn Trùng',
             matchedField: PartnerDuplicateMatchField.phone,
+            matchLevel: scenario == FakePartnerScenario.createExactDuplicate
+                ? PartnerDuplicateMatchLevel.exact
+                : PartnerDuplicateMatchLevel.possible,
             partnerType: PartnerType.person,
             matchedValue: '0901234567',
           ),

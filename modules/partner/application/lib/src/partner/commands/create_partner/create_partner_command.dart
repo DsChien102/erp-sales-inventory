@@ -17,6 +17,7 @@ final class CreatePartnerCommand extends CommandBase<CreatePartnerResult>
     required this.roles,
     this.personProfile,
     this.organizationProfile,
+    this.organizationPrimaryContact,
     this.confirmDuplicate = false,
   }) : super(id);
 
@@ -27,5 +28,6 @@ final class CreatePartnerCommand extends CommandBase<CreatePartnerResult>
   final List<PartnerRoleType> roles;
   final PersonProfileInput? personProfile;
   final OrganizationProfileInput? organizationProfile;
+  final PersonProfileInput? organizationPrimaryContact;
   final bool confirmDuplicate;
 }

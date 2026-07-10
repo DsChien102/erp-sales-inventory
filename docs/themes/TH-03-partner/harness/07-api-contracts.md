@@ -42,8 +42,8 @@ Facade: `IPartnerModule` — `modules/partner/application/lib/src/contracts/i_pa
 
 | Symbol | Input (summary) | Success | Errors |
 | ------ | --------------- | ------- | ------ |
-| `CreatePartnerCommand` | tenantId, actorId, partnerType, roles[], personProfile \| organizationProfile, confirmDuplicate | `CreatePartnerResult` (partnerId, warnings[]) | VALIDATION_ERROR, DUPLICATE_WARNING, NO_PERMISSION |
-| `CheckDuplicatePartnersQuery` | tenantId, phone?, email?, taxCode?, name? | `List<PartnerDuplicateMatchDto>` | NO_PERMISSION |
+| `CreatePartnerCommand` | tenantId, actorId, partnerType, roles[], personProfile \| organizationProfile, organizationPrimaryContact?, confirmDuplicate | `CreatePartnerResult` (partnerId, warnings[]) | VALIDATION_ERROR, DUPLICATE_WARNING, NO_PERMISSION |
+| `CheckDuplicatePartnersQuery` | tenantId, phone?, email?, taxCode?, name? | `List<PartnerDuplicateMatchDto>` (`matchLevel`: possible/exact) | NO_PERMISSION |
 
 ### RPC mapping (BE) — drafted
 
@@ -59,6 +59,7 @@ Facade: `IPartnerModule` — `modules/partner/application/lib/src/contracts/i_pa
 | `create_person_ok` | CreatePartnerCommand person | `CreatePartnerResult(partnerId: 'p-new-1')` |
 | `create_organization_ok` | CreatePartnerCommand organization | `CreatePartnerResult(partnerId: 'p-new-2')` |
 | `create_dup_warning` | CheckDuplicatePartnersQuery | non-empty duplicate list |
+| `create_exact_duplicate` | CheckDuplicatePartnersQuery | exact duplicate; không cho tiếp tục tạo |
 | `create_dup_confirmed` | confirmDuplicate=true | `CreatePartnerResult` |
 | `create_validation_error` | invalid payload | VALIDATION_ERROR |
 | `create_permission_denied` | no partner.create | NO_PERMISSION |

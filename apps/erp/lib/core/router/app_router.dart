@@ -5,6 +5,8 @@ import 'package:vet45_iam_infrastructure/infrastructure.dart';
 import 'package:vet45_shared_application/application.dart';
 import 'package:vet45_catalog_application/application.dart' hide ProductChangeHistoryPage;
 import 'package:vet45_catalog_presentation/presentation.dart';
+import 'package:vet45_partner_application/application.dart';
+import 'package:vet45_partner_domain/domain.dart';
 
 // More Pages
 import '../../features/more/presentation/pages/system_settings_page.dart';
@@ -42,6 +44,9 @@ import '../../features/catalog/presentation/pages/settings/upsert_custom_field_p
 import '../../features/catalog/presentation/pages/settings/store_price_rule_settings_page.dart';
 import '../../features/catalog/presentation/pages/settings/edit_store_price_rule_page.dart';
 import '../../features/catalog/presentation/pages/settings/store_price_rule_change_history_page.dart';
+
+// Partner
+import '../../features/partner/presentation/pages/partner_create_page.dart';
 
 import '../di/injection.dart';
 
@@ -160,6 +165,29 @@ final appRouter = GoRouter(
       path: '/products/items',
       name: 'products.items',
       builder: (context, state) => const DashboardPage(initialTab: DashboardTab.products),
+    ),
+    GoRoute(
+      path: '/partner',
+      name: 'partner.list',
+      builder: (context, state) => const DashboardPage(initialTab: DashboardTab.partners),
+    ),
+    GoRoute(
+      path: '/partner/new',
+      name: 'partner.new',
+      builder: (context, state) {
+        final partnerType = state.extra as PartnerType;
+        return PartnerCreatePage(
+          partnerType: partnerType,
+          partnerModule: getIt<IPartnerModule>(),
+          executionContext: getIt<IExecutionContext>(),
+          onCreated: (_) {},
+          onOpenExisting: (partnerId) {
+            if (context.mounted && context.canPop()) {
+              context.pop(partnerId);
+            }
+          },
+        );
+      },
     ),
     GoRoute(
       path: '/products/items/new',
