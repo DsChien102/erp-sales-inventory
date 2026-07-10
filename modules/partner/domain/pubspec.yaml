@@ -11,6 +11,7 @@ dependencies:
   vet45_shared_domain: ^1.0.0
   equatable: ^2.0.8
   meta: ^1.17.0
+  uuid: ^4.5.3
 
 dev_dependencies:
   vet45_lints: ^1.0.0

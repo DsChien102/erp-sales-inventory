@@ -34,6 +34,7 @@ workspace:
   - modules/iam/presentation
   - modules/partner/domain
   - modules/partner/application
+  - modules/partner/infrastructure
   - modules/partner/integration_events
   - modules/inventory/domain
   - modules/inventory/application

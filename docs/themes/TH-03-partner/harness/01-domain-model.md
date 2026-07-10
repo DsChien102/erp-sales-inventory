@@ -268,4 +268,4 @@ erDiagram
 
 Code domain: [domain-layer skill](../../../../.cursor/skills/domain-layer/SKILL.md) → `modules/partner/domain/lib/src/partner/`.
 Commands/handlers: [application-layer](../../../../.cursor/skills/application-layer/SKILL.md).
-SQL draft: `supabase/migrations/_drafts/partner_v2_*.sql` (chưa tạo — slice BE).
+SQL draft: `supabase/migrations/_drafts/partner_v2_*.sql` (BE lane 2026-07-10).

@@ -1,0 +1,1542 @@
+-- Partner v2 write RPCs: mutations, audit logs, outbox integration events.
+-- Context: TH-03/EP-01+EP-02 CMD-03..12; harness/07-api-contracts.md
+-- Safety: idempotent function definitions ; write RPCs mutate tenant data
+-- Depends on: partner_v2_schema.sql, partner_v2_outbox.sql, partner_v2_read.sql
+-- Contracts: CreatePartnerCommand, UpdatePartnerProfileCommand, contact commands,
+--            lifecycle commands, RecordPartnerHistoryCommand
+
+-- ---------------------------------------------------------------------------
+-- Internal helpers
+-- ---------------------------------------------------------------------------
+
+create or replace function partner._assert_actor(p_actor_id uuid)
+returns void
+language plpgsql
+as $$
+begin
+  if auth.uid() is null then
+    raise exception 'not authenticated';
+  end if;
+
+  if p_actor_id is null or p_actor_id <> auth.uid() then
+    perform partner._raise_partner_error('VALIDATION_ERROR', 'actor mismatch');
+  end if;
+end;
+$$;
+
+create or replace function partner._partner_snapshot(p_partner_id uuid)
+returns jsonb
+language sql
+stable
+security definer
+set search_path = partner, pg_temp
+as $$
+  select to_jsonb(v)
+  from partner.v_partner_detail v
+  where v.partner_id = p_partner_id;
+$$;
+
+create or replace function partner._log_partner_action(
+  p_tenant_id uuid,
+  p_partner_id uuid,
+  p_action_type partner.partner_action_type,
+  p_actor_user_id uuid,
+  p_reason text,
+  p_before_state jsonb,
+  p_after_state jsonb
+)
+returns uuid
+language plpgsql
+security definer
+set search_path = partner, pg_temp
+as $$
+declare
+  v_action_log_id uuid := gen_random_uuid();
+begin
+  insert into partner.partner_action_logs (
+    action_log_id,
+    partner_id,
+    tenant_id,
+    action_type,
+    actor_user_id,
+    reason,
+    before_state,
+    after_state
+  )
+  values (
+    v_action_log_id,
+    p_partner_id,
+    p_tenant_id,
+    p_action_type,
+    p_actor_user_id,
+    nullif(btrim(coalesce(p_reason, '')), ''),
+    coalesce(p_before_state, '{}'::jsonb),
+    coalesce(p_after_state, '{}'::jsonb)
+  );
+  return v_action_log_id;
+end;
+$$;
+
+create or replace function partner._validate_roles(p_roles text[])
+returns partner.partner_role_type[]
+language plpgsql
+as $$
+declare
+  v_roles partner.partner_role_type[] := array[]::partner.partner_role_type[];
+  v_role text;
+begin
+  if p_roles is null or cardinality(p_roles) = 0 then
+    perform partner._raise_partner_error(
+      'VALIDATION_ERROR',
+      'at least one role is required'
+    );
+  end if;
+
+  foreach v_role in array p_roles loop
+    begin
+      v_roles := array_append(v_roles, v_role::partner.partner_role_type);
+    exception
+      when invalid_text_representation then
+        perform partner._raise_partner_error(
+          'VALIDATION_ERROR',
+          format('invalid role: %s', v_role)
+        );
+    end;
+  end loop;
+
+  return v_roles;
+end;
+$$;
+
+create or replace function partner._duplicate_warnings(
+  p_tenant_id uuid,
+  p_phone text,
+  p_email text,
+  p_tax_code text,
+  p_name text,
+  p_exclude_partner_id uuid
+)
+returns jsonb
+language plpgsql
+stable
+security definer
+set search_path = partner, iam, pg_temp
+as $$
+declare
+  v_warnings jsonb := '[]'::jsonb;
+  v_match record;
+begin
+  for v_match in
+    select *
+    from partner.check_duplicate(
+      p_tenant_id,
+      p_phone,
+      p_email,
+      p_tax_code,
+      p_name,
+      p_exclude_partner_id
+    )
+  loop
+    v_warnings := v_warnings || jsonb_build_array(
+      jsonb_build_object(
+        'code', 'DUPLICATE_WARNING',
+        'field', v_match.matched_field,
+        'message', format(
+          'Trùng %s với đối tác %s',
+          v_match.matched_field,
+          v_match.display_name
+        ),
+        'partner_id', v_match.partner_id,
+        'matched_value', v_match.matched_value
+      )
+    );
+  end loop;
+  return v_warnings;
+end;
+$$;
+
+create or replace function partner._guard_duplicates(
+  p_tenant_id uuid,
+  p_phone text,
+  p_email text,
+  p_tax_code text,
+  p_name text,
+  p_exclude_partner_id uuid,
+  p_confirm_duplicate boolean
+)
+returns jsonb
+language plpgsql
+as $$
+declare
+  v_warnings jsonb;
+begin
+  v_warnings := partner._duplicate_warnings(
+    p_tenant_id,
+    p_phone,
+    p_email,
+    p_tax_code,
+    p_name,
+    p_exclude_partner_id
+  );
+
+  if jsonb_array_length(v_warnings) > 0 and not coalesce(p_confirm_duplicate, false) then
+    perform partner._raise_partner_error(
+      'DUPLICATE_WARNING',
+      v_warnings::text
+    );
+  end if;
+
+  return v_warnings;
+end;
+$$;
+
+create or replace function partner._lock_partner(
+  p_tenant_id uuid,
+  p_partner_id uuid,
+  p_expected_version integer
+)
+returns partner.partners
+language plpgsql
+security definer
+set search_path = partner, pg_temp
+as $$
+declare
+  v_partner partner.partners%rowtype;
+begin
+  select *
+  into v_partner
+  from partner.partners p
+  where p.tenant_id = p_tenant_id
+    and p.partner_id = p_partner_id
+  for update;
+
+  if not found then
+    perform partner._raise_partner_error('NOT_FOUND', 'partner not found');
+  end if;
+
+  if v_partner.status = 'deleted' then
+    perform partner._raise_partner_error('INVALID_STATUS', 'partner is deleted');
+  end if;
+
+  if p_expected_version is not null and v_partner.version <> p_expected_version then
+    perform partner._raise_partner_error('STATE_CHANGED', 'version mismatch');
+  end if;
+
+  return v_partner;
+end;
+$$;
+
+create or replace function partner._upsert_roles(
+  p_tenant_id uuid,
+  p_partner_id uuid,
+  p_roles partner.partner_role_type[]
+)
+returns void
+language plpgsql
+as $$
+begin
+  delete from partner.partner_roles pr
+  where pr.partner_id = p_partner_id;
+
+  insert into partner.partner_roles (partner_id, tenant_id, role, is_active)
+  select p_partner_id, p_tenant_id, r, true
+  from unnest(p_roles) as r;
+end;
+$$;
+
+create or replace function partner._insert_person_profile(
+  p_tenant_id uuid,
+  p_partner_id uuid,
+  p_profile jsonb
+)
+returns void
+language plpgsql
+as $$
+declare
+  v_phone text;
+  v_invoice jsonb;
+  v_delivery jsonb;
+begin
+  v_phone := nullif(btrim(coalesce(p_profile ->> 'phone', '')), '');
+  if v_phone is null then
+    perform partner._raise_partner_error('VALIDATION_ERROR', 'phone is required');
+  end if;
+
+  v_invoice := p_profile -> 'invoice';
+  v_delivery := p_profile -> 'delivery';
+
+  insert into partner.person_profiles (
+    partner_id,
+    tenant_id,
+    title,
+    full_name,
+    nickname,
+    phone,
+    phone_normalized,
+    phone2,
+    phone2_normalized,
+    email,
+    email_normalized,
+    tax_code,
+    tax_code_normalized,
+    invoice_name,
+    invoice_address,
+    invoice_email,
+    delivery_province,
+    delivery_commune,
+    delivery_address,
+    note
+  )
+  values (
+    p_partner_id,
+    p_tenant_id,
+    nullif(btrim(coalesce(p_profile ->> 'title', '')), ''),
+    btrim(coalesce(p_profile ->> 'full_name', '')),
+    nullif(btrim(coalesce(p_profile ->> 'nickname', '')), ''),
+    v_phone,
+    partner._normalize_phone(v_phone),
+    nullif(btrim(coalesce(p_profile ->> 'phone2', '')), ''),
+    partner._normalize_phone(p_profile ->> 'phone2'),
+    nullif(btrim(coalesce(p_profile ->> 'email', '')), ''),
+    partner._normalize_email(p_profile ->> 'email'),
+    nullif(btrim(coalesce(p_profile ->> 'tax_code', '')), ''),
+    partner._normalize_tax_code(p_profile ->> 'tax_code'),
+    nullif(btrim(coalesce(v_invoice ->> 'name', '')), ''),
+    nullif(btrim(coalesce(v_invoice ->> 'address', '')), ''),
+    nullif(btrim(coalesce(v_invoice ->> 'email', '')), ''),
+    nullif(btrim(coalesce(v_delivery ->> 'province', '')), ''),
+    nullif(btrim(coalesce(v_delivery ->> 'commune', '')), ''),
+    nullif(btrim(coalesce(v_delivery ->> 'address', '')), ''),
+    nullif(btrim(coalesce(p_profile ->> 'note', '')), '')
+  );
+end;
+$$;
+
+create or replace function partner._insert_organization_profile(
+  p_tenant_id uuid,
+  p_partner_id uuid,
+  p_profile jsonb
+)
+returns void
+language plpgsql
+as $$
+declare
+  v_phone text;
+  v_invoice jsonb;
+  v_delivery jsonb;
+  v_org_type partner.organization_type;
+begin
+  v_phone := nullif(btrim(coalesce(p_profile ->> 'phone', '')), '');
+  if v_phone is null then
+    perform partner._raise_partner_error('VALIDATION_ERROR', 'phone is required');
+  end if;
+
+  begin
+    v_org_type := (p_profile ->> 'organization_type')::partner.organization_type;
+  exception
+    when others then
+      perform partner._raise_partner_error(
+        'VALIDATION_ERROR',
+        'organization_type is required'
+      );
+  end;
+
+  v_invoice := p_profile -> 'invoice';
+  v_delivery := p_profile -> 'delivery';
+
+  insert into partner.organization_profiles (
+    partner_id,
+    tenant_id,
+    organization_type,
+    organization_name,
+    short_name,
+    intl_name,
+    phone,
+    phone_normalized,
+    email,
+    email_normalized,
+    tax_code,
+    tax_code_normalized,
+    company_address,
+    invoice_name,
+    invoice_address,
+    invoice_email,
+    delivery_province,
+    delivery_commune,
+    note
+  )
+  values (
+    p_partner_id,
+    p_tenant_id,
+    v_org_type,
+    btrim(coalesce(p_profile ->> 'organization_name', '')),
+    nullif(btrim(coalesce(p_profile ->> 'short_name', '')), ''),
+    nullif(btrim(coalesce(p_profile ->> 'intl_name', '')), ''),
+    v_phone,
+    partner._normalize_phone(v_phone),
+    nullif(btrim(coalesce(p_profile ->> 'email', '')), ''),
+    partner._normalize_email(p_profile ->> 'email'),
+    nullif(btrim(coalesce(p_profile ->> 'tax_code', '')), ''),
+    partner._normalize_tax_code(p_profile ->> 'tax_code'),
+    nullif(btrim(coalesce(p_profile ->> 'company_address', '')), ''),
+    nullif(btrim(coalesce(v_invoice ->> 'name', '')), ''),
+    nullif(btrim(coalesce(v_invoice ->> 'address', '')), ''),
+    nullif(btrim(coalesce(v_invoice ->> 'email', '')), ''),
+    nullif(btrim(coalesce(v_delivery ->> 'province', '')), ''),
+    nullif(btrim(coalesce(v_delivery ->> 'commune', '')), ''),
+    nullif(btrim(coalesce(p_profile ->> 'note', '')), '')
+  );
+end;
+$$;
+
+-- ---------------------------------------------------------------------------
+-- RPC: create_partner (CMD-03 / CreatePartnerCommand)
+-- ---------------------------------------------------------------------------
+
+create or replace function partner.create_partner(
+  p_tenant_id uuid,
+  p_actor_id uuid,
+  p_partner_type text,
+  p_roles text[],
+  p_person_profile jsonb default null,
+  p_organization_profile jsonb default null,
+  p_confirm_duplicate boolean default false
+)
+returns table (
+  partner_id uuid,
+  warnings jsonb
+)
+language plpgsql
+security definer
+set search_path = partner, iam, pg_temp
+as $$
+declare
+  v_partner_id uuid := gen_random_uuid();
+  v_partner_type partner.partner_type;
+  v_roles partner.partner_role_type[];
+  v_display_name text;
+  v_warnings jsonb := '[]'::jsonb;
+  v_phone text;
+  v_email text;
+  v_tax_code text;
+  v_name text;
+begin
+  perform partner._assert_actor(p_actor_id);
+
+  if not iam.has_permission(p_tenant_id, 'partner.create') then
+    raise exception 'permission denied: partner.create';
+  end if;
+
+  begin
+    v_partner_type := p_partner_type::partner.partner_type;
+  exception
+    when invalid_text_representation then
+      perform partner._raise_partner_error('VALIDATION_ERROR', 'invalid partner_type');
+  end;
+
+  v_roles := partner._validate_roles(p_roles);
+
+  if v_partner_type = 'person' then
+    if p_person_profile is null then
+      perform partner._raise_partner_error('VALIDATION_ERROR', 'person_profile required');
+    end if;
+    v_display_name := btrim(coalesce(p_person_profile ->> 'full_name', ''));
+    v_phone := p_person_profile ->> 'phone';
+    v_email := p_person_profile ->> 'email';
+    v_tax_code := p_person_profile ->> 'tax_code';
+    v_name := p_person_profile ->> 'full_name';
+  else
+    if p_organization_profile is null then
+      perform partner._raise_partner_error(
+        'VALIDATION_ERROR',
+        'organization_profile required'
+      );
+    end if;
+    v_display_name := btrim(coalesce(p_organization_profile ->> 'organization_name', ''));
+    v_phone := p_organization_profile ->> 'phone';
+    v_email := p_organization_profile ->> 'email';
+    v_tax_code := p_organization_profile ->> 'tax_code';
+    v_name := p_organization_profile ->> 'organization_name';
+  end if;
+
+  if length(v_display_name) = 0 then
+    perform partner._raise_partner_error('VALIDATION_ERROR', 'display_name is required');
+  end if;
+
+  v_warnings := partner._guard_duplicates(
+    p_tenant_id,
+    v_phone,
+    v_email,
+    v_tax_code,
+    v_name,
+    null,
+    p_confirm_duplicate
+  );
+
+  insert into partner.partners (
+    partner_id,
+    tenant_id,
+    partner_type,
+    status,
+    display_name,
+    version,
+    created_by,
+    updated_by
+  )
+  values (
+    v_partner_id,
+    p_tenant_id,
+    v_partner_type,
+    'active',
+    v_display_name,
+    1,
+    p_actor_id,
+    p_actor_id
+  );
+
+  if v_partner_type = 'person' then
+    perform partner._insert_person_profile(p_tenant_id, v_partner_id, p_person_profile);
+  else
+    perform partner._insert_organization_profile(
+      p_tenant_id,
+      v_partner_id,
+      p_organization_profile
+    );
+  end if;
+
+  perform partner._upsert_roles(p_tenant_id, v_partner_id, v_roles);
+
+  perform partner._log_partner_action(
+    p_tenant_id,
+    v_partner_id,
+    'create',
+    p_actor_id,
+    null,
+    '{}'::jsonb,
+    partner._partner_snapshot(v_partner_id)
+  );
+
+  perform partner.enqueue_outbox_message(
+    p_tenant_id,
+    'partner.partner.created',
+    jsonb_build_object(
+      'tenant_id', p_tenant_id,
+      'partner_id', v_partner_id,
+      'partner_type', v_partner_type::text,
+      'display_name', v_display_name
+    )
+  );
+
+  return query select v_partner_id, v_warnings;
+end;
+$$;
+
+-- ---------------------------------------------------------------------------
+-- RPC: update_partner (CMD-04 / UpdatePartnerProfileCommand)
+-- ---------------------------------------------------------------------------
+
+create or replace function partner.update_partner(
+  p_tenant_id uuid,
+  p_actor_id uuid,
+  p_partner_id uuid,
+  p_expected_version integer,
+  p_roles text[],
+  p_person_profile jsonb default null,
+  p_organization_profile jsonb default null,
+  p_confirm_duplicate boolean default false
+)
+returns table (
+  partner_id uuid,
+  expected_version integer,
+  warnings jsonb
+)
+language plpgsql
+security definer
+set search_path = partner, iam, pg_temp
+as $$
+declare
+  v_partner partner.partners%rowtype;
+  v_before jsonb;
+  v_roles partner.partner_role_type[];
+  v_warnings jsonb := '[]'::jsonb;
+  v_display_name text;
+  v_phone text;
+  v_email text;
+  v_tax_code text;
+  v_name text;
+begin
+  perform partner._assert_actor(p_actor_id);
+
+  if not iam.has_permission(p_tenant_id, 'partner.update') then
+    raise exception 'permission denied: partner.update';
+  end if;
+
+  v_partner := partner._lock_partner(p_tenant_id, p_partner_id, p_expected_version);
+  v_before := partner._partner_snapshot(p_partner_id);
+  v_roles := partner._validate_roles(p_roles);
+
+  if v_partner.partner_type = 'person' then
+    if p_person_profile is null then
+      perform partner._raise_partner_error('VALIDATION_ERROR', 'person_profile required');
+    end if;
+    v_display_name := btrim(coalesce(p_person_profile ->> 'full_name', ''));
+    v_phone := p_person_profile ->> 'phone';
+    v_email := p_person_profile ->> 'email';
+    v_tax_code := p_person_profile ->> 'tax_code';
+    v_name := p_person_profile ->> 'full_name';
+
+    delete from partner.person_profiles pp
+    where pp.partner_id = p_partner_id;
+    perform partner._insert_person_profile(p_tenant_id, p_partner_id, p_person_profile);
+  else
+    if p_organization_profile is null then
+      perform partner._raise_partner_error(
+        'VALIDATION_ERROR',
+        'organization_profile required'
+      );
+    end if;
+    v_display_name := btrim(coalesce(p_organization_profile ->> 'organization_name', ''));
+    v_phone := p_organization_profile ->> 'phone';
+    v_email := p_organization_profile ->> 'email';
+    v_tax_code := p_organization_profile ->> 'tax_code';
+    v_name := p_organization_profile ->> 'organization_name';
+
+    delete from partner.organization_profiles op
+    where op.partner_id = p_partner_id;
+    perform partner._insert_organization_profile(
+      p_tenant_id,
+      p_partner_id,
+      p_organization_profile
+    );
+  end if;
+
+  if length(v_display_name) = 0 then
+    perform partner._raise_partner_error('VALIDATION_ERROR', 'display_name is required');
+  end if;
+
+  v_warnings := partner._guard_duplicates(
+    p_tenant_id,
+    v_phone,
+    v_email,
+    v_tax_code,
+    v_name,
+    p_partner_id,
+    p_confirm_duplicate
+  );
+
+  update partner.partners p
+  set
+    display_name = v_display_name,
+    version = p.version + 1,
+    updated_at = now(),
+    updated_by = p_actor_id
+  where p.partner_id = p_partner_id
+    and p.tenant_id = p_tenant_id
+  returning p.version into v_partner.version;
+
+  perform partner._upsert_roles(p_tenant_id, p_partner_id, v_roles);
+
+  perform partner._log_partner_action(
+    p_tenant_id,
+    p_partner_id,
+    'update',
+    p_actor_id,
+    null,
+    v_before,
+    partner._partner_snapshot(p_partner_id)
+  );
+
+  perform partner.enqueue_outbox_message(
+    p_tenant_id,
+    'partner.partner.profile_updated',
+    jsonb_build_object(
+      'tenant_id', p_tenant_id,
+      'partner_id', p_partner_id,
+      'display_name', v_display_name
+    )
+  );
+
+  return query select p_partner_id, v_partner.version, v_warnings;
+end;
+$$;
+
+-- ---------------------------------------------------------------------------
+-- RPC: add_organization_contact (CMD-05)
+-- ---------------------------------------------------------------------------
+
+create or replace function partner.add_organization_contact(
+  p_tenant_id uuid,
+  p_actor_id uuid,
+  p_organization_partner_id uuid,
+  p_person_partner_id uuid default null,
+  p_new_person_profile jsonb default null,
+  p_contact_role text default null,
+  p_is_primary boolean default false
+)
+returns table (
+  organization_partner_id uuid,
+  person_partner_id uuid
+)
+language plpgsql
+security definer
+set search_path = partner, iam, pg_temp
+as $$
+declare
+  v_org partner.partners%rowtype;
+  v_before jsonb;
+  v_person_id uuid := p_person_partner_id;
+  v_display_name text;
+begin
+  perform partner._assert_actor(p_actor_id);
+
+  if not iam.has_permission(p_tenant_id, 'partner.contact.manage') then
+    raise exception 'permission denied: partner.contact.manage';
+  end if;
+
+  v_org := partner._lock_partner(p_tenant_id, p_organization_partner_id, null);
+
+  if v_org.partner_type <> 'organization' then
+    perform partner._raise_partner_error(
+      'VALIDATION_ERROR',
+      'organization partner required'
+    );
+  end if;
+
+  v_before := partner._partner_snapshot(p_organization_partner_id);
+
+  if v_person_id is null then
+    if p_new_person_profile is null then
+      perform partner._raise_partner_error(
+        'VALIDATION_ERROR',
+        'person_partner_id or new_person_profile required'
+      );
+    end if;
+
+    v_display_name := btrim(coalesce(p_new_person_profile ->> 'full_name', ''));
+    if length(v_display_name) = 0 then
+      perform partner._raise_partner_error('VALIDATION_ERROR', 'full_name is required');
+    end if;
+
+    v_person_id := gen_random_uuid();
+    insert into partner.partners (
+      partner_id, tenant_id, partner_type, status, display_name,
+      version, created_by, updated_by
+    )
+    values (
+      v_person_id, p_tenant_id, 'person', 'active', v_display_name,
+      1, p_actor_id, p_actor_id
+    );
+    perform partner._insert_person_profile(p_tenant_id, v_person_id, p_new_person_profile);
+    perform partner._log_partner_action(
+      p_tenant_id, v_person_id, 'create', p_actor_id, null,
+      '{}'::jsonb, partner._partner_snapshot(v_person_id)
+    );
+  end if;
+
+  if p_is_primary then
+    update partner.organization_contacts oc
+    set is_primary = false, updated_at = now(), updated_by = p_actor_id
+    where oc.organization_partner_id = p_organization_partner_id;
+  end if;
+
+  insert into partner.organization_contacts (
+    organization_partner_id,
+    person_partner_id,
+    tenant_id,
+    contact_role,
+    is_primary,
+    created_by,
+    updated_by
+  )
+  values (
+    p_organization_partner_id,
+    v_person_id,
+    p_tenant_id,
+    nullif(btrim(coalesce(p_contact_role, '')), ''),
+    coalesce(p_is_primary, false),
+    p_actor_id,
+    p_actor_id
+  );
+
+  update partner.partners p
+  set version = p.version + 1, updated_at = now(), updated_by = p_actor_id
+  where p.partner_id = p_organization_partner_id;
+
+  perform partner._log_partner_action(
+    p_tenant_id,
+    p_organization_partner_id,
+    'add_contact',
+    p_actor_id,
+    null,
+    v_before,
+    partner._partner_snapshot(p_organization_partner_id)
+  );
+
+  perform partner.enqueue_outbox_message(
+    p_tenant_id,
+    'partner.partner.contact_changed',
+    jsonb_build_object(
+      'tenant_id', p_tenant_id,
+      'partner_id', p_organization_partner_id,
+      'person_partner_id', v_person_id,
+      'change', 'added'
+    )
+  );
+
+  return query select p_organization_partner_id, v_person_id;
+end;
+$$;
+
+-- ---------------------------------------------------------------------------
+-- RPC: update_organization_contact (CMD-06)
+-- ---------------------------------------------------------------------------
+
+create or replace function partner.update_organization_contact(
+  p_tenant_id uuid,
+  p_actor_id uuid,
+  p_organization_partner_id uuid,
+  p_person_partner_id uuid,
+  p_contact_role text default null,
+  p_is_primary boolean default null
+)
+returns void
+language plpgsql
+security definer
+set search_path = partner, iam, pg_temp
+as $$
+declare
+  v_org partner.partners%rowtype;
+  v_before jsonb;
+  v_updated integer;
+begin
+  perform partner._assert_actor(p_actor_id);
+
+  if not iam.has_permission(p_tenant_id, 'partner.contact.manage') then
+    raise exception 'permission denied: partner.contact.manage';
+  end if;
+
+  v_org := partner._lock_partner(p_tenant_id, p_organization_partner_id, null);
+
+  if v_org.partner_type <> 'organization' then
+    perform partner._raise_partner_error(
+      'VALIDATION_ERROR',
+      'organization partner required'
+    );
+  end if;
+
+  v_before := partner._partner_snapshot(p_organization_partner_id);
+
+  if coalesce(p_is_primary, false) then
+    update partner.organization_contacts oc
+    set is_primary = false, updated_at = now(), updated_by = p_actor_id
+    where oc.organization_partner_id = p_organization_partner_id;
+  end if;
+
+  update partner.organization_contacts oc
+  set
+    contact_role = coalesce(
+      nullif(btrim(coalesce(p_contact_role, '')), ''),
+      oc.contact_role
+    ),
+    is_primary = coalesce(p_is_primary, oc.is_primary),
+    updated_at = now(),
+    updated_by = p_actor_id
+  where oc.organization_partner_id = p_organization_partner_id
+    and oc.person_partner_id = p_person_partner_id
+    and oc.tenant_id = p_tenant_id;
+
+  get diagnostics v_updated = row_count;
+  if v_updated = 0 then
+    perform partner._raise_partner_error('NOT_FOUND', 'contact not found');
+  end if;
+
+  update partner.partners p
+  set version = p.version + 1, updated_at = now(), updated_by = p_actor_id
+  where p.partner_id = p_organization_partner_id;
+
+  perform partner._log_partner_action(
+    p_tenant_id,
+    p_organization_partner_id,
+    'update',
+    p_actor_id,
+    null,
+    v_before,
+    partner._partner_snapshot(p_organization_partner_id)
+  );
+
+  perform partner.enqueue_outbox_message(
+    p_tenant_id,
+    'partner.partner.contact_changed',
+    jsonb_build_object(
+      'tenant_id', p_tenant_id,
+      'partner_id', p_organization_partner_id,
+      'person_partner_id', p_person_partner_id,
+      'change', 'updated'
+    )
+  );
+end;
+$$;
+
+-- ---------------------------------------------------------------------------
+-- RPC: remove_organization_contact (CMD-07)
+-- ---------------------------------------------------------------------------
+
+create or replace function partner.remove_organization_contact(
+  p_tenant_id uuid,
+  p_actor_id uuid,
+  p_organization_partner_id uuid,
+  p_person_partner_id uuid
+)
+returns void
+language plpgsql
+security definer
+set search_path = partner, iam, pg_temp
+as $$
+declare
+  v_org partner.partners%rowtype;
+  v_before jsonb;
+  v_deleted integer;
+begin
+  perform partner._assert_actor(p_actor_id);
+
+  if not iam.has_permission(p_tenant_id, 'partner.contact.manage') then
+    raise exception 'permission denied: partner.contact.manage';
+  end if;
+
+  v_org := partner._lock_partner(p_tenant_id, p_organization_partner_id, null);
+  v_before := partner._partner_snapshot(p_organization_partner_id);
+
+  delete from partner.organization_contacts oc
+  where oc.organization_partner_id = p_organization_partner_id
+    and oc.person_partner_id = p_person_partner_id
+    and oc.tenant_id = p_tenant_id;
+
+  get diagnostics v_deleted = row_count;
+  if v_deleted = 0 then
+    perform partner._raise_partner_error('NOT_FOUND', 'contact not found');
+  end if;
+
+  update partner.partners p
+  set version = p.version + 1, updated_at = now(), updated_by = p_actor_id
+  where p.partner_id = p_organization_partner_id;
+
+  perform partner._log_partner_action(
+    p_tenant_id,
+    p_organization_partner_id,
+    'remove_contact',
+    p_actor_id,
+    null,
+    v_before,
+    partner._partner_snapshot(p_organization_partner_id)
+  );
+
+  perform partner.enqueue_outbox_message(
+    p_tenant_id,
+    'partner.partner.contact_changed',
+    jsonb_build_object(
+      'tenant_id', p_tenant_id,
+      'partner_id', p_organization_partner_id,
+      'person_partner_id', p_person_partner_id,
+      'change', 'removed'
+    )
+  );
+end;
+$$;
+
+-- ---------------------------------------------------------------------------
+-- RPC: transform_to_organization (CMD-08)
+-- ---------------------------------------------------------------------------
+
+create or replace function partner.transform_to_organization(
+  p_tenant_id uuid,
+  p_actor_id uuid,
+  p_partner_id uuid,
+  p_expected_version integer,
+  p_organization_profile jsonb,
+  p_confirm_duplicate boolean default false
+)
+returns table (
+  partner_id uuid,
+  warnings jsonb
+)
+language plpgsql
+security definer
+set search_path = partner, iam, pg_temp
+as $$
+declare
+  v_partner partner.partners%rowtype;
+  v_before jsonb;
+  v_person_snapshot jsonb;
+  v_contact_person_id uuid;
+  v_display_name text;
+  v_warnings jsonb := '[]'::jsonb;
+  v_phone text;
+  v_email text;
+  v_tax_code text;
+begin
+  perform partner._assert_actor(p_actor_id);
+
+  if not iam.has_permission(p_tenant_id, 'partner.transform') then
+    raise exception 'permission denied: partner.transform';
+  end if;
+
+  v_partner := partner._lock_partner(p_tenant_id, p_partner_id, p_expected_version);
+
+  if v_partner.partner_type <> 'person' then
+    perform partner._raise_partner_error(
+      'INVALID_STATUS',
+      'only person partners can be transformed'
+    );
+  end if;
+
+  v_before := partner._partner_snapshot(p_partner_id);
+
+  select to_jsonb(pp)
+  into v_person_snapshot
+  from partner.person_profiles pp
+  where pp.partner_id = p_partner_id;
+
+  if v_person_snapshot is null then
+    perform partner._raise_partner_error('VALIDATION_ERROR', 'person profile missing');
+  end if;
+
+  v_display_name := btrim(coalesce(p_organization_profile ->> 'organization_name', ''));
+  v_phone := p_organization_profile ->> 'phone';
+  v_email := p_organization_profile ->> 'email';
+  v_tax_code := p_organization_profile ->> 'tax_code';
+
+  if length(v_display_name) = 0 then
+    perform partner._raise_partner_error('VALIDATION_ERROR', 'organization_name is required');
+  end if;
+
+  v_warnings := partner._guard_duplicates(
+    p_tenant_id,
+    v_phone,
+    v_email,
+    v_tax_code,
+    v_display_name,
+    p_partner_id,
+    p_confirm_duplicate
+  );
+
+  -- Former person becomes a standalone contact person (US-06 / DR-04).
+  v_contact_person_id := gen_random_uuid();
+  insert into partner.partners (
+    partner_id, tenant_id, partner_type, status, display_name,
+    version, created_by, updated_by
+  )
+  values (
+    v_contact_person_id,
+    p_tenant_id,
+    'person',
+    'active',
+    v_person_snapshot ->> 'full_name',
+    1,
+    p_actor_id,
+    p_actor_id
+  );
+
+  insert into partner.person_profiles (
+    partner_id, tenant_id, title, full_name, nickname,
+    phone, phone_normalized, phone2, phone2_normalized,
+    email, email_normalized, tax_code, tax_code_normalized,
+    invoice_name, invoice_address, invoice_email,
+    delivery_province, delivery_commune, delivery_address, note
+  )
+  select
+    v_contact_person_id,
+    p_tenant_id,
+    pp.title,
+    pp.full_name,
+    pp.nickname,
+    pp.phone,
+    pp.phone_normalized,
+    pp.phone2,
+    pp.phone2_normalized,
+    pp.email,
+    pp.email_normalized,
+    pp.tax_code,
+    pp.tax_code_normalized,
+    pp.invoice_name,
+    pp.invoice_address,
+    pp.invoice_email,
+    pp.delivery_province,
+    pp.delivery_commune,
+    pp.delivery_address,
+    pp.note
+  from partner.person_profiles pp
+  where pp.partner_id = p_partner_id;
+
+  delete from partner.person_profiles pp where pp.partner_id = p_partner_id;
+
+  update partner.partners p
+  set
+    partner_type = 'organization',
+    display_name = v_display_name,
+    version = p.version + 1,
+    updated_at = now(),
+    updated_by = p_actor_id
+  where p.partner_id = p_partner_id;
+
+  perform partner._insert_organization_profile(
+    p_tenant_id,
+    p_partner_id,
+    p_organization_profile
+  );
+
+  insert into partner.organization_contacts (
+    organization_partner_id,
+    person_partner_id,
+    tenant_id,
+    contact_role,
+    is_primary,
+    created_by,
+    updated_by
+  )
+  values (
+    p_partner_id,
+    v_contact_person_id,
+    p_tenant_id,
+    'primary',
+    true,
+    p_actor_id,
+    p_actor_id
+  );
+
+  perform partner._log_partner_action(
+    p_tenant_id,
+    p_partner_id,
+    'transform',
+    p_actor_id,
+    null,
+    v_before,
+    partner._partner_snapshot(p_partner_id)
+  );
+
+  perform partner.enqueue_outbox_message(
+    p_tenant_id,
+    'partner.partner.transformed',
+    jsonb_build_object(
+      'tenant_id', p_tenant_id,
+      'partner_id', p_partner_id,
+      'contact_person_partner_id', v_contact_person_id
+    )
+  );
+
+  return query select p_partner_id, v_warnings;
+end;
+$$;
+
+-- ---------------------------------------------------------------------------
+-- RPC: deactivate_partner (CMD-09)
+-- ---------------------------------------------------------------------------
+
+create or replace function partner.deactivate_partner(
+  p_tenant_id uuid,
+  p_actor_id uuid,
+  p_partner_id uuid,
+  p_expected_version integer,
+  p_reason text default null
+)
+returns table (
+  partner_id uuid,
+  status text,
+  expected_version integer
+)
+language plpgsql
+security definer
+set search_path = partner, iam, pg_temp
+as $$
+declare
+  v_partner partner.partners%rowtype;
+  v_before jsonb;
+begin
+  perform partner._assert_actor(p_actor_id);
+
+  if not iam.has_permission(p_tenant_id, 'partner.status.manage') then
+    raise exception 'permission denied: partner.status.manage';
+  end if;
+
+  v_partner := partner._lock_partner(p_tenant_id, p_partner_id, p_expected_version);
+  v_before := partner._partner_snapshot(p_partner_id);
+
+  if v_partner.status <> 'active' then
+    perform partner._raise_partner_error(
+      'INVALID_STATUS',
+      'only active partners can be deactivated'
+    );
+  end if;
+
+  update partner.partners p
+  set
+    status = 'inactive',
+    version = p.version + 1,
+    updated_at = now(),
+    updated_by = p_actor_id
+  where p.partner_id = p_partner_id
+  returning p.version into v_partner.version;
+
+  perform partner._log_partner_action(
+    p_tenant_id,
+    p_partner_id,
+    'deactivate',
+    p_actor_id,
+    p_reason,
+    v_before,
+    partner._partner_snapshot(p_partner_id)
+  );
+
+  perform partner.enqueue_outbox_message(
+    p_tenant_id,
+    'partner.partner.deactivated',
+    jsonb_build_object(
+      'tenant_id', p_tenant_id,
+      'partner_id', p_partner_id,
+      'reason', p_reason
+    )
+  );
+
+  return query select p_partner_id, 'inactive'::text, v_partner.version;
+end;
+$$;
+
+-- ---------------------------------------------------------------------------
+-- RPC: reactivate_partner (CMD-10)
+-- ---------------------------------------------------------------------------
+
+create or replace function partner.reactivate_partner(
+  p_tenant_id uuid,
+  p_actor_id uuid,
+  p_partner_id uuid,
+  p_expected_version integer,
+  p_reason text default null
+)
+returns table (
+  partner_id uuid,
+  status text,
+  expected_version integer
+)
+language plpgsql
+security definer
+set search_path = partner, iam, pg_temp
+as $$
+declare
+  v_partner partner.partners%rowtype;
+  v_before jsonb;
+begin
+  perform partner._assert_actor(p_actor_id);
+
+  if not iam.has_permission(p_tenant_id, 'partner.status.manage') then
+    raise exception 'permission denied: partner.status.manage';
+  end if;
+
+  v_partner := partner._lock_partner(p_tenant_id, p_partner_id, p_expected_version);
+  v_before := partner._partner_snapshot(p_partner_id);
+
+  if v_partner.status <> 'inactive' then
+    perform partner._raise_partner_error(
+      'INVALID_STATUS',
+      'only inactive partners can be reactivated'
+    );
+  end if;
+
+  update partner.partners p
+  set
+    status = 'active',
+    version = p.version + 1,
+    updated_at = now(),
+    updated_by = p_actor_id
+  where p.partner_id = p_partner_id
+  returning p.version into v_partner.version;
+
+  perform partner._log_partner_action(
+    p_tenant_id,
+    p_partner_id,
+    'reactivate',
+    p_actor_id,
+    p_reason,
+    v_before,
+    partner._partner_snapshot(p_partner_id)
+  );
+
+  perform partner.enqueue_outbox_message(
+    p_tenant_id,
+    'partner.partner.reactivated',
+    jsonb_build_object(
+      'tenant_id', p_tenant_id,
+      'partner_id', p_partner_id,
+      'reason', p_reason
+    )
+  );
+
+  return query select p_partner_id, 'active'::text, v_partner.version;
+end;
+$$;
+
+-- ---------------------------------------------------------------------------
+-- RPC: soft_delete_partner (CMD-12)
+-- ---------------------------------------------------------------------------
+
+create or replace function partner.soft_delete_partner(
+  p_tenant_id uuid,
+  p_actor_id uuid,
+  p_partner_id uuid,
+  p_expected_version integer,
+  p_reason text default null
+)
+returns table (
+  partner_id uuid,
+  status text,
+  expected_version integer
+)
+language plpgsql
+security definer
+set search_path = partner, iam, pg_temp
+as $$
+declare
+  v_partner partner.partners%rowtype;
+  v_before jsonb;
+  v_has_transactions boolean;
+begin
+  perform partner._assert_actor(p_actor_id);
+
+  if not iam.has_permission(p_tenant_id, 'partner.delete') then
+    raise exception 'permission denied: partner.delete';
+  end if;
+
+  v_partner := partner._lock_partner(p_tenant_id, p_partner_id, p_expected_version);
+  v_before := partner._partner_snapshot(p_partner_id);
+
+  if v_partner.status = 'deleted' then
+    perform partner._raise_partner_error('INVALID_STATUS', 'partner already deleted');
+  end if;
+
+  select exists (
+    select 1
+    from partner.partner_history_views h
+    where h.tenant_id = p_tenant_id
+      and h.partner_id = p_partner_id
+  )
+  into v_has_transactions;
+
+  if v_has_transactions then
+    perform partner._raise_partner_error(
+      'HAS_TRANSACTIONS',
+      'partner has transaction history'
+    );
+  end if;
+
+  update partner.partners p
+  set
+    status = 'deleted',
+    version = p.version + 1,
+    updated_at = now(),
+    updated_by = p_actor_id
+  where p.partner_id = p_partner_id
+  returning p.version into v_partner.version;
+
+  perform partner._log_partner_action(
+    p_tenant_id,
+    p_partner_id,
+    'delete',
+    p_actor_id,
+    p_reason,
+    v_before,
+    partner._partner_snapshot(p_partner_id)
+  );
+
+  perform partner.enqueue_outbox_message(
+    p_tenant_id,
+    'partner.partner.soft_deleted',
+    jsonb_build_object(
+      'tenant_id', p_tenant_id,
+      'partner_id', p_partner_id,
+      'reason', p_reason
+    )
+  );
+
+  return query select p_partner_id, 'deleted'::text, v_partner.version;
+end;
+$$;
+
+-- ---------------------------------------------------------------------------
+-- RPC: upsert_partner_history (RecordPartnerHistoryCommand — internal)
+-- ---------------------------------------------------------------------------
+
+create or replace function partner.upsert_partner_history(
+  p_tenant_id uuid,
+  p_partner_id uuid,
+  p_role text,
+  p_transaction_type text,
+  p_source_module text,
+  p_source_id uuid,
+  p_reference_code text,
+  p_transaction_date timestamptz,
+  p_status text,
+  p_amount numeric default null,
+  p_currency text default null,
+  p_can_open_source boolean default false
+)
+returns uuid
+language plpgsql
+security definer
+set search_path = partner, pg_temp
+as $$
+declare
+  v_history_id uuid;
+  v_role partner.partner_role_type;
+  v_transaction_type partner.partner_transaction_type;
+begin
+  if not exists (
+    select 1
+    from partner.partners p
+    where p.tenant_id = p_tenant_id
+      and p.partner_id = p_partner_id
+  ) then
+    perform partner._raise_partner_error('NOT_FOUND', 'partner not found');
+  end if;
+
+  begin
+    v_role := p_role::partner.partner_role_type;
+    v_transaction_type := p_transaction_type::partner.partner_transaction_type;
+  exception
+    when invalid_text_representation then
+      perform partner._raise_partner_error('VALIDATION_ERROR', 'invalid role or transaction_type');
+  end;
+
+  insert into partner.partner_history_views (
+    tenant_id,
+    partner_id,
+    role,
+    transaction_type,
+    source_module,
+    source_id,
+    reference_code,
+    transaction_date,
+    status,
+    amount,
+    currency,
+    can_open_source
+  )
+  values (
+    p_tenant_id,
+    p_partner_id,
+    v_role,
+    v_transaction_type,
+    btrim(p_source_module),
+    p_source_id,
+    btrim(p_reference_code),
+    p_transaction_date,
+    btrim(p_status),
+    p_amount,
+    nullif(btrim(coalesce(p_currency, '')), ''),
+    coalesce(p_can_open_source, false)
+  )
+  on conflict (tenant_id, source_module, source_id)
+  do update set
+    partner_id = excluded.partner_id,
+    role = excluded.role,
+    transaction_type = excluded.transaction_type,
+    reference_code = excluded.reference_code,
+    transaction_date = excluded.transaction_date,
+    status = excluded.status,
+    amount = excluded.amount,
+    currency = excluded.currency,
+    can_open_source = excluded.can_open_source,
+    updated_at = now()
+  returning history_id into v_history_id;
+
+  return v_history_id;
+end;
+$$;
+
+-- ---------------------------------------------------------------------------
+-- Grants
+-- ---------------------------------------------------------------------------
+
+revoke all on function partner._assert_actor(uuid) from public, anon;
+revoke all on function partner._partner_snapshot(uuid) from public, anon;
+revoke all on function partner._log_partner_action(
+  uuid, uuid, partner.partner_action_type, uuid, text, jsonb, jsonb
+) from public, anon;
+revoke all on function partner._validate_roles(text[]) from public, anon;
+revoke all on function partner._duplicate_warnings(
+  uuid, text, text, text, text, uuid
+) from public, anon;
+revoke all on function partner._guard_duplicates(
+  uuid, text, text, text, text, uuid, boolean
+) from public, anon;
+revoke all on function partner._lock_partner(uuid, uuid, integer) from public, anon;
+revoke all on function partner._upsert_roles(uuid, uuid, partner.partner_role_type[]) from public, anon;
+revoke all on function partner._insert_person_profile(uuid, uuid, jsonb) from public, anon;
+revoke all on function partner._insert_organization_profile(uuid, uuid, jsonb) from public, anon;
+
+revoke all on function partner.create_partner(
+  uuid, uuid, text, text[], jsonb, jsonb, boolean
+) from public, anon;
+grant execute on function partner.create_partner(
+  uuid, uuid, text, text[], jsonb, jsonb, boolean
+) to authenticated;
+
+revoke all on function partner.update_partner(
+  uuid, uuid, uuid, integer, text[], jsonb, jsonb, boolean
+) from public, anon;
+grant execute on function partner.update_partner(
+  uuid, uuid, uuid, integer, text[], jsonb, jsonb, boolean
+) to authenticated;
+
+revoke all on function partner.add_organization_contact(
+  uuid, uuid, uuid, uuid, jsonb, text, boolean
+) from public, anon;
+grant execute on function partner.add_organization_contact(
+  uuid, uuid, uuid, uuid, jsonb, text, boolean
+) to authenticated;
+
+revoke all on function partner.update_organization_contact(
+  uuid, uuid, uuid, uuid, text, boolean
+) from public, anon;
+grant execute on function partner.update_organization_contact(
+  uuid, uuid, uuid, uuid, text, boolean
+) to authenticated;
+
+revoke all on function partner.remove_organization_contact(
+  uuid, uuid, uuid, uuid
+) from public, anon;
+grant execute on function partner.remove_organization_contact(
+  uuid, uuid, uuid, uuid
+) to authenticated;
+
+revoke all on function partner.transform_to_organization(
+  uuid, uuid, uuid, integer, jsonb, boolean
+) from public, anon;
+grant execute on function partner.transform_to_organization(
+  uuid, uuid, uuid, integer, jsonb, boolean
+) to authenticated;
+
+revoke all on function partner.deactivate_partner(
+  uuid, uuid, uuid, integer, text
+) from public, anon;
+grant execute on function partner.deactivate_partner(
+  uuid, uuid, uuid, integer, text
+) to authenticated;
+
+revoke all on function partner.reactivate_partner(
+  uuid, uuid, uuid, integer, text
+) from public, anon;
+grant execute on function partner.reactivate_partner(
+  uuid, uuid, uuid, integer, text
+) to authenticated;
+
+revoke all on function partner.soft_delete_partner(
+  uuid, uuid, uuid, integer, text
+) from public, anon;
+grant execute on function partner.soft_delete_partner(
+  uuid, uuid, uuid, integer, text
+) to authenticated;
+
+revoke all on function partner.upsert_partner_history(
+  uuid, uuid, text, text, text, uuid, text, timestamptz, text, numeric, text, boolean
+) from public, anon;
+grant execute on function partner.upsert_partner_history(
+  uuid, uuid, text, text, text, uuid, text, timestamptz, text, numeric, text, boolean
+) to service_role;

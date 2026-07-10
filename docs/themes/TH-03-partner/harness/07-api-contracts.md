@@ -6,6 +6,8 @@ Facade: `IPartnerModule` — `modules/partner/application/lib/src/contracts/i_pa
 
 **CONTRACT lane 2026-07-10:** Commands/queries/DTOs implemented; FE fake qua `FakePartnerModule` (`modules/partner/application/lib/testing.dart`).
 
+**BE lane 2026-07-10:** Domain aggregate, handlers, gateways, `PartnerStartup`, codegen `generated/*.g.dart`; draft SQL `supabase/migrations/_drafts/partner_v2_*.sql` (chưa promote migration).
+
 **Access control:** `@RequiresPermission(PartnerPermissions.*)` + `@RequiresTenant()`; codegen emit `partner_access_metadata.g.dart`.
 
 **Blocked codes:** `NO_PERMISSION`, `NOT_FOUND`, `VALIDATION_ERROR`, `DUPLICATE_WARNING`, `INVALID_STATUS`, `HAS_TRANSACTIONS`, `STATE_CHANGED`, `SYSTEM_ERROR`.
@@ -43,12 +45,12 @@ Facade: `IPartnerModule` — `modules/partner/application/lib/src/contracts/i_pa
 | `CreatePartnerCommand` | tenantId, actorId, partnerType, roles[], personProfile \| organizationProfile, confirmDuplicate | `CreatePartnerResult` (partnerId, warnings[]) | VALIDATION_ERROR, DUPLICATE_WARNING, NO_PERMISSION |
 | `CheckDuplicatePartnersQuery` | tenantId, phone?, email?, taxCode?, name? | `List<PartnerDuplicateMatchDto>` | NO_PERMISSION |
 
-### RPC mapping (BE)
+### RPC mapping (BE) — drafted
 
-| Use case | RPC |
-| -------- | --- |
-| Create | `partner.create_partner` |
-| Dup check | `partner.check_duplicate` |
+| Use case | RPC | Status |
+| -------- | --- | ------ |
+| Create | `partner.create_partner` | drafted |
+| Dup check | `partner.check_duplicate` | drafted |
 
 ### Fake scenarios (FE)
 
