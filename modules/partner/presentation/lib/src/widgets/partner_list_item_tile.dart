@@ -128,6 +128,13 @@ class PartnerListItemTile extends StatelessWidget {
                       style: VTypography.bodySmall.copyWith(color: colors.textSecondary),
                     ),
                   ],
+                  if (item.taxCode != null && item.taxCode!.isNotEmpty) ...[
+                    const SizedBox(height: VSpacing.space1),
+                    Text(
+                      'MST ${item.taxCode}',
+                      style: VTypography.bodySmall.copyWith(color: colors.textSecondary),
+                    ),
+                  ],
                   if (item.updatedAt != null) ...[
                     const SizedBox(height: VSpacing.space1),
                     Text(

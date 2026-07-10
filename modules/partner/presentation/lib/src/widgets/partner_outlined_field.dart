@@ -145,6 +145,7 @@ class _PartnerOutlinedTextFieldState extends State<PartnerOutlinedTextField> {
       controller: _controller,
       keyboardType: widget.keyboardType,
       onChanged: widget.onChanged,
+      onTapOutside: (_) => FocusManager.instance.primaryFocus?.unfocus(),
       style: VTypography.bodyDefault.copyWith(
         color: context.vColors.textPrimary,
         fontSize: 14,
@@ -231,6 +232,7 @@ class _PartnerOutlinedMultilineTextFieldState
       minLines: widget.minLines,
       maxLines: widget.maxLines,
       onChanged: widget.onChanged,
+      onTapOutside: (_) => FocusManager.instance.primaryFocus?.unfocus(),
       style: VTypography.bodyDefault.copyWith(
         color: context.vColors.textPrimary,
         fontSize: 14,

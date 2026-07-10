@@ -413,7 +413,14 @@ final class PartnerCreateCubit extends Cubit<PartnerCreateState> {
         return;
       }
       if (error.code == PartnerBlockedCodes.duplicateWarning) {
-        emit(state.copyWith(status: PartnerCreateStatus.duplicate));
+        // Fallback khi create RPC báo trùng nhưng chưa có list match (sheet cần matches).
+        emit(
+          state.copyWith(
+            status: PartnerCreateStatus.failure,
+            generalError:
+                'Đã tồn tại hồ sơ trùng MST/SĐT/email. Vui lòng kiểm tra lại.',
+          ),
+        );
         return;
       }
       emit(

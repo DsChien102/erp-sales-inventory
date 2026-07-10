@@ -147,6 +147,7 @@ class _PartnerCompactTextFieldState extends State<PartnerCompactTextField> {
         controller: _controller,
         keyboardType: widget.keyboardType,
         onChanged: widget.onChanged,
+        onTapOutside: (_) => FocusManager.instance.primaryFocus?.unfocus(),
         style: PartnerCompactField.valueStyle(context),
         textAlignVertical: TextAlignVertical.center,
         decoration: PartnerCompactField.inputDecoration(
@@ -217,6 +218,7 @@ class _PartnerCompactMultilineTextFieldState
       maxLines: widget.maxLines,
       maxLength: widget.maxLength,
       onChanged: widget.onChanged,
+      onTapOutside: (_) => FocusManager.instance.primaryFocus?.unfocus(),
       style: PartnerCompactField.valueStyle(context),
       textAlignVertical: TextAlignVertical.top,
       buildCounter: widget.maxLength == null

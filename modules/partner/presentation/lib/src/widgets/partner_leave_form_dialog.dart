@@ -5,13 +5,65 @@ Future<void> showPartnerLeaveFormDialog({
   required BuildContext context,
   required VoidCallback onLeave,
 }) {
-  return showVConfirmDialog(
+  return showVBottomSheet<void>(
     context: context,
     title: 'Rời khỏi màn hình?',
-    message: 'Những thay đổi chưa lưu sẽ bị mất.',
-    cancelLabel: 'Ở lại chỉnh sửa',
-    actionLabel: 'Rời khỏi',
-    isDestructive: true,
-    onAction: onLeave,
+    child: _PartnerLeaveFormSheet(onLeave: onLeave),
   );
+}
+
+class _PartnerLeaveFormSheet extends StatelessWidget {
+  const _PartnerLeaveFormSheet({required this.onLeave});
+
+  final VoidCallback onLeave;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.vColors;
+    return SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(
+          VSpacing.space4,
+          VSpacing.space3,
+          VSpacing.space4,
+          VSpacing.space4,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(
+              'Những thay đổi chưa lưu sẽ bị mất.',
+              style: VTypography.bodyDefault.copyWith(
+                color: colors.textSecondary,
+              ),
+            ),
+            const SizedBox(height: VSpacing.space6),
+            Row(
+              children: [
+                Expanded(
+                  child: VButton(
+                    label: 'Ở lại chỉnh sửa',
+                    variant: VButtonVariant.outline,
+                    onPressed: () => Navigator.of(context).pop(),
+                  ),
+                ),
+                const SizedBox(width: VSpacing.space3),
+                Expanded(
+                  child: VButton(
+                    label: 'Rời khỏi',
+                    variant: VButtonVariant.danger,
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                      onLeave();
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }

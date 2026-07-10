@@ -85,6 +85,11 @@ abstract final class PartnerReadRpcMapper {
             status: PartnerStatus.values.byName(item['status'] as String),
             displayName: item['display_name'] as String,
             phone: item['phone'] as String?,
+            email: item['email'] as String?,
+            taxCode: item['tax_code'] as String?,
+            updatedAt: item['updated_at'] == null
+                ? null
+                : DateTime.tryParse(item['updated_at'] as String),
             roles: (item['roles'] as List)
                 .map((r) => PartnerRoleType.values.byName(r as String))
                 .toList(growable: false),
@@ -179,13 +184,9 @@ abstract final class PartnerReadRpcMapper {
           (row) => PartnerDuplicateMatchDto(
             partnerId: row['partner_id'] as String,
             displayName: row['display_name'] as String,
-            matchedField: PartnerDuplicateMatchField.values.byName(
-              row['matched_field'] as String,
-            ),
+            matchedField: _matchField(row['matched_field'] as String),
             matchLevel: _deriveMatchLevel(
-              PartnerDuplicateMatchField.values.byName(
-                row['matched_field'] as String,
-              ),
+              _matchField(row['matched_field'] as String),
             ),
             partnerType: PartnerType.values.byName(
               row['partner_type'] as String,
@@ -194,6 +195,17 @@ abstract final class PartnerReadRpcMapper {
           ),
         )
         .toList(growable: false);
+  }
+
+  /// RPC returns snake_case (`tax_code`); Dart enum uses camelCase (`taxCode`).
+  static PartnerDuplicateMatchField _matchField(String raw) {
+    return switch (raw) {
+      'tax_code' || 'taxCode' => PartnerDuplicateMatchField.taxCode,
+      'phone' => PartnerDuplicateMatchField.phone,
+      'email' => PartnerDuplicateMatchField.email,
+      'name' => PartnerDuplicateMatchField.name,
+      _ => PartnerDuplicateMatchField.values.byName(raw),
+    };
   }
 
   static PartnerDuplicateMatchLevel _deriveMatchLevel(

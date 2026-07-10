@@ -35,7 +35,8 @@ select
         and pr.is_active = true
     ),
     '[]'::jsonb
-  ) as roles
+  ) as roles,
+  coalesce(pp.tax_code, op.tax_code) as tax_code
 from partner.partners p
 left join partner.person_profiles pp on pp.partner_id = p.partner_id
 left join partner.organization_profiles op on op.partner_id = p.partner_id;
@@ -191,6 +192,7 @@ declare
   v_limit integer := least(greatest(coalesce(p_limit, 20), 1), 100);
   v_offset integer := (greatest(coalesce(p_page, 1), 1) - 1) * v_limit;
   v_query text := nullif(btrim(coalesce(p_query, '')), '');
+  v_email_only boolean := v_query is not null and position('@' in v_query) > 0;
   v_total bigint;
 begin
   if auth.uid() is null then
@@ -214,9 +216,19 @@ begin
     )
     and (
       v_query is null
-      or v.display_name ilike '%' || v_query || '%'
-      or coalesce(v.phone, '') ilike '%' || v_query || '%'
-      or coalesce(v.email, '') ilike '%' || v_query || '%'
+      or (
+        v_email_only
+        and coalesce(v.email, '') ilike '%' || v_query || '%'
+      )
+      or (
+        not v_email_only
+        and (
+          v.display_name ilike '%' || v_query || '%'
+          or coalesce(v.phone, '') ilike '%' || v_query || '%'
+          or coalesce(v.email, '') ilike '%' || v_query || '%'
+          or coalesce(v.tax_code, '') ilike '%' || v_query || '%'
+        )
+      )
     );
 
   return query
@@ -232,6 +244,7 @@ begin
           v.roles,
           v.phone,
           v.email,
+          v.tax_code,
           v.updated_at
         from partner.v_partner_list v
         where v.tenant_id = p_tenant_id
@@ -244,9 +257,19 @@ begin
           )
           and (
             v_query is null
-            or v.display_name ilike '%' || v_query || '%'
-            or coalesce(v.phone, '') ilike '%' || v_query || '%'
-            or coalesce(v.email, '') ilike '%' || v_query || '%'
+            or (
+              v_email_only
+              and coalesce(v.email, '') ilike '%' || v_query || '%'
+            )
+            or (
+              not v_email_only
+              and (
+                v.display_name ilike '%' || v_query || '%'
+                or coalesce(v.phone, '') ilike '%' || v_query || '%'
+                or coalesce(v.email, '') ilike '%' || v_query || '%'
+                or coalesce(v.tax_code, '') ilike '%' || v_query || '%'
+              )
+            )
           )
         order by
           case when coalesce(p_sort, 'updated_at_desc') = 'display_name_asc'
