@@ -2,7 +2,7 @@ import 'package:flutter/services.dart';
 
 import '../validators/v_money_validator.dart';
 
-/// Formats money input with Vietnamese thousand separators (`.`).
+/// Formats money input with thousand separators (`,`).
 class VMoneyInputFormatter extends TextInputFormatter {
   const VMoneyInputFormatter();
 

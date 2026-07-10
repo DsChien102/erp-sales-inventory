@@ -1,6 +1,9 @@
 import 'package:flutter/services.dart';
 
-/// Restricts number input to digits (and optional leading minus) or decimal (VN `,`).
+import '../validators/v_number_validator.dart';
+
+/// Restricts number input to digits (optional leading minus) or decimal (`.`),
+/// and formats thousand separators as `,`.
 class VNumberInputFormatter extends TextInputFormatter {
   const VNumberInputFormatter({
     this.allowDecimal = false,
@@ -57,9 +60,27 @@ class VNumberInputFormatter extends TextInputFormatter {
       );
     }
 
+    final isNegative = text.startsWith('-');
+    final digits = isNegative ? text.substring(1) : text;
+    if (digits.isEmpty) {
+      return TextEditingValue(
+        text: text,
+        selection: TextSelection.collapsed(offset: text.length),
+      );
+    }
+
+    final parsed = int.tryParse(digits);
+    if (parsed == null) {
+      return oldValue;
+    }
+
+    final formatted = VNumberValidator.format(
+      isNegative ? -parsed : parsed,
+      allowDecimal: false,
+    );
     return TextEditingValue(
-      text: text,
-      selection: TextSelection.collapsed(offset: text.length),
+      text: formatted,
+      selection: TextSelection.collapsed(offset: formatted.length),
     );
   }
 
@@ -67,26 +88,61 @@ class VNumberInputFormatter extends TextInputFormatter {
     TextEditingValue oldValue,
     TextEditingValue newValue,
   ) {
-    final buffer = StringBuffer();
-    var hasComma = false;
-    var decimalCount = 0;
+    var isNegative = false;
+    var hasDot = false;
+    final integerDigits = StringBuffer();
+    final fractionDigits = StringBuffer();
 
     for (var i = 0; i < newValue.text.length; i++) {
       final char = newValue.text[i];
       if (RegExp(r'[0-9]').hasMatch(char)) {
-        if (hasComma) {
-          if (decimalCount >= decimalPlaces) {
+        if (hasDot) {
+          if (fractionDigits.length >= decimalPlaces) {
             continue;
           }
-          decimalCount++;
+          fractionDigits.write(char);
+        } else {
+          integerDigits.write(char);
         }
-        buffer.write(char);
-      } else if (char == ',' && !hasComma) {
-        hasComma = true;
-        buffer.write(char);
-      } else if (allowNegative && char == '-' && buffer.isEmpty) {
-        buffer.write(char);
+      } else if (char == '.' && !hasDot) {
+        hasDot = true;
+      } else if (allowNegative && char == '-' && !isNegative && integerDigits.isEmpty && !hasDot) {
+        isNegative = true;
       }
+    }
+
+    if (integerDigits.isEmpty && !hasDot && !isNegative) {
+      return const TextEditingValue(
+        text: '',
+        selection: TextSelection.collapsed(offset: 0),
+      );
+    }
+
+    if (integerDigits.isEmpty && isNegative && !hasDot) {
+      return const TextEditingValue(
+        text: '-',
+        selection: TextSelection.collapsed(offset: 1),
+      );
+    }
+
+    final intPartRaw = integerDigits.isEmpty ? '0' : integerDigits.toString();
+    final intParsed = int.tryParse(intPartRaw);
+    if (intParsed == null) {
+      return oldValue;
+    }
+
+    final groupedInt = VNumberValidator.format(
+      intParsed,
+      allowDecimal: false,
+    );
+    final buffer = StringBuffer();
+    if (isNegative) {
+      buffer.write('-');
+    }
+    buffer.write(groupedInt);
+    if (hasDot) {
+      buffer.write('.');
+      buffer.write(fractionDigits.toString());
     }
 
     final text = buffer.toString();

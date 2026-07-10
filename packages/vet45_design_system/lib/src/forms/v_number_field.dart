@@ -123,10 +123,11 @@ class _VNumberFieldState extends State<VNumberField> {
     if (value == null) {
       return '';
     }
-    if (widget.allowDecimal && value is double) {
-      return value.toString().replaceAll('.', ',');
-    }
-    return value.toString();
+    return VNumberValidator.format(
+      value,
+      allowDecimal: widget.allowDecimal,
+      decimalPlaces: widget.decimalPlaces,
+    );
   }
 
   @override

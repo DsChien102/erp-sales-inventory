@@ -20,7 +20,7 @@ void main() {
       await tester.enterText(find.byType(TextField), '1234567');
       await tester.pump();
 
-      expect(find.text('1.234.567'), findsOneWidget);
+      expect(find.text('1,234,567'), findsOneWidget);
     });
 
     testWidgets('shows required error after debounce when empty', (tester) async {
