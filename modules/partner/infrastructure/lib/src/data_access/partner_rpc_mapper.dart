@@ -38,6 +38,7 @@ abstract final class PartnerRpcMapper {
       'p_partner_id': command.partnerId,
       'p_organization_profile': _organizationInput(command.organizationProfile),
       'p_expected_version': command.expectedVersion,
+      'p_confirm_duplicate': command.confirmDuplicate,
     };
   }
 

@@ -115,7 +115,9 @@ select
         jsonb_build_object(
           'person_partner_id', oc.person_partner_id,
           'display_name', cp.display_name,
+          'title', cpp.title,
           'phone', coalesce(cpp.phone, null),
+          'phone2', cpp.phone2,
           'email', coalesce(cpp.email, null),
           'contact_role', oc.contact_role,
           'is_primary', oc.is_primary,

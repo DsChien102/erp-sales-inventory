@@ -51,6 +51,7 @@ import '../../features/partner/presentation/pages/partner_detail_page.dart';
 import '../../features/partner/presentation/pages/partner_contacts_page.dart';
 import '../../features/partner/presentation/pages/partner_contact_form_page.dart';
 import '../../features/partner/presentation/pages/partner_contact_select_page.dart';
+import '../../features/partner/presentation/pages/partner_transform_page.dart';
 
 import '../di/injection.dart';
 
@@ -221,16 +222,40 @@ final appRouter = GoRouter(
       },
     ),
     GoRoute(
+      path: '/partner/:partnerId/transform',
+      name: 'partner.transform',
+      builder: (context, state) {
+        final partnerId = state.pathParameters['partnerId']!;
+        final partner = state.extra as PartnerDetailDto?;
+        if (partner == null) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (context.mounted) context.go('/partner/$partnerId');
+          });
+          return const Scaffold(
+            body: Center(child: CircularProgressIndicator()),
+          );
+        }
+        return PartnerTransformPage(
+          partner: partner,
+          partnerModule: getIt<IPartnerModule>(),
+          executionContext: getIt<IExecutionContext>(),
+        );
+      },
+    ),
+    GoRoute(
       path: '/partner/:partnerId',
       name: 'partner.detail',
       builder: (context, state) {
         final partnerId = state.pathParameters['partnerId']!;
         final showCreateSuccessToast = state.uri.queryParameters['created'] == '1';
+        final showTransformSuccessToast =
+            state.uri.queryParameters['transformed'] == '1';
         return PartnerDetailPage(
           partnerId: partnerId,
           partnerModule: getIt<IPartnerModule>(),
           executionContext: getIt<IExecutionContext>(),
           showCreateSuccessToast: showCreateSuccessToast,
+          showTransformSuccessToast: showTransformSuccessToast,
         );
       },
     ),

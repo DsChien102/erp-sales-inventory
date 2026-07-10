@@ -106,8 +106,8 @@ Codegen ritual: mirror [modules/iam/README.md](../../../../modules/iam/README.md
 | ------ | ---- | ---------- | ------------- | -------- | ------- | ------ |
 | US-06 | CONTRACT | §S6 | application | `TransformPersonToOrganizationCommand` | — | done |
 | FR-01..07 | BE | §S6 | application | transform handler + primary contact | scn_e01_u06_fr01_01 | done |
-| FR-01..07 | FE | §S6 | presentation | transform dialog + org form | wgt_e01_u06_fr01_01 | todo |
-| FR-01 | E2E | §S6 | integration | transform flow | e2e_e01_u06_fr01_01 | todo |
+| FR-01..04,06 | FE | §S6 | presentation | transform UI + `PartnerTransformCubit` → command | wgt_e01_u06_fr01_01 | done |
+| FR-01 | E2E | §S6 | integration | transform via mediator + ERP confirm→detail toast | e2e_e01_u06_fr01_01 | done |
 
 ---
 

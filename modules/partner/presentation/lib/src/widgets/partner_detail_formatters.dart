@@ -44,6 +44,13 @@ abstract final class PartnerDetailFormatters {
     };
   }
 
+  static String? note(PartnerDetailDto detail) {
+    return switch (detail.partnerType) {
+      PartnerType.person => detail.personProfile?.note,
+      PartnerType.organization => detail.organizationProfile?.note,
+    };
+  }
+
   static String formatDeliveryAddress(DeliveryAddressInput? delivery) {
     if (delivery == null) return '';
     return [

@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:vet45_design_system/design_system.dart';
 import 'package:vet45_partner_application/application.dart';
+import 'package:vet45_partner_domain/domain.dart';
 
 import 'partner_detail_expandable_card.dart';
 import 'partner_detail_formatters.dart';
 
-/// Card «Thông tin chính» — SĐT chính và email; tap header để mở/đóng.
+/// Card thông tin chính — field khớp form tạo; thiếu dữ liệu hiển thị trống.
 class PartnerDetailMainInfoCard extends StatelessWidget {
   const PartnerDetailMainInfoCard({
     super.key,
@@ -16,14 +17,17 @@ class PartnerDetailMainInfoCard extends StatelessWidget {
   final PartnerDetailDto dto;
   final bool initiallyExpanded;
 
+  static const _empty = '—';
+
   @override
   Widget build(BuildContext context) {
     final colors = context.vColors;
     final phone = PartnerDetailFormatters.primaryPhone(dto)?.trim() ?? '';
-    final email = PartnerDetailFormatters.primaryEmail(dto)?.trim() ?? '';
+    final isPerson = dto.partnerType == PartnerType.person;
+    final title = isPerson ? 'Thông tin cá nhân' : 'Thông tin tổ chức';
 
     return PartnerDetailExpandableCard(
-      title: 'Thông tin chính',
+      title: title,
       icon: Icons.assignment_ind_outlined,
       initiallyExpanded: initiallyExpanded,
       trailingWhenCollapsed: phone.isEmpty
@@ -35,75 +39,94 @@ class PartnerDetailMainInfoCard extends StatelessWidget {
                 fontSize: 11,
               ),
             ),
-      child: phone.isEmpty && email.isEmpty
-          ? Text(
-              'Chưa có SĐT / email',
-              style: VTypography.bodySmall.copyWith(
-                color: colors.textSecondary,
-              ),
-            )
-          : Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                if (phone.isNotEmpty)
-                  _ContactLine(
-                    icon: Icons.phone_outlined,
-                    label: 'SĐT chính',
-                    value: phone,
-                  ),
-                if (phone.isNotEmpty && email.isNotEmpty)
-                  const SizedBox(height: VSpacing.space2),
-                if (email.isNotEmpty)
-                  _ContactLine(
-                    icon: Icons.mail_outline,
-                    label: 'Email',
-                    value: email,
-                  ),
-              ],
-            ),
+      child: isPerson ? _personFields(dto.personProfile) : _orgFields(dto.organizationProfile),
+    );
+  }
+
+  Widget _personFields(PersonProfileDto? profile) {
+    final title = profile?.title?.value.trim() ?? '';
+    final fullName = profile?.fullName.trim() ?? '';
+    final nickname = profile?.nickname?.trim() ?? '';
+    final phone = profile?.phone.trim() ?? '';
+    final phone2 = profile?.phone2?.trim() ?? '';
+    final email = profile?.email?.trim() ?? '';
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _Field(label: 'Danh xưng', value: title),
+        const SizedBox(height: VSpacing.space3),
+        _Field(label: 'Họ và tên', value: fullName),
+        const SizedBox(height: VSpacing.space3),
+        _Field(label: 'Tên thường gọi', value: nickname),
+        const SizedBox(height: VSpacing.space3),
+        _Field(label: 'SĐT chính', value: phone),
+        const SizedBox(height: VSpacing.space3),
+        _Field(label: 'SĐT phụ', value: phone2),
+        const SizedBox(height: VSpacing.space3),
+        _Field(label: 'Email', value: email),
+      ],
+    );
+  }
+
+  Widget _orgFields(OrganizationProfileDto? profile) {
+    final typeLabel = switch (profile?.organizationType) {
+      OrganizationType.company => 'Công ty',
+      OrganizationType.businessHousehold => 'Hộ kinh doanh',
+      OrganizationType.other => 'Khác',
+      null => '',
+    };
+    final name = profile?.organizationName.trim() ?? '';
+    final shortName = profile?.shortName?.trim() ?? '';
+    final intlName = profile?.intlName?.trim() ?? '';
+    final phone = profile?.phone.trim() ?? '';
+    final email = profile?.email?.trim() ?? '';
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _Field(label: 'Loại tổ chức', value: typeLabel),
+        const SizedBox(height: VSpacing.space3),
+        _Field(label: 'Tên tổ chức', value: name),
+        const SizedBox(height: VSpacing.space3),
+        _Field(label: 'Tên viết tắt', value: shortName),
+        const SizedBox(height: VSpacing.space3),
+        _Field(label: 'Tên quốc tế', value: intlName),
+        const SizedBox(height: VSpacing.space3),
+        _Field(label: 'SĐT chính', value: phone),
+        const SizedBox(height: VSpacing.space3),
+        _Field(label: 'Email', value: email),
+      ],
     );
   }
 }
 
-class _ContactLine extends StatelessWidget {
-  const _ContactLine({
-    required this.icon,
-    required this.label,
-    required this.value,
-  });
+class _Field extends StatelessWidget {
+  const _Field({required this.label, required this.value});
 
-  final IconData icon;
   final String label;
   final String value;
 
   @override
   Widget build(BuildContext context) {
     final colors = context.vColors;
-    return Row(
+    final isEmpty = value.isEmpty;
+    return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Icon(icon, size: 16, color: colors.textSecondary),
-        const SizedBox(width: VSpacing.space2),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                label,
-                style: VTypography.bodySmall.copyWith(
-                  color: colors.textSecondary,
-                  fontSize: 11,
-                ),
-              ),
-              const SizedBox(height: 2),
-              Text(
-                value,
-                style: VTypography.bodyDefault.copyWith(
-                  color: colors.textPrimary,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-            ],
+        Text(
+          label,
+          style: VTypography.bodySmall.copyWith(
+            color: colors.textSecondary,
+            fontSize: 11,
+          ),
+        ),
+        const SizedBox(height: 2),
+        Text(
+          isEmpty ? PartnerDetailMainInfoCard._empty : value,
+          style: VTypography.bodyDefault.copyWith(
+            color: isEmpty ? colors.textMuted : colors.textPrimary,
+            fontWeight: isEmpty ? FontWeight.w400 : FontWeight.w500,
           ),
         ),
       ],

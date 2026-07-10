@@ -16,12 +16,14 @@ class PartnerDetailPage extends StatefulWidget {
     required this.partnerModule,
     required this.executionContext,
     this.showCreateSuccessToast = false,
+    this.showTransformSuccessToast = false,
   });
 
   final String partnerId;
   final IPartnerModule partnerModule;
   final IExecutionContext executionContext;
   final bool showCreateSuccessToast;
+  final bool showTransformSuccessToast;
 
   @override
   State<PartnerDetailPage> createState() => _PartnerDetailPageState();
@@ -38,9 +40,14 @@ class _PartnerDetailPageState extends State<PartnerDetailPage> {
       executionContext: widget.executionContext,
     )..loadDetail(widget.partnerId);
 
-    if (widget.showCreateSuccessToast) {
+    if (widget.showCreateSuccessToast || widget.showTransformSuccessToast) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) showPartnerCreateSuccessToast(context);
+        if (!mounted) return;
+        if (widget.showTransformSuccessToast) {
+          showPartnerTransformSuccessToast(context);
+        } else {
+          showPartnerCreateSuccessToast(context);
+        }
       });
     }
   }
@@ -59,18 +66,15 @@ class _PartnerDetailPageState extends State<PartnerDetailPage> {
     showPartnerUpdateSuccessToast(context);
   }
 
-  void _showActionSheet(BuildContext context, PartnerDetailDto dto) {
+  void _showActionSheet(BuildContext pageContext, PartnerDetailDto dto) {
     showModalBottomSheet(
-      context: context,
+      context: pageContext,
       backgroundColor: Colors.transparent,
-      builder: (context) => PartnerDetailActionSheet(
+      isScrollControlled: true,
+      builder: (sheetContext) => PartnerDetailActionSheet(
         dto: dto,
         onActionSelected: (action) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Hành động ${action.name} sẽ có ở bản cập nhật tiếp theo.'),
-            ),
-          );
+          _handleAction(pageContext, dto, action);
         },
       ),
     );
@@ -82,6 +86,37 @@ class _PartnerDetailPageState extends State<PartnerDetailPage> {
       partnerId: widget.partnerId,
       onReload: () => _cubit.loadDetail(widget.partnerId),
     );
+  }
+
+  void _handleAction(
+    BuildContext context,
+    PartnerDetailDto dto,
+    PartnerDetailAction action,
+  ) {
+    if (action == PartnerDetailAction.transform) {
+      _openTransform(context, dto);
+      return;
+    }
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Hành động ${action.name} sẽ có ở bản cập nhật tiếp theo.'),
+      ),
+    );
+  }
+
+  Future<void> _openTransform(
+    BuildContext context,
+    PartnerDetailDto dto,
+  ) async {
+    final transformed = await context.push<bool>(
+      '/partner/${dto.partnerId}/transform',
+      extra: dto,
+    );
+    if (transformed == true && context.mounted) {
+      await _cubit.loadDetail(dto.partnerId);
+      showPartnerTransformSuccessToast(context);
+    }
   }
 
   @override
@@ -120,7 +155,8 @@ class _PartnerDetailPageState extends State<PartnerDetailPage> {
                   child: PartnerDetailErrorState(
                     iconData: Icons.search_off_rounded,
                     title: 'Không tìm thấy hồ sơ',
-                    description: 'Hồ sơ có thể đã bị xóa hoặc không tồn tại\nhoặc bạn không có quyền xem.',
+                    description:
+                        'Hồ sơ có thể đã bị xóa hoặc không tồn tại\nhoặc bạn không có quyền xem.',
                     actionLabel: 'Quay lại',
                     onActionPressed: () => context.pop(),
                   ),
@@ -141,10 +177,13 @@ class _PartnerDetailPageState extends State<PartnerDetailPage> {
               final dto = state.dto;
               final isPerson = dto.partnerType == PartnerType.person;
               final phone = isPerson ? dto.personProfile?.phone : dto.organizationProfile?.phone;
-              final taxCode = isPerson ? dto.personProfile?.taxCode : dto.organizationProfile?.taxCode;
+              final taxCode = isPerson
+                  ? dto.personProfile?.taxCode
+                  : dto.organizationProfile?.taxCode;
               final hasWarning = isPerson
                   ? (dto.personProfile?.taxCode == null || dto.personProfile?.invoice == null)
-                  : (dto.organizationProfile?.taxCode == null || dto.organizationProfile?.invoice == null);
+                  : (dto.organizationProfile?.taxCode == null ||
+                        dto.organizationProfile?.invoice == null);
 
               final List<String> contactParts = [];
               if (phone != null && phone.isNotEmpty) contactParts.add(phone);
@@ -203,6 +242,9 @@ class _PartnerDetailPageState extends State<PartnerDetailPage> {
                             const SizedBox(height: VSpacing.space2),
 
                             PartnerDetailDeliveryCard(dto: dto),
+                            const SizedBox(height: VSpacing.space2),
+
+                            PartnerDetailNoteCard(dto: dto),
                             const SizedBox(height: VSpacing.space2),
 
                             PartnerDetailHistoryCard(dto: dto),
@@ -289,13 +331,17 @@ class _PartnerDetailPageState extends State<PartnerDetailPage> {
     final colors = context.vColors;
     final isPerson = dto.partnerType == PartnerType.person;
     final labelType = isPerson ? 'Cá nhân' : 'Tổ chức';
-    final labelRoles = dto.roles.contains(PartnerRoleType.customer) && dto.roles.contains(PartnerRoleType.supplier)
+    final labelRoles =
+        dto.roles.contains(PartnerRoleType.customer) && dto.roles.contains(PartnerRoleType.supplier)
         ? 'KH & NCC'
         : (dto.roles.contains(PartnerRoleType.customer) ? 'Khách hàng' : 'Nhà cung cấp');
 
     // Initials Avatar
     final initials = dto.displayName.trim().split(RegExp(r'\s+'));
-    final avatarText = initials.isEmpty ? '?' : (initials.length == 1 ? initials[0][0] : '${initials[0][0]}${initials.last[0]}').toUpperCase();
+    final avatarText = initials.isEmpty
+        ? '?'
+        : (initials.length == 1 ? initials[0][0] : '${initials[0][0]}${initials.last[0]}')
+              .toUpperCase();
 
     // Use exact same avatar color algorithm as list page
     final avatarBgColor = _getAvatarColor(dto.displayName);
