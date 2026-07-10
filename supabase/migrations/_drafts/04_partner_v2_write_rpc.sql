@@ -777,7 +777,12 @@ $$;
 
 -- ---------------------------------------------------------------------------
 -- RPC: update_organization_contact (CMD-06)
+-- Updates contact link (role/primary/note) and optionally linked Person profile.
 -- ---------------------------------------------------------------------------
+
+drop function if exists partner.update_organization_contact(
+  uuid, uuid, uuid, uuid, text, boolean
+);
 
 create or replace function partner.update_organization_contact(
   p_tenant_id uuid,
@@ -785,7 +790,9 @@ create or replace function partner.update_organization_contact(
   p_organization_partner_id uuid,
   p_person_partner_id uuid,
   p_contact_role text default null,
-  p_is_primary boolean default null
+  p_is_primary boolean default null,
+  p_note text default null,
+  p_person_profile jsonb default null
 )
 returns void
 language plpgsql
@@ -794,8 +801,10 @@ set search_path = partner, iam, pg_temp
 as $$
 declare
   v_org partner.partners%rowtype;
+  v_person partner.partners%rowtype;
   v_before jsonb;
   v_updated integer;
+  v_display_name text;
 begin
   perform partner._assert_actor(p_actor_id);
 
@@ -827,6 +836,10 @@ begin
       oc.contact_role
     ),
     is_primary = coalesce(p_is_primary, oc.is_primary),
+    note = coalesce(
+      nullif(btrim(coalesce(p_note, '')), ''),
+      oc.note
+    ),
     updated_at = now(),
     updated_by = p_actor_id
   where oc.organization_partner_id = p_organization_partner_id
@@ -836,6 +849,44 @@ begin
   get diagnostics v_updated = row_count;
   if v_updated = 0 then
     perform partner._raise_partner_error('NOT_FOUND', 'contact not found');
+  end if;
+
+  -- Optionally update linked Person profile (US-05 PATCH person fields).
+  if p_person_profile is not null then
+    select * into v_person
+    from partner.partners p
+    where p.partner_id = p_person_partner_id
+      and p.tenant_id = p_tenant_id
+    for update;
+
+    if not found or v_person.partner_type <> 'person' then
+      perform partner._raise_partner_error(
+        'VALIDATION_ERROR',
+        'contact person partner required'
+      );
+    end if;
+
+    v_display_name := btrim(coalesce(p_person_profile ->> 'full_name', ''));
+    if length(v_display_name) = 0 then
+      perform partner._raise_partner_error('VALIDATION_ERROR', 'full_name is required');
+    end if;
+
+    delete from partner.person_profiles pp
+    where pp.partner_id = p_person_partner_id;
+    perform partner._insert_person_profile(
+      p_tenant_id,
+      p_person_partner_id,
+      p_person_profile
+    );
+
+    update partner.partners p
+    set
+      display_name = v_display_name,
+      version = p.version + 1,
+      updated_at = now(),
+      updated_by = p_actor_id
+    where p.partner_id = p_person_partner_id
+      and p.tenant_id = p_tenant_id;
   end if;
 
   update partner.partners p
@@ -1476,10 +1527,10 @@ grant execute on function partner.add_organization_contact(
 ) to authenticated;
 
 revoke all on function partner.update_organization_contact(
-  uuid, uuid, uuid, uuid, text, boolean
+  uuid, uuid, uuid, uuid, text, boolean, text, jsonb
 ) from public, anon;
 grant execute on function partner.update_organization_contact(
-  uuid, uuid, uuid, uuid, text, boolean
+  uuid, uuid, uuid, uuid, text, boolean, text, jsonb
 ) to authenticated;
 
 revoke all on function partner.remove_organization_contact(

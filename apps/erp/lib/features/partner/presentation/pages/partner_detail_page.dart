@@ -7,6 +7,8 @@ import 'package:vet45_partner_domain/domain.dart';
 import 'package:vet45_partner_presentation/presentation.dart';
 import 'package:vet45_shared_application/application.dart';
 
+import '../widgets/partner_detail_add_contact_flow.dart';
+
 class PartnerDetailPage extends StatefulWidget {
   const PartnerDetailPage({
     super.key,
@@ -71,6 +73,14 @@ class _PartnerDetailPageState extends State<PartnerDetailPage> {
           );
         },
       ),
+    );
+  }
+
+  void _showAddMethodSheet(BuildContext context) {
+    runPartnerDetailAddContactFlow(
+      context: context,
+      partnerId: widget.partnerId,
+      onReload: () => _cubit.loadDetail(widget.partnerId),
     );
   }
 
@@ -181,7 +191,10 @@ class _PartnerDetailPageState extends State<PartnerDetailPage> {
                             if (!isPerson) ...[
                               PartnerDetailContactsCard(
                                 dto: dto,
-                                onTapViewAll: () {},
+                                onTapAdd: () => _showAddMethodSheet(context),
+                                onTapViewAll: () {
+                                  context.push('/partner/${dto.partnerId}/contacts');
+                                },
                               ),
                               const SizedBox(height: VSpacing.space2),
                             ],

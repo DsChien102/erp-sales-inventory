@@ -40,9 +40,18 @@ void main() {
           actorId: 'u-1',
           organizationPartnerId: 'org-1',
           personPartnerId: 'person-1',
+          contactRole: 'Kế toán',
           isPrimary: false,
+          note: 'Ghi chú',
+          personProfile: const PersonProfileInput(
+            fullName: 'Nguyễn Văn B',
+            phone: '0901234567',
+            email: 'b@example.com',
+          ),
         ),
       );
+      expect(gateway.lastUpdateContact?.personProfile?.fullName, 'Nguyễn Văn B');
+      expect(gateway.lastUpdateContact?.contactRole, 'Kế toán');
       await removeHandler.handle(
         RemoveOrganizationContactCommand(
           tenantId: 't-1',

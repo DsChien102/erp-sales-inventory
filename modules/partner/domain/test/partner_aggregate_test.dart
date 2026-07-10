@@ -84,5 +84,30 @@ void main() {
       final primaries = partner.contacts.where((c) => c.isPrimary).length;
       expect(primaries, 1);
     });
+
+    test('updateProfile ignores opposite profile type for organization', () {
+      final partner = Partner.create(
+        tenantId: const TenantId('t-1'),
+        partnerType: PartnerType.organization,
+        roleTypes: const [PartnerRoleType.supplier],
+        organizationProfile: OrganizationProfile(
+          organizationType: OrganizationType.company,
+          organizationName: 'ACME Corp',
+          phone: PhoneNumber('0281234567'),
+        ),
+      );
+
+      // Mistakenly passing personProfile must not attach it (exclusive rule).
+      partner.updateProfile(
+        personProfile: PersonProfile(
+          fullName: 'Should Be Ignored',
+          phone: PhoneNumber('0901234567'),
+        ),
+      );
+
+      expect(partner.personProfile, isNull);
+      expect(partner.organizationProfile?.organizationName, 'ACME Corp');
+      expect(partner.displayName, 'ACME Corp');
+    });
   });
 }

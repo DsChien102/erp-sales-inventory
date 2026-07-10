@@ -57,6 +57,7 @@ final class RecordingPartnerCommandGateway implements IPartnerCommandGateway {
   ReactivatePartnerCommand? lastReactivate;
   SoftDeletePartnerCommand? lastSoftDelete;
   UpdatePartnerProfileCommand? lastUpdateProfile;
+  UpdateOrganizationContactCommand? lastUpdateContact;
 
   @override
   Future<AddOrganizationContactResult> addOrganizationContact(
@@ -122,7 +123,9 @@ final class RecordingPartnerCommandGateway implements IPartnerCommandGateway {
   @override
   Future<void> updateOrganizationContact(
     UpdateOrganizationContactCommand command,
-  ) async {}
+  ) async {
+    lastUpdateContact = command;
+  }
 
   @override
   Future<UpdatePartnerProfileResult> updatePartnerProfile(

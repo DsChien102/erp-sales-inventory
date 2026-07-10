@@ -12,11 +12,13 @@ Thứ tự implement vertical slice. Lane status: `todo` | `in_progress` | `done
 | S2 | [EP-01/US-01](../Epic-01-partner-profile/US-01.md) — Tìm kiếm danh sách | read | done | done | done | done | A | S1 (data) |
 | S3 | [EP-01/US-04](../Epic-01-partner-profile/US-04.md) — Xem hồ sơ chi tiết | read | done | done | done | done | A | S1 |
 | S4 | [EP-01/US-03](../Epic-01-partner-profile/US-03.md) — Cập nhật hồ sơ + role | write | done | done | done | done | A | S1 |
-| S5 | [EP-01/US-05](../Epic-01-partner-profile/US-05.md) — Quản lý người liên hệ | write | done | done | todo | todo | B | S3 (org detail) |
+| S5 | [EP-01/US-05](../Epic-01-partner-profile/US-05.md) — Quản lý người liên hệ | write | done | done | done | done | B | S3 (org detail) |
 | S6 | [EP-01/US-06](../Epic-01-partner-profile/US-06.md) — Transform Person→Organization | write | done | done | todo | todo | B | S3 |
 | S7 | [EP-02/US-01](../Epic-02-partner-status/US-01.md) — Ngừng hoạt động / kích hoạt lại | write | done | done | todo | todo | C | S3 |
 | S8 | [EP-02/US-02](../Epic-02-partner-status/US-02.md) — Xóa mềm | write | done | done | todo | todo | C | S3 |
 | S9 | [EP-01/US-07](../Epic-01-partner-profile/US-07.md) — Lịch sử làm việc | read cross-module | done | done | todo | **blocked** | D | sales/inventory/accounting events |
+
+> **S5 FE polish (2026-07-10):** Edit contact qua `UpdateOrganizationContactCommand` (+ person profile); VToast + reload sau add/edit.
 
 ### Parallel groups
 

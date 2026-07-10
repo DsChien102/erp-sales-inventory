@@ -127,8 +127,10 @@ abstract final class PartnerReadRpcMapper {
               personPartnerId: (c as Map)['person_partner_id'] as String,
               displayName: c['display_name'] as String,
               phone: c['phone'] as String?,
+              email: c['email'] as String?,
               contactRole: c['contact_role'] as String?,
               isPrimary: c['is_primary'] as bool? ?? false,
+              note: c['note'] as String?,
             ),
           )
           .toList(growable: false),

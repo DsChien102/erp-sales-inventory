@@ -91,10 +91,12 @@ Codegen ritual: mirror [modules/iam/README.md](../../../../modules/iam/README.md
 
 | Req ID | Role | Contract § | Enforce layer | Artifact | Test id | Status |
 | ------ | ---- | ---------- | ------------- | -------- | ------- | ------ |
-| US-05 | CONTRACT | §S5 | application | Add/Update/Remove OrganizationContact commands | — | done |
+| US-05 | CONTRACT | §S5 | application | Add/Update/Remove OrganizationContact commands; update accepts `personProfile` | — | done |
 | FR-01..07 | BE | §S5 | application | contact command handlers | scn_e01_u05_fr01_01 | done |
-| FR-01..07 | FE | §S5 | presentation | contact list, add/edit/remove UI | wgt_e01_u05_fr01_01 | todo |
-| FR-01 | E2E | §S5 | integration | contact CRUD | e2e_e01_u05_fr01_01 | todo |
+| FR-03 | BE | §S5 | infrastructure | `supabase/migrations/_drafts/04_partner_v2_write_rpc.sql` (`update_organization_contact` + person profile) | — | done |
+| FR-01..07 | FE | §S5 | presentation | contact list/add/edit; edit via `UpdateOrganizationContactCommand` only | wgt_e01_u05_fr01_01 | done |
+| FR-02/03 | FE | §S5 | presentation | `partner_contacts_page.dart`, `partner_contact_form_page.dart`, `partner_detail_add_contact_flow.dart` — VToast + reload after success | e2e_e01_u05_fr01_01 | done |
+| FR-01 | E2E | §S5 | integration | contact CRUD | e2e_e01_u05_fr01_01 | done |
 
 ---
 

@@ -144,11 +144,13 @@ final class Partner extends Entity<PartnerId> implements IAggregateRoot {
     List<PartnerRoleType>? roleTypes,
   }) {
     _ensureMutable();
-    if (personProfile != null) {
+    // Only apply the profile that matches partner_type — never attach the
+    // opposite profile (would break PersonOrOrganizationProfileExclusiveRule).
+    if (_partnerType == PartnerType.person && personProfile != null) {
       _personProfile = personProfile;
       _displayName = personProfile.fullName;
-    }
-    if (organizationProfile != null) {
+    } else if (_partnerType == PartnerType.organization &&
+        organizationProfile != null) {
       _organizationProfile = organizationProfile;
       _displayName = organizationProfile.organizationName;
     }

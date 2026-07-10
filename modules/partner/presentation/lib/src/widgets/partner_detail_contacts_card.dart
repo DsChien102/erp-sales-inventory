@@ -9,31 +9,15 @@ class PartnerDetailContactsCard extends StatelessWidget {
   const PartnerDetailContactsCard({
     super.key,
     required this.dto,
+    this.onTapAdd,
     this.onTapViewAll,
     this.initiallyExpanded = false,
   });
 
   final PartnerDetailDto dto;
+  final VoidCallback? onTapAdd;
   final VoidCallback? onTapViewAll;
   final bool initiallyExpanded;
-
-  Widget _buildStatusTag(BuildContext context, String text, Color color) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(4),
-      ),
-      child: Text(
-        text,
-        style: VTypography.bodySmall.copyWith(
-          color: color,
-          fontSize: 11,
-          fontWeight: FontWeight.w600,
-        ),
-      ),
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -61,131 +45,212 @@ class PartnerDetailContactsCard extends StatelessWidget {
                 ),
               ),
             ),
-      child: contacts.isEmpty
-          ? Text(
-              'Chưa có người liên hệ.',
-              style: VTypography.bodySmall.copyWith(
-                color: colors.textSecondary,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          if (contacts.isEmpty)
+            Padding(
+              padding: const EdgeInsets.only(bottom: VSpacing.space2),
+              child: Text(
+                'Chưa có người liên hệ.',
+                style: VTypography.bodySmall.copyWith(
+                  color: colors.textSecondary,
+                ),
               ),
             )
-          : _ContactsBody(
+          else
+            _ContactsListBody(
               contacts: contacts,
-              onTapViewAll: onTapViewAll,
-              buildStatusTag: _buildStatusTag,
+              colors: colors,
             ),
+          const SizedBox(height: VSpacing.space3),
+          Divider(color: colors.borderDefault, height: 1),
+          const SizedBox(height: VSpacing.space3),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              InkWell(
+                onTap: onTapAdd,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 4),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.add_circle_outline_rounded,
+                        size: 16,
+                        color: colors.success,
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        'Thêm người liên hệ',
+                        style: VTypography.bodyDefault.copyWith(
+                          color: colors.success,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              if (contacts.isNotEmpty && onTapViewAll != null)
+                InkWell(
+                  onTap: onTapViewAll,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 4),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          'Xem tất cả (${contacts.length})',
+                          style: VTypography.bodyDefault.copyWith(
+                            color: colors.success,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        const SizedBox(width: 4),
+                        Icon(
+                          Icons.chevron_right_rounded,
+                          size: 16,
+                          color: colors.success,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 }
 
-class _ContactsBody extends StatelessWidget {
-  const _ContactsBody({
+class _ContactsListBody extends StatelessWidget {
+  const _ContactsListBody({
     required this.contacts,
-    required this.onTapViewAll,
-    required this.buildStatusTag,
+    required this.colors,
   });
 
   final List<PartnerContactDto> contacts;
-  final VoidCallback? onTapViewAll;
-  final Widget Function(BuildContext, String, Color) buildStatusTag;
+  final VColorScheme colors;
+
+  Color _getAvatarColor(String displayName) {
+    final palette = [
+      VColors.success,
+      VColors.warning,
+      VColors.info,
+      VColors.primary,
+      const Color(0xFF9C27B0),
+      const Color(0xFF00BCD4),
+    ];
+    int sum = 0;
+    for (int i = 0; i < displayName.length; i++) {
+      sum += displayName.codeUnitAt(i);
+    }
+    return palette[sum % palette.length];
+  }
+
+  String _getInitials(String displayName) {
+    final words = displayName.trim().split(RegExp(r'\s+'));
+    if (words.isEmpty) return '?';
+    if (words.length == 1) {
+      return words.first[0].toUpperCase();
+    }
+    final first = words.first[0].toUpperCase();
+    final last = words.last[0].toUpperCase();
+    return '$first$last';
+  }
+
+  Widget _buildStatusTag(BuildContext context, String text, Color color) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(4),
+      ),
+      child: Text(
+        text,
+        style: VTypography.bodySmall.copyWith(
+          color: color,
+          fontSize: 11,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.vColors;
-    final primaryContact = contacts.firstWhere(
-      (c) => c.isPrimary,
-      orElse: () => contacts.first,
-    );
+    final sorted = List<PartnerContactDto>.from(contacts)
+      ..sort((a, b) => (b.isPrimary ? 1 : 0).compareTo(a.isPrimary ? 1 : 0));
+    final displayContacts = sorted.take(2).toList();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            CircleAvatar(
-              radius: 20,
-              backgroundColor: colors.surfaceAlt,
-              child: Text(
-                primaryContact.displayName.trim().isNotEmpty
-                    ? primaryContact.displayName.substring(0, 1).toUpperCase()
-                    : '?',
-                style: VTypography.bodyDefault.copyWith(
-                  fontWeight: FontWeight.w600,
-                  color: colors.textPrimary,
+        for (int i = 0; i < displayContacts.length; i++) ...[
+          if (i > 0) const SizedBox(height: VSpacing.space3),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              CircleAvatar(
+                radius: 20,
+                backgroundColor: _getAvatarColor(displayContacts[i].displayName),
+                child: Text(
+                  _getInitials(displayContacts[i].displayName),
+                  style: VTypography.bodyDefault.copyWith(
+                    fontWeight: FontWeight.w600,
+                    color: Colors.white,
+                  ),
                 ),
               ),
-            ),
-            const SizedBox(width: VSpacing.space3),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Flexible(
-                        child: Text(
-                          primaryContact.displayName,
-                          style: VTypography.bodyDefault.copyWith(
-                            color: colors.textPrimary,
-                            fontWeight: FontWeight.w600,
+              const SizedBox(width: VSpacing.space3),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Flexible(
+                          child: Text(
+                            displayContacts[i].displayName,
+                            style: VTypography.bodyDefault.copyWith(
+                              color: colors.textPrimary,
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
                         ),
-                      ),
-                      if (primaryContact.isPrimary) ...[
-                        const SizedBox(width: 8),
-                        buildStatusTag(context, 'Chính', colors.success),
+                        if (displayContacts[i].isPrimary) ...[
+                          const SizedBox(width: 8),
+                          _buildStatusTag(context, 'Chính', colors.success),
+                        ],
                       ],
+                    ),
+                    if (displayContacts[i].contactRole != null &&
+                        displayContacts[i].contactRole!.isNotEmpty) ...[
+                      const SizedBox(height: 2),
+                      Text(
+                        displayContacts[i].contactRole!,
+                        style: VTypography.bodySmall.copyWith(
+                          color: colors.textSecondary,
+                        ),
+                      ),
                     ],
-                  ),
-                  if (primaryContact.contactRole != null) ...[
-                    const SizedBox(height: 2),
-                    Text(
-                      primaryContact.contactRole!,
-                      style: VTypography.bodySmall.copyWith(
-                        color: colors.textSecondary,
+                    if (displayContacts[i].phone != null &&
+                        displayContacts[i].phone!.isNotEmpty) ...[
+                      const SizedBox(height: 2),
+                      Text(
+                        displayContacts[i].phone!,
+                        style: VTypography.bodySmall.copyWith(
+                          color: colors.textSecondary,
+                        ),
                       ),
-                    ),
+                    ],
                   ],
-                  if (primaryContact.phone != null &&
-                      primaryContact.phone!.isNotEmpty) ...[
-                    const SizedBox(height: 2),
-                    Text(
-                      primaryContact.phone!,
-                      style: VTypography.bodySmall.copyWith(
-                        color: colors.textSecondary,
-                      ),
-                    ),
-                  ],
-                ],
+                ),
               ),
-            ),
-          ],
-        ),
-        if (contacts.length > 1 && onTapViewAll != null) ...[
-          const SizedBox(height: VSpacing.space3),
-          Align(
-            alignment: Alignment.centerRight,
-            child: InkWell(
-              onTap: onTapViewAll,
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    'Xem tất cả',
-                    style: VTypography.bodyDefault.copyWith(
-                      color: colors.success,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  const SizedBox(width: 4),
-                  Icon(
-                    Icons.chevron_right_rounded,
-                    size: 16,
-                    color: colors.success,
-                  ),
-                ],
-              ),
-            ),
+            ],
           ),
         ],
       ],
