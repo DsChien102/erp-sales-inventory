@@ -4,36 +4,47 @@ import 'package:vet45_shared_application/application.dart';
 
 import 'partner_detail_state.dart';
 
-class PartnerDetailCubit extends Cubit<PartnerDetailState> {
+final class PartnerDetailCubit extends Cubit<PartnerDetailState> {
   PartnerDetailCubit({
-    required String partnerId,
     required IPartnerModule partnerModule,
     required IExecutionContext executionContext,
-  }) : _partnerId = partnerId,
-       _partnerModule = partnerModule,
-       _executionContext = executionContext,
-       super(const PartnerDetailInitial());
+  })  : _partnerModule = partnerModule,
+        _executionContext = executionContext,
+        super(const PartnerDetailInitial());
 
-  final String _partnerId;
   final IPartnerModule _partnerModule;
   final IExecutionContext _executionContext;
 
-  Future<void> load() async {
+  Future<void> loadDetail(String partnerId) async {
     emit(const PartnerDetailLoading());
     try {
       final tenantId = await _executionContext.requireTenantId();
-      final detail = await _partnerModule.executeQueryAsync(
-        GetPartnerDetailQuery(tenantId: tenantId, partnerId: _partnerId),
+      final result = await _partnerModule.executeQueryAsync(
+        GetPartnerDetailQuery(
+          tenantId: tenantId,
+          partnerId: partnerId,
+        ),
       );
-      emit(PartnerDetailLoaded(detail: detail));
-    } catch (error) {
-      emit(PartnerDetailError(error.toString()));
+      emit(PartnerDetailLoaded(result));
+    } catch (e) {
+      final errorStr = e.toString();
+      final isNotFound = errorStr.contains('NOT_FOUND') || errorStr.contains('not found');
+      final isNoPermission = errorStr.contains('NO_PERMISSION') || errorStr.contains('permission denied');
+      emit(PartnerDetailError(
+        errorStr,
+        isNotFound: isNotFound,
+        isNoPermission: isNoPermission,
+      ));
     }
   }
 
   void selectTab(int index) {
-    final current = state;
-    if (current is! PartnerDetailLoaded) return;
-    emit(current.copyWith(selectedTabIndex: index));
+    final currentState = state;
+    if (currentState is PartnerDetailLoaded) {
+      emit(PartnerDetailLoaded(
+        currentState.detail,
+        selectedTabIndex: index,
+      ));
+    }
   }
 }

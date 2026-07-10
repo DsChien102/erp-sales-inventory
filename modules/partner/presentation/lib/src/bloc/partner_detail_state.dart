@@ -17,33 +17,25 @@ final class PartnerDetailLoading extends PartnerDetailState {
 }
 
 final class PartnerDetailLoaded extends PartnerDetailState {
-  const PartnerDetailLoaded({
-    required this.detail,
-    this.selectedTabIndex = 0,
-  });
+  const PartnerDetailLoaded(this.dto, {this.selectedTabIndex = 0});
 
-  final PartnerDetailDto detail;
+  final PartnerDetailDto dto;
   final int selectedTabIndex;
 
-  PartnerDetailLoaded copyWith({
-    PartnerDetailDto? detail,
-    int? selectedTabIndex,
-  }) {
-    return PartnerDetailLoaded(
-      detail: detail ?? this.detail,
-      selectedTabIndex: selectedTabIndex ?? this.selectedTabIndex,
-    );
-  }
+  // Keep detail getter for backwards compatibility if needed, or maps.
+  PartnerDetailDto get detail => dto;
 
   @override
-  List<Object?> get props => [detail, selectedTabIndex];
+  List<Object?> get props => [dto, selectedTabIndex];
 }
 
 final class PartnerDetailError extends PartnerDetailState {
-  const PartnerDetailError(this.message);
+  const PartnerDetailError(this.message, {this.isNotFound = false, this.isNoPermission = false});
 
   final String message;
+  final bool isNotFound;
+  final bool isNoPermission;
 
   @override
-  List<Object?> get props => [message];
+  List<Object?> get props => [message, isNotFound, isNoPermission];
 }
