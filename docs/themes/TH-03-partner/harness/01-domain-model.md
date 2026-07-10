@@ -133,9 +133,10 @@ erDiagram
 
 ## Aggregate
 
-| Aggregate | Folder | Ghi chú |
-| --------- | ------ | ------- |
-| `Partner` | `domain/lib/src/partner/` | Root aggregate. Quản lý `partner_type`, `status`, profile (Person hoặc Organization), roles, lifecycle. |
+| Aggregate | Folder | Application folder | Ghi chú |
+| --------- | ------ | ------------------ | ------- |
+| `Partner` | `domain/lib/src/partner/` | `application/lib/src/partner/commands/`, `queries/` | Root aggregate. Quản lý `partner_type`, `status`, profile (Person hoặc Organization), roles, lifecycle. |
+| `PartnerHistoryView` | — (read model) | `application/lib/src/partner_history/commands/`, `queries/` | Read model/projection — không phải aggregate Partner |
 
 **Không phải aggregate:** `PartnerHistoryView` (read model/projection), `PartnerActionLog` (audit append-only).
 
@@ -159,7 +160,7 @@ erDiagram
 | `PartnerStatus` | `active`, `inactive`, `deleted` |
 | `PartnerRoleType` | `customer`, `supplier` |
 | `OrganizationType` | `company`, `businessHousehold`, `other` |
-| `PersonTitle` | `ong`, `ba`, `anh`, `chi`, ... (optional) |
+| `PersonTitle` | optional honorific VO — `String` value, free-form, không normalize |
 | `PhoneNumber` | Required; validate format; dup warning tenant-scoped |
 | `EmailAddress` | Optional; validate format; dup warning |
 | `TaxCode` | Optional; dup warning; warn if missing for company/businessHousehold |

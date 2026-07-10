@@ -1,10 +1,10 @@
 # TH-03 — API contracts (FE ↔ BE) v2
 
-Source of truth giữa presentation và application layer. Types sẽ live in `modules/partner/application/` (chưa tạo).
+Source of truth giữa presentation và application layer. Types live in `modules/partner/application/`.
 
-Facade: `IPartnerModule` (planned).
+Facade: `IPartnerModule` — `modules/partner/application/lib/src/contracts/i_partner_module.dart`.
 
-**Reboot 2026-07-07:** Contracts dưới đây là **planned** — map từ Theme spec CMD-01..13. FE fake theo contract này qua `FakePartnerModule` (chưa tạo).
+**CONTRACT lane 2026-07-10:** Commands/queries/DTOs implemented; FE fake qua `FakePartnerModule` (`modules/partner/application/lib/testing.dart`).
 
 **Access control:** `@RequiresPermission(PartnerPermissions.*)` + `@RequiresTenant()`; codegen emit `partner_access_metadata.g.dart`.
 

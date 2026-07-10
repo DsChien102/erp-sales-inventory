@@ -8,15 +8,15 @@ Thứ tự implement vertical slice. Lane status: `todo` | `in_progress` | `done
 
 | # | Slice | Type | Contract | BE | FE | E2E | Parallel group | E2E blocked by |
 | - | ----- | ---- | -------- | -- | -- | --- | -------------- | -------------- |
-| S1 | [EP-01/US-02](../Epic-01-partner-profile/US-02.md) — Tạo Partner (Person + Organization) | write | todo | todo | todo | todo | — | — |
-| S2 | [EP-01/US-01](../Epic-01-partner-profile/US-01.md) — Tìm kiếm danh sách | read | todo | todo | todo | todo | A | S1 (data) |
-| S3 | [EP-01/US-04](../Epic-01-partner-profile/US-04.md) — Xem hồ sơ chi tiết | read | todo | todo | todo | todo | A | S1 |
-| S4 | [EP-01/US-03](../Epic-01-partner-profile/US-03.md) — Cập nhật hồ sơ + role | write | todo | todo | todo | todo | A | S1 |
-| S5 | [EP-01/US-05](../Epic-01-partner-profile/US-05.md) — Quản lý người liên hệ | write | todo | todo | todo | todo | B | S3 (org detail) |
-| S6 | [EP-01/US-06](../Epic-01-partner-profile/US-06.md) — Transform Person→Organization | write | todo | todo | todo | todo | B | S3 |
-| S7 | [EP-02/US-01](../Epic-02-partner-status/US-01.md) — Ngừng hoạt động / kích hoạt lại | write | todo | todo | todo | todo | C | S3 |
-| S8 | [EP-02/US-02](../Epic-02-partner-status/US-02.md) — Xóa mềm | write | todo | todo | todo | todo | C | S3 |
-| S9 | [EP-01/US-07](../Epic-01-partner-profile/US-07.md) — Lịch sử làm việc | read cross-module | todo | todo | todo | **blocked** | D | sales/inventory/accounting events |
+| S1 | [EP-01/US-02](../Epic-01-partner-profile/US-02.md) — Tạo Partner (Person + Organization) | write | done | todo | todo | todo | — | — |
+| S2 | [EP-01/US-01](../Epic-01-partner-profile/US-01.md) — Tìm kiếm danh sách | read | done | todo | todo | todo | A | S1 (data) |
+| S3 | [EP-01/US-04](../Epic-01-partner-profile/US-04.md) — Xem hồ sơ chi tiết | read | done | todo | todo | todo | A | S1 |
+| S4 | [EP-01/US-03](../Epic-01-partner-profile/US-03.md) — Cập nhật hồ sơ + role | write | done | todo | todo | todo | A | S1 |
+| S5 | [EP-01/US-05](../Epic-01-partner-profile/US-05.md) — Quản lý người liên hệ | write | done | todo | todo | todo | B | S3 (org detail) |
+| S6 | [EP-01/US-06](../Epic-01-partner-profile/US-06.md) — Transform Person→Organization | write | done | todo | todo | todo | B | S3 |
+| S7 | [EP-02/US-01](../Epic-02-partner-status/US-01.md) — Ngừng hoạt động / kích hoạt lại | write | done | todo | todo | todo | C | S3 |
+| S8 | [EP-02/US-02](../Epic-02-partner-status/US-02.md) — Xóa mềm | write | done | todo | todo | todo | C | S3 |
+| S9 | [EP-01/US-07](../Epic-01-partner-profile/US-07.md) — Lịch sử làm việc | read cross-module | done | todo | todo | **blocked** | D | sales/inventory/accounting events |
 
 ### Parallel groups
 
@@ -31,8 +31,8 @@ Thứ tự implement vertical slice. Lane status: `todo` | `in_progress` | `done
 
 ### CONTRACT
 
-- [ ] Commands/Queries/DTOs exported trong `modules/partner/application/`
-- [ ] Section trong [07-api-contracts.md](07-api-contracts.md) + fake scenario table
+- [x] Commands/Queries/DTOs exported trong `modules/partner/application/`
+- [x] Section trong [07-api-contracts.md](07-api-contracts.md) + fake scenario table
 - [ ] BE + FE sign-off (review PR)
 
 ### BE
