@@ -54,12 +54,19 @@ abstract final class PartnerDetailFormatters {
   }
 
   static String? createdDateLabel(PartnerDetailDto detail) {
-    final createdAt = detail.createdAt;
-    if (createdAt == null) return null;
-    final local = createdAt.toLocal();
-    return '${local.day.toString().padLeft(2, '0')}/'
+    return formatDateTime(detail.createdAt, dateOnly: true);
+  }
+
+  static String? formatDateTime(DateTime? value, {bool dateOnly = false}) {
+    if (value == null) return null;
+    final local = value.toLocal();
+    final date = '${local.day.toString().padLeft(2, '0')}/'
         '${local.month.toString().padLeft(2, '0')}/'
         '${local.year}';
+    if (dateOnly) return date;
+    final time = '${local.hour.toString().padLeft(2, '0')}:'
+        '${local.minute.toString().padLeft(2, '0')}';
+    return '$date $time';
   }
 
   static String createdActivityText(PartnerDetailDto detail) {

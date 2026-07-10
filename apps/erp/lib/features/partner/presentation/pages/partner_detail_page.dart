@@ -167,61 +167,27 @@ class _PartnerDetailPageState extends State<PartnerDetailPage> {
                             ],
 
                             // Info Cards
-                            _buildInfoTile(
-                              context,
-                              title: 'Thông tin chính',
-                              icon: Icons.assignment_ind_outlined,
-                              onTap: () {},
-                            ),
+                            PartnerDetailMainInfoCard(dto: dto),
                             const SizedBox(height: VSpacing.space2),
 
-                            // Contacts Card (Only for Org)
                             if (!isPerson) ...[
                               PartnerDetailContactsCard(
                                 dto: dto,
-                                onTapHeader: () {},
                                 onTapViewAll: () {},
                               ),
                               const SizedBox(height: VSpacing.space2),
                             ],
 
-                            _buildInfoTile(
-                              context,
-                              title: 'Hóa đơn / thuế',
-                              icon: Icons.receipt_long_outlined,
-                              trailingText: hasWarning ? 'Thiếu MST, địa chỉ' : null,
-                              trailingColor: hasWarning ? colors.danger : null,
-                              onTap: () {},
-                            ),
+                            PartnerDetailInvoiceCard(dto: dto),
                             const SizedBox(height: VSpacing.space2),
 
-                            _buildInfoTile(
-                              context,
-                              title: 'Địa chỉ giao hàng',
-                              icon: Icons.location_on_outlined,
-                              trailingText: (isPerson ? dto.personProfile?.delivery == null : dto.organizationProfile?.delivery == null)
-                                  ? 'Chưa có'
-                                  : null,
-                              trailingColor: colors.warning,
-                              onTap: () {},
-                            ),
+                            PartnerDetailDeliveryCard(dto: dto),
                             const SizedBox(height: VSpacing.space2),
 
-                            _buildInfoTile(
-                              context,
-                              title: 'Lịch sử gần đây',
-                              icon: Icons.history_toggle_off_rounded,
-                              trailingText: '3', // Seed data has 3 history records
-                              onTap: () {},
-                            ),
+                            PartnerDetailHistoryCard(dto: dto),
                             const SizedBox(height: VSpacing.space2),
 
-                            _buildInfoTile(
-                              context,
-                              title: 'Thông tin hệ thống',
-                              icon: Icons.settings_outlined,
-                              onTap: () {},
-                            ),
+                            PartnerDetailSystemCard(dto: dto),
                           ],
                         ),
                       ),
@@ -480,61 +446,6 @@ class _PartnerDetailPageState extends State<PartnerDetailPage> {
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildInfoTile(
-    BuildContext context, {
-    required String title,
-    required IconData icon,
-    String? trailingText,
-    Color? trailingColor,
-    required VoidCallback onTap,
-  }) {
-    final colors = context.vColors;
-    return Material(
-      color: colors.surface,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(VRadius.card),
-        side: BorderSide(color: colors.borderDefault),
-      ),
-      child: ListTile(
-        dense: true,
-        contentPadding: const EdgeInsets.symmetric(horizontal: VSpacing.space4, vertical: 0),
-        leading: Icon(icon, color: colors.textSecondary, size: 20),
-        title: Text(
-          title,
-          style: VTypography.bodyDefault.copyWith(
-            color: colors.textPrimary,
-            fontWeight: FontWeight.w500,
-          ),
-        ),
-        trailing: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            if (trailingText != null) ...[
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                decoration: BoxDecoration(
-                  color: trailingColor?.withValues(alpha: 0.1) ?? colors.surfaceAlt,
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Text(
-                  trailingText,
-                  style: VTypography.bodySmall.copyWith(
-                    color: trailingColor ?? colors.textSecondary,
-                    fontSize: 10,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
-              const SizedBox(width: 4),
-            ],
-            Icon(Icons.chevron_right_rounded, color: colors.textMuted),
-          ],
-        ),
-        onTap: onTap,
       ),
     );
   }

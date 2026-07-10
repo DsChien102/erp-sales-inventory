@@ -20,6 +20,8 @@ import '../partner/queries/get_partner_detail/partner_available_action.dart';
 import '../partner/queries/get_partner_detail/partner_contact_dto.dart';
 import '../partner/queries/get_partner_detail/partner_detail_dto.dart';
 import '../partner/queries/get_partner_detail/person_profile_dto.dart';
+import '../partner/shared/invoice_profile_input.dart';
+import '../partner/shared/delivery_address_input.dart';
 import '../partner/commands/reactivate_partner/reactivate_partner_command.dart';
 import '../partner/commands/reactivate_partner/reactivate_partner_result.dart';
 import '../partner/commands/remove_organization_contact/remove_organization_contact_command.dart';
@@ -288,10 +290,19 @@ final class FakePartnerModule implements IPartnerModule {
               PartnerAvailableAction.viewHistory,
             ],
             expectedVersion: 1,
+            createdAt: DateTime.utc(2026, 1, 15, 8, 30),
+            updatedAt: DateTime.utc(2026, 3, 1, 10, 0),
             organizationProfile: const OrganizationProfileDto(
               organizationType: OrganizationType.company,
               organizationName: 'Công ty ABC',
               phone: '0901234567',
+              email: 'contact@abc.vn',
+              taxCode: '0312345678',
+              invoice: InvoiceProfileInput(
+                invoiceName: 'Công ty ABC',
+                invoiceEmail: 'accounting@abc.vn',
+                invoiceAddress: '1 Lê Lợi, Quận 1, TP.HCM',
+              ),
             ),
             contacts: const [
               PartnerContactDto(
@@ -320,10 +331,24 @@ final class FakePartnerModule implements IPartnerModule {
               PartnerAvailableAction.viewHistory,
             ],
             expectedVersion: 1,
+            createdAt: DateTime.utc(2026, 1, 10, 9, 0),
+            updatedAt: DateTime.utc(2026, 2, 20, 14, 15),
             personProfile: PersonProfileDto(
               title: PersonTitle('Ông'),
               fullName: 'Nguyễn Văn A',
               phone: '0901234567',
+              email: 'nguyenvana@example.com',
+              taxCode: '0101234567',
+              invoice: InvoiceProfileInput(
+                invoiceName: 'Nguyễn Văn A',
+                invoiceEmail: 'invoice@example.com',
+                invoiceAddress: '12 Nguyễn Huệ, Quận 1, TP.HCM',
+              ),
+              delivery: DeliveryAddressInput(
+                province: 'Thành phố Hồ Chí Minh',
+                commune: 'Phường Bến Nghé',
+                address: '12 Nguyễn Huệ',
+              ),
             ),
           ) as TResult,
         );

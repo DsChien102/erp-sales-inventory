@@ -2,17 +2,20 @@ import 'package:flutter/material.dart';
 import 'package:vet45_design_system/design_system.dart';
 import 'package:vet45_partner_application/application.dart';
 
+import 'partner_detail_expandable_card.dart';
+
+/// Card «Người liên hệ» (org) — tap header để mở/đóng.
 class PartnerDetailContactsCard extends StatelessWidget {
   const PartnerDetailContactsCard({
     super.key,
     required this.dto,
-    required this.onTapHeader,
-    required this.onTapViewAll,
+    this.onTapViewAll,
+    this.initiallyExpanded = false,
   });
 
   final PartnerDetailDto dto;
-  final VoidCallback onTapHeader;
-  final VoidCallback onTapViewAll;
+  final VoidCallback? onTapViewAll;
+  final bool initiallyExpanded;
 
   Widget _buildStatusTag(BuildContext context, String text, Color color) {
     return Container(
@@ -35,189 +38,157 @@ class PartnerDetailContactsCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = context.vColors;
-    final shape = RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(VRadius.card),
-      side: BorderSide(color: colors.borderDefault),
-    );
+    final contacts = dto.contacts;
 
-    if (dto.contacts.isEmpty) {
-      return Material(
-        color: colors.surface,
-        shape: shape,
-        child: ListTile(
-          dense: true,
-          contentPadding: const EdgeInsets.symmetric(
-            horizontal: VSpacing.space4,
-            vertical: 0,
-          ),
-          leading: Icon(
-            Icons.people_alt_outlined,
-            color: colors.textSecondary,
-            size: 20,
-          ),
-          title: Text(
-            'Người liên hệ',
-            style: VTypography.bodyDefault.copyWith(
-              color: colors.textPrimary,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-          trailing: Icon(Icons.chevron_right_rounded, color: colors.textMuted),
-          onTap: onTapHeader,
-        ),
-      );
-    }
-
-    final primaryContact = dto.contacts.firstWhere(
-      (c) => c.isPrimary,
-      orElse: () => dto.contacts.first,
-    );
-
-    return Material(
-      color: colors.surface,
-      shape: shape,
-      clipBehavior: Clip.antiAlias,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          ListTile(
-            dense: true,
-            contentPadding: const EdgeInsets.symmetric(
-              horizontal: VSpacing.space4,
-              vertical: 0,
-            ),
-            leading: Icon(
-              Icons.people_alt_outlined,
-              color: colors.textSecondary,
-              size: 20,
-            ),
-            title: Text(
-              'Người liên hệ',
-              style: VTypography.bodyDefault.copyWith(
-                color: colors.textPrimary,
-                fontWeight: FontWeight.w500,
+    return PartnerDetailExpandableCard(
+      title: 'Người liên hệ',
+      icon: Icons.people_alt_outlined,
+      initiallyExpanded: initiallyExpanded,
+      trailingWhenCollapsed: contacts.isEmpty
+          ? null
+          : Container(
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+              decoration: BoxDecoration(
+                color: colors.surfaceAlt,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Text(
+                '${contacts.length}',
+                style: VTypography.bodySmall.copyWith(
+                  color: colors.textSecondary,
+                  fontSize: 10,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
             ),
-            trailing: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                  decoration: BoxDecoration(
-                    color: colors.surfaceAlt,
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Text(
-                    '${dto.contacts.length}',
-                    style: VTypography.bodySmall.copyWith(
-                      color: colors.textSecondary,
-                      fontSize: 10,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 4),
-                Icon(Icons.chevron_right_rounded, color: colors.textMuted),
-              ],
+      child: contacts.isEmpty
+          ? Text(
+              'Chưa có người liên hệ.',
+              style: VTypography.bodySmall.copyWith(
+                color: colors.textSecondary,
+              ),
+            )
+          : _ContactsBody(
+              contacts: contacts,
+              onTapViewAll: onTapViewAll,
+              buildStatusTag: _buildStatusTag,
             ),
-            onTap: onTapHeader,
-          ),
-          Divider(color: colors.borderDefault, height: 1),
-          Padding(
-            padding: const EdgeInsets.all(VSpacing.space4),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                CircleAvatar(
-                  radius: 20,
-                  backgroundColor: colors.surfaceAlt,
-                  child: Text(
-                    primaryContact.displayName.trim().isNotEmpty
-                        ? primaryContact.displayName.substring(0, 1).toUpperCase()
-                        : '?',
-                    style: VTypography.bodyDefault.copyWith(
-                      fontWeight: FontWeight.w600,
-                      color: colors.textPrimary,
-                    ),
-                  ),
+    );
+  }
+}
+
+class _ContactsBody extends StatelessWidget {
+  const _ContactsBody({
+    required this.contacts,
+    required this.onTapViewAll,
+    required this.buildStatusTag,
+  });
+
+  final List<PartnerContactDto> contacts;
+  final VoidCallback? onTapViewAll;
+  final Widget Function(BuildContext, String, Color) buildStatusTag;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.vColors;
+    final primaryContact = contacts.firstWhere(
+      (c) => c.isPrimary,
+      orElse: () => contacts.first,
+    );
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            CircleAvatar(
+              radius: 20,
+              backgroundColor: colors.surfaceAlt,
+              child: Text(
+                primaryContact.displayName.trim().isNotEmpty
+                    ? primaryContact.displayName.substring(0, 1).toUpperCase()
+                    : '?',
+                style: VTypography.bodyDefault.copyWith(
+                  fontWeight: FontWeight.w600,
+                  color: colors.textPrimary,
                 ),
-                const SizedBox(width: VSpacing.space3),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+              ),
+            ),
+            const SizedBox(width: VSpacing.space3),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
                     children: [
-                      Row(
-                        children: [
-                          Text(
-                            primaryContact.displayName,
-                            style: VTypography.bodyDefault.copyWith(
-                              color: colors.textPrimary,
-                              fontWeight: FontWeight.w600,
-                            ),
+                      Flexible(
+                        child: Text(
+                          primaryContact.displayName,
+                          style: VTypography.bodyDefault.copyWith(
+                            color: colors.textPrimary,
+                            fontWeight: FontWeight.w600,
                           ),
-                          if (primaryContact.isPrimary) ...[
-                            const SizedBox(width: 8),
-                            _buildStatusTag(context, 'Chính', colors.success),
-                          ],
-                        ],
+                        ),
                       ),
-                      const SizedBox(height: 2),
-                      if (primaryContact.contactRole != null)
-                        Text(
-                          primaryContact.contactRole!,
-                          style: VTypography.bodySmall.copyWith(
-                            color: colors.textSecondary,
-                          ),
-                        ),
-                      if (primaryContact.phone != null &&
-                          primaryContact.phone!.isNotEmpty) ...[
-                        const SizedBox(height: 2),
-                        Text(
-                          primaryContact.phone!,
-                          style: VTypography.bodySmall.copyWith(
-                            color: colors.textSecondary,
-                          ),
-                        ),
+                      if (primaryContact.isPrimary) ...[
+                        const SizedBox(width: 8),
+                        buildStatusTag(context, 'Chính', colors.success),
                       ],
                     ],
                   ),
-                ),
-              ],
-            ),
-          ),
-          if (dto.contacts.length > 1) ...[
-            Divider(color: colors.borderDefault, height: 1),
-            InkWell(
-              onTap: onTapViewAll,
-              child: Padding(
-                padding: const EdgeInsets.only(
-                  right: VSpacing.space4,
-                  bottom: VSpacing.space3,
-                  top: VSpacing.space3,
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
+                  if (primaryContact.contactRole != null) ...[
+                    const SizedBox(height: 2),
                     Text(
-                      'Xem tất cả',
-                      style: VTypography.bodyDefault.copyWith(
-                        color: colors.success,
-                        fontWeight: FontWeight.w600,
+                      primaryContact.contactRole!,
+                      style: VTypography.bodySmall.copyWith(
+                        color: colors.textSecondary,
                       ),
                     ),
-                    const SizedBox(width: 4),
-                    Icon(
-                      Icons.chevron_right_rounded,
-                      size: 16,
-                      color: colors.success,
+                  ],
+                  if (primaryContact.phone != null &&
+                      primaryContact.phone!.isNotEmpty) ...[
+                    const SizedBox(height: 2),
+                    Text(
+                      primaryContact.phone!,
+                      style: VTypography.bodySmall.copyWith(
+                        color: colors.textSecondary,
+                      ),
                     ),
                   ],
-                ),
+                ],
               ),
             ),
           ],
+        ),
+        if (contacts.length > 1 && onTapViewAll != null) ...[
+          const SizedBox(height: VSpacing.space3),
+          Align(
+            alignment: Alignment.centerRight,
+            child: InkWell(
+              onTap: onTapViewAll,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    'Xem tất cả',
+                    style: VTypography.bodyDefault.copyWith(
+                      color: colors.success,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  const SizedBox(width: 4),
+                  Icon(
+                    Icons.chevron_right_rounded,
+                    size: 16,
+                    color: colors.success,
+                  ),
+                ],
+              ),
+            ),
+          ),
         ],
-      ),
+      ],
     );
   }
 }
