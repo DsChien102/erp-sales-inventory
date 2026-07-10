@@ -68,11 +68,12 @@ UI → IExecutionContext (tenant/user) → IModuleMediator
 - New framework abstractions (generic Repository<T>, plugin DSL)
 - Either/Result inside command handlers (map at presentation boundary)
 - Hand-maintaining `.g.dart` — run `melos run codegen`
-- **Flat application layout:** `*_command.dart` / `*_query.dart` placed directly under `application/lib/src/<feature_area>/` when that area is guarded (e.g. `custom_fields/`) — use `<feature_area>/<use_case>/` per partner/IAM; shared DTOs → `<feature_area>/shared/`
+- **Flat application layout:** `*_command.dart` / `*_query.dart` placed directly under `application/lib/src/<aggregate>/` when guarded — use `<aggregate>/commands/<use_case>/` or `<aggregate>/queries/<use_case>/` per partner golden reference; shared DTOs → `<aggregate>/shared/` or `src/shared/` when cross-aggregate
+- **Bundled DTO files:** global `application/lib/src/dto/` folder or `*_dtos.dart` files with multiple DTO classes — one DTO per file, colocate with owning use-case
 
 ## Before implementing
 
 1. Read `AGENTS.md`, `docs/architecture/05-layered-module-structure.md`, and `packages/vet45_shared/README.md`
 2. Mirror golden reference: **`modules/iam/`** or **`modules/partner/`** (codegen + pipeline + folder layout)
-3. New use case = folder under `application/lib/src/<feature_area>/<use_case>/` with command/query, handler, optional validator — **not** flat files in `<feature_area>/`
+3. New use case = folder under `application/lib/src/<aggregate>/commands/<use_case>/` or `queries/<use_case>/` with handler, optional validator — **not** flat files in `<aggregate>/`, mixed command+query folders, or feature-area buckets (`profile/`, `contact/`)
 4. Verify: `melos run analyze && melos run test && ./scripts/ci/verify_harness.sh`

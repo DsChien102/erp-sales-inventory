@@ -70,8 +70,12 @@ lib/
   src/
     contracts/            # ICommand, CommandBase, IQuery, QueryBase, IIAMModule
     configurations/       # ICommandHandler, IQueryHandler, InternalCommandBase
-    <feature_area>/       # sales_order_drafts, sales_orders, return_exchanges
-      <use_case>/         # command + handler (+ validator)
+    <aggregate>/          # partner, partner_history
+      commands/
+        <use_case>/       # command + handler (+ validator)
+      queries/
+        <use_case>/       # query + handler
+      shared/
     services/             # snapshot loaders, orchestrators
     ports/                # read gateway & cross-module port interfaces
     event_handlers/

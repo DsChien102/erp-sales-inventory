@@ -79,15 +79,19 @@ modules/<module_name>/application/
           internal_command_base.dart
         queries/
           i_query_handler.dart
-      <feature_area>/
-        <use_case>/
-          <use_case>_command.dart
-          <use_case>_command_handler.dart
-          <use_case>_command_validator.dart    # optional
-        <query_use_case>/
-          <query>_query.dart
-          <query>_query_handler.dart
-          <dto>.dart
+      <aggregate>/
+        shared/
+        commands/
+          <use_case>/
+            <use_case>_command.dart
+            <use_case>_command_handler.dart
+            <use_case>_command_validator.dart    # optional
+            <dto>.dart                             # command-only DTOs
+        queries/
+          <use_case>/
+            <use_case>_query.dart
+            <use_case>_query_handler.dart
+            <dto>.dart
       services/
       ports/
       event_handlers/
@@ -107,13 +111,14 @@ export 'src/contracts/i_query.dart';
 // Do NOT export handler implementations unless required for DI registration.
 ```
 
-**Feature-area grouping** (not global `commands/` / `queries/`):
+**Aggregate grouping** (not global `commands/` / `queries/`, not feature-area buckets like `profile/`):
 
 ```text
-sales_order_drafts/    → SalesOrderDraft aggregate cluster
-sales_orders/          → SalesOrder aggregate cluster
-return_exchanges/      → ReturnExchangeRequest aggregate cluster
+partner/           → Partner aggregate
+partner_history/   → read model (not aggregate)
 ```
+
+Legacy: IAM `authentication/` / `tenant/`, catalog `custom_fields/` — migrate later.
 
 ---
 
@@ -295,7 +300,11 @@ abstract interface class IQueryHandler<TQuery extends IQuery<TResult>, TResult> 
 ```text
 - final class, immutable
 - Flat structure for presentation
-- Colocated in query folder: <query_name>_dto.dart
+- One DTO per file — no *_dtos.dart bundling multiple classes
+- Single-use DTO → colocate in `<aggregate>/commands/<use_case>/` or `<aggregate>/queries/<use_case>/`
+- Multi-use within aggregate → `<aggregate>/shared/`
+- Cross-aggregate shared inputs/DTOs → `application/lib/src/shared/`
+- Forbidden: application/lib/src/dto/ global bucket
 - No aggregate/entity types from domain
 - Money: minor units (int) + currency code, or formatted string per UI contract
 - Include tenantId in query params, not always in DTO response
@@ -540,6 +549,7 @@ When designing or generating application layer, produce:
 - double for currency
 - Direct integration event bus publish skipping outbox
 - Import Customer entity from customers_domain
+- Global `application/lib/src/dto/` folder or `*_dtos.dart` files bundling multiple DTO classes
 ```
 
 ---

@@ -90,15 +90,17 @@ modules/<module>/application/
           internal_command_base.dart
         queries/
           i_query_handler.dart
-      <feature_area>/                     # sales_order_drafts, sales_orders, return_exchanges
-        <use_case>/
-          <use_case>_command.dart
-          <use_case>_command_handler.dart
-          <use_case>_command_validator.dart   # optional
-        <query_name>/
-          <query_name>_query.dart
-          <query_name>_query_handler.dart
-          <dto>.dart
+      <aggregate>/                      # partner, partner_history (read model)
+        commands/
+          <use_case>/
+            <use_case>_command.dart
+            <use_case>_command_handler.dart
+            <use_case>_command_validator.dart   # optional
+        queries/
+          <use_case>/
+            <use_case>_query.dart
+            <use_case>_query_handler.dart
+        shared/                         # DTO/input dùng chéo use-case trong aggregate
       services/                           # application services, snapshot loaders
       ports/                              # IReadGateway, ILookupPort (interfaces)
       event_handlers/                     # integration event handlers
@@ -106,29 +108,73 @@ modules/<module>/application/
       notifications/                      # domain notification handlers (optional)
 ```
 
-Nhóm theo **feature area** (aggregate cluster), không nhóm theo `commands/` / `queries/` global.
+Nhóm theo **aggregate** (hoặc **read model** khi không phải aggregate), không nhóm theo `commands/` / `queries/` global hay feature area (profile/contact/status).
 
-**Bắt buộc (module mới + area đã guarded):** mỗi use case một subfolder — không đặt `*_command.dart` / `*_query.dart` phẳng ngay dưới `<feature_area>/`.
+**Bắt buộc (module mới + aggregate đã guarded):** tách `commands/` và `queries/` — mỗi use case một subfolder riêng; không gộp command + query trong cùng folder; không đặt `*_command.dart` / `*_query.dart` phẳng ngay dưới `<aggregate>/`.
 
 ```text
-# ĐÚNG — mirror modules/partner/application/
-custom_fields/
-  shared/                          # DTO dùng chéo use case
-    custom_field_definition_dto.dart
-  upsert_custom_field_group/
-    upsert_custom_field_group_command.dart
-  list_custom_field_config/
-    list_custom_field_config_query.dart
+# ĐÚNG — golden reference modules/partner/application/
+partner/                             # Partner aggregate
+  shared/
+    person_profile_input.dart
+  commands/
+    create_partner/
+      create_partner_command.dart
+  queries/
+    search_partners/
+      search_partners_query.dart
+partner_history/                     # PartnerHistoryView read model (không phải aggregate)
+  shared/
+    partner_transaction_type.dart
+  commands/
+    record_partner_history/
+      record_partner_history_command.dart
+  queries/
+    get_partner_history/
+      get_partner_history_query.dart
 
-# SAI — flat feature area (bị guard_application_use_case_layout.sh với custom_fields)
-custom_fields/
-  upsert_custom_field_group_command.dart
-  list_custom_field_config_query.dart
+# SAI — command + query gộp chung folder
+partner/search_partners/search_partners_query.dart
+
+# SAI — feature area grouping
+profile/search_partners/...
+
+# SAI — flat aggregate folder
+partner/
+  create_partner_command.dart
 ```
 
-DTO dùng chung trong cùng feature area → `<feature_area>/shared/`. Port vẫn ở `src/ports/`.
+DTO dùng chung trong cùng aggregate → `<aggregate>/shared/`. DTO/input dùng chéo aggregate → `src/shared/`. Port vẫn ở `src/ports/`.
 
-CI: `scripts/ci/guard_application_use_case_layout.sh` (thêm path vào `guarded_areas` khi mở feature area mới).
+**Legacy:** IAM (`authentication/`, `tenant/`) và catalog (`custom_fields/`, `pricing/`) chưa migrate — partner là golden reference mới.
+
+**DTO colocation (bắt buộc):**
+
+```text
+1. Mỗi DTO = 1 file (cấm *_dtos.dart gom nhiều class)
+2. DTO chỉ dùng bởi 1 command → `<aggregate>/commands/<use_case>/`
+3. DTO chỉ dùng bởi 1 query → `<aggregate>/queries/<use_case>/`
+4. DTO dùng bởi ≥2 use-case trong cùng aggregate → `<aggregate>/shared/`
+5. DTO/input dùng chéo aggregate → `application/lib/src/shared/`
+6. Cấm folder `application/lib/src/dto/` (global DTO bucket)
+```
+
+```text
+# ĐÚNG — modules/partner/application/
+partner/
+  queries/
+    search_partners/
+      search_partners_query.dart
+      partner_list_item_dto.dart
+partner/shared/
+  person_profile_input.dart
+
+# SAI
+src/dto/profile/partner_search_dtos.dart
+profile/search_partners/...
+```
+
+CI: `scripts/ci/guard_application_use_case_layout.sh` + `scripts/ci/guard_application_dto_colocation.sh`.
 
 ### 4. Implement command
 
@@ -375,6 +421,7 @@ Reference: `modules/iam/infrastructure/lib/src/configuration/iam_startup.dart`, 
 - double cho tiền — dùng Money từ shared domain
 - Publish integration event trực tiếp bỏ qua outbox cho mutation quan trọng
 - Cross-module import domain entity thay vì snapshot/port
+- Global `application/lib/src/dto/` folder hoặc file `*_dtos.dart` gom nhiều DTO class
 ```
 
 ---

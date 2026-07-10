@@ -52,14 +52,18 @@ Tất cả bounded context trong `modules/` là **greenfield skeleton** — có 
 ```text
 src/
   ports/              # ICommandGateway, IReadGateway
-  {aggregate_area}/   # một folder per use case
-    create_x/
-      create_x_command.dart
-      create_x_command_handler.dart
-      create_x_command_validator.dart
-  configurations/     # ICommandHandler, buses
+  shared/             # inputs/DTOs dùng chéo aggregate (optional)
+  {aggregate}/        # Partner, SalesOrder, ...
+    shared/           # DTOs dùng chéo use-case trong aggregate
+    commands/
+      {use_case}/     # command, handler, validator, command DTOs (1 DTO/file)
+    queries/
+      {use_case}/     # query, handler, query DTOs (1 DTO/file)
+  {read_model}/       # e.g. partner_history — khi không phải aggregate
   contracts/          # I{X}Module, CommandBase, QueryBase
 ```
+
+**DTO colocation:** không dùng folder global `src/dto/`; mỗi DTO một file; DTO single-use nằm cùng folder use-case. CI: `guard_application_dto_colocation.sh`.
 
 ## Infrastructure bootstrap
 

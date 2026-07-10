@@ -14,6 +14,9 @@ echo "==> guard_layer_imports"
 echo "==> guard_application_use_case_layout"
 "$root/scripts/ci/guard_application_use_case_layout.sh"
 
+echo "==> guard_application_dto_colocation"
+"$root/scripts/ci/guard_application_dto_colocation.sh"
+
 echo "==> guard_docs_reference"
 "$root/scripts/ci/guard_docs_reference.sh"
 
