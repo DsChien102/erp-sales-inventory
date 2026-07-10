@@ -3,6 +3,7 @@ import '../readiness/product_readiness.dart';
 import '../shared/product_status.dart';
 import '../value_objects/barcode.dart';
 import '../value_objects/product_name.dart';
+import '../value_objects/product_reference_id.dart';
 import '../value_objects/sku.dart';
 import 'events/product_created.dart';
 import 'product_base_unit.dart';
@@ -33,6 +34,7 @@ final class Product extends Entity<ProductId> implements IAggregateRoot {
   Product._({
     required super.id,
     required this.tenantId,
+    required this.referenceId,
     required this.name,
     required this.status,
     required this.readiness,
@@ -56,6 +58,7 @@ final class Product extends Entity<ProductId> implements IAggregateRoot {
   factory Product.create({
     required ProductId id,
     required TenantId tenantId,
+    required ProductReferenceId referenceId,
     required ProductName name,
     required String actorId,
     DateTime? now,
@@ -73,6 +76,7 @@ final class Product extends Entity<ProductId> implements IAggregateRoot {
     final product = Product._(
       id: id,
       tenantId: tenantId,
+      referenceId: referenceId,
       name: name,
       commercialName: commercialName,
       sku: sku,
@@ -103,6 +107,7 @@ final class Product extends Entity<ProductId> implements IAggregateRoot {
       ProductCreated(
         productId: id,
         tenantId: tenantId,
+        referenceId: referenceId,
         productName: name.value,
       ),
     );
@@ -112,6 +117,7 @@ final class Product extends Entity<ProductId> implements IAggregateRoot {
   factory Product.reconstitute({
     required ProductId id,
     required TenantId tenantId,
+    required ProductReferenceId referenceId,
     required ProductName name,
     required ProductStatus status,
     required ProductReadiness readiness,
@@ -134,6 +140,7 @@ final class Product extends Entity<ProductId> implements IAggregateRoot {
     return Product._(
       id: id,
       tenantId: tenantId,
+      referenceId: referenceId,
       name: name,
       status: status,
       readiness: readiness,
@@ -156,6 +163,7 @@ final class Product extends Entity<ProductId> implements IAggregateRoot {
   }
 
   final TenantId tenantId;
+  final ProductReferenceId referenceId;
   final ProductName name;
   final ProductName? commercialName;
   final Sku? sku;
@@ -196,6 +204,7 @@ final class Product extends Entity<ProductId> implements IAggregateRoot {
     final updatedProduct = Product._(
       id: id,
       tenantId: tenantId,
+      referenceId: referenceId,
       name: name,
       status: status,
       readiness: newReadiness,
@@ -249,6 +258,7 @@ final class Product extends Entity<ProductId> implements IAggregateRoot {
     final updatedProduct = Product._(
       id: id,
       tenantId: tenantId,
+      referenceId: referenceId,
       name: name,
       status: status,
       readiness: newReadiness,
@@ -320,6 +330,7 @@ final class Product extends Entity<ProductId> implements IAggregateRoot {
     final updatedProduct = Product._(
       id: id,
       tenantId: tenantId,
+      referenceId: referenceId,
       name: name,
       status: status,
       readiness: newReadiness,

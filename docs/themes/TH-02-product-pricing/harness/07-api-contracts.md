@@ -21,7 +21,7 @@ Facade: `ICatalogModule` (`modules/catalog/application/lib/src/contracts/i_catal
 | Symbol | Input (summary) | Success | Errors |
 | ------ | --------------- | ------- | ------ |
 | `RequestProductImageUploadCommand` | tenantId, actorId, fileName, contentType, byteSize | `ProductImageUploadSlotDto` | `ValidationException`, PermissionDenied |
-| `CreateProductCommand` | tenantId, actorId, productName, commercialName?, sku?, barcode?, description?, note?, images[] (`ProductImageInput`), baseUnitName? | `CreateProductResult` (productId, readinessSummary) | `ValidationException`, PermissionDenied (`ApplicationException`), `DuplicateSkuException`, `DuplicateBarcodeException` |
+| `CreateProductCommand` | tenantId, actorId, productName, referenceId?, commercialName?, sku?, barcode?, description?, note?, images[] (`ProductImageInput`), baseUnitName? | `CreateProductResult` (productId, referenceId, readinessSummary) | `ValidationException`, PermissionDenied (`ApplicationException`), `DuplicateSkuException`, `DuplicateBarcodeException`, `DuplicateReferenceIdException` |
 | `CheckDuplicateProductCodeQuery` | tenantId, sku?, barcode?, excludeProductId? | `List<ProductDuplicateMatchDto>` | PermissionDenied |
 
 Package: `vet45_catalog_application` — `guided_create/`, `check_duplicate/`, `readiness/`.
@@ -35,6 +35,8 @@ Supporting types:
 | `ReadinessSummaryDto` | status (`ReadinessStatus`), blockers (`ReadinessBlockerDto[]`) |
 | `ReadinessBlockerDto` | code, message, group? |
 | `ProductDuplicateMatchDto` | field (`ProductDuplicateField`), productId, productName, matchedValue |
+
+`referenceId` optional trên `CreateProductCommand` (import-only): null → hash tự động; có giá trị → mã legacy explicit (`SP-0001`). **Không trả/expose qua read models hay UI.**
 
 `baseUnitName` optional (FR-03): thiếu → readiness blocker `missing_base_unit`, không fail create.
 
@@ -53,6 +55,8 @@ Permissions: `@RequiresPermission(CatalogPermissions.create)` (`catalog.product.
 | scenario_id | trigger | fake response |
 | ----------- | ------- | ------------- |
 | `guided_create_ok` | CreateProductCommand valid + baseUnit | `CreateProductResult` + readiness blockers (vd. `missing_price`) |
+| `guided_create_explicit_reference` | CreateProductCommand với `referenceId: SP-0001` | `CreateProductResult` (không trả referenceId) |
+| `guided_create_dup_reference` | referenceId trùng tenant | `DuplicateReferenceIdException` |
 | `guided_create_dup_sku` | sku trùng tenant | `DuplicateSkuException` |
 | `guided_create_dup_barcode` | barcode trùng tenant | `DuplicateBarcodeException` |
 | `guided_create_missing_name` | thiếu tên | `ValidationException` |
@@ -67,6 +71,24 @@ Permissions: `@RequiresPermission(CatalogPermissions.create)` (`catalog.product.
 
 - FE có thể fake: **yes**
 - E2E prerequisite: —
+
+---
+
+## Cross-cutting — Product `reference_id`
+
+**Status:** CONTRACT `done` · BE `in_progress`
+
+**Phạm vi:** `reference_id` là business key nội bộ — **không expose read models/UI**. Chỉ dùng khi create/import (`CreateProductCommand.referenceId?`) và persistence/tracking DB.
+
+| Symbol | Input (summary) | Success | Errors |
+| ------ | --------------- | ------- | ------ |
+| `CreateProductCommand.referenceId?` | Optional explicit legacy code (import) | Persisted on product | `ValidationException`, `DuplicateReferenceIdException` |
+
+Unique DB: `(tenant_id, reference_id)` — case-sensitive, không normalize.
+
+RPC: `catalog.create_product` param `p_reference_id`. Read RPCs **không** trả `reference_id` cho UI.
+
+Import contract (UI wizard **pending**): CSV cột `reference_id` → explicit; trống → hash. Upsert key: `(tenant_id, reference_id)` exact match.
 
 ---
 

@@ -41,6 +41,16 @@ Codegen ritual: mirror [modules/partner/README.md](../../../../modules/partner/R
 
 ---
 
+## Cross-cutting — Product `reference_id`
+
+| Req ID | Role | Contract § | Enforce layer | Artifact | Test id | Status |
+| ------ | ---- | ---------- | ------------- | -------- | ------- | ------ |
+| TH-02-REF-ID | CONTRACT | §Cross-cutting-reference_id | application | `ProductReferenceId` VO, `CreateProductCommand.referenceId?`, DTOs | product_reference_id_test | in_progress |
+| TH-02-REF-ID | BE | §Cross-cutting-reference_id | domain + application + infrastructure | `Product` aggregate, handler dual mode, draft SQL `catalog_product_reference_id.sql`, RPC | scn_ref_id_01 | in_progress |
+| TH-02-REF-ID | FE | §Cross-cutting-reference_id | presentation | PCC profile hiển thị `referenceId` read-only | wgt_ref_id_01 | in_progress |
+
+---
+
 ## EPIC-02 / US-02 — Dữ liệu vận hành ban đầu (slice #2)
 
 | Req ID | Role | Contract § | Enforce layer | Artifact | Test id | Status |

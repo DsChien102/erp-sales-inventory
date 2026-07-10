@@ -55,4 +55,5 @@ export 'src/stock/product_stock_profile.dart';
 export 'src/stock/stock_mode.dart';
 export 'src/value_objects/barcode.dart';
 export 'src/value_objects/product_name.dart';
+export 'src/value_objects/product_reference_id.dart';
 export 'src/value_objects/sku.dart';

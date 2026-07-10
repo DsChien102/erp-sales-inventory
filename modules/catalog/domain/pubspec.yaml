@@ -9,6 +9,7 @@ environment:
 
 dependencies:
   vet45_shared_domain: ^1.0.0
+  crypto: ^3.0.6
   equatable: ^2.0.8
   meta: ^1.17.0
 

@@ -65,6 +65,7 @@ export 'src/control_center/product_stock_card_dto.dart';
 export 'src/control_center/product_units_card_dto.dart';
 export 'src/contracts/i_catalog_module.dart';
 export 'src/exceptions/duplicate_barcode_exception.dart';
+export 'src/exceptions/duplicate_reference_id_exception.dart';
 export 'src/exceptions/duplicate_sku_exception.dart';
 export 'src/exceptions/inactive_product_unit_exception.dart';
 export 'src/exceptions/product_conversion_unit_delete_blocked_exception.dart';

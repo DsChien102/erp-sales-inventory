@@ -145,6 +145,7 @@ class _StorePriceRule {
 class _StoredProduct {
   _StoredProduct({
     required this.id,
+    String? referenceId,
     required this.name,
     this.tradeName,
     required this.sku,
@@ -164,9 +165,11 @@ class _StoredProduct {
     this.pricePermissionDenied = false,
     this.businessStatus = ProductStatus.active,
     DateTime? updatedAt,
-  }) : updatedAt = updatedAt ?? DateTime.utc(2026, 1, 1);
+  })  : referenceId = referenceId ?? id,
+        updatedAt = updatedAt ?? DateTime.utc(2026, 1, 1);
 
   final String id;
+  final String referenceId;
   String name;
   String? tradeName;
   String sku;
@@ -1480,6 +1483,12 @@ final class FakeCatalogModule implements ICatalogModule {
           existingProductId: 'product-existing-1',
           existingProductName: 'Existing Product',
         );
+      case FakeCatalogScenario.guidedCreateDupReference:
+        throw DuplicateReferenceIdException(
+          referenceId: command.referenceId ?? 'SP-0001',
+          existingProductId: 'product-existing-1',
+          existingProductName: 'Existing Product',
+        );
       case FakeCatalogScenario.guidedCreateMissingName:
         throw ValidationException('Product name is required.');
       case FakeCatalogScenario.guidedCreateNoImages:
@@ -1548,10 +1557,12 @@ final class FakeCatalogModule implements ICatalogModule {
     bool pricePermissionDenied = false,
   }) {
     final productId = 'product-new-${_nextProductId++}';
+    final referenceId = _resolveCreateReferenceId(command, productId);
     final images = hasImages ? command.images.map((img) => img.storageKey).toList() : <String>[];
 
     final product = _StoredProduct(
       id: productId,
+      referenceId: referenceId,
       name: command.productName,
       tradeName: command.commercialName,
       sku: command.sku ?? '',
@@ -1576,6 +1587,18 @@ final class FakeCatalogModule implements ICatalogModule {
       productId: productId,
       readinessSummary: view.readinessSummary,
     );
+  }
+
+  String _resolveCreateReferenceId(CreateProductCommand command, String productId) {
+    final explicit = command.referenceId?.trim();
+    if (explicit != null && explicit.isNotEmpty) {
+      return explicit;
+    }
+
+    final suffix = productId.hashCode.abs().toRadixString(16).padLeft(12, '0').substring(0, 12);
+    return ProductReferenceId.fromProductId(
+      ProductId('00000000-0000-4000-8000-$suffix'),
+    ).value;
   }
 
   TResult _handleGetProductReadiness<TResult>(

@@ -8,6 +8,7 @@ void main() {
       final product = Product.create(
         id: const ProductId('product-1'),
         tenantId: const TenantId('tenant-1'),
+        referenceId: ProductReferenceId('SP-0001'),
         name: ProductName('Amoxicillin 100ml'),
         actorId: 'user-1',
         baseUnit: ProductBaseUnit('Lọ'),
@@ -38,6 +39,7 @@ void main() {
       final product = Product.create(
         id: const ProductId('product-2'),
         tenantId: const TenantId('tenant-1'),
+        referenceId: ProductReferenceId('SP-0001'),
         name: ProductName('Thuốc A'),
         actorId: 'user-1',
         images: const [
@@ -58,6 +60,7 @@ void main() {
       final product = Product.create(
         id: const ProductId('product-3'),
         tenantId: const TenantId('tenant-1'),
+        referenceId: ProductReferenceId('SP-0001'),
         name: ProductName('Thuốc B'),
         actorId: 'user-1',
       );
@@ -80,6 +83,7 @@ void main() {
         () => Product.create(
           id: const ProductId('product-4'),
           tenantId: const TenantId('tenant-1'),
+          referenceId: ProductReferenceId('SP-0004'),
           name: ProductName('Thuốc C'),
           actorId: 'user-1',
           images: const [

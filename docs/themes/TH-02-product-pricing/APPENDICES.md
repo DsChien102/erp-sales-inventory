@@ -1951,7 +1951,8 @@ erDiagram
 
 |**Field gợi ý**|**Ghi chú**|
 |---|---|
-|`id`|Khóa chính|
+|`id`|Khóa chính (UUID)|
+|`reference_id`|Mã sản phẩm nội bộ, bắt buộc, unique per tenant (case-sensitive); hash tự động hoặc legacy explicit (`SP-0001`) — **không expose UI**|
 |`tenant_id`|Phân tách dữ liệu theo tenant|
 |`name`|Tên sản phẩm, bắt buộc|
 |`trade_name`|Tên thương mại nếu có|
