@@ -24,6 +24,10 @@ class ProductListCubit extends Cubit<ProductListState> {
     ProductSearchCriteria? criteria,
     bool isRefresh = false,
   }) async {
+    if (!isRefresh && state is ProductListLoading) {
+      return;
+    }
+
     try {
       final tenantId = await _executionContext.requireTenantId();
       if (tenantId.isEmpty) {

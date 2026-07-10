@@ -23,7 +23,6 @@ enum ProductListFilter {
   readyToSell('Sẵn sàng bán'),
   incomplete('Thiếu dữ liệu'),
   inactive('Ngừng KD'),
-  deleted('Đã xóa'),
   inStock('Còn hàng'),
   outOfStock('Hết hàng'),
   negativeStock('Tồn âm');
@@ -76,9 +75,18 @@ class _ProductCatalogTabPageState extends State<ProductCatalogTabPage> {
   }
 
   void _onScroll() {
-    if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent - 200) {
-      _cubit.fetchProducts();
-    }
+    if (!_scrollController.hasClients) return;
+
+    final state = _cubit.state;
+    if (state is ProductListLoading) return;
+    if (state is ProductListLoaded && state.hasReachedMax) return;
+
+    final position = _scrollController.position;
+    final nearBottom = position.pixels >= position.maxScrollExtent - 200;
+    final contentShorterThanViewport = position.maxScrollExtent <= 0;
+    if (!nearBottom && !contentShorterThanViewport) return;
+
+    _cubit.fetchProducts();
   }
 
   void _onSearch(String query) {
@@ -121,13 +129,6 @@ class _ProductCatalogTabPageState extends State<ProductCatalogTabPage> {
               newCriteria = ProductSearchCriteria(
                 keyword: keyword,
                 businessStatuses: {ProductStatus.inactive},
-                customFieldFilters: _customFieldFilters,
-              );
-              break;
-            case ProductListFilter.deleted:
-              newCriteria = ProductSearchCriteria(
-                keyword: keyword,
-                includeSoftDeleted: true,
                 customFieldFilters: _customFieldFilters,
               );
               break;
@@ -174,13 +175,6 @@ class _ProductCatalogTabPageState extends State<ProductCatalogTabPage> {
         newCriteria = ProductSearchCriteria(
           keyword: keyword,
           businessStatuses: {ProductStatus.inactive},
-          customFieldFilters: _customFieldFilters,
-        );
-        break;
-      case ProductListFilter.deleted:
-        newCriteria = ProductSearchCriteria(
-          keyword: keyword,
-          includeSoftDeleted: true,
           customFieldFilters: _customFieldFilters,
         );
         break;
@@ -378,16 +372,17 @@ class _ProductCatalogTabPageState extends State<ProductCatalogTabPage> {
                     );
                   }
 
-                  final hasReachedMax = state is ProductListLoaded ? state.hasReachedMax : false;
+                  final isLoadingMore =
+                      state is ProductListLoading && !state.isFirstLoad;
 
                   return RefreshIndicator(
                     onRefresh: () => _cubit.fetchProducts(isRefresh: true),
                     child: ListView.builder(
                       controller: _scrollController,
                       physics: const AlwaysScrollableScrollPhysics(),
-                      itemCount: items.length + (hasReachedMax ? 0 : 1),
+                      itemCount: items.length + (isLoadingMore ? 1 : 0),
                       itemBuilder: (context, index) {
-                        if (index >= items.length) {
+                        if (isLoadingMore && index >= items.length) {
                           return const Padding(
                             padding: EdgeInsets.symmetric(vertical: 16),
                             child: Center(child: CircularProgressIndicator()),
