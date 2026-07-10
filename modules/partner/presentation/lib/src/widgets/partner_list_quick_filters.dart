@@ -67,7 +67,7 @@ class PartnerListQuickFilters extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
         decoration: BoxDecoration(
-          color: isSelected ? colors.primary : colors.background,
+          color: isSelected ? colors.primary : Colors.white,
           border: Border.all(
             color: isSelected ? colors.primary : colors.borderDefault,
           ),

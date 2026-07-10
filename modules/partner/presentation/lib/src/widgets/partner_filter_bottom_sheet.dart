@@ -51,10 +51,10 @@ class _PartnerFilterBottomSheetState extends State<PartnerFilterBottomSheet> {
   }
 
   void _reset() {
-    setState(() {
-      _selectedRole = null;
-      _selectedPartnerType = null;
-      _selectedStatus = null;
+    Navigator.of(context).pop(<String, dynamic>{
+      'role': null,
+      'partnerType': null,
+      'status': null,
     });
   }
 
@@ -262,7 +262,7 @@ class _PartnerFilterBottomSheetState extends State<PartnerFilterBottomSheet> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
         decoration: BoxDecoration(
-          color: isSelected ? colors.primary.withValues(alpha: 0.1) : colors.background,
+          color: isSelected ? colors.primary.withValues(alpha: 0.1) : Colors.white,
           border: Border.all(
             color: isSelected ? colors.primary : colors.borderDefault,
           ),

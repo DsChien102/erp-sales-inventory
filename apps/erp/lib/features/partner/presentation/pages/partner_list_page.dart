@@ -19,6 +19,7 @@ class PartnerListPage extends StatefulWidget {
 class _PartnerListPageState extends State<PartnerListPage> {
   final ScrollController _scrollController = ScrollController();
   late final PartnerListCubit _cubit;
+  int? _lastTotal;
 
   @override
   void initState() {
@@ -122,7 +123,11 @@ class _PartnerListPageState extends State<PartnerListPage> {
         backgroundColor: colors.background,
         appBar: const VAppBar(title: 'KH & NCC', showBackButton: false),
         body: const Center(
-          child: Text('Bạn chưa có quyền xem danh sách KH & NCC.'),
+          child: _CustomEmptyState(
+            iconData: Icons.lock_outline_rounded,
+            title: 'Bạn không có quyền xem\nKH & NCC',
+            description: 'Liên hệ quản trị viên để được cấp quyền.',
+          ),
         ),
       );
     }
@@ -136,17 +141,17 @@ class _PartnerListPageState extends State<PartnerListPage> {
           preferredSize: const Size.fromHeight(64),
           child: BlocBuilder<PartnerListCubit, PartnerListState>(
             builder: (context, state) {
-              final total = switch (state) {
-                PartnerListLoaded(:final total) => total,
-                _ => null,
-              };
+              if (state is PartnerListLoaded) {
+                _lastTotal = state.total;
+              }
+              final total = state is PartnerListLoaded ? state.total : (_lastTotal ?? 0);
               return VAppBar(
                 title: 'KH & NCC',
                 titleStyle: VTypography.headingH3.copyWith(
                   color: context.vColors.textPrimary,
                   fontWeight: FontWeight.w700,
                 ),
-                subtitle: total != null ? '$total đối tác' : null,
+                subtitle: '$total đối tác',
                 showBackButton: false,
               );
             },
@@ -249,7 +254,17 @@ class _PartnerListPageState extends State<PartnerListPage> {
                   }
 
                   if (state is PartnerListError) {
-                    return Center(child: Text('Lỗi: ${state.message}'));
+                    return Center(
+                      child: _CustomEmptyState(
+                        iconData: Icons.cloud_off_rounded,
+                        iconColor: colors.danger,
+                        title: 'Không tải được danh sách',
+                        description: 'Vui lòng kiểm tra kết nối internet\nhoặc thử lại sau.',
+                        actionLabel: 'Thử lại',
+                        onActionPressed: () => _cubit.fetchPartners(isRefresh: true),
+                        buttonColor: colors.success,
+                      ),
+                    );
                   }
 
                   final items = switch (state) {
@@ -259,14 +274,28 @@ class _PartnerListPageState extends State<PartnerListPage> {
                   };
 
                   if (items.isEmpty && state is! PartnerListLoading) {
+                    final hasQuery = state.query != null && state.query!.isNotEmpty;
+                    if (hasQuery) {
+                      return Center(
+                        child: _CustomEmptyState(
+                          iconData: Icons.search_rounded,
+                          title: 'Không tìm thấy kết quả',
+                          description: 'Thử kiểm tra lại từ khóa "${state.query}"\nhoặc bộ lọc.',
+                          actionLabel: 'Xóa từ khóa',
+                          onActionPressed: () => _cubit.searchByKeyword(''),
+                          buttonColor: colors.success,
+                        ),
+                      );
+                    }
                     return Center(
-                      child: VEmptyState(
-                        iconData: Icons.people_outline_rounded,
+                      child: _CustomEmptyState(
+                        iconData: Icons.assignment_outlined,
                         title: 'Chưa có KH & NCC',
-                        description: 'Bắt đầu bằng cách thêm hồ sơ cá nhân hoặc tổ chức mới.',
+                        description: 'Thêm đối tác để bắt đầu bán hàng,\nnhập hàng và quản lý công nợ.',
                         actionLabel: _canCreate ? 'Thêm KH & NCC' : null,
-                        actionLeadingIcon: _canCreate ? const Icon(Icons.add, size: 18) : null,
+                        actionLeadingIcon: _canCreate ? Icon(Icons.add, size: 18, color: colors.success) : null,
                         onActionPressed: _canCreate ? _openCreateFlow : null,
+                        buttonColor: colors.success,
                       ),
                     );
                   }
@@ -309,6 +338,79 @@ class _PartnerListPageState extends State<PartnerListPage> {
                 backgroundColor: colors.success,
               )
             : null,
+      ),
+    );
+  }
+}
+
+class _CustomEmptyState extends StatelessWidget {
+  final IconData iconData;
+  final String title;
+  final String description;
+  final String? actionLabel;
+  final Widget? actionLeadingIcon;
+  final VoidCallback? onActionPressed;
+  final Color? iconColor;
+  final Color? buttonColor;
+
+  const _CustomEmptyState({
+    required this.iconData,
+    required this.title,
+    required this.description,
+    this.actionLabel,
+    this.actionLeadingIcon,
+    this.onActionPressed,
+    this.iconColor,
+    this.buttonColor,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.vColors;
+    return Padding(
+      padding: const EdgeInsets.all(VSpacing.space6),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          VIconBox(
+            iconData: iconData,
+            size: 64,
+            iconSize: 28,
+            backgroundColor: colors.surfaceAlt,
+            iconColor: iconColor ?? colors.textSecondary,
+            borderRadius: VRadius.r16,
+          ),
+          const SizedBox(height: VSpacing.space4),
+          Text(
+            title,
+            style: VTypography.headingH3.copyWith(
+              color: colors.textPrimary,
+              fontWeight: FontWeight.w700,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: VSpacing.space2),
+          Text(
+            description,
+            style: VTypography.bodyDefault.copyWith(
+              color: colors.textSecondary,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          if (actionLabel != null && onActionPressed != null) ...[
+            const SizedBox(height: VSpacing.space6),
+            VButton(
+              label: actionLabel!,
+              onPressed: onActionPressed!,
+              leadingIcon: actionLeadingIcon,
+              size: VButtonSize.medium,
+              variant: VButtonVariant.outline,
+              foregroundColor: buttonColor,
+            ),
+          ],
+        ],
       ),
     );
   }

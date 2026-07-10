@@ -4,6 +4,7 @@
 -- Contracts: modules/partner/application (PartnerPermissions, DTOs)
 
 create schema if not exists partner;
+grant usage on schema partner to authenticated, service_role;
 
 -- ---------------------------------------------------------------------------
 -- Types / enums
