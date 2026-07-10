@@ -10,6 +10,8 @@ Facade: `IPartnerModule` — `modules/partner/application/lib/src/contracts/i_pa
 
 **E2E lane 2026-07-10:** ERP `PartnerStartup` wired trong `apps/erp/lib/core/di/injection.dart`; integration tests `e2e_e01_u02_fr06_01` (create), `e2e_e01_u04_fr01_01` (detail), `e2e_e01_u03_fr01_01` (update) qua mediator + RPC test double / ERP UI.
 
+**E2E lane 2026-07-11:** S7/S8 — `e2e_e02_u01_fr01_01` (deactivate/reactivate), `e2e_e02_u02_fr01_01` (eligibility + soft delete); ERP `partner_status_lifecycle_e2e_test`.
+
 **Access control:** `@RequiresPermission(PartnerPermissions.*)` + `@RequiresTenant()`; codegen emit `partner_access_metadata.g.dart`.
 
 **Blocked codes:** `NO_PERMISSION`, `NOT_FOUND`, `VALIDATION_ERROR`, `DUPLICATE_WARNING`, `INVALID_STATUS`, `HAS_TRANSACTIONS`, `STATE_CHANGED`, `SYSTEM_ERROR`.

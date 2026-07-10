@@ -8,6 +8,7 @@ import 'package:vet45_partner_presentation/presentation.dart';
 import 'package:vet45_shared_application/application.dart';
 
 import '../widgets/partner_detail_add_contact_flow.dart';
+import '../widgets/partner_detail_soft_delete_flow.dart';
 
 class PartnerDetailPage extends StatefulWidget {
   const PartnerDetailPage({
@@ -31,6 +32,7 @@ class PartnerDetailPage extends StatefulWidget {
 
 class _PartnerDetailPageState extends State<PartnerDetailPage> {
   late final PartnerDetailCubit _cubit;
+  late final PartnerStatusCubit _statusCubit;
 
   @override
   void initState() {
@@ -39,6 +41,10 @@ class _PartnerDetailPageState extends State<PartnerDetailPage> {
       partnerModule: widget.partnerModule,
       executionContext: widget.executionContext,
     )..loadDetail(widget.partnerId);
+    _statusCubit = PartnerStatusCubit(
+      partnerModule: widget.partnerModule,
+      executionContext: widget.executionContext,
+    );
 
     if (widget.showCreateSuccessToast || widget.showTransformSuccessToast) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -55,6 +61,7 @@ class _PartnerDetailPageState extends State<PartnerDetailPage> {
   @override
   void dispose() {
     _cubit.close();
+    _statusCubit.close();
     super.dispose();
   }
 
@@ -66,18 +73,18 @@ class _PartnerDetailPageState extends State<PartnerDetailPage> {
     showPartnerUpdateSuccessToast(context);
   }
 
-  void _showActionSheet(BuildContext pageContext, PartnerDetailDto dto) {
-    showModalBottomSheet(
+  Future<void> _showActionSheet(
+    BuildContext pageContext,
+    PartnerDetailDto dto,
+  ) async {
+    final action = await showModalBottomSheet<PartnerDetailAction>(
       context: pageContext,
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
-      builder: (sheetContext) => PartnerDetailActionSheet(
-        dto: dto,
-        onActionSelected: (action) {
-          _handleAction(pageContext, dto, action);
-        },
-      ),
+      builder: (sheetContext) => PartnerDetailActionSheet(dto: dto),
     );
+    if (action == null || !pageContext.mounted) return;
+    await _handleAction(pageContext, dto, action);
   }
 
   void _showAddMethodSheet(BuildContext context) {
@@ -88,21 +95,51 @@ class _PartnerDetailPageState extends State<PartnerDetailPage> {
     );
   }
 
-  void _handleAction(
+  Future<void> _handleAction(
     BuildContext context,
     PartnerDetailDto dto,
     PartnerDetailAction action,
-  ) {
-    if (action == PartnerDetailAction.transform) {
-      _openTransform(context, dto);
-      return;
+  ) async {
+    switch (action) {
+      case PartnerDetailAction.transform:
+        await _openTransform(context, dto);
+      case PartnerDetailAction.toggleStatus:
+        if (dto.status == PartnerStatus.active) {
+          final reason = await showPartnerDeactivateConfirmationSheet(context);
+          if (reason == null || !mounted) return;
+          await _statusCubit.deactivate(
+            partnerId: dto.partnerId,
+            expectedVersion: dto.expectedVersion,
+            reason: reason.isEmpty ? null : reason,
+          );
+        } else {
+          final confirmed =
+              await showPartnerReactivateConfirmationSheet(context);
+          if (confirmed != true || !mounted) return;
+          await _statusCubit.reactivate(
+            partnerId: dto.partnerId,
+            expectedVersion: dto.expectedVersion,
+          );
+        }
+      case PartnerDetailAction.delete:
+        final deleteResult = await runPartnerDetailSoftDeleteFlow(
+          context: context,
+          partnerModule: widget.partnerModule,
+          executionContext: widget.executionContext,
+          statusCubit: _statusCubit,
+          dto: dto,
+        );
+        if (deleteResult == PartnerSoftDeleteFlowResult.openDeactivate &&
+            context.mounted) {
+          final reason = await showPartnerDeactivateConfirmationSheet(context);
+          if (reason == null || !mounted) return;
+          await _statusCubit.deactivate(
+            partnerId: dto.partnerId,
+            expectedVersion: dto.expectedVersion,
+            reason: reason.isEmpty ? null : reason,
+          );
+        }
     }
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Hành động ${action.name} sẽ có ở bản cập nhật tiếp theo.'),
-      ),
-    );
   }
 
   Future<void> _openTransform(
@@ -115,7 +152,45 @@ class _PartnerDetailPageState extends State<PartnerDetailPage> {
     );
     if (transformed == true && context.mounted) {
       await _cubit.loadDetail(dto.partnerId);
+      if (!context.mounted) return;
       showPartnerTransformSuccessToast(context);
+    }
+  }
+
+  void _onStatusSubmitChanged(
+    BuildContext context,
+    PartnerStatusSubmitState state,
+  ) {
+    if (state.status == PartnerStatusSubmitStatus.success) {
+      if (state.successMessage == PartnerStatusCubit.softDeleteSuccessMessage) {
+        _statusCubit.clearFeedback();
+        if (context.canPop()) {
+          context.pop(true);
+        } else {
+          showPartnerSoftDeleteSuccessToast(context);
+          context.go('/partner');
+        }
+        return;
+      }
+      if (state.successMessage == PartnerStatusCubit.deactivateSuccessMessage) {
+        showPartnerDeactivateSuccessToast(context);
+      } else if (state.successMessage ==
+          PartnerStatusCubit.reactivateSuccessMessage) {
+        showPartnerReactivateSuccessToast(context);
+      }
+      _statusCubit.clearFeedback();
+      _cubit.loadDetail(widget.partnerId);
+      return;
+    }
+    if (state.status == PartnerStatusSubmitStatus.failure &&
+        state.generalError != null) {
+      VToast.show(
+        context,
+        title: 'Không thành công',
+        message: state.generalError!,
+        type: VToastType.danger,
+      );
+      _statusCubit.clearFeedback();
     }
   }
 
@@ -123,33 +198,41 @@ class _PartnerDetailPageState extends State<PartnerDetailPage> {
   Widget build(BuildContext context) {
     final colors = context.vColors;
 
-    return BlocProvider.value(
-      value: _cubit,
-      child: Scaffold(
-        key: const Key('wgt_e01_u04_fr01_01'),
-        backgroundColor: colors.surface,
-        appBar: const VAppBar(
-          title: 'Hồ sơ KH & NCC',
-          showBackButton: true,
-        ),
-        body: BlocBuilder<PartnerDetailCubit, PartnerDetailState>(
-          builder: (context, state) {
-            if (state is PartnerDetailLoading || state is PartnerDetailInitial) {
-              return const PartnerDetailLoadingSkeleton();
-            }
-
-            if (state is PartnerDetailError) {
-              if (state.isNoPermission) {
-                return Center(
-                  child: PartnerDetailErrorState(
-                    iconData: Icons.lock_outline_rounded,
-                    title: 'Không có quyền xem hồ sơ',
-                    description: 'Bạn không có quyền truy cập hồ sơ\nKhách hàng & Nhà cung cấp.',
-                    actionLabel: 'Quay lại',
-                    onActionPressed: () => context.pop(),
-                  ),
-                );
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider.value(value: _cubit),
+        BlocProvider.value(value: _statusCubit),
+      ],
+      child: BlocListener<PartnerStatusCubit, PartnerStatusSubmitState>(
+        listenWhen: (previous, current) => previous.status != current.status,
+        listener: _onStatusSubmitChanged,
+        child: Scaffold(
+          key: const Key('wgt_e01_u04_fr01_01'),
+          backgroundColor: colors.surface,
+          appBar: const VAppBar(
+            title: 'Hồ sơ KH & NCC',
+            showBackButton: true,
+          ),
+          body: BlocBuilder<PartnerDetailCubit, PartnerDetailState>(
+            builder: (context, state) {
+              if (state is PartnerDetailLoading ||
+                  state is PartnerDetailInitial) {
+                return const PartnerDetailLoadingSkeleton();
               }
+
+              if (state is PartnerDetailError) {
+                if (state.isNoPermission) {
+                  return Center(
+                    child: PartnerDetailErrorState(
+                      iconData: Icons.lock_outline_rounded,
+                      title: 'Không có quyền xem hồ sơ',
+                      description:
+                          'Bạn không có quyền truy cập hồ sơ\nKhách hàng & Nhà cung cấp.',
+                      actionLabel: 'Quay lại',
+                      onActionPressed: () => context.pop(),
+                    ),
+                  );
+                }
               if (state.isNotFound) {
                 return Center(
                   child: PartnerDetailErrorState(
@@ -201,29 +284,24 @@ class _PartnerDetailPageState extends State<PartnerDetailPage> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
-                            // Header layout (Initials, Name, classify, status tag)
-                            _buildHeader(context, dto),
+                            PartnerDetailHeader(dto: dto),
                             const SizedBox(height: VSpacing.space4),
 
-                            // Phone & MST Quick-Action
-                            if (contactInfoText.isNotEmpty) ...[
-                              _buildPhoneAction(context, contactInfoText),
-                              const SizedBox(height: VSpacing.space4),
-                            ],
-
-                            // Warning Banner (D-03)
-                            if (hasWarning && dto.status == PartnerStatus.active) ...[
-                              _buildWarningBanner(context),
-                              const SizedBox(height: VSpacing.space4),
-                            ],
-
-                            // Inactive Banner (D-04)
                             if (dto.status == PartnerStatus.inactive) ...[
-                              _buildInactiveBanner(context),
+                              const PartnerDetailInactiveBanner(),
                               const SizedBox(height: VSpacing.space4),
                             ],
 
-                            // Info Cards
+                            if (contactInfoText.isNotEmpty) ...[
+                              PartnerDetailContactQuickRow(text: contactInfoText),
+                              const SizedBox(height: VSpacing.space4),
+                            ],
+
+                            if (hasWarning && dto.status == PartnerStatus.active) ...[
+                              const PartnerDetailWarningBanner(),
+                              const SizedBox(height: VSpacing.space4),
+                            ],
+
                             PartnerDetailMainInfoCard(dto: dto),
                             const SizedBox(height: VSpacing.space2),
 
@@ -257,7 +335,6 @@ class _PartnerDetailPageState extends State<PartnerDetailPage> {
                     ),
                   ),
 
-                  // Footer buttons (D-01 to D-04 layout) with Safe Area inside container
                   Container(
                     decoration: BoxDecoration(
                       color: colors.surface,
@@ -307,215 +384,7 @@ class _PartnerDetailPageState extends State<PartnerDetailPage> {
             return const SizedBox();
           },
         ),
-      ),
-    );
-  }
-
-  Color _getAvatarColor(String displayName) {
-    final palette = [
-      VColors.success,
-      VColors.warning,
-      VColors.info,
-      VColors.primary,
-      const Color(0xFF9C27B0),
-      const Color(0xFF00BCD4),
-    ];
-    int sum = 0;
-    for (int i = 0; i < displayName.length; i++) {
-      sum += displayName.codeUnitAt(i);
-    }
-    return palette[sum % palette.length];
-  }
-
-  Widget _buildHeader(BuildContext context, PartnerDetailDto dto) {
-    final colors = context.vColors;
-    final isPerson = dto.partnerType == PartnerType.person;
-    final labelType = isPerson ? 'Cá nhân' : 'Tổ chức';
-    final labelRoles =
-        dto.roles.contains(PartnerRoleType.customer) && dto.roles.contains(PartnerRoleType.supplier)
-        ? 'KH & NCC'
-        : (dto.roles.contains(PartnerRoleType.customer) ? 'Khách hàng' : 'Nhà cung cấp');
-
-    // Initials Avatar
-    final initials = dto.displayName.trim().split(RegExp(r'\s+'));
-    final avatarText = initials.isEmpty
-        ? '?'
-        : (initials.length == 1 ? initials[0][0] : '${initials[0][0]}${initials.last[0]}')
-              .toUpperCase();
-
-    // Use exact same avatar color algorithm as list page
-    final avatarBgColor = _getAvatarColor(dto.displayName);
-
-    return Row(
-      children: [
-        Container(
-          width: 64,
-          height: 64,
-          decoration: BoxDecoration(
-            color: avatarBgColor,
-            shape: BoxShape.circle,
-          ),
-          alignment: Alignment.center,
-          child: Text(
-            avatarText,
-            style: VTypography.headingH2.copyWith(
-              color: Colors.white,
-              fontWeight: FontWeight.w700,
-            ),
-          ),
         ),
-        const SizedBox(width: VSpacing.space4),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                dto.displayName,
-                style: VTypography.headingH3.copyWith(
-                  color: colors.textPrimary,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                '$labelType • $labelRoles',
-                style: VTypography.bodyDefault.copyWith(color: colors.textSecondary),
-              ),
-              const SizedBox(height: 6),
-              if (dto.status == PartnerStatus.active)
-                _buildStatusTag(context, 'Đang hoạt động', colors.success)
-              else if (dto.status == PartnerStatus.inactive)
-                _buildStatusTag(context, 'Ngừng hoạt động', colors.warning),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildStatusTag(BuildContext context, String text, Color color) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(4),
-      ),
-      child: Text(
-        text,
-        style: VTypography.bodySmall.copyWith(
-          color: color,
-          fontSize: 11,
-          fontWeight: FontWeight.w600,
-        ),
-      ),
-    );
-  }
-
-  Widget _buildPhoneAction(BuildContext context, String text) {
-    final colors = context.vColors;
-    return Row(
-      children: [
-        Icon(Icons.phone_outlined, size: 20, color: colors.textSecondary),
-        const SizedBox(width: VSpacing.space3),
-        Expanded(
-          child: Text(
-            text,
-            style: VTypography.bodyDefault.copyWith(
-              color: colors.textPrimary,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildWarningBanner(BuildContext context) {
-    final colors = context.vColors;
-    return Container(
-      padding: const EdgeInsets.all(VSpacing.space4),
-      decoration: BoxDecoration(
-        color: colors.warning.withValues(alpha: 0.05),
-        borderRadius: BorderRadius.circular(VRadius.card),
-        border: Border.all(color: colors.warning.withValues(alpha: 0.2)),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Icon(Icons.warning_amber_rounded, color: colors.warning, size: 22),
-          const SizedBox(width: VSpacing.space3),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Hồ sơ còn thiếu thông tin',
-                  style: VTypography.bodyDefault.copyWith(
-                    color: colors.textPrimary,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  'Thiếu MST và địa chỉ hóa đơn. Một số thông tin có thể cần bổ sung trong tính năng này.',
-                  style: VTypography.bodySmall.copyWith(color: colors.textSecondary),
-                ),
-                const SizedBox(height: 8),
-                Row(
-                  children: [
-                    Text(
-                      'Bổ sung ngay',
-                      style: VTypography.bodyDefault.copyWith(
-                        color: colors.success,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    const SizedBox(width: 4),
-                    Icon(Icons.chevron_right_rounded, size: 16, color: colors.success),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildInactiveBanner(BuildContext context) {
-    final colors = context.vColors;
-    return Container(
-      padding: const EdgeInsets.all(VSpacing.space4),
-      decoration: BoxDecoration(
-        color: colors.primary.withValues(alpha: 0.05),
-        borderRadius: BorderRadius.circular(VRadius.card),
-        border: Border.all(color: colors.primary.withValues(alpha: 0.2)),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Icon(Icons.info_outline, color: colors.primary, size: 22),
-          const SizedBox(width: VSpacing.space3),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Hồ sơ đang ngừng hoạt động',
-                  style: VTypography.bodyDefault.copyWith(
-                    color: colors.textPrimary,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  'Không được chọn cho giao dịch mới như bán hàng, nhập hàng hoặc công nợ.',
-                  style: VTypography.bodySmall.copyWith(color: colors.textSecondary),
-                ),
-              ],
-            ),
-          ),
-        ],
       ),
     );
   }

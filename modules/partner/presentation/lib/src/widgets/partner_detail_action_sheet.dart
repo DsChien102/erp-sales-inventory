@@ -5,188 +5,205 @@ import 'package:vet45_partner_domain/domain.dart';
 
 enum PartnerDetailAction { transform, toggleStatus, delete }
 
+/// Action sheet «Thao tác hồ sơ» — entry cho transform (S6), status (S7), soft delete (S8).
+///
+/// Pop sheet với [PartnerDetailAction]; caller xử lý sau khi sheet đóng.
 class PartnerDetailActionSheet extends StatelessWidget {
   const PartnerDetailActionSheet({
     super.key,
     required this.dto,
-    required this.onActionSelected,
   });
 
   final PartnerDetailDto dto;
-  final ValueChanged<PartnerDetailAction> onActionSelected;
-
-  Widget _buildStatusTag(BuildContext context, String text, Color color) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(4),
-      ),
-      child: Text(
-        text,
-        style: VTypography.bodySmall.copyWith(
-          color: color,
-          fontSize: 10,
-          fontWeight: FontWeight.w600,
-        ),
-      ),
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
     final colors = context.vColors;
     final isPerson = dto.partnerType == PartnerType.person;
-    final canTransform =
-        isPerson && dto.availableActions.contains(PartnerAvailableAction.transform);
     final isInactive = dto.status == PartnerStatus.inactive;
+    final actions = dto.availableActions.toSet();
 
-    final typeLabel = isPerson ? 'Cá nhân' : 'Tổ chức';
-    final roleLabel =
-        dto.roles.contains(PartnerRoleType.customer) && dto.roles.contains(PartnerRoleType.supplier)
-        ? 'KH & NCC'
-        : (dto.roles.contains(PartnerRoleType.customer) ? 'Khách hàng' : 'Nhà cung cấp');
-    final statusText = isInactive ? 'Ngừng hoạt động' : 'Đang hoạt động';
-    final statusColor = isInactive ? colors.warning : colors.success;
+    final canTransform =
+        isPerson && actions.contains(PartnerAvailableAction.transform);
+    final canToggleStatus = isInactive
+        ? actions.contains(PartnerAvailableAction.reactivate)
+        : actions.contains(PartnerAvailableAction.deactivate);
+    final canDelete = actions.contains(PartnerAvailableAction.delete);
+
+    void select(PartnerDetailAction action) {
+      Navigator.of(context).pop(action);
+    }
 
     return VBottomSheet(
+      key: const Key('wgt_e02_u01_fr01_01'),
       child: Material(
         color: Colors.transparent,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(
-                VSpacing.space4,
-                VSpacing.space4,
-                VSpacing.space4,
-                VSpacing.space2,
+        child: SafeArea(
+          top: false,
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(
+                  VSpacing.space4,
+                  VSpacing.space4,
+                  VSpacing.space4,
+                  VSpacing.space2,
+                ),
+                child: Text(
+                  'Thao tác hồ sơ',
+                  style: VTypography.headingH3.copyWith(
+                    color: colors.textPrimary,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
               ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Thao tác hồ sơ',
-                    style: VTypography.headingH3.copyWith(
-                      color: colors.textPrimary,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                  const SizedBox(height: 6),
-                  Text(
-                    dto.displayName,
-                    style: VTypography.bodyDefault.copyWith(
-                      color: colors.textPrimary,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Row(
+              if (canTransform)
+                _ActionCard(
+                  key: const Key('action_transform'),
+                  icon: Icons.apartment_rounded,
+                  iconBackground: colors.success.withValues(alpha: 0.12),
+                  iconColor: colors.success,
+                  title: 'Chuyển thành tổ chức',
+                  subtitle:
+                      'Chuyển hồ sơ cá nhân hiện tại sang hồ sơ tổ chức.',
+                  onTap: () => select(PartnerDetailAction.transform),
+                ),
+              if (canToggleStatus)
+                _ActionCard(
+                  key: const Key('action_toggle_status'),
+                  icon: isInactive
+                      ? Icons.power_settings_new_rounded
+                      : Icons.pause_circle_filled_rounded,
+                  iconBackground: isInactive
+                      ? colors.success.withValues(alpha: 0.12)
+                      : colors.textPrimary.withValues(alpha: 0.08),
+                  iconColor:
+                      isInactive ? colors.success : colors.textPrimary,
+                  title: isInactive ? 'Kích hoạt lại' : 'Ngừng hoạt động',
+                  subtitle: isInactive
+                      ? 'Cho phép sử dụng lại trong hệ thống.'
+                      : 'Tạm ngừng sử dụng trong hệ thống.',
+                  onTap: () => select(PartnerDetailAction.toggleStatus),
+                ),
+              if (canDelete)
+                _ActionCard(
+                  key: const Key('action_delete'),
+                  icon: Icons.delete_outline_rounded,
+                  iconBackground: colors.danger.withValues(alpha: 0.1),
+                  iconColor: colors.danger,
+                  title: 'Xóa hồ sơ',
+                  subtitle: 'Xóa mềm, không hiển thị trong danh sách.',
+                  titleColor: colors.textPrimary,
+                  onTap: () => select(PartnerDetailAction.delete),
+                ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(
+                  VSpacing.space4,
+                  VSpacing.space3,
+                  VSpacing.space4,
+                  VSpacing.space4,
+                ),
+                child: VButton(
+                  key: const Key('action_sheet_cancel'),
+                  label: 'Hủy',
+                  variant: VButtonVariant.outline,
+                  foregroundColor: colors.textPrimary,
+                  onPressed: () => Navigator.of(context).pop(),
+                ),
+              ),
+            ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _ActionCard extends StatelessWidget {
+  const _ActionCard({
+    super.key,
+    required this.icon,
+    required this.iconBackground,
+    required this.iconColor,
+    required this.title,
+    required this.subtitle,
+    required this.onTap,
+    this.titleColor,
+  });
+
+  final IconData icon;
+  final Color iconBackground;
+  final Color iconColor;
+  final String title;
+  final String subtitle;
+  final VoidCallback onTap;
+  final Color? titleColor;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.vColors;
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(
+        horizontal: VSpacing.space4,
+        vertical: VSpacing.space2,
+      ),
+      child: Material(
+        color: colors.surface,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(VRadius.card),
+          side: BorderSide(color: colors.borderDefault),
+        ),
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          onTap: onTap,
+          child: Padding(
+            padding: const EdgeInsets.all(VSpacing.space4),
+            child: Row(
+              children: [
+                VIconBox(
+                  iconData: icon,
+                  size: 44,
+                  iconSize: 22,
+                  isCircular: true,
+                  backgroundColor: iconBackground,
+                  iconColor: iconColor,
+                ),
+                const SizedBox(width: VSpacing.space3),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        typeLabel,
-                        style: VTypography.bodySmall.copyWith(color: colors.textSecondary),
+                        title,
+                        style: VTypography.bodyDefault.copyWith(
+                          color: titleColor ?? colors.textPrimary,
+                          fontWeight: FontWeight.w700,
+                        ),
                       ),
+                      const SizedBox(height: 4),
                       Text(
-                        '  •  ',
-                        style: VTypography.bodySmall.copyWith(color: colors.textMuted),
+                        subtitle,
+                        style: VTypography.bodySmall.copyWith(
+                          color: colors.textSecondary,
+                          height: 1.35,
+                        ),
                       ),
-                      Text(
-                        roleLabel,
-                        style: VTypography.bodySmall.copyWith(color: colors.textSecondary),
-                      ),
-                      Text(
-                        '  •  ',
-                        style: VTypography.bodySmall.copyWith(color: colors.textMuted),
-                      ),
-                      _buildStatusTag(context, statusText, statusColor),
                     ],
                   ),
-                ],
-              ),
-            ),
-            const SizedBox(height: VSpacing.space2),
-            Divider(color: colors.borderDefault, height: 1),
-            if (canTransform)
-              ListTile(
-                leading: Icon(Icons.business_outlined, color: colors.textSecondary),
-                title: Text(
-                  'Chuyển thành tổ chức',
-                  style: VTypography.bodyDefault.copyWith(
-                    color: colors.textPrimary,
-                    fontWeight: FontWeight.w500,
-                  ),
                 ),
-                subtitle: Text(
-                  'Chuyển hồ sơ cá nhân thành tổ chức',
-                  style: VTypography.bodySmall.copyWith(color: colors.textSecondary),
+                const SizedBox(width: VSpacing.space2),
+                Icon(
+                  Icons.chevron_right_rounded,
+                  color: colors.textMuted,
                 ),
-                trailing: Icon(Icons.chevron_right_rounded, color: colors.textMuted),
-                onTap: () {
-                  Navigator.of(context).pop();
-                  onActionSelected(PartnerDetailAction.transform);
-                },
-              ),
-            ListTile(
-              leading: Icon(
-                isInactive ? Icons.play_circle_outline_rounded : Icons.pause_circle_outline_rounded,
-                color: colors.textSecondary,
-              ),
-              title: Text(
-                isInactive ? 'Kích hoạt lại' : 'Ngừng hoạt động',
-                style: VTypography.bodyDefault.copyWith(
-                  color: colors.textPrimary,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-              subtitle: Text(
-                isInactive
-                    ? 'Kích hoạt lại hồ sơ để thực hiện giao dịch'
-                    : 'Tạm ngưng sử dụng trong hệ thống',
-                style: VTypography.bodySmall.copyWith(color: colors.textSecondary),
-              ),
-              trailing: Icon(Icons.chevron_right_rounded, color: colors.textMuted),
-              onTap: () {
-                Navigator.of(context).pop();
-                onActionSelected(PartnerDetailAction.toggleStatus);
-              },
+              ],
             ),
-            ListTile(
-              leading: Icon(Icons.delete_outline_rounded, color: colors.danger),
-              title: Text(
-                'Xóa hồ sơ',
-                style: VTypography.bodyDefault.copyWith(
-                  color: colors.danger,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-              subtitle: Text(
-                'Xóa mềm, không hiển thị trong danh sách',
-                style: VTypography.bodySmall.copyWith(color: colors.textSecondary),
-              ),
-              trailing: Icon(Icons.chevron_right_rounded, color: colors.textMuted),
-              onTap: () {
-                Navigator.of(context).pop();
-                onActionSelected(PartnerDetailAction.delete);
-              },
-            ),
-            const SizedBox(height: VSpacing.space2),
-            // Cancel Button matching "Hủy" design in image 3
-            Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: VSpacing.space4,
-                vertical: VSpacing.space3,
-              ),
-              child: VButton(
-                label: 'Hủy',
-                variant: VButtonVariant.outline,
-                foregroundColor: colors.success,
-                onPressed: () => Navigator.of(context).pop(),
-              ),
-            ),
-            const SizedBox(height: VSpacing.space4),
-          ],
+          ),
         ),
       ),
     );

@@ -14,11 +14,13 @@ Thứ tự implement vertical slice. Lane status: `todo` | `in_progress` | `done
 | S4 | [EP-01/US-03](../Epic-01-partner-profile/US-03.md) — Cập nhật hồ sơ + role | write | done | done | done | done | A | S1 |
 | S5 | [EP-01/US-05](../Epic-01-partner-profile/US-05.md) — Quản lý người liên hệ | write | done | done | done | done | B | S3 (org detail) |
 | S6 | [EP-01/US-06](../Epic-01-partner-profile/US-06.md) — Transform Person→Organization | write | done | done | done | done | B | S3 |
-| S7 | [EP-02/US-01](../Epic-02-partner-status/US-01.md) — Ngừng hoạt động / kích hoạt lại | write | done | done | todo | todo | C | S3 |
-| S8 | [EP-02/US-02](../Epic-02-partner-status/US-02.md) — Xóa mềm | write | done | done | todo | todo | C | S3 |
+| S7 | [EP-02/US-01](../Epic-02-partner-status/US-01.md) — Ngừng hoạt động / kích hoạt lại | write | done | done | done | done | C | S3 |
+| S8 | [EP-02/US-02](../Epic-02-partner-status/US-02.md) — Xóa mềm | write | done | done | done | done | C | S3 |
 | S9 | [EP-01/US-07](../Epic-01-partner-profile/US-07.md) — Lịch sử làm việc | read cross-module | done | done | todo | **blocked** | D | sales/inventory/accounting events |
 
 > **S5 FE polish (2026-07-10):** Edit contact qua `UpdateOrganizationContactCommand` (+ person profile); VToast + reload sau add/edit.
+>
+> **S7/S8 E2E (2026-07-11):** Integration `e2e_e02_u01_fr01_01` / `e2e_e02_u02_fr01_01` + ERP `partner_status_lifecycle_e2e_test`.
 
 ### Parallel groups
 
