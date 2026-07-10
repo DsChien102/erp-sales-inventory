@@ -87,10 +87,11 @@ abstract final class PartnerOutlinedField {
   }
 }
 
-class PartnerOutlinedTextField extends StatelessWidget {
+class PartnerOutlinedTextField extends StatefulWidget {
   const PartnerOutlinedTextField({
     super.key,
     required this.label,
+    this.initialValue,
     this.isRequired = false,
     this.errorText,
     this.hintText,
@@ -99,6 +100,7 @@ class PartnerOutlinedTextField extends StatelessWidget {
   });
 
   final String label;
+  final String? initialValue;
   final bool isRequired;
   final String? errorText;
   final String? hintText;
@@ -106,10 +108,43 @@ class PartnerOutlinedTextField extends StatelessWidget {
   final ValueChanged<String>? onChanged;
 
   @override
+  State<PartnerOutlinedTextField> createState() =>
+      _PartnerOutlinedTextFieldState();
+}
+
+class _PartnerOutlinedTextFieldState extends State<PartnerOutlinedTextField> {
+  late final TextEditingController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = TextEditingController(text: widget.initialValue ?? '');
+  }
+
+  @override
+  void didUpdateWidget(covariant PartnerOutlinedTextField oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    final next = widget.initialValue ?? '';
+    if (oldWidget.initialValue != widget.initialValue && _controller.text != next) {
+      _controller.value = TextEditingValue(
+        text: next,
+        selection: TextSelection.collapsed(offset: next.length),
+      );
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return TextField(
-      keyboardType: keyboardType,
-      onChanged: onChanged,
+      controller: _controller,
+      keyboardType: widget.keyboardType,
+      onChanged: widget.onChanged,
       style: VTypography.bodyDefault.copyWith(
         color: context.vColors.textPrimary,
         fontSize: 14,
@@ -119,12 +154,12 @@ class PartnerOutlinedTextField extends StatelessWidget {
         context,
         label: PartnerOutlinedField.buildLabel(
           context,
-          label,
-          isRequired: isRequired,
+          widget.label,
+          isRequired: widget.isRequired,
         ),
-        errorText: errorText,
+        errorText: widget.errorText,
       ).copyWith(
-        hintText: hintText,
+        hintText: widget.hintText,
         hintStyle: VTypography.bodyDefault.copyWith(
           color: context.vColors.textMuted,
           fontSize: 14,
@@ -134,10 +169,11 @@ class PartnerOutlinedTextField extends StatelessWidget {
   }
 }
 
-class PartnerOutlinedMultilineTextField extends StatelessWidget {
+class PartnerOutlinedMultilineTextField extends StatefulWidget {
   const PartnerOutlinedMultilineTextField({
     super.key,
     required this.label,
+    this.initialValue,
     this.isRequired = false,
     this.errorText,
     this.hintText,
@@ -147,6 +183,7 @@ class PartnerOutlinedMultilineTextField extends StatelessWidget {
   });
 
   final String label;
+  final String? initialValue;
   final bool isRequired;
   final String? errorText;
   final String? hintText;
@@ -155,11 +192,45 @@ class PartnerOutlinedMultilineTextField extends StatelessWidget {
   final ValueChanged<String>? onChanged;
 
   @override
+  State<PartnerOutlinedMultilineTextField> createState() =>
+      _PartnerOutlinedMultilineTextFieldState();
+}
+
+class _PartnerOutlinedMultilineTextFieldState
+    extends State<PartnerOutlinedMultilineTextField> {
+  late final TextEditingController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = TextEditingController(text: widget.initialValue ?? '');
+  }
+
+  @override
+  void didUpdateWidget(covariant PartnerOutlinedMultilineTextField oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    final next = widget.initialValue ?? '';
+    if (oldWidget.initialValue != widget.initialValue && _controller.text != next) {
+      _controller.value = TextEditingValue(
+        text: next,
+        selection: TextSelection.collapsed(offset: next.length),
+      );
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return TextField(
-      minLines: minLines,
-      maxLines: maxLines,
-      onChanged: onChanged,
+      controller: _controller,
+      minLines: widget.minLines,
+      maxLines: widget.maxLines,
+      onChanged: widget.onChanged,
       style: VTypography.bodyDefault.copyWith(
         color: context.vColors.textPrimary,
         fontSize: 14,
@@ -169,13 +240,13 @@ class PartnerOutlinedMultilineTextField extends StatelessWidget {
         context,
         label: PartnerOutlinedField.buildLabel(
           context,
-          label,
-          isRequired: isRequired,
+          widget.label,
+          isRequired: widget.isRequired,
         ),
-        errorText: errorText,
+        errorText: widget.errorText,
         multiline: true,
       ).copyWith(
-        hintText: hintText,
+        hintText: widget.hintText,
         hintStyle: VTypography.bodyDefault.copyWith(
           color: context.vColors.textMuted,
           fontSize: 14,

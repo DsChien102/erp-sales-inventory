@@ -79,6 +79,56 @@ void main() {
     expect(find.text('Chọn vai trò giao dịch của hồ sơ này.'), findsOneWidget);
   });
 
+  testWidgets('collapsing section preserves entered field values', (tester) async {
+    await tester.pumpWidget(buildForm(type: PartnerType.person));
+
+    await tester.tap(find.byKey(const Key('role_customer')));
+    await tester.tap(find.byKey(const Key('btn_next')));
+    await tester.pumpAndSettle();
+
+    await tester.enterText(
+      find.byKey(const Key('input_full_name')),
+      'Nguyễn Văn Minh',
+    );
+    await tester.enterText(
+      find.byKey(const Key('input_phone')),
+      '0901234567',
+    );
+    await tester.pumpAndSettle();
+
+    // Collapse then re-expand — fields remount from cubit state.
+    await tester.tap(find.text('3. Thông tin cá nhân'));
+    await tester.pump();
+    expect(find.byKey(const Key('input_full_name')), findsNothing);
+
+    await tester.tap(find.text('3. Thông tin cá nhân'));
+    await tester.pumpAndSettle();
+
+    expect(
+      tester.widget<TextField>(
+        find.descendant(
+          of: find.byKey(const Key('input_full_name')),
+          matching: find.byType(TextField),
+        ),
+      ).controller?.text,
+      'Nguyễn Văn Minh',
+    );
+    expect(
+      tester.widget<TextField>(
+        find.descendant(
+          of: find.byKey(const Key('input_phone')),
+          matching: find.byType(TextField),
+        ),
+      ).controller?.text,
+      '0901234567',
+    );
+
+    final context = tester.element(find.byType(PartnerCreateForm));
+    final state = context.read<PartnerCreateCubit>().state;
+    expect(state.fullName, 'Nguyễn Văn Minh');
+    expect(state.phone, '0901234567');
+  });
+
   testWidgets('wgt_e01_u02_fr02_01: person form renders accordion sections', (
     tester,
   ) async {

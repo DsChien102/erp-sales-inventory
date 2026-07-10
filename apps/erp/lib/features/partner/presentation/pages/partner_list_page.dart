@@ -55,11 +55,17 @@ class _PartnerListPageState extends State<PartnerListPage> {
       extra: partnerType,
     );
     if (!mounted) return;
+
+    // Always refresh when returning from create (success or cancel).
+    await _cubit.fetchPartners(isRefresh: true);
+    if (!mounted) return;
+
     if (createdPartnerId != null) {
-      await _cubit.fetchPartners(isRefresh: true);
       _showCreatedHandoffSnackBar(createdPartnerId);
-    } else {
-      await _cubit.fetchPartners(isRefresh: true);
+      await context.push('/partner/$createdPartnerId?created=1');
+      if (mounted) {
+        await _cubit.fetchPartners(isRefresh: true);
+      }
     }
   }
 

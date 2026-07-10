@@ -26,6 +26,7 @@ class PartnerOrganizationSection extends StatelessWidget {
           PartnerOutlinedTextField(
             key: const Key('input_organization_type'),
             label: 'Loại tổ chức',
+            initialValue: state.organizationTypeLabel,
             hintText: 'VD: Công ty/TNHH, Hộ kinh doanh',
             onChanged: cubit.updateOrganizationType,
           ),
@@ -33,6 +34,7 @@ class PartnerOrganizationSection extends StatelessWidget {
           PartnerOutlinedTextField(
             key: const Key('input_organization_name'),
             label: 'Tên tổ chức',
+            initialValue: state.organizationName,
             isRequired: true,
             errorText: state.errors['organizationName'],
             onChanged: cubit.updateOrganizationName,
@@ -41,18 +43,21 @@ class PartnerOrganizationSection extends StatelessWidget {
           PartnerOutlinedTextField(
             key: const Key('input_short_name'),
             label: 'Tên viết tắt',
+            initialValue: state.shortName,
             onChanged: cubit.updateShortName,
           ),
           const SizedBox(height: PartnerOutlinedField.fieldGap),
           PartnerOutlinedTextField(
             key: const Key('input_international_name'),
             label: 'Tên quốc tế',
+            initialValue: state.internationalName,
             onChanged: cubit.updateInternationalName,
           ),
           const SizedBox(height: PartnerOutlinedField.fieldGap),
           PartnerOutlinedTextField(
             key: const Key('input_phone'),
             label: 'SĐT chính',
+            initialValue: state.phone,
             isRequired: true,
             errorText: state.errors['phone'],
             keyboardType: TextInputType.phone,
@@ -62,6 +67,7 @@ class PartnerOrganizationSection extends StatelessWidget {
           PartnerOutlinedTextField(
             key: const Key('input_email'),
             label: 'Email',
+            initialValue: state.email,
             errorText: state.errors['email'],
             keyboardType: TextInputType.emailAddress,
             onChanged: cubit.updateEmail,

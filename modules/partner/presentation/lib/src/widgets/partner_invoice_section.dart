@@ -22,6 +22,7 @@ class PartnerInvoiceSection extends StatelessWidget {
           errorText: state.errors['taxCode'],
           field: PartnerCompactTextField(
             key: const Key('input_tax_code'),
+            initialValue: state.taxCode,
             keyboardType: TextInputType.number,
             onChanged: cubit.updateTaxCode,
           ),
@@ -30,6 +31,7 @@ class PartnerInvoiceSection extends StatelessWidget {
           label: 'Tên xuất hóa đơn',
           isRequired: true,
           field: PartnerCompactTextField(
+            initialValue: state.invoiceName,
             onChanged: cubit.updateInvoiceName,
           ),
         ),
@@ -37,11 +39,13 @@ class PartnerInvoiceSection extends StatelessWidget {
           label: 'Email nhận hóa đơn',
           errorText: state.errors['invoiceEmail'],
           field: PartnerCompactTextField(
+            initialValue: state.invoiceEmail,
             keyboardType: TextInputType.emailAddress,
             onChanged: cubit.updateInvoiceEmail,
           ),
         ),
         _InvoiceAddressField(
+          initialValue: state.invoiceAddress,
           onChanged: cubit.updateInvoiceAddress,
         ),
         if (state.taxCode.trim().isEmpty &&
@@ -62,8 +66,12 @@ class PartnerInvoiceSection extends StatelessWidget {
 }
 
 class _InvoiceAddressField extends StatelessWidget {
-  const _InvoiceAddressField({required this.onChanged});
+  const _InvoiceAddressField({
+    required this.initialValue,
+    required this.onChanged,
+  });
 
+  final String initialValue;
   final ValueChanged<String> onChanged;
 
   @override
@@ -96,6 +104,7 @@ class _InvoiceAddressField extends StatelessWidget {
           const SizedBox(height: VSpacing.space2),
           PartnerCompactMultilineTextField(
             key: const Key('input_invoice_address'),
+            initialValue: initialValue,
             minLines: 3,
             maxLines: 5,
             onChanged: onChanged,
