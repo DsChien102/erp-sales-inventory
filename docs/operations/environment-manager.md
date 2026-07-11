@@ -127,6 +127,20 @@ melos run env:link           # link only, no .env regeneration
 melos run env:doctor         # checks linked ref matches env
 ```
 
+## Shell activate (venv-style prompt)
+
+Shows active **profile/environment** on the shell prompt and exports session vars.
+
+| Shell | Activate | Deactivate |
+| ----- | -------- | ---------- |
+| bash / zsh | `source scripts/env/activate.sh` | `deactivate` |
+| PowerShell | `. .\scripts\env\activate.ps1` | `deactivate` |
+| CMD | `scripts\env\activate.bat` | `deactivate` |
+
+Exports: `VET45_ROOT`, `VET45_PROFILE`, `VET45_ENV_ID`, `VET45_ACTIVE_LABEL` (e.g. `(default/staging)`).
+
+bash/zsh/PowerShell re-read `.vet45/state.json` on each prompt, so after `melos run env:use:staging` the label updates automatically. CMD keeps a static prompt — run `activate.bat` again to refresh.
+
 ## Daily commands
 
 ```bash
@@ -212,6 +226,7 @@ Melos scripts call `dart run` directly (no bash `&&` chains).
 | Dart SDK + Flutter in `PATH` | Required for `melos run debug`; vet45_env resolves `flutter.bat` via `where` / `FLUTTER_ROOT` on Windows |
 | Supabase CLI | `supabase` on PATH for `env:local` |
 | Git Bash | Optional; needed for `deploy:worker` / legacy `.sh` deploy scripts via `bash` |
+| Prompt activate | `scripts\env\activate.bat` (CMD) or `. .\scripts\env\activate.ps1` (PowerShell) |
 | iOS build/deploy | macOS only — `debug:ios`, `build:ios`, `deploy:ios` exit with clear message on Windows |
 | Docker Desktop | For `melos run worker:docker`; uses `host.docker.internal` |
 

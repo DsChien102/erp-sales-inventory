@@ -34,6 +34,25 @@ if [[ ! -f "$root/scripts/env/vet45_env.bat" ]]; then
   exit 1
 fi
 
+for activate in activate.sh activate.ps1 activate.bat deactivate.bat; do
+  if [[ ! -f "$root/scripts/env/$activate" ]]; then
+    echo "FAIL: missing scripts/env/$activate"
+    exit 1
+  fi
+done
+
+echo "==> activate.sh smoke (sourced)"
+# shellcheck disable=SC1091
+(
+  cd "$root"
+  # shellcheck source=/dev/null
+  source "$root/scripts/env/activate.sh" >/dev/null
+  test -n "${VET45_PROFILE:-}"
+  test -n "${VET45_ENV_ID:-}"
+  test -n "${VET45_ACTIVE_LABEL:-}"
+  deactivate >/dev/null
+)
+
 echo "==> vet45_env dart test"
 (cd "$root/tools/vet45_env" && dart test)
 
