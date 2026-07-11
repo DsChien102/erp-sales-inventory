@@ -253,7 +253,8 @@ class _UpsertCustomFieldPageState extends State<UpsertCustomFieldPage> {
           children: [
             VTextField(
               controller: _nameController,
-              label: 'Tên trường *',
+              label: 'Tên trường',
+              isRequired: true,
               hintText: 'Nhập tên trường',
             ),
             const SizedBox(height: VSpacing.space4),
@@ -265,21 +266,24 @@ class _UpsertCustomFieldPageState extends State<UpsertCustomFieldPage> {
               maxLines: 5,
             ),
             const SizedBox(height: VSpacing.space4),
-            VDropdown<CustomFieldType>(
-              label: 'Kiểu dữ liệu *',
+            VSelect<CustomFieldType>(
+              label: 'Kiểu dữ liệu',
+              isRequired: true,
+              enabled: widget.initialFieldId == null,
               value: _fieldType,
               onChanged: widget.initialFieldId == null
                   ? (val) {
                       if (val != null) setState(() => _fieldType = val);
                     }
                   : null, // Not allowed to change fieldType if editing (Image 3)
-              items: const [
-                DropdownMenuItem(value: CustomFieldType.text, child: Text('Text')),
-                DropdownMenuItem(value: CustomFieldType.number, child: Text('Số')),
-                DropdownMenuItem(value: CustomFieldType.singleSelect, child: Text('Single select')),
-                DropdownMenuItem(value: CustomFieldType.date, child: Text('Ngày')),
-                DropdownMenuItem(value: CustomFieldType.boolean, child: Text('Bật/Tắt')),
-              ],
+              items: CustomFieldType.values
+                  .map(
+                    (type) => DropdownMenuItem(
+                      value: type,
+                      child: Text(type.labelVi),
+                    ),
+                  )
+                  .toList(),
             ),
             if (widget.initialFieldId != null) ...[
               const SizedBox(height: VSpacing.space2),
@@ -291,7 +295,7 @@ class _UpsertCustomFieldPageState extends State<UpsertCustomFieldPage> {
             const SizedBox(height: VSpacing.space4),
             VTextField(
               controller: TextEditingController(text: group.name),
-              label: 'Nhóm *',
+              label: 'Nhóm',
               enabled: false,
             ),
 
@@ -439,5 +443,22 @@ class _UpsertCustomFieldPageState extends State<UpsertCustomFieldPage> {
         ),
       ),
     );
+  }
+}
+
+extension on CustomFieldType {
+  String get labelVi {
+    switch (this) {
+      case CustomFieldType.text:
+        return 'Văn bản';
+      case CustomFieldType.number:
+        return 'Số';
+      case CustomFieldType.singleSelect:
+        return 'Tùy chọn';
+      case CustomFieldType.date:
+        return 'Ngày';
+      case CustomFieldType.boolean:
+        return 'Bật/Tắt';
+    }
   }
 }
