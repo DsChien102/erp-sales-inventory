@@ -866,14 +866,15 @@ final class FakeCatalogCustomFieldStore {
   }
 
   bool matchesSearchKeyword(String productId, String keyword) {
-    final lower = keyword.toLowerCase();
+    final foldedKeyword = SearchKeywordNormalizer.foldForSearch(keyword);
     for (final group in _groups.where((group) => group.isActive)) {
       for (final field in _fieldsForGroup(group.groupId)) {
         if (!field.isActive || !field.isSearchable) {
           continue;
         }
         final value = _displayValue(field, _findValue(productId, field.fieldId));
-        if (value != null && value.toLowerCase().contains(lower)) {
+        if (value != null &&
+            SearchKeywordNormalizer.foldForSearch(value).contains(foldedKeyword)) {
           return true;
         }
       }

@@ -665,6 +665,66 @@ void main() {
       }
     });
 
+    test('scn_contract_e01_u01_search_unaccent_vietnamese', () async {
+      final module = FakeCatalogModule(
+        scenario: FakeCatalogScenario.searchUnaccentVietnamese,
+      );
+
+      final result = await module.executeQueryAsync(
+        SearchProductsQuery(
+          tenantId: 'tenant-1',
+          criteria: ProductSearchCriteria(
+            keyword: 'amoxicillin',
+            businessStatuses: {
+              ProductStatus.active,
+              ProductStatus.inactive,
+            },
+          ),
+        ),
+      );
+
+      expect(
+        result.items.any(
+          (item) => SearchKeywordNormalizer.foldForSearch(item.name)
+              .contains('amoxicillin'),
+        ),
+        isTrue,
+      );
+    });
+
+    test('scn_contract_e01_u01_search_relevance_sort', () async {
+      final module = FakeCatalogModule(
+        scenario: FakeCatalogScenario.searchRelevanceSort,
+      );
+
+      final result = await module.executeQueryAsync(
+        SearchProductsQuery(
+          tenantId: 'tenant-1',
+          criteria: ProductSearchCriteria(
+            keyword: 'amox',
+            sortOrder: ProductSortOrder.relevanceDesc,
+            businessStatuses: {
+              ProductStatus.active,
+              ProductStatus.inactive,
+            },
+          ),
+        ),
+      );
+
+      expect(result.items, isNotEmpty);
+      expect(result.items.first.name.toLowerCase(), contains('amox'));
+
+      final firstInactiveIndex = result.items.indexWhere(
+        (item) => item.businessStatus == ProductStatus.inactive,
+      );
+      if (firstInactiveIndex >= 0) {
+        final lastActiveIndex = result.items.lastIndexWhere(
+          (item) => item.businessStatus == ProductStatus.active,
+        );
+        expect(firstInactiveIndex, greaterThan(lastActiveIndex));
+      }
+    });
+
     test('scn_contract_e01_u01_barcode_match', () async {
       final module = FakeCatalogModule(
         scenario: FakeCatalogScenario.barcodeExactMatch,

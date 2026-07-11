@@ -48,6 +48,7 @@ export 'src/search/product_readiness_filter.dart';
 export 'src/search/custom_field_filter_criteria.dart';
 export 'src/search/product_search_criteria.dart';
 export 'src/search/product_sort_order.dart';
+export 'src/search/search_keyword_normalizer.dart';
 export 'src/shared/catalog_permissions.dart';
 export 'src/shared/product_duplicate_field.dart';
 export 'src/shared/product_status.dart';

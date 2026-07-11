@@ -19,5 +19,24 @@ void main() {
       final criteria = ProductSearchCriteria(keyword: '  Amoxicillin  ');
       expect(criteria.keyword, 'Amoxicillin');
     });
+
+    test('foldForSearch strips Vietnamese diacritics', () {
+      expect(
+        SearchKeywordNormalizer.foldForSearch('Amoxicillin'),
+        'amoxicillin',
+      );
+      expect(
+        SearchKeywordNormalizer.foldForSearch('Tiêu hóa'),
+        'tieu hoa',
+      );
+    });
+
+    test('accepts relevanceDesc sort order', () {
+      final criteria = ProductSearchCriteria(
+        keyword: 'amox',
+        sortOrder: ProductSortOrder.relevanceDesc,
+      );
+      expect(criteria.sortOrder, ProductSortOrder.relevanceDesc);
+    });
   });
 }

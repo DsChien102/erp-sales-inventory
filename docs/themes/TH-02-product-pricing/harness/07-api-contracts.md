@@ -233,7 +233,7 @@ Supporting types:
 | ---- | ------ |
 | `ProductSearchCriteria` | keyword?, businessStatuses (`Set<ProductStatus>`, default `{active}`), readinessFilter?, includeSoftDeleted (default false), sortOrder |
 | `ProductReadinessFilter` | `readyToSell`, `incomplete` |
-| `ProductSortOrder` | `updatedAtDesc` |
+| `ProductSortOrder` | `updatedAtDesc`, `relevanceDesc` (chỉ có ý nghĩa khi `keyword` non-null; FE auto-set khi search) |
 | `ProductListItemDto` | id, name, tradeName?, sku?, barcode?, primaryImageUrl?, businessStatus, isSoftDeleted, readinessSummary, listPrice?, floorPrice?, baseUnit?, stockQuantity?, stockLabel?, updatedAt |
 | `ProductSearchResultDto` | items[], totalCount |
 
@@ -250,11 +250,15 @@ Port: `ICatalogReadGateway.search`, `ICatalogReadGateway.findByBarcode`.
 | Search list | `catalog.search_products` |
 | Barcode scan | `catalog.find_product_by_barcode` (hoặc search với exact barcode match) |
 
-**`catalog.search_products` params:** `p_tenant_id`, `p_keyword`, `p_business_statuses text[]`, `p_readiness_filter text`, `p_include_soft_deleted boolean`, `p_limit int`, `p_offset int`
+**`catalog.search_products` params:** `p_tenant_id`, `p_keyword`, `p_business_statuses text[]`, `p_readiness_filter text`, `p_include_soft_deleted boolean`, `p_limit int`, `p_offset int`, `p_custom_field_filters jsonb` (EPIC-03), `p_sort_order text` default `updated_at_desc` (`updated_at_desc` \| `relevance_desc`)
 
-**Response row:** list item fields + `readiness_status`, `top_blocker_code`, `top_blocker_message` (hoặc join `catalog.v_product_list`).
+**Search engine:** PostgreSQL FTS trên `products.search_document` (`tsvector` + GIN) với `unaccent` + config `simple` (khớp không dấu tiếng Việt). Fast-path exact/prefix trên `sku`/`barcode` (cột đã inline-normalize). Searchable custom fields (`text`/`singleSelect`) denormalize vào `search_document` (không correlated ILIKE mỗi row).
 
-Draft view: `catalog.v_product_list` — xem [03-architecture-and-flows.md](03-architecture-and-flows.md).
+**Sort:** luôn pin `active` trước `inactive` (kể cả khi `relevance_desc`). Khi `p_sort_order = relevance_desc` và có keyword → `ts_rank_cd` rồi `updated_at desc`, `name asc`. Khi không keyword / `updated_at_desc` → active-first rồi `updated_at desc`.
+
+**Response row:** list item fields + readiness facts + `custom_field_values jsonb` + `total_count`. Không expose `reference_id`.
+
+Draft SQL: `supabase/migrations/_drafts/catalog_product_fts_search.sql`.
 
 ### Fake scenarios (FE)
 
@@ -262,6 +266,8 @@ Draft view: `catalog.v_product_list` — xem [03-architecture-and-flows.md](03-a
 | ----------- | ------- | ------------- |
 | `search_empty` | SearchProductsQuery | `items: []`, `totalCount: 0` |
 | `search_with_readiness` | SearchProductsQuery default | seed products với readiness đa dạng (ready + incomplete) |
+| `search_relevance_sort` | SearchProductsQuery keyword + `sortOrder=relevanceDesc` | active trước inactive; approximate rank (name match trước sku) |
+| `search_unaccent_vietnamese` | SearchProductsQuery keyword không dấu (vd. `amoxicilin`) | khớp sản phẩm tên có dấu (`Amoxicillin`) |
 | `barcode_exact_match` | ScanBarcodeQuery known barcode | single `ProductListItemDto` |
 | `barcode_not_found` | ScanBarcodeQuery unknown | `null` |
 
@@ -1425,7 +1431,7 @@ Supporting types:
 
 Permissions: list/search/filter uses `@RequiresPermission(CatalogPermissions.view)`; snapshot query uses `@RequiresPermission(CatalogPermissions.viewDetail)`; all use `@RequiresTenant()`.
 
-Search behavior: `SearchProductsQuery.criteria.keyword` matches product name/tradeName/sku/barcode plus active searchable custom fields. Foundation supports `text` and `singleSelect` searchable fields.
+Search behavior: `SearchProductsQuery.criteria.keyword` matches product name/tradeName/sku/barcode plus active searchable custom fields. Foundation supports `text` and `singleSelect` searchable fields. BE engine: FTS + `unaccent` on denormalized `search_document` (see EPIC-01); `p_sort_order=relevance_desc` ranks by FTS relevance while keeping inactive pinned after active. Fake ranking is approximate only.
 
 Filter behavior: `ProductSearchCriteria.customFieldFilters` matches active filterable fields. Foundation supports exact `singleSelect` option filters and exact boolean filters; text filters may be accepted by contract but BE can return no options for text-heavy fields to avoid noisy panels.
 
@@ -1439,7 +1445,7 @@ FR-04 behavior: `GetProductCustomFieldSnapshotQuery` returns current product-own
 | Filter option metadata | `catalog.list_custom_field_filter_options` |
 | Product custom field snapshot/current values | `catalog.get_product_custom_field_snapshot` |
 
-`search_products` extended params: `p_custom_field_filters jsonb` (array of `{field_id, option_id?, boolean_value?}`). Response adds `custom_field_values jsonb` array per row (`field_id`, `group_id`, `group_name`, `field_name`, `field_type`, `display_value`, `sort_order`).
+`search_products` extended params: `p_custom_field_filters jsonb` (array of `{field_id, option_id?, boolean_value?}`), `p_sort_order text` (`updated_at_desc` \| `relevance_desc`). Response adds `custom_field_values jsonb` array per row (`field_id`, `group_id`, `group_name`, `field_name`, `field_type`, `display_value`, `sort_order`). Keyword search uses FTS document (includes searchable CF display values); filter path vẫn exact via `_product_matches_custom_field_filters`.
 
 `list_custom_field_filter_options` returns jsonb array of filter metadata (`field_id`, `group_id`, `group_name`, `field_name`, `field_type`, `options[]`, `sort_order`).
 
