@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:vet45_catalog_application/application.dart';
 import 'package:vet45_catalog_domain/domain.dart';
 import 'package:vet45_design_system/design_system.dart';
@@ -28,28 +27,18 @@ class _ProductCustomFieldInputWidgetState extends State<ProductCustomFieldInputW
   @override
   void initState() {
     super.initState();
-    if (widget.field.fieldType == CustomFieldType.text.name) {
-      _textController = TextEditingController(text: widget.input.textValue);
-    } else if (widget.field.fieldType == CustomFieldType.number.name) {
-      _textController = TextEditingController(text: widget.input.numberValue?.toString() ?? '');
-    } else {
-      _textController = TextEditingController();
-    }
+    _textController = TextEditingController(
+      text: widget.field.fieldType == CustomFieldType.text.name ? widget.input.textValue : null,
+    );
   }
 
   @override
   void didUpdateWidget(covariant ProductCustomFieldInputWidget oldWidget) {
     super.didUpdateWidget(oldWidget);
-    // Sync external changes if needed
-    if (widget.field.fieldType == CustomFieldType.text.name && widget.input.textValue != oldWidget.input.textValue) {
-      if (_textController.text != widget.input.textValue) {
-        _textController.text = widget.input.textValue ?? '';
-      }
-    } else if (widget.field.fieldType == CustomFieldType.number.name && widget.input.numberValue != oldWidget.input.numberValue) {
-      final newVal = widget.input.numberValue?.toString() ?? '';
-      if (_textController.text != newVal) {
-        _textController.text = newVal;
-      }
+    if (widget.field.fieldType == CustomFieldType.text.name &&
+        widget.input.textValue != oldWidget.input.textValue &&
+        _textController.text != widget.input.textValue) {
+      _textController.text = widget.input.textValue ?? '';
     }
   }
 
@@ -76,37 +65,36 @@ class _ProductCustomFieldInputWidgetState extends State<ProductCustomFieldInputW
         errorText: widget.errorText,
         enabled: widget.field.isActive,
         onChanged: (val) {
-          widget.onChanged(ProductCustomFieldValueInput(
-            fieldId: widget.field.fieldId,
-            textValue: val,
-          ));
+          widget.onChanged(
+            ProductCustomFieldValueInput(
+              fieldId: widget.field.fieldId,
+              textValue: val,
+            ),
+          );
         },
       );
     } else if (widget.field.fieldType == CustomFieldType.number.name) {
-      return VTextField(
+      return VNumberField(
         label: widget.field.name,
         isRequired: widget.field.isRequired,
-        controller: _textController,
+        value: widget.input.numberValue,
         errorText: widget.errorText,
         enabled: widget.field.isActive,
-        keyboardType: const TextInputType.numberWithOptions(decimal: true),
-        inputFormatters: [
-          FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*')),
-        ],
+        allowDecimal: true,
         onChanged: (val) {
-          final parsed = double.tryParse(val);
-          widget.onChanged(ProductCustomFieldValueInput(
-            fieldId: widget.field.fieldId,
-            numberValue: parsed,
-            textValue: val.isNotEmpty && parsed == null ? val : null,
-          ));
+          widget.onChanged(
+            ProductCustomFieldValueInput(
+              fieldId: widget.field.fieldId,
+              numberValue: val?.toDouble(),
+            ),
+          );
         },
       );
     } else if (widget.field.fieldType == CustomFieldType.singleSelect.name) {
-      return VDropdown<String>(
+      return VSelect<String>(
         label: widget.field.name,
         value: widget.input.optionId,
-        hintText: '— Chọn —',
+        hintText: '- Chọn -',
         enabled: widget.field.isActive,
         items: widget.field.options.map((opt) {
           return DropdownMenuItem<String>(
@@ -115,10 +103,12 @@ class _ProductCustomFieldInputWidgetState extends State<ProductCustomFieldInputW
           );
         }).toList(),
         onChanged: (val) {
-          widget.onChanged(ProductCustomFieldValueInput(
-            fieldId: widget.field.fieldId,
-            optionId: val,
-          ));
+          widget.onChanged(
+            ProductCustomFieldValueInput(
+              fieldId: widget.field.fieldId,
+              optionId: val,
+            ),
+          );
         },
       );
     } else if (widget.field.fieldType == CustomFieldType.boolean.name) {
@@ -127,10 +117,12 @@ class _ProductCustomFieldInputWidgetState extends State<ProductCustomFieldInputW
         value: widget.input.booleanValue ?? false,
         onChanged: widget.field.isActive
             ? (val) {
-                widget.onChanged(ProductCustomFieldValueInput(
-                  fieldId: widget.field.fieldId,
-                  booleanValue: val,
-                ));
+                widget.onChanged(
+                  ProductCustomFieldValueInput(
+                    fieldId: widget.field.fieldId,
+                    booleanValue: val,
+                  ),
+                );
               }
             : null,
       );
@@ -148,10 +140,12 @@ class _ProductCustomFieldInputWidgetState extends State<ProductCustomFieldInputW
             lastDate: DateTime(2100),
           );
           if (date != null) {
-            widget.onChanged(ProductCustomFieldValueInput(
-              fieldId: widget.field.fieldId,
-              dateValue: date,
-            ));
+            widget.onChanged(
+              ProductCustomFieldValueInput(
+                fieldId: widget.field.fieldId,
+                dateValue: date,
+              ),
+            );
           }
         },
       );

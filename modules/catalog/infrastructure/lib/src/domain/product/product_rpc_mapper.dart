@@ -370,6 +370,7 @@ abstract final class ProductRpcMapper {
       'p_limit': limit,
       'p_offset': offset,
       'p_custom_field_filters': customFieldFiltersToRpc(criteria.customFieldFilters),
+      'p_sort_order': _sortOrderToRpc(criteria.sortOrder),
     };
   }
 
@@ -562,6 +563,13 @@ abstract final class ProductRpcMapper {
       ProductReadinessFilter.readyToSell => 'ready_to_sell',
       ProductReadinessFilter.incomplete => 'incomplete',
       null => null,
+    };
+  }
+
+  static String _sortOrderToRpc(ProductSortOrder sortOrder) {
+    return switch (sortOrder) {
+      ProductSortOrder.relevanceDesc => 'relevance_desc',
+      ProductSortOrder.updatedAtDesc => 'updated_at_desc',
     };
   }
 

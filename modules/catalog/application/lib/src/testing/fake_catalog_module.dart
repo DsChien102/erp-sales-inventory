@@ -510,6 +510,11 @@ final class FakeCatalogModule implements ICatalogModule {
         'https://cdn.fake/image-b.webp',
       ];
     }
+    if (scenario == FakeCatalogScenario.searchUnaccentVietnamese) {
+      final product = _products.firstWhere((p) => p.id == 'product-1');
+      product.name = 'Amôxicillin 500mg';
+      product.tradeName = 'Amôx 500';
+    }
     if (scenario == FakeCatalogScenario.e2eCfValuesOk) {
       _seedE2eCustomFieldConfig();
     } else if (scenario == FakeCatalogScenario.e2eCfValuesSaveOk) {
@@ -1850,6 +1855,9 @@ final class FakeCatalogModule implements ICatalogModule {
   }
 
   List<_StoredProduct> _visibleProducts(ProductSearchCriteria criteria) {
+    final keyword = criteria.keyword;
+    final useRelevance =
+        keyword != null && criteria.sortOrder == ProductSortOrder.relevanceDesc;
     return _products.where((product) {
       if (product.isSoftDeleted && !criteria.includeSoftDeleted) {
         return false;
@@ -1857,7 +1865,7 @@ final class FakeCatalogModule implements ICatalogModule {
       if (!criteria.businessStatuses.contains(product.businessStatus)) {
         return false;
       }
-      if (!_matchesKeyword(product, criteria.keyword)) {
+      if (!_matchesKeyword(product, keyword)) {
         return false;
       }
       if (!_matchesReadinessFilter(product, criteria.readinessFilter)) {
@@ -1878,7 +1886,19 @@ final class FakeCatalogModule implements ICatalogModule {
         if (byStatus != 0) {
           return byStatus;
         }
-        return b.updatedAt.compareTo(a.updatedAt);
+        if (useRelevance) {
+          final byRank = _approximateRelevanceRank(b, keyword!).compareTo(
+            _approximateRelevanceRank(a, keyword),
+          );
+          if (byRank != 0) {
+            return byRank;
+          }
+        }
+        final byUpdated = b.updatedAt.compareTo(a.updatedAt);
+        if (byUpdated != 0) {
+          return byUpdated;
+        }
+        return a.name.compareTo(b.name);
       });
   }
 
@@ -1886,7 +1906,7 @@ final class FakeCatalogModule implements ICatalogModule {
     if (keyword == null) {
       return true;
     }
-    final lower = keyword.toLowerCase();
+    final foldedKeyword = SearchKeywordNormalizer.foldForSearch(keyword);
     final fields = [
       product.name,
       product.tradeName ?? '',
@@ -1894,14 +1914,40 @@ final class FakeCatalogModule implements ICatalogModule {
       product.barcode,
     ];
     for (final field in fields) {
-      if (field.toLowerCase().contains(lower)) {
-        return true;
-      }
-      if (field == keyword) {
+      final foldedField = SearchKeywordNormalizer.foldForSearch(field);
+      if (foldedField.contains(foldedKeyword) || field == keyword) {
         return true;
       }
     }
     return _customFieldStore.matchesSearchKeyword(product.id, keyword);
+  }
+
+  /// Approximate FTS rank for fake/tests (name > tradeName > sku > barcode > CF).
+  int _approximateRelevanceRank(_StoredProduct product, String keyword) {
+    final foldedKeyword = SearchKeywordNormalizer.foldForSearch(keyword);
+    final name = SearchKeywordNormalizer.foldForSearch(product.name);
+    final trade = SearchKeywordNormalizer.foldForSearch(product.tradeName ?? '');
+    final sku = SearchKeywordNormalizer.foldForSearch(product.sku);
+    final barcode = SearchKeywordNormalizer.foldForSearch(product.barcode);
+    if (name.startsWith(foldedKeyword)) {
+      return 500;
+    }
+    if (name.contains(foldedKeyword)) {
+      return 400;
+    }
+    if (trade.contains(foldedKeyword)) {
+      return 300;
+    }
+    if (sku == foldedKeyword || sku.startsWith(foldedKeyword)) {
+      return 250;
+    }
+    if (barcode == foldedKeyword || barcode.contains(foldedKeyword)) {
+      return 200;
+    }
+    if (_customFieldStore.matchesSearchKeyword(product.id, keyword)) {
+      return 100;
+    }
+    return 0;
   }
 
   void _assertCatalogReadPermission() {

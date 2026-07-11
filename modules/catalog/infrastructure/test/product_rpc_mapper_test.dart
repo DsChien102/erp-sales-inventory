@@ -723,6 +723,7 @@ void main() {
       );
 
       expect(params['p_keyword'], 'tiêu hóa');
+      expect(params['p_sort_order'], 'updated_at_desc');
       expect(params['p_custom_field_filters'], [
         {
           'field_id': 'field-1',
@@ -733,6 +734,20 @@ void main() {
           'boolean_value': true,
         },
       ]);
+    });
+
+    test('searchProductsParams maps relevance sort order', () {
+      final params = ProductRpcMapper.searchProductsParams(
+        tenantId: 'tenant-1',
+        criteria: ProductSearchCriteria(
+          keyword: 'amox',
+          sortOrder: ProductSortOrder.relevanceDesc,
+        ),
+        limit: 20,
+        offset: 0,
+      );
+
+      expect(params['p_sort_order'], 'relevance_desc');
     });
   });
 }

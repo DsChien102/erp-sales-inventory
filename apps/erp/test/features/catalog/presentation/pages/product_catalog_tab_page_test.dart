@@ -52,8 +52,30 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byKey(const Key('wgt_e01_u01_fr01_01')), findsOneWidget);
-    expect(find.text('Tìm tên, SKU, barcode...'), findsOneWidget);
-    expect(find.text('Không tìm thấy sản phẩm'), findsOneWidget);
+    expect(
+      find.text('Tìm tên, SKU, barcode, thông tin bổ sung...'),
+      findsOneWidget,
+    );
+    expect(find.text('Chưa có sản phẩm nào được tạo'), findsOneWidget);
+  });
+
+  testWidgets('e2e_e01_u01_fr01_01: keyword search returns matching products', (
+    tester,
+  ) async {
+    final catalogModule = FakeCatalogModule(
+      scenario: FakeCatalogScenario.searchWithReadiness,
+    );
+
+    await tester.pumpWidget(buildTestableWidget(catalogModule: catalogModule));
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('input_product_search')), findsOneWidget);
+
+    await tester.enterText(find.byKey(const Key('input_product_search')), 'amox');
+    await tester.pump(const Duration(milliseconds: 600));
+    await tester.pumpAndSettle();
+
+    expect(find.textContaining('Amoxicillin'), findsWidgets);
   });
 }
 

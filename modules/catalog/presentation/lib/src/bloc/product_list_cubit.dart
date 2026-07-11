@@ -102,12 +102,15 @@ class ProductListCubit extends Cubit<ProductListState> {
         ? (state as ProductListLoaded).criteria
         : ProductSearchCriteria();
 
+    final trimmed = keyword.trim();
     final newCriteria = ProductSearchCriteria(
-      keyword: keyword.isEmpty ? null : keyword,
+      keyword: trimmed.isEmpty ? null : trimmed,
       businessStatuses: currentCriteria.businessStatuses,
       readinessFilter: currentCriteria.readinessFilter,
       includeSoftDeleted: currentCriteria.includeSoftDeleted,
-      sortOrder: currentCriteria.sortOrder,
+      sortOrder: trimmed.isEmpty
+          ? ProductSortOrder.updatedAtDesc
+          : ProductSortOrder.relevanceDesc,
       customFieldFilters: currentCriteria.customFieldFilters,
     );
     fetchProducts(criteria: newCriteria, isRefresh: true);
