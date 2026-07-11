@@ -12,7 +12,7 @@ final class SetInitialStockCommandValidator implements ICommandValidator<SetInit
     if (command.productId.trim().isEmpty) {
       throw ValidationException('Product id is required.');
     }
-    if (command.quantity < 0) {
+    if (!command.quantity.isFinite || command.quantity < 0) {
       throw ValidationException('Số lượng tồn kho ban đầu không được âm.');
     }
     if (command.mode != 'basic') {

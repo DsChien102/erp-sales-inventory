@@ -5,7 +5,7 @@ class VEmptyState extends StatelessWidget {
   final String? iconEmoji;
   final IconData? iconData;
   final String title;
-  final String description;
+  final String? description;
   final String? actionLabel;
   final Widget? actionLeadingIcon;
   final VoidCallback? onActionPressed;
@@ -15,7 +15,7 @@ class VEmptyState extends StatelessWidget {
     this.iconEmoji,
     this.iconData,
     required this.title,
-    required this.description,
+    this.description,
     this.actionLabel,
     this.actionLeadingIcon,
     this.onActionPressed,
@@ -58,14 +58,16 @@ class VEmptyState extends StatelessWidget {
             ),
             textAlign: TextAlign.center,
           ),
-          const SizedBox(height: VSpacing.space2),
-          Text(
-            description,
-            style: VTypography.bodyDefault.copyWith(
-              color: dynamicColors.textSecondary,
+          if (description != null) ...[
+            const SizedBox(height: VSpacing.space2),
+            Text(
+              description!,
+              style: VTypography.bodyDefault.copyWith(
+                color: dynamicColors.textSecondary,
+              ),
+              textAlign: TextAlign.center,
             ),
-            textAlign: TextAlign.center,
-          ),
+          ],
           if (actionLabel != null && onActionPressed != null) ...[
             const SizedBox(height: VSpacing.space6),
             VButton(

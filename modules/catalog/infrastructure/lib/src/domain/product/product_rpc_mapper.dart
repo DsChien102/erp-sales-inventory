@@ -2,6 +2,60 @@ import 'package:vet45_catalog_application/application.dart';
 import 'package:vet45_catalog_domain/domain.dart';
 
 abstract final class ProductRpcMapper {
+  static Map<String, dynamic> createGuidedProductParams(
+    CreateGuidedProductCommand command,
+  ) {
+    final baseUnit = command.baseUnit;
+    final referenceId = ProductReferenceId.fromProductId(ProductId(command.id));
+    return <String, dynamic>{
+      'p_tenant_id': command.tenantId,
+      'p_actor_id': command.actorId,
+      'p_name': command.productName.trim(),
+      'p_reference_id': referenceId.value,
+      'p_trade_name': _optionalText(command.commercialName),
+      'p_sku': _optionalText(command.sku),
+      'p_barcode': _optionalText(command.barcode),
+      'p_images': command.images.map((image) => <String, dynamic>{
+        'storage_key': image.storageKey,
+        'slot_id': image.slotId,
+        'url': image.url,
+        'is_primary': image.isPrimary,
+        'sort_order': image.sortOrder,
+      }).toList(growable: false),
+      'p_tenant_unit_id': switch (baseUnit) {
+        ExistingTenantUnit(:final unitId) => unitId,
+        _ => null,
+      },
+      'p_new_unit_name': switch (baseUnit) {
+        NewTenantUnit(:final name) => name,
+        _ => null,
+      },
+      'p_initial_stock': command.initialStock,
+      'p_base_price': command.basePrice,
+      'p_list_price': command.listPrice,
+      'p_floor_price': command.floorPrice,
+      'p_use_store_price_rule': command.useStorePriceRule,
+      'p_custom_field_values': command.customFieldValues.map((value) => <String, dynamic>{
+        'field_id': value.fieldId,
+        'text_value': value.textValue,
+        'number_value': value.numberValue,
+        'date_value': value.dateValue?.toIso8601String(),
+        'boolean_value': value.booleanValue,
+        'option_id': value.optionId,
+      }).toList(growable: false),
+      'p_idempotency_key': command.id,
+    };
+  }
+
+  static CreateGuidedProductResult createGuidedProductResultFromJson(
+    Map<String, dynamic> row,
+  ) {
+    return CreateGuidedProductResult(
+      productId: row['product_id'] as String,
+      readinessSummary: _readinessSummaryFromRow(row),
+    );
+  }
+
   static Map<String, dynamic> createProductParams({
     required Product product,
     required String idempotencyKey,
@@ -632,7 +686,9 @@ abstract final class ProductRpcMapper {
       id: map['id'] as String,
       occurredAt: DateTime.parse(map['occurred_at'] as String),
       actorDisplayName: map['actor_display_name'] as String,
-      changeType: map['change_type'] as String,
+      changeType: ProductChangeHistoryAction.tryParse(
+        map['change_type'] as String?,
+      ),
       summary: map['summary'] as String,
       valueBefore: map['value_before'] as String?,
       valueAfter: map['value_after'] as String?,

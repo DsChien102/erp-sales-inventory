@@ -17,7 +17,7 @@ sequenceDiagram
   participant Pipe as CommandPipeline
   participant H as CreateProductHandler
   participant GW as ProductCommandGateway
-  participant RPC as catalog_create_product
+  participant RPC as catalog.create_guided_product (atomic)
   participant OB as catalog_outbox
 
   UI->>Med: CreateProductCommand
@@ -152,7 +152,8 @@ Snapshot cho Sales/Promotions (EPIC-06/US-04): ProductPriceBandSnapshot
 
 | Bước | RPC |
 | ---- | --- |
-| Tạo SP | `catalog.create_product` |
+| Tạo SP tối thiểu | `catalog.create_product` |
+| Guided create nguyên tử | `catalog.create_guided_product` |
 | Cập nhật hồ sơ | `catalog.update_product_profile` |
 | Cập nhật ảnh | `catalog.update_product_images` |
 | Chỉnh tồn cơ bản | `catalog.adjust_basic_stock` |

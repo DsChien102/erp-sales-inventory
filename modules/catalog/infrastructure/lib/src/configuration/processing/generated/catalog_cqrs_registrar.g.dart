@@ -23,6 +23,9 @@ void registerGeneratedCatalogValidators(GetIt container) {
     ..registerFactory<ICommandValidator<ConfigureCustomFieldAttributesCommand>>(
       ConfigureCustomFieldAttributesCommandValidator.new,
     )
+    ..registerFactory<ICommandValidator<CreateGuidedProductCommand>>(
+      CreateGuidedProductCommandValidator.new,
+    )
     ..registerFactory<ICommandValidator<CreateProductCommand>>(
       CreateProductCommandValidator.new,
     )
@@ -141,6 +144,15 @@ void registerGeneratedCatalogHandlers({
     logger: logger,
     factory: () => ConfigureCustomFieldAttributesCommandHandler(
       customFieldConfigGateway: container.get<ICatalogCustomFieldConfigGateway>(),
+    ),
+  );
+
+  CatalogCommandRegistration.registerBusinessHandler<CreateGuidedProductCommand, CreateGuidedProductResult, CreateGuidedProductCommandHandler>(
+    container: container,
+    bus: bus,
+    logger: logger,
+    factory: () => CreateGuidedProductCommandHandler(
+      gateway: container.get<IGuidedProductCommandGateway>(),
     ),
   );
 

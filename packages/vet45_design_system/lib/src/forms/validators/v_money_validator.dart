@@ -6,27 +6,27 @@ abstract final class VMoneyValidator {
   static String defaultMinMessage(int min) => 'Số tiền tối thiểu là ${format(min)}';
   static String defaultMaxMessage(int max) => 'Số tiền tối đa là ${format(max)}';
 
-  /// Formats an integer amount with Vietnamese thousand separators (`.`).
+  /// Formats an integer amount with thousand separators (`,`).
   static String format(int value) {
     final isNegative = value < 0;
     final digits = value.abs().toString();
     final buffer = StringBuffer();
     for (var i = 0; i < digits.length; i++) {
       if (i > 0 && (digits.length - i) % 3 == 0) {
-        buffer.write('.');
+        buffer.write(',');
       }
       buffer.write(digits[i]);
     }
     return isNegative ? '-${buffer.toString()}' : buffer.toString();
   }
 
-  /// Parses a display string (with `.` separators) into an integer amount.
+  /// Parses a display string (with `,` separators) into an integer amount.
   static int? parse(String text) {
     final trimmed = text.trim();
     if (trimmed.isEmpty) {
       return null;
     }
-    final normalized = trimmed.replaceAll('.', '');
+    final normalized = trimmed.replaceAll(',', '');
     return int.tryParse(normalized);
   }
 

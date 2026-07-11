@@ -573,7 +573,11 @@ final class FakeCatalogModule implements ICatalogModule {
 
   @override
   Future<TResult> executeCommandAsync<TResult>(ICommand<TResult> command) async {
-    if (command is CreateProductCommand) {
+    if (command is CreateGuidedProductCommand) {
+      return _handleCreateGuidedProduct<TResult>(
+        command as CreateGuidedProductCommand,
+      );
+    } else if (command is CreateProductCommand) {
       return _handleCreateProduct<TResult>(command as CreateProductCommand);
     } else if (command is SetInitialStockCommand) {
       final cmd = command as SetInitialStockCommand;
@@ -1092,7 +1096,7 @@ final class FakeCatalogModule implements ICatalogModule {
       id: 'history-${product.id}-soft-delete-${product.version}',
       occurredAt: product.updatedAt,
       actorDisplayName: command.actorId,
-      changeType: 'product_soft_deleted',
+      changeType: ProductChangeHistoryAction.softDeleted,
       summary: 'Xóa mềm sản phẩm',
       valueBefore: 'false',
       valueAfter: 'true',
@@ -1136,7 +1140,7 @@ final class FakeCatalogModule implements ICatalogModule {
       id: 'history-${product.id}-restore-${product.version}',
       occurredAt: product.updatedAt,
       actorDisplayName: command.actorId,
-      changeType: 'product_restored',
+      changeType: ProductChangeHistoryAction.restored,
       summary: 'Khôi phục sản phẩm đã xóa mềm',
       valueBefore: 'true',
       valueAfter: 'false',
@@ -1276,7 +1280,7 @@ final class FakeCatalogModule implements ICatalogModule {
       id: 'history-${product.id}-status-${product.version}',
       occurredAt: product.updatedAt,
       actorDisplayName: actorId,
-      changeType: 'product_status_changed',
+      changeType: ProductChangeHistoryAction.statusChanged,
       summary: nextStatus == ProductStatus.inactive
           ? 'Ngừng kinh doanh sản phẩm'
           : 'Kinh doanh lại sản phẩm',
@@ -1464,6 +1468,37 @@ final class FakeCatalogModule implements ICatalogModule {
             )
             as TResult;
     }
+  }
+
+  TResult _handleCreateGuidedProduct<TResult>(CreateGuidedProductCommand command) {
+    final createResult = _handleCreateProduct<CreateProductResult>(
+      CreateProductCommand(
+        id: command.id,
+        tenantId: command.tenantId,
+        actorId: command.actorId,
+        productName: command.productName,
+        commercialName: command.commercialName,
+        sku: command.sku,
+        barcode: command.barcode,
+        images: command.images,
+      ),
+    );
+    final product = _products.firstWhere((item) => item.id == createResult.productId);
+    final selection = command.baseUnit;
+    product.baseUnit = switch (selection) {
+      ExistingTenantUnit(:final unitId) =>
+        _tenantUnits.firstWhere((unit) => unit.id == unitId).name,
+      NewTenantUnit(:final name) => name,
+      null => '',
+    };
+    product.stockQty = command.initialStock;
+    product.baseCost = command.basePrice;
+    product.listPrice = command.listPrice;
+    product.floorPrice = command.floorPrice;
+    return CreateGuidedProductResult(
+      productId: product.id,
+      readinessSummary: _readinessSummaryFor(product),
+    ) as TResult;
   }
 
   TResult _handleCreateProduct<TResult>(CreateProductCommand command) {
@@ -1780,7 +1815,7 @@ final class FakeCatalogModule implements ICatalogModule {
         id: 'history-${product.id}-1',
         occurredAt: product.updatedAt,
         actorDisplayName: 'Nguyễn Văn A',
-        changeType: 'product_created',
+        changeType: ProductChangeHistoryAction.created,
         summary: 'Tạo sản phẩm',
       ),
     ];
@@ -1833,7 +1868,18 @@ final class FakeCatalogModule implements ICatalogModule {
         return false;
       }
       return true;
-    }).toList()..sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
+    }).toList()
+      ..sort((a, b) {
+        int statusRank(ProductStatus status) =>
+            status == ProductStatus.active ? 0 : 1;
+        final byStatus = statusRank(a.businessStatus).compareTo(
+          statusRank(b.businessStatus),
+        );
+        if (byStatus != 0) {
+          return byStatus;
+        }
+        return b.updatedAt.compareTo(a.updatedAt);
+      });
   }
 
   bool _matchesKeyword(_StoredProduct product, String? keyword) {
@@ -3029,7 +3075,7 @@ final class FakeCatalogModule implements ICatalogModule {
         id: 'history-${product.id}-pricing',
         occurredAt: DateTime.utc(2026, 6, 2, 10),
         actorDisplayName: 'Nguyễn Văn A',
-        changeType: 'set_product_unit_price_band',
+        changeType: ProductChangeHistoryAction.priceBandUpdated,
         summary: 'Cập nhật khung giá',
         valueBefore: '120000',
         valueAfter: '125000',
@@ -3039,7 +3085,7 @@ final class FakeCatalogModule implements ICatalogModule {
         id: 'history-${product.id}-profile',
         occurredAt: DateTime.utc(2026, 6, 1, 9),
         actorDisplayName: 'Nguyễn Văn A',
-        changeType: 'update_product_profile',
+        changeType: ProductChangeHistoryAction.profileUpdated,
         summary: 'Cập nhật hồ sơ sản phẩm',
         valueBefore: 'Amoxicillin 500mg',
         valueAfter: 'Amoxicillin 500mg (revised)',
@@ -3049,7 +3095,7 @@ final class FakeCatalogModule implements ICatalogModule {
         id: 'history-${product.id}-created',
         occurredAt: DateTime.utc(2026, 5, 1, 8),
         actorDisplayName: 'Hệ thống',
-        changeType: 'CREATED',
+        changeType: ProductChangeHistoryAction.created,
         summary: 'Tạo sản phẩm',
         valueAfter: product.name,
         changeCategory: ProductChangeCategory.profile,

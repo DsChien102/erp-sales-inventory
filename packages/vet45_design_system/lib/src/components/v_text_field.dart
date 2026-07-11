@@ -239,30 +239,32 @@ class VTextField extends StatelessWidget {
       enabled: isEnabled,
       label: semanticLabel ?? label ?? hintText ?? 'Text field',
       child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        if (label != null) ...[
-          RichText(
-            text: TextSpan(
-              style: VTypography.headingH4.copyWith(
-                color: isEnabled ? dynamicColors.textPrimary : dynamicColors.textMuted,
-              ),
-              children: [
-                TextSpan(text: label!),
-                if (isRequired)
-                  const TextSpan(
-                    text: ' *',
-                    style: TextStyle(color: VColors.danger),
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (label != null) ...[
+            RichText(
+              text: TextSpan(
+                children: [
+                  TextSpan(
+                    text: label!,
+                    style: VTypography.headingH4.copyWith(
+                      color: dynamicColors.textPrimary,
+                    ),
                   ),
-              ],
+                  if (isRequired)
+                    const TextSpan(
+                      text: ' *',
+                      style: TextStyle(color: VColors.danger),
+                    ),
+                ],
+              ),
             ),
-          ),
-          const SizedBox(height: VSpacing.space2),
+            const SizedBox(height: VSpacing.space2),
+          ],
+          textFieldWidget,
         ],
-        textFieldWidget,
-      ],
-    ),
+      ),
     );
   }
 }

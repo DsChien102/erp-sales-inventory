@@ -99,10 +99,29 @@ void main() {
         ),
       );
 
-      await tester.enterText(find.byType(TextField), '3,5');
+      await tester.enterText(find.byType(TextField), '3.5');
       await tester.pump();
 
       expect(lastValue, 3.5);
+    });
+
+    testWidgets('formats integer input with thousand separators', (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: VTheme.lightTheme,
+          home: Scaffold(
+            body: VNumberField(
+              label: 'Số lượng',
+              onChanged: (_) {},
+            ),
+          ),
+        ),
+      );
+
+      await tester.enterText(find.byType(TextField), '1234567');
+      await tester.pump();
+
+      expect(find.text('1,234,567'), findsOneWidget);
     });
   });
 }

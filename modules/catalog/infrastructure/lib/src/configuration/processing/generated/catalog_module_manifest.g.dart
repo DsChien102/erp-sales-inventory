@@ -25,6 +25,7 @@ final catalogModuleManifest = GeneratedModuleManifest(
     AdjustBasicStockCommand,
     ApplyStorePriceRuleCommand,
     ConfigureCustomFieldAttributesCommand,
+    CreateGuidedProductCommand,
     CreateProductCommand,
     DeactivateProductCommand,
     DeactivateProductConversionUnitCommand,

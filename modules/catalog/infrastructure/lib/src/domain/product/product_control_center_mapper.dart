@@ -49,7 +49,9 @@ abstract final class ProductControlCenterMapper {
             id: map['id'] as String,
             occurredAt: DateTime.parse(map['occurred_at'] as String),
             actorDisplayName: map['actor_display_name'] as String,
-            changeType: map['change_type'] as String,
+            changeType: ProductChangeHistoryAction.tryParse(
+              map['change_type'] as String?,
+            ),
             summary: map['summary'] as String,
             valueBefore: map['value_before'] as String?,
             valueAfter: map['value_after'] as String?,

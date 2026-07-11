@@ -513,6 +513,30 @@ class ProductGuidedCreateCubit extends Cubit<ProductGuidedCreateState> {
       return;
     }
 
+    if (state.initialStockError != null) {
+      emit(
+        state.copyWith(
+          activeStepIndex: 3,
+          showValidationErrors: true,
+          status: ProductGuidedCreateStatus.error,
+          errorMessage: state.initialStockError,
+        ),
+      );
+      return;
+    }
+
+    if (state.baseCostError != null) {
+      emit(
+        state.copyWith(
+          activeStepIndex: 4,
+          showValidationErrors: true,
+          status: ProductGuidedCreateStatus.error,
+          errorMessage: state.baseCostError,
+        ),
+      );
+      return;
+    }
+
     if (state.isUploadingImages) {
       emit(
         state.copyWith(
@@ -543,8 +567,8 @@ class ProductGuidedCreateCubit extends Cubit<ProductGuidedCreateState> {
     }
 
     if (shouldSavePriceBand && state.pricingMethod == 'manual') {
-      final listPrice = double.tryParse(state.manualListPrice.trim()) ?? 0.0;
-      final floorPrice = double.tryParse(state.manualFloorPrice.trim()) ?? 0.0;
+      final listPrice = double.tryParse(state.manualListPrice.trim().replaceAll(',', '')) ?? 0.0;
+      final floorPrice = double.tryParse(state.manualFloorPrice.trim().replaceAll(',', '')) ?? 0.0;
       if (floorPrice > listPrice) {
         emit(
           state.copyWith(
@@ -599,8 +623,17 @@ class ProductGuidedCreateCubit extends Cubit<ProductGuidedCreateState> {
       final tenantId = await _executionContext.requireTenantId();
       final actorId = await _executionContext.requireUserId();
 
+      final activeValues = state.customFieldValues.values.where((input) {
+        final field = state.customFieldGroups
+            .expand((g) => g.fields)
+            .firstWhere((f) => f.fieldId == input.fieldId);
+        return field.status == CustomFieldConfigStatus.active;
+      }).toList();
+      final priceBand = state.priceBandConfigured
+          ? CatalogUiMapper.resolvePriceBand(state)
+          : (listPrice: null, floorPrice: null);
       final createResult = await _catalogModule.executeCommandAsync(
-        CreateProductCommand(
+        CreateGuidedProductCommand(
           tenantId: tenantId,
           actorId: actorId,
           productName: state.name.trim(),
@@ -608,80 +641,20 @@ class ProductGuidedCreateCubit extends Cubit<ProductGuidedCreateState> {
           sku: state.sku.trim().isNotEmpty ? state.sku.trim() : null,
           barcode: state.barcode.trim().isNotEmpty ? state.barcode.trim() : null,
           images: _toImageInputs(),
+          baseUnit: state.baseUnit.trim().isEmpty
+              ? null
+              : _resolveBaseUnitSelection(state.baseUnit),
+          initialStock: state.parsedInitialStock,
+          basePrice: double.tryParse(state.baseCost.trim().replaceAll(',', '')),
+          listPrice: state.pricingMethod == 'storeRule' ? null : priceBand.listPrice,
+          floorPrice: state.pricingMethod == 'storeRule' ? null : priceBand.floorPrice,
+          useStorePriceRule:
+              state.priceBandConfigured && state.pricingMethod == 'storeRule',
+          customFieldValues: activeValues,
         ),
       );
 
       final productId = createResult.productId;
-
-      await _setBaseUnitIfProvided(tenantId: tenantId, productId: productId);
-
-      final stockQty = double.tryParse(state.initialStock.trim());
-      if (stockQty != null) {
-        await _catalogModule.executeCommandAsync(
-          SetInitialStockCommand(
-            tenantId: tenantId,
-            productId: productId,
-            quantity: stockQty,
-          ),
-        );
-      }
-
-      final baseCostVal = double.tryParse(state.baseCost.trim());
-      if (baseCostVal != null) {
-        await _catalogModule.executeCommandAsync(
-          SetManualBasePriceCommand(
-            tenantId: tenantId,
-            productId: productId,
-            basePrice: baseCostVal,
-          ),
-        );
-      }
-
-      double? listPrice;
-      double? floorPrice;
-
-      if (state.priceBandConfigured) {
-        if (state.pricingMethod == 'storeRule') {
-          await _catalogModule.executeCommandAsync(
-            ApplyStorePriceRuleCommand(
-              tenantId: tenantId,
-              productId: productId,
-            ),
-          );
-        } else {
-          final resolved = CatalogUiMapper.resolvePriceBand(state);
-          listPrice = resolved.listPrice;
-          floorPrice = resolved.floorPrice;
-
-          await _catalogModule.executeCommandAsync(
-            SetInitialPriceBandCommand(
-              tenantId: tenantId,
-              productId: productId,
-              listPrice: listPrice,
-              floorPrice: floorPrice,
-              useStoreRule: false,
-            ),
-          );
-        }
-      }
-
-      // Save custom fields
-      final activeValues = state.customFieldValues.values.where((input) {
-        final field = state.customFieldGroups
-            .expand((g) => g.fields)
-            .firstWhere((f) => f.fieldId == input.fieldId);
-        return field.status == CustomFieldConfigStatus.active;
-      }).toList();
-
-      if (activeValues.isNotEmpty) {
-        await _catalogModule.executeCommandAsync(
-          UpsertCustomFieldValuesCommand(
-            tenantId: tenantId,
-            productId: productId,
-            values: activeValues,
-          ),
-        );
-      }
 
       final productModel = CatalogUiMapper.toListItemModelFromCreate(
         state: state,
@@ -751,27 +724,6 @@ class ProductGuidedCreateCubit extends Cubit<ProductGuidedCreateState> {
       }
     }
     return NewTenantUnit(trimmed.toLowerCase());
-  }
-
-  Future<void> _setBaseUnitIfProvided({
-    required String tenantId,
-    required String productId,
-  }) async {
-    if (state.baseUnit.trim().isEmpty) {
-      return;
-    }
-
-    if (state.tenantUnits.isEmpty && !state.isTenantUnitsLoading) {
-      await loadTenantMeasurementUnits();
-    }
-
-    await _catalogModule.executeCommandAsync(
-      SetProductBaseUnitCommand(
-        tenantId: tenantId,
-        productId: productId,
-        selection: _resolveBaseUnitSelection(state.baseUnit),
-      ),
-    );
   }
 
   List<ProductImageInput> _toImageInputs() {

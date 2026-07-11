@@ -48,6 +48,7 @@ Permissions: `@RequiresPermission(CatalogPermissions.create)` (`catalog.product.
 | -------- | --- |
 | Reserve image upload slot | `catalog.request_product_image_upload` |
 | Create (minimal) | `catalog.create_product` |
+| Guided create (atomic wizard) | `catalog.create_guided_product` |
 | Dup check | `catalog.check_duplicate_product_code` |
 
 ### Fake scenarios (FE)

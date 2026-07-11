@@ -40,7 +40,7 @@ ProductChangeHistoryReadRow _row({
     id: id,
     occurredAt: occurredAt,
     actorDisplayName: 'Nguyễn Văn A',
-    changeType: 'update_product_profile',
+    changeType: ProductChangeHistoryAction.profileUpdated,
     summary: masked ? 'Thay đổi giá (ẩn)' : 'Cập nhật hồ sơ',
     changeCategory: category,
     source: 'user',

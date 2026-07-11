@@ -82,11 +82,13 @@ class _VSelectState<T> extends State<VSelect<T>> {
         if (widget.label != null) ...[
           RichText(
             text: TextSpan(
-              style: VTypography.headingH4.copyWith(
-                color: isEnabled ? dynamicColors.textPrimary : dynamicColors.textMuted,
-              ),
               children: [
-                TextSpan(text: widget.label!),
+                TextSpan(
+                  text: widget.label!,
+                    style: VTypography.headingH4.copyWith(
+                      color: dynamicColors.textPrimary,
+                    ),
+                  ),
                 if (widget.isRequired)
                   const TextSpan(
                     text: ' *',

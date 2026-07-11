@@ -23,7 +23,6 @@ enum ProductListFilter {
   readyToSell('Sẵn sàng bán'),
   incomplete('Thiếu dữ liệu'),
   inactive('Ngừng KD'),
-  deleted('Đã xóa'),
   inStock('Còn hàng'),
   outOfStock('Hết hàng'),
   negativeStock('Tồn âm');
@@ -33,6 +32,11 @@ enum ProductListFilter {
 }
 
 class _ProductCatalogTabPageState extends State<ProductCatalogTabPage> {
+  static const Set<ProductStatus> _catalogListStatuses = {
+    ProductStatus.active,
+    ProductStatus.inactive,
+  };
+
   final ScrollController _scrollController = ScrollController();
   late final ProductListCubit _cubit;
   ProductListFilter _selectedFilter = ProductListFilter.all;
@@ -45,7 +49,9 @@ class _ProductCatalogTabPageState extends State<ProductCatalogTabPage> {
     _cubit = ProductListCubit(
       mediator: GetIt.instance<ICatalogModule>(),
       executionContext: GetIt.instance<IExecutionContext>(),
-    )..fetchProducts();
+    )..fetchProducts(
+      criteria: ProductSearchCriteria(businessStatuses: _catalogListStatuses),
+    );
 
     _scrollController.addListener(_onScroll);
     _loadFilterOptions();
@@ -76,13 +82,57 @@ class _ProductCatalogTabPageState extends State<ProductCatalogTabPage> {
   }
 
   void _onScroll() {
-    if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent - 200) {
-      _cubit.fetchProducts();
-    }
+    if (!_scrollController.hasClients) return;
+
+    final state = _cubit.state;
+    if (state is ProductListLoading) return;
+    if (state is ProductListLoaded && state.hasReachedMax) return;
+
+    final position = _scrollController.position;
+    final nearBottom = position.pixels >= position.maxScrollExtent - 200;
+    final contentShorterThanViewport = position.maxScrollExtent <= 0;
+    if (!nearBottom && !contentShorterThanViewport) return;
+
+    _cubit.fetchProducts();
   }
 
   void _onSearch(String query) {
     _cubit.searchByKeyword(query);
+  }
+
+  ProductSearchCriteria _criteriaForFilter({
+    required ProductListFilter filter,
+    String? keyword,
+  }) {
+    switch (filter) {
+      case ProductListFilter.readyToSell:
+        return ProductSearchCriteria(
+          keyword: keyword,
+          businessStatuses: _catalogListStatuses,
+          readinessFilter: ProductReadinessFilter.readyToSell,
+          customFieldFilters: _customFieldFilters,
+        );
+      case ProductListFilter.incomplete:
+        return ProductSearchCriteria(
+          keyword: keyword,
+          businessStatuses: _catalogListStatuses,
+          readinessFilter: ProductReadinessFilter.incomplete,
+          customFieldFilters: _customFieldFilters,
+        );
+      case ProductListFilter.inactive:
+        return ProductSearchCriteria(
+          keyword: keyword,
+          businessStatuses: {ProductStatus.inactive},
+          customFieldFilters: _customFieldFilters,
+        );
+      default:
+        // Stock filters and 'all' — include inactive; UI does local filtering for stock
+        return ProductSearchCriteria(
+          keyword: keyword,
+          businessStatuses: _catalogListStatuses,
+          customFieldFilters: _customFieldFilters,
+        );
+    }
   }
 
   void _showFilterBottomSheet() {
@@ -101,44 +151,13 @@ class _ProductCatalogTabPageState extends State<ProductCatalogTabPage> {
               ? (_cubit.state as ProductListLoaded).criteria.keyword
               : null;
 
-          ProductSearchCriteria newCriteria;
-          switch (_selectedFilter) {
-            case ProductListFilter.readyToSell:
-              newCriteria = ProductSearchCriteria(
-                keyword: keyword,
-                readinessFilter: ProductReadinessFilter.readyToSell,
-                customFieldFilters: _customFieldFilters,
-              );
-              break;
-            case ProductListFilter.incomplete:
-              newCriteria = ProductSearchCriteria(
-                keyword: keyword,
-                readinessFilter: ProductReadinessFilter.incomplete,
-                customFieldFilters: _customFieldFilters,
-              );
-              break;
-            case ProductListFilter.inactive:
-              newCriteria = ProductSearchCriteria(
-                keyword: keyword,
-                businessStatuses: {ProductStatus.inactive},
-                customFieldFilters: _customFieldFilters,
-              );
-              break;
-            case ProductListFilter.deleted:
-              newCriteria = ProductSearchCriteria(
-                keyword: keyword,
-                includeSoftDeleted: true,
-                customFieldFilters: _customFieldFilters,
-              );
-              break;
-            default:
-              newCriteria = ProductSearchCriteria(
-                keyword: keyword,
-                customFieldFilters: _customFieldFilters,
-              );
-              break;
-          }
-          _cubit.fetchProducts(criteria: newCriteria, isRefresh: true);
+          _cubit.fetchProducts(
+            criteria: _criteriaForFilter(
+              filter: _selectedFilter,
+              keyword: keyword,
+            ),
+            isRefresh: true,
+          );
         },
       ),
     );
@@ -154,45 +173,10 @@ class _ProductCatalogTabPageState extends State<ProductCatalogTabPage> {
         ? (_cubit.state as ProductListLoaded).criteria.keyword
         : null;
 
-    ProductSearchCriteria newCriteria;
-    switch (filter) {
-      case ProductListFilter.readyToSell:
-        newCriteria = ProductSearchCriteria(
-          keyword: keyword,
-          readinessFilter: ProductReadinessFilter.readyToSell,
-          customFieldFilters: _customFieldFilters,
-        );
-        break;
-      case ProductListFilter.incomplete:
-        newCriteria = ProductSearchCriteria(
-          keyword: keyword,
-          readinessFilter: ProductReadinessFilter.incomplete,
-          customFieldFilters: _customFieldFilters,
-        );
-        break;
-      case ProductListFilter.inactive:
-        newCriteria = ProductSearchCriteria(
-          keyword: keyword,
-          businessStatuses: {ProductStatus.inactive},
-          customFieldFilters: _customFieldFilters,
-        );
-        break;
-      case ProductListFilter.deleted:
-        newCriteria = ProductSearchCriteria(
-          keyword: keyword,
-          includeSoftDeleted: true,
-          customFieldFilters: _customFieldFilters,
-        );
-        break;
-      default:
-        // Stock filters and 'all' fallback to generic search, UI does local filtering for stock
-        newCriteria = ProductSearchCriteria(
-          keyword: keyword,
-          customFieldFilters: _customFieldFilters,
-        );
-        break;
-    }
-    _cubit.fetchProducts(criteria: newCriteria, isRefresh: true);
+    _cubit.fetchProducts(
+      criteria: _criteriaForFilter(filter: filter, keyword: keyword),
+      isRefresh: true,
+    );
   }
 
   Widget _buildFilterChips(BuildContext context, dynamic dynamicColors, ProductListState state) {
@@ -220,11 +204,11 @@ class _ProductCatalogTabPageState extends State<ProductCatalogTabPage> {
     );
   }
 
-  Widget _buildChip(dynamic colors, String label, bool isSelected) {
+  Widget _buildChip(VColorScheme colors, String label, bool isSelected) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
-        color: isSelected ? colors.success : colors.surfaceAlt,
+        color: isSelected ? colors.success : colors.surface,
         borderRadius: BorderRadius.circular(16),
         border: isSelected ? null : Border.all(color: colors.borderDefault),
       ),
@@ -357,37 +341,62 @@ class _ProductCatalogTabPageState extends State<ProductCatalogTabPage> {
                   }
 
                   if (items.isEmpty && state is! ProductListLoading) {
+                    final hasProducts = (_cubit.globalTotalCount ?? 0) > 0;
+                    final isFiltered = _selectedFilter != ProductListFilter.all;
+
+                    final String title;
+                    final String? description;
+                    final String? actionLabel;
+                    final Future<void> Function()? onActionPressed;
+
+                    if (!hasProducts) {
+                      title = 'Chưa có sản phẩm nào được tạo';
+                      description = null;
+                      actionLabel = 'Tạo sản phẩm';
+                      onActionPressed = () async {
+                        final createdProduct = await context.push<ProductListItemModel>('/products/items/new');
+                        if (!context.mounted) return;
+                        if (createdProduct != null) {
+                          _cubit.fetchProducts(isRefresh: true);
+                          _navigateToProductModel(context, createdProduct);
+                        } else {
+                          _cubit.fetchProducts(isRefresh: true);
+                        }
+                      };
+                    } else {
+                      title = isFiltered
+                          ? 'Không tìm thấy sản phẩm "${_selectedFilter.label}"'
+                          : 'Không tìm thấy sản phẩm';
+                      description = 'Hãy thử tìm kiếm với từ khóa khác hoặc tạo sản phẩm mới.';
+                      actionLabel = null;
+                      onActionPressed = null;
+                    }
+
                     return Center(
                       child: VEmptyState(
                         iconData: Icons.inventory_2_outlined,
-                        title: 'Không tìm thấy sản phẩm',
-                        description: 'Hãy thử tìm kiếm với từ khóa khác hoặc tạo sản phẩm mới.',
-                        actionLabel: 'Tạo sản phẩm',
-                        actionLeadingIcon: const Icon(Icons.add, size: 18),
-                        onActionPressed: () async {
-                          final createdProduct = await context.push<ProductListItemModel>('/products/items/new');
-                          if (!context.mounted) return;
-                          if (createdProduct != null) {
-                            _cubit.fetchProducts(isRefresh: true);
-                            _navigateToProductModel(context, createdProduct);
-                          } else {
-                            _cubit.fetchProducts(isRefresh: true);
-                          }
-                        },
+                        title: title,
+                        description: description,
+                        actionLabel: actionLabel,
+                        actionLeadingIcon: actionLabel != null
+                            ? const Icon(Icons.add, size: 18)
+                            : null,
+                        onActionPressed: onActionPressed,
                       ),
                     );
                   }
 
-                  final hasReachedMax = state is ProductListLoaded ? state.hasReachedMax : false;
+                  final isLoadingMore =
+                      state is ProductListLoading && !state.isFirstLoad;
 
                   return RefreshIndicator(
                     onRefresh: () => _cubit.fetchProducts(isRefresh: true),
                     child: ListView.builder(
                       controller: _scrollController,
                       physics: const AlwaysScrollableScrollPhysics(),
-                      itemCount: items.length + (hasReachedMax ? 0 : 1),
+                      itemCount: items.length + (isLoadingMore ? 1 : 0),
                       itemBuilder: (context, index) {
-                        if (index >= items.length) {
+                        if (isLoadingMore && index >= items.length) {
                           return const Padding(
                             padding: EdgeInsets.symmetric(vertical: 16),
                             child: Center(child: CircularProgressIndicator()),

@@ -35,15 +35,19 @@ abstract final class ProductChangeHistoryRpcMapper {
   }
 
   static ProductChangeHistoryReadRow readRowFromJson(Map<String, dynamic> item) {
+    final action = ProductChangeHistoryAction.tryParse(
+      item['change_type'] as String?,
+    );
     final category =
         ProductChangeCategoryCodec.tryParse(item['change_category'] as String?) ??
+        action?.category ??
         ProductChangeCategory.other;
 
     return ProductChangeHistoryReadRow(
       id: item['id'] as String,
       occurredAt: DateTime.parse(item['occurred_at'] as String),
       actorDisplayName: item['actor_display_name'] as String? ?? '',
-      changeType: item['change_type'] as String? ?? '',
+      changeType: action,
       summary: item['summary'] as String? ?? '',
       changeCategory: category,
       source: item['source'] as String? ?? 'user',

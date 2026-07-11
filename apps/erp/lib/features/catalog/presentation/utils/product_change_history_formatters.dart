@@ -1,3 +1,5 @@
+import 'package:vet45_catalog_application/application.dart';
+
 String formatProductChangeHistoryDateTime(DateTime occurredAt) {
   final local = occurredAt.toLocal();
   final year = local.year.toString().padLeft(4, '0');
@@ -10,16 +12,15 @@ String formatProductChangeHistoryDateTime(DateTime occurredAt) {
 
 String formatProductChangeHistorySummary({
   required String summary,
-  required String changeType,
+  required ProductChangeHistoryAction? changeType,
 }) {
-  final fromSummary = _vietnameseSummaryFromToken(summary);
+  final fromSummary = ProductChangeHistoryAction.tryParse(summary);
   if (fromSummary != null) {
-    return fromSummary;
+    return fromSummary.labelVi;
   }
 
-  final fromChangeType = _vietnameseSummaryFromToken(changeType);
-  if (fromChangeType != null) {
-    return fromChangeType;
+  if (changeType != null) {
+    return changeType.labelVi;
   }
 
   final trimmed = summary.trim();
@@ -27,22 +28,46 @@ String formatProductChangeHistorySummary({
     return trimmed;
   }
 
-  return changeType;
+  return '';
 }
 
-String? _vietnameseSummaryFromToken(String raw) {
-  final token = raw.trim().toLowerCase();
-  return switch (token) {
-    'created' || 'product_created' => 'Tạo sản phẩm',
-    'update_product_profile' || 'product_profile_updated' => 'Cập nhật hồ sơ sản phẩm',
-    'update_product_images' || 'product_images_updated' => 'Cập nhật ảnh sản phẩm',
-    'set_product_unit_price_band' || 'set_initial_price_band' => 'Cập nhật khung giá',
-    'set_manual_base_price' => 'Cập nhật giá cơ sở',
-    'apply_store_price_rule' => 'Áp dụng khung giá cửa hàng',
-    'set_initial_stock' || 'adjust_basic_stock' => 'Cập nhật tồn kho',
-    'product_status_changed' => 'Thay đổi trạng thái kinh doanh',
-    'product_soft_deleted' => 'Ẩn sản phẩm',
-    'product_restored' => 'Khôi phục sản phẩm',
-    _ => null,
-  };
+extension ProductChangeHistoryActionLabelVi on ProductChangeHistoryAction {
+  String get labelVi {
+    switch (this) {
+      case ProductChangeHistoryAction.created:
+        return 'Tạo sản phẩm';
+      case ProductChangeHistoryAction.profileUpdated:
+        return 'Cập nhật hồ sơ sản phẩm';
+      case ProductChangeHistoryAction.imagesUpdated:
+        return 'Cập nhật ảnh sản phẩm';
+      case ProductChangeHistoryAction.unitAdded:
+        return 'Thêm đơn vị quy đổi';
+      case ProductChangeHistoryAction.unitDeactivated:
+        return 'Ngừng đơn vị quy đổi';
+      case ProductChangeHistoryAction.unitReactivated:
+        return 'Kích hoạt lại đơn vị quy đổi';
+      case ProductChangeHistoryAction.baseUnitSet:
+        return 'Tạo đơn vị cơ sở';
+      case ProductChangeHistoryAction.stockUpdated:
+        return 'Cập nhật tồn kho';
+      case ProductChangeHistoryAction.manualBasePriceSet:
+        return 'Cập nhật giá cơ sở';
+      case ProductChangeHistoryAction.storePriceRuleApplied:
+        return 'Áp dụng khung giá cửa hàng';
+      case ProductChangeHistoryAction.priceBandUpdated:
+        return 'Cập nhật khung giá';
+      case ProductChangeHistoryAction.customFieldValuesUpdated:
+        return 'Cập nhật thuộc tính sản phẩm';
+      case ProductChangeHistoryAction.statusChanged:
+        return 'Thay đổi trạng thái kinh doanh';
+      case ProductChangeHistoryAction.deactivated:
+        return 'Ngừng kinh doanh';
+      case ProductChangeHistoryAction.reactivated:
+        return 'Mở lại kinh doanh';
+      case ProductChangeHistoryAction.softDeleted:
+        return 'Ẩn sản phẩm';
+      case ProductChangeHistoryAction.restored:
+        return 'Khôi phục sản phẩm';
+    }
+  }
 }
