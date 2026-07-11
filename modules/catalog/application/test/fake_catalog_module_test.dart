@@ -779,7 +779,7 @@ void main() {
       );
 
       expect(result.changeHistoryPreview, isNotEmpty);
-      expect(result.changeHistoryPreview.first.changeType, 'product_created');
+      expect(result.changeHistoryPreview.first.changeType, ProductChangeHistoryAction.created);
     });
   });
 
@@ -3357,7 +3357,7 @@ void main() {
           );
 
           expect(result.historyEntry, isNotNull);
-          expect(result.historyEntry!.changeType, 'product_status_changed');
+          expect(result.historyEntry!.changeType, ProductChangeHistoryAction.statusChanged);
           expect(result.historyEntry!.valueBefore, ProductStatus.active.name);
           expect(result.historyEntry!.valueAfter, ProductStatus.inactive.name);
           expect(result.historyEntry!.summary, contains('Ngừng kinh doanh'));
@@ -3472,7 +3472,7 @@ void main() {
         expect(result.version, 2);
         expect(result.reason, 'Không còn sử dụng');
         expect(result.historyEntry, isNotNull);
-        expect(result.historyEntry!.changeType, 'product_soft_deleted');
+        expect(result.historyEntry!.changeType, ProductChangeHistoryAction.softDeleted);
 
         final pcc = await module.executeQueryAsync(
           GetProductControlCenterQuery(
@@ -3481,7 +3481,7 @@ void main() {
           ),
         );
         expect(pcc.profile.isSoftDeleted, isTrue);
-        expect(pcc.changeHistoryPreview.first.changeType, 'product_soft_deleted');
+        expect(pcc.changeHistoryPreview.first.changeType, ProductChangeHistoryAction.softDeleted);
       });
 
       test('scn_contract_e07_u03_fr02_02 stale expected version is rejected', () async {
@@ -3569,7 +3569,7 @@ void main() {
           result.readinessSummary.blockers.map((b) => b.code),
           contains(ReadinessBlockerCode.missingPrice),
         );
-        expect(result.historyEntry!.changeType, 'product_restored');
+        expect(result.historyEntry!.changeType, ProductChangeHistoryAction.restored);
       });
 
       test('scn_contract_e07_u03_fr03_02 restore duplicate SKU is rejected', () async {
@@ -3646,7 +3646,7 @@ void main() {
         expect(pcc.priceBand.listPrice, 120000);
         expect(
           pcc.changeHistoryPreview.map((entry) => entry.changeType),
-          contains('product_soft_deleted'),
+          contains(ProductChangeHistoryAction.softDeleted),
         );
       });
     });
@@ -3667,7 +3667,7 @@ void main() {
       );
 
       expect(result.totalCount, greaterThanOrEqualTo(3));
-      expect(result.items.first.changeType, 'set_product_unit_price_band');
+      expect(result.items.first.changeType, ProductChangeHistoryAction.priceBandUpdated);
       for (var index = 0; index < result.items.length - 1; index++) {
         expect(
           result.items[index].occurredAt.compareTo(

@@ -1,4 +1,5 @@
 import '../lifecycle/change_history/product_change_category.dart';
+import '../lifecycle/change_history/product_change_history_action.dart';
 
 /// Change history preview row on Product Control Center (EPIC-01/US-02/FR-06).
 final class ProductChangeHistoryEntryDto {
@@ -19,7 +20,7 @@ final class ProductChangeHistoryEntryDto {
   final String id;
   final DateTime occurredAt;
   final String actorDisplayName;
-  final String changeType;
+  final ProductChangeHistoryAction? changeType;
   final String summary;
   final String? valueBefore;
   final String? valueAfter;

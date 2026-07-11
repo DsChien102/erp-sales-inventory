@@ -1,5 +1,6 @@
 import 'package:erp/features/catalog/presentation/utils/product_change_history_formatters.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:vet45_catalog_application/application.dart';
 
 void main() {
   group('formatProductChangeHistoryDateTime', () {
@@ -18,11 +19,11 @@ void main() {
   });
 
   group('formatProductChangeHistorySummary', () {
-    test('maps CREATED action to Vietnamese label', () {
+    test('maps CREATED action token in summary to Vietnamese label', () {
       expect(
         formatProductChangeHistorySummary(
           summary: 'CREATED',
-          changeType: 'CREATED',
+          changeType: ProductChangeHistoryAction.created,
         ),
         'Tạo sản phẩm',
       );
@@ -32,7 +33,7 @@ void main() {
       expect(
         formatProductChangeHistorySummary(
           summary: 'created',
-          changeType: 'created',
+          changeType: ProductChangeHistoryAction.created,
         ),
         'Tạo sản phẩm',
       );
@@ -42,10 +43,18 @@ void main() {
       expect(
         formatProductChangeHistorySummary(
           summary: 'Tạo từ dữ liệu mẫu',
-          changeType: 'CREATED',
+          changeType: ProductChangeHistoryAction.created,
         ),
         'Tạo sản phẩm',
       );
+    });
+  });
+
+  group('ProductChangeHistoryAction.labelVi', () {
+    test('covers every action', () {
+      for (final action in ProductChangeHistoryAction.values) {
+        expect(action.labelVi, isNotEmpty);
+      }
     });
   });
 }

@@ -103,6 +103,7 @@ export 'src/lifecycle/change_history/get_product_change_history/get_product_chan
 export 'src/lifecycle/change_history/ports/i_product_change_history_gateway.dart';
 export 'src/lifecycle/change_history/product_change_category.dart';
 export 'src/lifecycle/change_history/product_change_category_mapper.dart';
+export 'src/lifecycle/change_history/product_change_history_action.dart';
 export 'src/lifecycle/change_history/product_change_history_page.dart';
 export 'src/lifecycle/change_history/product_change_history_read_row.dart';
 export 'src/lifecycle/change_history/product_change_history_result_dto.dart';

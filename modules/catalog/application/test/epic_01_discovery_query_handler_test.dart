@@ -113,7 +113,7 @@ ProductControlCenterReadModel _sampleControlCenterModel({
         id: 'history-1',
         occurredAt: DateTime.utc(2026, 6, 1),
         actorDisplayName: 'user-1',
-        changeType: 'product_created',
+        changeType: ProductChangeHistoryAction.created,
         summary: 'Tạo sản phẩm',
       ),
     ],
@@ -321,7 +321,7 @@ void main() {
       );
 
       expect(result.changeHistoryPreview, isNotEmpty);
-      expect(result.changeHistoryPreview.first.changeType, 'product_created');
+      expect(result.changeHistoryPreview.first.changeType, ProductChangeHistoryAction.created);
     });
 
     test('scn_e01_u02_fr06_01 hides history without view_history permission', () async {

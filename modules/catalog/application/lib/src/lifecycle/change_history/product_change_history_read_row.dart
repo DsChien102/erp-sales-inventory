@@ -1,5 +1,6 @@
 import '../../control_center/product_change_history_entry_dto.dart';
 import 'product_change_category.dart';
+import 'product_change_history_action.dart';
 
 /// Gateway read row before mapping to [ProductChangeHistoryEntryDto].
 final class ProductChangeHistoryReadRow {
@@ -20,7 +21,7 @@ final class ProductChangeHistoryReadRow {
   final String id;
   final DateTime occurredAt;
   final String actorDisplayName;
-  final String changeType;
+  final ProductChangeHistoryAction? changeType;
   final String summary;
   final ProductChangeCategory changeCategory;
   final String source;
