@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:vet45_design_system/design_system.dart';
 
 String _removeVietnameseTones(String str) {
@@ -99,12 +100,14 @@ class PartnerCompactTextField extends StatefulWidget {
     this.initialValue,
     this.hintText,
     this.keyboardType,
+    this.digitsOnly = false,
     this.onChanged,
   });
 
   final String? initialValue;
   final String? hintText;
   final TextInputType? keyboardType;
+  final bool digitsOnly;
   final ValueChanged<String>? onChanged;
 
   @override
@@ -146,6 +149,7 @@ class _PartnerCompactTextFieldState extends State<PartnerCompactTextField> {
       child: TextField(
         controller: _controller,
         keyboardType: widget.keyboardType,
+        inputFormatters: widget.digitsOnly ? [FilteringTextInputFormatter.digitsOnly] : null,
         onChanged: widget.onChanged,
         onTapOutside: (_) => FocusManager.instance.primaryFocus?.unfocus(),
         style: PartnerCompactField.valueStyle(context),
@@ -178,12 +182,10 @@ class PartnerCompactMultilineTextField extends StatefulWidget {
   final ValueChanged<String>? onChanged;
 
   @override
-  State<PartnerCompactMultilineTextField> createState() =>
-      _PartnerCompactMultilineTextFieldState();
+  State<PartnerCompactMultilineTextField> createState() => _PartnerCompactMultilineTextFieldState();
 }
 
-class _PartnerCompactMultilineTextFieldState
-    extends State<PartnerCompactMultilineTextField> {
+class _PartnerCompactMultilineTextFieldState extends State<PartnerCompactMultilineTextField> {
   late final TextEditingController _controller;
 
   @override
@@ -228,16 +230,16 @@ class _PartnerCompactMultilineTextFieldState
               required currentLength,
               required isFocused,
               required maxLength,
-            }) =>
-              null,
-      decoration: PartnerCompactField.inputDecoration(
-        context,
-        hintText: widget.hintText,
-      ).copyWith(
-        contentPadding: widget.maxLength == null
-            ? null
-            : const EdgeInsets.fromLTRB(12, 11, 12, 32),
-      ),
+            }) => null,
+      decoration:
+          PartnerCompactField.inputDecoration(
+            context,
+            hintText: widget.hintText,
+          ).copyWith(
+            contentPadding: widget.maxLength == null
+                ? null
+                : const EdgeInsets.fromLTRB(12, 11, 12, 32),
+          ),
     );
   }
 }
@@ -273,7 +275,10 @@ class PartnerCompactDropdown<T> extends StatelessWidget {
     return LayoutBuilder(
       builder: (context, constraints) {
         return MenuAnchor(
-          alignmentOffset: const Offset(0, 4),
+          alignmentOffset: const Offset(
+            0,
+            PartnerCompactField.controlHeight + 4,
+          ),
           crossAxisUnconstrained: false,
           style: MenuStyle(
             alignment: AlignmentDirectional.topStart,
@@ -346,9 +351,7 @@ class PartnerCompactDropdown<T> extends StatelessWidget {
                           Icon(
                             Icons.keyboard_arrow_down,
                             size: 18,
-                            color: enabled
-                                ? colors.textSecondary
-                                : colors.textMuted,
+                            color: enabled ? colors.textSecondary : colors.textMuted,
                           ),
                         ],
                       ),
@@ -398,20 +401,29 @@ class PartnerCompactSearchableDropdown<T> extends StatelessWidget {
             enableSearch: true,
             enableFilter: true,
             filterCallback: (entries, filter) {
-              final normalizedFilter =
-                  _removeVietnameseTones(filter).toLowerCase();
+              final normalizedFilter = _removeVietnameseTones(filter).toLowerCase();
               return entries.where((entry) {
-                final normalizedLabel =
-                    _removeVietnameseTones(entry.label).toLowerCase();
+                final normalizedLabel = _removeVietnameseTones(entry.label).toLowerCase();
                 return normalizedLabel.contains(normalizedFilter);
               }).toList();
             },
             requestFocusOnTap: true,
+            alignmentOffset: const Offset(
+              0,
+              PartnerCompactField.controlHeight + 4,
+            ),
             menuHeight: 280,
             textStyle: PartnerCompactField.valueStyle(context).copyWith(
               color: enabled ? colors.textPrimary : colors.textMuted,
             ),
             menuStyle: MenuStyle(
+              alignment: AlignmentDirectional.topStart,
+              minimumSize: WidgetStatePropertyAll(
+                Size(constraints.maxWidth, 0),
+              ),
+              maximumSize: WidgetStatePropertyAll(
+                Size(constraints.maxWidth, 280),
+              ),
               backgroundColor: WidgetStatePropertyAll(colors.surface),
               surfaceTintColor: const WidgetStatePropertyAll(Colors.transparent),
               shape: WidgetStatePropertyAll(

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:vet45_design_system/design_system.dart';
 
 abstract final class PartnerOutlinedField {
@@ -66,9 +67,7 @@ abstract final class PartnerOutlinedField {
       isDense: true,
       filled: true,
       fillColor: enabled ? colors.surface : colors.surfaceAlt,
-      contentPadding: multiline
-          ? const EdgeInsets.fromLTRB(12, 16, 12, 12)
-          : contentPadding,
+      contentPadding: multiline ? const EdgeInsets.fromLTRB(12, 16, 12, 12) : contentPadding,
       border: defaultBorder,
       enabledBorder: defaultBorder,
       disabledBorder: defaultBorder,
@@ -96,6 +95,7 @@ class PartnerOutlinedTextField extends StatefulWidget {
     this.errorText,
     this.hintText,
     this.keyboardType,
+    this.digitsOnly = false,
     this.onChanged,
   });
 
@@ -105,11 +105,11 @@ class PartnerOutlinedTextField extends StatefulWidget {
   final String? errorText;
   final String? hintText;
   final TextInputType? keyboardType;
+  final bool digitsOnly;
   final ValueChanged<String>? onChanged;
 
   @override
-  State<PartnerOutlinedTextField> createState() =>
-      _PartnerOutlinedTextFieldState();
+  State<PartnerOutlinedTextField> createState() => _PartnerOutlinedTextFieldState();
 }
 
 class _PartnerOutlinedTextFieldState extends State<PartnerOutlinedTextField> {
@@ -144,6 +144,7 @@ class _PartnerOutlinedTextFieldState extends State<PartnerOutlinedTextField> {
     return TextField(
       controller: _controller,
       keyboardType: widget.keyboardType,
+      inputFormatters: widget.digitsOnly ? [FilteringTextInputFormatter.digitsOnly] : null,
       onChanged: widget.onChanged,
       onTapOutside: (_) => FocusManager.instance.primaryFocus?.unfocus(),
       style: VTypography.bodyDefault.copyWith(
@@ -151,21 +152,22 @@ class _PartnerOutlinedTextFieldState extends State<PartnerOutlinedTextField> {
         fontSize: 14,
       ),
       textAlignVertical: TextAlignVertical.center,
-      decoration: PartnerOutlinedField.decoration(
-        context,
-        label: PartnerOutlinedField.buildLabel(
-          context,
-          widget.label,
-          isRequired: widget.isRequired,
-        ),
-        errorText: widget.errorText,
-      ).copyWith(
-        hintText: widget.hintText,
-        hintStyle: VTypography.bodyDefault.copyWith(
-          color: context.vColors.textMuted,
-          fontSize: 14,
-        ),
-      ),
+      decoration:
+          PartnerOutlinedField.decoration(
+            context,
+            label: PartnerOutlinedField.buildLabel(
+              context,
+              widget.label,
+              isRequired: widget.isRequired,
+            ),
+            errorText: widget.errorText,
+          ).copyWith(
+            hintText: widget.hintText,
+            hintStyle: VTypography.bodyDefault.copyWith(
+              color: context.vColors.textMuted,
+              fontSize: 14,
+            ),
+          ),
     );
   }
 }
@@ -197,8 +199,7 @@ class PartnerOutlinedMultilineTextField extends StatefulWidget {
       _PartnerOutlinedMultilineTextFieldState();
 }
 
-class _PartnerOutlinedMultilineTextFieldState
-    extends State<PartnerOutlinedMultilineTextField> {
+class _PartnerOutlinedMultilineTextFieldState extends State<PartnerOutlinedMultilineTextField> {
   late final TextEditingController _controller;
 
   @override
@@ -238,22 +239,23 @@ class _PartnerOutlinedMultilineTextFieldState
         fontSize: 14,
       ),
       textAlignVertical: TextAlignVertical.top,
-      decoration: PartnerOutlinedField.decoration(
-        context,
-        label: PartnerOutlinedField.buildLabel(
-          context,
-          widget.label,
-          isRequired: widget.isRequired,
-        ),
-        errorText: widget.errorText,
-        multiline: true,
-      ).copyWith(
-        hintText: widget.hintText,
-        hintStyle: VTypography.bodyDefault.copyWith(
-          color: context.vColors.textMuted,
-          fontSize: 14,
-        ),
-      ),
+      decoration:
+          PartnerOutlinedField.decoration(
+            context,
+            label: PartnerOutlinedField.buildLabel(
+              context,
+              widget.label,
+              isRequired: widget.isRequired,
+            ),
+            errorText: widget.errorText,
+            multiline: true,
+          ).copyWith(
+            hintText: widget.hintText,
+            hintStyle: VTypography.bodyDefault.copyWith(
+              color: context.vColors.textMuted,
+              fontSize: 14,
+            ),
+          ),
     );
   }
 }
@@ -283,39 +285,71 @@ class PartnerOutlinedDropdown<T> extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = context.vColors;
+    final selectedItem = value == null
+        ? null
+        : items.cast<DropdownMenuItem<T>?>().firstWhere(
+            (item) => item?.value == value,
+            orElse: () => null,
+          );
 
-    return DropdownButtonFormField<T>(
-      value: value,
-      items: items,
-      onChanged: enabled ? onChanged : null,
-      isExpanded: true,
-      icon: Icon(
-        Icons.keyboard_arrow_down,
-        size: 20,
-        color: enabled ? colors.textSecondary : colors.textMuted,
-      ),
-      style: VTypography.bodyDefault.copyWith(
-        color: enabled ? colors.textPrimary : colors.textMuted,
-        fontSize: 14,
-      ),
-      hint: hintText == null
-          ? null
-          : Text(
-              hintText!,
-              style: VTypography.bodyDefault.copyWith(
-                color: colors.textMuted,
-                fontSize: 14,
-              ),
-            ),
-      decoration: PartnerOutlinedField.decoration(
-        context,
-        label: PartnerOutlinedField.buildLabel(
-          context,
-          label,
-          isRequired: isRequired,
+    return LayoutBuilder(
+      builder: (context, constraints) => PopupMenuButton<T>(
+        enabled: enabled && onChanged != null,
+        position: PopupMenuPosition.under,
+        constraints: BoxConstraints.tightFor(width: constraints.maxWidth),
+        tooltip: '',
+        color: colors.surface,
+        surfaceTintColor: Colors.transparent,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(VRadius.input),
+          side: BorderSide(color: colors.borderDefault),
         ),
-        errorText: errorText,
-        enabled: enabled,
+        onSelected: (selected) => onChanged?.call(selected),
+        itemBuilder: (_) => items
+            .map(
+              (item) => PopupMenuItem<T>(
+                value: item.value,
+                child: DefaultTextStyle(
+                  style: VTypography.bodyDefault.copyWith(
+                    color: colors.textPrimary,
+                    fontSize: 14,
+                  ),
+                  child: item.child,
+                ),
+              ),
+            )
+            .toList(),
+        child: InputDecorator(
+          isEmpty: selectedItem == null,
+          decoration: PartnerOutlinedField.decoration(
+            context,
+            label: PartnerOutlinedField.buildLabel(
+              context,
+              label,
+              isRequired: isRequired,
+            ),
+            errorText: errorText,
+            enabled: enabled,
+          ),
+          child: Row(
+            children: [
+              Expanded(
+                child: DefaultTextStyle(
+                  style: VTypography.bodyDefault.copyWith(
+                    color: selectedItem == null ? colors.textMuted : colors.textPrimary,
+                    fontSize: 14,
+                  ),
+                  child: selectedItem?.child ?? Text(hintText ?? 'Chọn...'),
+                ),
+              ),
+              Icon(
+                Icons.keyboard_arrow_down,
+                size: 20,
+                color: enabled ? colors.textSecondary : colors.textMuted,
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

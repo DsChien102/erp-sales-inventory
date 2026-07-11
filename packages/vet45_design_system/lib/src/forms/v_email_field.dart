@@ -37,6 +37,7 @@ class VEmailField extends StatefulWidget {
     this.focusedBorder,
     this.variant = VTextFieldVariant.standard,
     this.debounceDuration = VDuration.normal,
+    this.validateOnChanged = true,
     this.invalidEmailMessage = VEmailValidator.defaultInvalidEmailMessage,
     this.requiredEmailMessage = VEmailValidator.defaultRequiredEmailMessage,
     this.minLength = VEmailValidator.defaultMinLength,
@@ -72,6 +73,7 @@ class VEmailField extends StatefulWidget {
   final InputBorder? focusedBorder;
   final VTextFieldVariant variant;
   final Duration debounceDuration;
+  final bool validateOnChanged;
   final String invalidEmailMessage;
   final String requiredEmailMessage;
   final int minLength;
@@ -96,6 +98,7 @@ class _VEmailFieldState extends State<VEmailField> {
   void _handleChanged(String value) {
     widget.onChanged?.call(value);
     _debounceTimer?.cancel();
+    if (!widget.validateOnChanged) return;
     _debounceTimer = Timer(widget.debounceDuration, () {
       if (!mounted) return;
       setState(() {

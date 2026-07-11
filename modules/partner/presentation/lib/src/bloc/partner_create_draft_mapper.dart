@@ -70,14 +70,13 @@ abstract final class PartnerCreateDraftMapper {
     );
   }
 
-  static String displayName(PartnerCreateState state) =>
-      state.partnerType == PartnerType.person
+  static String displayName(PartnerCreateState state) => state.partnerType == PartnerType.person
       ? state.fullName.trim()
       : state.organizationName.trim();
 
   static String organizationTypeLabel(OrganizationType type) {
     return switch (type) {
-      OrganizationType.company => 'Công ty/TNHH',
+      OrganizationType.company => 'Công ty',
       OrganizationType.businessHousehold => 'Hộ kinh doanh',
       OrganizationType.other => 'Khác',
     };
@@ -105,9 +104,7 @@ abstract final class PartnerCreateDraftMapper {
       return OrganizationType.businessHousehold;
     }
 
-    if (normalized.contains('cong ty') ||
-        normalized.contains('tnhh') ||
-        normalized == 'company') {
+    if (normalized.contains('cong ty') || normalized.contains('tnhh') || normalized == 'company') {
       return OrganizationType.company;
     }
 

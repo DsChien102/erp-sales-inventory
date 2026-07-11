@@ -17,16 +17,11 @@ class PartnerPersonSection extends StatelessWidget {
       children: [
         PartnerFormFieldRow(
           label: 'Danh xưng',
-          field: PartnerCompactDropdown<String>(
-            value: state.personTitle.isEmpty ? null : state.personTitle,
-            hintText: 'Chọn',
-            items: const [
-              'Ông',
-              'Bà',
-              'Anh',
-              'Chị',
-            ].map((value) => DropdownMenuItem(value: value, child: Text(value))).toList(),
-            onChanged: (value) => cubit.updatePersonTitle(value ?? ''),
+          field: PartnerCompactTextField(
+            key: const Key('input_person_title'),
+            initialValue: state.personTitle,
+            hintText: 'Nhập danh xưng',
+            onChanged: cubit.updatePersonTitle,
           ),
         ),
         PartnerFormFieldRow(
@@ -57,6 +52,7 @@ class PartnerPersonSection extends StatelessWidget {
             initialValue: state.phone,
             hintText: 'Nhập SĐT chính',
             keyboardType: TextInputType.phone,
+            digitsOnly: true,
             onChanged: cubit.updatePhone,
           ),
         ),
@@ -68,6 +64,7 @@ class PartnerPersonSection extends StatelessWidget {
             initialValue: state.secondaryPhone,
             hintText: 'Nhập SĐT phụ',
             keyboardType: TextInputType.phone,
+            digitsOnly: true,
             onChanged: cubit.updateSecondaryPhone,
           ),
         ),

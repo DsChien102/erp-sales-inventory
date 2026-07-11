@@ -58,10 +58,15 @@ class PartnerFormSection extends StatelessWidget {
                     foregroundColor: colors.primary,
                     onPressed: onSkip,
                   ),
-                  VButton(
-                    key: const Key('btn_next'),
-                    label: 'Tiếp',
-                    onPressed: onNext,
+                  SizedBox(
+                    width: 112,
+                    child: VButton(
+                      key: const Key('btn_next'),
+                      label: 'Tiếp',
+                      size: VButtonSize.small,
+                      fullWidth: true,
+                      onPressed: onNext,
+                    ),
                   ),
                 ],
               ),

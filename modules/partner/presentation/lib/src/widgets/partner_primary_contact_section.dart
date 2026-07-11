@@ -44,22 +44,11 @@ class PartnerPrimaryContactSection extends StatelessWidget {
             dense: _rowLayout.dense,
             labelWidth: _rowLayout.labelWidth,
             labelFieldGap: _rowLayout.labelFieldGap,
-            field: PartnerCompactDropdown<String>(
-              value: state.primaryContactTitle.isEmpty
-                  ? null
-                  : state.primaryContactTitle,
-              hintText: 'Chọn',
-              items: const [
-                'Ông',
-                'Bà',
-                'Anh',
-                'Chị',
-              ]
-                  .map(
-                    (value) => DropdownMenuItem(value: value, child: Text(value)),
-                  )
-                  .toList(),
-              onChanged: (value) => cubit.updatePrimaryContactTitle(value ?? ''),
+            field: PartnerCompactTextField(
+              key: const Key('input_primary_contact_title'),
+              initialValue: state.primaryContactTitle,
+              hintText: 'Nhập danh xưng',
+              onChanged: cubit.updatePrimaryContactTitle,
             ),
           ),
           PartnerFormFieldRow(
@@ -84,6 +73,7 @@ class PartnerPrimaryContactSection extends StatelessWidget {
               key: const Key('input_primary_contact_phone'),
               initialValue: state.primaryContactPhone,
               keyboardType: TextInputType.phone,
+              digitsOnly: true,
               onChanged: cubit.updatePrimaryContactPhone,
             ),
           ),
@@ -97,6 +87,7 @@ class PartnerPrimaryContactSection extends StatelessWidget {
               key: const Key('input_primary_contact_secondary_phone'),
               initialValue: state.primaryContactSecondaryPhone,
               keyboardType: TextInputType.phone,
+              digitsOnly: true,
               onChanged: cubit.updatePrimaryContactSecondaryPhone,
             ),
           ),

@@ -1,0 +1,52 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "vet45://partner/vn-administrative-units",
+  "title": "Vietnamese administrative units (vn-only simplified)",
+  "description": "Mirrors the vn_only_simplified_json_generated_data_vn_units.json shape from https://github.com/ThangLeQuoc/vietnamese-provinces-database (MIT). Province -> ward hierarchy for dropdown cascade.",
+  "type": "array",
+  "items": {
+    "$ref": "#/$defs/province"
+  },
+  "$defs": {
+    "province": {
+      "type": "object",
+      "required": ["Code", "FullName", "Wards"],
+      "additionalProperties": false,
+      "properties": {
+        "Code": {
+          "type": "string",
+          "description": "Official province/city code (provinces.code)"
+        },
+        "FullName": {
+          "type": "string",
+          "description": "Full Vietnamese name, e.g. Thành phố Hà Nội (provinces.full_name)"
+        },
+        "Wards": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ward"
+          }
+        }
+      }
+    },
+    "ward": {
+      "type": "object",
+      "required": ["Code", "FullName", "ProvinceCode"],
+      "additionalProperties": false,
+      "properties": {
+        "Code": {
+          "type": "string",
+          "description": "Official ward/commune code (wards.code)"
+        },
+        "FullName": {
+          "type": "string",
+          "description": "Full Vietnamese name, e.g. Phường Ba Đình (wards.full_name)"
+        },
+        "ProvinceCode": {
+          "type": "string",
+          "description": "Parent province code (wards.province_code)"
+        }
+      }
+    }
+  }
+}

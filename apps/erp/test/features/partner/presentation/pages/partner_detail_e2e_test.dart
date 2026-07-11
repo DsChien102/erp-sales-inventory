@@ -64,8 +64,7 @@ void main() {
           path: '/partner/:partnerId',
           builder: (context, state) {
             final partnerId = state.pathParameters['partnerId']!;
-            final showTransformSuccessToast =
-                state.uri.queryParameters['transformed'] == '1';
+            final showTransformSuccessToast = state.uri.queryParameters['transformed'] == '1';
             return PartnerDetailPage(
               partnerId: partnerId,
               partnerModule: partnerModule,
@@ -130,7 +129,7 @@ void main() {
       expect(find.text('Trước khi chuyển'), findsOneWidget);
       expect(find.text('Sau khi chuyển'), findsOneWidget);
       expect(find.text('Công ty TNHH An Phát'), findsOneWidget);
-      expect(find.text('028 3822 5511'), findsOneWidget);
+      expect(find.text('02838225511'), findsOneWidget);
 
       await tester.ensureVisible(
         find.byKey(const Key('transform_preview_continue')),

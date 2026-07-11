@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:vet45_design_system/design_system.dart';
 import 'package:vet45_partner_application/testing.dart';
 import 'package:vet45_partner_domain/domain.dart';
 import 'package:vet45_partner_presentation/presentation.dart';
@@ -33,9 +34,7 @@ void main() {
   }
 
   List<DropdownMenu<String>> communeAndProvinceMenus(WidgetTester tester) {
-    return tester
-        .widgetList<DropdownMenu<String>>(find.byType(DropdownMenu<String>))
-        .toList();
+    return tester.widgetList<DropdownMenu<String>>(find.byType(DropdownMenu<String>)).toList();
   }
 
   testWidgets('ward dropdown stays disabled until province is selected', (
@@ -53,13 +52,43 @@ void main() {
     expect(menus[1].hintText, 'Chọn tỉnh / thành phố trước');
   });
 
+  testWidgets('address dropdown menus match the field width and rounded shape', (
+    tester,
+  ) async {
+    await tester.pumpWidget(buildDeliverySection());
+    await tester.runAsync(VnAdministrativeUnitsLoader.load);
+    await tester.pumpAndSettle();
+
+    for (final fieldKey in const [
+      Key('input_delivery_province'),
+      Key('input_delivery_commune'),
+    ]) {
+      final fieldFinder = find.byKey(fieldKey);
+      final menu = tester.widget<DropdownMenu<String>>(
+        find.descendant(
+          of: fieldFinder,
+          matching: find.byType(DropdownMenu<String>),
+        ),
+      );
+      final fieldWidth = tester.getSize(fieldFinder).width;
+      expect(
+        menu.alignmentOffset,
+        const Offset(0, 44),
+      );
+      expect(menu.menuStyle?.alignment, AlignmentDirectional.topStart);
+      expect(menu.menuStyle?.minimumSize?.resolve({})?.width, fieldWidth);
+      expect(menu.menuStyle?.maximumSize?.resolve({})?.width, fieldWidth);
+      final shape = menu.menuStyle?.shape?.resolve({}) as RoundedRectangleBorder;
+      expect(shape.borderRadius, BorderRadius.circular(VRadius.input));
+    }
+  });
+
   testWidgets('selecting province enables ward dropdown', (tester) async {
     await tester.pumpWidget(buildDeliverySection());
     await tester.runAsync(VnAdministrativeUnitsLoader.load);
     await tester.pumpAndSettle();
 
-    final cubit =
-        tester.element(find.byType(PartnerDeliverySection)).read<PartnerCreateCubit>();
+    final cubit = tester.element(find.byType(PartnerDeliverySection)).read<PartnerCreateCubit>();
     cubit.updateDeliveryProvince('Thành phố Hà Nội');
     await tester.pump();
     await tester.pump();

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:vet45_design_system/design_system.dart';
 
 class PartnerTransformLabeledTextField extends StatefulWidget {
@@ -10,6 +11,9 @@ class PartnerTransformLabeledTextField extends StatefulWidget {
     this.labelKey,
     this.isRequired = false,
     this.keyboardType,
+    this.digitsOnly = false,
+    this.isEmail = false,
+    this.emailValidateOnChanged = true,
     this.hintText,
     this.errorText,
   });
@@ -20,16 +24,17 @@ class PartnerTransformLabeledTextField extends StatefulWidget {
   final Key? labelKey;
   final bool isRequired;
   final TextInputType? keyboardType;
+  final bool digitsOnly;
+  final bool isEmail;
+  final bool emailValidateOnChanged;
   final String? hintText;
   final String? errorText;
 
   @override
-  State<PartnerTransformLabeledTextField> createState() =>
-      _PartnerTransformLabeledTextFieldState();
+  State<PartnerTransformLabeledTextField> createState() => _PartnerTransformLabeledTextFieldState();
 }
 
-class _PartnerTransformLabeledTextFieldState
-    extends State<PartnerTransformLabeledTextField> {
+class _PartnerTransformLabeledTextFieldState extends State<PartnerTransformLabeledTextField> {
   late final TextEditingController _controller;
 
   @override
@@ -41,8 +46,7 @@ class _PartnerTransformLabeledTextFieldState
   @override
   void didUpdateWidget(covariant PartnerTransformLabeledTextField oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.initialValue != widget.initialValue &&
-        _controller.text != widget.initialValue) {
+    if (oldWidget.initialValue != widget.initialValue && _controller.text != widget.initialValue) {
       _controller.value = TextEditingValue(
         text: widget.initialValue,
         selection: TextSelection.collapsed(offset: widget.initialValue.length),
@@ -67,17 +71,31 @@ class _PartnerTransformLabeledTextFieldState
           isRequired: widget.isRequired,
         ),
         const SizedBox(height: 6),
-        VTextField(
-          controller: _controller,
-          keyboardType: widget.keyboardType,
-          hintText: widget.hintText,
-          errorText: widget.errorText,
-          onChanged: widget.onChanged,
-          contentPadding: const EdgeInsets.symmetric(
-            horizontal: VSpacing.space3,
-            vertical: 10,
+        if (widget.isEmail)
+          VEmailField(
+            controller: _controller,
+            hintText: widget.hintText,
+            errorText: widget.errorText,
+            onChanged: widget.onChanged,
+            validateOnChanged: widget.emailValidateOnChanged,
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: VSpacing.space3,
+              vertical: 10,
+            ),
+          )
+        else
+          VTextField(
+            controller: _controller,
+            keyboardType: widget.keyboardType,
+            hintText: widget.hintText,
+            errorText: widget.errorText,
+            onChanged: widget.onChanged,
+            inputFormatters: widget.digitsOnly ? [FilteringTextInputFormatter.digitsOnly] : null,
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: VSpacing.space3,
+              vertical: 10,
+            ),
           ),
-        ),
       ],
     );
   }

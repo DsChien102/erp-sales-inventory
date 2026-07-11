@@ -87,7 +87,7 @@ void main() {
     );
     await tester.enterText(
       find.byKey(const Key('transform_phone')),
-      '028 3822 5511',
+      '02838225511',
     );
     await tester.pump();
 
@@ -101,7 +101,42 @@ void main() {
 
     expect(submitted?.organizationType, OrganizationType.company);
     expect(submitted?.organizationName, 'Công ty TNHH An Phát');
-    expect(submitted?.phone, '028 3822 5511');
+    expect(submitted?.phone, '02838225511');
+  });
+
+  testWidgets('transform validates phone, email, and tax code', (tester) async {
+    await tester.pumpWidget(buildSubject());
+
+    await tester.tap(find.byKey(const Key('transform_organization_type')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Công ty').last);
+    await tester.enterText(
+      find.byKey(const Key('transform_organization_name')),
+      'Công ty An Phát',
+    );
+    await tester.enterText(
+      find.byKey(const Key('transform_phone')),
+      '02838225511abc',
+    );
+    await tester.enterText(
+      find.descendant(
+        of: find.byKey(const Key('transform_email')),
+        matching: find.byType(EditableText),
+      ),
+      'not-an-email',
+    );
+    await tester.pump(const Duration(seconds: 1));
+    expect(find.text('Email không hợp lệ'), findsNothing);
+    await tester.enterText(
+      find.byKey(const Key('transform_tax_code')),
+      '01A0 12-34.56',
+    );
+    await tester.ensureVisible(find.byKey(const Key('transform_continue')));
+    await tester.tap(find.byKey(const Key('transform_continue')));
+    await tester.pump();
+
+    expect(find.text('Email không hợp lệ'), findsOneWidget);
+    expect(find.text('MST phải có 10 hoặc 13 chữ số'), findsOneWidget);
   });
 
   testWidgets(

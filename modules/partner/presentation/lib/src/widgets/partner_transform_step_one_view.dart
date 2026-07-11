@@ -26,8 +26,7 @@ class PartnerTransformStepOneView extends StatefulWidget {
   final Map<String, String> serverFieldErrors;
 
   @override
-  State<PartnerTransformStepOneView> createState() =>
-      _PartnerTransformStepOneViewState();
+  State<PartnerTransformStepOneView> createState() => _PartnerTransformStepOneViewState();
 }
 
 class _PartnerTransformStepOneViewState extends State<PartnerTransformStepOneView> {
@@ -42,13 +41,14 @@ class _PartnerTransformStepOneViewState extends State<PartnerTransformStepOneVie
   Map<String, String> _errors = const {};
   late Map<String, String> _serverErrors;
 
-  bool get _showBlockingBanner =>
-      _attemptedContinue && _errors.isNotEmpty && _serverErrors.isEmpty;
+  bool get _showBlockingBanner => _attemptedContinue && _errors.isNotEmpty && _serverErrors.isEmpty;
 
   bool get _canContinue => PartnerTransformStepOneValidator.validate(
     organizationType: _organizationType,
     organizationName: _organizationName,
     phone: _phone,
+    email: _email,
+    taxCode: _taxCode,
   ).isEmpty;
 
   Map<String, String> get _displayErrors => {
@@ -146,12 +146,14 @@ class _PartnerTransformStepOneViewState extends State<PartnerTransformStepOneVie
               setState(() {
                 _email = value;
                 _serverErrors.remove('email');
+                _refreshErrors();
               });
             },
             onTaxCodeChanged: (value) {
               setState(() {
                 _taxCode = value;
                 _serverErrors.remove('taxCode');
+                _refreshErrors();
               });
             },
           ),
@@ -178,6 +180,8 @@ class _PartnerTransformStepOneViewState extends State<PartnerTransformStepOneVie
       organizationType: _organizationType,
       organizationName: _organizationName,
       phone: _phone,
+      email: _email,
+      taxCode: _taxCode,
     );
   }
 
@@ -186,6 +190,8 @@ class _PartnerTransformStepOneViewState extends State<PartnerTransformStepOneVie
       organizationType: _organizationType,
       organizationName: _organizationName,
       phone: _phone,
+      email: _email,
+      taxCode: _taxCode,
     );
     if (errors.isNotEmpty) {
       setState(() {

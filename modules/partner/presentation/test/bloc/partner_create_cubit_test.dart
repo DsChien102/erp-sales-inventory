@@ -322,7 +322,7 @@ void main() {
 
     expect(cubit.state.partnerType, PartnerType.organization);
     expect(cubit.state.organizationName, 'Công ty ABC');
-    expect(cubit.state.organizationTypeLabel, 'Công ty/TNHH');
+    expect(cubit.state.organizationTypeLabel, 'Công ty');
     expect(cubit.state.phone, '02812345678');
     expect(cubit.state.sections, isNot(contains(PartnerCreateSection.primaryContact)));
   });

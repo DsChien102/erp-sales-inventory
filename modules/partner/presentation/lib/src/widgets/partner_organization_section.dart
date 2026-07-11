@@ -23,12 +23,22 @@ class PartnerOrganizationSection extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          PartnerOutlinedTextField(
+          PartnerOutlinedDropdown<String>(
             key: const Key('input_organization_type'),
             label: 'Loại tổ chức',
-            initialValue: state.organizationTypeLabel,
-            hintText: 'VD: Công ty/TNHH, Hộ kinh doanh',
-            onChanged: cubit.updateOrganizationType,
+            value: state.organizationTypeLabel.isEmpty ? null : state.organizationTypeLabel,
+            hintText: 'Chọn loại tổ chức',
+            items: const [
+              DropdownMenuItem(value: 'Công ty', child: Text('Công ty')),
+              DropdownMenuItem(
+                value: 'Hộ kinh doanh',
+                child: Text('Hộ kinh doanh'),
+              ),
+              DropdownMenuItem(value: 'Khác', child: Text('Khác')),
+            ],
+            onChanged: (value) {
+              if (value != null) cubit.updateOrganizationType(value);
+            },
           ),
           const SizedBox(height: PartnerOutlinedField.fieldGap),
           PartnerOutlinedTextField(
@@ -61,6 +71,7 @@ class PartnerOrganizationSection extends StatelessWidget {
             isRequired: true,
             errorText: state.errors['phone'],
             keyboardType: TextInputType.phone,
+            digitsOnly: true,
             onChanged: cubit.updatePhone,
           ),
           const SizedBox(height: PartnerOutlinedField.fieldGap),

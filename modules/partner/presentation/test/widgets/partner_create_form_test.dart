@@ -79,6 +79,15 @@ void main() {
     expect(find.text('Chọn vai trò giao dịch của hồ sơ này.'), findsOneWidget);
   });
 
+  testWidgets('next action is compact and wider', (tester) async {
+    await tester.pumpWidget(buildForm(type: PartnerType.person));
+
+    expect(
+      tester.getSize(find.byKey(const Key('btn_next'))),
+      const Size(112, 48),
+    );
+  });
+
   testWidgets('collapsing section preserves entered field values', (tester) async {
     await tester.pumpWidget(buildForm(type: PartnerType.person));
 
@@ -105,21 +114,27 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(
-      tester.widget<TextField>(
-        find.descendant(
-          of: find.byKey(const Key('input_full_name')),
-          matching: find.byType(TextField),
-        ),
-      ).controller?.text,
+      tester
+          .widget<TextField>(
+            find.descendant(
+              of: find.byKey(const Key('input_full_name')),
+              matching: find.byType(TextField),
+            ),
+          )
+          .controller
+          ?.text,
       'Nguyễn Văn Minh',
     );
     expect(
-      tester.widget<TextField>(
-        find.descendant(
-          of: find.byKey(const Key('input_phone')),
-          matching: find.byType(TextField),
-        ),
-      ).controller?.text,
+      tester
+          .widget<TextField>(
+            find.descendant(
+              of: find.byKey(const Key('input_phone')),
+              matching: find.byType(TextField),
+            ),
+          )
+          .controller
+          ?.text,
       '0901234567',
     );
 
@@ -144,6 +159,91 @@ void main() {
     await tester.pump();
     expect(find.textContaining('Ghi chú'), findsOneWidget);
     expect(find.text('Lưu & Xem'), findsOneWidget);
+  });
+
+  testWidgets('titles are free-text fields', (tester) async {
+    await tester.pumpWidget(buildForm(type: PartnerType.person));
+    await tester.tap(find.byKey(const Key('role_customer')));
+    await tester.tap(find.byKey(const Key('btn_next')));
+    await tester.pumpAndSettle();
+
+    await tester.enterText(
+      find.descendant(
+        of: find.byKey(const Key('input_person_title')),
+        matching: find.byType(EditableText),
+      ),
+      'Giáo sư',
+    );
+    await tester.pump();
+
+    final personCubit = tester.element(find.byType(PartnerCreateForm)).read<PartnerCreateCubit>();
+    expect(personCubit.state.personTitle, 'Giáo sư');
+  });
+
+  testWidgets('person phone fields accept digits only', (tester) async {
+    await tester.pumpWidget(buildForm(type: PartnerType.person));
+    await tester.tap(find.byKey(const Key('role_customer')));
+    await tester.tap(find.byKey(const Key('btn_next')));
+    await tester.pumpAndSettle();
+
+    await tester.enterText(
+      find.byKey(const Key('input_phone')),
+      '09ab 1+-2',
+    );
+    await tester.enterText(
+      find.byKey(const Key('input_secondary_phone')),
+      '08x.3-4',
+    );
+    await tester.pump();
+
+    final state = tester.element(find.byType(PartnerCreateForm)).read<PartnerCreateCubit>().state;
+    expect(state.phone, '0912');
+    expect(state.secondaryPhone, '0834');
+  });
+
+  testWidgets('organization and contact phone fields accept digits only', (
+    tester,
+  ) async {
+    await tester.pumpWidget(buildForm(type: PartnerType.organization));
+    await tester.tap(find.byKey(const Key('role_customer')));
+    await tester.tap(find.byKey(const Key('btn_next')));
+    await tester.pumpAndSettle();
+
+    await tester.enterText(find.byKey(const Key('input_phone')), '02a8-12');
+
+    final cubit = tester.element(find.byType(PartnerCreateForm)).read<PartnerCreateCubit>();
+    cubit.setPrimaryContactEnabled(true);
+    cubit.setActiveSection(PartnerCreateSection.primaryContact);
+    await tester.pump();
+    await tester.enterText(
+      find.byKey(const Key('input_primary_contact_phone')),
+      '09a0 12',
+    );
+    await tester.enterText(
+      find.byKey(const Key('input_primary_contact_secondary_phone')),
+      '08b8-34',
+    );
+    await tester.pump();
+
+    final state = cubit.state;
+    expect(state.phone, '02812');
+    expect(state.primaryContactPhone, '09012');
+    expect(state.primaryContactSecondaryPhone, '08834');
+  });
+
+  testWidgets('tax code accepts digits only', (tester) async {
+    await tester.pumpWidget(buildForm(type: PartnerType.organization));
+    final cubit = tester.element(find.byType(PartnerCreateForm)).read<PartnerCreateCubit>();
+    cubit.setActiveSection(PartnerCreateSection.invoice);
+    await tester.pump();
+
+    await tester.enterText(
+      find.byKey(const Key('input_tax_code')),
+      '01A0 12-34.56',
+    );
+    await tester.pump();
+
+    expect(cubit.state.taxCode, '010123456');
   });
 
   testWidgets('wgt_e01_u02_fr04_01: invalid submit opens inline errors', (
@@ -202,6 +302,47 @@ void main() {
     expect(find.byKey(const Key('input_primary_contact_name')), findsOneWidget);
     expect(find.byKey(const Key('input_primary_contact_phone')), findsOneWidget);
   });
+
+  testWidgets(
+    'wgt_e01_u02_fr02_02: organization type is a three-option dropdown',
+    (tester) async {
+      await tester.pumpWidget(buildForm(type: PartnerType.organization));
+
+      await tester.tap(find.byKey(const Key('role_customer')));
+      await tester.tap(find.byKey(const Key('btn_next')));
+      await tester.pumpAndSettle();
+
+      final popup = tester.widget<PopupMenuButton<String>>(
+        find.descendant(
+          of: find.byKey(const Key('input_organization_type')),
+          matching: find.byType(PopupMenuButton<String>),
+        ),
+      );
+      expect(popup.position, PopupMenuPosition.under);
+      final shape = popup.shape! as RoundedRectangleBorder;
+      expect(shape.borderRadius, BorderRadius.circular(VRadius.input));
+      expect(
+        popup.constraints?.minWidth,
+        tester.getSize(find.byKey(const Key('input_organization_type'))).width,
+      );
+
+      await tester.tap(find.byKey(const Key('input_organization_type')));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Công ty'), findsOneWidget);
+      expect(find.text('Hộ kinh doanh'), findsOneWidget);
+      expect(find.text('Khác'), findsOneWidget);
+
+      await tester.tap(find.text('Công ty'));
+      await tester.pumpAndSettle();
+
+      final context = tester.element(find.byType(PartnerCreateForm));
+      expect(
+        context.read<PartnerCreateCubit>().state.organizationTypeLabel,
+        'Công ty',
+      );
+    },
+  );
 
   testWidgets('wgt_e01_u02_fr06_01: possible duplicate allows continue', (
     tester,

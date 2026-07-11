@@ -24,6 +24,7 @@ class PartnerInvoiceSection extends StatelessWidget {
             key: const Key('input_tax_code'),
             initialValue: state.taxCode,
             keyboardType: TextInputType.number,
+            digitsOnly: true,
             onChanged: cubit.updateTaxCode,
           ),
         ),
@@ -48,8 +49,7 @@ class PartnerInvoiceSection extends StatelessWidget {
           initialValue: state.invoiceAddress,
           onChanged: cubit.updateInvoiceAddress,
         ),
-        if (state.taxCode.trim().isEmpty &&
-            state.partnerType == PartnerType.organization) ...[
+        if (state.taxCode.trim().isEmpty && state.partnerType == PartnerType.organization) ...[
           const Padding(
             padding: EdgeInsets.fromLTRB(
               VSpacing.space4,
