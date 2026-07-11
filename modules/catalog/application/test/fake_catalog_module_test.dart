@@ -591,6 +591,37 @@ void main() {
       expect(result.totalCount, 0);
     });
 
+    test('scn_contract_e01_u01_search_active_before_inactive', () async {
+      final module = FakeCatalogModule();
+
+      final result = await module.executeQueryAsync(
+        SearchProductsQuery(
+          tenantId: 'tenant-1',
+          criteria: ProductSearchCriteria(
+            businessStatuses: {
+              ProductStatus.active,
+              ProductStatus.inactive,
+            },
+          ),
+          limit: 50,
+        ),
+      );
+
+      expect(result.items, isNotEmpty);
+      expect(
+        result.items.any((item) => item.businessStatus == ProductStatus.inactive),
+        isTrue,
+      );
+
+      final firstInactiveIndex = result.items.indexWhere(
+        (item) => item.businessStatus == ProductStatus.inactive,
+      );
+      final lastActiveIndex = result.items.lastIndexWhere(
+        (item) => item.businessStatus == ProductStatus.active,
+      );
+      expect(firstInactiveIndex, greaterThan(lastActiveIndex));
+    });
+
     test('scn_contract_e01_u01_search_with_readiness', () async {
       final module = FakeCatalogModule(
         scenario: FakeCatalogScenario.searchWithReadiness,

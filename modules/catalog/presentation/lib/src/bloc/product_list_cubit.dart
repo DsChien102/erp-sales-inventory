@@ -68,13 +68,16 @@ class ProductListCubit extends Cubit<ProductListState> {
 
       final result = await _mediator.executeQueryAsync(query);
 
-      final isAllCriteria =
+      final isUnfilteredCatalogList =
           currentCriteria.keyword == null &&
           currentCriteria.readinessFilter == null &&
-          currentCriteria.activeOnly &&
+          currentCriteria.customFieldFilters.isEmpty &&
+          currentCriteria.businessStatuses.length == 2 &&
+          currentCriteria.businessStatuses.contains(ProductStatus.active) &&
+          currentCriteria.businessStatuses.contains(ProductStatus.inactive) &&
           !currentCriteria.includeSoftDeleted;
 
-      if (isAllCriteria) {
+      if (isUnfilteredCatalogList) {
         globalTotalCount = result.totalCount;
       }
 

@@ -1833,7 +1833,18 @@ final class FakeCatalogModule implements ICatalogModule {
         return false;
       }
       return true;
-    }).toList()..sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
+    }).toList()
+      ..sort((a, b) {
+        int statusRank(ProductStatus status) =>
+            status == ProductStatus.active ? 0 : 1;
+        final byStatus = statusRank(a.businessStatus).compareTo(
+          statusRank(b.businessStatus),
+        );
+        if (byStatus != 0) {
+          return byStatus;
+        }
+        return b.updatedAt.compareTo(a.updatedAt);
+      });
   }
 
   bool _matchesKeyword(_StoredProduct product, String? keyword) {

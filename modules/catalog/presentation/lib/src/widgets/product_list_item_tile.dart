@@ -36,29 +36,41 @@ class ProductListItemTile extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Expanded(
+                      Flexible(
                         child: Text(
-                          '${item.name}${item.sku != null ? ' — ${item.sku}' : ''}',
+                          item.name,
                           style: VTypography.bodyDefault.copyWith(
                             color: dynamicColors.textPrimary,
                             fontWeight: FontWeight.w600,
                           ),
-                          maxLines: 2,
+                          maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
-                      if (item.isSoftDeleted) ...[
-                        const SizedBox(width: 8),
-                        const VBadge(
-                          label: 'Đã xóa',
-                          status: VBadgeStatus.locked,
-                          isSmall: true,
+                      if (item.sku != null && item.sku!.isNotEmpty)
+                        Text(
+                          ' - ${item.sku}',
+                          style: VTypography.bodyDefault.copyWith(
+                            color: dynamicColors.textPrimary,
+                            fontWeight: FontWeight.w600,
+                          ),
+                          maxLines: 1,
+                          softWrap: false,
                         ),
-                      ],
                     ],
                   ),
+                  if (item.isSoftDeleted) ...[
+                    const SizedBox(height: 4),
+                    const Align(
+                      alignment: Alignment.centerLeft,
+                      child: VBadge(
+                        label: 'Đã xóa',
+                        status: VBadgeStatus.locked,
+                        isSmall: true,
+                      ),
+                    ),
+                  ],
                   if (item.tradeName != null && item.tradeName!.isNotEmpty) ...[
                     const SizedBox(height: 2),
                     Text(
