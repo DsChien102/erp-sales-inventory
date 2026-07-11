@@ -1,5 +1,6 @@
 library;
 
+export 'aot_binary.dart';
 export 'config_init_service.dart';
 export 'doctor_service.dart';
 export 'executable_resolver.dart';

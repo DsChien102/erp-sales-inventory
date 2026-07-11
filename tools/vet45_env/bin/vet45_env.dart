@@ -57,6 +57,7 @@ Future<void> main(List<String> args) async {
       case 'run':
         await _cmdRun(manifest, rest);
       case 'active':
+      case 'status':
         _cmdActive(manifest);
       case 'profile':
         await _cmdProfile(manifest, rest);
@@ -68,7 +69,7 @@ Future<void> main(List<String> args) async {
         exit(64);
     }
   } on Object catch (e) {
-    stderr.writeln('vet45_env error: $e');
+    stderr.writeln('vet45 error: $e');
     exit(1);
   }
 }
@@ -90,7 +91,7 @@ ActiveState _defaultState(EnvManifest manifest) => readActiveState(
 
 void _printUsage() {
   stdout.writeln('''
-Usage: dart run tools/vet45_env <command> [args]
+Usage: vet45 <command> [args]
 
 Commands:
   init [--force]       Scaffold local config/ from bundled templates (first-time)
@@ -104,7 +105,7 @@ Commands:
   run <target> <action> [args...] [--env <id>] [--profile <id>]
   resolve [--env <id>] [--profile <id>]
   resolve-shell [--env <id>] [--profile <id>]
-  active               Print active profile + environment
+  active|status        Print active profile + environment
   profile list|use|init
   supabase [--profile <id>] [--env <id>] <args...>
                        Run supabase CLI with profile auth.env token
