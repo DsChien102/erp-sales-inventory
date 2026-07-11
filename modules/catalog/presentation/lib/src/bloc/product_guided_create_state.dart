@@ -100,8 +100,37 @@ class ProductGuidedCreateState {
   bool get isUploadingImages =>
       imageDrafts.any((d) => d.status == ProductImageUploadStatus.uploading);
   bool get hasUploadFailures => imageDrafts.any((d) => d.status == ProductImageUploadStatus.failed);
+  int? get parsedInitialStock {
+    final raw = initialStock.trim().replaceAll(',', '');
+    if (raw.isEmpty) return null;
+    final value = int.tryParse(raw);
+    if (value == null || value < 0) return null;
+    return value;
+  }
+
+  String? get initialStockError {
+    final raw = initialStock.trim().replaceAll(',', '');
+    if (raw.isEmpty) return null;
+    final value = int.tryParse(raw);
+    if (value == null) return 'Tồn kho phải là số nguyên hợp lệ';
+    if (value < 0) return 'Tồn kho ban đầu không được âm';
+    return null;
+  }
+
+  String? get baseCostError {
+    final raw = baseCost.trim().replaceAll(',', '');
+    if (raw.isEmpty) return null;
+    final value = double.tryParse(raw);
+    if (value == null || !value.isFinite || value < 0) {
+      return 'Giá vốn phải là số không âm';
+    }
+    return null;
+  }
+
   bool get canSubmit =>
       isStep1Valid &&
+      initialStockError == null &&
+      baseCostError == null &&
       !hasDuplicateError &&
       !isUploadingImages &&
       status != ProductGuidedCreateStatus.loading;
@@ -114,13 +143,13 @@ class ProductGuidedCreateState {
   bool get canConfirmStoreRulePriceBand => pricingMethod != 'storeRule' || isStorePriceRuleReady;
 
   double? get parsedCustomAutoMarkupPercent {
-    final value = double.tryParse(customAutoMarkup.trim());
+    final value = double.tryParse(customAutoMarkup.trim().replaceAll(',', ''));
     if (value == null || value < 0) return null;
     return value;
   }
 
   double? get parsedCustomAutoFloorMarkupPercent {
-    final value = double.tryParse(customAutoFloorMarkup.trim());
+    final value = double.tryParse(customAutoFloorMarkup.trim().replaceAll(',', ''));
     if (value == null || value < 0) return null;
     return value;
   }
@@ -243,4 +272,3 @@ class ProductGuidedCreateState {
     );
   }
 }
-

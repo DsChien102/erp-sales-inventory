@@ -7,6 +7,7 @@ import 'package:go_router/go_router.dart';
 import 'package:vet45_catalog_application/application.dart';
 import 'package:vet45_catalog_application/testing.dart';
 import 'package:vet45_shared_application/application.dart';
+import 'package:vet45_design_system/design_system.dart';
 
 final class _FakeExecutionContext implements IExecutionContext {
   @override
@@ -75,6 +76,30 @@ void main() {
     expect(find.byKey(const Key('wgt_e02_u01_fr01_01')), findsOneWidget);
     expect(find.text('Tạo nhanh sản phẩm'), findsOneWidget);
     expect(find.text('Lưu sản phẩm'), findsOneWidget);
+  });
+
+  testWidgets('initial stock uses Design System integer field', (tester) async {
+    await tester.pumpWidget(
+      buildTestableWidget(catalogModule: FakeCatalogModule()),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.ensureVisible(find.text('3. Đơn vị cơ sở'));
+    await tester.tap(find.text('3. Đơn vị cơ sở'));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byKey(const Key('input_guided_base_unit')), 'Hộp');
+    await tester.pump();
+    await tester.ensureVisible(find.text('4. Tồn kho khởi tạo'));
+    await tester.tap(find.text('4. Tồn kho khởi tạo'));
+    await tester.pumpAndSettle();
+
+    final field = find.byKey(const Key('input_guided_initial_stock'));
+    expect(field, findsOneWidget);
+    expect(tester.widget(field), isA<VNumberField>());
+
+    await tester.enterText(field, '-12abc.5');
+    await tester.pump();
+    expect(find.text('125'), findsOneWidget);
   });
 
   testWidgets('wgt_e02_u01_fr01_01: successful create navigates to PCC', (tester) async {

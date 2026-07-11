@@ -573,7 +573,11 @@ final class FakeCatalogModule implements ICatalogModule {
 
   @override
   Future<TResult> executeCommandAsync<TResult>(ICommand<TResult> command) async {
-    if (command is CreateProductCommand) {
+    if (command is CreateGuidedProductCommand) {
+      return _handleCreateGuidedProduct<TResult>(
+        command as CreateGuidedProductCommand,
+      );
+    } else if (command is CreateProductCommand) {
       return _handleCreateProduct<TResult>(command as CreateProductCommand);
     } else if (command is SetInitialStockCommand) {
       final cmd = command as SetInitialStockCommand;
@@ -1464,6 +1468,37 @@ final class FakeCatalogModule implements ICatalogModule {
             )
             as TResult;
     }
+  }
+
+  TResult _handleCreateGuidedProduct<TResult>(CreateGuidedProductCommand command) {
+    final createResult = _handleCreateProduct<CreateProductResult>(
+      CreateProductCommand(
+        id: command.id,
+        tenantId: command.tenantId,
+        actorId: command.actorId,
+        productName: command.productName,
+        commercialName: command.commercialName,
+        sku: command.sku,
+        barcode: command.barcode,
+        images: command.images,
+      ),
+    );
+    final product = _products.firstWhere((item) => item.id == createResult.productId);
+    final selection = command.baseUnit;
+    product.baseUnit = switch (selection) {
+      ExistingTenantUnit(:final unitId) =>
+        _tenantUnits.firstWhere((unit) => unit.id == unitId).name,
+      NewTenantUnit(:final name) => name,
+      null => '',
+    };
+    product.stockQty = command.initialStock;
+    product.baseCost = command.basePrice;
+    product.listPrice = command.listPrice;
+    product.floorPrice = command.floorPrice;
+    return CreateGuidedProductResult(
+      productId: product.id,
+      readinessSummary: _readinessSummaryFor(product),
+    ) as TResult;
   }
 
   TResult _handleCreateProduct<TResult>(CreateProductCommand command) {

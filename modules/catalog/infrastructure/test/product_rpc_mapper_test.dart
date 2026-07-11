@@ -4,6 +4,43 @@ import 'package:vet45_catalog_domain/domain.dart';
 import 'package:vet45_catalog_infrastructure/src/domain/product/product_rpc_mapper.dart';
 
 void main() {
+  group('ProductRpcMapper atomic guided create', () {
+    test('maps the complete wizard to one RPC payload', () {
+      final params = ProductRpcMapper.createGuidedProductParams(
+        CreateGuidedProductCommand(
+          id: '550e8400-e29b-41d4-a716-446655440000',
+          tenantId: 'tenant-1',
+          actorId: 'actor-1',
+          productName: 'Thuốc A',
+          baseUnit: const ExistingTenantUnit('unit-hop'),
+          initialStock: 12,
+          basePrice: 10000,
+          listPrice: 13000,
+          floorPrice: 11000,
+        ),
+      );
+
+      expect(params['p_tenant_id'], 'tenant-1');
+      expect(params['p_tenant_unit_id'], 'unit-hop');
+      expect(params['p_initial_stock'], 12);
+      expect(params['p_base_price'], 10000);
+      expect(params['p_list_price'], 13000);
+      expect(params['p_idempotency_key'], '550e8400-e29b-41d4-a716-446655440000');
+      expect(params['p_reference_id'], startsWith('P'));
+    });
+
+    test('maps RPC result readiness', () {
+      final result = ProductRpcMapper.createGuidedProductResultFromJson({
+        'product_id': 'product-1',
+        'readiness_status': 'ready_to_receive',
+        'readiness_blockers': const <dynamic>[],
+      });
+
+      expect(result.productId, 'product-1');
+      expect(result.readinessSummary.status, ReadinessStatus.readyToReceive);
+    });
+  });
+
   group('ProductRpcMapper (EPIC-07/US-01 profile maintenance)', () {
     test('updateProductProfileParams maps command to RPC parameters', () {
       final params = ProductRpcMapper.updateProductProfileParams(

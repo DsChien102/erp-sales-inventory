@@ -41,10 +41,16 @@ final class CatalogDataAccessModule {
           logger: logger,
         ),
       )
-      ..registerSingleton<IProductCommandGateway>(
+      ..registerSingleton<SupabaseProductCommandGateway>(
         SupabaseProductCommandGateway(
           rpcClient: container.get<SupabaseSchemaRpcClient>(),
         ),
+      )
+      ..registerSingleton<IProductCommandGateway>(
+        container.get<SupabaseProductCommandGateway>(),
+      )
+      ..registerSingleton<IGuidedProductCommandGateway>(
+        container.get<SupabaseProductCommandGateway>(),
       )
       ..registerSingleton<IProductDeletionGateway>(
         SupabaseProductDeletionGateway(

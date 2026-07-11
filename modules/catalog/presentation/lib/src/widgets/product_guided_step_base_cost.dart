@@ -82,18 +82,19 @@ class _ProductGuidedStepBaseCostState extends State<ProductGuidedStepBaseCost> {
           context,
           'Giá vốn cơ sở ${widget.state.baseUnit.isNotEmpty ? "(${widget.state.baseUnit})" : ""}',
         ),
-        TextField(
+        VNumberField(
           key: const Key('input_guided_base_cost'),
           controller: _controller,
-          keyboardType: TextInputType.number,
-          decoration: ProductGuidedFields.buildInputDecoration(
-            context,
-            'Nhập giá vốn cơ sở',
-          ).copyWith(
-            suffixText: '₫',
-          ),
-          style: VTypography.bodyDefault.copyWith(color: dynamicColors.textPrimary),
-          onChanged: cubit.updateBaseCost,
+          hintText: 'Nhập giá vốn cơ sở',
+          suffixText: '₫',
+          textStyle: VTypography.bodyDefault.copyWith(color: dynamicColors.textPrimary),
+          allowDecimal: false,
+          allowNegative: false,
+          min: 0,
+          errorText: widget.state.showValidationErrors
+              ? widget.state.baseCostError
+              : null,
+          onChanged: (_) => cubit.updateBaseCost(_controller.text),
         ),
         const SizedBox(height: VSpacing.space4),
         ProductGuidedFields.buildNavigationButtons(context, showSkip: true),

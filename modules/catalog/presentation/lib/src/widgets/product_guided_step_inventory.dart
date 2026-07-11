@@ -82,18 +82,18 @@ class _ProductGuidedStepInventoryState extends State<ProductGuidedStepInventory>
           context,
           'Tồn khởi tạo ${widget.state.baseUnit.isNotEmpty ? "(${widget.state.baseUnit})" : ""}',
         ),
-        TextField(
+        VNumberField(
           key: const Key('input_guided_initial_stock'),
           controller: _controller,
-          keyboardType: TextInputType.number,
-          decoration: ProductGuidedFields.buildInputDecoration(
-            context,
-            '0',
-          ).copyWith(
-            suffixText: widget.state.baseUnit.isNotEmpty ? widget.state.baseUnit : null,
-          ),
-          style: VTypography.bodyDefault.copyWith(color: dynamicColors.textPrimary),
-          onChanged: cubit.updateInitialStock,
+          hintText: '0',
+          suffixText: widget.state.baseUnit.isNotEmpty ? widget.state.baseUnit : null,
+          textStyle: VTypography.bodyDefault.copyWith(color: dynamicColors.textPrimary),
+          allowDecimal: false,
+          allowNegative: true,
+          min: 0,
+          isRequired: false,
+          errorText: widget.state.showValidationErrors ? widget.state.initialStockError : null,
+          onChanged: (_) => cubit.updateInitialStock(_controller.text),
         ),
         const SizedBox(height: VSpacing.space4),
         ProductGuidedFields.buildNavigationButtons(context, showSkip: true),

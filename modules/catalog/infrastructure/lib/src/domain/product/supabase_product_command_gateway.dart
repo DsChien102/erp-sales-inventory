@@ -7,12 +7,28 @@ import 'package:vet45_shared_infrastructure/infrastructure.dart';
 import '../../errors/catalog_error_mapper.dart';
 import 'product_rpc_mapper.dart';
 
-final class SupabaseProductCommandGateway implements IProductCommandGateway {
+final class SupabaseProductCommandGateway
+    implements IProductCommandGateway, IGuidedProductCommandGateway {
   SupabaseProductCommandGateway({
     required SupabaseSchemaRpcClient rpcClient,
   }) : _rpcClient = rpcClient;
 
   final SupabaseSchemaRpcClient _rpcClient;
+
+  @override
+  Future<CreateGuidedProductResult> createGuidedProduct(
+    CreateGuidedProductCommand command,
+  ) async {
+    try {
+      final row = await _rpcClient.callMap(
+        'create_guided_product',
+        params: ProductRpcMapper.createGuidedProductParams(command),
+      );
+      return ProductRpcMapper.createGuidedProductResultFromJson(row);
+    } on RpcException catch (error) {
+      throw mapCatalogRpcError(error);
+    }
+  }
 
   @override
   Future<String> create({

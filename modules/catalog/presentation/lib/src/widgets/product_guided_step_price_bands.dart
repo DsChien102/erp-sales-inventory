@@ -69,14 +69,14 @@ class _ProductGuidedStepPriceBandsState extends State<ProductGuidedStepPriceBand
   String _formatCurrency(double val) {
     final str = val.toStringAsFixed(0);
     final reg = RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))');
-    return '${str.replaceAllMapped(reg, (Match m) => '${m[1]}.')} ₫';
+    return '${str.replaceAllMapped(reg, (Match m) => '${m[1]},')} ₫';
   }
 
   @override
   Widget build(BuildContext context) {
     final dynamicColors = context.vColors;
     final cubit = context.read<ProductGuidedCreateCubit>();
-    final baseCost = double.tryParse(widget.state.baseCost) ?? 0.0;
+    final baseCost = double.tryParse(widget.state.baseCost.replaceAll(',', '')) ?? 0.0;
 
     if (widget.state.baseUnit.trim().isEmpty) {
       return Column(
@@ -187,13 +187,16 @@ class _ProductGuidedStepPriceBandsState extends State<ProductGuidedStepPriceBand
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    ProductGuidedFields.buildLabel(context, 'Lãi cơ sở (%)'),
-                    TextField(
+                    ProductGuidedFields.buildLabel(context, 'Lãi cơ sở'),
+                    VNumberField(
                       controller: _customMarkupController,
-                      keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                      decoration: ProductGuidedFields.buildInputDecoration(context, ''),
-                      style: VTypography.bodyDefault.copyWith(color: dynamicColors.textPrimary),
-                      onChanged: cubit.updateCustomAutoMarkup,
+                      allowDecimal: true,
+                      allowNegative: false,
+                      suffixText: '%',
+                      min: 0,
+                      textStyle: VTypography.bodyDefault.copyWith(color: dynamicColors.textPrimary),
+                      onChanged: (_) =>
+                          cubit.updateCustomAutoMarkup(_customMarkupController.text),
                     ),
                   ],
                 ),
@@ -203,13 +206,17 @@ class _ProductGuidedStepPriceBandsState extends State<ProductGuidedStepPriceBand
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    ProductGuidedFields.buildLabel(context, 'Giá sàn (%)'),
-                    TextField(
+                    ProductGuidedFields.buildLabel(context, 'Giá sàn'),
+                    VNumberField(
                       controller: _customFloorMarkupController,
-                      keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                      decoration: ProductGuidedFields.buildInputDecoration(context, ''),
-                      style: VTypography.bodyDefault.copyWith(color: dynamicColors.textPrimary),
-                      onChanged: cubit.updateCustomAutoFloorMarkup,
+                      allowDecimal: true,
+                      allowNegative: false,
+                      suffixText: '%',
+                      min: 0,
+                      textStyle: VTypography.bodyDefault.copyWith(color: dynamicColors.textPrimary),
+                      onChanged: (_) => cubit.updateCustomAutoFloorMarkup(
+                        _customFloorMarkupController.text,
+                      ),
                     ),
                   ],
                 ),
@@ -240,15 +247,17 @@ class _ProductGuidedStepPriceBandsState extends State<ProductGuidedStepPriceBand
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     ProductGuidedFields.buildLabel(context, 'Giá niêm yết'),
-                    TextField(
+                    VNumberField(
                       key: const Key('input_guided_manual_list_price'),
                       controller: _manualListPriceController,
-                      keyboardType: TextInputType.number,
-                      decoration: ProductGuidedFields.buildInputDecoration(context, '0').copyWith(
-                        suffixText: '₫',
-                      ),
-                      style: VTypography.bodyDefault.copyWith(color: dynamicColors.textPrimary),
-                      onChanged: cubit.updateManualListPrice,
+                      hintText: '0',
+                      suffixText: '₫',
+                      allowDecimal: false,
+                      allowNegative: false,
+                      min: 0,
+                      textStyle: VTypography.bodyDefault.copyWith(color: dynamicColors.textPrimary),
+                      onChanged: (_) =>
+                          cubit.updateManualListPrice(_manualListPriceController.text),
                     ),
                   ],
                 ),
@@ -259,17 +268,18 @@ class _ProductGuidedStepPriceBandsState extends State<ProductGuidedStepPriceBand
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     ProductGuidedFields.buildLabel(context, 'Giá bán sàn'),
-                    TextField(
+                    VNumberField(
                       key: const Key('input_guided_manual_floor_price'),
                       controller: _manualFloorPriceController,
-                      keyboardType: TextInputType.number,
-                      decoration: ProductGuidedFields.buildInputDecoration(context, '0').copyWith(
-                        suffixText: '₫',
-                        errorText: widget.state.manualPriceError,
-                        errorMaxLines: 2,
-                      ),
-                      style: VTypography.bodyDefault.copyWith(color: dynamicColors.textPrimary),
-                      onChanged: cubit.updateManualFloorPrice,
+                      hintText: '0',
+                      suffixText: '₫',
+                      allowDecimal: false,
+                      allowNegative: false,
+                      min: 0,
+                      errorText: widget.state.manualPriceError,
+                      textStyle: VTypography.bodyDefault.copyWith(color: dynamicColors.textPrimary),
+                      onChanged: (_) =>
+                          cubit.updateManualFloorPrice(_manualFloorPriceController.text),
                     ),
                   ],
                 ),

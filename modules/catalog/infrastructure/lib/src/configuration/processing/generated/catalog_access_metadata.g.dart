@@ -34,6 +34,10 @@ final catalogAccessMetadataRegistry = AccessMetadataRegistry({
     permission: 'catalog.custom_fields.manage',
     requiresTenant: true,
   ),
+  CreateGuidedProductCommand: AccessMetadata(
+    permission: 'catalog.product.create',
+    requiresTenant: true,
+  ),
   CreateProductCommand: AccessMetadata(
     permission: 'catalog.product.create',
     requiresTenant: true,

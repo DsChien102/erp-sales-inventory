@@ -50,7 +50,7 @@ Builders (IAM-style — no messaging registries yet):
 
 ## Current slice
 
-- **EPIC-02/US-01 CONTRACT + BE + FE + E2E:** guided create (`CreateProductCommand`) + dup check (`CheckDuplicateProductCodeQuery`)
+- **EPIC-02/US-01 CONTRACT + BE + FE + E2E:** atomic guided create (`CreateGuidedProductCommand` → `catalog.create_guided_product`) + dup check (`CheckDuplicateProductCodeQuery`); `CreateProductCommand` remains for minimal create compatibility.
 - Draft SQL: `supabase/migrations/_drafts/01_catalog_guided_create.sql` (chưa promote — runtime RPC cần migration apply)
 - ERP DI: `CatalogStartup` trong `apps/erp/lib/core/di/injection.dart`
 - E2E: `apps/erp/test/features/catalog/presentation/pages/product_guided_create_e2e_test.dart`
