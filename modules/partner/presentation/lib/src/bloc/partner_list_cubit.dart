@@ -10,8 +10,8 @@ final class PartnerListCubit extends Cubit<PartnerListState> {
     required IPartnerModule partnerModule,
     required IExecutionContext executionContext,
   })  : _partnerModule = partnerModule,
-        _executionContext = executionContext,
-        super(const PartnerListInitial());
+       _executionContext = executionContext,
+       super(const PartnerListInitial());
 
   final IPartnerModule _partnerModule;
   final IExecutionContext _executionContext;
@@ -74,10 +74,10 @@ final class PartnerListCubit extends Cubit<PartnerListState> {
           sortParam = 'updated_at_asc';
           break;
         case PartnerSortOption.nameAsc:
-          sortParam = 'name_asc';
+          sortParam = 'display_name_asc';
           break;
         case PartnerSortOption.nameDesc:
-          sortParam = 'name_desc';
+          sortParam = 'display_name_desc';
           break;
         case PartnerSortOption.roleAsc:
           sortParam = 'role_asc';
@@ -128,12 +128,12 @@ final class PartnerListCubit extends Cubit<PartnerListState> {
       );
     } catch (error) {
       emit(PartnerListError(
-        error.toString(),
-        query: state.query,
-        partnerType: state.partnerType,
-        roleFilter: state.roleFilter,
-        status: state.status,
-        sortOption: state.sortOption,
+          error.toString(),
+          query: state.query,
+          partnerType: state.partnerType,
+          roleFilter: state.roleFilter,
+          status: state.status,
+          sortOption: state.sortOption,
       ));
     }
   }
@@ -152,26 +152,26 @@ final class PartnerListCubit extends Cubit<PartnerListState> {
     bool clearStatus = false,
   }) {
     emit(PartnerListLoading(
-      items: const [],
-      isFirstLoad: true,
-      query: _query,
-      partnerType: clearType ? null : (partnerType ?? state.partnerType),
-      roleFilter: clearRole ? null : (roleFilter ?? state.roleFilter),
-      status: clearStatus ? null : (status ?? state.status),
-      sortOption: sortOption ?? state.sortOption,
+        items: const [],
+        isFirstLoad: true,
+        query: _query,
+        partnerType: clearType ? null : (partnerType ?? state.partnerType),
+        roleFilter: clearRole ? null : (roleFilter ?? state.roleFilter),
+        status: clearStatus ? null : (status ?? state.status),
+        sortOption: sortOption ?? state.sortOption,
     ));
     fetchPartners(isRefresh: true);
   }
 
   void clearFilters() {
     emit(PartnerListLoading(
-      items: const [],
-      isFirstLoad: true,
-      query: _query,
-      partnerType: null,
-      roleFilter: null,
-      status: null,
-      sortOption: PartnerSortOption.updatedAtDesc,
+        items: const [],
+        isFirstLoad: true,
+        query: _query,
+        partnerType: null,
+        roleFilter: null,
+        status: null,
+        sortOption: PartnerSortOption.updatedAtDesc,
     ));
     fetchPartners(isRefresh: true);
   }
