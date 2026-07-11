@@ -14,6 +14,7 @@ Melos-centric workflow to keep ERP, messaging worker, and Supabase targets align
 | `config/secrets/deploy.env` | Shared iOS TestFlight credentials (deploy target) |
 | `.vet45/state.json` | Gitignored `{ profile, environment }` |
 | `.vet45/active` | Legacy environment id pointer (still updated) |
+| `.vet45/bin/vet45[.exe]` | Local AOT binary from `melos run env:build` (fast CLI) |
 | Generated `apps/*/.env*` | Output consumed by Flutter (`--dart-define-from-file`) and worker |
 
 ## Configuration profiles
@@ -86,6 +87,8 @@ Host alignment (erp vs worker Supabase URL) runs only when both targets pass.
 ```bash
 melos bootstrap
 melos run env:init
+melos run env:build              # AOT binary → .vet45/bin (skip Melos for daily CLI)
+source scripts/env/activate.sh   # Windows: . .\scripts\env\activate.ps1  or activate.bat
 cp config/secrets/development.env.example config/secrets/development.env
 cp config/secrets/staging.env.example config/secrets/staging.env
 cp config/secrets/production.env.example config/secrets/production.env
@@ -94,9 +97,9 @@ cp config/secrets/production.env.example config/secrets/production.env
 # Fill Supabase URL + keys in config/secrets/*.env
 # Local stack only: supabase start && melos run env:local
 
-melos run env:sync
-melos run env:doctor -- --target erp   # or full doctor once deploy.env exists
-melos run supabase -- db push          # supabase CLI with profile auth.env token
+vet45 sync                   # preferred (AOT); or: melos run env:sync
+vet45 doctor --target erp
+vet45 supabase -- db push
 ```
 
 Templates ship in `tools/vet45_env/templates/config/`. Refresh scaffold files with `melos run env:init -- --force` (never overwrites filled `*.env` secrets).
@@ -139,29 +142,54 @@ Shows active **profile/environment** on the shell prompt and exports session var
 
 Exports: `VET45_ROOT`, `VET45_PROFILE`, `VET45_ENV_ID`, `VET45_ACTIVE_LABEL` (e.g. `(default/staging)`).
 
-bash/zsh/PowerShell re-read `.vet45/state.json` on each prompt, so after `melos run env:use:staging` the label updates automatically. CMD keeps a static prompt — run `activate.bat` again to refresh.
+Also prepends `.vet45/bin` to `PATH` so `vet45` / `vet45.exe` runs the AOT binary (after `melos run env:build`).
+
+bash/zsh/PowerShell re-read `.vet45/state.json` on each prompt, so after `melos run env:use:staging` / `vet45 use staging` the label updates automatically. CMD keeps a static prompt — run `activate.bat` again to refresh.
+
+## Fast CLI (AOT)
+
+Daily env commands should **bypass Melos** when possible:
+
+```bash
+melos run env:build          # once per clone / after vet45 CLI source changes
+source scripts/env/activate.sh
+vet45 list
+vet45 use staging
+vet45 sync --target erp
+vet45 supabase -- db push
+```
+
+| Entry | When |
+| ----- | ---- |
+| `vet45 …` (PATH) | Preferred — native AOT, no Melos / no `dart run` |
+| `scripts/env/vet45.sh|.bat|.ps1 …` | Same shim without activate |
+| `melos run env:…` | Optional discoverability; uses `run.dart` which spawns AOT if built |
 
 ## Daily commands
 
 ```bash
-melos run env:list              # show targets + environments + active (*)
-melos run env:use:staging       # switch active + supabase link
-melos run env:sync              # link + regenerate all writable targets
-melos run env:sync -- --target erp
-melos run env:doctor            # validate all targets
-melos run env:doctor -- --target erp
+# Preferred after activate + env:build
+vet45 list
+vet45 use staging
+vet45 sync
+vet45 sync --target erp
+vet45 doctor --target erp
+vet45 supabase -- db push
 
+# Melos still works (slower launcher)
+melos run env:list
+melos run env:use:staging
+melos run env:sync
 melos run debug                 # ERP — syncs erp only, then flutter run
-melos run debug:staging         # shortcut: use staging + sync + run
-melos run worker:serve          # worker — syncs worker only
-melos run supabase -- db push   # supabase CLI with profile auth.env token
-melos run supabase -- migration list
+melos run debug:staging
+melos run worker:serve
+melos run supabase -- db push
 
 # Deploy (active env must be staging|production)
-melos run build:ios             # build IPA only
-melos run deploy:ios            # validates deploy secrets + build + TestFlight
-melos run deploy:worker         # Railway worker redeploy
-melos run deploy:worker -- --secrets   # push secrets + deploy
+melos run build:ios
+melos run deploy:ios
+melos run deploy:worker
+melos run deploy:worker -- --secrets
 ```
 
 ## Canonical secrets keys
@@ -203,44 +231,53 @@ APP_STORE_CONNECT_KEY_IDENTIFIER=
 
 ```
 config/environments.json
-tools/vet45_env/           # Dart CLI (list, use, sync, doctor, run, resolve-shell)
-scripts/env/vet45_env.sh   # Unix shim → dart run (optional)
-scripts/env/vet45_env.bat  # Windows CMD shim → dart run
+tools/vet45_env/           # Dart package (entry: bin/vet45_env.dart → AOT name `vet45`)
+scripts/env/vet45.sh|.bat|.ps1   # Prefer AOT `.vet45/bin/vet45`, else dart run
+.vet45/bin/vet45[.exe]     # AOT binary (`melos run env:build`)
 ```
 
-Cross-platform entry (Windows, macOS, Linux):
+Preferred CLI (git-style subcommands):
+
+```bash
+vet45 list
+vet45 use staging
+vet45 sync --target erp
+vet45 run erp debug
+vet45 use-sync-run staging erp debug
+```
+
+Fallback without AOT / PATH:
 
 ```bash
 dart run tools/vet45_env/bin/vet45_env.dart list
 dart run tools/vet45_env/bin/vet45_env.dart sync --target erp
-dart run tools/vet45_env/bin/vet45_env.dart run erp debug
-dart run tools/vet45_env/bin/vet45_env.dart use-sync-run staging erp debug
 ```
 
-Melos scripts call `dart run` directly (no bash `&&` chains).
+Melos scripts call `dart run …/run.dart` (spawns AOT if built).
 
 ### Windows notes
 
 | Requirement | Notes |
 | ----------- | ----- |
-| Dart SDK + Flutter in `PATH` | Required for `melos run debug`; vet45_env resolves `flutter.bat` via `where` / `FLUTTER_ROOT` on Windows |
+| Dart SDK + Flutter in `PATH` | Required for `melos run debug`; vet45 resolves `flutter.bat` via `where` / `FLUTTER_ROOT` on Windows |
 | Supabase CLI | `supabase` on PATH for `env:local` |
 | Git Bash | Optional; needed for `deploy:worker` / legacy `.sh` deploy scripts via `bash` |
 | Prompt activate | `scripts\env\activate.bat` (CMD) or `. .\scripts\env\activate.ps1` (PowerShell) |
 | iOS build/deploy | macOS only — `debug:ios`, `build:ios`, `deploy:ios` exit with clear message on Windows |
 | Docker Desktop | For `melos run worker:docker`; uses `host.docker.internal` |
 
-On Windows CMD: `scripts\env\vet45_env.bat sync --target erp`
+On Windows CMD: `scripts\env\vet45.bat sync --target erp`
 
 VS Code `preLaunchTask` uses `dart run tools/vet45_env/... use-and-sync` (see `.vscode/tasks.json`).
 
-Low-level CLI (from repo root):
+Low-level CLI (from repo root, without activate):
 
 ```bash
-dart run tools/vet45_env/bin/vet45_env.dart list
-dart run tools/vet45_env/bin/vet45_env.dart sync --env development
-dart run tools/vet45_env/bin/vet45_env.dart sync --target erp
-dart run tools/vet45_env/bin/vet45_env.dart doctor --target erp --offline
+vet45 list
+vet45 sync --env development
+vet45 sync --target erp
+vet45 doctor --target erp --offline
+# or: dart run tools/vet45_env/bin/vet45_env.dart …
 ```
 
 ## Docker worker
@@ -250,7 +287,7 @@ melos run env:development   # or env:local for Supabase CLI only
 melos run worker:docker
 ```
 
-Compose reads `WORKER_ENV_FILE` (set by `vet45_env.sh run worker docker`) and overrides `SUPABASE_URL` to `host.docker.internal:54321` for local Supabase.
+Compose reads `WORKER_ENV_FILE` (set by `vet45.sh run worker docker`) and overrides `SUPABASE_URL` to `host.docker.internal:54321` for local Supabase.
 
 ## Railway deploy
 

@@ -60,138 +60,142 @@ dev_dependencies:
 
 melos:
   scripts:
+    env:build:
+      run: dart run tools/vet45_env/bin/build_aot.dart
+      description: Compile vet45_env AOT binary to .vet45/bin (Unix/Windows)
+
     env:init:
-      run: dart run tools/vet45_env/bin/vet45_env.dart init
+      run: dart run tools/vet45_env/bin/run.dart init
       description: Scaffold local config/ from bundled templates (first-time setup)
 
     env:list:
-      run: dart run tools/vet45_env/bin/vet45_env.dart list
+      run: dart run tools/vet45_env/bin/run.dart list
       description: List profiles, environments, and active selection
 
     profile:list:
-      run: dart run tools/vet45_env/bin/vet45_env.dart profile list
+      run: dart run tools/vet45_env/bin/run.dart profile list
       description: List configuration profiles
 
     profile:use:
-      run: dart run tools/vet45_env/bin/vet45_env.dart profile use
+      run: dart run tools/vet45_env/bin/run.dart profile use
       description: Set active profile (pass id after --)
 
     profile:init:
-      run: dart run tools/vet45_env/bin/vet45_env.dart profile init
+      run: dart run tools/vet45_env/bin/run.dart profile init
       description: Scaffold a new profile under config/profiles/
 
     env:use:
-      run: dart run tools/vet45_env/bin/vet45_env.dart use
+      run: dart run tools/vet45_env/bin/run.dart use
       description: Set active environment (pass id after --)
 
     env:use:development:
-      run: dart run tools/vet45_env/bin/vet45_env.dart use development
+      run: dart run tools/vet45_env/bin/run.dart use development
       description: Set active environment to development (default)
 
     env:use:local:
-      run: dart run tools/vet45_env/bin/vet45_env.dart use local
+      run: dart run tools/vet45_env/bin/run.dart use local
       description: Set active environment to local (Supabase CLI)
 
     env:use:staging:
-      run: dart run tools/vet45_env/bin/vet45_env.dart use staging
+      run: dart run tools/vet45_env/bin/run.dart use staging
       description: Set active environment to staging
 
     env:use:production:
-      run: dart run tools/vet45_env/bin/vet45_env.dart use production
+      run: dart run tools/vet45_env/bin/run.dart use production
       description: Set active environment to production
 
     env:sync:
-      run: dart run tools/vet45_env/bin/vet45_env.dart sync
+      run: dart run tools/vet45_env/bin/run.dart sync
       description: Align supabase link + sync ERP + worker .env files
 
     env:link:
-      run: dart run tools/vet45_env/bin/vet45_env.dart link
+      run: dart run tools/vet45_env/bin/run.dart link
       description: Align supabase link with active environment project ref
 
     supabase:
-      run: dart run tools/vet45_env/bin/vet45_env.dart supabase
+      run: dart run tools/vet45_env/bin/run.dart supabase
       stdio: inherit
       description: Run supabase CLI with active profile auth.env token
 
     env:doctor:
-      run: dart run tools/vet45_env/bin/vet45_env.dart doctor
+      run: dart run tools/vet45_env/bin/run.dart doctor
       stdio: inherit
       description: Validate active environment configuration
 
     env:development:
-      run: dart run tools/vet45_env/bin/vet45_env.dart use-and-sync development
+      run: dart run tools/vet45_env/bin/run.dart use-and-sync development
       description: Use development (default) and sync app env files
 
     env:local:
-      run: dart run tools/vet45_env/bin/vet45_env.dart use-and-sync local
+      run: dart run tools/vet45_env/bin/run.dart use-and-sync local
       description: Use local Supabase and sync app env files
 
     debug:
-      run: dart run tools/vet45_env/bin/vet45_env.dart run erp debug
+      run: dart run tools/vet45_env/bin/run.dart run erp debug
       stdio: inherit
 
     debug:web:
-      run: dart run tools/vet45_env/bin/vet45_env.dart run erp debug:web
+      run: dart run tools/vet45_env/bin/run.dart run erp debug:web
       stdio: inherit
 
     debug:ios:
-      run: dart run tools/vet45_env/bin/vet45_env.dart run erp debug:ios
+      run: dart run tools/vet45_env/bin/run.dart run erp debug:ios
       stdio: inherit
 
     debug:dev:
-      run: dart run tools/vet45_env/bin/vet45_env.dart use-sync-run development erp debug
+      run: dart run tools/vet45_env/bin/run.dart use-sync-run development erp debug
       stdio: inherit
 
     debug:staging:
-      run: dart run tools/vet45_env/bin/vet45_env.dart use-sync-run staging erp debug
+      run: dart run tools/vet45_env/bin/run.dart use-sync-run staging erp debug
       stdio: inherit
 
     debug:prod:
-      run: dart run tools/vet45_env/bin/vet45_env.dart use-sync-run production erp debug
+      run: dart run tools/vet45_env/bin/run.dart use-sync-run production erp debug
       stdio: inherit
 
     build:ios:
-      run: dart run tools/vet45_env/bin/vet45_env.dart run erp build-ios
+      run: dart run tools/vet45_env/bin/run.dart run erp build-ios
       stdio: inherit
       description: Build iOS IPA — active env (staging|production)
 
     build:ios:staging:
-      run: dart run tools/vet45_env/bin/vet45_env.dart use-sync-run staging erp build-ios
+      run: dart run tools/vet45_env/bin/run.dart use-sync-run staging erp build-ios
       stdio: inherit
       description: Build iOS IPA (staging shortcut)
 
     build:ios:production:
-      run: dart run tools/vet45_env/bin/vet45_env.dart use-sync-run production erp build-ios
+      run: dart run tools/vet45_env/bin/run.dart use-sync-run production erp build-ios
       stdio: inherit
       description: Build iOS IPA (production shortcut)
 
     deploy:ios:
-      run: dart run tools/vet45_env/bin/vet45_env.dart run erp deploy-ios
+      run: dart run tools/vet45_env/bin/run.dart run erp deploy-ios
       stdio: inherit
       description: Build + upload iOS IPA — active env (staging|production)
 
     deploy:ios:staging:
-      run: dart run tools/vet45_env/bin/vet45_env.dart use-sync-run staging erp deploy-ios
+      run: dart run tools/vet45_env/bin/run.dart use-sync-run staging erp deploy-ios
       stdio: inherit
       description: Build + upload iOS IPA (staging shortcut)
 
     deploy:ios:production:
-      run: dart run tools/vet45_env/bin/vet45_env.dart use-sync-run production erp deploy-ios
+      run: dart run tools/vet45_env/bin/run.dart use-sync-run production erp deploy-ios
       stdio: inherit
       description: Build + upload iOS IPA (production shortcut)
 
     deploy:worker:
-      run: dart run tools/vet45_env/bin/vet45_env.dart run worker deploy
+      run: dart run tools/vet45_env/bin/run.dart run worker deploy
       stdio: inherit
       description: Deploy messaging worker to Railway — active env (staging|production)
 
     deploy:worker:staging:
-      run: dart run tools/vet45_env/bin/vet45_env.dart use-sync-run staging worker deploy
+      run: dart run tools/vet45_env/bin/run.dart use-sync-run staging worker deploy
       stdio: inherit
       description: Deploy messaging worker (staging shortcut)
 
     deploy:worker:production:
-      run: dart run tools/vet45_env/bin/vet45_env.dart use-sync-run production worker deploy
+      run: dart run tools/vet45_env/bin/run.dart use-sync-run production worker deploy
       stdio: inherit
       description: Deploy messaging worker (production shortcut)
 
@@ -215,17 +219,17 @@ melos:
       isPrivate: true
 
     worker:once:
-      run: dart run tools/vet45_env/bin/vet45_env.dart run worker once
+      run: dart run tools/vet45_env/bin/run.dart run worker once
       stdio: inherit
       description: Run one messaging worker tick (requires Supabase + .env)
 
     worker:serve:
-      run: dart run tools/vet45_env/bin/vet45_env.dart run worker serve
+      run: dart run tools/vet45_env/bin/run.dart run worker serve
       stdio: inherit
       description: Run messaging worker HTTP server locally (port 8080)
 
     worker:docker:
-      run: dart run tools/vet45_env/bin/vet45_env.dart run worker docker
+      run: dart run tools/vet45_env/bin/run.dart run worker docker
       stdio: inherit
       description: Run messaging worker in Docker (Railway-like AOT binary)
 

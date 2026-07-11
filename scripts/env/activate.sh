@@ -94,6 +94,11 @@ deactivate() {
     PROMPT="$_VET45_OLD_PROMPT"
     unset _VET45_OLD_PROMPT
   fi
+  if [ -n "${_VET45_OLD_PATH+x}" ]; then
+    PATH="$_VET45_OLD_PATH"
+    export PATH
+    unset _VET45_OLD_PATH
+  fi
 
   unset VET45_ROOT VET45_PROFILE VET45_ENV_ID VET45_ACTIVE_LABEL
   unset _VET45_ROOT
@@ -105,6 +110,14 @@ deactivate() {
 }
 
 _vet45_refresh_exports
+
+# Prepend AOT bin dir so `vet45` resolves without Melos.
+_VET45_BIN="$_VET45_ROOT/.vet45/bin"
+_VET45_OLD_PATH="${PATH-}"
+case ":${PATH-}:" in
+  *":$_VET45_BIN:"*) ;;
+  *) export PATH="$_VET45_BIN:${PATH-}" ;;
+esac
 
 if [ -n "${ZSH_VERSION:-}" ]; then
   _VET45_OLD_PROMPT="${PROMPT-}"
@@ -118,5 +131,11 @@ fi
 
 echo "Activated Vet45: $VET45_ACTIVE_LABEL"
 echo "  root: $VET45_ROOT"
+if [ -x "$_VET45_BIN/vet45" ]; then
+  echo "  cli:  vet45  (AOT on PATH)"
+else
+  echo "  tip: melos run env:build  # compile AOT binary for faster vet45"
+fi
 echo "  tip: melos run env:use:staging  # prompt updates automatically"
 echo "  tip: deactivate"
+unset _VET45_BIN

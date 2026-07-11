@@ -6,6 +6,11 @@ if defined _VET45_OLD_PROMPT (
   set "_VET45_OLD_PROMPT="
 )
 
+if defined _VET45_OLD_PATH (
+  set "PATH=%_VET45_OLD_PATH%"
+  set "_VET45_OLD_PATH="
+)
+
 set "VET45_ROOT="
 set "VET45_PROFILE="
 set "VET45_ENV_ID="

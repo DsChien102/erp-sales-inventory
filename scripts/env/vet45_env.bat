@@ -1,4 +1,4 @@
 @echo off
-setlocal
-cd /d "%~dp0..\.."
-dart run tools\vet45_env\bin\vet45_env.dart %*
+REM Backward-compatible alias → scripts\env\vet45.bat
+call "%~dp0vet45.bat" %*
+exit /b %ERRORLEVEL%

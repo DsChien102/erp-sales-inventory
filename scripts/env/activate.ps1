@@ -50,6 +50,11 @@ function global:deactivate {
     Remove-Item -Path Function:prompt -Force -ErrorAction SilentlyContinue
   }
 
+  if ($env:_VET45_OLD_PATH) {
+    $env:PATH = $env:_VET45_OLD_PATH
+    Remove-Item Env:_VET45_OLD_PATH -ErrorAction SilentlyContinue
+  }
+
   Remove-Item Env:VET45_ROOT -ErrorAction SilentlyContinue
   Remove-Item Env:VET45_PROFILE -ErrorAction SilentlyContinue
   Remove-Item Env:VET45_ENV_ID -ErrorAction SilentlyContinue
@@ -72,6 +77,12 @@ if (Get-Command deactivate -ErrorAction SilentlyContinue) {
 $env:VET45_ROOT = $repoRoot
 _Vet45RefreshExports
 
+$binDir = Join-Path $repoRoot ".vet45\bin"
+$env:_VET45_OLD_PATH = $env:PATH
+if (-not (($env:PATH -split ';') -contains $binDir)) {
+  $env:PATH = "$binDir;$($env:PATH)"
+}
+
 # Preserve previous prompt, then wrap with (profile/env)
 if (Test-Path Function:prompt) {
   Copy-Item -Path Function:prompt -Destination Function:_Vet45OldPrompt -Force
@@ -88,5 +99,11 @@ function global:prompt {
 
 Write-Host "Activated Vet45: $($env:VET45_ACTIVE_LABEL)"
 Write-Host "  root: $($env:VET45_ROOT)"
+$exe = Join-Path $binDir "vet45.exe"
+if (Test-Path $exe) {
+  Write-Host "  cli:  vet45.exe  (AOT on PATH)"
+} else {
+  Write-Host "  tip: melos run env:build  # compile AOT binary for faster vet45"
+}
 Write-Host "  tip: melos run env:use:staging  # prompt updates automatically"
 Write-Host "  tip: deactivate"
