@@ -126,7 +126,7 @@ void main() {
       expect(dto.items, hasLength(1));
       expect(dto.items.single.listPrice, 120000);
       expect(dto.items.single.floorPrice, 95000);
-      expect(dto.items.single.productBusinessStatus, ProductStatus.active);
+      expect(dto.items.single.productBusinessStatus, ProductBusinessStatus.active);
     });
   });
 }

@@ -86,10 +86,11 @@ abstract final class ProductPriceBandRpcMapper {
     );
   }
 
-  static ProductStatus _productStatusFromRpc(String? value) {
+  static ProductBusinessStatus _productStatusFromRpc(String? value) {
     return switch (value) {
-      'inactive' => ProductStatus.inactive,
-      _ => ProductStatus.active,
+      'inactive' => ProductBusinessStatus.inactive,
+      'soft_deleted' => ProductBusinessStatus.softDeleted,
+      _ => ProductBusinessStatus.active,
     };
   }
 

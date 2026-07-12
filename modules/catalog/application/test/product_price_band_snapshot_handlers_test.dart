@@ -9,7 +9,8 @@ class _FakeProductPriceBandGateway implements IProductPriceBandGateway {
   final Future<ProductPriceBandSnapshotDto> Function({
     required String tenantId,
     required List<ProductPriceBandSnapshotRequest> items,
-  })? snapshotBuilder;
+  })?
+  snapshotBuilder;
 
   List<ProductPriceBandSnapshotRequest>? lastSnapshotItems;
 
@@ -37,7 +38,7 @@ class _FakeProductPriceBandGateway implements IProductPriceBandGateway {
               floorPriceMissing: false,
               floorPriceHidden: false,
               isUnitActive: true,
-              productBusinessStatus: ProductStatus.active,
+              productBusinessStatus: ProductBusinessStatus.active,
               capturedAt: DateTime.utc(1970),
             ),
           )
@@ -107,7 +108,7 @@ void main() {
                 floorPriceMissing: true,
                 floorPriceHidden: false,
                 isUnitActive: true,
-                productBusinessStatus: ProductStatus.active,
+                productBusinessStatus: ProductBusinessStatus.active,
                 capturedAt: DateTime.utc(1970),
               ),
             ],
@@ -148,7 +149,7 @@ void main() {
                 floorPriceMissing: true,
                 floorPriceHidden: false,
                 isUnitActive: false,
-                productBusinessStatus: ProductStatus.active,
+                productBusinessStatus: ProductBusinessStatus.active,
                 capturedAt: DateTime.utc(1970),
               ),
             ],
@@ -212,7 +213,7 @@ void main() {
                 floorPriceMissing: true,
                 floorPriceHidden: false,
                 isUnitActive: true,
-                productBusinessStatus: ProductStatus.active,
+                productBusinessStatus: ProductBusinessStatus.active,
                 capturedAt: DateTime.utc(1970),
               ),
             ],

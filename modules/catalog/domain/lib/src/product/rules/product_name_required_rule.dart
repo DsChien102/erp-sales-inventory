@@ -1,4 +1,4 @@
-import '../../value_objects/product_name.dart';
+import '../product_name.dart';
 import 'package:vet45_shared_domain/shared_kernel_domain.dart';
 
 final class ProductNameRequiredRule implements IBusinessRule {

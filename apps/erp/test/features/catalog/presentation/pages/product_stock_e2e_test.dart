@@ -141,6 +141,24 @@ void main() {
     expect(find.textContaining('25 Hộp'), findsWidgets);
   });
 
+  testWidgets('e2e_e05_stock_rejects_fractional_quantity', (tester) async {
+    await setUpErpCatalogE2E(scenario: FakeCatalogScenario.pccReadyToSell);
+
+    await tester.pumpWidget(_buildPccRouter(_product1()));
+    await tester.pumpAndSettle();
+
+    await tapEditStock(tester);
+    expect(find.byKey(const Key('wgt_e05_u01_fr01_01')), findsOneWidget);
+
+    await tester.enterText(find.byKey(const Key('input_stock_quantity')), '1.5');
+    await tester.pump();
+    await tester.tap(find.byKey(const Key('btn_stock_save')));
+    await tester.pump();
+
+    expect(find.text('Tồn kho phải là số nguyên'), findsOneWidget);
+    expect(find.byKey(const Key('wgt_e05_u01_fr01_01')), findsOneWidget);
+  });
+
   testWidgets('e2e_e05_u02_fr04_01: readiness refreshes after setting stock', (tester) async {
     await setUpErpCatalogE2E();
 

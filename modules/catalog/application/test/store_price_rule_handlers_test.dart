@@ -3,6 +3,8 @@ import 'package:vet45_catalog_application/application.dart';
 import 'package:vet45_catalog_domain/domain.dart';
 import 'package:vet45_shared_application/application.dart';
 
+import 'support/fake_write_ports.dart';
+
 class _RecordingStorePriceRuleGateway implements IStorePriceRuleGateway {
   StorePriceRuleDto? storedRule;
   ProductUnitPriceSuggestionDto? lastSuggestion;
@@ -36,7 +38,16 @@ class _RecordingStorePriceRuleGateway implements IStorePriceRuleGateway {
 
   @override
   Future<StorePriceRuleDto?> getRule({required String tenantId}) async {
-    return storedRule;
+    return storedRule ??
+        const StorePriceRuleDto(
+          id: 'rule-1',
+          tenantId: 'tenant-1',
+          name: 'Mặc định bán lẻ',
+          status: StorePriceRuleStatus.active,
+          calculationType: StorePriceCalculationType.markup,
+          listMarkupRatio: 0.5,
+          floorMarkupRatio: 0.25,
+        );
   }
 
   @override
@@ -208,6 +219,7 @@ void main() {
       final handler = ApplyStorePriceRuleCommandHandler(
         storePriceRuleGateway: gateway,
         readinessReadPort: _FakeProductReadinessReadPort(hasPriceBand: true),
+        catalogReadGateway: FakeCatalogReadGateway(basePriceAmount: 25000),
       );
 
       final result = await handler.handle(
@@ -227,6 +239,7 @@ void main() {
       final handler = ApplyStorePriceRuleCommandHandler(
         storePriceRuleGateway: gateway,
         readinessReadPort: _FakeProductReadinessReadPort(),
+        catalogReadGateway: FakeCatalogReadGateway(basePriceAmount: 25000),
       );
 
       await expectLater(
@@ -245,6 +258,7 @@ void main() {
       final handler = ApplyStorePriceRuleCommandHandler(
         storePriceRuleGateway: gateway,
         readinessReadPort: _FakeProductReadinessReadPort(),
+        catalogReadGateway: FakeCatalogReadGateway(basePriceAmount: 25000),
       );
 
       await expectLater(

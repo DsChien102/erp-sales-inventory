@@ -1,7 +1,7 @@
-import '../pricing/price_band/price_band_source_type.dart';
-import '../pricing/price_band/product_unit_price_bands_dto.dart';
-import '../pricing/price_band_snapshot/product_price_band_snapshot_dto.dart';
-import '../pricing/price_band_snapshot/product_price_band_snapshot_request.dart';
+import 'package:vet45_catalog_application/src/product_unit_price_band/queries/list_product_unit_price_bands/price_band_source_type.dart';
+import 'package:vet45_catalog_application/src/product_unit_price_band/queries/list_product_unit_price_bands/product_unit_price_bands_dto.dart';
+import 'package:vet45_catalog_application/src/product_unit_price_band/queries/get_product_price_band_snapshot/product_price_band_snapshot_dto.dart';
+import 'package:vet45_catalog_application/src/product_unit_price_band/queries/get_product_price_band_snapshot/product_price_band_snapshot_request.dart';
 
 abstract interface class IProductPriceBandGateway {
   Future<ProductUnitPriceBandsDto> listProductUnitPriceBands({

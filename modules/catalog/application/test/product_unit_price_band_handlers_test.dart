@@ -166,7 +166,7 @@ class _FakeCatalogReadGateway implements ICatalogReadGateway {
     return ProductControlCenterReadModel(
       productId: productId,
       name: 'Test',
-      businessStatus: ProductStatus.active,
+      businessStatus: ProductBusinessStatus.active,
       facts: ProductReadinessFacts(
         productId: productId,
         productName: 'Test',
@@ -426,8 +426,9 @@ void main() {
       );
 
       expect(
-        result.readinessSummary.blockers
-            .any((b) => b.code == ReadinessBlockerCode.missingPriceBand),
+        result.readinessSummary.blockers.any(
+          (b) => b.code == ReadinessBlockerCode.missingPriceBand,
+        ),
         isFalse,
       );
     });
@@ -454,8 +455,9 @@ void main() {
       );
 
       expect(
-        result.readinessSummary.blockers
-            .any((b) => b.code == ReadinessBlockerCode.missingPriceBand),
+        result.readinessSummary.blockers.any(
+          (b) => b.code == ReadinessBlockerCode.missingPriceBand,
+        ),
         isTrue,
       );
     });

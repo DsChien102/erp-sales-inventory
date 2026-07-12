@@ -193,5 +193,13 @@ void main() {
 
       expect(error, isA<CustomFieldNotFoundException>());
     });
+
+    test('maps custom field type change blocked', () {
+      final error = mapCatalogRpcError(
+        RpcException('custom_field_type_change_blocked'),
+      );
+
+      expect(error, isA<CustomFieldTypeChangeBlockedException>());
+    });
   });
 }

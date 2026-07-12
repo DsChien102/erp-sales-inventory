@@ -69,9 +69,9 @@ class _StockMovement {
   final DateTime occurredAt;
   final String actorDisplayName;
   final StockMovementType movementType;
-  final double quantityBefore;
-  final double quantityAfter;
-  final double delta;
+  final int quantityBefore;
+  final int quantityAfter;
+  final int delta;
   final String? reason;
 }
 
@@ -163,10 +163,10 @@ class _StoredProduct {
     this.stockMode = FakeProductReadinessBuilder.stockModeBasic,
     this.basePriceMode = FakeProductReadinessBuilder.basePriceModeManual,
     this.pricePermissionDenied = false,
-    this.businessStatus = ProductStatus.active,
+    this.businessStatus = ProductBusinessStatus.active,
     DateTime? updatedAt,
-  })  : referenceId = referenceId ?? id,
-        updatedAt = updatedAt ?? DateTime.utc(2026, 1, 1);
+  }) : referenceId = referenceId ?? id,
+       updatedAt = updatedAt ?? DateTime.utc(2026, 1, 1);
 
   final String id;
   final String referenceId;
@@ -194,11 +194,12 @@ class _StoredProduct {
   final StockMode stockMode;
   final BasePriceMode basePriceMode;
   final bool pricePermissionDenied;
-  ProductStatus businessStatus;
+  ProductBusinessStatus businessStatus;
   List<ProductChangeHistoryEntryDto> statusHistory = const [];
-  bool isSoftDeleted = false;
   DateTime updatedAt;
   int version = 1;
+
+  bool get isSoftDeleted => businessStatus.isSoftDeleted;
 
   bool get hasBaseUnit => baseUnit.trim().isNotEmpty;
 
@@ -390,7 +391,7 @@ final class FakeCatalogModule implements ICatalogModule {
           baseCost: 30000,
           listPrice: 45000,
           floorPrice: 35000,
-          businessStatus: ProductStatus.inactive,
+          businessStatus: ProductBusinessStatus.inactive,
           updatedAt: DateTime.utc(2026, 2, 5),
         ),
         _StoredProduct(
@@ -478,7 +479,7 @@ final class FakeCatalogModule implements ICatalogModule {
           baseCost: 22000,
           listPrice: 35000,
           floorPrice: 28000,
-          businessStatus: ProductStatus.inactive,
+          businessStatus: ProductBusinessStatus.inactive,
           updatedAt: DateTime.utc(2026, 1, 2),
         ),
         _StoredProduct(
@@ -521,6 +522,15 @@ final class FakeCatalogModule implements ICatalogModule {
       _seedE2eCustomFieldConfig(addNumberField: true);
     } else if (scenario == FakeCatalogScenario.e2eCfValuesRequired) {
       _seedE2eCustomFieldConfig(requireThanhPhan: true);
+    }
+
+    if (scenario == FakeCatalogScenario.customFieldSearchDisplay ||
+        scenario == FakeCatalogScenario.customFieldSearchable ||
+        scenario == FakeCatalogScenario.customFieldFilterable ||
+        scenario == FakeCatalogScenario.customFieldSnapshot) {
+      _customFieldStore.seedSearchContractData();
+    } else if (scenario == FakeCatalogScenario.customFieldFilterInactive) {
+      _customFieldStore.seedSearchContractData(deactivateFilterableField: true);
     }
   }
 
@@ -584,8 +594,8 @@ final class FakeCatalogModule implements ICatalogModule {
       );
     } else if (command is CreateProductCommand) {
       return _handleCreateProduct<TResult>(command as CreateProductCommand);
-    } else if (command is SetInitialStockCommand) {
-      final cmd = command as SetInitialStockCommand;
+    } else if (command is SetBasicStockQuantityBaseCommand) {
+      final cmd = command as SetBasicStockQuantityBaseCommand;
       if (cmd.mode != 'basic') {
         throw NotBasicStockModeException();
       }
@@ -593,8 +603,8 @@ final class FakeCatalogModule implements ICatalogModule {
       if (!prod.hasBaseUnit) {
         throw MissingBaseUnitException();
       }
-      final previousQty = (prod.stockQty ?? 0).toDouble();
-      prod.stockQty = cmd.quantity.toInt();
+      final previousQty = prod.stockQty ?? 0;
+      prod.stockQty = cmd.quantity;
       prod.stockVersion += 1;
       prod.stockMovements = [
         ...prod.stockMovements,
@@ -608,7 +618,7 @@ final class FakeCatalogModule implements ICatalogModule {
           delta: cmd.quantity - previousQty,
         ),
       ];
-      return SetInitialStockResult(
+      return SetBasicStockQuantityBaseResult(
             productId: prod.id,
             quantity: cmd.quantity,
             unitName: prod.baseUnit,
@@ -627,11 +637,11 @@ final class FakeCatalogModule implements ICatalogModule {
       if (cmd.newQuantity < 0) {
         throw ValidationException('Số lượng tồn kho không được âm.');
       }
-      final previousQty = (prod.stockQty ?? 0).toDouble();
+      final previousQty = prod.stockQty ?? 0;
       if (cmd.expectedQuantity != null && cmd.expectedQuantity != previousQty) {
         throw StaleStockQuantityException();
       }
-      prod.stockQty = cmd.newQuantity.toInt();
+      prod.stockQty = cmd.newQuantity;
       prod.stockVersion += 1;
       prod.stockMovements = [
         ...prod.stockMovements,
@@ -979,7 +989,7 @@ final class FakeCatalogModule implements ICatalogModule {
     if (productName.isEmpty) {
       throw ValidationException('Product name is required.');
     }
-    final sku = _optionalText(command.sku) ?? '';
+    final sku = _normalizeSku(_optionalText(command.sku) ?? '');
     final barcode = _optionalText(command.barcode) ?? '';
     _ensureUniqueSku(product, sku);
     _ensureUniqueBarcode(product, barcode);
@@ -1035,7 +1045,7 @@ final class FakeCatalogModule implements ICatalogModule {
       throw ApplicationException('Product not found');
     }
     _ensureStatusChangeAllowed(product, command.expectedVersion);
-    if (product.businessStatus == ProductStatus.inactive) {
+    if (product.businessStatus == ProductBusinessStatus.inactive) {
       throw ValidationException('Product is already inactive.');
     }
 
@@ -1048,7 +1058,7 @@ final class FakeCatalogModule implements ICatalogModule {
 
     return _changeProductStatus<TResult>(
       product: product,
-      nextStatus: ProductStatus.inactive,
+      nextStatus: ProductBusinessStatus.inactive,
       actorId: command.actorId,
       reason: command.reason,
       warnings: warnings,
@@ -1061,16 +1071,16 @@ final class FakeCatalogModule implements ICatalogModule {
       throw ApplicationException('Product not found');
     }
     if (scenario == FakeCatalogScenario.scnContractE07U02Fr02_02 && product.id == 'product-4') {
-      product.businessStatus = ProductStatus.inactive;
+      product.businessStatus = ProductBusinessStatus.inactive;
     }
     _ensureStatusChangeAllowed(product, command.expectedVersion);
-    if (product.businessStatus == ProductStatus.active) {
+    if (product.businessStatus == ProductBusinessStatus.active) {
       throw ValidationException('Product is already active.');
     }
 
     return _changeProductStatus<TResult>(
       product: product,
-      nextStatus: ProductStatus.active,
+      nextStatus: ProductBusinessStatus.active,
       actorId: command.actorId,
       reason: command.reason,
     );
@@ -1094,7 +1104,7 @@ final class FakeCatalogModule implements ICatalogModule {
       throw ValidationException('Product deletion warnings require acknowledgment.');
     }
 
-    product.isSoftDeleted = true;
+    product.businessStatus = ProductBusinessStatus.softDeleted;
     _markUpdated(product);
 
     final historyEntry = ProductChangeHistoryEntryDto(
@@ -1113,7 +1123,6 @@ final class FakeCatalogModule implements ICatalogModule {
 
     return ChangeProductSoftDeleteResult(
           productId: product.id,
-          isSoftDeleted: product.isSoftDeleted,
           businessStatus: product.businessStatus,
           readinessSummary: _readinessSummaryFor(product),
           version: product.version,
@@ -1137,8 +1146,7 @@ final class FakeCatalogModule implements ICatalogModule {
     _ensureUniqueActiveSku(product, product.sku);
     _ensureUniqueActiveBarcode(product, product.barcode);
 
-    product.isSoftDeleted = false;
-    product.businessStatus = ProductStatus.inactive;
+    product.businessStatus = ProductBusinessStatus.inactive;
     _markUpdated(product);
 
     final historyEntry = ProductChangeHistoryEntryDto(
@@ -1157,7 +1165,6 @@ final class FakeCatalogModule implements ICatalogModule {
 
     return ChangeProductSoftDeleteResult(
           productId: product.id,
-          isSoftDeleted: product.isSoftDeleted,
           businessStatus: product.businessStatus,
           readinessSummary: _readinessSummaryFor(product),
           version: product.version,
@@ -1227,10 +1234,10 @@ final class FakeCatalogModule implements ICatalogModule {
       return;
     }
     if (scenario == FakeCatalogScenario.scnContractE07U03Fr03_02) {
-      product.isSoftDeleted = true;
+      product.businessStatus = ProductBusinessStatus.softDeleted;
       product.sku = 'SP0001';
     } else if (scenario == FakeCatalogScenario.scnContractE07U03Fr03_03) {
-      product.isSoftDeleted = true;
+      product.businessStatus = ProductBusinessStatus.softDeleted;
       product.barcode = '8930000000001';
     }
   }
@@ -1272,7 +1279,7 @@ final class FakeCatalogModule implements ICatalogModule {
 
   TResult _changeProductStatus<TResult>({
     required _StoredProduct product,
-    required ProductStatus nextStatus,
+    required ProductBusinessStatus nextStatus,
     required String actorId,
     required String? reason,
     List<ProductBusinessStatusWarningDto> warnings = const [],
@@ -1286,7 +1293,7 @@ final class FakeCatalogModule implements ICatalogModule {
       occurredAt: product.updatedAt,
       actorDisplayName: actorId,
       changeType: ProductChangeHistoryAction.statusChanged,
-      summary: nextStatus == ProductStatus.inactive
+      summary: nextStatus == ProductBusinessStatus.inactive
           ? 'Ngừng kinh doanh sản phẩm'
           : 'Kinh doanh lại sản phẩm',
       valueBefore: previousStatus.name,
@@ -1328,11 +1335,13 @@ final class FakeCatalogModule implements ICatalogModule {
   }
 
   void _ensureUniqueSku(_StoredProduct target, String sku) {
-    if (sku.isEmpty) {
+    final normalized = _normalizeSku(sku);
+    if (normalized.isEmpty) {
       return;
     }
     for (final product in _products) {
-      if (product.id != target.id && product.sku == sku) {
+      if (product.id != target.id &&
+          _normalizeSku(product.sku) == normalized) {
         throw DuplicateSkuException(
           sku: sku,
           existingProductId: product.id,
@@ -1358,11 +1367,14 @@ final class FakeCatalogModule implements ICatalogModule {
   }
 
   void _ensureUniqueActiveSku(_StoredProduct target, String sku) {
-    if (sku.isEmpty) {
+    final normalized = _normalizeSku(sku);
+    if (normalized.isEmpty) {
       return;
     }
     for (final product in _products) {
-      if (product.id != target.id && !product.isSoftDeleted && product.sku == sku) {
+      if (product.id != target.id &&
+          !product.isSoftDeleted &&
+          _normalizeSku(product.sku) == normalized) {
         throw DuplicateSkuException(
           sku: sku,
           existingProductId: product.id,
@@ -1425,7 +1437,6 @@ final class FakeCatalogModule implements ICatalogModule {
       sku: product.sku.isEmpty ? null : product.sku,
       barcode: product.barcode.isEmpty ? null : product.barcode,
       businessStatus: product.businessStatus,
-      isSoftDeleted: product.isSoftDeleted,
       primaryImageUrl: product.images.isNotEmpty ? product.images.first : null,
       images: product.images,
       description: product.description,
@@ -1451,6 +1462,12 @@ final class FakeCatalogModule implements ICatalogModule {
       return null;
     }
     return trimmed;
+  }
+
+  /// Matches Postgres `catalog._normalize_product_sku` (trim + uppercase).
+  String _normalizeSku(String sku) {
+    final normalized = sku.trim().toUpperCase();
+    return normalized;
   }
 
   TResult _handleRequestUpload<TResult>(
@@ -1496,14 +1513,15 @@ final class FakeCatalogModule implements ICatalogModule {
       NewTenantUnit(:final name) => name,
       null => '',
     };
-    product.stockQty = command.initialStock;
+    product.stockQty = command.basicStockQuantityBase;
     product.baseCost = command.basePrice;
     product.listPrice = command.listPrice;
     product.floorPrice = command.floorPrice;
     return CreateGuidedProductResult(
-      productId: product.id,
-      readinessSummary: _readinessSummaryFor(product),
-    ) as TResult;
+          productId: product.id,
+          readinessSummary: _readinessSummaryFor(product),
+        )
+        as TResult;
   }
 
   TResult _handleCreateProduct<TResult>(CreateProductCommand command) {
@@ -1605,7 +1623,7 @@ final class FakeCatalogModule implements ICatalogModule {
       referenceId: referenceId,
       name: command.productName,
       tradeName: command.commercialName,
-      sku: command.sku ?? '',
+      sku: _normalizeSku(command.sku ?? ''),
       barcode: command.barcode ?? '',
       baseUnit: command.baseUnitName ?? '',
       images: images,
@@ -1835,7 +1853,6 @@ final class FakeCatalogModule implements ICatalogModule {
       description: product.description,
       note: product.notes,
       businessStatus: product.businessStatus,
-      isSoftDeleted: product.isSoftDeleted,
       baseUnit: product.baseUnit,
       stockQty: product.stockQty,
       stockVersion: product.stockVersion,
@@ -1856,13 +1873,13 @@ final class FakeCatalogModule implements ICatalogModule {
 
   List<_StoredProduct> _visibleProducts(ProductSearchCriteria criteria) {
     final keyword = criteria.keyword;
-    final useRelevance =
-        keyword != null && criteria.sortOrder == ProductSortOrder.relevanceDesc;
+    final useRelevance = keyword != null && criteria.sortOrder == ProductSortOrder.relevanceDesc;
+    final allowedStatuses = {
+      ...criteria.businessStatuses,
+      if (criteria.includeSoftDeleted) ProductBusinessStatus.softDeleted,
+    };
     return _products.where((product) {
-      if (product.isSoftDeleted && !criteria.includeSoftDeleted) {
-        return false;
-      }
-      if (!criteria.businessStatuses.contains(product.businessStatus)) {
+      if (!allowedStatuses.contains(product.businessStatus)) {
         return false;
       }
       if (!_matchesKeyword(product, keyword)) {
@@ -1876,30 +1893,28 @@ final class FakeCatalogModule implements ICatalogModule {
         return false;
       }
       return true;
-    }).toList()
-      ..sort((a, b) {
-        int statusRank(ProductStatus status) =>
-            status == ProductStatus.active ? 0 : 1;
-        final byStatus = statusRank(a.businessStatus).compareTo(
-          statusRank(b.businessStatus),
+    }).toList()..sort((a, b) {
+      int statusRank(ProductBusinessStatus status) => status == ProductBusinessStatus.active ? 0 : 1;
+      final byStatus = statusRank(a.businessStatus).compareTo(
+        statusRank(b.businessStatus),
+      );
+      if (byStatus != 0) {
+        return byStatus;
+      }
+      if (useRelevance) {
+        final byRank = _approximateRelevanceRank(b, keyword!).compareTo(
+          _approximateRelevanceRank(a, keyword),
         );
-        if (byStatus != 0) {
-          return byStatus;
+        if (byRank != 0) {
+          return byRank;
         }
-        if (useRelevance) {
-          final byRank = _approximateRelevanceRank(b, keyword!).compareTo(
-            _approximateRelevanceRank(a, keyword),
-          );
-          if (byRank != 0) {
-            return byRank;
-          }
-        }
-        final byUpdated = b.updatedAt.compareTo(a.updatedAt);
-        if (byUpdated != 0) {
-          return byUpdated;
-        }
-        return a.name.compareTo(b.name);
-      });
+      }
+      final byUpdated = b.updatedAt.compareTo(a.updatedAt);
+      if (byUpdated != 0) {
+        return byUpdated;
+      }
+      return a.name.compareTo(b.name);
+    });
   }
 
   bool _matchesKeyword(_StoredProduct product, String? keyword) {
@@ -1994,7 +2009,6 @@ final class FakeCatalogModule implements ICatalogModule {
       barcode: product.barcode,
       primaryImageUrl: product.images.isNotEmpty ? product.images.first : null,
       businessStatus: product.businessStatus,
-      isSoftDeleted: product.isSoftDeleted,
       readinessSummary: summary,
       listPrice: product.listPrice,
       floorPrice: product.floorPrice,
@@ -2391,8 +2405,10 @@ final class FakeCatalogModule implements ICatalogModule {
         final matches = <ProductDuplicateMatchDto>[];
         final sku = query.sku?.trim();
         if (sku != null && sku.isNotEmpty) {
+          final normalizedSku = _normalizeSku(sku);
           for (final product in _products) {
-            if (product.sku == sku && product.id != query.excludeProductId) {
+            if (_normalizeSku(product.sku) == normalizedSku &&
+                product.id != query.excludeProductId) {
               matches.add(
                 ProductDuplicateMatchDto(
                   field: ProductDuplicateField.sku,
@@ -2460,7 +2476,8 @@ final class FakeCatalogModule implements ICatalogModule {
     final existing = _storeRules[command.tenantId];
     final status = command.status;
     final isCreate = existing == null;
-    final isNoOp = !isCreate &&
+    final isNoOp =
+        !isCreate &&
         existing!.name == command.name &&
         existing.listMarkupRatio == command.listMarkupRatio &&
         existing.floorMarkupRatio == command.floorMarkupRatio &&
@@ -2534,17 +2551,17 @@ final class FakeCatalogModule implements ICatalogModule {
     GetStorePriceRuleChangeHistoryQuery query,
   ) {
     final history = _storeRuleHistory[query.tenantId] ?? const [];
-    final sorted = [...history]
-      ..sort((a, b) => b.occurredAt.compareTo(a.occurredAt));
+    final sorted = [...history]..sort((a, b) => b.occurredAt.compareTo(a.occurredAt));
     final newestId = sorted.isEmpty ? null : sorted.first.id;
     final page = sorted.skip(query.offset).take(query.limit).toList();
 
     return StorePriceRuleChangeHistoryResultDto(
-      items: page
-          .map((entry) => entry.toDto(isCurrent: entry.id == newestId))
-          .toList(growable: false),
-      totalCount: history.length,
-    ) as TResult;
+          items: page
+              .map((entry) => entry.toDto(isCurrent: entry.id == newestId))
+              .toList(growable: false),
+          totalCount: history.length,
+        )
+        as TResult;
   }
 
   TResult _handleSuggestProductUnitPrice<TResult>(
@@ -3064,17 +3081,14 @@ final class FakeCatalogModule implements ICatalogModule {
     }
 
     final maskPricing =
-        scenario == FakeCatalogScenario.scnContractE07U04Fr03_02 ||
-        product.pricePermissionDenied;
+        scenario == FakeCatalogScenario.scnContractE07U04Fr03_02 || product.pricePermissionDenied;
 
     var entries = _buildFullChangeHistoryForProduct(product);
     if (query.changeCategories.isNotEmpty) {
       final allowed = query.changeCategories.toSet();
       entries = entries
           .where(
-            (entry) =>
-                entry.changeCategory != null &&
-                allowed.contains(entry.changeCategory),
+            (entry) => entry.changeCategory != null && allowed.contains(entry.changeCategory),
           )
           .toList(growable: false);
     }
@@ -3105,8 +3119,7 @@ final class FakeCatalogModule implements ICatalogModule {
   List<ProductChangeHistoryEntryDto> _buildFullChangeHistoryForProduct(
     _StoredProduct product,
   ) {
-    if (scenario == FakeCatalogScenario.scnContractE07U04Fr02_02 &&
-        product.id == 'product-6') {
+    if (scenario == FakeCatalogScenario.scnContractE07U04Fr02_02 && product.id == 'product-6') {
       return const [];
     }
 

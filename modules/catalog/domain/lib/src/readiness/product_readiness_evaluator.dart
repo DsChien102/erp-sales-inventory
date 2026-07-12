@@ -33,9 +33,7 @@ abstract final class ProductReadinessEvaluator {
         .toList(growable: false);
 
     return ProductReadiness(
-      status: requiredBlockers.isEmpty
-          ? ReadinessStatus.readyToSell
-          : ReadinessStatus.incomplete,
+      status: requiredBlockers.isEmpty ? ReadinessStatus.readyToSell : ReadinessStatus.incomplete,
       blockers: List.unmodifiable(blockers),
     );
   }

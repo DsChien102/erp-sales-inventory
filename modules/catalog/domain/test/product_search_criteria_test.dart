@@ -5,7 +5,7 @@ void main() {
   group('ProductSearchCriteria', () {
     test('defaults to active business status only', () {
       final criteria = ProductSearchCriteria();
-      expect(criteria.businessStatuses, {ProductStatus.active});
+      expect(criteria.businessStatuses, {ProductBusinessStatus.active});
       expect(criteria.includeSoftDeleted, isFalse);
       expect(criteria.keyword, isNull);
     });

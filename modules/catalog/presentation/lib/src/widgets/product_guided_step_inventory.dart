@@ -23,15 +23,15 @@ class _ProductGuidedStepInventoryState extends State<ProductGuidedStepInventory>
   @override
   void initState() {
     super.initState();
-    _controller = TextEditingController(text: widget.state.initialStock);
+    _controller = TextEditingController(text: widget.state.basicStockQuantityBase);
   }
 
   @override
   void didUpdateWidget(covariant ProductGuidedStepInventory oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (widget.state.initialStock != _controller.text &&
-        widget.state.initialStock != oldWidget.state.initialStock) {
-      _controller.text = widget.state.initialStock;
+    if (widget.state.basicStockQuantityBase != _controller.text &&
+        widget.state.basicStockQuantityBase != oldWidget.state.basicStockQuantityBase) {
+      _controller.text = widget.state.basicStockQuantityBase;
     }
   }
 
@@ -83,7 +83,7 @@ class _ProductGuidedStepInventoryState extends State<ProductGuidedStepInventory>
           'Tồn khởi tạo ${widget.state.baseUnit.isNotEmpty ? "(${widget.state.baseUnit})" : ""}',
         ),
         VNumberField(
-          key: const Key('input_guided_initial_stock'),
+          key: const Key('input_guided_basic_stock_quantity_base'),
           controller: _controller,
           hintText: '0',
           suffixText: widget.state.baseUnit.isNotEmpty ? widget.state.baseUnit : null,
@@ -92,8 +92,10 @@ class _ProductGuidedStepInventoryState extends State<ProductGuidedStepInventory>
           allowNegative: true,
           min: 0,
           isRequired: false,
-          errorText: widget.state.showValidationErrors ? widget.state.initialStockError : null,
-          onChanged: (_) => cubit.updateInitialStock(_controller.text),
+          errorText: widget.state.showValidationErrors
+              ? widget.state.basicStockQuantityBaseError
+              : null,
+          onChanged: (_) => cubit.updateBasicStockQuantityBase(_controller.text),
         ),
         const SizedBox(height: VSpacing.space4),
         ProductGuidedFields.buildNavigationButtons(context, showSkip: true),

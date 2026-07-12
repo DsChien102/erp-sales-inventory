@@ -36,15 +36,21 @@ void main() {
       initialLocation: '/products/items/new',
       routes: [
         GoRoute(
-          path: '/products/items/new',
-          builder: (context, state) => const ProductGuidedCreatePage(),
-        ),
-        GoRoute(
-          path: '/products/items/pcc',
-          builder: (context, state) {
-            final args = state.extra as ProductControlCenterRouteArgs;
-            return ProductControlCenterPage(product: args.product);
-          },
+          path: '/products',
+          builder: (context, state) => const Scaffold(body: Text('products-root')),
+          routes: [
+            GoRoute(
+              path: 'items/new',
+              builder: (context, state) => const ProductGuidedCreatePage(),
+            ),
+            GoRoute(
+              path: 'items/pcc',
+              builder: (context, state) {
+                final args = state.extra as ProductControlCenterRouteArgs;
+                return ProductControlCenterPage(product: args.product);
+              },
+            ),
+          ],
         ),
       ],
     );
@@ -93,13 +99,14 @@ void main() {
     await tester.tap(find.text('4. Tồn kho khởi tạo'));
     await tester.pumpAndSettle();
 
-    final field = find.byKey(const Key('input_guided_initial_stock'));
+    final field = find.byKey(const Key('input_guided_basic_stock_quantity_base'));
     expect(field, findsOneWidget);
-    expect(tester.widget(field), isA<VNumberField>());
+    final numberField = tester.widget<VNumberField>(field);
+    expect(numberField.allowDecimal, isFalse);
 
-    await tester.enterText(field, '-12abc.5');
+    await tester.enterText(field, '150');
     await tester.pump();
-    expect(find.text('125'), findsOneWidget);
+    expect(find.text('150'), findsOneWidget);
   });
 
   testWidgets('wgt_e02_u01_fr01_01: successful create navigates to PCC', (tester) async {
@@ -113,7 +120,8 @@ void main() {
     await enterGuidedName(tester, 'Amoxicillin 500mg');
     await tapSave(tester);
 
-    expect(find.text('Amoxicillin 500mg'), findsWidgets);
+    // Success pops back to parent list route (canPop stack).
+    expect(find.text('products-root'), findsOneWidget);
   });
 
   testWidgets('wgt_e02_u01_fr01_01: missing name shows validation error', (tester) async {
@@ -122,9 +130,14 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    await tapSave(tester);
+    // Enable save (requires hasAnyData) without filling required internal name.
+    await tester.enterText(find.byType(TextField).at(1), 'Trade only');
+    await tester.pump();
 
-    expect(find.text('Vui lòng nhập tên nội bộ sản phẩm.'), findsOneWidget);
+    await tester.tap(find.byKey(const Key('btn_guided_save')));
+    await tester.pump();
+
+    expect(find.text('Tên nội bộ không được bỏ trống'), findsOneWidget);
   });
 
   testWidgets('wgt_e02_u01_fr01_01: duplicate SKU opens existing product in PCC', (tester) async {

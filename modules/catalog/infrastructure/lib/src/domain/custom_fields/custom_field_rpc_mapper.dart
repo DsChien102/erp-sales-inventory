@@ -362,6 +362,7 @@ abstract final class CustomFieldRpcMapper {
       displayOnList: row['display_on_list'] as bool? ?? false,
       sortOrder: (row['sort_order'] as num?)?.toInt() ?? 0,
       status: statusFromRpc(row['status'] as String?),
+      hasProductValues: row['has_product_values'] as bool? ?? false,
     );
   }
 

@@ -10,7 +10,7 @@ void main() {
         name: 'Amoxicillin 500mg',
         sku: 'SP0001',
         barcode: '8930000000001',
-        businessStatus: ProductStatus.active,
+        businessStatus: ProductBusinessStatus.active,
         facts: const ProductReadinessFacts(
           productId: 'product-1',
           productName: 'Amoxicillin 500mg',

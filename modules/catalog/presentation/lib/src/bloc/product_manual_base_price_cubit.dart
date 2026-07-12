@@ -8,9 +8,9 @@ class ProductManualBasePriceCubit extends Cubit<ProductManualBasePriceState> {
   ProductManualBasePriceCubit({
     required IModuleMediator catalogModule,
     required IExecutionContext executionContext,
-  })  : _catalogModule = catalogModule,
-        _executionContext = executionContext,
-        super(const ProductManualBasePriceState());
+  }) : _catalogModule = catalogModule,
+       _executionContext = executionContext,
+       super(const ProductManualBasePriceState());
 
   final IModuleMediator _catalogModule;
   final IExecutionContext _executionContext;
@@ -31,13 +31,15 @@ class ProductManualBasePriceCubit extends Cubit<ProductManualBasePriceState> {
       );
 
       await _catalogModule.executeCommandAsync(command);
-      
+
       emit(state.copyWith(status: ProductManualBasePriceStatus.success));
     } catch (e) {
-      emit(state.copyWith(
-        status: ProductManualBasePriceStatus.failure,
-        errorMessage: e.toString(),
-      ));
+      emit(
+        state.copyWith(
+          status: ProductManualBasePriceStatus.failure,
+          errorMessage: e.toString(),
+        ),
+      );
     }
   }
 }

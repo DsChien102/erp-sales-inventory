@@ -34,7 +34,16 @@ check_use_case_dirs() {
 
 # Aggregates that MUST use subfolder layout (no flat *.dart at aggregate root).
 guarded_areas=(
-  "modules/catalog/application/lib/src/custom_fields"
+  "modules/catalog/application/lib/src/product"
+  "modules/catalog/application/lib/src/product_unit"
+  "modules/catalog/application/lib/src/product_stock_profile"
+  "modules/catalog/application/lib/src/product_base_price_profile"
+  "modules/catalog/application/lib/src/product_unit_price_band"
+  "modules/catalog/application/lib/src/store_price_rule"
+  "modules/catalog/application/lib/src/product_readiness"
+  "modules/catalog/application/lib/src/product_change_history"
+  "modules/catalog/application/lib/src/custom_field"
+  "modules/catalog/application/lib/src/product_custom_field_value"
   "modules/partner/application/lib/src/partner"
   "modules/partner/application/lib/src/partner_history"
 )

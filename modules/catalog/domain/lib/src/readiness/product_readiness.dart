@@ -37,9 +37,7 @@ final class ProductReadiness extends ValueObject {
     if (!hasBlocker(code)) return this;
     final newBlockers = blockers.where((b) => b.code != code).toList();
     return ProductReadiness(
-      status: newBlockers.isEmpty
-          ? ReadinessStatus.readyToSell
-          : ReadinessStatus.incomplete,
+      status: newBlockers.isEmpty ? ReadinessStatus.readyToSell : ReadinessStatus.incomplete,
       blockers: List.unmodifiable(newBlockers),
     );
   }
@@ -56,4 +54,3 @@ final class ProductReadiness extends ValueObject {
   @override
   List<Object?> get props => [status, blockers];
 }
-

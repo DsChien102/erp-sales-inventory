@@ -14,7 +14,7 @@ void main() {
         baseUnit: ProductBaseUnit('Lọ'),
       );
 
-      expect(product.status, ProductStatus.active);
+      expect(product.status, ProductBusinessStatus.active);
       expect(product.name.value, 'Amoxicillin 100ml');
       expect(product.baseUnit?.name, 'Lọ');
       expect(product.readiness.status, ReadinessStatus.incomplete);

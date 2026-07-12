@@ -17,8 +17,7 @@ void main() {
         ProductChangeCategory.units,
       );
       expect(
-        ProductChangeHistoryAction.tryParse('custom_field_values_updated')
-            ?.category,
+        ProductChangeHistoryAction.tryParse('custom_field_values_updated')?.category,
         ProductChangeCategory.customFields,
       );
       expect(

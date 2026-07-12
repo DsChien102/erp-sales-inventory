@@ -78,6 +78,11 @@ final class CatalogDataAccessModule {
           rpcClient: container.get<SupabaseSchemaRpcClient>(),
         ),
       )
+      ..registerSingleton<IProductWritePort>(
+        CatalogProductWritePort(
+          readGateway: container.get<ICatalogReadGateway>(),
+        ),
+      )
       ..registerSingleton<ICatalogUnitGateway>(
         SupabaseCatalogUnitGateway(
           rpcClient: container.get<SupabaseSchemaRpcClient>(),

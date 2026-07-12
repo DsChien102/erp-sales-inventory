@@ -2045,7 +2045,7 @@ Quy tắc chính:
 |`tenant_id`|Phân tách dữ liệu theo tenant|
 |`product_id`|Sản phẩm liên quan|
 |`stock_mode`|Basic stock / Advanced stock|
-|`basic_stock_quantity`|Tồn kho cơ bản nếu dùng Basic stock|
+|`basic_stock_quantity_base`|Tồn kho cơ bản (integer ≥ 0) nếu dùng Basic stock|
 |`inventory_source_id`|Tham chiếu module Kho nếu dùng Advanced stock|
 |`source_status`|Ready / source missing / stale nếu cần|
 |`last_synced_at`|Thời điểm đồng bộ gần nhất nếu có|

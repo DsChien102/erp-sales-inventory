@@ -31,6 +31,7 @@ class _UpsertCustomFieldPageState extends State<UpsertCustomFieldPage> {
   bool _isSearchable = false;
   bool _isFilterable = false;
   bool _isActive = true;
+  bool _hasProductValues = false;
   final List<String> _optionIds = [];
   final Map<String, TextEditingController> _optionControllers = {};
   final Map<String, bool> _optionActiveFlags = {};
@@ -49,6 +50,7 @@ class _UpsertCustomFieldPageState extends State<UpsertCustomFieldPage> {
       _isSearchable = field.isSearchable;
       _isFilterable = field.isFilterable;
       _isActive = field.status.name == 'active';
+      _hasProductValues = field.hasProductValues;
       for (final opt in field.options) {
         _optionIds.add(opt.optionId);
         _optionControllers[opt.optionId] = TextEditingController(text: opt.label);
@@ -212,6 +214,15 @@ class _UpsertCustomFieldPageState extends State<UpsertCustomFieldPage> {
     final colors = context.vColors;
     final group = widget.cubit.state.groups.firstWhere((g) => g.groupId == widget.groupId);
 
+    final customFieldTypes = CustomFieldType.values
+        .map(
+          (type) => DropdownMenuItem(
+            value: type,
+            child: Text(type.labelVi),
+          ),
+        )
+        .toList();
+
     return BlocProvider.value(
       value: widget.cubit,
       child: Scaffold(
@@ -269,23 +280,16 @@ class _UpsertCustomFieldPageState extends State<UpsertCustomFieldPage> {
             VSelect<CustomFieldType>(
               label: 'Kiểu dữ liệu',
               isRequired: true,
-              enabled: widget.initialFieldId == null,
+              enabled: !_hasProductValues,
               value: _fieldType,
-              onChanged: widget.initialFieldId == null
-                  ? (val) {
+              onChanged: _hasProductValues
+                  ? null
+                  : (val) {
                       if (val != null) setState(() => _fieldType = val);
-                    }
-                  : null, // Not allowed to change fieldType if editing (Image 3)
-              items: CustomFieldType.values
-                  .map(
-                    (type) => DropdownMenuItem(
-                      value: type,
-                      child: Text(type.labelVi),
-                    ),
-                  )
-                  .toList(),
+                    },
+              items: customFieldTypes,
             ),
-            if (widget.initialFieldId != null) ...[
+            if (_hasProductValues) ...[
               const SizedBox(height: VSpacing.space2),
               Text(
                 'Không đổi được kiểu dữ liệu do đã có dữ liệu.',

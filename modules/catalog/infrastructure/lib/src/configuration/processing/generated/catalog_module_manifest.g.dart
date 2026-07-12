@@ -40,7 +40,7 @@ final catalogModuleManifest = GeneratedModuleManifest(
     RequestProductMaintenanceImageUploadCommand,
     RestoreProductCommand,
     SetInitialPriceBandCommand,
-    SetInitialStockCommand,
+    SetBasicStockQuantityBaseCommand,
     SetManualBasePriceCommand,
     SetProductBaseUnitCommand,
     SetProductUnitPriceBandCommand,

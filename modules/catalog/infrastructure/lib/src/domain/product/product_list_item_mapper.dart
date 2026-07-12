@@ -33,8 +33,10 @@ abstract final class ProductListItemMapper {
       sku: row['sku'] as String?,
       barcode: row['barcode'] as String?,
       primaryImageUrl: row['primary_image_url'] as String?,
-      businessStatus: _businessStatusFromRpc(row['business_status'] as String?),
-      isSoftDeleted: row['is_soft_deleted'] as bool? ?? false,
+      businessStatus: _businessStatusFromRpc(
+        row['business_status'] as String?,
+        isSoftDeleted: row['is_soft_deleted'] as bool?,
+      ),
       facts: facts,
       listPrice: _toDouble(row['list_price']),
       floorPrice: _toDouble(row['floor_price']),
@@ -47,10 +49,17 @@ abstract final class ProductListItemMapper {
     );
   }
 
-  static ProductStatus _businessStatusFromRpc(String? value) {
+  static ProductBusinessStatus _businessStatusFromRpc(
+    String? value, {
+    bool? isSoftDeleted,
+  }) {
+    if (isSoftDeleted == true) {
+      return ProductBusinessStatus.softDeleted;
+    }
     return switch (value) {
-      'inactive' => ProductStatus.inactive,
-      _ => ProductStatus.active,
+      'inactive' => ProductBusinessStatus.inactive,
+      'soft_deleted' => ProductBusinessStatus.softDeleted,
+      _ => ProductBusinessStatus.active,
     };
   }
 

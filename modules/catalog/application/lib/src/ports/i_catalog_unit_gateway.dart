@@ -1,13 +1,13 @@
-import '../units/add_product_conversion_unit_command.dart';
-import '../units/deactivate_product_conversion_unit_command.dart';
-import '../units/delete_product_conversion_unit_command.dart';
-import '../units/list_product_units_query.dart';
-import '../units/product_unit_mutation_result.dart';
-import '../units/product_units_dto.dart';
-import '../units/reactivate_product_conversion_unit_command.dart';
-import '../units/set_product_base_unit_command.dart';
-import '../units/set_product_base_unit_result.dart';
-import '../units/tenant_measurement_unit_dto.dart';
+import 'package:vet45_catalog_application/src/product_unit/commands/add_product_conversion_unit/add_product_conversion_unit_command.dart';
+import 'package:vet45_catalog_application/src/product_unit/commands/deactivate_product_conversion_unit/deactivate_product_conversion_unit_command.dart';
+import 'package:vet45_catalog_application/src/product_unit/commands/delete_product_conversion_unit/delete_product_conversion_unit_command.dart';
+import 'package:vet45_catalog_application/src/product_unit/queries/list_product_units/list_product_units_query.dart';
+import 'package:vet45_catalog_application/src/product_unit/shared/product_unit_mutation_result.dart';
+import 'package:vet45_catalog_application/src/product_unit/shared/product_units_dto.dart';
+import 'package:vet45_catalog_application/src/product_unit/commands/reactivate_product_conversion_unit/reactivate_product_conversion_unit_command.dart';
+import 'package:vet45_catalog_application/src/product_unit/commands/set_product_base_unit/set_product_base_unit_command.dart';
+import 'package:vet45_catalog_application/src/product_unit/commands/set_product_base_unit/set_product_base_unit_result.dart';
+import 'package:vet45_catalog_application/src/product_unit/queries/list_tenant_measurement_units/tenant_measurement_unit_dto.dart';
 
 /// Port for tenant measurement units and base-unit assignment (EPIC-04/US-01).
 abstract interface class ICatalogUnitGateway {

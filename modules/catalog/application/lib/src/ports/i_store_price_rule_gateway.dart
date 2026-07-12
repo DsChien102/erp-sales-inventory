@@ -1,10 +1,10 @@
-import '../pricing/store_rule/applied_store_price_rule_dto.dart';
-import '../pricing/store_rule/apply_store_price_rule_command.dart';
-import '../pricing/store_rule/product_unit_price_suggestion_dto.dart';
-import '../pricing/store_rule/store_price_rule_change_history_result_dto.dart';
-import '../pricing/store_rule/store_price_rule_dto.dart';
-import '../pricing/store_rule/store_price_rule_status.dart';
-import '../pricing/store_rule/suggest_product_unit_price_query.dart';
+import 'package:vet45_catalog_application/src/product_unit_price_band/commands/apply_store_price_rule/applied_store_price_rule_dto.dart';
+import 'package:vet45_catalog_application/src/product_unit_price_band/commands/apply_store_price_rule/apply_store_price_rule_command.dart';
+import 'package:vet45_catalog_application/src/product_unit_price_band/queries/suggest_product_unit_price/product_unit_price_suggestion_dto.dart';
+import 'package:vet45_catalog_application/src/store_price_rule/queries/get_store_price_rule_change_history/store_price_rule_change_history_result_dto.dart';
+import 'package:vet45_catalog_application/src/store_price_rule/shared/store_price_rule_dto.dart';
+import 'package:vet45_catalog_application/src/store_price_rule/shared/store_price_rule_status.dart';
+import 'package:vet45_catalog_application/src/product_unit_price_band/queries/suggest_product_unit_price/suggest_product_unit_price_query.dart';
 
 abstract interface class IStorePriceRuleGateway {
   Future<StorePriceRuleDto?> getRule({required String tenantId});

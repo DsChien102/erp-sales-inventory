@@ -101,10 +101,10 @@ class _ProductManualBasePriceViewState extends State<_ProductManualBasePriceView
     }
 
     context.read<ProductManualBasePriceCubit>().submitManualBasePrice(
-          productId: widget.product.id,
-          basePrice: price,
-          currency: widget.basePriceCard.currency,
-        );
+      productId: widget.product.id,
+      basePrice: price,
+      currency: widget.basePriceCard.currency,
+    );
   }
 
   @override
@@ -164,7 +164,9 @@ class _ProductManualBasePriceViewState extends State<_ProductManualBasePriceView
                                 Container(
                                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                                   decoration: BoxDecoration(
-                                    border: Border.all(color: dynamicColors.textSecondary.withValues(alpha: 0.2)),
+                                    border: Border.all(
+                                      color: dynamicColors.textSecondary.withValues(alpha: 0.2),
+                                    ),
                                     borderRadius: BorderRadius.circular(8),
                                   ),
                                   child: Row(
@@ -189,7 +191,7 @@ class _ProductManualBasePriceViewState extends State<_ProductManualBasePriceView
                                   ),
                                 ),
                                 const SizedBox(height: 16),
-                                
+
                                 Text(
                                   'Giá vốn mới (${widget.basePriceCard.currency == 'VND' ? 'đ' : widget.basePriceCard.currency} / 1 $baseUnitName)',
                                   style: VTypography.bodySmall.copyWith(
@@ -197,11 +199,13 @@ class _ProductManualBasePriceViewState extends State<_ProductManualBasePriceView
                                   ),
                                 ),
                                 const SizedBox(height: 8),
-                                VTextField(
+                                VMoneyField(
                                   key: const Key('input_base_price_amount'),
                                   controller: _priceController,
-                                  hintText: 'Ví dụ: 45000',
-                                  keyboardType: TextInputType.number,
+                                  hintText: 'Ví dụ: 45,000',
+                                  textAlign: TextAlign.left,
+                                  suffixText:
+                                      '${widget.basePriceCard.currency == 'VND' ? 'đ' : widget.basePriceCard.currency} / $baseUnitName',
                                 ),
                                 const SizedBox(height: 8),
                                 Text(
@@ -210,7 +214,7 @@ class _ProductManualBasePriceViewState extends State<_ProductManualBasePriceView
                                     color: dynamicColors.textSecondary,
                                   ),
                                 ),
-                                
+
                                 const SizedBox(height: 16),
                                 Text(
                                   'Ghi chú',
@@ -246,7 +250,9 @@ class _ProductManualBasePriceViewState extends State<_ProductManualBasePriceView
                                           fontWeight: FontWeight.bold,
                                         ),
                                       ),
-                                      const TextSpan(text: ' cho sản phẩm trước khi nhập giá vốn cơ sở.'),
+                                      const TextSpan(
+                                        text: ' cho sản phẩm trước khi nhập giá vốn cơ sở.',
+                                      ),
                                     ],
                                   ),
                                 ),

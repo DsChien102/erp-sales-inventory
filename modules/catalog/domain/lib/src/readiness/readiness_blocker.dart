@@ -14,55 +14,52 @@ final class ReadinessBlocker extends ValueObject {
   final String? group;
 
   factory ReadinessBlocker.missingBaseUnit() => const ReadinessBlocker(
-        code: ReadinessBlockerCode.missingBaseUnit,
-        message: 'Thiếu đơn vị cơ sở',
-        group: 'units',
-      );
+    code: ReadinessBlockerCode.missingBaseUnit,
+    message: 'Thiếu đơn vị cơ sở',
+    group: 'units',
+  );
 
   factory ReadinessBlocker.missingImage() => const ReadinessBlocker(
-        code: ReadinessBlockerCode.missingImage,
-        message: 'Chưa có ảnh sản phẩm',
-        group: 'profile',
-      );
+    code: ReadinessBlockerCode.missingImage,
+    message: 'Chưa có ảnh sản phẩm',
+    group: 'profile',
+  );
 
   factory ReadinessBlocker.missingPrice() => const ReadinessBlocker(
-        code: ReadinessBlockerCode.missingPrice,
-        message: 'Thiếu giá',
-        group: 'pricing',
-      );
+    code: ReadinessBlockerCode.missingPrice,
+    message: 'Thiếu giá',
+    group: 'pricing',
+  );
 
   factory ReadinessBlocker.missingPriceBand() => const ReadinessBlocker(
-        code: ReadinessBlockerCode.missingPriceBand,
-        message: 'Thiếu khung giá bán',
-        group: 'pricing',
-      );
+    code: ReadinessBlockerCode.missingPriceBand,
+    message: 'Thiếu khung giá bán',
+    group: 'pricing',
+  );
 
   factory ReadinessBlocker.missingStock() => const ReadinessBlocker(
-        code: ReadinessBlockerCode.missingStock,
-        message: 'Thiếu thiết lập tồn kho',
-        group: 'stock',
-      );
+    code: ReadinessBlockerCode.missingStock,
+    message: 'Thiếu thiết lập tồn kho',
+    group: 'stock',
+  );
 
-  factory ReadinessBlocker.missingRequiredCustomFields() =>
-      const ReadinessBlocker(
-        code: ReadinessBlockerCode.missingRequiredCustomFields,
-        message: 'Thiếu thông tin bổ sung bắt buộc',
-        group: 'custom_fields',
-      );
+  factory ReadinessBlocker.missingRequiredCustomFields() => const ReadinessBlocker(
+    code: ReadinessBlockerCode.missingRequiredCustomFields,
+    message: 'Thiếu thông tin bổ sung bắt buộc',
+    group: 'custom_fields',
+  );
 
-  factory ReadinessBlocker.pendingStockFromInventory() =>
-      const ReadinessBlocker(
-        code: ReadinessBlockerCode.pendingStockFromInventory,
-        message: 'Chờ dữ liệu tồn kho từ module Kho',
-        group: 'stock',
-      );
+  factory ReadinessBlocker.pendingStockFromInventory() => const ReadinessBlocker(
+    code: ReadinessBlockerCode.pendingStockFromInventory,
+    message: 'Chờ dữ liệu tồn kho từ module Kho',
+    group: 'stock',
+  );
 
-  factory ReadinessBlocker.pendingBasePriceFromCosting() =>
-      const ReadinessBlocker(
-        code: ReadinessBlockerCode.pendingBasePriceFromCosting,
-        message: 'Chờ Giá cơ sở từ module Giá vốn',
-        group: 'pricing',
-      );
+  factory ReadinessBlocker.pendingBasePriceFromCosting() => const ReadinessBlocker(
+    code: ReadinessBlockerCode.pendingBasePriceFromCosting,
+    message: 'Chờ Giá cơ sở từ module Giá vốn',
+    group: 'pricing',
+  );
 
   @override
   List<Object?> get props => [code, message, group];

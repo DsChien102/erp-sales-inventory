@@ -13,7 +13,7 @@ void main() {
           actorId: 'actor-1',
           productName: 'Thuốc A',
           baseUnit: const ExistingTenantUnit('unit-hop'),
-          initialStock: 12,
+          basicStockQuantityBase: 12,
           basePrice: 10000,
           listPrice: 13000,
           floorPrice: 11000,
@@ -22,7 +22,7 @@ void main() {
 
       expect(params['p_tenant_id'], 'tenant-1');
       expect(params['p_tenant_unit_id'], 'unit-hop');
-      expect(params['p_initial_stock'], 12);
+      expect(params['p_basic_stock_quantity_base'], 12);
       expect(params['p_base_price'], 10000);
       expect(params['p_list_price'], 13000);
       expect(params['p_idempotency_key'], '550e8400-e29b-41d4-a716-446655440000');
@@ -238,8 +238,8 @@ void main() {
       });
 
       expect(result.productId, 'product-4');
-      expect(result.previousStatus, ProductStatus.active);
-      expect(result.currentStatus, ProductStatus.inactive);
+      expect(result.previousStatus, ProductBusinessStatus.active);
+      expect(result.currentStatus, ProductBusinessStatus.inactive);
       expect(result.readinessSummary.status, ReadinessStatus.incomplete);
       expect(
         result.readinessSummary.blockers.single.code,
@@ -248,8 +248,8 @@ void main() {
       expect(result.version, 2);
       expect(result.reason, 'Ngừng theo mùa');
       expect(result.warnings.single.code, ProductBusinessStatusWarningCode.hasStock);
-      expect(result.historyEntry?.valueBefore, ProductStatus.active.name);
-      expect(result.historyEntry?.valueAfter, ProductStatus.inactive.name);
+      expect(result.historyEntry?.valueBefore, ProductBusinessStatus.active.name);
+      expect(result.historyEntry?.valueAfter, ProductBusinessStatus.inactive.name);
     });
   });
 
@@ -357,7 +357,7 @@ void main() {
       final result = ProductRpcMapper.changeProductSoftDeleteResultFromRow({
         'product_id': 'product-6',
         'is_soft_deleted': true,
-        'business_status': 'active',
+        'business_status': 'soft_deleted',
         'readiness_status': 'ready_to_sell',
         'readiness_blockers': [],
         'version': 2,
@@ -375,20 +375,20 @@ void main() {
           'actor_display_name': 'user-1',
           'change_type': 'product_soft_deleted',
           'summary': 'Xóa mềm sản phẩm',
-          'value_before': 'false',
-          'value_after': 'true',
+          'value_before': 'active',
+          'value_after': 'soft_deleted',
         },
       });
 
       expect(result.productId, 'product-6');
       expect(result.isSoftDeleted, isTrue);
-      expect(result.businessStatus, ProductStatus.active);
+      expect(result.businessStatus, ProductBusinessStatus.softDeleted);
       expect(result.readinessSummary.status, ReadinessStatus.readyToSell);
       expect(result.version, 2);
       expect(result.reason, 'Dọn danh mục');
       expect(result.issues.single.code, ProductDeletionIssueCode.hasHistoricalTransactions);
-      expect(result.historyEntry?.valueBefore, 'false');
-      expect(result.historyEntry?.valueAfter, 'true');
+      expect(result.historyEntry?.valueBefore, 'active');
+      expect(result.historyEntry?.valueAfter, 'soft_deleted');
     });
 
     test('changeProductSoftDeleteResultFromRow maps restore result row', () {
@@ -410,7 +410,7 @@ void main() {
 
       expect(result.productId, 'product-7');
       expect(result.isSoftDeleted, isFalse);
-      expect(result.businessStatus, ProductStatus.inactive);
+      expect(result.businessStatus, ProductBusinessStatus.inactive);
       expect(result.readinessSummary.status, ReadinessStatus.incomplete);
       expect(
         result.readinessSummary.blockers.single.code,
@@ -421,9 +421,9 @@ void main() {
   });
 
   group('ProductRpcMapper (US-02 Operational Data)', () {
-    test('setInitialStockParams maps stock profile to RPC parameters', () {
-      final profile = ProductStockProfile.basic(initialStock: 150.0);
-      final params = ProductRpcMapper.setInitialStockParams(
+    test('setBasicStockQuantityBaseParams maps stock profile to RPC parameters', () {
+      final profile = ProductStockProfile.basic(basicStockQuantityBase: 150);
+      final params = ProductRpcMapper.setBasicStockQuantityBaseParams(
         productId: 'prod-1',
         tenantId: 'tenant-1',
         profile: profile,
@@ -432,7 +432,7 @@ void main() {
       expect(params['p_tenant_id'], 'tenant-1');
       expect(params['p_product_id'], 'prod-1');
       expect(params['p_mode'], 'basic');
-      expect(params['p_initial_stock'], 150.0);
+      expect(params['p_basic_stock_quantity_base'], 150);
     });
 
     test('setManualBasePriceParams maps base price profile to RPC parameters', () {
@@ -675,17 +675,17 @@ void main() {
         AdjustBasicStockCommand(
           tenantId: 'tenant-1',
           productId: 'product-1',
-          newQuantity: 25.0,
+          newQuantity: 25,
           reason: 'Kiểm kê',
-          expectedQuantity: 150.0,
+          expectedQuantity: 150,
         ),
       );
 
       expect(params['p_tenant_id'], 'tenant-1');
       expect(params['p_product_id'], 'product-1');
-      expect(params['p_new_quantity'], 25.0);
+      expect(params['p_new_quantity'], 25);
       expect(params['p_reason'], 'Kiểm kê');
-      expect(params['p_expected_quantity'], 150.0);
+      expect(params['p_expected_quantity'], 150);
     });
 
     test('getProductStockHistoryParams maps query inputs', () {

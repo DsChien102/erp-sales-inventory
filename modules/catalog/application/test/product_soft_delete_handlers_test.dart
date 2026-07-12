@@ -3,6 +3,8 @@ import 'package:vet45_catalog_application/application.dart';
 import 'package:vet45_catalog_domain/domain.dart';
 import 'package:vet45_shared_application/application.dart';
 
+import 'support/fake_write_ports.dart';
+
 class _RecordingProductDeletionGateway implements IProductDeletionGateway {
   CheckProductDeletionEligibilityQuery? lastQuery;
 
@@ -51,7 +53,7 @@ class _RecordingProductCommandGateway implements IProductCommandGateway {
   }) async {}
 
   @override
-  Future<void> setInitialStock({
+  Future<void> setBasicStockQuantityBase({
     required String productId,
     required String tenantId,
     required ProductStockProfile profile,
@@ -100,8 +102,7 @@ class _RecordingProductCommandGateway implements IProductCommandGateway {
     lastDeleteCommand = command;
     return ChangeProductSoftDeleteResult(
       productId: command.productId,
-      isSoftDeleted: true,
-      businessStatus: ProductStatus.active,
+      businessStatus: ProductBusinessStatus.softDeleted,
       readinessSummary: const ReadinessSummaryDto(
         status: ReadinessStatus.readyToSell,
         blockers: [],
@@ -114,8 +115,8 @@ class _RecordingProductCommandGateway implements IProductCommandGateway {
         actorDisplayName: command.actorId,
         changeType: ProductChangeHistoryAction.softDeleted,
         summary: 'Xóa mềm sản phẩm',
-        valueBefore: 'false',
-        valueAfter: 'true',
+        valueBefore: 'active',
+        valueAfter: 'soft_deleted',
       ),
     );
   }
@@ -127,8 +128,7 @@ class _RecordingProductCommandGateway implements IProductCommandGateway {
     lastRestoreCommand = command;
     return ChangeProductSoftDeleteResult(
       productId: command.productId,
-      isSoftDeleted: false,
-      businessStatus: ProductStatus.inactive,
+      businessStatus: ProductBusinessStatus.inactive,
       readinessSummary: const ReadinessSummaryDto(
         status: ReadinessStatus.incomplete,
         blockers: [
@@ -195,6 +195,7 @@ void main() {
       final gateway = _RecordingProductCommandGateway();
       final handler = DeleteProductCommandHandler(
         commandGateway: gateway,
+        productWritePort: FakeProductWritePort.active(productId: 'product-6'),
       );
 
       final result = await handler.handle(
@@ -212,15 +213,17 @@ void main() {
       expect(gateway.lastDeleteCommand?.expectedVersion, 1);
       expect(gateway.lastDeleteCommand?.confirmAcknowledgeWarnings, isTrue);
       expect(result.isSoftDeleted, isTrue);
+      expect(result.businessStatus, ProductBusinessStatus.softDeleted);
       expect(result.version, 2);
-      expect(result.historyEntry?.valueBefore, 'false');
-      expect(result.historyEntry?.valueAfter, 'true');
+      expect(result.historyEntry?.valueBefore, 'active');
+      expect(result.historyEntry?.valueAfter, 'soft_deleted');
     });
 
     test('scn_e07_u03_fr03_01 restore delegates and returns inactive readiness', () async {
       final gateway = _RecordingProductCommandGateway();
       final handler = RestoreProductCommandHandler(
         commandGateway: gateway,
+        productWritePort: FakeProductWritePort.softDeleted(productId: 'product-7'),
       );
 
       final result = await handler.handle(
@@ -236,7 +239,7 @@ void main() {
       expect(gateway.lastRestoreCommand?.productId, 'product-7');
       expect(gateway.lastRestoreCommand?.expectedVersion, 2);
       expect(result.isSoftDeleted, isFalse);
-      expect(result.businessStatus, ProductStatus.inactive);
+      expect(result.businessStatus, ProductBusinessStatus.inactive);
       expect(result.readinessSummary.status, ReadinessStatus.incomplete);
       expect(
         result.readinessSummary.blockers.single.code,

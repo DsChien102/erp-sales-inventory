@@ -1,6 +1,7 @@
-import '../../ids/product_id.dart';
-import '../../value_objects/product_reference_id.dart';
 import 'package:vet45_shared_domain/shared_kernel_domain.dart';
+
+import '../../ids/product_id.dart';
+import '../product_reference_id.dart';
 
 final class ProductCreated extends DomainEventBase {
   ProductCreated({

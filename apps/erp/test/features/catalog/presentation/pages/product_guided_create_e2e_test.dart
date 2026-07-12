@@ -83,7 +83,7 @@ void main() {
     await tester.pumpAndSettle();
 
     // Fill Initial Stock
-    await tester.enterText(find.byKey(const Key('input_guided_initial_stock')), '150');
+    await tester.enterText(find.byKey(const Key('input_guided_basic_stock_quantity_base')), '150');
     await tester.pump();
 
     // Open Step 5: Giá vốn cơ sở
@@ -218,7 +218,7 @@ void main() {
     await tester.ensureVisible(step4Finder);
     await tester.tap(step4Finder);
     await tester.pumpAndSettle();
-    await tester.enterText(find.byKey(const Key('input_guided_initial_stock')), '150');
+    await tester.enterText(find.byKey(const Key('input_guided_basic_stock_quantity_base')), '150');
     await tester.pump();
 
     final step5Finder = find.text('5. Giá vốn cơ sở');

@@ -55,15 +55,15 @@ final class SupabaseProductCommandGateway
   }
 
   @override
-  Future<void> setInitialStock({
+  Future<void> setBasicStockQuantityBase({
     required String productId,
     required String tenantId,
     required ProductStockProfile profile,
   }) async {
     try {
       await _rpcClient.callScalar<void>(
-        'set_initial_stock',
-        params: ProductRpcMapper.setInitialStockParams(
+        'set_basic_stock_quantity_base',
+        params: ProductRpcMapper.setBasicStockQuantityBaseParams(
           productId: productId,
           tenantId: tenantId,
           profile: profile,

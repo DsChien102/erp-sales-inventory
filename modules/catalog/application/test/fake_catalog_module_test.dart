@@ -252,16 +252,16 @@ void main() {
       expect(matches, isEmpty);
     });
 
-    test('initial_stock_ok sets stock quantity without error', () async {
+    test('basic_stock_quantity_base_ok sets stock quantity without error', () async {
       final module = FakeCatalogModule(
-        scenario: FakeCatalogScenario.initialStockOk,
+        scenario: FakeCatalogScenario.basicStockQuantityBaseOk,
       );
 
       await module.executeCommandAsync(
-        SetInitialStockCommand(
+        SetBasicStockQuantityBaseCommand(
           tenantId: 'tenant-1',
           productId: 'product-1',
-          quantity: 200.0,
+          quantity: 200,
         ),
       );
     });
@@ -400,7 +400,7 @@ void main() {
       );
       expect(
         view.suggestedActions.map((a) => a.actionId),
-        isNot(contains(ContextualActionId.setInitialStock)),
+        isNot(contains(ContextualActionId.setBasicStockQuantityBase)),
       );
     });
 
@@ -599,8 +599,8 @@ void main() {
           tenantId: 'tenant-1',
           criteria: ProductSearchCriteria(
             businessStatuses: {
-              ProductStatus.active,
-              ProductStatus.inactive,
+              ProductBusinessStatus.active,
+              ProductBusinessStatus.inactive,
             },
           ),
           limit: 50,
@@ -609,15 +609,15 @@ void main() {
 
       expect(result.items, isNotEmpty);
       expect(
-        result.items.any((item) => item.businessStatus == ProductStatus.inactive),
+        result.items.any((item) => item.businessStatus == ProductBusinessStatus.inactive),
         isTrue,
       );
 
       final firstInactiveIndex = result.items.indexWhere(
-        (item) => item.businessStatus == ProductStatus.inactive,
+        (item) => item.businessStatus == ProductBusinessStatus.inactive,
       );
       final lastActiveIndex = result.items.lastIndexWhere(
-        (item) => item.businessStatus == ProductStatus.active,
+        (item) => item.businessStatus == ProductBusinessStatus.active,
       );
       expect(firstInactiveIndex, greaterThan(lastActiveIndex));
     });
@@ -676,8 +676,8 @@ void main() {
           criteria: ProductSearchCriteria(
             keyword: 'amoxicillin',
             businessStatuses: {
-              ProductStatus.active,
-              ProductStatus.inactive,
+              ProductBusinessStatus.active,
+              ProductBusinessStatus.inactive,
             },
           ),
         ),
@@ -685,8 +685,7 @@ void main() {
 
       expect(
         result.items.any(
-          (item) => SearchKeywordNormalizer.foldForSearch(item.name)
-              .contains('amoxicillin'),
+          (item) => SearchKeywordNormalizer.foldForSearch(item.name).contains('amoxicillin'),
         ),
         isTrue,
       );
@@ -704,8 +703,8 @@ void main() {
             keyword: 'amox',
             sortOrder: ProductSortOrder.relevanceDesc,
             businessStatuses: {
-              ProductStatus.active,
-              ProductStatus.inactive,
+              ProductBusinessStatus.active,
+              ProductBusinessStatus.inactive,
             },
           ),
         ),
@@ -715,11 +714,11 @@ void main() {
       expect(result.items.first.name.toLowerCase(), contains('amox'));
 
       final firstInactiveIndex = result.items.indexWhere(
-        (item) => item.businessStatus == ProductStatus.inactive,
+        (item) => item.businessStatus == ProductBusinessStatus.inactive,
       );
       if (firstInactiveIndex >= 0) {
         final lastActiveIndex = result.items.lastIndexWhere(
-          (item) => item.businessStatus == ProductStatus.active,
+          (item) => item.businessStatus == ProductBusinessStatus.active,
         );
         expect(firstInactiveIndex, greaterThan(lastActiveIndex));
       }
@@ -807,7 +806,7 @@ void main() {
         ),
       );
 
-      expect(result.profile.businessStatus, ProductStatus.inactive);
+      expect(result.profile.businessStatus, ProductBusinessStatus.inactive);
       expect(result.profile.name, 'Ibuprofen 400mg');
     });
 
@@ -946,10 +945,10 @@ void main() {
 
       await expectLater(
         module.executeCommandAsync(
-          SetInitialStockCommand(
+          SetBasicStockQuantityBaseCommand(
             tenantId: 'tenant-1',
             productId: 'product-6',
-            quantity: 10.0,
+            quantity: 10,
           ),
         ),
         throwsA(isA<MissingBaseUnitException>()),
@@ -1373,6 +1372,95 @@ void main() {
       expect(field.fieldId, startsWith('cf-field-'));
       expect(field.name, 'Thành phần');
       expect(field.fieldType, CustomFieldType.text);
+      expect(field.hasProductValues, isFalse);
+    });
+
+    test('allows field type change when no product values exist', () async {
+      final module = FakeCatalogModule(
+        scenario: FakeCatalogScenario.cfFieldUpsertText,
+      );
+
+      final group = await module.executeCommandAsync(
+        UpsertCustomFieldGroupCommand(
+          tenantId: 'tenant-1',
+          name: 'Thông tin thuốc',
+        ),
+      );
+
+      final field = await module.executeCommandAsync(
+        UpsertCustomFieldCommand(
+          tenantId: 'tenant-1',
+          groupId: group.groupId,
+          name: 'Thành phần',
+          fieldType: CustomFieldType.text,
+        ),
+      );
+
+      final updated = await module.executeCommandAsync(
+        UpsertCustomFieldCommand(
+          tenantId: 'tenant-1',
+          groupId: group.groupId,
+          fieldId: field.fieldId,
+          name: 'Thành phần',
+          fieldType: CustomFieldType.number,
+        ),
+      );
+
+      expect(updated.fieldType, CustomFieldType.number);
+      expect(updated.hasProductValues, isFalse);
+    });
+
+    test('blocks field type change when product values exist', () async {
+      final module = FakeCatalogModule(
+        scenario: FakeCatalogScenario.cfFieldUpsertText,
+      );
+
+      final group = await module.executeCommandAsync(
+        UpsertCustomFieldGroupCommand(
+          tenantId: 'tenant-1',
+          name: 'Thông tin thuốc',
+        ),
+      );
+
+      final field = await module.executeCommandAsync(
+        UpsertCustomFieldCommand(
+          tenantId: 'tenant-1',
+          groupId: group.groupId,
+          name: 'Thành phần',
+          fieldType: CustomFieldType.text,
+        ),
+      );
+
+      await module.executeCommandAsync(
+        UpsertCustomFieldValuesCommand(
+          tenantId: 'tenant-1',
+          productId: 'product-1',
+          values: [
+            ProductCustomFieldValueInput(
+              fieldId: field.fieldId,
+              textValue: 'Vitamin A',
+            ),
+          ],
+        ),
+      );
+
+      final config = await module.executeQueryAsync(
+        ListCustomFieldConfigQuery(tenantId: 'tenant-1'),
+      );
+      expect(config.groups.first.fields.first.hasProductValues, isTrue);
+
+      await expectLater(
+        module.executeCommandAsync(
+          UpsertCustomFieldCommand(
+            tenantId: 'tenant-1',
+            groupId: group.groupId,
+            fieldId: field.fieldId,
+            name: 'Thành phần',
+            fieldType: CustomFieldType.number,
+          ),
+        ),
+        throwsA(isA<CustomFieldTypeChangeBlockedException>()),
+      );
     });
 
     test('scn_contract_e03_u01_fr04_02 rejects single select without options', () async {
@@ -1950,15 +2038,15 @@ void main() {
       );
 
       final result = await module.executeCommandAsync(
-        SetInitialStockCommand(
+        SetBasicStockQuantityBaseCommand(
           tenantId: 'tenant-1',
           productId: 'product-1',
-          quantity: 250.0,
+          quantity: 250,
         ),
       );
 
       expect(result.productId, 'product-1');
-      expect(result.quantity, 250.0);
+      expect(result.quantity, 250);
       expect(result.readinessSummary.status, isNotNull);
     });
 
@@ -1969,10 +2057,10 @@ void main() {
 
       await expectLater(
         module.executeCommandAsync(
-          SetInitialStockCommand(
+          SetBasicStockQuantityBaseCommand(
             tenantId: 'tenant-1',
             productId: 'product-6',
-            quantity: 10.0,
+            quantity: 10,
           ),
         ),
         throwsA(isA<MissingBaseUnitException>()),
@@ -1988,9 +2076,9 @@ void main() {
         AdjustBasicStockCommand(
           tenantId: 'tenant-1',
           productId: 'product-1',
-          newQuantity: 25.0,
+          newQuantity: 25,
           reason: 'Kiểm kê thực tế',
-          expectedQuantity: 150.0,
+          expectedQuantity: 150,
         ),
       );
 
@@ -2008,7 +2096,7 @@ void main() {
           AdjustBasicStockCommand(
             tenantId: 'tenant-1',
             productId: 'product-1',
-            newQuantity: -1.0,
+            newQuantity: -1,
           ),
         ),
         throwsA(isA<ValidationException>()),
@@ -2025,8 +2113,8 @@ void main() {
           AdjustBasicStockCommand(
             tenantId: 'tenant-1',
             productId: 'product-1',
-            newQuantity: 20.0,
-            expectedQuantity: 999.0,
+            newQuantity: 20,
+            expectedQuantity: 999,
           ),
         ),
         throwsA(isA<StaleStockQuantityException>()),
@@ -2039,18 +2127,18 @@ void main() {
       );
 
       await module.executeCommandAsync(
-        SetInitialStockCommand(
+        SetBasicStockQuantityBaseCommand(
           tenantId: 'tenant-1',
           productId: 'product-1',
-          quantity: 50.0,
+          quantity: 50,
         ),
       );
       await module.executeCommandAsync(
         AdjustBasicStockCommand(
           tenantId: 'tenant-1',
           productId: 'product-1',
-          newQuantity: 45.0,
-          expectedQuantity: 50.0,
+          newQuantity: 45,
+          expectedQuantity: 50,
           reason: 'Điều chỉnh kho',
         ),
       );
@@ -2082,10 +2170,10 @@ void main() {
       );
 
       final result = await module.executeCommandAsync(
-        SetInitialStockCommand(
+        SetBasicStockQuantityBaseCommand(
           tenantId: 'tenant-1',
           productId: created.productId,
-          quantity: 20.0,
+          quantity: 20,
         ),
       );
 
@@ -3208,8 +3296,8 @@ void main() {
         );
 
         expect(result.productId, 'product-4');
-        expect(result.previousStatus, ProductStatus.active);
-        expect(result.currentStatus, ProductStatus.inactive);
+        expect(result.previousStatus, ProductBusinessStatus.active);
+        expect(result.currentStatus, ProductBusinessStatus.inactive);
         expect(result.reason, 'Ngừng kinh doanh theo mùa');
         expect(result.version, 2);
 
@@ -3219,7 +3307,7 @@ void main() {
             productId: 'product-4',
           ),
         );
-        expect(pcc.profile.businessStatus, ProductStatus.inactive);
+        expect(pcc.profile.businessStatus, ProductBusinessStatus.inactive);
       });
 
       test(
@@ -3255,7 +3343,7 @@ void main() {
             ),
           );
 
-          expect(result.currentStatus, ProductStatus.inactive);
+          expect(result.currentStatus, ProductBusinessStatus.inactive);
           expect(
             result.warnings.map((warning) => warning.code),
             contains(ProductBusinessStatusWarningCode.hasStock),
@@ -3323,8 +3411,8 @@ void main() {
           ),
         );
 
-        expect(result.previousStatus, ProductStatus.inactive);
-        expect(result.currentStatus, ProductStatus.active);
+        expect(result.previousStatus, ProductBusinessStatus.inactive);
+        expect(result.currentStatus, ProductBusinessStatus.active);
         expect(result.readinessSummary.status, ReadinessStatus.readyToSell);
       });
 
@@ -3343,7 +3431,7 @@ void main() {
             ),
           );
 
-          expect(result.currentStatus, ProductStatus.active);
+          expect(result.currentStatus, ProductBusinessStatus.active);
           expect(result.readinessSummary.status, ReadinessStatus.incomplete);
           expect(
             result.readinessSummary.blockers.map((b) => b.code),
@@ -3393,11 +3481,11 @@ void main() {
             tenantId: 'tenant-1',
             criteria: ProductSearchCriteria(
               keyword: 'Doxycycline',
-              businessStatuses: {ProductStatus.active, ProductStatus.inactive},
+              businessStatuses: {ProductBusinessStatus.active, ProductBusinessStatus.inactive},
             ),
           ),
         );
-        expect(adminResult.items.single.businessStatus, ProductStatus.inactive);
+        expect(adminResult.items.single.businessStatus, ProductBusinessStatus.inactive);
       });
 
       test(
@@ -3418,8 +3506,8 @@ void main() {
 
           expect(result.historyEntry, isNotNull);
           expect(result.historyEntry!.changeType, ProductChangeHistoryAction.statusChanged);
-          expect(result.historyEntry!.valueBefore, ProductStatus.active.name);
-          expect(result.historyEntry!.valueAfter, ProductStatus.inactive.name);
+          expect(result.historyEntry!.valueBefore, ProductBusinessStatus.active.name);
+          expect(result.historyEntry!.valueAfter, ProductBusinessStatus.inactive.name);
           expect(result.historyEntry!.summary, contains('Ngừng kinh doanh'));
         },
       );
@@ -3528,7 +3616,7 @@ void main() {
 
         expect(result.productId, 'product-6');
         expect(result.isSoftDeleted, isTrue);
-        expect(result.businessStatus, ProductStatus.active);
+        expect(result.businessStatus, ProductBusinessStatus.softDeleted);
         expect(result.version, 2);
         expect(result.reason, 'Không còn sử dụng');
         expect(result.historyEntry, isNotNull);
@@ -3622,7 +3710,7 @@ void main() {
         );
 
         expect(result.isSoftDeleted, isFalse);
-        expect(result.businessStatus, ProductStatus.inactive);
+        expect(result.businessStatus, ProductBusinessStatus.inactive);
         expect(result.reason, 'Khôi phục do xóa nhầm');
         expect(result.readinessSummary.status, ReadinessStatus.incomplete);
         expect(

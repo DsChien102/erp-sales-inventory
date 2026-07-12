@@ -21,7 +21,7 @@ class _RecordingProductCommandGateway implements IProductCommandGateway {
   }
 
   @override
-  Future<void> setInitialStock({
+  Future<void> setBasicStockQuantityBase({
     required String productId,
     required String tenantId,
     required ProductStockProfile profile,
@@ -184,7 +184,7 @@ void main() {
         ),
       );
 
-      expect(gateway.lastProduct!.status, ProductStatus.active);
+      expect(gateway.lastProduct!.status, ProductBusinessStatus.active);
       expect(result.readinessSummary.status, ReadinessStatus.incomplete);
       expect(
         result.readinessSummary.blockers.map((b) => b.code),

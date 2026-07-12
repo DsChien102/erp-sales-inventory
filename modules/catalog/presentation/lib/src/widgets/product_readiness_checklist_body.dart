@@ -70,47 +70,47 @@ class ProductReadinessChecklistBody extends StatelessWidget {
             ),
             child: Row(
               children: [
-              Icon(
-                Icons.error_outline,
-                color: dynamicColors.warning,
-                size: VSpacing.space5,
-              ),
-              const SizedBox(width: VSpacing.space3),
-              Expanded(
-                child: Text(
-                  blocker.message,
-                  style: VTypography.bodyDefault.copyWith(
-                    color: dynamicColors.textPrimary,
-                  ),
+                Icon(
+                  Icons.error_outline,
+                  color: dynamicColors.warning,
+                  size: VSpacing.space5,
                 ),
-              ),
-              if (ctaLabel != null)
-                TextButton(
-                  onPressed: () {
-                    if (onActionTap != null) {
-                      onActionTap!(blocker.code);
-                    } else {
-                      VToast.show(
-                        context,
-                        title: 'Thông báo',
-                        message: 'Chức năng sẽ được hoàn thiện ở màn sau.',
-                        type: VToastType.info,
-                      );
-                    }
-                  },
+                const SizedBox(width: VSpacing.space3),
+                Expanded(
                   child: Text(
-                    ctaLabel,
-                    style: VTypography.bodySmall.copyWith(
-                      color: dynamicColors.primary,
-                      fontWeight: FontWeight.w600,
+                    blocker.message,
+                    style: VTypography.bodyDefault.copyWith(
+                      color: dynamicColors.textPrimary,
                     ),
                   ),
                 ),
-            ],
+                if (ctaLabel != null)
+                  TextButton(
+                    onPressed: () {
+                      if (onActionTap != null) {
+                        onActionTap!(blocker.code);
+                      } else {
+                        VToast.show(
+                          context,
+                          title: 'Thông báo',
+                          message: 'Chức năng sẽ được hoàn thiện ở màn sau.',
+                          type: VToastType.info,
+                        );
+                      }
+                    },
+                    child: Text(
+                      ctaLabel,
+                      style: VTypography.bodySmall.copyWith(
+                        color: dynamicColors.primary,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+              ],
+            ),
           ),
-        ),
-      );
-    },
-  );
-}
+        );
+      },
+    );
+  }
 }

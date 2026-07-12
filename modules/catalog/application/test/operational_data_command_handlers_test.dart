@@ -20,7 +20,7 @@ class _RecordingProductCommandGateway implements IProductCommandGateway {
   }
 
   @override
-  Future<void> setInitialStock({
+  Future<void> setBasicStockQuantityBase({
     required String productId,
     required String tenantId,
     required ProductStockProfile profile,
@@ -198,21 +198,21 @@ class _RecordingCatalogUnitGateway implements ICatalogUnitGateway {
 }
 
 void main() {
-  group('SetInitialStockCommandHandler & Validator', () {
-    test('valid basic stock sets initial stock on gateway', () async {
+  group('SetBasicStockQuantityBaseCommandHandler & Validator', () {
+    test('valid basic stock sets basic stock quantity base on gateway', () async {
       final gateway = _RecordingProductCommandGateway();
       final readinessPort = _FakeProductReadinessReadPort(hasBaseUnit: true);
-      final handler = SetInitialStockCommandHandler(
+      final handler = SetBasicStockQuantityBaseCommandHandler(
         commandGateway: gateway,
         readinessReadPort: readinessPort,
         unitGateway: _RecordingCatalogUnitGateway(),
       );
-      final validator = SetInitialStockCommandValidator();
+      final validator = SetBasicStockQuantityBaseCommandValidator();
 
-      final command = SetInitialStockCommand(
+      final command = SetBasicStockQuantityBaseCommand(
         tenantId: 'tenant-1',
         productId: 'prod-1',
-        quantity: 100.0,
+        quantity: 100,
       );
 
       await validator.validate(command);
@@ -220,44 +220,47 @@ void main() {
 
       expect(gateway.lastProductId, 'prod-1');
       expect(gateway.lastTenantId, 'tenant-1');
-      expect(gateway.lastStockProfile?.initialStock, 100.0);
+      expect(gateway.lastStockProfile?.basicStockQuantityBase, 100);
       expect(readinessPort.lastProductId, 'prod-1');
       expect(result.productId, 'prod-1');
-      expect(result.quantity, 100.0);
+      expect(result.quantity, 100);
       expect(result.unitName, 'Lọ');
       expect(result.readinessSummary, isNotNull);
     });
 
-    test('scn_e05_u02_fr01_01 set initial stock returns result with readiness', () async {
-      final gateway = _RecordingProductCommandGateway();
-      final readinessPort = _FakeProductReadinessReadPort(
-        hasBaseUnit: true,
-        hasStock: true,
-      );
-      final handler = SetInitialStockCommandHandler(
-        commandGateway: gateway,
-        readinessReadPort: readinessPort,
-        unitGateway: _RecordingCatalogUnitGateway(),
-      );
+    test(
+      'scn_e05_u02_fr01_01 set basic stock quantity base returns result with readiness',
+      () async {
+        final gateway = _RecordingProductCommandGateway();
+        final readinessPort = _FakeProductReadinessReadPort(
+          hasBaseUnit: true,
+          hasStock: true,
+        );
+        final handler = SetBasicStockQuantityBaseCommandHandler(
+          commandGateway: gateway,
+          readinessReadPort: readinessPort,
+          unitGateway: _RecordingCatalogUnitGateway(),
+        );
 
-      final result = await handler.handle(
-        SetInitialStockCommand(
-          tenantId: 'tenant-1',
-          productId: 'prod-1',
-          quantity: 50.0,
-        ),
-      );
+        final result = await handler.handle(
+          SetBasicStockQuantityBaseCommand(
+            tenantId: 'tenant-1',
+            productId: 'prod-1',
+            quantity: 50,
+          ),
+        );
 
-      expect(result.quantity, 50.0);
-      expect(result.readinessSummary.status, ReadinessStatus.incomplete);
-    });
+        expect(result.quantity, 50);
+        expect(result.readinessSummary.status, ReadinessStatus.incomplete);
+      },
+    );
 
     test('negative quantity throws ValidationException', () async {
-      final validator = SetInitialStockCommandValidator();
-      final command = SetInitialStockCommand(
+      final validator = SetBasicStockQuantityBaseCommandValidator();
+      final command = SetBasicStockQuantityBaseCommand(
         tenantId: 'tenant-1',
         productId: 'prod-1',
-        quantity: -5.0,
+        quantity: -5,
       );
 
       expect(
@@ -267,11 +270,11 @@ void main() {
     });
 
     test('non basic mode throws NotBasicStockModeException', () async {
-      final validator = SetInitialStockCommandValidator();
-      final command = SetInitialStockCommand(
+      final validator = SetBasicStockQuantityBaseCommandValidator();
+      final command = SetBasicStockQuantityBaseCommand(
         tenantId: 'tenant-1',
         productId: 'prod-1',
-        quantity: 10.0,
+        quantity: 10,
         mode: 'advanced',
       );
 
@@ -281,9 +284,9 @@ void main() {
       );
     });
 
-    test('scn_e04_u01_fr02_01 missing base unit blocks initial stock', () async {
+    test('scn_e04_u01_fr02_01 missing base unit blocks basic stock quantity base', () async {
       final gateway = _RecordingProductCommandGateway();
-      final handler = SetInitialStockCommandHandler(
+      final handler = SetBasicStockQuantityBaseCommandHandler(
         commandGateway: gateway,
         readinessReadPort: _FakeProductReadinessReadPort(hasBaseUnit: false),
         unitGateway: _RecordingCatalogUnitGateway(),
@@ -291,10 +294,10 @@ void main() {
 
       await expectLater(
         handler.handle(
-          SetInitialStockCommand(
+          SetBasicStockQuantityBaseCommand(
             tenantId: 'tenant-1',
             productId: 'prod-1',
-            quantity: 10.0,
+            quantity: 10,
           ),
         ),
         throwsA(isA<MissingBaseUnitException>()),

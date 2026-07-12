@@ -309,7 +309,17 @@ final class FakeCatalogCustomFieldStore {
       displayOnList: field.displayOnList,
       sortOrder: field.sortOrder,
       status: field.isActive ? CustomFieldConfigStatus.active : CustomFieldConfigStatus.inactive,
+      hasProductValues: _hasProductValues(field.fieldId),
     );
+  }
+
+  bool _hasProductValues(String fieldId) {
+    for (final value in _productValues.values) {
+      if (value.fieldId == fieldId) {
+        return true;
+      }
+    }
+    return false;
   }
 
   CustomFieldGroupConfigDto _toGroupDto(_StoredCustomFieldGroup group) {
@@ -529,6 +539,9 @@ final class FakeCatalogCustomFieldStore {
       final field = _findField(command.fieldId!);
       if (field == null || field.groupId != command.groupId) {
         throw CustomFieldNotFoundException(fieldId: command.fieldId!);
+      }
+      if (command.fieldType != field.fieldType && _hasProductValues(field.fieldId)) {
+        throw CustomFieldTypeChangeBlockedException(fieldId: field.fieldId);
       }
       final duplicate = _findActiveFieldByName(
         command.groupId,
@@ -873,8 +886,7 @@ final class FakeCatalogCustomFieldStore {
           continue;
         }
         final value = _displayValue(field, _findValue(productId, field.fieldId));
-        if (value != null &&
-            SearchKeywordNormalizer.foldForSearch(value).contains(foldedKeyword)) {
+        if (value != null && SearchKeywordNormalizer.foldForSearch(value).contains(foldedKeyword)) {
           return true;
         }
       }

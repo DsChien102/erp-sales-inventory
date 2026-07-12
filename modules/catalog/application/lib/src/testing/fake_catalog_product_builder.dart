@@ -40,8 +40,7 @@ abstract final class FakeCatalogProductBuilder {
     String? sku,
     String? barcode,
     String? primaryImageUrl,
-    ProductStatus businessStatus = ProductStatus.active,
-    bool isSoftDeleted = false,
+    ProductBusinessStatus businessStatus = ProductBusinessStatus.active,
     required ReadinessSummaryDto readinessSummary,
     double? listPrice,
     double? floorPrice,
@@ -67,7 +66,6 @@ abstract final class FakeCatalogProductBuilder {
       barcode: barcode?.isEmpty == true ? null : barcode,
       primaryImageUrl: primaryImageUrl,
       businessStatus: businessStatus,
-      isSoftDeleted: isSoftDeleted,
       readinessSummary: readinessSummary,
       listPrice: listPrice,
       floorPrice: floorPrice,
@@ -88,8 +86,7 @@ abstract final class FakeCatalogProductBuilder {
     List<String> images = const [],
     String? description,
     String? note,
-    ProductStatus businessStatus = ProductStatus.active,
-    bool isSoftDeleted = false,
+    ProductBusinessStatus businessStatus = ProductBusinessStatus.active,
     String? baseUnit,
     int? stockQty,
     int? stockVersion,
@@ -134,7 +131,6 @@ abstract final class FakeCatalogProductBuilder {
         sku: sku?.isEmpty == true ? null : sku,
         barcode: barcode?.isEmpty == true ? null : barcode,
         businessStatus: businessStatus,
-        isSoftDeleted: isSoftDeleted,
         primaryImageUrl: images.isNotEmpty ? images.first : null,
         images: images,
         description: description,
@@ -150,9 +146,7 @@ abstract final class FakeCatalogProductBuilder {
         source: stockMode == StockMode.advanced
             ? StockDataSource.inventoryModule
             : StockDataSource.basicProfile,
-        sourceLabel: stockMode == StockMode.advanced
-            ? 'Tồn kho từ module Kho'
-            : 'Tồn kho cơ bản',
+        sourceLabel: stockMode == StockMode.advanced ? 'Tồn kho từ module Kho' : 'Tồn kho cơ bản',
         quantity: stockQty,
         unitName: hasBaseUnit ? baseUnit : null,
         isConfigured: hasStock,

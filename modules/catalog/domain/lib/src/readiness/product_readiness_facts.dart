@@ -49,15 +49,15 @@ final class ProductReadinessFacts extends ValueObject {
 
   @override
   List<Object?> get props => [
-        productId,
-        productName,
-        hasBaseUnit,
-        hasImages,
-        hasStock,
-        hasBasePrice,
-        hasPriceBand,
-        hasRequiredCustomFields,
-        stockMode,
-        basePriceMode,
-      ];
+    productId,
+    productName,
+    hasBaseUnit,
+    hasImages,
+    hasStock,
+    hasBasePrice,
+    hasPriceBand,
+    hasRequiredCustomFields,
+    stockMode,
+    basePriceMode,
+  ];
 }

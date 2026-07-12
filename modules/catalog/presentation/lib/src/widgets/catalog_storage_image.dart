@@ -115,7 +115,8 @@ class _CatalogStorageImageState extends State<CatalogStorageImage> {
     return SizedBox(
       width: widget.width,
       height: widget.height,
-      child: widget.placeholder ??
+      child:
+          widget.placeholder ??
           const ColoredBox(
             color: Color(0xFFECECEC),
             child: Center(

@@ -195,8 +195,7 @@ class _ProductGuidedStepPriceBandsState extends State<ProductGuidedStepPriceBand
                       suffixText: '%',
                       min: 0,
                       textStyle: VTypography.bodyDefault.copyWith(color: dynamicColors.textPrimary),
-                      onChanged: (_) =>
-                          cubit.updateCustomAutoMarkup(_customMarkupController.text),
+                      onChanged: (_) => cubit.updateCustomAutoMarkup(_customMarkupController.text),
                     ),
                   ],
                 ),

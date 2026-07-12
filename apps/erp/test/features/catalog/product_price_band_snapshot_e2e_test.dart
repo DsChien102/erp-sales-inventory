@@ -40,7 +40,7 @@ void main() {
       expect(item.listPrice, 45000);
       expect(item.listPriceMissing, isFalse);
       expect(item.isUnitActive, isTrue);
-      expect(item.productBusinessStatus, ProductStatus.inactive);
+      expect(item.productBusinessStatus, ProductBusinessStatus.inactive);
     });
 
     test('e2e_e06_u04_fr02_01: mediator returns floor price for threshold check', () async {

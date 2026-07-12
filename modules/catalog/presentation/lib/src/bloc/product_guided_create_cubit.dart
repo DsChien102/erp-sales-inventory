@@ -11,7 +11,6 @@ import '../widgets/image_picker/product_image_add_sheet.dart';
 import '../widgets/tenant_measurement_unit_search_field.dart';
 import 'product_guided_create_state.dart';
 
-
 class ProductGuidedCreateCubit extends Cubit<ProductGuidedCreateState> {
   ProductGuidedCreateCubit({
     required ICatalogModule catalogModule,
@@ -335,8 +334,8 @@ class ProductGuidedCreateCubit extends Cubit<ProductGuidedCreateState> {
     emit(state.copyWith(baseUnit: val));
   }
 
-  void updateInitialStock(String val) {
-    emit(state.copyWith(initialStock: val));
+  void updateBasicStockQuantityBase(String val) {
+    emit(state.copyWith(basicStockQuantityBase: val));
   }
 
   void updateBaseCost(String val) {
@@ -355,11 +354,13 @@ class ProductGuidedCreateCubit extends Cubit<ProductGuidedCreateState> {
       return;
     }
 
-    emit(state.copyWith(
-      isStorePriceRuleLoading: true,
-      clearStorePriceRuleUnavailable: true,
-      clearStorePriceRule: true,
-    ));
+    emit(
+      state.copyWith(
+        isStorePriceRuleLoading: true,
+        clearStorePriceRuleUnavailable: true,
+        clearStorePriceRule: true,
+      ),
+    );
 
     try {
       final tenantId = await _executionContext.requireTenantId();
@@ -382,8 +383,7 @@ class ProductGuidedCreateCubit extends Cubit<ProductGuidedCreateState> {
         emit(
           state.copyWith(
             isStorePriceRuleLoading: false,
-            storePriceRuleUnavailableReason:
-                'Khung giá cửa hàng đang không hoạt động.',
+            storePriceRuleUnavailableReason: 'Khung giá cửa hàng đang không hoạt động.',
           ),
         );
         return;
@@ -423,6 +423,7 @@ class ProductGuidedCreateCubit extends Cubit<ProductGuidedCreateState> {
   void updateManualFloorPrice(String val) {
     emit(state.copyWith(manualFloorPrice: val, clearManualPriceError: true, clearError: true));
   }
+
   void setStep(int idx) {
     final clamped = idx.clamp(0, state.stepCount - 1);
     if (state.activeStepIndex == idx) {
@@ -467,8 +468,8 @@ class ProductGuidedCreateCubit extends Cubit<ProductGuidedCreateState> {
       if (state.pricingMethod == 'storeRule') {
         emit(
           state.copyWith(
-            errorMessage: state.storePriceRuleUnavailableReason ??
-                'Không thể áp dụng khung giá cửa hàng.',
+            errorMessage:
+                state.storePriceRuleUnavailableReason ?? 'Không thể áp dụng khung giá cửa hàng.',
           ),
         );
         return;
@@ -513,13 +514,13 @@ class ProductGuidedCreateCubit extends Cubit<ProductGuidedCreateState> {
       return;
     }
 
-    if (state.initialStockError != null) {
+    if (state.basicStockQuantityBaseError != null) {
       emit(
         state.copyWith(
           activeStepIndex: 3,
           showValidationErrors: true,
           status: ProductGuidedCreateStatus.error,
-          errorMessage: state.initialStockError,
+          errorMessage: state.basicStockQuantityBaseError,
         ),
       );
       return;
@@ -584,11 +585,13 @@ class ProductGuidedCreateCubit extends Cubit<ProductGuidedCreateState> {
       }
     }
 
-    emit(state.copyWith(
-      status: ProductGuidedCreateStatus.loading, 
-      clearError: true,
-      priceBandConfigured: shouldSavePriceBand,
-    ));
+    emit(
+      state.copyWith(
+        status: ProductGuidedCreateStatus.loading,
+        clearError: true,
+        priceBandConfigured: shouldSavePriceBand,
+      ),
+    );
 
     // Validate custom fields BEFORE creating the product to avoid duplicate/split products
     final validationErrors = <String, String>{};
@@ -644,12 +647,11 @@ class ProductGuidedCreateCubit extends Cubit<ProductGuidedCreateState> {
           baseUnit: state.baseUnit.trim().isEmpty
               ? null
               : _resolveBaseUnitSelection(state.baseUnit),
-          initialStock: state.parsedInitialStock,
+          basicStockQuantityBase: state.parsedBasicStockQuantityBase,
           basePrice: double.tryParse(state.baseCost.trim().replaceAll(',', '')),
           listPrice: state.pricingMethod == 'storeRule' ? null : priceBand.listPrice,
           floorPrice: state.pricingMethod == 'storeRule' ? null : priceBand.floorPrice,
-          useStorePriceRule:
-              state.priceBandConfigured && state.pricingMethod == 'storeRule',
+          useStorePriceRule: state.priceBandConfigured && state.pricingMethod == 'storeRule',
           customFieldValues: activeValues,
         ),
       );

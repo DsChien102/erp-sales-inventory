@@ -30,22 +30,26 @@ class EditProductUnitPriceBandCubit extends Cubit<EditProductUnitPriceBandState>
 
       PriceBandCalculationType initialType = PriceBandCalculationType.storeRule;
 
-      emit(EditProductUnitPriceBandLoaded(
-        suggestion: suggestion,
-        selectedType: initialType,
-      ));
-    } catch (e) {
-      emit(EditProductUnitPriceBandLoaded(
-        suggestion: ProductUnitPriceSuggestionDto(
-          productId: productId,
-          basePrice: 0,
-          currency: 'VND',
-          canSuggest: false,
-          unavailableReason: 'Không thể tải gợi ý giá.',
+      emit(
+        EditProductUnitPriceBandLoaded(
+          suggestion: suggestion,
+          selectedType: initialType,
         ),
-        selectedType: PriceBandCalculationType.storeRule,
-        error: e.toString(),
-      ));
+      );
+    } catch (e) {
+      emit(
+        EditProductUnitPriceBandLoaded(
+          suggestion: ProductUnitPriceSuggestionDto(
+            productId: productId,
+            basePrice: 0,
+            currency: 'VND',
+            canSuggest: false,
+            unavailableReason: 'Không thể tải gợi ý giá.',
+          ),
+          selectedType: PriceBandCalculationType.storeRule,
+          error: e.toString(),
+        ),
+      );
     }
   }
 
@@ -87,7 +91,7 @@ class EditProductUnitPriceBandCubit extends Cubit<EditProductUnitPriceBandState>
   Future<void> save({bool confirmAcknowledgeWarnings = false}) async {
     if (state is! EditProductUnitPriceBandLoaded) return;
     final currentState = state as EditProductUnitPriceBandLoaded;
-    
+
     if (!currentState.canSubmit) {
       emit(currentState.copyWith(error: 'Vui lòng kiểm tra lại thông tin giá.'));
       return;
@@ -115,15 +119,19 @@ class EditProductUnitPriceBandCubit extends Cubit<EditProductUnitPriceBandState>
       final result = await moduleMediator.executeCommandAsync(command);
       emit(EditProductUnitPriceBandSuccess());
     } on PriceBandWarningsRequireAcknowledgmentException {
-      emit(currentState.copyWith(
-        isSubmitting: false,
-        error: 'WARNING_REQUIRE_ACK', // A special flag for UI to show a dialog
-      ));
+      emit(
+        currentState.copyWith(
+          isSubmitting: false,
+          error: 'WARNING_REQUIRE_ACK', // A special flag for UI to show a dialog
+        ),
+      );
     } catch (e) {
-      emit(currentState.copyWith(
-        isSubmitting: false,
-        error: e.toString(),
-      ));
+      emit(
+        currentState.copyWith(
+          isSubmitting: false,
+          error: e.toString(),
+        ),
+      );
     }
   }
 }

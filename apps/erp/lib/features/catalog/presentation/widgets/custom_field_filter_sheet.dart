@@ -67,8 +67,11 @@ class _CustomFieldFilterSheetState extends State<CustomFieldFilterSheet> {
           Row(
             children: [
               Expanded(
-                child: OutlinedButton(
+                child: VButton(
                   key: const Key('btn_filter_reset'),
+                  label: 'Bỏ lọc',
+                  variant: VButtonVariant.outline,
+                  fullWidth: true,
                   onPressed: () {
                     setState(() {
                       for (final key in _selectedOptionIds.keys.toList()) {
@@ -78,22 +81,19 @@ class _CustomFieldFilterSheetState extends State<CustomFieldFilterSheet> {
                     Navigator.of(context).pop();
                     widget.onApply([]);
                   },
-                  child: const Text('Bỏ lọc'),
                 ),
               ),
               const SizedBox(width: 12),
               Expanded(
-                child: FilledButton(
+                child: VButton(
                   key: const Key('btn_filter_apply'),
-                  style: FilledButton.styleFrom(backgroundColor: colors.primary),
+                  label: 'Áp dụng',
+                  variant: VButtonVariant.primary,
+                  fullWidth: true,
                   onPressed: () {
                     Navigator.of(context).pop();
                     widget.onApply(_buildCriteria());
                   },
-                  child: Text(
-                    'Áp dụng',
-                    style: TextStyle(color: colors.surface),
-                  ),
                 ),
               ),
             ],
@@ -122,27 +122,16 @@ class _CustomFieldFilterSheetState extends State<CustomFieldFilterSheet> {
           runSpacing: 6,
           children: opt.options.map((option) {
             final isSelected = _selectedOptionIds[opt.fieldId] == option.optionId;
-            return GestureDetector(
+            return VChip(
+              label: option.label,
+              selected: isSelected,
+              emphasis: VChipEmphasis.base,
+              tone: VComponentTone.primary,
               onTap: () {
                 setState(() {
                   _selectedOptionIds[opt.fieldId] = isSelected ? null : option.optionId;
                 });
               },
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                decoration: BoxDecoration(
-                  color: isSelected ? colors.primary : colors.surfaceAlt,
-                  borderRadius: BorderRadius.circular(20),
-                  border: isSelected ? null : Border.all(color: colors.borderDefault),
-                ),
-                child: Text(
-                  option.label,
-                  style: VTypography.bodySmall.copyWith(
-                    color: isSelected ? Colors.white : colors.textPrimary,
-                    fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
-                  ),
-                ),
-              ),
             );
           }).toList(),
         ),

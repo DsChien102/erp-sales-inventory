@@ -23,18 +23,20 @@ enum ProductListFilter {
   readyToSell('Sẵn sàng bán'),
   incomplete('Thiếu dữ liệu'),
   inactive('Ngừng KD'),
+  // deleted('Đã xóa'),
   inStock('Còn hàng'),
   outOfStock('Hết hàng'),
-  negativeStock('Tồn âm');
+  negativeStock('Tồn âm')
+  ;
 
   final String label;
   const ProductListFilter(this.label);
 }
 
 class _ProductCatalogTabPageState extends State<ProductCatalogTabPage> {
-  static const Set<ProductStatus> _catalogListStatuses = {
-    ProductStatus.active,
-    ProductStatus.inactive,
+  static final Set<ProductBusinessStatus> _catalogListStatuses = {
+    ProductBusinessStatus.active,
+    ProductBusinessStatus.inactive,
   };
 
   final ScrollController _scrollController = ScrollController();
@@ -46,12 +48,13 @@ class _ProductCatalogTabPageState extends State<ProductCatalogTabPage> {
   @override
   void initState() {
     super.initState();
-    _cubit = ProductListCubit(
-      mediator: GetIt.instance<ICatalogModule>(),
-      executionContext: GetIt.instance<IExecutionContext>(),
-    )..fetchProducts(
-      criteria: ProductSearchCriteria(businessStatuses: _catalogListStatuses),
-    );
+    _cubit =
+        ProductListCubit(
+          mediator: GetIt.instance<ICatalogModule>(),
+          executionContext: GetIt.instance<IExecutionContext>(),
+        )..fetchProducts(
+          criteria: ProductSearchCriteria(businessStatuses: _catalogListStatuses),
+        );
 
     _scrollController.addListener(_onScroll);
     _loadFilterOptions();
@@ -122,9 +125,16 @@ class _ProductCatalogTabPageState extends State<ProductCatalogTabPage> {
       case ProductListFilter.inactive:
         return ProductSearchCriteria(
           keyword: keyword,
-          businessStatuses: {ProductStatus.inactive},
+          businessStatuses: {ProductBusinessStatus.inactive},
           customFieldFilters: _customFieldFilters,
         );
+      // case ProductListFilter.deleted:
+      //   return ProductSearchCriteria(
+      //     keyword: keyword,
+      //     businessStatuses: {ProductBusinessStatus.softDeleted},
+      //     includeSoftDeleted: true,
+      //     customFieldFilters: _customFieldFilters,
+      //   );
       default:
         // Stock filters and 'all' — include inactive; UI does local filtering for stock
         return ProductSearchCriteria(
@@ -179,7 +189,7 @@ class _ProductCatalogTabPageState extends State<ProductCatalogTabPage> {
     );
   }
 
-  Widget _buildFilterChips(BuildContext context, dynamic dynamicColors, ProductListState state) {
+  Widget _buildFilterChips() {
     final globalCount = _cubit.globalTotalCount;
 
     return SingleChildScrollView(
@@ -194,9 +204,10 @@ class _ProductCatalogTabPageState extends State<ProductCatalogTabPage> {
           }
           return Padding(
             padding: const EdgeInsets.only(right: 8),
-            child: GestureDetector(
+            child: VChip(
+              label: label,
+              selected: isSelected,
               onTap: () => _onFilterChanged(filter),
-              child: _buildChip(dynamicColors, label, isSelected),
             ),
           );
         }).toList(),
@@ -204,45 +215,23 @@ class _ProductCatalogTabPageState extends State<ProductCatalogTabPage> {
     );
   }
 
-  Widget _buildChip(VColorScheme colors, String label, bool isSelected) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      decoration: BoxDecoration(
-        color: isSelected ? colors.success : colors.surface,
-        borderRadius: BorderRadius.circular(16),
-        border: isSelected ? null : Border.all(color: colors.borderDefault),
-      ),
-      child: Text(
-        label,
-        style: VTypography.bodySmall.copyWith(
-          color: isSelected ? colors.surface : colors.textPrimary,
-          fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
-        ),
-      ),
-    );
-  }
-
   void _navigateToProductModel(BuildContext context, ProductListItemModel model) {
-    context.push(
-      '/products/items/pcc',
-      extra: ProductControlCenterRouteArgs(product: model),
-    ).then((_) {
-      if (mounted) {
-        _cubit.fetchProducts(isRefresh: true);
-      }
-    });
+    context
+        .push(
+          '/products/items/pcc',
+          extra: ProductControlCenterRouteArgs(product: model),
+        )
+        .then((_) {
+          if (mounted) {
+            _cubit.fetchProducts(isRefresh: true);
+          }
+        });
   }
 
   Future<void> _navigateToProduct(BuildContext context, ProductListItemDto dto) async {
     final readinessStatus = dto.readinessSummary.status == ReadinessStatus.readyToSell
         ? ProductReadinessStatus.ready
         : ProductReadinessStatus.needsReview;
-
-    final businessStatus = dto.isSoftDeleted
-        ? ProductBusinessStatus.softDeleted
-        : dto.businessStatus == ProductStatus.active
-        ? ProductBusinessStatus.active
-        : ProductBusinessStatus.inactive;
 
     final model = ProductListItemModel(
       id: dto.id,
@@ -251,14 +240,13 @@ class _ProductCatalogTabPageState extends State<ProductCatalogTabPage> {
       sku: dto.sku,
       barcode: dto.barcode,
       imageUrl: dto.primaryImageUrl,
-      businessStatus: businessStatus,
+      businessStatus: dto.businessStatus,
       readinessStatus: readinessStatus,
       listPrice: dto.listPrice,
       floorPrice: dto.floorPrice,
       baseUnit: dto.baseUnit,
       stockQty: dto.stockQuantity,
       stockLabel: dto.stockLabel,
-      isSoftDeleted: dto.isSoftDeleted,
     );
 
     await context.push(
@@ -312,7 +300,7 @@ class _ProductCatalogTabPageState extends State<ProductCatalogTabPage> {
               activeFiltersCount: _customFieldFilters.length,
             ),
             BlocBuilder<ProductListCubit, ProductListState>(
-              builder: (context, state) => _buildFilterChips(context, dynamicColors, state),
+              builder: (context, state) => _buildFilterChips(),
             ),
             const SizedBox(height: 12),
             Expanded(
@@ -354,7 +342,9 @@ class _ProductCatalogTabPageState extends State<ProductCatalogTabPage> {
                       description = null;
                       actionLabel = 'Tạo sản phẩm';
                       onActionPressed = () async {
-                        final createdProduct = await context.push<ProductListItemModel>('/products/items/new');
+                        final createdProduct = await context.push<ProductListItemModel>(
+                          '/products/items/new',
+                        );
                         if (!context.mounted) return;
                         if (createdProduct != null) {
                           _cubit.fetchProducts(isRefresh: true);
@@ -386,26 +376,29 @@ class _ProductCatalogTabPageState extends State<ProductCatalogTabPage> {
                     );
                   }
 
-                  final isLoadingMore =
-                      state is ProductListLoading && !state.isFirstLoad;
+                  final isLoadingMore = state is ProductListLoading && !state.isFirstLoad;
 
                   return RefreshIndicator(
                     onRefresh: () => _cubit.fetchProducts(isRefresh: true),
                     child: ListView.builder(
                       controller: _scrollController,
+                      padding: const EdgeInsets.all(VSpacing.space4),
                       physics: const AlwaysScrollableScrollPhysics(),
                       itemCount: items.length + (isLoadingMore ? 1 : 0),
                       itemBuilder: (context, index) {
                         if (isLoadingMore && index >= items.length) {
                           return const Padding(
-                            padding: EdgeInsets.symmetric(vertical: 16),
+                            padding: EdgeInsets.symmetric(vertical: VSpacing.space4),
                             child: Center(child: CircularProgressIndicator()),
                           );
                         }
                         final item = items[index];
-                        return ProductListItemTile(
-                          item: item,
-                          onTap: () => _navigateToProduct(context, item),
+                        return Padding(
+                          padding: const EdgeInsets.only(bottom: VSpacing.space2),
+                          child: ProductListItemTile(
+                            item: item,
+                            onTap: () => _navigateToProduct(context, item),
+                          ),
                         );
                       },
                     ),

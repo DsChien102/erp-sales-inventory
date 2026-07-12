@@ -31,59 +31,58 @@ class ProductControlCenterProfileCard extends StatelessWidget {
         ? 'Tồn ($stockUnit): Chưa thiết lập'
         : 'Tồn ($stockUnit): ${stock.quantity ?? 0}${stock.isOutOfStock ? ' (Hết hàng)' : ''}';
 
-    return Padding(
-      padding: const EdgeInsets.all(16),
-      child: VCard(
-        padding: const EdgeInsets.all(16),
-        child: Row(
-          children: [
-            if (imageReference != null && imageReference.isNotEmpty)
-              CatalogStorageImage(
-                storageReference: imageReference,
-                width: 64,
-                height: 64,
-                fit: BoxFit.cover,
-                borderRadius: BorderRadius.circular(8),
-                placeholder: VIconBox(
-                  size: 64,
-                  iconSize: 32,
-                  iconData: Icons.image_outlined,
-                  backgroundColor: dynamicColors.surfaceAlt,
-                  iconColor: dynamicColors.textMuted,
-                ),
-              )
-            else
-              VIconBox(
+    return VCard(
+      child: Row(
+        children: [
+          if (imageReference != null && imageReference.isNotEmpty)
+            CatalogStorageImage(
+              storageReference: imageReference,
+              width: 64,
+              height: 64,
+              fit: BoxFit.cover,
+              borderRadius: BorderRadius.circular(8),
+              placeholder: VIconBox(
                 size: 64,
                 iconSize: 32,
                 iconData: Icons.image_outlined,
                 backgroundColor: dynamicColors.surfaceAlt,
                 iconColor: dynamicColors.textMuted,
               ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    listPriceText,
-                    style: VTypography.bodyDefault.copyWith(
-                      color: dynamicColors.textPrimary,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    stockText,
-                    style: VTypography.bodySmall.copyWith(
-                      color: dynamicColors.textSecondary,
-                    ),
-                  ),
-                ],
-              ),
+            )
+          else
+            VIconBox(
+              size: 64,
+              iconSize: 32,
+              iconData: Icons.image_outlined,
+              backgroundColor: dynamicColors.surfaceAlt,
+              iconColor: dynamicColors.textMuted,
             ),
-          ],
-        ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                VText(
+                  profile.name,
+                  variant: VTextVariant.bodyDefault,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: VSpacing.space1),
+                VText(
+                  listPriceText,
+                  variant: VTextVariant.bodyDefault,
+                ),
+                const SizedBox(height: VSpacing.space1),
+                VText(
+                  stockText,
+                  variant: VTextVariant.bodySmall,
+                  color: dynamicColors.textSecondary,
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }

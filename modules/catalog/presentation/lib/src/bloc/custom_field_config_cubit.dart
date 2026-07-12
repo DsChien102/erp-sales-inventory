@@ -179,6 +179,7 @@ class CustomFieldConfigCubit extends Cubit<CustomFieldConfigState> {
       return false;
     }
   }
+
   /// ReorderableListView passes [newIndex] relative to the list before removal.
   /// When dragging down, decrement [newIndex] after [oldIndex] is removed.
   List<T>? _reorderItems<T>(List<T> items, int oldIndex, int newIndex) {

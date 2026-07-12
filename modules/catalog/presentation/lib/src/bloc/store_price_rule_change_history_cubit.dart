@@ -4,15 +4,14 @@ import 'package:vet45_shared_application/application.dart';
 
 import 'store_price_rule_change_history_state.dart';
 
-class StorePriceRuleChangeHistoryCubit
-    extends Cubit<StorePriceRuleChangeHistoryState> {
+class StorePriceRuleChangeHistoryCubit extends Cubit<StorePriceRuleChangeHistoryState> {
   StorePriceRuleChangeHistoryCubit({
     required IModuleMediator moduleMediator,
     required IExecutionContext executionContext,
     this.pageSize = 50,
-  })  : _moduleMediator = moduleMediator,
-        _executionContext = executionContext,
-        super(StorePriceRuleChangeHistoryInitial());
+  }) : _moduleMediator = moduleMediator,
+       _executionContext = executionContext,
+       super(StorePriceRuleChangeHistoryInitial());
 
   final IModuleMediator _moduleMediator;
   final IExecutionContext _executionContext;
@@ -30,9 +29,9 @@ class StorePriceRuleChangeHistoryCubit
         limit: pageSize,
         offset: 0,
       );
-      final result =
-          await _moduleMediator.executeQueryAsync<
-              StorePriceRuleChangeHistoryResultDto>(query);
+      final result = await _moduleMediator.executeQueryAsync<StorePriceRuleChangeHistoryResultDto>(
+        query,
+      );
       emit(
         StorePriceRuleChangeHistoryLoaded(
           items: result.items,
@@ -67,9 +66,9 @@ class StorePriceRuleChangeHistoryCubit
         limit: pageSize,
         offset: current.items.length,
       );
-      final result =
-          await _moduleMediator.executeQueryAsync<
-              StorePriceRuleChangeHistoryResultDto>(query);
+      final result = await _moduleMediator.executeQueryAsync<StorePriceRuleChangeHistoryResultDto>(
+        query,
+      );
       emit(
         StorePriceRuleChangeHistoryLoaded(
           items: [...current.items, ...result.items],

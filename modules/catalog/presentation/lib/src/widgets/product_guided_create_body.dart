@@ -32,100 +32,101 @@ class ProductGuidedCreateBody extends StatelessWidget {
           child: Column(
             children: [
               Expanded(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.all(VSpacing.space4),
-                child: Column(
-                  children: [
-                    _buildStep(
-                      context: context,
-                      stepIndex: 0,
-                      title: '1. Nhận diện',
-                      subtitle: 'Tên nội bộ, tên thương mại, SKU, barcode',
-                      isExpanded: state.activeStepIndex == 0,
-                      child: ProductGuidedStepIdentification(
-                        state: state,
-                        onOpenDuplicateProduct: onOpenDuplicateProduct,
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.all(VSpacing.space4),
+                  child: Column(
+                    children: [
+                      _buildStep(
+                        context: context,
+                        stepIndex: 0,
+                        title: '1. Nhận diện',
+                        subtitle: 'Tên nội bộ, tên thương mại, SKU, barcode',
+                        isExpanded: state.activeStepIndex == 0,
+                        child: ProductGuidedStepIdentification(
+                          state: state,
+                          onOpenDuplicateProduct: onOpenDuplicateProduct,
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: VSpacing.space2),
-                    _buildStep(
-                      context: context,
-                      stepIndex: 1,
-                      title: '2. Ảnh',
-                      subtitle: 'Ảnh bìa và ảnh phụ',
-                      isExpanded: state.activeStepIndex == 1,
-                      child: ProductGuidedStepImages(state: state),
-                    ),
-                    const SizedBox(height: VSpacing.space2),
-                    _buildStep(
-                      context: context,
-                      stepIndex: 2,
-                      title: '3. Đơn vị cơ sở',
-                      subtitle: 'Chọn đơn vị gốc để tính tồn/giá',
-                      isExpanded: state.activeStepIndex == 2,
-                      child: ProductGuidedStepBaseUnit(state: state),
-                    ),
-                    const SizedBox(height: VSpacing.space2),
-                    _buildStep(
-                      context: context,
-                      stepIndex: 3,
-                      title: '4. Tồn kho khởi tạo',
-                      subtitle: 'Nhập số lượng tồn ban đầu',
-                      isExpanded: state.activeStepIndex == 3,
-                      child: ProductGuidedStepInventory(state: state),
-                    ),
-                    const SizedBox(height: VSpacing.space2),
-                    _buildStep(
-                      context: context,
-                      stepIndex: 4,
-                      title: '5. Giá vốn cơ sở',
-                      subtitle: 'Thiết lập giá vốn ban đầu',
-                      isExpanded: state.activeStepIndex == 4,
-                      child: ProductGuidedStepBaseCost(state: state),
-                    ),
-                    const SizedBox(height: VSpacing.space2),
-                    _buildStep(
-                      context: context,
-                      stepIndex: 5,
-                      title: '6. Khung giá bán',
-                      subtitle: 'Thiết lập cách tính giá bán',
-                      isExpanded: state.activeStepIndex == 5,
-                      child: ProductGuidedStepPriceBands(state: state),
-                    ),
-                    ...List.generate(state.customFieldGroups.length, (index) {
-                      final group = state.customFieldGroups[index];
-                      final stepIdx = 6 + index;
-                      final filledCount = group.fields.where((f) {
-                        final val = state.customFieldValues[f.fieldId];
-                        return val != null && !val.isEmpty;
-                      }).length;
+                      const SizedBox(height: VSpacing.space2),
+                      _buildStep(
+                        context: context,
+                        stepIndex: 1,
+                        title: '2. Ảnh',
+                        subtitle: 'Ảnh bìa và ảnh phụ',
+                        isExpanded: state.activeStepIndex == 1,
+                        child: ProductGuidedStepImages(state: state),
+                      ),
+                      const SizedBox(height: VSpacing.space2),
+                      _buildStep(
+                        context: context,
+                        stepIndex: 2,
+                        title: '3. Đơn vị cơ sở',
+                        subtitle: 'Chọn đơn vị gốc để tính tồn/giá',
+                        isExpanded: state.activeStepIndex == 2,
+                        child: ProductGuidedStepBaseUnit(state: state),
+                      ),
+                      const SizedBox(height: VSpacing.space2),
+                      _buildStep(
+                        context: context,
+                        stepIndex: 3,
+                        title: '4. Tồn kho khởi tạo',
+                        subtitle: 'Nhập số lượng tồn ban đầu',
+                        isExpanded: state.activeStepIndex == 3,
+                        child: ProductGuidedStepInventory(state: state),
+                      ),
+                      const SizedBox(height: VSpacing.space2),
+                      _buildStep(
+                        context: context,
+                        stepIndex: 4,
+                        title: '5. Giá vốn cơ sở',
+                        subtitle: 'Thiết lập giá vốn ban đầu',
+                        isExpanded: state.activeStepIndex == 4,
+                        child: ProductGuidedStepBaseCost(state: state),
+                      ),
+                      const SizedBox(height: VSpacing.space2),
+                      _buildStep(
+                        context: context,
+                        stepIndex: 5,
+                        title: '6. Khung giá bán',
+                        subtitle: 'Thiết lập cách tính giá bán',
+                        isExpanded: state.activeStepIndex == 5,
+                        child: ProductGuidedStepPriceBands(state: state),
+                      ),
+                      ...List.generate(state.customFieldGroups.length, (index) {
+                        final group = state.customFieldGroups[index];
+                        final stepIdx = 6 + index;
+                        final filledCount = group.fields.where((f) {
+                          final val = state.customFieldValues[f.fieldId];
+                          return val != null && !val.isEmpty;
+                        }).length;
 
-                      return Column(
-                        children: [
-                          const SizedBox(height: VSpacing.space2),
-                          _buildStep(
-                            context: context,
-                            stepIndex: stepIdx,
-                            title: '${stepIdx + 1}. ${group.name}',
-                            subtitle: '$filledCount/${group.fields.length} trường đã điền',
-                            isExpanded: state.activeStepIndex == stepIdx,
-                            child: ProductGuidedStepCustomFields(
-                              state: state,
-                              group: group,
+                        return Column(
+                          children: [
+                            const SizedBox(height: VSpacing.space2),
+                            _buildStep(
+                              context: context,
+                              stepIndex: stepIdx,
+                              title: '${stepIdx + 1}. ${group.name}',
+                              subtitle: '$filledCount/${group.fields.length} trường đã điền',
+                              isExpanded: state.activeStepIndex == stepIdx,
+                              child: ProductGuidedStepCustomFields(
+                                state: state,
+                                group: group,
+                              ),
                             ),
-                          ),
-                        ],
-                      );
-                    }),
-                  ],
+                          ],
+                        );
+                      }),
+                    ],
+                  ),
                 ),
               ),
-            ),
-            _buildStickyFooter(context, state),
-          ],
-        ),
-      );
-    });
+              _buildStickyFooter(context, state),
+            ],
+          ),
+        );
+      },
+    );
   }
 
   Widget _buildStep({

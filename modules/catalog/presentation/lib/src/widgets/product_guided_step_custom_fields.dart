@@ -30,7 +30,8 @@ class ProductGuidedStepCustomFields extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         ...group.fields.map((field) {
-          final input = state.customFieldValues[field.fieldId] ??
+          final input =
+              state.customFieldValues[field.fieldId] ??
               ProductCustomFieldValueInput(fieldId: field.fieldId);
           final errorText = state.customFieldValidationErrors[field.fieldId];
 

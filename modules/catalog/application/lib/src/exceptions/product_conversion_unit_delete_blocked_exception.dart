@@ -4,10 +4,10 @@ final class ProductConversionUnitDeleteBlockedException extends ApplicationExcep
   ProductConversionUnitDeleteBlockedException({
     String? message,
   }) : super(
-          message ??
-              'Không thể xóa đơn vị này vì đã có dữ liệu phụ thuộc. '
-              'Hãy dùng "Tắt đơn vị" để bảo toàn lịch sử.',
-        );
+         message ??
+             'Không thể xóa đơn vị này vì đã có dữ liệu phụ thuộc. '
+                 'Hãy dùng "Tắt đơn vị" để bảo toàn lịch sử.',
+       );
 
   static const suggestDeactivateActionId = 'deactivate_conversion_unit';
 }

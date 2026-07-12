@@ -3,12 +3,14 @@ import 'package:vet45_catalog_application/application.dart';
 import 'package:vet45_catalog_domain/domain.dart';
 import 'package:vet45_shared_application/application.dart';
 
+import 'support/fake_write_ports.dart';
+
 final class _RecordingStockGateway implements ICatalogStockGateway {
   AdjustBasicStockCommand? lastCommand;
   AdjustBasicStockGatewayResult result = const AdjustBasicStockGatewayResult(
     previousQuantity: 150,
     newQuantity: 25,
-    unitName: 'Lọ',
+    unitName: 'Lo',
   );
 
   @override
@@ -42,7 +44,7 @@ ProductReadinessFacts _basicFacts({
 }) {
   return ProductReadinessFacts(
     productId: 'product-1',
-    productName: 'Thuốc A',
+    productName: 'Thuoc A',
     hasBaseUnit: hasBaseUnit,
     hasImages: true,
     hasStock: hasStock,
@@ -64,23 +66,24 @@ void main() {
       final handler = AdjustBasicStockCommandHandler(
         stockGateway: gateway,
         readinessReadPort: readinessPort,
+        catalogReadGateway: FakeCatalogReadGateway(stockQuantity: 150),
       );
 
       final result = await handler.handle(
         AdjustBasicStockCommand(
           tenantId: 'tenant-1',
           productId: 'product-1',
-          newQuantity: 25.0,
-          reason: 'Kiểm kê thực tế',
-          expectedQuantity: 150.0,
+          newQuantity: 25,
+          reason: 'Kiem ke thuc te',
+          expectedQuantity: 150,
         ),
       );
 
-      expect(result.previousQuantity, 150.0);
-      expect(result.newQuantity, 25.0);
-      expect(result.unitName, 'Lọ');
+      expect(result.previousQuantity, 150);
+      expect(result.newQuantity, 25);
+      expect(result.unitName, 'Lo');
       expect(result.readinessSummary.status, ReadinessStatus.readyToSell);
-      expect(gateway.lastCommand?.newQuantity, 25.0);
+      expect(gateway.lastCommand?.newQuantity, 25);
     });
 
     test('negative quantity rejected by validator', () async {
@@ -91,7 +94,7 @@ void main() {
           AdjustBasicStockCommand(
             tenantId: 'tenant-1',
             productId: 'product-1',
-            newQuantity: -1.0,
+            newQuantity: -1,
           ),
         ),
         throwsA(isA<ValidationException>()),
@@ -104,6 +107,7 @@ void main() {
         readinessReadPort: _FakeReadinessReadPort(
           facts: _basicFacts(hasBaseUnit: false),
         ),
+        catalogReadGateway: FakeCatalogReadGateway(),
       );
 
       await expectLater(
@@ -111,7 +115,7 @@ void main() {
           AdjustBasicStockCommand(
             tenantId: 'tenant-1',
             productId: 'product-1',
-            newQuantity: 10.0,
+            newQuantity: 10,
           ),
         ),
         throwsA(isA<MissingBaseUnitException>()),
@@ -124,7 +128,7 @@ void main() {
         readinessReadPort: _FakeReadinessReadPort(
           facts: ProductReadinessFacts(
             productId: 'product-1',
-            productName: 'Thuốc A',
+            productName: 'Thuoc A',
             hasBaseUnit: true,
             hasImages: true,
             hasStock: false,
@@ -135,6 +139,7 @@ void main() {
             basePriceMode: BasePriceMode.manual,
           ),
         ),
+        catalogReadGateway: FakeCatalogReadGateway(),
       );
 
       await expectLater(
@@ -142,7 +147,7 @@ void main() {
           AdjustBasicStockCommand(
             tenantId: 'tenant-1',
             productId: 'product-1',
-            newQuantity: 10.0,
+            newQuantity: 10,
           ),
         ),
         throwsA(isA<NotBasicStockModeException>()),
@@ -153,6 +158,7 @@ void main() {
       final handler = AdjustBasicStockCommandHandler(
         stockGateway: _RecordingStockGateway(),
         readinessReadPort: _FakeReadinessReadPort(facts: null),
+        catalogReadGateway: FakeCatalogReadGateway(),
       );
 
       await expectLater(
@@ -160,7 +166,7 @@ void main() {
           AdjustBasicStockCommand(
             tenantId: 'tenant-1',
             productId: 'product-1',
-            newQuantity: 10.0,
+            newQuantity: 10,
           ),
         ),
         throwsA(isA<ApplicationException>()),

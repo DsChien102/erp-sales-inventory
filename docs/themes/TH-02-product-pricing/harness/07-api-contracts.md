@@ -101,7 +101,7 @@ Import contract (UI wizard **pending**): CSV cột `reference_id` → explicit; 
 
 | Symbol | Input (summary) | Success | Errors |
 | ------ | --------------- | ------- | ------ |
-| `SetInitialStockCommand` | tenantId, productId, quantity (`double`, basic mode) | `SetInitialStockResult` (productId, quantity, unitName?, readinessSummary) | Validation, NotBasicStockMode, MissingBaseUnit |
+| `SetBasicStockQuantityBaseCommand` | tenantId, productId, quantity (`int`, basic mode) | `SetBasicStockQuantityBaseResult` (productId, quantity, unitName?, readinessSummary) | Validation, NotBasicStockMode, MissingBaseUnit |
 | `SetManualBasePriceCommand` | tenantId, productId, basePrice, currency | `SetManualBasePriceResult` | Validation, NotManualBasePriceMode, MissingBaseUnit |
 | `SetInitialPriceBandCommand` | tenantId, productId, listPrice?, floorPrice?, useStoreRule? | void | Validation, MissingBasePrice |
 
@@ -109,8 +109,8 @@ Import contract (UI wizard **pending**): CSV cột `reference_id` → explicit; 
 
 | scenario_id | trigger | fake response |
 | ----------- | ------- | ------------- |
-| `initial_stock_ok` | SetInitialStockCommand | success, readiness updated |
-| `initial_stock_skip` | skip step | blocker remains |
+| `basic_stock_quantity_base_ok` | SetBasicStockQuantityBaseCommand | success, readiness updated |
+| `basic_stock_quantity_base_skip` | skip step | blocker remains |
 | `manual_base_price_ok` | SetManualBasePriceCommand | success |
 | `price_band_from_store_rule` | useStoreRule=true | suggested list/floor |
 
@@ -152,7 +152,7 @@ Permissions: `@RequiresPermission(CatalogPermissions.viewDetail)` + `@RequiresTe
 | `missing_image` | images | — | — | recommended only |
 | `missing_price` | basePrice | `set_manual_base_price` | `catalog.product.manage_pricing` | manual base price |
 | `pending_base_price_from_costing` | basePrice | `open_costing` | `catalog.product.view_detail` | costing module (**pending**) |
-| `missing_stock` | stock | `set_initial_stock` | `catalog.product.manage_stock` | basic stock |
+| `missing_stock` | stock | `set_basic_stock_quantity_base` | `catalog.product.manage_stock` | basic stock |
 | `pending_stock_from_inventory` | stock | `open_inventory` | `catalog.product.view_detail` | advanced stock (**pending**) |
 | `missing_price_band` | priceBand | `set_price_band` | `catalog.product.manage_pricing` | |
 | `missing_required_custom_fields` | customFields | `fill_custom_fields` | `catalog.product.update` | EPIC-03 |
@@ -184,7 +184,7 @@ Draft: `supabase/migrations/_drafts/catalog_product_readiness.sql`
 | ----------- | ------- | ------------- |
 | `readiness_many_blockers` | GetProductReadinessQuery after minimal create | incomplete + many checklist `missing` |
 | `readiness_ready_to_sell` | create with full data + query | `readyToSell`, primary `create_another_product` |
-| `readiness_advanced_stock_pending` | advanced stock mode product | stock `pendingExternal`, no `set_initial_stock` |
+| `readiness_advanced_stock_pending` | advanced stock mode product | stock `pendingExternal`, no `set_basic_stock_quantity_base` |
 | `readiness_costing_base_price_pending` | costing base price mode | basePrice `pendingExternal` |
 | `readiness_missing_custom_fields` | missing required custom fields | blocker `missing_required_custom_fields` |
 | `readiness_no_price_permission` | missing price band, no pricing perm | blocker visible, `set_price_band` disabled |
@@ -234,7 +234,7 @@ Supporting types:
 | `ProductSearchCriteria` | keyword?, businessStatuses (`Set<ProductStatus>`, default `{active}`), readinessFilter?, includeSoftDeleted (default false), sortOrder |
 | `ProductReadinessFilter` | `readyToSell`, `incomplete` |
 | `ProductSortOrder` | `updatedAtDesc`, `relevanceDesc` (chỉ có ý nghĩa khi `keyword` non-null; FE auto-set khi search) |
-| `ProductListItemDto` | id, name, tradeName?, sku?, barcode?, primaryImageUrl?, businessStatus, isSoftDeleted, readinessSummary, listPrice?, floorPrice?, baseUnit?, stockQuantity?, stockLabel?, updatedAt |
+| `ProductListItemDto` | id, name, tradeName?, sku?, barcode?, primaryImageUrl?, businessStatus (`ProductBusinessStatus`), readinessSummary, listPrice?, floorPrice?, baseUnit?, stockQuantity?, stockLabel?, updatedAt |
 | `ProductSearchResultDto` | items[], totalCount |
 
 Readiness chip trên list: FE derive từ `readinessSummary.status` + `blockers.first` (FR-03).
@@ -252,13 +252,15 @@ Port: `ICatalogReadGateway.search`, `ICatalogReadGateway.findByBarcode`.
 
 **`catalog.search_products` params:** `p_tenant_id`, `p_keyword`, `p_business_statuses text[]`, `p_readiness_filter text`, `p_include_soft_deleted boolean`, `p_limit int`, `p_offset int`, `p_custom_field_filters jsonb` (EPIC-03), `p_sort_order text` default `updated_at_desc` (`updated_at_desc` \| `relevance_desc`)
 
-**Search engine:** PostgreSQL FTS trên `products.search_document` (`tsvector` + GIN) với `unaccent` + config `simple` (khớp không dấu tiếng Việt). Fast-path exact/prefix trên `sku`/`barcode` (cột đã inline-normalize). Searchable custom fields (`text`/`singleSelect`) denormalize vào `search_document` (không correlated ILIKE mỗi row).
+**Search engine:** PostgreSQL FTS trên `products.search_document` (`tsvector` + GIN) với `unaccent` + config `simple` (khớp không dấu tiếng Việt). Fast-path exact/prefix trên `sku`/`barcode` (cột đã inline-normalize: **SKU = trim + uppercase**, barcode = trim). Searchable custom fields (`text`/`singleSelect`) denormalize vào `search_document` (không correlated ILIKE mỗi row).
+
+Draft SQL (SKU uppercase): `supabase/migrations/_drafts/001_catalog_patch_sku_uppercase_normalize.sql`, `002_catalog_patch_sku_uppercase_search_products.sql`.
 
 **Sort:** luôn pin `active` trước `inactive` (kể cả khi `relevance_desc`). Khi `p_sort_order = relevance_desc` và có keyword → `ts_rank_cd` rồi `updated_at desc`, `name asc`. Khi không keyword / `updated_at_desc` → active-first rồi `updated_at desc`.
 
 **Response row:** list item fields + readiness facts + `custom_field_values jsonb` + `total_count`. Không expose `reference_id`.
 
-Draft SQL: `supabase/migrations/_drafts/catalog_product_fts_search.sql`.
+Canonical FTS migration: `20260712002_catalog_product_fts_search.sql`.
 
 ### Fake scenarios (FE)
 
@@ -403,7 +405,7 @@ Không thêm query gates — FE derive từ `readinessSummary` / `hasBaseUnit`. 
 
 | Command | Requires base unit |
 | ------- | ------------------ |
-| `SetInitialStockCommand` | yes |
+| `SetBasicStockQuantityBaseCommand` | yes |
 | `SetManualBasePriceCommand` | yes |
 | `SetInitialPriceBandCommand` | yes |
 | Slice #7 conversion unit commands | yes (lane sau) |
@@ -525,7 +527,7 @@ Tests: `scn_contract_e04_u02_*` trong `fake_catalog_module_test.dart`.
 | `AdjustBasicStockCommand` | tenantId, productId, newQuantity (`double`), reason?, expectedQuantity? | `AdjustBasicStockResult` (productId, previousQuantity, newQuantity, unitName?, readinessSummary) | Validation, `MissingBaseUnitException`, `NotBasicStockModeException`, `StaleStockQuantityException` |
 | `GetProductStockHistoryQuery` | tenantId, productId, limit=50 | `ProductStockHistoryDto` | PermissionDenied, NotFound |
 
-`SetInitialStockCommand` updated from `void` to `SetInitialStockResult` and now accepts `double quantity`.
+`SetBasicStockQuantityBaseCommand` updated from `void` to `SetBasicStockQuantityBaseResult` and now accepts `int quantity`.
 
 ### Stock card contract (US-01 read-side)
 
@@ -546,7 +548,7 @@ Tests: `scn_contract_e04_u02_*` trong `fake_catalog_module_test.dart`.
 
 | Type | Fields |
 | ---- | ------ |
-| `SetInitialStockResult` | productId, quantity, unitName?, readinessSummary |
+| `SetBasicStockQuantityBaseResult` | productId, quantity, unitName?, readinessSummary |
 | `AdjustBasicStockResult` | productId, previousQuantity, newQuantity, unitName?, readinessSummary |
 | `ProductStockMovementDto` | id, occurredAt, actorDisplayName, movementType (`initial` \| `adjust`), quantityBefore, quantityAfter, delta, reason? |
 | `ProductStockHistoryDto` | productId, unitName?, isHistoricalBasicOnly, movements[] |
@@ -555,7 +557,7 @@ Tests: `scn_contract_e04_u02_*` trong `fake_catalog_module_test.dart`.
 
 | Use case | RPC |
 | -------- | --- |
-| Set initial stock | `catalog.set_initial_stock` |
+| Set initial stock | `catalog.set_basic_stock_quantity_base` |
 | Adjust basic stock | `catalog.adjust_basic_stock` |
 | Read stock history | `catalog.get_product_stock_history` |
 
@@ -566,7 +568,7 @@ Tests: `scn_contract_e04_u02_*` trong `fake_catalog_module_test.dart`.
 | `scn_contract_e05_u01_fr01_01` | PCC `product-1` | stock mode basic + source `Tồn kho cơ bản` |
 | `scn_contract_e05_u01_fr02_01` | advanced stock product | source inventory + read-only (`canAdjust=false`) |
 | `scn_contract_e05_u01_fr03_01` | quantity = 0 | `isOutOfStock=true`, không tạo blocker `missing_stock` |
-| `scn_contract_e05_u02_fr01_01` | `SetInitialStockCommand` valid | `SetInitialStockResult` + readiness refresh |
+| `scn_contract_e05_u02_fr01_01` | `SetBasicStockQuantityBaseCommand` valid | `SetBasicStockQuantityBaseResult` + readiness refresh |
 | `scn_contract_e05_u02_fr01_02` | set stock khi thiếu base unit | `MissingBaseUnitException` |
 | `scn_contract_e05_u02_fr02_01` | `AdjustBasicStockCommand` valid | `AdjustBasicStockResult` |
 | `scn_contract_e05_u02_fr02_02` | adjust âm | `ValidationException` |
@@ -1077,12 +1079,12 @@ Permissions: `@RequiresPermission(CatalogPermissions.manageStatus)` + `@Requires
 
 ### Contract rules
 
-- Business status uses existing `ProductStatus.active` / `ProductStatus.inactive`; soft delete remains separate (`isSoftDeleted`).
-- Deactivate preserves profile, UOM, stock, pricing, custom fields, readiness, and history; it only changes business status and records history.
+- Business status uses `ProductBusinessStatus`: `active` \| `inactive` \| `soft_deleted`. Soft delete **is** a business status value (not a separate flag).
+- Deactivate preserves profile, UOM, stock, pricing, custom fields, readiness, and history; it only changes business status (`active` → `inactive`) and records history.
 - Deactivate may return warnings that require explicit acknowledgment. CONTRACT fake covers `has_stock`; open transactions and promotions are documented for BE/FE but require downstream module contracts.
 - Reactivation is allowed even when readiness blockers remain. Result returns refreshed `readinessSummary`; UI must show blockers instead of claiming ready-to-sell.
-- Soft-deleted products cannot be deactivated/reactivated in this slice. Restore belongs to EPIC-07/US-03.
-- Default product selection/search for new transactions excludes inactive products by using `ProductSearchCriteria.businessStatuses` default `{active}`. Admin/history views may opt into inactive with explicit criteria.
+- Soft-deleted products (`soft_deleted`) cannot be deactivated/reactivated in this slice. Restore belongs to EPIC-07/US-03.
+- Default product selection/search for new transactions excludes inactive and soft-deleted products by using `ProductSearchCriteria.businessStatuses` default `{active}`. Admin/history views may opt into inactive / soft_deleted with explicit criteria.
 - Sales/Promotions enforcement is downstream behavior. Catalog does not create sales-order or promotion guards in this CONTRACT lane.
 
 ### RPC mapping (BE — later lane)
@@ -1126,8 +1128,8 @@ Tests: `scn_contract_e07_u02_*` in `fake_catalog_module_test.dart` (group `EPIC-
 | Symbol | Input (summary) | Success | Errors |
 | ------ | --------------- | ------- | ------ |
 | `CheckProductDeletionEligibilityQuery` | tenantId, productId | `ProductDeletionEligibilityDto` | PermissionDenied, NotFound |
-| `DeleteProductCommand` | tenantId, actorId, productId, reason?, expectedVersion?, confirmAcknowledgeWarnings | `ChangeProductSoftDeleteResult` (`isSoftDeleted=true`) | PermissionDenied, NotFound, Validation, `StaleProductVersionException` |
-| `RestoreProductCommand` | tenantId, actorId, productId, reason?, expectedVersion? | `ChangeProductSoftDeleteResult` (`isSoftDeleted=false`, `businessStatus=inactive`, readiness refreshed) | PermissionDenied, NotFound, Validation, `StaleProductVersionException`, `DuplicateSkuException`, `DuplicateBarcodeException` |
+| `DeleteProductCommand` | tenantId, actorId, productId, reason?, expectedVersion?, confirmAcknowledgeWarnings | `ChangeProductSoftDeleteResult` (`businessStatus=soft_deleted`) | PermissionDenied, NotFound, Validation, `StaleProductVersionException` |
+| `RestoreProductCommand` | tenantId, actorId, productId, reason?, expectedVersion? | `ChangeProductSoftDeleteResult` (`businessStatus=inactive`, readiness refreshed) | PermissionDenied, NotFound, Validation, `StaleProductVersionException`, `DuplicateSkuException`, `DuplicateBarcodeException` |
 
 Package: `vet45_catalog_application` — `lifecycle/`.
 
@@ -1139,18 +1141,18 @@ Supporting types:
 | `ProductDeletionIssueDto` | code, message, severity |
 | `ProductDeletionIssueCode` | `has_historical_transactions`, `has_stock`, `open_transaction`, `active_promotion` |
 | `ProductDeletionIssueSeverity` | `warning`, `blocker`, `recommendation` |
-| `ChangeProductSoftDeleteResult` | productId, isSoftDeleted, businessStatus, readinessSummary, version, reason?, issues[], historyEntry? |
+| `ChangeProductSoftDeleteResult` | productId, businessStatus, readinessSummary, version, reason?, issues[], historyEntry? (`isSoftDeleted` derived getter) |
 
 Permissions: `@RequiresPermission(CatalogPermissions.delete)` + `@RequiresTenant()`.
 
 ### Contract rules
 
-- Soft delete remains a separate `isSoftDeleted` flag; do not add `ProductStatus.deleted`.
-- `DeleteProductCommand` preserves profile, UOM, images, stock, pricing, custom fields, business status, readiness inputs, and change history. It only marks `isSoftDeleted=true`, increments version, and records history.
+- Soft delete sets `ProductBusinessStatus.softDeleted` (Postgres `soft_deleted`). `deleted_at` remains an audit timestamp only.
+- `DeleteProductCommand` preserves profile, UOM, images, stock, pricing, custom fields, readiness inputs, and change history. It sets `businessStatus=soft_deleted`, may set `deleted_at`, increments version, and records history.
 - Eligibility blockers such as `open_transaction` prevent delete even when warnings are acknowledged. Warnings can suggest `deactivate_product` instead.
-- Default product search excludes soft-deleted products through `ProductSearchCriteria.includeSoftDeleted=false`; admin/history views must opt in explicitly.
-- Restore is allowed only for soft-deleted products. Restore checks SKU/barcode conflicts against non-deleted products.
-- Restored products return to `ProductStatus.inactive` and must show refreshed readiness blockers instead of claiming ready-to-sell.
+- Default product search excludes soft-deleted products (`business_status <> soft_deleted` / `includeSoftDeleted=false`); admin/history views must opt in explicitly.
+- Restore is allowed only for soft-deleted products. Restore checks SKU/barcode conflicts against non-soft-deleted products.
+- Restored products return to `ProductBusinessStatus.inactive` and must show refreshed readiness blockers instead of claiming ready-to-sell.
 - Soft-deleted products remain read-only for normal maintenance; profile/image maintenance remains locked until restored.
 - Sales/Promotions dependency checks are contract fakes only in this lane; BE can connect module facts later.
 
@@ -1159,8 +1161,8 @@ Permissions: `@RequiresPermission(CatalogPermissions.delete)` + `@RequiresTenant
 | Use case | RPC | Notes |
 | -------- | --- | ----- |
 | Check delete eligibility | `catalog.check_product_deletion_eligibility` | Dependency facts, warning/blocker issue list, suggested deactivate action |
-| Soft delete product | `catalog.delete_product` | Version check, dependency guard, soft-delete flag, change history |
-| Restore product | `catalog.restore_product` | Version check, duplicate SKU/barcode guard, restore as inactive, readiness refresh, change history |
+| Soft delete product | `catalog.delete_product` | Version check, dependency guard, set `business_status=soft_deleted` + `deleted_at`, change history |
+| Restore product | `catalog.restore_product` | Version check, duplicate SKU/barcode guard, restore as `inactive`, clear `deleted_at`, readiness refresh, change history |
 
 No SQL draft is created in CONTRACT lane.
 
@@ -1171,10 +1173,10 @@ No SQL draft is created in CONTRACT lane.
 | `scn_contract_e07_u03_fr01_01` | eligibility for `product-6` | `canDelete=true`, no issues |
 | `scn_contract_e07_u03_fr01_02` | eligibility/delete for `product-4` with open transaction | blocker `open_transaction`; delete throws `ValidationException` |
 | `scn_contract_e07_u03_fr01_03` | historical data on `product-1` | warning `has_historical_transactions`, suggested `deactivate_product` |
-| `scn_contract_e07_u03_fr02_01` | delete `product-6` | `isSoftDeleted=true`, version increment, history entry |
+| `scn_contract_e07_u03_fr02_01` | delete `product-6` | `businessStatus=soft_deleted`, version increment, history entry |
 | `scn_contract_e07_u03_fr02_02` | stale `expectedVersion` | `StaleProductVersionException` |
 | `scn_contract_e07_u03_fr02_03` | search after delete | default excludes; `includeSoftDeleted=true` includes deleted row |
-| `scn_contract_e07_u03_fr03_01` | restore deleted `product-7` | `isSoftDeleted=false`, `businessStatus=inactive`, readiness blockers returned |
+| `scn_contract_e07_u03_fr03_01` | restore deleted `product-7` | `businessStatus=inactive`, readiness blockers returned |
 | `scn_contract_e07_u03_fr03_02` | restore duplicate SKU | `DuplicateSkuException` |
 | `scn_contract_e07_u03_fr03_03` | restore duplicate barcode | `DuplicateBarcodeException` |
 | `scn_contract_e07_u03_fr04_01` | PCC after delete | preserved units, stock, base price, price band, history |
@@ -1267,7 +1269,7 @@ Tests: `scn_contract_e07_u04_*` in `fake_catalog_module_test.dart`.
 | `InitializeCustomFieldTemplateCommand` | tenantId, templateId? | `InitializeCustomFieldTemplateResult` | `ValidationException`, PermissionDenied |
 | `UpsertCustomFieldGroupCommand` | tenantId, groupId?, name, iconKey?, isActive | `CustomFieldGroupConfigDto` | `ValidationException`, `DuplicateCustomFieldGroupNameException`, `CustomFieldGroupNotFoundException`, PermissionDenied |
 | `ReorderCustomFieldGroupsCommand` | tenantId, orderedGroupIds[] | void | `ValidationException`, `CustomFieldGroupNotFoundException` |
-| `UpsertCustomFieldCommand` | tenantId, groupId, fieldId?, name, fieldType, options?, isActive | `CustomFieldDefinitionDto` | `ValidationException`, `DuplicateCustomFieldNameException`, `CustomFieldGroupNotFoundException`, `CustomFieldNotFoundException` |
+| `UpsertCustomFieldCommand` | tenantId, groupId, fieldId?, name, fieldType, options?, isActive | `CustomFieldDefinitionDto` | `ValidationException`, `DuplicateCustomFieldNameException`, `CustomFieldGroupNotFoundException`, `CustomFieldNotFoundException`, `CustomFieldTypeChangeBlockedException` |
 | `ConfigureCustomFieldAttributesCommand` | tenantId, fieldId, isRequired, isSearchable, isFilterable, displayOnList | `ConfigureCustomFieldAttributesResult` | `ValidationException`, `CustomFieldNotFoundException` |
 | `ReorderCustomFieldsCommand` | tenantId, groupId, orderedFieldIds[] | void | `ValidationException`, `CustomFieldGroupNotFoundException`, `CustomFieldNotFoundException` |
 | `ListCustomFieldConfigQuery` | tenantId | `CustomFieldConfigViewDto` | PermissionDenied |
@@ -1279,7 +1281,7 @@ Supporting types:
 | Type | Fields |
 | ---- | ------ |
 | `CustomFieldGroupConfigDto` | groupId, name, iconKey?, sortOrder, status, fieldCount, requiredFieldCount, fields[] |
-| `CustomFieldDefinitionDto` | fieldId, groupId, name, fieldType, options[], isRequired, isSearchable, isFilterable, displayOnList, sortOrder, status |
+| `CustomFieldDefinitionDto` | fieldId, groupId, name, fieldType, options[], isRequired, isSearchable, isFilterable, displayOnList, sortOrder, status, hasProductValues |
 | `CustomFieldSelectOptionDto` | optionId, label, sortOrder, isActive |
 | `CustomFieldConfigViewDto` | groups[] (sorted by sortOrder) |
 | `InitializeCustomFieldTemplateResult` | groupsCreated, fieldsCreated, skippedCount |
@@ -1307,7 +1309,7 @@ Port: `ICatalogCustomFieldConfigGateway` — `listConfig`, `initializeTemplate`,
 | Attributes | `catalog.configure_custom_field_attributes` |
 | List config | `catalog.list_custom_field_config` |
 
-Draft SQL (BE lane): `supabase/migrations/_drafts/08_catalog_custom_fields.sql`
+Draft SQL (BE lane): `supabase/migrations/_drafts/catalog_patch_custom_field_type_change_guard.sql` (type-change guard + `has_product_values` on field JSON). Canonical schema: `20260709013_catalog_custom_fields.sql` / `20260710005_catalog_patch_inline_normalize_custom_fields_rpcs.sql`.
 
 Gateway: `modules/catalog/infrastructure/lib/src/domain/custom_fields/supabase_catalog_custom_field_config_gateway.dart`
 
