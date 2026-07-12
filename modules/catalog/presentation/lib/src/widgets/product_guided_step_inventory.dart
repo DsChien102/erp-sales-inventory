@@ -92,7 +92,9 @@ class _ProductGuidedStepInventoryState extends State<ProductGuidedStepInventory>
           allowNegative: true,
           min: 0,
           isRequired: false,
-          errorText: widget.state.showValidationErrors ? widget.state.basicStockQuantityBaseError : null,
+          errorText: widget.state.showValidationErrors
+              ? widget.state.basicStockQuantityBaseError
+              : null,
           onChanged: (_) => cubit.updateBasicStockQuantityBase(_controller.text),
         ),
         const SizedBox(height: VSpacing.space4),

@@ -96,22 +96,22 @@ class EditProductUnitPriceBandLoaded extends EditProductUnitPriceBandState {
     if (listP == null || floorP == null) return false;
     if (floorP > listP) return false;
     if (selectedType == PriceBandCalculationType.storeRule) {
-       return suggestion.canSuggest;
+      return suggestion.canSuggest;
     }
     return true;
   }
 
   @override
   List<Object?> get props => [
-        suggestion,
-        selectedType,
-        customBaseMargin,
-        customFloorMargin,
-        manualListPrice,
-        manualFloorPrice,
-        isSubmitting,
-        error,
-      ];
+    suggestion,
+    selectedType,
+    customBaseMargin,
+    customFloorMargin,
+    manualListPrice,
+    manualFloorPrice,
+    isSubmitting,
+    error,
+  ];
 }
 
 class EditProductUnitPriceBandSuccess extends EditProductUnitPriceBandState {}

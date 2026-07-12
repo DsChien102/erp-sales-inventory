@@ -41,8 +41,7 @@ List<TenantMeasurementUnitDto> excludeTenantMeasurementUnits(
 bool isSameMeasurementUnitName(String a, String b) =>
     _normalizeForSearch(a) == _normalizeForSearch(b);
 
-String normalizeMeasurementUnitNameForSearch(String value) =>
-    _normalizeForSearch(value);
+String normalizeMeasurementUnitNameForSearch(String value) => _normalizeForSearch(value);
 
 class TenantMeasurementUnitSearchField extends StatefulWidget {
   const TenantMeasurementUnitSearchField({
@@ -77,8 +76,7 @@ class TenantMeasurementUnitSearchField extends StatefulWidget {
   final bool isUnitsLoading;
 
   @override
-  State<TenantMeasurementUnitSearchField> createState() =>
-      _TenantMeasurementUnitSearchFieldState();
+  State<TenantMeasurementUnitSearchField> createState() => _TenantMeasurementUnitSearchFieldState();
 }
 
 class _TenantMeasurementUnitSearchFieldState extends State<TenantMeasurementUnitSearchField> {
@@ -148,8 +146,7 @@ class _TenantMeasurementUnitSearchFieldState extends State<TenantMeasurementUnit
   }
 
   void _syncOverlayController() {
-    final shouldShow =
-        _focusNode.hasFocus && (widget.isUnitsLoading || _matches.isNotEmpty);
+    final shouldShow = _focusNode.hasFocus && (widget.isUnitsLoading || _matches.isNotEmpty);
     if (shouldShow) {
       if (!_overlayController.isShowing) {
         _overlayController.show();
@@ -258,12 +255,8 @@ class _TenantMeasurementUnitSearchFieldState extends State<TenantMeasurementUnit
       child: CompositedTransformFollower(
         link: _layerLink,
         showWhenUnlinked: false,
-        targetAnchor: widget.overlayOpensAbove
-            ? Alignment.topLeft
-            : Alignment.bottomLeft,
-        followerAnchor: widget.overlayOpensAbove
-            ? Alignment.bottomLeft
-            : Alignment.topLeft,
+        targetAnchor: widget.overlayOpensAbove ? Alignment.topLeft : Alignment.bottomLeft,
+        followerAnchor: widget.overlayOpensAbove ? Alignment.bottomLeft : Alignment.topLeft,
         offset: Offset(0, widget.overlayOpensAbove ? -4 : 4),
         child: Material(
           elevation: 8,

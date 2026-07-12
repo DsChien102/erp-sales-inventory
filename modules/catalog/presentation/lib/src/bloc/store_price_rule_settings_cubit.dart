@@ -4,14 +4,13 @@ import 'package:vet45_shared_application/application.dart';
 
 import 'store_price_rule_settings_state.dart';
 
-class StorePriceRuleSettingsCubit
-    extends Cubit<StorePriceRuleSettingsState> {
+class StorePriceRuleSettingsCubit extends Cubit<StorePriceRuleSettingsState> {
   StorePriceRuleSettingsCubit({
     required IModuleMediator moduleMediator,
     required IExecutionContext executionContext,
-  })  : _moduleMediator = moduleMediator,
-        _executionContext = executionContext,
-        super(StorePriceRuleSettingsInitial());
+  }) : _moduleMediator = moduleMediator,
+       _executionContext = executionContext,
+       super(StorePriceRuleSettingsInitial());
 
   final IModuleMediator _moduleMediator;
   final IExecutionContext _executionContext;
@@ -36,14 +35,15 @@ class StorePriceRuleSettingsCubit
     try {
       final tenantId = await _executionContext.requireTenantId();
       final query = GetStorePriceRuleQuery(tenantId: tenantId);
-      final rule =
-          await _moduleMediator.executeQueryAsync<StorePriceRuleDto?>(query);
+      final rule = await _moduleMediator.executeQueryAsync<StorePriceRuleDto?>(query);
       emit(StorePriceRuleSettingsLoaded(rule: rule));
     } catch (e) {
-      emit(StorePriceRuleSettingsError(
-        message: e.toString(),
-        previousRule: previousRule,
-      ));
+      emit(
+        StorePriceRuleSettingsError(
+          message: e.toString(),
+          previousRule: previousRule,
+        ),
+      );
     }
   }
 
@@ -63,17 +63,18 @@ class StorePriceRuleSettingsCubit
         floorMarkupRatio: floorMarkupRatio,
         status: previousRule?.status ?? StorePriceRuleStatus.active,
       );
-      final result =
-          await _moduleMediator.executeCommandAsync<SetStorePriceRuleResult>(
+      final result = await _moduleMediator.executeCommandAsync<SetStorePriceRuleResult>(
         command,
       );
       emit(StorePriceRuleSettingsLoaded(rule: result.rule));
       return true;
     } catch (e) {
-      emit(StorePriceRuleSettingsError(
-        message: e.toString(),
-        previousRule: previousRule,
-      ));
+      emit(
+        StorePriceRuleSettingsError(
+          message: e.toString(),
+          previousRule: previousRule,
+        ),
+      );
       return false;
     }
   }

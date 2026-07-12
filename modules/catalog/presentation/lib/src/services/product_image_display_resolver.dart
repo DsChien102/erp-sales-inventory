@@ -10,8 +10,7 @@ const catalogProductImagesBucket = 'catalog-product-images';
 final class ProductImageDisplayResolver {
   ProductImageDisplayResolver({SupabaseClient? client}) : _clientOverride = client;
 
-  static final ProductImageDisplayResolver instance =
-      ProductImageDisplayResolver();
+  static final ProductImageDisplayResolver instance = ProductImageDisplayResolver();
 
   final SupabaseClient? _clientOverride;
 
@@ -109,8 +108,7 @@ final class ProductImageDisplayResolver {
 
   Future<String> _signedReadUrlForKey(String storageKey) async {
     final cached = _cache[storageKey];
-    if (cached != null &&
-        cached.expiresAt.isAfter(DateTime.now().add(_cacheSafetyMargin))) {
+    if (cached != null && cached.expiresAt.isAfter(DateTime.now().add(_cacheSafetyMargin))) {
       return cached.url;
     }
 

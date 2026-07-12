@@ -59,7 +59,9 @@ class ProductGuidedStepIdentification extends StatelessWidget {
                   TextField(
                     key: const Key('input_guided_sku'),
                     controller: TextEditingController(text: state.sku)
-                      ..selection = TextSelection.fromPosition(TextPosition(offset: state.sku.length)),
+                      ..selection = TextSelection.fromPosition(
+                        TextPosition(offset: state.sku.length),
+                      ),
                     decoration: ProductGuidedFields.buildInputDecoration(
                       context,
                       'Nhập mã SKU',
@@ -81,17 +83,20 @@ class ProductGuidedStepIdentification extends StatelessWidget {
                   TextField(
                     key: const Key('input_guided_barcode'),
                     controller: TextEditingController(text: state.barcode)
-                      ..selection = TextSelection.fromPosition(TextPosition(offset: state.barcode.length)),
-                    decoration: ProductGuidedFields.buildInputDecoration(
-                      context,
-                      'Quét hoặc nhập',
-                      errorText: state.barcodeError,
-                    ).copyWith(
-                      suffixIcon: IconButton(
-                        icon: Icon(Icons.qr_code_scanner, color: dynamicColors.primary),
-                        onPressed: () {},
+                      ..selection = TextSelection.fromPosition(
+                        TextPosition(offset: state.barcode.length),
                       ),
-                    ),
+                    decoration:
+                        ProductGuidedFields.buildInputDecoration(
+                          context,
+                          'Quét hoặc nhập',
+                          errorText: state.barcodeError,
+                        ).copyWith(
+                          suffixIcon: IconButton(
+                            icon: Icon(Icons.qr_code_scanner, color: dynamicColors.primary),
+                            onPressed: () {},
+                          ),
+                        ),
                     style: VTypography.bodyDefault.copyWith(color: dynamicColors.textPrimary),
                     onChanged: cubit.updateBarcode,
                     onEditingComplete: cubit.checkDuplicateCodes,
@@ -110,9 +115,9 @@ class ProductGuidedStepIdentification extends StatelessWidget {
               onPressed: onOpenDuplicateProduct == null
                   ? null
                   : () => onOpenDuplicateProduct!(
-                        state.duplicateProductId!,
-                        state.duplicateProductName!,
-                      ),
+                      state.duplicateProductId!,
+                      state.duplicateProductName!,
+                    ),
               icon: Icon(Icons.open_in_new, size: 16, color: dynamicColors.primary),
               label: Text(
                 'Mở sản phẩm "${state.duplicateProductName}"',

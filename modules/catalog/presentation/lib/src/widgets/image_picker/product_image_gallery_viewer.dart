@@ -30,7 +30,7 @@ class ProductImageGalleryViewer extends StatefulWidget {
     required int primaryIndex,
   }) {
     if (images.isEmpty) return;
-    
+
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (_) => ProductImageGalleryViewer(
@@ -100,7 +100,7 @@ class _ProductImageGalleryViewerState extends State<ProductImageGalleryViewer> {
               itemCount: widget.images.length,
               itemBuilder: (context, index) {
                 final image = widget.images[index];
-                
+
                 Widget imageChild;
                 if (image.localPath != null && image.localPath!.startsWith('http')) {
                   imageChild = Image.network(image.localPath!, fit: BoxFit.contain);
@@ -115,7 +115,9 @@ class _ProductImageGalleryViewerState extends State<ProductImageGalleryViewer> {
                       child: CircularProgressIndicator(color: Colors.white),
                     ),
                   );
-                } else if (image.localPath != null && !kIsWeb && File(image.localPath!).existsSync()) {
+                } else if (image.localPath != null &&
+                    !kIsWeb &&
+                    File(image.localPath!).existsSync()) {
                   imageChild = Image.file(File(image.localPath!), fit: BoxFit.contain);
                 } else {
                   imageChild = const Center(

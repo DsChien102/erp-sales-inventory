@@ -26,7 +26,7 @@ final class ProductMeasurementUnitsState extends Equatable {
   final ProductMeasurementUnitsStatus unitMutationStatus;
   final String? deleteBlockedUnitId;
 
-  List<ProductUnitDto> get conversionUnits => 
+  List<ProductUnitDto> get conversionUnits =>
       productUnits?.units.where((u) => !u.isBaseUnit).toList() ?? [];
 
   ProductMeasurementUnitsState copyWith({
@@ -58,14 +58,14 @@ final class ProductMeasurementUnitsState extends Equatable {
 
   @override
   List<Object?> get props => [
-        status,
-        tenantUnits,
-        saveStatus,
-        errorMessage,
-        productId,
-        baseUnitName,
-        productUnits,
-        unitMutationStatus,
-        deleteBlockedUnitId,
-      ];
+    status,
+    tenantUnits,
+    saveStatus,
+    errorMessage,
+    productId,
+    baseUnitName,
+    productUnits,
+    unitMutationStatus,
+    deleteBlockedUnitId,
+  ];
 }

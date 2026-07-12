@@ -91,9 +91,7 @@ class _ProductGuidedStepBaseCostState extends State<ProductGuidedStepBaseCost> {
           allowDecimal: false,
           allowNegative: false,
           min: 0,
-          errorText: widget.state.showValidationErrors
-              ? widget.state.baseCostError
-              : null,
+          errorText: widget.state.showValidationErrors ? widget.state.baseCostError : null,
           onChanged: (_) => cubit.updateBaseCost(_controller.text),
         ),
         const SizedBox(height: VSpacing.space4),

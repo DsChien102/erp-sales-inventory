@@ -48,12 +48,12 @@ final class ProductControlCenterState extends Equatable {
 
   @override
   List<Object?> get props => [
-        status,
-        controlCenter,
-        readinessView,
-        errorMessage,
-        actionStatus,
-        actionErrorMessage,
-        actionWarnings,
-      ];
+    status,
+    controlCenter,
+    readinessView,
+    errorMessage,
+    actionStatus,
+    actionErrorMessage,
+    actionWarnings,
+  ];
 }

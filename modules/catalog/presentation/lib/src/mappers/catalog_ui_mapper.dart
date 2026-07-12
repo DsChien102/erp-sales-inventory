@@ -69,8 +69,7 @@ class CatalogUiMapper {
     required ReadinessSummaryDto readinessSummary,
   }) {
     final coverDraft = state.imageDrafts.isNotEmpty
-        ? state.imageDrafts[
-            state.coverImageIndex.clamp(0, state.imageDrafts.length - 1)]
+        ? state.imageDrafts[state.coverImageIndex.clamp(0, state.imageDrafts.length - 1)]
         : null;
     final coverPath = coverDraft?.localPath;
 

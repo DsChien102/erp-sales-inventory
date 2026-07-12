@@ -108,9 +108,7 @@ class ProductListCubit extends Cubit<ProductListState> {
       businessStatuses: currentCriteria.businessStatuses,
       readinessFilter: currentCriteria.readinessFilter,
       includeSoftDeleted: currentCriteria.includeSoftDeleted,
-      sortOrder: trimmed.isEmpty
-          ? ProductSortOrder.updatedAtDesc
-          : ProductSortOrder.relevanceDesc,
+      sortOrder: trimmed.isEmpty ? ProductSortOrder.updatedAtDesc : ProductSortOrder.relevanceDesc,
       customFieldFilters: currentCriteria.customFieldFilters,
     );
     fetchProducts(criteria: newCriteria, isRefresh: true);
