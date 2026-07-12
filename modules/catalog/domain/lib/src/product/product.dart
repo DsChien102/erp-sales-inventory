@@ -3,7 +3,6 @@ import 'package:vet45_shared_domain/shared_kernel_domain.dart';
 import '../ids/product_id.dart';
 import '../readiness/product_readiness.dart';
 import '../readiness/readiness_blocker_code.dart';
-import '../shared/product_status.dart';
 import '../unit/product_base_unit.dart';
 import 'barcode.dart';
 import 'events/product_created.dart';
@@ -13,6 +12,7 @@ import 'events/product_images_replaced.dart';
 import 'events/product_profile_updated.dart';
 import 'events/product_reactivated.dart';
 import 'events/product_restored.dart';
+import 'product_business_status.dart';
 import 'product_image.dart';
 import 'product_name.dart';
 import 'product_reference_id.dart';
@@ -24,7 +24,7 @@ import 'rules/product_must_not_be_soft_deleted_rule.dart';
 import 'rules/product_name_required_rule.dart';
 import 'sku.dart';
 
-/// Product identity, profile, images, business status, and soft-delete.
+/// Product identity, profile, images, and business status (incl. soft delete).
 final class Product extends Entity<ProductId> implements IAggregateRoot {
   Product._({
     required super.id,
@@ -45,7 +45,6 @@ final class Product extends Entity<ProductId> implements IAggregateRoot {
     this.description,
     this.note,
     this.baseUnit,
-    this.isSoftDeleted = false,
   });
 
   factory Product.create({
@@ -76,7 +75,7 @@ final class Product extends Entity<ProductId> implements IAggregateRoot {
       barcode: barcode,
       description: _optionalText(description),
       note: _optionalText(note),
-      status: ProductStatus.active,
+      status: ProductBusinessStatus.active,
       readiness: ProductReadiness.seedFromCreate(
         productId: id.value,
         productName: name.value,
@@ -85,7 +84,6 @@ final class Product extends Entity<ProductId> implements IAggregateRoot {
       ),
       images: normalizedImages,
       baseUnit: baseUnit,
-      isSoftDeleted: false,
       createdBy: actorId,
       createdAt: createdAt,
       updatedBy: actorId,
@@ -110,7 +108,7 @@ final class Product extends Entity<ProductId> implements IAggregateRoot {
     required TenantId tenantId,
     required ProductReferenceId referenceId,
     required ProductName name,
-    required ProductStatus status,
+    required ProductBusinessStatus status,
     required ProductReadiness readiness,
     required List<ProductImage> images,
     required String createdBy,
@@ -124,7 +122,6 @@ final class Product extends Entity<ProductId> implements IAggregateRoot {
     String? description,
     String? note,
     ProductBaseUnit? baseUnit,
-    bool isSoftDeleted = false,
   }) {
     return Product._(
       id: id,
@@ -145,7 +142,6 @@ final class Product extends Entity<ProductId> implements IAggregateRoot {
       description: description,
       note: note,
       baseUnit: baseUnit,
-      isSoftDeleted: isSoftDeleted,
     );
   }
 
@@ -157,16 +153,17 @@ final class Product extends Entity<ProductId> implements IAggregateRoot {
   final Barcode? barcode;
   final String? description;
   final String? note;
-  final ProductStatus status;
+  final ProductBusinessStatus status;
   final ProductReadiness readiness;
   final List<ProductImage> images;
   final ProductBaseUnit? baseUnit;
-  final bool isSoftDeleted;
   final String createdBy;
   final DateTime createdAt;
   final String updatedBy;
   final DateTime updatedAt;
   final int version;
+
+  bool get isSoftDeleted => status.isSoftDeleted;
 
   Product updateProfile({
     required ProductName name,
@@ -178,7 +175,7 @@ final class Product extends Entity<ProductId> implements IAggregateRoot {
     String? note,
     DateTime? now,
   }) {
-    checkRule(ProductMustNotBeSoftDeletedRule(isSoftDeleted));
+    checkRule(ProductMustNotBeSoftDeletedRule(status));
     checkRule(ProductNameRequiredRule(name));
 
     final updatedAtTime = now ?? DateTime.now();
@@ -196,7 +193,6 @@ final class Product extends Entity<ProductId> implements IAggregateRoot {
       readiness: readiness,
       images: images,
       baseUnit: baseUnit,
-      isSoftDeleted: isSoftDeleted,
       createdBy: createdBy,
       createdAt: createdAt,
       updatedBy: actorId,
@@ -214,7 +210,7 @@ final class Product extends Entity<ProductId> implements IAggregateRoot {
     required String actorId,
     DateTime? now,
   }) {
-    checkRule(ProductMustNotBeSoftDeletedRule(isSoftDeleted));
+    checkRule(ProductMustNotBeSoftDeletedRule(status));
     final normalizedImages = _normalizeImages(images);
     checkRule(AtMostOnePrimaryImageRule(normalizedImages));
 
@@ -239,12 +235,12 @@ final class Product extends Entity<ProductId> implements IAggregateRoot {
     required String actorId,
     DateTime? now,
   }) {
-    checkRule(ProductMustNotBeSoftDeletedRule(isSoftDeleted));
+    checkRule(ProductMustNotBeSoftDeletedRule(status));
     checkRule(ProductMustBeActiveRule(status));
 
     final updatedAtTime = now ?? DateTime.now();
     final updated = _copy(
-      status: ProductStatus.inactive,
+      status: ProductBusinessStatus.inactive,
       updatedBy: actorId,
       updatedAt: updatedAtTime,
       version: version + 1,
@@ -259,12 +255,12 @@ final class Product extends Entity<ProductId> implements IAggregateRoot {
     required String actorId,
     DateTime? now,
   }) {
-    checkRule(ProductMustNotBeSoftDeletedRule(isSoftDeleted));
+    checkRule(ProductMustNotBeSoftDeletedRule(status));
     checkRule(ProductMustBeInactiveRule(status));
 
     final updatedAtTime = now ?? DateTime.now();
     final updated = _copy(
-      status: ProductStatus.active,
+      status: ProductBusinessStatus.active,
       updatedBy: actorId,
       updatedAt: updatedAtTime,
       version: version + 1,
@@ -279,11 +275,11 @@ final class Product extends Entity<ProductId> implements IAggregateRoot {
     required String actorId,
     DateTime? now,
   }) {
-    checkRule(ProductMustNotBeSoftDeletedRule(isSoftDeleted));
+    checkRule(ProductMustNotBeSoftDeletedRule(status));
 
     final updatedAtTime = now ?? DateTime.now();
     final updated = _copy(
-      isSoftDeleted: true,
+      status: ProductBusinessStatus.softDeleted,
       updatedBy: actorId,
       updatedAt: updatedAtTime,
       version: version + 1,
@@ -298,11 +294,11 @@ final class Product extends Entity<ProductId> implements IAggregateRoot {
     required String actorId,
     DateTime? now,
   }) {
-    checkRule(ProductMustBeSoftDeletedRule(isSoftDeleted));
+    checkRule(ProductMustBeSoftDeletedRule(status));
 
     final updatedAtTime = now ?? DateTime.now();
     final updated = _copy(
-      isSoftDeleted: false,
+      status: ProductBusinessStatus.inactive,
       updatedBy: actorId,
       updatedAt: updatedAtTime,
       version: version + 1,
@@ -320,11 +316,10 @@ final class Product extends Entity<ProductId> implements IAggregateRoot {
     Barcode? barcode,
     String? description,
     String? note,
-    ProductStatus? status,
+    ProductBusinessStatus? status,
     ProductReadiness? readiness,
     List<ProductImage>? images,
     ProductBaseUnit? baseUnit,
-    bool? isSoftDeleted,
     String? updatedBy,
     DateTime? updatedAt,
     int? version,
@@ -343,7 +338,6 @@ final class Product extends Entity<ProductId> implements IAggregateRoot {
       readiness: readiness ?? this.readiness,
       images: images ?? this.images,
       baseUnit: baseUnit ?? this.baseUnit,
-      isSoftDeleted: isSoftDeleted ?? this.isSoftDeleted,
       createdBy: createdBy,
       createdAt: createdAt,
       updatedBy: updatedBy ?? this.updatedBy,

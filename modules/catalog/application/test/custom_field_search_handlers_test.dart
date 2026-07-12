@@ -15,7 +15,7 @@ final class _RecordingCatalogReadGateway implements ICatalogReadGateway {
       ProductListItemDto(
         id: 'product-1',
         name: 'Amoxicillin',
-        businessStatus: ProductStatus.active,
+        businessStatus: ProductBusinessStatus.active,
         readinessSummary: const ReadinessSummaryDto(
           status: ReadinessStatus.incomplete,
         ),

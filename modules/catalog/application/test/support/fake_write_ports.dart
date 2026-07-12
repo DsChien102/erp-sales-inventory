@@ -24,7 +24,7 @@ final class FakeProductWritePort implements IProductWritePort {
         ),
         name: ProductName(name),
 
-        status: ProductStatus.active,
+        status: ProductBusinessStatus.active,
         readiness: ProductReadiness.seedFromCreate(
           productId: productId,
           productName: name,
@@ -92,7 +92,7 @@ final class FakeCatalogReadGateway implements ICatalogReadGateway {
     return ProductControlCenterReadModel(
       productId: productId,
       name: 'Thuoc A',
-      businessStatus: ProductStatus.active,
+      businessStatus: ProductBusinessStatus.active,
       facts: ProductReadinessFacts(
         productId: productId,
         productName: 'Thuoc A',

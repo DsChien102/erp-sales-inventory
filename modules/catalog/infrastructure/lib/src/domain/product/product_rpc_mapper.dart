@@ -278,8 +278,8 @@ abstract final class ProductRpcMapper {
         barcode: row['barcode'] as String?,
         businessStatus: _productStatusFromRpc(
           row['business_status'] as String?,
+          isSoftDeleted: row['is_soft_deleted'] as bool?,
         ),
-        isSoftDeleted: row['is_soft_deleted'] as bool? ?? false,
         primaryImageUrl: row['primary_image_url'] as String?,
         images: _stringList(row['images']),
         description: row['description'] as String?,
@@ -333,8 +333,10 @@ abstract final class ProductRpcMapper {
   ) {
     return ChangeProductSoftDeleteResult(
       productId: row['product_id'] as String,
-      isSoftDeleted: row['is_soft_deleted'] as bool? ?? false,
-      businessStatus: _productStatusFromRpc(row['business_status'] as String?),
+      businessStatus: _productStatusFromRpc(
+        row['business_status'] as String?,
+        isSoftDeleted: row['is_soft_deleted'] as bool?,
+      ),
       readinessSummary: _readinessSummaryFromRow(row),
       version: _intValue(row['version']) ?? 1,
       reason: row['reason'] as String?,
@@ -363,7 +365,7 @@ abstract final class ProductRpcMapper {
       'p_tenant_id': tenantId,
       'p_keyword': criteria.keyword,
       'p_business_statuses': criteria.businessStatuses
-          .map((status) => status.name)
+          .map((status) => status.toWire())
           .toList(growable: false),
       'p_readiness_filter': _readinessFilterToRpc(criteria.readinessFilter),
       'p_include_soft_deleted': criteria.includeSoftDeleted,
@@ -605,10 +607,17 @@ abstract final class ProductRpcMapper {
     return trimmed;
   }
 
-  static ProductStatus _productStatusFromRpc(String? value) {
+  static ProductBusinessStatus _productStatusFromRpc(
+    String? value, {
+    bool? isSoftDeleted,
+  }) {
+    if (isSoftDeleted == true) {
+      return ProductBusinessStatus.softDeleted;
+    }
     return switch (value) {
-      'inactive' => ProductStatus.inactive,
-      _ => ProductStatus.active,
+      'inactive' => ProductBusinessStatus.inactive,
+      'soft_deleted' => ProductBusinessStatus.softDeleted,
+      _ => ProductBusinessStatus.active,
     };
   }
 

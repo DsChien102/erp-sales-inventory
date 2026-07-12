@@ -69,8 +69,8 @@ abstract final class ProductControlCenterMapper {
       note: json['note'] as String?,
       businessStatus: _businessStatusFromRpc(
         json['business_status'] as String?,
+        isSoftDeleted: json['is_soft_deleted'] as bool?,
       ),
-      isSoftDeleted: json['is_soft_deleted'] as bool? ?? false,
       primaryImageUrl: json['primary_image_url'] as String?,
       images: images,
       baseUnitName: json['base_unit_name'] as String?,
@@ -109,10 +109,17 @@ abstract final class ProductControlCenterMapper {
         .toList(growable: false);
   }
 
-  static ProductStatus _businessStatusFromRpc(String? value) {
+  static ProductBusinessStatus _businessStatusFromRpc(
+    String? value, {
+    bool? isSoftDeleted,
+  }) {
+    if (isSoftDeleted == true) {
+      return ProductBusinessStatus.softDeleted;
+    }
     return switch (value) {
-      'inactive' => ProductStatus.inactive,
-      _ => ProductStatus.active,
+      'inactive' => ProductBusinessStatus.inactive,
+      'soft_deleted' => ProductBusinessStatus.softDeleted,
+      _ => ProductBusinessStatus.active,
     };
   }
 

@@ -65,7 +65,7 @@ erDiagram
 | `ProductName` | Tên sản phẩm (bắt buộc); tên thương mại optional |
 | `ProductReferenceId` | Mã sản phẩm nội bộ (bắt buộc); unique per tenant (case-sensitive); immutable sau create. Dual mode: hash tự động (guided create) hoặc explicit legacy (`SP-0001`, import). **Không hiển thị UI** |
 | `Sku` / `Barcode` | Optional; unique per tenant nếu có |
-| `ProductStatus` | Đang kinh doanh / Ngừng KD / Đã xóa (soft delete) |
+| `ProductBusinessStatus` | VO closed set: `active` \| `inactive` \| `soft_deleted` (soft delete ghi đè status; nguồn sự thật lifecycle) |
 | `ReadinessStatus` | Chưa hoàn thiện, Sẵn sàng bán, Sẵn sàng nhập, … |
 | `ReadinessBlocker` | Nhóm + mã blocker (thiếu UOM, thiếu giá, field required, …) |
 | `UnitOfMeasure` | Tên đơn vị; vai trò base / conversion |

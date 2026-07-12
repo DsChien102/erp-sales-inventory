@@ -269,7 +269,6 @@ ProductListItemModel _product7SoftDeleted() {
     businessStatus: ProductBusinessStatus.softDeleted,
     readinessStatus: ProductReadinessStatus.needsReview,
     baseUnit: 'Lọ',
-    isSoftDeleted: true,
   );
 }
 

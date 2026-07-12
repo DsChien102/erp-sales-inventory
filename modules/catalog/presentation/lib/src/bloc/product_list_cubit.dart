@@ -73,8 +73,8 @@ class ProductListCubit extends Cubit<ProductListState> {
           currentCriteria.readinessFilter == null &&
           currentCriteria.customFieldFilters.isEmpty &&
           currentCriteria.businessStatuses.length == 2 &&
-          currentCriteria.businessStatuses.contains(ProductStatus.active) &&
-          currentCriteria.businessStatuses.contains(ProductStatus.inactive) &&
+          currentCriteria.businessStatuses.contains(ProductBusinessStatus.active) &&
+          currentCriteria.businessStatuses.contains(ProductBusinessStatus.inactive) &&
           !currentCriteria.includeSoftDeleted;
 
       if (isUnfilteredCatalogList) {

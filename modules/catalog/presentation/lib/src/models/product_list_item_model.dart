@@ -12,7 +12,6 @@ class ProductListItemModel {
     this.imageUrl,
     required this.businessStatus,
     required this.readinessStatus,
-    this.isSoftDeleted = false,
     this.listPriceLabel,
     this.stockLabel,
     this.stockQty,
@@ -33,7 +32,6 @@ class ProductListItemModel {
   final String? imageUrl;
   final ProductBusinessStatus businessStatus;
   final ProductReadinessStatus readinessStatus;
-  final bool isSoftDeleted;
   final String? listPriceLabel;
   final String? stockLabel;
   final int? stockQty;
@@ -44,6 +42,8 @@ class ProductListItemModel {
   final String? industryInfo;
   final String? notes;
   final List<String>? images;
+
+  bool get isSoftDeleted => businessStatus.isSoftDeleted;
 
   String get displaySubtitle {
     final parts = <String>[];
@@ -72,7 +72,6 @@ class ProductListItemModel {
     String? imageUrl,
     ProductBusinessStatus? businessStatus,
     ProductReadinessStatus? readinessStatus,
-    bool? isSoftDeleted,
     String? listPriceLabel,
     String? stockLabel,
     int? stockQty,
@@ -93,7 +92,6 @@ class ProductListItemModel {
       imageUrl: imageUrl ?? this.imageUrl,
       businessStatus: businessStatus ?? this.businessStatus,
       readinessStatus: readinessStatus ?? this.readinessStatus,
-      isSoftDeleted: isSoftDeleted ?? this.isSoftDeleted,
       listPriceLabel: listPriceLabel ?? this.listPriceLabel,
       stockLabel: stockLabel ?? this.stockLabel,
       stockQty: stockQty ?? this.stockQty,

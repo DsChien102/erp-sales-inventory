@@ -16,7 +16,6 @@ final class ProductControlCenterReadModel {
     this.description,
     this.note,
     required this.businessStatus,
-    this.isSoftDeleted = false,
     this.primaryImageUrl,
     this.images = const [],
     this.baseUnitName,
@@ -42,8 +41,7 @@ final class ProductControlCenterReadModel {
   final String? barcode;
   final String? description;
   final String? note;
-  final ProductStatus businessStatus;
-  final bool isSoftDeleted;
+  final ProductBusinessStatus businessStatus;
   final String? primaryImageUrl;
   final List<String> images;
   final String? baseUnitName;
@@ -60,4 +58,6 @@ final class ProductControlCenterReadModel {
   final bool isCustomOverride;
   final List<CustomFieldGroupCardDto> customFieldGroupCards;
   final List<ProductChangeHistoryEntryDto> changeHistoryPreview;
+
+  bool get isSoftDeleted => businessStatus.isSoftDeleted;
 }

@@ -238,8 +238,8 @@ void main() {
       });
 
       expect(result.productId, 'product-4');
-      expect(result.previousStatus, ProductStatus.active);
-      expect(result.currentStatus, ProductStatus.inactive);
+      expect(result.previousStatus, ProductBusinessStatus.active);
+      expect(result.currentStatus, ProductBusinessStatus.inactive);
       expect(result.readinessSummary.status, ReadinessStatus.incomplete);
       expect(
         result.readinessSummary.blockers.single.code,
@@ -248,8 +248,8 @@ void main() {
       expect(result.version, 2);
       expect(result.reason, 'Ngừng theo mùa');
       expect(result.warnings.single.code, ProductBusinessStatusWarningCode.hasStock);
-      expect(result.historyEntry?.valueBefore, ProductStatus.active.name);
-      expect(result.historyEntry?.valueAfter, ProductStatus.inactive.name);
+      expect(result.historyEntry?.valueBefore, ProductBusinessStatus.active.name);
+      expect(result.historyEntry?.valueAfter, ProductBusinessStatus.inactive.name);
     });
   });
 
@@ -357,7 +357,7 @@ void main() {
       final result = ProductRpcMapper.changeProductSoftDeleteResultFromRow({
         'product_id': 'product-6',
         'is_soft_deleted': true,
-        'business_status': 'active',
+        'business_status': 'soft_deleted',
         'readiness_status': 'ready_to_sell',
         'readiness_blockers': [],
         'version': 2,
@@ -375,20 +375,20 @@ void main() {
           'actor_display_name': 'user-1',
           'change_type': 'product_soft_deleted',
           'summary': 'Xóa mềm sản phẩm',
-          'value_before': 'false',
-          'value_after': 'true',
+          'value_before': 'active',
+          'value_after': 'soft_deleted',
         },
       });
 
       expect(result.productId, 'product-6');
       expect(result.isSoftDeleted, isTrue);
-      expect(result.businessStatus, ProductStatus.active);
+      expect(result.businessStatus, ProductBusinessStatus.softDeleted);
       expect(result.readinessSummary.status, ReadinessStatus.readyToSell);
       expect(result.version, 2);
       expect(result.reason, 'Dọn danh mục');
       expect(result.issues.single.code, ProductDeletionIssueCode.hasHistoricalTransactions);
-      expect(result.historyEntry?.valueBefore, 'false');
-      expect(result.historyEntry?.valueAfter, 'true');
+      expect(result.historyEntry?.valueBefore, 'active');
+      expect(result.historyEntry?.valueAfter, 'soft_deleted');
     });
 
     test('changeProductSoftDeleteResultFromRow maps restore result row', () {
@@ -410,7 +410,7 @@ void main() {
 
       expect(result.productId, 'product-7');
       expect(result.isSoftDeleted, isFalse);
-      expect(result.businessStatus, ProductStatus.inactive);
+      expect(result.businessStatus, ProductBusinessStatus.inactive);
       expect(result.readinessSummary.status, ReadinessStatus.incomplete);
       expect(
         result.readinessSummary.blockers.single.code,

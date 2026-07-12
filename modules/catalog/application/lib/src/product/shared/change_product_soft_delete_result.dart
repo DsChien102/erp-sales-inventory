@@ -7,7 +7,6 @@ import 'package:vet45_catalog_application/src/product/queries/check_product_dele
 final class ChangeProductSoftDeleteResult {
   const ChangeProductSoftDeleteResult({
     required this.productId,
-    required this.isSoftDeleted,
     required this.businessStatus,
     required this.readinessSummary,
     required this.version,
@@ -17,11 +16,12 @@ final class ChangeProductSoftDeleteResult {
   });
 
   final String productId;
-  final bool isSoftDeleted;
-  final ProductStatus businessStatus;
+  final ProductBusinessStatus businessStatus;
   final ReadinessSummaryDto readinessSummary;
   final int version;
   final String? reason;
   final List<ProductDeletionIssueDto> issues;
   final ProductChangeHistoryEntryDto? historyEntry;
+
+  bool get isSoftDeleted => businessStatus.isSoftDeleted;
 }

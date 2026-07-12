@@ -599,8 +599,8 @@ void main() {
           tenantId: 'tenant-1',
           criteria: ProductSearchCriteria(
             businessStatuses: {
-              ProductStatus.active,
-              ProductStatus.inactive,
+              ProductBusinessStatus.active,
+              ProductBusinessStatus.inactive,
             },
           ),
           limit: 50,
@@ -609,15 +609,15 @@ void main() {
 
       expect(result.items, isNotEmpty);
       expect(
-        result.items.any((item) => item.businessStatus == ProductStatus.inactive),
+        result.items.any((item) => item.businessStatus == ProductBusinessStatus.inactive),
         isTrue,
       );
 
       final firstInactiveIndex = result.items.indexWhere(
-        (item) => item.businessStatus == ProductStatus.inactive,
+        (item) => item.businessStatus == ProductBusinessStatus.inactive,
       );
       final lastActiveIndex = result.items.lastIndexWhere(
-        (item) => item.businessStatus == ProductStatus.active,
+        (item) => item.businessStatus == ProductBusinessStatus.active,
       );
       expect(firstInactiveIndex, greaterThan(lastActiveIndex));
     });
@@ -676,8 +676,8 @@ void main() {
           criteria: ProductSearchCriteria(
             keyword: 'amoxicillin',
             businessStatuses: {
-              ProductStatus.active,
-              ProductStatus.inactive,
+              ProductBusinessStatus.active,
+              ProductBusinessStatus.inactive,
             },
           ),
         ),
@@ -703,8 +703,8 @@ void main() {
             keyword: 'amox',
             sortOrder: ProductSortOrder.relevanceDesc,
             businessStatuses: {
-              ProductStatus.active,
-              ProductStatus.inactive,
+              ProductBusinessStatus.active,
+              ProductBusinessStatus.inactive,
             },
           ),
         ),
@@ -714,11 +714,11 @@ void main() {
       expect(result.items.first.name.toLowerCase(), contains('amox'));
 
       final firstInactiveIndex = result.items.indexWhere(
-        (item) => item.businessStatus == ProductStatus.inactive,
+        (item) => item.businessStatus == ProductBusinessStatus.inactive,
       );
       if (firstInactiveIndex >= 0) {
         final lastActiveIndex = result.items.lastIndexWhere(
-          (item) => item.businessStatus == ProductStatus.active,
+          (item) => item.businessStatus == ProductBusinessStatus.active,
         );
         expect(firstInactiveIndex, greaterThan(lastActiveIndex));
       }
@@ -806,7 +806,7 @@ void main() {
         ),
       );
 
-      expect(result.profile.businessStatus, ProductStatus.inactive);
+      expect(result.profile.businessStatus, ProductBusinessStatus.inactive);
       expect(result.profile.name, 'Ibuprofen 400mg');
     });
 
@@ -3207,8 +3207,8 @@ void main() {
         );
 
         expect(result.productId, 'product-4');
-        expect(result.previousStatus, ProductStatus.active);
-        expect(result.currentStatus, ProductStatus.inactive);
+        expect(result.previousStatus, ProductBusinessStatus.active);
+        expect(result.currentStatus, ProductBusinessStatus.inactive);
         expect(result.reason, 'Ngừng kinh doanh theo mùa');
         expect(result.version, 2);
 
@@ -3218,7 +3218,7 @@ void main() {
             productId: 'product-4',
           ),
         );
-        expect(pcc.profile.businessStatus, ProductStatus.inactive);
+        expect(pcc.profile.businessStatus, ProductBusinessStatus.inactive);
       });
 
       test(
@@ -3254,7 +3254,7 @@ void main() {
             ),
           );
 
-          expect(result.currentStatus, ProductStatus.inactive);
+          expect(result.currentStatus, ProductBusinessStatus.inactive);
           expect(
             result.warnings.map((warning) => warning.code),
             contains(ProductBusinessStatusWarningCode.hasStock),
@@ -3322,8 +3322,8 @@ void main() {
           ),
         );
 
-        expect(result.previousStatus, ProductStatus.inactive);
-        expect(result.currentStatus, ProductStatus.active);
+        expect(result.previousStatus, ProductBusinessStatus.inactive);
+        expect(result.currentStatus, ProductBusinessStatus.active);
         expect(result.readinessSummary.status, ReadinessStatus.readyToSell);
       });
 
@@ -3342,7 +3342,7 @@ void main() {
             ),
           );
 
-          expect(result.currentStatus, ProductStatus.active);
+          expect(result.currentStatus, ProductBusinessStatus.active);
           expect(result.readinessSummary.status, ReadinessStatus.incomplete);
           expect(
             result.readinessSummary.blockers.map((b) => b.code),
@@ -3392,11 +3392,11 @@ void main() {
             tenantId: 'tenant-1',
             criteria: ProductSearchCriteria(
               keyword: 'Doxycycline',
-              businessStatuses: {ProductStatus.active, ProductStatus.inactive},
+              businessStatuses: {ProductBusinessStatus.active, ProductBusinessStatus.inactive},
             ),
           ),
         );
-        expect(adminResult.items.single.businessStatus, ProductStatus.inactive);
+        expect(adminResult.items.single.businessStatus, ProductBusinessStatus.inactive);
       });
 
       test(
@@ -3417,8 +3417,8 @@ void main() {
 
           expect(result.historyEntry, isNotNull);
           expect(result.historyEntry!.changeType, ProductChangeHistoryAction.statusChanged);
-          expect(result.historyEntry!.valueBefore, ProductStatus.active.name);
-          expect(result.historyEntry!.valueAfter, ProductStatus.inactive.name);
+          expect(result.historyEntry!.valueBefore, ProductBusinessStatus.active.name);
+          expect(result.historyEntry!.valueAfter, ProductBusinessStatus.inactive.name);
           expect(result.historyEntry!.summary, contains('Ngừng kinh doanh'));
         },
       );
@@ -3527,7 +3527,7 @@ void main() {
 
         expect(result.productId, 'product-6');
         expect(result.isSoftDeleted, isTrue);
-        expect(result.businessStatus, ProductStatus.active);
+        expect(result.businessStatus, ProductBusinessStatus.softDeleted);
         expect(result.version, 2);
         expect(result.reason, 'Không còn sử dụng');
         expect(result.historyEntry, isNotNull);
@@ -3621,7 +3621,7 @@ void main() {
         );
 
         expect(result.isSoftDeleted, isFalse);
-        expect(result.businessStatus, ProductStatus.inactive);
+        expect(result.businessStatus, ProductBusinessStatus.inactive);
         expect(result.reason, 'Khôi phục do xóa nhầm');
         expect(result.readinessSummary.status, ReadinessStatus.incomplete);
         expect(

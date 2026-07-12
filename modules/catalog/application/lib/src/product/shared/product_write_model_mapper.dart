@@ -45,7 +45,6 @@ abstract final class ProductWriteModelMapper {
       baseUnit: model.baseUnitName == null || model.baseUnitName!.trim().isEmpty
           ? null
           : ProductBaseUnit(model.baseUnitName!),
-      isSoftDeleted: model.isSoftDeleted,
     );
   }
 }

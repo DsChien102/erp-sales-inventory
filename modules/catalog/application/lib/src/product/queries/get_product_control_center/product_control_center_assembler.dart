@@ -39,7 +39,6 @@ abstract final class ProductControlCenterAssembler {
         sku: model.sku,
         barcode: model.barcode,
         businessStatus: model.businessStatus,
-        isSoftDeleted: model.isSoftDeleted,
         primaryImageUrl: model.primaryImageUrl,
         images: model.images,
         description: model.description,

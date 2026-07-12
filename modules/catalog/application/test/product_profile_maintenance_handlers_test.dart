@@ -52,7 +52,7 @@ class _RecordingProductCommandGateway implements IProductCommandGateway {
         tradeName: 'Amo 500',
         sku: 'SKU-NEW',
         barcode: '8930000000099',
-        businessStatus: ProductStatus.active,
+        businessStatus: ProductBusinessStatus.active,
       ),
       readinessSummary: const ReadinessSummaryDto(
         status: ReadinessStatus.readyToSell,

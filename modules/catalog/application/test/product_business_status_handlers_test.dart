@@ -60,8 +60,8 @@ class _RecordingProductCommandGateway implements IProductCommandGateway {
     lastDeactivateCommand = command;
     return ChangeProductBusinessStatusResult(
       productId: command.productId,
-      previousStatus: ProductStatus.active,
-      currentStatus: ProductStatus.inactive,
+      previousStatus: ProductBusinessStatus.active,
+      currentStatus: ProductBusinessStatus.inactive,
       readinessSummary: const ReadinessSummaryDto(
         status: ReadinessStatus.incomplete,
         blockers: [
@@ -80,8 +80,8 @@ class _RecordingProductCommandGateway implements IProductCommandGateway {
         actorDisplayName: command.actorId,
         changeType: ProductChangeHistoryAction.statusChanged,
         summary: 'Ngừng kinh doanh sản phẩm',
-        valueBefore: ProductStatus.active.name,
-        valueAfter: ProductStatus.inactive.name,
+        valueBefore: ProductBusinessStatus.active.name,
+        valueAfter: ProductBusinessStatus.inactive.name,
       ),
     );
   }
@@ -93,8 +93,8 @@ class _RecordingProductCommandGateway implements IProductCommandGateway {
     lastReactivateCommand = command;
     return ChangeProductBusinessStatusResult(
       productId: command.productId,
-      previousStatus: ProductStatus.inactive,
-      currentStatus: ProductStatus.active,
+      previousStatus: ProductBusinessStatus.inactive,
+      currentStatus: ProductBusinessStatus.active,
       readinessSummary: const ReadinessSummaryDto(
         status: ReadinessStatus.readyToSell,
         blockers: [],
@@ -107,8 +107,8 @@ class _RecordingProductCommandGateway implements IProductCommandGateway {
         actorDisplayName: command.actorId,
         changeType: ProductChangeHistoryAction.statusChanged,
         summary: 'Kinh doanh lại sản phẩm',
-        valueBefore: ProductStatus.inactive.name,
-        valueAfter: ProductStatus.active.name,
+        valueBefore: ProductBusinessStatus.inactive.name,
+        valueAfter: ProductBusinessStatus.active.name,
       ),
     );
   }
@@ -151,10 +151,10 @@ void main() {
       expect(gateway.lastDeactivateCommand?.productId, 'product-4');
       expect(gateway.lastDeactivateCommand?.expectedVersion, 1);
       expect(gateway.lastDeactivateCommand?.confirmAcknowledgeWarnings, isTrue);
-      expect(result.currentStatus, ProductStatus.inactive);
+      expect(result.currentStatus, ProductBusinessStatus.inactive);
       expect(result.version, 2);
-      expect(result.historyEntry?.valueBefore, ProductStatus.active.name);
-      expect(result.historyEntry?.valueAfter, ProductStatus.inactive.name);
+      expect(result.historyEntry?.valueBefore, ProductBusinessStatus.active.name);
+      expect(result.historyEntry?.valueAfter, ProductBusinessStatus.inactive.name);
     });
 
     test('scn_e07_u02_fr02_01 reactivate delegates and returns readiness', () async {
@@ -176,7 +176,7 @@ void main() {
 
       expect(gateway.lastReactivateCommand?.productId, 'product-5');
       expect(gateway.lastReactivateCommand?.expectedVersion, 2);
-      expect(result.currentStatus, ProductStatus.active);
+      expect(result.currentStatus, ProductBusinessStatus.active);
       expect(result.readinessSummary.status, ReadinessStatus.readyToSell);
       expect(result.version, 3);
     });

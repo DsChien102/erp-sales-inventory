@@ -166,7 +166,7 @@ class _FakeCatalogReadGateway implements ICatalogReadGateway {
     return ProductControlCenterReadModel(
       productId: productId,
       name: 'Test',
-      businessStatus: ProductStatus.active,
+      businessStatus: ProductBusinessStatus.active,
       facts: ProductReadinessFacts(
         productId: productId,
         productName: 'Test',

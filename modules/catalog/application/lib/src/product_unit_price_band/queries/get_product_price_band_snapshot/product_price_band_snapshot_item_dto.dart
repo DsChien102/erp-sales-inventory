@@ -26,6 +26,6 @@ final class ProductPriceBandSnapshotItemDto {
   final bool floorPriceMissing;
   final bool floorPriceHidden;
   final bool isUnitActive;
-  final ProductStatus productBusinessStatus;
+  final ProductBusinessStatus productBusinessStatus;
   final DateTime capturedAt;
 }

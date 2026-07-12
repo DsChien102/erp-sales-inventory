@@ -12,7 +12,6 @@ final class ProductListItemReadRow {
     this.barcode,
     this.primaryImageUrl,
     required this.businessStatus,
-    this.isSoftDeleted = false,
     required this.facts,
     this.listPrice,
     this.floorPrice,
@@ -28,8 +27,7 @@ final class ProductListItemReadRow {
   final String? sku;
   final String? barcode;
   final String? primaryImageUrl;
-  final ProductStatus businessStatus;
-  final bool isSoftDeleted;
+  final ProductBusinessStatus businessStatus;
   final ProductReadinessFacts facts;
   final double? listPrice;
   final double? floorPrice;
@@ -37,4 +35,6 @@ final class ProductListItemReadRow {
   final int? stockQuantity;
   final List<CustomFieldListValueDto> customFieldValues;
   final DateTime updatedAt;
+
+  bool get isSoftDeleted => businessStatus.isSoftDeleted;
 }

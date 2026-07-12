@@ -73,7 +73,7 @@ ProductListItemDto _sampleListItem({
     tradeName: 'Amox 500',
     sku: 'SP0001',
     barcode: '8930000000001',
-    businessStatus: ProductStatus.active,
+    businessStatus: ProductBusinessStatus.active,
     readinessSummary: ReadinessSummaryDto(
       status: status,
       blockers: blockers,
@@ -91,7 +91,7 @@ ProductControlCenterReadModel _sampleControlCenterModel({
     tradeName: 'Amox 500',
     sku: 'SP0001',
     barcode: '8930000000001',
-    businessStatus: ProductStatus.active,
+    businessStatus: ProductBusinessStatus.active,
     images: const ['https://example.com/image.jpg'],
     baseUnitName: 'Hộp',
     facts: ProductReadinessFacts(
@@ -202,7 +202,7 @@ void main() {
       final row = ProductListItemReadRow(
         id: 'product-4',
         name: 'Vitamin B Complex',
-        businessStatus: ProductStatus.active,
+        businessStatus: ProductBusinessStatus.active,
         facts: const ProductReadinessFacts(
           productId: 'product-4',
           productName: 'Vitamin B Complex',

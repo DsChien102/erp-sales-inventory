@@ -9,7 +9,6 @@ final class ProductProfileSummaryDto {
     this.sku,
     this.barcode,
     required this.businessStatus,
-    this.isSoftDeleted = false,
     this.primaryImageUrl,
     this.images = const [],
     this.description,
@@ -21,10 +20,11 @@ final class ProductProfileSummaryDto {
   final String? tradeName;
   final String? sku;
   final String? barcode;
-  final ProductStatus businessStatus;
-  final bool isSoftDeleted;
+  final ProductBusinessStatus businessStatus;
   final String? primaryImageUrl;
   final List<String> images;
   final String? description;
   final String? note;
+
+  bool get isSoftDeleted => businessStatus.isSoftDeleted;
 }

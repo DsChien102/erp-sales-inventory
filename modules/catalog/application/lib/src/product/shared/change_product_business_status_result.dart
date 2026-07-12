@@ -17,8 +17,8 @@ final class ChangeProductBusinessStatusResult {
   });
 
   final String productId;
-  final ProductStatus previousStatus;
-  final ProductStatus currentStatus;
+  final ProductBusinessStatus previousStatus;
+  final ProductBusinessStatus currentStatus;
   final ReadinessSummaryDto readinessSummary;
   final int version;
   final String? reason;

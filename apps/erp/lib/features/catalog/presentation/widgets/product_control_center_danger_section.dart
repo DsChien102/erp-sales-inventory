@@ -3,7 +3,7 @@ import 'package:vet45_catalog_domain/domain.dart';
 import 'package:vet45_design_system/design_system.dart';
 
 class ProductControlCenterDangerSection extends StatefulWidget {
-  final ProductStatus businessStatus;
+  final ProductBusinessStatus businessStatus;
   final bool isSoftDeleted;
   final VoidCallback onDeactivate;
   final VoidCallback onReactivate;
@@ -49,7 +49,7 @@ class _ProductControlCenterDangerSectionState extends State<ProductControlCenter
   @override
   Widget build(BuildContext context) {
     final dynamicColors = context.vColors;
-    final isActive = widget.businessStatus == ProductStatus.active;
+    final isActive = widget.businessStatus == ProductBusinessStatus.active;
     final subtitle = widget.isSoftDeleted
         ? 'Khôi phục sản phẩm'
         : 'Ngừng kinh doanh · Xoá sản phẩm';

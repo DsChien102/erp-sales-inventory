@@ -234,7 +234,7 @@ Supporting types:
 | `ProductSearchCriteria` | keyword?, businessStatuses (`Set<ProductStatus>`, default `{active}`), readinessFilter?, includeSoftDeleted (default false), sortOrder |
 | `ProductReadinessFilter` | `readyToSell`, `incomplete` |
 | `ProductSortOrder` | `updatedAtDesc`, `relevanceDesc` (chỉ có ý nghĩa khi `keyword` non-null; FE auto-set khi search) |
-| `ProductListItemDto` | id, name, tradeName?, sku?, barcode?, primaryImageUrl?, businessStatus, isSoftDeleted, readinessSummary, listPrice?, floorPrice?, baseUnit?, stockQuantity?, stockLabel?, updatedAt |
+| `ProductListItemDto` | id, name, tradeName?, sku?, barcode?, primaryImageUrl?, businessStatus (`ProductBusinessStatus`), readinessSummary, listPrice?, floorPrice?, baseUnit?, stockQuantity?, stockLabel?, updatedAt |
 | `ProductSearchResultDto` | items[], totalCount |
 
 Readiness chip trên list: FE derive từ `readinessSummary.status` + `blockers.first` (FR-03).
@@ -1077,12 +1077,12 @@ Permissions: `@RequiresPermission(CatalogPermissions.manageStatus)` + `@Requires
 
 ### Contract rules
 
-- Business status uses existing `ProductStatus.active` / `ProductStatus.inactive`; soft delete remains separate (`isSoftDeleted`).
-- Deactivate preserves profile, UOM, stock, pricing, custom fields, readiness, and history; it only changes business status and records history.
+- Business status uses `ProductBusinessStatus`: `active` \| `inactive` \| `soft_deleted`. Soft delete **is** a business status value (not a separate flag).
+- Deactivate preserves profile, UOM, stock, pricing, custom fields, readiness, and history; it only changes business status (`active` → `inactive`) and records history.
 - Deactivate may return warnings that require explicit acknowledgment. CONTRACT fake covers `has_stock`; open transactions and promotions are documented for BE/FE but require downstream module contracts.
 - Reactivation is allowed even when readiness blockers remain. Result returns refreshed `readinessSummary`; UI must show blockers instead of claiming ready-to-sell.
-- Soft-deleted products cannot be deactivated/reactivated in this slice. Restore belongs to EPIC-07/US-03.
-- Default product selection/search for new transactions excludes inactive products by using `ProductSearchCriteria.businessStatuses` default `{active}`. Admin/history views may opt into inactive with explicit criteria.
+- Soft-deleted products (`soft_deleted`) cannot be deactivated/reactivated in this slice. Restore belongs to EPIC-07/US-03.
+- Default product selection/search for new transactions excludes inactive and soft-deleted products by using `ProductSearchCriteria.businessStatuses` default `{active}`. Admin/history views may opt into inactive / soft_deleted with explicit criteria.
 - Sales/Promotions enforcement is downstream behavior. Catalog does not create sales-order or promotion guards in this CONTRACT lane.
 
 ### RPC mapping (BE — later lane)
@@ -1126,8 +1126,8 @@ Tests: `scn_contract_e07_u02_*` in `fake_catalog_module_test.dart` (group `EPIC-
 | Symbol | Input (summary) | Success | Errors |
 | ------ | --------------- | ------- | ------ |
 | `CheckProductDeletionEligibilityQuery` | tenantId, productId | `ProductDeletionEligibilityDto` | PermissionDenied, NotFound |
-| `DeleteProductCommand` | tenantId, actorId, productId, reason?, expectedVersion?, confirmAcknowledgeWarnings | `ChangeProductSoftDeleteResult` (`isSoftDeleted=true`) | PermissionDenied, NotFound, Validation, `StaleProductVersionException` |
-| `RestoreProductCommand` | tenantId, actorId, productId, reason?, expectedVersion? | `ChangeProductSoftDeleteResult` (`isSoftDeleted=false`, `businessStatus=inactive`, readiness refreshed) | PermissionDenied, NotFound, Validation, `StaleProductVersionException`, `DuplicateSkuException`, `DuplicateBarcodeException` |
+| `DeleteProductCommand` | tenantId, actorId, productId, reason?, expectedVersion?, confirmAcknowledgeWarnings | `ChangeProductSoftDeleteResult` (`businessStatus=soft_deleted`) | PermissionDenied, NotFound, Validation, `StaleProductVersionException` |
+| `RestoreProductCommand` | tenantId, actorId, productId, reason?, expectedVersion? | `ChangeProductSoftDeleteResult` (`businessStatus=inactive`, readiness refreshed) | PermissionDenied, NotFound, Validation, `StaleProductVersionException`, `DuplicateSkuException`, `DuplicateBarcodeException` |
 
 Package: `vet45_catalog_application` — `lifecycle/`.
 
@@ -1139,18 +1139,18 @@ Supporting types:
 | `ProductDeletionIssueDto` | code, message, severity |
 | `ProductDeletionIssueCode` | `has_historical_transactions`, `has_stock`, `open_transaction`, `active_promotion` |
 | `ProductDeletionIssueSeverity` | `warning`, `blocker`, `recommendation` |
-| `ChangeProductSoftDeleteResult` | productId, isSoftDeleted, businessStatus, readinessSummary, version, reason?, issues[], historyEntry? |
+| `ChangeProductSoftDeleteResult` | productId, businessStatus, readinessSummary, version, reason?, issues[], historyEntry? (`isSoftDeleted` derived getter) |
 
 Permissions: `@RequiresPermission(CatalogPermissions.delete)` + `@RequiresTenant()`.
 
 ### Contract rules
 
-- Soft delete remains a separate `isSoftDeleted` flag; do not add `ProductStatus.deleted`.
-- `DeleteProductCommand` preserves profile, UOM, images, stock, pricing, custom fields, business status, readiness inputs, and change history. It only marks `isSoftDeleted=true`, increments version, and records history.
+- Soft delete sets `ProductBusinessStatus.softDeleted` (Postgres `soft_deleted`). `deleted_at` remains an audit timestamp only.
+- `DeleteProductCommand` preserves profile, UOM, images, stock, pricing, custom fields, readiness inputs, and change history. It sets `businessStatus=soft_deleted`, may set `deleted_at`, increments version, and records history.
 - Eligibility blockers such as `open_transaction` prevent delete even when warnings are acknowledged. Warnings can suggest `deactivate_product` instead.
-- Default product search excludes soft-deleted products through `ProductSearchCriteria.includeSoftDeleted=false`; admin/history views must opt in explicitly.
-- Restore is allowed only for soft-deleted products. Restore checks SKU/barcode conflicts against non-deleted products.
-- Restored products return to `ProductStatus.inactive` and must show refreshed readiness blockers instead of claiming ready-to-sell.
+- Default product search excludes soft-deleted products (`business_status <> soft_deleted` / `includeSoftDeleted=false`); admin/history views must opt in explicitly.
+- Restore is allowed only for soft-deleted products. Restore checks SKU/barcode conflicts against non-soft-deleted products.
+- Restored products return to `ProductBusinessStatus.inactive` and must show refreshed readiness blockers instead of claiming ready-to-sell.
 - Soft-deleted products remain read-only for normal maintenance; profile/image maintenance remains locked until restored.
 - Sales/Promotions dependency checks are contract fakes only in this lane; BE can connect module facts later.
 
@@ -1159,8 +1159,8 @@ Permissions: `@RequiresPermission(CatalogPermissions.delete)` + `@RequiresTenant
 | Use case | RPC | Notes |
 | -------- | --- | ----- |
 | Check delete eligibility | `catalog.check_product_deletion_eligibility` | Dependency facts, warning/blocker issue list, suggested deactivate action |
-| Soft delete product | `catalog.delete_product` | Version check, dependency guard, soft-delete flag, change history |
-| Restore product | `catalog.restore_product` | Version check, duplicate SKU/barcode guard, restore as inactive, readiness refresh, change history |
+| Soft delete product | `catalog.delete_product` | Version check, dependency guard, set `business_status=soft_deleted` + `deleted_at`, change history |
+| Restore product | `catalog.restore_product` | Version check, duplicate SKU/barcode guard, restore as `inactive`, clear `deleted_at`, readiness refresh, change history |
 
 No SQL draft is created in CONTRACT lane.
 
@@ -1171,10 +1171,10 @@ No SQL draft is created in CONTRACT lane.
 | `scn_contract_e07_u03_fr01_01` | eligibility for `product-6` | `canDelete=true`, no issues |
 | `scn_contract_e07_u03_fr01_02` | eligibility/delete for `product-4` with open transaction | blocker `open_transaction`; delete throws `ValidationException` |
 | `scn_contract_e07_u03_fr01_03` | historical data on `product-1` | warning `has_historical_transactions`, suggested `deactivate_product` |
-| `scn_contract_e07_u03_fr02_01` | delete `product-6` | `isSoftDeleted=true`, version increment, history entry |
+| `scn_contract_e07_u03_fr02_01` | delete `product-6` | `businessStatus=soft_deleted`, version increment, history entry |
 | `scn_contract_e07_u03_fr02_02` | stale `expectedVersion` | `StaleProductVersionException` |
 | `scn_contract_e07_u03_fr02_03` | search after delete | default excludes; `includeSoftDeleted=true` includes deleted row |
-| `scn_contract_e07_u03_fr03_01` | restore deleted `product-7` | `isSoftDeleted=false`, `businessStatus=inactive`, readiness blockers returned |
+| `scn_contract_e07_u03_fr03_01` | restore deleted `product-7` | `businessStatus=inactive`, readiness blockers returned |
 | `scn_contract_e07_u03_fr03_02` | restore duplicate SKU | `DuplicateSkuException` |
 | `scn_contract_e07_u03_fr03_03` | restore duplicate barcode | `DuplicateBarcodeException` |
 | `scn_contract_e07_u03_fr04_01` | PCC after delete | preserved units, stock, base price, price band, history |

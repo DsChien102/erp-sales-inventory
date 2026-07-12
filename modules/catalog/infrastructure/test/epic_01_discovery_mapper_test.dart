@@ -36,7 +36,7 @@ void main() {
       expect(row.id, 'product-1');
       expect(row.facts.hasPriceBand, isTrue);
       expect(row.stockQuantity, 150);
-      expect(row.businessStatus, ProductStatus.active);
+      expect(row.businessStatus, ProductBusinessStatus.active);
     });
 
     test('maps custom field values on search row', () {

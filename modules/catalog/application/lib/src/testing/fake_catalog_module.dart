@@ -163,7 +163,7 @@ class _StoredProduct {
     this.stockMode = FakeProductReadinessBuilder.stockModeBasic,
     this.basePriceMode = FakeProductReadinessBuilder.basePriceModeManual,
     this.pricePermissionDenied = false,
-    this.businessStatus = ProductStatus.active,
+    this.businessStatus = ProductBusinessStatus.active,
     DateTime? updatedAt,
   }) : referenceId = referenceId ?? id,
        updatedAt = updatedAt ?? DateTime.utc(2026, 1, 1);
@@ -194,11 +194,12 @@ class _StoredProduct {
   final StockMode stockMode;
   final BasePriceMode basePriceMode;
   final bool pricePermissionDenied;
-  ProductStatus businessStatus;
+  ProductBusinessStatus businessStatus;
   List<ProductChangeHistoryEntryDto> statusHistory = const [];
-  bool isSoftDeleted = false;
   DateTime updatedAt;
   int version = 1;
+
+  bool get isSoftDeleted => businessStatus.isSoftDeleted;
 
   bool get hasBaseUnit => baseUnit.trim().isNotEmpty;
 
@@ -390,7 +391,7 @@ final class FakeCatalogModule implements ICatalogModule {
           baseCost: 30000,
           listPrice: 45000,
           floorPrice: 35000,
-          businessStatus: ProductStatus.inactive,
+          businessStatus: ProductBusinessStatus.inactive,
           updatedAt: DateTime.utc(2026, 2, 5),
         ),
         _StoredProduct(
@@ -478,7 +479,7 @@ final class FakeCatalogModule implements ICatalogModule {
           baseCost: 22000,
           listPrice: 35000,
           floorPrice: 28000,
-          businessStatus: ProductStatus.inactive,
+          businessStatus: ProductBusinessStatus.inactive,
           updatedAt: DateTime.utc(2026, 1, 2),
         ),
         _StoredProduct(
@@ -1044,7 +1045,7 @@ final class FakeCatalogModule implements ICatalogModule {
       throw ApplicationException('Product not found');
     }
     _ensureStatusChangeAllowed(product, command.expectedVersion);
-    if (product.businessStatus == ProductStatus.inactive) {
+    if (product.businessStatus == ProductBusinessStatus.inactive) {
       throw ValidationException('Product is already inactive.');
     }
 
@@ -1057,7 +1058,7 @@ final class FakeCatalogModule implements ICatalogModule {
 
     return _changeProductStatus<TResult>(
       product: product,
-      nextStatus: ProductStatus.inactive,
+      nextStatus: ProductBusinessStatus.inactive,
       actorId: command.actorId,
       reason: command.reason,
       warnings: warnings,
@@ -1070,16 +1071,16 @@ final class FakeCatalogModule implements ICatalogModule {
       throw ApplicationException('Product not found');
     }
     if (scenario == FakeCatalogScenario.scnContractE07U02Fr02_02 && product.id == 'product-4') {
-      product.businessStatus = ProductStatus.inactive;
+      product.businessStatus = ProductBusinessStatus.inactive;
     }
     _ensureStatusChangeAllowed(product, command.expectedVersion);
-    if (product.businessStatus == ProductStatus.active) {
+    if (product.businessStatus == ProductBusinessStatus.active) {
       throw ValidationException('Product is already active.');
     }
 
     return _changeProductStatus<TResult>(
       product: product,
-      nextStatus: ProductStatus.active,
+      nextStatus: ProductBusinessStatus.active,
       actorId: command.actorId,
       reason: command.reason,
     );
@@ -1103,7 +1104,7 @@ final class FakeCatalogModule implements ICatalogModule {
       throw ValidationException('Product deletion warnings require acknowledgment.');
     }
 
-    product.isSoftDeleted = true;
+    product.businessStatus = ProductBusinessStatus.softDeleted;
     _markUpdated(product);
 
     final historyEntry = ProductChangeHistoryEntryDto(
@@ -1122,7 +1123,6 @@ final class FakeCatalogModule implements ICatalogModule {
 
     return ChangeProductSoftDeleteResult(
           productId: product.id,
-          isSoftDeleted: product.isSoftDeleted,
           businessStatus: product.businessStatus,
           readinessSummary: _readinessSummaryFor(product),
           version: product.version,
@@ -1146,8 +1146,7 @@ final class FakeCatalogModule implements ICatalogModule {
     _ensureUniqueActiveSku(product, product.sku);
     _ensureUniqueActiveBarcode(product, product.barcode);
 
-    product.isSoftDeleted = false;
-    product.businessStatus = ProductStatus.inactive;
+    product.businessStatus = ProductBusinessStatus.inactive;
     _markUpdated(product);
 
     final historyEntry = ProductChangeHistoryEntryDto(
@@ -1166,7 +1165,6 @@ final class FakeCatalogModule implements ICatalogModule {
 
     return ChangeProductSoftDeleteResult(
           productId: product.id,
-          isSoftDeleted: product.isSoftDeleted,
           businessStatus: product.businessStatus,
           readinessSummary: _readinessSummaryFor(product),
           version: product.version,
@@ -1236,10 +1234,10 @@ final class FakeCatalogModule implements ICatalogModule {
       return;
     }
     if (scenario == FakeCatalogScenario.scnContractE07U03Fr03_02) {
-      product.isSoftDeleted = true;
+      product.businessStatus = ProductBusinessStatus.softDeleted;
       product.sku = 'SP0001';
     } else if (scenario == FakeCatalogScenario.scnContractE07U03Fr03_03) {
-      product.isSoftDeleted = true;
+      product.businessStatus = ProductBusinessStatus.softDeleted;
       product.barcode = '8930000000001';
     }
   }
@@ -1281,7 +1279,7 @@ final class FakeCatalogModule implements ICatalogModule {
 
   TResult _changeProductStatus<TResult>({
     required _StoredProduct product,
-    required ProductStatus nextStatus,
+    required ProductBusinessStatus nextStatus,
     required String actorId,
     required String? reason,
     List<ProductBusinessStatusWarningDto> warnings = const [],
@@ -1295,7 +1293,7 @@ final class FakeCatalogModule implements ICatalogModule {
       occurredAt: product.updatedAt,
       actorDisplayName: actorId,
       changeType: ProductChangeHistoryAction.statusChanged,
-      summary: nextStatus == ProductStatus.inactive
+      summary: nextStatus == ProductBusinessStatus.inactive
           ? 'Ngừng kinh doanh sản phẩm'
           : 'Kinh doanh lại sản phẩm',
       valueBefore: previousStatus.name,
@@ -1434,7 +1432,6 @@ final class FakeCatalogModule implements ICatalogModule {
       sku: product.sku.isEmpty ? null : product.sku,
       barcode: product.barcode.isEmpty ? null : product.barcode,
       businessStatus: product.businessStatus,
-      isSoftDeleted: product.isSoftDeleted,
       primaryImageUrl: product.images.isNotEmpty ? product.images.first : null,
       images: product.images,
       description: product.description,
@@ -1845,7 +1842,6 @@ final class FakeCatalogModule implements ICatalogModule {
       description: product.description,
       note: product.notes,
       businessStatus: product.businessStatus,
-      isSoftDeleted: product.isSoftDeleted,
       baseUnit: product.baseUnit,
       stockQty: product.stockQty,
       stockVersion: product.stockVersion,
@@ -1867,11 +1863,12 @@ final class FakeCatalogModule implements ICatalogModule {
   List<_StoredProduct> _visibleProducts(ProductSearchCriteria criteria) {
     final keyword = criteria.keyword;
     final useRelevance = keyword != null && criteria.sortOrder == ProductSortOrder.relevanceDesc;
+    final allowedStatuses = {
+      ...criteria.businessStatuses,
+      if (criteria.includeSoftDeleted) ProductBusinessStatus.softDeleted,
+    };
     return _products.where((product) {
-      if (product.isSoftDeleted && !criteria.includeSoftDeleted) {
-        return false;
-      }
-      if (!criteria.businessStatuses.contains(product.businessStatus)) {
+      if (!allowedStatuses.contains(product.businessStatus)) {
         return false;
       }
       if (!_matchesKeyword(product, keyword)) {
@@ -1886,7 +1883,7 @@ final class FakeCatalogModule implements ICatalogModule {
       }
       return true;
     }).toList()..sort((a, b) {
-      int statusRank(ProductStatus status) => status == ProductStatus.active ? 0 : 1;
+      int statusRank(ProductBusinessStatus status) => status == ProductBusinessStatus.active ? 0 : 1;
       final byStatus = statusRank(a.businessStatus).compareTo(
         statusRank(b.businessStatus),
       );
@@ -2001,7 +1998,6 @@ final class FakeCatalogModule implements ICatalogModule {
       barcode: product.barcode,
       primaryImageUrl: product.images.isNotEmpty ? product.images.first : null,
       businessStatus: product.businessStatus,
-      isSoftDeleted: product.isSoftDeleted,
       readinessSummary: summary,
       listPrice: product.listPrice,
       floorPrice: product.floorPrice,

@@ -51,11 +51,11 @@ void main() {
 
     test('deactivate / reactivate transitions business status', () {
       final deactivated = createProduct().deactivate(actorId: 'user-2');
-      expect(deactivated.status, ProductStatus.inactive);
+      expect(deactivated.status, ProductBusinessStatus.inactive);
       expect(deactivated.domainEvents!.last, isA<ProductDeactivated>());
 
       final reactivated = deactivated.reactivate(actorId: 'user-3');
-      expect(reactivated.status, ProductStatus.active);
+      expect(reactivated.status, ProductBusinessStatus.active);
       expect(reactivated.domainEvents!.last, isA<ProductReactivated>());
     });
 
@@ -67,12 +67,14 @@ void main() {
       );
     });
 
-    test('softDelete / restore toggles soft-delete flag', () {
+    test('softDelete / restore transitions to soft_deleted then inactive', () {
       final deleted = createProduct().softDelete(actorId: 'user-2');
+      expect(deleted.status, ProductBusinessStatus.softDeleted);
       expect(deleted.isSoftDeleted, isTrue);
       expect(deleted.domainEvents!.last, isA<ProductDeleted>());
 
       final restored = deleted.restore(actorId: 'user-3');
+      expect(restored.status, ProductBusinessStatus.inactive);
       expect(restored.isSoftDeleted, isFalse);
       expect(restored.domainEvents!.last, isA<ProductRestored>());
     });

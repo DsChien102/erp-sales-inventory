@@ -19,7 +19,6 @@ abstract final class ProductListItemAssembler {
       barcode: row.barcode,
       primaryImageUrl: row.primaryImageUrl,
       businessStatus: row.businessStatus,
-      isSoftDeleted: row.isSoftDeleted,
       readinessSummary: ReadinessSummaryDto.fromDomain(readiness),
       listPrice: row.listPrice,
       floorPrice: row.floorPrice,

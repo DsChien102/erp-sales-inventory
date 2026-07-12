@@ -65,7 +65,7 @@ extension ProductChangeHistoryActionLabelVi on ProductChangeHistoryAction {
       case ProductChangeHistoryAction.reactivated:
         return 'Mở lại kinh doanh';
       case ProductChangeHistoryAction.softDeleted:
-        return 'Ẩn sản phẩm';
+        return 'Xóa mềm sản phẩm';
       case ProductChangeHistoryAction.restored:
         return 'Khôi phục sản phẩm';
     }
