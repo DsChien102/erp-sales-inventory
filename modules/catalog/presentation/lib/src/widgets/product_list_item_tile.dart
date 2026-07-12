@@ -17,118 +17,111 @@ class ProductListItemTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final dynamicColors = context.vColors;
 
-    return InkWell(
+    return VCard(
       onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          border: Border(
-            bottom: BorderSide(color: dynamicColors.borderDefault),
-          ),
-        ),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildImage(dynamicColors),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Flexible(
-                        child: Text(
-                          item.name,
-                          style: VTypography.bodyDefault.copyWith(
-                            color: dynamicColors.textPrimary,
-                            fontWeight: FontWeight.w600,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
+      padding: const EdgeInsets.all(16),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildImage(dynamicColors),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Flexible(
+                      child: Text(
+                        item.name,
+                        style: VTypography.bodyDefault.copyWith(
+                          color: dynamicColors.textPrimary,
+                          fontWeight: FontWeight.w600,
                         ),
-                      ),
-                      if (item.sku != null && item.sku!.isNotEmpty)
-                        Text(
-                          ' - ${item.sku}',
-                          style: VTypography.bodyDefault.copyWith(
-                            color: dynamicColors.textPrimary,
-                            fontWeight: FontWeight.w600,
-                          ),
-                          maxLines: 1,
-                          softWrap: false,
-                        ),
-                    ],
-                  ),
-                  if (item.isSoftDeleted) ...[
-                    const SizedBox(height: 4),
-                    const Align(
-                      alignment: Alignment.centerLeft,
-                      child: VBadge(
-                        label: 'Đã xóa',
-                        status: VBadgeStatus.locked,
-                        isSmall: true,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
-                  ],
-                  if (item.tradeName != null && item.tradeName!.isNotEmpty) ...[
-                    const SizedBox(height: 2),
-                    Text(
-                      item.tradeName!,
-                      style: VTypography.bodySmall.copyWith(
-                        color: dynamicColors.textSecondary,
-                      ),
-                    ),
-                  ],
-                  if (item.customFieldValues.isNotEmpty) ...[
-                    const SizedBox(height: 6),
-                    Wrap(
-                      spacing: 6,
-                      runSpacing: 4,
-                      children: item.customFieldValues.map((cf) {
-                        return Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                          decoration: BoxDecoration(
-                            color: dynamicColors.surfaceAlt,
-                            borderRadius: BorderRadius.circular(4),
-                          ),
-                          child: Text(
-                            '${cf.fieldName}: ${cf.displayValue}',
-                            style: VTypography.bodySmall.copyWith(
-                              color: dynamicColors.textSecondary,
-                              fontSize: 11,
-                            ),
-                          ),
-                        );
-                      }).toList(),
-                    ),
-                  ],
-                  const SizedBox(height: 8),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Expanded(
-                        flex: 2,
-                        child: _buildPriceInfo(dynamicColors),
-                      ),
-                      Expanded(
-                        flex: 1,
-                        child: Center(child: _buildUnitInfo(dynamicColors)),
-                      ),
-                      Expanded(
-                        flex: 1,
-                        child: Align(
-                          alignment: Alignment.centerRight,
-                          child: _buildStockInfo(dynamicColors),
+                    if (item.sku != null && item.sku!.isNotEmpty)
+                      Text(
+                        ' - ${item.sku}',
+                        style: VTypography.bodyDefault.copyWith(
+                          color: dynamicColors.textPrimary,
+                          fontWeight: FontWeight.w600,
                         ),
+                        maxLines: 1,
+                        softWrap: false,
                       ),
-                    ],
+                  ],
+                ),
+                if (item.isSoftDeleted) ...[
+                  const SizedBox(height: 4),
+                  const Align(
+                    alignment: Alignment.centerLeft,
+                    child: VBadge(
+                      label: 'Đã xóa',
+                      status: VBadgeStatus.locked,
+                      isSmall: true,
+                    ),
                   ),
                 ],
-              ),
+                if (item.tradeName != null && item.tradeName!.isNotEmpty) ...[
+                  const SizedBox(height: 2),
+                  Text(
+                    item.tradeName!,
+                    style: VTypography.bodySmall.copyWith(
+                      color: dynamicColors.textSecondary,
+                    ),
+                  ),
+                ],
+                if (item.customFieldValues.isNotEmpty) ...[
+                  const SizedBox(height: 6),
+                  Wrap(
+                    spacing: 6,
+                    runSpacing: 4,
+                    children: item.customFieldValues.map((cf) {
+                      return Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: dynamicColors.surfaceAlt,
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: Text(
+                          '${cf.fieldName}: ${cf.displayValue}',
+                          style: VTypography.bodySmall.copyWith(
+                            color: dynamicColors.textSecondary,
+                            fontSize: 11,
+                          ),
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                ],
+                const SizedBox(height: 8),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      flex: 2,
+                      child: _buildPriceInfo(dynamicColors),
+                    ),
+                    Expanded(
+                      flex: 1,
+                      child: Center(child: _buildUnitInfo(dynamicColors)),
+                    ),
+                    Expanded(
+                      flex: 1,
+                      child: Align(
+                        alignment: Alignment.centerRight,
+                        child: _buildStockInfo(dynamicColors),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

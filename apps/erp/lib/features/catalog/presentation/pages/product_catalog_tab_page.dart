@@ -189,7 +189,7 @@ class _ProductCatalogTabPageState extends State<ProductCatalogTabPage> {
     );
   }
 
-  Widget _buildFilterChips(BuildContext context, dynamic dynamicColors, ProductListState state) {
+  Widget _buildFilterChips() {
     final globalCount = _cubit.globalTotalCount;
 
     return SingleChildScrollView(
@@ -204,30 +204,13 @@ class _ProductCatalogTabPageState extends State<ProductCatalogTabPage> {
           }
           return Padding(
             padding: const EdgeInsets.only(right: 8),
-            child: GestureDetector(
+            child: VChip(
+              label: label,
+              selected: isSelected,
               onTap: () => _onFilterChanged(filter),
-              child: _buildChip(dynamicColors, label, isSelected),
             ),
           );
         }).toList(),
-      ),
-    );
-  }
-
-  Widget _buildChip(VColorScheme colors, String label, bool isSelected) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      decoration: BoxDecoration(
-        color: isSelected ? colors.success : colors.surface,
-        borderRadius: BorderRadius.circular(16),
-        border: isSelected ? null : Border.all(color: colors.borderDefault),
-      ),
-      child: Text(
-        label,
-        style: VTypography.bodySmall.copyWith(
-          color: isSelected ? colors.surface : colors.textPrimary,
-          fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
-        ),
       ),
     );
   }
@@ -317,7 +300,7 @@ class _ProductCatalogTabPageState extends State<ProductCatalogTabPage> {
               activeFiltersCount: _customFieldFilters.length,
             ),
             BlocBuilder<ProductListCubit, ProductListState>(
-              builder: (context, state) => _buildFilterChips(context, dynamicColors, state),
+              builder: (context, state) => _buildFilterChips(),
             ),
             const SizedBox(height: 12),
             Expanded(
@@ -399,6 +382,7 @@ class _ProductCatalogTabPageState extends State<ProductCatalogTabPage> {
                     onRefresh: () => _cubit.fetchProducts(isRefresh: true),
                     child: ListView.builder(
                       controller: _scrollController,
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
                       physics: const AlwaysScrollableScrollPhysics(),
                       itemCount: items.length + (isLoadingMore ? 1 : 0),
                       itemBuilder: (context, index) {
@@ -409,9 +393,12 @@ class _ProductCatalogTabPageState extends State<ProductCatalogTabPage> {
                           );
                         }
                         final item = items[index];
-                        return ProductListItemTile(
-                          item: item,
-                          onTap: () => _navigateToProduct(context, item),
+                        return Padding(
+                          padding: const EdgeInsets.only(bottom: 8.0),
+                          child: ProductListItemTile(
+                            item: item,
+                            onTap: () => _navigateToProduct(context, item),
+                          ),
                         );
                       },
                     ),

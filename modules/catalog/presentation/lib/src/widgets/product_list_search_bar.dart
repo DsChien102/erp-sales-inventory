@@ -45,57 +45,84 @@ class _ProductListSearchBarState extends State<ProductListSearchBar> {
       child: Row(
         children: [
           Expanded(
-            child: VTextField(
+            child: VSearchBar(
               key: const Key('input_product_search'),
               controller: _controller,
               hintText: 'Tìm tên, SKU, barcode, thông tin bổ sung...',
-              prefixIcon: const Icon(Icons.search),
-              suffixIcon: IconButton(
-                icon: const Icon(Icons.camera_alt_outlined),
-                onPressed: () {
-                  // TODO: Implement barcode scan
-                },
-              ),
+              variant: VSearchBarVariant.outlined,
               onChanged: _onSearchChanged,
               onSubmitted: _onSearchChanged,
+              suffix: _CameraIconButton(),
             ),
           ),
           if (widget.onFilterPressed != null) ...[
             const SizedBox(width: 8),
-            GestureDetector(
-              key: const Key('btn_filter_custom_fields'),
-              onTap: widget.onFilterPressed,
-              child: Badge(
-                isLabelVisible: isFilterActive,
-                label: Text('${widget.activeFiltersCount}'),
-                backgroundColor: VColors.success,
-                offset: const Offset(4, -4),
-                child: Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: isFilterActive
-                        ? VColors.successBg
-                        : dynamicColors.surface,
-                    borderRadius: BorderRadius.circular(VRadius.input),
-                    border: Border.all(
-                      color: isFilterActive
-                          ? VColors.success
-                          : dynamicColors.borderDefault,
-                    ),
-                  ),
-                  child: Icon(
-                    Icons.tune,
-                    color: isFilterActive
-                        ? VColors.success
-                        : dynamicColors.textPrimary,
-                    size: 20,
-                  ),
-                ),
-              ),
+            _FilterButton(
+              widget: widget,
+              isFilterActive: isFilterActive,
+              dynamicColors: dynamicColors,
             ),
           ],
         ],
       ),
+    );
+  }
+}
+
+class _FilterButton extends StatelessWidget {
+  const _FilterButton({
+    required this.widget,
+    required this.isFilterActive,
+    required this.dynamicColors,
+  });
+
+  final ProductListSearchBar widget;
+  final bool isFilterActive;
+  final VColorScheme dynamicColors;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      key: const Key('btn_filter_custom_fields'),
+      onTap: widget.onFilterPressed,
+      child: Badge(
+        isLabelVisible: isFilterActive,
+        label: Text('${widget.activeFiltersCount}'),
+        backgroundColor: VColors.success,
+        offset: const Offset(4, -4),
+        child: Container(
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: isFilterActive ? VColors.successBg : dynamicColors.surface,
+            borderRadius: BorderRadius.circular(VRadius.input),
+            border: Border.all(
+              color: isFilterActive ? VColors.success : dynamicColors.borderDefault,
+            ),
+          ),
+          child: Icon(
+            Icons.tune,
+            color: isFilterActive ? VColors.success : dynamicColors.textPrimary,
+            size: 20,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _CameraIconButton extends StatelessWidget {
+  const _CameraIconButton();
+
+  @override
+  Widget build(BuildContext context) {
+    return IconButton(
+      icon: const Icon(
+        Icons.camera_alt_outlined,
+        color: VColors.textSecondary,
+      ),
+      onPressed: () {
+        // TODO: Implement barcode scan
+      },
     );
   }
 }
