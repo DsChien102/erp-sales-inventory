@@ -19,6 +19,67 @@ class _PrimitivesPreviewTabState extends State<PrimitivesPreviewTab> {
       padding: const EdgeInsets.all(VSpacing.screenMobile),
       children: [
         PreviewSection(
+          title: 'VText',
+          description: 'All VTextVariant values + color / overflow / align.',
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              for (final variant in VTextVariant.values)
+                PreviewStateRow(
+                  label: variant.name,
+                  child: VText(
+                    'The quick brown fox — ${variant.name}',
+                    variant: variant,
+                  ),
+                ),
+              PreviewStateRow(
+                label: 'Colors',
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Builder(
+                      builder: (context) {
+                        final colors = context.vColors;
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            VText('textPrimary', color: colors.textPrimary),
+                            VText('textSecondary', color: colors.textSecondary),
+                            VText('textMuted', color: colors.textMuted),
+                            const VText('danger', color: VColors.danger),
+                          ],
+                        );
+                      },
+                    ),
+                  ],
+                ),
+              ),
+              const PreviewStateRow(
+                label: 'maxLines + overflow ellipsis',
+                child: SizedBox(
+                  width: 180,
+                  child: VText(
+                    'This is a long line that should truncate with an ellipsis at the end.',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ),
+              const PreviewStateRow(
+                label: 'textAlign center',
+                child: SizedBox(
+                  width: double.infinity,
+                  child: VText(
+                    'Centered text',
+                    textAlign: TextAlign.center,
+                    variant: VTextVariant.headingH4,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        PreviewSection(
           title: 'VBadge',
           description: 'All VBadgeStatus values.',
           child: PreviewStateWrap(

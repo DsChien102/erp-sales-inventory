@@ -11,6 +11,7 @@ class UIAuditTab extends StatelessWidget {
     'VChip',
     'VIcon',
     'VIconBox',
+    'VText',
     // Components
     'VButton',
     'VCard',
