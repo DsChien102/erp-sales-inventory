@@ -989,7 +989,7 @@ final class FakeCatalogModule implements ICatalogModule {
     if (productName.isEmpty) {
       throw ValidationException('Product name is required.');
     }
-    final sku = _optionalText(command.sku) ?? '';
+    final sku = _normalizeSku(_optionalText(command.sku) ?? '');
     final barcode = _optionalText(command.barcode) ?? '';
     _ensureUniqueSku(product, sku);
     _ensureUniqueBarcode(product, barcode);
@@ -1335,11 +1335,13 @@ final class FakeCatalogModule implements ICatalogModule {
   }
 
   void _ensureUniqueSku(_StoredProduct target, String sku) {
-    if (sku.isEmpty) {
+    final normalized = _normalizeSku(sku);
+    if (normalized.isEmpty) {
       return;
     }
     for (final product in _products) {
-      if (product.id != target.id && product.sku == sku) {
+      if (product.id != target.id &&
+          _normalizeSku(product.sku) == normalized) {
         throw DuplicateSkuException(
           sku: sku,
           existingProductId: product.id,
@@ -1365,11 +1367,14 @@ final class FakeCatalogModule implements ICatalogModule {
   }
 
   void _ensureUniqueActiveSku(_StoredProduct target, String sku) {
-    if (sku.isEmpty) {
+    final normalized = _normalizeSku(sku);
+    if (normalized.isEmpty) {
       return;
     }
     for (final product in _products) {
-      if (product.id != target.id && !product.isSoftDeleted && product.sku == sku) {
+      if (product.id != target.id &&
+          !product.isSoftDeleted &&
+          _normalizeSku(product.sku) == normalized) {
         throw DuplicateSkuException(
           sku: sku,
           existingProductId: product.id,
@@ -1457,6 +1462,12 @@ final class FakeCatalogModule implements ICatalogModule {
       return null;
     }
     return trimmed;
+  }
+
+  /// Matches Postgres `catalog._normalize_product_sku` (trim + uppercase).
+  String _normalizeSku(String sku) {
+    final normalized = sku.trim().toUpperCase();
+    return normalized;
   }
 
   TResult _handleRequestUpload<TResult>(
@@ -1612,7 +1623,7 @@ final class FakeCatalogModule implements ICatalogModule {
       referenceId: referenceId,
       name: command.productName,
       tradeName: command.commercialName,
-      sku: command.sku ?? '',
+      sku: _normalizeSku(command.sku ?? ''),
       barcode: command.barcode ?? '',
       baseUnit: command.baseUnitName ?? '',
       images: images,
@@ -2394,8 +2405,10 @@ final class FakeCatalogModule implements ICatalogModule {
         final matches = <ProductDuplicateMatchDto>[];
         final sku = query.sku?.trim();
         if (sku != null && sku.isNotEmpty) {
+          final normalizedSku = _normalizeSku(sku);
           for (final product in _products) {
-            if (product.sku == sku && product.id != query.excludeProductId) {
+            if (_normalizeSku(product.sku) == normalizedSku &&
+                product.id != query.excludeProductId) {
               matches.add(
                 ProductDuplicateMatchDto(
                   field: ProductDuplicateField.sku,

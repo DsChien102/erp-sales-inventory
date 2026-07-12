@@ -1,7 +1,7 @@
 import 'package:vet45_shared_domain/shared_kernel_domain.dart';
 
 final class Sku extends ValueObject {
-  Sku(String value) : value = value.trim() {
+  Sku(String value) : value = value.trim().toUpperCase() {
     if (this.value.isEmpty) {
       throw DomainException('SKU must not be empty when provided.');
     }

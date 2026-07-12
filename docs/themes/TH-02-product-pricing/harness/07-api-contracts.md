@@ -252,13 +252,15 @@ Port: `ICatalogReadGateway.search`, `ICatalogReadGateway.findByBarcode`.
 
 **`catalog.search_products` params:** `p_tenant_id`, `p_keyword`, `p_business_statuses text[]`, `p_readiness_filter text`, `p_include_soft_deleted boolean`, `p_limit int`, `p_offset int`, `p_custom_field_filters jsonb` (EPIC-03), `p_sort_order text` default `updated_at_desc` (`updated_at_desc` \| `relevance_desc`)
 
-**Search engine:** PostgreSQL FTS trên `products.search_document` (`tsvector` + GIN) với `unaccent` + config `simple` (khớp không dấu tiếng Việt). Fast-path exact/prefix trên `sku`/`barcode` (cột đã inline-normalize). Searchable custom fields (`text`/`singleSelect`) denormalize vào `search_document` (không correlated ILIKE mỗi row).
+**Search engine:** PostgreSQL FTS trên `products.search_document` (`tsvector` + GIN) với `unaccent` + config `simple` (khớp không dấu tiếng Việt). Fast-path exact/prefix trên `sku`/`barcode` (cột đã inline-normalize: **SKU = trim + uppercase**, barcode = trim). Searchable custom fields (`text`/`singleSelect`) denormalize vào `search_document` (không correlated ILIKE mỗi row).
+
+Draft SQL (SKU uppercase): `supabase/migrations/_drafts/001_catalog_patch_sku_uppercase_normalize.sql`, `002_catalog_patch_sku_uppercase_search_products.sql`.
 
 **Sort:** luôn pin `active` trước `inactive` (kể cả khi `relevance_desc`). Khi `p_sort_order = relevance_desc` và có keyword → `ts_rank_cd` rồi `updated_at desc`, `name asc`. Khi không keyword / `updated_at_desc` → active-first rồi `updated_at desc`.
 
 **Response row:** list item fields + readiness facts + `custom_field_values jsonb` + `total_count`. Không expose `reference_id`.
 
-Draft SQL: `supabase/migrations/_drafts/catalog_product_fts_search.sql`.
+Canonical FTS migration: `20260712002_catalog_product_fts_search.sql`.
 
 ### Fake scenarios (FE)
 

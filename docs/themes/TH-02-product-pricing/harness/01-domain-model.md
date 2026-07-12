@@ -159,7 +159,7 @@ erDiagram
 | Rule ID | Rule |
 | ------- | ---- |
 | DR-01 | Tên sản phẩm bắt buộc; guided create không ép toàn bộ field |
-| DR-02 | SKU/barcode optional; unique per tenant |
+| DR-02 | SKU/barcode optional; unique per tenant; SKU stored uppercase (`trim` + `upper`) |
 | DR-02b | `ProductReferenceId` bắt buộc; unique per tenant (case-sensitive, exact match); immutable sau create. **Không expose UI** — chỉ dùng import/tracking DB. Guided create: hash tự động. Import: explicit legacy (`SP-0001`) qua `CreateProductCommand.referenceId?` |
 | DR-03 | Readiness tách khỏi trạng thái kinh doanh |
 | DR-04 | Basic stock theo base unit; không tạo phiếu nhập |
