@@ -6,6 +6,7 @@ import 'package:vet45_partner_application/testing.dart';
 import 'package:vet45_partner_domain/domain.dart';
 import 'package:vet45_partner_presentation/presentation.dart';
 import 'package:vet45_partner_presentation/src/data/vn_administrative_units_loader.dart';
+import 'package:vet45_partner_presentation/src/widgets/partner_compact_field.dart';
 import 'package:vet45_partner_presentation/src/widgets/partner_delivery_section.dart';
 import 'package:vet45_shared_application/application.dart';
 import 'package:vet45_shared_testing/shared_testing.dart';
@@ -73,9 +74,9 @@ void main() {
       final fieldWidth = tester.getSize(fieldFinder).width;
       expect(
         menu.alignmentOffset,
-        const Offset(0, 44),
+        PartnerCompactField.menuAlignmentOffset,
       );
-      expect(menu.menuStyle?.alignment, AlignmentDirectional.topStart);
+      expect(menu.menuStyle?.alignment, PartnerCompactField.menuAlignment);
       expect(menu.menuStyle?.minimumSize?.resolve({})?.width, fieldWidth);
       expect(menu.menuStyle?.maximumSize?.resolve({})?.width, fieldWidth);
       final shape = menu.menuStyle?.shape?.resolve({}) as RoundedRectangleBorder;

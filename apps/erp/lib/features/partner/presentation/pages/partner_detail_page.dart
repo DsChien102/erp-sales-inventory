@@ -382,8 +382,13 @@ class _PartnerDetailPageState extends State<PartnerDetailPage> {
                             const SizedBox(width: VSpacing.space3),
                             Expanded(
                               child: VButton(
-                                label: 'Thao tác  ▲',
+                                label: 'Thao tác',
                                 variant: VButtonVariant.primary,
+                                trailingIcon: const Icon(
+                                  Icons.expand_less,
+                                  size: 20,
+                                  color: Colors.white,
+                                ),
                                 onPressed: () => _showActionSheet(context, dto),
                               ),
                             ),

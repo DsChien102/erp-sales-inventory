@@ -22,11 +22,25 @@ String _removeVietnameseTones(String str) {
 
 abstract final class PartnerCompactField {
   static const double controlHeight = 40;
+  static const double menuHeight = 180;
+  /// Attach menu just below the field (not top-aligned + large dy offset).
+  static const Offset menuAlignmentOffset = Offset(0, 4);
+  static const AlignmentGeometry menuAlignment = AlignmentDirectional.bottomStart;
 
   static const EdgeInsets contentPadding = EdgeInsets.symmetric(
     horizontal: 12,
     vertical: 11,
   );
+
+  /// Keep the field high enough in the viewport so the menu can open downward.
+  static Future<void> ensureMenuOpensDownward(BuildContext context) {
+    return Scrollable.ensureVisible(
+      context,
+      duration: const Duration(milliseconds: 200),
+      curve: Curves.easeOut,
+      alignment: 0.15,
+    );
+  }
 
   static TextStyle valueStyle(BuildContext context) {
     return VTypography.bodySmall.copyWith(
@@ -275,16 +289,15 @@ class PartnerCompactDropdown<T> extends StatelessWidget {
     return LayoutBuilder(
       builder: (context, constraints) {
         return MenuAnchor(
-          alignmentOffset: const Offset(
-            0,
-            PartnerCompactField.controlHeight + 4,
-          ),
+          alignmentOffset: PartnerCompactField.menuAlignmentOffset,
           crossAxisUnconstrained: false,
           style: MenuStyle(
-            alignment: AlignmentDirectional.topStart,
+            alignment: PartnerCompactField.menuAlignment,
             padding: WidgetStatePropertyAll(EdgeInsets.zero),
             minimumSize: WidgetStatePropertyAll(Size(constraints.maxWidth, 0)),
-            maximumSize: WidgetStatePropertyAll(Size(constraints.maxWidth, 240)),
+            maximumSize: WidgetStatePropertyAll(
+              Size(constraints.maxWidth, PartnerCompactField.menuHeight),
+            ),
             backgroundColor: WidgetStatePropertyAll(colors.surface),
             surfaceTintColor: const WidgetStatePropertyAll(Colors.transparent),
             elevation: const WidgetStatePropertyAll(4),
@@ -319,12 +332,16 @@ class PartnerCompactDropdown<T> extends StatelessWidget {
                 child: InkWell(
                   onTap: !enabled
                       ? null
-                      : () {
+                      : () async {
                           if (controller.isOpen) {
                             controller.close();
-                          } else {
-                            controller.open();
+                            return;
                           }
+                          await PartnerCompactField.ensureMenuOpensDownward(
+                            context,
+                          );
+                          if (!context.mounted) return;
+                          controller.open();
                         },
                   borderRadius: BorderRadius.circular(VRadius.input),
                   child: DecoratedBox(
@@ -367,7 +384,7 @@ class PartnerCompactDropdown<T> extends StatelessWidget {
   }
 }
 
-class PartnerCompactSearchableDropdown<T> extends StatelessWidget {
+class PartnerCompactSearchableDropdown<T> extends StatefulWidget {
   const PartnerCompactSearchableDropdown({
     super.key,
     required this.value,
@@ -384,6 +401,38 @@ class PartnerCompactSearchableDropdown<T> extends StatelessWidget {
   final bool enabled;
 
   @override
+  State<PartnerCompactSearchableDropdown<T>> createState() =>
+      _PartnerCompactSearchableDropdownState<T>();
+}
+
+class _PartnerCompactSearchableDropdownState<T>
+    extends State<PartnerCompactSearchableDropdown<T>> {
+  late final FocusNode _focusNode;
+
+  @override
+  void initState() {
+    super.initState();
+    _focusNode = FocusNode(debugLabel: 'PartnerCompactSearchableDropdown');
+    _focusNode.addListener(_onFocusChange);
+  }
+
+  void _onFocusChange() {
+    if (!_focusNode.hasFocus || !mounted) return;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted || !_focusNode.hasFocus) return;
+      PartnerCompactField.ensureMenuOpensDownward(context);
+    });
+  }
+
+  @override
+  void dispose() {
+    _focusNode
+      ..removeListener(_onFocusChange)
+      ..dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final colors = context.vColors;
 
@@ -393,36 +442,38 @@ class PartnerCompactSearchableDropdown<T> extends StatelessWidget {
           height: PartnerCompactField.controlHeight,
           width: double.infinity,
           child: DropdownMenu<T>(
-            key: ValueKey('compact-search-$value-$enabled'),
+            key: ValueKey(
+              'compact-search-${widget.value}-${widget.enabled}',
+            ),
             width: constraints.maxWidth,
-            enabled: enabled,
-            initialSelection: value,
-            hintText: hintText,
+            enabled: widget.enabled,
+            initialSelection: widget.value,
+            hintText: widget.hintText,
+            focusNode: _focusNode,
             enableSearch: true,
             enableFilter: true,
             filterCallback: (entries, filter) {
-              final normalizedFilter = _removeVietnameseTones(filter).toLowerCase();
+              final normalizedFilter =
+                  _removeVietnameseTones(filter).toLowerCase();
               return entries.where((entry) {
-                final normalizedLabel = _removeVietnameseTones(entry.label).toLowerCase();
+                final normalizedLabel =
+                    _removeVietnameseTones(entry.label).toLowerCase();
                 return normalizedLabel.contains(normalizedFilter);
               }).toList();
             },
             requestFocusOnTap: true,
-            alignmentOffset: const Offset(
-              0,
-              PartnerCompactField.controlHeight + 4,
-            ),
-            menuHeight: 280,
+            alignmentOffset: PartnerCompactField.menuAlignmentOffset,
+            menuHeight: PartnerCompactField.menuHeight,
             textStyle: PartnerCompactField.valueStyle(context).copyWith(
-              color: enabled ? colors.textPrimary : colors.textMuted,
+              color: widget.enabled ? colors.textPrimary : colors.textMuted,
             ),
             menuStyle: MenuStyle(
-              alignment: AlignmentDirectional.topStart,
+              alignment: PartnerCompactField.menuAlignment,
               minimumSize: WidgetStatePropertyAll(
                 Size(constraints.maxWidth, 0),
               ),
               maximumSize: WidgetStatePropertyAll(
-                Size(constraints.maxWidth, 280),
+                Size(constraints.maxWidth, PartnerCompactField.menuHeight),
               ),
               backgroundColor: WidgetStatePropertyAll(colors.surface),
               surfaceTintColor: const WidgetStatePropertyAll(Colors.transparent),
@@ -436,7 +487,7 @@ class PartnerCompactSearchableDropdown<T> extends StatelessWidget {
             inputDecorationTheme: InputDecorationTheme(
               isDense: true,
               filled: true,
-              fillColor: enabled ? colors.surface : colors.surfaceAlt,
+              fillColor: widget.enabled ? colors.surface : colors.surfaceAlt,
               contentPadding: PartnerCompactField.contentPadding,
               hintStyle: PartnerCompactField.hintStyle(context),
               enabledBorder: OutlineInputBorder(
@@ -456,8 +507,8 @@ class PartnerCompactSearchableDropdown<T> extends StatelessWidget {
                 maxHeight: PartnerCompactField.controlHeight,
               ),
             ),
-            onSelected: onChanged,
-            dropdownMenuEntries: items,
+            onSelected: widget.onChanged,
+            dropdownMenuEntries: widget.items,
           ),
         );
       },

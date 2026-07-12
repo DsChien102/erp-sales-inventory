@@ -19,7 +19,7 @@ abstract final class PartnerOutlinedField {
     return RichText(
       text: TextSpan(
         style: VTypography.bodySmall.copyWith(
-          color: context.vColors.textSecondary,
+          color: context.vColors.textPrimary,
           fontSize: 14,
         ),
         children: [
