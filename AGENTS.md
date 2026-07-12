@@ -66,6 +66,7 @@ packages/vet45_shared/*     → never import modules/
 | Application layer (handlers, ports, DTOs)               | `.cursor/skills/application-layer/SKILL.md`                                                                 |
 | Infrastructure (RPC, gateways, startup)                 | `.cursor/skills/infrastructure-layer/SKILL.md`                                                              |
 | Presentation UI (pages, dialogs, widgets)               | `.cursor/skills/presentation-layer/SKILL.md`                                                                |
+| Design system + example catalog coverage                | `.cursor/rules/vet45-design-system-example.mdc` + `packages/vet45_design_system/example/lib/preview/`        |
 | Tích hợp async server-state cache (`vet45_async_query`) | `.cursor/rules/vet45-presentation-ui.mdc` + `packages/vet45_async_query/docs/AGENT_INTEGRATION_PLAYBOOK.md` |
 | Harness approach                                        | `docs/architecture/harness-engineering.md`                                                                  |
 

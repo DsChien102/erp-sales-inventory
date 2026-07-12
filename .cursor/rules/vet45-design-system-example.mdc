@@ -1,0 +1,45 @@
+---
+description: Design system changes must ship example catalog coverage for every new/updated public UI widget (all existing API states)
+globs: packages/vet45_design_system/**
+alwaysApply: false
+---
+
+# Vet45 Design System — Example Catalog Coverage
+
+Khi thêm / đổi **public UI** trong `packages/vet45_design_system` (primitives, components, forms, business), **bắt buộc** cập nhật example catalog trong cùng PR/slice. Không coi slice xong nếu chỉ có `lib/` mà thiếu demo.
+
+## Hard rules
+
+1. **Export trước, demo sau:** mọi widget public phải được export trong [`lib/design_system.dart`](packages/vet45_design_system/lib/design_system.dart).
+2. **Một component = một `PreviewSection`** trong tab đúng category:
+   - Primitives → [`example/lib/preview/primitives_tab.dart`](packages/vet45_design_system/example/lib/preview/primitives_tab.dart)
+   - Components → [`example/lib/preview/components_tab.dart`](packages/vet45_design_system/example/lib/preview/components_tab.dart)
+   - Forms → [`example/lib/preview/forms_tab.dart`](packages/vet45_design_system/example/lib/preview/forms_tab.dart)
+   - Business → [`example/lib/preview/business_tab.dart`](packages/vet45_design_system/example/lib/preview/business_tab.dart)
+   - Tokens mới (nếu visual được) → [`tokens_tab.dart`](packages/vet45_design_system/example/lib/preview/tokens_tab.dart)
+3. **Cover hết state API hiện có** của widget đó — không bịa state core chưa hỗ trợ. Dùng `PreviewStateRow` / `PreviewStateWrap` từ [`preview_section.dart`](packages/vet45_design_system/example/lib/preview/preview_section.dart).
+4. **Checklist state tối thiểu** (áp dụng nếu prop tồn tại):
+   - default / filled
+   - `enabled: false` / `onPressed: null` / disabled
+   - `errorText` / validation / required
+   - `isLoading` / selected / empty
+   - mọi `enum` variant/size/status/emphasis/tone public
+5. **UI Audit:** thêm tên class vào `_exampleCoverage` trong [`ui_audit_tab.dart`](packages/vet45_design_system/example/lib/preview/ui_audit_tab.dart) (alias nested helpers nếu audit lấy class con trước).
+6. **Không** nhồi demo vào Mockup-only; Mockup là composition, catalog mới là source of truth cho states.
+
+## Anti-patterns (reject)
+
+- Thêm `VFoo` vào `lib/` nhưng không có section trong example
+- Chỉ demo happy path; bỏ disabled / error / variants
+- Demo gián tiếp qua widget khác mà không có section trực tiếp (trừ helper private không export)
+- Hand-edit audit snapshot thay vì cập nhật example coverage khi chỉ cần demo
+
+## Done checklist
+
+```text
+[ ] Export design_system.dart
+[ ] PreviewSection + PreviewStateRow đủ state API
+[ ] _exampleCoverage updated
+[ ] cd packages/vet45_design_system/example && flutter analyze
+[ ] (optional) melos run design-system:example — smoke tab mới
+```
