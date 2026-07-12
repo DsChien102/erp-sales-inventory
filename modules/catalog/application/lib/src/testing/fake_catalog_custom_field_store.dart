@@ -873,8 +873,7 @@ final class FakeCatalogCustomFieldStore {
           continue;
         }
         final value = _displayValue(field, _findValue(productId, field.fieldId));
-        if (value != null &&
-            SearchKeywordNormalizer.foldForSearch(value).contains(foldedKeyword)) {
+        if (value != null && SearchKeywordNormalizer.foldForSearch(value).contains(foldedKeyword)) {
           return true;
         }
       }

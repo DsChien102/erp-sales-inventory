@@ -1,15 +1,15 @@
 import 'package:vet45_catalog_domain/domain.dart';
 
-import '../lifecycle/update_product_images_command.dart';
-import '../lifecycle/update_product_images_result.dart';
-import '../lifecycle/change_product_business_status_result.dart';
-import '../lifecycle/change_product_soft_delete_result.dart';
-import '../lifecycle/deactivate_product_command.dart';
-import '../lifecycle/delete_product_command.dart';
-import '../lifecycle/reactivate_product_command.dart';
-import '../lifecycle/restore_product_command.dart';
-import '../lifecycle/update_product_profile_command.dart';
-import '../lifecycle/update_product_profile_result.dart';
+import 'package:vet45_catalog_application/src/product/commands/update_product_images/update_product_images_command.dart';
+import 'package:vet45_catalog_application/src/product/commands/update_product_images/update_product_images_result.dart';
+import 'package:vet45_catalog_application/src/product/shared/change_product_business_status_result.dart';
+import 'package:vet45_catalog_application/src/product/shared/change_product_soft_delete_result.dart';
+import 'package:vet45_catalog_application/src/product/commands/deactivate_product/deactivate_product_command.dart';
+import 'package:vet45_catalog_application/src/product/commands/delete_product/delete_product_command.dart';
+import 'package:vet45_catalog_application/src/product/commands/reactivate_product/reactivate_product_command.dart';
+import 'package:vet45_catalog_application/src/product/commands/restore_product/restore_product_command.dart';
+import 'package:vet45_catalog_application/src/product/commands/update_product_profile/update_product_profile_command.dart';
+import 'package:vet45_catalog_application/src/product/commands/update_product_profile/update_product_profile_result.dart';
 
 abstract interface class IProductCommandGateway {
   Future<String> create({
@@ -17,7 +17,7 @@ abstract interface class IProductCommandGateway {
     required String idempotencyKey,
   });
 
-  Future<void> setInitialStock({
+  Future<void> setBasicStockQuantityBase({
     required String productId,
     required String tenantId,
     required ProductStockProfile profile,

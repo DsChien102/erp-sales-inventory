@@ -74,7 +74,7 @@ class CatalogUiMapper {
         : null;
     final coverPath = coverDraft?.localPath;
 
-    final stockQty = state.parsedInitialStock;
+    final stockQty = state.parsedBasicStockQuantityBase;
     final baseCost = double.tryParse(state.baseCost.trim());
 
     final priceBand = resolvePriceBand(state);

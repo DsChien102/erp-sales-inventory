@@ -24,7 +24,7 @@ void main() {
   group('CreateGuidedProductCommandValidator', () {
     final validator = CreateGuidedProductCommandValidator();
 
-    test('rejects negative initial stock', () async {
+    test('rejects negative basic stock quantity base', () async {
       await expectLater(
         validator.validate(
           CreateGuidedProductCommand(
@@ -32,7 +32,7 @@ void main() {
             actorId: 'actor-1',
             productName: 'Thuoc A',
             baseUnit: const NewTenantUnit('hop'),
-            initialStock: -1,
+            basicStockQuantityBase: -1,
           ),
         ),
         throwsA(isA<ValidationException>()),
@@ -46,7 +46,7 @@ void main() {
             tenantId: 'tenant-1',
             actorId: 'actor-1',
             productName: 'Thuoc A',
-            initialStock: 0,
+            basicStockQuantityBase: 0,
           ),
         ),
         throwsA(isA<ValidationException>()),
@@ -60,7 +60,7 @@ void main() {
           actorId: 'actor-1',
           productName: 'Thuoc A',
           baseUnit: const NewTenantUnit('hop'),
-          initialStock: 12,
+          basicStockQuantityBase: 12,
         ),
       );
     });
@@ -75,7 +75,7 @@ void main() {
       actorId: 'actor-1',
       productName: 'Thuoc A',
       baseUnit: const NewTenantUnit('hop'),
-      initialStock: 12,
+      basicStockQuantityBase: 12,
       basePrice: 10000,
       listPrice: 13000,
       floorPrice: 11000,

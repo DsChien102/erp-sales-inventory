@@ -64,9 +64,9 @@ void main() {
       expect(command?.requiresTenant, isTrue);
     });
 
-    test('maps set initial stock command to manage_stock', () {
+    test('maps set basic stock quantity base command to manage_stock', () {
       final metadata = catalogAccessMetadataRegistry.forType(
-        SetInitialStockCommand,
+        SetBasicStockQuantityBaseCommand,
       );
 
       expect(metadata?.permission, CatalogPermissions.manageStock);

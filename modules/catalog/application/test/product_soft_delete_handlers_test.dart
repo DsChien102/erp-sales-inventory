@@ -3,6 +3,8 @@ import 'package:vet45_catalog_application/application.dart';
 import 'package:vet45_catalog_domain/domain.dart';
 import 'package:vet45_shared_application/application.dart';
 
+import 'support/fake_write_ports.dart';
+
 class _RecordingProductDeletionGateway implements IProductDeletionGateway {
   CheckProductDeletionEligibilityQuery? lastQuery;
 
@@ -51,7 +53,7 @@ class _RecordingProductCommandGateway implements IProductCommandGateway {
   }) async {}
 
   @override
-  Future<void> setInitialStock({
+  Future<void> setBasicStockQuantityBase({
     required String productId,
     required String tenantId,
     required ProductStockProfile profile,
@@ -195,6 +197,7 @@ void main() {
       final gateway = _RecordingProductCommandGateway();
       final handler = DeleteProductCommandHandler(
         commandGateway: gateway,
+        productWritePort: FakeProductWritePort.active(productId: 'product-6'),
       );
 
       final result = await handler.handle(
@@ -221,6 +224,7 @@ void main() {
       final gateway = _RecordingProductCommandGateway();
       final handler = RestoreProductCommandHandler(
         commandGateway: gateway,
+        productWritePort: FakeProductWritePort.softDeleted(productId: 'product-7'),
       );
 
       final result = await handler.handle(

@@ -30,7 +30,7 @@ abstract final class ProductRpcMapper {
         NewTenantUnit(:final name) => name,
         _ => null,
       },
-      'p_initial_stock': command.initialStock,
+      'p_basic_stock_quantity_base': command.basicStockQuantityBase,
       'p_base_price': command.basePrice,
       'p_list_price': command.listPrice,
       'p_floor_price': command.floorPrice,
@@ -110,7 +110,7 @@ abstract final class ProductRpcMapper {
     };
   }
 
-  static Map<String, dynamic> setInitialStockParams({
+  static Map<String, dynamic> setBasicStockQuantityBaseParams({
     required String productId,
     required String tenantId,
     required ProductStockProfile profile,
@@ -119,7 +119,7 @@ abstract final class ProductRpcMapper {
       'p_tenant_id': tenantId,
       'p_product_id': productId,
       'p_mode': profile.mode.name,
-      'p_initial_stock': profile.initialStock,
+      'p_basic_stock_quantity_base': profile.basicStockQuantityBase,
     };
   }
 

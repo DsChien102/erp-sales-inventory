@@ -68,8 +68,8 @@ void registerGeneratedCatalogValidators(GetIt container) {
     ..registerFactory<ICommandValidator<SetInitialPriceBandCommand>>(
       SetInitialPriceBandCommandValidator.new,
     )
-    ..registerFactory<ICommandValidator<SetInitialStockCommand>>(
-      SetInitialStockCommandValidator.new,
+    ..registerFactory<ICommandValidator<SetBasicStockQuantityBaseCommand>>(
+      SetBasicStockQuantityBaseCommandValidator.new,
     )
     ..registerFactory<ICommandValidator<SetManualBasePriceCommand>>(
       SetManualBasePriceCommandValidator.new,
@@ -125,6 +125,7 @@ void registerGeneratedCatalogHandlers({
     factory: () => AdjustBasicStockCommandHandler(
       stockGateway: container.get<ICatalogStockGateway>(),
       readinessReadPort: container.get<IProductReadinessReadPort>(),
+      catalogReadGateway: container.get<ICatalogReadGateway>(),
     ),
   );
 
@@ -135,6 +136,7 @@ void registerGeneratedCatalogHandlers({
     factory: () => ApplyStorePriceRuleCommandHandler(
       storePriceRuleGateway: container.get<IStorePriceRuleGateway>(),
       readinessReadPort: container.get<IProductReadinessReadPort>(),
+      catalogReadGateway: container.get<ICatalogReadGateway>(),
     ),
   );
 
@@ -171,6 +173,7 @@ void registerGeneratedCatalogHandlers({
     logger: logger,
     factory: () => DeactivateProductCommandHandler(
       commandGateway: container.get<IProductCommandGateway>(),
+      productWritePort: container.get<IProductWritePort>(),
     ),
   );
 
@@ -189,6 +192,7 @@ void registerGeneratedCatalogHandlers({
     logger: logger,
     factory: () => DeleteProductCommandHandler(
       commandGateway: container.get<IProductCommandGateway>(),
+      productWritePort: container.get<IProductWritePort>(),
     ),
   );
 
@@ -216,6 +220,7 @@ void registerGeneratedCatalogHandlers({
     logger: logger,
     factory: () => ReactivateProductCommandHandler(
       commandGateway: container.get<IProductCommandGateway>(),
+      productWritePort: container.get<IProductWritePort>(),
     ),
   );
 
@@ -270,6 +275,7 @@ void registerGeneratedCatalogHandlers({
     logger: logger,
     factory: () => RestoreProductCommandHandler(
       commandGateway: container.get<IProductCommandGateway>(),
+      productWritePort: container.get<IProductWritePort>(),
     ),
   );
 
@@ -283,11 +289,11 @@ void registerGeneratedCatalogHandlers({
     ),
   );
 
-  CatalogCommandRegistration.registerBusinessHandler<SetInitialStockCommand, SetInitialStockResult, SetInitialStockCommandHandler>(
+  CatalogCommandRegistration.registerBusinessHandler<SetBasicStockQuantityBaseCommand, SetBasicStockQuantityBaseResult, SetBasicStockQuantityBaseCommandHandler>(
     container: container,
     bus: bus,
     logger: logger,
-    factory: () => SetInitialStockCommandHandler(
+    factory: () => SetBasicStockQuantityBaseCommandHandler(
       commandGateway: container.get<IProductCommandGateway>(),
       readinessReadPort: container.get<IProductReadinessReadPort>(),
       unitGateway: container.get<ICatalogUnitGateway>(),
@@ -341,6 +347,7 @@ void registerGeneratedCatalogHandlers({
     logger: logger,
     factory: () => UpdateProductImagesCommandHandler(
       commandGateway: container.get<IProductCommandGateway>(),
+      productWritePort: container.get<IProductWritePort>(),
     ),
   );
 
@@ -350,6 +357,7 @@ void registerGeneratedCatalogHandlers({
     logger: logger,
     factory: () => UpdateProductProfileCommandHandler(
       commandGateway: container.get<IProductCommandGateway>(),
+      productWritePort: container.get<IProductWritePort>(),
     ),
   );
 

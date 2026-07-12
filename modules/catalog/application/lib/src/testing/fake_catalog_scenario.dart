@@ -10,8 +10,8 @@ abstract final class FakeCatalogScenario {
   static const guidedCreateUploadSlotOk = 'guided_create_upload_slot_ok';
   static const guidedCreateUploadInvalidType = 'guided_create_upload_invalid_type';
   static const guidedCreatePermissionDenied = 'guided_create_permission_denied';
-  static const initialStockOk = 'initial_stock_ok';
-  static const initialStockSkip = 'initial_stock_skip';
+  static const basicStockQuantityBaseOk = 'basic_stock_quantity_base_ok';
+  static const basicStockQuantityBaseSkip = 'basic_stock_quantity_base_skip';
   static const manualBasePriceOk = 'manual_base_price_ok';
   static const priceBandFromStoreRule = 'price_band_from_store_rule';
 
@@ -91,8 +91,7 @@ abstract final class FakeCatalogScenario {
   static const scnContractE06U04Fr02_01 = 'scn_contract_e06_u04_fr02_01';
   static const scnContractE06U04Fr02_03 = 'scn_contract_e06_u04_fr02_03';
   static const scnContractE06U04Fr04_01 = 'scn_contract_e06_u04_fr04_01';
-  static const scnContractE06U04PermissionDenied =
-      'scn_contract_e06_u04_permission_denied';
+  static const scnContractE06U04PermissionDenied = 'scn_contract_e06_u04_permission_denied';
   static const scnContractE06U04Validation = 'scn_contract_e06_u04_validation';
 
   static const scnContractE07U01Fr01_01 = 'scn_contract_e07_u01_fr01_01';
@@ -131,8 +130,7 @@ abstract final class FakeCatalogScenario {
   static const scnContractE07U04Fr02_03 = 'scn_contract_e07_u04_fr02_03';
   static const scnContractE07U04Fr03_01 = 'scn_contract_e07_u04_fr03_01';
   static const scnContractE07U04Fr03_02 = 'scn_contract_e07_u04_fr03_02';
-  static const scnContractE07U04PermissionDenied =
-      'scn_contract_e07_u04_permission_denied';
+  static const scnContractE07U04PermissionDenied = 'scn_contract_e07_u04_permission_denied';
   static const scnContractE07U04Validation = 'scn_contract_e07_u04_validation';
 
   static const cfTemplateSeedOk = 'cf_template_seed_ok';

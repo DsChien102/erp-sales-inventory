@@ -252,16 +252,16 @@ void main() {
       expect(matches, isEmpty);
     });
 
-    test('initial_stock_ok sets stock quantity without error', () async {
+    test('basic_stock_quantity_base_ok sets stock quantity without error', () async {
       final module = FakeCatalogModule(
-        scenario: FakeCatalogScenario.initialStockOk,
+        scenario: FakeCatalogScenario.basicStockQuantityBaseOk,
       );
 
       await module.executeCommandAsync(
-        SetInitialStockCommand(
+        SetBasicStockQuantityBaseCommand(
           tenantId: 'tenant-1',
           productId: 'product-1',
-          quantity: 200.0,
+          quantity: 200,
         ),
       );
     });
@@ -400,7 +400,7 @@ void main() {
       );
       expect(
         view.suggestedActions.map((a) => a.actionId),
-        isNot(contains(ContextualActionId.setInitialStock)),
+        isNot(contains(ContextualActionId.setBasicStockQuantityBase)),
       );
     });
 
@@ -685,8 +685,7 @@ void main() {
 
       expect(
         result.items.any(
-          (item) => SearchKeywordNormalizer.foldForSearch(item.name)
-              .contains('amoxicillin'),
+          (item) => SearchKeywordNormalizer.foldForSearch(item.name).contains('amoxicillin'),
         ),
         isTrue,
       );
@@ -946,10 +945,10 @@ void main() {
 
       await expectLater(
         module.executeCommandAsync(
-          SetInitialStockCommand(
+          SetBasicStockQuantityBaseCommand(
             tenantId: 'tenant-1',
             productId: 'product-6',
-            quantity: 10.0,
+            quantity: 10,
           ),
         ),
         throwsA(isA<MissingBaseUnitException>()),
@@ -1950,15 +1949,15 @@ void main() {
       );
 
       final result = await module.executeCommandAsync(
-        SetInitialStockCommand(
+        SetBasicStockQuantityBaseCommand(
           tenantId: 'tenant-1',
           productId: 'product-1',
-          quantity: 250.0,
+          quantity: 250,
         ),
       );
 
       expect(result.productId, 'product-1');
-      expect(result.quantity, 250.0);
+      expect(result.quantity, 250);
       expect(result.readinessSummary.status, isNotNull);
     });
 
@@ -1969,10 +1968,10 @@ void main() {
 
       await expectLater(
         module.executeCommandAsync(
-          SetInitialStockCommand(
+          SetBasicStockQuantityBaseCommand(
             tenantId: 'tenant-1',
             productId: 'product-6',
-            quantity: 10.0,
+            quantity: 10,
           ),
         ),
         throwsA(isA<MissingBaseUnitException>()),
@@ -1988,9 +1987,9 @@ void main() {
         AdjustBasicStockCommand(
           tenantId: 'tenant-1',
           productId: 'product-1',
-          newQuantity: 25.0,
+          newQuantity: 25,
           reason: 'Kiểm kê thực tế',
-          expectedQuantity: 150.0,
+          expectedQuantity: 150,
         ),
       );
 
@@ -2008,7 +2007,7 @@ void main() {
           AdjustBasicStockCommand(
             tenantId: 'tenant-1',
             productId: 'product-1',
-            newQuantity: -1.0,
+            newQuantity: -1,
           ),
         ),
         throwsA(isA<ValidationException>()),
@@ -2025,8 +2024,8 @@ void main() {
           AdjustBasicStockCommand(
             tenantId: 'tenant-1',
             productId: 'product-1',
-            newQuantity: 20.0,
-            expectedQuantity: 999.0,
+            newQuantity: 20,
+            expectedQuantity: 999,
           ),
         ),
         throwsA(isA<StaleStockQuantityException>()),
@@ -2039,18 +2038,18 @@ void main() {
       );
 
       await module.executeCommandAsync(
-        SetInitialStockCommand(
+        SetBasicStockQuantityBaseCommand(
           tenantId: 'tenant-1',
           productId: 'product-1',
-          quantity: 50.0,
+          quantity: 50,
         ),
       );
       await module.executeCommandAsync(
         AdjustBasicStockCommand(
           tenantId: 'tenant-1',
           productId: 'product-1',
-          newQuantity: 45.0,
-          expectedQuantity: 50.0,
+          newQuantity: 45,
+          expectedQuantity: 50,
           reason: 'Điều chỉnh kho',
         ),
       );
@@ -2082,10 +2081,10 @@ void main() {
       );
 
       final result = await module.executeCommandAsync(
-        SetInitialStockCommand(
+        SetBasicStockQuantityBaseCommand(
           tenantId: 'tenant-1',
           productId: created.productId,
-          quantity: 20.0,
+          quantity: 20,
         ),
       );
 

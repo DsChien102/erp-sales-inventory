@@ -9,7 +9,8 @@ class _FakeProductPriceBandGateway implements IProductPriceBandGateway {
   final Future<ProductPriceBandSnapshotDto> Function({
     required String tenantId,
     required List<ProductPriceBandSnapshotRequest> items,
-  })? snapshotBuilder;
+  })?
+  snapshotBuilder;
 
   List<ProductPriceBandSnapshotRequest>? lastSnapshotItems;
 

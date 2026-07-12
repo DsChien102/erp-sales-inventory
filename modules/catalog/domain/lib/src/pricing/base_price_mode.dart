@@ -1,6 +1,7 @@
 enum BasePriceMode {
   manual,
-  costingModule;
+  costingModule
+  ;
 
   bool get isManual => this == BasePriceMode.manual;
   bool get isCostingModule => this == BasePriceMode.costingModule;

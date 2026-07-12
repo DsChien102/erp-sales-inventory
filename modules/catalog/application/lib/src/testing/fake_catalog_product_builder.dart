@@ -150,9 +150,7 @@ abstract final class FakeCatalogProductBuilder {
         source: stockMode == StockMode.advanced
             ? StockDataSource.inventoryModule
             : StockDataSource.basicProfile,
-        sourceLabel: stockMode == StockMode.advanced
-            ? 'Tồn kho từ module Kho'
-            : 'Tồn kho cơ bản',
+        sourceLabel: stockMode == StockMode.advanced ? 'Tồn kho từ module Kho' : 'Tồn kho cơ bản',
         quantity: stockQty,
         unitName: hasBaseUnit ? baseUnit : null,
         isConfigured: hasStock,

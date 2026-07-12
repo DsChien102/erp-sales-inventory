@@ -20,7 +20,7 @@ class ProductGuidedCreateState {
     this.imageDrafts = const [],
     this.coverImageIndex = 0,
     this.baseUnit = '',
-    this.initialStock = '',
+    this.basicStockQuantityBase = '',
     this.baseCost = '',
     this.pricingMethod = 'storeRule',
     this.customAutoMarkup = '',
@@ -59,7 +59,7 @@ class ProductGuidedCreateState {
   final int coverImageIndex;
   final String baseUnit;
 
-  final String initialStock;
+  final String basicStockQuantityBase;
   final String baseCost;
   final String pricingMethod; // 'storeRule', 'customAuto', 'manual'
   final String customAutoMarkup;
@@ -100,16 +100,16 @@ class ProductGuidedCreateState {
   bool get isUploadingImages =>
       imageDrafts.any((d) => d.status == ProductImageUploadStatus.uploading);
   bool get hasUploadFailures => imageDrafts.any((d) => d.status == ProductImageUploadStatus.failed);
-  int? get parsedInitialStock {
-    final raw = initialStock.trim().replaceAll(',', '');
+  int? get parsedBasicStockQuantityBase {
+    final raw = basicStockQuantityBase.trim().replaceAll(',', '');
     if (raw.isEmpty) return null;
     final value = int.tryParse(raw);
     if (value == null || value < 0) return null;
     return value;
   }
 
-  String? get initialStockError {
-    final raw = initialStock.trim().replaceAll(',', '');
+  String? get basicStockQuantityBaseError {
+    final raw = basicStockQuantityBase.trim().replaceAll(',', '');
     if (raw.isEmpty) return null;
     final value = int.tryParse(raw);
     if (value == null) return 'Tồn kho phải là số nguyên hợp lệ';
@@ -129,7 +129,7 @@ class ProductGuidedCreateState {
 
   bool get canSubmit =>
       isStep1Valid &&
-      initialStockError == null &&
+      basicStockQuantityBaseError == null &&
       baseCostError == null &&
       !hasDuplicateError &&
       !isUploadingImages &&
@@ -170,7 +170,7 @@ class ProductGuidedCreateState {
       barcode.trim().isNotEmpty ||
       imageDrafts.isNotEmpty ||
       baseUnit.trim().isNotEmpty ||
-      initialStock.trim().isNotEmpty ||
+      basicStockQuantityBase.trim().isNotEmpty ||
       baseCost.trim().isNotEmpty;
 
   int get stepCount => 6 + customFieldGroups.length;
@@ -183,7 +183,7 @@ class ProductGuidedCreateState {
     List<ProductImageDraft>? imageDrafts,
     int? coverImageIndex,
     String? baseUnit,
-    String? initialStock,
+    String? basicStockQuantityBase,
     String? baseCost,
     String? pricingMethod,
     String? customAutoMarkup,
@@ -228,7 +228,7 @@ class ProductGuidedCreateState {
       imageDrafts: imageDrafts ?? this.imageDrafts,
       coverImageIndex: coverImageIndex ?? this.coverImageIndex,
       baseUnit: baseUnit ?? this.baseUnit,
-      initialStock: initialStock ?? this.initialStock,
+      basicStockQuantityBase: basicStockQuantityBase ?? this.basicStockQuantityBase,
       baseCost: baseCost ?? this.baseCost,
       pricingMethod: pricingMethod ?? this.pricingMethod,
       customAutoMarkup: customAutoMarkup ?? this.customAutoMarkup,

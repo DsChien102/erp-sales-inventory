@@ -101,7 +101,7 @@ Import contract (UI wizard **pending**): CSV cột `reference_id` → explicit; 
 
 | Symbol | Input (summary) | Success | Errors |
 | ------ | --------------- | ------- | ------ |
-| `SetInitialStockCommand` | tenantId, productId, quantity (`double`, basic mode) | `SetInitialStockResult` (productId, quantity, unitName?, readinessSummary) | Validation, NotBasicStockMode, MissingBaseUnit |
+| `SetBasicStockQuantityBaseCommand` | tenantId, productId, quantity (`int`, basic mode) | `SetBasicStockQuantityBaseResult` (productId, quantity, unitName?, readinessSummary) | Validation, NotBasicStockMode, MissingBaseUnit |
 | `SetManualBasePriceCommand` | tenantId, productId, basePrice, currency | `SetManualBasePriceResult` | Validation, NotManualBasePriceMode, MissingBaseUnit |
 | `SetInitialPriceBandCommand` | tenantId, productId, listPrice?, floorPrice?, useStoreRule? | void | Validation, MissingBasePrice |
 
@@ -109,8 +109,8 @@ Import contract (UI wizard **pending**): CSV cột `reference_id` → explicit; 
 
 | scenario_id | trigger | fake response |
 | ----------- | ------- | ------------- |
-| `initial_stock_ok` | SetInitialStockCommand | success, readiness updated |
-| `initial_stock_skip` | skip step | blocker remains |
+| `basic_stock_quantity_base_ok` | SetBasicStockQuantityBaseCommand | success, readiness updated |
+| `basic_stock_quantity_base_skip` | skip step | blocker remains |
 | `manual_base_price_ok` | SetManualBasePriceCommand | success |
 | `price_band_from_store_rule` | useStoreRule=true | suggested list/floor |
 
@@ -152,7 +152,7 @@ Permissions: `@RequiresPermission(CatalogPermissions.viewDetail)` + `@RequiresTe
 | `missing_image` | images | — | — | recommended only |
 | `missing_price` | basePrice | `set_manual_base_price` | `catalog.product.manage_pricing` | manual base price |
 | `pending_base_price_from_costing` | basePrice | `open_costing` | `catalog.product.view_detail` | costing module (**pending**) |
-| `missing_stock` | stock | `set_initial_stock` | `catalog.product.manage_stock` | basic stock |
+| `missing_stock` | stock | `set_basic_stock_quantity_base` | `catalog.product.manage_stock` | basic stock |
 | `pending_stock_from_inventory` | stock | `open_inventory` | `catalog.product.view_detail` | advanced stock (**pending**) |
 | `missing_price_band` | priceBand | `set_price_band` | `catalog.product.manage_pricing` | |
 | `missing_required_custom_fields` | customFields | `fill_custom_fields` | `catalog.product.update` | EPIC-03 |
@@ -184,7 +184,7 @@ Draft: `supabase/migrations/_drafts/catalog_product_readiness.sql`
 | ----------- | ------- | ------------- |
 | `readiness_many_blockers` | GetProductReadinessQuery after minimal create | incomplete + many checklist `missing` |
 | `readiness_ready_to_sell` | create with full data + query | `readyToSell`, primary `create_another_product` |
-| `readiness_advanced_stock_pending` | advanced stock mode product | stock `pendingExternal`, no `set_initial_stock` |
+| `readiness_advanced_stock_pending` | advanced stock mode product | stock `pendingExternal`, no `set_basic_stock_quantity_base` |
 | `readiness_costing_base_price_pending` | costing base price mode | basePrice `pendingExternal` |
 | `readiness_missing_custom_fields` | missing required custom fields | blocker `missing_required_custom_fields` |
 | `readiness_no_price_permission` | missing price band, no pricing perm | blocker visible, `set_price_band` disabled |
@@ -403,7 +403,7 @@ Không thêm query gates — FE derive từ `readinessSummary` / `hasBaseUnit`. 
 
 | Command | Requires base unit |
 | ------- | ------------------ |
-| `SetInitialStockCommand` | yes |
+| `SetBasicStockQuantityBaseCommand` | yes |
 | `SetManualBasePriceCommand` | yes |
 | `SetInitialPriceBandCommand` | yes |
 | Slice #7 conversion unit commands | yes (lane sau) |
@@ -525,7 +525,7 @@ Tests: `scn_contract_e04_u02_*` trong `fake_catalog_module_test.dart`.
 | `AdjustBasicStockCommand` | tenantId, productId, newQuantity (`double`), reason?, expectedQuantity? | `AdjustBasicStockResult` (productId, previousQuantity, newQuantity, unitName?, readinessSummary) | Validation, `MissingBaseUnitException`, `NotBasicStockModeException`, `StaleStockQuantityException` |
 | `GetProductStockHistoryQuery` | tenantId, productId, limit=50 | `ProductStockHistoryDto` | PermissionDenied, NotFound |
 
-`SetInitialStockCommand` updated from `void` to `SetInitialStockResult` and now accepts `double quantity`.
+`SetBasicStockQuantityBaseCommand` updated from `void` to `SetBasicStockQuantityBaseResult` and now accepts `int quantity`.
 
 ### Stock card contract (US-01 read-side)
 
@@ -546,7 +546,7 @@ Tests: `scn_contract_e04_u02_*` trong `fake_catalog_module_test.dart`.
 
 | Type | Fields |
 | ---- | ------ |
-| `SetInitialStockResult` | productId, quantity, unitName?, readinessSummary |
+| `SetBasicStockQuantityBaseResult` | productId, quantity, unitName?, readinessSummary |
 | `AdjustBasicStockResult` | productId, previousQuantity, newQuantity, unitName?, readinessSummary |
 | `ProductStockMovementDto` | id, occurredAt, actorDisplayName, movementType (`initial` \| `adjust`), quantityBefore, quantityAfter, delta, reason? |
 | `ProductStockHistoryDto` | productId, unitName?, isHistoricalBasicOnly, movements[] |
@@ -555,7 +555,7 @@ Tests: `scn_contract_e04_u02_*` trong `fake_catalog_module_test.dart`.
 
 | Use case | RPC |
 | -------- | --- |
-| Set initial stock | `catalog.set_initial_stock` |
+| Set initial stock | `catalog.set_basic_stock_quantity_base` |
 | Adjust basic stock | `catalog.adjust_basic_stock` |
 | Read stock history | `catalog.get_product_stock_history` |
 
@@ -566,7 +566,7 @@ Tests: `scn_contract_e04_u02_*` trong `fake_catalog_module_test.dart`.
 | `scn_contract_e05_u01_fr01_01` | PCC `product-1` | stock mode basic + source `Tồn kho cơ bản` |
 | `scn_contract_e05_u01_fr02_01` | advanced stock product | source inventory + read-only (`canAdjust=false`) |
 | `scn_contract_e05_u01_fr03_01` | quantity = 0 | `isOutOfStock=true`, không tạo blocker `missing_stock` |
-| `scn_contract_e05_u02_fr01_01` | `SetInitialStockCommand` valid | `SetInitialStockResult` + readiness refresh |
+| `scn_contract_e05_u02_fr01_01` | `SetBasicStockQuantityBaseCommand` valid | `SetBasicStockQuantityBaseResult` + readiness refresh |
 | `scn_contract_e05_u02_fr01_02` | set stock khi thiếu base unit | `MissingBaseUnitException` |
 | `scn_contract_e05_u02_fr02_01` | `AdjustBasicStockCommand` valid | `AdjustBasicStockResult` |
 | `scn_contract_e05_u02_fr02_02` | adjust âm | `ValidationException` |

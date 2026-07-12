@@ -1,7 +1,7 @@
 import '../../ids/product_id.dart';
 import '../../shared/product_duplicate_field.dart';
-import '../../value_objects/barcode.dart';
-import '../../value_objects/sku.dart';
+import '../barcode.dart';
+import '../sku.dart';
 import 'package:vet45_shared_domain/shared_kernel_domain.dart';
 
 final class ProductDuplicateMatch {

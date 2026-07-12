@@ -426,8 +426,9 @@ void main() {
       );
 
       expect(
-        result.readinessSummary.blockers
-            .any((b) => b.code == ReadinessBlockerCode.missingPriceBand),
+        result.readinessSummary.blockers.any(
+          (b) => b.code == ReadinessBlockerCode.missingPriceBand,
+        ),
         isFalse,
       );
     });
@@ -454,8 +455,9 @@ void main() {
       );
 
       expect(
-        result.readinessSummary.blockers
-            .any((b) => b.code == ReadinessBlockerCode.missingPriceBand),
+        result.readinessSummary.blockers.any(
+          (b) => b.code == ReadinessBlockerCode.missingPriceBand,
+        ),
         isTrue,
       );
     });

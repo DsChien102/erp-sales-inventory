@@ -13,7 +13,7 @@ void main() {
           actorId: 'actor-1',
           productName: 'Thuốc A',
           baseUnit: const ExistingTenantUnit('unit-hop'),
-          initialStock: 12,
+          basicStockQuantityBase: 12,
           basePrice: 10000,
           listPrice: 13000,
           floorPrice: 11000,
@@ -22,7 +22,7 @@ void main() {
 
       expect(params['p_tenant_id'], 'tenant-1');
       expect(params['p_tenant_unit_id'], 'unit-hop');
-      expect(params['p_initial_stock'], 12);
+      expect(params['p_basic_stock_quantity_base'], 12);
       expect(params['p_base_price'], 10000);
       expect(params['p_list_price'], 13000);
       expect(params['p_idempotency_key'], '550e8400-e29b-41d4-a716-446655440000');
@@ -421,9 +421,9 @@ void main() {
   });
 
   group('ProductRpcMapper (US-02 Operational Data)', () {
-    test('setInitialStockParams maps stock profile to RPC parameters', () {
-      final profile = ProductStockProfile.basic(initialStock: 150.0);
-      final params = ProductRpcMapper.setInitialStockParams(
+    test('setBasicStockQuantityBaseParams maps stock profile to RPC parameters', () {
+      final profile = ProductStockProfile.basic(basicStockQuantityBase: 150);
+      final params = ProductRpcMapper.setBasicStockQuantityBaseParams(
         productId: 'prod-1',
         tenantId: 'tenant-1',
         profile: profile,
@@ -432,7 +432,7 @@ void main() {
       expect(params['p_tenant_id'], 'tenant-1');
       expect(params['p_product_id'], 'prod-1');
       expect(params['p_mode'], 'basic');
-      expect(params['p_initial_stock'], 150.0);
+      expect(params['p_basic_stock_quantity_base'], 150);
     });
 
     test('setManualBasePriceParams maps base price profile to RPC parameters', () {
@@ -675,17 +675,17 @@ void main() {
         AdjustBasicStockCommand(
           tenantId: 'tenant-1',
           productId: 'product-1',
-          newQuantity: 25.0,
+          newQuantity: 25,
           reason: 'Kiểm kê',
-          expectedQuantity: 150.0,
+          expectedQuantity: 150,
         ),
       );
 
       expect(params['p_tenant_id'], 'tenant-1');
       expect(params['p_product_id'], 'product-1');
-      expect(params['p_new_quantity'], 25.0);
+      expect(params['p_new_quantity'], 25);
       expect(params['p_reason'], 'Kiểm kê');
-      expect(params['p_expected_quantity'], 150.0);
+      expect(params['p_expected_quantity'], 150);
     });
 
     test('getProductStockHistoryParams maps query inputs', () {

@@ -21,7 +21,7 @@ class _RecordingProductCommandGateway implements IProductCommandGateway {
   }
 
   @override
-  Future<void> setInitialStock({
+  Future<void> setBasicStockQuantityBase({
     required String productId,
     required String tenantId,
     required ProductStockProfile profile,

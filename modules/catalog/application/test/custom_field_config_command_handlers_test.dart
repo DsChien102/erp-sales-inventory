@@ -3,8 +3,7 @@ import 'package:vet45_catalog_application/application.dart';
 import 'package:vet45_catalog_domain/domain.dart';
 import 'package:vet45_shared_application/application.dart';
 
-final class _RecordingCustomFieldConfigGateway
-    implements ICatalogCustomFieldConfigGateway {
+final class _RecordingCustomFieldConfigGateway implements ICatalogCustomFieldConfigGateway {
   InitializeCustomFieldTemplateCommand? lastInitCommand;
   UpsertCustomFieldGroupCommand? lastUpsertGroupCommand;
   ReorderCustomFieldGroupsCommand? lastReorderGroupsCommand;
@@ -13,12 +12,11 @@ final class _RecordingCustomFieldConfigGateway
   ReorderCustomFieldsCommand? lastReorderFieldsCommand;
   String? lastListTenantId;
 
-  InitializeCustomFieldTemplateResult initResult =
-      const InitializeCustomFieldTemplateResult(
-        groupsCreated: 2,
-        fieldsCreated: 3,
-        skippedCount: 0,
-      );
+  InitializeCustomFieldTemplateResult initResult = const InitializeCustomFieldTemplateResult(
+    groupsCreated: 2,
+    fieldsCreated: 3,
+    skippedCount: 0,
+  );
 
   CustomFieldGroupConfigDto groupResult = const CustomFieldGroupConfigDto(
     groupId: 'group-1',
@@ -33,17 +31,16 @@ final class _RecordingCustomFieldConfigGateway
     fieldType: CustomFieldType.text,
   );
 
-  ConfigureCustomFieldAttributesResult configureResult =
-      ConfigureCustomFieldAttributesResult(
-        field: const CustomFieldDefinitionDto(
-          fieldId: 'field-1',
-          groupId: 'group-1',
-          name: 'Thành phần',
-          fieldType: CustomFieldType.text,
-          isRequired: true,
-        ),
-        existingProductsMissingCount: 3,
-      );
+  ConfigureCustomFieldAttributesResult configureResult = ConfigureCustomFieldAttributesResult(
+    field: const CustomFieldDefinitionDto(
+      fieldId: 'field-1',
+      groupId: 'group-1',
+      name: 'Thành phần',
+      fieldType: CustomFieldType.text,
+      isRequired: true,
+    ),
+    existingProductsMissingCount: 3,
+  );
 
   CustomFieldConfigViewDto listResult = const CustomFieldConfigViewDto(
     groups: [],

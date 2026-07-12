@@ -63,7 +63,7 @@ class _ProductStockAdjustmentPageState extends State<ProductStockAdjustmentPage>
     if (!_formKey.currentState!.validate()) return;
 
     setState(() => _isSubmitting = true);
-    final quantity = double.tryParse(_quantityController.text) ?? 0;
+    final quantity = int.tryParse(_quantityController.text) ?? 0;
 
     // Combine reason and note if both exist, or just use the one that exists
     String? finalReason;
@@ -83,7 +83,7 @@ class _ProductStockAdjustmentPageState extends State<ProductStockAdjustmentPage>
 
       if (_isInitial) {
         await catalogModule.executeCommandAsync(
-          SetInitialStockCommand(
+          SetBasicStockQuantityBaseCommand(
             tenantId: tenantId,
             productId: widget.args.product.id,
             quantity: quantity,
@@ -96,7 +96,7 @@ class _ProductStockAdjustmentPageState extends State<ProductStockAdjustmentPage>
             productId: widget.args.product.id,
             newQuantity: quantity,
             reason: finalReason,
-            expectedQuantity: widget.args.currentQuantity?.toDouble(),
+            expectedQuantity: widget.args.currentQuantity,
           ),
         );
       }
@@ -195,7 +195,7 @@ class _ProductStockAdjustmentPageState extends State<ProductStockAdjustmentPage>
               TextFormField(
                 key: const Key('input_stock_quantity'),
                 controller: _quantityController,
-                keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                keyboardType: TextInputType.number,
                 style: VTypography.bodyDefault.copyWith(color: dynamicColors.textPrimary),
                 decoration: InputDecoration(
                   hintText: 'Nhập số tồn thực tế',
@@ -218,7 +218,11 @@ class _ProductStockAdjustmentPageState extends State<ProductStockAdjustmentPage>
                   if (value == null || value.trim().isEmpty) {
                     return 'Vui lòng nhập số tồn thực tế';
                   }
-                  final qty = double.tryParse(value);
+                  final raw = value.trim().replaceAll(',', '');
+                  if (raw.contains('.') || raw.contains(',')) {
+                    return 'Tồn kho phải là số nguyên';
+                  }
+                  final qty = int.tryParse(raw);
                   if (qty == null) {
                     return 'Số lượng không hợp lệ';
                   }

@@ -158,7 +158,7 @@ final catalogAccessMetadataRegistry = AccessMetadataRegistry({
     permission: 'catalog.product.manage_pricing',
     requiresTenant: true,
   ),
-  SetInitialStockCommand: AccessMetadata(
+  SetBasicStockQuantityBaseCommand: AccessMetadata(
     permission: 'catalog.product.manage_stock',
     requiresTenant: true,
   ),

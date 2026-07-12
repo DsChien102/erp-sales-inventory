@@ -335,8 +335,8 @@ class ProductGuidedCreateCubit extends Cubit<ProductGuidedCreateState> {
     emit(state.copyWith(baseUnit: val));
   }
 
-  void updateInitialStock(String val) {
-    emit(state.copyWith(initialStock: val));
+  void updateBasicStockQuantityBase(String val) {
+    emit(state.copyWith(basicStockQuantityBase: val));
   }
 
   void updateBaseCost(String val) {
@@ -513,13 +513,13 @@ class ProductGuidedCreateCubit extends Cubit<ProductGuidedCreateState> {
       return;
     }
 
-    if (state.initialStockError != null) {
+    if (state.basicStockQuantityBaseError != null) {
       emit(
         state.copyWith(
           activeStepIndex: 3,
           showValidationErrors: true,
           status: ProductGuidedCreateStatus.error,
-          errorMessage: state.initialStockError,
+          errorMessage: state.basicStockQuantityBaseError,
         ),
       );
       return;
@@ -644,7 +644,7 @@ class ProductGuidedCreateCubit extends Cubit<ProductGuidedCreateState> {
           baseUnit: state.baseUnit.trim().isEmpty
               ? null
               : _resolveBaseUnitSelection(state.baseUnit),
-          initialStock: state.parsedInitialStock,
+          basicStockQuantityBase: state.parsedBasicStockQuantityBase,
           basePrice: double.tryParse(state.baseCost.trim().replaceAll(',', '')),
           listPrice: state.pricingMethod == 'storeRule' ? null : priceBand.listPrice,
           floorPrice: state.pricingMethod == 'storeRule' ? null : priceBand.floorPrice,

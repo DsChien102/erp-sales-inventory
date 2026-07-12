@@ -1,6 +1,6 @@
 import 'package:vet45_shared_application/application.dart';
 
-import '../lifecycle/product_business_status_warning_dto.dart';
+import 'package:vet45_catalog_application/src/product/shared/product_business_status_warning_dto.dart';
 
 final class ProductBusinessStatusWarningsRequireAcknowledgmentException
     extends ApplicationException {

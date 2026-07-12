@@ -6,9 +6,9 @@ final class PriceBandOverwriteRequiredException extends ApplicationException {
     this.existingFloorPrice,
     String? message,
   }) : super(
-          message ??
-              'Product already has a price band. Confirm overwrite to apply Store Price Rule.',
-        );
+         message ??
+             'Product already has a price band. Confirm overwrite to apply Store Price Rule.',
+       );
 
   final double? existingListPrice;
   final double? existingFloorPrice;

@@ -28,8 +28,8 @@ final class SupabaseCatalogStockGateway implements ICatalogStockGateway {
       }
 
       return AdjustBasicStockGatewayResult(
-        previousQuantity: (row['previous_quantity'] as num).toDouble(),
-        newQuantity: (row['new_quantity'] as num).toDouble(),
+        previousQuantity: (row['previous_quantity'] as num).toInt(),
+        newQuantity: (row['new_quantity'] as num).toInt(),
         unitName: row['unit_name'] as String?,
       );
     } on RpcException catch (error) {

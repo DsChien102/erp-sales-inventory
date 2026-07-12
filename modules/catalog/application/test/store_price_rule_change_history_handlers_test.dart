@@ -3,8 +3,10 @@ import 'package:vet45_catalog_application/application.dart';
 import 'package:vet45_shared_application/application.dart';
 
 final class _RecordingStorePriceRuleGateway implements IStorePriceRuleGateway {
-  StorePriceRuleChangeHistoryResultDto historyResult =
-      const StorePriceRuleChangeHistoryResultDto(items: [], totalCount: 0);
+  StorePriceRuleChangeHistoryResultDto historyResult = const StorePriceRuleChangeHistoryResultDto(
+    items: [],
+    totalCount: 0,
+  );
   String? lastHistoryTenantId;
   int? lastHistoryLimit;
   int? lastHistoryOffset;

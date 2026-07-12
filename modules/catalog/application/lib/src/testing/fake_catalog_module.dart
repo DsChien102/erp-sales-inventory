@@ -69,9 +69,9 @@ class _StockMovement {
   final DateTime occurredAt;
   final String actorDisplayName;
   final StockMovementType movementType;
-  final double quantityBefore;
-  final double quantityAfter;
-  final double delta;
+  final int quantityBefore;
+  final int quantityAfter;
+  final int delta;
   final String? reason;
 }
 
@@ -165,8 +165,8 @@ class _StoredProduct {
     this.pricePermissionDenied = false,
     this.businessStatus = ProductStatus.active,
     DateTime? updatedAt,
-  })  : referenceId = referenceId ?? id,
-        updatedAt = updatedAt ?? DateTime.utc(2026, 1, 1);
+  }) : referenceId = referenceId ?? id,
+       updatedAt = updatedAt ?? DateTime.utc(2026, 1, 1);
 
   final String id;
   final String referenceId;
@@ -522,6 +522,15 @@ final class FakeCatalogModule implements ICatalogModule {
     } else if (scenario == FakeCatalogScenario.e2eCfValuesRequired) {
       _seedE2eCustomFieldConfig(requireThanhPhan: true);
     }
+
+    if (scenario == FakeCatalogScenario.customFieldSearchDisplay ||
+        scenario == FakeCatalogScenario.customFieldSearchable ||
+        scenario == FakeCatalogScenario.customFieldFilterable ||
+        scenario == FakeCatalogScenario.customFieldSnapshot) {
+      _customFieldStore.seedSearchContractData();
+    } else if (scenario == FakeCatalogScenario.customFieldFilterInactive) {
+      _customFieldStore.seedSearchContractData(deactivateFilterableField: true);
+    }
   }
 
   void _seedE2eCustomFieldConfig({
@@ -584,8 +593,8 @@ final class FakeCatalogModule implements ICatalogModule {
       );
     } else if (command is CreateProductCommand) {
       return _handleCreateProduct<TResult>(command as CreateProductCommand);
-    } else if (command is SetInitialStockCommand) {
-      final cmd = command as SetInitialStockCommand;
+    } else if (command is SetBasicStockQuantityBaseCommand) {
+      final cmd = command as SetBasicStockQuantityBaseCommand;
       if (cmd.mode != 'basic') {
         throw NotBasicStockModeException();
       }
@@ -593,8 +602,8 @@ final class FakeCatalogModule implements ICatalogModule {
       if (!prod.hasBaseUnit) {
         throw MissingBaseUnitException();
       }
-      final previousQty = (prod.stockQty ?? 0).toDouble();
-      prod.stockQty = cmd.quantity.toInt();
+      final previousQty = prod.stockQty ?? 0;
+      prod.stockQty = cmd.quantity;
       prod.stockVersion += 1;
       prod.stockMovements = [
         ...prod.stockMovements,
@@ -608,7 +617,7 @@ final class FakeCatalogModule implements ICatalogModule {
           delta: cmd.quantity - previousQty,
         ),
       ];
-      return SetInitialStockResult(
+      return SetBasicStockQuantityBaseResult(
             productId: prod.id,
             quantity: cmd.quantity,
             unitName: prod.baseUnit,
@@ -627,11 +636,11 @@ final class FakeCatalogModule implements ICatalogModule {
       if (cmd.newQuantity < 0) {
         throw ValidationException('Số lượng tồn kho không được âm.');
       }
-      final previousQty = (prod.stockQty ?? 0).toDouble();
+      final previousQty = prod.stockQty ?? 0;
       if (cmd.expectedQuantity != null && cmd.expectedQuantity != previousQty) {
         throw StaleStockQuantityException();
       }
-      prod.stockQty = cmd.newQuantity.toInt();
+      prod.stockQty = cmd.newQuantity;
       prod.stockVersion += 1;
       prod.stockMovements = [
         ...prod.stockMovements,
@@ -1496,14 +1505,15 @@ final class FakeCatalogModule implements ICatalogModule {
       NewTenantUnit(:final name) => name,
       null => '',
     };
-    product.stockQty = command.initialStock;
+    product.stockQty = command.basicStockQuantityBase;
     product.baseCost = command.basePrice;
     product.listPrice = command.listPrice;
     product.floorPrice = command.floorPrice;
     return CreateGuidedProductResult(
-      productId: product.id,
-      readinessSummary: _readinessSummaryFor(product),
-    ) as TResult;
+          productId: product.id,
+          readinessSummary: _readinessSummaryFor(product),
+        )
+        as TResult;
   }
 
   TResult _handleCreateProduct<TResult>(CreateProductCommand command) {
@@ -1856,8 +1866,7 @@ final class FakeCatalogModule implements ICatalogModule {
 
   List<_StoredProduct> _visibleProducts(ProductSearchCriteria criteria) {
     final keyword = criteria.keyword;
-    final useRelevance =
-        keyword != null && criteria.sortOrder == ProductSortOrder.relevanceDesc;
+    final useRelevance = keyword != null && criteria.sortOrder == ProductSortOrder.relevanceDesc;
     return _products.where((product) {
       if (product.isSoftDeleted && !criteria.includeSoftDeleted) {
         return false;
@@ -1876,30 +1885,28 @@ final class FakeCatalogModule implements ICatalogModule {
         return false;
       }
       return true;
-    }).toList()
-      ..sort((a, b) {
-        int statusRank(ProductStatus status) =>
-            status == ProductStatus.active ? 0 : 1;
-        final byStatus = statusRank(a.businessStatus).compareTo(
-          statusRank(b.businessStatus),
+    }).toList()..sort((a, b) {
+      int statusRank(ProductStatus status) => status == ProductStatus.active ? 0 : 1;
+      final byStatus = statusRank(a.businessStatus).compareTo(
+        statusRank(b.businessStatus),
+      );
+      if (byStatus != 0) {
+        return byStatus;
+      }
+      if (useRelevance) {
+        final byRank = _approximateRelevanceRank(b, keyword!).compareTo(
+          _approximateRelevanceRank(a, keyword),
         );
-        if (byStatus != 0) {
-          return byStatus;
+        if (byRank != 0) {
+          return byRank;
         }
-        if (useRelevance) {
-          final byRank = _approximateRelevanceRank(b, keyword!).compareTo(
-            _approximateRelevanceRank(a, keyword),
-          );
-          if (byRank != 0) {
-            return byRank;
-          }
-        }
-        final byUpdated = b.updatedAt.compareTo(a.updatedAt);
-        if (byUpdated != 0) {
-          return byUpdated;
-        }
-        return a.name.compareTo(b.name);
-      });
+      }
+      final byUpdated = b.updatedAt.compareTo(a.updatedAt);
+      if (byUpdated != 0) {
+        return byUpdated;
+      }
+      return a.name.compareTo(b.name);
+    });
   }
 
   bool _matchesKeyword(_StoredProduct product, String? keyword) {
@@ -2460,7 +2467,8 @@ final class FakeCatalogModule implements ICatalogModule {
     final existing = _storeRules[command.tenantId];
     final status = command.status;
     final isCreate = existing == null;
-    final isNoOp = !isCreate &&
+    final isNoOp =
+        !isCreate &&
         existing!.name == command.name &&
         existing.listMarkupRatio == command.listMarkupRatio &&
         existing.floorMarkupRatio == command.floorMarkupRatio &&
@@ -2534,17 +2542,17 @@ final class FakeCatalogModule implements ICatalogModule {
     GetStorePriceRuleChangeHistoryQuery query,
   ) {
     final history = _storeRuleHistory[query.tenantId] ?? const [];
-    final sorted = [...history]
-      ..sort((a, b) => b.occurredAt.compareTo(a.occurredAt));
+    final sorted = [...history]..sort((a, b) => b.occurredAt.compareTo(a.occurredAt));
     final newestId = sorted.isEmpty ? null : sorted.first.id;
     final page = sorted.skip(query.offset).take(query.limit).toList();
 
     return StorePriceRuleChangeHistoryResultDto(
-      items: page
-          .map((entry) => entry.toDto(isCurrent: entry.id == newestId))
-          .toList(growable: false),
-      totalCount: history.length,
-    ) as TResult;
+          items: page
+              .map((entry) => entry.toDto(isCurrent: entry.id == newestId))
+              .toList(growable: false),
+          totalCount: history.length,
+        )
+        as TResult;
   }
 
   TResult _handleSuggestProductUnitPrice<TResult>(
@@ -3064,17 +3072,14 @@ final class FakeCatalogModule implements ICatalogModule {
     }
 
     final maskPricing =
-        scenario == FakeCatalogScenario.scnContractE07U04Fr03_02 ||
-        product.pricePermissionDenied;
+        scenario == FakeCatalogScenario.scnContractE07U04Fr03_02 || product.pricePermissionDenied;
 
     var entries = _buildFullChangeHistoryForProduct(product);
     if (query.changeCategories.isNotEmpty) {
       final allowed = query.changeCategories.toSet();
       entries = entries
           .where(
-            (entry) =>
-                entry.changeCategory != null &&
-                allowed.contains(entry.changeCategory),
+            (entry) => entry.changeCategory != null && allowed.contains(entry.changeCategory),
           )
           .toList(growable: false);
     }
@@ -3105,8 +3110,7 @@ final class FakeCatalogModule implements ICatalogModule {
   List<ProductChangeHistoryEntryDto> _buildFullChangeHistoryForProduct(
     _StoredProduct product,
   ) {
-    if (scenario == FakeCatalogScenario.scnContractE07U04Fr02_02 &&
-        product.id == 'product-6') {
+    if (scenario == FakeCatalogScenario.scnContractE07U04Fr02_02 && product.id == 'product-6') {
       return const [];
     }
 

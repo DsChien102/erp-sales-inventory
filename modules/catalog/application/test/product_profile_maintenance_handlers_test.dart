@@ -3,6 +3,8 @@ import 'package:vet45_catalog_application/application.dart';
 import 'package:vet45_catalog_domain/domain.dart';
 import 'package:vet45_shared_application/application.dart';
 
+import 'support/fake_write_ports.dart';
+
 class _RecordingProductCommandGateway implements IProductCommandGateway {
   UpdateProductProfileCommand? lastProfileCommand;
   UpdateProductImagesCommand? lastImagesCommand;
@@ -23,7 +25,7 @@ class _RecordingProductCommandGateway implements IProductCommandGateway {
   }) async {}
 
   @override
-  Future<void> setInitialStock({
+  Future<void> setBasicStockQuantityBase({
     required String productId,
     required String tenantId,
     required ProductStockProfile profile,
@@ -145,6 +147,7 @@ void main() {
       final gateway = _RecordingProductCommandGateway();
       final handler = UpdateProductProfileCommandHandler(
         commandGateway: gateway,
+        productWritePort: FakeProductWritePort.active(productId: 'product-1'),
       );
 
       final result = await handler.handle(
@@ -168,6 +171,7 @@ void main() {
       final gateway = _RecordingProductCommandGateway();
       final handler = UpdateProductImagesCommandHandler(
         commandGateway: gateway,
+        productWritePort: FakeProductWritePort.active(productId: 'product-1'),
       );
 
       final result = await handler.handle(

@@ -71,7 +71,7 @@ erDiagram
 | `UnitOfMeasure` | Tên đơn vị; vai trò base / conversion |
 | `ConversionRate` | > 0; quy về base |
 | `StockMode` | `basic` \| `advanced` |
-| `StockQuantity` | Theo base unit; policy âm theo tenant |
+| `StockQuantity` | Non-negative integer theo base unit (Foundation; không lưu thập phân) |
 | `BasePriceMode` | `manual` \| `costing_module` |
 | `BasePrice` | Giá cơ sở định giá (manual) |
 | `ListPrice` / `FloorPrice` | Khung giá bán |
@@ -86,7 +86,7 @@ erDiagram
 | `CreateProductCommand` | EPIC-02/US-01 | Guided minimal create |
 | `CheckDuplicateProductCodeQuery` | EPIC-02/US-01 | SKU/barcode tenant-scoped |
 | `SetProductBaseUnitCommand` | EPIC-02/US-01, EPIC-04/US-01 | Đơn vị cơ sở |
-| `SetInitialStockCommand` | EPIC-02/US-02, EPIC-05/US-02 | Basic stock ban đầu |
+| `SetBasicStockQuantityBaseCommand` | EPIC-02/US-02, EPIC-05/US-02 | Basic stock ban đầu |
 | `SetManualBasePriceCommand` | EPIC-02/US-02, EPIC-06/US-01 | Giá cơ sở thủ công |
 | `SetInitialPriceBandCommand` | EPIC-02/US-02, EPIC-06/US-03 | Khung giá ban đầu (optional step) |
 | `GetProductReadinessQuery` | EPIC-02/US-03 | Checklist + suggested actions + refresh |
