@@ -21,8 +21,10 @@ export 'src/audit/v_component_audit_snapshot.dart';
 
 // Primitives
 export 'src/primitives/v_badge.dart';
+export 'src/primitives/v_chip.dart';
 export 'src/primitives/v_icon.dart';
 export 'src/primitives/v_icon_box.dart';
+export 'src/primitives/v_text.dart';
 
 // Components
 export 'src/components/v_button.dart';

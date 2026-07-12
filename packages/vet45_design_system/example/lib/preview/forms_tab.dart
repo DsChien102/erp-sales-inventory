@@ -1,0 +1,259 @@
+import 'package:flutter/material.dart';
+import 'package:vet45_design_system/design_system.dart';
+
+import 'preview_section.dart';
+
+class FormsPreviewTab extends StatefulWidget {
+  const FormsPreviewTab({super.key});
+
+  @override
+  State<FormsPreviewTab> createState() => _FormsPreviewTabState();
+}
+
+class _FormsPreviewTabState extends State<FormsPreviewTab> {
+  final _optionalEmail = TextEditingController();
+  final _requiredEmail = TextEditingController();
+  final _externalEmail = TextEditingController();
+  final _hintController = TextEditingController();
+  String? _externalEmailError;
+  int? _moneyValue;
+  int? _requiredMoney;
+  num? _integerValue;
+  num? _decimalValue;
+  String? _selectValue;
+  String? _requiredSelect;
+  String? _searchableSelect;
+  List<String> _companySelected = const ['hidden'];
+  List<String> _notifSelected = const ['email'];
+  List<String> _requiredChoice = const [];
+
+  @override
+  void dispose() {
+    _optionalEmail.dispose();
+    _requiredEmail.dispose();
+    _externalEmail.dispose();
+    _hintController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView(
+      padding: const EdgeInsets.all(VSpacing.screenMobile),
+      children: [
+        PreviewSection(
+          title: 'VEmailField',
+          child: Column(
+            children: [
+              PreviewStateRow(
+                label: 'Optional (built-in validation)',
+                child: VEmailField(
+                  controller: _optionalEmail,
+                  label: 'Email',
+                  hintText: 'customer@gmail.com',
+                  helperText: 'Validation sau debounce.',
+                ),
+              ),
+              PreviewStateRow(
+                label: 'Required',
+                child: VEmailField(
+                  controller: _requiredEmail,
+                  label: 'Email bắt buộc',
+                  isRequired: true,
+                ),
+              ),
+              PreviewStateRow(
+                label: 'External errorText override',
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    VEmailField(
+                      controller: _externalEmail,
+                      label: 'Email',
+                      errorText: _externalEmailError,
+                      onChanged: (_) {
+                        if (_externalEmailError != null) {
+                          setState(() => _externalEmailError = null);
+                        }
+                      },
+                    ),
+                    const SizedBox(height: VSpacing.space2),
+                    VButton(
+                      label: 'Set external error',
+                      variant: VButtonVariant.outline,
+                      size: VButtonSize.small,
+                      onPressed: () {
+                        setState(() {
+                          _externalEmailError = 'Email đã tồn tại trong hệ thống';
+                        });
+                      },
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+        PreviewSection(
+          title: 'VMoneyField',
+          child: Column(
+            children: [
+              PreviewStateRow(
+                label: 'Optional',
+                child: VMoneyField(
+                  label: 'Số tiền',
+                  value: _moneyValue,
+                  onChanged: (v) => setState(() => _moneyValue = v),
+                ),
+              ),
+              PreviewStateRow(
+                label: 'Required + min/max',
+                child: VMoneyField(
+                  label: 'Số tiền bắt buộc',
+                  value: _requiredMoney,
+                  isRequired: true,
+                  min: 1000,
+                  max: 100000000,
+                  onChanged: (v) => setState(() => _requiredMoney = v),
+                ),
+              ),
+            ],
+          ),
+        ),
+        PreviewSection(
+          title: 'VNumberField',
+          child: Column(
+            children: [
+              PreviewStateRow(
+                label: 'Integer',
+                child: VNumberField(
+                  label: 'Số lượng',
+                  value: _integerValue,
+                  min: 0,
+                  max: 9999,
+                  onChanged: (v) => setState(() => _integerValue = v),
+                ),
+              ),
+              PreviewStateRow(
+                label: 'Decimal',
+                child: VNumberField(
+                  label: 'Tỷ lệ',
+                  value: _decimalValue,
+                  allowDecimal: true,
+                  min: 0,
+                  max: 100,
+                  suffixText: '%',
+                  onChanged: (v) => setState(() => _decimalValue = v),
+                ),
+              ),
+            ],
+          ),
+        ),
+        PreviewSection(
+          title: 'VSelect',
+          child: Column(
+            children: [
+              PreviewStateRow(
+                label: 'Basic',
+                child: VSelect<String>(
+                  label: 'Lý do',
+                  value: _selectValue,
+                  items: const [
+                    DropdownMenuItem(value: 'defect', child: Text('Sản phẩm lỗi')),
+                    DropdownMenuItem(value: 'return', child: Text('Khách trả')),
+                  ],
+                  onChanged: (v) => setState(() => _selectValue = v),
+                ),
+              ),
+              PreviewStateRow(
+                label: 'Required',
+                child: VSelect<String>(
+                  label: 'Trạng thái',
+                  value: _requiredSelect,
+                  isRequired: true,
+                  items: const [
+                    DropdownMenuItem(value: 'active', child: Text('Active')),
+                    DropdownMenuItem(value: 'inactive', child: Text('Inactive')),
+                  ],
+                  onChanged: (v) => setState(() => _requiredSelect = v),
+                ),
+              ),
+              PreviewStateRow(
+                label: 'Searchable',
+                child: VSelect<String>(
+                  label: 'Tỉnh/Thành',
+                  value: _searchableSelect,
+                  searchable: true,
+                  items: const [
+                    DropdownMenuItem(value: 'hcm', child: Text('Hồ Chí Minh')),
+                    DropdownMenuItem(value: 'hn', child: Text('Hà Nội')),
+                    DropdownMenuItem(value: 'dn', child: Text('Đà Nẵng')),
+                  ],
+                  onChanged: (v) => setState(() => _searchableSelect = v),
+                ),
+              ),
+            ],
+          ),
+        ),
+        PreviewSection(
+          title: 'VChoiceList',
+          child: Column(
+            children: [
+              PreviewStateRow(
+                label: 'Single + childBuilder',
+                child: VChoiceList<String>(
+                  title: 'Tên công ty',
+                  selected: _companySelected,
+                  choices: [
+                    const VChoiceOption(value: 'hidden', label: 'Ẩn'),
+                    const VChoiceOption(value: 'optional', label: 'Tùy chọn'),
+                    VChoiceOption(
+                      value: 'required',
+                      label: 'Bắt buộc',
+                      childBuilder: (isSelected) => isSelected
+                          ? VTextField(
+                              controller: _hintController,
+                              label: 'Gợi ý nhập',
+                              hintText: 'Công ty TNHH ABC',
+                            )
+                          : const SizedBox.shrink(),
+                    ),
+                  ],
+                  onChanged: (v) => setState(() => _companySelected = v),
+                ),
+              ),
+              PreviewStateRow(
+                label: 'Multiple + minSelections',
+                child: VChoiceList<String>(
+                  title: 'Thông báo',
+                  allowMultiple: true,
+                  selected: _notifSelected,
+                  minSelections: 1,
+                  choices: const [
+                    VChoiceOption(value: 'email', label: 'Email'),
+                    VChoiceOption(value: 'sms', label: 'SMS'),
+                    VChoiceOption(value: 'push', label: 'Push'),
+                  ],
+                  onChanged: (v) => setState(() => _notifSelected = v),
+                ),
+              ),
+              PreviewStateRow(
+                label: 'Required',
+                child: VChoiceList<String>(
+                  title: 'Thanh toán',
+                  isRequired: true,
+                  selected: _requiredChoice,
+                  choices: const [
+                    VChoiceOption(value: 'cash', label: 'Tiền mặt'),
+                    VChoiceOption(value: 'transfer', label: 'Chuyển khoản'),
+                  ],
+                  onChanged: (v) => setState(() => _requiredChoice = v),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}

@@ -327,6 +327,17 @@ const List<VComponentAuditEntry> vComponentAuditEntries = [
   ),
   VComponentAuditEntry(
     category: 'primitives',
+    exportPath: 'src/primitives/v_chip.dart',
+    exists: true,
+    classNames: ['VChip', 'VChipEmphasis'],
+    hasSemantics: true,
+    hasTone: true,
+    hasEmphasis: true,
+    hasState: true,
+    hasSemanticLabel: true,
+  ),
+  VComponentAuditEntry(
+    category: 'primitives',
     exportPath: 'src/primitives/v_icon.dart',
     exists: true,
     classNames: ['VIcon'],

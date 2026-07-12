@@ -28,20 +28,22 @@ melos run design-system:example:web
 
 VS Code: **Run and Debug** → `Design system · example` (hoặc `melos · design-system:example`).
 
+**Agent rule:** khi thêm/đổi public UI trong package này, phải cover example catalog (mọi state API hiện có) — xem [`.cursor/rules/vet45-design-system-example.mdc`](../../.cursor/rules/vet45-design-system-example.mdc).
+
 Main tabs in the preview:
 - `Mockup App`: business-oriented page composition
-- `Tokens`: color, typography, spacing, radius, and shadows
-- `Buttons`: button variants, size, loading, full-width
-- `Fields`: text fields, dropdown, quantity selector
-- `Cards & Badges`: card states and badge statuses
-- `New Specs`: tabs, overlays, table, empty state, toggles
-- `Missing Components`: direct coverage for `VAppBar`, `VDatePickerField`, `VFloatingActionButton`, and `VIcon`
-- `UI Audit`: matrix để audit nhanh toàn bộ component và mức độ readiness (example/semantics/tone/state)
+- `Tokens`: colors, typography, spacing, radius, shadows, duration
+- `Primitives`: `VBadge`, `VChip`, `VIcon`, `VIconBox` (state gallery)
+- `Components`: buttons, fields, dropdowns, toggles, overlays, layout widgets — mỗi component một section + states
+- `Forms`: `VEmailField`, `VMoneyField`, `VNumberField`, `VSelect`, `VChoiceList`
+- `Business`: `VTodoItem`, `VActivityItem`, `VMetricCard`, `VCreateOrderButton`, `VRevenueCard`
+- `UI Audit`: matrix coverage / semantics / tone / state
 
 Component coverage in example includes:
-- Primitives: `VBadge`, `VIcon`, `VIconBox`
-- Components: `VButton`, `VCard`, `VCheckbox`, `VSwitch`, `VFloatingActionButton`, `VTextField`, `VSearchBar`, `VQuickActionButton`, `VTabs`, `VEmptyState`, `VToast`, `VDropdown`, `VQuantitySelector`, `VDatePickerField`, `VHomeHeader`, `VBottomNavigationBar`, `VModal` (via `showVConfirmDialog`), `VBottomSheet` (via `showVBottomSheet`), `VAppBar`, `VTable`
-- Business components: `VTodoItem`, `VActivityItem`, `VMetricCard`, `VCreateOrderButton`, `VRevenueCard`
+- Primitives: `VBadge`, `VChip`, `VIcon`, `VIconBox`, `VText`
+- Components: `VButton`, `VCard`, `VCheckbox`, `VRadio`, `VSwitch`, `VFloatingActionButton`, `VTextField`, `VSearchBar`, `VQuickActionButton`, `VTabs`, `VEmptyState`, `VToast`, `VDropdown`, `VSearchableDropdown`, `VQuantitySelector`, `VDatePickerField`, `VHomeHeader`, `VBottomNavigationBar`, `VConfirmDialog` (via `showVConfirmDialog`), `VBottomSheet` (via `showVBottomSheet`), `VAppBar`, `VTable`
+- Forms: `VEmailField`, `VMoneyField`, `VNumberField`, `VSelect`, `VChoiceList`
+- Business: `VTodoItem`, `VActivityItem`, `VMetricCard`, `VCreateOrderButton`, `VRevenueCard`
 
 ## Tài liệu roadmap theo hướng Polaris
 
