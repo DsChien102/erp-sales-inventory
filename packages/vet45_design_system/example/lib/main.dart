@@ -1884,6 +1884,24 @@ class _MissingComponentsPreviewTabState extends State<MissingComponentsPreviewTa
           ),
         ),
         const SizedBox(height: VSpacing.space6),
+        Text('VChip Previews', style: VTypography.headingH3),
+        const SizedBox(height: VSpacing.space2),
+        VCard(
+          child: Wrap(
+            spacing: VSpacing.space2,
+            runSpacing: VSpacing.space2,
+            children: [
+              const VChip(label: 'Subdued', emphasis: VChipEmphasis.subdued),
+              const VChip(label: 'Base'),
+              const VChip(label: 'Strong', emphasis: VChipEmphasis.strong),
+              VChip(label: 'Selected', selected: true, onTap: () {}),
+              const VChip(label: 'Có icon', leadingIcon: Icons.pets_outlined),
+              VChip(label: 'Removable', onRemove: () {}),
+              const VChip(label: 'Disabled', enabled: false),
+            ],
+          ),
+        ),
+        const SizedBox(height: VSpacing.space6),
       ],
     );
   }
@@ -1909,6 +1927,7 @@ class UIAuditTab extends StatelessWidget {
 
   static const Set<String> _exampleCoverage = {
     'VBadge',
+    'VChip',
     'VIcon',
     'VIconBox',
     'VButton',
