@@ -118,6 +118,10 @@ Object mapCatalogRpcError(RpcException error) {
     return CustomFieldNotFoundException(fieldId: _extractQuoted(error.message) ?? '');
   }
 
+  if (message.contains('custom_field_type_change_blocked')) {
+    return CustomFieldTypeChangeBlockedException(fieldId: '');
+  }
+
   if (message.contains('stale_stock_quantity')) {
     return StaleStockQuantityException();
   }

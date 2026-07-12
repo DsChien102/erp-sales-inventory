@@ -1372,6 +1372,95 @@ void main() {
       expect(field.fieldId, startsWith('cf-field-'));
       expect(field.name, 'Thành phần');
       expect(field.fieldType, CustomFieldType.text);
+      expect(field.hasProductValues, isFalse);
+    });
+
+    test('allows field type change when no product values exist', () async {
+      final module = FakeCatalogModule(
+        scenario: FakeCatalogScenario.cfFieldUpsertText,
+      );
+
+      final group = await module.executeCommandAsync(
+        UpsertCustomFieldGroupCommand(
+          tenantId: 'tenant-1',
+          name: 'Thông tin thuốc',
+        ),
+      );
+
+      final field = await module.executeCommandAsync(
+        UpsertCustomFieldCommand(
+          tenantId: 'tenant-1',
+          groupId: group.groupId,
+          name: 'Thành phần',
+          fieldType: CustomFieldType.text,
+        ),
+      );
+
+      final updated = await module.executeCommandAsync(
+        UpsertCustomFieldCommand(
+          tenantId: 'tenant-1',
+          groupId: group.groupId,
+          fieldId: field.fieldId,
+          name: 'Thành phần',
+          fieldType: CustomFieldType.number,
+        ),
+      );
+
+      expect(updated.fieldType, CustomFieldType.number);
+      expect(updated.hasProductValues, isFalse);
+    });
+
+    test('blocks field type change when product values exist', () async {
+      final module = FakeCatalogModule(
+        scenario: FakeCatalogScenario.cfFieldUpsertText,
+      );
+
+      final group = await module.executeCommandAsync(
+        UpsertCustomFieldGroupCommand(
+          tenantId: 'tenant-1',
+          name: 'Thông tin thuốc',
+        ),
+      );
+
+      final field = await module.executeCommandAsync(
+        UpsertCustomFieldCommand(
+          tenantId: 'tenant-1',
+          groupId: group.groupId,
+          name: 'Thành phần',
+          fieldType: CustomFieldType.text,
+        ),
+      );
+
+      await module.executeCommandAsync(
+        UpsertCustomFieldValuesCommand(
+          tenantId: 'tenant-1',
+          productId: 'product-1',
+          values: [
+            ProductCustomFieldValueInput(
+              fieldId: field.fieldId,
+              textValue: 'Vitamin A',
+            ),
+          ],
+        ),
+      );
+
+      final config = await module.executeQueryAsync(
+        ListCustomFieldConfigQuery(tenantId: 'tenant-1'),
+      );
+      expect(config.groups.first.fields.first.hasProductValues, isTrue);
+
+      await expectLater(
+        module.executeCommandAsync(
+          UpsertCustomFieldCommand(
+            tenantId: 'tenant-1',
+            groupId: group.groupId,
+            fieldId: field.fieldId,
+            name: 'Thành phần',
+            fieldType: CustomFieldType.number,
+          ),
+        ),
+        throwsA(isA<CustomFieldTypeChangeBlockedException>()),
+      );
     });
 
     test('scn_contract_e03_u01_fr04_02 rejects single select without options', () async {

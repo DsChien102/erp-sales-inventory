@@ -16,6 +16,7 @@ final class CustomFieldDefinitionDto {
     this.displayOnList = false,
     this.sortOrder = 0,
     this.status = CustomFieldConfigStatus.active,
+    this.hasProductValues = false,
   });
 
   final String fieldId;
@@ -29,4 +30,7 @@ final class CustomFieldDefinitionDto {
   final bool displayOnList;
   final int sortOrder;
   final CustomFieldConfigStatus status;
+
+  /// True when at least one [product_custom_field_values] row exists for this field.
+  final bool hasProductValues;
 }

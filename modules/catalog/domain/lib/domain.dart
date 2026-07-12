@@ -10,8 +10,10 @@ export 'src/custom_fields/rules/custom_field_name_required_rule.dart';
 export 'src/custom_fields/rules/single_select_must_have_options_rule.dart';
 export 'src/exceptions/custom_field_group_not_found_exception.dart';
 export 'src/exceptions/custom_field_not_found_exception.dart';
+export 'src/exceptions/custom_field_type_change_blocked_exception.dart';
 export 'src/exceptions/duplicate_custom_field_group_name_exception.dart';
 export 'src/exceptions/duplicate_custom_field_name_exception.dart';
+
 export 'src/exceptions/duplicate_measurement_unit_name_exception.dart';
 export 'src/exceptions/floor_price_greater_than_list_price_exception.dart';
 export 'src/exceptions/missing_base_price_exception.dart';

@@ -1267,7 +1267,7 @@ Tests: `scn_contract_e07_u04_*` in `fake_catalog_module_test.dart`.
 | `InitializeCustomFieldTemplateCommand` | tenantId, templateId? | `InitializeCustomFieldTemplateResult` | `ValidationException`, PermissionDenied |
 | `UpsertCustomFieldGroupCommand` | tenantId, groupId?, name, iconKey?, isActive | `CustomFieldGroupConfigDto` | `ValidationException`, `DuplicateCustomFieldGroupNameException`, `CustomFieldGroupNotFoundException`, PermissionDenied |
 | `ReorderCustomFieldGroupsCommand` | tenantId, orderedGroupIds[] | void | `ValidationException`, `CustomFieldGroupNotFoundException` |
-| `UpsertCustomFieldCommand` | tenantId, groupId, fieldId?, name, fieldType, options?, isActive | `CustomFieldDefinitionDto` | `ValidationException`, `DuplicateCustomFieldNameException`, `CustomFieldGroupNotFoundException`, `CustomFieldNotFoundException` |
+| `UpsertCustomFieldCommand` | tenantId, groupId, fieldId?, name, fieldType, options?, isActive | `CustomFieldDefinitionDto` | `ValidationException`, `DuplicateCustomFieldNameException`, `CustomFieldGroupNotFoundException`, `CustomFieldNotFoundException`, `CustomFieldTypeChangeBlockedException` |
 | `ConfigureCustomFieldAttributesCommand` | tenantId, fieldId, isRequired, isSearchable, isFilterable, displayOnList | `ConfigureCustomFieldAttributesResult` | `ValidationException`, `CustomFieldNotFoundException` |
 | `ReorderCustomFieldsCommand` | tenantId, groupId, orderedFieldIds[] | void | `ValidationException`, `CustomFieldGroupNotFoundException`, `CustomFieldNotFoundException` |
 | `ListCustomFieldConfigQuery` | tenantId | `CustomFieldConfigViewDto` | PermissionDenied |
@@ -1279,7 +1279,7 @@ Supporting types:
 | Type | Fields |
 | ---- | ------ |
 | `CustomFieldGroupConfigDto` | groupId, name, iconKey?, sortOrder, status, fieldCount, requiredFieldCount, fields[] |
-| `CustomFieldDefinitionDto` | fieldId, groupId, name, fieldType, options[], isRequired, isSearchable, isFilterable, displayOnList, sortOrder, status |
+| `CustomFieldDefinitionDto` | fieldId, groupId, name, fieldType, options[], isRequired, isSearchable, isFilterable, displayOnList, sortOrder, status, hasProductValues |
 | `CustomFieldSelectOptionDto` | optionId, label, sortOrder, isActive |
 | `CustomFieldConfigViewDto` | groups[] (sorted by sortOrder) |
 | `InitializeCustomFieldTemplateResult` | groupsCreated, fieldsCreated, skippedCount |
@@ -1307,7 +1307,7 @@ Port: `ICatalogCustomFieldConfigGateway` — `listConfig`, `initializeTemplate`,
 | Attributes | `catalog.configure_custom_field_attributes` |
 | List config | `catalog.list_custom_field_config` |
 
-Draft SQL (BE lane): `supabase/migrations/_drafts/08_catalog_custom_fields.sql`
+Draft SQL (BE lane): `supabase/migrations/_drafts/catalog_patch_custom_field_type_change_guard.sql` (type-change guard + `has_product_values` on field JSON). Canonical schema: `20260709013_catalog_custom_fields.sql` / `20260710005_catalog_patch_inline_normalize_custom_fields_rpcs.sql`.
 
 Gateway: `modules/catalog/infrastructure/lib/src/domain/custom_fields/supabase_catalog_custom_field_config_gateway.dart`
 
