@@ -168,10 +168,10 @@ class ProductListItemTile extends StatelessWidget {
       );
     }
     return Text(
-      '—',
+      '_',
       style: VTypography.bodyDefault.copyWith(
-        color: colors.textPrimary,
-        fontWeight: FontWeight.w700,
+        color: colors.textMuted,
+        fontWeight: FontWeight.normal,
       ),
     );
   }

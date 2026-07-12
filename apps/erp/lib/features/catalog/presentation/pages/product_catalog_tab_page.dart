@@ -382,19 +382,19 @@ class _ProductCatalogTabPageState extends State<ProductCatalogTabPage> {
                     onRefresh: () => _cubit.fetchProducts(isRefresh: true),
                     child: ListView.builder(
                       controller: _scrollController,
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      padding: const EdgeInsets.all(VSpacing.space4),
                       physics: const AlwaysScrollableScrollPhysics(),
                       itemCount: items.length + (isLoadingMore ? 1 : 0),
                       itemBuilder: (context, index) {
                         if (isLoadingMore && index >= items.length) {
                           return const Padding(
-                            padding: EdgeInsets.symmetric(vertical: 16),
+                            padding: EdgeInsets.symmetric(vertical: VSpacing.space4),
                             child: Center(child: CircularProgressIndicator()),
                           );
                         }
                         final item = items[index];
                         return Padding(
-                          padding: const EdgeInsets.only(bottom: 8.0),
+                          padding: const EdgeInsets.only(bottom: VSpacing.space2),
                           child: ProductListItemTile(
                             item: item,
                             onTap: () => _navigateToProduct(context, item),

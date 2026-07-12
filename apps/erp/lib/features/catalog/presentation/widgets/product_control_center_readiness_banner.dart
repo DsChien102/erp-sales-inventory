@@ -19,7 +19,6 @@ class ProductControlCenterReadinessBanner extends StatelessWidget {
       key: const Key('btn_readiness_checklist_banner'),
       onTap: onTap,
       child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 16),
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: dynamicColors.warningBg,

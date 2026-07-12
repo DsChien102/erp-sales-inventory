@@ -81,7 +81,7 @@ class ProductCustomFieldGroupEditPage extends StatelessWidget {
                       padding: const EdgeInsets.all(16),
                       children: [
                         Container(
-                          padding: const EdgeInsets.all(16),
+                          padding: const EdgeInsets.only(top: 16, left: 16, right: 16),
                           decoration: BoxDecoration(
                             color: context.vColors.surface,
                             borderRadius: BorderRadius.circular(12),
@@ -139,9 +139,10 @@ class ProductCustomFieldGroupEditPage extends StatelessWidget {
                                   variant: VButtonVariant.primary,
                                   onPressed: state.isSubmitting
                                       ? null
-                                      : () => context.read<ProductCustomFieldGroupEditCubit>().submit(
-                                          args.productId,
-                                        ),
+                                      : () =>
+                                            context.read<ProductCustomFieldGroupEditCubit>().submit(
+                                              args.productId,
+                                            ),
                                   isLoading: state.isSubmitting,
                                 ),
                               ),

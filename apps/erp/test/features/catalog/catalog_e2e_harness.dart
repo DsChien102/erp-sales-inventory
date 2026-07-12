@@ -14,7 +14,7 @@ import 'package:erp/features/catalog/presentation/pages/settings/custom_field_gr
 import 'package:erp/features/catalog/presentation/pages/settings/custom_field_groups_page.dart';
 import 'package:erp/features/catalog/presentation/pages/settings/upsert_custom_field_group_page.dart';
 import 'package:erp/features/catalog/presentation/pages/settings/upsert_custom_field_page.dart';
-import 'package:erp/features/catalog/presentation/widgets/product_control_center_operational_section.dart';
+import 'package:erp/features/catalog/presentation/widgets/product_control_center_section_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
