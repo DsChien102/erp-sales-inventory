@@ -38,41 +38,36 @@ class PartnerCreateForm extends StatelessWidget {
           if (state.isLoading) {
             return const Center(child: CircularProgressIndicator());
           }
-          return GestureDetector(
-            onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
-            behavior: HitTestBehavior.opaque,
-            child: Column(
-              children: [
-                Expanded(
-                  child: ListView(
-                    keyboardDismissBehavior:
-                        ScrollViewKeyboardDismissBehavior.onDrag,
-                    padding: const EdgeInsets.all(VSpacing.space4),
-                    children: [
-                      _LockedTypeCard(partnerType: state.partnerType),
-                      if (state.generalError != null) ...[
-                        const SizedBox(height: VSpacing.space3),
-                        _MessageCard(
-                          message: state.generalError!,
-                          blocked: state.isReadOnly,
-                        ),
-                      ],
+          return Column(
+            children: [
+              Expanded(
+                child: ListView(
+                  keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+                  padding: const EdgeInsets.all(VSpacing.space4),
+                  children: [
+                    _LockedTypeCard(partnerType: state.partnerType),
+                    if (state.generalError != null) ...[
                       const SizedBox(height: VSpacing.space3),
-                      ..._sections(context, state),
-                      const SizedBox(height: VSpacing.space4),
+                      _MessageCard(
+                        message: state.generalError!,
+                        blocked: state.isReadOnly,
+                      ),
                     ],
-                  ),
+                    const SizedBox(height: VSpacing.space3),
+                    ..._sections(context, state),
+                    const SizedBox(height: VSpacing.space4),
+                  ],
                 ),
-                _StickyActions(
-                  onCancel: onCancel,
-                  onSubmit: context.read<PartnerCreateCubit>().submit,
-                  isLoading: state.isSubmitting,
-                  isReadOnly: state.isReadOnly,
-                  canSubmit: state.canSubmit,
-                  saveLabel: state.isEditMode ? 'Lưu thay đổi' : 'Lưu & Xem',
-                ),
-              ],
-            ),
+              ),
+              _StickyActions(
+                onCancel: onCancel,
+                onSubmit: context.read<PartnerCreateCubit>().submit,
+                isLoading: state.isSubmitting,
+                isReadOnly: state.isReadOnly,
+                canSubmit: state.canSubmit,
+                saveLabel: state.isEditMode ? 'Lưu thay đổi' : 'Lưu & Xem',
+              ),
+            ],
           );
         },
       ),
@@ -121,67 +116,66 @@ class PartnerCreateForm extends StatelessWidget {
             Key key,
           })
         >[
+          (
+            section: PartnerCreateSection.role,
+            title: '2. Vai trò giao dịch',
+            child: const PartnerRoleSection(),
+            summary: _roleSummary(state.roles),
+            expandedTrailingText: null,
+            key: const Key('section_role'),
+          ),
+          (
+            section: PartnerCreateSection.main,
+            title: state.partnerType == PartnerType.person
+                ? '3. Thông tin cá nhân'
+                : '3. Thông tin tổ chức',
+            child: state.partnerType == PartnerType.person
+                ? const PartnerPersonSection()
+                : const PartnerOrganizationSection(),
+            summary: state.partnerType == PartnerType.person
+                ? _emptyToNull(state.fullName)
+                : _emptyToNull(state.organizationName),
+            expandedTrailingText: null,
+            key: const Key('section_main'),
+          ),
+          if (state.partnerType == PartnerType.organization && !state.isEditMode)
             (
-              section: PartnerCreateSection.role,
-              title: '2. Vai trò giao dịch',
-              child: const PartnerRoleSection(),
-              summary: _roleSummary(state.roles),
-              expandedTrailingText: null,
-              key: const Key('section_role'),
+              section: PartnerCreateSection.primaryContact,
+              title: '4. Người liên hệ chính',
+              child: const PartnerPrimaryContactSection(),
+              summary: state.primaryContactEnabled
+                  ? _emptyToNull(state.primaryContactName) ?? 'Đã bật'
+                  : 'Tùy chọn',
+              expandedTrailingText: 'Tùy chọn',
+              key: const Key('section_primary_contact'),
             ),
-            (
-              section: PartnerCreateSection.main,
-              title: state.partnerType == PartnerType.person
-                  ? '3. Thông tin cá nhân'
-                  : '3. Thông tin tổ chức',
-              child: state.partnerType == PartnerType.person
-                  ? const PartnerPersonSection()
-                  : const PartnerOrganizationSection(),
-              summary: state.partnerType == PartnerType.person
-                  ? _emptyToNull(state.fullName)
-                  : _emptyToNull(state.organizationName),
-              expandedTrailingText: null,
-              key: const Key('section_main'),
-            ),
-            if (state.partnerType == PartnerType.organization &&
-                !state.isEditMode)
-              (
-                section: PartnerCreateSection.primaryContact,
-                title: '4. Người liên hệ chính',
-                child: const PartnerPrimaryContactSection(),
-                summary: state.primaryContactEnabled
-                    ? _emptyToNull(state.primaryContactName) ?? 'Đã bật'
-                    : 'Tùy chọn',
-                expandedTrailingText: 'Tùy chọn',
-                key: const Key('section_primary_contact'),
-              ),
-            (
-              section: PartnerCreateSection.invoice,
-              title:
-                  '${state.partnerType == PartnerType.person || state.isEditMode ? 4 : 5}. Hóa đơn / thuế',
-              child: const PartnerInvoiceSection(),
-              summary: _emptyToNull(state.taxCode),
-              expandedTrailingText: null,
-              key: const Key('section_invoice'),
-            ),
-            (
-              section: PartnerCreateSection.delivery,
-              title:
-                  '${state.partnerType == PartnerType.person || state.isEditMode ? 5 : 6}. Địa chỉ giao hàng',
-              child: const PartnerDeliverySection(),
-              summary: _emptyToNull(state.deliveryProvince) ?? 'Tùy chọn',
-              expandedTrailingText: null,
-              key: const Key('section_delivery'),
-            ),
-            (
-              section: PartnerCreateSection.note,
-              title:
-                  '${state.partnerType == PartnerType.person || state.isEditMode ? 6 : 7}. Ghi chú',
-              child: const PartnerNoteSection(),
-              summary: state.note.trim().isEmpty ? 'Tùy chọn' : 'Đã nhập',
-              expandedTrailingText: null,
-              key: const Key('section_note'),
-            ),
+          (
+            section: PartnerCreateSection.invoice,
+            title:
+                '${state.partnerType == PartnerType.person || state.isEditMode ? 4 : 5}. Hóa đơn / thuế',
+            child: const PartnerInvoiceSection(),
+            summary: _emptyToNull(state.taxCode),
+            expandedTrailingText: null,
+            key: const Key('section_invoice'),
+          ),
+          (
+            section: PartnerCreateSection.delivery,
+            title:
+                '${state.partnerType == PartnerType.person || state.isEditMode ? 5 : 6}. Địa chỉ giao hàng',
+            child: const PartnerDeliverySection(),
+            summary: _emptyToNull(state.deliveryProvince) ?? 'Tùy chọn',
+            expandedTrailingText: null,
+            key: const Key('section_delivery'),
+          ),
+          (
+            section: PartnerCreateSection.note,
+            title:
+                '${state.partnerType == PartnerType.person || state.isEditMode ? 6 : 7}. Ghi chú',
+            child: const PartnerNoteSection(),
+            summary: state.note.trim().isEmpty ? 'Tùy chọn' : 'Đã nhập',
+            expandedTrailingText: null,
+            key: const Key('section_note'),
+          ),
         ];
 
     return entries

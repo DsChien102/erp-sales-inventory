@@ -7,6 +7,7 @@ import '../data/vn_administrative_unit.dart';
 import '../data/vn_administrative_units_loader.dart';
 import 'partner_compact_field.dart';
 import 'partner_form_field_row.dart';
+import 'partner_ward_search_dropdown.dart';
 
 class PartnerDeliverySection extends StatefulWidget {
   const PartnerDeliverySection({super.key});
@@ -16,8 +17,7 @@ class PartnerDeliverySection extends StatefulWidget {
 }
 
 class _PartnerDeliverySectionState extends State<PartnerDeliverySection> {
-  late final Future<List<VnAdministrativeUnit>> _unitsFuture =
-      VnAdministrativeUnitsLoader.load();
+  late final Future<List<VnAdministrativeUnit>> _unitsFuture = VnAdministrativeUnitsLoader.load();
 
   @override
   Widget build(BuildContext context) {
@@ -49,9 +49,7 @@ class _PartnerDeliverySectionState extends State<PartnerDeliverySection> {
               label: 'Tỉnh / Thành phố',
               field: PartnerCompactSearchableDropdown<String>(
                 key: const Key('input_delivery_province'),
-                value: state.deliveryProvince.isEmpty
-                    ? null
-                    : state.deliveryProvince,
+                value: state.deliveryProvince.isEmpty ? null : state.deliveryProvince,
                 hintText: 'Chọn tỉnh / thành phố',
                 items: units
                     .map(
@@ -61,30 +59,18 @@ class _PartnerDeliverySectionState extends State<PartnerDeliverySection> {
                       ),
                     )
                     .toList(growable: false),
-                onChanged: (value) =>
-                    cubit.updateDeliveryProvince(value ?? ''),
+                onChanged: (value) => cubit.updateDeliveryProvince(value ?? ''),
               ),
             ),
             PartnerFormFieldRow(
               label: 'Xã / Phường',
-              field: PartnerCompactSearchableDropdown<String>(
+              field: PartnerWardSearchDropdown(
                 key: const Key('input_delivery_commune'),
-                value: state.deliveryCommune.isEmpty
-                    ? null
-                    : state.deliveryCommune,
-                hintText: canSelectWard
-                    ? 'Chọn xã / phường'
-                    : 'Chọn tỉnh / thành phố trước',
+                value: state.deliveryCommune,
+                hintText: canSelectWard ? 'Chọn xã / phường' : 'Chọn tỉnh / thành phố trước',
                 enabled: canSelectWard,
-                items: wardItems
-                    .map(
-                      (ward) => DropdownMenuEntry<String>(
-                        value: ward.fullName,
-                        label: ward.fullName,
-                      ),
-                    )
-                    .toList(growable: false),
-                onChanged: (value) => cubit.updateDeliveryCommune(value ?? ''),
+                wards: wardItems,
+                onSelected: (ward) => cubit.updateDeliveryCommune(ward.fullName),
               ),
             ),
             _DeliveryDetailAddressField(

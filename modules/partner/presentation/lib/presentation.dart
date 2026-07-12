@@ -22,6 +22,7 @@ export 'src/widgets/partner_list_search_bar.dart';
 export 'src/widgets/partner_list_quick_filters.dart';
 export 'src/widgets/partner_active_filters.dart';
 export 'src/widgets/partner_filter_bottom_sheet.dart';
+export 'src/widgets/partner_ward_search_dropdown.dart';
 export 'src/widgets/partner_sort_bottom_sheet.dart';
 export 'src/widgets/partner_detail_action_sheet.dart';
 export 'src/widgets/partner_deactivate_confirmation_sheet.dart';
@@ -55,4 +56,3 @@ export 'src/widgets/partner_contact_change_primary_dialog.dart';
 export 'src/widgets/partner_contact_remove_dialog.dart';
 export 'src/widgets/partner_contact_form.dart';
 export 'src/widgets/partner_contact_select_list.dart';
-

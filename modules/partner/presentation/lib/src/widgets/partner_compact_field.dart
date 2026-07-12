@@ -23,6 +23,7 @@ String _removeVietnameseTones(String str) {
 abstract final class PartnerCompactField {
   static const double controlHeight = 40;
   static const double menuHeight = 180;
+
   /// Attach menu just below the field (not top-aligned + large dy offset).
   static const Offset menuAlignmentOffset = Offset(0, 4);
   static const AlignmentGeometry menuAlignment = AlignmentDirectional.bottomStart;
@@ -405,8 +406,7 @@ class PartnerCompactSearchableDropdown<T> extends StatefulWidget {
       _PartnerCompactSearchableDropdownState<T>();
 }
 
-class _PartnerCompactSearchableDropdownState<T>
-    extends State<PartnerCompactSearchableDropdown<T>> {
+class _PartnerCompactSearchableDropdownState<T> extends State<PartnerCompactSearchableDropdown<T>> {
   late final FocusNode _focusNode;
 
   @override
@@ -441,74 +441,88 @@ class _PartnerCompactSearchableDropdownState<T>
         return SizedBox(
           height: PartnerCompactField.controlHeight,
           width: double.infinity,
-          child: DropdownMenu<T>(
-            key: ValueKey(
-              'compact-search-${widget.value}-${widget.enabled}',
-            ),
-            width: constraints.maxWidth,
-            enabled: widget.enabled,
-            initialSelection: widget.value,
-            hintText: widget.hintText,
-            focusNode: _focusNode,
-            enableSearch: true,
-            enableFilter: true,
-            filterCallback: (entries, filter) {
-              final normalizedFilter =
-                  _removeVietnameseTones(filter).toLowerCase();
-              return entries.where((entry) {
-                final normalizedLabel =
-                    _removeVietnameseTones(entry.label).toLowerCase();
-                return normalizedLabel.contains(normalizedFilter);
-              }).toList();
-            },
-            requestFocusOnTap: true,
-            alignmentOffset: PartnerCompactField.menuAlignmentOffset,
-            menuHeight: PartnerCompactField.menuHeight,
-            textStyle: PartnerCompactField.valueStyle(context).copyWith(
-              color: widget.enabled ? colors.textPrimary : colors.textMuted,
-            ),
-            menuStyle: MenuStyle(
-              alignment: PartnerCompactField.menuAlignment,
-              minimumSize: WidgetStatePropertyAll(
-                Size(constraints.maxWidth, 0),
+          child: Stack(
+            alignment: Alignment.centerRight,
+            children: [
+              DropdownMenu<T>(
+                key: ValueKey(
+                  'compact-search-${widget.value}-${widget.enabled}',
+                ),
+                width: constraints.maxWidth,
+                enabled: widget.enabled,
+                initialSelection: widget.value,
+                hintText: widget.hintText,
+                focusNode: _focusNode,
+                enableSearch: true,
+                enableFilter: true,
+                filterCallback: (entries, filter) {
+                  final normalizedFilter = _removeVietnameseTones(filter).toLowerCase();
+                  return entries.where((entry) {
+                    final normalizedLabel = _removeVietnameseTones(entry.label).toLowerCase();
+                    return normalizedLabel.contains(normalizedFilter);
+                  }).toList();
+                },
+                requestFocusOnTap: true,
+                showTrailingIcon: false,
+                alignmentOffset: PartnerCompactField.menuAlignmentOffset,
+                menuHeight: PartnerCompactField.menuHeight,
+                textStyle: PartnerCompactField.valueStyle(context).copyWith(
+                  color: widget.enabled ? colors.textPrimary : colors.textMuted,
+                ),
+                menuStyle: MenuStyle(
+                  alignment: PartnerCompactField.menuAlignment,
+                  minimumSize: WidgetStatePropertyAll(
+                    Size(constraints.maxWidth, 0),
+                  ),
+                  maximumSize: WidgetStatePropertyAll(
+                    Size(constraints.maxWidth, PartnerCompactField.menuHeight),
+                  ),
+                  backgroundColor: WidgetStatePropertyAll(colors.surface),
+                  surfaceTintColor: const WidgetStatePropertyAll(Colors.transparent),
+                  shape: WidgetStatePropertyAll(
+                    RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(VRadius.input),
+                      side: BorderSide(color: colors.borderDefault),
+                    ),
+                  ),
+                ),
+                inputDecorationTheme: InputDecorationTheme(
+                  isDense: true,
+                  filled: true,
+                  fillColor: widget.enabled ? colors.surface : colors.surfaceAlt,
+                  contentPadding: PartnerCompactField.contentPadding,
+                  hintStyle: PartnerCompactField.hintStyle(context),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(VRadius.input),
+                    borderSide: BorderSide(color: colors.borderStrong),
+                  ),
+                  disabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(VRadius.input),
+                    borderSide: BorderSide(color: colors.borderDefault),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(VRadius.input),
+                    borderSide: BorderSide(color: colors.primary),
+                  ),
+                  constraints: const BoxConstraints(
+                    minHeight: PartnerCompactField.controlHeight,
+                    maxHeight: PartnerCompactField.controlHeight,
+                  ),
+                ),
+                onSelected: widget.onChanged,
+                dropdownMenuEntries: widget.items,
               ),
-              maximumSize: WidgetStatePropertyAll(
-                Size(constraints.maxWidth, PartnerCompactField.menuHeight),
-              ),
-              backgroundColor: WidgetStatePropertyAll(colors.surface),
-              surfaceTintColor: const WidgetStatePropertyAll(Colors.transparent),
-              shape: WidgetStatePropertyAll(
-                RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(VRadius.input),
-                  side: BorderSide(color: colors.borderDefault),
+              Padding(
+                padding: const EdgeInsets.only(right: 12),
+                child: IgnorePointer(
+                  child: Icon(
+                    Icons.arrow_drop_down,
+                    size: 18,
+                    color: widget.enabled ? colors.textSecondary : colors.textMuted,
+                  ),
                 ),
               ),
-            ),
-            inputDecorationTheme: InputDecorationTheme(
-              isDense: true,
-              filled: true,
-              fillColor: widget.enabled ? colors.surface : colors.surfaceAlt,
-              contentPadding: PartnerCompactField.contentPadding,
-              hintStyle: PartnerCompactField.hintStyle(context),
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(VRadius.input),
-                borderSide: BorderSide(color: colors.borderStrong),
-              ),
-              disabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(VRadius.input),
-                borderSide: BorderSide(color: colors.borderDefault),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(VRadius.input),
-                borderSide: BorderSide(color: colors.primary),
-              ),
-              constraints: const BoxConstraints(
-                minHeight: PartnerCompactField.controlHeight,
-                maxHeight: PartnerCompactField.controlHeight,
-              ),
-            ),
-            onSelected: widget.onChanged,
-            dropdownMenuEntries: widget.items,
+            ],
           ),
         );
       },
