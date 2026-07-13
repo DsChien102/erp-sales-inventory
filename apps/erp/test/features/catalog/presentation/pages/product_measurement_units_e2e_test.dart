@@ -296,19 +296,35 @@ void main() {
 
       expect(find.byKey(const Key('conversion_unit_item_product-1-unit-vi')), findsOneWidget);
 
-      await tester.tap(find.byKey(const Key('btn_expand_conversion_unit_product-1-unit-vi')));
+      await tester.longPress(
+        find.byKey(const Key('btn_expand_conversion_unit_product-1-unit-vi')),
+      );
       await tester.pumpAndSettle();
 
       await tester.tap(find.byKey(const Key('btn_toggle_conversion_unit_product-1-unit-vi')));
       await tester.pumpAndSettle();
 
-      final nameFinder = find.descendant(
-        of: find.byKey(const Key('conversion_unit_item_product-1-unit-vi')),
-        matching: find.text('Vỉ'),
+      await tester.tap(find.byKey(const Key('btn_confirm_deactivate_conversion_unit')));
+      await tester.pumpAndSettle();
+
+      expect(
+        find.descendant(
+          of: find.byKey(const Key('conversion_unit_item_product-1-unit-vi')),
+          matching: find.text('Đã tắt'),
+        ),
+        findsOneWidget,
       );
-      expect(nameFinder, findsOneWidget);
-      final nameWidget = tester.widget<Text>(nameFinder);
-      expect(nameWidget.style?.decoration, TextDecoration.lineThrough);
+
+      final nameTexts = tester
+          .widgetList<Text>(
+            find.descendant(
+              of: find.byKey(const Key('conversion_unit_item_product-1-unit-vi')),
+              matching: find.text('Vỉ'),
+            ),
+          )
+          .toList();
+      expect(nameTexts, isNotEmpty);
+      expect(nameTexts.first.style?.decoration, isNot(TextDecoration.lineThrough));
     });
 
     testWidgets('e2e_e04_u02_fr04_01: reactivate inactive conversion unit', (tester) async {
@@ -318,8 +334,17 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.byKey(const Key('conversion_unit_item_product-1-unit-thung')), findsOneWidget);
+      expect(
+        find.descendant(
+          of: find.byKey(const Key('conversion_unit_item_product-1-unit-thung')),
+          matching: find.text('Đã tắt'),
+        ),
+        findsOneWidget,
+      );
 
-      await tester.tap(find.byKey(const Key('btn_expand_conversion_unit_product-1-unit-thung')));
+      await tester.longPress(
+        find.byKey(const Key('btn_expand_conversion_unit_product-1-unit-thung')),
+      );
       await tester.pumpAndSettle();
 
       expect(find.text('Bật đơn vị'), findsOneWidget);
@@ -327,15 +352,34 @@ void main() {
       await tester.tap(find.byKey(const Key('btn_toggle_conversion_unit_product-1-unit-thung')));
       await tester.pumpAndSettle();
 
-      expect(find.textContaining('Thùng = 100'), findsOneWidget);
+      await tester.tap(find.byKey(const Key('btn_confirm_reactivate_conversion_unit')));
+      await tester.pumpAndSettle();
 
-      final nameFinder = find.descendant(
-        of: find.byKey(const Key('conversion_unit_item_product-1-unit-thung')),
-        matching: find.text('Thùng'),
+      expect(
+        find.descendant(
+          of: find.byKey(const Key('conversion_unit_item_product-1-unit-thung')),
+          matching: find.text('100 x Hộp'),
+        ),
+        findsOneWidget,
       );
-      expect(nameFinder, findsOneWidget);
-      final nameWidget = tester.widget<Text>(nameFinder);
-      expect(nameWidget.style?.decoration, isNot(TextDecoration.lineThrough));
+      expect(
+        find.descendant(
+          of: find.byKey(const Key('conversion_unit_item_product-1-unit-thung')),
+          matching: find.text('Đã tắt'),
+        ),
+        findsNothing,
+      );
+
+      final nameTexts = tester
+          .widgetList<Text>(
+            find.descendant(
+              of: find.byKey(const Key('conversion_unit_item_product-1-unit-thung')),
+              matching: find.text('Thùng'),
+            ),
+          )
+          .toList();
+      expect(nameTexts, isNotEmpty);
+      expect(nameTexts.first.style?.decoration, isNot(TextDecoration.lineThrough));
     });
   });
 }

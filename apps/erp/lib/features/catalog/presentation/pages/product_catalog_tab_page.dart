@@ -196,7 +196,9 @@ class _ProductCatalogTabPageState extends State<ProductCatalogTabPage> {
       scrollDirection: Axis.horizontal,
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Row(
-        children: ProductListFilter.values.map((filter) {
+        children: ProductListFilter.values
+            .where((filter) => filter != ProductListFilter.negativeStock)
+            .map((filter) {
           final isSelected = _selectedFilter == filter;
           String label = filter.label;
           if (filter == ProductListFilter.all && globalCount != null) {
