@@ -117,6 +117,7 @@ class _PartnerFormViewState extends State<_PartnerFormView> {
       child: PopScope<Object?>(
         canPop: _allowPop || !state.isDirty,
         onPopInvokedWithResult: (didPop, _) {
+          FocusManager.instance.primaryFocus?.unfocus();
           if (!didPop) _requestLeave();
         },
         child: Scaffold(

@@ -180,7 +180,7 @@ final appRouter = GoRouter(
       path: '/partner/new',
       name: 'partner.new',
       builder: (context, state) {
-        final partnerType = state.extra as PartnerType;
+        final partnerType = state.extra as PartnerType? ?? PartnerType.person;
         return PartnerCreatePage(
           partnerType: partnerType,
           partnerModule: getIt<IPartnerModule>(),
