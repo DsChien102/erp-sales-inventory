@@ -1,0 +1,1559 @@
+-- Title: catalog patch price band VAT + effective RPCs
+-- Kind: patch
+-- Intent: catalog_price_band_vat_effective
+-- Context: TH-02 EPIC-06 — set/list/snapshot/read use before_vat + active effective window
+-- Touches: set_product_unit_price_band, list_product_unit_price_bands, get_product_price_band_snapshot, _product_operational_facts, get_product_control_center, search_products, find_product_by_barcode, apply_store_price_rule, set_initial_price_band, create_guided_product
+-- Safety: idempotent
+-- Depends on: 001_catalog_patch_price_band_vat_effective_schema.sql
+
+
+drop function if exists catalog.set_product_unit_price_band(uuid, uuid, numeric, numeric, uuid, text, uuid);
+drop function if exists catalog.set_product_unit_price_band(
+  uuid, uuid, numeric, numeric, uuid, numeric, numeric, timestamptz, timestamptz, text, text, uuid
+);
+drop function if exists catalog.set_product_unit_price_band(
+  uuid, uuid, numeric, numeric, numeric, uuid, numeric, timestamptz, timestamptz, text, text, uuid
+);
+
+create or replace function catalog.set_product_unit_price_band(
+  p_tenant_id uuid,
+  p_product_id uuid,
+  p_list_price_before_vat numeric,
+  p_list_price_after_vat numeric,
+  p_floor_price_before_vat numeric default null,
+  p_product_unit_id uuid default null,
+  p_floor_price_after_vat numeric default null,
+  p_effective_from timestamptz default null,
+  p_effective_to timestamptz default null,
+  p_status text default 'active',
+  p_source_type text default 'manual',
+  p_store_price_rule_id uuid default null
+)
+returns table (
+  product_id uuid,
+  product_unit_id uuid,
+  list_price_before_vat numeric,
+  floor_price_before_vat numeric,
+  list_price_after_vat numeric,
+  floor_price_after_vat numeric,
+  effective_from timestamptz,
+  effective_to timestamptz,
+  status text,
+  source_type text,
+  store_price_rule_id uuid
+)
+language plpgsql
+security definer
+set search_path = catalog, iam, pg_temp
+as $$
+declare
+  v_actor_id uuid;
+  v_unit_id uuid;
+  v_existing_list numeric;
+  v_existing_floor numeric;
+  v_is_custom_override boolean;
+  v_effective_from timestamptz;
+  v_status text;
+begin
+  v_actor_id := auth.uid();
+  if v_actor_id is null then
+    raise exception 'not authenticated';
+  end if;
+
+  if not iam.has_permission(p_tenant_id, 'catalog.product.manage_pricing') then
+    raise exception 'permission denied: catalog.product.manage_pricing';
+  end if;
+
+  if not exists (
+    select 1
+    from catalog.products
+    where id = p_product_id
+      and tenant_id = p_tenant_id
+      and business_status <> 'soft_deleted'::catalog.product_business_status
+  ) then
+    raise exception 'product not found';
+  end if;
+
+  perform catalog._ensure_product_has_base_unit(p_tenant_id, p_product_id);
+
+  if p_list_price_before_vat < 0
+     or (p_floor_price_before_vat is not null and p_floor_price_before_vat < 0) then
+    raise exception 'validation_exception: Giá không được âm.';
+  end if;
+
+  if p_floor_price_before_vat is not null
+     and p_floor_price_before_vat > p_list_price_before_vat then
+    raise exception 'floor_price_greater_than_list_price';
+  end if;
+
+  if p_list_price_after_vat < 0 then
+    raise exception 'validation_exception: Giá không được âm.';
+  end if;
+  if p_floor_price_after_vat is not null and p_floor_price_after_vat < 0 then
+    raise exception 'validation_exception: Giá không được âm.';
+  end if;
+  if p_list_price_after_vat is not null
+     and p_floor_price_after_vat is not null
+     and p_floor_price_after_vat > p_list_price_after_vat then
+    raise exception 'floor_price_greater_than_list_price';
+  end if;
+
+  v_status := coalesce(nullif(btrim(p_status), ''), 'active');
+  if v_status not in ('active', 'inactive', 'deleted') then
+    raise exception 'validation_exception: status không hợp lệ.';
+  end if;
+
+  if p_source_type not in ('manual', 'ruleBased') then
+    raise exception 'validation_exception: source_type không hợp lệ.';
+  end if;
+
+  if p_product_unit_id is null then
+    v_unit_id := catalog._resolve_base_product_unit_id(
+      p_tenant_id,
+      p_product_id,
+      null
+    );
+  else
+    select pu.id
+    into v_unit_id
+    from catalog.product_units pu
+    where pu.id = p_product_unit_id
+      and pu.product_id = p_product_id
+      and pu.tenant_id = p_tenant_id;
+  end if;
+
+  if v_unit_id is null then
+    raise exception 'product unit not found';
+  end if;
+
+  if not exists (
+    select 1
+    from catalog.product_units pu
+    where pu.id = v_unit_id
+      and pu.is_active = true
+  ) then
+    raise exception 'inactive_product_unit';
+  end if;
+
+  v_effective_from := coalesce(p_effective_from, now());
+
+  select pb.list_price_before_vat, pb.floor_price_before_vat
+  into v_existing_list, v_existing_floor
+  from catalog.product_unit_price_bands pb
+  where pb.product_id = p_product_id
+    and pb.product_unit_id = v_unit_id
+    and pb.status = 'active'
+  limit 1;
+
+  v_is_custom_override := p_source_type = 'manual';
+
+  insert into catalog.product_unit_price_bands (
+    tenant_id,
+    product_id,
+    product_unit_id,
+    list_price_before_vat,
+    floor_price_before_vat,
+    list_price_after_vat,
+    floor_price_after_vat,
+    effective_from,
+    effective_to,
+    status,
+    store_price_rule_id,
+    source_type,
+    is_custom_override,
+    updated_at
+  )
+  values (
+    p_tenant_id,
+    p_product_id,
+    v_unit_id,
+    p_list_price_before_vat,
+    p_floor_price_before_vat,
+    p_list_price_after_vat,
+    p_floor_price_after_vat,
+    v_effective_from,
+    p_effective_to,
+    v_status,
+    p_store_price_rule_id,
+    p_source_type,
+    v_is_custom_override,
+    now()
+  )
+  on conflict (product_id, product_unit_id) where (status = 'active') do update set
+    list_price_before_vat = excluded.list_price_before_vat,
+    floor_price_before_vat = excluded.floor_price_before_vat,
+    list_price_after_vat = excluded.list_price_after_vat,
+    floor_price_after_vat = excluded.floor_price_after_vat,
+    effective_from = excluded.effective_from,
+    effective_to = excluded.effective_to,
+    status = excluded.status,
+    store_price_rule_id = excluded.store_price_rule_id,
+    source_type = excluded.source_type,
+    is_custom_override = excluded.is_custom_override,
+    updated_at = now();
+
+  insert into catalog.product_change_history (tenant_id, product_id, action, payload, actor_id)
+  values (
+    p_tenant_id,
+    p_product_id,
+    'set_product_unit_price_band',
+    jsonb_build_object(
+      'product_unit_id', v_unit_id,
+      'list_price_before_vat', p_list_price_before_vat,
+      'floor_price_before_vat', p_floor_price_before_vat,
+      'list_price_after_vat', p_list_price_after_vat,
+      'floor_price_after_vat', p_floor_price_after_vat,
+      'previous_list_price_before_vat', v_existing_list,
+      'previous_floor_price_before_vat', v_existing_floor,
+      'effective_from', v_effective_from,
+      'effective_to', p_effective_to,
+      'status', v_status,
+      'source_type', p_source_type,
+      'store_price_rule_id', p_store_price_rule_id
+    ),
+    v_actor_id
+  );
+
+  return query
+  select
+    p_product_id,
+    v_unit_id,
+    p_list_price_before_vat,
+    p_floor_price_before_vat,
+    p_list_price_after_vat,
+    p_floor_price_after_vat,
+    v_effective_from,
+    p_effective_to,
+    v_status,
+    p_source_type,
+    p_store_price_rule_id;
+end;
+$$;
+
+revoke all on function catalog.set_product_unit_price_band(
+  uuid, uuid, numeric, numeric, numeric, uuid, numeric, timestamptz, timestamptz, text, text, uuid
+) from public, anon;
+grant execute on function catalog.set_product_unit_price_band(
+  uuid, uuid, numeric, numeric, numeric, uuid, numeric, timestamptz, timestamptz, text, text, uuid
+) to authenticated, service_role;
+
+
+drop function if exists catalog.list_product_unit_price_bands(uuid, uuid);
+
+create or replace function catalog.list_product_unit_price_bands(
+  p_tenant_id uuid,
+  p_product_id uuid
+)
+returns table (
+  product_id uuid,
+  base_unit_name text,
+  currency text,
+  base_price numeric,
+  product_unit_id uuid,
+  unit_name text,
+  is_base_unit boolean,
+  is_active boolean,
+  list_price_before_vat numeric,
+  floor_price_before_vat numeric,
+  list_price_after_vat numeric,
+  floor_price_after_vat numeric,
+  effective_from timestamptz,
+  effective_to timestamptz,
+  status text,
+  source_type text,
+  store_price_rule_name text,
+  is_custom_override boolean
+)
+language plpgsql
+security definer
+set search_path = catalog, iam, pg_temp
+as $$
+declare
+  v_base_unit_name text;
+  v_currency text;
+  v_base_price numeric;
+begin
+  if auth.uid() is null then
+    raise exception 'not authenticated';
+  end if;
+
+  if not iam.has_permission(p_tenant_id, 'catalog.product.view_detail') then
+    raise exception 'permission denied: catalog.product.view_detail';
+  end if;
+
+  if not exists (
+    select 1
+    from catalog.products
+    where id = p_product_id
+      and tenant_id = p_tenant_id
+      and business_status <> 'soft_deleted'::catalog.product_business_status
+  ) then
+    raise exception 'product not found';
+  end if;
+
+  perform catalog._ensure_product_has_base_unit(p_tenant_id, p_product_id);
+
+  select pu.unit_name
+  into v_base_unit_name
+  from catalog.product_units pu
+  where pu.product_id = p_product_id
+    and pu.tenant_id = p_tenant_id
+    and pu.is_base_unit = true
+  limit 1;
+
+  select coalesce(bp.currency, 'VND'), bp.base_price_amount
+  into v_currency, v_base_price
+  from catalog.product_base_price_profiles bp
+  where bp.product_id = p_product_id
+    and bp.tenant_id = p_tenant_id
+  limit 1;
+
+  v_currency := coalesce(v_currency, 'VND');
+
+  return query
+  select
+    p_product_id,
+    v_base_unit_name,
+    v_currency,
+    v_base_price,
+    pu.id,
+    pu.unit_name,
+    pu.is_base_unit,
+    pu.is_active,
+    pb.list_price_before_vat,
+    pb.floor_price_before_vat,
+    pb.list_price_after_vat,
+    pb.floor_price_after_vat,
+    pb.effective_from,
+    pb.effective_to,
+    pb.status,
+    pb.source_type,
+    sr.name as store_price_rule_name,
+    coalesce(pb.is_custom_override, false)
+  from catalog.product_units pu
+  left join catalog.product_unit_price_bands pb
+    on pb.product_unit_id = pu.id
+   and pb.product_id = p_product_id
+   and pb.tenant_id = p_tenant_id
+   and pb.status = 'active'
+   and pb.effective_from <= now()
+   and (pb.effective_to is null or pb.effective_to > now())
+  left join catalog.store_price_rules sr
+    on sr.id = pb.store_price_rule_id
+  where pu.product_id = p_product_id
+    and pu.tenant_id = p_tenant_id
+    and pu.is_active = true
+  order by pu.is_base_unit desc, pu.unit_name asc;
+end;
+$$;
+
+revoke all on function catalog.list_product_unit_price_bands(uuid, uuid) from public, anon;
+grant execute on function catalog.list_product_unit_price_bands(uuid, uuid) to authenticated, service_role;
+
+
+create or replace function catalog.get_product_price_band_snapshot(
+  p_tenant_id uuid,
+  p_items jsonb
+)
+returns jsonb
+language plpgsql
+security definer
+set search_path = catalog, iam, pg_temp
+as $$
+declare
+  v_item jsonb;
+  v_product_id uuid;
+  v_product_unit_id uuid;
+  v_items jsonb := '[]'::jsonb;
+  v_can_view_floor boolean;
+  v_row record;
+  v_list_price numeric;
+  v_floor_price numeric;
+  v_list_price_missing boolean;
+  v_floor_price_missing boolean;
+  v_floor_price_hidden boolean;
+begin
+  if auth.uid() is null then
+    raise exception 'not authenticated';
+  end if;
+
+  if not iam.has_permission(p_tenant_id, 'catalog.product.view') then
+    raise exception 'permission denied: catalog.product.view';
+  end if;
+
+  if p_items is null or jsonb_typeof(p_items) <> 'array' then
+    raise exception 'validation_exception: Items must be a JSON array.';
+  end if;
+
+  if jsonb_array_length(p_items) = 0 then
+    raise exception 'validation_exception: At least one item is required.';
+  end if;
+
+  if jsonb_array_length(p_items) > 100 then
+    raise exception 'validation_exception: At most 100 items can be read at once.';
+  end if;
+
+  v_can_view_floor := iam.has_permission(p_tenant_id, 'catalog.product.manage_pricing');
+
+  for v_item in
+    select value
+    from jsonb_array_elements(p_items)
+  loop
+    if coalesce(v_item ->> 'product_id', '') = '' then
+      raise exception 'validation_exception: Product id is required.';
+    end if;
+
+    if coalesce(v_item ->> 'product_unit_id', '') = '' then
+      raise exception 'validation_exception: Product unit id is required.';
+    end if;
+
+    v_product_id := (v_item ->> 'product_id')::uuid;
+    v_product_unit_id := (v_item ->> 'product_unit_id')::uuid;
+
+    select
+      p.id as product_id,
+      pu.id as product_unit_id,
+      pu.unit_name,
+      coalesce(bp.currency, 'VND') as currency,
+      pb.list_price_before_vat,
+      pb.floor_price_before_vat,
+      pu.is_active as is_unit_active,
+      p.business_status::text as product_business_status
+    into v_row
+    from catalog.products p
+    join catalog.product_units pu
+      on pu.product_id = p.id
+     and pu.tenant_id = p.tenant_id
+     and pu.id = v_product_unit_id
+    left join catalog.product_unit_price_bands pb
+      on pb.product_unit_id = pu.id
+     and pb.product_id = p.id
+     and pb.tenant_id = p.tenant_id
+     and pb.status = 'active'
+     and pb.effective_from <= now()
+     and (pb.effective_to is null or pb.effective_to > now())
+    left join catalog.product_base_price_profiles bp
+      on bp.product_id = p.id
+     and bp.tenant_id = p.tenant_id
+    where p.id = v_product_id
+      and p.tenant_id = p_tenant_id
+      and p.business_status <> 'soft_deleted'::catalog.product_business_status;
+
+    if not found then
+      raise exception 'product not found';
+    end if;
+
+    v_list_price := v_row.list_price_before_vat;
+    v_floor_price := v_row.floor_price_before_vat;
+    v_list_price_missing := v_list_price is null;
+    v_floor_price_missing := v_floor_price is null;
+    v_floor_price_hidden := not v_can_view_floor;
+
+    if v_floor_price_hidden then
+      v_floor_price := null;
+    end if;
+
+    v_items := v_items || jsonb_build_array(
+      jsonb_build_object(
+        'product_id', v_row.product_id,
+        'product_unit_id', v_row.product_unit_id,
+        'unit_name', v_row.unit_name,
+        'currency', v_row.currency,
+        'list_price_before_vat', v_list_price,
+        'list_price_before_vat_missing', v_list_price_missing,
+        'floor_price_before_vat', v_floor_price,
+        'floor_price_before_vat_missing', v_floor_price_missing,
+        'floor_price_before_vat_hidden', v_floor_price_hidden,
+        -- legacy aliases for older clients
+        'list_price', v_list_price,
+        'list_price_missing', v_list_price_missing,
+        'floor_price', v_floor_price,
+        'floor_price_missing', v_floor_price_missing,
+        'floor_price_hidden', v_floor_price_hidden,
+        'is_unit_active', coalesce(v_row.is_unit_active, false),
+        'product_business_status', v_row.product_business_status
+      )
+    );
+  end loop;
+
+  return jsonb_build_object('items', v_items);
+end;
+$$;
+
+revoke all on function catalog.get_product_price_band_snapshot(uuid, jsonb)
+  from public, anon;
+grant execute on function catalog.get_product_price_band_snapshot(uuid, jsonb)
+  to authenticated, service_role;
+
+
+create or replace function catalog._product_operational_facts(
+  p_tenant_id uuid,
+  p_product_id uuid
+)
+returns table (
+  has_base_unit boolean,
+  has_images boolean,
+  has_stock boolean,
+  has_base_price boolean,
+  has_price_band boolean,
+  has_required_custom_fields boolean,
+  stock_mode text,
+  base_price_mode text
+)
+language sql
+stable
+security definer
+set search_path = catalog, pg_temp
+as $$
+  select
+    exists (
+      select 1
+      from catalog.product_units u
+      where u.product_id = p_product_id
+        and u.tenant_id = p_tenant_id
+        and u.is_base_unit = true
+    ) as has_base_unit,
+    exists (
+      select 1
+      from catalog.product_images i
+      where i.product_id = p_product_id
+        and i.tenant_id = p_tenant_id
+    ) as has_images,
+    exists (
+      select 1
+      from catalog.product_stock_profiles sp
+      where sp.product_id = p_product_id
+        and sp.tenant_id = p_tenant_id
+    ) as has_stock,
+    exists (
+      select 1
+      from catalog.product_base_price_profiles bp
+      where bp.product_id = p_product_id
+        and bp.tenant_id = p_tenant_id
+        and bp.base_price_amount is not null
+    ) as has_base_price,
+    exists (
+      select 1
+      from catalog.product_unit_price_bands pb
+      join catalog.product_units bu
+        on bu.id = pb.product_unit_id
+       and bu.product_id = p_product_id
+       and bu.tenant_id = p_tenant_id
+       and bu.is_base_unit = true
+      where pb.product_id = p_product_id
+        and pb.tenant_id = p_tenant_id
+        and pb.status = 'active'
+        and pb.effective_from <= now()
+        and (pb.effective_to is null or pb.effective_to > now())
+        and pb.list_price_before_vat is not null
+        and pb.list_price_after_vat is not null
+    ) as has_price_band,
+    catalog._product_has_required_custom_fields(p_tenant_id, p_product_id)
+      as has_required_custom_fields,
+    coalesce(
+      (
+        select sp.mode
+        from catalog.product_stock_profiles sp
+        where sp.product_id = p_product_id
+          and sp.tenant_id = p_tenant_id
+        limit 1
+      ),
+      'basic'
+    ) as stock_mode,
+    coalesce(
+      (
+        select case
+          when bp.mode = 'costingModule' then 'costing_module'
+          else 'manual'
+        end
+        from catalog.product_base_price_profiles bp
+        where bp.product_id = p_product_id
+          and bp.tenant_id = p_tenant_id
+        limit 1
+      ),
+      'manual'
+    ) as base_price_mode;
+$$;
+
+create or replace function catalog.search_products(
+  p_tenant_id uuid,
+  p_keyword text default null,
+  p_business_statuses text[] default array['active']::text[],
+  p_readiness_filter text default null,
+  p_include_soft_deleted boolean default false,
+  p_limit int default 50,
+  p_offset int default 0,
+  p_custom_field_filters jsonb default '[]'::jsonb,
+  p_sort_order text default 'updated_at_desc'
+)
+returns table (
+  product_id uuid,
+  name text,
+  trade_name text,
+  sku text,
+  barcode text,
+  primary_image_url text,
+  business_status text,
+  is_soft_deleted boolean,
+  base_unit_name text,
+  stock_qty numeric,
+  list_price numeric,
+  floor_price numeric,
+  updated_at timestamptz,
+  has_base_unit boolean,
+  has_images boolean,
+  has_stock boolean,
+  has_base_price boolean,
+  has_price_band boolean,
+  has_required_custom_fields boolean,
+  stock_mode text,
+  base_price_mode text,
+  custom_field_values jsonb,
+  total_count bigint
+)
+language plpgsql
+security definer
+set search_path = catalog, iam, extensions, pg_temp
+as $$
+declare
+  v_keyword text;
+  v_keyword_normalized text;
+  v_keyword_unaccented text;
+  v_tsquery tsquery;
+  v_sort_order text;
+begin
+  if auth.uid() is null then
+    raise exception 'not authenticated';
+  end if;
+
+  if not iam.has_permission(p_tenant_id, 'catalog.product.view') then
+    raise exception 'permission denied: catalog.product.view';
+  end if;
+
+  v_keyword := nullif(btrim(coalesce(p_keyword, '')), '');
+  v_keyword_normalized := nullif(lower(v_keyword), '');
+  v_keyword_unaccented := nullif(
+    btrim(catalog.unaccent_immutable(coalesce(v_keyword, ''))),
+    ''
+  );
+  if v_keyword_unaccented is null then
+    v_tsquery := null;
+  else
+    v_tsquery := websearch_to_tsquery('simple', v_keyword_unaccented);
+    -- Empty / no-token query → no FTS clause (keep sku/barcode fast-path).
+    if numnode(v_tsquery) = 0 then
+      v_tsquery := null;
+    end if;
+  end if;
+
+  v_sort_order := case
+    when p_sort_order = 'relevance_desc' then 'relevance_desc'
+    else 'updated_at_desc'
+  end;
+
+  return query
+  with filtered as (
+    select
+      p.id,
+      p.name,
+      p.trade_name,
+      p.sku,
+      p.barcode,
+      p.search_document,
+      (
+        select coalesce(i.file_url, i.storage_key)
+        from catalog.product_images i
+        where i.product_id = p.id
+          and i.tenant_id = p_tenant_id
+        order by i.is_primary desc, i.sort_order asc, i.created_at asc
+        limit 1
+      ) as primary_image_url,
+      p.business_status::text as business_status,
+      (p.business_status = 'soft_deleted'::catalog.product_business_status) as is_soft_deleted,
+      (
+        select u.unit_name
+        from catalog.product_units u
+        where u.product_id = p.id
+          and u.tenant_id = p_tenant_id
+          and u.is_base_unit = true
+        limit 1
+      ) as base_unit_name,
+      (
+        select sp.basic_stock_quantity_base
+        from catalog.product_stock_profiles sp
+        where sp.product_id = p.id
+          and sp.tenant_id = p_tenant_id
+        limit 1
+      ) as stock_qty,
+      (
+        select pb.list_price_before_vat
+        from catalog.product_unit_price_bands pb
+        join catalog.product_units bu
+          on bu.id = pb.product_unit_id
+         and bu.product_id = p.id
+         and bu.is_base_unit = true
+        where pb.product_id = p.id
+          and pb.tenant_id = p_tenant_id
+          and pb.status = 'active'
+          and pb.effective_from <= now()
+          and (pb.effective_to is null or pb.effective_to > now())
+        limit 1
+      ) as list_price,
+      (
+        select pb.floor_price_before_vat
+        from catalog.product_unit_price_bands pb
+        join catalog.product_units bu
+          on bu.id = pb.product_unit_id
+         and bu.product_id = p.id
+         and bu.is_base_unit = true
+        where pb.product_id = p.id
+          and pb.tenant_id = p_tenant_id
+          and pb.status = 'active'
+          and pb.effective_from <= now()
+          and (pb.effective_to is null or pb.effective_to > now())
+        limit 1
+      ) as floor_price,
+      p.updated_at,
+      f.has_base_unit,
+      f.has_images,
+      f.has_stock,
+      f.has_base_price,
+      f.has_price_band,
+      f.has_required_custom_fields,
+      f.stock_mode,
+      f.base_price_mode
+    from catalog.products p
+    cross join lateral catalog._product_operational_facts(p_tenant_id, p.id) f
+    where p.tenant_id = p_tenant_id
+      and (
+        p_include_soft_deleted
+        or p.business_status <> 'soft_deleted'::catalog.product_business_status
+        or 'soft_deleted' = any (p_business_statuses)
+      )
+      and p.business_status::text = any (p_business_statuses)
+      and (
+        v_keyword is null
+        or (v_tsquery is not null and p.search_document @@ v_tsquery)
+        or (v_keyword_normalized is not null and p.sku = v_keyword_normalized)
+        or (v_keyword is not null and p.barcode = btrim(v_keyword))
+        or (
+          v_keyword_normalized is not null
+          and length(v_keyword_normalized) >= 2
+          and p.sku like v_keyword_normalized || '%'
+        )
+      )
+      and catalog._product_matches_custom_field_filters(
+        p_tenant_id,
+        p.id,
+        coalesce(p_custom_field_filters, '[]'::jsonb)
+      )
+  ),
+  readiness_filtered as (
+    select *
+    from filtered f
+    where p_readiness_filter is null
+      or (
+        p_readiness_filter = 'ready_to_sell'
+        and catalog._product_readiness_is_ready(
+          f.has_base_unit, f.has_images, f.has_stock, f.has_base_price,
+          f.has_price_band, f.has_required_custom_fields, f.stock_mode, f.base_price_mode
+        )
+      )
+      or (
+        p_readiness_filter = 'incomplete'
+        and not catalog._product_readiness_is_ready(
+          f.has_base_unit, f.has_images, f.has_stock, f.has_base_price,
+          f.has_price_band, f.has_required_custom_fields, f.stock_mode, f.base_price_mode
+        )
+      )
+  ),
+  counted as (
+    select count(*)::bigint as total_count from readiness_filtered
+  )
+  select
+    rf.id as product_id,
+    rf.name,
+    rf.trade_name,
+    rf.sku,
+    rf.barcode,
+    rf.primary_image_url,
+    rf.business_status,
+    rf.is_soft_deleted,
+    rf.base_unit_name,
+    rf.stock_qty,
+    rf.list_price,
+    rf.floor_price,
+    rf.updated_at,
+    rf.has_base_unit,
+    rf.has_images,
+    rf.has_stock,
+    rf.has_base_price,
+    rf.has_price_band,
+    rf.has_required_custom_fields,
+    rf.stock_mode,
+    rf.base_price_mode,
+    catalog._product_custom_field_list_values_json(p_tenant_id, rf.id) as custom_field_values,
+    c.total_count
+  from readiness_filtered rf
+  cross join counted c
+  order by
+    case when rf.business_status = 'active' then 0 else 1 end,
+    case
+      when v_keyword is not null
+        and v_sort_order = 'relevance_desc'
+        and v_tsquery is not null
+      then ts_rank_cd(rf.search_document, v_tsquery, 32)
+      else null
+    end desc nulls last,
+    rf.updated_at desc,
+    rf.name asc
+  limit greatest(p_limit, 0)
+  offset greatest(p_offset, 0);
+end;
+$$;
+
+create or replace function catalog.find_product_by_barcode(
+  p_tenant_id uuid,
+  p_barcode text
+)
+returns table (
+  product_id uuid,
+  name text,
+  trade_name text,
+  sku text,
+  barcode text,
+  primary_image_url text,
+  business_status text,
+  is_soft_deleted boolean,
+  base_unit_name text,
+  stock_qty numeric,
+  list_price numeric,
+  floor_price numeric,
+  updated_at timestamptz,
+  has_base_unit boolean,
+  has_images boolean,
+  has_stock boolean,
+  has_base_price boolean,
+  has_price_band boolean,
+  has_required_custom_fields boolean,
+  stock_mode text,
+  base_price_mode text
+)
+language plpgsql
+security definer
+set search_path = catalog, iam, pg_temp
+as $$
+declare
+  v_barcode text;
+begin
+  if auth.uid() is null then
+    raise exception 'not authenticated';
+  end if;
+
+  if not iam.has_permission(p_tenant_id, 'catalog.product.view') then
+    raise exception 'permission denied: catalog.product.view';
+  end if;
+
+  v_barcode := catalog._normalize_product_barcode(p_barcode);
+  if v_barcode is null then
+    return;
+  end if;
+
+  return query
+  select
+    p.id as product_id,
+    p.name,
+    p.trade_name,
+    p.sku,
+    p.barcode,
+    (
+      select coalesce(i.file_url, i.storage_key)
+      from catalog.product_images i
+      where i.product_id = p.id
+        and i.tenant_id = p_tenant_id
+      order by i.is_primary desc, i.sort_order asc
+      limit 1
+    ) as primary_image_url,
+    p.business_status::text as business_status,
+    false as is_soft_deleted,
+    (
+      select u.unit_name
+      from catalog.product_units u
+      where u.product_id = p.id
+        and u.tenant_id = p_tenant_id
+        and u.is_base_unit = true
+      limit 1
+    ) as base_unit_name,
+    (
+      select sp.basic_stock_quantity_base
+      from catalog.product_stock_profiles sp
+      where sp.product_id = p.id
+        and sp.tenant_id = p_tenant_id
+      limit 1
+    ) as stock_qty,
+    (
+      select pb.list_price_before_vat
+      from catalog.product_unit_price_bands pb
+      join catalog.product_units bu
+        on bu.id = pb.product_unit_id
+       and bu.product_id = p.id
+       and bu.is_base_unit = true
+      where pb.product_id = p.id
+        and pb.tenant_id = p_tenant_id
+          and pb.status = 'active'
+          and pb.effective_from <= now()
+          and (pb.effective_to is null or pb.effective_to > now())
+      limit 1
+    ) as list_price,
+    (
+      select pb.floor_price_before_vat
+      from catalog.product_unit_price_bands pb
+      join catalog.product_units bu
+        on bu.id = pb.product_unit_id
+       and bu.product_id = p.id
+       and bu.is_base_unit = true
+      where pb.product_id = p.id
+        and pb.tenant_id = p_tenant_id
+          and pb.status = 'active'
+          and pb.effective_from <= now()
+          and (pb.effective_to is null or pb.effective_to > now())
+      limit 1
+    ) as floor_price,
+    p.updated_at,
+    f.has_base_unit,
+    f.has_images,
+    f.has_stock,
+    f.has_base_price,
+    f.has_price_band,
+    f.has_required_custom_fields,
+    f.stock_mode,
+    f.base_price_mode
+  from catalog.products p
+  cross join lateral catalog._product_operational_facts(p_tenant_id, p.id) f
+  where p.tenant_id = p_tenant_id
+    and p.business_status <> 'soft_deleted'::catalog.product_business_status
+    and p.barcode = v_barcode
+  limit 1;
+end;
+$$;
+
+create or replace function catalog.get_product_control_center(
+  p_tenant_id uuid,
+  p_product_id uuid
+)
+returns jsonb
+language plpgsql
+security definer
+set search_path = catalog, iam, pg_temp
+as $$
+declare
+  v_result jsonb;
+begin
+  perform catalog._assert_product_permission(p_tenant_id, 'catalog.product.view_detail');
+
+  select jsonb_build_object(
+    'product_id', p.id,
+    'name', p.name,
+    'trade_name', p.trade_name,
+    'sku', p.sku,
+    'barcode', p.barcode,
+    'description', p.description,
+    'note', p.note,
+    'business_status', p.business_status::text,
+    'is_soft_deleted', (p.business_status = 'soft_deleted'::catalog.product_business_status),
+    'primary_image_url', (
+      select coalesce(i.file_url, i.storage_key)
+      from catalog.product_images i
+      where i.product_id = p.id and i.tenant_id = p_tenant_id
+      order by i.is_primary desc, i.sort_order asc
+      limit 1
+    ),
+    'images', coalesce((
+      select jsonb_agg(coalesce(i.file_url, i.storage_key) order by i.is_primary desc, i.sort_order asc)
+      from catalog.product_images i
+      where i.product_id = p.id and i.tenant_id = p_tenant_id
+    ), '[]'::jsonb),
+    'base_unit_name', (
+      select u.unit_name
+      from catalog.product_units u
+      where u.product_id = p.id and u.is_base_unit = true
+      limit 1
+    ),
+    'conversion_units', coalesce((
+      select jsonb_agg(jsonb_build_object(
+        'name', u.unit_name,
+        'conversion_rate', u.conversion_rate_to_base,
+        'is_active', true
+      ) order by u.created_at)
+      from catalog.product_units u
+      where u.product_id = p.id
+        and u.tenant_id = p_tenant_id
+        and u.is_base_unit = false
+    ), '[]'::jsonb),
+    'stock_mode', f.stock_mode,
+    'stock_qty', (
+      select sp.basic_stock_quantity_base
+      from catalog.product_stock_profiles sp
+      where sp.product_id = p.id
+      limit 1
+    ),
+    'stock_version', (
+      select sp.stock_version
+      from catalog.product_stock_profiles sp
+      where sp.product_id = p.id
+      limit 1
+    ),
+    'base_price_mode', f.base_price_mode,
+    'base_price_amount', (
+      select bp.base_price_amount
+      from catalog.product_base_price_profiles bp
+      where bp.product_id = p.id
+      limit 1
+    ),
+    'base_price_currency', coalesce((
+      select bp.currency
+      from catalog.product_base_price_profiles bp
+      where bp.product_id = p.id
+      limit 1
+    ), 'VND'),
+    'list_price', (
+      select pb.list_price_before_vat
+      from catalog.product_unit_price_bands pb
+      join catalog.product_units bu on bu.id = pb.product_unit_id and bu.is_base_unit = true
+      where pb.product_id = p.id
+          and pb.status = 'active'
+          and pb.effective_from <= now()
+          and (pb.effective_to is null or pb.effective_to > now())
+      limit 1
+    ),
+    'floor_price', (
+      select pb.floor_price_before_vat
+      from catalog.product_unit_price_bands pb
+      join catalog.product_units bu on bu.id = pb.product_unit_id and bu.is_base_unit = true
+      where pb.product_id = p.id
+          and pb.status = 'active'
+          and pb.effective_from <= now()
+          and (pb.effective_to is null or pb.effective_to > now())
+      limit 1
+    ),
+    'price_band_source_type', (
+      select pb.source_type
+      from catalog.product_unit_price_bands pb
+      join catalog.product_units bu on bu.id = pb.product_unit_id and bu.is_base_unit = true
+      where pb.product_id = p.id
+          and pb.status = 'active'
+          and pb.effective_from <= now()
+          and (pb.effective_to is null or pb.effective_to > now())
+      limit 1
+    ),
+    'store_price_rule_name', (
+      select sr.name
+      from catalog.product_unit_price_bands pb
+      join catalog.product_units bu on bu.id = pb.product_unit_id and bu.is_base_unit = true
+      left join catalog.store_price_rules sr on sr.id = pb.store_price_rule_id
+      where pb.product_id = p.id
+          and pb.status = 'active'
+          and pb.effective_from <= now()
+          and (pb.effective_to is null or pb.effective_to > now())
+      limit 1
+    ),
+    'is_custom_override', coalesce((
+      select pb.is_custom_override
+      from catalog.product_unit_price_bands pb
+      join catalog.product_units bu on bu.id = pb.product_unit_id and bu.is_base_unit = true
+      where pb.product_id = p.id
+          and pb.status = 'active'
+          and pb.effective_from <= now()
+          and (pb.effective_to is null or pb.effective_to > now())
+      limit 1
+    ), false),
+    'has_base_unit', f.has_base_unit,
+    'has_images', f.has_images,
+    'has_stock', f.has_stock,
+    'has_base_price', f.has_base_price,
+    'has_price_band', f.has_price_band,
+    'has_required_custom_fields', f.has_required_custom_fields,
+    'custom_field_group_cards',
+      catalog._product_custom_field_group_cards_json(p_tenant_id, p.id),
+    'change_history_preview', coalesce((
+      select jsonb_agg(jsonb_build_object(
+        'id', h.id,
+        'occurred_at', h.created_at,
+        'actor_display_name', left(h.actor_id::text, 8),
+        'change_type', h.action,
+        'summary', h.action,
+        'value_before', h.payload ->> 'value_before',
+        'value_after', h.payload ->> 'value_after'
+      ) order by h.created_at desc)
+      from (
+        select *
+        from catalog.product_change_history h
+        where h.product_id = p.id and h.tenant_id = p_tenant_id
+        order by h.created_at desc
+        limit 3
+      ) h
+    ), '[]'::jsonb)
+  )
+  into v_result
+  from catalog.products p
+  cross join lateral catalog._product_operational_facts(p_tenant_id, p.id) f
+  where p.tenant_id = p_tenant_id
+    and p.id = p_product_id
+    and p.business_status <> 'soft_deleted'::catalog.product_business_status;
+
+  if v_result is null then
+    raise exception 'product not found';
+  end if;
+
+  return v_result;
+end;
+$$;
+
+
+-- ---------------------------------------------------------------------------
+-- Writers that still referenced list_price_amount / floor_price_amount
+-- ---------------------------------------------------------------------------
+
+-- OUT column rename (list_price/floor_price → *_before_vat) requires DROP;
+-- CREATE OR REPLACE cannot change return row type (42P13).
+drop function if exists catalog.apply_store_price_rule(
+  uuid, uuid, uuid, uuid, boolean, bigint
+);
+
+create or replace function catalog.apply_store_price_rule(
+  p_tenant_id uuid,
+  p_product_id uuid,
+  p_product_unit_id uuid default null,
+  p_store_price_rule_id uuid default null,
+  p_confirm_overwrite boolean default false,
+  p_base_price_version bigint default null
+)
+returns table (
+  product_id uuid,
+  product_unit_id uuid,
+  list_price_before_vat numeric,
+  floor_price_before_vat numeric,
+  store_price_rule_id uuid
+)
+language plpgsql
+security definer
+set search_path = catalog, iam, pg_temp
+as $$
+declare
+  v_actor_id uuid;
+  v_unit_id uuid;
+  v_base_price numeric;
+  v_base_price_version bigint;
+  v_rule catalog.store_price_rules%rowtype;
+  v_prices record;
+  v_existing_list numeric;
+  v_existing_floor numeric;
+begin
+  v_actor_id := auth.uid();
+  if v_actor_id is null then
+    raise exception 'not authenticated';
+  end if;
+
+  if not iam.has_permission(p_tenant_id, 'catalog.product.manage_pricing') then
+    raise exception 'permission denied: catalog.product.manage_pricing';
+  end if;
+
+  if not exists (
+    select 1 from catalog.products
+    where id = p_product_id and tenant_id = p_tenant_id
+      and business_status <> 'soft_deleted'::catalog.product_business_status
+  ) then
+    raise exception 'product not found';
+  end if;
+
+  perform catalog._ensure_product_has_base_unit(p_tenant_id, p_product_id);
+
+  v_unit_id := catalog._resolve_base_product_unit_id(p_tenant_id, p_product_id, p_product_unit_id);
+  if v_unit_id is null then
+    raise exception 'missing base unit';
+  end if;
+
+  select bp.base_price_amount,
+         floor(extract(epoch from bp.updated_at) * 1000)::bigint
+  into v_base_price, v_base_price_version
+  from catalog.product_base_price_profiles bp
+  where bp.product_id = p_product_id
+    and bp.tenant_id = p_tenant_id;
+
+  if v_base_price is null then
+    raise exception 'missing_base_price';
+  end if;
+
+  if p_base_price_version is not null and p_base_price_version <> v_base_price_version then
+    raise exception 'stale_base_price';
+  end if;
+
+  select * into v_rule
+  from catalog.store_price_rules r
+  where r.tenant_id = p_tenant_id
+    and (p_store_price_rule_id is null or r.id = p_store_price_rule_id)
+  limit 1;
+
+  if v_rule.id is null then
+    raise exception 'store_price_rule_not_found';
+  end if;
+
+  if v_rule.status <> 'active' then
+    raise exception 'store_price_rule_inactive';
+  end if;
+
+  select pb.list_price_before_vat, pb.floor_price_before_vat
+  into v_existing_list, v_existing_floor
+  from catalog.product_unit_price_bands pb
+  where pb.product_id = p_product_id
+    and pb.product_unit_id = v_unit_id
+    and pb.status = 'active'
+  limit 1;
+
+  if v_existing_list is not null and v_existing_floor is not null and not p_confirm_overwrite then
+    raise exception 'price_band_overwrite_required';
+  end if;
+
+  select * into v_prices
+  from catalog._compute_suggested_prices(
+    v_base_price,
+    v_rule.list_markup_ratio,
+    v_rule.floor_markup_ratio
+  );
+
+  insert into catalog.product_unit_price_bands (
+    tenant_id,
+    product_id,
+    product_unit_id,
+    list_price_before_vat,
+    floor_price_before_vat,
+    list_price_after_vat,
+    effective_from,
+    status,
+    store_price_rule_id,
+    source_type,
+    is_custom_override,
+    updated_at
+  )
+  values (
+    p_tenant_id,
+    p_product_id,
+    v_unit_id,
+    v_prices.suggested_list_price,
+    v_prices.suggested_floor_price,
+    v_prices.suggested_list_price,
+    now(),
+    'active',
+    v_rule.id,
+    'ruleBased',
+    false,
+    now()
+  )
+  on conflict (product_id, product_unit_id) where (status = 'active') do update set
+    list_price_before_vat = excluded.list_price_before_vat,
+    floor_price_before_vat = excluded.floor_price_before_vat,
+    list_price_after_vat = excluded.list_price_after_vat,
+    effective_from = excluded.effective_from,
+    status = excluded.status,
+    store_price_rule_id = excluded.store_price_rule_id,
+    source_type = excluded.source_type,
+    is_custom_override = excluded.is_custom_override,
+    updated_at = now();
+
+  insert into catalog.product_change_history (tenant_id, product_id, action, payload, actor_id)
+  values (
+    p_tenant_id,
+    p_product_id,
+    'apply_store_price_rule',
+    jsonb_build_object(
+      'product_unit_id', v_unit_id,
+      'store_price_rule_id', v_rule.id,
+      'list_price_before_vat', v_prices.suggested_list_price,
+      'floor_price_before_vat', v_prices.suggested_floor_price,
+      'previous_list_price_before_vat', v_existing_list,
+      'previous_floor_price_before_vat', v_existing_floor
+    ),
+    v_actor_id
+  );
+
+  return query select
+    p_product_id,
+    v_unit_id,
+    v_prices.suggested_list_price,
+    v_prices.suggested_floor_price,
+    v_rule.id;
+end;
+$$;
+
+revoke all on function catalog.apply_store_price_rule(uuid, uuid, uuid, uuid, boolean, bigint) from public, anon;
+grant execute on function catalog.apply_store_price_rule(uuid, uuid, uuid, uuid, boolean, bigint)
+  to authenticated, service_role;
+
+
+-- Param rename (p_list_price/p_floor_price → *_before_vat) requires DROP (42P13).
+drop function if exists catalog.set_initial_price_band(
+  uuid, uuid, numeric, numeric, uuid
+);
+
+create or replace function catalog.set_initial_price_band(
+  p_tenant_id uuid,
+  p_product_id uuid,
+  p_list_price_before_vat numeric,
+  p_floor_price_before_vat numeric,
+  p_product_unit_id uuid default null
+)
+returns void
+language plpgsql
+security definer
+set search_path = catalog, iam, pg_temp
+as $$
+declare
+  v_actor_id uuid;
+  v_product_unit_id uuid;
+begin
+  v_actor_id := auth.uid();
+  if v_actor_id is null then
+    raise exception 'not authenticated';
+  end if;
+  if not iam.has_permission(p_tenant_id, 'catalog.product.manage_pricing') then
+    raise exception 'permission denied: catalog.product.manage_pricing';
+  end if;
+  if not exists (select 1 from catalog.products where id = p_product_id and tenant_id = p_tenant_id) then
+    raise exception 'product not found';
+  end if;
+  perform catalog._ensure_product_has_base_unit(p_tenant_id, p_product_id);
+  if p_floor_price_before_vat is not null
+     and p_list_price_before_vat is not null
+     and p_floor_price_before_vat > p_list_price_before_vat then
+    raise exception 'floor_price_greater_than_list_price';
+  end if;
+
+  v_product_unit_id := p_product_unit_id;
+  if v_product_unit_id is null then
+    select pu.id into v_product_unit_id
+    from catalog.product_units pu
+    where pu.product_id = p_product_id
+      and pu.tenant_id = p_tenant_id
+      and pu.is_base_unit = true
+    limit 1;
+  end if;
+  if v_product_unit_id is null then
+    raise exception 'missing base unit';
+  end if;
+
+  insert into catalog.product_unit_price_bands (
+    tenant_id,
+    product_id,
+    product_unit_id,
+    list_price_before_vat,
+    floor_price_before_vat,
+    list_price_after_vat,
+    effective_from,
+    status,
+    source_type,
+    is_custom_override,
+    updated_at
+  )
+  values (
+    p_tenant_id,
+    p_product_id,
+    v_product_unit_id,
+    p_list_price_before_vat,
+    p_floor_price_before_vat,
+    p_list_price_before_vat,
+    now(),
+    'active',
+    'manual',
+    true,
+    now()
+  )
+  on conflict (product_id, product_unit_id) where (status = 'active') do update set
+    list_price_before_vat = excluded.list_price_before_vat,
+    floor_price_before_vat = excluded.floor_price_before_vat,
+    list_price_after_vat = excluded.list_price_after_vat,
+    effective_from = excluded.effective_from,
+    status = excluded.status,
+    source_type = excluded.source_type,
+    is_custom_override = excluded.is_custom_override,
+    updated_at = now();
+
+  insert into catalog.product_change_history (tenant_id, product_id, action, payload, actor_id)
+  values (
+    p_tenant_id,
+    p_product_id,
+    'set_initial_price_band',
+    jsonb_build_object(
+      'product_unit_id', v_product_unit_id,
+      'list_price_before_vat', p_list_price_before_vat,
+      'floor_price_before_vat', p_floor_price_before_vat
+    ),
+    v_actor_id
+  );
+end;
+$$;
+
+revoke all on function catalog.set_initial_price_band(uuid, uuid, numeric, numeric, uuid) from public, anon;
+grant execute on function catalog.set_initial_price_band(uuid, uuid, numeric, numeric, uuid)
+  to authenticated, service_role;
+
+
+drop function if exists catalog.create_guided_product(
+  uuid, uuid, text, text, text, text, text, jsonb, uuid, text,
+  numeric, numeric, numeric, numeric, boolean, jsonb, uuid
+);
+drop function if exists catalog.create_guided_product(
+  uuid, uuid, text, text, text, text, text, jsonb, uuid, text,
+  numeric, numeric, numeric, numeric, boolean, jsonb, uuid
+);
+
+create or replace function catalog.create_guided_product(
+  p_tenant_id uuid,
+  p_actor_id uuid,
+  p_name text,
+  p_reference_id text,
+  p_trade_name text default null,
+  p_sku text default null,
+  p_barcode text default null,
+  p_images jsonb default '[]'::jsonb,
+  p_tenant_unit_id uuid default null,
+  p_new_unit_name text default null,
+  p_basic_stock_quantity_base numeric default null,
+  p_base_price numeric default null,
+  p_list_price_before_vat numeric default null,
+  p_floor_price_before_vat numeric default null,
+  p_use_store_price_rule boolean default false,
+  p_custom_field_values jsonb default '[]'::jsonb,
+  p_idempotency_key uuid default null
+)
+returns jsonb
+language plpgsql
+security definer
+set search_path = catalog, iam, pg_temp
+as $$
+declare
+  v_product_id uuid;
+  v_existing boolean := false;
+  v_readiness_status text;
+  v_readiness_blockers jsonb;
+begin
+  if auth.uid() is null then
+    raise exception 'not authenticated';
+  end if;
+  if p_actor_id is null or p_actor_id <> auth.uid() then
+    raise exception 'actor mismatch';
+  end if;
+  if not iam.has_permission(p_tenant_id, 'catalog.product.create') then
+    raise exception 'permission denied: catalog.product.create';
+  end if;
+
+  if p_idempotency_key is not null then
+    select p.id into v_product_id
+    from catalog.products p
+    where p.tenant_id = p_tenant_id
+      and p.idempotency_key = p_idempotency_key;
+    v_existing := found;
+  end if;
+  if v_existing then
+    select r.readiness_status, r.readiness_blockers
+    into v_readiness_status, v_readiness_blockers
+    from catalog._refresh_product_readiness(p_tenant_id, v_product_id) r;
+
+    return jsonb_build_object(
+      'product_id', v_product_id,
+      'readiness_status', v_readiness_status,
+      'readiness_blockers', coalesce(v_readiness_blockers, '[]'::jsonb)
+    );
+  end if;
+
+  if (p_tenant_unit_id is not null or nullif(btrim(coalesce(p_new_unit_name, '')), '') is not null)
+     and not iam.has_permission(p_tenant_id, 'catalog.product.manage_units') then
+    raise exception 'permission denied: catalog.product.manage_units';
+  end if;
+  if p_basic_stock_quantity_base is not null
+     and not iam.has_permission(p_tenant_id, 'catalog.product.manage_stock') then
+    raise exception 'permission denied: catalog.product.manage_stock';
+  end if;
+  if (p_base_price is not null or p_list_price_before_vat is not null or p_floor_price_before_vat is not null or p_use_store_price_rule)
+     and not iam.has_permission(p_tenant_id, 'catalog.product.manage_pricing') then
+    raise exception 'permission denied: catalog.product.manage_pricing';
+  end if;
+  if jsonb_array_length(coalesce(p_custom_field_values, '[]'::jsonb)) > 0
+     and not iam.has_permission(p_tenant_id, 'catalog.product.update') then
+    raise exception 'permission denied: catalog.product.update';
+  end if;
+
+  if p_basic_stock_quantity_base is not null
+     and (p_basic_stock_quantity_base < 0 or p_basic_stock_quantity_base <> trunc(p_basic_stock_quantity_base)) then
+    raise exception 'validation_exception: initial stock must be a non-negative integer';
+  end if;
+  if (p_basic_stock_quantity_base is not null or p_base_price is not null or p_list_price_before_vat is not null
+      or p_floor_price_before_vat is not null or p_use_store_price_rule)
+     and p_tenant_unit_id is null
+     and nullif(btrim(coalesce(p_new_unit_name, '')), '') is null then
+    raise exception 'validation_exception: base unit is required for stock or pricing';
+  end if;
+  if p_base_price < 0 or p_list_price_before_vat < 0 or p_floor_price_before_vat < 0 then
+    raise exception 'validation_exception: prices cannot be negative';
+  end if;
+  if p_floor_price_before_vat is not null
+     and p_list_price_before_vat is not null
+     and p_floor_price_before_vat > p_list_price_before_vat then
+    raise exception 'floor_price_greater_than_list_price';
+  end if;
+
+  v_product_id := catalog.create_product(
+    p_tenant_id => p_tenant_id,
+    p_name => p_name,
+    p_reference_id => p_reference_id,
+    p_actor_id => p_actor_id,
+    p_trade_name => p_trade_name,
+    p_sku => p_sku,
+    p_barcode => p_barcode,
+    p_images => p_images,
+    p_idempotency_key => p_idempotency_key
+  );
+
+  if p_tenant_unit_id is not null or nullif(btrim(coalesce(p_new_unit_name, '')), '') is not null then
+    perform catalog.set_product_base_unit(
+      p_tenant_id, v_product_id, p_tenant_unit_id, p_new_unit_name
+    );
+  end if;
+  if p_basic_stock_quantity_base is not null then
+    perform catalog.set_basic_stock_quantity_base(p_tenant_id, v_product_id, 'basic', p_basic_stock_quantity_base);
+  end if;
+  if p_base_price is not null then
+    perform catalog.set_manual_base_price(p_tenant_id, v_product_id, 'manual', p_base_price, 'VND');
+  end if;
+  if p_use_store_price_rule then
+    perform 1 from catalog.apply_store_price_rule(p_tenant_id, v_product_id);
+  elsif p_list_price_before_vat is not null or p_floor_price_before_vat is not null then
+    perform catalog.set_initial_price_band(
+      p_tenant_id, v_product_id, p_list_price_before_vat, p_floor_price_before_vat, null
+    );
+  end if;
+  if jsonb_array_length(coalesce(p_custom_field_values, '[]'::jsonb)) > 0 then
+    perform catalog.upsert_product_custom_field_values(
+      p_tenant_id, v_product_id, p_custom_field_values
+    );
+  end if;
+
+  select r.readiness_status, r.readiness_blockers
+  into v_readiness_status, v_readiness_blockers
+  from catalog._refresh_product_readiness(p_tenant_id, v_product_id) r;
+
+  return jsonb_build_object(
+    'product_id', v_product_id,
+    'readiness_status', v_readiness_status,
+    'readiness_blockers', coalesce(v_readiness_blockers, '[]'::jsonb)
+  );
+end;
+$$;
+
+revoke all on function catalog.create_guided_product(
+  uuid, uuid, text, text, text, text, text, jsonb, uuid, text,
+  numeric, numeric, numeric, numeric, boolean, jsonb, uuid
+) from public, anon;
+grant execute on function catalog.create_guided_product(
+  uuid, uuid, text, text, text, text, text, jsonb, uuid, text,
+  numeric, numeric, numeric, numeric, boolean, jsonb, uuid
+) to authenticated, service_role;

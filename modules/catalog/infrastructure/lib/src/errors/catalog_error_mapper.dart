@@ -65,7 +65,9 @@ Object mapCatalogRpcError(RpcException error) {
     return MissingBasePriceException();
   }
 
-  if (message.contains('floor_price_greater_than_list_price')) {
+  if (message.contains('floor_price_greater_than_list_price') ||
+      message.contains('floor_before_vat_greater_than_list_before_vat') ||
+      message.contains('floor_after_vat_greater_than_list_after_vat')) {
     return FloorPriceGreaterThanListPriceException();
   }
 

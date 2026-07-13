@@ -6,25 +6,35 @@ final class ProductPriceBandSnapshotItemDto {
     required this.productUnitId,
     required this.unitName,
     required this.currency,
-    required this.listPriceMissing,
-    required this.floorPriceMissing,
-    required this.floorPriceHidden,
+    required this.listBeforeVatMissing,
+    required this.floorBeforeVatMissing,
+    required this.floorBeforeVatHidden,
     required this.isUnitActive,
     required this.productBusinessStatus,
     required this.capturedAt,
-    this.listPrice,
-    this.floorPrice,
+    this.listBeforeVat,
+    this.floorBeforeVat,
+    this.listAfterVat,
+    this.floorAfterVat,
+    this.effectiveFrom,
+    this.effectiveTo,
+    this.status,
   });
 
   final String productId;
   final String productUnitId;
   final String unitName;
   final String currency;
-  final double? listPrice;
-  final bool listPriceMissing;
-  final double? floorPrice;
-  final bool floorPriceMissing;
-  final bool floorPriceHidden;
+  final int? listBeforeVat;
+  final bool listBeforeVatMissing;
+  final int? floorBeforeVat;
+  final bool floorBeforeVatMissing;
+  final bool floorBeforeVatHidden;
+  final int? listAfterVat;
+  final int? floorAfterVat;
+  final DateTime? effectiveFrom;
+  final DateTime? effectiveTo;
+  final ProductPriceBandStatus? status;
   final bool isUnitActive;
   final ProductBusinessStatus productBusinessStatus;
   final DateTime capturedAt;

@@ -106,8 +106,8 @@ ProductControlCenterReadModel _sampleControlCenterModel({
     ),
     stockQuantity: 150,
     basePriceAmount: 80000,
-    listPrice: hasPriceBand ? 120000 : null,
-    floorPrice: hasPriceBand ? 95000 : null,
+    listBeforeVat: hasPriceBand ? 120000 : null,
+    floorBeforeVat: hasPriceBand ? 95000 : null,
     changeHistoryPreview: [
       ProductChangeHistoryEntryDto(
         id: 'history-1',
@@ -264,7 +264,7 @@ void main() {
       expect(result.units.baseUnitName, 'Hộp');
       expect(result.stock.quantity, 150);
       expect(result.basePrice.amount, 80000);
-      expect(result.priceBand.listPrice, 120000);
+      expect(result.priceBand.listBeforeVat, 120000);
     });
 
     test('scn_e01_u02_fr03_01 returns empty custom field cards', () async {

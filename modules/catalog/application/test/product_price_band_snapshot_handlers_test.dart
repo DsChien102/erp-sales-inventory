@@ -32,11 +32,11 @@ class _FakeProductPriceBandGateway implements IProductPriceBandGateway {
               productUnitId: item.productUnitId,
               unitName: 'Lọ',
               currency: 'VND',
-              listPrice: 120000,
-              listPriceMissing: false,
-              floorPrice: 95000,
-              floorPriceMissing: false,
-              floorPriceHidden: false,
+              listBeforeVat: 120000,
+              listBeforeVatMissing: false,
+              floorBeforeVat: 95000,
+              floorBeforeVatMissing: false,
+              floorBeforeVatHidden: false,
               isUnitActive: true,
               productBusinessStatus: ProductBusinessStatus.active,
               capturedAt: DateTime.utc(1970),
@@ -59,9 +59,14 @@ class _FakeProductPriceBandGateway implements IProductPriceBandGateway {
     required String tenantId,
     required String productId,
     required String productUnitId,
-    required double listPrice,
-    required double floorPrice,
+    required int listBeforeVat,
+    required int listAfterVat,
+    int? floorBeforeVat,
     required PriceBandSourceType sourceType,
+    int? floorAfterVat,
+    DateTime? effectiveFrom,
+    DateTime? effectiveTo,
+    ProductPriceBandStatus? status,
     String? storePriceRuleId,
   }) {
     throw UnimplementedError();
@@ -89,8 +94,8 @@ void main() {
       );
 
       expect(result.items, hasLength(1));
-      expect(result.items.single.listPrice, 120000);
-      expect(result.items.single.listPriceMissing, isFalse);
+      expect(result.items.single.listBeforeVat, 120000);
+      expect(result.items.single.listBeforeVatMissing, isFalse);
       expect(gateway.lastSnapshotItems?.single.productId, 'product-1');
     });
 
@@ -104,9 +109,9 @@ void main() {
                 productUnitId: items.single.productUnitId,
                 unitName: 'Lọ',
                 currency: 'VND',
-                listPriceMissing: true,
-                floorPriceMissing: true,
-                floorPriceHidden: false,
+                listBeforeVatMissing: true,
+                floorBeforeVatMissing: true,
+                floorBeforeVatHidden: false,
                 isUnitActive: true,
                 productBusinessStatus: ProductBusinessStatus.active,
                 capturedAt: DateTime.utc(1970),
@@ -131,8 +136,8 @@ void main() {
         ),
       );
 
-      expect(result.items.single.listPriceMissing, isTrue);
-      expect(result.items.single.listPrice, isNull);
+      expect(result.items.single.listBeforeVatMissing, isTrue);
+      expect(result.items.single.listBeforeVat, isNull);
     });
 
     test('scn_e06_u04_fr01_02 propagates inactive unit', () async {
@@ -145,9 +150,9 @@ void main() {
                 productUnitId: items.single.productUnitId,
                 unitName: 'Thùng',
                 currency: 'VND',
-                listPriceMissing: true,
-                floorPriceMissing: true,
-                floorPriceHidden: false,
+                listBeforeVatMissing: true,
+                floorBeforeVatMissing: true,
+                floorBeforeVatHidden: false,
                 isUnitActive: false,
                 productBusinessStatus: ProductBusinessStatus.active,
                 capturedAt: DateTime.utc(1970),
@@ -173,7 +178,7 @@ void main() {
       );
 
       expect(result.items.single.isUnitActive, isFalse);
-      expect(result.items.single.listPriceMissing, isTrue);
+      expect(result.items.single.listBeforeVatMissing, isTrue);
     });
 
     test('scn_e06_u04_fr02_01 returns floor price', () async {
@@ -194,8 +199,8 @@ void main() {
         ),
       );
 
-      expect(result.items.single.floorPrice, 95000);
-      expect(result.items.single.floorPriceMissing, isFalse);
+      expect(result.items.single.floorBeforeVat, 95000);
+      expect(result.items.single.floorBeforeVatMissing, isFalse);
     });
 
     test('scn_e06_u04_fr02_03 propagates missing floor price', () async {
@@ -208,10 +213,10 @@ void main() {
                 productUnitId: items.single.productUnitId,
                 unitName: 'Lọ',
                 currency: 'VND',
-                listPrice: 100000,
-                listPriceMissing: false,
-                floorPriceMissing: true,
-                floorPriceHidden: false,
+                listBeforeVat: 100000,
+                listBeforeVatMissing: false,
+                floorBeforeVatMissing: true,
+                floorBeforeVatHidden: false,
                 isUnitActive: true,
                 productBusinessStatus: ProductBusinessStatus.active,
                 capturedAt: DateTime.utc(1970),
@@ -236,9 +241,9 @@ void main() {
         ),
       );
 
-      expect(result.items.single.listPrice, 100000);
-      expect(result.items.single.floorPriceMissing, isTrue);
-      expect(result.items.single.floorPrice, isNull);
+      expect(result.items.single.listBeforeVat, 100000);
+      expect(result.items.single.floorBeforeVatMissing, isTrue);
+      expect(result.items.single.floorBeforeVat, isNull);
     });
 
     test('scn_e06_u04_fr04_01 sets capturedAt after gateway read', () async {

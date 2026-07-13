@@ -32,8 +32,8 @@ abstract final class ProductRpcMapper {
       },
       'p_basic_stock_quantity_base': command.basicStockQuantityBase,
       'p_base_price': command.basePrice,
-      'p_list_price': command.listPrice,
-      'p_floor_price': command.floorPrice,
+      'p_list_price_before_vat': command.listBeforeVat,
+      'p_floor_price_before_vat': command.floorBeforeVat,
       'p_use_store_price_rule': command.useStorePriceRule,
       'p_custom_field_values': command.customFieldValues.map((value) => <String, dynamic>{
         'field_id': value.fieldId,
@@ -147,8 +147,15 @@ abstract final class ProductRpcMapper {
       'p_tenant_id': tenantId,
       'p_product_id': productId,
       if (priceBand.productUnitId != null) 'p_product_unit_id': priceBand.productUnitId,
-      'p_list_price': priceBand.listPrice?.amount,
-      'p_floor_price': priceBand.floorPrice?.amount,
+      'p_list_price_before_vat': priceBand.listBeforeVat?.amount,
+      'p_floor_price_before_vat': priceBand.floorBeforeVat?.amount,
+      'p_list_price_after_vat': priceBand.listAfterVat?.amount,
+      if (priceBand.floorAfterVat != null)
+        'p_floor_price_after_vat': priceBand.floorAfterVat!.amount,
+      'p_effective_from': priceBand.effectiveFrom.toUtc().toIso8601String(),
+      if (priceBand.effectiveTo != null)
+        'p_effective_to': priceBand.effectiveTo!.toUtc().toIso8601String(),
+      'p_status': priceBand.status.toWire(),
     };
   }
 

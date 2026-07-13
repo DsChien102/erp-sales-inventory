@@ -361,22 +361,22 @@ class _ProductGuidedStepPriceBandsState extends State<ProductGuidedStepPriceBand
     required double floorPercent,
     required String labelSuffix,
   }) {
-    final listPrice = baseCost * (1 + markupPercent / 100);
-    final floorPrice = baseCost * (1 + floorPercent / 100);
+    final listBeforeVat = baseCost * (1 + markupPercent / 100);
+    final floorBeforeVat = baseCost * (1 + floorPercent / 100);
 
     return Column(
       children: [
         _buildPricePreviewRow(
           context: context,
           title: 'Giá niêm yết gợi ý (+$markupPercent%)',
-          value: _formatCurrency(listPrice),
+          value: _formatCurrency(listBeforeVat),
           subtitle: 'Giá bán chuẩn chưa chiết khấu',
         ),
         const SizedBox(height: VSpacing.space2),
         _buildPricePreviewRow(
           context: context,
           title: 'Giá bán sàn gợi ý (+$floorPercent%)',
-          value: _formatCurrency(floorPrice),
+          value: _formatCurrency(floorBeforeVat),
           subtitle: 'Giá tối thiểu nhân viên được phép bán',
         ),
       ],

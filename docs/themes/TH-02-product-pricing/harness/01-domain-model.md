@@ -52,7 +52,7 @@ erDiagram
 | `ProductStockProfile` | `domain/lib/src/stock/` | Basic vs Advanced stock mode |
 | `ProductBasePriceProfile` | `domain/lib/src/pricing/` | Manual vs Costing-module base price |
 | `StorePriceRule` | `domain/lib/src/pricing/` | Quy tắc giá cấp cửa hàng/tenant (1/tenant) |
-| `ProductUnitPriceBand` | `domain/lib/src/pricing/` | Giá niêm yết + Giá sàn theo UOM |
+| `ProductUnitPriceBand` | `domain/lib/src/pricing/` | Khung giá theo UOM: before/after VAT + cửa sổ hiệu lực + status |
 | `CustomFieldGroup` / `CustomField` | `domain/lib/src/custom_fields/` | Nhóm & trường thông tin bổ sung (tenant-configurable) |
 | `ProductReadiness` | `domain/lib/src/readiness/` | Trạng thái + blocker (computed hoặc cached) |
 
@@ -74,7 +74,8 @@ erDiagram
 | `StockQuantity` | Non-negative integer theo base unit (Foundation; không lưu thập phân) |
 | `BasePriceMode` | `manual` \| `costing_module` |
 | `BasePrice` | Giá cơ sở định giá (manual) |
-| `ListPrice` / `FloorPrice` | Khung giá bán |
+| `Money` | Số nguyên minor units (VND: 1 = 1 đồng); dùng cho list/floor before/after VAT trên `ProductUnitPriceBand` |
+| `ProductPriceBandStatus` | `active` \| `inactive` \| `deleted` — wire snake tương ứng |
 | `PriceRatio` | Tỷ lệ gợi ý từ Store Price Rule |
 | `CustomFieldValue` | Typed value theo định nghĩa Trường thông tin |
 | Field attrs | `required`, `searchable`, `filterable`, `display_on_list`, `sort_order` (group + field) |
@@ -101,7 +102,7 @@ erDiagram
 | `AdjustBasicStockCommand` | EPIC-05/US-02 | Không tạo phiếu kho |
 | `SetStockModeCommand` | EPIC-05/US-01, US-04 | Basic → Advanced; US-04 **pending** |
 | `SetStorePriceRuleCommand` | EPIC-06/US-02 | Store-level rule |
-| `SetProductUnitPriceBandCommand` | EPIC-06/US-03 | List + floor per UOM |
+| `SetProductUnitPriceBandCommand` | EPIC-06/US-03 | Before-VAT list+floor per UOM; after-VAT optional; effective + status |
 | `UpdateProductProfileCommand` | EPIC-07/US-01 | Nhận diện, không đổi mode |
 | `UpdateProductImagesCommand` | EPIC-07/US-01 | |
 | `DeactivateProductCommand` | EPIC-07/US-02 | |
@@ -165,7 +166,7 @@ erDiagram
 | DR-04 | Basic stock theo base unit; không tạo phiếu nhập |
 | DR-05 | Advanced stock: read-only trong Product |
 | DR-06 | Manual base price (Foundation); costing read (Growth) |
-| DR-07 | Giá sàn ≤ Giá niêm yết |
+| DR-07 | `listBeforeVat` + `listAfterVat` bắt buộc; floor before/after optional; nếu có floor thì ≤ list tương ứng. Readiness cần **list before+after VAT** trên band `active` đang hiệu lực. DB amounts: **numeric** |
 | DR-08 | Thông tin bổ sung qua nhóm & trường — không hard-code ngành vào Product |
 | DR-09 | Soft delete; bảo toàn snapshot giao dịch |
 | DR-10 | Đổi base unit: **out_of_scope** (khi mở lại: preview; không sửa snapshot cũ) |

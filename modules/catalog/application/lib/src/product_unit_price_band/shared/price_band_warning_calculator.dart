@@ -8,8 +8,8 @@ abstract final class PriceBandWarningCalculator {
     required double? basePricePerBaseUnit,
     required String? baseUnitName,
     required ProductUnitDto unit,
-    required double listPrice,
-    required double floorPrice,
+    required int listBeforeVat,
+    int? floorBeforeVat,
   }) {
     final comparableBase = _comparableBasePrice(
       basePricePerBaseUnit: basePricePerBaseUnit,
@@ -23,7 +23,7 @@ abstract final class PriceBandWarningCalculator {
             code: 'cannot_compare_base_price',
             severity: PriceBandValidationWarningSeverity.warning,
             message: 'Không thể so sánh chắc chắn với Giá cơ sở do thiếu tỷ lệ quy đổi.',
-            field: PriceBandValidationField.listPrice,
+            field: PriceBandValidationField.listBeforeVat,
             baseUnitName: baseUnitName,
           ),
         ];
@@ -32,25 +32,25 @@ abstract final class PriceBandWarningCalculator {
     }
 
     final warnings = <PriceBandValidationWarningDto>[];
-    if (listPrice < comparableBase) {
+    if (listBeforeVat.toDouble() < comparableBase) {
       warnings.add(
         PriceBandValidationWarningDto(
           code: 'list_price_below_base_price',
           severity: PriceBandValidationWarningSeverity.warning,
           message: 'Giá niêm yết thấp hơn Giá cơ sở định giá.',
-          field: PriceBandValidationField.listPrice,
+          field: PriceBandValidationField.listBeforeVat,
           comparedBasePrice: comparableBase,
           baseUnitName: baseUnitName,
         ),
       );
     }
-    if (floorPrice < comparableBase) {
+    if (floorBeforeVat != null && floorBeforeVat.toDouble() < comparableBase) {
       warnings.add(
         PriceBandValidationWarningDto(
           code: 'floor_price_below_base_price',
           severity: PriceBandValidationWarningSeverity.strongWarning,
           message: 'Giá sàn thấp hơn Giá cơ sở định giá.',
-          field: PriceBandValidationField.floorPrice,
+          field: PriceBandValidationField.floorBeforeVat,
           comparedBasePrice: comparableBase,
           baseUnitName: baseUnitName,
         ),

@@ -4,8 +4,8 @@ import 'product_control_center_formatters.dart';
 
 Future<bool?> showPriceBandOverwriteDialog(
   BuildContext context, {
-  double? existingListPrice,
-  double? existingFloorPrice,
+  double? existingListBeforeVat,
+  double? existingFloorBeforeVat,
 }) {
   return showDialog<bool>(
     context: context,
@@ -20,12 +20,12 @@ Future<bool?> showPriceBandOverwriteDialog(
             const Text(
               'Sản phẩm đã có khung giá bán. Áp dụng quy tắc cửa hàng sẽ thay thế giá hiện tại.',
             ),
-            if (existingListPrice != null || existingFloorPrice != null) ...[
+            if (existingListBeforeVat != null || existingFloorBeforeVat != null) ...[
               const SizedBox(height: 12),
-              if (existingListPrice != null)
-                Text('Niêm yết hiện tại: ${formatCatalogCurrency(existingListPrice)}'),
-              if (existingFloorPrice != null)
-                Text('Sàn hiện tại: ${formatCatalogCurrency(existingFloorPrice)}'),
+              if (existingListBeforeVat != null)
+                Text('Niêm yết hiện tại: ${formatCatalogCurrency(existingListBeforeVat)}'),
+              if (existingFloorBeforeVat != null)
+                Text('Sàn hiện tại: ${formatCatalogCurrency(existingFloorBeforeVat)}'),
             ],
           ],
         ),

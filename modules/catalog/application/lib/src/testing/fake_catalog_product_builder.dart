@@ -42,8 +42,8 @@ abstract final class FakeCatalogProductBuilder {
     String? primaryImageUrl,
     ProductBusinessStatus businessStatus = ProductBusinessStatus.active,
     required ReadinessSummaryDto readinessSummary,
-    double? listPrice,
-    double? floorPrice,
+    int? listBeforeVat,
+    int? floorBeforeVat,
     String? baseUnit,
     int? stockQuantity,
     DateTime? updatedAt,
@@ -67,8 +67,8 @@ abstract final class FakeCatalogProductBuilder {
       primaryImageUrl: primaryImageUrl,
       businessStatus: businessStatus,
       readinessSummary: readinessSummary,
-      listPrice: listPrice,
-      floorPrice: floorPrice,
+      listBeforeVat: listBeforeVat,
+      floorBeforeVat: floorBeforeVat,
       baseUnit: baseUnit?.isEmpty == true ? null : baseUnit,
       stockQuantity: stockQuantity,
       stockLabel: stockLabel,
@@ -91,8 +91,8 @@ abstract final class FakeCatalogProductBuilder {
     int? stockQty,
     int? stockVersion,
     double? baseCost,
-    double? listPrice,
-    double? floorPrice,
+    int? listBeforeVat,
+    int? floorBeforeVat,
     PriceBandSourceType? priceBandSourceType,
     String? storePriceRuleName,
     bool isCustomOverride = false,
@@ -107,7 +107,7 @@ abstract final class FakeCatalogProductBuilder {
     final hasImages = images.isNotEmpty;
     final hasStock = stockQty != null;
     final hasBasePrice = baseCost != null;
-    final hasPriceBand = listPrice != null && floorPrice != null;
+    final hasPriceBand = listBeforeVat != null && floorBeforeVat != null;
 
     final readinessView = FakeProductReadinessBuilder.build(
       productId: id,
@@ -170,8 +170,8 @@ abstract final class FakeCatalogProductBuilder {
             : null,
       ),
       priceBand: ProductPriceBandCardDto(
-        listPrice: listPrice,
-        floorPrice: floorPrice,
+        listBeforeVat: listBeforeVat,
+        floorBeforeVat: floorBeforeVat,
         unitName: hasBaseUnit ? baseUnit : null,
         isMissing: !hasPriceBand,
         missingMessage: !hasPriceBand ? 'Thiếu khung giá bán' : null,

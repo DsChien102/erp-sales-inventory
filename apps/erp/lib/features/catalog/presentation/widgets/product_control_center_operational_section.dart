@@ -71,11 +71,11 @@ class ProductControlCenterOperationalSection extends StatelessWidget {
       return priceBand.missingMessage ?? 'Chưa thiết lập khung giá bán';
     }
 
-    final listPart = priceBand.listPrice != null
-        ? 'Niêm yết: ${formatCatalogCurrency(priceBand.listPrice)}'
+    final listPart = priceBand.listBeforeVat != null
+        ? 'Niêm yết: ${formatCatalogCurrency(priceBand.listBeforeVat)}'
         : 'Niêm yết: --';
-    final floorPart = priceBand.floorPrice != null
-        ? 'Sàn: ${formatCatalogCurrency(priceBand.floorPrice)}'
+    final floorPart = priceBand.floorBeforeVat != null
+        ? 'Sàn: ${formatCatalogCurrency(priceBand.floorBeforeVat)}'
         : 'Sàn: --';
     final unit = priceBand.unitName?.trim();
     final unitSuffix = unit != null && unit.isNotEmpty ? ' · Đơn vị: $unit' : '';

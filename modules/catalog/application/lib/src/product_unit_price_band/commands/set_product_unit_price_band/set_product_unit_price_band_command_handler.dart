@@ -55,8 +55,8 @@ final class SetProductUnitPriceBandCommandHandler
       basePricePerBaseUnit: controlCenter?.basePriceAmount,
       baseUnitName: units.baseUnitName,
       unit: targetUnit,
-      listPrice: command.listPrice,
-      floorPrice: command.floorPrice,
+      listBeforeVat: command.listBeforeVat,
+      floorBeforeVat: command.floorBeforeVat,
     );
 
     if (warnings.isNotEmpty && !command.confirmAcknowledgeWarnings) {
@@ -69,8 +69,13 @@ final class SetProductUnitPriceBandCommandHandler
       tenantId: TenantId(command.tenantId),
       productId: ProductId(command.productId),
       productUnitId: targetUnit.id,
-      listPrice: command.listPrice,
-      floorPrice: command.floorPrice,
+      listBeforeVat: command.listBeforeVat,
+      floorBeforeVat: command.floorBeforeVat,
+      listAfterVat: command.listAfterVat,
+      floorAfterVat: command.floorAfterVat,
+      effectiveFrom: command.effectiveFrom,
+      effectiveTo: command.effectiveTo,
+      status: command.status ?? ProductPriceBandStatus.active,
       storePriceRuleId: command.storePriceRuleId,
     );
 
@@ -78,8 +83,13 @@ final class SetProductUnitPriceBandCommandHandler
       tenantId: command.tenantId,
       productId: command.productId,
       productUnitId: targetUnit.id,
-      listPrice: command.listPrice,
-      floorPrice: command.floorPrice,
+      listBeforeVat: command.listBeforeVat,
+      floorBeforeVat: command.floorBeforeVat,
+      listAfterVat: command.listAfterVat,
+      floorAfterVat: command.floorAfterVat,
+      effectiveFrom: command.effectiveFrom,
+      effectiveTo: command.effectiveTo,
+      status: command.status,
       sourceType: command.sourceType,
       storePriceRuleId: command.storePriceRuleId,
     );
@@ -96,8 +106,13 @@ final class SetProductUnitPriceBandCommandHandler
     return SetProductUnitPriceBandResult(
       productId: command.productId,
       productUnitId: targetUnit.id,
-      listPrice: command.listPrice,
-      floorPrice: command.floorPrice,
+      listBeforeVat: command.listBeforeVat,
+      floorBeforeVat: command.floorBeforeVat,
+      listAfterVat: command.listAfterVat,
+      floorAfterVat: command.floorAfterVat,
+      effectiveFrom: command.effectiveFrom,
+      effectiveTo: command.effectiveTo,
+      status: command.status ?? ProductPriceBandStatus.active,
       sourceType: command.sourceType,
       storePriceRuleId: command.storePriceRuleId,
       warnings: warnings,

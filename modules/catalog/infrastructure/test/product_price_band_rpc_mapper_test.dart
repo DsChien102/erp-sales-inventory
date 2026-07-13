@@ -5,13 +5,18 @@ import 'package:vet45_catalog_infrastructure/src/domain/pricing/product_price_ba
 
 void main() {
   group('ProductPriceBandRpcMapper', () {
-    test('maps set params with source type and store rule id', () {
+    test('maps set params with before-VAT prices and optional fields', () {
+      final effectiveFrom = DateTime.utc(2026, 1, 1);
       final params = ProductPriceBandRpcMapper.setProductUnitPriceBandParams(
         tenantId: 'tenant-1',
         productId: 'product-4',
         productUnitId: 'unit-lo',
-        listPrice: 37500,
-        floorPrice: 31250,
+        listBeforeVat: 37500,
+        floorBeforeVat: 31250,
+        listAfterVat: 41250,
+        floorAfterVat: 34375,
+        effectiveFrom: effectiveFrom,
+        status: ProductPriceBandStatus.active,
         sourceType: PriceBandSourceType.manual,
         storePriceRuleId: 'rule-1',
       );
@@ -19,8 +24,12 @@ void main() {
       expect(params['p_tenant_id'], 'tenant-1');
       expect(params['p_product_id'], 'product-4');
       expect(params['p_product_unit_id'], 'unit-lo');
-      expect(params['p_list_price'], 37500);
-      expect(params['p_floor_price'], 31250);
+      expect(params['p_list_price_before_vat'], 37500);
+      expect(params['p_floor_price_before_vat'], 31250);
+      expect(params['p_list_price_after_vat'], 41250);
+      expect(params['p_floor_price_after_vat'], 34375);
+      expect(params['p_effective_from'], effectiveFrom.toIso8601String());
+      expect(params['p_status'], 'active');
       expect(params['p_source_type'], 'manual');
       expect(params['p_store_price_rule_id'], 'rule-1');
     });
@@ -36,8 +45,12 @@ void main() {
           'unit_name': 'Lọ',
           'is_base_unit': true,
           'is_active': true,
-          'list_price': 15000,
-          'floor_price': 12000,
+          'list_price_before_vat': 15000,
+          'floor_price_before_vat': 12000,
+          'list_price_after_vat': 16500,
+          'floor_price_after_vat': 13200,
+          'effective_from': '2026-01-01T00:00:00Z',
+          'status': 'active',
           'source_type': 'manual',
           'store_price_rule_name': null,
           'is_custom_override': true,
@@ -51,8 +64,8 @@ void main() {
           'unit_name': 'Hộp',
           'is_base_unit': false,
           'is_active': true,
-          'list_price': null,
-          'floor_price': null,
+          'list_price_before_vat': null,
+          'floor_price_before_vat': null,
           'source_type': null,
           'store_price_rule_name': null,
           'is_custom_override': false,
@@ -64,11 +77,16 @@ void main() {
       expect(dto.basePrice, 100000);
       expect(dto.rows, hasLength(2));
       expect(dto.rows.first.isMissing, isFalse);
+      expect(dto.rows.first.listBeforeVat, 15000);
+      expect(dto.rows.first.floorBeforeVat, 12000);
+      expect(dto.rows.first.listAfterVat, 16500);
+      expect(dto.rows.first.floorAfterVat, 13200);
+      expect(dto.rows.first.status, ProductPriceBandStatus.active);
       expect(dto.rows.last.isMissing, isTrue);
       expect(dto.rows.first.sourceType, PriceBandSourceType.manual);
     });
 
-    test('maps legacy list_price_amount and floor_price_amount keys', () {
+    test('maps legacy list_price / list_price_amount keys', () {
       final row = ProductPriceBandRpcMapper.rowFromListRpc({
         'product_unit_id': 'unit-lo',
         'unit_name': 'Lọ',
@@ -81,9 +99,26 @@ void main() {
         'is_custom_override': false,
       });
 
-      expect(row.listPrice, 15000);
-      expect(row.floorPrice, 12000);
-      expect(row.isMissing, isFalse);
+      expect(row.listBeforeVat, 15000);
+      expect(row.floorBeforeVat, 12000);
+      // Legacy before-only rows are incomplete until list_after is present/backfilled.
+      expect(row.isMissing, isTrue);
+
+      final legacyRow = ProductPriceBandRpcMapper.rowFromListRpc({
+        'product_unit_id': 'unit-lo',
+        'unit_name': 'Lọ',
+        'is_base_unit': true,
+        'is_active': true,
+        'list_price': 16000,
+        'floor_price': 13000,
+        'list_price_after_vat': 16000,
+        'source_type': 'manual',
+        'store_price_rule_name': null,
+        'is_custom_override': false,
+      });
+
+      expect(legacyRow.listBeforeVat, 16000);
+      expect(legacyRow.floorBeforeVat, 13000);
     });
 
     test('maps snapshot params and json payload', () {
@@ -112,11 +147,11 @@ void main() {
             'product_unit_id': 'product-1-base',
             'unit_name': 'Hộp',
             'currency': 'VND',
-            'list_price': 120000,
-            'list_price_missing': false,
-            'floor_price': 95000,
-            'floor_price_missing': false,
-            'floor_price_hidden': false,
+            'list_price_before_vat': 120000,
+            'list_price_before_vat_missing': false,
+            'floor_price_before_vat': 95000,
+            'floor_price_before_vat_missing': false,
+            'floor_price_before_vat_hidden': false,
             'is_unit_active': true,
             'product_business_status': 'active',
           },
@@ -124,8 +159,8 @@ void main() {
       });
 
       expect(dto.items, hasLength(1));
-      expect(dto.items.single.listPrice, 120000);
-      expect(dto.items.single.floorPrice, 95000);
+      expect(dto.items.single.listBeforeVat, 120000);
+      expect(dto.items.single.floorBeforeVat, 95000);
       expect(dto.items.single.productBusinessStatus, ProductBusinessStatus.active);
     });
   });

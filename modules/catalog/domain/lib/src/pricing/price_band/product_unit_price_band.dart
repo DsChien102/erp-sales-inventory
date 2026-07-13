@@ -2,60 +2,94 @@ import 'package:vet45_shared_domain/shared_kernel_domain.dart';
 
 import '../../exceptions/floor_price_greater_than_list_price_exception.dart';
 import '../../ids/product_id.dart';
-import '../floor_price.dart';
-import '../list_price.dart';
+import '../money.dart';
 import 'events/product_price_band_changed.dart';
-import 'rules/floor_price_not_greater_than_list_price_rule.dart';
+import 'product_price_band_status.dart';
+import 'rules/floor_after_vat_not_greater_than_list_after_vat_rule.dart';
+import 'rules/floor_before_vat_not_greater_than_list_before_vat_rule.dart';
 
-/// List + floor price band for a product unit.
+/// List + optional floor price band for a product unit (before/after VAT).
 final class ProductUnitPriceBand extends Entity<String> implements IAggregateRoot {
   ProductUnitPriceBand({
-    required String id,
+    required super.id,
     required this.tenantId,
     required this.productId,
     this.productUnitId,
-    this.listPrice,
-    this.floorPrice,
+    this.listBeforeVat,
+    this.floorBeforeVat,
+    this.listAfterVat,
+    this.floorAfterVat,
+    required this.effectiveFrom,
+    this.effectiveTo,
+    this.status = ProductPriceBandStatus.active,
     this.storePriceRuleId,
-  }) : super(id: id);
+  });
 
   final String tenantId;
   final String productId;
   final String? productUnitId;
-  final ListPrice? listPrice;
-  final FloorPrice? floorPrice;
+  final Money? listBeforeVat;
+  final Money? floorBeforeVat;
+  final Money? listAfterVat;
+  final Money? floorAfterVat;
+  final DateTime effectiveFrom;
+  final DateTime? effectiveTo;
+  final ProductPriceBandStatus status;
   final String? storePriceRuleId;
 
-  bool get isComplete => listPrice != null && floorPrice != null;
+  /// Complete when list before-VAT and list after-VAT are set; floors optional.
+  bool get isComplete => listBeforeVat != null && listAfterVat != null;
 
   factory ProductUnitPriceBand.set({
     required String id,
     required TenantId tenantId,
     required ProductId productId,
     String? productUnitId,
-    required double listPrice,
-    required double floorPrice,
+    required int listBeforeVat,
+    required int listAfterVat,
+    int? floorBeforeVat,
+    int? floorAfterVat,
+    DateTime? effectiveFrom,
+    DateTime? effectiveTo,
+    ProductPriceBandStatus status = ProductPriceBandStatus.active,
     String? storePriceRuleId,
     String? actorId,
   }) {
-    final listPriceVo = ListPrice(amount: listPrice);
-    final floorPriceVo = FloorPrice(amount: floorPrice);
+    final listBeforeVo = Money(listBeforeVat);
+    final listAfterVo = Money(listAfterVat);
+    final floorBeforeVo =
+        floorBeforeVat == null ? null : Money(floorBeforeVat);
+    final floorAfterVo = floorAfterVat == null ? null : Money(floorAfterVat);
 
-    final rule = FloorPriceNotGreaterThanListPriceRule(
-      floorPrice: floorPriceVo,
-      listPrice: listPriceVo,
+    final beforeRule = FloorBeforeVatNotGreaterThanListBeforeVatRule(
+      floorBeforeVat: floorBeforeVo,
+      listBeforeVat: listBeforeVo,
     );
-    if (rule.isBroken()) {
-      throw FloorPriceGreaterThanListPriceException(rule.message);
+    if (beforeRule.isBroken()) {
+      throw FloorPriceGreaterThanListPriceException(beforeRule.message);
     }
 
+    final afterRule = FloorAfterVatNotGreaterThanListAfterVatRule(
+      floorAfterVat: floorAfterVo,
+      listAfterVat: listAfterVo,
+    );
+    if (afterRule.isBroken()) {
+      throw FloorPriceGreaterThanListPriceException(afterRule.message);
+    }
+
+    final from = effectiveFrom ?? DateTime.now().toUtc();
     final band = ProductUnitPriceBand(
       id: id,
       tenantId: tenantId.value,
       productId: productId.value,
       productUnitId: productUnitId,
-      listPrice: listPriceVo,
-      floorPrice: floorPriceVo,
+      listBeforeVat: listBeforeVo,
+      floorBeforeVat: floorBeforeVo,
+      listAfterVat: listAfterVo,
+      floorAfterVat: floorAfterVo,
+      effectiveFrom: from,
+      effectiveTo: effectiveTo,
+      status: status,
       storePriceRuleId: storePriceRuleId,
     );
     band.addDomainEvent(
@@ -63,16 +97,26 @@ final class ProductUnitPriceBand extends Entity<String> implements IAggregateRoo
         productId: productId,
         tenantId: tenantId,
         productUnitId: productUnitId,
-        listPrice: listPrice,
-        floorPrice: floorPrice,
+        listBeforeVat: listBeforeVat,
+        floorBeforeVat: floorBeforeVat,
+        listAfterVat: listAfterVat,
+        floorAfterVat: floorAfterVat,
+        effectiveFrom: from,
+        effectiveTo: effectiveTo,
+        status: status,
       ),
     );
     return band;
   }
 
   ProductUnitPriceBand replacePrices({
-    required double listPrice,
-    required double floorPrice,
+    required int listBeforeVat,
+    required int listAfterVat,
+    int? floorBeforeVat,
+    int? floorAfterVat,
+    DateTime? effectiveFrom,
+    DateTime? effectiveTo,
+    ProductPriceBandStatus? status,
     String? storePriceRuleId,
     String? actorId,
   }) {
@@ -81,8 +125,13 @@ final class ProductUnitPriceBand extends Entity<String> implements IAggregateRoo
       tenantId: TenantId(tenantId),
       productId: ProductId(productId),
       productUnitId: productUnitId,
-      listPrice: listPrice,
-      floorPrice: floorPrice,
+      listBeforeVat: listBeforeVat,
+      listAfterVat: listAfterVat,
+      floorBeforeVat: floorBeforeVat ?? this.floorBeforeVat?.amount,
+      floorAfterVat: floorAfterVat ?? this.floorAfterVat?.amount,
+      effectiveFrom: effectiveFrom ?? this.effectiveFrom,
+      effectiveTo: effectiveTo ?? this.effectiveTo,
+      status: status ?? this.status,
       storePriceRuleId: storePriceRuleId ?? this.storePriceRuleId,
       actorId: actorId,
     );

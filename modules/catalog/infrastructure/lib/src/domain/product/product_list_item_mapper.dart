@@ -38,8 +38,10 @@ abstract final class ProductListItemMapper {
         isSoftDeleted: row['is_soft_deleted'] as bool?,
       ),
       facts: facts,
-      listPrice: _toDouble(row['list_price']),
-      floorPrice: _toDouble(row['floor_price']),
+      listBeforeVat: _toInt(row['list_price_before_vat']) ??
+          _toInt(row['list_price']),
+      floorBeforeVat: _toInt(row['floor_price_before_vat']) ??
+          _toInt(row['floor_price']),
       baseUnit: row['base_unit_name'] as String?,
       stockQuantity: _toInt(row['stock_qty']),
       customFieldValues: CustomFieldRpcMapper.listValuesFromJson(

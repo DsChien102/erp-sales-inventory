@@ -15,8 +15,8 @@ void main() {
           baseUnit: const ExistingTenantUnit('unit-hop'),
           basicStockQuantityBase: 12,
           basePrice: 10000,
-          listPrice: 13000,
-          floorPrice: 11000,
+          listBeforeVat: 13000,
+          floorBeforeVat: 11000,
         ),
       );
 
@@ -24,7 +24,7 @@ void main() {
       expect(params['p_tenant_unit_id'], 'unit-hop');
       expect(params['p_basic_stock_quantity_base'], 12);
       expect(params['p_base_price'], 10000);
-      expect(params['p_list_price'], 13000);
+      expect(params['p_list_price_before_vat'], 13000);
       expect(params['p_idempotency_key'], '550e8400-e29b-41d4-a716-446655440000');
       expect(params['p_reference_id'], startsWith('P'));
     });
@@ -472,8 +472,9 @@ void main() {
         tenantId: 'tenant-1',
         productId: 'prod-1',
         productUnitId: 'unit-box',
-        listPrice: ListPrice(amount: 120000.0),
-        floorPrice: FloorPrice(amount: 100000.0),
+        listBeforeVat: Money(120000),
+        floorBeforeVat: Money(100000),
+        effectiveFrom: DateTime.utc(2026, 1, 1),
       );
       final params = ProductRpcMapper.setInitialPriceBandParams(
         productId: 'prod-1',
@@ -484,8 +485,10 @@ void main() {
       expect(params['p_tenant_id'], 'tenant-1');
       expect(params['p_product_id'], 'prod-1');
       expect(params['p_product_unit_id'], 'unit-box');
-      expect(params['p_list_price'], 120000.0);
-      expect(params['p_floor_price'], 100000.0);
+      expect(params['p_list_price_before_vat'], 120000);
+      expect(params['p_floor_price_before_vat'], 100000);
+      expect(params['p_effective_from'], '2026-01-01T00:00:00.000Z');
+      expect(params['p_status'], 'active');
     });
 
     test('setInitialPriceBandParams omits unit id when base unit not specified', () {
@@ -493,8 +496,9 @@ void main() {
         id: 'band-1',
         tenantId: 'tenant-1',
         productId: 'prod-1',
-        listPrice: ListPrice(amount: 120000.0),
-        floorPrice: FloorPrice(amount: 100000.0),
+        listBeforeVat: Money(120000),
+        floorBeforeVat: Money(100000),
+        effectiveFrom: DateTime.utc(2026, 1, 1),
       );
       final params = ProductRpcMapper.setInitialPriceBandParams(
         productId: 'prod-1',
@@ -503,8 +507,8 @@ void main() {
       );
 
       expect(params.containsKey('p_product_unit_id'), isFalse);
-      expect(params['p_list_price'], 120000.0);
-      expect(params['p_floor_price'], 100000.0);
+      expect(params['p_list_price_before_vat'], 120000);
+      expect(params['p_floor_price_before_vat'], 100000);
     });
   });
 

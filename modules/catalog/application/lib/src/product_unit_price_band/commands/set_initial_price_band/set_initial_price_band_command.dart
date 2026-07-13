@@ -11,8 +11,8 @@ final class SetInitialPriceBandCommand extends CommandBase<void>
     required this.tenantId,
     required this.productId,
     this.productUnitId,
-    this.listPrice,
-    this.floorPrice,
+    this.listBeforeVat,
+    this.floorBeforeVat,
     this.useStoreRule = false,
   }) : super(id);
 
@@ -20,7 +20,7 @@ final class SetInitialPriceBandCommand extends CommandBase<void>
   final String tenantId;
   final String productId;
   final String? productUnitId;
-  final double? listPrice;
-  final double? floorPrice;
+  final int? listBeforeVat;
+  final int? floorBeforeVat;
   final bool? useStoreRule;
 }

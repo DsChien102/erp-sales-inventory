@@ -80,8 +80,10 @@ abstract final class ProductControlCenterMapper {
       stockVersion: _toInt(json['stock_version']),
       basePriceAmount: _toDouble(json['base_price_amount']),
       basePriceCurrency: json['base_price_currency'] as String? ?? 'VND',
-      listPrice: _toDouble(json['list_price']),
-      floorPrice: _toDouble(json['floor_price']),
+      listBeforeVat: _toInt(json['list_price_before_vat']) ??
+          _toInt(json['list_price']),
+      floorBeforeVat: _toInt(json['floor_price_before_vat']) ??
+          _toInt(json['floor_price']),
       priceBandSourceType: StorePriceRuleRpcMapper.sourceTypeFromRpc(
         json['price_band_source_type'] as String?,
       ),

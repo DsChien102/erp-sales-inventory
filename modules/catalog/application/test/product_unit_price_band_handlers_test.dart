@@ -6,8 +6,8 @@ import 'package:vet45_shared_application/application.dart';
 class _RecordingProductPriceBandGateway implements IProductPriceBandGateway {
   ProductUnitPriceBandsDto? lastListed;
   String? lastSetProductUnitId;
-  double? lastListPrice;
-  double? lastFloorPrice;
+  int? lastListBeforeVat;
+  int? lastFloorBeforeVat;
 
   @override
   Future<ProductUnitPriceBandsDto> listProductUnitPriceBands({
@@ -51,14 +51,19 @@ class _RecordingProductPriceBandGateway implements IProductPriceBandGateway {
     required String tenantId,
     required String productId,
     required String productUnitId,
-    required double listPrice,
-    required double floorPrice,
+    required int listBeforeVat,
+    required int listAfterVat,
+    int? floorBeforeVat,
     required PriceBandSourceType sourceType,
+    int? floorAfterVat,
+    DateTime? effectiveFrom,
+    DateTime? effectiveTo,
+    ProductPriceBandStatus? status,
     String? storePriceRuleId,
   }) async {
     lastSetProductUnitId = productUnitId;
-    lastListPrice = listPrice;
-    lastFloorPrice = floorPrice;
+    lastListBeforeVat = listBeforeVat;
+    lastFloorBeforeVat = floorBeforeVat;
   }
 }
 
@@ -261,12 +266,13 @@ void main() {
         SetProductUnitPriceBandCommand(
           tenantId: 'tenant-1',
           productId: 'product-4',
-          listPrice: 37500,
-          floorPrice: 31250,
+          listBeforeVat: 37500,
+          listAfterVat: 37500,
+          floorBeforeVat: 31250,
         ),
       );
 
-      expect(result.listPrice, 37500);
+      expect(result.listBeforeVat, 37500);
       expect(result.productUnitId, 'unit-lo');
       expect(gateway.lastSetProductUnitId, 'unit-lo');
       expect(result.readinessSummary.blockers, isEmpty);
@@ -279,8 +285,9 @@ void main() {
           SetProductUnitPriceBandCommand(
             tenantId: 'tenant-1',
             productId: 'product-4',
-            listPrice: 100000,
-            floorPrice: 110000,
+            listBeforeVat: 100000,
+            listAfterVat: 100000,
+            floorBeforeVat: 110000,
           ),
         ),
         throwsA(isA<FloorPriceGreaterThanListPriceException>()),
@@ -320,8 +327,9 @@ void main() {
             tenantId: 'tenant-1',
             productId: 'product-1',
             productUnitId: 'unit-thung',
-            listPrice: 1000000,
-            floorPrice: 900000,
+            listBeforeVat: 1000000,
+            listAfterVat: 1000000,
+            floorBeforeVat: 900000,
           ),
         ),
         throwsA(isA<InactiveProductUnitException>()),
@@ -341,8 +349,9 @@ void main() {
           SetProductUnitPriceBandCommand(
             tenantId: 'tenant-1',
             productId: 'product-11',
-            listPrice: 95000,
-            floorPrice: 90000,
+            listBeforeVat: 95000,
+            listAfterVat: 95000,
+            floorBeforeVat: 90000,
           ),
         ),
         throwsA(isA<PriceBandWarningsRequireAcknowledgmentException>()),
@@ -362,14 +371,15 @@ void main() {
         SetProductUnitPriceBandCommand(
           tenantId: 'tenant-1',
           productId: 'product-11',
-          listPrice: 95000,
-          floorPrice: 90000,
+          listBeforeVat: 95000,
+          listAfterVat: 95000,
+          floorBeforeVat: 90000,
           confirmAcknowledgeWarnings: true,
         ),
       );
 
       expect(result.warnings, isNotEmpty);
-      expect(gateway.lastListPrice, 95000);
+      expect(gateway.lastListBeforeVat, 95000);
     });
 
     test('scn_e06_u03_fr02_03 warns when conversion rate invalid', () async {
@@ -393,8 +403,9 @@ void main() {
           tenantId: 'tenant-1',
           productId: 'product-11',
           productUnitId: 'unit-hop',
-          listPrice: 950000,
-          floorPrice: 900000,
+          listBeforeVat: 950000,
+          listAfterVat: 950000,
+          floorBeforeVat: 900000,
           confirmAcknowledgeWarnings: true,
         ),
       );
@@ -420,8 +431,9 @@ void main() {
         SetProductUnitPriceBandCommand(
           tenantId: 'tenant-1',
           productId: 'product-4',
-          listPrice: 37500,
-          floorPrice: 31250,
+          listBeforeVat: 37500,
+          listAfterVat: 37500,
+          floorBeforeVat: 31250,
         ),
       );
 
@@ -449,8 +461,9 @@ void main() {
           tenantId: 'tenant-1',
           productId: 'product-9',
           productUnitId: 'unit-lo',
-          listPrice: 15000,
-          floorPrice: 12000,
+          listBeforeVat: 15000,
+          listAfterVat: 15000,
+          floorBeforeVat: 12000,
         ),
       );
 

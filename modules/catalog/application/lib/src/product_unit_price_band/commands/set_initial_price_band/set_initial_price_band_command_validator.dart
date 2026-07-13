@@ -16,14 +16,17 @@ final class SetInitialPriceBandCommandValidator
 
     final useRule = command.useStoreRule ?? false;
     if (!useRule) {
-      if (command.listPrice == null || command.listPrice! < 0) {
+      if (command.listBeforeVat == null || command.listBeforeVat! < 0) {
         throw ValidationException('Giá niêm yết là bắt buộc và không được âm.');
       }
-      if (command.floorPrice == null || command.floorPrice! < 0) {
-        throw ValidationException('Giá sàn là bắt buộc và không được âm.');
-      }
-      if (command.floorPrice! > command.listPrice!) {
-        throw FloorPriceGreaterThanListPriceException();
+      final floor = command.floorBeforeVat;
+      if (floor != null) {
+        if (floor < 0) {
+          throw ValidationException('Giá sàn không được âm.');
+        }
+        if (floor > command.listBeforeVat!) {
+          throw FloorPriceGreaterThanListPriceException();
+        }
       }
     }
   }

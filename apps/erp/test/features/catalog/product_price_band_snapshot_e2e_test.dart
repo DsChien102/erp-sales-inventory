@@ -37,8 +37,8 @@ void main() {
 
       expect(result.items, hasLength(1));
       final item = result.items.single;
-      expect(item.listPrice, 45000);
-      expect(item.listPriceMissing, isFalse);
+      expect(item.listBeforeVat, 45000);
+      expect(item.listBeforeVatMissing, isFalse);
       expect(item.isUnitActive, isTrue);
       expect(item.productBusinessStatus, ProductBusinessStatus.inactive);
     });
@@ -62,9 +62,9 @@ void main() {
       );
 
       final item = result.items.single;
-      expect(item.floorPrice, 95000);
-      expect(item.floorPriceMissing, isFalse);
-      expect(item.listPrice, 120000);
+      expect(item.floorBeforeVat, 95000);
+      expect(item.floorBeforeVatMissing, isFalse);
+      expect(item.listBeforeVat, 120000);
     });
 
     test('e2e_e06_u04_fr01_03: mediator reports missing list price explicitly', () async {
@@ -86,8 +86,8 @@ void main() {
       );
 
       final item = result.items.single;
-      expect(item.listPriceMissing, isTrue);
-      expect(item.listPrice, isNull);
+      expect(item.listBeforeVatMissing, isTrue);
+      expect(item.listBeforeVat, isNull);
     });
 
     test('e2e_e06_u04_fr01_02: inactive unit returns without valid prices', () async {
@@ -110,8 +110,8 @@ void main() {
 
       final item = result.items.single;
       expect(item.isUnitActive, isFalse);
-      expect(item.listPriceMissing, isTrue);
-      expect(item.floorPriceMissing, isTrue);
+      expect(item.listBeforeVatMissing, isTrue);
+      expect(item.floorBeforeVatMissing, isTrue);
     });
 
     test('e2e_e06_u04_fr04_01: snapshot includes capturedAt for Sales copy', () async {

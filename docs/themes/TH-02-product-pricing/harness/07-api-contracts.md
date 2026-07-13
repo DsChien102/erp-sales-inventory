@@ -234,7 +234,7 @@ Supporting types:
 | `ProductSearchCriteria` | keyword?, businessStatuses (`Set<ProductStatus>`, default `{active}`), readinessFilter?, includeSoftDeleted (default false), sortOrder |
 | `ProductReadinessFilter` | `readyToSell`, `incomplete` |
 | `ProductSortOrder` | `updatedAtDesc`, `relevanceDesc` (chỉ có ý nghĩa khi `keyword` non-null; FE auto-set khi search) |
-| `ProductListItemDto` | id, name, tradeName?, sku?, barcode?, primaryImageUrl?, businessStatus (`ProductBusinessStatus`), readinessSummary, listPrice?, floorPrice?, baseUnit?, stockQuantity?, stockLabel?, updatedAt |
+| `ProductListItemDto` | id, name, tradeName?, sku?, barcode?, primaryImageUrl?, businessStatus (`ProductBusinessStatus`), readinessSummary, listBeforeVat?, floorBeforeVat?, baseUnit?, stockQuantity?, stockLabel?, updatedAt |
 | `ProductSearchResultDto` | items[], totalCount |
 
 Readiness chip trên list: FE derive từ `readinessSummary.status` + `blockers.first` (FR-03).
@@ -312,7 +312,7 @@ Package: `vet45_catalog_application` — `control_center/`.
 | `units` | `ProductUnitsCardDto` | FR-02 | baseUnitName, conversionUnits[] |
 | `stock` | `ProductStockCardDto` | FR-02 | mode, quantity, pendingExternal |
 | `basePrice` | `ProductBasePriceCardDto` | FR-02 | mode, sourceLabel, amount, currency, baseUnitName, canEdit |
-| `priceBand` | `ProductPriceBandCardDto` | FR-02 | listPrice, floorPrice, unitName |
+| `priceBand` | `ProductPriceBandCardDto` | FR-02 | listBeforeVat, floorBeforeVat, unitName (UI labels: Giá niêm yết / Giá sàn) |
 | `customFieldGroupCards` | `CustomFieldGroupCardDto[]` | FR-03 | **empty** đến EPIC-03 |
 | `readinessSummary` | `ReadinessSummaryDto` | early | reuse US-03 |
 | `checklist` | `ReadinessChecklistItemDto[]` | FR-04 | **pending** — luôn `[]` |
@@ -723,7 +723,7 @@ Supporting types:
 | `StorePriceRuleStatus` | `active` \| `inactive` |
 | `StorePriceCalculationType` | `markup` (Foundation; `margin` deferred) |
 | `ProductUnitPriceSuggestionDto` | productId, productUnitId?, unitName?, basePrice, currency, suggestedListPrice?, suggestedFloorPrice?, storePriceRuleId?, storePriceRuleName?, basePriceVersion?, canSuggest, unavailableReason? |
-| `ApplyStorePriceRuleResult` | productId, productUnitId?, listPrice, floorPrice, storePriceRuleId, sourceType, readinessSummary |
+| `ApplyStorePriceRuleResult` | productId, productUnitId?, listBeforeVat, floorBeforeVat, storePriceRuleId, sourceType, readinessSummary |
 | `PriceBandSourceType` | `ruleBased` \| `manual` — shared with §EPIC-06/US-03 |
 
 Read path (PCC): `GetProductControlCenterQuery` → `ProductPriceBandCardDto` extended with `sourceType`, `storePriceRuleName`, `isCustomOverride`.
@@ -818,7 +818,7 @@ Tests: `scn_contract_e06_u02_*` in `fake_catalog_module_test.dart` (group `EPIC-
 
 | Symbol | Input (summary) | Success | Errors |
 | ------ | --------------- | ------- | ------ |
-| `SetProductUnitPriceBandCommand` | tenantId, productId, listPrice, floorPrice, productUnitId?, sourceType?, storePriceRuleId?, confirmAcknowledgeWarnings? | `SetProductUnitPriceBandResult` | Validation, `MissingBaseUnitException`, `InactiveProductUnitException`, `FloorPriceGreaterThanListPriceException`, `PriceBandWarningsRequireAcknowledgmentException` |
+| `SetProductUnitPriceBandCommand` | tenantId, productId, listBeforeVat, listAfterVat, floorBeforeVat?, floorAfterVat?, effectiveFrom?, effectiveTo?, status?, productUnitId?, sourceType?, storePriceRuleId?, confirmAcknowledgeWarnings? | `SetProductUnitPriceBandResult` | Validation, `MissingBaseUnitException`, `InactiveProductUnitException`, `FloorPriceGreaterThanListPriceException`, `PriceBandWarningsRequireAcknowledgmentException` |
 | `ListProductUnitPriceBandsQuery` | tenantId, productId | `ProductUnitPriceBandsDto` | PermissionDenied, NotFound, `MissingBaseUnitException` |
 
 Package: `vet45_catalog_application` — `pricing/price_band/`.
@@ -827,25 +827,29 @@ Supporting types:
 
 | Type | Fields |
 | ---- | ------ |
-| `SetProductUnitPriceBandResult` | productId, productUnitId?, listPrice, floorPrice, sourceType, storePriceRuleId?, warnings[], readinessSummary |
+| `SetProductUnitPriceBandResult` | productId, productUnitId?, listBeforeVat, listAfterVat, floorBeforeVat?, floorAfterVat?, effectiveFrom?, effectiveTo?, status?, sourceType, storePriceRuleId?, warnings[], readinessSummary |
 | `ProductUnitPriceBandsDto` | productId, baseUnitName, currency, rows[] |
-| `ProductUnitPriceBandRowDto` | productUnitId, unitName, isBaseUnit, isActive, listPrice?, floorPrice?, isMissing, sourceType?, storePriceRuleName?, isCustomOverride |
+| `ProductUnitPriceBandRowDto` | productUnitId, unitName, isBaseUnit, isActive, listBeforeVat?, floorBeforeVat?, listAfterVat?, floorAfterVat?, effectiveFrom?, effectiveTo?, status?, isMissing, sourceType?, storePriceRuleName?, isCustomOverride |
 | `PriceBandValidationWarningDto` | code, severity, message, field, comparedBasePrice?, baseUnitName? |
 | `PriceBandValidationWarningSeverity` | `warning` \| `strongWarning` |
-| `PriceBandValidationField` | `listPrice` \| `floorPrice` |
+| `PriceBandValidationField` | `listBeforeVat` \| `floorBeforeVat` |
 | `PriceBandSourceType` | `ruleBased` \| `manual` (shared with US-02) |
+| `ProductPriceBandStatus` | `active` \| `inactive` \| `deleted` |
 
-Read path (PCC summary): `GetProductControlCenterQuery` → `ProductPriceBandCardDto` (base unit summary).
+Read path (PCC summary): `GetProductControlCenterQuery` → `ProductPriceBandCardDto` (base unit **before-VAT** summary). UI labels remain **Giá niêm yết / Giá sàn**; after-VAT reserved (no form fields in this slice).
 
 **Scope / rules:**
 
-- FR-01: Giá niêm yết + Giá sàn theo từng **đơn vị đang active**; `productUnitId` omit → base unit.
+- FR-01: Giá niêm yết before+after VAT (**bắt buộc**) + Giá sàn (optional) theo từng **đơn vị đang active**; UI hiện chỉ nhập before-VAT và copy sang after cho đến khi có form after-VAT.
+- `listAfterVat` **bắt buộc** (cùng `listBeforeVat`); `floorAfterVat` optional. DB amounts: **numeric**.
+- Effective window: `effectiveFrom` (default now UTC on set), `effectiveTo` nullable = open-ended. Reads filter `status = active` and in-window.
+- Status VO: default `active` on set; partial unique one active band per `(product_id, product_unit_id)`.
 - FR-02 Foundation MVP: **warn-only** so với Giá cơ sở — `confirmAcknowledgeWarnings=true` để lưu khi có warnings; block policy deferred.
 - Warning codes: `list_price_below_base_price`, `floor_price_below_base_price`, `cannot_compare_base_price` (thiếu tỷ lệ quy đổi).
-- FR-03: `readinessSummary` refresh; `missing_price_band` chỉ clear khi **mọi** đơn vị active có band hợp lệ.
+- FR-03: `readinessSummary` refresh; `missing_price_band` chỉ clear khi **mọi** đơn vị active có **list before+after VAT** trên band **active + in-window** (floor optional).
 - FR-04: change history qua BE RPC `set_product_unit_price_band`; read qua PCC `changeHistoryPreview` (không thêm query mới ở contract).
 - Unit sales roles (EPIC-04/FR-02) **pending** — Foundation coi mọi đơn vị active cần band.
-- `SetInitialPriceBandCommand` (guided create slice #2) giữ nguyên — không deprecate.
+- `SetInitialPriceBandCommand` (guided create slice #2) giữ nguyên — không deprecate; wire dùng before-VAT params.
 - Port: `IProductPriceBandGateway` (BE lane implement).
 
 Permissions:
@@ -857,15 +861,17 @@ Permissions:
 
 | Use case | RPC / view | Params (summary) | Notes |
 | -------- | ---------- | ---------------- | ----- |
-| Set price band | `catalog.set_product_unit_price_band` | `p_tenant_id`, `p_product_id`, `p_list_price`, `p_floor_price`, `p_product_unit_id?`, `p_source_type?`, `p_store_price_rule_id?` | Upsert per unit; `is_custom_override=true` when `source_type=manual` |
-| List bands per unit | `catalog.list_product_unit_price_bands` | `p_tenant_id`, `p_product_id` | Rows for active `product_units`; left join bands + store rule name |
-| Readiness facts | `catalog._product_operational_facts` (redefined) | existing | `has_price_band` true when **all** active units have valid band |
+| Set price band | `catalog.set_product_unit_price_band` | `p_list_price_before_vat`, `p_list_price_after_vat` (required numeric), `p_floor_*` optional, effective/status/source… | Upsert **active** band; amounts stored as **numeric** |
+| List bands per unit | `catalog.list_product_unit_price_bands` | `p_tenant_id`, `p_product_id` | Rows for active `product_units`; left join **active in-window** bands + store rule name |
+| Readiness facts | `catalog._product_operational_facts` (redefined) | existing | `has_price_band` true when **all** active units have valid **before-VAT** active in-window band |
+| Apply store rule | `catalog.apply_store_price_rule` | existing | Writes before-VAT list/floor; returns `list_price_before_vat` / `floor_price_before_vat` |
+| Guided create | `catalog.create_guided_product` | `p_list_price_before_vat?`, `p_floor_price_before_vat?` (renamed) | Calls `set_initial_price_band` / apply rule |
 
 **Guards:** `inactive_product_unit`, `floor_price_greater_than_list_price`, `validation_exception` (negative prices), `missing base unit`, `product not found`
 
-**Change history:** `set_product_unit_price_band` action with `product_unit_id`, list/floor, previous values, `source_type`, `store_price_rule_id`
+**Change history:** `set_product_unit_price_band` action with `product_unit_id`, before/after VAT, effective, status, previous before-VAT, `source_type`, `store_price_rule_id`
 
-Draft: [`supabase/migrations/_drafts/09_catalog_product_unit_price_band.sql`](../../../../supabase/migrations/_drafts/09_catalog_product_unit_price_band.sql)
+Drafts: [`001_catalog_patch_price_band_vat_effective_schema.sql`](../../../../supabase/migrations/_drafts/001_catalog_patch_price_band_vat_effective_schema.sql), [`002_catalog_patch_price_band_vat_effective_rpcs.sql`](../../../../supabase/migrations/_drafts/002_catalog_patch_price_band_vat_effective_rpcs.sql)
 
 **BE tests:** `product_unit_price_band_handlers_test.dart` (`scn_e06_u03_*`), `product_price_band_rpc_mapper_test.dart`
 

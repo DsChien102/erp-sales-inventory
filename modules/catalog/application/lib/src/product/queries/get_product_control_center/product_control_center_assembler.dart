@@ -29,7 +29,7 @@ abstract final class ProductControlCenterAssembler {
     final hasBaseUnit = model.baseUnitName != null && model.baseUnitName!.trim().isNotEmpty;
     final hasStock = model.stockQuantity != null;
     final hasBasePrice = model.basePriceAmount != null;
-    final hasPriceBand = model.listPrice != null && model.floorPrice != null;
+    final hasPriceBand = model.listBeforeVat != null && model.floorBeforeVat != null;
 
     return ProductControlCenterDto(
       profile: ProductProfileSummaryDto(
@@ -84,8 +84,13 @@ abstract final class ProductControlCenterAssembler {
             : null,
       ),
       priceBand: ProductPriceBandCardDto(
-        listPrice: model.listPrice,
-        floorPrice: model.floorPrice,
+        listBeforeVat: model.listBeforeVat,
+        floorBeforeVat: model.floorBeforeVat,
+        listAfterVat: model.listAfterVat,
+        floorAfterVat: model.floorAfterVat,
+        effectiveFrom: model.priceBandEffectiveFrom,
+        effectiveTo: model.priceBandEffectiveTo,
+        status: model.priceBandStatus,
         unitName: hasBaseUnit ? model.baseUnitName : null,
         isMissing: !hasPriceBand,
         missingMessage: !hasPriceBand ? 'Thiếu khung giá bán' : null,

@@ -293,8 +293,8 @@ void main() {
         SetInitialPriceBandCommand(
           tenantId: 'tenant-1',
           productId: 'product-1',
-          listPrice: 150000.0,
-          floorPrice: 110000.0,
+          listBeforeVat: 150000,
+          floorBeforeVat: 110000,
           useStoreRule: true,
         ),
       );
@@ -2409,8 +2409,8 @@ void main() {
       );
 
       expect(suggestion.canSuggest, isTrue);
-      expect(suggestion.suggestedListPrice, 37500);
-      expect(suggestion.suggestedFloorPrice, 31250);
+      expect(suggestion.suggestedListBeforeVat, 37500);
+      expect(suggestion.suggestedFloorBeforeVat, 31250);
       expect(suggestion.storePriceRuleName, 'Mặc định bán lẻ');
     });
 
@@ -2458,8 +2458,8 @@ void main() {
         ),
       );
 
-      expect(result.listPrice, 37500);
-      expect(result.floorPrice, 31250);
+      expect(result.listBeforeVat, 37500);
+      expect(result.floorBeforeVat, 31250);
       expect(result.sourceType, PriceBandSourceType.ruleBased);
     });
 
@@ -2603,14 +2603,15 @@ void main() {
         SetProductUnitPriceBandCommand(
           tenantId: 'tenant-1',
           productId: 'product-4',
-          listPrice: 37500,
-          floorPrice: 31250,
+          listBeforeVat: 37500,
+          listAfterVat: 37500,
+          floorBeforeVat: 31250,
         ),
       );
 
       expect(result.productId, 'product-4');
-      expect(result.listPrice, 37500);
-      expect(result.floorPrice, 31250);
+      expect(result.listBeforeVat, 37500);
+      expect(result.floorBeforeVat, 31250);
       expect(result.sourceType, PriceBandSourceType.manual);
       expect(
         result.readinessSummary.blockers.any(
@@ -2630,8 +2631,9 @@ void main() {
           SetProductUnitPriceBandCommand(
             tenantId: 'tenant-1',
             productId: 'product-4',
-            listPrice: 100000,
-            floorPrice: 110000,
+            listBeforeVat: 100000,
+            listAfterVat: 100000,
+            floorBeforeVat: 110000,
           ),
         ),
         throwsA(isA<FloorPriceGreaterThanListPriceException>()),
@@ -2666,8 +2668,9 @@ void main() {
             tenantId: 'tenant-1',
             productId: 'product-1',
             productUnitId: 'product-1-unit-thung',
-            listPrice: 1000000,
-            floorPrice: 900000,
+            listBeforeVat: 1000000,
+            listAfterVat: 1000000,
+            floorBeforeVat: 900000,
           ),
         ),
         throwsA(isA<InactiveProductUnitException>()),
@@ -2684,8 +2687,9 @@ void main() {
           SetProductUnitPriceBandCommand(
             tenantId: 'tenant-1',
             productId: 'product-11',
-            listPrice: 95000,
-            floorPrice: 90000,
+            listBeforeVat: 95000,
+            listAfterVat: 95000,
+            floorBeforeVat: 90000,
           ),
         ),
         throwsA(isA<PriceBandWarningsRequireAcknowledgmentException>()),
@@ -2701,8 +2705,9 @@ void main() {
         SetProductUnitPriceBandCommand(
           tenantId: 'tenant-1',
           productId: 'product-11',
-          listPrice: 95000,
-          floorPrice: 90000,
+          listBeforeVat: 95000,
+          listAfterVat: 95000,
+          floorBeforeVat: 90000,
           confirmAcknowledgeWarnings: true,
         ),
       );
@@ -2712,7 +2717,7 @@ void main() {
         result.warnings.any((w) => w.code == 'list_price_below_base_price'),
         isTrue,
       );
-      expect(result.listPrice, 95000);
+      expect(result.listBeforeVat, 95000);
     });
 
     test('scn_contract_e06_u03_fr02_03 warns when conversion rate unknown', () async {
@@ -2726,8 +2731,9 @@ void main() {
             tenantId: 'tenant-1',
             productId: 'product-11',
             productUnitId: 'product-11-hop',
-            listPrice: 950000,
-            floorPrice: 900000,
+            listBeforeVat: 950000,
+            listAfterVat: 950000,
+            floorBeforeVat: 900000,
           ),
         ),
         throwsA(isA<PriceBandWarningsRequireAcknowledgmentException>()),
@@ -2738,8 +2744,9 @@ void main() {
           tenantId: 'tenant-1',
           productId: 'product-11',
           productUnitId: 'product-11-hop',
-          listPrice: 950000,
-          floorPrice: 900000,
+          listBeforeVat: 950000,
+          listAfterVat: 950000,
+          floorBeforeVat: 900000,
           confirmAcknowledgeWarnings: true,
         ),
       );
@@ -2759,8 +2766,9 @@ void main() {
         SetProductUnitPriceBandCommand(
           tenantId: 'tenant-1',
           productId: 'product-4',
-          listPrice: 37500,
-          floorPrice: 31250,
+          listBeforeVat: 37500,
+          listAfterVat: 37500,
+          floorBeforeVat: 31250,
         ),
       );
 
@@ -2782,8 +2790,9 @@ void main() {
           tenantId: 'tenant-1',
           productId: 'product-9',
           productUnitId: 'product-9-base',
-          listPrice: 15000,
-          floorPrice: 12000,
+          listBeforeVat: 15000,
+          listAfterVat: 15000,
+          floorBeforeVat: 12000,
         ),
       );
 
@@ -2814,8 +2823,8 @@ void main() {
         ),
       );
 
-      expect(result.items.single.listPrice, 45000);
-      expect(result.items.single.listPriceMissing, isFalse);
+      expect(result.items.single.listBeforeVat, 45000);
+      expect(result.items.single.listBeforeVatMissing, isFalse);
     });
 
     test('scn_contract_e06_u04_fr01_03 returns missing list price', () async {
@@ -2835,8 +2844,8 @@ void main() {
         ),
       );
 
-      expect(result.items.single.listPriceMissing, isTrue);
-      expect(result.items.single.listPrice, isNull);
+      expect(result.items.single.listBeforeVatMissing, isTrue);
+      expect(result.items.single.listBeforeVat, isNull);
     });
 
     test('scn_contract_e06_u04_fr01_02 returns inactive unit without prices', () async {
@@ -2857,7 +2866,7 @@ void main() {
       );
 
       expect(result.items.single.isUnitActive, isFalse);
-      expect(result.items.single.listPriceMissing, isTrue);
+      expect(result.items.single.listBeforeVatMissing, isTrue);
     });
 
     test('scn_contract_e06_u04_fr02_01 returns floor price', () async {
@@ -2877,8 +2886,8 @@ void main() {
         ),
       );
 
-      expect(result.items.single.floorPrice, 95000);
-      expect(result.items.single.floorPriceMissing, isFalse);
+      expect(result.items.single.floorBeforeVat, 95000);
+      expect(result.items.single.floorBeforeVatMissing, isFalse);
     });
 
     test('scn_contract_e06_u04_fr02_03 returns list with missing floor', () async {
@@ -2898,9 +2907,9 @@ void main() {
         ),
       );
 
-      expect(result.items.single.listPrice, 100000);
-      expect(result.items.single.floorPriceMissing, isTrue);
-      expect(result.items.single.floorPrice, isNull);
+      expect(result.items.single.listBeforeVat, 100000);
+      expect(result.items.single.floorBeforeVatMissing, isTrue);
+      expect(result.items.single.floorBeforeVat, isNull);
     });
 
     test('scn_contract_e06_u04_fr04_01 returns capturedAt for Sales copy', () async {
@@ -3791,7 +3800,7 @@ void main() {
         expect(pcc.units.baseUnitName, 'Hộp');
         expect(pcc.stock.quantity, 150);
         expect(pcc.basePrice.amount, 80000);
-        expect(pcc.priceBand.listPrice, 120000);
+        expect(pcc.priceBand.listBeforeVat, 120000);
         expect(
           pcc.changeHistoryPreview.map((entry) => entry.changeType),
           contains(ProductChangeHistoryAction.softDeleted),

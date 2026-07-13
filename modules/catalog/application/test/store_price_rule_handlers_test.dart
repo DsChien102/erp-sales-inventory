@@ -18,8 +18,8 @@ class _RecordingStorePriceRuleGateway implements IStorePriceRuleGateway {
     lastApplyCommand = command;
     if (command.productId == 'product-1' && !command.confirmOverwrite) {
       throw PriceBandOverwriteRequiredException(
-        existingListPrice: 120000,
-        existingFloorPrice: 95000,
+        existingListBeforeVat: 120000,
+        existingFloorBeforeVat: 95000,
       );
     }
     if (command.basePriceVersion != null && command.basePriceVersion != 12345) {
@@ -28,8 +28,8 @@ class _RecordingStorePriceRuleGateway implements IStorePriceRuleGateway {
     final applied = AppliedStorePriceRuleDto(
       productId: command.productId,
       productUnitId: command.productUnitId ?? 'unit-base',
-      listPrice: 37500,
-      floorPrice: 31250,
+      listBeforeVat: 37500,
+      floorBeforeVat: 31250,
       storePriceRuleId: 'rule-1',
     );
     lastApplied = applied;
@@ -67,8 +67,8 @@ class _RecordingStorePriceRuleGateway implements IStorePriceRuleGateway {
       productId: query.productId,
       basePrice: 25000,
       currency: 'VND',
-      suggestedListPrice: 37500,
-      suggestedFloorPrice: 31250,
+      suggestedListBeforeVat: 37500,
+      suggestedFloorBeforeVat: 31250,
       storePriceRuleId: 'rule-1',
       storePriceRuleName: 'Mặc định bán lẻ',
       basePriceVersion: 12345,
@@ -194,7 +194,7 @@ void main() {
       );
 
       expect(suggestion.canSuggest, isTrue);
-      expect(suggestion.suggestedListPrice, 37500);
+      expect(suggestion.suggestedListBeforeVat, 37500);
       expect(suggestion.storePriceRuleName, 'Mặc định bán lẻ');
     });
 
@@ -229,7 +229,7 @@ void main() {
         ),
       );
 
-      expect(result.listPrice, 37500);
+      expect(result.listBeforeVat, 37500);
       expect(result.sourceType, PriceBandSourceType.ruleBased);
       expect(result.readinessSummary.blockers, isEmpty);
     });

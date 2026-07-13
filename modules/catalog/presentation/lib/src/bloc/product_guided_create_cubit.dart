@@ -568,9 +568,24 @@ class ProductGuidedCreateCubit extends Cubit<ProductGuidedCreateState> {
     }
 
     if (shouldSavePriceBand && state.pricingMethod == 'manual') {
-      final listPrice = double.tryParse(state.manualListPrice.trim().replaceAll(',', '')) ?? 0.0;
-      final floorPrice = double.tryParse(state.manualFloorPrice.trim().replaceAll(',', '')) ?? 0.0;
-      if (floorPrice > listPrice) {
+      final listBeforeVat = int.tryParse(state.manualListPrice.trim().replaceAll(',', ''));
+      final floorRaw = state.manualFloorPrice.trim().replaceAll(',', '');
+      final floorBeforeVat =
+          floorRaw.isEmpty ? null : int.tryParse(floorRaw);
+      if (listBeforeVat == null) {
+        emit(
+          state.copyWith(
+            activeStepIndex: 5,
+            showValidationErrors: true,
+            status: ProductGuidedCreateStatus.error,
+            errorMessage: 'Giá niêm yết là bắt buộc.',
+            manualPriceError: 'Nhập giá niêm yết',
+            priceBandConfigured: true,
+          ),
+        );
+        return;
+      }
+      if (floorBeforeVat != null && floorBeforeVat > listBeforeVat) {
         emit(
           state.copyWith(
             activeStepIndex: 5,
@@ -634,7 +649,7 @@ class ProductGuidedCreateCubit extends Cubit<ProductGuidedCreateState> {
       }).toList();
       final priceBand = state.priceBandConfigured
           ? CatalogUiMapper.resolvePriceBand(state)
-          : (listPrice: null, floorPrice: null);
+          : (listBeforeVat: null, floorBeforeVat: null);
       final createResult = await _catalogModule.executeCommandAsync(
         CreateGuidedProductCommand(
           tenantId: tenantId,
@@ -649,8 +664,8 @@ class ProductGuidedCreateCubit extends Cubit<ProductGuidedCreateState> {
               : _resolveBaseUnitSelection(state.baseUnit),
           basicStockQuantityBase: state.parsedBasicStockQuantityBase,
           basePrice: double.tryParse(state.baseCost.trim().replaceAll(',', '')),
-          listPrice: state.pricingMethod == 'storeRule' ? null : priceBand.listPrice,
-          floorPrice: state.pricingMethod == 'storeRule' ? null : priceBand.floorPrice,
+          listBeforeVat: state.pricingMethod == 'storeRule' ? null : priceBand.listBeforeVat,
+          floorBeforeVat: state.pricingMethod == 'storeRule' ? null : priceBand.floorBeforeVat,
           useStorePriceRule: state.priceBandConfigured && state.pricingMethod == 'storeRule',
           customFieldValues: activeValues,
         ),

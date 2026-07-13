@@ -28,8 +28,8 @@ final class CreateGuidedProductCommandValidator
     final hasOperationalData =
         command.basicStockQuantityBase != null ||
         command.basePrice != null ||
-        command.listPrice != null ||
-        command.floorPrice != null ||
+        command.listBeforeVat != null ||
+        command.floorBeforeVat != null ||
         command.useStorePriceRule;
     if (hasOperationalData && command.baseUnit == null) {
       throw ValidationException('Cần thiết lập đơn vị cơ sở trước tồn kho hoặc giá.');
@@ -37,14 +37,14 @@ final class CreateGuidedProductCommandValidator
     if (command.basicStockQuantityBase != null && command.basicStockQuantityBase! < 0) {
       throw ValidationException('Số lượng tồn kho ban đầu phải là số nguyên không âm.');
     }
-    for (final value in [command.basePrice, command.listPrice, command.floorPrice]) {
+    for (final value in [command.basePrice, command.listBeforeVat, command.floorBeforeVat]) {
       if (value != null && (!value.isFinite || value < 0)) {
         throw ValidationException('Giá phải là số không âm.');
       }
     }
-    if (command.floorPrice != null &&
-        command.listPrice != null &&
-        command.floorPrice! > command.listPrice!) {
+    if (command.floorBeforeVat != null &&
+        command.listBeforeVat != null &&
+        command.floorBeforeVat! > command.listBeforeVat!) {
       throw ValidationException('Giá sàn không được lớn hơn giá niêm yết.');
     }
     final fieldIds = <String>{};

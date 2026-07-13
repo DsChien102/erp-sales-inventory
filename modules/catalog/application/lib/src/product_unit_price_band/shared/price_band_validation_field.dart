@@ -1,4 +1,4 @@
 enum PriceBandValidationField {
-  listPrice,
-  floorPrice,
+  listBeforeVat,
+  floorBeforeVat,
 }

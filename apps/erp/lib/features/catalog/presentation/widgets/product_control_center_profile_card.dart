@@ -24,7 +24,7 @@ class ProductControlCenterProfileCard extends StatelessWidget {
 
     final listPriceText = priceBand.isMissing
         ? 'Giá niêm yết: --'
-        : 'Giá niêm yết: ${formatCatalogCurrency(priceBand.listPrice)}';
+        : 'Giá niêm yết: ${formatCatalogCurrency(priceBand.listBeforeVat)}';
 
     final stockUnit = stock.unitName ?? 'cơ sở';
     final stockText = stock.isMissing

@@ -1,3 +1,5 @@
+import 'package:vet45_catalog_domain/domain.dart';
+
 import 'package:vet45_catalog_application/src/product_unit_price_band/queries/list_product_unit_price_bands/price_band_source_type.dart';
 import 'package:vet45_catalog_application/src/product_unit_price_band/queries/list_product_unit_price_bands/product_unit_price_bands_dto.dart';
 import 'package:vet45_catalog_application/src/product_unit_price_band/queries/get_product_price_band_snapshot/product_price_band_snapshot_dto.dart';
@@ -18,9 +20,14 @@ abstract interface class IProductPriceBandGateway {
     required String tenantId,
     required String productId,
     required String productUnitId,
-    required double listPrice,
-    required double floorPrice,
+    required int listBeforeVat,
+    required int listAfterVat,
+    int? floorBeforeVat,
     required PriceBandSourceType sourceType,
+    int? floorAfterVat,
+    DateTime? effectiveFrom,
+    DateTime? effectiveTo,
+    ProductPriceBandStatus? status,
     String? storePriceRuleId,
   });
 }

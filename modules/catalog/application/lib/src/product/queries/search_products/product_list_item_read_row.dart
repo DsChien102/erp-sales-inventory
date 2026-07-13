@@ -13,8 +13,8 @@ final class ProductListItemReadRow {
     this.primaryImageUrl,
     required this.businessStatus,
     required this.facts,
-    this.listPrice,
-    this.floorPrice,
+    this.listBeforeVat,
+    this.floorBeforeVat,
     this.baseUnit,
     this.stockQuantity,
     this.customFieldValues = const [],
@@ -29,8 +29,8 @@ final class ProductListItemReadRow {
   final String? primaryImageUrl;
   final ProductBusinessStatus businessStatus;
   final ProductReadinessFacts facts;
-  final double? listPrice;
-  final double? floorPrice;
+  final int? listBeforeVat;
+  final int? floorBeforeVat;
   final String? baseUnit;
   final int? stockQuantity;
   final List<CustomFieldListValueDto> customFieldValues;

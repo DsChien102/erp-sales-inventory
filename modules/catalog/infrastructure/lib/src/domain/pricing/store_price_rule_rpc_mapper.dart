@@ -76,8 +76,12 @@ abstract final class StorePriceRuleRpcMapper {
       unitName: row['unit_name'] as String?,
       basePrice: (row['base_price'] as num?)?.toDouble() ?? 0,
       currency: row['currency'] as String? ?? 'VND',
-      suggestedListPrice: (row['suggested_list_price'] as num?)?.toDouble(),
-      suggestedFloorPrice: (row['suggested_floor_price'] as num?)?.toDouble(),
+      suggestedListBeforeVat:
+          (row['suggested_list_price_before_vat'] as num?)?.round() ??
+              (row['suggested_list_price'] as num?)?.round(),
+      suggestedFloorBeforeVat:
+          (row['suggested_floor_price_before_vat'] as num?)?.round() ??
+              (row['suggested_floor_price'] as num?)?.round(),
       storePriceRuleId: row['store_price_rule_id'] as String?,
       storePriceRuleName: row['store_price_rule_name'] as String?,
       basePriceVersion: (row['base_price_version'] as num?)?.toInt(),
@@ -90,8 +94,12 @@ abstract final class StorePriceRuleRpcMapper {
     return AppliedStorePriceRuleDto(
       productId: row['product_id'] as String,
       productUnitId: row['product_unit_id'] as String?,
-      listPrice: (row['list_price'] as num).toDouble(),
-      floorPrice: (row['floor_price'] as num).toDouble(),
+      listBeforeVat: ((row['list_price_before_vat'] as num?) ??
+              (row['list_price'] as num))
+          .round(),
+      floorBeforeVat: ((row['floor_price_before_vat'] as num?) ??
+              (row['floor_price'] as num))
+          .round(),
       storePriceRuleId: row['store_price_rule_id'] as String,
       sourceType: PriceBandSourceType.ruleBased,
     );
