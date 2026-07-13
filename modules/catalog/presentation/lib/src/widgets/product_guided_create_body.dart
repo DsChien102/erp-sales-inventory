@@ -184,7 +184,9 @@ class ProductGuidedCreateBody extends StatelessWidget {
       padding: const EdgeInsets.all(VSpacing.space4),
       decoration: BoxDecoration(
         color: dynamicColors.surface,
-        boxShadow: VShadows.e2,
+        border: Border(
+          top: BorderSide(color: dynamicColors.borderDefault),
+        ),
       ),
       child: SafeArea(
         top: false,
@@ -192,16 +194,18 @@ class ProductGuidedCreateBody extends StatelessWidget {
           children: [
             Expanded(
               child: VButton(
-                label: 'Hủy',
+                label: 'Huỷ',
                 variant: VButtonVariant.outline,
                 onPressed: state.status == ProductGuidedCreateStatus.loading ? null : onCancel,
               ),
             ),
-            const SizedBox(width: VSpacing.space3),
+            const SizedBox(width: VSpacing.space4),
             Expanded(
               child: VButton(
                 key: const Key('btn_guided_save'),
                 label: 'Lưu sản phẩm',
+                variant: VButtonVariant.primary,
+                isLoading: state.status == ProductGuidedCreateStatus.loading,
                 onPressed: (!state.hasAnyData || state.status == ProductGuidedCreateStatus.loading)
                     ? null
                     : () => context.read<ProductGuidedCreateCubit>().submit(),

@@ -8,6 +8,7 @@ import 'package:vet45_design_system/design_system.dart';
 import 'package:vet45_shared_application/application.dart';
 
 import '../widgets/price_band_calculation_type_selector.dart';
+import '../widgets/product_form_bottom_bar.dart';
 
 class EditProductUnitPriceBandRouteArgs {
   final ProductUnitPriceBandRowDto row;
@@ -68,6 +69,7 @@ class EditProductUnitPriceBandPage extends StatelessWidget {
           final canSubmit = state is EditProductUnitPriceBandLoaded && state.canSubmit;
 
           return Scaffold(
+            backgroundColor: context.vColors.surface,
             appBar: VAppBar(
               title: 'Khung giá bán',
               titleStyle: VTypography.headingH3.copyWith(fontWeight: FontWeight.bold),
@@ -95,38 +97,11 @@ class EditProductUnitPriceBandPage extends StatelessWidget {
                       ),
                     ),
                   ),
-            bottomNavigationBar: SafeArea(
-              child: Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: context.vColors.surface,
-                  border: Border(
-                    top: BorderSide(color: context.vColors.borderDefault),
-                  ),
-                ),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: VButton(
-                        label: 'Hủy',
-                        variant: VButtonVariant.secondary,
-                        onPressed: () => context.pop(),
-                      ),
-                    ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: VButton(
-                        label: 'Lưu thay đổi',
-                        variant: VButtonVariant.primary,
-                        onPressed: canSubmit
-                            ? () => context.read<EditProductUnitPriceBandCubit>().save()
-                            : null,
-                        isLoading: isSubmitting,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+            bottomNavigationBar: ProductFormBottomBar(
+              onCancel: () => context.pop(),
+              isLoading: isSubmitting,
+              saveEnabled: canSubmit,
+              onSave: () => context.read<EditProductUnitPriceBandCubit>().save(),
             ),
           );
         },
@@ -164,7 +139,7 @@ class EditProductUnitPriceBandPage extends StatelessWidget {
           ),
           Text(
             state.suggestion.basePrice > 0
-                ? '${state.suggestion.basePrice.toStringAsFixed(0)} đ'
+                ? formatCatalogCurrency(state.suggestion.basePrice)
                 : '—',
             style: VTypography.headingH4.copyWith(fontWeight: FontWeight.bold),
           ),

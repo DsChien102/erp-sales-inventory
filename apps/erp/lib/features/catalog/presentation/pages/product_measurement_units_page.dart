@@ -51,6 +51,13 @@ class _ProductMeasurementUnitsViewState extends State<_ProductMeasurementUnitsVi
   final _conversionUnitNameController = TextEditingController();
   final _conversionUnitRatioController = TextEditingController();
   bool _isAddingConversionUnit = false;
+  bool _sessionHasPersistedChanges = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _baseUnitController.addListener(() => setState(() {}));
+  }
 
   @override
   void dispose() {
@@ -118,6 +125,7 @@ class _ProductMeasurementUnitsViewState extends State<_ProductMeasurementUnitsVi
           );
           setState(() {
             _isEditingBaseUnit = false;
+            _sessionHasPersistedChanges = true;
           });
         } else if (state.saveStatus == ProductMeasurementUnitsStatus.failure) {
           VToast.show(
@@ -139,6 +147,7 @@ class _ProductMeasurementUnitsViewState extends State<_ProductMeasurementUnitsVi
             _isAddingConversionUnit = false;
             _conversionUnitNameController.clear();
             _conversionUnitRatioController.clear();
+            _sessionHasPersistedChanges = true;
           });
         } else if (state.unitMutationStatus == ProductMeasurementUnitsStatus.failure) {
           final blockedUnitId = state.deleteBlockedUnitId;
@@ -169,7 +178,7 @@ class _ProductMeasurementUnitsViewState extends State<_ProductMeasurementUnitsVi
         final hasBaseUnit = state.baseUnitName != null && state.baseUnitName!.isNotEmpty;
 
         return Scaffold(
-          backgroundColor: dynamicColors.background,
+          backgroundColor: dynamicColors.surface,
           appBar: VAppBar(
             title: 'Đơn vị đo lường',
             titleStyle: VTypography.headingH3.copyWith(
@@ -525,7 +534,12 @@ class _ProductMeasurementUnitsViewState extends State<_ProductMeasurementUnitsVi
               ),
             ),
           ),
-          bottomNavigationBar: const ProductMeasurementUnitsBottomBar(),
+          bottomNavigationBar: ProductMeasurementUnitsBottomBar(
+            saveEnabled: _sessionHasPersistedChanges ||
+                (_isEditingBaseUnit &&
+                    _baseUnitController.text.trim().toLowerCase() !=
+                        (state.baseUnitName ?? '').trim().toLowerCase()),
+          ),
         );
       },
     );

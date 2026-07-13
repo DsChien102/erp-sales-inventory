@@ -1,6 +1,7 @@
 import 'package:vet45_catalog_application/application.dart';
 import '../models/product_image_draft.dart';
 import '../models/product_list_item_model.dart';
+import '../utils/catalog_currency_formatters.dart';
 
 enum ProductGuidedCreateStatus {
   initial,
@@ -118,10 +119,9 @@ class ProductGuidedCreateState {
   }
 
   String? get baseCostError {
-    final raw = baseCost.trim().replaceAll(',', '');
-    if (raw.isEmpty) return null;
-    final value = double.tryParse(raw);
-    if (value == null || !value.isFinite || value < 0) {
+    if (baseCost.trim().isEmpty) return null;
+    final value = parseCatalogCurrencyAmount(baseCost);
+    if (value == null || value < 0) {
       return 'Giá vốn phải là số không âm';
     }
     return null;

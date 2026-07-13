@@ -4,6 +4,7 @@ import '../bloc/product_guided_create_state.dart';
 import '../models/product_business_status.dart';
 import '../models/product_list_item_model.dart';
 import '../models/product_readiness_status.dart';
+import '../utils/catalog_currency_formatters.dart';
 
 class CatalogUiMapper {
   static ({int? listBeforeVat, int? floorBeforeVat}) resolvePriceBand(
@@ -13,7 +14,7 @@ class CatalogUiMapper {
       return (listBeforeVat: null, floorBeforeVat: null);
     }
 
-    final baseCost = double.tryParse(state.baseCost.trim());
+    final baseCost = parseCatalogCurrencyAmount(state.baseCost)?.toDouble();
 
     if (state.pricingMethod == 'manual') {
       return (
@@ -44,8 +45,10 @@ class CatalogUiMapper {
     }
 
     if (state.pricingMethod == 'customAuto' || state.pricingMethod == 'auto') {
-      final markup = double.tryParse(state.customAutoMarkup.trim());
-      final floorMarkup = double.tryParse(state.customAutoFloorMarkup.trim());
+      final markup = double.tryParse(state.customAutoMarkup.trim().replaceAll(',', ''));
+      final floorMarkup = double.tryParse(
+        state.customAutoFloorMarkup.trim().replaceAll(',', ''),
+      );
       if (markup == null || floorMarkup == null) {
         return (listBeforeVat: null, floorBeforeVat: null);
       }
@@ -74,7 +77,7 @@ class CatalogUiMapper {
     final coverPath = coverDraft?.localPath;
 
     final stockQty = state.parsedBasicStockQuantityBase;
-    final baseCost = double.tryParse(state.baseCost.trim());
+    final baseCost = parseCatalogCurrencyAmount(state.baseCost)?.toDouble();
 
     final priceBand = resolvePriceBand(state);
     final listBeforeVat = priceBand.listBeforeVat;

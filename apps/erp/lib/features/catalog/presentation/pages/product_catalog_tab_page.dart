@@ -267,7 +267,7 @@ class _ProductCatalogTabPageState extends State<ProductCatalogTabPage> {
       value: _cubit,
       child: Scaffold(
         key: const Key('wgt_e01_u01_fr01_01'),
-        backgroundColor: dynamicColors.background,
+        backgroundColor: dynamicColors.surface,
         appBar: PreferredSize(
           preferredSize: const Size.fromHeight(64),
           child: BlocBuilder<ProductListCubit, ProductListState>(

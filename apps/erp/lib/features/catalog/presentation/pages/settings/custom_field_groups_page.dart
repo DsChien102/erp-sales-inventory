@@ -39,7 +39,7 @@ class _CustomFieldGroupsPageState extends State<CustomFieldGroupsPage> {
     return BlocProvider.value(
       value: _cubit,
       child: Scaffold(
-        backgroundColor: colors.background,
+        backgroundColor: colors.surface,
         appBar: VAppBar(
           title: 'Nhóm & trường thông tin',
           showBackButton: true,

@@ -7,6 +7,7 @@ import 'package:vet45_shared_application/application.dart';
 import '../mappers/catalog_ui_mapper.dart';
 import '../models/product_image_draft.dart';
 import '../services/product_image_upload_client.dart';
+import '../utils/catalog_currency_formatters.dart';
 import '../widgets/image_picker/product_image_add_sheet.dart';
 import '../widgets/tenant_measurement_unit_search_field.dart';
 import 'product_guided_create_state.dart';
@@ -572,8 +573,7 @@ class ProductGuidedCreateCubit extends Cubit<ProductGuidedCreateState> {
     if (shouldSavePriceBand && state.pricingMethod == 'manual') {
       final listBeforeVat = int.tryParse(state.manualListPrice.trim().replaceAll(',', ''));
       final floorRaw = state.manualFloorPrice.trim().replaceAll(',', '');
-      final floorBeforeVat =
-          floorRaw.isEmpty ? null : int.tryParse(floorRaw);
+      final floorBeforeVat = floorRaw.isEmpty ? null : int.tryParse(floorRaw);
       if (listBeforeVat == null) {
         emit(
           state.copyWith(

@@ -38,7 +38,7 @@ class CustomFieldGroupDetailPage extends StatelessWidget {
           final group = groupIndex != -1 ? state.groups[groupIndex] : null;
 
           return Scaffold(
-            backgroundColor: colors.background,
+            backgroundColor: colors.surface,
             appBar: VAppBar(
               title: group?.name ?? 'Trường thông tin',
               showBackButton: true,

@@ -83,7 +83,8 @@ class ProductImagesMaintenanceCubit extends Cubit<ProductImagesMaintenanceState>
     required this.executionContext,
     required this.productId,
     required List<String> initialImages,
-  }) : super(ProductImagesMaintenanceState(
+  }) : _initialSignature = _signatureOf(_initialImageItems(initialImages)),
+       super(ProductImagesMaintenanceState(
           images: _initialImageItems(initialImages),
         ));
 
@@ -91,6 +92,15 @@ class ProductImagesMaintenanceCubit extends Cubit<ProductImagesMaintenanceState>
   final IExecutionContext executionContext;
   final String productId;
   final ImagePicker _picker = ImagePicker();
+  final String _initialSignature;
+
+  bool get hasChanges => _signatureOf(state.images) != _initialSignature;
+
+  static String _signatureOf(List<ProductImageStateItem> images) {
+    return images
+        .map((image) => '${image.storageKey}|${image.isPrimary}')
+        .join(';');
+  }
 
   static List<ProductImageStateItem> _initialImageItems(List<String> initialImages) {
     if (initialImages.isEmpty) {

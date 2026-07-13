@@ -36,11 +36,12 @@ class ProductChangeHistoryItem extends StatelessWidget {
     }
 
     return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(16),
+      margin: const EdgeInsets.only(bottom: VSpacing.space3),
+      padding: const EdgeInsets.all(VSpacing.space4),
       decoration: BoxDecoration(
         color: dynamicColors.surface,
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(VRadius.card),
+        border: Border.all(color: dynamicColors.borderDefault),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

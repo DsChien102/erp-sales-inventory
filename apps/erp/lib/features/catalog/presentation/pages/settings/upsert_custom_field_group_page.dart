@@ -4,6 +4,8 @@ import 'package:go_router/go_router.dart';
 import 'package:vet45_design_system/design_system.dart';
 import 'package:vet45_catalog_presentation/presentation.dart';
 
+import '../../widgets/product_form_bottom_bar.dart';
+
 class UpsertCustomFieldGroupPage extends StatefulWidget {
   final CustomFieldConfigCubit cubit;
   final String? initialGroupId;
@@ -75,38 +77,10 @@ class _UpsertCustomFieldGroupPageState extends State<UpsertCustomFieldGroupPage>
     return BlocProvider.value(
       value: widget.cubit,
       child: Scaffold(
-        backgroundColor: colors.background,
+        backgroundColor: colors.surface,
         appBar: VAppBar(
           title: widget.initialGroupId == null ? 'Tạo nhóm thông tin' : 'Sửa nhóm thông tin',
           showBackButton: true,
-          actions: [
-            BlocBuilder<CustomFieldConfigCubit, CustomFieldConfigState>(
-              builder: (context, state) {
-                if (state.isSaving) {
-                  return const Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 16.0),
-                    child: Center(
-                      child: SizedBox(
-                        width: 20,
-                        height: 20,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      ),
-                    ),
-                  );
-                }
-                return TextButton(
-                  onPressed: _handleSave,
-                  child: Text(
-                    'Lưu',
-                    style: VTypography.bodyDefault.copyWith(
-                      color: colors.primary,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                );
-              },
-            ),
-          ],
         ),
         body: ListView(
           padding: const EdgeInsets.all(VSpacing.screenMobile),
@@ -226,6 +200,15 @@ class _UpsertCustomFieldGroupPageState extends State<UpsertCustomFieldGroupPage>
               ),
             ],
           ],
+        ),
+        bottomNavigationBar: BlocBuilder<CustomFieldConfigCubit, CustomFieldConfigState>(
+          builder: (context, state) {
+            return ProductFormBottomBar(
+              onCancel: state.isSaving ? null : () => context.pop(),
+              isLoading: state.isSaving,
+              onSave: _handleSave,
+            );
+          },
         ),
       ),
     );

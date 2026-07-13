@@ -114,7 +114,7 @@ class _ProductControlCenterViewState extends State<_ProductControlCenterView> {
         key: const Key('wgt_e01_u02_fr01_01'),
         child: Scaffold(
           key: const Key('wgt_e02_u03_fr01_01'),
-          backgroundColor: dynamicColors.background,
+          backgroundColor: dynamicColors.surface,
           appBar: VAppBar(
             title: product.name,
             titleStyle: VTypography.headingH3.copyWith(

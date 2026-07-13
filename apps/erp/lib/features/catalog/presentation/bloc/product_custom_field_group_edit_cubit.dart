@@ -61,6 +61,7 @@ class ProductCustomFieldGroupEditCubit extends Cubit<ProductCustomFieldGroupEdit
         ProductCustomFieldGroupEditLoaded(
           group: group,
           inputs: initialInputs,
+          initialInputs: Map<String, ProductCustomFieldValueInput>.from(initialInputs),
         ),
       );
     } catch (e) {

@@ -8,6 +8,7 @@ import 'package:vet45_shared_application/application.dart';
 
 import '../../../../core/di/injection.dart';
 import '../bloc/product_profile_maintenance_cubit.dart';
+import '../widgets/product_form_bottom_bar.dart';
 
 class ProductProfileMaintenancePage extends StatelessWidget {
   const ProductProfileMaintenancePage({
@@ -92,7 +93,7 @@ class _ProductProfileMaintenanceViewState extends State<_ProductProfileMaintenan
       },
       child: Scaffold(
         key: const Key('wgt_e07_u01_fr01_01'),
-        backgroundColor: dynamicColors.background,
+        backgroundColor: dynamicColors.surface,
         appBar: VAppBar(
           title: 'Hồ sơ sản phẩm',
           leading: IconButton(
@@ -155,47 +156,16 @@ class _ProductProfileMaintenanceViewState extends State<_ProductProfileMaintenan
             },
           ),
         ),
-        bottomNavigationBar: Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: dynamicColors.surface,
-            border: Border(
-              top: BorderSide(color: dynamicColors.borderDefault),
-            ),
-          ),
-          child: SafeArea(
-            child: Row(
-              children: [
-                Expanded(
-                  child: TextButton(
-                    onPressed: () => context.pop(),
-                    child: Text(
-                      'Huỷ',
-                      style: VTypography.bodyDefault.copyWith(
-                        color: dynamicColors.textPrimary,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: BlocBuilder<ProductProfileMaintenanceCubit, ProductProfileMaintenanceState>(
-                    builder: (context, state) {
-                      return VButton(
-                        key: const Key('btn_profile_maintenance_save'),
-                        onPressed: state.status == ProductProfileMaintenanceStatus.submitting
-                            ? null
-                            : () => context.read<ProductProfileMaintenanceCubit>().submit(),
-                        label: 'Lưu thay đổi',
-                        isLoading: state.status == ProductProfileMaintenanceStatus.submitting,
-                      );
-                    },
-                  ),
-                ),
-              ],
-            ),
-          ),
+        bottomNavigationBar: BlocBuilder<ProductProfileMaintenanceCubit, ProductProfileMaintenanceState>(
+          builder: (context, state) {
+            return ProductFormBottomBar(
+              onCancel: () => context.pop(),
+              saveKey: const Key('btn_profile_maintenance_save'),
+              isLoading: state.status == ProductProfileMaintenanceStatus.submitting,
+              saveEnabled: context.read<ProductProfileMaintenanceCubit>().hasChanges,
+              onSave: () => context.read<ProductProfileMaintenanceCubit>().submit(),
+            );
+          },
         ),
       ),
     );

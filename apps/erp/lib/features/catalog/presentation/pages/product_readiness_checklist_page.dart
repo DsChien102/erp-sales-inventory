@@ -41,7 +41,7 @@ class ProductReadinessChecklistPage extends StatelessWidget {
 
     return Scaffold(
       key: const Key('wgt_e02_u03_checklist'),
-      backgroundColor: dynamicColors.background,
+      backgroundColor: dynamicColors.surface,
       appBar: VAppBar(
         title: 'Sẵn sàng vận hành',
         titleStyle: VTypography.headingH3.copyWith(

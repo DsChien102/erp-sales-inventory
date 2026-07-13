@@ -30,6 +30,12 @@ class EditProductUnitPriceBandLoaded extends EditProductUnitPriceBandState {
   final int? manualListPrice;
   final int? manualFloorPrice;
 
+  final PriceBandCalculationType initialSelectedType;
+  final double? initialCustomBaseMargin;
+  final double? initialCustomFloorMargin;
+  final double? initialManualListPrice;
+  final double? initialManualFloorPrice;
+
   final bool isSubmitting;
   final String? error;
 
@@ -40,6 +46,11 @@ class EditProductUnitPriceBandLoaded extends EditProductUnitPriceBandState {
     this.customFloorMargin,
     this.manualListPrice,
     this.manualFloorPrice,
+    this.initialSelectedType = PriceBandCalculationType.storeRule,
+    this.initialCustomBaseMargin,
+    this.initialCustomFloorMargin,
+    this.initialManualListPrice,
+    this.initialManualFloorPrice,
     this.isSubmitting = false,
     this.error,
   });
@@ -62,6 +73,11 @@ class EditProductUnitPriceBandLoaded extends EditProductUnitPriceBandState {
       customFloorMargin: customFloorMargin ?? this.customFloorMargin,
       manualListPrice: manualListPrice ?? this.manualListPrice,
       manualFloorPrice: manualFloorPrice ?? this.manualFloorPrice,
+      initialSelectedType: initialSelectedType,
+      initialCustomBaseMargin: initialCustomBaseMargin,
+      initialCustomFloorMargin: initialCustomFloorMargin,
+      initialManualListPrice: initialManualListPrice,
+      initialManualFloorPrice: initialManualFloorPrice,
       isSubmitting: isSubmitting ?? this.isSubmitting,
       error: clearError ? null : (error ?? this.error),
     );
@@ -89,8 +105,16 @@ class EditProductUnitPriceBandLoaded extends EditProductUnitPriceBandState {
     }
   }
 
+  bool get hasChanges =>
+      selectedType != initialSelectedType ||
+      customBaseMargin != initialCustomBaseMargin ||
+      customFloorMargin != initialCustomFloorMargin ||
+      manualListPrice != initialManualListPrice ||
+      manualFloorPrice != initialManualFloorPrice;
+
   bool get canSubmit {
     if (isSubmitting) return false;
+    if (!hasChanges) return false;
     final listP = calculatedListPrice;
     if (listP == null) return false;
     final floorP = calculatedFloorPrice;
@@ -109,6 +133,11 @@ class EditProductUnitPriceBandLoaded extends EditProductUnitPriceBandState {
     customFloorMargin,
     manualListPrice,
     manualFloorPrice,
+    initialSelectedType,
+    initialCustomBaseMargin,
+    initialCustomFloorMargin,
+    initialManualListPrice,
+    initialManualFloorPrice,
     isSubmitting,
     error,
   ];

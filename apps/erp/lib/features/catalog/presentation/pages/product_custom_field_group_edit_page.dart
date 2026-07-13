@@ -1,5 +1,6 @@
 import 'package:erp/features/catalog/presentation/bloc/product_custom_field_group_edit_cubit.dart';
 import 'package:erp/features/catalog/presentation/bloc/product_custom_field_group_edit_state.dart';
+import 'package:erp/features/catalog/presentation/widgets/product_form_bottom_bar.dart';
 import 'package:vet45_catalog_presentation/presentation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -58,13 +59,15 @@ class ProductCustomFieldGroupEditPage extends StatelessWidget {
         builder: (context, state) {
           if (state is ProductCustomFieldGroupEditInitial ||
               state is ProductCustomFieldGroupEditLoading) {
-            return const Scaffold(
-              body: Center(child: CircularProgressIndicator()),
+            return Scaffold(
+              backgroundColor: context.vColors.surface,
+              body: const Center(child: CircularProgressIndicator()),
             );
           }
 
           if (state is ProductCustomFieldGroupEditLoaded) {
             return Scaffold(
+              backgroundColor: context.vColors.surface,
               appBar: VAppBar(
                 title: state.group.name,
                 titleStyle: VTypography.headingH3.copyWith(fontWeight: FontWeight.bold),
@@ -112,43 +115,12 @@ class ProductCustomFieldGroupEditPage extends StatelessWidget {
                     ),
               bottomNavigationBar: state.group.fields.every((field) => !field.isActive)
                   ? null
-                  : Container(
-                      decoration: BoxDecoration(
-                        color: context.vColors.surface,
-                        border: Border(
-                          top: BorderSide(color: context.vColors.borderDefault),
-                        ),
-                      ),
-                      child: SafeArea(
-                        child: Padding(
-                          padding: const EdgeInsets.all(16),
-                          child: Row(
-                            children: [
-                              Expanded(
-                                child: VButton(
-                                  label: 'Huỷ',
-                                  variant: VButtonVariant.secondary,
-                                  foregroundColor: context.vColors.textPrimary,
-                                  onPressed: () => context.pop(),
-                                ),
-                              ),
-                              const SizedBox(width: 16),
-                              Expanded(
-                                child: VButton(
-                                  label: 'Lưu thay đổi',
-                                  variant: VButtonVariant.primary,
-                                  onPressed: state.isSubmitting
-                                      ? null
-                                      : () =>
-                                            context.read<ProductCustomFieldGroupEditCubit>().submit(
-                                              args.productId,
-                                            ),
-                                  isLoading: state.isSubmitting,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
+                  : ProductFormBottomBar(
+                      onCancel: () => context.pop(),
+                      isLoading: state.isSubmitting,
+                      saveEnabled: state.hasChanges,
+                      onSave: () => context.read<ProductCustomFieldGroupEditCubit>().submit(
+                        args.productId,
                       ),
                     ),
             );

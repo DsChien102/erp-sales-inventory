@@ -16,4 +16,19 @@ void main() {
       expect(formatCatalogCurrency(null), '--');
     });
   });
+
+  group('formatCatalogCurrencyAmount', () {
+    test('formats without suffix', () {
+      expect(formatCatalogCurrencyAmount(45000), '45.000');
+      expect(formatCatalogCurrencyAmount(null), isNull);
+    });
+  });
+
+  group('parseCatalogCurrencyAmount', () {
+    test('parses dot and comma separators', () {
+      expect(parseCatalogCurrencyAmount('45.000'), 45000);
+      expect(parseCatalogCurrencyAmount('45,000'), 45000);
+      expect(parseCatalogCurrencyAmount(''), isNull);
+    });
+  });
 }

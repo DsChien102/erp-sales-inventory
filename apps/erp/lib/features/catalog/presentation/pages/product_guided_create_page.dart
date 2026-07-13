@@ -54,7 +54,7 @@ class _ProductGuidedCreateView extends StatelessWidget {
         },
         child: Scaffold(
           key: const Key('wgt_e02_u01_fr01_01'),
-          backgroundColor: dynamicColors.background,
+          backgroundColor: dynamicColors.surface,
           appBar: VAppBar(
             title: 'Tạo nhanh sản phẩm',
             leading: IconButton(

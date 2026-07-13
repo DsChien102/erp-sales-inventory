@@ -8,6 +8,8 @@ import 'package:vet45_catalog_presentation/presentation.dart';
 import 'package:vet45_design_system/design_system.dart';
 import 'package:vet45_shared_application/application.dart';
 
+import '../../widgets/product_form_bottom_bar.dart';
+
 class EditStorePriceRulePage extends StatefulWidget {
   const EditStorePriceRulePage({
     super.key,
@@ -40,7 +42,7 @@ class _EditStorePriceRulePageState extends State<EditStorePriceRulePage> {
           rule != null ? (rule.floorMarkupRatio * 100).toStringAsFixed(1) : '',
     );
     _basePriceExampleController = TextEditingController(
-      text: _formatNumber(_defaultExampleBasePrice),
+      text: formatCatalogCurrencyAmount(_defaultExampleBasePrice) ?? '',
     );
     _noteController = TextEditingController();
   }
@@ -52,19 +54,6 @@ class _EditStorePriceRulePageState extends State<EditStorePriceRulePage> {
     _basePriceExampleController.dispose();
     _noteController.dispose();
     super.dispose();
-  }
-
-  String _formatNumber(double value) {
-    if (value == value.truncateToDouble()) {
-      return value.toInt().toString().replaceAllMapped(
-            RegExp(r'(\d)(?=(\d{3})+(?!\d))'),
-            (m) => '${m[1]}.',
-          );
-    }
-    return value.toStringAsFixed(0).replaceAllMapped(
-          RegExp(r'(\d)(?=(\d{3})+(?!\d))'),
-          (m) => '${m[1]}.',
-        );
   }
 
   double? _parseListMarkup() {
@@ -82,9 +71,9 @@ class _EditStorePriceRulePageState extends State<EditStorePriceRulePage> {
   bool _isNonNegative(double? value) => value != null && value >= 0;
 
   double _parseExampleBasePrice() {
-    final text =
-        _basePriceExampleController.text.replaceAll('.', '').trim();
-    return double.tryParse(text) ?? _defaultExampleBasePrice;
+    return (parseCatalogCurrencyAmount(_basePriceExampleController.text) ??
+            _defaultExampleBasePrice.toInt())
+        .toDouble();
   }
 
   double? _calculatePreviewPrice(double basePrice, double? markupPercent) {
@@ -128,7 +117,7 @@ class _EditStorePriceRulePageState extends State<EditStorePriceRulePage> {
           final isSaving = state is StorePriceRuleSettingsSaving;
 
           return Scaffold(
-            backgroundColor: context.vColors.background,
+            backgroundColor: context.vColors.surface,
             appBar: const VAppBar(
               title: 'Chỉnh sửa khung giá',
               showBackButton: true,
@@ -160,58 +149,28 @@ class _EditStorePriceRulePageState extends State<EditStorePriceRulePage> {
                 ],
               ),
             ),
-            bottomNavigationBar: SafeArea(
-              child: Container(
-                padding: const EdgeInsets.all(VSpacing.screenMobile),
-                decoration: BoxDecoration(
-                  color: context.vColors.surface,
-                  border: Border(
-                    top: BorderSide(color: context.vColors.borderDefault),
-                  ),
-                ),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: VButton(
-                        label: 'Huỷ',
-                        variant: VButtonVariant.secondary,
-                        onPressed: () => context.pop(),
-                      ),
-                    ),
-                    const SizedBox(width: VSpacing.space4),
-                    Expanded(
-                      flex: 2,
-                      child: VButton(
-                        label: 'Lưu',
-                        variant: VButtonVariant.primary,
-                        isLoading: isSaving,
-                        onPressed: _canSubmit && !isSaving
-                            ? () async {
-                                final listMarkup = _parseListMarkup()!;
-                                final floorMarkup = _parseFloorMarkup()!;
-                                final success = await context
-                                    .read<StorePriceRuleSettingsCubit>()
-                                    .saveRule(
-                                      listMarkupRatio: listMarkup / 100,
-                                      floorMarkupRatio: floorMarkup / 100,
-                                    );
-                                if (!context.mounted || !success) {
-                                  return;
-                                }
-                                VToast.show(
-                                  context,
-                                  title: 'Thành công',
-                                  message: 'Đã cập nhật khung giá cửa hàng.',
-                                  type: VToastType.success,
-                                );
-                                context.pop(true);
-                              }
-                            : null,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+            bottomNavigationBar: ProductFormBottomBar(
+              onCancel: () => context.pop(),
+              isLoading: isSaving,
+              saveEnabled: _canSubmit,
+              onSave: () async {
+                final listMarkup = _parseListMarkup()!;
+                final floorMarkup = _parseFloorMarkup()!;
+                final success = await context.read<StorePriceRuleSettingsCubit>().saveRule(
+                  listMarkupRatio: listMarkup / 100,
+                  floorMarkupRatio: floorMarkup / 100,
+                );
+                if (!context.mounted || !success) {
+                  return;
+                }
+                VToast.show(
+                  context,
+                  title: 'Thành công',
+                  message: 'Đã cập nhật khung giá cửa hàng.',
+                  type: VToastType.success,
+                );
+                context.pop(true);
+              },
             ),
           );
         },
@@ -404,39 +363,14 @@ class _EditStorePriceRulePageState extends State<EditStorePriceRulePage> {
             ),
           ),
           const SizedBox(height: VSpacing.space2),
-          TextField(
+          VMoneyField(
             controller: _basePriceExampleController,
-            keyboardType: TextInputType.number,
-            inputFormatters: [
-              FilteringTextInputFormatter.digitsOnly,
-            ],
-            onChanged: (_) => setState(() {}),
-            style: VTypography.headingH4.copyWith(
+            suffixText: 'đ',
+            textStyle: VTypography.headingH4.copyWith(
               color: colors.textPrimary,
               fontWeight: FontWeight.w600,
             ),
-            decoration: InputDecoration(
-              suffixText: 'đ',
-              suffixStyle: VTypography.bodyDefault.copyWith(
-                color: colors.textSecondary,
-              ),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(VRadius.r8),
-                borderSide: BorderSide(color: colors.borderDefault),
-              ),
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(VRadius.r8),
-                borderSide: BorderSide(color: colors.borderDefault),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(VRadius.r8),
-                borderSide: BorderSide(color: colors.primary, width: 2),
-              ),
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: VSpacing.space3,
-                vertical: VSpacing.space3,
-              ),
-            ),
+            onChanged: (_) => setState(() {}),
           ),
           const SizedBox(height: VSpacing.space3),
 
@@ -479,7 +413,7 @@ class _EditStorePriceRulePageState extends State<EditStorePriceRulePage> {
           ),
         ),
         Text(
-          value != null ? '${_formatNumber(value)} đ' : '—',
+          value != null ? formatCatalogCurrency(value) : '—',
           style: VTypography.bodyDefault.copyWith(
             color: valueColor,
             fontWeight: FontWeight.w700,

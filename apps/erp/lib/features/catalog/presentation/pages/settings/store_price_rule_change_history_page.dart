@@ -32,7 +32,7 @@ class _ChangeHistoryBody extends StatelessWidget {
     final colors = context.vColors;
 
     return Scaffold(
-      backgroundColor: colors.background,
+      backgroundColor: colors.surface,
       appBar: const VAppBar(
         title: 'Lịch sử thay đổi',
         showBackButton: true,

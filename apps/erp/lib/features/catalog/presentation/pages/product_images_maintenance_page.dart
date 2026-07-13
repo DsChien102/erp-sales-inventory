@@ -8,6 +8,7 @@ import 'package:vet45_shared_application/application.dart';
 
 import '../../../../core/di/injection.dart';
 import '../bloc/product_images_maintenance_cubit.dart';
+import '../widgets/product_form_bottom_bar.dart';
 
 class ProductImagesMaintenancePage extends StatelessWidget {
   const ProductImagesMaintenancePage({
@@ -94,7 +95,7 @@ class _ProductImagesMaintenanceView extends StatelessWidget {
       },
       child: Scaffold(
         key: const Key('wgt_e07_u01_fr02_01'),
-        backgroundColor: dynamicColors.background,
+        backgroundColor: dynamicColors.surface,
         appBar: VAppBar(
           title: 'Ảnh sản phẩm',
           leading: IconButton(
@@ -207,42 +208,16 @@ class _ProductImagesMaintenanceView extends StatelessWidget {
             },
           ),
         ),
-        bottomNavigationBar: Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: dynamicColors.surface,
-            border: Border(
-              top: BorderSide(color: dynamicColors.borderDefault),
-            ),
-          ),
-          child: SafeArea(
-            child: Row(
-              children: [
-                Expanded(
-                  child: VButton(
-                    onPressed: () => context.pop(),
-                    label: 'Huỷ',
-                    variant: VButtonVariant.outline,
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: BlocBuilder<ProductImagesMaintenanceCubit, ProductImagesMaintenanceState>(
-                    builder: (context, state) {
-                      return VButton(
-                        key: const Key('btn_images_maintenance_save'),
-                        onPressed: state.status == ProductImagesMaintenanceStatus.submitting
-                            ? null
-                            : () => context.read<ProductImagesMaintenanceCubit>().submit(),
-                        label: 'Lưu thay đổi',
-                        isLoading: state.status == ProductImagesMaintenanceStatus.submitting,
-                      );
-                    },
-                  ),
-                ),
-              ],
-            ),
-          ),
+        bottomNavigationBar: BlocBuilder<ProductImagesMaintenanceCubit, ProductImagesMaintenanceState>(
+          builder: (context, state) {
+            return ProductFormBottomBar(
+              onCancel: () => context.pop(),
+              saveKey: const Key('btn_images_maintenance_save'),
+              isLoading: state.status == ProductImagesMaintenanceStatus.submitting,
+              saveEnabled: context.read<ProductImagesMaintenanceCubit>().hasChanges,
+              onSave: () => context.read<ProductImagesMaintenanceCubit>().submit(),
+            );
+          },
         ),
       ),
     );

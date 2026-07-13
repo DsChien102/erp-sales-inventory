@@ -32,11 +32,20 @@ class _PriceBandCalculationTypeSelectorState extends State<PriceBandCalculationT
     }
   }
 
+  void _syncMoneyController(TextEditingController controller, double? value) {
+    final expected = value != null && value != 0 ? VMoneyValidator.format(value.round()) : '';
+    final parsed = VMoneyValidator.parse(controller.text);
+    final expectedInt = value != null && value != 0 ? value.round() : null;
+    if (parsed != expectedInt) {
+      controller.text = expected;
+    }
+  }
+
   void _syncControllers(EditProductUnitPriceBandLoaded state) {
     _syncController(_customBaseMarginController, state.customBaseMargin);
     _syncController(_customFloorMarginController, state.customFloorMargin);
-    _syncController(_manualListPriceController, state.manualListPrice);
-    _syncController(_manualFloorPriceController, state.manualFloorPrice);
+    _syncMoneyController(_manualListPriceController, state.manualListPrice);
+    _syncMoneyController(_manualFloorPriceController, state.manualFloorPrice);
   }
 
   @override
@@ -46,7 +55,7 @@ class _PriceBandCalculationTypeSelectorState extends State<PriceBandCalculationT
     return BlocBuilder<EditProductUnitPriceBandCubit, EditProductUnitPriceBandState>(
       builder: (context, state) {
         if (state is! EditProductUnitPriceBandLoaded) return const SizedBox.shrink();
-        
+
         _syncControllers(state);
 
         return Column(
@@ -166,9 +175,23 @@ class _PriceBandCalculationTypeSelectorState extends State<PriceBandCalculationT
           style: VTypography.bodySmall.copyWith(color: dynamicColors.textSecondary),
         ),
         const SizedBox(height: 16),
-        _buildDetailRow(context, 'Giá niêm yết', margin: _calculateMargin(state.suggestion.basePrice, state.suggestion.suggestedListBeforeVat ?? 0)),
+        _buildDetailRow(
+          context,
+          'Giá niêm yết',
+          margin: _calculateMargin(
+            state.suggestion.basePrice,
+            state.suggestion.suggestedListBeforeVat ?? 0,
+          ),
+        ),
         const SizedBox(height: 12),
-        _buildDetailRow(context, 'Giá sàn', margin: _calculateMargin(state.suggestion.basePrice, state.suggestion.suggestedFloorBeforeVat ?? 0)),
+        _buildDetailRow(
+          context,
+          'Giá sàn',
+          margin: _calculateMargin(
+            state.suggestion.basePrice,
+            state.suggestion.suggestedFloorBeforeVat ?? 0,
+          ),
+        ),
         const SizedBox(height: 16),
         Divider(color: dynamicColors.borderDefault),
         const SizedBox(height: 16),
@@ -196,7 +219,8 @@ class _PriceBandCalculationTypeSelectorState extends State<PriceBandCalculationT
           label: 'Lãi cơ sở',
           value: state.customBaseMargin,
           calculatedPrice: state.calculatedListPrice,
-          onChanged: (val) => context.read<EditProductUnitPriceBandCubit>().updateCustomBaseMargin(val ?? 0),
+          onChanged: (val) =>
+              context.read<EditProductUnitPriceBandCubit>().updateCustomBaseMargin(val ?? 0),
         ),
         const SizedBox(height: 16),
         _buildMarginInputRow(
@@ -205,7 +229,8 @@ class _PriceBandCalculationTypeSelectorState extends State<PriceBandCalculationT
           label: 'Giá sàn (% so với giá cơ sở)',
           value: state.customFloorMargin,
           calculatedPrice: state.calculatedFloorPrice,
-          onChanged: (val) => context.read<EditProductUnitPriceBandCubit>().updateCustomFloorMargin(val ?? 0),
+          onChanged: (val) =>
+              context.read<EditProductUnitPriceBandCubit>().updateCustomFloorMargin(val ?? 0),
         ),
         const SizedBox(height: 16),
         Divider(color: dynamicColors.borderDefault),
@@ -255,7 +280,8 @@ class _PriceBandCalculationTypeSelectorState extends State<PriceBandCalculationT
           controller: _manualListPriceController,
           label: 'Giá niêm yết',
           value: state.manualListPrice,
-          onChanged: (val) => context.read<EditProductUnitPriceBandCubit>().updateManualListPrice(val ?? 0),
+          onChanged: (val) =>
+              context.read<EditProductUnitPriceBandCubit>().updateManualListPrice(val ?? 0),
         ),
         const SizedBox(height: 16),
         _buildManualInputRow(
@@ -263,7 +289,8 @@ class _PriceBandCalculationTypeSelectorState extends State<PriceBandCalculationT
           controller: _manualFloorPriceController,
           label: 'Giá sàn',
           value: state.manualFloorPrice,
-          onChanged: (val) => context.read<EditProductUnitPriceBandCubit>().updateManualFloorPrice(val ?? 0),
+          onChanged: (val) =>
+              context.read<EditProductUnitPriceBandCubit>().updateManualFloorPrice(val ?? 0),
         ),
         const SizedBox(height: 16),
         Container(
@@ -317,14 +344,23 @@ class _PriceBandCalculationTypeSelectorState extends State<PriceBandCalculationT
               ),
             ),
             const SizedBox(width: 12),
-            Text('= $priceStr', style: VTypography.bodyDefault.copyWith(color: context.vColors.textSecondary)),
+            Text(
+              '= $priceStr',
+              style: VTypography.bodyDefault.copyWith(color: context.vColors.textSecondary),
+            ),
           ],
         ),
       ],
     );
   }
 
-  Widget _buildManualInputRow(BuildContext context, {required TextEditingController controller, required String label, required int? value, required ValueChanged<int?> onChanged}) {
+  Widget _buildManualInputRow(
+    BuildContext context, {
+    required TextEditingController controller,
+    required String label,
+    required int? value,
+    required ValueChanged<int?> onChanged,
+  }) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
@@ -332,9 +368,8 @@ class _PriceBandCalculationTypeSelectorState extends State<PriceBandCalculationT
         const SizedBox(width: 16),
         Expanded(
           flex: 3,
-          child: VTextField(
+          child: VMoneyField(
             controller: controller,
-            keyboardType: TextInputType.number,
             suffixText: 'đ',
             textAlign: TextAlign.right,
             onChanged: (val) => onChanged(int.tryParse(val.replaceAll(',', ''))),

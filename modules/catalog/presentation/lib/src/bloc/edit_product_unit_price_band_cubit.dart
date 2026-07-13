@@ -34,6 +34,7 @@ class EditProductUnitPriceBandCubit extends Cubit<EditProductUnitPriceBandState>
         EditProductUnitPriceBandLoaded(
           suggestion: suggestion,
           selectedType: initialType,
+          initialSelectedType: initialType,
         ),
       );
     } catch (e) {
@@ -47,6 +48,7 @@ class EditProductUnitPriceBandCubit extends Cubit<EditProductUnitPriceBandState>
             unavailableReason: 'Không thể tải gợi ý giá.',
           ),
           selectedType: PriceBandCalculationType.storeRule,
+          initialSelectedType: PriceBandCalculationType.storeRule,
           error: e.toString(),
         ),
       );
