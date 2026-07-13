@@ -27,8 +27,10 @@ class _ProductUnit {
     required this.conversionRateToBase,
     required this.isBaseUnit,
     required this.isActive,
-    this.listPrice,
-    this.floorPrice,
+    this.listBeforeVat,
+    this.floorBeforeVat,
+    this.listAfterVat,
+    this.floorAfterVat,
     this.priceBandSourceType,
     this.isCustomOverride = false,
     this.hasConversionRate = true,
@@ -41,8 +43,10 @@ class _ProductUnit {
   final double conversionRateToBase;
   final bool isBaseUnit;
   bool isActive;
-  double? listPrice;
-  double? floorPrice;
+  int? listBeforeVat;
+  int? floorBeforeVat;
+  int? listAfterVat;
+  int? floorAfterVat;
   PriceBandSourceType? priceBandSourceType;
   String? storePriceRuleId;
   String? storePriceRuleName;
@@ -50,7 +54,7 @@ class _ProductUnit {
   final bool hasConversionRate;
   bool hasTransactionUsage;
 
-  bool get hasCompletePriceBand => listPrice != null && floorPrice != null;
+  bool get hasCompletePriceBand => listBeforeVat != null && listAfterVat != null;
 }
 
 class _StockMovement {
@@ -154,8 +158,10 @@ class _StoredProduct {
     this.images = const [],
     this.stockQty,
     this.baseCost,
-    this.listPrice,
-    this.floorPrice,
+    this.listBeforeVat,
+    this.floorBeforeVat,
+    this.listAfterVat,
+    this.floorAfterVat,
     this.priceBandSourceType,
     this.isCustomOverride = false,
     this.notes,
@@ -181,8 +187,10 @@ class _StoredProduct {
   int stockVersion = 1;
   List<_StockMovement> stockMovements = const [];
   double? baseCost;
-  double? listPrice;
-  double? floorPrice;
+  int? listBeforeVat;
+  int? floorBeforeVat;
+  int? listAfterVat;
+  int? floorAfterVat;
   PriceBandSourceType? priceBandSourceType;
   String? storePriceRuleId;
   String? storePriceRuleName;
@@ -209,7 +217,7 @@ class _StoredProduct {
 
   bool get hasBasePrice => baseCost != null;
 
-  bool get hasPriceBand => listPrice != null && floorPrice != null;
+  bool get hasPriceBand => listBeforeVat != null && listAfterVat != null;
 
   int? get basePriceVersion =>
       baseCost == null ? null : StorePriceSuggestionCalculator.basePriceVersionFor(baseCost!);
@@ -235,8 +243,9 @@ final class FakeCatalogModule implements ICatalogModule {
           conversionRateToBase: 1,
           isBaseUnit: true,
           isActive: true,
-          listPrice: 120000,
-          floorPrice: 95000,
+          listBeforeVat: 120000,
+          listAfterVat: 120000,
+          floorBeforeVat: 95000,
           priceBandSourceType: PriceBandSourceType.manual,
         ),
         _ProductUnit(
@@ -246,8 +255,9 @@ final class FakeCatalogModule implements ICatalogModule {
           conversionRateToBase: 10,
           isBaseUnit: false,
           isActive: true,
-          listPrice: 1200000,
-          floorPrice: 950000,
+          listBeforeVat: 1200000,
+          listAfterVat: 1200000,
+          floorBeforeVat: 950000,
           priceBandSourceType: PriceBandSourceType.manual,
         ),
         _ProductUnit(
@@ -281,8 +291,9 @@ final class FakeCatalogModule implements ICatalogModule {
           conversionRateToBase: 1,
           isBaseUnit: true,
           isActive: true,
-          listPrice: 120000,
-          floorPrice: 95000,
+          listBeforeVat: 120000,
+          listAfterVat: 120000,
+          floorBeforeVat: 95000,
           priceBandSourceType: PriceBandSourceType.manual,
           isCustomOverride: true,
         ),
@@ -318,7 +329,7 @@ final class FakeCatalogModule implements ICatalogModule {
           conversionRateToBase: 1,
           isBaseUnit: true,
           isActive: true,
-          listPrice: 100000,
+          listBeforeVat: 100000,
         ),
       ],
       _products = [
@@ -332,8 +343,9 @@ final class FakeCatalogModule implements ICatalogModule {
           images: ['https://picsum.photos/200/300'],
           stockQty: 150,
           baseCost: 80000,
-          listPrice: 120000,
-          floorPrice: 95000,
+          listBeforeVat: 120000,
+          listAfterVat: 120000,
+          floorBeforeVat: 95000,
           notes: 'Hàng dễ vỡ, bảo quản nhiệt độ thường',
           updatedAt: DateTime.utc(2026, 6, 1),
         ),
@@ -347,8 +359,9 @@ final class FakeCatalogModule implements ICatalogModule {
           images: ['https://picsum.photos/200/301'],
           stockQty: 400,
           baseCost: 15000,
-          listPrice: 25000,
-          floorPrice: 18000,
+          listBeforeVat: 25000,
+          listAfterVat: 25000,
+          floorBeforeVat: 18000,
           priceBandSourceType: PriceBandSourceType.manual,
           isCustomOverride: true,
           updatedAt: DateTime.utc(2026, 5, 15),
@@ -363,8 +376,9 @@ final class FakeCatalogModule implements ICatalogModule {
           images: [],
           stockQty: 0,
           baseCost: 45000,
-          listPrice: 70000,
-          floorPrice: 55000,
+          listBeforeVat: 70000,
+          listAfterVat: 70000,
+          floorBeforeVat: 55000,
           updatedAt: DateTime.utc(2026, 4, 20),
         ),
         _StoredProduct(
@@ -389,8 +403,9 @@ final class FakeCatalogModule implements ICatalogModule {
           images: ['https://picsum.photos/200/303'],
           stockQty: 200,
           baseCost: 30000,
-          listPrice: 45000,
-          floorPrice: 35000,
+          listBeforeVat: 45000,
+          listAfterVat: 45000,
+          floorBeforeVat: 35000,
           businessStatus: ProductBusinessStatus.inactive,
           updatedAt: DateTime.utc(2026, 2, 5),
         ),
@@ -449,8 +464,9 @@ final class FakeCatalogModule implements ICatalogModule {
           images: ['https://picsum.photos/200/308'],
           stockQty: 30,
           baseCost: 80000,
-          listPrice: 120000,
-          floorPrice: 95000,
+          listBeforeVat: 120000,
+          listAfterVat: 120000,
+          floorBeforeVat: 95000,
           priceBandSourceType: PriceBandSourceType.manual,
           isCustomOverride: true,
           updatedAt: DateTime.utc(2026, 1, 4),
@@ -477,8 +493,9 @@ final class FakeCatalogModule implements ICatalogModule {
           images: ['https://picsum.photos/200/310'],
           stockQty: 15,
           baseCost: 22000,
-          listPrice: 35000,
-          floorPrice: 28000,
+          listBeforeVat: 35000,
+          listAfterVat: 35000,
+          floorBeforeVat: 28000,
           businessStatus: ProductBusinessStatus.inactive,
           updatedAt: DateTime.utc(2026, 1, 2),
         ),
@@ -688,18 +705,19 @@ final class FakeCatalogModule implements ICatalogModule {
     } else if (command is SetInitialPriceBandCommand) {
       final cmd = command as SetInitialPriceBandCommand;
       final useRule = cmd.useStoreRule ?? false;
-      if (useRule && (cmd.listPrice == null || cmd.floorPrice == null)) {
+      if (useRule && (cmd.listBeforeVat == null || cmd.floorBeforeVat == null)) {
         throw MissingBasePriceException();
       }
-      if (cmd.listPrice != null && cmd.floorPrice != null && cmd.floorPrice! > cmd.listPrice!) {
+      if (cmd.listBeforeVat != null && cmd.floorBeforeVat != null && cmd.floorBeforeVat! > cmd.listBeforeVat!) {
         throw FloorPriceGreaterThanListPriceException();
       }
       final prod = _products.firstWhere((p) => p.id == cmd.productId);
       if (!prod.hasBaseUnit) {
         throw MissingBaseUnitException();
       }
-      prod.listPrice = cmd.listPrice;
-      prod.floorPrice = cmd.floorPrice;
+      prod.listBeforeVat = cmd.listBeforeVat;
+      prod.floorBeforeVat = cmd.floorBeforeVat;
+      prod.listAfterVat = cmd.listBeforeVat;
       prod.useStoreRule = useRule;
       return null as TResult;
     } else if (command is SetStorePriceRuleCommand) {
@@ -1515,8 +1533,9 @@ final class FakeCatalogModule implements ICatalogModule {
     };
     product.stockQty = command.basicStockQuantityBase;
     product.baseCost = command.basePrice;
-    product.listPrice = command.listPrice;
-    product.floorPrice = command.floorPrice;
+    product.listBeforeVat = command.listBeforeVat;
+    product.floorBeforeVat = command.floorBeforeVat;
+    product.listAfterVat = command.listBeforeVat;
     return CreateGuidedProductResult(
           productId: product.id,
           readinessSummary: _readinessSummaryFor(product),
@@ -1629,8 +1648,9 @@ final class FakeCatalogModule implements ICatalogModule {
       images: images,
       stockQty: hasStock ? 0 : null,
       baseCost: hasBasePrice ? 0 : null,
-      listPrice: hasPriceBand ? 1 : null,
-      floorPrice: hasPriceBand ? 1 : null,
+      listBeforeVat: hasPriceBand ? 1 : null,
+      floorBeforeVat: hasPriceBand ? 1 : null,
+      listAfterVat: hasPriceBand ? 1 : null,
       notes: command.note,
       hasRequiredCustomFields: hasRequiredCustomFields,
       stockMode: stockMode,
@@ -1857,8 +1877,8 @@ final class FakeCatalogModule implements ICatalogModule {
       stockQty: product.stockQty,
       stockVersion: product.stockVersion,
       baseCost: product.baseCost,
-      listPrice: product.listPrice,
-      floorPrice: product.floorPrice,
+      listBeforeVat: product.listBeforeVat,
+      floorBeforeVat: product.floorBeforeVat,
       priceBandSourceType: product.priceBandSourceType,
       storePriceRuleName: product.storePriceRuleName,
       isCustomOverride: product.isCustomOverride,
@@ -2010,8 +2030,8 @@ final class FakeCatalogModule implements ICatalogModule {
       primaryImageUrl: product.images.isNotEmpty ? product.images.first : null,
       businessStatus: product.businessStatus,
       readinessSummary: summary,
-      listPrice: product.listPrice,
-      floorPrice: product.floorPrice,
+      listBeforeVat: product.listBeforeVat,
+      floorBeforeVat: product.floorBeforeVat,
       baseUnit: product.baseUnit,
       stockQuantity: product.stockQty,
       updatedAt: product.updatedAt,
@@ -2616,8 +2636,8 @@ final class FakeCatalogModule implements ICatalogModule {
           unitName: product.baseUnit,
           basePrice: product.baseCost!,
           currency: 'VND',
-          suggestedListPrice: prices.listPrice,
-          suggestedFloorPrice: prices.floorPrice,
+          suggestedListBeforeVat: prices.listBeforeVat,
+          suggestedFloorBeforeVat: prices.floorBeforeVat,
           storePriceRuleId: rule.id,
           storePriceRuleName: rule.name,
           basePriceVersion: product.basePriceVersion,
@@ -2659,8 +2679,8 @@ final class FakeCatalogModule implements ICatalogModule {
 
     if (_productHasPriceBand(product) && !command.confirmOverwrite) {
       throw PriceBandOverwriteRequiredException(
-        existingListPrice: product.listPrice,
-        existingFloorPrice: product.floorPrice,
+        existingListBeforeVat: product.listBeforeVat,
+        existingFloorBeforeVat: product.floorBeforeVat,
       );
     }
 
@@ -2671,8 +2691,10 @@ final class FakeCatalogModule implements ICatalogModule {
     );
 
     product
-      ..listPrice = prices.listPrice
-      ..floorPrice = prices.floorPrice
+      ..listBeforeVat = prices.listBeforeVat
+      ..floorBeforeVat = prices.floorBeforeVat
+      ..listAfterVat = prices.listBeforeVat
+      ..floorAfterVat = prices.floorBeforeVat
       ..priceBandSourceType = PriceBandSourceType.ruleBased
       ..storePriceRuleId = rule.id
       ..storePriceRuleName = rule.name
@@ -2681,8 +2703,10 @@ final class FakeCatalogModule implements ICatalogModule {
     return ApplyStorePriceRuleResult(
           productId: product.id,
           productUnitId: command.productUnitId,
-          listPrice: prices.listPrice,
-          floorPrice: prices.floorPrice,
+          listBeforeVat: prices.listBeforeVat,
+          floorBeforeVat: prices.floorBeforeVat,
+          listAfterVat: prices.listBeforeVat,
+          floorAfterVat: prices.floorBeforeVat,
           storePriceRuleId: rule.id,
           sourceType: PriceBandSourceType.ruleBased,
           readinessSummary: _readinessSummaryFor(product),
@@ -2723,8 +2747,10 @@ final class FakeCatalogModule implements ICatalogModule {
     final baseUnit = _resolveBaseUnit(product.id);
     if (baseUnit != null && baseUnit.hasCompletePriceBand) {
       product
-        ..listPrice = baseUnit.listPrice
-        ..floorPrice = baseUnit.floorPrice
+        ..listBeforeVat = baseUnit.listBeforeVat
+        ..floorBeforeVat = baseUnit.floorBeforeVat
+        ..listAfterVat = baseUnit.listAfterVat
+        ..floorAfterVat = baseUnit.floorAfterVat
         ..priceBandSourceType = baseUnit.priceBandSourceType
         ..storePriceRuleId = baseUnit.storePriceRuleId
         ..storePriceRuleName = baseUnit.storePriceRuleName
@@ -2734,8 +2760,10 @@ final class FakeCatalogModule implements ICatalogModule {
 
     if (!_productHasPriceBand(product)) {
       product
-        ..listPrice = null
-        ..floorPrice = null
+        ..listBeforeVat = null
+        ..floorBeforeVat = null
+        ..listAfterVat = null
+        ..floorAfterVat = null
         ..priceBandSourceType = null
         ..storePriceRuleId = null
         ..storePriceRuleName = null
@@ -2759,8 +2787,9 @@ final class FakeCatalogModule implements ICatalogModule {
   List<PriceBandValidationWarningDto> _computePriceBandWarnings({
     required _StoredProduct product,
     required _ProductUnit unit,
-    required double listPrice,
-    required double floorPrice,
+    required int listBeforeVat,
+    required int listAfterVat,
+    int? floorBeforeVat,
   }) {
     final comparableBase = _comparableBasePriceForUnit(product, unit);
     if (comparableBase == null) {
@@ -2770,7 +2799,7 @@ final class FakeCatalogModule implements ICatalogModule {
             code: 'cannot_compare_base_price',
             severity: PriceBandValidationWarningSeverity.warning,
             message: 'Không thể so sánh chắc chắn với Giá cơ sở do thiếu tỷ lệ quy đổi.',
-            field: PriceBandValidationField.listPrice,
+            field: PriceBandValidationField.listBeforeVat,
             baseUnitName: product.baseUnit,
           ),
         ];
@@ -2779,25 +2808,25 @@ final class FakeCatalogModule implements ICatalogModule {
     }
 
     final warnings = <PriceBandValidationWarningDto>[];
-    if (listPrice < comparableBase) {
+    if (listBeforeVat < comparableBase) {
       warnings.add(
         PriceBandValidationWarningDto(
           code: 'list_price_below_base_price',
           severity: PriceBandValidationWarningSeverity.warning,
           message: 'Giá niêm yết thấp hơn Giá cơ sở định giá.',
-          field: PriceBandValidationField.listPrice,
+          field: PriceBandValidationField.listBeforeVat,
           comparedBasePrice: comparableBase,
           baseUnitName: product.baseUnit,
         ),
       );
     }
-    if (floorPrice < comparableBase) {
+    if (floorBeforeVat != null && floorBeforeVat < comparableBase) {
       warnings.add(
         PriceBandValidationWarningDto(
           code: 'floor_price_below_base_price',
           severity: PriceBandValidationWarningSeverity.strongWarning,
           message: 'Giá sàn thấp hơn Giá cơ sở định giá.',
-          field: PriceBandValidationField.floorPrice,
+          field: PriceBandValidationField.floorBeforeVat,
           comparedBasePrice: comparableBase,
           baseUnitName: product.baseUnit,
         ),
@@ -2812,8 +2841,10 @@ final class FakeCatalogModule implements ICatalogModule {
       unitName: unit.name,
       isBaseUnit: unit.isBaseUnit,
       isActive: unit.isActive,
-      listPrice: unit.listPrice,
-      floorPrice: unit.floorPrice,
+      listBeforeVat: unit.listBeforeVat,
+      floorBeforeVat: unit.floorBeforeVat,
+      listAfterVat: unit.listAfterVat,
+      floorAfterVat: unit.floorAfterVat,
       isMissing: !unit.hasCompletePriceBand,
       sourceType: unit.priceBandSourceType,
       storePriceRuleName: unit.storePriceRuleName,
@@ -2871,19 +2902,19 @@ final class FakeCatalogModule implements ICatalogModule {
       if (!product.hasBaseUnit) {
         throw ApplicationException('Product not found');
       }
-      final listPrice = product.listPrice;
-      final floorPrice = product.floorPrice;
+      final listBeforeVat = product.listBeforeVat;
+      final floorBeforeVat = product.floorBeforeVat;
       final floorHidden = product.pricePermissionDenied;
       return ProductPriceBandSnapshotItemDto(
         productId: product.id,
         productUnitId: syntheticBaseId,
         unitName: product.baseUnit,
         currency: 'VND',
-        listPrice: listPrice,
-        listPriceMissing: listPrice == null,
-        floorPrice: floorHidden ? null : floorPrice,
-        floorPriceMissing: floorPrice == null,
-        floorPriceHidden: floorHidden,
+        listBeforeVat: listBeforeVat,
+        listBeforeVatMissing: listBeforeVat == null,
+        floorBeforeVat: floorHidden ? null : floorBeforeVat,
+        floorBeforeVatMissing: floorBeforeVat == null,
+        floorBeforeVatHidden: floorHidden,
         isUnitActive: true,
         productBusinessStatus: product.businessStatus,
         capturedAt: capturedAt,
@@ -2899,19 +2930,19 @@ final class FakeCatalogModule implements ICatalogModule {
     required DateTime capturedAt,
   }) {
     final floorHidden = product.pricePermissionDenied;
-    final listPrice = unit.isActive ? unit.listPrice : null;
-    final floorPrice = unit.isActive && !floorHidden ? unit.floorPrice : null;
+    final listBeforeVat = unit.isActive ? unit.listBeforeVat : null;
+    final floorBeforeVat = unit.isActive && !floorHidden ? unit.floorBeforeVat : null;
 
     return ProductPriceBandSnapshotItemDto(
       productId: product.id,
       productUnitId: unit.id,
       unitName: unit.name,
       currency: 'VND',
-      listPrice: listPrice,
-      listPriceMissing: listPrice == null,
-      floorPrice: floorPrice,
-      floorPriceMissing: unit.floorPrice == null,
-      floorPriceHidden: floorHidden,
+      listBeforeVat: listBeforeVat,
+      listBeforeVatMissing: listBeforeVat == null,
+      floorBeforeVat: floorBeforeVat,
+      floorBeforeVatMissing: unit.floorBeforeVat == null,
+      floorBeforeVatHidden: floorHidden,
       isUnitActive: unit.isActive,
       productBusinessStatus: product.businessStatus,
       capturedAt: capturedAt,
@@ -2942,8 +2973,10 @@ final class FakeCatalogModule implements ICatalogModule {
                 unitName: product.baseUnit,
                 isBaseUnit: true,
                 isActive: true,
-                listPrice: product.listPrice,
-                floorPrice: product.floorPrice,
+                listBeforeVat: product.listBeforeVat,
+                floorBeforeVat: product.floorBeforeVat,
+                listAfterVat: product.listAfterVat,
+                floorAfterVat: product.floorAfterVat,
                 isMissing: !product.hasPriceBand,
                 sourceType: product.priceBandSourceType,
                 storePriceRuleName: product.storePriceRuleName,
@@ -2966,11 +2999,17 @@ final class FakeCatalogModule implements ICatalogModule {
   TResult _handleSetProductUnitPriceBand<TResult>(
     SetProductUnitPriceBandCommand command,
   ) {
-    if (command.listPrice < 0 || command.floorPrice < 0) {
+    if (command.listBeforeVat < 0 || command.listAfterVat < 0) {
       throw ValidationException('Giá không được âm.');
     }
-    if (command.floorPrice > command.listPrice) {
-      throw FloorPriceGreaterThanListPriceException();
+    final floor = command.floorBeforeVat;
+    if (floor != null) {
+      if (floor < 0) {
+        throw ValidationException('Giá không được âm.');
+      }
+      if (floor > command.listBeforeVat) {
+        throw FloorPriceGreaterThanListPriceException();
+      }
     }
 
     final product = _findProduct(command.productId);
@@ -2994,16 +3033,19 @@ final class FakeCatalogModule implements ICatalogModule {
       final warnings = _computePriceBandWarnings(
         product: product,
         unit: unit,
-        listPrice: command.listPrice,
-        floorPrice: command.floorPrice,
+        listBeforeVat: command.listBeforeVat,
+        listAfterVat: command.listAfterVat,
+        floorBeforeVat: command.floorBeforeVat,
       );
       if (warnings.isNotEmpty && !command.confirmAcknowledgeWarnings) {
         throw PriceBandWarningsRequireAcknowledgmentException(warnings: warnings);
       }
 
       unit
-        ..listPrice = command.listPrice
-        ..floorPrice = command.floorPrice
+        ..listBeforeVat = command.listBeforeVat
+        ..floorBeforeVat = command.floorBeforeVat
+        ..listAfterVat = command.listAfterVat
+        ..floorAfterVat = command.floorAfterVat
         ..priceBandSourceType = command.sourceType
         ..storePriceRuleId = command.storePriceRuleId
         ..isCustomOverride = command.sourceType == PriceBandSourceType.manual;
@@ -3013,8 +3055,10 @@ final class FakeCatalogModule implements ICatalogModule {
       return SetProductUnitPriceBandResult(
             productId: product.id,
             productUnitId: unit.id,
-            listPrice: command.listPrice,
-            floorPrice: command.floorPrice,
+            listBeforeVat: command.listBeforeVat,
+            floorBeforeVat: command.floorBeforeVat,
+            listAfterVat: command.listAfterVat,
+            floorAfterVat: command.floorAfterVat,
             sourceType: command.sourceType,
             storePriceRuleId: command.storePriceRuleId,
             warnings: warnings,
@@ -3034,16 +3078,19 @@ final class FakeCatalogModule implements ICatalogModule {
     final warnings = _computePriceBandWarnings(
       product: product,
       unit: syntheticUnit,
-      listPrice: command.listPrice,
-      floorPrice: command.floorPrice,
+      listBeforeVat: command.listBeforeVat,
+        listAfterVat: command.listAfterVat,
+      floorBeforeVat: command.floorBeforeVat,
     );
     if (warnings.isNotEmpty && !command.confirmAcknowledgeWarnings) {
       throw PriceBandWarningsRequireAcknowledgmentException(warnings: warnings);
     }
 
     product
-      ..listPrice = command.listPrice
-      ..floorPrice = command.floorPrice
+      ..listBeforeVat = command.listBeforeVat
+      ..floorBeforeVat = command.floorBeforeVat
+      ..listAfterVat = command.listAfterVat
+      ..floorAfterVat = command.floorAfterVat
       ..priceBandSourceType = command.sourceType
       ..storePriceRuleId = command.storePriceRuleId
       ..isCustomOverride = command.sourceType == PriceBandSourceType.manual;
@@ -3051,8 +3098,10 @@ final class FakeCatalogModule implements ICatalogModule {
     return SetProductUnitPriceBandResult(
           productId: product.id,
           productUnitId: command.productUnitId,
-          listPrice: command.listPrice,
-          floorPrice: command.floorPrice,
+          listBeforeVat: command.listBeforeVat,
+          floorBeforeVat: command.floorBeforeVat,
+          listAfterVat: command.listAfterVat,
+          floorAfterVat: command.floorAfterVat,
           sourceType: command.sourceType,
           storePriceRuleId: command.storePriceRuleId,
           warnings: warnings,

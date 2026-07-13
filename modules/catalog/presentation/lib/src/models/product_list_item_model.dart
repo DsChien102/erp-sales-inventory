@@ -16,8 +16,8 @@ class ProductListItemModel {
     this.stockLabel,
     this.stockQty,
     this.baseUnit,
-    this.listPrice,
-    this.floorPrice,
+    this.listBeforeVat,
+    this.floorBeforeVat,
     this.baseCost,
     this.industryInfo,
     this.notes,
@@ -36,8 +36,8 @@ class ProductListItemModel {
   final String? stockLabel;
   final int? stockQty;
   final String? baseUnit;
-  final double? listPrice;
-  final double? floorPrice;
+  final int? listBeforeVat;
+  final int? floorBeforeVat;
   final double? baseCost;
   final String? industryInfo;
   final String? notes;
@@ -76,8 +76,8 @@ class ProductListItemModel {
     String? stockLabel,
     int? stockQty,
     String? baseUnit,
-    double? listPrice,
-    double? floorPrice,
+    int? listBeforeVat,
+    int? floorBeforeVat,
     double? baseCost,
     String? industryInfo,
     String? notes,
@@ -96,8 +96,8 @@ class ProductListItemModel {
       stockLabel: stockLabel ?? this.stockLabel,
       stockQty: stockQty ?? this.stockQty,
       baseUnit: baseUnit ?? this.baseUnit,
-      listPrice: listPrice ?? this.listPrice,
-      floorPrice: floorPrice ?? this.floorPrice,
+      listBeforeVat: listBeforeVat ?? this.listBeforeVat,
+      floorBeforeVat: floorBeforeVat ?? this.floorBeforeVat,
       baseCost: baseCost ?? this.baseCost,
       industryInfo: industryInfo ?? this.industryInfo,
       notes: notes ?? this.notes,

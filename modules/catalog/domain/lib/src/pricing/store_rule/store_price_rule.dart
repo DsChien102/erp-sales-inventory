@@ -81,8 +81,8 @@ final class StorePriceRule extends Entity<String> implements IAggregateRoot {
     );
   }
 
-  /// Suggests list/floor from base price using store markups.
-  ({double listPrice, double floorPrice}) suggestPrices(double basePrice) {
+  /// Suggests before-VAT list/floor from base price using store markups.
+  ({int listBeforeVat, int floorBeforeVat}) suggestPrices(double basePrice) {
     checkRule(
       SuggestedFloorNotGreaterThanListRule(
         basePrice: basePrice,
@@ -91,8 +91,8 @@ final class StorePriceRule extends Entity<String> implements IAggregateRoot {
       ),
     );
     return (
-      listPrice: (basePrice * (1 + listMarkupRatio)).roundToDouble(),
-      floorPrice: (basePrice * (1 + floorMarkupRatio)).roundToDouble(),
+      listBeforeVat: (basePrice * (1 + listMarkupRatio)).round(),
+      floorBeforeVat: (basePrice * (1 + floorMarkupRatio)).round(),
     );
   }
 

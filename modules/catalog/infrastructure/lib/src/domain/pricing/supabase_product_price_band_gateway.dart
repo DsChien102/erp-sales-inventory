@@ -1,5 +1,6 @@
 import 'package:vet45_adapters/vet45_adapters.dart';
 import 'package:vet45_catalog_application/application.dart';
+import 'package:vet45_catalog_domain/domain.dart';
 import 'package:vet45_shared_application/application.dart';
 import 'package:vet45_shared_infrastructure/infrastructure.dart';
 
@@ -59,9 +60,14 @@ final class SupabaseProductPriceBandGateway implements IProductPriceBandGateway 
     required String tenantId,
     required String productId,
     required String productUnitId,
-    required double listPrice,
-    required double floorPrice,
+    required int listBeforeVat,
+    required int listAfterVat,
+    int? floorBeforeVat,
     required PriceBandSourceType sourceType,
+    int? floorAfterVat,
+    DateTime? effectiveFrom,
+    DateTime? effectiveTo,
+    ProductPriceBandStatus? status,
     String? storePriceRuleId,
   }) async {
     try {
@@ -71,8 +77,13 @@ final class SupabaseProductPriceBandGateway implements IProductPriceBandGateway 
           tenantId: tenantId,
           productId: productId,
           productUnitId: productUnitId,
-          listPrice: listPrice,
-          floorPrice: floorPrice,
+          listBeforeVat: listBeforeVat,
+          floorBeforeVat: floorBeforeVat,
+          listAfterVat: listAfterVat,
+          floorAfterVat: floorAfterVat,
+          effectiveFrom: effectiveFrom,
+          effectiveTo: effectiveTo,
+          status: status,
           sourceType: sourceType,
           storePriceRuleId: storePriceRuleId,
         ),

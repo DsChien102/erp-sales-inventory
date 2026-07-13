@@ -66,7 +66,7 @@ class EditProductUnitPriceBandCubit extends Cubit<EditProductUnitPriceBandState>
     }
   }
 
-  void updateManualListPrice(double price) {
+  void updateManualListPrice(int price) {
     if (state is EditProductUnitPriceBandLoaded) {
       emit((state as EditProductUnitPriceBandLoaded).copyWith(
         manualListPrice: price,
@@ -75,7 +75,7 @@ class EditProductUnitPriceBandCubit extends Cubit<EditProductUnitPriceBandState>
     }
   }
 
-  void updateManualFloorPrice(double price) {
+  void updateManualFloorPrice(int price) {
     if (state is EditProductUnitPriceBandLoaded) {
       emit((state as EditProductUnitPriceBandLoaded).copyWith(
         manualFloorPrice: price,
@@ -110,8 +110,9 @@ class EditProductUnitPriceBandCubit extends Cubit<EditProductUnitPriceBandState>
             tenantId: tenantId,
             productId: productId,
             productUnitId: productUnitId,
-            listPrice: currentState.calculatedListPrice!,
-            floorPrice: currentState.calculatedFloorPrice!,
+            listBeforeVat: currentState.calculatedListPrice!,
+            listAfterVat: currentState.calculatedListPrice!,
+            floorBeforeVat: currentState.calculatedFloorPrice,
             sourceType: PriceBandSourceType.manual,
           ),
         );
@@ -121,8 +122,8 @@ class EditProductUnitPriceBandCubit extends Cubit<EditProductUnitPriceBandState>
     } on PriceBandOverwriteRequiredException catch (e) {
       emit(EditProductUnitPriceBandNeedsOverwriteConfirm(
         loaded: currentState.copyWith(isSubmitting: false, clearError: true),
-        existingListPrice: e.existingListPrice,
-        existingFloorPrice: e.existingFloorPrice,
+        existingListBeforeVat: e.existingListBeforeVat,
+        existingFloorBeforeVat: e.existingFloorBeforeVat,
       ));
     } catch (e) {
       emit(currentState.copyWith(

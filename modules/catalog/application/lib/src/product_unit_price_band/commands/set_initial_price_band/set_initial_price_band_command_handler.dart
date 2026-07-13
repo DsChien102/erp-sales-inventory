@@ -22,7 +22,7 @@ final class SetInitialPriceBandCommandHandler
   Future<void> handle(SetInitialPriceBandCommand command) async {
     final useRule = command.useStoreRule ?? false;
 
-    if (useRule && (command.listPrice == null || command.floorPrice == null)) {
+    if (useRule && (command.listBeforeVat == null || command.floorBeforeVat == null)) {
       throw MissingBasePriceException();
     }
 
@@ -34,8 +34,9 @@ final class SetInitialPriceBandCommandHandler
       throw MissingBaseUnitException();
     }
 
-    final listPriceVal = command.listPrice ?? 0.0;
-    final floorPriceVal = command.floorPrice ?? 0.0;
+    final listBeforeVatVal = command.listBeforeVat ?? 0;
+    final listAfterVatVal = listBeforeVatVal;
+    final floorBeforeVatVal = command.floorBeforeVat;
     final unitSuffix = command.productUnitId ?? 'initial';
 
     final priceBand = ProductUnitPriceBand.set(
@@ -43,8 +44,9 @@ final class SetInitialPriceBandCommandHandler
       tenantId: TenantId(command.tenantId),
       productId: ProductId(command.productId),
       productUnitId: command.productUnitId,
-      listPrice: listPriceVal,
-      floorPrice: floorPriceVal,
+      listBeforeVat: listBeforeVatVal,
+      listAfterVat: listAfterVatVal,
+      floorBeforeVat: floorBeforeVatVal,
     );
 
     await _commandGateway.setInitialPriceBand(

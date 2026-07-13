@@ -408,7 +408,7 @@ void main() {
         SetManualBasePriceCommand(
           tenantId: 'tenant-1',
           productId: 'prod-1',
-          basePrice: 80000.0,
+          basePrice: 80000,
         ),
       );
 
@@ -431,16 +431,16 @@ void main() {
       final command = SetInitialPriceBandCommand(
         tenantId: 'tenant-1',
         productId: 'prod-1',
-        listPrice: 100000.0,
-        floorPrice: 80000.0,
+        listBeforeVat: 100000,
+        floorBeforeVat: 80000,
       );
 
       await validator.validate(command);
       await handler.handle(command);
 
       expect(gateway.lastProductId, 'prod-1');
-      expect(gateway.lastPriceBand!.listPrice!.amount, 100000.0);
-      expect(gateway.lastPriceBand!.floorPrice!.amount, 80000.0);
+      expect(gateway.lastPriceBand!.listBeforeVat!.amount, 100000.0);
+      expect(gateway.lastPriceBand!.floorBeforeVat!.amount, 80000);
     });
 
     test('omitted product unit id leaves null for RPC base-unit resolution', () async {
@@ -454,8 +454,8 @@ void main() {
         SetInitialPriceBandCommand(
           tenantId: 'tenant-1',
           productId: 'prod-1',
-          listPrice: 100000.0,
-          floorPrice: 80000.0,
+          listBeforeVat: 100000,
+          floorBeforeVat: 80000,
         ),
       );
 
@@ -473,8 +473,8 @@ void main() {
       final command = SetInitialPriceBandCommand(
         tenantId: 'tenant-1',
         productId: 'prod-1',
-        listPrice: 50000.0,
-        floorPrice: 80000.0,
+        listBeforeVat: 50000,
+        floorBeforeVat: 80000,
       );
 
       expect(
@@ -518,8 +518,8 @@ void main() {
           SetInitialPriceBandCommand(
             tenantId: 'tenant-1',
             productId: 'prod-1',
-            listPrice: 100000.0,
-            floorPrice: 80000.0,
+            listBeforeVat: 100000,
+            floorBeforeVat: 80000,
           ),
         ),
         throwsA(isA<MissingBaseUnitException>()),

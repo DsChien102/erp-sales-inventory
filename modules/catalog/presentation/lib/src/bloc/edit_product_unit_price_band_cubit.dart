@@ -74,14 +74,14 @@ class EditProductUnitPriceBandCubit extends Cubit<EditProductUnitPriceBandState>
     }
   }
 
-  void updateManualListPrice(double price) {
+  void updateManualListPrice(int price) {
     if (state is EditProductUnitPriceBandLoaded) {
       final currentState = state as EditProductUnitPriceBandLoaded;
       emit(currentState.copyWith(manualListPrice: price, clearError: true));
     }
   }
 
-  void updateManualFloorPrice(double price) {
+  void updateManualFloorPrice(int price) {
     if (state is EditProductUnitPriceBandLoaded) {
       final currentState = state as EditProductUnitPriceBandLoaded;
       emit(currentState.copyWith(manualFloorPrice: price, clearError: true));
@@ -105,8 +105,9 @@ class EditProductUnitPriceBandCubit extends Cubit<EditProductUnitPriceBandState>
         tenantId: tenantId,
         productId: productId,
         productUnitId: productUnitId,
-        listPrice: currentState.calculatedListPrice!,
-        floorPrice: currentState.calculatedFloorPrice!,
+        listBeforeVat: currentState.calculatedListPrice!,
+        listAfterVat: currentState.calculatedListPrice!,
+        floorBeforeVat: currentState.calculatedFloorPrice,
         sourceType: currentState.selectedType == PriceBandCalculationType.storeRule
             ? PriceBandSourceType.ruleBased
             : PriceBandSourceType.manual,
@@ -116,7 +117,7 @@ class EditProductUnitPriceBandCubit extends Cubit<EditProductUnitPriceBandState>
         confirmAcknowledgeWarnings: confirmAcknowledgeWarnings,
       );
 
-      final result = await moduleMediator.executeCommandAsync(command);
+      await moduleMediator.executeCommandAsync(command);
       emit(EditProductUnitPriceBandSuccess());
     } on PriceBandWarningsRequireAcknowledgmentException {
       emit(

@@ -6,31 +6,31 @@ import '../models/product_list_item_model.dart';
 import '../models/product_readiness_status.dart';
 
 class CatalogUiMapper {
-  static ({double? listPrice, double? floorPrice}) resolvePriceBand(
+  static ({int? listBeforeVat, int? floorBeforeVat}) resolvePriceBand(
     ProductGuidedCreateState state,
   ) {
     if (!state.priceBandConfigured) {
-      return (listPrice: null, floorPrice: null);
+      return (listBeforeVat: null, floorBeforeVat: null);
     }
 
     final baseCost = double.tryParse(state.baseCost.trim());
 
     if (state.pricingMethod == 'manual') {
       return (
-        listPrice: double.tryParse(state.manualListPrice.trim()),
-        floorPrice: double.tryParse(state.manualFloorPrice.trim()),
+        listBeforeVat: int.tryParse(state.manualListPrice.trim().replaceAll(',', '')),
+        floorBeforeVat: int.tryParse(state.manualFloorPrice.trim().replaceAll(',', '')),
       );
     }
 
     if (baseCost == null) {
-      return (listPrice: null, floorPrice: null);
+      return (listBeforeVat: null, floorBeforeVat: null);
     }
 
     if (state.pricingMethod == 'storeRule') {
       final listRatio = state.storeRuleListMarkupRatio;
       final floorRatio = state.storeRuleFloorMarkupRatio;
       if (listRatio == null || floorRatio == null) {
-        return (listPrice: null, floorPrice: null);
+        return (listBeforeVat: null, floorBeforeVat: null);
       }
       final suggested = StorePriceSuggestionCalculator.suggest(
         basePrice: baseCost,
@@ -38,8 +38,8 @@ class CatalogUiMapper {
         floorMarkupRatio: floorRatio,
       );
       return (
-        listPrice: suggested.listPrice,
-        floorPrice: suggested.floorPrice,
+        listBeforeVat: suggested.listBeforeVat,
+        floorBeforeVat: suggested.floorBeforeVat,
       );
     }
 
@@ -47,7 +47,7 @@ class CatalogUiMapper {
       final markup = double.tryParse(state.customAutoMarkup.trim());
       final floorMarkup = double.tryParse(state.customAutoFloorMarkup.trim());
       if (markup == null || floorMarkup == null) {
-        return (listPrice: null, floorPrice: null);
+        return (listBeforeVat: null, floorBeforeVat: null);
       }
       final suggested = StorePriceSuggestionCalculator.suggest(
         basePrice: baseCost,
@@ -55,12 +55,12 @@ class CatalogUiMapper {
         floorMarkupRatio: floorMarkup / 100,
       );
       return (
-        listPrice: suggested.listPrice,
-        floorPrice: suggested.floorPrice,
+        listBeforeVat: suggested.listBeforeVat,
+        floorBeforeVat: suggested.floorBeforeVat,
       );
     }
 
-    return (listPrice: null, floorPrice: null);
+    return (listBeforeVat: null, floorBeforeVat: null);
   }
 
   static ProductListItemModel toListItemModelFromCreate({
@@ -77,15 +77,15 @@ class CatalogUiMapper {
     final baseCost = double.tryParse(state.baseCost.trim());
 
     final priceBand = resolvePriceBand(state);
-    final listPrice = priceBand.listPrice;
-    final floorPrice = priceBand.floorPrice;
+    final listBeforeVat = priceBand.listBeforeVat;
+    final floorBeforeVat = priceBand.floorBeforeVat;
 
     ProductReadinessStatus readiness;
     if (state.baseUnit.trim().isEmpty) {
       readiness = ProductReadinessStatus.missingBaseUnit;
     } else if (stockQty == null) {
       readiness = ProductReadinessStatus.missingStockSource;
-    } else if (listPrice == null || floorPrice == null) {
+    } else if (listBeforeVat == null) {
       readiness = ProductReadinessStatus.missingPriceBand;
     } else {
       readiness = ProductReadinessStatus.ready;
@@ -104,8 +104,8 @@ class CatalogUiMapper {
       images: state.imageDrafts.map((d) => d.localPath).toList(),
       stockQty: stockQty,
       baseCost: baseCost,
-      listPrice: listPrice,
-      floorPrice: floorPrice,
+      listBeforeVat: listBeforeVat,
+      floorBeforeVat: floorBeforeVat,
     );
   }
 

@@ -23,8 +23,8 @@ final class CreateGuidedProductCommand extends CommandBase<CreateGuidedProductRe
     this.baseUnit,
     this.basicStockQuantityBase,
     this.basePrice,
-    this.listPrice,
-    this.floorPrice,
+    this.listBeforeVat,
+    this.floorBeforeVat,
     this.useStorePriceRule = false,
     this.customFieldValues = const [],
   }) : super(id);
@@ -40,8 +40,8 @@ final class CreateGuidedProductCommand extends CommandBase<CreateGuidedProductRe
   final BaseUnitSelection? baseUnit;
   final int? basicStockQuantityBase;
   final double? basePrice;
-  final double? listPrice;
-  final double? floorPrice;
+  final int? listBeforeVat;
+  final int? floorBeforeVat;
   final bool useStorePriceRule;
   final List<ProductCustomFieldValueInput> customFieldValues;
 }

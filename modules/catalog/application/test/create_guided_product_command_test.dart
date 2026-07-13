@@ -77,8 +77,8 @@ void main() {
       baseUnit: const NewTenantUnit('hop'),
       basicStockQuantityBase: 12,
       basePrice: 10000,
-      listPrice: 13000,
-      floorPrice: 11000,
+      listBeforeVat: 13000,
+      floorBeforeVat: 11000,
     );
 
     final result = await handler.handle(command);

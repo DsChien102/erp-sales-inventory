@@ -6,8 +6,8 @@ final class ProductUnitPriceSuggestionDto {
     required this.canSuggest,
     this.productUnitId,
     this.unitName,
-    this.suggestedListPrice,
-    this.suggestedFloorPrice,
+    this.suggestedListBeforeVat,
+    this.suggestedFloorBeforeVat,
     this.storePriceRuleId,
     this.storePriceRuleName,
     this.basePriceVersion,
@@ -19,8 +19,8 @@ final class ProductUnitPriceSuggestionDto {
   final String? unitName;
   final double basePrice;
   final String currency;
-  final double? suggestedListPrice;
-  final double? suggestedFloorPrice;
+  final int? suggestedListBeforeVat;
+  final int? suggestedFloorBeforeVat;
   final String? storePriceRuleId;
   final String? storePriceRuleName;
   final int? basePriceVersion;

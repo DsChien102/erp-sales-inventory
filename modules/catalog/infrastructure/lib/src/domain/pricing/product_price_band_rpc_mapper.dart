@@ -6,17 +6,27 @@ abstract final class ProductPriceBandRpcMapper {
     required String tenantId,
     required String productId,
     required String productUnitId,
-    required double listPrice,
-    required double floorPrice,
+    required int listBeforeVat,
+    required int listAfterVat,
+    int? floorBeforeVat,
     required PriceBandSourceType sourceType,
     String? storePriceRuleId,
+    int? floorAfterVat,
+    DateTime? effectiveFrom,
+    DateTime? effectiveTo,
+    ProductPriceBandStatus? status,
   }) {
     return <String, dynamic>{
       'p_tenant_id': tenantId,
       'p_product_id': productId,
       'p_product_unit_id': productUnitId,
-      'p_list_price': listPrice,
-      'p_floor_price': floorPrice,
+      'p_list_price_before_vat': listBeforeVat,
+      'p_floor_price_before_vat': ?floorBeforeVat,
+      'p_list_price_after_vat': listAfterVat,
+      'p_floor_price_after_vat': ?floorAfterVat,
+      'p_effective_from': ?effectiveFrom?.toUtc().toIso8601String(),
+      'p_effective_to': ?effectiveTo?.toUtc().toIso8601String(),
+      'p_status': ?status?.toWire(),
       'p_source_type': sourceTypeToRpc(sourceType),
       'p_store_price_rule_id': storePriceRuleId,
     };
@@ -68,16 +78,39 @@ abstract final class ProductPriceBandRpcMapper {
   static ProductPriceBandSnapshotItemDto snapshotItemFromJson(
     Map<String, dynamic> item,
   ) {
+    final listBeforeVat = _readOptionalPrice(item, const [
+      'list_price_before_vat',
+      'list_price',
+      'list_price_amount',
+    ]);
+    final floorBeforeVat = _readOptionalPrice(item, const [
+      'floor_price_before_vat',
+      'floor_price',
+      'floor_price_amount',
+    ]);
+
     return ProductPriceBandSnapshotItemDto(
       productId: item['product_id'] as String,
       productUnitId: item['product_unit_id'] as String,
       unitName: item['unit_name'] as String? ?? '',
       currency: item['currency'] as String? ?? 'VND',
-      listPrice: (item['list_price'] as num?)?.toDouble(),
-      listPriceMissing: item['list_price_missing'] as bool? ?? true,
-      floorPrice: (item['floor_price'] as num?)?.toDouble(),
-      floorPriceMissing: item['floor_price_missing'] as bool? ?? true,
-      floorPriceHidden: item['floor_price_hidden'] as bool? ?? false,
+      listBeforeVat: listBeforeVat,
+      listBeforeVatMissing: _readOptionalBool(
+            item,
+            const ['list_price_before_vat_missing', 'list_price_missing'],
+          ) ??
+          listBeforeVat == null,
+      floorBeforeVat: floorBeforeVat,
+      floorBeforeVatMissing: _readOptionalBool(
+            item,
+            const ['floor_price_before_vat_missing', 'floor_price_missing'],
+          ) ??
+          floorBeforeVat == null,
+      floorBeforeVatHidden: _readOptionalBool(
+            item,
+            const ['floor_price_before_vat_hidden', 'floor_price_hidden'],
+          ) ??
+          false,
       isUnitActive: item['is_unit_active'] as bool? ?? false,
       productBusinessStatus: _productStatusFromRpc(
         item['product_business_status'] as String?,
@@ -102,7 +135,10 @@ abstract final class ProductPriceBandRpcMapper {
     final productId = first['product_id'] as String;
     final baseUnitName = first['base_unit_name'] as String? ?? '';
     final currency = first['currency'] as String? ?? 'VND';
-    final basePrice = _readOptionalPrice(first, 'base_price', 'base_price_amount');
+    final basePrice = _readOptionalDouble(first, const [
+      'base_price',
+      'base_price_amount',
+    ]);
 
     return ProductUnitPriceBandsDto(
       productId: productId,
@@ -113,26 +149,89 @@ abstract final class ProductPriceBandRpcMapper {
     );
   }
 
-  static double? _readOptionalPrice(
+  static int? _readOptionalPrice(
     Map<String, dynamic> row,
-    String key,
-    String legacyKey,
+    List<String> keys,
   ) {
-    return (row[key] as num?)?.toDouble() ?? (row[legacyKey] as num?)?.toDouble();
+    for (final key in keys) {
+      final value = row[key];
+      if (value is num) {
+        return value.round();
+      }
+    }
+    return null;
+  }
+
+  static double? _readOptionalDouble(
+    Map<String, dynamic> row,
+    List<String> keys,
+  ) {
+    for (final key in keys) {
+      final value = row[key];
+      if (value is num) {
+        return value.toDouble();
+      }
+    }
+    return null;
+  }
+
+  static bool? _readOptionalBool(
+    Map<String, dynamic> row,
+    List<String> keys,
+  ) {
+    for (final key in keys) {
+      final value = row[key];
+      if (value is bool) {
+        return value;
+      }
+    }
+    return null;
+  }
+
+  static DateTime? _readOptionalDateTime(Map<String, dynamic> row, String key) {
+    final raw = row[key];
+    if (raw is String && raw.isNotEmpty) {
+      return DateTime.tryParse(raw)?.toUtc();
+    }
+    return null;
   }
 
   static ProductUnitPriceBandRowDto rowFromListRpc(Map<String, dynamic> row) {
-    final listPrice = _readOptionalPrice(row, 'list_price', 'list_price_amount');
-    final floorPrice = _readOptionalPrice(row, 'floor_price', 'floor_price_amount');
-    final isMissing = listPrice == null || floorPrice == null;
+    final listBeforeVat = _readOptionalPrice(row, const [
+      'list_price_before_vat',
+      'list_price',
+      'list_price_amount',
+    ]);
+    final floorBeforeVat = _readOptionalPrice(row, const [
+      'floor_price_before_vat',
+      'floor_price',
+      'floor_price_amount',
+    ]);
+    final listAfterVat = _readOptionalPrice(row, const [
+      'list_price_after_vat',
+      'list_after_vat',
+    ]);
+    final floorAfterVat = _readOptionalPrice(row, const [
+      'floor_price_after_vat',
+      'floor_after_vat',
+    ]);
+    final isMissing = listBeforeVat == null || listAfterVat == null;
+    final statusRaw = row['status'] as String? ?? row['price_band_status'] as String?;
 
     return ProductUnitPriceBandRowDto(
       productUnitId: row['product_unit_id'] as String,
       unitName: row['unit_name'] as String,
       isBaseUnit: row['is_base_unit'] as bool? ?? false,
       isActive: row['is_active'] as bool? ?? true,
-      listPrice: listPrice,
-      floorPrice: floorPrice,
+      listBeforeVat: listBeforeVat,
+      floorBeforeVat: floorBeforeVat,
+      listAfterVat: listAfterVat,
+      floorAfterVat: floorAfterVat,
+      effectiveFrom: _readOptionalDateTime(row, 'effective_from'),
+      effectiveTo: _readOptionalDateTime(row, 'effective_to'),
+      status: statusRaw == null
+          ? null
+          : ProductPriceBandStatus.tryFromWire(statusRaw),
       isMissing: isMissing,
       sourceType: sourceTypeFromRpc(row['source_type'] as String?),
       storePriceRuleName: row['store_price_rule_name'] as String?,

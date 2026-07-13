@@ -27,8 +27,8 @@ class EditProductUnitPriceBandLoaded extends EditProductUnitPriceBandState {
   final double? customFloorMargin;
 
   // For manual
-  final double? manualListPrice;
-  final double? manualFloorPrice;
+  final int? manualListPrice;
+  final int? manualFloorPrice;
 
   final bool isSubmitting;
   final String? error;
@@ -49,8 +49,8 @@ class EditProductUnitPriceBandLoaded extends EditProductUnitPriceBandState {
     PriceBandCalculationType? selectedType,
     double? customBaseMargin,
     double? customFloorMargin,
-    double? manualListPrice,
-    double? manualFloorPrice,
+    int? manualListPrice,
+    int? manualFloorPrice,
     bool? isSubmitting,
     String? error,
     bool clearError = false,
@@ -67,23 +67,23 @@ class EditProductUnitPriceBandLoaded extends EditProductUnitPriceBandState {
     );
   }
 
-  double? get calculatedListPrice {
+  int? get calculatedListPrice {
     if (selectedType == PriceBandCalculationType.storeRule) {
-      return suggestion.suggestedListPrice;
+      return suggestion.suggestedListBeforeVat;
     } else if (selectedType == PriceBandCalculationType.customConfig) {
       if (customBaseMargin == null) return null;
-      return suggestion.basePrice * (1 + customBaseMargin! / 100);
+      return (suggestion.basePrice * (1 + customBaseMargin! / 100)).round();
     } else {
       return manualListPrice;
     }
   }
 
-  double? get calculatedFloorPrice {
+  int? get calculatedFloorPrice {
     if (selectedType == PriceBandCalculationType.storeRule) {
-      return suggestion.suggestedFloorPrice;
+      return suggestion.suggestedFloorBeforeVat;
     } else if (selectedType == PriceBandCalculationType.customConfig) {
       if (customFloorMargin == null) return null;
-      return suggestion.basePrice * (1 + customFloorMargin! / 100);
+      return (suggestion.basePrice * (1 + customFloorMargin! / 100)).round();
     } else {
       return manualFloorPrice;
     }
@@ -92,9 +92,9 @@ class EditProductUnitPriceBandLoaded extends EditProductUnitPriceBandState {
   bool get canSubmit {
     if (isSubmitting) return false;
     final listP = calculatedListPrice;
+    if (listP == null) return false;
     final floorP = calculatedFloorPrice;
-    if (listP == null || floorP == null) return false;
-    if (floorP > listP) return false;
+    if (floorP != null && floorP > listP) return false;
     if (selectedType == PriceBandCalculationType.storeRule) {
       return suggestion.canSuggest;
     }

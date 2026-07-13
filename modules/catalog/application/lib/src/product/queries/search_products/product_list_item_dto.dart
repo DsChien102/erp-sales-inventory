@@ -14,8 +14,8 @@ final class ProductListItemDto {
     this.primaryImageUrl,
     required this.businessStatus,
     required this.readinessSummary,
-    this.listPrice,
-    this.floorPrice,
+    this.listBeforeVat,
+    this.floorBeforeVat,
     this.baseUnit,
     this.stockQuantity,
     this.stockLabel,
@@ -31,8 +31,8 @@ final class ProductListItemDto {
   final String? primaryImageUrl;
   final ProductBusinessStatus businessStatus;
   final ReadinessSummaryDto readinessSummary;
-  final double? listPrice;
-  final double? floorPrice;
+  final int? listBeforeVat;
+  final int? floorBeforeVat;
   final String? baseUnit;
   final int? stockQuantity;
   final String? stockLabel;

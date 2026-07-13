@@ -158,9 +158,9 @@ class ProductListItemTile extends StatelessWidget {
   }
 
   Widget _buildPriceInfo(dynamic colors) {
-    if (item.listPrice != null) {
+    if (item.listBeforeVat != null) {
       return Text(
-        '${item.listPrice}đ',
+        '${item.listBeforeVat}đ',
         style: VTypography.bodyDefault.copyWith(
           color: colors.textPrimary,
           fontWeight: FontWeight.w700,

@@ -126,15 +126,32 @@ void main() {
   });
 
   group('ProductUnitPriceBand', () {
-    test('set throws when floor > list', () {
+    test('set throws when floorBeforeVat > listBeforeVat', () {
       expect(
         () => ProductUnitPriceBand.set(
           id: 'band-1',
           tenantId: const TenantId('tenant-1'),
           productId: const ProductId('p-8'),
           productUnitId: 'unit-1',
-          listPrice: 100000,
-          floorPrice: 150000,
+          listBeforeVat: 100000,
+          listAfterVat: 100000,
+          floorBeforeVat: 150000,
+        ),
+        throwsA(isA<FloorPriceGreaterThanListPriceException>()),
+      );
+    });
+
+    test('set throws when floorAfterVat > listAfterVat', () {
+      expect(
+        () => ProductUnitPriceBand.set(
+          id: 'band-1b',
+          tenantId: const TenantId('tenant-1'),
+          productId: const ProductId('p-8'),
+          productUnitId: 'unit-1',
+          listBeforeVat: 100000,
+          floorBeforeVat: 80000,
+          listAfterVat: 110000,
+          floorAfterVat: 120000,
         ),
         throwsA(isA<FloorPriceGreaterThanListPriceException>()),
       );
@@ -146,13 +163,36 @@ void main() {
         tenantId: const TenantId('tenant-1'),
         productId: const ProductId('p-9'),
         productUnitId: 'unit-1',
-        listPrice: 200000,
-        floorPrice: 180000,
+        listBeforeVat: 200000,
+        floorBeforeVat: 180000,
+        listAfterVat: 220000,
+        floorAfterVat: 198000,
       );
 
-      expect(band.listPrice?.amount, 200000.0);
-      expect(band.floorPrice?.amount, 180000.0);
+      expect(band.listBeforeVat?.amount, 200000);
+      expect(band.floorBeforeVat?.amount, 180000);
+      expect(band.listAfterVat?.amount, 220000);
+      expect(band.floorAfterVat?.amount, 198000);
+      expect(band.status, ProductPriceBandStatus.active);
+      expect(band.effectiveTo, isNull);
+      expect(band.isComplete, isTrue);
       expect(band.domainEvents!.last, isA<ProductPriceBandChanged>());
+    });
+
+    test('set allows missing floorBeforeVat and is still complete', () {
+      final band = ProductUnitPriceBand.set(
+        id: 'band-3',
+        tenantId: const TenantId('tenant-1'),
+        productId: const ProductId('p-10'),
+        productUnitId: 'unit-1',
+        listBeforeVat: 200000,
+        listAfterVat: 200000,
+      );
+
+      expect(band.listBeforeVat?.amount, 200000);
+      expect(band.listAfterVat?.amount, 200000);
+      expect(band.floorBeforeVat, isNull);
+      expect(band.isComplete, isTrue);
     });
   });
 

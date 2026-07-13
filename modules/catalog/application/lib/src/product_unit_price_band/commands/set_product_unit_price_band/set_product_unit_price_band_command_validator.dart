@@ -13,11 +13,26 @@ final class SetProductUnitPriceBandCommandValidator
     if (command.productId.trim().isEmpty) {
       throw ValidationException('Product id is required.');
     }
-    if (command.listPrice < 0 || command.floorPrice < 0) {
+    if (command.listBeforeVat < 0 || command.listAfterVat < 0) {
       throw ValidationException('Giá không được âm.');
     }
-    if (command.floorPrice > command.listPrice) {
-      throw FloorPriceGreaterThanListPriceException();
+    final floorBefore = command.floorBeforeVat;
+    if (floorBefore != null) {
+      if (floorBefore < 0) {
+        throw ValidationException('Giá không được âm.');
+      }
+      if (floorBefore > command.listBeforeVat) {
+        throw FloorPriceGreaterThanListPriceException();
+      }
+    }
+    final floorAfter = command.floorAfterVat;
+    if (floorAfter != null) {
+      if (floorAfter < 0) {
+        throw ValidationException('Giá không được âm.');
+      }
+      if (floorAfter > command.listAfterVat) {
+        throw FloorPriceGreaterThanListPriceException();
+      }
     }
   }
 }

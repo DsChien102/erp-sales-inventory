@@ -56,8 +56,9 @@ final class ApplyStorePriceRuleCommandHandler
       tenantId: TenantId(command.tenantId),
       productId: ProductId(command.productId),
       productUnitId: command.productUnitId ?? 'base',
-      listPrice: suggested.listPrice,
-      floorPrice: suggested.floorPrice,
+      listBeforeVat: suggested.listBeforeVat,
+      listAfterVat: suggested.listBeforeVat,
+      floorBeforeVat: suggested.floorBeforeVat,
       storePriceRuleId: ruleDto.id,
     );
 
@@ -75,8 +76,13 @@ final class ApplyStorePriceRuleCommandHandler
     return ApplyStorePriceRuleResult(
       productId: applied.productId,
       productUnitId: applied.productUnitId,
-      listPrice: applied.listPrice,
-      floorPrice: applied.floorPrice,
+      listBeforeVat: applied.listBeforeVat,
+      floorBeforeVat: applied.floorBeforeVat,
+      listAfterVat: applied.listAfterVat,
+      floorAfterVat: applied.floorAfterVat,
+      effectiveFrom: applied.effectiveFrom,
+      effectiveTo: applied.effectiveTo,
+      status: applied.status,
       storePriceRuleId: applied.storePriceRuleId,
       sourceType: applied.sourceType,
       readinessSummary: ReadinessSummaryDto.fromDomain(readiness),

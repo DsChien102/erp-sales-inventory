@@ -25,9 +25,9 @@ class _PriceBandCalculationTypeSelectorState extends State<PriceBandCalculationT
     super.dispose();
   }
 
-  void _syncController(TextEditingController controller, double? value) {
-    final valueStr = value != null && value != 0 ? value.toStringAsFixed(0) : '';
-    if (double.tryParse(controller.text) != value) {
+  void _syncController(TextEditingController controller, num? value) {
+    final valueStr = value != null && value != 0 ? value.round().toString() : '';
+    if (num.tryParse(controller.text.replaceAll(',', '')) != value) {
       controller.text = valueStr;
     }
   }
@@ -166,15 +166,15 @@ class _PriceBandCalculationTypeSelectorState extends State<PriceBandCalculationT
           style: VTypography.bodySmall.copyWith(color: dynamicColors.textSecondary),
         ),
         const SizedBox(height: 16),
-        _buildDetailRow(context, 'Giá niêm yết', margin: _calculateMargin(state.suggestion.basePrice, state.suggestion.suggestedListPrice ?? 0)),
+        _buildDetailRow(context, 'Giá niêm yết', margin: _calculateMargin(state.suggestion.basePrice, state.suggestion.suggestedListBeforeVat ?? 0)),
         const SizedBox(height: 12),
-        _buildDetailRow(context, 'Giá sàn', margin: _calculateMargin(state.suggestion.basePrice, state.suggestion.suggestedFloorPrice ?? 0)),
+        _buildDetailRow(context, 'Giá sàn', margin: _calculateMargin(state.suggestion.basePrice, state.suggestion.suggestedFloorBeforeVat ?? 0)),
         const SizedBox(height: 16),
         Divider(color: dynamicColors.borderDefault),
         const SizedBox(height: 16),
-        _buildFinalPriceRow(context, 'Giá niêm yết', state.suggestion.suggestedListPrice),
+        _buildFinalPriceRow(context, 'Giá niêm yết', state.suggestion.suggestedListBeforeVat),
         const SizedBox(height: 12),
-        _buildFinalPriceRow(context, 'Giá sàn', state.suggestion.suggestedFloorPrice),
+        _buildFinalPriceRow(context, 'Giá sàn', state.suggestion.suggestedFloorBeforeVat),
       ],
     );
   }
@@ -296,10 +296,10 @@ class _PriceBandCalculationTypeSelectorState extends State<PriceBandCalculationT
     required TextEditingController controller,
     required String label,
     required double? value,
-    required double? calculatedPrice,
+    required int? calculatedPrice,
     required ValueChanged<double?> onChanged,
   }) {
-    final priceStr = calculatedPrice != null && calculatedPrice > 0 ? '${calculatedPrice.toStringAsFixed(0)} đ' : '—';
+    final priceStr = calculatedPrice != null && calculatedPrice > 0 ? '$calculatedPrice đ' : '—';
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -324,7 +324,7 @@ class _PriceBandCalculationTypeSelectorState extends State<PriceBandCalculationT
     );
   }
 
-  Widget _buildManualInputRow(BuildContext context, {required TextEditingController controller, required String label, required double? value, required ValueChanged<double?> onChanged}) {
+  Widget _buildManualInputRow(BuildContext context, {required TextEditingController controller, required String label, required int? value, required ValueChanged<int?> onChanged}) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
@@ -337,7 +337,7 @@ class _PriceBandCalculationTypeSelectorState extends State<PriceBandCalculationT
             keyboardType: TextInputType.number,
             suffixText: 'đ',
             textAlign: TextAlign.right,
-            onChanged: (val) => onChanged(double.tryParse(val)),
+            onChanged: (val) => onChanged(int.tryParse(val.replaceAll(',', ''))),
           ),
         ),
       ],
@@ -355,20 +355,20 @@ class _PriceBandCalculationTypeSelectorState extends State<PriceBandCalculationT
     );
   }
 
-  Widget _buildFinalPriceRow(BuildContext context, String label, double? price) {
+  Widget _buildFinalPriceRow(BuildContext context, String label, int? price) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(label, style: VTypography.bodyDefault),
         Text(
-          price != null ? '${price.toStringAsFixed(0)} đ' : '—',
+          price != null ? '$price đ' : '—',
           style: VTypography.bodyDefault.copyWith(fontWeight: FontWeight.bold),
         ),
       ],
     );
   }
 
-  String _calculateMargin(double base, double price) {
+  String _calculateMargin(num base, num price) {
     if (base == 0 || price == 0) return '—';
     final margin = ((price - base) / base * 100).toStringAsFixed(0);
     return margin.startsWith('-') ? '$margin%' : '+$margin%';

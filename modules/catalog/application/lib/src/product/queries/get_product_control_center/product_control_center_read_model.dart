@@ -25,8 +25,13 @@ final class ProductControlCenterReadModel {
     this.stockVersion,
     this.basePriceAmount,
     this.basePriceCurrency = 'VND',
-    this.listPrice,
-    this.floorPrice,
+    this.listBeforeVat,
+    this.floorBeforeVat,
+    this.listAfterVat,
+    this.floorAfterVat,
+    this.priceBandEffectiveFrom,
+    this.priceBandEffectiveTo,
+    this.priceBandStatus,
     this.priceBandSourceType,
     this.storePriceRuleName,
     this.isCustomOverride = false,
@@ -51,8 +56,13 @@ final class ProductControlCenterReadModel {
   final int? stockVersion;
   final double? basePriceAmount;
   final String basePriceCurrency;
-  final double? listPrice;
-  final double? floorPrice;
+  final int? listBeforeVat;
+  final int? floorBeforeVat;
+  final int? listAfterVat;
+  final int? floorAfterVat;
+  final DateTime? priceBandEffectiveFrom;
+  final DateTime? priceBandEffectiveTo;
+  final ProductPriceBandStatus? priceBandStatus;
   final PriceBandSourceType? priceBandSourceType;
   final String? storePriceRuleName;
   final bool isCustomOverride;
