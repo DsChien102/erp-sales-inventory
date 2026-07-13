@@ -31,7 +31,7 @@ abstract final class ProductRpcMapper {
         _ => null,
       },
       'p_basic_stock_quantity_base': command.basicStockQuantityBase,
-      'p_base_price': command.basePrice,
+      'p_base_price_after_vat': command.basePrice,
       'p_list_price_before_vat': command.listBeforeVat,
       'p_floor_price_before_vat': command.floorBeforeVat,
       'p_use_store_price_rule': command.useStorePriceRule,
@@ -133,7 +133,7 @@ abstract final class ProductRpcMapper {
       'p_tenant_id': tenantId,
       'p_product_id': productId,
       'p_mode': profile.mode.name,
-      'p_base_price': profile.basePrice?.amount,
+      'p_base_price_after_vat': profile.basePrice?.amount,
       'p_currency': currency,
     };
   }

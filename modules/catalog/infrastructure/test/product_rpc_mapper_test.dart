@@ -23,7 +23,7 @@ void main() {
       expect(params['p_tenant_id'], 'tenant-1');
       expect(params['p_tenant_unit_id'], 'unit-hop');
       expect(params['p_basic_stock_quantity_base'], 12);
-      expect(params['p_base_price'], 10000);
+      expect(params['p_base_price_after_vat'], 10000);
       expect(params['p_list_price_before_vat'], 13000);
       expect(params['p_idempotency_key'], '550e8400-e29b-41d4-a716-446655440000');
       expect(params['p_reference_id'], startsWith('P'));
@@ -448,7 +448,7 @@ void main() {
       expect(params['p_tenant_id'], 'tenant-1');
       expect(params['p_product_id'], 'prod-1');
       expect(params['p_mode'], 'manual');
-      expect(params['p_base_price'], 85000.0);
+      expect(params['p_base_price_after_vat'], 85000.0);
       expect(params['p_currency'], 'VND');
     });
 

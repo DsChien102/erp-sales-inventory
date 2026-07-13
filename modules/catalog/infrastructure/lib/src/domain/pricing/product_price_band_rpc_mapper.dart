@@ -137,6 +137,7 @@ abstract final class ProductPriceBandRpcMapper {
     final currency = first['currency'] as String? ?? 'VND';
     final basePrice = _readOptionalDouble(first, const [
       'base_price',
+      'base_price_after_vat',
       'base_price_amount',
     ]);
 
