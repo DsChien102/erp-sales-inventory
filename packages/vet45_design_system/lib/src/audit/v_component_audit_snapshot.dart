@@ -261,6 +261,17 @@ const List<VComponentAuditEntry> vComponentAuditEntries = [
   ),
   VComponentAuditEntry(
     category: 'components',
+    exportPath: 'src/components/v_compact_searchable_dropdown.dart',
+    exists: true,
+    classNames: ['VCompactSearchableDropdown', 'VCompactDropdownTrailingMode'],
+    hasSemantics: false,
+    hasTone: false,
+    hasEmphasis: false,
+    hasState: false,
+    hasSemanticLabel: false,
+  ),
+  VComponentAuditEntry(
+    category: 'components',
     exportPath: 'src/components/v_switch.dart',
     exists: true,
     classNames: ['VSwitch'],
