@@ -23,28 +23,26 @@ class ProductGuidedStepIdentification extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        ProductGuidedFields.buildLabel(context, 'Tên nội bộ *'),
-        TextField(
+        VTextField(
           key: const Key('input_guided_name'),
           controller: TextEditingController(text: state.name)
             ..selection = TextSelection.fromPosition(TextPosition(offset: state.name.length)),
-          decoration: ProductGuidedFields.buildInputDecoration(
-            context,
-            'Ví dụ: Amoxicillin 500mg',
-            errorText: (state.showValidationErrors && !state.isStep1Valid)
-                ? 'Tên nội bộ không được bỏ trống'
-                : null,
-          ),
-          style: VTypography.bodyDefault.copyWith(color: dynamicColors.textPrimary),
+          label: 'Tên nội bộ',
+          hintText: 'Ví dụ: Amoxicillin 500mg',
+          isRequired: true,
+          errorText: (state.showValidationErrors && !state.isStep1Valid)
+              ? 'Tên nội bộ không được bỏ trống'
+              : null,
+          textStyle: VTypography.bodyDefault.copyWith(color: dynamicColors.textPrimary),
           onChanged: cubit.updateName,
         ),
         const SizedBox(height: VSpacing.space3),
-        ProductGuidedFields.buildLabel(context, 'Tên thương mại'),
-        TextField(
+        VTextField(
           controller: TextEditingController(text: state.tradeName)
             ..selection = TextSelection.fromPosition(TextPosition(offset: state.tradeName.length)),
-          decoration: ProductGuidedFields.buildInputDecoration(context, 'Tên hiển thị cho khách'),
-          style: VTypography.bodyDefault.copyWith(color: dynamicColors.textPrimary),
+          label: 'Tên thương mại',
+          hintText: 'Tên hiển thị cho khách',
+          textStyle: VTypography.bodyDefault.copyWith(color: dynamicColors.textPrimary),
           onChanged: cubit.updateTradeName,
         ),
         const SizedBox(height: VSpacing.space3),
@@ -52,56 +50,38 @@ class ProductGuidedStepIdentification extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  ProductGuidedFields.buildLabel(context, 'SKU'),
-                  TextField(
-                    key: const Key('input_guided_sku'),
-                    controller: TextEditingController(text: state.sku)
-                      ..selection = TextSelection.fromPosition(
-                        TextPosition(offset: state.sku.length),
-                      ),
-                    decoration: ProductGuidedFields.buildInputDecoration(
-                      context,
-                      'Nhập mã SKU',
-                      errorText: state.skuError,
-                    ),
-                    style: VTypography.bodyDefault.copyWith(color: dynamicColors.textPrimary),
-                    onChanged: cubit.updateSku,
-                    onEditingComplete: cubit.checkDuplicateCodes,
+              child: VTextField(
+                key: const Key('input_guided_sku'),
+                controller: TextEditingController(text: state.sku)
+                  ..selection = TextSelection.fromPosition(
+                    TextPosition(offset: state.sku.length),
                   ),
-                ],
+                label: 'SKU',
+                hintText: 'Nhập mã SKU',
+                errorText: state.skuError,
+                textStyle: VTypography.bodyDefault.copyWith(color: dynamicColors.textPrimary),
+                onChanged: cubit.updateSku,
+                onSubmitted: (_) => cubit.checkDuplicateCodes(),
               ),
             ),
             const SizedBox(width: VSpacing.space3),
             Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  ProductGuidedFields.buildLabel(context, 'Barcode'),
-                  TextField(
-                    key: const Key('input_guided_barcode'),
-                    controller: TextEditingController(text: state.barcode)
-                      ..selection = TextSelection.fromPosition(
-                        TextPosition(offset: state.barcode.length),
-                      ),
-                    decoration:
-                        ProductGuidedFields.buildInputDecoration(
-                          context,
-                          'Quét hoặc nhập',
-                          errorText: state.barcodeError,
-                        ).copyWith(
-                          suffixIcon: IconButton(
-                            icon: Icon(Icons.qr_code_scanner, color: dynamicColors.primary),
-                            onPressed: () {},
-                          ),
-                        ),
-                    style: VTypography.bodyDefault.copyWith(color: dynamicColors.textPrimary),
-                    onChanged: cubit.updateBarcode,
-                    onEditingComplete: cubit.checkDuplicateCodes,
+              child: VTextField(
+                key: const Key('input_guided_barcode'),
+                controller: TextEditingController(text: state.barcode)
+                  ..selection = TextSelection.fromPosition(
+                    TextPosition(offset: state.barcode.length),
                   ),
-                ],
+                label: 'Barcode',
+                hintText: 'Quét hoặc nhập',
+                errorText: state.barcodeError,
+                suffixIcon: IconButton(
+                  icon: Icon(Icons.qr_code_scanner, color: dynamicColors.primary),
+                  onPressed: () {},
+                ),
+                textStyle: VTypography.bodyDefault.copyWith(color: dynamicColors.textPrimary),
+                onChanged: cubit.updateBarcode,
+                onSubmitted: (_) => cubit.checkDuplicateCodes(),
               ),
             ),
           ],

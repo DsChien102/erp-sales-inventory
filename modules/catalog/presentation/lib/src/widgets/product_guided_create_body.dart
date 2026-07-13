@@ -112,6 +112,7 @@ class ProductGuidedCreateBody extends StatelessWidget {
                               child: ProductGuidedStepCustomFields(
                                 state: state,
                                 group: group,
+                                isLastStep: stepIdx == state.stepCount - 1,
                               ),
                             ),
                           ],

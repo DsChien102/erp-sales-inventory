@@ -39,6 +39,26 @@ void main() {
       );
     });
 
+    test('maps UPDATED_PROFILE wire token to Vietnamese', () {
+      expect(
+        formatProductChangeHistorySummary(
+          summary: 'UPDATED_PROFILE',
+          changeType: ProductChangeHistoryAction.tryParse('UPDATED_PROFILE'),
+        ),
+        'Cập nhật hồ sơ sản phẩm',
+      );
+    });
+
+    test('maps add_product_conversion_unit wire token to Vietnamese', () {
+      expect(
+        formatProductChangeHistorySummary(
+          summary: 'add_product_conversion_unit',
+          changeType: null,
+        ),
+        'Thêm đơn vị quy đổi',
+      );
+    });
+
     test('uses change type label when summary is descriptive text', () {
       expect(
         formatProductChangeHistorySummary(

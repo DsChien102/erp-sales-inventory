@@ -13,6 +13,30 @@ void main() {
         ProductChangeHistoryAction.created,
       );
       expect(
+        ProductChangeHistoryAction.tryParse('UPDATED_PROFILE'),
+        ProductChangeHistoryAction.profileUpdated,
+      );
+      expect(
+        ProductChangeHistoryAction.tryParse('UPDATED_IMAGES'),
+        ProductChangeHistoryAction.imagesUpdated,
+      );
+      expect(
+        ProductChangeHistoryAction.tryParse('add_product_conversion_unit'),
+        ProductChangeHistoryAction.unitAdded,
+      );
+      expect(
+        ProductChangeHistoryAction.tryParse('deactivate_product_conversion_unit'),
+        ProductChangeHistoryAction.unitDeactivated,
+      );
+      expect(
+        ProductChangeHistoryAction.tryParse('reactivate_product_conversion_unit'),
+        ProductChangeHistoryAction.unitReactivated,
+      );
+      expect(
+        ProductChangeHistoryAction.tryParse('delete_product_conversion_unit'),
+        ProductChangeHistoryAction.unitDeleted,
+      );
+      expect(
         ProductChangeHistoryAction.tryParse('add_product_unit')?.category,
         ProductChangeCategory.units,
       );

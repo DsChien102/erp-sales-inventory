@@ -110,8 +110,9 @@ class _ProductProfileMaintenanceViewState extends State<_ProductProfileMaintenan
                   VTextField(
                     key: const Key('input_profile_name'),
                     controller: _nameController,
-                    label: 'Tên nội bộ *',
+                    label: 'Tên nội bộ',
                     hintText: 'Tên nội bộ',
+                    isRequired: true,
                     errorText: state.nameError,
                     onChanged: (value) => context.read<ProductProfileMaintenanceCubit>().nameChanged(value),
                   ),

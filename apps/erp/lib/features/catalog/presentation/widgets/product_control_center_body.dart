@@ -295,7 +295,7 @@ class ProductControlCenterBody extends StatelessWidget {
       context.push(
         '/products/items/pcc/manual-base-price',
         extra: ProductManualBasePriceRouteArgs(
-          product: product,
+          product: product.copyWith(baseUnit: controlCenter.units.baseUnitName),
           basePriceCard: controlCenter.basePrice,
         ),
       ),

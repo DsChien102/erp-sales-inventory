@@ -439,6 +439,8 @@ class ProductGuidedCreateCubit extends Cubit<ProductGuidedCreateState> {
       final nextIndex = state.activeStepIndex + 1;
       emit(state.copyWith(activeStepIndex: nextIndex));
       _onStepEntered(nextIndex);
+    } else if (state.activeStepIndex >= 0) {
+      emit(state.copyWith(activeStepIndex: -1));
     }
   }
 

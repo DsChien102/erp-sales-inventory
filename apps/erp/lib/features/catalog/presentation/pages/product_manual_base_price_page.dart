@@ -64,8 +64,9 @@ class _ProductManualBasePriceViewState extends State<_ProductManualBasePriceView
   @override
   void initState() {
     super.initState();
+    final amount = widget.basePriceCard.amount;
     _priceController = TextEditingController(
-      text: widget.basePriceCard.amount?.toStringAsFixed(0) ?? '',
+      text: amount == null ? '' : VMoneyValidator.format(amount.round()),
     );
     _noteController = TextEditingController();
   }
@@ -89,7 +90,7 @@ class _ProductManualBasePriceViewState extends State<_ProductManualBasePriceView
       return;
     }
 
-    final price = double.tryParse(priceStr);
+    final price = VMoneyValidator.parse(priceStr);
     if (price == null || price < 0) {
       VToast.show(
         context,
@@ -102,16 +103,29 @@ class _ProductManualBasePriceViewState extends State<_ProductManualBasePriceView
 
     context.read<ProductManualBasePriceCubit>().submitManualBasePrice(
       productId: widget.product.id,
-      basePrice: price,
+      basePrice: price.toDouble(),
       currency: widget.basePriceCard.currency,
     );
+  }
+
+  String? _resolveBaseUnitName() {
+    final fromCard = widget.basePriceCard.baseUnitName?.trim();
+    if (fromCard != null && fromCard.isNotEmpty) {
+      return fromCard;
+    }
+    final fromProduct = widget.product.baseUnit?.trim();
+    if (fromProduct != null && fromProduct.isNotEmpty) {
+      return fromProduct;
+    }
+    return null;
   }
 
   @override
   Widget build(BuildContext context) {
     final dynamicColors = context.vColors;
-    final hasBaseUnit = widget.product.baseUnit != null && widget.product.baseUnit!.isNotEmpty;
-    final baseUnitName = hasBaseUnit ? widget.product.baseUnit! : 'đơn vị cơ sở';
+    final resolvedBaseUnit = _resolveBaseUnitName();
+    final hasBaseUnit = resolvedBaseUnit != null;
+    final baseUnitName = resolvedBaseUnit ?? 'đơn vị cơ sở';
 
     return BlocConsumer<ProductManualBasePriceCubit, ProductManualBasePriceState>(
       listener: (context, state) {

@@ -102,9 +102,10 @@ class ProductReadinessChecklistPage extends StatelessWidget {
               '/products/items/pcc/manual-base-price',
               extra: ProductManualBasePriceRouteArgs(
                 product: product,
-                basePriceCard: const ProductBasePriceCardDto(
+                basePriceCard: ProductBasePriceCardDto(
                   mode: BasePriceMode.manual,
                   sourceLabel: 'Nhập thủ công',
+                  baseUnitName: product.baseUnit,
                 ),
               ),
             ).then(popOnReturn);
