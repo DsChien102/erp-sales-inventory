@@ -1,4 +1,4 @@
-String formatCatalogCurrency(double? value) {
+String formatCatalogCurrency(num? value) {
   if (value == null) return '--';
   final intVal = value.round();
   final buffer = StringBuffer();

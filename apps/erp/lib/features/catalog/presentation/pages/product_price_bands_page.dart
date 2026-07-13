@@ -284,7 +284,7 @@ class ProductPriceBandsPage extends StatelessWidget {
     );
   }
 
-  Widget _buildPriceRow(BuildContext context, String label, double? price) {
+  Widget _buildPriceRow(BuildContext context, String label, num? price) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -295,7 +295,7 @@ class ProductPriceBandsPage extends StatelessWidget {
           ),
         ),
         Text(
-          price != null ? '${price.toStringAsFixed(0)} đ' : '—',
+          price != null ? '${price.round()} đ' : '—',
           style: VTypography.bodyDefault.copyWith(
             color: context.vColors.textPrimary,
           ),

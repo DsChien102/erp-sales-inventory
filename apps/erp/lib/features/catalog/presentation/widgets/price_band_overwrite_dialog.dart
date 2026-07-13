@@ -4,8 +4,8 @@ import 'product_control_center_formatters.dart';
 
 Future<bool?> showPriceBandOverwriteDialog(
   BuildContext context, {
-  double? existingListBeforeVat,
-  double? existingFloorBeforeVat,
+  int? existingListBeforeVat,
+  int? existingFloorBeforeVat,
 }) {
   return showDialog<bool>(
     context: context,
