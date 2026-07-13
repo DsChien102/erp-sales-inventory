@@ -1727,7 +1727,7 @@ void main() {
       );
     });
 
-    test('scn_contract_e03_u02_fr03_01 reports missing required field at field level', () async {
+    test('scn_contract_e03_u02_fr03_01 allows upsert when required sibling is empty', () async {
       final module = FakeCatalogModule(
         scenario: FakeCatalogScenario.scnContractE03U02Fr03_01,
       );
@@ -1744,21 +1744,23 @@ void main() {
         ),
       );
 
-      await expectLater(
-        module.executeCommandAsync(
-          UpsertCustomFieldValuesCommand(
-            tenantId: 'tenant-1',
-            productId: 'product-1',
-            values: const [],
-          ),
+      final result = await module.executeCommandAsync(
+        UpsertCustomFieldValuesCommand(
+          tenantId: 'tenant-1',
+          productId: 'product-1',
+          values: [
+            ProductCustomFieldValueInput(
+              fieldId: config.numberFieldId,
+              numberValue: 7,
+            ),
+          ],
         ),
-        throwsA(
-          isA<CustomFieldValueValidationException>().having(
-            (e) => e.errors.single.message,
-            'message',
-            'Vui lòng nhập Thành phần',
-          ),
-        ),
+      );
+
+      expect(result.productId, 'product-1');
+      expect(
+        result.readinessSummary.blockers.map((blocker) => blocker.code),
+        contains(ReadinessBlockerCode.missingRequiredCustomFields),
       );
     });
 

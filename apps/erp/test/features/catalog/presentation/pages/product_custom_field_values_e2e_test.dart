@@ -85,17 +85,20 @@ void main() {
     expect(find.text('Lưu thay đổi'), findsOneWidget);
   });
 
-  testWidgets('e2e_e03_u02_fr03_01: required custom field blocks save with field error',
+  testWidgets('e2e_e03_u02_fr03_01: optional field saves while required sibling empty',
       (tester) async {
     await setUpErpCatalogE2E(scenario: FakeCatalogScenario.e2eCfValuesRequired);
 
     await _openAmoxicillinFromDiscovery(tester);
     await tapEditCustomFieldGroup(tester, 'Thông tin thuốc');
 
+    await _enterCustomFieldText(tester, 'Chỉ định', 'Kháng sinh');
     await _saveCustomFieldGroup(tester);
 
-    expect(find.text('Trường này là bắt buộc'), findsOneWidget);
-    expect(find.text('Lưu thay đổi'), findsOneWidget);
+    expect(find.text('Thông tin thuốc'), findsOneWidget);
+    expect(find.textContaining('1/2 trường đã điền'), findsOneWidget);
+    expect(find.text('Trường này là bắt buộc'), findsNothing);
+    expect(find.text('Thiếu dữ liệu'), findsOneWidget);
   });
 
   testWidgets('e2e_e03_u02_fr03_02: filling required custom field clears readiness blocker',

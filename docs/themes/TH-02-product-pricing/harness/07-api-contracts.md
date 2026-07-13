@@ -1395,7 +1395,7 @@ BE lane will add draft SQL under `supabase/migrations/_drafts/`; CONTRACT lane d
 | `scn_contract_e03_u02_fr01_01` | GetProductCustomFieldValuesQuery after template seed | active groups/cards sorted by group and field sort order |
 | `scn_contract_e03_u02_fr02_01` | UpsertCustomFieldValuesCommand text field | saved value returned and visible on PCC card |
 | `scn_contract_e03_u02_fr02_02` | wrong typed value / invalid option | `CustomFieldValueValidationException` with field-level error |
-| `scn_contract_e03_u02_fr03_01` | required active field missing | `CustomFieldValueValidationException` with business message |
+| `scn_contract_e03_u02_fr03_01` | required active field missing; upsert optional sibling | upsert succeeds; readiness still has `missing_required_custom_fields` |
 | `scn_contract_e03_u02_fr03_02` | required value filled | result readiness has no `missing_required_custom_fields` blocker |
 | `scn_contract_e03_u02_fr04_01` | field/group deactivated after value saved | active query hides old value; `includeInactiveValues=true` returns preserved value |
 | `e2e_cf_values_ok` | E2E PCC open product with template seeded | 2 active group cards, empty values |

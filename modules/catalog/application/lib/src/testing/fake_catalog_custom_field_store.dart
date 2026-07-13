@@ -729,18 +729,8 @@ final class FakeCatalogCustomFieldStore {
             errors.add(error);
           }
         }
-        final hasIncomingValue = input != null && !input.isEmpty;
-        final hasStoredValue = _hasValue(command.productId, field);
-        if (field.isRequired && !hasIncomingValue && !hasStoredValue) {
-          errors.add(
-            CustomFieldValueValidationErrorDto(
-              fieldId: field.fieldId,
-              groupId: group.groupId,
-              code: 'required',
-              message: 'Vui lòng nhập ${field.name}',
-            ),
-          );
-        }
+        // Required empty fields do not block upsert on product edit; readiness
+        // still reflects missing_required_custom_fields separately.
       }
     }
 
