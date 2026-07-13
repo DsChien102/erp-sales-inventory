@@ -66,4 +66,35 @@ void main() {
     await tester.pumpAndSettle();
     expect(result, isNull);
   });
+
+  testWidgets('warns when person is the primary contact of an organization', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: Scaffold(
+          body: PartnerDeactivateConfirmationSheet(
+            primaryContactOrganizationName: 'Công ty Minh Phát',
+          ),
+        ),
+      ),
+    );
+
+    expect(
+      find.byKey(const Key('deactivate_primary_contact_warning')),
+      findsOneWidget,
+    );
+    expect(
+      find.textContaining(
+        'Người này đang là liên hệ chính của “Công ty Minh Phát”',
+      ),
+      findsOneWidget,
+    );
+    expect(
+      find.textContaining(
+        'tổ chức sẽ không còn người liên hệ chính',
+      ),
+      findsOneWidget,
+    );
+  });
 }

@@ -1,3 +1,5 @@
+import 'package:vet45_partner_domain/domain.dart';
+
 /// Organization contact link row on partner detail.
 final class PartnerContactDto {
   const PartnerContactDto({
@@ -9,6 +11,7 @@ final class PartnerContactDto {
     this.email,
     this.contactRole,
     required this.isPrimary,
+    this.status = PartnerStatus.active,
     this.note,
   });
 
@@ -20,5 +23,6 @@ final class PartnerContactDto {
   final String? email;
   final String? contactRole;
   final bool isPrimary;
+  final PartnerStatus status;
   final String? note;
 }

@@ -35,6 +35,8 @@ export 'src/widgets/partner_transform_blocking_banner.dart';
 export 'src/widgets/partner_transform_preview_view.dart';
 export 'src/widgets/partner_transform_confirmation_dialog.dart';
 export 'src/widgets/partner_transform_success_toast.dart';
+export 'src/widgets/partner_transform_primary_contact_blocked_sheet.dart';
+export 'src/widgets/partner_delete_primary_contact_blocked_sheet.dart';
 export 'src/widgets/partner_transform_blocked_state.dart';
 export 'src/widgets/partner_detail_error_state.dart';
 export 'src/widgets/partner_operation_feedback_state.dart';

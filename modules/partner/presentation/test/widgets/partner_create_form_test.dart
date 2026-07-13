@@ -301,6 +301,8 @@ void main() {
 
     expect(find.byKey(const Key('input_primary_contact_name')), findsOneWidget);
     expect(find.byKey(const Key('input_primary_contact_phone')), findsOneWidget);
+    expect(find.text('Họ và tên *', findRichText: true), findsOneWidget);
+    expect(find.text('SĐT chính *', findRichText: true), findsOneWidget);
   });
 
   testWidgets(

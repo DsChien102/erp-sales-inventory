@@ -199,6 +199,8 @@ void main() {
 
       // Dialog should close
       expect(find.text('Gỡ người liên hệ?'), findsNothing);
+      expect(find.text('Đã gỡ người liên hệ'), findsOneWidget);
+      expect(tester.takeException(), isNull);
     },
   );
 }

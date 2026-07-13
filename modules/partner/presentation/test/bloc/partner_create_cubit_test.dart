@@ -10,6 +10,7 @@ final class _RecordingPartnerModule implements IPartnerModule {
   final commands = <ICommand<Object?>>[];
   final queries = <IQuery<Object?>>[];
   PartnerDetailDto? detailOverride;
+  List<PartnerDuplicateMatchDto> Function(CheckDuplicatePartnersQuery query)? duplicateResults;
 
   @override
   Future<TResult> executeCommandAsync<TResult>(ICommand<TResult> command) async {
@@ -48,6 +49,10 @@ final class _RecordingPartnerModule implements IPartnerModule {
             ),
           );
       return detail as TResult;
+    }
+    if (query is CheckDuplicatePartnersQuery) {
+      final duplicateQuery = query as CheckDuplicatePartnersQuery;
+      return (duplicateResults?.call(duplicateQuery) ?? <PartnerDuplicateMatchDto>[]) as TResult;
     }
     return <PartnerDuplicateMatchDto>[] as TResult;
   }
@@ -156,6 +161,73 @@ void main() {
     expect(command.organizationProfile?.organizationName, 'Công ty TNHH An Phát');
     expect(command.organizationPrimaryContact?.fullName, 'Trần Thị Lan');
     expect(command.organizationPrimaryContact?.phone, '0903456789');
+  });
+
+  test('organization and its primary contact may share phone and email', () async {
+    final module = _RecordingPartnerModule();
+    final cubit = PartnerCreateCubit(
+      partnerType: PartnerType.organization,
+      partnerModule: module,
+      executionContext: executionContext,
+    );
+
+    cubit
+      ..updateRoles(const [PartnerRoleType.supplier])
+      ..updateOrganizationName('Hộ kinh doanh An Phát')
+      ..updatePhone('0903 456 789')
+      ..updateEmail('anphat@example.com')
+      ..setPrimaryContactEnabled(true)
+      ..updatePrimaryContactName('Trần Thị Lan')
+      ..updatePrimaryContactPhone('0903 456 789')
+      ..updatePrimaryContactEmail('anphat@example.com');
+
+    await cubit.submit();
+
+    final command = module.commands.single as CreatePartnerCommand;
+    expect(command.organizationProfile?.phone, '0903456789');
+    expect(command.organizationPrimaryContact?.phone, '0903456789');
+    expect(command.organizationProfile?.email, 'anphat@example.com');
+    expect(command.organizationPrimaryContact?.email, 'anphat@example.com');
+    expect(cubit.state.status, PartnerCreateStatus.success);
+  });
+
+  test('organization submit checks primary contact phone for duplicates', () async {
+    final module = _RecordingPartnerModule()
+      ..duplicateResults = (query) => query.phone == '0903456789'
+          ? const [
+              PartnerDuplicateMatchDto(
+                partnerId: 'existing-person',
+                displayName: 'Trần Thị Lan',
+                matchedField: PartnerDuplicateMatchField.phone,
+                partnerType: PartnerType.person,
+                matchLevel: PartnerDuplicateMatchLevel.exact,
+                matchedValue: '0903456789',
+              ),
+            ]
+          : const [];
+    final cubit = PartnerCreateCubit(
+      partnerType: PartnerType.organization,
+      partnerModule: module,
+      executionContext: executionContext,
+    );
+
+    cubit
+      ..updateRoles(const [PartnerRoleType.customer])
+      ..updateOrganizationName('Công ty Minh An')
+      ..updatePhone('0281234567')
+      ..setPrimaryContactEnabled(true)
+      ..updatePrimaryContactName('Trần Thị Lan')
+      ..updatePrimaryContactPhone('0903456789');
+
+    await cubit.submit();
+
+    final duplicateQueries = module.queries.whereType<CheckDuplicatePartnersQuery>().toList();
+    expect(duplicateQueries, hasLength(2));
+    expect(duplicateQueries.last.phone, '0903456789');
+    expect(duplicateQueries.last.name, isNull);
+    expect(cubit.state.status, PartnerCreateStatus.duplicate);
+    expect(cubit.state.duplicateMatches.single.partnerId, 'existing-person');
+    expect(module.commands, isEmpty);
   });
 
   test('invalid optional email and tax code are rejected locally', () async {

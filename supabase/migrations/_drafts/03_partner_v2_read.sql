@@ -116,15 +116,19 @@ select
           'phone2', cpp.phone2,
           'email', coalesce(cpp.email, null),
           'contact_role', oc.contact_role,
-          'is_primary', oc.is_primary,
+          'is_primary', oc.is_primary and cp.status = 'active',
+          'status', cp.status,
           'note', oc.note
         )
         order by oc.is_primary desc, cp.display_name
       )
       from partner.organization_contacts oc
-      join partner.partners cp on cp.partner_id = oc.person_partner_id
+      join partner.partners cp
+        on cp.partner_id = oc.person_partner_id
+       and cp.tenant_id = oc.tenant_id
       left join partner.person_profiles cpp on cpp.partner_id = oc.person_partner_id
       where oc.organization_partner_id = p.partner_id
+        and cp.status <> 'deleted'
     ),
     '[]'::jsonb
   ) as contacts
@@ -337,6 +341,8 @@ as $$
 declare
   v_row partner.v_partner_detail%rowtype;
   v_actions text[] := array[]::text[];
+  v_primary_contact_organization_id uuid;
+  v_primary_contact_organization_name text;
 begin
   if auth.uid() is null then
     raise exception 'not authenticated';
@@ -358,6 +364,21 @@ begin
 
   if v_row.status = 'deleted' then
     perform partner._raise_partner_error('NOT_FOUND', 'partner is deleted');
+  end if;
+
+  if v_row.partner_type = 'person' then
+    select organization.partner_id, organization.display_name
+    into v_primary_contact_organization_id, v_primary_contact_organization_name
+    from partner.organization_contacts oc
+    join partner.partners organization
+      on organization.partner_id = oc.organization_partner_id
+     and organization.tenant_id = oc.tenant_id
+    where oc.tenant_id = p_tenant_id
+      and oc.person_partner_id = p_partner_id
+      and oc.is_primary
+      and organization.status <> 'deleted'
+    order by organization.updated_at desc
+    limit 1;
   end if;
 
   if iam.has_permission(p_tenant_id, 'partner.update') then
@@ -398,6 +419,8 @@ begin
     'person_profile', v_row.person_profile,
     'organization_profile', v_row.organization_profile,
     'contacts', v_row.contacts,
+    'primary_contact_organization_id', v_primary_contact_organization_id,
+    'primary_contact_organization_name', v_primary_contact_organization_name,
     'created_at', v_row.created_at,
     'updated_at', v_row.updated_at
   );
@@ -547,6 +570,7 @@ as $$
 declare
   v_partner partner.partners%rowtype;
   v_has_transactions boolean;
+  v_primary_contact_organization_name text;
 begin
   if auth.uid() is null then
     raise exception 'not authenticated';
@@ -569,6 +593,25 @@ begin
   if v_partner.status = 'deleted' then
     return query select false, 'partner already deleted';
     return;
+  end if;
+
+  if v_partner.partner_type = 'person' then
+    select organization.display_name
+    into v_primary_contact_organization_name
+    from partner.organization_contacts oc
+    join partner.partners organization
+      on organization.partner_id = oc.organization_partner_id
+     and organization.tenant_id = oc.tenant_id
+    where oc.tenant_id = p_tenant_id
+      and oc.person_partner_id = p_partner_id
+      and oc.is_primary
+      and organization.status <> 'deleted'
+    limit 1;
+
+    if v_primary_contact_organization_name is not null then
+      return query select false, 'PRIMARY_CONTACT_OF_ORGANIZATION';
+      return;
+    end if;
   end if;
 
   select exists (

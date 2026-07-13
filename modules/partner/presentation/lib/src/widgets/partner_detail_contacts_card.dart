@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:vet45_design_system/design_system.dart';
 import 'package:vet45_partner_application/application.dart';
+import 'package:vet45_partner_domain/domain.dart';
 
 import 'partner_detail_expandable_card.dart';
 
@@ -238,6 +239,14 @@ class _ContactsListBody extends StatelessWidget {
                         if (displayContacts[i].isPrimary) ...[
                           const SizedBox(width: 8),
                           _buildStatusTag(context, 'Chính', colors.success),
+                        ],
+                        if (displayContacts[i].status == PartnerStatus.inactive) ...[
+                          const SizedBox(width: 8),
+                          _buildStatusTag(
+                            context,
+                            'Ngừng hoạt động',
+                            colors.warning,
+                          ),
                         ],
                       ],
                     ),

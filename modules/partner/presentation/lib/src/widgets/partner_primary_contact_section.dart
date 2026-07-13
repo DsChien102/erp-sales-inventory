@@ -53,6 +53,7 @@ class PartnerPrimaryContactSection extends StatelessWidget {
           ),
           PartnerFormFieldRow(
             label: 'Họ và tên',
+            isRequired: true,
             dense: _rowLayout.dense,
             labelWidth: _rowLayout.labelWidth,
             labelFieldGap: _rowLayout.labelFieldGap,
@@ -65,6 +66,7 @@ class PartnerPrimaryContactSection extends StatelessWidget {
           ),
           PartnerFormFieldRow(
             label: 'SĐT chính',
+            isRequired: true,
             dense: _rowLayout.dense,
             labelWidth: _rowLayout.labelWidth,
             labelFieldGap: _rowLayout.labelFieldGap,

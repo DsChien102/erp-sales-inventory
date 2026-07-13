@@ -47,6 +47,8 @@ Facade: `IPartnerModule` — `modules/partner/application/lib/src/contracts/i_pa
 | Symbol | Input (summary) | Success | Errors |
 | ------ | --------------- | ------- | ------ |
 | `CreatePartnerCommand` | tenantId, actorId, partnerType, roles[], personProfile \| organizationProfile, organizationPrimaryContact?, confirmDuplicate | `CreatePartnerResult` (partnerId, warnings[]) | VALIDATION_ERROR, DUPLICATE_WARNING, NO_PERMISSION |
+
+Khi `organizationPrimaryContact` có giá trị, presentation và RPC chỉ kiểm tra trùng SĐT/email trong tenant, không so khớp tên. Sau đó `partner.create_partner` tạo nguyên tử Organization, một Person chưa có vai trò giao dịch và liên kết `organization_contacts` với `contact_role=primary`, `is_primary=true`. Nếu phát hiện trùng mà chưa xác nhận, hoặc nếu tạo Person/liên kết thất bại, toàn bộ transaction rollback.
 | `CheckDuplicatePartnersQuery` | tenantId, phone?, email?, taxCode?, name? | `List<PartnerDuplicateMatchDto>` (`matchLevel`: possible/exact — **derive** từ `matched_field`: phone/email/taxCode → exact, name → possible) | NO_PERMISSION |
 
 ### RPC mapping (BE) — drafted

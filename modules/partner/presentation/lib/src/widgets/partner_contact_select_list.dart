@@ -69,6 +69,7 @@ class _PartnerContactSelectListState extends State<PartnerContactSelectList> {
           tenantId: tenantId,
           query: _searchController.text.trim().isNotEmpty ? _searchController.text.trim() : null,
           partnerType: PartnerType.person,
+          status: PartnerStatus.active,
           limit: 30,
           page: 1,
         ),
@@ -171,10 +172,12 @@ class _PartnerContactSelectListState extends State<PartnerContactSelectList> {
                           ? () {
                               final selected = _items
                                   .where((i) => _selectedIds.contains(i.partnerId))
-                                  .map((i) => {
-                                        'personPartnerId': i.partnerId,
-                                        'displayName': i.displayName,
-                                      })
+                                  .map(
+                                    (i) => {
+                                      'personPartnerId': i.partnerId,
+                                      'displayName': i.displayName,
+                                    },
+                                  )
                                   .toList();
                               widget.onSelect(selected);
                             }
@@ -218,74 +221,74 @@ class _PartnerContactSelectListState extends State<PartnerContactSelectList> {
     }
 
     return ListView.separated(
-        padding: const EdgeInsets.symmetric(horizontal: VSpacing.space4),
-        itemCount: _items.length,
-        separatorBuilder: (_, __) => Divider(color: colors.borderDefault, height: 1),
-        itemBuilder: (context, index) {
-          final item = _items[index];
+      padding: const EdgeInsets.symmetric(horizontal: VSpacing.space4),
+      itemCount: _items.length,
+      separatorBuilder: (_, __) => Divider(color: colors.borderDefault, height: 1),
+      itemBuilder: (context, index) {
+        final item = _items[index];
 
-          return InkWell(
-            onTap: () {
-              setState(() {
-                if (_selectedIds.contains(item.partnerId)) {
-                  _selectedIds.remove(item.partnerId);
-                } else {
-                  _selectedIds.add(item.partnerId);
-                }
-              });
-            },
-            child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: VSpacing.space3),
-              child: Row(
-                children: [
-                  CircleAvatar(
-                    radius: 20,
-                    backgroundColor: _getAvatarColor(item.displayName),
-                    child: Text(
-                      _getInitials(item.displayName),
-                      style: VTypography.bodyDefault.copyWith(
-                        fontWeight: FontWeight.w600,
-                        color: Colors.white,
-                      ),
+        return InkWell(
+          onTap: () {
+            setState(() {
+              if (_selectedIds.contains(item.partnerId)) {
+                _selectedIds.remove(item.partnerId);
+              } else {
+                _selectedIds.add(item.partnerId);
+              }
+            });
+          },
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: VSpacing.space3),
+            child: Row(
+              children: [
+                CircleAvatar(
+                  radius: 20,
+                  backgroundColor: _getAvatarColor(item.displayName),
+                  child: Text(
+                    _getInitials(item.displayName),
+                    style: VTypography.bodyDefault.copyWith(
+                      fontWeight: FontWeight.w600,
+                      color: Colors.white,
                     ),
                   ),
-                  const SizedBox(width: VSpacing.space3),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          item.displayName,
-                          style: VTypography.bodyDefault.copyWith(
-                            color: colors.textPrimary,
-                            fontWeight: FontWeight.w600,
-                          ),
+                ),
+                const SizedBox(width: VSpacing.space3),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        item.displayName,
+                        style: VTypography.bodyDefault.copyWith(
+                          color: colors.textPrimary,
+                          fontWeight: FontWeight.w600,
                         ),
-                        if (item.phone != null && item.phone!.isNotEmpty) ...[
-                          const SizedBox(height: 2),
-                          Text(
-                            item.phone!,
-                            style: VTypography.bodySmall.copyWith(color: colors.textSecondary),
-                          ),
-                        ],
-                        if (item.email != null && item.email!.isNotEmpty) ...[
-                          const SizedBox(height: 2),
-                          Text(
-                            item.email!,
-                            style: VTypography.bodySmall.copyWith(color: colors.textSecondary),
-                          ),
-                        ],
+                      ),
+                      if (item.phone != null && item.phone!.isNotEmpty) ...[
+                        const SizedBox(height: 2),
+                        Text(
+                          item.phone!,
+                          style: VTypography.bodySmall.copyWith(color: colors.textSecondary),
+                        ),
                       ],
-                    ),
+                      if (item.email != null && item.email!.isNotEmpty) ...[
+                        const SizedBox(height: 2),
+                        Text(
+                          item.email!,
+                          style: VTypography.bodySmall.copyWith(color: colors.textSecondary),
+                        ),
+                      ],
+                    ],
                   ),
-                  const SizedBox(width: VSpacing.space3),
-                  _buildSelectionIndicator(_selectedIds.contains(item.partnerId), colors),
-                ],
-              ),
+                ),
+                const SizedBox(width: VSpacing.space3),
+                _buildSelectionIndicator(_selectedIds.contains(item.partnerId), colors),
+              ],
             ),
-          );
-        },
-      );
+          ),
+        );
+      },
+    );
   }
 
   Widget _buildSelectionIndicator(bool isSelected, VColorScheme colors) {

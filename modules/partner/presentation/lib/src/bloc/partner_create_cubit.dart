@@ -236,22 +236,43 @@ final class PartnerCreateCubit extends Cubit<PartnerCreateState> {
 
     try {
       final tenantId = await _executionContext.requireTenantId();
-      final matches = await _partnerModule.executeQueryAsync(
-        CheckDuplicatePartnersQuery(
-          tenantId: tenantId,
-          phone: PartnerCreateDraftMapper.nullable(
-            PartnerCreateDraftMapper.normalizePhone(state.phone),
+      final matches = <PartnerDuplicateMatchDto>[
+        ...await _partnerModule.executeQueryAsync(
+          CheckDuplicatePartnersQuery(
+            tenantId: tenantId,
+            phone: PartnerCreateDraftMapper.nullable(
+              PartnerCreateDraftMapper.normalizePhone(state.phone),
+            ),
+            email: PartnerCreateDraftMapper.nullable(state.email.trim()),
+            taxCode: PartnerCreateDraftMapper.nullable(
+              PartnerCreateFormValidator.digitsOnly(state.taxCode),
+            ),
+            name: PartnerCreateDraftMapper.nullable(
+              PartnerCreateDraftMapper.displayName(state),
+            ),
+            excludePartnerId: state.isEditMode ? state.partnerId : null,
           ),
-          email: PartnerCreateDraftMapper.nullable(state.email.trim()),
-          taxCode: PartnerCreateDraftMapper.nullable(
-            PartnerCreateFormValidator.digitsOnly(state.taxCode),
-          ),
-          name: PartnerCreateDraftMapper.nullable(
-            PartnerCreateDraftMapper.displayName(state),
-          ),
-          excludePartnerId: state.isEditMode ? state.partnerId : null,
         ),
-      );
+      ];
+      if (!state.isEditMode &&
+          state.partnerType == PartnerType.organization &&
+          state.primaryContactEnabled) {
+        matches.addAll(
+          await _partnerModule.executeQueryAsync(
+            CheckDuplicatePartnersQuery(
+              tenantId: tenantId,
+              phone: PartnerCreateDraftMapper.nullable(
+                PartnerCreateDraftMapper.normalizePhone(
+                  state.primaryContactPhone,
+                ),
+              ),
+              email: PartnerCreateDraftMapper.nullable(
+                state.primaryContactEmail.trim(),
+              ),
+            ),
+          ),
+        );
+      }
       if (matches.isNotEmpty) {
         final level =
             matches.any(
@@ -314,8 +335,7 @@ final class PartnerCreateCubit extends Cubit<PartnerCreateState> {
             ? PartnerCreateDraftMapper.organizationProfile(state)
             : null,
         organizationPrimaryContact:
-            state.partnerType == PartnerType.organization &&
-                state.primaryContactEnabled
+            state.partnerType == PartnerType.organization && state.primaryContactEnabled
             ? PartnerCreateDraftMapper.primaryContactProfile(state)
             : null,
         confirmDuplicate: confirmDuplicate,
@@ -390,8 +410,7 @@ final class PartnerCreateCubit extends Cubit<PartnerCreateState> {
         emit(
           state.copyWith(
             status: PartnerCreateStatus.failure,
-            generalError:
-                'Đã tồn tại hồ sơ trùng MST/SĐT/email. Vui lòng kiểm tra lại.',
+            generalError: 'Đã tồn tại hồ sơ trùng MST/SĐT/email. Vui lòng kiểm tra lại.',
           ),
         );
         return;
@@ -400,8 +419,7 @@ final class PartnerCreateCubit extends Cubit<PartnerCreateState> {
         emit(
           state.copyWith(
             status: PartnerCreateStatus.failure,
-            generalError:
-                'Hồ sơ đã được cập nhật bởi người khác. Vui lòng tải lại rồi thử lại.',
+            generalError: 'Hồ sơ đã được cập nhật bởi người khác. Vui lòng tải lại rồi thử lại.',
           ),
         );
         return;

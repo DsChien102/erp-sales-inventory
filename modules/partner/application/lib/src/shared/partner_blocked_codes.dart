@@ -7,5 +7,6 @@ abstract final class PartnerBlockedCodes {
   static const invalidStatus = 'INVALID_STATUS';
   static const hasTransactions = 'HAS_TRANSACTIONS';
   static const stateChanged = 'STATE_CHANGED';
+  static const primaryContactOfOrganization = 'PRIMARY_CONTACT_OF_ORGANIZATION';
   static const systemError = 'SYSTEM_ERROR';
 }

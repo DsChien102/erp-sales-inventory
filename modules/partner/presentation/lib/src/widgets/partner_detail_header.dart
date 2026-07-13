@@ -14,20 +14,19 @@ class PartnerDetailHeader extends StatelessWidget {
     final colors = context.vColors;
     final isPerson = dto.partnerType == PartnerType.person;
     final labelType = isPerson ? 'Cá nhân' : 'Tổ chức';
-    final labelRoles =
-        dto.roles.contains(PartnerRoleType.customer) &&
-            dto.roles.contains(PartnerRoleType.supplier)
-        ? 'KH & NCC'
-        : (dto.roles.contains(PartnerRoleType.customer)
-              ? 'Khách hàng'
-              : 'Nhà cung cấp');
+    final isCustomer = dto.roles.contains(PartnerRoleType.customer);
+    final isSupplier = dto.roles.contains(PartnerRoleType.supplier);
+    final labelRoles = switch ((isCustomer, isSupplier)) {
+      (true, true) => 'KH & NCC',
+      (true, false) => 'Khách hàng',
+      (false, true) => 'Nhà cung cấp',
+      (false, false) => 'Chưa có vai trò',
+    };
 
     final initials = dto.displayName.trim().split(RegExp(r'\s+'));
     final avatarText = initials.isEmpty
         ? '?'
-        : (initials.length == 1
-                  ? initials[0][0]
-                  : '${initials[0][0]}${initials.last[0]}')
+        : (initials.length == 1 ? initials[0][0] : '${initials[0][0]}${initials.last[0]}')
               .toUpperCase();
     final avatarBgColor = _avatarColor(dto.displayName);
 

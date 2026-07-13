@@ -11,6 +11,7 @@ PartnerBlockedException mapPartnerRpcError(RpcException error) {
     PartnerBlockedCodes.invalidStatus,
     PartnerBlockedCodes.hasTransactions,
     PartnerBlockedCodes.stateChanged,
+    PartnerBlockedCodes.primaryContactOfOrganization,
     PartnerBlockedCodes.notFound,
     PartnerBlockedCodes.noPermission,
   ]) {

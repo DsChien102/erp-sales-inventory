@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:vet45_design_system/design_system.dart';
 import 'package:vet45_partner_application/application.dart';
+import 'package:vet45_partner_domain/domain.dart';
 
 enum PartnerContactAction { edit, setPrimary, remove }
 
@@ -8,11 +9,9 @@ class PartnerContactActionSheet extends StatelessWidget {
   const PartnerContactActionSheet({
     super.key,
     required this.contact,
-    required this.onActionSelected,
   });
 
   final PartnerContactDto contact;
-  final ValueChanged<PartnerContactAction> onActionSelected;
 
   @override
   Widget build(BuildContext context) {
@@ -55,12 +54,9 @@ class PartnerContactActionSheet extends StatelessWidget {
                     ),
                   ),
                   trailing: Icon(Icons.chevron_right_rounded, color: colors.textMuted),
-                  onTap: () {
-                    Navigator.of(context).pop();
-                    onActionSelected(PartnerContactAction.edit);
-                  },
+                  onTap: () => Navigator.of(context).pop(PartnerContactAction.edit),
                 ),
-                if (!contact.isPrimary)
+                if (!contact.isPrimary && contact.status == PartnerStatus.active)
                   ListTile(
                     leading: Icon(Icons.star_outline_rounded, color: colors.textSecondary),
                     title: Text(
@@ -71,10 +67,7 @@ class PartnerContactActionSheet extends StatelessWidget {
                       ),
                     ),
                     trailing: Icon(Icons.chevron_right_rounded, color: colors.textMuted),
-                    onTap: () {
-                      Navigator.of(context).pop();
-                      onActionSelected(PartnerContactAction.setPrimary);
-                    },
+                    onTap: () => Navigator.of(context).pop(PartnerContactAction.setPrimary),
                   ),
                 ListTile(
                   leading: Icon(Icons.delete_outline_rounded, color: colors.danger),
@@ -86,10 +79,7 @@ class PartnerContactActionSheet extends StatelessWidget {
                     ),
                   ),
                   trailing: Icon(Icons.chevron_right_rounded, color: colors.danger),
-                  onTap: () {
-                    Navigator.of(context).pop();
-                    onActionSelected(PartnerContactAction.remove);
-                  },
+                  onTap: () => Navigator.of(context).pop(PartnerContactAction.remove),
                 ),
                 const SizedBox(height: VSpacing.space2),
                 Padding(

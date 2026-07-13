@@ -55,9 +55,7 @@ class _PartnerContactsPageState extends State<PartnerContactsPage> {
       VToast.show(
         context,
         title: 'Thành công',
-        message: isEdit
-            ? 'Cập nhật người liên hệ thành công'
-            : 'Thêm người liên hệ thành công',
+        message: isEdit ? 'Cập nhật người liên hệ thành công' : 'Thêm người liên hệ thành công',
         type: VToastType.success,
       );
     }
@@ -70,7 +68,7 @@ class _PartnerContactsPageState extends State<PartnerContactsPage> {
       builder: (context) => const PartnerContactAddMethodSheet(),
     ).then((method) {
       if (!context.mounted || method == null) return;
-      
+
       switch (method) {
         case AddContactMethod.createNew:
           _openContactForm(
@@ -80,9 +78,13 @@ class _PartnerContactsPageState extends State<PartnerContactsPage> {
           break;
         case AddContactMethod.selectExisting:
           final excludeIds = _cubit.state is PartnerContactsLoaded
-              ? (_cubit.state as PartnerContactsLoaded).organization.contacts.map((c) => c.personPartnerId).toList()
+              ? (_cubit.state as PartnerContactsLoaded).organization.contacts
+                    .map((c) => c.personPartnerId)
+                    .toList()
               : <String>[];
-          context.push('/partner/${widget.partnerId}/contacts/select', extra: excludeIds).then((result) {
+          context.push('/partner/${widget.partnerId}/contacts/select', extra: excludeIds).then((
+            result,
+          ) {
             if (!context.mounted || result == null) return;
             if (result is List) {
               final ids = result.map((e) {
@@ -92,7 +94,7 @@ class _PartnerContactsPageState extends State<PartnerContactsPage> {
               _cubit.addExistingContacts(ids).then((_) {
                 if (!mounted) return;
                 VToast.show(
-                  context,
+                  this.context,
                   title: 'Thành công',
                   message: 'Thêm người liên hệ thành công',
                   type: VToastType.success,
@@ -105,35 +107,31 @@ class _PartnerContactsPageState extends State<PartnerContactsPage> {
     });
   }
 
-  void _showActionSheet(BuildContext context, PartnerContactDto contact) {
-    showModalBottomSheet<void>(
+  Future<void> _showActionSheet(PartnerContactDto contact) async {
+    final action = await showModalBottomSheet<PartnerContactAction>(
       context: context,
       backgroundColor: Colors.transparent,
-      builder: (sheetContext) => PartnerContactActionSheet(
+      builder: (_) => PartnerContactActionSheet(
         contact: contact,
-        onActionSelected: (action) {
-          switch (action) {
-            case PartnerContactAction.edit:
-              _openContactForm(
-                path:
-                    '/partner/${widget.partnerId}/contacts/${contact.personPartnerId}/edit',
-                extra: contact,
-                isEdit: true,
-              );
-              break;
-            case PartnerContactAction.setPrimary:
-              _confirmChangePrimary(context, contact);
-              break;
-            case PartnerContactAction.remove:
-              _confirmRemove(context, contact);
-              break;
-          }
-        },
       ),
     );
+    if (!mounted || action == null) return;
+
+    switch (action) {
+      case PartnerContactAction.edit:
+        await _openContactForm(
+          path: '/partner/${widget.partnerId}/contacts/${contact.personPartnerId}/edit',
+          extra: contact,
+          isEdit: true,
+        );
+      case PartnerContactAction.setPrimary:
+        await _confirmChangePrimary(contact);
+      case PartnerContactAction.remove:
+        await _confirmRemove(contact);
+    }
   }
 
-  void _confirmChangePrimary(BuildContext context, PartnerContactDto contact) {
+  Future<void> _confirmChangePrimary(PartnerContactDto contact) async {
     final state = _cubit.state;
     if (state is! PartnerContactsLoaded) return;
 
@@ -142,7 +140,7 @@ class _PartnerContactsPageState extends State<PartnerContactsPage> {
       orElse: () => contact,
     );
 
-    showModalBottomSheet<bool>(
+    final confirmed = await showModalBottomSheet<bool>(
       context: context,
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
@@ -150,38 +148,44 @@ class _PartnerContactsPageState extends State<PartnerContactsPage> {
         currentPrimaryName: currentPrimary.displayName,
         newPrimaryName: contact.displayName,
       ),
-    ).then((confirmed) async {
-      if (confirmed == true && mounted) {
-        await _cubit.setPrimaryContact(contact.personPartnerId);
-        if (!mounted) return;
-        VToast.show(
-          context,
-          title: 'Thành công',
-          message: 'Đã đặt người liên hệ chính',
-          type: VToastType.success,
-        );
-      }
-    });
+    );
+    if (confirmed != true || !mounted) return;
+    final messenger = ScaffoldMessenger.of(context);
+    await _cubit.setPrimaryContact(contact.personPartnerId);
+    if (!mounted) return;
+    _showSuccessToast(messenger, 'Đã đặt người liên hệ chính');
   }
 
-  void _confirmRemove(BuildContext context, PartnerContactDto contact) {
-    showModalBottomSheet<bool>(
+  Future<void> _confirmRemove(PartnerContactDto contact) async {
+    final confirmed = await showModalBottomSheet<bool>(
       context: context,
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
       builder: (context) => const PartnerContactRemoveDialog(),
-    ).then((confirmed) async {
-      if (confirmed == true && mounted) {
-        await _cubit.removeContact(contact.personPartnerId);
-        if (!mounted) return;
-        VToast.show(
-          context,
-          title: 'Thành công',
-          message: 'Đã gỡ người liên hệ',
-          type: VToastType.success,
-        );
-      }
-    });
+    );
+    if (confirmed != true || !mounted) return;
+    final messenger = ScaffoldMessenger.of(context);
+    await _cubit.removeContact(contact.personPartnerId);
+    if (!mounted) return;
+    _showSuccessToast(messenger, 'Đã gỡ người liên hệ');
+  }
+
+  void _showSuccessToast(ScaffoldMessengerState messenger, String message) {
+    messenger
+      ..clearSnackBars()
+      ..showSnackBar(
+        SnackBar(
+          content: VToast(
+            title: 'Thành công',
+            message: message,
+            type: VToastType.success,
+          ),
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          padding: EdgeInsets.zero,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
   }
 
   Color _getAvatarColor(String displayName) {
@@ -287,7 +291,9 @@ class _PartnerContactsPageState extends State<PartnerContactsPage> {
             if (state is PartnerContactsLoaded) {
               final org = state.organization;
               final filtered = state.filteredContacts;
-              final roles = org.roles.contains(PartnerRoleType.customer) && org.roles.contains(PartnerRoleType.supplier)
+              final roles =
+                  org.roles.contains(PartnerRoleType.customer) &&
+                      org.roles.contains(PartnerRoleType.supplier)
                   ? 'KH & NCC'
                   : (org.roles.contains(PartnerRoleType.customer) ? 'Khách hàng' : 'Nhà cung cấp');
 
@@ -371,7 +377,7 @@ class _PartnerContactsPageState extends State<PartnerContactsPage> {
                         onChanged: _cubit.searchContacts,
                       ),
                     ),
-                    
+
                     // Contacts Count Subtitle
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: VSpacing.space4),
@@ -391,11 +397,11 @@ class _PartnerContactsPageState extends State<PartnerContactsPage> {
                         key: const Key('list_contacts_view'),
                         padding: const EdgeInsets.symmetric(horizontal: VSpacing.space4),
                         itemCount: filtered.length,
-                        separatorBuilder: (_, __) => Divider(color: colors.borderDefault, height: 1),
+                        separatorBuilder: (_, _) => Divider(color: colors.borderDefault, height: 1),
                         itemBuilder: (context, index) {
                           final contact = filtered[index];
                           return InkWell(
-                            onTap: () => _showActionSheet(context, contact),
+                            onTap: () => _showActionSheet(contact),
                             child: Padding(
                               padding: const EdgeInsets.symmetric(vertical: VSpacing.space3),
                               child: Row(
@@ -430,7 +436,10 @@ class _PartnerContactsPageState extends State<PartnerContactsPage> {
                                             if (contact.isPrimary) ...[
                                               const SizedBox(width: 8),
                                               Container(
-                                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                                                padding: const EdgeInsets.symmetric(
+                                                  horizontal: 8,
+                                                  vertical: 2,
+                                                ),
                                                 decoration: BoxDecoration(
                                                   color: colors.success.withValues(alpha: 0.1),
                                                   borderRadius: BorderRadius.circular(4),
@@ -445,27 +454,57 @@ class _PartnerContactsPageState extends State<PartnerContactsPage> {
                                                 ),
                                               ),
                                             ],
+                                            if (contact.status == PartnerStatus.inactive) ...[
+                                              const SizedBox(width: 8),
+                                              Container(
+                                                padding: const EdgeInsets.symmetric(
+                                                  horizontal: 8,
+                                                  vertical: 2,
+                                                ),
+                                                decoration: BoxDecoration(
+                                                  color: colors.warning.withValues(
+                                                    alpha: 0.1,
+                                                  ),
+                                                  borderRadius: BorderRadius.circular(4),
+                                                ),
+                                                child: Text(
+                                                  'Ngừng hoạt động',
+                                                  style: VTypography.bodySmall.copyWith(
+                                                    color: colors.warning,
+                                                    fontSize: 11,
+                                                    fontWeight: FontWeight.w600,
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
                                           ],
                                         ),
-                                        if (contact.contactRole != null && contact.contactRole!.isNotEmpty) ...[
+                                        if (contact.contactRole != null &&
+                                            contact.contactRole!.isNotEmpty) ...[
                                           const SizedBox(height: 2),
                                           Text(
                                             contact.contactRole!,
-                                            style: VTypography.bodySmall.copyWith(color: colors.textSecondary),
+                                            style: VTypography.bodySmall.copyWith(
+                                              color: colors.textSecondary,
+                                            ),
                                           ),
                                         ],
                                         if (contact.phone != null && contact.phone!.isNotEmpty) ...[
                                           const SizedBox(height: 2),
                                           Text(
                                             contact.phone!,
-                                            style: VTypography.bodySmall.copyWith(color: colors.textSecondary),
+                                            style: VTypography.bodySmall.copyWith(
+                                              color: colors.textSecondary,
+                                            ),
                                           ),
                                         ],
                                         if (contact.email != null && contact.email!.isNotEmpty) ...[
                                           const SizedBox(height: 2),
                                           Text(
                                             contact.email!,
-                                            style: VTypography.bodySmall.copyWith(color: colors.textSecondary),
+                                            style: VTypography.bodySmall.copyWith(
+                                              color: colors.textSecondary,
+                                            ),
                                           ),
                                         ],
                                       ],

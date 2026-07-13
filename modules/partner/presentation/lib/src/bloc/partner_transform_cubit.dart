@@ -16,14 +16,10 @@ final class PartnerTransformCubit extends Cubit<PartnerTransformSubmitState> {
   static const duplicateUserMessage =
       'Đã tồn tại hồ sơ trùng SĐT/email/MST. Vui lòng kiểm tra lại.';
 
-  static const duplicatePhoneMessage =
-      'Số điện thoại đã tồn tại trên hồ sơ khác.';
-  static const duplicateEmailMessage =
-      'Email đã tồn tại trên hồ sơ khác.';
-  static const duplicateTaxCodeMessage =
-      'MST đã tồn tại trên hồ sơ khác.';
-  static const duplicateNameMessage =
-      'Tên tổ chức đã tồn tại trên hồ sơ khác.';
+  static const duplicatePhoneMessage = 'Số điện thoại đã tồn tại trên hồ sơ khác.';
+  static const duplicateEmailMessage = 'Email đã tồn tại trên hồ sơ khác.';
+  static const duplicateTaxCodeMessage = 'MST đã tồn tại trên hồ sơ khác.';
+  static const duplicateNameMessage = 'Tên tổ chức đã tồn tại trên hồ sơ khác.';
 
   final IPartnerModule _partnerModule;
   final IExecutionContext _executionContext;
@@ -81,6 +77,16 @@ final class PartnerTransformCubit extends Cubit<PartnerTransformSubmitState> {
   }
 
   void _mapBlocked(PartnerBlockedException error) {
+    if (error.code == PartnerBlockedCodes.primaryContactOfOrganization) {
+      emit(
+        state.copyWith(
+          status: PartnerTransformSubmitStatus.failure,
+          generalError:
+              'Khách hàng này đang là người liên hệ chính của một tổ chức nên không thể chuyển đổi.',
+        ),
+      );
+      return;
+    }
     if (error.code == PartnerBlockedCodes.duplicateWarning ||
         _looksLikeDuplicate(error.message ?? '')) {
       _emitDuplicate(error.message ?? error.code);

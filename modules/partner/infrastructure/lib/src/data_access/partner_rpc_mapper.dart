@@ -1,4 +1,5 @@
 import 'package:vet45_partner_application/application.dart';
+import 'package:vet45_partner_domain/domain.dart';
 
 /// RPC param/result mapping for partner write operations.
 abstract final class PartnerRpcMapper {
@@ -10,6 +11,9 @@ abstract final class PartnerRpcMapper {
       'p_roles': command.roles.map((r) => r.name).toList(),
       'p_person_profile': _personInput(command.personProfile),
       'p_organization_profile': _organizationInput(command.organizationProfile),
+      'p_organization_primary_contact': _personInput(
+        command.organizationPrimaryContact,
+      ),
       'p_confirm_duplicate': command.confirmDuplicate,
     };
   }
@@ -211,7 +215,11 @@ abstract final class PartnerRpcMapper {
       return null;
     }
     return <String, dynamic>{
-      'organization_type': input.organizationType.name,
+      'organization_type': switch (input.organizationType) {
+        OrganizationType.company => 'company',
+        OrganizationType.businessHousehold => 'business_household',
+        OrganizationType.other => 'other',
+      },
       'organization_name': input.organizationName,
       'short_name': input.shortName,
       'intl_name': input.intlName,

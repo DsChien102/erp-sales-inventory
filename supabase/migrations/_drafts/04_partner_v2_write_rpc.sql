@@ -388,6 +388,7 @@ create or replace function partner.create_partner(
   p_roles text[],
   p_person_profile jsonb default null,
   p_organization_profile jsonb default null,
+  p_organization_primary_contact jsonb default null,
   p_confirm_duplicate boolean default false
 )
 returns table (
@@ -408,6 +409,9 @@ declare
   v_email text;
   v_tax_code text;
   v_name text;
+  v_contact_person_id uuid;
+  v_contact_display_name text;
+  v_contact_phone text;
 begin
   perform partner._assert_actor(p_actor_id);
 
@@ -423,6 +427,14 @@ begin
   end;
 
   v_roles := partner._validate_roles(p_roles);
+
+  if p_organization_primary_contact is not null
+    and v_partner_type <> 'organization' then
+    perform partner._raise_partner_error(
+      'VALIDATION_ERROR',
+      'organization_primary_contact requires organization partner'
+    );
+  end if;
 
   if v_partner_type = 'person' then
     if p_person_profile is null then
@@ -490,6 +502,95 @@ begin
       v_partner_id,
       p_organization_profile
     );
+
+    if p_organization_primary_contact is not null then
+      v_contact_display_name := btrim(
+        coalesce(p_organization_primary_contact ->> 'full_name', '')
+      );
+      v_contact_phone := btrim(
+        coalesce(p_organization_primary_contact ->> 'phone', '')
+      );
+
+      if length(v_contact_display_name) = 0 then
+        perform partner._raise_partner_error(
+          'VALIDATION_ERROR',
+          'primary contact full_name is required'
+        );
+      end if;
+      if length(v_contact_phone) = 0 then
+        perform partner._raise_partner_error(
+          'VALIDATION_ERROR',
+          'primary contact phone is required'
+        );
+      end if;
+
+      v_warnings := v_warnings || partner._guard_duplicates(
+        p_tenant_id,
+        v_contact_phone,
+        p_organization_primary_contact ->> 'email',
+        null,
+        null,
+        v_partner_id,
+        p_confirm_duplicate
+      );
+
+      v_contact_person_id := gen_random_uuid();
+      insert into partner.partners (
+        partner_id,
+        tenant_id,
+        partner_type,
+        status,
+        display_name,
+        version,
+        created_by,
+        updated_by
+      )
+      values (
+        v_contact_person_id,
+        p_tenant_id,
+        'person',
+        'active',
+        v_contact_display_name,
+        1,
+        p_actor_id,
+        p_actor_id
+      );
+
+      perform partner._insert_person_profile(
+        p_tenant_id,
+        v_contact_person_id,
+        p_organization_primary_contact
+      );
+
+      insert into partner.organization_contacts (
+        organization_partner_id,
+        person_partner_id,
+        tenant_id,
+        contact_role,
+        is_primary,
+        created_by,
+        updated_by
+      )
+      values (
+        v_partner_id,
+        v_contact_person_id,
+        p_tenant_id,
+        null,
+        true,
+        p_actor_id,
+        p_actor_id
+      );
+
+      perform partner._log_partner_action(
+        p_tenant_id,
+        v_contact_person_id,
+        'create',
+        p_actor_id,
+        null,
+        '{}'::jsonb,
+        partner._partner_snapshot(v_contact_person_id)
+      );
+    end if;
   end if;
 
   perform partner._upsert_roles(p_tenant_id, v_partner_id, v_roles);
@@ -673,6 +774,7 @@ declare
   v_org partner.partners%rowtype;
   v_before jsonb;
   v_person_id uuid := p_person_partner_id;
+  v_person partner.partners%rowtype;
   v_display_name text;
 begin
   perform partner._assert_actor(p_actor_id);
@@ -719,6 +821,26 @@ begin
       p_tenant_id, v_person_id, 'create', p_actor_id, null,
       '{}'::jsonb, partner._partner_snapshot(v_person_id)
     );
+  end if;
+
+  if p_is_primary and p_person_partner_id is not null then
+    select * into v_person
+    from partner.partners p
+    where p.partner_id = p_person_partner_id
+      and p.tenant_id = p_tenant_id;
+
+    if not found or v_person.partner_type <> 'person' then
+      perform partner._raise_partner_error(
+        'VALIDATION_ERROR',
+        'contact person partner required'
+      );
+    end if;
+    if v_person.status <> 'active' then
+      perform partner._raise_partner_error(
+        'INVALID_STATUS',
+        'inactive contact cannot be primary'
+      );
+    end if;
   end if;
 
   if p_is_primary then
@@ -820,6 +942,24 @@ begin
   v_before := partner._partner_snapshot(p_organization_partner_id);
 
   if coalesce(p_is_primary, false) then
+    select * into v_person
+    from partner.partners p
+    where p.partner_id = p_person_partner_id
+      and p.tenant_id = p_tenant_id;
+
+    if not found or v_person.partner_type <> 'person' then
+      perform partner._raise_partner_error(
+        'VALIDATION_ERROR',
+        'contact person partner required'
+      );
+    end if;
+    if v_person.status <> 'active' then
+      perform partner._raise_partner_error(
+        'INVALID_STATUS',
+        'inactive contact cannot be primary'
+      );
+    end if;
+
     update partner.organization_contacts oc
     set is_primary = false, updated_at = now(), updated_by = p_actor_id
     where oc.organization_partner_id = p_organization_partner_id;
@@ -1008,6 +1148,7 @@ declare
   v_phone text;
   v_email text;
   v_tax_code text;
+  v_primary_contact_organization_name text;
 begin
   perform partner._assert_actor(p_actor_id);
 
@@ -1021,6 +1162,28 @@ begin
     perform partner._raise_partner_error(
       'INVALID_STATUS',
       'only person partners can be transformed'
+    );
+  end if;
+
+  select organization.display_name
+  into v_primary_contact_organization_name
+  from partner.organization_contacts oc
+  join partner.partners organization
+    on organization.partner_id = oc.organization_partner_id
+   and organization.tenant_id = oc.tenant_id
+  where oc.tenant_id = p_tenant_id
+    and oc.person_partner_id = p_partner_id
+    and oc.is_primary
+    and organization.status <> 'deleted'
+  limit 1;
+
+  if v_primary_contact_organization_name is not null then
+    perform partner._raise_partner_error(
+      'PRIMARY_CONTACT_OF_ORGANIZATION',
+      format(
+        'person is primary contact of organization %s',
+        v_primary_contact_organization_name
+      )
     );
   end if;
 
@@ -1127,7 +1290,7 @@ begin
     p_partner_id,
     v_contact_person_id,
     p_tenant_id,
-    'primary',
+    null,
     true,
     p_actor_id,
     p_actor_id
@@ -1205,6 +1368,17 @@ begin
     updated_by = p_actor_id
   where p.partner_id = p_partner_id
   returning p.version into v_partner.version;
+
+  if v_partner.partner_type = 'person' then
+    update partner.organization_contacts oc
+    set
+      is_primary = false,
+      updated_at = now(),
+      updated_by = p_actor_id
+    where oc.tenant_id = p_tenant_id
+      and oc.person_partner_id = p_partner_id
+      and oc.is_primary;
+  end if;
 
   perform partner._log_partner_action(
     p_tenant_id,
@@ -1327,6 +1501,7 @@ declare
   v_partner partner.partners%rowtype;
   v_before jsonb;
   v_has_transactions boolean;
+  v_primary_contact_organization_name text;
 begin
   perform partner._assert_actor(p_actor_id);
 
@@ -1339,6 +1514,30 @@ begin
 
   if v_partner.status = 'deleted' then
     perform partner._raise_partner_error('INVALID_STATUS', 'partner already deleted');
+  end if;
+
+  if v_partner.partner_type = 'person' then
+    select organization.display_name
+    into v_primary_contact_organization_name
+    from partner.organization_contacts oc
+    join partner.partners organization
+      on organization.partner_id = oc.organization_partner_id
+     and organization.tenant_id = oc.tenant_id
+    where oc.tenant_id = p_tenant_id
+      and oc.person_partner_id = p_partner_id
+      and oc.is_primary
+      and organization.status <> 'deleted'
+    limit 1;
+
+    if v_primary_contact_organization_name is not null then
+      perform partner._raise_partner_error(
+        'PRIMARY_CONTACT_OF_ORGANIZATION',
+        format(
+          'person is primary contact of organization %s',
+          v_primary_contact_organization_name
+        )
+      );
+    end if;
   end if;
 
   select exists (
@@ -1502,10 +1701,10 @@ revoke all on function partner._insert_person_profile(uuid, uuid, jsonb) from pu
 revoke all on function partner._insert_organization_profile(uuid, uuid, jsonb) from public, anon;
 
 revoke all on function partner.create_partner(
-  uuid, uuid, text, text[], jsonb, jsonb, boolean
+  uuid, uuid, text, text[], jsonb, jsonb, jsonb, boolean
 ) from public, anon;
 grant execute on function partner.create_partner(
-  uuid, uuid, text, text[], jsonb, jsonb, boolean
+  uuid, uuid, text, text[], jsonb, jsonb, jsonb, boolean
 ) to authenticated;
 
 revoke all on function partner.update_partner(

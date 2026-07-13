@@ -50,8 +50,7 @@ void main() {
       expect(supabase.calls.single.functionName, 'create_partner');
       expect(supabase.calls.single.params?['p_command_id'], isNull);
       expect(supabase.calls.single.params?['p_partner_type'], 'person');
-      final profile =
-          supabase.calls.single.params?['p_person_profile'] as Map<String, dynamic>;
+      final profile = supabase.calls.single.params?['p_person_profile'] as Map<String, dynamic>;
       expect(profile['invoice'], isA<Map>());
       expect(
         (profile['invoice'] as Map)['address'],
@@ -191,5 +190,80 @@ void main() {
       expect(supabase.calls.single.params?['p_partner_type'], 'organization');
       expect(supabase.calls.single.params?['p_organization_profile'], isNotNull);
     });
+
+    test('organization create forwards primary contact atomically', () async {
+      supabase.registerHandler('create_partner', (_) async {
+        return [
+          {
+            'partner_id': 'p-new-org-with-contact',
+            'warnings': <dynamic>[],
+          },
+        ];
+      });
+
+      await module.executeCommandAsync(
+        CreatePartnerCommand(
+          tenantId: tenantId,
+          actorId: actorId,
+          partnerType: PartnerType.organization,
+          roles: const [PartnerRoleType.customer],
+          organizationProfile: const OrganizationProfileInput(
+            organizationType: OrganizationType.company,
+            organizationName: 'Công ty Minh An',
+            phone: '0281234567',
+          ),
+          organizationPrimaryContact: PersonProfileInput(
+            title: PersonTitle('Chị'),
+            fullName: 'Trần Thị Lan',
+            phone: '0903456789',
+            phone2: '0888123456',
+            email: 'lan@example.com',
+          ),
+        ),
+      );
+
+      final contact =
+          supabase.calls.single.params?['p_organization_primary_contact'] as Map<String, dynamic>;
+      expect(contact['title'], 'Chị');
+      expect(contact['full_name'], 'Trần Thị Lan');
+      expect(contact['phone'], '0903456789');
+      expect(contact['phone2'], '0888123456');
+      expect(contact['email'], 'lan@example.com');
+    });
+
+    for (final testCase in <(OrganizationType, String)>[
+      (OrganizationType.company, 'company'),
+      (OrganizationType.businessHousehold, 'business_household'),
+      (OrganizationType.other, 'other'),
+    ]) {
+      test('organization type ${testCase.$1.name} maps to ${testCase.$2}', () async {
+        supabase.registerHandler('create_partner', (_) async {
+          return [
+            {
+              'partner_id': 'p-new-org-type',
+              'warnings': <dynamic>[],
+            },
+          ];
+        });
+
+        await module.executeCommandAsync(
+          CreatePartnerCommand(
+            tenantId: tenantId,
+            actorId: actorId,
+            partnerType: PartnerType.organization,
+            roles: const [PartnerRoleType.customer],
+            organizationProfile: OrganizationProfileInput(
+              organizationType: testCase.$1,
+              organizationName: 'Tổ chức kiểm thử',
+              phone: '0281234567',
+            ),
+          ),
+        );
+
+        final profile =
+            supabase.calls.single.params?['p_organization_profile'] as Map<String, dynamic>;
+        expect(profile['organization_type'], testCase.$2);
+      });
+    }
   });
 }

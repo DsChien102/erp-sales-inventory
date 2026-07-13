@@ -172,6 +172,92 @@ void main() {
   );
 
   testWidgets(
+    'primary contact cannot transform and can open its organization',
+    (tester) async {
+      await tester.pumpWidget(
+        buildRouter(
+          partnerModule: FakePartnerModule(
+            scenario: FakePartnerScenario.detailPersonPrimaryContact,
+          ),
+          permissions: const [
+            PartnerPermissions.detailView,
+            PartnerPermissions.transform,
+          ],
+          initialLocation: '/partner/p-contact-primary',
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.textContaining('Thao tác'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Chuyển thành tổ chức'));
+      await tester.pumpAndSettle();
+
+      expect(
+        find.byKey(const Key('transform_primary_contact_blocked_sheet')),
+        findsOneWidget,
+      );
+      expect(find.text('Không thể chuyển thành tổ chức'), findsOneWidget);
+      expect(find.textContaining('Công ty Minh Phát'), findsOneWidget);
+      expect(find.byKey(const Key('wgt_e01_u06_fr01_01')), findsNothing);
+
+      await tester.tap(
+        find.byKey(const Key('transform_blocked_view_organization')),
+      );
+      await tester.pumpAndSettle();
+
+      expect(
+        find.byKey(const Key('transform_primary_contact_blocked_sheet')),
+        findsNothing,
+      );
+      expect(find.byKey(const Key('wgt_e01_u04_fr01_01')), findsOneWidget);
+    },
+  );
+
+  testWidgets(
+    'primary contact cannot be deleted and can open its organization',
+    (tester) async {
+      await tester.pumpWidget(
+        buildRouter(
+          partnerModule: FakePartnerModule(
+            scenario: FakePartnerScenario.detailPersonPrimaryContact,
+          ),
+          permissions: const [
+            PartnerPermissions.detailView,
+            PartnerPermissions.delete,
+          ],
+          initialLocation: '/partner/p-contact-primary',
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.textContaining('Thao tác'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Xóa hồ sơ'));
+      await tester.pumpAndSettle();
+
+      expect(
+        find.byKey(const Key('delete_primary_contact_blocked_sheet')),
+        findsOneWidget,
+      );
+      expect(find.text('Không thể xóa hồ sơ'), findsOneWidget);
+      expect(find.textContaining('Công ty Minh Phát'), findsOneWidget);
+      expect(find.textContaining('Hãy đổi hoặc gỡ'), findsOneWidget);
+
+      await tester.tap(
+        find.byKey(const Key('delete_blocked_view_organization')),
+      );
+      await tester.pumpAndSettle();
+
+      expect(
+        find.byKey(const Key('delete_primary_contact_blocked_sheet')),
+        findsNothing,
+      );
+      expect(find.byKey(const Key('wgt_e01_u04_fr01_01')), findsOneWidget);
+    },
+  );
+
+  testWidgets(
     'e2e_e01_u06_fr01_01: transform NO_PERMISSION shows blocked state',
     (tester) async {
       final partner = PartnerDetailDto(

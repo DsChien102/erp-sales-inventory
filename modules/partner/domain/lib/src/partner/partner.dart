@@ -41,16 +41,16 @@ final class Partner extends Entity<PartnerId> implements IAggregateRoot {
     OrganizationProfile? organizationProfile,
     List<OrganizationContact> contacts = const [],
     required int version,
-  })  : _tenantId = tenantId,
-        _partnerType = partnerType,
-        _status = status,
-        _displayName = displayName,
-        _roles = List.of(roles),
-        _personProfile = personProfile,
-        _organizationProfile = organizationProfile,
-        _contacts = List.of(contacts),
-        _version = version,
-        super(id: id);
+  }) : _tenantId = tenantId,
+       _partnerType = partnerType,
+       _status = status,
+       _displayName = displayName,
+       _roles = List.of(roles),
+       _personProfile = personProfile,
+       _organizationProfile = organizationProfile,
+       _contacts = List.of(contacts),
+       _version = version,
+       super(id: id);
 
   final TenantId _tenantId;
   PartnerType _partnerType;
@@ -149,8 +149,7 @@ final class Partner extends Entity<PartnerId> implements IAggregateRoot {
     if (_partnerType == PartnerType.person && personProfile != null) {
       _personProfile = personProfile;
       _displayName = personProfile.fullName;
-    } else if (_partnerType == PartnerType.organization &&
-        organizationProfile != null) {
+    } else if (_partnerType == PartnerType.organization && organizationProfile != null) {
       _organizationProfile = organizationProfile;
       _displayName = organizationProfile.organizationName;
     }
@@ -260,7 +259,6 @@ final class Partner extends Entity<PartnerId> implements IAggregateRoot {
       OrganizationContact(
         personPartnerId: formerPersonPartnerId,
         isPrimary: true,
-        contactRole: 'primary',
       ),
     );
     checkRule(OrganizationSinglePrimaryContactRule(_contacts));

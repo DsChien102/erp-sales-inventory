@@ -3,16 +3,26 @@ import 'package:flutter/services.dart';
 import 'package:vet45_design_system/design_system.dart';
 
 /// Returns `null` if cancelled; otherwise the optional reason (may be empty).
-Future<String?> showPartnerDeactivateConfirmationSheet(BuildContext context) {
+Future<String?> showPartnerDeactivateConfirmationSheet(
+  BuildContext context, {
+  String? primaryContactOrganizationName,
+}) {
   return showVBottomSheet<String>(
     context: context,
-    child: const PartnerDeactivateConfirmationSheet(),
+    child: PartnerDeactivateConfirmationSheet(
+      primaryContactOrganizationName: primaryContactOrganizationName,
+    ),
   );
 }
 
 /// Confirmation sheet for deactivate (S7) — UI theo SG-07.
 class PartnerDeactivateConfirmationSheet extends StatefulWidget {
-  const PartnerDeactivateConfirmationSheet({super.key});
+  const PartnerDeactivateConfirmationSheet({
+    super.key,
+    this.primaryContactOrganizationName,
+  });
+
+  final String? primaryContactOrganizationName;
 
   static const maxReasonLength = 200;
 
@@ -21,8 +31,7 @@ class PartnerDeactivateConfirmationSheet extends StatefulWidget {
       _PartnerDeactivateConfirmationSheetState();
 }
 
-class _PartnerDeactivateConfirmationSheetState
-    extends State<PartnerDeactivateConfirmationSheet> {
+class _PartnerDeactivateConfirmationSheetState extends State<PartnerDeactivateConfirmationSheet> {
   final _reasonController = TextEditingController();
 
   @override
@@ -81,6 +90,28 @@ class _PartnerDeactivateConfirmationSheetState
                   height: 1.4,
                 ),
               ),
+              if (widget.primaryContactOrganizationName != null) ...[
+                const SizedBox(height: VSpacing.space4),
+                Container(
+                  key: const Key('deactivate_primary_contact_warning'),
+                  padding: const EdgeInsets.all(VSpacing.space3),
+                  decoration: BoxDecoration(
+                    color: colors.warning.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(
+                      color: colors.warning.withValues(alpha: 0.35),
+                    ),
+                  ),
+                  child: Text(
+                    'Người này đang là liên hệ chính của “${widget.primaryContactOrganizationName}”. '
+                    'Sau khi ngừng hoạt động, tổ chức sẽ không còn người liên hệ chính.',
+                    style: VTypography.bodySmall.copyWith(
+                      color: colors.textPrimary,
+                      height: 1.4,
+                    ),
+                  ),
+                ),
+              ],
               const SizedBox(height: VSpacing.space5),
               Text(
                 'Lý do (không bắt buộc)',

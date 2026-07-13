@@ -18,6 +18,8 @@ final class PartnerDetailDto {
     this.personProfile,
     this.organizationProfile,
     this.contacts = const [],
+    this.primaryContactOrganizationId,
+    this.primaryContactOrganizationName,
     this.createdAt,
     this.updatedAt,
   });
@@ -32,6 +34,8 @@ final class PartnerDetailDto {
   final PersonProfileDto? personProfile;
   final OrganizationProfileDto? organizationProfile;
   final List<PartnerContactDto> contacts;
+  final String? primaryContactOrganizationId;
+  final String? primaryContactOrganizationName;
   final DateTime? createdAt;
   final DateTime? updatedAt;
 }

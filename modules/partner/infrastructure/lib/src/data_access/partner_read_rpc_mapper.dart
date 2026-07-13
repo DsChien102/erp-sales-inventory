@@ -131,12 +131,17 @@ abstract final class PartnerReadRpcMapper {
               phone: c['phone'] as String?,
               phone2: c['phone2'] as String?,
               email: c['email'] as String?,
-              contactRole: c['contact_role'] as String?,
+              contactRole: _contactRole(c['contact_role']),
               isPrimary: c['is_primary'] as bool? ?? false,
+              status: PartnerStatus.values.byName(
+                c['status'] as String? ?? 'active',
+              ),
               note: c['note'] as String?,
             ),
           )
           .toList(growable: false),
+      primaryContactOrganizationId: row['primary_contact_organization_id'] as String?,
+      primaryContactOrganizationName: row['primary_contact_organization_name'] as String?,
       createdAt: row['created_at'] == null ? null : DateTime.parse(row['created_at'] as String),
       updatedAt: row['updated_at'] == null ? null : DateTime.parse(row['updated_at'] as String),
     );
@@ -243,9 +248,7 @@ abstract final class PartnerReadRpcMapper {
       return null;
     }
     return OrganizationProfileDto(
-      organizationType: OrganizationType.values.byName(
-        raw['organization_type'] as String,
-      ),
+      organizationType: _organizationType(raw['organization_type'] as String),
       organizationName: raw['organization_name'] as String,
       shortName: raw['short_name'] as String?,
       intlName: raw['intl_name'] as String?,
@@ -257,6 +260,20 @@ abstract final class PartnerReadRpcMapper {
       delivery: _deliveryDto(raw['delivery']),
       note: raw['note'] as String?,
     );
+  }
+
+  static OrganizationType _organizationType(String raw) {
+    return switch (raw) {
+      'company' => OrganizationType.company,
+      'business_household' || 'businessHousehold' => OrganizationType.businessHousehold,
+      'other' => OrganizationType.other,
+      _ => OrganizationType.values.byName(raw),
+    };
+  }
+
+  static String? _contactRole(Object? raw) {
+    final value = raw is String ? raw.trim() : '';
+    return value.isEmpty || value == 'primary' ? null : value;
   }
 
   static InvoiceProfileInput? _invoiceDto(Object? raw) {

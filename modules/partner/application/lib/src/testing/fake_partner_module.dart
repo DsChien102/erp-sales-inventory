@@ -57,6 +57,7 @@ enum FakePartnerScenario {
   searchMixedTypes,
   searchFilteredStatus,
   detailPersonActive,
+  detailPersonPrimaryContact,
   detailOrganizationWithContacts,
   detailDeleted,
   historyEmpty,
@@ -76,6 +77,7 @@ enum FakePartnerScenario {
   softDeleteHasTransactions,
   softDeleteNotEligible,
 }
+
 /// In-memory partner module for FE/widget tests.
 final class FakePartnerModule implements IPartnerModule {
   FakePartnerModule({this.scenario = FakePartnerScenario.defaultMixed});
@@ -89,13 +91,10 @@ final class FakePartnerModule implements IPartnerModule {
     return switch (command) {
       CreatePartnerCommand c => _handleCreatePartner<TResult>(c),
       UpdatePartnerProfileCommand c => _handleUpdateProfile<TResult>(c),
-      TransformPersonToOrganizationCommand c =>
-        _handleTransform<TResult>(c),
+      TransformPersonToOrganizationCommand c => _handleTransform<TResult>(c),
       AddOrganizationContactCommand c => _handleAddContact<TResult>(c),
-      UpdateOrganizationContactCommand _ =>
-        Future.value(null as TResult),
-      RemoveOrganizationContactCommand _ =>
-        Future.value(null as TResult),
+      UpdateOrganizationContactCommand _ => Future.value(null as TResult),
+      RemoveOrganizationContactCommand _ => Future.value(null as TResult),
       DeactivatePartnerCommand c => _handleDeactivate<TResult>(c),
       ReactivatePartnerCommand c => _handleReactivate<TResult>(c),
       SoftDeletePartnerCommand c => _handleSoftDelete<TResult>(c),
@@ -155,10 +154,9 @@ final class FakePartnerModule implements IPartnerModule {
       default:
         return Future.value(
           CreatePartnerResult(
-            partnerId: command.partnerType == PartnerType.organization
-                ? 'p-new-2'
-                : 'p-new-1',
-          ) as TResult,
+                partnerId: command.partnerType == PartnerType.organization ? 'p-new-2' : 'p-new-1',
+              )
+              as TResult,
         );
     }
   }
@@ -168,9 +166,10 @@ final class FakePartnerModule implements IPartnerModule {
   ) {
     return Future.value(
       UpdatePartnerProfileResult(
-        partnerId: command.partnerId,
-        expectedVersion: command.expectedVersion + 1,
-      ) as TResult,
+            partnerId: command.partnerId,
+            expectedVersion: command.expectedVersion + 1,
+          )
+          as TResult,
     );
   }
 
@@ -211,9 +210,10 @@ final class FakePartnerModule implements IPartnerModule {
   ) {
     return Future.value(
       AddOrganizationContactResult(
-        organizationPartnerId: command.organizationPartnerId,
-        personPartnerId: command.personPartnerId ?? 'p-contact-new',
-      ) as TResult,
+            organizationPartnerId: command.organizationPartnerId,
+            personPartnerId: command.personPartnerId ?? 'p-contact-new',
+          )
+          as TResult,
     );
   }
 
@@ -242,9 +242,10 @@ final class FakePartnerModule implements IPartnerModule {
     _versionOverrides[command.partnerId] = nextVersion;
     return Future.value(
       DeactivatePartnerResult(
-        partnerId: command.partnerId,
-        expectedVersion: nextVersion,
-      ) as TResult,
+            partnerId: command.partnerId,
+            expectedVersion: nextVersion,
+          )
+          as TResult,
     );
   }
 
@@ -273,9 +274,10 @@ final class FakePartnerModule implements IPartnerModule {
     _versionOverrides[command.partnerId] = nextVersion;
     return Future.value(
       ReactivatePartnerResult(
-        partnerId: command.partnerId,
-        expectedVersion: nextVersion,
-      ) as TResult,
+            partnerId: command.partnerId,
+            expectedVersion: nextVersion,
+          )
+          as TResult,
     );
   }
 
@@ -304,9 +306,10 @@ final class FakePartnerModule implements IPartnerModule {
     _versionOverrides[command.partnerId] = nextVersion;
     return Future.value(
       SoftDeletePartnerResult(
-        partnerId: command.partnerId,
-        expectedVersion: nextVersion,
-      ) as TResult,
+            partnerId: command.partnerId,
+            expectedVersion: nextVersion,
+          )
+          as TResult,
     );
   }
 
@@ -315,60 +318,64 @@ final class FakePartnerModule implements IPartnerModule {
       case FakePartnerScenario.searchEmpty:
         return Future.value(
           const PartnerSearchResultDto(
-            items: [],
-            page: 1,
-            limit: 20,
-            total: 0,
-          ) as TResult,
+                items: [],
+                page: 1,
+                limit: 20,
+                total: 0,
+              )
+              as TResult,
         );
       case FakePartnerScenario.searchFilteredStatus:
         return Future.value(
           PartnerSearchResultDto(
-            items: [
-              _listItem(
-                partnerId: 'p-inactive-1',
-                displayName: 'Đối tác ngừng hoạt động',
-                partnerType: PartnerType.person,
-                status: PartnerStatus.inactive,
-              ),
-            ],
-            page: query.page,
-            limit: query.limit,
-            total: 1,
-          ) as TResult,
+                items: [
+                  _listItem(
+                    partnerId: 'p-inactive-1',
+                    displayName: 'Đối tác ngừng hoạt động',
+                    partnerType: PartnerType.person,
+                    status: PartnerStatus.inactive,
+                  ),
+                ],
+                page: query.page,
+                limit: query.limit,
+                total: 1,
+              )
+              as TResult,
         );
       case FakePartnerScenario.searchMixedTypes:
       case FakePartnerScenario.defaultMixed:
         return Future.value(
           PartnerSearchResultDto(
-            items: [
-              _listItem(
-                partnerId: 'p-person-1',
-                displayName: 'Nguyễn Văn A',
-                partnerType: PartnerType.person,
-                status: PartnerStatus.active,
-              ),
-              _listItem(
-                partnerId: 'p-org-1',
-                displayName: 'Công ty ABC',
-                partnerType: PartnerType.organization,
-                status: PartnerStatus.active,
-                roles: const [PartnerRoleType.supplier],
-              ),
-            ],
-            page: query.page,
-            limit: query.limit,
-            total: 2,
-          ) as TResult,
+                items: [
+                  _listItem(
+                    partnerId: 'p-person-1',
+                    displayName: 'Nguyễn Văn A',
+                    partnerType: PartnerType.person,
+                    status: PartnerStatus.active,
+                  ),
+                  _listItem(
+                    partnerId: 'p-org-1',
+                    displayName: 'Công ty ABC',
+                    partnerType: PartnerType.organization,
+                    status: PartnerStatus.active,
+                    roles: const [PartnerRoleType.supplier],
+                  ),
+                ],
+                page: query.page,
+                limit: query.limit,
+                total: 2,
+              )
+              as TResult,
         );
       default:
         return Future.value(
           PartnerSearchResultDto(
-            items: const [],
-            page: query.page,
-            limit: query.limit,
-            total: 0,
-          ) as TResult,
+                items: const [],
+                page: query.page,
+                limit: query.limit,
+                total: 0,
+              )
+              as TResult,
         );
     }
   }
@@ -424,6 +431,7 @@ final class FakePartnerModule implements IPartnerModule {
           ],
         );
       case FakePartnerScenario.detailPersonActive:
+      case FakePartnerScenario.detailPersonPrimaryContact:
       case FakePartnerScenario.defaultMixed:
       case FakePartnerScenario.softDeleteNotEligible:
       case FakePartnerScenario.softDeleteHasTransactions:
@@ -460,6 +468,12 @@ final class FakePartnerModule implements IPartnerModule {
               address: '12 Nguyễn Huệ',
             ),
           ),
+          primaryContactOrganizationId: scenario == FakePartnerScenario.detailPersonPrimaryContact
+              ? 'p-org-primary'
+              : null,
+          primaryContactOrganizationName: scenario == FakePartnerScenario.detailPersonPrimaryContact
+              ? 'Công ty Minh Phát'
+              : null,
         );
       default:
         dto = PartnerDetailDto(
@@ -500,6 +514,8 @@ final class FakePartnerModule implements IPartnerModule {
       personProfile: dto.personProfile,
       organizationProfile: dto.organizationProfile,
       contacts: dto.contacts,
+      primaryContactOrganizationId: dto.primaryContactOrganizationId,
+      primaryContactOrganizationName: dto.primaryContactOrganizationName,
       createdAt: dto.createdAt,
       updatedAt: dto.updatedAt,
     );
@@ -549,9 +565,7 @@ final class FakePartnerModule implements IPartnerModule {
       ];
       final filtered = query.excludePartnerId == null
           ? matches
-          : matches
-                .where((m) => m.partnerId != query.excludePartnerId)
-                .toList(growable: false);
+          : matches.where((m) => m.partnerId != query.excludePartnerId).toList(growable: false);
       return Future.value(filtered as TResult);
     }
     return Future.value(<PartnerDuplicateMatchDto>[] as TResult);
@@ -564,9 +578,10 @@ final class FakePartnerModule implements IPartnerModule {
         scenario == FakePartnerScenario.softDeleteHasTransactions) {
       return Future.value(
         const DeleteEligibilityDto(
-          eligible: false,
-          reason: 'HAS_TRANSACTIONS',
-        ) as TResult,
+              eligible: false,
+              reason: 'HAS_TRANSACTIONS',
+            )
+            as TResult,
       );
     }
     return Future.value(
@@ -579,55 +594,59 @@ final class FakePartnerModule implements IPartnerModule {
       case FakePartnerScenario.historyEmpty:
         return Future.value(
           PartnerHistoryResultDto(
-            items: const [],
-            page: query.page,
-            limit: query.limit,
-            total: 0,
-          ) as TResult,
+                items: const [],
+                page: query.page,
+                limit: query.limit,
+                total: 0,
+              )
+              as TResult,
         );
       case FakePartnerScenario.historyNoSourcePermission:
         return Future.value(
           PartnerHistoryResultDto(
-            items: [
-              _historyItem(canOpenSource: false),
-            ],
-            page: query.page,
-            limit: query.limit,
-            total: 1,
-          ) as TResult,
+                items: [
+                  _historyItem(canOpenSource: false),
+                ],
+                page: query.page,
+                limit: query.limit,
+                total: 1,
+              )
+              as TResult,
         );
       case FakePartnerScenario.historyMixed:
       case FakePartnerScenario.defaultMixed:
         return Future.value(
           PartnerHistoryResultDto(
-            items: [
-              _historyItem(
-                historyId: 'h-sales-1',
-                transactionType: PartnerTransactionType.salesOrder,
-                sourceModule: 'sales',
-                referenceCode: 'SO-001',
-              ),
-              _historyItem(
-                historyId: 'h-inv-1',
-                transactionType: PartnerTransactionType.inventoryInbound,
-                sourceModule: 'inventory',
-                referenceCode: 'IN-001',
-                role: PartnerRoleType.supplier,
-              ),
-            ],
-            page: query.page,
-            limit: query.limit,
-            total: 2,
-          ) as TResult,
+                items: [
+                  _historyItem(
+                    historyId: 'h-sales-1',
+                    transactionType: PartnerTransactionType.salesOrder,
+                    sourceModule: 'sales',
+                    referenceCode: 'SO-001',
+                  ),
+                  _historyItem(
+                    historyId: 'h-inv-1',
+                    transactionType: PartnerTransactionType.inventoryInbound,
+                    sourceModule: 'inventory',
+                    referenceCode: 'IN-001',
+                    role: PartnerRoleType.supplier,
+                  ),
+                ],
+                page: query.page,
+                limit: query.limit,
+                total: 2,
+              )
+              as TResult,
         );
       default:
         return Future.value(
           PartnerHistoryResultDto(
-            items: const [],
-            page: query.page,
-            limit: query.limit,
-            total: 0,
-          ) as TResult,
+                items: const [],
+                page: query.page,
+                limit: query.limit,
+                total: 0,
+              )
+              as TResult,
         );
     }
   }
@@ -652,8 +671,7 @@ final class FakePartnerModule implements IPartnerModule {
   static PartnerHistoryItemDto _historyItem({
     String historyId = 'h-1',
     PartnerRoleType role = PartnerRoleType.customer,
-    PartnerTransactionType transactionType =
-        PartnerTransactionType.salesOrder,
+    PartnerTransactionType transactionType = PartnerTransactionType.salesOrder,
     String sourceModule = 'sales',
     String referenceCode = 'SO-001',
     bool canOpenSource = true,
