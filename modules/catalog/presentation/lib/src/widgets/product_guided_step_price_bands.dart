@@ -360,14 +360,14 @@ class _ProductGuidedStepPriceBandsState extends State<ProductGuidedStepPriceBand
         _buildPricePreviewRow(
           context: context,
           title: 'Giá niêm yết gợi ý (+$markupPercent%)',
-          value: _formatCurrency(listBeforeVat),
+          value: formatCatalogCurrency(listBeforeVat),
           subtitle: 'Giá bán chuẩn chưa chiết khấu',
         ),
         const SizedBox(height: VSpacing.space2),
         _buildPricePreviewRow(
           context: context,
           title: 'Giá bán sàn gợi ý (+$floorPercent%)',
-          value: _formatCurrency(floorBeforeVat),
+          value: formatCatalogCurrency(floorBeforeVat),
           subtitle: 'Giá tối thiểu nhân viên được phép bán',
         ),
       ],

@@ -169,21 +169,16 @@ class CustomFieldGroupDetailPage extends StatelessWidget {
         else
           SliverReorderableList(
             itemCount: fields.length,
-            onReorder: (oldIndex, newIndex) {
-              final originalOldField = fields[oldIndex];
-              final origOldIdx = group.fields.indexWhere((f) => f.fieldId == originalOldField.fieldId);
-              
-              int origNewIdx;
-              if (newIndex < fields.length) {
-                final originalNewField = fields[newIndex];
-                origNewIdx = group.fields.indexWhere((f) => f.fieldId == originalNewField.fieldId);
-              } else {
-                origNewIdx = group.fields.length;
-              }
+            onReorderItem: (oldIndex, newIndex) {
+              if (newIndex == oldIndex) return;
 
-              if (origOldIdx != -1 && origNewIdx != -1) {
-                cubit.reorderFields(groupId, origOldIdx, origNewIdx);
-              }
+              final reordered = List<CustomFieldDefinitionDto>.from(fields);
+              final item = reordered.removeAt(oldIndex);
+              reordered.insert(newIndex, item);
+              cubit.reorderFields(
+                groupId,
+                reordered.map((field) => field.fieldId).toList(),
+              );
             },
             itemBuilder: (context, index) {
               final field = fields[index];

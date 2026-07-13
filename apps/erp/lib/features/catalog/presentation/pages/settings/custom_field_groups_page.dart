@@ -151,21 +151,15 @@ class _CustomFieldGroupsPageState extends State<CustomFieldGroupsPage> {
                 ),
                 SliverReorderableList(
                   itemCount: groups.length,
-                  onReorder: (oldIndex, newIndex) {
-                    final originalOldGroup = groups[oldIndex];
-                    final origOldIdx = state.groups.indexWhere((g) => g.groupId == originalOldGroup.groupId);
-                    
-                    int origNewIdx;
-                    if (newIndex < groups.length) {
-                      final originalNewGroup = groups[newIndex];
-                      origNewIdx = state.groups.indexWhere((g) => g.groupId == originalNewGroup.groupId);
-                    } else {
-                      origNewIdx = state.groups.length;
-                    }
+                  onReorderItem: (oldIndex, newIndex) {
+                    if (newIndex == oldIndex) return;
 
-                    if (origOldIdx != -1 && origNewIdx != -1) {
-                      _cubit.reorderGroups(origOldIdx, origNewIdx);
-                    }
+                    final reordered = List<CustomFieldGroupConfigDto>.from(groups);
+                    final item = reordered.removeAt(oldIndex);
+                    reordered.insert(newIndex, item);
+                    _cubit.reorderGroups(
+                      reordered.map((group) => group.groupId).toList(),
+                    );
                   },
                   itemBuilder: (context, index) {
                     final group = groups[index];

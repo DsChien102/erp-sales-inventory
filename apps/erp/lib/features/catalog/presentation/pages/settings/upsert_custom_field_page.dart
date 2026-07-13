@@ -7,6 +7,7 @@ import 'package:vet45_catalog_application/application.dart';
 import 'package:vet45_catalog_domain/domain.dart';
 
 import '../../widgets/product_form_bottom_bar.dart';
+import '../../widgets/unsaved_changes_confirm_sheet.dart';
 
 class UpsertCustomFieldPage extends StatefulWidget {
   final String groupId;
@@ -39,10 +40,40 @@ class _UpsertCustomFieldPageState extends State<UpsertCustomFieldPage> {
   final Map<String, bool> _optionActiveFlags = {};
   final Map<String, int> _optionSortOrders = {};
 
+  late final String _initialName;
+  late final CustomFieldType _initialFieldType;
+  late final bool _initialIsRequired;
+  late final bool _initialDisplayOnList;
+  late final bool _initialIsSearchable;
+  late final bool _initialIsFilterable;
+  late final bool _initialIsActive;
+  late final List<({String id, String label, bool active})> _initialOptions;
+
+  bool get _isCreate => widget.initialFieldId == null;
+
+  bool get _hasChanges {
+    if (_nameController.text.trim() != _initialName) return true;
+    if (_fieldType != _initialFieldType) return true;
+    if (_isRequired != _initialIsRequired) return true;
+    if (_displayOnList != _initialDisplayOnList) return true;
+    if (_isSearchable != _initialIsSearchable) return true;
+    if (_isFilterable != _initialIsFilterable) return true;
+    if (_isActive != _initialIsActive) return true;
+    if (_optionIds.length != _initialOptions.length) return true;
+    for (var i = 0; i < _optionIds.length; i++) {
+      final id = _optionIds[i];
+      final initial = _initialOptions[i];
+      if (id != initial.id) return true;
+      if ((_optionControllers[id]?.text.trim() ?? '') != initial.label) return true;
+      if ((_optionActiveFlags[id] ?? true) != initial.active) return true;
+    }
+    return false;
+  }
+
   @override
   void initState() {
     super.initState();
-    if (widget.initialFieldId != null) {
+    if (!_isCreate) {
       final group = widget.cubit.state.groups.firstWhere((g) => g.groupId == widget.groupId);
       final field = group.fields.firstWhere((f) => f.fieldId == widget.initialFieldId);
       _nameController.text = field.name;
@@ -55,21 +86,56 @@ class _UpsertCustomFieldPageState extends State<UpsertCustomFieldPage> {
       _hasProductValues = field.hasProductValues;
       for (final opt in field.options) {
         _optionIds.add(opt.optionId);
-        _optionControllers[opt.optionId] = TextEditingController(text: opt.label);
+        final controller = TextEditingController(text: opt.label);
+        controller.addListener(_onFormChanged);
+        _optionControllers[opt.optionId] = controller;
         _optionActiveFlags[opt.optionId] = opt.isActive;
         _optionSortOrders[opt.optionId] = opt.sortOrder;
       }
     }
+    _initialName = _nameController.text.trim();
+    _initialFieldType = _fieldType;
+    _initialIsRequired = _isRequired;
+    _initialDisplayOnList = _displayOnList;
+    _initialIsSearchable = _isSearchable;
+    _initialIsFilterable = _isFilterable;
+    _initialIsActive = _isActive;
+    _initialOptions = [
+      for (final id in _optionIds)
+        (
+          id: id,
+          label: _optionControllers[id]!.text.trim(),
+          active: _optionActiveFlags[id] ?? true,
+        ),
+    ];
+    _nameController.addListener(_onFormChanged);
+  }
+
+  void _onFormChanged() {
+    if (mounted) setState(() {});
   }
 
   @override
   void dispose() {
+    _nameController.removeListener(_onFormChanged);
     _nameController.dispose();
     _descriptionController.dispose();
     for (final c in _optionControllers.values) {
+      c.removeListener(_onFormChanged);
       c.dispose();
     }
     super.dispose();
+  }
+
+  Future<void> _handleLeave() async {
+    if (!_hasChanges) {
+      if (mounted) context.pop();
+      return;
+    }
+    final shouldLeave = await UnsavedChangesConfirmSheet.show(context);
+    if (shouldLeave && mounted) {
+      context.pop();
+    }
   }
 
   Future<void> _handleSave() async {
@@ -94,7 +160,6 @@ class _UpsertCustomFieldPageState extends State<UpsertCustomFieldPage> {
       return;
     }
 
-    // Validate: tất cả option phải có label
     for (final id in _optionIds) {
       final label = _optionControllers[id]?.text.trim() ?? '';
       if (label.isEmpty) {
@@ -108,7 +173,6 @@ class _UpsertCustomFieldPageState extends State<UpsertCustomFieldPage> {
       }
     }
 
-    // Build options từ controllers
     final builtOptions = _fieldType == CustomFieldType.singleSelect
         ? _optionIds.asMap().entries.map((entry) {
             final idx = entry.key;
@@ -135,6 +199,12 @@ class _UpsertCustomFieldPageState extends State<UpsertCustomFieldPage> {
       isActive: _isActive,
     );
     if (success && mounted) {
+      VToast.show(
+        context,
+        title: 'Thành công',
+        message: _isCreate ? 'Đã tạo trường' : 'Đã cập nhật trường',
+        type: VToastType.success,
+      );
       context.pop();
     }
   }
@@ -143,11 +213,12 @@ class _UpsertCustomFieldPageState extends State<UpsertCustomFieldPage> {
     setState(() {
       final newId = DateTime.now().millisecondsSinceEpoch.toString();
       _optionIds.add(newId);
-      _optionControllers[newId] = TextEditingController();
+      final controller = TextEditingController();
+      controller.addListener(_onFormChanged);
+      _optionControllers[newId] = controller;
       _optionActiveFlags[newId] = true;
       _optionSortOrders[newId] = _optionIds.length - 1;
     });
-    // Focus vào field mới thêm sau khi rebuild
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _optionControllers[_optionIds.last]?.selection = TextSelection.fromPosition(
         const TextPosition(offset: 0),
@@ -158,7 +229,9 @@ class _UpsertCustomFieldPageState extends State<UpsertCustomFieldPage> {
   void _removeOption(String optionId) {
     setState(() {
       _optionIds.remove(optionId);
-      _optionControllers.remove(optionId)?.dispose();
+      _optionControllers.remove(optionId)
+        ?..removeListener(_onFormChanged)
+        ..dispose();
       _optionActiveFlags.remove(optionId);
       _optionSortOrders.remove(optionId);
     });
@@ -227,174 +300,116 @@ class _UpsertCustomFieldPageState extends State<UpsertCustomFieldPage> {
 
     return BlocProvider.value(
       value: widget.cubit,
-      child: Scaffold(
-        backgroundColor: colors.surface,
-        appBar: VAppBar(
-          title: widget.initialFieldId == null ? 'Tạo trường thông tin' : 'Cấu hình trường',
-          showBackButton: true,
-        ),
-        body: ListView(
-          padding: const EdgeInsets.all(VSpacing.screenMobile),
-          children: [
-            VTextField(
-              controller: _nameController,
-              label: 'Tên trường',
-              isRequired: true,
-              hintText: 'Nhập tên trường',
+      child: PopScope(
+        canPop: !_hasChanges,
+        onPopInvokedWithResult: (didPop, _) async {
+          if (didPop) return;
+          await _handleLeave();
+        },
+        child: Scaffold(
+          backgroundColor: colors.surface,
+          appBar: VAppBar(
+            title: _isCreate ? 'Tạo trường thông tin' : 'Cấu hình trường',
+            showBackButton: false,
+            leading: IconButton(
+              icon: Icon(Icons.arrow_back, color: colors.textPrimary),
+              onPressed: _handleLeave,
             ),
-            const SizedBox(height: VSpacing.space4),
-            VTextField(
-              controller: _descriptionController,
-              label: 'Mô tả (tuỳ chọn)',
-              hintText: 'Nhập mô tả',
-              minLines: 3,
-              maxLines: 5,
-            ),
-            const SizedBox(height: VSpacing.space4),
-            VSelect<CustomFieldType>(
-              label: 'Kiểu dữ liệu',
-              isRequired: true,
-              enabled: !_hasProductValues,
-              value: _fieldType,
-              onChanged: _hasProductValues
-                  ? null
-                  : (val) {
-                      if (val != null) setState(() => _fieldType = val);
-                    },
-              items: customFieldTypes,
-            ),
-            if (_hasProductValues) ...[
-              const SizedBox(height: VSpacing.space2),
-              Text(
-                'Không đổi được kiểu dữ liệu do đã có dữ liệu.',
-                style: VTypography.bodySmall.copyWith(color: VColors.warning),
+          ),
+          body: ListView(
+            padding: const EdgeInsets.all(VSpacing.screenMobile),
+            children: [
+              VTextField(
+                controller: _nameController,
+                label: 'Tên trường',
+                isRequired: true,
+                hintText: 'Nhập tên trường',
               ),
-            ],
-            const SizedBox(height: VSpacing.space4),
-            VTextField(
-              controller: TextEditingController(text: group.name),
-              label: 'Nhóm',
-              enabled: false,
-            ),
+              const SizedBox(height: VSpacing.space4),
+              VTextField(
+                controller: _descriptionController,
+                label: 'Mô tả (tuỳ chọn)',
+                hintText: 'Nhập mô tả',
+                minLines: 3,
+                maxLines: 5,
+              ),
+              const SizedBox(height: VSpacing.space4),
+              VSelect<CustomFieldType>(
+                label: 'Kiểu dữ liệu',
+                isRequired: true,
+                enabled: !_hasProductValues,
+                value: _fieldType,
+                onChanged: _hasProductValues
+                    ? null
+                    : (val) {
+                        if (val != null) setState(() => _fieldType = val);
+                      },
+                items: customFieldTypes,
+              ),
+              if (_hasProductValues) ...[
+                const SizedBox(height: VSpacing.space2),
+                Text(
+                  'Không đổi được kiểu dữ liệu do đã có dữ liệu.',
+                  style: VTypography.bodySmall.copyWith(color: VColors.warning),
+                ),
+              ],
+              const SizedBox(height: VSpacing.space4),
+              VTextField(
+                controller: TextEditingController(text: group.name),
+                label: 'Nhóm',
+                enabled: false,
+              ),
 
-            if (_fieldType == CustomFieldType.singleSelect) ...[
-              const SizedBox(height: VSpacing.space6),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'Tùy chọn',
-                    style: VTypography.bodySmall.copyWith(
-                      fontWeight: FontWeight.w600,
-                      color: VColors.textSecondary,
+              if (_fieldType == CustomFieldType.singleSelect) ...[
+                const SizedBox(height: VSpacing.space6),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Tùy chọn',
+                      style: VTypography.bodySmall.copyWith(
+                        fontWeight: FontWeight.w600,
+                        color: VColors.textSecondary,
+                      ),
                     ),
-                  ),
-                  TextButton.icon(
-                    onPressed: _addOption,
-                    icon: const Icon(Icons.add, size: 16),
-                    label: const Text('Thêm'),
-                  ),
-                ],
-              ),
-              const SizedBox(height: VSpacing.space3),
-              ..._optionIds.map((optId) {
-                final controller = _optionControllers[optId]!;
-                return Padding(
-                  key: ValueKey(optId),
-                  padding: const EdgeInsets.only(bottom: 8.0),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      const Icon(Icons.drag_indicator, color: VColors.textMuted, size: 16),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: VTextField(
-                          controller: controller,
-                          hintText: 'Nhập tên tùy chọn',
-                          onSubmitted: (_) => FocusScope.of(context).nextFocus(),
+                    TextButton.icon(
+                      onPressed: _addOption,
+                      icon: const Icon(Icons.add, size: 16),
+                      label: const Text('Thêm'),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: VSpacing.space3),
+                ..._optionIds.map((optId) {
+                  final controller = _optionControllers[optId]!;
+                  return Padding(
+                    key: ValueKey(optId),
+                    padding: const EdgeInsets.only(bottom: 8.0),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        const Icon(Icons.drag_indicator, color: VColors.textMuted, size: 16),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: VTextField(
+                            controller: controller,
+                            hintText: 'Nhập tên tùy chọn',
+                            onSubmitted: (_) => FocusScope.of(context).nextFocus(),
+                          ),
                         ),
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.delete_outline, color: VColors.danger),
-                        onPressed: () => _removeOption(optId),
-                      ),
-                    ],
-                  ),
-                );
-              }),
-            ],
+                        IconButton(
+                          icon: const Icon(Icons.delete_outline, color: VColors.danger),
+                          onPressed: () => _removeOption(optId),
+                        ),
+                      ],
+                    ),
+                  );
+                }),
+              ],
 
-            const SizedBox(height: VSpacing.space6),
-            Text(
-              'THUỘC TÍNH',
-              style: VTypography.bodySmall.copyWith(
-                fontWeight: FontWeight.w600,
-                color: VColors.textSecondary,
-              ),
-            ),
-            const SizedBox(height: VSpacing.space3),
-            Container(
-              decoration: BoxDecoration(
-                color: colors.surface,
-                borderRadius: BorderRadius.circular(VRadius.r12),
-                border: Border.all(color: VColors.borderDefault),
-              ),
-              child: Column(
-                children: [
-                  _buildPropertyRow(
-                    'Bắt buộc',
-                    'Tham gia tính readiness của sản phẩm',
-                    _isRequired,
-                    (v) {
-                      if (v) {
-                        showVConfirmDialog(
-                          context: context,
-                          title: 'Bật bắt buộc cho trường',
-                          message:
-                              'Sản phẩm hiện tại chưa điền trường này có thể phát sinh blocker readiness. '
-                              'Dữ liệu hiện có không bị xóa.',
-                          cancelLabel: 'Hủy',
-                          actionLabel: 'Xác nhận',
-                          onAction: () => setState(() => _isRequired = true),
-                        );
-                      } else {
-                        setState(() => _isRequired = v);
-                      }
-                    },
-                    colors,
-                  ),
-                  const Divider(height: 1, color: VColors.borderDefault),
-                  _buildPropertyRow(
-                    'Cho phép tìm kiếm',
-                    null,
-                    _isSearchable,
-                    (v) => setState(() => _isSearchable = v),
-                    colors,
-                  ),
-                  const Divider(height: 1, color: VColors.borderDefault),
-                  _buildPropertyRow(
-                    'Cho phép lọc',
-                    null,
-                    _isFilterable,
-                    (v) => setState(() => _isFilterable = v),
-                    colors,
-                  ),
-                  const Divider(height: 1, color: VColors.borderDefault),
-                  _buildPropertyRow(
-                    'Hiển thị trên danh sách sản phẩm',
-                    'Danh sách sản phẩm chỉ hiển thị giới hạn field.',
-                    _displayOnList,
-                    (v) => setState(() => _displayOnList = v),
-                    colors,
-                  ),
-                ],
-              ),
-            ),
-
-            if (widget.initialFieldId != null) ...[
               const SizedBox(height: VSpacing.space6),
               Text(
-                'TRẠNG THÁI',
+                'THUỘC TÍNH',
                 style: VTypography.bodySmall.copyWith(
                   fontWeight: FontWeight.w600,
                   color: VColors.textSecondary,
@@ -407,26 +422,95 @@ class _UpsertCustomFieldPageState extends State<UpsertCustomFieldPage> {
                   borderRadius: BorderRadius.circular(VRadius.r12),
                   border: Border.all(color: VColors.borderDefault),
                 ),
-                child: _buildPropertyRow(
-                  'Đang dùng',
-                  null,
-                  _isActive,
-                  (v) => setState(() => _isActive = v),
-                  colors,
+                child: Column(
+                  children: [
+                    _buildPropertyRow(
+                      'Bắt buộc',
+                      'Tham gia tính readiness của sản phẩm',
+                      _isRequired,
+                      (v) {
+                        if (v) {
+                          showVConfirmDialog(
+                            context: context,
+                            title: 'Bật bắt buộc cho trường',
+                            message:
+                                'Sản phẩm hiện tại chưa điền trường này có thể phát sinh blocker readiness. '
+                                'Dữ liệu hiện có không bị xóa.',
+                            cancelLabel: 'Hủy',
+                            actionLabel: 'Xác nhận',
+                            onAction: () => setState(() => _isRequired = true),
+                          );
+                        } else {
+                          setState(() => _isRequired = v);
+                        }
+                      },
+                      colors,
+                    ),
+                    const Divider(height: 1, color: VColors.borderDefault),
+                    _buildPropertyRow(
+                      'Cho phép tìm kiếm',
+                      null,
+                      _isSearchable,
+                      (v) => setState(() => _isSearchable = v),
+                      colors,
+                    ),
+                    const Divider(height: 1, color: VColors.borderDefault),
+                    _buildPropertyRow(
+                      'Cho phép lọc',
+                      null,
+                      _isFilterable,
+                      (v) => setState(() => _isFilterable = v),
+                      colors,
+                    ),
+                    const Divider(height: 1, color: VColors.borderDefault),
+                    _buildPropertyRow(
+                      'Hiển thị trên danh sách sản phẩm',
+                      'Danh sách sản phẩm chỉ hiển thị giới hạn field.',
+                      _displayOnList,
+                      (v) => setState(() => _displayOnList = v),
+                      colors,
+                    ),
+                  ],
                 ),
               ),
+
+              if (!_isCreate) ...[
+                const SizedBox(height: VSpacing.space6),
+                Text(
+                  'TRẠNG THÁI',
+                  style: VTypography.bodySmall.copyWith(
+                    fontWeight: FontWeight.w600,
+                    color: VColors.textSecondary,
+                  ),
+                ),
+                const SizedBox(height: VSpacing.space3),
+                Container(
+                  decoration: BoxDecoration(
+                    color: colors.surface,
+                    borderRadius: BorderRadius.circular(VRadius.r12),
+                    border: Border.all(color: VColors.borderDefault),
+                  ),
+                  child: _buildPropertyRow(
+                    'Đang dùng',
+                    null,
+                    _isActive,
+                    (v) => setState(() => _isActive = v),
+                    colors,
+                  ),
+                ),
+              ],
+              const SizedBox(height: 40),
             ],
-            const SizedBox(height: 40),
-          ],
-        ),
-        bottomNavigationBar: BlocBuilder<CustomFieldConfigCubit, CustomFieldConfigState>(
-          builder: (context, state) {
-            return ProductFormBottomBar(
-              onCancel: state.isSaving ? null : () => context.pop(),
-              isLoading: state.isSaving,
-              onSave: _handleSave,
-            );
-          },
+          ),
+          bottomNavigationBar: BlocBuilder<CustomFieldConfigCubit, CustomFieldConfigState>(
+            builder: (context, state) {
+              return ProductFormBottomBar(
+                onCancel: state.isSaving ? null : _handleLeave,
+                isLoading: state.isSaving,
+                onSave: _handleSave,
+              );
+            },
+          ),
         ),
       ),
     );

@@ -32,7 +32,7 @@ class _PriceBandCalculationTypeSelectorState extends State<PriceBandCalculationT
     }
   }
 
-  void _syncMoneyController(TextEditingController controller, double? value) {
+  void _syncMoneyController(TextEditingController controller, num? value) {
     final expected = value != null && value != 0 ? VMoneyValidator.format(value.round()) : '';
     final parsed = VMoneyValidator.parse(controller.text);
     final expectedInt = value != null && value != 0 ? value.round() : null;
@@ -372,7 +372,7 @@ class _PriceBandCalculationTypeSelectorState extends State<PriceBandCalculationT
             controller: controller,
             suffixText: 'đ',
             textAlign: TextAlign.right,
-            onChanged: (val) => onChanged(int.tryParse(val.replaceAll(',', ''))),
+            onChanged: onChanged,
           ),
         ),
       ],

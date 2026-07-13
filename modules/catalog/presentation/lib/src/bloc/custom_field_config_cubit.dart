@@ -43,23 +43,39 @@ class CustomFieldConfigCubit extends Cubit<CustomFieldConfigState> {
     }
   }
 
-  Future<void> reorderGroups(int oldIndex, int newIndex) async {
-    final groups = _reorderItems(state.groups, oldIndex, newIndex);
-    if (groups == null) return;
-    final orderedIds = groups.map((e) => e.groupId).toList();
+  Future<void> reorderGroups(List<String> orderedGroupIds) async {
+    if (orderedGroupIds.length != state.groups.length) return;
 
-    // Optimistic update
+    final byId = {for (final group in state.groups) group.groupId: group};
+    final groups = <CustomFieldGroupConfigDto>[];
+    for (var index = 0; index < orderedGroupIds.length; index++) {
+      final group = byId[orderedGroupIds[index]];
+      if (group == null) return;
+      groups.add(
+        CustomFieldGroupConfigDto(
+          groupId: group.groupId,
+          name: group.name,
+          iconKey: group.iconKey,
+          sortOrder: index,
+          status: group.status,
+          fieldCount: group.fieldCount,
+          requiredFieldCount: group.requiredFieldCount,
+          fields: group.fields,
+        ),
+      );
+    }
+
+    // Optimistic update — giữ sortOrder khớp thứ tự mới để UI không bị sort lại về cũ.
     emit(state.copyWith(groups: groups));
 
     try {
       final tenantId = await _executionContext.requireTenantId();
       final command = ReorderCustomFieldGroupsCommand(
         tenantId: tenantId,
-        orderedGroupIds: orderedIds,
+        orderedGroupIds: orderedGroupIds,
       );
       await _mediator.executeCommandAsync(command);
     } catch (e) {
-      // Revert on error
       emit(state.copyWith(error: e.toString()));
       await loadGroups();
     }
@@ -91,13 +107,35 @@ class CustomFieldConfigCubit extends Cubit<CustomFieldConfigState> {
     }
   }
 
-  Future<void> reorderFields(String groupId, int oldIndex, int newIndex) async {
+  Future<void> reorderFields(String groupId, List<String> orderedFieldIds) async {
     final groupIndex = state.groups.indexWhere((g) => g.groupId == groupId);
     if (groupIndex == -1) return;
 
     final group = state.groups[groupIndex];
-    final fields = _reorderItems(group.fields, oldIndex, newIndex);
-    if (fields == null) return;
+    if (orderedFieldIds.length != group.fields.length) return;
+
+    final byId = {for (final field in group.fields) field.fieldId: field};
+    final fields = <CustomFieldDefinitionDto>[];
+    for (var index = 0; index < orderedFieldIds.length; index++) {
+      final field = byId[orderedFieldIds[index]];
+      if (field == null) return;
+      fields.add(
+        CustomFieldDefinitionDto(
+          fieldId: field.fieldId,
+          groupId: field.groupId,
+          name: field.name,
+          fieldType: field.fieldType,
+          options: field.options,
+          isRequired: field.isRequired,
+          isSearchable: field.isSearchable,
+          isFilterable: field.isFilterable,
+          displayOnList: field.displayOnList,
+          sortOrder: index,
+          status: field.status,
+          hasProductValues: field.hasProductValues,
+        ),
+      );
+    }
 
     final updatedGroup = CustomFieldGroupConfigDto(
       groupId: group.groupId,
@@ -112,8 +150,6 @@ class CustomFieldConfigCubit extends Cubit<CustomFieldConfigState> {
     final updatedGroups = List<CustomFieldGroupConfigDto>.from(state.groups);
     updatedGroups[groupIndex] = updatedGroup;
 
-    final orderedIds = fields.map((e) => e.fieldId).toList();
-
     // Optimistic update
     emit(state.copyWith(groups: updatedGroups));
 
@@ -122,11 +158,10 @@ class CustomFieldConfigCubit extends Cubit<CustomFieldConfigState> {
       final command = ReorderCustomFieldsCommand(
         tenantId: tenantId,
         groupId: groupId,
-        orderedFieldIds: orderedIds,
+        orderedFieldIds: orderedFieldIds,
       );
       await _mediator.executeCommandAsync(command);
     } catch (e) {
-      // Revert
       emit(state.copyWith(error: e.toString()));
       await loadGroups();
     }
@@ -178,26 +213,5 @@ class CustomFieldConfigCubit extends Cubit<CustomFieldConfigState> {
       emit(state.copyWith(isSaving: false, error: e.toString()));
       return false;
     }
-  }
-
-  /// ReorderableListView passes [newIndex] relative to the list before removal.
-  /// When dragging down, decrement [newIndex] after [oldIndex] is removed.
-  List<T>? _reorderItems<T>(List<T> items, int oldIndex, int newIndex) {
-    if (items.isEmpty || oldIndex < 0 || oldIndex >= items.length) {
-      return null;
-    }
-
-    var insertIndex = newIndex;
-    if (insertIndex > oldIndex) {
-      insertIndex -= 1;
-    }
-    if (insertIndex == oldIndex) {
-      return null;
-    }
-
-    final reordered = List<T>.from(items);
-    final item = reordered.removeAt(oldIndex);
-    reordered.insert(insertIndex.clamp(0, reordered.length), item);
-    return reordered;
   }
 }
