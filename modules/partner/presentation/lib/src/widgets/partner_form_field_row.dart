@@ -50,6 +50,9 @@ class PartnerFormFieldRow extends StatelessWidget {
                     top: alignFieldTop ? VSpacing.space2 : 0,
                   ),
                   child: RichText(
+                    softWrap: false,
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 1,
                     text: TextSpan(
                       style: VTypography.bodySmall.copyWith(
                         color: colors.textSecondary,

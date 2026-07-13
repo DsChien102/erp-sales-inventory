@@ -2,46 +2,43 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:vet45_design_system/design_system.dart';
 
-String _removeVietnameseTones(String str) {
-  str = str.replaceAll(RegExp(r'[àáạảãâầấậẩẫăằắặẳẵ]'), 'a');
-  str = str.replaceAll(RegExp(r'[èéẹẻẽêềếệểễ]'), 'e');
-  str = str.replaceAll(RegExp(r'[ìíịỉĩ]'), 'i');
-  str = str.replaceAll(RegExp(r'[òóọỏõôồốộổỗơờớợởỡ]'), 'o');
-  str = str.replaceAll(RegExp(r'[ùúụủũưừứựửữ]'), 'u');
-  str = str.replaceAll(RegExp(r'[ỳýỵỷỹ]'), 'y');
-  str = str.replaceAll(RegExp(r'[đ]'), 'd');
-  str = str.replaceAll(RegExp(r'[ÀÁẠẢÃÂẦẤẬẨẪĂẰẮẶẲẴ]'), 'A');
-  str = str.replaceAll(RegExp(r'[ÈÉẸẺẼÊỀẾỆỂỄ]'), 'E');
-  str = str.replaceAll(RegExp(r'[ÌÍỊỈĨ]'), 'I');
-  str = str.replaceAll(RegExp(r'[ÒÓỌỎÕÔỒỐỘỔỖƠỜỚỢỞỠ]'), 'O');
-  str = str.replaceAll(RegExp(r'[ÙÚỤỦŨƯỪỨỰỬỮ]'), 'U');
-  str = str.replaceAll(RegExp(r'[ỲÝỴỶỸ]'), 'Y');
-  str = str.replaceAll(RegExp(r'[Đ]'), 'D');
-  return str;
-}
-
+/// Partner form compact field tokens — delegates overlay/menu mechanics to
+/// [VOverlayMenuLayout] / [VRouteOverlayGuard].
 abstract final class PartnerCompactField {
-  static const double controlHeight = 40;
-  static const double menuHeight = 180;
+  static const double controlHeight = VCompactSearchableDropdown.controlHeight;
+  static const double menuHeight = VOverlayMenuLayout.defaultMenuHeight;
+  static const double minMenuHeight = VOverlayMenuLayout.minMenuHeight;
+  static const double stickyActionsReserve = 72;
 
-  /// Attach menu just below the field (not top-aligned + large dy offset).
-  static const Offset menuAlignmentOffset = Offset(0, 4);
-  static const AlignmentGeometry menuAlignment = AlignmentDirectional.bottomStart;
+  static const Offset menuAlignmentOffset = VOverlayMenuLayout.alignmentOffset;
+  static const AlignmentGeometry menuAlignment = VOverlayMenuLayout.alignment;
+  static const EdgeInsets contentPadding = VCompactSearchableDropdown.contentPadding;
+  static const double trailingIconWidth = VCompactSearchableDropdown.trailingIconWidth;
+  static const BoxConstraints trailingIconConstraints =
+      VCompactSearchableDropdown.trailingIconConstraints;
 
-  static const EdgeInsets contentPadding = EdgeInsets.symmetric(
-    horizontal: 12,
-    vertical: 11,
-  );
+  static bool isRouteLayoutReady(BuildContext context) =>
+      VRouteOverlayGuard.isLayoutReady(context);
 
-  /// Keep the field high enough in the viewport so the menu can open downward.
-  static Future<void> ensureMenuOpensDownward(BuildContext context) {
-    return Scrollable.ensureVisible(
-      context,
-      duration: const Duration(milliseconds: 200),
-      curve: Curves.easeOut,
-      alignment: 0.15,
-    );
-  }
+  static double availableMenuSpace(BuildContext context) =>
+      VOverlayMenuLayout.availableSpace(
+        context,
+        stickyActionsReserve: stickyActionsReserve,
+      );
+
+  static double resolvedMenuHeight(BuildContext context) =>
+      VOverlayMenuLayout.resolvedMenuHeight(
+        context,
+        preferredHeight: menuHeight,
+        minHeight: minMenuHeight,
+        stickyActionsReserve: stickyActionsReserve,
+      );
+
+  static Future<void> ensureMenuOpensDownward(BuildContext context) =>
+      VOverlayMenuLayout.ensureOpensDownward(
+        context,
+        stickyActionsReserve: stickyActionsReserve,
+      );
 
   static TextStyle valueStyle(BuildContext context) {
     return VTypography.bodySmall.copyWith(
@@ -287,6 +284,9 @@ class PartnerCompactDropdown<T> extends StatelessWidget {
       }
     }
 
+    MediaQuery.viewInsetsOf(context);
+    final menuHeight = PartnerCompactField.resolvedMenuHeight(context);
+
     return LayoutBuilder(
       builder: (context, constraints) {
         return MenuAnchor(
@@ -297,7 +297,7 @@ class PartnerCompactDropdown<T> extends StatelessWidget {
             padding: WidgetStatePropertyAll(EdgeInsets.zero),
             minimumSize: WidgetStatePropertyAll(Size(constraints.maxWidth, 0)),
             maximumSize: WidgetStatePropertyAll(
-              Size(constraints.maxWidth, PartnerCompactField.menuHeight),
+              Size(constraints.maxWidth, menuHeight),
             ),
             backgroundColor: WidgetStatePropertyAll(colors.surface),
             surfaceTintColor: const WidgetStatePropertyAll(Colors.transparent),
@@ -385,147 +385,5 @@ class PartnerCompactDropdown<T> extends StatelessWidget {
   }
 }
 
-class PartnerCompactSearchableDropdown<T> extends StatefulWidget {
-  const PartnerCompactSearchableDropdown({
-    super.key,
-    required this.value,
-    required this.items,
-    required this.onChanged,
-    this.hintText,
-    this.enabled = true,
-  });
-
-  final T? value;
-  final List<DropdownMenuEntry<T>> items;
-  final ValueChanged<T?>? onChanged;
-  final String? hintText;
-  final bool enabled;
-
-  @override
-  State<PartnerCompactSearchableDropdown<T>> createState() =>
-      _PartnerCompactSearchableDropdownState<T>();
-}
-
-class _PartnerCompactSearchableDropdownState<T> extends State<PartnerCompactSearchableDropdown<T>> {
-  late final FocusNode _focusNode;
-
-  @override
-  void initState() {
-    super.initState();
-    _focusNode = FocusNode(debugLabel: 'PartnerCompactSearchableDropdown');
-    _focusNode.addListener(_onFocusChange);
-  }
-
-  void _onFocusChange() {
-    if (!_focusNode.hasFocus || !mounted) return;
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted || !_focusNode.hasFocus) return;
-      PartnerCompactField.ensureMenuOpensDownward(context);
-    });
-  }
-
-  @override
-  void dispose() {
-    _focusNode
-      ..removeListener(_onFocusChange)
-      ..dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = context.vColors;
-
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        return SizedBox(
-          height: PartnerCompactField.controlHeight,
-          width: double.infinity,
-          child: Stack(
-            alignment: Alignment.centerRight,
-            children: [
-              DropdownMenu<T>(
-                key: ValueKey(
-                  'compact-search-${widget.value}-${widget.enabled}',
-                ),
-                width: constraints.maxWidth,
-                enabled: widget.enabled,
-                initialSelection: widget.value,
-                hintText: widget.hintText,
-                focusNode: _focusNode,
-                enableSearch: true,
-                enableFilter: true,
-                filterCallback: (entries, filter) {
-                  final normalizedFilter = _removeVietnameseTones(filter).toLowerCase();
-                  return entries.where((entry) {
-                    final normalizedLabel = _removeVietnameseTones(entry.label).toLowerCase();
-                    return normalizedLabel.contains(normalizedFilter);
-                  }).toList();
-                },
-                requestFocusOnTap: true,
-                showTrailingIcon: false,
-                alignmentOffset: PartnerCompactField.menuAlignmentOffset,
-                menuHeight: PartnerCompactField.menuHeight,
-                textStyle: PartnerCompactField.valueStyle(context).copyWith(
-                  color: widget.enabled ? colors.textPrimary : colors.textMuted,
-                ),
-                menuStyle: MenuStyle(
-                  alignment: PartnerCompactField.menuAlignment,
-                  minimumSize: WidgetStatePropertyAll(
-                    Size(constraints.maxWidth, 0),
-                  ),
-                  maximumSize: WidgetStatePropertyAll(
-                    Size(constraints.maxWidth, PartnerCompactField.menuHeight),
-                  ),
-                  backgroundColor: WidgetStatePropertyAll(colors.surface),
-                  surfaceTintColor: const WidgetStatePropertyAll(Colors.transparent),
-                  shape: WidgetStatePropertyAll(
-                    RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(VRadius.input),
-                      side: BorderSide(color: colors.borderDefault),
-                    ),
-                  ),
-                ),
-                inputDecorationTheme: InputDecorationTheme(
-                  isDense: true,
-                  filled: true,
-                  fillColor: widget.enabled ? colors.surface : colors.surfaceAlt,
-                  contentPadding: PartnerCompactField.contentPadding,
-                  hintStyle: PartnerCompactField.hintStyle(context),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(VRadius.input),
-                    borderSide: BorderSide(color: colors.borderStrong),
-                  ),
-                  disabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(VRadius.input),
-                    borderSide: BorderSide(color: colors.borderDefault),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(VRadius.input),
-                    borderSide: BorderSide(color: colors.primary),
-                  ),
-                  constraints: const BoxConstraints(
-                    minHeight: PartnerCompactField.controlHeight,
-                    maxHeight: PartnerCompactField.controlHeight,
-                  ),
-                ),
-                onSelected: widget.onChanged,
-                dropdownMenuEntries: widget.items,
-              ),
-              Padding(
-                padding: const EdgeInsets.only(right: 12),
-                child: IgnorePointer(
-                  child: Icon(
-                    Icons.arrow_drop_down,
-                    size: 18,
-                    color: widget.enabled ? colors.textSecondary : colors.textMuted,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-}
+/// Thin alias — prefer [VCompactSearchableDropdown] directly in new code.
+typedef PartnerCompactSearchableDropdown<T> = VCompactSearchableDropdown<T>;

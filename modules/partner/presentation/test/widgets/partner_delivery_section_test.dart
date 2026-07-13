@@ -33,6 +33,15 @@ void main() {
     );
   }
 
+  DropdownMenu<String> communeMenu(WidgetTester tester) {
+    return tester.widget<DropdownMenu<String>>(
+      find.descendant(
+        of: find.byKey(const Key('input_delivery_commune')),
+        matching: find.byType(DropdownMenu<String>),
+      ),
+    );
+  }
+
   testWidgets('ward dropdown stays disabled until province is selected', (
     tester,
   ) async {
@@ -41,31 +50,37 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byKey(const Key('input_delivery_province')), findsOneWidget);
-
-    final communeField = find.byKey(const Key('input_delivery_commune'));
     expect(
       find.descendant(
-        of: communeField,
+        of: find.byKey(const Key('input_delivery_commune')),
         matching: find.text('Chọn tỉnh / thành phố trước'),
       ),
       findsOneWidget,
     );
-    expect(
-      tester
-          .widget<InkWell>(
-            find.descendant(of: communeField, matching: find.byType(InkWell)),
-          )
-          .onTap,
-      isNull,
-    );
+    expect(communeMenu(tester).enabled, isFalse);
   });
 
-  testWidgets('address dropdown menus match the field width and rounded shape', (
+  testWidgets('province and ward dropdowns share builtin trailing layout', (
     tester,
   ) async {
     await tester.pumpWidget(buildDeliverySection());
     await tester.runAsync(VnAdministrativeUnitsLoader.load);
     await tester.pumpAndSettle();
+
+    final province = tester.widget<VCompactSearchableDropdown<String>>(
+      find.byKey(const Key('input_delivery_province')),
+    );
+    final ward = tester.widget<VCompactSearchableDropdown<String>>(
+      find.descendant(
+        of: find.byKey(const Key('input_delivery_commune')),
+        matching: find.byType(VCompactSearchableDropdown<String>),
+      ),
+    );
+
+    expect(province.trailingMode, VCompactDropdownTrailingMode.builtin);
+    expect(ward.trailingMode, VCompactDropdownTrailingMode.builtin);
+    expect(ward.stickyActionsReserve, province.stickyActionsReserve);
+    expect(ward.menuHeight, province.menuHeight);
 
     final fieldFinder = find.byKey(const Key('input_delivery_province'));
     final menu = tester.widget<DropdownMenu<String>>(
@@ -75,12 +90,9 @@ void main() {
       ),
     );
     final fieldWidth = tester.getSize(fieldFinder).width;
-    expect(menu.alignmentOffset, PartnerCompactField.menuAlignmentOffset);
-    expect(menu.menuStyle?.alignment, PartnerCompactField.menuAlignment);
+    expect(menu.expandedInsets, EdgeInsets.zero);
     expect(menu.menuStyle?.minimumSize?.resolve({})?.width, fieldWidth);
     expect(menu.menuStyle?.maximumSize?.resolve({})?.width, fieldWidth);
-    final shape = menu.menuStyle?.shape?.resolve({}) as RoundedRectangleBorder;
-    expect(shape.borderRadius, BorderRadius.circular(VRadius.input));
   });
 
   testWidgets('selecting province enables ward dropdown', (tester) async {
@@ -93,19 +105,14 @@ void main() {
     await tester.pump();
     await tester.pump();
 
-    final communeField = find.byKey(const Key('input_delivery_commune'));
     expect(
-      find.descendant(of: communeField, matching: find.text('Chọn xã / phường')),
+      find.descendant(
+        of: find.byKey(const Key('input_delivery_commune')),
+        matching: find.text('Chọn xã / phường'),
+      ),
       findsOneWidget,
     );
-    expect(
-      tester
-          .widget<InkWell>(
-            find.descendant(of: communeField, matching: find.byType(InkWell)),
-          )
-          .onTap,
-      isNotNull,
-    );
+    expect(communeMenu(tester).enabled, isTrue);
   });
 
   testWidgets('province and ward values use the same typography', (
@@ -118,12 +125,16 @@ void main() {
     final cubit = tester.element(find.byType(PartnerDeliverySection)).read<PartnerCreateCubit>();
     cubit
       ..updateDeliveryProvince('Thành phố Hà Nội')
-      ..updateDeliveryCommune('Xã Hát Môn');
-    await tester.pump();
+      ..updateDeliveryCommune('Phường Ba Đình');
+    await tester.pumpAndSettle();
+
+    // Collapsed display — tap to reveal DropdownMenu TextField.
+    await tester.tap(find.text('Phường Ba Đình'));
+    await tester.pumpAndSettle();
 
     final wardTextField = tester.widget<TextField>(
       find.descendant(
-        of: find.byKey(const Key('input_ward_inline_search')),
+        of: find.byKey(const Key('input_delivery_commune')),
         matching: find.byType(TextField),
       ),
     );
@@ -158,53 +169,48 @@ void main() {
     await tester.pumpAndSettle();
 
     final communeField = find.byKey(const Key('input_delivery_commune'));
-    final wardInput = find.descendant(
-      of: communeField,
-      matching: find.byKey(const Key('input_ward_inline_search')),
-    );
-    await tester.tap(wardInput);
+    await tester.tap(communeField);
+    await tester.pumpAndSettle();
     await tester.enterText(
-      find.descendant(of: wardInput, matching: find.byType(TextField)),
+      find.descendant(of: communeField, matching: find.byType(TextField)),
       'dai mo',
     );
     await tester.pumpAndSettle();
 
-    await tester.tap(find.text('Phường Đại Mỗ'));
+    await tester.tap(find.text('Phường Đại Mỗ').last);
     await tester.pumpAndSettle();
 
-    expect(find.text('Phường Đại Mỗ'), findsOneWidget);
+    expect(find.text('Phường Đại Mỗ'), findsWidgets);
   });
 
-  testWidgets('ward arrow opens dropdown without focusing inline input', (
+  testWidgets('province and ward trailing icons share the same slot size', (
     tester,
   ) async {
-    await tester.pumpWidget(
-      MaterialApp(
-        home: BlocProvider(
-          create: (_) => PartnerCreateCubit(
-            partnerType: PartnerType.person,
-            partnerModule: FakePartnerModule(),
-            executionContext: FakeExecutionContext(),
-          )..updateDeliveryProvince('Thành phố Hà Nội'),
-          child: const Scaffold(
-            body: SingleChildScrollView(child: PartnerDeliverySection()),
-          ),
-        ),
-      ),
-    );
+    await tester.pumpWidget(buildDeliverySection());
     await tester.runAsync(VnAdministrativeUnitsLoader.load);
     await tester.pumpAndSettle();
 
-    await tester.tap(find.byKey(const Key('btn_ward_dropdown')));
+    final cubit = tester.element(find.byType(PartnerDeliverySection)).read<PartnerCreateCubit>();
+    cubit
+      ..updateDeliveryProvince('Thành phố Hà Nội')
+      ..updateDeliveryCommune('Phường Ba Đình');
     await tester.pumpAndSettle();
 
-    expect(find.text('Phường Ba Đình'), findsOneWidget);
-    final input = tester.widget<TextField>(
-      find.descendant(
-        of: find.byKey(const Key('input_ward_inline_search')),
-        matching: find.byType(TextField),
-      ),
+    final provinceIcons = find.descendant(
+      of: find.byKey(const Key('input_delivery_province')),
+      matching: find.byIcon(Icons.keyboard_arrow_down),
     );
-    expect(input.focusNode?.hasFocus, isFalse);
+    final wardIcons = find.descendant(
+      of: find.byKey(const Key('input_delivery_commune')),
+      matching: find.byIcon(Icons.keyboard_arrow_down),
+    );
+    expect(provinceIcons, findsOneWidget);
+    expect(wardIcons, findsOneWidget);
+
+    final provinceIconRect = tester.getRect(provinceIcons);
+    final wardIconRect = tester.getRect(wardIcons);
+    expect(provinceIconRect.width, wardIconRect.width);
+    expect(provinceIconRect.height, wardIconRect.height);
+    expect(provinceIconRect.right, moreOrLessEquals(wardIconRect.right, epsilon: 0.5));
   });
 }

@@ -46,11 +46,16 @@ class _PartnerDeliverySectionState extends State<PartnerDeliverySection> {
         return Column(
           children: [
             PartnerFormFieldRow(
+              // Keep label on one line so both rows share the same field baseline.
+              labelWidth: 108,
+              labelFieldGap: 12,
               label: 'Tỉnh / Thành phố',
-              field: PartnerCompactSearchableDropdown<String>(
+              field: VCompactSearchableDropdown<String>(
                 key: const Key('input_delivery_province'),
                 value: state.deliveryProvince.isEmpty ? null : state.deliveryProvince,
                 hintText: 'Chọn tỉnh / thành phố',
+                stickyActionsReserve: PartnerCompactField.stickyActionsReserve,
+                menuHeight: PartnerCompactField.menuHeight,
                 items: units
                     .map(
                       (province) => DropdownMenuEntry<String>(
@@ -63,6 +68,8 @@ class _PartnerDeliverySectionState extends State<PartnerDeliverySection> {
               ),
             ),
             PartnerFormFieldRow(
+              labelWidth: 108,
+              labelFieldGap: 12,
               label: 'Xã / Phường',
               field: PartnerWardSearchDropdown(
                 key: const Key('input_delivery_commune'),
@@ -146,6 +153,8 @@ class _DeliverySectionLoading extends StatelessWidget {
       children: [
         for (var index = 0; index < 2; index++)
           PartnerFormFieldRow(
+            labelWidth: 108,
+            labelFieldGap: 12,
             label: index == 0 ? 'Tỉnh / Thành phố' : 'Xã / Phường',
             field: SizedBox(
               height: PartnerCompactField.controlHeight,

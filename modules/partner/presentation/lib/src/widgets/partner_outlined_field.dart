@@ -78,9 +78,9 @@ abstract final class PartnerOutlinedField {
       errorStyle: VTypography.bodySmall.copyWith(color: VColors.danger),
       constraints: multiline
           ? const BoxConstraints(minHeight: 96)
-          : const BoxConstraints(
+          : BoxConstraints(
               minHeight: controlHeight,
-              maxHeight: controlHeight,
+              maxHeight: errorText == null ? controlHeight : double.infinity,
             ),
     );
   }
