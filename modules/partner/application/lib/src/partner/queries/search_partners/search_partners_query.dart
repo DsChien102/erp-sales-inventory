@@ -13,7 +13,9 @@ final class SearchPartnersQuery extends QueryBase<PartnerSearchResultDto>
     this.query,
     this.partnerType,
     this.role,
+    this.requireBothRoles = false,
     this.status,
+    this.updatedWithinDays,
     this.page = 1,
     this.limit = 20,
     this.sort,
@@ -24,7 +26,9 @@ final class SearchPartnersQuery extends QueryBase<PartnerSearchResultDto>
   final String? query;
   final PartnerType? partnerType;
   final PartnerRoleType? role;
+  final bool requireBothRoles;
   final PartnerStatus? status;
+  final int? updatedWithinDays;
   final int page;
   final int limit;
   final String? sort;

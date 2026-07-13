@@ -9,17 +9,20 @@ class PartnerFilterBottomSheet extends StatefulWidget {
     required this.initialRole,
     required this.initialPartnerType,
     required this.initialStatus,
+    required this.initialUpdatedTimeFilter,
   });
 
   final PartnerRoleFilter? initialRole;
   final PartnerType? initialPartnerType;
   final PartnerStatus? initialStatus;
+  final PartnerUpdatedTimeFilter? initialUpdatedTimeFilter;
 
   static Future<Map<String, dynamic>?> show(
     BuildContext context, {
     PartnerRoleFilter? role,
     PartnerType? partnerType,
     PartnerStatus? status,
+    PartnerUpdatedTimeFilter? updatedTimeFilter,
   }) {
     return showModalBottomSheet<Map<String, dynamic>>(
       context: context,
@@ -29,6 +32,7 @@ class PartnerFilterBottomSheet extends StatefulWidget {
         initialRole: role,
         initialPartnerType: partnerType,
         initialStatus: status,
+        initialUpdatedTimeFilter: updatedTimeFilter,
       ),
     );
   }
@@ -41,6 +45,7 @@ class _PartnerFilterBottomSheetState extends State<PartnerFilterBottomSheet> {
   PartnerRoleFilter? _selectedRole;
   PartnerType? _selectedPartnerType;
   PartnerStatus? _selectedStatus;
+  PartnerUpdatedTimeFilter? _selectedUpdatedTimeFilter;
 
   @override
   void initState() {
@@ -48,6 +53,7 @@ class _PartnerFilterBottomSheetState extends State<PartnerFilterBottomSheet> {
     _selectedRole = widget.initialRole;
     _selectedPartnerType = widget.initialPartnerType;
     _selectedStatus = widget.initialStatus;
+    _selectedUpdatedTimeFilter = widget.initialUpdatedTimeFilter;
   }
 
   void _reset() {
@@ -55,6 +61,7 @@ class _PartnerFilterBottomSheetState extends State<PartnerFilterBottomSheet> {
       'role': null,
       'partnerType': null,
       'status': null,
+      'updatedTimeFilter': null,
     });
   }
 
@@ -63,6 +70,7 @@ class _PartnerFilterBottomSheetState extends State<PartnerFilterBottomSheet> {
       'role': _selectedRole,
       'partnerType': _selectedPartnerType,
       'status': _selectedStatus,
+      'updatedTimeFilter': _selectedUpdatedTimeFilter,
     });
   }
 
@@ -98,7 +106,9 @@ class _PartnerFilterBottomSheetState extends State<PartnerFilterBottomSheet> {
                       isSelected: _selectedRole == PartnerRoleFilter.customer,
                       onTap: () {
                         setState(() {
-                          _selectedRole = _selectedRole == PartnerRoleFilter.customer ? null : PartnerRoleFilter.customer;
+                          _selectedRole = _selectedRole == PartnerRoleFilter.customer
+                              ? null
+                              : PartnerRoleFilter.customer;
                         });
                       },
                     ),
@@ -107,7 +117,9 @@ class _PartnerFilterBottomSheetState extends State<PartnerFilterBottomSheet> {
                       isSelected: _selectedRole == PartnerRoleFilter.supplier,
                       onTap: () {
                         setState(() {
-                          _selectedRole = _selectedRole == PartnerRoleFilter.supplier ? null : PartnerRoleFilter.supplier;
+                          _selectedRole = _selectedRole == PartnerRoleFilter.supplier
+                              ? null
+                              : PartnerRoleFilter.supplier;
                         });
                       },
                     ),
@@ -116,7 +128,9 @@ class _PartnerFilterBottomSheetState extends State<PartnerFilterBottomSheet> {
                       isSelected: _selectedRole == PartnerRoleFilter.both,
                       onTap: () {
                         setState(() {
-                          _selectedRole = _selectedRole == PartnerRoleFilter.both ? null : PartnerRoleFilter.both;
+                          _selectedRole = _selectedRole == PartnerRoleFilter.both
+                              ? null
+                              : PartnerRoleFilter.both;
                         });
                       },
                     ),
@@ -134,7 +148,9 @@ class _PartnerFilterBottomSheetState extends State<PartnerFilterBottomSheet> {
                       isSelected: _selectedPartnerType == PartnerType.person,
                       onTap: () {
                         setState(() {
-                          _selectedPartnerType = _selectedPartnerType == PartnerType.person ? null : PartnerType.person;
+                          _selectedPartnerType = _selectedPartnerType == PartnerType.person
+                              ? null
+                              : PartnerType.person;
                         });
                       },
                     ),
@@ -143,7 +159,9 @@ class _PartnerFilterBottomSheetState extends State<PartnerFilterBottomSheet> {
                       isSelected: _selectedPartnerType == PartnerType.organization,
                       onTap: () {
                         setState(() {
-                          _selectedPartnerType = _selectedPartnerType == PartnerType.organization ? null : PartnerType.organization;
+                          _selectedPartnerType = _selectedPartnerType == PartnerType.organization
+                              ? null
+                              : PartnerType.organization;
                         });
                       },
                     ),
@@ -188,24 +206,51 @@ class _PartnerFilterBottomSheetState extends State<PartnerFilterBottomSheet> {
                 const SizedBox(height: VSpacing.space4),
                 _buildSectionTitle('Thời gian cập nhật'),
                 const SizedBox(height: VSpacing.space3),
-                Wrap(
-                  spacing: VSpacing.space2,
-                  runSpacing: VSpacing.space2,
+                Row(
+                  key: const Key('partner_updated_time_filters'),
                   children: [
-                    _buildFilterChip(
-                      label: '7 ngày gần đây',
-                      isSelected: false,
-                      onTap: () {},
+                    Expanded(
+                      child: _buildFilterChip(
+                        label: '7 ngày gần đây',
+                        isSelected:
+                            _selectedUpdatedTimeFilter == PartnerUpdatedTimeFilter.last7Days,
+                        onTap: () {
+                          setState(() {
+                            _selectedUpdatedTimeFilter =
+                                _selectedUpdatedTimeFilter == PartnerUpdatedTimeFilter.last7Days
+                                ? null
+                                : PartnerUpdatedTimeFilter.last7Days;
+                          });
+                        },
+                        compact: true,
+                      ),
                     ),
-                    _buildFilterChip(
-                      label: '30 ngày gần đây',
-                      isSelected: false,
-                      onTap: () {},
+                    const SizedBox(width: VSpacing.space2),
+                    Expanded(
+                      child: _buildFilterChip(
+                        label: '30 ngày gần đây',
+                        isSelected:
+                            _selectedUpdatedTimeFilter == PartnerUpdatedTimeFilter.last30Days,
+                        onTap: () {
+                          setState(() {
+                            _selectedUpdatedTimeFilter =
+                                _selectedUpdatedTimeFilter == PartnerUpdatedTimeFilter.last30Days
+                                ? null
+                                : PartnerUpdatedTimeFilter.last30Days;
+                          });
+                        },
+                        compact: true,
+                      ),
                     ),
-                    _buildFilterChip(
-                      label: 'Tùy chọn',
-                      isSelected: false,
-                      onTap: () {},
+                    const SizedBox(width: VSpacing.space2),
+                    Expanded(
+                      child: _buildFilterChip(
+                        label: 'Tùy chọn',
+                        isSelected: false,
+                        onTap: () {},
+                        icon: Icons.calendar_today_rounded,
+                        compact: true,
+                      ),
                     ),
                   ],
                 ),
@@ -254,13 +299,18 @@ class _PartnerFilterBottomSheetState extends State<PartnerFilterBottomSheet> {
     required String label,
     required bool isSelected,
     required VoidCallback onTap,
+    IconData? icon,
+    bool compact = false,
   }) {
     final colors = context.vColors;
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(4),
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        padding: EdgeInsets.symmetric(
+          horizontal: compact ? 6 : 12,
+          vertical: 6,
+        ),
         decoration: BoxDecoration(
           color: isSelected ? colors.primary.withValues(alpha: 0.1) : Colors.white,
           border: Border.all(
@@ -268,12 +318,30 @@ class _PartnerFilterBottomSheetState extends State<PartnerFilterBottomSheet> {
           ),
           borderRadius: BorderRadius.circular(4),
         ),
-        child: Text(
-          label,
-          style: VTypography.bodyDefault.copyWith(
-            color: isSelected ? colors.primary : colors.textPrimary,
-            fontWeight: isSelected ? FontWeight.w500 : FontWeight.w400,
-          ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Flexible(
+              child: Text(
+                label,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: VTypography.bodyDefault.copyWith(
+                  color: isSelected ? colors.primary : colors.textPrimary,
+                  fontWeight: isSelected ? FontWeight.w500 : FontWeight.w400,
+                ),
+              ),
+            ),
+            if (icon != null) ...[
+              const SizedBox(width: 4),
+              Icon(
+                icon,
+                size: 13,
+                color: isSelected ? colors.primary : colors.textSecondary,
+              ),
+            ],
+          ],
         ),
       ),
     );

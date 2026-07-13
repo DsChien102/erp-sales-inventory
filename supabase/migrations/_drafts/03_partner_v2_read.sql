@@ -5,10 +5,6 @@
 -- Contracts: SearchPartnersQuery, GetPartnerDetailQuery, CheckDuplicatePartnersQuery,
 --            CheckDeleteEligibilityQuery, GetPartnerHistoryQuery
 
--- Org delivery detail address (additive; safe if already present).
-alter table partner.organization_profiles
-  add column if not exists delivery_address text null;
-
 -- ---------------------------------------------------------------------------
 -- Views
 -- ---------------------------------------------------------------------------
@@ -176,7 +172,8 @@ create or replace function partner.search_partners(
   p_status text default null,
   p_page integer default 1,
   p_limit integer default 20,
-  p_sort text default 'updated_at_desc'
+  p_sort text default 'updated_at_desc',
+  p_updated_within_days integer default null
 )
 returns table (
   items jsonb,
@@ -205,6 +202,14 @@ begin
     raise exception 'permission denied: partner.view';
   end if;
 
+  if p_updated_within_days is not null
+    and p_updated_within_days not in (7, 30) then
+    perform partner._raise_partner_error(
+      'VALIDATION_ERROR',
+      'updated_within_days must be 7 or 30'
+    );
+  end if;
+
   select count(*)
   into v_total
   from partner.v_partner_list v
@@ -213,8 +218,18 @@ begin
     and (p_status is null or v.status = p_status)
     and (p_partner_type is null or v.partner_type = p_partner_type)
     and (
+      p_updated_within_days is null
+      or v.updated_at >= now() - make_interval(days => p_updated_within_days)
+    )
+    and (
       p_role is null
-      or v.roles ? p_role
+      or (p_role = 'customer' and v.roles ? 'customer')
+      or (p_role = 'supplier' and v.roles ? 'supplier')
+      or (
+        p_role = 'both'
+        and v.roles ? 'customer'
+        and v.roles ? 'supplier'
+      )
     )
     and (
       v_query is null
@@ -254,8 +269,18 @@ begin
           and (p_status is null or v.status = p_status)
           and (p_partner_type is null or v.partner_type = p_partner_type)
           and (
+            p_updated_within_days is null
+            or v.updated_at >= now() - make_interval(days => p_updated_within_days)
+          )
+          and (
             p_role is null
-            or v.roles ? p_role
+            or (p_role = 'customer' and v.roles ? 'customer')
+            or (p_role = 'supplier' and v.roles ? 'supplier')
+            or (
+              p_role = 'both'
+              and v.roles ? 'customer'
+              and v.roles ? 'supplier'
+            )
           )
           and (
             v_query is null
@@ -274,6 +299,9 @@ begin
             )
           )
         order by
+          -- Khi lấy tất cả trạng thái, luôn ghim hồ sơ ngừng hoạt động
+          -- xuống cuối danh sách, kể cả khi đang tìm kiếm.
+          case when p_status is null and v.status = 'inactive' then 1 else 0 end,
           case when coalesce(p_sort, 'updated_at_desc') = 'display_name_asc'
             then v.display_name end asc,
           case when coalesce(p_sort, 'updated_at_desc') = 'display_name_desc'
@@ -654,10 +682,10 @@ end;
 $$;
 
 revoke all on function partner.search_partners(
-  uuid, text, text, text, text, integer, integer, text
+  uuid, text, text, text, text, integer, integer, text, integer
 ) from public, anon;
 grant execute on function partner.search_partners(
-  uuid, text, text, text, text, integer, integer, text
+  uuid, text, text, text, text, integer, integer, text, integer
 ) to authenticated;
 
 revoke all on function partner.get_partner_detail(uuid, uuid) from public, anon;

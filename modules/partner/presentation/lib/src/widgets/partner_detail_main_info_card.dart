@@ -4,7 +4,6 @@ import 'package:vet45_partner_application/application.dart';
 import 'package:vet45_partner_domain/domain.dart';
 
 import 'partner_detail_expandable_card.dart';
-import 'partner_detail_formatters.dart';
 
 /// Card thông tin chính — field khớp form tạo; thiếu dữ liệu hiển thị trống.
 class PartnerDetailMainInfoCard extends StatelessWidget {
@@ -21,8 +20,6 @@ class PartnerDetailMainInfoCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.vColors;
-    final phone = PartnerDetailFormatters.primaryPhone(dto)?.trim() ?? '';
     final isPerson = dto.partnerType == PartnerType.person;
     final title = isPerson ? 'Thông tin cá nhân' : 'Thông tin tổ chức';
 
@@ -30,15 +27,6 @@ class PartnerDetailMainInfoCard extends StatelessWidget {
       title: title,
       icon: Icons.assignment_ind_outlined,
       initiallyExpanded: initiallyExpanded,
-      trailingWhenCollapsed: phone.isEmpty
-          ? null
-          : Text(
-              phone,
-              style: VTypography.bodySmall.copyWith(
-                color: colors.textSecondary,
-                fontSize: 11,
-              ),
-            ),
       child: isPerson ? _personFields(dto.personProfile) : _orgFields(dto.organizationProfile),
     );
   }

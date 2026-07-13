@@ -340,7 +340,7 @@ class _PartnerDetailPageState extends State<PartnerDetailPage> {
                             PartnerDetailNoteCard(dto: dto),
                             const SizedBox(height: VSpacing.space2),
 
-                            PartnerDetailHistoryCard(dto: dto),
+                            const PartnerDetailHistoryCard(),
                             const SizedBox(height: VSpacing.space2),
 
                             PartnerDetailSystemCard(dto: dto),

@@ -86,15 +86,18 @@ class _PartnerListPageState extends State<PartnerListPage> {
       role: state.roleFilter,
       partnerType: state.partnerType,
       status: state.status,
+      updatedTimeFilter: state.updatedTimeFilter,
     );
     if (result != null) {
       _cubit.applyFilters(
         roleFilter: result['role'] as PartnerRoleFilter?,
         partnerType: result['partnerType'] as PartnerType?,
         status: result['status'] as PartnerStatus?,
+        updatedTimeFilter: result['updatedTimeFilter'] as PartnerUpdatedTimeFilter?,
         clearRole: result['role'] == null,
         clearType: result['partnerType'] == null,
         clearStatus: result['status'] == null,
+        clearUpdatedTime: result['updatedTimeFilter'] == null,
       );
     }
   }
@@ -163,10 +166,11 @@ class _PartnerListPageState extends State<PartnerListPage> {
                     (state.partnerType != null ? 1 : 0) +
                     (state.roleFilter != null ? 1 : 0) +
                     (state.status != null ? 1 : 0);
+                final totalFilterCount = filterCount + (state.updatedTimeFilter != null ? 1 : 0);
                 return PartnerListSearchBar(
                   onSearch: _cubit.searchByKeyword,
                   onFilterTap: () => _openFilterSheet(state),
-                  activeFilterCount: filterCount,
+                  activeFilterCount: totalFilterCount,
                 );
               },
             ),
@@ -190,6 +194,7 @@ class _PartnerListPageState extends State<PartnerListPage> {
                   partnerType: state.partnerType,
                   roleFilter: state.roleFilter,
                   status: state.status,
+                  updatedTimeFilter: state.updatedTimeFilter,
                   onRemoveFilter: _cubit.removeFilter,
                   onClearAll: _cubit.clearFilters,
                 );
@@ -210,12 +215,13 @@ class _PartnerListPageState extends State<PartnerListPage> {
                           state.partnerType != null ||
                           state.roleFilter != null ||
                           state.status != null;
+                      final hasAnyFilter = hasFilter || state.updatedTimeFilter != null;
                       final total = switch (state) {
                         PartnerListLoaded(:final total) => total,
                         _ => 0,
                       };
                       return Text(
-                        hasFilter ? '$total kết quả phù hợp' : 'Danh sách đối tác',
+                        hasAnyFilter ? '$total kết quả phù hợp' : 'Danh sách đối tác',
                         style: VTypography.bodyDefault.copyWith(
                           color: colors.textPrimary,
                           fontWeight: FontWeight.w600,
@@ -289,9 +295,12 @@ class _PartnerListPageState extends State<PartnerListPage> {
                       child: _CustomEmptyState(
                         iconData: Icons.assignment_outlined,
                         title: 'Chưa có KH & NCC',
-                        description: 'Thêm đối tác để bắt đầu bán hàng,\nnhập hàng và quản lý công nợ.',
+                        description:
+                            'Thêm đối tác để bắt đầu bán hàng,\nnhập hàng và quản lý công nợ.',
                         actionLabel: _canCreate ? 'Thêm KH & NCC' : null,
-                        actionLeadingIcon: _canCreate ? Icon(Icons.add, size: 18, color: colors.success) : null,
+                        actionLeadingIcon: _canCreate
+                            ? Icon(Icons.add, size: 18, color: colors.success)
+                            : null,
                         onActionPressed: _canCreate ? _openCreateFlow : null,
                         buttonColor: colors.success,
                       ),

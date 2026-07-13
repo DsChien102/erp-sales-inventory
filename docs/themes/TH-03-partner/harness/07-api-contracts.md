@@ -74,12 +74,16 @@ Facade: `IPartnerModule` — `modules/partner/application/lib/src/contracts/i_pa
 
 | Symbol | Input | Success | Errors |
 | ------ | ----- | ------- | ------ |
-| `SearchPartnersQuery` | tenantId, q?, partnerType?, role?, status?, page, limit, sort | `PartnerSearchResultDto` | NO_PERMISSION |
+| `SearchPartnersQuery` | tenantId, q?, partnerType?, role?, requireBothRoles, status?, updatedWithinDays? (7\|30), page, limit, sort | `PartnerSearchResultDto` | NO_PERMISSION, VALIDATION_ERROR |
 
 RPC: `partner.search_partners` / `partner.v_partner_list`
 
+`status=null` nghĩa là lấy cả `active` và `inactive` (không lấy `deleted`), áp dụng cả khi có từ khóa tìm kiếm. Kết quả `inactive` luôn được xếp sau `active` trước khi áp dụng thứ tự phụ do `sort` chỉ định.
+
 `p_query` matches (ilike): `display_name`, `phone`, `email`, `tax_code` (MST).
 If `p_query` contains `@`, search **email only**.
+`p_updated_within_days` accepts `7` or `30` and filters by server time: `updated_at >= now() - interval`.
+`requireBothRoles=true` maps thành `p_role=both`; RPC lọc đủ `customer` và `supplier` trước khi tính `total` và phân trang.
 
 | scenario_id | trigger | fake response |
 | ----------- | ------- | ------------- |

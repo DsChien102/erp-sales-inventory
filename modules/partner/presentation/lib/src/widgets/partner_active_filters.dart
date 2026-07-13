@@ -9,6 +9,7 @@ class PartnerActiveFilters extends StatelessWidget {
     required this.partnerType,
     required this.roleFilter,
     required this.status,
+    required this.updatedTimeFilter,
     required this.onRemoveFilter,
     required this.onClearAll,
   });
@@ -16,12 +17,14 @@ class PartnerActiveFilters extends StatelessWidget {
   final PartnerType? partnerType;
   final PartnerRoleFilter? roleFilter;
   final PartnerStatus? status;
+  final PartnerUpdatedTimeFilter? updatedTimeFilter;
   final ValueChanged<String> onRemoveFilter;
   final VoidCallback onClearAll;
 
   @override
   Widget build(BuildContext context) {
-    final hasFilters = partnerType != null || status != null;
+    final hasFilters =
+        partnerType != null || roleFilter != null || status != null || updatedTimeFilter != null;
     if (!hasFilters) return const SizedBox.shrink();
 
     return Padding(
@@ -49,6 +52,16 @@ class PartnerActiveFilters extends StatelessWidget {
                       context,
                       label: status == PartnerStatus.active ? 'Đang hoạt động' : 'Ngừng hoạt động',
                       onRemove: () => onRemoveFilter('status'),
+                    ),
+                    const SizedBox(width: VSpacing.space2),
+                  ],
+                  if (updatedTimeFilter != null) ...[
+                    _buildActiveChip(
+                      context,
+                      label: updatedTimeFilter == PartnerUpdatedTimeFilter.last7Days
+                          ? '7 ngày gần đây'
+                          : '30 ngày gần đây',
+                      onRemove: () => onRemoveFilter('updatedTime'),
                     ),
                     const SizedBox(width: VSpacing.space2),
                   ],

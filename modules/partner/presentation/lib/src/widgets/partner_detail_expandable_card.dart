@@ -10,6 +10,7 @@ class PartnerDetailExpandableCard extends StatefulWidget {
     required this.child,
     this.trailingWhenCollapsed,
     this.initiallyExpanded = false,
+    this.onTap,
   });
 
   final String title;
@@ -17,14 +18,13 @@ class PartnerDetailExpandableCard extends StatefulWidget {
   final Widget child;
   final Widget? trailingWhenCollapsed;
   final bool initiallyExpanded;
+  final VoidCallback? onTap;
 
   @override
-  State<PartnerDetailExpandableCard> createState() =>
-      _PartnerDetailExpandableCardState();
+  State<PartnerDetailExpandableCard> createState() => _PartnerDetailExpandableCardState();
 }
 
-class _PartnerDetailExpandableCardState
-    extends State<PartnerDetailExpandableCard> {
+class _PartnerDetailExpandableCardState extends State<PartnerDetailExpandableCard> {
   late bool _expanded = widget.initiallyExpanded;
 
   void _toggle() => setState(() => _expanded = !_expanded);
@@ -66,14 +66,12 @@ class _PartnerDetailExpandableCardState
                   const SizedBox(width: 4),
                 ],
                 Icon(
-                  _expanded
-                      ? Icons.expand_less_rounded
-                      : Icons.chevron_right_rounded,
+                  _expanded ? Icons.expand_less_rounded : Icons.chevron_right_rounded,
                   color: colors.textMuted,
                 ),
               ],
             ),
-            onTap: _toggle,
+            onTap: widget.onTap ?? _toggle,
           ),
           if (_expanded) ...[
             Divider(color: colors.borderDefault, height: 1),

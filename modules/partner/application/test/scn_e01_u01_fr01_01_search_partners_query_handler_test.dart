@@ -26,11 +26,12 @@ void main() {
       final handler = SearchPartnersQueryHandler(readGateway: gateway);
 
       final result = await handler.handle(
-        SearchPartnersQuery(tenantId: 't-1'),
+        SearchPartnersQuery(tenantId: 't-1', updatedWithinDays: 7),
       );
 
       expect(result.items, hasLength(1));
       expect(gateway.lastSearch?.tenantId, 't-1');
+      expect(gateway.lastSearch?.updatedWithinDays, 7);
     });
   });
 }

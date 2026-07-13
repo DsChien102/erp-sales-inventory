@@ -4,6 +4,15 @@ import 'package:vet45_partner_domain/domain.dart';
 
 enum PartnerRoleFilter { customer, supplier, both }
 
+enum PartnerUpdatedTimeFilter {
+  last7Days(7),
+  last30Days(30);
+
+  const PartnerUpdatedTimeFilter(this.days);
+
+  final int days;
+}
+
 enum PartnerSortOption {
   updatedAtDesc,
   updatedAtAsc,
@@ -19,6 +28,7 @@ sealed class PartnerListState extends Equatable {
     this.partnerType,
     this.roleFilter,
     this.status,
+    this.updatedTimeFilter,
     this.sortOption = PartnerSortOption.updatedAtDesc,
   });
 
@@ -26,10 +36,18 @@ sealed class PartnerListState extends Equatable {
   final PartnerType? partnerType;
   final PartnerRoleFilter? roleFilter;
   final PartnerStatus? status;
+  final PartnerUpdatedTimeFilter? updatedTimeFilter;
   final PartnerSortOption sortOption;
 
   @override
-  List<Object?> get props => [query, partnerType, roleFilter, status, sortOption];
+  List<Object?> get props => [
+    query,
+    partnerType,
+    roleFilter,
+    status,
+    updatedTimeFilter,
+    sortOption,
+  ];
 }
 
 final class PartnerListInitial extends PartnerListState {
@@ -44,6 +62,7 @@ final class PartnerListLoading extends PartnerListState {
     super.partnerType,
     super.roleFilter,
     super.status,
+    super.updatedTimeFilter,
     super.sortOption = PartnerSortOption.updatedAtDesc,
   });
 
@@ -52,10 +71,10 @@ final class PartnerListLoading extends PartnerListState {
 
   @override
   List<Object?> get props => [
-        items,
-        isFirstLoad,
-        ...super.props,
-      ];
+    items,
+    isFirstLoad,
+    ...super.props,
+  ];
 }
 
 final class PartnerListLoaded extends PartnerListState {
@@ -67,6 +86,7 @@ final class PartnerListLoaded extends PartnerListState {
     super.partnerType,
     super.roleFilter,
     super.status,
+    super.updatedTimeFilter,
     super.sortOption = PartnerSortOption.updatedAtDesc,
   });
 
@@ -76,11 +96,11 @@ final class PartnerListLoaded extends PartnerListState {
 
   @override
   List<Object?> get props => [
-        items,
-        total,
-        hasReachedMax,
-        ...super.props,
-      ];
+    items,
+    total,
+    hasReachedMax,
+    ...super.props,
+  ];
 }
 
 final class PartnerListError extends PartnerListState {
@@ -90,6 +110,7 @@ final class PartnerListError extends PartnerListState {
     super.partnerType,
     super.roleFilter,
     super.status,
+    super.updatedTimeFilter,
     super.sortOption = PartnerSortOption.updatedAtDesc,
   });
 
@@ -97,7 +118,7 @@ final class PartnerListError extends PartnerListState {
 
   @override
   List<Object?> get props => [
-        message,
-        ...super.props,
-      ];
+    message,
+    ...super.props,
+  ];
 }

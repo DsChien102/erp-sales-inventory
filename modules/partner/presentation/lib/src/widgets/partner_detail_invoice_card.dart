@@ -26,13 +26,18 @@ class PartnerDetailInvoiceCard extends StatelessWidget {
     final invoiceName = invoice?.invoiceName?.trim() ?? '';
     final invoiceEmail = invoice?.invoiceEmail?.trim() ?? '';
     final invoiceAddress = invoice?.invoiceAddress?.trim() ?? '';
-    final isIncomplete = taxCode.isEmpty || invoiceAddress.isEmpty;
+    final missingLabel = switch ((taxCode.isEmpty, invoiceAddress.isEmpty)) {
+      (true, true) => 'Thiếu MST, địa chỉ',
+      (true, false) => 'Thiếu MST',
+      (false, true) => 'Thiếu địa chỉ',
+      (false, false) => null,
+    };
 
     return PartnerDetailExpandableCard(
       title: 'Hóa đơn / thuế',
       icon: Icons.receipt_long_outlined,
       initiallyExpanded: initiallyExpanded,
-      trailingWhenCollapsed: isIncomplete
+      trailingWhenCollapsed: missingLabel != null
           ? Container(
               padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
               decoration: BoxDecoration(
@@ -40,7 +45,7 @@ class PartnerDetailInvoiceCard extends StatelessWidget {
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Text(
-                'Thiếu MST, địa chỉ',
+                missingLabel,
                 style: VTypography.bodySmall.copyWith(
                   color: colors.danger,
                   fontSize: 10,

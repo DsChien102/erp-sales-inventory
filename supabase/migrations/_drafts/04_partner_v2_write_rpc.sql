@@ -780,10 +780,6 @@ $$;
 -- Updates contact link (role/primary/note) and optionally linked Person profile.
 -- ---------------------------------------------------------------------------
 
-drop function if exists partner.update_organization_contact(
-  uuid, uuid, uuid, uuid, text, boolean
-);
-
 create or replace function partner.update_organization_contact(
   p_tenant_id uuid,
   p_actor_id uuid,

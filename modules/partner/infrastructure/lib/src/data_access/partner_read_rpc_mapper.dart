@@ -8,8 +8,9 @@ abstract final class PartnerReadRpcMapper {
       'p_tenant_id': query.tenantId,
       'p_query': query.query,
       'p_partner_type': query.partnerType?.name,
-      'p_role': query.role?.name,
+      'p_role': query.requireBothRoles ? 'both' : query.role?.name,
       'p_status': query.status?.name,
+      'p_updated_within_days': query.updatedWithinDays,
       'p_page': query.page,
       'p_limit': query.limit,
       'p_sort': query.sort,
@@ -136,12 +137,8 @@ abstract final class PartnerReadRpcMapper {
             ),
           )
           .toList(growable: false),
-      createdAt: row['created_at'] == null
-          ? null
-          : DateTime.parse(row['created_at'] as String),
-      updatedAt: row['updated_at'] == null
-          ? null
-          : DateTime.parse(row['updated_at'] as String),
+      createdAt: row['created_at'] == null ? null : DateTime.parse(row['created_at'] as String),
+      updatedAt: row['updated_at'] == null ? null : DateTime.parse(row['updated_at'] as String),
     );
   }
 

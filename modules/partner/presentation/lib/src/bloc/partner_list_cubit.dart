@@ -9,7 +9,7 @@ final class PartnerListCubit extends Cubit<PartnerListState> {
   PartnerListCubit({
     required IPartnerModule partnerModule,
     required IExecutionContext executionContext,
-  })  : _partnerModule = partnerModule,
+  }) : _partnerModule = partnerModule,
        _executionContext = executionContext,
        super(const PartnerListInitial());
 
@@ -49,6 +49,7 @@ final class PartnerListCubit extends Cubit<PartnerListState> {
           partnerType: currentState.partnerType,
           roleFilter: currentState.roleFilter,
           status: currentState.status,
+          updatedTimeFilter: currentState.updatedTimeFilter,
           sortOption: currentState.sortOption,
         ),
       );
@@ -93,24 +94,16 @@ final class PartnerListCubit extends Cubit<PartnerListState> {
           query: _query,
           partnerType: currentState.partnerType,
           role: apiRole,
-          status: currentState.status ?? PartnerStatus.active,
+          requireBothRoles: currentState.roleFilter == PartnerRoleFilter.both,
+          status: currentState.status,
+          updatedWithinDays: currentState.updatedTimeFilter?.days,
           page: page,
           limit: _pageSize,
           sort: sortParam,
         ),
       );
 
-      List<PartnerListItemDto> fetchedItems = result.items;
-
-      // Local filter for "both" roles
-      if (currentState.roleFilter == PartnerRoleFilter.both) {
-        fetchedItems = fetchedItems.where((item) {
-          return item.roles.contains(PartnerRoleType.customer) &&
-              item.roles.contains(PartnerRoleType.supplier);
-        }).toList();
-      }
-
-      final newItems = isRefresh ? fetchedItems : [...currentItems, ...fetchedItems];
+      final newItems = isRefresh ? result.items : [...currentItems, ...result.items];
       final hasReachedMax = result.items.length < _pageSize || result.items.isEmpty;
       _nextPage = hasReachedMax ? null : page + 1;
 
@@ -123,18 +116,22 @@ final class PartnerListCubit extends Cubit<PartnerListState> {
           partnerType: currentState.partnerType,
           roleFilter: currentState.roleFilter,
           status: currentState.status,
+          updatedTimeFilter: currentState.updatedTimeFilter,
           sortOption: currentState.sortOption,
         ),
       );
     } catch (error) {
-      emit(PartnerListError(
+      emit(
+        PartnerListError(
           error.toString(),
           query: state.query,
           partnerType: state.partnerType,
           roleFilter: state.roleFilter,
           status: state.status,
+          updatedTimeFilter: state.updatedTimeFilter,
           sortOption: state.sortOption,
-      ));
+        ),
+      );
     }
   }
 
@@ -146,33 +143,41 @@ final class PartnerListCubit extends Cubit<PartnerListState> {
     PartnerType? partnerType,
     PartnerRoleFilter? roleFilter,
     PartnerStatus? status,
+    PartnerUpdatedTimeFilter? updatedTimeFilter,
     PartnerSortOption? sortOption,
     bool clearType = false,
     bool clearRole = false,
     bool clearStatus = false,
+    bool clearUpdatedTime = false,
   }) {
-    emit(PartnerListLoading(
+    emit(
+      PartnerListLoading(
         items: const [],
         isFirstLoad: true,
         query: _query,
         partnerType: clearType ? null : (partnerType ?? state.partnerType),
         roleFilter: clearRole ? null : (roleFilter ?? state.roleFilter),
         status: clearStatus ? null : (status ?? state.status),
+        updatedTimeFilter: clearUpdatedTime ? null : (updatedTimeFilter ?? state.updatedTimeFilter),
         sortOption: sortOption ?? state.sortOption,
-    ));
+      ),
+    );
     fetchPartners(isRefresh: true);
   }
 
   void clearFilters() {
-    emit(PartnerListLoading(
+    emit(
+      PartnerListLoading(
         items: const [],
         isFirstLoad: true,
         query: _query,
         partnerType: null,
         roleFilter: null,
         status: null,
+        updatedTimeFilter: null,
         sortOption: PartnerSortOption.updatedAtDesc,
-    ));
+      ),
+    );
     fetchPartners(isRefresh: true);
   }
 
@@ -180,15 +185,18 @@ final class PartnerListCubit extends Cubit<PartnerListState> {
     bool clearType = filterType == 'partnerType';
     bool clearRole = filterType == 'roleFilter';
     bool clearStatus = filterType == 'status';
+    bool clearUpdatedTime = filterType == 'updatedTime';
 
     applyFilters(
       partnerType: clearType ? null : state.partnerType,
       roleFilter: clearRole ? null : state.roleFilter,
       status: clearStatus ? null : state.status,
+      updatedTimeFilter: clearUpdatedTime ? null : state.updatedTimeFilter,
       sortOption: state.sortOption,
       clearType: clearType,
       clearRole: clearRole,
       clearStatus: clearStatus,
+      clearUpdatedTime: clearUpdatedTime,
     );
   }
 }
