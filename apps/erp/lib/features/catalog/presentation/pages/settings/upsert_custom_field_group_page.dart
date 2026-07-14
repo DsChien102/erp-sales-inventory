@@ -6,6 +6,7 @@ import 'package:vet45_catalog_presentation/presentation.dart';
 
 import '../../widgets/product_form_bottom_bar.dart';
 import '../../widgets/unsaved_changes_confirm_sheet.dart';
+import '../../widgets/custom_field_group_deactivate_confirm_sheet.dart';
 
 class UpsertCustomFieldGroupPage extends StatefulWidget {
   final CustomFieldConfigCubit cubit;
@@ -32,10 +33,36 @@ class _UpsertCustomFieldGroupPageState extends State<UpsertCustomFieldGroupPage>
   late final bool _initialIsActive;
 
   final List<String> _availableEmojis = [
-    '💊', '🧪', '💉', '🩺', '🧬', '🧫', '🏥', '🌡️',
-    '📦', '🏷️', '📋', '📝', '🗂️', '🧾', '🔒', '⚠️',
-    '🐄', '🐖', '🐔', '🐟', '🐶', '🐱', '🌾', '🏭',
-    '🥛', '🍖', '🌿', '🔬', '🧴', '🧰',
+    '💊',
+    '🧪',
+    '💉',
+    '🩺',
+    '🧬',
+    '🧫',
+    '🏥',
+    '🌡️',
+    '📦',
+    '🏷️',
+    '📋',
+    '📝',
+    '🗂️',
+    '🧾',
+    '🔒',
+    '⚠️',
+    '🐄',
+    '🐖',
+    '🐔',
+    '🐟',
+    '🐶',
+    '🐱',
+    '🌾',
+    '🏭',
+    '🥛',
+    '🍖',
+    '🌿',
+    '🔬',
+    '🧴',
+    '🧰',
   ];
 
   bool get _isCreate => widget.initialGroupId == null;
@@ -86,7 +113,12 @@ class _UpsertCustomFieldGroupPageState extends State<UpsertCustomFieldGroupPage>
   Future<void> _handleSave() async {
     final name = _nameController.text.trim();
     if (name.isEmpty) {
-      VToast.show(context, title: 'Lỗi', message: 'Tên nhóm không được để trống', type: VToastType.danger);
+      VToast.show(
+        context,
+        title: 'Lỗi',
+        message: 'Tên nhóm không được để trống',
+        type: VToastType.danger,
+      );
       return;
     }
     final success = await widget.cubit.upsertGroup(
@@ -224,23 +256,28 @@ class _UpsertCustomFieldGroupPageState extends State<UpsertCustomFieldGroupPage>
                     ),
                     Switch(
                       value: _isActive,
-                      onChanged: (val) {
+                      onChanged: (val) async {
                         if (!val) {
-                          showVConfirmDialog(
-                            context: context,
-                            title: 'Tạm tắt nhóm thông tin',
-                            message:
-                                'Dữ liệu đã nhập trên sản phẩm sẽ được giữ lại. '
-                                'Nhóm đang tạm tắt sẽ không hiển thị khi tạo hoặc sửa sản phẩm mới.',
-                            cancelLabel: 'Hủy',
-                            actionLabel: 'Xác nhận',
-                            onAction: () => setState(() => _isActive = false),
+                          final group = widget.cubit.state.groups.firstWhere(
+                            (g) => g.groupId == widget.initialGroupId,
                           );
+                          final confirmed = await CustomFieldGroupDeactivateConfirmSheet.show(
+                            context,
+                            fieldCount: group.fieldCount,
+                            requiredFieldCount: group.requiredFieldCount,
+                          );
+                          if (confirmed == true) {
+                            setState(() => _isActive = false);
+                          }
                         } else {
                           setState(() => _isActive = true);
                         }
                       },
-                      activeThumbColor: colors.primary,
+                      activeThumbColor: Colors.white,
+                      activeTrackColor: VColors.success,
+                      inactiveThumbColor: Colors.white,
+                      inactiveTrackColor: VColors.borderStrong,
+                      trackOutlineColor: WidgetStateProperty.all(Colors.transparent),
                     ),
                   ],
                 ),
@@ -252,6 +289,7 @@ class _UpsertCustomFieldGroupPageState extends State<UpsertCustomFieldGroupPage>
               return ProductFormBottomBar(
                 onCancel: state.isSaving ? null : _handleLeave,
                 isLoading: state.isSaving,
+                saveEnabled: _hasChanges,
                 onSave: _handleSave,
               );
             },

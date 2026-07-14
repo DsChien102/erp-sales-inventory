@@ -8,6 +8,7 @@ import 'package:vet45_catalog_domain/domain.dart';
 
 import '../../widgets/product_form_bottom_bar.dart';
 import '../../widgets/unsaved_changes_confirm_sheet.dart';
+import '../../widgets/custom_field_deactivate_confirm_sheet.dart';
 
 class UpsertCustomFieldPage extends StatefulWidget {
   final String groupId;
@@ -242,8 +243,9 @@ class _UpsertCustomFieldPageState extends State<UpsertCustomFieldPage> {
     String? subtitle,
     bool value,
     ValueChanged<bool> onChanged,
-    VColorScheme colors,
-  ) {
+    VColorScheme colors, {
+    Color? subtitleColor,
+  }) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
       child: Row(
@@ -264,7 +266,9 @@ class _UpsertCustomFieldPageState extends State<UpsertCustomFieldPage> {
                   const SizedBox(height: 2),
                   Text(
                     subtitle,
-                    style: VTypography.bodySmall.copyWith(color: VColors.textSecondary),
+                    style: VTypography.bodySmall.copyWith(
+                      color: subtitleColor ?? VColors.textSecondary,
+                    ),
                   ),
                 ],
               ],
@@ -342,7 +346,15 @@ class _UpsertCustomFieldPageState extends State<UpsertCustomFieldPage> {
                 onChanged: _hasProductValues
                     ? null
                     : (val) {
-                        if (val != null) setState(() => _fieldType = val);
+                        if (val != null) {
+                          setState(() {
+                            _fieldType = val;
+                            if (_fieldType != CustomFieldType.singleSelect &&
+                                _fieldType != CustomFieldType.boolean) {
+                              _isFilterable = false;
+                            }
+                          });
+                        }
                       },
                 items: customFieldTypes,
               ),
@@ -350,6 +362,12 @@ class _UpsertCustomFieldPageState extends State<UpsertCustomFieldPage> {
                 const SizedBox(height: VSpacing.space2),
                 Text(
                   'Không đổi được kiểu dữ liệu do đã có dữ liệu.',
+                  style: VTypography.bodySmall.copyWith(color: VColors.warning),
+                ),
+              ] else if (!_isCreate) ...[
+                const SizedBox(height: VSpacing.space2),
+                Text(
+                  'Thay đổi kiểu dữ liệu có thể ảnh hưởng đến tương thích dữ liệu cũ.',
                   style: VTypography.bodySmall.copyWith(color: VColors.warning),
                 ),
               ],
@@ -426,7 +444,7 @@ class _UpsertCustomFieldPageState extends State<UpsertCustomFieldPage> {
                   children: [
                     _buildPropertyRow(
                       'Bắt buộc',
-                      'Tham gia tính readiness của sản phẩm',
+                      _isRequired ? 'Tham gia tính readiness của sản phẩm' : null,
                       _isRequired,
                       (v) {
                         if (v) {
@@ -454,18 +472,21 @@ class _UpsertCustomFieldPageState extends State<UpsertCustomFieldPage> {
                       (v) => setState(() => _isSearchable = v),
                       colors,
                     ),
-                    const Divider(height: 1, color: VColors.borderDefault),
-                    _buildPropertyRow(
-                      'Cho phép lọc',
-                      null,
-                      _isFilterable,
-                      (v) => setState(() => _isFilterable = v),
-                      colors,
-                    ),
+                    if (_fieldType == CustomFieldType.singleSelect ||
+                        _fieldType == CustomFieldType.boolean) ...[
+                      const Divider(height: 1, color: VColors.borderDefault),
+                      _buildPropertyRow(
+                        'Cho phép lọc',
+                        null,
+                        _isFilterable,
+                        (v) => setState(() => _isFilterable = v),
+                        colors,
+                      ),
+                    ],
                     const Divider(height: 1, color: VColors.borderDefault),
                     _buildPropertyRow(
                       'Hiển thị trên danh sách sản phẩm',
-                      'Danh sách sản phẩm chỉ hiển thị giới hạn field.',
+                      _displayOnList ? 'Danh sách sản phẩm chỉ hiển thị giới hạn field.' : null,
                       _displayOnList,
                       (v) => setState(() => _displayOnList = v),
                       colors,
@@ -494,7 +515,16 @@ class _UpsertCustomFieldPageState extends State<UpsertCustomFieldPage> {
                     'Đang dùng',
                     null,
                     _isActive,
-                    (v) => setState(() => _isActive = v),
+                    (v) async {
+                      if (!v) {
+                        final confirmed = await CustomFieldDeactivateConfirmSheet.show(context);
+                        if (confirmed == true) {
+                          setState(() => _isActive = false);
+                        }
+                      } else {
+                        setState(() => _isActive = true);
+                      }
+                    },
                     colors,
                   ),
                 ),
@@ -507,6 +537,7 @@ class _UpsertCustomFieldPageState extends State<UpsertCustomFieldPage> {
               return ProductFormBottomBar(
                 onCancel: state.isSaving ? null : _handleLeave,
                 isLoading: state.isSaving,
+                saveEnabled: _hasChanges,
                 onSave: _handleSave,
               );
             },

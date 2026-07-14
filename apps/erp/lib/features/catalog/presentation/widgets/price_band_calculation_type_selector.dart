@@ -1,10 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:vet45_catalog_application/application.dart';
 import 'package:vet45_catalog_presentation/presentation.dart';
 import 'package:vet45_design_system/design_system.dart';
 
 class PriceBandCalculationTypeSelector extends StatefulWidget {
-  const PriceBandCalculationTypeSelector({super.key});
+  const PriceBandCalculationTypeSelector({
+    super.key,
+    required this.row,
+  });
+
+  final ProductUnitPriceBandRowDto row;
 
   @override
   State<PriceBandCalculationTypeSelector> createState() => _PriceBandCalculationTypeSelectorState();

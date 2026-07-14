@@ -887,6 +887,100 @@ void main() {
       expect(result.changeHistoryPreview, isNotEmpty);
       expect(result.changeHistoryPreview.first.changeType, ProductChangeHistoryAction.created);
     });
+
+    test('filters out custom field groups with no active fields and excludes inactive fields', () async {
+      final permissions = ProductReadinessPermissionContext(
+        canManageUnits: true,
+        canManageStock: true,
+        canManagePricing: true,
+        canUpdateProduct: true,
+        canCreateProduct: true,
+        canViewDetail: true,
+      );
+
+      final readModel = ProductControlCenterReadModel(
+        productId: 'product-1',
+        name: 'Product A',
+        businessStatus: ProductBusinessStatus.active,
+        facts: ProductReadinessFacts(
+          productId: 'product-1',
+          productName: 'Product A',
+          hasBaseUnit: true,
+          hasImages: true,
+          hasStock: true,
+          hasBasePrice: true,
+          hasPriceBand: true,
+          hasRequiredCustomFields: true,
+          stockMode: StockMode.basic,
+          basePriceMode: BasePriceMode.manual,
+        ),
+        customFieldGroupCards: [
+          // Group 1: Has both active and inactive fields
+          CustomFieldGroupCardDto(
+            groupId: 'group-1',
+            name: 'Group 1',
+            fields: [
+              CustomFieldCardFieldDto(
+                fieldId: 'field-1-active',
+                name: 'Field 1 Active',
+                fieldType: 'text',
+                isActive: true,
+              ),
+              CustomFieldCardFieldDto(
+                fieldId: 'field-1-inactive',
+                name: 'Field 1 Inactive',
+                fieldType: 'text',
+                isActive: false,
+              ),
+            ],
+          ),
+          // Group 2: Has no active fields, but one inactive field has data
+          CustomFieldGroupCardDto(
+            groupId: 'group-2',
+            name: 'Group 2',
+            fields: [
+              CustomFieldCardFieldDto(
+                fieldId: 'field-2-inactive-with-data',
+                name: 'Field 2 Inactive With Data',
+                fieldType: 'text',
+                displayValue: 'Some Data',
+                isActive: false,
+              ),
+              CustomFieldCardFieldDto(
+                fieldId: 'field-2-inactive-no-data',
+                name: 'Field 2 Inactive No Data',
+                fieldType: 'text',
+                isActive: false,
+              ),
+            ],
+          ),
+          // Group 3: Empty group
+          CustomFieldGroupCardDto(
+            groupId: 'group-3',
+            name: 'Group 3',
+            fields: [],
+          ),
+        ],
+      );
+
+      final result = ProductControlCenterAssembler.assemble(
+        model: readModel,
+        permissions: permissions,
+      );
+
+      // Group 3 should be filtered out. Group 1 and Group 2 should be shown.
+      expect(result.customFieldGroupCards, hasLength(2));
+      expect(result.customFieldGroupCards[0].groupId, 'group-1');
+      expect(result.customFieldGroupCards[1].groupId, 'group-2');
+
+      // Group 1 should only contain the active field
+      expect(result.customFieldGroupCards[0].fields, hasLength(1));
+      expect(result.customFieldGroupCards[0].fields.first.fieldId, 'field-1-active');
+
+      // Group 2 should only contain the inactive field that has data
+      expect(result.customFieldGroupCards[1].fields, hasLength(1));
+      expect(result.customFieldGroupCards[1].fields.first.fieldId, 'field-2-inactive-with-data');
+    });
   });
 
   group('EPIC-04 / US-01 base unit contract', () {
@@ -1939,11 +2033,54 @@ void main() {
           ),
         ),
       );
-
       expect(result.items.map((item) => item.id), contains('product-1'));
       expect(result.items.every((item) => item.id == 'product-1'), isTrue);
     });
 
+    test('scn_contract_e03_u03_fr03_01_boolean filters by boolean custom field', () async {
+      final module = FakeCatalogModule(
+        scenario: FakeCatalogScenario.customFieldFilterable,
+      );
+
+      final options = await module.executeQueryAsync(
+        ListCustomFieldFilterOptionsQuery(tenantId: 'tenant-1'),
+      );
+      final requiresPrescription = options.singleWhere(
+        (option) => option.fieldName == 'Yêu cầu kê đơn',
+      );
+
+      // 1. Filter booleanValue = true (should find product-1)
+      final resultTrue = await module.executeQueryAsync(
+        SearchProductsQuery(
+          tenantId: 'tenant-1',
+          criteria: ProductSearchCriteria(
+            customFieldFilters: [
+              CustomFieldFilterCriteria(
+                fieldId: requiresPrescription.fieldId,
+                booleanValue: true,
+              ),
+            ],
+          ),
+        ),
+      );
+      expect(resultTrue.items.map((item) => item.id), contains('product-1'));
+
+      // 2. Filter booleanValue = false (should NOT find product-1)
+      final resultFalse = await module.executeQueryAsync(
+        SearchProductsQuery(
+          tenantId: 'tenant-1',
+          criteria: ProductSearchCriteria(
+            customFieldFilters: [
+              CustomFieldFilterCriteria(
+                fieldId: requiresPrescription.fieldId,
+                booleanValue: false,
+              ),
+            ],
+          ),
+        ),
+      );
+      expect(resultFalse.items.map((item) => item.id), isNot(contains('product-1')));
+    });
     test('scn_contract_e03_u03_fr03_02 excludes inactive filterable config', () async {
       final module = FakeCatalogModule(
         scenario: FakeCatalogScenario.customFieldFilterInactive,

@@ -826,7 +826,17 @@ final class FakeCatalogCustomFieldStore {
       displayOnList: false,
       sortOrder: 2,
     );
-    _fields.addAll([dosageForm, indication]);
+    final requiresPrescription = _StoredCustomField(
+      fieldId: 'cf-requires-prescription',
+      groupId: group.groupId,
+      name: 'Yêu cầu kê đơn',
+      fieldType: CustomFieldType.boolean,
+      isSearchable: false,
+      isFilterable: true,
+      displayOnList: true,
+      sortOrder: 3,
+    );
+    _fields.addAll([dosageForm, indication, requiresPrescription]);
 
     _productValues[_valueKey('product-1', dosageForm.fieldId)] = _StoredProductCustomFieldValue(
       productId: 'product-1',
@@ -837,6 +847,11 @@ final class FakeCatalogCustomFieldStore {
       productId: 'product-1',
       fieldId: indication.fieldId,
       textValue: 'hỗ trợ tiêu hóa',
+    );
+    _productValues[_valueKey('product-1', requiresPrescription.fieldId)] = _StoredProductCustomFieldValue(
+      productId: 'product-1',
+      fieldId: requiresPrescription.fieldId,
+      booleanValue: true,
     );
   }
 

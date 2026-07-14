@@ -144,3 +144,18 @@ class EditProductUnitPriceBandLoaded extends EditProductUnitPriceBandState {
 }
 
 class EditProductUnitPriceBandSuccess extends EditProductUnitPriceBandState {}
+
+class EditProductUnitPriceBandNeedsOverwriteConfirm extends EditProductUnitPriceBandState {
+  final EditProductUnitPriceBandLoaded loaded;
+  final int? existingListBeforeVat;
+  final int? existingFloorBeforeVat;
+
+  const EditProductUnitPriceBandNeedsOverwriteConfirm({
+    required this.loaded,
+    this.existingListBeforeVat,
+    this.existingFloorBeforeVat,
+  });
+
+  @override
+  List<Object?> get props => [loaded, existingListBeforeVat, existingFloorBeforeVat];
+}

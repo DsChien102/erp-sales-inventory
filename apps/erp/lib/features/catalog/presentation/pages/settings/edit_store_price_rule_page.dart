@@ -9,6 +9,7 @@ import 'package:vet45_design_system/design_system.dart';
 import 'package:vet45_shared_application/application.dart';
 
 import '../../widgets/product_form_bottom_bar.dart';
+import '../../widgets/store_price_rule_save_confirm_sheet.dart';
 
 class EditStorePriceRulePage extends StatefulWidget {
   const EditStorePriceRulePage({
@@ -80,10 +81,22 @@ class _EditStorePriceRulePageState extends State<EditStorePriceRulePage> {
     return (basePrice * (1 + markupPercent / 100)).roundToDouble();
   }
 
+  bool get _hasChanges {
+    final rule = widget.existingRule;
+    if (rule == null) return true;
+    final listMarkup = _parseListMarkup();
+    final floorMarkup = _parseFloorMarkup();
+    if (listMarkup == null || floorMarkup == null) return true;
+
+    final listChanged = (listMarkup / 100 - rule.listMarkupRatio).abs() > 1e-6;
+    final floorChanged = (floorMarkup / 100 - rule.floorMarkupRatio).abs() > 1e-6;
+    return listChanged || floorChanged;
+  }
+
   bool get _canSubmit {
     final listMarkup = _parseListMarkup();
     final floorMarkup = _parseFloorMarkup();
-    return _isNonNegative(listMarkup) && _isNonNegative(floorMarkup);
+    return _isNonNegative(listMarkup) && _isNonNegative(floorMarkup) && _hasChanges;
   }
 
   void _adjustValue(TextEditingController controller, double delta) {
@@ -114,61 +127,69 @@ class _EditStorePriceRulePageState extends State<EditStorePriceRulePage> {
         builder: (context, state) {
           final isSaving = state is StorePriceRuleSettingsSaving;
 
-          return Scaffold(
-            backgroundColor: context.vColors.surface,
-            appBar: const VAppBar(
-              title: 'Chỉnh sửa khung giá',
-              showBackButton: true,
-            ),
-            body: SingleChildScrollView(
-              padding: const EdgeInsets.all(VSpacing.screenMobile),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _buildInfoBanner(context),
-                  const SizedBox(height: VSpacing.space5),
-                  _buildMarkupInput(
-                    context,
-                    label: 'Giá niêm yết (tỷ lệ lãi)',
-                    controller: _listMarkupController,
-                    helperText: 'Tính theo % trên Giá cơ sở',
-                  ),
-                  const SizedBox(height: VSpacing.space5),
-                  _buildMarkupInput(
-                    context,
-                    label: 'Giá sàn (tỷ lệ sàn)',
-                    controller: _floorMarkupController,
-                    helperText: 'Tính theo % trên Giá cơ sở',
-                  ),
-                  const SizedBox(height: VSpacing.space5),
-                  _buildPreviewSection(context),
-                  const SizedBox(height: VSpacing.space5),
-                  _buildNoteSection(context),
-                ],
+          return GestureDetector(
+            onTap: () => FocusScope.of(context).unfocus(),
+            behavior: HitTestBehavior.translucent,
+            child: Scaffold(
+              backgroundColor: context.vColors.surface,
+              resizeToAvoidBottomInset: true,
+              appBar: const VAppBar(
+                title: 'Chỉnh sửa khung giá',
+                showBackButton: true,
               ),
-            ),
-            bottomNavigationBar: ProductFormBottomBar(
-              onCancel: () => context.pop(),
-              isLoading: isSaving,
-              saveEnabled: _canSubmit,
-              onSave: () async {
-                final listMarkup = _parseListMarkup()!;
-                final floorMarkup = _parseFloorMarkup()!;
-                final success = await context.read<StorePriceRuleSettingsCubit>().saveRule(
-                  listMarkupRatio: listMarkup / 100,
-                  floorMarkupRatio: floorMarkup / 100,
-                );
-                if (!context.mounted || !success) {
-                  return;
-                }
-                VToast.show(
-                  context,
-                  title: 'Thành công',
-                  message: 'Đã cập nhật khung giá cửa hàng.',
-                  type: VToastType.success,
-                );
-                context.pop(true);
-              },
+              body: SingleChildScrollView(
+                padding: const EdgeInsets.all(VSpacing.screenMobile),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildInfoBanner(context),
+                    const SizedBox(height: VSpacing.space5),
+                    _buildMarkupInput(
+                      context,
+                      label: 'Giá niêm yết (tỷ lệ lãi)',
+                      controller: _listMarkupController,
+                      helperText: 'Tính theo % trên Giá cơ sở',
+                    ),
+                    const SizedBox(height: VSpacing.space5),
+                    _buildMarkupInput(
+                      context,
+                      label: 'Giá sàn (tỷ lệ sàn)',
+                      controller: _floorMarkupController,
+                      helperText: 'Tính theo % trên Giá cơ sở',
+                    ),
+                    const SizedBox(height: VSpacing.space5),
+                    _buildPreviewSection(context),
+                    const SizedBox(height: VSpacing.space5),
+                    _buildNoteSection(context),
+                  ],
+                ),
+              ),
+              bottomNavigationBar: ProductFormBottomBar(
+                onCancel: () => context.pop(),
+                isLoading: isSaving,
+                saveEnabled: _canSubmit,
+                onSave: () async {
+                  final confirmed = await showStorePriceRuleSaveConfirmSheet(context);
+                  if (confirmed != true) return;
+
+                  final listMarkup = _parseListMarkup()!;
+                  final floorMarkup = _parseFloorMarkup()!;
+                  final success = await context.read<StorePriceRuleSettingsCubit>().saveRule(
+                    listMarkupRatio: listMarkup / 100,
+                    floorMarkupRatio: floorMarkup / 100,
+                  );
+                  if (!context.mounted || !success) {
+                    return;
+                  }
+                  VToast.show(
+                    context,
+                    title: 'Thành công',
+                    message: 'Đã cập nhật khung giá cửa hàng.',
+                    type: VToastType.success,
+                  );
+                  context.pop(true);
+                },
+              ),
             ),
           );
         },

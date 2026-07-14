@@ -17,7 +17,12 @@ class EditProductUnitPriceBandCubit extends Cubit<EditProductUnitPriceBandState>
   final String productId;
   final String? productUnitId;
 
-  Future<void> loadInitialData() async {
+  Future<void> loadInitialData({
+    PriceBandSourceType? currentSourceType,
+    bool isCustomOverride = false,
+    int? currentListBeforeVat,
+    int? currentFloorBeforeVat,
+  }) async {
     emit(EditProductUnitPriceBandLoading());
     try {
       final tenantId = await executionContext.requireTenantId();
@@ -29,12 +34,40 @@ class EditProductUnitPriceBandCubit extends Cubit<EditProductUnitPriceBandState>
       final suggestion = await moduleMediator.executeQueryAsync(query);
 
       PriceBandCalculationType initialType = PriceBandCalculationType.storeRule;
+      if (currentSourceType == PriceBandSourceType.manual) {
+        if (isCustomOverride) {
+          initialType = PriceBandCalculationType.customConfig;
+        } else {
+          initialType = PriceBandCalculationType.manual;
+        }
+      }
+
+      double? initialCustomBaseMargin;
+      double? initialCustomFloorMargin;
+      if (isCustomOverride && suggestion.basePrice > 0) {
+        if (currentListBeforeVat != null) {
+          initialCustomBaseMargin =
+              ((currentListBeforeVat - suggestion.basePrice) / suggestion.basePrice * 100);
+        }
+        if (currentFloorBeforeVat != null) {
+          initialCustomFloorMargin =
+              ((currentFloorBeforeVat - suggestion.basePrice) / suggestion.basePrice * 100);
+        }
+      }
 
       emit(
         EditProductUnitPriceBandLoaded(
           suggestion: suggestion,
           selectedType: initialType,
           initialSelectedType: initialType,
+          customBaseMargin: initialCustomBaseMargin,
+          customFloorMargin: initialCustomFloorMargin,
+          manualListPrice: currentListBeforeVat,
+          manualFloorPrice: currentFloorBeforeVat,
+          initialCustomBaseMargin: initialCustomBaseMargin,
+          initialCustomFloorMargin: initialCustomFloorMargin,
+          initialManualListPrice: currentListBeforeVat?.toDouble(),
+          initialManualFloorPrice: currentFloorBeforeVat?.toDouble(),
         ),
       );
     } catch (e) {
@@ -90,7 +123,10 @@ class EditProductUnitPriceBandCubit extends Cubit<EditProductUnitPriceBandState>
     }
   }
 
-  Future<void> save({bool confirmAcknowledgeWarnings = false}) async {
+  Future<void> save({
+    bool confirmOverwrite = false,
+    bool confirmAcknowledgeWarnings = false,
+  }) async {
     if (state is! EditProductUnitPriceBandLoaded) return;
     final currentState = state as EditProductUnitPriceBandLoaded;
 
@@ -103,24 +139,39 @@ class EditProductUnitPriceBandCubit extends Cubit<EditProductUnitPriceBandState>
 
     try {
       final tenantId = await executionContext.requireTenantId();
-      final command = SetProductUnitPriceBandCommand(
-        tenantId: tenantId,
-        productId: productId,
-        productUnitId: productUnitId,
-        listBeforeVat: currentState.calculatedListPrice!,
-        listAfterVat: currentState.calculatedListPrice!,
-        floorBeforeVat: currentState.calculatedFloorPrice,
-        sourceType: currentState.selectedType == PriceBandCalculationType.storeRule
-            ? PriceBandSourceType.ruleBased
-            : PriceBandSourceType.manual,
-        storePriceRuleId: currentState.selectedType == PriceBandCalculationType.storeRule
-            ? currentState.suggestion.storePriceRuleId
-            : null,
-        confirmAcknowledgeWarnings: confirmAcknowledgeWarnings,
-      );
-
-      await moduleMediator.executeCommandAsync(command);
+      if (currentState.selectedType == PriceBandCalculationType.storeRule) {
+        await moduleMediator.executeCommandAsync(
+          ApplyStorePriceRuleCommand(
+            tenantId: tenantId,
+            productId: productId,
+            productUnitId: productUnitId,
+            storePriceRuleId: currentState.suggestion.storePriceRuleId,
+            basePriceVersion: currentState.suggestion.basePriceVersion,
+            confirmOverwrite: confirmOverwrite,
+          ),
+        );
+      } else {
+        final command = SetProductUnitPriceBandCommand(
+          tenantId: tenantId,
+          productId: productId,
+          productUnitId: productUnitId,
+          listBeforeVat: currentState.calculatedListPrice!,
+          listAfterVat: currentState.calculatedListPrice!,
+          floorBeforeVat: currentState.calculatedFloorPrice,
+          sourceType: PriceBandSourceType.manual,
+          confirmAcknowledgeWarnings: confirmAcknowledgeWarnings,
+        );
+        await moduleMediator.executeCommandAsync(command);
+      }
       emit(EditProductUnitPriceBandSuccess());
+    } on PriceBandOverwriteRequiredException catch (e) {
+      emit(
+        EditProductUnitPriceBandNeedsOverwriteConfirm(
+          loaded: currentState.copyWith(isSubmitting: false, clearError: true),
+          existingListBeforeVat: e.existingListBeforeVat,
+          existingFloorBeforeVat: e.existingFloorBeforeVat,
+        ),
+      );
     } on PriceBandWarningsRequireAcknowledgmentException {
       emit(
         currentState.copyWith(
@@ -135,6 +186,21 @@ class EditProductUnitPriceBandCubit extends Cubit<EditProductUnitPriceBandState>
           error: e.toString(),
         ),
       );
+    }
+  }
+
+  Future<void> confirmOverwrite() async {
+    final currentState = state;
+    if (currentState is EditProductUnitPriceBandNeedsOverwriteConfirm) {
+      emit(currentState.loaded);
+      await save(confirmOverwrite: true);
+    }
+  }
+
+  void cancelOverwrite() {
+    final currentState = state;
+    if (currentState is EditProductUnitPriceBandNeedsOverwriteConfirm) {
+      emit(currentState.loaded);
     }
   }
 }

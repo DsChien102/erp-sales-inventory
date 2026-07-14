@@ -31,15 +31,42 @@ class _CustomFieldFilterSheetState extends State<CustomFieldFilterSheet> {
     _selectedOptionIds = {};
     for (final opt in widget.options) {
       final existing = widget.initialFilters.where((f) => f.fieldId == opt.fieldId).firstOrNull;
-      _selectedOptionIds[opt.fieldId] = existing?.optionId;
+      if (opt.fieldType == 'boolean') {
+        if (existing?.booleanValue != null) {
+          _selectedOptionIds[opt.fieldId] = existing!.booleanValue!.toString();
+        } else {
+          _selectedOptionIds[opt.fieldId] = null;
+        }
+      } else {
+        _selectedOptionIds[opt.fieldId] = existing?.optionId;
+      }
     }
   }
 
   List<CustomFieldFilterCriteria> _buildCriteria() {
-    return _selectedOptionIds.entries
-        .where((e) => e.value != null)
-        .map((e) => CustomFieldFilterCriteria(fieldId: e.key, optionId: e.value))
-        .toList();
+    final criteriaList = <CustomFieldFilterCriteria>[];
+    for (final opt in widget.options) {
+      final selectedValue = _selectedOptionIds[opt.fieldId];
+      if (selectedValue == null) {
+        continue;
+      }
+      if (opt.fieldType == 'boolean') {
+        criteriaList.add(
+          CustomFieldFilterCriteria(
+            fieldId: opt.fieldId,
+            booleanValue: selectedValue == 'true',
+          ),
+        );
+      } else {
+        criteriaList.add(
+          CustomFieldFilterCriteria(
+            fieldId: opt.fieldId,
+            optionId: selectedValue,
+          ),
+        );
+      }
+    }
+    return criteriaList;
   }
 
   @override
@@ -105,6 +132,15 @@ class _CustomFieldFilterSheetState extends State<CustomFieldFilterSheet> {
   }
 
   Widget _buildFieldFilter(dynamic colors, CustomFieldFilterOptionDto opt) {
+    final List<Map<String, String>> displayOptions = opt.fieldType == 'boolean'
+        ? [
+            {'id': 'true', 'label': 'Có'},
+            {'id': 'false', 'label': 'Không'},
+          ]
+        : opt.options
+            .map((o) => {'id': o.optionId, 'label': o.label})
+            .toList();
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -120,16 +156,18 @@ class _CustomFieldFilterSheetState extends State<CustomFieldFilterSheet> {
         Wrap(
           spacing: 8,
           runSpacing: 6,
-          children: opt.options.map((option) {
-            final isSelected = _selectedOptionIds[opt.fieldId] == option.optionId;
+          children: displayOptions.map((option) {
+            final optionId = option['id']!;
+            final optionLabel = option['label']!;
+            final isSelected = _selectedOptionIds[opt.fieldId] == optionId;
             return VChip(
-              label: option.label,
+              label: optionLabel,
               selected: isSelected,
               emphasis: VChipEmphasis.base,
               tone: VComponentTone.primary,
               onTap: () {
                 setState(() {
-                  _selectedOptionIds[opt.fieldId] = isSelected ? null : option.optionId;
+                  _selectedOptionIds[opt.fieldId] = isSelected ? null : optionId;
                 });
               },
             );

@@ -7,7 +7,6 @@ import 'package:vet45_shared_application/application.dart';
 import '../mappers/catalog_ui_mapper.dart';
 import '../models/product_image_draft.dart';
 import '../services/product_image_upload_client.dart';
-import '../utils/catalog_currency_formatters.dart';
 import '../widgets/image_picker/product_image_add_sheet.dart';
 import '../widgets/tenant_measurement_unit_search_field.dart';
 import 'product_guided_create_state.dart';
@@ -35,6 +34,22 @@ class ProductGuidedCreateCubit extends Cubit<ProductGuidedCreateState> {
       );
       final activeGroups = config.groups
           .where((g) => g.status == CustomFieldConfigStatus.active)
+          .map((g) {
+            final activeFields = g.fields
+                .where((f) => f.status == CustomFieldConfigStatus.active)
+                .toList();
+            return CustomFieldGroupConfigDto(
+              groupId: g.groupId,
+              name: g.name,
+              iconKey: g.iconKey,
+              sortOrder: g.sortOrder,
+              status: g.status,
+              fieldCount: activeFields.length,
+              requiredFieldCount: activeFields.where((f) => f.isRequired).length,
+              fields: activeFields,
+            );
+          })
+          .where((g) => g.fields.isNotEmpty)
           .toList();
       emit(
         state.copyWith(
