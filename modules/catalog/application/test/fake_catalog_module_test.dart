@@ -665,6 +665,26 @@ void main() {
       }
     });
 
+    test('scn_contract_e01_u01_search_filters_ready_to_sell', () async {
+      final module = FakeCatalogModule(
+        scenario: FakeCatalogScenario.searchWithReadiness,
+      );
+
+      final result = await module.executeQueryAsync(
+        SearchProductsQuery(
+          tenantId: 'tenant-1',
+          criteria: ProductSearchCriteria(
+            readinessFilter: ProductReadinessFilter.readyToSell,
+          ),
+        ),
+      );
+
+      expect(result.items, isNotEmpty);
+      for (final item in result.items) {
+        expect(item.readinessSummary.status, ReadinessStatus.readyToSell);
+      }
+    });
+
     test('scn_contract_e01_u01_search_unaccent_vietnamese', () async {
       final module = FakeCatalogModule(
         scenario: FakeCatalogScenario.searchUnaccentVietnamese,
@@ -722,6 +742,33 @@ void main() {
         );
         expect(firstInactiveIndex, greaterThan(lastActiveIndex));
       }
+    });
+
+    test('scn_contract_e01_u01_search_contains_single_char', () async {
+      final module = FakeCatalogModule(
+        scenario: FakeCatalogScenario.searchContainsSingleChar,
+      );
+
+      final result = await module.executeQueryAsync(
+        SearchProductsQuery(
+          tenantId: 'tenant-1',
+          criteria: ProductSearchCriteria(
+            keyword: 'n',
+            businessStatuses: {
+              ProductBusinessStatus.active,
+              ProductBusinessStatus.inactive,
+            },
+          ),
+        ),
+      );
+
+      expect(
+        result.items.any(
+          (item) => SearchKeywordNormalizer.foldForSearch(item.name).contains('n') &&
+              item.name.toLowerCase().contains('amoxicillin'),
+        ),
+        isTrue,
+      );
     });
 
     test('scn_contract_e01_u01_barcode_match', () async {

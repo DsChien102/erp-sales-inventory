@@ -380,9 +380,14 @@ class _ProductCatalogTabPageState extends State<ProductCatalogTabPage> {
 
                   return RefreshIndicator(
                     onRefresh: () => _cubit.fetchProducts(isRefresh: true),
+                    displacement: VSpacing.space2,
                     child: ListView.builder(
                       controller: _scrollController,
-                      padding: const EdgeInsets.all(VSpacing.space4),
+                      padding: const EdgeInsets.only(
+                        left: VSpacing.space4,
+                        right: VSpacing.space4,
+                        bottom: VSpacing.space2,
+                      ),
                       physics: const AlwaysScrollableScrollPhysics(),
                       itemCount: items.length + (isLoadingMore ? 1 : 0),
                       itemBuilder: (context, index) {

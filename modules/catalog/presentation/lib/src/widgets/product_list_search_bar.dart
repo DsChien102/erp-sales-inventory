@@ -31,7 +31,7 @@ class _ProductListSearchBarState extends State<ProductListSearchBar> {
 
   void _onSearchChanged(String value) {
     if (_debounce?.isActive ?? false) _debounce?.cancel();
-    _debounce = Timer(const Duration(milliseconds: 500), () {
+    _debounce = Timer(const Duration(milliseconds: 300), () {
       widget.onSearch(value);
     });
   }
