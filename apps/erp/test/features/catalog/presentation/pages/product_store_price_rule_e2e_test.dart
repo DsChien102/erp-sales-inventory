@@ -67,8 +67,8 @@ void main() {
     expect(find.byKey(const Key('wgt_e06_u02_fr02_01')), findsOneWidget);
     expect(find.byKey(const Key('wgt_e06_u02_fr03_01')), findsOneWidget);
     expect(find.textContaining('Mặc định bán lẻ'), findsWidgets);
-    expect(find.textContaining('37.500 đ'), findsWidgets);
-    expect(find.textContaining('31.250 đ'), findsWidgets);
+    expect(find.textContaining('37,500 đ'), findsWidgets);
+    expect(find.textContaining('31,250 đ'), findsWidgets);
   });
 
   testWidgets('e2e_e06_u02_fr02_02: cannot suggest without base price', (tester) async {
@@ -122,8 +122,8 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byKey(const Key('wgt_e06_u02_fr02_01')), findsNothing);
-    expect(find.textContaining('37.500 đ'), findsWidgets);
-    expect(find.textContaining('31.250 đ'), findsWidgets);
+    expect(find.textContaining('37,500 đ'), findsWidgets);
+    expect(find.textContaining('31,250 đ'), findsWidgets);
     expect(find.textContaining('Thiếu khung giá bán'), findsNothing);
   });
 
@@ -133,7 +133,7 @@ void main() {
     await tester.pumpWidget(buildPccPriceBandRouter(_product1()));
     await tester.pumpAndSettle();
 
-    expect(find.textContaining('95.000 đ'), findsWidgets);
+    expect(find.textContaining('95,000 đ'), findsWidgets);
 
     await openPriceBandEditor(tester);
     await tester.tap(find.byKey(const Key('btn_price_band_save')));
@@ -153,7 +153,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byKey(const Key('wgt_e06_u02_fr02_01')), findsNothing);
-    expect(find.textContaining('100.000 đ'), findsWidgets);
+    expect(find.textContaining('100,000 đ'), findsWidgets);
   });
 
   testWidgets('e2e_e06_u02_fr04_01: PCC shows custom override label', (tester) async {
@@ -163,7 +163,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.textContaining('Giá riêng'), findsWidgets);
-    expect(find.textContaining('25.000 đ'), findsWidgets);
-    expect(find.textContaining('18.000 đ'), findsWidgets);
+    expect(find.textContaining('25,000 đ'), findsWidgets);
+    expect(find.textContaining('18,000 đ'), findsWidgets);
   });
 }

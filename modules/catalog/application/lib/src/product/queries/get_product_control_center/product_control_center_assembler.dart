@@ -1,3 +1,4 @@
+import 'custom_field_group_card_dto.dart';
 import 'package:vet45_catalog_domain/domain.dart';
 
 import 'package:vet45_catalog_application/src/product_readiness/shared/product_readiness_permission_context.dart';
@@ -30,6 +31,23 @@ abstract final class ProductControlCenterAssembler {
     final hasStock = model.stockQuantity != null;
     final hasBasePrice = model.basePriceAmount != null;
     final hasPriceBand = model.listBeforeVat != null && model.floorBeforeVat != null;
+
+    final filteredCustomFieldGroups = model.customFieldGroupCards
+        .map((g) {
+          final activeOrHasDataFields = g.fields
+              .where((f) => f.isActive || (f.displayValue != null && f.displayValue!.isNotEmpty))
+              .toList();
+          return CustomFieldGroupCardDto(
+            groupId: g.groupId,
+            name: g.name,
+            iconKey: g.iconKey,
+            sortOrder: g.sortOrder,
+            fields: activeOrHasDataFields,
+            hasRequiredMissing: activeOrHasDataFields.any((f) => f.isRequired && f.isMissing),
+          );
+        })
+        .where((g) => g.fields.isNotEmpty)
+        .toList();
 
     return ProductControlCenterDto(
       profile: ProductProfileSummaryDto(
@@ -98,7 +116,7 @@ abstract final class ProductControlCenterAssembler {
         storePriceRuleName: model.storePriceRuleName,
         isCustomOverride: model.isCustomOverride,
       ),
-      customFieldGroupCards: model.customFieldGroupCards,
+      customFieldGroupCards: filteredCustomFieldGroups,
       readinessSummary: ReadinessSummaryDto.fromDomain(readiness),
       checklist: const [],
       contextualActions: readinessView.suggestedActions,

@@ -34,6 +34,22 @@ class ProductGuidedCreateCubit extends Cubit<ProductGuidedCreateState> {
       );
       final activeGroups = config.groups
           .where((g) => g.status == CustomFieldConfigStatus.active)
+          .map((g) {
+            final activeFields = g.fields
+                .where((f) => f.status == CustomFieldConfigStatus.active)
+                .toList();
+            return CustomFieldGroupConfigDto(
+              groupId: g.groupId,
+              name: g.name,
+              iconKey: g.iconKey,
+              sortOrder: g.sortOrder,
+              status: g.status,
+              fieldCount: activeFields.length,
+              requiredFieldCount: activeFields.where((f) => f.isRequired).length,
+              fields: activeFields,
+            );
+          })
+          .where((g) => g.fields.isNotEmpty)
           .toList();
       emit(
         state.copyWith(
@@ -439,6 +455,8 @@ class ProductGuidedCreateCubit extends Cubit<ProductGuidedCreateState> {
       final nextIndex = state.activeStepIndex + 1;
       emit(state.copyWith(activeStepIndex: nextIndex));
       _onStepEntered(nextIndex);
+    } else if (state.activeStepIndex >= 0) {
+      emit(state.copyWith(activeStepIndex: -1));
     }
   }
 
@@ -570,8 +588,7 @@ class ProductGuidedCreateCubit extends Cubit<ProductGuidedCreateState> {
     if (shouldSavePriceBand && state.pricingMethod == 'manual') {
       final listBeforeVat = int.tryParse(state.manualListPrice.trim().replaceAll(',', ''));
       final floorRaw = state.manualFloorPrice.trim().replaceAll(',', '');
-      final floorBeforeVat =
-          floorRaw.isEmpty ? null : int.tryParse(floorRaw);
+      final floorBeforeVat = floorRaw.isEmpty ? null : int.tryParse(floorRaw);
       if (listBeforeVat == null) {
         emit(
           state.copyWith(

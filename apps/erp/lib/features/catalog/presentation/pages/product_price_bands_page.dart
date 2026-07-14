@@ -8,6 +8,7 @@ import 'package:vet45_design_system/design_system.dart';
 import 'package:vet45_shared_application/application.dart';
 
 import '../widgets/dashed_border_container.dart';
+import '../widgets/product_form_bottom_bar.dart';
 import 'edit_product_unit_price_band_page.dart';
 
 class ProductPriceBandsRouteArgs {
@@ -41,7 +42,7 @@ class ProductPriceBandsPage extends StatelessWidget {
           final isLoading = state is ProductPriceBandsInitial || state is ProductPriceBandsLoading;
 
           return Scaffold(
-            backgroundColor: context.vColors.background,
+            backgroundColor: context.vColors.surface,
             appBar: VAppBar(
               title: 'Khung giá bán',
               titleStyle: VTypography.headingH3.copyWith(fontWeight: FontWeight.bold),
@@ -69,7 +70,7 @@ class ProductPriceBandsPage extends StatelessWidget {
 
   Widget _buildMissingBaseUnit(BuildContext context) {
     final dynamicColors = context.vColors;
-    
+
     return Column(
       children: [
         Expanded(
@@ -112,29 +113,10 @@ class ProductPriceBandsPage extends StatelessWidget {
             ),
           ),
         ),
-        SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Row(
-              children: [
-                Expanded(
-                  child: VButton(
-                    label: 'Hủy',
-                    variant: VButtonVariant.outline,
-                    onPressed: () => context.pop(),
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: VButton(
-                    label: 'Lưu thay đổi',
-                    variant: VButtonVariant.primary,
-                    onPressed: null,
-                  ),
-                ),
-              ],
-            ),
-          ),
+        ProductFormBottomBar(
+          onCancel: () => context.pop(),
+          saveEnabled: false,
+          onSave: null,
         ),
       ],
     );
@@ -163,7 +145,7 @@ class ProductPriceBandsPage extends StatelessWidget {
             ),
           );
         }
-        
+
         if (index == data.rows.length + 1) {
           return Padding(
             padding: const EdgeInsets.all(16),
@@ -295,7 +277,7 @@ class ProductPriceBandsPage extends StatelessWidget {
           ),
         ),
         Text(
-          price != null ? '${price.round()} đ' : '—',
+          price != null ? formatCatalogCurrency(price) : '—',
           style: VTypography.bodyDefault.copyWith(
             color: context.vColors.textPrimary,
           ),

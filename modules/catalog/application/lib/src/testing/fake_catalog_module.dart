@@ -708,7 +708,9 @@ final class FakeCatalogModule implements ICatalogModule {
       if (useRule && (cmd.listBeforeVat == null || cmd.floorBeforeVat == null)) {
         throw MissingBasePriceException();
       }
-      if (cmd.listBeforeVat != null && cmd.floorBeforeVat != null && cmd.floorBeforeVat! > cmd.listBeforeVat!) {
+      if (cmd.listBeforeVat != null &&
+          cmd.floorBeforeVat != null &&
+          cmd.floorBeforeVat! > cmd.listBeforeVat!) {
         throw FloorPriceGreaterThanListPriceException();
       }
       final prod = _products.firstWhere((p) => p.id == cmd.productId);
@@ -1358,8 +1360,7 @@ final class FakeCatalogModule implements ICatalogModule {
       return;
     }
     for (final product in _products) {
-      if (product.id != target.id &&
-          _normalizeSku(product.sku) == normalized) {
+      if (product.id != target.id && _normalizeSku(product.sku) == normalized) {
         throw DuplicateSkuException(
           sku: sku,
           existingProductId: product.id,
@@ -1528,7 +1529,18 @@ final class FakeCatalogModule implements ICatalogModule {
     product.baseUnit = switch (selection) {
       ExistingTenantUnit(:final unitId) =>
         _tenantUnits.firstWhere((unit) => unit.id == unitId).name,
-      NewTenantUnit(:final name) => name,
+      NewTenantUnit(:final name) => () {
+        final normalized = _normalizeUnitName(name);
+        final alreadyExists = _tenantUnits.any(
+          (unit) => _normalizeUnitName(unit.name) == normalized,
+        );
+        if (!alreadyExists) {
+          _tenantUnits.add(
+            _TenantUnit(id: 'unit-new-${_tenantUnits.length + 1}', name: name),
+          );
+        }
+        return name;
+      }(),
       null => '',
     };
     product.stockQty = command.basicStockQuantityBase;
@@ -1914,7 +1926,8 @@ final class FakeCatalogModule implements ICatalogModule {
       }
       return true;
     }).toList()..sort((a, b) {
-      int statusRank(ProductBusinessStatus status) => status == ProductBusinessStatus.active ? 0 : 1;
+      int statusRank(ProductBusinessStatus status) =>
+          status == ProductBusinessStatus.active ? 0 : 1;
       final byStatus = statusRank(a.businessStatus).compareTo(
         statusRank(b.businessStatus),
       );
@@ -3134,7 +3147,7 @@ final class FakeCatalogModule implements ICatalogModule {
       product: product,
       unit: syntheticUnit,
       listBeforeVat: command.listBeforeVat,
-        listAfterVat: command.listAfterVat,
+      listAfterVat: command.listAfterVat,
       floorBeforeVat: command.floorBeforeVat,
     );
     if (warnings.isNotEmpty && !command.confirmAcknowledgeWarnings) {

@@ -3,20 +3,22 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:vet45_catalog_application/application.dart';
 import 'package:vet45_catalog_domain/domain.dart';
 import 'package:vet45_design_system/design_system.dart';
-import '../../presentation.dart';
 import '../bloc/product_guided_create_cubit.dart';
 import '../bloc/product_guided_create_state.dart';
 import 'custom_fields/product_custom_field_input_widget.dart';
+import 'product_guided_fields.dart';
 
 class ProductGuidedStepCustomFields extends StatelessWidget {
   const ProductGuidedStepCustomFields({
     super.key,
     required this.state,
     required this.group,
+    this.isLastStep = false,
   });
 
   final ProductGuidedCreateState state;
   final CustomFieldGroupConfigDto group;
+  final bool isLastStep;
 
   @override
   Widget build(BuildContext context) {
@@ -56,24 +58,10 @@ class ProductGuidedStepCustomFields extends StatelessWidget {
           );
         }),
         const SizedBox(height: VSpacing.space4),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: [
-            VButton(
-              label: 'Quay lại',
-              variant: VButtonVariant.outline,
-              onPressed: () {
-                context.read<ProductGuidedCreateCubit>().prevStep();
-              },
-            ),
-            const SizedBox(width: VSpacing.space2),
-            VButton(
-              label: 'Tiếp tục',
-              onPressed: () {
-                context.read<ProductGuidedCreateCubit>().nextStep();
-              },
-            ),
-          ],
+        ProductGuidedFields.buildNavigationButtons(
+          context,
+          showSkip: true,
+          showNext: !isLastStep,
         ),
       ],
     );

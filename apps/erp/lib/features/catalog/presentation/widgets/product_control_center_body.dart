@@ -109,7 +109,7 @@ class ProductControlCenterBody extends StatelessWidget {
                     ? null
                     : controlCenter.basePrice.canEdit
                     ? () => _openManualBasePrice(context, controlCenter)
-                    : () => _showEditPlaceholder(context),
+                    : null,
                 onEditPriceBand: isSoftDeleted ? null : () => _openPriceBands(context),
               ),
               ProductControlCenterCustomFieldsSection(
@@ -295,7 +295,7 @@ class ProductControlCenterBody extends StatelessWidget {
       context.push(
         '/products/items/pcc/manual-base-price',
         extra: ProductManualBasePriceRouteArgs(
-          product: product,
+          product: product.copyWith(baseUnit: controlCenter.units.baseUnitName),
           basePriceCard: controlCenter.basePrice,
         ),
       ),

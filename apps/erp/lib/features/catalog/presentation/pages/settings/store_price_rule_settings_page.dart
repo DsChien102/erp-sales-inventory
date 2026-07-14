@@ -30,7 +30,7 @@ class _StorePriceRuleSettingsBody extends StatelessWidget {
     final colors = context.vColors;
 
     return Scaffold(
-      backgroundColor: colors.background,
+      backgroundColor: colors.surface,
       appBar: const VAppBar(
         title: 'Giá sàn & Giá niêm yết',
         showBackButton: true,

@@ -456,7 +456,8 @@ Future<void> createMinimalProduct(
   String? baseUnit,
 }) async {
   await tester.enterText(find.byKey(const Key('input_guided_name')), name);
-  await tester.pump();
+  await tester.testTextInput.receiveAction(TextInputAction.done);
+  await tester.pumpAndSettle();
 
   if (baseUnit != null) {
     final stepFinder = find.text('3. Đơn vị cơ sở');
@@ -471,7 +472,8 @@ Future<void> createMinimalProduct(
       find.byKey(const Key('input_guided_base_unit')),
       baseUnit,
     );
-    await tester.pump();
+    await tester.testTextInput.receiveAction(TextInputAction.done);
+    await tester.pumpAndSettle();
   }
 
   await tester.tap(find.byKey(const Key('btn_guided_save')));

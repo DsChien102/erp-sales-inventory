@@ -8,6 +8,8 @@ import 'package:vet45_design_system/design_system.dart';
 import 'package:vet45_shared_application/application.dart';
 
 import '../widgets/price_band_calculation_type_selector.dart';
+import '../widgets/product_form_bottom_bar.dart';
+import '../widgets/price_band_overwrite_dialog.dart';
 
 class EditProductUnitPriceBandRouteArgs {
   final ProductUnitPriceBandRowDto row;
@@ -32,14 +34,20 @@ class EditProductUnitPriceBandPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => EditProductUnitPriceBandCubit(
-        moduleMediator: GetIt.instance<ICatalogModule>(),
-        executionContext: GetIt.instance<IExecutionContext>(),
-        productId: args.productId,
-        productUnitId: args.row.productUnitId,
-      )..loadInitialData(),
+      create: (context) =>
+          EditProductUnitPriceBandCubit(
+            moduleMediator: GetIt.instance<ICatalogModule>(),
+            executionContext: GetIt.instance<IExecutionContext>(),
+            productId: args.productId,
+            productUnitId: args.row.productUnitId,
+          )..loadInitialData(
+            currentSourceType: args.row.sourceType,
+            isCustomOverride: args.row.isCustomOverride,
+            currentListBeforeVat: args.row.listBeforeVat,
+            currentFloorBeforeVat: args.row.floorBeforeVat,
+          ),
       child: BlocConsumer<EditProductUnitPriceBandCubit, EditProductUnitPriceBandState>(
-        listener: (context, state) {
+        listener: (context, state) async {
           if (state is EditProductUnitPriceBandSuccess) {
             VToast.show(
               context,
@@ -48,6 +56,17 @@ class EditProductUnitPriceBandPage extends StatelessWidget {
               type: VToastType.success,
             );
             context.pop(true); // Return true to signal refresh
+          } else if (state is EditProductUnitPriceBandNeedsOverwriteConfirm) {
+            final confirmed = await showPriceBandOverwriteDialog(
+              context,
+              existingListBeforeVat: state.existingListBeforeVat,
+              existingFloorBeforeVat: state.existingFloorBeforeVat,
+            );
+            if (confirmed == true && context.mounted) {
+              context.read<EditProductUnitPriceBandCubit>().confirmOverwrite();
+            } else if (context.mounted) {
+              context.read<EditProductUnitPriceBandCubit>().cancelOverwrite();
+            }
           } else if (state is EditProductUnitPriceBandLoaded && state.error != null) {
             if (state.error == 'WARNING_REQUIRE_ACK') {
               _showWarningAckDialog(context);
@@ -68,6 +87,7 @@ class EditProductUnitPriceBandPage extends StatelessWidget {
           final canSubmit = state is EditProductUnitPriceBandLoaded && state.canSubmit;
 
           return Scaffold(
+            backgroundColor: context.vColors.surface,
             appBar: VAppBar(
               title: 'Khung giá bán',
               titleStyle: VTypography.headingH3.copyWith(fontWeight: FontWeight.bold),
@@ -89,44 +109,18 @@ class EditProductUnitPriceBandPage extends StatelessWidget {
                           if (state is EditProductUnitPriceBandLoaded) ...[
                             _buildTopCard(context, state),
                             const SizedBox(height: 16),
-                            const PriceBandCalculationTypeSelector(),
+                            PriceBandCalculationTypeSelector(row: args.row),
                           ],
                         ],
                       ),
                     ),
                   ),
-            bottomNavigationBar: SafeArea(
-              child: Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: context.vColors.surface,
-                  border: Border(
-                    top: BorderSide(color: context.vColors.borderDefault),
-                  ),
-                ),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: VButton(
-                        label: 'Hủy',
-                        variant: VButtonVariant.secondary,
-                        onPressed: () => context.pop(),
-                      ),
-                    ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: VButton(
-                        label: 'Lưu thay đổi',
-                        variant: VButtonVariant.primary,
-                        onPressed: canSubmit
-                            ? () => context.read<EditProductUnitPriceBandCubit>().save()
-                            : null,
-                        isLoading: isSubmitting,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+            bottomNavigationBar: ProductFormBottomBar(
+              saveKey: const Key('btn_price_band_save'),
+              onCancel: () => context.pop(),
+              isLoading: isSubmitting,
+              saveEnabled: canSubmit,
+              onSave: () => context.read<EditProductUnitPriceBandCubit>().save(),
             ),
           );
         },
@@ -164,7 +158,7 @@ class EditProductUnitPriceBandPage extends StatelessWidget {
           ),
           Text(
             state.suggestion.basePrice > 0
-                ? '${state.suggestion.basePrice.toStringAsFixed(0)} đ'
+                ? formatCatalogCurrency(state.suggestion.basePrice)
                 : '—',
             style: VTypography.headingH4.copyWith(fontWeight: FontWeight.bold),
           ),

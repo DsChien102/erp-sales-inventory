@@ -50,17 +50,20 @@ class _ProductGuidedStepBaseCostState extends State<ProductGuidedStepBaseCost> {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Container(
-            padding: const EdgeInsets.all(VSpacing.space3),
-            decoration: BoxDecoration(
-              color: dynamicColors.warningBg,
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: dynamicColors.warning.withValues(alpha: 0.3)),
-            ),
-            child: Text(
-              'Cần thiết lập đơn vị cơ sở ở bước trước rồi mới nhập được giá vốn cơ sở.',
-              style: VTypography.bodyDefault.copyWith(
-                color: dynamicColors.warning,
+          GestureDetector(
+            onTap: () => context.read<ProductGuidedCreateCubit>().setStep(2),
+            child: Container(
+              padding: const EdgeInsets.all(VSpacing.space3),
+              decoration: BoxDecoration(
+                color: dynamicColors.warningBg,
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: dynamicColors.warning.withValues(alpha: 0.3)),
+              ),
+              child: Text(
+                'Cần thiết lập đơn vị cơ sở ở bước trước rồi mới nhập được giá vốn cơ sở.',
+                style: VTypography.bodyDefault.copyWith(
+                  color: dynamicColors.warning,
+                ),
               ),
             ),
           ),
@@ -82,14 +85,12 @@ class _ProductGuidedStepBaseCostState extends State<ProductGuidedStepBaseCost> {
           context,
           'Giá vốn cơ sở ${widget.state.baseUnit.isNotEmpty ? "(${widget.state.baseUnit})" : ""}',
         ),
-        VNumberField(
+        VMoneyField(
           key: const Key('input_guided_base_cost'),
           controller: _controller,
           hintText: 'Nhập giá vốn cơ sở',
-          suffixText: '₫',
+          suffixText: 'đ',
           textStyle: VTypography.bodyDefault.copyWith(color: dynamicColors.textPrimary),
-          allowDecimal: false,
-          allowNegative: false,
           min: 0,
           errorText: widget.state.showValidationErrors ? widget.state.baseCostError : null,
           onChanged: (_) => cubit.updateBaseCost(_controller.text),

@@ -82,7 +82,7 @@ class _ProductChangeHistoryViewState extends State<_ProductChangeHistoryView> {
     final dynamicColors = context.vColors;
 
     return Scaffold(
-      backgroundColor: dynamicColors.background,
+      backgroundColor: dynamicColors.surface,
       appBar: VAppBar(
         title: 'Lịch sử thay đổi',
         subtitle: widget.productName,

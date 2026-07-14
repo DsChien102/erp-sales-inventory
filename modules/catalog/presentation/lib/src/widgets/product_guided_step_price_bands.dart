@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:vet45_design_system/design_system.dart';
 import '../bloc/product_guided_create_cubit.dart';
 import '../bloc/product_guided_create_state.dart';
+import '../utils/catalog_currency_formatters.dart';
 import 'product_guided_fields.dart';
 
 class ProductGuidedStepPriceBands extends StatefulWidget {
@@ -66,33 +67,30 @@ class _ProductGuidedStepPriceBandsState extends State<ProductGuidedStepPriceBand
     super.dispose();
   }
 
-  String _formatCurrency(double val) {
-    final str = val.toStringAsFixed(0);
-    final reg = RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))');
-    return '${str.replaceAllMapped(reg, (Match m) => '${m[1]},')} ₫';
-  }
-
   @override
   Widget build(BuildContext context) {
     final dynamicColors = context.vColors;
     final cubit = context.read<ProductGuidedCreateCubit>();
-    final baseCost = double.tryParse(widget.state.baseCost.replaceAll(',', '')) ?? 0.0;
+    final baseCost = (parseCatalogCurrencyAmount(widget.state.baseCost) ?? 0).toDouble();
 
     if (widget.state.baseUnit.trim().isEmpty) {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Container(
-            padding: const EdgeInsets.all(VSpacing.space3),
-            decoration: BoxDecoration(
-              color: dynamicColors.warningBg,
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: dynamicColors.warning.withValues(alpha: 0.3)),
-            ),
-            child: Text(
-              'Cần thiết lập đơn vị cơ sở ở bước trước rồi mới nhập được khung giá bán.',
-              style: VTypography.bodyDefault.copyWith(
-                color: dynamicColors.warning,
+          GestureDetector(
+            onTap: () => context.read<ProductGuidedCreateCubit>().setStep(2),
+            child: Container(
+              padding: const EdgeInsets.all(VSpacing.space3),
+              decoration: BoxDecoration(
+                color: dynamicColors.warningBg,
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: dynamicColors.warning.withValues(alpha: 0.3)),
+              ),
+              child: Text(
+                'Cần thiết lập đơn vị cơ sở ở bước trước rồi mới nhập được khung giá bán.',
+                style: VTypography.bodyDefault.copyWith(
+                  color: dynamicColors.warning,
+                ),
               ),
             ),
           ),
@@ -246,13 +244,11 @@ class _ProductGuidedStepPriceBandsState extends State<ProductGuidedStepPriceBand
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     ProductGuidedFields.buildLabel(context, 'Giá niêm yết'),
-                    VNumberField(
+                    VMoneyField(
                       key: const Key('input_guided_manual_list_price'),
                       controller: _manualListPriceController,
                       hintText: '0',
-                      suffixText: '₫',
-                      allowDecimal: false,
-                      allowNegative: false,
+                      suffixText: 'đ',
                       min: 0,
                       textStyle: VTypography.bodyDefault.copyWith(color: dynamicColors.textPrimary),
                       onChanged: (_) =>
@@ -267,13 +263,11 @@ class _ProductGuidedStepPriceBandsState extends State<ProductGuidedStepPriceBand
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     ProductGuidedFields.buildLabel(context, 'Giá bán sàn'),
-                    VNumberField(
+                    VMoneyField(
                       key: const Key('input_guided_manual_floor_price'),
                       controller: _manualFloorPriceController,
                       hintText: '0',
-                      suffixText: '₫',
-                      allowDecimal: false,
-                      allowNegative: false,
+                      suffixText: 'đ',
                       min: 0,
                       errorText: widget.state.manualPriceError,
                       textStyle: VTypography.bodyDefault.copyWith(color: dynamicColors.textPrimary),
@@ -369,14 +363,14 @@ class _ProductGuidedStepPriceBandsState extends State<ProductGuidedStepPriceBand
         _buildPricePreviewRow(
           context: context,
           title: 'Giá niêm yết gợi ý (+$markupPercent%)',
-          value: _formatCurrency(listBeforeVat),
+          value: formatCatalogCurrency(listBeforeVat),
           subtitle: 'Giá bán chuẩn chưa chiết khấu',
         ),
         const SizedBox(height: VSpacing.space2),
         _buildPricePreviewRow(
           context: context,
           title: 'Giá bán sàn gợi ý (+$floorPercent%)',
-          value: _formatCurrency(floorBeforeVat),
+          value: formatCatalogCurrency(floorBeforeVat),
           subtitle: 'Giá tối thiểu nhân viên được phép bán',
         ),
       ],

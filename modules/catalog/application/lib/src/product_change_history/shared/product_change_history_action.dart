@@ -10,6 +10,7 @@ enum ProductChangeHistoryAction {
   unitAdded,
   unitDeactivated,
   unitReactivated,
+  unitDeleted,
   baseUnitSet,
   stockUpdated,
   manualBasePriceSet,
@@ -30,6 +31,7 @@ enum ProductChangeHistoryAction {
     ProductChangeHistoryAction.unitAdded ||
     ProductChangeHistoryAction.unitDeactivated ||
     ProductChangeHistoryAction.unitReactivated ||
+    ProductChangeHistoryAction.unitDeleted ||
     ProductChangeHistoryAction.baseUnitSet => ProductChangeCategory.units,
     ProductChangeHistoryAction.stockUpdated => ProductChangeCategory.stock,
     ProductChangeHistoryAction.manualBasePriceSet ||
@@ -51,12 +53,18 @@ enum ProductChangeHistoryAction {
     return switch (token) {
       'created' || 'product_created' => ProductChangeHistoryAction.created,
       'update_product_profile' ||
-      'product_profile_updated' => ProductChangeHistoryAction.profileUpdated,
+      'product_profile_updated' ||
+      'updated_profile' => ProductChangeHistoryAction.profileUpdated,
       'update_product_images' ||
-      'product_images_updated' => ProductChangeHistoryAction.imagesUpdated,
-      'add_product_unit' => ProductChangeHistoryAction.unitAdded,
-      'deactivate_product_unit' => ProductChangeHistoryAction.unitDeactivated,
-      'reactivate_product_unit' => ProductChangeHistoryAction.unitReactivated,
+      'product_images_updated' ||
+      'updated_images' => ProductChangeHistoryAction.imagesUpdated,
+      'add_product_unit' ||
+      'add_product_conversion_unit' => ProductChangeHistoryAction.unitAdded,
+      'deactivate_product_unit' ||
+      'deactivate_product_conversion_unit' => ProductChangeHistoryAction.unitDeactivated,
+      'reactivate_product_unit' ||
+      'reactivate_product_conversion_unit' => ProductChangeHistoryAction.unitReactivated,
+      'delete_product_conversion_unit' => ProductChangeHistoryAction.unitDeleted,
       'set_product_base_unit' => ProductChangeHistoryAction.baseUnitSet,
       'set_basic_stock_quantity_base' ||
       'set_initial_stock' ||

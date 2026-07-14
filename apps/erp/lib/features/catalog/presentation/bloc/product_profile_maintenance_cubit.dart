@@ -81,7 +81,11 @@ class ProductProfileMaintenanceCubit extends Cubit<ProductProfileMaintenanceStat
     String? initialTradeName,
     String? initialSku,
     String? initialBarcode,
-  }) : super(ProductProfileMaintenanceState(
+  }) : _initialName = initialName,
+       _initialTradeName = initialTradeName ?? '',
+       _initialSku = initialSku ?? '',
+       _initialBarcode = initialBarcode ?? '',
+       super(ProductProfileMaintenanceState(
           name: initialName,
           tradeName: initialTradeName ?? '',
           sku: initialSku ?? '',
@@ -91,6 +95,16 @@ class ProductProfileMaintenanceCubit extends Cubit<ProductProfileMaintenanceStat
   final ICatalogModule catalogModule;
   final IExecutionContext executionContext;
   final String productId;
+  final String _initialName;
+  final String _initialTradeName;
+  final String _initialSku;
+  final String _initialBarcode;
+
+  bool get hasChanges =>
+      state.name.trim() != _initialName.trim() ||
+      state.tradeName.trim() != _initialTradeName.trim() ||
+      state.sku.trim() != _initialSku.trim() ||
+      state.barcode.trim() != _initialBarcode.trim();
 
   void nameChanged(String value) {
     emit(state.copyWith(

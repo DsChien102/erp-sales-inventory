@@ -123,6 +123,23 @@ abstract final class FakeCatalogProductBuilder {
       pricePermissionDenied: pricePermissionDenied,
     );
 
+    final filteredCustomFieldGroups = customFieldGroupCards
+        .map((g) {
+          final activeOrHasDataFields = g.fields
+              .where((f) => f.isActive || (f.displayValue != null && f.displayValue!.isNotEmpty))
+              .toList();
+          return CustomFieldGroupCardDto(
+            groupId: g.groupId,
+            name: g.name,
+            iconKey: g.iconKey,
+            sortOrder: g.sortOrder,
+            fields: activeOrHasDataFields,
+            hasRequiredMissing: activeOrHasDataFields.any((f) => f.isRequired && f.isMissing),
+          );
+        })
+        .where((g) => g.fields.isNotEmpty)
+        .toList();
+
     return ProductControlCenterDto(
       profile: ProductProfileSummaryDto(
         productId: id,
@@ -179,7 +196,7 @@ abstract final class FakeCatalogProductBuilder {
         storePriceRuleName: storePriceRuleName,
         isCustomOverride: isCustomOverride,
       ),
-      customFieldGroupCards: customFieldGroupCards,
+      customFieldGroupCards: filteredCustomFieldGroups,
       readinessSummary: readinessView.readinessSummary,
       checklist: const [],
       contextualActions: readinessView.suggestedActions,

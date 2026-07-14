@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:vet45_catalog_application/application.dart';
+import 'package:vet45_catalog_domain/domain.dart';
 import 'package:vet45_catalog_presentation/presentation.dart';
 import 'package:vet45_design_system/design_system.dart';
 
@@ -29,30 +30,14 @@ class ProductListItemTile extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
-                  children: [
-                    Flexible(
-                      child: Text(
-                        item.name,
-                        style: VTypography.bodyDefault.copyWith(
-                          color: dynamicColors.textPrimary,
-                          fontWeight: FontWeight.w600,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                    if (item.sku != null && item.sku!.isNotEmpty)
-                      Text(
-                        ' - ${item.sku}',
-                        style: VTypography.bodyDefault.copyWith(
-                          color: dynamicColors.textPrimary,
-                          fontWeight: FontWeight.w600,
-                        ),
-                        maxLines: 1,
-                        softWrap: false,
-                      ),
-                  ],
+                Text(
+                  item.name,
+                  style: VTypography.bodyDefault.copyWith(
+                    color: dynamicColors.textPrimary,
+                    fontWeight: FontWeight.w600,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
                 if (item.isSoftDeleted) ...[
                   const SizedBox(height: 4),
@@ -80,6 +65,17 @@ class ProductListItemTile extends StatelessWidget {
                     spacing: 6,
                     runSpacing: 4,
                     children: item.customFieldValues.map((cf) {
+                      String displayVal = cf.displayValue;
+                      if (cf.fieldType == CustomFieldType.number.name) {
+                        final parsed = double.tryParse(cf.displayValue);
+                        if (parsed != null) {
+                          if (parsed == parsed.roundToDouble()) {
+                            displayVal = VNumberValidator.format(parsed.round(), allowDecimal: false);
+                          } else {
+                            displayVal = VNumberValidator.format(parsed, allowDecimal: true);
+                          }
+                        }
+                      }
                       return Container(
                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                         decoration: BoxDecoration(
@@ -87,7 +83,7 @@ class ProductListItemTile extends StatelessWidget {
                           borderRadius: BorderRadius.circular(4),
                         ),
                         child: Text(
-                          '${cf.fieldName}: ${cf.displayValue}',
+                          '${cf.fieldName}: $displayVal',
                           style: VTypography.bodySmall.copyWith(
                             color: dynamicColors.textSecondary,
                             fontSize: 11,
@@ -97,6 +93,7 @@ class ProductListItemTile extends StatelessWidget {
                     }).toList(),
                   ),
                 ],
+
                 const SizedBox(height: 8),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -160,7 +157,7 @@ class ProductListItemTile extends StatelessWidget {
   Widget _buildPriceInfo(dynamic colors) {
     if (item.listBeforeVat != null) {
       return Text(
-        '${item.listBeforeVat}đ',
+        formatCatalogCurrency(item.listBeforeVat),
         style: VTypography.bodyDefault.copyWith(
           color: colors.textPrimary,
           fontWeight: FontWeight.w700,

@@ -46,6 +46,8 @@ extension ProductChangeHistoryActionLabelVi on ProductChangeHistoryAction {
         return 'Ngừng đơn vị quy đổi';
       case ProductChangeHistoryAction.unitReactivated:
         return 'Kích hoạt lại đơn vị quy đổi';
+      case ProductChangeHistoryAction.unitDeleted:
+        return 'Xóa đơn vị quy đổi';
       case ProductChangeHistoryAction.baseUnitSet:
         return 'Tạo đơn vị cơ sở';
       case ProductChangeHistoryAction.stockUpdated:

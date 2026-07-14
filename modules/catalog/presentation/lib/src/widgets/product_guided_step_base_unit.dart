@@ -66,10 +66,10 @@ class _ProductGuidedStepBaseUnitState extends State<ProductGuidedStepBaseUnit> {
           units: widget.state.tenantUnits,
           isUnitsLoading: widget.state.isTenantUnitsLoading,
           onChanged: cubit.updateBaseUnit,
-          hintText: 'Ví dụ: Hộp, Chai, Bao...',
+          hintText: 'Ví dụ: hộp, thùng...',
           inputDecoration: ProductGuidedFields.buildInputDecoration(
             context,
-            'Ví dụ: Hộp, Chai, Bao...',
+            'Ví dụ: hộp, thùng...',
           ),
           textStyle: VTypography.bodyDefault.copyWith(color: dynamicColors.textPrimary),
         ),

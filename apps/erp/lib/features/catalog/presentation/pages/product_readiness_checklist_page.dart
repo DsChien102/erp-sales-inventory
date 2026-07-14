@@ -41,7 +41,7 @@ class ProductReadinessChecklistPage extends StatelessWidget {
 
     return Scaffold(
       key: const Key('wgt_e02_u03_checklist'),
-      backgroundColor: dynamicColors.background,
+      backgroundColor: dynamicColors.surface,
       appBar: VAppBar(
         title: 'Sẵn sàng vận hành',
         titleStyle: VTypography.headingH3.copyWith(
@@ -102,9 +102,10 @@ class ProductReadinessChecklistPage extends StatelessWidget {
               '/products/items/pcc/manual-base-price',
               extra: ProductManualBasePriceRouteArgs(
                 product: product,
-                basePriceCard: const ProductBasePriceCardDto(
+                basePriceCard: ProductBasePriceCardDto(
                   mode: BasePriceMode.manual,
                   sourceLabel: 'Nhập thủ công',
+                  baseUnitName: product.baseUnit,
                 ),
               ),
             ).then(popOnReturn);

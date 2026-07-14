@@ -23,6 +23,7 @@ class ProductCustomFieldInputWidget extends StatefulWidget {
 
 class _ProductCustomFieldInputWidgetState extends State<ProductCustomFieldInputWidget> {
   late final TextEditingController _textController;
+  late final TextEditingController _numberController;
 
   @override
   void initState() {
@@ -30,6 +31,19 @@ class _ProductCustomFieldInputWidgetState extends State<ProductCustomFieldInputW
     _textController = TextEditingController(
       text: widget.field.fieldType == CustomFieldType.text.name ? widget.input.textValue : null,
     );
+    _numberController = TextEditingController(
+      text: widget.field.fieldType == CustomFieldType.number.name
+          ? _formatNumber(widget.input.numberValue)
+          : null,
+    );
+  }
+
+  String _formatNumber(double? value) {
+    if (value == null) return '';
+    if (value == value.roundToDouble()) {
+      return VNumberValidator.format(value.round(), allowDecimal: false);
+    }
+    return VNumberValidator.format(value, allowDecimal: true);
   }
 
   @override
@@ -40,11 +54,22 @@ class _ProductCustomFieldInputWidgetState extends State<ProductCustomFieldInputW
         _textController.text != widget.input.textValue) {
       _textController.text = widget.input.textValue ?? '';
     }
+    if (widget.field.fieldType == CustomFieldType.number.name &&
+        widget.input.numberValue != oldWidget.input.numberValue) {
+      final currentParsed = VNumberValidator.parse(
+        _numberController.text,
+        allowDecimal: true,
+      );
+      if (widget.input.numberValue != currentParsed) {
+        _numberController.text = _formatNumber(widget.input.numberValue);
+      }
+    }
   }
 
   @override
   void dispose() {
     _textController.dispose();
+    _numberController.dispose();
     super.dispose();
   }
 
@@ -75,6 +100,7 @@ class _ProductCustomFieldInputWidgetState extends State<ProductCustomFieldInputW
       );
     } else if (widget.field.fieldType == CustomFieldType.number.name) {
       return VNumberField(
+        controller: _numberController,
         label: widget.field.name,
         isRequired: widget.field.isRequired,
         value: widget.input.numberValue,

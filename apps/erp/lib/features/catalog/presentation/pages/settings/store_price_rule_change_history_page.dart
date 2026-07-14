@@ -32,7 +32,7 @@ class _ChangeHistoryBody extends StatelessWidget {
     final colors = context.vColors;
 
     return Scaffold(
-      backgroundColor: colors.background,
+      backgroundColor: colors.surface,
       appBar: const VAppBar(
         title: 'Lịch sử thay đổi',
         showBackButton: true,
@@ -122,19 +122,20 @@ class _ChangeHistoryBody extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(VSpacing.space3),
       decoration: BoxDecoration(
-        color: colors.surfaceBrand,
+        color: colors.warningBg,
+        border: Border.all(color: colors.warning.withValues(alpha: 0.3)),
         borderRadius: BorderRadius.circular(VRadius.r12),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.info_outline, size: 18, color: colors.primary),
+          Icon(Icons.info_outline, size: 18, color: colors.warning),
           const SizedBox(width: VSpacing.space2),
           Expanded(
             child: Text(
               'Lịch sử chỉ ghi nhận các thay đổi khung giá cửa hàng.',
               style: VTypography.bodySmall.copyWith(
-                color: colors.textPrimary,
+                color: colors.warning,
               ),
             ),
           ),

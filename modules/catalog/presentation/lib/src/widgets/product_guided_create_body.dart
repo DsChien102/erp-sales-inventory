@@ -33,7 +33,12 @@ class ProductGuidedCreateBody extends StatelessWidget {
             children: [
               Expanded(
                 child: SingleChildScrollView(
-                  padding: const EdgeInsets.all(VSpacing.space4),
+                  padding: EdgeInsets.only(
+                    left: VSpacing.space4,
+                    right: VSpacing.space4,
+                    top: VSpacing.space4,
+                    bottom: VSpacing.space4 + MediaQuery.of(context).viewInsets.bottom,
+                  ),
                   child: Column(
                     children: [
                       _buildStep(
@@ -112,6 +117,7 @@ class ProductGuidedCreateBody extends StatelessWidget {
                               child: ProductGuidedStepCustomFields(
                                 state: state,
                                 group: group,
+                                isLastStep: stepIdx == state.stepCount - 1,
                               ),
                             ),
                           ],
@@ -183,7 +189,9 @@ class ProductGuidedCreateBody extends StatelessWidget {
       padding: const EdgeInsets.all(VSpacing.space4),
       decoration: BoxDecoration(
         color: dynamicColors.surface,
-        boxShadow: VShadows.e2,
+        border: Border(
+          top: BorderSide(color: dynamicColors.borderDefault),
+        ),
       ),
       child: SafeArea(
         top: false,
@@ -191,16 +199,18 @@ class ProductGuidedCreateBody extends StatelessWidget {
           children: [
             Expanded(
               child: VButton(
-                label: 'Hủy',
+                label: 'Huỷ',
                 variant: VButtonVariant.outline,
                 onPressed: state.status == ProductGuidedCreateStatus.loading ? null : onCancel,
               ),
             ),
-            const SizedBox(width: VSpacing.space3),
+            const SizedBox(width: VSpacing.space4),
             Expanded(
               child: VButton(
                 key: const Key('btn_guided_save'),
                 label: 'Lưu sản phẩm',
+                variant: VButtonVariant.primary,
+                isLoading: state.status == ProductGuidedCreateStatus.loading,
                 onPressed: (!state.hasAnyData || state.status == ProductGuidedCreateStatus.loading)
                     ? null
                     : () => context.read<ProductGuidedCreateCubit>().submit(),

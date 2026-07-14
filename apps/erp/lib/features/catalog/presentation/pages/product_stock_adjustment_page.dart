@@ -7,6 +7,7 @@ import 'package:vet45_design_system/design_system.dart';
 import 'package:vet45_catalog_presentation/presentation.dart';
 
 import '../widgets/dashed_border_container.dart';
+import '../widgets/product_form_bottom_bar.dart';
 
 class ProductStockAdjustmentRouteArgs {
   final ProductListItemModel product;
@@ -50,6 +51,8 @@ class _ProductStockAdjustmentPageState extends State<ProductStockAdjustmentPage>
     super.initState();
     _quantityController = TextEditingController();
     _noteController = TextEditingController();
+    _quantityController.addListener(() => setState(() {}));
+    _noteController.addListener(() => setState(() {}));
   }
 
   @override
@@ -57,6 +60,13 @@ class _ProductStockAdjustmentPageState extends State<ProductStockAdjustmentPage>
     _quantityController.dispose();
     _noteController.dispose();
     super.dispose();
+  }
+
+  bool get _hasChanges {
+    if (_quantityController.text.trim().isNotEmpty) return true;
+    if (_selectedReason != null) return true;
+    if (!_isInitial && _noteController.text.trim().isNotEmpty) return true;
+    return false;
   }
 
   Future<void> _submit() async {
@@ -138,7 +148,7 @@ class _ProductStockAdjustmentPageState extends State<ProductStockAdjustmentPage>
       behavior: HitTestBehavior.translucent,
       child: Scaffold(
         key: const Key('wgt_e05_u01_fr01_01'),
-        backgroundColor: dynamicColors.background,
+        backgroundColor: dynamicColors.surface,
         appBar: VAppBar(
           showBackButton: true,
           title: 'Tồn kho',
@@ -315,39 +325,15 @@ class _ProductStockAdjustmentPageState extends State<ProductStockAdjustmentPage>
             ],
           ),
         ) : _buildMissingBaseUnit(context),
-        bottomNavigationBar: hasBaseUnit ? SafeArea(
-          child: Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: dynamicColors.background,
-              border: Border(
-                top: BorderSide(color: dynamicColors.borderDefault),
-              ),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Expanded(
-                  child: VButton(
-                    label: 'Hủy',
-                    variant: VButtonVariant.outline,
-                    onPressed: _isSubmitting ? null : () => context.pop(),
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: VButton(
-                    key: const Key('btn_stock_save'),
-                    label: 'Lưu thay đổi',
-                    variant: VButtonVariant.primary,
-                    isLoading: _isSubmitting,
-                    onPressed: _isSubmitting ? null : _submit,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ) : null,
+        bottomNavigationBar: hasBaseUnit
+            ? ProductFormBottomBar(
+                onCancel: _isSubmitting ? null : () => context.pop(),
+                saveKey: const Key('btn_stock_save'),
+                isLoading: _isSubmitting,
+                saveEnabled: _hasChanges,
+                onSave: _submit,
+              )
+            : null,
       ),
     );
   }
@@ -397,29 +383,10 @@ class _ProductStockAdjustmentPageState extends State<ProductStockAdjustmentPage>
             ),
           ),
         ),
-        SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Row(
-              children: [
-                Expanded(
-                  child: VButton(
-                    label: 'Hủy',
-                    variant: VButtonVariant.outline,
-                    onPressed: () => context.pop(),
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: VButton(
-                    label: 'Lưu thay đổi',
-                    variant: VButtonVariant.primary,
-                    onPressed: null,
-                  ),
-                ),
-              ],
-            ),
-          ),
+        ProductFormBottomBar(
+          onCancel: () => context.pop(),
+          saveEnabled: false,
+          onSave: null,
         ),
       ],
     );

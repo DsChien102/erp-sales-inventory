@@ -61,6 +61,7 @@ class ProductCustomFieldGroupEditCubit extends Cubit<ProductCustomFieldGroupEdit
         ProductCustomFieldGroupEditLoaded(
           group: group,
           inputs: initialInputs,
+          initialInputs: Map<String, ProductCustomFieldValueInput>.from(initialInputs),
         ),
       );
     } catch (e) {
@@ -105,21 +106,8 @@ class ProductCustomFieldGroupEditCubit extends Cubit<ProductCustomFieldGroupEdit
 
     if (loaded.isSubmitting) return;
 
-    // Validation
-    final validationErrors = <String, String>{};
-    for (final field in loaded.group.fields) {
-      if (field.isRequired) {
-        final input = loaded.inputs[field.fieldId];
-        if (input == null || input.isEmpty) {
-          validationErrors[field.fieldId] = 'Trường này là bắt buộc';
-        }
-      }
-    }
-
-    if (validationErrors.isNotEmpty) {
-      emit(loaded.copyWith(validationErrors: validationErrors));
-      return;
-    }
+    // Edit flow: allow save even when other required fields in the group are empty.
+    // Required completeness stays a readiness concern (warning UX later).
 
     emit(loaded.copyWith(isSubmitting: true, clearError: true));
 

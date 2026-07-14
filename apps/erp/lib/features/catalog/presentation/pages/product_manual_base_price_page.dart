@@ -8,7 +8,7 @@ import 'package:vet45_design_system/design_system.dart';
 import 'package:vet45_catalog_presentation/presentation.dart';
 
 import '../widgets/dashed_border_container.dart';
-import '../widgets/product_control_center_formatters.dart';
+import '../widgets/product_form_bottom_bar.dart';
 
 class ProductManualBasePriceRouteArgs {
   final ProductListItemModel product;
@@ -60,14 +60,18 @@ class _ProductManualBasePriceView extends StatefulWidget {
 class _ProductManualBasePriceViewState extends State<_ProductManualBasePriceView> {
   late final TextEditingController _priceController;
   late final TextEditingController _noteController;
+  late final int? _initialAmount;
 
   @override
   void initState() {
     super.initState();
+    final amount = widget.basePriceCard.amount;
+    _initialAmount = amount?.round();
     _priceController = TextEditingController(
-      text: widget.basePriceCard.amount?.toStringAsFixed(0) ?? '',
+      text: amount == null ? '' : VMoneyValidator.format(amount.round()),
     );
     _noteController = TextEditingController();
+    _priceController.addListener(() => setState(() {}));
   }
 
   @override
@@ -75,6 +79,11 @@ class _ProductManualBasePriceViewState extends State<_ProductManualBasePriceView
     _priceController.dispose();
     _noteController.dispose();
     super.dispose();
+  }
+
+  bool get _hasPriceChanges {
+    final parsed = VMoneyValidator.parse(_priceController.text);
+    return parsed != _initialAmount;
   }
 
   void _onSave(BuildContext context) {
@@ -89,7 +98,7 @@ class _ProductManualBasePriceViewState extends State<_ProductManualBasePriceView
       return;
     }
 
-    final price = double.tryParse(priceStr);
+    final price = VMoneyValidator.parse(priceStr);
     if (price == null || price < 0) {
       VToast.show(
         context,
@@ -102,16 +111,29 @@ class _ProductManualBasePriceViewState extends State<_ProductManualBasePriceView
 
     context.read<ProductManualBasePriceCubit>().submitManualBasePrice(
       productId: widget.product.id,
-      basePrice: price,
+      basePrice: price.toDouble(),
       currency: widget.basePriceCard.currency,
     );
+  }
+
+  String? _resolveBaseUnitName() {
+    final fromCard = widget.basePriceCard.baseUnitName?.trim();
+    if (fromCard != null && fromCard.isNotEmpty) {
+      return fromCard;
+    }
+    final fromProduct = widget.product.baseUnit?.trim();
+    if (fromProduct != null && fromProduct.isNotEmpty) {
+      return fromProduct;
+    }
+    return null;
   }
 
   @override
   Widget build(BuildContext context) {
     final dynamicColors = context.vColors;
-    final hasBaseUnit = widget.product.baseUnit != null && widget.product.baseUnit!.isNotEmpty;
-    final baseUnitName = hasBaseUnit ? widget.product.baseUnit! : 'đơn vị cơ sở';
+    final resolvedBaseUnit = _resolveBaseUnitName();
+    final hasBaseUnit = resolvedBaseUnit != null;
+    final baseUnitName = resolvedBaseUnit ?? 'đơn vị cơ sở';
 
     return BlocConsumer<ProductManualBasePriceCubit, ProductManualBasePriceState>(
       listener: (context, state) {
@@ -135,7 +157,7 @@ class _ProductManualBasePriceViewState extends State<_ProductManualBasePriceView
       builder: (context, state) {
         return Scaffold(
           key: const Key('wgt_e06_u01_fr01_01'),
-          backgroundColor: dynamicColors.background,
+          backgroundColor: dynamicColors.surface,
           appBar: VAppBar(
             title: 'Giá vốn cơ sở',
             titleStyle: VTypography.headingH3.copyWith(
@@ -269,31 +291,12 @@ class _ProductManualBasePriceViewState extends State<_ProductManualBasePriceView
                   ),
                 ),
               ),
-              SafeArea(
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: VButton(
-                          label: 'Hủy',
-                          variant: VButtonVariant.outline,
-                          onPressed: () => context.pop(),
-                        ),
-                      ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: VButton(
-                          key: const Key('btn_manual_base_price_save'),
-                          label: 'Lưu thay đổi',
-                          variant: VButtonVariant.primary,
-                          isLoading: state.status == ProductManualBasePriceStatus.loading,
-                          onPressed: hasBaseUnit ? () => _onSave(context) : null,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+              ProductFormBottomBar(
+                onCancel: () => context.pop(),
+                saveKey: const Key('btn_manual_base_price_save'),
+                isLoading: state.status == ProductManualBasePriceStatus.loading,
+                saveEnabled: hasBaseUnit && _hasPriceChanges,
+                onSave: () => _onSave(context),
               ),
             ],
           ),
