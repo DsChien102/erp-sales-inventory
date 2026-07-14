@@ -33,7 +33,12 @@ class ProductGuidedCreateBody extends StatelessWidget {
             children: [
               Expanded(
                 child: SingleChildScrollView(
-                  padding: const EdgeInsets.all(VSpacing.space4),
+                  padding: EdgeInsets.only(
+                    left: VSpacing.space4,
+                    right: VSpacing.space4,
+                    top: VSpacing.space4,
+                    bottom: VSpacing.space4 + MediaQuery.of(context).viewInsets.bottom,
+                  ),
                   child: Column(
                     children: [
                       _buildStep(

@@ -115,14 +115,14 @@ class _CustomFieldGroupsPageState extends State<CustomFieldGroupsPage> {
                     child: Container(
                       padding: const EdgeInsets.all(VSpacing.space3),
                       decoration: BoxDecoration(
-                        color: VColors.infoBg,
+                        color: colors.warningBg,
                         borderRadius: BorderRadius.circular(VRadius.r8),
-                        border: Border.all(color: VColors.info.withValues(alpha: 0.2)),
+                        border: Border.all(color: colors.warning.withValues(alpha: 0.3)),
                       ),
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Icon(Icons.info_outline, color: VColors.info, size: 20),
+                          Icon(Icons.info_outline, color: colors.warning, size: 20),
                           const SizedBox(width: VSpacing.space2),
                           Expanded(
                             child: Text.rich(
@@ -141,7 +141,7 @@ class _CustomFieldGroupsPageState extends State<CustomFieldGroupsPage> {
                                   const TextSpan(text: ' để sắp xếp.'),
                                 ],
                               ),
-                              style: VTypography.bodySmall.copyWith(color: colors.textPrimary),
+                              style: VTypography.bodySmall.copyWith(color: colors.warning),
                             ),
                           ),
                         ],

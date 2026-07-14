@@ -77,17 +77,20 @@ class _ProductGuidedStepPriceBandsState extends State<ProductGuidedStepPriceBand
       return Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Container(
-            padding: const EdgeInsets.all(VSpacing.space3),
-            decoration: BoxDecoration(
-              color: dynamicColors.warningBg,
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: dynamicColors.warning.withValues(alpha: 0.3)),
-            ),
-            child: Text(
-              'Cần thiết lập đơn vị cơ sở ở bước trước rồi mới nhập được khung giá bán.',
-              style: VTypography.bodyDefault.copyWith(
-                color: dynamicColors.warning,
+          GestureDetector(
+            onTap: () => context.read<ProductGuidedCreateCubit>().setStep(2),
+            child: Container(
+              padding: const EdgeInsets.all(VSpacing.space3),
+              decoration: BoxDecoration(
+                color: dynamicColors.warningBg,
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: dynamicColors.warning.withValues(alpha: 0.3)),
+              ),
+              child: Text(
+                'Cần thiết lập đơn vị cơ sở ở bước trước rồi mới nhập được khung giá bán.',
+                style: VTypography.bodyDefault.copyWith(
+                  color: dynamicColors.warning,
+                ),
               ),
             ),
           ),

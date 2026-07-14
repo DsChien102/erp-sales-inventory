@@ -38,8 +38,7 @@ class _EditStorePriceRulePageState extends State<EditStorePriceRulePage> {
       text: rule != null ? (rule.listMarkupRatio * 100).toStringAsFixed(1) : '',
     );
     _floorMarkupController = TextEditingController(
-      text:
-          rule != null ? (rule.floorMarkupRatio * 100).toStringAsFixed(1) : '',
+      text: rule != null ? (rule.floorMarkupRatio * 100).toStringAsFixed(1) : '',
     );
     _basePriceExampleController = TextEditingController(
       text: formatCatalogCurrencyAmount(_defaultExampleBasePrice) ?? '',
@@ -101,8 +100,7 @@ class _EditStorePriceRulePageState extends State<EditStorePriceRulePage> {
         moduleMediator: GetIt.instance<ICatalogModule>(),
         executionContext: GetIt.instance<IExecutionContext>(),
       ),
-      child: BlocConsumer<StorePriceRuleSettingsCubit,
-          StorePriceRuleSettingsState>(
+      child: BlocConsumer<StorePriceRuleSettingsCubit, StorePriceRuleSettingsState>(
         listener: (context, state) {
           if (state is StorePriceRuleSettingsError) {
             VToast.show(
@@ -184,20 +182,20 @@ class _EditStorePriceRulePageState extends State<EditStorePriceRulePage> {
     return Container(
       padding: const EdgeInsets.all(VSpacing.space3),
       decoration: BoxDecoration(
-        color: colors.surfaceBrand,
+        color: colors.warningBg,
+        border: Border.all(color: colors.warning.withValues(alpha: 0.3)),
         borderRadius: BorderRadius.circular(VRadius.r12),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.info_outline, size: 18, color: colors.primary),
+          Icon(Icons.info_outline, size: 18, color: colors.warning),
           const SizedBox(width: VSpacing.space2),
           Expanded(
             child: Text.rich(
               TextSpan(
                 children: [
-                  const TextSpan(
-                      text: 'Tỷ lệ dưới đây sẽ được áp dụng cho mọi đơn vị chọn '),
+                  const TextSpan(text: 'Tỷ lệ dưới đây sẽ được áp dụng cho mọi đơn vị chọn '),
                   TextSpan(
                     text: '"Theo khung giá cửa hàng"',
                     style: const TextStyle(fontWeight: FontWeight.w700),
@@ -206,7 +204,7 @@ class _EditStorePriceRulePageState extends State<EditStorePriceRulePage> {
                 ],
               ),
               style: VTypography.bodySmall.copyWith(
-                color: colors.textPrimary,
+                color: colors.warning,
               ),
             ),
           ),
@@ -241,8 +239,7 @@ class _EditStorePriceRulePageState extends State<EditStorePriceRulePage> {
             Expanded(
               child: TextField(
                 controller: controller,
-                keyboardType:
-                    const TextInputType.numberWithOptions(decimal: true),
+                keyboardType: const TextInputType.numberWithOptions(decimal: true),
                 inputFormatters: [
                   FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*')),
                 ],

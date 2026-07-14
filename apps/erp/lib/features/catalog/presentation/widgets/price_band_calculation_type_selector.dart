@@ -326,7 +326,9 @@ class _PriceBandCalculationTypeSelectorState extends State<PriceBandCalculationT
     required int? calculatedPrice,
     required ValueChanged<double?> onChanged,
   }) {
-    final priceStr = calculatedPrice != null && calculatedPrice > 0 ? '$calculatedPrice đ' : '—';
+    final priceStr = calculatedPrice != null && calculatedPrice > 0
+        ? formatCatalogCurrency(calculatedPrice)
+        : '—';
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -396,7 +398,7 @@ class _PriceBandCalculationTypeSelectorState extends State<PriceBandCalculationT
       children: [
         Text(label, style: VTypography.bodyDefault),
         Text(
-          price != null ? '$price đ' : '—',
+          price != null ? formatCatalogCurrency(price) : '—',
           style: VTypography.bodyDefault.copyWith(fontWeight: FontWeight.bold),
         ),
       ],

@@ -9,11 +9,14 @@ String? formatCatalogCurrencyAmount(num? value) {
 
 /// Formats catalog money for display — round to nearest đồng, thousand separators.
 /// Matches Product Control Center / detail price labels (e.g. `115.000 đ`).
-String formatCatalogCurrency(double? value) {
+String formatCatalogCurrency(num? value) {
   final amount = formatCatalogCurrencyAmount(value);
   if (amount == null) return '--';
   return '$amount đ';
 }
 
 /// Parses a money display/input string (accepts `.` and `,` thousand separators).
-int? parseCatalogCurrencyAmount(String text) => VMoneyValidator.parse(text);
+int? parseCatalogCurrencyAmount(String text) {
+  final cleanText = text.replaceAll('.', '').replaceAll(',', '');
+  return int.tryParse(cleanText);
+}

@@ -277,7 +277,7 @@ class ProductPriceBandsPage extends StatelessWidget {
           ),
         ),
         Text(
-          price != null ? '${price.round()} đ' : '—',
+          price != null ? formatCatalogCurrency(price) : '—',
           style: VTypography.bodyDefault.copyWith(
             color: context.vColors.textPrimary,
           ),

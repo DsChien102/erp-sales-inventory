@@ -29,30 +29,14 @@ class ProductListItemTile extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
-                  children: [
-                    Flexible(
-                      child: Text(
-                        item.name,
-                        style: VTypography.bodyDefault.copyWith(
-                          color: dynamicColors.textPrimary,
-                          fontWeight: FontWeight.w600,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                    if (item.sku != null && item.sku!.isNotEmpty)
-                      Text(
-                        ' - ${item.sku}',
-                        style: VTypography.bodyDefault.copyWith(
-                          color: dynamicColors.textPrimary,
-                          fontWeight: FontWeight.w600,
-                        ),
-                        maxLines: 1,
-                        softWrap: false,
-                      ),
-                  ],
+                Text(
+                  item.name,
+                  style: VTypography.bodyDefault.copyWith(
+                    color: dynamicColors.textPrimary,
+                    fontWeight: FontWeight.w600,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
                 if (item.isSoftDeleted) ...[
                   const SizedBox(height: 4),
@@ -160,7 +144,7 @@ class ProductListItemTile extends StatelessWidget {
   Widget _buildPriceInfo(dynamic colors) {
     if (item.listBeforeVat != null) {
       return Text(
-        '${item.listBeforeVat}đ',
+        formatCatalogCurrency(item.listBeforeVat),
         style: VTypography.bodyDefault.copyWith(
           color: colors.textPrimary,
           fontWeight: FontWeight.w700,

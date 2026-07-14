@@ -69,11 +69,16 @@ class ProductGuidedFields {
   }) {
     final dynamicColors = context.vColors;
     final cubit = context.read<ProductGuidedCreateCubit>();
+    final state = cubit.state;
+    final isLastStep = state.activeStepIndex == state.stepCount - 1;
+
+    final actualShowSkip = isLastStep ? false : showSkip;
+    final actualShowNext = isLastStep ? false : showNext;
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        if (showSkip)
+        if (actualShowSkip)
           TextButton(
             key: skipKey,
             onPressed: onSkip ?? cubit.nextStep,
@@ -84,7 +89,7 @@ class ProductGuidedFields {
           )
         else
           const SizedBox.shrink(),
-        if (showNext)
+        if (actualShowNext)
           VButton(
             key: nextKey,
             label: 'Tiếp',

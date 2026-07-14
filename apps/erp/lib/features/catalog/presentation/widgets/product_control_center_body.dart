@@ -109,7 +109,7 @@ class ProductControlCenterBody extends StatelessWidget {
                     ? null
                     : controlCenter.basePrice.canEdit
                     ? () => _openManualBasePrice(context, controlCenter)
-                    : () => _showEditPlaceholder(context),
+                    : null,
                 onEditPriceBand: isSoftDeleted ? null : () => _openPriceBands(context),
               ),
               ProductControlCenterCustomFieldsSection(

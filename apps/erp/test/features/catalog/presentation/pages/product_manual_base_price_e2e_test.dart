@@ -74,7 +74,7 @@ void main() {
 
     expect(find.byKey(const Key('wgt_e01_u02_fr01_01')), findsOneWidget);
     expect(find.text('Giá cơ sở'), findsOneWidget);
-    expect(find.textContaining('80.000 đ'), findsWidgets);
+    expect(find.textContaining('80,000 đ'), findsWidgets);
     expect(find.text('Sửa'), findsWidgets);
   });
 
@@ -118,7 +118,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byKey(const Key('wgt_e06_u01_fr01_01')), findsNothing);
-    expect(find.textContaining('45.000 đ'), findsWidgets);
+    expect(find.textContaining('45,000 đ'), findsWidgets);
     expect(find.textContaining('Thiếu Giá cơ sở định giá'), findsNothing);
   });
 
@@ -150,6 +150,8 @@ void main() {
 
     await createMinimalProduct(tester, name: 'Thuốc readiness giá', baseUnit: 'Vỉ');
     await tester.pumpAndSettle();
+    ScaffoldMessenger.of(tester.element(find.byType(ProductControlCenterPage).first)).clearSnackBars();
+    await tester.pumpAndSettle();
 
     expect(find.textContaining('Thiếu Giá cơ sở định giá'), findsWidgets);
 
@@ -159,7 +161,7 @@ void main() {
     await tester.tap(find.byKey(const Key('btn_manual_base_price_save')));
     await tester.pumpAndSettle();
 
-    expect(find.textContaining('25.000 đ'), findsWidgets);
+    expect(find.textContaining('25,000 đ'), findsWidgets);
     expect(find.textContaining('Thiếu Giá cơ sở định giá'), findsNothing);
   });
 }

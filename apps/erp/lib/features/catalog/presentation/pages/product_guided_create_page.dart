@@ -31,51 +31,52 @@ class _ProductGuidedCreateView extends StatelessWidget {
     final dynamicColors = context.vColors;
 
     return BlocListener<ProductGuidedCreateCubit, ProductGuidedCreateState>(
-        listenWhen: (prev, curr) => prev.status != curr.status,
-        listener: (context, state) {
-          if (state.status == ProductGuidedCreateStatus.success && state.createdProduct != null) {
-            VToast.show(
-              context,
-              title: 'Thành công',
-              message: 'Sản phẩm đã được khởi tạo!',
-              type: VToastType.success,
-            );
-            context.pop(state.createdProduct!);
-          } else if (state.status == ProductGuidedCreateStatus.error &&
-              state.errorMessage != null &&
-              !state.hasDuplicateError) {
-            VToast.show(
-              context,
-              title: 'Lỗi',
-              message: state.errorMessage!,
-              type: VToastType.danger,
-            );
-          }
-        },
-        child: Scaffold(
-          key: const Key('wgt_e02_u01_fr01_01'),
-          backgroundColor: dynamicColors.surface,
-          appBar: VAppBar(
-            title: 'Tạo nhanh sản phẩm',
-            leading: IconButton(
-              icon: Icon(Icons.arrow_back, color: dynamicColors.textPrimary),
-              onPressed: () => context.pop(),
-            ),
-          ),
-          body: ProductGuidedCreateBody(
-            onCancel: () => context.pop(),
-            onOpenDuplicateProduct: (productId, productName) {
-              final product = CatalogUiMapper.minimalFromDuplicate(
-                productId: productId,
-                productName: productName,
-              );
-              context.push(
-                '/products/items/pcc',
-                extra: ProductControlCenterRouteArgs(product: product),
-              );
-            },
+      listenWhen: (prev, curr) => prev.status != curr.status,
+      listener: (context, state) {
+        if (state.status == ProductGuidedCreateStatus.success && state.createdProduct != null) {
+          VToast.show(
+            context,
+            title: 'Thành công',
+            message: 'Sản phẩm đã được khởi tạo!',
+            type: VToastType.success,
+          );
+          context.pop(state.createdProduct!);
+        } else if (state.status == ProductGuidedCreateStatus.error &&
+            state.errorMessage != null &&
+            !state.hasDuplicateError) {
+          VToast.show(
+            context,
+            title: 'Lỗi',
+            message: state.errorMessage!,
+            type: VToastType.danger,
+          );
+        }
+      },
+      child: Scaffold(
+        key: const Key('wgt_e02_u01_fr01_01'),
+        backgroundColor: dynamicColors.surface,
+        resizeToAvoidBottomInset: false,
+        appBar: VAppBar(
+          title: 'Tạo nhanh sản phẩm',
+          leading: IconButton(
+            icon: Icon(Icons.arrow_back, color: dynamicColors.textPrimary),
+            onPressed: () => context.pop(),
           ),
         ),
+        body: ProductGuidedCreateBody(
+          onCancel: () => context.pop(),
+          onOpenDuplicateProduct: (productId, productName) {
+            final product = CatalogUiMapper.minimalFromDuplicate(
+              productId: productId,
+              productName: productName,
+            );
+            context.push(
+              '/products/items/pcc',
+              extra: ProductControlCenterRouteArgs(product: product),
+            );
+          },
+        ),
+      ),
     );
   }
 }
