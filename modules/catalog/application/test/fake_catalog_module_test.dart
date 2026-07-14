@@ -2702,6 +2702,10 @@ void main() {
       expect(result.rows, hasLength(2));
       expect(result.rows.map((row) => row.unitName), containsAll(['Lọ', 'Hộp']));
       expect(result.rows.every((row) => row.isMissing), isTrue);
+      expect(result.basePrice, 10000);
+      final byName = {for (final row in result.rows) row.unitName: row};
+      expect(byName['Lọ']!.basePrice, 10000);
+      expect(byName['Hộp']!.basePrice, 100000); // 10 × base unit
     });
 
     test('scn_contract_e06_u03_fr01_04 rejects inactive unit', () async {

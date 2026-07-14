@@ -135,19 +135,37 @@ abstract final class ProductPriceBandRpcMapper {
     final productId = first['product_id'] as String;
     final baseUnitName = first['base_unit_name'] as String? ?? '';
     final currency = first['currency'] as String? ?? 'VND';
-    final basePrice = _readOptionalDouble(first, const [
-      'base_price',
-      'base_price_after_vat',
-      'base_price_amount',
-    ]);
+    final basePricePerBaseUnit = _readOptionalDouble(first, const [
+          'base_price_per_base_unit',
+          'base_price_amount',
+        ]) ??
+        _basePricePerBaseUnitFromRows(rows);
 
     return ProductUnitPriceBandsDto(
       productId: productId,
       baseUnitName: baseUnitName,
       currency: currency,
-      basePrice: basePrice,
+      basePrice: basePricePerBaseUnit,
       rows: rows.map(rowFromListRpc).toList(growable: false),
     );
+  }
+
+  static double? _basePricePerBaseUnitFromRows(List<Map<String, dynamic>> rows) {
+    for (final row in rows) {
+      if (row['is_base_unit'] == true) {
+        return _readOptionalDouble(row, const [
+              'base_price_per_base_unit',
+              'base_price',
+              'base_price_after_vat',
+              'base_price_amount',
+            ]);
+      }
+    }
+    return _readOptionalDouble(rows.first, const [
+      'base_price',
+      'base_price_after_vat',
+      'base_price_amount',
+    ]);
   }
 
   static int? _readOptionalPrice(
@@ -218,12 +236,18 @@ abstract final class ProductPriceBandRpcMapper {
     ]);
     final isMissing = listBeforeVat == null || listAfterVat == null;
     final statusRaw = row['status'] as String? ?? row['price_band_status'] as String?;
+    final basePrice = _readOptionalDouble(row, const [
+      'base_price',
+      'base_price_after_vat',
+      'base_price_amount',
+    ]);
 
     return ProductUnitPriceBandRowDto(
       productUnitId: row['product_unit_id'] as String,
       unitName: row['unit_name'] as String,
       isBaseUnit: row['is_base_unit'] as bool? ?? false,
       isActive: row['is_active'] as bool? ?? true,
+      basePrice: basePrice,
       listBeforeVat: listBeforeVat,
       floorBeforeVat: floorBeforeVat,
       listAfterVat: listAfterVat,

@@ -733,6 +733,7 @@ Read path (PCC): `GetProductControlCenterQuery` → `ProductPriceBandCardDto` ex
 
 - Foundation MVP: **1 Store Price Rule per tenant** (`GetStorePriceRuleQuery` returns `null` or single rule). Multi-rule list + EC-04 deferred.
 - Formula (markup): `suggestedListPrice = round(basePrice × (1 + listMarkupRatio))`, `suggestedFloorPrice = round(basePrice × (1 + floorMarkupRatio))`; `floor ≤ list`.
+- `basePrice` in suggest/apply/list **per selling unit** = `base_price_after_vat × conversion_rate_to_base` (rate `1` for base unit). List also returns `base_price_per_base_unit` (unscaled).
 - Suggestion is **preview only** (FR-02 BR-02); persist via `ApplyStorePriceRuleCommand` or manual `SetProductUnitPriceBandCommand` (§EPIC-06/US-03).
 - `SetInitialPriceBandCommand.useStoreRule` is **deprecated** — use `SuggestProductUnitPriceQuery` + `ApplyStorePriceRuleCommand` instead.
 - Multi-UOM suggestion per conversion unit: see `SuggestProductUnitPriceQuery` with `productUnitId`; manual persist per unit via §EPIC-06/US-03.
@@ -882,7 +883,7 @@ Drafts: [`001_catalog_patch_price_band_vat_effective_schema.sql`](../../../../su
 | ----------- | ------- | ------------- |
 | `scn_contract_e06_u03_fr01_01` | `SetProductUnitPriceBandCommand` `product-4` | band saved + readiness updated |
 | `scn_contract_e06_u03_fr01_02` | floor > list | `FloorPriceGreaterThanListPriceException` |
-| `scn_contract_e06_u03_fr01_03` | `ListProductUnitPriceBandsQuery` `product-9` | 2 rows Lọ/Hộp, both missing |
+| `scn_contract_e06_u03_fr01_03` | `ListProductUnitPriceBandsQuery` `product-9` | 2 rows Lọ/Hộp, both missing; Hộp `basePrice` = 10× Lọ |
 | `scn_contract_e06_u03_fr01_04` | set on inactive unit `product-1-unit-thung` | `InactiveProductUnitException` |
 | `scn_contract_e06_u03_fr02_01` | list < base on `product-11`, no confirm | `PriceBandWarningsRequireAcknowledgmentException` |
 | `scn_contract_e06_u03_fr02_02` | same with `confirmAcknowledgeWarnings=true` | success + warnings |
