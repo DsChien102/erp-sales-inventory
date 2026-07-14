@@ -1,0 +1,310 @@
+-- Title: catalog patch product readiness facts denorm schema
+-- Kind: patch
+-- Intent: catalog_product_readiness_facts_denorm
+-- Context: TH-02 / EPIC-01 — denormalize operational facts onto products for cheap readiness filter in search
+-- Touches: _refresh_product_operational_facts, _trg_product_units_refresh_operational_facts, _trg_product_images_refresh_operational_facts, _trg_product_stock_profiles_refresh_operational_facts, _trg_product_base_price_profiles_refresh_operational_facts, _trg_product_unit_price_bands_refresh_operational_facts, _trg_product_custom_field_values_refresh_operational_facts, _trg_custom_fields_refresh_operational_facts
+-- Safety: idempotent ; medium — backfill fact columns + indexes
+-- Depends on: 002_catalog_patch_product_typeahead_search_rpcs.sql
+
+-- ---------------------------------------------------------------------------
+-- 1) Denormalized fact columns on catalog.products
+-- ---------------------------------------------------------------------------
+
+alter table catalog.products
+  add column if not exists fact_has_base_unit boolean not null default false,
+  add column if not exists fact_has_images boolean not null default false,
+  add column if not exists fact_has_stock boolean not null default false,
+  add column if not exists fact_has_base_price boolean not null default false,
+  add column if not exists fact_has_price_band boolean not null default false,
+  add column if not exists fact_has_required_custom_fields boolean not null default true,
+  add column if not exists fact_stock_mode text not null default 'basic',
+  add column if not exists fact_base_price_mode text not null default 'manual',
+  add column if not exists is_ready_to_sell boolean not null default false;
+
+create index if not exists idx_products_tenant_ready_updated
+  on catalog.products (tenant_id, business_status, updated_at desc)
+  where is_ready_to_sell;
+
+create index if not exists idx_products_tenant_incomplete_updated
+  on catalog.products (tenant_id, business_status, updated_at desc)
+  where not is_ready_to_sell;
+
+-- ---------------------------------------------------------------------------
+-- 2) Refresh from _product_operational_facts + _product_readiness_is_ready
+-- ---------------------------------------------------------------------------
+
+create or replace function catalog._refresh_product_operational_facts(
+  p_tenant_id uuid,
+  p_product_id uuid
+)
+returns void
+language plpgsql
+security definer
+set search_path = catalog, pg_temp
+as $$
+begin
+  update catalog.products p
+  set
+    fact_has_base_unit = f.has_base_unit,
+    fact_has_images = f.has_images,
+    fact_has_stock = f.has_stock,
+    fact_has_base_price = f.has_base_price,
+    fact_has_price_band = f.has_price_band,
+    fact_has_required_custom_fields = f.has_required_custom_fields,
+    fact_stock_mode = f.stock_mode,
+    fact_base_price_mode = f.base_price_mode,
+    is_ready_to_sell = catalog._product_readiness_is_ready(
+      f.has_base_unit,
+      f.has_images,
+      f.has_stock,
+      f.has_base_price,
+      f.has_price_band,
+      f.has_required_custom_fields,
+      f.stock_mode,
+      f.base_price_mode
+    )
+  from catalog._product_operational_facts(p_tenant_id, p_product_id) f
+  where p.id = p_product_id
+    and p.tenant_id = p_tenant_id;
+end;
+$$;
+
+-- ---------------------------------------------------------------------------
+-- 3) Trigger helpers
+-- ---------------------------------------------------------------------------
+
+create or replace function catalog._trg_product_units_refresh_operational_facts()
+returns trigger
+language plpgsql
+security definer
+set search_path = catalog, pg_temp
+as $$
+declare
+  v_tenant_id uuid;
+  v_product_id uuid;
+begin
+  if tg_op = 'DELETE' then
+    v_tenant_id := old.tenant_id;
+    v_product_id := old.product_id;
+  else
+    v_tenant_id := new.tenant_id;
+    v_product_id := new.product_id;
+  end if;
+
+  perform catalog._refresh_product_operational_facts(v_tenant_id, v_product_id);
+  return coalesce(new, old);
+end;
+$$;
+
+create or replace function catalog._trg_product_images_refresh_operational_facts()
+returns trigger
+language plpgsql
+security definer
+set search_path = catalog, pg_temp
+as $$
+declare
+  v_tenant_id uuid;
+  v_product_id uuid;
+begin
+  if tg_op = 'DELETE' then
+    v_tenant_id := old.tenant_id;
+    v_product_id := old.product_id;
+  else
+    v_tenant_id := new.tenant_id;
+    v_product_id := new.product_id;
+  end if;
+
+  perform catalog._refresh_product_operational_facts(v_tenant_id, v_product_id);
+  return coalesce(new, old);
+end;
+$$;
+
+create or replace function catalog._trg_product_stock_profiles_refresh_operational_facts()
+returns trigger
+language plpgsql
+security definer
+set search_path = catalog, pg_temp
+as $$
+declare
+  v_tenant_id uuid;
+  v_product_id uuid;
+begin
+  if tg_op = 'DELETE' then
+    v_tenant_id := old.tenant_id;
+    v_product_id := old.product_id;
+  else
+    v_tenant_id := new.tenant_id;
+    v_product_id := new.product_id;
+  end if;
+
+  perform catalog._refresh_product_operational_facts(v_tenant_id, v_product_id);
+  return coalesce(new, old);
+end;
+$$;
+
+create or replace function catalog._trg_product_base_price_profiles_refresh_operational_facts()
+returns trigger
+language plpgsql
+security definer
+set search_path = catalog, pg_temp
+as $$
+declare
+  v_tenant_id uuid;
+  v_product_id uuid;
+begin
+  if tg_op = 'DELETE' then
+    v_tenant_id := old.tenant_id;
+    v_product_id := old.product_id;
+  else
+    v_tenant_id := new.tenant_id;
+    v_product_id := new.product_id;
+  end if;
+
+  perform catalog._refresh_product_operational_facts(v_tenant_id, v_product_id);
+  return coalesce(new, old);
+end;
+$$;
+
+create or replace function catalog._trg_product_unit_price_bands_refresh_operational_facts()
+returns trigger
+language plpgsql
+security definer
+set search_path = catalog, pg_temp
+as $$
+declare
+  v_tenant_id uuid;
+  v_product_id uuid;
+begin
+  if tg_op = 'DELETE' then
+    v_tenant_id := old.tenant_id;
+    v_product_id := old.product_id;
+  else
+    v_tenant_id := new.tenant_id;
+    v_product_id := new.product_id;
+  end if;
+
+  perform catalog._refresh_product_operational_facts(v_tenant_id, v_product_id);
+  return coalesce(new, old);
+end;
+$$;
+
+create or replace function catalog._trg_product_custom_field_values_refresh_operational_facts()
+returns trigger
+language plpgsql
+security definer
+set search_path = catalog, pg_temp
+as $$
+declare
+  v_tenant_id uuid;
+  v_product_id uuid;
+begin
+  if tg_op = 'DELETE' then
+    v_tenant_id := old.tenant_id;
+    v_product_id := old.product_id;
+  else
+    v_tenant_id := new.tenant_id;
+    v_product_id := new.product_id;
+  end if;
+
+  perform catalog._refresh_product_operational_facts(v_tenant_id, v_product_id);
+  return coalesce(new, old);
+end;
+$$;
+
+create or replace function catalog._trg_custom_fields_refresh_operational_facts()
+returns trigger
+language plpgsql
+security definer
+set search_path = catalog, pg_temp
+as $$
+begin
+  -- is_required / status changes can flip has_required_custom_fields for every product in tenant.
+  if new.is_required is distinct from old.is_required
+    or new.status is distinct from old.status then
+    perform catalog._refresh_product_operational_facts(p.tenant_id, p.id)
+    from catalog.products p
+    where p.tenant_id = new.tenant_id;
+  end if;
+
+  return new;
+end;
+$$;
+
+-- ---------------------------------------------------------------------------
+-- 4) Attach triggers
+-- ---------------------------------------------------------------------------
+
+drop trigger if exists trg_product_units_refresh_operational_facts on catalog.product_units;
+create trigger trg_product_units_refresh_operational_facts
+  after insert or update or delete
+  on catalog.product_units
+  for each row
+  execute function catalog._trg_product_units_refresh_operational_facts();
+
+drop trigger if exists trg_product_images_refresh_operational_facts on catalog.product_images;
+create trigger trg_product_images_refresh_operational_facts
+  after insert or update or delete
+  on catalog.product_images
+  for each row
+  execute function catalog._trg_product_images_refresh_operational_facts();
+
+drop trigger if exists trg_product_stock_profiles_refresh_operational_facts
+  on catalog.product_stock_profiles;
+create trigger trg_product_stock_profiles_refresh_operational_facts
+  after insert or update or delete
+  on catalog.product_stock_profiles
+  for each row
+  execute function catalog._trg_product_stock_profiles_refresh_operational_facts();
+
+drop trigger if exists trg_product_base_price_profiles_refresh_operational_facts
+  on catalog.product_base_price_profiles;
+create trigger trg_product_base_price_profiles_refresh_operational_facts
+  after insert or update or delete
+  on catalog.product_base_price_profiles
+  for each row
+  execute function catalog._trg_product_base_price_profiles_refresh_operational_facts();
+
+drop trigger if exists trg_product_unit_price_bands_refresh_operational_facts
+  on catalog.product_unit_price_bands;
+create trigger trg_product_unit_price_bands_refresh_operational_facts
+  after insert or update or delete
+  on catalog.product_unit_price_bands
+  for each row
+  execute function catalog._trg_product_unit_price_bands_refresh_operational_facts();
+
+drop trigger if exists trg_product_custom_field_values_refresh_operational_facts
+  on catalog.product_custom_field_values;
+create trigger trg_product_custom_field_values_refresh_operational_facts
+  after insert or update or delete
+  on catalog.product_custom_field_values
+  for each row
+  execute function catalog._trg_product_custom_field_values_refresh_operational_facts();
+
+drop trigger if exists trg_custom_fields_refresh_operational_facts on catalog.custom_fields;
+create trigger trg_custom_fields_refresh_operational_facts
+  after update of is_required, status
+  on catalog.custom_fields
+  for each row
+  execute function catalog._trg_custom_fields_refresh_operational_facts();
+
+-- ---------------------------------------------------------------------------
+-- 5) Backfill
+-- ---------------------------------------------------------------------------
+
+do $$
+declare
+  r record;
+begin
+  for r in
+    select p.tenant_id, p.id
+    from catalog.products p
+  loop
+    perform catalog._refresh_product_operational_facts(r.tenant_id, r.id);
+  end loop;
+end;
+$$;
+
+revoke all on function catalog._refresh_product_operational_facts(uuid, uuid)
+  from public, anon;
+grant execute on function catalog._refresh_product_operational_facts(uuid, uuid)
+  to authenticated, service_role;

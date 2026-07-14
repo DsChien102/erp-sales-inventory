@@ -28,6 +28,7 @@ abstract final class FakeCatalogScenario {
   static const searchWithReadiness = 'search_with_readiness';
   static const searchRelevanceSort = 'search_relevance_sort';
   static const searchUnaccentVietnamese = 'search_unaccent_vietnamese';
+  static const searchContainsSingleChar = 'search_contains_single_char';
   static const barcodeExactMatch = 'barcode_exact_match';
   static const barcodeNotFound = 'barcode_not_found';
 

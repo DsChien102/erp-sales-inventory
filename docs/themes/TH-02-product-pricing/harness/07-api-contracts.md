@@ -252,15 +252,13 @@ Port: `ICatalogReadGateway.search`, `ICatalogReadGateway.findByBarcode`.
 
 **`catalog.search_products` params:** `p_tenant_id`, `p_keyword`, `p_business_statuses text[]`, `p_readiness_filter text`, `p_include_soft_deleted boolean`, `p_limit int`, `p_offset int`, `p_custom_field_filters jsonb` (EPIC-03), `p_sort_order text` default `updated_at_desc` (`updated_at_desc` \| `relevance_desc`)
 
-**Search engine:** PostgreSQL FTS trên `products.search_document` (`tsvector` + GIN) với `unaccent` + config `simple` (khớp không dấu tiếng Việt). Fast-path exact/prefix trên `sku`/`barcode` (cột đã inline-normalize: **SKU = trim + uppercase**, barcode = trim). Searchable custom fields (`text`/`singleSelect`) denormalize vào `search_document` (không correlated ILIKE mỗi row).
-
-Draft SQL (SKU uppercase): `supabase/migrations/_drafts/001_catalog_patch_sku_uppercase_normalize.sql`, `002_catalog_patch_sku_uppercase_search_products.sql`.
+**Search engine (typeahead):** khớp chính = contains trên `products.search_text` (`unaccent` + `lower`, GIN `pg_trgm`) — gõ 1 ký tự (vd. `N`) trả mọi SP có chứa chữ đó trong name/tradeName/sku/barcode/searchable CF. Fast-path exact/prefix SKU (SKU = trim + uppercase) + exact barcode. `search_document` (FTS) **chỉ** dùng cho `ts_rank_cd` khi `p_sort_order = relevance_desc`, không phải điều kiện khớp chính. Query two-phase: filter/sort/limit trên id rẻ → enrich image/price/CF list chỉ cho page. Readiness flags list (`has_*`, modes) và `p_readiness_filter` dùng cột denorm trên `products` (`fact_*`, `is_ready_to_sell`) — **không** gọi `_product_operational_facts` trên toàn bộ candidate (perf BR).
 
 **Sort:** luôn pin `active` trước `inactive` (kể cả khi `relevance_desc`). Khi `p_sort_order = relevance_desc` và có keyword → `ts_rank_cd` rồi `updated_at desc`, `name asc`. Khi không keyword / `updated_at_desc` → active-first rồi `updated_at desc`.
 
 **Response row:** list item fields + readiness facts + `custom_field_values jsonb` + `total_count`. Không expose `reference_id`.
 
-Canonical FTS migration: `20260712002_catalog_product_fts_search.sql`.
+Draft SQL: `supabase/migrations/_drafts/001_catalog_patch_product_typeahead_search_schema.sql`, `002_catalog_patch_product_typeahead_search_rpcs.sql`, `003_catalog_patch_product_readiness_facts_schema.sql`, `004_catalog_patch_product_search_readiness_filter.sql`.
 
 ### Fake scenarios (FE)
 
@@ -268,8 +266,11 @@ Canonical FTS migration: `20260712002_catalog_product_fts_search.sql`.
 | ----------- | ------- | ------------- |
 | `search_empty` | SearchProductsQuery | `items: []`, `totalCount: 0` |
 | `search_with_readiness` | SearchProductsQuery default | seed products với readiness đa dạng (ready + incomplete) |
+| `search_filters_ready_to_sell` | SearchProductsQuery `readinessFilter=readyToSell` | chỉ products `readyToSell` |
+| `search_filters_incomplete` | SearchProductsQuery `readinessFilter=incomplete` | chỉ products incomplete |
 | `search_relevance_sort` | SearchProductsQuery keyword + `sortOrder=relevanceDesc` | active trước inactive; approximate rank (name match trước sku) |
 | `search_unaccent_vietnamese` | SearchProductsQuery keyword không dấu (vd. `amoxicilin`) | khớp sản phẩm tên có dấu (`Amoxicillin`) |
+| `search_contains_single_char` | SearchProductsQuery keyword `n` | trả Amoxicillin (contains trong tên) |
 | `barcode_exact_match` | ScanBarcodeQuery known barcode | single `ProductListItemDto` |
 | `barcode_not_found` | ScanBarcodeQuery unknown | `null` |
 
@@ -1439,7 +1440,7 @@ Supporting types:
 
 Permissions: list/search/filter uses `@RequiresPermission(CatalogPermissions.view)`; snapshot query uses `@RequiresPermission(CatalogPermissions.viewDetail)`; all use `@RequiresTenant()`.
 
-Search behavior: `SearchProductsQuery.criteria.keyword` matches product name/tradeName/sku/barcode plus active searchable custom fields. Foundation supports `text` and `singleSelect` searchable fields. BE engine: FTS + `unaccent` on denormalized `search_document` (see EPIC-01); `p_sort_order=relevance_desc` ranks by FTS relevance while keeping inactive pinned after active. Fake ranking is approximate only.
+Search behavior: `SearchProductsQuery.criteria.keyword` matches product name/tradeName/sku/barcode plus active searchable custom fields. Foundation supports `text` and `singleSelect` searchable fields. BE engine: typeahead contains trên `search_text` (`unaccent` + `pg_trgm`); FTS `search_document` chỉ rank khi `p_sort_order=relevance_desc` (xem EPIC-01). `p_readiness_filter` dùng denorm `products.is_ready_to_sell` (không N+1 `_product_operational_facts` trên candidate). Inactive vẫn pin sau active. Fake ranking is approximate only.
 
 Filter behavior: `ProductSearchCriteria.customFieldFilters` matches active filterable fields. Foundation supports exact `singleSelect` option filters and exact boolean filters; text filters may be accepted by contract but BE can return no options for text-heavy fields to avoid noisy panels.
 
@@ -1453,7 +1454,7 @@ FR-04 behavior: `GetProductCustomFieldSnapshotQuery` returns current product-own
 | Filter option metadata | `catalog.list_custom_field_filter_options` |
 | Product custom field snapshot/current values | `catalog.get_product_custom_field_snapshot` |
 
-`search_products` extended params: `p_custom_field_filters jsonb` (array of `{field_id, option_id?, boolean_value?}`), `p_sort_order text` (`updated_at_desc` \| `relevance_desc`). Response adds `custom_field_values jsonb` array per row (`field_id`, `group_id`, `group_name`, `field_name`, `field_type`, `display_value`, `sort_order`). Keyword search uses FTS document (includes searchable CF display values); filter path vẫn exact via `_product_matches_custom_field_filters`.
+`search_products` extended params: `p_custom_field_filters jsonb` (array of `{field_id, option_id?, boolean_value?}`), `p_sort_order text` (`updated_at_desc` \| `relevance_desc`). Response adds `custom_field_values jsonb` array per row (`field_id`, `group_id`, `group_name`, `field_name`, `field_type`, `display_value`, `sort_order`). Keyword search = contains trên `search_text` (gồm searchable CF display values); FTS chỉ rank; filter path vẫn exact via `_product_matches_custom_field_filters`.
 
 `list_custom_field_filter_options` returns jsonb array of filter metadata (`field_id`, `group_id`, `group_name`, `field_name`, `field_type`, `options[]`, `sort_order`).
 
