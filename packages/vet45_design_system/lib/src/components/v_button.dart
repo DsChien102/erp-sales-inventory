@@ -15,6 +15,7 @@ class VButton extends StatelessWidget {
   final VoidCallback? onPressed;
   final bool isLoading;
   final Widget? leadingIcon;
+  final Widget? trailingIcon;
   final bool fullWidth;
   final VButtonVariant variant;
   final VButtonSize size;
@@ -30,6 +31,7 @@ class VButton extends StatelessWidget {
     this.onPressed,
     this.isLoading = false,
     this.leadingIcon,
+    this.trailingIcon,
     this.fullWidth = false,
     this.variant = VButtonVariant.primary,
     this.size = VButtonSize.medium,
@@ -231,6 +233,10 @@ class VButton extends StatelessWidget {
                   maxLines: 1,
                 ),
         ),
+        if (!isLoading && trailingIcon != null) ...[
+          const SizedBox(width: VSpacing.space2),
+          trailingIcon!,
+        ],
       ],
     );
 

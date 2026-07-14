@@ -1,10 +1,16 @@
 # TH-03 — API contracts (FE ↔ BE) v2
 
-Source of truth giữa presentation và application layer. Types sẽ live in `modules/partner/application/` (chưa tạo).
+Source of truth giữa presentation và application layer. Types live in `modules/partner/application/`.
 
-Facade: `IPartnerModule` (planned).
+Facade: `IPartnerModule` — `modules/partner/application/lib/src/contracts/i_partner_module.dart`.
 
-**Reboot 2026-07-07:** Contracts dưới đây là **planned** — map từ Theme spec CMD-01..13. FE fake theo contract này qua `FakePartnerModule` (chưa tạo).
+**CONTRACT lane 2026-07-10:** Commands/queries/DTOs implemented; FE fake qua `FakePartnerModule` (`modules/partner/application/lib/testing.dart`).
+
+**BE lane 2026-07-10:** Domain aggregate, handlers, gateways, `PartnerStartup`, codegen `generated/*.g.dart`; draft SQL `supabase/migrations/_drafts/partner_v2_*.sql` (chưa promote migration; có thể apply thủ công qua SQL editor).
+
+**E2E lane 2026-07-10:** ERP `PartnerStartup` wired trong `apps/erp/lib/core/di/injection.dart`; integration tests `e2e_e01_u02_fr06_01` (create), `e2e_e01_u04_fr01_01` (detail), `e2e_e01_u03_fr01_01` (update) qua mediator + RPC test double / ERP UI.
+
+**E2E lane 2026-07-11:** S7/S8 — `e2e_e02_u01_fr01_01` (deactivate/reactivate), `e2e_e02_u02_fr01_01` (eligibility + soft delete); ERP `partner_status_lifecycle_e2e_test`.
 
 **Access control:** `@RequiresPermission(PartnerPermissions.*)` + `@RequiresTenant()`; codegen emit `partner_access_metadata.g.dart`.
 
@@ -40,15 +46,17 @@ Facade: `IPartnerModule` (planned).
 
 | Symbol | Input (summary) | Success | Errors |
 | ------ | --------------- | ------- | ------ |
-| `CreatePartnerCommand` | tenantId, actorId, partnerType, roles[], personProfile \| organizationProfile, confirmDuplicate | `CreatePartnerResult` (partnerId, warnings[]) | VALIDATION_ERROR, DUPLICATE_WARNING, NO_PERMISSION |
-| `CheckDuplicatePartnersQuery` | tenantId, phone?, email?, taxCode?, name? | `List<PartnerDuplicateMatchDto>` | NO_PERMISSION |
+| `CreatePartnerCommand` | tenantId, actorId, partnerType, roles[], personProfile \| organizationProfile, organizationPrimaryContact?, confirmDuplicate | `CreatePartnerResult` (partnerId, warnings[]) | VALIDATION_ERROR, DUPLICATE_WARNING, NO_PERMISSION |
 
-### RPC mapping (BE)
+Khi `organizationPrimaryContact` có giá trị, presentation và RPC chỉ kiểm tra trùng SĐT/email trong tenant, không so khớp tên. Sau đó `partner.create_partner` tạo nguyên tử Organization, một Person chưa có vai trò giao dịch và liên kết `organization_contacts` với `contact_role=primary`, `is_primary=true`. Nếu phát hiện trùng mà chưa xác nhận, hoặc nếu tạo Person/liên kết thất bại, toàn bộ transaction rollback.
+| `CheckDuplicatePartnersQuery` | tenantId, phone?, email?, taxCode?, name? | `List<PartnerDuplicateMatchDto>` (`matchLevel`: possible/exact — **derive** từ `matched_field`: phone/email/taxCode → exact, name → possible) | NO_PERMISSION |
 
-| Use case | RPC |
-| -------- | --- |
-| Create | `partner.create_partner` |
-| Dup check | `partner.check_duplicate` |
+### RPC mapping (BE) — drafted
+
+| Use case | RPC | Status |
+| -------- | --- | ------ |
+| Create | `partner.create_partner` | drafted |
+| Dup check | `partner.check_duplicate` | drafted |
 
 ### Fake scenarios (FE)
 
@@ -57,6 +65,7 @@ Facade: `IPartnerModule` (planned).
 | `create_person_ok` | CreatePartnerCommand person | `CreatePartnerResult(partnerId: 'p-new-1')` |
 | `create_organization_ok` | CreatePartnerCommand organization | `CreatePartnerResult(partnerId: 'p-new-2')` |
 | `create_dup_warning` | CheckDuplicatePartnersQuery | non-empty duplicate list |
+| `create_exact_duplicate` | CheckDuplicatePartnersQuery | exact duplicate; không cho tiếp tục tạo |
 | `create_dup_confirmed` | confirmDuplicate=true | `CreatePartnerResult` |
 | `create_validation_error` | invalid payload | VALIDATION_ERROR |
 | `create_permission_denied` | no partner.create | NO_PERMISSION |
@@ -67,9 +76,16 @@ Facade: `IPartnerModule` (planned).
 
 | Symbol | Input | Success | Errors |
 | ------ | ----- | ------- | ------ |
-| `SearchPartnersQuery` | tenantId, q?, partnerType?, role?, status?, page, limit, sort | `PartnerSearchResultDto` | NO_PERMISSION |
+| `SearchPartnersQuery` | tenantId, q?, partnerType?, role?, requireBothRoles, status?, updatedWithinDays? (7\|30), page, limit, sort | `PartnerSearchResultDto` | NO_PERMISSION, VALIDATION_ERROR |
 
 RPC: `partner.search_partners` / `partner.v_partner_list`
+
+`status=null` nghĩa là lấy cả `active` và `inactive` (không lấy `deleted`), áp dụng cả khi có từ khóa tìm kiếm. Kết quả `inactive` luôn được xếp sau `active` trước khi áp dụng thứ tự phụ do `sort` chỉ định.
+
+`p_query` matches (ilike): `display_name`, `phone`, `email`, `tax_code` (MST).
+If `p_query` contains `@`, search **email only**.
+`p_updated_within_days` accepts `7` or `30` and filters by server time: `updated_at >= now() - interval`.
+`requireBothRoles=true` maps thành `p_role=both`; RPC lọc đủ `customer` và `supplier` trước khi tính `total` và phân trang.
 
 | scenario_id | trigger | fake response |
 | ----------- | ------- | ------------- |
@@ -110,10 +126,19 @@ RPC: `partner.update_partner`
 | Symbol | Input | Success | Errors |
 | ------ | ----- | ------- | ------ |
 | `AddOrganizationContactCommand` | organizationPartnerId, personPartnerId \| newPersonProfile, contactRole?, isPrimary | `AddOrganizationContactResult` | VALIDATION_ERROR, NO_PERMISSION |
-| `UpdateOrganizationContactCommand` | organizationPartnerId, personPartnerId, contactRole?, isPrimary | void / result | VALIDATION_ERROR |
+| `UpdateOrganizationContactCommand` | organizationPartnerId, personPartnerId, contactRole?, isPrimary?, note?, **personProfile?** | void | VALIDATION_ERROR, NOT_FOUND |
 | `RemoveOrganizationContactCommand` | organizationPartnerId, personPartnerId | void | NOT_FOUND |
 
 RPC: `partner.add_organization_contact`, `partner.update_organization_contact`, `partner.remove_organization_contact`
+
+### FE UX (SG-04)
+
+| Event | UI contract |
+| ----- | ----------- |
+| Add/edit contact success | Pop form → parent `VToast.show` + reload contacts/detail |
+| Edit contact | Single `UpdateOrganizationContactCommand` (person fields + link) — **not** `UpdatePartnerProfileCommand` |
+
+RPC `update_organization_contact` params: `p_contact_role`, `p_is_primary`, `p_note`, `p_person_profile` (optional jsonb).
 
 ---
 

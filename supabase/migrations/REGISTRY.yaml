@@ -44,7 +44,7 @@ catalog:
   _product_maintenance_result_row: 20260709010_catalog_product_profile_maintenance.sql
   _product_matches_custom_field_filters: 20260709015_catalog_custom_field_search.sql
   _product_matches_custom_field_keyword: 20260709015_catalog_custom_field_search.sql
-  _product_operational_facts: 20260709014_catalog_custom_field_values.sql
+  _product_operational_facts: 20260713002_catalog_patch_base_price_vat.sql
   _product_readiness_is_ready: 20260709004_catalog_product_discovery.sql
   _product_readiness_summary_json: 20260709014_catalog_custom_field_values.sql
   _product_reference_id_from_uuid: 20260710001_catalog_product_reference_id.sql
@@ -64,23 +64,23 @@ catalog:
   _trg_products_refresh_search_document: 20260712002_catalog_product_fts_search.sql
   add_product_conversion_unit: 20260710004_catalog_patch_inline_normalize_units_rpcs.sql
   adjust_basic_stock: 20260712003_catalog_rename_basic_stock_quantity_base.sql
-  apply_store_price_rule: 20260709008_catalog_store_price_rule.sql
+  apply_store_price_rule: 20260713002_catalog_patch_base_price_vat.sql
   check_duplicate_measurement_unit_name: 20260710004_catalog_patch_inline_normalize_units_rpcs.sql
   check_duplicate_product_code: 20260710003_catalog_patch_inline_normalize_products_rpcs.sql
   check_product_deletion_eligibility: 20260712006_catalog_patch_business_status_soft_deleted_soft_delete_rpcs.sql
   configure_custom_field_attributes: 20260709013_catalog_custom_fields.sql
-  create_guided_product: 20260712003_catalog_rename_basic_stock_quantity_base.sql
-  create_product: 20260710003_catalog_patch_inline_normalize_products_rpcs.sql
+  create_guided_product: 20260713002_catalog_patch_base_price_vat.sql
+  create_product: 20260713002_catalog_patch_base_price_vat.sql
   deactivate_product: 20260712007_catalog_patch_business_status_soft_deleted_status_rpcs.sql
   deactivate_product_conversion_unit: 20260709005_catalog_units.sql
   delete_product: 20260712006_catalog_patch_business_status_soft_deleted_soft_delete_rpcs.sql
   delete_product_conversion_unit: 20260709023_catalog_delete_product_conversion_unit.sql
-  find_product_by_barcode: 20260712008_catalog_patch_business_status_soft_deleted_read_rpcs.sql
+  find_product_by_barcode: 20260713001_catalog_patch_price_band_vat_effective.sql
   get_product_change_history: 20260709021_catalog_change_history_summary_vi.sql
-  get_product_control_center: 20260712008_catalog_patch_business_status_soft_deleted_read_rpcs.sql
+  get_product_control_center: 20260713002_catalog_patch_base_price_vat.sql
   get_product_custom_field_snapshot: 20260709015_catalog_custom_field_search.sql
   get_product_custom_field_values: 20260709014_catalog_custom_field_values.sql
-  get_product_price_band_snapshot: 20260709016_catalog_product_price_band_snapshot.sql
+  get_product_price_band_snapshot: 20260713001_catalog_patch_price_band_vat_effective.sql
   get_product_readiness: 20260709003_catalog_product_readiness.sql
   get_product_stock_history: 20260709006_catalog_basic_stock.sql
   get_store_price_rule: 20260709008_catalog_store_price_rule.sql
@@ -88,7 +88,7 @@ catalog:
   initialize_custom_field_template: 20260710005_catalog_patch_inline_normalize_custom_fields_rpcs.sql
   list_custom_field_config: 20260709013_catalog_custom_fields.sql
   list_custom_field_filter_options: 20260709015_catalog_custom_field_search.sql
-  list_product_unit_price_bands: 20260709020_catalog_list_price_bands_base_price.sql
+  list_product_unit_price_bands: 20260713002_catalog_patch_base_price_vat.sql
   list_product_units: 20260709005_catalog_units.sql
   list_tenant_measurement_units: 20260710004_catalog_patch_inline_normalize_units_rpcs.sql
   reactivate_product: 20260712007_catalog_patch_business_status_soft_deleted_status_rpcs.sql
@@ -98,15 +98,15 @@ catalog:
   request_product_image_upload: 20260709001_catalog_guided_create.sql
   request_product_maintenance_image_upload: 20260709010_catalog_product_profile_maintenance.sql
   restore_product: 20260712006_catalog_patch_business_status_soft_deleted_soft_delete_rpcs.sql
-  search_products: 20260712011_catalog_patch_sku_uppercase_search_products.sql
+  search_products: 20260713001_catalog_patch_price_band_vat_effective.sql
   set_basic_stock_quantity_base: 20260712003_catalog_rename_basic_stock_quantity_base.sql
-  set_initial_price_band: 20260709005_catalog_units.sql
+  set_initial_price_band: 20260713001_catalog_patch_price_band_vat_effective.sql
   set_initial_stock: 20260709006_catalog_basic_stock.sql
-  set_manual_base_price: 20260709007_catalog_manual_base_price.sql
+  set_manual_base_price: 20260713002_catalog_patch_base_price_vat.sql
   set_product_base_unit: 20260710004_catalog_patch_inline_normalize_units_rpcs.sql
-  set_product_unit_price_band: 20260709009_catalog_product_unit_price_band.sql
+  set_product_unit_price_band: 20260713001_catalog_patch_price_band_vat_effective.sql
   set_store_price_rule: 20260709022_catalog_store_price_rule_change_history.sql
-  suggest_product_unit_price: 20260709008_catalog_store_price_rule.sql
+  suggest_product_unit_price: 20260713002_catalog_patch_base_price_vat.sql
   unaccent_immutable: 20260712002_catalog_product_fts_search.sql
   update_product_images: 20260709010_catalog_product_profile_maintenance.sql
   update_product_profile: 20260710003_catalog_patch_inline_normalize_products_rpcs.sql
@@ -121,6 +121,37 @@ iam:
   has_permission: 20260630000001_iam_foundation.sql
   list_tenant_members: 20260701000001_iam_tenant_membership_ops.sql
   list_user_tenants: 20260630000001_iam_foundation.sql
+
+partner:
+  _assert_actor: 20260714004_partner_v2_write_rpc.sql
+  _duplicate_warnings: 20260714004_partner_v2_write_rpc.sql
+  _guard_duplicates: 20260714004_partner_v2_write_rpc.sql
+  _insert_organization_profile: 20260714004_partner_v2_write_rpc.sql
+  _insert_person_profile: 20260714004_partner_v2_write_rpc.sql
+  _lock_partner: 20260714004_partner_v2_write_rpc.sql
+  _log_partner_action: 20260714004_partner_v2_write_rpc.sql
+  _partner_snapshot: 20260714004_partner_v2_write_rpc.sql
+  _profile_phone: 20260714001_partner_v2_schema.sql
+  _raise_partner_error: 20260714001_partner_v2_schema.sql
+  _tenant_member: 20260714001_partner_v2_schema.sql
+  _upsert_roles: 20260714004_partner_v2_write_rpc.sql
+  _validate_roles: 20260714004_partner_v2_write_rpc.sql
+  add_organization_contact: 20260714004_partner_v2_write_rpc.sql
+  check_delete_eligibility: 20260714003_partner_v2_read.sql
+  check_duplicate: 20260714003_partner_v2_read.sql
+  create_partner: 20260714004_partner_v2_write_rpc.sql
+  deactivate_partner: 20260714004_partner_v2_write_rpc.sql
+  enqueue_outbox_message: 20260714002_partner_v2_outbox.sql
+  get_partner_detail: 20260714003_partner_v2_read.sql
+  get_partner_history: 20260714003_partner_v2_read.sql
+  reactivate_partner: 20260714004_partner_v2_write_rpc.sql
+  remove_organization_contact: 20260714004_partner_v2_write_rpc.sql
+  search_partners: 20260714003_partner_v2_read.sql
+  soft_delete_partner: 20260714004_partner_v2_write_rpc.sql
+  transform_to_organization: 20260714004_partner_v2_write_rpc.sql
+  update_organization_contact: 20260714004_partner_v2_write_rpc.sql
+  update_partner: 20260714004_partner_v2_write_rpc.sql
+  upsert_partner_history: 20260714004_partner_v2_write_rpc.sql
 
 platform:
   install_module_messaging: 20260623000001_platform_messaging_foundation.sql
@@ -173,6 +204,12 @@ bootstrap_grandfathered:
   - 20260712009_catalog_patch_custom_field_type_change_guard.sql
   - 20260712010_catalog_patch_sku_uppercase_normalize.sql
   - 20260712011_catalog_patch_sku_uppercase_search_products.sql
+  - 20260713001_catalog_patch_price_band_vat_effective.sql
+  - 20260713002_catalog_patch_base_price_vat.sql
+  - 20260714001_partner_v2_schema.sql
+  - 20260714002_partner_v2_outbox.sql
+  - 20260714003_partner_v2_read.sql
+  - 20260714004_partner_v2_write_rpc.sql
 
 # Phase 2 pilot: split _drafts/catalog_product_sku_barcode_inline_normalize.sql
 #   into 001_catalog_patch_sku_barcode_schema.sql + 002_catalog_patch_sku_barcode_rpcs.sql

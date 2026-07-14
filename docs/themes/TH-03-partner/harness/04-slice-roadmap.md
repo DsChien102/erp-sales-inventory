@@ -8,15 +8,19 @@ Thứ tự implement vertical slice. Lane status: `todo` | `in_progress` | `done
 
 | # | Slice | Type | Contract | BE | FE | E2E | Parallel group | E2E blocked by |
 | - | ----- | ---- | -------- | -- | -- | --- | -------------- | -------------- |
-| S1 | [EP-01/US-02](../Epic-01-partner-profile/US-02.md) — Tạo Partner (Person + Organization) | write | todo | todo | todo | todo | — | — |
-| S2 | [EP-01/US-01](../Epic-01-partner-profile/US-01.md) — Tìm kiếm danh sách | read | todo | todo | todo | todo | A | S1 (data) |
-| S3 | [EP-01/US-04](../Epic-01-partner-profile/US-04.md) — Xem hồ sơ chi tiết | read | todo | todo | todo | todo | A | S1 |
-| S4 | [EP-01/US-03](../Epic-01-partner-profile/US-03.md) — Cập nhật hồ sơ + role | write | todo | todo | todo | todo | A | S1 |
-| S5 | [EP-01/US-05](../Epic-01-partner-profile/US-05.md) — Quản lý người liên hệ | write | todo | todo | todo | todo | B | S3 (org detail) |
-| S6 | [EP-01/US-06](../Epic-01-partner-profile/US-06.md) — Transform Person→Organization | write | todo | todo | todo | todo | B | S3 |
-| S7 | [EP-02/US-01](../Epic-02-partner-status/US-01.md) — Ngừng hoạt động / kích hoạt lại | write | todo | todo | todo | todo | C | S3 |
-| S8 | [EP-02/US-02](../Epic-02-partner-status/US-02.md) — Xóa mềm | write | todo | todo | todo | todo | C | S3 |
-| S9 | [EP-01/US-07](../Epic-01-partner-profile/US-07.md) — Lịch sử làm việc | read cross-module | todo | todo | todo | **blocked** | D | sales/inventory/accounting events |
+| S1 | [EP-01/US-02](../Epic-01-partner-profile/US-02.md) — Tạo Partner (Person + Organization) | write | done | done | done | done | — | — |
+| S2 | [EP-01/US-01](../Epic-01-partner-profile/US-01.md) — Tìm kiếm danh sách | read | done | done | done | done | A | S1 (data) |
+| S3 | [EP-01/US-04](../Epic-01-partner-profile/US-04.md) — Xem hồ sơ chi tiết | read | done | done | done | done | A | S1 |
+| S4 | [EP-01/US-03](../Epic-01-partner-profile/US-03.md) — Cập nhật hồ sơ + role | write | done | done | done | done | A | S1 |
+| S5 | [EP-01/US-05](../Epic-01-partner-profile/US-05.md) — Quản lý người liên hệ | write | done | done | done | done | B | S3 (org detail) |
+| S6 | [EP-01/US-06](../Epic-01-partner-profile/US-06.md) — Transform Person→Organization | write | done | done | done | done | B | S3 |
+| S7 | [EP-02/US-01](../Epic-02-partner-status/US-01.md) — Ngừng hoạt động / kích hoạt lại | write | done | done | done | done | C | S3 |
+| S8 | [EP-02/US-02](../Epic-02-partner-status/US-02.md) — Xóa mềm | write | done | done | done | done | C | S3 |
+| S9 | [EP-01/US-07](../Epic-01-partner-profile/US-07.md) — Lịch sử làm việc | read cross-module | done | done | todo | **blocked** | D | sales/inventory/accounting events |
+
+> **S5 FE polish (2026-07-10):** Edit contact qua `UpdateOrganizationContactCommand` (+ person profile); VToast + reload sau add/edit.
+>
+> **S7/S8 E2E (2026-07-11):** Integration `e2e_e02_u01_fr01_01` / `e2e_e02_u02_fr01_01` + ERP `partner_status_lifecycle_e2e_test`.
 
 ### Parallel groups
 
@@ -31,33 +35,33 @@ Thứ tự implement vertical slice. Lane status: `todo` | `in_progress` | `done
 
 ### CONTRACT
 
-- [ ] Commands/Queries/DTOs exported trong `modules/partner/application/`
-- [ ] Section trong [07-api-contracts.md](07-api-contracts.md) + fake scenario table
+- [x] Commands/Queries/DTOs exported trong `modules/partner/application/`
+- [x] Section trong [07-api-contracts.md](07-api-contracts.md) + fake scenario table
 - [ ] BE + FE sign-off (review PR)
 
 ### BE
 
-- [ ] Domain, handler, validator, gateway, draft SQL trong `_drafts/`
-- [ ] Handler annotated `@CommandHandlerFor` / `@QueryHandlerFor`
-- [ ] `melos run codegen` + commit `generated/*.g.dart`
-- [ ] Handler test `scn_*` pass
+- [x] Domain, handler, validator, gateway, draft SQL trong `_drafts/`
+- [x] Handler annotated `@CommandHandlerFor` / `@QueryHandlerFor`
+- [x] `melos run codegen` + commit `generated/*.g.dart`
+- [x] Handler test `scn_*` pass
 
 ### FE
 
-- [ ] UI + cubit wired `IPartnerModule`
-- [ ] Widget test `wgt_*` với `FakePartnerModule` scenario
+- [x] UI + cubit wired `IPartnerModule`
+- [x] Widget test `wgt_*` với `FakePartnerModule` scenario
 
 ### E2E
 
-- [ ] ERP DI real module; integration / flutter test qua mediator
-- [ ] `melos run test` + `./scripts/ci/verify_harness.sh` pass
-- [ ] `cd apps/erp && flutter test` pass
+- [x] ERP DI real module; integration / flutter test qua mediator
+- [x] `melos run test` + `./scripts/ci/verify_harness.sh` pass
+- [x] `cd apps/erp && flutter test` pass (partner + DI scope)
 
 ### Chung
 
-- [ ] US spec đã đọc (FR/BR/EC/SCN trong `US-{nn}.md`)
-- [ ] Traceability rows trong [05-traceability.md](05-traceability.md) cập nhật
-- [ ] Page ≤ 500 dòng
+- [x] US spec đã đọc (FR/BR/EC/SCN trong `US-{nn}.md`)
+- [x] Traceability rows trong [05-traceability.md](05-traceability.md) cập nhật
+- [x] Page ≤ 500 dòng
 
 ## Epic → module
 

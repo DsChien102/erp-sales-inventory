@@ -1,0 +1,28 @@
+targets:
+  $default:
+    builders:
+      vet45_generator|cqrs_registrar:
+        enabled: true
+        options:
+          module_name: partner
+          scan_package: vet45_partner_application
+          import_domain: true
+      vet45_generator|cqrs_infrastructure:
+        enabled: true
+        options:
+          module_name: partner
+          scan_package: vet45_partner_application
+          import_domain: true
+      vet45_generator|access_metadata:
+        enabled: true
+        options:
+          module_name: partner
+          scan_package: vet45_partner_application
+          access_scan_package: vet45_partner_application
+          strict_access_metadata: false
+      vet45_generator|module_manifest:
+        enabled: true
+        options:
+          module_name: partner
+          scan_package: vet45_partner_infrastructure
+          handler_scan_package: vet45_partner_application

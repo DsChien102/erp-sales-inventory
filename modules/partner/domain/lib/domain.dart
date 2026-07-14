@@ -1,0 +1,31 @@
+/// Partner bounded context — domain vocabulary for contract and BE lanes.
+library;
+
+export 'src/enums/organization_type.dart';
+export 'src/enums/partner_action_type.dart';
+export 'src/enums/partner_role_type.dart';
+export 'src/enums/partner_status.dart';
+export 'src/enums/partner_type.dart';
+export 'src/partner/entities/organization_contact.dart';
+export 'src/partner/entities/organization_profile.dart';
+export 'src/partner/entities/partner_role.dart';
+export 'src/partner/entities/person_profile.dart';
+export 'src/partner/events/organization_contact_added_event.dart';
+export 'src/partner/events/organization_contact_removed_event.dart';
+export 'src/partner/events/organization_contact_updated_event.dart';
+export 'src/partner/events/partner_created_event.dart';
+export 'src/partner/events/partner_deactivated_event.dart';
+export 'src/partner/events/partner_profile_updated_event.dart';
+export 'src/partner/events/partner_reactivated_event.dart';
+export 'src/partner/events/partner_soft_deleted_event.dart';
+export 'src/partner/events/partner_transformed_to_organization_event.dart';
+export 'src/partner/i_partner_repository.dart';
+export 'src/partner/partner.dart';
+export 'src/partner/partner_id.dart';
+export 'src/partner/person_title.dart';
+export 'src/partner/value_objects/delivery_address.dart';
+export 'src/partner/value_objects/email_address.dart';
+export 'src/partner/value_objects/invoice_profile.dart';
+export 'src/partner/value_objects/phone_number.dart';
+export 'src/partner/value_objects/tax_code.dart';
+export 'src/partner_permissions.dart';

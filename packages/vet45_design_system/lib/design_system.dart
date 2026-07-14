@@ -17,6 +17,10 @@ export 'src/theme/v_density.dart';
 // Utilities (Foundation)
 export 'src/foundation/v_context_extensions.dart';
 export 'src/foundation/v_component_contracts.dart';
+export 'src/foundation/v_text_normalizer.dart';
+export 'src/foundation/v_route_overlay_guard.dart';
+export 'src/foundation/v_overlay_menu_layout.dart';
+export 'src/foundation/v_dropdown_filter.dart';
 export 'src/audit/v_component_audit_snapshot.dart';
 
 // Primitives
@@ -41,6 +45,7 @@ export 'src/components/v_empty_state.dart';
 export 'src/components/v_toast.dart';
 export 'src/components/v_dropdown.dart';
 export 'src/components/v_searchable_dropdown.dart';
+export 'src/components/v_compact_searchable_dropdown.dart';
 export 'src/components/v_quantity_selector.dart';
 export 'src/components/v_date_picker_field.dart';
 export 'src/components/v_home_header.dart';

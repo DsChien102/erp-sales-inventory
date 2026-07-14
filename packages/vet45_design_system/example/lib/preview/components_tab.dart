@@ -18,6 +18,7 @@ class _ComponentsPreviewTabState extends State<ComponentsPreviewTab> {
   String? _radio = 'a';
   String? _dropdownValue = 'r1';
   String? _searchableValue = 'hcm';
+  String? _compactSearchableValue = 'hn';
   int _quantity = 2;
   int _tabIndex = 0;
   int _navIndex = 0;
@@ -208,6 +209,51 @@ class _ComponentsPreviewTabState extends State<ComponentsPreviewTab> {
                   enabled: false,
                   items: const [
                     DropdownMenuEntry(value: 'hcm', label: 'Hồ Chí Minh'),
+                  ],
+                  onChanged: (_) {},
+                ),
+              ),
+            ],
+          ),
+        ),
+        PreviewSection(
+          title: 'VCompactSearchableDropdown',
+          description: 'Dense 40px searchable dropdown for ERP forms.',
+          child: Column(
+            children: [
+              PreviewStateRow(
+                label: 'Builtin trailing',
+                child: VCompactSearchableDropdown<String>(
+                  value: _compactSearchableValue,
+                  hintText: 'Chọn tỉnh / thành phố',
+                  items: const [
+                    DropdownMenuEntry(value: 'hcm', label: 'Hồ Chí Minh'),
+                    DropdownMenuEntry(value: 'hn', label: 'Hà Nội'),
+                    DropdownMenuEntry(value: 'dn', label: 'Đà Nẵng'),
+                  ],
+                  onChanged: (v) => setState(() => _compactSearchableValue = v),
+                ),
+              ),
+              PreviewStateRow(
+                label: 'External trailing',
+                child: VCompactSearchableDropdown<String>(
+                  value: 'hn',
+                  trailingMode: VCompactDropdownTrailingMode.external,
+                  items: const [
+                    DropdownMenuEntry(value: 'hn', label: 'Hà Nội'),
+                    DropdownMenuEntry(value: 'hcm', label: 'Hồ Chí Minh'),
+                  ],
+                  onChanged: (_) {},
+                ),
+              ),
+              PreviewStateRow(
+                label: 'Disabled',
+                child: VCompactSearchableDropdown<String>(
+                  value: null,
+                  enabled: false,
+                  hintText: 'Chọn tỉnh / thành phố trước',
+                  items: const [
+                    DropdownMenuEntry(value: 'hn', label: 'Hà Nội'),
                   ],
                   onChanged: (_) {},
                 ),

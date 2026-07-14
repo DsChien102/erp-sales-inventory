@@ -34,6 +34,8 @@ Bao phủ luồng người dùng từ tìm đối tác, tạo mới, xem/chỉnh
 
 ## Cấu trúc đặc tả
 
-Mỗi `US-{nn}.md` gồm 9 section: Business Context, FR, BR, EC, UI Contract, Design Contract, Data/API, **Scenarios**, AC & OQ.
+Mỗi `US-{nn}.md` gồm 9 section: Business Context, FR, BR, EC, Design Reference, Data/API, **Scenarios**, AC & OQ.
+
+UI Contract, Low-fi wireframes và Visual Design nằm tập trung trong [Theme-3-partner.md](../Theme-3-partner.md) Appendix A / Screen Groups; US chỉ giữ link truy vết đến SG tương ứng.
 
 FR specs cũ (`FR-*.md` trong thư mục US) đã archive — [_archive/fr-specs-legacy/](../_archive/fr-specs-legacy/).

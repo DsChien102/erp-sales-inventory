@@ -5,6 +5,8 @@ import 'package:vet45_iam_infrastructure/infrastructure.dart';
 import 'package:vet45_shared_application/application.dart';
 import 'package:vet45_catalog_application/application.dart' hide ProductChangeHistoryPage;
 import 'package:vet45_catalog_presentation/presentation.dart';
+import 'package:vet45_partner_application/application.dart';
+import 'package:vet45_partner_domain/domain.dart';
 
 // More Pages
 import '../../features/more/presentation/pages/system_settings_page.dart';
@@ -42,6 +44,14 @@ import '../../features/catalog/presentation/pages/settings/upsert_custom_field_p
 import '../../features/catalog/presentation/pages/settings/store_price_rule_settings_page.dart';
 import '../../features/catalog/presentation/pages/settings/edit_store_price_rule_page.dart';
 import '../../features/catalog/presentation/pages/settings/store_price_rule_change_history_page.dart';
+
+// Partner
+import '../../features/partner/presentation/pages/partner_create_page.dart';
+import '../../features/partner/presentation/pages/partner_detail_page.dart';
+import '../../features/partner/presentation/pages/partner_contacts_page.dart';
+import '../../features/partner/presentation/pages/partner_contact_form_page.dart';
+import '../../features/partner/presentation/pages/partner_contact_select_page.dart';
+import '../../features/partner/presentation/pages/partner_transform_page.dart';
 
 import '../di/injection.dart';
 
@@ -161,6 +171,151 @@ final appRouter = GoRouter(
       name: 'products.items',
       builder: (context, state) => const DashboardPage(initialTab: DashboardTab.products),
     ),
+    GoRoute(
+      path: '/partner',
+      name: 'partner.list',
+      builder: (context, state) => const DashboardPage(initialTab: DashboardTab.partners),
+    ),
+    GoRoute(
+      path: '/partner/new',
+      name: 'partner.new',
+      builder: (context, state) {
+        final partnerType = state.extra as PartnerType? ?? PartnerType.person;
+        return PartnerCreatePage(
+          partnerType: partnerType,
+          partnerModule: getIt<IPartnerModule>(),
+          executionContext: getIt<IExecutionContext>(),
+          onCreated: (partnerId) {
+            if (context.mounted) {
+              // Return id to PartnerListPage so it can refresh before handoff.
+              context.pop(partnerId);
+            }
+          },
+          onOpenExisting: (partnerId) {
+            if (context.mounted) {
+              context.pushReplacement('/partner/$partnerId');
+            }
+          },
+        );
+      },
+    ),
+    GoRoute(
+      path: '/partner/:partnerId/edit',
+      name: 'partner.edit',
+      builder: (context, state) {
+        final partnerId = state.pathParameters['partnerId']!;
+        return PartnerCreatePage.edit(
+          partnerId: partnerId,
+          partnerModule: getIt<IPartnerModule>(),
+          executionContext: getIt<IExecutionContext>(),
+          onUpdated: (id) {
+            if (context.mounted) {
+              context.pop(true);
+            }
+          },
+          onOpenExisting: (existingId) {
+            if (context.mounted) {
+              context.pushReplacement('/partner/$existingId');
+            }
+          },
+        );
+      },
+    ),
+    GoRoute(
+      path: '/partner/:partnerId/transform',
+      name: 'partner.transform',
+      builder: (context, state) {
+        final partnerId = state.pathParameters['partnerId']!;
+        final partner = state.extra as PartnerDetailDto?;
+        if (partner == null) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (context.mounted) context.go('/partner/$partnerId');
+          });
+          return const Scaffold(
+            body: Center(child: CircularProgressIndicator()),
+          );
+        }
+        return PartnerTransformPage(
+          partner: partner,
+          partnerModule: getIt<IPartnerModule>(),
+          executionContext: getIt<IExecutionContext>(),
+        );
+      },
+    ),
+    GoRoute(
+      path: '/partner/:partnerId',
+      name: 'partner.detail',
+      builder: (context, state) {
+        final partnerId = state.pathParameters['partnerId']!;
+        final showCreateSuccessToast = state.uri.queryParameters['created'] == '1';
+        final showTransformSuccessToast =
+            state.uri.queryParameters['transformed'] == '1';
+        return PartnerDetailPage(
+          partnerId: partnerId,
+          partnerModule: getIt<IPartnerModule>(),
+          executionContext: getIt<IExecutionContext>(),
+          showCreateSuccessToast: showCreateSuccessToast,
+          showTransformSuccessToast: showTransformSuccessToast,
+        );
+      },
+    ),
+    GoRoute(
+      path: '/partner/:partnerId/contacts',
+      name: 'partner.contacts',
+      builder: (context, state) {
+        final partnerId = state.pathParameters['partnerId']!;
+        return PartnerContactsPage(
+          partnerId: partnerId,
+          partnerModule: getIt<IPartnerModule>(),
+          executionContext: getIt<IExecutionContext>(),
+        );
+      },
+    ),
+    GoRoute(
+      path: '/partner/:partnerId/contacts/new',
+      name: 'partner.contacts.new',
+      builder: (context, state) {
+        final partnerId = state.pathParameters['partnerId']!;
+        final contact = state.extra as PartnerContactDto?;
+        return PartnerContactFormPage(
+          partnerId: partnerId,
+          contact: contact,
+          partnerModule: getIt<IPartnerModule>(),
+          executionContext: getIt<IExecutionContext>(),
+        );
+      },
+    ),
+    GoRoute(
+      path: '/partner/:partnerId/contacts/select',
+      name: 'partner.contacts.select',
+      builder: (context, state) {
+        final partnerId = state.pathParameters['partnerId']!;
+        final excludeIds = state.extra as List<String>? ?? const [];
+        return PartnerContactSelectPage(
+          partnerId: partnerId,
+          partnerModule: getIt<IPartnerModule>(),
+          executionContext: getIt<IExecutionContext>(),
+          excludePersonPartnerIds: excludeIds,
+        );
+      },
+    ),
+    GoRoute(
+      path: '/partner/:partnerId/contacts/:contactId/edit',
+      name: 'partner.contacts.edit',
+      builder: (context, state) {
+        final partnerId = state.pathParameters['partnerId']!;
+        final contactId = state.pathParameters['contactId']!;
+        final contact = state.extra as PartnerContactDto?;
+        return PartnerContactFormPage(
+          partnerId: partnerId,
+          contactId: contactId,
+          contact: contact,
+          partnerModule: getIt<IPartnerModule>(),
+          executionContext: getIt<IExecutionContext>(),
+        );
+      },
+    ),
+
     GoRoute(
       path: '/products/items/new',
       name: 'products.items.new',

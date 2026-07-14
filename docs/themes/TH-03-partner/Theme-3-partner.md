@@ -1,16 +1,22 @@
-# Theme 3: Khách hàng & NCC
+# Theme 3: Đối tác giao dịch
 
 # 1. Theme overview
 
 ### 1.1 Mục tiêu theme
 
-Theme 3 quản lý toàn bộ dữ liệu nền về đối tác giao dịch của cửa hàng/doanh nghiệp, bao gồm khách hàng, nhà cung cấp, đối tác vừa là khách hàng vừa là nhà cung cấp, cá nhân liên hệ trong tổ chức, trạng thái sử dụng và lịch sử làm việc với đối tác.
+Theme 3 quản lý toàn bộ dữ liệu nền về đối tác giao dịch (sau đây có thể gọi tắt là "đối tác") của cửa hàng/doanh nghiệp, bao gồm:
+
+- đối tác là khách hàng
+
+- đối tác là nhà cung cấp
+
+- đối tác vừa là khách hàng vừa là nhà cung cấp
 
 Mục tiêu chính là tạo một nguồn dữ liệu nhất quán để phục vụ bán hàng, nhập hàng, hóa đơn, công nợ, đối soát, báo cáo và truy vết lịch sử.
 
 ### 1.2 Bối cảnh nghiệp vụ
 
-Trong vận hành thực tế, một cửa hàng thường làm việc với cả cá nhân và tổ chức. Điểm quan trọng của bản nâng cấp Theme 3 là tách rõ: Cá nhân/Tổ chức là loại hồ sơ CRM, còn Khách hàng/Nhà cung cấp là vai trò giao dịch.
+Trong vận hành thực tế, một cửa hàng thường làm việc với cả cá nhân và tổ chức. Cá nhân/Tổ chức là loại hồ sơ CRM, còn Khách hàng/Nhà cung cấp là vai trò giao dịch.
 
 |**Tình huống**|**Cách hiểu đúng trong Theme 3**|
 |---|---|
@@ -69,14 +75,7 @@ Trong vận hành thực tế, một cửa hàng thường làm việc với c�
 |Soft delete|Xóa mềm bằng trạng thái, không xóa cứng khỏi database|
 |Action log|Lịch sử thao tác với Partner|
 
-### 1.7 Relationship model
-
-```Plain Text
-Organization 1 --- N OrganizationContact --- 1 Person
-Person 0..N --- 0..N Organization
-```
-
-### 1.8 Epic map
+### 1.7 Epic map
 
 |**Epic**|**Tên**|**Mục tiêu**|
 |---|---|---|
@@ -223,7 +222,7 @@ erDiagram
 |PartnerHistoryView|Read model|Tổng hợp lịch sử làm việc|Không sửa giao dịch nguồn trong Theme 3|
 |PartnerActionLog|Audit entity|Ghi lịch sử thao tác|Tạo, sửa, status, delete, transform, contact|
 
-### Entity: Partner
+#### Entity: Partner
 
 |**Field**|**Type**|**Required**|**Rule**|
 |---|---|---|---|
@@ -237,7 +236,7 @@ erDiagram
 |`updated_by`|audit|Yes|Ghi khi cập nhật|
 |`updated_at`|audit|Yes|Ghi khi cập nhật|
 
-### Entity: PersonProfile
+#### Entity: PersonProfile
 
 |Field|Type|Required|Rule|
 |---|---|---|---|
@@ -252,12 +251,12 @@ erDiagram
 |`invoice_name`|string|No|Thông tin hóa đơn optional|
 |`invoice_address`|string|No|Thông tin hóa đơn optional|
 |`invoice_email`|string|No|Thông tin hóa đơn optional|
-|`delivery_province`|string|No|Tỉnh/thành giao hàng mặc định|
+|`delivery_province`|string <br>|No|Tỉnh/thành giao hàng mặc định|
 |`delivery_commune`|string|No|Xã/phường/thị trấn giao hàng mặc định|
 |`delivery_address`|string|No|Địa chỉ giao hàng chi tiết|
 |`note`|text|No|Ghi chú nội bộ|
 
-### Entity: OrganizationProfile
+#### Entity: OrganizationProfile
 
 |Field|Type|Required|Rule|
 |---|---|---|---|
@@ -277,7 +276,7 @@ erDiagram
 |`delivery_commune`|string|No|Xã/phường/thị trấn giao hàng mặc định|
 |`note`|text|No|Ghi chú nội bộ|
 
-### Entity: PartnerRole
+#### Entity: PartnerRole
 
 |Field|Type|Required|Rule|
 |---|---|---|---|
@@ -287,7 +286,7 @@ erDiagram
 |`created_at`|datetime|Yes|Thời điểm gán role|
 |`updated_at`|datetime|Yes|Thời điểm cập nhật role|
 
-### Entity: OrganizationContact
+#### Entity: OrganizationContact
 
 |Field|Type|Required|Rule|
 |---|---|---|---|
@@ -301,7 +300,7 @@ erDiagram
 |`updated_by`|audit|Yes|Ghi khi cập nhật liên kết|
 |`updated_at`|audit|Yes|Ghi khi cập nhật liên kết|
 
-### Entity: PartnerHistoryView
+#### Entity: PartnerHistoryView
 
 |Field|Type|Required|Rule|
 |---|---|---|---|
@@ -318,7 +317,7 @@ erDiagram
 |`currency`|number/string|No|Giá trị nếu giao dịch có tiền|
 |`can_open_source`|boolean|Yes|Phụ thuộc quyền với module nguồn|
 
-### Entity: PartnerActionLog
+#### Entity: PartnerActionLog
 
 |Field|Type|Required|Rule|
 |---|---|---|---|
@@ -335,7 +334,7 @@ erDiagram
 
 ### Quy tắc trạng thái và lifecycle
 
-|Status|Ý nghĩa|
+|**Status**|**Ý nghĩa**|
 |---|---|
 |Active|Được chọn cho giao dịch mới|
 |Inactive|Không được chọn cho giao dịch mới nhưng vẫn xem được hồ sơ và lịch sử theo quyền|
@@ -343,7 +342,7 @@ erDiagram
 
 ### Quy tắc loại hồ sơ và vai trò giao dịch
 
-|ID|Business Rule|
+|**ID**|**Business Rule**|
 |---|---|
 |BR-01|`partner_type` gồm `person` và `organization`|
 |BR-02|`roles` gồm `customer` và `supplier`|
@@ -646,33 +645,11 @@ Danh sách phải phân biệt rõ Cá nhân/Tổ chức và Khách hàng/Nhà c
 |EC-06|Nhiều đối tác trùng tên|Hiển thị thêm SĐT, loại hồ sơ, vai trò hoặc MST để phân biệt|
 |EC-07|Tải danh sách thất bại|Hiển thị error state, cho phép tải lại|
 
-#### 5.2.5 UI Contract
+#### 5.2.5 Design reference
 
-|ID|UI Contract|
-|---|---|
-|UI-01|Top bar title `Khách hàng & NCC` căn giữa|
-|UI-02|Search dưới top bar, placeholder `Tìm tên, SĐT, email, MST`|
-|UI-03|Filter icon dùng slider/tuning controls|
-|UI-04|Quick filters: Tất cả, Khách hàng, Nhà cung cấp, Tổ chức|
-|UI-05|Partner card hiển thị tên, chip type, chip role, status, SĐT, cập nhật gần nhất|
-|UI-06|FAB `+` là hành động tạo mới chính|
-|UI-07|Filter bottom sheet có Vai trò, Loại hồ sơ, Trạng thái, Đặt lại, Áp dụng|
+[Appendix A / 8.4.1 SG-01 — Danh sách & khám phá KH & NCC](https://hamsacorp.sg.larksuite.com/wiki/WElRw9lsHiz6MnkmEfhlwrV4ghg#share-HT2Ad8lGsoSkJVxQbyvlyQo7g3c)
 
-#### 5.2.6 Design Contract
-
-|**ID**|**Screen/State**|**Ghi chú thiết kế**|
-|---|---|---|
-|**D-01**|**Danh sách đối tác mặc định**|Màn chính Khách hàng & NCC; search dưới top bar; filter icon dạng slider; sort; item card hiển thị tên, SĐT, loại hồ sơ, vai trò, trạng thái; FAB + dẫn sang US-02.|
-|**D-02**|**Đang tìm kiếm / Kết quả search**|Khi nhập từ khóa, list cập nhật theo tên, SĐT, email, MST; có số lượng kết quả; giữ filter/sort hiện tại nếu đang áp dụng.|
-|**D-03**|**Filter bottom sheet**|Bottom sheet có dim overlay + handle; lọc theo Loại hồ sơ, Vai trò giao dịch, Trạng thái; CTA Đặt lại và Áp dụng.|
-|**D-04**|**Danh sách đã áp dụng bộ lọc**|Hiển thị active filter chips như Tổ chức ×, Nhà cung cấp ×, Đang hoạt động ×; có CTA Xóa lọc; list phản ánh đúng bộ lọc.|
-|**D-05**|**Sort bottom sheet**|Bottom sheet sắp xếp danh sách; options đề xuất: Cập nhật gần nhất, Mới tạo, Tên A–Z, Tên Z–A; không làm mất search/filter hiện tại.|
-|**D-06**|**Empty / No result / Loading / Error**|Gom các state phụ: chưa có đối tác, không có kết quả, skeleton loading, lỗi tải danh sách; CTA theo ngữ cảnh như + Thêm đối tác, Đặt lại bộ lọc, Thử lại.|
-|**D-07**|**No permission**|State khi không có quyền partner.view; không hiển thị dữ liệu, search, filter, sort hoặc FAB.|
-
-![Image](https://internal-api-drive-stream-sg.larksuite.com/space/api/box/stream/download/authcode/?code=NDA2NjNjMTFlYmU4OWQ0ZmE4NGIwMTg5MzM2OGRhMmFfMjU5YzVmNWU2ZDk5MDVjY2E3MzY2ZDYxZDQyMTFkMjZfSUQ6NzY1OTY5MTI0MDkwODYzOTk2NV8xNzgzNDEzNjAzOjE3ODM1MDAwMDNfVjM)
-
-#### 5.2.7 Data/API Contract
+#### 5.2.6 Data/API Contract
 
 ```HTTP
 GET /partners
@@ -691,7 +668,7 @@ GET /partners
 {"partner_id":"ptr_001","partner_type":"organization","display_name":"Đại lý Chăn nuôi Minh Phát","roles":["supplier"],"status":"active","phone":"02838225511","contact_count":2,"updated_at":"2026-06-18T11:05:00+07:00"}
 ```
 
-#### 5.2.8 Scenarios
+#### 5.2.7 Scenarios
 
 ```Gherkin
 Background:
@@ -701,29 +678,35 @@ Scenario: SCN-01 - Mở danh sách đối tác thành công
   Given người dùng có quyền "partner.view"
   When người dùng mở màn hình "Khách hàng & NCC"
   Then hệ thống hiển thị danh sách đối tác thuộc tenant hiện tại
+
 Scenario: SCN-02 - Hiển thị rõ cá nhân và tổ chức
   Given danh sách có cả Partner type "Person" và "Organization"
   Then mỗi item hiển thị chip "Cá nhân" hoặc "Tổ chức" phù hợp
+
 Scenario: SCN-03 - Hiển thị rõ vai trò giao dịch
   Given một Partner có vai trò Customer hoặc Supplier
   Then hệ thống hiển thị vai trò là Khách hàng, Nhà cung cấp hoặc KH & NCC
+
 Scenario: SCN-04 - Tìm kiếm đối tác
   When người dùng nhập tên, SĐT, email hoặc MST
   Then hệ thống hiển thị các đối tác phù hợp trong tenant hiện tại
+
 Scenario: SCN-05 - Lọc danh sách
   When người dùng chọn bộ lọc vai trò, loại hồ sơ hoặc trạng thái
   Then hệ thống chỉ hiển thị các đối tác thỏa mãn điều kiện lọc
+
 Scenario: SCN-06 - Bắt đầu tạo mới đối tác
   Given người dùng có quyền "partner.create"
   When người dùng bấm FAB "+"
   Then hệ thống hiển thị action sheet có Tạo cá nhân và Tạo tổ chức
+
 Scenario: SCN-07 - Không có quyền xem danh sách
   Given người dùng không có quyền "partner.view"
   When người dùng mở màn hình
   Then hệ thống không hiển thị danh sách
 ```
 
-#### 5.2.9 Acceptance Criteria 
+#### 5.2.8 Acceptance Criteria
 
 |ID|Acceptance Criteria|
 |---|---|
@@ -735,7 +718,7 @@ Scenario: SCN-07 - Không có quyền xem danh sách
 |AC-06|Empty/No result/Error state hiển thị đúng tình huống|
 |AC-07|FAB tạo mới mở action sheet chọn Tạo cá nhân hoặc Tạo tổ chức|
 
-#### 5.2.10 Open questions
+#### 5.2.9 Open questions
 
 |ID|Open Question|
 |---|---|
@@ -788,33 +771,11 @@ Người dùng cần chọn trước Tạo cá nhân hoặc Tạo tổ chức đ
 |EC-06|Rời form khi có dữ liệu chưa lưu|Hiển thị confirmation modal|
 |EC-07|Lưu thất bại|Không tạo hồ sơ không hoàn chỉnh, giữ dữ liệu đã nhập|
 
-#### 5.3.5 UI Contract
+#### 5.3.5 Design reference
 
-|ID|UI Contract|
-|---|---|
-|UI-01|FAB `+` mở create action sheet|
-|UI-02|Options: `Tạo cá nhân ›`, `Tạo tổ chức ›`|
-|UI-03|Form tạo cá nhân gồm Vai trò, Thông tin cá nhân, Hóa đơn, Ghi chú|
-|UI-04|Form tạo tổ chức gồm Vai trò, Thông tin tổ chức, Hóa đơn, Người liên hệ chính optional, Ghi chú|
-|UI-05|Primary CTA `Lưu đối tác`|
-|UI-06|Secondary CTA `Hủy` hoặc back `←`|
-|UI-07|Success toast `Đã tạo đối tác`|
+[Appendix A / 8.4.2 SG-02 — Tạo mới & chỉnh sửa KH & NCC](https://hamsacorp.sg.larksuite.com/wiki/WElRw9lsHiz6MnkmEfhlwrV4ghg#share-Pv7BdlDsOoTpimx9yRSlD4LRgYd)
 
-#### 5.3.6 Design Contract
-
-|ID|Screen/State|Ghi chú thiết kế|
-|---|---|---|
-|D-01|Create action sheet|Dim overlay, handle, 2 action row|
-|D-02|Form tạo cá nhân|Top bar `Tạo cá nhân`, back `←`|
-|D-03|Form tạo tổ chức|Top bar `Tạo tổ chức`, back `←`|
-|D-04|Duplicate warning|Cảnh báo trùng SĐT/email/MST|
-|D-05|Confirmation rời form|Có dữ liệu chưa lưu|
-|D-06|Tạo thành công|Toast dark bar, check xanh|
-|D-07|Error/No permission|Lỗi lưu hoặc không có quyền|
-
-![Image](https://internal-api-drive-stream-sg.larksuite.com/space/api/box/stream/download/authcode/?code=MjAxYmI2NDk3NDA4NGU2NTE1NzY0YjAwMTc3MzBmNTNfZjlkZWYwZTk2YTBmNzVkYTQ2MDJlNmQ4NWFhNDVmMGJfSUQ6NzY1OTYyNzIyMTEzNjU0MzQ2NF8xNzgzNDEzNjAzOjE3ODM1MDAwMDNfVjM)
-
-#### 5.3.7 Data/API Contract
+#### 5.3.6 Data/API Contract
 
 ```HTTP
 POST /partners
@@ -837,7 +798,7 @@ POST /partners
 |DR-05|primary_contact tạo Person liên kết Organization nếu có|
 |DR-06|Lưu thành công ghi created_by, created_at và action log|
 
-#### 5.3.8 Scenarios
+#### 5.3.7 Scenarios
 
 ```Gherkin
 Background:
@@ -869,7 +830,7 @@ Scenario: SCN-07 - Không có quyền tạo mới
   Then hệ thống ẩn hoặc vô hiệu hóa hành động tạo mới
 ```
 
-#### 5.3.9 Acceptance Criteria 
+#### 5.3.8 Acceptance Criteria
 
 |ID|Acceptance Criteria|
 |---|---|
@@ -881,7 +842,7 @@ Scenario: SCN-07 - Không có quyền tạo mới
 |AC-06|Hệ thống cảnh báo trùng trước khi hoàn tất lưu|
 |AC-07|Lưu thành công tạo Partner Active và ghi audit|
 
-#### 5.3.10 Open questions
+#### 5.3.9 Open questions
 
 |ID|Open Question|
 |---|---|
@@ -934,35 +895,13 @@ Chỉnh sửa hồ sơ chỉ ảnh hưởng thông tin hiện tại dùng cho gi
 |EC-06|Rời form khi có thay đổi chưa lưu|Hiển thị confirmation modal|
 |EC-07|Lưu thất bại|Không cập nhật một phần, giữ dữ liệu đã nhập|
 
-#### 5.4.5 UI Contract
+#### 5.4.5 Design reference
 
-|ID|UI Contract|
-|---|---|
-|UI-01|Entry point từ hồ sơ chi tiết qua Chỉnh sửa|
-|UI-02|Chỉ hiển thị action nếu có quyền partner.update|
-|UI-03|Form chỉnh sửa cá nhân có role, thông tin cá nhân, hóa đơn, ghi chú, hệ thống read-only|
-|UI-04|Form chỉnh sửa tổ chức có role, thông tin tổ chức, hóa đơn, ghi chú, hệ thống read-only|
-|UI-05|Primary CTA `Lưu thay đổi`|
-|UI-06|Secondary CTA `Hủy` hoặc back `←`|
-|UI-07|Success toast `Đã cập nhật đối tác`|
+[Appendix A / 8.4.2 SG-02 — Tạo mới & chỉnh sửa KH & NCC](https://hamsacorp.sg.larksuite.com/wiki/WElRw9lsHiz6MnkmEfhlwrV4ghg#share-Pv7BdlDsOoTpimx9yRSlD4LRgYd);
 
-#### 5.4.6 Design Contract
+[8.4.3 SG-03 — Hồ sơ KH & NCC](https://hamsacorp.sg.larksuite.com/wiki/WElRw9lsHiz6MnkmEfhlwrV4ghg#share-C48hdf21eo60BQx2PIDl2IocgAf)
 
-|ID|Screen/State|Ghi chú thiết kế|
-|---|---|---|
-|D-01|Form chỉnh sửa cá nhân|Top bar `Chỉnh sửa cá nhân`|
-|D-02|Form chỉnh sửa tổ chức|Top bar `Chỉnh sửa tổ chức`|
-|D-03|Duplicate warning|Nêu rõ trường trùng|
-|D-04|Confirmation rời form|Có thay đổi chưa lưu|
-|D-05|Cập nhật thành công|Toast success|
-|D-06|Error lưu thất bại|Có CTA thử lại|
-|D-07|No permission/Not found|State chặn phù hợp|
-
-![Image](https://internal-api-drive-stream-sg.larksuite.com/space/api/box/stream/download/authcode/?code=ZWM2MGE2YmE1OWExY2FmNTBiMGI2ZDU0ODEyNjVhODJfYmY0OTRlMTg1NjU0MTQ2MmYzMzI4OThkYTkxOTZiMGJfSUQ6NzY1OTY0NDIwMjg0MTcwNjIwN18xNzgzNDEzNjAzOjE3ODM1MDAwMDNfVjM)
-
-![Image](https://internal-api-drive-stream-sg.larksuite.com/space/api/box/stream/download/authcode/?code=MjdkNzIzMjk2YjYxOTM0MDE1OGM2Y2VjMWI4Nzk5NjlfMDI0YTM3MmRhNTJiZWJiYTZjZTdhZTAzNTA2ZDlhZjZfSUQ6NzY1OTY0NTI1MzQ5MzkxOTQ1OF8xNzgzNDEzNjAzOjE3ODM1MDAwMDNfVjM)
-
-#### 5.4.7 Data/API Contract
+#### 5.4.6 Data/API Contract
 
 ```HTTP
 GET /partners/{partner_id}
@@ -981,7 +920,7 @@ PATCH /partners/{partner_id}
 |DR-04|Lưu thành công ghi updated_by, updated_at, action log|
 |DR-05|Không cập nhật ngược snapshot giao dịch|
 
-#### 5.4.8 Scenarios
+#### 5.4.7 Scenarios
 
 ```Gherkin
 Background:
@@ -1012,7 +951,7 @@ Scenario: SCN-07 - Giao dịch cũ không đổi
   Then giao dịch cũ giữ snapshot
 ```
 
-#### 5.4.9 Acceptance Criteria 
+#### 5.4.8 Acceptance Criteria
 
 |ID|Acceptance Criteria|
 |---|---|
@@ -1024,7 +963,7 @@ Scenario: SCN-07 - Giao dịch cũ không đổi
 |AC-06|Lưu thành công ghi audit|
 |AC-07|Giao dịch cũ không bị cập nhật ngược|
 
-#### 5.4.10 Open questions
+#### 5.4.9 Open questions
 
 |ID|Open Question|
 |---|---|
@@ -1077,33 +1016,11 @@ Hồ sơ chi tiết là nơi hiển thị thông tin hiện tại; giao dịch �
 |EC-06|Không tải được hồ sơ|Error state và CTA tải lại|
 |EC-07|Trạng thái vừa thay đổi bởi người khác|Hiển thị dữ liệu mới nhất khi mở|
 
-#### 5.5.5 UI Contract
+#### 5.5.5 Design reference
 
-|ID|UI Contract|
-|---|---|
-|UI-01|Back dùng `←`|
-|UI-02|Title `Hồ sơ đối tác`|
-|UI-03|Profile header có avatar initials, display name, type chip, role chip, status badge|
-|UI-04|Content cards: thông tin cá nhân/tổ chức, contact, hóa đơn, ghi chú, hệ thống|
-|UI-05|Chỉnh sửa hiển thị nếu có quyền partner.update|
-|UI-06|`Thao tác ︿` là secondary button|
-|UI-07|Action sheet chỉ hiển thị action phù hợp|
+[Appendix A / 8.4.3 SG-03 — Hồ sơ KH & NCC](https://hamsacorp.sg.larksuite.com/wiki/WElRw9lsHiz6MnkmEfhlwrV4ghg#share-M2TXdHEO9osI0bxkh2llGdlhg8c)
 
-#### 5.5.6 Design Contract
-
-|ID|Screen/State|Ghi chú thiết kế|
-|---|---|---|
-|D-01|Hồ sơ cá nhân|Header rõ Cá nhân + role + status|
-|D-02|Hồ sơ tổ chức|Có card/tóm tắt Người liên hệ|
-|D-03|Action sheet thao tác|Dim overlay, handle|
-|D-04|Hồ sơ Inactive/Deleted|Badge rõ, giới hạn action|
-|D-05|Dữ liệu thiếu|Không vỡ layout|
-|D-06|Loading/Error|Skeleton/CTA tải lại|
-|D-07|No permission/Not found|State chặn phù hợp|
-
-![Image](https://internal-api-drive-stream-sg.larksuite.com/space/api/box/stream/download/authcode/?code=NmJlMmVhYWE2NTkwNDBiMTBhOWY2NThmZWU4ZmRhNzdfMDEwZmQ1MzViMjNlZmZiNjZhYTBiMjRjNWNjZDg0YWNfSUQ6NzY1OTY0NzQ5ODQ5MTAyMzA4MV8xNzgzNDEzNjAzOjE3ODM1MDAwMDNfVjM)
-
-#### 5.5.7 Data/API Contract
+#### 5.5.6 Data/API Contract
 
 ```HTTP
 GET /partners/{partner_id}
@@ -1121,7 +1038,7 @@ GET /partners/{partner_id}
 |DR-04|contact_summary chỉ áp dụng cho Organization|
 |DR-05|Dữ liệu trả về là hiện tại, không phải snapshot giao dịch cũ|
 
-#### 5.5.8 Scenarios
+#### 5.5.7 Scenarios
 
 ```Gherkin
 Background:
@@ -1146,7 +1063,7 @@ Scenario: SCN-07 - Action theo quyền/trạng thái
   Then chỉ hiển thị action phù hợp
 ```
 
-#### 5.5.9 Acceptance Criteria 
+#### 5.5.8 Acceptance Criteria
 
 |ID|Acceptance Criteria|
 |---|---|
@@ -1158,7 +1075,7 @@ Scenario: SCN-07 - Action theo quyền/trạng thái
 |AC-06|Action theo quyền/trạng thái/điều kiện|
 |AC-07|Xem hồ sơ không đổi dữ liệu cũ|
 
-#### 5.5.10 Open questions
+#### 5.5.9 Open questions
 
 |ID|Open Question|
 |---|---|
@@ -1211,33 +1128,11 @@ Hồ sơ tổ chức cần khu vực riêng để quản lý người liên hệ
 |EC-06|Gỡ contact chính|Yêu cầu xác nhận|
 |EC-07|Lưu thất bại|Không cập nhật một phần, cho thử lại|
 
-#### 5.6.5 UI Contract
+#### 5.6.5 Design reference
 
-|ID|UI Contract|
-|---|---|
-|UI-01|Card Người liên hệ nằm trong detail tổ chức|
-|UI-02|Danh sách contact hiển thị contact chính trước|
-|UI-03|CTA `Thêm người liên hệ` nếu có quyền|
-|UI-04|Action từng contact: sửa, đặt chính, gỡ|
-|UI-05|Contact card gồm họ tên, SĐT, email, vai trò liên hệ, badge chính|
-|UI-06|Form thêm/sửa gồm họ tên, SĐT, email, vai trò, đặt làm chính, ghi chú|
-|UI-07|Action sheet contact có header và các action phù hợp|
+[Appendix A / 8.4.4 SG-04 — Người liên hệ của tổ chức](https://hamsacorp.sg.larksuite.com/wiki/WElRw9lsHiz6MnkmEfhlwrV4ghg#share-GeIbdPdcOouoL4xc3rPlwJOOgGd)
 
-#### 5.6.6 Design Contract
-
-|ID|Screen/State|Ghi chú thiết kế|
-|---|---|---|
-|D-01|Card Người liên hệ|Hiển thị contact chính và số lượng contact|
-|D-02|Danh sách người liên hệ|List card gọn|
-|D-03|Form thêm contact|Top bar `Thêm người liên hệ`|
-|D-04|Form sửa contact|Prefill dữ liệu hiện tại|
-|D-05|Contact action sheet|Dim overlay, handle|
-|D-06|Confirmation gỡ liên hệ|Modal xác nhận|
-|D-07|Empty/Error/No permission|State phụ|
-
-![Image](https://internal-api-drive-stream-sg.larksuite.com/space/api/box/stream/download/authcode/?code=OWQ1ZDYwNjQzZmM4NWMzY2VmOTNkNGI5ZmM1ZjQzOGNfZWU5ZDlkN2EzN2JmODM2ZWY3NzI5N2RkMmE2OTI0NDdfSUQ6NzY1OTY1MjMyNjQwMzUyNjM3Nl8xNzgzNDEzNjAzOjE3ODM1MDAwMDNfVjM)
-
-#### 5.6.7 Data/API Contract
+#### 5.6.6 Data/API Contract
 
 ```HTTP
 GET /partners/{organization_partner_id}/contacts
@@ -1259,7 +1154,7 @@ DELETE /partners/{organization_partner_id}/contacts/{person_partner_id}
 |DR-05|Kiểm tra trùng trong tenant|
 |DR-06|Thay đổi contact ghi audit|
 
-#### 5.6.8 Scenarios
+#### 5.6.7 Scenarios
 
 ```Gherkin
 Background:
@@ -1287,7 +1182,7 @@ Scenario: SCN-07 - Thiếu thông tin bắt buộc
   Then chặn lưu và lỗi inline
 ```
 
-#### 5.6.9 Acceptance Criteria 
+#### 5.6.8 Acceptance Criteria
 
 |ID|Acceptance Criteria|
 |---|---|
@@ -1299,7 +1194,7 @@ Scenario: SCN-07 - Thiếu thông tin bắt buộc
 |AC-06|Gỡ contact không xóa Person mặc định|
 |AC-07|Thay đổi contact không cập nhật giao dịch cũ|
 
-#### 5.6.10 Open questions
+#### 5.6.9 Open questions
 
 |ID|Open Question|
 |---|---|
@@ -1352,33 +1247,11 @@ Hệ thống cho phép chuyển Cá nhân thành Tổ chức và giữ cá nhân
 |EC-06|Hủy xác nhận|Không thay đổi hồ sơ|
 |EC-07|Transform thất bại|Không cập nhật một phần|
 
-#### 5.7.5 UI Contract
+#### 5.7.5 Design reference
 
-|ID|UI Contract|
-|---|---|
-|UI-01|Entry từ hồ sơ cá nhân qua `Thao tác ︿`|
-|UI-02|Chỉ hiển thị nếu type Person và có quyền transform|
-|UI-03|Form gồm cá nhân hiện tại, thông tin tổ chức, hóa đơn, contact chính, ghi chú|
-|UI-04|Modal title `Chuyển cá nhân thành tổ chức?`|
-|UI-05|Body nêu cá nhân hiện tại được giữ làm contact chính|
-|UI-06|Secondary CTA `Quay lại`|
-|UI-07|Primary CTA `Xác nhận chuyển`|
+[Appendix A / 8.4.5 SG-05 — Chuyển cá nhân thành tổ chức](https://hamsacorp.sg.larksuite.com/wiki/WElRw9lsHiz6MnkmEfhlwrV4ghg#share-RGjBdf0CXo1nwex3fHYlPVJ8gl2)
 
-#### 5.7.6 Design Contract
-
-|ID|Screen/State|Ghi chú thiết kế|
-|---|---|---|
-|**D-01**|Hồ sơ cá nhân — Entry point||
-|**D-02**|Action sheet — Chuyển thành tổ chức|Có row Chuyển thành tổ chức|
-|**D-03**|Form chuyển thành tổ chức|Top bar, back ←|
-|**D-04**|Confirmation — Xác nhận chuyển đổi|Dim overlay, icon warning/info|
-|**D-05**|Chuyển đổi thành công — Hồ sơ tổ chức|Toast và mở hồ sơ tổ chức|
-|**D-06**|Validation / Blocked|Không hợp lệ hoặc data changed|
-|**D-07**|No permission / Source changed / Error|State phù hợp|
-
-![Image](https://internal-api-drive-stream-sg.larksuite.com/space/api/box/stream/download/authcode/?code=ZTEyNTgxY2UyZjA4N2YwYjEyNTRiYzBhZmY0YzUzYjVfYjkwMjM3MTg0NjBhNzM4MzI0ZGQ2NTJiNTMwNzE5NGZfSUQ6NzY1OTY1NDE1ODU4MDA1OTg3MF8xNzgzNDEzNjAzOjE3ODM1MDAwMDNfVjM)
-
-#### 5.7.7 Data/API Contract
+#### 5.7.6 Data/API Contract
 
 ```HTTP
 POST /partners/{partner_id}/transform-to-organization
@@ -1398,7 +1271,7 @@ POST /partners/{partner_id}/transform-to-organization
 |DR-06|Ghi updated_by, updated_at, action log|
 |DR-07|Không cập nhật ngược snapshot giao dịch cũ|
 
-#### 5.7.8 Scenarios
+#### 5.7.7 Scenarios
 
 ```Gherkin
 Background:
@@ -1423,7 +1296,7 @@ Scenario: SCN-07 - Snapshot cũ không đổi
   Then giao dịch cũ giữ snapshot
 ```
 
-#### 5.7.9 Acceptance Criteria 
+#### 5.7.8 Acceptance Criteria
 
 |ID|Acceptance Criteria|
 |---|---|
@@ -1435,7 +1308,7 @@ Scenario: SCN-07 - Snapshot cũ không đổi
 |AC-06|Role/status giữ nguyên|
 |AC-07|Snapshot giao dịch cũ không bị cập nhật|
 
-#### 5.7.10 Open questions
+#### 5.7.9 Open questions
 
 |ID|Open Question|
 |---|---|
@@ -1488,35 +1361,11 @@ Lịch sử hiển thị theo đúng Partner hiện tại và phân biệt chi�
 |EC-06|Không có quyền xem chi tiết nguồn|Vẫn hiển thị dòng lịch sử nhưng không mở chi tiết|
 |EC-07|Giao dịch nguồn bị hủy/xóa mềm|Hiển thị trạng thái hiện tại theo nguồn|
 
-#### 5.8.5 UI Contract
+#### 5.8.5 Design reference
 
-|ID|UI Contract|
-|---|---|
-|UI-01|Entry từ hồ sơ đối tác qua tab/card Lịch sử|
-|UI-02|Permission guard bằng partner.history.view|
-|UI-03|Header có tên, type chip, role chip, status|
-|UI-04|Role filter tùy vai trò đối tác|
-|UI-05|Filter theo thời gian, loại giao dịch, trạng thái|
-|UI-06|History item có loại, mã, ngày, trạng thái, giá trị, nguồn|
-|UI-07|Row có chevron nếu mở được chi tiết nguồn|
+[Appendix A / 8.4.6 SG-06 — Lịch sử làm việc với KH & NCC](https://hamsacorp.sg.larksuite.com/wiki/WElRw9lsHiz6MnkmEfhlwrV4ghg#share-GV7TdBQLwoEWAKxzYe7lvDyrggh)
 
-#### 5.8.6 Design Contract
-
-|**ID**|**Screen/State**|**Ghi chú thiết kế**|
-|---|---|---|
-|**D-01**|**Section Lịch sử trong hồ sơ đối tác**|Entry point từ US-04; hiển thị 2–3 hoạt động gần nhất và CTA Xem tất cả lịch sử.|
-|**D-02**|**Danh sách lịch sử làm việc**|Timeline/list đầy đủ; có quick filter, filter icon dạng slider; item hiển thị loại hoạt động, mã, ngày, trạng thái, số tiền nếu có.|
-|**D-03**|**Bộ lọc lịch sử**|Bottom sheet có dim overlay và handle; lọc theo vai trò, loại hoạt động, thời gian và trạng thái.|
-|**D-04**|**Kết quả sau lọc / Không có kết quả**|Hiển thị active filter chips; nếu không có kết quả thì hiển thị no-result state và CTA Đặt lại bộ lọc.|
-|**D-05**|**Chi tiết một hoạt động**|Màn/bottom sheet read-only; hiển thị thông tin chi tiết activity, không cho chỉnh sửa hoặc hủy nghiệp vụ nguồn.|
-|**D-06**|**Chứng từ đính kèm / Source link**|Hiển thị file liên quan và link Xem trong module nguồn; quyền xem/tải phụ thuộc permission.|
-|**D-07**|**State phụ**|Gom Empty, Loading, Error, No permission, Not found / Source unavailable; không có CTA tạo giao dịch.|
-
-
-
-![Image](https://internal-api-drive-stream-sg.larksuite.com/space/api/box/stream/download/authcode/?code=ZWE0OWNkMWQ2ZWIwMDJiMjE3M2E2ODUxMTI1NDQ0YzhfZjFiMDA5OGI3OGE0NzU4NmRiZDBhY2ZjNTZiNGYyNmRfSUQ6NzY1OTY3NTMyMTU3NDYyNDk4N18xNzgzNDEzNjAzOjE3ODM1MDAwMDNfVjM)
-
-#### 5.8.7 Data/API Contract
+#### 5.8.6 Data/API Contract
 
 ```HTTP
 GET /partners/{partner_id}/history
@@ -1543,7 +1392,7 @@ GET /partners/{partner_id}/history
 |DR-05|Theme 3 không cập nhật dữ liệu giao dịch nguồn|
 |DR-06|Số tiền, mã, trạng thái giữ đúng theo module nguồn|
 
-#### 5.8.8 Scenarios
+#### 5.8.7 Scenarios
 
 ```Gherkin
 Background:
@@ -1568,7 +1417,7 @@ Scenario: SCN-07 - Không có quyền
   Then không hiển thị lịch sử
 ```
 
-#### 5.8.9 Acceptance Criteria 
+#### 5.8.8 Acceptance Criteria
 
 |ID|Acceptance Criteria|
 |---|---|
@@ -1580,7 +1429,7 @@ Scenario: SCN-07 - Không có quyền
 |AC-06|Chỉ mở nguồn nếu có quyền|
 |AC-07|Không chỉnh sửa giao dịch nguồn từ Theme 3|
 
-#### 5.8.10 Open questions
+#### 5.8.9 Open questions
 
 |ID|Open Question|
 |---|---|
@@ -1675,33 +1524,11 @@ Một khách hàng, nhà cung cấp, cá nhân hoặc tổ chức có thể tạ
 |EC-06|Hủy modal|Không đổi trạng thái|
 |EC-07|Lưu thất bại|Không cập nhật một phần, cho thử lại|
 
-#### 6.2.5 UI Contract
+#### 6.2.5 Design reference
 
-|ID|UI Contract|
-|---|---|
-|UI-01|Hồ sơ hiển thị trạng thái hiện tại|
-|UI-02|`Thao tác ︿` secondary mở action sheet|
-|UI-03|Ngừng hoạt động hiển thị khi Active|
-|UI-04|Kích hoạt lại hiển thị khi Inactive|
-|UI-05|Modal ngừng hoạt động nêu không còn được chọn cho giao dịch mới|
-|UI-06|Modal kích hoạt lại nêu được dùng lại cho giao dịch mới|
-|UI-07|Success toast theo action|
+[Appendix A / 8.4.7 SG-07 — Trạng thái & xóa mềm KH & NCC](https://hamsacorp.sg.larksuite.com/wiki/WElRw9lsHiz6MnkmEfhlwrV4ghg#share-R2s2d8kNpojzgFxf92Dl1AL8gdg)
 
-#### 6.2.6 Design Contract
-
-|**ID**|**Screen/State**|**Ghi chú thiết kế**|
-|---|---|---|
-|**D-01**|**Hồ sơ đối tác đang hoạt động**|Entry point; vertical accordion; badge Đang hoạt động; có Chỉnh sửa và Thao tác ︿.|
-|**D-02**|**Action sheet — Ngừng hoạt động**|Bottom sheet có dim overlay, handle; chỉ hiển thị action phù hợp với trạng thái Active.|
-|**D-03**|**Confirmation — Ngừng hoạt động**|Modal xác nhận; nêu rõ đối tác không được chọn cho giao dịch mới; có lý do nếu cần audit.|
-|**D-04**|**Hồ sơ đối tác đã ngừng hoạt động**|Badge Ngừng hoạt động; vẫn xem được hồ sơ/lịch sử; không dùng cho giao dịch mới.|
-|**D-05**|**Action sheet — Kích hoạt lại**|Bottom sheet cho trạng thái Inactive; hiển thị action Kích hoạt lại.|
-|**D-06**|**Confirmation — Kích hoạt lại**|Modal xác nhận; CTA primary xanh; sau xác nhận chuyển về Đang hoạt động.|
-|**D-07**|**State phụ**|Gom Blocked, No permission, Source changed, Loading, Error, Success toast.|
-
-![Image](https://internal-api-drive-stream-sg.larksuite.com/space/api/box/stream/download/authcode/?code=N2JjNjk3MDk1N2Y5Yzk5MGU4ZWU4YmZlNDZhZDEyN2FfZWRhMDkzZjdhODYyOWI3M2RiOWVhNmRiMGQyODY3YWVfSUQ6NzY1OTY3OTMxOTc0MTY0ODYxMF8xNzgzNDEzNjAzOjE3ODM1MDAwMDNfVjM)
-
-#### 6.2.7 Data/API Contract
+#### 6.2.6 Data/API Contract
 
 ```HTTP
 POST /partners/{partner_id}/deactivate
@@ -1726,7 +1553,7 @@ POST /partners/{partner_id}/reactivate
 |DR-06|Thành công ghi audit|
 |DR-07|Không cập nhật ngược giao dịch cũ|
 
-#### 6.2.8 Scenarios
+#### 6.2.7 Scenarios
 
 ```Gherkin
 Background:
@@ -1751,7 +1578,7 @@ Scenario: SCN-07 - Giao dịch cũ không đổi
   Then giao dịch/hóa đơn/chứng từ cũ giữ nguyên
 ```
 
-#### 6.2.9 Acceptance Criteria 
+#### 6.2.8 Acceptance Criteria
 
 |ID|Acceptance Criteria|
 |---|---|
@@ -1763,7 +1590,7 @@ Scenario: SCN-07 - Giao dịch cũ không đổi
 |AC-06|Đổi trạng thái ghi audit|
 |AC-07|Giao dịch cũ không bị cập nhật ngược|
 
-#### 6.3.10 Open questions
+#### 6.3.9 Open questions
 
 |ID|Open Question|
 |---|---|
@@ -1816,33 +1643,11 @@ Nếu đã phát sinh đơn bán, phiếu nhập, hóa đơn, công nợ hoặc 
 |EC-06|Hủy confirmation|Không đổi status|
 |EC-07|Xóa thất bại|Không cập nhật một phần, cho thử lại|
 
-#### 6.3.5 UI Contract
+#### 6.3.5 Design reference
 
-|ID|UI Contract|
-|---|---|
-|UI-01|Entry từ hồ sơ chi tiết|
-|UI-02|`Thao tác ︿` mở action sheet|
-|UI-03|Xóa hồ sơ là action danger|
-|UI-04|Khi không thể xóa, gợi ý Ngừng hoạt động nếu có quyền|
-|UI-05|Modal title `Xóa hồ sơ đối tác?`|
-|UI-06|Body nêu hồ sơ không còn hiển thị trong danh sách làm việc|
-|UI-07|Destructive CTA `Xóa hồ sơ`|
+[Appendix A / 8.4.7 SG-07 — Trạng thái & xóa mềm KH & NCC](https://hamsacorp.sg.larksuite.com/wiki/WElRw9lsHiz6MnkmEfhlwrV4ghg#share-R2s2d8kNpojzgFxf92Dl1AL8gdg)
 
-#### 6.3.6 Design Contract
-
-|**ID**|**Screen/State**|**Ghi chú thiết kế**|
-|---|---|---|
-|**D-01**|**Hồ sơ đối tác đủ điều kiện xóa**|Entry point từ hồ sơ chi tiết; vertical accordion; có Thao tác ︿.|
-|**D-02**|**Action sheet — Xóa hồ sơ**|Bottom sheet có dim overlay và handle; Xóa hồ sơ là danger action.|
-|**D-03**|**Confirmation — Xóa hồ sơ**|Modal xác nhận; nêu rõ tác động; có lý do xóa nếu cần audit.|
-|**D-04**|**Xóa thành công**|Toast success; quay về danh sách; hồ sơ không còn trong list mặc định.|
-|**D-05**|**Bị chặn do đã phát sinh dữ liệu**|Hiển thị lý do chặn và gợi ý Ngừng hoạt động.|
-|**D-06**|**No permission / Source changed**|Không có quyền xóa hoặc dữ liệu đã thay đổi trong lúc thao tác.|
-|**D-07**|**Loading / Error / Already deleted**|Gom trạng thái đang xử lý, lỗi hệ thống và hồ sơ đã bị xóa trước đó.|
-
-![Image](https://internal-api-drive-stream-sg.larksuite.com/space/api/box/stream/download/authcode/?code=ODBkMDViNzJkYjdmYTY2ZGQ1MGI1ZGM3ZTZiMjg5NjFfYWFjZjgwMzNjNDYxYzQ5MDZhMTliMzBjYmIwZWI3M2RfSUQ6NzY1OTY4MzgyODA2NDgwMDQ3OF8xNzgzNDEzNjAzOjE3ODM1MDAwMDNfVjM)
-
-#### 6.3.7 Data/API Contract
+#### 6.3.6 Data/API Contract
 
 ```HTTP
 GET /partners/{partner_id}/delete-eligibility
@@ -1871,7 +1676,7 @@ POST /partners/{partner_id}/delete
 |DR-06|Deleted không trả về trong danh sách mặc định|
 |DR-07|Không xóa/cập nhật ngược dữ liệu giao dịch|
 
-#### 6.3.8 Scenarios
+#### 6.3.7 Scenarios
 
 ```Gherkin
 Background:
@@ -1896,7 +1701,7 @@ Scenario: SCN-07 - Lỗi hệ thống
   Then không cập nhật một phần và cho thử lại
 ```
 
-#### 6.3.9 Acceptance Criteria 
+#### 6.3.8 Acceptance Criteria
 
 |ID|Acceptance Criteria|
 |---|---|
@@ -1908,7 +1713,7 @@ Scenario: SCN-07 - Lỗi hệ thống
 |AC-06|Deleted không xuất hiện trong list/luồng chọn giao dịch|
 |AC-07|Xóa ghi audit|
 
-#### 6.4.10 Open questions
+#### 6.4.9 Open questions
 
 |ID|Open Question|
 |---|---|
@@ -1958,19 +1763,3123 @@ Scenario: SCN-07 - Lỗi hệ thống
 |EP-02|US-01|POST deactivate/reactivate|
 |EP-02|US-02|GET delete-eligibility, POST delete|
 
-# 8. Appendix A — Design coverage map
+# Appendix A — UI/UX Design Specification
 
-|US|Screens/States|
+Appendix A định nghĩa đặc tả UI/UX cho Theme 3 — Đối tác giao dịch. Trên UI, module sử dụng tên ngắn gọn **KH & NCC** để thân thiện, thuần Việt và dễ đọc trên mobile. Trong domain/SRS, khái niệm gốc vẫn là **Đối tác giao dịch**, với `Partner` là root entity, `Person/Organization` là loại hồ sơ, còn `Customer/Supplier` là vai trò giao dịch.
+ Appendix này thay thế mục cũ `8. Appendix A — Design coverage map` và gom toàn bộ đặc tả UI/UX theo **Screen groups**, thay vì đặt rải rác trong từng User Story.
+
+## 8.1 Design principles
+
+- DP-01: **Mobile-first** — Tất cả màn hình của Theme 3 được thiết kế ưu tiên cho mobile portrait, phục vụ thao tác nhanh tại cửa hàng.
+
+- DP-02: **Clear over clever** — Label phải rõ nghĩa, ưu tiên thuật ngữ quen thuộc như `KH & NCC`, `Cá nhân`, `Tổ chức`, `Khách hàng`, `Nhà cung cấp`.
+
+- DP-03: **Business-flow first** — Luồng UI đi theo cách người dùng làm việc: tìm KH & NCC → kiểm tra hồ sơ → thao tác tiếp theo.
+
+- DP-04: **One primary action** — Mỗi màn chỉ có một hành động chính rõ ràng, ví dụ `Lưu KH & NCC`, `Lưu thay đổi`, `Xác nhận chuyển`, `Kích hoạt lại`.
+
+- DP-05: **Progressive disclosure** — Hồ sơ và form dài phải chia thành card/section, không phơi toàn bộ dữ liệu cùng lúc.
+
+- DP-06: **Prevent before correct** — Các thao tác nhạy cảm như xóa mềm, ngừng hoạt động, chuyển cá nhân thành tổ chức phải có confirmation hoặc blocked state rõ ràng.
+
+- DP-07: **Status is always honest** — Trạng thái `Đang hoạt động`, `Ngừng hoạt động`, `Đã xóa` phải luôn hiển thị rõ tại list, detail và action flow.
+ Các nguyên tắc này bám theo VET45 Design System: mobile-first, clear over clever, business-flow first, one primary action, progressive disclosure và prevent before correct.
+
+## 8.2 Visual architecture
+
+Theme 3 được thiết kế như một module **KH & NCC** thống nhất, không tách thành hai module riêng “Khách hàng” và “Nhà cung cấp”.
+
+```Plain Text
+KH & NCC
+├── Danh sách
+│   ├── Search
+│   ├── Filter
+│   ├── Sort
+│   └── Tạo mới
+├── Hồ sơ
+│   ├── Tổng quan
+│   ├── Thông tin cá nhân / tổ chức
+│   ├── Người liên hệ
+│   ├── Hóa đơn / thuế
+│   ├── Địa chỉ giao hàng
+│   ├── Lịch sử gần đây
+│   ├── Thông tin hệ thống
+│   └── Thao tác
+├── Tạo / chỉnh sửa
+├── Quản lý người liên hệ
+├── Chuyển cá nhân thành tổ chức
+├── Lịch sử làm việc
+└── Trạng thái / xóa mềm
+```
+
+**Primary flow**
+
+```Plain Text
+Danh sách KH & NCC
+→ Hồ sơ KH & NCC
+→ Chỉnh sửa / Người liên hệ / Lịch sử / Thao tác
+```
+
+**Create flow**
+
+```Plain Text
+Danh sách KH & NCC
+→ FAB +
+→ Tạo cá nhân / Tạo tổ chức
+→ Form tạo
+→ Lưu
+→ Hồ sơ hoặc danh sách
+```
+
+**Status flow**
+
+```Plain Text
+Hồ sơ KH & NCC
+→ Thao tác ︿
+→ Ngừng hoạt động / Kích hoạt lại / Xóa hồ sơ
+→ Confirmation / Blocked state
+→ Success / Error
+```
+
+**Transform flow**
+
+```Plain Text
+Hồ sơ cá nhân
+→ Thao tác ︿
+→ Chuyển thành tổ chức
+→ Form chuyển đổi
+→ Before / After preview
+→ Confirmation
+→ Hồ sơ tổ chức
+```
+
+## 8.3 Component rules
+
+**Partner card**
+ Dùng trong danh sách, kết quả tìm kiếm, danh sách liên quan.
+
+```Plain Text
+[MP]  Đại lý Minh Phát                 [Đang hoạt động]
+      Tổ chức · Nhà cung cấp
+      02838225511 · MST 0312345678
+      Cập nhật 18/06/2026
+```
+
+- PC-01: Tên KH & NCC là thông tin nổi bật nhất.
+
+- PC-02: Loại hồ sơ và vai trò giao dịch nằm ngay dưới tên.
+
+- PC-03: SĐT là thông tin nhận diện ưu tiên.
+
+- PC-04: MST chỉ hiển thị nếu có.
+
+- PC-05: Status badge phải dễ nhìn.
+
+- PC-06: Card mở hồ sơ chi tiết khi tap.
+
+- PC-07: Không nhồi quá nhiều metadata trên list.
+**Profile header**
+ Dùng trong hồ sơ chi tiết.
+
+```Plain Text
+[MP]
+Đại lý Minh Phát
+Tổ chức · Nhà cung cấp
+[Đang hoạt động]
+02838225511
+MST 0312345678
+```
+
+- PH-01: Header phải giúp nhận diện KH & NCC trong 3 giây.
+
+- PH-02: Luôn hiển thị type, role và status.
+
+- PH-03: Không đặt quá nhiều action trong header.
+
+- PH-04: Nếu thiếu dữ liệu quan trọng, hiển thị warning block dưới header.
+
+- PH-05: Với Organization, có thể hiển thị tóm tắt contact chính.
+**Chip & badge**
+ | Loại | Ví dụ | Style |
+ |---|---|---|
+ | Type chip | Cá nhân, Tổ chức | Neutral chip |
+ | Role chip | Khách hàng, Nhà cung cấp, KH & NCC | Brand/info soft chip |
+ | Status badge | Đang hoạt động, Ngừng hoạt động, Đã xóa | Semantic badge |
+ | Warning badge | Thiếu MST, Thiếu SĐT | Warning soft badge |
+ | Primary contact badge | Chính | Brand soft badge |
+
+- CB-01: Không dùng cùng một style cho type và role.
+
+- CB-02: Status badge có độ ưu tiên cao hơn type/role chip.
+
+- CB-03: `KH & NCC` dùng một chip trên list để tiết kiệm không gian.
+
+- CB-04: Trong detail/form, có thể hiển thị đầy đủ là `Khách hàng & Nhà cung cấp` nếu cần làm rõ.
+
+- CB-05: `Đã xóa` dùng danger/disabled treatment.
+
+- CB-06: `Ngừng hoạt động` không dùng cho giao dịch mới nhưng vẫn xem hồ sơ/lịch sử.
+**Section card**
+ Dùng trong hồ sơ, form và detail.
+
+```Plain Text
+Thông tin tổ chức
+Tên tổ chức        Đại lý Minh Phát
+Loại tổ chức       Hộ kinh doanh
+SĐT chính          02838225511
+Email              —
+```
+
+- SC-01: Mỗi card chỉ chứa một nhóm thông tin nghiệp vụ.
+
+- SC-02: Value trống dùng `—`, không để trống layout.
+
+- SC-03: Field lỗi hoặc thiếu dữ liệu dùng helper/warning.
+
+- SC-04: Card dài có thể collapse hoặc chia section.
+
+- SC-05: Không dùng icon trang trí nếu không giúp nhận diện nhanh.
+**Action sheet**
+
+```Plain Text
+──────── handle ────────
+Đại lý Minh Phát
+Tổ chức · Nhà cung cấp · Đang hoạt động
+Chỉnh sửa                ›
+Xem lịch sử              ›
+Quản lý người liên hệ    ›
+Ngừng hoạt động          ›
+Xóa hồ sơ                ›
+```
+
+- AS-01: Có dim overlay và handle.
+
+- AS-02: Header sheet nêu tên KH & NCC và trạng thái.
+
+- AS-03: Chỉ hiển thị action phù hợp với quyền/trạng thái.
+
+- AS-04: Action danger đặt cuối.
+
+- AS-05: Row dùng chevron `›` nếu mở bước tiếp theo.
+
+- AS-06: `Thao tác ︿` trên detail là secondary button.
+**Confirmation modal**
+
+```Plain Text
+Ngừng hoạt động KH & NCC?
+KH & NCC này sẽ không còn được chọn cho giao dịch mới.
+Hồ sơ và lịch sử vẫn được giữ lại.
+[Lý do — không bắt buộc]
+Quay lại        Ngừng hoạt động
+```
+
+- CM-01: Title phải nói rõ action.
+
+- CM-02: Body phải nói rõ tác động.
+
+- CM-03: Destructive action dùng danger CTA.
+
+- CM-04: Reversible action dùng tone nhẹ hơn.
+
+- CM-05: Không dùng copy mơ hồ như “Bạn có chắc không?”.
+**State pattern**
+ | State | Khi dùng | CTA |
+ |---|---|---|
+ | Empty | Tenant chưa có KH & NCC | `+ Thêm KH & NCC` nếu có quyền |
+ | No search result | Search không có kết quả | Gợi ý sửa từ khóa |
+ | No filter result | Filter không có kết quả | `Đặt lại bộ lọc` |
+ | Loading | Đang tải list/detail/history | Skeleton |
+ | Error | Lỗi hệ thống | `Thử lại` |
+ | No permission | Thiếu quyền | Không có CTA nghiệp vụ |
+ | Not found | Không tìm thấy/không thuộc tenant | `Quay lại` |
+ | Source changed | Dữ liệu đổi trong lúc thao tác | `Tải lại` |
+ | Blocked | Bị chặn bởi business rule | CTA thay thế nếu có |
+
+## 8.4 Screen groups
+
+### 8.4.0 Group mapping
+
+### 8.4.1 SG-01 — Danh sách & khám phá KH & NCC
+
+#### Purpose
+
+SG-01 là entry point chính của Theme 3 trên UI. Mục tiêu là giúp người dùng nhanh chóng tìm, rà soát và phân biệt KH & NCC theo tên, SĐT, email, MST, loại hồ sơ, vai trò giao dịch và trạng thái trước khi mở hồ sơ chi tiết hoặc tạo mới.
+
+#### Covered user stories
+
+- EP-01/US-01 — Tìm kiếm và rà soát danh sách đối tác
+
+#### Main entry points
+
+- Menu/bottom navigation: `KH & NCC`
+
+- Module shortcut từ dashboard nếu có
+
+- Điều hướng quay lại từ form tạo/sửa hoặc hồ sơ chi tiết
+
+#### Screens / states
+
+|ID|Screen / State|Purpose|
+|---|---|---|
+|D-01|Danh sách mặc định|Hiển thị danh sách KH & NCC đang hoạt động|
+|D-02|Kết quả tìm kiếm|Hiển thị danh sách sau khi nhập từ khóa|
+|D-03|Filter bottom sheet|Lọc theo loại hồ sơ, vai trò giao dịch, trạng thái|
+|D-04|Danh sách đã áp dụng bộ lọc|Hiển thị active filter chips và kết quả tương ứng|
+|D-05|Sort bottom sheet|Sắp xếp theo cập nhật gần nhất, mới tạo, tên A–Z/Z–A|
+|D-06|Empty / No result / Loading / Error|Các state phụ của danh sách|
+|D-07|No permission|Chặn truy cập khi không có quyền `partner.view`|
+
+#### UI Contract
+
+- UI-01: Top bar title dùng `KH & NCC`, căn giữa.
+
+- UI-02: Search nằm ngay dưới top bar, placeholder `Tìm tên, SĐT, email, MST`.
+
+- UI-03: Filter icon dùng dạng sliders/tuning, không dùng funnel/phễu.
+
+- UI-04: Quick filters gồm `Tất cả`, `Khách hàng`, `Nhà cung cấp`, `Tổ chức`.
+
+- UI-05: Partner card hiển thị `display_name`, type chip, role chip, status badge, SĐT, MST nếu có, thời gian cập nhật.
+
+- UI-06: FAB `+` là hành động tạo mới chính, mở create action sheet thuộc SG-02.
+
+- UI-07: Sort là action phụ, không làm mất search/filter hiện tại.
+
+- UI-08: Khi filter được áp dụng, hiển thị active filter chips có dấu `×`.
+
+- UI-09: Empty state có CTA `+ Thêm KH & NCC` nếu người dùng có quyền `partner.create`.
+
+- UI-10: No permission state không hiển thị danh sách, search, filter, sort hoặc FAB.
+
+#### Business display rules
+
+- BR-UI-01: Mặc định chỉ hiển thị KH & NCC có trạng thái `Đang hoạt động`.
+
+- BR-UI-02: `Cá nhân` và `Tổ chức` là loại hồ sơ, hiển thị bằng type chip.
+
+- BR-UI-03: `Khách hàng`, `Nhà cung cấp`, `KH & NCC` là vai trò giao dịch, hiển thị bằng role chip.
+
+- BR-UI-04: KH & NCC `Ngừng hoạt động` chỉ xuất hiện khi filter trạng thái phù hợp.
+
+- BR-UI-05: KH & NCC `Đã xóa` không xuất hiện trong danh sách mặc định.
+
+- BR-UI-06: Nếu thiếu SĐT do dữ liệu cũ, card vẫn hiển thị nhưng có warning nhẹ `Thiếu SĐT`.
+
+- BR-UI-07: Nếu nhiều KH & NCC trùng tên, card phải hiển thị thêm SĐT, MST hoặc loại hồ sơ để phân biệt.
+
+#### Low-fi wireframes
+
+```Plain Text
+D-01 — Danh sách mặc định
+┌─────────────────────────────┐
+│ 9:41                  100%  │
+│             KH & NCC    ⋯   │
+│ ┌─────────────────────┐ ┌─┐ │
+│ │ 🔍 Tìm tên, SĐT...  │ │≡│ │
+│ └─────────────────────┘ └─┘ │
+│ [Tất cả] [KH] [NCC] [Tổ chức]│
+│                             │
+│ ┌─────────────────────────┐ │
+│ │ MP  Đại lý Minh Phát    │ │
+│ │     Tổ chức · Nhà cung cấp│ │
+│ │     02838225511 · MST...│ │
+│ │     Cập nhật 18/06      │ │
+│ │              Đang hoạt động│
+│ └─────────────────────────┘ │
+│ ┌─────────────────────────┐ │
+│ │ TH  Trần Thị Hoa        │ │
+│ │     Cá nhân · Khách hàng│ │
+│ │     0987654321          │ │
+│ │     Cập nhật 16/06      │ │
+│ │              Đang hoạt động│
+│ └─────────────────────────┘ │
+│                         +   │
+└─────────────────────────────┘
+```
+
+```Plain Text
+D-02 — Kết quả tìm kiếm
+┌─────────────────────────────┐
+│ 9:41                  100%  │
+│             KH & NCC    ⋯   │
+│ ┌─────────────────────┐ ┌─┐ │
+│ │ minh phát           │ │≡│ │
+│ └─────────────────────┘ └─┘ │
+│ 2 kết quả phù hợp           │
+│ [Tất cả] [KH] [NCC] [Tổ chức]│
+│ ┌─────────────────────────┐ │
+│ │ MP  Đại lý Minh Phát    │ │
+│ │     Tổ chức · Nhà cung cấp│ │
+│ │     02838225511 · MST...│ │
+│ └─────────────────────────┘ │
+│ ┌─────────────────────────┐ │
+│ │ PM  Minh Phát Pet       │ │
+│ │     Tổ chức · KH & NCC  │ │
+│ │     0909123456          │ │
+│ └─────────────────────────┘ │
+│                         +   │
+└─────────────────────────────┘
+```
+
+```Plain Text
+D-03 — Filter bottom sheet
+┌─────────────────────────────┐
+│             KH & NCC        │
+│ ┌─────────────────────┐ ┌─┐ │
+│ │ 🔍 Tìm tên, SĐT...  │ │≡│ │
+│ └─────────────────────┘ └─┘ │
+│ ┌─────────────────────────┐ │
+│ │ List dimmed behind      │ │
+│ │                         │ │
+│ └─────────────────────────┘ │
+│ ░░░░░░░░░░░░░░░░░░░░░░░░░░ │
+│ ┌─────────────────────────┐ │
+│ │           ───           │ │
+│ │ Bộ lọc KH & NCC         │ │
+│ │ Loại hồ sơ              │ │
+│ │ [Tất cả] [Cá nhân] [Tổ chức]│
+│ │ Vai trò giao dịch       │ │
+│ │ [KH] [NCC] [KH & NCC]   │ │
+│ │ Trạng thái              │ │
+│ │ [Đang hoạt động] [Ngừng]│ │
+│ │                         │ │
+│ │ [Đặt lại]      [Áp dụng]│ │
+│ └─────────────────────────┘ │
+└─────────────────────────────┘
+```
+
+```Plain Text
+D-04 — Danh sách đã áp dụng bộ lọc
+┌─────────────────────────────┐
+│ 9:41                  100%  │
+│             KH & NCC    ⋯   │
+│ ┌─────────────────────┐ ┌─┐ │
+│ │ 🔍 Tìm tên, SĐT...  │ │≡│ │
+│ └─────────────────────┘ └─┘ │
+│ [Tổ chức ×] [NCC ×] [Đang hoạt động ×]│
+│ 8 kết quả · Xóa lọc         │
+│ ┌─────────────────────────┐ │
+│ │ MP  Đại lý Minh Phát    │ │
+│ │     Tổ chức · Nhà cung cấp│ │
+│ │     02838225511 · MST...│ │
+│ │              Đang hoạt động│
+│ └─────────────────────────┘ │
+│ ┌─────────────────────────┐ │
+│ │ AG  AgriVet Hà Nam      │ │
+│ │     Tổ chức · Nhà cung cấp│ │
+│ │     0911222333          │ │
+│ │              Đang hoạt động│
+│ └─────────────────────────┘ │
+│                         +   │
+└─────────────────────────────┘
+```
+
+```Plain Text
+D-05 — Sort bottom sheet
+┌─────────────────────────────┐
+│             KH & NCC        │
+│ ┌─────────────────────┐ ┌─┐ │
+│ │ 🔍 Tìm tên, SĐT...  │ │≡│ │
+│ └─────────────────────┘ └─┘ │
+│ ┌─────────────────────────┐ │
+│ │ List dimmed behind      │ │
+│ └─────────────────────────┘ │
+│ ░░░░░░░░░░░░░░░░░░░░░░░░░░ │
+│ ┌─────────────────────────┐ │
+│ │           ───           │ │
+│ │ Sắp xếp danh sách       │ │
+│ │ ✓ Cập nhật gần nhất     │ │
+│ │   Mới tạo               │ │
+│ │   Tên A–Z               │ │
+│ │   Tên Z–A               │ │
+│ │                         │ │
+│ │              [Áp dụng]  │ │
+│ └─────────────────────────┘ │
+└─────────────────────────────┘
+```
+
+```Plain Text
+D-06A — Empty state
+┌─────────────────────────────┐
+│             KH & NCC        │
+│ ┌─────────────────────┐ ┌─┐ │
+│ │ 🔍 Tìm tên, SĐT...  │ │≡│ │
+│ └─────────────────────┘ └─┘ │
+│                             │
+│            👥               │
+│     Chưa có KH & NCC        │
+│ Thêm khách hàng hoặc NCC    │
+│ đầu tiên để sử dụng khi bán │
+│ hàng, nhập hàng, công nợ.   │
+│                             │
+│        [+ Thêm KH & NCC]    │
+└─────────────────────────────┘
+```
+
+```Plain Text
+D-06B — No result / Error
+┌─────────────────────────────┐
+│             KH & NCC        │
+│ ┌─────────────────────┐ ┌─┐ │
+│ │ abcxyz              │ │≡│ │
+│ └─────────────────────┘ └─┘ │
+│                             │
+│            🔍               │
+│ Không tìm thấy kết quả      │
+│ Thử kiểm tra lại tên, SĐT,  │
+│ email hoặc MST.             │
+│                             │
+│        [Xóa từ khóa]        │
+│                             │
+│ ─ Trường hợp lỗi tải ─      │
+│ Không tải được danh sách    │
+│        [Thử lại]            │
+└─────────────────────────────┘
+```
+
+```Plain Text
+D-07 — No permission
+┌─────────────────────────────┐
+│ 9:41                  100%  │
+│             KH & NCC        │
+│                             │
+│            🔒               │
+│ Anh chưa có quyền xem       │
+│ danh sách KH & NCC.         │
+│                             │
+│ Vui lòng liên hệ quản trị   │
+│ viên để được cấp quyền.     │
+│                             │
+│        [Quay lại]           │
+└─────────────────────────────┘
+```
+
+#### Visual Design
+
+- VD-01: Màn danh sách dùng mobile portrait, top bar title `KH & NCC` căn giữa, nội dung có edge padding 16px.
+
+- VD-02: Background dùng màu nền nhẹ của VET45; card dùng surface trắng, border nhẹ, radius mềm.
+
+- VD-03: Search input nằm dưới top bar, cao tối thiểu 44px, icon search bên trái, placeholder rõ nghĩa.
+
+- VD-04: Filter icon là sliders/tuning control; khi có filter active, icon có indicator nhỏ hoặc active state nhẹ.
+
+- VD-05: Quick filters dùng pill chips ngang, scroll được nếu thiếu chiều rộng; chip đang chọn dùng brand soft surface.
+
+- VD-06: Partner card dùng card trắng, radius 12, border default, padding 12–16px; avatar initials bên trái; status badge ưu tiên góc phải.
+
+- VD-07: Type chip `Cá nhân`, `Tổ chức` dùng neutral chip.
+
+- VD-08: Role chip `Khách hàng`, `Nhà cung cấp`, `KH & NCC` dùng brand/info soft chip, không dùng cùng style với type.
+
+- VD-09: Status badge `Đang hoạt động` dùng success/green; `Ngừng hoạt động` dùng warning/neutral; `Đã xóa` không hiển thị mặc định.
+
+- VD-10: FAB `+` dùng primary green, fixed ở góc phải dưới, không che card cuối.
+
+- VD-11: Bottom sheet có dim overlay, handle, radius top 16–20px, CTA `Áp dụng` primary, `Đặt lại` secondary/ghost.
+
+- VD-12: Empty state dùng icon tối giản, copy ngắn, CTA chỉ hiện nếu có quyền tạo.
+
+- VD-13: Error state không dùng danger quá nặng nếu chỉ là lỗi tải; CTA chính là `Thử lại`.
+
+- VD-14: No permission không hiển thị search/filter/list/FAB để tránh gợi ý sai quyền.
+
+![image.png](Images_attachments/image%204.png)
+
+#### Interaction rules
+
+- IR-01: Tap partner card mở `SG-03 — Hồ sơ KH & NCC`.
+
+- IR-02: Tap FAB `+` mở create action sheet trong `SG-02`.
+
+- IR-03: Nhập search debounce trước khi gọi API; giữ nguyên filter/sort đang áp dụng.
+
+- IR-04: Xóa search query trả về danh sách theo filter/sort hiện tại.
+
+- IR-05: Áp dụng filter đóng bottom sheet và hiển thị active filter chips.
+
+- IR-06: Tap `Xóa lọc` reset filter nhưng giữ search query nếu đang nhập.
+
+- IR-07: Sort không reset search/filter.
+
+- IR-08: Pull-to-refresh hoặc CTA `Thử lại` dùng lại query/filter/sort hiện tại.
+
+#### API / Data dependency
+
+- API chính: `GET /partners`
+
+- Query params: `q`, `partner_type`, `role`, `status`, `page`, `limit`, `sort`
+
+- Required permission: `partner.view`
+
+- Create permission ảnh hưởng FAB/empty CTA: `partner.create`
+
+- Card fields: `partner_id`, `partner_type`, `display_name`, `roles`, `status`, `phone`, `tax_code`, `updated_at`, `contact_count`
+
+#### Acceptance checklist
+
+- AC-SG01-01: Màn list dùng title `KH & NCC`.
+
+- AC-SG01-02: Search hỗ trợ tên, SĐT, email, MST.
+
+- AC-SG01-03: Filter phân biệt rõ `Loại hồ sơ`, `Vai trò giao dịch`, `Trạng thái`.
+
+- AC-SG01-04: Card phân biệt rõ `Cá nhân/Tổ chức` và `Khách hàng/Nhà cung cấp/KH & NCC`.
+
+- AC-SG01-05: Status hiển thị rõ, không lẫn với role chip.
+
+- AC-SG01-06: Empty, no result, loading, error, no permission có copy/CTA riêng.
+
+- AC-SG01-07: FAB chỉ hiển thị nếu có quyền tạo mới.
+
+- AC-SG01-08: No permission không hiển thị dữ liệu, search, filter, sort, FAB.
+
+- AC-SG01-09: Filter/sort/search không làm mất trạng thái của nhau.
+
+- AC-SG01-10: Visual tuân thủ VET45 Design System và không stretch mobile frame.
+
+### 8.4.2 SG-02 — Tạo mới & chỉnh sửa KH & NCC
+
+#### Purpose
+
+SG-02 cover toàn bộ flow tạo mới và chỉnh sửa hồ sơ KH & NCC. Mục tiêu là giúp người dùng ghi nhận nhanh một cá nhân hoặc tổ chức, chọn đúng vai trò giao dịch, bổ sung thông tin nhận diện quan trọng, giảm lỗi trùng dữ liệu và lưu được hồ sơ với cấu trúc rõ ràng trên mobile.
+
+#### Covered user stories
+
+- EP-01/US-02 — Ghi nhận đối tác mới
+
+- EP-01/US-03 — Bổ sung và chỉnh sửa thông tin đối tác
+
+#### Main entry points
+
+- Từ `SG-01 — Danh sách & khám phá KH & NCC`: tap FAB `+`
+
+- Từ `SG-03 — Hồ sơ KH & NCC`: tap `Chỉnh sửa`
+
+- Từ empty state của SG-01: tap `+ Thêm KH & NCC`
+
+- Từ duplicate warning: tiếp tục tạo nếu người dùng có quyền và xác nhận
+
+#### Screens / states
+
+|ID|Screen / State|Purpose|
+|---|---|---|
+|D-01|Create action sheet|Chọn tạo `Cá nhân` hoặc `Tổ chức`|
+|D-02|Person — Loại hồ sơ & vai trò|Xác nhận loại Cá nhân và chọn vai trò giao dịch|
+|D-03|Person — Thông tin cá nhân|Nhập thông tin nhận diện bắt buộc của cá nhân|
+|D-04|Organization — Thông tin tổ chức|Xác nhận loại Tổ chức, chọn vai trò và nhập thông tin tổ chức|
+|D-05|Organization — Người liên hệ chính|Nhập người liên hệ chính nếu có|
+|D-06|Hóa đơn / thuế|Nhập MST và thông tin xuất hóa đơn|
+|D-07|Địa chỉ giao hàng|Nhập địa chỉ giao hàng mặc định|
+|D-08|Ghi chú|Nhập ghi chú nội bộ nếu có|
+|D-09A|Possible duplicate bottom sheet|Cảnh báo hồ sơ có thể trùng và cho phép xác nhận tiếp tục|
+|D-09B|Exact duplicate bottom sheet|Chặn tạo mới khi hồ sơ trùng khớp hoàn toàn|
+|D-10|Save success handoff|Hiển thị toast và chuyển tới hồ sơ vừa tạo|
+
+Leave form confirmation, inline validation, save error, no-permission và source-changed là state phụ của create/edit flow, không cấp D-ID riêng.
+
+#### UI Contract
+
+- UI-01: Từ SG-01, FAB `+` mở create action sheet, không mở trực tiếp form.
+
+- UI-02: Create action sheet cho phép chọn `Tạo cá nhân` hoặc `Tạo tổ chức`.
+
+- UI-03: Form title thay đổi theo mode: `Tạo cá nhân`, `Tạo tổ chức`, `Chỉnh sửa cá nhân`, `Chỉnh sửa tổ chức`.
+
+- UI-04: Form phải chia thành section cards, không hiển thị một form dài phẳng.
+
+- UI-05: Section bắt buộc đặt trước section tùy chọn.
+
+- UI-06: Field `Vai trò giao dịch` luôn hiển thị gần đầu form.
+
+- UI-07: `Loại hồ sơ` được xác định từ entry point tạo mới hoặc hồ sơ hiện tại, không cho đổi trực tiếp trong edit mode.
+
+- UI-08: CTA chính dùng `Lưu & Xem` khi tạo mới và `Lưu thay đổi` khi chỉnh sửa.
+
+- UI-09: CTA chính sticky bottom nếu form dài.
+
+- UI-10: Nếu phát hiện dữ liệu có thể trùng, hiển thị duplicate warning trước khi lưu hoàn tất.
+
+- UI-11: Nếu form có thay đổi chưa lưu, khi back hoặc đóng màn phải hiển thị leave confirmation.
+
+- UI-12: Field lỗi hiển thị inline ngay dưới field tương ứng.
+
+- UI-13: Sau khi tạo thành công, mặc định mở `SG-03 — Hồ sơ KH & NCC` của hồ sơ vừa tạo.
+
+- UI-14: Sau khi chỉnh sửa thành công, quay lại hồ sơ chi tiết và hiển thị toast.
+
+#### Business display rules
+
+- BR-UI-01: Mỗi KH & NCC phải có ít nhất một vai trò giao dịch: `Khách hàng`, `Nhà cung cấp` hoặc `KH & NCC`.
+
+- BR-UI-02: `Cá nhân` và `Tổ chức` là loại hồ sơ, không phải vai trò giao dịch.
+
+- BR-UI-03: Trong create mode, người dùng chọn loại hồ sơ ở create action sheet.
+
+- BR-UI-04: Trong edit mode, không cho đổi trực tiếp từ `Cá nhân` sang `Tổ chức`; flow này thuộc `SG-05 — Chuyển cá nhân thành tổ chức`.
+
+- BR-UI-05: Với cá nhân, thông tin chính ưu tiên `Họ tên`, `SĐT`, `Email`, `MST cá nhân` nếu có.
+
+- BR-UI-06: Với tổ chức, thông tin chính ưu tiên `Tên tổ chức`, `SĐT`, `MST`, `Địa chỉ công ty`.
+
+- BR-UI-07: Trùng dữ liệu cần cảnh báo theo SĐT, email, MST hoặc tên gần giống kèm SĐT/MST.
+
+- BR-UI-08: Thiếu dữ liệu tùy chọn không chặn lưu, nhưng có thể hiển thị warning nhẹ.
+
+- BR-UI-09: Nếu người dùng không có quyền `partner.create`, không hiển thị entry tạo mới.
+
+- BR-UI-10: Nếu người dùng không có quyền `partner.update`, không hiển thị hoặc disable action `Chỉnh sửa`.
+
+#### Form structure
+
+|Section|Person form|Organization form|
+|---|---|---|
+|Vai trò giao dịch|Khách hàng / Nhà cung cấp / KH & NCC|Khách hàng / Nhà cung cấp / KH & NCC|
+|Thông tin chính|Họ tên, biệt danh, SĐT, email|Tên tổ chức, tên viết tắt, loại tổ chức, SĐT, email|
+|Hóa đơn / thuế|MST cá nhân, tên hóa đơn, email nhận hóa đơn|MST, tên hóa đơn, địa chỉ hóa đơn, email nhận hóa đơn|
+|Địa chỉ giao hàng|Tỉnh/thành, xã/phường, địa chỉ chi tiết|Tỉnh/thành, xã/phường, địa chỉ giao hàng mặc định|
+|Ghi chú|Ghi chú nội bộ|Ghi chú nội bộ|
+
+#### Low-fi wireframes
+
+```Plain Text
+D-01 — Create action sheet
+┌─────────────────────────────┐
+│             KH & NCC        │
+│ ┌─────────────────────┐ ┌─┐ │
+│ │ 🔍 Tìm tên, SĐT...  │ │≡│ │
+│ └─────────────────────┘ └─┘ │
+│ ┌─────────────────────────┐ │
+│ │ List dimmed behind      │ │
+│ │                         │ │
+│ └─────────────────────────┘ │
+│ ░░░░░░░░░░░░░░░░░░░░░░░░░░ │
+│ ┌─────────────────────────┐ │
+│ │           ───           │ │
+│ │ Thêm KH & NCC mới       │ │
+│ │                         │ │
+│ │ 👤 Tạo cá nhân        › │ │
+│ │    Khách lẻ, người liên │ │
+│ │    hệ, chủ hộ...        │ │
+│ │                         │ │
+│ │ 🏢 Tạo tổ chức        › │ │
+│ │    Công ty, đại lý, NCC │ │
+│ │                         │ │
+│ └─────────────────────────┘ │
+└─────────────────────────────┘
+```
+
+```Plain Text
+D-02/D-03 — Create/Edit Person flow
+┌─────────────────────────────┐
+│ 9:41                  100%  │
+│ ←        Tạo cá nhân        │
+│                             │
+│ ┌─────────────────────────┐ │
+│ │ Vai trò giao dịch       │ │
+│ │ [Khách hàng] [NCC]      │ │
+│ │ [KH & NCC]              │ │
+│ └─────────────────────────┘ │
+│ ┌─────────────────────────┐ │
+│ │ Thông tin chính         │ │
+│ │ Họ tên *                │ │
+│ │ [Nguyễn Văn Nam       ] │ │
+│ │ SĐT chính *             │ │
+│ │ [0909123456           ] │ │
+│ │ Email                   │ │
+│ │ [nam@email.com        ] │ │
+│ └─────────────────────────┘ │
+│ ┌─────────────────────────┐ │
+│ │ Hóa đơn / thuế          │ │
+│ │ MST cá nhân             │ │
+│ │ [                    ]  │ │
+│ │ Tên hóa đơn             │ │
+│ │ [                    ]  │ │
+│ └─────────────────────────┘ │
+│          [Lưu & Xem]        │
+└─────────────────────────────┘
+```
+
+```Plain Text
+D-04/D-05 — Create/Edit Organization flow
+┌─────────────────────────────┐
+│ 9:41                  100%  │
+│ ←        Tạo tổ chức        │
+│                             │
+│ ┌─────────────────────────┐ │
+│ │ Vai trò giao dịch       │ │
+│ │ [Khách hàng] [NCC]      │ │
+│ │ [KH & NCC]              │ │
+│ └─────────────────────────┘ │
+│ ┌─────────────────────────┐ │
+│ │ Thông tin tổ chức       │ │
+│ │ Tên tổ chức *           │ │
+│ │ [Đại lý Minh Phát     ] │ │
+│ │ Loại tổ chức            │ │
+│ │ [Hộ kinh doanh       v] │ │
+│ │ SĐT chính *             │ │
+│ │ [02838225511          ] │ │
+│ │ Email                   │ │
+│ │ [contact@minhphat.vn  ] │ │
+│ └─────────────────────────┘ │
+│ ┌─────────────────────────┐ │
+│ │ Hóa đơn / thuế          │ │
+│ │ MST                     │ │
+│ │ [0312345678           ] │ │
+│ │ Địa chỉ hóa đơn         │ │
+│ │ [                    ]  │ │
+│ └─────────────────────────┘ │
+│          [Lưu & Xem]        │
+└─────────────────────────────┘
+```
+
+```Plain Text
+D-09A/B — Duplicate warning
+┌─────────────────────────────┐
+│ ←        Tạo tổ chức        │
+│                             │
+│ ┌─────────────────────────┐ │
+│ │ Thông tin tổ chức       │ │
+│ │ Tên tổ chức             │ │
+│ │ [Đại lý Minh Phát     ] │ │
+│ │ SĐT chính               │ │
+│ │ [02838225511          ] │ │
+│ └─────────────────────────┘ │
+│ ░░░░░░░░░░░░░░░░░░░░░░░░░░ │
+│ ┌─────────────────────────┐ │
+│ │ Có thể đã tồn tại       │ │
+│ │                         │ │
+│ │ Tìm thấy KH & NCC giống │ │
+│ │ với thông tin vừa nhập. │ │
+│ │                         │ │
+│ │ Đại lý Minh Phát        │ │
+│ │ Tổ chức · Nhà cung cấp  │ │
+│ │ 02838225511 · MST...    │ │
+│ │                         │ │
+│ │ [Xem hồ sơ]             │ │
+│ │ [Tiếp tục lưu]          │ │
+│ │ [Quay lại chỉnh sửa]    │ │
+│ └─────────────────────────┘ │
+└─────────────────────────────┘
+```
+
+```Plain Text
+Auxiliary state — Leave form confirmation
+┌─────────────────────────────┐
+│ ←      Chỉnh sửa cá nhân    │
+│                             │
+│ ┌─────────────────────────┐ │
+│ │ Thông tin chính         │ │
+│ │ Họ tên                  │ │
+│ │ [Trần Thị Hoa         ] │ │
+│ │ SĐT chính               │ │
+│ │ [0987654321           ] │ │
+│ └─────────────────────────┘ │
+│ ░░░░░░░░░░░░░░░░░░░░░░░░░░ │
+│ ┌─────────────────────────┐ │
+│ │ Rời khỏi màn hình?      │ │
+│ │                         │ │
+│ │ Những thay đổi chưa lưu │ │
+│ │ sẽ bị mất.              │ │
+│ │                         │ │
+│ │ [Ở lại chỉnh sửa]       │ │
+│ │ [Rời khỏi]              │ │
+│ └─────────────────────────┘ │
+└─────────────────────────────┘
+```
+
+```Plain Text
+D-10 — Save success
+┌─────────────────────────────┐
+│ 9:41                  100%  │
+│ ←       Hồ sơ KH & NCC  ⋯   │
+│                             │
+│ ┌─────────────────────────┐ │
+│ │ MP                      │ │
+│ │ Đại lý Minh Phát        │ │
+│ │ Tổ chức · Nhà cung cấp  │ │
+│ │ [Đang hoạt động]        │ │
+│ └─────────────────────────┘ │
+│ ┌─────────────────────────┐ │
+│ │ Thông tin chính         │ │
+│ │ SĐT  02838225511        │ │
+│ │ MST  0312345678         │ │
+│ └─────────────────────────┘ │
+│                             │
+│ ┌─────────────────────────┐ │
+│ │ ✓ Đã lưu KH & NCC       │ │
+│ └─────────────────────────┘ │
+└─────────────────────────────┘
+```
+
+```Plain Text
+Auxiliary states — Save error / No permission / Source changed
+┌─────────────────────────────┐
+│ 9:41                  100%  │
+│ ←      Chỉnh sửa tổ chức    │
+│                             │
+│ ┌─────────────────────────┐ │
+│ │ Không thể lưu thay đổi  │ │
+│ │                         │ │
+│ │ Dữ liệu đã thay đổi bởi │ │
+│ │ người dùng khác. Vui    │ │
+│ │ lòng tải lại trước khi  │ │
+│ │ chỉnh sửa tiếp.         │ │
+│ │                         │ │
+│ │ [Tải lại]               │ │
+│ │ [Quay lại]              │ │
+│ └─────────────────────────┘ │
+│                             │
+│ ─ Trường hợp không có quyền ─│
+│ Anh chưa có quyền chỉnh sửa │
+│ hồ sơ KH & NCC này.         │
+│                             │
+│ ─ Trường hợp lỗi hệ thống ─ │
+│ Không lưu được dữ liệu.     │
+│ [Thử lại]                   │
+└─────────────────────────────┘
+```
+
+#### Visual Design
+
+- VD-01: Form dùng mobile portrait, top bar có back icon `←`, title ngắn theo mode.
+
+- VD-02: Background dùng màu nền nhẹ; form section dùng card trắng, border nhẹ, radius mềm.
+
+- VD-03: Section `Vai trò giao dịch` đặt đầu form, dùng selectable chips.
+
+- VD-04: Các section dùng title ngắn: `Vai trò giao dịch`, `Thông tin chính`, `Hóa đơn / thuế`, `Địa chỉ giao hàng`, `Ghi chú`.
+
+- VD-05: Field bắt buộc có dấu `*`, error hiển thị inline bằng text ngắn.
+
+- VD-06: CTA chính sticky bottom, full width hoặc gần full width, dùng primary green.
+
+- VD-07: Secondary action trong modal dùng outline/ghost; destructive action dùng danger treatment.
+
+- VD-08: Duplicate warning dùng modal/bottom sheet nổi trên dim overlay, không dùng toast.
+
+- VD-09: Save success dùng dark toast với green check, sau đó mở hoặc giữ ở hồ sơ KH & NCC.
+
+- VD-10: Source changed dùng blocked state rõ ràng với CTA chính `Tải lại`.
+
+- VD-11: No permission state không hiển thị CTA lưu hoặc form editable.
+
+- VD-12: Form dài không resize content; nếu cần thì scroll dọc.
+
+![image.png](Images_attachments/image%201.png)
+
+#### Interaction rules
+
+- IR-01: Tap `Tạo cá nhân` từ D-01 mở D-02 ở create mode.
+
+- IR-02: Tap `Tạo tổ chức` từ D-01 mở D-03 ở create mode.
+
+- IR-03: Tap `Chỉnh sửa` từ hồ sơ cá nhân mở D-02 ở edit mode.
+
+- IR-04: Tap `Chỉnh sửa` từ hồ sơ tổ chức mở D-03 ở edit mode.
+
+- IR-05: Chọn `KH & NCC` tự động đại diện cho cả vai trò khách hàng và nhà cung cấp.
+
+- IR-06: Khi người dùng sửa field, form chuyển sang dirty state.
+
+- IR-07: Back khi form chưa dirty thì quay lại ngay.
+
+- IR-08: Back khi form dirty thì mở D-05 leave confirmation.
+
+- IR-09: Submit form trước tiên validate local required fields.
+
+- IR-10: Nếu API trả duplicate warning, mở D-04.
+
+- IR-11: `Xem hồ sơ` trong duplicate warning mở hồ sơ KH & NCC đã tồn tại.
+
+- IR-12: `Tiếp tục lưu` chỉ hiển thị nếu business rule cho phép tạo mới dù có cảnh báo trùng.
+
+- IR-13: Sau khi create success, điều hướng đến `SG-03 — Hồ sơ KH & NCC`.
+
+- IR-14: Sau khi edit success, quay lại hồ sơ hiện tại và hiển thị toast.
+
+#### API / Data dependency
+
+- API tạo mới: `POST /partners`
+
+- API cập nhật: `PATCH /partners/{id}`
+
+- API kiểm tra trùng dữ liệu có thể nằm trong response của create/update hoặc endpoint validation riêng.
+
+- Required permission khi tạo mới: `partner.create`
+
+- Required permission khi chỉnh sửa: `partner.update`
+
+- Required input fields: `partner_type`, `roles`, `display_name` hoặc field nguồn tạo `display_name`
+
+- Person fields: `full_name`, `nickname`, `phone`, `phone2`, `email`, `tax_code`, `invoice_name`, `invoice_address`, `invoice_email`, `delivery_province`, `delivery_commune`, `delivery_address`, `note`
+
+- Organization fields: `organization_name`, `short_name`, `organization_type`, `phone`, `email`, `tax_code`, `company_address`, `invoice_name`, `invoice_address`, `invoice_email`, `delivery_province`, `delivery_commune`, `delivery_address`, `note`
+
+- Response success fields: `partner_id`, `partner_type`, `display_name`, `roles`, `status`, `updated_at`
+
+#### Acceptance checklist
+
+- AC-SG02-01: FAB `+` mở create action sheet, không mở trực tiếp form.
+
+- AC-SG02-02: Người dùng chọn được `Tạo cá nhân` hoặc `Tạo tổ chức`.
+
+- AC-SG02-03: Form cá nhân và tổ chức có section rõ ràng, không là một form phẳng quá dài.
+
+- AC-SG02-04: `Vai trò giao dịch` luôn bắt buộc và hiển thị gần đầu form.
+
+- AC-SG02-05: UI phân biệt rõ `Loại hồ sơ` và `Vai trò giao dịch`.
+
+- AC-SG02-06: Edit mode không cho đổi trực tiếp từ cá nhân sang tổ chức.
+
+- AC-SG02-07: Field bắt buộc validate inline trước khi submit.
+
+- AC-SG02-08: Duplicate warning hiển thị trước khi lưu hoàn tất nếu phát hiện hồ sơ có thể trùng.
+
+- AC-SG02-09: Form dirty khi back phải có leave confirmation.
+
+- AC-SG02-10: Create success mở hồ sơ KH & NCC vừa tạo.
+
+- AC-SG02-11: Edit success quay lại hồ sơ hiện tại và hiển thị toast.
+
+- AC-SG02-12: No permission không hiển thị form editable hoặc CTA lưu.
+
+- AC-SG02-13: Source changed có CTA `Tải lại`.
+
+- AC-SG02-14: Visual tuân thủ VET45 Design System và không stretch mobile frame.
+
+### 8.4.3 SG-03 — Hồ sơ KH & NCC
+
+#### Purpose
+
+SG-03 định nghĩa bộ màn hình **Hồ sơ KH & NCC** — hub trung tâm của Theme 3. Đây không chỉ là màn hình xem chi tiết, mà là nơi người dùng nhận diện hồ sơ, kiểm tra trạng thái, phát hiện cảnh báo dữ liệu, xem thông tin liên quan và đi tiếp sang các flow khác.
+
+SG-03 cần giúp người dùng trả lời nhanh 5 câu hỏi:
+
+- Đây là ai?
+
+- Đây là **Cá nhân** hay **Tổ chức**?
+
+- Đây là **Khách hàng**, **Nhà cung cấp** hay **KH & NCC**?
+
+- Hồ sơ này có đang được phép dùng trong giao dịch mới không?
+
+- Có thiếu dữ liệu hoặc vấn đề gì cần xử lý không?
+
+---
+
+#### Covered user stories
+
+SG-03 là screen group chính hoặc supporting screen group cho các user stories sau:
+
+|User Story|Vai trò của SG-03|
 |---|---|
-|EP-01/US-01|List, search result, filter sheet, no result, empty, loading/error, no permission|
-|EP-01/US-02|Create sheet, form person, form organization, duplicate warning, leave form, success, error/no permission|
-|EP-01/US-03|Edit person, edit organization, duplicate warning, leave form, success, error, no permission/not found|
-|EP-01/US-04|Detail person, detail organization, action sheet, inactive/deleted, missing data, loading/error, no permission/not found|
-|EP-01/US-05|Contact card/list, add/edit contact, action sheet, remove confirmation, empty/error/no permission|
-|EP-01/US-06|Action sheet, transform form, duplicate warning, confirmation, success, blocked, no permission/error|
-|EP-01/US-07|History list, role filter, filter sheet, empty, no result, loading/error, no permission|
-|EP-02/US-01|Active action sheet, deactivate modal/success, inactive action sheet, reactivate modal/success, blocked/error|
-|EP-02/US-02|Delete action sheet, delete confirmation/success, blocked, no permission, state changed/not found, error|
+|EP-01/US-03 — Bổ sung và chỉnh sửa thông tin đối tác|Supporting: từ hồ sơ đi sang chỉnh sửa|
+|EP-01/US-04 — Kiểm tra hồ sơ đối tác|Primary|
+|EP-01/US-05 — Quản lý người liên hệ của tổ chức|Supporting: từ hồ sơ tổ chức đi sang người liên hệ|
+|EP-01/US-06 — Chuyển cá nhân thành tổ chức|Supporting: từ hồ sơ cá nhân đi sang chuyển đổi|
+|EP-01/US-07 — Theo dõi lịch sử làm việc với đối tác|Supporting: từ hồ sơ đi sang lịch sử|
+|EP-02/US-01 — Dừng sử dụng và sử dụng lại đối tác|Supporting: từ hồ sơ đi sang thao tác trạng thái|
+|EP-02/US-02 — Loại bỏ hồ sơ đối tác tạo nhầm|Supporting: từ hồ sơ đi sang xóa mềm|
+
+---
+
+#### Entry points and exits
+
+**Entry points**
+
+- Từ SG-01: người dùng tap một KH & NCC trong danh sách.
+
+- Từ SG-02: sau khi tạo mới hoặc lưu thay đổi thành công.
+
+- Từ SG-04: quay lại từ danh sách người liên hệ.
+
+- Từ SG-05: sau khi chuyển cá nhân thành tổ chức thành công.
+
+- Từ SG-06: quay lại từ lịch sử.
+
+- Từ SG-07: quay lại sau thao tác ngừng/kích hoạt/xóa.
+
+**Exits**
+
+- `Chỉnh sửa` → SG-02.
+
+- `Quản lý người liên hệ` → SG-04, chỉ với Organization.
+
+- `Xem lịch sử` → SG-06.
+
+- `Chuyển thành tổ chức` → SG-05, chỉ với Person đủ điều kiện.
+
+- `Ngừng hoạt động`, `Kích hoạt lại`, `Xóa hồ sơ` → SG-07.
+
+- Back `←` → quay lại danh sách hoặc màn trước đó.
+
+---
+
+#### Screens / states
+
+|ID|Screen / State|Purpose|
+|---|---|---|
+|D-01|Hồ sơ cá nhân — Đang hoạt động|Detail mặc định cho Person|
+|D-02|Hồ sơ tổ chức — Đang hoạt động|Detail mặc định cho Organization|
+|D-03|Hồ sơ có cảnh báo thiếu dữ liệu|Data quality warning|
+|D-04|Hồ sơ ngừng hoạt động|Inactive state, vẫn xem được hồ sơ/lịch sử|
+|D-05|Hồ sơ đã xóa|Deleted/read-only state|
+|D-06|Action sheet — Thao tác hồ sơ|Hub thao tác theo quyền/trạng thái|
+|D-07|Loading / Error / Not found|State phụ khi tải/tìm hồ sơ|
+|D-08|No permission|Không có quyền xem hồ sơ|
+
+---
+
+#### UI Contract
+
+- UI-01: Top bar dùng title **Hồ sơ KH & NCC**, back icon `←` bên trái và contextual menu `...` bên phải nếu có action hợp lệ.
+
+- UI-02: Header luôn hiển thị tên, loại hồ sơ, vai trò giao dịch, trạng thái và thông tin nhận diện nhanh như SĐT/MST nếu có.
+
+- UI-03: Hồ sơ cá nhân không hiển thị card `Người liên hệ`; hồ sơ tổ chức hiển thị card này ngay sau `Thông tin chính`.
+
+- UI-04: Các nhóm dữ liệu hiển thị bằng card trắng, border nhẹ, radius mềm, value trống dùng `—`.
+
+- UI-05: Warning thiếu dữ liệu hiển thị dưới header, dùng warning tone nhẹ, không dùng danger tone.
+
+- UI-06: Khu vực action chính gồm `Chỉnh sửa` và `Thao tác ︿`; button hiển thị theo quyền và trạng thái.
+
+- UI-07: Deleted/no permission/error states không hiển thị action nghiệp vụ không hợp lệ.
+
+---
+
+#### Low-fi wireframes
+
+##### D-01 — Hồ sơ cá nhân / Đang hoạt động
+
+```Plain Text
+┌─────────────────────────────┐
+│ 09:42             VET45 100% │
+├─────────────────────────────┤
+│ ←       Hồ sơ KH & NCC   ⋯   │
+├─────────────────────────────┤
+│  [TH]  Trần Thị Hoa          │
+│        Cá nhân · Khách hàng  │
+│        [Đang hoạt động]      │
+│        0987 654 321          │
+│                             │
+│ ┌─────────────────────────┐ │
+│ │ Thông tin chính       › │ │
+│ └─────────────────────────┘ │
+│ ┌─────────────────────────┐ │
+│ │ Hóa đơn / thuế        › │ │
+│ └─────────────────────────┘ │
+│ ┌─────────────────────────┐ │
+│ │ Địa chỉ giao hàng     › │ │
+│ └─────────────────────────┘ │
+│ ┌─────────────────────────┐ │
+│ │ Lịch sử gần đây   3   › │ │
+│ └─────────────────────────┘ │
+│ ┌─────────────────────────┐ │
+│ │ Thông tin hệ thống    › │ │
+│ └─────────────────────────┘ │
+│                             │
+│ [Chỉnh sửa]   [Thao tác ︿] │
+├─────────────────────────────┤
+│ Home Sell Product KH&NCC ... │
+└─────────────────────────────┘
+```
+
+##### D-02 — Hồ sơ tổ chức / Đang hoạt động
+
+```Plain Text
+┌─────────────────────────────┐
+│ ←       Hồ sơ KH & NCC   ⋯   │
+├─────────────────────────────┤
+│  [MP]  Đại lý Chăn nuôi MP   │
+│        Tổ chức · Nhà cung cấp│
+│        [Đang hoạt động]      │
+│        028 3822 5511 · MST...│
+│                             │
+│ ┌─────────────────────────┐ │
+│ │ Thông tin chính       › │ │
+│ └─────────────────────────┘ │
+│ ┌─────────────────────────┐ │
+│ │ Người liên hệ       2 › │ │
+│ │ Nguyễn Văn An [Chính]  │ │
+│ │ 0912 345 678           │ │
+│ │ Xem tất cả             │ │
+│ └─────────────────────────┘ │
+│ ┌─────────────────────────┐ │
+│ │ Hóa đơn / thuế        › │ │
+│ └─────────────────────────┘ │
+│ ┌─────────────────────────┐ │
+│ │ Địa chỉ giao hàng     › │ │
+│ └─────────────────────────┘ │
+│ ┌─────────────────────────┐ │
+│ │ Lịch sử gần đây   3   › │ │
+│ └─────────────────────────┘ │
+│ [Chỉnh sửa]   [Thao tác ︿] │
+└─────────────────────────────┘
+```
+
+##### D-03 — Hồ sơ có cảnh báo thiếu dữ liệu
+
+```Plain Text
+┌─────────────────────────────┐
+│ ←       Hồ sơ KH & NCC   ⋯   │
+├─────────────────────────────┤
+│ [VA] Nguyễn Văn An           │
+│      Cá nhân · KH & NCC      │
+│      [Đang hoạt động]        │
+│      0901 234 567            │
+│                             │
+│ ⚠ Hồ sơ còn thiếu thông tin  │
+│ Thiếu MST và địa chỉ hóa đơn.│
+│ [Bổ sung ngay]              │
+│                             │
+│ Thông tin chính           ›  │
+│ Hóa đơn / thuế [Thiếu MST]›  │
+│ Địa chỉ giao hàng [Chưa có]› │
+│ Lịch sử gần đây           ›  │
+│ [Chỉnh sửa]   [Thao tác ︿] │
+└─────────────────────────────┘
+```
+
+##### D-04 — Hồ sơ ngừng hoạt động
+
+```Plain Text
+┌─────────────────────────────┐
+│ ←       Hồ sơ KH & NCC   ⋯   │
+├─────────────────────────────┤
+│ [DT] Cửa hàng Đức Thịnh      │
+│      Tổ chức · KH & NCC      │
+│      [Ngừng hoạt động]       │
+│                             │
+│ ℹ KH & NCC này không còn     │
+│ được chọn cho giao dịch mới. │
+│ Hồ sơ và lịch sử vẫn giữ lại.│
+│                             │
+│ Thông tin chính           ›  │
+│ Người liên hệ             ›  │
+│ Hóa đơn / thuế            ›  │
+│ Lịch sử gần đây           ›  │
+│ [Chỉnh sửa]   [Thao tác ︿] │
+└─────────────────────────────┘
+```
+
+##### D-05 — Hồ sơ đã xóa
+
+```Plain Text
+┌─────────────────────────────┐
+│ ←       Hồ sơ KH & NCC       │
+├─────────────────────────────┤
+│ [VA] Nguyễn Văn An           │
+│      Cá nhân · Khách hàng    │
+│      [Đã xóa]                │
+│                             │
+│ 🗑 Hồ sơ này đã bị xóa khỏi  │
+│ danh sách làm việc. Dữ liệu  │
+│ chỉ còn dùng để tra cứu.     │
+│                             │
+│ Thông tin chính           ›  │
+│ Hóa đơn / thuế            ›  │
+│ Lịch sử gần đây           ›  │
+│ Thông tin hệ thống        ›  │
+│                             │
+│ [Xem lịch sử]                │
+└─────────────────────────────┘
+```
+
+##### D-06 — Action sheet / Thao tác hồ sơ
+
+```Plain Text
+┌─────────────────────────────┐
+│          Dim overlay         │
+│                             │
+│ ┌─────────────────────────┐ │
+│ │          ─────          │ │
+│ │ Đại lý Chăn nuôi MP     │ │
+│ │ Tổ chức · NCC · Active  │ │
+│ │                         │ │
+│ │ Chỉnh sửa             › │ │
+│ │ Xem lịch sử           › │ │
+│ │ Quản lý người liên hệ › │ │
+│ │ Ngừng hoạt động       › │ │
+│ │                         │ │
+│ │ Xóa hồ sơ             › │ │
+│ └─────────────────────────┘ │
+└─────────────────────────────┘
+```
+
+##### D-07 — Loading / Error / Not found
+
+```Plain Text
+Loading:
+┌─────────────────────────────┐
+│ ←       Hồ sơ KH & NCC       │
+│ [skeleton header]            │
+│ [skeleton card]              │
+│ [skeleton card]              │
+└─────────────────────────────┘
+Error:
+┌─────────────────────────────┐
+│ ←       Hồ sơ KH & NCC       │
+│ Không tải được hồ sơ         │
+│ Vui lòng thử lại sau.        │
+│ [Thử lại]                    │
+└─────────────────────────────┘
+Not found:
+┌─────────────────────────────┐
+│ ←       Hồ sơ KH & NCC       │
+│ Không tìm thấy KH & NCC      │
+│ Hồ sơ có thể đã bị xóa hoặc  │
+│ không thuộc cửa hàng hiện tại│
+│ [Quay lại]                   │
+└─────────────────────────────┘
+```
+
+##### D-08 — No permission
+
+```Plain Text
+┌─────────────────────────────┐
+│ ←       Hồ sơ KH & NCC       │
+│                             │
+│        [Shield icon]         │
+│ Không có quyền xem hồ sơ     │
+│ Anh chưa được cấp quyền xem  │
+│ thông tin KH & NCC này.      │
+│                             │
+│ [Quay lại]                   │
+└─────────────────────────────┘
+```
+
+---
+
+#### Visual Design
+
+##### Board direction
+
+- White board background.
+
+- Same fixed mobile frame size across all D screens.
+
+- Green ID chips: `D-01` to `D-08`.
+
+- Top-level board title: `SG-03 — Hồ sơ KH & NCC`.
+
+- Use VET45 mobile-first style: white cards, light border, soft radius, restrained typography.
+
+- Bottom nav keeps `KH & NCC` active.
+
+- No horizontal stretching or resizing of phone content.
+
+##### D-01 visual notes
+
+- Header uses soft green initials avatar `TH`.
+
+- Role chip: `Khách hàng`.
+
+- Status badge: `Đang hoạt động` using success treatment.
+
+- Card list does not include `Người liên hệ`.
+
+- Bottom action row: `Chỉnh sửa` as primary/strong action and `Thao tác ︿` as secondary outline.
+
+##### D-02 visual notes
+
+- Header uses soft blue/green initials avatar `MP`.
+
+- Type/role line: `Tổ chức · Nhà cung cấp`.
+
+- `Người liên hệ` card appears immediately after `Thông tin chính`.
+
+- Primary contact row has badge `Chính`.
+
+- Card can show count chip, e.g. `2`, on the right.
+
+##### D-03 visual notes
+
+- Warning block uses warning soft background.
+
+- Warning icon appears on the left.
+
+- CTA `Bổ sung ngay` uses link/secondary treatment, not destructive treatment.
+
+- Problem labels inside cards can use small warning chips, e.g. `Thiếu MST`, `Chưa có`.
+
+##### D-04 visual notes
+
+- Status badge `Ngừng hoạt động` uses neutral/warning treatment.
+
+- Info block explains that the profile cannot be selected for new transactions.
+
+- Do not use danger red because this is not deletion or system error.
+
+- `Thao tác ︿` opens sheet with `Kích hoạt lại`.
+
+##### D-05 visual notes
+
+- Header and cards are slightly dimmed/read-only.
+
+- Status badge `Đã xóa` uses danger/disabled treatment.
+
+- Hide `Chỉnh sửa` and normal `Thao tác ︿`.
+
+- Only show `Xem lịch sử` if user has permission.
+
+##### D-06 visual notes
+
+- Bottom sheet has dim overlay and handle.
+
+- Header repeats profile identity: name, type, role, status.
+
+- Normal actions use neutral rows with chevron `›`.
+
+- Destructive action `Xóa hồ sơ` is last and uses danger text/icon.
+
+##### D-07 visual notes
+
+- Loading uses skeleton, not spinner-only.
+
+- Error uses simple illustration and primary CTA `Thử lại`.
+
+- Not found uses CTA `Quay lại`.
+
+- Do not show business data or action sheet in these states.
+
+##### D-08 visual notes
+
+- Use shield/lock illustration.
+
+- Do not reveal any sensitive profile data.
+
+- CTA only: `Quay lại`.
+
+- No `Chỉnh sửa`, no `Thao tác ︿`.
+
+![image.png](Images_attachments/image.png)
+
+#### Component usage
+
+|Component|Usage in SG-03|
+|---|---|
+|Top bar|Back `←`, centered title `Hồ sơ KH & NCC`, right menu only when needed|
+|Profile header|Avatar, display name, type, role, status, quick identifiers|
+|Type chip|`Cá nhân`, `Tổ chức`|
+|Role chip|`Khách hàng`, `Nhà cung cấp`, `KH & NCC`|
+|Status badge|`Đang hoạt động`, `Ngừng hoạt động`, `Đã xóa`|
+|Section card|Main info, contacts, invoice/tax, delivery, recent history, system info|
+|Warning block|Missing data, potential duplicate, inactive/deleted explanation|
+|Action sheet|Contextual actions by permission/status/type|
+|Bottom nav|Keep `KH & NCC` active|
+|State illustration|Error, not found, no permission|
+
+---
+
+#### Interaction rules
+
+- IR-01: Tap `Chỉnh sửa` opens SG-02 edit flow.
+
+- IR-02: Tap `Người liên hệ` card opens SG-04 if profile type is Organization.
+
+- IR-03: Tap `Lịch sử gần đây` or `Xem lịch sử` opens SG-06.
+
+- IR-04: Tap `Thao tác ︿` opens D-06 action sheet.
+
+- IR-05: Action sheet rows route to SG-02, SG-04, SG-05, SG-06, or SG-07 depending on action.
+
+- IR-06: Back `←` returns to previous screen without showing extra `Quay lại` button on normal detail screens.
+
+- IR-07: Deleted/no-permission/error states must not expose invalid actions.
+
+---
+
+#### Checklist kiểm tra visual
+
+##### Structure checklist
+
+|Check|Tiêu chí đạt|
+|---|---|
+|A1|Board có đủ D-01 đến D-08|
+|A2|Mỗi màn có green ID chip đúng format|
+|A3|Phone frames cùng kích thước, không stretch|
+|A4|Bottom nav active đúng tab `KH & NCC`|
+|A5|Top bar dùng back icon `←`|
+|A6|UI dùng `KH & NCC` nhất quán|
+|A7|Không dùng `Đối tác` làm label UI chính trong SG-03|
+
+##### Content checklist
+
+|Check|Tiêu chí đạt|
+|---|---|
+|B1|Header cho biết rõ tên, loại hồ sơ, vai trò, trạng thái|
+|B2|Cá nhân không có card `Người liên hệ`|
+|B3|Tổ chức có card `Người liên hệ`|
+|B4|Value trống dùng `—`|
+|B5|Lịch sử gần đây chỉ hiển thị 2–3 item|
+|B6|Thông tin hệ thống nằm cuối|
+|B7|Warning copy rõ, không gây hiểu nhầm là lỗi hệ thống|
+
+##### Component checklist
+
+|Check|Tiêu chí đạt|
+|---|---|
+|C1|Type chip khác style với role chip|
+|C2|Status badge nổi bật hơn type/role chip|
+|C3|Card trắng, border nhẹ, radius mềm|
+|C4|Primary button dùng green|
+|C5|Secondary button dùng outline green|
+|C6|Action sheet có dim overlay + handle|
+|C7|Destructive action đặt cuối sheet|
+
+##### State checklist
+
+|Check|Tiêu chí đạt|
+|---|---|
+|D1|Active state có action hợp lệ|
+|D2|Inactive state không dùng danger red|
+|D3|Deleted state là read-only|
+|D4|Error state có CTA `Thử lại`|
+|D5|Not found có CTA `Quay lại`|
+|D6|No permission không lộ dữ liệu|
+|D7|Warning data quality có CTA phù hợp|
+
+##### Interaction checklist
+
+|Check|Tiêu chí đạt|
+|---|---|
+|E1|`Chỉnh sửa` dẫn sang SG-02|
+|E2|`Người liên hệ` dẫn sang SG-04|
+|E3|`Xem lịch sử` dẫn sang SG-06|
+|E4|`Chuyển thành tổ chức` dẫn sang SG-05|
+|E5|`Ngừng/Kích hoạt/Xóa` dẫn sang SG-07|
+|E6|Back icon quay về list hoặc màn trước|
+|E7|Không có CTA trùng chức năng trên cùng màn|
+
+---
+
+#### Checklist nghiệm thu
+
+SG-03 được nghiệm thu khi đạt các điều kiện sau:
+
+|Nhóm|Điều kiện nghiệm thu|
+|---|---|
+|UX clarity|Người dùng nhìn 3 giây biết đây là ai, loại hồ sơ gì, vai trò gì, trạng thái gì|
+|Domain correctness|Không lẫn `Cá nhân/Tổ chức` với `Khách hàng/NCC/KH & NCC`|
+|Flow correctness|Từ hồ sơ đi được sang SG-02, SG-04, SG-05, SG-06, SG-07|
+|Status correctness|Active / Inactive / Deleted khác nhau rõ ràng|
+|Permission safety|No permission không lộ dữ liệu và không hiển thị action nghiệp vụ|
+|Data quality|Warning thiếu dữ liệu rõ, có hướng xử lý|
+|Visual consistency|Match VET45 Design System và SG-02|
+|Mobile quality|Không méo frame, không resize chữ/icon/card|
+|Action safety|Action nguy hiểm có vị trí/tone đúng|
+|Traceability|Mỗi màn D-xx truy được về ít nhất một US hoặc business flow|
+|Blocking issues:||
+
+- Sai label domain trên UI: dùng `Đối tác` hoặc lẫn `Loại hồ sơ` với `Vai trò giao dịch`.
+
+- Cá nhân hiển thị `Người liên hệ` như tổ chức.
+
+- Deleted state vẫn cho `Chỉnh sửa` hoặc action nghiệp vụ.
+
+- No permission state lộ dữ liệu hồ sơ.
+
+- Phone frame bị stretch hoặc nội dung bị resize méo.
+
+---
+
+#### Traceability
+
+|Screen|Related user story / flow|
+|---|---|
+|D-01|EP-01/US-04, EP-01/US-03, EP-01/US-07|
+|D-02|EP-01/US-04, EP-01/US-05, EP-01/US-07|
+|D-03|EP-01/US-04, EP-01/US-03|
+|D-04|EP-02/US-01|
+|D-05|EP-02/US-02|
+|D-06|EP-01/US-03, US-05, US-06, US-07, EP-02/US-01, US-02|
+|D-07|Common loading/error/not found state|
+|D-08|Permission model / common no-permission state|
+
+### 8.4.4 SG-04 — Người liên hệ của tổ chức
+
+#### Purpose
+
+SG-04 định nghĩa UI/UX cho việc quản lý người liên hệ của một KH & NCC loại Tổ chức. Mục tiêu là giúp người dùng biết tổ chức này đang làm việc với ai, ai là người liên hệ chính, và có thể thêm, sửa, đặt làm chính hoặc gỡ người liên hệ mà không nhầm lẫn với việc xóa hồ sơ cá nhân khỏi hệ thống.
+
+SG-04 là flow con của SG-03 — Hồ sơ KH & NCC, nhưng được tách riêng vì Organization có thể có nhiều contact, mỗi contact có vai trò liên hệ riêng, một contact chính, và các thao tác quản trị riêng.
+
+#### Covered user stories
+
+- EP-01/US-05 — Quản lý người liên hệ của tổ chức.
+
+- Supporting SG: SG-03 — Hồ sơ KH & NCC.
+
+- Related SG: SG-02 — Tạo mới & chỉnh sửa KH & NCC, khi cần tạo/sửa hồ sơ cá nhân được dùng làm người liên hệ.
+
+- Related SG: SG-06 — Lịch sử làm việc với KH & NCC, nếu người dùng đi tiếp sang lịch sử của tổ chức hoặc hồ sơ cá nhân liên quan.
+
+#### Entry points and exits
+
+|Entry point|Màn hình đến|Ghi chú|
+|---|---|---|
+|SG-03 / Card Người liên hệ / Xem tất cả|D-02 Danh sách người liên hệ|Entry chính từ hồ sơ tổ chức|
+|SG-03 / Card Người liên hệ / + Thêm người liên hệ|D-04 Chọn cách thêm người liên hệ|Entry nhanh nếu có quyền thêm|
+|D-02 / FAB +|D-04 Chọn cách thêm người liên hệ|Tạo/link contact mới|
+|D-02 / Contact row|D-08 Action sheet người liên hệ|Mở thao tác theo contact|
+|D-08 / Chỉnh sửa liên hệ|D-07 Chỉnh sửa người liên hệ|Sửa relation hoặc thông tin liên hệ|
+|D-08 / Gỡ khỏi tổ chức|D-09 Confirmation gỡ liên hệ|Destructive relation action|
+|Any sub-screen / ←|SG-03 Hồ sơ tổ chức hoặc D-02|Quay lại theo stack điều hướng|
+
+#### Screens and states
+
+|ID|Screen / State|Mục tiêu|
+|---|---|---|
+|D-01|Card Người liên hệ trong hồ sơ tổ chức|Preview contact chính và entry sang SG-04|
+|D-02|Danh sách người liên hệ|Xem toàn bộ contacts của tổ chức|
+|D-03|Empty — Chưa có người liên hệ|Tổ chức chưa có contact|
+|D-04|Chọn cách thêm người liên hệ|Chọn tạo mới hoặc chọn cá nhân có sẵn|
+|D-05|Thêm người liên hệ mới|Nhập contact mới và relation với tổ chức|
+|D-06|Chọn cá nhân có sẵn|Search Person hiện có để liên kết làm contact|
+|D-07|Chỉnh sửa người liên hệ|Sửa vai trò liên hệ, primary, ghi chú và thông tin cơ bản|
+|D-08|Action sheet người liên hệ|Chỉnh sửa, đặt làm chính, xem hồ sơ, gỡ khỏi tổ chức|
+|D-09|Confirmation — Gỡ người liên hệ|Xác nhận gỡ relation, không xóa Person|
+|D-10|No permission / Error / Source changed|State phụ khi thiếu quyền hoặc không cập nhật được|
+
+#### UI Contract
+
+- UI-01: SG-04 chỉ áp dụng cho KH & NCC loại Tổ chức; nếu KH & NCC là Cá nhân thì không hiển thị entry “Người liên hệ”.
+
+- UI-02: Mọi màn hình chính của SG-04 phải hiển thị parent context: tên tổ chức, loại hồ sơ và vai trò giao dịch để người dùng biết đang quản lý contact cho tổ chức nào.
+
+- UI-03: Contact chính phải luôn nổi bật bằng badge `Chính` và được ưu tiên đứng đầu danh sách.
+
+- UI-04: Tổ chức chỉ có một người liên hệ chính; khi đặt contact mới làm chính, contact chính cũ tự động mất trạng thái chính.
+
+- UI-05: “Gỡ khỏi tổ chức” chỉ gỡ liên kết OrganizationContact, không xóa hồ sơ cá nhân khỏi hệ thống.
+
+- UI-06: Action sheet chỉ hiển thị action phù hợp với quyền, trạng thái contact và trạng thái tổ chức.
+
+- UI-07: No permission không hiển thị dữ liệu nhạy cảm và không hiển thị CTA nghiệp vụ.
+
+#### Low-fi wireframes
+
+**D-01 — Card Người liên hệ trong hồ sơ tổ chức**
+
+```Plain Text
+┌─────────────────────────────┐
+│ Người liên hệ            ›  │
+│ ┌─────────────────────────┐ │
+│ │ NA  Nguyễn Văn An Chính │ │
+│ │     Quản lý kinh doanh  │ │
+│ │     0912 345 678        │ │
+│ └─────────────────────────┘ │
+│ + Thêm người liên hệ        │
+│ Xem tất cả                  │
+└─────────────────────────────┘
+```
+
+**D-02 — Danh sách người liên hệ**
+
+```Plain Text
+┌─────────────────────────────┐
+│ 9:41                        │
+│ ←       Người liên hệ   ⋯   │
+│ ┌─────────────────────────┐ │
+│ │ Đại lý Minh Phát        │ │
+│ │ Tổ chức · Nhà cung cấp  │ │
+│ └─────────────────────────┘ │
+│ [ Tìm tên, SĐT, email   ]   │
+│ ┌─────────────────────────┐ │
+│ │ NA Nguyễn Văn An Chính  │ │
+│ │    Quản lý kinh doanh   │ │
+│ │    0912 345 678         │ │
+│ └─────────────────────────┘ │
+│ ┌─────────────────────────┐ │
+│ │ TH Trần Thị Hoa         │ │
+│ │    Kế toán              │ │
+│ │    0987 654 321         │ │
+│ └─────────────────────────┘ │
+│                         +   │
+└─────────────────────────────┘
+```
+
+**D-03 — Empty — Chưa có người liên hệ**
+
+```Plain Text
+┌─────────────────────────────┐
+│ 9:41                        │
+│ ←       Người liên hệ       │
+│ ┌─────────────────────────┐ │
+│ │ Đại lý Minh Phát        │ │
+│ │ Tổ chức · Nhà cung cấp  │ │
+│ └─────────────────────────┘ │
+│                             │
+│        Chưa có người        │
+│        liên hệ              │
+│ Thêm người liên hệ để biết  │
+│ ai đại diện làm việc với    │
+│ tổ chức này.                │
+│                             │
+│ [ + Thêm người liên hệ ]    │
+└─────────────────────────────┘
+```
+
+**D-04 — Chọn cách thêm người liên hệ**
+
+```Plain Text
+┌─────────────────────────────┐
+│ 9:41                        │
+│ ←    Thêm người liên hệ     │
+│ ┌─────────────────────────┐ │
+│ │ Đại lý Minh Phát        │ │
+│ │ Tổ chức · Nhà cung cấp  │ │
+│ └─────────────────────────┘ │
+│ Chọn cách thêm              │
+│ ┌─────────────────────────┐ │
+│ │ + Tạo người liên hệ mới │›│
+│ │ Nhập thông tin cá nhân  │ │
+│ └─────────────────────────┘ │
+│ ┌─────────────────────────┐ │
+│ │ 🔎 Chọn cá nhân có sẵn  │›│
+│ │ Liên kết hồ sơ đã có    │ │
+│ └─────────────────────────┘ │
+└─────────────────────────────┘
+```
+
+**D-05 — Thêm người liên hệ mới**
+
+```Plain Text
+┌─────────────────────────────┐
+│ 9:41                        │
+│ ←    Thêm người liên hệ     │
+│ Họ và tên                   │
+│ [ Nguyễn Văn An          ]  │
+│ SĐT                         │
+│ [ 0912 345 678          ]   │
+│ Email                       │
+│ [ an@minhphat.vn        ]   │
+│ Vai trò liên hệ             │
+│ [ Quản lý kinh doanh    ]   │
+│ [✓] Đặt làm liên hệ chính   │
+│ Ghi chú                     │
+│ [ Phụ trách đặt hàng     ]  │
+│                             │
+│ Bỏ qua              [ Lưu ] │
+└─────────────────────────────┘
+```
+
+**D-06 — Chọn cá nhân có sẵn**
+
+```Plain Text
+┌─────────────────────────────┐
+│ 9:41                        │
+│ ←    Chọn cá nhân có sẵn    │
+│ [ Tìm tên, SĐT, email    ]  │
+│ ┌─────────────────────────┐ │
+│ │ NA Nguyễn Văn An        │ │
+│ │    Cá nhân · 0912 345   │ │
+│ └─────────────────────────┘ │
+│ ┌─────────────────────────┐ │
+│ │ TH Trần Thị Hoa         │ │
+│ │    Cá nhân · 0987 654   │ │
+│ └─────────────────────────┘ │
+│                             │
+│ Bỏ qua              [ Chọn ]│
+└─────────────────────────────┘
+```
+
+**D-07 — Chỉnh sửa người liên hệ**
+
+```Plain Text
+┌─────────────────────────────┐
+│ 9:41                        │
+│ ←    Chỉnh sửa liên hệ      │
+│ Nguyễn Văn An               │
+│ SĐT                         │
+│ [ 0912 345 678          ]   │
+│ Email                       │
+│ [ an@minhphat.vn        ]   │
+│ Vai trò liên hệ             │
+│ [ Quản lý kinh doanh    ]   │
+│ [✓] Người liên hệ chính     │
+│ Ghi chú                     │
+│ [ Phụ trách đặt hàng     ]  │
+│                             │
+│ Bỏ qua              [ Lưu ] │
+└─────────────────────────────┘
+```
+
+**D-08 — Action sheet người liên hệ**
+
+```Plain Text
+┌─────────────────────────────┐
+│        Dim overlay          │
+│                             │
+│ ┌─────────────────────────┐ │
+│ │ ─────── handle ───────  │ │
+│ │ Nguyễn Văn An           │ │
+│ │ Quản lý kinh doanh · Chính│
+│ │                         │ │
+│ │ Chỉnh sửa liên hệ      › │ │
+│ │ Xem hồ sơ cá nhân      › │ │
+│ │                         │ │
+│ │ Gỡ khỏi tổ chức        › │ │
+│ └─────────────────────────┘ │
+└─────────────────────────────┘
+```
+
+**D-09 — Confirmation — Gỡ người liên hệ**
+
+```Plain Text
+┌─────────────────────────────┐
+│        Dim overlay          │
+│ ┌─────────────────────────┐ │
+│ │ Gỡ người liên hệ?       │ │
+│ │ Nguyễn Văn An sẽ được   │ │
+│ │ gỡ khỏi Đại lý Minh     │ │
+│ │ Phát. Hồ sơ cá nhân này │ │
+│ │ không bị xóa khỏi hệ    │ │
+│ │ thống.                  │ │
+│ │                         │ │
+│ │ Quay lại    Gỡ liên hệ  │ │
+│ └─────────────────────────┘ │
+└─────────────────────────────┘
+```
+
+**D-10 — No permission / Error / Source changed**
+
+```Plain Text
+┌─────────────────────────────┐
+│ 9:41                        │
+│ ←       Người liên hệ       │
+│                             │
+│ Không có quyền quản lý      │
+│ người liên hệ               │
+│ Anh chưa được cấp quyền     │
+│ thêm, sửa hoặc gỡ người     │
+│ liên hệ của tổ chức này.    │
+│                             │
+│ [ Quay lại ]                │
+└─────────────────────────────┘
+```
+
+#### Visual Design
+
+**Layout**
+
+- SG-04 dùng mobile portrait, white board, phone frame cố định và cùng tỷ lệ với các SG khác.
+
+- Top bar dùng back icon `←`, title ngắn `Người liên hệ`, action phụ nếu có đặt bên phải bằng `⋯`.
+
+- Parent context card hiển thị ngay dưới top bar trên các màn chính: tên tổ chức, loại hồ sơ, vai trò giao dịch.
+
+- Danh sách contact dùng card trắng, border nhẹ, radius mềm, spacing theo 4pt grid.
+
+- FAB `+` chỉ xuất hiện khi user có quyền thêm người liên hệ.
+
+**Components**
+
+- Contact avatar dùng initials, ví dụ `NA`, `TH`.
+
+- Badge `Chính` dùng brand soft badge, đặt gần tên contact chính.
+
+- Contact row gồm tên, vai trò liên hệ, SĐT/email ưu tiên, chevron hoặc tap target mở action sheet.
+
+- Action sheet dùng dim overlay, handle, header contact và action rows có chevron `›`.
+
+- Confirmation modal dùng title rõ action, body giải thích tác động, destructive CTA đặt bên phải.
+
+**Copy**
+
+- Dùng `Người liên hệ` cho title màn con.
+
+- Dùng `Gỡ khỏi tổ chức`, không dùng `Xóa người liên hệ` để tránh hiểu nhầm là xóa Person.
+
+- Confirmation phải có câu: `Hồ sơ cá nhân này không bị xóa khỏi hệ thống.`
+
+- Empty state giải thích lợi ích nghiệp vụ: biết ai đại diện làm việc với tổ chức.
+
+**Interaction**
+
+- Tap contact row mở D-08 action sheet.
+
+- Tap `+` hoặc `+ Thêm người liên hệ` mở D-04.
+
+- Tap `Tạo người liên hệ mới` mở D-05.
+
+- Tap `Chọn cá nhân có sẵn` mở D-06.
+
+- Tap `Đặt làm chính` cập nhật primary contact; nếu contact đã là chính thì ẩn action này.
+
+- Tap `Gỡ khỏi tổ chức` mở D-09 confirmation.
+
+**State handling**
+
+- Empty state chỉ hiển thị CTA nếu user có quyền thêm.
+
+- No permission không hiển thị contact list nếu user không có quyền xem.
+
+- Error dùng CTA `Thử lại`.
+
+- Source changed dùng CTA `Tải lại`.
+
+- Nếu organization bị deleted, SG-04 chuyển read-only hoặc không cho vào flow quản lý tùy permission/state rule của SG-03/SG-07.
+
+![image.png](Images_attachments/image%206.png)
+
+#### Checklist kiểm tra và nghiệm thu
+
+**Structure checklist**
+
+|Check|Tiêu chí đạt|
+|---|---|
+|A1|Có đủ D-01 đến D-10|
+|A2|`8.4.4` bắt đầu từ H3|
+|A3|Các mục con H4 không có prefix số|
+|A4|Không có dòng trắng trong file markdown txt|
+|A5|Tên màn con dùng `Người liên hệ`|
+|A6|Parent context của tổ chức hiển thị rõ|
+|A7|Các màn có direction quay lại rõ ràng|
+|**Domain checklist**||
+|Check|Tiêu chí đạt|
+|---|---|
+|B1|SG-04 chỉ áp dụng cho Organization|
+|B2|Contact được hiểu là Person hoặc hồ sơ cá nhân liên kết với Organization|
+|B3|Organization chỉ có một contact chính|
+|B4|Gỡ contact chỉ gỡ relation, không xóa Person|
+|B5|Contact không bắt buộc có role Khách hàng/NCC|
+|B6|Nếu chọn Person có sẵn, không tạo duplicate Person mới|
+|B7|Nếu đổi contact chính, contact chính cũ tự mất badge `Chính`|
+|**Visual checklist**||
+|Check|Tiêu chí đạt|
+|---|---|
+|C1|Contact chính có badge `Chính` rõ ràng|
+|C2|Contact card scan được tên, vai trò, SĐT trong 3 giây|
+|C3|FAB `+` dùng primary green|
+|C4|Button `Lưu` là primary green|
+|C5|Button `Bỏ qua` là secondary/text action|
+|C6|Action sheet có dim overlay và handle|
+|C7|Destructive action `Gỡ khỏi tổ chức` đặt cuối và dùng danger treatment|
+|**State checklist**||
+|Check|Tiêu chí đạt|
+|---|---|
+|D1|Empty state có copy rõ và CTA đúng quyền|
+|D2|No permission không lộ dữ liệu contact|
+|D3|Error có CTA `Thử lại`|
+|D4|Source changed có CTA `Tải lại`|
+|D5|Confirmation gỡ liên hệ giải thích không xóa Person|
+|D6|Contact chính không hiển thị action `Đặt làm chính`|
+|D7|Tổ chức deleted không cho thao tác nghiệp vụ nếu không được phép|
+|**Interaction checklist**||
+|Check|Tiêu chí đạt|
+|---|---|
+|E1|Từ SG-03 vào được D-01/D-02|
+|E2|Từ D-02 thêm được contact mới qua D-04/D-05|
+|E3|Từ D-04 chọn được Person có sẵn qua D-06|
+|E4|Từ contact row mở được D-08 action sheet|
+|E5|Từ D-08 chỉnh sửa được qua D-07|
+|E6|Từ D-08 gỡ contact qua D-09 confirmation|
+|E7|Back icon luôn quay về đúng màn trước đó|
+
+#### Traceability
+
+|Source|Coverage|
+|---|---|
+|EP-01/US-05|Quản lý người liên hệ của tổ chức|
+|SG-03|Entry từ hồ sơ KH & NCC loại Tổ chức|
+|Domain model|OrganizationContact, PersonProfile, OrganizationProfile|
+|Permission|partner.contact.view, partner.contact.create, partner.contact.update, partner.contact.delete|
+|Business rule|Một tổ chức tối đa một contact chính; gỡ contact không xóa Person|
+|API/Command reference|Add organization contact, update organization contact, remove organization contact|
+|Visual pattern|Card, action sheet, confirmation modal, empty/error/no permission state|
+
+### 8.4.5 SG-05 — Chuyển cá nhân thành tổ chức
+
+#### Purpose
+
+Screen group này hỗ trợ người dùng chuyển một hồ sơ **KH & NCC loại Cá nhân** thành hồ sơ **KH & NCC loại Tổ chức** khi thực tế đối tượng giao dịch đã thay đổi bản chất hoặc cần quản lý theo mô hình tổ chức.
+
+Mục tiêu của SG-05 là giúp người dùng:
+
+- nhận biết điểm bắt đầu của flow chuyển đổi từ hồ sơ cá nhân;
+
+- nhập thông tin tổ chức mới một cách rõ ràng, an toàn;
+
+- xem trước tác động trước khi xác nhận;
+
+- hiểu rõ dữ liệu nào được giữ nguyên, dữ liệu nào thay đổi;
+
+- hoàn tất chuyển đổi mà không gây nhầm lẫn giữa việc **chuyển đổi hồ sơ** và **xóa hồ sơ cá nhân**.
+
+#### Covered user stories
+
+- EP-01/US-06 — Chuyển cá nhân thành tổ chức
+
+#### Entry points and exits
+
+**Entry points**
+
+- Từ **SG-03 — Hồ sơ KH & NCC**, khi hồ sơ hiện tại là **Cá nhân** và người dùng có quyền chuyển đổi.
+
+- Từ **Action sheet — Thao tác** trong hồ sơ cá nhân, chọn action `Chuyển thành tổ chức`.
+
+**Exits**
+
+- Sang **SG-03 — Hồ sơ KH & NCC** của tổ chức mới sau khi chuyển đổi thành công.
+
+- Sang **SG-02 — Tạo mới & chỉnh sửa KH & NCC** nếu người dùng cần bổ sung thêm thông tin tổ chức sau khi chuyển.
+
+- Sang **SG-07 — Trạng thái & xóa mềm KH & NCC** nếu flow bị chặn do trạng thái hoặc dữ liệu thay đổi.
+
+#### Screens and states
+
+|ID|Screen / State|Purpose|
+|---|---|---|
+|D-01|Hồ sơ cá nhân — entry point|Điểm bắt đầu của flow|
+|D-02|Action sheet — Chuyển thành tổ chức|Chọn action chuyển đổi|
+|D-03|Chuyển thành tổ chức|Nhập thông tin tổ chức mới|
+|D-04|Xem trước chuyển đổi|So sánh trước và sau khi chuyển|
+|D-05|Xác nhận chuyển đổi|Xác nhận hành động cuối cùng|
+|D-06|Chuyển đổi thành công — hồ sơ tổ chức|Kết quả thành công|
+|D-07|Không thể chuyển đổi|Validation / blocked state|
+|D-08|Không có quyền / Dữ liệu đã thay đổi|No permission / source changed|
+
+#### UI Contract
+
+**D-01 — Hồ sơ cá nhân — entry point**
+
+- Top bar: `←`, title `KH & NCC`, optional `...`.
+
+- Header hiển thị: avatar initials, tên cá nhân, chip `Cá nhân`, chip vai trò giao dịch, badge trạng thái, SĐT chính.
+
+- Content cards: Thông tin chính, Hóa đơn / thuế, Địa chỉ giao hàng, Lịch sử gần đây.
+
+- Bottom actions: `Chỉnh sửa` và `Thao tác ︿`.
+
+- Điều kiện hiển thị action `Chuyển thành tổ chức`: hồ sơ là **Cá nhân**, trạng thái không phải `Đã xóa`, user có quyền `partner.transform`.
+
+**D-02 — Action sheet — Chuyển thành tổ chức**
+
+- Bottom sheet có dim overlay và handle.
+
+- Header sheet hiển thị tên cá nhân, loại hồ sơ, vai trò giao dịch, trạng thái.
+
+- Danh sách action có thể gồm: `Chỉnh sửa`, `Xem lịch sử`, `Chuyển thành tổ chức`, `Ngừng hoạt động`.
+
+- `Chuyển thành tổ chức` dùng row action bình thường, không dùng danger treatment.
+
+- Tap `Chuyển thành tổ chức` mở màn D-03.
+
+**D-03 — Chuyển thành tổ chức**
+
+- Title: `Chuyển thành tổ chức`.
+
+- Phần đầu màn hình hiển thị mini summary của hồ sơ cá nhân hiện tại.
+
+- Form nhập thông tin tổ chức mới gồm:
+
+    - Tên tổ chức *;
+
+    - Loại tổ chức *;
+
+    - SĐT tổ chức *;
+
+    - Email tổ chức;
+
+    - MST;
+
+    - Địa chỉ tổ chức *;
+
+    - Ghi chú chuyển đổi.
+
+- CTA cuối màn: `Bỏ qua` và `Tiếp`.
+
+- `Tiếp` chỉ enabled khi đạt dữ liệu tối thiểu bắt buộc.
+
+- `Bỏ qua` quay lại màn trước, không thực hiện chuyển đổi.
+
+**D-04 — Xem trước chuyển đổi**
+
+- Title: `Xem trước chuyển đổi`.
+
+- Có 2 block:
+
+    - `Trước khi chuyển`;
+
+    - `Sau khi chuyển`.
+
+- Block `Trước khi chuyển` hiển thị hồ sơ cá nhân hiện tại.
+
+- Block `Sau khi chuyển` hiển thị hồ sơ tổ chức mới sau khi áp dụng dữ liệu từ form.
+
+- Có ghi chú bắt buộc: `Nguyễn Văn An sẽ trở thành người liên hệ chính`.
+
+- CTA: `Quay lại` và `Xác nhận`.
+
+**D-05 — Xác nhận chuyển đổi**
+
+- Confirmation modal với dim overlay.
+
+- Title: `Xác nhận chuyển thành tổ chức?`
+
+- Body nêu rõ:
+
+    - hồ sơ hiện tại sẽ được chuyển từ Cá nhân thành Tổ chức;
+
+    - vai trò giao dịch và trạng thái hiện tại được giữ nguyên;
+
+    - hồ sơ cá nhân ban đầu trở thành người liên hệ chính của tổ chức mới;
+
+    - lịch sử giao dịch, hóa đơn, công nợ tiếp tục được giữ nguyên và gắn với hồ sơ mới.
+
+- CTA trái: `Quay lại`.
+
+- CTA phải: `Xác nhận chuyển`.
+
+**D-06 — Chuyển đổi thành công — hồ sơ tổ chức**
+
+- Sau khi chuyển thành công, điều hướng sang hồ sơ tổ chức mới.
+
+- Hiển thị toast thành công style VET45: dark bar, icon check xanh, text trắng.
+
+- Header mới hiển thị loại hồ sơ `Tổ chức`.
+
+- Card `Người liên hệ` hiển thị cá nhân cũ là contact chính.
+
+- Có thể hiển thị info block ngắn: `Đã chuyển thành tổ chức thành công`.
+
+**D-07 — Không thể chuyển đổi**
+
+- Dùng khi validation hoặc business rule không cho phép chuyển đổi.
+
+- Title: `Không thể chuyển đổi`.
+
+- Body hiển thị danh sách nguyên nhân, ví dụ:
+
+    - thiếu tên tổ chức;
+
+    - loại tổ chức chưa hợp lệ;
+
+    - MST không hợp lệ;
+
+    - dữ liệu bị người khác cập nhật;
+
+    - trạng thái hồ sơ không cho phép chuyển đổi.
+
+- CTA: `Quay lại` và `Bổ sung thông tin`.
+
+**D-08 — Không có quyền / Dữ liệu đã thay đổi**
+
+- Trường hợp 1: No permission.
+
+    - Title: `Không có quyền`.
+
+    - Body: `Anh chưa được cấp quyền thực hiện hành động này.`
+
+    - CTA: `Quay lại`.
+
+- Trường hợp 2: Source changed.
+
+    - Title: `Dữ liệu đã thay đổi`.
+
+    - Body: `Dữ liệu hồ sơ đã được cập nhật bởi người khác hoặc không còn ở trạng thái hợp lệ để tiếp tục chuyển đổi.`
+
+    - CTA: `Tải lại`.
+
+#### Low-fi wireframes
+
+**D-01 — Hồ sơ cá nhân — entry point**
+
+```Plain Text
+┌─────────────────────────────┐
+│ 9:41                        │
+│ ←         KH & NCC       ⋯  │
+│ [AN] Nguyễn Văn An          │
+│      Cá nhân · Khách hàng   │
+│      [Đang hoạt động]       │
+│      0912 345 678           │
+│ ┌─────────────────────────┐ │
+│ │ Thông tin chính       › │ │
+│ └─────────────────────────┘ │
+│ ┌─────────────────────────┐ │
+│ │ Hóa đơn / thuế        › │ │
+│ └─────────────────────────┘ │
+│ ┌─────────────────────────┐ │
+│ │ Địa chỉ giao hàng     › │ │
+│ └─────────────────────────┘ │
+│ [Chỉnh sửa]                │
+│ [Thao tác ︿]               │
+└─────────────────────────────┘
+```
+
+#### Visual Design
+
+![image.png](Images_attachments/image%203.png)
+
+### 8.4.6 SG-06 — Lịch sử làm việc với KH & NCC
+
+#### Purpose
+
+Screen group này hỗ trợ người dùng tra cứu lịch sử làm việc và giao dịch đã phát sinh với một hồ sơ **KH & NCC** cụ thể.
+
+Mục tiêu của SG-06 là giúp người dùng:
+
+- xem nhanh các hoạt động gần đây ngay trong hồ sơ KH & NCC;
+
+- xem toàn bộ lịch sử làm việc theo dạng danh sách/timeline;
+
+- tìm kiếm theo mã giao dịch hoặc chứng từ;
+
+- lọc lịch sử theo vai trò giao dịch, loại hoạt động, trạng thái và thời gian;
+
+- xem tóm tắt một hoạt động trước khi mở chứng từ nguồn;
+
+- hiểu rõ khi nào có thể hoặc không thể mở chứng từ nguồn.
+
+SG-06 không phải là nơi chỉnh sửa chứng từ nguồn. Đây là màn hình tra cứu, rà soát và điều hướng sang module nguồn nếu người dùng có quyền.
+
+#### Covered user stories
+
+- EP-01/US-07 — Theo dõi lịch sử làm việc với đối tác
+
+- EP-01/US-04 — Kiểm tra hồ sơ đối tác
+
+#### Entry points and exits
+
+**Entry points**
+
+- Từ **SG-03 — Hồ sơ KH & NCC**, card `Lịch sử gần đây`, chọn `Xem tất cả lịch sử`.
+
+- Từ action sheet trong **SG-03 — Hồ sơ KH & NCC**, chọn `Xem lịch sử`.
+
+- Từ các module nguồn như bán hàng, mua hàng, công nợ hoặc hóa đơn nếu có deep link quay về lịch sử KH & NCC.
+
+**Exits**
+
+- Quay lại **SG-03 — Hồ sơ KH & NCC**.
+
+- Mở summary của một hoạt động trong SG-06.
+
+- Mở chứng từ nguồn nếu user có quyền.
+
+- Quay lại list sau khi đóng summary hoặc state phụ.
+
+#### Screens and states
+
+|ID|Screen / State|Purpose|
+|---|---|---|
+|D-01|Section Lịch sử gần đây trong hồ sơ KH & NCC|Preview 2–3 hoạt động mới nhất trong SG-03|
+|D-02|Danh sách lịch sử làm việc|Màn chính của SG-06|
+|D-03|Bộ lọc lịch sử|Lọc theo vai trò, loại hoạt động, trạng thái, thời gian|
+|D-04|Kết quả sau lọc / Không có kết quả|Hiển thị filtered results hoặc no result|
+|D-05|Chi tiết một hoạt động|Summary của một item lịch sử|
+|D-06|Mở chứng từ nguồn / Không có quyền mở nguồn|Handoff sang module nguồn hoặc blocked permission|
+|D-07|Empty / Loading / Error|State phụ chuẩn|
+
+#### UI Contract
+
+**D-01 — Section Lịch sử gần đây trong hồ sơ KH & NCC**
+
+- Xuất hiện trong **SG-03 — Hồ sơ KH & NCC**.
+
+- Title card: `Lịch sử gần đây`.
+
+- Hiển thị tối đa 2–3 hoạt động mới nhất.
+
+- Mỗi item hiển thị: loại hoạt động, mã chứng từ, ngày phát sinh, vai trò giao dịch, trạng thái và giá trị.
+
+- CTA: `Xem tất cả lịch sử`.
+
+- Nếu chưa có lịch sử, hiển thị mini empty state: `Chưa có lịch sử làm việc`.
+
+- Tap vào item có thể mở D-05 nếu phase hỗ trợ summary nhanh.
+
+**D-02 — Danh sách lịch sử làm việc**
+
+- Top bar: `←`, title `Lịch sử làm việc`, optional `...`.
+
+- Context header hiển thị tên KH & NCC, loại hồ sơ, vai trò giao dịch tổng thể và trạng thái hiện tại.
+
+- Search box placeholder: `Tìm theo mã giao dịch`.
+
+- Filter icon dùng sliders/tuning icon.
+
+- Quick filters: `Tất cả`, `Khách hàng`, `Nhà cung cấp`.
+
+- Mặc định sort theo ngày phát sinh mới nhất trước.
+
+- Mỗi history item hiển thị:
+
+    - tên hoạt động;
+
+    - mã chứng từ;
+
+    - ngày phát sinh;
+
+    - vai trò giao dịch;
+
+    - trạng thái;
+
+    - giá trị;
+
+    - chevron `›` nếu có thể mở summary hoặc chứng từ nguồn.
+
+**D-03 — Bộ lọc lịch sử**
+
+- Dùng bottom sheet có dim overlay và handle.
+
+- Title: `Lọc lịch sử`.
+
+- Nhóm filter `Vai trò giao dịch`: `Tất cả`, `Khách hàng`, `Nhà cung cấp`.
+
+- Nhóm filter `Loại hoạt động`: `Tất cả`, `Đơn bán hàng`, `Phiếu thu`, `Phiếu nhập hàng`, `Phiếu chi`, `Hóa đơn`, `Điều chỉnh công nợ`.
+
+- Nhóm filter `Trạng thái`: `Tất cả`, `Đã hoàn tất`, `Đang xử lý`, `Đã hủy`, `Đã thu`, `Đã chi`.
+
+- Nhóm filter `Thời gian`: `7 ngày gần đây`, `30 ngày gần đây`, `90 ngày gần đây`, `Tùy chọn`.
+
+- CTA dưới sheet: `Đặt lại` và `Áp dụng`.
+
+**D-04 — Kết quả sau lọc / Không có kết quả**
+
+- Khi có kết quả, hiển thị chip filter đang áp dụng ngay dưới search/filter area.
+
+- Filter chip có thể xóa nhanh bằng dấu `×`, ví dụ: `Nhà cung cấp ×`, `Phiếu nhập hàng ×`, `30 ngày gần đây ×`.
+
+- Khi không có kết quả do filter, hiển thị empty state: `Không có lịch sử phù hợp`.
+
+- CTA trong no filter result: `Đặt lại bộ lọc`.
+
+- Khi không có kết quả do search, hiển thị copy: `Không tìm thấy giao dịch`.
+
+- CTA trong no search result: `Đặt lại`.
+
+**D-05 — Chi tiết một hoạt động**
+
+- Có thể là màn detail ngắn hoặc bottom sheet summary.
+
+- Title theo loại hoạt động, ví dụ: `Phiếu nhập hàng`.
+
+- Hiển thị mã chứng từ, trạng thái, vai trò giao dịch, ngày phát sinh, tổng giá trị, nguồn dữ liệu, ghi chú và người tạo nếu có.
+
+- CTA chính: `Xem chứng từ nguồn`.
+
+- CTA phụ: `Quay lại` hoặc đóng sheet.
+
+- Nếu user không có quyền mở nguồn, CTA `Xem chứng từ nguồn` có thể bị ẩn hoặc dẫn sang D-06 no permission.
+
+**D-06 — Mở chứng từ nguồn / Không có quyền mở nguồn**
+
+- Trường hợp có quyền: điều hướng sang module nguồn tương ứng, ví dụ chi tiết đơn bán, phiếu thu, phiếu nhập, phiếu chi, hóa đơn.
+
+- Trường hợp không có quyền:
+
+    - Title: `Không có quyền mở chứng từ nguồn`.
+
+    - Body: `Anh có thể xem lịch sử làm việc, nhưng chưa được cấp quyền xem chi tiết chứng từ này.`
+
+    - CTA: `Quay lại`.
+
+- Trường hợp chứng từ nguồn không còn khả dụng:
+
+    - Title: `Không mở được chứng từ nguồn`.
+
+    - Body: `Chứng từ nguồn có thể đã bị thay đổi hoặc không còn khả dụng.`
+
+    - CTA: `Quay lại`.
+
+**D-07 — Empty / Loading / Error**
+
+- Empty dùng khi KH & NCC chưa có bất kỳ lịch sử làm việc nào.
+
+- Empty title: `Chưa có lịch sử làm việc`.
+
+- Empty body: `KH & NCC này chưa phát sinh giao dịch hoặc hoạt động nào.`
+
+- Empty CTA: `Quay lại hồ sơ`.
+
+- Loading dùng skeleton list và skeleton context header.
+
+- Error title: `Không tải được lịch sử`.
+
+- Error body: `Vui lòng thử lại sau.`
+
+- Error CTA: `Thử lại`.
+
+#### Low-fi wireframes
+
+**D-01 — Section Lịch sử gần đây trong hồ sơ KH & NCC**
+
+```Plain Text
+┌─────────────────────────────┐
+│ Lịch sử gần đây             │
+│ Phiếu nhập hàng             │
+│ GR-2026-0091                │
+│ 18/06/2026                  │
+│ Nhà cung cấp · Đã hoàn tất  │
+│ 12.400.000 đ              › │
+│─────────────────────────────│
+│ Phiếu thu                   │
+│ RC-2026-0018                │
+│ 15/06/2026                  │
+│ Khách hàng · Đã thu         │
+│ 2.500.000 đ               › │
+│─────────────────────────────│
+│ Xem tất cả lịch sử          │
+└─────────────────────────────┘
+```
+
+**D-02 — Danh sách lịch sử làm việc**
+
+```Plain Text
+┌─────────────────────────────┐
+│ 9:41                        │
+│ ←    Lịch sử làm việc    ⋯  │
+│ Đại lý Chăn nuôi Minh Phát  │
+│ Tổ chức · KH & NCC          │
+│ [ Tìm theo mã giao dịch ] ⚙ │
+│ [Tất cả][Khách hàng][NCC]   │
+│ ┌─────────────────────────┐ │
+│ │ Phiếu nhập hàng       › │ │
+│ │ GR-2026-0091            │ │
+│ │ 18/06/2026              │ │
+│ │ Nhà cung cấp · Hoàn tất │ │
+│ │ 12.400.000 đ            │ │
+│ └─────────────────────────┘ │
+│ ┌─────────────────────────┐ │
+│ │ Phiếu thu             › │ │
+│ │ RC-2026-0018            │ │
+│ │ Khách hàng · Đã thu     │ │
+│ │ 2.500.000 đ             │ │
+│ └─────────────────────────┘ │
+└─────────────────────────────┘
+```
+
+**D-03 — Bộ lọc lịch sử**
+
+```Plain Text
+┌─────────────────────────────┐
+│        dimmed list          │
+│           ─────             │
+│ Lọc lịch sử                 │
+│ Vai trò giao dịch           │
+│ [Tất cả] [Khách hàng] [NCC] │
+│ Loại hoạt động              │
+│ [Đơn bán] [Phiếu thu]       │
+│ [Phiếu nhập] [Phiếu chi]    │
+│ Trạng thái                  │
+│ [Hoàn tất] [Đang xử lý]     │
+│ [Đã hủy]                   │
+│ Thời gian                   │
+│ [7 ngày] [30 ngày] [90 ngày]│
+│ [Đặt lại]       [Áp dụng]   │
+└─────────────────────────────┘
+```
+
+**D-04 — Kết quả sau lọc / Không có kết quả**
+
+```Plain Text
+┌─────────────────────────────┐
+│ ←    Lịch sử làm việc    ⋯  │
+│ [ Tìm theo mã giao dịch ] ⚙ │
+│ [Nhà cung cấp ×] [30 ngày ×]│
+│                             │
+│ Không có lịch sử phù hợp    │
+│ Không tìm thấy hoạt động    │
+│ nào khớp với bộ lọc hiện tại│
+│ [Đặt lại bộ lọc]            │
+└─────────────────────────────┘
+```
+
+**D-05 — Chi tiết một hoạt động**
+
+```Plain Text
+┌─────────────────────────────┐
+│ ←     Phiếu nhập hàng       │
+│ GR-2026-0091                │
+│ [Đã hoàn tất]               │
+│ Vai trò giao dịch           │
+│ Nhà cung cấp                │
+│ Ngày phát sinh              │
+│ 18/06/2026                  │
+│ Tổng giá trị                │
+│ 12.400.000 đ                │
+│ Nguồn dữ liệu               │
+│ Mua hàng                    │
+│ Ghi chú                     │
+│ Nhập thuốc thú y đợt 1      │
+│ [Quay lại] [Xem chứng từ]   │
+└─────────────────────────────┘
+```
+
+**D-06 — Không có quyền mở chứng từ nguồn**
+
+```Plain Text
+┌─────────────────────────────┐
+│ ←    Lịch sử làm việc       │
+│ [lock icon]                 │
+│ Không có quyền mở chứng từ  │
+│ nguồn                       │
+│ Anh có thể xem lịch sử làm  │
+│ việc, nhưng chưa được cấp   │
+│ quyền xem chi tiết chứng từ │
+│ này.                        │
+│ [Quay lại]                  │
+└─────────────────────────────┘
+```
+
+**D-07 — Empty / Loading / Error**
+
+```Plain Text
+┌─────────────────────────────┐
+│ ←    Lịch sử làm việc       │
+│ [empty icon]                │
+│ Chưa có lịch sử làm việc    │
+│ KH & NCC này chưa phát sinh │
+│ giao dịch hoặc hoạt động nào│
+│ [Quay lại hồ sơ]            │
+└─────────────────────────────┘
+```
+
+#### Visual Design
+
+**Board**
+
+- White presentation board.
+
+- Board title: `SG-06 — Lịch sử làm việc với KH & NCC`.
+
+- Subtitle: `Visual Design · VET45 Design System · Mobile First`.
+
+- Dùng 7 phone frames cùng kích thước, không stretch.
+
+- Mỗi màn có green ID chip `D-01` đến `D-07`.
+**Top bar**
+
+- Back icon luôn là `←`.
+
+- Title ngắn, literal: `Lịch sử làm việc`.
+
+- Right action `...` chỉ dùng khi có action phụ thật sự.
+**Context header**
+
+- Hiển thị tên KH & NCC, loại hồ sơ, vai trò giao dịch tổng thể.
+
+- Dùng card hoặc compact header nền brand-soft.
+
+- Không để người dùng mất ngữ cảnh đang xem lịch sử của ai.
+**History item**
+
+- Card trắng, border nhẹ, radius mềm.
+
+- Tên hoạt động là dòng nổi bật nhất.
+
+- Mã chứng từ dùng mono/numeric style nếu có.
+
+- Vai trò giao dịch dùng chip nhỏ: `Khách hàng` hoặc `Nhà cung cấp`.
+
+- Trạng thái dùng semantic badge.
+
+- Giá trị tiền tệ canh phải hoặc nổi bật ở cuối item.
+
+- Row có chevron `›` nếu mở được summary.
+**Filter sheet**
+
+- Dùng bottom sheet có dim overlay và handle.
+
+- Filter options dùng chip hoặc segmented controls.
+
+- CTA `Áp dụng` là primary green.
+
+- CTA `Đặt lại` là secondary/text.
+**Summary detail**
+
+- Dùng card thông tin rõ ràng, không quá nhiều metadata.
+
+- CTA `Xem chứng từ nguồn` là primary nếu user có quyền.
+
+- Nếu không có quyền, không show dữ liệu nhạy cảm của chứng từ nguồn.
+**States**
+
+- Empty dùng illustration/icon tối giản, không trang trí quá nhiều.
+
+- Loading dùng skeleton.
+
+- Error dùng CTA `Thử lại`.
+
+- No permission dùng icon lock/shield, CTA `Quay lại`.
+
+![image.png](Images_attachments/image%205.png)
+
+#### Checklist kiểm tra và nghiệm thu
+
+- SG-06 được nghiệm thu khi D-01 đến D-07 đạt checklist CL-01 đến CL-15.
+
+- Không có lỗi blocking ở các nhóm: Context clarity, Domain correctness, Permission safety, Navigation flow và Visual consistency.
+
+#### Traceability
+
+- SG-06 được gọi từ **SG-03 — Hồ sơ KH & NCC**.
+
+- SG-06 có thể điều hướng sang các module nguồn như bán hàng, mua hàng, công nợ, hóa đơn nếu user có quyền.
+
+- SG-06 không chỉnh sửa chứng từ nguồn và không thay thế audit log hệ thống.
+
+### 8.4.7 SG-07 — Trạng thái & xóa mềm KH & NCC
+
+#### Purpose
+
+Screen group này hỗ trợ người dùng quản lý trạng thái sử dụng của hồ sơ **KH & NCC**, bao gồm:
+
+- ngừng hoạt động một KH & NCC đang hoạt động;
+
+- kích hoạt lại một KH & NCC đã ngừng hoạt động;
+
+- xóa mềm hồ sơ KH & NCC được tạo nhầm;
+
+- xử lý các trường hợp bị chặn do đã phát sinh giao dịch, không có quyền, dữ liệu thay đổi hoặc lỗi hệ thống.
+
+SG-07 không phải là nơi chỉnh sửa nội dung hồ sơ. SG-07 chỉ xử lý **lifecycle/status action** của hồ sơ KH & NCC.
+
+Mục tiêu UX là giúp người dùng hiểu rõ:
+
+- hồ sơ còn được chọn cho giao dịch mới hay không;
+
+- thao tác nào có thể đảo ngược;
+
+- thao tác nào có tính phá hủy hoặc cần thận trọng;
+
+- vì sao một thao tác bị chặn;
+
+- action thay thế hợp lý là gì, ví dụ không xóa được thì ngừng hoạt động.
+
+#### Covered user stories
+
+- EP-02/US-01 — Dừng sử dụng và sử dụng lại đối tác
+
+- EP-02/US-02 — Loại bỏ hồ sơ đối tác tạo nhầm
+
+- EP-01/US-04 — Kiểm tra hồ sơ đối tác
+
+#### Entry points and exits
+
+**Entry points**
+
+- Từ **SG-03 — Hồ sơ KH & NCC**, button `Thao tác ︿`.
+
+- Từ action sheet trong hồ sơ KH & NCC, chọn `Ngừng hoạt động`, `Kích hoạt lại` hoặc `Xóa hồ sơ`.
+
+- Từ blocked state khi hệ thống đề xuất action thay thế, ví dụ `Ngừng hoạt động`.
+
+**Exits**
+
+- Quay lại **SG-03 — Hồ sơ KH & NCC** với status mới.
+
+- Quay lại hồ sơ không đổi nếu user hủy confirmation.
+
+- Quay lại list **SG-01 — Danh sách & khám phá KH & NCC** sau khi xóa mềm thành công nếu hồ sơ không còn nằm trong working list.
+
+- Sang state blocked/no permission/source changed nếu action không thể thực hiện.
+
+#### Screens and states
+
+|ID|Screen / State|Purpose|
+|---|---|---|
+|D-01|Hồ sơ đang hoạt động — entry point|Trạng thái active, có action ngừng/xóa|
+|D-02|Action sheet — Hồ sơ đang hoạt động|Chọn ngừng hoạt động hoặc xóa hồ sơ|
+|D-03|Confirmation — Ngừng hoạt động|Xác nhận dừng sử dụng KH & NCC|
+|D-04|Hồ sơ ngừng hoạt động|Trạng thái inactive sau khi ngừng|
+|D-05|Action sheet — Hồ sơ ngừng hoạt động|Chọn kích hoạt lại hoặc xóa hồ sơ|
+|D-06|Confirmation — Kích hoạt lại|Xác nhận sử dụng lại KH & NCC|
+|D-07|Confirmation — Xóa hồ sơ|Xác nhận xóa mềm hồ sơ tạo nhầm|
+|D-08|Xóa hồ sơ thành công|Result state sau khi xóa mềm|
+|D-09|Không thể xóa do đã phát sinh giao dịch|Blocked state và đề xuất ngừng hoạt động|
+|D-10|Không có quyền / Dữ liệu đã thay đổi / Error|Permission, source changed, loading/error states|
+
+#### UI Contract
+
+**D-01 — Hồ sơ đang hoạt động — entry point**
+
+- Màn hình thuộc **SG-03 — Hồ sơ KH & NCC** nhưng được SG-07 sử dụng làm entry point.
+
+- Header hiển thị tên KH & NCC, loại hồ sơ, vai trò giao dịch và badge `Đang hoạt động`.
+
+- Info ngắn: hồ sơ đang được phép chọn cho giao dịch mới.
+
+- Bottom actions: `Chỉnh sửa` và `Thao tác ︿`.
+
+- Tap `Thao tác ︿` mở D-02.
+
+**D-02 — Action sheet — Hồ sơ đang hoạt động**
+
+- Bottom sheet có dim overlay và handle.
+
+- Header sheet hiển thị tên KH & NCC, loại hồ sơ, vai trò giao dịch, trạng thái `Đang hoạt động`.
+
+- Action có thể gồm:
+
+    - `Chỉnh sửa`;
+
+    - `Xem lịch sử`;
+
+    - `Quản lý người liên hệ` nếu là tổ chức;
+
+    - `Chuyển thành tổ chức` nếu là cá nhân;
+
+    - `Ngừng hoạt động`;
+
+    - `Xóa hồ sơ`.
+
+- `Ngừng hoạt động` là action trạng thái, không dùng danger treatment.
+
+- `Xóa hồ sơ` là destructive action, đặt cuối sheet và dùng danger treatment.
+
+- Tap `Ngừng hoạt động` mở D-03.
+
+- Tap `Xóa hồ sơ` mở D-07 hoặc D-09 nếu hệ thống biết trước hồ sơ không đủ điều kiện xóa.
+
+**D-03 — Confirmation — Ngừng hoạt động**
+
+- Dùng modal confirmation với dim overlay.
+
+- Title: `Ngừng hoạt động KH & NCC?`
+
+- Body phải nói rõ: KH & NCC này sẽ không còn được chọn cho giao dịch mới; hồ sơ và lịch sử vẫn được giữ lại.
+
+- Có field `Lý do — không bắt buộc` nếu cần audit/action log.
+
+- CTA trái: `Quay lại`.
+
+- CTA phải: `Ngừng hoạt động`.
+
+- Đây là action có thể đảo ngược, không dùng danger red.
+
+**D-04 — Hồ sơ ngừng hoạt động**
+
+- Header hiển thị badge `Ngừng hoạt động`.
+
+- Info block ngay dưới header:
+
+    - `KH & NCC này không còn được chọn cho giao dịch mới.`
+
+    - `Hồ sơ và lịch sử vẫn được giữ lại.`
+
+- Vẫn hiển thị các card thông tin và lịch sử.
+
+- Bottom actions: `Chỉnh sửa` và `Thao tác ︿` nếu user có quyền.
+
+- Tap `Thao tác ︿` mở D-05.
+
+**D-05 — Action sheet — Hồ sơ ngừng hoạt động**
+
+- Bottom sheet có dim overlay và handle.
+
+- Header sheet hiển thị tên KH & NCC và trạng thái `Ngừng hoạt động`.
+
+- Action có thể gồm:
+
+    - `Chỉnh sửa`;
+
+    - `Xem lịch sử`;
+
+    - `Kích hoạt lại`;
+
+    - `Xóa hồ sơ`.
+
+- `Kích hoạt lại` là action positive/normal, không dùng danger.
+
+- `Xóa hồ sơ` vẫn là destructive action và đặt cuối.
+
+- Tap `Kích hoạt lại` mở D-06.
+
+**D-06 — Confirmation — Kích hoạt lại**
+
+- Dùng modal confirmation với dim overlay.
+
+- Title: `Kích hoạt lại KH & NCC?`
+
+- Body phải nói rõ: KH & NCC này sẽ có thể được chọn lại cho giao dịch mới.
+
+- CTA trái: `Quay lại`.
+
+- CTA phải: `Kích hoạt lại`.
+
+- Sau khi thành công, quay về SG-03 với badge `Đang hoạt động` và toast thành công.
+
+**D-07 — Confirmation — Xóa hồ sơ**
+
+- Dùng modal confirmation với dim overlay.
+
+- Title: `Xóa hồ sơ KH & NCC?`
+
+- Body phải nói rõ:
+
+    - hồ sơ sẽ bị xóa khỏi danh sách làm việc;
+
+    - KH & NCC này không còn được chọn cho giao dịch mới;
+
+    - hành động chỉ áp dụng cho hồ sơ tạo nhầm và đủ điều kiện xóa;
+
+    - lịch sử/action log vẫn được giữ lại theo quy định hệ thống.
+
+- Có thể có checkbox xác nhận: `Tôi hiểu hồ sơ sẽ bị xóa khỏi danh sách làm việc.`
+
+- CTA trái: `Quay lại`.
+
+- CTA phải: `Xóa hồ sơ`.
+
+- CTA phải dùng destructive red.
+
+**D-08 — Xóa hồ sơ thành công**
+
+- Result state sau khi xóa mềm thành công.
+
+- Title: `Đã xóa hồ sơ`.
+
+- Body: `Hồ sơ đã được xóa khỏi danh sách làm việc.`
+
+- CTA chính: `Về danh sách KH & NCC`.
+
+- CTA phụ nếu cần: `Xem lịch sử`.
+
+- Không hiển thị CTA chỉnh sửa hoặc thao tác nghiệp vụ.
+
+**D-09 — Không thể xóa do đã phát sinh giao dịch**
+
+- Dùng blocked state, không dùng system error tone.
+
+- Title: `Không thể xóa hồ sơ`.
+
+- Body phải nói rõ: KH & NCC đã phát sinh giao dịch hoặc chứng từ liên quan nên không thể xóa khỏi hệ thống.
+
+- Gợi ý action thay thế: `Anh có thể ngừng hoạt động để tránh sử dụng trong giao dịch mới.`
+
+- CTA chính: `Ngừng hoạt động`.
+
+- CTA phụ: `Quay lại`.
+
+- Nếu hồ sơ đã ngừng hoạt động, CTA chính có thể là `Quay lại hồ sơ`.
+
+**D-10 — Không có quyền / Dữ liệu đã thay đổi / Error**
+
+- No permission:
+
+    - Title: `Không có quyền thực hiện thao tác`.
+
+    - Body: `Anh chưa được cấp quyền thay đổi trạng thái hoặc xóa hồ sơ KH & NCC này.`
+
+    - CTA: `Quay lại`.
+
+- Source changed:
+
+    - Title: `Dữ liệu đã thay đổi`.
+
+    - Body: `Hồ sơ đã được cập nhật bởi người khác hoặc không còn ở trạng thái hợp lệ. Vui lòng tải lại trước khi tiếp tục.`
+
+    - CTA: `Tải lại`.
+
+- Error:
+
+    - Title: `Không thực hiện được thao tác`.
+
+    - Body: `Vui lòng thử lại sau.`
+
+    - CTA: `Thử lại`.
+
+- Loading:
+
+    - Hiển thị loading state khi đang xử lý action; không cho bấm lặp CTA.
+
+#### Low-fi wireframes
+
+**D-01 — Hồ sơ đang hoạt động — entry point**
+
+```Plain Text
+┌─────────────────────────────┐
+│ 9:41                        │
+│ ←         KH & NCC       ⋯  │
+│ [MP] Đại lý Minh Phát       │
+│      Tổ chức · Nhà cung cấp │
+│      [Đang hoạt động]       │
+│      028 3822 5511          │
+│ ┌─────────────────────────┐ │
+│ │ Thông tin chính       › │ │
+│ └─────────────────────────┘ │
+│ ┌─────────────────────────┐ │
+│ │ Lịch sử gần đây       › │ │
+│ └─────────────────────────┘ │
+│ [Chỉnh sửa]                │
+│ [Thao tác ︿]               │
+└─────────────────────────────┘
+```
+
+**D-02 — Action sheet — Hồ sơ đang hoạt động**
+
+```Plain Text
+┌─────────────────────────────┐
+│        dimmed detail        │
+│           ─────             │
+│ Đại lý Minh Phát            │
+│ Tổ chức · Nhà cung cấp      │
+│ Đang hoạt động              │
+│─────────────────────────────│
+│ Chỉnh sửa                ›  │
+│ Xem lịch sử              ›  │
+│ Quản lý người liên hệ    ›  │
+│ Ngừng hoạt động          ›  │
+│─────────────────────────────│
+│ Xóa hồ sơ                ›  │
+└─────────────────────────────┘
+```
+
+**D-03 — Confirmation — Ngừng hoạt động**
+
+```Plain Text
+┌─────────────────────────────┐
+│         dimmed detail       │
+│ ┌─────────────────────────┐ │
+│ │ Ngừng hoạt động KH & NCC?│ │
+│ │ KH & NCC này sẽ không   │ │
+│ │ còn được chọn cho giao  │ │
+│ │ dịch mới. Hồ sơ và lịch │ │
+│ │ sử vẫn được giữ lại.    │ │
+│ │ Lý do — không bắt buộc  │ │
+│ │ [____________________]  │ │
+│ │ [Quay lại] [Ngừng HĐ]   │ │
+│ └─────────────────────────┘ │
+└─────────────────────────────┘
+```
+
+**D-04 — Hồ sơ ngừng hoạt động**
+
+```Plain Text
+┌─────────────────────────────┐
+│ 9:41                        │
+│ ←         KH & NCC       ⋯  │
+│ [MP] Đại lý Minh Phát       │
+│      Tổ chức · Nhà cung cấp │
+│      [Ngừng hoạt động]      │
+│ ┌─────────────────────────┐ │
+│ │ i KH & NCC này không    │ │
+│ │ còn được chọn cho giao  │ │
+│ │ dịch mới.               │ │
+│ └─────────────────────────┘ │
+│ ┌─────────────────────────┐ │
+│ │ Thông tin chính       › │ │
+│ └─────────────────────────┘ │
+│ [Chỉnh sửa]                │
+│ [Thao tác ︿]               │
+└─────────────────────────────┘
+```
+
+**D-05 — Action sheet — Hồ sơ ngừng hoạt động**
+
+```Plain Text
+┌─────────────────────────────┐
+│        dimmed detail        │
+│           ─────             │
+│ Đại lý Minh Phát            │
+│ Tổ chức · Nhà cung cấp      │
+│ Ngừng hoạt động             │
+│─────────────────────────────│
+│ Chỉnh sửa                ›  │
+│ Xem lịch sử              ›  │
+│ Kích hoạt lại            ›  │
+│─────────────────────────────│
+│ Xóa hồ sơ                ›  │
+└─────────────────────────────┘
+```
+
+**D-06 — Confirmation — Kích hoạt lại**
+
+```Plain Text
+┌─────────────────────────────┐
+│         dimmed detail       │
+│ ┌─────────────────────────┐ │
+│ │ Kích hoạt lại KH & NCC? │ │
+│ │ KH & NCC này sẽ có thể  │ │
+│ │ được chọn lại cho giao  │ │
+│ │ dịch mới.               │ │
+│ │ [Quay lại] [Kích hoạt]  │ │
+│ └─────────────────────────┘ │
+└─────────────────────────────┘
+```
+
+**D-07 — Confirmation — Xóa hồ sơ**
+
+```Plain Text
+┌─────────────────────────────┐
+│         dimmed detail       │
+│ ┌─────────────────────────┐ │
+│ │ Xóa hồ sơ KH & NCC?     │ │
+│ │ Hồ sơ sẽ bị xóa khỏi    │ │
+│ │ danh sách làm việc và   │ │
+│ │ không còn được chọn cho │ │
+│ │ giao dịch mới.          │ │
+│ │ [ ] Tôi hiểu tác động   │ │
+│ │ [Quay lại] [Xóa hồ sơ]  │ │
+│ └─────────────────────────┘ │
+└─────────────────────────────┘
+```
+
+**D-08 — Xóa hồ sơ thành công**
+
+```Plain Text
+┌─────────────────────────────┐
+│ 9:41                        │
+│ ←       Đã xóa hồ sơ        │
+│ [check icon]                │
+│ Đã xóa hồ sơ                │
+│ Hồ sơ đã được xóa khỏi danh │
+│ sách làm việc.              │
+│ [Về danh sách KH & NCC]     │
+│ [Xem lịch sử]               │
+└─────────────────────────────┘
+```
+
+**D-09 — Không thể xóa do đã phát sinh giao dịch**
+
+```Plain Text
+┌─────────────────────────────┐
+│ 9:41                        │
+│ ←      Không thể xóa        │
+│ [warning icon]              │
+│ Không thể xóa hồ sơ         │
+│ KH & NCC đã phát sinh giao  │
+│ dịch hoặc chứng từ liên     │
+│ quan.                       │
+│ Anh có thể ngừng hoạt động  │
+│ để tránh sử dụng mới.       │
+│ [Quay lại] [Ngừng hoạt động]│
+└─────────────────────────────┘
+```
+
+**D-10 — Không có quyền / Dữ liệu đã thay đổi / Error**
+
+```Plain Text
+┌─────────────────────────────┐
+│ 9:41                        │
+│ ←      Không có quyền       │
+│ [lock icon]                 │
+│ Không có quyền thực hiện    │
+│ thao tác                    │
+│ Anh chưa được cấp quyền     │
+│ thay đổi trạng thái hoặc    │
+│ xóa hồ sơ KH & NCC này.     │
+│ [Quay lại]                  │
+└─────────────────────────────┘
+```
+
+#### Visual Design
+
+**Board**
+
+- White presentation board.
+
+- Board title: `SG-07 — Trạng thái & xóa mềm KH & NCC`.
+
+- Subtitle: `Visual Design · VET45 Design System · Mobile First`.
+
+- Dùng 10 phone frames cùng kích thước, không stretch.
+
+- Mỗi màn có green ID chip `D-01` đến `D-10`.
+**Top bar**
+
+- Back icon luôn là `←`.
+
+- Title ngắn, literal.
+
+- Right action `...` chỉ hiển thị khi có action phụ thật sự.
+**Status treatment**
+
+- `Đang hoạt động`: success/green badge.
+
+- `Ngừng hoạt động`: warning/neutral badge, không dùng danger red.
+
+- `Đã xóa`: danger/disabled badge.
+
+- Status badge luôn nằm gần profile header.
+**Action sheet**
+
+- Dùng dim overlay + handle.
+
+- Header sheet có tên KH & NCC, type, role, status.
+
+- Action phổ biến đặt trên.
+
+- Action destructive `Xóa hồ sơ` đặt cuối và dùng red/danger treatment.
+
+- Row có chevron `›` nếu đi sang bước tiếp theo.
+**Confirmation modal**
+
+- Modal có dim overlay, radius mềm.
+
+- Title nói rõ action.
+
+- Body nói rõ tác động nghiệp vụ.
+
+- CTA trái là secondary: `Quay lại`.
+
+- CTA phải là action chính.
+
+- `Xóa hồ sơ` dùng destructive red.
+
+- `Ngừng hoạt động` và `Kích hoạt lại` không dùng red.
+**Blocked state**
+
+- D-09 dùng warning/info tone, không dùng system error.
+
+- Copy phải giải thích lý do bị chặn và đề xuất action thay thế.
+
+- CTA thay thế ưu tiên `Ngừng hoạt động` nếu hồ sơ đang active.
+**Result state**
+
+- D-08 dùng success treatment.
+
+- Không hiển thị action nghiệp vụ sau khi xóa mềm.
+
+- CTA chính đưa người dùng về danh sách KH & NCC.
+**Permission/source changed/error**
+
+- No permission không hiển thị dữ liệu nhạy cảm.
+
+- Source changed ưu tiên CTA `Tải lại`.
+
+- Error ưu tiên CTA `Thử lại`.
+
+- Trong lúc loading action, disable CTA để tránh bấm lặp.
+
+![image.png](Images_attachments/image%202.png)
+
+#### Checklist kiểm tra và nghiệm thu
+
+- SG-07 được nghiệm thu khi D-01 đến D-10 đạt checklist CL-01 đến CL-20.
+
+- Không có lỗi blocking ở các nhóm: Status correctness, Action safety, Permission safety, Blocked-state clarity và Visual consistency.
+
+#### Traceability
+
+- SG-07 được gọi từ **SG-03 — Hồ sơ KH & NCC**.
+
+- SG-07 khi ngừng/kích hoạt thành công quay về **SG-03 — Hồ sơ KH & NCC** với status mới.
+
+- SG-07 khi xóa mềm thành công có thể quay về **SG-01 — Danh sách & khám phá KH & NCC**.
+
+- SG-07 không xóa cứng dữ liệu và không thay thế action log hệ thống.
+
+## 8.5 Design traceability
+
+- DT-01: Mỗi US phải có ít nhất một Design reference đến SG tương ứng.
+
+- DT-02: Một SG có thể cover nhiều US nếu cùng sử dụng một màn hình hoặc flow.
+
+- DT-03: UI Contract, Low-fi wireframes và Visual Design chỉ viết trong Appendix A.
+
+- DT-04: User Story không chứa lại nội dung thiết kế chi tiết để tránh trùng lặp.
+
+- DT-05: Khi visual thay đổi, cập nhật SG trước, sau đó kiểm tra Design reference trong US.
+
+- DT-06: Label UI dùng `KH & NCC`; domain/SRS dùng `Đối tác giao dịch` khi cần chính xác.
+
+- DT-07: Mọi screen/state trong SG phải truy được về ít nhất một US hoặc business command liên quan.
 
 # 9. Appendix B — Data/API reference
 
@@ -2042,6 +4951,5 @@ Scenario: SCN-07 - Lỗi hệ thống
 |Export lịch sử|CSV/Excel/PDF tùy nhu cầu|
 |CRM nâng cao|Segment, hạng khách, chăm sóc khách hàng|
 |Customer/Supplier analytics|Tổng mua, tổng bán, công nợ, tần suất giao dịch|
-
 
 

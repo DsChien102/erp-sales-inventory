@@ -4,7 +4,7 @@
 
 | Module | Vai trò | Owner / Supporting | Package | Trạng thái |
 | ------ | ------- | ------------------ | ------- | ---------- |
-| partner | Hồ sơ Partner, contact, transform, trạng thái, history read model | **Owner** | `modules/partner/` | **greenfield** — reboot 2026-07-07, chờ rebuild |
+| partner | Hồ sơ Partner, contact, transform, trạng thái, history read model | **Owner** | `modules/partner/` | rebuild in progress — CONTRACT + S1 FE done; BE/E2E còn todo |
 | iam | Auth, tenant, RBAC | Supporting | `modules/iam/` | golden / codegen |
 | sales | Snapshot KH; publish order events | Supporting | `modules/sales/` | skeleton |
 | inventory | Publish inbound events | Supporting | `modules/inventory/` | skeleton |

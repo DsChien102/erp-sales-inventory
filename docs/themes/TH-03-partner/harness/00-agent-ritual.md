@@ -23,7 +23,8 @@ Thứ tự đọc khi implement một slice. Platform CQRS/module layout: [docs/
     - BE: domain / application / infrastructure skills
     - FE: presentation-layer skill + FakePartnerModule scenarios
 11b. US có UI/Dialog/SCN:
-    - đọc UI Contract + Design Contract trong US file
+    - đọc `Design Reference` trong US file
+    - đọc Appendix A / Screen Group tương ứng trong `Theme-3-partner.md`
     - tạo widget manifest TRƯỚC khi implement
 12. harness/06-harness-notes.md — pitfalls đã ghi
 ```
