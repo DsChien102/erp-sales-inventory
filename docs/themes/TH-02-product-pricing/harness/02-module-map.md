@@ -14,7 +14,8 @@
 
 | Theme / Module | Dùng dữ liệu TH-02 cho |
 | -------------- | ----------------------- |
-| TH-04 Bán hàng | Snapshot SP, readiness, đơn vị bán, Giá niêm yết / Giá sàn |
+| Sales module | Snapshot SP, readiness, đơn vị bán, Giá niêm yết / Giá sàn |
+| TH-04 Chính sách giá & ưu đãi | `ProductPriceBandSnapshot` để kiểm tra giá niêm yết / giá sàn theo đơn vị bán |
 | TH-06 Kho & giá vốn | Item linkage; stock summary (Advanced); base cost feed |
 | Promotions | Giá niêm yết (trước KM), Giá sàn (ngưỡng) |
 | TH-07 Hóa đơn | Mô tả hàng trên hóa đơn |
@@ -28,8 +29,8 @@ flowchart LR
   IAM[iam] --> Catalog
   Inventory[inventory] -->|stock summary| Catalog
   Costing[costing] -->|base price| Catalog
-  Catalog -->|snapshot| Sales[TH04_sales]
-  Catalog -->|khung giá| Promotions[promotions]
+  Catalog -->|snapshot| Sales[sales_module]
+  Catalog -->|khung giá| Pricing[TH04_pricing]
   Catalog -->|outbox| Events[integration_events]
 ```
 
@@ -40,7 +41,7 @@ Chi tiết integration diagrams: [APPENDICES.md](../APPENDICES.md) (Phụ lục 
 | DTO | Consumer |
 | --- | -------- |
 | `ProductSnapshot` | sales (dòng đơn, barcode) |
-| `ProductPriceBandSnapshot` | sales, promotions (list/floor per UOM) — EPIC-06/US-04 |
+| `ProductPriceBandSnapshot` | sales, pricing (list/floor per UOM) — EPIC-06/US-04 |
 | `ProductReadinessSnapshot` | sales (chặn chọn SP chưa sẵn sàng) |
 
 ## Permissions (v3 — draft)
@@ -100,4 +101,4 @@ modules/catalog/presentation/
 
 Skill: [.cursor/skills/presentation-layer/SKILL.md](../../../../.cursor/skills/presentation-layer/SKILL.md)
 
-Cross-theme: [TH-04 module map](../../TH-04-sales-orders/02-module-map.md) · [TH-06 module map](../../TH-06-inventory-and-costing/02-module-map.md)
+Cross-theme: [TH-04 module map](../../TH-04-pricing-promotions/harness/02-module-map.md) · [TH-06 module map](../../TH-06-inventory-and-costing/02-module-map.md)
