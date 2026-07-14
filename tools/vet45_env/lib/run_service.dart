@@ -41,13 +41,33 @@ class RunService {
     stdout.writeln('Active profile: $profileId');
   }
 
-  Future<void> useAndSync(
-    String environmentId, {
+  /// Switch active profile and/or environment, align supabase link, sync app env.
+  Future<void> switchWorkspace({
     String? profileId,
+    String? environmentId,
     String? targetId,
     bool skipLink = false,
   }) async {
-    final ctx = _writeEnvironment(environmentId, profileId: profileId);
+    final state = readActiveState(
+      manifest.rootDir,
+      defaultProfileId: manifest.profiles.defaultProfileId,
+      defaultEnvironmentId: manifest.defaultEnvironmentId,
+    );
+    final nextProfile = profileId ?? state.profileId;
+    final nextEnvironment = environmentId ?? state.environmentId;
+
+    manifest.profiles.getProfile(nextProfile);
+    manifest.getEnvironment(nextEnvironment);
+
+    writeActiveState(
+      manifest.rootDir,
+      ActiveState(profileId: nextProfile, environmentId: nextEnvironment),
+    );
+    final ctx = manifest.context(
+      profileId: nextProfile,
+      environmentId: nextEnvironment,
+    );
+
     if (!skipLink) {
       (await linkService.ensureLinked(ctx)).printSummary();
     }
@@ -55,6 +75,20 @@ class RunService {
       'Active: profile=${ctx.profileId} environment=${ctx.environmentId}',
     );
     await _syncOrExit(ctx, targetId: targetId);
+  }
+
+  Future<void> useAndSync(
+    String environmentId, {
+    String? profileId,
+    String? targetId,
+    bool skipLink = false,
+  }) async {
+    await switchWorkspace(
+      profileId: profileId,
+      environmentId: environmentId,
+      targetId: targetId,
+      skipLink: skipLink,
+    );
   }
 
   Future<int> useSyncRun(
@@ -108,24 +142,6 @@ class RunService {
         stderr.writeln('Unknown run target: $target');
         return 64;
     }
-  }
-
-  WorkspaceContext _writeEnvironment(
-    String environmentId, {
-    String? profileId,
-  }) {
-    manifest.getEnvironment(environmentId);
-    final state = readActiveState(
-      manifest.rootDir,
-      defaultProfileId: manifest.profiles.defaultProfileId,
-      defaultEnvironmentId: manifest.defaultEnvironmentId,
-    );
-    final next = ActiveState(
-      profileId: profileId ?? state.profileId,
-      environmentId: environmentId,
-    );
-    writeActiveState(manifest.rootDir, next);
-    return manifest.context(profileId: next.profileId, environmentId: environmentId);
   }
 
   Future<void> _syncOrExit(WorkspaceContext ctx, {String? targetId}) async {

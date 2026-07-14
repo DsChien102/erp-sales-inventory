@@ -133,6 +133,9 @@ echo "Activated Vet45: $VET45_ACTIVE_LABEL"
 echo "  root: $VET45_ROOT"
 if [ -x "$_VET45_BIN/vet45" ]; then
   echo "  cli:  vet45  (AOT on PATH)"
+  if [ -t 1 ]; then
+    echo "  tip: eval \"\$(vet45 completion zsh)\"  # shell completion (once in ~/.zshrc)"
+  fi
 else
   echo "  tip: melos run env:build  # compile AOT binary for faster vet45"
 fi

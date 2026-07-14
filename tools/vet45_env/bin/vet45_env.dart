@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:vet45_env/completion_service.dart';
 import 'package:vet45_env/config_init_service.dart';
 import 'package:vet45_env/doctor_service.dart';
 import 'package:vet45_env/link_service.dart';
@@ -8,6 +9,7 @@ import 'package:vet45_env/manifest.dart';
 import 'package:vet45_env/profile_init_service.dart';
 import 'package:vet45_env/profile_registry.dart';
 import 'package:vet45_env/run_service.dart';
+import 'package:vet45_env/switch_command_args.dart';
 import 'package:vet45_env/supabase_command_args.dart';
 import 'package:vet45_env/supabase_delegate_service.dart';
 import 'package:vet45_env/sync_service.dart';
@@ -38,6 +40,8 @@ Future<void> main(List<String> args) async {
     switch (command) {
       case 'list':
         _cmdList(manifest);
+      case 'switch':
+        await _cmdSwitch(manifest, rest);
       case 'use':
         await _cmdUse(manifest, rest);
       case 'use-and-sync':
@@ -63,6 +67,8 @@ Future<void> main(List<String> args) async {
         await _cmdProfile(manifest, rest);
       case 'supabase':
         await _cmdSupabase(manifest, rest);
+      case 'completion':
+        _cmdCompletion(manifest, rest);
       default:
         stderr.writeln('Unknown command: $command');
         _printUsage();
@@ -96,6 +102,8 @@ Usage: vet45 <command> [args]
 Commands:
   init [--force]       Scaffold local config/ from bundled templates (first-time)
   list                 List profiles, environments, and active selection
+  switch [profile] [env] [--profile <id>] [--env <id>] [--target <id>]
+                       Switch profile/env, supabase link, and sync (recommended)
   use <id>             Set active environment (and optional supabase link)
   use-and-sync <id> [--target <id>] [--profile <id>]
   use-sync-run <id> <target> <action> [args...]
@@ -108,14 +116,15 @@ Commands:
   active|status        Print active profile + environment
   profile list|use|init
   supabase [--profile <id>] [--env <id>] <args...>
-                       Run supabase CLI with profile auth.env token
+                       Run supabase CLI with profile auth.env token (auto link)
+  completion bash|zsh  Print shell completion script
 
 Run targets:
   erp debug|debug:web|debug:ios|build-ios|deploy-ios
   worker serve|once|docker|deploy
 
 Flags:
-  --skip-link          Skip supabase link on use/sync/use-and-sync
+  --skip-link          Skip supabase link on use/sync/use-and-sync/switch/supabase
   --target <id>        Limit sync/doctor to one registered target
   --env <id>           Environment for sync/doctor/run
   --profile <id>       Configuration profile (secrets root / Supabase account)
@@ -200,6 +209,34 @@ void _cmdActive(EnvManifest manifest) {
   stdout.writeln('environment=${state.environmentId}');
 }
 
+Future<void> _cmdSwitch(EnvManifest manifest, List<String> args) async {
+  final parsed = SwitchCommandArgs.parse(args, manifest);
+  if (parsed.statusOnly) {
+    _cmdActive(manifest);
+    return;
+  }
+  await _runService(manifest).switchWorkspace(
+    profileId: parsed.profileId,
+    environmentId: parsed.environmentId,
+    targetId: parsed.targetId,
+    skipLink: parsed.skipLink,
+  );
+}
+
+void _cmdCompletion(EnvManifest manifest, List<String> args) {
+  if (args.length != 1) {
+    stderr.writeln('Usage: completion bash|zsh');
+    exit(64);
+  }
+  final shell = args.first;
+  try {
+    stdout.write(CompletionService(manifest: manifest).render(shell));
+  } on ArgumentError catch (e) {
+    stderr.writeln(e.message);
+    exit(64);
+  }
+}
+
 Future<void> _cmdProfile(EnvManifest manifest, List<String> args) async {
   if (args.isEmpty || args.first == '--help') {
     stderr.writeln('Usage: profile list|use <id>|init <id>');
@@ -224,13 +261,15 @@ Future<void> _cmdProfile(EnvManifest manifest, List<String> args) async {
 }
 
 Future<void> _cmdSupabase(EnvManifest manifest, List<String> args) async {
+  final skipLink = args.contains('--skip-link');
+  final filtered = args.where((a) => a != '--skip-link').toList();
   final parsed = SupabaseCommandArgs.parse(
-    args,
+    filtered,
     defaultEnvironmentId: _defaultState(manifest).environmentId,
   );
   if (parsed.supabaseArgs.isEmpty) {
     stderr.writeln(
-      'Usage: supabase [--profile <id>] [--env <id>] <supabase-args...>',
+      'Usage: supabase [--profile <id>] [--env <id>] [--skip-link] <supabase-args...>',
     );
     exit(64);
   }
@@ -238,6 +277,10 @@ Future<void> _cmdSupabase(EnvManifest manifest, List<String> args) async {
     profileId: parsed.profileId,
     environmentId: parsed.environmentId,
   );
+  if (!skipLink) {
+    (await SupabaseLinkService(manifest: manifest).ensureLinked(ctx))
+        .printSummary();
+  }
   final code = await SupabaseDelegateService(manifest: manifest).run(
     ctx,
     parsed.supabaseArgs,
