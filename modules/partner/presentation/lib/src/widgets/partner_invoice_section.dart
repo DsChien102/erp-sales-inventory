@@ -14,11 +14,12 @@ class PartnerInvoiceSection extends StatelessWidget {
   Widget build(BuildContext context) {
     final cubit = context.read<PartnerCreateCubit>();
     final state = context.watch<PartnerCreateCubit>().state;
+    final isOrganization = state.partnerType == PartnerType.organization;
     return Column(
       children: [
         PartnerFormFieldRow(
           label: 'MST',
-          isRequired: true,
+          isRequired: isOrganization,
           errorText: state.errors['taxCode'],
           field: PartnerCompactTextField(
             key: const Key('input_tax_code'),
@@ -30,7 +31,7 @@ class PartnerInvoiceSection extends StatelessWidget {
         ),
         PartnerFormFieldRow(
           label: 'Tên xuất hóa đơn',
-          isRequired: true,
+          isRequired: isOrganization,
           field: PartnerCompactTextField(
             initialValue: state.invoiceName,
             onChanged: cubit.updateInvoiceName,
@@ -47,9 +48,10 @@ class PartnerInvoiceSection extends StatelessWidget {
         ),
         _InvoiceAddressField(
           initialValue: state.invoiceAddress,
+          isRequired: isOrganization,
           onChanged: cubit.updateInvoiceAddress,
         ),
-        if (state.taxCode.trim().isEmpty && state.partnerType == PartnerType.organization) ...[
+        if (state.taxCode.trim().isEmpty && isOrganization) ...[
           const Padding(
             padding: EdgeInsets.fromLTRB(
               VSpacing.space4,
@@ -69,10 +71,12 @@ class _InvoiceAddressField extends StatelessWidget {
   const _InvoiceAddressField({
     required this.initialValue,
     required this.onChanged,
+    required this.isRequired,
   });
 
   final String initialValue;
   final ValueChanged<String> onChanged;
+  final bool isRequired;
 
   @override
   Widget build(BuildContext context) {
@@ -92,12 +96,13 @@ class _InvoiceAddressField extends StatelessWidget {
                 color: context.vColors.textSecondary,
                 fontSize: 14,
               ),
-              children: const [
-                TextSpan(text: 'Địa chỉ xuất hóa đơn'),
-                TextSpan(
-                  text: ' *',
-                  style: TextStyle(color: VColors.danger),
-                ),
+              children: [
+                const TextSpan(text: 'Địa chỉ xuất hóa đơn'),
+                if (isRequired)
+                  const TextSpan(
+                    text: ' *',
+                    style: TextStyle(color: VColors.danger),
+                  ),
               ],
             ),
           ),
