@@ -22,7 +22,7 @@ alter table catalog.products
   add column if not exists search_text text not null default '';
 
 create index if not exists idx_products_search_text_trgm
-  on catalog.products using gin (search_text gin_trgm_ops);
+  on catalog.products using gin (search_text extensions.gin_trgm_ops);
 
 create index if not exists idx_products_tenant_status_updated
   on catalog.products (tenant_id, business_status, updated_at desc);
