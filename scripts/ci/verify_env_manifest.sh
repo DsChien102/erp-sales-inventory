@@ -80,7 +80,10 @@ echo "==> vet45 AOT build + smoke"
 dart run "$root/tools/vet45_env/bin/build_aot.dart"
 test -x "$root/.vet45/bin/vet45"
 "$root/.vet45/bin/vet45" status >/dev/null
+"$root/.vet45/bin/vet45" switch >/dev/null
+"$root/.vet45/bin/vet45" completion bash >/dev/null
 "$root/scripts/env/vet45.sh" list >/dev/null
+test -x "$root/scripts/env/switch.sh"
 
 echo "==> vet45 init (temp smoke)"
 tmp="$(mktemp -d)"

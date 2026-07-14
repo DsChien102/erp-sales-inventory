@@ -113,6 +113,10 @@ melos:
       run: dart run tools/vet45_env/bin/run.dart sync
       description: Align supabase link + sync ERP + worker .env files
 
+    env:switch:
+      run: dart run tools/vet45_env/bin/run.dart switch
+      description: Switch profile/env, link, and sync (pass args after --)
+
     env:link:
       run: dart run tools/vet45_env/bin/run.dart link
       description: Align supabase link with active environment project ref

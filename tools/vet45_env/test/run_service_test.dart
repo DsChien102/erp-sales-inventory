@@ -5,6 +5,7 @@ import 'package:vet45_env/doctor_service.dart';
 import 'package:vet45_env/link_service.dart';
 import 'package:vet45_env/manifest.dart';
 import 'package:vet45_env/process_runner.dart';
+import 'package:vet45_env/profile_registry.dart';
 import 'package:vet45_env/run_service.dart';
 import 'package:vet45_env/secrets_loader.dart';
 import 'package:vet45_env/sync_service.dart';
@@ -128,6 +129,129 @@ void main() {
 
     expect(code, 64);
     expect(process.invocations, isEmpty);
+  });
+
+  test('switchWorkspace changes profile and writes erp env', () async {
+    Directory('${root.path}/config/profiles/acme/secrets').createSync(recursive: true);
+    File('${root.path}/config/profiles.json').writeAsStringSync('''
+{
+  "defaultProfile": "default",
+  "profiles": {
+    "default": {
+      "description": "Default",
+      "secretsRoot": "config/secrets"
+    },
+    "acme": {
+      "description": "Acme",
+      "secretsRoot": "config/profiles/acme/secrets"
+    }
+  }
+}
+''');
+    manifest = EnvManifest.load(root);
+
+    writeDotEnv(
+      File('${root.path}/config/secrets/local.env'),
+      {
+        'SUPABASE_URL': 'http://default.example',
+        'SUPABASE_ANON_KEY': 'default-anon',
+      },
+    );
+    writeDotEnv(
+      File('${root.path}/config/profiles/acme/secrets/local.env'),
+      {
+        'SUPABASE_URL': 'http://acme.example',
+        'SUPABASE_ANON_KEY': 'acme-anon',
+        'SUPABASE_SERVICE_ROLE_KEY': 'acme-service',
+        'WORKER_TICK_SECRET': 'acme-tick',
+      },
+    );
+    writeActiveState(
+      root,
+      ActiveState(profileId: 'default', environmentId: 'local'),
+    );
+
+    await service().switchWorkspace(profileId: 'acme');
+
+    final state = readActiveState(
+      root,
+      defaultProfileId: manifest.profiles.defaultProfileId,
+      defaultEnvironmentId: manifest.defaultEnvironmentId,
+    );
+    expect(state.profileId, 'acme');
+    expect(state.environmentId, 'local');
+
+    final erpEnv = File('${root.path}/apps/erp/.env');
+    expect(erpEnv.existsSync(), isTrue);
+    final values = loadDotEnv(erpEnv);
+    expect(values['SUPABASE_CONNECTION_URL'], 'http://acme.example');
+    expect(values['SUPABASE_ANON_KEY'], 'acme-anon');
+  });
+
+  test('switchWorkspace changes profile and environment together', () async {
+    Directory('${root.path}/apps/erp').createSync(recursive: true);
+    File('${root.path}/config/environments.json').writeAsStringSync(
+      manifestWithEnv('''
+{
+  "local": {
+    "description": "test local",
+    "supabaseSource": "secrets",
+    "targets": {
+      "erp": {
+        "flavor": "development",
+        "envFile": "apps/erp/.env",
+        "appEnv": "development"
+      },
+      "worker": {
+        "envFile": "apps/messaging_worker/.env"
+      }
+    }
+  },
+  "staging": {
+    "description": "test staging",
+    "supabaseSource": "secrets",
+    "targets": {
+      "erp": {
+        "flavor": "staging",
+        "envFile": "apps/erp/.env.staging",
+        "appEnv": "staging"
+      },
+      "worker": {
+        "envFile": "apps/messaging_worker/.env.staging"
+      }
+    }
+  }
+}
+'''),
+    );
+    manifest = EnvManifest.load(root);
+
+    writeDotEnv(
+      File('${root.path}/config/secrets/staging.env'),
+      {
+        'SUPABASE_URL': 'http://staging.example',
+        'SUPABASE_ANON_KEY': 'staging-anon',
+        'SUPABASE_SERVICE_ROLE_KEY': 'staging-service',
+        'WORKER_TICK_SECRET': 'staging-tick',
+      },
+    );
+    writeActiveState(
+      root,
+      ActiveState(profileId: 'default', environmentId: 'local'),
+    );
+
+    await service().switchWorkspace(environmentId: 'staging');
+
+    final state = readActiveState(
+      root,
+      defaultProfileId: manifest.profiles.defaultProfileId,
+      defaultEnvironmentId: manifest.defaultEnvironmentId,
+    );
+    expect(state.environmentId, 'staging');
+
+    final erpEnv = File('${root.path}/apps/erp/.env.staging');
+    expect(erpEnv.existsSync(), isTrue);
+    expect(loadDotEnv(erpEnv)['APP_ENV'], 'staging');
   });
 
   test('loadDotEnv strips CRLF from values', () {

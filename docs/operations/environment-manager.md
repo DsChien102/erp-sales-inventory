@@ -30,11 +30,12 @@ Use profiles when you switch between Supabase accounts or client secret bundles.
 ```bash
 melos run profile:list
 melos run profile:init -- acme --description "Client Acme"
-melos run profile:use -- acme
+# Preferred: switch profile + sync in one step
+vet45 switch acme
+# Or: melos run env:switch -- acme staging
+# Lightweight (no sync): melos run profile:use -- acme  then vet45 sync
 # Set SUPABASE_ACCESS_TOKEN in config/profiles/acme/secrets/auth.env
-melos run env:sync -- --profile acme --env staging
 melos run supabase -- db push
-melos run supabase -- --profile acme migration list
 ```
 
 See [config/profiles/README.md](../../config/profiles/README.md).
@@ -144,7 +145,28 @@ Exports: `VET45_ROOT`, `VET45_PROFILE`, `VET45_ENV_ID`, `VET45_ACTIVE_LABEL` (e.
 
 Also prepends `.vet45/bin` to `PATH` so `vet45` / `vet45.exe` runs the AOT binary (after `melos run env:build`).
 
-bash/zsh/PowerShell re-read `.vet45/state.json` on each prompt, so after `melos run env:use:staging` / `vet45 use staging` the label updates automatically. CMD keeps a static prompt — run `activate.bat` again to refresh.
+bash/zsh/PowerShell re-read `.vet45/state.json` on each prompt, so after `melos run env:use:staging` / `vet45 switch staging` the label updates automatically. CMD keeps a static prompt — run `activate.bat` again to refresh.
+
+## Switch profile / environment (recommended)
+
+Use `vet45 switch` when changing profile or environment — it updates state, runs `supabase link`, and syncs app `.env` files in one step. This avoids mismatches when running `vet45 supabase reset --linked` or other Supabase CLI commands.
+
+```bash
+vet45 switch                    # print active profile + environment
+vet45 switch acme               # change profile, keep current environment
+vet45 switch acme staging       # change both profile and environment
+vet45 switch --env staging      # change environment only
+vet45 switch acme staging --target erp
+scripts/env/switch.sh acme staging   # thin wrapper → vet45 switch
+```
+
+| Command | Link | Sync | Notes |
+| ------- | ---- | ---- | ----- |
+| `vet45 switch …` | yes | yes | **Recommended** after profile/env change |
+| `vet45 profile use <id>` | no | no | Lightweight; run `vet45 sync` before Supabase |
+| `vet45 use <env>` | yes | no | Sets env only |
+| `vet45 use-and-sync <env>` | yes | yes | Same as `switch` with required env arg |
+| `vet45 supabase …` | yes (preflight) | no | Auto `ensureLinked` before delegate |
 
 ## Fast CLI (AOT)
 
@@ -154,7 +176,7 @@ Daily env commands should **bypass Melos** when possible:
 melos run env:build          # once per clone / after vet45 CLI source changes
 source scripts/env/activate.sh
 vet45 list
-vet45 use staging
+vet45 switch acme staging
 vet45 sync --target erp
 vet45 supabase -- db push
 ```
@@ -170,7 +192,8 @@ vet45 supabase -- db push
 ```bash
 # Preferred after activate + env:build
 vet45 list
-vet45 use staging
+vet45 switch staging
+vet45 switch acme staging
 vet45 sync
 vet45 sync --target erp
 vet45 doctor --target erp
@@ -240,10 +263,17 @@ Preferred CLI (git-style subcommands):
 
 ```bash
 vet45 list
-vet45 use staging
+vet45 switch acme staging   # profile + env + link + sync
 vet45 sync --target erp
 vet45 run erp debug
-vet45 use-sync-run staging erp debug
+vet45 supabase -- db push
+```
+
+Shell completion (zsh/bash):
+
+```bash
+eval "$(vet45 completion zsh)"   # add to ~/.zshrc
+eval "$(vet45 completion bash)"  # add to ~/.bashrc
 ```
 
 Fallback without AOT / PATH:

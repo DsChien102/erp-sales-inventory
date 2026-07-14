@@ -91,6 +91,7 @@ Canonical specs (mirror của skills): `docs/application_layer_skill.md`, `docs/
      melos bootstrap
      melos run env:init          # first-time per clone (scaffold local config/)
      melos run env:build         # AOT binary for fast vet45 CLI
+     vet45 switch <profile> [env]  # after profile/env change (link + sync)
      melos run analyze
      melos run test
      ./scripts/ci/verify_harness.sh
@@ -106,6 +107,7 @@ Canonical specs (mirror của skills): `docs/application_layer_skill.md`, `docs/
 melos bootstrap
 melos run env:init         # first-time per clone (scaffold local config/)
 melos run env:build        # AOT binary for fast vet45 CLI
+# After activate: vet45 switch <profile> [env]  # link + sync
 melos run env:doctor       # khi slice cần Supabase / worker
 melos run analyze
 melos run test
