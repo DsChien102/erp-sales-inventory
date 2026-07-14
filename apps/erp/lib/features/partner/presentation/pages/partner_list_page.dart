@@ -188,18 +188,18 @@ class _PartnerListPageState extends State<PartnerListPage> {
                 );
               },
             ),
-            BlocBuilder<PartnerListCubit, PartnerListState>(
-              builder: (context, state) {
-                return PartnerActiveFilters(
-                  partnerType: state.partnerType,
-                  roleFilter: state.roleFilter,
-                  status: state.status,
-                  updatedTimeFilter: state.updatedTimeFilter,
-                  onRemoveFilter: _cubit.removeFilter,
-                  onClearAll: _cubit.clearFilters,
-                );
-              },
-            ),
+            // BlocBuilder<PartnerListCubit, PartnerListState>(
+            //   builder: (context, state) {
+            //     return PartnerActiveFilters(
+            //       partnerType: state.partnerType,
+            //       roleFilter: state.roleFilter,
+            //       status: state.status,
+            //       updatedTimeFilter: state.updatedTimeFilter,
+            //       onRemoveFilter: _cubit.removeFilter,
+            //       onClearAll: _cubit.clearFilters,
+            //     );
+            //   },
+            // ),
             Padding(
               padding: const EdgeInsets.symmetric(
                 horizontal: VSpacing.space4,
@@ -314,7 +314,10 @@ class _PartnerListPageState extends State<PartnerListPage> {
                     child: ListView.separated(
                       controller: _scrollController,
                       physics: const AlwaysScrollableScrollPhysics(),
-                      padding: const EdgeInsets.fromLTRB(VSpacing.space4, 0, VSpacing.space4, 100),
+                      padding: const EdgeInsets.symmetric(
+                        vertical: VSpacing.space4,
+                        horizontal: VSpacing.space4,
+                      ),
                       itemCount: items.length + (hasReachedMax ? 0 : 1),
                       separatorBuilder: (context, index) => const SizedBox(height: VSpacing.space3),
                       itemBuilder: (context, index) {

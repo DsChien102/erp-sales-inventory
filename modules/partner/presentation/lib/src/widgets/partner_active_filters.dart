@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:vet45_design_system/design_system.dart';
 import 'package:vet45_partner_domain/domain.dart';
+
 import '../bloc/partner_list_state.dart';
 
 class PartnerActiveFilters extends StatelessWidget {
@@ -40,24 +41,21 @@ class PartnerActiveFilters extends StatelessWidget {
               child: Row(
                 children: [
                   if (partnerType != null) ...[
-                    _buildActiveChip(
-                      context,
+                    _FilterChip(
                       label: partnerType == PartnerType.person ? 'Cá nhân' : 'Tổ chức',
                       onRemove: () => onRemoveFilter('partnerType'),
                     ),
                     const SizedBox(width: VSpacing.space2),
                   ],
                   if (status != null) ...[
-                    _buildActiveChip(
-                      context,
+                    _FilterChip(
                       label: status == PartnerStatus.active ? 'Đang hoạt động' : 'Ngừng hoạt động',
                       onRemove: () => onRemoveFilter('status'),
                     ),
                     const SizedBox(width: VSpacing.space2),
                   ],
                   if (updatedTimeFilter != null) ...[
-                    _buildActiveChip(
-                      context,
+                    _FilterChip(
                       label: updatedTimeFilter == PartnerUpdatedTimeFilter.last7Days
                           ? '7 ngày gần đây'
                           : '30 ngày gần đây',
@@ -86,36 +84,24 @@ class PartnerActiveFilters extends StatelessWidget {
       ),
     );
   }
+}
 
-  Widget _buildActiveChip(
-    BuildContext context, {
-    required String label,
-    required VoidCallback onRemove,
-  }) {
-    final colors = context.vColors;
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(
-        color: VColors.success.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(4),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(
-            label,
-            style: VTypography.bodySmall.copyWith(
-              color: colors.success,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-          const SizedBox(width: 4),
-          InkWell(
-            onTap: onRemove,
-            child: const Icon(Icons.close, size: 14, color: VColors.success),
-          ),
-        ],
-      ),
+class _FilterChip extends StatelessWidget {
+  const _FilterChip({
+    required this.label,
+    required this.onRemove,
+  });
+
+  final String label;
+  final VoidCallback onRemove;
+
+  @override
+  Widget build(BuildContext context) {
+    return VChip(
+      label: label,
+      tone: VComponentTone.success,
+      emphasis: VChipEmphasis.strong,
+      onRemove: onRemove,
     );
   }
 }

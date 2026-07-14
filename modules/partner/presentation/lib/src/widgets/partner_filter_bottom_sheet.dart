@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:vet45_design_system/design_system.dart';
 import 'package:vet45_partner_domain/domain.dart';
+
 import '../bloc/partner_list_state.dart';
 
 class PartnerFilterBottomSheet extends StatefulWidget {
@@ -74,6 +75,24 @@ class _PartnerFilterBottomSheetState extends State<PartnerFilterBottomSheet> {
     });
   }
 
+  void _toggleRole(PartnerRoleFilter value) {
+    setState(() {
+      _selectedRole = _selectedRole == value ? null : value;
+    });
+  }
+
+  void _togglePartnerType(PartnerType value) {
+    setState(() {
+      _selectedPartnerType = _selectedPartnerType == value ? null : value;
+    });
+  }
+
+  void _toggleUpdatedTime(PartnerUpdatedTimeFilter value) {
+    setState(() {
+      _selectedUpdatedTimeFilter = _selectedUpdatedTimeFilter == value ? null : value;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return VBottomSheet(
@@ -101,38 +120,23 @@ class _PartnerFilterBottomSheetState extends State<PartnerFilterBottomSheet> {
                   spacing: VSpacing.space2,
                   runSpacing: VSpacing.space2,
                   children: [
-                    _buildFilterChip(
+                    VChip(
                       label: 'Khách hàng',
-                      isSelected: _selectedRole == PartnerRoleFilter.customer,
-                      onTap: () {
-                        setState(() {
-                          _selectedRole = _selectedRole == PartnerRoleFilter.customer
-                              ? null
-                              : PartnerRoleFilter.customer;
-                        });
-                      },
+                      selected: _selectedRole == PartnerRoleFilter.customer,
+                      tone: VComponentTone.primary,
+                      onTap: () => _toggleRole(PartnerRoleFilter.customer),
                     ),
-                    _buildFilterChip(
+                    VChip(
                       label: 'Nhà cung cấp',
-                      isSelected: _selectedRole == PartnerRoleFilter.supplier,
-                      onTap: () {
-                        setState(() {
-                          _selectedRole = _selectedRole == PartnerRoleFilter.supplier
-                              ? null
-                              : PartnerRoleFilter.supplier;
-                        });
-                      },
+                      selected: _selectedRole == PartnerRoleFilter.supplier,
+                      tone: VComponentTone.primary,
+                      onTap: () => _toggleRole(PartnerRoleFilter.supplier),
                     ),
-                    _buildFilterChip(
+                    VChip(
                       label: 'KH & NCC',
-                      isSelected: _selectedRole == PartnerRoleFilter.both,
-                      onTap: () {
-                        setState(() {
-                          _selectedRole = _selectedRole == PartnerRoleFilter.both
-                              ? null
-                              : PartnerRoleFilter.both;
-                        });
-                      },
+                      selected: _selectedRole == PartnerRoleFilter.both,
+                      tone: VComponentTone.primary,
+                      onTap: () => _toggleRole(PartnerRoleFilter.both),
                     ),
                   ],
                 ),
@@ -143,27 +147,17 @@ class _PartnerFilterBottomSheetState extends State<PartnerFilterBottomSheet> {
                   spacing: VSpacing.space2,
                   runSpacing: VSpacing.space2,
                   children: [
-                    _buildFilterChip(
+                    VChip(
                       label: 'Cá nhân',
-                      isSelected: _selectedPartnerType == PartnerType.person,
-                      onTap: () {
-                        setState(() {
-                          _selectedPartnerType = _selectedPartnerType == PartnerType.person
-                              ? null
-                              : PartnerType.person;
-                        });
-                      },
+                      selected: _selectedPartnerType == PartnerType.person,
+                      tone: VComponentTone.primary,
+                      onTap: () => _togglePartnerType(PartnerType.person),
                     ),
-                    _buildFilterChip(
+                    VChip(
                       label: 'Tổ chức',
-                      isSelected: _selectedPartnerType == PartnerType.organization,
-                      onTap: () {
-                        setState(() {
-                          _selectedPartnerType = _selectedPartnerType == PartnerType.organization
-                              ? null
-                              : PartnerType.organization;
-                        });
-                      },
+                      selected: _selectedPartnerType == PartnerType.organization,
+                      tone: VComponentTone.primary,
+                      onTap: () => _togglePartnerType(PartnerType.organization),
                     ),
                   ],
                 ),
@@ -174,82 +168,64 @@ class _PartnerFilterBottomSheetState extends State<PartnerFilterBottomSheet> {
                   spacing: VSpacing.space2,
                   runSpacing: VSpacing.space2,
                   children: [
-                    _buildFilterChip(
+                    VChip(
                       label: 'Tất cả',
-                      isSelected: _selectedStatus == null,
-                      onTap: () {
-                        setState(() {
-                          _selectedStatus = null;
-                        });
-                      },
+                      selected: _selectedStatus == null,
+                      tone: VComponentTone.primary,
+                      onTap: () => setState(() => _selectedStatus = null),
                     ),
-                    _buildFilterChip(
+                    VChip(
                       label: 'Đang hoạt động',
-                      isSelected: _selectedStatus == PartnerStatus.active,
-                      onTap: () {
-                        setState(() {
-                          _selectedStatus = PartnerStatus.active;
-                        });
-                      },
+                      selected: _selectedStatus == PartnerStatus.active,
+                      tone: VComponentTone.primary,
+                      onTap: () => setState(
+                        () => _selectedStatus = PartnerStatus.active,
+                      ),
                     ),
-                    _buildFilterChip(
+                    VChip(
                       label: 'Ngừng hoạt động',
-                      isSelected: _selectedStatus == PartnerStatus.inactive,
-                      onTap: () {
-                        setState(() {
-                          _selectedStatus = PartnerStatus.inactive;
-                        });
-                      },
+                      selected: _selectedStatus == PartnerStatus.inactive,
+                      tone: VComponentTone.primary,
+                      onTap: () => setState(
+                        () => _selectedStatus = PartnerStatus.inactive,
+                      ),
                     ),
                   ],
                 ),
                 const SizedBox(height: VSpacing.space4),
                 _buildSectionTitle('Thời gian cập nhật'),
                 const SizedBox(height: VSpacing.space3),
-                Row(
+                Wrap(
                   key: const Key('partner_updated_time_filters'),
+                  runSpacing: VSpacing.space2,
                   children: [
                     Expanded(
-                      child: _buildFilterChip(
+                      child: VChip(
                         label: '7 ngày gần đây',
-                        isSelected:
-                            _selectedUpdatedTimeFilter == PartnerUpdatedTimeFilter.last7Days,
-                        onTap: () {
-                          setState(() {
-                            _selectedUpdatedTimeFilter =
-                                _selectedUpdatedTimeFilter == PartnerUpdatedTimeFilter.last7Days
-                                ? null
-                                : PartnerUpdatedTimeFilter.last7Days;
-                          });
-                        },
-                        compact: true,
+                        selected: _selectedUpdatedTimeFilter == PartnerUpdatedTimeFilter.last7Days,
+                        tone: VComponentTone.primary,
+                        onTap: () => _toggleUpdatedTime(
+                          PartnerUpdatedTimeFilter.last7Days,
+                        ),
                       ),
                     ),
                     const SizedBox(width: VSpacing.space2),
                     Expanded(
-                      child: _buildFilterChip(
+                      child: VChip(
                         label: '30 ngày gần đây',
-                        isSelected:
-                            _selectedUpdatedTimeFilter == PartnerUpdatedTimeFilter.last30Days,
-                        onTap: () {
-                          setState(() {
-                            _selectedUpdatedTimeFilter =
-                                _selectedUpdatedTimeFilter == PartnerUpdatedTimeFilter.last30Days
-                                ? null
-                                : PartnerUpdatedTimeFilter.last30Days;
-                          });
-                        },
-                        compact: true,
+                        selected: _selectedUpdatedTimeFilter == PartnerUpdatedTimeFilter.last30Days,
+                        tone: VComponentTone.primary,
+                        onTap: () => _toggleUpdatedTime(
+                          PartnerUpdatedTimeFilter.last30Days,
+                        ),
                       ),
                     ),
                     const SizedBox(width: VSpacing.space2),
                     Expanded(
-                      child: _buildFilterChip(
+                      child: VChip(
                         label: 'Tùy chọn',
-                        isSelected: false,
+                        leadingIcon: Icons.calendar_today_rounded,
                         onTap: () {},
-                        icon: Icons.calendar_today_rounded,
-                        compact: true,
                       ),
                     ),
                   ],
@@ -291,58 +267,6 @@ class _PartnerFilterBottomSheetState extends State<PartnerFilterBottomSheet> {
       style: VTypography.bodySmall.copyWith(
         color: context.vColors.textSecondary,
         fontWeight: FontWeight.w500,
-      ),
-    );
-  }
-
-  Widget _buildFilterChip({
-    required String label,
-    required bool isSelected,
-    required VoidCallback onTap,
-    IconData? icon,
-    bool compact = false,
-  }) {
-    final colors = context.vColors;
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(4),
-      child: Container(
-        padding: EdgeInsets.symmetric(
-          horizontal: compact ? 6 : 12,
-          vertical: 6,
-        ),
-        decoration: BoxDecoration(
-          color: isSelected ? colors.primary.withValues(alpha: 0.1) : Colors.white,
-          border: Border.all(
-            color: isSelected ? colors.primary : colors.borderDefault,
-          ),
-          borderRadius: BorderRadius.circular(4),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Flexible(
-              child: Text(
-                label,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: VTypography.bodyDefault.copyWith(
-                  color: isSelected ? colors.primary : colors.textPrimary,
-                  fontWeight: isSelected ? FontWeight.w500 : FontWeight.w400,
-                ),
-              ),
-            ),
-            if (icon != null) ...[
-              const SizedBox(width: 4),
-              Icon(
-                icon,
-                size: 13,
-                color: isSelected ? colors.primary : colors.textSecondary,
-              ),
-            ],
-          ],
-        ),
       ),
     );
   }

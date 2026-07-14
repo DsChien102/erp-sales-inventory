@@ -61,82 +61,42 @@ class _PartnerListSearchBarState extends State<PartnerListSearchBar> {
     final hasQuery = _controller.text.isNotEmpty;
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: VSpacing.space4, vertical: VSpacing.space2),
+      padding: const EdgeInsets.symmetric(
+        horizontal: VSpacing.space4,
+        vertical: VSpacing.space2,
+      ),
       child: Row(
         children: [
           Expanded(
-            child: VTextField(
+            child: VSearchBar(
               key: const Key('input_partner_search'),
               controller: _controller,
               hintText: 'Tìm tên, SĐT, email, MST...',
-              prefixIcon: const Icon(Icons.search),
-              suffixIcon: hasQuery
+              variant: VSearchBarVariant.outlined,
+              onChanged: _onSearchChanged,
+              onSubmitted: (value) {
+                _debounce?.cancel();
+                widget.onSearch(value);
+              },
+              suffix: hasQuery
                   ? IconButton(
                       key: const Key('btn_clear_partner_search'),
                       tooltip: 'Xóa tìm kiếm',
-                      icon: Icon(
-                        Icons.close_rounded,
+                      icon: VIcon(
+                        iconData: Icons.close_rounded,
                         size: 20,
                         color: colors.textSecondary,
                       ),
                       onPressed: _clearSearch,
                     )
                   : null,
-              onChanged: _onSearchChanged,
             ),
           ),
           if (widget.onFilterTap != null) ...[
             const SizedBox(width: VSpacing.space3),
-            InkWell(
-              onTap: widget.onFilterTap,
-              borderRadius: BorderRadius.circular(VRadius.button),
-              child: Stack(
-                clipBehavior: Clip.none,
-                children: [
-                  Container(
-                    width: 44,
-                    height: 44,
-                    decoration: BoxDecoration(
-                      color: widget.activeFilterCount > 0
-                          ? colors.primary.withValues(alpha: 0.1)
-                          : colors.surface,
-                      border: Border.all(
-                        color: widget.activeFilterCount > 0
-                            ? colors.primary
-                            : colors.borderDefault,
-                      ),
-                      borderRadius: BorderRadius.circular(VRadius.button),
-                    ),
-                    child: Icon(
-                      Icons.tune,
-                      color: widget.activeFilterCount > 0
-                          ? colors.primary
-                          : colors.textPrimary,
-                      size: 20,
-                    ),
-                  ),
-                  if (widget.activeFilterCount > 0)
-                    Positioned(
-                      top: -4,
-                      right: -4,
-                      child: Container(
-                        padding: const EdgeInsets.all(4),
-                        decoration: BoxDecoration(
-                          color: colors.primary,
-                          shape: BoxShape.circle,
-                        ),
-                        child: Text(
-                          '${widget.activeFilterCount}',
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 10,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ),
-                ],
-              ),
+            _FilterButton(
+              onPressed: widget.onFilterTap!,
+              activeFilterCount: widget.activeFilterCount,
             ),
           ],
         ],
@@ -145,3 +105,37 @@ class _PartnerListSearchBarState extends State<PartnerListSearchBar> {
   }
 }
 
+class _FilterButton extends StatelessWidget {
+  const _FilterButton({
+    required this.onPressed,
+    required this.activeFilterCount,
+  });
+
+  final VoidCallback onPressed;
+  final int activeFilterCount;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.vColors;
+    final isActive = activeFilterCount > 0;
+
+    return Badge(
+      isLabelVisible: isActive,
+      label: Text('$activeFilterCount'),
+      backgroundColor: colors.primary,
+      offset: const Offset(4, -4),
+      child: VIconBox(
+        iconData: Icons.tune,
+        size: 44,
+        iconSize: 20,
+        backgroundColor: isActive
+            ? colors.primary.withValues(alpha: 0.1)
+            : colors.surface,
+        iconColor: isActive ? colors.primary : colors.textPrimary,
+        borderColor: isActive ? colors.primary : colors.borderDefault,
+        borderRadius: VRadius.button,
+        onTap: onPressed,
+      ),
+    );
+  }
+}

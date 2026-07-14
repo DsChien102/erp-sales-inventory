@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:vet45_design_system/design_system.dart';
+
 import '../bloc/partner_list_state.dart';
 
 class PartnerSortBottomSheet extends StatefulWidget {
@@ -31,6 +32,33 @@ class PartnerSortBottomSheet extends StatefulWidget {
 class _PartnerSortBottomSheetState extends State<PartnerSortBottomSheet> {
   late PartnerSortOption _selectedSort;
 
+  static const _choices = <VChoiceOption<PartnerSortOption>>[
+    VChoiceOption(
+      value: PartnerSortOption.updatedAtDesc,
+      label: 'Cập nhật gần nhất',
+    ),
+    VChoiceOption(
+      value: PartnerSortOption.updatedAtAsc,
+      label: 'Cập nhật cũ nhất',
+    ),
+    VChoiceOption(
+      value: PartnerSortOption.nameAsc,
+      label: 'Tên A-Z',
+    ),
+    VChoiceOption(
+      value: PartnerSortOption.nameDesc,
+      label: 'Tên Z-A',
+    ),
+    VChoiceOption(
+      value: PartnerSortOption.roleAsc,
+      label: 'Vai trò giao dịch A-Z',
+    ),
+    VChoiceOption(
+      value: PartnerSortOption.roleDesc,
+      label: 'Vai trò giao dịch Z-A',
+    ),
+  ];
+
   @override
   void initState() {
     super.initState();
@@ -50,21 +78,16 @@ class _PartnerSortBottomSheetState extends State<PartnerSortBottomSheet> {
         children: [
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: VSpacing.space4),
-            child: Text(
-              'Sắp xếp danh sách',
-              style: VTypography.headingH4.copyWith(
-                color: context.vColors.textPrimary,
-                fontWeight: FontWeight.w700,
-              ),
+            child: VChoiceList<PartnerSortOption>(
+              title: 'Sắp xếp danh sách',
+              choices: _choices,
+              selected: [_selectedSort],
+              onChanged: (selected) {
+                if (selected.isEmpty) return;
+                setState(() => _selectedSort = selected.first);
+              },
             ),
           ),
-          const SizedBox(height: VSpacing.space2),
-          _buildRadioItem('Cập nhật gần nhất', PartnerSortOption.updatedAtDesc),
-          _buildRadioItem('Cập nhật cũ nhất', PartnerSortOption.updatedAtAsc),
-          _buildRadioItem('Tên A-Z', PartnerSortOption.nameAsc),
-          _buildRadioItem('Tên Z-A', PartnerSortOption.nameDesc),
-          _buildRadioItem('Vai trò giao dịch A-Z', PartnerSortOption.roleAsc),
-          _buildRadioItem('Vai trò giao dịch Z-A', PartnerSortOption.roleDesc),
           const SizedBox(height: VSpacing.space2),
           Padding(
             padding: const EdgeInsets.all(VSpacing.space4),
@@ -78,47 +101,4 @@ class _PartnerSortBottomSheetState extends State<PartnerSortBottomSheet> {
       ),
     );
   }
-
-  Widget _buildRadioItem(String label, PartnerSortOption value) {
-    return InkWell(
-      onTap: () {
-        setState(() {
-          _selectedSort = value;
-        });
-      },
-      child: Padding(
-        padding: const EdgeInsets.symmetric(
-          horizontal: VSpacing.space4,
-          vertical: 8,
-        ),
-        child: Row(
-          children: [
-            // Using standard Radio if VRadio complains about groupValue, but we will try VRadio first with groupValue, wait no, let's just use Radio.
-            // Oh wait, VRadio doesn't take groupValue in the latest version it seems? Or it does but it's an info.
-            Radio<PartnerSortOption>(
-              value: value,
-              groupValue: _selectedSort,
-              onChanged: (val) {
-                if (val != null) {
-                  setState(() {
-                    _selectedSort = val;
-                  });
-                }
-              },
-            ),
-            const SizedBox(width: VSpacing.space3),
-            Expanded(
-              child: Text(
-                label,
-                style: VTypography.bodyDefault.copyWith(
-                  color: context.vColors.textPrimary,
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 }
-
