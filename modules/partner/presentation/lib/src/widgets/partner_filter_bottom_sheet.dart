@@ -195,9 +195,8 @@ class _PartnerFilterBottomSheetState extends State<PartnerFilterBottomSheet> {
                 const SizedBox(height: VSpacing.space4),
                 _buildSectionTitle('Thời gian cập nhật'),
                 const SizedBox(height: VSpacing.space3),
-                Wrap(
+                Row(
                   key: const Key('partner_updated_time_filters'),
-                  runSpacing: VSpacing.space2,
                   children: [
                     Expanded(
                       child: VChip(
