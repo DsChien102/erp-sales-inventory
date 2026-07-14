@@ -28,6 +28,8 @@
 	<true/>
 	<key>NSCameraUsageDescription</key>
 	<string>Ứng dụng cần quyền truy cập camera để chụp ảnh sản phẩm mới.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Ứng dụng có thể dùng vị trí khi chụp ảnh để gắn thông tin vị trí vào ảnh (nếu bạn cho phép).</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Ứng dụng cần quyền truy cập thư viện ảnh để bạn có thể chọn ảnh cho sản phẩm.</string>
 	<key>UIApplicationSceneManifest</key>
