@@ -2595,12 +2595,22 @@ final class FakeCatalogModule implements ICatalogModule {
       throw MissingBaseUnitException();
     }
 
+    final targetUnit = _resolveUnitForPricing(
+      productId: product.id,
+      productUnitId: query.productUnitId,
+    );
+    final unitName = targetUnit?.name ?? product.baseUnit;
+    final unitId = targetUnit?.id ?? query.productUnitId;
+    final scaledBase = targetUnit == null
+        ? (product.baseCost ?? 0)
+        : (_comparableBasePriceForUnit(product, targetUnit) ?? product.baseCost ?? 0);
+
     if (scenario == FakeCatalogScenario.scnContractE06U02Fr02_02 || !product.hasBasePrice) {
       return ProductUnitPriceSuggestionDto(
             productId: product.id,
-            productUnitId: query.productUnitId,
-            unitName: product.baseUnit,
-            basePrice: product.baseCost ?? 0,
+            productUnitId: unitId,
+            unitName: unitName,
+            basePrice: scaledBase,
             currency: 'VND',
             canSuggest: false,
             unavailableReason: 'Cần có Giá cơ sở định giá trước',
@@ -2612,9 +2622,9 @@ final class FakeCatalogModule implements ICatalogModule {
     if (rule == null || rule.status != StorePriceRuleStatus.active) {
       return ProductUnitPriceSuggestionDto(
             productId: product.id,
-            productUnitId: query.productUnitId,
-            unitName: product.baseUnit,
-            basePrice: product.baseCost!,
+            productUnitId: unitId,
+            unitName: unitName,
+            basePrice: scaledBase,
             currency: 'VND',
             canSuggest: false,
             unavailableReason: rule == null
@@ -2625,16 +2635,16 @@ final class FakeCatalogModule implements ICatalogModule {
     }
 
     final prices = StorePriceSuggestionCalculator.suggest(
-      basePrice: product.baseCost!,
+      basePrice: scaledBase,
       listMarkupRatio: rule.listMarkupRatio,
       floorMarkupRatio: rule.floorMarkupRatio,
     );
 
     return ProductUnitPriceSuggestionDto(
           productId: product.id,
-          productUnitId: query.productUnitId,
-          unitName: product.baseUnit,
-          basePrice: product.baseCost!,
+          productUnitId: unitId,
+          unitName: unitName,
+          basePrice: scaledBase,
           currency: 'VND',
           suggestedListBeforeVat: prices.listBeforeVat,
           suggestedFloorBeforeVat: prices.floorBeforeVat,
@@ -2644,6 +2654,20 @@ final class FakeCatalogModule implements ICatalogModule {
           canSuggest: true,
         )
         as TResult;
+  }
+
+  _ProductUnit? _resolveUnitForPricing({
+    required String productId,
+    String? productUnitId,
+  }) {
+    if (productUnitId != null) {
+      for (final unit in _productUnits) {
+        if (unit.productId == productId && unit.id == productUnitId) {
+          return unit;
+        }
+      }
+    }
+    return _resolveBaseUnit(productId);
   }
 
   TResult _handleApplyStorePriceRule<TResult>(ApplyStorePriceRuleCommand command) {
@@ -2684,25 +2708,46 @@ final class FakeCatalogModule implements ICatalogModule {
       );
     }
 
+    final targetUnit = _resolveUnitForPricing(
+      productId: product.id,
+      productUnitId: command.productUnitId,
+    );
+    final scaledBase = targetUnit == null
+        ? product.baseCost!
+        : (_comparableBasePriceForUnit(product, targetUnit) ?? product.baseCost!);
+
     final prices = StorePriceSuggestionCalculator.suggest(
-      basePrice: product.baseCost!,
+      basePrice: scaledBase,
       listMarkupRatio: rule.listMarkupRatio,
       floorMarkupRatio: rule.floorMarkupRatio,
     );
 
-    product
-      ..listBeforeVat = prices.listBeforeVat
-      ..floorBeforeVat = prices.floorBeforeVat
-      ..listAfterVat = prices.listBeforeVat
-      ..floorAfterVat = prices.floorBeforeVat
-      ..priceBandSourceType = PriceBandSourceType.ruleBased
-      ..storePriceRuleId = rule.id
-      ..storePriceRuleName = rule.name
-      ..isCustomOverride = false;
+    if (targetUnit != null) {
+      targetUnit
+        ..listBeforeVat = prices.listBeforeVat
+        ..floorBeforeVat = prices.floorBeforeVat
+        ..listAfterVat = prices.listBeforeVat
+        ..floorAfterVat = prices.floorBeforeVat
+        ..priceBandSourceType = PriceBandSourceType.ruleBased
+        ..storePriceRuleId = rule.id
+        ..storePriceRuleName = rule.name
+        ..isCustomOverride = false;
+      _syncProductPriceBandSummary(product);
+    } else {
+      product
+        ..listBeforeVat = prices.listBeforeVat
+        ..floorBeforeVat = prices.floorBeforeVat
+        ..listAfterVat = prices.listBeforeVat
+        ..floorAfterVat = prices.floorBeforeVat
+        ..priceBandSourceType = PriceBandSourceType.ruleBased
+        ..storePriceRuleId = rule.id
+        ..storePriceRuleName = rule.name
+        ..isCustomOverride = false;
+    }
 
     return ApplyStorePriceRuleResult(
           productId: product.id,
-          productUnitId: command.productUnitId,
+          productUnitId: command.productUnitId ?? targetUnit?.id,
           listBeforeVat: prices.listBeforeVat,
           floorBeforeVat: prices.floorBeforeVat,
           listAfterVat: prices.listBeforeVat,
@@ -2781,7 +2826,10 @@ final class FakeCatalogModule implements ICatalogModule {
     if (!unit.hasConversionRate || unit.conversionRateToBase <= 0) {
       return null;
     }
-    return product.baseCost! * unit.conversionRateToBase;
+    return StorePriceSuggestionCalculator.scaleBasePriceForUnit(
+      basePricePerBaseUnit: product.baseCost!,
+      conversionRateToBase: unit.conversionRateToBase,
+    );
   }
 
   List<PriceBandValidationWarningDto> _computePriceBandWarnings({
@@ -2835,12 +2883,16 @@ final class FakeCatalogModule implements ICatalogModule {
     return warnings;
   }
 
-  ProductUnitPriceBandRowDto _toPriceBandRowDto(_ProductUnit unit) {
+  ProductUnitPriceBandRowDto _toPriceBandRowDto(
+    _StoredProduct product,
+    _ProductUnit unit,
+  ) {
     return ProductUnitPriceBandRowDto(
       productUnitId: unit.id,
       unitName: unit.name,
       isBaseUnit: unit.isBaseUnit,
       isActive: unit.isActive,
+      basePrice: _comparableBasePriceForUnit(product, unit),
       listBeforeVat: unit.listBeforeVat,
       floorBeforeVat: unit.floorBeforeVat,
       listAfterVat: unit.listAfterVat,
@@ -2973,6 +3025,7 @@ final class FakeCatalogModule implements ICatalogModule {
                 unitName: product.baseUnit,
                 isBaseUnit: true,
                 isActive: true,
+                basePrice: product.baseCost,
                 listBeforeVat: product.listBeforeVat,
                 floorBeforeVat: product.floorBeforeVat,
                 listAfterVat: product.listAfterVat,
@@ -2991,7 +3044,9 @@ final class FakeCatalogModule implements ICatalogModule {
           productId: product.id,
           baseUnitName: product.baseUnit,
           basePrice: product.baseCost,
-          rows: structuredUnits.map(_toPriceBandRowDto).toList(growable: false),
+          rows: structuredUnits
+              .map((unit) => _toPriceBandRowDto(product, unit))
+              .toList(growable: false),
         )
         as TResult;
   }

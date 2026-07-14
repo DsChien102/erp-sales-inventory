@@ -1,5 +1,16 @@
 /// Computes suggested list/floor prices from base price and store rule markups.
 abstract final class StorePriceSuggestionCalculator {
+  /// Scales product base price (per base unit) to the target selling unit.
+  static double scaleBasePriceForUnit({
+    required double basePricePerBaseUnit,
+    required double conversionRateToBase,
+  }) {
+    if (conversionRateToBase <= 0) {
+      return basePricePerBaseUnit;
+    }
+    return basePricePerBaseUnit * conversionRateToBase;
+  }
+
   static ({int listBeforeVat, int floorBeforeVat}) suggest({
     required double basePrice,
     required double listMarkupRatio,

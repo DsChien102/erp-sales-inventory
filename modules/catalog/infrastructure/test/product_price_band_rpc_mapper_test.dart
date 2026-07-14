@@ -40,6 +40,7 @@ void main() {
           'product_id': 'product-9',
           'base_unit_name': 'Lọ',
           'currency': 'VND',
+          'base_price_per_base_unit': 100000,
           'base_price': 100000,
           'product_unit_id': 'unit-lo',
           'unit_name': 'Lọ',
@@ -59,7 +60,8 @@ void main() {
           'product_id': 'product-9',
           'base_unit_name': 'Lọ',
           'currency': 'VND',
-          'base_price': 100000,
+          'base_price_per_base_unit': 100000,
+          'base_price': 1000000,
           'product_unit_id': 'unit-hop',
           'unit_name': 'Hộp',
           'is_base_unit': false,
@@ -76,6 +78,8 @@ void main() {
       expect(dto.baseUnitName, 'Lọ');
       expect(dto.basePrice, 100000);
       expect(dto.rows, hasLength(2));
+      expect(dto.rows.first.basePrice, 100000);
+      expect(dto.rows.last.basePrice, 1000000);
       expect(dto.rows.first.isMissing, isFalse);
       expect(dto.rows.first.listBeforeVat, 15000);
       expect(dto.rows.first.floorBeforeVat, 12000);

@@ -9,6 +9,7 @@ final class ProductUnitPriceBandRowDto {
     required this.isBaseUnit,
     required this.isActive,
     required this.isMissing,
+    this.basePrice,
     this.listBeforeVat,
     this.floorBeforeVat,
     this.listAfterVat,
@@ -25,6 +26,9 @@ final class ProductUnitPriceBandRowDto {
   final String unitName;
   final bool isBaseUnit;
   final bool isActive;
+
+  /// Base cost for this selling unit (= per-base-unit × conversion_rate_to_base).
+  final double? basePrice;
   final int? listBeforeVat;
   final int? floorBeforeVat;
   final int? listAfterVat;
