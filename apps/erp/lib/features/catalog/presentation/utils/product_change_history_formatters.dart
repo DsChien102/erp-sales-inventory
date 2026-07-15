@@ -1,4 +1,5 @@
 import 'package:vet45_catalog_application/application.dart';
+import 'package:vet45_design_system/design_system.dart';
 
 String formatProductChangeHistoryDateTime(DateTime occurredAt) {
   final local = occurredAt.toLocal();
@@ -29,6 +30,31 @@ String formatProductChangeHistorySummary({
   }
 
   return '';
+}
+
+String formatProductPriceBandSourceType(PriceBandSourceType? sourceType) {
+  return switch (sourceType) {
+    PriceBandSourceType.ruleBased => 'Theo khung giá cửa hàng',
+    PriceBandSourceType.customConfig => 'Tự động riêng theo cấu hình',
+    PriceBandSourceType.manual => 'Nhập thủ công',
+    null => 'Chưa có khung giá',
+  };
+}
+
+String formatProductPriceBandHistoryTrigger(
+  ProductPriceBandHistoryTrigger trigger,
+) {
+  return switch (trigger) {
+    ProductPriceBandHistoryTrigger.direct => 'Thao tác trực tiếp',
+    ProductPriceBandHistoryTrigger.basePriceChanged => 'Tự động do Giá cơ sở thay đổi',
+    ProductPriceBandHistoryTrigger.storeRuleChanged => 'Tự động do khung giá cửa hàng thay đổi',
+  };
+}
+
+String formatProductPriceBandHistoryMoney(int? value, String currency) {
+  if (value == null) return '—';
+  final formatted = VMoneyValidator.format(value).replaceAll(',', '.');
+  return currency.toUpperCase() == 'VND' ? '$formatted đ' : '$formatted ${currency.toUpperCase()}';
 }
 
 extension ProductChangeHistoryActionLabelVi on ProductChangeHistoryAction {

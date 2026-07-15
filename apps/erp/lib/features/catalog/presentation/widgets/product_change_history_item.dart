@@ -3,6 +3,7 @@ import 'package:vet45_catalog_application/application.dart';
 import 'package:vet45_design_system/design_system.dart';
 
 import '../utils/product_change_history_formatters.dart';
+import 'product_price_band_history_change.dart';
 
 class ProductChangeHistoryItem extends StatelessWidget {
   const ProductChangeHistoryItem({
@@ -14,18 +15,27 @@ class ProductChangeHistoryItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final priceBandChange = entry.priceBandChange;
+    if (!entry.isSensitiveMasked && priceBandChange != null) {
+      return ProductPriceBandHistoryChange(
+        change: priceBandChange,
+        occurredAt: entry.occurredAt,
+        actorDisplayName: entry.actorDisplayName,
+      );
+    }
+
     final dynamicColors = context.vColors;
     final dateStr = formatProductChangeHistoryDateTime(entry.occurredAt);
     final summaryText = formatProductChangeHistorySummary(
       summary: entry.summary,
       changeType: entry.changeType,
     );
-    
+
     // Mask sensitive values
     final showMasked = entry.isSensitiveMasked;
     final beforeText = showMasked ? '***' : entry.valueBefore;
     final afterText = showMasked ? '***' : entry.valueAfter;
-    
+
     String valueDescription = '';
     if (beforeText != null && afterText != null) {
       valueDescription = '$beforeText — $afterText';

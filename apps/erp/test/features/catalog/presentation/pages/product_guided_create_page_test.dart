@@ -1,11 +1,13 @@
 import 'package:erp/features/catalog/presentation/pages/product_control_center_page.dart';
 import 'package:erp/features/catalog/presentation/pages/product_guided_create_page.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import 'package:vet45_catalog_application/application.dart';
 import 'package:vet45_catalog_application/testing.dart';
+import 'package:vet45_catalog_presentation/presentation.dart';
 import 'package:vet45_shared_application/application.dart';
 import 'package:vet45_design_system/design_system.dart';
 
@@ -20,6 +22,26 @@ final class _FakeExecutionContext implements IExecutionContext {
   Future<String> requireUserId() async => 'user-1';
 }
 
+final class _RecordingCatalogModule implements ICatalogModule {
+  _RecordingCatalogModule() : _delegate = FakeCatalogModule();
+
+  final FakeCatalogModule _delegate;
+  CreateGuidedProductCommand? guidedCreateCommand;
+
+  @override
+  Future<TResult> executeCommandAsync<TResult>(ICommand<TResult> command) {
+    if (command is CreateGuidedProductCommand) {
+      guidedCreateCommand = command as CreateGuidedProductCommand;
+    }
+    return _delegate.executeCommandAsync(command);
+  }
+
+  @override
+  Future<TResult> executeQueryAsync<TResult>(IQuery<TResult> query) {
+    return _delegate.executeQueryAsync(query);
+  }
+}
+
 void main() {
   final getIt = GetIt.instance;
 
@@ -27,7 +49,7 @@ void main() {
     await getIt.reset();
   });
 
-  Widget buildTestableWidget({required FakeCatalogModule catalogModule}) {
+  Widget buildTestableWidget({required ICatalogModule catalogModule}) {
     getIt
       ..registerSingleton<ICatalogModule>(catalogModule)
       ..registerSingleton<IExecutionContext>(_FakeExecutionContext());
@@ -122,6 +144,35 @@ void main() {
 
     // Success pops back to parent list route (canPop stack).
     expect(find.text('products-root'), findsOneWidget);
+  });
+
+  testWidgets('guided create preserves custom price band configuration', (tester) async {
+    final catalogModule = _RecordingCatalogModule();
+    await tester.pumpWidget(
+      buildTestableWidget(catalogModule: catalogModule),
+    );
+    await tester.pumpAndSettle();
+
+    final pageContext = tester.element(find.byKey(const Key('wgt_e02_u01_fr01_01')));
+    final cubit = BlocProvider.of<ProductGuidedCreateCubit>(pageContext);
+    cubit
+      ..updateName('Thuốc cấu hình riêng')
+      ..updateBaseUnit('Lọ')
+      ..updateBaseCost('50000')
+      ..updatePricingMethod('customAuto')
+      ..updateCustomAutoMarkup('30')
+      ..updateCustomAutoFloorMarkup('10')
+      ..confirmPriceBandStep();
+    await tester.pump();
+
+    await cubit.submit();
+    await tester.pumpAndSettle();
+
+    final command = catalogModule.guidedCreateCommand;
+    expect(command, isNotNull);
+    expect(command!.priceBandSourceType, PriceBandSourceType.customConfig);
+    expect(command.listMarkupRatio, 0.3);
+    expect(command.floorMarkupRatio, 0.1);
   });
 
   testWidgets('wgt_e02_u01_fr01_01: missing name shows validation error', (tester) async {

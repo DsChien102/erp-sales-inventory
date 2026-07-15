@@ -667,6 +667,19 @@ class ProductGuidedCreateCubit extends Cubit<ProductGuidedCreateState> {
       final priceBand = state.priceBandConfigured
           ? CatalogUiMapper.resolvePriceBand(state)
           : (listBeforeVat: null, floorBeforeVat: null);
+      final priceBandSourceType = !state.priceBandConfigured
+          ? null
+          : switch (state.pricingMethod) {
+              'storeRule' => PriceBandSourceType.ruleBased,
+              'customAuto' || 'auto' => PriceBandSourceType.customConfig,
+              _ => PriceBandSourceType.manual,
+            };
+      final customListRatio = priceBandSourceType == PriceBandSourceType.customConfig
+          ? state.parsedCustomAutoMarkupPercent! / 100
+          : null;
+      final customFloorRatio = priceBandSourceType == PriceBandSourceType.customConfig
+          ? state.parsedCustomAutoFloorMarkupPercent! / 100
+          : null;
       final createResult = await _catalogModule.executeCommandAsync(
         CreateGuidedProductCommand(
           tenantId: tenantId,
@@ -684,6 +697,9 @@ class ProductGuidedCreateCubit extends Cubit<ProductGuidedCreateState> {
           listBeforeVat: state.pricingMethod == 'storeRule' ? null : priceBand.listBeforeVat,
           floorBeforeVat: state.pricingMethod == 'storeRule' ? null : priceBand.floorBeforeVat,
           useStorePriceRule: state.priceBandConfigured && state.pricingMethod == 'storeRule',
+          priceBandSourceType: priceBandSourceType,
+          listMarkupRatio: customListRatio,
+          floorMarkupRatio: customFloorRatio,
           customFieldValues: activeValues,
         ),
       );

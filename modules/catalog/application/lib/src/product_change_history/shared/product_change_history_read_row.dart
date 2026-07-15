@@ -1,6 +1,7 @@
 import 'package:vet45_catalog_application/src/product_change_history/shared/product_change_history_entry_dto.dart';
 import 'product_change_category.dart';
 import 'product_change_history_action.dart';
+import 'product_price_band_history_change_dto.dart';
 
 /// Gateway read row before mapping to [ProductChangeHistoryEntryDto].
 final class ProductChangeHistoryReadRow {
@@ -16,6 +17,7 @@ final class ProductChangeHistoryReadRow {
     this.valueBefore,
     this.valueAfter,
     this.reason,
+    this.priceBandChange,
   });
 
   final String id;
@@ -29,6 +31,7 @@ final class ProductChangeHistoryReadRow {
   final String? valueBefore;
   final String? valueAfter;
   final String? reason;
+  final ProductPriceBandHistoryChangeDto? priceBandChange;
 
   ProductChangeHistoryEntryDto toDto() => ProductChangeHistoryEntryDto(
     id: id,
@@ -42,5 +45,6 @@ final class ProductChangeHistoryReadRow {
     source: source,
     isSensitiveMasked: isSensitiveMasked,
     reason: reason,
+    priceBandChange: priceBandChange,
   );
 }

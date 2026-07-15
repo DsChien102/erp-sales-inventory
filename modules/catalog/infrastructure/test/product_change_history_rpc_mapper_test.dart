@@ -83,11 +83,130 @@ void main() {
         'change_category': 'pricing',
         'source': 'user',
         'is_sensitive_masked': true,
+        'price_band_change': {
+          'product_unit_id': 'unit-lo',
+          'unit_name': 'Lọ',
+          'currency': 'VND',
+          'trigger': 'direct',
+          'before': null,
+          'after': {
+            'source_type': 'manual',
+            'list_price': 55000,
+            'floor_price': 53000,
+          },
+        },
       });
 
       expect(row.isSensitiveMasked, isTrue);
       expect(row.valueBefore, isNull);
       expect(row.valueAfter, isNull);
+      expect(row.priceBandChange, isNull);
+    });
+
+    test('maps structured price-band update snapshot', () {
+      final row = ProductChangeHistoryRpcMapper.readRowFromJson({
+        'id': 'history-price-update',
+        'occurred_at': '2026-07-15T10:00:00.000Z',
+        'actor_display_name': 'Nguyễn Văn A',
+        'change_type': 'set_product_unit_price_band',
+        'summary': 'Cập nhật khung giá — Lọ',
+        'change_category': 'pricing',
+        'source': 'user',
+        'is_sensitive_masked': false,
+        'price_band_change': {
+          'product_unit_id': 'unit-lo',
+          'unit_name': 'Lọ',
+          'currency': 'VND',
+          'trigger': 'direct',
+          'before': {
+            'source_type': 'ruleBased',
+            'list_price': 52500,
+            'floor_price': 52000,
+          },
+          'after': {
+            'source_type': 'manual',
+            'list_price': 55000,
+            'floor_price': 53000,
+          },
+        },
+      });
+
+      final change = row.priceBandChange!;
+      expect(change.productUnitId, 'unit-lo');
+      expect(change.unitName, 'Lọ');
+      expect(change.currency, 'VND');
+      expect(change.trigger, ProductPriceBandHistoryTrigger.direct);
+      expect(change.before!.sourceType, PriceBandSourceType.ruleBased);
+      expect(change.before!.listPrice, 52500);
+      expect(change.before!.floorPrice, 52000);
+      expect(change.after.sourceType, PriceBandSourceType.manual);
+      expect(change.after.listPrice, 55000);
+      expect(change.after.floorPrice, 53000);
+    });
+
+    test('maps price-band creation with null before snapshot', () {
+      final row = ProductChangeHistoryRpcMapper.readRowFromJson({
+        'id': 'history-price-create',
+        'occurred_at': '2026-07-15T09:00:00.000Z',
+        'actor_display_name': 'Nguyễn Văn A',
+        'change_type': 'set_initial_price_band',
+        'summary': 'Tạo khung giá — Lọ',
+        'change_category': 'pricing',
+        'source': 'user',
+        'is_sensitive_masked': false,
+        'price_band_change': {
+          'product_unit_id': 'unit-lo',
+          'unit_name': 'Lọ',
+          'currency': 'VND',
+          'trigger': 'direct',
+          'before': null,
+          'after': {
+            'source_type': 'customConfig',
+            'list_price': 65000,
+            'floor_price': null,
+          },
+        },
+      });
+
+      expect(row.priceBandChange!.before, isNull);
+      expect(
+        row.priceBandChange!.after.sourceType,
+        PriceBandSourceType.customConfig,
+      );
+      expect(row.priceBandChange!.after.floorPrice, isNull);
+    });
+
+    test('keeps legacy and malformed price-band rows backward compatible', () {
+      final legacy = ProductChangeHistoryRpcMapper.readRowFromJson({
+        'id': 'history-legacy',
+        'occurred_at': '2026-07-15T08:00:00.000Z',
+        'actor_display_name': 'Nguyễn Văn A',
+        'change_type': 'set_product_unit_price_band',
+        'summary': 'Cập nhật khung giá',
+        'change_category': 'pricing',
+        'source': 'user',
+        'is_sensitive_masked': false,
+      });
+      final malformed = ProductChangeHistoryRpcMapper.readRowFromJson({
+        'id': 'history-malformed',
+        'occurred_at': '2026-07-15T08:30:00.000Z',
+        'actor_display_name': 'Nguyễn Văn A',
+        'change_type': 'set_product_unit_price_band',
+        'summary': 'Cập nhật khung giá',
+        'change_category': 'pricing',
+        'source': 'user',
+        'is_sensitive_masked': false,
+        'price_band_change': {
+          'product_unit_id': 'unit-lo',
+          'unit_name': 'Lọ',
+          'currency': 'VND',
+          'trigger': 'unknown',
+          'after': {'source_type': 'invalid', 'list_price': '55000'},
+        },
+      });
+
+      expect(legacy.priceBandChange, isNull);
+      expect(malformed.priceBandChange, isNull);
     });
   });
 }

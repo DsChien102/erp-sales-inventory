@@ -1,0 +1,363 @@
+-- Title: catalog product price-band recalculation history
+-- Kind: patch
+-- Intent: catalog_product_price_band_change_history_recalculation
+-- Context: TH-02 / EPIC-06 — audit automatic price changes per product unit
+-- Touches: _product_change_history_category, _recalculate_product_price_bands, set_manual_base_price, set_store_price_rule
+-- Safety: idempotent ; high — recalculates and audits all eligible active price bands
+-- Depends on: catalog_product_price_band_change_history_direct.sql
+
+create or replace function catalog._product_change_history_category(p_action text)
+returns text
+language sql
+immutable
+as $$
+  select case p_action
+    when 'product_created'                     then 'profile'
+    when 'update_product_profile'              then 'profile'
+    when 'product_profile_updated'             then 'profile'
+    when 'update_product_images'               then 'images'
+    when 'product_images_updated'              then 'images'
+    when 'add_product_unit'                    then 'units'
+    when 'deactivate_product_unit'             then 'units'
+    when 'reactivate_product_unit'             then 'units'
+    when 'set_product_base_unit'               then 'units'
+    when 'set_basic_stock_quantity_base'       then 'stock'
+    when 'set_initial_stock'                   then 'stock'
+    when 'adjust_basic_stock'                  then 'stock'
+    when 'set_manual_base_price'               then 'pricing'
+    when 'apply_store_price_rule'              then 'pricing'
+    when 'set_product_unit_price_band'         then 'pricing'
+    when 'set_initial_price_band'              then 'pricing'
+    when 'recalculate_product_unit_price_band' then 'pricing'
+    when 'upsert_custom_field_values'          then 'custom_fields'
+    when 'custom_field_values_updated'         then 'custom_fields'
+    when 'product_status_changed'              then 'status'
+    when 'deactivate_product'                  then 'status'
+    when 'reactivate_product'                  then 'status'
+    when 'product_soft_deleted'                then 'lifecycle'
+    when 'product_restored'                    then 'lifecycle'
+    else null
+  end
+$$;
+
+drop function if exists catalog._recalculate_product_price_bands(
+  uuid, uuid, uuid
+);
+
+create or replace function catalog._recalculate_product_price_bands(
+  p_tenant_id uuid,
+  p_product_id uuid default null,
+  p_store_price_rule_id uuid default null,
+  p_trigger text default 'basePriceChanged'
+)
+returns integer
+language plpgsql
+security definer
+set search_path = catalog, pg_temp
+as $$
+declare
+  v_actor_id uuid := auth.uid();
+  v_change record;
+  v_updated integer := 0;
+begin
+  if v_actor_id is null then raise exception 'not authenticated'; end if;
+  if p_trigger not in ('basePriceChanged', 'storeRuleChanged') then
+    raise exception 'validation_exception: invalid recalculation trigger';
+  end if;
+
+  for v_change in
+    with recalculated as (
+      select
+        pb.id,
+        pb.product_id,
+        pb.product_unit_id,
+        pb.source_type::text as source_type,
+        pb.list_price_before_vat as before_list_price,
+        pb.floor_price_before_vat as before_floor_price,
+        round(
+          bp.base_price_after_vat * pu.conversion_rate_to_base
+          * (1 + case
+            when pb.source_type = 'customConfig'
+              then pb.list_markup_ratio
+            else sr.list_markup_ratio
+          end)
+        ) as after_list_price,
+        case
+          when case
+            when pb.source_type = 'customConfig'
+              then pb.floor_markup_ratio
+            else sr.floor_markup_ratio
+          end is null then null
+          else round(
+            bp.base_price_after_vat * pu.conversion_rate_to_base
+            * (1 + case
+              when pb.source_type = 'customConfig'
+                then pb.floor_markup_ratio
+              else sr.floor_markup_ratio
+            end)
+          )
+        end as after_floor_price
+      from catalog.product_unit_price_bands pb
+      join catalog.product_units pu
+        on pu.id = pb.product_unit_id
+       and pu.product_id = pb.product_id
+       and pu.tenant_id = pb.tenant_id
+      join catalog.product_base_price_profiles bp
+        on bp.product_id = pb.product_id
+       and bp.tenant_id = pb.tenant_id
+      left join catalog.store_price_rules sr
+        on sr.id = pb.store_price_rule_id
+       and sr.tenant_id = pb.tenant_id
+       and sr.status = 'active'
+      where pb.tenant_id = p_tenant_id
+        and pb.status = 'active'
+        and pu.is_active = true
+        and pu.conversion_rate_to_base > 0
+        and bp.base_price_after_vat is not null
+        and (p_product_id is null or pb.product_id = p_product_id)
+        and (
+          (p_trigger = 'basePriceChanged' and (
+            pb.source_type = 'customConfig'
+            or (pb.source_type = 'ruleBased' and sr.id is not null)
+          ))
+          or (p_trigger = 'storeRuleChanged'
+            and pb.source_type = 'ruleBased'
+            and sr.id is not null
+            and sr.id = p_store_price_rule_id)
+        )
+    )
+    select r.*
+    from recalculated r
+    where r.before_list_price is distinct from r.after_list_price
+       or r.before_floor_price is distinct from r.after_floor_price
+  loop
+    update catalog.product_unit_price_bands pb
+    set list_price_before_vat = v_change.after_list_price,
+        floor_price_before_vat = v_change.after_floor_price,
+        list_price_after_vat = v_change.after_list_price,
+        floor_price_after_vat = v_change.after_floor_price,
+        updated_at = now()
+    where pb.id = v_change.id;
+
+    perform catalog._record_product_price_band_change(
+      p_tenant_id => p_tenant_id,
+      p_product_id => v_change.product_id,
+      p_product_unit_id => v_change.product_unit_id,
+      p_action => 'recalculate_product_unit_price_band',
+      p_trigger => p_trigger,
+      p_before_source_type => v_change.source_type,
+      p_before_list_price => v_change.before_list_price,
+      p_before_floor_price => v_change.before_floor_price,
+      p_after_source_type => v_change.source_type,
+      p_after_list_price => v_change.after_list_price,
+      p_after_floor_price => v_change.after_floor_price,
+      p_actor_id => v_actor_id
+    );
+    v_updated := v_updated + 1;
+  end loop;
+
+  return v_updated;
+end;
+$$;
+
+revoke all on function catalog._recalculate_product_price_bands(
+  uuid, uuid, uuid, text
+) from public, anon, authenticated;
+grant execute on function catalog._recalculate_product_price_bands(
+  uuid, uuid, uuid, text
+) to service_role;
+
+create or replace function catalog.set_manual_base_price(
+  p_tenant_id uuid,
+  p_product_id uuid,
+  p_mode text,
+  p_base_price_after_vat numeric,
+  p_currency text default 'VND',
+  p_base_price_before_vat numeric default null
+)
+returns void
+language plpgsql
+security definer
+set search_path = catalog, iam, pg_temp
+as $$
+declare
+  v_actor_id uuid := auth.uid();
+begin
+  if v_actor_id is null then raise exception 'not authenticated'; end if;
+  if not iam.has_permission(p_tenant_id, 'catalog.product.manage_pricing') then
+    raise exception 'permission denied: catalog.product.manage_pricing';
+  end if;
+  if not exists (
+    select 1 from catalog.products p
+    where p.id = p_product_id and p.tenant_id = p_tenant_id
+      and p.business_status <> 'soft_deleted'::catalog.product_business_status
+  ) then raise exception 'product not found'; end if;
+
+  perform catalog._ensure_product_has_base_unit(p_tenant_id, p_product_id);
+  if p_mode <> 'manual' then raise exception 'not_manual_base_price_mode'; end if;
+  if (p_base_price_after_vat is not null and p_base_price_after_vat < 0)
+     or (p_base_price_before_vat is not null and p_base_price_before_vat < 0) then
+    raise exception 'validation_exception: base price cannot be negative';
+  end if;
+
+  insert into catalog.product_base_price_profiles (
+    product_id, tenant_id, mode, base_price_after_vat,
+    base_price_before_vat, currency, updated_at
+  ) values (
+    p_product_id, p_tenant_id, p_mode, p_base_price_after_vat,
+    p_base_price_before_vat, coalesce(p_currency, 'VND'), now()
+  )
+  on conflict (product_id) do update set
+    mode = excluded.mode,
+    base_price_after_vat = excluded.base_price_after_vat,
+    base_price_before_vat = excluded.base_price_before_vat,
+    currency = excluded.currency,
+    updated_at = now();
+
+  perform catalog._recalculate_product_price_bands(
+    p_tenant_id => p_tenant_id,
+    p_product_id => p_product_id,
+    p_store_price_rule_id => null,
+    p_trigger => 'basePriceChanged'
+  );
+
+  insert into catalog.product_change_history (
+    tenant_id, product_id, action, payload, actor_id
+  ) values (
+    p_tenant_id, p_product_id, 'set_manual_base_price',
+    jsonb_build_object(
+      'mode', p_mode,
+      'base_price_after_vat', p_base_price_after_vat,
+      'base_price_before_vat', p_base_price_before_vat,
+      'currency', p_currency
+    ), v_actor_id
+  );
+end;
+$$;
+
+revoke all on function catalog.set_manual_base_price(
+  uuid, uuid, text, numeric, text, numeric
+) from public, anon;
+grant execute on function catalog.set_manual_base_price(
+  uuid, uuid, text, numeric, text, numeric
+) to authenticated, service_role;
+
+create or replace function catalog.set_store_price_rule(
+  p_tenant_id uuid,
+  p_name text,
+  p_list_markup_ratio numeric,
+  p_floor_markup_ratio numeric,
+  p_status text default 'active'
+)
+returns table (
+  id uuid,
+  tenant_id uuid,
+  name text,
+  status text,
+  calculation_type text,
+  list_markup_ratio numeric,
+  floor_markup_ratio numeric,
+  updated_at timestamptz
+)
+language plpgsql
+security definer
+set search_path = catalog, iam, pg_temp
+as $$
+#variable_conflict use_column
+declare
+  v_rule_id uuid;
+  v_old catalog.store_price_rules%rowtype;
+  v_summary text;
+  v_should_log boolean := false;
+  v_had_old boolean;
+begin
+  if auth.uid() is null then raise exception 'not authenticated'; end if;
+  if not iam.has_permission(
+    p_tenant_id, 'catalog.pricing.manage_store_rule'
+  ) then
+    raise exception 'permission denied: catalog.pricing.manage_store_rule';
+  end if;
+  if p_name is null or btrim(p_name) = '' then
+    raise exception 'validation_exception: rule name is required';
+  end if;
+  if p_list_markup_ratio is null or p_list_markup_ratio < 0
+     or p_floor_markup_ratio is null or p_floor_markup_ratio < 0
+     or p_floor_markup_ratio > p_list_markup_ratio then
+    raise exception 'validation_exception: markup ratios are invalid';
+  end if;
+  if p_status not in ('active', 'inactive') then
+    raise exception 'validation_exception: invalid rule status';
+  end if;
+
+  select * into v_old
+  from catalog.store_price_rules r
+  where r.tenant_id = p_tenant_id
+  for update;
+  v_had_old := found;
+
+  insert into catalog.store_price_rules (
+    tenant_id, name, calculation_type, list_markup_ratio,
+    floor_markup_ratio, status, updated_at
+  ) values (
+    p_tenant_id, btrim(p_name), 'markup', p_list_markup_ratio,
+    p_floor_markup_ratio, p_status, now()
+  )
+  on conflict on constraint store_price_rules_tenant_id_key do update set
+    name = excluded.name,
+    list_markup_ratio = excluded.list_markup_ratio,
+    floor_markup_ratio = excluded.floor_markup_ratio,
+    status = excluded.status,
+    updated_at = now()
+  returning store_price_rules.id into v_rule_id;
+
+  if not v_had_old then
+    v_should_log := true;
+    v_summary := 'Tạo khung giá cửa hàng';
+  elsif v_old.name is distinct from btrim(p_name)
+     or v_old.list_markup_ratio is distinct from p_list_markup_ratio
+     or v_old.floor_markup_ratio is distinct from p_floor_markup_ratio
+     or v_old.status is distinct from p_status then
+    v_should_log := true;
+    v_summary := 'Cập nhật khung giá cửa hàng';
+  end if;
+
+  if v_should_log then
+    insert into catalog.store_price_rule_change_history (
+      tenant_id, store_price_rule_id, action, payload, actor_id
+    ) values (
+      p_tenant_id, v_rule_id, 'set_store_price_rule',
+      jsonb_build_object(
+        'summary', v_summary,
+        'previous_name', v_old.name,
+        'new_name', btrim(p_name),
+        'previous_list_markup_ratio', v_old.list_markup_ratio,
+        'new_list_markup_ratio', p_list_markup_ratio,
+        'previous_floor_markup_ratio', v_old.floor_markup_ratio,
+        'new_floor_markup_ratio', p_floor_markup_ratio,
+        'previous_status', v_old.status,
+        'new_status', p_status
+      ), auth.uid()
+    );
+
+    perform catalog._recalculate_product_price_bands(
+      p_tenant_id => p_tenant_id,
+      p_product_id => null,
+      p_store_price_rule_id => v_rule_id,
+      p_trigger => 'storeRuleChanged'
+    );
+  end if;
+
+  return query
+  select r.id, r.tenant_id, r.name, r.status, r.calculation_type,
+    r.list_markup_ratio, r.floor_markup_ratio, r.updated_at
+  from catalog.store_price_rules r
+  where r.id = v_rule_id;
+end;
+$$;
+
+revoke all on function catalog.set_store_price_rule(
+  uuid, text, numeric, numeric, text
+) from public, anon;
+grant execute on function catalog.set_store_price_rule(
+  uuid, text, numeric, numeric, text
+) to authenticated, service_role;

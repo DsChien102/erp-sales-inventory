@@ -52,8 +52,13 @@ void main() {
     expect(find.text('Lịch sử thay đổi'), findsWidgets);
     expect(find.text('Thuốc A'), findsWidgets);
     
-    // ScnContractE07U04Fr02_01 returns a list of history items
-    expect(find.text('Cập nhật khung giá'), findsOneWidget);
-    expect(find.text('Tạo sản phẩm'), findsOneWidget);
+    // Price-band history includes both update and creation snapshots.
+    expect(find.text('Cập nhật khung giá — Hộp'), findsOneWidget);
+    expect(find.text('Tạo khung giá — Hộp'), findsOneWidget);
+    expect(
+      find.text('Theo khung giá cửa hàng → Nhập thủ công'),
+      findsOneWidget,
+    );
+    expect(find.text('120.000 đ → 125.000 đ'), findsOneWidget);
   });
 }

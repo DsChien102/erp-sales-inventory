@@ -15,13 +15,17 @@ abstract final class ProductRpcMapper {
       'p_trade_name': _optionalText(command.commercialName),
       'p_sku': _optionalText(command.sku),
       'p_barcode': _optionalText(command.barcode),
-      'p_images': command.images.map((image) => <String, dynamic>{
-        'storage_key': image.storageKey,
-        'slot_id': image.slotId,
-        'url': image.url,
-        'is_primary': image.isPrimary,
-        'sort_order': image.sortOrder,
-      }).toList(growable: false),
+      'p_images': command.images
+          .map(
+            (image) => <String, dynamic>{
+              'storage_key': image.storageKey,
+              'slot_id': image.slotId,
+              'url': image.url,
+              'is_primary': image.isPrimary,
+              'sort_order': image.sortOrder,
+            },
+          )
+          .toList(growable: false),
       'p_tenant_unit_id': switch (baseUnit) {
         ExistingTenantUnit(:final unitId) => unitId,
         _ => null,
@@ -35,14 +39,26 @@ abstract final class ProductRpcMapper {
       'p_list_price_before_vat': command.listBeforeVat,
       'p_floor_price_before_vat': command.floorBeforeVat,
       'p_use_store_price_rule': command.useStorePriceRule,
-      'p_custom_field_values': command.customFieldValues.map((value) => <String, dynamic>{
-        'field_id': value.fieldId,
-        'text_value': value.textValue,
-        'number_value': value.numberValue,
-        'date_value': value.dateValue?.toIso8601String(),
-        'boolean_value': value.booleanValue,
-        'option_id': value.optionId,
-      }).toList(growable: false),
+      'p_price_band_source_type': switch (command.priceBandSourceType) {
+        PriceBandSourceType.ruleBased => 'ruleBased',
+        PriceBandSourceType.customConfig => 'customConfig',
+        PriceBandSourceType.manual => 'manual',
+        null => null,
+      },
+      'p_list_markup_ratio': command.listMarkupRatio,
+      'p_floor_markup_ratio': command.floorMarkupRatio,
+      'p_custom_field_values': command.customFieldValues
+          .map(
+            (value) => <String, dynamic>{
+              'field_id': value.fieldId,
+              'text_value': value.textValue,
+              'number_value': value.numberValue,
+              'date_value': value.dateValue?.toIso8601String(),
+              'boolean_value': value.booleanValue,
+              'option_id': value.optionId,
+            },
+          )
+          .toList(growable: false),
       'p_idempotency_key': command.id,
     };
   }

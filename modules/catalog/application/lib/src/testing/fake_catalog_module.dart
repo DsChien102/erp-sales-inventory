@@ -3429,6 +3429,41 @@ final class FakeCatalogModule implements ICatalogModule {
         valueBefore: '120000',
         valueAfter: '125000',
         changeCategory: ProductChangeCategory.pricing,
+        priceBandChange: const ProductPriceBandHistoryChangeDto(
+          productUnitId: 'product-1-base',
+          unitName: 'Hộp',
+          currency: 'VND',
+          trigger: ProductPriceBandHistoryTrigger.direct,
+          before: ProductPriceBandHistorySnapshotDto(
+            sourceType: PriceBandSourceType.ruleBased,
+            listPrice: 120000,
+            floorPrice: 95000,
+          ),
+          after: ProductPriceBandHistorySnapshotDto(
+            sourceType: PriceBandSourceType.manual,
+            listPrice: 125000,
+            floorPrice: 100000,
+          ),
+        ),
+      ),
+      ProductChangeHistoryEntryDto(
+        id: 'history-${product.id}-pricing-created',
+        occurredAt: DateTime.utc(2026, 6, 1, 9, 30),
+        actorDisplayName: 'Nguyễn Văn A',
+        changeType: ProductChangeHistoryAction.priceBandUpdated,
+        summary: 'Tạo khung giá — Hộp',
+        changeCategory: ProductChangeCategory.pricing,
+        priceBandChange: const ProductPriceBandHistoryChangeDto(
+          productUnitId: 'product-1-base',
+          unitName: 'Hộp',
+          currency: 'VND',
+          trigger: ProductPriceBandHistoryTrigger.direct,
+          after: ProductPriceBandHistorySnapshotDto(
+            sourceType: PriceBandSourceType.customConfig,
+            listPrice: 120000,
+            floorPrice: 95000,
+          ),
+        ),
       ),
       ProductChangeHistoryEntryDto(
         id: 'history-${product.id}-profile',

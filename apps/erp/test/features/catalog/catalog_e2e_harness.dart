@@ -378,6 +378,16 @@ Widget buildPccMaintenanceRouter(ProductListItemModel product) {
           );
         },
       ),
+      GoRoute(
+        path: '/products/items/pcc/change-history',
+        builder: (context, state) {
+          final historyProduct = state.extra as ProductListItemModel;
+          return ProductChangeHistoryPage(
+            productId: historyProduct.id,
+            productName: historyProduct.name,
+          );
+        },
+      ),
     ],
   );
 

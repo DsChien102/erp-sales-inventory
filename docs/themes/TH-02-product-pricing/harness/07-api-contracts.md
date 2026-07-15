@@ -878,13 +878,13 @@ Permissions:
 | List bands per unit | `catalog.list_product_unit_price_bands` | `p_tenant_id`, `p_product_id` | Rows for active `product_units`; left join **active in-window** bands + store rule name |
 | Readiness facts | `catalog._product_operational_facts` (redefined) | existing | `has_price_band` true when **all** active units have valid **before-VAT** active in-window band |
 | Apply store rule | `catalog.apply_store_price_rule` | existing | Writes before-VAT list/floor; returns `list_price_before_vat` / `floor_price_before_vat` |
-| Guided create | `catalog.create_guided_product` | `p_list_price_before_vat?`, `p_floor_price_before_vat?` (renamed) | Calls `set_initial_price_band` / apply rule |
+| Guided create | `catalog.create_guided_product` | `p_list_price_before_vat?`, `p_floor_price_before_vat?`, `p_price_band_source_type?`, `p_list_markup_ratio?`, `p_floor_markup_ratio?` | Routes đúng một mode: `ruleBased` → apply rule, `customConfig` → persist tỷ lệ theo band, `manual` → giá tuyệt đối; bỏ qua bước giá thì không tạo band/history |
 
 **Guards:** `inactive_product_unit`, `floor_price_greater_than_list_price`, `validation_exception` (negative prices), `missing base unit`, `product not found`
 
-**Change history:** `set_product_unit_price_band` action with `product_unit_id`, before/after VAT, effective, status, previous before-VAT, `source_type`, `store_price_rule_id`
+**Change history khung giá:** mọi lần tạo/sửa trực tiếp ghi `price_band_change` theo từng đơn vị. Snapshot chỉ gồm `source_type`, `list_price`, `floor_price` trước–sau; không lưu ratio. `before=null` biểu thị tạo lần đầu. Đổi Giá cơ sở chỉ ghi các band `ruleBased`/`customConfig` thực sự đổi giá; đổi Store Price Rule chỉ ghi các band `ruleBased` thuộc rule đó. Manual không tự tái tính và no-op không tạo history.
 
-Drafts: [`001_catalog_patch_price_band_vat_effective_schema.sql`](../../../../supabase/migrations/_drafts/001_catalog_patch_price_band_vat_effective_schema.sql), [`002_catalog_patch_price_band_vat_effective_rpcs.sql`](../../../../supabase/migrations/_drafts/002_catalog_patch_price_band_vat_effective_rpcs.sql)
+Drafts: [`catalog_product_price_band_change_history_direct.sql`](../../../../supabase/migrations/_drafts/catalog_product_price_band_change_history_direct.sql), [`catalog_product_price_band_change_history_recalculation.sql`](../../../../supabase/migrations/_drafts/catalog_product_price_band_change_history_recalculation.sql)
 
 **BE tests:** `product_unit_price_band_handlers_test.dart` (`scn_e06_u03_*`), `product_price_band_rpc_mapper_test.dart`
 
@@ -1211,7 +1211,7 @@ Tests: `scn_contract_e07_u03_*` in `fake_catalog_module_test.dart` (group `EPIC-
 
 ## EPIC-07 / US-04 — Change history (slice #20)
 
-**Status:** CONTRACT `done` · BE `done` · FE `todo` · E2E `todo`
+**Status:** CONTRACT `done` · BE `done` · FE `done` · E2E `done`
 
 ### Commands / Queries
 
@@ -1226,13 +1226,16 @@ Supporting types:
 | Type | Fields |
 | ---- | ------ |
 | `ProductChangeHistoryResultDto` | productId, items[], totalCount |
-| `ProductChangeHistoryEntryDto` | id, occurredAt, actorDisplayName, changeType, summary, valueBefore?, valueAfter?, changeCategory?, source, isSensitiveMasked |
+| `ProductChangeHistoryEntryDto` | id, occurredAt, actorDisplayName, changeType, summary, valueBefore?, valueAfter?, changeCategory?, source, isSensitiveMasked, priceBandChange? |
+| `ProductPriceBandHistoryChangeDto` | productUnitId, unitName, currency, trigger, before?, after |
+| `ProductPriceBandHistorySnapshotDto` | sourceType, listPrice, floorPrice? — không chứa tỷ lệ phần trăm |
+| `ProductPriceBandHistoryTrigger` | `direct` \| `basePriceChanged` \| `storeRuleChanged` |
 | `ProductChangeCategory` | profile, images, units, stock, pricing, customFields, status, lifecycle, other |
 
 Permissions:
 
 - `GetProductChangeHistoryQuery` → `@RequiresPermission(CatalogPermissions.viewHistory)` + `@RequiresTenant()`
-- Pricing entries: `valueBefore`/`valueAfter` masked at RPC when caller lacks `catalog.product.manage_pricing` (`isSensitiveMasked=true`)
+- Pricing entries: `valueBefore`/`valueAfter` và `priceBandChange` masked tại RPC khi caller thiếu `catalog.product.manage_pricing` (`isSensitiveMasked=true`)
 - Stock entries: masked when caller lacks `catalog.product.manage_stock`
 
 **Scope / rules:**
@@ -1241,6 +1244,8 @@ Permissions:
 - **FR-02:** paginated read, newest first; optional `changeCategories` filter; empty list when no history
 - **FR-03:** deny without `view_history`; mask sensitive price/stock values per manage permissions
 - **FR-04:** optimistic concurrency remains on mutation commands via `expectedVersion` → `StaleProductVersionException` (US-01, US-02, US-03, pricing, stock)
+- Lịch sử khung giá hiển thị cả lúc tạo và sửa: mode, Giá niêm yết, Giá sàn trước–sau; không hiển thị tỷ lệ. Dữ liệu legacy không có structured snapshot tiếp tục dùng card cũ, không suy đoán giá.
+- Trigger tự động ghi một entry cho mỗi product-unit có giá thực sự thay đổi; `before.sourceType = after.sourceType` trong tái tính.
 
 Port: `IProductChangeHistoryGateway.listHistory`.
 
@@ -1250,9 +1255,9 @@ Port: `IProductChangeHistoryGateway.listHistory`.
 
 | Use case | RPC | Params (summary) | Notes |
 | -------- | --- | ---------------- | ----- |
-| List change history | `catalog.get_product_change_history` | `p_tenant_id`, `p_product_id`, `p_limit`, `p_offset`, `p_categories text[]` | Returns `{ items: [...], total_count }`; soft-deleted products allowed |
+| List change history | `catalog.get_product_change_history` | `p_tenant_id`, `p_product_id`, `p_limit`, `p_offset`, `p_categories text[]` | Returns `{ items: [...], total_count }`; mỗi row có `price_band_change?`; soft-deleted products allowed |
 
-Draft: [`supabase/migrations/_drafts/17_catalog_product_change_history.sql`](../../../../supabase/migrations/_drafts/17_catalog_product_change_history.sql)
+Drafts mở rộng: [`catalog_product_price_band_change_history_direct.sql`](../../../../supabase/migrations/_drafts/catalog_product_price_band_change_history_direct.sql), [`catalog_product_price_band_change_history_recalculation.sql`](../../../../supabase/migrations/_drafts/catalog_product_price_band_change_history_recalculation.sql)
 
 **BE tests:** `product_change_history_handlers_test.dart` (`scn_e07_u04_*`), `product_change_history_rpc_mapper_test.dart`
 
@@ -1265,10 +1270,16 @@ Draft: [`supabase/migrations/_drafts/17_catalog_product_change_history.sql`](../
 | `scn_contract_e07_u04_fr02_03` | filter `pricing` on `product-1` | only pricing category rows |
 | `scn_contract_e07_u04_fr03_01` | deny `view_history` | `ApplicationException` (Permission denied) |
 | `scn_contract_e07_u04_fr03_02` | `view_history` without `manage_pricing` | pricing rows `isSensitiveMasked=true`, values null |
+| `scn_e06_price_history_create_01` | tạo band lần đầu | `before=null`, `after` có source/list/floor |
+| `scn_e06_price_history_update_01` | đổi `ruleBased` → `manual` | before/after có source/list/floor theo đơn vị |
+| `scn_e06_price_history_recalc_base_01` | đổi Giá cơ sở | chỉ band `ruleBased`/`customConfig` đổi giá được ghi |
+| `scn_e06_price_history_recalc_rule_01` | đổi Store Price Rule | chỉ band `ruleBased` thuộc rule được ghi |
 
 `FakeCatalogModule` — `package:vet45_catalog_application/testing.dart`.
 
 Tests: `scn_contract_e07_u04_*` in `fake_catalog_module_test.dart`.
+
+Widget coverage: `wgt_e07_price_history_create_01`, `wgt_e07_price_history_update_01` trong `product_change_history_item_test.dart`; page/E2E xác nhận create và update cùng xuất hiện.
 
 ### Parallel notes
 

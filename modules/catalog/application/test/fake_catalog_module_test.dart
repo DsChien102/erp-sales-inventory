@@ -4260,6 +4260,11 @@ void main() {
 
       expect(result.totalCount, greaterThanOrEqualTo(3));
       expect(result.items.first.changeType, ProductChangeHistoryAction.priceBandUpdated);
+      final pricing = result.items.where(
+        (entry) => entry.changeCategory == ProductChangeCategory.pricing,
+      );
+      expect(pricing.any((entry) => entry.priceBandChange?.before == null), isTrue);
+      expect(pricing.any((entry) => entry.priceBandChange?.before != null), isTrue);
       for (var index = 0; index < result.items.length - 1; index++) {
         expect(
           result.items[index].occurredAt.compareTo(
@@ -4337,10 +4342,13 @@ void main() {
         ),
       );
 
-      final pricing = result.items.single;
-      expect(pricing.isSensitiveMasked, isTrue);
-      expect(pricing.valueBefore, isNull);
-      expect(pricing.valueAfter, isNull);
+      expect(result.items, isNotEmpty);
+      for (final pricing in result.items) {
+        expect(pricing.isSensitiveMasked, isTrue);
+        expect(pricing.valueBefore, isNull);
+        expect(pricing.valueAfter, isNull);
+        expect(pricing.priceBandChange, isNull);
+      }
     });
   });
 }

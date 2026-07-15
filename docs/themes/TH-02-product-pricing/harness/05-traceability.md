@@ -325,6 +325,16 @@ Early: `readinessSummary` trên PCC (không thay FR-04 checklist đầy đủ).
 | FR-04 | BE | §EPIC-06-US-04 | application | Handler sets `capturedAt` after gateway read | scn_e06_u04_fr04_01 | done |
 | US-04 | E2E | §EPIC-06-US-04 | erp | `product_price_band_snapshot_e2e_test.dart` via `ICatalogModule` | e2e_e06_u04_* | done |
 
+### Bổ sung slice #27 — Lịch sử khung giá trước–sau
+
+| Req ID | Role | Contract § | Enforce layer | Artifact | Test id | Status |
+| ------ | ---- | ---------- | ------------- | -------- | ------- | ------ |
+| US-03/US-04 ext | CONTRACT | §EPIC-06-US-03, §EPIC-07-US-04 | application | `ProductPriceBandHistoryChangeDto`, snapshot, trigger; `ProductChangeHistoryEntryDto.priceBandChange` | scn_e06_price_history_create_01; scn_e06_price_history_update_01 | done |
+| US-03 ext | BE | §EPIC-06-US-03 | infrastructure | Direct mutation snapshot + guided-create source routing + masked history read | scn_e06_price_history_create_01; scn_e06_price_history_update_01 | done |
+| US-01/02 ext | BE | §EPIC-06-US-01/02 | infrastructure | Per-unit audit khi base price / Store Rule tái tính và giá thực sự đổi | scn_e06_price_history_recalc_base_01; scn_e06_price_history_recalc_rule_01 | done |
+| US-04 ext | FE | §EPIC-07-US-04 | erp | Typed widget hiển thị mode/list/floor trước–sau, create/update/null/mask/legacy | wgt_e07_price_history_create_01; wgt_e07_price_history_update_01 | done |
+| US-04 ext | E2E | §EPIC-07-US-04 | erp | Product history page có cả tạo và sửa khung giá | e2e_e07_u04_fr02_01 | done |
+
 ---
 
 ## EPIC-07 / US-01 — Bảo trì hồ sơ (slice #12)
