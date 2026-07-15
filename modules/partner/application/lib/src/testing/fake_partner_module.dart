@@ -56,6 +56,7 @@ enum FakePartnerScenario {
   searchEmpty,
   searchMixedTypes,
   searchFilteredStatus,
+  searchByContact,
   detailPersonActive,
   detailPersonPrimaryContact,
   detailOrganizationWithContacts,
@@ -334,6 +335,24 @@ final class FakePartnerModule implements IPartnerModule {
                     displayName: 'Đối tác ngừng hoạt động',
                     partnerType: PartnerType.person,
                     status: PartnerStatus.inactive,
+                  ),
+                ],
+                page: query.page,
+                limit: query.limit,
+                total: 1,
+              )
+              as TResult,
+        );
+      case FakePartnerScenario.searchByContact:
+        return Future.value(
+          PartnerSearchResultDto(
+                items: [
+                  _listItem(
+                    partnerId: 'p-org-contact-match',
+                    displayName: 'Công ty ABC',
+                    partnerType: PartnerType.organization,
+                    status: PartnerStatus.active,
+                    roles: const [PartnerRoleType.customer],
                   ),
                 ],
                 page: query.page,

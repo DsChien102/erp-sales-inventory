@@ -4,6 +4,7 @@ import 'package:vet45_catalog_domain/domain.dart';
 import 'package:vet45_catalog_application/src/product_readiness/shared/product_readiness_permission_context.dart';
 import 'package:vet45_catalog_application/src/product_readiness/shared/product_readiness_view_assembler.dart';
 import 'package:vet45_catalog_application/src/shared/readiness_summary_dto.dart';
+import 'package:vet45_catalog_application/src/custom_field/shared/custom_field_group_display_name.dart';
 import 'product_base_price_card_dto.dart';
 import 'product_control_center_dto.dart';
 import 'product_control_center_read_model.dart';
@@ -39,7 +40,7 @@ abstract final class ProductControlCenterAssembler {
               .toList();
           return CustomFieldGroupCardDto(
             groupId: g.groupId,
-            name: g.name,
+            name: customFieldGroupDisplayName(g.name),
             iconKey: g.iconKey,
             sortOrder: g.sortOrder,
             fields: activeOrHasDataFields,

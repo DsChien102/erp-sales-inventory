@@ -1,0 +1,244 @@
+-- Title: align KH & NCC list search behavior
+-- Kind: surgical
+-- Intent: partner_list_search_behavior
+-- Context: TH-03 / EP-01 / US-01 / FR-01, FR-04
+-- Touches: search_partners
+-- Safety: idempotent ; low
+-- Depends on: 20260714009_partner_patch_alternate_name_search
+
+create or replace function partner.search_partners(
+  p_tenant_id uuid,
+  p_query text default null,
+  p_partner_type text default null,
+  p_role text default null,
+  p_status text default null,
+  p_page integer default 1,
+  p_limit integer default 20,
+  p_sort text default 'updated_at_desc',
+  p_updated_within_days integer default null
+)
+returns table (
+  items jsonb,
+  page integer,
+  "limit" integer,
+  total bigint
+)
+language plpgsql
+stable
+security definer
+set search_path = partner, iam, pg_temp
+as $$
+declare
+  v_page integer := greatest(coalesce(p_page, 1), 1);
+  v_limit integer := least(greatest(coalesce(p_limit, 20), 1), 100);
+  v_offset integer := (greatest(coalesce(p_page, 1), 1) - 1) * v_limit;
+  v_query text := nullif(btrim(coalesce(p_query, '')), '');
+  v_email_only boolean := v_query is not null and position('@' in v_query) > 0;
+  v_total bigint;
+begin
+  if auth.uid() is null then
+    raise exception 'not authenticated';
+  end if;
+
+  if not iam.has_permission(p_tenant_id, 'partner.view') then
+    raise exception 'permission denied: partner.view';
+  end if;
+
+  if p_updated_within_days is not null
+    and p_updated_within_days not in (7, 30) then
+    perform partner._raise_partner_error(
+      'VALIDATION_ERROR',
+      'updated_within_days must be 7 or 30'
+    );
+  end if;
+
+  select count(*)
+  into v_total
+  from partner.v_partner_list v
+  where v.tenant_id = p_tenant_id
+    and (p_status is not null or v.status <> 'deleted')
+    and (p_status is null or v.status = p_status)
+    and (p_partner_type is null or v.partner_type = p_partner_type)
+    and (
+      p_updated_within_days is null
+      or v.updated_at >= now() - make_interval(days => p_updated_within_days)
+    )
+    and (
+      p_role is null
+      or (p_role = 'any' and v.roles <> '[]'::jsonb)
+      or (p_role = 'customer' and v.roles ? 'customer')
+      or (p_role = 'supplier' and v.roles ? 'supplier')
+      or (
+        p_role = 'both'
+        and v.roles ? 'customer'
+        and v.roles ? 'supplier'
+      )
+    )
+    and (
+      v_query is null
+      or (
+        v_email_only
+        and coalesce(v.email, '') ilike '%' || v_query || '%'
+      )
+      or (
+        not v_email_only
+        and (
+          v.display_name ilike '%' || v_query || '%'
+          or coalesce(v.nickname, '') ilike '%' || v_query || '%'
+          or coalesce(v.short_name, '') ilike '%' || v_query || '%'
+          or coalesce(v.phone, '') ilike '%' || v_query || '%'
+          or coalesce(v.email, '') ilike '%' || v_query || '%'
+          or coalesce(v.tax_code, '') ilike '%' || v_query || '%'
+        )
+      )
+      or (
+        v.partner_type = 'organization'
+        and exists (
+          select 1
+          from partner.organization_contacts oc
+          join partner.partners cp
+            on cp.partner_id = oc.person_partner_id
+           and cp.tenant_id = oc.tenant_id
+          join partner.person_profiles cpp
+            on cpp.partner_id = cp.partner_id
+           and cpp.tenant_id = cp.tenant_id
+          where oc.tenant_id = p_tenant_id
+            and oc.organization_partner_id = v.partner_id
+            and cp.partner_type = 'person'
+            and cp.status = 'active'
+            and (
+              (
+                v_email_only
+                and coalesce(cpp.email, '') ilike '%' || v_query || '%'
+              )
+              or (
+                not v_email_only
+                and (
+                  cp.display_name ilike '%' || v_query || '%'
+                  or coalesce(cpp.full_name, '') ilike '%' || v_query || '%'
+                  or coalesce(cpp.nickname, '') ilike '%' || v_query || '%'
+                  or coalesce(cpp.title, '') ilike '%' || v_query || '%'
+                  or coalesce(cpp.phone, '') ilike '%' || v_query || '%'
+                  or coalesce(cpp.phone2, '') ilike '%' || v_query || '%'
+                  or coalesce(cpp.email, '') ilike '%' || v_query || '%'
+                )
+              )
+            )
+        )
+      )
+    );
+
+  return query
+  select
+    coalesce((
+      select jsonb_agg(row_to_json(s)::jsonb)
+      from (
+        select
+          v.partner_id,
+          v.display_name,
+          v.partner_type,
+          v.status,
+          v.roles,
+          v.phone,
+          v.email,
+          v.tax_code,
+          v.updated_at
+        from partner.v_partner_list v
+        where v.tenant_id = p_tenant_id
+          and (p_status is not null or v.status <> 'deleted')
+          and (p_status is null or v.status = p_status)
+          and (p_partner_type is null or v.partner_type = p_partner_type)
+          and (
+            p_updated_within_days is null
+            or v.updated_at >= now() - make_interval(days => p_updated_within_days)
+          )
+          and (
+            p_role is null
+            or (p_role = 'any' and v.roles <> '[]'::jsonb)
+            or (p_role = 'customer' and v.roles ? 'customer')
+            or (p_role = 'supplier' and v.roles ? 'supplier')
+            or (
+              p_role = 'both'
+              and v.roles ? 'customer'
+              and v.roles ? 'supplier'
+            )
+          )
+          and (
+            v_query is null
+            or (
+              v_email_only
+              and coalesce(v.email, '') ilike '%' || v_query || '%'
+            )
+            or (
+              not v_email_only
+              and (
+                v.display_name ilike '%' || v_query || '%'
+                or coalesce(v.nickname, '') ilike '%' || v_query || '%'
+                or coalesce(v.short_name, '') ilike '%' || v_query || '%'
+                or coalesce(v.phone, '') ilike '%' || v_query || '%'
+                or coalesce(v.email, '') ilike '%' || v_query || '%'
+                or coalesce(v.tax_code, '') ilike '%' || v_query || '%'
+              )
+            )
+            or (
+              v.partner_type = 'organization'
+              and exists (
+                select 1
+                from partner.organization_contacts oc
+                join partner.partners cp
+                  on cp.partner_id = oc.person_partner_id
+                 and cp.tenant_id = oc.tenant_id
+                join partner.person_profiles cpp
+                  on cpp.partner_id = cp.partner_id
+                 and cpp.tenant_id = cp.tenant_id
+                where oc.tenant_id = p_tenant_id
+                  and oc.organization_partner_id = v.partner_id
+                  and cp.partner_type = 'person'
+                  and cp.status = 'active'
+                  and (
+                    (
+                      v_email_only
+                      and coalesce(cpp.email, '') ilike '%' || v_query || '%'
+                    )
+                    or (
+                      not v_email_only
+                      and (
+                        cp.display_name ilike '%' || v_query || '%'
+                        or coalesce(cpp.full_name, '') ilike '%' || v_query || '%'
+                        or coalesce(cpp.nickname, '') ilike '%' || v_query || '%'
+                        or coalesce(cpp.title, '') ilike '%' || v_query || '%'
+                        or coalesce(cpp.phone, '') ilike '%' || v_query || '%'
+                        or coalesce(cpp.phone2, '') ilike '%' || v_query || '%'
+                        or coalesce(cpp.email, '') ilike '%' || v_query || '%'
+                      )
+                    )
+                  )
+              )
+            )
+          )
+        order by
+          case when p_status is null and v.status = 'inactive' then 1 else 0 end,
+          case when coalesce(p_sort, 'updated_at_desc') = 'display_name_asc'
+            then v.display_name end asc,
+          case when coalesce(p_sort, 'updated_at_desc') = 'display_name_desc'
+            then v.display_name end desc,
+          case when coalesce(p_sort, 'updated_at_desc') = 'updated_at_asc'
+            then v.updated_at end asc,
+          v.updated_at desc,
+          v.partner_id
+        offset v_offset
+        limit v_limit
+      ) s
+    ), '[]'::jsonb) as items,
+    v_page as page,
+    v_limit as "limit",
+    v_total as total;
+end;
+$$;
+
+revoke all on function partner.search_partners(
+  uuid, text, text, text, text, integer, integer, text, integer
+) from public, anon;
+grant execute on function partner.search_partners(
+  uuid, text, text, text, text, integer, integer, text, integer
+) to authenticated;

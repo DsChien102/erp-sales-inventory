@@ -18,4 +18,20 @@ void main() {
 
     expect(params['p_role'], 'both');
   });
+
+  test('search mapper sends any role filter when roleless rows are excluded', () {
+    final params = PartnerReadRpcMapper.searchParams(
+      SearchPartnersQuery(tenantId: 't-1', requireAnyRole: true),
+    );
+
+    expect(params['p_role'], 'any');
+  });
+
+  test('search mapper keeps role filter unset by default', () {
+    final params = PartnerReadRpcMapper.searchParams(
+      SearchPartnersQuery(tenantId: 't-1'),
+    );
+
+    expect(params['p_role'], isNull);
+  });
 }

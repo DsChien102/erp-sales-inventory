@@ -1396,7 +1396,7 @@ void main() {
       final group = await module.executeCommandAsync(
         UpsertCustomFieldGroupCommand(
           tenantId: 'tenant-1',
-          name: 'Thông tin thuốc',
+          name: 'thông tin thuốc',
         ),
       );
 

@@ -616,7 +616,7 @@ Danh sách phải phân biệt rõ Cá nhân/Tổ chức và Khách hàng/Nhà c
 |FR-01|Người dùng có thể mở danh sách đối tác trong phạm vi tenant hiện tại|
 |FR-02|Hệ thống hiển thị cả hồ sơ Cá nhân và Tổ chức trên cùng danh sách|
 |FR-03|Mỗi item hiển thị tên, loại hồ sơ, vai trò, trạng thái, SĐT và cập nhật gần nhất nếu có|
-|FR-04|Người dùng có thể tìm kiếm theo tên, SĐT, email hoặc MST|
+|FR-04|Người dùng có thể tìm kiếm theo tên, SĐT, email hoặc MST của Partner; với Tổ chức, có thể tìm theo thông tin định danh của người liên hệ đang hoạt động|
 |FR-05|Người dùng có thể lọc theo vai trò, loại hồ sơ và trạng thái|
 |FR-06|Người dùng có thể mở hồ sơ chi tiết từ danh sách nếu có quyền phù hợp|
 |FR-07|Người dùng có thể bắt đầu tạo mới Cá nhân hoặc Tổ chức từ danh sách nếu có quyền phù hợp|
@@ -632,6 +632,8 @@ Danh sách phải phân biệt rõ Cá nhân/Tổ chức và Khách hàng/Nhà c
 |BR-05|Mặc định danh sách chỉ hiển thị Partner Đang hoạt động|
 |BR-06|Partner Ngừng hoạt động chỉ hiển thị khi lọc trạng thái phù hợp|
 |BR-07|Partner Đã xóa không hiển thị trong danh sách làm việc mặc định|
+|BR-08|Danh sách KH & NCC không hiển thị Partner chưa có vai trò giao dịch (`roles=[]`), kể cả khi Partner khớp từ khóa hoặc các bộ lọc khác|
+|BR-09|Khi từ khóa khớp tên hiển thị/họ tên, biệt danh, danh xưng, SĐT 1–2 hoặc email của một người liên hệ đang hoạt động, hệ thống trả về Tổ chức được liên kết đúng một lần; không tìm theo vai trò liên hệ hoặc ghi chú|
 
 #### 5.2.4 Edge Cases
 
@@ -644,6 +646,8 @@ Danh sách phải phân biệt rõ Cá nhân/Tổ chức và Khách hàng/Nhà c
 |EC-05|Đối tác thiếu SĐT do dữ liệu cũ|Vẫn hiển thị hồ sơ, kèm cảnh báo thiếu thông tin|
 |EC-06|Nhiều đối tác trùng tên|Hiển thị thêm SĐT, loại hồ sơ, vai trò hoặc MST để phân biệt|
 |EC-07|Tải danh sách thất bại|Hiển thị error state, cho phép tải lại|
+|EC-08|Nhiều người liên hệ của cùng một Tổ chức cùng khớp từ khóa|Chỉ trả về Tổ chức một lần; tổng số và phân trang không bị nhân bản|
+|EC-09|Người liên hệ ngừng hoạt động hoặc đã xóa khớp từ khóa|Không dùng người liên hệ đó để trả về Tổ chức|
 
 #### 5.2.5 Design reference
 
@@ -657,7 +661,7 @@ GET /partners
 
 |Param|Type|Ghi chú|
 |---|---|---|
-|`q`|string|Tìm theo tên, SĐT, email, MST|
+|`q`|string|Tìm theo tên, SĐT, email, MST; với Tổ chức còn tìm tên hiển thị/họ tên, biệt danh, danh xưng, SĐT 1–2, email của người liên hệ đang hoạt động|
 |`partner_type`|enum|person, organization, all|
 |`role`|enum|customer, supplier, both, all|
 |`status`|enum|active, inactive, all|
@@ -690,6 +694,7 @@ Scenario: SCN-03 - Hiển thị rõ vai trò giao dịch
 Scenario: SCN-04 - Tìm kiếm đối tác
   When người dùng nhập tên, SĐT, email hoặc MST
   Then hệ thống hiển thị các đối tác phù hợp trong tenant hiện tại
+  And nếu từ khóa khớp thông tin định danh của người liên hệ đang hoạt động thì hệ thống hiển thị Tổ chức được liên kết đúng một lần
 
 Scenario: SCN-05 - Lọc danh sách
   When người dùng chọn bộ lọc vai trò, loại hồ sơ hoặc trạng thái
@@ -713,17 +718,18 @@ Scenario: SCN-07 - Không có quyền xem danh sách
 |AC-01|Người dùng có quyền chỉ thấy danh sách đối tác trong tenant hiện tại|
 |AC-02|Danh sách phân biệt rõ Cá nhân/Tổ chức|
 |AC-03|Danh sách phân biệt rõ Khách hàng/Nhà cung cấp/KH & NCC|
-|AC-04|Search hoạt động với tên, SĐT, email, MST|
+|AC-04|Search hoạt động với tên, SĐT, email, MST của Partner và thông tin định danh của người liên hệ đang hoạt động; kết quả liên hệ là Tổ chức được liên kết|
 |AC-05|Filter hoạt động theo vai trò, loại hồ sơ và trạng thái|
 |AC-06|Empty/No result/Error state hiển thị đúng tình huống|
 |AC-07|FAB tạo mới mở action sheet chọn Tạo cá nhân hoặc Tạo tổ chức|
+|AC-08|Kết quả, tổng số và phân trang của danh sách KH & NCC đều loại Partner có `roles=[]`|
+|AC-09|Kết quả, tổng số và phân trang chỉ chứa một dòng Organization khi một hoặc nhiều người liên hệ đang hoạt động cùng khớp từ khóa|
 
 #### 5.2.9 Open questions
 
 |ID|Open Question|
 |---|---|
 |OQ-01|Có cần hiển thị `contact_count` trên list ngay Phase 1 không?|
-|OQ-02|Search theo tên người liên hệ có trả về Organization không?|
 |OQ-03|Có cần lọc Đã xóa trong list không?|
 |OQ-04|KH & NCC là một chip hay hai chip?|
 
@@ -4951,5 +4957,4 @@ Mục tiêu UX là giúp người dùng hiểu rõ:
 |Export lịch sử|CSV/Excel/PDF tùy nhu cầu|
 |CRM nâng cao|Segment, hạng khách, chăm sóc khách hàng|
 |Customer/Supplier analytics|Tổng mua, tổng bán, công nợ, tần suất giao dịch|
-
 

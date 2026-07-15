@@ -29,7 +29,7 @@ void main() {
       final field = CustomFieldRpcMapper.fieldFromJson({
         'field_id': 'field-1',
         'group_id': 'group-1',
-        'name': 'Thành phần',
+        'name': 'thành phần',
         'field_type': 'text',
         'options': [],
         'is_required': true,
@@ -41,13 +41,14 @@ void main() {
       });
 
       expect(field.fieldId, 'field-1');
+      expect(field.name, 'thành phần');
       expect(field.fieldType, CustomFieldType.text);
       expect(field.isRequired, isTrue);
       expect(field.status, CustomFieldConfigStatus.active);
 
       final group = CustomFieldRpcMapper.groupFromJson({
         'group_id': 'group-1',
-        'name': 'Thông tin thuốc',
+        'name': 'thông tin thuốc',
         'icon_key': '💊',
         'sort_order': 0,
         'status': 'inactive',
@@ -78,6 +79,7 @@ void main() {
       });
 
       expect(group.status, CustomFieldConfigStatus.inactive);
+      expect(group.name, 'Thông tin thuốc');
       expect(group.fields.single.fieldType, CustomFieldType.singleSelect);
       expect(group.fields.single.options.single.label, 'A');
     });
@@ -161,7 +163,7 @@ void main() {
         'groups': [
           {
             'group_id': 'group-1',
-            'name': 'Thông tin thuốc',
+            'name': 'thông tin thuốc',
             'icon_key': 'pill',
             'sort_order': 0,
             'fields': [

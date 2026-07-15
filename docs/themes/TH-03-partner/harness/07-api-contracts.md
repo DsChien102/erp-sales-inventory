@@ -76,14 +76,16 @@ Khi `organizationPrimaryContact` có giá trị, presentation và RPC chỉ ki�
 
 | Symbol | Input | Success | Errors |
 | ------ | ----- | ------- | ------ |
-| `SearchPartnersQuery` | tenantId, q?, partnerType?, role?, requireBothRoles, status?, updatedWithinDays? (7\|30), page, limit, sort | `PartnerSearchResultDto` | NO_PERMISSION, VALIDATION_ERROR |
+| `SearchPartnersQuery` | tenantId, q?, partnerType?, role?, requireBothRoles, requireAnyRole, status?, updatedWithinDays? (7\|30), page, limit, sort | `PartnerSearchResultDto` | NO_PERMISSION, VALIDATION_ERROR |
 
 RPC: `partner.search_partners` / `partner.v_partner_list`
 
+Màn KH & NCC gửi `requireAnyRole=true`, được mapper chuyển thành `p_role=any`; RPC loại mọi Partner có `roles=[]` trước khi tính `total` và phân trang. Các caller khác giữ mặc định `requireAnyRole=false`, nên vẫn có thể tra cứu Partner chưa có vai trò khi nghiệp vụ cần (ví dụ chọn người liên hệ của tổ chức).
+
 `status=null` nghĩa là lấy cả `active` và `inactive` (không lấy `deleted`), áp dụng cả khi có từ khóa tìm kiếm. Kết quả `inactive` luôn được xếp sau `active` trước khi áp dụng thứ tự phụ do `sort` chỉ định.
 
-`p_query` matches (ilike): `display_name`, Person `nickname`, Organization `short_name`, `phone`, `email`, `tax_code` (MST).
-If `p_query` contains `@`, search **email only**.
+`p_query` matches (ilike): `display_name`, Person `nickname`, Organization `short_name`, `phone`, `email`, `tax_code` (MST). Với Organization, RPC còn tìm trên tất cả người liên hệ `active`: Person `display_name`/`full_name`, `nickname`, `title`, `phone`, `phone2`, `email`; không tìm `organization_contacts.contact_role` hoặc `note`. Kết quả vẫn là Organization và chỉ xuất hiện một lần dù nhiều contact cùng khớp.
+If `p_query` contains `@`, search **email only** trên Partner và người liên hệ.
 `p_updated_within_days` accepts `7` or `30` and filters by server time: `updated_at >= now() - interval`.
 `requireBothRoles=true` maps thành `p_role=both`; RPC lọc đủ `customer` và `supplier` trước khi tính `total` và phân trang.
 
@@ -92,6 +94,7 @@ If `p_query` contains `@`, search **email only**.
 | `search_empty` | SearchPartnersQuery | empty items |
 | `search_mixed_types` | default | Person + Organization items |
 | `search_filtered_status` | status=inactive | filtered subset |
+| `search_by_contact` | query matches an active Organization contact | linked Organization item (one row) |
 
 ---
 
