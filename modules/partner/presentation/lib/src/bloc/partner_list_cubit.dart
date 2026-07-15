@@ -95,6 +95,7 @@ final class PartnerListCubit extends Cubit<PartnerListState> {
           partnerType: currentState.partnerType,
           role: apiRole,
           requireBothRoles: currentState.roleFilter == PartnerRoleFilter.both,
+          requireAnyRole: true,
           status: currentState.status,
           updatedWithinDays: currentState.updatedTimeFilter?.days,
           page: page,

@@ -8,7 +8,9 @@ abstract final class PartnerReadRpcMapper {
       'p_tenant_id': query.tenantId,
       'p_query': query.query,
       'p_partner_type': query.partnerType?.name,
-      'p_role': query.requireBothRoles ? 'both' : query.role?.name,
+      'p_role': query.requireBothRoles
+          ? 'both'
+          : query.role?.name ?? (query.requireAnyRole ? 'any' : null),
       'p_status': query.status?.name,
       'p_updated_within_days': query.updatedWithinDays,
       'p_page': query.page,

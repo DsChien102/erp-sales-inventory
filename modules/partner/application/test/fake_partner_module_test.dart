@@ -64,6 +64,21 @@ void main() {
       });
     });
 
+    test('search_by_contact returns the linked organization once', () async {
+      final module = FakePartnerModule(
+        scenario: FakePartnerScenario.searchByContact,
+      );
+
+      final result = await module.executeQueryAsync(
+        SearchPartnersQuery(tenantId: 't-1', query: 'Trần Thị B'),
+      );
+
+      expect(result.items, hasLength(1));
+      expect(result.total, 1);
+      expect(result.items.single.partnerId, 'p-org-contact-match');
+      expect(result.items.single.partnerType, PartnerType.organization);
+    });
+
     test('create_dup_warning throws DUPLICATE_WARNING', () async {
       final module = FakePartnerModule(
         scenario: FakePartnerScenario.createDupWarning,

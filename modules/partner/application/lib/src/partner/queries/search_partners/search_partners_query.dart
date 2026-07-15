@@ -14,6 +14,7 @@ final class SearchPartnersQuery extends QueryBase<PartnerSearchResultDto>
     this.partnerType,
     this.role,
     this.requireBothRoles = false,
+    this.requireAnyRole = false,
     this.status,
     this.updatedWithinDays,
     this.page = 1,
@@ -27,6 +28,7 @@ final class SearchPartnersQuery extends QueryBase<PartnerSearchResultDto>
   final PartnerType? partnerType;
   final PartnerRoleType? role;
   final bool requireBothRoles;
+  final bool requireAnyRole;
   final PartnerStatus? status;
   final int? updatedWithinDays;
   final int page;

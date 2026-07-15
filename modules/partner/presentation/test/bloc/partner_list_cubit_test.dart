@@ -35,6 +35,25 @@ void main() {
     await cubit.close();
   });
 
+  test('contact keyword search surfaces the linked organization', () async {
+    final cubit = PartnerListCubit(
+      partnerModule: FakePartnerModule(
+        scenario: FakePartnerScenario.searchByContact,
+      ),
+      executionContext: FakeExecutionContext(tenantId: 'tenant-1'),
+    );
+
+    cubit.searchByKeyword('Trần Thị B');
+    await cubit.stream.firstWhere((state) => state is PartnerListLoaded);
+
+    final state = cubit.state as PartnerListLoaded;
+    expect(state.query, 'Trần Thị B');
+    expect(state.items, hasLength(1));
+    expect(state.items.single.partnerId, 'p-org-contact-match');
+    expect(state.items.single.partnerType, PartnerType.organization);
+    await cubit.close();
+  });
+
   test('seven-day filter is forwarded to search query', () async {
     final module = _RecordingPartnerModule();
     final cubit = PartnerListCubit(
@@ -60,6 +79,19 @@ void main() {
     await cubit.fetchPartners();
 
     expect(module.lastSearch?.status, isNull);
+    await cubit.close();
+  });
+
+  test('main list requires at least one transactional role', () async {
+    final module = _RecordingPartnerModule();
+    final cubit = PartnerListCubit(
+      partnerModule: module,
+      executionContext: FakeExecutionContext(tenantId: 'tenant-1'),
+    );
+
+    await cubit.fetchPartners();
+
+    expect(module.lastSearch?.requireAnyRole, isTrue);
     await cubit.close();
   });
 
