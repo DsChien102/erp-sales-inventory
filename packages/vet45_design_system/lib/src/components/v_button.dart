@@ -23,6 +23,7 @@ class VButton extends StatelessWidget {
   final Color? foregroundColor;
   final VComponentTone? tone;
   final VComponentEmphasis emphasis;
+  final VComponentState? state;
   final String? semanticLabel;
 
   const VButton({
@@ -39,12 +40,23 @@ class VButton extends StatelessWidget {
     this.foregroundColor,
     this.tone,
     this.emphasis = VComponentEmphasis.strong,
+    this.state,
     this.semanticLabel,
   });
 
+  VComponentState _resolveState() {
+    if (state != null) return state!;
+    if (isLoading) return VComponentState.loading;
+    if (onPressed == null) return VComponentState.disabled;
+    return VComponentState.enabled;
+  }
+
   @override
   Widget build(BuildContext context) {
-    final bool isEnabled = onPressed != null && !isLoading;
+    final resolvedState = _resolveState();
+    final bool isEnabled = resolvedState == VComponentState.enabled;
+    final bool showLoading =
+        resolvedState == VComponentState.loading || isLoading;
     final dynamicColors = context.vColors;
 
     // Size-based padding and height config
@@ -195,7 +207,7 @@ class VButton extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        if (isLoading) ...[
+        if (showLoading) ...[
           SizedBox(
             width: 16,
             height: 16,
@@ -233,7 +245,7 @@ class VButton extends StatelessWidget {
                   maxLines: 1,
                 ),
         ),
-        if (!isLoading && trailingIcon != null) ...[
+        if (!showLoading && trailingIcon != null) ...[
           const SizedBox(width: VSpacing.space2),
           trailingIcon!,
         ],

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+// contract: na tone/emphasis/state
 import '../foundation/v_context_extensions.dart';
 
 class VBottomNavigationItem {

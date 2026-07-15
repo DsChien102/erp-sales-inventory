@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../components/v_text_field.dart';
+import '../foundation/v_component_contracts.dart';
 import '../tokens/v_duration.dart';
 import 'formatters/v_number_input_formatter.dart';
 import 'validators/v_number_validator.dart';
@@ -46,6 +47,10 @@ class VNumberField extends StatefulWidget {
     this.invalidMessage = VNumberValidator.defaultInvalidMessage,
     this.minMessage,
     this.maxMessage,
+    this.tone = VComponentTone.neutral,
+    this.emphasis = VComponentEmphasis.medium,
+    this.state = VComponentState.enabled,
+    this.semanticLabel,
   });
 
   final TextEditingController? controller;
@@ -83,6 +88,10 @@ class VNumberField extends StatefulWidget {
   final String invalidMessage;
   final String? minMessage;
   final String? maxMessage;
+  final VComponentTone tone;
+  final VComponentEmphasis emphasis;
+  final VComponentState state;
+  final String? semanticLabel;
 
   @override
   State<VNumberField> createState() => _VNumberFieldState();
@@ -202,6 +211,12 @@ class _VNumberFieldState extends State<VNumberField> {
       enabledBorder: widget.enabledBorder,
       focusedBorder: widget.focusedBorder,
       variant: widget.variant,
+      tone: widget.tone,
+      emphasis: widget.emphasis,
+      state: (widget.errorText ?? _internalError) != null
+          ? VComponentState.error
+          : (widget.enabled ? widget.state : VComponentState.disabled),
+      semanticLabel: widget.semanticLabel,
     );
   }
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:vet45_design_system/design_system.dart';
+import '../foundation/v_component_contracts.dart';
 
 class VTodoItem extends StatelessWidget {
   final Widget leadingIcon;
@@ -8,6 +9,9 @@ class VTodoItem extends StatelessWidget {
   final String badgeLabel;
   final VBadgeStatus badgeStatus;
   final VoidCallback? onTap;
+  final VComponentTone? tone;
+  final VComponentEmphasis emphasis;
+  final String? semanticLabel;
 
   const VTodoItem({
     super.key,
@@ -17,6 +21,9 @@ class VTodoItem extends StatelessWidget {
     required this.badgeLabel,
     required this.badgeStatus,
     this.onTap,
+    this.tone,
+    this.emphasis = VComponentEmphasis.medium,
+    this.semanticLabel,
   });
 
   @override
@@ -53,9 +60,14 @@ class VTodoItem extends StatelessWidget {
         iconColor = dynamicColors.textSecondary;
     }
 
-    return VCard(
+    return Semantics(
+      label: semanticLabel ?? title,
+      button: onTap != null,
+      child: VCard(
       onTap: onTap,
       padding: const EdgeInsets.all(VSpacing.space3),
+      tone: tone,
+      emphasis: emphasis,
       child: Row(
         children: [
           Container(
@@ -114,6 +126,7 @@ class VTodoItem extends StatelessWidget {
           ),
         ],
       ),
+    ),
     );
   }
 }

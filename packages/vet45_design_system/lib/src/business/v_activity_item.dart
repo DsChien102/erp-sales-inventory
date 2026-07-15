@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:vet45_design_system/design_system.dart';
+import '../foundation/v_component_contracts.dart';
 
 class VActivityItem extends StatelessWidget {
   final Widget leadingIcon;
@@ -9,6 +10,9 @@ class VActivityItem extends StatelessWidget {
   final VBadgeStatus badgeStatus;
   final String time;
   final VoidCallback? onTap;
+  final VComponentTone? tone;
+  final VComponentEmphasis emphasis;
+  final String? semanticLabel;
 
   const VActivityItem({
     super.key,
@@ -19,6 +23,9 @@ class VActivityItem extends StatelessWidget {
     required this.badgeStatus,
     required this.time,
     this.onTap,
+    this.tone,
+    this.emphasis = VComponentEmphasis.medium,
+    this.semanticLabel,
   });
 
   @override
@@ -48,7 +55,10 @@ class VActivityItem extends StatelessWidget {
         iconColor = dynamicColors.primary;
     }
 
-    return InkWell(
+    return Semantics(
+      label: semanticLabel ?? title,
+      button: onTap != null,
+      child: InkWell(
       onTap: onTap,
       child: Padding(
         padding: const EdgeInsets.symmetric(
@@ -123,6 +133,7 @@ class VActivityItem extends StatelessWidget {
           ],
         ),
       ),
+    ),
     );
   }
 }

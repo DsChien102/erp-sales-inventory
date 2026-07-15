@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+// contract: na tone/emphasis/state
 
 import '../patterns/v_gap.dart';
 import '../primitives/v_text.dart';

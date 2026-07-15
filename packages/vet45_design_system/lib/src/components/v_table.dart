@@ -19,6 +19,7 @@ class VTable extends StatelessWidget {
   final List<List<Widget>> rows;
   final Map<int, TableColumnWidth>? columnWidths;
   final VComponentEmphasis emphasis;
+  final VComponentTone? tone;
   final bool stripedRows;
   final String? semanticLabel;
 
@@ -28,6 +29,7 @@ class VTable extends StatelessWidget {
     required this.rows,
     this.columnWidths,
     this.emphasis = VComponentEmphasis.medium,
+    this.tone,
     this.stripedRows = false,
     this.semanticLabel,
   });
@@ -35,6 +37,13 @@ class VTable extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final dynamicColors = context.vColors;
+
+    final resolvedTone = tone ?? VComponentTone.neutral;
+    final headerAccent = switch (resolvedTone) {
+      VComponentTone.primary => dynamicColors.primary,
+      VComponentTone.danger => dynamicColors.danger,
+      _ => dynamicColors.borderStrong,
+    };
 
     return Semantics(
       label: semanticLabel ?? 'Data table',
@@ -51,7 +60,9 @@ class VTable extends StatelessWidget {
           decoration: BoxDecoration(
             border: Border(
               bottom: BorderSide(
-                color: dynamicColors.borderStrong,
+                color: resolvedTone == VComponentTone.neutral
+                    ? dynamicColors.borderStrong
+                    : headerAccent,
                 width: emphasis == VComponentEmphasis.strong ? 2 : 1.5,
               ),
             ),

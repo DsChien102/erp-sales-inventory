@@ -9,7 +9,15 @@ Từ thư mục package:
 ```bash
 cd packages/vet45_design_system
 dart run tool/component_audit.dart
+# Fail if missing required contracts:
+dart run tool/component_audit.dart --fail-on-required
+# Or from repo root:
+./scripts/ci/guard_design_system_contracts.sh
 ```
+
+## Matrix
+
+Expectations live in [`contract_matrix.yaml`](contract_matrix.yaml) (role + required/preferred/optional/na per field). Spec: [docs/polaris/08-component-contracts.md](../polaris/08-component-contracts.md).
 
 ## Artifacts được sinh tự động
 

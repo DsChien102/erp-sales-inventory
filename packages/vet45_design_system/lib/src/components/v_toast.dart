@@ -61,6 +61,13 @@ class VToast extends StatelessWidget {
     Widget iconWidget;
     Color closeIconColor;
 
+    final VComponentTone resolvedTone = switch (type) {
+      VToastType.success => VComponentTone.success,
+      VToastType.warning => VComponentTone.warning,
+      VToastType.danger => VComponentTone.danger,
+      VToastType.info => VComponentTone.info,
+    };
+
     switch (type) {
       case VToastType.success:
         backgroundColor = VColors.neutral900; // Dark premium background
@@ -122,7 +129,7 @@ class VToast extends StatelessWidget {
         border: Border.all(
           color: type == VToastType.success
               ? VColors.neutral0.withValues(alpha: 0.06)
-              : textColor.withValues(alpha: 0.12),
+              : _toneAccent(resolvedTone).withValues(alpha: 0.12),
           width: emphasis == VComponentEmphasis.strong ? 1.5 : 1,
         ),
       ),
@@ -174,5 +181,15 @@ class VToast extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  Color _toneAccent(VComponentTone tone) {
+    return switch (tone) {
+      VComponentTone.success => VColors.success,
+      VComponentTone.warning => VColors.warning,
+      VComponentTone.danger => VColors.danger,
+      VComponentTone.info => VColors.info,
+      _ => VColors.neutral0,
+    };
   }
 }

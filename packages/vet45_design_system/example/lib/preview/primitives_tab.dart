@@ -96,6 +96,11 @@ class _PrimitivesPreviewTabState extends State<PrimitivesPreviewTab> {
                 status: VBadgeStatus.success,
                 isSmall: true,
               ),
+              const VBadge(
+                label: 'tone override',
+                status: VBadgeStatus.draft,
+                tone: VComponentTone.danger,
+              ),
             ],
           ),
         ),
@@ -109,9 +114,9 @@ class _PrimitivesPreviewTabState extends State<PrimitivesPreviewTab> {
                 label: 'Static (no onTap)',
                 child: PreviewStateWrap(
                   children: const [
-                    VChip(label: 'Subdued', emphasis: VChipEmphasis.subdued),
-                    VChip(label: 'Base', emphasis: VChipEmphasis.base),
-                    VChip(label: 'Strong', emphasis: VChipEmphasis.strong),
+                    VChip(label: 'Subtle', emphasis: VComponentEmphasis.subtle),
+                    VChip(label: 'Medium', emphasis: VComponentEmphasis.medium),
+                    VChip(label: 'Strong', emphasis: VComponentEmphasis.strong),
                   ],
                 ),
               ),
@@ -176,14 +181,12 @@ class _PrimitivesPreviewTabState extends State<PrimitivesPreviewTab> {
               VIconBox(iconData: Icons.qr_code_scanner, onTap: () {}),
               VIconBox(
                 iconData: Icons.add,
-                backgroundColor: VColors.primary100,
-                iconColor: VColors.primary700,
+                tone: VComponentTone.primary,
                 onTap: () {},
               ),
               const VIconBox(
                 iconData: Icons.lock_outline,
-                backgroundColor: VColors.neutral100,
-                iconColor: VColors.neutral500,
+                tone: VComponentTone.neutral,
               ),
             ],
           ),

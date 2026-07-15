@@ -46,6 +46,25 @@ void main() {
       expect(caption.style?.fontSize, VTypography.caption.fontSize);
     });
 
+    testWidgets('mono variants use mono font family', (tester) async {
+      await tester.pumpWidget(
+        wrap(
+          const Column(
+            children: [
+              VText('Mono body', variant: VTextVariant.bodyDefaultMono),
+              VText('Mono H3', variant: VTextVariant.headingH3Mono),
+            ],
+          ),
+        ),
+      );
+
+      final body = tester.widget<Text>(find.text('Mono body'));
+      final h3 = tester.widget<Text>(find.text('Mono H3'));
+      expect(body.style?.fontFamily, VTypography.monoFontFamily);
+      expect(h3.style?.fontFamily, VTypography.monoFontFamily);
+      expect(body.style?.fontSize, VTypography.bodyDefaultMono.fontSize);
+    });
+
     testWidgets('maxLines and overflow are forwarded', (tester) async {
       await tester.pumpWidget(
         wrap(

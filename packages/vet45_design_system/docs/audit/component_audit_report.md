@@ -1,40 +1,50 @@
 # Component Audit Report
 
-- Generated at: `2026-07-15T16:10:58.575225`
-- Scope: public exports in `lib/design_system.dart` for primitives/components/business
+- Generated at: `2026-07-15T17:15:51.003187`
+- Matrix: `docs/audit/contract_matrix.yaml`
+- Scope: primitives / components / business / patterns / forms widgets
 
-| Category | Export | Exists | Public classes | Semantics | Tone | Emphasis | State | semanticLabel |
-|---|---|---|---|---|---|---|---|---|
-| business | `src/business/v_activity_item.dart` | Yes | VActivityItem | No | No | No | No | No |
-| business | `src/business/v_create_order_button.dart` | Yes | VCreateOrderButton | No | No | No | No | No |
-| business | `src/business/v_metric_card.dart` | Yes | VMetricCard | No | No | No | No | No |
-| business | `src/business/v_revenue_card.dart` | Yes | VRevenueCard | No | No | No | No | No |
-| business | `src/business/v_todo_item.dart` | Yes | VTodoItem | No | No | No | No | No |
-| components | `src/components/v_app_bar.dart` | Yes | VAppBarTitle, VAppBarSubtitle, VAppBar | No | No | No | No | No |
-| components | `src/components/v_bottom_navigation_bar.dart` | Yes | VBottomNavigationItem, VBottomNavigationBar | No | No | No | No | No |
-| components | `src/components/v_bottom_sheet.dart` | Yes | VBottomSheet | No | No | No | No | No |
-| components | `src/components/v_button.dart` | Yes | VButton | Yes | Yes | Yes | No | Yes |
-| components | `src/components/v_card.dart` | Yes | VCard | No | No | No | No | No |
-| components | `src/components/v_checkbox.dart` | Yes | VCheckbox | No | No | No | No | No |
-| components | `src/components/v_compact_searchable_dropdown.dart` | Yes | VCompactSearchableDropdown, _VCompactSearchableDropdownState | No | No | No | No | No |
-| components | `src/components/v_date_picker_field.dart` | Yes | VDatePickerField | No | No | No | No | No |
-| components | `src/components/v_dropdown.dart` | Yes | VDropdown | Yes | Yes | Yes | Yes | Yes |
-| components | `src/components/v_empty_state.dart` | Yes | VEmptyState | No | No | No | No | No |
-| components | `src/components/v_floating_action_button.dart` | Yes | VFloatingActionButton | No | No | No | No | No |
-| components | `src/components/v_home_header.dart` | Yes | VHomeHeader | No | No | No | No | No |
-| components | `src/components/v_modal.dart` | Yes | VConfirmDialog | No | No | No | No | No |
-| components | `src/components/v_quantity_selector.dart` | Yes | VQuantitySelector, _VQuantitySelectorState | No | No | No | No | No |
-| components | `src/components/v_quick_action_button.dart` | Yes | VQuickActionButton | No | No | No | No | No |
-| components | `src/components/v_radio.dart` | Yes | VRadio | No | No | No | No | No |
-| components | `src/components/v_search_bar.dart` | Yes | VSearchBar, _VSearchBarState | No | No | No | No | No |
-| components | `src/components/v_searchable_dropdown.dart` | Yes | VSearchableDropdown | Yes | Yes | Yes | Yes | Yes |
-| components | `src/components/v_switch.dart` | Yes | VSwitch | No | No | No | No | No |
-| components | `src/components/v_table.dart` | Yes | VTableHeader, VTable | Yes | No | Yes | No | Yes |
-| components | `src/components/v_tabs.dart` | Yes | VTabs | Yes | Yes | No | No | Yes |
-| components | `src/components/v_text_field.dart` | Yes | VTextField | Yes | Yes | Yes | Yes | Yes |
-| components | `src/components/v_toast.dart` | Yes | VToast | Yes | No | Yes | No | Yes |
-| primitives | `src/primitives/v_badge.dart` | Yes | VBadge | No | No | No | No | No |
-| primitives | `src/primitives/v_chip.dart` | Yes | VChip, _ChipColors, _RemoveButton | Yes | Yes | No | No | Yes |
-| primitives | `src/primitives/v_icon.dart` | Yes | VIcon | No | No | No | No | No |
-| primitives | `src/primitives/v_icon_box.dart` | Yes | VIconBox | No | No | No | No | No |
-| primitives | `src/primitives/v_text.dart` | Yes | VText | No | No | No | No | No |
+| Category | Class | Role | Tone | Emphasis | State | semanticLabel | Semantics |
+|---|---|---|---|---|---|---|---|
+| business | `VActivityItem` | business_chrome | Pass (preferred) | Pass (preferred) | — (optional) | Pass (preferred) | Yes |
+| business | `VCreateOrderButton` | action | Pass (preferred) | Pass (preferred) | — (optional) | Pass (preferred) | Yes |
+| business | `VMetricCard` | business_chrome | Pass (preferred) | Pass (preferred) | — (optional) | Pass (preferred) | Yes |
+| business | `VRevenueCard` | business_chrome | Pass (preferred) | Pass (preferred) | — (optional) | Pass (preferred) | Yes |
+| business | `VTodoItem` | business_chrome | Pass (preferred) | Pass (preferred) | — (optional) | Pass (preferred) | Yes |
+| components | `VAppBar` | navigation_chrome | N/A (na) | N/A (na) | N/A (na) | — (optional) | No |
+| components | `VBottomNavigationBar` | navigation_chrome | N/A (na) | N/A (na) | N/A (na) | — (optional) | No |
+| components | `VBottomSheet` | overlay_shell | Pass (optional) | — (optional) | N/A (na) | Pass (preferred) | Yes |
+| components | `VButton` | action | Pass (required) | Pass (required) | Pass (preferred) | Pass (required) | Yes |
+| components | `VCard` | container | Pass (optional) | Pass (optional) | N/A (na) | — (optional) | No |
+| components | `VCheckbox` | toggle | Pass (optional) | — (optional) | Pass (required) | Pass (required) | Yes |
+| components | `VCompactSearchableDropdown` | input | Pass (preferred) | Pass (preferred) | Pass (required) | Pass (required) | Yes |
+| components | `VDatePickerField` | input | Pass (preferred) | Pass (preferred) | Pass (required) | Pass (required) | Yes |
+| components | `VDropdown` | input | Pass (preferred) | Pass (preferred) | Pass (required) | Pass (required) | Yes |
+| components | `VEmptyState` | status_display | Pass (optional) | Pass (optional) | N/A (na) | Pass (preferred) | Yes |
+| components | `VFloatingActionButton` | action | Pass (preferred) | Pass (preferred) | Pass (preferred) | Pass (required) | Yes |
+| components | `VHomeHeader` | navigation_chrome | N/A (na) | N/A (na) | N/A (na) | — (optional) | No |
+| components | `VConfirmDialog` | overlay_shell | Pass (optional) | — (optional) | N/A (na) | Pass (preferred) | Yes |
+| components | `VQuantitySelector` | input | Pass (preferred) | Pass (preferred) | Pass (required) | Pass (required) | Yes |
+| components | `VQuickActionButton` | action | Pass (preferred) | Pass (preferred) | Pass (preferred) | Pass (required) | Yes |
+| components | `VRadio` | toggle | Pass (optional) | — (optional) | Pass (required) | Pass (required) | Yes |
+| components | `VSearchBar` | input | Pass (preferred) | Pass (preferred) | Pass (required) | Pass (required) | Yes |
+| components | `VSearchableDropdown` | input | Pass (preferred) | Pass (preferred) | Pass (required) | Pass (required) | Yes |
+| components | `VSwitch` | toggle | Pass (optional) | — (optional) | Pass (required) | Pass (required) | Yes |
+| components | `VTable` | container | Pass (optional) | Pass (optional) | N/A (na) | Pass (preferred) | Yes |
+| components | `VTabs` | navigation_chrome | Pass (optional) | Pass (optional) | N/A (na) | Pass (optional) | Yes |
+| components | `VTextField` | input | Pass (preferred) | Pass (preferred) | Pass (required) | Pass (required) | Yes |
+| components | `VToast` | status_display | Pass (required) | Pass (optional) | N/A (na) | Pass (preferred) | Yes |
+| forms | `VChoiceList` | input | Pass (preferred) | Pass (preferred) | Pass (required) | Pass (required) | Yes |
+| forms | `VEmailField` | input | Pass (preferred) | Pass (preferred) | Pass (required) | Pass (required) | No |
+| forms | `VMoneyField` | input | Pass (preferred) | Pass (preferred) | Pass (required) | Pass (required) | No |
+| forms | `VNumberField` | input | Pass (preferred) | Pass (preferred) | Pass (required) | Pass (required) | No |
+| forms | `VSelect` | input | Pass (preferred) | Pass (preferred) | Pass (required) | Pass (required) | No |
+| patterns | `VGap` | layout_pattern | N/A (na) | N/A (na) | N/A (na) | N/A (na) | No |
+| patterns | `VPagePadding` | layout_pattern | N/A (na) | N/A (na) | N/A (na) | N/A (na) | No |
+| patterns | `VPageScaffold` | layout_pattern | N/A (na) | N/A (na) | N/A (na) | N/A (na) | No |
+| patterns | `VSection` | container | — (optional) | — (optional) | N/A (na) | — (optional) | No |
+| primitives | `VBadge` | status_display | Pass (required) | — (optional) | N/A (na) | Pass (preferred) | Yes |
+| primitives | `VChip` | status_display | Pass (required) | Pass (required) | Pass (optional) | Pass (required) | Yes |
+| primitives | `VIcon` | typography_primitive | N/A (na) | N/A (na) | N/A (na) | — (optional) | No |
+| primitives | `VIconBox` | status_display | Pass (optional) | — (optional) | N/A (na) | — (optional) | No |
+| primitives | `VText` | typography_primitive | N/A (na) | N/A (na) | N/A (na) | — (optional) | No |

@@ -7,7 +7,8 @@
 | Golden page dùng `VPageScaffold` | 0 | 1 (Product Control Center) |
 | Magic `EdgeInsets` literal trên golden | >10 | 0 |
 | Raw `Text(` trên golden presentation | >15 | 0 (dùng `VText`) |
-| Components có Tone trong audit | ~6/30 | Giữ; tăng dần wave 5+ |
+| Components có Tone trong audit | ~6/30 | Matrix Pass theo role |
+| Required contracts Pass (Action/Input/Toggle/Status) | thấp | 100% sau Wave C |
 | Example coverage cho layout primitives | 0 | 4/4 |
 
 ## Backlog ưu tiên
@@ -15,21 +16,18 @@
 ### P0 — Đã plan (Wave 1–4)
 
 - [x] Polaris docs
-- [ ] Layout primitives
-- [ ] CI guard
-- [ ] Golden migration (control center)
+- [x] Layout primitives
+- [x] CI guard (usage)
+- [x] Golden migration (control center)
 
-### P1 — Sau golden
+### P2 — Contract hardening (Wave 5)
 
-- Migrate catalog settings pages theo lane
-- Migrate partner presentation widgets
-- Promote `ProductControlCenterSectionCard` pattern → generic `VSection` usage doc
-
-### P2 — Contract hardening
-
-- `VBadge`, `VCard`, `VEmptyState` → Tone/State
+- [x] `08-component-contracts.md` + `contract_matrix.yaml`
+- [x] P0 primitives (Badge/Chip/IconBox)
+- [x] P1 controls + forms
+- [x] P2 overlays + business
+- [x] CI `--fail-on-required` (`guard_design_system_contracts.sh`)
 - Chạy `dart run tool/component_audit.dart` sau mỗi component change
-- Screenshot/golden tests cho example tabs
 
 ### P3 — Tooling
 
@@ -39,13 +37,12 @@
 ## Cách đo
 
 ```bash
-# Guard (sau Wave 3)
+# Guard usage (catalog golden)
 ./scripts/ci/guard_design_system_usage.sh
 
-# Component audit
-cd packages/vet45_design_system && dart run tool/component_audit.dart
+# Guard contracts (required Tone/Emphasis/State/label)
+./scripts/ci/guard_design_system_contracts.sh
 
-# Adoption spot-check
-rg "EdgeInsets\.(all|symmetric|only)\([0-9]" apps/erp/lib/features/catalog/presentation --glob '*.dart' -c
-rg "VPageScaffold|VGap|VPagePadding" apps/erp/lib/features/catalog/presentation --glob '*.dart' -c
+# Component audit (report only)
+cd packages/vet45_design_system && dart run tool/component_audit.dart
 ```

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../foundation/v_context_extensions.dart';
+import '../foundation/v_component_contracts.dart';
 import '../tokens/v_colors.dart';
 import '../tokens/v_spacing.dart';
 import '../tokens/v_typography.dart';
@@ -27,6 +28,9 @@ class VChoiceList<T> extends StatefulWidget {
     this.minSelectionsMessage,
     this.maxSelectionsMessage,
     this.semanticLabel,
+    this.tone = VComponentTone.neutral,
+    this.emphasis = VComponentEmphasis.medium,
+    this.state = VComponentState.enabled,
   });
 
   final String? title;
@@ -45,6 +49,9 @@ class VChoiceList<T> extends StatefulWidget {
   final String? minSelectionsMessage;
   final String? maxSelectionsMessage;
   final String? semanticLabel;
+  final VComponentTone tone;
+  final VComponentEmphasis emphasis;
+  final VComponentState state;
 
   @override
   State<VChoiceList<T>> createState() => _VChoiceListState<T>();
@@ -86,7 +93,7 @@ class _VChoiceListState<T> extends State<VChoiceList<T>> {
   @override
   Widget build(BuildContext context) {
     final dynamicColors = context.vColors;
-    final isEnabled = widget.enabled;
+    final isEnabled = widget.enabled && widget.state != VComponentState.disabled;
     final hasError = _effectiveError != null;
     final showTitle = widget.title != null && !widget.titleHidden;
 

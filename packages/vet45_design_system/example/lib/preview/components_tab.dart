@@ -86,6 +86,18 @@ class _ComponentsPreviewTabState extends State<ComponentsPreviewTab> {
                     const VButton(label: 'Disabled', onPressed: null),
                     const SizedBox(height: VSpacing.space2),
                     VButton(
+                      label: 'State disabled',
+                      state: VComponentState.disabled,
+                      onPressed: () {},
+                    ),
+                    const SizedBox(height: VSpacing.space2),
+                    VButton(
+                      label: 'State loading',
+                      state: VComponentState.loading,
+                      onPressed: () {},
+                    ),
+                    const SizedBox(height: VSpacing.space2),
+                    VButton(
                       label: 'Full width',
                       fullWidth: true,
                       onPressed: () {},

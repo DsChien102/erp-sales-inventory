@@ -4,6 +4,7 @@ import '../tokens/v_colors.dart';
 import '../tokens/v_radius.dart';
 import '../tokens/v_typography.dart';
 import '../foundation/v_context_extensions.dart';
+import '../foundation/v_component_contracts.dart';
 
 class VQuantitySelector extends StatefulWidget {
   final int value;
@@ -12,6 +13,10 @@ class VQuantitySelector extends StatefulWidget {
   final ValueChanged<int> onChanged;
   final bool enabled;
   final String? hintText;
+  final VComponentTone tone;
+  final VComponentEmphasis emphasis;
+  final VComponentState? state;
+  final String? semanticLabel;
 
   const VQuantitySelector({
     super.key,
@@ -21,6 +26,10 @@ class VQuantitySelector extends StatefulWidget {
     required this.onChanged,
     this.enabled = true,
     this.hintText,
+    this.tone = VComponentTone.neutral,
+    this.emphasis = VComponentEmphasis.medium,
+    this.state,
+    this.semanticLabel,
   });
 
   @override
@@ -52,7 +61,7 @@ class _VQuantitySelectorState extends State<VQuantitySelector> {
   }
 
   void _increment() {
-    if (!widget.enabled) return;
+    if (_resolveState() != VComponentState.enabled) return;
     final currentValue = int.tryParse(_controller.text) ?? widget.min;
     if (currentValue < widget.max) {
       final newValue = currentValue + 1;
@@ -62,7 +71,7 @@ class _VQuantitySelectorState extends State<VQuantitySelector> {
   }
 
   void _decrement() {
-    if (!widget.enabled) return;
+    if (_resolveState() != VComponentState.enabled) return;
     final currentValue = int.tryParse(_controller.text) ?? widget.min;
     if (currentValue > widget.min) {
       final newValue = currentValue - 1;
@@ -71,19 +80,38 @@ class _VQuantitySelectorState extends State<VQuantitySelector> {
     }
   }
 
+  VComponentState _resolveState() {
+    if (widget.state != null) return widget.state!;
+    return widget.enabled ? VComponentState.enabled : VComponentState.disabled;
+  }
+
   @override
   Widget build(BuildContext context) {
     final colors = context.vColors;
+    final resolvedState = _resolveState();
+    final isEnabled = resolvedState == VComponentState.enabled;
 
-    return SizedBox(
+    final borderColor = switch (widget.tone) {
+      VComponentTone.primary => colors.primary,
+      VComponentTone.danger => VColors.danger,
+      _ => colors.borderStrong,
+    };
+
+    final borderWidth = widget.emphasis == VComponentEmphasis.strong ? 2.0 : 1.0;
+
+    return Semantics(
+      textField: true,
+      enabled: isEnabled,
+      label: widget.semanticLabel ?? widget.hintText ?? 'Quantity',
+      child: SizedBox(
       height: 44,
       child: TextField(
         controller: _controller,
-        enabled: widget.enabled,
+        enabled: isEnabled,
         keyboardType: TextInputType.number,
         inputFormatters: [FilteringTextInputFormatter.digitsOnly],
         style: VTypography.bodyDefault.copyWith(
-          color: widget.enabled ? colors.textPrimary : colors.textSecondary,
+          color: isEnabled ? colors.textPrimary : colors.textSecondary,
           fontWeight: FontWeight.w700,
         ),
         decoration: InputDecoration(
@@ -94,7 +122,7 @@ class _VQuantitySelectorState extends State<VQuantitySelector> {
           ),
           contentPadding: const EdgeInsets.only(left: 12, right: 32, top: 10, bottom: 10),
           filled: true,
-          fillColor: widget.enabled ? colors.surface : colors.surfaceAlt,
+          fillColor: isEnabled ? colors.surface : colors.surfaceAlt,
           isDense: true,
           suffixIconConstraints: const BoxConstraints(
             maxWidth: 28,
@@ -103,20 +131,22 @@ class _VQuantitySelectorState extends State<VQuantitySelector> {
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(VRadius.input),
             borderSide: BorderSide(
-              color: widget.enabled ? colors.borderStrong : colors.borderDefault,
+              color: isEnabled ? borderColor : colors.borderDefault,
+              width: borderWidth,
             ),
           ),
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(VRadius.input),
             borderSide: BorderSide(
-              color: widget.enabled ? colors.borderStrong : colors.borderDefault,
+              color: isEnabled ? borderColor : colors.borderDefault,
+              width: borderWidth,
             ),
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(VRadius.input),
             borderSide: BorderSide(
               color: colors.primary,
-              width: 2.0,
+              width: widget.emphasis == VComponentEmphasis.strong ? 2.0 : 1.5,
             ),
           ),
           disabledBorder: OutlineInputBorder(
@@ -146,7 +176,7 @@ class _VQuantitySelectorState extends State<VQuantitySelector> {
                   child: Icon(
                     Icons.arrow_drop_up,
                     size: 16,
-                    color: widget.enabled ? colors.textSecondary : colors.textMuted,
+                    color: isEnabled ? colors.textSecondary : colors.textMuted,
                   ),
                 ),
                 GestureDetector(
@@ -155,7 +185,7 @@ class _VQuantitySelectorState extends State<VQuantitySelector> {
                   child: Icon(
                     Icons.arrow_drop_down,
                     size: 16,
-                    color: widget.enabled ? colors.textSecondary : colors.textMuted,
+                    color: isEnabled ? colors.textSecondary : colors.textMuted,
                   ),
                 ),
               ],
@@ -167,6 +197,7 @@ class _VQuantitySelectorState extends State<VQuantitySelector> {
           widget.onChanged(parsed);
         },
       ),
+    ),
     );
   }
 }

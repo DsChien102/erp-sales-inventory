@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../components/v_text_field.dart';
+import '../foundation/v_component_contracts.dart';
 import '../tokens/v_duration.dart';
 import 'validators/v_email_validator.dart';
 
@@ -44,6 +45,10 @@ class VEmailField extends StatefulWidget {
     this.maxLength = VEmailValidator.defaultMaxLength,
     this.minLengthEmailMessage,
     this.maxLengthEmailMessage,
+    this.tone = VComponentTone.neutral,
+    this.emphasis = VComponentEmphasis.medium,
+    this.state = VComponentState.enabled,
+    this.semanticLabel,
   });
 
   final TextEditingController? controller;
@@ -80,6 +85,10 @@ class VEmailField extends StatefulWidget {
   final int maxLength;
   final String? minLengthEmailMessage;
   final String? maxLengthEmailMessage;
+  final VComponentTone tone;
+  final VComponentEmphasis emphasis;
+  final VComponentState state;
+  final String? semanticLabel;
 
   @override
   State<VEmailField> createState() => _VEmailFieldState();
@@ -149,6 +158,12 @@ class _VEmailFieldState extends State<VEmailField> {
       enabledBorder: widget.enabledBorder,
       focusedBorder: widget.focusedBorder,
       variant: widget.variant,
+      tone: widget.tone,
+      emphasis: widget.emphasis,
+      state: (widget.errorText ?? _internalError) != null
+          ? VComponentState.error
+          : (widget.enabled ? widget.state : VComponentState.disabled),
+      semanticLabel: widget.semanticLabel,
     );
   }
 }

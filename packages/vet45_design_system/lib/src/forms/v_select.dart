@@ -25,6 +25,7 @@ class VSelect<T> extends StatefulWidget {
     this.requiredMessage = VSelectValidator.defaultRequiredMessage,
     this.tone = VComponentTone.neutral,
     this.emphasis = VComponentEmphasis.medium,
+    this.state = VComponentState.enabled,
     this.semanticLabel,
   });
 
@@ -41,6 +42,7 @@ class VSelect<T> extends StatefulWidget {
   final String requiredMessage;
   final VComponentTone tone;
   final VComponentEmphasis emphasis;
+  final VComponentState state;
   final String? semanticLabel;
 
   @override
@@ -73,7 +75,10 @@ class _VSelectState<T> extends State<VSelect<T>> {
   @override
   Widget build(BuildContext context) {
     final dynamicColors = context.vColors;
-    final isEnabled = widget.enabled;
+    final isEnabled = widget.enabled && widget.state != VComponentState.disabled;
+    final dropdownState = _effectiveError != null
+        ? VComponentState.error
+        : (isEnabled ? widget.state : VComponentState.disabled);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -104,10 +109,11 @@ class _VSelectState<T> extends State<VSelect<T>> {
             value: widget.value,
             items: _toMenuEntries(widget.items),
             onChanged: _handleChanged,
-            enabled: widget.enabled,
+            enabled: isEnabled,
             hintText: widget.hintText,
             tone: _dropdownTone,
             emphasis: widget.emphasis,
+            state: dropdownState,
             semanticLabel: widget.semanticLabel,
           )
         else
@@ -115,10 +121,11 @@ class _VSelectState<T> extends State<VSelect<T>> {
             value: widget.value,
             items: widget.items,
             onChanged: _handleChanged,
-            enabled: widget.enabled,
+            enabled: isEnabled,
             hintText: widget.hintText,
             tone: _dropdownTone,
             emphasis: widget.emphasis,
+            state: dropdownState,
             semanticLabel: widget.semanticLabel,
           ),
         if (_effectiveError != null) ...[

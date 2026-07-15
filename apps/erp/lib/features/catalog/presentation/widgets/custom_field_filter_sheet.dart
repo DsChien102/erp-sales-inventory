@@ -137,9 +137,7 @@ class _CustomFieldFilterSheetState extends State<CustomFieldFilterSheet> {
             {'id': 'true', 'label': 'Có'},
             {'id': 'false', 'label': 'Không'},
           ]
-        : opt.options
-            .map((o) => {'id': o.optionId, 'label': o.label})
-            .toList();
+        : opt.options.map((o) => {'id': o.optionId, 'label': o.label}).toList();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -163,7 +161,7 @@ class _CustomFieldFilterSheetState extends State<CustomFieldFilterSheet> {
             return VChip(
               label: optionLabel,
               selected: isSelected,
-              emphasis: VChipEmphasis.base,
+              emphasis: VComponentEmphasis.medium,
               tone: VComponentTone.primary,
               onTap: () {
                 setState(() {

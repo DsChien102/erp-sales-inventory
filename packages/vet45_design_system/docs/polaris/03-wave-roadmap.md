@@ -32,9 +32,16 @@
 
 **Done khi:** control center pass guard; tests green.
 
-## Wave 5+ (ngoài scope hiện tại)
+## Wave 5 — Component contracts (Tone / Emphasis / State)
 
-- Đồng bộ Tone/Emphasis/State cho mọi component
+- Spec: [08-component-contracts.md](08-component-contracts.md)
+- Matrix: `docs/audit/contract_matrix.yaml`
+- Waves B–E: primitives → controls → overlays → KPI/CI `--fail-on-required`
+
+**Done khi:** Action/Input/Toggle/Status required Pass; audit fail-on-required trong CI.
+
+## Wave 6+ (ngoài scope contract sync)
+
 - custom_lint plugin
 - Migrate partner + catalog bulk
 - Dark theme

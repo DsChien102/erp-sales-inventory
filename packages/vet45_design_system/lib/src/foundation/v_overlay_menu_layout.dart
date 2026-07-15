@@ -32,13 +32,10 @@ abstract final class VOverlayMenuLayout {
 
     try {
       final fieldBottom = box.localToGlobal(Offset(0, box.size.height)).dy;
-      final usableBottom =
-          media.size.height - media.viewInsets.bottom - stickyActionsReserve;
+      final usableBottom = media.size.height - media.viewInsets.bottom - stickyActionsReserve;
       return usableBottom - fieldBottom - alignmentOffset.dy;
     } on AssertionError {
       // Ancestor transform (e.g. route FractionalTranslation) not laid out yet.
-      return defaultMenuHeight;
-    } on FlutterError {
       return defaultMenuHeight;
     }
   }

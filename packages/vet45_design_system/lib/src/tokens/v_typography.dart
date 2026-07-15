@@ -6,16 +6,10 @@ class VTypography {
   static const String fontFamily = 'packages/vet45_design_system/Inter';
   static const String monoFontFamily = 'packages/vet45_design_system/JetBrains Mono';
 
+  // --- Sans (Inter) ---
+
   static const TextStyle displayD1 = TextStyle(
     fontFamily: fontFamily,
-    fontSize: 40,
-    height: 44 / 40,
-    fontWeight: FontWeight.w800,
-    letterSpacing: -1,
-  );
-
-  static const TextStyle displayD2 = TextStyle(
-    fontFamily: monoFontFamily,
     fontSize: 40,
     height: 44 / 40,
     fontWeight: FontWeight.w800,
@@ -46,23 +40,8 @@ class VTypography {
     letterSpacing: -0.2,
   );
 
-  static const TextStyle headingH3_2 = TextStyle(
-    fontFamily: monoFontFamily,
-    fontSize: 18,
-    height: 24 / 18,
-    fontWeight: FontWeight.w700,
-    letterSpacing: -0.2,
-  );
-
   static const TextStyle headingH4 = TextStyle(
     fontFamily: fontFamily,
-    fontSize: 14,
-    height: 22 / 16,
-    fontWeight: FontWeight.w600,
-  );
-
-  static const TextStyle headingH4_2 = TextStyle(
-    fontFamily: monoFontFamily,
     fontSize: 14,
     height: 22 / 16,
     fontWeight: FontWeight.w600,
@@ -75,22 +54,8 @@ class VTypography {
     fontWeight: FontWeight.w400,
   );
 
-  static const TextStyle bodyDefault2 = TextStyle(
-    fontFamily: monoFontFamily,
-    fontSize: 14,
-    height: 22 / 14,
-    fontWeight: FontWeight.w400,
-  );
-
   static const TextStyle bodySmall = TextStyle(
     fontFamily: fontFamily,
-    fontSize: 13,
-    height: 20 / 13,
-    fontWeight: FontWeight.w400,
-  );
-
-  static const TextStyle bodySmall2 = TextStyle(
-    fontFamily: monoFontFamily,
     fontSize: 13,
     height: 20 / 13,
     fontWeight: FontWeight.w400,
@@ -113,6 +78,46 @@ class VTypography {
     letterSpacing: 0.2,
   );
 
+  // --- Mono (JetBrains Mono) — same size/role as sans counterpart ---
+
+  static const TextStyle displayD1Mono = TextStyle(
+    fontFamily: monoFontFamily,
+    fontSize: 40,
+    height: 44 / 40,
+    fontWeight: FontWeight.w800,
+    letterSpacing: -1,
+  );
+
+  static const TextStyle headingH3Mono = TextStyle(
+    fontFamily: monoFontFamily,
+    fontSize: 18,
+    height: 24 / 18,
+    fontWeight: FontWeight.w700,
+    letterSpacing: -0.2,
+  );
+
+  static const TextStyle headingH4Mono = TextStyle(
+    fontFamily: monoFontFamily,
+    fontSize: 14,
+    height: 22 / 16,
+    fontWeight: FontWeight.w600,
+  );
+
+  static const TextStyle bodyDefaultMono = TextStyle(
+    fontFamily: monoFontFamily,
+    fontSize: 14,
+    height: 22 / 14,
+    fontWeight: FontWeight.w400,
+  );
+
+  static const TextStyle bodySmallMono = TextStyle(
+    fontFamily: monoFontFamily,
+    fontSize: 13,
+    height: 20 / 13,
+    fontWeight: FontWeight.w400,
+  );
+
+  /// Tabular figures for amounts / SKUs.
   static const TextStyle monoNumeric = TextStyle(
     fontFamily: monoFontFamily,
     fontSize: 14,

@@ -60,8 +60,7 @@ class UIAuditTab extends StatelessWidget {
     final rows = vComponentAuditEntries;
     final total = rows.length;
     final withSemantics = rows.where((e) => e.hasSemantics).length;
-    final withTone = rows.where((e) => e.hasTone).length;
-    final withState = rows.where((e) => e.hasState).length;
+    final missingRequired = rows.where((e) => e.hasMissingRequired).length;
     final covered = rows.where((e) => _isCovered(e)).length;
 
     return ListView(
@@ -70,7 +69,7 @@ class UIAuditTab extends StatelessWidget {
         Text('Design System UI Audit', style: VTypography.headingH2),
         const SizedBox(height: VSpacing.space2),
         Text(
-          'Rà soát coverage và readiness của component public. Forms được track trong example coverage.',
+          'Contract matrix: docs/audit/contract_matrix.yaml — Pass / Missing / N/A / Pref↓',
           style: VTypography.bodyDefault.copyWith(color: VColors.textSecondary),
         ),
         const SizedBox(height: VSpacing.space1),
@@ -87,8 +86,7 @@ class UIAuditTab extends StatelessWidget {
               _metricChip('Tổng component', '$total'),
               _metricChip('Đã có demo', '$covered/$total'),
               _metricChip('Có Semantics', '$withSemantics/$total'),
-              _metricChip('Có tone', '$withTone/$total'),
-              _metricChip('Có state', '$withState/$total'),
+              _metricChip('Missing required', '$missingRequired'),
             ],
           ),
         ),
@@ -103,6 +101,10 @@ class UIAuditTab extends StatelessWidget {
                 'cd packages/vet45_design_system && dart run tool/component_audit.dart',
                 style: VTypography.monoNumeric.copyWith(fontSize: 12),
               ),
+              Text(
+                'Fail CI: dart run tool/component_audit.dart --fail-on-required',
+                style: VTypography.monoNumeric.copyWith(fontSize: 12),
+              ),
             ],
           ),
         ),
@@ -114,21 +116,23 @@ class UIAuditTab extends StatelessWidget {
           child: VTable(
             headers: const [
               VTableHeader(title: 'Component'),
-              VTableHeader(title: 'Category'),
+              VTableHeader(title: 'Role'),
               VTableHeader(title: 'Example'),
-              VTableHeader(title: 'Semantics'),
               VTableHeader(title: 'Tone'),
+              VTableHeader(title: 'Emphasis'),
               VTableHeader(title: 'State'),
+              VTableHeader(title: 'Label'),
             ],
             rows: rows
                 .map(
                   (e) => [
-                    Text(_componentName(e)),
-                    Text(_displayCategory(e.category)),
-                    _statusBadge(_isCovered(e)),
-                    _statusBadge(e.hasSemantics),
-                    _statusBadge(e.hasTone),
-                    _statusBadge(e.hasState),
+                    Text(e.primaryClass),
+                    Text(e.role),
+                    _exampleBadge(_isCovered(e)),
+                    _contractBadge(e.toneStatus),
+                    _contractBadge(e.emphasisStatus),
+                    _contractBadge(e.stateStatus),
+                    _contractBadge(e.semanticLabelStatus),
                   ],
                 )
                 .toList(),
@@ -146,9 +150,8 @@ class UIAuditTab extends StatelessWidget {
   }
 
   bool _isCovered(VComponentAuditEntry entry) {
-    final name = _componentName(entry);
+    final name = entry.primaryClass;
     if (_exampleCoverage.contains(name)) return true;
-    // Nested helpers counted if parent is covered
     const aliases = {
       'VAppBarTitle': 'VAppBar',
       'VAppBarSubtitle': 'VAppBar',
@@ -173,7 +176,7 @@ class UIAuditTab extends StatelessWidget {
     );
   }
 
-  Widget _statusBadge(bool yes) {
+  Widget _exampleBadge(bool yes) {
     return VBadge(
       label: yes ? 'Yes' : 'No',
       status: yes ? VBadgeStatus.success : VBadgeStatus.draft,
@@ -181,16 +184,17 @@ class UIAuditTab extends StatelessWidget {
     );
   }
 
-  String _componentName(VComponentAuditEntry entry) {
-    final preferred = entry.classNames.where((name) => name.startsWith('V')).toList();
-    if (preferred.isNotEmpty) return preferred.first;
-    if (entry.classNames.isNotEmpty) return entry.classNames.first;
-    return entry.exportPath.split('/').last;
-  }
-
-  String _displayCategory(String category) {
-    if (category.isEmpty) return category;
-    return '${category[0].toUpperCase()}${category.substring(1)}';
+  Widget _contractBadge(String status) {
+    final (label, badgeStatus) = switch (status) {
+      'pass' => ('Pass', VBadgeStatus.success),
+      'missing_required' => ('Missing', VBadgeStatus.danger),
+      'missing_preferred' => ('Pref↓', VBadgeStatus.warning),
+      'optional_absent' => ('—', VBadgeStatus.draft),
+      'na' => ('N/A', VBadgeStatus.draft),
+      'na_present' => ('N/A+', VBadgeStatus.info),
+      _ => (status, VBadgeStatus.draft),
+    };
+    return VBadge(label: label, status: badgeStatus, isSmall: true);
   }
 }
 

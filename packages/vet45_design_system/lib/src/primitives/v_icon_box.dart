@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../tokens/v_colors.dart';
 import '../tokens/v_radius.dart';
 import '../foundation/v_context_extensions.dart';
+import '../foundation/v_component_contracts.dart';
 
 class VIconBox extends StatelessWidget {
   final IconData? iconData;
@@ -16,6 +17,9 @@ class VIconBox extends StatelessWidget {
   final Color? borderColor;
   final double? borderWidth;
 
+  /// Optional tone preset for bg/icon when explicit colors are omitted.
+  final VComponentTone? tone;
+
   const VIconBox({
     super.key,
     this.iconData,
@@ -29,14 +33,33 @@ class VIconBox extends StatelessWidget {
     this.onTap,
     this.borderColor,
     this.borderWidth,
+    this.tone,
   });
+
+  (Color bg, Color icon) _tonePreset(VComponentTone tone, dynamic dynamicColors) {
+    return switch (tone) {
+      VComponentTone.primary => (VColors.primary100, dynamicColors.primary),
+      VComponentTone.success => (VColors.successBg, VColors.success),
+      VComponentTone.warning => (VColors.warningBg, VColors.warning),
+      VComponentTone.danger => (VColors.dangerBg, VColors.danger),
+      VComponentTone.info => (VColors.infoBg, VColors.info),
+      VComponentTone.neutral => (VColors.neutral100, VColors.neutral500),
+    };
+  }
 
   @override
   Widget build(BuildContext context) {
     final dynamicColors = context.vColors;
 
-    final resolvedBgColor = backgroundColor ?? VColors.neutral100;
-    final resolvedIconColor = iconColor ?? dynamicColors.textPrimary;
+    Color resolvedBgColor = backgroundColor ?? VColors.neutral100;
+    Color resolvedIconColor = iconColor ?? dynamicColors.textPrimary;
+
+    if (tone != null && backgroundColor == null && iconColor == null) {
+      final preset = _tonePreset(tone!, dynamicColors);
+      resolvedBgColor = preset.$1;
+      resolvedIconColor = preset.$2;
+    }
+
     final resolvedRadius = borderRadius ?? VRadius.iconBox;
 
     Widget iconWidget;

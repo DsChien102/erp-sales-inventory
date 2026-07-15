@@ -100,7 +100,7 @@ class _FilterChip extends StatelessWidget {
     return VChip(
       label: label,
       tone: VComponentTone.success,
-      emphasis: VChipEmphasis.strong,
+      emphasis: VComponentEmphasis.strong,
       onRemove: onRemove,
     );
   }

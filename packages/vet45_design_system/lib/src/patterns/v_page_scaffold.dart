@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+// contract: na tone/emphasis/state
 
 import '../components/v_app_bar.dart';
 import '../foundation/v_context_extensions.dart';

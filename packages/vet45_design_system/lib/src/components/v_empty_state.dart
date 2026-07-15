@@ -9,6 +9,9 @@ class VEmptyState extends StatelessWidget {
   final String? actionLabel;
   final Widget? actionLeadingIcon;
   final VoidCallback? onActionPressed;
+  final VComponentTone? tone;
+  final VComponentEmphasis emphasis;
+  final String? semanticLabel;
 
   const VEmptyState({
     super.key,
@@ -19,6 +22,9 @@ class VEmptyState extends StatelessWidget {
     this.actionLabel,
     this.actionLeadingIcon,
     this.onActionPressed,
+    this.tone,
+    this.emphasis = VComponentEmphasis.medium,
+    this.semanticLabel,
   }) : assert(
          iconEmoji != null || iconData != null,
          'Either iconEmoji or iconData must be provided',
@@ -28,56 +34,62 @@ class VEmptyState extends StatelessWidget {
   Widget build(BuildContext context) {
     final dynamicColors = context.vColors;
 
-    return Padding(
-      padding: const EdgeInsets.all(VSpacing.space6),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          if (iconData != null)
-            VIconBox(
-              iconData: iconData!,
-              size: 64,
-              iconSize: 28,
-              backgroundColor: dynamicColors.surfaceAlt,
-              iconColor: dynamicColors.textSecondary,
-              borderRadius: VRadius.r16,
-            )
-          else if (iconEmoji != null)
+    return Semantics(
+      label: semanticLabel ?? title,
+      child: Padding(
+        padding: const EdgeInsets.all(VSpacing.space6),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (iconData != null)
+              VIconBox(
+                iconData: iconData!,
+                size: 64,
+                iconSize: 28,
+                tone: tone ?? VComponentTone.neutral,
+                backgroundColor: tone == null ? dynamicColors.surfaceAlt : null,
+                iconColor: tone == null ? dynamicColors.textSecondary : null,
+                borderRadius: VRadius.r16,
+              )
+            else if (iconEmoji != null)
+              Text(
+                iconEmoji!,
+                style: const TextStyle(fontSize: 48),
+              ),
+            const SizedBox(height: VSpacing.space4),
             Text(
-              iconEmoji!,
-              style: const TextStyle(fontSize: 48),
-            ),
-          const SizedBox(height: VSpacing.space4),
-          Text(
-            title,
-            style: VTypography.headingH3.copyWith(
-              color: dynamicColors.textPrimary,
-              fontWeight: FontWeight.w700,
-            ),
-            textAlign: TextAlign.center,
-          ),
-          if (description != null) ...[
-            const SizedBox(height: VSpacing.space2),
-            Text(
-              description!,
-              style: VTypography.bodyDefault.copyWith(
-                color: dynamicColors.textSecondary,
+              title,
+              style: VTypography.headingH3.copyWith(
+                color: dynamicColors.textPrimary,
+                fontWeight: FontWeight.w700,
               ),
               textAlign: TextAlign.center,
             ),
+            if (description != null) ...[
+              const SizedBox(height: VSpacing.space2),
+              Text(
+                description!,
+                style: VTypography.bodyDefault.copyWith(
+                  color: dynamicColors.textSecondary,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ],
+            if (actionLabel != null && onActionPressed != null) ...[
+              const SizedBox(height: VSpacing.space6),
+              VButton(
+                label: actionLabel!,
+                onPressed: onActionPressed!,
+                leadingIcon: actionLeadingIcon,
+                size: VButtonSize.medium,
+                emphasis: emphasis,
+                tone: tone == VComponentTone.primary ? VComponentTone.primary : null,
+              ),
+            ],
           ],
-          if (actionLabel != null && onActionPressed != null) ...[
-            const SizedBox(height: VSpacing.space6),
-            VButton(
-              label: actionLabel!,
-              onPressed: onActionPressed!,
-              leadingIcon: actionLeadingIcon,
-              size: VButtonSize.medium,
-            ),
-          ],
-        ],
+        ),
       ),
     );
   }
