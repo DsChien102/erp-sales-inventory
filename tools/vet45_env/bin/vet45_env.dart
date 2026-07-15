@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:vet45_env/tui/app.dart';
+import 'package:vet45_env/tui/launch_mode.dart';
 import 'package:vet45_env/completion_service.dart';
 import 'package:vet45_env/config_init_service.dart';
 import 'package:vet45_env/doctor_service.dart';
@@ -15,9 +17,14 @@ import 'package:vet45_env/supabase_delegate_service.dart';
 import 'package:vet45_env/sync_service.dart';
 
 Future<void> main(List<String> args) async {
-  if (args.isEmpty || args.first == '--help' || args.first == '-h') {
+  final mode = parseLaunchMode(args);
+  if (mode == LaunchMode.help) {
     _printUsage();
     exit(0);
+  }
+  if (mode == LaunchMode.tui) {
+    await runVet45Tui();
+    return;
   }
 
   final rootPath = findRepoRoot();
@@ -30,9 +37,7 @@ Future<void> main(List<String> args) async {
     return;
   }
 
-  if (command != '--help' && command != '-h') {
-    requireConfigInitialized(root);
-  }
+  requireConfigInitialized(root);
 
   final manifest = EnvManifest.load(root);
 
@@ -97,9 +102,12 @@ ActiveState _defaultState(EnvManifest manifest) => readActiveState(
 
 void _printUsage() {
   stdout.writeln('''
-Usage: vet45 <command> [args]
+Usage: vet45 [<command> [args]]
+
+With no arguments (or `tui`), opens the interactive TUI.
 
 Commands:
+  tui                  Open interactive TUI (default when no args)
   init [--force]       Scaffold local config/ from bundled templates (first-time)
   list                 List profiles, environments, and active selection
   switch [profile] [env] [--profile <id>] [--env <id>] [--target <id>]

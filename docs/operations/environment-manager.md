@@ -147,6 +147,34 @@ Also prepends `.vet45/bin` to `PATH` so `vet45` / `vet45.exe` runs the AOT binar
 
 bash/zsh/PowerShell re-read `.vet45/state.json` on each prompt, so after `melos run env:use:staging` / `vet45 switch staging` the label updates automatically. CMD keeps a static prompt — run `activate.bat` again to refresh.
 
+## TUI (lazygit-style)
+
+`vet45` with no arguments (or `vet45 tui`) opens an interactive nocterm TUI:
+
+```text
+Profiles | Environments
+Status / Doctor
+Log
+```
+
+Environments panel only lists ids that have a real secrets file for the
+**selected profile** (`config/secrets/<env>.env` or `config/profiles/<id>/secrets/<env>.env`).
+`*.env.example` alone does not appear.
+
+| Key | Action |
+| --- | --- |
+| `Enter` | Switch to selected profile + environment (link + sync) |
+| `s` | Sync active workspace |
+| `d` | Run doctor |
+| `r` | Reload manifest/state from disk |
+| `Tab` | Cycle focus panels |
+| `↑↓` / `jk` | Move cursor in focused list |
+| `q` | Quit |
+
+Requires an interactive TTY. Non-TTY (CI/pipes) falls back to CLI subcommands.
+
+After TUI source changes, rebuild AOT: `melos run env:build`.
+
 ## Switch profile / environment (recommended)
 
 Use `vet45 switch` when changing profile or environment — it updates state, runs `supabase link`, and syncs app `.env` files in one step. This avoids mismatches when running `vet45 supabase reset --linked` or other Supabase CLI commands.
@@ -175,6 +203,7 @@ Daily env commands should **bypass Melos** when possible:
 ```bash
 melos run env:build          # once per clone / after vet45 CLI source changes
 source scripts/env/activate.sh
+vet45                        # interactive TUI
 vet45 list
 vet45 switch acme staging
 vet45 sync --target erp

@@ -7,6 +7,7 @@ class CompletionService {
   final EnvManifest manifest;
 
   static const topLevelCommands = [
+    'tui',
     'init',
     'list',
     'switch',

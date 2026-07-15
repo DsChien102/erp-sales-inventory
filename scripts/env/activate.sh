@@ -134,6 +134,7 @@ echo "  root: $VET45_ROOT"
 if [ -x "$_VET45_BIN/vet45" ]; then
   echo "  cli:  vet45  (AOT on PATH)"
   if [ -t 1 ]; then
+    echo "  tip: vet45  # interactive TUI (profile/env switch)"
     echo "  tip: eval \"\$(vet45 completion zsh)\"  # shell completion (once in ~/.zshrc)"
   fi
 else
