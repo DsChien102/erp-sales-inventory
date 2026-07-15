@@ -588,6 +588,92 @@ class _ComponentsPreviewTabState extends State<ComponentsPreviewTab> {
             onTap: (i) => setState(() => _navIndex = i),
           ),
         ),
+        PreviewSection(
+          title: 'VGap',
+          description: 'Vertical and horizontal spacing from tokens.',
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              PreviewStateRow(
+                label: 'Vertical',
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(height: 8, width: 48, color: VColors.primary100),
+                    const VGap.xs(),
+                    Container(height: 8, width: 48, color: VColors.primary200),
+                    const VGap.sm(),
+                    Container(height: 8, width: 48, color: VColors.primary300),
+                    const VGap.md(),
+                    Container(height: 8, width: 48, color: VColors.primary400),
+                  ],
+                ),
+              ),
+              PreviewStateRow(
+                label: 'Horizontal',
+                child: Row(
+                  children: [
+                    Container(height: 24, width: 24, color: VColors.primary100),
+                    const VGap.horizontalSm(),
+                    Container(height: 24, width: 24, color: VColors.primary200),
+                    const VGap.horizontalMd(),
+                    Container(height: 24, width: 24, color: VColors.primary300),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+        PreviewSection(
+          title: 'VPagePadding',
+          child: VPagePadding(
+            child: VCard(
+              child: VText('Screen inset from VSpacing.screenMobile', variant: VTextVariant.bodySmall),
+            ),
+          ),
+        ),
+        PreviewSection(
+          title: 'VSection',
+          child: VSection(
+            title: 'Thông tin chung',
+            subtitle: 'Mã SKU, tên hiển thị',
+            trailing: VButton(label: 'Sửa', variant: VButtonVariant.ghost, onPressed: () {}),
+            child: VCard(
+              child: VText('Section content', variant: VTextVariant.bodyDefault),
+            ),
+          ),
+        ),
+        PreviewSection(
+          title: 'VPageScaffold',
+          description: 'Page shell preview (embedded).',
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(VRadius.card),
+            child: SizedBox(
+              height: 280,
+              child: VPageScaffold(
+                title: 'Sản phẩm',
+                subtitle: 'SKU-001',
+                showBackButton: false,
+                body: VPagePadding(
+                  child: SingleChildScrollView(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        VCard(child: VText('Profile card', variant: VTextVariant.bodyDefault)),
+                        const VGap.sm(),
+                        VCard(child: VText('Section', variant: VTextVariant.bodyDefault)),
+                      ],
+                    ),
+                  ),
+                ),
+                bottomBar: Padding(
+                  padding: const EdgeInsets.all(VSpacing.md),
+                  child: VButton(label: 'Lưu', onPressed: () {}),
+                ),
+              ),
+            ),
+          ),
+        ),
       ],
     );
   }

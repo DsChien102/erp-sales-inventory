@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../tokens/v_radius.dart';
 import '../tokens/v_shadows.dart';
+import '../tokens/v_spacing.dart';
 import '../foundation/v_context_extensions.dart';
 
 class VCard extends StatelessWidget {
@@ -34,7 +35,7 @@ class VCard extends StatelessWidget {
           onTap: onTap,
           borderRadius: BorderRadius.circular(VRadius.card),
           child: Padding(
-            padding: padding ?? const EdgeInsets.all(16),
+            padding: padding ?? const EdgeInsets.all(VSpacing.md),
             child: child,
           ),
         ),
