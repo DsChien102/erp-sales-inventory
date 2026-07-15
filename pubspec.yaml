@@ -117,6 +117,11 @@ melos:
       run: dart run tools/vet45_env/bin/run.dart switch
       description: Switch profile/env, link, and sync (pass args after --)
 
+    env:tui:
+      run: dart run tools/vet45_env/bin/run.dart tui
+      stdio: inherit
+      description: Open interactive vet45 TUI (nocterm)
+
     env:link:
       run: dart run tools/vet45_env/bin/run.dart link
       description: Align supabase link with active environment project ref

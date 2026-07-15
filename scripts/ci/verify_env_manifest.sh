@@ -82,6 +82,7 @@ test -x "$root/.vet45/bin/vet45"
 "$root/.vet45/bin/vet45" status >/dev/null
 "$root/.vet45/bin/vet45" switch >/dev/null
 "$root/.vet45/bin/vet45" completion bash >/dev/null
+"$root/.vet45/bin/vet45" --help | grep -q tui
 "$root/scripts/env/vet45.sh" list >/dev/null
 test -x "$root/scripts/env/switch.sh"
 

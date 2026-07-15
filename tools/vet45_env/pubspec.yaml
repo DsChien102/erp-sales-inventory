@@ -8,3 +8,5 @@ environment:
 
 dev_dependencies:
   test: ^1.25.0
+dependencies:
+  nocterm: ^0.8.0
