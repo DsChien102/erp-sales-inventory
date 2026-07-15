@@ -4,6 +4,7 @@ import '../tokens/v_spacing.dart';
 import '../tokens/v_radius.dart';
 import '../tokens/v_typography.dart';
 import '../foundation/v_context_extensions.dart';
+import '../foundation/v_component_contracts.dart';
 
 enum VBadgeStatus {
   draft,
@@ -22,12 +23,43 @@ enum VBadgeStatus {
   info,
 }
 
+/// Maps [VBadgeStatus] to semantic [VComponentTone] when no explicit override.
+VComponentTone toneFromBadgeStatus(VBadgeStatus status) {
+  switch (status) {
+    case VBadgeStatus.success:
+    case VBadgeStatus.completed:
+    case VBadgeStatus.paid:
+      return VComponentTone.success;
+    case VBadgeStatus.warning:
+    case VBadgeStatus.partiallyPaid:
+    case VBadgeStatus.outstanding:
+      return VComponentTone.warning;
+    case VBadgeStatus.danger:
+    case VBadgeStatus.overdue:
+      return VComponentTone.danger;
+    case VBadgeStatus.info:
+    case VBadgeStatus.pending:
+      return VComponentTone.info;
+    case VBadgeStatus.processing:
+      return VComponentTone.primary;
+    case VBadgeStatus.draft:
+    case VBadgeStatus.cancelled:
+    case VBadgeStatus.locked:
+      return VComponentTone.neutral;
+  }
+}
+
 class VBadge extends StatelessWidget {
   final String label;
   final VBadgeStatus status;
   final bool showDot;
   final IconData? iconData;
   final bool isSmall;
+
+  /// Optional semantic tone override; defaults to [toneFromBadgeStatus].
+  final VComponentTone? tone;
+
+  final String? semanticLabel;
 
   const VBadge({
     super.key,
@@ -36,6 +68,8 @@ class VBadge extends StatelessWidget {
     this.showDot = false,
     this.iconData,
     this.isSmall = false,
+    this.tone,
+    this.semanticLabel,
   });
 
   @override
@@ -43,8 +77,8 @@ class VBadge extends StatelessWidget {
     Color backgroundColor;
     Color textColor;
 
-    // Use dynamic theme extensions if available, or fallback to VColors
     final dynamicColors = context.vColors;
+    final resolvedTone = tone ?? toneFromBadgeStatus(status);
 
     switch (status) {
       case VBadgeStatus.success:
@@ -90,7 +124,31 @@ class VBadge extends StatelessWidget {
         break;
     }
 
-    return Container(
+    // Tone override adjusts palette when explicitly set.
+    if (tone != null) {
+      switch (resolvedTone) {
+        case VComponentTone.success:
+          backgroundColor = VColors.successBg;
+          textColor = VColors.success;
+        case VComponentTone.warning:
+          backgroundColor = VColors.warningBg;
+          textColor = VColors.warning;
+        case VComponentTone.danger:
+          backgroundColor = VColors.dangerBg;
+          textColor = VColors.danger;
+        case VComponentTone.info:
+          backgroundColor = VColors.infoBg;
+          textColor = VColors.info;
+        case VComponentTone.primary:
+          backgroundColor = VColors.secondarySurface;
+          textColor = dynamicColors.primary;
+        case VComponentTone.neutral:
+          backgroundColor = VColors.neutral100;
+          textColor = VColors.neutral600;
+      }
+    }
+
+    final badge = Container(
       padding: EdgeInsets.symmetric(
         horizontal: isSmall ? 8 : 10,
         vertical: isSmall ? 2 : 6,
@@ -134,6 +192,11 @@ class VBadge extends StatelessWidget {
           ),
         ],
       ),
+    );
+
+    return Semantics(
+      label: semanticLabel ?? label,
+      child: badge,
     );
   }
 }

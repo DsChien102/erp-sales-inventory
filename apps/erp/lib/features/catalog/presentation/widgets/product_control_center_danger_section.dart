@@ -37,7 +37,7 @@ class _ProductControlCenterDangerSectionState extends State<ProductControlCenter
         if (mounted) {
           Scrollable.ensureVisible(
             context,
-            duration: const Duration(milliseconds: 300),
+            duration: VDuration.medium,
             curve: Curves.easeInOut,
             alignment: 1.0,
           );
@@ -61,15 +61,15 @@ class _ProductControlCenterDangerSectionState extends State<ProductControlCenter
           key: const Key('btn_product_lifecycle_danger_toggle'),
           onTap: _toggleExpanded,
           child: Container(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(VSpacing.md),
             decoration: BoxDecoration(
               color: dynamicColors.dangerBg,
               border: Border.all(
                 color: dynamicColors.danger.withValues(alpha: 0.3),
               ),
               borderRadius: _isExpanded
-                  ? const BorderRadius.vertical(top: Radius.circular(12))
-                  : BorderRadius.circular(12),
+                  ? const BorderRadius.vertical(top: Radius.circular(VRadius.r12))
+                  : BorderRadius.circular(VRadius.r12),
             ),
             child: Row(
               children: [
@@ -80,30 +80,28 @@ class _ProductControlCenterDangerSectionState extends State<ProductControlCenter
                   backgroundColor: dynamicColors.surface,
                   iconColor: dynamicColors.danger,
                 ),
-                const SizedBox(width: 16),
+                const VGap.horizontalMd(),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
+                      VText(
                         'Nâng cao',
-                        style: VTypography.bodyDefault.copyWith(
-                          color: dynamicColors.danger,
-                          fontWeight: FontWeight.bold,
-                        ),
+                        variant: VTextVariant.bodyDefault,
+                        color: dynamicColors.danger,
+                        style: const TextStyle(fontWeight: FontWeight.bold),
                       ),
-                      const SizedBox(height: 2),
-                      Text(
+                      const VGap.xs(),
+                      VText(
                         subtitle,
-                        style: VTypography.bodySmall.copyWith(
-                          color: dynamicColors.danger,
-                        ),
+                        variant: VTextVariant.bodySmall,
+                        color: dynamicColors.danger,
                       ),
                     ],
                   ),
                 ),
-                Icon(
-                  _isExpanded ? Icons.expand_less : Icons.expand_more,
+                VIcon(
+                  iconData: _isExpanded ? Icons.expand_less : Icons.expand_more,
                   color: dynamicColors.danger,
                 ),
               ],
@@ -119,7 +117,7 @@ class _ProductControlCenterDangerSectionState extends State<ProductControlCenter
                 right: BorderSide(color: dynamicColors.danger.withValues(alpha: 0.3)),
                 bottom: BorderSide(color: dynamicColors.danger.withValues(alpha: 0.3)),
               ),
-              borderRadius: const BorderRadius.vertical(bottom: Radius.circular(12)),
+              borderRadius: const BorderRadius.vertical(bottom: Radius.circular(VRadius.r12)),
             ),
             child: Column(
               children: [
@@ -148,8 +146,8 @@ class _ProductControlCenterDangerSectionState extends State<ProductControlCenter
                   Divider(
                     height: 1,
                     color: dynamicColors.danger.withValues(alpha: 0.1),
-                    indent: 16,
-                    endIndent: 16,
+                    indent: VSpacing.md,
+                    endIndent: VSpacing.md,
                   ),
                   _ActionItem(
                     icon: Icons.delete_outline,
@@ -184,17 +182,19 @@ class _ActionItem extends StatelessWidget {
     return InkWell(
       onTap: onTap,
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        padding: const EdgeInsets.symmetric(
+          horizontal: VSpacing.md,
+          vertical: VSpacing.md,
+        ),
         child: Row(
           children: [
-            Icon(icon, color: color, size: 20),
-            const SizedBox(width: 12),
+            VIcon(iconData: icon, color: color, size: 20),
+            const VGap.horizontalMd(),
             Expanded(
-              child: Text(
+              child: VText(
                 label,
-                style: VTypography.bodyDefault.copyWith(
-                  color: color,
-                ),
+                variant: VTextVariant.bodyDefault,
+                color: color,
               ),
             ),
           ],

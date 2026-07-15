@@ -23,7 +23,7 @@ class ProductControlCenterStatusBadge extends StatelessWidget {
 
         return Center(
           child: Padding(
-            padding: const EdgeInsets.only(right: 16),
+            padding: const EdgeInsets.only(right: VSpacing.md),
             child: VBadge(
               label: isSoftDeleted
                   ? 'Đã xóa'

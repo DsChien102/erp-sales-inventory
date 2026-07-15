@@ -26,6 +26,17 @@ Khi thêm / đổi **public UI** trong `packages/vet45_design_system` (primitive
    - mọi `enum` variant/size/status/emphasis/tone public
 5. **UI Audit:** thêm tên class vào `_exampleCoverage` trong [`ui_audit_tab.dart`](packages/vet45_design_system/example/lib/preview/ui_audit_tab.dart) (alias nested helpers nếu audit lấy class con trước).
 6. **Không** nhồi demo vào Mockup-only; Mockup là composition, catalog mới là source of truth cho states.
+7. **Layout patterns:** feature UI mới phải dùng `VGap`, `VPagePadding`, `VSection`, `VPageScaffold` — không magic `EdgeInsets` literal. Xem [Polaris spec](packages/vet45_design_system/docs/polaris/06-design-system-spec.md).
+
+## Feature UI consumption (Polaris)
+
+Khi implement UI trong `apps/erp` hoặc `modules/*/presentation`:
+
+- Typography: `VText` + `VTextVariant` — không `Text(` thô
+- Spacing: `VGap` / `VPagePadding` / `VSpacing.*` — không `EdgeInsets.all(16)`
+- Overlays: `showVConfirmDialog` / `showVBottomSheet`
+- Checklist PR: [07-token-migration-checklist.md](packages/vet45_design_system/docs/polaris/07-token-migration-checklist.md)
+- CI: `./scripts/ci/guard_design_system_usage.sh`
 
 ## Anti-patterns (reject)
 

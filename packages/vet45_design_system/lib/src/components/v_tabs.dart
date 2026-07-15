@@ -10,6 +10,7 @@ class VTabs extends StatelessWidget {
   final ValueChanged<int> onTabSelected;
   final bool isScrollable;
   final VComponentTone tone;
+  final VComponentEmphasis emphasis;
   final String? semanticLabel;
 
   const VTabs({
@@ -19,6 +20,7 @@ class VTabs extends StatelessWidget {
     required this.onTabSelected,
     this.isScrollable = false,
     this.tone = VComponentTone.primary,
+    this.emphasis = VComponentEmphasis.medium,
     this.semanticLabel,
   });
 
@@ -31,6 +33,8 @@ class VTabs extends StatelessWidget {
       VComponentTone.danger => Colors.red,
       _ => dynamicColors.primary,
     };
+
+    final indicatorWidth = emphasis == VComponentEmphasis.strong ? 3.0 : 2.0;
 
     Widget buildTab(int index, String label) {
       final isSelected = index == selectedIndex;
@@ -49,7 +53,7 @@ class VTabs extends StatelessWidget {
             border: Border(
               bottom: BorderSide(
                 color: isSelected ? activeColor : Colors.transparent,
-                width: 2,
+                width: indicatorWidth,
               ),
             ),
           ),

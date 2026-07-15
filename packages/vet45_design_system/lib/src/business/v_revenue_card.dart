@@ -3,12 +3,16 @@ import '../tokens/v_spacing.dart';
 import '../tokens/v_radius.dart';
 import '../tokens/v_typography.dart';
 import '../foundation/v_context_extensions.dart';
+import '../foundation/v_component_contracts.dart';
 
 class VRevenueCard extends StatelessWidget {
   final String title;
   final String amount;
   final String subtitle;
   final VoidCallback? onTap;
+  final VComponentTone tone;
+  final VComponentEmphasis emphasis;
+  final String? semanticLabel;
 
   const VRevenueCard({
     super.key,
@@ -16,13 +20,19 @@ class VRevenueCard extends StatelessWidget {
     this.amount = '8.420.000 ₫',
     this.subtitle = 'Từ 12 đơn · +18% so với hôm qua',
     this.onTap,
+    this.tone = VComponentTone.primary,
+    this.emphasis = VComponentEmphasis.strong,
+    this.semanticLabel,
   });
 
   @override
   Widget build(BuildContext context) {
     final dynamicColors = context.vColors;
 
-    return InkWell(
+    return Semantics(
+      label: semanticLabel ?? title,
+      button: onTap != null,
+      child: InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(VRadius.r16),
       child: Container(
@@ -88,6 +98,7 @@ class VRevenueCard extends StatelessWidget {
           ],
         ),
       ),
+    ),
     );
   }
 }

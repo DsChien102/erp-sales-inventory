@@ -5,20 +5,22 @@ import '../tokens/v_typography.dart';
 
 /// Typography scale variants — map 1-1 to [VTypography] public styles.
 enum VTextVariant {
+  // Sans
   displayD1,
-  displayD2,
   headingH1,
   headingH2,
   headingH3,
-  headingH3_2,
   headingH4,
-  headingH4_2,
   bodyDefault,
-  bodyDefault2,
   bodySmall,
-  bodySmall2,
   caption,
   labelSmall,
+  // Mono
+  displayD1Mono,
+  headingH3Mono,
+  headingH4Mono,
+  bodyDefaultMono,
+  bodySmallMono,
   monoNumeric,
 }
 
@@ -52,19 +54,19 @@ class VText extends StatelessWidget {
   TextStyle _baseStyle(VTextVariant variant) {
     return switch (variant) {
       VTextVariant.displayD1 => VTypography.displayD1,
-      VTextVariant.displayD2 => VTypography.displayD2,
       VTextVariant.headingH1 => VTypography.headingH1,
       VTextVariant.headingH2 => VTypography.headingH2,
       VTextVariant.headingH3 => VTypography.headingH3,
-      VTextVariant.headingH3_2 => VTypography.headingH3_2,
       VTextVariant.headingH4 => VTypography.headingH4,
-      VTextVariant.headingH4_2 => VTypography.headingH4_2,
       VTextVariant.bodyDefault => VTypography.bodyDefault,
-      VTextVariant.bodyDefault2 => VTypography.bodyDefault2,
       VTextVariant.bodySmall => VTypography.bodySmall,
-      VTextVariant.bodySmall2 => VTypography.bodySmall2,
       VTextVariant.caption => VTypography.caption,
       VTextVariant.labelSmall => VTypography.labelSmall,
+      VTextVariant.displayD1Mono => VTypography.displayD1Mono,
+      VTextVariant.headingH3Mono => VTypography.headingH3Mono,
+      VTextVariant.headingH4Mono => VTypography.headingH4Mono,
+      VTextVariant.bodyDefaultMono => VTypography.bodyDefaultMono,
+      VTextVariant.bodySmallMono => VTypography.bodySmallMono,
       VTextVariant.monoNumeric => VTypography.monoNumeric,
     };
   }

@@ -9,6 +9,7 @@ import '../tokens/v_typography.dart';
 
 /// Visual weight for chips — mirrors Polaris clickable-chip `color`
 /// (`subdued` / `base` / `strong`).
+@Deprecated('Use VComponentEmphasis instead')
 enum VChipEmphasis { subdued, base, strong }
 
 /// Flexible chip: static label, selectable filter, or removable tag.
@@ -16,11 +17,13 @@ enum VChipEmphasis { subdued, base, strong }
 /// - No [onTap] / [onRemove] → static chip (Polaris `chip`)
 /// - [onTap] set → clickable (Polaris `clickable-chip`)
 /// - [onRemove] set → shows a dismiss control
+///
+/// [enabled] maps to [VComponentState.enabled] / [VComponentState.disabled].
 class VChip extends StatelessWidget {
   const VChip({
     super.key,
     required this.label,
-    this.emphasis = VChipEmphasis.base,
+    this.emphasis = VComponentEmphasis.medium,
     this.selected = false,
     this.onTap,
     this.onRemove,
@@ -28,12 +31,13 @@ class VChip extends StatelessWidget {
     this.enabled = true,
     this.semanticLabel,
     this.tone,
+    this.state,
   });
 
   final String label;
 
-  /// Emphasis when not [selected]. Selected chips use a filled success style.
-  final VChipEmphasis emphasis;
+  /// Emphasis when not [selected]. Selected chips use a filled tone style.
+  final VComponentEmphasis emphasis;
 
   /// Filter/choice selection — filled success when true.
   final bool selected;
@@ -51,7 +55,15 @@ class VChip extends StatelessWidget {
   /// Optional semantic tone for selected/filled chips. Defaults to success.
   final VComponentTone? tone;
 
-  bool get _isInteractive => enabled && (onTap != null || onRemove != null);
+  /// Optional state override; defaults from [enabled].
+  final VComponentState? state;
+
+  VComponentState get _resolvedState =>
+      state ?? (enabled ? VComponentState.enabled : VComponentState.disabled);
+
+  bool get _isEnabled => _resolvedState == VComponentState.enabled;
+
+  bool get _isInteractive => _isEnabled && (onTap != null || onRemove != null);
 
   @override
   Widget build(BuildContext context) {
@@ -82,7 +94,7 @@ class VChip extends StatelessWidget {
           const SizedBox(width: VSpacing.space1),
           _RemoveButton(
             color: resolved.foreground,
-            onPressed: enabled ? onRemove : null,
+            onPressed: _isEnabled ? onRemove : null,
           ),
         ],
       ],
@@ -103,7 +115,7 @@ class VChip extends StatelessWidget {
       child: chipBody,
     );
 
-    if (!enabled) {
+    if (!_isEnabled) {
       chipBody = Opacity(opacity: 0.5, child: chipBody);
     }
 
@@ -112,19 +124,19 @@ class VChip extends StatelessWidget {
     if (!_isInteractive) {
       return Semantics(
         label: semanticsLabel,
+        enabled: _isEnabled,
         child: chipBody,
       );
     }
 
-    // Remove has its own hit target; body tap uses onTap when present.
     return Semantics(
       button: onTap != null,
-      enabled: enabled,
+      enabled: _isEnabled,
       label: semanticsLabel,
       child: Material(
         color: Colors.transparent,
         child: InkWell(
-          onTap: enabled && onTap != null ? onTap : null,
+          onTap: _isEnabled && onTap != null ? onTap : null,
           borderRadius: BorderRadius.circular(VRadius.r16),
           child: chipBody,
         ),
@@ -144,19 +156,19 @@ class VChip extends StatelessWidget {
     }
 
     switch (emphasis) {
-      case VChipEmphasis.subdued:
+      case VComponentEmphasis.subtle:
         return _ChipColors(
           background: colors.surfaceAlt,
           foreground: colors.textSecondary,
           border: null,
         );
-      case VChipEmphasis.base:
+      case VComponentEmphasis.medium:
         return _ChipColors(
           background: colors.surface,
           foreground: colors.textPrimary,
           border: Border.all(color: colors.borderDefault),
         );
-      case VChipEmphasis.strong:
+      case VComponentEmphasis.strong:
         return _ChipColors(
           background: colors.surfaceBrand,
           foreground: colors.primary,

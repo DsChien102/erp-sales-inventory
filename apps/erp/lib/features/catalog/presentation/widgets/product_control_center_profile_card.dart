@@ -40,7 +40,7 @@ class ProductControlCenterProfileCard extends StatelessWidget {
               width: 64,
               height: 64,
               fit: BoxFit.cover,
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: BorderRadius.circular(VRadius.r8),
               placeholder: VIconBox(
                 size: 64,
                 iconSize: 32,
@@ -57,7 +57,7 @@ class ProductControlCenterProfileCard extends StatelessWidget {
               backgroundColor: dynamicColors.surfaceAlt,
               iconColor: dynamicColors.textMuted,
             ),
-          const SizedBox(width: 16),
+          const VGap.horizontalMd(),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -68,12 +68,12 @@ class ProductControlCenterProfileCard extends StatelessWidget {
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
-                const SizedBox(height: VSpacing.space1),
+                const VGap.xs(),
                 VText(
                   listPriceText,
                   variant: VTextVariant.bodyDefault,
                 ),
-                const SizedBox(height: VSpacing.space1),
+                const VGap.xs(),
                 VText(
                   stockText,
                   variant: VTextVariant.bodySmall,

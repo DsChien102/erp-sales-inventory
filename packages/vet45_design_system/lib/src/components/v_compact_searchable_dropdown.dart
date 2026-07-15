@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../foundation/v_dropdown_filter.dart';
 import '../foundation/v_overlay_menu_layout.dart';
 import '../foundation/v_route_overlay_guard.dart';
+import '../foundation/v_component_contracts.dart';
 import '../tokens/v_radius.dart';
 import '../tokens/v_typography.dart';
 import '../foundation/v_context_extensions.dart';
@@ -27,6 +28,10 @@ class VCompactSearchableDropdown<T> extends StatefulWidget {
     this.stickyActionsReserve = 72,
     this.collapsedWhenUnfocused = true,
     this.menuHeight = VOverlayMenuLayout.defaultMenuHeight,
+    this.tone = VComponentTone.neutral,
+    this.emphasis = VComponentEmphasis.medium,
+    this.state,
+    this.semanticLabel,
   });
 
   final T? value;
@@ -41,6 +46,15 @@ class VCompactSearchableDropdown<T> extends StatefulWidget {
   final double stickyActionsReserve;
   final bool collapsedWhenUnfocused;
   final double menuHeight;
+  final VComponentTone tone;
+  final VComponentEmphasis emphasis;
+  final VComponentState? state;
+  final String? semanticLabel;
+
+  VComponentState _resolveState() {
+    if (state != null) return state!;
+    return enabled ? VComponentState.enabled : VComponentState.disabled;
+  }
 
   static const double controlHeight = 40;
   static const double trailingIconWidth = 40;
@@ -248,12 +262,18 @@ class _VCompactSearchableDropdownState<T>
 
   BoxDecoration _decoration(BuildContext context) {
     final colors = context.vColors;
+    final isEnabled = widget._resolveState() == VComponentState.enabled;
+    final borderColor = switch (widget.tone) {
+      VComponentTone.primary => colors.primary,
+      VComponentTone.danger => colors.danger,
+      _ => isEnabled ? colors.borderStrong : colors.borderDefault,
+    };
+    final borderWidth = widget.emphasis == VComponentEmphasis.strong ? 1.5 : 1.0;
+
     return BoxDecoration(
-      color: widget.enabled ? colors.surface : colors.surfaceAlt,
+      color: isEnabled ? colors.surface : colors.surfaceAlt,
       borderRadius: BorderRadius.circular(VRadius.input),
-      border: Border.all(
-        color: widget.enabled ? colors.borderStrong : colors.borderDefault,
-      ),
+      border: Border.all(color: borderColor, width: borderWidth),
     );
   }
 
@@ -470,8 +490,19 @@ class _VCompactSearchableDropdownState<T>
       _isFullyReady = true;
     }
 
+    final isEnabled = widget._resolveState() == VComponentState.enabled;
+
+    Widget buildContent(Widget child) {
+      return Semantics(
+        label: widget.semanticLabel ?? widget.hintText ?? 'Compact searchable dropdown',
+        textField: true,
+        enabled: isEnabled,
+        child: child,
+      );
+    }
+
     if (!_isFullyReady) {
-      return _buildFrozenField();
+      return buildContent(_buildFrozenField());
     }
 
     // Subscribe to keyboard insets so we rebuild when the keyboard opens;
@@ -488,10 +519,11 @@ class _VCompactSearchableDropdownState<T>
     }
 
     if (showCollapsed) {
-      return _buildCollapsedField();
+      return buildContent(_buildCollapsedField());
     }
 
-    return SizedBox(
+    return buildContent(
+    SizedBox(
       height: VCompactSearchableDropdown.controlHeight,
       width: double.infinity,
       child: LayoutBuilder(
@@ -521,6 +553,7 @@ class _VCompactSearchableDropdownState<T>
           );
         },
       ),
+    ),
     );
   }
 }

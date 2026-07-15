@@ -4,6 +4,7 @@ import '../tokens/v_radius.dart';
 import '../tokens/v_spacing.dart';
 import '../tokens/v_typography.dart';
 import '../foundation/v_context_extensions.dart';
+import '../foundation/v_component_contracts.dart';
 
 enum VSearchBarVariant { outlined, filled, header }
 
@@ -18,6 +19,11 @@ class VSearchBar extends StatefulWidget {
   final bool autofocus;
   final FocusNode? focusNode;
   final Widget? suffix;
+  final bool enabled;
+  final VComponentTone tone;
+  final VComponentEmphasis emphasis;
+  final VComponentState? state;
+  final String? semanticLabel;
 
   const VSearchBar({
     super.key,
@@ -31,6 +37,11 @@ class VSearchBar extends StatefulWidget {
     this.autofocus = false,
     this.focusNode,
     this.suffix,
+    this.enabled = true,
+    this.tone = VComponentTone.neutral,
+    this.emphasis = VComponentEmphasis.medium,
+    this.state,
+    this.semanticLabel,
   });
 
   @override
@@ -81,6 +92,9 @@ class _VSearchBarState extends State<VSearchBar> {
   Widget build(BuildContext context) {
     final dynamicColors = context.vColors;
     final isFocused = _focusNode.hasFocus;
+    final resolvedState = widget.state ??
+        (widget.enabled ? VComponentState.enabled : VComponentState.disabled);
+    final isEnabled = resolvedState == VComponentState.enabled;
 
     Color bg;
     Border? border;
@@ -88,12 +102,20 @@ class _VSearchBarState extends State<VSearchBar> {
     Color textColor;
     Color hintColor;
 
+    final focusBorderColor = switch (widget.tone) {
+      VComponentTone.primary => dynamicColors.primary,
+      VComponentTone.danger => VColors.danger,
+      _ => dynamicColors.primary,
+    };
+
+    final borderWidth = widget.emphasis == VComponentEmphasis.strong ? 1.5 : 1.0;
+
     switch (widget.variant) {
       case VSearchBarVariant.outlined:
-        bg = dynamicColors.surface;
+        bg = isEnabled ? dynamicColors.surface : dynamicColors.surfaceAlt;
         border = Border.all(
-          color: isFocused ? dynamicColors.primary : dynamicColors.borderDefault,
-          width: isFocused ? 1.5 : 1,
+          color: isFocused ? focusBorderColor : dynamicColors.borderDefault,
+          width: isFocused ? 1.5 : borderWidth,
         );
         iconColor = dynamicColors.textSecondary;
         textColor = dynamicColors.textPrimary;
@@ -137,6 +159,7 @@ class _VSearchBarState extends State<VSearchBar> {
                   focusNode: _focusNode,
                   autofocus: widget.autofocus,
                   readOnly: widget.readOnly,
+                  enabled: isEnabled,
                   onTapOutside: (event) {
                     FocusManager.instance.primaryFocus?.unfocus();
                   },
@@ -164,7 +187,11 @@ class _VSearchBarState extends State<VSearchBar> {
       ],
     );
 
-    return Container(
+    return Semantics(
+      textField: widget.onTap == null,
+      enabled: isEnabled,
+      label: widget.semanticLabel ?? widget.hintText,
+      child: Container(
       height: 44,
       padding: EdgeInsets.only(
         left: VSpacing.space4,
@@ -182,6 +209,7 @@ class _VSearchBarState extends State<VSearchBar> {
               child: content,
             )
           : content,
+    ),
     );
   }
 }

@@ -23,6 +23,12 @@ export 'src/foundation/v_overlay_menu_layout.dart';
 export 'src/foundation/v_dropdown_filter.dart';
 export 'src/audit/v_component_audit_snapshot.dart';
 
+// Patterns (layout)
+export 'src/patterns/v_gap.dart';
+export 'src/patterns/v_page_padding.dart';
+export 'src/patterns/v_section.dart';
+export 'src/patterns/v_page_scaffold.dart';
+
 // Primitives
 export 'src/primitives/v_badge.dart';
 export 'src/primitives/v_chip.dart';

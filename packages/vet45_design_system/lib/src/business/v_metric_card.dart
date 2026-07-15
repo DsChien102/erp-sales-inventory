@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:vet45_design_system/design_system.dart';
+import '../foundation/v_component_contracts.dart';
 
 class VMetricCard extends StatelessWidget {
   final Widget icon;
@@ -8,6 +9,9 @@ class VMetricCard extends StatelessWidget {
   final Color iconColor;
   final Color iconBgColor;
   final VoidCallback? onTap;
+  final VComponentTone? tone;
+  final VComponentEmphasis emphasis;
+  final String? semanticLabel;
 
   const VMetricCard({
     super.key,
@@ -17,15 +21,23 @@ class VMetricCard extends StatelessWidget {
     required this.iconColor,
     required this.iconBgColor,
     this.onTap,
+    this.tone,
+    this.emphasis = VComponentEmphasis.medium,
+    this.semanticLabel,
   });
 
   @override
   Widget build(BuildContext context) {
     final dynamicColors = context.vColors;
 
-    return VCard(
+    return Semantics(
+      label: semanticLabel ?? label,
+      button: onTap != null,
+      child: VCard(
       onTap: onTap,
       padding: const EdgeInsets.all(VSpacing.space3),
+      tone: tone,
+      emphasis: emphasis,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
@@ -65,6 +77,7 @@ class VMetricCard extends StatelessWidget {
           ),
         ],
       ),
+    ),
     );
   }
 }

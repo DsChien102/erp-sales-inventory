@@ -1,12 +1,17 @@
 import 'package:flutter/material.dart';
 import '../tokens/v_shadows.dart';
 import '../foundation/v_context_extensions.dart';
+import '../foundation/v_component_contracts.dart';
 
 class VFloatingActionButton extends StatelessWidget {
   final IconData iconData;
   final VoidCallback? onTap;
   final Color? backgroundColor;
   final Color? iconColor;
+  final VComponentTone tone;
+  final VComponentEmphasis emphasis;
+  final VComponentState? state;
+  final String? semanticLabel;
 
   const VFloatingActionButton({
     super.key,
@@ -14,39 +19,68 @@ class VFloatingActionButton extends StatelessWidget {
     this.onTap,
     this.backgroundColor,
     this.iconColor,
+    this.tone = VComponentTone.primary,
+    this.emphasis = VComponentEmphasis.strong,
+    this.state,
+    this.semanticLabel,
   });
+
+  VComponentState _resolveState() {
+    if (state != null) return state!;
+    if (onTap == null) return VComponentState.disabled;
+    return VComponentState.enabled;
+  }
 
   @override
   Widget build(BuildContext context) {
     final dynamicColors = context.vColors;
-    final resolvedBgColor = backgroundColor ?? dynamicColors.primary;
+    final resolvedState = _resolveState();
+    final isEnabled = resolvedState == VComponentState.enabled;
+
+    final resolvedBgColor = backgroundColor ??
+        switch (tone) {
+          VComponentTone.primary => dynamicColors.primary,
+          VComponentTone.danger => dynamicColors.danger,
+          VComponentTone.warning => dynamicColors.warning,
+          _ => dynamicColors.primary,
+        };
     final resolvedIconColor = iconColor ?? Colors.white;
 
-    return Container(
-      width: 56,
-      height: 56,
-      decoration: BoxDecoration(
-        color: resolvedBgColor,
-        shape: BoxShape.circle,
-        boxShadow: [
-          BoxShadow(
-            color: resolvedBgColor.withValues(alpha: 0.35),
-            blurRadius: 16,
-            offset: const Offset(0, 8),
+    final shadowAlpha = emphasis == VComponentEmphasis.strong ? 0.35 : 0.2;
+
+    return Semantics(
+      button: true,
+      enabled: isEnabled,
+      label: semanticLabel ?? 'Floating action',
+      child: Opacity(
+        opacity: isEnabled ? 1 : 0.5,
+        child: Container(
+          width: 56,
+          height: 56,
+          decoration: BoxDecoration(
+            color: resolvedBgColor,
+            shape: BoxShape.circle,
+            boxShadow: [
+              BoxShadow(
+                color: resolvedBgColor.withValues(alpha: shadowAlpha),
+                blurRadius: emphasis == VComponentEmphasis.strong ? 16 : 8,
+                offset: const Offset(0, 8),
+              ),
+              if (emphasis == VComponentEmphasis.strong) ...VShadows.e3,
+            ],
           ),
-          ...VShadows.e3,
-        ],
-      ),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: onTap,
-          customBorder: const CircleBorder(),
-          child: Center(
-            child: Icon(
-              iconData,
-              size: 28,
-              color: resolvedIconColor,
+          child: Material(
+            color: Colors.transparent,
+            child: InkWell(
+              onTap: isEnabled ? onTap : null,
+              customBorder: const CircleBorder(),
+              child: Center(
+                child: Icon(
+                  iconData,
+                  size: 28,
+                  color: resolvedIconColor,
+                ),
+              ),
             ),
           ),
         ),
