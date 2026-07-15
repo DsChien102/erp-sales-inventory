@@ -16,7 +16,7 @@ Domain quyết định hành vi nghiệp vụ hợp lệ.
 Infrastructure triển khai kỹ thuật (RPC, views, cache, workers).
 ```
 
-**Đọc trước:** [reference.md](reference.md) · **Canonical spec:** [docs/presentation_layer_skill.md](../../../docs/presentation_layer_skill.md) · **Golden reference:** `apps/erp/lib/features/dashboard/presentation/`
+**Đọc trước:** [reference.md](reference.md) · **Canonical spec:** [docs/presentation_layer_skill.md](../../../docs/presentation_layer_skill.md) · **Design System Polaris:** [packages/vet45_design_system/docs/polaris/README.md](../../../packages/vet45_design_system/docs/polaris/README.md) · **Golden reference:** `apps/erp/lib/features/catalog/presentation/pages/product_control_center_page.dart`
 
 ---
 
@@ -52,7 +52,7 @@ Mutations/reads: `IExecutionContext` → `IModuleMediator` — không bypass qua
 
 ## Quy tắc cứng
 
-1. **Bắt buộc dùng Design System**: Mọi thành phần UI (Button, TextField, Typography, Colors...) **phải** được sử dụng từ package `vet45_design_system`. Tuyệt đối không tự custom UI từ đầu nếu design system đã có sẵn.
+1. **Bắt buộc dùng Design System**: Mọi thành phần UI (Button, TextField, Typography, Colors...) **phải** được sử dụng từ package `vet45_design_system`. Ưu tiên **layout patterns** (`VPageScaffold`, `VGap`, `VPagePadding`, `VSection`) trước khi invent widget mới — xem [06-design-system-spec.md](../../../packages/vet45_design_system/docs/polaris/06-design-system-spec.md). Tuyệt đối không tự custom UI từ đầu nếu design system đã có sẵn.
 2. **Page/screen ≤ 500 dòng** — enforce bởi `scripts/ci/guard_presentation_size.sh`. Quy định này bắt buộc bạn phải phân nhỏ UI thành các widget nhỏ hơn (component) ở các file riêng biệt để tránh tình trạng code trải dài, khó bảo trì.
 3. **1 dialog = 1 file** — `StatelessWidget` (ưu tiên `const`) trong `widgets/`, không inline `AlertDialog` trong page
 4. **Không `Widget _buildXxx()`** cho subtree lớn trong `State` — bắt buộc phải tách thành các class widget riêng biệt hoặc tạo file riêng để chia nhỏ giao diện.
@@ -112,13 +112,15 @@ cd apps/erp && flutter test test/features/<feature>/
 
 ## Golden reference
 
-Copy pattern từ dashboard (page mỏng + widgets tách file):
+Copy pattern từ Product Control Center (DS-compliant page + widgets tách file):
 
 | File | Vai trò |
 | ---- | ------- |
-| `apps/erp/lib/features/dashboard/presentation/dashboard_page.dart` | Page compose, tab state |
-| `apps/erp/lib/features/dashboard/presentation/widgets/dashboard_header.dart` | Section widget `const` |
-| `apps/erp/lib/features/dashboard/presentation/widgets/metric_tile.dart` | Reusable tile |
+| `apps/erp/lib/features/catalog/presentation/pages/product_control_center_page.dart` | `VPageScaffold`, Bloc wire |
+| `apps/erp/lib/features/catalog/presentation/widgets/product_control_center_body.dart` | Scroll body + `VGap` |
+| `apps/erp/lib/features/catalog/presentation/widgets/product_control_center_section_card.dart` | Section card pattern |
+
+Dashboard (page mỏng cũ): `apps/erp/lib/features/dashboard/presentation/dashboard_page.dart`
 
 ---
 

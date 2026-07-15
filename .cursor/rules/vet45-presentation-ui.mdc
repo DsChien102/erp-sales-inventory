@@ -31,10 +31,19 @@ alwaysApply: false
 - `apps/erp/lib/features/dashboard/presentation/dashboard_page.dart`
 - `apps/erp/lib/features/dashboard/presentation/widgets/dashboard_header.dart`
 
+## Design System (Polaris)
+
+- Spec: `packages/vet45_design_system/docs/polaris/06-design-system-spec.md`
+- Checklist PR: `packages/vet45_design_system/docs/polaris/07-token-migration-checklist.md`
+- Ưu tiên layout patterns (`VPageScaffold`, `VGap`, `VPagePadding`, `VSection`) trước khi invent widget mới
+- Không magic spacing (`EdgeInsets` literal) — dùng `VSpacing` / layout primitives
+- Typography qua `VText`; overlay qua `showVConfirmDialog` / `showVBottomSheet`
+
 ## Before implementing UI slice
 
 1. Read `.cursor/skills/presentation-layer/SKILL.md`
-2. Read UI artifacts in FR/US spec — create widget manifest first
-3. Implement widgets/dialogs before the page
-4. Nếu tích hợp async query, đọc `packages/vet45_async_query/docs/AGENT_INTEGRATION_PLAYBOOK.md`
-5. Verify: `./scripts/ci/verify_harness.sh`
+2. Read Polaris spec + checklist (links above)
+3. Read UI artifacts in FR/US spec — create widget manifest first
+4. Implement widgets/dialogs before the page
+5. Nếu tích hợp async query, đọc `packages/vet45_async_query/docs/AGENT_INTEGRATION_PLAYBOOK.md`
+6. Verify: `./scripts/ci/verify_harness.sh` + `./scripts/ci/guard_design_system_usage.sh`
