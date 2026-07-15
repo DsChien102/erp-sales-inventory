@@ -32,6 +32,9 @@ echo "==> guard_presentation_size"
 echo "==> guard_presentation_dialogs"
 GUARD_PRESENTATION_DIALOGS_LEGACY=1 "$root/scripts/ci/guard_presentation_dialogs.sh"
 
+echo "==> guard_design_system_usage"
+"$root/scripts/ci/guard_design_system_usage.sh"
+
 echo "==> verify_env_manifest"
 "$root/scripts/ci/verify_env_manifest.sh"
 
