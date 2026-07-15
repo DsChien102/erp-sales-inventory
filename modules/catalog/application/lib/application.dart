@@ -28,6 +28,7 @@ export 'src/custom_field/queries/list_custom_field_config/list_custom_field_conf
 export 'src/custom_field/queries/list_custom_field_config/list_custom_field_config_query_validator.dart';
 export 'src/custom_field/shared/custom_field_config_view_dto.dart';
 export 'src/custom_field/shared/custom_field_definition_dto.dart';
+export 'src/custom_field/shared/custom_field_group_display_name.dart';
 export 'src/custom_field/shared/custom_field_group_config_dto.dart';
 export 'src/custom_field/shared/custom_field_select_option_dto.dart';
 export 'src/exceptions/duplicate_barcode_exception.dart';

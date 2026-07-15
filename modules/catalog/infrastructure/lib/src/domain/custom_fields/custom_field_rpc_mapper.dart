@@ -213,7 +213,7 @@ abstract final class CustomFieldRpcMapper {
 
     return ProductCustomFieldValueGroupDto(
       groupId: row['group_id'] as String,
-      name: row['name'] as String,
+      name: customFieldGroupDisplayName(row['name'] as String),
       iconKey: row['icon_key'] as String?,
       sortOrder: (row['sort_order'] as num?)?.toInt() ?? 0,
       fields: fields,
@@ -260,7 +260,7 @@ abstract final class CustomFieldRpcMapper {
 
     return CustomFieldGroupCardDto(
       groupId: row['group_id'] as String,
-      name: row['name'] as String,
+      name: customFieldGroupDisplayName(row['name'] as String),
       iconKey: row['icon_key'] as String?,
       sortOrder: (row['sort_order'] as num?)?.toInt() ?? 0,
       fields: fields,
@@ -334,7 +334,7 @@ abstract final class CustomFieldRpcMapper {
 
     return CustomFieldGroupConfigDto(
       groupId: row['group_id'] as String,
-      name: row['name'] as String,
+      name: customFieldGroupDisplayName(row['name'] as String),
       iconKey: row['icon_key'] as String?,
       sortOrder: (row['sort_order'] as num?)?.toInt() ?? 0,
       status: statusFromRpc(row['status'] as String?),
@@ -465,7 +465,7 @@ abstract final class CustomFieldRpcMapper {
     return CustomFieldFilterOptionDto(
       fieldId: row['field_id'] as String,
       groupId: row['group_id'] as String,
-      groupName: row['group_name'] as String,
+      groupName: customFieldGroupDisplayName(row['group_name'] as String),
       fieldName: row['field_name'] as String,
       fieldType: row['field_type'] as String,
       options: options,
@@ -526,7 +526,7 @@ abstract final class CustomFieldRpcMapper {
       productId: row['product_id'] as String,
       fieldId: row['field_id'] as String,
       groupId: row['group_id'] as String,
-      groupName: row['group_name'] as String,
+      groupName: customFieldGroupDisplayName(row['group_name'] as String),
       fieldName: row['field_name'] as String,
       fieldType: row['field_type'] as String,
       displayValue: row['display_value'] as String?,
@@ -552,7 +552,7 @@ abstract final class CustomFieldRpcMapper {
     return CustomFieldListValueDto(
       fieldId: row['field_id'] as String,
       groupId: row['group_id'] as String,
-      groupName: row['group_name'] as String,
+      groupName: customFieldGroupDisplayName(row['group_name'] as String),
       fieldName: row['field_name'] as String,
       fieldType: row['field_type'] as String,
       displayValue: row['display_value'] as String,

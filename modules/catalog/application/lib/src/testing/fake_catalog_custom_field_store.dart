@@ -327,7 +327,7 @@ final class FakeCatalogCustomFieldStore {
     final activeFields = fields.where((field) => field.isActive);
     return CustomFieldGroupConfigDto(
       groupId: group.groupId,
-      name: group.name,
+      name: customFieldGroupDisplayName(group.name),
       iconKey: group.iconKey,
       sortOrder: group.sortOrder,
       status: group.isActive ? CustomFieldConfigStatus.active : CustomFieldConfigStatus.inactive,
@@ -362,7 +362,7 @@ final class FakeCatalogCustomFieldStore {
       cards.add(
         CustomFieldGroupCardDto(
           groupId: group.groupId,
-          name: group.name,
+          name: customFieldGroupDisplayName(group.name),
           iconKey: group.iconKey,
           sortOrder: group.sortOrder,
           fields: fields,
@@ -702,7 +702,7 @@ final class FakeCatalogCustomFieldStore {
         groups.add(
           ProductCustomFieldValueGroupDto(
             groupId: group.groupId,
-            name: group.name,
+            name: customFieldGroupDisplayName(group.name),
             iconKey: group.iconKey,
             sortOrder: group.sortOrder,
             fields: fields,
@@ -870,7 +870,7 @@ final class FakeCatalogCustomFieldStore {
           CustomFieldListValueDto(
             fieldId: field.fieldId,
             groupId: group.groupId,
-            groupName: group.name,
+            groupName: customFieldGroupDisplayName(group.name),
             fieldName: field.name,
             fieldType: field.fieldType.name,
             displayValue: displayValue,
@@ -941,7 +941,7 @@ final class FakeCatalogCustomFieldStore {
           CustomFieldFilterOptionDto(
             fieldId: field.fieldId,
             groupId: group.groupId,
-            groupName: group.name,
+            groupName: customFieldGroupDisplayName(group.name),
             fieldName: field.name,
             fieldType: field.fieldType.name,
             options: fieldOptions,
@@ -979,7 +979,7 @@ final class FakeCatalogCustomFieldStore {
               productId: productId,
               fieldId: field.fieldId,
               groupId: group.groupId,
-              groupName: group.name,
+              groupName: customFieldGroupDisplayName(group.name),
               fieldName: field.name,
               fieldType: field.fieldType.name,
               displayValue: _displayValue(field, value),
