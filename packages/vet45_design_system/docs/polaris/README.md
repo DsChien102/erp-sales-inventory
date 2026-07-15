@@ -11,6 +11,7 @@ Bộ tài liệu này là **source of truth** cho quy chuẩn UI: tokens, typogr
 | 3 | [06-design-system-spec.md](06-design-system-spec.md) | **Spec chính** — tokens, typography, 5 recipes |
 | 3b | [08-component-contracts.md](08-component-contracts.md) | Tone / Emphasis / State matrix |
 | 4 | [07-token-migration-checklist.md](07-token-migration-checklist.md) | Checklist PR |
+| 4b | [09-adoption-checklist.md](09-adoption-checklist.md) | CI tiers + backlog mở rộng ENFORCED |
 | 5 | [03-wave-roadmap.md](03-wave-roadmap.md) | Lộ trình waves |
 | 6 | [04-backlog-kpi.md](04-backlog-kpi.md) | KPI đo lường |
 | 7 | [05-rollout-strategy.md](05-rollout-strategy.md) | Chiến lược migrate |

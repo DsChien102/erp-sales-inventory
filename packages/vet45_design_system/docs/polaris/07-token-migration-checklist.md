@@ -47,9 +47,12 @@ Dùng checklist này cho mọi PR chạm presentation UI.
 
 ```bash
 ./scripts/ci/guard_design_system_usage.sh
+./scripts/ci/guard_design_system_contracts.sh
 ./scripts/ci/verify_harness.sh
 cd apps/erp && flutter test test/features/<feature>/
 ```
+
+**CI tiers (usage):** ENFORCED = `product_control_center*` + `product_catalog*`; MONITORED = toàn bộ feature presentation + module widgets (WARN). Chi tiết + backlog: [09-adoption-checklist.md](09-adoption-checklist.md).
 
 ## Mapping nhanh (legacy → token)
 

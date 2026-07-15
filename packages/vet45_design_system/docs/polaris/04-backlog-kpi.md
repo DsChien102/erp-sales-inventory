@@ -37,12 +37,15 @@
 ## Cách đo
 
 ```bash
-# Guard usage (catalog golden)
+# Guard usage (enforced: control center + catalog tab; monitored WARN elsewhere)
 ./scripts/ci/guard_design_system_usage.sh
+
+# Fail also on monitored debt (optional)
+GUARD_DESIGN_SYSTEM_STRICT=1 ./scripts/ci/guard_design_system_usage.sh
 
 # Guard contracts (required Tone/Emphasis/State/label)
 ./scripts/ci/guard_design_system_contracts.sh
 
-# Component audit (report only)
-cd packages/vet45_design_system && dart run tool/component_audit.dart
+# Adoption backlog
+# packages/vet45_design_system/docs/polaris/09-adoption-checklist.md
 ```

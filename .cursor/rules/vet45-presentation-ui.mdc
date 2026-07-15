@@ -28,16 +28,19 @@ alwaysApply: false
 
 ## Golden reference
 
-- `apps/erp/lib/features/dashboard/presentation/dashboard_page.dart`
-- `apps/erp/lib/features/dashboard/presentation/widgets/dashboard_header.dart`
+- Catalog (DS-compliant): `apps/erp/lib/features/catalog/presentation/pages/product_catalog_tab_page.dart`
+- Control center: `apps/erp/lib/features/catalog/presentation/pages/product_control_center_page.dart`
+- Dashboard (page mỏng): `apps/erp/lib/features/dashboard/presentation/dashboard_page.dart`
 
 ## Design System (Polaris)
 
 - Spec: `packages/vet45_design_system/docs/polaris/06-design-system-spec.md`
-- Checklist PR: `packages/vet45_design_system/docs/polaris/07-token-migration-checklist.md`
+- PR checklist: `packages/vet45_design_system/docs/polaris/07-token-migration-checklist.md`
+- Adoption + CI tiers: `packages/vet45_design_system/docs/polaris/09-adoption-checklist.md`
 - Ưu tiên layout patterns (`VPageScaffold`, `VGap`, `VPagePadding`, `VSection`) trước khi invent widget mới
 - Không magic spacing (`EdgeInsets` literal) — dùng `VSpacing` / layout primitives
 - Typography qua `VText`; overlay qua `showVConfirmDialog` / `showVBottomSheet`
+- CI: ENFORCED fail trên `product_control_center*` + `product_catalog*`; MONITORED WARN trên presentation còn lại
 
 ## Before implementing UI slice
 
