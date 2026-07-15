@@ -155,7 +155,7 @@ partner:
   get_partner_history: 20260714003_partner_v2_read.sql
   reactivate_partner: 20260714004_partner_v2_write_rpc.sql
   remove_organization_contact: 20260714004_partner_v2_write_rpc.sql
-  search_partners: 20260714009_partner_patch_alternate_name_search.sql
+  search_partners: 20260715001_partner_list_search_behavior.sql
   soft_delete_partner: 20260714004_partner_v2_write_rpc.sql
   transform_to_organization: 20260714004_partner_v2_write_rpc.sql
   update_organization_contact: 20260714004_partner_v2_write_rpc.sql
@@ -225,6 +225,7 @@ bootstrap_grandfathered:
   - 20260714008_catalog_patch_scale_unit_base_price_by_conversion_rate.sql
   - 20260714009_partner_patch_alternate_name_search.sql
   - 20260714010_catalog_patch_upsert_custom_field_values_skip_required_gate.sql
+  - 20260715001_partner_list_search_behavior.sql
 
 # Phase 2 pilot: split _drafts/catalog_product_sku_barcode_inline_normalize.sql
 #   into 001_catalog_patch_sku_barcode_schema.sql + 002_catalog_patch_sku_barcode_rpcs.sql
