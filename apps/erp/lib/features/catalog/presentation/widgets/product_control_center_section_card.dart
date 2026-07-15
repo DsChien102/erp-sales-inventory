@@ -28,7 +28,6 @@ class ProductControlCenterSectionCard extends StatelessWidget {
     return GestureDetector(
       onTap: onEdit,
       child: VCard(
-        padding: const EdgeInsets.all(16),
         child: Row(
           children: [
             if (emoji != null && emoji!.isNotEmpty)
@@ -40,7 +39,7 @@ class ProductControlCenterSectionCard extends StatelessWidget {
                   color: hasError ? dynamicColors.dangerBg : dynamicColors.surfaceBrand,
                   borderRadius: BorderRadius.circular(VRadius.iconBox),
                 ),
-                child: Text(
+                child: VText(
                   emoji!,
                   style: const TextStyle(fontSize: 20),
                 ),
@@ -53,52 +52,39 @@ class ProductControlCenterSectionCard extends StatelessWidget {
                 backgroundColor: hasError ? dynamicColors.dangerBg : dynamicColors.surfaceBrand,
                 iconColor: hasError ? dynamicColors.danger : dynamicColors.primary,
               ),
-            const SizedBox(width: 16),
+            const VGap.horizontalMd(),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
+                  VText(
                     title,
-                    style: VTypography.bodyDefault.copyWith(
-                      color: dynamicColors.textPrimary,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    variant: VTextVariant.bodyDefault,
+                    style: const TextStyle(fontWeight: FontWeight.bold),
                   ),
-                  const SizedBox(height: 2),
-                  Text(
+                  const VGap.xs(),
+                  VText(
                     subtitle,
-                    style: VTypography.bodySmall.copyWith(
-                      color: dynamicColors.textSecondary,
-                    ),
+                    variant: VTextVariant.bodySmall,
+                    color: dynamicColors.textSecondary,
                   ),
                   if (hasError) ...[
-                    const SizedBox(height: 4),
-                    Row(
-                      children: [
-                        const SizedBox(width: 4),
-                        Text(
-                          'Thiếu thông tin bắt buộc',
-                          style: VTypography.caption.copyWith(
-                            color: dynamicColors.textSecondary,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ],
+                    const VGap.xs(),
+                    VText(
+                      'Thiếu thông tin bắt buộc',
+                      variant: VTextVariant.caption,
+                      color: dynamicColors.textSecondary,
+                      style: const TextStyle(fontWeight: FontWeight.w500),
                     ),
                   ],
                 ],
               ),
             ),
-            TextButton(
+            VButton(
+              label: actionText,
+              variant: VButtonVariant.ghost,
+              size: VButtonSize.small,
               onPressed: onEdit,
-              child: Text(
-                actionText,
-                style: VTypography.bodyDefault.copyWith(
-                  color: hasError ? dynamicColors.primary : null,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
             ),
           ],
         ),

@@ -19,39 +19,37 @@ class ProductControlCenterReadinessBanner extends StatelessWidget {
       key: const Key('btn_readiness_checklist_banner'),
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(VSpacing.md),
         decoration: BoxDecoration(
           color: dynamicColors.warningBg,
           border: Border.all(
             color: dynamicColors.warning.withValues(alpha: 0.3),
           ),
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(VRadius.r12),
         ),
         child: Row(
           children: [
-            Icon(
-              Icons.error_outline,
+            VIcon(
+              iconData: Icons.error_outline,
               color: dynamicColors.warning,
               size: 24,
             ),
-            const SizedBox(width: 8),
+            const VGap.horizontalSm(),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
+                  VText(
                     'Cần bổ sung ($blockersCount)',
-                    style: VTypography.bodyDefault.copyWith(
-                      color: dynamicColors.warning,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    variant: VTextVariant.bodyDefault,
+                    color: dynamicColors.warning,
+                    style: const TextStyle(fontWeight: FontWeight.bold),
                   ),
-                  const SizedBox(height: 2),
-                  Text(
+                  const VGap.xs(),
+                  VText(
                     'Bấm để xem checklist và bổ sung từng mục.',
-                    style: VTypography.bodySmall.copyWith(
-                      color: dynamicColors.warning,
-                    ),
+                    variant: VTextVariant.bodySmall,
+                    color: dynamicColors.warning,
                   ),
                 ],
               ),

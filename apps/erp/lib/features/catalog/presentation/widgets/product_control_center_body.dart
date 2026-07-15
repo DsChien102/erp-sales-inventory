@@ -47,11 +47,11 @@ class ProductControlCenterBody extends StatelessWidget {
 
     if (state.status == ProductControlCenterStatus.failure) {
       return Center(
-        child: Text(
+        child: VText(
           state.errorMessage ?? 'Không thể tải chi tiết sản phẩm',
-          style: VTypography.bodyDefault.copyWith(
-            color: dynamicColors.textSecondary,
-          ),
+          variant: VTextVariant.bodyDefault,
+          color: dynamicColors.textSecondary,
+          textAlign: TextAlign.center,
         ),
       );
     }
@@ -60,10 +60,8 @@ class ProductControlCenterBody extends StatelessWidget {
     final isSoftDeleted = controlCenter?.profile.isSoftDeleted ?? product.isSoftDeleted;
 
     return SingleChildScrollView(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
+      child: VPagePadding(
         child: Column(
-          spacing: 8,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             if (controlCenter != null)
@@ -73,18 +71,21 @@ class ProductControlCenterBody extends StatelessWidget {
                 stock: controlCenter.stock,
               )
             else if (isLoading)
-              const SizedBox(height: 96),
-            if (controlCenter != null && blockersCount > 0)
+              const SizedBox(height: VSpacing.space12),
+            if (controlCenter != null && blockersCount > 0) ...[
+              const VGap.sm(),
               ProductControlCenterReadinessBanner(
                 blockersCount: blockersCount,
                 onTap: () => _openChecklist(context),
               ),
+            ],
             if (isLoading)
               const Padding(
-                padding: EdgeInsets.all(32),
+                padding: EdgeInsets.all(VSpacing.space8),
                 child: Center(child: CircularProgressIndicator()),
               )
             else if (controlCenter != null) ...[
+              const VGap.sm(),
               ProductControlCenterIdentitySection(
                 profile: controlCenter.profile,
                 onEditProfile: isSoftDeleted
@@ -94,6 +95,7 @@ class ProductControlCenterBody extends StatelessWidget {
                     ? null
                     : () => _openImagesMaintenance(context, controlCenter),
               ),
+              const VGap.sm(),
               ProductControlCenterOperationalSection(
                 units: controlCenter.units,
                 stock: controlCenter.stock,
@@ -112,10 +114,12 @@ class ProductControlCenterBody extends StatelessWidget {
                     : null,
                 onEditPriceBand: isSoftDeleted ? null : () => _openPriceBands(context),
               ),
+              const VGap.sm(),
               ProductControlCenterCustomFieldsSection(
                 groups: controlCenter.customFieldGroupCards,
                 onEditGroup: (group) => _openCustomFieldGroup(context, group),
               ),
+              const VGap.sm(),
               ProductControlCenterMetaSection(
                 note: controlCenter.profile.note,
                 changeHistoryPreview: controlCenter.changeHistoryPreview,
@@ -127,6 +131,7 @@ class ProductControlCenterBody extends StatelessWidget {
                   );
                 },
               ),
+              const VGap.sm(),
               ProductControlCenterDangerSection(
                 businessStatus: controlCenter.profile.businessStatus,
                 isSoftDeleted: isSoftDeleted,
@@ -160,7 +165,7 @@ class ProductControlCenterBody extends StatelessWidget {
             ],
             const SafeArea(
               top: false,
-              child: SizedBox(height: 32),
+              child: VGap.xl(),
             ),
           ],
         ),

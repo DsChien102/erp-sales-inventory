@@ -112,31 +112,28 @@ class _ProductControlCenterViewState extends State<_ProductControlCenterView> {
       },
       child: KeyedSubtree(
         key: const Key('wgt_e01_u02_fr01_01'),
-        child: Scaffold(
+        child: VPageScaffold(
           key: const Key('wgt_e02_u03_fr01_01'),
-          backgroundColor: dynamicColors.surface,
-          appBar: VAppBar(
-            title: product.name,
-            titleStyle: VTypography.headingH3.copyWith(
-              color: dynamicColors.textPrimary,
-              fontWeight: FontWeight.bold,
-            ),
-            leading: IconButton(
-              icon: Icon(Icons.arrow_back, color: dynamicColors.textPrimary),
-              onPressed: () {
-                if (context.canPop()) {
-                  context.pop();
-                } else {
-                  context.go('/products/items');
-                }
-              },
-            ),
-            actions: [
-              ProductControlCenterStatusBadge(
-                fallbackIsSoftDeleted: product.isSoftDeleted,
-              ),
-            ],
+          title: product.name,
+          titleStyle: VTypography.headingH3.copyWith(
+            color: dynamicColors.textPrimary,
+            fontWeight: FontWeight.bold,
           ),
+          leading: IconButton(
+            icon: Icon(Icons.arrow_back, color: dynamicColors.textPrimary),
+            onPressed: () {
+              if (context.canPop()) {
+                context.pop();
+              } else {
+                context.go('/products/items');
+              }
+            },
+          ),
+          actions: [
+            ProductControlCenterStatusBadge(
+              fallbackIsSoftDeleted: product.isSoftDeleted,
+            ),
+          ],
           body: BlocBuilder<ProductControlCenterCubit, ProductControlCenterState>(
             builder: (context, state) {
               return ProductControlCenterBody(
