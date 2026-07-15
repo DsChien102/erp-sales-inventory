@@ -1,0 +1,18 @@
+-- Title: catalog product code uniqueness for non-deleted products
+-- Kind: patch
+-- Intent: catalog_product_code_reuse_after_soft_delete
+-- Context: TH-02 / EPIC-02 / US-01 — reuse SKU and barcode after soft delete
+-- Touches: products
+-- Safety: idempotent ; medium — replaces legacy global uniqueness; fails on active duplicates
+-- Depends on: 20260712004_catalog_patch_business_status_soft_deleted_schema.sql
+
+alter table catalog.products
+  drop constraint if exists uq_products_tenant_sku,
+  drop constraint if exists uq_products_tenant_barcode,
+  drop constraint if exists uq_products_tenant_sku_normalized,
+  drop constraint if exists uq_products_tenant_barcode_normalized;
+
+drop index if exists catalog.uq_products_tenant_sku;
+drop index if exists catalog.uq_products_tenant_barcode;
+drop index if exists catalog.uq_products_tenant_sku_normalized;
+drop index if exists catalog.uq_products_tenant_barcode_normalized;

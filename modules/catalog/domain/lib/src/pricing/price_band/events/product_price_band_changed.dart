@@ -1,6 +1,7 @@
 import 'package:vet45_shared_domain/shared_kernel_domain.dart';
 
 import '../../../ids/product_id.dart';
+import '../price_band_calculation_mode.dart';
 import '../product_price_band_status.dart';
 
 final class ProductPriceBandChanged extends DomainEventBase {
@@ -15,6 +16,9 @@ final class ProductPriceBandChanged extends DomainEventBase {
     required this.effectiveFrom,
     this.effectiveTo,
     required this.status,
+    required this.calculationMode,
+    this.listMarkupRatio,
+    this.floorMarkupRatio,
   });
 
   final ProductId productId;
@@ -27,4 +31,7 @@ final class ProductPriceBandChanged extends DomainEventBase {
   final DateTime effectiveFrom;
   final DateTime? effectiveTo;
   final ProductPriceBandStatus status;
+  final PriceBandCalculationMode calculationMode;
+  final double? listMarkupRatio;
+  final double? floorMarkupRatio;
 }

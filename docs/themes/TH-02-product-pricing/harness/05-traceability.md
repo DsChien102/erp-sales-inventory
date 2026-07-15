@@ -306,6 +306,15 @@ Early: `readinessSummary` trên PCC (không thay FR-04 checklist đầy đủ).
 | FR-04 | BE | §EPIC-06-US-03 | infrastructure | Change history in `set_product_unit_price_band` RPC | — | done |
 | FR-01..03 | FE | §EPIC-06-US-03 | presentation | `ProductPriceBandsPage`, `EditProductUnitPriceBandPage`, `PriceBandCalculationTypeSelector`, cubits | wgt_e06_u03_fr01_01 | done |
 | FR-01..03 | E2E | §EPIC-06-US-03 | erp | E2E test cho price bands `product_price_bands_e2e_test.dart` | e2e_e06_u03_fr01_01 | done |
+
+### Bổ sung slice #26 — Ba cách tính và tự tái tính
+
+| Req ID | Role | Contract § | Enforce layer | Artifact | Test id | Status |
+| ------ | ---- | ---------- | ------------- | -------- | ------- | ------ |
+| US-02/03 ext | CONTRACT | §EPIC-06-US-02/03 | docs + application | Mode matrix, ratio contract, recalculation triggers | scn_e06_u02_price_mode_01..09 | done |
+| US-02/03 ext | BE | §EPIC-06-US-02/03 | domain + application + infrastructure | Calculator, command/DTO/gateway, fake parity, RPC drafts | scn_e06_u02_price_mode_01..09 | done |
+| US-02/03 ext | FE | §EPIC-06-US-02/03 | presentation + erp | Cubit typed modes, ba section widget, warning sheet | wgt_e06_u02_price_mode_01 | done |
+| US-02/03 ext | E2E | §EPIC-06-US-02/03 | erp | Store Rule / Custom Config / Manual + base/rule recalc + snapshot | e2e_e06_u02_price_mode_01..09 | done |
 | US-04 | CONTRACT | §EPIC-06-US-04 | application | `GetProductPriceBandSnapshotQuery`, snapshot DTOs, `FakeCatalogModule`, `IProductPriceBandGateway` | scn_contract_e06_u04_* | done |
 | FR-01 | CONTRACT | §EPIC-06-US-04 | application | `listPrice` + `listPriceMissing` per product/unit | scn_contract_e06_u04_fr01_* | done |
 | FR-02 | CONTRACT | §EPIC-06-US-04 | application | `floorPrice` + `floorPriceMissing` + `floorPriceHidden` | scn_contract_e06_u04_fr02_* | done |

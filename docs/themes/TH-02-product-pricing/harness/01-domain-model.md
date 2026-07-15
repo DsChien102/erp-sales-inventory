@@ -52,7 +52,7 @@ erDiagram
 | `ProductStockProfile` | `domain/lib/src/stock/` | Basic vs Advanced stock mode |
 | `ProductBasePriceProfile` | `domain/lib/src/pricing/` | Manual vs Costing-module base price |
 | `StorePriceRule` | `domain/lib/src/pricing/` | Quy tắc giá cấp cửa hàng/tenant (1/tenant) |
-| `ProductUnitPriceBand` | `domain/lib/src/pricing/` | Khung giá theo UOM: before/after VAT + cửa sổ hiệu lực + status |
+| `ProductUnitPriceBand` | `domain/lib/src/pricing/` | Khung giá theo UOM: đúng một mode `ruleBased` / `customConfig` / `manual`, giá materialized before/after VAT, cửa sổ hiệu lực + status |
 | `CustomFieldGroup` / `CustomField` | `domain/lib/src/custom_fields/` | Nhóm & trường thông tin bổ sung (tenant-configurable) |
 | `ProductReadiness` | `domain/lib/src/readiness/` | Trạng thái + blocker (computed hoặc cached) |
 
@@ -76,7 +76,9 @@ erDiagram
 | `BasePrice` | Giá cơ sở định giá (manual) |
 | `Money` | Số nguyên minor units (VND: 1 = 1 đồng); dùng cho list/floor before/after VAT trên `ProductUnitPriceBand` |
 | `ProductPriceBandStatus` | `active` \| `inactive` \| `deleted` — wire snake tương ứng |
-| `PriceRatio` | Tỷ lệ gợi ý từ Store Price Rule |
+| `PriceBandCalculationMode` | `ruleBased` \| `customConfig` \| `manual`; ba cách tính loại trừ lẫn nhau |
+| `PriceBandMarkupConfig` | Tỷ lệ niêm yết bắt buộc + tỷ lệ sàn tùy chọn; không âm; floor không vượt list |
+| `PriceRatio` | Tỷ lệ dạng thập phân; `0.40` tương ứng `40%` trên UI |
 | `CustomFieldValue` | Typed value theo định nghĩa Trường thông tin |
 | Field attrs | `required`, `searchable`, `filterable`, `display_on_list`, `sort_order` (group + field) |
 
@@ -102,7 +104,7 @@ erDiagram
 | `AdjustBasicStockCommand` | EPIC-05/US-02 | Không tạo phiếu kho |
 | `SetStockModeCommand` | EPIC-05/US-01, US-04 | Basic → Advanced; US-04 **pending** |
 | `SetStorePriceRuleCommand` | EPIC-06/US-02 | Store-level rule |
-| `SetProductUnitPriceBandCommand` | EPIC-06/US-03 | Before-VAT list+floor per UOM; after-VAT optional; effective + status |
+| `SetProductUnitPriceBandCommand` | EPIC-06/US-03 | `customConfig`: lưu tỷ lệ riêng + giá materialized; `manual`: lưu giá tuyệt đối; `ruleBased` dùng `ApplyStorePriceRuleCommand` |
 | `UpdateProductProfileCommand` | EPIC-07/US-01 | Nhận diện, không đổi mode |
 | `UpdateProductImagesCommand` | EPIC-07/US-01 | |
 | `DeactivateProductCommand` | EPIC-07/US-02 | |
@@ -160,7 +162,7 @@ erDiagram
 | Rule ID | Rule |
 | ------- | ---- |
 | DR-01 | Tên sản phẩm bắt buộc; guided create không ép toàn bộ field |
-| DR-02 | SKU/barcode optional; unique per tenant; SKU stored uppercase (`trim` + `upper`) |
+| DR-02 | SKU/barcode optional; unique per tenant trong tập sản phẩm chưa xóa mềm; mã được tái sử dụng sau soft delete; SKU stored uppercase (`trim` + `upper`) |
 | DR-02b | `ProductReferenceId` bắt buộc; unique per tenant (case-sensitive, exact match); immutable sau create. **Không expose UI** — chỉ dùng import/tracking DB. Guided create: hash tự động. Import: explicit legacy (`SP-0001`) qua `CreateProductCommand.referenceId?` |
 | DR-03 | Readiness tách khỏi trạng thái kinh doanh |
 | DR-04 | Basic stock theo base unit; không tạo phiếu nhập |

@@ -252,6 +252,95 @@ void main() {
       expect(matches, isEmpty);
     });
 
+    test('scn_contract_e02_u01_fr02_04 duplicate check ignores soft-deleted codes', () async {
+      final module = FakeCatalogModule();
+      await module.executeCommandAsync(
+        DeleteProductCommand(
+          tenantId: 'tenant-1',
+          actorId: 'user-1',
+          productId: 'product-4',
+        ),
+      );
+
+      final matches = await module.executeQueryAsync(
+        CheckDuplicateProductCodeQuery(
+          tenantId: 'tenant-1',
+          sku: 'SP0004',
+          barcode: '8930000000004',
+        ),
+      );
+
+      expect(matches, isEmpty);
+    });
+
+    test('scn_contract_e02_u01_fr02_04 creates with reused soft-deleted codes', () async {
+      final module = FakeCatalogModule();
+      await module.executeCommandAsync(
+        DeleteProductCommand(
+          tenantId: 'tenant-1',
+          actorId: 'user-1',
+          productId: 'product-4',
+        ),
+      );
+
+      final created = await module.executeCommandAsync(
+        CreateProductCommand(
+          tenantId: 'tenant-1',
+          actorId: 'user-1',
+          productName: 'Vitamin B Complex mới',
+          sku: 'SP0004',
+          barcode: '8930000000004',
+        ),
+      );
+
+      final matches = await module.executeQueryAsync(
+        CheckDuplicateProductCodeQuery(
+          tenantId: 'tenant-1',
+          sku: 'SP0004',
+          barcode: '8930000000004',
+        ),
+      );
+      expect(matches, hasLength(2));
+      expect(matches.map((match) => match.productId), everyElement(created.productId));
+    });
+
+    test('reused soft-deleted codes block restoring their former owner', () async {
+      final module = FakeCatalogModule();
+      await module.executeCommandAsync(
+        DeleteProductCommand(
+          tenantId: 'tenant-1',
+          actorId: 'user-1',
+          productId: 'product-4',
+        ),
+      );
+
+      final updated = await module.executeCommandAsync(
+        UpdateProductProfileCommand(
+          tenantId: 'tenant-1',
+          actorId: 'user-1',
+          productId: 'product-3',
+          productName: 'Ceftriaxone 1g',
+          sku: 'SP0004',
+          barcode: '8930000000004',
+          expectedVersion: 1,
+        ),
+      );
+      expect(updated.profile.sku, 'SP0004');
+      expect(updated.profile.barcode, '8930000000004');
+
+      await expectLater(
+        module.executeCommandAsync(
+          RestoreProductCommand(
+            tenantId: 'tenant-1',
+            actorId: 'user-1',
+            productId: 'product-4',
+            expectedVersion: 2,
+          ),
+        ),
+        throwsA(isA<DuplicateSkuException>()),
+      );
+    });
+
     test('basic_stock_quantity_base_ok sets stock quantity without error', () async {
       final module = FakeCatalogModule(
         scenario: FakeCatalogScenario.basicStockQuantityBaseOk,
@@ -764,7 +853,8 @@ void main() {
 
       expect(
         result.items.any(
-          (item) => SearchKeywordNormalizer.foldForSearch(item.name).contains('n') &&
+          (item) =>
+              SearchKeywordNormalizer.foldForSearch(item.name).contains('n') &&
               item.name.toLowerCase().contains('amoxicillin'),
         ),
         isTrue,
@@ -888,99 +978,102 @@ void main() {
       expect(result.changeHistoryPreview.first.changeType, ProductChangeHistoryAction.created);
     });
 
-    test('filters out custom field groups with no active fields and excludes inactive fields', () async {
-      final permissions = ProductReadinessPermissionContext(
-        canManageUnits: true,
-        canManageStock: true,
-        canManagePricing: true,
-        canUpdateProduct: true,
-        canCreateProduct: true,
-        canViewDetail: true,
-      );
+    test(
+      'filters out custom field groups with no active fields and excludes inactive fields',
+      () async {
+        final permissions = ProductReadinessPermissionContext(
+          canManageUnits: true,
+          canManageStock: true,
+          canManagePricing: true,
+          canUpdateProduct: true,
+          canCreateProduct: true,
+          canViewDetail: true,
+        );
 
-      final readModel = ProductControlCenterReadModel(
-        productId: 'product-1',
-        name: 'Product A',
-        businessStatus: ProductBusinessStatus.active,
-        facts: ProductReadinessFacts(
+        final readModel = ProductControlCenterReadModel(
           productId: 'product-1',
-          productName: 'Product A',
-          hasBaseUnit: true,
-          hasImages: true,
-          hasStock: true,
-          hasBasePrice: true,
-          hasPriceBand: true,
-          hasRequiredCustomFields: true,
-          stockMode: StockMode.basic,
-          basePriceMode: BasePriceMode.manual,
-        ),
-        customFieldGroupCards: [
-          // Group 1: Has both active and inactive fields
-          CustomFieldGroupCardDto(
-            groupId: 'group-1',
-            name: 'Group 1',
-            fields: [
-              CustomFieldCardFieldDto(
-                fieldId: 'field-1-active',
-                name: 'Field 1 Active',
-                fieldType: 'text',
-                isActive: true,
-              ),
-              CustomFieldCardFieldDto(
-                fieldId: 'field-1-inactive',
-                name: 'Field 1 Inactive',
-                fieldType: 'text',
-                isActive: false,
-              ),
-            ],
+          name: 'Product A',
+          businessStatus: ProductBusinessStatus.active,
+          facts: ProductReadinessFacts(
+            productId: 'product-1',
+            productName: 'Product A',
+            hasBaseUnit: true,
+            hasImages: true,
+            hasStock: true,
+            hasBasePrice: true,
+            hasPriceBand: true,
+            hasRequiredCustomFields: true,
+            stockMode: StockMode.basic,
+            basePriceMode: BasePriceMode.manual,
           ),
-          // Group 2: Has no active fields, but one inactive field has data
-          CustomFieldGroupCardDto(
-            groupId: 'group-2',
-            name: 'Group 2',
-            fields: [
-              CustomFieldCardFieldDto(
-                fieldId: 'field-2-inactive-with-data',
-                name: 'Field 2 Inactive With Data',
-                fieldType: 'text',
-                displayValue: 'Some Data',
-                isActive: false,
-              ),
-              CustomFieldCardFieldDto(
-                fieldId: 'field-2-inactive-no-data',
-                name: 'Field 2 Inactive No Data',
-                fieldType: 'text',
-                isActive: false,
-              ),
-            ],
-          ),
-          // Group 3: Empty group
-          CustomFieldGroupCardDto(
-            groupId: 'group-3',
-            name: 'Group 3',
-            fields: [],
-          ),
-        ],
-      );
+          customFieldGroupCards: [
+            // Group 1: Has both active and inactive fields
+            CustomFieldGroupCardDto(
+              groupId: 'group-1',
+              name: 'Group 1',
+              fields: [
+                CustomFieldCardFieldDto(
+                  fieldId: 'field-1-active',
+                  name: 'Field 1 Active',
+                  fieldType: 'text',
+                  isActive: true,
+                ),
+                CustomFieldCardFieldDto(
+                  fieldId: 'field-1-inactive',
+                  name: 'Field 1 Inactive',
+                  fieldType: 'text',
+                  isActive: false,
+                ),
+              ],
+            ),
+            // Group 2: Has no active fields, but one inactive field has data
+            CustomFieldGroupCardDto(
+              groupId: 'group-2',
+              name: 'Group 2',
+              fields: [
+                CustomFieldCardFieldDto(
+                  fieldId: 'field-2-inactive-with-data',
+                  name: 'Field 2 Inactive With Data',
+                  fieldType: 'text',
+                  displayValue: 'Some Data',
+                  isActive: false,
+                ),
+                CustomFieldCardFieldDto(
+                  fieldId: 'field-2-inactive-no-data',
+                  name: 'Field 2 Inactive No Data',
+                  fieldType: 'text',
+                  isActive: false,
+                ),
+              ],
+            ),
+            // Group 3: Empty group
+            CustomFieldGroupCardDto(
+              groupId: 'group-3',
+              name: 'Group 3',
+              fields: [],
+            ),
+          ],
+        );
 
-      final result = ProductControlCenterAssembler.assemble(
-        model: readModel,
-        permissions: permissions,
-      );
+        final result = ProductControlCenterAssembler.assemble(
+          model: readModel,
+          permissions: permissions,
+        );
 
-      // Group 3 should be filtered out. Group 1 and Group 2 should be shown.
-      expect(result.customFieldGroupCards, hasLength(2));
-      expect(result.customFieldGroupCards[0].groupId, 'group-1');
-      expect(result.customFieldGroupCards[1].groupId, 'group-2');
+        // Group 3 should be filtered out. Group 1 and Group 2 should be shown.
+        expect(result.customFieldGroupCards, hasLength(2));
+        expect(result.customFieldGroupCards[0].groupId, 'group-1');
+        expect(result.customFieldGroupCards[1].groupId, 'group-2');
 
-      // Group 1 should only contain the active field
-      expect(result.customFieldGroupCards[0].fields, hasLength(1));
-      expect(result.customFieldGroupCards[0].fields.first.fieldId, 'field-1-active');
+        // Group 1 should only contain the active field
+        expect(result.customFieldGroupCards[0].fields, hasLength(1));
+        expect(result.customFieldGroupCards[0].fields.first.fieldId, 'field-1-active');
 
-      // Group 2 should only contain the inactive field that has data
-      expect(result.customFieldGroupCards[1].fields, hasLength(1));
-      expect(result.customFieldGroupCards[1].fields.first.fieldId, 'field-2-inactive-with-data');
-    });
+        // Group 2 should only contain the inactive field that has data
+        expect(result.customFieldGroupCards[1].fields, hasLength(1));
+        expect(result.customFieldGroupCards[1].fields.first.fieldId, 'field-2-inactive-with-data');
+      },
+    );
   });
 
   group('EPIC-04 / US-01 base unit contract', () {
@@ -2992,6 +3085,158 @@ void main() {
         ),
         isTrue,
       );
+    });
+  });
+
+  group('EPIC-06 price band calculation modes', () {
+    test('stores and reloads custom ratios per product unit', () async {
+      final module = FakeCatalogModule();
+
+      final saved = await module.executeCommandAsync(
+        SetProductUnitPriceBandCommand(
+          tenantId: 'tenant-1',
+          productId: 'product-9',
+          productUnitId: 'product-9-hop',
+          sourceType: PriceBandSourceType.customConfig,
+          listMarkupRatio: 0.30,
+          floorMarkupRatio: 0.10,
+        ),
+      );
+      final listed = await module.executeQueryAsync(
+        ListProductUnitPriceBandsQuery(
+          tenantId: 'tenant-1',
+          productId: 'product-9',
+        ),
+      );
+      final row = listed.rows.singleWhere(
+        (item) => item.productUnitId == 'product-9-hop',
+      );
+
+      expect(saved.listBeforeVat, 130000);
+      expect(saved.floorBeforeVat, 110000);
+      expect(row.sourceType, PriceBandSourceType.customConfig);
+      expect(row.listMarkupRatio, 0.30);
+      expect(row.floorMarkupRatio, 0.10);
+    });
+
+    test('base price change recalculates custom config but not manual', () async {
+      final module = FakeCatalogModule();
+      await module.executeCommandAsync(
+        SetProductUnitPriceBandCommand(
+          tenantId: 'tenant-1',
+          productId: 'product-9',
+          productUnitId: 'product-9-hop',
+          sourceType: PriceBandSourceType.customConfig,
+          listMarkupRatio: 0.30,
+          floorMarkupRatio: 0.10,
+        ),
+      );
+      await module.executeCommandAsync(
+        SetProductUnitPriceBandCommand(
+          tenantId: 'tenant-1',
+          productId: 'product-9',
+          productUnitId: 'product-9-base',
+          listBeforeVat: 17000,
+          listAfterVat: 17000,
+          floorBeforeVat: 15000,
+          floorAfterVat: 15000,
+        ),
+      );
+
+      await module.executeCommandAsync(
+        SetManualBasePriceCommand(
+          tenantId: 'tenant-1',
+          productId: 'product-9',
+          basePrice: 20000,
+        ),
+      );
+      final listed = await module.executeQueryAsync(
+        ListProductUnitPriceBandsQuery(
+          tenantId: 'tenant-1',
+          productId: 'product-9',
+        ),
+      );
+      final byId = {
+        for (final row in listed.rows) row.productUnitId: row,
+      };
+
+      expect(byId['product-9-hop']?.listBeforeVat, 260000);
+      expect(byId['product-9-hop']?.floorBeforeVat, 220000);
+      expect(byId['product-9-base']?.listBeforeVat, 17000);
+      expect(byId['product-9-base']?.floorBeforeVat, 15000);
+    });
+
+    test('store rule change recalculates only matching rule-based bands', () async {
+      final module = FakeCatalogModule();
+      await module.executeCommandAsync(
+        ApplyStorePriceRuleCommand(
+          tenantId: 'tenant-1',
+          productId: 'product-1',
+          productUnitId: 'product-1-base',
+          confirmOverwrite: true,
+        ),
+      );
+      final manualBefore = await module.executeQueryAsync(
+        ListProductUnitPriceBandsQuery(
+          tenantId: 'tenant-1',
+          productId: 'product-1',
+        ),
+      );
+      final manualUnitBefore = manualBefore.rows.singleWhere(
+        (row) => row.productUnitId == 'product-1-unit-vi',
+      );
+
+      await module.executeCommandAsync(
+        SetStorePriceRuleCommand(
+          tenantId: 'tenant-1',
+          name: 'Mặc định bán lẻ',
+          listMarkupRatio: 0.75,
+          floorMarkupRatio: 0.50,
+        ),
+      );
+      final listed = await module.executeQueryAsync(
+        ListProductUnitPriceBandsQuery(
+          tenantId: 'tenant-1',
+          productId: 'product-1',
+        ),
+      );
+      final byId = {
+        for (final row in listed.rows) row.productUnitId: row,
+      };
+
+      expect(byId['product-1-base']?.listBeforeVat, 140000);
+      expect(byId['product-1-base']?.floorBeforeVat, 120000);
+      expect(
+        byId['product-1-unit-vi']?.listBeforeVat,
+        manualUnitBefore.listBeforeVat,
+      );
+    });
+
+    test('a previously captured snapshot remains unchanged after recalculation', () async {
+      final module = FakeCatalogModule();
+      final snapshot = await module.executeQueryAsync(
+        GetProductPriceBandSnapshotQuery(
+          tenantId: 'tenant-1',
+          items: const [
+            ProductPriceBandSnapshotRequest(
+              productId: 'product-1',
+              productUnitId: 'product-1-base',
+            ),
+          ],
+        ),
+      );
+
+      await module.executeCommandAsync(
+        ApplyStorePriceRuleCommand(
+          tenantId: 'tenant-1',
+          productId: 'product-1',
+          productUnitId: 'product-1-base',
+          confirmOverwrite: true,
+        ),
+      );
+
+      expect(snapshot.items.single.listBeforeVat, 120000);
+      expect(snapshot.items.single.floorBeforeVat, 95000);
     });
   });
 

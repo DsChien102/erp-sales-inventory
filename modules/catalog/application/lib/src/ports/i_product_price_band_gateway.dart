@@ -29,5 +29,7 @@ abstract interface class IProductPriceBandGateway {
     DateTime? effectiveTo,
     ProductPriceBandStatus? status,
     String? storePriceRuleId,
+    double? listMarkupRatio,
+    double? floorMarkupRatio,
   });
 }

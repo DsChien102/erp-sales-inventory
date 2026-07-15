@@ -4,6 +4,9 @@ import '../../exceptions/floor_price_greater_than_list_price_exception.dart';
 import '../../ids/product_id.dart';
 import '../money.dart';
 import 'events/product_price_band_changed.dart';
+import 'price_band_calculation_mode.dart';
+import 'price_band_markup_calculator.dart';
+import 'price_band_markup_config.dart';
 import 'product_price_band_status.dart';
 import 'rules/floor_after_vat_not_greater_than_list_after_vat_rule.dart';
 import 'rules/floor_before_vat_not_greater_than_list_before_vat_rule.dart';
@@ -23,7 +26,19 @@ final class ProductUnitPriceBand extends Entity<String> implements IAggregateRoo
     this.effectiveTo,
     this.status = ProductPriceBandStatus.active,
     this.storePriceRuleId,
-  });
+    PriceBandCalculationMode? calculationMode,
+    this.markupConfig,
+  }) : calculationMode =
+           calculationMode ??
+           (storePriceRuleId == null
+               ? PriceBandCalculationMode.manual
+               : PriceBandCalculationMode.ruleBased) {
+    _validateCalculationSource(
+      calculationMode: this.calculationMode,
+      storePriceRuleId: storePriceRuleId,
+      markupConfig: markupConfig,
+    );
+  }
 
   final String tenantId;
   final String productId;
@@ -36,6 +51,8 @@ final class ProductUnitPriceBand extends Entity<String> implements IAggregateRoo
   final DateTime? effectiveTo;
   final ProductPriceBandStatus status;
   final String? storePriceRuleId;
+  final PriceBandCalculationMode calculationMode;
+  final PriceBandMarkupConfig? markupConfig;
 
   /// Complete when list before-VAT and list after-VAT are set; floors optional.
   bool get isComplete => listBeforeVat != null && listAfterVat != null;
@@ -55,10 +72,146 @@ final class ProductUnitPriceBand extends Entity<String> implements IAggregateRoo
     String? storePriceRuleId,
     String? actorId,
   }) {
+    return _setMaterialized(
+      id: id,
+      tenantId: tenantId,
+      productId: productId,
+      productUnitId: productUnitId,
+      listBeforeVat: listBeforeVat,
+      listAfterVat: listAfterVat,
+      floorBeforeVat: floorBeforeVat,
+      floorAfterVat: floorAfterVat,
+      effectiveFrom: effectiveFrom,
+      effectiveTo: effectiveTo,
+      status: status,
+      calculationMode: storePriceRuleId == null
+          ? PriceBandCalculationMode.manual
+          : PriceBandCalculationMode.ruleBased,
+      storePriceRuleId: storePriceRuleId,
+      actorId: actorId,
+    );
+  }
+
+  factory ProductUnitPriceBand.setManual({
+    required String id,
+    required TenantId tenantId,
+    required ProductId productId,
+    String? productUnitId,
+    required int listBeforeVat,
+    required int listAfterVat,
+    int? floorBeforeVat,
+    int? floorAfterVat,
+    DateTime? effectiveFrom,
+    DateTime? effectiveTo,
+    ProductPriceBandStatus status = ProductPriceBandStatus.active,
+    String? actorId,
+  }) {
+    return _setMaterialized(
+      id: id,
+      tenantId: tenantId,
+      productId: productId,
+      productUnitId: productUnitId,
+      listBeforeVat: listBeforeVat,
+      listAfterVat: listAfterVat,
+      floorBeforeVat: floorBeforeVat,
+      floorAfterVat: floorAfterVat,
+      effectiveFrom: effectiveFrom,
+      effectiveTo: effectiveTo,
+      status: status,
+      calculationMode: PriceBandCalculationMode.manual,
+      actorId: actorId,
+    );
+  }
+
+  factory ProductUnitPriceBand.setCustomConfig({
+    required String id,
+    required TenantId tenantId,
+    required ProductId productId,
+    String? productUnitId,
+    required num basePriceForUnit,
+    required PriceBandMarkupConfig markupConfig,
+    DateTime? effectiveFrom,
+    DateTime? effectiveTo,
+    ProductPriceBandStatus status = ProductPriceBandStatus.active,
+    String? actorId,
+  }) {
+    final prices = PriceBandMarkupCalculator.calculate(
+      basePriceForUnit: basePriceForUnit,
+      config: markupConfig,
+    );
+    return _setMaterialized(
+      id: id,
+      tenantId: tenantId,
+      productId: productId,
+      productUnitId: productUnitId,
+      listBeforeVat: prices.listPrice,
+      listAfterVat: prices.listPrice,
+      floorBeforeVat: prices.floorPrice,
+      floorAfterVat: prices.floorPrice,
+      effectiveFrom: effectiveFrom,
+      effectiveTo: effectiveTo,
+      status: status,
+      calculationMode: PriceBandCalculationMode.customConfig,
+      markupConfig: markupConfig,
+      actorId: actorId,
+    );
+  }
+
+  factory ProductUnitPriceBand.setRuleBased({
+    required String id,
+    required TenantId tenantId,
+    required ProductId productId,
+    String? productUnitId,
+    required String storePriceRuleId,
+    required num basePriceForUnit,
+    required PriceBandMarkupConfig ruleConfig,
+    DateTime? effectiveFrom,
+    DateTime? effectiveTo,
+    ProductPriceBandStatus status = ProductPriceBandStatus.active,
+    String? actorId,
+  }) {
+    final prices = PriceBandMarkupCalculator.calculate(
+      basePriceForUnit: basePriceForUnit,
+      config: ruleConfig,
+    );
+    return _setMaterialized(
+      id: id,
+      tenantId: tenantId,
+      productId: productId,
+      productUnitId: productUnitId,
+      listBeforeVat: prices.listPrice,
+      listAfterVat: prices.listPrice,
+      floorBeforeVat: prices.floorPrice,
+      floorAfterVat: prices.floorPrice,
+      effectiveFrom: effectiveFrom,
+      effectiveTo: effectiveTo,
+      status: status,
+      calculationMode: PriceBandCalculationMode.ruleBased,
+      storePriceRuleId: storePriceRuleId,
+      actorId: actorId,
+    );
+  }
+
+  static ProductUnitPriceBand _setMaterialized({
+    required String id,
+    required TenantId tenantId,
+    required ProductId productId,
+    String? productUnitId,
+    required int listBeforeVat,
+    required int listAfterVat,
+    int? floorBeforeVat,
+    int? floorAfterVat,
+    DateTime? effectiveFrom,
+    DateTime? effectiveTo,
+    required ProductPriceBandStatus status,
+    required PriceBandCalculationMode calculationMode,
+    String? storePriceRuleId,
+    PriceBandMarkupConfig? markupConfig,
+    String? actorId,
+  }) {
     final listBeforeVo = Money(listBeforeVat);
     final listAfterVo = Money(listAfterVat);
-    final floorBeforeVo =
-        floorBeforeVat == null ? null : Money(floorBeforeVat);
+    final floorBeforeVo = floorBeforeVat == null ? null : Money(floorBeforeVat);
     final floorAfterVo = floorAfterVat == null ? null : Money(floorAfterVat);
 
     final beforeRule = FloorBeforeVatNotGreaterThanListBeforeVatRule(
@@ -91,6 +244,8 @@ final class ProductUnitPriceBand extends Entity<String> implements IAggregateRoo
       effectiveTo: effectiveTo,
       status: status,
       storePriceRuleId: storePriceRuleId,
+      calculationMode: calculationMode,
+      markupConfig: markupConfig,
     );
     band.addDomainEvent(
       ProductPriceBandChanged(
@@ -104,6 +259,9 @@ final class ProductUnitPriceBand extends Entity<String> implements IAggregateRoo
         effectiveFrom: from,
         effectiveTo: effectiveTo,
         status: status,
+        calculationMode: calculationMode,
+        listMarkupRatio: markupConfig?.listMarkupRatio,
+        floorMarkupRatio: markupConfig?.floorMarkupRatio,
       ),
     );
     return band;
@@ -120,7 +278,11 @@ final class ProductUnitPriceBand extends Entity<String> implements IAggregateRoo
     String? storePriceRuleId,
     String? actorId,
   }) {
-    return ProductUnitPriceBand.set(
+    final nextStorePriceRuleId = storePriceRuleId ?? this.storePriceRuleId;
+    final nextCalculationMode = nextStorePriceRuleId == null
+        ? calculationMode
+        : PriceBandCalculationMode.ruleBased;
+    return _setMaterialized(
       id: id,
       tenantId: TenantId(tenantId),
       productId: ProductId(productId),
@@ -132,8 +294,44 @@ final class ProductUnitPriceBand extends Entity<String> implements IAggregateRoo
       effectiveFrom: effectiveFrom ?? this.effectiveFrom,
       effectiveTo: effectiveTo ?? this.effectiveTo,
       status: status ?? this.status,
-      storePriceRuleId: storePriceRuleId ?? this.storePriceRuleId,
+      calculationMode: nextCalculationMode,
+      storePriceRuleId: nextStorePriceRuleId,
+      markupConfig: nextCalculationMode == PriceBandCalculationMode.customConfig
+          ? markupConfig
+          : null,
       actorId: actorId,
     );
+  }
+
+  static void _validateCalculationSource({
+    required PriceBandCalculationMode calculationMode,
+    required String? storePriceRuleId,
+    required PriceBandMarkupConfig? markupConfig,
+  }) {
+    switch (calculationMode) {
+      case PriceBandCalculationMode.ruleBased:
+        if (storePriceRuleId == null || storePriceRuleId.trim().isEmpty) {
+          throw DomainException(
+            'Rule-based price bands require a store price rule.',
+          );
+        }
+        if (markupConfig != null) {
+          throw DomainException(
+            'Rule-based price bands cannot store custom markup ratios.',
+          );
+        }
+      case PriceBandCalculationMode.customConfig:
+        if (storePriceRuleId != null || markupConfig == null) {
+          throw DomainException(
+            'Custom-config price bands require custom ratios and no store rule.',
+          );
+        }
+      case PriceBandCalculationMode.manual:
+        if (storePriceRuleId != null || markupConfig != null) {
+          throw DomainException(
+            'Manual price bands cannot reference a formula source.',
+          );
+        }
+    }
   }
 }

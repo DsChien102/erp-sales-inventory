@@ -1,7 +1,8 @@
 import 'package:vet45_shared_domain/shared_kernel_domain.dart';
 
+import '../price_band/price_band_markup_calculator.dart';
+import '../price_band/price_band_markup_config.dart';
 import 'rules/markup_ratio_must_be_non_negative_rule.dart';
-import 'rules/suggested_floor_not_greater_than_list_rule.dart';
 
 /// Tenant-level store price rule (1 per tenant in Foundation).
 final class StorePriceRule extends Entity<String> implements IAggregateRoot {
@@ -83,16 +84,16 @@ final class StorePriceRule extends Entity<String> implements IAggregateRoot {
 
   /// Suggests before-VAT list/floor from base price using store markups.
   ({int listBeforeVat, int floorBeforeVat}) suggestPrices(double basePrice) {
-    checkRule(
-      SuggestedFloorNotGreaterThanListRule(
-        basePrice: basePrice,
+    final calculated = PriceBandMarkupCalculator.calculate(
+      basePriceForUnit: basePrice,
+      config: PriceBandMarkupConfig(
         listMarkupRatio: listMarkupRatio,
         floorMarkupRatio: floorMarkupRatio,
       ),
     );
     return (
-      listBeforeVat: (basePrice * (1 + listMarkupRatio)).round(),
-      floorBeforeVat: (basePrice * (1 + floorMarkupRatio)).round(),
+      listBeforeVat: calculated.listPrice,
+      floorBeforeVat: calculated.floorPrice!,
     );
   }
 
@@ -108,6 +109,10 @@ final class StorePriceRule extends Entity<String> implements IAggregateRoot {
         ratio: floorMarkupRatio,
         label: 'Floor markup ratio',
       ),
+    );
+    PriceBandMarkupConfig(
+      listMarkupRatio: listMarkupRatio,
+      floorMarkupRatio: floorMarkupRatio,
     );
   }
 }

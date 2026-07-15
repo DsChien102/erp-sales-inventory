@@ -4,6 +4,10 @@ import 'package:vet45_catalog_application/application.dart';
 import 'package:vet45_catalog_presentation/presentation.dart';
 import 'package:vet45_design_system/design_system.dart';
 
+import 'price_band_custom_config_section.dart';
+import 'price_band_manual_section.dart';
+import 'price_band_store_rule_section.dart';
+
 class PriceBandCalculationTypeSelector extends StatefulWidget {
   const PriceBandCalculationTypeSelector({
     super.key,
@@ -162,11 +166,31 @@ class _PriceBandCalculationTypeSelectorState extends State<PriceBandCalculationT
 
   Widget _buildDetailsContent(BuildContext context, EditProductUnitPriceBandLoaded state) {
     if (state.selectedType == PriceBandCalculationType.storeRule) {
-      return _buildStoreRuleDetails(context, state);
+      return Column(
+        children: [
+          PriceBandStoreRuleSection(
+            key: const Key('wgt_e06_u02_fr02_01'),
+            state: state,
+          ),
+          const SizedBox(key: Key('wgt_e06_u02_fr03_01')),
+        ],
+      );
     } else if (state.selectedType == PriceBandCalculationType.customConfig) {
-      return _buildCustomConfigDetails(context, state);
+      return PriceBandCustomConfigSection(
+        state: state,
+        listController: _customBaseMarginController,
+        floorController: _customFloorMarginController,
+        onListChanged: context.read<EditProductUnitPriceBandCubit>().updateCustomBaseMargin,
+        onFloorChanged: context.read<EditProductUnitPriceBandCubit>().updateCustomFloorMargin,
+      );
     } else {
-      return _buildManualDetails(context, state);
+      return PriceBandManualSection(
+        state: state,
+        listController: _manualListPriceController,
+        floorController: _manualFloorPriceController,
+        onListChanged: context.read<EditProductUnitPriceBandCubit>().updateManualListPrice,
+        onFloorChanged: context.read<EditProductUnitPriceBandCubit>().updateManualFloorPrice,
+      );
     }
   }
 

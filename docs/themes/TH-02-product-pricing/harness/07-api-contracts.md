@@ -60,6 +60,7 @@ Permissions: `@RequiresPermission(CatalogPermissions.create)` (`catalog.product.
 | `guided_create_dup_reference` | referenceId trùng tenant | `DuplicateReferenceIdException` |
 | `guided_create_dup_sku` | sku trùng tenant | `DuplicateSkuException` |
 | `guided_create_dup_barcode` | barcode trùng tenant | `DuplicateBarcodeException` |
+| `scn_contract_e02_u01_fr02_04` | SKU/barcode chỉ thuộc sản phẩm soft-deleted | tạo mới thành công; restore chủ cũ bị chặn nếu mã đã được dùng lại |
 | `guided_create_missing_name` | thiếu tên | `ValidationException` |
 | `guided_create_no_images` | no images | success + optional `missing_image` blocker |
 | `guided_create_upload_slot_ok` | RequestProductImageUploadCommand valid | `ProductImageUploadSlotDto` |
@@ -725,7 +726,7 @@ Supporting types:
 | `StorePriceCalculationType` | `markup` (Foundation; `margin` deferred) |
 | `ProductUnitPriceSuggestionDto` | productId, productUnitId?, unitName?, basePrice, currency, suggestedListPrice?, suggestedFloorPrice?, storePriceRuleId?, storePriceRuleName?, basePriceVersion?, canSuggest, unavailableReason? |
 | `ApplyStorePriceRuleResult` | productId, productUnitId?, listBeforeVat, floorBeforeVat, storePriceRuleId, sourceType, readinessSummary |
-| `PriceBandSourceType` | `ruleBased` \| `manual` — shared with §EPIC-06/US-03 |
+| `PriceBandSourceType` | `ruleBased` \| `customConfig` \| `manual` — shared with §EPIC-06/US-03 |
 
 Read path (PCC): `GetProductControlCenterQuery` → `ProductPriceBandCardDto` extended with `sourceType`, `storePriceRuleName`, `isCustomOverride`.
 
@@ -820,7 +821,7 @@ Tests: `scn_contract_e06_u02_*` in `fake_catalog_module_test.dart` (group `EPIC-
 
 | Symbol | Input (summary) | Success | Errors |
 | ------ | --------------- | ------- | ------ |
-| `SetProductUnitPriceBandCommand` | tenantId, productId, listBeforeVat, listAfterVat, floorBeforeVat?, floorAfterVat?, effectiveFrom?, effectiveTo?, status?, productUnitId?, sourceType?, storePriceRuleId?, confirmAcknowledgeWarnings? | `SetProductUnitPriceBandResult` | Validation, `MissingBaseUnitException`, `InactiveProductUnitException`, `FloorPriceGreaterThanListPriceException`, `PriceBandWarningsRequireAcknowledgmentException` |
+| `SetProductUnitPriceBandCommand` | tenantId, productId, listBeforeVat, listAfterVat, floorBeforeVat?, floorAfterVat?, effectiveFrom?, effectiveTo?, status?, productUnitId?, sourceType?, storePriceRuleId?, listMarkupRatio?, floorMarkupRatio?, confirmAcknowledgeWarnings? | `SetProductUnitPriceBandResult` | Validation, `MissingBaseUnitException`, `InactiveProductUnitException`, `FloorPriceGreaterThanListPriceException`, `PriceBandWarningsRequireAcknowledgmentException` |
 | `ListProductUnitPriceBandsQuery` | tenantId, productId | `ProductUnitPriceBandsDto` | PermissionDenied, NotFound, `MissingBaseUnitException` |
 
 Package: `vet45_catalog_application` — `pricing/price_band/`.
@@ -829,13 +830,13 @@ Supporting types:
 
 | Type | Fields |
 | ---- | ------ |
-| `SetProductUnitPriceBandResult` | productId, productUnitId?, listBeforeVat, listAfterVat, floorBeforeVat?, floorAfterVat?, effectiveFrom?, effectiveTo?, status?, sourceType, storePriceRuleId?, warnings[], readinessSummary |
+| `SetProductUnitPriceBandResult` | productId, productUnitId?, listBeforeVat, listAfterVat, floorBeforeVat?, floorAfterVat?, effectiveFrom?, effectiveTo?, status?, sourceType, storePriceRuleId?, listMarkupRatio?, floorMarkupRatio?, warnings[], readinessSummary |
 | `ProductUnitPriceBandsDto` | productId, baseUnitName, currency, rows[] |
-| `ProductUnitPriceBandRowDto` | productUnitId, unitName, isBaseUnit, isActive, listBeforeVat?, floorBeforeVat?, listAfterVat?, floorAfterVat?, effectiveFrom?, effectiveTo?, status?, isMissing, sourceType?, storePriceRuleName?, isCustomOverride |
+| `ProductUnitPriceBandRowDto` | productUnitId, unitName, isBaseUnit, isActive, listBeforeVat?, floorBeforeVat?, listAfterVat?, floorAfterVat?, effectiveFrom?, effectiveTo?, status?, isMissing, sourceType?, storePriceRuleName?, listMarkupRatio?, floorMarkupRatio?, isCustomOverride (legacy) |
 | `PriceBandValidationWarningDto` | code, severity, message, field, comparedBasePrice?, baseUnitName? |
 | `PriceBandValidationWarningSeverity` | `warning` \| `strongWarning` |
 | `PriceBandValidationField` | `listBeforeVat` \| `floorBeforeVat` |
-| `PriceBandSourceType` | `ruleBased` \| `manual` (shared with US-02) |
+| `PriceBandSourceType` | `ruleBased` \| `customConfig` \| `manual` (shared with US-02) |
 | `ProductPriceBandStatus` | `active` \| `inactive` \| `deleted` |
 
 Read path (PCC summary): `GetProductControlCenterQuery` → `ProductPriceBandCardDto` (base unit **before-VAT** summary). UI labels remain **Giá niêm yết / Giá sàn**; after-VAT reserved (no form fields in this slice).
@@ -854,6 +855,16 @@ Read path (PCC summary): `GetProductControlCenterQuery` → `ProductPriceBandCar
 - `SetInitialPriceBandCommand` (guided create slice #2) giữ nguyên — không deprecate; wire dùng before-VAT params.
 - Port: `IProductPriceBandGateway` (BE lane implement).
 
+**Ba cách tính và nguồn dữ liệu:**
+
+| `sourceType` | Nguồn tỷ lệ | Trường bắt buộc | Trường phải null | Hành vi tái tính |
+| --- | --- | --- | --- | --- |
+| `ruleBased` | `store_price_rules` | `storePriceRuleId` | `listMarkupRatio`, `floorMarkupRatio` | Đổi base price hoặc Store Rule active |
+| `customConfig` | `product_unit_price_bands` | `listMarkupRatio`; floor ratio optional | `storePriceRuleId` | Đổi base price |
+| `manual` | Không có | Giá tuyệt đối | rule id và hai ratio | Không tự tái tính |
+
+Ratio wire dùng số thập phân (`40% = 0.40`). Giá materialized dùng `round(basePriceForUnit * (1 + ratio))`; `basePriceForUnit = basePricePerBaseUnit * conversionRateToBase`.
+
 Permissions:
 
 - `SetProductUnitPriceBandCommand` → `@RequiresPermission(CatalogPermissions.managePricing)`
@@ -863,7 +874,7 @@ Permissions:
 
 | Use case | RPC / view | Params (summary) | Notes |
 | -------- | ---------- | ---------------- | ----- |
-| Set price band | `catalog.set_product_unit_price_band` | `p_list_price_before_vat`, `p_list_price_after_vat` (required numeric), `p_floor_*` optional, effective/status/source… | Upsert **active** band; amounts stored as **numeric** |
+| Set price band | `catalog.set_product_unit_price_band` | `p_list_price_before_vat`, `p_list_price_after_vat`, `p_floor_*`, `p_source_type`, `p_store_price_rule_id?`, `p_list_markup_ratio?`, `p_floor_markup_ratio?`, effective/status… | Upsert **active** band; customConfig được tính lại từ base/unit dưới lock; manual lưu giá tuyệt đối |
 | List bands per unit | `catalog.list_product_unit_price_bands` | `p_tenant_id`, `p_product_id` | Rows for active `product_units`; left join **active in-window** bands + store rule name |
 | Readiness facts | `catalog._product_operational_facts` (redefined) | existing | `has_price_band` true when **all** active units have valid **before-VAT** active in-window band |
 | Apply store rule | `catalog.apply_store_price_rule` | existing | Writes before-VAT list/floor; returns `list_price_before_vat` / `floor_price_before_vat` |
@@ -1019,7 +1030,7 @@ Permissions:
 
 - Profile maintenance edits only identification/profile fields: name, commercial name, SKU, barcode, description, note. It does not change operational modes, UOM, stock, base price, price band, status, or soft-delete state.
 - Product name is required after trim. Empty optional profile fields are persisted as absent values.
-- SKU/barcode uniqueness is tenant-scoped and includes inactive / soft-deleted products until BE policy changes explicitly.
+- SKU/barcode là duy nhất theo tenant trong tập sản phẩm chưa xóa mềm, bao gồm sản phẩm ngừng kinh doanh. Mã của sản phẩm đã xóa mềm được phép dùng lại; chủ cũ không thể restore cho đến khi hết xung đột.
 - Image maintenance uses snapshot semantics: submitted `images[]` replaces the current visible gallery. If images are present but none is primary, the first sorted image is promoted to primary.
 - Deleting all images is allowed; the result returns `images=[]`, `primaryImageUrl=null`, and refreshed readiness may include `missing_image`.
 - `expectedVersion` is optional optimistic concurrency. If provided and stale, return `StaleProductVersionException`.

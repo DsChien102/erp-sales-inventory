@@ -20,6 +20,7 @@ class EditProductUnitPriceBandLoading extends EditProductUnitPriceBandState {}
 
 class EditProductUnitPriceBandLoaded extends EditProductUnitPriceBandState {
   final ProductUnitPriceSuggestionDto suggestion;
+  final bool isNewPriceBand;
   final PriceBandCalculationType selectedType;
 
   // For customConfig
@@ -33,14 +34,15 @@ class EditProductUnitPriceBandLoaded extends EditProductUnitPriceBandState {
   final PriceBandCalculationType initialSelectedType;
   final double? initialCustomBaseMargin;
   final double? initialCustomFloorMargin;
-  final double? initialManualListPrice;
-  final double? initialManualFloorPrice;
+  final int? initialManualListPrice;
+  final int? initialManualFloorPrice;
 
   final bool isSubmitting;
   final String? error;
 
   const EditProductUnitPriceBandLoaded({
     required this.suggestion,
+    this.isNewPriceBand = false,
     required this.selectedType,
     this.customBaseMargin,
     this.customFloorMargin,
@@ -57,6 +59,7 @@ class EditProductUnitPriceBandLoaded extends EditProductUnitPriceBandState {
 
   EditProductUnitPriceBandLoaded copyWith({
     ProductUnitPriceSuggestionDto? suggestion,
+    bool? isNewPriceBand,
     PriceBandCalculationType? selectedType,
     double? customBaseMargin,
     double? customFloorMargin,
@@ -65,14 +68,21 @@ class EditProductUnitPriceBandLoaded extends EditProductUnitPriceBandState {
     bool? isSubmitting,
     String? error,
     bool clearError = false,
+    bool clearCustomBaseMargin = false,
+    bool clearCustomFloorMargin = false,
+    bool clearManualListPrice = false,
+    bool clearManualFloorPrice = false,
   }) {
     return EditProductUnitPriceBandLoaded(
       suggestion: suggestion ?? this.suggestion,
+      isNewPriceBand: isNewPriceBand ?? this.isNewPriceBand,
       selectedType: selectedType ?? this.selectedType,
-      customBaseMargin: customBaseMargin ?? this.customBaseMargin,
-      customFloorMargin: customFloorMargin ?? this.customFloorMargin,
-      manualListPrice: manualListPrice ?? this.manualListPrice,
-      manualFloorPrice: manualFloorPrice ?? this.manualFloorPrice,
+      customBaseMargin: clearCustomBaseMargin ? null : (customBaseMargin ?? this.customBaseMargin),
+      customFloorMargin: clearCustomFloorMargin
+          ? null
+          : (customFloorMargin ?? this.customFloorMargin),
+      manualListPrice: clearManualListPrice ? null : (manualListPrice ?? this.manualListPrice),
+      manualFloorPrice: clearManualFloorPrice ? null : (manualFloorPrice ?? this.manualFloorPrice),
       initialSelectedType: initialSelectedType,
       initialCustomBaseMargin: initialCustomBaseMargin,
       initialCustomFloorMargin: initialCustomFloorMargin,
@@ -114,7 +124,7 @@ class EditProductUnitPriceBandLoaded extends EditProductUnitPriceBandState {
 
   bool get canSubmit {
     if (isSubmitting) return false;
-    if (!hasChanges) return false;
+    if (!isNewPriceBand && !hasChanges) return false;
     final listP = calculatedListPrice;
     if (listP == null) return false;
     final floorP = calculatedFloorPrice;
@@ -122,12 +132,21 @@ class EditProductUnitPriceBandLoaded extends EditProductUnitPriceBandState {
     if (selectedType == PriceBandCalculationType.storeRule) {
       return suggestion.canSuggest;
     }
+    if (selectedType == PriceBandCalculationType.customConfig) {
+      final listMargin = customBaseMargin;
+      final floorMargin = customFloorMargin;
+      if (listMargin == null || listMargin < 0) return false;
+      if (floorMargin != null && (floorMargin < 0 || floorMargin > listMargin)) {
+        return false;
+      }
+    }
     return true;
   }
 
   @override
   List<Object?> get props => [
     suggestion,
+    isNewPriceBand,
     selectedType,
     customBaseMargin,
     customFloorMargin,

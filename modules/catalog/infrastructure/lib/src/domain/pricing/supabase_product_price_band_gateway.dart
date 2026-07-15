@@ -69,6 +69,8 @@ final class SupabaseProductPriceBandGateway implements IProductPriceBandGateway 
     DateTime? effectiveTo,
     ProductPriceBandStatus? status,
     String? storePriceRuleId,
+    double? listMarkupRatio,
+    double? floorMarkupRatio,
   }) async {
     try {
       await _rpcClient.callList(
@@ -86,6 +88,8 @@ final class SupabaseProductPriceBandGateway implements IProductPriceBandGateway 
           status: status,
           sourceType: sourceType,
           storePriceRuleId: storePriceRuleId,
+          listMarkupRatio: listMarkupRatio,
+          floorMarkupRatio: floorMarkupRatio,
         ),
       );
     } on RpcException catch (error) {

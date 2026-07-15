@@ -15,6 +15,8 @@ abstract final class ProductPriceBandRpcMapper {
     DateTime? effectiveFrom,
     DateTime? effectiveTo,
     ProductPriceBandStatus? status,
+    double? listMarkupRatio,
+    double? floorMarkupRatio,
   }) {
     return <String, dynamic>{
       'p_tenant_id': tenantId,
@@ -29,6 +31,8 @@ abstract final class ProductPriceBandRpcMapper {
       'p_status': ?status?.toWire(),
       'p_source_type': sourceTypeToRpc(sourceType),
       'p_store_price_rule_id': storePriceRuleId,
+      'p_list_markup_ratio': listMarkupRatio,
+      'p_floor_markup_ratio': floorMarkupRatio,
     };
   }
 
@@ -95,18 +99,21 @@ abstract final class ProductPriceBandRpcMapper {
       unitName: item['unit_name'] as String? ?? '',
       currency: item['currency'] as String? ?? 'VND',
       listBeforeVat: listBeforeVat,
-      listBeforeVatMissing: _readOptionalBool(
+      listBeforeVatMissing:
+          _readOptionalBool(
             item,
             const ['list_price_before_vat_missing', 'list_price_missing'],
           ) ??
           listBeforeVat == null,
       floorBeforeVat: floorBeforeVat,
-      floorBeforeVatMissing: _readOptionalBool(
+      floorBeforeVatMissing:
+          _readOptionalBool(
             item,
             const ['floor_price_before_vat_missing', 'floor_price_missing'],
           ) ??
           floorBeforeVat == null,
-      floorBeforeVatHidden: _readOptionalBool(
+      floorBeforeVatHidden:
+          _readOptionalBool(
             item,
             const ['floor_price_before_vat_hidden', 'floor_price_hidden'],
           ) ??
@@ -135,7 +142,8 @@ abstract final class ProductPriceBandRpcMapper {
     final productId = first['product_id'] as String;
     final baseUnitName = first['base_unit_name'] as String? ?? '';
     final currency = first['currency'] as String? ?? 'VND';
-    final basePricePerBaseUnit = _readOptionalDouble(first, const [
+    final basePricePerBaseUnit =
+        _readOptionalDouble(first, const [
           'base_price_per_base_unit',
           'base_price_amount',
         ]) ??
@@ -154,11 +162,11 @@ abstract final class ProductPriceBandRpcMapper {
     for (final row in rows) {
       if (row['is_base_unit'] == true) {
         return _readOptionalDouble(row, const [
-              'base_price_per_base_unit',
-              'base_price',
-              'base_price_after_vat',
-              'base_price_amount',
-            ]);
+          'base_price_per_base_unit',
+          'base_price',
+          'base_price_after_vat',
+          'base_price_amount',
+        ]);
       }
     }
     return _readOptionalDouble(rows.first, const [
@@ -254,12 +262,12 @@ abstract final class ProductPriceBandRpcMapper {
       floorAfterVat: floorAfterVat,
       effectiveFrom: _readOptionalDateTime(row, 'effective_from'),
       effectiveTo: _readOptionalDateTime(row, 'effective_to'),
-      status: statusRaw == null
-          ? null
-          : ProductPriceBandStatus.tryFromWire(statusRaw),
+      status: statusRaw == null ? null : ProductPriceBandStatus.tryFromWire(statusRaw),
       isMissing: isMissing,
       sourceType: sourceTypeFromRpc(row['source_type'] as String?),
       storePriceRuleName: row['store_price_rule_name'] as String?,
+      listMarkupRatio: _readOptionalDouble(row, const ['list_markup_ratio']),
+      floorMarkupRatio: _readOptionalDouble(row, const ['floor_markup_ratio']),
       isCustomOverride: row['is_custom_override'] as bool? ?? false,
     );
   }
@@ -267,6 +275,7 @@ abstract final class ProductPriceBandRpcMapper {
   static String sourceTypeToRpc(PriceBandSourceType sourceType) {
     return switch (sourceType) {
       PriceBandSourceType.ruleBased => 'ruleBased',
+      PriceBandSourceType.customConfig => 'customConfig',
       PriceBandSourceType.manual => 'manual',
     };
   }
@@ -274,6 +283,7 @@ abstract final class ProductPriceBandRpcMapper {
   static PriceBandSourceType? sourceTypeFromRpc(String? value) {
     return switch (value) {
       'ruleBased' => PriceBandSourceType.ruleBased,
+      'customConfig' => PriceBandSourceType.customConfig,
       'manual' => PriceBandSourceType.manual,
       _ => null,
     };

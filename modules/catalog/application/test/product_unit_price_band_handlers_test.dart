@@ -60,6 +60,8 @@ class _RecordingProductPriceBandGateway implements IProductPriceBandGateway {
     DateTime? effectiveTo,
     ProductPriceBandStatus? status,
     String? storePriceRuleId,
+    double? listMarkupRatio,
+    double? floorMarkupRatio,
   }) async {
     lastSetProductUnitId = productUnitId;
     lastListBeforeVat = listBeforeVat;

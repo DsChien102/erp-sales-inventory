@@ -68,6 +68,8 @@ class _FakeProductPriceBandGateway implements IProductPriceBandGateway {
     DateTime? effectiveTo,
     ProductPriceBandStatus? status,
     String? storePriceRuleId,
+    double? listMarkupRatio,
+    double? floorMarkupRatio,
   }) {
     throw UnimplementedError();
   }

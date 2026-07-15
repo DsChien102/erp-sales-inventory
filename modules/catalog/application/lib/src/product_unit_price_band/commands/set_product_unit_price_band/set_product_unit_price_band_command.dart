@@ -13,10 +13,12 @@ final class SetProductUnitPriceBandCommand extends CommandBase<SetProductUnitPri
     String? id,
     required this.tenantId,
     required this.productId,
-    required this.listBeforeVat,
-    required this.listAfterVat,
+    this.listBeforeVat,
+    this.listAfterVat,
     this.floorBeforeVat,
     this.floorAfterVat,
+    this.listMarkupRatio,
+    this.floorMarkupRatio,
     this.effectiveFrom,
     this.effectiveTo,
     this.status,
@@ -30,10 +32,12 @@ final class SetProductUnitPriceBandCommand extends CommandBase<SetProductUnitPri
   final String tenantId;
   final String productId;
   final String? productUnitId;
-  final int listBeforeVat;
+  final int? listBeforeVat;
   final int? floorBeforeVat;
-  final int listAfterVat;
+  final int? listAfterVat;
   final int? floorAfterVat;
+  final double? listMarkupRatio;
+  final double? floorMarkupRatio;
   final DateTime? effectiveFrom;
   final DateTime? effectiveTo;
   final ProductPriceBandStatus? status;
