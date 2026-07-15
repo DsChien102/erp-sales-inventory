@@ -52,6 +52,7 @@ import '../../features/partner/presentation/pages/partner_contacts_page.dart';
 import '../../features/partner/presentation/pages/partner_contact_form_page.dart';
 import '../../features/partner/presentation/pages/partner_contact_select_page.dart';
 import '../../features/partner/presentation/pages/partner_transform_page.dart';
+import '../../features/partner/presentation/pages/partner_change_history_page.dart';
 
 import '../di/injection.dart';
 
@@ -256,6 +257,18 @@ final appRouter = GoRouter(
           executionContext: getIt<IExecutionContext>(),
           showCreateSuccessToast: showCreateSuccessToast,
           showTransformSuccessToast: showTransformSuccessToast,
+        );
+      },
+    ),
+    GoRoute(
+      path: '/partner/:partnerId/history',
+      name: 'partner.history',
+      builder: (context, state) {
+        final partnerId = state.pathParameters['partnerId']!;
+        final partnerName = state.extra as String? ?? 'Đối tác';
+        return PartnerChangeHistoryPage(
+          partnerId: partnerId,
+          partnerName: partnerName,
         );
       },
     ),

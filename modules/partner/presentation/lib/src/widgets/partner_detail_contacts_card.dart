@@ -26,7 +26,7 @@ class PartnerDetailContactsCard extends StatelessWidget {
     final contacts = dto.contacts;
 
     return PartnerDetailExpandableCard(
-      title: 'Người liên hệ chính',
+      title: 'Người liên hệ',
       icon: Icons.people_alt_outlined,
       initiallyExpanded: initiallyExpanded,
       trailingWhenCollapsed: contacts.isEmpty
@@ -108,7 +108,7 @@ class PartnerDetailContactsCard extends StatelessWidget {
                   ),
                 ),
               ),
-              if (contacts.isNotEmpty && onTapViewAll != null)
+              if (onTapViewAll != null)
                 InkWell(
                   onTap: onTapViewAll,
                   child: Padding(
@@ -117,7 +117,7 @@ class PartnerDetailContactsCard extends StatelessWidget {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Text(
-                          'Xem tất cả (${contacts.length})',
+                          contacts.isEmpty ? 'Tất cả' : 'Xem tất cả (${contacts.length})',
                           style: VTypography.bodyDefault.copyWith(
                             color: colors.success,
                             fontWeight: FontWeight.w600,

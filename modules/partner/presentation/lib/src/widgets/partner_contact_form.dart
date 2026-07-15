@@ -201,26 +201,15 @@ class _PartnerContactFormState extends State<PartnerContactForm> {
                 ),
                 const SizedBox(height: VSpacing.space4),
 
-                // 5. Checkbox "Người liên hệ chính" (with subtitle)
+                // 5. Switch "Người liên hệ chính" (with subtitle)
                 Padding(
                   padding: const EdgeInsets.symmetric(vertical: 4.0),
                   child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      VCheckbox(
-                        key: const Key('input_contact_is_primary'),
-                        value: _isPrimary,
-                        onChanged: widget.isSubmitting
-                            ? (_) {}
-                            : (val) {
-                                setState(() {
-                                  _isPrimary = val ?? false;
-                                });
-                              },
-                      ),
-                      const SizedBox(width: 8),
                       Expanded(
                         child: GestureDetector(
+                          behavior: HitTestBehavior.opaque,
                           onTap: widget.isSubmitting
                               ? null
                               : () {
@@ -248,6 +237,18 @@ class _PartnerContactFormState extends State<PartnerContactForm> {
                             ],
                           ),
                         ),
+                      ),
+                      const SizedBox(width: 8),
+                      VSwitch(
+                        key: const Key('input_contact_is_primary'),
+                        value: _isPrimary,
+                        onChanged: widget.isSubmitting
+                            ? null
+                            : (val) {
+                                setState(() {
+                                  _isPrimary = val;
+                                });
+                              },
                       ),
                     ],
                   ),

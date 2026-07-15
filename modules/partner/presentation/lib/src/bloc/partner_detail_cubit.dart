@@ -25,6 +25,16 @@ final class PartnerDetailCubit extends Cubit<PartnerDetailState> {
           partnerId: partnerId,
         ),
       );
+      // Contact-only Person (no customer/supplier role) is not a working-list
+      // partner — manage via organization detail (EP-01/US-05), not SG-03.
+      if (result.roles.isEmpty) {
+        emit(const PartnerDetailError(
+          'CONTACT_ONLY: manage via organization',
+          isNotFound: true,
+          isContactOnly: true,
+        ));
+        return;
+      }
       emit(PartnerDetailLoaded(result));
     } on PartnerBlockedException catch (e) {
       emit(PartnerDetailError(

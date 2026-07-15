@@ -30,12 +30,20 @@ final class PartnerDetailLoaded extends PartnerDetailState {
 }
 
 final class PartnerDetailError extends PartnerDetailState {
-  const PartnerDetailError(this.message, {this.isNotFound = false, this.isNoPermission = false});
+  const PartnerDetailError(
+    this.message, {
+    this.isNotFound = false,
+    this.isNoPermission = false,
+    this.isContactOnly = false,
+  });
 
   final String message;
   final bool isNotFound;
   final bool isNoPermission;
 
+  /// Person không có role KH/NCC — chỉ quản lý qua hồ sơ tổ chức (S5).
+  final bool isContactOnly;
+
   @override
-  List<Object?> get props => [message, isNotFound, isNoPermission];
+  List<Object?> get props => [message, isNotFound, isNoPermission, isContactOnly];
 }

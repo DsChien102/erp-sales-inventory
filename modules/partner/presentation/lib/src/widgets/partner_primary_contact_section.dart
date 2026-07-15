@@ -29,13 +29,11 @@ class PartnerPrimaryContactSection extends StatelessWidget {
             VSpacing.space4,
             VSpacing.space1,
           ),
-          child: Align(
-            alignment: Alignment.centerLeft,
-            child: VCheckbox(
-              value: state.primaryContactEnabled,
-              label: 'Thêm người liên hệ chính',
-              onChanged: (value) => cubit.setPrimaryContactEnabled(value ?? false),
-            ),
+          child: VCheckbox(
+            key: const Key('switch_add_primary_contact'),
+            value: state.primaryContactEnabled,
+            label: 'Thêm người liên hệ chính',
+            onChanged: (value) => cubit.setPrimaryContactEnabled(value ?? false),
           ),
         ),
         if (state.primaryContactEnabled) ...[
@@ -104,20 +102,6 @@ class PartnerPrimaryContactSection extends StatelessWidget {
               initialValue: state.primaryContactEmail,
               keyboardType: TextInputType.emailAddress,
               onChanged: cubit.updatePrimaryContactEmail,
-            ),
-          ),
-          PartnerFormFieldRow(
-            label: 'Là liên hệ chính',
-            dense: _rowLayout.dense,
-            labelWidth: _rowLayout.labelWidth,
-            labelFieldGap: _rowLayout.labelFieldGap,
-            field: Align(
-              alignment: Alignment.centerRight,
-              child: VSwitch(
-                key: const Key('switch_primary_contact'),
-                value: true,
-                onChanged: null,
-              ),
             ),
           ),
         ],
