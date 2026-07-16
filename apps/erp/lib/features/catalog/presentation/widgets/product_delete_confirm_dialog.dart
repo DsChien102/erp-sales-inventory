@@ -119,7 +119,7 @@ class ProductDeleteConfirmDialog extends StatelessWidget {
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Icon(Icons.error_outline, size: 16, color: dynamicColors.danger),
+                        VIcon(icon: VIcons.error, size: 16, color: dynamicColors.danger),
                         const SizedBox(width: 8),
                         Expanded(
                           child: Text(
@@ -173,7 +173,7 @@ class ProductDeleteConfirmDialog extends StatelessWidget {
                   children: [
                     Row(
                       children: [
-                        Icon(Icons.warning_amber_rounded, color: dynamicColors.warning, size: 20),
+                        VIcon(icon: VIcons.warning, color: dynamicColors.warning, size: 20),
                         const SizedBox(width: 8),
                         Text(
                           'Lưu ý',

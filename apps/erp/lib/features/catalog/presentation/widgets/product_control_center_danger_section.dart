@@ -74,7 +74,7 @@ class _ProductControlCenterDangerSectionState extends State<ProductControlCenter
             child: Row(
               children: [
                 VIconBox(
-                  iconData: Icons.error_outline,
+                  icon: VIcons.error,
                   size: 40,
                   iconSize: 20,
                   backgroundColor: dynamicColors.surface,
@@ -101,7 +101,7 @@ class _ProductControlCenterDangerSectionState extends State<ProductControlCenter
                   ),
                 ),
                 VIcon(
-                  iconData: _isExpanded ? Icons.expand_less : Icons.expand_more,
+                  icon: _isExpanded ? VIcons.expandLess : VIcons.expandMore,
                   color: dynamicColors.danger,
                 ),
               ],
@@ -123,21 +123,21 @@ class _ProductControlCenterDangerSectionState extends State<ProductControlCenter
               children: [
                 if (widget.isSoftDeleted)
                   _ActionItem(
-                    icon: Icons.restore_outlined,
+                    icon: VIcons.restore,
                     label: 'Khôi phục',
                     color: dynamicColors.danger,
                     onTap: widget.onRestore,
                   )
                 else if (isActive)
                   _ActionItem(
-                    icon: Icons.do_not_disturb_alt,
+                    icon: VIcons.ban,
                     label: 'Ngừng kinh doanh',
                     color: dynamicColors.danger,
                     onTap: widget.onDeactivate,
                   )
                 else
                   _ActionItem(
-                    icon: Icons.play_arrow_outlined,
+                    icon: VIcons.play,
                     label: 'Kinh doanh lại',
                     color: dynamicColors.danger,
                     onTap: widget.onReactivate,
@@ -150,7 +150,7 @@ class _ProductControlCenterDangerSectionState extends State<ProductControlCenter
                     endIndent: VSpacing.md,
                   ),
                   _ActionItem(
-                    icon: Icons.delete_outline,
+                    icon: VIcons.delete,
                     label: 'Xoá sản phẩm',
                     color: dynamicColors.danger,
                     onTap: widget.onDelete,
@@ -165,7 +165,7 @@ class _ProductControlCenterDangerSectionState extends State<ProductControlCenter
 }
 
 class _ActionItem extends StatelessWidget {
-  final IconData icon;
+  final VIcons icon;
   final String label;
   final Color color;
   final VoidCallback onTap;
@@ -188,7 +188,7 @@ class _ActionItem extends StatelessWidget {
         ),
         child: Row(
           children: [
-            VIcon(iconData: icon, color: color, size: 20),
+            VIcon(icon: icon, color: color, size: 20),
             const VGap.horizontalMd(),
             Expanded(
               child: VText(

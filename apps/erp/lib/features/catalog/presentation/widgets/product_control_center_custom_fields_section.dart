@@ -23,7 +23,7 @@ class ProductControlCenterCustomFieldsSection extends StatelessWidget {
           ProductControlCenterSectionCard(
             title: group.name,
             emoji: group.iconKey?.isNotEmpty == true ? group.iconKey : null,
-            icon: group.iconKey?.isNotEmpty == true ? null : Icons.assignment_outlined,
+            icon: group.iconKey?.isNotEmpty == true ? null : VIcons.clipboard,
             hasError: group.hasRequiredMissing,
             subtitle: _subtitleFor(group),
             actionText: group.fields.every((f) => !f.isActive) ? 'Xem' : 'Sửa',

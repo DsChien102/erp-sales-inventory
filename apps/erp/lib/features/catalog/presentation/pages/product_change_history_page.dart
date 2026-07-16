@@ -87,7 +87,7 @@ class _ProductChangeHistoryViewState extends State<_ProductChangeHistoryView> {
         title: 'Lịch sử thay đổi',
         subtitle: widget.productName,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: dynamicColors.textPrimary),
+          icon: VIcon(icon: VIcons.arrowBack, color: dynamicColors.textPrimary),
           onPressed: () {
             if (context.canPop()) {
               context.pop();
@@ -108,7 +108,7 @@ class _ProductChangeHistoryViewState extends State<_ProductChangeHistoryView> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.error_outline, size: 48, color: dynamicColors.danger),
+                  VIcon(icon: VIcons.error, size: 48, color: dynamicColors.danger),
                   const SizedBox(height: 16),
                   Text(
                     state.errorMessage ?? 'Đã xảy ra lỗi',
@@ -130,7 +130,7 @@ class _ProductChangeHistoryViewState extends State<_ProductChangeHistoryView> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.history, size: 48, color: dynamicColors.textMuted),
+                  VIcon(icon: VIcons.history, size: 48, color: dynamicColors.textMuted),
                   const SizedBox(height: 16),
                   Text(
                     'Chưa có lịch sử thay đổi nào',

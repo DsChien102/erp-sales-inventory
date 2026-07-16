@@ -99,7 +99,7 @@ class _ProductImagesMaintenanceView extends StatelessWidget {
         appBar: VAppBar(
           title: 'Ảnh sản phẩm',
           leading: IconButton(
-            icon: Icon(Icons.arrow_back, color: dynamicColors.textPrimary),
+            icon: VIcon(icon: VIcons.arrowBack, color: dynamicColors.textPrimary),
             onPressed: () => context.pop(),
           ),
         ),
@@ -149,7 +149,7 @@ class _ProductImagesMaintenanceView extends StatelessWidget {
                                 : Column(
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
-                                      Icon(Icons.add, size: 24, color: dynamicColors.textSecondary),
+                                      VIcon(icon: VIcons.add, size: 24, color: dynamicColors.textSecondary),
                                       const SizedBox(height: 4),
                                       Text(
                                         'Thêm',

@@ -49,7 +49,7 @@ class ProductPriceBandsPage extends StatelessWidget {
               subtitle: args.productName.isNotEmpty ? args.productName : null,
               centerTitle: false,
               leading: IconButton(
-                icon: const Icon(Icons.arrow_back),
+                icon: const VIcon(icon: VIcons.arrowBack),
                 onPressed: () => context.pop(),
               ),
             ),

@@ -74,7 +74,7 @@ class ProductCustomFieldGroupEditPage extends StatelessWidget {
                 subtitle: args.productName,
                 centerTitle: false,
                 leading: IconButton(
-                  icon: const Icon(Icons.arrow_back),
+                  icon: const VIcon(icon: VIcons.arrowBack),
                   onPressed: () => context.pop(),
                 ),
               ),

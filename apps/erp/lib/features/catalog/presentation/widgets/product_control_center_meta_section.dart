@@ -26,13 +26,13 @@ class ProductControlCenterMetaSection extends StatelessWidget {
       children: [
         ProductControlCenterSectionCard(
           title: 'Ghi chú',
-          icon: Icons.description_outlined,
+          icon: VIcons.description,
           subtitle: note?.isNotEmpty == true ? 'Đã điền ghi chú' : 'Chưa có ghi chú',
           onEdit: onEditNote,
         ),
         ProductControlCenterSectionCard(
           title: 'Lịch sử thay đổi',
-          icon: Icons.history,
+          icon: VIcons.history,
           subtitle: _changeHistorySubtitle(),
           actionText: 'Xem',
           onEdit: onViewChangeHistory,

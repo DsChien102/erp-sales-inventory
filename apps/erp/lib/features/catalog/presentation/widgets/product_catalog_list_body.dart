@@ -179,11 +179,11 @@ class _ProductCatalogEmptyState extends StatelessWidget {
 
     return Center(
       child: VEmptyState(
-        iconData: Icons.inventory_2_outlined,
+        icon: VIcons.inventory,
         title: title,
         description: description,
         actionLabel: actionLabel,
-        actionLeadingIcon: actionLabel != null ? const Icon(Icons.add, size: 18) : null,
+        actionLeadingIcon: actionLabel != null ? const VIcon(icon: VIcons.add, size: 18) : null,
         onActionPressed: onActionPressed,
       ),
     );

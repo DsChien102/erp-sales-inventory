@@ -129,7 +129,7 @@ class _ChangeHistoryBody extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.info_outline, size: 18, color: colors.warning),
+          VIcon(icon: VIcons.info, size: 18, color: colors.warning),
           const SizedBox(width: VSpacing.space2),
           Expanded(
             child: Text(
@@ -152,8 +152,8 @@ class _ChangeHistoryBody extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
-              Icons.history,
+            VIcon(
+              icon: VIcons.history,
               size: 48,
               color: colors.textMuted,
             ),

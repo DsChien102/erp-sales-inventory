@@ -249,7 +249,7 @@ class _ProductCatalogTabPageState extends State<ProductCatalogTabPage> {
             actions: [
               IconButton(
                 icon: VIcon(
-                  iconData: Icons.more_vert,
+                  icon: VIcons.moreVert,
                   color: dynamicColors.textPrimary,
                 ),
                 onPressed: () {},
@@ -257,7 +257,7 @@ class _ProductCatalogTabPageState extends State<ProductCatalogTabPage> {
             ],
             floatingActionButton: VFloatingActionButton(
               key: const Key('btn_create_product'),
-              iconData: Icons.add,
+              icon: VIcons.add,
               tone: VComponentTone.success,
               backgroundColor: dynamicColors.success,
               semanticLabel: 'Tạo sản phẩm',

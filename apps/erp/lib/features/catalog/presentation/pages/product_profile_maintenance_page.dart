@@ -97,7 +97,7 @@ class _ProductProfileMaintenanceViewState extends State<_ProductProfileMaintenan
         appBar: VAppBar(
           title: 'Hồ sơ sản phẩm',
           leading: IconButton(
-            icon: Icon(Icons.arrow_back, color: dynamicColors.textPrimary),
+            icon: VIcon(icon: VIcons.arrowBack, color: dynamicColors.textPrimary),
             onPressed: () => context.pop(),
           ),
         ),

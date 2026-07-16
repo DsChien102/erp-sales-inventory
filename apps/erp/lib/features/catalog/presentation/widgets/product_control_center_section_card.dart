@@ -13,7 +13,7 @@ class ProductControlCenterSectionCard extends StatelessWidget {
     this.hasError = false,
   });
 
-  final IconData? icon;
+  final VIcons? icon;
   final String? emoji;
   final String title;
   final String subtitle;
@@ -46,7 +46,7 @@ class ProductControlCenterSectionCard extends StatelessWidget {
               )
             else
               VIconBox(
-                iconData: icon ?? Icons.assignment_outlined,
+                icon: icon ?? VIcons.clipboard,
                 size: 40,
                 iconSize: 20,
                 backgroundColor: hasError ? dynamicColors.dangerBg : dynamicColors.surfaceBrand,

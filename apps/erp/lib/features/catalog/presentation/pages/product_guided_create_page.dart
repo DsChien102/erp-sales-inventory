@@ -59,7 +59,7 @@ class _ProductGuidedCreateView extends StatelessWidget {
         appBar: VAppBar(
           title: 'Tạo nhanh sản phẩm',
           leading: IconButton(
-            icon: Icon(Icons.arrow_back, color: dynamicColors.textPrimary),
+            icon: VIcon(icon: VIcons.arrowBack, color: dynamicColors.textPrimary),
             onPressed: () => context.pop(),
           ),
         ),
