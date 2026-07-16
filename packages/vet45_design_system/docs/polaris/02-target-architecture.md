@@ -9,7 +9,7 @@ Theme (VTheme, VColorScheme, VDensity)
   ↓
 Foundation (v_context_extensions, v_component_contracts)
   ↓
-Primitives (VText, VBadge, VChip, VIcon, VIconBox)
+Primitives (VText, VBadge, VChip, VIcon, VIconBox, VSkeleton)
   ↓
 Components (VButton, VCard, VTextField, overlays, ...)
   ↓

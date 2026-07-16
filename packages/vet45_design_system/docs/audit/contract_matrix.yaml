@@ -38,6 +38,13 @@ VText:
   state: na
   semanticLabel: optional
 
+VSkeleton:
+  role: layout_pattern
+  tone: na
+  emphasis: na
+  state: na
+  semanticLabel: preferred
+
 # --- Action ---
 VButton:
   role: action

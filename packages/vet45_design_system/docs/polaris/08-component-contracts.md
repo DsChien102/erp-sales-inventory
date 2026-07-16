@@ -23,7 +23,7 @@ Defined in `lib/src/foundation/v_component_contracts.dart`.
 | Container | Optional | Optional | N/A | Optional | VCard, VSection |
 | Overlay shell | Optional | Optional | N/A | Preferred | VConfirmDialog, VBottomSheet |
 | Navigation chrome | N/A | N/A | N/A | Optional | VAppBar, VBottomNav |
-| Layout pattern | N/A | N/A | N/A | N/A | VGap, VPagePadding, VPageScaffold |
+| Layout pattern | N/A | N/A | N/A | N/A | VGap, VPagePadding, VPageScaffold, VSkeleton |
 | Typography primitive | N/A | N/A | N/A | Optional | VText, VIcon |
 | Business chrome | Preferred | Preferred | Optional | Preferred | VMetricCard, VTodoItem |
 
