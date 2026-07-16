@@ -15,27 +15,7 @@ void main() {
 
   setUp(() async {
     root = await Directory.systemTemp.createTemp('vet45_supabase_delegate_');
-    Directory('${root.path}/config/secrets').createSync(recursive: true);
-    File('${root.path}/config/environments.json').writeAsStringSync(
-      manifestWithEnv('''
-{
-  "local": {
-    "description": "test local",
-    "supabaseSource": "secrets",
-    "targets": {
-      "erp": {
-        "flavor": "development",
-        "envFile": "apps/erp/.env",
-        "appEnv": "development"
-      },
-      "worker": {
-        "envFile": "apps/messaging_worker/.env"
-      }
-    }
-  }
-}
-'''),
-    );
+    writeTestWorkspace(root);
     writeDotEnv(
       File('${root.path}/config/secrets/auth.env'),
       {'SUPABASE_ACCESS_TOKEN': 'sbp_test_token'},

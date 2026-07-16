@@ -1,13 +1,27 @@
-# Local Vet45 configuration
+# Local Vet45 secrets templates
 
-This directory is **gitignored** and created by:
+Committed workspace/target manifests live at the repo root:
+
+- `vet45.workspace.json`
+- `apps/*/vet45.target.json`
+- `config/deploy/vet45.target.json`
+
+This directory only scaffolds **local secrets**:
 
 ```bash
 melos bootstrap
 melos run env:init
 ```
 
-Templates live in `tools/vet45_env/templates/config/`. Re-scaffold scaffold files with:
+Then copy examples and fill values:
+
+```bash
+cp config/secrets/development.env.example config/secrets/development.env
+# fill secrets, then:
+vet45 sync
+```
+
+Re-scaffold secret templates with:
 
 ```bash
 melos run env:init -- --force
@@ -15,4 +29,4 @@ melos run env:init -- --force
 
 (`--force` never overwrites filled `*.env` secret files.)
 
-See [docs/operations/environment-manager.md](../docs/operations/environment-manager.md).
+See [docs/operations/environment-manager.md](../../../../docs/operations/environment-manager.md).

@@ -19,29 +19,9 @@ void main() {
 
   setUp(() async {
     root = await Directory.systemTemp.createTemp('vet45_run_test_');
-    Directory('${root.path}/config/secrets').createSync(recursive: true);
+    writeTestWorkspace(root);
     Directory('${root.path}/apps/erp').createSync(recursive: true);
     Directory('${root.path}/apps/messaging_worker').createSync(recursive: true);
-    File('${root.path}/config/environments.json').writeAsStringSync(
-      manifestWithEnv('''
-{
-  "local": {
-    "description": "test local",
-    "supabaseSource": "secrets",
-    "targets": {
-      "erp": {
-        "flavor": "development",
-        "envFile": "apps/erp/.env",
-        "appEnv": "development"
-      },
-      "worker": {
-        "envFile": "apps/messaging_worker/.env"
-      }
-    }
-  }
-}
-'''),
-    );
     manifest = EnvManifest.load(root);
     process = _RecordingProcessRunner();
   });
@@ -133,21 +113,19 @@ void main() {
 
   test('switchWorkspace changes profile and writes erp env', () async {
     Directory('${root.path}/config/profiles/acme/secrets').createSync(recursive: true);
-    File('${root.path}/config/profiles.json').writeAsStringSync('''
-{
-  "defaultProfile": "default",
-  "profiles": {
-    "default": {
-      "description": "Default",
-      "secretsRoot": "config/secrets"
-    },
-    "acme": {
-      "description": "Acme",
-      "secretsRoot": "config/profiles/acme/secrets"
-    }
-  }
-}
-''');
+    writeTestWorkspace(
+      root,
+      profiles: {
+        'default': {
+          'description': 'Default',
+          'secretsRoot': 'config/secrets',
+        },
+        'acme': {
+          'description': 'Acme',
+          'secretsRoot': 'config/profiles/acme/secrets',
+        },
+      },
+    );
     manifest = EnvManifest.load(root);
 
     writeDotEnv(
@@ -189,41 +167,27 @@ void main() {
   });
 
   test('switchWorkspace changes profile and environment together', () async {
-    Directory('${root.path}/apps/erp').createSync(recursive: true);
-    File('${root.path}/config/environments.json').writeAsStringSync(
-      manifestWithEnv('''
-{
-  "local": {
-    "description": "test local",
-    "supabaseSource": "secrets",
-    "targets": {
-      "erp": {
-        "flavor": "development",
-        "envFile": "apps/erp/.env",
-        "appEnv": "development"
+    writeTestWorkspace(
+      root,
+      environmentIds: ['local', 'staging'],
+      erpEnvOverrides: {
+        'local': {
+          'envFile': '.env',
+          'flavor': 'development',
+          'appEnv': 'development',
+        },
+        'staging': {
+          'envFile': '.env.staging',
+          'flavor': 'staging',
+          'appEnv': 'staging',
+        },
       },
-      "worker": {
-        "envFile": "apps/messaging_worker/.env"
-      }
-    }
-  },
-  "staging": {
-    "description": "test staging",
-    "supabaseSource": "secrets",
-    "targets": {
-      "erp": {
-        "flavor": "staging",
-        "envFile": "apps/erp/.env.staging",
-        "appEnv": "staging"
+      workerEnvOverrides: {
+        'local': {'envFile': '.env'},
+        'staging': {'envFile': '.env.staging'},
       },
-      "worker": {
-        "envFile": "apps/messaging_worker/.env.staging"
-      }
-    }
-  }
-}
-'''),
     );
+    Directory('${root.path}/apps/erp').createSync(recursive: true);
     manifest = EnvManifest.load(root);
 
     writeDotEnv(

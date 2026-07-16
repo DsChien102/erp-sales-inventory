@@ -1,0 +1,69 @@
+{
+  "version": 1,
+  "id": "worker",
+  "description": "Messaging worker",
+  "kind": "dart-worker",
+  "keys": [
+    {
+      "name": "SUPABASE_URL",
+      "required": true
+    },
+    {
+      "name": "SUPABASE_SERVICE_ROLE_KEY",
+      "required": true
+    },
+    {
+      "name": "WORKER_TICK_SECRET",
+      "required": true,
+      "autoGenerate": true
+    },
+    {
+      "name": "WORKER_LOG_LEVEL",
+      "default": "WARNING"
+    },
+    {
+      "name": "WORKER_TENANT_BATCH_SIZE",
+      "default": "20"
+    },
+    {
+      "name": "WORKER_MODULE_BATCH_SIZE",
+      "default": "10"
+    },
+    {
+      "name": "WORKER_MAX_ROUNDS_PER_TICK",
+      "default": "5"
+    },
+    {
+      "name": "WORKER_TICK_ACTIVE_SECONDS",
+      "default": "3"
+    },
+    {
+      "name": "WORKER_TICK_IDLE_SECONDS",
+      "default": "15"
+    },
+    {
+      "name": "WORKER_TICK_MAX_IDLE_SECONDS",
+      "default": "30"
+    },
+    {
+      "name": "PORT",
+      "default": "8080"
+    }
+  ],
+  "environments": {
+    "development": {
+      "envFile": ".env",
+      "dockerSupabaseUrl": "http://host.docker.internal:54321"
+    },
+    "local": {
+      "envFile": ".env",
+      "dockerSupabaseUrl": "http://host.docker.internal:54321"
+    },
+    "staging": {
+      "envFile": ".env.staging"
+    },
+    "production": {
+      "envFile": ".env.production"
+    }
+  }
+}

@@ -24,29 +24,20 @@ void main() {
       addTearDown(() {
         if (root.existsSync()) root.deleteSync(recursive: true);
       });
-      Directory('${root.path}/config/secrets').createSync(recursive: true);
-      File('${root.path}/config/environments.json').writeAsStringSync(
-        manifestWithEnv(
-          '''
-{
-  "staging": {
-    "description": "test",
-    "supabaseSource": "secrets",
-    "targets": {
-      "erp": {
-        "flavor": "staging",
-        "envFile": "apps/erp/.env.staging",
-        "appEnv": "staging"
-      },
-      "worker": {
-        "envFile": "apps/messaging_worker/.env.staging"
-      }
-    }
-  }
-}
-''',
-          defaultId: 'staging',
-        ),
+      writeTestWorkspace(
+        root,
+        defaultEnvironment: 'staging',
+        environmentIds: ['staging'],
+        erpEnvOverrides: {
+          'staging': {
+            'envFile': '.env.staging',
+            'flavor': 'staging',
+            'appEnv': 'staging',
+          },
+        },
+        workerEnvOverrides: {
+          'staging': {'envFile': '.env.staging'},
+        },
       );
       final secretsFile = File('${root.path}/config/secrets/staging.env');
       writeDotEnv(
@@ -63,30 +54,23 @@ void main() {
       addTearDown(() {
         if (root.existsSync()) root.deleteSync(recursive: true);
       });
-      Directory('${root.path}/config/secrets').createSync(recursive: true);
-      File('${root.path}/config/environments.json').writeAsStringSync(
-        manifestWithEnv(
-          '''
-{
-  "staging": {
-    "description": "test",
-    "supabaseSource": "secrets",
-    "supabaseProjectRef": "explicitref",
-    "targets": {
-      "erp": {
-        "flavor": "staging",
-        "envFile": "apps/erp/.env.staging",
-        "appEnv": "staging"
-      },
-      "worker": {
-        "envFile": "apps/messaging_worker/.env.staging"
-      }
-    }
-  }
-}
-''',
-          defaultId: 'staging',
-        ),
+      writeTestWorkspace(
+        root,
+        defaultEnvironment: 'staging',
+        environmentIds: ['staging'],
+        environmentMeta: {
+          'staging': {'supabaseProjectRef': 'explicitref'},
+        },
+        erpEnvOverrides: {
+          'staging': {
+            'envFile': '.env.staging',
+            'flavor': 'staging',
+            'appEnv': 'staging',
+          },
+        },
+        workerEnvOverrides: {
+          'staging': {'envFile': '.env.staging'},
+        },
       );
       final secretsFile = File('${root.path}/config/secrets/staging.env');
       writeDotEnv(
@@ -106,45 +90,33 @@ void main() {
 
     setUp(() async {
       root = await Directory.systemTemp.createTemp('vet45_link_test_');
-      Directory('${root.path}/config/secrets').createSync(recursive: true);
       Directory('${root.path}/supabase/.temp').createSync(recursive: true);
-      File('${root.path}/config/environments.json').writeAsStringSync(
-        manifestWithEnv(
-          '''
-{
-  "staging": {
-    "description": "test staging",
-    "supabaseSource": "secrets",
-    "targets": {
-      "erp": {
-        "flavor": "staging",
-        "envFile": "apps/erp/.env.staging",
-        "appEnv": "staging"
-      },
-      "worker": {
-        "envFile": "apps/messaging_worker/.env.staging"
-      }
-    }
-  },
-  "local": {
-    "description": "test local",
-    "supabaseSource": "supabase_cli",
-    "syncSupabaseLink": false,
-    "targets": {
-      "erp": {
-        "flavor": "development",
-        "envFile": "apps/erp/.env",
-        "appEnv": "development"
-      },
-      "worker": {
-        "envFile": "apps/messaging_worker/.env"
-      }
-    }
-  }
-}
-''',
-          defaultId: 'staging',
-        ),
+      writeTestWorkspace(
+        root,
+        defaultEnvironment: 'staging',
+        environmentIds: ['staging', 'local'],
+        environmentMeta: {
+          'local': {
+            'supabaseSource': 'supabase_cli',
+            'syncSupabaseLink': false,
+          },
+        },
+        erpEnvOverrides: {
+          'staging': {
+            'envFile': '.env.staging',
+            'flavor': 'staging',
+            'appEnv': 'staging',
+          },
+          'local': {
+            'envFile': '.env',
+            'flavor': 'development',
+            'appEnv': 'development',
+          },
+        },
+        workerEnvOverrides: {
+          'staging': {'envFile': '.env.staging'},
+          'local': {'envFile': '.env'},
+        },
       );
       writeDotEnv(
         File('${root.path}/config/secrets/staging.env'),

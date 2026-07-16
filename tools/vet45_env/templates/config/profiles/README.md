@@ -2,6 +2,8 @@
 
 Profiles isolate **secrets roots** and optional **Supabase account tokens** when you work with multiple hosted projects or client workspaces.
 
+Registry: committed `vet45.workspace.json` (`profiles.entries`). `profile init` appends there.
+
 | Profile | Secrets root | Use when |
 | ------- | ------------ | -------- |
 | `default` | `config/secrets/` | Main workspace |

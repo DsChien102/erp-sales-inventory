@@ -19,3 +19,6 @@ export 'supabase_cli.dart';
 export 'supabase_context.dart';
 export 'supabase_delegate_service.dart';
 export 'sync_service.dart';
+export 'target_discovery.dart';
+export 'target_manifest.dart';
+export 'workspace_manifest.dart';

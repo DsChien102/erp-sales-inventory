@@ -1,10 +1,13 @@
-import 'dart:convert';
 import 'dart:io';
 
 import 'profile_registry.dart';
+import 'target_discovery.dart';
+import 'target_manifest.dart';
+import 'workspace_manifest.dart';
+
 export 'repo_root.dart';
 
-/// Loaded [config/environments.json] with validation.
+/// Composed workspace + discovered targets for sync/doctor/run.
 class EnvManifest {
   EnvManifest({
     required this.defaultEnvironmentId,
@@ -13,6 +16,7 @@ class EnvManifest {
     required this.rootDir,
     required this.deploySecretsFile,
     required this.profiles,
+    required this.workspace,
   });
 
   final String defaultEnvironmentId;
@@ -21,66 +25,67 @@ class EnvManifest {
   final Directory rootDir;
   final File deploySecretsFile;
   final ProfileRegistry profiles;
+  final WorkspaceManifest workspace;
 
   static EnvManifest load(Directory rootDir) {
-    final file = File('${rootDir.path}/config/environments.json');
-    if (!file.existsSync()) {
-      throw StateError('Missing manifest: ${file.path}');
-    }
-    final json = jsonDecode(file.readAsStringSync()) as Map<String, dynamic>;
-    final defaultId = json['default'] as String? ?? 'development';
+    final workspace = WorkspaceManifest.load(rootDir);
+    final discovered = TargetDiscovery(
+      rootDir: rootDir,
+      scan: workspace.scan,
+    ).discover();
 
-    final targets = _loadTargets(json, rootDir);
-    if (targets.isEmpty) {
-      throw StateError('environments.json has no targets');
+    final targets = <String, TargetDefinition>{};
+    for (final entry in discovered.entries) {
+      targets[entry.key] = entry.value.toDefinition();
     }
 
-    final rawEnvs = json['environments'] as Map<String, dynamic>? ?? {};
     final environments = <String, EnvironmentDefinition>{};
-    for (final entry in rawEnvs.entries) {
-      environments[entry.key] = EnvironmentDefinition.fromJson(
-        id: entry.key,
-        json: entry.value as Map<String, dynamic>,
-        rootDir: rootDir,
-        targets: targets,
+    for (final envEntry in workspace.environments.entries) {
+      final meta = envEntry.value;
+      final bindings = <String, TargetBinding>{};
+      for (final targetEntry in discovered.entries) {
+        final binding = targetEntry.value.bindingFor(meta.id);
+        if (binding == null) {
+          continue;
+        }
+        bindings[targetEntry.key] = binding;
+      }
+
+      for (final entry in bindings.entries) {
+        final target = targets[entry.key]!;
+        if (target.writeEnvFile && entry.value.envFile == null) {
+          throw StateError(
+            'Target "${entry.key}" requires envFile for environment '
+            '"${meta.id}" (${discovered[entry.key]!.manifestFile.path})',
+          );
+        }
+      }
+
+      environments[meta.id] = EnvironmentDefinition(
+        id: meta.id,
+        description: meta.description,
+        supabaseSource: meta.supabaseSource,
+        railwayEnvironment: meta.railwayEnvironment,
+        cliFallback: meta.cliFallback,
+        syncSupabaseLink: meta.syncSupabaseLink,
+        supabaseProjectRef: meta.supabaseProjectRef,
+        bindings: bindings,
       );
-    }
-    if (environments.isEmpty) {
-      throw StateError('environments.json has no environments');
-    }
-    if (!environments.containsKey(defaultId)) {
-      throw StateError('default environment "$defaultId" not found in manifest');
     }
 
     final deployTarget = targets['deploy'];
-    final deployRelative = deployTarget?.secretsFileRelative ??
-        json['deploySecretsFile'] as String? ??
-        'config/secrets/deploy.env';
+    final deployFile = deployTarget?.secretsFile ??
+        File('${rootDir.path}/config/secrets/deploy.env');
 
     return EnvManifest(
-      defaultEnvironmentId: defaultId,
+      defaultEnvironmentId: workspace.defaultEnvironmentId,
       targets: targets,
       environments: environments,
       rootDir: rootDir,
-      deploySecretsFile: File('${rootDir.path}/$deployRelative'),
-      profiles: ProfileRegistry.load(rootDir),
+      deploySecretsFile: deployFile,
+      profiles: workspace.profiles,
+      workspace: workspace,
     );
-  }
-
-  static Map<String, TargetDefinition> _loadTargets(
-    Map<String, dynamic> json,
-    Directory rootDir,
-  ) {
-    final raw = json['targets'] as Map<String, dynamic>? ?? {};
-    final targets = <String, TargetDefinition>{};
-    for (final entry in raw.entries) {
-      targets[entry.key] = TargetDefinition.fromJson(
-        id: entry.key,
-        json: entry.value as Map<String, dynamic>,
-        rootDir: rootDir,
-      );
-    }
-    return targets;
   }
 
   TargetDefinition getTarget(String id) {
@@ -128,6 +133,9 @@ class TargetDefinition {
     this.writeEnvFile = true,
     this.secretsFileRelative,
     this.secretsFile,
+    this.manifestDir,
+    this.manifestFile,
+    this.kind,
   });
 
   final String id;
@@ -139,30 +147,13 @@ class TargetDefinition {
   final String? secretsFileRelative;
   final File? secretsFile;
 
-  factory TargetDefinition.fromJson({
-    required String id,
-    required Map<String, dynamic> json,
-    required Directory rootDir,
-  }) {
-    final keysJson = json['keys'] as List<dynamic>? ?? [];
-    final secretsRelative = json['secretsFile'] as String?;
-    return TargetDefinition(
-      id: id,
-      description: json['description'] as String? ?? id,
-      writeEnvFile: json['writeEnvFile'] as bool? ?? true,
-      secretsFileRelative: secretsRelative,
-      secretsFile: secretsRelative == null
-          ? null
-          : File('${rootDir.path}/$secretsRelative'),
-      keys: keysJson
-          .map((e) => TargetKeySpec.fromJson(e as Map<String, dynamic>))
-          .toList(),
-    );
-  }
+  /// Directory containing [vet45.target.json], when discovered.
+  final Directory? manifestDir;
+  final File? manifestFile;
+  final String? kind;
 
   /// Secrets source for this target (shared deploy file or profile env secrets).
-  File secretsSource(WorkspaceContext ctx) =>
-      secretsFile ?? ctx.secretsFile;
+  File secretsSource(WorkspaceContext ctx) => secretsFile ?? ctx.secretsFile;
 }
 
 class TargetKeySpec {
@@ -210,33 +201,6 @@ class TargetBinding {
   String? get flavor => fields['flavor'];
   String? get appEnv => fields['appEnv'];
   String? get dockerSupabaseUrl => fields['dockerSupabaseUrl'];
-
-  factory TargetBinding.fromJson({
-    required String targetId,
-    required Map<String, dynamic> json,
-    required Directory rootDir,
-  }) {
-    final envFileRelative = json['envFile'] as String?;
-    final fields = <String, String>{};
-    for (final entry in json.entries) {
-      if (entry.key == 'envFile') {
-        continue;
-      }
-      final value = entry.value;
-      if (value is String) {
-        fields[entry.key] = value;
-      } else if (value != null) {
-        fields[entry.key] = value.toString();
-      }
-    }
-    return TargetBinding(
-      targetId: targetId,
-      envFile: envFileRelative == null
-          ? null
-          : File('${rootDir.path}/$envFileRelative'),
-      fields: fields,
-    );
-  }
 }
 
 class EnvironmentDefinition {
@@ -264,49 +228,6 @@ class EnvironmentDefinition {
 
   TargetBinding? get erp => bindings['erp'];
   TargetBinding? get worker => bindings['worker'];
-
-  factory EnvironmentDefinition.fromJson({
-    required String id,
-    required Map<String, dynamic> json,
-    required Directory rootDir,
-    required Map<String, TargetDefinition> targets,
-  }) {
-    final rawBindings = json['targets'] as Map<String, dynamic>? ?? {};
-    final bindings = <String, TargetBinding>{};
-    for (final entry in rawBindings.entries) {
-      if (!targets.containsKey(entry.key)) {
-        throw StateError(
-          'Environment "$id" references unknown target "${entry.key}"',
-        );
-      }
-      bindings[entry.key] = TargetBinding.fromJson(
-        targetId: entry.key,
-        json: entry.value as Map<String, dynamic>,
-        rootDir: rootDir,
-      );
-    }
-
-    for (final entry in bindings.entries) {
-      final target = targets[entry.key]!;
-      if (target.writeEnvFile && entry.value.envFile == null) {
-        throw StateError(
-          'Environment "$id" target "${entry.key}" requires envFile',
-        );
-      }
-    }
-
-    return EnvironmentDefinition(
-      id: id,
-      description: json['description'] as String? ?? id,
-      supabaseSource: json['supabaseSource'] as String? ?? 'secrets',
-      railwayEnvironment: json['railwayEnvironment'] as String?,
-      cliFallback: json['cliFallback'] as bool? ?? false,
-      syncSupabaseLink: json['syncSupabaseLink'] as bool? ??
-          (json['supabaseSource'] as String? ?? 'secrets') != 'supabase_cli',
-      supabaseProjectRef: json['supabaseProjectRef'] as String?,
-      bindings: bindings,
-    );
-  }
 
   Map<String, dynamic> toResolveJson(
     Map<String, TargetDefinition> targets,

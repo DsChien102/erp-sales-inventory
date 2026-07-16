@@ -15,27 +15,7 @@ void main() {
 
   setUp(() async {
     root = await Directory.systemTemp.createTemp('vet45_env_test_');
-    Directory('${root.path}/config/secrets').createSync(recursive: true);
-    File('${root.path}/config/environments.json').writeAsStringSync(
-      manifestWithEnv('''
-{
-  "local": {
-    "description": "test local",
-    "supabaseSource": "secrets",
-    "targets": {
-      "erp": {
-        "flavor": "development",
-        "envFile": "apps/erp/.env",
-        "appEnv": "development"
-      },
-      "worker": {
-        "envFile": "apps/messaging_worker/.env"
-      }
-    }
-  }
-}
-'''),
-    );
+    writeTestWorkspace(root);
     manifest = EnvManifest.load(root);
   });
 
@@ -52,52 +32,42 @@ void main() {
     expect(manifest.getEnvironment('local').erp?.flavor, 'development');
     expect(manifest.deploySecretsFile.path, endsWith('config/secrets/deploy.env'));
     expect(manifest.profiles.defaultProfileId, 'default');
+    expect(
+      manifest.targets['erp']!.manifestFile!.path,
+      endsWith('apps/erp/vet45.target.json'),
+    );
   });
 
   test('default environment id falls back to development', () {
-    File('${root.path}/config/environments.json').writeAsStringSync(
-      manifestWithEnv(
-        '''
-{
-  "development": {
-    "description": "test dev",
-    "supabaseSource": "secrets",
-    "targets": {
-      "erp": {
-        "flavor": "development",
-        "envFile": "apps/erp/.env",
-        "appEnv": "development"
-      },
-      "worker": {
-        "envFile": "apps/messaging_worker/.env"
-      }
-    }
-  }
-}
-''',
-        defaultId: 'development',
-      ),
+    writeTestWorkspace(
+      root,
+      defaultEnvironment: 'development',
+      environmentIds: ['development'],
     );
     final m = EnvManifest.load(root);
     expect(m.defaultEnvironmentId, 'development');
     expect(m.deploySecretsFile.path, endsWith('config/secrets/deploy.env'));
   });
 
-  test('rejects unknown target id in per-env bindings', () {
-    File('${root.path}/config/environments.json').writeAsStringSync(
-      manifestWithEnv('''
-{
-  "local": {
-    "description": "bad",
-    "supabaseSource": "secrets",
-    "targets": {
-      "unknown_app": {
-        "envFile": "apps/unknown/.env"
-      }
-    }
-  }
-}
-'''),
+  test('rejects missing workspace manifest', () {
+    File('${root.path}/vet45.workspace.json').deleteSync();
+    expect(
+      () => EnvManifest.load(root),
+      throwsA(
+        isA<StateError>().having(
+          (e) => e.message,
+          'message',
+          contains('vet45.workspace.json'),
+        ),
+      ),
+    );
+  });
+
+  test('rejects duplicate target ids', () {
+    writeTestWorkspace(root, includeAdmin: true);
+    // Copy erp target as a second file with same id.
+    File('${root.path}/apps/admin/vet45.target.json').writeAsStringSync(
+      File('${root.path}/apps/erp/vet45.target.json').readAsStringSync(),
     );
     expect(
       () => EnvManifest.load(root),
@@ -105,7 +75,7 @@ void main() {
         isA<StateError>().having(
           (e) => e.message,
           'message',
-          contains('unknown target'),
+          contains('Duplicate target id'),
         ),
       ),
     );

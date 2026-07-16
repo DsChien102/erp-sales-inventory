@@ -28,7 +28,6 @@ class CompletionService {
   ];
 
   static const profileSubcommands = ['list', 'use', 'init'];
-  static const runTargets = ['erp', 'worker'];
   static const completionShells = ['bash', 'zsh'];
   static const commonFlags = [
     '--profile',
@@ -45,6 +44,13 @@ class CompletionService {
   List<String> get environmentIds => manifest.environments.keys.toList()..sort();
 
   List<String> get targetIds => manifest.targets.keys.toList()..sort();
+
+  /// Writable app targets (excludes secrets-only targets like deploy).
+  List<String> get runTargets => manifest.targets.entries
+      .where((e) => e.value.writeEnvFile)
+      .map((e) => e.key)
+      .toList()
+    ..sort();
 
   String render(String shell) {
     switch (shell) {
@@ -92,6 +98,8 @@ _vet45() {
     switch|use|use-and-sync|sync|link|doctor|supabase)
       if [[ "\$cur" == -* ]]; then
         COMPREPLY=( \$(compgen -W "$flags" -- "\$cur") )
+      elif [ "\$prev" = "--target" ]; then
+        COMPREPLY=( \$(compgen -W "$targets" -- "\$cur") )
       elif [ "\$cword" -eq 2 ]; then
         COMPREPLY=( \$(compgen -W "$profiles $environments" -- "\$cur") )
       elif [ "\$cword" -eq 3 ]; then

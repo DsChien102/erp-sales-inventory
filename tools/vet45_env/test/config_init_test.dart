@@ -4,6 +4,8 @@ import 'package:test/test.dart';
 import 'package:vet45_env/config_init_service.dart';
 import 'package:vet45_env/manifest.dart';
 
+import 'test_manifest_fixture.dart';
+
 void main() {
   late Directory root;
   late Directory templates;
@@ -13,6 +15,7 @@ void main() {
     templates = Directory('${root.path}/tools/vet45_env/templates/config');
     await _copyBundledTemplates(templates);
     File('${root.path}/pubspec.yaml').writeAsStringSync('name: vet45\n');
+    writeTestWorkspace(root);
   });
 
   tearDown(() {
@@ -21,45 +24,74 @@ void main() {
     }
   });
 
-  test('init scaffolds config from templates', () async {
+  test('init scaffolds secrets from templates', () async {
+    // Remove secrets dir created by writeTestWorkspace so init can create it.
+    final secrets = Directory('${root.path}/config/secrets');
+    if (secrets.existsSync()) {
+      secrets.deleteSync(recursive: true);
+    }
+
     final service = ConfigInitService(repoRoot: root);
+    expect(service.hasWorkspace, isTrue);
     expect(service.isInitialized, isFalse);
 
     final result = await service.init();
     expect(result.created, isNotEmpty);
-    expect(File('${root.path}/config/environments.json').existsSync(), isTrue);
-    expect(File('${root.path}/config/profiles.json').existsSync(), isTrue);
     expect(
       File('${root.path}/config/secrets/development.env.example').existsSync(),
       isTrue,
     );
+    expect(File('${root.path}/vet45.workspace.json').existsSync(), isTrue);
 
     final manifest = EnvManifest.load(root);
-    expect(manifest.defaultEnvironmentId, 'development');
+    expect(manifest.defaultEnvironmentId, 'local');
   });
 
-  test('init refuses when already initialized', () async {
+  test('init refuses when secrets already initialized', () async {
     final service = ConfigInitService(repoRoot: root);
-    await service.init();
+    // secrets/ already exists from writeTestWorkspace
     expect(
       () => service.init(),
-      throwsA(isA<StateError>().having((e) => e.message, 'message', contains('already initialized'))),
+      throwsA(
+        isA<StateError>().having(
+          (e) => e.message,
+          'message',
+          contains('already initialized'),
+        ),
+      ),
     );
   });
 
   test('init --force refreshes scaffold but keeps filled secrets', () async {
     final service = ConfigInitService(repoRoot: root);
-    await service.init();
+    // Ensure examples exist via init --force first.
+    await service.init(force: true);
 
     final secretsFile = File('${root.path}/config/secrets/development.env');
     secretsFile.writeAsStringSync('SUPABASE_URL=https://filled.supabase.co\n');
 
-    final profiles = File('${root.path}/config/profiles.json');
-    profiles.writeAsStringSync('{"stale": true}\n');
+    final example = File('${root.path}/config/secrets/development.env.example');
+    example.writeAsStringSync('# stale example\n');
 
     final result = await service.init(force: true);
-    expect(result.created, contains('profiles.json'));
+    expect(result.created, contains('secrets/development.env.example'));
     expect(secretsFile.readAsStringSync(), contains('filled.supabase.co'));
+  });
+
+  test('init fails without workspace manifest', () async {
+    File('${root.path}/vet45.workspace.json').deleteSync();
+    final service = ConfigInitService(repoRoot: root);
+    Directory('${root.path}/config/secrets').deleteSync(recursive: true);
+    expect(
+      () => service.init(),
+      throwsA(
+        isA<StateError>().having(
+          (e) => e.message,
+          'message',
+          contains('vet45.workspace.json'),
+        ),
+      ),
+    );
   });
 }
 
@@ -68,7 +100,6 @@ Future<void> _copyBundledTemplates(Directory dest) async {
     '${Directory.current.path}/templates/config',
   );
   if (!source.existsSync()) {
-    // Running from repo root via melos / dart test in tools/vet45_env.
     final fromCwd = Directory('tools/vet45_env/templates/config');
     await _copyTree(fromCwd, dest);
     return;

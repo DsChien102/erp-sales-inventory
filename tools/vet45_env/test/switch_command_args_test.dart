@@ -12,56 +12,36 @@ void main() {
 
   setUp(() async {
     root = await Directory.systemTemp.createTemp('vet45_switch_args_');
-    Directory('${root.path}/config/secrets').createSync(recursive: true);
-    File('${root.path}/config/environments.json').writeAsStringSync(
-      manifestWithEnv('''
-{
-  "local": {
-    "description": "test local",
-    "supabaseSource": "secrets",
-    "targets": {
-      "erp": {
-        "flavor": "development",
-        "envFile": "apps/erp/.env",
-        "appEnv": "development"
+    writeTestWorkspace(
+      root,
+      environmentIds: ['local', 'staging'],
+      erpEnvOverrides: {
+        'local': {
+          'envFile': '.env',
+          'flavor': 'development',
+          'appEnv': 'development',
+        },
+        'staging': {
+          'envFile': '.env.staging',
+          'flavor': 'staging',
+          'appEnv': 'staging',
+        },
       },
-      "worker": {
-        "envFile": "apps/messaging_worker/.env"
-      }
-    }
-  },
-  "staging": {
-    "description": "test staging",
-    "supabaseSource": "secrets",
-    "targets": {
-      "erp": {
-        "flavor": "staging",
-        "envFile": "apps/erp/.env.staging",
-        "appEnv": "staging"
+      workerEnvOverrides: {
+        'local': {'envFile': '.env'},
+        'staging': {'envFile': '.env.staging'},
       },
-      "worker": {
-        "envFile": "apps/messaging_worker/.env.staging"
-      }
-    }
-  }
-}
-'''),
+      profiles: {
+        'default': {
+          'description': 'Default',
+          'secretsRoot': 'config/secrets',
+        },
+        'acme': {
+          'description': 'Acme client',
+          'secretsRoot': 'config/profiles/acme/secrets',
+        },
+      },
     );
-    File('${root.path}/config/profiles.json').writeAsStringSync('''
-{
-  "defaultProfile": "default",
-  "profiles": {
-    "default": {
-      "description": "Default",
-      "secretsRoot": "config/secrets"
-    },
-    "acme": {
-      "description": "Acme client",
-      "secretsRoot": "config/profiles/acme/secrets"
-    }
-  }
-}
-''');
     manifest = EnvManifest.load(root);
   });
 

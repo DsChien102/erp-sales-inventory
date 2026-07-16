@@ -1,6 +1,8 @@
 import 'dart:io';
 
 import 'repo_root.dart';
+import 'target_discovery.dart';
+import 'workspace_manifest.dart';
 
 class ConfigInitResult {
   ConfigInitResult({
@@ -14,7 +16,9 @@ class ConfigInitResult {
   bool get alreadyInitialized => created.isEmpty && skipped.isNotEmpty;
 }
 
-/// Scaffolds local `config/` from bundled templates on first-time setup.
+/// Scaffolds local secrets under `config/secrets/` from bundled templates.
+///
+/// Workspace/target manifests are committed — init no longer copies them.
 class ConfigInitService {
   ConfigInitService({Directory? repoRoot})
       : repoRoot = repoRoot ?? Directory(findRepoRoot());
@@ -24,10 +28,20 @@ class ConfigInitService {
   static String templatesDir(Directory root) =>
       '${root.path}/tools/vet45_env/templates/config';
 
+  bool get hasWorkspace =>
+      WorkspaceManifest.workspaceFile(repoRoot).existsSync();
+
   bool get isInitialized =>
-      File('${repoRoot.path}/config/environments.json').existsSync();
+      Directory('${repoRoot.path}/config/secrets').existsSync();
 
   Future<ConfigInitResult> init({bool force = false}) async {
+    if (!hasWorkspace) {
+      throw StateError(
+        'Missing ${WorkspaceManifest.fileName} at ${repoRoot.path}. '
+        'This file must be checked out from the Vet45 monorepo.',
+      );
+    }
+
     final templates = Directory(templatesDir(repoRoot));
     if (!templates.existsSync()) {
       throw StateError(
@@ -38,19 +52,29 @@ class ConfigInitService {
 
     if (isInitialized && !force) {
       throw StateError(
-        'Config already initialized at ${repoRoot.path}/config. '
-        'Use --force to refresh scaffold files (never overwrites filled *.env secrets).',
+        'Secrets already initialized at ${repoRoot.path}/config/secrets. '
+        'Use --force to refresh scaffold files '
+        '(never overwrites filled *.env secrets).',
       );
     }
 
     final created = <String>[];
     final skipped = <String>[];
 
-    await for (final entity in templates.list(recursive: true, followLinks: false)) {
+    await for (final entity
+        in templates.list(recursive: true, followLinks: false)) {
       if (entity is! File) {
         continue;
       }
       final relative = _relativePath(templates.path, entity.path);
+      // Only scaffold secrets templates (manifests are committed at repo root).
+      if (!relative.startsWith('secrets${Platform.pathSeparator}') &&
+          !relative.startsWith('secrets/') &&
+          relative != 'README.md' &&
+          !relative.startsWith('profiles${Platform.pathSeparator}') &&
+          !relative.startsWith('profiles/')) {
+        continue;
+      }
       final dest = File('${repoRoot.path}/config/$relative');
       if (dest.existsSync() && !_shouldOverwrite(dest.path, force: force)) {
         skipped.add(relative);
@@ -118,18 +142,32 @@ class ConfigInitService {
 }
 
 void requireConfigInitialized(Directory repoRoot) {
-  if (ConfigInitService(repoRoot: repoRoot).isInitialized) {
-    return;
+  final workspaceFile = WorkspaceManifest.workspaceFile(repoRoot);
+  if (!workspaceFile.existsSync()) {
+    stderr.writeln('Missing ${WorkspaceManifest.fileName} at ${repoRoot.path}');
+    stderr.writeln('Check out the Vet45 monorepo (this file is committed).');
+    exit(1);
   }
-  stderr.writeln('Vet45 config is not initialized.');
-  stderr.writeln('');
-  stderr.writeln('First-time setup:');
-  stderr.writeln('  melos bootstrap');
-  stderr.writeln('  melos run env:init');
-  stderr.writeln('');
-  stderr.writeln('Then copy and fill secrets, e.g.:');
-  stderr.writeln(
-    '  cp config/secrets/development.env.example config/secrets/development.env',
-  );
-  exit(1);
+
+  try {
+    final workspace = WorkspaceManifest.load(repoRoot);
+    TargetDiscovery(rootDir: repoRoot, scan: workspace.scan).discover();
+  } on Object catch (e) {
+    stderr.writeln('Vet45 workspace/target discovery failed: $e');
+    exit(1);
+  }
+
+  if (!Directory('${repoRoot.path}/config/secrets').existsSync()) {
+    stderr.writeln('Vet45 secrets are not initialized.');
+    stderr.writeln('');
+    stderr.writeln('First-time setup:');
+    stderr.writeln('  melos bootstrap');
+    stderr.writeln('  melos run env:init');
+    stderr.writeln('');
+    stderr.writeln('Then copy and fill secrets, e.g.:');
+    stderr.writeln(
+      '  cp config/secrets/development.env.example config/secrets/development.env',
+    );
+    exit(1);
+  }
 }

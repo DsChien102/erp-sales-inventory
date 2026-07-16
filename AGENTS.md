@@ -89,7 +89,7 @@ Canonical specs (mirror của skills): `docs/application_layer_skill.md`, `docs/
 4. Implement (minimal diff, match conventions hiện có)
 5. Verify:
      melos bootstrap
-     melos run env:init          # first-time per clone (scaffold local config/)
+     melos run env:init          # first-time per clone (scaffold config/secrets from templates)
      melos run env:build         # AOT binary for fast vet45 CLI
      vet45                       # interactive TUI (or: vet45 tui)
      vet45 switch <profile> [env]  # after profile/env change (link + sync)
@@ -106,7 +106,7 @@ Canonical specs (mirror của skills): `docs/application_layer_skill.md`, `docs/
 
 ```bash
 melos bootstrap
-melos run env:init         # first-time per clone (scaffold local config/)
+melos run env:init         # first-time per clone (scaffold config/secrets from templates)
 melos run env:build        # AOT binary for fast vet45 CLI
 # After activate: vet45  # TUI; or vet45 switch <profile> [env]
 melos run env:doctor       # khi slice cần Supabase / worker

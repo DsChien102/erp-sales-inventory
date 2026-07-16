@@ -1,9 +1,8 @@
-import 'dart:convert';
 import 'dart:io';
 
 import 'manifest.dart';
 import 'profile_registry.dart';
-import 'secrets_loader.dart';
+import 'workspace_manifest.dart';
 
 /// Scaffold a new configuration profile.
 class ProfileInitService {
@@ -32,7 +31,7 @@ SUPABASE_ACCESS_TOKEN=
     final profileDir = Directory('${manifest.rootDir.path}/$secretsRoot');
     profileDir.createSync(recursive: true);
 
-    _writeProfileRegistryEntry(profileId, description, secretsRoot);
+    _writeWorkspaceProfileEntry(profileId, description, secretsRoot);
 
     for (final envId in manifest.environments.keys) {
       final exampleName = '$envId.env.example';
@@ -57,33 +56,43 @@ SUPABASE_ACCESS_TOKEN=
 
     stdout.writeln('Initialized profile: $profileId');
     stdout.writeln('  secrets: ${profileDir.path}');
-    stdout.writeln('  Next: cp ${profileDir.path}/*.env.example to *.env and fill keys');
-    stdout.writeln('  Then: melos run profile:use -- $profileId');
+    stdout.writeln(
+      '  registry: ${WorkspaceManifest.workspaceFile(manifest.rootDir).path}',
+    );
+    stdout.writeln(
+      '  Next: cp ${profileDir.path}/*.env.example to *.env and fill keys',
+    );
+    stdout.writeln('  Then: vet45 switch $profileId');
   }
 
-  void _writeProfileRegistryEntry(
+  void _writeWorkspaceProfileEntry(
     String profileId,
     String? description,
     String secretsRoot,
   ) {
-    final registryFile = File('${manifest.rootDir.path}/config/profiles.json');
-    final registry = ProfileRegistry.load(manifest.rootDir);
-    final updated = {
-      'defaultProfile': registry.defaultProfileId,
-      'profiles': {
-        for (final entry in registry.profiles.entries)
-          entry.key: {
-            'description': entry.value.description,
-            'secretsRoot': entry.value.secretsRoot,
-          },
-        profileId: {
-          'description': description ?? profileId,
-          'secretsRoot': secretsRoot,
-        },
-      },
-    };
-    registryFile.writeAsStringSync(
-      '${const JsonEncoder.withIndent('  ').convert(updated)}\n',
+    final workspace = WorkspaceManifest.load(manifest.rootDir);
+    final updatedProfiles = Map<String, ProfileDefinition>.from(
+      workspace.profiles.profiles,
     );
+    updatedProfiles[profileId] = ProfileDefinition(
+      id: profileId,
+      description: description ?? profileId,
+      secretsRoot: secretsRoot,
+    );
+
+    final updated = WorkspaceManifest(
+      version: workspace.version,
+      defaultEnvironmentId: workspace.defaultEnvironmentId,
+      scan: workspace.scan,
+      profiles: ProfileRegistry(
+        defaultProfileId: workspace.profiles.defaultProfileId,
+        profiles: updatedProfiles,
+        rootDir: workspace.rootDir,
+      ),
+      environments: workspace.environments,
+      rootDir: workspace.rootDir,
+      file: workspace.file,
+    );
+    updated.write();
   }
 }

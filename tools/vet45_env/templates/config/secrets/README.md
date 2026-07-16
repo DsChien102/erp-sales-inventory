@@ -2,7 +2,7 @@
 
 All runtime configuration is edited in `config/secrets/` (gitignored `*.env`), then applied with `melos run env:sync`.
 
-This directory is the **default profile** secrets root (`config/profiles.json`). For additional Supabase accounts/clients, see [config/profiles/README.md](../profiles/README.md).
+This directory is the **default profile** secrets root (see `profiles.entries` in `vet45.workspace.json`). For additional Supabase accounts/clients, see [config/profiles/README.md](../profiles/README.md).
 
 | File | Purpose |
 | ---- | ------- |

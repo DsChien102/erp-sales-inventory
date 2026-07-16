@@ -6,16 +6,21 @@ Melos-centric workflow to keep ERP, messaging worker, and Supabase targets align
 
 | Artifact | Purpose |
 | -------- | ------- |
-| `tools/vet45_env/templates/config/` | Committed templates — copied to local `config/` by `env:init` |
-| [`config/environments.json`](../../config/environments.json) | Targets registry (key deps) + per-env bindings (local, after init) |
-| [`config/profiles.json`](../../config/profiles.json) | Profile registry (`secretsRoot` per workspace/client) |
-| `config/secrets/<env>.env` | Default profile secrets per environment |
-| `config/secrets/auth.env` | Default profile Supabase CLI token (optional) |
-| `config/secrets/deploy.env` | Shared iOS TestFlight credentials (deploy target) |
+| [`vet45.workspace.json`](../../vet45.workspace.json) | **Committed** — environments, profiles, scan policy |
+| `apps/*/vet45.target.json` | **Committed** — per-app keys + per-env bindings (auto-discovered) |
+| [`config/deploy/vet45.target.json`](../../config/deploy/vet45.target.json) | **Committed** — secrets-only deploy target |
+| `tools/vet45_env/templates/config/secrets/` | Secret `.env.example` templates — copied by `env:init` |
+| `config/secrets/<env>.env` | Default profile secrets per environment (**gitignored**) |
+| `config/secrets/auth.env` | Default profile Supabase CLI token (optional, gitignored) |
+| `config/secrets/deploy.env` | Shared iOS TestFlight credentials (deploy target, gitignored) |
 | `.vet45/state.json` | Gitignored `{ profile, environment }` |
 | `.vet45/active` | Legacy environment id pointer (still updated) |
 | `.vet45/bin/vet45[.exe]` | Local AOT binary from `melos run env:build` (fast CLI) |
 | Generated `apps/*/.env*` | Output consumed by Flutter (`--dart-define-from-file`) and worker |
+
+### Discovery
+
+`vet45` loads `vet45.workspace.json`, then globs `scan.include` for `vet45.target.json` files. Each target owns its key specs and per-environment bindings (`envFile` paths are relative to the target file’s directory). Adding a new app means committing `apps/<name>/vet45.target.json` — no central registry edit.
 
 ## Configuration profiles
 
@@ -44,13 +49,14 @@ See [config/profiles/README.md](../../config/profiles/README.md).
 
 Each **target** (registered directory/app) declares which secrets it needs. Sync and doctor only require keys for the targets in scope.
 
-| Target | Writes | Required secrets (canonical) |
-| ------ | ------ | ---------------------------- |
-| `erp` | `apps/erp/.env*` | `SUPABASE_URL` → `SUPABASE_CONNECTION_URL`, `SUPABASE_ANON_KEY` |
-| `worker` | `apps/messaging_worker/.env*` | `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `WORKER_TICK_SECRET` (+ optional tuning) |
-| `deploy` | none (secrets-only) | `APP_STORE_CONNECT_*` in `config/secrets/deploy.env` |
+| Target | Manifest | Writes | Required secrets (canonical) |
+| ------ | -------- | ------ | ---------------------------- |
+| `erp` | `apps/erp/vet45.target.json` | `apps/erp/.env*` | `SUPABASE_URL` → `SUPABASE_CONNECTION_URL`, `SUPABASE_ANON_KEY` |
+| `admin` | `apps/admin/vet45.target.json` | `apps/admin/.env*` | same as erp (no messaging poll flag) |
+| `worker` | `apps/messaging_worker/vet45.target.json` | `apps/messaging_worker/.env*` | `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `WORKER_TICK_SECRET` (+ optional tuning) |
+| `deploy` | `config/deploy/vet45.target.json` | none (secrets-only) | `APP_STORE_CONNECT_*` in `config/secrets/deploy.env` |
 
-Key specs live under `targets` in `environments.json` (`required`, `default`, `from` rename, `fromManifest`, `autoGenerate`). Per-env `targets.<id>` only binds paths and manifest fields (`envFile`, `flavor`, `appEnv`).
+Key specs live in each `vet45.target.json` (`required`, `default`, `from` rename, `fromManifest`, `autoGenerate`). Per-env bindings in the same file set `envFile`, `flavor`, `appEnv`, etc.
 
 ### Sync behaviour
 
@@ -83,11 +89,11 @@ Host alignment (erp vs worker Supabase URL) runs only when both targets pass.
 
 ## First-time setup
 
-`config/` is **local-only** (gitignored). Scaffold it once per clone:
+Workspace and target manifests are **committed**. Only secrets under `config/secrets/*.env` (and profile secrets) are local/gitignored.
 
 ```bash
 melos bootstrap
-melos run env:init
+melos run env:init               # scaffold config/secrets/*.env.example from templates
 melos run env:build              # AOT binary → .vet45/bin (skip Melos for daily CLI)
 source scripts/env/activate.sh   # Windows: . .\scripts\env\activate.ps1  or activate.bat
 cp config/secrets/development.env.example config/secrets/development.env
@@ -99,13 +105,12 @@ cp config/secrets/production.env.example config/secrets/production.env
 # Local stack only: supabase start && melos run env:local
 
 vet45 sync                   # preferred (AOT); or: melos run env:sync
+vet45 list                   # shows discovered targets + manifest paths
 vet45 doctor --target erp
 vet45 supabase -- db push
 ```
 
-Templates ship in `tools/vet45_env/templates/config/`. Refresh scaffold files with `melos run env:init -- --force` (never overwrites filled `*.env` secrets).
-
-Existing clones that still track `config/` in git: run `git rm -r --cached config/` once, then keep using your local files.
+Secret templates ship in `tools/vet45_env/templates/config/secrets/`. Refresh with `melos run env:init -- --force` (never overwrites filled `*.env` secrets).
 
 ## Supabase CLI link (env → project ref)
 
@@ -117,7 +122,7 @@ supabase link --project-ref <ref> --yes
 
 Project ref resolution order:
 
-1. `supabaseProjectRef` in `config/environments.json`
+1. `supabaseProjectRef` in `vet45.workspace.json` (per environment)
 2. `SUPABASE_PROJECT_REF` in `config/secrets/<env>.env`
 3. Parsed from `SUPABASE_URL` (e.g. `https://abc123.supabase.co` → `abc123`)
 
@@ -282,7 +287,9 @@ APP_STORE_CONNECT_KEY_IDENTIFIER=
 ## Tooling layout
 
 ```
-config/environments.json
+vet45.workspace.json       # Committed — environments, profiles, scan
+apps/*/vet45.target.json   # Committed — per-target keys + bindings
+config/deploy/vet45.target.json
 tools/vet45_env/           # Dart package (entry: bin/vet45_env.dart → AOT name `vet45`)
 scripts/env/vet45.sh|.bat|.ps1   # Prefer AOT `.vet45/bin/vet45`, else dart run
 .vet45/bin/vet45[.exe]     # AOT binary (`melos run env:build`)

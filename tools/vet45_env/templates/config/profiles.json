@@ -1,9 +1,0 @@
-{
-  "defaultProfile": "default",
-  "profiles": {
-    "default": {
-      "description": "Vet45 main",
-      "secretsRoot": "config/secrets"
-    }
-  }
-}

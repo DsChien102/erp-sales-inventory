@@ -71,7 +71,7 @@ melos:
 
     env:init:
       run: dart run tools/vet45_env/bin/run.dart init
-      description: Scaffold local config/ from bundled templates (first-time setup)
+      description: Scaffold config/secrets from templates (first-time setup)
 
     env:list:
       run: dart run tools/vet45_env/bin/run.dart list
