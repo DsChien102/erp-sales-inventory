@@ -60,6 +60,15 @@ abstract final class PartnerReadRpcMapper {
     };
   }
 
+  static Map<String, dynamic> actionLogsParams(GetPartnerActionLogsQuery query) {
+    return <String, dynamic>{
+      'p_tenant_id': query.tenantId,
+      'p_partner_id': query.partnerId,
+      'p_page': query.page,
+      'p_limit': query.limit,
+    };
+  }
+
   static Map<String, dynamic> recordHistoryParams(
     RecordPartnerHistoryCommand command,
   ) {
@@ -177,6 +186,26 @@ abstract final class PartnerReadRpcMapper {
         )
         .toList(growable: false);
     return PartnerHistoryResultDto(
+      items: items,
+      total: row['total'] as int? ?? items.length,
+      page: row['page'] as int? ?? 1,
+      limit: row['limit'] as int? ?? items.length,
+    );
+  }
+
+  static PartnerActionLogResultDto mapActionLogsResult(Map<String, dynamic> row) {
+    final items = (row['items'] as List? ?? const [])
+        .map(
+          (item) => PartnerActionLogItemDto(
+            actionLogId: (item as Map)['action_log_id'] as String,
+            actionType: PartnerActionType.parse(item['action_type'] as String),
+            actorUserId: item['actor_user_id'] as String,
+            reason: item['reason'] as String?,
+            createdAt: DateTime.parse(item['created_at'] as String),
+          ),
+        )
+        .toList(growable: false);
+    return PartnerActionLogResultDto(
       items: items,
       total: row['total'] as int? ?? items.length,
       page: row['page'] as int? ?? 1,

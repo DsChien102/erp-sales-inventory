@@ -32,6 +32,7 @@ final partnerModuleManifest = GeneratedModuleManifest(
   queryTypes: [
     CheckDeleteEligibilityQuery,
     CheckDuplicatePartnersQuery,
+    GetPartnerActionLogsQuery,
     GetPartnerDetailQuery,
     GetPartnerHistoryQuery,
     SearchPartnersQuery,

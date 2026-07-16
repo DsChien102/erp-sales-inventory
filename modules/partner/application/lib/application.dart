@@ -53,6 +53,10 @@ export 'src/partner/commands/update_organization_contact/update_organization_con
 export 'src/partner/commands/update_partner_profile/update_partner_profile_command.dart';
 export 'src/partner/commands/update_partner_profile/update_partner_profile_command_handler.dart';
 export 'src/partner/commands/update_partner_profile/update_partner_profile_result.dart';
+export 'src/partner_action_log/queries/get_partner_action_logs/get_partner_action_logs_query.dart';
+export 'src/partner_action_log/queries/get_partner_action_logs/get_partner_action_logs_query_handler.dart';
+export 'src/partner_action_log/queries/get_partner_action_logs/partner_action_log_item_dto.dart';
+export 'src/partner_action_log/queries/get_partner_action_logs/partner_action_log_result_dto.dart';
 export 'src/partner_history/queries/get_partner_history/get_partner_history_query.dart';
 export 'src/partner_history/queries/get_partner_history/get_partner_history_query_handler.dart';
 export 'src/partner_history/queries/get_partner_history/partner_history_item_dto.dart';

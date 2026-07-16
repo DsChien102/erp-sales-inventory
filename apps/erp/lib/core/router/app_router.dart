@@ -269,6 +269,8 @@ final appRouter = GoRouter(
         return PartnerChangeHistoryPage(
           partnerId: partnerId,
           partnerName: partnerName,
+          partnerModule: getIt<IPartnerModule>(),
+          executionContext: getIt<IExecutionContext>(),
         );
       },
     ),

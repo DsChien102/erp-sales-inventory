@@ -2,22 +2,31 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:vet45_design_system/design_system.dart';
+import 'package:vet45_partner_application/application.dart';
 import 'package:vet45_partner_presentation/presentation.dart';
+import 'package:vet45_shared_application/application.dart';
 
 class PartnerChangeHistoryPage extends StatelessWidget {
   const PartnerChangeHistoryPage({
     super.key,
     required this.partnerId,
     required this.partnerName,
+    required this.partnerModule,
+    required this.executionContext,
   });
 
   final String partnerId;
   final String partnerName;
+  final IPartnerModule partnerModule;
+  final IExecutionContext executionContext;
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) => PartnerChangeHistoryCubit()..loadHistory(partnerId),
+      create: (_) => PartnerChangeHistoryCubit(
+        partnerModule: partnerModule,
+        executionContext: executionContext,
+      )..loadHistory(partnerId),
       child: _PartnerChangeHistoryView(
         partnerId: partnerId,
         partnerName: partnerName,
