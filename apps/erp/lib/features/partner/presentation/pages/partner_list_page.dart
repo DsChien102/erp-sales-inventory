@@ -9,6 +9,9 @@ import 'package:vet45_partner_domain/domain.dart';
 import 'package:vet45_partner_presentation/presentation.dart';
 import 'package:vet45_shared_application/application.dart';
 
+import '../widgets/partner_list_body.dart';
+import '../widgets/partner_list_header_row.dart';
+
 class PartnerListPage extends StatefulWidget {
   const PartnerListPage({super.key});
 
@@ -118,12 +121,12 @@ class _PartnerListPageState extends State<PartnerListPage> {
     final canView = GetIt.instance<IamSession>().hasPermission(PartnerPermissions.view);
 
     if (!canView) {
-      return Scaffold(
+      return VPageScaffold(
         key: const Key('wgt_e01_u02_fr01_02'),
-        backgroundColor: colors.background,
-        appBar: const VAppBar(title: 'KH & NCC', showBackButton: false),
+        title: 'KH & NCC',
+        showBackButton: false,
         body: const Center(
-          child: _CustomEmptyState(
+          child: VEmptyState(
             iconData: Icons.lock_outline_rounded,
             title: 'Bạn không có quyền xem\nKH & NCC',
             description: 'Liên hệ quản trị viên để được cấp quyền.',
@@ -134,303 +137,82 @@ class _PartnerListPageState extends State<PartnerListPage> {
 
     return BlocProvider.value(
       value: _cubit,
-      child: Scaffold(
-        key: const Key('wgt_e01_u02_fr01_02'),
-        backgroundColor: colors.background,
-        resizeToAvoidBottomInset: false,
-        appBar: PreferredSize(
-          preferredSize: const Size.fromHeight(64),
-          child: BlocBuilder<PartnerListCubit, PartnerListState>(
-            builder: (context, state) {
-              if (state is PartnerListLoaded) {
-                _lastTotal = state.total;
-              }
-              final total = state is PartnerListLoaded ? state.total : (_lastTotal ?? 0);
-              return VAppBar(
-                title: 'KH & NCC',
-                titleStyle: VTypography.headingH3.copyWith(
-                  color: context.vColors.textPrimary,
-                  fontWeight: FontWeight.w700,
-                ),
-                subtitle: '$total đối tác',
-                showBackButton: false,
-              );
-            },
-          ),
-        ),
-        body: Column(
-          children: [
-            BlocBuilder<PartnerListCubit, PartnerListState>(
-              builder: (context, state) {
-                final filterCount =
-                    (state.partnerType != null ? 1 : 0) +
-                    (state.roleFilter != null ? 1 : 0) +
-                    (state.status != null ? 1 : 0);
-                final totalFilterCount = filterCount + (state.updatedTimeFilter != null ? 1 : 0);
-                return PartnerListSearchBar(
-                  onSearch: _cubit.searchByKeyword,
-                  onFilterTap: () => _openFilterSheet(state),
-                  activeFilterCount: totalFilterCount,
-                );
-              },
-            ),
-            BlocBuilder<PartnerListCubit, PartnerListState>(
-              builder: (context, state) {
-                return PartnerListQuickFilters(
-                  selectedRole: state.roleFilter,
-                  onRoleSelected: (role) {
-                    if (role == null) {
-                      _cubit.applyFilters(clearRole: true);
-                    } else {
-                      _cubit.applyFilters(roleFilter: role);
-                    }
+      child: BlocBuilder<PartnerListCubit, PartnerListState>(
+        builder: (context, state) {
+          if (state is PartnerListLoaded) {
+            _lastTotal = state.total;
+          }
+          final total = state is PartnerListLoaded ? state.total : (_lastTotal ?? 0);
+
+          return VPageScaffold(
+            key: const Key('wgt_e01_u02_fr01_02'),
+            title: 'KH & NCC',
+            subtitle: '$total đối tác',
+            centerTitle: false,
+            showBackButton: false,
+            resizeToAvoidBottomInset: false,
+            floatingActionButton: _canCreate
+                ? VFloatingActionButton(
+                    key: const Key('btn_create_partner'),
+                    iconData: Icons.add,
+                    tone: VComponentTone.success,
+                    backgroundColor: colors.success,
+                    semanticLabel: 'Thêm KH & NCC',
+                    onTap: _openCreateFlow,
+                  )
+                : null,
+            body: Column(
+              children: [
+                const VGap.sm(),
+                BlocBuilder<PartnerListCubit, PartnerListState>(
+                  builder: (context, state) {
+                    final filterCount =
+                        (state.partnerType != null ? 1 : 0) +
+                        (state.roleFilter != null ? 1 : 0) +
+                        (state.status != null ? 1 : 0);
+                    final totalFilterCount =
+                        filterCount + (state.updatedTimeFilter != null ? 1 : 0);
+                    return PartnerListSearchBar(
+                      onSearch: _cubit.searchByKeyword,
+                      onFilterTap: () => _openFilterSheet(state),
+                      activeFilterCount: totalFilterCount,
+                    );
                   },
-                );
-              },
-            ),
-            // BlocBuilder<PartnerListCubit, PartnerListState>(
-            //   builder: (context, state) {
-            //     return PartnerActiveFilters(
-            //       partnerType: state.partnerType,
-            //       roleFilter: state.roleFilter,
-            //       status: state.status,
-            //       updatedTimeFilter: state.updatedTimeFilter,
-            //       onRemoveFilter: _cubit.removeFilter,
-            //       onClearAll: _cubit.clearFilters,
-            //     );
-            //   },
-            // ),
-            Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: VSpacing.space4,
-                vertical: VSpacing.space2,
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  BlocBuilder<PartnerListCubit, PartnerListState>(
-                    builder: (context, state) {
-                      final hasFilter =
-                          state.query != null ||
-                          state.partnerType != null ||
-                          state.roleFilter != null ||
-                          state.status != null;
-                      final hasAnyFilter = hasFilter || state.updatedTimeFilter != null;
-                      final total = switch (state) {
-                        PartnerListLoaded(:final total) => total,
-                        _ => 0,
-                      };
-                      return Text(
-                        hasAnyFilter ? '$total kết quả phù hợp' : 'Danh sách đối tác',
-                        style: VTypography.bodyDefault.copyWith(
-                          color: colors.textPrimary,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      );
-                    },
-                  ),
-                  BlocBuilder<PartnerListCubit, PartnerListState>(
-                    builder: (context, state) {
-                      return InkWell(
-                        onTap: () => _openSortSheet(state),
-                        child: Row(
-                          children: [
-                            Icon(Icons.swap_vert, size: 20, color: colors.textSecondary),
-                            const SizedBox(width: 4),
-                            Text(
-                              'Sắp xếp',
-                              style: VTypography.bodySmall.copyWith(color: colors.textSecondary),
-                            ),
-                          ],
-                        ),
-                      );
-                    },
-                  ),
-                ],
-              ),
-            ),
-            Expanded(
-              child: BlocBuilder<PartnerListCubit, PartnerListState>(
-                builder: (context, state) {
-                  if (state is PartnerListInitial ||
-                      (state is PartnerListLoading && state.isFirstLoad)) {
-                    return const Center(child: CircularProgressIndicator());
-                  }
-
-                  if (state is PartnerListError) {
-                    return Center(
-                      child: _CustomEmptyState(
-                        iconData: Icons.cloud_off_rounded,
-                        iconColor: colors.danger,
-                        title: 'Không tải được danh sách',
-                        description: 'Vui lòng kiểm tra kết nối internet\nhoặc thử lại sau.',
-                        actionLabel: 'Thử lại',
-                        onActionPressed: () => _cubit.fetchPartners(isRefresh: true),
-                        buttonColor: colors.success,
-                      ),
-                    );
-                  }
-
-                  final items = switch (state) {
-                    PartnerListLoaded(:final items) => items,
-                    PartnerListLoading(:final items) => items,
-                    _ => <PartnerListItemDto>[],
-                  };
-
-                  if (items.isEmpty && state is! PartnerListLoading) {
-                    final hasQuery = state.query != null && state.query!.isNotEmpty;
-                    if (hasQuery) {
-                      return Center(
-                        child: _CustomEmptyState(
-                          iconData: Icons.search_rounded,
-                          title: 'Không tìm thấy kết quả',
-                          description: 'Thử kiểm tra lại từ khóa "${state.query}"\nhoặc bộ lọc.',
-                          actionLabel: 'Xóa từ khóa',
-                          onActionPressed: () => _cubit.searchByKeyword(''),
-                          buttonColor: colors.success,
-                        ),
-                      );
-                    }
-                    return Center(
-                      child: _CustomEmptyState(
-                        iconData: Icons.assignment_outlined,
-                        title: 'Chưa có KH & NCC',
-                        description:
-                            'Thêm đối tác để bắt đầu bán hàng,\nnhập hàng và quản lý công nợ.',
-                        actionLabel: _canCreate ? 'Thêm KH & NCC' : null,
-                        actionLeadingIcon: _canCreate
-                            ? Icon(Icons.add, size: 18, color: colors.success)
-                            : null,
-                        onActionPressed: _canCreate ? _openCreateFlow : null,
-                        buttonColor: colors.success,
-                      ),
-                    );
-                  }
-
-                  final hasReachedMax = state is PartnerListLoaded && state.hasReachedMax;
-
-                  return RefreshIndicator(
-                    onRefresh: () => _cubit.fetchPartners(isRefresh: true),
-                    child: ListView.separated(
-                      controller: _scrollController,
-                      physics: const AlwaysScrollableScrollPhysics(),
-                      padding: const EdgeInsets.symmetric(
-                        vertical: VSpacing.space4,
-                        horizontal: VSpacing.space4,
-                      ),
-                      itemCount: items.length + (hasReachedMax ? 0 : 1),
-                      separatorBuilder: (context, index) => const SizedBox(height: VSpacing.space3),
-                      itemBuilder: (context, index) {
-                        if (index >= items.length) {
-                          return const Padding(
-                            padding: EdgeInsets.symmetric(vertical: VSpacing.space4),
-                            child: Center(child: CircularProgressIndicator()),
-                          );
+                ),
+                const VGap.sm(),
+                BlocBuilder<PartnerListCubit, PartnerListState>(
+                  builder: (context, state) {
+                    return PartnerListQuickFilters(
+                      selectedRole: state.roleFilter,
+                      onRoleSelected: (role) {
+                        if (role == null) {
+                          _cubit.applyFilters(clearRole: true);
+                        } else {
+                          _cubit.applyFilters(roleFilter: role);
                         }
-                        final item = items[index];
-                        return PartnerListItemTile(
-                          item: item,
-                          onTap: () => _openPartnerDetail(item.partnerId),
-                        );
                       },
-                    ),
-                  );
-                },
-              ),
+                    );
+                  },
+                ),
+                const VGap.sm(),
+                PartnerListHeaderRow(onSortTap: _openSortSheet),
+                const VGap.sm(),
+                Expanded(
+                  child: PartnerListBody(
+                    scrollController: _scrollController,
+                    canCreate: _canCreate,
+                    onRefresh: () => _cubit.fetchPartners(isRefresh: true),
+                    onRetry: () => _cubit.fetchPartners(isRefresh: true),
+                    onClearQuery: () => _cubit.searchByKeyword(''),
+                    onCreate: _openCreateFlow,
+                    onTapPartner: _openPartnerDetail,
+                  ),
+                ),
+              ],
             ),
-          ],
-        ),
-        floatingActionButton: _canCreate
-            ? VFloatingActionButton(
-                key: const Key('btn_create_partner'),
-                iconData: Icons.add,
-                onTap: _openCreateFlow,
-                backgroundColor: colors.success,
-              )
-            : null,
+          );
+        },
       ),
-    );
-  }
-}
-
-class _CustomEmptyState extends StatelessWidget {
-  final IconData iconData;
-  final String title;
-  final String description;
-  final String? actionLabel;
-  final Widget? actionLeadingIcon;
-  final VoidCallback? onActionPressed;
-  final Color? iconColor;
-  final Color? buttonColor;
-
-  const _CustomEmptyState({
-    required this.iconData,
-    required this.title,
-    required this.description,
-    this.actionLabel,
-    this.actionLeadingIcon,
-    this.onActionPressed,
-    this.iconColor,
-    this.buttonColor,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = context.vColors;
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        return SingleChildScrollView(
-          child: ConstrainedBox(
-            constraints: BoxConstraints(minHeight: constraints.maxHeight),
-            child: Padding(
-              padding: const EdgeInsets.all(VSpacing.space6),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  VIconBox(
-                    iconData: iconData,
-                    size: 64,
-                    iconSize: 28,
-                    backgroundColor: colors.surfaceAlt,
-                    iconColor: iconColor ?? colors.textSecondary,
-                    borderRadius: VRadius.r16,
-                  ),
-                  const SizedBox(height: VSpacing.space4),
-                  Text(
-                    title,
-                    style: VTypography.headingH3.copyWith(
-                      color: colors.textPrimary,
-                      fontWeight: FontWeight.w700,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: VSpacing.space2),
-                  Text(
-                    description,
-                    style: VTypography.bodyDefault.copyWith(
-                      color: colors.textSecondary,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                  if (actionLabel != null && onActionPressed != null) ...[
-                    const SizedBox(height: VSpacing.space6),
-                    VButton(
-                      label: actionLabel!,
-                      onPressed: onActionPressed!,
-                      leadingIcon: actionLeadingIcon,
-                      size: VButtonSize.medium,
-                      variant: VButtonVariant.outline,
-                      foregroundColor: buttonColor,
-                    ),
-                  ],
-                ],
-              ),
-            ),
-          ),
-        );
-      },
     );
   }
 }

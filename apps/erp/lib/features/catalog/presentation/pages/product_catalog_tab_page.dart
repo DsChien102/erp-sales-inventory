@@ -244,13 +244,7 @@ class _ProductCatalogTabPageState extends State<ProductCatalogTabPage> {
             key: const Key('wgt_e01_u01_fr01_01'),
             centerTitle: false,
             title: 'Sản phẩm',
-            titleStyle: VTypography.headingH4.copyWith(
-              color: dynamicColors.textPrimary,
-              fontWeight: FontWeight.w700,
-            ),
-            subtitle: _cubit.globalTotalCount != null
-                ? '${_cubit.globalTotalCount} sản phẩm'
-                : null,
+            subtitle: '${_cubit.globalTotalCount ?? 0} sản phẩm',
             showBackButton: false,
             actions: [
               IconButton(

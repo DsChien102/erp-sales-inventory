@@ -60,11 +60,7 @@ class _PartnerListSearchBarState extends State<PartnerListSearchBar> {
     final colors = context.vColors;
     final hasQuery = _controller.text.isNotEmpty;
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(
-        horizontal: VSpacing.space4,
-        vertical: VSpacing.space2,
-      ),
+    return VPagePadding(
       child: Row(
         children: [
           Expanded(
@@ -93,7 +89,7 @@ class _PartnerListSearchBarState extends State<PartnerListSearchBar> {
             ),
           ),
           if (widget.onFilterTap != null) ...[
-            const SizedBox(width: VSpacing.space3),
+            const VGap.horizontalSm(),
             _FilterButton(
               onPressed: widget.onFilterTap!,
               activeFilterCount: widget.activeFilterCount,
@@ -128,9 +124,7 @@ class _FilterButton extends StatelessWidget {
         iconData: Icons.tune,
         size: 44,
         iconSize: 20,
-        backgroundColor: isActive
-            ? colors.primary.withValues(alpha: 0.1)
-            : colors.surface,
+        backgroundColor: isActive ? colors.primary.withValues(alpha: 0.1) : colors.surface,
         iconColor: isActive ? colors.primary : colors.textPrimary,
         borderColor: isActive ? colors.primary : colors.borderDefault,
         borderRadius: VRadius.button,

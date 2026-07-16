@@ -16,69 +16,31 @@ class PartnerListQuickFilters extends StatelessWidget {
   Widget build(BuildContext context) {
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
-      padding: const EdgeInsets.symmetric(
-        horizontal: VSpacing.space4,
-        vertical: VSpacing.space2,
-      ),
-      child: Row(
-        children: [
-          _buildChip(
-            context,
-            label: 'Tất cả',
-            isSelected: selectedRole == null,
-            onTap: () => onRoleSelected(null),
-          ),
-          const SizedBox(width: VSpacing.space2),
-          _buildChip(
-            context,
-            label: 'Khách hàng',
-            isSelected: selectedRole == PartnerRoleFilter.customer,
-            onTap: () => onRoleSelected(PartnerRoleFilter.customer),
-          ),
-          const SizedBox(width: VSpacing.space2),
-          _buildChip(
-            context,
-            label: 'Nhà cung cấp',
-            isSelected: selectedRole == PartnerRoleFilter.supplier,
-            onTap: () => onRoleSelected(PartnerRoleFilter.supplier),
-          ),
-          const SizedBox(width: VSpacing.space2),
-          _buildChip(
-            context,
-            label: 'KH & NCC',
-            isSelected: selectedRole == PartnerRoleFilter.both,
-            onTap: () => onRoleSelected(PartnerRoleFilter.both),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildChip(
-    BuildContext context, {
-    required String label,
-    required bool isSelected,
-    required VoidCallback onTap,
-  }) {
-    final colors = context.vColors;
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(16),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-        decoration: BoxDecoration(
-          color: isSelected ? colors.primary : Colors.white,
-          border: Border.all(
-            color: isSelected ? colors.primary : colors.borderDefault,
-          ),
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: Text(
-          label,
-          style: VTypography.bodySmall.copyWith(
-            color: isSelected ? Colors.white : colors.textPrimary,
-            fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
-          ),
+      child: VPagePadding(
+        child: Row(
+          spacing: VSpacing.sm,
+          children: [
+            VChip(
+              label: 'Tất cả',
+              selected: selectedRole == null,
+              onTap: () => onRoleSelected(null),
+            ),
+            VChip(
+              label: 'Khách hàng',
+              selected: selectedRole == PartnerRoleFilter.customer,
+              onTap: () => onRoleSelected(PartnerRoleFilter.customer),
+            ),
+            VChip(
+              label: 'Nhà cung cấp',
+              selected: selectedRole == PartnerRoleFilter.supplier,
+              onTap: () => onRoleSelected(PartnerRoleFilter.supplier),
+            ),
+            VChip(
+              label: 'KH & NCC',
+              selected: selectedRole == PartnerRoleFilter.both,
+              onTap: () => onRoleSelected(PartnerRoleFilter.both),
+            ),
+          ],
         ),
       ),
     );
