@@ -8,7 +8,7 @@ Khung viết theme mới: [THEME_DOCUMENTATION_TEMPLATE.md](THEME_DOCUMENTATION_
 
 | Mã | Tên | Mô tả ngắn | Folder doc | Trạng thái |
 | -- | --- | ---------- | ---------- | ---------- |
-| **TH-01** | Tổ chức & người dùng | Tenant, user, role, phân quyền | [TH-01-organization-users/](TH-01-organization-users/) | interim (IAM + Epic/US tree) |
+| **TH-01** | Tổ chức & người dùng | Tenant, user, role, phân quyền | [TH-01-organization-users/](TH-01-organization-users/) | in_progress (IAM + harness scaffold) |
 | **TH-02** | Sản phẩm & giá bán | Sản phẩm, SKU, ĐVT, barcode, giá | [TH-02-product-pricing/](TH-02-product-pricing/) | in_progress |
 | **TH-03** | Khách hàng & NCC | Khách hàng, nhà cung cấp, lịch sử giao dịch | [TH-03-partner/](TH-03-partner/) | in_progress |
 | **TH-04** | Giá bán | Giá riêng/nhớ giá (EP02 active), khuyến mãi và kiểm soát áp dụng giá (deferred) | [TH-04-pricing-promotions/](TH-04-pricing-promotions/) | in_progress (EP02) |
@@ -26,7 +26,7 @@ Khung viết theme mới: [THEME_DOCUMENTATION_TEMPLATE.md](THEME_DOCUMENTATION_
 
 | Theme | Code / harness | Ghi chú |
 | ----- | -------------- | ------- |
-| TH-01 | `modules/iam/` codegen + ERP auth shell | Epic/US tree + OVERVIEWS/APPENDICES; chưa harness — [TH-01 README](TH-01-organization-users/README.md) |
+| TH-01 | `modules/iam/` codegen + ERP auth shell | Epic/US + OVERVIEWS/APPENDICES + `harness/00..07` (Resend + App Link) — [TH-01 README](TH-01-organization-users/README.md) |
 | TH-02 | README + `harness/00..07` + Epic/US/FR (2 epic, 7 US) | Harness scaffold; `catalog` module greenfield — xem [TH-02 README](TH-02-product-pricing/README.md) |
 | TH-04 | Canonical spec + `harness/00..07` + 6 epic folders; EP02 có 10 US | Harness EP02; `pricing` module greenfield — xem [TH-04 README](TH-04-pricing-promotions/README.md) |
 | TH-05–TH-07, TH-09–TH-11 | README + scope doc + module-map | Skeleton doc; module packages greenfield |

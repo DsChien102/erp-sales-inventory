@@ -1,6 +1,6 @@
 # TH-01: Tổ chức & người dùng
 
-**Trạng thái deliver:** `interim` — IAM đang implement trong `modules/iam/`; Epic/US tree đã phân rã từ Theme spec (chưa có harness/).
+**Trạng thái deliver:** `in_progress` — Epic/US tree + harness scaffold; IAM interim trong `modules/iam/`.
 
 Tenant, user, role, phân quyền và nền tảng truy cập đa tenant cho toàn bộ ERP. Trên UI, Tenant hiển thị là **Tổ chức**.
 
@@ -8,7 +8,10 @@ Tenant, user, role, phân quyền và nền tảng truy cập đa tenant cho to�
 
 | Module | Vai trò | Package |
 | ------ | ------- | ------- |
-| iam | **Owner** — auth, tenant, membership, RBAC catalogue | `modules/iam/` ([README](../../../modules/iam/README.md)) |
+| iam | **Owner** — auth, tenant, membership, invitation, RBAC, context | `modules/iam/` ([README](../../../modules/iam/README.md)) |
+| Notification (Resend) | Supporting — email delivery | contract `S-NOTIFY` — [harness/03](harness/03-architecture-and-flows.md) |
+| apps/erp | Tenant App | `apps/erp` |
+| apps/admin | Platform Admin App | `apps/admin` (scaffold) |
 
 ## Tài liệu
 
@@ -17,7 +20,8 @@ Tenant, user, role, phân quyền và nền tảng truy cập đa tenant cho to�
 | **Product spec (canonical)** | [Theme-1-organization-users.md](Theme-1-organization-users.md) |
 | Overviews | [OVERVIEWS.md](OVERVIEWS.md) |
 | Appendices | [APPENDICES.md](APPENDICES.md) |
-| Module map | [02-module-map.md](02-module-map.md) |
+| **Harness (agent/engineer)** | [harness/](harness/) |
+| Module map | [harness/02-module-map.md](harness/02-module-map.md) |
 | Platform architecture | [docs/architecture/](../../architecture/README.md) |
 
 ## Epic index
@@ -29,7 +33,9 @@ Tenant, user, role, phân quyền và nền tảng truy cập đa tenant cho to�
 | EP-03 — Thành viên & lời mời | [Epic-03-membership-invitation/](Epic-03-membership-invitation/) | [US-01](Epic-03-membership-invitation/US-01.md) … [US-06](Epic-03-membership-invitation/US-06.md) | planned |
 | EP-04 — Vai trò & quyền | [Epic-04-roles-permissions/](Epic-04-roles-permissions/) | [US-01](Epic-04-roles-permissions/US-01.md) … [US-03](Epic-04-roles-permissions/US-03.md) | planned |
 | EP-05 — Tenant context | [Epic-05-tenant-context/](Epic-05-tenant-context/) | [US-01](Epic-05-tenant-context/US-01.md) … [US-04](Epic-05-tenant-context/US-04.md) | planned |
-| EP-06 — Tài khoản của tôi | [Epic-06-my-account/](Epic-06-my-account/) | [US-01](Epic-06-my-account/US-01.md) … [US-04](Epic-06-my-account/US-04.md) | planned (derived from TA-SG-10) |
+| EP-06 — Tài khoản của tôi | [Epic-06-my-account/](Epic-06-my-account/) | [US-01](Epic-06-my-account/US-01.md) … [US-04](Epic-06-my-account/US-04.md) | planned |
+
+Slice order: [harness/04-slice-roadmap.md](harness/04-slice-roadmap.md) (S0, S-NOTIFY, S1…).
 
 ## Quy ước ID
 
@@ -37,9 +43,20 @@ Tenant, user, role, phân quyền và nền tảng truy cập đa tenant cho to�
 TH-01 / EP-{nn} / US-{nn} / FR-{nn} / BR-{nn} / SCN-{nn}
 ```
 
-- **US** = một file markdown `US-{nn}.md` trong folder epic (FR table + Scenarios + Design Reference).
+- **US** = một file `US-{nn}.md` trong folder epic.
 - **SCN** = scenario Gherkin trong US.
-- **FR** = functional requirement checklist — section 2 trong file US.
 - UI Screen Groups: canonical §5; US chỉ link Design Reference.
 
-Harness (`harness/00..07`) — phase sau, khi bắt đầu slice implement.
+## Kiến trúc chốt (harness)
+
+- **Email:** Resend qua Notification boundary — [harness/03-architecture-and-flows.md](harness/03-architecture-and-flows.md)
+- **Mở app từ Gmail:** HTTPS App Link + opaque path → POST token trong body
+
+## Agent prompt mẫu
+
+```text
+Implement TH-01 slice S2 (EP-05/US-02) per docs/themes/TH-01-organization-users/Epic-05-tenant-context/US-02.md.
+Read README → harness/04-slice-roadmap.md → harness/07-api-contracts.md §S2 → harness/01-domain-model.md.
+Golden module: modules/iam/.
+Verify: melos run test && ./scripts/ci/verify_harness.sh
+```
