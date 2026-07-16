@@ -17,6 +17,9 @@ class ProductCatalogListBody extends StatelessWidget {
     required this.onCreateProduct,
   });
 
+  /// Viewport-friendly skeleton count for first load / refresh (option B).
+  static const int firstLoadSkeletonCount = 8;
+
   final ScrollController scrollController;
   final ProductListFilter selectedFilter;
   final int? globalTotalCount;
@@ -30,9 +33,25 @@ class ProductCatalogListBody extends StatelessWidget {
 
     return BlocBuilder<ProductListCubit, ProductListState>(
       builder: (context, state) {
-        if (state is ProductListInitial ||
-            (state is ProductListLoading && state.isFirstLoad)) {
-          return const Center(child: CircularProgressIndicator());
+        if (state is ProductListInitial || (state is ProductListLoading && state.isFirstLoad)) {
+          return VSkeletonScope(
+            child: ListView.builder(
+              controller: scrollController,
+              padding: const EdgeInsets.only(
+                left: VSpacing.screenMobile,
+                right: VSpacing.screenMobile,
+                bottom: VSpacing.space2,
+              ),
+              physics: const AlwaysScrollableScrollPhysics(),
+              itemCount: firstLoadSkeletonCount,
+              itemBuilder: (context, index) {
+                return const Padding(
+                  padding: EdgeInsets.only(bottom: VSpacing.sm),
+                  child: ProductListItemSkeletonTile(),
+                );
+              },
+            ),
+          );
         }
 
         if (state is ProductListError) {
@@ -46,9 +65,7 @@ class ProductCatalogListBody extends StatelessWidget {
           );
         }
 
-        var items = state is ProductListLoaded
-            ? state.items
-            : (state as ProductListLoading).items;
+        var items = state is ProductListLoaded ? state.items : (state as ProductListLoading).items;
 
         if (selectedFilter == ProductListFilter.inStock) {
           items = items.where((item) => (item.stockQuantity ?? 0) > 0).toList();
@@ -65,35 +82,60 @@ class ProductCatalogListBody extends StatelessWidget {
         }
 
         final isLoadingMore = state is ProductListLoading && !state.isFirstLoad;
+        final hasReachedMax = state is ProductListLoaded && state.hasReachedMax;
+
+        final int trailingCount;
+        if (isLoadingMore) {
+          trailingCount = ProductListCubit.pageSize;
+        } else if (hasReachedMax && items.isNotEmpty) {
+          trailingCount = 1;
+        } else {
+          trailingCount = 0;
+        }
 
         return RefreshIndicator(
           onRefresh: onRefresh,
           displacement: VSpacing.space2,
-          child: ListView.builder(
-            controller: scrollController,
-            padding: const EdgeInsets.only(
-              left: VSpacing.screenMobile,
-              right: VSpacing.screenMobile,
-              bottom: VSpacing.space2,
-            ),
-            physics: const AlwaysScrollableScrollPhysics(),
-            itemCount: items.length + (isLoadingMore ? 1 : 0),
-            itemBuilder: (context, index) {
-              if (isLoadingMore && index >= items.length) {
-                return const Padding(
-                  padding: EdgeInsets.symmetric(vertical: VSpacing.md),
-                  child: Center(child: CircularProgressIndicator()),
+          child: VSkeletonScope(
+            child: ListView.builder(
+              controller: scrollController,
+              padding: const EdgeInsets.only(
+                left: VSpacing.screenMobile,
+                right: VSpacing.screenMobile,
+                bottom: VSpacing.space2,
+              ),
+              physics: const AlwaysScrollableScrollPhysics(),
+              itemCount: items.length + trailingCount,
+              itemBuilder: (context, index) {
+                if (index >= items.length) {
+                  if (isLoadingMore) {
+                    return const Padding(
+                      padding: EdgeInsets.only(bottom: VSpacing.sm),
+                      child: ProductListItemSkeletonTile(),
+                    );
+                  }
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(vertical: VSpacing.md),
+                    child: Center(
+                      child: VText(
+                        'Đã ở cuối danh sách',
+                        variant: VTextVariant.labelSmall,
+                        color: dynamicColors.textMuted,
+                      ),
+                    ),
+                  );
+                }
+
+                final item = items[index];
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: VSpacing.sm),
+                  child: ProductListItemTile(
+                    item: item,
+                    onTap: () => onTapItem(item),
+                  ),
                 );
-              }
-              final item = items[index];
-              return Padding(
-                padding: const EdgeInsets.only(bottom: VSpacing.sm),
-                child: ProductListItemTile(
-                  item: item,
-                  onTap: () => onTapItem(item),
-                ),
-              );
-            },
+              },
+            ),
           ),
         );
       },
@@ -141,9 +183,7 @@ class _ProductCatalogEmptyState extends StatelessWidget {
         title: title,
         description: description,
         actionLabel: actionLabel,
-        actionLeadingIcon: actionLabel != null
-            ? const Icon(Icons.add, size: 18)
-            : null,
+        actionLeadingIcon: actionLabel != null ? const Icon(Icons.add, size: 18) : null,
         onActionPressed: onActionPressed,
       ),
     );

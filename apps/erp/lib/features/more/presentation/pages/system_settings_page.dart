@@ -9,12 +9,9 @@ class SystemSettingsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = context.vColors;
 
-    return Scaffold(
-      backgroundColor: colors.surface,
-      appBar: const VAppBar(
-        title: 'Thiết lập',
-        showBackButton: true,
-      ),
+    return VPageScaffold(
+      title: 'Thiết lập',
+      showBackButton: true,
       body: ListView(
         padding: const EdgeInsets.symmetric(
           horizontal: VSpacing.screenMobile,

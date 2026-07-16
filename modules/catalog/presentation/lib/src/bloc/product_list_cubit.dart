@@ -16,7 +16,7 @@ class ProductListCubit extends Cubit<ProductListState> {
   final IModuleMediator _mediator;
   final IExecutionContext _executionContext;
 
-  static const int _pageSize = 20;
+  static const int pageSize = 20;
 
   int? globalTotalCount;
 
@@ -62,7 +62,7 @@ class ProductListCubit extends Cubit<ProductListState> {
       final query = SearchProductsQuery(
         tenantId: tenantId,
         criteria: currentCriteria,
-        limit: _pageSize,
+        limit: pageSize,
         offset: isRefresh ? 0 : offset,
       );
 

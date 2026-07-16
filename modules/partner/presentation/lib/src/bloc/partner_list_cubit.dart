@@ -16,7 +16,7 @@ final class PartnerListCubit extends Cubit<PartnerListState> {
   final IPartnerModule _partnerModule;
   final IExecutionContext _executionContext;
 
-  static const int _pageSize = 20;
+  static const int pageSize = 20;
 
   int? _nextPage;
   String? _query;
@@ -99,13 +99,13 @@ final class PartnerListCubit extends Cubit<PartnerListState> {
           status: currentState.status,
           updatedWithinDays: currentState.updatedTimeFilter?.days,
           page: page,
-          limit: _pageSize,
+          limit: pageSize,
           sort: sortParam,
         ),
       );
 
       final newItems = isRefresh ? result.items : [...currentItems, ...result.items];
-      final hasReachedMax = result.items.length < _pageSize || result.items.isEmpty;
+      final hasReachedMax = result.items.length < pageSize || result.items.isEmpty;
       _nextPage = hasReachedMax ? null : page + 1;
 
       emit(

@@ -17,6 +17,9 @@ class PartnerListBody extends StatelessWidget {
     required this.onTapPartner,
   });
 
+  /// Viewport-friendly skeleton count for first load / refresh (option B).
+  static const int firstLoadSkeletonCount = 8;
+
   final ScrollController scrollController;
   final bool canCreate;
   final Future<void> Function() onRefresh;
@@ -27,10 +30,23 @@ class PartnerListBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.vColors;
+
     return BlocBuilder<PartnerListCubit, PartnerListState>(
       builder: (context, state) {
         if (state is PartnerListInitial || (state is PartnerListLoading && state.isFirstLoad)) {
-          return const Center(child: CircularProgressIndicator());
+          return VSkeletonScope(
+            child: VPagePadding(
+              child: ListView.separated(
+                controller: scrollController,
+                physics: const AlwaysScrollableScrollPhysics(),
+                padding: const EdgeInsets.only(bottom: VSpacing.md),
+                itemCount: firstLoadSkeletonCount,
+                separatorBuilder: (context, index) => const SizedBox(height: VSpacing.space3),
+                itemBuilder: (context, index) => const PartnerListItemSkeletonTile(),
+              ),
+            ),
+          );
         }
 
         if (state is PartnerListError) {
@@ -72,38 +88,61 @@ class PartnerListBody extends StatelessWidget {
               description: 'Thêm đối tác để bắt đầu bán hàng,\nnhập hàng và quản lý công nợ.',
               actionLabel: canCreate ? 'Thêm KH & NCC' : null,
               actionLeadingIcon: canCreate
-                  ? Icon(Icons.add, size: 18, color: context.vColors.success)
+                  ? Icon(Icons.add, size: 18, color: colors.success)
                   : null,
               onActionPressed: canCreate ? onCreate : null,
             ),
           );
         }
 
+        final isLoadingMore = state is PartnerListLoading && !state.isFirstLoad;
         final hasReachedMax = state is PartnerListLoaded && state.hasReachedMax;
+
+        final int trailingCount;
+        if (isLoadingMore) {
+          trailingCount = PartnerListCubit.pageSize;
+        } else if (hasReachedMax && items.isNotEmpty) {
+          trailingCount = 1;
+        } else {
+          trailingCount = 0;
+        }
 
         return RefreshIndicator(
           onRefresh: onRefresh,
           displacement: VSpacing.md,
-          child: VPagePadding(
-            child: ListView.separated(
-              controller: scrollController,
-              physics: const AlwaysScrollableScrollPhysics(),
-              padding: const EdgeInsets.only(bottom: VSpacing.md),
-              itemCount: items.length + (hasReachedMax ? 0 : 1),
-              separatorBuilder: (context, index) => const SizedBox(height: VSpacing.space3),
-              itemBuilder: (context, index) {
-                if (index >= items.length) {
-                  return const Padding(
-                    padding: EdgeInsets.symmetric(vertical: VSpacing.space4),
-                    child: Center(child: CircularProgressIndicator()),
+          child: VSkeletonScope(
+            child: VPagePadding(
+              child: ListView.separated(
+                controller: scrollController,
+                physics: const AlwaysScrollableScrollPhysics(),
+                padding: const EdgeInsets.only(bottom: VSpacing.md),
+                itemCount: items.length + trailingCount,
+                separatorBuilder: (context, index) => const SizedBox(height: VSpacing.space3),
+                itemBuilder: (context, index) {
+                  if (index >= items.length) {
+                    if (isLoadingMore) {
+                      return const PartnerListItemSkeletonTile();
+                    }
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(
+                        vertical: VSpacing.space2,
+                      ),
+                      child: Center(
+                        child: VText(
+                          'Đã ở cuối danh sách',
+                          variant: VTextVariant.labelSmall,
+                          color: colors.textMuted,
+                        ),
+                      ),
+                    );
+                  }
+                  final item = items[index];
+                  return PartnerListItemTile(
+                    item: item,
+                    onTap: () => onTapPartner(item.partnerId),
                   );
-                }
-                final item = items[index];
-                return PartnerListItemTile(
-                  item: item,
-                  onTap: () => onTapPartner(item.partnerId),
-                );
-              },
+                },
+              ),
             ),
           ),
         );

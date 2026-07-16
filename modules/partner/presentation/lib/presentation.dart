@@ -18,6 +18,7 @@ export 'src/widgets/partner_detail_view.dart';
 export 'src/widgets/partner_detail_header.dart';
 export 'src/widgets/partner_leave_form_dialog.dart';
 export 'src/widgets/partner_list_item_tile.dart';
+export 'src/widgets/partner_list_item_skeleton_tile.dart';
 export 'src/widgets/partner_list_search_bar.dart';
 export 'src/widgets/partner_list_quick_filters.dart';
 export 'src/widgets/partner_active_filters.dart';
