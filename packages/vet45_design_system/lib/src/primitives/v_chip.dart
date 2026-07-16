@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 
 import '../foundation/v_component_contracts.dart';
 import '../foundation/v_context_extensions.dart';
+import '../foundations/icons/v_icons.dart';
 import '../theme/v_color_scheme.dart';
 import '../tokens/v_radius.dart';
 import '../tokens/v_spacing.dart';
 import '../tokens/v_typography.dart';
+import 'v_icon.dart';
 
 /// Visual weight for chips — mirrors Polaris clickable-chip `color`
 /// (`subdued` / `base` / `strong`).
@@ -27,7 +29,8 @@ class VChip extends StatelessWidget {
     this.selected = false,
     this.onTap,
     this.onRemove,
-    this.leadingIcon,
+    this.icon,
+    @Deprecated('Use icon instead') this.leadingIcon,
     this.enabled = true,
     this.semanticLabel,
     this.tone,
@@ -48,7 +51,11 @@ class VChip extends StatelessWidget {
   /// When set, shows a trailing remove control. Does not invoke [onTap].
   final VoidCallback? onRemove;
 
+  final VIcons? icon;
+
+  @Deprecated('Use icon instead')
   final IconData? leadingIcon;
+
   final bool enabled;
   final String? semanticLabel;
 
@@ -78,8 +85,13 @@ class VChip extends StatelessWidget {
     Widget chipBody = Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        if (leadingIcon != null) ...[
-          Icon(leadingIcon, size: 16, color: resolved.foreground),
+        if (icon != null || leadingIcon != null) ...[
+          VIcon(
+            icon: icon,
+            iconData: icon == null ? leadingIcon : null,
+            size: 16,
+            color: resolved.foreground,
+          ),
           const SizedBox(width: VSpacing.space1),
         ],
         Flexible(

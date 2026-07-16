@@ -3,6 +3,7 @@ import 'package:vet45_design_system/design_system.dart';
 
 class VEmptyState extends StatelessWidget {
   final String? iconEmoji;
+  final VIcons? icon;
   final IconData? iconData;
   final String title;
   final String? description;
@@ -16,6 +17,7 @@ class VEmptyState extends StatelessWidget {
   const VEmptyState({
     super.key,
     this.iconEmoji,
+    this.icon,
     this.iconData,
     required this.title,
     this.description,
@@ -26,8 +28,8 @@ class VEmptyState extends StatelessWidget {
     this.emphasis = VComponentEmphasis.medium,
     this.semanticLabel,
   }) : assert(
-         iconEmoji != null || iconData != null,
-         'Either iconEmoji or iconData must be provided',
+         iconEmoji != null || icon != null || iconData != null,
+         'Either iconEmoji, icon, or iconData must be provided',
        );
 
   @override
@@ -43,9 +45,10 @@ class VEmptyState extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisSize: MainAxisSize.min,
           children: [
-            if (iconData != null)
+            if (icon != null || iconData != null)
               VIconBox(
-                iconData: iconData!,
+                icon: icon,
+                iconData: icon == null ? iconData : null,
                 size: 64,
                 iconSize: 28,
                 tone: tone ?? VComponentTone.neutral,
