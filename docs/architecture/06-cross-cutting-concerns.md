@@ -54,4 +54,4 @@ Worker chạy flush durable; client có thể tắt poll qua env.
 
 - [08-data-and-security.md](08-data-and-security.md)
 - [07-integration-and-messaging.md](07-integration-and-messaging.md)
-- [themes/TH-01-store-setup/](../themes/TH-01-store-setup/)
+- [themes/TH-01-organization-users/](../themes/TH-01-organization-users/)
