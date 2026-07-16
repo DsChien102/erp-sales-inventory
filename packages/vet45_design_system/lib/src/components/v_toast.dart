@@ -6,6 +6,9 @@ import '../tokens/v_radius.dart';
 import '../tokens/v_shadows.dart';
 import '../tokens/v_typography.dart';
 import '../foundation/v_component_contracts.dart';
+import '../primitives/v_icon.dart';
+import '../primitives/v_text.dart';
+import '../foundations/icons/v_icons.dart';
 
 enum VToastType { success, warning, danger, info }
 
@@ -57,7 +60,6 @@ class VToast extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // NOTE: nếu sau có hỗ trợ background colors cho toast riêng theo theme mode (dark hoặc light) thì update lại
     Color backgroundColor = context.vColors.textPrimary; // Dark premium background
     Color textColor = context.vColors.surface;
     Color closeIconColor = context.vColors.surface;
@@ -70,23 +72,22 @@ class VToast extends StatelessWidget {
       VToastType.info => VComponentTone.info,
     };
 
-    // Solid glyphs only — outline/circled Material icons double-ring on the colored disc.
     Widget iconWidget = switch (type) {
       VToastType.success => _ToastIcon(
         backgroundColor: colors.success,
-        iconData: Icons.check_rounded,
+        icon: VIcons.check,
       ),
       VToastType.warning => _ToastIcon(
         backgroundColor: colors.warning,
-        iconData: Icons.priority_high,
+        icon: VIcons.warning,
       ),
       VToastType.danger => _ToastIcon(
         backgroundColor: colors.danger,
-        iconData: Icons.close_rounded,
+        icon: VIcons.close,
       ),
       VToastType.info => _ToastIcon(
         backgroundColor: colors.info,
-        iconData: Icons.campaign_rounded,
+        icon: VIcons.info,
       ),
     };
 
@@ -98,8 +99,8 @@ class VToast extends StatelessWidget {
         boxShadow: VShadows.e2,
         border: Border.all(
           color: type == VToastType.success
-              ? VColors.neutral0.withValues(alpha: 0.06)
-              : _toneAccent(resolvedTone).withValues(alpha: 0.12),
+              ? const Color(0xFFFFFFFF).withValues(alpha: 0.06)
+              : _toneAccent(resolvedTone, colors).withValues(alpha: 0.12),
           width: emphasis == VComponentEmphasis.strong ? 1.5 : 1,
         ),
       ),
@@ -122,12 +123,11 @@ class VToast extends StatelessWidget {
                     iconWidget,
                     const SizedBox(width: 12),
                     Expanded(
-                      child: Text(
+                      child: VText(
                         message.isNotEmpty ? message : title,
-                        style: VTypography.bodyDefault.copyWith(
-                          color: textColor,
-                          fontWeight: FontWeight.w600,
-                        ),
+                        variant: VTextVariant.bodyDefault,
+                        color: textColor,
+                        style: const TextStyle(fontWeight: FontWeight.w600),
                       ),
                     ),
                     const SizedBox(width: 12),
@@ -137,8 +137,8 @@ class VToast extends StatelessWidget {
                           () {
                             ScaffoldMessenger.of(context).hideCurrentSnackBar();
                           },
-                      child: Icon(
-                        Icons.close_rounded,
+                      child: VIcon(
+                        icon: VIcons.close,
                         color: closeIconColor,
                         size: 20,
                       ),
@@ -153,25 +153,25 @@ class VToast extends StatelessWidget {
     );
   }
 
-  Color _toneAccent(VComponentTone tone) {
+  Color _toneAccent(VComponentTone tone, VColorScheme colors) {
     return switch (tone) {
-      VComponentTone.success => VColors.success,
-      VComponentTone.warning => VColors.warning,
-      VComponentTone.danger => VColors.danger,
-      VComponentTone.info => VColors.info,
-      _ => VColors.neutral0,
+      VComponentTone.success => colors.success,
+      VComponentTone.warning => colors.warning,
+      VComponentTone.danger => colors.danger,
+      VComponentTone.info => colors.info,
+      _ => const Color(0xFFFFFFFF),
     };
   }
 }
 
 class _ToastIcon extends StatelessWidget {
   const _ToastIcon({
-    required this.iconData,
+    required this.icon,
     required this.backgroundColor,
   });
 
   final Color backgroundColor;
-  final IconData iconData;
+  final VIcons icon;
 
   @override
   Widget build(BuildContext context) {
@@ -179,7 +179,7 @@ class _ToastIcon extends StatelessWidget {
       isCircular: true,
       size: 26,
       iconSize: 16,
-      iconData: iconData,
+      icon: icon,
       backgroundColor: backgroundColor,
       iconColor: context.vColors.surface,
     );

@@ -5,6 +5,9 @@ import '../tokens/v_spacing.dart';
 import '../tokens/v_typography.dart';
 import '../foundation/v_context_extensions.dart';
 import '../foundation/v_component_contracts.dart';
+import '../primitives/v_icon.dart';
+import '../primitives/v_text.dart';
+import '../foundations/icons/v_icons.dart';
 
 class VDatePickerField extends StatelessWidget {
   final DateTime? value;
@@ -20,9 +23,9 @@ class VDatePickerField extends StatelessWidget {
 
   const VDatePickerField({
     super.key,
-    required this.value,
+    this.value,
     required this.label,
-    this.hintText = 'nn/mm/yyyy',
+    this.hintText = 'Chọn ngày',
     this.required = false,
     required this.onTap,
     this.enabled = true,
@@ -34,7 +37,8 @@ class VDatePickerField extends StatelessWidget {
 
   VComponentState _resolveState() {
     if (state != null) return state!;
-    return enabled ? VComponentState.enabled : VComponentState.disabled;
+    if (!enabled) return VComponentState.disabled;
+    return VComponentState.enabled;
   }
 
   @override
@@ -48,7 +52,7 @@ class VDatePickerField extends StatelessWidget {
 
     final borderColor = switch (tone) {
       VComponentTone.primary => dynamicColors.primary,
-      VComponentTone.danger => VColors.danger,
+      VComponentTone.danger => dynamicColors.danger,
       _ => dynamicColors.borderDefault,
     };
 
@@ -64,27 +68,25 @@ class VDatePickerField extends StatelessWidget {
         children: [
           Row(
             children: [
-              Icon(
-                Icons.calendar_today_rounded,
+              VIcon(
+                icon: VIcons.calendar,
                 size: 16,
                 color: dynamicColors.textSecondary,
               ),
               const SizedBox(width: 8),
-              Text(
+              VText(
                 label,
-                style: VTypography.bodyDefault.copyWith(
-                  color: dynamicColors.textPrimary,
-                  fontWeight: FontWeight.w600,
-                ),
+                variant: VTextVariant.bodyDefault,
+                style: const TextStyle(fontWeight: FontWeight.w600),
+                color: dynamicColors.textPrimary,
               ),
               if (required) ...[
                 const SizedBox(width: 4),
-                const Text(
+                VText(
                   '*',
-                  style: TextStyle(
-                    color: VColors.danger,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  variant: VTextVariant.bodyDefault,
+                  color: dynamicColors.danger,
+                  style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
               ],
             ],
@@ -107,19 +109,18 @@ class VDatePickerField extends StatelessWidget {
               child: Row(
                 children: [
                   Expanded(
-                    child: Text(
+                    child: VText(
                       dateText,
-                      style: VTypography.bodyDefault.copyWith(
-                        color: value != null
-                            ? (isEnabled
-                                ? dynamicColors.textPrimary
-                                : dynamicColors.textMuted)
-                            : dynamicColors.textMuted,
-                      ),
+                      variant: VTextVariant.bodyDefault,
+                      color: value != null
+                          ? (isEnabled
+                              ? dynamicColors.textPrimary
+                              : dynamicColors.textMuted)
+                          : dynamicColors.textMuted,
                     ),
                   ),
-                  Icon(
-                    Icons.calendar_month_rounded,
+                  VIcon(
+                    icon: VIcons.calendar,
                     size: 20,
                     color: dynamicColors.textSecondary,
                   ),

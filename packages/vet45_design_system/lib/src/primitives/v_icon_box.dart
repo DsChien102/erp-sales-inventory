@@ -3,9 +3,16 @@ import '../tokens/v_colors.dart';
 import '../tokens/v_radius.dart';
 import '../foundation/v_context_extensions.dart';
 import '../foundation/v_component_contracts.dart';
+import '../foundations/icons/v_icons.dart';
+import 'v_icon.dart';
 
 class VIconBox extends StatelessWidget {
+  /// Semantic icon registry token
+  final VIcons? icon;
+
+  /// Legacy Material IconData fallback
   final IconData? iconData;
+
   final String? assetPath;
   final double size;
   final double iconSize;
@@ -22,6 +29,7 @@ class VIconBox extends StatelessWidget {
 
   const VIconBox({
     super.key,
+    this.icon,
     this.iconData,
     this.assetPath,
     this.size = 40.0,
@@ -63,18 +71,11 @@ class VIconBox extends StatelessWidget {
     final resolvedRadius = borderRadius ?? VRadius.iconBox;
 
     Widget iconWidget;
-    if (assetPath != null) {
-      iconWidget = Image.asset(
-        assetPath!,
-        width: iconSize,
-        height: iconSize,
-        color: resolvedIconColor,
-        fit: BoxFit.contain,
-        package: 'vet45_design_system',
-      );
-    } else if (iconData != null) {
-      iconWidget = Icon(
-        iconData,
+    if (assetPath != null || icon != null || iconData != null) {
+      iconWidget = VIcon(
+        icon: icon,
+        iconData: iconData,
+        assetPath: assetPath,
         size: iconSize,
         color: resolvedIconColor,
       );

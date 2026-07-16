@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 // contract: na tone/emphasis/state
 import '../tokens/v_typography.dart';
 import '../foundation/v_context_extensions.dart';
+import '../primitives/v_text.dart';
+import '../primitives/v_icon.dart';
+import '../foundations/icons/v_icons.dart';
 
 class VAppBarTitle extends StatelessWidget {
   final String title;
@@ -13,7 +16,7 @@ class VAppBarTitle extends StatelessWidget {
   Widget build(BuildContext context) {
     final dynamicColors = context.vColors;
 
-    return Text(
+    return VText(
       title,
       style: style ?? VTypography.headingH4.copyWith(
         color: dynamicColors.textPrimary,
@@ -31,9 +34,10 @@ class VAppBarSubtitle extends StatelessWidget {
   Widget build(BuildContext context) {
     final dynamicColors = context.vColors;
 
-    return Text(
+    return VText(
       text,
-      style: VTypography.caption.copyWith(color: dynamicColors.textSecondary),
+      variant: VTextVariant.caption,
+      color: dynamicColors.textSecondary,
     );
   }
 }
@@ -84,8 +88,8 @@ class VAppBar extends StatelessWidget implements PreferredSizeWidget {
           leading ??
           (showBackButton && Navigator.of(context).canPop()
               ? IconButton(
-                  icon: Icon(
-                    Icons.arrow_back,
+                  icon: VIcon(
+                    icon: VIcons.arrowLeft,
                     color: dynamicColors.textPrimary,
                   ),
                   onPressed: () => Navigator.of(context).pop(),

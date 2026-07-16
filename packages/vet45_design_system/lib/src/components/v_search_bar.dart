@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
-import '../tokens/v_colors.dart';
 import '../tokens/v_radius.dart';
 import '../tokens/v_spacing.dart';
 import '../tokens/v_typography.dart';
 import '../foundation/v_context_extensions.dart';
 import '../foundation/v_component_contracts.dart';
+import '../primitives/v_icon.dart';
+import '../primitives/v_text.dart';
+import '../foundations/icons/v_icons.dart';
 
 enum VSearchBarVariant { outlined, filled, header }
 
@@ -104,7 +106,7 @@ class _VSearchBarState extends State<VSearchBar> {
 
     final focusBorderColor = switch (widget.tone) {
       VComponentTone.primary => dynamicColors.primary,
-      VComponentTone.danger => VColors.danger,
+      VComponentTone.danger => dynamicColors.danger,
       _ => dynamicColors.primary,
     };
 
@@ -122,7 +124,7 @@ class _VSearchBarState extends State<VSearchBar> {
         hintColor = dynamicColors.textSecondary;
         break;
       case VSearchBarVariant.filled:
-        bg = VColors.neutral100;
+        bg = dynamicColors.surfaceAlt;
         border = isFocused ? Border.all(color: dynamicColors.primary, width: 1.5) : null;
         iconColor = dynamicColors.textSecondary;
         textColor = dynamicColors.textPrimary;
@@ -139,15 +141,16 @@ class _VSearchBarState extends State<VSearchBar> {
 
     Widget content = Row(
       children: [
-        Icon(Icons.search, color: iconColor, size: 20),
+        VIcon(icon: VIcons.search, color: iconColor, size: 20),
         const SizedBox(width: VSpacing.space2),
         Expanded(
           child: widget.readOnly || widget.onTap != null
               ? Align(
                   alignment: Alignment.centerLeft,
-                  child: Text(
+                  child: VText(
                     widget.hintText,
-                    style: VTypography.bodyDefault.copyWith(color: hintColor),
+                    variant: VTextVariant.bodyDefault,
+                    color: hintColor,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),

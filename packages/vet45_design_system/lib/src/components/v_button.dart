@@ -5,6 +5,8 @@ import '../tokens/v_radius.dart';
 import '../tokens/v_typography.dart';
 import '../foundation/v_context_extensions.dart';
 import '../foundation/v_component_contracts.dart';
+import '../primitives/v_text.dart';
+import '../patterns/v_gap.dart';
 
 enum VButtonVariant { primary, secondary, outline, ghost, danger, dangerOutline, warning }
 
@@ -96,11 +98,11 @@ class VButton extends StatelessWidget {
           case VButtonVariant.ghost:
             return Colors.transparent;
           case VButtonVariant.dangerOutline:
-            return VColors.dangerBg;
+            return dynamicColors.dangerBg;
           case VButtonVariant.danger:
-            return VColors.dangerBg;
+            return dynamicColors.dangerBg;
           case VButtonVariant.warning:
-            return VColors.warningBg;
+            return dynamicColors.warningBg;
           default:
             return dynamicColors.borderStrong;
         }
@@ -109,15 +111,15 @@ class VButton extends StatelessWidget {
         case VButtonVariant.primary:
           if (resolvedTone == VComponentTone.warning) {
             if (states.contains(WidgetState.pressed) || states.contains(WidgetState.hovered)) {
-              return VColors.warning.withValues(alpha: 0.8);
+              return dynamicColors.warning.withValues(alpha: 0.8);
             }
-            return VColors.warning;
+            return dynamicColors.warning;
           }
           if (resolvedTone == VComponentTone.danger) {
             if (states.contains(WidgetState.pressed) || states.contains(WidgetState.hovered)) {
-              return const Color(0xFFB53232);
+              return dynamicColors.danger.withValues(alpha: 0.85);
             }
-            return VColors.danger;
+            return dynamicColors.danger;
           }
           if (states.contains(WidgetState.pressed) || states.contains(WidgetState.hovered)) {
             return dynamicColors.primaryPressed;
@@ -125,7 +127,7 @@ class VButton extends StatelessWidget {
           return dynamicColors.primary;
         case VButtonVariant.secondary:
           if (states.contains(WidgetState.pressed) || states.contains(WidgetState.hovered)) {
-            return VColors.primary100;
+            return dynamicColors.surfaceBrand;
           }
           if (emphasis == VComponentEmphasis.subtle) {
             return dynamicColors.surface;
@@ -143,29 +145,29 @@ class VButton extends StatelessWidget {
           return Colors.transparent;
         case VButtonVariant.dangerOutline:
           if (states.contains(WidgetState.pressed) || states.contains(WidgetState.hovered)) {
-            return VColors.dangerBg;
+            return dynamicColors.dangerBg;
           }
           return Colors.transparent;
         case VButtonVariant.danger:
           if (states.contains(WidgetState.pressed) || states.contains(WidgetState.hovered)) {
-            return const Color(0xFFB53232);
+            return dynamicColors.danger.withValues(alpha: 0.85);
           }
-          return VColors.danger;
+          return dynamicColors.danger;
         case VButtonVariant.warning:
           if (states.contains(WidgetState.pressed) || states.contains(WidgetState.hovered)) {
-            return VColors.warning.withValues(alpha: 0.8);
+            return dynamicColors.warning.withValues(alpha: 0.8);
           }
-          return VColors.warning;
+          return dynamicColors.warning;
       }
     }
 
     Color getFgColor(Set<WidgetState> states) {
       if (states.contains(WidgetState.disabled)) {
         if (variant == VButtonVariant.danger) {
-          return VColors.danger.withValues(alpha: 0.5);
+          return dynamicColors.danger.withValues(alpha: 0.5);
         }
         if (variant == VButtonVariant.dangerOutline) {
-          return VColors.danger.withValues(alpha: 0.6);
+          return dynamicColors.danger.withValues(alpha: 0.6);
         }
         return dynamicColors.textMuted;
       }
@@ -180,7 +182,7 @@ class VButton extends StatelessWidget {
         case VButtonVariant.secondary:
           return dynamicColors.primary;
         case VButtonVariant.dangerOutline:
-          return VColors.danger;
+          return dynamicColors.danger;
         case VButtonVariant.outline:
         case VButtonVariant.ghost:
           return dynamicColors.textPrimary;
@@ -193,12 +195,12 @@ class VButton extends StatelessWidget {
       }
       if (variant == VButtonVariant.dangerOutline) {
         if (states.contains(WidgetState.disabled)) {
-          return BorderSide(color: VColors.danger.withValues(alpha: 0.2));
+          return BorderSide(color: dynamicColors.danger.withValues(alpha: 0.2));
         }
-        return BorderSide(color: VColors.danger);
+        return BorderSide(color: dynamicColors.danger);
       }
       if (variant == VButtonVariant.danger && states.contains(WidgetState.disabled)) {
-        return BorderSide(color: VColors.danger.withValues(alpha: 0.15));
+        return BorderSide(color: dynamicColors.danger.withValues(alpha: 0.15));
       }
       return BorderSide.none;
     }
@@ -218,17 +220,17 @@ class VButton extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(width: VSpacing.space2),
+          const VGap.horizontalSm(),
         ] else if (leadingIcon != null) ...[
           leadingIcon!,
-          const SizedBox(width: VSpacing.space2),
+          const VGap.horizontalSm(),
         ],
         Flexible(
           child: flexibleText
               ? FittedBox(
                   fit: BoxFit.scaleDown,
                   alignment: Alignment.center,
-                  child: Text(
+                  child: VText(
                     label,
                     style: textStyle.copyWith(
                       color: getFgColor(isEnabled ? {} : {WidgetState.disabled}),
@@ -236,7 +238,7 @@ class VButton extends StatelessWidget {
                     maxLines: 1,
                   ),
                 )
-              : Text(
+              : VText(
                   label,
                   style: textStyle.copyWith(
                     color: getFgColor(isEnabled ? {} : {WidgetState.disabled}),
@@ -246,7 +248,7 @@ class VButton extends StatelessWidget {
                 ),
         ),
         if (!showLoading && trailingIcon != null) ...[
-          const SizedBox(width: VSpacing.space2),
+          const VGap.horizontalSm(),
           trailingIcon!,
         ],
       ],
