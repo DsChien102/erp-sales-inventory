@@ -191,6 +191,55 @@ class _PrimitivesPreviewTabState extends State<PrimitivesPreviewTab> {
             ],
           ),
         ),
+        PreviewSection(
+          title: 'VSkeleton',
+          description:
+              'Shadcn-style loading bones. Prefer VSkeletonScope when composing many.',
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              PreviewStateRow(
+                label: 'Standalone bones',
+                child: PreviewStateWrap(
+                  children: const [
+                    VSkeleton(width: 120, height: 16),
+                    VSkeleton(width: 80, height: 12, borderRadius: VRadius.r8),
+                    VSkeleton.circle(size: 40),
+                  ],
+                ),
+              ),
+              PreviewStateRow(
+                label: 'Scoped layout (shared pulse)',
+                child: VSkeletonScope(
+                  child: Row(
+                    children: [
+                      const VSkeleton.circle(size: 48),
+                      const VGap.horizontalMd(),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: const [
+                            VSkeleton(width: 140, height: 16),
+                            VGap.sm(),
+                            VSkeleton(width: 100, height: 12),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              PreviewStateRow(
+                label: 'semanticLabel',
+                child: const VSkeleton(
+                  width: 160,
+                  height: 18,
+                  semanticLabel: 'Đang tải',
+                ),
+              ),
+            ],
+          ),
+        ),
       ],
     );
   }
