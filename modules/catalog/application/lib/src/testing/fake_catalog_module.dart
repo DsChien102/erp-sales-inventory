@@ -1560,14 +1560,93 @@ final class FakeCatalogModule implements ICatalogModule {
     };
     product.stockQty = command.basicStockQuantityBase;
     product.baseCost = command.basePrice;
-    product.listBeforeVat = command.listBeforeVat;
-    product.floorBeforeVat = command.floorBeforeVat;
-    product.listAfterVat = command.listBeforeVat;
+    final sourceType = command.priceBandSourceType;
+    if (sourceType == PriceBandSourceType.ruleBased) {
+      final rule = _storeRuleForTenant(command.tenantId);
+      if (command.useStorePriceRule &&
+          product.hasBaseUnit &&
+          product.baseCost != null &&
+          rule != null &&
+          rule.status == StorePriceRuleStatus.active) {
+        final prices = StorePriceSuggestionCalculator.suggest(
+          basePrice: product.baseCost!,
+          listMarkupRatio: rule.listMarkupRatio,
+          floorMarkupRatio: rule.floorMarkupRatio,
+        );
+        product
+          ..listBeforeVat = prices.listBeforeVat
+          ..floorBeforeVat = prices.floorBeforeVat
+          ..listAfterVat = prices.listBeforeVat
+          ..floorAfterVat = prices.floorBeforeVat
+          ..priceBandSourceType = PriceBandSourceType.ruleBased
+          ..storePriceRuleId = rule.id
+          ..storePriceRuleName = rule.name
+          ..listMarkupRatio = null
+          ..floorMarkupRatio = null
+          ..isCustomOverride = false;
+        _recordGuidedPriceBandHistory(
+          product: product,
+          actorId: command.actorId,
+        );
+      }
+    } else if (sourceType == PriceBandSourceType.customConfig ||
+        sourceType == PriceBandSourceType.manual) {
+      product
+        ..listBeforeVat = command.listBeforeVat
+        ..floorBeforeVat = command.floorBeforeVat
+        ..listAfterVat = command.listBeforeVat
+        ..floorAfterVat = command.floorBeforeVat
+        ..priceBandSourceType = sourceType
+        ..storePriceRuleId = null
+        ..storePriceRuleName = null
+        ..listMarkupRatio = command.listMarkupRatio
+        ..floorMarkupRatio = command.floorMarkupRatio
+        ..isCustomOverride = sourceType == PriceBandSourceType.customConfig;
+      if (command.listBeforeVat != null) {
+        _recordGuidedPriceBandHistory(
+          product: product,
+          actorId: command.actorId,
+        );
+      }
+    }
     return CreateGuidedProductResult(
           productId: product.id,
           readinessSummary: _readinessSummaryFor(product),
         )
         as TResult;
+  }
+
+  void _recordGuidedPriceBandHistory({
+    required _StoredProduct product,
+    required String actorId,
+  }) {
+    final sourceType = product.priceBandSourceType;
+    final listPrice = product.listBeforeVat;
+    if (sourceType == null || listPrice == null) {
+      return;
+    }
+    product.statusHistory = [
+      ProductChangeHistoryEntryDto(
+        id: 'history-${product.id}-pricing-created',
+        occurredAt: DateTime.utc(2026, 7, 16),
+        actorDisplayName: actorId,
+        changeType: ProductChangeHistoryAction.priceBandUpdated,
+        summary: 'Tạo khung giá — ${product.baseUnit}',
+        changeCategory: ProductChangeCategory.pricing,
+        priceBandChange: ProductPriceBandHistoryChangeDto(
+          productUnitId: '${product.id}-base',
+          unitName: product.baseUnit,
+          currency: 'VND',
+          trigger: ProductPriceBandHistoryTrigger.direct,
+          after: ProductPriceBandHistorySnapshotDto(
+            sourceType: sourceType,
+            listPrice: listPrice,
+            floorPrice: product.floorBeforeVat,
+          ),
+        ),
+      ),
+      ...product.statusHistory,
+    ];
   }
 
   TResult _handleCreateProduct<TResult>(CreateProductCommand command) {
@@ -3413,9 +3492,7 @@ final class FakeCatalogModule implements ICatalogModule {
       return const [];
     }
 
-    if (product.id != 'product-1' &&
-        product.statusHistory.isEmpty &&
-        scenario != FakeCatalogScenario.scnContractE07U04Fr02_01) {
+    if (product.id != 'product-1' && scenario != FakeCatalogScenario.scnContractE07U04Fr02_01) {
       return product.statusHistory;
     }
 

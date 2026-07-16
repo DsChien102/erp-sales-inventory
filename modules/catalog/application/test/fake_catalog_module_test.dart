@@ -6,6 +6,117 @@ import 'package:vet45_shared_application/application.dart';
 
 void main() {
   group('FakeCatalogModule', () {
+    test('guided create applies the active store rule when pricing is ready', () async {
+      final module = FakeCatalogModule();
+
+      final created = await module.executeCommandAsync<CreateGuidedProductResult>(
+        CreateGuidedProductCommand(
+          tenantId: 'tenant-1',
+          actorId: 'user-1',
+          productName: 'Thuốc dùng giá cửa hàng',
+          baseUnit: const NewTenantUnit('lọ'),
+          basePrice: 50000,
+          useStorePriceRule: true,
+          priceBandSourceType: PriceBandSourceType.ruleBased,
+        ),
+      );
+      final pcc = await module.executeQueryAsync(
+        GetProductControlCenterQuery(
+          tenantId: 'tenant-1',
+          productId: created.productId,
+        ),
+      );
+      final history = await module.executeQueryAsync(
+        GetProductChangeHistoryQuery(
+          tenantId: 'tenant-1',
+          productId: created.productId,
+        ),
+      );
+
+      expect(pcc.priceBand.sourceType, PriceBandSourceType.ruleBased);
+      expect(pcc.priceBand.listBeforeVat, 75000);
+      expect(pcc.priceBand.floorBeforeVat, 62500);
+      expect(history.items, hasLength(1));
+      expect(
+        history.items.single.priceBandChange?.after.sourceType,
+        PriceBandSourceType.ruleBased,
+      );
+    });
+
+    test('guided create skips store pricing when prerequisites are unavailable', () async {
+      final module = FakeCatalogModule(
+        scenario: FakeCatalogScenario.scnContractE06U02Fr02_03,
+      );
+
+      final created = await module.executeCommandAsync<CreateGuidedProductResult>(
+        CreateGuidedProductCommand(
+          tenantId: 'tenant-1',
+          actorId: 'user-1',
+          productName: 'Thuốc chưa đủ điều kiện giá',
+          baseUnit: const NewTenantUnit('lọ'),
+          basePrice: 50000,
+          useStorePriceRule: true,
+          priceBandSourceType: PriceBandSourceType.ruleBased,
+        ),
+      );
+      final pcc = await module.executeQueryAsync(
+        GetProductControlCenterQuery(
+          tenantId: 'tenant-1',
+          productId: created.productId,
+        ),
+      );
+      final history = await module.executeQueryAsync(
+        GetProductChangeHistoryQuery(
+          tenantId: 'tenant-1',
+          productId: created.productId,
+        ),
+      );
+
+      expect(pcc.priceBand.isMissing, isTrue);
+      expect(history.items, isEmpty);
+    });
+
+    test('guided create skips store pricing without a unit or base price', () async {
+      final commands = <CreateGuidedProductCommand>[
+        CreateGuidedProductCommand(
+          tenantId: 'tenant-1',
+          actorId: 'user-1',
+          productName: 'Thuốc chưa có đơn vị',
+          basePrice: 50000,
+          useStorePriceRule: true,
+          priceBandSourceType: PriceBandSourceType.ruleBased,
+        ),
+        CreateGuidedProductCommand(
+          tenantId: 'tenant-1',
+          actorId: 'user-1',
+          productName: 'Thuốc chưa có giá vốn',
+          baseUnit: const NewTenantUnit('lọ'),
+          useStorePriceRule: true,
+          priceBandSourceType: PriceBandSourceType.ruleBased,
+        ),
+      ];
+
+      for (final command in commands) {
+        final module = FakeCatalogModule();
+        final created = await module.executeCommandAsync<CreateGuidedProductResult>(command);
+        final pcc = await module.executeQueryAsync(
+          GetProductControlCenterQuery(
+            tenantId: command.tenantId,
+            productId: created.productId,
+          ),
+        );
+        final history = await module.executeQueryAsync(
+          GetProductChangeHistoryQuery(
+            tenantId: command.tenantId,
+            productId: created.productId,
+          ),
+        );
+
+        expect(pcc.priceBand.isMissing, isTrue);
+        expect(history.items, isEmpty);
+      }
+    });
+
     test('guided_create_ok returns product and readiness blockers', () async {
       final module = FakeCatalogModule(
         scenario: FakeCatalogScenario.guidedCreateOk,

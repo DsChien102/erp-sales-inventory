@@ -171,6 +171,22 @@ void main() {
     expect(guided, contains('p_floor_markup_ratio numeric default null'));
     expect(guided, contains("when 'customConfig' then"));
     expect(guided, contains("when 'ruleBased' then"));
+    expect(guided, contains('v_can_apply_store_rule boolean := false'));
+    expect(guided, contains('v_store_price_rule_id uuid'));
+    expect(guided, contains("else 'ruleBased'"));
+    expect(guided, contains("r.status = 'active'"));
+    expect(guided, contains('p_base_price_after_vat is not null'));
+    expect(guided, contains('v_store_price_rule_id is not null'));
+    expect(guided, contains('if v_can_apply_store_rule then'));
+    expect(
+      guided,
+      contains('p_store_price_rule_id => v_store_price_rule_id'),
+    );
+    expect(
+      guided,
+      isNot(contains("when 'ruleBased' then\n      perform 1 from")),
+      reason: 'Store pricing must be skipped when prerequisites are missing.',
+    );
 
     final history = _functionDefinition(sql, 'get_product_change_history');
     expect(history, contains("h.payload -> 'price_band_change'"));

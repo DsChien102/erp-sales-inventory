@@ -4,6 +4,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:vet45_catalog_application/application.dart';
 import 'package:vet45_catalog_domain/domain.dart';
 import 'package:vet45_shared_application/application.dart';
+import '../mappers/guided_price_band_submission_resolver.dart';
 import '../mappers/catalog_ui_mapper.dart';
 import '../models/product_image_draft.dart';
 import '../services/product_image_upload_client.dart';
@@ -477,41 +478,25 @@ class ProductGuidedCreateCubit extends Cubit<ProductGuidedCreateState> {
   }
 
   void deferPriceBandStep() {
-    emit(state.copyWith(priceBandConfigured: false));
+    emit(
+      state.copyWith(
+        pricingMethod: 'storeRule',
+        customAutoMarkup: '',
+        customAutoFloorMarkup: '',
+        manualListPrice: '',
+        manualFloorPrice: '',
+        priceBandConfigured: false,
+        clearManualPriceError: true,
+        clearError: true,
+      ),
+    );
     nextStep();
   }
 
   void confirmPriceBandStep() {
-    if (!state.canConfirmPriceBandStep) {
-      if (state.pricingMethod == 'storeRule') {
-        emit(
-          state.copyWith(
-            errorMessage:
-                state.storePriceRuleUnavailableReason ?? 'Không thể áp dụng khung giá cửa hàng.',
-          ),
-        );
-        return;
-      }
-      if (state.pricingMethod == 'customAuto') {
-        final listPercent = state.parsedCustomAutoMarkupPercent;
-        final floorPercent = state.parsedCustomAutoFloorMarkupPercent;
-        if (listPercent == null || floorPercent == null) {
-          emit(
-            state.copyWith(
-              errorMessage: 'Vui lòng nhập tỷ lệ lãi cơ sở và giá sàn hợp lệ.',
-            ),
-          );
-          return;
-        }
-        if (floorPercent > listPercent) {
-          emit(
-            state.copyWith(
-              errorMessage: 'Tỷ lệ giá sàn không được lớn hơn tỷ lệ lãi cơ sở.',
-            ),
-          );
-          return;
-        }
-      }
+    final resolution = GuidedPriceBandSubmissionResolver.resolve(state);
+    if (resolution case GuidedPriceBandInvalid()) {
+      _emitPriceBandValidationError(resolution);
       return;
     }
 
@@ -577,51 +562,17 @@ class ProductGuidedCreateCubit extends Cubit<ProductGuidedCreateState> {
       return;
     }
 
-    bool shouldSavePriceBand = state.priceBandConfigured;
-    if (!shouldSavePriceBand && state.baseUnit.trim().isNotEmpty) {
-      if (state.pricingMethod == 'manual' &&
-          (state.manualListPrice.trim().isNotEmpty || state.manualFloorPrice.trim().isNotEmpty)) {
-        shouldSavePriceBand = true;
-      }
+    final priceBandResolution = GuidedPriceBandSubmissionResolver.resolve(state);
+    if (priceBandResolution case GuidedPriceBandInvalid()) {
+      _emitPriceBandValidationError(priceBandResolution);
+      return;
     }
-
-    if (shouldSavePriceBand && state.pricingMethod == 'manual') {
-      final listBeforeVat = int.tryParse(state.manualListPrice.trim().replaceAll(',', ''));
-      final floorRaw = state.manualFloorPrice.trim().replaceAll(',', '');
-      final floorBeforeVat = floorRaw.isEmpty ? null : int.tryParse(floorRaw);
-      if (listBeforeVat == null) {
-        emit(
-          state.copyWith(
-            activeStepIndex: 5,
-            showValidationErrors: true,
-            status: ProductGuidedCreateStatus.error,
-            errorMessage: 'Giá niêm yết là bắt buộc.',
-            manualPriceError: 'Nhập giá niêm yết',
-            priceBandConfigured: true,
-          ),
-        );
-        return;
-      }
-      if (floorBeforeVat != null && floorBeforeVat > listBeforeVat) {
-        emit(
-          state.copyWith(
-            activeStepIndex: 5,
-            showValidationErrors: true,
-            status: ProductGuidedCreateStatus.error,
-            errorMessage: 'Giá sàn không được lớn hơn giá niêm yết.',
-            manualPriceError: 'Giá sàn phải ≤ giá niêm yết',
-            priceBandConfigured: true,
-          ),
-        );
-        return;
-      }
-    }
+    final priceBandSubmission = (priceBandResolution as GuidedPriceBandReady).submission;
 
     emit(
       state.copyWith(
         status: ProductGuidedCreateStatus.loading,
         clearError: true,
-        priceBandConfigured: shouldSavePriceBand,
       ),
     );
 
@@ -664,22 +615,6 @@ class ProductGuidedCreateCubit extends Cubit<ProductGuidedCreateState> {
             .firstWhere((f) => f.fieldId == input.fieldId);
         return field.status == CustomFieldConfigStatus.active;
       }).toList();
-      final priceBand = state.priceBandConfigured
-          ? CatalogUiMapper.resolvePriceBand(state)
-          : (listBeforeVat: null, floorBeforeVat: null);
-      final priceBandSourceType = !state.priceBandConfigured
-          ? null
-          : switch (state.pricingMethod) {
-              'storeRule' => PriceBandSourceType.ruleBased,
-              'customAuto' || 'auto' => PriceBandSourceType.customConfig,
-              _ => PriceBandSourceType.manual,
-            };
-      final customListRatio = priceBandSourceType == PriceBandSourceType.customConfig
-          ? state.parsedCustomAutoMarkupPercent! / 100
-          : null;
-      final customFloorRatio = priceBandSourceType == PriceBandSourceType.customConfig
-          ? state.parsedCustomAutoFloorMarkupPercent! / 100
-          : null;
       final createResult = await _catalogModule.executeCommandAsync(
         CreateGuidedProductCommand(
           tenantId: tenantId,
@@ -694,12 +629,12 @@ class ProductGuidedCreateCubit extends Cubit<ProductGuidedCreateState> {
               : _resolveBaseUnitSelection(state.baseUnit),
           basicStockQuantityBase: state.parsedBasicStockQuantityBase,
           basePrice: double.tryParse(state.baseCost.trim().replaceAll(',', '')),
-          listBeforeVat: state.pricingMethod == 'storeRule' ? null : priceBand.listBeforeVat,
-          floorBeforeVat: state.pricingMethod == 'storeRule' ? null : priceBand.floorBeforeVat,
-          useStorePriceRule: state.priceBandConfigured && state.pricingMethod == 'storeRule',
-          priceBandSourceType: priceBandSourceType,
-          listMarkupRatio: customListRatio,
-          floorMarkupRatio: customFloorRatio,
+          listBeforeVat: priceBandSubmission.listBeforeVat,
+          floorBeforeVat: priceBandSubmission.floorBeforeVat,
+          useStorePriceRule: priceBandSubmission.useStorePriceRule,
+          priceBandSourceType: priceBandSubmission.sourceType,
+          listMarkupRatio: priceBandSubmission.listMarkupRatio,
+          floorMarkupRatio: priceBandSubmission.floorMarkupRatio,
           customFieldValues: activeValues,
         ),
       );
@@ -764,6 +699,19 @@ class ProductGuidedCreateCubit extends Cubit<ProductGuidedCreateState> {
         ),
       );
     }
+  }
+
+  void _emitPriceBandValidationError(GuidedPriceBandInvalid invalid) {
+    emit(
+      state.copyWith(
+        activeStepIndex: invalid.targetStepIndex,
+        showValidationErrors: true,
+        status: ProductGuidedCreateStatus.error,
+        errorMessage: invalid.message,
+        manualPriceError: invalid.manualPriceError,
+        clearManualPriceError: invalid.manualPriceError == null,
+      ),
+    );
   }
 
   BaseUnitSelection _resolveBaseUnitSelection(String baseUnit) {

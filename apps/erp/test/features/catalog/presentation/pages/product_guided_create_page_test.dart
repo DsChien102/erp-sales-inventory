@@ -175,6 +175,108 @@ void main() {
     expect(command.floorMarkupRatio, 0.1);
   });
 
+  testWidgets('saving without opening price step defaults to store rule', (tester) async {
+    final catalogModule = _RecordingCatalogModule();
+    await tester.pumpWidget(
+      buildTestableWidget(catalogModule: catalogModule),
+    );
+    await tester.pumpAndSettle();
+
+    final pageContext = tester.element(find.byKey(const Key('wgt_e02_u01_fr01_01')));
+    final cubit = BlocProvider.of<ProductGuidedCreateCubit>(pageContext);
+    cubit.updateName('Thuốc dùng giá cửa hàng');
+
+    await cubit.submit();
+    await tester.pumpAndSettle();
+
+    final command = catalogModule.guidedCreateCommand;
+    expect(command, isNotNull);
+    expect(command!.priceBandSourceType, PriceBandSourceType.ruleBased);
+    expect(command.useStorePriceRule, isTrue);
+  });
+
+  testWidgets('saving a complete custom draft does not require pressing Next', (tester) async {
+    final catalogModule = _RecordingCatalogModule();
+    await tester.pumpWidget(
+      buildTestableWidget(catalogModule: catalogModule),
+    );
+    await tester.pumpAndSettle();
+
+    final pageContext = tester.element(find.byKey(const Key('wgt_e02_u01_fr01_01')));
+    final cubit = BlocProvider.of<ProductGuidedCreateCubit>(pageContext);
+    cubit
+      ..updateName('Thuốc cấu hình riêng')
+      ..updateBaseUnit('Lọ')
+      ..updateBaseCost('50000')
+      ..updatePricingMethod('customAuto')
+      ..updateCustomAutoMarkup('30')
+      ..updateCustomAutoFloorMarkup('10');
+
+    await cubit.submit();
+    await tester.pumpAndSettle();
+
+    final command = catalogModule.guidedCreateCommand;
+    expect(command, isNotNull);
+    expect(command!.priceBandSourceType, PriceBandSourceType.customConfig);
+    expect(command.listMarkupRatio, 0.3);
+    expect(command.floorMarkupRatio, 0.1);
+  });
+
+  testWidgets('skipping price draft resets it to store rule', (tester) async {
+    final catalogModule = _RecordingCatalogModule();
+    await tester.pumpWidget(
+      buildTestableWidget(catalogModule: catalogModule),
+    );
+    await tester.pumpAndSettle();
+
+    final pageContext = tester.element(find.byKey(const Key('wgt_e02_u01_fr01_01')));
+    final cubit = BlocProvider.of<ProductGuidedCreateCubit>(pageContext);
+    cubit
+      ..updateName('Thuốc bỏ qua cấu hình riêng')
+      ..updateBaseUnit('Lọ')
+      ..updateBaseCost('50000')
+      ..updatePricingMethod('customAuto')
+      ..updateCustomAutoMarkup('30')
+      ..updateCustomAutoFloorMarkup('10')
+      ..deferPriceBandStep();
+
+    expect(cubit.state.pricingMethod, 'storeRule');
+    expect(cubit.state.customAutoMarkup, isEmpty);
+    expect(cubit.state.customAutoFloorMarkup, isEmpty);
+
+    await cubit.submit();
+    await tester.pumpAndSettle();
+
+    final command = catalogModule.guidedCreateCommand;
+    expect(command, isNotNull);
+    expect(command!.priceBandSourceType, PriceBandSourceType.ruleBased);
+    expect(command.useStorePriceRule, isTrue);
+  });
+
+  testWidgets('incomplete custom draft blocks save and opens price step', (tester) async {
+    final catalogModule = _RecordingCatalogModule();
+    await tester.pumpWidget(
+      buildTestableWidget(catalogModule: catalogModule),
+    );
+    await tester.pumpAndSettle();
+
+    final pageContext = tester.element(find.byKey(const Key('wgt_e02_u01_fr01_01')));
+    final cubit = BlocProvider.of<ProductGuidedCreateCubit>(pageContext);
+    cubit
+      ..updateName('Thuốc cấu hình thiếu')
+      ..updateBaseUnit('Lọ')
+      ..updateBaseCost('50000')
+      ..updatePricingMethod('customAuto')
+      ..updateCustomAutoMarkup('30');
+
+    await cubit.submit();
+    await tester.pump();
+
+    expect(catalogModule.guidedCreateCommand, isNull);
+    expect(cubit.state.activeStepIndex, 5);
+    expect(cubit.state.errorMessage, isNotNull);
+  });
+
   testWidgets('wgt_e02_u01_fr01_01: missing name shows validation error', (tester) async {
     await tester.pumpWidget(
       buildTestableWidget(catalogModule: FakeCatalogModule()),

@@ -587,6 +587,8 @@ declare
   v_readiness_status text;
   v_readiness_blockers jsonb;
   v_source_type text;
+  v_store_price_rule_id uuid;
+  v_can_apply_store_rule boolean := false;
 begin
   if auth.uid() is null then raise exception 'not authenticated'; end if;
   if p_actor_id is null or p_actor_id <> auth.uid() then
@@ -620,11 +622,27 @@ begin
       when p_use_store_price_rule then 'ruleBased'
       when p_list_price_before_vat is not null
         or p_floor_price_before_vat is not null then 'manual'
-      else null
+      else 'ruleBased'
     end
   );
   if v_source_type not in ('ruleBased', 'customConfig', 'manual') then
     raise exception 'validation_exception: source_type không hợp lệ.';
+  end if;
+
+  if v_source_type = 'ruleBased' then
+    select r.id
+    into v_store_price_rule_id
+    from catalog.store_price_rules r
+    where r.tenant_id = p_tenant_id
+      and r.status = 'active'
+    order by r.updated_at desc
+    limit 1;
+
+    v_can_apply_store_rule :=
+      (p_tenant_unit_id is not null
+        or nullif(btrim(coalesce(p_new_unit_name, '')), '') is not null)
+      and p_base_price_after_vat is not null
+      and v_store_price_rule_id is not null;
   end if;
 
   if (p_tenant_unit_id is not null
@@ -636,7 +654,9 @@ begin
      and not iam.has_permission(p_tenant_id, 'catalog.product.manage_stock') then
     raise exception 'permission denied: catalog.product.manage_stock';
   end if;
-  if (p_base_price_after_vat is not null or v_source_type is not null
+  if (p_base_price_after_vat is not null
+      or v_source_type in ('customConfig', 'manual')
+      or v_can_apply_store_rule
       or p_list_markup_ratio is not null or p_floor_markup_ratio is not null)
      and not iam.has_permission(p_tenant_id, 'catalog.product.manage_pricing') then
     raise exception 'permission denied: catalog.product.manage_pricing';
@@ -652,7 +672,8 @@ begin
     raise exception 'validation_exception: initial stock must be a non-negative integer';
   end if;
   if (p_basic_stock_quantity_base is not null
-      or p_base_price_after_vat is not null or v_source_type is not null)
+      or p_base_price_after_vat is not null
+      or v_source_type in ('customConfig', 'manual'))
      and p_tenant_unit_id is null
      and nullif(btrim(coalesce(p_new_unit_name, '')), '') is null then
     raise exception 'validation_exception: base unit is required for stock or pricing';
@@ -664,7 +685,8 @@ begin
 
   case v_source_type
     when 'ruleBased' then
-      if not p_use_store_price_rule
+      if p_list_price_before_vat is not null
+         or p_floor_price_before_vat is not null
          or p_list_markup_ratio is not null
          or p_floor_markup_ratio is not null then
         raise exception 'validation_exception: cấu hình khung giá cửa hàng không hợp lệ.';
@@ -721,10 +743,13 @@ begin
 
   case v_source_type
     when 'ruleBased' then
-      perform 1 from catalog.apply_store_price_rule(
-        p_tenant_id => p_tenant_id,
-        p_product_id => v_product_id
-      );
+      if v_can_apply_store_rule then
+        perform 1 from catalog.apply_store_price_rule(
+          p_tenant_id => p_tenant_id,
+          p_product_id => v_product_id,
+          p_store_price_rule_id => v_store_price_rule_id
+        );
+      end if;
     when 'customConfig' then
       perform 1 from catalog.set_product_unit_price_band(
         p_tenant_id => p_tenant_id,

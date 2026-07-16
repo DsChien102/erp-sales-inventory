@@ -26,14 +26,14 @@ final class CreateGuidedProductCommandValidator
     if (command.baseUnit case NewTenantUnit(:final name)) {
       if (name.trim().isEmpty) throw ValidationException('Base unit name is required.');
     }
-    final hasOperationalData =
+    final requiresBaseUnit =
         command.basicStockQuantityBase != null ||
         command.basePrice != null ||
         command.listBeforeVat != null ||
         command.floorBeforeVat != null ||
-        command.useStorePriceRule ||
-        command.priceBandSourceType != null;
-    if (hasOperationalData && command.baseUnit == null) {
+        command.priceBandSourceType == PriceBandSourceType.customConfig ||
+        command.priceBandSourceType == PriceBandSourceType.manual;
+    if (requiresBaseUnit && command.baseUnit == null) {
       throw ValidationException('Cần thiết lập đơn vị cơ sở trước tồn kho hoặc giá.');
     }
     if (command.basicStockQuantityBase != null && command.basicStockQuantityBase! < 0) {

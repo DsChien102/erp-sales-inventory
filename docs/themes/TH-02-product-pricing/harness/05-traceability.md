@@ -335,6 +335,14 @@ Early: `readinessSummary` trên PCC (không thay FR-04 checklist đầy đủ).
 | US-04 ext | FE | §EPIC-07-US-04 | erp | Typed widget hiển thị mode/list/floor trước–sau, create/update/null/mask/legacy | wgt_e07_price_history_create_01; wgt_e07_price_history_update_01 | done |
 | US-04 ext | E2E | §EPIC-07-US-04 | erp | Product history page có cả tạo và sửa khung giá | e2e_e07_u04_fr02_01 | done |
 
+### Bổ sung slice #28 — Guided create mặc định Giá cửa hàng
+
+| Req ID | Role | Contract § | Enforce layer | Artifact | Test id | Status |
+| ------ | ---- | ---------- | ------------- | -------- | ------- | ------ |
+| US-02 ext | CONTRACT | §EPIC-02-US-01, §EPIC-06-US-02 | presentation + application | Shared price submission resolver; default `ruleBased`; custom/manual direct save | guided_price_band_submission_resolver_test | done |
+| US-02 ext | FE | §EPIC-02-US-01 | presentation + erp | Submit/Next dùng chung resolver; Bỏ qua reset về Giá cửa hàng | product_guided_create_page_test | done |
+| US-02 ext | BE | §EPIC-02-US-01 | application + infrastructure | Validator + Fake parity + best-effort `create_guided_product` draft | create_guided_product_command_test; fake_catalog_module_test; price_band_sql_contract_test | done |
+
 ---
 
 ## EPIC-07 / US-01 — Bảo trì hồ sơ (slice #12)

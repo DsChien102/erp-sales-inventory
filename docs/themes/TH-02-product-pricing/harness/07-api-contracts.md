@@ -20,6 +20,7 @@ Facade: `ICatalogModule` (`modules/catalog/application/lib/src/contracts/i_catal
 
 | Symbol | Input (summary) | Success | Errors |
 | ------ | --------------- | ------- | ------ |
+| `CreateGuidedProductCommand` | Toàn bộ wizard; `priceBandSourceType?`, giá/tỷ lệ theo mode | `CreateGuidedProductResult` | Validation/permission/duplicate exceptions |
 | `RequestProductImageUploadCommand` | tenantId, actorId, fileName, contentType, byteSize | `ProductImageUploadSlotDto` | `ValidationException`, PermissionDenied |
 | `CreateProductCommand` | tenantId, actorId, productName, referenceId?, commercialName?, sku?, barcode?, description?, note?, images[] (`ProductImageInput`), baseUnitName? | `CreateProductResult` (productId, referenceId, readinessSummary) | `ValidationException`, PermissionDenied (`ApplicationException`), `DuplicateSkuException`, `DuplicateBarcodeException`, `DuplicateReferenceIdException` |
 | `CheckDuplicateProductCodeQuery` | tenantId, sku?, barcode?, excludeProductId? | `List<ProductDuplicateMatchDto>` | PermissionDenied |
@@ -878,7 +879,7 @@ Permissions:
 | List bands per unit | `catalog.list_product_unit_price_bands` | `p_tenant_id`, `p_product_id` | Rows for active `product_units`; left join **active in-window** bands + store rule name |
 | Readiness facts | `catalog._product_operational_facts` (redefined) | existing | `has_price_band` true when **all** active units have valid **before-VAT** active in-window band |
 | Apply store rule | `catalog.apply_store_price_rule` | existing | Writes before-VAT list/floor; returns `list_price_before_vat` / `floor_price_before_vat` |
-| Guided create | `catalog.create_guided_product` | `p_list_price_before_vat?`, `p_floor_price_before_vat?`, `p_price_band_source_type?`, `p_list_markup_ratio?`, `p_floor_markup_ratio?` | Routes đúng một mode: `ruleBased` → apply rule, `customConfig` → persist tỷ lệ theo band, `manual` → giá tuyệt đối; bỏ qua bước giá thì không tạo band/history |
+| Guided create | `catalog.create_guided_product` | `p_list_price_before_vat?`, `p_floor_price_before_vat?`, `p_price_band_source_type?`, `p_list_markup_ratio?`, `p_floor_markup_ratio?` | Mặc định/Bỏ qua → `ruleBased`; chỉ apply rule khi có unit + base price + active rule. Thiếu điều kiện vẫn tạo product, không tạo band/history. Custom/manual hợp lệ được ưu tiên và lưu trực tiếp |
 
 **Guards:** `inactive_product_unit`, `floor_price_greater_than_list_price`, `validation_exception` (negative prices), `missing base unit`, `product not found`
 
