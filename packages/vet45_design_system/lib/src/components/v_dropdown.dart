@@ -4,6 +4,10 @@ import '../tokens/v_spacing.dart';
 import '../tokens/v_typography.dart';
 import '../foundation/v_context_extensions.dart';
 import '../foundation/v_component_contracts.dart';
+import '../primitives/v_text.dart';
+import '../primitives/v_icon.dart';
+import '../foundations/icons/v_icons.dart';
+import '../patterns/v_gap.dart';
 
 class VDropdown<T> extends StatelessWidget {
   final T? value;
@@ -45,7 +49,7 @@ class VDropdown<T> extends StatelessWidget {
     final bool isEnabled = enabled && state != VComponentState.disabled;
     final Color borderColor = switch (tone) {
       VComponentTone.primary => colors.primary,
-      VComponentTone.danger => Colors.red,
+      VComponentTone.danger => colors.danger,
       _ => isEnabled ? colors.borderStrong : colors.borderDefault,
     };
 
@@ -58,13 +62,13 @@ class VDropdown<T> extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         if (label != null) ...[
-          Text(
+          VText(
             label!,
             style: VTypography.headingH4.copyWith(
               color: enabled ? colors.textPrimary : colors.textMuted,
             ),
           ),
-          const SizedBox(height: VSpacing.space2),
+          const VGap.sm(),
         ],
         LayoutBuilder(
           builder: (context, constraints) {
@@ -128,11 +132,14 @@ class VDropdown<T> extends StatelessWidget {
                         ),
                         child: selectedItem != null
                             ? selectedItem.child
-                            : Text(hintText ?? 'Chọn...'),
+                            : VText(
+                                hintText ?? 'Chọn...',
+                                color: enabled ? colors.textMuted : colors.textSecondary,
+                              ),
                       ),
                     ),
-                    Icon(
-                      Icons.keyboard_arrow_down,
+                    VIcon(
+                      icon: VIcons.chevronDown,
                       color: isEnabled ? colors.textSecondary : colors.textMuted,
                     ),
                   ],

@@ -35,6 +35,7 @@ class VColors {
 
   static const Color danger = Color(0xFFD14343);
   static const Color dangerBg = Color(0xFFFBE8E8);
+  static const Color dangerPressed = Color(0xFFB53232);
 
   static const Color info = Color(0xFF2F6FE0);
   static const Color infoBg = Color(0xFFE8F0FC);

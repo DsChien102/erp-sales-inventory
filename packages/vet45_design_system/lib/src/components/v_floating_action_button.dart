@@ -2,9 +2,15 @@ import 'package:flutter/material.dart';
 import '../tokens/v_shadows.dart';
 import '../foundation/v_context_extensions.dart';
 import '../foundation/v_component_contracts.dart';
+import '../foundations/icons/v_icons.dart';
+import '../primitives/v_icon.dart';
 
 class VFloatingActionButton extends StatelessWidget {
-  final IconData iconData;
+  final VIcons? icon;
+
+  @Deprecated('Use icon instead')
+  final IconData? iconData;
+
   final VoidCallback? onTap;
   final Color? backgroundColor;
   final Color? iconColor;
@@ -15,7 +21,8 @@ class VFloatingActionButton extends StatelessWidget {
 
   const VFloatingActionButton({
     super.key,
-    required this.iconData,
+    this.icon,
+    @Deprecated('Use icon instead') this.iconData,
     this.onTap,
     this.backgroundColor,
     this.iconColor,
@@ -23,7 +30,7 @@ class VFloatingActionButton extends StatelessWidget {
     this.emphasis = VComponentEmphasis.strong,
     this.state,
     this.semanticLabel,
-  });
+  }) : assert(icon != null || iconData != null, 'Either icon or iconData must be provided');
 
   VComponentState _resolveState() {
     if (state != null) return state!;
@@ -75,8 +82,9 @@ class VFloatingActionButton extends StatelessWidget {
               onTap: isEnabled ? onTap : null,
               customBorder: const CircleBorder(),
               child: Center(
-                child: Icon(
-                  iconData,
+                child: VIcon(
+                  icon: icon,
+                  iconData: iconData,
                   size: 28,
                   color: resolvedIconColor,
                 ),

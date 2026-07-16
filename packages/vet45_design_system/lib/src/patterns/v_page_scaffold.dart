@@ -37,7 +37,7 @@ class VPageScaffold extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: VColors.background,
+      backgroundColor: context.vColors.background,
       resizeToAvoidBottomInset: resizeToAvoidBottomInset,
       appBar: VAppBar(
         title: title,

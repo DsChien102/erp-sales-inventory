@@ -6,6 +6,8 @@ import '../tokens/v_radius.dart';
 import '../tokens/v_typography.dart';
 import '../foundation/v_context_extensions.dart';
 import '../foundation/v_component_contracts.dart';
+import '../primitives/v_text.dart';
+import '../patterns/v_gap.dart';
 
 enum VTextFieldVariant { standard, inline }
 
@@ -87,7 +89,7 @@ class VTextField extends StatelessWidget {
     final bool isEnabled = enabled && state != VComponentState.disabled;
     final Color toneBorderColor = switch (tone) {
       VComponentTone.primary => dynamicColors.primary,
-      VComponentTone.danger => VColors.danger,
+      VComponentTone.danger => dynamicColors.danger,
       _ => dynamicColors.borderStrong,
     };
 
@@ -182,11 +184,10 @@ class VTextField extends StatelessWidget {
                         padding: EdgeInsets.only(
                           right: isInline ? VSpacing.space2 : VSpacing.space4,
                         ),
-                        child: Text(
+                        child: VText(
                           suffixText!,
-                          style: VTypography.bodyDefault.copyWith(
-                            color: dynamicColors.textSecondary,
-                          ),
+                          variant: VTextVariant.bodyDefault,
+                          color: dynamicColors.textSecondary,
                         ),
                       ),
                     ],
@@ -208,16 +209,16 @@ class VTextField extends StatelessWidget {
           borderRadius: BorderRadius.circular(
             isInline ? VRadius.r4 : VRadius.input,
           ),
-          borderSide: const BorderSide(color: VColors.danger),
+          borderSide: BorderSide(color: dynamicColors.danger),
         ),
         focusedErrorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(
             isInline ? VRadius.r4 : VRadius.input,
           ),
-          borderSide: const BorderSide(color: VColors.danger, width: 2),
+          borderSide: BorderSide(color: dynamicColors.danger, width: 2),
         ),
         errorText: errorText,
-        errorStyle: VTypography.bodySmall.copyWith(color: VColors.danger),
+        errorStyle: VTypography.bodySmall.copyWith(color: dynamicColors.danger),
         helperText: errorText == null ? helperText : null,
         helperStyle: VTypography.bodySmall.copyWith(
           color: dynamicColors.textSecondary,
@@ -253,14 +254,14 @@ class VTextField extends StatelessWidget {
                     ),
                   ),
                   if (isRequired)
-                    const TextSpan(
+                    TextSpan(
                       text: ' *',
-                      style: TextStyle(color: VColors.danger),
+                      style: TextStyle(color: dynamicColors.danger),
                     ),
                 ],
               ),
             ),
-            const SizedBox(height: VSpacing.space2),
+            const VGap.sm(),
           ],
           textFieldWidget,
         ],
