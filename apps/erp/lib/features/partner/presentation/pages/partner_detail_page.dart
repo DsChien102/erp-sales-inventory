@@ -272,7 +272,7 @@ class _PartnerDetailPageState extends State<PartnerDetailPage> {
         listener: _onStatusSubmitChanged,
         child: Scaffold(
           key: const Key('wgt_e01_u04_fr01_01'),
-          backgroundColor: colors.surface,
+          backgroundColor: colors.background,
           appBar: const VAppBar(
             title: 'Hồ sơ KH & NCC',
             showBackButton: true,

@@ -38,7 +38,7 @@ class PartnerTransformPreviewCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
+                VText(
                   displayName,
                   style: VTypography.bodyDefault.copyWith(
                     color: colors.textPrimary,

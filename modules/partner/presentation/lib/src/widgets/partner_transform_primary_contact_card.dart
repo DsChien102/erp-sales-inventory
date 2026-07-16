@@ -63,20 +63,9 @@ class PartnerTransformPrimaryContactCard extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        person.fullName,
-                        style: VTypography.bodyDefault.copyWith(
-                          color: colors.textPrimary,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
+                      VText(person.fullName, variant: VTextVariant.headingH4),
                       const SizedBox(height: VSpacing.space1),
-                      Text(
-                        person.phone,
-                        style: VTypography.bodyDefault.copyWith(
-                          color: colors.textSecondary,
-                        ),
-                      ),
+                      VText(person.phone, variant: VTextVariant.bodySmall),
                     ],
                   ),
                 ),
