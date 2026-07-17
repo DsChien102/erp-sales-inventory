@@ -33,7 +33,8 @@ class ProductCatalogListBody extends StatelessWidget {
 
     return BlocBuilder<ProductListCubit, ProductListState>(
       builder: (context, state) {
-        if (state is ProductListInitial || (state is ProductListLoading && state.isFirstLoad)) {
+        if (state is ProductListInitial ||
+            (state is ProductListLoading && state.isFirstLoad)) {
           return VSkeletonScope(
             child: ListView.builder(
               controller: scrollController,
@@ -119,8 +120,8 @@ class ProductCatalogListBody extends StatelessWidget {
                     child: Center(
                       child: VText(
                         'Đã ở cuối danh sách',
-                        variant: VTextVariant.labelSmall,
-                        color: dynamicColors.textMuted,
+                        variant: VTextVariant.bodySmall,
+                        color: dynamicColors.textSecondary,
                       ),
                     ),
                   );

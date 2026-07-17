@@ -16,13 +16,14 @@ class ProfileDefinition {
   final String description;
 
   /// Directory containing `<environment>.env` and optional `auth.env`.
+  /// Convention: `config/<profileId>/`.
   final String secretsRoot;
 
   factory ProfileDefinition.fromJson({
     required String id,
     required Map<String, dynamic> json,
   }) {
-    final root = json['secretsRoot'] as String? ?? 'config/profiles/$id/secrets';
+    final root = json['secretsRoot'] as String? ?? 'config/$id';
     return ProfileDefinition(
       id: id,
       description: json['description'] as String? ?? id,
@@ -43,7 +44,7 @@ class ProfileDefinition {
       File('${repoRoot.path}/$secretsRoot/auth.env.example');
 }
 
-/// Loaded [config/profiles.json].
+/// Profiles section from [vet45.workspace.json].
 class ProfileRegistry {
   ProfileRegistry({
     required this.defaultProfileId,
@@ -55,24 +56,29 @@ class ProfileRegistry {
   final Map<String, ProfileDefinition> profiles;
   final Directory rootDir;
 
-  static ProfileRegistry load(Directory rootDir) {
-    final file = File('${rootDir.path}/config/profiles.json');
-    if (!file.existsSync()) {
+  /// Load profiles from the committed workspace manifest.
+  factory ProfileRegistry.fromWorkspaceJson({
+    required Directory rootDir,
+    required Map<String, dynamic>? json,
+  }) {
+    if (json == null) {
       return ProfileRegistry(
         defaultProfileId: 'default',
         profiles: {
           'default': ProfileDefinition(
             id: 'default',
-            description: 'Vet45 main (legacy)',
-            secretsRoot: 'config/secrets',
+            description: 'Vet45 main',
+            secretsRoot: 'config/default',
           ),
         },
         rootDir: rootDir,
       );
     }
-    final json = jsonDecode(file.readAsStringSync()) as Map<String, dynamic>;
+
     final defaultId = json['defaultProfile'] as String? ?? 'default';
-    final raw = json['profiles'] as Map<String, dynamic>? ?? {};
+    final raw = json['entries'] as Map<String, dynamic>? ??
+        json['profiles'] as Map<String, dynamic>? ??
+        {};
     final profiles = <String, ProfileDefinition>{};
     for (final entry in raw.entries) {
       profiles[entry.key] = ProfileDefinition.fromJson(
@@ -81,10 +87,12 @@ class ProfileRegistry {
       );
     }
     if (profiles.isEmpty) {
-      throw StateError('profiles.json has no profiles');
+      throw StateError('vet45.workspace.json has no profiles');
     }
     if (!profiles.containsKey(defaultId)) {
-      throw StateError('default profile "$defaultId" not found in profiles.json');
+      throw StateError(
+        'default profile "$defaultId" not found in vet45.workspace.json',
+      );
     }
     return ProfileRegistry(
       defaultProfileId: defaultId,

@@ -1,0 +1,103 @@
+{
+  "version": 1,
+  "id": "worker",
+  "description": "Messaging worker",
+  "kind": "dart-worker",
+  "keys": [
+    {
+      "name": "SUPABASE_URL",
+      "required": true
+    },
+    {
+      "name": "SUPABASE_SERVICE_ROLE_KEY",
+      "required": true
+    },
+    {
+      "name": "WORKER_TICK_SECRET",
+      "required": true,
+      "autoGenerate": true
+    },
+    {
+      "name": "WORKER_LOG_LEVEL",
+      "default": "WARNING"
+    },
+    {
+      "name": "WORKER_TENANT_BATCH_SIZE",
+      "default": "20"
+    },
+    {
+      "name": "WORKER_MODULE_BATCH_SIZE",
+      "default": "10"
+    },
+    {
+      "name": "WORKER_MAX_ROUNDS_PER_TICK",
+      "default": "5"
+    },
+    {
+      "name": "WORKER_TICK_ACTIVE_SECONDS",
+      "default": "3"
+    },
+    {
+      "name": "WORKER_TICK_IDLE_SECONDS",
+      "default": "15"
+    },
+    {
+      "name": "WORKER_TICK_MAX_IDLE_SECONDS",
+      "default": "30"
+    },
+    {
+      "name": "PORT",
+      "default": "8080"
+    }
+  ],
+  "environments": {
+    "development": {
+      "envFile": ".env",
+      "dockerSupabaseUrl": "http://host.docker.internal:54321"
+    },
+    "local": {
+      "envFile": ".env",
+      "dockerSupabaseUrl": "http://host.docker.internal:54321"
+    },
+    "staging": {
+      "envFile": ".env.staging"
+    },
+    "production": {
+      "envFile": ".env.production"
+    }
+  },
+  "actions": {
+    "serve": {
+      "command": "dart",
+      "args": ["run", "bin/worker.dart", "--serve"],
+      "cwd": ".",
+      "passEnvFile": true,
+      "localSupabaseCheck": true,
+      "requireEnvFile": true
+    },
+    "once": {
+      "command": "dart",
+      "args": ["run", "bin/worker.dart", "--once"],
+      "cwd": ".",
+      "passEnvFile": true,
+      "localSupabaseCheck": true,
+      "requireEnvFile": true
+    },
+    "docker": {
+      "command": "docker",
+      "args": ["compose", "up", "--build", "messaging-worker"],
+      "cwd": "{{workspaceRoot}}",
+      "env": {
+        "WORKER_ENV_FILE": "{{envFile}}",
+        "WORKER_SUPABASE_URL": "{{dockerSupabaseUrl}}"
+      },
+      "requireEnvFile": true
+    },
+    "deploy": {
+      "command": "./scripts/deploy.sh",
+      "args": ["--env", "{{railwayEnvironment}}"],
+      "cwd": ".",
+      "requireRailwayEnvironment": true
+    }
+  }
+}

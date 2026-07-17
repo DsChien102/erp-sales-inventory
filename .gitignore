@@ -85,8 +85,10 @@ apps/erp/.env
 **/.env.*
 !**/.env.*.example
 .vet45/
-# Local environment config — scaffold via `melos run env:init` (templates in tools/vet45_env/templates/config)
-/config/
-/apps/messaging_worker/.env.local
-/apps/messaging_worker/.env.staging
-/apps/messaging_worker/.env.production
+# Local secrets — profile dirs are config/<profileId>/; commit only *.env.example
+config/*/*.env
+!config/*/*.env.example
+# Keep deploy target manifest trackable; only ignore filled deploy.env
+config/deploy/deploy.env
+!config/deploy/deploy.env.example
+

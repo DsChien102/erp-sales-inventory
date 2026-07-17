@@ -19,29 +19,9 @@ void main() {
 
   setUp(() async {
     root = await Directory.systemTemp.createTemp('vet45_run_test_');
-    Directory('${root.path}/config/secrets').createSync(recursive: true);
+    writeTestWorkspace(root);
     Directory('${root.path}/apps/erp').createSync(recursive: true);
     Directory('${root.path}/apps/messaging_worker').createSync(recursive: true);
-    File('${root.path}/config/environments.json').writeAsStringSync(
-      manifestWithEnv('''
-{
-  "local": {
-    "description": "test local",
-    "supabaseSource": "secrets",
-    "targets": {
-      "erp": {
-        "flavor": "development",
-        "envFile": "apps/erp/.env",
-        "appEnv": "development"
-      },
-      "worker": {
-        "envFile": "apps/messaging_worker/.env"
-      }
-    }
-  }
-}
-'''),
-    );
     manifest = EnvManifest.load(root);
     process = _RecordingProcessRunner();
   });
@@ -64,7 +44,7 @@ void main() {
 
   test('run erp debug invokes flutter with flavor and env file', () async {
     writeDotEnv(
-      File('${root.path}/config/secrets/local.env'),
+      File('${root.path}/config/default/local.env'),
       {
         'SUPABASE_URL': 'http://127.0.0.1:54321',
         'SUPABASE_ANON_KEY': 'anon-test',
@@ -87,7 +67,7 @@ void main() {
 
   test('run worker serve loads dotenv into process environment', () async {
     writeDotEnv(
-      File('${root.path}/config/secrets/local.env'),
+      File('${root.path}/config/default/local.env'),
       {
         'SUPABASE_URL': 'http://example.supabase.co',
         'SUPABASE_SERVICE_ROLE_KEY': 'service-test',
@@ -117,7 +97,7 @@ void main() {
       return;
     }
     writeDotEnv(
-      File('${root.path}/config/secrets/local.env'),
+      File('${root.path}/config/default/local.env'),
       {
         'SUPABASE_URL': 'http://127.0.0.1:54321',
         'SUPABASE_ANON_KEY': 'anon-test',
@@ -132,33 +112,31 @@ void main() {
   });
 
   test('switchWorkspace changes profile and writes erp env', () async {
-    Directory('${root.path}/config/profiles/acme/secrets').createSync(recursive: true);
-    File('${root.path}/config/profiles.json').writeAsStringSync('''
-{
-  "defaultProfile": "default",
-  "profiles": {
-    "default": {
-      "description": "Default",
-      "secretsRoot": "config/secrets"
-    },
-    "acme": {
-      "description": "Acme",
-      "secretsRoot": "config/profiles/acme/secrets"
-    }
-  }
-}
-''');
+    Directory('${root.path}/config/acme').createSync(recursive: true);
+    writeTestWorkspace(
+      root,
+      profiles: {
+        'default': {
+          'description': 'Default',
+          'secretsRoot': 'config/default',
+        },
+        'acme': {
+          'description': 'Acme',
+          'secretsRoot': 'config/acme',
+        },
+      },
+    );
     manifest = EnvManifest.load(root);
 
     writeDotEnv(
-      File('${root.path}/config/secrets/local.env'),
+      File('${root.path}/config/default/local.env'),
       {
         'SUPABASE_URL': 'http://default.example',
         'SUPABASE_ANON_KEY': 'default-anon',
       },
     );
     writeDotEnv(
-      File('${root.path}/config/profiles/acme/secrets/local.env'),
+      File('${root.path}/config/acme/local.env'),
       {
         'SUPABASE_URL': 'http://acme.example',
         'SUPABASE_ANON_KEY': 'acme-anon',
@@ -189,45 +167,31 @@ void main() {
   });
 
   test('switchWorkspace changes profile and environment together', () async {
-    Directory('${root.path}/apps/erp').createSync(recursive: true);
-    File('${root.path}/config/environments.json').writeAsStringSync(
-      manifestWithEnv('''
-{
-  "local": {
-    "description": "test local",
-    "supabaseSource": "secrets",
-    "targets": {
-      "erp": {
-        "flavor": "development",
-        "envFile": "apps/erp/.env",
-        "appEnv": "development"
+    writeTestWorkspace(
+      root,
+      environmentIds: ['local', 'staging'],
+      erpEnvOverrides: {
+        'local': {
+          'envFile': '.env',
+          'flavor': 'development',
+          'appEnv': 'development',
+        },
+        'staging': {
+          'envFile': '.env.staging',
+          'flavor': 'staging',
+          'appEnv': 'staging',
+        },
       },
-      "worker": {
-        "envFile": "apps/messaging_worker/.env"
-      }
-    }
-  },
-  "staging": {
-    "description": "test staging",
-    "supabaseSource": "secrets",
-    "targets": {
-      "erp": {
-        "flavor": "staging",
-        "envFile": "apps/erp/.env.staging",
-        "appEnv": "staging"
+      workerEnvOverrides: {
+        'local': {'envFile': '.env'},
+        'staging': {'envFile': '.env.staging'},
       },
-      "worker": {
-        "envFile": "apps/messaging_worker/.env.staging"
-      }
-    }
-  }
-}
-'''),
     );
+    Directory('${root.path}/apps/erp').createSync(recursive: true);
     manifest = EnvManifest.load(root);
 
     writeDotEnv(
-      File('${root.path}/config/secrets/staging.env'),
+      File('${root.path}/config/default/staging.env'),
       {
         'SUPABASE_URL': 'http://staging.example',
         'SUPABASE_ANON_KEY': 'staging-anon',
@@ -255,7 +219,7 @@ void main() {
   });
 
   test('loadDotEnv strips CRLF from values', () {
-    final file = File('${root.path}/config/secrets/crlf.env');
+    final file = File('${root.path}/config/default/crlf.env');
     file.writeAsStringSync('KEY=value\r\nOTHER=ok\r\n');
     final values = loadDotEnv(file);
     expect(values['KEY'], 'value');

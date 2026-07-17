@@ -12,42 +12,19 @@ void main() {
 
   setUp(() async {
     root = await Directory.systemTemp.createTemp('vet45_completion_');
-    Directory('${root.path}/config/secrets').createSync(recursive: true);
-    File('${root.path}/config/environments.json').writeAsStringSync(
-      manifestWithEnv('''
-{
-  "local": {
-    "description": "test local",
-    "supabaseSource": "secrets",
-    "targets": {
-      "erp": {
-        "flavor": "development",
-        "envFile": "apps/erp/.env",
-        "appEnv": "development"
+    writeTestWorkspace(
+      root,
+      profiles: {
+        'default': {
+          'description': 'Default',
+          'secretsRoot': 'config/default',
+        },
+        'acme': {
+          'description': 'Acme',
+          'secretsRoot': 'config/acme',
+        },
       },
-      "worker": {
-        "envFile": "apps/messaging_worker/.env"
-      }
-    }
-  }
-}
-'''),
     );
-    File('${root.path}/config/profiles.json').writeAsStringSync('''
-{
-  "defaultProfile": "default",
-  "profiles": {
-    "default": {
-      "description": "Default",
-      "secretsRoot": "config/secrets"
-    },
-    "acme": {
-      "description": "Acme",
-      "secretsRoot": "config/profiles/acme/secrets"
-    }
-  }
-}
-''');
     manifest = EnvManifest.load(root);
   });
 
@@ -63,6 +40,9 @@ void main() {
     expect(script, contains('switch'));
     expect(script, contains('acme'));
     expect(script, contains('local'));
+    expect(script, contains('erp'));
+    expect(script, contains('debug'));
+    expect(script, contains('serve'));
   });
 
   test('zsh completion includes compdef and dynamic ids', () {

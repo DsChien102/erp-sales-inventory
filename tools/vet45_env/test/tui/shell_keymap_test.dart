@@ -16,60 +16,40 @@ void main() {
 
   setUp(() async {
     root = await Directory.systemTemp.createTemp('vet45_tui_shell_');
-    Directory('${root.path}/config/secrets').createSync(recursive: true);
+    writeTestWorkspace(
+      root,
+      environmentIds: ['local', 'staging'],
+      erpEnvOverrides: {
+        'local': {
+          'envFile': '.env',
+          'flavor': 'development',
+          'appEnv': 'development',
+        },
+        'staging': {
+          'envFile': '.env.staging',
+          'flavor': 'staging',
+          'appEnv': 'staging',
+        },
+      },
+      workerEnvOverrides: {
+        'local': {'envFile': '.env'},
+        'staging': {'envFile': '.env.staging'},
+      },
+      profiles: {
+        'default': {
+          'description': 'Default',
+          'secretsRoot': 'config/default',
+        },
+        'acme': {
+          'description': 'Acme',
+          'secretsRoot': 'config/acme',
+        },
+      },
+    );
     Directory('${root.path}/apps/erp').createSync(recursive: true);
     Directory('${root.path}/apps/messaging_worker').createSync(recursive: true);
-    File('${root.path}/config/environments.json').writeAsStringSync(
-      manifestWithEnv('''
-{
-  "local": {
-    "description": "test local",
-    "supabaseSource": "secrets",
-    "targets": {
-      "erp": {
-        "flavor": "development",
-        "envFile": "apps/erp/.env",
-        "appEnv": "development"
-      },
-      "worker": {
-        "envFile": "apps/messaging_worker/.env"
-      }
-    }
-  },
-  "staging": {
-    "description": "staging",
-    "supabaseSource": "secrets",
-    "targets": {
-      "erp": {
-        "flavor": "staging",
-        "envFile": "apps/erp/.env.staging",
-        "appEnv": "staging"
-      },
-      "worker": {
-        "envFile": "apps/messaging_worker/.env.staging"
-      }
-    }
-  }
-}
-'''),
-    );
-    File('${root.path}/config/profiles.json').writeAsStringSync('''
-{
-  "defaultProfile": "default",
-  "profiles": {
-    "default": {
-      "description": "Default",
-      "secretsRoot": "config/secrets"
-    },
-    "acme": {
-      "description": "Acme",
-      "secretsRoot": "config/profiles/acme/secrets"
-    }
-  }
-}
-''');
     writeDotEnv(
-      File('${root.path}/config/secrets/local.env'),
+      File('${root.path}/config/default/local.env'),
       {
         'SUPABASE_URL': 'http://127.0.0.1:54321',
         'SUPABASE_ANON_KEY': 'anon',
@@ -78,7 +58,7 @@ void main() {
       },
     );
     // staging only as example — must not appear in TUI env list
-    File('${root.path}/config/secrets/staging.env.example')
+    File('${root.path}/config/default/staging.env.example')
         .writeAsStringSync('SUPABASE_URL=\n');
     writeActiveState(
       root,

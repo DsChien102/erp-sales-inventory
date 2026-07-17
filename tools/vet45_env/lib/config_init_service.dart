@@ -1,6 +1,8 @@
 import 'dart:io';
 
 import 'repo_root.dart';
+import 'target_discovery.dart';
+import 'workspace_manifest.dart';
 
 class ConfigInitResult {
   ConfigInitResult({
@@ -14,54 +16,115 @@ class ConfigInitResult {
   bool get alreadyInitialized => created.isEmpty && skipped.isNotEmpty;
 }
 
-/// Scaffolds local `config/` from bundled templates on first-time setup.
+/// Ensures local `*.env` files exist by copying committed `*.env.example`.
 class ConfigInitService {
   ConfigInitService({Directory? repoRoot})
       : repoRoot = repoRoot ?? Directory(findRepoRoot());
 
   final Directory repoRoot;
 
-  static String templatesDir(Directory root) =>
-      '${root.path}/tools/vet45_env/templates/config';
+  bool get hasWorkspace =>
+      WorkspaceManifest.workspaceFile(repoRoot).existsSync();
 
-  bool get isInitialized =>
-      File('${repoRoot.path}/config/environments.json').existsSync();
+  bool get isInitialized {
+    if (!hasWorkspace) {
+      return false;
+    }
+    final workspace = WorkspaceManifest.load(repoRoot);
+    final defaultProfile = workspace.profiles.getProfile(
+      workspace.profiles.defaultProfileId,
+    );
+    return defaultProfile.secretsDirectory(repoRoot).existsSync();
+  }
 
   Future<ConfigInitResult> init({bool force = false}) async {
-    final templates = Directory(templatesDir(repoRoot));
-    if (!templates.existsSync()) {
+    if (!hasWorkspace) {
       throw StateError(
-        'Missing config templates at ${templates.path}. '
-        'Run melos bootstrap from the Vet45 monorepo root.',
+        'Missing ${WorkspaceManifest.fileName} at ${repoRoot.path}. '
+        'This file must be checked out from the Vet45 monorepo.',
       );
     }
 
-    if (isInitialized && !force) {
+    final workspace = WorkspaceManifest.load(repoRoot);
+    final defaultProfile = workspace.profiles.getProfile(
+      workspace.profiles.defaultProfileId,
+    );
+    final defaultDir = defaultProfile.secretsDirectory(repoRoot);
+    if (!defaultDir.existsSync()) {
       throw StateError(
-        'Config already initialized at ${repoRoot.path}/config. '
-        'Use --force to refresh scaffold files (never overwrites filled *.env secrets).',
+        'Missing committed profile examples at ${defaultDir.path}. '
+        'Check out ${defaultProfile.secretsRoot}/*.env.example from the monorepo.',
       );
+    }
+
+    final dirs = <String>{};
+    for (final profile in workspace.profiles.profiles.values) {
+      dirs.add(profile.secretsRoot);
+    }
+    final discovered = TargetDiscovery(
+      rootDir: repoRoot,
+      scan: workspace.scan,
+    ).discover();
+    for (final target in discovered.values) {
+      if (!target.writeEnvFile && target.secretsFile != null) {
+        final relative = _relativePath(
+          repoRoot,
+          target.manifestDir.path,
+        );
+        dirs.add(relative);
+      }
     }
 
     final created = <String>[];
     final skipped = <String>[];
 
-    await for (final entity in templates.list(recursive: true, followLinks: false)) {
-      if (entity is! File) {
+    for (final dirPath in dirs) {
+      final dir = Directory('${repoRoot.path}/$dirPath');
+      if (!dir.existsSync()) {
         continue;
       }
-      final relative = _relativePath(templates.path, entity.path);
-      final dest = File('${repoRoot.path}/config/$relative');
-      if (dest.existsSync() && !_shouldOverwrite(dest.path, force: force)) {
-        skipped.add(relative);
-        continue;
+      for (final entity in dir.listSync(followLinks: false)) {
+        if (entity is! File) {
+          continue;
+        }
+        final name = entity.uri.pathSegments.last;
+        if (!name.endsWith('.env.example')) {
+          continue;
+        }
+        final destName = name.replaceFirst(RegExp(r'\.example$'), '');
+        final dest = File('${dir.path}/$destName');
+        final relative = '$dirPath/$destName';
+        if (dest.existsSync() && !_shouldOverwrite(dest.path, force: force)) {
+          skipped.add(relative);
+          continue;
+        }
+        if (dest.existsSync() && _isFilledSecretEnv(dest.path)) {
+          skipped.add(relative);
+          continue;
+        }
+        dest.writeAsStringSync(entity.readAsStringSync());
+        created.add(relative);
       }
-      dest.parent.createSync(recursive: true);
-      await dest.writeAsBytes(await entity.readAsBytes());
-      created.add(relative);
+    }
+
+    if (created.isEmpty && skipped.isEmpty && !force) {
+      throw StateError(
+        'No *.env.example found under profile secrets roots or '
+        'secrets-only target directories.',
+      );
     }
 
     return ConfigInitResult(created: created, skipped: skipped);
+  }
+
+  static String _relativePath(Directory root, String absolutePath) {
+    final rootPath = root.path.endsWith(Platform.pathSeparator)
+        ? root.path
+        : '${root.path}${Platform.pathSeparator}';
+    if (absolutePath.startsWith(rootPath)) {
+      return absolutePath.substring(rootPath.length).replaceAll('\\', '/');
+    }
+    return absolutePath.replaceAll('\\', '/');
   }
 
   static bool _shouldOverwrite(String destPath, {required bool force}) {
@@ -105,31 +168,36 @@ class ConfigInitService {
     }
     return false;
   }
-
-  static String _relativePath(String root, String filePath) {
-    final normalizedRoot = root.endsWith(Platform.pathSeparator)
-        ? root
-        : '$root${Platform.pathSeparator}';
-    if (!filePath.startsWith(normalizedRoot)) {
-      return filePath;
-    }
-    return filePath.substring(normalizedRoot.length);
-  }
 }
 
 void requireConfigInitialized(Directory repoRoot) {
-  if (ConfigInitService(repoRoot: repoRoot).isInitialized) {
-    return;
+  final workspaceFile = WorkspaceManifest.workspaceFile(repoRoot);
+  if (!workspaceFile.existsSync()) {
+    stderr.writeln('Missing ${WorkspaceManifest.fileName} at ${repoRoot.path}');
+    stderr.writeln('Check out the Vet45 monorepo (this file is committed).');
+    exit(1);
   }
-  stderr.writeln('Vet45 config is not initialized.');
-  stderr.writeln('');
-  stderr.writeln('First-time setup:');
-  stderr.writeln('  melos bootstrap');
-  stderr.writeln('  melos run env:init');
-  stderr.writeln('');
-  stderr.writeln('Then copy and fill secrets, e.g.:');
-  stderr.writeln(
-    '  cp config/secrets/development.env.example config/secrets/development.env',
+
+  try {
+    final workspace = WorkspaceManifest.load(repoRoot);
+    TargetDiscovery(rootDir: repoRoot, scan: workspace.scan).discover();
+  } on Object catch (e) {
+    stderr.writeln('Vet45 workspace/target discovery failed: $e');
+    exit(1);
+  }
+
+  final workspace = WorkspaceManifest.load(repoRoot);
+  final defaultProfile = workspace.profiles.getProfile(
+    workspace.profiles.defaultProfileId,
   );
-  exit(1);
+  final defaultDir = defaultProfile.secretsDirectory(repoRoot);
+  if (!defaultDir.existsSync()) {
+    stderr.writeln('Missing ${defaultProfile.secretsRoot}/ profile directory.');
+    stderr.writeln('');
+    stderr.writeln('First-time setup:');
+    stderr.writeln('  melos bootstrap');
+    stderr.writeln('  vet45 init');
+    stderr.writeln('  # fill secrets, then: vet45 sync');
+    exit(1);
+  }
 }

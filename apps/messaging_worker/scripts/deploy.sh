@@ -50,8 +50,8 @@ load_local_env() {
   local env_file=""
   while IFS= read -r line; do
     [[ -z "$line" ]] && continue
-    if [[ "$line" == WORKER_ENV_FILE=* ]]; then
-      env_file="${line#WORKER_ENV_FILE=}"
+    if [[ "$line" == TARGET_worker_ENV_FILE=* ]]; then
+      env_file="${line#TARGET_worker_ENV_FILE=}"
     fi
   done <<<"$resolved"
   if [[ -n "$env_file" && -f "$env_file" ]]; then

@@ -95,12 +95,10 @@ class DoctorService {
       targetOk[id] = ok;
     }
 
-    if (targetOk['erp'] == true && targetOk['worker'] == true) {
-      _checkHostAlignment(env, checks);
-    }
+    _checkConfiguredHostAlignment(env, targetOk, checks);
 
     if (!skipNetwork) {
-      final pingUrl = _pingUrl(env, erpOk: targetOk['erp'] == true, workerOk: targetOk['worker'] == true);
+      final pingUrl = _pingUrl(env, targetOk: targetOk);
       if (pingUrl != null && pingUrl.isNotEmpty) {
         checks.add(
           DoctorCheck(
@@ -334,48 +332,76 @@ class DoctorService {
     return missing.isEmpty;
   }
 
-  void _checkHostAlignment(
+  void _checkConfiguredHostAlignment(
     EnvironmentDefinition env,
+    Map<String, bool> targetOk,
     List<DoctorCheck> checks,
   ) {
-    final erpFile = env.erp?.envFile;
-    final workerFile = env.worker?.envFile;
-    if (erpFile == null ||
-        workerFile == null ||
-        !erpFile.existsSync() ||
-        !workerFile.existsSync()) {
-      return;
+    for (final rule in manifest.workspace.doctor.alignHosts) {
+      if (rule.targets.isEmpty || rule.keys.isEmpty) {
+        continue;
+      }
+      if (!rule.targets.every((id) => targetOk[id] == true)) {
+        continue;
+      }
+
+      final hosts = <String>[];
+      final details = <String>[];
+      for (final targetId in rule.targets) {
+        final binding = env.binding(targetId);
+        final envFile = binding?.envFile;
+        if (envFile == null || !envFile.existsSync()) {
+          continue;
+        }
+        final values = loadDotEnv(envFile);
+        final url = _firstNonEmpty(values, rule.keys);
+        hosts.add(_normalizeHost(url));
+        details.add('$targetId=$url');
+      }
+
+      if (hosts.length < 2) {
+        continue;
+      }
+      final sameHost = hosts.every((h) => h == hosts.first && h.isNotEmpty);
+      checks.add(
+        DoctorCheck(
+          name: rule.name,
+          passed: sameHost,
+          detail: details.join(' '),
+        ),
+      );
     }
-    final erp = loadDotEnv(erpFile);
-    final worker = loadDotEnv(workerFile);
-    final erpUrl = erp['SUPABASE_CONNECTION_URL'] ?? erp['SUPABASE_URL'] ?? '';
-    final workerUrl = worker['SUPABASE_URL'] ?? '';
-    final sameHost = _normalizeHost(erpUrl) == _normalizeHost(workerUrl);
-    checks.add(
-      DoctorCheck(
-        name: 'erp/worker supabase host',
-        passed: sameHost && erpUrl.isNotEmpty,
-        detail: 'erp=$erpUrl worker=$workerUrl',
-      ),
-    );
+  }
+
+  String _firstNonEmpty(Map<String, String> values, List<String> keys) {
+    for (final key in keys) {
+      final value = values[key]?.trim() ?? '';
+      if (value.isNotEmpty) {
+        return value;
+      }
+    }
+    return '';
   }
 
   String? _pingUrl(
     EnvironmentDefinition env, {
-    required bool erpOk,
-    required bool workerOk,
+    required Map<String, bool> targetOk,
   }) {
-    if (workerOk) {
-      final file = env.worker?.envFile;
-      if (file != null && file.existsSync()) {
-        return loadDotEnv(file)['SUPABASE_URL'];
+    for (final entry in env.bindings.entries) {
+      if (targetOk[entry.key] != true) {
+        continue;
       }
-    }
-    if (erpOk) {
-      final file = env.erp?.envFile;
-      if (file != null && file.existsSync()) {
-        final erp = loadDotEnv(file);
-        return erp['SUPABASE_CONNECTION_URL'] ?? erp['SUPABASE_URL'];
+      final file = entry.value.envFile;
+      if (file == null || !file.existsSync()) {
+        continue;
+      }
+      final values = loadDotEnv(file);
+      final url = _firstNonEmpty(
+        values,
+        const ['SUPABASE_URL', 'SUPABASE_CONNECTION_URL'],
+      );
+      if (url.isNotEmpty) {
+        return url;
       }
     }
     return null;

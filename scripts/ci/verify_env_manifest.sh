@@ -1,28 +1,49 @@
 #!/usr/bin/env bash
-# Validate Vet45 environment manager templates and package tests.
+# Validate Vet45 environment manager workspace/target manifests and package tests.
 set -euo pipefail
 
 root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 cd "$root"
 
-templates="$root/tools/vet45_env/templates/config"
-manifest="$templates/environments.json"
-if [[ ! -f "$manifest" ]]; then
-  echo "FAIL: missing $manifest"
+workspace="$root/vet45.workspace.json"
+if [[ ! -f "$workspace" ]]; then
+  echo "FAIL: missing $workspace"
   exit 1
 fi
 
-if [[ ! -f "$templates/profiles.json" ]]; then
-  echo "FAIL: missing $templates/profiles.json"
-  exit 1
-fi
-
-for example in development local staging production deploy auth; do
-  if [[ ! -f "$templates/secrets/${example}.env.example" ]]; then
-    echo "FAIL: missing $templates/secrets/${example}.env.example"
+for target in \
+  apps/erp/vet45.target.json \
+  apps/admin/vet45.target.json \
+  apps/messaging_worker/vet45.target.json \
+  config/deploy/vet45.target.json
+do
+  if [[ ! -f "$root/$target" ]]; then
+    echo "FAIL: missing $root/$target"
     exit 1
   fi
 done
+
+if [[ -d "$root/tools/vet45_env/templates" ]]; then
+  echo "FAIL: obsolete templates dir $root/tools/vet45_env/templates (removed — use config/<profile>/*.env.example)"
+  exit 1
+fi
+
+if [[ -d "$root/config/secrets" ]]; then
+  echo "FAIL: obsolete config/secrets/ — use config/<profileId>/ (e.g. config/default/)"
+  exit 1
+fi
+
+for example in development local staging production auth; do
+  if [[ ! -f "$root/config/default/${example}.env.example" ]]; then
+    echo "FAIL: missing $root/config/default/${example}.env.example"
+    exit 1
+  fi
+done
+
+if [[ ! -f "$root/config/deploy/deploy.env.example" ]]; then
+  echo "FAIL: missing $root/config/deploy/deploy.env.example"
+  exit 1
+fi
 
 if [[ ! -x "$root/scripts/env/vet45.sh" ]]; then
   echo "FAIL: scripts/env/vet45.sh not executable"
@@ -82,23 +103,34 @@ test -x "$root/.vet45/bin/vet45"
 "$root/.vet45/bin/vet45" status >/dev/null
 "$root/.vet45/bin/vet45" switch >/dev/null
 "$root/.vet45/bin/vet45" completion bash >/dev/null
-"$root/.vet45/bin/vet45" --help | grep -q tui
+help_out="$("$root/.vet45/bin/vet45" --help)"
+echo "$help_out" | grep -q tui
+list_out="$("$root/.vet45/bin/vet45" list)"
+echo "$list_out" | grep -q 'manifest:'
 "$root/scripts/env/vet45.sh" list >/dev/null
 test -x "$root/scripts/env/switch.sh"
 
-echo "==> vet45 init (temp smoke)"
+echo "==> vet45 init (temp smoke — copy examples to env)"
 tmp="$(mktemp -d)"
 trap 'rm -rf "$tmp"' EXIT
-mkdir -p "$tmp/tools/vet45_env"
+mkdir -p "$tmp/tools/vet45_env" "$tmp/apps/erp" "$tmp/apps/admin" "$tmp/apps/messaging_worker" "$tmp/config/deploy" "$tmp/config/default"
 cp -R "$root/tools/vet45_env/bin" "$tmp/tools/vet45_env/"
 cp -R "$root/tools/vet45_env/lib" "$tmp/tools/vet45_env/"
-cp -R "$root/tools/vet45_env/templates" "$tmp/tools/vet45_env/"
 cp "$root/tools/vet45_env/pubspec.yaml" "$tmp/tools/vet45_env/pubspec.yaml"
+cp "$root/vet45.workspace.json" "$tmp/vet45.workspace.json"
+cp "$root/apps/erp/vet45.target.json" "$tmp/apps/erp/"
+cp "$root/apps/admin/vet45.target.json" "$tmp/apps/admin/"
+cp "$root/apps/messaging_worker/vet45.target.json" "$tmp/apps/messaging_worker/"
+cp "$root/config/deploy/vet45.target.json" "$tmp/config/deploy/"
+cp "$root/config/default/"*.env.example "$tmp/config/default/"
+cp "$root/config/deploy/deploy.env.example" "$tmp/config/deploy/"
 sed -i '' '/resolution: workspace/d' "$tmp/tools/vet45_env/pubspec.yaml" 2>/dev/null || \
   sed -i '/resolution: workspace/d' "$tmp/tools/vet45_env/pubspec.yaml"
 printf 'name: vet45\npublish_to: none\nenvironment:\n  sdk: ">=3.11.1 <4.0.0"\n' > "$tmp/pubspec.yaml"
 (cd "$tmp/tools/vet45_env" && dart pub get >/dev/null)
 (cd "$tmp" && dart run tools/vet45_env/bin/vet45_env.dart init >/dev/null)
-test -f "$tmp/config/environments.json"
+test -f "$tmp/config/default/development.env"
+test ! -d "$tmp/tools/vet45_env/templates"
+test ! -f "$tmp/config/environments.json"
 
 echo "OK: environment manager verified"

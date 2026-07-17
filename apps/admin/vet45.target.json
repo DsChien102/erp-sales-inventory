@@ -1,0 +1,87 @@
+{
+  "version": 1,
+  "id": "admin",
+  "description": "Flutter Platform Admin",
+  "kind": "flutter",
+  "keys": [
+    {
+      "name": "APP_ENV",
+      "fromManifest": "appEnv"
+    },
+    {
+      "name": "SUPABASE_CONNECTION_URL",
+      "from": "SUPABASE_URL",
+      "required": true
+    },
+    {
+      "name": "SUPABASE_ANON_KEY",
+      "required": true
+    },
+    {
+      "name": "LOG_LEVEL",
+      "default": "INFO"
+    }
+  ],
+  "environments": {
+    "development": {
+      "envFile": ".env",
+      "flavor": "development",
+      "appEnv": "development"
+    },
+    "local": {
+      "envFile": ".env",
+      "flavor": "development",
+      "appEnv": "development"
+    },
+    "staging": {
+      "envFile": ".env.staging",
+      "flavor": "staging",
+      "appEnv": "staging"
+    },
+    "production": {
+      "envFile": ".env.production",
+      "flavor": "production",
+      "appEnv": "production"
+    }
+  },
+  "actions": {
+    "debug": {
+      "command": "flutter",
+      "args": [
+        "run",
+        "--flavor",
+        "{{flavor}}",
+        "--dart-define-from-file={{envBasename}}"
+      ],
+      "cwd": ".",
+      "requireEnvFile": true
+    },
+    "debug:web": {
+      "command": "flutter",
+      "args": [
+        "run",
+        "-d",
+        "chrome",
+        "--flavor",
+        "{{flavor}}",
+        "--dart-define-from-file={{envBasename}}"
+      ],
+      "cwd": ".",
+      "requireEnvFile": true
+    },
+    "debug:ios": {
+      "command": "flutter",
+      "args": [
+        "run",
+        "-d",
+        "ios",
+        "--flavor",
+        "{{flavor}}",
+        "--dart-define-from-file={{envBasename}}"
+      ],
+      "cwd": ".",
+      "platforms": ["macos"],
+      "requireEnvFile": true
+    }
+  }
+}

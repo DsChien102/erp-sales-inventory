@@ -15,27 +15,7 @@ void main() {
 
   setUp(() async {
     root = await Directory.systemTemp.createTemp('vet45_env_test_');
-    Directory('${root.path}/config/secrets').createSync(recursive: true);
-    File('${root.path}/config/environments.json').writeAsStringSync(
-      manifestWithEnv('''
-{
-  "local": {
-    "description": "test local",
-    "supabaseSource": "secrets",
-    "targets": {
-      "erp": {
-        "flavor": "development",
-        "envFile": "apps/erp/.env",
-        "appEnv": "development"
-      },
-      "worker": {
-        "envFile": "apps/messaging_worker/.env"
-      }
-    }
-  }
-}
-'''),
-    );
+    writeTestWorkspace(root);
     manifest = EnvManifest.load(root);
   });
 
@@ -49,55 +29,51 @@ void main() {
     expect(manifest.defaultEnvironmentId, 'local');
     expect(manifest.environments.containsKey('local'), isTrue);
     expect(manifest.targets.keys, containsAll(['erp', 'worker', 'deploy']));
-    expect(manifest.getEnvironment('local').erp?.flavor, 'development');
-    expect(manifest.deploySecretsFile.path, endsWith('config/secrets/deploy.env'));
+    expect(manifest.getEnvironment('local').binding('erp')?.flavor, 'development');
+    expect(
+      manifest.targets['deploy']!.secretsFile!.path,
+      endsWith('config/deploy/deploy.env'),
+    );
     expect(manifest.profiles.defaultProfileId, 'default');
+    expect(
+      manifest.targets['erp']!.manifestFile!.path,
+      endsWith('apps/erp/vet45.target.json'),
+    );
   });
 
   test('default environment id falls back to development', () {
-    File('${root.path}/config/environments.json').writeAsStringSync(
-      manifestWithEnv(
-        '''
-{
-  "development": {
-    "description": "test dev",
-    "supabaseSource": "secrets",
-    "targets": {
-      "erp": {
-        "flavor": "development",
-        "envFile": "apps/erp/.env",
-        "appEnv": "development"
-      },
-      "worker": {
-        "envFile": "apps/messaging_worker/.env"
-      }
-    }
-  }
-}
-''',
-        defaultId: 'development',
-      ),
+    writeTestWorkspace(
+      root,
+      defaultEnvironment: 'development',
+      environmentIds: ['development'],
     );
     final m = EnvManifest.load(root);
     expect(m.defaultEnvironmentId, 'development');
-    expect(m.deploySecretsFile.path, endsWith('config/secrets/deploy.env'));
+    expect(
+      m.targets['deploy']!.secretsFile!.path,
+      endsWith('config/deploy/deploy.env'),
+    );
   });
 
-  test('rejects unknown target id in per-env bindings', () {
-    File('${root.path}/config/environments.json').writeAsStringSync(
-      manifestWithEnv('''
-{
-  "local": {
-    "description": "bad",
-    "supabaseSource": "secrets",
-    "targets": {
-      "unknown_app": {
-        "envFile": "apps/unknown/.env"
-      }
-    }
-  }
-}
-'''),
+  test('rejects missing workspace manifest', () {
+    File('${root.path}/vet45.workspace.json').deleteSync();
+    expect(
+      () => EnvManifest.load(root),
+      throwsA(
+        isA<StateError>().having(
+          (e) => e.message,
+          'message',
+          contains('vet45.workspace.json'),
+        ),
+      ),
+    );
+  });
+
+  test('rejects duplicate target ids', () {
+    writeTestWorkspace(root, includeAdmin: true);
+    // Copy erp target as a second file with same id.
+    File('${root.path}/apps/admin/vet45.target.json').writeAsStringSync(
+      File('${root.path}/apps/erp/vet45.target.json').readAsStringSync(),
     );
     expect(
       () => EnvManifest.load(root),
@@ -105,7 +81,7 @@ void main() {
         isA<StateError>().having(
           (e) => e.message,
           'message',
-          contains('unknown target'),
+          contains('Duplicate target id'),
         ),
       ),
     );
@@ -113,7 +89,7 @@ void main() {
 
   test('sync writes erp and worker env from secrets', () async {
     writeDotEnv(
-      File('${root.path}/config/secrets/local.env'),
+      File('${root.path}/config/default/local.env'),
       {
         'SUPABASE_URL': 'http://127.0.0.1:54321',
         'SUPABASE_ANON_KEY': 'anon-test',
@@ -127,14 +103,14 @@ void main() {
     );
 
     expect(result.ok, isTrue);
-    expect(result.erpEnvFile!.existsSync(), isTrue);
-    expect(result.workerEnvFile!.existsSync(), isTrue);
+    expect(result.writtenFiles['erp']!.existsSync(), isTrue);
+    expect(result.writtenFiles['worker']!.existsSync(), isTrue);
 
-    final erp = loadDotEnv(result.erpEnvFile!);
+    final erp = loadDotEnv(result.writtenFiles['erp']!);
     expect(erp['SUPABASE_CONNECTION_URL'], 'http://127.0.0.1:54321');
     expect(erp['APP_ENV'], 'development');
 
-    final worker = loadDotEnv(result.workerEnvFile!);
+    final worker = loadDotEnv(result.writtenFiles['worker']!);
     expect(worker['SUPABASE_URL'], 'http://127.0.0.1:54321');
     expect(worker['WORKER_TICK_SECRET'], 'tick-test');
     expect(worker['WORKER_LOG_LEVEL'], 'WARNING');
@@ -143,7 +119,7 @@ void main() {
   test('sync does not copy APP_STORE_CONNECT keys into erp env', () async {
     Directory('${root.path}/apps/erp').createSync(recursive: true);
     writeDotEnv(
-      File('${root.path}/config/secrets/local.env'),
+      File('${root.path}/config/default/local.env'),
       {
         'SUPABASE_URL': 'http://127.0.0.1:54321',
         'SUPABASE_ANON_KEY': 'anon-test',
@@ -164,7 +140,7 @@ void main() {
     final result = await SyncService(manifest: manifest).sync(
       testContext(manifest, 'local'),
     );
-    final erp = loadDotEnv(result.erpEnvFile!);
+    final erp = loadDotEnv(result.writtenFiles['erp']!);
 
     expect(erp.containsKey('APP_STORE_CONNECT_ISSUER_ID'), isFalse);
     expect(erp.containsKey('APP_STORE_CONNECT_KEY_IDENTIFIER'), isFalse);
@@ -172,7 +148,7 @@ void main() {
 
   test('full sync partial success when worker keys missing', () async {
     writeDotEnv(
-      File('${root.path}/config/secrets/local.env'),
+      File('${root.path}/config/default/local.env'),
       {
         'SUPABASE_URL': 'http://127.0.0.1:54321',
         'SUPABASE_ANON_KEY': 'anon-test',
@@ -186,20 +162,20 @@ void main() {
     expect(result.ok, isFalse);
     expect(result.failures.keys, contains('worker'));
     expect(result.writtenFiles.keys, contains('erp'));
-    expect(result.erpEnvFile!.existsSync(), isTrue);
-    expect(result.workerEnvFile, isNull);
+    expect(result.writtenFiles['worker'], isNull);
+    expect(result.writtenFiles['erp']!.existsSync(), isTrue);
     expect(
       File('${root.path}/apps/messaging_worker/.env').existsSync(),
       isFalse,
     );
 
-    final erp = loadDotEnv(result.erpEnvFile!);
+    final erp = loadDotEnv(result.writtenFiles['erp']!);
     expect(erp['SUPABASE_CONNECTION_URL'], 'http://127.0.0.1:54321');
   });
 
   test('sync --target erp succeeds without worker keys', () async {
     writeDotEnv(
-      File('${root.path}/config/secrets/local.env'),
+      File('${root.path}/config/default/local.env'),
       {
         'SUPABASE_URL': 'http://127.0.0.1:54321',
         'SUPABASE_ANON_KEY': 'anon-test',
@@ -218,7 +194,7 @@ void main() {
 
   test('autoGenerate WORKER_TICK_SECRET only when syncing worker', () async {
     writeDotEnv(
-      File('${root.path}/config/secrets/local.env'),
+      File('${root.path}/config/default/local.env'),
       {
         'SUPABASE_URL': 'http://127.0.0.1:54321',
         'SUPABASE_ANON_KEY': 'anon-test',
@@ -232,7 +208,7 @@ void main() {
     );
     expect(erpOnly.ok, isTrue);
     final secretsAfterErp = loadDotEnv(
-      File('${root.path}/config/secrets/local.env'),
+      File('${root.path}/config/default/local.env'),
     );
     expect(secretsAfterErp.containsKey('WORKER_TICK_SECRET'), isFalse);
 
@@ -242,16 +218,16 @@ void main() {
     );
     expect(workerOnly.ok, isTrue);
     final secretsAfterWorker = loadDotEnv(
-      File('${root.path}/config/secrets/local.env'),
+      File('${root.path}/config/default/local.env'),
     );
     expect(secretsAfterWorker['WORKER_TICK_SECRET'], isNotEmpty);
-    final worker = loadDotEnv(workerOnly.workerEnvFile!);
+    final worker = loadDotEnv(workerOnly.writtenFiles['worker']!);
     expect(worker['WORKER_TICK_SECRET'], secretsAfterWorker['WORKER_TICK_SECRET']);
   });
 
   test('doctor --target erp ignores missing deploy secrets', () async {
     writeDotEnv(
-      File('${root.path}/config/secrets/local.env'),
+      File('${root.path}/config/default/local.env'),
       {
         'SUPABASE_URL': 'http://127.0.0.1:54321',
         'SUPABASE_ANON_KEY': 'anon-test',
@@ -289,7 +265,7 @@ void main() {
 
   test('doctor deploy passes when deploy secrets present', () async {
     writeDotEnv(
-      File('${root.path}/config/secrets/deploy.env'),
+      File('${root.path}/config/deploy/deploy.env'),
       {
         'APP_STORE_CONNECT_ISSUER_ID': 'issuer',
         'APP_STORE_CONNECT_KEY_IDENTIFIER': 'key-id',
@@ -302,6 +278,14 @@ void main() {
     ).run(testContext(manifest, 'local'), targetId: 'deploy');
 
     expect(report.ok, isTrue);
+  });
+
+  test('erp target exposes declarative debug action', () {
+    expect(manifest.targets['erp']!.actions.containsKey('debug'), isTrue);
+    expect(
+      manifest.workspace.doctor.alignHosts,
+      isNotEmpty,
+    );
   });
 
   test('write and read active environment', () {

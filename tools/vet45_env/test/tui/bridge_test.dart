@@ -15,45 +15,30 @@ void main() {
 
   setUp(() async {
     root = await Directory.systemTemp.createTemp('vet45_tui_bridge_');
-    Directory('${root.path}/config/secrets').createSync(recursive: true);
+    writeTestWorkspace(
+      root,
+      environmentIds: ['local', 'staging'],
+      erpEnvOverrides: {
+        'local': {
+          'envFile': '.env',
+          'flavor': 'development',
+          'appEnv': 'development',
+        },
+        'staging': {
+          'envFile': '.env.staging',
+          'flavor': 'staging',
+          'appEnv': 'staging',
+        },
+      },
+      workerEnvOverrides: {
+        'local': {'envFile': '.env'},
+        'staging': {'envFile': '.env.staging'},
+      },
+    );
     Directory('${root.path}/apps/erp').createSync(recursive: true);
     Directory('${root.path}/apps/messaging_worker').createSync(recursive: true);
-    File('${root.path}/config/environments.json').writeAsStringSync(
-      manifestWithEnv('''
-{
-  "local": {
-    "description": "test local",
-    "supabaseSource": "secrets",
-    "targets": {
-      "erp": {
-        "flavor": "development",
-        "envFile": "apps/erp/.env",
-        "appEnv": "development"
-      },
-      "worker": {
-        "envFile": "apps/messaging_worker/.env"
-      }
-    }
-  },
-  "staging": {
-    "description": "test staging",
-    "supabaseSource": "secrets",
-    "targets": {
-      "erp": {
-        "flavor": "staging",
-        "envFile": "apps/erp/.env.staging",
-        "appEnv": "staging"
-      },
-      "worker": {
-        "envFile": "apps/messaging_worker/.env.staging"
-      }
-    }
-  }
-}
-'''),
-    );
     writeDotEnv(
-      File('${root.path}/config/secrets/local.env'),
+      File('${root.path}/config/default/local.env'),
       {
         'SUPABASE_URL': 'http://127.0.0.1:54321',
         'SUPABASE_ANON_KEY': 'anon-test',
@@ -62,7 +47,7 @@ void main() {
       },
     );
     writeDotEnv(
-      File('${root.path}/config/secrets/staging.env'),
+      File('${root.path}/config/default/staging.env'),
       {
         'SUPABASE_URL': 'https://example.supabase.co',
         'SUPABASE_ANON_KEY': 'staging-anon',
@@ -85,9 +70,7 @@ void main() {
   });
 
   test('environmentIds only includes envs with real secrets files', () {
-    // local.env exists; production only as .example in fixture setup — only
-    // staged files that exist. Create example-only production.
-    File('${root.path}/config/secrets/production.env.example')
+    File('${root.path}/config/default/production.env.example')
         .writeAsStringSync('SUPABASE_URL=\n');
     expect(bridge.environmentIds(profileId: 'default'), ['local', 'staging']);
     expect(

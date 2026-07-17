@@ -6,26 +6,31 @@ Melos-centric workflow to keep ERP, messaging worker, and Supabase targets align
 
 | Artifact | Purpose |
 | -------- | ------- |
-| `tools/vet45_env/templates/config/` | Committed templates — copied to local `config/` by `env:init` |
-| [`config/environments.json`](../../config/environments.json) | Targets registry (key deps) + per-env bindings (local, after init) |
-| [`config/profiles.json`](../../config/profiles.json) | Profile registry (`secretsRoot` per workspace/client) |
-| `config/secrets/<env>.env` | Default profile secrets per environment |
-| `config/secrets/auth.env` | Default profile Supabase CLI token (optional) |
-| `config/secrets/deploy.env` | Shared iOS TestFlight credentials (deploy target) |
+| [`vet45.workspace.json`](../../vet45.workspace.json) | **Committed** — environments, profiles, scan policy |
+| `apps/*/vet45.target.json` | **Committed** — per-app keys + per-env bindings (auto-discovered) |
+| [`config/deploy/vet45.target.json`](../../config/deploy/vet45.target.json) | **Committed** — secrets-only deploy target |
+| [`config/default/*.env.example`](../../config/default/) | **Committed** — default profile examples |
+| `config/<profileId>/<env>.env` | Profile secrets per environment (**gitignored**) |
+| `config/<profileId>/auth.env` | Per-profile Supabase CLI token (optional, gitignored) |
+| `config/deploy/deploy.env` | Shared iOS TestFlight credentials (gitignored) |
 | `.vet45/state.json` | Gitignored `{ profile, environment }` |
 | `.vet45/active` | Legacy environment id pointer (still updated) |
 | `.vet45/bin/vet45[.exe]` | Local AOT binary from `melos run env:build` (fast CLI) |
 | Generated `apps/*/.env*` | Output consumed by Flutter (`--dart-define-from-file`) and worker |
 
+### Discovery
+
+`vet45` loads `vet45.workspace.json`, then globs `scan.include` for `vet45.target.json` files. Each target owns its key specs and per-environment bindings (`envFile` paths are relative to the target file’s directory). Adding a new app means committing `apps/<name>/vet45.target.json` — no central registry edit.
+
 ## Configuration profiles
 
-Use profiles when you switch between Supabase accounts or client secret bundles. The **default** profile keeps the existing `config/secrets/` layout.
+Use profiles when you switch between Supabase accounts or client secret bundles. Each profile is `config/<profileId>/` (directory name = profile id; no nested `secrets/` folder).
 
 | Artifact | Scope |
 | -------- | ----- |
-| `config/profiles/<id>/secrets/<env>.env` | Per-profile environment secrets |
-| `config/profiles/<id>/secrets/auth.env` | Per-profile `SUPABASE_ACCESS_TOKEN` |
-| `config/secrets/deploy.env` | Shared across all profiles |
+| `config/default/` | Default profile |
+| `config/<profileId>/` | Additional profiles (`vet45 profile init …`) |
+| `config/deploy/deploy.env` | Shared across all profiles |
 
 ```bash
 melos run profile:list
@@ -34,23 +39,24 @@ melos run profile:init -- acme --description "Client Acme"
 vet45 switch acme
 # Or: melos run env:switch -- acme staging
 # Lightweight (no sync): melos run profile:use -- acme  then vet45 sync
-# Set SUPABASE_ACCESS_TOKEN in config/profiles/acme/secrets/auth.env
+# Set SUPABASE_ACCESS_TOKEN in config/acme/auth.env
 melos run supabase -- db push
 ```
 
-See [config/profiles/README.md](../../config/profiles/README.md).
+See [config/README.md](../../config/README.md).
 
 ## Targets and key dependencies
 
 Each **target** (registered directory/app) declares which secrets it needs. Sync and doctor only require keys for the targets in scope.
 
-| Target | Writes | Required secrets (canonical) |
-| ------ | ------ | ---------------------------- |
-| `erp` | `apps/erp/.env*` | `SUPABASE_URL` → `SUPABASE_CONNECTION_URL`, `SUPABASE_ANON_KEY` |
-| `worker` | `apps/messaging_worker/.env*` | `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `WORKER_TICK_SECRET` (+ optional tuning) |
-| `deploy` | none (secrets-only) | `APP_STORE_CONNECT_*` in `config/secrets/deploy.env` |
+| Target | Manifest | Writes | Required secrets (canonical) |
+| ------ | -------- | ------ | ---------------------------- |
+| `erp` | `apps/erp/vet45.target.json` | `apps/erp/.env*` | `SUPABASE_URL` → `SUPABASE_CONNECTION_URL`, `SUPABASE_ANON_KEY` |
+| `admin` | `apps/admin/vet45.target.json` | `apps/admin/.env*` | same as erp (no messaging poll flag) |
+| `worker` | `apps/messaging_worker/vet45.target.json` | `apps/messaging_worker/.env*` | `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `WORKER_TICK_SECRET` (+ optional tuning) |
+| `deploy` | `config/deploy/vet45.target.json` | none (secrets-only) | `APP_STORE_CONNECT_*` in `config/deploy/deploy.env` |
 
-Key specs live under `targets` in `environments.json` (`required`, `default`, `from` rename, `fromManifest`, `autoGenerate`). Per-env `targets.<id>` only binds paths and manifest fields (`envFile`, `flavor`, `appEnv`).
+Key specs live in each `vet45.target.json` (`required`, `default`, `from` rename, `fromManifest`, `autoGenerate`). Per-env bindings in the same file set `envFile`, `flavor`, `appEnv`, etc.
 
 ### Sync behaviour
 
@@ -78,34 +84,33 @@ Host alignment (erp vs worker Supabase URL) runs only when both targets pass.
 | -- | ---------- | --------------- |
 | `development` (default) | development | secrets + `supabase link` when hosted URL configured |
 | `local` | development | `supabase status` only — **no** `supabase link` |
-| `staging` | staging | `config/secrets/staging.env` |
-| `production` | production | `config/secrets/production.env` |
+| `staging` | staging | `config/default/staging.env` |
+| `production` | production | `config/default/production.env` |
 
 ## First-time setup
 
-`config/` is **local-only** (gitignored). Scaffold it once per clone:
+Workspace and target manifests are **committed**. Only secrets under `config/<profileId>/*.env` (and profile secrets) are local/gitignored.
 
 ```bash
 melos bootstrap
-melos run env:init
+melos run env:init               # copy config/<profile>/*.env.example → *.env when missing
 melos run env:build              # AOT binary → .vet45/bin (skip Melos for daily CLI)
 source scripts/env/activate.sh   # Windows: . .\scripts\env\activate.ps1  or activate.bat
-cp config/secrets/development.env.example config/secrets/development.env
-cp config/secrets/staging.env.example config/secrets/staging.env
-cp config/secrets/production.env.example config/secrets/production.env
-# Optional: cp config/secrets/auth.env.example config/secrets/auth.env
-# Optional iOS deploy: cp config/secrets/deploy.env.example config/secrets/deploy.env
-# Fill Supabase URL + keys in config/secrets/*.env
+cp config/default/development.env.example config/default/development.env
+cp config/default/staging.env.example config/default/staging.env
+cp config/default/production.env.example config/default/production.env
+# Optional: cp config/default/auth.env.example config/default/auth.env
+# Optional iOS deploy: cp config/deploy/deploy.env.example config/deploy/deploy.env
+# Fill Supabase URL + keys in config/default/*.env
 # Local stack only: supabase start && melos run env:local
 
 vet45 sync                   # preferred (AOT); or: melos run env:sync
+vet45 list                   # shows discovered targets + manifest paths
 vet45 doctor --target erp
 vet45 supabase -- db push
 ```
 
-Templates ship in `tools/vet45_env/templates/config/`. Refresh scaffold files with `melos run env:init -- --force` (never overwrites filled `*.env` secrets).
-
-Existing clones that still track `config/` in git: run `git rm -r --cached config/` once, then keep using your local files.
+Committed examples live under `config/default/` and `config/deploy/`. `env:init` copies missing `*.env` from those examples (never overwrites filled secrets).
 
 ## Supabase CLI link (env → project ref)
 
@@ -117,8 +122,8 @@ supabase link --project-ref <ref> --yes
 
 Project ref resolution order:
 
-1. `supabaseProjectRef` in `config/environments.json`
-2. `SUPABASE_PROJECT_REF` in `config/secrets/<env>.env`
+1. `supabaseProjectRef` in `vet45.workspace.json` (per environment)
+2. `SUPABASE_PROJECT_REF` in `config/<profileId>/<env>.env`
 3. Parsed from `SUPABASE_URL` (e.g. `https://abc123.supabase.co` → `abc123`)
 
 `local` sets `"syncSupabaseLink": false` — keeps `supabase start` workflow without re-linking remote.
@@ -158,7 +163,7 @@ Log
 ```
 
 Environments panel only lists ids that have a real secrets file for the
-**selected profile** (`config/secrets/<env>.env` or `config/profiles/<id>/secrets/<env>.env`).
+**selected profile** (`config/<profileId>/<env>.env` or `config/<profileId>/<env>.env`).
 `*.env.example` alone does not appear.
 
 | Key | Action |
@@ -246,7 +251,7 @@ melos run deploy:worker -- --secrets
 
 ## Canonical secrets keys
 
-Edit **`config/secrets/<env>.env`** only — see [config/secrets/README.md](../../config/secrets/README.md) for which target consumes each key.
+Edit **`config/<profileId>/<env>.env`** only — see [config/default/README.md](../../config/default/README.md) for which target consumes each key.
 
 ```dotenv
 SUPABASE_URL=
@@ -268,7 +273,7 @@ WORKER_TICK_IDLE_SECONDS=15
 WORKER_TICK_MAX_IDLE_SECONDS=30
 PORT=8080
 
-# Deploy-only (shared) — config/secrets/deploy.env
+# Deploy-only (shared) — config/deploy/deploy.env
 APP_STORE_CONNECT_ISSUER_ID=
 APP_STORE_CONNECT_KEY_IDENTIFIER=
 ```
@@ -282,7 +287,9 @@ APP_STORE_CONNECT_KEY_IDENTIFIER=
 ## Tooling layout
 
 ```
-config/environments.json
+vet45.workspace.json       # Committed — environments, profiles, scan
+apps/*/vet45.target.json   # Committed — per-target keys + bindings
+config/deploy/vet45.target.json
 tools/vet45_env/           # Dart package (entry: bin/vet45_env.dart → AOT name `vet45`)
 scripts/env/vet45.sh|.bat|.ps1   # Prefer AOT `.vet45/bin/vet45`, else dart run
 .vet45/bin/vet45[.exe]     # AOT binary (`melos run env:build`)
@@ -350,7 +357,7 @@ Compose reads `WORKER_ENV_FILE` (set by `vet45.sh run worker docker`) and overri
 
 ## Railway deploy
 
-Deploy scripts read worker config from **`config/secrets/<env>.env`** (via `SECRETS_FILE` / `env:sync --target worker`):
+Deploy scripts read worker config from **`config/<profileId>/<env>.env`** (via `SECRETS_FILE` / `env:sync --target worker`):
 
 ```bash
 ./apps/messaging_worker/scripts/deploy.sh --env staging --secrets
@@ -364,10 +371,10 @@ Deploy scripts read worker config from **`config/secrets/<env>.env`** (via `SECR
 | ------- | --- |
 | Full `env:sync` exit 1 but erp works | Fill worker keys, or use `env:sync -- --target erp` / `melos run debug` |
 | `Missing SUPABASE_SERVICE_ROLE_KEY` on worker | `supabase start` then `melos run env:sync -- --target worker` |
-| Doctor fails on deploy | Add `config/secrets/deploy.env`, or `env:doctor -- --target erp` |
+| Doctor fails on deploy | Add `config/deploy/deploy.env`, or `env:doctor -- --target erp` |
 | Switch remote dev/staging project | `melos run env:use:<env>` or `melos run env:link` |
 | `supabase cli link` mismatch | `melos run env:sync` then `melos run env:doctor` |
-| Edited generated `.env` lost | Edit `config/secrets/<env>.env` then re-sync |
-| `supabase status failed` | Start CLI stack or add `config/secrets/local.env` override |
+| Edited generated `.env` lost | Edit `config/<profileId>/<env>.env` then re-sync |
+| `supabase status failed` | Start CLI stack or add `config/default/local.env` override |
 
 See also: [environments.md](environments.md)
