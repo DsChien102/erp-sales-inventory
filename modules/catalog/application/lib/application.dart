@@ -154,6 +154,9 @@ export 'src/product_change_history/shared/product_change_history_entry_dto.dart'
 export 'src/product_change_history/shared/product_change_history_page.dart';
 export 'src/product_change_history/shared/product_change_history_read_row.dart';
 export 'src/product_change_history/shared/product_change_history_result_dto.dart';
+export 'src/product_change_history/shared/product_price_band_history_change_dto.dart';
+export 'src/product_change_history/shared/product_price_band_history_snapshot_dto.dart';
+export 'src/product_change_history/shared/product_price_band_history_trigger.dart';
 export 'src/product_custom_field_value/commands/upsert_custom_field_values/custom_field_value_validation_error_dto.dart';
 export 'src/product_custom_field_value/commands/upsert_custom_field_values/custom_field_value_validation_exception.dart';
 export 'src/product_custom_field_value/commands/upsert_custom_field_values/product_custom_field_value_input.dart';

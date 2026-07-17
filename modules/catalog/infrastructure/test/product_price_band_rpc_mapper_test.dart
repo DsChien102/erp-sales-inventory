@@ -18,7 +18,6 @@ void main() {
         effectiveFrom: effectiveFrom,
         status: ProductPriceBandStatus.active,
         sourceType: PriceBandSourceType.manual,
-        storePriceRuleId: 'rule-1',
       );
 
       expect(params['p_tenant_id'], 'tenant-1');
@@ -31,7 +30,29 @@ void main() {
       expect(params['p_effective_from'], effectiveFrom.toIso8601String());
       expect(params['p_status'], 'active');
       expect(params['p_source_type'], 'manual');
-      expect(params['p_store_price_rule_id'], 'rule-1');
+      expect(params['p_store_price_rule_id'], isNull);
+      expect(params['p_list_markup_ratio'], isNull);
+      expect(params['p_floor_markup_ratio'], isNull);
+    });
+
+    test('maps custom config source and decimal ratios', () {
+      final params = ProductPriceBandRpcMapper.setProductUnitPriceBandParams(
+        tenantId: 'tenant-1',
+        productId: 'product-9',
+        productUnitId: 'unit-hop',
+        listBeforeVat: 675000,
+        floorBeforeVat: 575000,
+        listAfterVat: 675000,
+        floorAfterVat: 575000,
+        sourceType: PriceBandSourceType.customConfig,
+        listMarkupRatio: 0.35,
+        floorMarkupRatio: 0.15,
+      );
+
+      expect(params, containsPair('p_source_type', 'customConfig'));
+      expect(params, containsPair('p_list_markup_ratio', 0.35));
+      expect(params, containsPair('p_floor_markup_ratio', 0.15));
+      expect(params, containsPair('p_store_price_rule_id', null));
     });
 
     test('maps list rows to ProductUnitPriceBandsDto', () {
@@ -53,6 +74,8 @@ void main() {
           'effective_from': '2026-01-01T00:00:00Z',
           'status': 'active',
           'source_type': 'manual',
+          'list_markup_ratio': null,
+          'floor_markup_ratio': null,
           'store_price_rule_name': null,
           'is_custom_override': true,
         },
@@ -68,7 +91,9 @@ void main() {
           'is_active': true,
           'list_price_before_vat': null,
           'floor_price_before_vat': null,
-          'source_type': null,
+          'source_type': 'customConfig',
+          'list_markup_ratio': 0.35,
+          'floor_markup_ratio': 0.15,
           'store_price_rule_name': null,
           'is_custom_override': false,
         },
@@ -88,6 +113,9 @@ void main() {
       expect(dto.rows.first.status, ProductPriceBandStatus.active);
       expect(dto.rows.last.isMissing, isTrue);
       expect(dto.rows.first.sourceType, PriceBandSourceType.manual);
+      expect(dto.rows.last.sourceType, PriceBandSourceType.customConfig);
+      expect(dto.rows.last.listMarkupRatio, 0.35);
+      expect(dto.rows.last.floorMarkupRatio, 0.15);
     });
 
     test('maps legacy list_price / list_price_amount keys', () {

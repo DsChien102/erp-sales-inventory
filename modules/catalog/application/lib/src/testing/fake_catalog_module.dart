@@ -1,6 +1,7 @@
 import 'package:vet45_catalog_application/application.dart';
 import 'package:vet45_catalog_domain/domain.dart';
 import 'package:vet45_shared_application/application.dart';
+import 'package:vet45_shared_domain/shared_kernel_domain.dart';
 
 import 'fake_catalog_custom_field_store.dart';
 import 'fake_catalog_product_builder.dart';
@@ -32,6 +33,8 @@ class _ProductUnit {
     this.listAfterVat,
     this.floorAfterVat,
     this.priceBandSourceType,
+    this.listMarkupRatio,
+    this.floorMarkupRatio,
     this.isCustomOverride = false,
     this.hasConversionRate = true,
     this.hasTransactionUsage = false,
@@ -48,6 +51,8 @@ class _ProductUnit {
   int? listAfterVat;
   int? floorAfterVat;
   PriceBandSourceType? priceBandSourceType;
+  double? listMarkupRatio;
+  double? floorMarkupRatio;
   String? storePriceRuleId;
   String? storePriceRuleName;
   bool isCustomOverride;
@@ -163,6 +168,8 @@ class _StoredProduct {
     this.listAfterVat,
     this.floorAfterVat,
     this.priceBandSourceType,
+    this.listMarkupRatio,
+    this.floorMarkupRatio,
     this.isCustomOverride = false,
     this.notes,
     this.hasRequiredCustomFields = true,
@@ -192,6 +199,8 @@ class _StoredProduct {
   int? listAfterVat;
   int? floorAfterVat;
   PriceBandSourceType? priceBandSourceType;
+  double? listMarkupRatio;
+  double? floorMarkupRatio;
   String? storePriceRuleId;
   String? storePriceRuleName;
   bool isCustomOverride;
@@ -694,6 +703,10 @@ final class FakeCatalogModule implements ICatalogModule {
         throw MissingBaseUnitException();
       }
       prod.baseCost = cmd.basePrice;
+      _recalculateFormulaPriceBandsForProduct(
+        product: prod,
+        tenantId: cmd.tenantId,
+      );
       return SetManualBasePriceResult(
             productId: prod.id,
             basePrice: cmd.basePrice,
@@ -1360,7 +1373,9 @@ final class FakeCatalogModule implements ICatalogModule {
       return;
     }
     for (final product in _products) {
-      if (product.id != target.id && _normalizeSku(product.sku) == normalized) {
+      if (product.id != target.id &&
+          !product.isSoftDeleted &&
+          _normalizeSku(product.sku) == normalized) {
         throw DuplicateSkuException(
           sku: sku,
           existingProductId: product.id,
@@ -1375,7 +1390,7 @@ final class FakeCatalogModule implements ICatalogModule {
       return;
     }
     for (final product in _products) {
-      if (product.id != target.id && product.barcode == barcode) {
+      if (product.id != target.id && !product.isSoftDeleted && product.barcode == barcode) {
         throw DuplicateBarcodeException(
           barcode: barcode,
           existingProductId: product.id,
@@ -1545,14 +1560,93 @@ final class FakeCatalogModule implements ICatalogModule {
     };
     product.stockQty = command.basicStockQuantityBase;
     product.baseCost = command.basePrice;
-    product.listBeforeVat = command.listBeforeVat;
-    product.floorBeforeVat = command.floorBeforeVat;
-    product.listAfterVat = command.listBeforeVat;
+    final sourceType = command.priceBandSourceType;
+    if (sourceType == PriceBandSourceType.ruleBased) {
+      final rule = _storeRuleForTenant(command.tenantId);
+      if (command.useStorePriceRule &&
+          product.hasBaseUnit &&
+          product.baseCost != null &&
+          rule != null &&
+          rule.status == StorePriceRuleStatus.active) {
+        final prices = StorePriceSuggestionCalculator.suggest(
+          basePrice: product.baseCost!,
+          listMarkupRatio: rule.listMarkupRatio,
+          floorMarkupRatio: rule.floorMarkupRatio,
+        );
+        product
+          ..listBeforeVat = prices.listBeforeVat
+          ..floorBeforeVat = prices.floorBeforeVat
+          ..listAfterVat = prices.listBeforeVat
+          ..floorAfterVat = prices.floorBeforeVat
+          ..priceBandSourceType = PriceBandSourceType.ruleBased
+          ..storePriceRuleId = rule.id
+          ..storePriceRuleName = rule.name
+          ..listMarkupRatio = null
+          ..floorMarkupRatio = null
+          ..isCustomOverride = false;
+        _recordGuidedPriceBandHistory(
+          product: product,
+          actorId: command.actorId,
+        );
+      }
+    } else if (sourceType == PriceBandSourceType.customConfig ||
+        sourceType == PriceBandSourceType.manual) {
+      product
+        ..listBeforeVat = command.listBeforeVat
+        ..floorBeforeVat = command.floorBeforeVat
+        ..listAfterVat = command.listBeforeVat
+        ..floorAfterVat = command.floorBeforeVat
+        ..priceBandSourceType = sourceType
+        ..storePriceRuleId = null
+        ..storePriceRuleName = null
+        ..listMarkupRatio = command.listMarkupRatio
+        ..floorMarkupRatio = command.floorMarkupRatio
+        ..isCustomOverride = sourceType == PriceBandSourceType.customConfig;
+      if (command.listBeforeVat != null) {
+        _recordGuidedPriceBandHistory(
+          product: product,
+          actorId: command.actorId,
+        );
+      }
+    }
     return CreateGuidedProductResult(
           productId: product.id,
           readinessSummary: _readinessSummaryFor(product),
         )
         as TResult;
+  }
+
+  void _recordGuidedPriceBandHistory({
+    required _StoredProduct product,
+    required String actorId,
+  }) {
+    final sourceType = product.priceBandSourceType;
+    final listPrice = product.listBeforeVat;
+    if (sourceType == null || listPrice == null) {
+      return;
+    }
+    product.statusHistory = [
+      ProductChangeHistoryEntryDto(
+        id: 'history-${product.id}-pricing-created',
+        occurredAt: DateTime.utc(2026, 7, 16),
+        actorDisplayName: actorId,
+        changeType: ProductChangeHistoryAction.priceBandUpdated,
+        summary: 'Tạo khung giá — ${product.baseUnit}',
+        changeCategory: ProductChangeCategory.pricing,
+        priceBandChange: ProductPriceBandHistoryChangeDto(
+          productUnitId: '${product.id}-base',
+          unitName: product.baseUnit,
+          currency: 'VND',
+          trigger: ProductPriceBandHistoryTrigger.direct,
+          after: ProductPriceBandHistorySnapshotDto(
+            sourceType: sourceType,
+            listPrice: listPrice,
+            floorPrice: product.floorBeforeVat,
+          ),
+        ),
+      ),
+      ...product.statusHistory,
+    ];
   }
 
   TResult _handleCreateProduct<TResult>(CreateProductCommand command) {
@@ -1670,6 +1764,8 @@ final class FakeCatalogModule implements ICatalogModule {
       pricePermissionDenied: pricePermissionDenied,
     );
 
+    _ensureUniqueSku(product, product.sku);
+    _ensureUniqueBarcode(product, product.barcode);
     _products.add(product);
 
     final view = _buildReadinessView(product);
@@ -2440,7 +2536,8 @@ final class FakeCatalogModule implements ICatalogModule {
         if (sku != null && sku.isNotEmpty) {
           final normalizedSku = _normalizeSku(sku);
           for (final product in _products) {
-            if (_normalizeSku(product.sku) == normalizedSku &&
+            if (!product.isSoftDeleted &&
+                _normalizeSku(product.sku) == normalizedSku &&
                 product.id != query.excludeProductId) {
               matches.add(
                 ProductDuplicateMatchDto(
@@ -2456,7 +2553,9 @@ final class FakeCatalogModule implements ICatalogModule {
         final barcode = query.barcode?.trim();
         if (barcode != null && barcode.isNotEmpty) {
           for (final product in _products) {
-            if (product.barcode == barcode && product.id != query.excludeProductId) {
+            if (!product.isSoftDeleted &&
+                product.barcode == barcode &&
+                product.id != query.excludeProductId) {
               matches.add(
                 ProductDuplicateMatchDto(
                   field: ProductDuplicateField.barcode,
@@ -2535,6 +2634,7 @@ final class FakeCatalogModule implements ICatalogModule {
           floorBefore: floorBefore,
           floorAfter: command.floorMarkupRatio,
         );
+        _recalculateRuleBasedPriceBands(existing);
       }
       return SetStorePriceRuleResult(rule: existing.toDto()) as TResult;
     }
@@ -2744,6 +2844,8 @@ final class FakeCatalogModule implements ICatalogModule {
         ..priceBandSourceType = PriceBandSourceType.ruleBased
         ..storePriceRuleId = rule.id
         ..storePriceRuleName = rule.name
+        ..listMarkupRatio = null
+        ..floorMarkupRatio = null
         ..isCustomOverride = false;
       _syncProductPriceBandSummary(product);
     } else {
@@ -2755,6 +2857,8 @@ final class FakeCatalogModule implements ICatalogModule {
         ..priceBandSourceType = PriceBandSourceType.ruleBased
         ..storePriceRuleId = rule.id
         ..storePriceRuleName = rule.name
+        ..listMarkupRatio = null
+        ..floorMarkupRatio = null
         ..isCustomOverride = false;
     }
 
@@ -2812,6 +2916,8 @@ final class FakeCatalogModule implements ICatalogModule {
         ..priceBandSourceType = baseUnit.priceBandSourceType
         ..storePriceRuleId = baseUnit.storePriceRuleId
         ..storePriceRuleName = baseUnit.storePriceRuleName
+        ..listMarkupRatio = baseUnit.listMarkupRatio
+        ..floorMarkupRatio = baseUnit.floorMarkupRatio
         ..isCustomOverride = baseUnit.isCustomOverride;
       return;
     }
@@ -2825,7 +2931,90 @@ final class FakeCatalogModule implements ICatalogModule {
         ..priceBandSourceType = null
         ..storePriceRuleId = null
         ..storePriceRuleName = null
+        ..listMarkupRatio = null
+        ..floorMarkupRatio = null
         ..isCustomOverride = false;
+    }
+  }
+
+  void _recalculateFormulaPriceBandsForProduct({
+    required _StoredProduct product,
+    required String tenantId,
+  }) {
+    final rule = _storeRules[tenantId];
+    for (final unit in _activeUnitsForProduct(product.id)) {
+      PriceBandMarkupConfig? config;
+      if (unit.priceBandSourceType == PriceBandSourceType.customConfig &&
+          unit.listMarkupRatio != null) {
+        config = PriceBandMarkupConfig(
+          listMarkupRatio: unit.listMarkupRatio!,
+          floorMarkupRatio: unit.floorMarkupRatio,
+        );
+      } else if (unit.priceBandSourceType == PriceBandSourceType.ruleBased &&
+          rule != null &&
+          rule.status == StorePriceRuleStatus.active &&
+          unit.storePriceRuleId == rule.id) {
+        config = PriceBandMarkupConfig(
+          listMarkupRatio: rule.listMarkupRatio,
+          floorMarkupRatio: rule.floorMarkupRatio,
+        );
+      }
+      final basePrice = _comparableBasePriceForUnit(product, unit);
+      if (config == null || basePrice == null) {
+        continue;
+      }
+      final prices = PriceBandMarkupCalculator.calculate(
+        basePriceForUnit: basePrice,
+        config: config,
+      );
+      unit
+        ..listBeforeVat = prices.listPrice
+        ..floorBeforeVat = prices.floorPrice
+        ..listAfterVat = prices.listPrice
+        ..floorAfterVat = prices.floorPrice;
+    }
+
+    if (!_productHasStructuredUnits(product.id)) {
+      PriceBandMarkupConfig? config;
+      if (product.priceBandSourceType == PriceBandSourceType.customConfig &&
+          product.listMarkupRatio != null) {
+        config = PriceBandMarkupConfig(
+          listMarkupRatio: product.listMarkupRatio!,
+          floorMarkupRatio: product.floorMarkupRatio,
+        );
+      } else if (product.priceBandSourceType == PriceBandSourceType.ruleBased &&
+          rule != null &&
+          rule.status == StorePriceRuleStatus.active &&
+          product.storePriceRuleId == rule.id) {
+        config = PriceBandMarkupConfig(
+          listMarkupRatio: rule.listMarkupRatio,
+          floorMarkupRatio: rule.floorMarkupRatio,
+        );
+      }
+      if (config != null && product.baseCost != null) {
+        final prices = PriceBandMarkupCalculator.calculate(
+          basePriceForUnit: product.baseCost!,
+          config: config,
+        );
+        product
+          ..listBeforeVat = prices.listPrice
+          ..floorBeforeVat = prices.floorPrice
+          ..listAfterVat = prices.listPrice
+          ..floorAfterVat = prices.floorPrice;
+      }
+    }
+    _syncProductPriceBandSummary(product);
+  }
+
+  void _recalculateRuleBasedPriceBands(_StorePriceRule rule) {
+    if (rule.status != StorePriceRuleStatus.active) {
+      return;
+    }
+    for (final product in _products) {
+      _recalculateFormulaPriceBandsForProduct(
+        product: product,
+        tenantId: rule.tenantId,
+      );
     }
   }
 
@@ -2913,6 +3102,8 @@ final class FakeCatalogModule implements ICatalogModule {
       isMissing: !unit.hasCompletePriceBand,
       sourceType: unit.priceBandSourceType,
       storePriceRuleName: unit.storePriceRuleName,
+      listMarkupRatio: unit.listMarkupRatio,
+      floorMarkupRatio: unit.floorMarkupRatio,
       isCustomOverride: unit.isCustomOverride,
     );
   }
@@ -3046,6 +3237,8 @@ final class FakeCatalogModule implements ICatalogModule {
                 isMissing: !product.hasPriceBand,
                 sourceType: product.priceBandSourceType,
                 storePriceRuleName: product.storePriceRuleName,
+                listMarkupRatio: product.listMarkupRatio,
+                floorMarkupRatio: product.floorMarkupRatio,
                 isCustomOverride: product.isCustomOverride,
               ),
             ],
@@ -3067,19 +3260,6 @@ final class FakeCatalogModule implements ICatalogModule {
   TResult _handleSetProductUnitPriceBand<TResult>(
     SetProductUnitPriceBandCommand command,
   ) {
-    if (command.listBeforeVat < 0 || command.listAfterVat < 0) {
-      throw ValidationException('Giá không được âm.');
-    }
-    final floor = command.floorBeforeVat;
-    if (floor != null) {
-      if (floor < 0) {
-        throw ValidationException('Giá không được âm.');
-      }
-      if (floor > command.listBeforeVat) {
-        throw FloorPriceGreaterThanListPriceException();
-      }
-    }
-
     final product = _findProduct(command.productId);
     if (product == null) {
       throw ApplicationException('Product not found');
@@ -3098,37 +3278,47 @@ final class FakeCatalogModule implements ICatalogModule {
         throw InactiveProductUnitException();
       }
 
+      final values = _resolvePriceBandValues(
+        command: command,
+        product: product,
+        unit: unit,
+      );
+
       final warnings = _computePriceBandWarnings(
         product: product,
         unit: unit,
-        listBeforeVat: command.listBeforeVat,
-        listAfterVat: command.listAfterVat,
-        floorBeforeVat: command.floorBeforeVat,
+        listBeforeVat: values.listPrice,
+        listAfterVat: values.listPrice,
+        floorBeforeVat: values.floorPrice,
       );
       if (warnings.isNotEmpty && !command.confirmAcknowledgeWarnings) {
         throw PriceBandWarningsRequireAcknowledgmentException(warnings: warnings);
       }
 
       unit
-        ..listBeforeVat = command.listBeforeVat
-        ..floorBeforeVat = command.floorBeforeVat
-        ..listAfterVat = command.listAfterVat
-        ..floorAfterVat = command.floorAfterVat
+        ..listBeforeVat = values.listPrice
+        ..floorBeforeVat = values.floorPrice
+        ..listAfterVat = values.listPrice
+        ..floorAfterVat = values.floorPrice
         ..priceBandSourceType = command.sourceType
-        ..storePriceRuleId = command.storePriceRuleId
-        ..isCustomOverride = command.sourceType == PriceBandSourceType.manual;
+        ..storePriceRuleId = null
+        ..storePriceRuleName = null
+        ..listMarkupRatio = command.listMarkupRatio
+        ..floorMarkupRatio = command.floorMarkupRatio
+        ..isCustomOverride = command.sourceType == PriceBandSourceType.customConfig;
 
       _syncProductPriceBandSummary(product);
 
       return SetProductUnitPriceBandResult(
             productId: product.id,
             productUnitId: unit.id,
-            listBeforeVat: command.listBeforeVat,
-            floorBeforeVat: command.floorBeforeVat,
-            listAfterVat: command.listAfterVat,
-            floorAfterVat: command.floorAfterVat,
+            listBeforeVat: values.listPrice,
+            floorBeforeVat: values.floorPrice,
+            listAfterVat: values.listPrice,
+            floorAfterVat: values.floorPrice,
             sourceType: command.sourceType,
-            storePriceRuleId: command.storePriceRuleId,
+            listMarkupRatio: command.listMarkupRatio,
+            floorMarkupRatio: command.floorMarkupRatio,
             warnings: warnings,
             readinessSummary: _readinessSummaryFor(product),
           )
@@ -3143,39 +3333,101 @@ final class FakeCatalogModule implements ICatalogModule {
       isBaseUnit: true,
       isActive: true,
     );
+    final values = _resolvePriceBandValues(
+      command: command,
+      product: product,
+      unit: syntheticUnit,
+    );
     final warnings = _computePriceBandWarnings(
       product: product,
       unit: syntheticUnit,
-      listBeforeVat: command.listBeforeVat,
-      listAfterVat: command.listAfterVat,
-      floorBeforeVat: command.floorBeforeVat,
+      listBeforeVat: values.listPrice,
+      listAfterVat: values.listPrice,
+      floorBeforeVat: values.floorPrice,
     );
     if (warnings.isNotEmpty && !command.confirmAcknowledgeWarnings) {
       throw PriceBandWarningsRequireAcknowledgmentException(warnings: warnings);
     }
 
     product
-      ..listBeforeVat = command.listBeforeVat
-      ..floorBeforeVat = command.floorBeforeVat
-      ..listAfterVat = command.listAfterVat
-      ..floorAfterVat = command.floorAfterVat
+      ..listBeforeVat = values.listPrice
+      ..floorBeforeVat = values.floorPrice
+      ..listAfterVat = values.listPrice
+      ..floorAfterVat = values.floorPrice
       ..priceBandSourceType = command.sourceType
-      ..storePriceRuleId = command.storePriceRuleId
-      ..isCustomOverride = command.sourceType == PriceBandSourceType.manual;
+      ..storePriceRuleId = null
+      ..storePriceRuleName = null
+      ..listMarkupRatio = command.listMarkupRatio
+      ..floorMarkupRatio = command.floorMarkupRatio
+      ..isCustomOverride = command.sourceType == PriceBandSourceType.customConfig;
 
     return SetProductUnitPriceBandResult(
           productId: product.id,
           productUnitId: command.productUnitId,
-          listBeforeVat: command.listBeforeVat,
-          floorBeforeVat: command.floorBeforeVat,
-          listAfterVat: command.listAfterVat,
-          floorAfterVat: command.floorAfterVat,
+          listBeforeVat: values.listPrice,
+          floorBeforeVat: values.floorPrice,
+          listAfterVat: values.listPrice,
+          floorAfterVat: values.floorPrice,
           sourceType: command.sourceType,
-          storePriceRuleId: command.storePriceRuleId,
+          listMarkupRatio: command.listMarkupRatio,
+          floorMarkupRatio: command.floorMarkupRatio,
           warnings: warnings,
           readinessSummary: _readinessSummaryFor(product),
         )
         as TResult;
+  }
+
+  CalculatedPriceBand _resolvePriceBandValues({
+    required SetProductUnitPriceBandCommand command,
+    required _StoredProduct product,
+    required _ProductUnit unit,
+  }) {
+    switch (command.sourceType) {
+      case PriceBandSourceType.ruleBased:
+        throw ValidationException(
+          'Vui lòng dùng lệnh áp dụng khung giá cửa hàng.',
+        );
+      case PriceBandSourceType.customConfig:
+        if (command.storePriceRuleId != null || command.listMarkupRatio == null) {
+          throw ValidationException('Cấu hình tỷ lệ riêng không hợp lệ.');
+        }
+        final basePrice = _comparableBasePriceForUnit(product, unit);
+        if (basePrice == null) {
+          throw MissingBasePriceException();
+        }
+        return PriceBandMarkupCalculator.calculate(
+          basePriceForUnit: basePrice,
+          config: PriceBandMarkupConfig(
+            listMarkupRatio: command.listMarkupRatio!,
+            floorMarkupRatio: command.floorMarkupRatio,
+          ),
+        );
+      case PriceBandSourceType.manual:
+        if (command.storePriceRuleId != null ||
+            command.listMarkupRatio != null ||
+            command.floorMarkupRatio != null) {
+          throw ValidationException('Giá thủ công không được có nguồn công thức.');
+        }
+        final listBeforeVat = command.listBeforeVat;
+        final listAfterVat = command.listAfterVat;
+        if (listBeforeVat == null || listAfterVat == null) {
+          throw ValidationException('Giá niêm yết là bắt buộc.');
+        }
+        ProductUnitPriceBand.setManual(
+          id: unit.id,
+          tenantId: TenantId(command.tenantId),
+          productId: ProductId(command.productId),
+          productUnitId: unit.id,
+          listBeforeVat: listBeforeVat,
+          listAfterVat: listAfterVat,
+          floorBeforeVat: command.floorBeforeVat,
+          floorAfterVat: command.floorAfterVat,
+        );
+        return CalculatedPriceBand(
+          listPrice: listBeforeVat,
+          floorPrice: command.floorBeforeVat,
+        );
+    }
   }
 
   TResult _handleGetProductChangeHistory<TResult>(
@@ -3240,9 +3492,7 @@ final class FakeCatalogModule implements ICatalogModule {
       return const [];
     }
 
-    if (product.id != 'product-1' &&
-        product.statusHistory.isEmpty &&
-        scenario != FakeCatalogScenario.scnContractE07U04Fr02_01) {
+    if (product.id != 'product-1' && scenario != FakeCatalogScenario.scnContractE07U04Fr02_01) {
       return product.statusHistory;
     }
 
@@ -3256,6 +3506,41 @@ final class FakeCatalogModule implements ICatalogModule {
         valueBefore: '120000',
         valueAfter: '125000',
         changeCategory: ProductChangeCategory.pricing,
+        priceBandChange: const ProductPriceBandHistoryChangeDto(
+          productUnitId: 'product-1-base',
+          unitName: 'Hộp',
+          currency: 'VND',
+          trigger: ProductPriceBandHistoryTrigger.direct,
+          before: ProductPriceBandHistorySnapshotDto(
+            sourceType: PriceBandSourceType.ruleBased,
+            listPrice: 120000,
+            floorPrice: 95000,
+          ),
+          after: ProductPriceBandHistorySnapshotDto(
+            sourceType: PriceBandSourceType.manual,
+            listPrice: 125000,
+            floorPrice: 100000,
+          ),
+        ),
+      ),
+      ProductChangeHistoryEntryDto(
+        id: 'history-${product.id}-pricing-created',
+        occurredAt: DateTime.utc(2026, 6, 1, 9, 30),
+        actorDisplayName: 'Nguyễn Văn A',
+        changeType: ProductChangeHistoryAction.priceBandUpdated,
+        summary: 'Tạo khung giá — Hộp',
+        changeCategory: ProductChangeCategory.pricing,
+        priceBandChange: const ProductPriceBandHistoryChangeDto(
+          productUnitId: 'product-1-base',
+          unitName: 'Hộp',
+          currency: 'VND',
+          trigger: ProductPriceBandHistoryTrigger.direct,
+          after: ProductPriceBandHistorySnapshotDto(
+            sourceType: PriceBandSourceType.customConfig,
+            listPrice: 120000,
+            floorPrice: 95000,
+          ),
+        ),
       ),
       ProductChangeHistoryEntryDto(
         id: 'history-${product.id}-profile',

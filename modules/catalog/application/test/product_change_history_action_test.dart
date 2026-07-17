@@ -45,6 +45,10 @@ void main() {
         ProductChangeCategory.customFields,
       );
       expect(
+        ProductChangeHistoryAction.tryParse('recalculate_product_unit_price_band'),
+        ProductChangeHistoryAction.priceBandUpdated,
+      );
+      expect(
         ProductChangeHistoryAction.tryParse('deactivate_product')?.category,
         ProductChangeCategory.status,
       );

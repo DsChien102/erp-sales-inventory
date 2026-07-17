@@ -306,6 +306,15 @@ Early: `readinessSummary` trên PCC (không thay FR-04 checklist đầy đủ).
 | FR-04 | BE | §EPIC-06-US-03 | infrastructure | Change history in `set_product_unit_price_band` RPC | — | done |
 | FR-01..03 | FE | §EPIC-06-US-03 | presentation | `ProductPriceBandsPage`, `EditProductUnitPriceBandPage`, `PriceBandCalculationTypeSelector`, cubits | wgt_e06_u03_fr01_01 | done |
 | FR-01..03 | E2E | §EPIC-06-US-03 | erp | E2E test cho price bands `product_price_bands_e2e_test.dart` | e2e_e06_u03_fr01_01 | done |
+
+### Bổ sung slice #26 — Ba cách tính và tự tái tính
+
+| Req ID | Role | Contract § | Enforce layer | Artifact | Test id | Status |
+| ------ | ---- | ---------- | ------------- | -------- | ------- | ------ |
+| US-02/03 ext | CONTRACT | §EPIC-06-US-02/03 | docs + application | Mode matrix, ratio contract, recalculation triggers | scn_e06_u02_price_mode_01..09 | done |
+| US-02/03 ext | BE | §EPIC-06-US-02/03 | domain + application + infrastructure | Calculator, command/DTO/gateway, fake parity, RPC drafts | scn_e06_u02_price_mode_01..09 | done |
+| US-02/03 ext | FE | §EPIC-06-US-02/03 | presentation + erp | Cubit typed modes, ba section widget, warning sheet | wgt_e06_u02_price_mode_01 | done |
+| US-02/03 ext | E2E | §EPIC-06-US-02/03 | erp | Store Rule / Custom Config / Manual + base/rule recalc + snapshot | e2e_e06_u02_price_mode_01..09 | done |
 | US-04 | CONTRACT | §EPIC-06-US-04 | application | `GetProductPriceBandSnapshotQuery`, snapshot DTOs, `FakeCatalogModule`, `IProductPriceBandGateway` | scn_contract_e06_u04_* | done |
 | FR-01 | CONTRACT | §EPIC-06-US-04 | application | `listPrice` + `listPriceMissing` per product/unit | scn_contract_e06_u04_fr01_* | done |
 | FR-02 | CONTRACT | §EPIC-06-US-04 | application | `floorPrice` + `floorPriceMissing` + `floorPriceHidden` | scn_contract_e06_u04_fr02_* | done |
@@ -315,6 +324,24 @@ Early: `readinessSummary` trên PCC (không thay FR-04 checklist đầy đủ).
 | FR-02 | BE | §EPIC-06-US-04 | application + infrastructure | Floor mask via `manage_pricing` in RPC | scn_e06_u04_fr02_* | done |
 | FR-04 | BE | §EPIC-06-US-04 | application | Handler sets `capturedAt` after gateway read | scn_e06_u04_fr04_01 | done |
 | US-04 | E2E | §EPIC-06-US-04 | erp | `product_price_band_snapshot_e2e_test.dart` via `ICatalogModule` | e2e_e06_u04_* | done |
+
+### Bổ sung slice #27 — Lịch sử khung giá trước–sau
+
+| Req ID | Role | Contract § | Enforce layer | Artifact | Test id | Status |
+| ------ | ---- | ---------- | ------------- | -------- | ------- | ------ |
+| US-03/US-04 ext | CONTRACT | §EPIC-06-US-03, §EPIC-07-US-04 | application | `ProductPriceBandHistoryChangeDto`, snapshot, trigger; `ProductChangeHistoryEntryDto.priceBandChange` | scn_e06_price_history_create_01; scn_e06_price_history_update_01 | done |
+| US-03 ext | BE | §EPIC-06-US-03 | infrastructure | Direct mutation snapshot + guided-create source routing + masked history read | scn_e06_price_history_create_01; scn_e06_price_history_update_01 | done |
+| US-01/02 ext | BE | §EPIC-06-US-01/02 | infrastructure | Per-unit audit khi base price / Store Rule tái tính và giá thực sự đổi | scn_e06_price_history_recalc_base_01; scn_e06_price_history_recalc_rule_01 | done |
+| US-04 ext | FE | §EPIC-07-US-04 | erp | Typed widget hiển thị mode/list/floor trước–sau, create/update/null/mask/legacy | wgt_e07_price_history_create_01; wgt_e07_price_history_update_01 | done |
+| US-04 ext | E2E | §EPIC-07-US-04 | erp | Product history page có cả tạo và sửa khung giá | e2e_e07_u04_fr02_01 | done |
+
+### Bổ sung slice #28 — Guided create mặc định Giá cửa hàng
+
+| Req ID | Role | Contract § | Enforce layer | Artifact | Test id | Status |
+| ------ | ---- | ---------- | ------------- | -------- | ------- | ------ |
+| US-02 ext | CONTRACT | §EPIC-02-US-01, §EPIC-06-US-02 | presentation + application | Shared price submission resolver; default `ruleBased`; custom/manual direct save | guided_price_band_submission_resolver_test | done |
+| US-02 ext | FE | §EPIC-02-US-01 | presentation + erp | Submit/Next dùng chung resolver; Bỏ qua reset về Giá cửa hàng | product_guided_create_page_test | done |
+| US-02 ext | BE | §EPIC-02-US-01 | application + infrastructure | Validator + Fake parity + best-effort `create_guided_product` draft | create_guided_product_command_test; fake_catalog_module_test; price_band_sql_contract_test | done |
 
 ---
 

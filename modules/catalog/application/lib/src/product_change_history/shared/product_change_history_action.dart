@@ -72,7 +72,8 @@ enum ProductChangeHistoryAction {
       'set_manual_base_price' => ProductChangeHistoryAction.manualBasePriceSet,
       'apply_store_price_rule' => ProductChangeHistoryAction.storePriceRuleApplied,
       'set_product_unit_price_band' ||
-      'set_initial_price_band' => ProductChangeHistoryAction.priceBandUpdated,
+      'set_initial_price_band' ||
+      'recalculate_product_unit_price_band' => ProductChangeHistoryAction.priceBandUpdated,
       'upsert_custom_field_values' ||
       'custom_field_values_updated' => ProductChangeHistoryAction.customFieldValuesUpdated,
       'product_status_changed' => ProductChangeHistoryAction.statusChanged,

@@ -18,6 +18,8 @@ final class SetProductUnitPriceBandResult {
     this.effectiveTo,
     this.status,
     this.storePriceRuleId,
+    this.listMarkupRatio,
+    this.floorMarkupRatio,
     this.warnings = const [],
   });
 
@@ -32,6 +34,8 @@ final class SetProductUnitPriceBandResult {
   final ProductPriceBandStatus? status;
   final PriceBandSourceType sourceType;
   final String? storePriceRuleId;
+  final double? listMarkupRatio;
+  final double? floorMarkupRatio;
   final List<PriceBandValidationWarningDto> warnings;
   final ReadinessSummaryDto readinessSummary;
 }

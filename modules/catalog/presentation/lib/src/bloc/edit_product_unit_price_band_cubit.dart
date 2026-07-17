@@ -18,10 +18,12 @@ class EditProductUnitPriceBandCubit extends Cubit<EditProductUnitPriceBandState>
   final String? productUnitId;
 
   Future<void> loadInitialData({
+    bool isNewPriceBand = false,
     PriceBandSourceType? currentSourceType,
-    bool isCustomOverride = false,
     int? currentListBeforeVat,
     int? currentFloorBeforeVat,
+    double? currentListMarkupRatio,
+    double? currentFloorMarkupRatio,
   }) async {
     emit(EditProductUnitPriceBandLoading());
     try {
@@ -33,31 +35,22 @@ class EditProductUnitPriceBandCubit extends Cubit<EditProductUnitPriceBandState>
       );
       final suggestion = await moduleMediator.executeQueryAsync(query);
 
-      PriceBandCalculationType initialType = PriceBandCalculationType.storeRule;
-      if (currentSourceType == PriceBandSourceType.manual) {
-        if (isCustomOverride) {
-          initialType = PriceBandCalculationType.customConfig;
-        } else {
-          initialType = PriceBandCalculationType.manual;
-        }
-      }
-
-      double? initialCustomBaseMargin;
-      double? initialCustomFloorMargin;
-      if (isCustomOverride && suggestion.basePrice > 0) {
-        if (currentListBeforeVat != null) {
-          initialCustomBaseMargin =
-              ((currentListBeforeVat - suggestion.basePrice) / suggestion.basePrice * 100);
-        }
-        if (currentFloorBeforeVat != null) {
-          initialCustomFloorMargin =
-              ((currentFloorBeforeVat - suggestion.basePrice) / suggestion.basePrice * 100);
-        }
-      }
+      final initialType = switch (currentSourceType) {
+        PriceBandSourceType.customConfig => PriceBandCalculationType.customConfig,
+        PriceBandSourceType.manual => PriceBandCalculationType.manual,
+        _ => PriceBandCalculationType.storeRule,
+      };
+      final initialCustomBaseMargin = currentListMarkupRatio == null
+          ? null
+          : currentListMarkupRatio * 100;
+      final initialCustomFloorMargin = currentFloorMarkupRatio == null
+          ? null
+          : currentFloorMarkupRatio * 100;
 
       emit(
         EditProductUnitPriceBandLoaded(
           suggestion: suggestion,
+          isNewPriceBand: isNewPriceBand,
           selectedType: initialType,
           initialSelectedType: initialType,
           customBaseMargin: initialCustomBaseMargin,
@@ -66,8 +59,8 @@ class EditProductUnitPriceBandCubit extends Cubit<EditProductUnitPriceBandState>
           manualFloorPrice: currentFloorBeforeVat,
           initialCustomBaseMargin: initialCustomBaseMargin,
           initialCustomFloorMargin: initialCustomFloorMargin,
-          initialManualListPrice: currentListBeforeVat?.toDouble(),
-          initialManualFloorPrice: currentFloorBeforeVat?.toDouble(),
+          initialManualListPrice: currentListBeforeVat,
+          initialManualFloorPrice: currentFloorBeforeVat,
         ),
       );
     } catch (e) {
@@ -80,6 +73,7 @@ class EditProductUnitPriceBandCubit extends Cubit<EditProductUnitPriceBandState>
             canSuggest: false,
             unavailableReason: 'Không thể tải gợi ý giá.',
           ),
+          isNewPriceBand: isNewPriceBand,
           selectedType: PriceBandCalculationType.storeRule,
           initialSelectedType: PriceBandCalculationType.storeRule,
           error: e.toString(),
@@ -95,31 +89,55 @@ class EditProductUnitPriceBandCubit extends Cubit<EditProductUnitPriceBandState>
     }
   }
 
-  void updateCustomBaseMargin(double margin) {
+  void updateCustomBaseMargin(double? margin) {
     if (state is EditProductUnitPriceBandLoaded) {
       final currentState = state as EditProductUnitPriceBandLoaded;
-      emit(currentState.copyWith(customBaseMargin: margin, clearError: true));
+      emit(
+        currentState.copyWith(
+          customBaseMargin: margin,
+          clearCustomBaseMargin: margin == null,
+          clearError: true,
+        ),
+      );
     }
   }
 
-  void updateCustomFloorMargin(double margin) {
+  void updateCustomFloorMargin(double? margin) {
     if (state is EditProductUnitPriceBandLoaded) {
       final currentState = state as EditProductUnitPriceBandLoaded;
-      emit(currentState.copyWith(customFloorMargin: margin, clearError: true));
+      emit(
+        currentState.copyWith(
+          customFloorMargin: margin,
+          clearCustomFloorMargin: margin == null,
+          clearError: true,
+        ),
+      );
     }
   }
 
-  void updateManualListPrice(int price) {
+  void updateManualListPrice(int? price) {
     if (state is EditProductUnitPriceBandLoaded) {
       final currentState = state as EditProductUnitPriceBandLoaded;
-      emit(currentState.copyWith(manualListPrice: price, clearError: true));
+      emit(
+        currentState.copyWith(
+          manualListPrice: price,
+          clearManualListPrice: price == null,
+          clearError: true,
+        ),
+      );
     }
   }
 
-  void updateManualFloorPrice(int price) {
+  void updateManualFloorPrice(int? price) {
     if (state is EditProductUnitPriceBandLoaded) {
       final currentState = state as EditProductUnitPriceBandLoaded;
-      emit(currentState.copyWith(manualFloorPrice: price, clearError: true));
+      emit(
+        currentState.copyWith(
+          manualFloorPrice: price,
+          clearManualFloorPrice: price == null,
+          clearError: true,
+        ),
+      );
     }
   }
 
@@ -151,16 +169,29 @@ class EditProductUnitPriceBandCubit extends Cubit<EditProductUnitPriceBandState>
           ),
         );
       } else {
-        final command = SetProductUnitPriceBandCommand(
-          tenantId: tenantId,
-          productId: productId,
-          productUnitId: productUnitId,
-          listBeforeVat: currentState.calculatedListPrice!,
-          listAfterVat: currentState.calculatedListPrice!,
-          floorBeforeVat: currentState.calculatedFloorPrice,
-          sourceType: PriceBandSourceType.manual,
-          confirmAcknowledgeWarnings: confirmAcknowledgeWarnings,
-        );
+        final command = currentState.selectedType == PriceBandCalculationType.customConfig
+            ? SetProductUnitPriceBandCommand(
+                tenantId: tenantId,
+                productId: productId,
+                productUnitId: productUnitId,
+                sourceType: PriceBandSourceType.customConfig,
+                listMarkupRatio: currentState.customBaseMargin! / 100,
+                floorMarkupRatio: currentState.customFloorMargin == null
+                    ? null
+                    : currentState.customFloorMargin! / 100,
+                confirmAcknowledgeWarnings: confirmAcknowledgeWarnings,
+              )
+            : SetProductUnitPriceBandCommand(
+                tenantId: tenantId,
+                productId: productId,
+                productUnitId: productUnitId,
+                listBeforeVat: currentState.manualListPrice!,
+                listAfterVat: currentState.manualListPrice!,
+                floorBeforeVat: currentState.manualFloorPrice,
+                floorAfterVat: currentState.manualFloorPrice,
+                sourceType: PriceBandSourceType.manual,
+                confirmAcknowledgeWarnings: confirmAcknowledgeWarnings,
+              );
         await moduleMediator.executeCommandAsync(command);
       }
       emit(EditProductUnitPriceBandSuccess());

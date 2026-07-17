@@ -89,7 +89,7 @@ class PartnerDetailOverviewTab extends StatelessWidget {
           ),
           const SizedBox(height: VSpacing.space2),
           const PartnerDetailSectionCard(
-            title: 'Lịch sử gần đây',
+            title: 'Lịch sử giao dịch',
             child: PartnerDetailEmptyHint(message: 'Chưa có lịch sử giao dịch.'),
           ),
         ],

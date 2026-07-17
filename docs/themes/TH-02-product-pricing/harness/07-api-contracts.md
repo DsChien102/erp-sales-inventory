@@ -20,6 +20,7 @@ Facade: `ICatalogModule` (`modules/catalog/application/lib/src/contracts/i_catal
 
 | Symbol | Input (summary) | Success | Errors |
 | ------ | --------------- | ------- | ------ |
+| `CreateGuidedProductCommand` | Toàn bộ wizard; `priceBandSourceType?`, giá/tỷ lệ theo mode | `CreateGuidedProductResult` | Validation/permission/duplicate exceptions |
 | `RequestProductImageUploadCommand` | tenantId, actorId, fileName, contentType, byteSize | `ProductImageUploadSlotDto` | `ValidationException`, PermissionDenied |
 | `CreateProductCommand` | tenantId, actorId, productName, referenceId?, commercialName?, sku?, barcode?, description?, note?, images[] (`ProductImageInput`), baseUnitName? | `CreateProductResult` (productId, referenceId, readinessSummary) | `ValidationException`, PermissionDenied (`ApplicationException`), `DuplicateSkuException`, `DuplicateBarcodeException`, `DuplicateReferenceIdException` |
 | `CheckDuplicateProductCodeQuery` | tenantId, sku?, barcode?, excludeProductId? | `List<ProductDuplicateMatchDto>` | PermissionDenied |
@@ -60,6 +61,7 @@ Permissions: `@RequiresPermission(CatalogPermissions.create)` (`catalog.product.
 | `guided_create_dup_reference` | referenceId trùng tenant | `DuplicateReferenceIdException` |
 | `guided_create_dup_sku` | sku trùng tenant | `DuplicateSkuException` |
 | `guided_create_dup_barcode` | barcode trùng tenant | `DuplicateBarcodeException` |
+| `scn_contract_e02_u01_fr02_04` | SKU/barcode chỉ thuộc sản phẩm soft-deleted | tạo mới thành công; restore chủ cũ bị chặn nếu mã đã được dùng lại |
 | `guided_create_missing_name` | thiếu tên | `ValidationException` |
 | `guided_create_no_images` | no images | success + optional `missing_image` blocker |
 | `guided_create_upload_slot_ok` | RequestProductImageUploadCommand valid | `ProductImageUploadSlotDto` |
@@ -725,7 +727,7 @@ Supporting types:
 | `StorePriceCalculationType` | `markup` (Foundation; `margin` deferred) |
 | `ProductUnitPriceSuggestionDto` | productId, productUnitId?, unitName?, basePrice, currency, suggestedListPrice?, suggestedFloorPrice?, storePriceRuleId?, storePriceRuleName?, basePriceVersion?, canSuggest, unavailableReason? |
 | `ApplyStorePriceRuleResult` | productId, productUnitId?, listBeforeVat, floorBeforeVat, storePriceRuleId, sourceType, readinessSummary |
-| `PriceBandSourceType` | `ruleBased` \| `manual` — shared with §EPIC-06/US-03 |
+| `PriceBandSourceType` | `ruleBased` \| `customConfig` \| `manual` — shared with §EPIC-06/US-03 |
 
 Read path (PCC): `GetProductControlCenterQuery` → `ProductPriceBandCardDto` extended with `sourceType`, `storePriceRuleName`, `isCustomOverride`.
 
@@ -820,7 +822,7 @@ Tests: `scn_contract_e06_u02_*` in `fake_catalog_module_test.dart` (group `EPIC-
 
 | Symbol | Input (summary) | Success | Errors |
 | ------ | --------------- | ------- | ------ |
-| `SetProductUnitPriceBandCommand` | tenantId, productId, listBeforeVat, listAfterVat, floorBeforeVat?, floorAfterVat?, effectiveFrom?, effectiveTo?, status?, productUnitId?, sourceType?, storePriceRuleId?, confirmAcknowledgeWarnings? | `SetProductUnitPriceBandResult` | Validation, `MissingBaseUnitException`, `InactiveProductUnitException`, `FloorPriceGreaterThanListPriceException`, `PriceBandWarningsRequireAcknowledgmentException` |
+| `SetProductUnitPriceBandCommand` | tenantId, productId, listBeforeVat, listAfterVat, floorBeforeVat?, floorAfterVat?, effectiveFrom?, effectiveTo?, status?, productUnitId?, sourceType?, storePriceRuleId?, listMarkupRatio?, floorMarkupRatio?, confirmAcknowledgeWarnings? | `SetProductUnitPriceBandResult` | Validation, `MissingBaseUnitException`, `InactiveProductUnitException`, `FloorPriceGreaterThanListPriceException`, `PriceBandWarningsRequireAcknowledgmentException` |
 | `ListProductUnitPriceBandsQuery` | tenantId, productId | `ProductUnitPriceBandsDto` | PermissionDenied, NotFound, `MissingBaseUnitException` |
 
 Package: `vet45_catalog_application` — `pricing/price_band/`.
@@ -829,13 +831,13 @@ Supporting types:
 
 | Type | Fields |
 | ---- | ------ |
-| `SetProductUnitPriceBandResult` | productId, productUnitId?, listBeforeVat, listAfterVat, floorBeforeVat?, floorAfterVat?, effectiveFrom?, effectiveTo?, status?, sourceType, storePriceRuleId?, warnings[], readinessSummary |
+| `SetProductUnitPriceBandResult` | productId, productUnitId?, listBeforeVat, listAfterVat, floorBeforeVat?, floorAfterVat?, effectiveFrom?, effectiveTo?, status?, sourceType, storePriceRuleId?, listMarkupRatio?, floorMarkupRatio?, warnings[], readinessSummary |
 | `ProductUnitPriceBandsDto` | productId, baseUnitName, currency, rows[] |
-| `ProductUnitPriceBandRowDto` | productUnitId, unitName, isBaseUnit, isActive, listBeforeVat?, floorBeforeVat?, listAfterVat?, floorAfterVat?, effectiveFrom?, effectiveTo?, status?, isMissing, sourceType?, storePriceRuleName?, isCustomOverride |
+| `ProductUnitPriceBandRowDto` | productUnitId, unitName, isBaseUnit, isActive, listBeforeVat?, floorBeforeVat?, listAfterVat?, floorAfterVat?, effectiveFrom?, effectiveTo?, status?, isMissing, sourceType?, storePriceRuleName?, listMarkupRatio?, floorMarkupRatio?, isCustomOverride (legacy) |
 | `PriceBandValidationWarningDto` | code, severity, message, field, comparedBasePrice?, baseUnitName? |
 | `PriceBandValidationWarningSeverity` | `warning` \| `strongWarning` |
 | `PriceBandValidationField` | `listBeforeVat` \| `floorBeforeVat` |
-| `PriceBandSourceType` | `ruleBased` \| `manual` (shared with US-02) |
+| `PriceBandSourceType` | `ruleBased` \| `customConfig` \| `manual` (shared with US-02) |
 | `ProductPriceBandStatus` | `active` \| `inactive` \| `deleted` |
 
 Read path (PCC summary): `GetProductControlCenterQuery` → `ProductPriceBandCardDto` (base unit **before-VAT** summary). UI labels remain **Giá niêm yết / Giá sàn**; after-VAT reserved (no form fields in this slice).
@@ -854,6 +856,16 @@ Read path (PCC summary): `GetProductControlCenterQuery` → `ProductPriceBandCar
 - `SetInitialPriceBandCommand` (guided create slice #2) giữ nguyên — không deprecate; wire dùng before-VAT params.
 - Port: `IProductPriceBandGateway` (BE lane implement).
 
+**Ba cách tính và nguồn dữ liệu:**
+
+| `sourceType` | Nguồn tỷ lệ | Trường bắt buộc | Trường phải null | Hành vi tái tính |
+| --- | --- | --- | --- | --- |
+| `ruleBased` | `store_price_rules` | `storePriceRuleId` | `listMarkupRatio`, `floorMarkupRatio` | Đổi base price hoặc Store Rule active |
+| `customConfig` | `product_unit_price_bands` | `listMarkupRatio`; floor ratio optional | `storePriceRuleId` | Đổi base price |
+| `manual` | Không có | Giá tuyệt đối | rule id và hai ratio | Không tự tái tính |
+
+Ratio wire dùng số thập phân (`40% = 0.40`). Giá materialized dùng `round(basePriceForUnit * (1 + ratio))`; `basePriceForUnit = basePricePerBaseUnit * conversionRateToBase`.
+
 Permissions:
 
 - `SetProductUnitPriceBandCommand` → `@RequiresPermission(CatalogPermissions.managePricing)`
@@ -863,17 +875,17 @@ Permissions:
 
 | Use case | RPC / view | Params (summary) | Notes |
 | -------- | ---------- | ---------------- | ----- |
-| Set price band | `catalog.set_product_unit_price_band` | `p_list_price_before_vat`, `p_list_price_after_vat` (required numeric), `p_floor_*` optional, effective/status/source… | Upsert **active** band; amounts stored as **numeric** |
+| Set price band | `catalog.set_product_unit_price_band` | `p_list_price_before_vat`, `p_list_price_after_vat`, `p_floor_*`, `p_source_type`, `p_store_price_rule_id?`, `p_list_markup_ratio?`, `p_floor_markup_ratio?`, effective/status… | Upsert **active** band; customConfig được tính lại từ base/unit dưới lock; manual lưu giá tuyệt đối |
 | List bands per unit | `catalog.list_product_unit_price_bands` | `p_tenant_id`, `p_product_id` | Rows for active `product_units`; left join **active in-window** bands + store rule name |
 | Readiness facts | `catalog._product_operational_facts` (redefined) | existing | `has_price_band` true when **all** active units have valid **before-VAT** active in-window band |
 | Apply store rule | `catalog.apply_store_price_rule` | existing | Writes before-VAT list/floor; returns `list_price_before_vat` / `floor_price_before_vat` |
-| Guided create | `catalog.create_guided_product` | `p_list_price_before_vat?`, `p_floor_price_before_vat?` (renamed) | Calls `set_initial_price_band` / apply rule |
+| Guided create | `catalog.create_guided_product` | `p_list_price_before_vat?`, `p_floor_price_before_vat?`, `p_price_band_source_type?`, `p_list_markup_ratio?`, `p_floor_markup_ratio?` | Mặc định/Bỏ qua → `ruleBased`; chỉ apply rule khi có unit + base price + active rule. Thiếu điều kiện vẫn tạo product, không tạo band/history. Custom/manual hợp lệ được ưu tiên và lưu trực tiếp |
 
 **Guards:** `inactive_product_unit`, `floor_price_greater_than_list_price`, `validation_exception` (negative prices), `missing base unit`, `product not found`
 
-**Change history:** `set_product_unit_price_band` action with `product_unit_id`, before/after VAT, effective, status, previous before-VAT, `source_type`, `store_price_rule_id`
+**Change history khung giá:** mọi lần tạo/sửa trực tiếp ghi `price_band_change` theo từng đơn vị. Snapshot chỉ gồm `source_type`, `list_price`, `floor_price` trước–sau; không lưu ratio. `before=null` biểu thị tạo lần đầu. Đổi Giá cơ sở chỉ ghi các band `ruleBased`/`customConfig` thực sự đổi giá; đổi Store Price Rule chỉ ghi các band `ruleBased` thuộc rule đó. Manual không tự tái tính và no-op không tạo history.
 
-Drafts: [`001_catalog_patch_price_band_vat_effective_schema.sql`](../../../../supabase/migrations/_drafts/001_catalog_patch_price_band_vat_effective_schema.sql), [`002_catalog_patch_price_band_vat_effective_rpcs.sql`](../../../../supabase/migrations/_drafts/002_catalog_patch_price_band_vat_effective_rpcs.sql)
+Drafts: [`catalog_product_price_band_change_history_direct.sql`](../../../../supabase/migrations/_drafts/catalog_product_price_band_change_history_direct.sql), [`catalog_product_price_band_change_history_recalculation.sql`](../../../../supabase/migrations/_drafts/catalog_product_price_band_change_history_recalculation.sql)
 
 **BE tests:** `product_unit_price_band_handlers_test.dart` (`scn_e06_u03_*`), `product_price_band_rpc_mapper_test.dart`
 
@@ -1019,7 +1031,7 @@ Permissions:
 
 - Profile maintenance edits only identification/profile fields: name, commercial name, SKU, barcode, description, note. It does not change operational modes, UOM, stock, base price, price band, status, or soft-delete state.
 - Product name is required after trim. Empty optional profile fields are persisted as absent values.
-- SKU/barcode uniqueness is tenant-scoped and includes inactive / soft-deleted products until BE policy changes explicitly.
+- SKU/barcode là duy nhất theo tenant trong tập sản phẩm chưa xóa mềm, bao gồm sản phẩm ngừng kinh doanh. Mã của sản phẩm đã xóa mềm được phép dùng lại; chủ cũ không thể restore cho đến khi hết xung đột.
 - Image maintenance uses snapshot semantics: submitted `images[]` replaces the current visible gallery. If images are present but none is primary, the first sorted image is promoted to primary.
 - Deleting all images is allowed; the result returns `images=[]`, `primaryImageUrl=null`, and refreshed readiness may include `missing_image`.
 - `expectedVersion` is optional optimistic concurrency. If provided and stale, return `StaleProductVersionException`.
@@ -1200,7 +1212,7 @@ Tests: `scn_contract_e07_u03_*` in `fake_catalog_module_test.dart` (group `EPIC-
 
 ## EPIC-07 / US-04 — Change history (slice #20)
 
-**Status:** CONTRACT `done` · BE `done` · FE `todo` · E2E `todo`
+**Status:** CONTRACT `done` · BE `done` · FE `done` · E2E `done`
 
 ### Commands / Queries
 
@@ -1215,13 +1227,16 @@ Supporting types:
 | Type | Fields |
 | ---- | ------ |
 | `ProductChangeHistoryResultDto` | productId, items[], totalCount |
-| `ProductChangeHistoryEntryDto` | id, occurredAt, actorDisplayName, changeType, summary, valueBefore?, valueAfter?, changeCategory?, source, isSensitiveMasked |
+| `ProductChangeHistoryEntryDto` | id, occurredAt, actorDisplayName, changeType, summary, valueBefore?, valueAfter?, changeCategory?, source, isSensitiveMasked, priceBandChange? |
+| `ProductPriceBandHistoryChangeDto` | productUnitId, unitName, currency, trigger, before?, after |
+| `ProductPriceBandHistorySnapshotDto` | sourceType, listPrice, floorPrice? — không chứa tỷ lệ phần trăm |
+| `ProductPriceBandHistoryTrigger` | `direct` \| `basePriceChanged` \| `storeRuleChanged` |
 | `ProductChangeCategory` | profile, images, units, stock, pricing, customFields, status, lifecycle, other |
 
 Permissions:
 
 - `GetProductChangeHistoryQuery` → `@RequiresPermission(CatalogPermissions.viewHistory)` + `@RequiresTenant()`
-- Pricing entries: `valueBefore`/`valueAfter` masked at RPC when caller lacks `catalog.product.manage_pricing` (`isSensitiveMasked=true`)
+- Pricing entries: `valueBefore`/`valueAfter` và `priceBandChange` masked tại RPC khi caller thiếu `catalog.product.manage_pricing` (`isSensitiveMasked=true`)
 - Stock entries: masked when caller lacks `catalog.product.manage_stock`
 
 **Scope / rules:**
@@ -1230,6 +1245,8 @@ Permissions:
 - **FR-02:** paginated read, newest first; optional `changeCategories` filter; empty list when no history
 - **FR-03:** deny without `view_history`; mask sensitive price/stock values per manage permissions
 - **FR-04:** optimistic concurrency remains on mutation commands via `expectedVersion` → `StaleProductVersionException` (US-01, US-02, US-03, pricing, stock)
+- Lịch sử khung giá hiển thị cả lúc tạo và sửa: mode, Giá niêm yết, Giá sàn trước–sau; không hiển thị tỷ lệ. Dữ liệu legacy không có structured snapshot tiếp tục dùng card cũ, không suy đoán giá.
+- Trigger tự động ghi một entry cho mỗi product-unit có giá thực sự thay đổi; `before.sourceType = after.sourceType` trong tái tính.
 
 Port: `IProductChangeHistoryGateway.listHistory`.
 
@@ -1239,9 +1256,9 @@ Port: `IProductChangeHistoryGateway.listHistory`.
 
 | Use case | RPC | Params (summary) | Notes |
 | -------- | --- | ---------------- | ----- |
-| List change history | `catalog.get_product_change_history` | `p_tenant_id`, `p_product_id`, `p_limit`, `p_offset`, `p_categories text[]` | Returns `{ items: [...], total_count }`; soft-deleted products allowed |
+| List change history | `catalog.get_product_change_history` | `p_tenant_id`, `p_product_id`, `p_limit`, `p_offset`, `p_categories text[]` | Returns `{ items: [...], total_count }`; mỗi row có `price_band_change?`; soft-deleted products allowed |
 
-Draft: [`supabase/migrations/_drafts/17_catalog_product_change_history.sql`](../../../../supabase/migrations/_drafts/17_catalog_product_change_history.sql)
+Drafts mở rộng: [`catalog_product_price_band_change_history_direct.sql`](../../../../supabase/migrations/_drafts/catalog_product_price_band_change_history_direct.sql), [`catalog_product_price_band_change_history_recalculation.sql`](../../../../supabase/migrations/_drafts/catalog_product_price_band_change_history_recalculation.sql)
 
 **BE tests:** `product_change_history_handlers_test.dart` (`scn_e07_u04_*`), `product_change_history_rpc_mapper_test.dart`
 
@@ -1254,10 +1271,16 @@ Draft: [`supabase/migrations/_drafts/17_catalog_product_change_history.sql`](../
 | `scn_contract_e07_u04_fr02_03` | filter `pricing` on `product-1` | only pricing category rows |
 | `scn_contract_e07_u04_fr03_01` | deny `view_history` | `ApplicationException` (Permission denied) |
 | `scn_contract_e07_u04_fr03_02` | `view_history` without `manage_pricing` | pricing rows `isSensitiveMasked=true`, values null |
+| `scn_e06_price_history_create_01` | tạo band lần đầu | `before=null`, `after` có source/list/floor |
+| `scn_e06_price_history_update_01` | đổi `ruleBased` → `manual` | before/after có source/list/floor theo đơn vị |
+| `scn_e06_price_history_recalc_base_01` | đổi Giá cơ sở | chỉ band `ruleBased`/`customConfig` đổi giá được ghi |
+| `scn_e06_price_history_recalc_rule_01` | đổi Store Price Rule | chỉ band `ruleBased` thuộc rule được ghi |
 
 `FakeCatalogModule` — `package:vet45_catalog_application/testing.dart`.
 
 Tests: `scn_contract_e07_u04_*` in `fake_catalog_module_test.dart`.
+
+Widget coverage: `wgt_e07_price_history_create_01`, `wgt_e07_price_history_update_01` trong `product_change_history_item_test.dart`; page/E2E xác nhận create và update cùng xuất hiện.
 
 ### Parallel notes
 

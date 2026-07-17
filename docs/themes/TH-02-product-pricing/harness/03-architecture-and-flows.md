@@ -139,11 +139,27 @@ Giá cơ sở định giá:
   Foundation: Manual base price (SetManualBasePriceCommand)
   Growth (pending module): read từ costing gateway — không mutate
 
-Store Price Rule (EPIC-06/US-02):
-  gợi ý list/floor = basePrice × (1 + ratio) — preview UI có thể không persist
+Ba cách tính Product Unit Price Band:
+  ruleBased:
+    - tỷ lệ thuộc catalog.store_price_rules
+    - giá materialized trên product_unit_price_bands
+  customConfig:
+    - tỷ lệ thuộc chính product_unit_price_bands theo từng product unit
+    - giá materialized trên cùng dòng
+  manual:
+    - chỉ lưu giá tuyệt đối; không có rule id hoặc tỷ lệ
 
-Product Unit Price Band (EPIC-06/US-03):
-  Giá niêm yết + Giá sàn theo đơn vị bán; Giá sàn ≤ Giá niêm yết
+Công thức dùng chung:
+  basePriceForUnit = basePricePerBaseUnit × conversionRateToBase
+  price = round(basePriceForUnit × (1 + markupRatio))
+
+Khi giá cơ sở đổi:
+  - tái tính ruleBased có rule active và customConfig của sản phẩm
+  - giữ nguyên manual
+
+Khi Store Price Rule active đổi tỷ lệ:
+  - tái tính toàn bộ active ruleBased band đang tham chiếu rule trong tenant
+  - giữ nguyên customConfig và manual
 
 Snapshot cho Sales/Promotions (EPIC-06/US-04): ProductPriceBandSnapshot
 ```

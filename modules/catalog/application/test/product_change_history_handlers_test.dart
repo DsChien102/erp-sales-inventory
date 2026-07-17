@@ -188,6 +188,54 @@ void main() {
       expect(entry.valueAfter, isNull);
     });
 
+    test('maps a structured ruleBased to manual price-band change', () async {
+      const change = ProductPriceBandHistoryChangeDto(
+        productUnitId: 'unit-lo',
+        unitName: 'Lọ',
+        currency: 'VND',
+        trigger: ProductPriceBandHistoryTrigger.direct,
+        before: ProductPriceBandHistorySnapshotDto(
+          sourceType: PriceBandSourceType.ruleBased,
+          listPrice: 52500,
+          floorPrice: 52000,
+        ),
+        after: ProductPriceBandHistorySnapshotDto(
+          sourceType: PriceBandSourceType.manual,
+          listPrice: 55000,
+          floorPrice: 53000,
+        ),
+      );
+      final gateway = _RecordingChangeHistoryGateway()
+        ..page = ProductChangeHistoryPage(
+          items: [
+            ProductChangeHistoryReadRow(
+              id: 'history-price-1',
+              occurredAt: DateTime.utc(2026, 7, 15),
+              actorDisplayName: 'Nguyễn Văn A',
+              changeType: ProductChangeHistoryAction.priceBandUpdated,
+              summary: 'Cập nhật khung giá',
+              changeCategory: ProductChangeCategory.pricing,
+              source: 'user',
+              isSensitiveMasked: false,
+              priceBandChange: change,
+            ),
+          ],
+          totalCount: 1,
+        );
+
+      final result =
+          await GetProductChangeHistoryQueryHandler(
+            changeHistoryGateway: gateway,
+          ).handle(
+            GetProductChangeHistoryQuery(
+              tenantId: 'tenant-1',
+              productId: 'product-1',
+            ),
+          );
+
+      expect(result.items.single.priceBandChange, same(change));
+    });
+
     test('scn_e07_u04_validation rejects invalid query', () async {
       final validator = GetProductChangeHistoryQueryValidator();
 

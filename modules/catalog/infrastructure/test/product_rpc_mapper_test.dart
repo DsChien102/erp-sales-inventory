@@ -17,6 +17,9 @@ void main() {
           basePrice: 10000,
           listBeforeVat: 13000,
           floorBeforeVat: 11000,
+          priceBandSourceType: PriceBandSourceType.customConfig,
+          listMarkupRatio: 0.3,
+          floorMarkupRatio: 0.1,
         ),
       );
 
@@ -25,6 +28,9 @@ void main() {
       expect(params['p_basic_stock_quantity_base'], 12);
       expect(params['p_base_price_after_vat'], 10000);
       expect(params['p_list_price_before_vat'], 13000);
+      expect(params['p_price_band_source_type'], 'customConfig');
+      expect(params['p_list_markup_ratio'], 0.3);
+      expect(params['p_floor_markup_ratio'], 0.1);
       expect(params['p_idempotency_key'], '550e8400-e29b-41d4-a716-446655440000');
       expect(params['p_reference_id'], startsWith('P'));
     });

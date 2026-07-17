@@ -10,6 +10,7 @@ import 'package:vet45_shared_application/application.dart';
 import '../widgets/price_band_calculation_type_selector.dart';
 import '../widgets/product_form_bottom_bar.dart';
 import '../widgets/price_band_overwrite_dialog.dart';
+import '../widgets/price_band_warning_ack_sheet.dart';
 
 class EditProductUnitPriceBandRouteArgs {
   final ProductUnitPriceBandRowDto row;
@@ -41,10 +42,12 @@ class EditProductUnitPriceBandPage extends StatelessWidget {
             productId: args.productId,
             productUnitId: args.row.productUnitId,
           )..loadInitialData(
+            isNewPriceBand: args.row.isMissing,
             currentSourceType: args.row.sourceType,
-            isCustomOverride: args.row.isCustomOverride,
             currentListBeforeVat: args.row.listBeforeVat,
             currentFloorBeforeVat: args.row.floorBeforeVat,
+            currentListMarkupRatio: args.row.listMarkupRatio,
+            currentFloorMarkupRatio: args.row.floorMarkupRatio,
           ),
       child: BlocConsumer<EditProductUnitPriceBandCubit, EditProductUnitPriceBandState>(
         listener: (context, state) async {
@@ -69,7 +72,12 @@ class EditProductUnitPriceBandPage extends StatelessWidget {
             }
           } else if (state is EditProductUnitPriceBandLoaded && state.error != null) {
             if (state.error == 'WARNING_REQUIRE_ACK') {
-              _showWarningAckDialog(context);
+              final confirmed = await showPriceBandWarningAckSheet(context);
+              if (confirmed == true && context.mounted) {
+                context.read<EditProductUnitPriceBandCubit>().save(
+                  confirmAcknowledgeWarnings: true,
+                );
+              }
             } else {
               VToast.show(
                 context,
@@ -164,35 +172,6 @@ class EditProductUnitPriceBandPage extends StatelessWidget {
           ),
         ],
       ),
-    );
-  }
-
-  void _showWarningAckDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (ctx) {
-        return AlertDialog(
-          title: const Text('Cảnh báo'),
-          content: const Text(
-            'Khung giá bạn thiết lập có thể vi phạm biên lợi nhuận hoặc giá sàn thấp hơn giá vốn. Bạn có chắc chắn muốn lưu?',
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(ctx).pop(),
-              child: const Text('Hủy'),
-            ),
-            TextButton(
-              onPressed: () {
-                Navigator.of(ctx).pop();
-                context.read<EditProductUnitPriceBandCubit>().save(
-                  confirmAcknowledgeWarnings: true,
-                );
-              },
-              child: const Text('Tiếp tục lưu'),
-            ),
-          ],
-        );
-      },
     );
   }
 }

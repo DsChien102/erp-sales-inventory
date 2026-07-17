@@ -19,6 +19,8 @@ final class ProductUnitPriceBandRowDto {
     this.status,
     this.sourceType,
     this.storePriceRuleName,
+    this.listMarkupRatio,
+    this.floorMarkupRatio,
     this.isCustomOverride = false,
   });
 
@@ -39,5 +41,9 @@ final class ProductUnitPriceBandRowDto {
   final bool isMissing;
   final PriceBandSourceType? sourceType;
   final String? storePriceRuleName;
+  final double? listMarkupRatio;
+  final double? floorMarkupRatio;
+
+  @Deprecated('Use sourceType == PriceBandSourceType.customConfig instead.')
   final bool isCustomOverride;
 }

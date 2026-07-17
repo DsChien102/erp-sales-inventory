@@ -64,6 +64,64 @@ void main() {
         ),
       );
     });
+
+    test('accepts a customConfig price band with persisted ratios', () async {
+      await validator.validate(
+        CreateGuidedProductCommand(
+          tenantId: 'tenant-1',
+          actorId: 'actor-1',
+          productName: 'Thuốc A',
+          baseUnit: const NewTenantUnit('lọ'),
+          basePrice: 50000,
+          listBeforeVat: 75000,
+          floorBeforeVat: 70000,
+          priceBandSourceType: PriceBandSourceType.customConfig,
+          listMarkupRatio: 0.5,
+          floorMarkupRatio: 0.4,
+        ),
+      );
+    });
+
+    test('accepts default store rule without unit or base price', () async {
+      await validator.validate(
+        CreateGuidedProductCommand(
+          tenantId: 'tenant-1',
+          actorId: 'actor-1',
+          productName: 'Thuốc A',
+          useStorePriceRule: true,
+          priceBandSourceType: PriceBandSourceType.ruleBased,
+        ),
+      );
+    });
+
+    test('still requires a base unit for custom or manual pricing', () async {
+      await expectLater(
+        validator.validate(
+          CreateGuidedProductCommand(
+            tenantId: 'tenant-1',
+            actorId: 'actor-1',
+            productName: 'Thuốc custom',
+            basePrice: 50000,
+            priceBandSourceType: PriceBandSourceType.customConfig,
+            listMarkupRatio: 0.3,
+            floorMarkupRatio: 0.1,
+          ),
+        ),
+        throwsA(isA<ValidationException>()),
+      );
+      await expectLater(
+        validator.validate(
+          CreateGuidedProductCommand(
+            tenantId: 'tenant-1',
+            actorId: 'actor-1',
+            productName: 'Thuốc manual',
+            priceBandSourceType: PriceBandSourceType.manual,
+            listBeforeVat: 70000,
+          ),
+        ),
+        throwsA(isA<ValidationException>()),
+      );
+    });
   });
 
   test('handler delegates the whole command to one gateway call', () async {

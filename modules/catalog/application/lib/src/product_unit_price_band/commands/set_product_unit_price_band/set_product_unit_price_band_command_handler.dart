@@ -51,47 +51,44 @@ final class SetProductUnitPriceBandCommandHandler
       productId: command.productId,
     );
 
+    final priceBand = _createPriceBand(
+      command: command,
+      targetUnit: targetUnit,
+      basePricePerBaseUnit: controlCenter?.basePriceAmount,
+    );
+
+    final listBeforeVat = priceBand.listBeforeVat!.amount;
+    final listAfterVat = priceBand.listAfterVat!.amount;
+    final floorBeforeVat = priceBand.floorBeforeVat?.amount;
+    final floorAfterVat = priceBand.floorAfterVat?.amount;
+
     final warnings = PriceBandWarningCalculator.compute(
       basePricePerBaseUnit: controlCenter?.basePriceAmount,
       baseUnitName: units.baseUnitName,
       unit: targetUnit,
-      listBeforeVat: command.listBeforeVat,
-      floorBeforeVat: command.floorBeforeVat,
+      listBeforeVat: listBeforeVat,
+      floorBeforeVat: floorBeforeVat,
     );
 
     if (warnings.isNotEmpty && !command.confirmAcknowledgeWarnings) {
       throw PriceBandWarningsRequireAcknowledgmentException(warnings: warnings);
     }
 
-    // Domain-first: enforce floor ≤ list before RPC persist.
-    ProductUnitPriceBand.set(
-      id: targetUnit.id,
-      tenantId: TenantId(command.tenantId),
-      productId: ProductId(command.productId),
-      productUnitId: targetUnit.id,
-      listBeforeVat: command.listBeforeVat,
-      floorBeforeVat: command.floorBeforeVat,
-      listAfterVat: command.listAfterVat,
-      floorAfterVat: command.floorAfterVat,
-      effectiveFrom: command.effectiveFrom,
-      effectiveTo: command.effectiveTo,
-      status: command.status ?? ProductPriceBandStatus.active,
-      storePriceRuleId: command.storePriceRuleId,
-    );
-
     await _priceBandGateway.setProductUnitPriceBand(
       tenantId: command.tenantId,
       productId: command.productId,
       productUnitId: targetUnit.id,
-      listBeforeVat: command.listBeforeVat,
-      floorBeforeVat: command.floorBeforeVat,
-      listAfterVat: command.listAfterVat,
-      floorAfterVat: command.floorAfterVat,
+      listBeforeVat: listBeforeVat,
+      floorBeforeVat: floorBeforeVat,
+      listAfterVat: listAfterVat,
+      floorAfterVat: floorAfterVat,
       effectiveFrom: command.effectiveFrom,
       effectiveTo: command.effectiveTo,
       status: command.status,
       sourceType: command.sourceType,
       storePriceRuleId: command.storePriceRuleId,
+      listMarkupRatio: command.listMarkupRatio,
+      floorMarkupRatio: command.floorMarkupRatio,
     );
 
     final facts = await _readinessReadPort.loadFacts(
@@ -106,18 +103,76 @@ final class SetProductUnitPriceBandCommandHandler
     return SetProductUnitPriceBandResult(
       productId: command.productId,
       productUnitId: targetUnit.id,
-      listBeforeVat: command.listBeforeVat,
-      floorBeforeVat: command.floorBeforeVat,
-      listAfterVat: command.listAfterVat,
-      floorAfterVat: command.floorAfterVat,
+      listBeforeVat: listBeforeVat,
+      floorBeforeVat: floorBeforeVat,
+      listAfterVat: listAfterVat,
+      floorAfterVat: floorAfterVat,
       effectiveFrom: command.effectiveFrom,
       effectiveTo: command.effectiveTo,
       status: command.status ?? ProductPriceBandStatus.active,
       sourceType: command.sourceType,
       storePriceRuleId: command.storePriceRuleId,
+      listMarkupRatio: command.listMarkupRatio,
+      floorMarkupRatio: command.floorMarkupRatio,
       warnings: warnings,
       readinessSummary: ReadinessSummaryDto.fromDomain(readiness),
     );
+  }
+
+  ProductUnitPriceBand _createPriceBand({
+    required SetProductUnitPriceBandCommand command,
+    required ProductUnitDto targetUnit,
+    required double? basePricePerBaseUnit,
+  }) {
+    final status = command.status ?? ProductPriceBandStatus.active;
+    switch (command.sourceType) {
+      case PriceBandSourceType.ruleBased:
+        throw ApplicationException(
+          'Rule-based price bands must use ApplyStorePriceRuleCommand.',
+        );
+      case PriceBandSourceType.customConfig:
+        final basePrice = basePricePerBaseUnit;
+        if (basePrice == null) {
+          throw MissingBasePriceException();
+        }
+        if (targetUnit.conversionRateToBase <= 0) {
+          throw ApplicationException('Product unit conversion rate is invalid.');
+        }
+        final markupConfig = PriceBandMarkupConfig(
+          listMarkupRatio: command.listMarkupRatio!,
+          floorMarkupRatio: command.floorMarkupRatio,
+        );
+        return ProductUnitPriceBand.setCustomConfig(
+          id: targetUnit.id,
+          tenantId: TenantId(command.tenantId),
+          productId: ProductId(command.productId),
+          productUnitId: targetUnit.id,
+          basePriceForUnit: basePrice * targetUnit.conversionRateToBase,
+          markupConfig: markupConfig,
+          effectiveFrom: command.effectiveFrom,
+          effectiveTo: command.effectiveTo,
+          status: status,
+        );
+      case PriceBandSourceType.manual:
+        final listBeforeVat = command.listBeforeVat;
+        final listAfterVat = command.listAfterVat;
+        if (listBeforeVat == null || listAfterVat == null) {
+          throw ApplicationException('Manual list prices are required.');
+        }
+        return ProductUnitPriceBand.setManual(
+          id: targetUnit.id,
+          tenantId: TenantId(command.tenantId),
+          productId: ProductId(command.productId),
+          productUnitId: targetUnit.id,
+          listBeforeVat: listBeforeVat,
+          floorBeforeVat: command.floorBeforeVat,
+          listAfterVat: listAfterVat,
+          floorAfterVat: command.floorAfterVat,
+          effectiveFrom: command.effectiveFrom,
+          effectiveTo: command.effectiveTo,
+          status: status,
+        );
+    }
   }
 
   Future<void> _ensureBaseUnit(String tenantId, String productId) async {

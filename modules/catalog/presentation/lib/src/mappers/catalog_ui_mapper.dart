@@ -10,10 +10,6 @@ class CatalogUiMapper {
   static ({int? listBeforeVat, int? floorBeforeVat}) resolvePriceBand(
     ProductGuidedCreateState state,
   ) {
-    if (!state.priceBandConfigured) {
-      return (listBeforeVat: null, floorBeforeVat: null);
-    }
-
     final baseCost = parseCatalogCurrencyAmount(state.baseCost)?.toDouble();
 
     if (state.pricingMethod == 'manual') {
