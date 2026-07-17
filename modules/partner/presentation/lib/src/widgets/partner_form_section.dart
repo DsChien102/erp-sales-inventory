@@ -80,20 +80,20 @@ class PartnerFormSection extends StatelessWidget {
   Widget _trailingIcon(VColorScheme colors) {
     if (isExpanded) {
       return VIcon(
-        iconData: Icons.expand_less,
+        icon: VIcons.expandLess,
         size: 20,
         color: colors.textSecondary,
       );
     }
     if (isCompleted) {
       return VIcon(
-        iconData: Icons.check_circle,
+        icon: VIcons.success,
         size: 18,
         color: colors.primary,
       );
     }
     return VIcon(
-      iconData: Icons.expand_more,
+      icon: VIcons.expandMore,
       size: 20,
       color: colors.textSecondary,
     );

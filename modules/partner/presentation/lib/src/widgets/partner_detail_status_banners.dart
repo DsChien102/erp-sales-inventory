@@ -18,7 +18,7 @@ class PartnerDetailWarningBanner extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.warning_amber_rounded, color: colors.warning, size: 22),
+          VIcon(icon: VIcons.warning, color: colors.warning, size: 22),
           const SizedBox(width: VSpacing.space3),
           Expanded(
             child: Column(
@@ -49,8 +49,8 @@ class PartnerDetailWarningBanner extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(width: 4),
-                    Icon(
-                      Icons.chevron_right_rounded,
+                    VIcon(
+                      icon: VIcons.chevronRight,
                       size: 16,
                       color: colors.success,
                     ),
@@ -85,7 +85,7 @@ class PartnerDetailInactiveBanner extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.warning_amber_rounded, color: colors.warning, size: 22),
+          VIcon(icon: VIcons.warning, color: colors.warning, size: 22),
           const SizedBox(width: VSpacing.space3),
           Expanded(
             child: Text(

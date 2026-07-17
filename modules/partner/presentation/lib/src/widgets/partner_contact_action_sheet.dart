@@ -45,7 +45,7 @@ class PartnerContactActionSheet extends StatelessWidget {
                 const SizedBox(height: VSpacing.space2),
                 Divider(color: colors.borderDefault, height: 1),
                 ListTile(
-                  leading: Icon(Icons.edit_outlined, color: colors.textSecondary),
+                  leading: VIcon(icon: VIcons.edit, color: colors.textSecondary),
                   title: Text(
                     'Chỉnh sửa liên hệ',
                     style: VTypography.bodyDefault.copyWith(
@@ -53,12 +53,12 @@ class PartnerContactActionSheet extends StatelessWidget {
                       fontWeight: FontWeight.w500,
                     ),
                   ),
-                  trailing: Icon(Icons.chevron_right_rounded, color: colors.textMuted),
+                  trailing: VIcon(icon: VIcons.chevronRight, color: colors.textMuted),
                   onTap: () => Navigator.of(context).pop(PartnerContactAction.edit),
                 ),
                 if (!contact.isPrimary && contact.status == PartnerStatus.active)
                   ListTile(
-                    leading: Icon(Icons.star_outline_rounded, color: colors.textSecondary),
+                    leading: VIcon(icon: VIcons.star, color: colors.textSecondary),
                     title: Text(
                       'Đặt làm chính',
                       style: VTypography.bodyDefault.copyWith(
@@ -66,11 +66,11 @@ class PartnerContactActionSheet extends StatelessWidget {
                         fontWeight: FontWeight.w500,
                       ),
                     ),
-                    trailing: Icon(Icons.chevron_right_rounded, color: colors.textMuted),
+                    trailing: VIcon(icon: VIcons.chevronRight, color: colors.textMuted),
                     onTap: () => Navigator.of(context).pop(PartnerContactAction.setPrimary),
                   ),
                 ListTile(
-                  leading: Icon(Icons.delete_outline_rounded, color: colors.danger),
+                  leading: VIcon(icon: VIcons.delete, color: colors.danger),
                   title: Text(
                     'Gỡ khỏi tổ chức',
                     style: VTypography.bodyDefault.copyWith(
@@ -78,7 +78,7 @@ class PartnerContactActionSheet extends StatelessWidget {
                       fontWeight: FontWeight.w500,
                     ),
                   ),
-                  trailing: Icon(Icons.chevron_right_rounded, color: colors.danger),
+                  trailing: VIcon(icon: VIcons.chevronRight, color: colors.danger),
                   onTap: () => Navigator.of(context).pop(PartnerContactAction.remove),
                 ),
                 const SizedBox(height: VSpacing.space2),

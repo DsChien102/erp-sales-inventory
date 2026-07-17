@@ -63,7 +63,7 @@ class PartnerDetailActionSheet extends StatelessWidget {
               if (canTransform)
                 _ActionCard(
                   key: const Key('action_transform'),
-                  icon: Icons.apartment_rounded,
+                  icon: VIcons.apartment,
                   iconBackground: colors.success.withValues(alpha: 0.12),
                   iconColor: colors.success,
                   title: 'Chuyển thành tổ chức',
@@ -75,8 +75,8 @@ class PartnerDetailActionSheet extends StatelessWidget {
                 _ActionCard(
                   key: const Key('action_toggle_status'),
                   icon: isInactive
-                      ? Icons.power_settings_new_rounded
-                      : Icons.pause_circle_filled_rounded,
+                      ? VIcons.power
+                      : VIcons.pause,
                   iconBackground: isInactive
                       ? colors.success.withValues(alpha: 0.12)
                       : colors.textPrimary.withValues(alpha: 0.08),
@@ -91,7 +91,7 @@ class PartnerDetailActionSheet extends StatelessWidget {
               if (canDelete)
                 _ActionCard(
                   key: const Key('action_delete'),
-                  icon: Icons.delete_outline_rounded,
+                  icon: VIcons.delete,
                   iconBackground: colors.danger.withValues(alpha: 0.1),
                   iconColor: colors.danger,
                   title: 'Xóa hồ sơ',
@@ -135,7 +135,7 @@ class _ActionCard extends StatelessWidget {
     this.titleColor,
   });
 
-  final IconData icon;
+  final VIcons icon;
   final Color iconBackground;
   final Color iconColor;
   final String title;
@@ -166,7 +166,7 @@ class _ActionCard extends StatelessWidget {
             child: Row(
               children: [
                 VIconBox(
-                  iconData: icon,
+                  icon: icon,
                   size: 44,
                   iconSize: 22,
                   isCircular: true,
@@ -197,8 +197,8 @@ class _ActionCard extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: VSpacing.space2),
-                Icon(
-                  Icons.chevron_right_rounded,
+                VIcon(
+                  icon: VIcons.chevronRight,
                   color: colors.textMuted,
                 ),
               ],

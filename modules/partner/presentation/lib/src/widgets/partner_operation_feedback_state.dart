@@ -199,13 +199,13 @@ class _NoPermissionIllustration extends StatelessWidget {
       child: Stack(
         alignment: Alignment.center,
         children: [
-          Icon(
-            Icons.shield_outlined,
+          VIcon(
+            icon: VIcons.shield,
             size: 120,
             color: muted.withValues(alpha: 0.28),
           ),
-          Icon(
-            Icons.lock_rounded,
+          VIcon(
+            icon: VIcons.lock,
             size: 36,
             color: muted.withValues(alpha: 0.75),
           ),
@@ -224,8 +224,8 @@ class _SourceChangedIllustration extends StatelessWidget {
     return SizedBox(
       width: 140,
       height: 140,
-      child: Icon(
-        Icons.sync_rounded,
+      child: VIcon(
+        icon: VIcons.refresh,
         size: 88,
         color: muted.withValues(alpha: 0.55),
       ),
@@ -245,8 +245,8 @@ class _ErrorIllustration extends StatelessWidget {
       child: Stack(
         alignment: Alignment.center,
         children: [
-          Icon(
-            Icons.cloud_outlined,
+          VIcon(
+            icon: VIcons.cloud,
             size: 110,
             color: muted.withValues(alpha: 0.28),
           ),

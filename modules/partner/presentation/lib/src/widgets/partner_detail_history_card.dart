@@ -11,7 +11,7 @@ class PartnerDetailHistoryCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return PartnerDetailExpandableCard(
       title: 'Lịch sử gần đây',
-      icon: Icons.history_toggle_off_rounded,
+      icon: VIcons.history,
       onTap: () => VToast.show(
         context,
         title: 'Tính năng đang phát triển',

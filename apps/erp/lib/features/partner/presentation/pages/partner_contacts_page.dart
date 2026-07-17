@@ -229,7 +229,7 @@ class _PartnerContactsPageState extends State<PartnerContactsPage> {
           showBackButton: true,
           actions: [
             IconButton(
-              icon: Icon(Icons.more_horiz, color: colors.textPrimary),
+              icon: VIcon(icon: VIcons.moreHoriz, color: colors.textPrimary),
               onPressed: () {},
             ),
           ],
@@ -240,7 +240,7 @@ class _PartnerContactsPageState extends State<PartnerContactsPage> {
               return VFloatingActionButton(
                 key: const Key('btn_add_contact_fab'),
                 onTap: () => _showAddMethodSheet(context),
-                iconData: Icons.add,
+                icon: VIcons.add,
               );
             }
             return const SizedBox();
@@ -259,7 +259,7 @@ class _PartnerContactsPageState extends State<PartnerContactsPage> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(Icons.error_outline_rounded, color: colors.danger, size: 48),
+                      VIcon(icon: VIcons.error, color: colors.danger, size: 48),
                       const SizedBox(height: VSpacing.space3),
                       Text(
                         state.isNoPermission
@@ -511,7 +511,7 @@ class _PartnerContactsPageState extends State<PartnerContactsPage> {
                                     ),
                                   ),
                                   const SizedBox(width: 8),
-                                  Icon(Icons.chevron_right_rounded, color: colors.textMuted),
+                                  VIcon(icon: VIcons.chevronRight, color: colors.textMuted),
                                 ],
                               ),
                             ),

@@ -40,7 +40,7 @@ class PartnerDeletePrimaryContactBlockedSheet extends StatelessWidget {
               ),
             ),
             const SizedBox(height: VSpacing.space5),
-            Icon(Icons.delete_outline_rounded, size: 44, color: colors.danger),
+            VIcon(icon: VIcons.delete, size: 44, color: colors.danger),
             const SizedBox(height: VSpacing.space3),
             Text(
               'Không thể xóa hồ sơ',

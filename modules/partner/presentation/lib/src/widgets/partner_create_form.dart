@@ -221,7 +221,7 @@ class _LockedTypeCard extends StatelessWidget {
         title: '1. Loại hồ sơ',
         trailingText: partnerType == PartnerType.person ? 'Cá nhân' : 'Tổ chức',
         trailingIcon: VIcon(
-          iconData: Icons.lock_outline,
+          icon: VIcons.lock,
           size: 16,
           color: context.vColors.textMuted,
         ),
@@ -242,7 +242,7 @@ class _MessageCard extends StatelessWidget {
       child: Row(
         children: [
           VIcon(
-            iconData: blocked ? Icons.lock_outline : Icons.error_outline,
+            icon: blocked ? VIcons.lock : VIcons.error,
             color: VColors.danger,
           ),
           const SizedBox(width: VSpacing.space2),

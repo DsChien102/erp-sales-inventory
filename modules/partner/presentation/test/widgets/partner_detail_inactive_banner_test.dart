@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:vet45_design_system/design_system.dart';
 import 'package:vet45_partner_presentation/presentation.dart';
 
 void main() {
@@ -19,6 +20,6 @@ void main() {
       find.text(PartnerDetailInactiveBanner.message),
       findsOneWidget,
     );
-    expect(find.byIcon(Icons.warning_amber_rounded), findsOneWidget);
+    expect(find.byIcon(VIcons.warning.value), findsOneWidget);
   });
 }

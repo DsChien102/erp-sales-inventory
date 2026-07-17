@@ -47,7 +47,7 @@ class PartnerListHeaderRow extends StatelessWidget {
                 child: Row(
                   children: [
                     VIcon(
-                      iconData: Icons.swap_vert,
+                      icon: VIcons.swapVert,
                       size: 20,
                       color: colors.textSecondary,
                     ),

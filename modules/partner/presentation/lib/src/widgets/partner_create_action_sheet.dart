@@ -90,7 +90,7 @@ class _CreateTypeCard extends StatelessWidget {
             ),
           ),
           const SizedBox(width: VSpacing.space2),
-          const VIcon(iconData: Icons.chevron_right),
+          const VIcon(icon: VIcons.chevronRight),
         ],
       ),
     );

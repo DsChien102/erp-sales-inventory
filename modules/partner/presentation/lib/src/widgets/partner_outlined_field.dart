@@ -342,8 +342,8 @@ class PartnerOutlinedDropdown<T> extends StatelessWidget {
                   child: selectedItem?.child ?? Text(hintText ?? 'Chọn...'),
                 ),
               ),
-              Icon(
-                Icons.keyboard_arrow_down,
+              VIcon(
+                icon: VIcons.chevronDown,
                 size: 20,
                 color: enabled ? colors.textSecondary : colors.textMuted,
               ),

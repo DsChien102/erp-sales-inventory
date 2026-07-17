@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:vet45_design_system/design_system.dart';
 import 'package:vet45_partner_application/application.dart';
 import 'package:vet45_partner_domain/domain.dart';
 import 'package:vet45_partner_presentation/presentation.dart';
@@ -111,7 +112,7 @@ void main() {
       find.text('Cho phép sử dụng lại trong hệ thống.'),
       findsOneWidget,
     );
-    expect(find.byIcon(Icons.power_settings_new_rounded), findsOneWidget);
+    expect(find.byIcon(VIcons.power.value), findsOneWidget);
     expect(find.text('Ngừng hoạt động'), findsNothing);
     expect(find.text('Xóa hồ sơ'), findsOneWidget);
   });

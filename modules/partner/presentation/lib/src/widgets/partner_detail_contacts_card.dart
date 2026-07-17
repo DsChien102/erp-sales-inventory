@@ -27,7 +27,7 @@ class PartnerDetailContactsCard extends StatelessWidget {
 
     return PartnerDetailExpandableCard(
       title: 'Người liên hệ',
-      icon: Icons.people_alt_outlined,
+      icon: VIcons.people,
       initiallyExpanded: initiallyExpanded,
       trailingWhenCollapsed: contacts.isEmpty
           ? Container(
@@ -91,8 +91,8 @@ class PartnerDetailContactsCard extends StatelessWidget {
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(
-                        Icons.add_circle_outline_rounded,
+                      VIcon(
+                        icon: VIcons.addCircle,
                         size: 16,
                         color: colors.success,
                       ),
@@ -124,8 +124,8 @@ class PartnerDetailContactsCard extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(width: 4),
-                        Icon(
-                          Icons.chevron_right_rounded,
+                        VIcon(
+                          icon: VIcons.chevronRight,
                           size: 16,
                           color: colors.success,
                         ),

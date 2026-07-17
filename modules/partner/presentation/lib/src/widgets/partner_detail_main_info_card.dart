@@ -25,7 +25,7 @@ class PartnerDetailMainInfoCard extends StatelessWidget {
 
     return PartnerDetailExpandableCard(
       title: title,
-      icon: Icons.assignment_ind_outlined,
+      icon: VIcons.person,
       initiallyExpanded: initiallyExpanded,
       child: isPerson ? _personFields(dto.personProfile) : _orgFields(dto.organizationProfile),
     );

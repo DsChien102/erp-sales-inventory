@@ -60,7 +60,7 @@ class PartnerContactAddMethodSheet extends StatelessWidget {
                             children: [
                               CircleAvatar(
                                 backgroundColor: colors.success.withValues(alpha: 0.1),
-                                child: Icon(Icons.person_add_outlined, color: colors.success),
+                                child: VIcon(icon: VIcons.personAdd, color: colors.success),
                               ),
                               const SizedBox(width: VSpacing.space3),
                               Expanded(
@@ -82,7 +82,7 @@ class PartnerContactAddMethodSheet extends StatelessWidget {
                                   ],
                                 ),
                               ),
-                              Icon(Icons.chevron_right_rounded, color: colors.textMuted),
+                              VIcon(icon: VIcons.chevronRight, color: colors.textMuted),
                             ],
                           ),
                         ),
@@ -114,7 +114,7 @@ class PartnerContactAddMethodSheet extends StatelessWidget {
                             children: [
                               CircleAvatar(
                                 backgroundColor: colors.info.withValues(alpha: 0.1),
-                                child: Icon(Icons.search_rounded, color: colors.info),
+                                child: VIcon(icon: VIcons.search, color: colors.info),
                               ),
                               const SizedBox(width: VSpacing.space3),
                               Expanded(
@@ -136,7 +136,7 @@ class PartnerContactAddMethodSheet extends StatelessWidget {
                                   ],
                                 ),
                               ),
-                              Icon(Icons.chevron_right_rounded, color: colors.textMuted),
+                              VIcon(icon: VIcons.chevronRight, color: colors.textMuted),
                             ],
                           ),
                         ),

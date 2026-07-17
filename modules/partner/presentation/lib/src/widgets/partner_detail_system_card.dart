@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:vet45_design_system/design_system.dart';
 import 'package:vet45_partner_application/application.dart';
 
 import 'partner_detail_expandable_card.dart';
@@ -18,7 +19,7 @@ class PartnerDetailSystemCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return PartnerDetailExpandableCard(
       title: 'Lịch sử thao tác ',
-      icon: Icons.settings_outlined,
+      icon: VIcons.settings,
       onTap: onTapHistory,
       child: const SizedBox.shrink(),
     );

@@ -35,7 +35,7 @@ class PartnerDetailInvoiceCard extends StatelessWidget {
 
     return PartnerDetailExpandableCard(
       title: 'Hóa đơn / thuế',
-      icon: Icons.receipt_long_outlined,
+      icon: VIcons.receipt,
       initiallyExpanded: initiallyExpanded,
       trailingWhenCollapsed: missingLabel != null
           ? Container(

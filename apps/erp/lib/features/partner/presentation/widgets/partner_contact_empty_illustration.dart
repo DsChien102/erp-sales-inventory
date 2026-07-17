@@ -25,7 +25,7 @@ class PartnerContactEmptyIllustration extends StatelessWidget {
                 color: colors.surface,
                 border: Border.all(color: colors.borderDefault, width: 2),
               ),
-              child: Icon(Icons.person_outline, color: colors.textMuted, size: 30),
+              child: VIcon(icon: VIcons.person, color: colors.textMuted, size: 30),
             ),
           ),
           // Avatar 2 (Right background)
@@ -40,7 +40,7 @@ class PartnerContactEmptyIllustration extends StatelessWidget {
                 color: colors.surface,
                 border: Border.all(color: colors.borderDefault, width: 2),
               ),
-              child: Icon(Icons.person_outline, color: colors.textMuted, size: 36),
+              child: VIcon(icon: VIcons.person, color: colors.textMuted, size: 36),
             ),
           ),
           // Avatar 3 (Middle foreground)
@@ -55,7 +55,7 @@ class PartnerContactEmptyIllustration extends StatelessWidget {
                 color: colors.surface,
                 border: Border.all(color: colors.borderDefault, width: 2.5),
               ),
-              child: Icon(Icons.contact_phone_outlined, color: colors.textMuted, size: 36),
+              child: VIcon(icon: VIcons.contact, color: colors.textMuted, size: 36),
             ),
           ),
           // Green plus badge (Bottom right)
@@ -69,8 +69,8 @@ class PartnerContactEmptyIllustration extends StatelessWidget {
                 color: colors.success,
                 border: Border.all(color: colors.surface, width: 2),
               ),
-              child: const Icon(
-                Icons.add,
+              child: const VIcon(
+                icon: VIcons.add,
                 color: Colors.white,
                 size: 16,
               ),
