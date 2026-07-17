@@ -86,8 +86,8 @@ apps/erp/.env
 !**/.env.*.example
 .vet45/
 # Local secrets — profile dirs are config/<profileId>/; commit only *.env.example
-config/*/*.env
-!config/*/*.env.example
+config/**/*.env
+!config/**/*.env.example
 # Keep deploy target manifest trackable; only ignore filled deploy.env
 config/deploy/deploy.env
 !config/deploy/deploy.env.example
