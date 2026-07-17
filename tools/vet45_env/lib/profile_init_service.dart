@@ -19,17 +19,17 @@ class ProfileInitService {
 SUPABASE_ACCESS_TOKEN=
 ''';
 
-  static const _reservedDirs = {'deploy'};
-
   Future<void> init(String profileId, {String? description}) async {
     if (manifest.profiles.profiles.containsKey(profileId)) {
       throw StateError('Profile already exists: $profileId');
     }
-    if (profileId == 'default') {
-      throw StateError('Cannot init reserved profile id: default');
+    if (profileId == manifest.profiles.defaultProfileId) {
+      throw StateError(
+        'Cannot init reserved profile id: ${manifest.profiles.defaultProfileId}',
+      );
     }
-    if (_reservedDirs.contains(profileId)) {
-      throw StateError('Cannot init reserved config directory id: $profileId');
+    if (_isReservedTargetId(profileId)) {
+      throw StateError('Cannot init reserved target/config id: $profileId');
     }
 
     final secretsRoot = 'config/$profileId';
@@ -38,7 +38,10 @@ SUPABASE_ACCESS_TOKEN=
 
     _writeWorkspaceProfileEntry(profileId, description, secretsRoot);
 
-    final defaultRoot = Directory('${manifest.rootDir.path}/config/default');
+    final defaultProfile = manifest.profiles.getProfile(
+      manifest.profiles.defaultProfileId,
+    );
+    final defaultRoot = defaultProfile.secretsDirectory(manifest.rootDir);
     for (final envId in manifest.environments.keys) {
       final exampleName = '$envId.env.example';
       final source = File('${defaultRoot.path}/$exampleName');
@@ -96,7 +99,13 @@ SUPABASE_ACCESS_TOKEN=
       environments: workspace.environments,
       rootDir: workspace.rootDir,
       file: workspace.file,
+      doctor: workspace.doctor,
     );
     updated.write();
+  }
+
+  bool _isReservedTargetId(String profileId) {
+    final target = manifest.targets[profileId];
+    return target != null && !target.writeEnvFile;
   }
 }

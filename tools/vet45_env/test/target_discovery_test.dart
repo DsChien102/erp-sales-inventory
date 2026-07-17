@@ -36,7 +36,7 @@ void main() {
   test('resolves envFile relative to target manifest dir', () {
     writeTestWorkspace(root);
     final manifest = EnvManifest.load(root);
-    final erpEnv = manifest.getEnvironment('local').erp!.envFile!;
+    final erpEnv = manifest.getEnvironment('local').binding('erp')!.envFile!;
     expect(erpEnv.path.replaceAll('\\', '/'), endsWith('apps/erp/.env'));
   });
 
@@ -44,7 +44,7 @@ void main() {
     writeTestWorkspace(root);
     final manifest = EnvManifest.load(root);
     expect(
-      manifest.deploySecretsFile.path.replaceAll('\\', '/'),
+      manifest.targets['deploy']!.secretsFile!.path.replaceAll('\\', '/'),
       endsWith('config/deploy/deploy.env'),
     );
   });

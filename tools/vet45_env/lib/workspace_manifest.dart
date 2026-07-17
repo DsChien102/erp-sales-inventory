@@ -3,6 +3,51 @@ import 'dart:io';
 
 import 'profile_registry.dart';
 
+/// Host alignment rule from [vet45.workspace.json] `doctor.alignHosts`.
+class DoctorAlignHostRule {
+  const DoctorAlignHostRule({
+    required this.name,
+    required this.targets,
+    required this.keys,
+  });
+
+  final String name;
+  final List<String> targets;
+  final List<String> keys;
+
+  factory DoctorAlignHostRule.fromJson(Map<String, dynamic> json) {
+    return DoctorAlignHostRule(
+      name: json['name'] as String? ?? 'host alignment',
+      targets: (json['targets'] as List<dynamic>?)
+              ?.map((e) => e as String)
+              .toList() ??
+          const [],
+      keys: (json['keys'] as List<dynamic>?)
+              ?.map((e) => e as String)
+              .toList() ??
+          const [],
+    );
+  }
+}
+
+/// Doctor configuration from workspace manifest.
+class DoctorConfig {
+  const DoctorConfig({this.alignHosts = const []});
+
+  final List<DoctorAlignHostRule> alignHosts;
+
+  factory DoctorConfig.fromJson(Map<String, dynamic>? json) {
+    final raw = json?['alignHosts'] as List<dynamic>? ?? [];
+    return DoctorConfig(
+      alignHosts: raw
+          .map(
+            (e) => DoctorAlignHostRule.fromJson(e as Map<String, dynamic>),
+          )
+          .toList(),
+    );
+  }
+}
+
 /// Scan policy for discovering [vet45.target.json] files.
 class ScanPolicy {
   ScanPolicy({
@@ -74,6 +119,7 @@ class WorkspaceManifest {
     required this.environments,
     required this.rootDir,
     required this.file,
+    this.doctor = const DoctorConfig(),
   });
 
   final int version;
@@ -83,6 +129,7 @@ class WorkspaceManifest {
   final Map<String, WorkspaceEnvironmentMeta> environments;
   final Directory rootDir;
   final File file;
+  final DoctorConfig doctor;
 
   static const fileName = 'vet45.workspace.json';
 
@@ -104,6 +151,7 @@ class WorkspaceManifest {
         'development';
 
     final scan = ScanPolicy.fromJson(json['scan'] as Map<String, dynamic>?);
+    final doctor = DoctorConfig.fromJson(json['doctor'] as Map<String, dynamic>?);
     final profiles = ProfileRegistry.fromWorkspaceJson(
       rootDir: rootDir,
       json: json['profiles'] as Map<String, dynamic>?,
@@ -134,6 +182,7 @@ class WorkspaceManifest {
       environments: environments,
       rootDir: rootDir,
       file: file,
+      doctor: doctor,
     );
   }
 
@@ -169,6 +218,17 @@ class WorkspaceManifest {
               'supabaseProjectRef': entry.value.supabaseProjectRef,
           },
       },
+      if (doctor.alignHosts.isNotEmpty)
+        'doctor': {
+          'alignHosts': [
+            for (final rule in doctor.alignHosts)
+              {
+                'name': rule.name,
+                'targets': rule.targets,
+                'keys': rule.keys,
+              },
+          ],
+        },
     };
   }
 

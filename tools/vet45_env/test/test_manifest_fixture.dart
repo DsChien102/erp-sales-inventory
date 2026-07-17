@@ -4,6 +4,82 @@ import 'dart:io';
 import 'package:vet45_env/manifest.dart';
 import 'package:vet45_env/profile_registry.dart';
 
+const _erpActions = {
+  'debug': {
+    'command': 'flutter',
+    'args': [
+      'run',
+      '--flavor',
+      '{{flavor}}',
+      '--dart-define-from-file={{envBasename}}',
+    ],
+    'cwd': '.',
+    'requireEnvFile': true,
+  },
+  'debug:web': {
+    'command': 'flutter',
+    'args': [
+      'run',
+      '-d',
+      'chrome',
+      '--flavor',
+      '{{flavor}}',
+      '--dart-define-from-file={{envBasename}}',
+    ],
+    'cwd': '.',
+    'requireEnvFile': true,
+  },
+  'debug:ios': {
+    'command': 'flutter',
+    'args': [
+      'run',
+      '-d',
+      'ios',
+      '--flavor',
+      '{{flavor}}',
+      '--dart-define-from-file={{envBasename}}',
+    ],
+    'cwd': '.',
+    'platforms': ['macos'],
+    'requireEnvFile': true,
+  },
+};
+
+const _workerActions = {
+  'serve': {
+    'command': 'dart',
+    'args': ['run', 'bin/worker.dart', '--serve'],
+    'cwd': '.',
+    'passEnvFile': true,
+    'localSupabaseCheck': true,
+    'requireEnvFile': true,
+  },
+  'once': {
+    'command': 'dart',
+    'args': ['run', 'bin/worker.dart', '--once'],
+    'cwd': '.',
+    'passEnvFile': true,
+    'localSupabaseCheck': true,
+    'requireEnvFile': true,
+  },
+  'docker': {
+    'command': 'docker',
+    'args': ['compose', 'up', '--build', 'messaging-worker'],
+    'cwd': '{{workspaceRoot}}',
+    'env': {
+      'WORKER_ENV_FILE': '{{envFile}}',
+      'WORKER_SUPABASE_URL': '{{dockerSupabaseUrl}}',
+    },
+    'requireEnvFile': true,
+  },
+  'deploy': {
+    'command': './scripts/deploy.sh',
+    'args': ['--env', '{{railwayEnvironment}}'],
+    'cwd': '.',
+    'requireRailwayEnvironment': true,
+  },
+};
+
 /// Writes a minimal workspace + target layout under [root] for unit tests.
 void writeTestWorkspace(
   Directory root, {
@@ -18,6 +94,7 @@ void writeTestWorkspace(
   Map<String, Map<String, dynamic>>? environmentMeta,
   Map<String, Map<String, String>>? profiles,
   String defaultProfile = 'default',
+  bool includeDoctorAlignHosts = true,
 }) {
   Directory('${root.path}/config/default').createSync(recursive: true);
 
@@ -53,6 +130,16 @@ void writeTestWorkspace(
       'entries': profileEntries,
     },
     'environments': environments,
+    if (includeDoctorAlignHosts && includeErp && includeWorker)
+      'doctor': {
+        'alignHosts': [
+          {
+            'name': 'supabase host',
+            'targets': ['erp', 'worker'],
+            'keys': ['SUPABASE_CONNECTION_URL', 'SUPABASE_URL'],
+          },
+        ],
+      },
   };
 
   File('${root.path}/vet45.workspace.json').writeAsStringSync(
@@ -86,6 +173,7 @@ void writeTestWorkspace(
                 'appEnv': 'development',
               },
       },
+      actions: _erpActions,
     );
   }
 
@@ -113,6 +201,7 @@ void writeTestWorkspace(
             'appEnv': 'development',
           },
       },
+      actions: _erpActions,
     );
   }
 
@@ -144,6 +233,7 @@ void writeTestWorkspace(
         for (final id in environmentIds)
           id: workerEnvOverrides?[id] ?? {'envFile': '.env'},
       },
+      actions: _workerActions,
     );
   }
 
@@ -176,6 +266,7 @@ void _writeTarget(
   String? kind,
   bool writeEnvFile = true,
   String? secretsFile,
+  Map<String, Map<String, dynamic>>? actions,
 }) {
   final targetDir = Directory('${root.path}/$dir');
   targetDir.createSync(recursive: true);
@@ -188,6 +279,7 @@ void _writeTarget(
     if (secretsFile != null) 'secretsFile': secretsFile,
     'keys': keys,
     'environments': environments,
+    if (actions != null) 'actions': actions,
   };
   File('${targetDir.path}/vet45.target.json').writeAsStringSync(
     '${const JsonEncoder.withIndent('  ').convert(json)}\n',

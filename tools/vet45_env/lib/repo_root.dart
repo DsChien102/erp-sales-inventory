@@ -1,22 +1,22 @@
 import 'dart:io';
 
-/// Walks up from [start] until a directory contains root `pubspec.yaml` (`name: vet45`).
+import 'workspace_manifest.dart';
+
+/// Walks up from [start] until a directory contains [vet45.workspace.json].
 String findRepoRoot({String? start}) {
   var current = Directory(start ?? Directory.current.path).absolute;
 
   while (true) {
-    final pubspec = File('${current.path}/pubspec.yaml');
-    if (pubspec.existsSync()) {
-      final content = pubspec.readAsStringSync();
-      if (content.contains('name: vet45')) {
-        return current.path;
-      }
+    final workspace = WorkspaceManifest.workspaceFile(current);
+    if (workspace.existsSync()) {
+      return current.path;
     }
 
     final parent = current.parent;
     if (parent.path == current.path) {
       throw StateError(
-        'Could not find Vet45 repo root from ${start ?? Directory.current.path}',
+        'Could not find Vet45 workspace root from ${start ?? Directory.current.path}\n'
+        'Expected ${WorkspaceManifest.fileName} in a parent directory.',
       );
     }
     current = parent;

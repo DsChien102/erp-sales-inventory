@@ -29,8 +29,11 @@ void main() {
     expect(manifest.defaultEnvironmentId, 'local');
     expect(manifest.environments.containsKey('local'), isTrue);
     expect(manifest.targets.keys, containsAll(['erp', 'worker', 'deploy']));
-    expect(manifest.getEnvironment('local').erp?.flavor, 'development');
-    expect(manifest.deploySecretsFile.path, endsWith('config/deploy/deploy.env'));
+    expect(manifest.getEnvironment('local').binding('erp')?.flavor, 'development');
+    expect(
+      manifest.targets['deploy']!.secretsFile!.path,
+      endsWith('config/deploy/deploy.env'),
+    );
     expect(manifest.profiles.defaultProfileId, 'default');
     expect(
       manifest.targets['erp']!.manifestFile!.path,
@@ -46,7 +49,10 @@ void main() {
     );
     final m = EnvManifest.load(root);
     expect(m.defaultEnvironmentId, 'development');
-    expect(m.deploySecretsFile.path, endsWith('config/deploy/deploy.env'));
+    expect(
+      m.targets['deploy']!.secretsFile!.path,
+      endsWith('config/deploy/deploy.env'),
+    );
   });
 
   test('rejects missing workspace manifest', () {
@@ -97,14 +103,14 @@ void main() {
     );
 
     expect(result.ok, isTrue);
-    expect(result.erpEnvFile!.existsSync(), isTrue);
-    expect(result.workerEnvFile!.existsSync(), isTrue);
+    expect(result.writtenFiles['erp']!.existsSync(), isTrue);
+    expect(result.writtenFiles['worker']!.existsSync(), isTrue);
 
-    final erp = loadDotEnv(result.erpEnvFile!);
+    final erp = loadDotEnv(result.writtenFiles['erp']!);
     expect(erp['SUPABASE_CONNECTION_URL'], 'http://127.0.0.1:54321');
     expect(erp['APP_ENV'], 'development');
 
-    final worker = loadDotEnv(result.workerEnvFile!);
+    final worker = loadDotEnv(result.writtenFiles['worker']!);
     expect(worker['SUPABASE_URL'], 'http://127.0.0.1:54321');
     expect(worker['WORKER_TICK_SECRET'], 'tick-test');
     expect(worker['WORKER_LOG_LEVEL'], 'WARNING');
@@ -134,7 +140,7 @@ void main() {
     final result = await SyncService(manifest: manifest).sync(
       testContext(manifest, 'local'),
     );
-    final erp = loadDotEnv(result.erpEnvFile!);
+    final erp = loadDotEnv(result.writtenFiles['erp']!);
 
     expect(erp.containsKey('APP_STORE_CONNECT_ISSUER_ID'), isFalse);
     expect(erp.containsKey('APP_STORE_CONNECT_KEY_IDENTIFIER'), isFalse);
@@ -156,14 +162,14 @@ void main() {
     expect(result.ok, isFalse);
     expect(result.failures.keys, contains('worker'));
     expect(result.writtenFiles.keys, contains('erp'));
-    expect(result.erpEnvFile!.existsSync(), isTrue);
-    expect(result.workerEnvFile, isNull);
+    expect(result.writtenFiles['worker'], isNull);
+    expect(result.writtenFiles['erp']!.existsSync(), isTrue);
     expect(
       File('${root.path}/apps/messaging_worker/.env').existsSync(),
       isFalse,
     );
 
-    final erp = loadDotEnv(result.erpEnvFile!);
+    final erp = loadDotEnv(result.writtenFiles['erp']!);
     expect(erp['SUPABASE_CONNECTION_URL'], 'http://127.0.0.1:54321');
   });
 
@@ -215,7 +221,7 @@ void main() {
       File('${root.path}/config/default/local.env'),
     );
     expect(secretsAfterWorker['WORKER_TICK_SECRET'], isNotEmpty);
-    final worker = loadDotEnv(workerOnly.workerEnvFile!);
+    final worker = loadDotEnv(workerOnly.writtenFiles['worker']!);
     expect(worker['WORKER_TICK_SECRET'], secretsAfterWorker['WORKER_TICK_SECRET']);
   });
 
@@ -272,6 +278,14 @@ void main() {
     ).run(testContext(manifest, 'local'), targetId: 'deploy');
 
     expect(report.ok, isTrue);
+  });
+
+  test('erp target exposes declarative debug action', () {
+    expect(manifest.targets['erp']!.actions.containsKey('debug'), isTrue);
+    expect(
+      manifest.workspace.doctor.alignHosts,
+      isNotEmpty,
+    );
   });
 
   test('write and read active environment', () {

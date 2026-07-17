@@ -41,7 +41,8 @@ void main() {
     expect(script, contains('acme'));
     expect(script, contains('local'));
     expect(script, contains('erp'));
-    expect(script, contains('worker'));
+    expect(script, contains('debug'));
+    expect(script, contains('serve'));
   });
 
   test('zsh completion includes compdef and dynamic ids', () {

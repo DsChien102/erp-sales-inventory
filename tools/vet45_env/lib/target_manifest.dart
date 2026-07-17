@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'action_spec.dart';
 import 'manifest.dart';
 
 /// Raw binding fields from a target's per-environment block.
@@ -45,6 +46,7 @@ class TargetManifest {
     this.writeEnvFile = true,
     this.secretsFileRelative,
     this.secretsFile,
+    this.actions = const {},
   });
 
   final String id;
@@ -57,6 +59,7 @@ class TargetManifest {
   final bool writeEnvFile;
   final String? secretsFileRelative;
   final File? secretsFile;
+  final Map<String, ActionSpec> actions;
 
   static const fileName = 'vet45.target.json';
 
@@ -77,6 +80,14 @@ class TargetManifest {
       );
     }
 
+    final rawActions = json['actions'] as Map<String, dynamic>? ?? {};
+    final actions = <String, ActionSpec>{};
+    for (final entry in rawActions.entries) {
+      actions[entry.key] = ActionSpec.fromJson(
+        entry.value as Map<String, dynamic>,
+      );
+    }
+
     return TargetManifest(
       id: id,
       description: json['description'] as String? ?? id,
@@ -85,13 +96,14 @@ class TargetManifest {
       secretsFileRelative: secretsRelative,
       secretsFile: secretsRelative == null
           ? null
-          : File(_resolvePath(manifestDir, secretsRelative)),
+          : File(resolvePath(manifestDir, secretsRelative)),
       keys: keysJson
           .map((e) => TargetKeySpec.fromJson(e as Map<String, dynamic>))
           .toList(),
       environmentBindings: bindings,
       manifestFile: file,
       manifestDir: manifestDir,
+      actions: actions,
     );
   }
 
@@ -106,6 +118,7 @@ class TargetManifest {
       manifestDir: manifestDir,
       manifestFile: manifestFile,
       kind: kind,
+      actions: actions,
     );
   }
 
@@ -116,7 +129,7 @@ class TargetManifest {
     }
     final envFile = spec.envFileRelative == null
         ? null
-        : File(_resolvePath(manifestDir, spec.envFileRelative!));
+        : File(resolvePath(manifestDir, spec.envFileRelative!));
     return TargetBinding(
       targetId: id,
       envFile: envFile,
@@ -136,12 +149,12 @@ class TargetManifest {
     return name;
   }
 
-  static String _resolvePath(Directory base, String relative) {
-    return _normalizePath('${base.absolute.path}/$relative');
+  static String resolvePath(Directory base, String relative) {
+    return normalizePath('${base.absolute.path}/$relative');
   }
 
   /// Joins and collapses `.` / `..` segments (without requiring the file to exist).
-  static String _normalizePath(String path) {
+  static String normalizePath(String path) {
     final isAbsolute = path.startsWith('/') ||
         (path.length >= 3 && path[1] == ':' && (path[2] == '/' || path[2] == '\\'));
     final separator = path.contains('\\') && !path.contains('/') ? '\\' : '/';

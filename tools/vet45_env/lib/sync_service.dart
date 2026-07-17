@@ -145,7 +145,4 @@ class SyncResult {
   final Map<String, String> failures;
 
   bool get ok => failures.isEmpty;
-
-  File? get erpEnvFile => writtenFiles['erp'];
-  File? get workerEnvFile => writtenFiles['worker'];
 }

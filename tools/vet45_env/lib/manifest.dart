@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'action_spec.dart';
 import 'profile_registry.dart';
 import 'target_discovery.dart';
 import 'target_manifest.dart';
@@ -14,7 +15,6 @@ class EnvManifest {
     required this.targets,
     required this.environments,
     required this.rootDir,
-    required this.deploySecretsFile,
     required this.profiles,
     required this.workspace,
   });
@@ -23,7 +23,6 @@ class EnvManifest {
   final Map<String, TargetDefinition> targets;
   final Map<String, EnvironmentDefinition> environments;
   final Directory rootDir;
-  final File deploySecretsFile;
   final ProfileRegistry profiles;
   final WorkspaceManifest workspace;
 
@@ -73,16 +72,11 @@ class EnvManifest {
       );
     }
 
-    final deployTarget = targets['deploy'];
-    final deployFile = deployTarget?.secretsFile ??
-        File('${rootDir.path}/config/deploy/deploy.env');
-
     return EnvManifest(
       defaultEnvironmentId: workspace.defaultEnvironmentId,
       targets: targets,
       environments: environments,
       rootDir: rootDir,
-      deploySecretsFile: deployFile,
       profiles: workspace.profiles,
       workspace: workspace,
     );
@@ -136,6 +130,7 @@ class TargetDefinition {
     this.manifestDir,
     this.manifestFile,
     this.kind,
+    this.actions = const {},
   });
 
   final String id;
@@ -151,6 +146,7 @@ class TargetDefinition {
   final Directory? manifestDir;
   final File? manifestFile;
   final String? kind;
+  final Map<String, ActionSpec> actions;
 
   /// Secrets source for this target (shared deploy file or profile env secrets).
   File secretsSource(WorkspaceContext ctx) => secretsFile ?? ctx.secretsFile;
@@ -226,9 +222,6 @@ class EnvironmentDefinition {
 
   TargetBinding? binding(String targetId) => bindings[targetId];
 
-  TargetBinding? get erp => bindings['erp'];
-  TargetBinding? get worker => bindings['worker'];
-
   Map<String, dynamic> toResolveJson(
     Map<String, TargetDefinition> targets,
     WorkspaceContext ctx,
@@ -256,17 +249,6 @@ class EnvironmentDefinition {
       'supabaseSource': supabaseSource,
       'railwayEnvironment': railwayEnvironment,
       'targets': targetsJson,
-      if (erp != null)
-        'erp': {
-          'flavor': erp!.flavor,
-          'envFile': erp!.envFile?.path,
-          'appEnv': erp!.appEnv,
-        },
-      if (worker != null)
-        'worker': {
-          'envFile': worker!.envFile?.path,
-          'dockerSupabaseUrl': worker!.dockerSupabaseUrl,
-        },
       'secretsFile': ctx.secretsFile.path,
       'authFile': ctx.authFile.path,
       'cliFallback': cliFallback,

@@ -127,9 +127,7 @@ Commands:
                        Run supabase CLI with profile auth.env token (auto link)
   completion bash|zsh  Print shell completion script
 
-Run targets:
-  erp debug|debug:web|debug:ios|build-ios|deploy-ios
-  worker serve|once|docker|deploy
+  run <target> <action> [args...]  Actions declared in vet45.target.json
 
 Flags:
   --skip-link          Skip supabase link on use/sync/use-and-sync/switch/supabase
@@ -569,7 +567,6 @@ void _cmdResolve(EnvManifest manifest, List<String> args) {
   final envId = _parseEnvFlag(_withoutProfileFlag(args), manifest);
   final ctx = manifest.context(profileId: profileId, environmentId: envId);
   final payload = ctx.environment.toResolveJson(manifest.targets, ctx);
-  payload['deploySecretsFile'] = manifest.deploySecretsFile.path;
   stdout.writeln(jsonEncode(payload));
 }
 
@@ -583,7 +580,6 @@ void _cmdResolveShell(EnvManifest manifest, List<String> args) {
   stdout.writeln('SECRETS_ROOT=${ctx.profile.secretsRoot}');
   stdout.writeln('SECRETS_FILE=${ctx.secretsFile.path}');
   stdout.writeln('AUTH_FILE=${ctx.authFile.path}');
-  stdout.writeln('DEPLOY_SECRETS_FILE=${manifest.deploySecretsFile.path}');
 
   for (final entry in env.bindings.entries) {
     final binding = entry.value;
@@ -602,26 +598,12 @@ void _cmdResolveShell(EnvManifest manifest, List<String> args) {
     }
   }
 
-  final erp = env.erp;
-  if (erp != null) {
-    if (erp.flavor != null) {
-      stdout.writeln('ERP_FLAVOR=${erp.flavor}');
-    }
-    if (erp.envFile != null) {
-      stdout.writeln('ERP_ENV_FILE=${erp.envFile!.path}');
+  for (final entry in manifest.targets.entries) {
+    final target = entry.value;
+    if (!target.writeEnvFile && target.secretsFile != null) {
       stdout.writeln(
-        'ERP_ENV_BASENAME=${erp.envFile!.uri.pathSegments.last}',
+        'TARGET_${entry.key}_SECRETS_FILE=${target.secretsFile!.path}',
       );
-    }
-  }
-  final worker = env.worker;
-  if (worker != null) {
-    if (worker.envFile != null) {
-      stdout.writeln('WORKER_ENV_FILE=${worker.envFile!.path}');
-    }
-    final dockerUrl = worker.dockerSupabaseUrl;
-    if (dockerUrl != null && dockerUrl.isNotEmpty) {
-      stdout.writeln('WORKER_DOCKER_SUPABASE_URL=$dockerUrl');
     }
   }
 

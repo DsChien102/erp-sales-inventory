@@ -47,5 +47,61 @@
       "flavor": "production",
       "appEnv": "production"
     }
+  },
+  "actions": {
+    "debug": {
+      "command": "flutter",
+      "args": [
+        "run",
+        "--flavor",
+        "{{flavor}}",
+        "--dart-define-from-file={{envBasename}}"
+      ],
+      "cwd": ".",
+      "requireEnvFile": true
+    },
+    "debug:web": {
+      "command": "flutter",
+      "args": [
+        "run",
+        "-d",
+        "chrome",
+        "--flavor",
+        "{{flavor}}",
+        "--dart-define-from-file={{envBasename}}"
+      ],
+      "cwd": ".",
+      "requireEnvFile": true
+    },
+    "debug:ios": {
+      "command": "flutter",
+      "args": [
+        "run",
+        "-d",
+        "ios",
+        "--flavor",
+        "{{flavor}}",
+        "--dart-define-from-file={{envBasename}}"
+      ],
+      "cwd": ".",
+      "platforms": ["macos"],
+      "requireEnvFile": true
+    },
+    "build-ios": {
+      "command": "./scripts/build_ios.sh",
+      "args": ["--env", "{{environmentId}}"],
+      "cwd": ".",
+      "platforms": ["macos"],
+      "requireEnvironments": ["staging", "production"]
+    },
+    "deploy-ios": {
+      "command": "./deploy-ios.sh",
+      "args": ["--env", "{{environmentId}}"],
+      "cwd": ".",
+      "platforms": ["macos"],
+      "requireEnvironments": ["staging", "production"],
+      "requireDoctorTargets": ["deploy"],
+      "preActions": ["build-ios"]
+    }
   }
 }

@@ -1,5 +1,7 @@
 library;
 
+export 'action_runner.dart';
+export 'action_spec.dart';
 export 'aot_binary.dart';
 export 'config_init_service.dart';
 export 'doctor_service.dart';

@@ -44,5 +44,14 @@
       "supabaseSource": "secrets",
       "railwayEnvironment": "production"
     }
+  },
+  "doctor": {
+    "alignHosts": [
+      {
+        "name": "supabase host",
+        "targets": ["erp", "worker"],
+        "keys": ["SUPABASE_CONNECTION_URL", "SUPABASE_URL"]
+      }
+    ]
   }
 }

@@ -43,5 +43,45 @@
       "flavor": "production",
       "appEnv": "production"
     }
+  },
+  "actions": {
+    "debug": {
+      "command": "flutter",
+      "args": [
+        "run",
+        "--flavor",
+        "{{flavor}}",
+        "--dart-define-from-file={{envBasename}}"
+      ],
+      "cwd": ".",
+      "requireEnvFile": true
+    },
+    "debug:web": {
+      "command": "flutter",
+      "args": [
+        "run",
+        "-d",
+        "chrome",
+        "--flavor",
+        "{{flavor}}",
+        "--dart-define-from-file={{envBasename}}"
+      ],
+      "cwd": ".",
+      "requireEnvFile": true
+    },
+    "debug:ios": {
+      "command": "flutter",
+      "args": [
+        "run",
+        "-d",
+        "ios",
+        "--flavor",
+        "{{flavor}}",
+        "--dart-define-from-file={{envBasename}}"
+      ],
+      "cwd": ".",
+      "platforms": ["macos"],
+      "requireEnvFile": true
+    }
   }
 }

@@ -52,20 +52,22 @@ while IFS= read -r line; do
   export "$line"
 done <<<"$RESOLVED"
 
-if [[ ! -f "$ERP_ENV_FILE" ]]; then
-  echo "Missing env file: ${ERP_ENV_FILE}"
-  echo "Run: melos run env:sync -- --env ${MANIFEST_ENV}"
+if [[ ! -f "${TARGET_erp_ENV_FILE:-}" ]]; then
+  echo "Missing env file: ${TARGET_erp_ENV_FILE:-}"
+  echo "Run: vet45 sync --env ${MANIFEST_ENV} --target erp"
   exit 1
 fi
 
+ERP_ENV_BASENAME="$(basename "$TARGET_erp_ENV_FILE")"
+
 echo "==> Building iOS IPA"
-echo "    flavor: ${ERP_FLAVOR}"
-echo "    env file: ${ERP_ENV_FILE}"
+echo "    flavor: ${TARGET_erp_FLAVOR}"
+echo "    env file: ${TARGET_erp_ENV_FILE}"
 
 cd "$APP_DIR"
 
 flutter build ipa \
-  --flavor "$ERP_FLAVOR" \
+  --flavor "$TARGET_erp_FLAVOR" \
   --dart-define-from-file="$ERP_ENV_BASENAME" \
   "${OBFUSCATE_ARGS[@]}"
 

@@ -38,10 +38,10 @@ if [[ "$CI_MODE" != true ]]; then
 
   ENV_FILE="${SECRETS_FILE:-}"
   if [[ ! -f "$ENV_FILE" ]]; then
-    ENV_FILE="${WORKER_ENV_FILE}"
+    ENV_FILE="${TARGET_worker_ENV_FILE:-}"
   fi
   if [[ ! -f "$ENV_FILE" ]]; then
-    echo "Missing secrets for ${MANIFEST_ENV}. Run melos run env:sync -- --env ${MANIFEST_ENV}"
+    echo "Missing secrets for ${MANIFEST_ENV}. Run: vet45 sync --env ${MANIFEST_ENV} --target worker"
     exit 1
   fi
   # shellcheck disable=SC1090
