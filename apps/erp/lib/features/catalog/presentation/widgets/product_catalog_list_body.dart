@@ -187,7 +187,9 @@ class _ProductCatalogEmptyState extends StatelessWidget {
         title: title,
         description: description,
         actionLabel: actionLabel,
-        actionLeadingIcon: actionLabel != null ? const VIcon(icon: VIcons.add, size: 18) : null,
+        actionLeadingIcon: actionLabel != null
+            ? const VIcon(icon: VIcons.add, size: 18, iconColor: VIconColor.white)
+            : null,
         onActionPressed: onActionPressed,
       ),
     );

@@ -13,6 +13,7 @@ import '../pages/product_measurement_units_page.dart';
 import '../pages/product_price_bands_page.dart';
 import '../pages/product_readiness_checklist_page.dart';
 import '../pages/product_stock_adjustment_page.dart';
+import '../pages/product_note_edit_page.dart';
 import 'product_control_center_custom_fields_section.dart';
 import 'product_control_center_danger_section.dart';
 import 'product_control_center_identity_section.dart';
@@ -123,7 +124,7 @@ class ProductControlCenterBody extends StatelessWidget {
               ProductControlCenterMetaSection(
                 note: controlCenter.profile.note,
                 changeHistoryPreview: controlCenter.changeHistoryPreview,
-                onEditNote: () => _showEditPlaceholder(context),
+                onEditNote: () => _openNoteEdit(context, controlCenter),
                 onViewChangeHistory: () {
                   context.push(
                     '/products/items/pcc/change-history',
@@ -284,6 +285,22 @@ class ProductControlCenterBody extends StatelessWidget {
         currentQuantity: controlCenter.stock.quantity,
         unitName: controlCenter.stock.unitName,
         stockVersion: controlCenter.stock.currentVersion,
+      ),
+    );
+    if (didChange == true && context.mounted) {
+      _reload(context);
+    }
+  }
+
+  Future<void> _openNoteEdit(
+    BuildContext context,
+    ProductControlCenterDto controlCenter,
+  ) async {
+    final didChange = await context.push<bool>(
+      '/products/items/pcc/note',
+      extra: ProductNoteEditRouteArgs(
+        product: product,
+        currentNote: controlCenter.profile.note,
       ),
     );
     if (didChange == true && context.mounted) {

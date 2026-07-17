@@ -29,6 +29,7 @@ import '../../features/catalog/presentation/pages/product_control_center_page.da
 import '../../features/catalog/presentation/pages/product_readiness_checklist_page.dart';
 import '../../features/catalog/presentation/pages/product_measurement_units_page.dart';
 import '../../features/catalog/presentation/pages/product_stock_adjustment_page.dart';
+import '../../features/catalog/presentation/pages/product_note_edit_page.dart';
 import '../../features/catalog/presentation/pages/product_manual_base_price_page.dart';
 import '../../features/catalog/presentation/pages/product_price_bands_page.dart';
 import '../../features/catalog/presentation/pages/product_profile_maintenance_page.dart';
@@ -370,6 +371,14 @@ final appRouter = GoRouter(
       builder: (context, state) {
         final args = state.extra as ProductStockAdjustmentRouteArgs;
         return ProductStockAdjustmentPage(args: args);
+      },
+    ),
+    GoRoute(
+      path: '/products/items/pcc/note',
+      name: 'products.items.pcc.note',
+      builder: (context, state) {
+        final args = state.extra as ProductNoteEditRouteArgs;
+        return ProductNoteEditPage(args: args);
       },
     ),
     GoRoute(

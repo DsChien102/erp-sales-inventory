@@ -111,6 +111,10 @@ class ProductGuidedCreateCubit extends Cubit<ProductGuidedCreateState> {
     emit(state.copyWith(tradeName: val));
   }
 
+  void updateNote(String val) {
+    emit(state.copyWith(note: val));
+  }
+
   void updateSku(String val) {
     emit(
       state.copyWith(
