@@ -104,8 +104,13 @@ final class PartnerListCubit extends Cubit<PartnerListState> {
         ),
       );
 
-      final newItems = isRefresh ? result.items : [...currentItems, ...result.items];
-      final hasReachedMax = result.items.length < pageSize || result.items.isEmpty;
+      final pageItems = result.items
+          .where((item) => item.roles.isNotEmpty)
+          .toList(growable: false);
+      final newItems =
+          isRefresh ? pageItems : [...currentItems, ...pageItems];
+      final hasReachedMax =
+          result.items.length < pageSize || result.items.isEmpty;
       _nextPage = hasReachedMax ? null : page + 1;
 
       emit(

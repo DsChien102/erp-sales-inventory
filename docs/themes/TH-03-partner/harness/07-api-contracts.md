@@ -194,6 +194,23 @@ RPC: `partner.get_partner_history`, `partner.upsert_partner_history` (internal)
 
 ---
 
+## §S9b — Lịch sử thao tác (audit action log)
+
+| Symbol | Input | Success | Errors |
+| ------ | ----- | ------- | ------ |
+| `GetPartnerActionLogsQuery` | partnerId, page?, limit? | `PartnerActionLogResultDto` | NO_PERMISSION, NOT_FOUND |
+
+RPC: `partner.get_partner_action_logs` (draft: `_drafts/partner_get_partner_action_logs.sql`)
+
+Permission: `partner.detail.view`
+
+| scenario_id | trigger | fake response |
+| ----------- | ------- | ------------- |
+| `action_logs_empty` | GetPartnerActionLogsQuery | empty list |
+| `action_logs_mixed` | defaultMixed / actionLogsMixed | create / update / add_contact rows |
+
+---
+
 ## Parallel notes
 
 - FE có thể fake sau CONTRACT lane — không cần RPC/DB

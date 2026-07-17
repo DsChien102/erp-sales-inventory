@@ -70,6 +70,21 @@ final class SupabasePartnerReadGateway
     }
   }
 
+  @override
+  Future<PartnerActionLogResultDto> getPartnerActionLogs(
+    GetPartnerActionLogsQuery query,
+  ) async {
+    try {
+      final result = await _callFirstRow(
+        'get_partner_action_logs',
+        params: PartnerReadRpcMapper.actionLogsParams(query),
+      );
+      return PartnerReadRpcMapper.mapActionLogsResult(result);
+    } on RpcException catch (error) {
+      throw mapPartnerRpcError(error);
+    }
+  }
+
   /// Read RPCs that `returns table (...)` come back from PostgREST as a JSON array.
   Future<Map<String, dynamic>> _callFirstRow(
     String functionName, {

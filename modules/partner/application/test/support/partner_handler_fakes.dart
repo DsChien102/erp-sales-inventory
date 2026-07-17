@@ -166,6 +166,15 @@ final class RecordingPartnerReadGateway implements IPartnerReadGateway {
 
   GetPartnerHistoryQuery? lastHistory;
 
+  PartnerActionLogResultDto actionLogsResult = const PartnerActionLogResultDto(
+    items: [],
+    total: 0,
+    page: 1,
+    limit: 20,
+  );
+
+  GetPartnerActionLogsQuery? lastActionLogs;
+
   @override
   Future<DeleteEligibilityDto> checkDeleteEligibility(
     CheckDeleteEligibilityQuery query,
@@ -195,6 +204,14 @@ final class RecordingPartnerReadGateway implements IPartnerReadGateway {
   ) async {
     lastHistory = query;
     return historyResult;
+  }
+
+  @override
+  Future<PartnerActionLogResultDto> getPartnerActionLogs(
+    GetPartnerActionLogsQuery query,
+  ) async {
+    lastActionLogs = query;
+    return actionLogsResult;
   }
 
   @override

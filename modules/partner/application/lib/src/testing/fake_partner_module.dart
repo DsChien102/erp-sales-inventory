@@ -35,6 +35,9 @@ import '../partner/commands/transform_to_organization/transform_person_to_organi
 import '../partner/commands/update_organization_contact/update_organization_contact_command.dart';
 import '../partner/commands/update_partner_profile/update_partner_profile_command.dart';
 import '../partner/commands/update_partner_profile/update_partner_profile_result.dart';
+import '../partner_action_log/queries/get_partner_action_logs/get_partner_action_logs_query.dart';
+import '../partner_action_log/queries/get_partner_action_logs/partner_action_log_item_dto.dart';
+import '../partner_action_log/queries/get_partner_action_logs/partner_action_log_result_dto.dart';
 import '../partner_history/queries/get_partner_history/get_partner_history_query.dart';
 import '../partner_history/queries/get_partner_history/partner_history_item_dto.dart';
 import '../partner_history/queries/get_partner_history/partner_history_result_dto.dart';
@@ -64,6 +67,8 @@ enum FakePartnerScenario {
   historyEmpty,
   historyMixed,
   historyNoSourcePermission,
+  actionLogsEmpty,
+  actionLogsMixed,
   transformPermissionDenied,
   transformStateChanged,
   transformDupWarning,
@@ -114,6 +119,7 @@ final class FakePartnerModule implements IPartnerModule {
       CheckDuplicatePartnersQuery q => _handleCheckDuplicate<TResult>(q),
       CheckDeleteEligibilityQuery q => _handleDeleteEligibility<TResult>(q),
       GetPartnerHistoryQuery q => _handleGetHistory<TResult>(q),
+      GetPartnerActionLogsQuery q => _handleGetActionLogs<TResult>(q),
       _ => throw UnsupportedError(
         'FakePartnerModule: unsupported query ${query.runtimeType}',
       ),
@@ -670,6 +676,60 @@ final class FakePartnerModule implements IPartnerModule {
     }
   }
 
+  Future<TResult> _handleGetActionLogs<TResult>(
+    GetPartnerActionLogsQuery query,
+  ) {
+    switch (scenario) {
+      case FakePartnerScenario.actionLogsEmpty:
+        return Future.value(
+          PartnerActionLogResultDto(
+                items: const [],
+                page: query.page,
+                limit: query.limit,
+                total: 0,
+              )
+              as TResult,
+        );
+      case FakePartnerScenario.actionLogsMixed:
+      case FakePartnerScenario.defaultMixed:
+        return Future.value(
+          PartnerActionLogResultDto(
+                items: [
+                  _actionLogItem(
+                    actionLogId: 'al-1',
+                    actionType: PartnerActionType.addContact,
+                    createdAt: DateTime(2026, 7, 16, 18, 26),
+                  ),
+                  _actionLogItem(
+                    actionLogId: 'al-2',
+                    actionType: PartnerActionType.update,
+                    createdAt: DateTime(2026, 7, 15, 23, 26),
+                  ),
+                  _actionLogItem(
+                    actionLogId: 'al-3',
+                    actionType: PartnerActionType.create,
+                    createdAt: DateTime(2026, 7, 14, 23, 26),
+                  ),
+                ],
+                page: query.page,
+                limit: query.limit,
+                total: 3,
+              )
+              as TResult,
+        );
+      default:
+        return Future.value(
+          PartnerActionLogResultDto(
+                items: const [],
+                page: query.page,
+                limit: query.limit,
+                total: 0,
+              )
+              as TResult,
+        );
+    }
+  }
+
   static PartnerListItemDto _listItem({
     required String partnerId,
     required String displayName,
@@ -707,6 +767,20 @@ final class FakePartnerModule implements IPartnerModule {
       amount: 1_000_000,
       currency: 'VND',
       canOpenSource: canOpenSource,
+    );
+  }
+
+  static PartnerActionLogItemDto _actionLogItem({
+    required String actionLogId,
+    required PartnerActionType actionType,
+    required DateTime createdAt,
+    String actorUserId = '8acac7ec-0000-4000-8000-000000000001',
+  }) {
+    return PartnerActionLogItemDto(
+      actionLogId: actionLogId,
+      actionType: actionType,
+      actorUserId: actorUserId,
+      createdAt: createdAt,
     );
   }
 }

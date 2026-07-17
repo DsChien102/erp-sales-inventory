@@ -88,7 +88,7 @@ class PartnerListBody extends StatelessWidget {
               description: 'Thêm đối tác để bắt đầu bán hàng,\nnhập hàng và quản lý công nợ.',
               actionLabel: canCreate ? 'Thêm KH & NCC' : null,
               actionLeadingIcon: canCreate
-                  ? Icon(Icons.add, size: 18, color: colors.success)
+                  ? VIcon(icon: VIcons.add, size: 18, color: colors.surface)
                   : null,
               onActionPressed: canCreate ? onCreate : null,
             ),

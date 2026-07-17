@@ -145,6 +145,14 @@ void registerGeneratedPartnerQueries({
     invoke: (query, handler) => handler.handle(query),
   );
 
+  PartnerCommandRegistration.registerQueryHandler<GetPartnerActionLogsQuery, PartnerActionLogResultDto, GetPartnerActionLogsQueryHandler>(
+    bus: bus,
+    factory: () => GetPartnerActionLogsQueryHandler(
+      readGateway: container.get<IPartnerReadGateway>(),
+    ),
+    invoke: (query, handler) => handler.handle(query),
+  );
+
   PartnerCommandRegistration.registerQueryHandler<GetPartnerDetailQuery, PartnerDetailDto, GetPartnerDetailQueryHandler>(
     bus: bus,
     factory: () => GetPartnerDetailQueryHandler(

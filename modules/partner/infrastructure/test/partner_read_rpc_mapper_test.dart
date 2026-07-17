@@ -1,5 +1,6 @@
 import 'package:test/test.dart';
 import 'package:vet45_partner_application/application.dart';
+import 'package:vet45_partner_domain/domain.dart';
 import 'package:vet45_partner_infrastructure/src/data_access/partner_read_rpc_mapper.dart';
 
 void main() {
@@ -33,5 +34,42 @@ void main() {
     );
 
     expect(params['p_role'], isNull);
+  });
+
+  test('action logs mapper forwards pagination params', () {
+    final params = PartnerReadRpcMapper.actionLogsParams(
+      GetPartnerActionLogsQuery(
+        tenantId: 't-1',
+        partnerId: 'p-1',
+        page: 2,
+        limit: 10,
+      ),
+    );
+
+    expect(params['p_tenant_id'], 't-1');
+    expect(params['p_partner_id'], 'p-1');
+    expect(params['p_page'], 2);
+    expect(params['p_limit'], 10);
+  });
+
+  test('action logs result mapper parses snake_case action_type', () {
+    final result = PartnerReadRpcMapper.mapActionLogsResult({
+      'items': [
+        {
+          'action_log_id': 'al-1',
+          'action_type': 'add_contact',
+          'actor_user_id': '8acac7ec-0000-4000-8000-000000000001',
+          'reason': null,
+          'created_at': '2026-07-16T11:26:00.000Z',
+        },
+      ],
+      'page': 1,
+      'limit': 20,
+      'total': 1,
+    });
+
+    expect(result.items, hasLength(1));
+    expect(result.items.first.actionType, PartnerActionType.addContact);
+    expect(result.items.first.actorUserId, startsWith('8acac7ec'));
   });
 }

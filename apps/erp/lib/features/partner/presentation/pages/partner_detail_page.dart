@@ -299,9 +299,12 @@ class _PartnerDetailPageState extends State<PartnerDetailPage> {
                   return Center(
                     child: PartnerDetailErrorState(
                       iconData: Icons.search_off_rounded,
-                      title: 'Không tìm thấy hồ sơ',
-                      description:
-                          'Hồ sơ có thể đã bị xóa hoặc không tồn tại\nhoặc bạn không có quyền xem.',
+                      title: state.isContactOnly
+                          ? 'Không phải hồ sơ đối tác'
+                          : 'Không tìm thấy hồ sơ',
+                      description: state.isContactOnly
+                          ? 'Người liên hệ chỉ quản lý trong hồ sơ tổ chức.\nKhông mở như hồ sơ cá nhân độc lập.'
+                          : 'Hồ sơ có thể đã bị xóa hoặc không tồn tại\nhoặc bạn không có quyền xem.',
                       actionLabel: 'Quay lại',
                       onActionPressed: () => context.pop(),
                     ),
@@ -393,7 +396,13 @@ class _PartnerDetailPageState extends State<PartnerDetailPage> {
                               const PartnerDetailHistoryCard(),
                               const SizedBox(height: VSpacing.space2),
 
-                              PartnerDetailSystemCard(dto: dto),
+                              PartnerDetailSystemCard(
+                                dto: dto,
+                                onTapHistory: () => context.push(
+                                  '/partner/${dto.partnerId}/history',
+                                  extra: dto.displayName,
+                                ),
+                              ),
                             ],
                           ),
                         ),

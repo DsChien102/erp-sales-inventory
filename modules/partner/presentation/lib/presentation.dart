@@ -4,6 +4,8 @@ export 'src/bloc/partner_create_cubit.dart';
 export 'src/bloc/partner_create_state.dart';
 export 'src/bloc/partner_detail_cubit.dart';
 export 'src/bloc/partner_detail_state.dart';
+export 'src/bloc/partner_change_history_cubit.dart';
+export 'src/bloc/partner_change_history_state.dart';
 export 'src/bloc/partner_list_cubit.dart';
 export 'src/bloc/partner_list_state.dart';
 export 'src/bloc/partner_transform_cubit.dart';
