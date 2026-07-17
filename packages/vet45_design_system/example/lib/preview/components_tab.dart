@@ -25,6 +25,7 @@ class _ComponentsPreviewTabState extends State<ComponentsPreviewTab> {
   DateTime? _date;
   bool _centerTitle = false;
   final _textController = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
 
   @override
   void dispose() {
@@ -161,6 +162,80 @@ class _ComponentsPreviewTabState extends State<ComponentsPreviewTab> {
                 ),
               ),
             ],
+          ),
+        ),
+        PreviewSection(
+          title: 'VTextFormField',
+          child: Form(
+            key: _formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const PreviewStateRow(
+                  label: 'DefaultFormField',
+                  child: VTextFormField(
+                    hintText: 'Enter value...',
+                  ),
+                ),
+                PreviewStateRow(
+                  label: 'Required with Validator',
+                  child: VTextFormField(
+                    label: 'Required Field',
+                    isRequired: true,
+                    hintText: 'Type something to pass validation',
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'This field is required.';
+                      }
+                      return null;
+                    },
+                  ),
+                ),
+                const PreviewStateRow(
+                  label: 'Max Lines & Initial Value',
+                  child: VTextFormField(
+                    label: 'Description',
+                    initialValue: 'This is the initial description text.',
+                    maxLines: 3,
+                  ),
+                ),
+                const PreviewStateRow(
+                  label: 'With Character Counter (0/100)',
+                  child: VTextFormField(
+                    label: 'Short Bio',
+                    hintText: 'Tell us about yourself...',
+                    maxLength: 100,
+                    minLines: 3,
+                    maxLines: 5,
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  child: Row(
+                    children: [
+                      VButton(
+                        label: 'Validate Form',
+                        onPressed: () {
+                          if (_formKey.currentState?.validate() ?? false) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('Form is valid!')),
+                            );
+                          }
+                        },
+                      ),
+                      const SizedBox(width: 8),
+                      VButton(
+                        label: 'Reset Form',
+                        variant: VButtonVariant.outline,
+                        onPressed: () {
+                          _formKey.currentState?.reset();
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
         PreviewSection(
@@ -640,7 +715,10 @@ class _ComponentsPreviewTabState extends State<ComponentsPreviewTab> {
           title: 'VPagePadding',
           child: VPagePadding(
             child: VCard(
-              child: VText('Screen inset from VSpacing.screenMobile', variant: VTextVariant.bodySmall),
+              child: VText(
+                'Screen inset from VSpacing.screenMobile',
+                variant: VTextVariant.bodySmall,
+              ),
             ),
           ),
         ),
