@@ -704,6 +704,20 @@ final class FakePartnerModule implements IPartnerModule {
                     actionLogId: 'al-2',
                     actionType: PartnerActionType.update,
                     createdAt: DateTime(2026, 7, 15, 23, 26),
+                    beforeState: const {
+                      'display_name': 'Nguyễn Văn A',
+                      'person_profile': {
+                        'phone': '0901234567',
+                        'tax_code': null,
+                      },
+                    },
+                    afterState: const {
+                      'display_name': 'Nguyễn Văn A',
+                      'person_profile': {
+                        'phone': '0907654321',
+                        'tax_code': '2201018022',
+                      },
+                    },
                   ),
                   _actionLogItem(
                     actionLogId: 'al-3',
@@ -775,12 +789,16 @@ final class FakePartnerModule implements IPartnerModule {
     required PartnerActionType actionType,
     required DateTime createdAt,
     String actorUserId = '8acac7ec-0000-4000-8000-000000000001',
+    Map<String, dynamic>? beforeState,
+    Map<String, dynamic>? afterState,
   }) {
     return PartnerActionLogItemDto(
       actionLogId: actionLogId,
       actionType: actionType,
       actorUserId: actorUserId,
       createdAt: createdAt,
+      beforeState: beforeState,
+      afterState: afterState,
     );
   }
 }

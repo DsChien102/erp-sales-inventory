@@ -8,6 +8,8 @@ final class PartnerActionLogItemDto {
     required this.actorUserId,
     required this.createdAt,
     this.reason,
+    this.beforeState,
+    this.afterState,
   });
 
   final String actionLogId;
@@ -15,4 +17,11 @@ final class PartnerActionLogItemDto {
   final String actorUserId;
   final DateTime createdAt;
   final String? reason;
+
+  /// Partner detail snapshot before the action (nullable until the
+  /// `get_partner_action_logs` draft returning snapshots is applied).
+  final Map<String, dynamic>? beforeState;
+
+  /// Partner detail snapshot after the action.
+  final Map<String, dynamic>? afterState;
 }

@@ -1,5 +1,7 @@
 import 'package:equatable/equatable.dart';
 
+import '../support/partner_action_log_diff.dart';
+
 enum PartnerChangeHistoryStatus {
   initial,
   loading,
@@ -13,8 +15,8 @@ class PartnerChangeHistoryEntry extends Equatable {
   final String actorDisplayName;
   final String changeType;
   final String summary;
-  final String? valueBefore;
-  final String? valueAfter;
+  final String? reason;
+  final List<PartnerFieldChange> changes;
 
   const PartnerChangeHistoryEntry({
     required this.id,
@@ -22,8 +24,8 @@ class PartnerChangeHistoryEntry extends Equatable {
     required this.actorDisplayName,
     required this.changeType,
     required this.summary,
-    this.valueBefore,
-    this.valueAfter,
+    this.reason,
+    this.changes = const [],
   });
 
   @override
@@ -33,8 +35,8 @@ class PartnerChangeHistoryEntry extends Equatable {
         actorDisplayName,
         changeType,
         summary,
-        valueBefore,
-        valueAfter,
+        reason,
+        changes,
       ];
 }
 

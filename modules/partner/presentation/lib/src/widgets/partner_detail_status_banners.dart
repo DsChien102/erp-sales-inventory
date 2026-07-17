@@ -38,24 +38,6 @@ class PartnerDetailWarningBanner extends StatelessWidget {
                     color: colors.textSecondary,
                   ),
                 ),
-                const SizedBox(height: 8),
-                Row(
-                  children: [
-                    Text(
-                      'Bổ sung ngay',
-                      style: VTypography.bodyDefault.copyWith(
-                        color: colors.success,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    const SizedBox(width: 4),
-                    VIcon(
-                      icon: VIcons.chevronRight,
-                      size: 16,
-                      color: colors.success,
-                    ),
-                  ],
-                ),
               ],
             ),
           ),
