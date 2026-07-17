@@ -31,6 +31,32 @@ void main() {
     expect(find.text('Amoxicillin 100ml'), findsWidgets);
   });
 
+  testWidgets('e2e_e02_u01_fr01_note: guided create persists optional note', (tester) async {
+    await setUpErpCatalogE2E();
+
+    await tester.pumpWidget(buildGuidedCreateRouter());
+    await tester.pumpAndSettle();
+
+    await tester.enterText(find.byKey(const Key('input_guided_name')), 'Thuốc có ghi chú');
+    await tester.pump();
+
+    final noteStep = find.text('7. Ghi chú');
+    await tester.ensureVisible(noteStep);
+    await tester.tap(noteStep);
+    await tester.pumpAndSettle();
+    await tester.enterText(
+      find.byKey(const Key('input_guided_note')),
+      'Hàng nhập từ nhà cung cấp A',
+    );
+    await tester.pump();
+
+    await tester.tap(find.byKey(const Key('btn_guided_save')));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Thuốc có ghi chú'), findsWidgets);
+    expect(find.text('Đã điền ghi chú'), findsOneWidget);
+  });
+
   testWidgets('e2e_e02_u01_fr01_01: duplicate SKU opens existing product in PCC', (tester) async {
     await setUpErpCatalogE2E(scenario: FakeCatalogScenario.guidedCreateDupSku);
 
@@ -232,7 +258,6 @@ void main() {
     await tester.ensureVisible(step6Finder);
     await tester.tap(step6Finder);
     await tester.pumpAndSettle();
-
 
     await tester.tap(find.byKey(const Key('btn_guided_save')));
     await tester.pumpAndSettle();

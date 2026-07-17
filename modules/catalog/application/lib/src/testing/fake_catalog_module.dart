@@ -1536,6 +1536,7 @@ final class FakeCatalogModule implements ICatalogModule {
         commercialName: command.commercialName,
         sku: command.sku,
         barcode: command.barcode,
+        note: command.note,
         images: command.images,
       ),
     );

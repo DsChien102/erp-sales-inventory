@@ -43,6 +43,27 @@ void main() {
       );
     });
 
+    test('guided_create_with_note persists the optional note', () async {
+      final module = FakeCatalogModule();
+
+      final created = await module.executeCommandAsync<CreateGuidedProductResult>(
+        CreateGuidedProductCommand(
+          tenantId: 'tenant-1',
+          actorId: 'user-1',
+          productName: 'Thuốc có ghi chú',
+          note: 'Hàng nhập từ nhà cung cấp A',
+        ),
+      );
+      final pcc = await module.executeQueryAsync(
+        GetProductControlCenterQuery(
+          tenantId: 'tenant-1',
+          productId: created.productId,
+        ),
+      );
+
+      expect(pcc.profile.note, 'Hàng nhập từ nhà cung cấp A');
+    });
+
     test('guided create skips store pricing when prerequisites are unavailable', () async {
       final module = FakeCatalogModule(
         scenario: FakeCatalogScenario.scnContractE06U02Fr02_03,
