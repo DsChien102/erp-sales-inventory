@@ -86,7 +86,9 @@
         "--dart-define-from-file={{envBasename}}"
       ],
       "cwd": ".",
-      "platforms": ["macos"],
+      "platforms": [
+        "macos"
+      ],
       "requireEnvFile": true
     }
   }
