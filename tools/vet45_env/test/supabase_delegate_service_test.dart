@@ -17,7 +17,7 @@ void main() {
     root = await Directory.systemTemp.createTemp('vet45_supabase_delegate_');
     writeTestWorkspace(root);
     writeDotEnv(
-      File('${root.path}/config/secrets/auth.env'),
+      File('${root.path}/config/default/auth.env'),
       {'SUPABASE_ACCESS_TOKEN': 'sbp_test_token'},
     );
     manifest = EnvManifest.load(root);

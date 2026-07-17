@@ -30,7 +30,7 @@ void main() {
     expect(manifest.environments.containsKey('local'), isTrue);
     expect(manifest.targets.keys, containsAll(['erp', 'worker', 'deploy']));
     expect(manifest.getEnvironment('local').erp?.flavor, 'development');
-    expect(manifest.deploySecretsFile.path, endsWith('config/secrets/deploy.env'));
+    expect(manifest.deploySecretsFile.path, endsWith('config/deploy/deploy.env'));
     expect(manifest.profiles.defaultProfileId, 'default');
     expect(
       manifest.targets['erp']!.manifestFile!.path,
@@ -46,7 +46,7 @@ void main() {
     );
     final m = EnvManifest.load(root);
     expect(m.defaultEnvironmentId, 'development');
-    expect(m.deploySecretsFile.path, endsWith('config/secrets/deploy.env'));
+    expect(m.deploySecretsFile.path, endsWith('config/deploy/deploy.env'));
   });
 
   test('rejects missing workspace manifest', () {
@@ -83,7 +83,7 @@ void main() {
 
   test('sync writes erp and worker env from secrets', () async {
     writeDotEnv(
-      File('${root.path}/config/secrets/local.env'),
+      File('${root.path}/config/default/local.env'),
       {
         'SUPABASE_URL': 'http://127.0.0.1:54321',
         'SUPABASE_ANON_KEY': 'anon-test',
@@ -113,7 +113,7 @@ void main() {
   test('sync does not copy APP_STORE_CONNECT keys into erp env', () async {
     Directory('${root.path}/apps/erp').createSync(recursive: true);
     writeDotEnv(
-      File('${root.path}/config/secrets/local.env'),
+      File('${root.path}/config/default/local.env'),
       {
         'SUPABASE_URL': 'http://127.0.0.1:54321',
         'SUPABASE_ANON_KEY': 'anon-test',
@@ -142,7 +142,7 @@ void main() {
 
   test('full sync partial success when worker keys missing', () async {
     writeDotEnv(
-      File('${root.path}/config/secrets/local.env'),
+      File('${root.path}/config/default/local.env'),
       {
         'SUPABASE_URL': 'http://127.0.0.1:54321',
         'SUPABASE_ANON_KEY': 'anon-test',
@@ -169,7 +169,7 @@ void main() {
 
   test('sync --target erp succeeds without worker keys', () async {
     writeDotEnv(
-      File('${root.path}/config/secrets/local.env'),
+      File('${root.path}/config/default/local.env'),
       {
         'SUPABASE_URL': 'http://127.0.0.1:54321',
         'SUPABASE_ANON_KEY': 'anon-test',
@@ -188,7 +188,7 @@ void main() {
 
   test('autoGenerate WORKER_TICK_SECRET only when syncing worker', () async {
     writeDotEnv(
-      File('${root.path}/config/secrets/local.env'),
+      File('${root.path}/config/default/local.env'),
       {
         'SUPABASE_URL': 'http://127.0.0.1:54321',
         'SUPABASE_ANON_KEY': 'anon-test',
@@ -202,7 +202,7 @@ void main() {
     );
     expect(erpOnly.ok, isTrue);
     final secretsAfterErp = loadDotEnv(
-      File('${root.path}/config/secrets/local.env'),
+      File('${root.path}/config/default/local.env'),
     );
     expect(secretsAfterErp.containsKey('WORKER_TICK_SECRET'), isFalse);
 
@@ -212,7 +212,7 @@ void main() {
     );
     expect(workerOnly.ok, isTrue);
     final secretsAfterWorker = loadDotEnv(
-      File('${root.path}/config/secrets/local.env'),
+      File('${root.path}/config/default/local.env'),
     );
     expect(secretsAfterWorker['WORKER_TICK_SECRET'], isNotEmpty);
     final worker = loadDotEnv(workerOnly.workerEnvFile!);
@@ -221,7 +221,7 @@ void main() {
 
   test('doctor --target erp ignores missing deploy secrets', () async {
     writeDotEnv(
-      File('${root.path}/config/secrets/local.env'),
+      File('${root.path}/config/default/local.env'),
       {
         'SUPABASE_URL': 'http://127.0.0.1:54321',
         'SUPABASE_ANON_KEY': 'anon-test',
@@ -259,7 +259,7 @@ void main() {
 
   test('doctor deploy passes when deploy secrets present', () async {
     writeDotEnv(
-      File('${root.path}/config/secrets/deploy.env'),
+      File('${root.path}/config/deploy/deploy.env'),
       {
         'APP_STORE_CONNECT_ISSUER_ID': 'issuer',
         'APP_STORE_CONNECT_KEY_IDENTIFIER': 'key-id',

@@ -23,22 +23,27 @@ do
   fi
 done
 
-templates="$root/tools/vet45_env/templates/config"
-if [[ -f "$templates/environments.json" ]]; then
-  echo "FAIL: obsolete template $templates/environments.json (use committed workspace/target manifests)"
-  exit 1
-fi
-if [[ -f "$templates/profiles.json" ]]; then
-  echo "FAIL: obsolete template $templates/profiles.json (profiles live in vet45.workspace.json)"
+if [[ -d "$root/tools/vet45_env/templates" ]]; then
+  echo "FAIL: obsolete templates dir $root/tools/vet45_env/templates (removed — use config/<profile>/*.env.example)"
   exit 1
 fi
 
-for example in development local staging production deploy auth; do
-  if [[ ! -f "$templates/secrets/${example}.env.example" ]]; then
-    echo "FAIL: missing $templates/secrets/${example}.env.example"
+if [[ -d "$root/config/secrets" ]]; then
+  echo "FAIL: obsolete config/secrets/ — use config/<profileId>/ (e.g. config/default/)"
+  exit 1
+fi
+
+for example in development local staging production auth; do
+  if [[ ! -f "$root/config/default/${example}.env.example" ]]; then
+    echo "FAIL: missing $root/config/default/${example}.env.example"
     exit 1
   fi
 done
+
+if [[ ! -f "$root/config/deploy/deploy.env.example" ]]; then
+  echo "FAIL: missing $root/config/deploy/deploy.env.example"
+  exit 1
+fi
 
 if [[ ! -x "$root/scripts/env/vet45.sh" ]]; then
   echo "FAIL: scripts/env/vet45.sh not executable"
@@ -105,26 +110,27 @@ echo "$list_out" | grep -q 'manifest:'
 "$root/scripts/env/vet45.sh" list >/dev/null
 test -x "$root/scripts/env/switch.sh"
 
-echo "==> vet45 init (temp smoke — secrets only)"
+echo "==> vet45 init (temp smoke — copy examples to env)"
 tmp="$(mktemp -d)"
 trap 'rm -rf "$tmp"' EXIT
-mkdir -p "$tmp/tools/vet45_env"
+mkdir -p "$tmp/tools/vet45_env" "$tmp/apps/erp" "$tmp/apps/admin" "$tmp/apps/messaging_worker" "$tmp/config/deploy" "$tmp/config/default"
 cp -R "$root/tools/vet45_env/bin" "$tmp/tools/vet45_env/"
 cp -R "$root/tools/vet45_env/lib" "$tmp/tools/vet45_env/"
-cp -R "$root/tools/vet45_env/templates" "$tmp/tools/vet45_env/"
 cp "$root/tools/vet45_env/pubspec.yaml" "$tmp/tools/vet45_env/pubspec.yaml"
 cp "$root/vet45.workspace.json" "$tmp/vet45.workspace.json"
-mkdir -p "$tmp/apps/erp" "$tmp/apps/admin" "$tmp/apps/messaging_worker" "$tmp/config/deploy"
 cp "$root/apps/erp/vet45.target.json" "$tmp/apps/erp/"
 cp "$root/apps/admin/vet45.target.json" "$tmp/apps/admin/"
 cp "$root/apps/messaging_worker/vet45.target.json" "$tmp/apps/messaging_worker/"
 cp "$root/config/deploy/vet45.target.json" "$tmp/config/deploy/"
+cp "$root/config/default/"*.env.example "$tmp/config/default/"
+cp "$root/config/deploy/deploy.env.example" "$tmp/config/deploy/"
 sed -i '' '/resolution: workspace/d' "$tmp/tools/vet45_env/pubspec.yaml" 2>/dev/null || \
   sed -i '/resolution: workspace/d' "$tmp/tools/vet45_env/pubspec.yaml"
 printf 'name: vet45\npublish_to: none\nenvironment:\n  sdk: ">=3.11.1 <4.0.0"\n' > "$tmp/pubspec.yaml"
 (cd "$tmp/tools/vet45_env" && dart pub get >/dev/null)
 (cd "$tmp" && dart run tools/vet45_env/bin/vet45_env.dart init >/dev/null)
-test -f "$tmp/config/secrets/development.env.example"
+test -f "$tmp/config/default/development.env"
+test ! -d "$tmp/tools/vet45_env/templates"
 test ! -f "$tmp/config/environments.json"
 
 echo "OK: environment manager verified"

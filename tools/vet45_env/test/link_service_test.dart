@@ -39,7 +39,7 @@ void main() {
           'staging': {'envFile': '.env.staging'},
         },
       );
-      final secretsFile = File('${root.path}/config/secrets/staging.env');
+      final secretsFile = File('${root.path}/config/default/staging.env');
       writeDotEnv(
         secretsFile,
         {'SUPABASE_URL': 'https://myprojref.supabase.co'},
@@ -72,7 +72,7 @@ void main() {
           'staging': {'envFile': '.env.staging'},
         },
       );
-      final secretsFile = File('${root.path}/config/secrets/staging.env');
+      final secretsFile = File('${root.path}/config/default/staging.env');
       writeDotEnv(
         secretsFile,
         {'SUPABASE_URL': 'https://otherref.supabase.co'},
@@ -119,7 +119,7 @@ void main() {
         },
       );
       writeDotEnv(
-        File('${root.path}/config/secrets/staging.env'),
+        File('${root.path}/config/default/staging.env'),
         {
           'SUPABASE_URL': 'https://targetref.supabase.co',
           'SUPABASE_ANON_KEY': 'anon',

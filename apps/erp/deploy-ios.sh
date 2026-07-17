@@ -4,7 +4,7 @@
 # Usage:
 #   ./apps/erp/deploy-ios.sh [--env staging|production]
 #
-# Requires APP_STORE_CONNECT_* in config/secrets/deploy.env (shared across envs).
+# Requires APP_STORE_CONNECT_* in config/deploy/deploy.env (shared across envs).
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
@@ -57,7 +57,7 @@ done <<<"$RESOLVED"
 
 if [[ ! -f "${DEPLOY_SECRETS_FILE:-}" ]]; then
   echo "Missing deploy secrets: ${DEPLOY_SECRETS_FILE:-}"
-  echo "Run: cp config/secrets/deploy.env.example config/secrets/deploy.env"
+  echo "Run: cp config/deploy/deploy.env.example config/deploy/deploy.env"
   exit 1
 fi
 

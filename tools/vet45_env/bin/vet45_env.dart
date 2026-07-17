@@ -108,7 +108,7 @@ With no arguments (or `tui`), opens the interactive TUI.
 
 Commands:
   tui                  Open interactive TUI (default when no args)
-  init [--force]       Scaffold local config/secrets from templates (first-time)
+  init [--force]       Copy config/<profile>/*.env.example → *.env when missing
   list                 List profiles, environments, and active selection
   switch [profile] [env] [--profile <id>] [--env <id>] [--target <id>]
                        Switch profile/env, supabase link, and sync (recommended)
@@ -150,7 +150,7 @@ Future<void> _cmdInit(Directory root, List<String> args) async {
       stdout.writeln('Use --force to refresh scaffold files.');
       return;
     }
-    stdout.writeln('Initialized secrets at ${root.path}/config/secrets');
+    stdout.writeln('Initialized profile secrets under config/');
     for (final path in result.created) {
       stdout.writeln('  created $path');
     }
@@ -158,15 +158,8 @@ Future<void> _cmdInit(Directory root, List<String> args) async {
       stdout.writeln('  skipped ${result.skipped.length} existing file(s)');
     }
     stdout.writeln('');
-    stdout.writeln('Workspace/target manifests are committed:');
-    stdout.writeln('  vet45.workspace.json');
-    stdout.writeln('  apps/*/vet45.target.json');
-    stdout.writeln('');
-    stdout.writeln('Next:');
-    stdout.writeln(
-      '  cp config/secrets/development.env.example config/secrets/development.env',
-    );
-    stdout.writeln('  # fill secrets, then: vet45 sync');
+    stdout.writeln('Profiles live at config/<profileId>/ (committed *.env.example).');
+    stdout.writeln('Next: fill config/default/*.env then: vet45 sync');
   } on StateError catch (e) {
     stderr.writeln(e.message);
     exit(1);

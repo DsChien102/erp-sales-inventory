@@ -4,7 +4,7 @@ import 'manifest.dart';
 import 'profile_registry.dart';
 import 'workspace_manifest.dart';
 
-/// Scaffold a new configuration profile.
+/// Scaffold a new configuration profile under `config/<profileId>/`.
 class ProfileInitService {
   ProfileInitService({
     required this.manifest,
@@ -19,6 +19,8 @@ class ProfileInitService {
 SUPABASE_ACCESS_TOKEN=
 ''';
 
+  static const _reservedDirs = {'deploy'};
+
   Future<void> init(String profileId, {String? description}) async {
     if (manifest.profiles.profiles.containsKey(profileId)) {
       throw StateError('Profile already exists: $profileId');
@@ -26,18 +28,20 @@ SUPABASE_ACCESS_TOKEN=
     if (profileId == 'default') {
       throw StateError('Cannot init reserved profile id: default');
     }
+    if (_reservedDirs.contains(profileId)) {
+      throw StateError('Cannot init reserved config directory id: $profileId');
+    }
 
-    final secretsRoot = 'config/profiles/$profileId/secrets';
+    final secretsRoot = 'config/$profileId';
     final profileDir = Directory('${manifest.rootDir.path}/$secretsRoot');
     profileDir.createSync(recursive: true);
 
     _writeWorkspaceProfileEntry(profileId, description, secretsRoot);
 
+    final defaultRoot = Directory('${manifest.rootDir.path}/config/default');
     for (final envId in manifest.environments.keys) {
       final exampleName = '$envId.env.example';
-      final source = File(
-        '${manifest.rootDir.path}/config/secrets/$exampleName',
-      );
+      final source = File('${defaultRoot.path}/$exampleName');
       final dest = File('${profileDir.path}/$exampleName');
       if (source.existsSync()) {
         dest.writeAsStringSync(source.readAsStringSync());

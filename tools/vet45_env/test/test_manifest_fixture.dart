@@ -19,7 +19,7 @@ void writeTestWorkspace(
   Map<String, Map<String, String>>? profiles,
   String defaultProfile = 'default',
 }) {
-  Directory('${root.path}/config/secrets').createSync(recursive: true);
+  Directory('${root.path}/config/default').createSync(recursive: true);
 
   final environments = <String, dynamic>{
     for (final id in environmentIds)
@@ -34,7 +34,7 @@ void writeTestWorkspace(
       {
         'default': {
           'description': 'test default',
-          'secretsRoot': 'config/secrets',
+          'secretsRoot': 'config/default',
         },
       };
 
@@ -154,7 +154,7 @@ void writeTestWorkspace(
       id: 'deploy',
       description: 'iOS TestFlight (shared)',
       writeEnvFile: false,
-      secretsFile: '../secrets/deploy.env',
+      secretsFile: 'deploy.env',
       keys: [
         {'name': 'APP_STORE_CONNECT_ISSUER_ID', 'required': true},
         {'name': 'APP_STORE_CONNECT_KEY_IDENTIFIER', 'required': true},

@@ -16,13 +16,14 @@ class ProfileDefinition {
   final String description;
 
   /// Directory containing `<environment>.env` and optional `auth.env`.
+  /// Convention: `config/<profileId>/`.
   final String secretsRoot;
 
   factory ProfileDefinition.fromJson({
     required String id,
     required Map<String, dynamic> json,
   }) {
-    final root = json['secretsRoot'] as String? ?? 'config/profiles/$id/secrets';
+    final root = json['secretsRoot'] as String? ?? 'config/$id';
     return ProfileDefinition(
       id: id,
       description: json['description'] as String? ?? id,
@@ -67,7 +68,7 @@ class ProfileRegistry {
           'default': ProfileDefinition(
             id: 'default',
             description: 'Vet45 main',
-            secretsRoot: 'config/secrets',
+            secretsRoot: 'config/default',
           ),
         },
         rootDir: rootDir,

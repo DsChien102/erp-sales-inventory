@@ -38,18 +38,18 @@ void main() {
       profiles: {
         'default': {
           'description': 'Default',
-          'secretsRoot': 'config/secrets',
+          'secretsRoot': 'config/default',
         },
         'acme': {
           'description': 'Acme',
-          'secretsRoot': 'config/profiles/acme/secrets',
+          'secretsRoot': 'config/acme',
         },
       },
     );
     Directory('${root.path}/apps/erp').createSync(recursive: true);
     Directory('${root.path}/apps/messaging_worker').createSync(recursive: true);
     writeDotEnv(
-      File('${root.path}/config/secrets/local.env'),
+      File('${root.path}/config/default/local.env'),
       {
         'SUPABASE_URL': 'http://127.0.0.1:54321',
         'SUPABASE_ANON_KEY': 'anon',
@@ -58,7 +58,7 @@ void main() {
       },
     );
     // staging only as example — must not appear in TUI env list
-    File('${root.path}/config/secrets/staging.env.example')
+    File('${root.path}/config/default/staging.env.example')
         .writeAsStringSync('SUPABASE_URL=\n');
     writeActiveState(
       root,

@@ -48,9 +48,9 @@ cd vet45
 melos bootstrap
 
 # 3. Cấu hình môi trường
-cp config/secrets/development.env.example config/secrets/development.env
-cp config/secrets/staging.env.example config/secrets/staging.env
-cp config/secrets/production.env.example config/secrets/production.env
+cp config/default/development.env.example config/default/development.env
+cp config/default/staging.env.example config/default/staging.env
+cp config/default/production.env.example config/default/production.env
 # Điền Supabase URL + keys trong development.env (remote dev) hoặc dùng Supabase CLI local
 
 # 4. Chạy app
@@ -117,7 +117,7 @@ Scaffold module mới: `./scripts/scaffold_module.sh`.
 Worker xử lý outbox/inbox và integration events server-side — không bắt buộc cho dev UI thuần.
 
 ```bash
-# Remote dev: điền config/secrets/development.env rồi melos run env:sync
+# Remote dev: điền config/default/development.env rồi melos run env:sync
 # Hoặc Supabase CLI local:
 supabase start
 melos run env:local

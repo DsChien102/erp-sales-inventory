@@ -30,7 +30,7 @@ void main() {
     expect(workspace.defaultEnvironmentId, 'development');
     expect(workspace.environments.keys, containsAll(['development', 'local']));
     expect(workspace.profiles.defaultProfileId, 'default');
-    expect(workspace.profiles.profiles['default']!.secretsRoot, 'config/secrets');
+    expect(workspace.profiles.profiles['default']!.secretsRoot, 'config/default');
     expect(workspace.scan.include, isNotEmpty);
   });
 
@@ -43,7 +43,7 @@ void main() {
     updatedProfiles['acme'] = ProfileDefinition(
       id: 'acme',
       description: 'Client Acme',
-      secretsRoot: 'config/profiles/acme/secrets',
+      secretsRoot: 'config/acme',
     );
 
     final updated = WorkspaceManifest(
@@ -65,7 +65,7 @@ void main() {
     expect(reloaded.profiles.profiles.containsKey('acme'), isTrue);
     expect(
       reloaded.profiles.getProfile('acme').secretsRoot,
-      'config/profiles/acme/secrets',
+      'config/acme',
     );
     // Ensure JSON still has expected shape.
     final raw =

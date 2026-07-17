@@ -16,11 +16,11 @@
     "entries": {
       "default": {
         "description": "Vet45 main (Agapi)",
-        "secretsRoot": "config/secrets"
+        "secretsRoot": "config/default"
       },
       "test": {
         "description": "test",
-        "secretsRoot": "config/profiles/test/secrets"
+        "secretsRoot": "config/test"
       }
     }
   },

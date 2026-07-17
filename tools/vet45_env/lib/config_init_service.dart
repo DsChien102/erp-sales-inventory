@@ -16,23 +16,22 @@ class ConfigInitResult {
   bool get alreadyInitialized => created.isEmpty && skipped.isNotEmpty;
 }
 
-/// Scaffolds local secrets under `config/secrets/` from bundled templates.
+/// Ensures local `*.env` files exist by copying committed `*.env.example`.
 ///
-/// Workspace/target manifests are committed — init no longer copies them.
+/// Examples live under `config/default/` and `config/deploy/` (no templates bundle).
 class ConfigInitService {
   ConfigInitService({Directory? repoRoot})
       : repoRoot = repoRoot ?? Directory(findRepoRoot());
 
   final Directory repoRoot;
 
-  static String templatesDir(Directory root) =>
-      '${root.path}/tools/vet45_env/templates/config';
-
   bool get hasWorkspace =>
       WorkspaceManifest.workspaceFile(repoRoot).existsSync();
 
-  bool get isInitialized =>
-      Directory('${repoRoot.path}/config/secrets').existsSync();
+  Directory get defaultProfileDir =>
+      Directory('${repoRoot.path}/config/default');
+
+  bool get isInitialized => defaultProfileDir.existsSync();
 
   Future<ConfigInitResult> init({bool force = false}) async {
     if (!hasWorkspace) {
@@ -42,47 +41,52 @@ class ConfigInitService {
       );
     }
 
-    final templates = Directory(templatesDir(repoRoot));
-    if (!templates.existsSync()) {
+    if (!defaultProfileDir.existsSync()) {
       throw StateError(
-        'Missing config templates at ${templates.path}. '
-        'Run melos bootstrap from the Vet45 monorepo root.',
-      );
-    }
-
-    if (isInitialized && !force) {
-      throw StateError(
-        'Secrets already initialized at ${repoRoot.path}/config/secrets. '
-        'Use --force to refresh scaffold files '
-        '(never overwrites filled *.env secrets).',
+        'Missing committed profile examples at ${defaultProfileDir.path}. '
+        'Check out config/default/*.env.example from the monorepo.',
       );
     }
 
     final created = <String>[];
     final skipped = <String>[];
 
-    await for (final entity
-        in templates.list(recursive: true, followLinks: false)) {
-      if (entity is! File) {
+    for (final dirPath in [
+      'config/default',
+      'config/deploy',
+    ]) {
+      final dir = Directory('${repoRoot.path}/$dirPath');
+      if (!dir.existsSync()) {
         continue;
       }
-      final relative = _relativePath(templates.path, entity.path);
-      // Only scaffold secrets templates (manifests are committed at repo root).
-      if (!relative.startsWith('secrets${Platform.pathSeparator}') &&
-          !relative.startsWith('secrets/') &&
-          relative != 'README.md' &&
-          !relative.startsWith('profiles${Platform.pathSeparator}') &&
-          !relative.startsWith('profiles/')) {
-        continue;
+      for (final entity in dir.listSync(followLinks: false)) {
+        if (entity is! File) {
+          continue;
+        }
+        final name = entity.uri.pathSegments.last;
+        if (!name.endsWith('.env.example')) {
+          continue;
+        }
+        final destName = name.replaceFirst(RegExp(r'\.example$'), '');
+        final dest = File('${dir.path}/$destName');
+        final relative = '$dirPath/$destName';
+        if (dest.existsSync() && !_shouldOverwrite(dest.path, force: force)) {
+          skipped.add(relative);
+          continue;
+        }
+        if (dest.existsSync() && _isFilledSecretEnv(dest.path)) {
+          skipped.add(relative);
+          continue;
+        }
+        dest.writeAsStringSync(entity.readAsStringSync());
+        created.add(relative);
       }
-      final dest = File('${repoRoot.path}/config/$relative');
-      if (dest.existsSync() && !_shouldOverwrite(dest.path, force: force)) {
-        skipped.add(relative);
-        continue;
-      }
-      dest.parent.createSync(recursive: true);
-      await dest.writeAsBytes(await entity.readAsBytes());
-      created.add(relative);
+    }
+
+    if (created.isEmpty && skipped.isEmpty && !force) {
+      throw StateError(
+        'No *.env.example found under config/default or config/deploy.',
+      );
     }
 
     return ConfigInitResult(created: created, skipped: skipped);
@@ -129,16 +133,6 @@ class ConfigInitService {
     }
     return false;
   }
-
-  static String _relativePath(String root, String filePath) {
-    final normalizedRoot = root.endsWith(Platform.pathSeparator)
-        ? root
-        : '$root${Platform.pathSeparator}';
-    if (!filePath.startsWith(normalizedRoot)) {
-      return filePath;
-    }
-    return filePath.substring(normalizedRoot.length);
-  }
 }
 
 void requireConfigInitialized(Directory repoRoot) {
@@ -157,17 +151,16 @@ void requireConfigInitialized(Directory repoRoot) {
     exit(1);
   }
 
-  if (!Directory('${repoRoot.path}/config/secrets').existsSync()) {
-    stderr.writeln('Vet45 secrets are not initialized.');
+  final defaultDir = Directory('${repoRoot.path}/config/default');
+  if (!defaultDir.existsSync()) {
+    stderr.writeln('Missing config/default/ profile directory.');
     stderr.writeln('');
     stderr.writeln('First-time setup:');
     stderr.writeln('  melos bootstrap');
-    stderr.writeln('  melos run env:init');
-    stderr.writeln('');
-    stderr.writeln('Then copy and fill secrets, e.g.:');
     stderr.writeln(
-      '  cp config/secrets/development.env.example config/secrets/development.env',
+      '  cp config/default/development.env.example config/default/development.env',
     );
+    stderr.writeln('  # fill secrets, then: vet45 sync');
     exit(1);
   }
 }

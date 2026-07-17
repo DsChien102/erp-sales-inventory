@@ -71,7 +71,7 @@ melos:
 
     env:init:
       run: dart run tools/vet45_env/bin/run.dart init
-      description: Scaffold config/secrets from templates (first-time setup)
+      description: Copy config/<profile>/*.env.example → *.env when missing (first-time setup)
 
     env:list:
       run: dart run tools/vet45_env/bin/run.dart list
@@ -87,7 +87,7 @@ melos:
 
     profile:init:
       run: dart run tools/vet45_env/bin/run.dart profile init
-      description: Scaffold a new profile under config/profiles/
+      description: Scaffold a new profile under config/<profileId>/
 
     env:use:
       run: dart run tools/vet45_env/bin/run.dart use

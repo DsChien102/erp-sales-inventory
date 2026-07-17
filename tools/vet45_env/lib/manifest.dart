@@ -75,7 +75,7 @@ class EnvManifest {
 
     final deployTarget = targets['deploy'];
     final deployFile = deployTarget?.secretsFile ??
-        File('${rootDir.path}/config/secrets/deploy.env');
+        File('${rootDir.path}/config/deploy/deploy.env');
 
     return EnvManifest(
       defaultEnvironmentId: workspace.defaultEnvironmentId,

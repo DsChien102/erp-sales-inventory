@@ -17,11 +17,11 @@ void main() {
       profiles: {
         'default': {
           'description': 'Default',
-          'secretsRoot': 'config/secrets',
+          'secretsRoot': 'config/default',
         },
         'acme': {
           'description': 'Acme',
-          'secretsRoot': 'config/profiles/acme/secrets',
+          'secretsRoot': 'config/acme',
         },
       },
     );
