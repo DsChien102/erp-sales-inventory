@@ -40,24 +40,55 @@ Snapshot precheck cannot guarantee commit. RPC rechecks tenant/references/duplic
 
 ```text
 UI → SearchCustomerPriceRulesQuery | GetCustomerPriceRuleDetailQuery
-  → query handler → IPricingReadGateway
-  → pricing search/detail RPC or tenant-scoped views
+  → Pricing query access guard (bind tenant + generated permission metadata)
+  → ScopedCommandExecutor → QueryBus → query handler → IPricingReadGateway
+  → pricing search/detail RPC
   → DTO with snapshot labels, derived status, available actions
 ```
 
 Queries receive tenant from execution context, never trust a caller-supplied tenant ID.
+
+- **S2 search** reads only Pricing-owned snapshots and uses an opaque seek cursor over `updated_at DESC, id DESC`; it does not join Partner/Catalog private tables. Floor amount is never exposed on the list.
+- **S3 detail** keeps stored snapshot labels for archived explainability, then enriches reference health and current compatible list/floor through Partner/Catalog internal provider functions only. Live enrichment does not mutate persisted rule status, validation snapshot, version, activity, or the S2 list projection. Detail does not embed activity history rows; `history` is a navigation capability for S10.
+- RPC remains the authoritative tenant/view gate; deleted/cross-tenant IDs map to `NOT_FOUND`.
 
 ## S5 — Update
 
 ```text
 1. UI loads detail(version=N).
 2. Submit mutable fields + expectedVersion=N.
-3. Handler validates shape and gets current snapshots.
-4. RPC locks/current-checks rule; version mismatch → STATE_CHANGED.
-5. RPC rechecks overlap/floor/reference, updates rule + version, appends activity.
+3. Handler loads advisory context via pricing.get_customer_price_rule_update_context
+   (read-only precheck: permission, payload shape, version, status, references, floor, duplicate).
+4. Handler reconstitutes the aggregate, checks expected version locally, computes no-op via
+   hasSameMutableValues, then always calls the authoritative gateway regardless of no-op/warning.
+5. RPC pricing.update_customer_price_rule locks/current-checks rule; version mismatch → STATE_CHANGED;
+   status outside active/needs_review/disabled → INVALID_STATUS.
+6. RPC rechecks overlap/floor/reference, updates rule + version, appends activity (skipped on no-op).
 ```
 
-## S6/S7 — Disable / reenable
+The advisory RPC (`pricing.get_customer_price_rule_update_context`) is UX-only: it recomputes the same checks for early UI feedback but **never authorizes a commit**. The authoritative RPC (`pricing.update_customer_price_rule`) always re-derives and re-checks tenant/permission, version, status, references, duplicate interval and floor policy itself under a row lock before writing — a stale or bypassed advisory call cannot skip the authoritative recheck.
+
+## S6 — Disable
+
+```text
+1. UI confirms disable (optional reason) + expectedVersion=N from detail.
+2. Handler validates payload, binds tenant/actor from execution context, then calls
+   the command gateway once — no advisory/precheck query, no Partner/Catalog
+   provider call, no floor check, no duplicate-interval check.
+3. RPC pricing.disable_customer_price_rule locks the tenant-scoped non-deleted row:
+   missing/deleted/cross-tenant → NOT_FOUND
+   already disabled → return current detail (no write, no activity, no version check)
+   version mismatch on active/needs_review → STATE_CHANGED
+   status outside active/needs_review/disabled → INVALID_STATUS
+4. Real transition: status=disabled, version=N+1, set disabled_at/by/reason,
+   append exactly one 'disabled' activity, return current disabled detail.
+```
+
+There is no S6 precheck RPC and no advisory context port. The single authoritative RPC owns permission recheck (`auth.uid()`), row lock, idempotent already-disabled short-circuit, optimistic versioning, audit metadata, and activity in one transaction.
+
+## S7 — Reenable
+
+Token là bằng chứng staleness (advisory), không phải authorization. Commit RPC luôn reload live context và so khớp fingerprint trước khi map business errors.
 
 ```mermaid
 sequenceDiagram
@@ -65,43 +96,55 @@ sequenceDiagram
   participant MED as IPricingModule
   participant Q as PrecheckHandler
   participant C as CommandHandler
+  participant H as _customer_price_rule_reenable_context
   participant RPC as pricing RPC
 
-  alt disable
-    UI->>MED: DisableCustomerPriceRuleCommand
-    MED->>C: execute
-    C->>RPC: disable atomic
-    RPC-->>UI: disabled detail/version
-  else reenable
-    UI->>MED: PrecheckCustomerPriceRuleReenableQuery
-    MED->>Q: execute
-    Q-->>UI: valid/warning/blocked + token/version
-    UI->>MED: ReenableCustomerPriceRuleCommand
-    MED->>C: execute
-    C->>RPC: revalidate + transition + activity
-    RPC-->>UI: active or current error
-  end
+  UI->>MED: PrecheckCustomerPriceRuleReenableQuery
+  MED->>Q: bind tenant + permission
+  Q->>RPC: precheck_customer_price_rule_reenable
+  RPC->>H: derive outcome + HMAC-SHA-256 token
+  RPC-->>UI: valid/warning/blocked + token/version
+  UI->>MED: ReenableCustomerPriceRuleCommand
+  MED->>C: bind tenant/actor + permission
+  C->>RPC: reenable_customer_price_rule
+  Note over RPC: FOR UPDATE → version → disabled → context → token compare → business errors → update → activity
+  RPC->>RPC: advisory lock rule key (same as S1/S5)
+  RPC->>H: recompute HMAC fingerprint
+  RPC-->>UI: active detail or current error
 ```
+
+Ordering commit: row lock → version → disabled status → canonical context → optional token stale check → reference/duplicate/floor/expired mapping → active transition + one `reenabled` activity.
 
 ## S8 — Excel import
 
+V1 stores normalized row cells and trace metadata only — **no workbook bytes in PostgreSQL**. Parser/template live in Pricing infrastructure behind `ICustomerPriceRuleImportFilePort`; Partner/Catalog resolution stays provider-owned (`partner._get_customer_snapshot_for_pricing`, `catalog._resolve_product_unit_for_pricing_import`). Pricing SQL never reads Partner/Catalog tables directly.
+
 ```text
+Template query → file port (V1 XLSX bytes)
+
 Start command
-  → store batch + parse normalized rows
-  → resolve customer/product/unit through ports
-  → validate and persist preview outcomes
+  → validator (5 MiB, .xlsx)
+  → file port parse → CustomerPriceRuleImportParseResult
+  → import gateway → pricing.create_customer_price_rule_import(parse_result jsonb)
+  → persisted batch + preview rows (ready_to_import even with row errors)
 
 Get query
-  → batch summary + paged row previews
+  → import gateway → pricing.get_customer_price_rule_import
+  → batch summary + keyset rows (row_number asc, id asc)
 
 Confirm command
-  → lock batch
-  → for each importable row: re-resolve/revalidate at commit
-  → atomic row outcome + rule/activity; update counters
-  → completed | completed_with_errors
+  → FOR UPDATE batch
+  → terminal completed|completed_with_errors → replay (isReplay=true) before version check
+  → reject when warning rows exist and acknowledgement=false
+  → process valid/warning rows in row_number,id order with advisory rule-key lock
+  → skip preview-error rows; per-row business failure → failed (no exception swallow)
+  → completed only when failed/skipped are zero, else completed_with_errors
+
+Cancel command
+  → FOR UPDATE batch; ready_to_import → canceled; same-version retry on already canceled
 ```
 
-Large-file/background execution is a later implementation choice. Contract states lifecycle and outcomes, not transport/storage technology.
+No async worker or background import in V1; large files are bounded (5 MiB, 2,000 rows).
 
 ## S9 — Remembered price from Sales
 
@@ -122,6 +165,8 @@ sequenceDiagram
 ```
 
 E2E is blocked until Sales publisher/confirmation flow exists. Pricing contract, handler, RPC draft and fake-based tests are not blocked.
+
+Authoritative RPC transaction order (frozen): auth/permission → scalar validation → SHA-256 canonical payload hash → memory idempotency advisory lock → same-key replay → request insert → anonymous short-circuit → rule-key advisory lock → Partner/Catalog providers only → deterministic stored outcomes or atomic rule/activity mutation. Technical SQL failures roll back request/rule/activity together.
 
 ## S10 — History
 
@@ -147,4 +192,3 @@ Domain/application errors remain typed codes. Infrastructure maps RPC error payl
 ## SQL discipline
 
 When a BE slice begins, draft only under `supabase/migrations/_drafts/` and list RPC names in [07-api-contracts.md](07-api-contracts.md). A draft is not assumed applied; handler/gateway tests use fakes/in-memory doubles until the environment provides the RPC.
-

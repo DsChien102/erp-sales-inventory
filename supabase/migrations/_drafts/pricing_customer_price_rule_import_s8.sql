@@ -1,0 +1,870 @@
+-- Title: Pricing S8 customer price rule excel import
+-- Kind: patch
+-- Intent: pricing_customer_price_rule_import_s8
+-- Context: TH-04 EP02 S8 CONTRACT + BE
+-- Touches: _import_batch_result, _import_row_preview, _evaluate_customer_price_rule_import_row, create_customer_price_rule_import, get_customer_price_rule_import, confirm_customer_price_rule_import, cancel_customer_price_rule_import
+-- Safety: draft only; do not apply or promote without explicit migration review
+-- Depends on: pricing_customer_price_rule_s1.sql, partner_pricing_customer_snapshot.sql, catalog_pricing_price_band_snapshot.sql, catalog_pricing_import_product_unit_resolver.sql
+
+alter table pricing.customer_price_rules
+  drop constraint if exists customer_price_rules_source_type_check;
+alter table pricing.customer_price_rules
+  add constraint customer_price_rules_source_type_check
+  check (source_type in ('manual', 'excel_import', 'sales_order', 'migration'));
+
+alter table pricing.customer_price_rule_activities
+  drop constraint if exists customer_price_rule_activities_activity_type_check;
+alter table pricing.customer_price_rule_activities
+  add constraint customer_price_rule_activities_activity_type_check
+  check (activity_type in (
+    'created', 'updated', 'disabled', 'reenabled',
+    'import_created', 'import_updated'
+  ));
+
+create table if not exists pricing.customer_price_rule_imports (
+  id uuid primary key default gen_random_uuid(),
+  tenant_id uuid not null,
+  template_version text not null,
+  original_file_name text not null,
+  import_mode text not null
+    check (import_mode in ('create_only', 'update_only', 'upsert')),
+  status text not null check (status in (
+    'failed', 'ready_to_import', 'importing',
+    'completed', 'completed_with_errors', 'canceled'
+  )),
+  version integer not null default 1 check (version > 0),
+  total_rows integer not null default 0,
+  valid_rows integer not null default 0,
+  warning_rows integer not null default 0,
+  error_rows integer not null default 0,
+  imported_rows integer not null default 0,
+  skipped_rows integer not null default 0,
+  failed_rows integer not null default 0,
+  file_error_codes jsonb not null default '[]'::jsonb,
+  created_by uuid not null,
+  created_at timestamptz not null default statement_timestamp(),
+  confirmed_by uuid,
+  confirmed_at timestamptz,
+  canceled_by uuid,
+  canceled_at timestamptz
+);
+
+create table if not exists pricing.customer_price_rule_import_rows (
+  id uuid primary key default gen_random_uuid(),
+  tenant_id uuid not null,
+  import_id uuid not null references pricing.customer_price_rule_imports(id) on delete cascade,
+  row_number integer not null check (row_number > 1),
+  raw_rule_id text,
+  raw_customer_id text,
+  raw_product_reference_id text,
+  raw_price text,
+  raw_effective_from text,
+  raw_effective_to text,
+  raw_note text,
+  normalized_price_minor bigint,
+  normalized_effective_from date,
+  normalized_effective_to date,
+  normalized_note text,
+  customer_snapshot jsonb,
+  product_snapshot jsonb,
+  unit_snapshot jsonb,
+  unit_resolution_strategy text check (
+    unit_resolution_strategy is null or unit_resolution_strategy in (
+      'default_selling_unit', 'ambiguous', 'not_found'
+    )
+  ),
+  row_status text not null check (row_status in (
+    'valid', 'warning', 'error', 'imported', 'skipped', 'failed'
+  )),
+  action text not null check (action in ('create', 'update', 'skip')),
+  error_codes jsonb not null default '[]'::jsonb,
+  warning_codes jsonb not null default '[]'::jsonb,
+  matched_rule_id uuid,
+  matched_rule_version integer,
+  affected_rule_id uuid,
+  created_at timestamptz not null default statement_timestamp(),
+  updated_at timestamptz not null default statement_timestamp(),
+  constraint customer_price_rule_import_rows_unique_row unique (import_id, row_number)
+);
+
+alter table pricing.customer_price_rules
+  add column if not exists source_import_id uuid references pricing.customer_price_rule_imports(id),
+  add column if not exists source_import_row_id uuid references pricing.customer_price_rule_import_rows(id);
+alter table pricing.customer_price_rule_activities
+  add column if not exists import_id uuid references pricing.customer_price_rule_imports(id),
+  add column if not exists import_row_id uuid references pricing.customer_price_rule_import_rows(id);
+
+create index if not exists customer_price_rule_imports_tenant_idx
+  on pricing.customer_price_rule_imports (tenant_id, created_at desc);
+create index if not exists customer_price_rule_import_rows_page_idx
+  on pricing.customer_price_rule_import_rows (import_id, row_status, row_number, id);
+
+alter table pricing.customer_price_rule_imports enable row level security;
+alter table pricing.customer_price_rule_import_rows enable row level security;
+revoke all on pricing.customer_price_rule_imports
+  from public, anon, authenticated, service_role;
+revoke all on pricing.customer_price_rule_import_rows
+  from public, anon, authenticated, service_role;
+
+create or replace function pricing._import_batch_result(p_import_id uuid)
+returns jsonb
+language sql stable security definer set search_path = ''
+as $$
+  select jsonb_build_object(
+    'id', b.id,
+    'template_version', b.template_version,
+    'original_file_name', b.original_file_name,
+    'import_mode', b.import_mode,
+    'status', b.status,
+    'version', b.version,
+    'total_rows', b.total_rows,
+    'valid_rows', b.valid_rows,
+    'warning_rows', b.warning_rows,
+    'error_rows', b.error_rows,
+    'imported_rows', b.imported_rows,
+    'skipped_rows', b.skipped_rows,
+    'failed_rows', b.failed_rows,
+    'file_error_codes', b.file_error_codes,
+    'created_at', b.created_at,
+    'confirmed_at', b.confirmed_at,
+    'canceled_at', b.canceled_at
+  )
+  from pricing.customer_price_rule_imports b
+  where b.id = p_import_id;
+$$;
+revoke all on function pricing._import_batch_result(uuid)
+  from public, anon, authenticated, service_role;
+
+create or replace function pricing._import_row_preview(
+  p_row pricing.customer_price_rule_import_rows,
+  p_can_view_rules boolean,
+  p_can_view_floor boolean
+)
+returns jsonb
+language sql stable security definer set search_path = ''
+as $$
+  select jsonb_build_object(
+    'id', p_row.id,
+    'row_number', p_row.row_number,
+    'rule_id', p_row.raw_rule_id,
+    'customer_id', p_row.raw_customer_id,
+    'product_reference_id', p_row.raw_product_reference_id,
+    'price', p_row.raw_price,
+    'effective_from', p_row.raw_effective_from,
+    'effective_to', p_row.raw_effective_to,
+    'note', p_row.raw_note,
+    'customer_snapshot', case when p_row.customer_snapshot is null then null else
+      jsonb_strip_nulls(jsonb_build_object(
+        'customer_id', p_row.customer_snapshot -> 'customer_id',
+        'display_name', p_row.customer_snapshot -> 'display_name',
+        'status', p_row.customer_snapshot -> 'status'
+      )) end,
+    'product_snapshot', case
+      when p_row.product_snapshot is null then null
+      when p_can_view_floor then p_row.product_snapshot
+      else p_row.product_snapshot - 'floor_price_minor'
+    end,
+    'unit_snapshot', p_row.unit_snapshot,
+    'unit_resolution_strategy', p_row.unit_resolution_strategy,
+    'normalized_price_minor', p_row.normalized_price_minor,
+    'normalized_effective_from', p_row.normalized_effective_from,
+    'normalized_effective_to', p_row.normalized_effective_to,
+    'normalized_note', p_row.normalized_note,
+    'status', p_row.row_status,
+    'action', p_row.action,
+    'error_codes', p_row.error_codes,
+    'warning_codes', p_row.warning_codes,
+    'matched_rule_id', case
+      when p_can_view_rules then p_row.matched_rule_id else null
+    end,
+    'matched_rule_version', case
+      when p_can_view_rules then p_row.matched_rule_version else null
+    end,
+    'affected_rule_id', case
+      when p_can_view_rules then p_row.affected_rule_id else null
+    end
+  );
+$$;
+revoke all on function pricing._import_row_preview(
+  pricing.customer_price_rule_import_rows, boolean, boolean
+) from public, anon, authenticated, service_role;
+
+create or replace function pricing._evaluate_customer_price_rule_import_row(
+  p_tenant_id uuid,
+  p_import_mode text,
+  p_row jsonb,
+  p_business_date date,
+  p_check_duplicate boolean default true
+)
+returns jsonb
+language plpgsql stable security definer set search_path = ''
+as $$
+declare
+  v_rule_text text := nullif(btrim(p_row ->> 'rule_id'), '');
+  v_customer_text text := nullif(btrim(p_row ->> 'customer_id'), '');
+  v_reference text := nullif(btrim(p_row ->> 'product_reference_id'), '');
+  v_price_text text := nullif(btrim(p_row ->> 'price'), '');
+  v_from_text text := nullif(btrim(p_row ->> 'effective_from'), '');
+  v_to_text text := nullif(btrim(p_row ->> 'effective_to'), '');
+  v_note text := nullif(btrim(p_row ->> 'note'), '');
+  v_rule_id uuid;
+  v_customer_id uuid;
+  v_price_digits text;
+  v_price bigint;
+  v_effective_from date;
+  v_effective_to date;
+  v_action text := 'skip';
+  v_errors jsonb := '[]'::jsonb;
+  v_warnings jsonb := '[]'::jsonb;
+  v_customer jsonb;
+  v_catalog jsonb;
+  v_product jsonb;
+  v_unit jsonb;
+  v_target pricing.customer_price_rules%rowtype;
+  v_conflicting_rule_id uuid;
+  v_can_override_floor boolean := false;
+  v_floor bigint;
+begin
+  if p_import_mode not in ('create_only', 'update_only', 'upsert') then
+    v_errors := v_errors || jsonb_build_array('IMPORT_MODE_MISMATCH');
+  elsif v_rule_text is null then
+    if p_import_mode = 'update_only' then
+      v_errors := v_errors || jsonb_build_array('IMPORT_MODE_MISMATCH');
+    else
+      v_action := 'create';
+    end if;
+  elsif p_import_mode = 'create_only' then
+    v_errors := v_errors || jsonb_build_array('IMPORT_MODE_MISMATCH');
+  elsif v_rule_text !~* '^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$' then
+    v_errors := v_errors || jsonb_build_array('INVALID_RULE_ID');
+  else
+    v_rule_id := v_rule_text::uuid;
+    v_action := 'update';
+    select r.* into v_target
+    from pricing.customer_price_rules r
+    where r.tenant_id = p_tenant_id and r.id = v_rule_id and r.status <> 'deleted';
+    if not found then
+      v_errors := v_errors || jsonb_build_array('REFERENCE_INVALID');
+    end if;
+  end if;
+
+  if v_customer_text is null or
+    v_customer_text !~* '^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$' then
+    v_errors := v_errors || jsonb_build_array('REFERENCE_INVALID');
+  else
+    v_customer_id := v_customer_text::uuid;
+    v_customer := partner._get_customer_snapshot_for_pricing(
+      p_tenant_id, v_customer_id
+    );
+    if not coalesce((v_customer ->> 'exists')::boolean, false)
+      or not coalesce((v_customer ->> 'is_customer')::boolean, false)
+      or coalesce(v_customer ->> 'status', '') <> 'active' then
+      v_errors := v_errors || jsonb_build_array('REFERENCE_INVALID');
+    end if;
+  end if;
+
+  if v_reference is null then
+    v_errors := v_errors || jsonb_build_array('REFERENCE_INVALID');
+  else
+    v_catalog := catalog._resolve_product_unit_for_pricing_import(
+      p_tenant_id, v_reference
+    );
+    if coalesce(v_catalog ->> 'resolution', '') = 'ambiguous' then
+      v_errors := v_errors || jsonb_build_array('AMBIGUOUS_PRODUCT_UNIT');
+    elsif coalesce(v_catalog ->> 'resolution', '') <> 'resolved' then
+      v_errors := v_errors || jsonb_build_array('REFERENCE_INVALID');
+    else
+      v_product := v_catalog -> 'product_unit';
+      v_unit := jsonb_build_object(
+        'product_unit_id', v_product -> 'product_unit_id',
+        'unit_name', v_product -> 'unit_name',
+        'is_base_unit', v_product -> 'is_base_unit'
+      );
+      if not coalesce((v_product ->> 'minor_units_valid')::boolean, false)
+        or coalesce(v_product ->> 'sellable_status', '') <> 'active' then
+        v_errors := v_errors || jsonb_build_array('REFERENCE_INVALID');
+      end if;
+    end if;
+  end if;
+
+  v_price_digits := regexp_replace(coalesce(v_price_text, ''), '[,._[:space:]]', '', 'g');
+  if v_price_digits !~ '^[0-9]+$'
+    or length(v_price_digits) > 19
+    or v_price_digits::numeric <= 0
+    or v_price_digits::numeric > 9223372036854775807 then
+    v_errors := v_errors || jsonb_build_array('INVALID_PRICE');
+  else
+    v_price := v_price_digits::bigint;
+  end if;
+
+  if v_from_text is null then
+    v_warnings := v_warnings || jsonb_build_array('EFFECTIVE_FROM_DEFAULTED');
+    v_effective_from := p_business_date;
+  elsif v_from_text !~ '^\d{4}-\d{2}-\d{2}$'
+    or to_char(to_date(v_from_text, 'YYYY-MM-DD'), 'YYYY-MM-DD') <> v_from_text then
+    v_errors := v_errors || jsonb_build_array('INVALID_DATE');
+  else
+    v_effective_from := v_from_text::date;
+  end if;
+
+  if v_to_text is not null then
+    if v_to_text !~ '^\d{4}-\d{2}-\d{2}$'
+      or to_char(to_date(v_to_text, 'YYYY-MM-DD'), 'YYYY-MM-DD') <> v_to_text then
+      v_errors := v_errors || jsonb_build_array('INVALID_DATE');
+    else
+      v_effective_to := v_to_text::date;
+    end if;
+  end if;
+  if v_effective_from is not null and v_effective_to is not null
+    and v_effective_to < v_effective_from then
+    v_errors := v_errors || jsonb_build_array('INVALID_PERIOD');
+  end if;
+  if v_note is not null and char_length(v_note) > 500 then
+    v_errors := v_errors || jsonb_build_array('NOTE_TOO_LONG');
+  end if;
+
+  if v_action = 'update' and v_target.id is not null and v_product is not null
+    and (v_target.customer_id <> v_customer_id
+      or v_target.product_id <> (v_product ->> 'product_id')::uuid
+      or v_target.product_unit_id <> (v_product ->> 'product_unit_id')::uuid) then
+    v_errors := v_errors || jsonb_build_array('RULE_KEY_MISMATCH');
+  end if;
+
+  v_can_override_floor := iam.has_permission(
+    p_tenant_id, 'pricing.customer_price_rule.override_floor_price'
+  );
+  v_floor := nullif(v_product ->> 'floor_price_minor', '')::bigint;
+  if v_floor is not null and v_price is not null and v_price < v_floor then
+    if v_can_override_floor then
+      v_warnings := v_warnings || jsonb_build_array('BELOW_FLOOR_PRICE');
+    else
+      v_errors := v_errors || jsonb_build_array('BELOW_FLOOR_BLOCKED');
+    end if;
+  end if;
+
+  if p_check_duplicate and jsonb_array_length(v_errors) = 0
+    and v_customer_id is not null and v_product is not null
+    and (v_action = 'create' or v_target.status <> 'disabled') then
+    select r.id into v_conflicting_rule_id
+    from pricing.customer_price_rules r
+    where r.tenant_id = p_tenant_id
+      and r.id <> coalesce(v_rule_id, '00000000-0000-0000-0000-000000000000'::uuid)
+      and r.customer_id = v_customer_id
+      and r.product_id = (v_product ->> 'product_id')::uuid
+      and r.product_unit_id = (v_product ->> 'product_unit_id')::uuid
+      and r.status = 'active'
+      and r.effective_from <= coalesce(v_effective_to, 'infinity'::date)
+      and v_effective_from <= coalesce(r.effective_to, 'infinity'::date)
+    order by r.created_at limit 1;
+    if v_conflicting_rule_id is not null then
+      v_errors := v_errors || jsonb_build_array('DUPLICATE_ACTIVE_RULE');
+    end if;
+  end if;
+
+  if jsonb_array_length(v_errors) > 0 then v_action := 'skip'; end if;
+  return jsonb_build_object(
+    'row_status', case when jsonb_array_length(v_errors) > 0 then 'error'
+      when jsonb_array_length(v_warnings) > 0 then 'warning' else 'valid' end,
+    'action', v_action,
+    'error_codes', v_errors,
+    'warning_codes', v_warnings,
+    'normalized_price_minor', v_price,
+    'normalized_effective_from', case when v_from_text is null then null else v_effective_from end,
+    'commit_effective_from', v_effective_from,
+    'normalized_effective_to', v_effective_to,
+    'normalized_note', v_note,
+    'customer_id', v_customer_id,
+    'customer_snapshot', v_customer,
+    'product_snapshot', v_product,
+    'unit_snapshot', v_unit,
+    'unit_resolution_strategy', case coalesce(v_catalog ->> 'resolution', '')
+      when 'resolved' then 'default_selling_unit'
+      when 'ambiguous' then 'ambiguous' else 'not_found' end,
+    'matched_rule_id', v_rule_id,
+    'matched_rule_version', v_target.version,
+    'matched_rule_status', v_target.status
+  );
+end;
+$$;
+revoke all on function pricing._evaluate_customer_price_rule_import_row(
+  uuid, text, jsonb, date, boolean
+) from public, anon, authenticated, service_role;
+
+create or replace function pricing.create_customer_price_rule_import(
+  p_tenant_id uuid,
+  p_template_version text,
+  p_original_file_name text,
+  p_import_mode text,
+  p_parse_result jsonb
+)
+returns jsonb
+language plpgsql security definer set search_path = ''
+as $$
+declare
+  v_actor_id uuid := auth.uid();
+  v_import_id uuid := gen_random_uuid();
+  v_kind text := coalesce(p_parse_result ->> 'kind', '');
+  v_file_codes jsonb := coalesce(p_parse_result -> 'file_error_codes', '[]'::jsonb);
+  v_row jsonb;
+  v_evaluation jsonb;
+  v_can_view_rules boolean;
+  v_can_view_floor boolean;
+  v_items jsonb;
+begin
+  if v_actor_id is null or not iam.has_permission(
+    p_tenant_id, 'pricing.customer_price_rule.import'
+  ) then
+    perform pricing._raise_pricing_error('NO_PERMISSION', 'Import permission is required.');
+  end if;
+  if p_template_version <> 'customer_price_rules_v1'
+    or nullif(btrim(p_original_file_name), '') is null
+    or p_import_mode not in ('create_only', 'update_only', 'upsert')
+    or v_kind not in ('failed', 'parsed') then
+    perform pricing._raise_pricing_error('VALIDATION_ERROR', 'Invalid import payload.');
+  end if;
+
+  if v_kind = 'parsed' and jsonb_array_length(coalesce(p_parse_result -> 'rows', '[]'::jsonb)) = 0 then
+    v_kind := 'failed';
+    v_file_codes := jsonb_build_array('EMPTY_FILE');
+  end if;
+  insert into pricing.customer_price_rule_imports (
+    id, tenant_id, template_version, original_file_name, import_mode,
+    status, version, file_error_codes, created_by
+  ) values (
+    v_import_id, p_tenant_id, p_template_version, btrim(p_original_file_name),
+    p_import_mode, case when v_kind = 'failed' then 'failed' else 'ready_to_import' end,
+    1, v_file_codes, v_actor_id
+  );
+
+  if v_kind = 'parsed' then
+    for v_row in select value from jsonb_array_elements(p_parse_result -> 'rows') loop
+      v_evaluation := pricing._evaluate_customer_price_rule_import_row(
+        p_tenant_id, p_import_mode, v_row, current_date, true
+      );
+      insert into pricing.customer_price_rule_import_rows (
+        tenant_id, import_id, row_number,
+        raw_rule_id, raw_customer_id, raw_product_reference_id, raw_price,
+        raw_effective_from, raw_effective_to, raw_note,
+        normalized_price_minor, normalized_effective_from,
+        normalized_effective_to, normalized_note,
+        customer_snapshot, product_snapshot, unit_snapshot,
+        unit_resolution_strategy, row_status, action,
+        error_codes, warning_codes, matched_rule_id, matched_rule_version
+      ) values (
+        p_tenant_id, v_import_id, (v_row ->> 'row_number')::integer,
+        nullif(v_row ->> 'rule_id', ''), nullif(v_row ->> 'customer_id', ''),
+        nullif(v_row ->> 'product_reference_id', ''), nullif(v_row ->> 'price', ''),
+        nullif(v_row ->> 'effective_from', ''), nullif(v_row ->> 'effective_to', ''),
+        v_row ->> 'note',
+        (v_evaluation ->> 'normalized_price_minor')::bigint,
+        (v_evaluation ->> 'normalized_effective_from')::date,
+        (v_evaluation ->> 'normalized_effective_to')::date,
+        v_evaluation ->> 'normalized_note',
+        v_evaluation -> 'customer_snapshot', v_evaluation -> 'product_snapshot',
+        v_evaluation -> 'unit_snapshot', v_evaluation ->> 'unit_resolution_strategy',
+        v_evaluation ->> 'row_status', v_evaluation ->> 'action',
+        v_evaluation -> 'error_codes', v_evaluation -> 'warning_codes',
+        (v_evaluation ->> 'matched_rule_id')::uuid,
+        (v_evaluation ->> 'matched_rule_version')::integer
+      );
+    end loop;
+  end if;
+
+  update pricing.customer_price_rule_imports b set
+    total_rows = s.total_rows, valid_rows = s.valid_rows,
+    warning_rows = s.warning_rows, error_rows = s.error_rows
+  from (
+    select count(*)::integer total_rows,
+      count(*) filter (where row_status = 'valid')::integer valid_rows,
+      count(*) filter (where row_status = 'warning')::integer warning_rows,
+      count(*) filter (where row_status = 'error')::integer error_rows
+    from pricing.customer_price_rule_import_rows where import_id = v_import_id
+  ) s where b.id = v_import_id;
+
+  v_can_view_rules := iam.has_permission(p_tenant_id, 'pricing.customer_price_rule.view');
+  v_can_view_floor := iam.has_permission(
+    p_tenant_id, 'pricing.customer_price_rule.override_floor_price'
+  );
+  select coalesce(jsonb_agg(
+    pricing._import_row_preview(r, v_can_view_rules, v_can_view_floor)
+    order by r.row_number, r.id
+  ), '[]'::jsonb) into v_items
+  from pricing.customer_price_rule_import_rows r where r.import_id = v_import_id;
+  return jsonb_build_object(
+    'batch', pricing._import_batch_result(v_import_id),
+    'rows', jsonb_build_object('items', v_items, 'next_cursor', null, 'has_more', false)
+  );
+end;
+$$;
+revoke all on function pricing.create_customer_price_rule_import(uuid, text, text, text, jsonb)
+  from public, anon, authenticated, service_role;
+grant execute on function pricing.create_customer_price_rule_import(uuid, text, text, text, jsonb)
+  to authenticated, service_role;
+
+create or replace function pricing.get_customer_price_rule_import(
+  p_tenant_id uuid,
+  p_import_id uuid,
+  p_row_status text,
+  p_cursor text,
+  p_limit integer
+)
+returns jsonb
+language plpgsql stable security definer set search_path = ''
+as $$
+declare
+  v_actor_id uuid := auth.uid();
+  v_cursor_row_number integer;
+  v_cursor_id uuid;
+  v_cursor_json jsonb;
+  v_encoded text;
+  v_items jsonb := '[]'::jsonb;
+  v_has_more boolean := false;
+  v_next_cursor text;
+  v_can_view_rules boolean;
+  v_can_view_floor boolean;
+begin
+  if v_actor_id is null or not iam.has_permission(
+    p_tenant_id, 'pricing.customer_price_rule.import'
+  ) then perform pricing._raise_pricing_error('NO_PERMISSION', 'Import permission is required.'); end if;
+  if p_limit is null or p_limit < 1 or p_limit > 100
+    or (p_row_status is not null and p_row_status not in (
+      'valid', 'warning', 'error', 'imported', 'skipped', 'failed'
+    )) then
+    perform pricing._raise_pricing_error('VALIDATION_ERROR', 'Invalid import page request.');
+  end if;
+  if not exists (select 1 from pricing.customer_price_rule_imports b
+    where b.id = p_import_id and b.tenant_id = p_tenant_id) then
+    perform pricing._raise_pricing_error('NOT_FOUND', 'Import batch was not found.');
+  end if;
+
+  if p_cursor is not null then
+    begin
+      v_encoded := translate(p_cursor, '-_', '+/');
+      v_encoded := v_encoded || repeat('=', (4 - length(v_encoded) % 4) % 4);
+      v_cursor_json := convert_from(decode(v_encoded, 'base64'), 'utf8')::jsonb;
+      v_cursor_row_number := (v_cursor_json ->> 'rowNumber')::integer;
+      v_cursor_id := (v_cursor_json ->> 'id')::uuid;
+      if v_cursor_row_number is null or v_cursor_id is null then raise data_exception; end if;
+    exception when others then
+      perform pricing._raise_pricing_error('VALIDATION_ERROR', 'Invalid cursor.');
+    end;
+  end if;
+  v_can_view_rules := iam.has_permission(p_tenant_id, 'pricing.customer_price_rule.view');
+  v_can_view_floor := iam.has_permission(
+    p_tenant_id, 'pricing.customer_price_rule.override_floor_price'
+  );
+  select coalesce(jsonb_agg(
+    pricing._import_row_preview(r, v_can_view_rules, v_can_view_floor)
+    order by r.row_number asc, r.id asc
+  ), '[]'::jsonb) into v_items
+  from (select rows.* from pricing.customer_price_rule_import_rows rows
+    where rows.import_id = p_import_id and rows.tenant_id = p_tenant_id
+      and (p_row_status is null or rows.row_status = p_row_status)
+      and (p_cursor is null or (rows.row_number, rows.id) >
+        (v_cursor_row_number, v_cursor_id))
+    order by rows.row_number asc, rows.id asc limit p_limit + 1) r;
+  if jsonb_array_length(v_items) > p_limit then
+    v_has_more := true;
+    v_items := (select jsonb_agg(value) from (
+      select value from jsonb_array_elements(v_items) with ordinality t(value, ord)
+      where ord <= p_limit
+    ) trimmed);
+    v_next_cursor := rtrim(translate(encode(convert_to(jsonb_build_object(
+      'rowNumber', (v_items -> -1 ->> 'row_number')::integer,
+      'id', v_items -> -1 ->> 'id'
+    )::text, 'utf8'), 'base64'), '+/', '-_'), '=');
+  end if;
+  return jsonb_build_object(
+    'batch', pricing._import_batch_result(p_import_id),
+    'rows', jsonb_build_object('items', coalesce(v_items, '[]'::jsonb),
+      'next_cursor', v_next_cursor, 'has_more', v_has_more)
+  );
+end;
+$$;
+revoke all on function pricing.get_customer_price_rule_import(uuid, uuid, text, text, integer)
+  from public, anon, authenticated, service_role;
+grant execute on function pricing.get_customer_price_rule_import(uuid, uuid, text, text, integer)
+  to authenticated, service_role;
+
+create or replace function pricing.confirm_customer_price_rule_import(
+  p_tenant_id uuid,
+  p_import_id uuid,
+  p_expected_version integer,
+  p_business_date date,
+  p_acknowledge_warning_rows boolean
+)
+returns jsonb
+language plpgsql security definer set search_path = ''
+as $$
+declare
+  v_actor_id uuid := auth.uid();
+  v_batch pricing.customer_price_rule_imports%rowtype;
+  v_row pricing.customer_price_rule_import_rows%rowtype;
+  v_eval jsonb;
+  v_customer jsonb;
+  v_product jsonb;
+  v_target pricing.customer_price_rules%rowtype;
+  v_customer_id uuid;
+  v_product_id uuid;
+  v_product_unit_id uuid;
+  v_rule_id uuid;
+  v_conflicting_rule_id uuid;
+  v_effective_from date;
+  v_effective_to date;
+  v_price bigint;
+  v_floor bigint;
+  v_list bigint;
+  v_warnings jsonb;
+  v_review_status text;
+  v_price_status text;
+begin
+  if v_actor_id is null or not iam.has_permission(
+    p_tenant_id, 'pricing.customer_price_rule.import'
+  ) then perform pricing._raise_pricing_error('NO_PERMISSION', 'Import permission is required.'); end if;
+  if p_business_date is null or p_expected_version is null or p_expected_version <= 0 then
+    perform pricing._raise_pricing_error('VALIDATION_ERROR', 'Invalid confirm request.');
+  end if;
+  select b.* into v_batch from pricing.customer_price_rule_imports b
+  where b.id = p_import_id and b.tenant_id = p_tenant_id for update;
+  if not found then perform pricing._raise_pricing_error('NOT_FOUND', 'Import batch was not found.'); end if;
+  if v_batch.status in ('completed', 'completed_with_errors') then
+    return jsonb_build_object('batch', pricing._import_batch_result(p_import_id),
+      'processed_at', v_batch.confirmed_at, 'is_replay', true);
+  end if;
+  if v_batch.status <> 'ready_to_import' then
+    perform pricing._raise_pricing_error('INVALID_STATUS', 'Import batch is not ready.');
+  end if;
+  if v_batch.version <> p_expected_version then
+    perform pricing._raise_pricing_error('STATE_CHANGED', 'Import batch version changed.');
+  end if;
+  if exists (select 1 from pricing.customer_price_rule_import_rows r
+      where r.import_id = p_import_id and r.row_status = 'warning')
+    and not coalesce(p_acknowledge_warning_rows, false) then
+    perform pricing._raise_pricing_error('VALIDATION_ERROR',
+      'Warning acknowledgement is required.',
+      jsonb_build_object('reason', 'acknowledgementRequired'));
+  end if;
+  update pricing.customer_price_rule_imports set status = 'importing'
+  where id = p_import_id;
+
+  for v_row in select r.* from pricing.customer_price_rule_import_rows r
+    where r.import_id = p_import_id order by r.row_number asc, r.id asc loop
+    if v_row.row_status = 'error' then
+      update pricing.customer_price_rule_import_rows set
+        row_status = 'skipped', action = 'skip', updated_at = statement_timestamp()
+      where id = v_row.id;
+      continue;
+    end if;
+    if v_row.row_status not in ('valid', 'warning') then continue; end if;
+
+    v_eval := pricing._evaluate_customer_price_rule_import_row(
+      p_tenant_id, v_batch.import_mode,
+      jsonb_build_object('rule_id', v_row.raw_rule_id,
+        'customer_id', v_row.raw_customer_id,
+        'product_reference_id', v_row.raw_product_reference_id,
+        'price', v_row.raw_price, 'effective_from', v_row.raw_effective_from,
+        'effective_to', v_row.raw_effective_to, 'note', v_row.raw_note),
+      p_business_date, false
+    );
+    if jsonb_array_length(v_eval -> 'error_codes') > 0 then
+      update pricing.customer_price_rule_import_rows set row_status = 'failed',
+        action = 'skip', error_codes = v_eval -> 'error_codes',
+        warning_codes = v_eval -> 'warning_codes', updated_at = statement_timestamp()
+      where id = v_row.id;
+      continue;
+    end if;
+    if (v_eval ->> 'action') = 'update' and
+      v_row.matched_rule_version is distinct from (v_eval ->> 'matched_rule_version')::integer then
+      update pricing.customer_price_rule_import_rows set row_status = 'failed',
+        action = 'skip', error_codes = jsonb_build_array('STATE_CHANGED'),
+        warning_codes = v_eval -> 'warning_codes', updated_at = statement_timestamp()
+      where id = v_row.id;
+      continue;
+    end if;
+
+    v_customer := partner._get_customer_snapshot_for_pricing(
+      p_tenant_id, (v_eval ->> 'customer_id')::uuid
+    );
+    v_product := (catalog._resolve_product_unit_for_pricing_import(
+      p_tenant_id, v_row.raw_product_reference_id
+    )) -> 'product_unit';
+    v_customer_id := (v_eval ->> 'customer_id')::uuid;
+    v_product_id := (v_product ->> 'product_id')::uuid;
+    v_product_unit_id := (v_product ->> 'product_unit_id')::uuid;
+    v_effective_from := (v_eval ->> 'commit_effective_from')::date;
+    v_effective_to := (v_eval ->> 'normalized_effective_to')::date;
+    v_price := (v_eval ->> 'normalized_price_minor')::bigint;
+    v_floor := nullif(v_product ->> 'floor_price_minor', '')::bigint;
+    v_list := nullif(v_product ->> 'list_price_minor', '')::bigint;
+    v_warnings := v_eval -> 'warning_codes';
+    v_review_status := case when jsonb_array_length(v_warnings) > 0 then 'warning' else 'clear' end;
+    v_price_status := case when v_floor is null then 'not_checked'
+      when v_price < v_floor then 'override_allowed' else 'normal' end;
+
+    perform pg_advisory_xact_lock(hashtextextended(
+      p_tenant_id::text || ':rule:' || v_customer_id::text || ':'
+        || v_product_id::text || ':' || v_product_unit_id::text, 0));
+
+    v_conflicting_rule_id := null;
+    if (v_eval ->> 'action') = 'create'
+      or coalesce(v_eval ->> 'matched_rule_status', '') <> 'disabled' then
+      select r.id into v_conflicting_rule_id
+      from pricing.customer_price_rules r
+      where r.tenant_id = p_tenant_id
+        and r.id <> coalesce((v_eval ->> 'matched_rule_id')::uuid,
+          '00000000-0000-0000-0000-000000000000'::uuid)
+        and r.customer_id = v_customer_id and r.product_id = v_product_id
+        and r.product_unit_id = v_product_unit_id and r.status = 'active'
+        and r.effective_from <= coalesce(v_effective_to, 'infinity'::date)
+        and v_effective_from <= coalesce(r.effective_to, 'infinity'::date)
+      order by r.created_at limit 1;
+    end if;
+    if v_conflicting_rule_id is not null then
+      update pricing.customer_price_rule_import_rows set row_status = 'failed',
+        action = 'skip', error_codes = jsonb_build_array('DUPLICATE_ACTIVE_RULE'),
+        updated_at = statement_timestamp() where id = v_row.id;
+      continue;
+    end if;
+
+    if (v_eval ->> 'action') = 'create' then
+      v_rule_id := gen_random_uuid();
+      insert into pricing.customer_price_rules (
+        id, tenant_id, customer_id, product_id, product_unit_id,
+        customer_display_name_snapshot, customer_status_snapshot,
+        product_name_snapshot, product_reference_id_snapshot, product_sku_snapshot,
+        unit_name_snapshot, sellable_status_snapshot, rule_price_minor,
+        currency_code, rule_type, source_type, source_import_id, source_import_row_id,
+        status, review_status, effective_from, effective_to,
+        list_price_snapshot_minor, floor_price_snapshot_minor, price_check_status,
+        warning_codes, blocking_codes, note, created_by, updated_by,
+        idempotency_key, payload_hash
+      ) values (
+        v_rule_id, p_tenant_id, v_customer_id, v_product_id, v_product_unit_id,
+        v_customer ->> 'display_name', v_customer ->> 'status',
+        v_product ->> 'product_name', v_product ->> 'product_reference_id',
+        v_product ->> 'sku', v_product ->> 'unit_name',
+        v_product ->> 'sellable_status', v_price,
+        coalesce(v_product ->> 'currency_code', 'VND'), 'special_price',
+        'excel_import', p_import_id, v_row.id, 'active', v_review_status,
+        v_effective_from, v_effective_to, v_list, v_floor, v_price_status,
+        v_warnings, '[]'::jsonb, v_eval ->> 'normalized_note',
+        v_actor_id, v_actor_id, 'import:' || v_row.id::text,
+        md5((v_eval - 'customer_snapshot' - 'product_snapshot' - 'unit_snapshot')::text)
+      );
+      insert into pricing.customer_price_rule_activities (
+        tenant_id, customer_price_rule_id, activity_type, new_value,
+        import_id, import_row_id, created_by
+      ) values (p_tenant_id, v_rule_id, 'import_created',
+        jsonb_build_object('rule_id', v_rule_id, 'source_type', 'excel_import',
+          'version', 1), p_import_id, v_row.id, v_actor_id);
+    else
+      select r.* into v_target from pricing.customer_price_rules r
+      where r.tenant_id = p_tenant_id and r.id = (v_eval ->> 'matched_rule_id')::uuid
+      for update;
+      if not found or v_target.version <> (v_eval ->> 'matched_rule_version')::integer then
+        update pricing.customer_price_rule_import_rows set row_status = 'failed',
+          action = 'skip', error_codes = jsonb_build_array('STATE_CHANGED'),
+          updated_at = statement_timestamp() where id = v_row.id;
+        continue;
+      end if;
+      v_rule_id := v_target.id;
+      update pricing.customer_price_rules set
+        customer_display_name_snapshot = v_customer ->> 'display_name',
+        customer_status_snapshot = v_customer ->> 'status',
+        product_name_snapshot = v_product ->> 'product_name',
+        product_reference_id_snapshot = v_product ->> 'product_reference_id',
+        product_sku_snapshot = v_product ->> 'sku',
+        unit_name_snapshot = v_product ->> 'unit_name',
+        sellable_status_snapshot = v_product ->> 'sellable_status',
+        rule_price_minor = v_price, effective_from = v_effective_from,
+        effective_to = v_effective_to, note = v_eval ->> 'normalized_note',
+        status = case when v_target.status = 'disabled' then 'disabled' else 'active' end,
+        review_status = v_review_status, list_price_snapshot_minor = v_list,
+        floor_price_snapshot_minor = v_floor, price_check_status = v_price_status,
+        warning_codes = v_warnings, blocking_codes = '[]'::jsonb,
+        updated_by = v_actor_id, updated_at = statement_timestamp(),
+        version = v_target.version + 1
+      where id = v_target.id;
+      insert into pricing.customer_price_rule_activities (
+        tenant_id, customer_price_rule_id, activity_type, old_value, new_value,
+        import_id, import_row_id, created_by
+      ) values (p_tenant_id, v_target.id, 'import_updated',
+        jsonb_build_object('version', v_target.version,
+          'source_type', v_target.source_type, 'status', v_target.status),
+        jsonb_build_object('version', v_target.version + 1,
+          'source_type', v_target.source_type,
+          'status', case when v_target.status = 'disabled' then 'disabled' else 'active' end),
+        p_import_id, v_row.id, v_actor_id);
+    end if;
+    update pricing.customer_price_rule_import_rows set row_status = 'imported',
+      action = v_eval ->> 'action', normalized_price_minor = v_price,
+      normalized_effective_from = v_effective_from,
+      normalized_effective_to = v_effective_to,
+      normalized_note = v_eval ->> 'normalized_note',
+      customer_snapshot = v_customer, product_snapshot = v_product,
+      unit_snapshot = v_eval -> 'unit_snapshot', warning_codes = v_warnings,
+      error_codes = '[]'::jsonb, affected_rule_id = v_rule_id,
+      updated_at = statement_timestamp() where id = v_row.id;
+  end loop;
+
+  update pricing.customer_price_rule_imports b set
+    status = case when s.failed_rows = 0 and s.skipped_rows = 0
+      then 'completed' else 'completed_with_errors' end,
+    version = b.version + 1, imported_rows = s.imported_rows,
+    skipped_rows = s.skipped_rows, failed_rows = s.failed_rows,
+    confirmed_by = v_actor_id, confirmed_at = statement_timestamp()
+  from (select
+    count(*) filter (where row_status = 'imported')::integer imported_rows,
+    count(*) filter (where row_status = 'skipped')::integer skipped_rows,
+    count(*) filter (where row_status = 'failed')::integer failed_rows
+    from pricing.customer_price_rule_import_rows where import_id = p_import_id
+  ) s where b.id = p_import_id;
+  return jsonb_build_object('batch', pricing._import_batch_result(p_import_id),
+    'processed_at', statement_timestamp(), 'is_replay', false);
+end;
+$$;
+revoke all on function pricing.confirm_customer_price_rule_import(uuid, uuid, integer, date, boolean)
+  from public, anon, authenticated, service_role;
+grant execute on function pricing.confirm_customer_price_rule_import(uuid, uuid, integer, date, boolean)
+  to authenticated, service_role;
+
+create or replace function pricing.cancel_customer_price_rule_import(
+  p_tenant_id uuid,
+  p_import_id uuid,
+  p_expected_version integer
+)
+returns jsonb
+language plpgsql security definer set search_path = ''
+as $$
+declare
+  v_actor_id uuid := auth.uid();
+  v_batch pricing.customer_price_rule_imports%rowtype;
+begin
+  if v_actor_id is null or not iam.has_permission(
+    p_tenant_id, 'pricing.customer_price_rule.import'
+  ) then perform pricing._raise_pricing_error('NO_PERMISSION', 'Import permission is required.'); end if;
+  select b.* into v_batch from pricing.customer_price_rule_imports b
+  where b.id = p_import_id and b.tenant_id = p_tenant_id for update;
+  if not found then perform pricing._raise_pricing_error('NOT_FOUND', 'Import batch was not found.'); end if;
+  if v_batch.status = 'canceled' and v_batch.version = p_expected_version + 1 then
+    return pricing._import_batch_result(p_import_id);
+  end if;
+  if v_batch.status in ('completed', 'completed_with_errors', 'failed', 'importing') then
+    perform pricing._raise_pricing_error('INVALID_STATUS', 'Import batch cannot be canceled.');
+  end if;
+  if v_batch.version <> p_expected_version then
+    perform pricing._raise_pricing_error('STATE_CHANGED', 'Import batch version changed.');
+  end if;
+  if v_batch.status <> 'ready_to_import' then
+    perform pricing._raise_pricing_error('INVALID_STATUS', 'Import batch cannot be canceled.');
+  end if;
+  update pricing.customer_price_rule_imports set status = 'canceled',
+    version = version + 1, canceled_by = v_actor_id,
+    canceled_at = statement_timestamp() where id = p_import_id;
+  return pricing._import_batch_result(p_import_id);
+end;
+$$;
+revoke all on function pricing.cancel_customer_price_rule_import(uuid, uuid, integer)
+  from public, anon, authenticated, service_role;
+grant execute on function pricing.cancel_customer_price_rule_import(uuid, uuid, integer)
+  to authenticated, service_role;

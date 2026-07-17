@@ -63,9 +63,32 @@ erDiagram
 | ---- | ---- | ---------------- |
 | `CustomerPriceRule` | Identity, price, effectivity, status, source trace, version | create/update/disable/reenable |
 | `CustomerPriceRuleImport` | Batch lifecycle and import rows | start/confirm/cancel import |
-| `PriceMemoryRequest` | Idempotency and processing outcome | save remembered price |
+| `PriceMemoryRequest` / `RememberedPriceRequest` | Idempotency and processing outcome | save remembered price |
 
 `CustomerPriceRuleActivity` là append-only projection/audit record được ghi cùng transaction của mutation, không expose update/delete command.
+
+### Read-projection derived status
+
+S2/S3 không thay đổi aggregate state machine. Working-list (S2) và detail (S3) tính status theo business date với precedence cố định: deleted bị loại / `NOT_FOUND`; persisted `disabled`; blocking review/codes thành `needs_review`; `effective_to < business_date` thành `expired`; `effective_from > business_date` thành `not_yet_effective`; còn lại là `applying`. Hai biên ngày hiệu lực đều inclusive.
+
+### Detail projection / reference health (S3)
+
+- Detail giữ Pricing-owned stored labels để archived references vẫn explainable.
+- Live health/list/floor enrichment chỉ qua Partner/Catalog internal provider functions; missing/inactive reference → warning issue codes, không ẩn rule; provider technical failure → `SYSTEM_ERROR`.
+- Live enrichment không cập nhật persisted status, validation snapshot, version, activity, hay S2 list projection.
+- Source-trace identifiers (import/order/memory request) yêu cầu `view_history`; floor amount yêu cầu `override_floor_price`.
+
+### Update behavior (S5)
+
+S5 update reconstitutes the current aggregate, preserves identity/source,
+uses expected version, treats normalized mutable equality as no-op, keeps
+disabled disabled, and normalizes fixed needs_review to active.
+
+`CustomerPriceRule.reconstitute` rebuilds the aggregate from persisted state without raising `CustomerPriceRuleCreatedDomainEvent`. `updateMutableFields` enforces `RuleCurrencyMustNotChangeRule` and `RuleCandidateMustBeCommittableRule` before mutating; a normalized no-op (same price/period/note) makes no change, bumps no version, and raises no event. A meaningful update increments `version` exactly once and raises exactly one `CustomerPriceRuleUpdatedDomainEvent(ruleId, previousVersion, newVersion)`. `disabled` status is left untouched by an update; any other persisted status (including a fixed `needs_review`) normalizes to `active`.
+
+### Disable behavior (S6)
+
+`CustomerPriceRule.disable()` allows only `active` or `needs_review` → `disabled`. A real transition increments `version` exactly once and raises exactly one `CustomerPriceRuleDisabledDomainEvent(ruleId, previousVersion, newVersion)`. Calling `disable()` when already `disabled` is a no-op (no version bump, no event). Persisted `deleted` (or any other status) is invalid for disable. Commit-time audit fields (`disabled_at` / `disabled_by` / `disabled_reason`) and the single `disabled` activity row are owned by the authoritative RPC in the same transaction — Dart domain mirrors the lifecycle invariant for tests only.
 
 ## Value objects
 
@@ -90,6 +113,14 @@ erDiagram
 | CPR-INV-06 | Active intervals cùng key không overlap. |
 | CPR-INV-07 | Important mutation ghi activity trong cùng commit. |
 | CPR-INV-08 | Disabled/deleted/blocked rule không eligible cho order mới. |
+| CPR-INV-09 | Chỉ `disabled` rule được reenable; blocked precheck outcome không commit. |
+| CPR-INV-10 | Precheck token là fingerprint stateless; không phải authorization credential. |
+
+## Reenable fingerprint invariant
+
+Token HMAC-SHA-256 derive từ canonical JSON (`pricing-reenable-s7-v1`) gồm tenant, actor, rule identity/version/status/key/price/currency/effectivity, business date, live reference eligibility, list/floor amounts, override permission, duplicate identity, và sorted outcome codes. HMAC key chỉ tồn tại trong server-side Vault nên hidden floor không thể bị dò bằng hash offline. Display-name changes không ảnh hưởng token; actor, eligibility fields, floor/list, permission, duplicate, rule values/version/status, và outcome codes có ảnh hưởng.
+
+Domain: `CustomerPriceRuleCanBeReenabledRule`, `CustomerPriceRule.reenable(RuleValidationOutcome)`, `CustomerPriceRuleReenabledDomainEvent`.
 
 ## State model
 
@@ -152,6 +183,8 @@ parsed → valid|warning|error → imported|skipped|failed
 
 Confirm chỉ xử lý valid/warning rows được policy cho phép, revalidate references/duplicate/floor tại commit và không apply row đã terminal.
 
+**S8 BE baseline 2026-07-16:** domain aggregate `CustomerPriceRuleImport` + row lifecycle tests; application contracts/validators/handlers; infrastructure XLSX codec + `ExcelCustomerPriceRuleImportFileAdapter`, RPC mapper/gateway, draft SQL (`pricing_customer_price_rule_import_s8.sql`, `catalog_pricing_import_product_unit_resolver.sql`). Identifiers are exact UUID / `product_reference_id` only; default unit is Catalog active base unit.
+
 ## Memory request aggregate
 
 Statuses: `received`, `processed`, `blocked`, `failed`, `skipped`.
@@ -174,9 +207,8 @@ Statuses: `received`, `processed`, `blocked`, `failed`, `skipped`.
 
 No aggregate holds a Partner or Catalog entity object.
 
-## Domain events (internal/public decision later)
+## Domain events
 
 `CustomerPriceRuleCreated`, `CustomerPriceRuleUpdated`, `CustomerPriceRuleDisabled`, `CustomerPriceRuleReenabled`, `CustomerPriceRuleMarkedNeedsReview`, `CustomerPriceRuleImportCompleted`, `RememberedPriceSaved`.
 
-Whether these become outbox integration events is a slice-level decision. Activity creation is mandatory even when no public event is published.
-
+S1 giữ `CustomerPriceRuleCreatedDomainEvent` là internal domain event và không tạo outbox/integration event. Quyết định public event cho các slice sau vẫn là slice-level decision. Activity creation luôn bắt buộc ngay cả khi không publish public event.

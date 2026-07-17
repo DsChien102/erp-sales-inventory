@@ -1,0 +1,60 @@
+-- Title: Partner customer snapshot for Pricing
+-- Kind: patch
+-- Intent: pricing_customer_price_rule_s1
+-- Context: TH-04 EP02 S1 — provider-owned customer reference contract
+-- Touches: _get_customer_snapshot_for_pricing
+-- Safety: read-only internal security-definer function; no client execute grant
+-- Depends on: 20260714001_partner_v2_schema.sql
+
+create or replace function partner._get_customer_snapshot_for_pricing(
+  p_tenant_id uuid,
+  p_customer_id uuid
+)
+returns jsonb
+language plpgsql
+stable
+security definer
+set search_path = partner, pg_temp
+as $$
+declare
+  v_partner record;
+begin
+  select
+    p.partner_id,
+    p.display_name,
+    p.status::text as status,
+    exists (
+      select 1
+      from partner.partner_roles pr
+      where pr.tenant_id = p_tenant_id
+        and pr.partner_id = p.partner_id
+        and pr.role = 'customer'::partner.partner_role_type
+        and pr.is_active = true
+    ) as is_customer
+  into v_partner
+  from partner.partners p
+  where p.tenant_id = p_tenant_id
+    and p.partner_id = p_customer_id;
+
+  if not found then
+    return jsonb_build_object(
+      'customer_id', p_customer_id,
+      'display_name', '',
+      'status', 'not_found',
+      'exists', false,
+      'is_customer', false
+    );
+  end if;
+
+  return jsonb_build_object(
+    'customer_id', v_partner.partner_id,
+    'display_name', v_partner.display_name,
+    'status', v_partner.status,
+    'exists', true,
+    'is_customer', v_partner.is_customer
+  );
+end;
+$$;
+
+revoke all on function partner._get_customer_snapshot_for_pricing(uuid, uuid)
+  from public, anon, authenticated, service_role;
