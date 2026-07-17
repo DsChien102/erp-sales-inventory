@@ -70,7 +70,10 @@ class ProductListItemTile extends StatelessWidget {
                         final parsed = double.tryParse(cf.displayValue);
                         if (parsed != null) {
                           if (parsed == parsed.roundToDouble()) {
-                            displayVal = VNumberValidator.format(parsed.round(), allowDecimal: false);
+                            displayVal = VNumberValidator.format(
+                              parsed.round(),
+                              allowDecimal: false,
+                            );
                           } else {
                             displayVal = VNumberValidator.format(parsed, allowDecimal: true);
                           }
@@ -99,15 +102,18 @@ class ProductListItemTile extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Expanded(
-                      flex: 2,
+                      flex: 3,
                       child: _buildPriceInfo(dynamicColors),
                     ),
                     Expanded(
                       flex: 1,
-                      child: Center(child: _buildUnitInfo(dynamicColors)),
+                      child: Align(
+                        alignment: Alignment.centerLeft,
+                        child: _buildUnitInfo(dynamicColors),
+                      ),
                     ),
                     Expanded(
-                      flex: 1,
+                      flex: 2,
                       child: Align(
                         alignment: Alignment.centerRight,
                         child: _buildStockInfo(dynamicColors),
@@ -182,12 +188,26 @@ class ProductListItemTile extends StatelessWidget {
         ),
       );
     }
-    return const SizedBox.shrink();
+    return Text(
+      '–',
+      style: VTypography.bodySmall.copyWith(
+        color: colors.textMuted,
+      ),
+    );
   }
 
   Widget _buildStockInfo(dynamic colors) {
+    if (item.stockQuantity == null) {
+      return Text(
+        'Chưa TL tồn',
+        maxLines: 1,
+        style: VTypography.bodySmall.copyWith(
+          color: colors.textSecondary,
+        ),
+      );
+    }
     if (item.stockLabel != null && item.stockLabel!.isNotEmpty) {
-      final isOutOfStock = item.stockLabel!.toLowerCase() == 'hết';
+      final isOutOfStock = item.stockQuantity == 0;
       return Text(
         isOutOfStock ? 'Hết' : item.stockLabel!,
         style: VTypography.bodyDefault.copyWith(

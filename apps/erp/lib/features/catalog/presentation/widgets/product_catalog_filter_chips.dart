@@ -9,11 +9,13 @@ class ProductCatalogFilterChips extends StatelessWidget {
     required this.selectedFilter,
     required this.globalCount,
     required this.onFilterChanged,
+    this.filterCounts,
   });
 
   final ProductListFilter selectedFilter;
   final int? globalCount;
   final ValueChanged<ProductListFilter> onFilterChanged;
+  final Map<ProductListFilter, int>? filterCounts;
 
   @override
   Widget build(BuildContext context) {
@@ -24,13 +26,15 @@ class ProductCatalogFilterChips extends StatelessWidget {
         spacing: VSpacing.space2,
         children: [
           ...ProductListFilter.values.map(
-            (e) => VChip(
-              label: e == ProductListFilter.all && globalCount != null
-                  ? '${e.label} ($globalCount)'
-                  : e.label,
-              selected: selectedFilter == e,
-              onTap: () => onFilterChanged(e),
-            ),
+            (e) {
+              final count = e == ProductListFilter.all ? globalCount : filterCounts?[e];
+              final label = count != null ? '${e.label} ($count)' : e.label;
+              return VChip(
+                label: label,
+                selected: selectedFilter == e,
+                onTap: () => onFilterChanged(e),
+              );
+            },
           ),
         ],
       ),

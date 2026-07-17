@@ -273,6 +273,18 @@ class _ProductCatalogTabPageState extends State<ProductCatalogTabPage> {
                 ProductCatalogFilterChips(
                   selectedFilter: _selectedFilter,
                   globalCount: _cubit.globalTotalCount,
+                  filterCounts: {
+                    if (_cubit.readyToSellCount != null)
+                      ProductListFilter.readyToSell: _cubit.readyToSellCount!,
+                    if (_cubit.incompleteCount != null)
+                      ProductListFilter.incomplete: _cubit.incompleteCount!,
+                    if (_cubit.inactiveCount != null)
+                      ProductListFilter.inactive: _cubit.inactiveCount!,
+                    if (_cubit.inStockCount != null)
+                      ProductListFilter.inStock: _cubit.inStockCount!,
+                    if (_cubit.outOfStockCount != null)
+                      ProductListFilter.outOfStock: _cubit.outOfStockCount!,
+                  },
                   onFilterChanged: _onFilterChanged,
                 ),
                 const SizedBox(height: VSpacing.space3),

@@ -69,9 +69,9 @@ class ProductCatalogListBody extends StatelessWidget {
         var items = state is ProductListLoaded ? state.items : (state as ProductListLoading).items;
 
         if (selectedFilter == ProductListFilter.inStock) {
-          items = items.where((item) => (item.stockQuantity ?? 0) > 0).toList();
+          items = items.where((item) => item.stockQuantity != null && item.stockQuantity! > 0).toList();
         } else if (selectedFilter == ProductListFilter.outOfStock) {
-          items = items.where((item) => (item.stockQuantity ?? 0) == 0).toList();
+          items = items.where((item) => item.stockQuantity != null && item.stockQuantity == 0).toList();
         }
 
         if (items.isEmpty && state is! ProductListLoading) {
@@ -169,10 +169,13 @@ class _ProductCatalogEmptyState extends StatelessWidget {
       description = null;
       actionLabel = 'Tạo sản phẩm';
       onActionPressed = onCreateProduct;
+    } else if (isFiltered) {
+      title = 'Không có sản phẩm "${selectedFilter.label}"';
+      description = null;
+      actionLabel = null;
+      onActionPressed = null;
     } else {
-      title = isFiltered
-          ? 'Không tìm thấy sản phẩm "${selectedFilter.label}"'
-          : 'Không tìm thấy sản phẩm';
+      title = 'Không tìm thấy sản phẩm';
       description = 'Hãy thử tìm kiếm với từ khóa khác hoặc tạo sản phẩm mới.';
       actionLabel = null;
       onActionPressed = null;
