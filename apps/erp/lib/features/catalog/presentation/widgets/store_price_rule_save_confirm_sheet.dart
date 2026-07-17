@@ -30,7 +30,7 @@ class StorePriceRuleSaveConfirmSheet extends StatelessWidget {
           children: [
             Align(
               child: VIconBox(
-                iconData: Icons.warning_amber_rounded,
+                icon: VIcons.warning,
                 size: 64,
                 iconSize: 32,
                 isCircular: true,

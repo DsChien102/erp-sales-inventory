@@ -166,7 +166,7 @@ class _ProductManualBasePriceViewState extends State<_ProductManualBasePriceView
             ),
             subtitle: widget.product.name,
             leading: IconButton(
-              icon: Icon(Icons.arrow_back, color: dynamicColors.textPrimary),
+              icon: VIcon(icon: VIcons.arrowBack, color: dynamicColors.textPrimary),
               onPressed: () => context.pop(),
             ),
           ),

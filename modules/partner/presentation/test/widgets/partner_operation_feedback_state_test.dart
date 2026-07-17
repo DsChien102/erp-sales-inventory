@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:vet45_design_system/design_system.dart';
 import 'package:vet45_partner_application/application.dart';
 import 'package:vet45_partner_presentation/presentation.dart';
 
@@ -40,7 +41,7 @@ void main() {
     expect(find.byKey(const Key('wgt_e02_d10_source_changed')), findsOneWidget);
     expect(find.text('Dữ liệu đã thay đổi'), findsOneWidget);
     expect(find.text('Tải lại'), findsOneWidget);
-    expect(find.byIcon(Icons.sync_rounded), findsOneWidget);
+    expect(find.byIcon(VIcons.refresh.value), findsOneWidget);
   });
 
   testWidgets('D-10 error copy + Thử lại', (tester) async {

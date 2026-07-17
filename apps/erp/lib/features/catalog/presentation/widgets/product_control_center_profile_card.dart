@@ -44,7 +44,7 @@ class ProductControlCenterProfileCard extends StatelessWidget {
               placeholder: VIconBox(
                 size: 64,
                 iconSize: 32,
-                iconData: Icons.image_outlined,
+                icon: VIcons.image,
                 backgroundColor: dynamicColors.surfaceAlt,
                 iconColor: dynamicColors.textMuted,
               ),
@@ -53,7 +53,7 @@ class ProductControlCenterProfileCard extends StatelessWidget {
             VIconBox(
               size: 64,
               iconSize: 32,
-              iconData: Icons.image_outlined,
+              icon: VIcons.image,
               backgroundColor: dynamicColors.surfaceAlt,
               iconColor: dynamicColors.textMuted,
             ),

@@ -120,7 +120,7 @@ class _ProductControlCenterViewState extends State<_ProductControlCenterView> {
             fontWeight: FontWeight.bold,
           ),
           leading: IconButton(
-            icon: Icon(Icons.arrow_back, color: dynamicColors.textPrimary),
+            icon: VIcon(icon: VIcons.arrowBack, color: dynamicColors.textPrimary),
             onPressed: () {
               if (context.canPop()) {
                 context.pop();

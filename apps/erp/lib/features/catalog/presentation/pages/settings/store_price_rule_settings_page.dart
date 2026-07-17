@@ -132,7 +132,7 @@ class _StorePriceRuleSettingsBody extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.error_outline, size: 18, color: colors.danger),
+          VIcon(icon: VIcons.error, size: 18, color: colors.danger),
           const SizedBox(width: VSpacing.space2),
           Expanded(
             child: Text(
@@ -164,7 +164,7 @@ class _StorePriceRuleSettingsBody extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           VIconBox(
-            iconData: Icons.storefront_outlined,
+            icon: VIcons.store,
             size: 44,
             iconSize: 22,
             backgroundColor: colors.surfaceBrand,
@@ -261,7 +261,7 @@ class _StorePriceRuleSettingsBody extends StatelessWidget {
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(Icons.edit_outlined,
+                      VIcon(icon: VIcons.edit,
                           size: 16, color: colors.primary),
                       const SizedBox(width: 4),
                       Text(
@@ -292,7 +292,7 @@ class _StorePriceRuleSettingsBody extends StatelessWidget {
           // Giá niêm yết row
           _buildRatioRow(
             context,
-            icon: Icons.trending_up,
+            icon: VIcons.trendingUp,
             iconColor: colors.success,
             iconBgColor: colors.successBg,
             label: 'Giá niêm yết',
@@ -309,7 +309,7 @@ class _StorePriceRuleSettingsBody extends StatelessWidget {
           // Giá sàn row
           _buildRatioRow(
             context,
-            icon: Icons.trending_down,
+            icon: VIcons.trendingDown,
             iconColor: colors.danger,
             iconBgColor: colors.dangerBg,
             label: 'Giá sàn',
@@ -324,7 +324,7 @@ class _StorePriceRuleSettingsBody extends StatelessWidget {
 
   Widget _buildRatioRow(
     BuildContext context, {
-    required IconData icon,
+    required VIcons icon,
     required Color iconColor,
     required Color iconBgColor,
     required String label,
@@ -343,7 +343,7 @@ class _StorePriceRuleSettingsBody extends StatelessWidget {
             color: iconBgColor,
             borderRadius: BorderRadius.circular(VRadius.r8),
           ),
-          child: Icon(icon, size: 20, color: iconColor),
+          child: VIcon(icon: icon, size: 20, color: iconColor),
         ),
         const SizedBox(width: VSpacing.space3),
         Expanded(
@@ -393,7 +393,7 @@ class _StorePriceRuleSettingsBody extends StatelessWidget {
         children: [
           Row(
             children: [
-              Icon(Icons.info_outline, size: 18, color: colors.warning),
+              VIcon(icon: VIcons.info, size: 18, color: colors.warning),
               const SizedBox(width: VSpacing.space2),
               Text(
                 'Lưu ý',
@@ -448,7 +448,7 @@ class _StorePriceRuleSettingsBody extends StatelessWidget {
         alignment: PlaceholderAlignment.middle,
         child: Padding(
           padding: EdgeInsets.only(right: 8),
-          child: Icon(Icons.circle, size: 6),
+          child: VIcon(icon: VIcons.circle, size: 6),
         ),
       ),
       TextSpan(text: text),
@@ -499,7 +499,7 @@ class _StorePriceRuleSettingsBody extends StatelessWidget {
               color: colors.surfaceBrand,
               borderRadius: BorderRadius.circular(VRadius.r8),
             ),
-            child: Icon(Icons.history, size: 20, color: colors.primary),
+            child: VIcon(icon: VIcons.history, size: 20, color: colors.primary),
           ),
           const SizedBox(width: VSpacing.space3),
           Expanded(
@@ -523,8 +523,8 @@ class _StorePriceRuleSettingsBody extends StatelessWidget {
               ],
             ),
           ),
-          Icon(
-            Icons.chevron_right,
+          VIcon(
+            icon: VIcons.chevronRight,
             color: colors.textSecondary,
             size: 20,
           ),

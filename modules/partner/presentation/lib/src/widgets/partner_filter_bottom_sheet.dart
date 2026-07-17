@@ -223,7 +223,7 @@ class _PartnerFilterBottomSheetState extends State<PartnerFilterBottomSheet> {
                     Expanded(
                       child: VChip(
                         label: 'Tùy chọn',
-                        leadingIcon: Icons.calendar_today_rounded,
+                        icon: VIcons.calendar,
                         onTap: () {},
                       ),
                     ),

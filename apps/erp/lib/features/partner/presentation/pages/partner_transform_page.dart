@@ -123,8 +123,8 @@ class _PartnerTransformViewState extends State<_PartnerTransformView> {
             centerTitle: true,
             leading: IconButton(
               key: const Key('transform_app_bar_back'),
-              icon: Icon(
-                Icons.arrow_back,
+              icon: VIcon(
+                icon: VIcons.arrowBack,
                 color: context.vColors.textPrimary,
               ),
               onPressed: _onAppBarBack,

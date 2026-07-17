@@ -29,7 +29,7 @@ class PartnerDetailDeliveryCard extends StatelessWidget {
 
     return PartnerDetailExpandableCard(
       title: 'Địa chỉ giao hàng',
-      icon: Icons.location_on_outlined,
+      icon: VIcons.location,
       initiallyExpanded: initiallyExpanded,
       trailingWhenCollapsed: isEmpty
           ? Container(

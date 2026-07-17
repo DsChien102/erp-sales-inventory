@@ -130,7 +130,7 @@ class _InvoiceWarning extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const VIcon(
-            iconData: Icons.warning_amber_rounded,
+            icon: VIcons.warning,
             color: VColors.warning,
           ),
           const SizedBox(width: VSpacing.space2),

@@ -33,7 +33,7 @@ class ProductControlCenterOperationalSection extends StatelessWidget {
       spacing: VSpacing.space2,
       children: [
         ProductControlCenterSectionCard(
-          icon: Icons.straighten,
+          icon: VIcons.straighten,
           title: 'Đơn vị đo lường',
           subtitle: units.isMissing
               ? (units.missingMessage ?? 'Chưa thiết lập')
@@ -41,7 +41,7 @@ class ProductControlCenterOperationalSection extends StatelessWidget {
           onEdit: onEditUnits,
         ),
         ProductControlCenterSectionCard(
-          icon: Icons.inventory_2_outlined,
+          icon: VIcons.inventory,
           title: 'Tồn kho',
           subtitle: stock.isMissing
               ? (stock.missingMessage ?? 'Chưa thiết lập')
@@ -49,7 +49,7 @@ class ProductControlCenterOperationalSection extends StatelessWidget {
           onEdit: onEditStock,
         ),
         ProductControlCenterSectionCard(
-          icon: Icons.monetization_on_outlined,
+          icon: VIcons.coins,
           title: 'Giá cơ sở',
           subtitle: basePrice.isMissing
               ? (basePrice.missingMessage ?? 'Chưa thiết lập')
@@ -57,7 +57,7 @@ class ProductControlCenterOperationalSection extends StatelessWidget {
           onEdit: onEditBasePrice,
         ),
         ProductControlCenterSectionCard(
-          icon: Icons.local_offer_outlined,
+          icon: VIcons.tag,
           title: 'Khung giá',
           subtitle: _priceBandSubtitle(),
           onEdit: onEditPriceBand,

@@ -84,8 +84,8 @@ class _EInvoiceTemplatePageState extends State<EInvoiceTemplatePage> {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     const Spacer(),
-                    const Icon(
-                      Icons.warning_amber_rounded,
+                    const VIcon(
+                      icon: VIcons.warning,
                       color: VColors.warning,
                       size: 64,
                     ),

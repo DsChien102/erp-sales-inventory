@@ -316,7 +316,7 @@ class _UpsertCustomFieldPageState extends State<UpsertCustomFieldPage> {
             title: _isCreate ? 'Tạo trường thông tin' : 'Cấu hình trường',
             showBackButton: false,
             leading: IconButton(
-              icon: Icon(Icons.arrow_back, color: colors.textPrimary),
+              icon: VIcon(icon: VIcons.arrowBack, color: colors.textPrimary),
               onPressed: _handleLeave,
             ),
           ),
@@ -392,7 +392,7 @@ class _UpsertCustomFieldPageState extends State<UpsertCustomFieldPage> {
                     ),
                     TextButton.icon(
                       onPressed: _addOption,
-                      icon: const Icon(Icons.add, size: 16),
+                      icon: const VIcon(icon: VIcons.add, size: 16),
                       label: const Text('Thêm'),
                     ),
                   ],
@@ -406,7 +406,7 @@ class _UpsertCustomFieldPageState extends State<UpsertCustomFieldPage> {
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        const Icon(Icons.drag_indicator, color: VColors.textMuted, size: 16),
+                        const VIcon(icon: VIcons.gripVertical, color: VColors.textMuted, size: 16),
                         const SizedBox(width: 8),
                         Expanded(
                           child: VTextField(
@@ -416,7 +416,7 @@ class _UpsertCustomFieldPageState extends State<UpsertCustomFieldPage> {
                           ),
                         ),
                         IconButton(
-                          icon: const Icon(Icons.delete_outline, color: VColors.danger),
+                          icon: const VIcon(icon: VIcons.delete, color: VColors.danger),
                           onPressed: () => _removeOption(optId),
                         ),
                       ],

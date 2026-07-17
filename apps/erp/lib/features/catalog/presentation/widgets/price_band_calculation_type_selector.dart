@@ -255,7 +255,7 @@ class _PriceBandCalculationTypeSelectorState extends State<PriceBandCalculationT
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Icon(Icons.info_outline, size: 16, color: dynamicColors.textSecondary),
+              VIcon(icon: VIcons.info, size: 16, color: dynamicColors.textSecondary),
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
@@ -309,7 +309,7 @@ class _PriceBandCalculationTypeSelectorState extends State<PriceBandCalculationT
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Icon(Icons.info_outline, size: 16, color: dynamicColors.textSecondary),
+              VIcon(icon: VIcons.info, size: 16, color: dynamicColors.textSecondary),
               const SizedBox(width: 8),
               Expanded(
                 child: Text(

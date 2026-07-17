@@ -210,7 +210,7 @@ class _EditStorePriceRulePageState extends State<EditStorePriceRulePage> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.info_outline, size: 18, color: colors.warning),
+          VIcon(icon: VIcons.info, size: 18, color: colors.warning),
           const SizedBox(width: VSpacing.space2),
           Expanded(
             child: Text.rich(
@@ -299,13 +299,13 @@ class _EditStorePriceRulePageState extends State<EditStorePriceRulePage> {
               children: [
                 _buildAdjustButton(
                   context,
-                  icon: Icons.keyboard_arrow_up,
+                  icon: VIcons.chevronUp,
                   onTap: () => _adjustValue(controller, 0.1),
                 ),
                 const SizedBox(height: 4),
                 _buildAdjustButton(
                   context,
-                  icon: Icons.keyboard_arrow_down,
+                  icon: VIcons.chevronDown,
                   onTap: () => _adjustValue(controller, -0.1),
                 ),
               ],
@@ -325,7 +325,7 @@ class _EditStorePriceRulePageState extends State<EditStorePriceRulePage> {
 
   Widget _buildAdjustButton(
     BuildContext context, {
-    required IconData icon,
+    required VIcons icon,
     required VoidCallback onTap,
   }) {
     final colors = context.vColors;
@@ -340,7 +340,7 @@ class _EditStorePriceRulePageState extends State<EditStorePriceRulePage> {
           border: Border.all(color: colors.borderDefault),
           borderRadius: BorderRadius.circular(VRadius.r8),
         ),
-        child: Icon(icon, size: 20, color: colors.textSecondary),
+        child: VIcon(icon: icon, size: 20, color: colors.textSecondary),
       ),
     );
   }

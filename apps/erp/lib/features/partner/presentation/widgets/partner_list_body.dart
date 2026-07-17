@@ -52,7 +52,7 @@ class PartnerListBody extends StatelessWidget {
         if (state is PartnerListError) {
           return Center(
             child: VEmptyState(
-              iconData: Icons.cloud_off_rounded,
+              icon: VIcons.cloudOff,
               tone: VComponentTone.danger,
               title: 'Không tải được danh sách',
               description: 'Vui lòng kiểm tra kết nối internet\nhoặc thử lại sau.',
@@ -73,7 +73,7 @@ class PartnerListBody extends StatelessWidget {
           if (hasQuery) {
             return Center(
               child: VEmptyState(
-                iconData: Icons.search_rounded,
+                icon: VIcons.search,
                 title: 'Không tìm thấy kết quả',
                 description: 'Thử kiểm tra lại từ khóa "${state.query}"\nhoặc bộ lọc.',
                 actionLabel: 'Xóa từ khóa',
@@ -83,7 +83,7 @@ class PartnerListBody extends StatelessWidget {
           }
           return Center(
             child: VEmptyState(
-              iconData: Icons.assignment_outlined,
+              icon: VIcons.description,
               title: 'Chưa có KH & NCC',
               description: 'Thêm đối tác để bắt đầu bán hàng,\nnhập hàng và quản lý công nợ.',
               actionLabel: canCreate ? 'Thêm KH & NCC' : null,

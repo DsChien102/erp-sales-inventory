@@ -107,7 +107,7 @@ class PartnerDetailContactQuickRow extends StatelessWidget {
     final colors = context.vColors;
     return Row(
       children: [
-        Icon(Icons.phone_outlined, size: 20, color: colors.textSecondary),
+        VIcon(icon: VIcons.phone, size: 20, color: colors.textSecondary),
         const SizedBox(width: VSpacing.space3),
         Expanded(
           child: Text(

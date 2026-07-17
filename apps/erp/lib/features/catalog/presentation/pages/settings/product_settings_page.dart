@@ -32,7 +32,7 @@ class ProductSettingsPage extends StatelessWidget {
             child: Row(
               children: [
                 VIconBox(
-                  iconData: Icons.local_offer_outlined,
+                  icon: VIcons.tag,
                   size: 44,
                   iconSize: 20,
                   backgroundColor: colors.surfaceBrand,
@@ -67,8 +67,8 @@ class ProductSettingsPage extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: VSpacing.space2),
-                Icon(
-                  Icons.chevron_right,
+                VIcon(
+                  icon: VIcons.chevronRight,
                   color: colors.textSecondary,
                   size: 20,
                 ),
@@ -85,7 +85,7 @@ class ProductSettingsPage extends StatelessWidget {
             child: Row(
               children: [
                 VIconBox(
-                  iconData: Icons.view_list_outlined,
+                  icon: VIcons.listView,
                   size: 44,
                   iconSize: 20,
                   backgroundColor: colors.surfaceBrand,
@@ -120,8 +120,8 @@ class ProductSettingsPage extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: VSpacing.space2),
-                Icon(
-                  Icons.chevron_right,
+                VIcon(
+                  icon: VIcons.chevronRight,
                   color: colors.textSecondary,
                   size: 20,
                 ),

@@ -51,7 +51,7 @@ class PartnerDuplicateSheet extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           VIconBox(
-            iconData: _isExact ? Icons.warning_rounded : Icons.warning_amber_rounded,
+            icon: VIcons.warning,
             backgroundColor: _isExact ? VColors.dangerBg : VColors.warningBg,
             iconColor: _isExact ? VColors.danger : VColors.warning,
             isCircular: true,
@@ -138,9 +138,9 @@ class _DuplicateMatchCard extends StatelessWidget {
       child: Row(
         children: [
           VIconBox(
-            iconData: match.partnerType == PartnerType.person
-                ? Icons.person_outline
-                : Icons.apartment_outlined,
+            icon: match.partnerType == PartnerType.person
+                ? VIcons.person
+                : VIcons.apartment,
             size: 40,
             backgroundColor: colors.surfaceBrand,
             iconColor: colors.primary,

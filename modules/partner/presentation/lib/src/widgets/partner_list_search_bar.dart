@@ -79,7 +79,7 @@ class _PartnerListSearchBarState extends State<PartnerListSearchBar> {
                       key: const Key('btn_clear_partner_search'),
                       tooltip: 'Xóa tìm kiếm',
                       icon: VIcon(
-                        iconData: Icons.close_rounded,
+                        icon: VIcons.close,
                         size: 20,
                         color: colors.textSecondary,
                       ),
@@ -121,7 +121,7 @@ class _FilterButton extends StatelessWidget {
       backgroundColor: colors.primary,
       offset: const Offset(4, -4),
       child: VIconBox(
-        iconData: Icons.tune,
+        icon: VIcons.tune,
         size: 44,
         iconSize: 20,
         backgroundColor: isActive ? colors.primary.withValues(alpha: 0.1) : colors.surface,

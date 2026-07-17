@@ -24,8 +24,8 @@ class PartnerTransformBlockingBanner extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Icon(
-            Icons.warning_amber_rounded,
+          const VIcon(
+            icon: VIcons.warning,
             color: VColors.warning,
             size: 22,
           ),

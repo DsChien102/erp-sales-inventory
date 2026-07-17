@@ -87,7 +87,7 @@ class _FilterButton extends StatelessWidget {
       offset: const Offset(4, -4),
       child: VIconBox(
         key: const Key('btn_filter_custom_fields'),
-        iconData: Icons.tune,
+        icon: VIcons.tune,
         size: 44,
         iconSize: 20,
         backgroundColor: isActive ? VColors.successBg : colors.surface,

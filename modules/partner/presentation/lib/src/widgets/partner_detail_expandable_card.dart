@@ -14,7 +14,7 @@ class PartnerDetailExpandableCard extends StatefulWidget {
   });
 
   final String title;
-  final IconData icon;
+  final VIcons icon;
   final Widget child;
   final Widget? trailingWhenCollapsed;
   final bool initiallyExpanded;
@@ -50,7 +50,7 @@ class _PartnerDetailExpandableCardState extends State<PartnerDetailExpandableCar
               horizontal: VSpacing.space4,
               vertical: 0,
             ),
-            leading: Icon(widget.icon, color: colors.textSecondary, size: 20),
+            leading: VIcon(icon: widget.icon, color: colors.textSecondary, size: 20),
             title: Text(
               widget.title,
               style: VTypography.bodyDefault.copyWith(
@@ -65,8 +65,8 @@ class _PartnerDetailExpandableCardState extends State<PartnerDetailExpandableCar
                   widget.trailingWhenCollapsed!,
                   const SizedBox(width: 4),
                 ],
-                Icon(
-                  _expanded ? Icons.expand_less_rounded : Icons.chevron_right_rounded,
+                VIcon(
+                  icon: _expanded ? VIcons.expandLess : VIcons.chevronRight,
                   color: colors.textMuted,
                 ),
               ],

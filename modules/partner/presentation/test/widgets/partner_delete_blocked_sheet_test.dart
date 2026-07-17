@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:vet45_design_system/design_system.dart';
 import 'package:vet45_partner_presentation/presentation.dart';
 
 void main() {
@@ -26,7 +27,7 @@ void main() {
     );
     expect(find.byKey(const Key('delete_blocked_back')), findsOneWidget);
     expect(find.byKey(const Key('delete_blocked_deactivate')), findsOneWidget);
-    expect(find.byIcon(Icons.warning_amber_rounded), findsOneWidget);
+    expect(find.byIcon(VIcons.warning.value), findsOneWidget);
   });
 
   testWidgets('deactivate returns deactivate; back returns dismissed', (

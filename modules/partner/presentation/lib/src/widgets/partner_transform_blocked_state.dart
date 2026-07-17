@@ -117,13 +117,13 @@ class _NoPermissionIllustration extends StatelessWidget {
       child: Stack(
         alignment: Alignment.center,
         children: [
-          Icon(
-            Icons.shield_outlined,
+          VIcon(
+            icon: VIcons.shield,
             size: 120,
             color: muted.withValues(alpha: 0.28),
           ),
-          Icon(
-            Icons.add,
+          VIcon(
+            icon: VIcons.add,
             size: 36,
             color: muted.withValues(alpha: 0.55),
           ),
@@ -145,15 +145,15 @@ class _StaleDataIllustration extends StatelessWidget {
       child: Stack(
         alignment: Alignment.center,
         children: [
-          Icon(
-            Icons.cloud_outlined,
+          VIcon(
+            icon: VIcons.cloud,
             size: 110,
             color: muted.withValues(alpha: 0.28),
           ),
           Positioned(
             bottom: 28,
-            child: Icon(
-              Icons.warning_rounded,
+            child: VIcon(
+              icon: VIcons.warning,
               size: 48,
               color: VColors.danger.withValues(alpha: 0.92),
             ),

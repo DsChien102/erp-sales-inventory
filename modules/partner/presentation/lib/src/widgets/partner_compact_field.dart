@@ -366,8 +366,8 @@ class PartnerCompactDropdown<T> extends StatelessWidget {
                                   : Text(hintText ?? 'Chọn...'),
                             ),
                           ),
-                          Icon(
-                            Icons.keyboard_arrow_down,
+                          VIcon(
+                            icon: VIcons.chevronDown,
                             size: 18,
                             color: enabled ? colors.textSecondary : colors.textMuted,
                           ),

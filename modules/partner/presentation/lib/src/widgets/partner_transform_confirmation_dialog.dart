@@ -29,7 +29,7 @@ class PartnerTransformConfirmationDialog extends StatelessWidget {
           children: [
             Align(
               child: VIconBox(
-                iconData: Icons.priority_high_rounded,
+                icon: VIcons.warning,
                 size: 58,
                 iconSize: 32,
                 isCircular: true,

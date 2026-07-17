@@ -63,7 +63,7 @@ class _PartnerDeactivateConfirmationSheetState extends State<PartnerDeactivateCo
             children: [
               Align(
                 child: VIconBox(
-                  iconData: Icons.pause_rounded,
+                  icon: VIcons.pause,
                   size: 64,
                   iconSize: 32,
                   isCircular: true,

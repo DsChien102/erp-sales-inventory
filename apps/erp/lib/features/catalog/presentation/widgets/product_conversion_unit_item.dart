@@ -81,8 +81,8 @@ class _ProductConversionUnitItemState extends State<ProductConversionUnitItem> {
                             : dynamicColors.surfaceAlt,
                         borderRadius: BorderRadius.circular(8),
                       ),
-                      child: Icon(
-                        Icons.inventory_2_outlined,
+                      child: VIcon(
+                        icon: VIcons.inventory,
                         color: dynamicColors.textSecondary,
                         size: 24,
                       ),

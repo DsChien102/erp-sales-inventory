@@ -25,7 +25,7 @@ class PartnerDetailNoteCard extends StatelessWidget {
     return PartnerDetailExpandableCard(
       key: const Key('partner_detail_note_card'),
       title: 'Ghi chú',
-      icon: Icons.sticky_note_2_outlined,
+      icon: VIcons.stickyNote,
       initiallyExpanded: initiallyExpanded,
       trailingWhenCollapsed: isEmpty
           ? Container(

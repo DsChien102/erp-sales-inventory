@@ -156,7 +156,7 @@ class _UpsertCustomFieldGroupPageState extends State<UpsertCustomFieldGroupPage>
             title: _isCreate ? 'Tạo nhóm thông tin' : 'Sửa nhóm thông tin',
             showBackButton: false,
             leading: IconButton(
-              icon: Icon(Icons.arrow_back, color: colors.textPrimary),
+              icon: VIcon(icon: VIcons.arrowBack, color: colors.textPrimary),
               onPressed: _handleLeave,
             ),
           ),

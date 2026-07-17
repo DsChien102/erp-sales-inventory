@@ -62,7 +62,7 @@ class PartnerDeleteBlockedSheet extends StatelessWidget {
                   onPressed: () => Navigator.of(context).pop(
                     PartnerDeleteBlockedResult.dismissed,
                   ),
-                  icon: Icon(Icons.close_rounded, color: colors.textMuted),
+                  icon: VIcon(icon: VIcons.close, color: colors.textMuted),
                   visualDensity: VisualDensity.compact,
                   padding: EdgeInsets.zero,
                   constraints: const BoxConstraints(
@@ -72,8 +72,8 @@ class PartnerDeleteBlockedSheet extends StatelessWidget {
                 ),
               ),
               Align(
-                child: Icon(
-                  Icons.warning_amber_rounded,
+                child: VIcon(
+                  icon: VIcons.warning,
                   size: 56,
                   color: colors.warning,
                 ),

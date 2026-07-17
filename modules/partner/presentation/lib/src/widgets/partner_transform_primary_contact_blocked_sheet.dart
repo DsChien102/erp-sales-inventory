@@ -40,7 +40,7 @@ class PartnerTransformPrimaryContactBlockedSheet extends StatelessWidget {
               ),
             ),
             const SizedBox(height: VSpacing.space5),
-            Icon(Icons.apartment_rounded, size: 44, color: colors.warning),
+            VIcon(icon: VIcons.apartment, size: 44, color: colors.warning),
             const SizedBox(height: VSpacing.space3),
             Text(
               'Không thể chuyển thành tổ chức',

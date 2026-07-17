@@ -127,7 +127,7 @@ class _PartnerListPageState extends State<PartnerListPage> {
         showBackButton: false,
         body: const Center(
           child: VEmptyState(
-            iconData: Icons.lock_outline_rounded,
+            icon: VIcons.lock,
             title: 'Bạn không có quyền xem\nKH & NCC',
             description: 'Liên hệ quản trị viên để được cấp quyền.',
           ),
@@ -154,7 +154,7 @@ class _PartnerListPageState extends State<PartnerListPage> {
             floatingActionButton: _canCreate
                 ? VFloatingActionButton(
                     key: const Key('btn_create_partner'),
-                    iconData: Icons.add,
+                    icon: VIcons.add,
                     tone: VComponentTone.success,
                     backgroundColor: colors.success,
                     semanticLabel: 'Thêm KH & NCC',

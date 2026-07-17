@@ -30,7 +30,7 @@ class ProductControlCenterReadinessBanner extends StatelessWidget {
         child: Row(
           children: [
             VIcon(
-              iconData: Icons.error_outline,
+              icon: VIcons.error,
               color: dynamicColors.warning,
               size: 24,
             ),

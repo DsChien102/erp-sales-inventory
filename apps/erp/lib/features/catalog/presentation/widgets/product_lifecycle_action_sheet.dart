@@ -24,8 +24,8 @@ class ProductLifecycleActionSheet extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           ListTile(
-            leading: Icon(
-              Icons.delete_outline,
+            leading: VIcon(
+              icon: VIcons.delete,
               color: dynamicColors.danger,
             ),
             title: Text(

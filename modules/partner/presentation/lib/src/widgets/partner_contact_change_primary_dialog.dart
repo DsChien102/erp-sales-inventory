@@ -89,8 +89,8 @@ class PartnerContactChangePrimaryDialog extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(width: VSpacing.space4),
-                    Icon(
-                      Icons.arrow_forward_rounded,
+                    VIcon(
+                      icon: VIcons.arrowForward,
                       color: colors.textMuted,
                       size: 24,
                     ),

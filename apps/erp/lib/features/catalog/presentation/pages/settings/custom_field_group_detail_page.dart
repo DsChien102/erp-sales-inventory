@@ -44,7 +44,7 @@ class CustomFieldGroupDetailPage extends StatelessWidget {
               showBackButton: true,
               actions: [
                 IconButton(
-                  icon: const Icon(Icons.more_vert, color: VColors.textPrimary),
+                  icon: const VIcon(icon: VIcons.moreVert, color: VColors.textPrimary),
                   onPressed: () {
                     if (group != null) {
                       context
@@ -145,7 +145,7 @@ class CustomFieldGroupDetailPage extends StatelessWidget {
                   ),
                   child: Row(
                     children: [
-                      const Icon(Icons.add, size: 16, color: VColors.success),
+                      const VIcon(icon: VIcons.add, size: 16, color: VColors.success),
                       const SizedBox(width: 4),
                       Text(
                         'Thêm trường',
@@ -209,7 +209,7 @@ class CustomFieldGroupDetailPage extends StatelessWidget {
                 color: VColors.successBg,
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: const Icon(Icons.checklist, size: 32, color: VColors.success),
+              child: const VIcon(icon: VIcons.checkList, size: 32, color: VColors.success),
             ),
             const SizedBox(height: 16),
             Text(
@@ -228,7 +228,7 @@ class CustomFieldGroupDetailPage extends StatelessWidget {
                 extra: cubit,
               ),
               variant: VButtonVariant.primary,
-              leadingIcon: const Icon(Icons.add, size: 18, color: Colors.white),
+              leadingIcon: const VIcon(icon: VIcons.add, size: 18, iconColor: VIconColor.white),
               label: 'Thêm trường thông tin',
             ),
           ],
@@ -290,8 +290,8 @@ class CustomFieldGroupDetailPage extends StatelessWidget {
           children: [
             ReorderableDragStartListener(
               index: index,
-              child: const Icon(
-                Icons.drag_indicator,
+              child: const VIcon(
+                icon: VIcons.gripVertical,
                 color: VColors.textMuted,
               ),
             ),
@@ -350,8 +350,8 @@ class CustomFieldGroupDetailPage extends StatelessWidget {
               ),
             ),
             const SizedBox(width: VSpacing.space2),
-            const Icon(
-              Icons.chevron_right,
+            const VIcon(
+              icon: VIcons.chevronRight,
               color: VColors.textMuted,
             ),
           ],

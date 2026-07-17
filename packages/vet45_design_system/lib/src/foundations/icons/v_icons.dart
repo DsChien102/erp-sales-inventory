@@ -71,6 +71,32 @@ enum VIcons {
   warehouse,
   straighten,
   chart,
+  image,
+  camera,
+  clipboard,
+  history,
+  inbox,
+  ban,
+  play,
+  restore,
+  tag,
+  coins,
+  gripVertical,
+  trendingUp,
+  trendingDown,
+  listView,
+  checkList,
+  circle,
+  lock,
+  settings,
+  star,
+  mail,
+  truck,
+  creditCard,
+  briefcase,
+  pause,
+  contact,
+  bolt,
 }
 
 /// Extension helper để ánh xạ từ [VIcons] sang [IconData] của Lucide Icons
@@ -121,7 +147,7 @@ extension VIconsExtension on VIcons {
       case VIcons.moreHoriz:
         return LucideIcons.moreHorizontal;
       case VIcons.tune:
-        return LucideIcons.sliders;
+        return LucideIcons.slidersHorizontal;
       case VIcons.swapVert:
         return LucideIcons.arrowUpDown;
       case VIcons.download:
@@ -195,6 +221,58 @@ extension VIconsExtension on VIcons {
         return LucideIcons.ruler;
       case VIcons.chart:
         return LucideIcons.lineChart;
+      case VIcons.image:
+        return LucideIcons.image;
+      case VIcons.camera:
+        return LucideIcons.camera;
+      case VIcons.clipboard:
+        return LucideIcons.clipboardList;
+      case VIcons.history:
+        return LucideIcons.history;
+      case VIcons.inbox:
+        return LucideIcons.inbox;
+      case VIcons.ban:
+        return LucideIcons.ban;
+      case VIcons.play:
+        return LucideIcons.play;
+      case VIcons.restore:
+        return LucideIcons.rotateCcw;
+      case VIcons.tag:
+        return LucideIcons.tag;
+      case VIcons.coins:
+        return LucideIcons.coins;
+      case VIcons.gripVertical:
+        return LucideIcons.gripVertical;
+      case VIcons.trendingUp:
+        return LucideIcons.trendingUp;
+      case VIcons.trendingDown:
+        return LucideIcons.trendingDown;
+      case VIcons.listView:
+        return LucideIcons.list;
+      case VIcons.checkList:
+        return LucideIcons.listChecks;
+      case VIcons.circle:
+        return LucideIcons.circle;
+      case VIcons.lock:
+        return LucideIcons.lock;
+      case VIcons.settings:
+        return LucideIcons.settings;
+      case VIcons.star:
+        return LucideIcons.star;
+      case VIcons.mail:
+        return LucideIcons.mail;
+      case VIcons.truck:
+        return LucideIcons.truck;
+      case VIcons.creditCard:
+        return LucideIcons.creditCard;
+      case VIcons.briefcase:
+        return LucideIcons.briefcase;
+      case VIcons.pause:
+        return LucideIcons.pause;
+      case VIcons.contact:
+        return LucideIcons.contact;
+      case VIcons.bolt:
+        return LucideIcons.zap;
     }
   }
 }

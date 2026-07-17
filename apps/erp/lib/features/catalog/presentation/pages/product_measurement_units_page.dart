@@ -188,7 +188,7 @@ class _ProductMeasurementUnitsViewState extends State<_ProductMeasurementUnitsVi
             ),
             subtitle: widget.product.name,
             leading: IconButton(
-              icon: Icon(Icons.arrow_back, color: dynamicColors.textPrimary),
+              icon: VIcon(icon: VIcons.arrowBack, color: dynamicColors.textPrimary),
               onPressed: () => context.pop(),
             ),
           ),
@@ -241,7 +241,7 @@ class _ProductMeasurementUnitsViewState extends State<_ProductMeasurementUnitsVi
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  Icon(Icons.add, color: dynamicColors.primary, size: 18),
+                                  VIcon(icon: VIcons.add, color: dynamicColors.primary, size: 18),
                                   const SizedBox(width: 8),
                                   Text(
                                     'Thiết lập đơn vị cơ sở',
@@ -384,7 +384,7 @@ class _ProductMeasurementUnitsViewState extends State<_ProductMeasurementUnitsVi
                                 child: Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                    Icon(Icons.add, color: dynamicColors.primary, size: 18),
+                                    VIcon(icon: VIcons.add, color: dynamicColors.primary, size: 18),
                                     const SizedBox(width: 8),
                                     Text(
                                       'Thêm đơn vị quy đổi',

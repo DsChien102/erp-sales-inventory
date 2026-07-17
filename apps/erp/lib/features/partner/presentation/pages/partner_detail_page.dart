@@ -287,7 +287,7 @@ class _PartnerDetailPageState extends State<PartnerDetailPage> {
                 if (state.isNoPermission) {
                   return Center(
                     child: PartnerDetailErrorState(
-                      iconData: Icons.lock_outline_rounded,
+                      icon: VIcons.lock,
                       title: 'Không có quyền xem hồ sơ',
                       description: 'Bạn không có quyền truy cập hồ sơ\nKhách hàng & Nhà cung cấp.',
                       actionLabel: 'Quay lại',
@@ -298,7 +298,7 @@ class _PartnerDetailPageState extends State<PartnerDetailPage> {
                 if (state.isNotFound) {
                   return Center(
                     child: PartnerDetailErrorState(
-                      iconData: Icons.search_off_rounded,
+                      icon: VIcons.search,
                       title: state.isContactOnly
                           ? 'Không phải hồ sơ đối tác'
                           : 'Không tìm thấy hồ sơ',
@@ -312,7 +312,7 @@ class _PartnerDetailPageState extends State<PartnerDetailPage> {
                 }
                 return Center(
                   child: PartnerDetailErrorState(
-                    iconData: Icons.cloud_off_rounded,
+                    icon: VIcons.cloudOff,
                     title: 'Không tải được hồ sơ',
                     description: 'Vui lòng kiểm tra kết nối internet hoặc thử lại sau.',
                     actionLabel: 'Thử lại',
@@ -440,15 +440,15 @@ class _PartnerDetailPageState extends State<PartnerDetailPage> {
                               ),
                               const SizedBox(width: VSpacing.space3),
                               Expanded(
-                                child: VButton(
-                                  label: 'Thao tác',
-                                  variant: VButtonVariant.primary,
-                                  trailingIcon: const Icon(
-                                    Icons.expand_less,
-                                    size: 20,
-                                    color: Colors.white,
-                                  ),
-                                  onPressed: () => _showActionSheet(context, dto),
+                                  child: VButton(
+                                    label: 'Thao tác',
+                                    variant: VButtonVariant.primary,
+                                    trailingIcon: const VIcon(
+                                      icon: VIcons.expandLess,
+                                      size: 20,
+                                      color: Colors.white,
+                                    ),
+                                    onPressed: () => _showActionSheet(context, dto),
                                 ),
                               ),
                             ],

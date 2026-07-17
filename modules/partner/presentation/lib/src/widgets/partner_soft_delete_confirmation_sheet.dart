@@ -57,8 +57,8 @@ class _PartnerSoftDeleteConfirmationSheetState
                 child: IconButton(
                   key: const Key('soft_delete_close'),
                   onPressed: () => Navigator.of(context).pop(),
-                  icon: Icon(
-                    Icons.close_rounded,
+                  icon: VIcon(
+                    icon: VIcons.close,
                     color: colors.textMuted,
                   ),
                   visualDensity: VisualDensity.compact,
@@ -71,7 +71,7 @@ class _PartnerSoftDeleteConfirmationSheetState
               ),
               Align(
                 child: VIconBox(
-                  iconData: Icons.delete_outline_rounded,
+                  icon: VIcons.delete,
                   size: 64,
                   iconSize: 32,
                   isCircular: true,

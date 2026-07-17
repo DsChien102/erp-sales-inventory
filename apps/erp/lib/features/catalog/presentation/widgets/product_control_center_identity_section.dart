@@ -23,13 +23,13 @@ class ProductControlCenterIdentitySection extends StatelessWidget {
       children: [
         ProductControlCenterSectionCard(
           title: 'Hồ sơ sản phẩm',
-          icon: Icons.assignment_outlined,
+          icon: VIcons.clipboard,
           subtitle: '${profile.sku ?? 'Chưa có mã SKU'} · ${profile.barcode ?? 'Chưa có mã vạch'}',
           onEdit: onEditProfile,
         ),
         ProductControlCenterSectionCard(
           title: 'Ảnh sản phẩm',
-          icon: Icons.camera_alt_outlined,
+          icon: VIcons.camera,
           subtitle: '${profile.images.length} ảnh',
           onEdit: onEditImages,
         ),

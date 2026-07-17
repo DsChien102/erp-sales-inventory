@@ -45,7 +45,7 @@ class _CustomFieldGroupsPageState extends State<CustomFieldGroupsPage> {
           showBackButton: true,
           actions: [
             IconButton(
-              icon: Icon(Icons.add, color: colors.primary),
+              icon: VIcon(icon: VIcons.add, color: colors.primary),
               onPressed: () async {
                 await context.push(
                   '/more/product-settings/custom-fields/upsert-group',
@@ -77,7 +77,7 @@ class _CustomFieldGroupsPageState extends State<CustomFieldGroupsPage> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(Icons.inbox_outlined, size: 64, color: colors.textMuted),
+                    VIcon(icon: VIcons.inbox, size: 64, color: colors.textMuted),
                     const SizedBox(height: VSpacing.space4),
                     Text(
                       'Chưa có nhóm thông tin nào',
@@ -122,7 +122,7 @@ class _CustomFieldGroupsPageState extends State<CustomFieldGroupsPage> {
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Icon(Icons.info_outline, color: colors.warning, size: 20),
+                          VIcon(icon: VIcons.info, color: colors.warning, size: 20),
                           const SizedBox(width: VSpacing.space2),
                           Expanded(
                             child: Text.rich(
@@ -132,8 +132,8 @@ class _CustomFieldGroupsPageState extends State<CustomFieldGroupsPage> {
                                 children: [
                                   WidgetSpan(
                                     alignment: PlaceholderAlignment.middle,
-                                    child: Icon(
-                                      Icons.drag_indicator,
+                                    child: VIcon(
+                                      icon: VIcons.gripVertical,
                                       size: 16,
                                       color: colors.textMuted,
                                     ),
@@ -199,8 +199,8 @@ class _CustomFieldGroupsPageState extends State<CustomFieldGroupsPage> {
               index: index,
               child: Padding(
                 padding: const EdgeInsets.only(right: VSpacing.space3),
-                child: Icon(
-                  Icons.drag_indicator,
+                child: VIcon(
+                  icon: VIcons.gripVertical,
                   color: colors.textMuted,
                 ),
               ),
@@ -243,8 +243,8 @@ class _CustomFieldGroupsPageState extends State<CustomFieldGroupsPage> {
               ),
             ),
             const SizedBox(width: VSpacing.space3),
-            Icon(
-              Icons.chevron_right,
+            VIcon(
+              icon: VIcons.chevronRight,
               color: colors.textMuted,
             ),
           ],

@@ -50,7 +50,7 @@ class _VLifecycleBottomSheetContent extends StatelessWidget {
                   children: [
                     Row(
                       children: [
-                        Icon(Icons.warning_amber_rounded, color: dynamicColors.warning, size: 20),
+                        VIcon(icon: VIcons.warning, color: dynamicColors.warning, size: 20),
                         const SizedBox(width: 8),
                         Text(
                           'Cần xác nhận',

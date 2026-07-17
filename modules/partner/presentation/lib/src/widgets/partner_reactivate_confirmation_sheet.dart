@@ -35,7 +35,7 @@ class PartnerReactivateConfirmationSheet extends StatelessWidget {
             children: [
               Align(
                 child: VIconBox(
-                  iconData: Icons.power_settings_new_rounded,
+                  icon: VIcons.power,
                   size: 64,
                   iconSize: 32,
                   isCircular: true,

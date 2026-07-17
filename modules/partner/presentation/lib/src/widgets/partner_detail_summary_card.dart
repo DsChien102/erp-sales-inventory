@@ -15,9 +15,9 @@ class PartnerDetailSummaryCard extends StatelessWidget {
     final colors = context.vColors;
     final roleLabel = PartnerDetailFormatters.roleBadgeLabel(detail.roles);
     final taxCode = PartnerDetailFormatters.taxCode(detail);
-    final iconData = detail.partnerType == PartnerType.person
-        ? Icons.person_outline
-        : Icons.apartment_outlined;
+    final icon = detail.partnerType == PartnerType.person
+        ? VIcons.person
+        : VIcons.apartment;
     final hasTaxCode = taxCode != null && taxCode.isNotEmpty;
 
     return VCard(
@@ -28,7 +28,7 @@ class PartnerDetailSummaryCard extends StatelessWidget {
       child: Row(
         children: [
           VIconBox(
-            iconData: iconData,
+            icon: icon,
             size: 40,
             iconSize: 20,
             backgroundColor: colors.surfaceBrand,

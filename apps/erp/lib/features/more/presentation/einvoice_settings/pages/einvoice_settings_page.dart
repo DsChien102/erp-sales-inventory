@@ -59,7 +59,7 @@ class _EInvoiceSettingsView extends StatelessWidget {
             children: [
               // Card 1: Connection
               _SettingsItemCard(
-                icon: Icons.power_outlined,
+                icon: VIcons.power,
                 iconBackgroundColor: VColors.successBg,
                 iconColor: VColors.success,
                 title: 'Kết nối dịch vụ hóa đơn điện tử',
@@ -114,7 +114,7 @@ class _EInvoiceSettingsView extends StatelessWidget {
 
               // Card 2: Default template
               _SettingsItemCard(
-                icon: Icons.grid_view_outlined,
+                icon: VIcons.gridView,
                 iconBackgroundColor: VColors.successBg,
                 iconColor: VColors.success,
                 title: 'Mẫu hóa đơn mặc định',
@@ -136,7 +136,7 @@ class _EInvoiceSettingsView extends StatelessWidget {
 
               // Card 3: Auto-issuance and auto-send
               _SettingsItemCard(
-                icon: Icons.bolt_outlined,
+                icon: VIcons.bolt,
                 iconBackgroundColor: VColors.successBg,
                 iconColor: VColors.success,
                 title: 'Phát hành và gửi hóa đơn',
@@ -216,7 +216,7 @@ class _SettingsItemCard extends StatelessWidget {
     required this.onTap,
   });
 
-  final IconData icon;
+  final VIcons icon;
   final Color? iconBackgroundColor;
   final Color? iconColor;
   final String title;
@@ -241,7 +241,7 @@ class _SettingsItemCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           VIconBox(
-            iconData: icon,
+            icon: icon,
             size: 40,
             iconSize: 20,
             backgroundColor: iconBackgroundColor ?? VColors.successBg,
@@ -266,8 +266,8 @@ class _SettingsItemCard extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(width: VSpacing.space1),
-                    Icon(
-                      Icons.chevron_right,
+                    VIcon(
+                      icon: VIcons.chevronRight,
                       color: colors.textSecondary,
                       size: 20,
                     ),

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:vet45_design_system/design_system.dart';
 
 class PartnerDetailErrorState extends StatelessWidget {
-  final IconData iconData;
+  final VIcons icon;
   final String title;
   final String description;
   final String actionLabel;
@@ -10,7 +10,7 @@ class PartnerDetailErrorState extends StatelessWidget {
 
   const PartnerDetailErrorState({
     super.key,
-    required this.iconData,
+    required this.icon,
     required this.title,
     required this.description,
     required this.actionLabel,
@@ -19,12 +19,12 @@ class PartnerDetailErrorState extends StatelessWidget {
 
   Widget _buildIllustration(BuildContext context, VColorScheme colors) {
     // Shield with question mark (D-06C - No Permission)
-    if (iconData == Icons.lock_outline_rounded) {
+    if (icon == VIcons.lock) {
       return Stack(
         alignment: Alignment.center,
         children: [
-          Icon(
-            Icons.shield_outlined,
+          VIcon(
+            icon: VIcons.shield,
             size: 120,
             color: colors.textMuted.withValues(alpha: 0.15),
           ),
@@ -52,7 +52,7 @@ class PartnerDetailErrorState extends StatelessWidget {
     }
 
     // Document with magnifying glass and ? (D-06B - Not Found)
-    if (iconData == Icons.search_off_rounded) {
+    if (icon == VIcons.search) {
       return SizedBox(
         width: 140,
         height: 140,
@@ -63,8 +63,8 @@ class PartnerDetailErrorState extends StatelessWidget {
             Positioned(
               top: 10,
               left: 20,
-              child: Icon(
-                Icons.description_outlined,
+              child: VIcon(
+                icon: VIcons.description,
                 size: 90,
                 color: colors.textMuted.withValues(alpha: 0.2),
               ),
@@ -86,8 +86,8 @@ class PartnerDetailErrorState extends StatelessWidget {
             Positioned(
               bottom: 10,
               right: 15,
-              child: Icon(
-                Icons.search,
+              child: VIcon(
+                icon: VIcons.search,
                 size: 64,
                 color: colors.textSecondary,
               ),
@@ -99,7 +99,7 @@ class PartnerDetailErrorState extends StatelessWidget {
 
     // Fallback IconBox
     return VIconBox(
-      iconData: iconData,
+      icon: icon,
       size: 64,
       iconSize: 28,
       backgroundColor: colors.surfaceAlt,

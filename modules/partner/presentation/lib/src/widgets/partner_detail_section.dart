@@ -62,7 +62,7 @@ class PartnerDetailInfoRow extends StatelessWidget {
 
   final String label;
   final String value;
-  final IconData? trailingIcon;
+  final VIcons? trailingIcon;
   final bool isLast;
 
   @override
@@ -90,7 +90,7 @@ class PartnerDetailInfoRow extends StatelessWidget {
           ),
           if (trailingIcon != null) ...[
             const SizedBox(width: VSpacing.space2),
-            Icon(trailingIcon, size: 18, color: colors.primary),
+            VIcon(icon: trailingIcon, size: 18, color: colors.primary),
           ],
         ],
       ),

@@ -129,7 +129,7 @@ class _PartnerFormViewState extends State<_PartnerFormView> {
             leading: Padding(
               padding: const EdgeInsets.all(VSpacing.space2),
               child: VIconBox(
-                iconData: Icons.arrow_back,
+                icon: VIcons.arrowBack,
                 size: 40,
                 backgroundColor: Colors.transparent,
                 onTap: _requestLeave,
