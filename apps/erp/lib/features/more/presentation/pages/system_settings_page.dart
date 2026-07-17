@@ -27,7 +27,7 @@ class SystemSettingsPage extends StatelessWidget {
             child: Row(
               children: [
                 VIconBox(
-                  iconData: Icons.description_outlined,
+                  icon: VIcons.description,
                   size: 44,
                   iconSize: 20,
                   backgroundColor: colors.surfaceBrand,
@@ -62,8 +62,8 @@ class SystemSettingsPage extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: VSpacing.space2),
-                Icon(
-                  Icons.chevron_right,
+                VIcon(
+                  icon: VIcons.chevronRight,
                   color: colors.textSecondary,
                   size: 20,
                 ),
@@ -80,7 +80,7 @@ class SystemSettingsPage extends StatelessWidget {
             child: Row(
               children: [
                 VIconBox(
-                  iconData: Icons.inventory_2_outlined,
+                  icon: VIcons.inventory,
                   size: 44,
                   iconSize: 20,
                   backgroundColor: colors.surfaceBrand,
@@ -115,8 +115,8 @@ class SystemSettingsPage extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: VSpacing.space2),
-                Icon(
-                  Icons.chevron_right,
+                VIcon(
+                  icon: VIcons.chevronRight,
                   color: colors.textSecondary,
                   size: 20,
                 ),

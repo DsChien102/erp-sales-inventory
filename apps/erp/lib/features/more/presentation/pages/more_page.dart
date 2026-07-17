@@ -33,37 +33,37 @@ class MorePage extends StatelessWidget {
   Widget build(BuildContext context) {
     final menuItems = [
       const _MoreMenuItem(
-        icon: Icons.group_outlined,
+        icon: VIcons.people,
         title: 'Khách hàng & NCC',
         subtitle: 'Quản lý khách hàng & nhà cung cấp',
         enabled: false,
       ),
       const _MoreMenuItem(
-        icon: Icons.download_rounded,
+        icon: VIcons.download,
         title: 'Đơn nhập',
         subtitle: 'Nhập kho từ nhà cung cấp',
         enabled: false,
       ),
       const _MoreMenuItem(
-        icon: Icons.warehouse_outlined,
+        icon: VIcons.warehouse,
         title: 'Kho',
         subtitle: 'Tồn kho, phiếu nhập, điều chỉnh',
         enabled: false,
       ),
       const _MoreMenuItem(
-        icon: Icons.bar_chart_outlined,
+        icon: VIcons.chart,
         title: 'Báo cáo',
         subtitle: 'Doanh thu, tồn kho, công nợ',
         enabled: false,
       ),
       _MoreMenuItem(
-        icon: Icons.settings_outlined,
+        icon: VIcons.settings,
         title: 'Thiết lập',
         subtitle: 'Cấu hình hệ thống & hóa đơn điện tử',
         onTap: () => context.push('/more/settings'),
       ),
       _MoreMenuItem(
-        icon: Icons.logout_rounded,
+        icon: VIcons.logout,
         title: 'Đăng xuất',
         subtitle: 'Thoát khỏi tài khoản hiện tại',
         isDestructive: true,
@@ -94,7 +94,7 @@ class _MoreMenuItem extends StatelessWidget {
     this.isDestructive = false,
   });
 
-  final IconData icon;
+  final VIcons icon;
   final String title;
   final String subtitle;
   final VoidCallback? onTap;
@@ -121,7 +121,7 @@ class _MoreMenuItem extends StatelessWidget {
         child: Row(
           children: [
             VIconBox(
-              iconData: icon,
+              icon: icon,
               size: 44,
               iconSize: 20,
               backgroundColor: iconBackgroundColor,
@@ -157,8 +157,8 @@ class _MoreMenuItem extends StatelessWidget {
             ),
             if (isEnabled) ...[
               const SizedBox(width: VSpacing.space2),
-              Icon(
-                Icons.chevron_right,
+              VIcon(
+                icon: VIcons.chevronRight,
                 color: dynamicColors.textSecondary,
                 size: 20,
               ),
