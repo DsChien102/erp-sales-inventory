@@ -45,12 +45,11 @@ class PartnerTransformOrganizationForm extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text(
+        VText(
           'Thông tin tổ chức (mới)',
-          style: VTypography.headingH4.copyWith(
-            color: context.vColors.textPrimary,
-            fontWeight: FontWeight.w700,
-          ),
+          variant: VTextVariant.headingH4,
+          color: context.vColors.textPrimary,
+          style: const TextStyle(fontWeight: FontWeight.w700),
         ),
         const SizedBox(height: VSpacing.space3),
         PartnerTransformLabeledDropdown<OrganizationType>(
@@ -63,22 +62,22 @@ class PartnerTransformOrganizationForm extends StatelessWidget {
           items: const [
             DropdownMenuItem(
               value: OrganizationType.company,
-              child: Text('Công ty'),
+              child: VText('Công ty'),
             ),
             DropdownMenuItem(
               value: OrganizationType.businessHousehold,
-              child: Text('Hộ kinh doanh'),
+              child: VText('Hộ kinh doanh'),
             ),
             DropdownMenuItem(
               value: OrganizationType.other,
-              child: Text('Khác'),
+              child: VText('Khác'),
             ),
           ],
           onChanged: (value) {
             if (value != null) onOrganizationTypeChanged(value);
           },
         ),
-        const SizedBox(height: 10),
+        const VGap.sm(),
         PartnerTransformLabeledTextField(
           key: const Key('transform_organization_name'),
           labelKey: const Key('transform_organization_name_label'),
@@ -88,21 +87,21 @@ class PartnerTransformOrganizationForm extends StatelessWidget {
           errorText: errors['organizationName'],
           onChanged: onOrganizationNameChanged,
         ),
-        const SizedBox(height: 10),
+        const VGap.sm(),
         PartnerTransformLabeledTextField(
           key: const Key('transform_short_name'),
           label: 'Tên viết tắt',
           initialValue: shortName,
           onChanged: onShortNameChanged,
         ),
-        const SizedBox(height: 10),
+        const VGap.sm(),
         PartnerTransformLabeledTextField(
           key: const Key('transform_international_name'),
           label: 'Tên quốc tế',
           initialValue: internationalName,
           onChanged: onInternationalNameChanged,
         ),
-        const SizedBox(height: 10),
+        const VGap.sm(),
         PartnerTransformLabeledTextField(
           key: const Key('transform_phone'),
           label: 'SĐT tổ chức',
@@ -114,7 +113,7 @@ class PartnerTransformOrganizationForm extends StatelessWidget {
           errorText: errors['phone'],
           onChanged: onPhoneChanged,
         ),
-        const SizedBox(height: 10),
+        const VGap.sm(),
         PartnerTransformLabeledTextField(
           key: const Key('transform_email'),
           label: 'Email tổ chức',
@@ -124,7 +123,7 @@ class PartnerTransformOrganizationForm extends StatelessWidget {
           errorText: errors['email'],
           onChanged: onEmailChanged,
         ),
-        const SizedBox(height: 10),
+        const VGap.sm(),
         PartnerTransformLabeledTextField(
           key: const Key('transform_tax_code'),
           label: 'MST',

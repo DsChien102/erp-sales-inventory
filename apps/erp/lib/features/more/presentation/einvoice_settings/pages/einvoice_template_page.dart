@@ -114,7 +114,6 @@ class _EInvoiceTemplatePageState extends State<EInvoiceTemplatePage> {
           }
 
           return VPageScaffold(
-            backgroundColor: colors.background,
             title: 'Chọn mẫu hóa đơn',
             showBackButton: !state.isSubmitting,
             body: Column(

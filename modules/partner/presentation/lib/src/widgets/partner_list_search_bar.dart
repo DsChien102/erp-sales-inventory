@@ -117,7 +117,11 @@ class _FilterButton extends StatelessWidget {
 
     return Badge(
       isLabelVisible: isActive,
-      label: Text('$activeFilterCount'),
+      label: VText(
+        '$activeFilterCount',
+        variant: VTextVariant.bodySmall,
+        color: colors.surface,
+      ),
       backgroundColor: colors.primary,
       offset: const Offset(4, -4),
       child: VIconBox(

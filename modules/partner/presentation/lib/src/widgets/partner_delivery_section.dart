@@ -28,7 +28,7 @@ class _PartnerDeliverySectionState extends State<PartnerDeliverySection> {
       future: _unitsFuture,
       builder: (context, snapshot) {
         if (snapshot.hasError) {
-          return Text(
+          return VText(
             'Không thể tải danh mục địa giới hành chính.',
             style: Theme.of(context).textTheme.bodySmall,
           );
@@ -54,8 +54,8 @@ class _PartnerDeliverySectionState extends State<PartnerDeliverySection> {
                 key: const Key('input_delivery_province'),
                 value: state.deliveryProvince.isEmpty ? null : state.deliveryProvince,
                 hintText: 'Chọn tỉnh / thành phố',
-                stickyActionsReserve: PartnerCompactField.stickyActionsReserve,
-                menuHeight: PartnerCompactField.menuHeight,
+                stickyActionsReserve: 72,
+                menuHeight: VOverlayMenuLayout.defaultMenuHeight,
                 items: units
                     .map(
                       (province) => DropdownMenuEntry<String>(
@@ -122,12 +122,10 @@ class _DeliveryDetailAddressField extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text(
+          VText(
             'Địa chỉ chi tiết',
-            style: VTypography.bodySmall.copyWith(
-              color: context.vColors.textSecondary,
-              fontSize: 14,
-            ),
+            variant: VTextVariant.bodySmall,
+            color: context.vColors.textSecondary,
           ),
           const SizedBox(height: VSpacing.space2),
           PartnerCompactMultilineTextField(
@@ -157,11 +155,12 @@ class _DeliverySectionLoading extends StatelessWidget {
             labelFieldGap: 12,
             label: index == 0 ? 'Tỉnh / Thành phố' : 'Xã / Phường',
             field: SizedBox(
-              height: PartnerCompactField.controlHeight,
+              height: VCompactSearchableDropdown.controlHeight,
               child: DecoratedBox(
-                decoration: PartnerCompactField.decoration(
-                  context,
-                  enabled: false,
+                decoration: BoxDecoration(
+                  color: context.vColors.surfaceAlt,
+                  borderRadius: BorderRadius.circular(VRadius.input),
+                  border: Border.all(color: context.vColors.borderDefault),
                 ),
               ),
             ),
@@ -176,20 +175,19 @@ class _DeliverySectionLoading extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Text(
+              VText(
                 'Địa chỉ chi tiết',
-                style: VTypography.bodySmall.copyWith(
-                  color: context.vColors.textSecondary,
-                  fontSize: 14,
-                ),
+                variant: VTextVariant.bodySmall,
+                color: context.vColors.textSecondary,
               ),
               const SizedBox(height: VSpacing.space2),
               SizedBox(
-                height: 72,
+                height: VSpacing.space18,
                 child: DecoratedBox(
-                  decoration: PartnerCompactField.decoration(
-                    context,
-                    enabled: false,
+                  decoration: BoxDecoration(
+                    color: context.vColors.surfaceAlt,
+                    borderRadius: BorderRadius.circular(VRadius.input),
+                    border: Border.all(color: context.vColors.borderDefault),
                   ),
                 ),
               ),

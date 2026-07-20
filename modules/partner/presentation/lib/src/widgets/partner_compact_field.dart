@@ -2,110 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:vet45_design_system/design_system.dart';
 
-/// Partner form compact field tokens — delegates overlay/menu mechanics to
-/// [VOverlayMenuLayout] / [VRouteOverlayGuard].
-abstract final class PartnerCompactField {
-  static const double controlHeight = VCompactSearchableDropdown.controlHeight;
-  static const double menuHeight = VOverlayMenuLayout.defaultMenuHeight;
-  static const double minMenuHeight = VOverlayMenuLayout.minMenuHeight;
-  static const double stickyActionsReserve = 72;
-
-  static const Offset menuAlignmentOffset = VOverlayMenuLayout.alignmentOffset;
-  static const AlignmentGeometry menuAlignment = VOverlayMenuLayout.alignment;
-  static const EdgeInsets contentPadding = VCompactSearchableDropdown.contentPadding;
-  static const double trailingIconWidth = VCompactSearchableDropdown.trailingIconWidth;
-  static const BoxConstraints trailingIconConstraints =
-      VCompactSearchableDropdown.trailingIconConstraints;
-
-  static bool isRouteLayoutReady(BuildContext context) =>
-      VRouteOverlayGuard.isLayoutReady(context);
-
-  static double availableMenuSpace(BuildContext context) =>
-      VOverlayMenuLayout.availableSpace(
-        context,
-        stickyActionsReserve: stickyActionsReserve,
-      );
-
-  static double resolvedMenuHeight(BuildContext context) =>
-      VOverlayMenuLayout.resolvedMenuHeight(
-        context,
-        preferredHeight: menuHeight,
-        minHeight: minMenuHeight,
-        stickyActionsReserve: stickyActionsReserve,
-      );
-
-  static Future<void> ensureMenuOpensDownward(BuildContext context) =>
-      VOverlayMenuLayout.ensureOpensDownward(
-        context,
-        stickyActionsReserve: stickyActionsReserve,
-      );
-
-  static TextStyle valueStyle(BuildContext context) {
-    return VTypography.bodySmall.copyWith(
-      color: context.vColors.textPrimary,
-      fontSize: 14,
-      height: 1.2,
-    );
-  }
-
-  static TextStyle hintStyle(BuildContext context) {
-    return VTypography.bodySmall.copyWith(
-      color: context.vColors.textMuted,
-      fontSize: 14,
-      height: 1.2,
-    );
-  }
-
-  static BoxDecoration decoration(
-    BuildContext context, {
-    required bool enabled,
-  }) {
-    final colors = context.vColors;
-    return BoxDecoration(
-      color: enabled ? colors.surface : colors.surfaceAlt,
-      borderRadius: BorderRadius.circular(VRadius.input),
-      border: Border.all(
-        color: enabled ? colors.borderStrong : colors.borderDefault,
-      ),
-    );
-  }
-
-  static InputDecoration inputDecoration(
-    BuildContext context, {
-    String? hintText,
-    bool enabled = true,
-  }) {
-    final colors = context.vColors;
-    final borderRadius = BorderRadius.circular(VRadius.input);
-
-    OutlineInputBorder border(Color color) {
-      return OutlineInputBorder(
-        borderRadius: borderRadius,
-        borderSide: BorderSide(color: color),
-      );
-    }
-
-    final defaultBorder = border(
-      enabled ? colors.borderStrong : colors.borderDefault,
-    );
-
-    return InputDecoration(
-      isDense: true,
-      hintText: hintText,
-      hintStyle: hintStyle(context),
-      filled: true,
-      fillColor: enabled ? colors.surface : colors.surfaceAlt,
-      contentPadding: contentPadding,
-      border: defaultBorder,
-      enabledBorder: defaultBorder,
-      disabledBorder: defaultBorder,
-      focusedBorder: border(colors.primary),
-      errorBorder: defaultBorder,
-      focusedErrorBorder: border(colors.primary),
-    );
-  }
-}
-
+/// Dense single-line field for [PartnerFormFieldRow] — wraps [VTextField]
+/// with [VCompactSearchableDropdown] control metrics.
 class PartnerCompactTextField extends StatefulWidget {
   const PartnerCompactTextField({
     super.key,
@@ -155,26 +53,30 @@ class _PartnerCompactTextFieldState extends State<PartnerCompactTextField> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.vColors;
     return SizedBox(
-      height: PartnerCompactField.controlHeight,
+      height: VCompactSearchableDropdown.controlHeight,
       width: double.infinity,
-      child: TextField(
+      child: VTextField(
         controller: _controller,
+        hintText: widget.hintText,
         keyboardType: widget.keyboardType,
-        inputFormatters: widget.digitsOnly ? [FilteringTextInputFormatter.digitsOnly] : null,
+        inputFormatters: widget.digitsOnly
+            ? [FilteringTextInputFormatter.digitsOnly]
+            : null,
         onChanged: widget.onChanged,
-        onTapOutside: (_) => FocusManager.instance.primaryFocus?.unfocus(),
-        style: PartnerCompactField.valueStyle(context),
-        textAlignVertical: TextAlignVertical.center,
-        decoration: PartnerCompactField.inputDecoration(
-          context,
-          hintText: widget.hintText,
+        isDense: true,
+        contentPadding: VCompactSearchableDropdown.contentPadding,
+        textStyle: VTypography.bodyDefault.copyWith(
+          color: colors.textPrimary,
+          height: 1.2,
         ),
       ),
     );
   }
 }
 
+/// Dense multiline field — wraps [VTextField].
 class PartnerCompactMultilineTextField extends StatefulWidget {
   const PartnerCompactMultilineTextField({
     super.key,
@@ -194,10 +96,12 @@ class PartnerCompactMultilineTextField extends StatefulWidget {
   final ValueChanged<String>? onChanged;
 
   @override
-  State<PartnerCompactMultilineTextField> createState() => _PartnerCompactMultilineTextFieldState();
+  State<PartnerCompactMultilineTextField> createState() =>
+      _PartnerCompactMultilineTextFieldState();
 }
 
-class _PartnerCompactMultilineTextFieldState extends State<PartnerCompactMultilineTextField> {
+class _PartnerCompactMultilineTextFieldState
+    extends State<PartnerCompactMultilineTextField> {
   late final TextEditingController _controller;
 
   @override
@@ -226,32 +130,32 @@ class _PartnerCompactMultilineTextFieldState extends State<PartnerCompactMultili
 
   @override
   Widget build(BuildContext context) {
-    return TextField(
+    final colors = context.vColors;
+    final formatters = <TextInputFormatter>[
+      if (widget.maxLength != null)
+        LengthLimitingTextInputFormatter(widget.maxLength),
+    ];
+
+    return VTextField(
       controller: _controller,
+      hintText: widget.hintText,
       minLines: widget.minLines,
       maxLines: widget.maxLines,
-      maxLength: widget.maxLength,
+      inputFormatters: formatters.isEmpty ? null : formatters,
       onChanged: widget.onChanged,
-      onTapOutside: (_) => FocusManager.instance.primaryFocus?.unfocus(),
-      style: PartnerCompactField.valueStyle(context),
-      textAlignVertical: TextAlignVertical.top,
-      buildCounter: widget.maxLength == null
-          ? null
-          : (
-              _, {
-              required currentLength,
-              required isFocused,
-              required maxLength,
-            }) => null,
-      decoration:
-          PartnerCompactField.inputDecoration(
-            context,
-            hintText: widget.hintText,
-          ).copyWith(
-            contentPadding: widget.maxLength == null
-                ? null
-                : const EdgeInsets.fromLTRB(12, 11, 12, 32),
-          ),
+      isDense: true,
+      contentPadding: widget.maxLength == null
+          ? VCompactSearchableDropdown.contentPadding
+          : const EdgeInsets.fromLTRB(
+              VSpacing.space3,
+              VSpacing.space3 - 1,
+              VSpacing.space3,
+              VSpacing.space8,
+            ),
+      textStyle: VTypography.bodyDefault.copyWith(
+        color: colors.textPrimary,
+        height: 1.2,
+      ),
     );
   }
 }
@@ -285,16 +189,20 @@ class PartnerCompactDropdown<T> extends StatelessWidget {
     }
 
     MediaQuery.viewInsetsOf(context);
-    final menuHeight = PartnerCompactField.resolvedMenuHeight(context);
+    final menuHeight = VOverlayMenuLayout.resolvedMenuHeight(
+      context,
+      preferredHeight: VOverlayMenuLayout.defaultMenuHeight,
+      stickyActionsReserve: 72,
+    );
 
     return LayoutBuilder(
       builder: (context, constraints) {
         return MenuAnchor(
-          alignmentOffset: PartnerCompactField.menuAlignmentOffset,
+          alignmentOffset: VOverlayMenuLayout.alignmentOffset,
           crossAxisUnconstrained: false,
           style: MenuStyle(
-            alignment: PartnerCompactField.menuAlignment,
-            padding: WidgetStatePropertyAll(EdgeInsets.zero),
+            alignment: VOverlayMenuLayout.alignment,
+            padding: const WidgetStatePropertyAll(EdgeInsets.zero),
             minimumSize: WidgetStatePropertyAll(Size(constraints.maxWidth, 0)),
             maximumSize: WidgetStatePropertyAll(
               Size(constraints.maxWidth, menuHeight),
@@ -314,11 +222,15 @@ class PartnerCompactDropdown<T> extends StatelessWidget {
                 (item) => MenuItemButton(
                   style: MenuItemButton.styleFrom(
                     minimumSize: Size(constraints.maxWidth, 40),
-                    padding: PartnerCompactField.contentPadding,
+                    padding: VCompactSearchableDropdown.contentPadding,
                   ),
                   onPressed: enabled ? () => onChanged?.call(item.value) : null,
                   child: DefaultTextStyle(
-                    style: PartnerCompactField.valueStyle(context),
+                    style: VTypography.bodySmall.copyWith(
+                      color: colors.textPrimary,
+                      fontSize: 14,
+                      height: 1.2,
+                    ),
                     child: item.child,
                   ),
                 ),
@@ -326,7 +238,7 @@ class PartnerCompactDropdown<T> extends StatelessWidget {
               .toList(),
           builder: (context, controller, child) {
             return SizedBox(
-              height: PartnerCompactField.controlHeight,
+              height: VCompactSearchableDropdown.controlHeight,
               width: double.infinity,
               child: Material(
                 color: Colors.transparent,
@@ -338,32 +250,44 @@ class PartnerCompactDropdown<T> extends StatelessWidget {
                             controller.close();
                             return;
                           }
-                          await PartnerCompactField.ensureMenuOpensDownward(
+                          await VOverlayMenuLayout.ensureOpensDownward(
                             context,
+                            stickyActionsReserve: 72,
                           );
                           if (!context.mounted) return;
                           controller.open();
                         },
                   borderRadius: BorderRadius.circular(VRadius.input),
                   child: DecoratedBox(
-                    decoration: PartnerCompactField.decoration(
-                      context,
-                      enabled: enabled,
+                    decoration: BoxDecoration(
+                      color: enabled ? colors.surface : colors.surfaceAlt,
+                      borderRadius: BorderRadius.circular(VRadius.input),
+                      border: Border.all(
+                        color: enabled ? colors.borderStrong : colors.borderDefault,
+                      ),
                     ),
                     child: Padding(
-                      padding: PartnerCompactField.contentPadding,
+                      padding: VCompactSearchableDropdown.contentPadding,
                       child: Row(
                         children: [
                           Expanded(
                             child: DefaultTextStyle(
                               style: selectedItem != null
-                                  ? PartnerCompactField.valueStyle(context)
-                                  : PartnerCompactField.hintStyle(context),
+                                  ? VTypography.bodySmall.copyWith(
+                                      color: colors.textPrimary,
+                                      fontSize: 14,
+                                      height: 1.2,
+                                    )
+                                  : VTypography.bodySmall.copyWith(
+                                      color: colors.textMuted,
+                                      fontSize: 14,
+                                      height: 1.2,
+                                    ),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                               child: selectedItem != null
                                   ? selectedItem.child
-                                  : Text(hintText ?? 'Chọn...'),
+                                  : VText(hintText ?? 'Chọn...'),
                             ),
                           ),
                           VIcon(

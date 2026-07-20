@@ -2,90 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:vet45_design_system/design_system.dart';
 
-abstract final class PartnerOutlinedField {
-  static const double controlHeight = 48;
-  static const double fieldGap = VSpacing.space2;
-
-  static const EdgeInsets contentPadding = EdgeInsets.symmetric(
-    horizontal: 12,
-    vertical: 12,
-  );
-
-  static Widget buildLabel(
-    BuildContext context,
-    String label, {
-    bool isRequired = false,
-  }) {
-    return RichText(
-      text: TextSpan(
-        style: VTypography.bodySmall.copyWith(
-          color: context.vColors.textPrimary,
-          fontSize: 14,
-        ),
-        children: [
-          TextSpan(text: label),
-          if (isRequired)
-            const TextSpan(
-              text: ' *',
-              style: TextStyle(color: VColors.danger),
-            ),
-        ],
-      ),
-    );
-  }
-
-  static InputDecoration decoration(
-    BuildContext context, {
-    required Widget label,
-    String? errorText,
-    bool enabled = true,
-    bool multiline = false,
-  }) {
-    final colors = context.vColors;
-    final borderRadius = BorderRadius.circular(VRadius.input);
-
-    OutlineInputBorder border(Color color, {double width = 1}) {
-      return OutlineInputBorder(
-        borderRadius: borderRadius,
-        borderSide: BorderSide(color: color, width: width),
-      );
-    }
-
-    final defaultBorder = border(
-      enabled ? colors.borderDefault : colors.borderDefault,
-    );
-
-    return InputDecoration(
-      label: label,
-      alignLabelWithHint: multiline,
-      floatingLabelBehavior: FloatingLabelBehavior.always,
-      floatingLabelStyle: VTypography.bodySmall.copyWith(
-        color: colors.textSecondary,
-        fontSize: 14,
-        backgroundColor: colors.surface,
-      ),
-      isDense: true,
-      filled: true,
-      fillColor: enabled ? colors.surface : colors.surfaceAlt,
-      contentPadding: multiline ? const EdgeInsets.fromLTRB(12, 16, 12, 12) : contentPadding,
-      border: defaultBorder,
-      enabledBorder: defaultBorder,
-      disabledBorder: defaultBorder,
-      focusedBorder: border(colors.primary, width: 1.5),
-      errorBorder: border(VColors.danger),
-      focusedErrorBorder: border(VColors.danger, width: 1.5),
-      errorText: errorText,
-      errorStyle: VTypography.bodySmall.copyWith(color: VColors.danger),
-      constraints: multiline
-          ? const BoxConstraints(minHeight: 96)
-          : BoxConstraints(
-              minHeight: controlHeight,
-              maxHeight: errorText == null ? controlHeight : double.infinity,
-            ),
-    );
-  }
-}
-
+/// Floating-label text field for partner create/edit — wraps [VTextField].
 class PartnerOutlinedTextField extends StatefulWidget {
   const PartnerOutlinedTextField({
     super.key,
@@ -141,37 +58,22 @@ class _PartnerOutlinedTextFieldState extends State<PartnerOutlinedTextField> {
 
   @override
   Widget build(BuildContext context) {
-    return TextField(
+    return VTextField(
       controller: _controller,
+      label: widget.label,
+      isRequired: widget.isRequired,
+      errorText: widget.errorText,
+      hintText: widget.hintText,
       keyboardType: widget.keyboardType,
-      inputFormatters: widget.digitsOnly ? [FilteringTextInputFormatter.digitsOnly] : null,
+      inputFormatters: widget.digitsOnly
+          ? [FilteringTextInputFormatter.digitsOnly]
+          : null,
       onChanged: widget.onChanged,
-      onTapOutside: (_) => FocusManager.instance.primaryFocus?.unfocus(),
-      style: VTypography.bodyDefault.copyWith(
-        color: context.vColors.textPrimary,
-        fontSize: 14,
-      ),
-      textAlignVertical: TextAlignVertical.center,
-      decoration:
-          PartnerOutlinedField.decoration(
-            context,
-            label: PartnerOutlinedField.buildLabel(
-              context,
-              widget.label,
-              isRequired: widget.isRequired,
-            ),
-            errorText: widget.errorText,
-          ).copyWith(
-            hintText: widget.hintText,
-            hintStyle: VTypography.bodyDefault.copyWith(
-              color: context.vColors.textMuted,
-              fontSize: 14,
-            ),
-          ),
     );
   }
 }
 
+/// Multiline outlined field — wraps [VTextField].
 class PartnerOutlinedMultilineTextField extends StatefulWidget {
   const PartnerOutlinedMultilineTextField({
     super.key,
@@ -199,7 +101,8 @@ class PartnerOutlinedMultilineTextField extends StatefulWidget {
       _PartnerOutlinedMultilineTextFieldState();
 }
 
-class _PartnerOutlinedMultilineTextFieldState extends State<PartnerOutlinedMultilineTextField> {
+class _PartnerOutlinedMultilineTextFieldState
+    extends State<PartnerOutlinedMultilineTextField> {
   late final TextEditingController _controller;
 
   @override
@@ -228,38 +131,20 @@ class _PartnerOutlinedMultilineTextFieldState extends State<PartnerOutlinedMulti
 
   @override
   Widget build(BuildContext context) {
-    return TextField(
+    return VTextField(
       controller: _controller,
+      label: widget.label,
+      isRequired: widget.isRequired,
+      errorText: widget.errorText,
+      hintText: widget.hintText,
       minLines: widget.minLines,
       maxLines: widget.maxLines,
       onChanged: widget.onChanged,
-      onTapOutside: (_) => FocusManager.instance.primaryFocus?.unfocus(),
-      style: VTypography.bodyDefault.copyWith(
-        color: context.vColors.textPrimary,
-        fontSize: 14,
-      ),
-      textAlignVertical: TextAlignVertical.top,
-      decoration:
-          PartnerOutlinedField.decoration(
-            context,
-            label: PartnerOutlinedField.buildLabel(
-              context,
-              widget.label,
-              isRequired: widget.isRequired,
-            ),
-            errorText: widget.errorText,
-            multiline: true,
-          ).copyWith(
-            hintText: widget.hintText,
-            hintStyle: VTypography.bodyDefault.copyWith(
-              color: context.vColors.textMuted,
-              fontSize: 14,
-            ),
-          ),
     );
   }
 }
 
+/// Outlined select — wraps [VSelect].
 class PartnerOutlinedDropdown<T> extends StatelessWidget {
   const PartnerOutlinedDropdown({
     super.key,
@@ -284,73 +169,15 @@ class PartnerOutlinedDropdown<T> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.vColors;
-    final selectedItem = value == null
-        ? null
-        : items.cast<DropdownMenuItem<T>?>().firstWhere(
-            (item) => item?.value == value,
-            orElse: () => null,
-          );
-
-    return LayoutBuilder(
-      builder: (context, constraints) => PopupMenuButton<T>(
-        enabled: enabled && onChanged != null,
-        position: PopupMenuPosition.under,
-        constraints: BoxConstraints.tightFor(width: constraints.maxWidth),
-        tooltip: '',
-        color: colors.surface,
-        surfaceTintColor: Colors.transparent,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(VRadius.input),
-          side: BorderSide(color: colors.borderDefault),
-        ),
-        onSelected: (selected) => onChanged?.call(selected),
-        itemBuilder: (_) => items
-            .map(
-              (item) => PopupMenuItem<T>(
-                value: item.value,
-                child: DefaultTextStyle(
-                  style: VTypography.bodyDefault.copyWith(
-                    color: colors.textPrimary,
-                    fontSize: 14,
-                  ),
-                  child: item.child,
-                ),
-              ),
-            )
-            .toList(),
-        child: InputDecorator(
-          isEmpty: selectedItem == null,
-          decoration: PartnerOutlinedField.decoration(
-            context,
-            label: PartnerOutlinedField.buildLabel(
-              context,
-              label,
-              isRequired: isRequired,
-            ),
-            errorText: errorText,
-            enabled: enabled,
-          ),
-          child: Row(
-            children: [
-              Expanded(
-                child: DefaultTextStyle(
-                  style: VTypography.bodyDefault.copyWith(
-                    color: selectedItem == null ? colors.textMuted : colors.textPrimary,
-                    fontSize: 14,
-                  ),
-                  child: selectedItem?.child ?? Text(hintText ?? 'Chọn...'),
-                ),
-              ),
-              VIcon(
-                icon: VIcons.chevronDown,
-                size: 20,
-                color: enabled ? colors.textSecondary : colors.textMuted,
-              ),
-            ],
-          ),
-        ),
-      ),
+    return VSelect<T>(
+      label: label,
+      value: value,
+      items: items,
+      onChanged: onChanged,
+      isRequired: isRequired,
+      errorText: errorText,
+      hintText: hintText,
+      enabled: enabled,
     );
   }
 }

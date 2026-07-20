@@ -44,7 +44,6 @@ class _EInvoiceSettingsView extends StatelessWidget {
         }
 
         return VPageScaffold(
-          backgroundColor: colors.background,
           title: 'Thiết lập hóa đơn điện tử',
           body: ListView(
             padding: const EdgeInsets.symmetric(

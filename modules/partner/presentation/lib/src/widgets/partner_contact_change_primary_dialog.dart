@@ -1,6 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:vet45_design_system/design_system.dart';
 
+Future<bool?> showPartnerContactChangePrimaryDialog(
+  BuildContext context, {
+  required String currentPrimaryName,
+  required String newPrimaryName,
+}) {
+  return showVBottomSheet<bool>(
+    context: context,
+    child: PartnerContactChangePrimaryDialog(
+      currentPrimaryName: currentPrimaryName,
+      newPrimaryName: newPrimaryName,
+    ),
+  );
+}
+
 class PartnerContactChangePrimaryDialog extends StatelessWidget {
   const PartnerContactChangePrimaryDialog({
     super.key,
@@ -10,31 +24,6 @@ class PartnerContactChangePrimaryDialog extends StatelessWidget {
 
   final String currentPrimaryName;
   final String newPrimaryName;
-
-  Color _getAvatarColor(String displayName) {
-    final palette = [
-      VColors.success,
-      VColors.warning,
-      VColors.info,
-      VColors.primary,
-      const Color(0xFF9C27B0),
-      const Color(0xFF00BCD4),
-    ];
-    int sum = 0;
-    for (int i = 0; i < displayName.length; i++) {
-      sum += displayName.codeUnitAt(i);
-    }
-    return palette[sum % palette.length];
-  }
-
-  String _getInitials(String displayName) {
-    final words = displayName.trim().split(RegExp(r'\s+'));
-    if (words.isEmpty) return '?';
-    if (words.length == 1) {
-      return words[0].substring(0, 1).toUpperCase();
-    }
-    return '${words[0].substring(0, 1)}${words.last.substring(0, 1)}'.toUpperCase();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -56,38 +45,24 @@ class PartnerContactChangePrimaryDialog extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Text(
+                VText(
                   'Đổi người liên hệ chính?',
                   textAlign: TextAlign.center,
-                  style: VTypography.headingH3.copyWith(
-                    color: colors.textPrimary,
-                    fontWeight: FontWeight.w700,
-                  ),
+                  variant: VTextVariant.headingH3,
+                  color: colors.textPrimary,
+                  style: const TextStyle(fontWeight: FontWeight.w700),
                 ),
                 const SizedBox(height: VSpacing.space3),
-                Text(
+                VText(
                   '$currentPrimaryName hiện đang là người liên hệ chính. Nếu tiếp tục, $newPrimaryName sẽ trở thành người liên hệ chính mới.',
                   textAlign: TextAlign.center,
-                  style: VTypography.bodyDefault.copyWith(
-                    color: colors.textSecondary,
-                  ),
+                  color: colors.textSecondary,
                 ),
                 const SizedBox(height: VSpacing.space4),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    CircleAvatar(
-                      radius: 24,
-                      backgroundColor: _getAvatarColor(currentPrimaryName),
-                      child: Text(
-                        _getInitials(currentPrimaryName),
-                        style: VTypography.bodyDefault.copyWith(
-                          fontWeight: FontWeight.w700,
-                          color: Colors.white,
-                          fontSize: 16,
-                        ),
-                      ),
-                    ),
+                    VAvatar(name: currentPrimaryName, size: 48, textSize: 16),
                     const SizedBox(width: VSpacing.space4),
                     VIcon(
                       icon: VIcons.arrowForward,
@@ -95,18 +70,7 @@ class PartnerContactChangePrimaryDialog extends StatelessWidget {
                       size: 24,
                     ),
                     const SizedBox(width: VSpacing.space4),
-                    CircleAvatar(
-                      radius: 24,
-                      backgroundColor: _getAvatarColor(newPrimaryName),
-                      child: Text(
-                        _getInitials(newPrimaryName),
-                        style: VTypography.bodyDefault.copyWith(
-                          fontWeight: FontWeight.w700,
-                          color: Colors.white,
-                          fontSize: 16,
-                        ),
-                      ),
-                    ),
+                    VAvatar(name: newPrimaryName, size: 48, textSize: 16),
                   ],
                 ),
                 const SizedBox(height: VSpacing.space5),

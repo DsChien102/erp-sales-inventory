@@ -83,11 +83,9 @@ class _PartnerDetailPageState extends State<PartnerDetailPage> {
     BuildContext pageContext,
     PartnerDetailDto dto,
   ) async {
-    final action = await showModalBottomSheet<PartnerDetailAction>(
-      context: pageContext,
-      backgroundColor: Colors.transparent,
-      isScrollControlled: true,
-      builder: (sheetContext) => PartnerDetailActionSheet(dto: dto),
+    final action = await showPartnerDetailActionSheet(
+      pageContext,
+      dto: dto,
     );
     if (action == null || !pageContext.mounted) return;
     await _handleAction(pageContext, dto, action);
@@ -187,13 +185,9 @@ class _PartnerDetailPageState extends State<PartnerDetailPage> {
       return;
     }
 
-    final action = await showModalBottomSheet<PartnerTransformPrimaryContactBlockedAction>(
-      context: context,
-      backgroundColor: Colors.transparent,
-      isScrollControlled: true,
-      builder: (_) => PartnerTransformPrimaryContactBlockedSheet(
-        organizationName: dto.primaryContactOrganizationName ?? 'một tổ chức',
-      ),
+    final action = await showPartnerTransformPrimaryContactBlockedSheet(
+      context,
+      organizationName: dto.primaryContactOrganizationName ?? 'một tổ chức',
     );
     if (!context.mounted ||
         action != PartnerTransformPrimaryContactBlockedAction.viewOrganization) {
@@ -209,13 +203,9 @@ class _PartnerDetailPageState extends State<PartnerDetailPage> {
     final organizationId = dto.primaryContactOrganizationId;
     if (organizationId == null) return false;
 
-    final action = await showModalBottomSheet<PartnerDeletePrimaryContactBlockedAction>(
-      context: context,
-      backgroundColor: Colors.transparent,
-      isScrollControlled: true,
-      builder: (_) => PartnerDeletePrimaryContactBlockedSheet(
-        organizationName: dto.primaryContactOrganizationName ?? 'một tổ chức',
-      ),
+    final action = await showPartnerDeletePrimaryContactBlockedSheet(
+      context,
+      organizationName: dto.primaryContactOrganizationName ?? 'một tổ chức',
     );
     if (context.mounted && action == PartnerDeletePrimaryContactBlockedAction.viewOrganization) {
       await context.push('/partner/$organizationId');
@@ -270,13 +260,9 @@ class _PartnerDetailPageState extends State<PartnerDetailPage> {
       child: BlocListener<PartnerStatusCubit, PartnerStatusSubmitState>(
         listenWhen: (previous, current) => previous.status != current.status,
         listener: _onStatusSubmitChanged,
-        child: Scaffold(
+        child: VPageScaffold(
           key: const Key('wgt_e01_u04_fr01_01'),
-          backgroundColor: colors.background,
-          appBar: const VAppBar(
-            title: 'Hồ sơ KH & NCC',
-            showBackButton: true,
-          ),
+          title: 'Hồ sơ KH & NCC',
           body: BlocBuilder<PartnerDetailCubit, PartnerDetailState>(
             builder: (context, state) {
               if (state is PartnerDetailLoading || state is PartnerDetailInitial) {
@@ -350,25 +336,25 @@ class _PartnerDetailPageState extends State<PartnerDetailPage> {
                             crossAxisAlignment: CrossAxisAlignment.stretch,
                             children: [
                               PartnerDetailHeader(dto: dto),
-                              const SizedBox(height: VSpacing.space4),
+                              const VGap.md(),
 
                               if (dto.status == PartnerStatus.inactive) ...[
                                 const PartnerDetailInactiveBanner(),
-                                const SizedBox(height: VSpacing.space4),
+                                const VGap.md(),
                               ],
 
                               if (contactInfoText.isNotEmpty) ...[
                                 PartnerDetailContactQuickRow(text: contactInfoText),
-                                const SizedBox(height: VSpacing.space4),
+                                const VGap.md(),
                               ],
 
                               if (hasWarning && dto.status == PartnerStatus.active) ...[
                                 const PartnerDetailWarningBanner(),
-                                const SizedBox(height: VSpacing.space4),
+                                const VGap.md(),
                               ],
 
                               PartnerDetailMainInfoCard(dto: dto),
-                              const SizedBox(height: VSpacing.space2),
+                              const VGap.sm(),
 
                               if (!isPerson) ...[
                                 PartnerDetailContactsCard(
@@ -381,20 +367,20 @@ class _PartnerDetailPageState extends State<PartnerDetailPage> {
                                   ),
                                   onTapViewAll: () => _openContacts(dto.partnerId),
                                 ),
-                                const SizedBox(height: VSpacing.space2),
+                                const VGap.sm(),
                               ],
 
                               PartnerDetailInvoiceCard(dto: dto),
-                              const SizedBox(height: VSpacing.space2),
+                              const VGap.sm(),
 
                               PartnerDetailDeliveryCard(dto: dto),
-                              const SizedBox(height: VSpacing.space2),
+                              const VGap.sm(),
 
                               PartnerDetailNoteCard(dto: dto),
-                              const SizedBox(height: VSpacing.space2),
+                              const VGap.sm(),
 
                               const PartnerDetailHistoryCard(),
-                              const SizedBox(height: VSpacing.space2),
+                              const VGap.sm(),
 
                               PartnerDetailSystemCard(
                                 dto: dto,
@@ -446,7 +432,7 @@ class _PartnerDetailPageState extends State<PartnerDetailPage> {
                                     trailingIcon: const VIcon(
                                       icon: VIcons.expandLess,
                                       size: 20,
-                                      color: Colors.white,
+                                      color: VColors.neutral0,
                                     ),
                                     onPressed: () => _showActionSheet(context, dto),
                                 ),

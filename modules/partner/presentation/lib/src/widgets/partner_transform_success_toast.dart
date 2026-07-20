@@ -53,14 +53,13 @@ class _PartnerTransformSuccessToast extends StatelessWidget {
               size: 14,
             ),
           ),
-          const SizedBox(width: 12),
+          const SizedBox(width: VSpacing.space3),
           Expanded(
-            child: Text(
+            child: VText(
               'Đã chuyển đổi thành công.',
-              style: VTypography.bodyDefault.copyWith(
-                color: VColors.neutral0,
-                fontWeight: FontWeight.w600,
-              ),
+              variant: VTextVariant.bodyDefault,
+              color: VColors.neutral0,
+              style: const TextStyle(fontWeight: FontWeight.w600),
             ),
           ),
           GestureDetector(

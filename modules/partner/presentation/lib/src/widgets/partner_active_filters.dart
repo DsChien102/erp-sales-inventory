@@ -71,12 +71,11 @@ class PartnerActiveFilters extends StatelessWidget {
             onTap: onClearAll,
             child: Padding(
               padding: const EdgeInsets.only(left: 8, top: 4, bottom: 4),
-              child: Text(
+              child: VText(
                 'Xóa lọc',
-                style: VTypography.bodySmall.copyWith(
-                  color: context.vColors.primary,
-                  fontWeight: FontWeight.w500,
-                ),
+                variant: VTextVariant.bodySmall,
+                color: context.vColors.primary,
+                style: const TextStyle(fontWeight: FontWeight.w500),
               ),
             ),
           ),

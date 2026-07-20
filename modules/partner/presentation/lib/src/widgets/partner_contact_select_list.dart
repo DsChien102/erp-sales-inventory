@@ -94,31 +94,6 @@ class _PartnerContactSelectListState extends State<PartnerContactSelectList> {
     }
   }
 
-  Color _getAvatarColor(String displayName) {
-    final palette = [
-      VColors.success,
-      VColors.warning,
-      VColors.info,
-      VColors.primary,
-      const Color(0xFF9C27B0),
-      const Color(0xFF00BCD4),
-    ];
-    int sum = 0;
-    for (int i = 0; i < displayName.length; i++) {
-      sum += displayName.codeUnitAt(i);
-    }
-    return palette[sum % palette.length];
-  }
-
-  String _getInitials(String displayName) {
-    final words = displayName.trim().split(RegExp(r'\s+'));
-    if (words.isEmpty) return '?';
-    if (words.length == 1) {
-      return words[0].substring(0, 1).toUpperCase();
-    }
-    return '${words[0].substring(0, 1)}${words.last.substring(0, 1)}'.toUpperCase();
-  }
-
   @override
   Widget build(BuildContext context) {
     final colors = context.vColors;
@@ -202,9 +177,10 @@ class _PartnerContactSelectListState extends State<PartnerContactSelectList> {
       return Center(
         child: Padding(
           padding: const EdgeInsets.all(VSpacing.space4),
-          child: Text(
+          child: VText(
             'Lỗi: $_errorMessage',
-            style: VTypography.bodyDefault.copyWith(color: colors.danger),
+            variant: VTextVariant.bodyDefault,
+            color: colors.danger,
             textAlign: TextAlign.center,
           ),
         ),
@@ -213,9 +189,10 @@ class _PartnerContactSelectListState extends State<PartnerContactSelectList> {
 
     if (_items.isEmpty) {
       return Center(
-        child: Text(
+        child: VText(
           'Không tìm thấy cá nhân nào.',
-          style: VTypography.bodyDefault.copyWith(color: colors.textSecondary),
+          variant: VTextVariant.bodyDefault,
+          color: colors.textSecondary,
         ),
       );
     }
@@ -241,41 +218,32 @@ class _PartnerContactSelectListState extends State<PartnerContactSelectList> {
             padding: const EdgeInsets.symmetric(vertical: VSpacing.space3),
             child: Row(
               children: [
-                CircleAvatar(
-                  radius: 20,
-                  backgroundColor: _getAvatarColor(item.displayName),
-                  child: Text(
-                    _getInitials(item.displayName),
-                    style: VTypography.bodyDefault.copyWith(
-                      fontWeight: FontWeight.w600,
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
+                VAvatar(name: item.displayName, textSize: 14),
                 const SizedBox(width: VSpacing.space3),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
+                      VText(
                         item.displayName,
-                        style: VTypography.bodyDefault.copyWith(
-                          color: colors.textPrimary,
-                          fontWeight: FontWeight.w600,
-                        ),
+                        variant: VTextVariant.bodyDefault,
+                        color: colors.textPrimary,
+                        style: const TextStyle(fontWeight: FontWeight.w600),
                       ),
                       if (item.phone != null && item.phone!.isNotEmpty) ...[
-                        const SizedBox(height: 2),
-                        Text(
+                        const VGap.xs(),
+                        VText(
                           item.phone!,
-                          style: VTypography.bodySmall.copyWith(color: colors.textSecondary),
+                          variant: VTextVariant.bodySmall,
+                          color: colors.textSecondary,
                         ),
                       ],
                       if (item.email != null && item.email!.isNotEmpty) ...[
-                        const SizedBox(height: 2),
-                        Text(
+                        const VGap.xs(),
+                        VText(
                           item.email!,
-                          style: VTypography.bodySmall.copyWith(color: colors.textSecondary),
+                          variant: VTextVariant.bodySmall,
+                          color: colors.textSecondary,
                         ),
                       ],
                     ],
@@ -304,9 +272,9 @@ class _PartnerContactSelectListState extends State<PartnerContactSelectList> {
         ),
       ),
       child: isSelected
-          ? const Icon(
+          ? Icon(
               Icons.check,
-              color: Colors.white,
+              color: colors.surface,
               size: 14,
             )
           : null,

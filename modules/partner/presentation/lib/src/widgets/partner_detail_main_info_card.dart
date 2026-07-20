@@ -102,20 +102,19 @@ class _Field extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
+        VText(
           label,
           style: VTypography.bodySmall.copyWith(
             color: colors.textSecondary,
             fontSize: 11,
           ),
         ),
-        const SizedBox(height: 2),
-        Text(
+        const VGap.xs(),
+        VText(
           isEmpty ? PartnerDetailMainInfoCard._empty : value,
-          style: VTypography.bodyDefault.copyWith(
-            color: isEmpty ? colors.textMuted : colors.textPrimary,
-            fontWeight: isEmpty ? FontWeight.w400 : FontWeight.w500,
-          ),
+          variant: VTextVariant.bodyDefault,
+          color: isEmpty ? colors.textMuted : colors.textPrimary,
+          style: TextStyle(fontWeight: isEmpty ? FontWeight.w400 : FontWeight.w500),
         ),
       ],
     );

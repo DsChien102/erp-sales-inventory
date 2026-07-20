@@ -314,28 +314,23 @@ void main() {
       await tester.tap(find.byKey(const Key('btn_next')));
       await tester.pumpAndSettle();
 
-      final popup = tester.widget<PopupMenuButton<String>>(
+      expect(find.byKey(const Key('input_organization_type')), findsOneWidget);
+      expect(
         find.descendant(
           of: find.byKey(const Key('input_organization_type')),
-          matching: find.byType(PopupMenuButton<String>),
+          matching: find.byType(VSelect<String>),
         ),
-      );
-      expect(popup.position, PopupMenuPosition.under);
-      final shape = popup.shape! as RoundedRectangleBorder;
-      expect(shape.borderRadius, BorderRadius.circular(VRadius.input));
-      expect(
-        popup.constraints?.minWidth,
-        tester.getSize(find.byKey(const Key('input_organization_type'))).width,
+        findsOneWidget,
       );
 
       await tester.tap(find.byKey(const Key('input_organization_type')));
       await tester.pumpAndSettle();
 
-      expect(find.text('Công ty'), findsOneWidget);
+      expect(find.text('Công ty'), findsWidgets);
       expect(find.text('Hộ kinh doanh'), findsOneWidget);
       expect(find.text('Khác'), findsOneWidget);
 
-      await tester.tap(find.text('Công ty'));
+      await tester.tap(find.text('Công ty').last);
       await tester.pumpAndSettle();
 
       final context = tester.element(find.byType(PartnerCreateForm));

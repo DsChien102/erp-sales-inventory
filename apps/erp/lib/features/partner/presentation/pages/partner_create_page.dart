@@ -92,19 +92,14 @@ class _PartnerFormViewState extends State<_PartnerFormView> {
   @override
   Widget build(BuildContext context) {
     final state = context.watch<PartnerCreateCubit>().state;
-    final titleType = state.isLoading
-        ? widget.fallbackPartnerType
-        : state.partnerType;
+    final titleType = state.isLoading ? widget.fallbackPartnerType : state.partnerType;
     final title = widget.isEdit
-        ? (titleType == PartnerType.person
-              ? 'Chỉnh sửa cá nhân'
-              : 'Chỉnh sửa tổ chức')
+        ? (titleType == PartnerType.person ? 'Chỉnh sửa cá nhân' : 'Chỉnh sửa tổ chức')
         : (titleType == PartnerType.person ? 'Tạo cá nhân' : 'Tạo tổ chức');
 
     return BlocListener<PartnerCreateCubit, PartnerCreateState>(
       listenWhen: (previous, current) =>
-          previous.status != current.status &&
-          current.status == PartnerCreateStatus.success,
+          previous.status != current.status && current.status == PartnerCreateStatus.success,
       listener: (context, state) {
         final partnerId = state.createdPartnerId;
         if (partnerId == null) return;
@@ -120,20 +115,17 @@ class _PartnerFormViewState extends State<_PartnerFormView> {
           FocusManager.instance.primaryFocus?.unfocus();
           if (!didPop) _requestLeave();
         },
-        child: Scaffold(
+        child: VPageScaffold(
           key: Key(widget.isEdit ? 'wgt_e01_u03_fr01_01' : 'wgt_e01_u02_fr02_01'),
-          backgroundColor: context.vColors.background,
-          appBar: VAppBar(
-            title: title,
-            showBackButton: false,
-            leading: Padding(
-              padding: const EdgeInsets.all(VSpacing.space2),
-              child: VIconBox(
-                icon: VIcons.arrowBack,
-                size: 40,
-                backgroundColor: Colors.transparent,
-                onTap: _requestLeave,
-              ),
+          title: title,
+          showBackButton: false,
+          leading: Padding(
+            padding: const EdgeInsets.all(VSpacing.space2),
+            child: VIconBox(
+              icon: VIcons.arrowBack,
+              size: 40,
+              backgroundColor: Colors.transparent,
+              onTap: _requestLeave,
             ),
           ),
           body: PartnerCreateForm(

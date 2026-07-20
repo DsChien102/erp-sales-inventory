@@ -24,12 +24,10 @@ class PartnerNoteSection extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text(
+          VText(
             'Ghi chú nội bộ',
-            style: VTypography.bodySmall.copyWith(
-              color: context.vColors.textSecondary,
-              fontSize: 14,
-            ),
+            variant: VTextVariant.bodySmall,
+            color: context.vColors.textSecondary,
           ),
           const SizedBox(height: VSpacing.space2),
           Stack(
@@ -43,15 +41,13 @@ class PartnerNoteSection extends StatelessWidget {
                 onChanged: cubit.updateNote,
               ),
               Positioned(
-                right: 12,
-                bottom: 10,
+                right: VSpacing.space3,
+                bottom: VSpacing.space2 + 2,
                 child: IgnorePointer(
-                  child: Text(
+                  child: VText(
                     '${note.length}/$maxNoteLength',
-                    style: VTypography.bodySmall.copyWith(
-                      color: context.vColors.textMuted,
-                      fontSize: 12,
-                    ),
+                    variant: VTextVariant.caption,
+                    color: context.vColors.textMuted,
                   ),
                 ),
               ),

@@ -73,18 +73,16 @@ class _CreateTypeCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
+                VText(
                   title,
-                  style: VTypography.headingH4.copyWith(
-                    color: colors.textPrimary,
-                  ),
+                  variant: VTextVariant.headingH4,
+                  color: colors.textPrimary,
                 ),
                 const SizedBox(height: VSpacing.space1),
-                Text(
+                VText(
                   description,
-                  style: VTypography.bodySmall.copyWith(
-                    color: colors.textSecondary,
-                  ),
+                  variant: VTextVariant.bodySmall,
+                  color: colors.textSecondary,
                 ),
               ],
             ),

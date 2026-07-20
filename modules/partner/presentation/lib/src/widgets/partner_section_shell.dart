@@ -48,12 +48,11 @@ class PartnerSectionHeader extends StatelessWidget {
       child: Row(
         children: [
           Expanded(
-            child: Text(
+            child: VText(
               title,
-              style: VTypography.bodyDefault.copyWith(
-                color: colors.textPrimary,
-                fontWeight: FontWeight.w700,
-              ),
+              variant: VTextVariant.bodyDefault,
+              color: colors.textPrimary,
+              style: const TextStyle(fontWeight: FontWeight.w700),
             ),
           ),
           if (trailingText != null || trailingIcon != null)
@@ -61,13 +60,12 @@ class PartnerSectionHeader extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 if (trailingText != null)
-                  Text(
+                  VText(
                     trailingText!,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: VTypography.bodyDefault.copyWith(
-                      color: colors.textSecondary,
-                    ),
+                    variant: VTextVariant.bodyDefault,
+                    color: colors.textSecondary,
                   ),
                 if (trailingText != null && trailingIcon != null)
                   const SizedBox(width: VSpacing.space2),

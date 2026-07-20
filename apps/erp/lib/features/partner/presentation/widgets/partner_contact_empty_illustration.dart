@@ -63,7 +63,7 @@ class PartnerContactEmptyIllustration extends StatelessWidget {
             right: 15,
             bottom: 10,
             child: Container(
-              padding: const EdgeInsets.all(4),
+              padding: const EdgeInsets.all(VSpacing.space1),
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 color: colors.success,
@@ -71,7 +71,7 @@ class PartnerContactEmptyIllustration extends StatelessWidget {
               ),
               child: const VIcon(
                 icon: VIcons.add,
-                color: Colors.white,
+                color: VColors.neutral0,
                 size: 16,
               ),
             ),

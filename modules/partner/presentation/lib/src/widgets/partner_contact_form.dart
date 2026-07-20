@@ -23,7 +23,8 @@ class PartnerContactForm extends StatefulWidget {
     String? contactRole,
     bool isPrimary,
     String? note,
-  ) onSubmit;
+  )
+  onSubmit;
   final VoidCallback onCancel;
   final void Function(VoidCallback submit)? onFormCreated;
 
@@ -88,18 +89,21 @@ class _PartnerContactFormState extends State<PartnerContactForm> {
     setState(() {
       final fullName = _fullNameController.text.trim();
       _fullNameError = fullName.isEmpty ? 'Vui lòng nhập họ tên' : null;
-      
+
       final phone = _phoneController.text.trim();
       _phoneError = phone.isEmpty ? 'Vui lòng nhập số điện thoại' : null;
 
       final role = _selectedRole;
       _roleError = (role == null || role.isEmpty) ? 'Vui lòng chọn vai trò' : null;
-      
+
       final email = _emailController.text.trim();
       _emailError = VEmailValidator.validate(email, isRequired: false);
     });
 
-    if (_fullNameError == null && _phoneError == null && _roleError == null && _emailError == null) {
+    if (_fullNameError == null &&
+        _phoneError == null &&
+        _roleError == null &&
+        _emailError == null) {
       widget.onSubmit(
         _fullNameController.text,
         _phoneController.text,
@@ -132,9 +136,10 @@ class _PartnerContactFormState extends State<PartnerContactForm> {
                       borderRadius: BorderRadius.circular(VRadius.card),
                       border: Border.all(color: colors.danger.withValues(alpha: 0.2)),
                     ),
-                    child: Text(
+                    child: VText(
                       widget.errorMessage!,
-                      style: VTypography.bodySmall.copyWith(color: colors.danger),
+                      variant: VTextVariant.bodySmall,
+                      color: colors.danger,
                     ),
                   ),
                   const SizedBox(height: VSpacing.space4),
@@ -163,7 +168,7 @@ class _PartnerContactFormState extends State<PartnerContactForm> {
                   items: _roleOptions.map((role) {
                     return DropdownMenuItem<String>(
                       value: role,
-                      child: Text(role),
+                      child: VText(role),
                     );
                   }).toList(),
                   onChanged: (val) {
@@ -220,25 +225,23 @@ class _PartnerContactFormState extends State<PartnerContactForm> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(
+                              VText(
                                 'Người liên hệ chính',
-                                style: VTypography.bodyDefault.copyWith(
-                                  color: colors.textPrimary,
-                                  fontWeight: FontWeight.w500,
-                                ),
+                                variant: VTextVariant.bodyDefault,
+                                color: colors.textPrimary,
+                                style: const TextStyle(fontWeight: FontWeight.w500),
                               ),
-                              const SizedBox(height: 2),
-                              Text(
+                              const VGap.xs(),
+                              VText(
                                 'Là người liên hệ chính cho tổ chức',
-                                style: VTypography.bodySmall.copyWith(
-                                  color: colors.textSecondary,
-                                ),
+                                variant: VTextVariant.bodySmall,
+                                color: colors.textSecondary,
                               ),
                             ],
                           ),
                         ),
                       ),
-                      const SizedBox(width: 8),
+                      const VGap.horizontalSm(),
                       VSwitch(
                         key: const Key('input_contact_is_primary'),
                         value: _isPrimary,

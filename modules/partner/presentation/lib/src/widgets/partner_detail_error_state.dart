@@ -31,19 +31,17 @@ class PartnerDetailErrorState extends StatelessWidget {
           Positioned(
             bottom: 30,
             child: Container(
-              padding: const EdgeInsets.all(12),
+              padding: const EdgeInsets.all(VSpacing.space3),
               decoration: BoxDecoration(
                 color: colors.surfaceAlt,
                 shape: BoxShape.circle,
                 border: Border.all(color: colors.borderDefault, width: 2),
               ),
-              child: Text(
+              child: VText(
                 '?',
-                style: VTypography.headingH1.copyWith(
-                  color: colors.textSecondary,
-                  fontWeight: FontWeight.w700,
-                  fontSize: 28,
-                ),
+                variant: VTextVariant.headingH1,
+                color: colors.textSecondary,
+                style: const TextStyle(fontWeight: FontWeight.w700),
               ),
             ),
           ),
@@ -73,13 +71,11 @@ class PartnerDetailErrorState extends StatelessWidget {
             Positioned(
               top: 36,
               left: 54,
-              child: Text(
+              child: VText(
                 '?',
-                style: VTypography.headingH1.copyWith(
-                  color: colors.textMuted.withValues(alpha: 0.4),
-                  fontWeight: FontWeight.w700,
-                  fontSize: 22,
-                ),
+                variant: VTextVariant.headingH2,
+                color: colors.textMuted.withValues(alpha: 0.4),
+                style: const TextStyle(fontWeight: FontWeight.w700),
               ),
             ),
             // Magnifying glass overlay
@@ -119,22 +115,20 @@ class PartnerDetailErrorState extends StatelessWidget {
         children: [
           _buildIllustration(context, colors),
           const SizedBox(height: VSpacing.space6),
-          Text(
+          VText(
             title,
-            style: VTypography.headingH3.copyWith(
-              color: colors.textPrimary,
-              fontWeight: FontWeight.w700,
-            ),
+            variant: VTextVariant.headingH3,
+            color: colors.textPrimary,
             textAlign: TextAlign.center,
+            style: const TextStyle(fontWeight: FontWeight.w700),
           ),
           const SizedBox(height: VSpacing.space3),
-          Text(
+          VText(
             description,
-            style: VTypography.bodyDefault.copyWith(
-              color: colors.textSecondary,
-              height: 1.4,
-            ),
+            variant: VTextVariant.bodyDefault,
+            color: colors.textSecondary,
             textAlign: TextAlign.center,
+            style: const TextStyle(height: 1.4),
           ),
           const SizedBox(height: VSpacing.space8),
           SizedBox(

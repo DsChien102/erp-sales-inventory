@@ -21,8 +21,7 @@ class PartnerSoftDeleteConfirmationSheet extends StatefulWidget {
       _PartnerSoftDeleteConfirmationSheetState();
 }
 
-class _PartnerSoftDeleteConfirmationSheetState
-    extends State<PartnerSoftDeleteConfirmationSheet> {
+class _PartnerSoftDeleteConfirmationSheetState extends State<PartnerSoftDeleteConfirmationSheet> {
   final _reasonController = TextEditingController();
 
   @override
@@ -80,16 +79,15 @@ class _PartnerSoftDeleteConfirmationSheetState
                 ),
               ),
               const SizedBox(height: VSpacing.space4),
-              Text(
+              VText(
                 'Xóa hồ sơ KH & NCC?',
                 textAlign: TextAlign.center,
-                style: VTypography.headingH3.copyWith(
-                  color: colors.textPrimary,
-                  fontWeight: FontWeight.w700,
-                ),
+                variant: VTextVariant.headingH3,
+                color: colors.textPrimary,
+                style: const TextStyle(fontWeight: FontWeight.w700),
               ),
               const SizedBox(height: VSpacing.space3),
-              Text(
+              VText(
                 'Hồ sơ sẽ bị xóa khỏi danh sách làm việc và không còn được chọn cho giao dịch mới.',
                 textAlign: TextAlign.center,
                 style: VTypography.bodyDefault.copyWith(
@@ -98,7 +96,7 @@ class _PartnerSoftDeleteConfirmationSheetState
                 ),
               ),
               const SizedBox(height: VSpacing.space2),
-              Text(
+              VText(
                 'Thao tác này không xóa giao dịch hoặc chứng từ đã phát sinh.',
                 textAlign: TextAlign.center,
                 style: VTypography.bodyDefault.copyWith(
@@ -108,12 +106,11 @@ class _PartnerSoftDeleteConfirmationSheetState
                 ),
               ),
               const SizedBox(height: VSpacing.space5),
-              Text(
+              VText(
                 'Lý do (không bắt buộc)',
-                style: VTypography.bodySmall.copyWith(
-                  color: colors.textPrimary,
-                  fontWeight: FontWeight.w600,
-                ),
+                variant: VTextVariant.bodySmall,
+                color: colors.textPrimary,
+                style: const TextStyle(fontWeight: FontWeight.w600),
               ),
               const SizedBox(height: VSpacing.space2),
               VTextField(
@@ -132,11 +129,10 @@ class _PartnerSoftDeleteConfirmationSheetState
               const SizedBox(height: VSpacing.space1),
               Align(
                 alignment: Alignment.centerRight,
-                child: Text(
+                child: VText(
                   '$reasonLength/${PartnerSoftDeleteConfirmationSheet.maxReasonLength}',
-                  style: VTypography.caption.copyWith(
-                    color: colors.textMuted,
-                  ),
+                  variant: VTextVariant.caption,
+                  color: colors.textMuted,
                 ),
               ),
               const SizedBox(height: VSpacing.space5),

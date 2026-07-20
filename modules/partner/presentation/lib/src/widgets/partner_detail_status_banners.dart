@@ -24,19 +24,34 @@ class PartnerDetailWarningBanner extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
+                VText(
                   'Hồ sơ còn thiếu thông tin',
-                  style: VTypography.bodyDefault.copyWith(
-                    color: colors.textPrimary,
-                    fontWeight: FontWeight.w700,
-                  ),
+                  variant: VTextVariant.bodyDefault,
+                  color: colors.textPrimary,
+                  style: const TextStyle(fontWeight: FontWeight.w700),
                 ),
-                const SizedBox(height: 4),
-                Text(
+                const SizedBox(height: VSpacing.space1),
+                VText(
                   'Thiếu MST và địa chỉ hóa đơn. Một số thông tin có thể cần bổ sung trong tính năng này.',
-                  style: VTypography.bodySmall.copyWith(
-                    color: colors.textSecondary,
-                  ),
+                  variant: VTextVariant.bodySmall,
+                  color: colors.textSecondary,
+                ),
+                const VGap.sm(),
+                Row(
+                  children: [
+                    VText(
+                      'Bổ sung ngay',
+                      variant: VTextVariant.bodyDefault,
+                      color: colors.success,
+                      style: const TextStyle(fontWeight: FontWeight.w600),
+                    ),
+                    const VGap.horizontalXs(),
+                    VIcon(
+                      icon: VIcons.chevronRight,
+                      size: 16,
+                      color: colors.success,
+                    ),
+                  ],
                 ),
               ],
             ),
@@ -51,8 +66,7 @@ class PartnerDetailWarningBanner extends StatelessWidget {
 class PartnerDetailInactiveBanner extends StatelessWidget {
   const PartnerDetailInactiveBanner({super.key});
 
-  static const message =
-      'KH & NCC này sẽ không được chọn cho giao dịch mới.';
+  static const message = 'KH & NCC này sẽ không được chọn cho giao dịch mới.';
 
   @override
   Widget build(BuildContext context) {
@@ -70,7 +84,7 @@ class PartnerDetailInactiveBanner extends StatelessWidget {
           VIcon(icon: VIcons.warning, color: colors.warning, size: 22),
           const SizedBox(width: VSpacing.space3),
           Expanded(
-            child: Text(
+            child: VText(
               message,
               style: VTypography.bodyDefault.copyWith(
                 color: colors.textPrimary,

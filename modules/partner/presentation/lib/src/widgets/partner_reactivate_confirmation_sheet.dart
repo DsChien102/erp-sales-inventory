@@ -44,16 +44,15 @@ class PartnerReactivateConfirmationSheet extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: VSpacing.space4),
-              Text(
+              VText(
                 'Kích hoạt lại KH & NCC?',
                 textAlign: TextAlign.center,
-                style: VTypography.headingH3.copyWith(
-                  color: colors.textPrimary,
-                  fontWeight: FontWeight.w700,
-                ),
+                variant: VTextVariant.headingH3,
+                color: colors.textPrimary,
+                style: const TextStyle(fontWeight: FontWeight.w700),
               ),
               const SizedBox(height: VSpacing.space3),
-              Text(
+              VText(
                 'KH & NCC này sẽ có thể được chọn lại cho giao dịch mới.',
                 textAlign: TextAlign.center,
                 style: VTypography.bodyDefault.copyWith(

@@ -7,13 +7,11 @@ class PartnerTransformPreviewCard extends StatelessWidget {
     required this.displayName,
     required this.subtitle,
     required this.phone,
-    required this.avatarColor,
   });
 
   final String displayName;
   final String subtitle;
   final String phone;
-  final Color avatarColor;
 
   @override
   Widget build(BuildContext context) {
@@ -22,17 +20,7 @@ class PartnerTransformPreviewCard extends StatelessWidget {
       padding: const EdgeInsets.all(VSpacing.space3),
       child: Row(
         children: [
-          CircleAvatar(
-            radius: 27,
-            backgroundColor: avatarColor.withValues(alpha: 0.12),
-            child: Text(
-              _initials(displayName),
-              style: VTypography.headingH4.copyWith(
-                color: avatarColor,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-          ),
+          VAvatar(name: displayName, size: 54, textSize: 18),
           const SizedBox(width: VSpacing.space3),
           Expanded(
             child: Column(
@@ -40,25 +28,22 @@ class PartnerTransformPreviewCard extends StatelessWidget {
               children: [
                 VText(
                   displayName,
-                  style: VTypography.bodyDefault.copyWith(
-                    color: colors.textPrimary,
-                    fontWeight: FontWeight.w700,
-                  ),
+                  variant: VTextVariant.bodyDefault,
+                  color: colors.textPrimary,
+                  style: const TextStyle(fontWeight: FontWeight.w700),
                 ),
                 const SizedBox(height: VSpacing.space1),
-                Text(
+                VText(
                   subtitle,
-                  style: VTypography.bodySmall.copyWith(
-                    color: colors.textSecondary,
-                  ),
+                  variant: VTextVariant.bodySmall,
+                  color: colors.textSecondary,
                 ),
                 const SizedBox(height: VSpacing.space1),
-                Text(
+                VText(
                   phone,
-                  style: VTypography.bodyDefault.copyWith(
-                    color: colors.textSecondary,
-                    fontWeight: FontWeight.w600,
-                  ),
+                  variant: VTextVariant.bodyDefault,
+                  color: colors.textSecondary,
+                  style: const TextStyle(fontWeight: FontWeight.w600),
                 ),
               ],
             ),
@@ -66,15 +51,5 @@ class PartnerTransformPreviewCard extends StatelessWidget {
         ],
       ),
     );
-  }
-
-  String _initials(String value) {
-    final words = value.trim().split(RegExp(r'\s+'));
-    if (words.isEmpty || words.first.isEmpty) return '?';
-    if (words.length == 1) {
-      final word = words.first;
-      return word.substring(0, word.length.clamp(1, 2)).toUpperCase();
-    }
-    return '${words.first[0]}${words.last[0]}'.toUpperCase();
   }
 }

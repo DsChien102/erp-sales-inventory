@@ -14,11 +14,7 @@ Future<void> runPartnerDetailAddContactFlow({
   required Future<void> Function() onReload,
   List<String> excludePersonPartnerIds = const [],
 }) async {
-  final method = await showModalBottomSheet<AddContactMethod>(
-    context: context,
-    backgroundColor: Colors.transparent,
-    builder: (context) => const PartnerContactAddMethodSheet(),
-  );
+  final method = await showPartnerContactAddMethodSheet(context);
   if (!context.mounted || method == null) return;
 
   switch (method) {

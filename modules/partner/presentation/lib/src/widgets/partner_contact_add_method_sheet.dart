@@ -3,6 +3,15 @@ import 'package:vet45_design_system/design_system.dart';
 
 enum AddContactMethod { createNew, selectExisting }
 
+Future<AddContactMethod?> showPartnerContactAddMethodSheet(
+  BuildContext context,
+) {
+  return showVBottomSheet<AddContactMethod>(
+    context: context,
+    child: const PartnerContactAddMethodSheet(),
+  );
+}
+
 class PartnerContactAddMethodSheet extends StatelessWidget {
   const PartnerContactAddMethodSheet({super.key});
 
@@ -27,12 +36,11 @@ class PartnerContactAddMethodSheet extends StatelessWidget {
                     VSpacing.space4,
                     VSpacing.space2,
                   ),
-                  child: Text(
+                  child: VText(
                     'Thêm người liên hệ',
-                    style: VTypography.headingH3.copyWith(
-                      color: colors.textPrimary,
-                      fontWeight: FontWeight.w700,
-                    ),
+                    variant: VTextVariant.headingH3,
+                    color: colors.textPrimary,
+                    style: const TextStyle(fontWeight: FontWeight.w700),
                   ),
                 ),
                 const SizedBox(height: VSpacing.space2),
@@ -67,17 +75,16 @@ class PartnerContactAddMethodSheet extends StatelessWidget {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text(
+                                    VText(
                                       'Tạo người liên hệ mới',
-                                      style: VTypography.bodyDefault.copyWith(
-                                        color: colors.textPrimary,
-                                        fontWeight: FontWeight.w600,
-                                      ),
+                                      color: colors.textPrimary,
+                                      style: const TextStyle(fontWeight: FontWeight.w600),
                                     ),
-                                    const SizedBox(height: 4),
-                                    Text(
+                                    const VGap.xs(),
+                                    VText(
                                       'Nhập thông tin để tạo người liên hệ mới',
-                                      style: VTypography.bodySmall.copyWith(color: colors.textSecondary),
+                                      variant: VTextVariant.bodySmall,
+                                      color: colors.textSecondary,
                                     ),
                                   ],
                                 ),
@@ -121,17 +128,16 @@ class PartnerContactAddMethodSheet extends StatelessWidget {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text(
+                                    VText(
                                       'Chọn từ cá nhân có sẵn',
-                                      style: VTypography.bodyDefault.copyWith(
-                                        color: colors.textPrimary,
-                                        fontWeight: FontWeight.w600,
-                                      ),
+                                      color: colors.textPrimary,
+                                      style: const TextStyle(fontWeight: FontWeight.w600),
                                     ),
-                                    const SizedBox(height: 4),
-                                    Text(
+                                    const VGap.xs(),
+                                    VText(
                                       'Tìm kiếm và liên kết cá nhân đã có trong hệ thống',
-                                      style: VTypography.bodySmall.copyWith(color: colors.textSecondary),
+                                      variant: VTextVariant.bodySmall,
+                                      color: colors.textSecondary,
                                     ),
                                   ],
                                 ),

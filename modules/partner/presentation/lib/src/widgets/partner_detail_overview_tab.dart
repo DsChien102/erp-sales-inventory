@@ -58,11 +58,10 @@ class PartnerDetailOverviewTab extends StatelessWidget {
             title: 'Địa chỉ giao hàng',
             child: delivery.isEmpty
                 ? const PartnerDetailEmptyHint(message: 'Chưa có địa chỉ giao hàng.')
-                : Text(
+                : VText(
                     delivery,
-                    style: VTypography.bodyDefault.copyWith(
-                      color: colors.textPrimary,
-                    ),
+                    variant: VTextVariant.bodyDefault,
+                    color: colors.textPrimary,
                   ),
           ),
           const SizedBox(height: VSpacing.space2),
@@ -70,11 +69,10 @@ class PartnerDetailOverviewTab extends StatelessWidget {
             title: 'Ghi chú',
             child: note.isEmpty
                 ? const PartnerDetailEmptyHint(message: 'Chưa có ghi chú.')
-                : Text(
+                : VText(
                     note,
-                    style: VTypography.bodyDefault.copyWith(
-                      color: colors.textPrimary,
-                    ),
+                    variant: VTextVariant.bodyDefault,
+                    color: colors.textPrimary,
                   ),
           ),
           const SizedBox(height: VSpacing.space2),

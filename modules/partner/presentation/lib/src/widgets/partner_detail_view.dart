@@ -22,7 +22,7 @@ class PartnerDetailView extends StatelessWidget {
           PartnerDetailInitial() || PartnerDetailLoading() => const Center(
             child: CircularProgressIndicator(),
           ),
-          PartnerDetailError(:final message) => Center(child: Text('Lỗi: $message')),
+          PartnerDetailError(:final message) => Center(child: VText('Lỗi: $message')),
           PartnerDetailLoaded(:final detail, :final selectedTabIndex) => ColoredBox(
             color: colors.background,
             child: Column(
@@ -56,7 +56,7 @@ class PartnerDetailView extends StatelessWidget {
   Widget _tabBody(int index, PartnerDetailDto detail) {
     return switch (index) {
       0 => PartnerDetailOverviewTab(detail: detail),
-      _ => const Center(child: Text('Nội dung sẽ có ở bản cập nhật tiếp theo.')),
+      _ => const Center(child: VText('Nội dung sẽ có ở bản cập nhật tiếp theo.')),
     };
   }
 }

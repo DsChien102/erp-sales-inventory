@@ -92,16 +92,15 @@ class _TransformStep extends StatelessWidget {
               width: 2,
             ),
           ),
-          child: Text(
+          child: VText(
             '$number',
-            style: VTypography.bodyDefault.copyWith(
-              color: highlighted ? VColors.neutral0 : colors.textSecondary,
-              fontWeight: FontWeight.w700,
-            ),
+            variant: VTextVariant.bodyDefault,
+            color: highlighted ? colors.surface : colors.textSecondary,
+            style: const TextStyle(fontWeight: FontWeight.w700),
           ),
         ),
         const SizedBox(height: VSpacing.space2),
-        Text(
+        VText(
           label,
           maxLines: 2,
           textAlign: TextAlign.center,

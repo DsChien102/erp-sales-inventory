@@ -34,9 +34,9 @@ class PartnerDetailContactsCard extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
               decoration: BoxDecoration(
                 color: colors.warning.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: BorderRadius.circular(VRadius.r8),
               ),
-              child: Text(
+              child: VText(
                 'Chưa có',
                 style: VTypography.bodySmall.copyWith(
                   color: colors.warning,
@@ -49,9 +49,9 @@ class PartnerDetailContactsCard extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
               decoration: BoxDecoration(
                 color: colors.surfaceAlt,
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: BorderRadius.circular(VRadius.r8),
               ),
-              child: Text(
+              child: VText(
                 '${contacts.length}',
                 style: VTypography.bodySmall.copyWith(
                   color: colors.textSecondary,
@@ -66,11 +66,10 @@ class PartnerDetailContactsCard extends StatelessWidget {
           if (contacts.isEmpty)
             Padding(
               padding: const EdgeInsets.only(bottom: VSpacing.space2),
-              child: Text(
+              child: VText(
                 'Chưa có người liên hệ.',
-                style: VTypography.bodySmall.copyWith(
-                  color: colors.textSecondary,
-                ),
+                variant: VTextVariant.bodySmall,
+                color: colors.textSecondary,
               ),
             )
           else
@@ -87,7 +86,7 @@ class PartnerDetailContactsCard extends StatelessWidget {
               InkWell(
                 onTap: onTapAdd,
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 4),
+                  padding: const EdgeInsets.symmetric(vertical: VSpacing.space1),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
@@ -96,13 +95,12 @@ class PartnerDetailContactsCard extends StatelessWidget {
                         size: 16,
                         color: colors.success,
                       ),
-                      const SizedBox(width: 4),
-                      Text(
+                      const SizedBox(width: VSpacing.space1),
+                      VText(
                         'Thêm người liên hệ',
-                        style: VTypography.bodyDefault.copyWith(
-                          color: colors.success,
-                          fontWeight: FontWeight.w600,
-                        ),
+                        variant: VTextVariant.bodyDefault,
+                        color: colors.success,
+                        style: const TextStyle(fontWeight: FontWeight.w600),
                       ),
                     ],
                   ),
@@ -112,18 +110,16 @@ class PartnerDetailContactsCard extends StatelessWidget {
                 InkWell(
                   onTap: onTapViewAll,
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 4),
+                    padding: const EdgeInsets.symmetric(vertical: VSpacing.space1),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Text(
+                        VText(
                           contacts.isEmpty ? 'Tất cả' : 'Xem tất cả (${contacts.length})',
-                          style: VTypography.bodyDefault.copyWith(
-                            color: colors.success,
-                            fontWeight: FontWeight.w600,
-                          ),
+                          color: colors.success,
+                          style: const TextStyle(fontWeight: FontWeight.w600),
                         ),
-                        const SizedBox(width: 4),
+                        const VGap.horizontalXs(),
                         VIcon(
                           icon: VIcons.chevronRight,
                           size: 16,
@@ -150,41 +146,14 @@ class _ContactsListBody extends StatelessWidget {
   final List<PartnerContactDto> contacts;
   final VColorScheme colors;
 
-  Color _getAvatarColor(String displayName) {
-    final palette = [
-      VColors.success,
-      VColors.warning,
-      VColors.info,
-      VColors.primary,
-      const Color(0xFF9C27B0),
-      const Color(0xFF00BCD4),
-    ];
-    var sum = 0;
-    for (var i = 0; i < displayName.length; i++) {
-      sum += displayName.codeUnitAt(i);
-    }
-    return palette[sum % palette.length];
-  }
-
-  String _getInitials(String displayName) {
-    final words = displayName.trim().split(RegExp(r'\s+'));
-    if (words.isEmpty || words.first.isEmpty) return '?';
-    if (words.length == 1) {
-      return words.first[0].toUpperCase();
-    }
-    final first = words.first[0].toUpperCase();
-    final last = words.last[0].toUpperCase();
-    return '$first$last';
-  }
-
   Widget _buildStatusTag(BuildContext context, String text, Color color) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(4),
+        borderRadius: BorderRadius.circular(VRadius.r4),
       ),
-      child: Text(
+      child: VText(
         text,
         style: VTypography.bodySmall.copyWith(
           color: color,
@@ -209,17 +178,7 @@ class _ContactsListBody extends StatelessWidget {
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              CircleAvatar(
-                radius: 20,
-                backgroundColor: _getAvatarColor(displayContacts[i].displayName),
-                child: Text(
-                  _getInitials(displayContacts[i].displayName),
-                  style: VTypography.bodyDefault.copyWith(
-                    fontWeight: FontWeight.w600,
-                    color: Colors.white,
-                  ),
-                ),
-              ),
+              VAvatar(name: displayContacts[i].displayName, textSize: 14),
               const SizedBox(width: VSpacing.space3),
               Expanded(
                 child: Column(
@@ -228,20 +187,19 @@ class _ContactsListBody extends StatelessWidget {
                     Row(
                       children: [
                         Flexible(
-                          child: Text(
+                          child: VText(
                             displayContacts[i].displayName,
-                            style: VTypography.bodyDefault.copyWith(
-                              color: colors.textPrimary,
-                              fontWeight: FontWeight.w600,
-                            ),
+                            variant: VTextVariant.bodyDefault,
+                            color: colors.textPrimary,
+                            style: const TextStyle(fontWeight: FontWeight.w600),
                           ),
                         ),
                         if (displayContacts[i].isPrimary) ...[
-                          const SizedBox(width: 8),
+                          const SizedBox(width: VSpacing.space2),
                           _buildStatusTag(context, 'Chính', colors.success),
                         ],
                         if (displayContacts[i].status == PartnerStatus.inactive) ...[
-                          const SizedBox(width: 8),
+                          const SizedBox(width: VSpacing.space2),
                           _buildStatusTag(
                             context,
                             'Ngừng hoạt động',
@@ -252,32 +210,29 @@ class _ContactsListBody extends StatelessWidget {
                     ),
                     if (displayContacts[i].contactRole != null &&
                         displayContacts[i].contactRole!.isNotEmpty) ...[
-                      const SizedBox(height: 2),
-                      Text(
+                      const VGap.xs(),
+                      VText(
                         displayContacts[i].contactRole!,
-                        style: VTypography.bodySmall.copyWith(
-                          color: colors.textSecondary,
-                        ),
+                        variant: VTextVariant.bodySmall,
+                        color: colors.textSecondary,
                       ),
                     ],
                     if (displayContacts[i].phone != null &&
                         displayContacts[i].phone!.isNotEmpty) ...[
-                      const SizedBox(height: 2),
-                      Text(
+                      const VGap.xs(),
+                      VText(
                         displayContacts[i].phone!,
-                        style: VTypography.bodySmall.copyWith(
-                          color: colors.textSecondary,
-                        ),
+                        variant: VTextVariant.bodySmall,
+                        color: colors.textSecondary,
                       ),
                     ],
                     if (displayContacts[i].email != null &&
                         displayContacts[i].email!.isNotEmpty) ...[
-                      const SizedBox(height: 2),
-                      Text(
+                      const VGap.xs(),
+                      VText(
                         displayContacts[i].email!,
-                        style: VTypography.bodySmall.copyWith(
-                          color: colors.textSecondary,
-                        ),
+                        variant: VTextVariant.bodySmall,
+                        color: colors.textSecondary,
                       ),
                     ],
                   ],

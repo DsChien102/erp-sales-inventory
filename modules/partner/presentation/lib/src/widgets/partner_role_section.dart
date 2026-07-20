@@ -14,6 +14,7 @@ class PartnerRoleSection extends StatelessWidget {
   Widget build(BuildContext context) {
     final state = context.watch<PartnerCreateCubit>().state;
     final cubit = context.read<PartnerCreateCubit>();
+    final colors = context.vColors;
     final selected = state.roles;
     return Padding(
       padding: const EdgeInsets.fromLTRB(
@@ -25,12 +26,11 @@ class PartnerRoleSection extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text(
+          VText(
             'Chọn vai trò giao dịch của hồ sơ này.',
             textAlign: TextAlign.start,
-            style: VTypography.bodySmall.copyWith(
-              color: context.vColors.textSecondary,
-            ),
+            variant: VTextVariant.bodySmall,
+            color: context.vColors.textSecondary,
           ),
           const SizedBox(height: VSpacing.space3),
           Row(
@@ -39,10 +39,8 @@ class PartnerRoleSection extends StatelessWidget {
                 child: _RoleButton(
                   key: const Key('role_customer'),
                   label: 'Khách hàng',
-                  selected: selected.length == 1 &&
-                      selected.contains(PartnerRoleType.customer),
-                  onPressed: () =>
-                      cubit.updateRoles(const [PartnerRoleType.customer]),
+                  selected: selected.length == 1 && selected.contains(PartnerRoleType.customer),
+                  onPressed: () => cubit.updateRoles(const [PartnerRoleType.customer]),
                 ),
               ),
               const SizedBox(width: _buttonGap),
@@ -50,10 +48,8 @@ class PartnerRoleSection extends StatelessWidget {
                 child: _RoleButton(
                   key: const Key('role_supplier'),
                   label: 'Nhà cung cấp',
-                  selected: selected.length == 1 &&
-                      selected.contains(PartnerRoleType.supplier),
-                  onPressed: () =>
-                      cubit.updateRoles(const [PartnerRoleType.supplier]),
+                  selected: selected.length == 1 && selected.contains(PartnerRoleType.supplier),
+                  onPressed: () => cubit.updateRoles(const [PartnerRoleType.supplier]),
                 ),
               ),
             ],
@@ -77,9 +73,10 @@ class PartnerRoleSection extends StatelessWidget {
           ),
           if (state.errors['roles'] case final error?) ...[
             const SizedBox(height: VSpacing.space2),
-            Text(
+            VText(
               error,
-              style: VTypography.bodySmall.copyWith(color: VColors.danger),
+              variant: VTextVariant.bodySmall,
+              color: colors.danger,
             ),
           ],
         ],

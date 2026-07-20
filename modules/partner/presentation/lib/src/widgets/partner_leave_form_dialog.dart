@@ -32,11 +32,10 @@ class _PartnerLeaveFormSheet extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text(
+            VText(
               'Những thay đổi chưa lưu sẽ bị mất.',
-              style: VTypography.bodyDefault.copyWith(
-                color: colors.textSecondary,
-              ),
+              variant: VTextVariant.bodyDefault,
+              color: colors.textSecondary,
             ),
             const SizedBox(height: VSpacing.space6),
             Row(

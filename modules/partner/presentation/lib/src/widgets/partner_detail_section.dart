@@ -20,12 +20,11 @@ class PartnerDetailSectionCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
+          VText(
             title,
-            style: VTypography.bodyDefault.copyWith(
-              color: colors.textPrimary,
-              fontWeight: FontWeight.w700,
-            ),
+            variant: VTextVariant.bodyDefault,
+            color: colors.textPrimary,
+            style: const TextStyle(fontWeight: FontWeight.w700),
           ),
           const SizedBox(height: VSpacing.space2),
           child,
@@ -43,9 +42,10 @@ class PartnerDetailEmptyHint extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = context.vColors;
-    return Text(
+    return VText(
       message,
-      style: VTypography.bodySmall.copyWith(color: colors.textSecondary),
+      variant: VTextVariant.bodySmall,
+      color: colors.textSecondary,
     );
   }
 }
@@ -76,16 +76,18 @@ class PartnerDetailInfoRow extends StatelessWidget {
         children: [
           SizedBox(
             width: 100,
-            child: Text(
+            child: VText(
               label,
-              style: VTypography.bodySmall.copyWith(color: colors.textSecondary),
+              variant: VTextVariant.bodySmall,
+              color: colors.textSecondary,
             ),
           ),
           Expanded(
-            child: Text(
+            child: VText(
               value,
               textAlign: TextAlign.right,
-              style: VTypography.bodyDefault.copyWith(color: colors.textPrimary),
+              variant: VTextVariant.bodyDefault,
+              color: colors.textPrimary,
             ),
           ),
           if (trailingIcon != null) ...[
@@ -115,16 +117,18 @@ class PartnerDetailActivityRow extends StatelessWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
+        VText(
           dateLabel,
-          style: VTypography.bodySmall.copyWith(color: colors.textSecondary),
+          variant: VTextVariant.bodySmall,
+          color: colors.textSecondary,
         ),
         const SizedBox(width: VSpacing.space3),
         Expanded(
-          child: Text(
+          child: VText(
             activityText,
             textAlign: TextAlign.right,
-            style: VTypography.bodyDefault.copyWith(color: colors.textPrimary),
+            variant: VTextVariant.bodyDefault,
+            color: colors.textPrimary,
           ),
         ),
       ],

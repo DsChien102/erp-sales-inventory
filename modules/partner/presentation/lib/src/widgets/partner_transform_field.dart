@@ -70,7 +70,7 @@ class _PartnerTransformLabeledTextFieldState extends State<PartnerTransformLabel
           label: widget.label,
           isRequired: widget.isRequired,
         ),
-        const SizedBox(height: 6),
+        const VGap.sm(),
         if (widget.isEmail)
           VEmailField(
             controller: _controller,
@@ -126,6 +126,7 @@ class PartnerTransformLabeledDropdown<T> extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final hasError = errorText != null && errorText!.isNotEmpty;
+    final colors = context.vColors;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -134,7 +135,7 @@ class PartnerTransformLabeledDropdown<T> extends StatelessWidget {
           label: label,
           isRequired: isRequired,
         ),
-        const SizedBox(height: 6),
+        const VGap.sm(),
         VDropdown<T>(
           value: value,
           items: items,
@@ -143,10 +144,11 @@ class PartnerTransformLabeledDropdown<T> extends StatelessWidget {
           onChanged: onChanged,
         ),
         if (hasError) ...[
-          const SizedBox(height: 6),
-          Text(
+          const VGap.sm(),
+          VText(
             errorText!,
-            style: VTypography.bodySmall.copyWith(color: VColors.danger),
+            variant: VTextVariant.bodySmall,
+            color: colors.danger,
           ),
         ],
       ],
@@ -166,19 +168,20 @@ class PartnerTransformFieldLabel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.vColors;
     return RichText(
       text: TextSpan(
         style: VTypography.bodySmall.copyWith(
-          color: context.vColors.textSecondary,
+          color: colors.textSecondary,
           fontSize: 13,
           height: 1.2,
         ),
         children: [
           TextSpan(text: label),
           if (isRequired)
-            const TextSpan(
+            TextSpan(
               text: ' *',
-              style: TextStyle(color: VColors.danger),
+              style: TextStyle(color: colors.danger),
             ),
         ],
       ),

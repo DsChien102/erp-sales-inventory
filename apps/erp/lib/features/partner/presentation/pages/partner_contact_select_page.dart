@@ -21,14 +21,8 @@ class PartnerContactSelectPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.vColors;
-
-    return Scaffold(
-      backgroundColor: colors.surface,
-      appBar: const VAppBar(
-        title: 'Chọn từ cá nhân',
-        showBackButton: true,
-      ),
+    return VPageScaffold(
+      title: 'Chọn từ cá nhân',
       body: PartnerContactSelectList(
         partnerModule: partnerModule,
         executionContext: executionContext,

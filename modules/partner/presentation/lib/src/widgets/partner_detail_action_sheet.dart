@@ -5,6 +5,16 @@ import 'package:vet45_partner_domain/domain.dart';
 
 enum PartnerDetailAction { transform, toggleStatus, delete }
 
+Future<PartnerDetailAction?> showPartnerDetailActionSheet(
+  BuildContext context, {
+  required PartnerDetailDto dto,
+}) {
+  return showVBottomSheet<PartnerDetailAction>(
+    context: context,
+    child: PartnerDetailActionSheet(dto: dto),
+  );
+}
+
 /// Action sheet «Thao tác hồ sơ» — entry cho transform (S6), status (S7), soft delete (S8).
 ///
 /// Pop sheet với [PartnerDetailAction]; caller xử lý sau khi sheet đóng.
@@ -23,8 +33,7 @@ class PartnerDetailActionSheet extends StatelessWidget {
     final isInactive = dto.status == PartnerStatus.inactive;
     final actions = dto.availableActions.toSet();
 
-    final canTransform =
-        isPerson && actions.contains(PartnerAvailableAction.transform);
+    final canTransform = isPerson && actions.contains(PartnerAvailableAction.transform);
     final canToggleStatus = isInactive
         ? actions.contains(PartnerAvailableAction.reactivate)
         : actions.contains(PartnerAvailableAction.deactivate);
@@ -34,17 +43,16 @@ class PartnerDetailActionSheet extends StatelessWidget {
       Navigator.of(context).pop(action);
     }
 
-    return VBottomSheet(
+    return Material(
       key: const Key('wgt_e02_u01_fr01_01'),
-      child: Material(
-        color: Colors.transparent,
-        child: SafeArea(
-          top: false,
-          child: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              mainAxisSize: MainAxisSize.min,
-              children: [
+      color: colors.surface.withValues(alpha: 0),
+      child: SafeArea(
+        top: false,
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            mainAxisSize: MainAxisSize.min,
+            children: [
               Padding(
                 padding: const EdgeInsets.fromLTRB(
                   VSpacing.space4,
@@ -52,12 +60,11 @@ class PartnerDetailActionSheet extends StatelessWidget {
                   VSpacing.space4,
                   VSpacing.space2,
                 ),
-                child: Text(
+                child: VText(
                   'Thao tác hồ sơ',
-                  style: VTypography.headingH3.copyWith(
-                    color: colors.textPrimary,
-                    fontWeight: FontWeight.w700,
-                  ),
+                  variant: VTextVariant.headingH3,
+                  color: colors.textPrimary,
+                  style: const TextStyle(fontWeight: FontWeight.w700),
                 ),
               ),
               if (canTransform)
@@ -67,8 +74,7 @@ class PartnerDetailActionSheet extends StatelessWidget {
                   iconBackground: colors.success.withValues(alpha: 0.12),
                   iconColor: colors.success,
                   title: 'Chuyển thành tổ chức',
-                  subtitle:
-                      'Chuyển hồ sơ cá nhân hiện tại sang hồ sơ tổ chức.',
+                  subtitle: 'Chuyển hồ sơ cá nhân hiện tại sang hồ sơ tổ chức.',
                   onTap: () => select(PartnerDetailAction.transform),
                 ),
               if (canToggleStatus)
@@ -80,8 +86,7 @@ class PartnerDetailActionSheet extends StatelessWidget {
                   iconBackground: isInactive
                       ? colors.success.withValues(alpha: 0.12)
                       : colors.textPrimary.withValues(alpha: 0.08),
-                  iconColor:
-                      isInactive ? colors.success : colors.textPrimary,
+                  iconColor: isInactive ? colors.success : colors.textPrimary,
                   title: isInactive ? 'Kích hoạt lại' : 'Ngừng hoạt động',
                   subtitle: isInactive
                       ? 'Cho phép sử dụng lại trong hệ thống.'
@@ -115,7 +120,6 @@ class PartnerDetailActionSheet extends StatelessWidget {
                 ),
               ),
             ],
-            ),
           ),
         ),
       ),
@@ -178,15 +182,14 @@ class _ActionCard extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
+                      VText(
                         title,
-                        style: VTypography.bodyDefault.copyWith(
-                          color: titleColor ?? colors.textPrimary,
-                          fontWeight: FontWeight.w700,
-                        ),
+                        variant: VTextVariant.bodyDefault,
+                        color: titleColor ?? colors.textPrimary,
+                        style: const TextStyle(fontWeight: FontWeight.w700),
                       ),
-                      const SizedBox(height: 4),
-                      Text(
+                      const SizedBox(height: VSpacing.space1),
+                      VText(
                         subtitle,
                         style: VTypography.bodySmall.copyWith(
                           color: colors.textSecondary,

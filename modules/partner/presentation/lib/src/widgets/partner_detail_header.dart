@@ -23,51 +23,27 @@ class PartnerDetailHeader extends StatelessWidget {
       (false, false) => 'Chưa có vai trò',
     };
 
-    final initials = dto.displayName.trim().split(RegExp(r'\s+'));
-    final avatarText = initials.isEmpty
-        ? '?'
-        : (initials.length == 1 ? initials[0][0] : '${initials[0][0]}${initials.last[0]}')
-              .toUpperCase();
-    final avatarBgColor = _avatarColor(dto.displayName);
-
     return Row(
       children: [
-        Container(
-          width: 64,
-          height: 64,
-          decoration: BoxDecoration(
-            color: avatarBgColor,
-            shape: BoxShape.circle,
-          ),
-          alignment: Alignment.center,
-          child: Text(
-            avatarText,
-            style: VTypography.headingH2.copyWith(
-              color: Colors.white,
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-        ),
+        VAvatar(name: dto.displayName, size: 64, textSize: 24),
         const SizedBox(width: VSpacing.space4),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
+              VText(
                 dto.displayName,
-                style: VTypography.headingH3.copyWith(
-                  color: colors.textPrimary,
-                  fontWeight: FontWeight.w700,
-                ),
+                variant: VTextVariant.headingH3,
+                color: colors.textPrimary,
+                style: const TextStyle(fontWeight: FontWeight.w700),
               ),
-              const SizedBox(height: 4),
-              Text(
+              const SizedBox(height: VSpacing.space1),
+              VText(
                 '$labelType • $labelRoles',
-                style: VTypography.bodyDefault.copyWith(
-                  color: colors.textSecondary,
-                ),
+                variant: VTextVariant.bodyDefault,
+                color: colors.textSecondary,
               ),
-              const SizedBox(height: 6),
+              const VGap.sm(),
               if (dto.status == PartnerStatus.active)
                 _StatusTag(text: 'Đang hoạt động', color: colors.success)
               else if (dto.status == PartnerStatus.inactive)
@@ -77,22 +53,6 @@ class PartnerDetailHeader extends StatelessWidget {
         ),
       ],
     );
-  }
-
-  static Color _avatarColor(String displayName) {
-    const palette = [
-      VColors.success,
-      VColors.warning,
-      VColors.info,
-      VColors.primary,
-      Color(0xFF9C27B0),
-      Color(0xFF00BCD4),
-    ];
-    var sum = 0;
-    for (var i = 0; i < displayName.length; i++) {
-      sum += displayName.codeUnitAt(i);
-    }
-    return palette[sum % palette.length];
   }
 }
 
@@ -110,12 +70,11 @@ class PartnerDetailContactQuickRow extends StatelessWidget {
         VIcon(icon: VIcons.phone, size: 20, color: colors.textSecondary),
         const SizedBox(width: VSpacing.space3),
         Expanded(
-          child: Text(
+          child: VText(
             text,
-            style: VTypography.bodyDefault.copyWith(
-              color: colors.textPrimary,
-              fontWeight: FontWeight.w500,
-            ),
+            variant: VTextVariant.bodyDefault,
+            color: colors.textPrimary,
+            style: const TextStyle(fontWeight: FontWeight.w500),
           ),
         ),
       ],
@@ -135,9 +94,9 @@ class _StatusTag extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(4),
+        borderRadius: BorderRadius.circular(VRadius.r4),
       ),
-      child: Text(
+      child: VText(
         text,
         style: VTypography.bodySmall.copyWith(
           color: color,
