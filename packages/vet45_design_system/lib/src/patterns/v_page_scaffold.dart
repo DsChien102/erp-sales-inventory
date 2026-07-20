@@ -19,6 +19,7 @@ class VPageScaffold extends StatelessWidget {
     this.bottomBar,
     this.floatingActionButton,
     this.resizeToAvoidBottomInset = true,
+    this.backgroundColor,
   });
 
   final String title;
@@ -33,10 +34,13 @@ class VPageScaffold extends StatelessWidget {
   final Widget? floatingActionButton;
   final bool resizeToAvoidBottomInset;
 
+  /// Page background — defaults to `context.vColors.background`.
+  final Color? backgroundColor;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: context.vColors.background,
+      backgroundColor: backgroundColor ?? context.vColors.background,
       resizeToAvoidBottomInset: resizeToAvoidBottomInset,
       appBar: VAppBar(
         title: title,
