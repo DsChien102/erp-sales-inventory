@@ -18,10 +18,12 @@ class VAppBarTitle extends StatelessWidget {
 
     return VText(
       title,
-      style: style ?? VTypography.headingH4.copyWith(
-        color: dynamicColors.textPrimary,
-        fontWeight: FontWeight.w700,
-      ),
+      style:
+          style ??
+          VTypography.headingH3.copyWith(
+            color: dynamicColors.textPrimary,
+            fontWeight: FontWeight.w700,
+          ),
     );
   }
 }
