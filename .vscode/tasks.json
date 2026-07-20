@@ -62,6 +62,66 @@
       "problemMatcher": []
     },
     {
+      "label": "env:sync admin · development",
+      "type": "shell",
+      "command": "dart run tools/vet45_env/bin/vet45_env.dart use-and-sync development --target admin",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "presentation": {
+        "reveal": "silent",
+        "panel": "shared",
+        "showReuseMessage": false,
+        "close": true
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "env:sync admin · local",
+      "type": "shell",
+      "command": "dart run tools/vet45_env/bin/vet45_env.dart use-and-sync local --target admin",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "presentation": {
+        "reveal": "silent",
+        "panel": "shared",
+        "showReuseMessage": false,
+        "close": true
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "env:sync admin · staging",
+      "type": "shell",
+      "command": "dart run tools/vet45_env/bin/vet45_env.dart use-and-sync staging --target admin",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "presentation": {
+        "reveal": "silent",
+        "panel": "shared",
+        "showReuseMessage": false,
+        "close": true
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "env:sync admin · production",
+      "type": "shell",
+      "command": "dart run tools/vet45_env/bin/vet45_env.dart use-and-sync production --target admin",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "presentation": {
+        "reveal": "silent",
+        "panel": "shared",
+        "showReuseMessage": false,
+        "close": true
+      },
+      "problemMatcher": []
+    },
+    {
       "label": "env:sync worker · development",
       "type": "shell",
       "command": "dart run tools/vet45_env/bin/vet45_env.dart use-and-sync development --target worker",

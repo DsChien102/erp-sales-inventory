@@ -82,6 +82,87 @@
         "--dart-define-from-file=.env.production"
       ]
     },
+    // ── Admin · Dart (preLaunchTask syncs target admin only) ──
+    {
+      "name": "Admin · development",
+      "type": "dart",
+      "request": "launch",
+      "cwd": "${workspaceFolder}/apps/admin",
+      "program": "lib/main.dart",
+      "preLaunchTask": "env:sync admin · development",
+      "args": [
+        "--flavor",
+        "development",
+        "--dart-define-from-file=.env"
+      ]
+    },
+    {
+      "name": "Admin · local",
+      "type": "dart",
+      "request": "launch",
+      "cwd": "${workspaceFolder}/apps/admin",
+      "program": "lib/main.dart",
+      "preLaunchTask": "env:sync admin · local",
+      "args": [
+        "--flavor",
+        "development",
+        "--dart-define-from-file=.env"
+      ]
+    },
+    {
+      "name": "Admin · web · development",
+      "type": "dart",
+      "request": "launch",
+      "cwd": "${workspaceFolder}/apps/admin",
+      "program": "lib/main.dart",
+      "deviceId": "chrome",
+      "preLaunchTask": "env:sync admin · development",
+      "args": [
+        "--flavor",
+        "development",
+        "--dart-define-from-file=.env"
+      ]
+    },
+    {
+      "name": "Admin · iOS · development",
+      "type": "dart",
+      "request": "launch",
+      "cwd": "${workspaceFolder}/apps/admin",
+      "program": "lib/main.dart",
+      "deviceId": "ios",
+      "preLaunchTask": "env:sync admin · development",
+      "args": [
+        "--flavor",
+        "development",
+        "--dart-define-from-file=.env"
+      ]
+    },
+    {
+      "name": "Admin · staging",
+      "type": "dart",
+      "request": "launch",
+      "cwd": "${workspaceFolder}/apps/admin",
+      "program": "lib/main.dart",
+      "preLaunchTask": "env:sync admin · staging",
+      "args": [
+        "--flavor",
+        "staging",
+        "--dart-define-from-file=.env.staging"
+      ]
+    },
+    {
+      "name": "Admin · production",
+      "type": "dart",
+      "request": "launch",
+      "cwd": "${workspaceFolder}/apps/admin",
+      "program": "lib/main.dart",
+      "preLaunchTask": "env:sync admin · production",
+      "args": [
+        "--flavor",
+        "production",
+        "--dart-define-from-file=.env.production"
+      ]
+    },
     // ── messaging_worker (sync target worker + load generated envFile) ────────
     {
       "name": "Messaging worker · development",
