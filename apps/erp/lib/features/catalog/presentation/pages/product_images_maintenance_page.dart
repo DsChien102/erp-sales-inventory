@@ -54,10 +54,14 @@ class _ProductImagesMaintenanceView extends StatelessWidget {
   void _openGallery(BuildContext context, List<ProductImageStateItem> images) {
     if (images.isEmpty) return;
 
-    final galleryImages = images.map((image) => GalleryImageItem(
-      localPath: image.localPath,
-      storageKey: image.storageKey,
-    )).toList();
+    final galleryImages = images
+        .map(
+          (image) => GalleryImageItem(
+            localPath: image.localPath,
+            storageKey: image.storageKey,
+          ),
+        )
+        .toList();
 
     int primaryIndex = images.indexWhere((img) => img.isPrimary);
     if (primaryIndex == -1) primaryIndex = 0;
@@ -84,7 +88,8 @@ class _ProductImagesMaintenanceView extends StatelessWidget {
             type: VToastType.success,
           );
           context.pop();
-        } else if (state.status == ProductImagesMaintenanceStatus.failure && state.errorMessage != null) {
+        } else if (state.status == ProductImagesMaintenanceStatus.failure &&
+            state.errorMessage != null) {
           VToast.show(
             context,
             title: 'Lỗi',
@@ -93,22 +98,19 @@ class _ProductImagesMaintenanceView extends StatelessWidget {
           );
         }
       },
-      child: Scaffold(
+      child: VPageScaffold(
         key: const Key('wgt_e07_u01_fr02_01'),
-        backgroundColor: dynamicColors.surface,
-        appBar: VAppBar(
-          title: 'Ảnh sản phẩm',
-          leading: IconButton(
-            icon: VIcon(icon: VIcons.arrowBack, color: dynamicColors.textPrimary),
-            onPressed: () => context.pop(),
-          ),
+        title: 'Ảnh sản phẩm',
+        leading: IconButton(
+          icon: VIcon(icon: VIcons.arrowBack, color: dynamicColors.textPrimary),
+          onPressed: () => context.pop(),
         ),
         body: SingleChildScrollView(
-          padding: const EdgeInsets.all(16.0),
+          padding: const EdgeInsets.all(VSpacing.space4),
           child: BlocBuilder<ProductImagesMaintenanceCubit, ProductImagesMaintenanceState>(
             builder: (context, state) {
               final canAddMore = state.images.length < 8;
-              
+
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
@@ -130,7 +132,8 @@ class _ProductImagesMaintenanceView extends StatelessWidget {
                           storageKey: image.storageKey,
                           isPrimary: image.isPrimary,
                           isUploading: false,
-                          onSetPrimary: () => context.read<ProductImagesMaintenanceCubit>().setPrimaryImage(index),
+                          onSetPrimary: () =>
+                              context.read<ProductImagesMaintenanceCubit>().setPrimaryImage(index),
                           onRemove: () => _handleRemove(context, index),
                         );
                       } else {
@@ -140,7 +143,10 @@ class _ProductImagesMaintenanceView extends StatelessWidget {
                               : () => _showAddImageOptions(context),
                           child: Container(
                             decoration: BoxDecoration(
-                              border: Border.all(color: dynamicColors.borderDefault, style: BorderStyle.solid),
+                              border: Border.all(
+                                color: dynamicColors.borderDefault,
+                                style: BorderStyle.solid,
+                              ),
                               borderRadius: BorderRadius.circular(VRadius.card),
                               color: dynamicColors.surface,
                             ),
@@ -149,14 +155,17 @@ class _ProductImagesMaintenanceView extends StatelessWidget {
                                 : Column(
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
-                                      VIcon(icon: VIcons.add, size: 24, color: dynamicColors.textSecondary),
-                                      const SizedBox(height: 4),
-                                      Text(
+                                      VIcon(
+                                        icon: VIcons.add,
+                                        size: 24,
+                                        color: dynamicColors.textSecondary,
+                                      ),
+                                      const VGap.xs(),
+                                      VText(
                                         'Thêm',
-                                        style: VTypography.bodySmall.copyWith(
-                                          color: dynamicColors.textSecondary,
-                                          fontWeight: FontWeight.w500,
-                                        ),
+                                        variant: VTextVariant.bodySmall,
+                                        color: dynamicColors.textSecondary,
+                                        style: const TextStyle(fontWeight: FontWeight.w500),
                                       ),
                                     ],
                                   ),
@@ -166,22 +175,21 @@ class _ProductImagesMaintenanceView extends StatelessWidget {
                     },
                   ),
                   if (state.images.isNotEmpty) ...[
-                    const SizedBox(height: 16),
+                    const SizedBox(height: VSpacing.space4),
                     Align(
                       alignment: Alignment.centerLeft,
                       child: GestureDetector(
                         onTap: () => _openGallery(context, state.images),
-                        child: Text(
+                        child: VText(
                           'Xem trước ảnh',
-                          style: VTypography.bodyDefault.copyWith(
-                            color: dynamicColors.primary,
-                            fontWeight: FontWeight.bold,
-                          ),
+                          variant: VTextVariant.bodyDefault,
+                          color: dynamicColors.primary,
+                          style: const TextStyle(fontWeight: FontWeight.bold),
                         ),
                       ),
                     ),
                   ],
-                  const SizedBox(height: 16),
+                  const SizedBox(height: VSpacing.space4),
                   if (!canAddMore)
                     RichText(
                       text: TextSpan(
@@ -190,7 +198,7 @@ class _ProductImagesMaintenanceView extends StatelessWidget {
                           TextSpan(
                             text: 'Đã đạt tối đa 8 ảnh. ',
                             style: VTypography.bodySmall.copyWith(
-                              color: VColors.warning,
+                              color: dynamicColors.warning,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
@@ -199,16 +207,17 @@ class _ProductImagesMaintenanceView extends StatelessWidget {
                       ),
                     )
                   else
-                    Text(
+                    VText(
                       'Chạm vào ảnh để đặt làm ảnh mặc định. Tối đa 8 ảnh.',
-                      style: VTypography.bodySmall.copyWith(color: dynamicColors.textSecondary),
+                      variant: VTextVariant.bodySmall,
+                      color: dynamicColors.textSecondary,
                     ),
                 ],
               );
             },
           ),
         ),
-        bottomNavigationBar: BlocBuilder<ProductImagesMaintenanceCubit, ProductImagesMaintenanceState>(
+        bottomBar: BlocBuilder<ProductImagesMaintenanceCubit, ProductImagesMaintenanceState>(
           builder: (context, state) {
             return ProductFormBottomBar(
               onCancel: () => context.pop(),

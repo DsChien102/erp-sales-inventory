@@ -52,16 +52,13 @@ class _ProductGuidedCreateView extends StatelessWidget {
           );
         }
       },
-      child: Scaffold(
+      child: VPageScaffold(
         key: const Key('wgt_e02_u01_fr01_01'),
-        backgroundColor: dynamicColors.surface,
         resizeToAvoidBottomInset: false,
-        appBar: VAppBar(
-          title: 'Tạo nhanh sản phẩm',
-          leading: IconButton(
-            icon: VIcon(icon: VIcons.arrowBack, color: dynamicColors.textPrimary),
-            onPressed: () => context.pop(),
-          ),
+        title: 'Tạo nhanh sản phẩm',
+        leading: IconButton(
+          icon: VIcon(icon: VIcons.arrowBack, color: dynamicColors.textPrimary),
+          onPressed: () => context.pop(),
         ),
         body: ProductGuidedCreateBody(
           onCancel: () => context.pop(),

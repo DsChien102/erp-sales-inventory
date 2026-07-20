@@ -37,11 +37,10 @@ class ProductConversionUnitReactivateConfirmDialog extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text(
+            VText(
               'Đơn vị "$unitName" sẽ được dùng lại trong nhập/bán hàng.',
-              style: VTypography.bodyDefault.copyWith(
-                color: dynamicColors.textSecondary,
-              ),
+              variant: VTextVariant.bodyDefault,
+              color: dynamicColors.textSecondary,
             ),
             const SizedBox(height: VSpacing.space6),
             Row(

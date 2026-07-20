@@ -37,29 +37,25 @@ class CustomFieldGroupDetailPage extends StatelessWidget {
           final groupIndex = state.groups.indexWhere((g) => g.groupId == groupId);
           final group = groupIndex != -1 ? state.groups[groupIndex] : null;
 
-          return Scaffold(
-            backgroundColor: colors.surface,
-            appBar: VAppBar(
-              title: group?.name ?? 'Trường thông tin',
-              showBackButton: true,
-              actions: [
-                IconButton(
-                  icon: const VIcon(icon: VIcons.moreVert, color: VColors.textPrimary),
-                  onPressed: () {
-                    if (group != null) {
-                      context
-                          .push(
-                            '/more/product-settings/custom-fields/upsert-group?groupId=${group.groupId}',
-                            extra: cubit,
-                          )
-                          .then((_) => cubit.loadGroups());
-                    }
-                  },
-                ),
-              ],
-            ),
+          return VPageScaffold(
+            title: group?.name ?? 'Trường thông tin',
+            actions: [
+              IconButton(
+                icon: VIcon(icon: VIcons.moreVert, color: colors.textPrimary),
+                onPressed: () {
+                  if (group != null) {
+                    context
+                        .push(
+                          '/more/product-settings/custom-fields/upsert-group?groupId=${group.groupId}',
+                          extra: cubit,
+                        )
+                        .then((_) => cubit.loadGroups());
+                  }
+                },
+              ),
+            ],
             body: group == null
-                ? const Center(child: Text('Không tìm thấy nhóm'))
+                ? const Center(child: VText('Không tìm thấy nhóm'))
                 : _buildBody(context, group, colors),
           );
         },
@@ -69,7 +65,7 @@ class CustomFieldGroupDetailPage extends StatelessWidget {
 
   Widget _buildBody(BuildContext context, CustomFieldGroupConfigDto group, VColorScheme colors) {
     final fields = List<CustomFieldDefinitionDto>.from(group.fields);
-    
+
     // Sort inactive fields to the bottom, keeping their relative order otherwise.
     fields.sort((a, b) {
       final aActive = a.status == CustomFieldConfigStatus.active ? 1 : 0;
@@ -81,10 +77,10 @@ class CustomFieldGroupDetailPage extends StatelessWidget {
     });
 
     final statusColor = group.status == CustomFieldConfigStatus.active
-        ? VColors.success
-        : VColors.textMuted;
+        ? colors.success
+        : colors.textMuted;
     final statusBg = group.status == CustomFieldConfigStatus.active
-        ? VColors.successBg
+        ? colors.successBg
         : VColors.neutral100;
     final statusText = group.status == CustomFieldConfigStatus.active ? 'Đang dùng' : 'Tạm tắt';
 
@@ -104,18 +100,18 @@ class CustomFieldGroupDetailPage extends StatelessWidget {
                     color: statusBg,
                     borderRadius: BorderRadius.circular(VRadius.pill),
                   ),
-                  child: Text(
+                  child: VText(
                     statusText,
-                    style: VTypography.bodySmall.copyWith(
-                      color: statusColor,
-                      fontWeight: FontWeight.w600,
-                    ),
+                    variant: VTextVariant.bodySmall,
+                    color: statusColor,
+                    style: const TextStyle(fontWeight: FontWeight.w600),
                   ),
                 ),
-                const SizedBox(width: 8),
-                Text(
+                const SizedBox(width: VSpacing.space2),
+                VText(
                   '${group.fieldCount} trường • ${group.requiredFieldCount} bắt buộc',
-                  style: VTypography.bodySmall.copyWith(color: VColors.textSecondary),
+                  variant: VTextVariant.bodySmall,
+                  color: colors.textSecondary,
                 ),
               ],
             ),
@@ -131,12 +127,11 @@ class CustomFieldGroupDetailPage extends StatelessWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
+                VText(
                   'TRƯỜNG THÔNG TIN',
-                  style: VTypography.bodySmall.copyWith(
-                    color: VColors.textSecondary,
-                    fontWeight: FontWeight.w600,
-                  ),
+                  variant: VTextVariant.bodySmall,
+                  color: colors.textSecondary,
+                  style: const TextStyle(fontWeight: FontWeight.w600),
                 ),
                 GestureDetector(
                   onTap: () => context.push(
@@ -146,13 +141,12 @@ class CustomFieldGroupDetailPage extends StatelessWidget {
                   child: Row(
                     children: [
                       const VIcon(icon: VIcons.add, size: 16, color: VColors.success),
-                      const SizedBox(width: 4),
-                      Text(
+                      const VGap.horizontalXs(),
+                      VText(
                         'Thêm trường',
-                        style: VTypography.bodySmall.copyWith(
-                          color: VColors.success,
-                          fontWeight: FontWeight.w600,
-                        ),
+                        variant: VTextVariant.bodySmall,
+                        color: colors.success,
+                        style: const TextStyle(fontWeight: FontWeight.w600),
                       ),
                     ],
                   ),
@@ -198,30 +192,32 @@ class CustomFieldGroupDetailPage extends StatelessWidget {
         decoration: BoxDecoration(
           color: colors.surface,
           borderRadius: BorderRadius.circular(VRadius.r12),
-          border: Border.all(color: VColors.borderDefault, style: BorderStyle.solid),
+          border: Border.all(color: colors.borderDefault, style: BorderStyle.solid),
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Container(
-              padding: const EdgeInsets.all(12),
+              padding: const EdgeInsets.all(VSpacing.space3),
               decoration: BoxDecoration(
-                color: VColors.successBg,
-                borderRadius: BorderRadius.circular(12),
+                color: colors.successBg,
+                borderRadius: BorderRadius.circular(VRadius.r12),
               ),
               child: const VIcon(icon: VIcons.checkList, size: 32, color: VColors.success),
             ),
-            const SizedBox(height: 16),
-            Text(
+            const SizedBox(height: VSpacing.space4),
+            VText(
               'Chưa có trường nào',
-              style: VTypography.headingH4.copyWith(color: VColors.textPrimary),
+              variant: VTextVariant.headingH4,
+              color: colors.textPrimary,
             ),
-            const SizedBox(height: 8),
-            Text(
+            const SizedBox(height: VSpacing.space2),
+            VText(
               'Thêm trường đầu tiên cho nhóm này.',
-              style: VTypography.bodyDefault.copyWith(color: VColors.textSecondary),
+              variant: VTextVariant.bodyDefault,
+              color: colors.textSecondary,
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: VSpacing.space6),
             VButton(
               onPressed: () => context.push(
                 '/more/product-settings/custom-fields/$groupId/upsert-field',
@@ -238,6 +234,7 @@ class CustomFieldGroupDetailPage extends StatelessWidget {
   }
 
   Widget _buildFieldCard(BuildContext context, CustomFieldDefinitionDto field, int index) {
+    final colors = context.vColors;
     String typeLabel = '';
     switch (field.fieldType.name) {
       case 'text':
@@ -290,9 +287,9 @@ class CustomFieldGroupDetailPage extends StatelessWidget {
           children: [
             ReorderableDragStartListener(
               index: index,
-              child: const VIcon(
+              child: VIcon(
                 icon: VIcons.gripVertical,
-                color: VColors.textMuted,
+                color: colors.textMuted,
               ),
             ),
             const SizedBox(width: VSpacing.space3),
@@ -304,55 +301,54 @@ class CustomFieldGroupDetailPage extends StatelessWidget {
                   Row(
                     children: [
                       Flexible(
-                        child: Text(
+                        child: VText(
                           field.name,
-                          style: VTypography.headingH4.copyWith(
-                            fontWeight: FontWeight.w600,
-                            color: isInactive ? VColors.textSecondary : VColors.textPrimary,
-                          ),
+                          variant: VTextVariant.headingH4,
+                          color: isInactive ? colors.textSecondary : colors.textPrimary,
+                          style: const TextStyle(fontWeight: FontWeight.w600),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
                       if (field.isRequired) ...[
-                        const SizedBox(width: 4),
-                        Text('*', style: VTypography.headingH4.copyWith(color: VColors.danger)),
+                        const SizedBox(width: VSpacing.space1),
+                        VText('*', variant: VTextVariant.headingH4, color: colors.danger),
                       ],
                       if (isInactive) ...[
-                        const SizedBox(width: 8),
+                        const SizedBox(width: VSpacing.space2),
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                           decoration: BoxDecoration(
                             color: VColors.neutral100,
                             borderRadius: BorderRadius.circular(VRadius.pill),
                           ),
-                          child: Text(
+                          child: VText(
                             'Tạm tắt',
-                            style: VTypography.caption.copyWith(
-                              color: VColors.textMuted,
-                              fontWeight: FontWeight.w600,
-                            ),
+                            variant: VTextVariant.caption,
+                            color: colors.textMuted,
+                            style: const TextStyle(fontWeight: FontWeight.w600),
                           ),
                         ),
                       ],
                     ],
                   ),
-                  const SizedBox(height: 4),
-                  Text(
+                  const SizedBox(height: VSpacing.space1),
+                  VText(
                     [
                       typeLabel,
                       if (field.isRequired) 'Bắt buộc',
                       if (attrString.isNotEmpty) attrString,
                     ].join(' • '),
-                    style: VTypography.bodySmall.copyWith(color: VColors.textSecondary),
+                    variant: VTextVariant.bodySmall,
+                    color: colors.textSecondary,
                   ),
                 ],
               ),
             ),
             const SizedBox(width: VSpacing.space2),
-            const VIcon(
+            VIcon(
               icon: VIcons.chevronRight,
-              color: VColors.textMuted,
+              color: colors.textMuted,
             ),
           ],
         ),

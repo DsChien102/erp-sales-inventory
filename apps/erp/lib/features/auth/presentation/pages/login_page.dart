@@ -1,3 +1,4 @@
+// harness:allow-design-system-bypass — login shell không dùng VAppBar (branded form, không phải page ERP chuẩn)
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:vet45_design_system/design_system.dart';
@@ -74,7 +75,6 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
-    final textTheme = Theme.of(context).textTheme;
     final dynamicColors = context.vColors;
 
     return Scaffold(
@@ -85,62 +85,63 @@ class _LoginPageState extends State<LoginPage> {
           child: LayoutBuilder(
             builder: (context, constraints) {
               return SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(horizontal: 24),
+                padding: const EdgeInsets.symmetric(horizontal: VSpacing.space6),
                 child: ConstrainedBox(
                   constraints: BoxConstraints(
                     minHeight: constraints.maxHeight,
                   ),
                   child: Column(
                     children: [
-                      const SizedBox(height: 64),
+                      const SizedBox(height: VSpacing.space12 + VSpacing.space4),
                       Container(
                         width: 80,
                         height: 80,
                         alignment: Alignment.center,
                         decoration: BoxDecoration(
-                          gradient: const LinearGradient(
+                          gradient: LinearGradient(
                             begin: Alignment.topLeft,
                             end: Alignment.bottomRight,
                             colors: [
-                              Color(0xFF43C17D),
-                              Color(0xFF16834D),
+                              dynamicColors.primary,
+                              dynamicColors.primaryFocus,
                             ],
                           ),
-                          borderRadius: BorderRadius.circular(14),
-                          boxShadow: const [
+                          borderRadius: BorderRadius.circular(VRadius.r12),
+                          boxShadow: [
                             BoxShadow(
-                              color: Color(0x3335A66D),
+                              color: dynamicColors.surfaceBrand,
                               blurRadius: 18,
                               offset: Offset(0, 10),
                             ),
                           ],
                         ),
-                        child: Text(
+                        child: VText(
                           'V45',
-                          style: textTheme.headlineSmall?.copyWith(
-                            color: Colors.white,
+                          variant: VTextVariant.headingH3,
+                          color: dynamicColors.surface,
+                          style: const TextStyle(
                             fontWeight: FontWeight.w900,
                             letterSpacing: 0,
                           ),
                         ),
                       ),
-                      const SizedBox(height: 22),
-                      Text(
+                      const SizedBox(height: VSpacing.space5),
+                      VText(
                         'VET45',
-                        style: VTypography.headingH1.copyWith(
-                          color: dynamicColors.textPrimary,
+                        variant: VTextVariant.headingH1,
+                        color: dynamicColors.textPrimary,
+                        style: const TextStyle(
                           fontWeight: FontWeight.w700,
                           letterSpacing: 0,
                         ),
                       ),
-                      const SizedBox(height: 6),
-                      Text(
+                      const SizedBox(height: VSpacing.space1 + 2),
+                      VText(
                         'Quản trị bán hàng thuốc thú y',
-                        style: VTypography.bodyDefault.copyWith(
-                          color: dynamicColors.textSecondary,
-                        ),
+                        variant: VTextVariant.bodyDefault,
+                        color: dynamicColors.textSecondary,
                       ),
-                      const SizedBox(height: 42),
+                      const SizedBox(height: VSpacing.space10),
                       _FieldLabel(
                         label: 'Số điện thoại hoặc email',
                         child: TextFormField(
@@ -194,7 +195,7 @@ class _LoginPageState extends State<LoginPage> {
                           },
                         ),
                       ),
-                      const SizedBox(height: 32),
+                      const SizedBox(height: VSpacing.space8),
                       VButton(
                         label: 'Đăng nhập',
                         isLoading: _isSubmitting,
@@ -203,11 +204,10 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                       Padding(
                         padding: const EdgeInsets.only(top: 180, bottom: 24),
-                        child: Text(
+                        child: VText(
                           '© VET45 · Phiên bản Mobile',
-                          style: VTypography.bodySmall.copyWith(
-                            color: dynamicColors.textMuted,
-                          ),
+                          variant: VTextVariant.bodySmall,
+                          color: dynamicColors.textMuted,
                         ),
                       ),
                     ],
@@ -249,11 +249,11 @@ class _LoginPageState extends State<LoginPage> {
       ),
       errorBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(VRadius.input),
-        borderSide: const BorderSide(color: VColors.danger),
+        borderSide: BorderSide(color: dynamicColors.danger),
       ),
       focusedErrorBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(VRadius.input),
-        borderSide: const BorderSide(color: VColors.danger, width: 2),
+        borderSide: BorderSide(color: dynamicColors.danger, width: 2),
       ),
     );
   }
@@ -275,12 +275,11 @@ class _FieldLabel extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
+        VText(
           label,
-          style: VTypography.headingH4.copyWith(
-            color: dynamicColors.textPrimary,
-            fontWeight: FontWeight.w600,
-          ),
+          variant: VTextVariant.headingH4,
+          color: dynamicColors.textPrimary,
+          style: const TextStyle(fontWeight: FontWeight.w600),
         ),
         const SizedBox(height: VSpacing.space2),
         child,

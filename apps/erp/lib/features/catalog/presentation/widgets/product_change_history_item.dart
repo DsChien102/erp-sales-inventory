@@ -60,34 +60,31 @@ class ProductChangeHistoryItem extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Expanded(
-                child: Text(
+                child: VText(
                   summaryText,
-                  style: VTypography.bodyDefault.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: dynamicColors.textPrimary,
-                  ),
+                  variant: VTextVariant.bodyDefault,
+                  color: dynamicColors.textPrimary,
+                  style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
               ),
-              Text(
+              VText(
                 dateStr,
-                style: VTypography.bodySmall.copyWith(
-                  color: dynamicColors.textSecondary,
-                ),
+                variant: VTextVariant.bodySmall,
+                color: dynamicColors.textSecondary,
               ),
             ],
           ),
           if (valueDescription.isNotEmpty) ...[
-            const SizedBox(height: 4),
-            Text(
+            const SizedBox(height: VSpacing.space1),
+            VText(
               valueDescription,
-              style: VTypography.bodyDefault.copyWith(
-                color: dynamicColors.textSecondary,
-              ),
+              variant: VTextVariant.bodyDefault,
+              color: dynamicColors.textSecondary,
             ),
           ],
           if (entry.reason != null && entry.reason!.isNotEmpty) ...[
-            const SizedBox(height: 4),
-            Text(
+            const SizedBox(height: VSpacing.space1),
+            VText(
               'Lý do: ${entry.reason}',
               style: VTypography.bodyDefault.copyWith(
                 color: dynamicColors.textSecondary,
@@ -95,12 +92,11 @@ class ProductChangeHistoryItem extends StatelessWidget {
               ),
             ),
           ],
-          const SizedBox(height: 4),
-          Text(
+          const SizedBox(height: VSpacing.space1),
+          VText(
             'bởi ${entry.actorDisplayName}',
-            style: VTypography.bodySmall.copyWith(
-              color: dynamicColors.textSecondary,
-            ),
+            variant: VTextVariant.bodySmall,
+            color: dynamicColors.textSecondary,
           ),
         ],
       ),

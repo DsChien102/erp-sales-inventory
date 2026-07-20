@@ -1,9 +1,7 @@
 import 'package:erp/core/di/injection.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:vet45_catalog_application/application.dart';
-import 'package:vet45_catalog_application/testing.dart';
 import 'package:vet45_catalog_domain/domain.dart';
-import 'package:vet45_shared_application/application.dart';
 
 import 'catalog_e2e_harness.dart';
 

@@ -28,18 +28,17 @@ class ProductLifecycleActionSheet extends StatelessWidget {
               icon: VIcons.delete,
               color: dynamicColors.danger,
             ),
-            title: Text(
+            title: VText(
               'Xóa sản phẩm',
-              style: VTypography.bodyDefault.copyWith(
-                color: dynamicColors.danger,
-              ),
+              variant: VTextVariant.bodyDefault,
+              color: dynamicColors.danger,
             ),
             onTap: () {
               context.pop();
               onDeleteRequested();
             },
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: VSpacing.space4),
         ],
       ),
     );

@@ -24,7 +24,7 @@ class ProductGuidedStepCustomFields extends StatelessWidget {
   Widget build(BuildContext context) {
     if (group.fields.isEmpty) {
       return const Center(
-        child: Text('Không có trường thông tin nào được cấu hình.'),
+        child: VText('Không có trường thông tin nào được cấu hình.'),
       );
     }
 

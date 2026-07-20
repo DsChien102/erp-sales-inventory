@@ -82,7 +82,8 @@ class _ProductProfileMaintenanceViewState extends State<_ProductProfileMaintenan
             type: VToastType.success,
           );
           context.pop();
-        } else if (state.status == ProductProfileMaintenanceStatus.failure && state.errorMessage != null) {
+        } else if (state.status == ProductProfileMaintenanceStatus.failure &&
+            state.errorMessage != null) {
           VToast.show(
             context,
             title: 'Lỗi',
@@ -91,18 +92,15 @@ class _ProductProfileMaintenanceViewState extends State<_ProductProfileMaintenan
           );
         }
       },
-      child: Scaffold(
+      child: VPageScaffold(
         key: const Key('wgt_e07_u01_fr01_01'),
-        backgroundColor: dynamicColors.surface,
-        appBar: VAppBar(
-          title: 'Hồ sơ sản phẩm',
-          leading: IconButton(
-            icon: VIcon(icon: VIcons.arrowBack, color: dynamicColors.textPrimary),
-            onPressed: () => context.pop(),
-          ),
+        title: 'Hồ sơ sản phẩm',
+        leading: IconButton(
+          icon: VIcon(icon: VIcons.arrowBack, color: dynamicColors.textPrimary),
+          onPressed: () => context.pop(),
         ),
         body: SingleChildScrollView(
-          padding: const EdgeInsets.all(16.0),
+          padding: const EdgeInsets.all(VSpacing.space4),
           child: BlocBuilder<ProductProfileMaintenanceCubit, ProductProfileMaintenanceState>(
             builder: (context, state) {
               return Column(
@@ -115,16 +113,18 @@ class _ProductProfileMaintenanceViewState extends State<_ProductProfileMaintenan
                     hintText: 'Tên nội bộ',
                     isRequired: true,
                     errorText: state.nameError,
-                    onChanged: (value) => context.read<ProductProfileMaintenanceCubit>().nameChanged(value),
+                    onChanged: (value) =>
+                        context.read<ProductProfileMaintenanceCubit>().nameChanged(value),
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: VSpacing.space4),
                   VTextField(
                     controller: _tradeNameController,
                     label: 'Tên thương mại',
                     hintText: 'Tên hiển thị cho khách',
-                    onChanged: (value) => context.read<ProductProfileMaintenanceCubit>().tradeNameChanged(value),
+                    onChanged: (value) =>
+                        context.read<ProductProfileMaintenanceCubit>().tradeNameChanged(value),
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: VSpacing.space4),
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -135,10 +135,11 @@ class _ProductProfileMaintenanceViewState extends State<_ProductProfileMaintenan
                           label: 'SKU',
                           hintText: 'Mã SKU',
                           errorText: state.skuError,
-                          onChanged: (value) => context.read<ProductProfileMaintenanceCubit>().skuChanged(value),
+                          onChanged: (value) =>
+                              context.read<ProductProfileMaintenanceCubit>().skuChanged(value),
                         ),
                       ),
-                      const SizedBox(width: 16),
+                      const SizedBox(width: VSpacing.space4),
                       Expanded(
                         child: VTextField(
                           key: const Key('input_profile_barcode'),
@@ -146,7 +147,8 @@ class _ProductProfileMaintenanceViewState extends State<_ProductProfileMaintenan
                           label: 'Barcode',
                           hintText: 'Mã vạch',
                           errorText: state.barcodeError,
-                          onChanged: (value) => context.read<ProductProfileMaintenanceCubit>().barcodeChanged(value),
+                          onChanged: (value) =>
+                              context.read<ProductProfileMaintenanceCubit>().barcodeChanged(value),
                         ),
                       ),
                     ],
@@ -156,7 +158,7 @@ class _ProductProfileMaintenanceViewState extends State<_ProductProfileMaintenan
             },
           ),
         ),
-        bottomNavigationBar: BlocBuilder<ProductProfileMaintenanceCubit, ProductProfileMaintenanceState>(
+        bottomBar: BlocBuilder<ProductProfileMaintenanceCubit, ProductProfileMaintenanceState>(
           builder: (context, state) {
             return ProductFormBottomBar(
               onCancel: () => context.pop(),

@@ -8,12 +8,11 @@ class ProductGuidedFields {
     final dynamicColors = context.vColors;
     return Padding(
       padding: const EdgeInsets.only(bottom: VSpacing.space1, left: VSpacing.space1),
-      child: Text(
+      child: VText(
         label,
-        style: VTypography.bodySmall.copyWith(
-          color: dynamicColors.textSecondary,
-          fontWeight: FontWeight.bold,
-        ),
+        variant: VTextVariant.bodySmall,
+        color: dynamicColors.textSecondary,
+        style: const TextStyle(fontWeight: FontWeight.bold),
       ),
     );
   }
@@ -28,7 +27,7 @@ class ProductGuidedFields {
       hintText: hintText,
       hintStyle: VTypography.bodyDefault.copyWith(color: dynamicColors.textMuted),
       errorText: errorText,
-      errorStyle: VTypography.bodySmall.copyWith(color: VColors.danger),
+      errorStyle: VTypography.bodySmall.copyWith(color: dynamicColors.danger),
       contentPadding: const EdgeInsets.symmetric(
         horizontal: VSpacing.space3,
         vertical: VSpacing.space2,
@@ -49,11 +48,11 @@ class ProductGuidedFields {
       ),
       errorBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(VRadius.button),
-        borderSide: BorderSide(color: VColors.danger),
+        borderSide: BorderSide(color: dynamicColors.danger),
       ),
       focusedErrorBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(VRadius.button),
-        borderSide: BorderSide(color: VColors.danger),
+        borderSide: BorderSide(color: dynamicColors.danger),
       ),
     );
   }
@@ -82,9 +81,10 @@ class ProductGuidedFields {
           TextButton(
             key: skipKey,
             onPressed: onSkip ?? cubit.nextStep,
-            child: Text(
+            child: VText(
               'Bỏ qua',
-              style: VTypography.bodyDefault.copyWith(color: dynamicColors.textSecondary),
+              variant: VTextVariant.bodyDefault,
+              color: dynamicColors.textSecondary,
             ),
           )
         else

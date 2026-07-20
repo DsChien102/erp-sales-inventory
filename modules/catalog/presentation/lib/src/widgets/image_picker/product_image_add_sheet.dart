@@ -35,23 +35,22 @@ class ProductImageAddSheet extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Text(
+              VText(
                 'Thêm ảnh sản phẩm',
-                style: VTypography.headingH4.copyWith(
-                  color: dynamicColors.textPrimary,
-                  fontWeight: FontWeight.bold,
-                ),
+                variant: VTextVariant.headingH4,
+                color: dynamicColors.textPrimary,
+                style: const TextStyle(fontWeight: FontWeight.bold),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: VSpacing.space4),
               _buildOption(
                 context,
                 icon: Icons.camera_alt,
-                iconColor: VColors.success,
+                iconColor: dynamicColors.success,
                 title: 'Chụp ảnh',
                 subtitle: 'Dùng camera của thiết bị',
                 onTap: () => Navigator.of(context).pop(ProductImageSource.camera),
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: VSpacing.space2),
               _buildOption(
                 context,
                 icon: Icons.photo_library,
@@ -60,16 +59,16 @@ class ProductImageAddSheet extends StatelessWidget {
                 subtitle: 'Chọn ảnh đã có trên máy',
                 onTap: () => Navigator.of(context).pop(ProductImageSource.gallery),
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: VSpacing.space2),
               _buildOption(
                 context,
                 icon: Icons.folder,
-                iconColor: const Color(0xFF9C27B0), // Purple
+                iconColor: dynamicColors.primary,
                 title: 'Chọn tệp',
                 subtitle: 'Tải ảnh từ thư mục',
                 onTap: () => Navigator.of(context).pop(ProductImageSource.file),
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: VSpacing.space6),
               VButton(
                 label: 'Hủy',
                 variant: VButtonVariant.outline,
@@ -95,7 +94,7 @@ class ProductImageAddSheet extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.all(12),
+        padding: const EdgeInsets.all(VSpacing.space3),
         decoration: BoxDecoration(
           border: Border.all(color: dynamicColors.borderDefault),
           borderRadius: BorderRadius.circular(VRadius.card),
@@ -104,31 +103,29 @@ class ProductImageAddSheet extends StatelessWidget {
         child: Row(
           children: [
             Container(
-              padding: const EdgeInsets.all(8),
+              padding: const EdgeInsets.all(VSpacing.space2),
               decoration: BoxDecoration(
                 color: iconColor.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(VRadius.card),
               ),
               child: Icon(icon, color: iconColor),
             ),
-            const SizedBox(width: 12),
+            const SizedBox(width: VSpacing.space3),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
+                  VText(
                     title,
-                    style: VTypography.bodyDefault.copyWith(
-                      color: dynamicColors.textPrimary,
-                      fontWeight: FontWeight.w600,
-                    ),
+                    variant: VTextVariant.bodyDefault,
+                    color: dynamicColors.textPrimary,
+                    style: const TextStyle(fontWeight: FontWeight.w600),
                   ),
-                  const SizedBox(height: 2),
-                  Text(
+                  const VGap.xs(),
+                  VText(
                     subtitle,
-                    style: VTypography.bodySmall.copyWith(
-                      color: dynamicColors.textSecondary,
-                    ),
+                    variant: VTextVariant.bodySmall,
+                    color: dynamicColors.textSecondary,
                   ),
                 ],
               ),

@@ -20,36 +20,34 @@ class ProductImageDeleteDialog extends StatelessWidget {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(VRadius.sheet)),
       backgroundColor: dynamicColors.surface,
       child: Padding(
-        padding: const EdgeInsets.all(24.0),
+        padding: const EdgeInsets.all(VSpacing.space6),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Container(
-              padding: const EdgeInsets.all(12),
+              padding: const EdgeInsets.all(VSpacing.space3),
               decoration: BoxDecoration(
-                color: VColors.dangerBg,
+                color: dynamicColors.dangerBg,
                 shape: BoxShape.circle,
               ),
-              child: Icon(Icons.delete_outline, color: VColors.danger, size: 32),
+              child: Icon(Icons.delete_outline, color: dynamicColors.danger, size: 32),
             ),
-            const SizedBox(height: 16),
-            Text(
+            const SizedBox(height: VSpacing.space4),
+            VText(
               'Xóa ảnh sản phẩm?',
-              style: VTypography.headingH4.copyWith(
-                color: dynamicColors.textPrimary,
-                fontWeight: FontWeight.bold,
-              ),
+              variant: VTextVariant.headingH4,
+              color: dynamicColors.textPrimary,
+              style: const TextStyle(fontWeight: FontWeight.bold),
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 8),
-            Text(
+            const SizedBox(height: VSpacing.space2),
+            VText(
               'Ảnh này sẽ bị xóa vĩnh viễn. Nếu đây là ảnh mặc định, hệ thống sẽ chọn ảnh còn lại đầu tiên làm ảnh mặc định.',
-              style: VTypography.bodyDefault.copyWith(
-                color: dynamicColors.textSecondary,
-              ),
+              variant: VTextVariant.bodyDefault,
+              color: dynamicColors.textSecondary,
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: VSpacing.space6),
             Row(
               children: [
                 Expanded(
@@ -59,7 +57,7 @@ class ProductImageDeleteDialog extends StatelessWidget {
                     onPressed: () => Navigator.of(context).pop(false),
                   ),
                 ),
-                const SizedBox(width: 16),
+                const SizedBox(width: VSpacing.space4),
                 Expanded(
                   child: VButton(
                     label: 'Xóa ảnh',

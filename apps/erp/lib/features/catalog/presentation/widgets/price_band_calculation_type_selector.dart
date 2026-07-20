@@ -74,55 +74,44 @@ class _PriceBandCalculationTypeSelectorState extends State<PriceBandCalculationT
             Container(
               decoration: BoxDecoration(
                 color: dynamicColors.surface,
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: BorderRadius.circular(VRadius.r8),
                 border: Border.all(color: dynamicColors.borderDefault),
               ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.all(16).copyWith(bottom: 8),
-                    child: Text(
-                      'Cách tính',
-                      style: VTypography.bodyDefault.copyWith(fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                  _buildOption(
-                    context,
-                    title: 'Theo khung giá cửa hàng',
-                    subtitle: 'Tự động áp dụng khung giá của hàng.',
+              padding: const EdgeInsets.all(VSpacing.space4),
+              child: VChoiceList<PriceBandCalculationType>(
+                title: 'Cách tính',
+                choices: const [
+                  VChoiceOption(
                     value: PriceBandCalculationType.storeRule,
-                    groupValue: state.selectedType,
-                    onChanged: (val) => _changeType(context, val!),
+                    label: 'Theo khung giá cửa hàng',
+                    helpText: 'Tự động áp dụng khung giá của hàng.',
                   ),
-                  _buildOption(
-                    context,
-                    title: 'Tự động riêng theo cấu hình',
-                    subtitle: 'Tự động tính giá theo cấu hình của sản phẩm.',
+                  VChoiceOption(
                     value: PriceBandCalculationType.customConfig,
-                    groupValue: state.selectedType,
-                    onChanged: (val) => _changeType(context, val!),
+                    label: 'Tự động riêng theo cấu hình',
+                    helpText: 'Tự động tính giá theo cấu hình của sản phẩm.',
                   ),
-                  _buildOption(
-                    context,
-                    title: 'Nhập thủ công',
-                    subtitle: 'Tự nhập giá cho đơn vị này.',
+                  VChoiceOption(
                     value: PriceBandCalculationType.manual,
-                    groupValue: state.selectedType,
-                    onChanged: (val) => _changeType(context, val!),
+                    label: 'Nhập thủ công',
+                    helpText: 'Tự nhập giá cho đơn vị này.',
                   ),
-                  const SizedBox(height: 8),
                 ],
+                selected: [state.selectedType],
+                onChanged: (selected) {
+                  if (selected.isEmpty) return;
+                  _changeType(context, selected.first);
+                },
               ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: VSpacing.space4),
             Container(
               decoration: BoxDecoration(
                 color: dynamicColors.surface,
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: BorderRadius.circular(VRadius.r8),
                 border: Border.all(color: dynamicColors.borderDefault),
               ),
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(VSpacing.space4),
               child: _buildDetailsContent(context, state),
             ),
           ],
@@ -133,35 +122,6 @@ class _PriceBandCalculationTypeSelectorState extends State<PriceBandCalculationT
 
   void _changeType(BuildContext context, PriceBandCalculationType type) {
     context.read<EditProductUnitPriceBandCubit>().changeCalculationType(type);
-  }
-
-  Widget _buildOption(
-    BuildContext context, {
-    required String title,
-    required String subtitle,
-    required PriceBandCalculationType value,
-    required PriceBandCalculationType groupValue,
-    required ValueChanged<PriceBandCalculationType?> onChanged,
-  }) {
-    final dynamicColors = context.vColors;
-    return Material(
-      color: Colors.transparent,
-      child: RadioListTile<PriceBandCalculationType>(
-        title: Text(
-          title,
-          style: VTypography.bodyDefault.copyWith(color: dynamicColors.textPrimary),
-        ),
-        subtitle: Text(
-          subtitle,
-          style: VTypography.bodySmall.copyWith(color: dynamicColors.textSecondary),
-        ),
-        value: value,
-        groupValue: groupValue,
-        onChanged: onChanged,
-        contentPadding: const EdgeInsets.symmetric(horizontal: 8),
-        activeColor: dynamicColors.success,
-      ),
-    );
   }
 
   Widget _buildDetailsContent(BuildContext context, EditProductUnitPriceBandLoaded state) {
@@ -200,11 +160,12 @@ class _PriceBandCalculationTypeSelectorState extends State<PriceBandCalculationT
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
+        VText(
           'Khung của cửa hàng đang áp dụng',
-          style: VTypography.bodySmall.copyWith(color: dynamicColors.textSecondary),
+          variant: VTextVariant.bodySmall,
+          color: dynamicColors.textSecondary,
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: VSpacing.space4),
         _buildDetailRow(
           context,
           'Giá niêm yết',
@@ -213,7 +174,7 @@ class _PriceBandCalculationTypeSelectorState extends State<PriceBandCalculationT
             state.suggestion.suggestedListBeforeVat ?? 0,
           ),
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: VSpacing.space3),
         _buildDetailRow(
           context,
           'Giá sàn',
@@ -222,11 +183,11 @@ class _PriceBandCalculationTypeSelectorState extends State<PriceBandCalculationT
             state.suggestion.suggestedFloorBeforeVat ?? 0,
           ),
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: VSpacing.space4),
         Divider(color: dynamicColors.borderDefault),
-        const SizedBox(height: 16),
+        const SizedBox(height: VSpacing.space4),
         _buildFinalPriceRow(context, 'Giá niêm yết', state.suggestion.suggestedListBeforeVat),
-        const SizedBox(height: 12),
+        const SizedBox(height: VSpacing.space3),
         _buildFinalPriceRow(context, 'Giá sàn', state.suggestion.suggestedFloorBeforeVat),
       ],
     );
@@ -238,11 +199,12 @@ class _PriceBandCalculationTypeSelectorState extends State<PriceBandCalculationT
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
+        VText(
           'Nhập cấu hình tính toán',
-          style: VTypography.bodyDefault.copyWith(fontWeight: FontWeight.bold),
+          variant: VTextVariant.bodyDefault,
+          style: const TextStyle(fontWeight: FontWeight.bold),
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: VSpacing.space4),
         _buildMarginInputRow(
           context,
           controller: _customBaseMarginController,
@@ -252,7 +214,7 @@ class _PriceBandCalculationTypeSelectorState extends State<PriceBandCalculationT
           onChanged: (val) =>
               context.read<EditProductUnitPriceBandCubit>().updateCustomBaseMargin(val ?? 0),
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: VSpacing.space4),
         _buildMarginInputRow(
           context,
           controller: _customFloorMarginController,
@@ -262,29 +224,30 @@ class _PriceBandCalculationTypeSelectorState extends State<PriceBandCalculationT
           onChanged: (val) =>
               context.read<EditProductUnitPriceBandCubit>().updateCustomFloorMargin(val ?? 0),
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: VSpacing.space4),
         Divider(color: dynamicColors.borderDefault),
-        const SizedBox(height: 16),
+        const SizedBox(height: VSpacing.space4),
         _buildFinalPriceRow(context, 'Giá niêm yết (dự kiến)', state.calculatedListPrice),
-        const SizedBox(height: 12),
+        const SizedBox(height: VSpacing.space3),
         _buildFinalPriceRow(context, 'Giá sàn (dự kiến)', state.calculatedFloorPrice),
-        const SizedBox(height: 16),
+        const SizedBox(height: VSpacing.space4),
         Container(
-          padding: const EdgeInsets.all(12),
+          padding: const EdgeInsets.all(VSpacing.space3),
           decoration: BoxDecoration(
             color: dynamicColors.background,
-            borderRadius: BorderRadius.circular(4),
+            borderRadius: BorderRadius.circular(VRadius.r4),
             border: Border.all(color: dynamicColors.borderDefault),
           ),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               VIcon(icon: VIcons.info, size: 16, color: dynamicColors.textSecondary),
-              const SizedBox(width: 8),
+              const VGap.horizontalSm(),
               Expanded(
-                child: Text(
+                child: VText(
                   'Giá sẽ tự cập nhật khi Giá cơ sở thay đổi.',
-                  style: VTypography.bodySmall.copyWith(color: dynamicColors.textSecondary),
+                  variant: VTextVariant.bodySmall,
+                  color: dynamicColors.textSecondary,
                 ),
               ),
             ],
@@ -300,11 +263,12 @@ class _PriceBandCalculationTypeSelectorState extends State<PriceBandCalculationT
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
+        VText(
           'Nhập giá thủ công',
-          style: VTypography.bodyDefault.copyWith(fontWeight: FontWeight.bold),
+          variant: VTextVariant.bodyDefault,
+          style: const TextStyle(fontWeight: FontWeight.bold),
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: VSpacing.space4),
         _buildManualInputRow(
           context,
           controller: _manualListPriceController,
@@ -313,7 +277,7 @@ class _PriceBandCalculationTypeSelectorState extends State<PriceBandCalculationT
           onChanged: (val) =>
               context.read<EditProductUnitPriceBandCubit>().updateManualListPrice(val ?? 0),
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: VSpacing.space4),
         _buildManualInputRow(
           context,
           controller: _manualFloorPriceController,
@@ -322,23 +286,24 @@ class _PriceBandCalculationTypeSelectorState extends State<PriceBandCalculationT
           onChanged: (val) =>
               context.read<EditProductUnitPriceBandCubit>().updateManualFloorPrice(val ?? 0),
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: VSpacing.space4),
         Container(
-          padding: const EdgeInsets.all(12),
+          padding: const EdgeInsets.all(VSpacing.space3),
           decoration: BoxDecoration(
             color: dynamicColors.background,
-            borderRadius: BorderRadius.circular(4),
+            borderRadius: BorderRadius.circular(VRadius.r4),
             border: Border.all(color: dynamicColors.borderDefault),
           ),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               VIcon(icon: VIcons.info, size: 16, color: dynamicColors.textSecondary),
-              const SizedBox(width: 8),
+              const VGap.horizontalSm(),
               Expanded(
-                child: Text(
+                child: VText(
                   'Giá sẽ không tự cập nhật khi Giá cơ sở thay đổi.',
-                  style: VTypography.bodySmall.copyWith(color: dynamicColors.textSecondary),
+                  variant: VTextVariant.bodySmall,
+                  color: dynamicColors.textSecondary,
                 ),
               ),
             ],
@@ -362,8 +327,8 @@ class _PriceBandCalculationTypeSelectorState extends State<PriceBandCalculationT
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: VTypography.bodySmall.copyWith(color: context.vColors.textSecondary)),
-        const SizedBox(height: 8),
+        VText(label, variant: VTextVariant.bodySmall, color: context.vColors.textSecondary),
+        const SizedBox(height: VSpacing.space2),
         Row(
           children: [
             SizedBox(
@@ -375,10 +340,11 @@ class _PriceBandCalculationTypeSelectorState extends State<PriceBandCalculationT
                 onChanged: (val) => onChanged(double.tryParse(val)),
               ),
             ),
-            const SizedBox(width: 12),
-            Text(
+            const SizedBox(width: VSpacing.space3),
+            VText(
               '= $priceStr',
-              style: VTypography.bodyDefault.copyWith(color: context.vColors.textSecondary),
+              variant: VTextVariant.bodyDefault,
+              color: context.vColors.textSecondary,
             ),
           ],
         ),
@@ -396,8 +362,8 @@ class _PriceBandCalculationTypeSelectorState extends State<PriceBandCalculationT
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        Expanded(flex: 2, child: Text(label, style: VTypography.bodyDefault)),
-        const SizedBox(width: 16),
+        Expanded(flex: 2, child: VText(label, style: VTypography.bodyDefault)),
+        const SizedBox(width: VSpacing.space4),
         Expanded(
           flex: 3,
           child: VMoneyField(
@@ -416,8 +382,12 @@ class _PriceBandCalculationTypeSelectorState extends State<PriceBandCalculationT
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(label, style: VTypography.bodyDefault.copyWith(color: dynamicColors.textSecondary)),
-        Text(margin, style: VTypography.bodyDefault.copyWith(fontWeight: FontWeight.bold)),
+        VText(label, variant: VTextVariant.bodyDefault, color: dynamicColors.textSecondary),
+        VText(
+          margin,
+          variant: VTextVariant.bodyDefault,
+          style: const TextStyle(fontWeight: FontWeight.bold),
+        ),
       ],
     );
   }
@@ -426,10 +396,11 @@ class _PriceBandCalculationTypeSelectorState extends State<PriceBandCalculationT
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(label, style: VTypography.bodyDefault),
-        Text(
+        VText(label, style: VTypography.bodyDefault),
+        VText(
           price != null ? formatCatalogCurrency(price) : '—',
-          style: VTypography.bodyDefault.copyWith(fontWeight: FontWeight.bold),
+          variant: VTextVariant.bodyDefault,
+          style: const TextStyle(fontWeight: FontWeight.bold),
         ),
       ],
     );

@@ -5,7 +5,6 @@ import 'package:vet45_catalog_presentation/presentation.dart';
 import 'package:vet45_design_system/design_system.dart';
 import 'package:vet45_catalog_domain/domain.dart';
 import 'product_measurement_units_page.dart';
-import 'product_images_maintenance_page.dart';
 import 'product_stock_adjustment_page.dart';
 import 'product_manual_base_price_page.dart';
 import 'product_price_bands_page.dart';
@@ -37,19 +36,10 @@ class ProductReadinessChecklistPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final dynamicColors = context.vColors;
-
-    return Scaffold(
+    return VPageScaffold(
       key: const Key('wgt_e02_u03_checklist'),
-      backgroundColor: dynamicColors.surface,
-      appBar: VAppBar(
-        title: 'Sẵn sàng vận hành',
-        titleStyle: VTypography.headingH3.copyWith(
-          color: dynamicColors.textPrimary,
-          fontWeight: FontWeight.bold,
-        ),
-        subtitle: readinessView.productName,
-      ),
+
+      title: 'Sẵn sàng vận hành',
       body: ProductReadinessChecklistBody(
         readinessView: readinessView,
         onActionTap: (actionId) {
@@ -74,52 +64,62 @@ class ProductReadinessChecklistPage extends StatelessWidget {
           }
 
           if (actionId == 'missing_base_unit') {
-            context.push(
-              '/products/items/pcc/measurement-units',
-              extra: ProductMeasurementUnitsRouteArgs(product: product),
-            ).then(popOnReturn);
+            context
+                .push(
+                  '/products/items/pcc/measurement-units',
+                  extra: ProductMeasurementUnitsRouteArgs(product: product),
+                )
+                .then(popOnReturn);
             return;
           }
 
           if (actionId == 'missing_image') {
-            context.push(
-              '/products/items/pcc/images-maintenance',
-              extra: product,
-            ).then(popOnReturn);
+            context
+                .push(
+                  '/products/items/pcc/images-maintenance',
+                  extra: product,
+                )
+                .then(popOnReturn);
             return;
           }
 
           if (actionId == 'missing_stock') {
-            context.push(
-              '/products/items/pcc/stock',
-              extra: ProductStockAdjustmentRouteArgs(product: product),
-            ).then(popOnReturn);
+            context
+                .push(
+                  '/products/items/pcc/stock',
+                  extra: ProductStockAdjustmentRouteArgs(product: product),
+                )
+                .then(popOnReturn);
             return;
           }
 
           if (actionId == 'missing_price') {
-            context.push(
-              '/products/items/pcc/manual-base-price',
-              extra: ProductManualBasePriceRouteArgs(
-                product: product,
-                basePriceCard: ProductBasePriceCardDto(
-                  mode: BasePriceMode.manual,
-                  sourceLabel: 'Nhập thủ công',
-                  baseUnitName: product.baseUnit,
-                ),
-              ),
-            ).then(popOnReturn);
+            context
+                .push(
+                  '/products/items/pcc/manual-base-price',
+                  extra: ProductManualBasePriceRouteArgs(
+                    product: product,
+                    basePriceCard: ProductBasePriceCardDto(
+                      mode: BasePriceMode.manual,
+                      sourceLabel: 'Nhập thủ công',
+                      baseUnitName: product.baseUnit,
+                    ),
+                  ),
+                )
+                .then(popOnReturn);
             return;
           }
 
           if (actionId == 'missing_price_band') {
-            context.push(
-              '/products/items/pcc/price-bands',
-              extra: ProductPriceBandsRouteArgs(
-                productId: product.id,
-                productName: product.name,
-              ),
-            ).then(popOnReturn);
+            context
+                .push(
+                  '/products/items/pcc/price-bands',
+                  extra: ProductPriceBandsRouteArgs(
+                    productId: product.id,
+                    productName: product.name,
+                  ),
+                )
+                .then(popOnReturn);
             return;
           }
 
@@ -133,14 +133,16 @@ class ProductReadinessChecklistPage extends StatelessWidget {
               );
               return;
             }
-            context.push(
-              '/products/items/pcc/custom-fields/edit',
-              extra: ProductCustomFieldGroupEditRouteArgs(
-                productId: product.id,
-                productName: product.name,
-                groupId: defaultCustomFieldGroupId!,
-              ),
-            ).then(popOnReturn);
+            context
+                .push(
+                  '/products/items/pcc/custom-fields/edit',
+                  extra: ProductCustomFieldGroupEditRouteArgs(
+                    productId: product.id,
+                    productName: product.name,
+                    groupId: defaultCustomFieldGroupId!,
+                  ),
+                )
+                .then(popOnReturn);
             return;
           }
 

@@ -27,15 +27,14 @@ class CustomFieldDeactivateConfirmSheet extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text(
+            VText(
               'Tạm tắt trường này?',
-              style: VTypography.headingH3.copyWith(
-                color: dynamicColors.textPrimary,
-                fontWeight: FontWeight.w700,
-              ),
+              variant: VTextVariant.headingH3,
+              color: dynamicColors.textPrimary,
+              style: const TextStyle(fontWeight: FontWeight.w700),
             ),
             const SizedBox(height: VSpacing.space3),
-            Text(
+            VText(
               'Dữ liệu đã nhập trên sản phẩm sẽ được giữ lại. '
               'Trường sẽ không hiển thị khi tạo/sửa sản phẩm mới.',
               style: VTypography.bodyDefault.copyWith(

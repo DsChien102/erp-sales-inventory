@@ -41,12 +41,11 @@ class StorePriceRuleChangeHistoryEntryCard extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
+              VText(
                 dateText,
-                style: VTypography.bodyDefault.copyWith(
-                  color: colors.textPrimary,
-                  fontWeight: FontWeight.w700,
-                ),
+                variant: VTextVariant.bodyDefault,
+                color: colors.textPrimary,
+                style: const TextStyle(fontWeight: FontWeight.w700),
               ),
               if (entry.isCurrent)
                 Container(
@@ -58,34 +57,31 @@ class StorePriceRuleChangeHistoryEntryCard extends StatelessWidget {
                     color: colors.surfaceBrand,
                     borderRadius: BorderRadius.circular(VRadius.r4),
                   ),
-                  child: Text(
+                  child: VText(
                     'Hiện tại',
-                    style: VTypography.caption.copyWith(
-                      color: colors.primary,
-                      fontWeight: FontWeight.w600,
-                    ),
+                    variant: VTextVariant.caption,
+                    color: colors.primary,
+                    style: const TextStyle(fontWeight: FontWeight.w600),
                   ),
                 ),
             ],
           ),
-          const SizedBox(height: 4),
-          Text(
+          const SizedBox(height: VSpacing.space1),
+          VText(
             'Bởi: ${entry.actorDisplayName}',
-            style: VTypography.bodySmall.copyWith(
-              color: colors.textSecondary,
-            ),
+            variant: VTextVariant.bodySmall,
+            color: colors.textSecondary,
           ),
           const SizedBox(height: VSpacing.space3),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
+              VText(
                 'Giá niêm yết',
-                style: VTypography.bodyDefault.copyWith(
-                  color: colors.textPrimary,
-                ),
+                variant: VTextVariant.bodyDefault,
+                color: colors.textPrimary,
               ),
-              Text(
+              VText(
                 '+$listPercent%',
                 style: VTypography.bodyDefault.copyWith(
                   color: colors.textPrimary,
@@ -96,14 +92,13 @@ class StorePriceRuleChangeHistoryEntryCard extends StatelessWidget {
             ],
           ),
           if (listDelta != null) ...[
-            const SizedBox(height: 2),
+            const VGap.xs(),
             Align(
               alignment: Alignment.centerRight,
-              child: Text(
+              child: VText(
                 listDelta,
-                style: VTypography.bodySmall.copyWith(
-                  color: colors.textSecondary,
-                ),
+                variant: VTextVariant.bodySmall,
+                color: colors.textSecondary,
               ),
             ),
           ],
@@ -111,13 +106,12 @@ class StorePriceRuleChangeHistoryEntryCard extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
+              VText(
                 'Giá sàn',
-                style: VTypography.bodyDefault.copyWith(
-                  color: colors.textPrimary,
-                ),
+                variant: VTextVariant.bodyDefault,
+                color: colors.textPrimary,
               ),
-              Text(
+              VText(
                 '$floorPercent%',
                 style: VTypography.bodyDefault.copyWith(
                   color: colors.textPrimary,
@@ -128,14 +122,13 @@ class StorePriceRuleChangeHistoryEntryCard extends StatelessWidget {
             ],
           ),
           if (floorDelta != null) ...[
-            const SizedBox(height: 2),
+            const VGap.xs(),
             Align(
               alignment: Alignment.centerRight,
-              child: Text(
+              child: VText(
                 floorDelta,
-                style: VTypography.bodySmall.copyWith(
-                  color: colors.textSecondary,
-                ),
+                variant: VTextVariant.bodySmall,
+                color: colors.textSecondary,
               ),
             ),
           ],

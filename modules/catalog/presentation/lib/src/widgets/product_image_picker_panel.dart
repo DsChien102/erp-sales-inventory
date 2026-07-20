@@ -106,13 +106,12 @@ class ProductImagePickerPanel extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Icon(Icons.add, size: 24, color: dynamicColors.textSecondary),
-                      const SizedBox(height: 4),
-                      Text(
+                      const SizedBox(height: VSpacing.space1),
+                      VText(
                         'Thêm',
-                        style: VTypography.bodySmall.copyWith(
-                          color: dynamicColors.textSecondary,
-                          fontWeight: FontWeight.w500,
-                        ),
+                        variant: VTextVariant.bodySmall,
+                        color: dynamicColors.textSecondary,
+                        style: const TextStyle(fontWeight: FontWeight.w500),
                       ),
                     ],
                   ),
@@ -122,22 +121,21 @@ class ProductImagePickerPanel extends StatelessWidget {
           },
         ),
         if (drafts.isNotEmpty) ...[
-          const SizedBox(height: 16),
+          const SizedBox(height: VSpacing.space4),
           Align(
             alignment: Alignment.centerLeft,
             child: GestureDetector(
               onTap: () => _openGallery(context),
-              child: Text(
+              child: VText(
                 'Xem gallery',
-                style: VTypography.bodyDefault.copyWith(
-                  color: dynamicColors.primary,
-                  fontWeight: FontWeight.bold,
-                ),
+                variant: VTextVariant.bodyDefault,
+                color: dynamicColors.primary,
+                style: const TextStyle(fontWeight: FontWeight.bold),
               ),
             ),
           ),
         ],
-        const SizedBox(height: 16),
+        const SizedBox(height: VSpacing.space4),
         if (!canAddMore)
           RichText(
             text: TextSpan(
@@ -146,7 +144,7 @@ class ProductImagePickerPanel extends StatelessWidget {
                 TextSpan(
                   text: 'Đã đạt tối đa $maxImages ảnh. ',
                   style: VTypography.bodySmall.copyWith(
-                    color: VColors.warning,
+                    color: dynamicColors.warning,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -155,9 +153,10 @@ class ProductImagePickerPanel extends StatelessWidget {
             ),
           )
         else
-          Text(
+          VText(
             'Chạm vào ảnh để đặt làm ảnh mặc định. Tối đa $maxImages ảnh.',
-            style: VTypography.bodySmall.copyWith(color: dynamicColors.textSecondary),
+            variant: VTextVariant.bodySmall,
+            color: dynamicColors.textSecondary,
           ),
       ],
     );

@@ -27,14 +27,9 @@ class _StorePriceRuleSettingsBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.vColors;
-
-    return Scaffold(
-      backgroundColor: colors.surface,
-      appBar: const VAppBar(
-        title: 'Giá sàn & Giá niêm yết',
-        showBackButton: true,
-      ),
+    return VPageScaffold(
+      title: 'Giá sàn & Giá niêm yết',
+      showBackButton: true,
       body: BlocConsumer<StorePriceRuleSettingsCubit,
           StorePriceRuleSettingsState>(
         listener: (context, state) {
@@ -135,15 +130,16 @@ class _StorePriceRuleSettingsBody extends StatelessWidget {
           VIcon(icon: VIcons.error, size: 18, color: colors.danger),
           const SizedBox(width: VSpacing.space2),
           Expanded(
-            child: Text(
+            child: VText(
               message,
-              style: VTypography.bodySmall.copyWith(color: colors.danger),
+              variant: VTextVariant.bodySmall,
+              color: colors.danger,
             ),
           ),
           if (onRetry != null)
             TextButton(
               onPressed: onRetry,
-              child: const Text('Thử lại'),
+              child: const VText('Thử lại'),
             ),
         ],
       ),
@@ -176,14 +172,13 @@ class _StorePriceRuleSettingsBody extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
+                VText(
                   'Khung giá cửa hàng',
-                  style: VTypography.headingH4.copyWith(
-                    color: colors.textPrimary,
-                    fontWeight: FontWeight.w700,
-                  ),
+                  variant: VTextVariant.headingH4,
+                  color: colors.textPrimary,
+                  style: const TextStyle(fontWeight: FontWeight.w700),
                 ),
-                const SizedBox(height: 4),
+                const SizedBox(height: VSpacing.space1),
                 Text.rich(
                   TextSpan(
                     children: [
@@ -234,7 +229,7 @@ class _StorePriceRuleSettingsBody extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
+              VText(
                 'CẤU HÌNH HIỆN TẠI',
                 style: VTypography.caption.copyWith(
                   color: colors.textSecondary,
@@ -263,13 +258,12 @@ class _StorePriceRuleSettingsBody extends StatelessWidget {
                     children: [
                       VIcon(icon: VIcons.edit,
                           size: 16, color: colors.primary),
-                      const SizedBox(width: 4),
-                      Text(
+                      const VGap.horizontalXs(),
+                      VText(
                         'Sửa',
-                        style: VTypography.bodyDefault.copyWith(
-                          color: colors.primary,
-                          fontWeight: FontWeight.w500,
-                        ),
+                        variant: VTextVariant.bodyDefault,
+                        color: colors.primary,
+                        style: const TextStyle(fontWeight: FontWeight.w500),
                       ),
                     ],
                   ),
@@ -281,11 +275,10 @@ class _StorePriceRuleSettingsBody extends StatelessWidget {
           if (!hasRule)
             Padding(
               padding: const EdgeInsets.only(bottom: VSpacing.space3),
-              child: Text(
+              child: VText(
                 'Chưa cấu hình khung giá cửa hàng. Nhấn Sửa để thiết lập tỷ lệ lãi và giá sàn.',
-                style: VTypography.bodySmall.copyWith(
-                  color: colors.textSecondary,
-                ),
+                variant: VTextVariant.bodySmall,
+                color: colors.textSecondary,
               ),
             ),
 
@@ -301,9 +294,9 @@ class _StorePriceRuleSettingsBody extends StatelessWidget {
                 listMarkupPercent != null ? '+$listMarkupPercent%' : '—',
             valueColor: colors.success,
           ),
-          const Padding(
+          Padding(
             padding: EdgeInsets.symmetric(vertical: VSpacing.space3),
-            child: Divider(height: 1, color: VColors.borderDefault),
+            child: Divider(height: 1, color: colors.borderDefault),
           ),
 
           // Giá sàn row
@@ -350,24 +343,22 @@ class _StorePriceRuleSettingsBody extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
+              VText(
                 label,
-                style: VTypography.bodyDefault.copyWith(
-                  color: colors.textPrimary,
-                  fontWeight: FontWeight.w600,
-                ),
+                variant: VTextVariant.bodyDefault,
+                color: colors.textPrimary,
+                style: const TextStyle(fontWeight: FontWeight.w600),
               ),
-              const SizedBox(height: 2),
-              Text(
+              const VGap.xs(),
+              VText(
                 sublabel,
-                style: VTypography.bodySmall.copyWith(
-                  color: colors.textSecondary,
-                ),
+                variant: VTextVariant.bodySmall,
+                color: colors.textSecondary,
               ),
             ],
           ),
         ),
-        Text(
+        VText(
           valueText,
           style: VTypography.headingH4.copyWith(
             color: valueColor,
@@ -395,12 +386,11 @@ class _StorePriceRuleSettingsBody extends StatelessWidget {
             children: [
               VIcon(icon: VIcons.info, size: 18, color: colors.warning),
               const SizedBox(width: VSpacing.space2),
-              Text(
+              VText(
                 'Lưu ý',
-                style: VTypography.bodyDefault.copyWith(
-                  color: colors.warning,
-                  fontWeight: FontWeight.w600,
-                ),
+                variant: VTextVariant.bodyDefault,
+                color: colors.warning,
+                style: const TextStyle(fontWeight: FontWeight.w600),
               ),
             ],
           ),
@@ -506,19 +496,17 @@ class _StorePriceRuleSettingsBody extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
+                VText(
                   'Lịch sử thay đổi',
-                  style: VTypography.bodyDefault.copyWith(
-                    color: colors.textPrimary,
-                    fontWeight: FontWeight.w600,
-                  ),
+                  variant: VTextVariant.bodyDefault,
+                  color: colors.textPrimary,
+                  style: const TextStyle(fontWeight: FontWeight.w600),
                 ),
-                const SizedBox(height: 2),
-                Text(
+                const VGap.xs(),
+                VText(
                   'Xem các thay đổi khung giá cửa hàng',
-                  style: VTypography.bodySmall.copyWith(
-                    color: colors.textSecondary,
-                  ),
+                  variant: VTextVariant.bodySmall,
+                  color: colors.textSecondary,
                 ),
               ],
             ),

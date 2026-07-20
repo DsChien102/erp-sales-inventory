@@ -34,21 +34,20 @@ class StorePriceRuleSaveConfirmSheet extends StatelessWidget {
                 size: 64,
                 iconSize: 32,
                 isCircular: true,
-                backgroundColor: VColors.warning.withValues(alpha: 0.15),
-                iconColor: VColors.warning,
+                backgroundColor: dynamicColors.warning.withValues(alpha: 0.15),
+                iconColor: dynamicColors.warning,
               ),
             ),
             const SizedBox(height: VSpacing.space4),
-            Text(
+            VText(
               'Áp dụng quy tắc lên sản phẩm đã có giá?',
               textAlign: TextAlign.center,
-              style: VTypography.headingH3.copyWith(
-                color: dynamicColors.textPrimary,
-                fontWeight: FontWeight.w700,
-              ),
+              variant: VTextVariant.headingH3,
+              color: dynamicColors.textPrimary,
+              style: const TextStyle(fontWeight: FontWeight.w700),
             ),
             const SizedBox(height: VSpacing.space3),
-            Text(
+            VText(
               'Thay đổi tỷ lệ lãi/sàn sẽ tự động áp dụng và cập nhật lại giá bán cho toàn bộ sản phẩm đang sử dụng "Khung giá cửa hàng".',
               textAlign: TextAlign.center,
               style: VTypography.bodyDefault.copyWith(

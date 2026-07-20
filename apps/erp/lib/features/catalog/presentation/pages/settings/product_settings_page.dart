@@ -9,12 +9,9 @@ class ProductSettingsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = context.vColors;
 
-    return Scaffold(
-      backgroundColor: colors.surface,
-      appBar: const VAppBar(
-        title: 'Sản phẩm',
-        showBackButton: true,
-      ),
+    return VPageScaffold(
+      title: 'Sản phẩm',
+      showBackButton: true,
       body: ListView(
         padding: const EdgeInsets.symmetric(
           horizontal: VSpacing.screenMobile,
@@ -35,7 +32,6 @@ class ProductSettingsPage extends StatelessWidget {
                   icon: VIcons.tag,
                   size: 44,
                   iconSize: 20,
-                  backgroundColor: colors.surfaceBrand,
                   iconColor: colors.primary,
                   borderRadius: VRadius.r12,
                 ),
@@ -45,23 +41,21 @@ class ProductSettingsPage extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Text(
+                      VText(
                         'Giá sàn & Giá niêm yết',
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: VTypography.headingH4.copyWith(
-                          color: colors.textPrimary,
-                          fontWeight: FontWeight.w700,
-                        ),
+                        variant: VTextVariant.headingH4,
+                        color: colors.textPrimary,
+                        style: const TextStyle(fontWeight: FontWeight.w700),
                       ),
-                      const SizedBox(height: 3),
-                      Text(
+                      const VGap.xs(),
+                      VText(
                         'Cấu hình khung giá cửa hàng dùng làm mặc định khi định giá sản phẩm',
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
-                        style: VTypography.bodySmall.copyWith(
-                          color: colors.textSecondary,
-                        ),
+                        variant: VTextVariant.bodySmall,
+                        color: colors.textSecondary,
                       ),
                     ],
                   ),
@@ -88,7 +82,6 @@ class ProductSettingsPage extends StatelessWidget {
                   icon: VIcons.listView,
                   size: 44,
                   iconSize: 20,
-                  backgroundColor: colors.surfaceBrand,
                   iconColor: colors.primary,
                   borderRadius: VRadius.r12,
                 ),
@@ -98,23 +91,21 @@ class ProductSettingsPage extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Text(
+                      VText(
                         'Nhóm & trường thông tin',
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: VTypography.headingH4.copyWith(
-                          color: colors.textPrimary,
-                          fontWeight: FontWeight.w700,
-                        ),
+                        variant: VTextVariant.headingH4,
+                        color: colors.textPrimary,
+                        style: const TextStyle(fontWeight: FontWeight.w700),
                       ),
-                      const SizedBox(height: 3),
-                      Text(
+                      const VGap.xs(),
+                      VText(
                         'Cấu hình các nhóm và trường thông tin bổ sung cho sản phẩm',
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
-                        style: VTypography.bodySmall.copyWith(
-                          color: colors.textSecondary,
-                        ),
+                        variant: VTextVariant.bodySmall,
+                        color: colors.textSecondary,
                       ),
                     ],
                   ),

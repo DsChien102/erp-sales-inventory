@@ -45,15 +45,14 @@ class PriceBandOverwriteBottomSheet extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text(
+            VText(
               'Ghi đè khung giá hiện tại?',
-              style: VTypography.headingH3.copyWith(
-                color: dynamicColors.textPrimary,
-                fontWeight: FontWeight.w700,
-              ),
+              variant: VTextVariant.headingH3,
+              color: dynamicColors.textPrimary,
+              style: const TextStyle(fontWeight: FontWeight.w700),
             ),
             const SizedBox(height: VSpacing.space3),
-            Text(
+            VText(
               'Sản phẩm đã có khung giá bán. Áp dụng quy tắc cửa hàng sẽ thay thế giá hiện tại.',
               style: VTypography.bodyDefault.copyWith(
                 color: dynamicColors.textSecondary,
@@ -73,20 +72,18 @@ class PriceBandOverwriteBottomSheet extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     if (existingListBeforeVat != null)
-                      Text(
+                      VText(
                         'Niêm yết hiện tại: ${formatCatalogCurrency(existingListBeforeVat!)}',
-                        style: VTypography.bodyDefault.copyWith(
-                          color: dynamicColors.textPrimary,
-                        ),
+                        variant: VTextVariant.bodyDefault,
+                        color: dynamicColors.textPrimary,
                       ),
                     if (existingListBeforeVat != null && existingFloorBeforeVat != null)
                       const SizedBox(height: VSpacing.space1),
                     if (existingFloorBeforeVat != null)
-                      Text(
+                      VText(
                         'Sàn hiện tại: ${formatCatalogCurrency(existingFloorBeforeVat!)}',
-                        style: VTypography.bodyDefault.copyWith(
-                          color: dynamicColors.textPrimary,
-                        ),
+                        variant: VTextVariant.bodyDefault,
+                        color: dynamicColors.textPrimary,
                       ),
                   ],
                 ),

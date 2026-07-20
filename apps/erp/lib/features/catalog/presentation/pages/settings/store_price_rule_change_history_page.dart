@@ -31,14 +31,10 @@ class _ChangeHistoryBody extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = context.vColors;
 
-    return Scaffold(
-      backgroundColor: colors.surface,
-      appBar: const VAppBar(
-        title: 'Lịch sử thay đổi',
-        showBackButton: true,
-      ),
-      body: BlocBuilder<StorePriceRuleChangeHistoryCubit,
-          StorePriceRuleChangeHistoryState>(
+    return VPageScaffold(
+      title: 'Lịch sử thay đổi',
+      showBackButton: true,
+      body: BlocBuilder<StorePriceRuleChangeHistoryCubit, StorePriceRuleChangeHistoryState>(
         builder: (context, state) {
           if (state is StorePriceRuleChangeHistoryLoading ||
               state is StorePriceRuleChangeHistoryInitial) {
@@ -47,11 +43,10 @@ class _ChangeHistoryBody extends StatelessWidget {
 
           if (state is StorePriceRuleChangeHistoryError) {
             return Center(
-              child: Text(
+              child: VText(
                 state.message,
-                style: VTypography.bodyDefault.copyWith(
-                  color: colors.textSecondary,
-                ),
+                variant: VTextVariant.bodyDefault,
+                color: colors.textSecondary,
               ),
             );
           }
@@ -70,8 +65,6 @@ class _ChangeHistoryBody extends StatelessWidget {
     BuildContext context,
     StorePriceRuleChangeHistoryLoaded state,
   ) {
-    final colors = context.vColors;
-
     if (state.items.isEmpty) {
       return ListView(
         padding: const EdgeInsets.symmetric(
@@ -88,8 +81,7 @@ class _ChangeHistoryBody extends StatelessWidget {
 
     return NotificationListener<ScrollNotification>(
       onNotification: (notification) {
-        if (notification.metrics.pixels >=
-                notification.metrics.maxScrollExtent - 200 &&
+        if (notification.metrics.pixels >= notification.metrics.maxScrollExtent - 200 &&
             state.canLoadMore &&
             !state.isLoadingMore) {
           context.read<StorePriceRuleChangeHistoryCubit>().loadMore();
@@ -110,8 +102,7 @@ class _ChangeHistoryBody extends StatelessWidget {
               child: StorePriceRuleChangeHistoryEntryCard(entry: entry),
             ),
           ),
-          if (state.isLoadingMore)
-            const Center(child: CircularProgressIndicator()),
+          if (state.isLoadingMore) const Center(child: CircularProgressIndicator()),
         ],
       ),
     );
@@ -132,11 +123,10 @@ class _ChangeHistoryBody extends StatelessWidget {
           VIcon(icon: VIcons.info, size: 18, color: colors.warning),
           const SizedBox(width: VSpacing.space2),
           Expanded(
-            child: Text(
+            child: VText(
               'Lịch sử chỉ ghi nhận các thay đổi khung giá cửa hàng.',
-              style: VTypography.bodySmall.copyWith(
-                color: colors.warning,
-              ),
+              variant: VTextVariant.bodySmall,
+              color: colors.warning,
             ),
           ),
         ],
@@ -158,11 +148,10 @@ class _ChangeHistoryBody extends StatelessWidget {
               color: colors.textMuted,
             ),
             const SizedBox(height: VSpacing.space3),
-            Text(
+            VText(
               'Chưa có lịch sử thay đổi',
-              style: VTypography.bodyDefault.copyWith(
-                color: colors.textSecondary,
-              ),
+              variant: VTextVariant.bodyDefault,
+              color: colors.textSecondary,
             ),
           ],
         ),

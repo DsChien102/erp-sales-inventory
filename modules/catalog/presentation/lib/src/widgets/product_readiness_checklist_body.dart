@@ -42,11 +42,10 @@ class ProductReadinessChecklistBody extends StatelessWidget {
 
     if (blockers.isEmpty) {
       return Center(
-        child: Text(
+        child: VText(
           'Sản phẩm đã sẵn sàng vận hành.',
-          style: VTypography.bodyDefault.copyWith(
-            color: dynamicColors.textSecondary,
-          ),
+          variant: VTextVariant.bodyDefault,
+          color: dynamicColors.textSecondary,
         ),
       );
     }
@@ -77,11 +76,10 @@ class ProductReadinessChecklistBody extends StatelessWidget {
                 ),
                 const SizedBox(width: VSpacing.space3),
                 Expanded(
-                  child: Text(
+                  child: VText(
                     blocker.message,
-                    style: VTypography.bodyDefault.copyWith(
-                      color: dynamicColors.textPrimary,
-                    ),
+                    variant: VTextVariant.bodyDefault,
+                    color: dynamicColors.textPrimary,
                   ),
                 ),
                 if (ctaLabel != null)
@@ -98,12 +96,11 @@ class ProductReadinessChecklistBody extends StatelessWidget {
                         );
                       }
                     },
-                    child: Text(
+                    child: VText(
                       ctaLabel,
-                      style: VTypography.bodySmall.copyWith(
-                        color: dynamicColors.primary,
-                        fontWeight: FontWeight.w600,
-                      ),
+                      variant: VTextVariant.bodySmall,
+                      color: dynamicColors.primary,
+                      style: const TextStyle(fontWeight: FontWeight.w600),
                     ),
                   ),
               ],

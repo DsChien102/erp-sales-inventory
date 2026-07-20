@@ -1,3 +1,4 @@
+// harness:allow-design-system-bypass — shell tab root (header/appBar có điều kiện + bottom nav), không phải page VAppBar đơn
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:vet45_design_system/design_system.dart';
@@ -56,6 +57,7 @@ class _DashboardPageState extends State<DashboardPage> {
   }
 
   Widget _buildBody(BuildContext context) {
+    final dynamicColors = context.vColors;
     switch (_currentTab) {
       case DashboardTab.home:
         return CustomScrollView(
@@ -74,13 +76,13 @@ class _DashboardPageState extends State<DashboardPage> {
                   const SizedBox(height: VSpacing.space2),
                   const RevenueSummaryCard(),
                   const SizedBox(height: VSpacing.space2),
-                  const Row(
+                  Row(
                     children: [
                       Expanded(
                         child: MetricTile(
                           icon: Icons.receipt_long_outlined,
-                          iconColor: VColors.info,
-                          iconBackgroundColor: VColors.infoBg,
+                          iconColor: dynamicColors.info,
+                          iconBackgroundColor: dynamicColors.infoBg,
                           label: 'Đơn hôm nay',
                         ),
                       ),
@@ -88,8 +90,8 @@ class _DashboardPageState extends State<DashboardPage> {
                       Expanded(
                         child: MetricTile(
                           icon: Icons.account_balance_wallet_outlined,
-                          iconColor: VColors.warning,
-                          iconBackgroundColor: VColors.warningBg,
+                          iconColor: dynamicColors.warning,
+                          iconBackgroundColor: dynamicColors.warningBg,
                           label: 'Phải thu',
                         ),
                       ),
@@ -97,8 +99,8 @@ class _DashboardPageState extends State<DashboardPage> {
                       Expanded(
                         child: MetricTile(
                           icon: Icons.inventory_2_outlined,
-                          iconColor: VColors.danger,
-                          iconBackgroundColor: VColors.dangerBg,
+                          iconColor: dynamicColors.danger,
+                          iconBackgroundColor: dynamicColors.dangerBg,
                           label: 'Sắp hết',
                         ),
                       ),
@@ -107,16 +109,16 @@ class _DashboardPageState extends State<DashboardPage> {
                   const SizedBox(height: VSpacing.space5),
                   const _SectionHeader(title: 'Việc cần xử lý'),
                   const SizedBox(height: VSpacing.space2),
-                  const TaskItem(
+                  TaskItem(
                     icon: Icons.handshake_outlined,
-                    iconColor: VColors.danger,
-                    iconBackgroundColor: VColors.dangerBg,
+                    iconColor: dynamicColors.danger,
+                    iconBackgroundColor: dynamicColors.dangerBg,
                   ),
                   const SizedBox(height: VSpacing.space2),
-                  const TaskItem(
+                  TaskItem(
                     icon: Icons.inventory_2_outlined,
-                    iconColor: VColors.warning,
-                    iconBackgroundColor: VColors.warningBg,
+                    iconColor: dynamicColors.warning,
+                    iconBackgroundColor: dynamicColors.warningBg,
                   ),
                 ]),
               ),
@@ -188,12 +190,11 @@ class _SectionHeader extends StatelessWidget {
     return Row(
       children: [
         Expanded(
-          child: Text(
+          child: VText(
             title,
-            style: VTypography.bodyDefault.copyWith(
-              fontWeight: FontWeight.w600,
-              color: dynamicColors.textPrimary,
-            ),
+            variant: VTextVariant.bodyDefault,
+            color: dynamicColors.textPrimary,
+            style: const TextStyle(fontWeight: FontWeight.w600),
           ),
         ),
         ?trailingWidget,

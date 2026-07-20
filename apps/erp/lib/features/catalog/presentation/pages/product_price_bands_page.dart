@@ -41,22 +41,19 @@ class ProductPriceBandsPage extends StatelessWidget {
         builder: (context, state) {
           final isLoading = state is ProductPriceBandsInitial || state is ProductPriceBandsLoading;
 
-          return Scaffold(
-            backgroundColor: context.vColors.surface,
-            appBar: VAppBar(
-              title: 'Khung giá bán',
-              titleStyle: VTypography.headingH3.copyWith(fontWeight: FontWeight.bold),
-              subtitle: args.productName.isNotEmpty ? args.productName : null,
-              centerTitle: false,
-              leading: IconButton(
-                icon: const VIcon(icon: VIcons.arrowBack),
-                onPressed: () => context.pop(),
-              ),
+          return VPageScaffold(
+            title: 'Khung giá bán',
+            titleStyle: VTypography.headingH3.copyWith(fontWeight: FontWeight.bold),
+            subtitle: args.productName.isNotEmpty ? args.productName : null,
+            centerTitle: false,
+            leading: IconButton(
+              icon: const VIcon(icon: VIcons.arrowBack),
+              onPressed: () => context.pop(),
             ),
             body: isLoading
                 ? const Center(child: CircularProgressIndicator())
                 : state is ProductPriceBandsFailure
-                ? Center(child: Text(state.error))
+                ? Center(child: VText(state.error))
                 : state is ProductPriceBandsMissingBaseUnit
                 ? _buildMissingBaseUnit(context)
                 : state is ProductPriceBandsLoaded
@@ -76,9 +73,9 @@ class ProductPriceBandsPage extends StatelessWidget {
         Expanded(
           child: SingleChildScrollView(
             child: Padding(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(VSpacing.space4),
               child: DashedBorderContainer(
-                padding: const EdgeInsets.all(16),
+                padding: const EdgeInsets.all(VSpacing.space4),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
@@ -100,12 +97,11 @@ class ProductPriceBandsPage extends StatelessWidget {
                         ],
                       ),
                     ),
-                    const SizedBox(height: 8),
-                    Text(
+                    const SizedBox(height: VSpacing.space2),
+                    VText(
                       'Khung giá bán được tính theo đơn vị cơ sở của sản phẩm.',
-                      style: VTypography.bodySmall.copyWith(
-                        color: dynamicColors.textSecondary,
-                      ),
+                      variant: VTextVariant.bodySmall,
+                      color: dynamicColors.textSecondary,
                     ),
                   ],
                 ),
@@ -124,7 +120,7 @@ class ProductPriceBandsPage extends StatelessWidget {
 
   Widget _buildContent(BuildContext context, ProductUnitPriceBandsDto data) {
     if (data.rows.isEmpty) {
-      return const Center(child: Text('Chưa có đơn vị bán nào.'));
+      return const Center(child: VText('Chưa có đơn vị bán nào.'));
     }
 
     final dynamicColors = context.vColors;
@@ -136,24 +132,22 @@ class ProductPriceBandsPage extends StatelessWidget {
         if (index == 0) {
           return Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            child: Text(
+            child: VText(
               'ĐƠN VỊ & KHUNG GIÁ BÁN',
-              style: VTypography.caption.copyWith(
-                color: dynamicColors.textSecondary,
-                fontWeight: FontWeight.bold,
-              ),
+              variant: VTextVariant.caption,
+              color: dynamicColors.textSecondary,
+              style: const TextStyle(fontWeight: FontWeight.bold),
             ),
           );
         }
 
         if (index == data.rows.length + 1) {
           return Padding(
-            padding: const EdgeInsets.all(16),
-            child: Text(
+            padding: const EdgeInsets.all(VSpacing.space4),
+            child: VText(
               'Thay đổi có áp dụng cho cửa hàng và kênh phân phối.',
-              style: VTypography.bodySmall.copyWith(
-                color: dynamicColors.textSecondary,
-              ),
+              variant: VTextVariant.bodySmall,
+              color: dynamicColors.textSecondary,
             ),
           );
         }
@@ -177,11 +171,11 @@ class ProductPriceBandsPage extends StatelessWidget {
 
     if (!row.isActive) {
       return Container(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(VSpacing.space4),
         decoration: BoxDecoration(
           color: dynamicColors.background,
           border: Border.all(color: dynamicColors.borderDefault),
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(VRadius.r8),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -189,13 +183,15 @@ class ProductPriceBandsPage extends StatelessWidget {
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
+                VText(
                   row.unitName,
-                  style: VTypography.bodyDefault.copyWith(fontWeight: FontWeight.bold),
+                  variant: VTextVariant.bodyDefault,
+                  style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
-                Text(
+                VText(
                   'Đơn vị ngừng hoạt động',
-                  style: VTypography.bodySmall.copyWith(color: dynamicColors.textSecondary),
+                  variant: VTextVariant.bodySmall,
+                  color: dynamicColors.textSecondary,
                 ),
               ],
             ),
@@ -208,11 +204,11 @@ class ProductPriceBandsPage extends StatelessWidget {
     final hasPrice = !row.isMissing;
 
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(VSpacing.space4),
       decoration: BoxDecoration(
         color: dynamicColors.surface,
         border: Border.all(color: dynamicColors.borderDefault),
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(VRadius.r8),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -220,9 +216,10 @@ class ProductPriceBandsPage extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
+              VText(
                 row.unitName,
-                style: VTypography.bodyDefault.copyWith(fontWeight: FontWeight.bold),
+                variant: VTextVariant.bodyDefault,
+                style: const TextStyle(fontWeight: FontWeight.bold),
               ),
               InkWell(
                 onTap: () async {
@@ -238,28 +235,28 @@ class ProductPriceBandsPage extends StatelessWidget {
                     context.read<ProductPriceBandsCubit>().loadPriceBands();
                   }
                 },
-                child: Text(
+                child: VText(
                   hasPrice ? 'Sửa' : 'Thiết lập',
-                  style: VTypography.bodyDefault.copyWith(
-                    color: dynamicColors.success,
-                    fontWeight: FontWeight.normal,
-                  ),
+                  variant: VTextVariant.bodyDefault,
+                  color: dynamicColors.success,
+                  style: const TextStyle(fontWeight: FontWeight.normal),
                 ),
               ),
             ],
           ),
           if (row.isBaseUnit) ...[
-            const SizedBox(height: 4),
-            Text(
+            const SizedBox(height: VSpacing.space1),
+            VText(
               'Đơn vị cơ sở',
-              style: VTypography.bodySmall.copyWith(color: dynamicColors.textSecondary),
+              variant: VTextVariant.bodySmall,
+              color: dynamicColors.textSecondary,
             ),
           ],
-          const SizedBox(height: 16),
+          const SizedBox(height: VSpacing.space4),
           _buildPriceRow(context, 'Giá cơ sở', row.basePrice ?? data.basePrice),
-          const SizedBox(height: 8),
+          const SizedBox(height: VSpacing.space2),
           _buildPriceRow(context, 'Giá niêm yết', row.listBeforeVat),
-          const SizedBox(height: 8),
+          const SizedBox(height: VSpacing.space2),
           _buildPriceRow(context, 'Giá sàn', row.floorBeforeVat),
         ],
       ),
@@ -270,17 +267,15 @@ class ProductPriceBandsPage extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(
+        VText(
           label,
-          style: VTypography.bodyDefault.copyWith(
-            color: context.vColors.textSecondary,
-          ),
+          variant: VTextVariant.bodyDefault,
+          color: context.vColors.textSecondary,
         ),
-        Text(
+        VText(
           price != null ? formatCatalogCurrency(price) : '—',
-          style: VTypography.bodyDefault.copyWith(
-            color: context.vColors.textPrimary,
-          ),
+          variant: VTextVariant.bodyDefault,
+          color: context.vColors.textPrimary,
         ),
       ],
     );

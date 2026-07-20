@@ -187,7 +187,7 @@ class _TenantMeasurementUnitSearchFieldState extends State<TenantMeasurementUnit
                   context,
                   child: Padding(
                     key: widget.dropdownKey,
-                    padding: const EdgeInsets.all(16),
+                    padding: const EdgeInsets.all(VSpacing.space4),
                     child: Row(
                       children: [
                         SizedBox(
@@ -198,12 +198,11 @@ class _TenantMeasurementUnitSearchFieldState extends State<TenantMeasurementUnit
                             color: dynamicColors.primary,
                           ),
                         ),
-                        const SizedBox(width: 12),
-                        Text(
+                        const SizedBox(width: VSpacing.space3),
+                        VText(
                           'Đang tải đơn vị...',
-                          style: VTypography.bodyDefault.copyWith(
-                            color: dynamicColors.textSecondary,
-                          ),
+                          variant: VTextVariant.bodyDefault,
+                          color: dynamicColors.textSecondary,
                         ),
                       ],
                     ),
@@ -280,7 +279,7 @@ class _TenantMeasurementUnitSearchFieldState extends State<TenantMeasurementUnit
 
     return Container(
       key: widget.dropdownKey,
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.all(VSpacing.space3),
       constraints: const BoxConstraints(maxHeight: 250),
       child: SingleChildScrollView(
         child: Column(
@@ -295,7 +294,7 @@ class _TenantMeasurementUnitSearchFieldState extends State<TenantMeasurementUnit
                     onPointerDown: isDisabled ? null : (_) => _selectUnit(unit),
                     child: Container(
                       color: Colors.transparent,
-                      padding: const EdgeInsets.symmetric(vertical: 8),
+                      padding: const EdgeInsets.symmetric(vertical: VSpacing.space2),
                       child: Row(
                         children: [
                           Icon(
@@ -305,15 +304,14 @@ class _TenantMeasurementUnitSearchFieldState extends State<TenantMeasurementUnit
                                 ? dynamicColors.textSecondary
                                 : dynamicColors.textPrimary,
                           ),
-                          const SizedBox(width: 8),
+                          const SizedBox(width: VSpacing.space2),
                           Expanded(
-                            child: Text(
+                            child: VText(
                               isDisabled ? '${unit.name} (đơn vị cơ sở)' : unit.name,
-                              style: VTypography.bodyDefault.copyWith(
-                                color: isDisabled
-                                    ? dynamicColors.textSecondary
-                                    : dynamicColors.textPrimary,
-                              ),
+                              variant: VTextVariant.bodyDefault,
+                              color: isDisabled
+                                  ? dynamicColors.textSecondary
+                                  : dynamicColors.textPrimary,
                             ),
                           ),
                         ],

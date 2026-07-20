@@ -82,15 +82,16 @@ class _CustomFieldFilterSheetState extends State<CustomFieldFilterSheet> {
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 32),
               child: Center(
-                child: Text(
+                child: VText(
                   'Chưa có thuộc tính mở rộng nào.',
-                  style: VTypography.bodyDefault.copyWith(color: colors.textSecondary),
+                  variant: VTextVariant.bodyDefault,
+                  color: colors.textSecondary,
                 ),
               ),
             )
           else
             ...widget.options.map((opt) => _buildFieldFilter(colors, opt)),
-          const SizedBox(height: 16),
+          const SizedBox(height: VSpacing.space4),
           Row(
             children: [
               Expanded(
@@ -110,7 +111,7 @@ class _CustomFieldFilterSheetState extends State<CustomFieldFilterSheet> {
                   },
                 ),
               ),
-              const SizedBox(width: 12),
+              const SizedBox(width: VSpacing.space3),
               Expanded(
                 child: VButton(
                   key: const Key('btn_filter_apply'),
@@ -125,7 +126,7 @@ class _CustomFieldFilterSheetState extends State<CustomFieldFilterSheet> {
               ),
             ],
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: VSpacing.space4),
         ],
       ),
     );
@@ -142,15 +143,14 @@ class _CustomFieldFilterSheetState extends State<CustomFieldFilterSheet> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const SizedBox(height: 12),
-        Text(
+        const SizedBox(height: VSpacing.space3),
+        VText(
           opt.fieldName,
-          style: VTypography.headingH4.copyWith(
-            color: colors.textPrimary,
-            fontWeight: FontWeight.w600,
-          ),
+          variant: VTextVariant.headingH4,
+          color: colors.textPrimary,
+          style: const TextStyle(fontWeight: FontWeight.w600),
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: VSpacing.space2),
         Wrap(
           spacing: 8,
           runSpacing: 6,

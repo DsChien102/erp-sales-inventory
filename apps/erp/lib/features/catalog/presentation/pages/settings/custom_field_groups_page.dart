@@ -38,24 +38,20 @@ class _CustomFieldGroupsPageState extends State<CustomFieldGroupsPage> {
 
     return BlocProvider.value(
       value: _cubit,
-      child: Scaffold(
-        backgroundColor: colors.surface,
-        appBar: VAppBar(
-          title: 'Nhóm & trường thông tin',
-          showBackButton: true,
-          actions: [
-            IconButton(
-              icon: VIcon(icon: VIcons.add, color: colors.primary),
-              onPressed: () async {
-                await context.push(
-                  '/more/product-settings/custom-fields/upsert-group',
-                  extra: _cubit,
-                );
-                _cubit.loadGroups();
-              },
-            ),
-          ],
-        ),
+      child: VPageScaffold(
+        title: 'Nhóm & trường thông tin',
+        actions: [
+          IconButton(
+            icon: VIcon(icon: VIcons.add, color: colors.primary),
+            onPressed: () async {
+              await context.push(
+                '/more/product-settings/custom-fields/upsert-group',
+                extra: _cubit,
+              );
+              _cubit.loadGroups();
+            },
+          ),
+        ],
         body: BlocConsumer<CustomFieldConfigCubit, CustomFieldConfigState>(
           listener: (context, state) {
             if (state.error != null) {
@@ -79,9 +75,10 @@ class _CustomFieldGroupsPageState extends State<CustomFieldGroupsPage> {
                   children: [
                     VIcon(icon: VIcons.inbox, size: 64, color: colors.textMuted),
                     const SizedBox(height: VSpacing.space4),
-                    Text(
+                    VText(
                       'Chưa có nhóm thông tin nào',
-                      style: VTypography.bodyDefault.copyWith(color: colors.textSecondary),
+                      variant: VTextVariant.bodyDefault,
+                      color: colors.textSecondary,
                     ),
                     const SizedBox(height: VSpacing.space4),
                     VButton(
@@ -213,12 +210,11 @@ class _CustomFieldGroupsPageState extends State<CustomFieldGroupsPage> {
                   Row(
                     children: [
                       Expanded(
-                        child: Text(
+                        child: VText(
                           group.name,
-                          style: VTypography.headingH4.copyWith(
-                            fontWeight: FontWeight.w600,
-                            color: colors.textPrimary,
-                          ),
+                          variant: VTextVariant.headingH4,
+                          color: colors.textPrimary,
+                          style: const TextStyle(fontWeight: FontWeight.w600),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -232,12 +228,11 @@ class _CustomFieldGroupsPageState extends State<CustomFieldGroupsPage> {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 4),
-                  Text(
+                  const SizedBox(height: VSpacing.space1),
+                  VText(
                     '${group.fieldCount} trường • ${group.requiredFieldCount} bắt buộc',
-                    style: VTypography.bodySmall.copyWith(
-                      color: colors.textSecondary,
-                    ),
+                    variant: VTextVariant.bodySmall,
+                    color: colors.textSecondary,
                   ),
                 ],
               ),

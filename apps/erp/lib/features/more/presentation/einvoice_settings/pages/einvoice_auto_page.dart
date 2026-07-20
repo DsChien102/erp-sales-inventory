@@ -28,13 +28,15 @@ class _EInvoiceAutoPageState extends State<EInvoiceAutoPage> {
   }
 
   void _showToast(BuildContext context, String message) {
+    final colors = context.vColors;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(
+        content: VText(
           message,
-          style: VTypography.bodyDefault.copyWith(color: Colors.white),
+          variant: VTextVariant.bodyDefault,
+          color: context.vColors.surface,
         ),
-        backgroundColor: VColors.success,
+        backgroundColor: colors.success,
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(VRadius.card),
@@ -74,12 +76,8 @@ class _EInvoiceAutoPageState extends State<EInvoiceAutoPage> {
           // Disable auto-send toggle if MISA is not connected
           final canToggleAutoSend = isMisaConnected;
 
-          return Scaffold(
-            backgroundColor: colors.background,
-            appBar: VAppBar(
-              title: 'Cấu hình phát hành & gửi',
-              showBackButton: !state.isSubmitting,
-            ),
+          return VPageScaffold(
+            title: 'Cấu hình phát hành & gửi',
             body: Column(
               children: [
                 Expanded(
@@ -103,19 +101,17 @@ class _EInvoiceAutoPageState extends State<EInvoiceAutoPage> {
                                     child: Column(
                                       crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
-                                        Text(
+                                        VText(
                                           'Tự động phát hành HĐĐT',
-                                          style: VTypography.bodyDefault.copyWith(
-                                            fontWeight: FontWeight.w700,
-                                            color: colors.textPrimary,
-                                          ),
+                                          variant: VTextVariant.bodyDefault,
+                                          color: colors.textPrimary,
+                                          style: const TextStyle(fontWeight: FontWeight.w700),
                                         ),
-                                        const SizedBox(height: 4),
-                                        Text(
+                                        const SizedBox(height: VSpacing.space1),
+                                        VText(
                                           'Hệ thống tự động phát hành HĐĐT sau khi tạo đơn hàng thành công nếu đơn hàng đủ điều kiện.',
-                                          style: VTypography.bodySmall.copyWith(
-                                            color: colors.textSecondary,
-                                          ),
+                                          variant: VTextVariant.bodySmall,
+                                          color: colors.textSecondary,
                                         ),
                                       ],
                                     ),
@@ -144,14 +140,13 @@ class _EInvoiceAutoPageState extends State<EInvoiceAutoPage> {
                                       color: VColors.warning,
                                       size: 16,
                                     ),
-                                    const SizedBox(width: 6),
+                                    const VGap.horizontalSm(),
                                     Expanded(
-                                      child: Text(
+                                      child: VText(
                                         'Cần kết nối MISA meInvoice trước.',
-                                        style: VTypography.bodySmall.copyWith(
-                                          color: VColors.warning,
-                                          fontWeight: FontWeight.w600,
-                                        ),
+                                        variant: VTextVariant.bodySmall,
+                                        color: colors.warning,
+                                        style: const TextStyle(fontWeight: FontWeight.w600),
                                       ),
                                     ),
                                   ],
@@ -167,14 +162,13 @@ class _EInvoiceAutoPageState extends State<EInvoiceAutoPage> {
                                       color: VColors.warning,
                                       size: 16,
                                     ),
-                                    const SizedBox(width: 6),
+                                    const VGap.horizontalSm(),
                                     Expanded(
-                                      child: Text(
+                                      child: VText(
                                         'Vui lòng chọn mẫu hóa đơn mặc định trước.',
-                                        style: VTypography.bodySmall.copyWith(
-                                          color: VColors.warning,
-                                          fontWeight: FontWeight.w600,
-                                        ),
+                                        variant: VTextVariant.bodySmall,
+                                        color: colors.warning,
+                                        style: const TextStyle(fontWeight: FontWeight.w600),
                                       ),
                                     ),
                                   ],
@@ -200,19 +194,17 @@ class _EInvoiceAutoPageState extends State<EInvoiceAutoPage> {
                                     child: Column(
                                       crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
-                                        Text(
+                                        VText(
                                           'Tự động gửi HĐĐT cho khách',
-                                          style: VTypography.bodyDefault.copyWith(
-                                            fontWeight: FontWeight.w700,
-                                            color: colors.textPrimary,
-                                          ),
+                                          variant: VTextVariant.bodyDefault,
+                                          color: colors.textPrimary,
+                                          style: const TextStyle(fontWeight: FontWeight.w700),
                                         ),
-                                        const SizedBox(height: 4),
-                                        Text(
+                                        const SizedBox(height: VSpacing.space1),
+                                        VText(
                                           'Hệ thống tự động gửi HĐĐT cho khách sau khi HĐĐT phát hành thành công và khách hàng có email hợp lệ.',
-                                          style: VTypography.bodySmall.copyWith(
-                                            color: colors.textSecondary,
-                                          ),
+                                          variant: VTextVariant.bodySmall,
+                                          color: colors.textSecondary,
                                         ),
                                       ],
                                     ),
@@ -241,14 +233,13 @@ class _EInvoiceAutoPageState extends State<EInvoiceAutoPage> {
                                       color: VColors.warning,
                                       size: 16,
                                     ),
-                                    const SizedBox(width: 6),
+                                    const VGap.horizontalSm(),
                                     Expanded(
-                                      child: Text(
+                                      child: VText(
                                         'Cần kết nối MISA meInvoice trước.',
-                                        style: VTypography.bodySmall.copyWith(
-                                          color: VColors.warning,
-                                          fontWeight: FontWeight.w600,
-                                        ),
+                                        variant: VTextVariant.bodySmall,
+                                        color: colors.warning,
+                                        style: const TextStyle(fontWeight: FontWeight.w600),
                                       ),
                                     ),
                                   ],
@@ -263,7 +254,7 @@ class _EInvoiceAutoPageState extends State<EInvoiceAutoPage> {
                       // Footer Note
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: VSpacing.space2),
-                        child: Text(
+                        child: VText(
                           'Hai cấu hình này độc lập. Cấu hình mới chỉ áp dụng cho các đơn hàng tạo thành công sau thời điểm cấu hình có hiệu lực.',
                           style: VTypography.bodySmall.copyWith(
                             color: colors.textSecondary,

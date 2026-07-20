@@ -125,7 +125,7 @@ class _ProductCustomFieldInputWidgetState extends State<ProductCustomFieldInputW
         items: widget.field.options.map((opt) {
           return DropdownMenuItem<String>(
             value: opt.optionId,
-            child: Text(opt.label),
+            child: VText(opt.label),
           );
         }).toList(),
         onChanged: (val) {

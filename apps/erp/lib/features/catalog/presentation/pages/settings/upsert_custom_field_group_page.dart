@@ -150,25 +150,21 @@ class _UpsertCustomFieldGroupPageState extends State<UpsertCustomFieldGroupPage>
           if (didPop) return;
           await _handleLeave();
         },
-        child: Scaffold(
-          backgroundColor: colors.surface,
-          appBar: VAppBar(
-            title: _isCreate ? 'Tạo nhóm thông tin' : 'Sửa nhóm thông tin',
-            showBackButton: false,
-            leading: IconButton(
-              icon: VIcon(icon: VIcons.arrowBack, color: colors.textPrimary),
-              onPressed: _handleLeave,
-            ),
+        child: VPageScaffold(
+          title: _isCreate ? 'Tạo nhóm thông tin' : 'Sửa nhóm thông tin',
+          showBackButton: false,
+          leading: IconButton(
+            icon: VIcon(icon: VIcons.arrowBack, color: colors.textPrimary),
+            onPressed: _handleLeave,
           ),
           body: ListView(
             padding: const EdgeInsets.all(VSpacing.screenMobile),
             children: [
-              Text(
+              VText(
                 'Icon',
-                style: VTypography.bodyDefault.copyWith(
-                  fontWeight: FontWeight.w600,
-                  color: colors.textPrimary,
-                ),
+                variant: VTextVariant.bodyDefault,
+                color: colors.textPrimary,
+                style: const TextStyle(fontWeight: FontWeight.w600),
               ),
               const SizedBox(height: VSpacing.space2),
               Row(
@@ -183,16 +179,17 @@ class _UpsertCustomFieldGroupPageState extends State<UpsertCustomFieldGroupPage>
                       border: Border.all(color: colors.borderDefault),
                     ),
                     alignment: Alignment.center,
-                    child: Text(
+                    child: VText(
                       _selectedEmoji,
                       style: const TextStyle(fontSize: 28),
                     ),
                   ),
                   const SizedBox(width: VSpacing.space3),
                   Expanded(
-                    child: Text(
+                    child: VText(
                       'Icon sẽ hiển thị trên card nhóm ở màn hình chi tiết sản phẩm và tạo sản phẩm.',
-                      style: VTypography.bodySmall.copyWith(color: colors.textSecondary),
+                      variant: VTextVariant.bodySmall,
+                      color: colors.textSecondary,
                     ),
                   ),
                 ],
@@ -221,7 +218,7 @@ class _UpsertCustomFieldGroupPageState extends State<UpsertCustomFieldGroupPage>
                         ),
                       ),
                       alignment: Alignment.center,
-                      child: Text(
+                      child: VText(
                         emoji,
                         style: const TextStyle(fontSize: 20),
                       ),
@@ -247,12 +244,11 @@ class _UpsertCustomFieldGroupPageState extends State<UpsertCustomFieldGroupPage>
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
+                    VText(
                       'Trạng thái hoạt động',
-                      style: VTypography.bodyDefault.copyWith(
-                        fontWeight: FontWeight.w600,
-                        color: colors.textPrimary,
-                      ),
+                      variant: VTextVariant.bodyDefault,
+                      color: colors.textPrimary,
+                      style: const TextStyle(fontWeight: FontWeight.w600),
                     ),
                     Switch(
                       value: _isActive,
@@ -273,10 +269,10 @@ class _UpsertCustomFieldGroupPageState extends State<UpsertCustomFieldGroupPage>
                           setState(() => _isActive = true);
                         }
                       },
-                      activeThumbColor: Colors.white,
-                      activeTrackColor: VColors.success,
-                      inactiveThumbColor: Colors.white,
-                      inactiveTrackColor: VColors.borderStrong,
+                      activeThumbColor: colors.surface,
+                      activeTrackColor: colors.success,
+                      inactiveThumbColor: colors.surface,
+                      inactiveTrackColor: colors.borderStrong,
                       trackOutlineColor: WidgetStateProperty.all(Colors.transparent),
                     ),
                   ],
@@ -284,7 +280,7 @@ class _UpsertCustomFieldGroupPageState extends State<UpsertCustomFieldGroupPage>
               ],
             ],
           ),
-          bottomNavigationBar: BlocBuilder<CustomFieldConfigCubit, CustomFieldConfigState>(
+          bottomBar: BlocBuilder<CustomFieldConfigCubit, CustomFieldConfigState>(
             builder: (context, state) {
               return ProductFormBottomBar(
                 onCancel: state.isSaving ? null : _handleLeave,

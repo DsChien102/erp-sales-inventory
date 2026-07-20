@@ -83,14 +83,13 @@ class _ProductGuidedStepPriceBandsState extends State<ProductGuidedStepPriceBand
               padding: const EdgeInsets.all(VSpacing.space3),
               decoration: BoxDecoration(
                 color: dynamicColors.warningBg,
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: BorderRadius.circular(VRadius.r8),
                 border: Border.all(color: dynamicColors.warning.withValues(alpha: 0.3)),
               ),
-              child: Text(
+              child: VText(
                 'Cần thiết lập đơn vị cơ sở ở bước trước rồi mới nhập được khung giá bán.',
-                style: VTypography.bodyDefault.copyWith(
-                  color: dynamicColors.warning,
-                ),
+                variant: VTextVariant.bodyDefault,
+                color: dynamicColors.warning,
               ),
             ),
           ),
@@ -110,9 +109,10 @@ class _ProductGuidedStepPriceBandsState extends State<ProductGuidedStepPriceBand
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text(
+        VText(
           'Thiết lập giá bán của sản phẩm. Bạn có thể chọn cách định giá tự động hoặc nhập thủ công.',
-          style: VTypography.bodySmall.copyWith(color: dynamicColors.textSecondary),
+          variant: VTextVariant.bodySmall,
+          color: dynamicColors.textSecondary,
         ),
         const SizedBox(height: VSpacing.space3),
 
@@ -161,19 +161,21 @@ class _ProductGuidedStepPriceBandsState extends State<ProductGuidedStepPriceBand
               padding: const EdgeInsets.all(VSpacing.space3),
               decoration: BoxDecoration(
                 color: dynamicColors.warningBg,
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: BorderRadius.circular(VRadius.r8),
                 border: Border.all(color: dynamicColors.warning.withValues(alpha: 0.3)),
               ),
-              child: Text(
+              child: VText(
                 widget.state.storePriceRuleUnavailableReason!,
-                style: VTypography.bodySmall.copyWith(color: dynamicColors.warning),
+                variant: VTextVariant.bodySmall,
+                color: dynamicColors.warning,
               ),
             )
           else ...[
             if (widget.state.storePriceRuleName != null) ...[
-              Text(
+              VText(
                 'Quy tắc: ${widget.state.storePriceRuleName}',
-                style: VTypography.bodySmall.copyWith(color: dynamicColors.textSecondary),
+                variant: VTextVariant.bodySmall,
+                color: dynamicColors.textSecondary,
               ),
               const SizedBox(height: VSpacing.space3),
             ],
@@ -238,9 +240,10 @@ class _ProductGuidedStepPriceBandsState extends State<ProductGuidedStepPriceBand
               labelSuffix: 'Cấu hình riêng',
             )
           else
-            Text(
+            VText(
               'Nhập tỷ lệ % để xem gợi ý giá.',
-              style: VTypography.bodySmall.copyWith(color: dynamicColors.textMuted),
+              variant: VTextVariant.bodySmall,
+              color: dynamicColors.textMuted,
             ),
         ] else if (widget.state.pricingMethod == 'manual') ...[
           Row(
@@ -299,9 +302,10 @@ class _ProductGuidedStepPriceBandsState extends State<ProductGuidedStepPriceBand
                 Icon(Icons.info_outline, size: 16, color: dynamicColors.warning),
                 const SizedBox(width: VSpacing.space2),
                 Expanded(
-                  child: Text(
+                  child: VText(
                     'Giá nhập thủ công sẽ không tự động cập nhật khi giá vốn thay đổi.',
-                    style: VTypography.bodySmall.copyWith(color: dynamicColors.warning),
+                    variant: VTextVariant.bodySmall,
+                    color: dynamicColors.warning,
                   ),
                 ),
               ],
@@ -344,12 +348,11 @@ class _ProductGuidedStepPriceBandsState extends State<ProductGuidedStepPriceBand
           borderRadius: BorderRadius.circular(VRadius.card),
         ),
         alignment: Alignment.center,
-        child: Text(
+        child: VText(
           label,
-          style: VTypography.bodySmall.copyWith(
-            color: isSelected ? dynamicColors.primary : dynamicColors.textSecondary,
-            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-          ),
+          variant: VTextVariant.bodySmall,
+          color: isSelected ? dynamicColors.primary : dynamicColors.textSecondary,
+          style: TextStyle(fontWeight: isSelected ? FontWeight.bold : FontWeight.normal),
         ),
       ),
     );
@@ -405,27 +408,26 @@ class _ProductGuidedStepPriceBandsState extends State<ProductGuidedStepPriceBand
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
+                VText(
                   title,
-                  style: VTypography.bodySmall.copyWith(
-                    color: dynamicColors.textSecondary,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  variant: VTextVariant.bodySmall,
+                  color: dynamicColors.textSecondary,
+                  style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
-                const SizedBox(height: 2),
-                Text(
+                const VGap.xs(),
+                VText(
                   subtitle,
-                  style: VTypography.bodySmall.copyWith(color: dynamicColors.textMuted),
+                  variant: VTextVariant.bodySmall,
+                  color: dynamicColors.textMuted,
                 ),
               ],
             ),
           ),
-          Text(
+          VText(
             value,
-            style: VTypography.headingH3.copyWith(
-              color: dynamicColors.primary,
-              fontWeight: FontWeight.bold,
-            ),
+            variant: VTextVariant.headingH3,
+            color: dynamicColors.primary,
+            style: const TextStyle(fontWeight: FontWeight.bold),
           ),
         ],
       ),

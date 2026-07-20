@@ -19,23 +19,22 @@ class TaskItem extends StatelessWidget {
   final String subtitle;
   final String badgeLabel;
 
+  VBadgeStatus get _badgeStatus {
+    if (iconColor == VColors.danger) return VBadgeStatus.danger;
+    if (iconColor == VColors.success) return VBadgeStatus.success;
+    if (iconColor == VColors.info) return VBadgeStatus.info;
+    if (iconColor == VColors.warning) return VBadgeStatus.warning;
+    return VBadgeStatus.warning;
+  }
+
   @override
   Widget build(BuildContext context) {
-    VBadgeStatus badgeStatus = VBadgeStatus.warning;
-    if (iconColor == const Color(0xFFE53935) || iconColor == const Color(0xFFEF4444)) {
-      badgeStatus = VBadgeStatus.danger;
-    } else if (iconColor == const Color(0xFF2E8D43)) {
-      badgeStatus = VBadgeStatus.success;
-    } else if (iconColor == const Color(0xFF2563EB)) {
-      badgeStatus = VBadgeStatus.info;
-    }
-
     return VTodoItem(
       leadingIcon: Icon(icon),
       title: title,
       subtitle: subtitle,
       badgeLabel: badgeLabel,
-      badgeStatus: badgeStatus,
+      badgeStatus: _badgeStatus,
       onTap: () {},
     );
   }

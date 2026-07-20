@@ -32,16 +32,18 @@ class ProductGuidedStepImages extends StatelessWidget {
         ),
         if (state.imageDrafts.isEmpty) ...[
           const SizedBox(height: VSpacing.space2),
-          Text(
+          VText(
             'Chưa có ảnh',
-            style: VTypography.caption.copyWith(color: dynamicColors.textSecondary),
+            variant: VTextVariant.caption,
+            color: dynamicColors.textSecondary,
           ),
         ],
         if (state.hasUploadFailures) ...[
           const SizedBox(height: VSpacing.space2),
-          Text(
+          VText(
             'Một số ảnh tải lên thất bại — bạn vẫn có thể lưu sản phẩm với ảnh đã tải thành công.',
-            style: VTypography.caption.copyWith(color: dynamicColors.textSecondary),
+            variant: VTextVariant.caption,
+            color: dynamicColors.textSecondary,
           ),
         ],
         const SizedBox(height: VSpacing.space4),

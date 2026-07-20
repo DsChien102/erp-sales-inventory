@@ -88,8 +88,8 @@ class ProductDeleteConfirmDialog extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             const CircularProgressIndicator(),
-            const SizedBox(width: 16),
-            Text(label),
+            const SizedBox(width: VSpacing.space4),
+            VText(label),
           ],
         ),
       ),
@@ -107,11 +107,10 @@ class ProductDeleteConfirmDialog extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Text(
+              VText(
                 'Sản phẩm "$productName" không thể xóa vì:',
-                style: VTypography.bodyDefault.copyWith(
-                  color: dynamicColors.textSecondary,
-                ),
+                variant: VTextVariant.bodyDefault,
+                color: dynamicColors.textSecondary,
               ),
               const SizedBox(height: VSpacing.space3),
               ...eligibility.issues.map((issue) => Padding(
@@ -120,13 +119,12 @@ class ProductDeleteConfirmDialog extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         VIcon(icon: VIcons.error, size: 16, color: dynamicColors.danger),
-                        const SizedBox(width: 8),
+                        const VGap.horizontalSm(),
                         Expanded(
-                          child: Text(
+                          child: VText(
                             issue.message,
-                            style: VTypography.bodySmall.copyWith(
-                              color: dynamicColors.danger,
-                            ),
+                            variant: VTextVariant.bodySmall,
+                            color: dynamicColors.danger,
                           ),
                         ),
                       ],
@@ -153,11 +151,10 @@ class ProductDeleteConfirmDialog extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text(
+            VText(
               'Sản phẩm sẽ được đánh dấu đã xoá và không xuất hiện trong danh sách. Đơn hàng cũ vẫn giữ nguyên dữ liệu tại thời điểm giao dịch.',
-              style: VTypography.bodyDefault.copyWith(
-                color: dynamicColors.textSecondary,
-              ),
+              variant: VTextVariant.bodyDefault,
+              color: dynamicColors.textSecondary,
             ),
             if (hasWarnings) ...[
               const SizedBox(height: VSpacing.space4),
@@ -174,34 +171,34 @@ class ProductDeleteConfirmDialog extends StatelessWidget {
                     Row(
                       children: [
                         VIcon(icon: VIcons.warning, color: dynamicColors.warning, size: 20),
-                        const SizedBox(width: 8),
-                        Text(
+                        const VGap.horizontalSm(),
+                        VText(
                           'Lưu ý',
-                          style: VTypography.bodySmall.copyWith(
-                            color: dynamicColors.warning,
-                            fontWeight: FontWeight.bold,
-                          ),
+                          variant: VTextVariant.bodySmall,
+                          color: dynamicColors.warning,
+                          style: const TextStyle(fontWeight: FontWeight.bold),
                         ),
                       ],
                     ),
-                    const SizedBox(height: 8),
-                    ...eligibility.issues.map((issue) => Padding(
-                          padding: const EdgeInsets.only(bottom: 4),
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text('• ', style: TextStyle(color: dynamicColors.warning)),
-                              Expanded(
-                                child: Text(
-                                  issue.message,
-                                  style: VTypography.bodySmall.copyWith(
-                                    color: dynamicColors.warning,
-                                  ),
-                                ),
+                    const SizedBox(height: VSpacing.space2),
+                    ...eligibility.issues.map(
+                      (issue) => Padding(
+                        padding: const EdgeInsets.only(bottom: 4),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            VText('• ', style: TextStyle(color: dynamicColors.warning)),
+                            Expanded(
+                              child: VText(
+                                issue.message,
+                                variant: VTextVariant.bodySmall,
+                                color: dynamicColors.warning,
                               ),
-                            ],
-                          ),
-                        )),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -222,9 +219,9 @@ class ProductDeleteConfirmDialog extends StatelessWidget {
                     label: 'Xoá sản phẩm',
                     onPressed: () {
                       context.read<ProductSoftDeleteCubit>().deleteProduct(
-                            productId: productId,
-                            confirmAcknowledgeWarnings: hasWarnings,
-                          );
+                        productId: productId,
+                        confirmAcknowledgeWarnings: hasWarnings,
+                      );
                     },
                     variant: VButtonVariant.danger,
                   ),

@@ -56,16 +56,16 @@ class _ProductConversionUnitItemState extends State<ProductConversionUnitItem> {
       padding: const EdgeInsets.only(bottom: 8.0),
       child: Material(
         color: cardColor,
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(VRadius.r8),
         child: InkWell(
           key: Key('btn_expand_conversion_unit_${unit.id}'),
           onLongPress: _expand,
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(VRadius.r8),
           child: Container(
-            padding: const EdgeInsets.all(12),
+            padding: const EdgeInsets.all(VSpacing.space3),
             decoration: BoxDecoration(
               border: Border.all(color: dynamicColors.borderDefault),
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: BorderRadius.circular(VRadius.r8),
               color: cardColor,
             ),
             child: Column(
@@ -74,12 +74,10 @@ class _ProductConversionUnitItemState extends State<ProductConversionUnitItem> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Container(
-                      padding: const EdgeInsets.all(8),
+                      padding: const EdgeInsets.all(VSpacing.space2),
                       decoration: BoxDecoration(
-                        color: isInactive
-                            ? dynamicColors.borderDefault
-                            : dynamicColors.surfaceAlt,
-                        borderRadius: BorderRadius.circular(8),
+                        color: isInactive ? dynamicColors.borderDefault : dynamicColors.surfaceAlt,
+                        borderRadius: BorderRadius.circular(VRadius.r8),
                       ),
                       child: VIcon(
                         icon: VIcons.inventory,
@@ -87,7 +85,7 @@ class _ProductConversionUnitItemState extends State<ProductConversionUnitItem> {
                         size: 24,
                       ),
                     ),
-                    const SizedBox(width: 12),
+                    const SizedBox(width: VSpacing.space3),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -95,14 +93,13 @@ class _ProductConversionUnitItemState extends State<ProductConversionUnitItem> {
                           Row(
                             children: [
                               Flexible(
-                                child: Text(
+                                child: VText(
                                   unit.name,
-                                  style: VTypography.bodyDefault.copyWith(
-                                    fontWeight: FontWeight.bold,
-                                    color: isInactive
-                                        ? dynamicColors.textSecondary
-                                        : dynamicColors.textPrimary,
-                                  ),
+                                  variant: VTextVariant.bodyDefault,
+                                  color: isInactive
+                                      ? dynamicColors.textSecondary
+                                      : dynamicColors.textPrimary,
+                                  style: const TextStyle(fontWeight: FontWeight.bold),
                                 ),
                               ),
                               if (isInactive) ...[
@@ -119,40 +116,35 @@ class _ProductConversionUnitItemState extends State<ProductConversionUnitItem> {
                                       color: dynamicColors.borderDefault,
                                     ),
                                   ),
-                                  child: Text(
+                                  child: VText(
                                     'Đã tắt',
-                                    style: VTypography.caption.copyWith(
-                                      color: dynamicColors.textSecondary,
-                                      fontWeight: FontWeight.w600,
-                                    ),
+                                    variant: VTextVariant.caption,
+                                    color: dynamicColors.textSecondary,
+                                    style: const TextStyle(fontWeight: FontWeight.w600),
                                   ),
                                 ),
                               ],
                             ],
                           ),
-                          const SizedBox(height: 4),
-                          Text(
+                          const SizedBox(height: VSpacing.space1),
+                          VText(
                             unit.name,
-                            style: VTypography.bodySmall.copyWith(
-                              color: dynamicColors.textSecondary,
-                            ),
+                            variant: VTextVariant.bodySmall,
+                            color: dynamicColors.textSecondary,
                           ),
                         ],
                       ),
                     ),
-                    Text(
+                    VText(
                       '${_formatRate(unit.conversionRateToBase)} x ${widget.baseUnitName}',
-                      style: VTypography.bodyDefault.copyWith(
-                        color: isInactive
-                            ? dynamicColors.textSecondary
-                            : dynamicColors.textPrimary,
-                        fontWeight: FontWeight.w600,
-                      ),
+                      variant: VTextVariant.bodyDefault,
+                      color: isInactive ? dynamicColors.textSecondary : dynamicColors.textPrimary,
+                      style: const TextStyle(fontWeight: FontWeight.w600),
                     ),
                   ],
                 ),
                 if (_isExpanded) ...[
-                  const SizedBox(height: 12),
+                  const SizedBox(height: VSpacing.space3),
                   Row(
                     children: [
                       Expanded(
@@ -201,9 +193,9 @@ class _ProductConversionUnitItemState extends State<ProductConversionUnitItem> {
                               context,
                               unitName: unit.name,
                               onConfirm: () {
-                                context
-                                    .read<ProductMeasurementUnitsCubit>()
-                                    .deleteConversionUnit(unit.id);
+                                context.read<ProductMeasurementUnitsCubit>().deleteConversionUnit(
+                                  unit.id,
+                                );
                               },
                             );
                             _collapse();
@@ -221,14 +213,13 @@ class _ProductConversionUnitItemState extends State<ProductConversionUnitItem> {
                     ],
                   ),
                 ] else ...[
-                  const SizedBox(height: 4),
+                  const SizedBox(height: VSpacing.space1),
                   Align(
                     alignment: Alignment.centerRight,
-                    child: Text(
+                    child: VText(
                       'giữ để mở',
-                      style: VTypography.caption.copyWith(
-                        color: dynamicColors.textMuted,
-                      ),
+                      variant: VTextVariant.caption,
+                      color: dynamicColors.textMuted,
                     ),
                   ),
                 ],

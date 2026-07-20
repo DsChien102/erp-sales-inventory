@@ -1,3 +1,4 @@
+// harness:allow-design-system-bypass — fullscreen dark gallery (không phải page shell VAppBar chuẩn)
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
@@ -66,24 +67,27 @@ class _ProductImageGalleryViewerState extends State<ProductImageGalleryViewer> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.vColors;
     final isPrimary = _currentIndex == widget.primaryIndex;
 
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: colors.textPrimary,
       appBar: AppBar(
-        backgroundColor: Colors.black,
-        iconTheme: const IconThemeData(color: Colors.white),
-        title: Text(
+        backgroundColor: colors.textPrimary,
+        iconTheme: IconThemeData(color: colors.surface),
+        title: VText(
           'Gallery ảnh',
-          style: VTypography.headingH4.copyWith(color: Colors.white),
+          variant: VTextVariant.headingH4,
+          color: colors.surface,
         ),
         actions: [
           Center(
             child: Padding(
-              padding: const EdgeInsets.only(right: 16.0),
-              child: Text(
+              padding: const EdgeInsets.only(right: VSpacing.space4),
+              child: VText(
                 '${_currentIndex + 1}/${widget.images.length}',
-                style: VTypography.bodyDefault.copyWith(color: Colors.white),
+                variant: VTextVariant.bodyDefault,
+                color: colors.surface,
               ),
             ),
           ),
@@ -111,8 +115,8 @@ class _ProductImageGalleryViewerState extends State<ProductImageGalleryViewer> {
                     width: double.infinity,
                     height: double.infinity,
                     fit: BoxFit.contain,
-                    placeholder: const Center(
-                      child: CircularProgressIndicator(color: Colors.white),
+                    placeholder: Center(
+                      child: CircularProgressIndicator(color: colors.surface),
                     ),
                   );
                 } else if (image.localPath != null &&
@@ -120,8 +124,12 @@ class _ProductImageGalleryViewerState extends State<ProductImageGalleryViewer> {
                     File(image.localPath!).existsSync()) {
                   imageChild = Image.file(File(image.localPath!), fit: BoxFit.contain);
                 } else {
-                  imageChild = const Center(
-                    child: Icon(Icons.broken_image_outlined, color: Colors.grey, size: 64),
+                  imageChild = Center(
+                    child: Icon(
+                      Icons.broken_image_outlined,
+                      color: colors.surfaceAlt,
+                      size: 64,
+                    ),
                   );
                 }
 
@@ -134,13 +142,16 @@ class _ProductImageGalleryViewerState extends State<ProductImageGalleryViewer> {
             ),
           ),
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+            padding: const EdgeInsets.symmetric(
+              horizontal: VSpacing.space4,
+              vertical: VSpacing.space6,
+            ),
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 begin: Alignment.bottomCenter,
                 end: Alignment.topCenter,
                 colors: [
-                  Colors.black.withValues(alpha: 0.8),
+                  colors.textPrimary.withValues(alpha: 0.8),
                   Colors.transparent,
                 ],
               ),
@@ -151,44 +162,33 @@ class _ProductImageGalleryViewerState extends State<ProductImageGalleryViewer> {
                 children: [
                   if (isPrimary)
                     Container(
-                      margin: const EdgeInsets.only(bottom: 16),
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      margin: const EdgeInsets.only(bottom: VSpacing.space4),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: VSpacing.space3,
+                        vertical: VSpacing.space1 + 2,
+                      ),
                       decoration: BoxDecoration(
-                        color: VColors.success,
-                        borderRadius: BorderRadius.circular(16),
+                        color: colors.success,
+                        borderRadius: BorderRadius.circular(VRadius.pill),
                       ),
-                      child: Text(
+                      child: VText(
                         'Mặc định',
-                        style: VTypography.bodyDefault.copyWith(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                        ),
+                        variant: VTextVariant.bodyDefault,
+                        color: colors.surface,
+                        style: const TextStyle(fontWeight: FontWeight.bold),
                       ),
                     ),
-                  Text(
+                  VText(
                     'Vuốt để xem ảnh khác',
-                    style: VTypography.bodySmall.copyWith(color: Colors.white70),
+                    variant: VTextVariant.bodySmall,
+                    color: colors.surface.withValues(alpha: 0.7),
                   ),
-                  const SizedBox(height: 16),
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.white,
-                        foregroundColor: Colors.black,
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(VRadius.input),
-                        ),
-                      ),
-                      onPressed: () => Navigator.of(context).pop(),
-                      child: Text(
-                        'Đóng',
-                        style: VTypography.bodyDefault.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
+                  const SizedBox(height: VSpacing.space4),
+                  VButton(
+                    label: 'Đóng',
+                    fullWidth: true,
+                    variant: VButtonVariant.secondary,
+                    onPressed: () => Navigator.of(context).pop(),
                   ),
                 ],
               ),

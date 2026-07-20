@@ -54,7 +54,7 @@ class _ProductListSearchBarState extends State<ProductListSearchBar> {
             ),
           ),
           if (widget.onFilterPressed != null) ...[
-            const SizedBox(width: 8),
+            const SizedBox(width: VSpacing.space2),
             _FilterButton(
               onPressed: widget.onFilterPressed!,
               activeFiltersCount: widget.activeFiltersCount,
@@ -82,17 +82,17 @@ class _FilterButton extends StatelessWidget {
 
     return Badge(
       isLabelVisible: isActive,
-      label: Text('$activeFiltersCount'),
-      backgroundColor: VColors.success,
+      label: VText('$activeFiltersCount'),
+      backgroundColor: colors.success,
       offset: const Offset(4, -4),
       child: VIconBox(
         key: const Key('btn_filter_custom_fields'),
         icon: VIcons.tune,
         size: 44,
         iconSize: 20,
-        backgroundColor: isActive ? VColors.successBg : colors.surface,
-        iconColor: isActive ? VColors.success : colors.textPrimary,
-        borderColor: isActive ? VColors.success : colors.borderDefault,
+        backgroundColor: isActive ? colors.successBg : colors.surface,
+        iconColor: isActive ? colors.success : colors.textPrimary,
+        borderColor: isActive ? colors.success : colors.borderDefault,
         borderRadius: VRadius.input,
         onTap: onPressed,
       ),
@@ -108,7 +108,7 @@ class _FilterButton extends StatelessWidget {
 //     return IconButton(
 //       icon: const Icon(
 //         Icons.camera_alt_outlined,
-//         color: VColors.textSecondary,
+//         color: colors.textSecondary,
 //       ),
 //       onPressed: () {
 //         // TODO: Implement barcode scan

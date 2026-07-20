@@ -32,11 +32,9 @@ class _EInvoiceSettingsView extends StatelessWidget {
     return BlocBuilder<EInvoiceSettingsCubit, EInvoiceSettingsState>(
       builder: (context, state) {
         if (state.isLoading) {
-          return Scaffold(
-            appBar: const VAppBar(
-              title: 'Thiết lập hóa đơn điện tử',
-              showBackButton: true,
-            ),
+          return VPageScaffold(
+            title: 'Thiết lập hóa đơn điện tử',
+            showBackButton: true,
             body: Center(
               child: CircularProgressIndicator(
                 valueColor: AlwaysStoppedAnimation<Color>(colors.primary),
@@ -45,12 +43,9 @@ class _EInvoiceSettingsView extends StatelessWidget {
           );
         }
 
-        return Scaffold(
+        return VPageScaffold(
           backgroundColor: colors.background,
-          appBar: const VAppBar(
-            title: 'Thiết lập hóa đơn điện tử',
-            showBackButton: true,
-          ),
+          title: 'Thiết lập hóa đơn điện tử',
           body: ListView(
             padding: const EdgeInsets.symmetric(
               horizontal: VSpacing.screenMobile,
@@ -83,19 +78,17 @@ class _EInvoiceSettingsView extends StatelessWidget {
                               const SizedBox(width: VSpacing.space2),
                             ],
                           ),
-                          const SizedBox(height: 4),
-                          Text(
+                          const SizedBox(height: VSpacing.space1),
+                          VText(
                             'Cập nhật bởi: ${state.updatedBy ?? ''}',
-                            style: VTypography.bodySmall.copyWith(
-                              color: colors.textSecondary,
-                            ),
+                            variant: VTextVariant.bodySmall,
+                            color: colors.textSecondary,
                           ),
-                          Text(
-                                'Kiểm tra: ${state.lastChecked != null ? _formatDateTime(state.lastChecked!) : ''}',
-                                style: VTypography.bodySmall.copyWith(
-                                  color: colors.textSecondary,
-                                ),
-                              ),
+                          VText(
+                            'Kiểm tra: ${state.lastChecked != null ? _formatDateTime(state.lastChecked!) : ''}',
+                            variant: VTextVariant.bodySmall,
+                            color: colors.textSecondary,
+                          ),
                         ],
                       )
                     : null,
@@ -148,17 +141,14 @@ class _EInvoiceSettingsView extends StatelessWidget {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text(
+                          VText(
                             'Tự động phát hành HĐĐT',
-                            style: VTypography.bodySmall.copyWith(
-                              color: colors.textSecondary,
-                            ),
+                            variant: VTextVariant.bodySmall,
+                            color: colors.textSecondary,
                           ),
                           VBadge(
                             label: state.autoIssue ? 'Bật' : 'Tắt',
-                            status: state.autoIssue
-                                ? VBadgeStatus.completed
-                                : VBadgeStatus.draft,
+                            status: state.autoIssue ? VBadgeStatus.completed : VBadgeStatus.draft,
                           ),
                         ],
                       ),
@@ -166,17 +156,14 @@ class _EInvoiceSettingsView extends StatelessWidget {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text(
+                          VText(
                             'Tự động gửi HĐĐT cho khách',
-                            style: VTypography.bodySmall.copyWith(
-                              color: colors.textSecondary,
-                            ),
+                            variant: VTextVariant.bodySmall,
+                            color: colors.textSecondary,
                           ),
                           VBadge(
                             label: state.autoSend ? 'Bật' : 'Tắt',
-                            status: state.autoSend
-                                ? VBadgeStatus.completed
-                                : VBadgeStatus.draft,
+                            status: state.autoSend ? VBadgeStatus.completed : VBadgeStatus.draft,
                           ),
                         ],
                       ),
@@ -244,8 +231,8 @@ class _SettingsItemCard extends StatelessWidget {
             icon: icon,
             size: 40,
             iconSize: 20,
-            backgroundColor: iconBackgroundColor ?? VColors.successBg,
-            iconColor: iconColor ?? VColors.success,
+            backgroundColor: iconBackgroundColor ?? colors.successBg,
+            iconColor: iconColor ?? colors.success,
             borderRadius: VRadius.r12,
           ),
           const SizedBox(width: VSpacing.space3),
@@ -257,12 +244,11 @@ class _SettingsItemCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Expanded(
-                      child: Text(
+                      child: VText(
                         title,
-                        style: VTypography.headingH4.copyWith(
-                          color: colors.textPrimary,
-                          fontWeight: FontWeight.w700,
-                        ),
+                        variant: VTextVariant.headingH4,
+                        color: colors.textPrimary,
+                        style: const TextStyle(fontWeight: FontWeight.w700),
                       ),
                     ),
                     const SizedBox(width: VSpacing.space1),
@@ -274,20 +260,19 @@ class _SettingsItemCard extends StatelessWidget {
                   ],
                 ),
                 if (subtitle != null) ...[
-                  const SizedBox(height: 4),
-                  Text(
+                  const SizedBox(height: VSpacing.space1),
+                  VText(
                     subtitle!,
-                    style: VTypography.bodySmall.copyWith(
-                      color: colors.textSecondary,
-                    ),
+                    variant: VTextVariant.bodySmall,
+                    color: colors.textSecondary,
                   ),
                 ],
                 if (badge != null) ...[
-                  const SizedBox(height: 6),
+                  const VGap.sm(),
                   badge!,
                 ],
                 if (content != null) ...[
-                  const SizedBox(height: 8),
+                  const SizedBox(height: VSpacing.space2),
                   content!,
                 ],
                 if (showDivider) ...[
@@ -295,14 +280,13 @@ class _SettingsItemCard extends StatelessWidget {
                   Divider(color: colors.borderDefault, height: 1),
                   const SizedBox(height: VSpacing.space3),
                 ] else ...[
-                  const SizedBox(height: 12),
+                  const SizedBox(height: VSpacing.space3),
                 ],
-                Text(
+                VText(
                   actionText,
-                  style: VTypography.bodyDefault.copyWith(
-                    color: VColors.success,
-                    fontWeight: FontWeight.w700,
-                  ),
+                  variant: VTextVariant.bodyDefault,
+                  color: colors.success,
+                  style: const TextStyle(fontWeight: FontWeight.w700),
                 ),
               ],
             ),

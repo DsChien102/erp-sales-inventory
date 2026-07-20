@@ -20,7 +20,7 @@ class ProductListItemTile extends StatelessWidget {
 
     return VCard(
       onTap: onTap,
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(VSpacing.space4),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -50,7 +50,7 @@ class ProductListItemTile extends StatelessWidget {
                   ),
                 ],
                 if (item.tradeName != null && item.tradeName!.isNotEmpty) ...[
-                  const SizedBox(height: 2),
+                  const VGap.xs(),
                   VText(
                     item.tradeName!,
                     variant: VTextVariant.bodySmall,
@@ -58,7 +58,7 @@ class ProductListItemTile extends StatelessWidget {
                   ),
                 ],
                 if (item.customFieldValues.isNotEmpty) ...[
-                  const SizedBox(height: 6),
+                  const VGap.sm(),
                   Wrap(
                     spacing: 6,
                     runSpacing: 4,
@@ -81,7 +81,7 @@ class ProductListItemTile extends StatelessWidget {
                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                         decoration: BoxDecoration(
                           color: dynamicColors.surfaceAlt,
-                          borderRadius: BorderRadius.circular(4),
+                          borderRadius: BorderRadius.circular(VRadius.r4),
                         ),
                         child: VText(
                           '${cf.fieldName}: $displayVal',
@@ -126,7 +126,7 @@ class ProductListItemTile extends StatelessWidget {
     );
   }
 
-  Widget _buildImage(dynamic colors) {
+  Widget _buildImage(VColorScheme colors) {
     final reference = item.primaryImageUrl;
     if (reference != null && reference.isNotEmpty) {
       return CatalogStorageImage(
@@ -134,20 +134,20 @@ class ProductListItemTile extends StatelessWidget {
         width: 60,
         height: 60,
         fit: BoxFit.cover,
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(VRadius.r8),
         placeholder: _buildPlaceholder(colors),
       );
     }
     return _buildPlaceholder(colors);
   }
 
-  Widget _buildPlaceholder(dynamic colors) {
+  Widget _buildPlaceholder(VColorScheme colors) {
     return Container(
       width: 60,
       height: 60,
       decoration: BoxDecoration(
         color: colors.surfaceAlt,
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(VRadius.r8),
       ),
       child: VIcon(
         icon: VIcons.image,
@@ -157,13 +157,13 @@ class ProductListItemTile extends StatelessWidget {
     );
   }
 
-  Widget _buildPriceInfo(dynamic colors) {
+  Widget _buildPriceInfo(VColorScheme colors) {
     if (item.listBeforeVat != null) {
       return VText(
         formatCatalogCurrency(item.listBeforeVat),
         variant: VTextVariant.bodyDefault,
-        style: const TextStyle(fontWeight: FontWeight.w700),
         color: colors.textPrimary,
+        style: const TextStyle(fontWeight: FontWeight.w700),
       );
     }
     return VText(
@@ -173,7 +173,7 @@ class ProductListItemTile extends StatelessWidget {
     );
   }
 
-  Widget _buildUnitInfo(dynamic colors) {
+  Widget _buildUnitInfo(VColorScheme colors) {
     if (item.baseUnit != null && item.baseUnit!.isNotEmpty) {
       return VText(
         item.baseUnit!.toLowerCase(),
@@ -188,7 +188,7 @@ class ProductListItemTile extends StatelessWidget {
     );
   }
 
-  Widget _buildStockInfo(dynamic colors) {
+  Widget _buildStockInfo(VColorScheme colors) {
     if (item.stockQuantity == null) {
       return VText(
         'Chưa TL tồn',
@@ -203,9 +203,7 @@ class ProductListItemTile extends StatelessWidget {
         isOutOfStock ? 'Hết' : item.stockLabel!,
         variant: VTextVariant.bodyDefault,
         color: isOutOfStock ? colors.warning : colors.textPrimary,
-        style: TextStyle(
-          fontWeight: isOutOfStock ? FontWeight.w500 : FontWeight.normal,
-        ),
+        style: TextStyle(fontWeight: isOutOfStock ? FontWeight.w500 : FontWeight.normal),
       );
     }
     return const SizedBox.shrink();

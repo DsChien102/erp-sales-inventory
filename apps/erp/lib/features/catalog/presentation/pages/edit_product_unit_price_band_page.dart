@@ -94,36 +94,33 @@ class EditProductUnitPriceBandPage extends StatelessWidget {
           final isSubmitting = state is EditProductUnitPriceBandLoaded && state.isSubmitting;
           final canSubmit = state is EditProductUnitPriceBandLoaded && state.canSubmit;
 
-          return Scaffold(
-            backgroundColor: context.vColors.surface,
-            appBar: VAppBar(
-              title: 'Khung giá bán',
-              titleStyle: VTypography.headingH3.copyWith(fontWeight: FontWeight.bold),
-              subtitle: args.productName.isNotEmpty ? args.productName : null,
-              centerTitle: false,
-              leading: IconButton(
-                icon: const VIcon(icon: VIcons.arrowBack),
-                onPressed: () => context.pop(),
-              ),
+          return VPageScaffold(
+            title: 'Khung giá bán',
+            titleStyle: VTypography.headingH3.copyWith(fontWeight: FontWeight.bold),
+            subtitle: args.productName.isNotEmpty ? args.productName : null,
+            centerTitle: false,
+            leading: IconButton(
+              icon: const VIcon(icon: VIcons.arrowBack),
+              onPressed: () => context.pop(),
             ),
             body: isLoading
                 ? const Center(child: CircularProgressIndicator())
                 : SingleChildScrollView(
                     child: Padding(
-                      padding: const EdgeInsets.all(16.0),
+                      padding: const EdgeInsets.all(VSpacing.space4),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
                           if (state is EditProductUnitPriceBandLoaded) ...[
                             _buildTopCard(context, state),
-                            const SizedBox(height: 16),
+                            const SizedBox(height: VSpacing.space4),
                             PriceBandCalculationTypeSelector(row: args.row),
                           ],
                         ],
                       ),
                     ),
                   ),
-            bottomNavigationBar: ProductFormBottomBar(
+            bottomBar: ProductFormBottomBar(
               saveKey: const Key('btn_price_band_save'),
               onCancel: () => context.pop(),
               isLoading: isSubmitting,
@@ -140,10 +137,10 @@ class EditProductUnitPriceBandPage extends StatelessWidget {
     final dynamicColors = context.vColors;
 
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(VSpacing.space4),
       decoration: BoxDecoration(
         color: dynamicColors.surface,
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(VRadius.r8),
         border: Border.all(color: dynamicColors.borderDefault),
       ),
       child: Row(
@@ -153,22 +150,25 @@ class EditProductUnitPriceBandPage extends StatelessWidget {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
+              VText(
                 'Giá vốn cơ sở',
-                style: VTypography.bodyDefault.copyWith(fontWeight: FontWeight.bold),
+                variant: VTextVariant.bodyDefault,
+                style: const TextStyle(fontWeight: FontWeight.bold),
               ),
-              const SizedBox(height: 4),
-              Text(
+              const SizedBox(height: VSpacing.space1),
+              VText(
                 '1 ${args.row.unitName.toLowerCase()}',
-                style: VTypography.bodySmall.copyWith(color: dynamicColors.textSecondary),
+                variant: VTextVariant.bodySmall,
+                color: dynamicColors.textSecondary,
               ),
             ],
           ),
-          Text(
+          VText(
             state.suggestion.basePrice > 0
                 ? formatCatalogCurrency(state.suggestion.basePrice)
                 : '—',
-            style: VTypography.headingH4.copyWith(fontWeight: FontWeight.bold),
+            variant: VTextVariant.headingH4,
+            style: const TextStyle(fontWeight: FontWeight.bold),
           ),
         ],
       ),

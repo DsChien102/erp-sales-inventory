@@ -37,13 +37,12 @@ class ProductConversionUnitDeleteConfirmDialog extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text(
+            VText(
               'Đơn vị "$unitName" sẽ bị xóa vĩnh viễn khỏi sản phẩm. '
               'Chỉ dùng khi đơn vị chưa có giao dịch hoặc khung giá. '
               'Nếu đã phát sinh dữ liệu, hệ thống sẽ gợi ý "Tắt đơn vị" thay vì xóa.',
-              style: VTypography.bodyDefault.copyWith(
-                color: dynamicColors.textSecondary,
-              ),
+              variant: VTextVariant.bodyDefault,
+              color: dynamicColors.textSecondary,
             ),
             const SizedBox(height: VSpacing.space6),
             Row(
