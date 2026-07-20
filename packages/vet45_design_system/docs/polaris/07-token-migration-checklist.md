@@ -25,7 +25,7 @@ Dùng checklist này cho mọi PR chạm presentation UI.
 ## Color
 
 - [ ] Chỉ `context.vColors.*` hoặc semantic qua component
-- [ ] Không `Colors.*` / hex literal
+- [ ] Không `Colors.*` / `Color(0x…)` hex literal (CI guard: `scripts/ci/guard_design_system_usage.sh`)
 
 ## Components & overlays
 

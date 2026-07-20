@@ -81,7 +81,7 @@ class VIcon extends StatelessWidget {
         VIconColor.warning => dynamicColors.warning,
         VIconColor.danger => dynamicColors.danger,
         VIconColor.info => dynamicColors.info,
-        VIconColor.white => const Color(0xFFFFFFFF),
+        VIconColor.white => dynamicColors.surface,
       };
     } else {
       resolvedColor = dynamicColors.textPrimary;

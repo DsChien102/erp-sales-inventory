@@ -493,7 +493,8 @@ class _ComponentsPreviewTabState extends State<ComponentsPreviewTab> {
         ),
         PreviewSection(
           title: 'VLoading',
-          description: 'Xoay tròn thông thường, chế độ hiển thị nhiệm vụ và dạng hộp thoại overlay.',
+          description:
+              'Xoay tròn thông thường, chế độ hiển thị nhiệm vụ và dạng hộp thoại overlay.',
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -529,7 +530,8 @@ class _ComponentsPreviewTabState extends State<ComponentsPreviewTab> {
         ),
         PreviewSection(
           title: 'VSteps',
-          description: 'Hiển thị các bước tiến trình dạng ngang (stepper) hoặc dạng danh sách (list).',
+          description:
+              'Hiển thị các bước tiến trình dạng ngang (stepper) hoặc dạng danh sách (list).',
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -602,7 +604,10 @@ class _ComponentsPreviewTabState extends State<ComponentsPreviewTab> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  VText('Tiến trình: ${(_progressValue * 100).toStringAsFixed(0)}%', variant: VTextVariant.bodySmall),
+                  VText(
+                    'Tiến trình: ${(_progressValue * 100).toStringAsFixed(0)}%',
+                    variant: VTextVariant.bodySmall,
+                  ),
                   Row(
                     children: [
                       VButton(
@@ -623,6 +628,39 @@ class _ComponentsPreviewTabState extends State<ComponentsPreviewTab> {
                     ],
                   ),
                 ],
+              ),
+            ],
+          ),
+        ),
+        PreviewSection(
+          title: 'VAvatar',
+          description: 'Partner initials avatar — name in, colors/initials handled internally.',
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              PreviewStateRow(
+                label: 'Sizes',
+                child: PreviewStateWrap(
+                  children: [
+                    VAvatar(name: 'Nguyễn Văn A'),
+                    VAvatar(name: 'Trần Bình', size: 56),
+                    VAvatar(name: 'Agapi', size: 64, textSize: 24),
+                  ],
+                ),
+              ),
+              PreviewStateRow(
+                label: 'Edge names',
+                child: PreviewStateWrap(
+                  children: [
+                    VAvatar(name: ''),
+                    VAvatar(name: 'Chi'),
+                    VAvatar(name: 'Lê Đức Khánh Long'),
+                  ],
+                ),
+              ),
+              PreviewStateRow(
+                label: 'Tappable',
+                child: VAvatar(name: 'Tap Me', onTap: () {}),
               ),
             ],
           ),
@@ -903,7 +941,9 @@ class _ComponentsPreviewTabState extends State<ComponentsPreviewTab> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        VCard(child: VText('Profile card', variant: VTextVariant.bodyDefault)),
+                        VCard(
+                          child: VText('Profile card', variant: VTextVariant.bodyDefault),
+                        ),
                         const VGap.sm(),
                         VCard(child: VText('Section', variant: VTextVariant.bodyDefault)),
                       ],

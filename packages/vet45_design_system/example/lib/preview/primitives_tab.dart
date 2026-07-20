@@ -188,6 +188,7 @@ class _PrimitivesPreviewTabState extends State<PrimitivesPreviewTab> {
                 iconData: Icons.lock_outline,
                 tone: VComponentTone.neutral,
               ),
+              VAvatar(name: 'Nguyễn Văn A', textSize: 14),
             ],
           ),
         ),
