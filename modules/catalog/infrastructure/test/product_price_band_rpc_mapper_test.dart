@@ -55,6 +55,24 @@ void main() {
       expect(params, containsPair('p_store_price_rule_id', null));
     });
 
+    test('maps pending custom config with null materialized prices', () {
+      final params = ProductPriceBandRpcMapper.setProductUnitPriceBandParams(
+        tenantId: 'tenant-1',
+        productId: 'product-7',
+        productUnitId: 'unit-lo',
+        listBeforeVat: null,
+        listAfterVat: null,
+        sourceType: PriceBandSourceType.customConfig,
+        listMarkupRatio: 0.35,
+        floorMarkupRatio: 0.15,
+      );
+
+      expect(params, containsPair('p_list_price_before_vat', null));
+      expect(params, containsPair('p_list_price_after_vat', null));
+      expect(params, containsPair('p_source_type', 'customConfig'));
+      expect(params, containsPair('p_list_markup_ratio', 0.35));
+    });
+
     test('maps list rows to ProductUnitPriceBandsDto', () {
       final dto = ProductPriceBandRpcMapper.bandsFromRows([
         {

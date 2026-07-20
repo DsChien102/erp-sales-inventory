@@ -84,6 +84,8 @@ ProductListItemDto _sampleListItem({
 
 ProductControlCenterReadModel _sampleControlCenterModel({
   bool hasPriceBand = false,
+  bool hasBasePrice = true,
+  bool hasPendingCustomConfig = false,
 }) {
   return ProductControlCenterReadModel(
     productId: 'product-1',
@@ -100,14 +102,15 @@ ProductControlCenterReadModel _sampleControlCenterModel({
       hasBaseUnit: true,
       hasImages: true,
       hasStock: true,
-      hasBasePrice: true,
+      hasBasePrice: hasBasePrice,
       hasPriceBand: hasPriceBand,
       hasRequiredCustomFields: true,
     ),
     stockQuantity: 150,
-    basePriceAmount: 80000,
+    basePriceAmount: hasBasePrice ? 80000 : null,
     listBeforeVat: hasPriceBand ? 120000 : null,
     floorBeforeVat: hasPriceBand ? 95000 : null,
+    priceBandSourceType: hasPendingCustomConfig ? PriceBandSourceType.customConfig : null,
     changeHistoryPreview: [
       ProductChangeHistoryEntryDto(
         id: 'history-1',
@@ -265,6 +268,36 @@ void main() {
       expect(result.stock.quantity, 150);
       expect(result.basePrice.amount, 80000);
       expect(result.priceBand.listBeforeVat, 120000);
+    });
+
+    test('shows a pending custom config while readiness stays incomplete', () async {
+      final gateway = _FakeCatalogReadGateway()
+        ..controlCenterResult = _sampleControlCenterModel(
+          hasBasePrice: false,
+          hasPendingCustomConfig: true,
+        );
+      final handler = GetProductControlCenterQueryHandler(
+        readGateway: gateway,
+        permissionChecker: FakePermissionChecker(),
+      );
+
+      final result = await handler.handle(
+        GetProductControlCenterQuery(
+          tenantId: 'tenant-1',
+          productId: 'product-1',
+        ),
+      );
+
+      expect(result.priceBand.isMissing, isFalse);
+      expect(result.priceBand.isPendingCalculation, isTrue);
+      expect(result.readinessSummary.status, ReadinessStatus.incomplete);
+      expect(
+        result.readinessSummary.blockers.map((blocker) => blocker.code),
+        containsAll(<String>[
+          ReadinessBlockerCode.missingPrice,
+          ReadinessBlockerCode.missingPriceBand,
+        ]),
+      );
     });
 
     test('scn_e01_u02_fr03_01 returns empty custom field cards', () async {

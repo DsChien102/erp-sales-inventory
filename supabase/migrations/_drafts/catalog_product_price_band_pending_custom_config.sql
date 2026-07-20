@@ -1,0 +1,512 @@
+-- Title: catalog pending custom-config product price band
+-- Kind: patch
+-- Intent: catalog_product_price_band_pending_custom_config
+-- Context: TH-02 / EPIC-06 — persist custom ratios before a base price exists
+-- Touches: set_product_unit_price_band, create_guided_product
+-- Safety: idempotent ; medium — drops create_guided_product overloads without CASCADE,
+--   recreates one canonical RPC, and permits null materialized prices only for customConfig
+-- Depends on: 20260717008_catalog_product_price_band_change_history_recalculation.sql
+
+alter table catalog.product_unit_price_bands
+  alter column list_price_after_vat drop not null;
+
+alter table catalog.product_unit_price_bands
+  drop constraint if exists product_unit_price_bands_materialization_check;
+
+alter table catalog.product_unit_price_bands
+  add constraint product_unit_price_bands_materialization_check
+  check (
+    (
+      source_type = 'customConfig'
+      and (
+        (
+          list_price_before_vat is null
+          and list_price_after_vat is null
+          and floor_price_before_vat is null
+          and floor_price_after_vat is null
+        )
+        or (
+          list_price_before_vat is not null
+          and list_price_after_vat is not null
+        )
+      )
+    )
+    or (
+      source_type <> 'customConfig'
+      and list_price_before_vat is not null
+      and list_price_after_vat is not null
+    )
+  ) not valid;
+
+comment on column catalog.product_unit_price_bands.list_price_after_vat is
+  'Materialized list price after VAT; null while customConfig waits for a base price.';
+
+create or replace function catalog.set_product_unit_price_band(
+  p_tenant_id uuid,
+  p_product_id uuid,
+  p_list_price_before_vat numeric,
+  p_list_price_after_vat numeric,
+  p_floor_price_before_vat numeric default null,
+  p_product_unit_id uuid default null,
+  p_floor_price_after_vat numeric default null,
+  p_effective_from timestamptz default null,
+  p_effective_to timestamptz default null,
+  p_status text default 'active',
+  p_source_type text default 'manual',
+  p_store_price_rule_id uuid default null,
+  p_list_markup_ratio numeric default null,
+  p_floor_markup_ratio numeric default null
+)
+returns table (
+  product_id uuid,
+  product_unit_id uuid,
+  list_price_before_vat numeric,
+  floor_price_before_vat numeric,
+  list_price_after_vat numeric,
+  floor_price_after_vat numeric,
+  effective_from timestamptz,
+  effective_to timestamptz,
+  status text,
+  source_type text,
+  store_price_rule_id uuid,
+  list_markup_ratio numeric,
+  floor_markup_ratio numeric
+)
+language plpgsql
+security definer
+set search_path = catalog, iam, pg_temp
+as $$
+#variable_conflict use_column
+declare
+  v_actor_id uuid := auth.uid();
+  v_unit_id uuid;
+  v_base_price numeric;
+  v_conversion_rate numeric;
+  v_list_price numeric;
+  v_floor_price numeric;
+  v_effective_from timestamptz := coalesce(p_effective_from, now());
+  v_status text := coalesce(nullif(btrim(p_status), ''), 'active');
+  v_before_source_type text;
+  v_before_list_price numeric;
+  v_before_floor_price numeric;
+begin
+  if v_actor_id is null then raise exception 'not authenticated'; end if;
+  if not iam.has_permission(p_tenant_id, 'catalog.product.manage_pricing') then
+    raise exception 'permission denied: catalog.product.manage_pricing';
+  end if;
+  if not exists (
+    select 1 from catalog.products p
+    where p.id = p_product_id and p.tenant_id = p_tenant_id
+      and p.business_status <> 'soft_deleted'::catalog.product_business_status
+  ) then raise exception 'product not found'; end if;
+
+  perform catalog._ensure_product_has_base_unit(p_tenant_id, p_product_id);
+  v_unit_id := catalog._resolve_base_product_unit_id(
+    p_tenant_id, p_product_id, p_product_unit_id
+  );
+  if v_unit_id is null then raise exception 'product unit not found'; end if;
+
+  select pu.conversion_rate_to_base
+  into v_conversion_rate
+  from catalog.product_units pu
+  where pu.id = v_unit_id and pu.product_id = p_product_id
+    and pu.tenant_id = p_tenant_id and pu.is_active = true
+  for update;
+  if not found then raise exception 'inactive_product_unit'; end if;
+
+  select pb.source_type::text,
+         pb.list_price_before_vat,
+         pb.floor_price_before_vat
+  into v_before_source_type, v_before_list_price, v_before_floor_price
+  from catalog.product_unit_price_bands pb
+  where pb.product_id = p_product_id
+    and pb.product_unit_id = v_unit_id
+    and pb.tenant_id = p_tenant_id
+    and pb.status = 'active'
+  limit 1 for update;
+
+  select bp.base_price_after_vat
+  into v_base_price
+  from catalog.product_base_price_profiles bp
+  where bp.product_id = p_product_id and bp.tenant_id = p_tenant_id
+  for update;
+
+  if v_status not in ('active', 'inactive', 'deleted') then
+    raise exception 'validation_exception: status không hợp lệ.';
+  end if;
+
+  case p_source_type
+    when 'customConfig' then
+      if p_store_price_rule_id is not null
+         or p_list_markup_ratio is null
+         or p_list_markup_ratio < 0
+         or (p_floor_markup_ratio is not null and (
+           p_floor_markup_ratio < 0 or p_floor_markup_ratio > p_list_markup_ratio
+         )) then
+        raise exception 'validation_exception: cấu hình tỷ lệ riêng không hợp lệ.';
+      end if;
+      if v_conversion_rate is null or v_conversion_rate <= 0 then
+        raise exception 'validation_exception: tỷ lệ quy đổi không hợp lệ.';
+      end if;
+      v_list_price := case
+        when v_base_price is null then null
+        else round(v_base_price * v_conversion_rate * (1 + p_list_markup_ratio))
+      end;
+      v_floor_price := case
+        when v_base_price is null then null
+        when p_floor_markup_ratio is null then null
+        else round(v_base_price * v_conversion_rate * (1 + p_floor_markup_ratio))
+      end;
+    when 'manual' then
+      if p_store_price_rule_id is not null
+         or p_list_markup_ratio is not null
+         or p_floor_markup_ratio is not null
+         or p_list_price_before_vat is null
+         or p_list_price_after_vat is null then
+        raise exception 'validation_exception: giá thủ công không hợp lệ.';
+      end if;
+      v_list_price := p_list_price_before_vat;
+      v_floor_price := p_floor_price_before_vat;
+    when 'ruleBased' then
+      raise exception 'validation_exception: use apply_store_price_rule';
+    else
+      raise exception 'validation_exception: source_type không hợp lệ.';
+  end case;
+
+  if (v_list_price is not null and v_list_price < 0)
+     or (v_floor_price is not null and (
+       v_floor_price < 0 or v_floor_price > v_list_price
+     )) then
+    raise exception 'floor_price_greater_than_list_price';
+  end if;
+
+  insert into catalog.product_unit_price_bands (
+    tenant_id, product_id, product_unit_id,
+    list_price_before_vat, floor_price_before_vat,
+    list_price_after_vat, floor_price_after_vat,
+    effective_from, effective_to, status,
+    store_price_rule_id, source_type,
+    list_markup_ratio, floor_markup_ratio,
+    is_custom_override, updated_at
+  ) values (
+    p_tenant_id, p_product_id, v_unit_id,
+    v_list_price, v_floor_price, v_list_price, v_floor_price,
+    v_effective_from, p_effective_to, v_status,
+    null, p_source_type::catalog.price_band_source_type,
+    p_list_markup_ratio, p_floor_markup_ratio,
+    p_source_type = 'customConfig', now()
+  )
+  on conflict (product_id, product_unit_id) where (status = 'active') do update set
+    list_price_before_vat = excluded.list_price_before_vat,
+    floor_price_before_vat = excluded.floor_price_before_vat,
+    list_price_after_vat = excluded.list_price_after_vat,
+    floor_price_after_vat = excluded.floor_price_after_vat,
+    effective_from = excluded.effective_from,
+    effective_to = excluded.effective_to,
+    status = excluded.status,
+    store_price_rule_id = null,
+    source_type = excluded.source_type,
+    list_markup_ratio = excluded.list_markup_ratio,
+    floor_markup_ratio = excluded.floor_markup_ratio,
+    is_custom_override = excluded.is_custom_override,
+    updated_at = now();
+
+  perform catalog._record_product_price_band_change(
+    p_tenant_id => p_tenant_id,
+    p_product_id => p_product_id,
+    p_product_unit_id => v_unit_id,
+    p_action => 'set_product_unit_price_band',
+    p_trigger => 'direct',
+    p_before_source_type => v_before_source_type,
+    p_before_list_price => v_before_list_price,
+    p_before_floor_price => v_before_floor_price,
+    p_after_source_type => p_source_type,
+    p_after_list_price => v_list_price,
+    p_after_floor_price => v_floor_price,
+    p_actor_id => v_actor_id
+  );
+
+  return query select
+    p_product_id, v_unit_id, v_list_price, v_floor_price,
+    v_list_price, v_floor_price, v_effective_from, p_effective_to,
+    v_status, p_source_type, null::uuid,
+    p_list_markup_ratio, p_floor_markup_ratio;
+end;
+$$;
+
+revoke all on function catalog.set_product_unit_price_band(
+  uuid, uuid, numeric, numeric, numeric, uuid, numeric,
+  timestamptz, timestamptz, text, text, uuid, numeric, numeric
+) from public, anon;
+grant execute on function catalog.set_product_unit_price_band(
+  uuid, uuid, numeric, numeric, numeric, uuid, numeric,
+  timestamptz, timestamptz, text, text, uuid, numeric, numeric
+) to authenticated, service_role;
+
+-- SQL Editor runs do not have migration-history guarantees. Remove every stale
+-- overload so PostgREST sees exactly one callable create_guided_product RPC.
+do $$
+declare
+  v_signature text;
+begin
+  for v_signature in
+    select format(
+      '%I.%I(%s)',
+      n.nspname,
+      p.proname,
+      pg_get_function_identity_arguments(p.oid)
+    )
+    from pg_proc p
+    join pg_namespace n on n.oid = p.pronamespace
+    where n.nspname = 'catalog'
+      and p.proname = 'create_guided_product'
+  loop
+    execute format('drop function %s', v_signature);
+  end loop;
+end;
+$$;
+
+create or replace function catalog.create_guided_product(
+  p_tenant_id uuid,
+  p_actor_id uuid,
+  p_name text,
+  p_reference_id text,
+  p_trade_name text default null,
+  p_sku text default null,
+  p_barcode text default null,
+  p_images jsonb default '[]'::jsonb,
+  p_tenant_unit_id uuid default null,
+  p_new_unit_name text default null,
+  p_basic_stock_quantity_base numeric default null,
+  p_base_price_after_vat numeric default null,
+  p_list_price_before_vat numeric default null,
+  p_floor_price_before_vat numeric default null,
+  p_use_store_price_rule boolean default false,
+  p_price_band_source_type text default null,
+  p_list_markup_ratio numeric default null,
+  p_floor_markup_ratio numeric default null,
+  p_custom_field_values jsonb default '[]'::jsonb,
+  p_idempotency_key uuid default null
+)
+returns jsonb
+language plpgsql
+security definer
+set search_path = catalog, iam, pg_temp
+as $$
+declare
+  v_product_id uuid;
+  v_existing boolean := false;
+  v_readiness_status text;
+  v_readiness_blockers jsonb;
+  v_source_type text;
+  v_store_price_rule_id uuid;
+  v_can_apply_store_rule boolean := false;
+begin
+  if auth.uid() is null then raise exception 'not authenticated'; end if;
+  if p_actor_id is null or p_actor_id <> auth.uid() then
+    raise exception 'actor mismatch';
+  end if;
+  if not iam.has_permission(p_tenant_id, 'catalog.product.create') then
+    raise exception 'permission denied: catalog.product.create';
+  end if;
+
+  if p_idempotency_key is not null then
+    select p.id into v_product_id
+    from catalog.products p
+    where p.tenant_id = p_tenant_id
+      and p.idempotency_key = p_idempotency_key;
+    v_existing := found;
+  end if;
+  if v_existing then
+    select r.readiness_status, r.readiness_blockers
+    into v_readiness_status, v_readiness_blockers
+    from catalog._refresh_product_readiness(p_tenant_id, v_product_id) r;
+    return jsonb_build_object(
+      'product_id', v_product_id,
+      'readiness_status', v_readiness_status,
+      'readiness_blockers', coalesce(v_readiness_blockers, '[]'::jsonb)
+    );
+  end if;
+
+  v_source_type := coalesce(
+    p_price_band_source_type,
+    case
+      when p_use_store_price_rule then 'ruleBased'
+      when p_list_price_before_vat is not null
+        or p_floor_price_before_vat is not null then 'manual'
+      else 'ruleBased'
+    end
+  );
+  if v_source_type not in ('ruleBased', 'customConfig', 'manual') then
+    raise exception 'validation_exception: source_type không hợp lệ.';
+  end if;
+
+  if v_source_type = 'ruleBased' then
+    select r.id
+    into v_store_price_rule_id
+    from catalog.store_price_rules r
+    where r.tenant_id = p_tenant_id
+      and r.status = 'active'
+    order by r.updated_at desc
+    limit 1;
+
+    v_can_apply_store_rule :=
+      (p_tenant_unit_id is not null
+        or nullif(btrim(coalesce(p_new_unit_name, '')), '') is not null)
+      and p_base_price_after_vat is not null
+      and v_store_price_rule_id is not null;
+  end if;
+
+  if (p_tenant_unit_id is not null
+      or nullif(btrim(coalesce(p_new_unit_name, '')), '') is not null)
+     and not iam.has_permission(p_tenant_id, 'catalog.product.manage_units') then
+    raise exception 'permission denied: catalog.product.manage_units';
+  end if;
+  if p_basic_stock_quantity_base is not null
+     and not iam.has_permission(p_tenant_id, 'catalog.product.manage_stock') then
+    raise exception 'permission denied: catalog.product.manage_stock';
+  end if;
+  if (p_base_price_after_vat is not null
+      or v_source_type in ('customConfig', 'manual')
+      or v_can_apply_store_rule
+      or p_list_markup_ratio is not null or p_floor_markup_ratio is not null)
+     and not iam.has_permission(p_tenant_id, 'catalog.product.manage_pricing') then
+    raise exception 'permission denied: catalog.product.manage_pricing';
+  end if;
+  if jsonb_array_length(coalesce(p_custom_field_values, '[]'::jsonb)) > 0
+     and not iam.has_permission(p_tenant_id, 'catalog.product.update') then
+    raise exception 'permission denied: catalog.product.update';
+  end if;
+
+  if p_basic_stock_quantity_base is not null
+     and (p_basic_stock_quantity_base < 0
+       or p_basic_stock_quantity_base <> trunc(p_basic_stock_quantity_base)) then
+    raise exception 'validation_exception: initial stock must be a non-negative integer';
+  end if;
+  if (p_basic_stock_quantity_base is not null
+      or p_base_price_after_vat is not null
+      or v_source_type in ('customConfig', 'manual'))
+     and p_tenant_unit_id is null
+     and nullif(btrim(coalesce(p_new_unit_name, '')), '') is null then
+    raise exception 'validation_exception: base unit is required for stock or pricing';
+  end if;
+  if p_base_price_after_vat < 0 or p_list_price_before_vat < 0
+     or p_floor_price_before_vat < 0 then
+    raise exception 'validation_exception: prices cannot be negative';
+  end if;
+
+  case v_source_type
+    when 'ruleBased' then
+      if p_list_price_before_vat is not null
+         or p_floor_price_before_vat is not null
+         or p_list_markup_ratio is not null
+         or p_floor_markup_ratio is not null then
+        raise exception 'validation_exception: cấu hình khung giá cửa hàng không hợp lệ.';
+      end if;
+    when 'customConfig' then
+      if p_use_store_price_rule
+         or p_list_markup_ratio is null
+         or p_list_markup_ratio < 0
+         or p_floor_markup_ratio < 0
+         or p_floor_markup_ratio > p_list_markup_ratio then
+        raise exception 'validation_exception: cấu hình giá tự động riêng không hợp lệ.';
+      end if;
+    when 'manual' then
+      if p_use_store_price_rule
+         or p_list_price_before_vat is null
+         or p_floor_price_before_vat > p_list_price_before_vat
+         or p_list_markup_ratio is not null
+         or p_floor_markup_ratio is not null then
+        raise exception 'validation_exception: giá thủ công không hợp lệ.';
+      end if;
+    else
+      null;
+  end case;
+
+  v_product_id := catalog.create_product(
+    p_tenant_id => p_tenant_id,
+    p_name => p_name,
+    p_reference_id => p_reference_id,
+    p_actor_id => p_actor_id,
+    p_trade_name => p_trade_name,
+    p_sku => p_sku,
+    p_barcode => p_barcode,
+    p_images => p_images,
+    p_idempotency_key => p_idempotency_key
+  );
+
+  if p_tenant_unit_id is not null
+     or nullif(btrim(coalesce(p_new_unit_name, '')), '') is not null then
+    perform catalog.set_product_base_unit(
+      p_tenant_id, v_product_id, p_tenant_unit_id, p_new_unit_name
+    );
+  end if;
+  if p_basic_stock_quantity_base is not null then
+    perform catalog.set_basic_stock_quantity_base(
+      p_tenant_id, v_product_id, 'basic', p_basic_stock_quantity_base
+    );
+  end if;
+  if p_base_price_after_vat is not null then
+    perform catalog.set_manual_base_price(
+      p_tenant_id, v_product_id, 'manual', p_base_price_after_vat, 'VND'
+    );
+  end if;
+
+  case v_source_type
+    when 'ruleBased' then
+      if v_can_apply_store_rule then
+        perform 1 from catalog.apply_store_price_rule(
+          p_tenant_id => p_tenant_id,
+          p_product_id => v_product_id,
+          p_store_price_rule_id => v_store_price_rule_id
+        );
+      end if;
+    when 'customConfig' then
+      perform 1 from catalog.set_product_unit_price_band(
+        p_tenant_id => p_tenant_id,
+        p_product_id => v_product_id,
+        p_list_price_before_vat => null,
+        p_list_price_after_vat => null,
+        p_floor_price_before_vat => null,
+        p_floor_price_after_vat => null,
+        p_source_type => 'customConfig',
+        p_list_markup_ratio => p_list_markup_ratio,
+        p_floor_markup_ratio => p_floor_markup_ratio
+      );
+    when 'manual' then
+      perform catalog.set_initial_price_band(
+        p_tenant_id, v_product_id,
+        p_list_price_before_vat, p_floor_price_before_vat, null
+      );
+    else
+      null;
+  end case;
+
+  if jsonb_array_length(coalesce(p_custom_field_values, '[]'::jsonb)) > 0 then
+    perform catalog.upsert_product_custom_field_values(
+      p_tenant_id, v_product_id, p_custom_field_values
+    );
+  end if;
+
+  select r.readiness_status, r.readiness_blockers
+  into v_readiness_status, v_readiness_blockers
+  from catalog._refresh_product_readiness(p_tenant_id, v_product_id) r;
+
+  return jsonb_build_object(
+    'product_id', v_product_id,
+    'readiness_status', v_readiness_status,
+    'readiness_blockers', coalesce(v_readiness_blockers, '[]'::jsonb)
+  );
+end;
+$$;
+
+revoke all on function catalog.create_guided_product(
+  uuid, uuid, text, text, text, text, text, jsonb, uuid, text,
+  numeric, numeric, numeric, numeric, boolean, text, numeric, numeric,
+  jsonb, uuid
+) from public, anon;
+grant execute on function catalog.create_guided_product(
+  uuid, uuid, text, text, text, text, text, jsonb, uuid, text,
+  numeric, numeric, numeric, numeric, boolean, text, numeric, numeric,
+  jsonb, uuid
+) to authenticated, service_role;

@@ -1,5 +1,6 @@
 import 'custom_field_group_card_dto.dart';
 import 'package:vet45_catalog_domain/domain.dart';
+import 'package:vet45_catalog_application/src/product_unit_price_band/queries/list_product_unit_price_bands/price_band_source_type.dart';
 
 import 'package:vet45_catalog_application/src/product_readiness/shared/product_readiness_permission_context.dart';
 import 'package:vet45_catalog_application/src/product_readiness/shared/product_readiness_view_assembler.dart';
@@ -31,7 +32,10 @@ abstract final class ProductControlCenterAssembler {
     final hasBaseUnit = model.baseUnitName != null && model.baseUnitName!.trim().isNotEmpty;
     final hasStock = model.stockQuantity != null;
     final hasBasePrice = model.basePriceAmount != null;
-    final hasPriceBand = model.listBeforeVat != null && model.floorBeforeVat != null;
+    final hasMaterializedPriceBand = model.listBeforeVat != null && model.listAfterVat != null;
+    final hasConfiguredPriceBand = model.priceBandSourceType != null;
+    final isPendingCustomConfig =
+        model.priceBandSourceType == PriceBandSourceType.customConfig && !hasMaterializedPriceBand;
 
     final filteredCustomFieldGroups = model.customFieldGroupCards
         .map((g) {
@@ -109,8 +113,9 @@ abstract final class ProductControlCenterAssembler {
         effectiveTo: model.priceBandEffectiveTo,
         status: model.priceBandStatus,
         unitName: hasBaseUnit ? model.baseUnitName : null,
-        isMissing: !hasPriceBand,
-        missingMessage: !hasPriceBand ? 'Thiếu khung giá bán' : null,
+        isMissing: !hasConfiguredPriceBand,
+        isPendingCalculation: isPendingCustomConfig,
+        missingMessage: !hasConfiguredPriceBand ? 'Thiếu khung giá bán' : null,
         sourceType: model.priceBandSourceType,
         storePriceRuleName: model.storePriceRuleName,
         isCustomOverride: model.isCustomOverride,

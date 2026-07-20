@@ -107,7 +107,10 @@ abstract final class FakeCatalogProductBuilder {
     final hasImages = images.isNotEmpty;
     final hasStock = stockQty != null;
     final hasBasePrice = baseCost != null;
-    final hasPriceBand = listBeforeVat != null && floorBeforeVat != null;
+    final hasPriceBand = listBeforeVat != null;
+    final hasConfiguredPriceBand = priceBandSourceType != null;
+    final isPendingCustomConfig =
+        priceBandSourceType == PriceBandSourceType.customConfig && !hasPriceBand;
 
     final readinessView = FakeProductReadinessBuilder.build(
       productId: id,
@@ -190,8 +193,9 @@ abstract final class FakeCatalogProductBuilder {
         listBeforeVat: listBeforeVat,
         floorBeforeVat: floorBeforeVat,
         unitName: hasBaseUnit ? baseUnit : null,
-        isMissing: !hasPriceBand,
-        missingMessage: !hasPriceBand ? 'Thiếu khung giá bán' : null,
+        isMissing: !hasConfiguredPriceBand,
+        isPendingCalculation: isPendingCustomConfig,
+        missingMessage: !hasConfiguredPriceBand ? 'Thiếu khung giá bán' : null,
         sourceType: priceBandSourceType,
         storePriceRuleName: storePriceRuleName,
         isCustomOverride: isCustomOverride,

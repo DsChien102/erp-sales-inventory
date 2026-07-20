@@ -84,6 +84,28 @@ void main() {
     await cubit.close();
   });
 
+  test('custom config remains submittable while base price is missing', () {
+    const state = EditProductUnitPriceBandLoaded(
+      suggestion: ProductUnitPriceSuggestionDto(
+        productId: 'product-1',
+        productUnitId: 'unit-box',
+        unitName: 'Hộp',
+        basePrice: 0,
+        currency: 'VND',
+        canSuggest: false,
+        unavailableReason: 'Chưa thiết lập Giá cơ sở.',
+      ),
+      isNewPriceBand: true,
+      selectedType: PriceBandCalculationType.customConfig,
+      customBaseMargin: 35,
+      customFloorMargin: 15,
+    );
+
+    expect(state.calculatedListPrice, isNull);
+    expect(state.calculatedFloorPrice, isNull);
+    expect(state.canSubmit, isTrue);
+  });
+
   test('manual submits absolute prices without ratios', () async {
     final mediator = _RecordingMediator();
     final cubit = createCubit(mediator);

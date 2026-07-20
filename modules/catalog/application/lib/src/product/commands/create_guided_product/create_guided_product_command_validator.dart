@@ -51,8 +51,7 @@ final class CreateGuidedProductCommandValidator
     }
     switch (command.priceBandSourceType) {
       case PriceBandSourceType.customConfig:
-        if (command.basePrice == null ||
-            command.listMarkupRatio == null ||
+        if (command.listMarkupRatio == null ||
             command.listMarkupRatio! < 0 ||
             (command.floorMarkupRatio != null &&
                 (command.floorMarkupRatio! < 0 ||

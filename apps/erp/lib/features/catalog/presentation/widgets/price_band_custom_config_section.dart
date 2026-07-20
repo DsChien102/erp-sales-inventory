@@ -51,7 +51,12 @@ class PriceBandCustomConfigSection extends StatelessWidget {
         const SizedBox(height: 12),
         _priceRow(context, 'Giá sàn (dự kiến)', state.calculatedFloorPrice),
         const SizedBox(height: 16),
-        _note(context, 'Giá sẽ tự cập nhật khi Giá cơ sở thay đổi.'),
+        _note(
+          context,
+          state.suggestion.basePrice > 0
+              ? 'Giá sẽ tự cập nhật khi Giá cơ sở thay đổi.'
+              : 'Cấu hình sẽ được lưu và tự tính giá khi có Giá cơ sở.',
+        ),
       ],
     );
   }

@@ -82,6 +82,20 @@ void main() {
       );
     });
 
+    test('accepts customConfig ratios without a base price', () async {
+      await validator.validate(
+        CreateGuidedProductCommand(
+          tenantId: 'tenant-1',
+          actorId: 'actor-1',
+          productName: 'Thuốc A',
+          baseUnit: const NewTenantUnit('lọ'),
+          priceBandSourceType: PriceBandSourceType.customConfig,
+          listMarkupRatio: 0.5,
+          floorMarkupRatio: 0.4,
+        ),
+      );
+    });
+
     test('accepts default store rule without unit or base price', () async {
       await validator.validate(
         CreateGuidedProductCommand(
