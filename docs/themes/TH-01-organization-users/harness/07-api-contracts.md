@@ -18,7 +18,7 @@ Facade: `IIamModule` — mở rộng surface theo roadmap (hiện interim: sign-
 
 | CMD | Symbol (target) | Type | Permission / actor | US |
 | --- | --------------- | ---- | ------------------ | -- |
-| — | Delivery enqueue (port) | infra | system / outbox | S-NOTIFY |
+| — | `IEmailDeliveryPort` / `SendEmailDeliveryCommand` | infra + internal cmd | system / worker | S-NOTIFY |
 | CMD-CTX-01 | `ListAccessibleTenantsQuery` | Query | Authenticated | EP-05/US-01 |
 | CMD-CTX-02 | `SwitchTenantContextCommand` | Command | Authenticated | EP-05/US-02 |
 | CMD-CTX-03 | `GetTenantContextQuery` | Query | Authenticated | EP-05/US-03 |
@@ -45,8 +45,11 @@ Facade: `IIamModule` — mở rộng surface theo roadmap (hiện interim: sign-
 
 | Symbol | Input (summary) | Success | Errors |
 | ------ | --------------- | ------- | ------ |
-| `EnqueueEmailDelivery` (outbox / port) | templateId, toEmail, locale, payload refs (invitation_id / operation_id), correlationId — **không** raw token trong log | queued | VALIDATION_ERROR |
-| `NotificationDeliveryOutcome` (callback / projection) | messageId, status (`queued`/`sent`/`failed`/`bounced`), provider=`resend` | outcome stored for UI | SYSTEM_ERROR |
+| `IEmailDeliveryPort.enqueue` (`EnqueueEmailDeliveryRequest`) | templateId, toEmail, locale, refs (invitation_id / operation_id), correlationId, tenantId — **không** raw token trong log | outcome `queued` + row `iam.internal_commands` (`command_type` = `iam.notification.send_email_delivery`) | VALIDATION_ERROR |
+| `SendEmailDeliveryCommand` (internal command, worker) | same payload via serializer; handler calls Resend then updates outcome | outcome `sent` / `failed` | SYSTEM_ERROR (worker `fail_internal_command`) |
+| `IEmailDeliveryPort.getOutcomeByCorrelationId` / outcome RPCs | correlationId | `EmailDeliveryOutcomeDto` | — |
+
+**Outcome RPCs (draft):** `iam.record_email_delivery_outcome`, `iam.get_email_delivery_outcome_by_correlation` — [`_drafts/iam_notify_email_delivery_outcome.sql`](../../../../supabase/migrations/_drafts/iam_notify_email_delivery_outcome.sql) (chưa promote).
 
 **Templates (logical):** `activation_invitation`, `tenant_invitation`, `password_reset_code`, `security_notification`.
 
@@ -99,7 +102,7 @@ RPC target: extend / replace interim `SwitchActiveTenant`.
 | ------ | ----- | ------- | ------ |
 | `CreateInvitationCommand` | tenantId, inviteeEmail, initialRoleId, idempotencyKey | `InvitationDto` (pending, expiresAt, deliveryOutcome) | VALIDATION_ERROR, DUPLICATE_MEMBERSHIP, ROLE_NOT_ASSIGNABLE, NO_PERMISSION |
 
-Side effect: outbox → §S-NOTIFY `tenant_invitation` template + App Link opaque.
+Side effect: §S-NOTIFY enqueue (`tenant_invitation` template) + App Link opaque.
 
 | scenario_id | trigger | fake response |
 | ----------- | ------- | ------------- |

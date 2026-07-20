@@ -11,25 +11,37 @@ Golden: mở rộng [`modules/iam/`](../../../../modules/iam/README.md).
 | Điểm | Quyết định |
 | ---- | ---------- |
 | Provider | **Resend** — activation invitation, Tenant Invitation, password-reset code, security notification |
-| Ownership | Notification capability: IAM phát **delivery request** (outbox); adapter gửi Resend; ghi **delivery outcome** cho UI |
-| Không | Theme 1 / IAM không sở hữu delivery DB, raw token, mã xác nhận; không dùng Supabase Auth mailer làm SoT Tenant Invitation |
+| Ownership | Notification: mutation RPC `enqueue_outbox_message` (`iam.email.delivery_requested`) + optional queued outcome → worker self-consume inbox → `ICommandScheduler.enqueue(SendEmailDeliveryCommand)` → Resend (`packages/vet45_resend`); **delivery outcome** projection cho UI |
+| Không | Theme 1 / IAM **không** gọi `enqueue_outbox_message` từ Dart; không dùng outbox làm task queue gửi mail trực tiếp; không sở hữu raw token / mã xác nhận; không dùng Supabase Auth mailer làm SoT Tenant Invitation |
 | Secrets | `RESEND_API_KEY` (và related) chỉ qua `config/secrets` + `melos run env:sync` |
-| Implement | Contract trong [07-api-contracts.md](07-api-contracts.md) §S-NOTIFY; code adapter ở slice roadmap — **không** trong bước scaffold harness |
+| Implement | Contract [07-api-contracts.md](07-api-contracts.md) §S-NOTIFY; consume path `Process*` + adapters `src/adapters/notification/`; publish path = RPC (invitation slice wires same-txn) |
 
 ```mermaid
 sequenceDiagram
   participant App as TenantOrAdminApp
   participant IAM as modules_iam
-  participant Outbox as iam_outbox
-  participant Notif as NotificationAdapter
+  participant RPC as Invitation_or_Activation_RPC
+  participant OB as iam_outbox_messages
+  participant Bus as IEventsBus
+  participant IB as iam_inbox_messages
+  participant IC as iam_internal_commands
+  participant W as messaging_worker
   participant Resend as ResendAPI
+  participant Out as email_delivery_outcomes
 
   App->>IAM: CreateInvitation_or_Activation
-  IAM->>Outbox: delivery_request
-  Outbox->>Notif: consume
-  Notif->>Resend: send_email
-  Resend-->>Notif: message_id
-  Notif-->>IAM: delivery_outcome
+  IAM->>RPC: mutate
+  RPC->>OB: enqueue_outbox_message same_txn
+  RPC->>Out: record queued optional
+  W->>OB: ProcessOutbox claim
+  W->>Bus: publish EmailDeliveryRequested
+  Bus->>IB: receive into IAM inbox
+  W->>IB: ProcessInbox claim
+  W->>IC: ICommandScheduler enqueue SendEmailDeliveryCommand
+  W->>IC: ProcessInternalCommands claim
+  W->>Resend: send_email
+  Resend-->>W: message_id
+  W->>Out: record sent_or_failed
   App->>IAM: GetInvitationDetail
   IAM-->>App: status_plus_delivery_outcome
 ```
@@ -77,8 +89,9 @@ Admin App → resolve/create Platform User (Identity)
 ### Tenant Invitation + accept (App Link)
 
 ```text
-1. CreateInvitationCommand → persist invitation (token_hash) + outbox delivery_request
-2. Notification → Resend email với HTTPS App Link /i/{opaque}
+1. CreateInvitationCommand → invitation RPC (persist + `enqueue_outbox_message` + queued outcome, same txn)
+2. Worker → ProcessOutbox/Inbox/Internal → Resend; outcome projection cập nhật `sent`/`failed`
+
 3. User mở app → login + verified email khớp
 4. AcceptInvitationCommand(token in body) → Membership active + invitation accepted (atomic)
 ```

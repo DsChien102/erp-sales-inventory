@@ -8,7 +8,7 @@
 | ------------------- | ------- | ------------------ | ----------------- | ---------- |
 | iam | Tenant, membership, invitation, role, context, readiness | **Owner** | `modules/iam/` | interim golden — mở rộng theo slice |
 | Platform Identity | PlatformUser, credential, activation, password-reset, session | Supporting (contract) | ngoài Theme 1 | referenced |
-| Notification (Resend) | Email delivery + outcome | Supporting (adapter) | worker / port — chưa package | contract trong harness (`S-NOTIFY`) |
+| Notification (Resend) | Email delivery + outcome | Supporting (adapter) | `packages/vet45_resend` + IAM internal command + worker | S-NOTIFY done (internal command path) |
 | Platform Authorization | Platform permission + role–permission release manifest | Supporting | referenced | catalog |
 | Platform Audit | AuditLog query / redact | Supporting | referenced | query only |
 | Platform User Preference | LastSelectedTenant | Supporting | referenced | validate trước dùng |
@@ -34,7 +34,7 @@ flowchart LR
   ERP --> IAM
   Admin --> IAM
   IAM --> Identity
-  IAM -->|delivery_request| Notif
+  IAM -->|SendEmailDeliveryCommand| Notif
   Notif -->|delivery_outcome| IAM
   IAM --> Audit
   IAM --> Pref
@@ -74,7 +74,9 @@ Post-MVP: `tenant.ownership.transfer`, `tenant.close` — không slice phase 1.
 
 ## Messaging
 
-Schema `iam`: outbox cho delivery request / domain events — [messaging_schema.md](../../../operations/messaging_schema.md). Worker consume → Notification (Resend) theo slice `S-NOTIFY`.
+Schema `iam`: outbox → inbox (self-consume) → `internal_commands` — [messaging_schema.md](../../../operations/messaging_schema.md).
+
+S-NOTIFY: mutation RPC ghi outbox `iam.email.delivery_requested` (`enqueue_outbox_message`, cùng txn) → `ProcessOutbox` → `IEventsBus` → IAM inbox → `ProcessInbox` → IE handler → `ICommandScheduler.enqueue(SendEmailDeliveryCommand)` → `ProcessInternalCommands` → Resend. **Không** enqueue outbox từ Dart client. Layout = sales golden: `configuration/processing/{outbox,inbox,internal_commands}` + `IamStartup.processMessagingOnce`; email adapters ở `src/adapters/notification/`.
 
 ## Presentation layout (dự kiến)
 

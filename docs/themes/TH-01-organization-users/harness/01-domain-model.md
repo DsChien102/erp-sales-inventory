@@ -84,7 +84,7 @@ Xem mapping chi tiết [07-api-contracts.md](07-api-contracts.md). Nhóm chính:
 | Invitation | `CreateInvitationCommand`, `ResendInvitationCommand`, `RevokeInvitationCommand`, `AcceptInvitationCommand`, `DeclineInvitationCommand` |
 | Roles | `ListSystemRolesQuery`, `GetRolePermissionsQuery` |
 | Platform (Admin) | Onboarding, suspend/restore Tenant/User, privileged ownership transfer, audit query |
-| Notification port | `EnqueueEmailDelivery` (outbox) — Resend adapter ngoài aggregate |
+| Notification port | Outcome projection + Fake for FE; publish = mutation RPC `enqueue_outbox_message` → worker → `SendEmailDeliveryCommand` — Resend adapter ngoài aggregate |
 
 ## Domain events (Theme 1)
 
