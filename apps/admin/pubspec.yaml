@@ -2,6 +2,7 @@ name: admin
 description: "A new Flutter project."
 publish_to: 'none'
 version: 0.1.0+1
+resolution: workspace
 
 environment:
   sdk: ^3.12.2
@@ -9,6 +10,14 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  vet45_design_system: ^1.0.0
+  go_router: ^17.0.0
+  flutter_bloc: ^9.1.1
+  supabase_flutter: ^2.14.1
+  fpdart: ^1.1.0
+  get_it: ^9.2.1
+  logging: ^1.3.0
+  vet45_shared_infrastructure: ^0.0.1
 
 dev_dependencies:
   flutter_test:

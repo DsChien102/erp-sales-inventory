@@ -7,6 +7,7 @@ environment:
 
 workspace:
   - apps/erp
+  - apps/admin
   - apps/messaging_worker
   - packages/vet45_lints
   - packages/vet45_design_system
