@@ -111,6 +111,10 @@ class ProductGuidedCreateCubit extends Cubit<ProductGuidedCreateState> {
     emit(state.copyWith(tradeName: val));
   }
 
+  void updateNote(String val) {
+    emit(state.copyWith(note: val));
+  }
+
   void updateSku(String val) {
     emit(
       state.copyWith(
@@ -623,6 +627,7 @@ class ProductGuidedCreateCubit extends Cubit<ProductGuidedCreateState> {
           commercialName: state.tradeName.trim().isNotEmpty ? state.tradeName.trim() : null,
           sku: state.sku.trim().isNotEmpty ? state.sku.trim() : null,
           barcode: state.barcode.trim().isNotEmpty ? state.barcode.trim() : null,
+          note: state.note.trim().isNotEmpty ? state.note.trim() : null,
           images: _toImageInputs(),
           baseUnit: state.baseUnit.trim().isEmpty
               ? null

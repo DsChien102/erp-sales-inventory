@@ -15,6 +15,7 @@ abstract final class ProductRpcMapper {
       'p_trade_name': _optionalText(command.commercialName),
       'p_sku': _optionalText(command.sku),
       'p_barcode': _optionalText(command.barcode),
+      'p_note': _optionalText(command.note),
       'p_images': command.images
           .map(
             (image) => <String, dynamic>{

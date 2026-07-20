@@ -25,22 +25,21 @@ class ProductListItemTile extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildImage(dynamicColors),
-          const SizedBox(width: 12),
+          const VGap.horizontalSm(),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
+                VText(
                   item.name,
-                  style: VTypography.bodyDefault.copyWith(
-                    color: dynamicColors.textPrimary,
-                    fontWeight: FontWeight.w600,
-                  ),
+                  variant: VTextVariant.bodyDefault,
+                  style: const TextStyle(fontWeight: FontWeight.w600),
+                  color: dynamicColors.textPrimary,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
                 if (item.isSoftDeleted) ...[
-                  const SizedBox(height: 4),
+                  const VGap.xs(),
                   const Align(
                     alignment: Alignment.centerLeft,
                     child: VBadge(
@@ -52,11 +51,10 @@ class ProductListItemTile extends StatelessWidget {
                 ],
                 if (item.tradeName != null && item.tradeName!.isNotEmpty) ...[
                   const SizedBox(height: 2),
-                  Text(
+                  VText(
                     item.tradeName!,
-                    style: VTypography.bodySmall.copyWith(
-                      color: dynamicColors.textSecondary,
-                    ),
+                    variant: VTextVariant.bodySmall,
+                    color: dynamicColors.textSecondary,
                   ),
                 ],
                 if (item.customFieldValues.isNotEmpty) ...[
@@ -70,7 +68,10 @@ class ProductListItemTile extends StatelessWidget {
                         final parsed = double.tryParse(cf.displayValue);
                         if (parsed != null) {
                           if (parsed == parsed.roundToDouble()) {
-                            displayVal = VNumberValidator.format(parsed.round(), allowDecimal: false);
+                            displayVal = VNumberValidator.format(
+                              parsed.round(),
+                              allowDecimal: false,
+                            );
                           } else {
                             displayVal = VNumberValidator.format(parsed, allowDecimal: true);
                           }
@@ -82,32 +83,34 @@ class ProductListItemTile extends StatelessWidget {
                           color: dynamicColors.surfaceAlt,
                           borderRadius: BorderRadius.circular(4),
                         ),
-                        child: Text(
+                        child: VText(
                           '${cf.fieldName}: $displayVal',
-                          style: VTypography.bodySmall.copyWith(
-                            color: dynamicColors.textSecondary,
-                            fontSize: 11,
-                          ),
+                          variant: VTextVariant.bodySmall,
+                          style: const TextStyle(fontSize: 11),
+                          color: dynamicColors.textSecondary,
                         ),
                       );
                     }).toList(),
                   ),
                 ],
 
-                const SizedBox(height: 8),
+                const VGap.sm(),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Expanded(
-                      flex: 2,
+                      flex: 3,
                       child: _buildPriceInfo(dynamicColors),
                     ),
                     Expanded(
                       flex: 1,
-                      child: Center(child: _buildUnitInfo(dynamicColors)),
+                      child: Align(
+                        alignment: Alignment.centerLeft,
+                        child: _buildUnitInfo(dynamicColors),
+                      ),
                     ),
                     Expanded(
-                      flex: 1,
+                      flex: 2,
                       child: Align(
                         alignment: Alignment.centerRight,
                         child: _buildStockInfo(dynamicColors),
@@ -146,8 +149,8 @@ class ProductListItemTile extends StatelessWidget {
         color: colors.surfaceAlt,
         borderRadius: BorderRadius.circular(8),
       ),
-      child: Icon(
-        Icons.image_outlined,
+      child: VIcon(
+        icon: VIcons.image,
         color: colors.textSecondary,
         size: 24,
       ),
@@ -156,42 +159,51 @@ class ProductListItemTile extends StatelessWidget {
 
   Widget _buildPriceInfo(dynamic colors) {
     if (item.listBeforeVat != null) {
-      return Text(
+      return VText(
         formatCatalogCurrency(item.listBeforeVat),
-        style: VTypography.bodyDefault.copyWith(
-          color: colors.textPrimary,
-          fontWeight: FontWeight.w700,
-        ),
+        variant: VTextVariant.bodyDefault,
+        style: const TextStyle(fontWeight: FontWeight.w700),
+        color: colors.textPrimary,
       );
     }
-    return Text(
+    return VText(
       '_',
-      style: VTypography.bodyDefault.copyWith(
-        color: colors.textMuted,
-        fontWeight: FontWeight.normal,
-      ),
+      variant: VTextVariant.bodyDefault,
+      color: colors.textMuted,
     );
   }
 
   Widget _buildUnitInfo(dynamic colors) {
     if (item.baseUnit != null && item.baseUnit!.isNotEmpty) {
-      return Text(
+      return VText(
         item.baseUnit!.toLowerCase(),
-        style: VTypography.bodySmall.copyWith(
-          color: colors.textSecondary,
-        ),
+        variant: VTextVariant.bodySmall,
+        color: colors.textSecondary,
       );
     }
-    return const SizedBox.shrink();
+    return VText(
+      '–',
+      variant: VTextVariant.bodySmall,
+      color: colors.textMuted,
+    );
   }
 
   Widget _buildStockInfo(dynamic colors) {
+    if (item.stockQuantity == null) {
+      return VText(
+        'Chưa TL tồn',
+        maxLines: 1,
+        variant: VTextVariant.bodySmall,
+        color: colors.textSecondary,
+      );
+    }
     if (item.stockLabel != null && item.stockLabel!.isNotEmpty) {
-      final isOutOfStock = item.stockLabel!.toLowerCase() == 'hết';
-      return Text(
+      final isOutOfStock = item.stockQuantity == 0;
+      return VText(
         isOutOfStock ? 'Hết' : item.stockLabel!,
-        style: VTypography.bodyDefault.copyWith(
-          color: isOutOfStock ? colors.warning : colors.textPrimary,
+        variant: VTextVariant.bodyDefault,
+        color: isOutOfStock ? colors.warning : colors.textPrimary,
+        style: TextStyle(
           fontWeight: isOutOfStock ? FontWeight.w500 : FontWeight.normal,
         ),
       );

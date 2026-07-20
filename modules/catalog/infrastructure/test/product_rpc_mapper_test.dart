@@ -12,6 +12,7 @@ void main() {
           tenantId: 'tenant-1',
           actorId: 'actor-1',
           productName: 'Thuốc A',
+          note: 'Hàng nhập từ nhà cung cấp A',
           baseUnit: const ExistingTenantUnit('unit-hop'),
           basicStockQuantityBase: 12,
           basePrice: 10000,
@@ -24,6 +25,7 @@ void main() {
       );
 
       expect(params['p_tenant_id'], 'tenant-1');
+      expect(params['p_note'], 'Hàng nhập từ nhà cung cấp A');
       expect(params['p_tenant_unit_id'], 'unit-hop');
       expect(params['p_basic_stock_quantity_base'], 12);
       expect(params['p_base_price_after_vat'], 10000);

@@ -10,6 +10,7 @@ import 'product_guided_step_inventory.dart';
 import 'product_guided_step_base_cost.dart';
 import 'product_guided_step_price_bands.dart';
 import 'product_guided_step_custom_fields.dart';
+import 'product_guided_step_note.dart';
 
 /// Slice #2 (EPIC-02/US-02): 6 accordion steps — mirror Lovable `#/products/items/new`.
 class ProductGuidedCreateBody extends StatelessWidget {
@@ -52,7 +53,7 @@ class ProductGuidedCreateBody extends StatelessWidget {
                           onOpenDuplicateProduct: onOpenDuplicateProduct,
                         ),
                       ),
-                      const SizedBox(height: VSpacing.space2),
+                      const VGap.sm(),
                       _buildStep(
                         context: context,
                         stepIndex: 1,
@@ -61,7 +62,7 @@ class ProductGuidedCreateBody extends StatelessWidget {
                         isExpanded: state.activeStepIndex == 1,
                         child: ProductGuidedStepImages(state: state),
                       ),
-                      const SizedBox(height: VSpacing.space2),
+                      const VGap.sm(),
                       _buildStep(
                         context: context,
                         stepIndex: 2,
@@ -70,7 +71,7 @@ class ProductGuidedCreateBody extends StatelessWidget {
                         isExpanded: state.activeStepIndex == 2,
                         child: ProductGuidedStepBaseUnit(state: state),
                       ),
-                      const SizedBox(height: VSpacing.space2),
+                      const VGap.sm(),
                       _buildStep(
                         context: context,
                         stepIndex: 3,
@@ -79,7 +80,7 @@ class ProductGuidedCreateBody extends StatelessWidget {
                         isExpanded: state.activeStepIndex == 3,
                         child: ProductGuidedStepInventory(state: state),
                       ),
-                      const SizedBox(height: VSpacing.space2),
+                      const VGap.sm(),
                       _buildStep(
                         context: context,
                         stepIndex: 4,
@@ -88,7 +89,7 @@ class ProductGuidedCreateBody extends StatelessWidget {
                         isExpanded: state.activeStepIndex == 4,
                         child: ProductGuidedStepBaseCost(state: state),
                       ),
-                      const SizedBox(height: VSpacing.space2),
+                      const VGap.sm(),
                       _buildStep(
                         context: context,
                         stepIndex: 5,
@@ -107,7 +108,7 @@ class ProductGuidedCreateBody extends StatelessWidget {
 
                         return Column(
                           children: [
-                            const SizedBox(height: VSpacing.space2),
+                            const VGap.sm(),
                             _buildStep(
                               context: context,
                               stepIndex: stepIdx,
@@ -123,6 +124,19 @@ class ProductGuidedCreateBody extends StatelessWidget {
                           ],
                         );
                       }),
+                      Column(
+                        children: [
+                          const VGap.sm(),
+                          _buildStep(
+                            context: context,
+                            stepIndex: 6 + state.customFieldGroups.length,
+                            title: '${7 + state.customFieldGroups.length}. Ghi chú',
+                            subtitle: 'Nhắc chính bạn: nguồn hàng, lưu ý riêng...',
+                            isExpanded: state.activeStepIndex == 6 + state.customFieldGroups.length,
+                            child: ProductGuidedStepNote(state: state),
+                          ),
+                        ],
+                      ),
                     ],
                   ),
                 ),
@@ -151,21 +165,19 @@ class ProductGuidedCreateBody extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           ListTile(
-            title: Text(
+            title: VText(
               title,
-              style: VTypography.bodyDefault.copyWith(
-                color: dynamicColors.textPrimary,
-                fontWeight: FontWeight.bold,
-              ),
+              variant: VTextVariant.bodyDefault,
+              style: const TextStyle(fontWeight: FontWeight.bold),
+              color: dynamicColors.textPrimary,
             ),
-            subtitle: Text(
+            subtitle: VText(
               subtitle,
-              style: VTypography.bodySmall.copyWith(
-                color: dynamicColors.textSecondary,
-              ),
+              variant: VTextVariant.bodySmall,
+              color: dynamicColors.textSecondary,
             ),
-            trailing: Icon(
-              isExpanded ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
+            trailing: VIcon(
+              icon: isExpanded ? VIcons.chevronUp : VIcons.chevronDown,
               color: dynamicColors.textSecondary,
             ),
             onTap: () {
@@ -204,7 +216,7 @@ class ProductGuidedCreateBody extends StatelessWidget {
                 onPressed: state.status == ProductGuidedCreateStatus.loading ? null : onCancel,
               ),
             ),
-            const SizedBox(width: VSpacing.space4),
+            const VGap.horizontalMd(),
             Expanded(
               child: VButton(
                 key: const Key('btn_guided_save'),

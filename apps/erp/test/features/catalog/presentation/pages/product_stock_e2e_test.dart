@@ -1,6 +1,7 @@
 import 'package:erp/core/di/injection.dart';
 import 'package:erp/features/catalog/presentation/pages/product_control_center_page.dart';
 import 'package:erp/features/catalog/presentation/pages/product_stock_adjustment_page.dart';
+import 'package:erp/features/catalog/presentation/pages/product_note_edit_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
@@ -32,6 +33,13 @@ Widget _buildPccRouter(ProductListItemModel product) {
         builder: (context, state) {
           final args = state.extra as ProductStockAdjustmentRouteArgs;
           return ProductStockAdjustmentPage(args: args);
+        },
+      ),
+      GoRoute(
+        path: '/products/items/pcc/note',
+        builder: (context, state) {
+          final args = state.extra as ProductNoteEditRouteArgs;
+          return ProductNoteEditPage(args: args);
         },
       ),
     ],
@@ -128,7 +136,7 @@ void main() {
     await tapEditStock(tester);
 
     expect(find.byKey(const Key('wgt_e05_u01_fr01_01')), findsOneWidget);
-    expect(find.text('150'), findsOneWidget);
+    expect(find.text('150 hộp'), findsOneWidget);
 
     await tester.enterText(find.byKey(const Key('input_stock_quantity')), '25');
     await tester.pump();
@@ -179,5 +187,39 @@ void main() {
 
     expect(find.textContaining('50 Vỉ'), findsWidgets);
     expect(find.textContaining('Thiếu tồn kho'), findsNothing);
+  });
+
+  testWidgets('e2e_note_edit: edit product note from PCC', (tester) async {
+    await setUpErpCatalogE2E(scenario: FakeCatalogScenario.pccReadyToSell);
+
+    await tester.pumpWidget(_buildPccRouter(_product1()));
+    await tester.pumpAndSettle();
+
+    // Verify PCC note section exists
+    final noteCardFinder = find.text('Ghi chú');
+    expect(noteCardFinder, findsOneWidget);
+    
+    // Tap on Ghi chú card
+    await tester.ensureVisible(noteCardFinder);
+    await tester.tap(noteCardFinder);
+    await tester.pumpAndSettle();
+
+    // Verify Note Edit page is shown
+    expect(find.byKey(const Key('wgt_note_edit_page')), findsOneWidget);
+    expect(find.text('Ghi chú riêng cho chính bạn. Không hiển thị cho khách hàng.'), findsOneWidget);
+
+    // Enter note text
+    await tester.enterText(find.byKey(const Key('input_product_note')), 'Ghi chu moi tu PCC');
+    await tester.pump();
+
+    // Verify character count updated
+    expect(find.text('18/500'), findsOneWidget);
+
+    // Tap Save
+    await tester.tap(find.byKey(const Key('btn_note_save')));
+    await tester.pumpAndSettle();
+
+    // Note page pops and refreshes PCC.
+    expect(find.byKey(const Key('wgt_note_edit_page')), findsNothing);
   });
 }

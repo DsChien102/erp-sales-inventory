@@ -19,6 +19,11 @@ class ProductListCubit extends Cubit<ProductListState> {
   static const int pageSize = 20;
 
   int? globalTotalCount;
+  int? readyToSellCount;
+  int? incompleteCount;
+  int? inactiveCount;
+  int? inStockCount;
+  int? outOfStockCount;
 
   Future<void> fetchProducts({
     ProductSearchCriteria? criteria,
@@ -79,10 +84,70 @@ class ProductListCubit extends Cubit<ProductListState> {
 
       if (isUnfilteredCatalogList) {
         globalTotalCount = result.totalCount;
+
+        if (isRefresh || currentItems.isEmpty) {
+          try {
+            final results = await Future.wait([
+              _mediator.executeQueryAsync(
+                SearchProductsQuery(
+                  tenantId: tenantId,
+                  criteria: ProductSearchCriteria(
+                    businessStatuses: {
+                      ProductBusinessStatus.active,
+                      ProductBusinessStatus.inactive,
+                    },
+                    readinessFilter: ProductReadinessFilter.readyToSell,
+                  ),
+                  limit: 1,
+                  offset: 0,
+                ),
+              ),
+              _mediator.executeQueryAsync(
+                SearchProductsQuery(
+                  tenantId: tenantId,
+                  criteria: ProductSearchCriteria(
+                    businessStatuses: {
+                      ProductBusinessStatus.active,
+                      ProductBusinessStatus.inactive,
+                    },
+                    readinessFilter: ProductReadinessFilter.incomplete,
+                  ),
+                  limit: 1,
+                  offset: 0,
+                ),
+              ),
+              _mediator.executeQueryAsync(
+                SearchProductsQuery(
+                  tenantId: tenantId,
+                  criteria: ProductSearchCriteria(
+                    businessStatuses: {ProductBusinessStatus.inactive},
+                  ),
+                  limit: 1,
+                  offset: 0,
+                ),
+              ),
+            ]);
+
+            readyToSellCount = results[0].totalCount;
+            incompleteCount = results[1].totalCount;
+            inactiveCount = results[2].totalCount;
+          } catch (_) {
+            // Keep existing counts or do not fail the main query if counting fails
+          }
+        }
       }
 
       final newItems = isRefresh ? result.items : currentItems + result.items;
       final hasReachedMax = newItems.length >= result.totalCount || result.items.isEmpty;
+
+      if (isUnfilteredCatalogList && hasReachedMax) {
+        inStockCount = newItems
+            .where((i) => i.stockQuantity != null && i.stockQuantity! > 0)
+            .length;
+        outOfStockCount = newItems
+            .where((i) => i.stockQuantity != null && i.stockQuantity == 0)
+            .length;
+      }
 
       emit(
         ProductListLoaded(

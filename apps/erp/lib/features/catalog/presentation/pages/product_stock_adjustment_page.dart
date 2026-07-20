@@ -156,7 +156,7 @@ class _ProductStockAdjustmentPageState extends State<ProductStockAdjustmentPage>
             color: dynamicColors.textPrimary,
             fontWeight: FontWeight.bold,
           ),
-          subtitle: unitName.isNotEmpty ? unitName : widget.args.product.name,
+          subtitle: widget.args.product.name,
         ),
         body: hasBaseUnit
             ? Form(
@@ -175,33 +175,36 @@ class _ProductStockAdjustmentPageState extends State<ProductStockAdjustmentPage>
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
+                    VText(
                       'Tồn hiện tại',
-                      style: VTypography.bodyDefault.copyWith(
-                        color: dynamicColors.textPrimary,
-                      ),
+                      variant: VTextVariant.bodyDefault,
+                      color: dynamicColors.textPrimary,
                     ),
-                    Text(
-                      _isInitial ? 'Chưa thiết lập' : '${widget.args.currentQuantity}',
-                      style: VTypography.bodyDefault.copyWith(
+                    VText(
+                      _isInitial
+                          ? 'Chưa thiết lập'
+                          : '${widget.args.currentQuantity} ${unitName.toLowerCase()}',
+                      variant: VTextVariant.bodyDefault,
+                      style: const TextStyle(
                         fontWeight: FontWeight.w600,
-                        color: dynamicColors.textPrimary,
                       ),
+                      color: dynamicColors.textPrimary,
                     ),
                   ],
                 ),
               ),
-              const SizedBox(height: 24),
+              const VGap.lg(),
   
               // Tồn mới
-              Text(
+              VText(
                 'Tồn mới ($unitName)',
-                style: VTypography.bodyDefault.copyWith(
-                  color: dynamicColors.textPrimary,
+                variant: VTextVariant.bodyDefault,
+                style: const TextStyle(
                   fontWeight: FontWeight.w600,
                 ),
+                color: dynamicColors.textPrimary,
               ),
-              const SizedBox(height: 8),
+              const VGap.sm(),
               TextFormField(
                 key: const Key('input_stock_quantity'),
                 controller: _quantityController,
@@ -244,26 +247,24 @@ class _ProductStockAdjustmentPageState extends State<ProductStockAdjustmentPage>
               ),
   
               if (!_isInitial) ...[
-                const SizedBox(height: 24),
+                const VGap.lg(),
                 // Lý do
-                Text(
+                VText(
                   'Lý do',
-                  style: VTypography.bodySmall.copyWith(
-                    color: dynamicColors.textSecondary,
-                  ),
+                  variant: VTextVariant.bodySmall,
+                  color: dynamicColors.textSecondary,
                 ),
-                const SizedBox(height: 8),
+                const VGap.sm(),
                 Wrap(
                   spacing: 8,
                   runSpacing: 8,
                   children: _predefinedReasons.map((reason) {
                     final isSelected = _selectedReason == reason;
                     return ChoiceChip(
-                      label: Text(
+                      label: VText(
                         reason,
-                        style: VTypography.bodyDefault.copyWith(
-                          color: isSelected ? dynamicColors.surface : dynamicColors.textPrimary,
-                        ),
+                        variant: VTextVariant.bodyDefault,
+                        color: isSelected ? dynamicColors.surface : dynamicColors.textPrimary,
                       ),
                       selected: isSelected,
                       onSelected: (selected) {
@@ -283,16 +284,15 @@ class _ProductStockAdjustmentPageState extends State<ProductStockAdjustmentPage>
                     );
                   }).toList(),
                 ),
-                const SizedBox(height: 24),
+                const VGap.lg(),
   
                 // Ghi chú
-                Text(
+                VText(
                   'Ghi chú (không bắt buộc)',
-                  style: VTypography.bodySmall.copyWith(
-                    color: dynamicColors.textSecondary,
-                  ),
+                  variant: VTextVariant.bodySmall,
+                  color: dynamicColors.textSecondary,
                 ),
-                const SizedBox(height: 8),
+                const VGap.sm(),
                 TextFormField(
                   controller: _noteController,
                   maxLines: 4,
@@ -315,12 +315,11 @@ class _ProductStockAdjustmentPageState extends State<ProductStockAdjustmentPage>
                 ),
               ],
   
-              const SizedBox(height: 24),
-              Text(
+              const VGap.lg(),
+              VText(
                 'Thay đổi sẽ ghi vào Lịch sử. Ở Growth, tồn được đọc từ module Kho (read-only).',
-                style: VTypography.bodySmall.copyWith(
-                  color: dynamicColors.textSecondary,
-                ),
+                variant: VTextVariant.bodySmall,
+                color: dynamicColors.textSecondary,
               ),
             ],
           ),
@@ -370,12 +369,11 @@ class _ProductStockAdjustmentPageState extends State<ProductStockAdjustmentPage>
                         ],
                       ),
                     ),
-                    const SizedBox(height: 8),
-                    Text(
+                    const VGap.sm(),
+                    VText(
                       'Tồn kho được tính theo đơn vị cơ sở của sản phẩm.',
-                      style: VTypography.bodySmall.copyWith(
-                        color: dynamicColors.textSecondary,
-                      ),
+                      variant: VTextVariant.bodySmall,
+                      color: dynamicColors.textSecondary,
                     ),
                   ],
                 ),

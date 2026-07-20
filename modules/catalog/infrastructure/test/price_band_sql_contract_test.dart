@@ -3,6 +3,34 @@ import 'dart:io';
 import 'package:test/test.dart';
 
 void main() {
+  test('guided create forwards optional note atomically', () {
+    final repoRoot = _findRepoRoot();
+    final draft = File(
+      '${repoRoot.path}/supabase/migrations/_drafts/'
+      'catalog_guided_create_product_note.sql',
+    );
+
+    expect(
+      draft.existsSync(),
+      isTrue,
+      reason: 'The focused guided-create note draft must be available.',
+    );
+    if (!draft.existsSync()) return;
+
+    final sql = draft.readAsStringSync();
+    expect(sql, contains('-- Kind: surgical'));
+    expect(sql, contains('-- Touches: create_guided_product'));
+    expect(
+      RegExp(r'create or replace function catalog\.').allMatches(sql),
+      hasLength(1),
+      reason: 'The draft must redefine only create_guided_product.',
+    );
+
+    final guided = _functionDefinition(sql, 'create_guided_product');
+    expect(guided, contains('p_note text default null'));
+    expect(guided, contains('p_note => p_note'));
+  });
+
   test('source type uses a database enum while RPC wire stays text', () {
     final repoRoot = _findRepoRoot();
     final schemaSql = File(

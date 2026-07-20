@@ -20,7 +20,7 @@ Facade: `ICatalogModule` (`modules/catalog/application/lib/src/contracts/i_catal
 
 | Symbol | Input (summary) | Success | Errors |
 | ------ | --------------- | ------- | ------ |
-| `CreateGuidedProductCommand` | Toàn bộ wizard; `priceBandSourceType?`, giá/tỷ lệ theo mode | `CreateGuidedProductResult` | Validation/permission/duplicate exceptions |
+| `CreateGuidedProductCommand` | Toàn bộ wizard; `note?`, `priceBandSourceType?`, giá/tỷ lệ theo mode | `CreateGuidedProductResult` | Validation/permission/duplicate exceptions |
 | `RequestProductImageUploadCommand` | tenantId, actorId, fileName, contentType, byteSize | `ProductImageUploadSlotDto` | `ValidationException`, PermissionDenied |
 | `CreateProductCommand` | tenantId, actorId, productName, referenceId?, commercialName?, sku?, barcode?, description?, note?, images[] (`ProductImageInput`), baseUnitName? | `CreateProductResult` (productId, referenceId, readinessSummary) | `ValidationException`, PermissionDenied (`ApplicationException`), `DuplicateSkuException`, `DuplicateBarcodeException`, `DuplicateReferenceIdException` |
 | `CheckDuplicateProductCodeQuery` | tenantId, sku?, barcode?, excludeProductId? | `List<ProductDuplicateMatchDto>` | PermissionDenied |
@@ -57,6 +57,7 @@ Permissions: `@RequiresPermission(CatalogPermissions.create)` (`catalog.product.
 | scenario_id | trigger | fake response |
 | ----------- | ------- | ------------- |
 | `guided_create_ok` | CreateProductCommand valid + baseUnit | `CreateProductResult` + readiness blockers (vd. `missing_price`) |
+| `guided_create_with_note` | CreateGuidedProductCommand có `note` tùy chọn | tạo thành công; ghi chú được lưu cùng transaction và có trong Product Control Center |
 | `guided_create_explicit_reference` | CreateProductCommand với `referenceId: SP-0001` | `CreateProductResult` (không trả referenceId) |
 | `guided_create_dup_reference` | referenceId trùng tenant | `DuplicateReferenceIdException` |
 | `guided_create_dup_sku` | sku trùng tenant | `DuplicateSkuException` |

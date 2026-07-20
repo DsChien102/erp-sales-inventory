@@ -50,6 +50,7 @@ class ProductGuidedCreateState {
     this.isCustomFieldsLoading = false,
     this.customFieldValues = const {},
     this.customFieldValidationErrors = const {},
+    this.note = '',
   });
 
   final String name;
@@ -92,6 +93,7 @@ class ProductGuidedCreateState {
   final bool isCustomFieldsLoading;
   final Map<String, ProductCustomFieldValueInput> customFieldValues;
   final Map<String, String> customFieldValidationErrors;
+  final String note;
 
   static const baseStepCount = 6;
   static const maxImages = 8;
@@ -171,9 +173,10 @@ class ProductGuidedCreateState {
       imageDrafts.isNotEmpty ||
       baseUnit.trim().isNotEmpty ||
       basicStockQuantityBase.trim().isNotEmpty ||
-      baseCost.trim().isNotEmpty;
+      baseCost.trim().isNotEmpty ||
+      note.trim().isNotEmpty;
 
-  int get stepCount => 6 + customFieldGroups.length;
+  int get stepCount => 7 + customFieldGroups.length;
 
   ProductGuidedCreateState copyWith({
     String? name,
@@ -219,6 +222,7 @@ class ProductGuidedCreateState {
     bool? isCustomFieldsLoading,
     Map<String, ProductCustomFieldValueInput>? customFieldValues,
     Map<String, String>? customFieldValidationErrors,
+    String? note,
   }) {
     return ProductGuidedCreateState(
       name: name ?? this.name,
@@ -269,6 +273,7 @@ class ProductGuidedCreateState {
       isCustomFieldsLoading: isCustomFieldsLoading ?? this.isCustomFieldsLoading,
       customFieldValues: customFieldValues ?? this.customFieldValues,
       customFieldValidationErrors: customFieldValidationErrors ?? this.customFieldValidationErrors,
+      note: note ?? this.note,
     );
   }
 }

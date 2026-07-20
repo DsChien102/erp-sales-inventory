@@ -35,9 +35,7 @@ abstract final class ProductControlCenterAssembler {
 
     final filteredCustomFieldGroups = model.customFieldGroupCards
         .map((g) {
-          final activeOrHasDataFields = g.fields
-              .where((f) => f.isActive || (f.displayValue != null && f.displayValue!.isNotEmpty))
-              .toList();
+          final activeOrHasDataFields = g.fields.where((f) => f.isActive).toList();
           return CustomFieldGroupCardDto(
             groupId: g.groupId,
             name: customFieldGroupDisplayName(g.name),

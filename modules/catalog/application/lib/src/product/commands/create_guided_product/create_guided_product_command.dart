@@ -20,6 +20,7 @@ final class CreateGuidedProductCommand extends CommandBase<CreateGuidedProductRe
     this.commercialName,
     this.sku,
     this.barcode,
+    this.note,
     this.images = const [],
     this.baseUnit,
     this.basicStockQuantityBase,
@@ -40,6 +41,7 @@ final class CreateGuidedProductCommand extends CommandBase<CreateGuidedProductRe
   final String? commercialName;
   final String? sku;
   final String? barcode;
+  final String? note;
   final List<ProductImageInput> images;
   final BaseUnitSelection? baseUnit;
   final int? basicStockQuantityBase;
