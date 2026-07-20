@@ -1,3 +1,4 @@
+import 'package:vet45_adapters/vet45_adapters.dart';
 import 'package:vet45_iam_application/application.dart';
 import 'package:vet45_shared_application/application.dart';
 
@@ -11,6 +12,7 @@ final class IamRuntime {
     required this.permissionChecker,
     required this.tenantAccessChecker,
     required this.session,
+    required this.messagingModule,
   });
 
   final IIamModule module;
@@ -18,4 +20,5 @@ final class IamRuntime {
   final IPermissionChecker permissionChecker;
   final ITenantAccessChecker tenantAccessChecker;
   final IamSession session;
+  final IMessagingModule messagingModule;
 }

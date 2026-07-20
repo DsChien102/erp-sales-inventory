@@ -2,12 +2,15 @@ import 'package:get_it/get_it.dart';
 import 'package:supabase/supabase.dart';
 import 'package:vet45_adapters/vet45_adapters.dart';
 import 'package:vet45_iam_application/application.dart';
+import 'package:vet45_resend/vet45_resend.dart';
 import 'package:vet45_shared_application/application.dart';
 import 'package:vet45_shared_infrastructure/infrastructure.dart';
 
+import '../../adapters/notification/iam_email_sender_gateway.dart';
+import '../../adapters/notification/supabase_email_delivery_gateways.dart';
+import '../../adapters/notification/supabase_email_delivery_port.dart';
 import '../../domain/access/supabase_iam_access_gateway.dart';
 import '../../domain/auth/supabase_authenticator.dart';
-import '../processing/internal_commands/supabase_iam_internal_command_client.dart';
 import '../session/iam_execution_context.dart';
 import '../session/iam_session.dart';
 import '../session/iam_session_coordinator.dart';
@@ -20,6 +23,7 @@ final class IamDataAccessModule {
     required GetIt container,
     required SupabaseClient supabase,
     required ILoggerFactory loggerFactory,
+    IResendClient? resendClient,
   }) {
     final logger = loggerFactory.named('iam.rpc');
 
@@ -64,8 +68,30 @@ final class IamDataAccessModule {
           accessGateway: container.get<IIamAccessGateway>(),
         ),
       )
-      ..registerSingleton<IIamInternalCommandClient>(
-        const SupabaseIamInternalCommandClient(),
+      ..registerSingleton<IResendClient>(
+        resendClient ?? ResendEmailClient(apiKey: null),
+      )
+      ..registerSingleton<IEmailSenderGateway>(
+        IamEmailSenderGateway(
+          resendClient: container.get<IResendClient>(),
+        ),
+      )
+      ..registerSingleton<IEmailDeliveryOutcomeStore>(
+        SupabaseEmailDeliveryOutcomeGateway(
+          rpcClient: container.get<SupabaseSchemaRpcClient>(),
+        ),
       );
+  }
+
+  /// Registers [IEmailDeliveryPort] (outcome read; enqueue is Fake/test only).
+  void registerEmailDeliveryPort(GetIt container) {
+    if (container.isRegistered<IEmailDeliveryPort>()) {
+      return;
+    }
+    container.registerSingleton<IEmailDeliveryPort>(
+      SupabaseEmailDeliveryPort(
+        outcomes: container.get<IEmailDeliveryOutcomeStore>(),
+      ),
+    );
   }
 }

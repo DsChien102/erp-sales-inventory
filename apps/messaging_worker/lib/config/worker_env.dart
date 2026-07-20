@@ -17,6 +17,8 @@ final class WorkerEnv {
     this.tickIdleSeconds = 15,
     this.tickMaxIdleSeconds = 30,
     this.logLevel = Level.WARNING,
+    this.resendApiKey,
+    this.appLinkBaseUrl,
   });
 
   final String supabaseUrl;
@@ -29,6 +31,12 @@ final class WorkerEnv {
   final int tickIdleSeconds;
   final int tickMaxIdleSeconds;
   final Level logLevel;
+
+  /// Optional. Missing key → Resend client soft-fails (outcome `failed`).
+  final String? resendApiKey;
+
+  /// Optional HTTPS App Link origin (e.g. `https://app.vet45.example`).
+  final String? appLinkBaseUrl;
 
   WorkerTickPolicy toTickPolicy() {
     return WorkerTickPolicy(
@@ -75,6 +83,8 @@ final class WorkerEnv {
         maxValue: 300,
       ),
       logLevel: _parseLogLevel(env['WORKER_LOG_LEVEL']),
+      resendApiKey: _optional(env, 'RESEND_API_KEY'),
+      appLinkBaseUrl: _optional(env, 'APP_LINK_BASE_URL'),
     );
   }
 
@@ -98,6 +108,14 @@ final class WorkerEnv {
     final value = env[key];
     if (value == null || value.isEmpty) {
       throw StateError('Missing required environment variable: $key');
+    }
+    return value;
+  }
+
+  static String? _optional(Map<String, String> env, String key) {
+    final value = env[key];
+    if (value == null || value.isEmpty) {
+      return null;
     }
     return value;
   }

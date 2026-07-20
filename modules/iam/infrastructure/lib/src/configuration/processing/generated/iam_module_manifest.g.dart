@@ -15,6 +15,7 @@ final iamModuleManifest = GeneratedModuleManifest(
   ],
   commandTypes: [
     AssignMemberRoleCommand,
+    SendEmailDeliveryCommand,
     SignInCommand,
     SignOutCommand,
     SwitchActiveTenantCommand,

@@ -54,6 +54,11 @@ Chi tiết: [03-architecture-and-flows.md](03-architecture-and-flows.md).
 | ---- | ------------- | --------- |
 | 2026-07-16 | Scaffold harness TH-01 sau Epic/US decomposition | harness/00–07; chốt Resend + App Link |
 | 2026-07-16 | README link `02-module-map.md` thiếu SoT | SoT = harness/02; root redirect |
+| 2026-07-19 | S-NOTIFY: worker registry rỗng; chưa có Dart claim client | Bootstrap đăng ký `iam`; draft outcome SQL (chưa promote). *(Lịch sử: lần đầu dùng outbox gateway — đã thay bằng internal command 2026-07-20.)* |
+| 2026-07-19 | Resend HTTP nằm trong IAM infra — khó tái dùng module khác | Tách `packages/vet45_resend` (`IResendClient` / real / fake) |
+| 2026-07-20 | S-NOTIFY dùng outbox như task queue (vi phạm internal command) | Refactor: `SendEmailDeliveryCommand` + `iam.internal_commands`; worker claim → CommandBus; đóng debt outbox-as-task-queue |
+| 2026-07-20 | IAM messaging folder/wiring ≠ golden sales (`modules/sales/infrastructure`, `dev-old`) | **Closed:** IAM có `Process{Outbox,Inbox,InternalCommands}` + `ICommandScheduler` + self-consume inbox; adapters `src/adapters/notification/`; thin `IamMessagingModule` |
+| 2026-07-20 | Dart client gọi `enqueue_outbox_message` (vi phạm RPC same-txn) | **Closed:** bỏ `enqueue` khỏi `IIamOutboxClient`; port production chỉ đọc outcome; docs/tests seed outbox như RPC |
 
 ## Liên kết
 

@@ -40,7 +40,7 @@ Future<void> main(List<String> arguments) async {
   final config = WorkerEnv.fromPlatform();
   configurePackageLogging(level: config.logLevel);
 
-  final context = MessagingWorkerBootstrap.bootstrap(
+  final context = await MessagingWorkerBootstrap.bootstrap(
     config: config,
     loggerFactory: const LoggingLoggerFactory(),
   );

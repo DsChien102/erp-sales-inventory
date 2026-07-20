@@ -1,0 +1,158 @@
+-- Title: iam email delivery outcome projection (S-NOTIFY)
+-- Kind: patch
+-- Intent: iam_notify_email_delivery_outcome
+-- Touches: iam.record_email_delivery_outcome, iam.get_email_delivery_outcome_by_correlation
+-- Notes: Draft only — do not apply via supabase migration up until promoted.
+--        Does not store raw tokens / password-reset codes.
+--        Publish: mutation RPC calls iam.enqueue_outbox_message
+--        (event_type = iam.email.delivery_requested) + optional queued outcome.
+--        Consume: ProcessOutbox → inbox self-consume → ICommandScheduler
+--        → iam.enqueue_internal_command (SendEmailDeliveryCommand)
+--        → ProcessInternalCommands → Resend.
+--        Dart must NOT call enqueue_outbox_message.
+
+create table if not exists iam.email_delivery_outcomes (
+  id uuid primary key default gen_random_uuid(),
+  tenant_id uuid,
+  template_id text not null,
+  to_email_masked text,
+  correlation_id text not null,
+  provider text not null default 'resend',
+  provider_message_id text,
+  status text not null,
+  error text,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  constraint email_delivery_outcomes_status_chk
+    check (status in ('queued', 'sent', 'failed', 'bounced')),
+  constraint email_delivery_outcomes_correlation_uidx unique (correlation_id)
+);
+
+create index if not exists email_delivery_outcomes_tenant_idx
+  on iam.email_delivery_outcomes (tenant_id)
+  where tenant_id is not null;
+
+revoke all on table iam.email_delivery_outcomes from anon, authenticated;
+grant select, insert, update on table iam.email_delivery_outcomes to service_role;
+
+create or replace function iam.record_email_delivery_outcome(
+  p_correlation_id text,
+  p_template_id text,
+  p_status text,
+  p_provider text default 'resend',
+  p_tenant_id uuid default null,
+  p_to_email_masked text default null,
+  p_provider_message_id text default null,
+  p_error text default null,
+  p_id uuid default gen_random_uuid()
+)
+returns uuid
+language plpgsql
+security definer
+set search_path = iam, pg_temp
+as $$
+declare
+  v_id uuid;
+begin
+  if p_correlation_id is null or length(trim(p_correlation_id)) = 0 then
+    raise exception 'VALIDATION_ERROR: correlation_id required';
+  end if;
+  if p_status not in ('queued', 'sent', 'failed', 'bounced') then
+    raise exception 'VALIDATION_ERROR: invalid status %', p_status;
+  end if;
+
+  insert into iam.email_delivery_outcomes (
+    id,
+    tenant_id,
+    template_id,
+    to_email_masked,
+    correlation_id,
+    provider,
+    provider_message_id,
+    status,
+    error
+  )
+  values (
+    p_id,
+    p_tenant_id,
+    p_template_id,
+    p_to_email_masked,
+    p_correlation_id,
+    coalesce(p_provider, 'resend'),
+    p_provider_message_id,
+    p_status,
+    p_error
+  )
+  on conflict (correlation_id) do update
+  set
+    status = excluded.status,
+    provider = excluded.provider,
+    provider_message_id = coalesce(
+      excluded.provider_message_id,
+      iam.email_delivery_outcomes.provider_message_id
+    ),
+    error = excluded.error,
+    to_email_masked = coalesce(
+      excluded.to_email_masked,
+      iam.email_delivery_outcomes.to_email_masked
+    ),
+    tenant_id = coalesce(
+      excluded.tenant_id,
+      iam.email_delivery_outcomes.tenant_id
+    ),
+    template_id = excluded.template_id,
+    updated_at = now()
+  returning id into v_id;
+
+  return v_id;
+end;
+$$;
+
+create or replace function iam.get_email_delivery_outcome_by_correlation(
+  p_correlation_id text
+)
+returns table (
+  id uuid,
+  tenant_id uuid,
+  template_id text,
+  to_email_masked text,
+  correlation_id text,
+  provider text,
+  provider_message_id text,
+  status text,
+  error text,
+  created_at timestamptz,
+  updated_at timestamptz
+)
+language sql
+security definer
+set search_path = iam, pg_temp
+as $$
+  select
+    o.id,
+    o.tenant_id,
+    o.template_id,
+    o.to_email_masked,
+    o.correlation_id,
+    o.provider,
+    o.provider_message_id,
+    o.status,
+    o.error,
+    o.created_at,
+    o.updated_at
+  from iam.email_delivery_outcomes o
+  where o.correlation_id = p_correlation_id
+  limit 1;
+$$;
+
+revoke all on function iam.record_email_delivery_outcome(
+  text, text, text, text, uuid, text, text, text, uuid
+) from public, anon, authenticated;
+grant execute on function iam.record_email_delivery_outcome(
+  text, text, text, text, uuid, text, text, text, uuid
+) to service_role;
+
+revoke all on function iam.get_email_delivery_outcome_by_correlation(text)
+  from public, anon, authenticated;
+grant execute on function iam.get_email_delivery_outcome_by_correlation(text)
+  to service_role;

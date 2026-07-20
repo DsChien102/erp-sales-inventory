@@ -59,6 +59,16 @@
       "name": "PORT",
       "default": "8080",
       "description": "HTTP listen port for worker health/serve"
+    },
+    {
+      "name": "RESEND_API_KEY",
+      "required": false,
+      "description": "API key for Resend email service"
+    },
+    {
+      "name": "APP_LINK_BASE_URL",
+      "required": false,
+      "description": "Base URL used for generating application links"
     }
   ],
   "environments": {
@@ -81,7 +91,11 @@
     "serve": {
       "description": "Run messaging worker (long-poll loop)",
       "command": "dart",
-      "args": ["run", "bin/worker.dart", "--serve"],
+      "args": [
+        "run",
+        "bin/worker.dart",
+        "--serve"
+      ],
       "cwd": ".",
       "passEnvFile": true,
       "localSupabaseCheck": true,
@@ -90,7 +104,11 @@
     "once": {
       "description": "Run one worker tick then exit",
       "command": "dart",
-      "args": ["run", "bin/worker.dart", "--once"],
+      "args": [
+        "run",
+        "bin/worker.dart",
+        "--once"
+      ],
       "cwd": ".",
       "passEnvFile": true,
       "localSupabaseCheck": true,
@@ -99,7 +117,12 @@
     "docker": {
       "description": "Docker Compose up messaging-worker",
       "command": "docker",
-      "args": ["compose", "up", "--build", "messaging-worker"],
+      "args": [
+        "compose",
+        "up",
+        "--build",
+        "messaging-worker"
+      ],
       "cwd": "{{workspaceRoot}}",
       "env": {
         "WORKER_ENV_FILE": "{{envFile}}",
@@ -110,7 +133,10 @@
     "deploy": {
       "description": "Deploy worker to Railway (staging/production)",
       "command": "./scripts/deploy.sh",
-      "args": ["--env", "{{railwayEnvironment}}"],
+      "args": [
+        "--env",
+        "{{railwayEnvironment}}"
+      ],
       "cwd": ".",
       "requireRailwayEnvironment": true
     }

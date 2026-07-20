@@ -9,7 +9,7 @@ Thứ tự implement vertical slice. Lane status: `todo` | `in_progress` | `done
 | # | Slice | Type | Contract | BE | FE | E2E | Parallel group | E2E blocked by |
 | - | ----- | ---- | -------- | -- | -- | --- | -------------- | -------------- |
 | S0 | Platform IAM baseline (codegen, pipeline, session) | platform | done | done | done | n/a | — | — |
-| S-NOTIFY | Notification delivery port + Resend adapter contract | infra | todo | todo | n/a | n/a | N | — |
+| S-NOTIFY | Notification delivery port + Resend adapter contract | infra | done | done | n/a | n/a | N | — |
 | S1 | [EP-05/US-01](../Epic-05-tenant-context/US-01.md) — List accessible tenants | read | todo | todo | todo | todo | A | — |
 | S2 | [EP-05/US-02](../Epic-05-tenant-context/US-02.md) — Switch tenant context | write | todo | todo | todo | todo | A | S1 |
 | S3 | [EP-05/US-03](../Epic-05-tenant-context/US-03.md) + [US-04](../Epic-05-tenant-context/US-04.md) — LastSelectedTenant + invalidation | write | todo | todo | todo | todo | A | S2 |

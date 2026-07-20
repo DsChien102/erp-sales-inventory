@@ -7,6 +7,7 @@ import 'package:messaging_worker/tenant_discovery_client.dart';
 import 'package:shelf/shelf.dart';
 import 'package:supabase/supabase.dart';
 import 'package:test/test.dart';
+import 'package:vet45_adapters/vet45_adapters.dart';
 
 class _FakeSupabaseClient extends Fake implements SupabaseClient {}
 
@@ -14,8 +15,8 @@ void main() {
   late MessagingWorkerLoop loop;
   late Handler handler;
 
-  setUp(() {
-    final context = MessagingWorkerBootstrap.bootstrap(
+  setUp(() async {
+    final context = await MessagingWorkerBootstrap.bootstrap(
       config: const WorkerEnv(
         supabaseUrl: 'https://example.supabase.co',
         supabaseServiceRoleKey: 'service-role-key',
@@ -25,6 +26,7 @@ void main() {
         maxRoundsPerTick: 5,
       ),
       supabaseClient: _FakeSupabaseClient(),
+      iamMessagingModule: _NoopModule(),
     );
     loop = MessagingWorkerLoop(
       context: context,
@@ -82,6 +84,19 @@ void main() {
     expect(body['hadBacklog'], false);
     expect(body['durationMs'], isA<int>());
   });
+}
+
+final class _NoopModule implements IMessagingModule {
+  @override
+  String get name => 'iam';
+
+  @override
+  Future<MessagingProcessResult> processMessagingOnce({
+    required String tenantId,
+    int batchSize = 10,
+  }) async {
+    return MessagingProcessResult.empty;
+  }
 }
 
 final class _EmptyDiscoveryClient implements ITenantDiscoveryClient {

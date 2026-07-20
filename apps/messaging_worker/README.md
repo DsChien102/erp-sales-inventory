@@ -6,7 +6,7 @@ Server-side messaging processor for VET45. Runs adaptive self-loop ticks (~3s wh
 
 | Component | Role |
 |-----------|------|
-| `messaging-worker` (Railway) | HTTP + adaptive tick loop, drains outbox/inbox/internal commands per tenant |
+| `messaging-worker` (Railway) | HTTP + adaptive tick loop per tenant. **IAM hôm nay:** chỉ đăng ký path drain `internal_commands` (S-NOTIFY email). Full outbox → inbox → internal khi module wire `Process*` (partner-style). |
 | Supabase `platform` schema | Tenant discovery RPC + backlog stats view |
 
 Config is versioned in [`railway.toml`](../../railway.toml) at the repo root (Docker build context = monorepo root).

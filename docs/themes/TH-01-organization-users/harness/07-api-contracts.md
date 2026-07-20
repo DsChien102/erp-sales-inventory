@@ -18,7 +18,7 @@ Facade: `IIamModule` — mở rộng surface theo roadmap (hiện interim: sign-
 
 | CMD | Symbol (target) | Type | Permission / actor | US |
 | --- | --------------- | ---- | ------------------ | -- |
-| — | `IEmailDeliveryPort` / `SendEmailDeliveryCommand` | infra + internal cmd | system / worker | S-NOTIFY |
+| — | Mutation RPC outbox → inbox → `SendEmailDeliveryCommand` | infra Process* + RPC | system / worker | S-NOTIFY |
 | CMD-CTX-01 | `ListAccessibleTenantsQuery` | Query | Authenticated | EP-05/US-01 |
 | CMD-CTX-02 | `SwitchTenantContextCommand` | Command | Authenticated | EP-05/US-02 |
 | CMD-CTX-03 | `GetTenantContextQuery` | Query | Authenticated | EP-05/US-03 |
@@ -45,9 +45,13 @@ Facade: `IIamModule` — mở rộng surface theo roadmap (hiện interim: sign-
 
 | Symbol | Input (summary) | Success | Errors |
 | ------ | --------------- | ------- | ------ |
-| `IEmailDeliveryPort.enqueue` (`EnqueueEmailDeliveryRequest`) | templateId, toEmail, locale, refs (invitation_id / operation_id), correlationId, tenantId — **không** raw token trong log | outcome `queued` + row `iam.internal_commands` (`command_type` = `iam.notification.send_email_delivery`) | VALIDATION_ERROR |
+| Mutation RPC (invitation / activation) | business params + email fields | persist + `enqueue_outbox_message` (`iam.email.delivery_requested`) + optional outcome `queued` (same txn) | VALIDATION_ERROR |
+| `FakeEmailDeliveryPort.enqueue` (FE/unit only) | `EnqueueEmailDeliveryRequest` | simulates RPC side effect → outcome status per scenario | — |
+| `EmailDeliveryRequestedIntegrationEvent` → IE handler | outbox/inbox payload | `ICommandScheduler.enqueue(SendEmailDeliveryCommand, sourceEventId)` | — |
 | `SendEmailDeliveryCommand` (internal command, worker) | same payload via serializer; handler calls Resend then updates outcome | outcome `sent` / `failed` | SYSTEM_ERROR (worker `fail_internal_command`) |
 | `IEmailDeliveryPort.getOutcomeByCorrelationId` / outcome RPCs | correlationId | `EmailDeliveryOutcomeDto` | — |
+
+**Anti-pattern:** Dart `IIamOutboxClient` / port gọi `enqueue_outbox_message` — cấm; chỉ worker claim/complete/fail.
 
 **Outcome RPCs (draft):** `iam.record_email_delivery_outcome`, `iam.get_email_delivery_outcome_by_correlation` — [`_drafts/iam_notify_email_delivery_outcome.sql`](../../../../supabase/migrations/_drafts/iam_notify_email_delivery_outcome.sql) (chưa promote).
 

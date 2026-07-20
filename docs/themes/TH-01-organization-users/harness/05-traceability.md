@@ -28,8 +28,8 @@ Tổng product: **6 epic, 32 US** (2 Post-MVP) — [README.md](../README.md).
 
 | Req ID | Role | Contract § | Enforce layer | Artifact | Test id | Status |
 | ------ | ---- | ---------- | ------------- | -------- | ------- | ------ |
-| S-NOTIFY | CONTRACT | §S-NOTIFY | application | delivery request port / DTO | fake_notification_gateway_test | todo |
-| S-NOTIFY | BE | §S-NOTIFY | infrastructure | Resend adapter + outbox consumer | scn_notify_01 | todo |
+| S-NOTIFY | CONTRACT | §S-NOTIFY | application | delivery request port / DTO | fake_email_delivery_port_test | done |
+| S-NOTIFY | BE | §S-NOTIFY | infrastructure | Internal command + Resend + outcome | scn_notify_01 / scn_notify_02 | done |
 
 ---
 
@@ -60,7 +60,7 @@ Tổng product: **6 epic, 32 US** (2 Post-MVP) — [README.md](../README.md).
 | Req ID | Role | Contract § | Enforce layer | Artifact | Test id | Status |
 | ------ | ---- | ---------- | ------------- | -------- | ------- | ------ |
 | US-02 | CONTRACT | §S7 | application | `CreateInvitationCommand` | fake_iam_module_test | todo |
-| FR-01.. | BE | §S7 | application | handler + outbox delivery | scn_e03_u02_fr01_01 | todo |
+| FR-01.. | BE | §S7 | application | handler + email delivery enqueue | scn_e03_u02_fr01_01 | todo |
 | FR-01.. | FE | §S7 | presentation | invite form | wgt_e03_u02_fr01_01 | todo |
 | FR-01 | E2E | §S7 | integration | invite + delivery outcome | e2e_e03_u02_fr01_01 | todo |
 

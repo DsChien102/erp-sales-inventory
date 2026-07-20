@@ -63,6 +63,18 @@ void registerGeneratedIamHandlers({
     ),
   );
 
+  IamCommandRegistration.registerInternalHandler<SendEmailDeliveryCommand, SendEmailDeliveryCommandHandler>(
+    container: container,
+    bus: bus,
+    logger: logger,
+    factory: () => SendEmailDeliveryCommandHandler(
+      emailSender: container.get<IEmailSenderGateway>(),
+      outcomes: container.get<IEmailDeliveryOutcomeStore>(),
+    ),
+    inner: (command) => container.get<SendEmailDeliveryCommandHandler>().handle(command),
+    commandClient: internalCommandClient,
+  );
+
 }
 
 void registerGeneratedIamQueries({
