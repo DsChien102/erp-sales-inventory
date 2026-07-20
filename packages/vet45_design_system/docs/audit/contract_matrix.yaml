@@ -196,6 +196,20 @@ VEmptyState:
   state: na
   semanticLabel: preferred
 
+VLoading:
+  role: status_display
+  tone: optional
+  emphasis: na
+  state: na
+  semanticLabel: required
+
+VProgress:
+  role: status_display
+  tone: optional
+  emphasis: na
+  state: na
+  semanticLabel: required
+
 # --- Container ---
 VCard:
   role: container
@@ -233,6 +247,13 @@ VTabs:
   emphasis: optional
   state: na
   semanticLabel: optional
+
+VSteps:
+  role: navigation_chrome
+  tone: optional
+  emphasis: na
+  state: na
+  semanticLabel: required
 
 VTable:
   role: container

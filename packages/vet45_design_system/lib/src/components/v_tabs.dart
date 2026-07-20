@@ -11,6 +11,7 @@ class VTabs extends StatelessWidget {
   final bool isScrollable;
   final VComponentTone tone;
   final VComponentEmphasis emphasis;
+  final Set<int>? disabledIndices;
   final String? semanticLabel;
 
   const VTabs({
@@ -21,6 +22,7 @@ class VTabs extends StatelessWidget {
     this.isScrollable = false,
     this.tone = VComponentTone.primary,
     this.emphasis = VComponentEmphasis.medium,
+    this.disabledIndices,
     this.semanticLabel,
   });
 
@@ -38,33 +40,37 @@ class VTabs extends StatelessWidget {
 
     Widget buildTab(int index, String label) {
       final isSelected = index == selectedIndex;
+      final isDisabled = disabledIndices?.contains(index) ?? false;
       return Semantics(
         button: true,
         selected: isSelected,
+        enabled: !isDisabled,
         label: label,
         child: InkWell(
-          onTap: () => onTabSelected(index),
+          onTap: isDisabled ? null : () => onTabSelected(index),
           child: Container(
-          padding: const EdgeInsets.symmetric(
-            horizontal: VSpacing.space4,
-            vertical: VSpacing.space3,
-          ),
-          decoration: BoxDecoration(
-            border: Border(
-              bottom: BorderSide(
-                color: isSelected ? activeColor : Colors.transparent,
-                width: indicatorWidth,
+            padding: const EdgeInsets.symmetric(
+              horizontal: VSpacing.space4,
+              vertical: VSpacing.space3,
+            ),
+            decoration: BoxDecoration(
+              border: Border(
+                bottom: BorderSide(
+                  color: isSelected ? (isDisabled ? dynamicColors.disabledFg : activeColor) : Colors.transparent,
+                  width: indicatorWidth,
+                ),
+              ),
+            ),
+            child: Text(
+              label,
+              style: VTypography.bodyDefault.copyWith(
+                fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+                color: isDisabled
+                    ? dynamicColors.disabledFg
+                    : (isSelected ? activeColor : dynamicColors.textSecondary),
               ),
             ),
           ),
-          child: Text(
-            label,
-            style: VTypography.bodyDefault.copyWith(
-              fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
-              color: isSelected ? activeColor : dynamicColors.textSecondary,
-            ),
-          ),
-        ),
         ),
       );
     }

@@ -21,6 +21,9 @@ class _ComponentsPreviewTabState extends State<ComponentsPreviewTab> {
   String? _compactSearchableValue = 'hn';
   int _quantity = 2;
   int _tabIndex = 0;
+  int _tabDisabledIndex = 0;
+  double _progressValue = 0.4;
+  int _currentStepIndex = 1;
   int _navIndex = 0;
   DateTime? _date;
   bool _centerTitle = false;
@@ -470,6 +473,157 @@ class _ComponentsPreviewTabState extends State<ComponentsPreviewTab> {
               ),
               const SizedBox(height: VSpacing.space2),
               Text('Selected: $_tabIndex', style: VTypography.bodySmall),
+            ],
+          ),
+        ),
+        PreviewSection(
+          title: 'VTabs (Có Disable)',
+          child: Column(
+            children: [
+              VTabs(
+                tabs: const ['Hoạt động', 'Thông tin', 'Thành viên (Disable)', 'Cấu hình'],
+                selectedIndex: _tabDisabledIndex,
+                disabledIndices: const {2},
+                onTabSelected: (i) => setState(() => _tabDisabledIndex = i),
+              ),
+              const VGap.sm(),
+              VText('Selected Tab: $_tabDisabledIndex', variant: VTextVariant.bodySmall),
+            ],
+          ),
+        ),
+        PreviewSection(
+          title: 'VLoading',
+          description: 'Xoay tròn thông thường, chế độ hiển thị nhiệm vụ và dạng hộp thoại overlay.',
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const PreviewStateRow(
+                label: 'Spinner mặc định',
+                child: VLoading(),
+              ),
+              const VGap.md(),
+              const PreviewStateRow(
+                label: 'Hiển thị nhiệm vụ (Task mode)',
+                child: VLoading(
+                  title: 'Đang chuyển tổ chức',
+                  description: 'Đang tải dữ liệu và quyền truy cập của Phòng khám Minh Tâm.',
+                ),
+              ),
+              const VGap.md(),
+              PreviewStateRow(
+                label: 'Hộp thoại Modal Overlay',
+                child: VButton(
+                  label: 'Mở Loading Dialog',
+                  onPressed: () {
+                    VLoading.show(
+                      context: context,
+                      title: 'Đang tải dữ liệu',
+                      description: 'Vui lòng đợi trong giây lát...',
+                      barrierDismissible: true,
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+        ),
+        PreviewSection(
+          title: 'VSteps',
+          description: 'Hiển thị các bước tiến trình dạng ngang (stepper) hoặc dạng danh sách (list).',
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              VText('Dạng hàng ngang (stepper):', variant: VTextVariant.headingH4),
+              const VGap.md(),
+              VSteps(
+                steps: const [
+                  VStepItem(title: 'Chủ sở hữu', subtitle: 'Hoàn tất'),
+                  VStepItem(title: 'Tổ chức', subtitle: 'Đang thực hiện'),
+                  VStepItem(title: 'Kiểm tra', subtitle: 'Chưa bắt đầu'),
+                ],
+                currentStep: _currentStepIndex,
+              ),
+              const VGap.lg(),
+              VText('Dạng danh sách nằm ngang (list horizontal):', variant: VTextVariant.headingH4),
+              const VGap.md(),
+              VSteps(
+                steps: const [
+                  VStepItem(title: 'Bước 1', subtitle: 'Hoàn tất'),
+                  VStepItem(title: 'Bước 2', subtitle: 'Đang thực hiện'),
+                  VStepItem(title: 'Bước 3', subtitle: 'Chưa bắt đầu'),
+                ],
+                currentStep: _currentStepIndex,
+                type: VStepsType.list,
+                direction: Axis.horizontal,
+              ),
+              const VGap.lg(),
+              VText('Dạng danh sách nằm dọc (list vertical):', variant: VTextVariant.headingH4),
+              const VGap.md(),
+              VSteps(
+                steps: const [
+                  VStepItem(title: 'Bước 1', subtitle: 'Hoàn tất'),
+                  VStepItem(title: 'Bước 2', subtitle: 'Đang thực hiện'),
+                  VStepItem(title: 'Bước 3', subtitle: 'Chưa bắt đầu'),
+                ],
+                currentStep: _currentStepIndex,
+                type: VStepsType.list,
+                direction: Axis.vertical,
+              ),
+              const VGap.md(),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  VButton(
+                    label: 'Bước trước',
+                    onPressed: _currentStepIndex > 0
+                        ? () => setState(() => _currentStepIndex--)
+                        : null,
+                  ),
+                  const VGap.horizontalMd(),
+                  VButton(
+                    label: 'Bước tiếp theo',
+                    onPressed: _currentStepIndex < 2
+                        ? () => setState(() => _currentStepIndex++)
+                        : null,
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+        PreviewSection(
+          title: 'VProgress',
+          description: 'Thanh tiến trình bo góc dày dặn kèm hiệu ứng chuyển động mượt mà.',
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              VProgress(value: _progressValue),
+              const VGap.md(),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  VText('Tiến trình: ${(_progressValue * 100).toStringAsFixed(0)}%', variant: VTextVariant.bodySmall),
+                  Row(
+                    children: [
+                      VButton(
+                        label: '-10%',
+                        size: VButtonSize.small,
+                        onPressed: _progressValue > 0.05
+                            ? () => setState(() => _progressValue -= 0.1)
+                            : null,
+                      ),
+                      const VGap.horizontalSm(),
+                      VButton(
+                        label: '+10%',
+                        size: VButtonSize.small,
+                        onPressed: _progressValue < 0.95
+                            ? () => setState(() => _progressValue += 0.1)
+                            : null,
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ],
           ),
         ),

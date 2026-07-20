@@ -1,6 +1,6 @@
 # Component Audit Report
 
-- Generated at: `2026-07-16T09:42:32.453384`
+- Generated at: `2026-07-17T16:37:06.971659`
 - Matrix: `docs/audit/contract_matrix.yaml`
 - Scope: primitives / components / business / patterns / forms widgets
 
@@ -23,12 +23,15 @@
 | components | `VEmptyState` | status_display | Pass (optional) | Pass (optional) | N/A (na) | Pass (preferred) | Yes |
 | components | `VFloatingActionButton` | action | Pass (preferred) | Pass (preferred) | Pass (preferred) | Pass (required) | Yes |
 | components | `VHomeHeader` | navigation_chrome | N/A (na) | N/A (na) | N/A (na) | — (optional) | No |
+| components | `VLoading` | status_display | — (optional) | N/A (na) | N/A (na) | Pass (required) | Yes |
 | components | `VConfirmDialog` | overlay_shell | Pass (optional) | — (optional) | N/A (na) | Pass (preferred) | Yes |
+| components | `VProgress` | status_display | — (optional) | N/A (na) | N/A (na) | Pass (required) | Yes |
 | components | `VQuantitySelector` | input | Pass (preferred) | Pass (preferred) | Pass (required) | Pass (required) | Yes |
 | components | `VQuickActionButton` | action | Pass (preferred) | Pass (preferred) | Pass (preferred) | Pass (required) | Yes |
 | components | `VRadio` | toggle | Pass (optional) | — (optional) | Pass (required) | Pass (required) | Yes |
 | components | `VSearchBar` | input | Pass (preferred) | Pass (preferred) | Pass (required) | Pass (required) | Yes |
 | components | `VSearchableDropdown` | input | Pass (preferred) | Pass (preferred) | Pass (required) | Pass (required) | Yes |
+| components | `VSteps` | navigation_chrome | — (optional) | N/A (na) | N/A (na) | Pass (required) | Yes |
 | components | `VSwitch` | toggle | Pass (optional) | — (optional) | Pass (required) | Pass (required) | Yes |
 | components | `VTable` | container | Pass (optional) | Pass (optional) | N/A (na) | Pass (preferred) | Yes |
 | components | `VTabs` | navigation_chrome | Pass (optional) | Pass (optional) | N/A (na) | Pass (optional) | Yes |
