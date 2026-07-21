@@ -30,3 +30,4 @@ export 'src/configuration/processing/outbox/process_outbox_command_handler.dart'
 export 'src/configuration/processing/processing_module.dart';
 export 'src/configuration/processing/testing/in_memory_messaging_gateways.dart';
 export 'src/configuration/session/iam_session.dart';
+export 'src/domain/platform/supabase_platform_admin_gateway.dart';

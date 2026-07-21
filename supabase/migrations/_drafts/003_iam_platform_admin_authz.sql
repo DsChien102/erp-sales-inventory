@@ -1,0 +1,45 @@
+-- Title: iam platform admin authz (S15)
+-- Kind: patch
+-- Intent: iam_platform_admin_authz
+-- Touches: iam.has_platform_permission
+-- Notes: Draft only — do not apply via supabase migration up until promoted.
+--        Interim: membership in iam.platform_admins grants all platform.* codes.
+
+create table if not exists iam.platform_admins (
+  user_id uuid primary key references auth.users (id) on delete cascade,
+  created_at timestamptz not null default now()
+);
+
+alter table iam.platform_admins enable row level security;
+
+create or replace function iam.has_platform_permission(p_permission text)
+returns boolean
+language plpgsql
+security definer
+set search_path = iam, pg_temp
+as $$
+declare
+  v_user_id uuid := auth.uid();
+begin
+  if v_user_id is null then
+    return false;
+  end if;
+
+  if p_permission is null or left(p_permission, 9) <> 'platform.' then
+    return false;
+  end if;
+
+  -- Interim: any platform admin has all platform permissions.
+  return exists (
+    select 1
+    from iam.platform_admins a
+    where a.user_id = v_user_id
+  );
+end;
+$$;
+
+revoke all on function iam.has_platform_permission(text) from public, anon;
+grant execute on function iam.has_platform_permission(text) to authenticated;
+
+revoke all on table iam.platform_admins from public, anon, authenticated;
+grant select on table iam.platform_admins to authenticated;

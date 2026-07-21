@@ -10,18 +10,40 @@ final iamAccessMetadataRegistry = AccessMetadataRegistry({
     permission: 'iam.members.assign_role',
     requiresTenant: true,
   ),
+  CreateTenantOnboardingCommand: AccessMetadata(
+    permission: 'platform.tenant.create',
+    idempotencyKeyField: 'idempotencyKey',
+  ),
   GetCurrentSessionQuery: AccessMetadata(
     isPublic: true,
+  ),
+  GetPlatformUserQuery: AccessMetadata(
+    permission: 'platform.user.view',
   ),
   ListTenantMembersQuery: AccessMetadata(
     permission: 'iam.members.read',
     requiresTenant: true,
+  ),
+  RequestPlatformPasswordResetCommand: AccessMetadata(
+    permission: 'platform.user.password_reset.initiate',
+  ),
+  RestorePlatformUserCommand: AccessMetadata(
+    permission: 'platform.user.restore',
+  ),
+  SearchPlatformUsersQuery: AccessMetadata(
+    permission: 'platform.user.view',
+  ),
+  SendActivationInvitationCommand: AccessMetadata(
+    permission: 'platform.user.activation_invite.send',
   ),
   SignInCommand: AccessMetadata(
     isPublic: true,
   ),
   SignOutCommand: AccessMetadata(
     isPublic: true,
+  ),
+  SuspendPlatformUserCommand: AccessMetadata(
+    permission: 'platform.user.suspend',
   ),
   SwitchActiveTenantCommand: AccessMetadata(
     requiresTenant: true,

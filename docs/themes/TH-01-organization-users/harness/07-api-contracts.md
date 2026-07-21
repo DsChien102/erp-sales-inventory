@@ -34,6 +34,13 @@ Facade: `IIamModule` — mở rộng surface theo roadmap (hiện interim: sign-
 | CMD-TEN-01 | `GetTenantQuery` | Query | `tenant.view` | EP-02/US-01 |
 | CMD-TEN-02 | `ActivateTenantCommand` | Command | Owner / `tenant.activate` | EP-01/US-05 |
 | CMD-TEN-03 | `GetTenantReadinessQuery` | Query | `tenant.readiness.view` | EP-01/US-04 |
+| CMD-PLT-01 | `SearchPlatformUsersQuery` | Query | `platform.user.view` | EP-01/US-01 |
+| CMD-PLT-02 | `GetPlatformUserQuery` | Query | `platform.user.view` | EP-01/US-01 |
+| CMD-PLT-03 | `SendActivationInvitationCommand` | Command | `platform.user.activation_invite.send` | EP-01/US-02 |
+| CMD-PLT-04 | `RequestPlatformPasswordResetCommand` | Command | `platform.user.password_reset.initiate` | EP-01/US-02 |
+| CMD-PLT-05 | `SuspendPlatformUserCommand` | Command | `platform.user.suspend` | EP-01/US-02 |
+| CMD-PLT-06 | `RestorePlatformUserCommand` | Command | `platform.user.restore` | EP-01/US-02 |
+| CMD-PLT-07 | `CreateTenantOnboardingCommand` | Command | `platform.tenant.create` | EP-01/US-03 |
 
 *(Bổ sung đầy đủ khi CONTRACT từng slice — không block scaffold.)*
 
@@ -179,8 +186,51 @@ Side effect: §S-NOTIFY enqueue (`tenant_invitation` template) + App Link opaque
 
 ---
 
+## §S15 — EP-01/US-01–US-03 — Platform User + onboarding
+
+Platform-scoped (Admin App). Permission codes: `IamPlatformPermissions`. No `@RequiresTenant`.
+
+| Symbol | Input | Success | Errors |
+| ------ | ----- | ------- | ------ |
+| `SearchPlatformUsersQuery` | query?, status? | `List<PlatformUserSummaryDto>` | PLATFORM_PERMISSION_DENIED |
+| `GetPlatformUserQuery` | userId | `PlatformUserDetailDto` (+ memberships) | PLATFORM_PERMISSION_DENIED, VALIDATION_ERROR |
+| `SendActivationInvitationCommand` | userId | void (invitation resent) | PLATFORM_PERMISSION_DENIED, STATE_CHANGED |
+| `RequestPlatformPasswordResetCommand` | userId | void (no credential returned) | PLATFORM_PERMISSION_DENIED, STATE_CHANGED |
+| `SuspendPlatformUserCommand` | userId, reason | void | PLATFORM_PERMISSION_DENIED, VALIDATION_ERROR, STATE_CHANGED |
+| `RestorePlatformUserCommand` | userId | void | PLATFORM_PERMISSION_DENIED, STATE_CHANGED |
+| `CreateTenantOnboardingCommand` | owner (`OnboardingOwnerInput`), organizationName, idempotencyKey, correlationId? | `TenantOnboardingResultDto` (tenant provisioning + owner) | PLATFORM_PERMISSION_DENIED, VALIDATION_ERROR |
+
+**Notes**
+- Password-reset initiate only; Platform Admin never receives credentials (BR-01/BR-02).
+- Onboarding is atomic in Theme 1; `@Idempotent(keyField: 'idempotencyKey')` — retry must not duplicate User/Tenant/Membership.
+- Owner first role fixed `Chủ cửa hàng`; `is_owner=true` independent of role label.
+- Side effect (new user / activation / reset): mutation RPC `enqueue_outbox_message` (`iam.email.delivery_requested`) — Dart must not enqueue outbox.
+- Platform authz: `IamPermissionChecker` routes `platform.*` → `IPlatformAdminGateway.hasPlatformPermission` (no tenant). Queries enforce via RPC `iam.has_platform_permission`.
+
+**RPCs (draft):**
+- `iam.has_platform_permission` — [`_drafts/003_iam_platform_admin_authz.sql`](../../../../supabase/migrations/_drafts/003_iam_platform_admin_authz.sql)
+- `iam.search_platform_users`, `iam.get_platform_user` — [`_drafts/004_iam_platform_users_read.sql`](../../../../supabase/migrations/_drafts/004_iam_platform_users_read.sql)
+- `iam.suspend_platform_user`, `iam.restore_platform_user`, `iam.send_activation_invitation`, `iam.request_platform_password_reset` — [`_drafts/005_iam_platform_user_lifecycle.sql`](../../../../supabase/migrations/_drafts/005_iam_platform_user_lifecycle.sql)
+- `iam.create_tenant_onboarding` — [`_drafts/006_iam_create_tenant_onboarding.sql`](../../../../supabase/migrations/_drafts/006_iam_create_tenant_onboarding.sql)
+- New Platform User (`auth.users`) = Platform Identity boundary; interim gateway requires resolved `ownerUserId`.
+
+| scenario_id | trigger | fake response |
+| ----------- | ------- | ------------- |
+| `users_search_ok` | query by email | matching summaries |
+| `user_detail_ok` | known userId | detail + memberships |
+| `user_forbidden_403` | missing `platform.user.view` | PLATFORM_PERMISSION_DENIED |
+| `activation_resend_ok` | pendingActivation user | void success |
+| `suspend_ok` | active user + reason | status → suspended |
+| `restore_ok` | suspended user | status → active |
+| `onboarding_existing_user_ok` | existing owner + org name | TenantOnboardingResultDto provisioning |
+| `onboarding_new_user_ok` | new email + org name | result + isNewUser=true |
+| `onboarding_retry_idempotent` | same idempotencyKey | same result, no duplicate |
+| `onboarding_validation_error` | missing org name / invalid email | VALIDATION_ERROR |
+
+---
+
 ## Parallel notes
 
 - FE có thể fake: **yes** sau CONTRACT (`FakeIamModule` + fake notification gateway).
 - E2E invite cần S-NOTIFY BE hoặc test double ghi outcome.
-- Admin platform CMDs: bổ sung khi S15 CONTRACT — xem APPENDICES §6.1.3.
+- Admin platform CMDs: §S15 CONTRACT done — xem APPENDICES §6.1.3.

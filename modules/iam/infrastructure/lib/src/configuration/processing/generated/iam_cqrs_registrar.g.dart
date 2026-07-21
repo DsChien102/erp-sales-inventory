@@ -14,6 +14,12 @@ void registerGeneratedIamValidators(GetIt container) {
     ..registerFactory<ICommandValidator<AssignMemberRoleCommand>>(
       AssignMemberRoleCommandValidator.new,
     )
+    ..registerFactory<ICommandValidator<CreateTenantOnboardingCommand>>(
+      CreateTenantOnboardingCommandValidator.new,
+    )
+    ..registerFactory<ICommandValidator<SuspendPlatformUserCommand>>(
+      SuspendPlatformUserCommandValidator.new,
+    )
     ;
 }
 
@@ -34,6 +40,42 @@ void registerGeneratedIamHandlers({
     ),
   );
 
+  IamCommandRegistration.registerBusinessHandler<CreateTenantOnboardingCommand, TenantOnboardingResultDto, CreateTenantOnboardingCommandHandler>(
+    container: container,
+    bus: bus,
+    logger: logger,
+    factory: () => CreateTenantOnboardingCommandHandler(
+      platformGateway: container.get<IPlatformAdminGateway>(),
+    ),
+  );
+
+  IamCommandRegistration.registerBusinessHandler<RequestPlatformPasswordResetCommand, void, RequestPlatformPasswordResetCommandHandler>(
+    container: container,
+    bus: bus,
+    logger: logger,
+    factory: () => RequestPlatformPasswordResetCommandHandler(
+      platformGateway: container.get<IPlatformAdminGateway>(),
+    ),
+  );
+
+  IamCommandRegistration.registerBusinessHandler<RestorePlatformUserCommand, void, RestorePlatformUserCommandHandler>(
+    container: container,
+    bus: bus,
+    logger: logger,
+    factory: () => RestorePlatformUserCommandHandler(
+      platformGateway: container.get<IPlatformAdminGateway>(),
+    ),
+  );
+
+  IamCommandRegistration.registerBusinessHandler<SendActivationInvitationCommand, void, SendActivationInvitationCommandHandler>(
+    container: container,
+    bus: bus,
+    logger: logger,
+    factory: () => SendActivationInvitationCommandHandler(
+      platformGateway: container.get<IPlatformAdminGateway>(),
+    ),
+  );
+
   IamCommandRegistration.registerBusinessHandler<SignInCommand, void, SignInCommandHandler>(
     container: container,
     bus: bus,
@@ -51,6 +93,15 @@ void registerGeneratedIamHandlers({
     factory: () => SignOutCommandHandler(
       authenticator: container.get<IAuthenticator>(),
       sessionPort: container.get<IIamSessionPort>(),
+    ),
+  );
+
+  IamCommandRegistration.registerBusinessHandler<SuspendPlatformUserCommand, void, SuspendPlatformUserCommandHandler>(
+    container: container,
+    bus: bus,
+    logger: logger,
+    factory: () => SuspendPlatformUserCommandHandler(
+      platformGateway: container.get<IPlatformAdminGateway>(),
     ),
   );
 
@@ -89,6 +140,14 @@ void registerGeneratedIamQueries({
     invoke: (query, handler) => handler.handle(query),
   );
 
+  IamCommandRegistration.registerQueryHandler<GetPlatformUserQuery, PlatformUserDetailDto, GetPlatformUserQueryHandler>(
+    bus: bus,
+    factory: () => GetPlatformUserQueryHandler(
+      platformGateway: container.get<IPlatformAdminGateway>(),
+    ),
+    invoke: (query, handler) => handler.handle(query),
+  );
+
   IamCommandRegistration.registerQueryHandler<ListAccessibleTenantsQuery, List<AccessibleTenantDto>, ListAccessibleTenantsQueryHandler>(
     bus: bus,
     factory: () => ListAccessibleTenantsQueryHandler(
@@ -102,6 +161,14 @@ void registerGeneratedIamQueries({
     bus: bus,
     factory: () => ListTenantMembersQueryHandler(
       accessGateway: container.get<IIamAccessGateway>(),
+    ),
+    invoke: (query, handler) => handler.handle(query),
+  );
+
+  IamCommandRegistration.registerQueryHandler<SearchPlatformUsersQuery, List<PlatformUserSummaryDto>, SearchPlatformUsersQueryHandler>(
+    bus: bus,
+    factory: () => SearchPlatformUsersQueryHandler(
+      platformGateway: container.get<IPlatformAdminGateway>(),
     ),
     invoke: (query, handler) => handler.handle(query),
   );

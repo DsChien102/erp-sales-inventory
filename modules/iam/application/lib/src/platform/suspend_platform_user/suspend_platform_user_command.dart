@@ -1,0 +1,16 @@
+import 'package:vet45_iam_domain/domain.dart';
+import 'package:vet45_shared_application/application.dart';
+
+/// Suspend a Platform User (EP-01/US-02). Requires a reason (FR-04).
+@RequiresPermission(IamPlatformPermissions.userSuspend)
+final class SuspendPlatformUserCommand extends CommandBase<void>
+    implements ICommand<void> {
+  SuspendPlatformUserCommand({
+    String? id,
+    required this.userId,
+    required this.reason,
+  }) : super(id);
+
+  final String userId;
+  final String reason;
+}
