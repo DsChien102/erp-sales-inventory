@@ -2,27 +2,28 @@
 
 Lane status: `todo` | `in_progress` | `done` | `blocked` | `n/a`.
 
-**S1/S2/S3/S5/S6/S7/S8/S9/S10 implementation baseline 2026-07-16:** S1, S2, S3, S5, S6, S7, S8 and S9 CONTRACT + BE are `done`. S10 CONTRACT + BE are `done` (SQL draft-only, unapplied). FE/E2E remain `todo` for S10. SQL remains draft-only for all lanes.
+**S1/S2/S3/S5/S6/S7/S8/S9/S10 implementation baseline 2026-07-16 (cập nhật FE 2026-07-20):**
+CONTRACT + **BE Dart** (domain / application / infrastructure / `PricingStartup` / gateway / tests) are `done` cho S1–S10.
+**SQL vẫn chỉ là `_drafts/` — chưa promote / chưa apply lên DB** → app ERP chưa gọi được RPC pricing thật; E2E thật bị block.
+**FE EP02** (SG-01…SG-06): S1–S8 + S10 = `done` (pages/widgets/cubit + `wgt_e02_u*` + FakePricingModule). S9 FE = `todo` (cần Sales confirmation surface). ERP DI tạm vẫn `InMemoryPricingModule`.
 
 
-| #   | Slice                                                                   | Type               | Contract | BE   | FE   | E2E         | Parallel group | E2E blocked by                            |
-| --- | ----------------------------------------------------------------------- | ------------------ | -------- | ---- | ---- | ----------- | -------------- | ----------------------------------------- |
-| S1  | [US-04](../Epic-02-customer-price-rules/US-04.md) — Create manual rule  | write              | done     | done | todo | todo        | —              | FE + applied Pricing RPC test environment |
-| S2  | [US-01](../Epic-02-customer-price-rules/US-01.md) — List/search/filter  | read               | done     | done | todo | todo        | A              | S1 test data                              |
-| S3  | [US-03](../Epic-02-customer-price-rules/US-03.md) — Detail/actions      | read               | done     | done | todo | todo        | A              | S1                                        |
-| S4  | [US-02](../Epic-02-customer-price-rules/US-02.md) — Choose add method   | presentation       | n/a      | n/a  | todo | todo        | A              | S1/S8 routes                              |
-| S5  | [US-06](../Epic-02-customer-price-rules/US-06.md) — Edit rule           | write              | done     | done | todo | todo        | B              | S3                                        |
-| S6  | [US-07](../Epic-02-customer-price-rules/US-07.md) — Disable             | write              | done     | done | todo | todo        | B              | S3                                        |
-| S7  | [US-08](../Epic-02-customer-price-rules/US-08.md) — Reenable/precheck   | write              | done     | done | todo | todo        | B              | S6                                        |
-| S8  | [US-05](../Epic-02-customer-price-rules/US-05.md) — Excel import        | workflow           | done     | done | todo | todo        | C              | S1 rule commit policy                     |
-| S9  | [US-09](../Epic-02-customer-price-rules/US-09.md) — Remember from Sales | cross-module write | done     | done | todo | **blocked** | C              | Sales publisher/UI                        |
-| S10 | [US-10](../Epic-02-customer-price-rules/US-10.md) — Activity history    | read               | done     | done | todo | todo        | C              | Any prior mutation                        |
+| #   | Slice                                                                   | Type               | Contract | BE   | FE          | E2E         | Parallel group | E2E blocked by                            |
+| --- | ----------------------------------------------------------------------- | ------------------ | -------- | ---- | ----------- | ----------- | -------------- | ----------------------------------------- |
+| S1  | [US-04](../Epic-02-customer-price-rules/US-04.md) — Create manual rule  | write              | done     | done | done        | todo        | —              | applied Pricing RPC test environment      |
+| S2  | [US-01](../Epic-02-customer-price-rules/US-01.md) — List/search/filter  | read               | done     | done | done        | todo        | A              | S1 test data                              |
+| S3  | [US-03](../Epic-02-customer-price-rules/US-03.md) — Detail/actions      | read               | done     | done | done        | todo        | A              | S1                                        |
+| S4  | [US-02](../Epic-02-customer-price-rules/US-02.md) — Choose add method   | presentation       | n/a      | n/a  | done        | todo        | A              | S1/S8 routes                              |
+| S5  | [US-06](../Epic-02-customer-price-rules/US-06.md) — Edit rule           | write              | done     | done | done        | todo        | B              | S3                                        |
+| S6  | [US-07](../Epic-02-customer-price-rules/US-07.md) — Disable             | write              | done     | done | done        | todo        | B              | S3                                        |
+| S7  | [US-08](../Epic-02-customer-price-rules/US-08.md) — Reenable/precheck   | write              | done     | done | done        | todo        | B              | S6                                        |
+| S8  | [US-05](../Epic-02-customer-price-rules/US-05.md) — Excel import        | workflow           | done     | done | done        | todo        | C              | S1 rule commit policy                     |
+| S9  | [US-09](../Epic-02-customer-price-rules/US-09.md) — Remember from Sales | cross-module write | done     | done | todo        | **blocked** | C              | Sales publisher/UI                        |
+| S10 | [US-10](../Epic-02-customer-price-rules/US-10.md) — Activity history    | read               | done     | done | done        | todo        | C              | Any prior mutation                        |
 
 S9 CONTRACT + BE implementation plan: [2026-07-16-pricing-s9-remembered-price-contract-be.vi.md](../../../superpowers/plans/2026-07-16-pricing-s9-remembered-price-contract-be.vi.md). SQL draft `pricing_remembered_price_from_order_s9.sql` is authored but **not applied**.
 
-S10 CONTRACT + BE implementation plan: [2026-07-16-pricing-s10-activity-history-contract-be.vi.md](../../../superpowers/plans/2026-07-16-pricing-s10-activity-history-contract-be.vi.md). SQL draft `pricing_customer_price_rule_history_s10.sql` is authored but **not applied**. FE/E2E remain `todo`.
-
-
+S10 CONTRACT + BE implementation plan: [2026-07-16-pricing-s10-activity-history-contract-be.vi.md](../../../superpowers/plans/2026-07-16-pricing-s10-activity-history-contract-be.vi.md). SQL draft `pricing_customer_price_rule_history_s10.sql` is authored but **not applied**. FE lane closed 2026-07-20 (`wgt_e02_u10_*` + Fake history scenarios); E2E vẫn mở tới khi promote/apply RPC.
 
 
 ## Parallel groups
@@ -40,9 +41,11 @@ S10 CONTRACT + BE implementation plan: [2026-07-16-pricing-s10-activity-history-
 ## Lane semantics
 
 - CONTRACT freezes application symbols/DTOs/errors/fake scenarios before BE/FE diverge.
-- BE includes domain, handler, port/gateway, RPC draft and tests.
-- FE uses `FakePricingModule`; no BE availability prerequisite.
-- E2E uses real mediator/startup and applied test environment; external dependency may block only this lane.
+- **BE (harness) = Dart BE đã xong:** domain + handler + validator + port/gateway + `PricingStartup` + SQL **draft** trong `supabase/migrations/_drafts/` + tests.
+  - **Không** có nghĩa schema/RPC đã có trên Postgres local/remote.
+  - Để “thấy BE trên app”: cần **promote draft → migration timestamp** + apply DB + đổi DI từ `InMemoryPricingModule` → `PricingStartup`.
+- FE uses `FakePricingModule` (harness) hoặc tạm `InMemoryPricingModule` (ERP demo); no applied-RPC prerequisite for UI.
+- E2E uses real mediator/startup and **applied** test environment; external dependency may block only this lane.
 
 
 
@@ -65,9 +68,10 @@ S10 CONTRACT + BE implementation plan: [2026-07-16-pricing-s10-activity-history-
 
 ## Definition of Done — FE
 
-- [ ] Thin page + extracted widgets/dialogs/cubit through `IPricingModule`.
-- [ ] Screen Group manifest covered in design-system example catalog where applicable.
-- [ ] Widget tests use stable `wgt_e02_u{us}_...` IDs and fake scenarios.
+- [x] Thin page + extracted widgets/dialogs/cubit through `IPricingModule`.
+- [x] Screen Group manifest covered in design-system example catalog where applicable (`VBanner` + shared primitives; feature screens stay in `modules/pricing/presentation`).
+- [x] Widget tests use stable `wgt_e02_u{us}_...` IDs and fake scenarios (`apps/erp/test/features/pricing/presentation/pages/pricing_pages_test.dart` + `modules/pricing/presentation/test/`).
+  - S9 FE deferred: Sales confirmation surface chưa có → giữ `todo`.
 
 
 
@@ -86,3 +90,13 @@ S10 CONTRACT + BE implementation plan: [2026-07-16-pricing-s10-activity-history-
 - [ ] GitNexus `detect_changes()` run before commit; no commit if capability unavailable.
 
 Lane status is determined by the artifacts and verification owned by that lane. Workspace-wide failures outside a lane are recorded in `docs/harness/PROGRESS.md` as technical debt instead of holding a completed lane in `in_progress`.
+
+## Where is the “BE” code?
+
+| Artifact | Path |
+| -------- | ---- |
+| Domain / permissions | `modules/pricing/domain/` |
+| Commands, queries, DTOs, `IPricingModule`, `FakePricingModule` | `modules/pricing/application/` |
+| Gateways, RPC mappers, `PricingStartup` | `modules/pricing/infrastructure/` |
+| SQL drafts (unapplied) | `supabase/migrations/_drafts/pricing_*.sql` (+ catalog/partner provider drafts) |
+| ERP DI tạm (chưa Startup) | `apps/erp/.../in_memory_pricing_module.dart` |

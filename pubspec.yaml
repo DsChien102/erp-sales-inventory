@@ -40,6 +40,7 @@ workspace:
   - modules/pricing/domain
   - modules/pricing/application
   - modules/pricing/infrastructure
+  - modules/pricing/presentation
   - modules/inventory/domain
   - modules/inventory/application
   - modules/inventory/infrastructure

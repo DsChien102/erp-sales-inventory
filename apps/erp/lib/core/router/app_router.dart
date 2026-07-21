@@ -7,6 +7,7 @@ import 'package:vet45_catalog_application/application.dart' hide ProductChangeHi
 import 'package:vet45_catalog_presentation/presentation.dart';
 import 'package:vet45_partner_application/application.dart';
 import 'package:vet45_partner_domain/domain.dart';
+import 'package:vet45_pricing_application/application.dart';
 
 // More Pages
 import '../../features/more/presentation/pages/system_settings_page.dart';
@@ -54,6 +55,17 @@ import '../../features/partner/presentation/pages/partner_contact_form_page.dart
 import '../../features/partner/presentation/pages/partner_contact_select_page.dart';
 import '../../features/partner/presentation/pages/partner_transform_page.dart';
 import '../../features/partner/presentation/pages/partner_change_history_page.dart';
+
+// Pricing
+import '../../features/pricing/presentation/pages/pricing_list_page.dart';
+import '../../features/pricing/presentation/pages/pricing_detail_page.dart';
+import '../../features/pricing/presentation/pages/pricing_choose_method_page.dart';
+import '../../features/pricing/presentation/pages/pricing_form_page.dart';
+import '../../features/pricing/presentation/pages/pricing_import_page.dart';
+import '../../features/pricing/presentation/pages/pricing_history_page.dart';
+import '../../features/pricing/presentation/pages/pricing_pick_customer_page.dart';
+import '../../features/pricing/presentation/pages/pricing_pick_product_page.dart';
+import '../../features/pricing/presentation/pages/pricing_pick_unit_page.dart';
 
 import '../di/injection.dart';
 
@@ -519,6 +531,92 @@ final appRouter = GoRouter(
       path: '/more/product-settings/store-price-rule/history',
       name: 'more.product-settings.store-price-rule.history',
       builder: (context, state) => const StorePriceRuleChangeHistoryPage(),
+    ),
+
+    // ── Pricing (TH-04 EP02) ──
+    GoRoute(
+      path: '/pricing',
+      name: 'pricing.list',
+      builder: (context, state) => const PricingListPage(),
+    ),
+    GoRoute(
+      path: '/pricing/choose-method',
+      name: 'pricing.choose-method',
+      builder: (context, state) {
+        final extra = state.extra;
+        final canCreate = extra is Map
+            ? (extra['canCreate'] as bool?) ?? true
+            : true;
+        final canImport = extra is Map
+            ? (extra['canImport'] as bool?) ?? true
+            : true;
+        return PricingChooseMethodPage(
+          canCreate: canCreate,
+          canImport: canImport,
+        );
+      },
+    ),
+    GoRoute(
+      path: '/pricing/new',
+      name: 'pricing.new',
+      builder: (context, state) => const PricingFormPage(),
+    ),
+    GoRoute(
+      path: '/pricing/import',
+      name: 'pricing.import',
+      builder: (context, state) => const PricingImportPage(),
+    ),
+    // SG-03: pickers — search & chọn trực tiếp, không footer action.
+    GoRoute(
+      path: '/pricing/pick-customer',
+      name: 'pricing.pick-customer',
+      builder: (context, state) => const PricingPickCustomerPage(),
+    ),
+    GoRoute(
+      path: '/pricing/pick-product',
+      name: 'pricing.pick-product',
+      builder: (context, state) => const PricingPickProductPage(),
+    ),
+    GoRoute(
+      path: '/pricing/pick-unit/:productId',
+      name: 'pricing.pick-unit',
+      builder: (context, state) => PricingPickUnitPage(
+        productId: state.pathParameters['productId']!,
+      ),
+    ),
+    GoRoute(
+      path: '/pricing/:ruleId',
+      name: 'pricing.detail',
+      builder: (context, state) {
+        final ruleId = state.pathParameters['ruleId']!;
+        return PricingDetailPage(ruleId: ruleId);
+      },
+    ),
+    GoRoute(
+      path: '/pricing/:ruleId/edit',
+      name: 'pricing.edit',
+      builder: (context, state) {
+        final rule = state.extra as CustomerPriceRuleDetailDto?;
+        if (rule == null) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (context.mounted) {
+              context.go('/pricing');
+            }
+          });
+          return const Scaffold(
+            body: Center(child: CircularProgressIndicator()),
+          );
+        }
+        return PricingFormPage(initialRule: rule);
+      },
+    ),
+    GoRoute(
+      path: '/pricing/:ruleId/history',
+      name: 'pricing.history',
+      builder: (context, state) {
+        final ruleId = state.pathParameters['ruleId']!;
+        return PricingHistoryPage(ruleId: ruleId);
+      },
     ),
   ],
 );

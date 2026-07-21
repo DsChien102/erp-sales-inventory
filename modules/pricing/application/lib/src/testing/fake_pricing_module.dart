@@ -224,6 +224,18 @@ final class FakePricingModule implements IPricingModule {
               hasMore: true,
             )
             as TResult;
+      // FE detail page may prefetch recent history (S3 → S10 preview).
+      case FakePricingScenario.ruleDetailActive:
+      case FakePricingScenario.ruleDetailDisabled:
+      case FakePricingScenario.ruleDetailReferenceStale:
+      case FakePricingScenario.updateRuleOk:
+      case FakePricingScenario.disableRuleOk:
+      case FakePricingScenario.reenableOk:
+        return const CursorPageDto<CustomerPriceRuleActivityDto>(
+              items: [],
+              hasMore: false,
+            )
+            as TResult;
       default:
         throw UnsupportedError(
           'FakePricingModule: ${scenario.name} does not support history.',
@@ -463,6 +475,25 @@ final class FakePricingModule implements IPricingModule {
               ],
             )
             as TResult;
+      // FE history page loads detail context before timeline (S10).
+      case FakePricingScenario.historyMixedSources:
+      case FakePricingScenario.historySecondPage:
+      case FakePricingScenario.historyEmptyLegacy:
+      case FakePricingScenario.historySystemActor:
+      case FakePricingScenario.historyDenied:
+      case FakePricingScenario.historySystemError:
+      case FakePricingScenario.historyMalformedCursor:
+        return _detail(
+              query,
+              persistedStatus: CustomerPriceRuleStatus.active,
+              derivedStatus: CustomerPriceRuleDerivedStatus.applying,
+              availableActions: const [
+                CustomerPriceRuleAvailableActions.history,
+              ],
+            )
+            as TResult;
+      case FakePricingScenario.historyNotFound:
+        throw const PricingBlockedException(PricingBlockedCodes.notFound);
       default:
         throw UnsupportedError(
           'FakePricingModule: ${scenario.name} does not support detail.',
