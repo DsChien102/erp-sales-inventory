@@ -1,5 +1,6 @@
 import 'package:vet45_adapters/vet45_adapters.dart';
 import 'package:vet45_iam_application/application.dart';
+import 'package:vet45_iam_domain/domain.dart';
 import 'package:vet45_shared_infrastructure/infrastructure.dart';
 
 import '../../errors/iam_error_mapper.dart';
@@ -44,6 +45,60 @@ final class SupabaseIamAccessGateway implements IIamAccessGateway {
             ),
           )
           .toList(growable: false);
+    } on RpcException catch (error) {
+      throw mapIamRpcError(error);
+    }
+  }
+
+  @override
+  Future<List<AccessibleTenantDto>> listAccessibleTenants() async {
+    try {
+      final rows = await _rpcClient.callList('list_accessible_tenants');
+      return rows
+          .map(
+            (row) => AccessibleTenantDto(
+              tenantId: row['tenant_id'] as String,
+              name: row['name'] as String,
+              roleLabel: row['role'] as String,
+              status: _mapTenantStatus(row['status'] as String?),
+            ),
+          )
+          .toList(growable: false);
+    } on RpcException catch (error) {
+      throw mapIamRpcError(error);
+    }
+  }
+
+  @override
+  Future<TenantContextDto> switchTenantContext({
+    required String targetTenantId,
+  }) async {
+    try {
+      final result = await _rpcClient.callMap(
+        'switch_tenant_context',
+        params: <String, dynamic>{'p_target_tenant_id': targetTenantId},
+      );
+      return _mapTenantContext(result);
+    } on RpcException catch (error) {
+      throw mapIamRpcError(error);
+    }
+  }
+
+  @override
+  Future<TenantContextDto> getValidatedTenantContext({
+    String? sessionTenantId,
+  }) async {
+    try {
+      final result = await _rpcClient.callMap(
+        'get_tenant_context',
+        params: sessionTenantId == null
+            ? null
+            : <String, dynamic>{'p_tenant_id': sessionTenantId},
+      );
+      if (result.isEmpty) {
+        return const TenantContextDto(status: TenantContextStatus.none);
+      }
+      return _mapTenantContext(result);
     } on RpcException catch (error) {
       throw mapIamRpcError(error);
     }
@@ -144,5 +199,55 @@ final class SupabaseIamAccessGateway implements IIamAccessGateway {
       role: json['role'] as String,
       permissions: permissions,
     );
+  }
+
+  TenantContextDto _mapTenantContext(Map<String, dynamic> json) {
+    final statusRaw = json['status'] as String? ?? 'none';
+    final status = switch (statusRaw) {
+      'valid' => TenantContextStatus.valid,
+      'invalidated' => TenantContextStatus.invalidated,
+      _ => TenantContextStatus.none,
+    };
+
+    final permissionsRaw = json['permissions'];
+    final permissions = switch (permissionsRaw) {
+      final List<dynamic> list => list.map((e) => e as String).toList(),
+      _ => const <String>[],
+    };
+
+    final reasonRaw = json['invalidation_reason'] as String?;
+    final invalidationReason = switch (reasonRaw) {
+      'membershipRemoved' => TenantContextInvalidationReason.membershipRemoved,
+      'membershipInactive' =>
+        TenantContextInvalidationReason.membershipInactive,
+      'tenantSuspended' => TenantContextInvalidationReason.tenantSuspended,
+      'tenantClosed' => TenantContextInvalidationReason.tenantClosed,
+      'accessDenied' => TenantContextInvalidationReason.accessDenied,
+      _ => null,
+    };
+
+    final tenantStatusRaw = json['tenant_status'] as String?;
+
+    return TenantContextDto(
+      status: status,
+      tenantId: json['tenant_id'] as String?,
+      tenantName: json['tenant_name'] as String?,
+      roleLabel: json['role'] as String?,
+      permissions: permissions,
+      tenantStatus: tenantStatusRaw == null
+          ? null
+          : _mapTenantStatus(tenantStatusRaw),
+      invalidationReason: invalidationReason,
+      blockedErrorCode: json['blocked_error_code'] as String?,
+    );
+  }
+
+  TenantLifecycleStatus _mapTenantStatus(String? raw) {
+    return switch (raw) {
+      'provisioning' => TenantLifecycleStatus.provisioning,
+      'suspended' => TenantLifecycleStatus.suspended,
+      'closed' => TenantLifecycleStatus.closed,
+      _ => TenantLifecycleStatus.active,
+    };
   }
 }

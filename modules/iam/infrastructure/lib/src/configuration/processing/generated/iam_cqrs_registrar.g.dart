@@ -89,6 +89,15 @@ void registerGeneratedIamQueries({
     invoke: (query, handler) => handler.handle(query),
   );
 
+  IamCommandRegistration.registerQueryHandler<ListAccessibleTenantsQuery, List<AccessibleTenantDto>, ListAccessibleTenantsQueryHandler>(
+    bus: bus,
+    factory: () => ListAccessibleTenantsQueryHandler(
+      accessGateway: container.get<IIamAccessGateway>(),
+      currentTenant: container.get<ICurrentTenant>(),
+    ),
+    invoke: (query, handler) => handler.handle(query),
+  );
+
   IamCommandRegistration.registerQueryHandler<ListTenantMembersQuery, List<TenantMemberDto>, ListTenantMembersQueryHandler>(
     bus: bus,
     factory: () => ListTenantMembersQueryHandler(

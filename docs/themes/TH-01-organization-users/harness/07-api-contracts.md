@@ -76,11 +76,16 @@ Facade: `IIamModule` — mở rộng surface theo roadmap (hiện interim: sign-
 | ------ | ----- | ------- | ------ |
 | `ListAccessibleTenantsQuery` | (actor from context) | `List<AccessibleTenantDto>` (tenantId, name, roleLabel, status, isCurrent) | AUTHENTICATION_REQUIRED |
 
+RPC: `iam.list_accessible_tenants()` (draft). `isCurrent` set in Dart handler from `ICurrentTenant`.
+
+**DTO note:** `AccessibleTenantDto.status` uses domain `TenantLifecycleStatus` (`provisioning` \| `active` \| `suspended` \| `closed`). Draft [`002_iam_list_accessible_tenants.sql`](../../../../supabase/migrations/_drafts/002_iam_list_accessible_tenants.sql) constraint includes `provisioning`.
+
 | scenario_id | trigger | fake response |
 | ----------- | ------- | ------------- |
 | `tenants_single` | one membership | one item current |
 | `tenants_multi` | many active memberships | list + current marked |
 | `tenants_suspended_disabled` | target suspended | item disabled |
+| `tenants_provisioning` | provisioning tenant | item with `provisioning` status |
 
 ---
 
@@ -88,15 +93,55 @@ Facade: `IIamModule` — mở rộng surface theo roadmap (hiện interim: sign-
 
 | Symbol | Input | Success | Errors |
 | ------ | ----- | ------- | ------ |
-| `SwitchTenantContextCommand` | targetTenantId, confirm | `TenantContextDto` | TENANT_ACCESS_DENIED, TENANT_SUSPENDED, TENANT_CLOSED |
+| `SwitchTenantContextCommand` | `targetTenantId` | `TenantContextDto` | `TENANT_ACCESS_DENIED`, `TENANT_SUSPENDED`, `TENANT_CLOSED`, `VALIDATION_ERROR` |
 
-RPC target: extend / replace interim `SwitchActiveTenant`.
+**Not** `@RequiresTenant` — actor switches *to* target; server re-validates access.
+
+**`TenantContextDto` fields:** `status` (`TenantContextStatus`: none \| valid \| invalidated), `tenantId`, `tenantName`, `roleLabel`, `permissions`, `tenantStatus` (`TenantLifecycleStatus`), `invalidationReason`, `blockedErrorCode`.
+
+**Domain rules (validator):** `TargetTenantMustDifferFromCurrentRule` (when current known). Confirmation dialog is presentation-only (FR-02); dispatch implies confirm.
+
+**Port:** `IIamAccessGateway.switchTenantContext(targetTenantId)`.
+
+**RPC:** `iam.switch_tenant_context` — draft [`007_iam_switch_tenant_context.sql`](../../../../supabase/migrations/_drafts/007_iam_switch_tenant_context.sql). Replaces interim `SwitchActiveTenantCommand` for Group A (interim kept for backward compatibility).
+
+On success BE also updates LastSelectedTenant via `IPlatformUserPreferencePort` (draft [`008_iam_user_preferences.sql`](../../../../supabase/migrations/_drafts/008_iam_user_preferences.sql)).
 
 | scenario_id | trigger | fake response |
 | ----------- | ------- | ------------- |
-| `switch_ok` | valid target | new context |
-| `switch_denied` | no membership | TENANT_ACCESS_DENIED |
-| `switch_suspended` | suspended tenant | TENANT_SUSPENDED |
+| `switch_ok` | valid target | `status: valid` + new context |
+| `switch_denied` | no membership | `TENANT_ACCESS_DENIED` |
+| `switch_suspended` | suspended tenant | `TENANT_SUSPENDED` |
+| `switch_closed` | closed tenant | `TENANT_CLOSED` |
+| `switch_same_tenant` | target == current | `VALIDATION_ERROR` |
+
+---
+
+## §S3 — EP-05/US-03 + US-04 — LastSelectedTenant + invalidation
+
+| Symbol | Input | Success | Errors |
+| ------ | ----- | ------- | ------ |
+| `GetTenantContextQuery` | `bootstrapFromLastSelected` (bool, default false) | `TenantContextDto` | AUTHENTICATION_REQUIRED |
+
+**Behavior (BE):**
+- `bootstrapFromLastSelected: false` → validate current session tenant
+- `bootstrapFromLastSelected: true` → read LastSelectedTenant preference → validate server-side → resolve or return `none` / `invalidated`
+- **OQ-07 (open):** do **not** auto-select another tenant; return `status: none` so FE opens selector
+
+**Preference port:** `IPlatformUserPreferencePort` (`getLastSelectedTenantId` / `setLastSelectedTenantId`) — preference ≠ access grant.
+
+**Port:** `IIamAccessGateway.getValidatedTenantContext(sessionTenantId?)`.
+
+**RPC:** `iam.get_tenant_context` — draft [`009_iam_get_tenant_context.sql`](../../../../supabase/migrations/_drafts/009_iam_get_tenant_context.sql). Preference RPCs: `iam.get_last_selected_tenant` / `iam.set_last_selected_tenant` ([`008_iam_user_preferences.sql`](../../../../supabase/migrations/_drafts/008_iam_user_preferences.sql)).
+
+**US-04 invalidation:** no separate invalidate command — `TenantContextDto.status == invalidated` (+ `invalidationReason` / `blockedErrorCode`) for shared blocked state. Reasons: `membershipRemoved`, `membershipInactive`, `tenantSuspended`, `tenantClosed`, `accessDenied`.
+
+| scenario_id | trigger | fake response |
+| ----------- | ------- | ------------- |
+| `bootstrap_valid` | preference still accessible | `status: valid` |
+| `bootstrap_invalid` | preference lost access | `status: none` (OQ-07) |
+| `context_invalidated` | membership/tenant change mid-session | `status: invalidated` + reason |
+| `context_none` | no preference / no session tenant | `status: none` |
 
 ---
 

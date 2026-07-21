@@ -37,8 +37,8 @@ Tổng product: **6 epic, 32 US** (2 Post-MVP) — [README.md](../README.md).
 
 | Req ID | Role | Contract § | Enforce layer | Artifact | Test id | Status |
 | ------ | ---- | ---------- | ------------- | -------- | ------- | ------ |
-| US-01 | CONTRACT | §S1 | application | `ListAccessibleTenantsQuery` | fake_iam_module_test | todo |
-| FR-01.. | BE | §S1 | application | handler | scn_e05_u01_fr01_01 | todo |
+| US-01 | CONTRACT | §S1 | application + domain | `ListAccessibleTenantsQuery` + `AccessibleTenantDto` (`TenantLifecycleStatus`) | scn_e05_u01_fr01_01 | done |
+| FR-01.. | BE | §S1 | application + infrastructure + draft SQL | handler + `list_accessible_tenants` RPC | scn_e05_u01_fr01_01 | done |
 | FR-01.. | FE | §S1 | presentation | organization selector list | wgt_e05_u01_fr01_01 | todo |
 | FR-01 | E2E | §S1 | integration | ERP via IIamModule | e2e_e05_u01_fr01_01 | todo |
 
@@ -48,10 +48,21 @@ Tổng product: **6 epic, 32 US** (2 Post-MVP) — [README.md](../README.md).
 
 | Req ID | Role | Contract § | Enforce layer | Artifact | Test id | Status |
 | ------ | ---- | ---------- | ------------- | -------- | ------- | ------ |
-| US-02 | CONTRACT | §S2 | application | `SwitchTenantContextCommand` | fake_iam_module_test | todo |
-| FR-01.. | BE | §S2 | application | handler (extend SwitchActiveTenant) | scn_e05_u02_fr01_01 | todo |
+| US-02 | CONTRACT | §S2 | application + domain | `SwitchTenantContextCommand` + `TenantContextDto` + context rules | fake_iam_module_test | done |
+| FR-01.. | BE | §S2 | application + infrastructure + draft SQL | handler + preference + `iam.switch_tenant_context` | scn_e05_u02_fr01_01 | done |
 | FR-01.. | FE | §S2 | presentation | confirmation + loading | wgt_e05_u02_fr01_01 | todo |
 | FR-01 | E2E | §S2 | integration | switch + reload | e2e_e05_u02_fr01_01 | todo |
+
+---
+
+## S3 — EP-05 / US-03 + US-04 — LastSelectedTenant + invalidation
+
+| Req ID | Role | Contract § | Enforce layer | Artifact | Test id | Status |
+| ------ | ---- | ---------- | ------------- | -------- | ------- | ------ |
+| US-03/04 | CONTRACT | §S3 | application + domain | `GetTenantContextQuery` + `IPlatformUserPreferencePort` + invalidation fields | fake_iam_module_test | done |
+| FR-01.. | BE | §S3 | application + infrastructure + draft SQL | handler + preference + `iam.get_tenant_context` | scn_e05_u03_fr01_01 | done |
+| FR-01.. | FE | §S3 | presentation | bootstrap + blocked state | wgt_e05_u03_fr01_01 | todo |
+| FR-01 | E2E | §S3 | integration | bootstrap + invalidate | e2e_e05_u03_fr01_01 | todo |
 
 ---
 

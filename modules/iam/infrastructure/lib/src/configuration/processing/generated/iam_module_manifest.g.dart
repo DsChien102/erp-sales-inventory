@@ -22,6 +22,7 @@ final iamModuleManifest = GeneratedModuleManifest(
   ],
   queryTypes: [
     GetCurrentSessionQuery,
+    ListAccessibleTenantsQuery,
     ListTenantMembersQuery,
   ],
 );

@@ -47,6 +47,21 @@ class _RecordingAccessGateway implements IIamAccessGateway {
   Future<List<TenantMembershipDto>> listUserTenants() async => const [];
 
   @override
+  Future<List<AccessibleTenantDto>> listAccessibleTenants() async => const [];
+
+  @override
+  Future<TenantContextDto> switchTenantContext({
+    required String targetTenantId,
+  }) async =>
+      throw UnimplementedError('S2 BE');
+
+  @override
+  Future<TenantContextDto> getValidatedTenantContext({
+    String? sessionTenantId,
+  }) async =>
+      throw UnimplementedError('S3 BE');
+
+  @override
   Future<void> assignMemberRole({
     required String tenantId,
     required String userId,

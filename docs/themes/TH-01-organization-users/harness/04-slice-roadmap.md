@@ -10,9 +10,9 @@ Thứ tự implement vertical slice. Lane status: `todo` | `in_progress` | `done
 | - | ----- | ---- | -------- | -- | -- | --- | -------------- | -------------- |
 | S0 | Platform IAM baseline (codegen, pipeline, session) | platform | done | done | done | n/a | — | — |
 | S-NOTIFY | Notification delivery port + Resend adapter contract | infra | done | done | n/a | n/a | N | — |
-| S1 | [EP-05/US-01](../Epic-05-tenant-context/US-01.md) — List accessible tenants | read | todo | todo | todo | todo | A | — |
-| S2 | [EP-05/US-02](../Epic-05-tenant-context/US-02.md) — Switch tenant context | write | todo | todo | todo | todo | A | S1 |
-| S3 | [EP-05/US-03](../Epic-05-tenant-context/US-03.md) + [US-04](../Epic-05-tenant-context/US-04.md) — LastSelectedTenant + invalidation | write | todo | todo | todo | todo | A | S2 |
+| S1 | [EP-05/US-01](../Epic-05-tenant-context/US-01.md) — List accessible tenants | read | done | done | todo | todo | A | — |
+| S2 | [EP-05/US-02](../Epic-05-tenant-context/US-02.md) — Switch tenant context | write | done | done | todo | todo | A | S1 |
+| S3 | [EP-05/US-03](../Epic-05-tenant-context/US-03.md) + [US-04](../Epic-05-tenant-context/US-04.md) — LastSelectedTenant + invalidation | write | done | done | todo | todo | A | S2 |
 | S4 | [EP-04/US-01](../Epic-04-roles-permissions/US-01.md) + [US-02](../Epic-04-roles-permissions/US-02.md) — Role catalog + permissions | read | todo | todo | todo | todo | B | — |
 | S5 | [EP-04/US-03](../Epic-04-roles-permissions/US-03.md) — Change member role | write | todo | todo | todo | todo | B | S4, S7 |
 | S6 | [EP-03/US-01](../Epic-03-membership-invitation/US-01.md) — List members & invitations | read | todo | todo | todo | todo | C | — |
