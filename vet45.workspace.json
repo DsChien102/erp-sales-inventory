@@ -21,6 +21,10 @@
       "test": {
         "description": "test",
         "secretsRoot": "config/test"
+      },
+      "dschien-local-dev": {
+        "description": "dschien-local-dev",
+        "secretsRoot": "config/dschien-local-dev"
       }
     }
   },

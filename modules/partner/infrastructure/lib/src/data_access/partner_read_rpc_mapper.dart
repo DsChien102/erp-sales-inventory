@@ -201,6 +201,8 @@ abstract final class PartnerReadRpcMapper {
             actionType: PartnerActionType.parse(item['action_type'] as String),
             actorUserId: item['actor_user_id'] as String,
             reason: item['reason'] as String?,
+            beforeState: _asStateMap(item['before_state']),
+            afterState: _asStateMap(item['after_state']),
             createdAt: DateTime.parse(item['created_at'] as String),
           ),
         )
@@ -211,6 +213,13 @@ abstract final class PartnerReadRpcMapper {
       page: row['page'] as int? ?? 1,
       limit: row['limit'] as int? ?? items.length,
     );
+  }
+
+  /// Snapshots are absent until the states draft RPC is applied; `{}` from
+  /// `_log_partner_action` defaults is normalized to null (no diff data).
+  static Map<String, dynamic>? _asStateMap(Object? raw) {
+    if (raw is! Map || raw.isEmpty) return null;
+    return raw.cast<String, dynamic>();
   }
 
   static List<PartnerDuplicateMatchDto> mapDuplicateMatches(

@@ -200,14 +200,19 @@ RPC: `partner.get_partner_history`, `partner.upsert_partner_history` (internal)
 | ------ | ----- | ------- | ------ |
 | `GetPartnerActionLogsQuery` | partnerId, page?, limit? | `PartnerActionLogResultDto` | NO_PERMISSION, NOT_FOUND |
 
-RPC: `partner.get_partner_action_logs` (draft: `_drafts/partner_get_partner_action_logs.sql`)
+RPC: `partner.get_partner_action_logs` (promoted: `20260717001_partner_get_partner_action_logs.sql`; states draft: `_drafts/partner_get_partner_action_logs_states.sql`)
 
 Permission: `partner.detail.view`
+
+Items include `before_state` / `after_state` (partner-detail snapshots) once the
+states draft is applied — FE computes field-by-field diff client-side
+(`PartnerActionLogDiff`); rows without snapshots fall back to the generic
+action label. `{}` snapshots (e.g. `create` before-state) map to null.
 
 | scenario_id | trigger | fake response |
 | ----------- | ------- | ------------- |
 | `action_logs_empty` | GetPartnerActionLogsQuery | empty list |
-| `action_logs_mixed` | defaultMixed / actionLogsMixed | create / update / add_contact rows |
+| `action_logs_mixed` | defaultMixed / actionLogsMixed | create / update (with before/after snapshots) / add_contact rows |
 
 ---
 
