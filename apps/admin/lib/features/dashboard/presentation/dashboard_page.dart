@@ -107,10 +107,10 @@ class _DashboardPageState extends State<DashboardPage> {
   }
 
   Widget? _buildFloatingActionButton() {
-    if (_currentTab == AdminTab.users || _currentTab == AdminTab.organizations) {
+    if (_currentTab == AdminTab.organizations) {
       return VFloatingActionButton(
         icon: VIcons.add,
-        onTap: () {},
+        onTap: () => context.pushNamed('onboarding_wizard'),
       );
     }
     return null;
