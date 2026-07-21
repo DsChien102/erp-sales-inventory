@@ -96,7 +96,27 @@ class _EditStorePriceRulePageState extends State<EditStorePriceRulePage> {
   bool get _canSubmit {
     final listMarkup = _parseListMarkup();
     final floorMarkup = _parseFloorMarkup();
-    return _isNonNegative(listMarkup) && _isNonNegative(floorMarkup) && _hasChanges;
+    return _isNonNegative(listMarkup) &&
+        _isNonNegative(floorMarkup) &&
+        floorMarkup! <= listMarkup! &&
+        _hasChanges;
+  }
+
+  String? _markupFieldError({
+    required double? value,
+    required double? peerListMarkup,
+    required bool isFloorField,
+  }) {
+    if (value != null && value < 0) {
+      return 'Giá trị phải lớn hơn hoặc bằng 0';
+    }
+    if (isFloorField &&
+        value != null &&
+        peerListMarkup != null &&
+        value > peerListMarkup) {
+      return 'Giá sàn không được lớn hơn giá niêm yết.';
+    }
+    return null;
   }
 
   void _adjustValue(TextEditingController controller, double delta) {
@@ -149,6 +169,11 @@ class _EditStorePriceRulePageState extends State<EditStorePriceRulePage> {
                       label: 'Giá niêm yết (tỷ lệ lãi)',
                       controller: _listMarkupController,
                       helperText: 'Tính theo % trên Giá cơ sở',
+                      errorText: _markupFieldError(
+                        value: _parseListMarkup(),
+                        peerListMarkup: null,
+                        isFloorField: false,
+                      ),
                     ),
                     const SizedBox(height: VSpacing.space5),
                     _buildMarkupInput(
@@ -156,6 +181,11 @@ class _EditStorePriceRulePageState extends State<EditStorePriceRulePage> {
                       label: 'Giá sàn (tỷ lệ sàn)',
                       controller: _floorMarkupController,
                       helperText: 'Tính theo % trên Giá cơ sở',
+                      errorText: _markupFieldError(
+                        value: _parseFloorMarkup(),
+                        peerListMarkup: _parseListMarkup(),
+                        isFloorField: true,
+                      ),
                     ),
                     const SizedBox(height: VSpacing.space5),
                     _buildPreviewSection(context),
@@ -239,62 +269,40 @@ class _EditStorePriceRulePageState extends State<EditStorePriceRulePage> {
     required String label,
     required TextEditingController controller,
     required String helperText,
+    String? errorText,
   }) {
     final colors = context.vColors;
-    final parsedValue = double.tryParse(controller.text.trim());
-    final hasNegativeValue = parsedValue != null && parsedValue < 0;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
+        VText(
           label,
-          style: VTypography.bodyDefault.copyWith(
-            color: colors.textPrimary,
-            fontWeight: FontWeight.w600,
-          ),
+          variant: VTextVariant.bodyDefault,
+          color: colors.textPrimary,
         ),
-        const SizedBox(height: VSpacing.space2),
+        const VGap.sm(),
         Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Expanded(
-              child: TextField(
+              child: VTextFormField(
                 controller: controller,
                 keyboardType: const TextInputType.numberWithOptions(decimal: true),
                 inputFormatters: [
                   FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*')),
                 ],
                 onChanged: (_) => setState(() {}),
-                style: VTypography.headingH4.copyWith(
+                suffixText: '%',
+                helperText: helperText,
+                errorText: errorText,
+                textStyle: VTypography.headingH4.copyWith(
                   color: colors.textPrimary,
                   fontWeight: FontWeight.w600,
                 ),
-                decoration: InputDecoration(
-                  suffixText: '%',
-                  suffixStyle: VTypography.bodyDefault.copyWith(
-                    color: colors.textSecondary,
-                  ),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(VRadius.r8),
-                    borderSide: BorderSide(color: colors.borderDefault),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(VRadius.r8),
-                    borderSide: BorderSide(color: colors.borderDefault),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(VRadius.r8),
-                    borderSide: BorderSide(color: colors.primary, width: 2),
-                  ),
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: VSpacing.space3,
-                    vertical: VSpacing.space3,
-                  ),
-                  errorText: hasNegativeValue ? 'Giá trị phải lớn hơn hoặc bằng 0' : null,
-                ),
               ),
             ),
-            const SizedBox(width: VSpacing.space2),
+            const VGap.horizontalSm(),
             Column(
               children: [
                 _buildAdjustButton(
@@ -302,7 +310,7 @@ class _EditStorePriceRulePageState extends State<EditStorePriceRulePage> {
                   icon: VIcons.chevronUp,
                   onTap: () => _adjustValue(controller, 0.1),
                 ),
-                const SizedBox(height: 4),
+                const VGap.xs(),
                 _buildAdjustButton(
                   context,
                   icon: VIcons.chevronDown,
@@ -311,13 +319,6 @@ class _EditStorePriceRulePageState extends State<EditStorePriceRulePage> {
               ],
             ),
           ],
-        ),
-        const SizedBox(height: VSpacing.space1),
-        Text(
-          helperText,
-          style: VTypography.bodySmall.copyWith(
-            color: colors.textSecondary,
-          ),
         ),
       ],
     );

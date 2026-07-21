@@ -100,8 +100,8 @@ abstract final class GuidedPriceBandSubmissionResolver {
       GuidedPriceBandSubmission(
         sourceType: PriceBandSourceType.customConfig,
         useStorePriceRule: false,
-        listBeforeVat: suggested?.listBeforeVat,
-        floorBeforeVat: suggested?.floorBeforeVat,
+        listBeforeVat: suggested?.listBeforeVat ?? 0,
+        floorBeforeVat: suggested?.floorBeforeVat ?? 0,
         listMarkupRatio: listRatio,
         floorMarkupRatio: floorRatio,
       ),

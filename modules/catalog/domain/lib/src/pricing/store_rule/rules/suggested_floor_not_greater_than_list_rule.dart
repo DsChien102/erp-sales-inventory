@@ -19,5 +19,6 @@ final class SuggestedFloorNotGreaterThanListRule implements IBusinessRule {
   }
 
   @override
-  String get message => 'Suggested floor price cannot be greater than suggested list price.';
+  String get message =>
+      'Giá sàn không được lớn hơn giá niêm yết.';
 }
