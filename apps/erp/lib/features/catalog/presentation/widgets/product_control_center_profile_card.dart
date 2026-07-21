@@ -22,7 +22,7 @@ class ProductControlCenterProfileCard extends StatelessWidget {
     final dynamicColors = context.vColors;
     final imageReference = profile.primaryImageUrl;
 
-    final listPriceText = priceBand.isMissing
+    final listPriceText = priceBand.isMissing || priceBand.listBeforeVat == null
         ? 'Giá niêm yết: --'
         : 'Giá niêm yết: ${formatCatalogCurrency(priceBand.listBeforeVat)}';
 

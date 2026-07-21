@@ -72,13 +72,6 @@ abstract final class GuidedPriceBandSubmissionResolver {
     }
 
     final baseCost = parseCatalogCurrencyAmount(state.baseCost);
-    if (baseCost == null) {
-      return const GuidedPriceBandInvalid(
-        message: 'Cần nhập Giá vốn cơ sở để tính giá tự động riêng.',
-        targetStepIndex: 4,
-      );
-    }
-
     final listPercent = state.parsedCustomAutoMarkupPercent;
     final floorPercent = state.parsedCustomAutoFloorMarkupPercent;
     if (listPercent == null || floorPercent == null) {
@@ -96,17 +89,19 @@ abstract final class GuidedPriceBandSubmissionResolver {
 
     final listRatio = listPercent / 100;
     final floorRatio = floorPercent / 100;
-    final suggested = StorePriceSuggestionCalculator.suggest(
-      basePrice: baseCost.toDouble(),
-      listMarkupRatio: listRatio,
-      floorMarkupRatio: floorRatio,
-    );
+    final suggested = baseCost == null
+        ? null
+        : StorePriceSuggestionCalculator.suggest(
+            basePrice: baseCost.toDouble(),
+            listMarkupRatio: listRatio,
+            floorMarkupRatio: floorRatio,
+          );
     return GuidedPriceBandReady(
       GuidedPriceBandSubmission(
         sourceType: PriceBandSourceType.customConfig,
         useStorePriceRule: false,
-        listBeforeVat: suggested.listBeforeVat,
-        floorBeforeVat: suggested.floorBeforeVat,
+        listBeforeVat: suggested?.listBeforeVat,
+        floorBeforeVat: suggested?.floorBeforeVat,
         listMarkupRatio: listRatio,
         floorMarkupRatio: floorRatio,
       ),

@@ -97,7 +97,7 @@ class EditProductUnitPriceBandLoaded extends EditProductUnitPriceBandState {
     if (selectedType == PriceBandCalculationType.storeRule) {
       return suggestion.suggestedListBeforeVat;
     } else if (selectedType == PriceBandCalculationType.customConfig) {
-      if (customBaseMargin == null) return null;
+      if (customBaseMargin == null || !_hasBasePrice) return null;
       return (suggestion.basePrice * (1 + customBaseMargin! / 100)).round();
     } else {
       return manualListPrice;
@@ -108,7 +108,7 @@ class EditProductUnitPriceBandLoaded extends EditProductUnitPriceBandState {
     if (selectedType == PriceBandCalculationType.storeRule) {
       return suggestion.suggestedFloorBeforeVat;
     } else if (selectedType == PriceBandCalculationType.customConfig) {
-      if (customFloorMargin == null) return null;
+      if (customFloorMargin == null || !_hasBasePrice) return null;
       return (suggestion.basePrice * (1 + customFloorMargin! / 100)).round();
     } else {
       return manualFloorPrice;
@@ -122,13 +122,11 @@ class EditProductUnitPriceBandLoaded extends EditProductUnitPriceBandState {
       manualListPrice != initialManualListPrice ||
       manualFloorPrice != initialManualFloorPrice;
 
+  bool get _hasBasePrice => suggestion.basePriceVersion != null || suggestion.basePrice > 0;
+
   bool get canSubmit {
     if (isSubmitting) return false;
     if (!isNewPriceBand && !hasChanges) return false;
-    final listP = calculatedListPrice;
-    if (listP == null) return false;
-    final floorP = calculatedFloorPrice;
-    if (floorP != null && floorP > listP) return false;
     if (selectedType == PriceBandCalculationType.storeRule) {
       return suggestion.canSuggest;
     }
@@ -139,7 +137,12 @@ class EditProductUnitPriceBandLoaded extends EditProductUnitPriceBandState {
       if (floorMargin != null && (floorMargin < 0 || floorMargin > listMargin)) {
         return false;
       }
+      return true;
     }
+    final listP = calculatedListPrice;
+    if (listP == null) return false;
+    final floorP = calculatedFloorPrice;
+    if (floorP != null && floorP > listP) return false;
     return true;
   }
 

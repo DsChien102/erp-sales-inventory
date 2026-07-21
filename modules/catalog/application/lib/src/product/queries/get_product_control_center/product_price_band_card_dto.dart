@@ -14,6 +14,7 @@ final class ProductPriceBandCardDto {
     this.status,
     this.unitName,
     this.isMissing = false,
+    this.isPendingCalculation = false,
     this.missingMessage,
     this.sourceType,
     this.storePriceRuleName,
@@ -29,6 +30,7 @@ final class ProductPriceBandCardDto {
   final ProductPriceBandStatus? status;
   final String? unitName;
   final bool isMissing;
+  final bool isPendingCalculation;
   final String? missingMessage;
   final PriceBandSourceType? sourceType;
   final String? storePriceRuleName;

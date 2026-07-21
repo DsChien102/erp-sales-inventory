@@ -15,14 +15,17 @@ class ProductControlCenterCubit extends Cubit<ProductControlCenterState> {
   final IExecutionContext _executionContext;
 
   Future<void> loadControlCenter(String productId) async {
+    if (isClosed) return;
     emit(state.copyWith(status: ProductControlCenterStatus.loading));
     try {
       final tenantId = await _executionContext.requireTenantId();
+      if (isClosed) return;
       final query = GetProductControlCenterQuery(
         tenantId: tenantId,
         productId: productId,
       );
       final controlCenter = await _catalogModule.executeQueryAsync(query);
+      if (isClosed) return;
       emit(
         state.copyWith(
           status: ProductControlCenterStatus.success,
@@ -30,6 +33,7 @@ class ProductControlCenterCubit extends Cubit<ProductControlCenterState> {
         ),
       );
     } catch (e) {
+      if (isClosed) return;
       emit(
         state.copyWith(
           status: ProductControlCenterStatus.failure,
@@ -40,15 +44,19 @@ class ProductControlCenterCubit extends Cubit<ProductControlCenterState> {
   }
 
   Future<void> loadReadinessForChecklist(String productId) async {
+    if (isClosed) return;
     try {
       final tenantId = await _executionContext.requireTenantId();
+      if (isClosed) return;
       final query = GetProductReadinessQuery(
         tenantId: tenantId,
         productId: productId,
       );
       final readinessView = await _catalogModule.executeQueryAsync(query);
+      if (isClosed) return;
       emit(state.copyWith(readinessView: readinessView));
     } catch (e) {
+      if (isClosed) return;
       emit(state.copyWith(errorMessage: e.toString()));
     }
   }
@@ -57,12 +65,15 @@ class ProductControlCenterCubit extends Cubit<ProductControlCenterState> {
     String productId, {
     bool confirmAcknowledgeWarnings = false,
   }) async {
+    if (isClosed) return;
     emit(
       state.copyWith(actionStatus: ProductLifecycleActionStatus.loading, clearActionWarnings: true),
     );
     try {
       final tenantId = await _executionContext.requireTenantId();
+      if (isClosed) return;
       final actorId = await _executionContext.requireUserId();
+      if (isClosed) return;
 
       final command = DeactivateProductCommand(
         tenantId: tenantId,
@@ -72,11 +83,13 @@ class ProductControlCenterCubit extends Cubit<ProductControlCenterState> {
       );
 
       await _catalogModule.executeCommandAsync(command);
+      if (isClosed) return;
 
       emit(state.copyWith(actionStatus: ProductLifecycleActionStatus.success));
       // Reload control center after success
       await loadControlCenter(productId);
     } on ProductBusinessStatusWarningsRequireAcknowledgmentException catch (e) {
+      if (isClosed) return;
       emit(
         state.copyWith(
           actionStatus: ProductLifecycleActionStatus.warning,
@@ -84,6 +97,7 @@ class ProductControlCenterCubit extends Cubit<ProductControlCenterState> {
         ),
       );
     } catch (e) {
+      if (isClosed) return;
       emit(
         state.copyWith(
           actionStatus: ProductLifecycleActionStatus.failure,
@@ -94,12 +108,15 @@ class ProductControlCenterCubit extends Cubit<ProductControlCenterState> {
   }
 
   Future<void> reactivateProduct(String productId) async {
+    if (isClosed) return;
     emit(
       state.copyWith(actionStatus: ProductLifecycleActionStatus.loading, clearActionWarnings: true),
     );
     try {
       final tenantId = await _executionContext.requireTenantId();
+      if (isClosed) return;
       final actorId = await _executionContext.requireUserId();
+      if (isClosed) return;
 
       final command = ReactivateProductCommand(
         tenantId: tenantId,
@@ -108,11 +125,13 @@ class ProductControlCenterCubit extends Cubit<ProductControlCenterState> {
       );
 
       await _catalogModule.executeCommandAsync(command);
+      if (isClosed) return;
 
       emit(state.copyWith(actionStatus: ProductLifecycleActionStatus.success));
       // Reload control center after success
       await loadControlCenter(productId);
     } catch (e) {
+      if (isClosed) return;
       emit(
         state.copyWith(
           actionStatus: ProductLifecycleActionStatus.failure,
@@ -123,6 +142,7 @@ class ProductControlCenterCubit extends Cubit<ProductControlCenterState> {
   }
 
   void resetActionState() {
+    if (isClosed) return;
     emit(
       state.copyWith(
         actionStatus: ProductLifecycleActionStatus.initial,

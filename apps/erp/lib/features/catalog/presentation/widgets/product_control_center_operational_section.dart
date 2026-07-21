@@ -67,6 +67,9 @@ class ProductControlCenterOperationalSection extends StatelessWidget {
   }
 
   String _priceBandSubtitle() {
+    if (priceBand.isPendingCalculation) {
+      return 'Đã cấu hình – chờ Giá cơ sở';
+    }
     if (priceBand.isMissing) {
       return priceBand.missingMessage ?? 'Chưa thiết lập khung giá bán';
     }

@@ -17,8 +17,8 @@ final class _RecordingPriceBandGateway implements IProductPriceBandGateway {
     required String tenantId,
     required String productId,
     required String productUnitId,
-    required int listBeforeVat,
-    required int listAfterVat,
+    required int? listBeforeVat,
+    required int? listAfterVat,
     required PriceBandSourceType sourceType,
     int? floorBeforeVat,
     int? floorAfterVat,
@@ -72,7 +72,7 @@ final class _UnitGateway implements ICatalogUnitGateway {
 final class _ReadGateway implements ICatalogReadGateway {
   const _ReadGateway(this.basePriceAmount);
 
-  final double basePriceAmount;
+  final double? basePriceAmount;
 
   @override
   Future<ProductControlCenterReadModel?> loadControlCenter({
@@ -88,7 +88,7 @@ final class _ReadGateway implements ICatalogReadGateway {
       hasBaseUnit: true,
       hasImages: true,
       hasStock: true,
-      hasBasePrice: true,
+      hasBasePrice: basePriceAmount != null,
       hasPriceBand: true,
       hasRequiredCustomFields: true,
     ),
@@ -126,12 +126,13 @@ void main() {
   );
 
   SetProductUnitPriceBandCommandHandler createHandler(
-    _RecordingPriceBandGateway gateway,
-  ) => SetProductUnitPriceBandCommandHandler(
+    _RecordingPriceBandGateway gateway, {
+    double? basePriceAmount = 5000,
+  }) => SetProductUnitPriceBandCommandHandler(
     priceBandGateway: gateway,
     readinessReadPort: _ReadinessPort(),
     unitGateway: const _UnitGateway(conversionUnit),
-    catalogReadGateway: const _ReadGateway(5000),
+    catalogReadGateway: _ReadGateway(basePriceAmount),
   );
 
   test('custom config calculates from converted base price and saves ratios', () async {
@@ -196,6 +197,35 @@ void main() {
 
     expect(result.floorBeforeVat, isNull);
     expect(gateway.floorMarkupRatio, isNull);
+  });
+
+  test('custom config saves pending ratios without a base price', () async {
+    final gateway = _RecordingPriceBandGateway();
+
+    final result =
+        await createHandler(
+          gateway,
+          basePriceAmount: null,
+        ).handle(
+          SetProductUnitPriceBandCommand(
+            tenantId: 'tenant-1',
+            productId: 'product-1',
+            productUnitId: 'unit-box',
+            sourceType: PriceBandSourceType.customConfig,
+            listMarkupRatio: 0.35,
+            floorMarkupRatio: 0.15,
+          ),
+        );
+
+    expect(result.listBeforeVat, isNull);
+    expect(result.floorBeforeVat, isNull);
+    expect(result.listAfterVat, isNull);
+    expect(result.floorAfterVat, isNull);
+    expect(gateway.listBeforeVat, isNull);
+    expect(gateway.floorBeforeVat, isNull);
+    expect(gateway.sourceType, PriceBandSourceType.customConfig);
+    expect(gateway.listMarkupRatio, 0.35);
+    expect(gateway.floorMarkupRatio, 0.15);
   });
 
   group('source field matrix validation', () {

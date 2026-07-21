@@ -25,9 +25,9 @@ final class SetProductUnitPriceBandResult {
 
   final String productId;
   final String? productUnitId;
-  final int listBeforeVat;
+  final int? listBeforeVat;
   final int? floorBeforeVat;
-  final int listAfterVat;
+  final int? listAfterVat;
   final int? floorAfterVat;
   final DateTime? effectiveFrom;
   final DateTime? effectiveTo;

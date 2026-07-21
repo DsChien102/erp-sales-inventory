@@ -75,7 +75,7 @@ void main() {
       expect((result as GuidedPriceBandInvalid).targetStepIndex, 2);
     });
 
-    test('targets base price step when a custom configuration has no cost', () {
+    test('keeps custom configuration pending when base price is missing', () {
       const state = ProductGuidedCreateState(
         name: 'Thuốc A',
         baseUnit: 'Lọ',
@@ -86,8 +86,13 @@ void main() {
 
       final result = GuidedPriceBandSubmissionResolver.resolve(state);
 
-      expect(result, isA<GuidedPriceBandInvalid>());
-      expect((result as GuidedPriceBandInvalid).targetStepIndex, 4);
+      expect(result, isA<GuidedPriceBandReady>());
+      final submission = (result as GuidedPriceBandReady).submission;
+      expect(submission.sourceType, PriceBandSourceType.customConfig);
+      expect(submission.listBeforeVat, isNull);
+      expect(submission.floorBeforeVat, isNull);
+      expect(submission.listMarkupRatio, 0.3);
+      expect(submission.floorMarkupRatio, 0.1);
     });
 
     test('rejects incomplete custom ratios at the price band step', () {

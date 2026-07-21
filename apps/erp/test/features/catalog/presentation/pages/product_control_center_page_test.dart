@@ -59,10 +59,8 @@ void main() {
     return MaterialApp.router(routerConfig: router);
   }
 
-  testWidgets('wgt_e01_u02_fr01_01: incomplete PCC shows operational cards',
-      (tester) async {
-    final catalogModule =
-        FakeCatalogModule(scenario: FakeCatalogScenario.pccIncomplete);
+  testWidgets('wgt_e01_u02_fr01_01: incomplete PCC shows operational cards', (tester) async {
+    final catalogModule = FakeCatalogModule(scenario: FakeCatalogScenario.pccIncomplete);
     final product = _sampleProduct(
       id: 'product-4',
       name: 'Vitamin B Complex',
@@ -83,10 +81,8 @@ void main() {
     expect(find.textContaining('Thiếu khung giá'), findsOneWidget);
   });
 
-  testWidgets('wgt_e01_u02_fr01_01: ready PCC shows success badge and stock',
-      (tester) async {
-    final catalogModule =
-        FakeCatalogModule(scenario: FakeCatalogScenario.pccReadyToSell);
+  testWidgets('wgt_e01_u02_fr01_01: ready PCC shows success badge and stock', (tester) async {
+    final catalogModule = FakeCatalogModule(scenario: FakeCatalogScenario.pccReadyToSell);
     final product = _sampleProduct(
       id: 'product-1',
       name: 'Amoxicillin 500mg',
@@ -103,10 +99,37 @@ void main() {
     expect(find.textContaining('150'), findsWidgets);
   });
 
-  testWidgets('wgt_e03_u02_fr01_01: custom field cards display in PCC',
-      (tester) async {
-    final catalogModule =
-        FakeCatalogModule(scenario: FakeCatalogScenario.pccCustomFieldCards);
+  testWidgets('pending custom config waits for base price on PCC', (
+    tester,
+  ) async {
+    final catalogModule = FakeCatalogModule();
+    await catalogModule.executeCommandAsync(
+      SetProductUnitPriceBandCommand(
+        tenantId: 'tenant-1',
+        productId: 'product-7',
+        sourceType: PriceBandSourceType.customConfig,
+        listMarkupRatio: 0.30,
+        floorMarkupRatio: 0.10,
+      ),
+    );
+
+    await tester.pumpWidget(
+      buildTestableWidget(
+        catalogModule: catalogModule,
+        product: _sampleProduct(
+          id: 'product-7',
+          name: 'Thuốc thiếu giá',
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('Đã cấu hình – chờ Giá cơ sở'), findsOneWidget);
+    expect(find.text('Giá niêm yết: --'), findsOneWidget);
+  });
+
+  testWidgets('wgt_e03_u02_fr01_01: custom field cards display in PCC', (tester) async {
+    final catalogModule = FakeCatalogModule(scenario: FakeCatalogScenario.pccCustomFieldCards);
     final product = _sampleProduct(
       id: 'product-5',
       name: 'Thuốc bổ sung',
@@ -118,7 +141,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Thuốc bổ sung'), findsWidgets);
-    
+
     // Check if custom field group cards are displayed based on Fake data.
     // In FakeCatalogScenario.pccCustomFieldCards, there's a group "Thông tin thuốc"
     expect(find.text('Thông tin thuốc'), findsOneWidget);

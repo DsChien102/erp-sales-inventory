@@ -2908,7 +2908,7 @@ final class FakeCatalogModule implements ICatalogModule {
 
   void _syncProductPriceBandSummary(_StoredProduct product) {
     final baseUnit = _resolveBaseUnit(product.id);
-    if (baseUnit != null && baseUnit.hasCompletePriceBand) {
+    if (baseUnit != null && baseUnit.priceBandSourceType != null) {
       product
         ..listBeforeVat = baseUnit.listBeforeVat
         ..floorBeforeVat = baseUnit.floorBeforeVat
@@ -3285,13 +3285,15 @@ final class FakeCatalogModule implements ICatalogModule {
         unit: unit,
       );
 
-      final warnings = _computePriceBandWarnings(
-        product: product,
-        unit: unit,
-        listBeforeVat: values.listPrice,
-        listAfterVat: values.listPrice,
-        floorBeforeVat: values.floorPrice,
-      );
+      final warnings = values.listPrice == null
+          ? const <PriceBandValidationWarningDto>[]
+          : _computePriceBandWarnings(
+              product: product,
+              unit: unit,
+              listBeforeVat: values.listPrice!,
+              listAfterVat: values.listPrice!,
+              floorBeforeVat: values.floorPrice,
+            );
       if (warnings.isNotEmpty && !command.confirmAcknowledgeWarnings) {
         throw PriceBandWarningsRequireAcknowledgmentException(warnings: warnings);
       }
@@ -3339,13 +3341,15 @@ final class FakeCatalogModule implements ICatalogModule {
       product: product,
       unit: syntheticUnit,
     );
-    final warnings = _computePriceBandWarnings(
-      product: product,
-      unit: syntheticUnit,
-      listBeforeVat: values.listPrice,
-      listAfterVat: values.listPrice,
-      floorBeforeVat: values.floorPrice,
-    );
+    final warnings = values.listPrice == null
+        ? const <PriceBandValidationWarningDto>[]
+        : _computePriceBandWarnings(
+            product: product,
+            unit: syntheticUnit,
+            listBeforeVat: values.listPrice!,
+            listAfterVat: values.listPrice!,
+            floorBeforeVat: values.floorPrice,
+          );
     if (warnings.isNotEmpty && !command.confirmAcknowledgeWarnings) {
       throw PriceBandWarningsRequireAcknowledgmentException(warnings: warnings);
     }
@@ -3378,7 +3382,7 @@ final class FakeCatalogModule implements ICatalogModule {
         as TResult;
   }
 
-  CalculatedPriceBand _resolvePriceBandValues({
+  ({int? listPrice, int? floorPrice}) _resolvePriceBandValues({
     required SetProductUnitPriceBandCommand command,
     required _StoredProduct product,
     required _ProductUnit unit,
@@ -3394,15 +3398,16 @@ final class FakeCatalogModule implements ICatalogModule {
         }
         final basePrice = _comparableBasePriceForUnit(product, unit);
         if (basePrice == null) {
-          throw MissingBasePriceException();
+          return (listPrice: null, floorPrice: null);
         }
-        return PriceBandMarkupCalculator.calculate(
+        final prices = PriceBandMarkupCalculator.calculate(
           basePriceForUnit: basePrice,
           config: PriceBandMarkupConfig(
             listMarkupRatio: command.listMarkupRatio!,
             floorMarkupRatio: command.floorMarkupRatio,
           ),
         );
+        return (listPrice: prices.listPrice, floorPrice: prices.floorPrice);
       case PriceBandSourceType.manual:
         if (command.storePriceRuleId != null ||
             command.listMarkupRatio != null ||
@@ -3424,7 +3429,7 @@ final class FakeCatalogModule implements ICatalogModule {
           floorBeforeVat: command.floorBeforeVat,
           floorAfterVat: command.floorAfterVat,
         );
-        return CalculatedPriceBand(
+        return (
           listPrice: listBeforeVat,
           floorPrice: command.floorBeforeVat,
         );

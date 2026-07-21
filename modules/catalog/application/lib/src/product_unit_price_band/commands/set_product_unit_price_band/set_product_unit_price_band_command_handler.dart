@@ -57,18 +57,20 @@ final class SetProductUnitPriceBandCommandHandler
       basePricePerBaseUnit: controlCenter?.basePriceAmount,
     );
 
-    final listBeforeVat = priceBand.listBeforeVat!.amount;
-    final listAfterVat = priceBand.listAfterVat!.amount;
+    final listBeforeVat = priceBand.listBeforeVat?.amount;
+    final listAfterVat = priceBand.listAfterVat?.amount;
     final floorBeforeVat = priceBand.floorBeforeVat?.amount;
     final floorAfterVat = priceBand.floorAfterVat?.amount;
 
-    final warnings = PriceBandWarningCalculator.compute(
-      basePricePerBaseUnit: controlCenter?.basePriceAmount,
-      baseUnitName: units.baseUnitName,
-      unit: targetUnit,
-      listBeforeVat: listBeforeVat,
-      floorBeforeVat: floorBeforeVat,
-    );
+    final warnings = listBeforeVat == null
+        ? const <PriceBandValidationWarningDto>[]
+        : PriceBandWarningCalculator.compute(
+            basePricePerBaseUnit: controlCenter?.basePriceAmount,
+            baseUnitName: units.baseUnitName,
+            unit: targetUnit,
+            listBeforeVat: listBeforeVat,
+            floorBeforeVat: floorBeforeVat,
+          );
 
     if (warnings.isNotEmpty && !command.confirmAcknowledgeWarnings) {
       throw PriceBandWarningsRequireAcknowledgmentException(warnings: warnings);
@@ -131,10 +133,6 @@ final class SetProductUnitPriceBandCommandHandler
           'Rule-based price bands must use ApplyStorePriceRuleCommand.',
         );
       case PriceBandSourceType.customConfig:
-        final basePrice = basePricePerBaseUnit;
-        if (basePrice == null) {
-          throw MissingBasePriceException();
-        }
         if (targetUnit.conversionRateToBase <= 0) {
           throw ApplicationException('Product unit conversion rate is invalid.');
         }
@@ -147,7 +145,9 @@ final class SetProductUnitPriceBandCommandHandler
           tenantId: TenantId(command.tenantId),
           productId: ProductId(command.productId),
           productUnitId: targetUnit.id,
-          basePriceForUnit: basePrice * targetUnit.conversionRateToBase,
+          basePriceForUnit: basePricePerBaseUnit == null
+              ? null
+              : basePricePerBaseUnit * targetUnit.conversionRateToBase,
           markupConfig: markupConfig,
           effectiveFrom: command.effectiveFrom,
           effectiveTo: command.effectiveTo,

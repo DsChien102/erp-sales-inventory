@@ -128,13 +128,26 @@ final class ProductUnitPriceBand extends Entity<String> implements IAggregateRoo
     required TenantId tenantId,
     required ProductId productId,
     String? productUnitId,
-    required num basePriceForUnit,
+    num? basePriceForUnit,
     required PriceBandMarkupConfig markupConfig,
     DateTime? effectiveFrom,
     DateTime? effectiveTo,
     ProductPriceBandStatus status = ProductPriceBandStatus.active,
     String? actorId,
   }) {
+    if (basePriceForUnit == null) {
+      return ProductUnitPriceBand(
+        id: id,
+        tenantId: tenantId.value,
+        productId: productId.value,
+        productUnitId: productUnitId,
+        effectiveFrom: effectiveFrom ?? DateTime.now().toUtc(),
+        effectiveTo: effectiveTo,
+        status: status,
+        calculationMode: PriceBandCalculationMode.customConfig,
+        markupConfig: markupConfig,
+      );
+    }
     final prices = PriceBandMarkupCalculator.calculate(
       basePriceForUnit: basePriceForUnit,
       config: markupConfig,

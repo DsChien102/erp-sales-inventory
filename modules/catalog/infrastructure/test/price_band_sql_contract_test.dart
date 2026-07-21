@@ -31,15 +31,76 @@ void main() {
     expect(guided, contains('p_note => p_note'));
   });
 
+  test('custom config can stay pending until a base price exists', () {
+    final repoRoot = _findRepoRoot();
+    final draft = File(
+      '${repoRoot.path}/supabase/migrations/_drafts/'
+      'catalog_product_price_band_pending_custom_config.sql',
+    );
+
+    expect(draft.existsSync(), isTrue);
+    if (!draft.existsSync()) return;
+
+    final sql = draft.readAsStringSync();
+    expect(sql, contains('-- Kind: patch'));
+    expect(sql, contains('-- Touches: set_product_unit_price_band'));
+    final overloadCleanupIndex = sql.indexOf(
+      "p.proname = 'create_guided_product'",
+    );
+    final createGuidedProductIndex = sql.indexOf(
+      'create or replace function catalog.create_guided_product(',
+    );
+    expect(
+      overloadCleanupIndex,
+      greaterThanOrEqualTo(0),
+      reason: 'The SQL Editor draft must remove stale RPC overloads.',
+    );
+    expect(
+      overloadCleanupIndex,
+      lessThan(createGuidedProductIndex),
+      reason: 'Overload cleanup must run before recreating the canonical RPC.',
+    );
+    expect(sql, contains('pg_get_function_identity_arguments(p.oid)'));
+    expect(
+      sql,
+      contains('alter column list_price_after_vat drop not null'),
+    );
+
+    final setBand = _functionDefinition(sql, 'set_product_unit_price_band');
+    expect(setBand, isNot(contains("raise exception 'missing_base_price'")));
+    expect(setBand, contains('when v_base_price is null then null'));
+    expect(setBand, contains('p_list_markup_ratio'));
+    expect(setBand, contains('p_floor_markup_ratio'));
+
+    final guided = _functionDefinition(sql, 'create_guided_product');
+    expect(
+      guided,
+      isNot(contains('or p_base_price_after_vat is null')),
+    );
+    expect(guided, contains('p_list_price_before_vat => null'));
+    expect(guided, contains("p_source_type => 'customConfig'"));
+
+    final recalculateSql = File(
+      '${repoRoot.path}/supabase/migrations/'
+      '20260717008_catalog_product_price_band_change_history_recalculation.sql',
+    ).readAsStringSync();
+    final recalculate = _functionDefinition(
+      recalculateSql,
+      '_recalculate_product_price_bands',
+    );
+    expect(recalculate, contains("pb.source_type = 'customConfig'"));
+    expect(recalculate, contains('is distinct from'));
+  });
+
   test('source type uses a database enum while RPC wire stays text', () {
     final repoRoot = _findRepoRoot();
     final schemaSql = File(
-      '${repoRoot.path}/supabase/migrations/_drafts/'
-      'catalog_price_band_calculation_modes_schema.sql',
+      '${repoRoot.path}/supabase/migrations/'
+      '20260717004_catalog_price_band_calculation_modes_schema.sql',
     ).readAsStringSync();
     final rpcSql = File(
-      '${repoRoot.path}/supabase/migrations/_drafts/'
-      'catalog_price_band_calculation_modes_rpcs.sql',
+      '${repoRoot.path}/supabase/migrations/'
+      '20260717003_catalog_price_band_calculation_modes_rpcs.sql',
     ).readAsStringSync();
 
     expect(
@@ -88,8 +149,8 @@ void main() {
   test('apply store price rule hotfix resolves output-column ambiguity', () {
     final repoRoot = _findRepoRoot();
     final hotfix = File(
-      '${repoRoot.path}/supabase/migrations/_drafts/'
-      'catalog_apply_store_price_rule_ambiguous_columns_hotfix.sql',
+      '${repoRoot.path}/supabase/migrations/'
+      '20260717002_catalog_apply_store_price_rule_ambiguous_columns_hotfix.sql',
     );
 
     expect(
@@ -119,8 +180,8 @@ void main() {
   test('price band upserts resolve output-column names as table columns', () {
     final repoRoot = _findRepoRoot();
     final sql = File(
-      '${repoRoot.path}/supabase/migrations/_drafts/'
-      'catalog_price_band_calculation_modes_rpcs.sql',
+      '${repoRoot.path}/supabase/migrations/'
+      '20260717003_catalog_price_band_calculation_modes_rpcs.sql',
     ).readAsStringSync();
 
     for (final functionName in <String>[
@@ -142,8 +203,8 @@ void main() {
   test('direct price band mutations record structured before and after snapshots', () {
     final repoRoot = _findRepoRoot();
     final draft = File(
-      '${repoRoot.path}/supabase/migrations/_drafts/'
-      'catalog_product_price_band_change_history_direct.sql',
+      '${repoRoot.path}/supabase/migrations/'
+      '20260717007_catalog_product_price_band_change_history_direct.sql',
     );
 
     expect(
@@ -224,8 +285,8 @@ void main() {
   test('automatic recalculation records only changed eligible price bands', () {
     final repoRoot = _findRepoRoot();
     final draft = File(
-      '${repoRoot.path}/supabase/migrations/_drafts/'
-      'catalog_product_price_band_change_history_recalculation.sql',
+      '${repoRoot.path}/supabase/migrations/'
+      '20260717008_catalog_product_price_band_change_history_recalculation.sql',
     );
 
     expect(

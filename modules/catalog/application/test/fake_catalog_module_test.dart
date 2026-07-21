@@ -3298,6 +3298,48 @@ void main() {
       expect(byId['product-9-base']?.floorBeforeVat, 15000);
     });
 
+    test('pending custom config materializes when base price is added', () async {
+      final module = FakeCatalogModule();
+
+      final pending = await module.executeCommandAsync(
+        SetProductUnitPriceBandCommand(
+          tenantId: 'tenant-1',
+          productId: 'product-7',
+          sourceType: PriceBandSourceType.customConfig,
+          listMarkupRatio: 0.30,
+          floorMarkupRatio: 0.10,
+        ),
+      );
+
+      expect(pending.listBeforeVat, isNull);
+      expect(pending.floorBeforeVat, isNull);
+      expect(
+        pending.readinessSummary.blockers.map((blocker) => blocker.code),
+        containsAll(<String>[
+          ReadinessBlockerCode.missingPrice,
+          ReadinessBlockerCode.missingPriceBand,
+        ]),
+      );
+
+      await module.executeCommandAsync(
+        SetManualBasePriceCommand(
+          tenantId: 'tenant-1',
+          productId: 'product-7',
+          basePrice: 10000,
+        ),
+      );
+      final listed = await module.executeQueryAsync(
+        ListProductUnitPriceBandsQuery(
+          tenantId: 'tenant-1',
+          productId: 'product-7',
+        ),
+      );
+
+      expect(listed.rows.single.listBeforeVat, 13000);
+      expect(listed.rows.single.floorBeforeVat, 11000);
+      expect(listed.rows.single.sourceType, PriceBandSourceType.customConfig);
+    });
+
     test('store rule change recalculates only matching rule-based bands', () async {
       final module = FakeCatalogModule();
       await module.executeCommandAsync(
