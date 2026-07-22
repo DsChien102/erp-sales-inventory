@@ -23,26 +23,30 @@ class OrganizationFilterChips extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      padding: const EdgeInsets.symmetric(
-        horizontal: VSpacing.screenMobile,
-        vertical: VSpacing.space1,
-      ),
-      child: Row(
-        children: filterOptions.map((status) {
-          final isSelected = selectedStatus == status;
-          return Padding(
-            padding: const EdgeInsets.only(right: VSpacing.space2),
-            child: VChip(
-              label: status.filterLabel,
-              emphasis: isSelected
-                  ? VComponentEmphasis.strong
-                  : VComponentEmphasis.medium,
-              onTap: () => onStatusSelected(status),
-            ),
-          );
-        }).toList(),
+    return SizedBox(
+      width: double.infinity,
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        padding: const EdgeInsets.symmetric(
+          horizontal: VSpacing.screenMobile,
+          vertical: VSpacing.space1,
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: filterOptions.map((status) {
+            final isSelected = selectedStatus == status;
+            return Padding(
+              padding: const EdgeInsets.only(right: VSpacing.space2),
+              child: VChip(
+                label: status.filterLabel,
+                emphasis: isSelected
+                    ? VComponentEmphasis.strong
+                    : VComponentEmphasis.medium,
+                onTap: () => onStatusSelected(status),
+              ),
+            );
+          }).toList(),
+        ),
       ),
     );
   }

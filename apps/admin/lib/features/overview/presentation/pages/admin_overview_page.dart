@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:vet45_design_system/design_system.dart';
+import 'package:vet45_iam_presentation/presentation.dart';
 
 class AdminOverviewPage extends StatelessWidget {
   const AdminOverviewPage({super.key});
@@ -7,41 +8,76 @@ class AdminOverviewPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = context.vColors;
+    final metrics = AdminOverviewMockData.metrics;
+    final activities = AdminOverviewMockData.recentActivities;
 
-    return CustomScrollView(
-      slivers: [
-        SliverPadding(
-          padding: const EdgeInsets.symmetric(
-            horizontal: VSpacing.screenMobile,
-            vertical: VSpacing.space4,
-          ),
-          sliver: SliverList(
-            delegate: SliverChildListDelegate([
-              VCard(
-                child: Padding(
-                  padding: const EdgeInsets.all(VSpacing.space4),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      VText(
-                        'Tổng quan quản trị',
-                        style: VTypography.headingH4.copyWith(
-                          color: colors.textPrimary,
-                        ),
-                      ),
-                      const VGap.sm(),
-                      VText(
-                        'Khung giao diện tổng quan hệ thống. Nội dung chi tiết các chỉ số (Người dùng nền tảng, Tổ chức đang quản lý, Thao tác đặc quyền, Hoạt động gần đây) sẽ được thêm tại bước tiếp theo.',
-                        color: colors.textSecondary,
-                      ),
-                    ],
-                  ),
+    return SingleChildScrollView(
+      padding: const EdgeInsets.symmetric(
+        horizontal: VSpacing.screenMobile,
+        vertical: VSpacing.space4,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // 2x2 Metric Cards Grid
+          Row(
+            children: [
+              Expanded(
+                child: AdminOverviewMetricCard(
+                  label: 'Người dùng nền tảng',
+                  value: '${metrics.platformUsersCount}',
+                  subtext: metrics.platformUsersChange,
                 ),
               ),
-            ]),
+              const VGap.horizontalMd(),
+              Expanded(
+                child: AdminOverviewMetricCard(
+                  label: 'Tổ chức đang quản lý',
+                  value: '${metrics.managedOrganizationsCount}',
+                  subtext: metrics.managedOrganizationsSubtext,
+                ),
+              ),
+            ],
           ),
-        ),
-      ],
+          const VGap.md(),
+          Row(
+            children: [
+              Expanded(
+                child: AdminOverviewMetricCard(
+                  label: 'Thao tác đặc quyền',
+                  value: '${metrics.privilegedOperationsCount}',
+                  subtext: metrics.privilegedOperationsSubtext,
+                ),
+              ),
+              const VGap.horizontalMd(),
+              Expanded(
+                child: AdminOverviewMetricCard(
+                  label: 'Thao tác bị chặn',
+                  value: '${metrics.blockedOperationsCount}',
+                  subtext: metrics.blockedOperationsSubtext,
+                ),
+              ),
+            ],
+          ),
+          const VGap.xl(),
+
+          // Section Title: Hoạt động đặc quyền gần đây
+          VText(
+            'Hoạt động đặc quyền gần đây',
+            style: VTypography.bodyDefault.copyWith(
+              fontWeight: FontWeight.w700,
+              color: colors.textPrimary,
+            ),
+          ),
+          const VGap.md(),
+
+          // List of Activity Item Cards
+          for (int i = 0; i < activities.length; i++) ...[
+            AdminActivityItemCard(activity: activities[i]),
+            if (i < activities.length - 1) const VGap.sm(),
+          ],
+        ],
+      ),
     );
   }
 }

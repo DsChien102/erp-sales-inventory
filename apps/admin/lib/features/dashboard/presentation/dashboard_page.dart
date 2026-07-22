@@ -77,7 +77,7 @@ class _DashboardPageState extends State<DashboardPage> {
       case AdminTab.organizations:
         return 'Tổ chức';
       case AdminTab.audit:
-        return 'Nhật ký thao tác';
+        return 'Nhật ký nền tảng';
       case AdminTab.more:
         return 'Cài đặt thêm';
     }
@@ -89,6 +89,8 @@ class _DashboardPageState extends State<DashboardPage> {
         return '24 người dùng';
       case AdminTab.organizations:
         return '18 tổ chức';
+      case AdminTab.audit:
+        return '126 hoạt động trong 24 giờ';
       default:
         return null;
     }
