@@ -32,7 +32,6 @@ class UIAuditTab extends StatelessWidget {
     'VLoading',
     'VSteps',
     'VProgress',
-    'VBanner',
     'VDropdown',
     'VSearchableDropdown',
     'VCompactSearchableDropdown',
