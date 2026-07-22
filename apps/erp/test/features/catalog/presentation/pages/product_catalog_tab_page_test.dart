@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
 import 'package:vet45_catalog_application/application.dart';
-import 'package:vet45_catalog_application/testing.dart';
 import 'package:vet45_shared_application/application.dart';
 import 'package:erp/features/catalog/presentation/pages/product_catalog_tab_page.dart';
 import 'package:go_router/go_router.dart';
@@ -78,4 +77,3 @@ void main() {
     expect(find.textContaining('Amoxicillin'), findsWidgets);
   });
 }
-

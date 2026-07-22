@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:vet45_design_system/design_system.dart';
 
 import '../data/vn_administrative_unit.dart';
-import 'partner_compact_field.dart';
 
 /// Ward picker — same [VCompactSearchableDropdown] params as province
 /// (`trailingMode: builtin`) so trailing icons share one layout.
@@ -28,8 +27,8 @@ class PartnerWardSearchDropdown extends StatelessWidget {
       value: value.isEmpty ? null : value,
       hintText: hintText,
       enabled: enabled,
-      stickyActionsReserve: PartnerCompactField.stickyActionsReserve,
-      menuHeight: PartnerCompactField.menuHeight,
+      stickyActionsReserve: 72,
+      menuHeight: VOverlayMenuLayout.defaultMenuHeight,
       items: wards
           .map(
             (ward) => DropdownMenuEntry<String>(

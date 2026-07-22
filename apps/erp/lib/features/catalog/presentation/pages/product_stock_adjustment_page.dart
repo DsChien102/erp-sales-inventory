@@ -146,185 +146,142 @@ class _ProductStockAdjustmentPageState extends State<ProductStockAdjustmentPage>
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
       behavior: HitTestBehavior.translucent,
-      child: Scaffold(
+      child: VPageScaffold(
         key: const Key('wgt_e05_u01_fr01_01'),
-        backgroundColor: dynamicColors.surface,
-        appBar: VAppBar(
-          showBackButton: true,
-          title: 'Tồn kho',
-          titleStyle: VTypography.headingH3.copyWith(
-            color: dynamicColors.textPrimary,
-            fontWeight: FontWeight.bold,
-          ),
-          subtitle: widget.args.product.name,
-        ),
+        title: 'Tồn kho',
+        showBackButton: true,
+        subtitle: widget.args.product.name,
         body: hasBaseUnit
             ? Form(
                 key: _formKey,
                 child: ListView(
-                  padding: const EdgeInsets.all(16.0),
+                  padding: const EdgeInsets.all(VSpacing.space4),
                   children: [
                     // Tồn hiện tại (Read-only view)
                     Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                decoration: BoxDecoration(
-                  border: Border.all(color: dynamicColors.borderDefault),
-                  borderRadius: BorderRadius.circular(VRadius.input),
-                  color: dynamicColors.background,
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    VText(
-                      'Tồn hiện tại',
-                      variant: VTextVariant.bodyDefault,
-                      color: dynamicColors.textPrimary,
-                    ),
-                    VText(
-                      _isInitial
-                          ? 'Chưa thiết lập'
-                          : '${widget.args.currentQuantity} ${unitName.toLowerCase()}',
-                      variant: VTextVariant.bodyDefault,
-                      style: const TextStyle(
-                        fontWeight: FontWeight.w600,
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                      decoration: BoxDecoration(
+                        border: Border.all(color: dynamicColors.borderDefault),
+                        borderRadius: BorderRadius.circular(VRadius.input),
+                        color: dynamicColors.background,
                       ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          VText(
+                            'Tồn hiện tại',
+                            variant: VTextVariant.bodyDefault,
+                            color: dynamicColors.textPrimary,
+                          ),
+                          VText(
+                            _isInitial ? 'Chưa thiết lập' : '${widget.args.currentQuantity}',
+                            variant: VTextVariant.bodyDefault,
+                            color: dynamicColors.textPrimary,
+                            style: const TextStyle(fontWeight: FontWeight.w600),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: VSpacing.space6),
+
+                    // Tồn mới
+                    VText(
+                      'Tồn mới ($unitName)',
+                      variant: VTextVariant.bodyDefault,
                       color: dynamicColors.textPrimary,
+                      style: const TextStyle(fontWeight: FontWeight.w600),
+                    ),
+                    const SizedBox(height: VSpacing.space2),
+                    VTextFormField(
+                      key: const Key('input_stock_quantity'),
+                      controller: _quantityController,
+                      keyboardType: TextInputType.number,
+                      hintText: 'Nhập số tồn thực tế',
+                      validator: (value) {
+                        if (value == null || value.trim().isEmpty) {
+                          return 'Vui lòng nhập số tồn thực tế';
+                        }
+                        final raw = value.trim().replaceAll(',', '');
+                        if (raw.contains('.') || raw.contains(',')) {
+                          return 'Tồn kho phải là số nguyên';
+                        }
+                        final qty = int.tryParse(raw);
+                        if (qty == null) {
+                          return 'Số lượng không hợp lệ';
+                        }
+                        if (qty < 0) {
+                          return 'Tồn kho không được âm';
+                        }
+                        return null;
+                      },
+                    ),
+
+                    if (!_isInitial) ...[
+                      const SizedBox(height: VSpacing.space6),
+                      // Lý do
+                      VText(
+                        'Lý do',
+                        variant: VTextVariant.bodySmall,
+                        color: dynamicColors.textSecondary,
+                      ),
+                      const SizedBox(height: VSpacing.space2),
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: _predefinedReasons.map((reason) {
+                          final isSelected = _selectedReason == reason;
+                          return ChoiceChip(
+                            label: VText(
+                              reason,
+                              variant: VTextVariant.bodyDefault,
+                              color: isSelected ? dynamicColors.surface : dynamicColors.textPrimary,
+                            ),
+                            selected: isSelected,
+                            onSelected: (selected) {
+                              setState(() {
+                                _selectedReason = selected ? reason : null;
+                              });
+                            },
+                            showCheckmark: false,
+                            selectedColor: dynamicColors.success,
+                            side: BorderSide(
+                              color: isSelected
+                                  ? dynamicColors.success
+                                  : dynamicColors.borderDefault,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(VRadius.r20),
+                            ),
+                          );
+                        }).toList(),
+                      ),
+                      const SizedBox(height: VSpacing.space6),
+
+                      // Ghi chú
+                      VText(
+                        'Ghi chú (không bắt buộc)',
+                        variant: VTextVariant.bodySmall,
+                        color: dynamicColors.textSecondary,
+                      ),
+                      const SizedBox(height: VSpacing.space2),
+                      VTextFormField(
+                        controller: _noteController,
+                        maxLines: 4,
+                        maxLength: 500,
+                      ),
+                    ],
+
+                    const SizedBox(height: VSpacing.space6),
+                    VText(
+                      'Thay đổi sẽ ghi vào Lịch sử. Ở Growth, tồn được đọc từ module Kho (read-only).',
+                      variant: VTextVariant.bodySmall,
+                      color: dynamicColors.textSecondary,
                     ),
                   ],
                 ),
-              ),
-              const VGap.lg(),
-  
-              // Tồn mới
-              VText(
-                'Tồn mới ($unitName)',
-                variant: VTextVariant.bodyDefault,
-                style: const TextStyle(
-                  fontWeight: FontWeight.w600,
-                ),
-                color: dynamicColors.textPrimary,
-              ),
-              const VGap.sm(),
-              TextFormField(
-                key: const Key('input_stock_quantity'),
-                controller: _quantityController,
-                keyboardType: TextInputType.number,
-                style: VTypography.bodyDefault.copyWith(color: dynamicColors.textPrimary),
-                decoration: InputDecoration(
-                  hintText: 'Nhập số tồn thực tế',
-                  hintStyle: VTypography.bodyDefault.copyWith(color: dynamicColors.textMuted),
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(VRadius.input),
-                    borderSide: BorderSide(color: dynamicColors.borderDefault),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(VRadius.input),
-                    borderSide: BorderSide(color: dynamicColors.borderDefault),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(VRadius.input),
-                    borderSide: BorderSide(color: dynamicColors.primary),
-                  ),
-                ),
-                validator: (value) {
-                  if (value == null || value.trim().isEmpty) {
-                    return 'Vui lòng nhập số tồn thực tế';
-                  }
-                  final raw = value.trim().replaceAll(',', '');
-                  if (raw.contains('.') || raw.contains(',')) {
-                    return 'Tồn kho phải là số nguyên';
-                  }
-                  final qty = int.tryParse(raw);
-                  if (qty == null) {
-                    return 'Số lượng không hợp lệ';
-                  }
-                  if (qty < 0) {
-                    return 'Tồn kho không được âm';
-                  }
-                  return null;
-                },
-              ),
-  
-              if (!_isInitial) ...[
-                const VGap.lg(),
-                // Lý do
-                VText(
-                  'Lý do',
-                  variant: VTextVariant.bodySmall,
-                  color: dynamicColors.textSecondary,
-                ),
-                const VGap.sm(),
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  children: _predefinedReasons.map((reason) {
-                    final isSelected = _selectedReason == reason;
-                    return ChoiceChip(
-                      label: VText(
-                        reason,
-                        variant: VTextVariant.bodyDefault,
-                        color: isSelected ? dynamicColors.surface : dynamicColors.textPrimary,
-                      ),
-                      selected: isSelected,
-                      onSelected: (selected) {
-                        setState(() {
-                          _selectedReason = selected ? reason : null;
-                        });
-                      },
-                      showCheckmark: false,
-                      selectedColor: dynamicColors.success,
-                      backgroundColor: dynamicColors.background,
-                      side: BorderSide(
-                        color: isSelected ? dynamicColors.success : dynamicColors.borderDefault,
-                      ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                    );
-                  }).toList(),
-                ),
-                const VGap.lg(),
-  
-                // Ghi chú
-                VText(
-                  'Ghi chú (không bắt buộc)',
-                  variant: VTextVariant.bodySmall,
-                  color: dynamicColors.textSecondary,
-                ),
-                const VGap.sm(),
-                TextFormField(
-                  controller: _noteController,
-                  maxLines: 4,
-                  style: VTypography.bodyDefault.copyWith(color: dynamicColors.textPrimary),
-                  decoration: InputDecoration(
-                    contentPadding: const EdgeInsets.all(16),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(VRadius.input),
-                      borderSide: BorderSide(color: dynamicColors.borderDefault),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(VRadius.input),
-                      borderSide: BorderSide(color: dynamicColors.borderDefault),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(VRadius.input),
-                      borderSide: BorderSide(color: dynamicColors.primary),
-                    ),
-                  ),
-                ),
-              ],
-  
-              const VGap.lg(),
-              VText(
-                'Thay đổi sẽ ghi vào Lịch sử. Ở Growth, tồn được đọc từ module Kho (read-only).',
-                variant: VTextVariant.bodySmall,
-                color: dynamicColors.textSecondary,
-              ),
-            ],
-          ),
-        ) : _buildMissingBaseUnit(context),
-        bottomNavigationBar: hasBaseUnit
+              )
+            : _buildMissingBaseUnit(context),
+        bottomBar: hasBaseUnit
             ? ProductFormBottomBar(
                 onCancel: _isSubmitting ? null : () => context.pop(),
                 saveKey: const Key('btn_stock_save'),
@@ -339,15 +296,15 @@ class _ProductStockAdjustmentPageState extends State<ProductStockAdjustmentPage>
 
   Widget _buildMissingBaseUnit(BuildContext context) {
     final dynamicColors = context.vColors;
-    
+
     return Column(
       children: [
         Expanded(
           child: SingleChildScrollView(
             child: Padding(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(VSpacing.space4),
               child: DashedBorderContainer(
-                padding: const EdgeInsets.all(16),
+                padding: const EdgeInsets.all(VSpacing.space4),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [

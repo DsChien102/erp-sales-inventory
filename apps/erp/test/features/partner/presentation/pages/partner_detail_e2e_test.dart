@@ -473,7 +473,7 @@ void main() {
       expect(find.textContaining('Tổ chức'), findsWidgets);
       expect(find.textContaining('KH & NCC'), findsWidgets);
       expect(find.text('Thông tin tổ chức'), findsOneWidget);
-      expect(find.text('Người liên hệ chính'), findsOneWidget);
+      expect(find.text('Người liên hệ'), findsOneWidget);
       expect(find.text('Hóa đơn / thuế'), findsOneWidget);
       expect(find.text('Địa chỉ giao hàng'), findsOneWidget);
       expect(find.text('Ghi chú'), findsOneWidget);
@@ -490,18 +490,15 @@ void main() {
       expect(find.text('Email'), findsWidgets);
       expect(find.text('contact@abc.vn'), findsOneWidget);
 
-      await tester.ensureVisible(find.text('Người liên hệ chính'));
-      await tester.tap(find.text('Người liên hệ chính'));
+      await tester.ensureVisible(find.text('Người liên hệ'));
+      await tester.tap(find.text('Người liên hệ'));
       await tester.pumpAndSettle();
-      expect(find.text('Danh xưng'), findsOneWidget);
-      expect(find.text('Chị'), findsOneWidget);
-      expect(find.text('Họ và tên'), findsOneWidget);
-      expect(find.textContaining('Trần Thị B'), findsWidgets);
-      expect(find.text('SĐT phụ'), findsOneWidget);
-      expect(find.text('0281111222'), findsOneWidget);
+      expect(find.text('Trần Thị B'), findsWidgets);
+      expect(find.text('Chính'), findsOneWidget);
+      expect(find.text('Kế toán'), findsOneWidget);
       expect(find.text('tranthib@abc.vn'), findsOneWidget);
-      expect(find.text('Là liên hệ chính'), findsOneWidget);
-      expect(find.text('Có'), findsOneWidget);
+      expect(find.text('Thêm người liên hệ'), findsOneWidget);
+      expect(find.text('Xem tất cả (1)'), findsOneWidget);
     },
   );
 

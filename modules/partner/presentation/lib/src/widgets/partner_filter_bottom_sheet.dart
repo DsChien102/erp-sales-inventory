@@ -25,11 +25,9 @@ class PartnerFilterBottomSheet extends StatefulWidget {
     PartnerStatus? status,
     PartnerUpdatedTimeFilter? updatedTimeFilter,
   }) {
-    return showModalBottomSheet<Map<String, dynamic>>(
+    return showVBottomSheet<Map<String, dynamic>>(
       context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) => PartnerFilterBottomSheet(
+      child: PartnerFilterBottomSheet(
         initialRole: role,
         initialPartnerType: partnerType,
         initialStatus: status,
@@ -95,178 +93,174 @@ class _PartnerFilterBottomSheetState extends State<PartnerFilterBottomSheet> {
 
   @override
   Widget build(BuildContext context) {
-    return VBottomSheet(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: VSpacing.space4),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const SizedBox(height: VSpacing.space1),
-                Text(
-                  'Bộ lọc KH & NCC',
-                  style: VTypography.headingH4.copyWith(
-                    color: context.vColors.textPrimary,
-                    fontWeight: FontWeight.w700,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: VSpacing.space4),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SizedBox(height: VSpacing.space1),
+              VText(
+                'Bộ lọc KH & NCC',
+                variant: VTextVariant.headingH4,
+                color: context.vColors.textPrimary,
+                style: const TextStyle(fontWeight: FontWeight.w700),
+              ),
+              const SizedBox(height: VSpacing.space4),
+              _buildSectionTitle('Vai trò giao dịch'),
+              const SizedBox(height: VSpacing.space3),
+              Wrap(
+                spacing: VSpacing.space2,
+                runSpacing: VSpacing.space2,
+                children: [
+                  VChip(
+                    label: 'Khách hàng',
+                    selected: _selectedRole == PartnerRoleFilter.customer,
+                    tone: VComponentTone.primary,
+                    onTap: () => _toggleRole(PartnerRoleFilter.customer),
                   ),
-                ),
-                const SizedBox(height: VSpacing.space4),
-                _buildSectionTitle('Vai trò giao dịch'),
-                const SizedBox(height: VSpacing.space3),
-                Wrap(
-                  spacing: VSpacing.space2,
-                  runSpacing: VSpacing.space2,
-                  children: [
-                    VChip(
-                      label: 'Khách hàng',
-                      selected: _selectedRole == PartnerRoleFilter.customer,
-                      tone: VComponentTone.primary,
-                      onTap: () => _toggleRole(PartnerRoleFilter.customer),
+                  VChip(
+                    label: 'Nhà cung cấp',
+                    selected: _selectedRole == PartnerRoleFilter.supplier,
+                    tone: VComponentTone.primary,
+                    onTap: () => _toggleRole(PartnerRoleFilter.supplier),
+                  ),
+                  VChip(
+                    label: 'KH & NCC',
+                    selected: _selectedRole == PartnerRoleFilter.both,
+                    tone: VComponentTone.primary,
+                    onTap: () => _toggleRole(PartnerRoleFilter.both),
+                  ),
+                ],
+              ),
+              const SizedBox(height: VSpacing.space4),
+              _buildSectionTitle('Loại hồ sơ'),
+              const SizedBox(height: VSpacing.space3),
+              Wrap(
+                spacing: VSpacing.space2,
+                runSpacing: VSpacing.space2,
+                children: [
+                  VChip(
+                    label: 'Cá nhân',
+                    selected: _selectedPartnerType == PartnerType.person,
+                    tone: VComponentTone.primary,
+                    onTap: () => _togglePartnerType(PartnerType.person),
+                  ),
+                  VChip(
+                    label: 'Tổ chức',
+                    selected: _selectedPartnerType == PartnerType.organization,
+                    tone: VComponentTone.primary,
+                    onTap: () => _togglePartnerType(PartnerType.organization),
+                  ),
+                ],
+              ),
+              const SizedBox(height: VSpacing.space4),
+              _buildSectionTitle('Trạng thái'),
+              const SizedBox(height: VSpacing.space3),
+              Wrap(
+                spacing: VSpacing.space2,
+                runSpacing: VSpacing.space2,
+                children: [
+                  VChip(
+                    label: 'Tất cả',
+                    selected: _selectedStatus == null,
+                    tone: VComponentTone.primary,
+                    onTap: () => setState(() => _selectedStatus = null),
+                  ),
+                  VChip(
+                    label: 'Đang hoạt động',
+                    selected: _selectedStatus == PartnerStatus.active,
+                    tone: VComponentTone.primary,
+                    onTap: () => setState(
+                      () => _selectedStatus = PartnerStatus.active,
                     ),
-                    VChip(
-                      label: 'Nhà cung cấp',
-                      selected: _selectedRole == PartnerRoleFilter.supplier,
-                      tone: VComponentTone.primary,
-                      onTap: () => _toggleRole(PartnerRoleFilter.supplier),
+                  ),
+                  VChip(
+                    label: 'Ngừng hoạt động',
+                    selected: _selectedStatus == PartnerStatus.inactive,
+                    tone: VComponentTone.primary,
+                    onTap: () => setState(
+                      () => _selectedStatus = PartnerStatus.inactive,
                     ),
-                    VChip(
-                      label: 'KH & NCC',
-                      selected: _selectedRole == PartnerRoleFilter.both,
+                  ),
+                ],
+              ),
+              const SizedBox(height: VSpacing.space4),
+              _buildSectionTitle('Thời gian cập nhật'),
+              const SizedBox(height: VSpacing.space3),
+              Row(
+                key: const Key('partner_updated_time_filters'),
+                children: [
+                  Expanded(
+                    child: VChip(
+                      label: '7 ngày gần đây',
+                      selected: _selectedUpdatedTimeFilter == PartnerUpdatedTimeFilter.last7Days,
                       tone: VComponentTone.primary,
-                      onTap: () => _toggleRole(PartnerRoleFilter.both),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: VSpacing.space4),
-                _buildSectionTitle('Loại hồ sơ'),
-                const SizedBox(height: VSpacing.space3),
-                Wrap(
-                  spacing: VSpacing.space2,
-                  runSpacing: VSpacing.space2,
-                  children: [
-                    VChip(
-                      label: 'Cá nhân',
-                      selected: _selectedPartnerType == PartnerType.person,
-                      tone: VComponentTone.primary,
-                      onTap: () => _togglePartnerType(PartnerType.person),
-                    ),
-                    VChip(
-                      label: 'Tổ chức',
-                      selected: _selectedPartnerType == PartnerType.organization,
-                      tone: VComponentTone.primary,
-                      onTap: () => _togglePartnerType(PartnerType.organization),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: VSpacing.space4),
-                _buildSectionTitle('Trạng thái'),
-                const SizedBox(height: VSpacing.space3),
-                Wrap(
-                  spacing: VSpacing.space2,
-                  runSpacing: VSpacing.space2,
-                  children: [
-                    VChip(
-                      label: 'Tất cả',
-                      selected: _selectedStatus == null,
-                      tone: VComponentTone.primary,
-                      onTap: () => setState(() => _selectedStatus = null),
-                    ),
-                    VChip(
-                      label: 'Đang hoạt động',
-                      selected: _selectedStatus == PartnerStatus.active,
-                      tone: VComponentTone.primary,
-                      onTap: () => setState(
-                        () => _selectedStatus = PartnerStatus.active,
+                      onTap: () => _toggleUpdatedTime(
+                        PartnerUpdatedTimeFilter.last7Days,
                       ),
                     ),
-                    VChip(
-                      label: 'Ngừng hoạt động',
-                      selected: _selectedStatus == PartnerStatus.inactive,
+                  ),
+                  const SizedBox(width: VSpacing.space2),
+                  Expanded(
+                    child: VChip(
+                      label: '30 ngày gần đây',
+                      selected: _selectedUpdatedTimeFilter == PartnerUpdatedTimeFilter.last30Days,
                       tone: VComponentTone.primary,
-                      onTap: () => setState(
-                        () => _selectedStatus = PartnerStatus.inactive,
+                      onTap: () => _toggleUpdatedTime(
+                        PartnerUpdatedTimeFilter.last30Days,
                       ),
                     ),
-                  ],
-                ),
-                const SizedBox(height: VSpacing.space4),
-                _buildSectionTitle('Thời gian cập nhật'),
-                const SizedBox(height: VSpacing.space3),
-                Row(
-                  key: const Key('partner_updated_time_filters'),
-                  children: [
-                    Expanded(
-                      child: VChip(
-                        label: '7 ngày gần đây',
-                        selected: _selectedUpdatedTimeFilter == PartnerUpdatedTimeFilter.last7Days,
-                        tone: VComponentTone.primary,
-                        onTap: () => _toggleUpdatedTime(
-                          PartnerUpdatedTimeFilter.last7Days,
-                        ),
-                      ),
+                  ),
+                  const SizedBox(width: VSpacing.space2),
+                  Expanded(
+                    child: VChip(
+                      label: 'Tùy chọn',
+                      icon: VIcons.calendar,
+                      onTap: () {},
                     ),
-                    const SizedBox(width: VSpacing.space2),
-                    Expanded(
-                      child: VChip(
-                        label: '30 ngày gần đây',
-                        selected: _selectedUpdatedTimeFilter == PartnerUpdatedTimeFilter.last30Days,
-                        tone: VComponentTone.primary,
-                        onTap: () => _toggleUpdatedTime(
-                          PartnerUpdatedTimeFilter.last30Days,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: VSpacing.space2),
-                    Expanded(
-                      child: VChip(
-                        label: 'Tùy chọn',
-                        icon: VIcons.calendar,
-                        onTap: () {},
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: VSpacing.space4),
-              ],
-            ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: VSpacing.space4),
+            ],
           ),
-          Padding(
-            padding: const EdgeInsets.all(VSpacing.space4),
-            child: Row(
-              children: [
-                Expanded(
-                  child: VButton(
-                    variant: VButtonVariant.secondary,
-                    label: 'Đặt lại',
-                    onPressed: _reset,
-                  ),
+        ),
+        Padding(
+          padding: const EdgeInsets.all(VSpacing.space4),
+          child: Row(
+            children: [
+              Expanded(
+                child: VButton(
+                  variant: VButtonVariant.secondary,
+                  label: 'Đặt lại',
+                  onPressed: _reset,
                 ),
-                const SizedBox(width: VSpacing.space3),
-                Expanded(
-                  child: VButton(
-                    variant: VButtonVariant.primary,
-                    label: 'Áp dụng',
-                    onPressed: _apply,
-                  ),
+              ),
+              const SizedBox(width: VSpacing.space3),
+              Expanded(
+                child: VButton(
+                  variant: VButtonVariant.primary,
+                  label: 'Áp dụng',
+                  onPressed: _apply,
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
   Widget _buildSectionTitle(String title) {
-    return Text(
+    return VText(
       title,
-      style: VTypography.bodySmall.copyWith(
-        color: context.vColors.textSecondary,
-        fontWeight: FontWeight.w500,
-      ),
+      variant: VTextVariant.bodySmall,
+      color: context.vColors.textSecondary,
+      style: const TextStyle(fontWeight: FontWeight.w500),
     );
   }
 }

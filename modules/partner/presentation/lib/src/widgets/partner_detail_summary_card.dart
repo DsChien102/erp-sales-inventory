@@ -39,24 +39,22 @@ class PartnerDetailSummaryCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
+                VText(
                   detail.displayName,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
-                  style: VTypography.bodyDefault.copyWith(
-                    color: colors.textPrimary,
-                    fontWeight: FontWeight.w700,
-                  ),
+                  variant: VTextVariant.bodyDefault,
+                  color: colors.textPrimary,
+                  style: const TextStyle(fontWeight: FontWeight.w700),
                 ),
                 if (hasTaxCode) ...[
-                  const SizedBox(height: 2),
-                  Text(
+                  const VGap.xs(),
+                  VText(
                     'MST: $taxCode',
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: VTypography.bodySmall.copyWith(
-                      color: colors.textSecondary,
-                    ),
+                    variant: VTextVariant.bodySmall,
+                    color: colors.textSecondary,
                   ),
                 ],
               ],

@@ -102,34 +102,29 @@ class _PartnerContactFormPageState extends State<PartnerContactFormPage> {
 
     return BlocProvider.value(
       value: _cubit,
-      child: Scaffold(
-        backgroundColor: colors.surface,
-        appBar: VAppBar(
-          title: isEdit ? 'Chỉnh sửa liên hệ' : 'Thêm người liên hệ',
-          centerTitle: true,
-          leading: TextButton(
-            onPressed: () => context.pop(),
-            child: Text(
-              'Hủy',
-              style: VTypography.bodyDefault.copyWith(
-                color: colors.success,
-                fontWeight: FontWeight.w600,
-              ),
+      child: VPageScaffold(
+        title: isEdit ? 'Chỉnh sửa liên hệ' : 'Thêm người liên hệ',
+        centerTitle: true,
+        leading: TextButton(
+          onPressed: () => context.pop(),
+          child: VText(
+            'Hủy',
+            variant: VTextVariant.bodyDefault,
+            color: colors.success,
+            style: const TextStyle(fontWeight: FontWeight.w600),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: _submitForm,
+            child: VText(
+              'Lưu',
+              variant: VTextVariant.bodyDefault,
+              color: colors.success,
+              style: const TextStyle(fontWeight: FontWeight.w700),
             ),
           ),
-          actions: [
-            TextButton(
-              onPressed: _submitForm,
-              child: Text(
-                'Lưu',
-                style: VTypography.bodyDefault.copyWith(
-                  color: colors.success,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-            ),
-          ],
-        ),
+        ],
         body: BlocConsumer<PartnerContactFormCubit, PartnerContactFormState>(
           listener: (context, state) {
             if (state.status == PartnerContactFormStatus.success) {

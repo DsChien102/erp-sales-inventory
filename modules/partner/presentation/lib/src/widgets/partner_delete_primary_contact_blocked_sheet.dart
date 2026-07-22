@@ -3,6 +3,18 @@ import 'package:vet45_design_system/design_system.dart';
 
 enum PartnerDeletePrimaryContactBlockedAction { close, viewOrganization }
 
+Future<PartnerDeletePrimaryContactBlockedAction?> showPartnerDeletePrimaryContactBlockedSheet(
+  BuildContext context, {
+  required String organizationName,
+}) {
+  return showVBottomSheet<PartnerDeletePrimaryContactBlockedAction>(
+    context: context,
+    child: PartnerDeletePrimaryContactBlockedSheet(
+      organizationName: organizationName,
+    ),
+  );
+}
+
 class PartnerDeletePrimaryContactBlockedSheet extends StatelessWidget {
   const PartnerDeletePrimaryContactBlockedSheet({
     super.key,
@@ -16,17 +28,13 @@ class PartnerDeletePrimaryContactBlockedSheet extends StatelessWidget {
     final colors = context.vColors;
     return SafeArea(
       top: false,
-      child: Container(
+      child: Padding(
         key: const Key('delete_primary_contact_blocked_sheet'),
         padding: const EdgeInsets.fromLTRB(
           VSpacing.space4,
           VSpacing.space2,
           VSpacing.space4,
           VSpacing.space4,
-        ),
-        decoration: BoxDecoration(
-          color: colors.surface,
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -42,25 +50,23 @@ class PartnerDeletePrimaryContactBlockedSheet extends StatelessWidget {
             const SizedBox(height: VSpacing.space5),
             VIcon(icon: VIcons.delete, size: 44, color: colors.danger),
             const SizedBox(height: VSpacing.space3),
-            Text(
+            VText(
               'Không thể xóa hồ sơ',
-              style: VTypography.headingH3.copyWith(
-                color: colors.textPrimary,
-                fontWeight: FontWeight.w700,
-              ),
+              variant: VTextVariant.headingH3,
+              color: colors.textPrimary,
               textAlign: TextAlign.center,
+              style: const TextStyle(fontWeight: FontWeight.w700),
             ),
-            const SizedBox(height: VSpacing.space2),
-            Text(
+            const VGap.sm(),
+            VText(
               'Khách hàng này đang là người liên hệ chính của “$organizationName”. '
               'Hãy đổi hoặc gỡ người liên hệ chính trước khi xóa hồ sơ.',
-              style: VTypography.bodyDefault.copyWith(
-                color: colors.textSecondary,
-                height: 1.4,
-              ),
+              variant: VTextVariant.bodyDefault,
+              color: colors.textSecondary,
               textAlign: TextAlign.center,
+              style: const TextStyle(height: 1.4),
             ),
-            const SizedBox(height: VSpacing.space5),
+            const VGap.md(),
             Row(
               children: [
                 Expanded(

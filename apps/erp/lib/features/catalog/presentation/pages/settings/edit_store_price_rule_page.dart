@@ -110,10 +110,7 @@ class _EditStorePriceRulePageState extends State<EditStorePriceRulePage> {
     if (value != null && value < 0) {
       return 'Giá trị phải lớn hơn hoặc bằng 0';
     }
-    if (isFloorField &&
-        value != null &&
-        peerListMarkup != null &&
-        value > peerListMarkup) {
+    if (isFloorField && value != null && peerListMarkup != null && value > peerListMarkup) {
       return 'Giá sàn không được lớn hơn giá niêm yết.';
     }
     return null;
@@ -150,13 +147,10 @@ class _EditStorePriceRulePageState extends State<EditStorePriceRulePage> {
           return GestureDetector(
             onTap: () => FocusScope.of(context).unfocus(),
             behavior: HitTestBehavior.translucent,
-            child: Scaffold(
-              backgroundColor: context.vColors.surface,
+            child: VPageScaffold(
+              title: 'Chỉnh sửa khung giá',
+              showBackButton: true,
               resizeToAvoidBottomInset: true,
-              appBar: const VAppBar(
-                title: 'Chỉnh sửa khung giá',
-                showBackButton: true,
-              ),
               body: SingleChildScrollView(
                 padding: const EdgeInsets.all(VSpacing.screenMobile),
                 child: Column(
@@ -194,13 +188,13 @@ class _EditStorePriceRulePageState extends State<EditStorePriceRulePage> {
                   ],
                 ),
               ),
-              bottomNavigationBar: ProductFormBottomBar(
+              bottomBar: ProductFormBottomBar(
                 onCancel: () => context.pop(),
                 isLoading: isSaving,
                 saveEnabled: _canSubmit,
                 onSave: () async {
                   final confirmed = await showStorePriceRuleSaveConfirmSheet(context);
-                  if (confirmed != true) return;
+                  if (confirmed != true || !context.mounted) return;
 
                   final listMarkup = _parseListMarkup()!;
                   final floorMarkup = _parseFloorMarkup()!;
@@ -280,6 +274,7 @@ class _EditStorePriceRulePageState extends State<EditStorePriceRulePage> {
           label,
           variant: VTextVariant.bodyDefault,
           color: colors.textPrimary,
+          style: const TextStyle(fontWeight: FontWeight.w600),
         ),
         const VGap.sm(),
         Row(
@@ -319,6 +314,12 @@ class _EditStorePriceRulePageState extends State<EditStorePriceRulePage> {
               ],
             ),
           ],
+        ),
+        const VGap.xs(),
+        VText(
+          helperText,
+          variant: VTextVariant.bodySmall,
+          color: colors.textSecondary,
         ),
       ],
     );
@@ -364,7 +365,7 @@ class _EditStorePriceRulePageState extends State<EditStorePriceRulePage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
+          VText(
             'XEM TRƯỚC VỚI VÍ DỤ',
             style: VTypography.caption.copyWith(
               color: colors.textSecondary,
@@ -375,11 +376,10 @@ class _EditStorePriceRulePageState extends State<EditStorePriceRulePage> {
           const SizedBox(height: VSpacing.space3),
 
           // Giá cơ sở (ví dụ) input
-          Text(
+          VText(
             'Giá cơ sở (ví dụ)',
-            style: VTypography.bodySmall.copyWith(
-              color: colors.textSecondary,
-            ),
+            variant: VTextVariant.bodySmall,
+            color: colors.textSecondary,
           ),
           const SizedBox(height: VSpacing.space2),
           VMoneyField(
@@ -425,13 +425,12 @@ class _EditStorePriceRulePageState extends State<EditStorePriceRulePage> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(
+        VText(
           label,
-          style: VTypography.bodyDefault.copyWith(
-            color: colors.textSecondary,
-          ),
+          variant: VTextVariant.bodyDefault,
+          color: colors.textSecondary,
         ),
-        Text(
+        VText(
           value != null ? formatCatalogCurrency(value) : '—',
           style: VTypography.bodyDefault.copyWith(
             color: valueColor,
@@ -449,12 +448,11 @@ class _EditStorePriceRulePageState extends State<EditStorePriceRulePage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
+        VText(
           'Ghi chú (tuỳ chọn)',
-          style: VTypography.bodyDefault.copyWith(
-            color: colors.textPrimary,
-            fontWeight: FontWeight.w600,
-          ),
+          variant: VTextVariant.bodyDefault,
+          color: colors.textPrimary,
+          style: const TextStyle(fontWeight: FontWeight.w600),
         ),
         const SizedBox(height: VSpacing.space2),
         TextField(

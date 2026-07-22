@@ -59,35 +59,37 @@ class ProductCustomFieldGroupEditPage extends StatelessWidget {
         builder: (context, state) {
           if (state is ProductCustomFieldGroupEditInitial ||
               state is ProductCustomFieldGroupEditLoading) {
-            return Scaffold(
-              backgroundColor: context.vColors.surface,
-              body: const Center(child: CircularProgressIndicator()),
+            return const VPageScaffold(
+              title: 'Trường thông tin',
+              showBackButton: true,
+              body: Center(child: CircularProgressIndicator()),
             );
           }
 
           if (state is ProductCustomFieldGroupEditLoaded) {
-            return Scaffold(
-              backgroundColor: context.vColors.surface,
-              appBar: VAppBar(
-                title: state.group.name,
-                titleStyle: VTypography.headingH3.copyWith(fontWeight: FontWeight.bold),
-                subtitle: args.productName,
-                centerTitle: false,
-                leading: IconButton(
-                  icon: const VIcon(icon: VIcons.arrowBack),
-                  onPressed: () => context.pop(),
-                ),
+            return VPageScaffold(
+              title: state.group.name,
+              titleStyle: VTypography.headingH3.copyWith(fontWeight: FontWeight.bold),
+              subtitle: args.productName,
+              centerTitle: false,
+              leading: IconButton(
+                icon: const VIcon(icon: VIcons.arrowBack),
+                onPressed: () => context.pop(),
               ),
               body: state.group.fields.isEmpty
-                  ? const Center(child: Text('Không có trường thông tin nào được cấu hình.'))
+                  ? const Center(child: VText('Không có trường thông tin nào được cấu hình.'))
                   : ListView(
-                      padding: const EdgeInsets.all(16),
+                      padding: const EdgeInsets.all(VSpacing.space4),
                       children: [
                         Container(
-                          padding: const EdgeInsets.only(top: 16, left: 16, right: 16),
+                          padding: const EdgeInsets.only(
+                            top: VSpacing.space4,
+                            left: VSpacing.space4,
+                            right: VSpacing.space4,
+                          ),
                           decoration: BoxDecoration(
                             color: context.vColors.surface,
-                            borderRadius: BorderRadius.circular(12),
+                            borderRadius: BorderRadius.circular(VRadius.r12),
                             border: Border.all(color: context.vColors.borderDefault),
                           ),
                           child: Column(
@@ -113,7 +115,7 @@ class ProductCustomFieldGroupEditPage extends StatelessWidget {
                         ),
                       ],
                     ),
-              bottomNavigationBar: state.group.fields.every((field) => !field.isActive)
+              bottomBar: state.group.fields.every((field) => !field.isActive)
                   ? null
                   : ProductFormBottomBar(
                       onCancel: () => context.pop(),

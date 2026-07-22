@@ -119,22 +119,20 @@ class PartnerOperationFeedbackState extends StatelessWidget {
             PartnerOperationFeedbackKind.error => const _ErrorIllustration(),
           },
           const SizedBox(height: VSpacing.space6),
-          Text(
+          VText(
             resolvedTitle,
-            style: VTypography.headingH3.copyWith(
-              color: colors.textPrimary,
-              fontWeight: FontWeight.w700,
-            ),
+            variant: VTextVariant.headingH3,
+            color: colors.textPrimary,
             textAlign: TextAlign.center,
+            style: const TextStyle(fontWeight: FontWeight.w700),
           ),
           const SizedBox(height: VSpacing.space3),
-          Text(
+          VText(
             resolvedDescription,
-            style: VTypography.bodyDefault.copyWith(
-              color: colors.textSecondary,
-              height: 1.4,
-            ),
+            variant: VTextVariant.bodyDefault,
+            color: colors.textSecondary,
             textAlign: TextAlign.center,
+            style: const TextStyle(height: 1.4),
           ),
           const SizedBox(height: VSpacing.space8),
           SizedBox(
@@ -238,7 +236,8 @@ class _ErrorIllustration extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final muted = context.vColors.textMuted;
+    final colors = context.vColors;
+    final muted = colors.textMuted;
     return SizedBox(
       width: 140,
       height: 140,
@@ -255,19 +254,16 @@ class _ErrorIllustration extends StatelessWidget {
             child: Container(
               width: 44,
               height: 44,
-              decoration: const BoxDecoration(
-                color: VColors.danger,
+              decoration: BoxDecoration(
+                color: colors.danger,
                 shape: BoxShape.circle,
               ),
               alignment: Alignment.center,
-              child: const Text(
+              child: VText(
                 '!',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 26,
-                  fontWeight: FontWeight.w700,
-                  height: 1,
-                ),
+                variant: VTextVariant.headingH1,
+                color: colors.surface,
+                style: const TextStyle(height: 1),
               ),
             ),
           ),

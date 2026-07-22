@@ -31,13 +31,15 @@ class _EInvoiceTemplatePageState extends State<EInvoiceTemplatePage> {
   }
 
   void _showToast(BuildContext context, String message) {
+    final colors = context.vColors;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(
+        content: VText(
           message,
-          style: VTypography.bodyDefault.copyWith(color: Colors.white),
+          variant: VTextVariant.bodyDefault,
+          color: context.vColors.surface,
         ),
-        backgroundColor: VColors.success,
+        backgroundColor: colors.success,
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(VRadius.card),
@@ -71,12 +73,9 @@ class _EInvoiceTemplatePageState extends State<EInvoiceTemplatePage> {
           final isConnected = state.misaConnected;
 
           if (!isConnected) {
-            return Scaffold(
-              backgroundColor: colors.background,
-              appBar: const VAppBar(
-                title: 'Chọn mẫu hóa đơn',
-                showBackButton: true,
-              ),
+            return VPageScaffold(
+              title: 'Chọn mẫu hóa đơn',
+              showBackButton: true,
               body: Padding(
                 padding: const EdgeInsets.all(VSpacing.screenMobile),
                 child: Column(
@@ -90,13 +89,12 @@ class _EInvoiceTemplatePageState extends State<EInvoiceTemplatePage> {
                       size: 64,
                     ),
                     const SizedBox(height: VSpacing.space4),
-                    Text(
+                    VText(
                       'Cần kết nối MISA meInvoice trước khi chọn mẫu hóa đơn.',
                       textAlign: TextAlign.center,
-                      style: VTypography.bodyDefault.copyWith(
-                        fontWeight: FontWeight.w700,
-                        color: colors.textPrimary,
-                      ),
+                      variant: VTextVariant.bodyDefault,
+                      color: colors.textPrimary,
+                      style: const TextStyle(fontWeight: FontWeight.w700),
                     ),
                     const Spacer(),
                     VButton(
@@ -115,12 +113,9 @@ class _EInvoiceTemplatePageState extends State<EInvoiceTemplatePage> {
             );
           }
 
-          return Scaffold(
-            backgroundColor: colors.background,
-            appBar: VAppBar(
-              title: 'Chọn mẫu hóa đơn',
-              showBackButton: !state.isSubmitting,
-            ),
+          return VPageScaffold(
+            title: 'Chọn mẫu hóa đơn',
+            showBackButton: !state.isSubmitting,
             body: Column(
               children: [
                 Expanded(
@@ -131,11 +126,10 @@ class _EInvoiceTemplatePageState extends State<EInvoiceTemplatePage> {
                     ),
                     children: [
                       const SizedBox(height: VSpacing.space1),
-                      Text(
+                      VText(
                         'Chọn mẫu hóa đơn điện tử mặc định dùng để phát hành hóa đơn cho các đơn hàng tiếp theo.',
-                        style: VTypography.bodyDefault.copyWith(
-                          color: colors.textSecondary,
-                        ),
+                        variant: VTextVariant.bodyDefault,
+                        color: colors.textSecondary,
                       ),
                       const SizedBox(height: VSpacing.space4),
 
@@ -183,19 +177,17 @@ class _EInvoiceTemplatePageState extends State<EInvoiceTemplatePage> {
                                           child: Column(
                                             crossAxisAlignment: CrossAxisAlignment.start,
                                             children: [
-                                              Text(
+                                              VText(
                                                 template.split(' - ').first,
-                                                style: VTypography.bodyDefault.copyWith(
-                                                  fontWeight: FontWeight.w700,
-                                                  color: colors.textPrimary,
-                                                ),
+                                                variant: VTextVariant.bodyDefault,
+                                                color: colors.textPrimary,
+                                                style: const TextStyle(fontWeight: FontWeight.w700),
                                               ),
-                                              const SizedBox(height: 4),
-                                              Text(
+                                              const SizedBox(height: VSpacing.space1),
+                                              VText(
                                                 template.split(' - ').last,
-                                                style: VTypography.bodySmall.copyWith(
-                                                  color: colors.textSecondary,
-                                                ),
+                                                variant: VTextVariant.bodySmall,
+                                                color: colors.textSecondary,
                                               ),
                                             ],
                                           ),
@@ -227,9 +219,7 @@ class _EInvoiceTemplatePageState extends State<EInvoiceTemplatePage> {
                     label: 'LƯU CẤU HÌNH',
                     isLoading: state.isSubmitting,
                     fullWidth: true,
-                    onPressed: state.isSubmitting || _selectedTemplate == null
-                        ? null
-                        : _submit,
+                    onPressed: state.isSubmitting || _selectedTemplate == null ? null : _submit,
                   ),
                 ),
               ],

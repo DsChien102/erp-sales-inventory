@@ -80,6 +80,7 @@ class _InvoiceAddressField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.vColors;
     return Padding(
       padding: const EdgeInsets.fromLTRB(
         VSpacing.space4,
@@ -93,15 +94,15 @@ class _InvoiceAddressField extends StatelessWidget {
           RichText(
             text: TextSpan(
               style: VTypography.bodySmall.copyWith(
-                color: context.vColors.textSecondary,
+                color: colors.textSecondary,
                 fontSize: 14,
               ),
               children: [
                 const TextSpan(text: 'Địa chỉ xuất hóa đơn'),
                 if (isRequired)
-                  const TextSpan(
+                  TextSpan(
                     text: ' *',
-                    style: TextStyle(color: VColors.danger),
+                    style: TextStyle(color: colors.danger),
                   ),
               ],
             ),
@@ -125,6 +126,7 @@ class _InvoiceWarning extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.vColors;
     return VCard(
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -135,9 +137,10 @@ class _InvoiceWarning extends StatelessWidget {
           ),
           const SizedBox(width: VSpacing.space2),
           Expanded(
-            child: Text(
+            child: VText(
               'Vui lòng kiểm tra lại MST và địa chỉ xuất hóa đơn trước khi lưu.',
-              style: VTypography.bodySmall.copyWith(color: VColors.warning),
+              variant: VTextVariant.bodySmall,
+              color: colors.warning,
             ),
           ),
         ],

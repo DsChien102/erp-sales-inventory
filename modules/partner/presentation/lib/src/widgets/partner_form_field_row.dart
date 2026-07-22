@@ -61,9 +61,9 @@ class PartnerFormFieldRow extends StatelessWidget {
                       children: [
                         TextSpan(text: label),
                         if (isRequired)
-                          const TextSpan(
+                          TextSpan(
                             text: ' *',
-                            style: TextStyle(color: VColors.danger),
+                            style: TextStyle(color: colors.danger),
                           ),
                       ],
                     ),
@@ -82,9 +82,10 @@ class PartnerFormFieldRow extends StatelessWidget {
               right: VSpacing.space4,
               bottom: VSpacing.space2,
             ),
-            child: Text(
+            child: VText(
               errorText!,
-              style: VTypography.bodySmall.copyWith(color: VColors.danger),
+              variant: VTextVariant.bodySmall,
+              color: colors.danger,
             ),
           ),
         ],

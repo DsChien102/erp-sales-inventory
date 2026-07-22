@@ -31,7 +31,7 @@ class _ProductBarcodeEntryDialogState extends State<ProductBarcodeEntryDialog> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text(
+            VText(
               'Giả lập quét Barcode',
               style: VTypography.bodyDefault.copyWith(
                 color: dynamicColors.textPrimary,
@@ -40,9 +40,10 @@ class _ProductBarcodeEntryDialogState extends State<ProductBarcodeEntryDialog> {
               ),
             ),
             const SizedBox(height: VSpacing.space2),
-            Text(
+            VText(
               'Nhập mã Barcode để giả lập hành động quét qua Camera.',
-              style: VTypography.bodySmall.copyWith(color: dynamicColors.textSecondary),
+              variant: VTextVariant.bodySmall,
+              color: dynamicColors.textSecondary,
             ),
             const SizedBox(height: VSpacing.space3),
             TextField(
@@ -60,9 +61,10 @@ class _ProductBarcodeEntryDialogState extends State<ProductBarcodeEntryDialog> {
               children: [
                 TextButton(
                   onPressed: () => Navigator.pop(context),
-                  child: Text(
+                  child: VText(
                     'Hủy',
-                    style: VTypography.bodySmall.copyWith(color: dynamicColors.textSecondary),
+                    variant: VTextVariant.bodySmall,
+                    color: dynamicColors.textSecondary,
                   ),
                 ),
                 const SizedBox(width: VSpacing.space2),

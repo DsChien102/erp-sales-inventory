@@ -72,8 +72,8 @@ class ProductRestoreConfirmDialog extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   CircularProgressIndicator(),
-                  SizedBox(width: 16),
-                  Text('Đang khôi phục...'),
+                  SizedBox(width: VSpacing.space4),
+                  VText('Đang khôi phục...'),
                 ],
               ),
             ),
@@ -116,11 +116,10 @@ class _RestoreContent extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text(
+            VText(
               'Sản phẩm "$productName" sẽ được khôi phục ở trạng thái ngừng kinh doanh. Kiểm tra readiness trước khi kinh doanh lại.',
-              style: VTypography.bodyDefault.copyWith(
-                color: dynamicColors.textSecondary,
-              ),
+              variant: VTextVariant.bodyDefault,
+              color: dynamicColors.textSecondary,
             ),
             if (blockers.isNotEmpty) ...[
               const SizedBox(height: VSpacing.space4),
@@ -136,22 +135,20 @@ class _RestoreContent extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
+                    VText(
                       'Readiness hiện tại',
-                      style: VTypography.bodySmall.copyWith(
-                        color: dynamicColors.warning,
-                        fontWeight: FontWeight.bold,
-                      ),
+                      variant: VTextVariant.bodySmall,
+                      color: dynamicColors.warning,
+                      style: const TextStyle(fontWeight: FontWeight.bold),
                     ),
-                    const SizedBox(height: 8),
+                    const SizedBox(height: VSpacing.space2),
                     ...blockers.map(
                       (blocker) => Padding(
                         padding: const EdgeInsets.only(bottom: 4),
-                        child: Text(
+                        child: VText(
                           blocker.message,
-                          style: VTypography.bodySmall.copyWith(
-                            color: dynamicColors.warning,
-                          ),
+                          variant: VTextVariant.bodySmall,
+                          color: dynamicColors.warning,
                         ),
                       ),
                     ),
@@ -161,12 +158,11 @@ class _RestoreContent extends StatelessWidget {
             ],
             if (errorMessage != null) ...[
               const SizedBox(height: VSpacing.space4),
-              Text(
+              VText(
                 errorMessage!,
-                style: VTypography.bodySmall.copyWith(
-                  color: dynamicColors.danger,
-                  fontWeight: FontWeight.w600,
-                ),
+                variant: VTextVariant.bodySmall,
+                color: dynamicColors.danger,
+                style: const TextStyle(fontWeight: FontWeight.w600),
               ),
             ],
             const SizedBox(height: VSpacing.space6),

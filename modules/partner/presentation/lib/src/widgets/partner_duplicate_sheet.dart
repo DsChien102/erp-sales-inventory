@@ -59,18 +59,20 @@ class PartnerDuplicateSheet extends StatelessWidget {
             iconSize: 24,
           ),
           const SizedBox(height: VSpacing.space3),
-          Text(
+          VText(
             _isExact ? 'Trùng khớp hoàn toàn' : 'Có thể là hồ sơ trùng',
             textAlign: TextAlign.center,
-            style: VTypography.headingH3.copyWith(color: colors.textPrimary),
+            variant: VTextVariant.headingH3,
+            color: colors.textPrimary,
           ),
           const SizedBox(height: VSpacing.space2),
-          Text(
+          VText(
             _isExact
                 ? 'Đã tồn tại hồ sơ trùng khớp hoàn toàn. Không thể tạo mới.'
                 : 'Tìm thấy các hồ sơ có thông tin tương tự. Vui lòng kiểm tra trước khi tạo mới.',
             textAlign: TextAlign.center,
-            style: VTypography.bodyDefault.copyWith(color: colors.textSecondary),
+            variant: VTextVariant.bodyDefault,
+            color: colors.textSecondary,
           ),
           const SizedBox(height: VSpacing.space4),
           ...matches.map(
@@ -150,20 +152,18 @@ class _DuplicateMatchCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
+                VText(
                   match.displayName,
-                  style: VTypography.bodyDefault.copyWith(
-                    color: colors.textPrimary,
-                    fontWeight: FontWeight.w700,
-                  ),
+                  variant: VTextVariant.bodyDefault,
+                  color: colors.textPrimary,
+                  style: const TextStyle(fontWeight: FontWeight.w700),
                 ),
                 if (subtitle != null) ...[
                   const SizedBox(height: VSpacing.space1),
-                  Text(
+                  VText(
                     subtitle,
-                    style: VTypography.bodySmall.copyWith(
-                      color: colors.textSecondary,
-                    ),
+                    variant: VTextVariant.bodySmall,
+                    color: colors.textSecondary,
                   ),
                 ],
               ],

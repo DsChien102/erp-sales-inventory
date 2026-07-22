@@ -5,6 +5,16 @@ import 'package:vet45_partner_domain/domain.dart';
 
 enum PartnerContactAction { edit, setPrimary, remove }
 
+Future<PartnerContactAction?> showPartnerContactActionSheet(
+  BuildContext context, {
+  required PartnerContactDto contact,
+}) {
+  return showVBottomSheet<PartnerContactAction>(
+    context: context,
+    child: PartnerContactActionSheet(contact: contact),
+  );
+}
+
 class PartnerContactActionSheet extends StatelessWidget {
   const PartnerContactActionSheet({
     super.key,
@@ -17,83 +27,74 @@ class PartnerContactActionSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = context.vColors;
 
-    return VBottomSheet(
-      child: Material(
-        color: Colors.transparent,
-        child: SafeArea(
-          top: false,
-          child: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(
-                    VSpacing.space4,
-                    VSpacing.space4,
-                    VSpacing.space4,
-                    VSpacing.space2,
-                  ),
-                  child: Text(
-                    'Thao tác',
-                    style: VTypography.headingH3.copyWith(
-                      color: colors.textPrimary,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
+    return Material(
+      color: colors.surface.withValues(alpha: 0),
+      child: SafeArea(
+        top: false,
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(
+                  VSpacing.space4,
+                  VSpacing.space4,
+                  VSpacing.space4,
+                  VSpacing.space2,
                 ),
-                const SizedBox(height: VSpacing.space2),
-                Divider(color: colors.borderDefault, height: 1),
+                child: VText(
+                  'Thao tác',
+                  variant: VTextVariant.headingH3,
+                  color: colors.textPrimary,
+                  style: const TextStyle(fontWeight: FontWeight.w700),
+                ),
+              ),
+              const SizedBox(height: VSpacing.space2),
+              Divider(color: colors.borderDefault, height: 1),
+              ListTile(
+                leading: VIcon(icon: VIcons.edit, color: colors.textSecondary),
+                title: VText(
+                  'Chỉnh sửa liên hệ',
+                  color: colors.textPrimary,
+                  style: const TextStyle(fontWeight: FontWeight.w500),
+                ),
+                trailing: VIcon(icon: VIcons.chevronRight, color: colors.textMuted),
+                onTap: () => Navigator.of(context).pop(PartnerContactAction.edit),
+              ),
+              if (!contact.isPrimary && contact.status == PartnerStatus.active)
                 ListTile(
-                  leading: VIcon(icon: VIcons.edit, color: colors.textSecondary),
-                  title: Text(
-                    'Chỉnh sửa liên hệ',
-                    style: VTypography.bodyDefault.copyWith(
-                      color: colors.textPrimary,
-                      fontWeight: FontWeight.w500,
-                    ),
+                  leading: VIcon(icon: VIcons.star, color: colors.textSecondary),
+                  title: VText(
+                    'Đặt làm chính',
+                    color: colors.textPrimary,
+                    style: const TextStyle(fontWeight: FontWeight.w500),
                   ),
                   trailing: VIcon(icon: VIcons.chevronRight, color: colors.textMuted),
-                  onTap: () => Navigator.of(context).pop(PartnerContactAction.edit),
+                  onTap: () => Navigator.of(context).pop(PartnerContactAction.setPrimary),
                 ),
-                if (!contact.isPrimary && contact.status == PartnerStatus.active)
-                  ListTile(
-                    leading: VIcon(icon: VIcons.star, color: colors.textSecondary),
-                    title: Text(
-                      'Đặt làm chính',
-                      style: VTypography.bodyDefault.copyWith(
-                        color: colors.textPrimary,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                    trailing: VIcon(icon: VIcons.chevronRight, color: colors.textMuted),
-                    onTap: () => Navigator.of(context).pop(PartnerContactAction.setPrimary),
-                  ),
-                ListTile(
-                  leading: VIcon(icon: VIcons.delete, color: colors.danger),
-                  title: Text(
-                    'Gỡ khỏi tổ chức',
-                    style: VTypography.bodyDefault.copyWith(
-                      color: colors.danger,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                  trailing: VIcon(icon: VIcons.chevronRight, color: colors.danger),
-                  onTap: () => Navigator.of(context).pop(PartnerContactAction.remove),
+              ListTile(
+                leading: VIcon(icon: VIcons.delete, color: colors.danger),
+                title: VText(
+                  'Gỡ khỏi tổ chức',
+                  color: colors.danger,
+                  style: const TextStyle(fontWeight: FontWeight.w500),
                 ),
-                const SizedBox(height: VSpacing.space2),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: VSpacing.space4),
-                  child: VButton(
-                    label: 'Hủy',
-                    variant: VButtonVariant.outline,
-                    foregroundColor: colors.textPrimary,
-                    onPressed: () => Navigator.of(context).pop(),
-                  ),
+                trailing: VIcon(icon: VIcons.chevronRight, color: colors.danger),
+                onTap: () => Navigator.of(context).pop(PartnerContactAction.remove),
+              ),
+              const SizedBox(height: VSpacing.space2),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: VSpacing.space4),
+                child: VButton(
+                  label: 'Hủy',
+                  variant: VButtonVariant.outline,
+                  foregroundColor: colors.textPrimary,
+                  onPressed: () => Navigator.of(context).pop(),
                 ),
-                const SizedBox(height: VSpacing.space4),
-              ],
-            ),
+              ),
+              const SizedBox(height: VSpacing.space4),
+            ],
           ),
         ),
       ),

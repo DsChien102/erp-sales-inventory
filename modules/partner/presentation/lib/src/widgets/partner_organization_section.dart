@@ -29,18 +29,18 @@ class PartnerOrganizationSection extends StatelessWidget {
             value: state.organizationTypeLabel.isEmpty ? null : state.organizationTypeLabel,
             hintText: 'Chọn loại tổ chức',
             items: const [
-              DropdownMenuItem(value: 'Công ty', child: Text('Công ty')),
+              DropdownMenuItem(value: 'Công ty', child: VText('Công ty')),
               DropdownMenuItem(
                 value: 'Hộ kinh doanh',
-                child: Text('Hộ kinh doanh'),
+                child: VText('Hộ kinh doanh'),
               ),
-              DropdownMenuItem(value: 'Khác', child: Text('Khác')),
+              DropdownMenuItem(value: 'Khác', child: VText('Khác')),
             ],
             onChanged: (value) {
               if (value != null) cubit.updateOrganizationType(value);
             },
           ),
-          const SizedBox(height: PartnerOutlinedField.fieldGap),
+          const SizedBox(height: VSpacing.space2),
           PartnerOutlinedTextField(
             key: const Key('input_organization_name'),
             label: 'Tên tổ chức',
@@ -49,21 +49,21 @@ class PartnerOrganizationSection extends StatelessWidget {
             errorText: state.errors['organizationName'],
             onChanged: cubit.updateOrganizationName,
           ),
-          const SizedBox(height: PartnerOutlinedField.fieldGap),
+          const SizedBox(height: VSpacing.space2),
           PartnerOutlinedTextField(
             key: const Key('input_short_name'),
             label: 'Tên viết tắt',
             initialValue: state.shortName,
             onChanged: cubit.updateShortName,
           ),
-          const SizedBox(height: PartnerOutlinedField.fieldGap),
+          const SizedBox(height: VSpacing.space2),
           PartnerOutlinedTextField(
             key: const Key('input_international_name'),
             label: 'Tên quốc tế',
             initialValue: state.internationalName,
             onChanged: cubit.updateInternationalName,
           ),
-          const SizedBox(height: PartnerOutlinedField.fieldGap),
+          const SizedBox(height: VSpacing.space2),
           PartnerOutlinedTextField(
             key: const Key('input_phone'),
             label: 'SĐT chính',
@@ -74,7 +74,7 @@ class PartnerOrganizationSection extends StatelessWidget {
             digitsOnly: true,
             onChanged: cubit.updatePhone,
           ),
-          const SizedBox(height: PartnerOutlinedField.fieldGap),
+          const SizedBox(height: VSpacing.space2),
           PartnerOutlinedTextField(
             key: const Key('input_email'),
             label: 'Email',

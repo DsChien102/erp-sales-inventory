@@ -56,14 +56,13 @@ class _ProductGuidedStepInventoryState extends State<ProductGuidedStepInventory>
               padding: const EdgeInsets.all(VSpacing.space3),
               decoration: BoxDecoration(
                 color: dynamicColors.warningBg,
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: BorderRadius.circular(VRadius.r8),
                 border: Border.all(color: dynamicColors.warning.withValues(alpha: 0.3)),
               ),
-              child: Text(
+              child: VText(
                 'Cần thiết lập đơn vị cơ sở ở bước trước rồi mới nhập được tồn kho khởi tạo.',
-                style: VTypography.bodyDefault.copyWith(
-                  color: dynamicColors.warning,
-                ),
+                variant: VTextVariant.bodyDefault,
+                color: dynamicColors.warning,
               ),
             ),
           ),
@@ -76,9 +75,10 @@ class _ProductGuidedStepInventoryState extends State<ProductGuidedStepInventory>
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text(
+        VText(
           'Nhập số lượng tồn kho ban đầu của sản phẩm. Tồn kho này sẽ được ghi nhận vào kho mặc định.',
-          style: VTypography.bodySmall.copyWith(color: dynamicColors.textSecondary),
+          variant: VTextVariant.bodySmall,
+          color: dynamicColors.textSecondary,
         ),
         const SizedBox(height: VSpacing.space3),
         ProductGuidedFields.buildLabel(

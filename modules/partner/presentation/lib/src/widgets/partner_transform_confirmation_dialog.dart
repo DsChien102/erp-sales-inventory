@@ -33,41 +33,37 @@ class PartnerTransformConfirmationDialog extends StatelessWidget {
                 size: 58,
                 iconSize: 32,
                 isCircular: true,
-                backgroundColor: VColors.warningBg,
-                iconColor: VColors.warning,
-                borderColor: VColors.warning,
+                backgroundColor: colors.warningBg,
+                iconColor: colors.warning,
+                borderColor: colors.warning,
                 borderWidth: 2,
               ),
             ),
             const SizedBox(height: VSpacing.space4),
-            Text(
+            VText(
               'Xác nhận chuyển thành tổ chức?',
               textAlign: TextAlign.center,
-              style: VTypography.headingH3.copyWith(
-                color: colors.textPrimary,
-                fontWeight: FontWeight.w700,
-              ),
+              variant: VTextVariant.headingH3,
+              color: colors.textPrimary,
+              style: const TextStyle(fontWeight: FontWeight.w700),
             ),
             const SizedBox(height: VSpacing.space4),
-            Text(
+            VText(
               'Hồ sơ hiện tại sẽ trở thành Tổ chức.',
-              style: VTypography.bodyDefault.copyWith(
-                color: colors.textSecondary,
-              ),
+              variant: VTextVariant.bodyDefault,
+              color: colors.textSecondary,
             ),
             const SizedBox(height: VSpacing.space3),
-            Text(
+            VText(
               'Thông tin cá nhân hiện tại sẽ được lưu làm Người liên hệ chính.',
-              style: VTypography.bodyDefault.copyWith(
-                color: colors.textSecondary,
-              ),
+              variant: VTextVariant.bodyDefault,
+              color: colors.textSecondary,
             ),
             const SizedBox(height: VSpacing.space3),
-            Text(
+            VText(
               'Lịch sử giao dịch, hóa đơn và công nợ vẫn được giữ nguyên.',
-              style: VTypography.bodyDefault.copyWith(
-                color: colors.textSecondary,
-              ),
+              variant: VTextVariant.bodyDefault,
+              color: colors.textSecondary,
             ),
             const SizedBox(height: VSpacing.space5),
             Row(

@@ -57,13 +57,15 @@ class _EInvoiceConnectionPageState extends State<EInvoiceConnectionPage> {
   }
 
   void _showToast(BuildContext context, String message, {bool isError = false}) {
+    final colors = context.vColors;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(
+        content: VText(
           message,
-          style: VTypography.bodyDefault.copyWith(color: Colors.white),
+          variant: VTextVariant.bodyDefault,
+          color: context.vColors.surface,
         ),
-        backgroundColor: isError ? VColors.danger : VColors.success,
+        backgroundColor: isError ? colors.danger : colors.success,
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(VRadius.card),
@@ -139,43 +141,20 @@ class _EInvoiceConnectionPageState extends State<EInvoiceConnectionPage> {
   }
 
   Future<void> _confirmDisconnect() async {
-    final colors = context.vColors;
-    final confirmed = await showDialog<bool>(
+    var confirmed = false;
+    await showVConfirmDialog(
       context: context,
-      builder: (context) {
-        return AlertDialog(
-          backgroundColor: colors.surface,
-          title: Text(
-            'Ngắt kết nối MISA meInvoice?',
-            style: VTypography.headingH3.copyWith(color: colors.textPrimary),
-          ),
-          content: Text(
-            'Sau khi ngắt kết nối, các nghiệp vụ HĐĐT phụ thuộc kết nối sẽ bị vô hiệu hóa.',
-            style: VTypography.bodyDefault.copyWith(color: colors.textSecondary),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context, false),
-              child: Text(
-                'Hủy',
-                style: VTypography.bodyDefault.copyWith(
-                  color: colors.textSecondary,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ),
-            VButton(
-              label: 'Ngắt kết nối',
-              variant: VButtonVariant.danger,
-              size: VButtonSize.small,
-              onPressed: () => Navigator.pop(context, true),
-            ),
-          ],
-        );
+      title: 'Ngắt kết nối MISA meInvoice?',
+      message: 'Sau khi ngắt kết nối, các nghiệp vụ HĐĐT phụ thuộc kết nối sẽ bị vô hiệu hóa.',
+      cancelLabel: 'Hủy',
+      actionLabel: 'Ngắt kết nối',
+      isDestructive: true,
+      onAction: () {
+        confirmed = true;
       },
     );
 
-    if (confirmed == true && mounted) {
+    if (confirmed && mounted) {
       final success = await widget.cubit.disconnect();
       if (!mounted) return;
       if (success) {
@@ -197,12 +176,8 @@ class _EInvoiceConnectionPageState extends State<EInvoiceConnectionPage> {
       value: widget.cubit,
       child: BlocBuilder<EInvoiceSettingsCubit, EInvoiceSettingsState>(
         builder: (context, state) {
-          return Scaffold(
-            backgroundColor: colors.background,
-            appBar: VAppBar(
-              title: 'Kết nối dịch vụ hóa đơn điện tử',
-              showBackButton: !state.isSubmitting,
-            ),
+          return VPageScaffold(
+            title: 'Kết nối dịch vụ hóa đơn điện tử',
             body: Column(
               children: [
                 Expanded(
@@ -221,7 +196,6 @@ class _EInvoiceConnectionPageState extends State<EInvoiceConnectionPage> {
                               icon: VIcons.power,
                               size: 40,
                               iconSize: 20,
-                              backgroundColor: colors.surfaceBrand,
                               iconColor: colors.primary,
                               borderRadius: VRadius.r12,
                             ),
@@ -230,14 +204,13 @@ class _EInvoiceConnectionPageState extends State<EInvoiceConnectionPage> {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text(
+                                  VText(
                                     'MISA meInvoice',
-                                    style: VTypography.headingH4.copyWith(
-                                      color: colors.textPrimary,
-                                      fontWeight: FontWeight.w700,
-                                    ),
+                                    variant: VTextVariant.headingH4,
+                                    color: colors.textPrimary,
+                                    style: const TextStyle(fontWeight: FontWeight.w700),
                                   ),
-                                  const SizedBox(height: 4),
+                                  const SizedBox(height: VSpacing.space1),
                                   VBadge(
                                     label: state.misaConnected ? 'ĐANG KẾT NỐI' : 'CHƯA KẾT NỐI',
                                     status: state.misaConnected
@@ -331,7 +304,7 @@ class _EInvoiceConnectionPageState extends State<EInvoiceConnectionPage> {
                             const SizedBox(height: VSpacing.space4),
 
                             // Helper Text
-                            Text(
+                            VText(
                               'Thông tin xác thực được lưu mã hóa. Sau khi lưu, mật khẩu chỉ hiển thị dạng che.',
                               style: VTypography.bodySmall.copyWith(
                                 color: colors.textSecondary,
@@ -360,8 +333,8 @@ class _EInvoiceConnectionPageState extends State<EInvoiceConnectionPage> {
                           child: Container(
                             height: 44,
                             decoration: BoxDecoration(
-                              color: VColors.dangerBg,
-                              border: Border.all(color: VColors.danger.withValues(alpha: 0.3)),
+                              color: colors.dangerBg,
+                              border: Border.all(color: colors.danger.withValues(alpha: 0.3)),
                               borderRadius: BorderRadius.circular(VRadius.button),
                             ),
                             child: Row(
@@ -373,12 +346,11 @@ class _EInvoiceConnectionPageState extends State<EInvoiceConnectionPage> {
                                   size: 18,
                                 ),
                                 const SizedBox(width: VSpacing.space2),
-                                Text(
+                                VText(
                                   'Ngắt kết nối',
-                                  style: VTypography.bodyDefault.copyWith(
-                                    color: VColors.danger,
-                                    fontWeight: FontWeight.w600,
-                                  ),
+                                  variant: VTextVariant.bodyDefault,
+                                  color: colors.danger,
+                                  style: const TextStyle(fontWeight: FontWeight.w600),
                                 ),
                               ],
                             ),
@@ -403,7 +375,7 @@ class _EInvoiceConnectionPageState extends State<EInvoiceConnectionPage> {
                   ),
                   child: VButton(
                     label: 'Lưu & kiểm tra kết nối',
-                    leadingIcon: const VIcon(icon: VIcons.check, color: Colors.white, size: 18),
+                    leadingIcon: const VIcon(icon: VIcons.check, color: VColors.neutral0, size: 18),
                     isLoading: state.isSubmitting,
                     fullWidth: true,
                     onPressed: (state.isSubmitting || !_isFormValid) ? null : _submit,

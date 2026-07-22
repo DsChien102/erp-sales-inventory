@@ -51,19 +51,18 @@ class _PartnerDetailExpandableCardState extends State<PartnerDetailExpandableCar
               vertical: 0,
             ),
             leading: VIcon(icon: widget.icon, color: colors.textSecondary, size: 20),
-            title: Text(
+            title: VText(
               widget.title,
-              style: VTypography.bodyDefault.copyWith(
-                color: colors.textPrimary,
-                fontWeight: FontWeight.w500,
-              ),
+              variant: VTextVariant.bodyDefault,
+              color: colors.textPrimary,
+              style: const TextStyle(fontWeight: FontWeight.w500),
             ),
             trailing: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
                 if (!_expanded && widget.trailingWhenCollapsed != null) ...[
                   widget.trailingWhenCollapsed!,
-                  const SizedBox(width: 4),
+                  const SizedBox(width: VSpacing.space1),
                 ],
                 VIcon(
                   icon: _expanded ? VIcons.expandLess : VIcons.chevronRight,

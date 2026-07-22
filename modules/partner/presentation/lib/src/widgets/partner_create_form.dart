@@ -238,6 +238,7 @@ class _MessageCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.vColors;
     return VCard(
       child: Row(
         children: [
@@ -247,9 +248,10 @@ class _MessageCard extends StatelessWidget {
           ),
           const SizedBox(width: VSpacing.space2),
           Expanded(
-            child: Text(
+            child: VText(
               message,
-              style: VTypography.bodyDefault.copyWith(color: VColors.danger),
+              variant: VTextVariant.bodyDefault,
+              color: colors.danger,
             ),
           ),
         ],

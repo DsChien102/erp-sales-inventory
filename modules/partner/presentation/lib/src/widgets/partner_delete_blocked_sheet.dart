@@ -79,16 +79,15 @@ class PartnerDeleteBlockedSheet extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: VSpacing.space4),
-              Text(
+              VText(
                 'Không thể xóa hồ sơ',
                 textAlign: TextAlign.center,
-                style: VTypography.headingH3.copyWith(
-                  color: colors.textPrimary,
-                  fontWeight: FontWeight.w700,
-                ),
+                variant: VTextVariant.headingH3,
+                color: colors.textPrimary,
+                style: const TextStyle(fontWeight: FontWeight.w700),
               ),
               const SizedBox(height: VSpacing.space3),
-              Text(
+              VText(
                 'KH & NCC đã phát sinh giao dịch hoặc chứng từ liên quan nên không thể xóa.',
                 textAlign: TextAlign.center,
                 style: VTypography.bodyDefault.copyWith(
@@ -98,7 +97,7 @@ class PartnerDeleteBlockedSheet extends StatelessWidget {
               ),
               if (showDeactivateAction) ...[
                 const SizedBox(height: VSpacing.space2),
-                Text(
+                VText(
                   'Bạn có thể ngừng hoạt động để tránh sử dụng trong giao dịch mới.',
                   textAlign: TextAlign.center,
                   style: VTypography.bodyDefault.copyWith(

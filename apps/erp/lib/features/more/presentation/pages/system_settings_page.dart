@@ -30,7 +30,6 @@ class SystemSettingsPage extends StatelessWidget {
                   icon: VIcons.description,
                   size: 44,
                   iconSize: 20,
-                  backgroundColor: colors.surfaceBrand,
                   iconColor: colors.primary,
                   borderRadius: VRadius.r12,
                 ),
@@ -40,23 +39,21 @@ class SystemSettingsPage extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Text(
+                      VText(
                         'Thiết lập hóa đơn điện tử',
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: VTypography.headingH4.copyWith(
-                          color: colors.textPrimary,
-                          fontWeight: FontWeight.w700,
-                        ),
+                        variant: VTextVariant.headingH4,
+                        color: colors.textPrimary,
+                        style: const TextStyle(fontWeight: FontWeight.w700),
                       ),
-                      const SizedBox(height: 3),
-                      Text(
+                      const VGap.xs(),
+                      VText(
                         'Kết nối, chọn mẫu hóa đơn, cấu hình tự động phát hành và gửi HĐĐT',
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
-                        style: VTypography.bodySmall.copyWith(
-                          color: colors.textSecondary,
-                        ),
+                        variant: VTextVariant.bodySmall,
+                        color: colors.textSecondary,
                       ),
                     ],
                   ),
@@ -83,7 +80,6 @@ class SystemSettingsPage extends StatelessWidget {
                   icon: VIcons.inventory,
                   size: 44,
                   iconSize: 20,
-                  backgroundColor: colors.surfaceBrand,
                   iconColor: colors.primary,
                   borderRadius: VRadius.r12,
                 ),
@@ -93,23 +89,21 @@ class SystemSettingsPage extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Text(
+                      VText(
                         'Sản phẩm',
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: VTypography.headingH4.copyWith(
-                          color: colors.textPrimary,
-                          fontWeight: FontWeight.w700,
-                        ),
+                        variant: VTextVariant.headingH4,
+                        color: colors.textPrimary,
+                        style: const TextStyle(fontWeight: FontWeight.w700),
                       ),
-                      const SizedBox(height: 3),
-                      Text(
+                      const VGap.xs(),
+                      VText(
                         'Giá bán, nhóm thông tin và trường tuỳ biến cho sản phẩm',
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
-                        style: VTypography.bodySmall.copyWith(
-                          color: colors.textSecondary,
-                        ),
+                        variant: VTextVariant.bodySmall,
+                        color: colors.textSecondary,
                       ),
                     ],
                   ),

@@ -168,8 +168,8 @@ class ProductGuidedCreateBody extends StatelessWidget {
             title: VText(
               title,
               variant: VTextVariant.bodyDefault,
-              style: const TextStyle(fontWeight: FontWeight.bold),
               color: dynamicColors.textPrimary,
+              style: const TextStyle(fontWeight: FontWeight.bold),
             ),
             subtitle: VText(
               subtitle,

@@ -67,21 +67,20 @@ class _PartnerDeactivateConfirmationSheetState extends State<PartnerDeactivateCo
                   size: 64,
                   iconSize: 32,
                   isCircular: true,
-                  backgroundColor: VColors.warning.withValues(alpha: 0.15),
-                  iconColor: VColors.warning,
+                  backgroundColor: colors.warning.withValues(alpha: 0.15),
+                  iconColor: colors.warning,
                 ),
               ),
               const SizedBox(height: VSpacing.space4),
-              Text(
+              VText(
                 'Ngừng hoạt động KH & NCC?',
                 textAlign: TextAlign.center,
-                style: VTypography.headingH3.copyWith(
-                  color: colors.textPrimary,
-                  fontWeight: FontWeight.w700,
-                ),
+                variant: VTextVariant.headingH3,
+                color: colors.textPrimary,
+                style: const TextStyle(fontWeight: FontWeight.w700),
               ),
               const SizedBox(height: VSpacing.space3),
-              Text(
+              VText(
                 'KH & NCC này sẽ không còn được chọn cho giao dịch mới.\n'
                 'Hồ sơ và lịch sử vẫn được giữ lại.',
                 textAlign: TextAlign.center,
@@ -97,12 +96,12 @@ class _PartnerDeactivateConfirmationSheetState extends State<PartnerDeactivateCo
                   padding: const EdgeInsets.all(VSpacing.space3),
                   decoration: BoxDecoration(
                     color: colors.warning.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(VRadius.r8),
                     border: Border.all(
                       color: colors.warning.withValues(alpha: 0.35),
                     ),
                   ),
-                  child: Text(
+                  child: VText(
                     'Người này đang là liên hệ chính của “${widget.primaryContactOrganizationName}”. '
                     'Sau khi ngừng hoạt động, tổ chức sẽ không còn người liên hệ chính.',
                     style: VTypography.bodySmall.copyWith(
@@ -113,12 +112,11 @@ class _PartnerDeactivateConfirmationSheetState extends State<PartnerDeactivateCo
                 ),
               ],
               const SizedBox(height: VSpacing.space5),
-              Text(
+              VText(
                 'Lý do (không bắt buộc)',
-                style: VTypography.bodySmall.copyWith(
-                  color: colors.textPrimary,
-                  fontWeight: FontWeight.w600,
-                ),
+                variant: VTextVariant.bodySmall,
+                color: colors.textPrimary,
+                style: const TextStyle(fontWeight: FontWeight.w600),
               ),
               const SizedBox(height: VSpacing.space2),
               VTextField(
@@ -137,11 +135,10 @@ class _PartnerDeactivateConfirmationSheetState extends State<PartnerDeactivateCo
               const SizedBox(height: VSpacing.space1),
               Align(
                 alignment: Alignment.centerRight,
-                child: Text(
+                child: VText(
                   '$reasonLength/${PartnerDeactivateConfirmationSheet.maxReasonLength}',
-                  style: VTypography.caption.copyWith(
-                    color: colors.textMuted,
-                  ),
+                  variant: VTextVariant.caption,
+                  color: colors.textMuted,
                 ),
               ),
               const SizedBox(height: VSpacing.space5),

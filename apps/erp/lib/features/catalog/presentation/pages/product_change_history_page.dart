@@ -81,21 +81,18 @@ class _ProductChangeHistoryViewState extends State<_ProductChangeHistoryView> {
   Widget build(BuildContext context) {
     final dynamicColors = context.vColors;
 
-    return Scaffold(
-      backgroundColor: dynamicColors.surface,
-      appBar: VAppBar(
-        title: 'Lịch sử thay đổi',
-        subtitle: widget.productName,
-        leading: IconButton(
-          icon: VIcon(icon: VIcons.arrowBack, color: dynamicColors.textPrimary),
-          onPressed: () {
-            if (context.canPop()) {
-              context.pop();
-            } else {
-              context.go('/products/items');
-            }
-          },
-        ),
+    return VPageScaffold(
+      title: 'Lịch sử thay đổi',
+      subtitle: widget.productName,
+      leading: IconButton(
+        icon: VIcon(icon: VIcons.arrowBack, color: dynamicColors.textPrimary),
+        onPressed: () {
+          if (context.canPop()) {
+            context.pop();
+          } else {
+            context.go('/products/items');
+          }
+        },
       ),
       body: BlocBuilder<ProductChangeHistoryCubit, ProductChangeHistoryState>(
         builder: (context, state) {
@@ -109,14 +106,16 @@ class _ProductChangeHistoryViewState extends State<_ProductChangeHistoryView> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   VIcon(icon: VIcons.error, size: 48, color: dynamicColors.danger),
-                  const SizedBox(height: 16),
-                  Text(
+                  const VGap.md(),
+                  VText(
                     state.errorMessage ?? 'Đã xảy ra lỗi',
-                    style: VTypography.bodyDefault.copyWith(color: dynamicColors.textSecondary),
+                    variant: VTextVariant.bodyDefault,
+                    color: dynamicColors.textSecondary,
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: VSpacing.space4),
                   VButton(
-                    onPressed: () => context.read<ProductChangeHistoryCubit>().refresh(widget.productId),
+                    onPressed: () =>
+                        context.read<ProductChangeHistoryCubit>().refresh(widget.productId),
                     label: 'Thử lại',
                     variant: VButtonVariant.outline,
                   ),
@@ -131,10 +130,11 @@ class _ProductChangeHistoryViewState extends State<_ProductChangeHistoryView> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   VIcon(icon: VIcons.history, size: 48, color: dynamicColors.textMuted),
-                  const SizedBox(height: 16),
-                  Text(
+                  const VGap.md(),
+                  VText(
                     'Chưa có lịch sử thay đổi nào',
-                    style: VTypography.bodyDefault.copyWith(color: dynamicColors.textSecondary),
+                    variant: VTextVariant.bodyDefault,
+                    color: dynamicColors.textSecondary,
                   ),
                 ],
               ),
@@ -146,13 +146,13 @@ class _ProductChangeHistoryViewState extends State<_ProductChangeHistoryView> {
               context.read<ProductChangeHistoryCubit>().refresh(widget.productId);
             },
             child: ListView.builder(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(VSpacing.space4),
               controller: _scrollController,
               itemCount: state.hasReachedMax ? state.items.length : state.items.length + 1,
               itemBuilder: (context, index) {
                 if (index >= state.items.length) {
                   return const Padding(
-                    padding: EdgeInsets.all(16.0),
+                    padding: EdgeInsets.all(VSpacing.space4),
                     child: Center(child: CircularProgressIndicator()),
                   );
                 }

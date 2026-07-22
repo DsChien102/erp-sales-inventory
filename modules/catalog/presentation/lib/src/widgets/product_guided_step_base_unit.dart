@@ -55,9 +55,10 @@ class _ProductGuidedStepBaseUnitState extends State<ProductGuidedStepBaseUnit> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text(
+        VText(
           'Đơn vị gốc để tính tồn/giá. Có thể bổ sung sau.',
-          style: VTypography.bodySmall.copyWith(color: dynamicColors.textSecondary),
+          variant: VTextVariant.bodySmall,
+          color: dynamicColors.textSecondary,
         ),
         const SizedBox(height: VSpacing.space3),
         ProductGuidedFields.buildLabel(context, 'Đơn vị cơ sở'),

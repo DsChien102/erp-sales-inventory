@@ -155,30 +155,27 @@ class _ProductManualBasePriceViewState extends State<_ProductManualBasePriceView
         }
       },
       builder: (context, state) {
-        return Scaffold(
+        return VPageScaffold(
           key: const Key('wgt_e06_u01_fr01_01'),
-          backgroundColor: dynamicColors.surface,
-          appBar: VAppBar(
-            title: 'Giá vốn cơ sở',
-            titleStyle: VTypography.headingH3.copyWith(
-              color: dynamicColors.textPrimary,
-              fontWeight: FontWeight.bold,
-            ),
-            subtitle: widget.product.name,
-            leading: IconButton(
-              icon: VIcon(icon: VIcons.arrowBack, color: dynamicColors.textPrimary),
-              onPressed: () => context.pop(),
-            ),
+          title: 'Giá vốn cơ sở',
+          titleStyle: VTypography.headingH3.copyWith(
+            color: dynamicColors.textPrimary,
+            fontWeight: FontWeight.bold,
+          ),
+          subtitle: widget.product.name,
+          leading: IconButton(
+            icon: VIcon(icon: VIcons.arrowBack, color: dynamicColors.textPrimary),
+            onPressed: () => context.pop(),
           ),
           body: Column(
             children: [
               Expanded(
                 child: SingleChildScrollView(
                   child: Padding(
-                    padding: const EdgeInsets.all(16),
+                    padding: const EdgeInsets.all(VSpacing.space4),
                     child: hasBaseUnit
                         ? VCard(
-                            padding: const EdgeInsets.all(16),
+                            padding: const EdgeInsets.all(VSpacing.space4),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.stretch,
                               children: [
@@ -189,38 +186,35 @@ class _ProductManualBasePriceViewState extends State<_ProductManualBasePriceView
                                     border: Border.all(
                                       color: dynamicColors.textSecondary.withValues(alpha: 0.2),
                                     ),
-                                    borderRadius: BorderRadius.circular(8),
+                                    borderRadius: BorderRadius.circular(VRadius.r8),
                                   ),
                                   child: Row(
                                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                     children: [
-                                      Text(
+                                      VText(
                                         'Giá vốn hiện tại',
-                                        style: VTypography.bodyDefault.copyWith(
-                                          color: dynamicColors.textSecondary,
-                                        ),
+                                        variant: VTextVariant.bodyDefault,
+                                        color: dynamicColors.textSecondary,
                                       ),
-                                      Text(
+                                      VText(
                                         widget.basePriceCard.isMissing
                                             ? '—'
                                             : formatCatalogCurrency(widget.basePriceCard.amount),
-                                        style: VTypography.bodyDefault.copyWith(
-                                          color: dynamicColors.textPrimary,
-                                          fontWeight: FontWeight.bold,
-                                        ),
+                                        variant: VTextVariant.bodyDefault,
+                                        color: dynamicColors.textPrimary,
+                                        style: const TextStyle(fontWeight: FontWeight.bold),
                                       ),
                                     ],
                                   ),
                                 ),
-                                const SizedBox(height: 16),
+                                const SizedBox(height: VSpacing.space4),
 
-                                Text(
+                                VText(
                                   'Giá vốn mới (${widget.basePriceCard.currency == 'VND' ? 'đ' : widget.basePriceCard.currency} / 1 $baseUnitName)',
-                                  style: VTypography.bodySmall.copyWith(
-                                    color: dynamicColors.textSecondary,
-                                  ),
+                                  variant: VTextVariant.bodySmall,
+                                  color: dynamicColors.textSecondary,
                                 ),
-                                const SizedBox(height: 8),
+                                const SizedBox(height: VSpacing.space2),
                                 VMoneyField(
                                   key: const Key('input_base_price_amount'),
                                   controller: _priceController,
@@ -229,22 +223,20 @@ class _ProductManualBasePriceViewState extends State<_ProductManualBasePriceView
                                   suffixText:
                                       '${widget.basePriceCard.currency == 'VND' ? 'đ' : widget.basePriceCard.currency} / $baseUnitName',
                                 ),
-                                const SizedBox(height: 8),
-                                Text(
+                                const SizedBox(height: VSpacing.space2),
+                                VText(
                                   'Giá vốn cơ sở luôn gắn với đơn vị cơ sở của sản phẩm ($baseUnitName).',
-                                  style: VTypography.bodySmall.copyWith(
-                                    color: dynamicColors.textSecondary,
-                                  ),
+                                  variant: VTextVariant.bodySmall,
+                                  color: dynamicColors.textSecondary,
                                 ),
 
-                                const SizedBox(height: 16),
-                                Text(
+                                const SizedBox(height: VSpacing.space4),
+                                VText(
                                   'Ghi chú',
-                                  style: VTypography.bodySmall.copyWith(
-                                    color: dynamicColors.textSecondary,
-                                  ),
+                                  variant: VTextVariant.bodySmall,
+                                  color: dynamicColors.textSecondary,
                                 ),
-                                const SizedBox(height: 8),
+                                const SizedBox(height: VSpacing.space2),
                                 VTextField(
                                   controller: _noteController,
                                   hintText: 'Nhập ghi chú...',
@@ -254,7 +246,7 @@ class _ProductManualBasePriceViewState extends State<_ProductManualBasePriceView
                             ),
                           )
                         : DashedBorderContainer(
-                            padding: const EdgeInsets.all(16),
+                            padding: const EdgeInsets.all(VSpacing.space4),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.stretch,
                               children: [
@@ -278,12 +270,11 @@ class _ProductManualBasePriceViewState extends State<_ProductManualBasePriceView
                                     ],
                                   ),
                                 ),
-                                const SizedBox(height: 8),
-                                Text(
+                                const SizedBox(height: VSpacing.space2),
+                                VText(
                                   'Giá vốn cơ sở luôn gắn với đơn vị cơ sở của sản phẩm.',
-                                  style: VTypography.bodySmall.copyWith(
-                                    color: dynamicColors.textSecondary,
-                                  ),
+                                  variant: VTextVariant.bodySmall,
+                                  color: dynamicColors.textSecondary,
                                 ),
                               ],
                             ),

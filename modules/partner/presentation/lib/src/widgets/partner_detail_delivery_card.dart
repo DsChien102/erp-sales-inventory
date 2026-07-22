@@ -36,9 +36,9 @@ class PartnerDetailDeliveryCard extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
               decoration: BoxDecoration(
                 color: colors.warning.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: BorderRadius.circular(VRadius.r8),
               ),
-              child: Text(
+              child: VText(
                 'Chưa có',
                 style: VTypography.bodySmall.copyWith(
                   color: colors.warning,
@@ -84,20 +84,19 @@ class _Field extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
+        VText(
           label,
           style: VTypography.bodySmall.copyWith(
             color: colors.textSecondary,
             fontSize: 11,
           ),
         ),
-        const SizedBox(height: 2),
-        Text(
+        const VGap.xs(),
+        VText(
           value,
-          style: VTypography.bodyDefault.copyWith(
-            color: isEmpty ? colors.textMuted : colors.textPrimary,
-            fontWeight: isEmpty ? FontWeight.w400 : FontWeight.w500,
-          ),
+          variant: VTextVariant.bodyDefault,
+          color: isEmpty ? colors.textMuted : colors.textPrimary,
+          style: TextStyle(fontWeight: isEmpty ? FontWeight.w400 : FontWeight.w500),
         ),
       ],
     );

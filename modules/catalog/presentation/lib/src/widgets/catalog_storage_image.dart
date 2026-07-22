@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:vet45_design_system/design_system.dart';
 
 import '../services/product_image_display_resolver.dart';
 
@@ -118,9 +119,9 @@ class _CatalogStorageImageState extends State<CatalogStorageImage> {
       child:
           widget.placeholder ??
           const ColoredBox(
-            color: Color(0xFFECECEC),
+            color: VColors.surfaceAlt,
             child: Center(
-              child: Icon(Icons.image_outlined, color: Color(0xFF9E9E9E)),
+              child: Icon(Icons.image_outlined, color: VColors.textMuted),
             ),
           ),
     );

@@ -78,20 +78,20 @@ class ProductImageGridItem extends StatelessWidget {
               imageChild,
               if (isUploading)
                 Container(
-                  color: Colors.white.withValues(alpha: 0.8),
+                  color: dynamicColors.surface.withValues(alpha: 0.8),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       SizedBox(
-                        width: 24,
+                        width: VSpacing.space6,
                         height: 24,
                         child: CircularProgressIndicator(
                           strokeWidth: 2.5,
                           color: dynamicColors.primary,
                         ),
                       ),
-                      const SizedBox(height: 4),
-                      Text(
+                      const SizedBox(height: VSpacing.space1),
+                      VText(
                         'Đang tải',
                         style: VTypography.caption.copyWith(
                           color: dynamicColors.primary,
@@ -104,13 +104,13 @@ class ProductImageGridItem extends StatelessWidget {
                 ),
               if (isFailed)
                 Container(
-                  color: Colors.white.withValues(alpha: 0.8),
+                  color: dynamicColors.surface.withValues(alpha: 0.8),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Icon(Icons.error_outline, color: dynamicColors.danger, size: 24),
-                      const SizedBox(height: 4),
-                      Text(
+                      const SizedBox(height: VSpacing.space1),
+                      VText(
                         errorMessage ?? 'Lỗi tải',
                         textAlign: TextAlign.center,
                         style: VTypography.caption.copyWith(
@@ -134,10 +134,10 @@ class ProductImageGridItem extends StatelessWidget {
                         bottomRight: Radius.circular(VRadius.card),
                       ),
                     ),
-                    child: Text(
+                    child: VText(
                       'Mặc định',
                       style: VTypography.caption.copyWith(
-                        color: Colors.white,
+                        color: dynamicColors.surface,
                         fontWeight: FontWeight.bold,
                         fontSize: 10,
                       ),

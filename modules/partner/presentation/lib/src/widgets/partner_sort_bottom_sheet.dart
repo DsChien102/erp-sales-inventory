@@ -15,13 +15,9 @@ class PartnerSortBottomSheet extends StatefulWidget {
     BuildContext context, {
     required PartnerSortOption initialSort,
   }) {
-    return showModalBottomSheet<PartnerSortOption>(
+    return showVBottomSheet<PartnerSortOption>(
       context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) => PartnerSortBottomSheet(
-        initialSort: initialSort,
-      ),
+      child: PartnerSortBottomSheet(initialSort: initialSort),
     );
   }
 
@@ -71,34 +67,32 @@ class _PartnerSortBottomSheetState extends State<PartnerSortBottomSheet> {
 
   @override
   Widget build(BuildContext context) {
-    return VBottomSheet(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: VSpacing.space4),
-            child: VChoiceList<PartnerSortOption>(
-              title: 'Sắp xếp danh sách',
-              choices: _choices,
-              selected: [_selectedSort],
-              onChanged: (selected) {
-                if (selected.isEmpty) return;
-                setState(() => _selectedSort = selected.first);
-              },
-            ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: VSpacing.space4),
+          child: VChoiceList<PartnerSortOption>(
+            title: 'Sắp xếp danh sách',
+            choices: _choices,
+            selected: [_selectedSort],
+            onChanged: (selected) {
+              if (selected.isEmpty) return;
+              setState(() => _selectedSort = selected.first);
+            },
           ),
-          const SizedBox(height: VSpacing.space2),
-          Padding(
-            padding: const EdgeInsets.all(VSpacing.space4),
-            child: VButton(
-              variant: VButtonVariant.primary,
-              label: 'Áp dụng',
-              onPressed: _apply,
-            ),
+        ),
+        const VGap.sm(),
+        Padding(
+          padding: const EdgeInsets.all(VSpacing.space4),
+          child: VButton(
+            variant: VButtonVariant.primary,
+            label: 'Áp dụng',
+            onPressed: _apply,
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }

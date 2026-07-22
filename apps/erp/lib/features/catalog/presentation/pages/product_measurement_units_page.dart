@@ -156,9 +156,10 @@ class _ProductMeasurementUnitsViewState extends State<_ProductMeasurementUnitsVi
             final cubit = context.read<ProductMeasurementUnitsCubit>();
             ProductConversionUnitDeleteBlockedDialog.show(
               context,
-              message: state.errorMessage ??
+              message:
+                  state.errorMessage ??
                   'Không thể xóa đơn vị này vì đã có dữ liệu phụ thuộc. '
-                  'Hãy dùng "Tắt đơn vị" để bảo toàn lịch sử.',
+                      'Hãy dùng "Tắt đơn vị" để bảo toàn lịch sử.',
               onDeactivate: () {
                 cubit.clearDeleteBlocked();
                 cubit.deactivateConversionUnit(blockedUnitId);
@@ -178,55 +179,50 @@ class _ProductMeasurementUnitsViewState extends State<_ProductMeasurementUnitsVi
       builder: (context, state) {
         final hasBaseUnit = state.baseUnitName != null && state.baseUnitName!.isNotEmpty;
 
-        return Scaffold(
-          backgroundColor: dynamicColors.surface,
-          appBar: VAppBar(
-            title: 'Đơn vị đo lường',
-            titleStyle: VTypography.headingH3.copyWith(
-              color: dynamicColors.textPrimary,
-              fontWeight: FontWeight.bold,
-            ),
-            subtitle: widget.product.name,
-            leading: IconButton(
-              icon: VIcon(icon: VIcons.arrowBack, color: dynamicColors.textPrimary),
-              onPressed: () => context.pop(),
-            ),
+        return VPageScaffold(
+          title: 'Đơn vị đo lường',
+          titleStyle: VTypography.headingH3.copyWith(
+            color: dynamicColors.textPrimary,
+            fontWeight: FontWeight.bold,
+          ),
+          subtitle: widget.product.name,
+          leading: IconButton(
+            icon: VIcon(icon: VIcons.arrowBack, color: dynamicColors.textPrimary),
+            onPressed: () => context.pop(),
           ),
           body: SingleChildScrollView(
             child: Padding(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(VSpacing.space4),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   // Base Unit Card
                   VCard(
-                    padding: const EdgeInsets.all(16),
+                    padding: const EdgeInsets.all(VSpacing.space4),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
+                        VText(
                           'ĐƠN VỊ CƠ SỞ',
-                          style: VTypography.bodySmall.copyWith(
-                            color: dynamicColors.textSecondary,
-                            fontWeight: FontWeight.bold,
-                          ),
+                          variant: VTextVariant.bodySmall,
+                          color: dynamicColors.textSecondary,
+                          style: const TextStyle(fontWeight: FontWeight.bold),
                         ),
-                        const SizedBox(height: 12),
+                        const SizedBox(height: VSpacing.space3),
                         if (!hasBaseUnit && !_isEditingBaseUnit) ...[
-                          Text(
+                          VText(
                             'Chưa thiết lập (không bắt buộc).',
-                            style: VTypography.bodyDefault.copyWith(
-                              color: dynamicColors.textPrimary,
-                            ),
+                            variant: VTextVariant.bodyDefault,
+                            color: dynamicColors.textPrimary,
                           ),
-                          const SizedBox(height: 16),
+                          const SizedBox(height: VSpacing.space4),
                           InkWell(
                             onTap: () {
                               setState(() {
                                 _isEditingBaseUnit = true;
                               });
                             },
-                            borderRadius: BorderRadius.circular(8),
+                            borderRadius: BorderRadius.circular(VRadius.r8),
                             child: Container(
                               width: double.infinity,
                               padding: const EdgeInsets.symmetric(vertical: 12),
@@ -236,31 +232,29 @@ class _ProductMeasurementUnitsViewState extends State<_ProductMeasurementUnitsVi
                                   style: BorderStyle
                                       .solid, // dotted in mockup but dashed/dotted usually needs custom painter or package, so we just use border
                                 ),
-                                borderRadius: BorderRadius.circular(8),
+                                borderRadius: BorderRadius.circular(VRadius.r8),
                               ),
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   VIcon(icon: VIcons.add, color: dynamicColors.primary, size: 18),
-                                  const SizedBox(width: 8),
-                                  Text(
+                                  const VGap.horizontalSm(),
+                                  VText(
                                     'Thiết lập đơn vị cơ sở',
-                                    style: VTypography.bodyDefault.copyWith(
-                                      color: dynamicColors.primary,
-                                    ),
+                                    variant: VTextVariant.bodyDefault,
+                                    color: dynamicColors.primary,
                                   ),
                                 ],
                               ),
                             ),
                           ),
                         ] else if (_isEditingBaseUnit) ...[
-                          Text(
+                          VText(
                             'Tên đơn vị cơ sở',
-                            style: VTypography.bodySmall.copyWith(
-                              color: dynamicColors.textSecondary,
-                            ),
+                            variant: VTextVariant.bodySmall,
+                            color: dynamicColors.textSecondary,
                           ),
-                          const SizedBox(height: 8),
+                          const SizedBox(height: VSpacing.space2),
                           TenantMeasurementUnitSearchField(
                             controller: _baseUnitController,
                             units: state.tenantUnits,
@@ -269,14 +263,13 @@ class _ProductMeasurementUnitsViewState extends State<_ProductMeasurementUnitsVi
                             useVTextField: true,
                             fieldKey: const Key('input_base_unit_name'),
                           ),
-                          const SizedBox(height: 8),
-                          Text(
+                          const SizedBox(height: VSpacing.space2),
+                          VText(
                             'Sẽ lưu ở dạng chữ thường: ${_baseUnitController.text.toLowerCase()}',
-                            style: VTypography.bodySmall.copyWith(
-                              color: dynamicColors.textSecondary,
-                            ),
+                            variant: VTextVariant.bodySmall,
+                            color: dynamicColors.textSecondary,
                           ),
-                          const SizedBox(height: 16),
+                          const SizedBox(height: VSpacing.space4),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.end,
                             children: [
@@ -286,14 +279,13 @@ class _ProductMeasurementUnitsViewState extends State<_ProductMeasurementUnitsVi
                                     _isEditingBaseUnit = false;
                                   });
                                 },
-                                child: Text(
+                                child: VText(
                                   'Huỷ',
-                                  style: VTypography.bodyDefault.copyWith(
-                                    color: dynamicColors.textSecondary,
-                                  ),
+                                  variant: VTextVariant.bodyDefault,
+                                  color: dynamicColors.textSecondary,
                                 ),
                               ),
-                              const SizedBox(width: 8),
+                              const SizedBox(width: VSpacing.space2),
                               VButton(
                                 label: 'Lưu',
                                 isLoading:
@@ -303,54 +295,49 @@ class _ProductMeasurementUnitsViewState extends State<_ProductMeasurementUnitsVi
                             ],
                           ),
                         ] else ...[
-                          Text(
+                          VText(
                             state.baseUnitName!,
-                            style: VTypography.headingH4.copyWith(
-                              fontWeight: FontWeight.bold,
-                              color: dynamicColors.textPrimary,
-                            ),
+                            variant: VTextVariant.headingH4,
+                            color: dynamicColors.textPrimary,
+                            style: const TextStyle(fontWeight: FontWeight.bold),
                           ),
-                          const SizedBox(height: 4),
-                          Text(
+                          const SizedBox(height: VSpacing.space1),
+                          VText(
                             'Tuỳ chọn. Khi đã có giao dịch, không nên đổi.',
-                            style: VTypography.bodySmall.copyWith(
-                              color: dynamicColors.textSecondary,
-                            ),
+                            variant: VTextVariant.bodySmall,
+                            color: dynamicColors.textSecondary,
                           ),
                         ],
                       ],
                     ),
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: VSpacing.space4),
 
                   // Conversion Units Card
                   VCard(
-                    padding: const EdgeInsets.all(16),
+                    padding: const EdgeInsets.all(VSpacing.space4),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
+                        VText(
                           'ĐƠN VỊ QUY ĐỔI (${state.conversionUnits.length})',
-                          style: VTypography.bodySmall.copyWith(
-                            color: dynamicColors.textSecondary,
-                            fontWeight: FontWeight.bold,
-                          ),
+                          variant: VTextVariant.bodySmall,
+                          color: dynamicColors.textSecondary,
+                          style: const TextStyle(fontWeight: FontWeight.bold),
                         ),
-                        const SizedBox(height: 12),
+                        const SizedBox(height: VSpacing.space3),
                         if (!hasBaseUnit) ...[
-                          Text(
+                          VText(
                             'Cần đặt đơn vị cơ sở trước khi thêm đơn vị quy đổi.',
-                            style: VTypography.bodyDefault.copyWith(
-                              color: dynamicColors.textPrimary,
-                            ),
+                            variant: VTextVariant.bodyDefault,
+                            color: dynamicColors.textPrimary,
                           ),
                         ] else ...[
                           if (state.conversionUnits.isEmpty && !_isAddingConversionUnit)
-                            Text(
+                            VText(
                               'Chưa có đơn vị quy đổi.',
-                              style: VTypography.bodyDefault.copyWith(
-                                color: dynamicColors.textPrimary,
-                              ),
+                              variant: VTextVariant.bodyDefault,
+                              color: dynamicColors.textPrimary,
                             )
                           else if (state.conversionUnits.isNotEmpty)
                             ...state.conversionUnits.map((u) {
@@ -361,7 +348,7 @@ class _ProductMeasurementUnitsViewState extends State<_ProductMeasurementUnitsVi
                               );
                             }),
 
-                          const SizedBox(height: 16),
+                          const SizedBox(height: VSpacing.space4),
 
                           if (!_isAddingConversionUnit)
                             InkWell(
@@ -371,7 +358,7 @@ class _ProductMeasurementUnitsViewState extends State<_ProductMeasurementUnitsVi
                                   _isAddingConversionUnit = true;
                                 });
                               },
-                              borderRadius: BorderRadius.circular(8),
+                              borderRadius: BorderRadius.circular(VRadius.r8),
                               child: Container(
                                 width: double.infinity,
                                 padding: const EdgeInsets.symmetric(vertical: 12),
@@ -379,18 +366,17 @@ class _ProductMeasurementUnitsViewState extends State<_ProductMeasurementUnitsVi
                                   border: Border.all(
                                     color: dynamicColors.primary.withValues(alpha: 0.5),
                                   ),
-                                  borderRadius: BorderRadius.circular(8),
+                                  borderRadius: BorderRadius.circular(VRadius.r8),
                                 ),
                                 child: Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
                                     VIcon(icon: VIcons.add, color: dynamicColors.primary, size: 18),
-                                    const SizedBox(width: 8),
-                                    Text(
+                                    const VGap.horizontalSm(),
+                                    VText(
                                       'Thêm đơn vị quy đổi',
-                                      style: VTypography.bodyDefault.copyWith(
-                                        color: dynamicColors.primary,
-                                      ),
+                                      variant: VTextVariant.bodyDefault,
+                                      color: dynamicColors.primary,
                                     ),
                                   ],
                                 ),
@@ -404,13 +390,12 @@ class _ProductMeasurementUnitsViewState extends State<_ProductMeasurementUnitsVi
                                   child: Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
-                                      Text(
+                                      VText(
                                         'Tên đơn vị',
-                                        style: VTypography.bodySmall.copyWith(
-                                          color: dynamicColors.textSecondary,
-                                        ),
+                                        variant: VTextVariant.bodySmall,
+                                        color: dynamicColors.textSecondary,
                                       ),
-                                      const SizedBox(height: 8),
+                                      const SizedBox(height: VSpacing.space2),
                                       TenantMeasurementUnitSearchField(
                                         controller: _conversionUnitNameController,
                                         units: _availableConversionUnitSuggestions(state),
@@ -426,18 +411,17 @@ class _ProductMeasurementUnitsViewState extends State<_ProductMeasurementUnitsVi
                                     ],
                                   ),
                                 ),
-                                const SizedBox(width: 16),
+                                const SizedBox(width: VSpacing.space4),
                                 Expanded(
                                   child: Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
-                                      Text(
+                                      VText(
                                         'Tỉ lệ (x ${state.baseUnitName})',
-                                        style: VTypography.bodySmall.copyWith(
-                                          color: dynamicColors.textSecondary,
-                                        ),
+                                        variant: VTextVariant.bodySmall,
+                                        color: dynamicColors.textSecondary,
                                       ),
-                                      const SizedBox(height: 8),
+                                      const SizedBox(height: VSpacing.space2),
                                       VTextField(
                                         key: const Key('input_conversion_unit_rate'),
                                         controller: _conversionUnitRatioController,
@@ -452,14 +436,13 @@ class _ProductMeasurementUnitsViewState extends State<_ProductMeasurementUnitsVi
                                 ),
                               ],
                             ),
-                            const SizedBox(height: 8),
-                            Text(
+                            const SizedBox(height: VSpacing.space2),
+                            VText(
                               'Sẽ lưu ở dạng chữ thường: ${_conversionUnitNameController.text.trim().isEmpty ? '—' : _conversionUnitNameController.text.trim().toLowerCase()}',
-                              style: VTypography.bodySmall.copyWith(
-                                color: dynamicColors.textSecondary,
-                              ),
+                              variant: VTextVariant.bodySmall,
+                              color: dynamicColors.textSecondary,
                             ),
-                            const SizedBox(height: 16),
+                            const SizedBox(height: VSpacing.space4),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.end,
                               children: [
@@ -469,14 +452,13 @@ class _ProductMeasurementUnitsViewState extends State<_ProductMeasurementUnitsVi
                                       _isAddingConversionUnit = false;
                                     });
                                   },
-                                  child: Text(
+                                  child: VText(
                                     'Huỷ',
-                                    style: VTypography.bodyDefault.copyWith(
-                                      color: dynamicColors.textSecondary,
-                                    ),
+                                    variant: VTextVariant.bodyDefault,
+                                    color: dynamicColors.textSecondary,
                                   ),
                                 ),
-                                const SizedBox(width: 8),
+                                const SizedBox(width: VSpacing.space2),
                                 VButton(
                                   key: const Key('btn_submit_conversion_unit'),
                                   label: 'Thêm',
@@ -514,8 +496,7 @@ class _ProductMeasurementUnitsViewState extends State<_ProductMeasurementUnitsVi
                                       VToast.show(
                                         context,
                                         title: 'Lỗi',
-                                        message:
-                                            'Không thể dùng đơn vị cơ sở làm đơn vị quy đổi',
+                                        message: 'Không thể dùng đơn vị cơ sở làm đơn vị quy đổi',
                                         type: VToastType.danger,
                                       );
                                       return;
@@ -538,8 +519,9 @@ class _ProductMeasurementUnitsViewState extends State<_ProductMeasurementUnitsVi
               ),
             ),
           ),
-          bottomNavigationBar: ProductMeasurementUnitsBottomBar(
-            saveEnabled: _sessionHasPersistedChanges ||
+          bottomBar: ProductMeasurementUnitsBottomBar(
+            saveEnabled:
+                _sessionHasPersistedChanges ||
                 (_isEditingBaseUnit &&
                     _baseUnitController.text.trim().toLowerCase() !=
                         (state.baseUnitName ?? '').trim().toLowerCase()),

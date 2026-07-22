@@ -81,7 +81,6 @@ class MorePage extends StatelessWidget {
       itemBuilder: (context, index) => menuItems[index],
     );
   }
-
 }
 
 class _MoreMenuItem extends StatelessWidget {
@@ -105,10 +104,9 @@ class _MoreMenuItem extends StatelessWidget {
   Widget build(BuildContext context) {
     final dynamicColors = context.vColors;
     final isEnabled = enabled && onTap != null;
-    final titleColor = isDestructive ? VColors.danger : dynamicColors.textPrimary;
-    final iconColor = isDestructive ? VColors.danger : dynamicColors.primary;
-    final iconBackgroundColor =
-        isDestructive ? VColors.dangerBg : dynamicColors.surfaceBrand;
+    final titleColor = isDestructive ? dynamicColors.danger : dynamicColors.textPrimary;
+    final iconColor = isDestructive ? dynamicColors.danger : dynamicColors.primary;
+    final iconBackgroundColor = isDestructive ? dynamicColors.dangerBg : dynamicColors.surfaceBrand;
 
     return Opacity(
       opacity: isEnabled ? 1 : 0.45,
@@ -134,23 +132,21 @@ class _MoreMenuItem extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text(
+                  VText(
                     title,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: VTypography.headingH4.copyWith(
-                      color: titleColor,
-                      fontWeight: FontWeight.w700,
-                    ),
+                    variant: VTextVariant.headingH4,
+                    color: titleColor,
+                    style: const TextStyle(fontWeight: FontWeight.w700),
                   ),
-                  const SizedBox(height: 3),
-                  Text(
+                  const VGap.xs(),
+                  VText(
                     subtitle,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: VTypography.bodySmall.copyWith(
-                      color: dynamicColors.textSecondary,
-                    ),
+                    variant: VTextVariant.bodySmall,
+                    color: dynamicColors.textSecondary,
                   ),
                 ],
               ),

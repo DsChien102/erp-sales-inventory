@@ -30,11 +30,10 @@ class _VLifecycleBottomSheetContent extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text(
+            VText(
               message,
-              style: VTypography.bodyDefault.copyWith(
-                color: dynamicColors.textSecondary,
-              ),
+              variant: VTextVariant.bodyDefault,
+              color: dynamicColors.textSecondary,
             ),
             if (warnings != null && warnings!.isNotEmpty) ...[
               const SizedBox(height: VSpacing.space4),
@@ -51,30 +50,28 @@ class _VLifecycleBottomSheetContent extends StatelessWidget {
                     Row(
                       children: [
                         VIcon(icon: VIcons.warning, color: dynamicColors.warning, size: 20),
-                        const SizedBox(width: 8),
-                        Text(
+                        const VGap.horizontalSm(),
+                        VText(
                           'Cần xác nhận',
-                          style: VTypography.bodySmall.copyWith(
-                            color: dynamicColors.warning,
-                            fontWeight: FontWeight.bold,
-                          ),
+                          variant: VTextVariant.bodySmall,
+                          color: dynamicColors.warning,
+                          style: const TextStyle(fontWeight: FontWeight.bold),
                         ),
                       ],
                     ),
-                    const SizedBox(height: 8),
+                    const SizedBox(height: VSpacing.space2),
                     ...warnings!.map(
                       (w) => Padding(
                         padding: const EdgeInsets.only(bottom: 4),
                         child: Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text('• ', style: TextStyle(color: dynamicColors.warning)),
+                            VText('• ', style: TextStyle(color: dynamicColors.warning)),
                             Expanded(
-                              child: Text(
+                              child: VText(
                                 w.message,
-                                style: VTypography.bodySmall.copyWith(
-                                  color: dynamicColors.warning,
-                                ),
+                                variant: VTextVariant.bodySmall,
+                                color: dynamicColors.warning,
                               ),
                             ),
                           ],

@@ -99,9 +99,10 @@ class ProductGuidedStepIdentification extends StatelessWidget {
                       state.duplicateProductName!,
                     ),
               icon: Icon(Icons.open_in_new, size: 16, color: dynamicColors.primary),
-              label: Text(
+              label: VText(
                 'Mở sản phẩm "${state.duplicateProductName}"',
-                style: VTypography.bodySmall.copyWith(color: dynamicColors.primary),
+                variant: VTextVariant.bodySmall,
+                color: dynamicColors.primary,
               ),
             ),
           ),

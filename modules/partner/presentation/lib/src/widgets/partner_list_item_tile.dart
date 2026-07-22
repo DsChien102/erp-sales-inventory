@@ -13,31 +13,6 @@ class PartnerListItemTile extends StatelessWidget {
   final PartnerListItemDto item;
   final VoidCallback onTap;
 
-  String _getInitials(String displayName) {
-    final words = displayName.trim().split(RegExp(r'\s+'));
-    if (words.isEmpty || words[0].isEmpty) return '?';
-    if (words.length == 1) {
-      return words[0].substring(0, 1).toUpperCase();
-    }
-    return '${words[0].substring(0, 1)}${words.last.substring(0, 1)}'.toUpperCase();
-  }
-
-  Color _getAvatarColor(String displayName) {
-    final palette = [
-      VColors.success,
-      VColors.warning,
-      VColors.info,
-      VColors.primary,
-      const Color(0xFF9C27B0),
-      const Color(0xFF00BCD4),
-    ];
-    int sum = 0;
-    for (int i = 0; i < displayName.length; i++) {
-      sum += displayName.codeUnitAt(i);
-    }
-    return palette[sum % palette.length];
-  }
-
   String _formatDate(DateTime date) {
     return '${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year}';
   }
@@ -45,8 +20,6 @@ class PartnerListItemTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = context.vColors;
-    final initials = _getInitials(item.displayName);
-    final avatarColor = _getAvatarColor(item.displayName);
 
     return InkWell(
       onTap: onTap,
@@ -63,22 +36,7 @@ class PartnerListItemTile extends StatelessWidget {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(
-              width: 40,
-              height: 40,
-              decoration: BoxDecoration(
-                color: avatarColor,
-                shape: BoxShape.circle,
-              ),
-              alignment: Alignment.center,
-              child: Text(
-                initials,
-                style: VTypography.bodyDefault.copyWith(
-                  color: Colors.white,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ),
+            VAvatar(name: item.displayName, textSize: 14),
             const SizedBox(width: VSpacing.space3),
             Expanded(
               child: Column(
@@ -88,12 +46,11 @@ class PartnerListItemTile extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Expanded(
-                        child: Text(
+                        child: VText(
                           item.displayName,
-                          style: VTypography.bodyDefault.copyWith(
-                            color: colors.textPrimary,
-                            fontWeight: FontWeight.w600,
-                          ),
+                          variant: VTextVariant.bodyDefault,
+                          color: colors.textPrimary,
+                          style: const TextStyle(fontWeight: FontWeight.w600),
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -101,41 +58,45 @@ class PartnerListItemTile extends StatelessWidget {
                       if (item.status == PartnerStatus.active)
                         _StatusBadge(
                           label: 'Đang hoạt động',
-                          color: VColors.success,
+                          color: colors.success,
                         )
                       else if (item.status == PartnerStatus.inactive)
                         _StatusBadge(
                           label: 'Ngừng hoạt động',
-                          color: VColors.warning,
+                          color: colors.warning,
                         ),
                     ],
                   ),
                   const SizedBox(height: VSpacing.space1),
-                  Text(
+                  VText(
                     _subtitle(item),
-                    style: VTypography.bodySmall.copyWith(color: colors.textSecondary),
+                    variant: VTextVariant.bodySmall,
+                    color: colors.textSecondary,
                   ),
                   if (item.phone != null && item.phone!.isNotEmpty) ...[
                     const SizedBox(height: VSpacing.space1),
-                    Text(
+                    VText(
                       item.phone!,
-                      style: VTypography.bodySmall.copyWith(color: colors.textSecondary),
+                      variant: VTextVariant.bodySmall,
+                      color: colors.textSecondary,
                     ),
                   ],
                   if (item.taxCode != null && item.taxCode!.isNotEmpty) ...[
                     const SizedBox(height: VSpacing.space1),
-                    Text(
+                    VText(
                       'MST ${item.taxCode}',
-                      style: VTypography.bodySmall.copyWith(color: colors.textSecondary),
+                      variant: VTextVariant.bodySmall,
+                      color: colors.textSecondary,
                     ),
                   ],
                   if (item.updatedAt != null) ...[
                     const SizedBox(height: VSpacing.space1),
-                    Text(
+                    VText(
                       'Cập nhật ${_formatDate(item.updatedAt!)}',
-                      style: VTypography.bodySmall.copyWith(color: colors.textMuted),
+                      variant: VTextVariant.bodySmall,
+                      color: colors.textMuted,
                     ),
-                  ]
+                  ],
                 ],
               ),
             ),
@@ -176,9 +137,9 @@ class _StatusBadge extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(4),
+        borderRadius: BorderRadius.circular(VRadius.r4),
       ),
-      child: Text(
+      child: VText(
         label,
         style: VTypography.bodySmall.copyWith(
           color: color,
@@ -189,4 +150,3 @@ class _StatusBadge extends StatelessWidget {
     );
   }
 }
-

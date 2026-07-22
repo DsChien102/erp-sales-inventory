@@ -73,8 +73,7 @@ class _PartnerTransformViewState extends State<_PartnerTransformView> {
               context.pop(true);
               return;
             }
-            if (state.status == PartnerTransformSubmitStatus.blocked &&
-                state.blocked != null) {
+            if (state.status == PartnerTransformSubmitStatus.blocked && state.blocked != null) {
               setState(() {
                 _blocked = state.blocked;
                 _previewError = null;
@@ -97,8 +96,8 @@ class _PartnerTransformViewState extends State<_PartnerTransformView> {
             if (state.status == PartnerTransformSubmitStatus.failure) {
               setState(() {
                 _currentStep = 2;
-                _previewError = state.generalError ??
-                    'Không thể chuyển đổi hồ sơ. Vui lòng thử lại.';
+                _previewError =
+                    state.generalError ?? 'Không thể chuyển đổi hồ sơ. Vui lòng thử lại.';
                 _serverFieldErrors = const {};
               });
             }
@@ -111,24 +110,19 @@ class _PartnerTransformViewState extends State<_PartnerTransformView> {
           if (didPop) return;
           _goToStepOne();
         },
-        child: Scaffold(
+        child: VPageScaffold(
           key: const Key('wgt_e01_u06_fr01_01'),
-          backgroundColor: context.vColors.surface,
-          appBar: VAppBar(
-            title: blocked != null
-                ? 'Chuyển thành tổ chức'
-                : (_currentStep == 1
-                      ? 'Chuyển thành tổ chức'
-                      : 'Xem trước chuyển đổi'),
-            centerTitle: true,
-            leading: IconButton(
-              key: const Key('transform_app_bar_back'),
-              icon: VIcon(
-                icon: VIcons.arrowBack,
-                color: context.vColors.textPrimary,
-              ),
-              onPressed: _onAppBarBack,
+          title: blocked != null
+              ? 'Chuyển thành tổ chức'
+              : (_currentStep == 1 ? 'Chuyển thành tổ chức' : 'Xem trước chuyển đổi'),
+          centerTitle: true,
+          leading: IconButton(
+            key: const Key('transform_app_bar_back'),
+            icon: VIcon(
+              icon: VIcons.arrowBack,
+              color: context.vColors.textPrimary,
             ),
+            onPressed: _onAppBarBack,
           ),
           body: Stack(
             children: [
@@ -160,8 +154,8 @@ class _PartnerTransformViewState extends State<_PartnerTransformView> {
                       onContinue: _showConfirmation,
                     ),
               if (context.watch<PartnerTransformCubit>().state.isSubmitting)
-                const ColoredBox(
-                  color: Color(0x33000000),
+                ColoredBox(
+                  color: VColors.neutral900,
                   child: Center(child: CircularProgressIndicator()),
                 ),
             ],

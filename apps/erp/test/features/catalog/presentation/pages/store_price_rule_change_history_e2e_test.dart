@@ -1,6 +1,5 @@
-import 'package:test/test.dart';
+import 'package:flutter_test/flutter_test.dart';
 import 'package:vet45_catalog_application/application.dart';
-import 'package:vet45_catalog_application/testing.dart';
 
 void main() {
   group('e2e_e06_u02_store_rule_history', () {

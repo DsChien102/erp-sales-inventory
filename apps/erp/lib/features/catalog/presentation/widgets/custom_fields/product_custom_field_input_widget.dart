@@ -41,11 +41,13 @@ class _ProductCustomFieldInputWidgetState extends State<ProductCustomFieldInputW
   void didUpdateWidget(covariant ProductCustomFieldInputWidget oldWidget) {
     super.didUpdateWidget(oldWidget);
     // Sync external changes if needed
-    if (widget.field.fieldType == CustomFieldType.text.name && widget.input.textValue != oldWidget.input.textValue) {
+    if (widget.field.fieldType == CustomFieldType.text.name &&
+        widget.input.textValue != oldWidget.input.textValue) {
       if (_textController.text != widget.input.textValue) {
         _textController.text = widget.input.textValue ?? '';
       }
-    } else if (widget.field.fieldType == CustomFieldType.number.name && widget.input.numberValue != oldWidget.input.numberValue) {
+    } else if (widget.field.fieldType == CustomFieldType.number.name &&
+        widget.input.numberValue != oldWidget.input.numberValue) {
       final newVal = widget.input.numberValue?.toString() ?? '';
       if (_textController.text != newVal) {
         _textController.text = newVal;
@@ -76,10 +78,12 @@ class _ProductCustomFieldInputWidgetState extends State<ProductCustomFieldInputW
         errorText: widget.errorText,
         enabled: widget.field.isActive,
         onChanged: (val) {
-          widget.onChanged(ProductCustomFieldValueInput(
-            fieldId: widget.field.fieldId,
-            textValue: val,
-          ));
+          widget.onChanged(
+            ProductCustomFieldValueInput(
+              fieldId: widget.field.fieldId,
+              textValue: val,
+            ),
+          );
         },
       );
     } else if (widget.field.fieldType == CustomFieldType.number.name) {
@@ -95,11 +99,13 @@ class _ProductCustomFieldInputWidgetState extends State<ProductCustomFieldInputW
         ],
         onChanged: (val) {
           final parsed = double.tryParse(val);
-          widget.onChanged(ProductCustomFieldValueInput(
-            fieldId: widget.field.fieldId,
-            numberValue: parsed,
-            textValue: val.isNotEmpty && parsed == null ? val : null,
-          ));
+          widget.onChanged(
+            ProductCustomFieldValueInput(
+              fieldId: widget.field.fieldId,
+              numberValue: parsed,
+              textValue: val.isNotEmpty && parsed == null ? val : null,
+            ),
+          );
         },
       );
     } else if (widget.field.fieldType == CustomFieldType.singleSelect.name) {
@@ -111,14 +117,16 @@ class _ProductCustomFieldInputWidgetState extends State<ProductCustomFieldInputW
         items: widget.field.options.map((opt) {
           return DropdownMenuItem<String>(
             value: opt.optionId,
-            child: Text(opt.label),
+            child: VText(opt.label),
           );
         }).toList(),
         onChanged: (val) {
-          widget.onChanged(ProductCustomFieldValueInput(
-            fieldId: widget.field.fieldId,
-            optionId: val,
-          ));
+          widget.onChanged(
+            ProductCustomFieldValueInput(
+              fieldId: widget.field.fieldId,
+              optionId: val,
+            ),
+          );
         },
       );
     } else if (widget.field.fieldType == CustomFieldType.boolean.name) {
@@ -127,10 +135,12 @@ class _ProductCustomFieldInputWidgetState extends State<ProductCustomFieldInputW
         value: widget.input.booleanValue ?? false,
         onChanged: widget.field.isActive
             ? (val) {
-                widget.onChanged(ProductCustomFieldValueInput(
-                  fieldId: widget.field.fieldId,
-                  booleanValue: val,
-                ));
+                widget.onChanged(
+                  ProductCustomFieldValueInput(
+                    fieldId: widget.field.fieldId,
+                    booleanValue: val,
+                  ),
+                );
               }
             : null,
       );
@@ -148,10 +158,12 @@ class _ProductCustomFieldInputWidgetState extends State<ProductCustomFieldInputW
             lastDate: DateTime(2100),
           );
           if (date != null) {
-            widget.onChanged(ProductCustomFieldValueInput(
-              fieldId: widget.field.fieldId,
-              dateValue: date,
-            ));
+            widget.onChanged(
+              ProductCustomFieldValueInput(
+                fieldId: widget.field.fieldId,
+                dateValue: date,
+              ),
+            );
           }
         },
       );

@@ -25,12 +25,11 @@ class PartnerTransformPrimaryContactCard extends StatelessWidget {
         children: [
           Padding(
             padding: const EdgeInsets.all(VSpacing.space4),
-            child: Text(
+            child: VText(
               'Cá nhân hiện tại sẽ được lưu làm người liên hệ chính',
-              style: VTypography.bodyDefault.copyWith(
-                color: colors.textPrimary,
-                fontWeight: FontWeight.w700,
-              ),
+              variant: VTextVariant.bodyDefault,
+              color: colors.textPrimary,
+              style: const TextStyle(fontWeight: FontWeight.w700),
             ),
           ),
           Container(
@@ -47,17 +46,7 @@ class PartnerTransformPrimaryContactCard extends StatelessWidget {
             ),
             child: Row(
               children: [
-                CircleAvatar(
-                  radius: 28,
-                  backgroundColor: colors.success.withValues(alpha: 0.12),
-                  child: Text(
-                    _initials(person.fullName),
-                    style: VTypography.headingH4.copyWith(
-                      color: colors.success,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                ),
+                VAvatar(name: person.fullName, size: 56, textSize: 18),
                 const SizedBox(width: VSpacing.space3),
                 Expanded(
                   child: Column(
@@ -75,12 +64,5 @@ class PartnerTransformPrimaryContactCard extends StatelessWidget {
         ],
       ),
     );
-  }
-
-  String _initials(String name) {
-    final words = name.trim().split(RegExp(r'\s+'));
-    if (words.isEmpty || words.first.isEmpty) return '?';
-    if (words.length == 1) return words.first.substring(0, 1).toUpperCase();
-    return '${words.first[0]}${words.last[0]}'.toUpperCase();
   }
 }

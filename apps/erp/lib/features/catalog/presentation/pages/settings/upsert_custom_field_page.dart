@@ -255,20 +255,18 @@ class _UpsertCustomFieldPageState extends State<UpsertCustomFieldPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
+                VText(
                   label,
-                  style: VTypography.bodyDefault.copyWith(
-                    color: VColors.textPrimary,
-                    fontWeight: FontWeight.w500,
-                  ),
+                  variant: VTextVariant.bodyDefault,
+                  color: colors.textPrimary,
+                  style: const TextStyle(fontWeight: FontWeight.w500),
                 ),
                 if (subtitle != null) ...[
-                  const SizedBox(height: 2),
-                  Text(
+                  const VGap.xs(),
+                  VText(
                     subtitle,
-                    style: VTypography.bodySmall.copyWith(
-                      color: subtitleColor ?? VColors.textSecondary,
-                    ),
+                    variant: VTextVariant.bodySmall,
+                    color: subtitleColor ?? colors.textSecondary,
                   ),
                 ],
               ],
@@ -277,10 +275,10 @@ class _UpsertCustomFieldPageState extends State<UpsertCustomFieldPage> {
           Switch(
             value: value,
             onChanged: onChanged,
-            activeThumbColor: Colors.white,
-            activeTrackColor: VColors.success,
-            inactiveThumbColor: Colors.white,
-            inactiveTrackColor: VColors.borderStrong,
+            activeThumbColor: colors.surface,
+            activeTrackColor: colors.success,
+            inactiveThumbColor: colors.surface,
+            inactiveTrackColor: colors.borderStrong,
             trackOutlineColor: WidgetStateProperty.all(Colors.transparent),
           ),
         ],
@@ -297,7 +295,7 @@ class _UpsertCustomFieldPageState extends State<UpsertCustomFieldPage> {
         .map(
           (type) => DropdownMenuItem(
             value: type,
-            child: Text(type.labelVi),
+            child: VText(type.labelVi),
           ),
         )
         .toList();
@@ -310,15 +308,12 @@ class _UpsertCustomFieldPageState extends State<UpsertCustomFieldPage> {
           if (didPop) return;
           await _handleLeave();
         },
-        child: Scaffold(
-          backgroundColor: colors.surface,
-          appBar: VAppBar(
-            title: _isCreate ? 'Tạo trường thông tin' : 'Cấu hình trường',
-            showBackButton: false,
-            leading: IconButton(
-              icon: VIcon(icon: VIcons.arrowBack, color: colors.textPrimary),
-              onPressed: _handleLeave,
-            ),
+        child: VPageScaffold(
+          title: _isCreate ? 'Tạo trường thông tin' : 'Cấu hình trường',
+          showBackButton: false,
+          leading: IconButton(
+            icon: VIcon(icon: VIcons.arrowBack, color: colors.textPrimary),
+            onPressed: _handleLeave,
           ),
           body: ListView(
             padding: const EdgeInsets.all(VSpacing.screenMobile),
@@ -360,15 +355,17 @@ class _UpsertCustomFieldPageState extends State<UpsertCustomFieldPage> {
               ),
               if (_hasProductValues) ...[
                 const SizedBox(height: VSpacing.space2),
-                Text(
+                VText(
                   'Không đổi được kiểu dữ liệu do đã có dữ liệu.',
-                  style: VTypography.bodySmall.copyWith(color: VColors.warning),
+                  variant: VTextVariant.bodySmall,
+                  color: colors.warning,
                 ),
               ] else if (!_isCreate) ...[
                 const SizedBox(height: VSpacing.space2),
-                Text(
+                VText(
                   'Thay đổi kiểu dữ liệu có thể ảnh hưởng đến tương thích dữ liệu cũ.',
-                  style: VTypography.bodySmall.copyWith(color: VColors.warning),
+                  variant: VTextVariant.bodySmall,
+                  color: colors.warning,
                 ),
               ],
               const SizedBox(height: VSpacing.space4),
@@ -383,17 +380,16 @@ class _UpsertCustomFieldPageState extends State<UpsertCustomFieldPage> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
+                    VText(
                       'Tùy chọn',
-                      style: VTypography.bodySmall.copyWith(
-                        fontWeight: FontWeight.w600,
-                        color: VColors.textSecondary,
-                      ),
+                      variant: VTextVariant.bodySmall,
+                      color: colors.textSecondary,
+                      style: const TextStyle(fontWeight: FontWeight.w600),
                     ),
                     TextButton.icon(
                       onPressed: _addOption,
                       icon: const VIcon(icon: VIcons.add, size: 16),
-                      label: const Text('Thêm'),
+                      label: const VText('Thêm'),
                     ),
                   ],
                 ),
@@ -406,8 +402,12 @@ class _UpsertCustomFieldPageState extends State<UpsertCustomFieldPage> {
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        const VIcon(icon: VIcons.gripVertical, color: VColors.textMuted, size: 16),
-                        const SizedBox(width: 8),
+                        VIcon(
+                          icon: VIcons.gripVertical,
+                          color: colors.textMuted,
+                          size: 16,
+                        ),
+                        const VGap.horizontalSm(),
                         Expanded(
                           child: VTextField(
                             controller: controller,
@@ -426,19 +426,18 @@ class _UpsertCustomFieldPageState extends State<UpsertCustomFieldPage> {
               ],
 
               const SizedBox(height: VSpacing.space6),
-              Text(
+              VText(
                 'THUỘC TÍNH',
-                style: VTypography.bodySmall.copyWith(
-                  fontWeight: FontWeight.w600,
-                  color: VColors.textSecondary,
-                ),
+                variant: VTextVariant.bodySmall,
+                color: colors.textSecondary,
+                style: const TextStyle(fontWeight: FontWeight.w600),
               ),
               const SizedBox(height: VSpacing.space3),
               Container(
                 decoration: BoxDecoration(
                   color: colors.surface,
                   borderRadius: BorderRadius.circular(VRadius.r12),
-                  border: Border.all(color: VColors.borderDefault),
+                  border: Border.all(color: colors.borderDefault),
                 ),
                 child: Column(
                   children: [
@@ -464,7 +463,7 @@ class _UpsertCustomFieldPageState extends State<UpsertCustomFieldPage> {
                       },
                       colors,
                     ),
-                    const Divider(height: 1, color: VColors.borderDefault),
+                    Divider(height: 1, color: colors.borderDefault),
                     _buildPropertyRow(
                       'Cho phép tìm kiếm',
                       null,
@@ -474,7 +473,7 @@ class _UpsertCustomFieldPageState extends State<UpsertCustomFieldPage> {
                     ),
                     if (_fieldType == CustomFieldType.singleSelect ||
                         _fieldType == CustomFieldType.boolean) ...[
-                      const Divider(height: 1, color: VColors.borderDefault),
+                      Divider(height: 1, color: colors.borderDefault),
                       _buildPropertyRow(
                         'Cho phép lọc',
                         null,
@@ -483,7 +482,7 @@ class _UpsertCustomFieldPageState extends State<UpsertCustomFieldPage> {
                         colors,
                       ),
                     ],
-                    const Divider(height: 1, color: VColors.borderDefault),
+                    Divider(height: 1, color: colors.borderDefault),
                     _buildPropertyRow(
                       'Hiển thị trên danh sách sản phẩm',
                       _displayOnList ? 'Danh sách sản phẩm chỉ hiển thị giới hạn field.' : null,
@@ -497,19 +496,18 @@ class _UpsertCustomFieldPageState extends State<UpsertCustomFieldPage> {
 
               if (!_isCreate) ...[
                 const SizedBox(height: VSpacing.space6),
-                Text(
+                VText(
                   'TRẠNG THÁI',
-                  style: VTypography.bodySmall.copyWith(
-                    fontWeight: FontWeight.w600,
-                    color: VColors.textSecondary,
-                  ),
+                  variant: VTextVariant.bodySmall,
+                  color: colors.textSecondary,
+                  style: const TextStyle(fontWeight: FontWeight.w600),
                 ),
                 const SizedBox(height: VSpacing.space3),
                 Container(
                   decoration: BoxDecoration(
                     color: colors.surface,
                     borderRadius: BorderRadius.circular(VRadius.r12),
-                    border: Border.all(color: VColors.borderDefault),
+                    border: Border.all(color: colors.borderDefault),
                   ),
                   child: _buildPropertyRow(
                     'Đang dùng',
@@ -529,10 +527,10 @@ class _UpsertCustomFieldPageState extends State<UpsertCustomFieldPage> {
                   ),
                 ),
               ],
-              const SizedBox(height: 40),
+              const SizedBox(height: VSpacing.space10),
             ],
           ),
-          bottomNavigationBar: BlocBuilder<CustomFieldConfigCubit, CustomFieldConfigState>(
+          bottomBar: BlocBuilder<CustomFieldConfigCubit, CustomFieldConfigState>(
             builder: (context, state) {
               return ProductFormBottomBar(
                 onCancel: state.isSaving ? null : _handleLeave,

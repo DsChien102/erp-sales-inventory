@@ -63,7 +63,6 @@ class PartnerTransformPreviewView extends StatelessWidget {
               displayName: person!.fullName,
               subtitle: 'Cá nhân  •  ${_roleLabel(partner.roles)}',
               phone: person.phone,
-              avatarColor: colors.success,
             ),
           ),
           Padding(
@@ -80,23 +79,20 @@ class PartnerTransformPreviewView extends StatelessWidget {
               displayName: organization.organizationName,
               subtitle: 'Tổ chức  •  ${_roleLabel(partner.roles)}',
               phone: organization.phone,
-              avatarColor: colors.primary,
             ),
           ),
           const SizedBox(height: VSpacing.space3),
-          Text(
+          VText(
             'Người liên hệ chính (từ hồ sơ cá nhân)',
-            style: VTypography.bodySmall.copyWith(
-              color: colors.textSecondary,
-              fontWeight: FontWeight.w700,
-            ),
+            variant: VTextVariant.bodySmall,
+            color: colors.textSecondary,
+            style: const TextStyle(fontWeight: FontWeight.w700),
           ),
           const SizedBox(height: VSpacing.space2),
           PartnerTransformPreviewCard(
             displayName: person.fullName,
             subtitle: 'Người liên hệ chính',
             phone: person.phone,
-            avatarColor: colors.success,
           ),
           const SizedBox(height: VSpacing.space3),
           Container(
@@ -120,12 +116,11 @@ class PartnerTransformPreviewView extends StatelessWidget {
                 ),
                 const SizedBox(width: VSpacing.space3),
                 Expanded(
-                  child: Text(
+                  child: VText(
                     'Lịch sử giao dịch và dữ liệu liên quan sẽ được giữ nguyên.',
-                    style: VTypography.bodySmall.copyWith(
-                      color: colors.textPrimary,
-                      fontWeight: FontWeight.w600,
-                    ),
+                    variant: VTextVariant.bodySmall,
+                    color: colors.textPrimary,
+                    style: const TextStyle(fontWeight: FontWeight.w600),
                   ),
                 ),
               ],
@@ -188,12 +183,11 @@ class _PreviewSection extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text(
+          VText(
             title,
-            style: VTypography.bodyDefault.copyWith(
-              color: context.vColors.textPrimary,
-              fontWeight: FontWeight.w700,
-            ),
+            variant: VTextVariant.bodyDefault,
+            color: context.vColors.textPrimary,
+            style: const TextStyle(fontWeight: FontWeight.w700),
           ),
           const SizedBox(height: VSpacing.space2),
           child,

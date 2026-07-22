@@ -45,9 +45,7 @@ class PartnerTransformBlockedState extends StatelessWidget {
 
     return Padding(
       key: Key(
-        isNoPermission
-            ? 'transform_blocked_no_permission'
-            : 'transform_blocked_stale_data',
+        isNoPermission ? 'transform_blocked_no_permission' : 'transform_blocked_stale_data',
       ),
       padding: const EdgeInsets.symmetric(
         horizontal: VSpacing.space6,
@@ -57,40 +55,31 @@ class PartnerTransformBlockedState extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          if (isNoPermission)
-            const _NoPermissionIllustration()
-          else
-            const _StaleDataIllustration(),
+          if (isNoPermission) const _NoPermissionIllustration() else const _StaleDataIllustration(),
           const SizedBox(height: VSpacing.space6),
-          Text(
-            isNoPermission
-                ? 'Không có quyền chuyển đổi'
-                : 'Dữ liệu đã thay đổi',
-            style: VTypography.headingH3.copyWith(
-              color: colors.textPrimary,
-              fontWeight: FontWeight.w700,
-            ),
+          VText(
+            isNoPermission ? 'Không có quyền chuyển đổi' : 'Dữ liệu đã thay đổi',
+            variant: VTextVariant.headingH3,
+            color: colors.textPrimary,
             textAlign: TextAlign.center,
+            style: const TextStyle(fontWeight: FontWeight.w700),
           ),
           const SizedBox(height: VSpacing.space3),
-          Text(
+          VText(
             isNoPermission
                 ? 'Bạn không có quyền thực hiện chuyển đổi hồ sơ này.'
                 : 'Hồ sơ đã được cập nhật ở nơi khác. Vui lòng tải lại để tiếp tục.',
-            style: VTypography.bodyDefault.copyWith(
-              color: colors.textSecondary,
-              height: 1.4,
-            ),
+            variant: VTextVariant.bodyDefault,
+            color: colors.textSecondary,
             textAlign: TextAlign.center,
+            style: const TextStyle(height: 1.4),
           ),
           const SizedBox(height: VSpacing.space8),
           SizedBox(
             width: double.infinity,
             child: VButton(
               key: Key(
-                isNoPermission
-                    ? 'transform_blocked_back'
-                    : 'transform_blocked_reload',
+                isNoPermission ? 'transform_blocked_back' : 'transform_blocked_reload',
               ),
               label: isNoPermission ? 'Quay lại' : 'Tải lại',
               onPressed: onActionPressed,
@@ -138,7 +127,8 @@ class _StaleDataIllustration extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final muted = context.vColors.textMuted;
+    final colors = context.vColors;
+    final muted = colors.textMuted;
     return SizedBox(
       width: 140,
       height: 140,
@@ -155,7 +145,7 @@ class _StaleDataIllustration extends StatelessWidget {
             child: VIcon(
               icon: VIcons.warning,
               size: 48,
-              color: VColors.danger.withValues(alpha: 0.92),
+              color: colors.danger.withValues(alpha: 0.92),
             ),
           ),
         ],

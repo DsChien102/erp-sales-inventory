@@ -37,11 +37,10 @@ class ProductConversionUnitDeleteBlockedDialog extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text(
+            VText(
               message,
-              style: VTypography.bodyDefault.copyWith(
-                color: dynamicColors.textSecondary,
-              ),
+              variant: VTextVariant.bodyDefault,
+              color: dynamicColors.textSecondary,
             ),
             const SizedBox(height: VSpacing.space6),
             Row(
