@@ -126,25 +126,10 @@ class _InvoiceWarning extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.vColors;
-    return VCard(
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const VIcon(
-            icon: VIcons.warning,
-            color: VColors.warning,
-          ),
-          const SizedBox(width: VSpacing.space2),
-          Expanded(
-            child: VText(
-              'Vui lòng kiểm tra lại MST và địa chỉ xuất hóa đơn trước khi lưu.',
-              variant: VTextVariant.bodySmall,
-              color: colors.warning,
-            ),
-          ),
-        ],
-      ),
+    return const VBanner(
+      status: VBannerStatus.warning,
+      title: 'Vui lòng kiểm tra lại MST và địa chỉ xuất hóa đơn trước khi lưu.',
+      icon: VIcons.warning,
     );
   }
 }

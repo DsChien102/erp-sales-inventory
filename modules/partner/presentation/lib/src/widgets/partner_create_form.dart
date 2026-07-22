@@ -238,24 +238,10 @@ class _MessageCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.vColors;
-    return VCard(
-      child: Row(
-        children: [
-          VIcon(
-            icon: blocked ? VIcons.lock : VIcons.error,
-            color: VColors.danger,
-          ),
-          const SizedBox(width: VSpacing.space2),
-          Expanded(
-            child: VText(
-              message,
-              variant: VTextVariant.bodyDefault,
-              color: colors.danger,
-            ),
-          ),
-        ],
-      ),
+    return VBanner(
+      status: VBannerStatus.error,
+      title: message,
+      icon: blocked ? VIcons.lock : VIcons.error,
     );
   }
 }

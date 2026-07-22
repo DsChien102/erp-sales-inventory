@@ -95,36 +95,10 @@ class PartnerTransformPreviewView extends StatelessWidget {
             phone: person.phone,
           ),
           const SizedBox(height: VSpacing.space3),
-          Container(
-            padding: const EdgeInsets.all(VSpacing.space3),
-            decoration: BoxDecoration(
-              color: colors.primary.withValues(alpha: 0.05),
-              borderRadius: BorderRadius.circular(VRadius.card),
-              border: Border.all(
-                color: colors.primary.withValues(alpha: 0.25),
-              ),
-            ),
-            child: Row(
-              children: [
-                VIconBox(
-                  iconData: Icons.info_outline_rounded,
-                  size: 36,
-                  iconSize: 20,
-                  isCircular: true,
-                  backgroundColor: colors.primary.withValues(alpha: 0.08),
-                  iconColor: colors.primary,
-                ),
-                const SizedBox(width: VSpacing.space3),
-                Expanded(
-                  child: VText(
-                    'Lịch sử giao dịch và dữ liệu liên quan sẽ được giữ nguyên.',
-                    variant: VTextVariant.bodySmall,
-                    color: colors.textPrimary,
-                    style: const TextStyle(fontWeight: FontWeight.w600),
-                  ),
-                ),
-              ],
-            ),
+          const VBanner(
+            status: VBannerStatus.info,
+            title: 'Lịch sử giao dịch và dữ liệu liên quan sẽ được giữ nguyên.',
+            icon: VIcons.info,
           ),
           const SizedBox(height: VSpacing.space4),
           SafeArea(

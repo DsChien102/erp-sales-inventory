@@ -91,24 +91,13 @@ class _PartnerDeactivateConfirmationSheetState extends State<PartnerDeactivateCo
               ),
               if (widget.primaryContactOrganizationName != null) ...[
                 const SizedBox(height: VSpacing.space4),
-                Container(
+                VBanner(
                   key: const Key('deactivate_primary_contact_warning'),
-                  padding: const EdgeInsets.all(VSpacing.space3),
-                  decoration: BoxDecoration(
-                    color: colors.warning.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(VRadius.r8),
-                    border: Border.all(
-                      color: colors.warning.withValues(alpha: 0.35),
-                    ),
-                  ),
-                  child: VText(
-                    'Người này đang là liên hệ chính của “${widget.primaryContactOrganizationName}”. '
-                    'Sau khi ngừng hoạt động, tổ chức sẽ không còn người liên hệ chính.',
-                    style: VTypography.bodySmall.copyWith(
-                      color: colors.textPrimary,
-                      height: 1.4,
-                    ),
-                  ),
+                  title: '',
+                  status: VBannerStatus.warning,
+                  description:
+                      'Người này đang là liên hệ chính của “${widget.primaryContactOrganizationName}”. '
+                      'Sau khi ngừng hoạt động, tổ chức sẽ không còn người liên hệ chính.',
                 ),
               ],
               const SizedBox(height: VSpacing.space5),

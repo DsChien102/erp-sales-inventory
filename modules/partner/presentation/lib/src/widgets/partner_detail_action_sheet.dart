@@ -71,7 +71,7 @@ class PartnerDetailActionSheet extends StatelessWidget {
                 _ActionCard(
                   key: const Key('action_transform'),
                   icon: VIcons.apartment,
-                  iconBackground: colors.success.withValues(alpha: 0.12),
+                  iconBackground: colors.successBg,
                   iconColor: colors.success,
                   title: 'Chuyển thành tổ chức',
                   subtitle: 'Chuyển hồ sơ cá nhân hiện tại sang hồ sơ tổ chức.',
@@ -80,13 +80,9 @@ class PartnerDetailActionSheet extends StatelessWidget {
               if (canToggleStatus)
                 _ActionCard(
                   key: const Key('action_toggle_status'),
-                  icon: isInactive
-                      ? VIcons.power
-                      : VIcons.pause,
-                  iconBackground: isInactive
-                      ? colors.success.withValues(alpha: 0.12)
-                      : colors.textPrimary.withValues(alpha: 0.08),
-                  iconColor: isInactive ? colors.success : colors.textPrimary,
+                  icon: isInactive ? VIcons.power : VIcons.pause,
+                  iconBackground: isInactive ? colors.successBg : colors.warningBg,
+                  iconColor: isInactive ? colors.success : colors.warning,
                   title: isInactive ? 'Kích hoạt lại' : 'Ngừng hoạt động',
                   subtitle: isInactive
                       ? 'Cho phép sử dụng lại trong hệ thống.'
@@ -97,7 +93,7 @@ class PartnerDetailActionSheet extends StatelessWidget {
                 _ActionCard(
                   key: const Key('action_delete'),
                   icon: VIcons.delete,
-                  iconBackground: colors.danger.withValues(alpha: 0.1),
+                  iconBackground: colors.dangerBg,
                   iconColor: colors.danger,
                   title: 'Xóa hồ sơ',
                   subtitle: 'Xóa mềm, không hiển thị trong danh sách.',

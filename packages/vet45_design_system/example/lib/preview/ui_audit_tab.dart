@@ -26,6 +26,7 @@ class UIAuditTab extends StatelessWidget {
     'VQuickActionButton',
     'VTabs',
     'VEmptyState',
+    'VBanner',
     'VToast',
     'VLoading',
     'VSteps',
