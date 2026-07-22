@@ -48,7 +48,7 @@ class PartnerContactsLoadedBody extends StatelessWidget {
           child: Container(
             padding: const EdgeInsets.all(VSpacing.space4),
             decoration: BoxDecoration(
-              color: colors.success.withValues(alpha: 0.08),
+              color: colors.successBg,
               borderRadius: BorderRadius.circular(VRadius.card),
             ),
             child: Column(
@@ -73,6 +73,7 @@ class PartnerContactsLoadedBody extends StatelessWidget {
         if (organization.contacts.isEmpty)
           Expanded(
             child: VPagePadding(
+              applyBottomSafeArea: true,
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -94,7 +95,7 @@ class PartnerContactsLoadedBody extends StatelessWidget {
                   const VGap.md(),
                   VButton(
                     label: 'Gợi ý thêm người liên hệ',
-                    variant: VButtonVariant.outline,
+                    variant: VButtonVariant.secondary,
                     foregroundColor: colors.success,
                     onPressed: onAddContact,
                   ),
@@ -126,8 +127,7 @@ class PartnerContactsLoadedBody extends StatelessWidget {
               key: const Key('list_contacts_view'),
               padding: const EdgeInsets.symmetric(horizontal: VSpacing.space4),
               itemCount: filteredContacts.length,
-              separatorBuilder: (_, _) =>
-                  Divider(color: colors.borderDefault, height: 1),
+              separatorBuilder: (_, _) => Divider(color: colors.borderDefault, height: 1),
               itemBuilder: (context, index) {
                 final contact = filteredContacts[index];
                 return PartnerContactTile(

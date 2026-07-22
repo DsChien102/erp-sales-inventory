@@ -12,35 +12,11 @@ class PartnerTransformBlockingBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.vColors;
-    return Container(
+    return VBanner(
       key: const Key('transform_blocking_banner'),
-      padding: const EdgeInsets.all(VSpacing.space3),
-      decoration: BoxDecoration(
-        color: colors.warningBg,
-        borderRadius: BorderRadius.circular(VRadius.card),
-        border: Border.all(color: colors.warning.withValues(alpha: 0.45)),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const VIcon(
-            icon: VIcons.warning,
-            color: VColors.warning,
-            size: 22,
-          ),
-          const SizedBox(width: VSpacing.space2),
-          Expanded(
-            child: VText(
-              message,
-              style: VTypography.bodySmall.copyWith(
-                color: colors.textPrimary,
-                height: 1.35,
-              ),
-            ),
-          ),
-        ],
-      ),
+      status: VBannerStatus.warning,
+      title: message,
+      icon: VIcons.warning,
     );
   }
 }
