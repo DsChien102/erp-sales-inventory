@@ -3,8 +3,10 @@ import '../tokens/v_colors.dart';
 import '../tokens/v_radius.dart';
 import '../foundation/v_context_extensions.dart';
 import '../foundation/v_component_contracts.dart';
+import '../theme/v_color_scheme.dart';
 import '../foundations/icons/v_icons.dart';
 import 'v_icon.dart';
+import 'v_text.dart';
 
 class VIconBox extends StatelessWidget {
   /// Semantic icon registry token
@@ -14,6 +16,10 @@ class VIconBox extends StatelessWidget {
   final IconData? iconData;
 
   final String? assetPath;
+
+  /// Text label (e.g. avatar initials). Takes precedence over icon/asset.
+  final String? label;
+
   final double size;
   final double iconSize;
   final Color? backgroundColor;
@@ -32,6 +38,7 @@ class VIconBox extends StatelessWidget {
     this.icon,
     this.iconData,
     this.assetPath,
+    this.label,
     this.size = 40.0,
     this.iconSize = 20.0,
     this.backgroundColor,
@@ -44,14 +51,14 @@ class VIconBox extends StatelessWidget {
     this.tone,
   });
 
-  (Color bg, Color icon) _tonePreset(VComponentTone tone, dynamic dynamicColors) {
+  (Color bg, Color icon) _tonePreset(VComponentTone tone, VColorScheme dynamicColors) {
     return switch (tone) {
-      VComponentTone.primary => (VColors.primary100, dynamicColors.primary),
-      VComponentTone.success => (VColors.successBg, VColors.success),
-      VComponentTone.warning => (VColors.warningBg, VColors.warning),
-      VComponentTone.danger => (VColors.dangerBg, VColors.danger),
-      VComponentTone.info => (VColors.infoBg, VColors.info),
-      VComponentTone.neutral => (VColors.neutral100, VColors.neutral500),
+      VComponentTone.primary => (dynamicColors.surface, dynamicColors.primary),
+      VComponentTone.success => (dynamicColors.successBg, dynamicColors.success),
+      VComponentTone.warning => (dynamicColors.warningBg, dynamicColors.warning),
+      VComponentTone.danger => (dynamicColors.dangerBg, dynamicColors.danger),
+      VComponentTone.info => (dynamicColors.infoBg, dynamicColors.info),
+      VComponentTone.neutral => (dynamicColors.surface, dynamicColors.textSecondary),
     };
   }
 
@@ -59,7 +66,7 @@ class VIconBox extends StatelessWidget {
   Widget build(BuildContext context) {
     final dynamicColors = context.vColors;
 
-    Color resolvedBgColor = backgroundColor ?? VColors.neutral100;
+    Color resolvedBgColor = backgroundColor ?? dynamicColors.surface;
     Color resolvedIconColor = iconColor ?? dynamicColors.textPrimary;
 
     if (tone != null && backgroundColor == null && iconColor == null) {
@@ -70,9 +77,24 @@ class VIconBox extends StatelessWidget {
 
     final resolvedRadius = borderRadius ?? VRadius.iconBox;
 
-    Widget iconWidget;
-    if (assetPath != null || icon != null || iconData != null) {
-      iconWidget = VIcon(
+    final Widget child;
+    final trimmedLabel = label?.trim();
+    if (trimmedLabel != null && trimmedLabel.isNotEmpty) {
+      child = VText(
+        trimmedLabel,
+        variant: size >= 56 ? VTextVariant.headingH2 : VTextVariant.bodyDefault,
+        color: resolvedIconColor,
+        textAlign: TextAlign.center,
+        maxLines: 1,
+        overflow: TextOverflow.clip,
+        style: TextStyle(
+          fontWeight: size >= 56 ? FontWeight.w700 : FontWeight.w600,
+          fontSize: iconSize,
+          height: 1,
+        ),
+      );
+    } else if (assetPath != null || icon != null || iconData != null) {
+      child = VIcon(
         icon: icon,
         iconData: iconData,
         assetPath: assetPath,
@@ -80,7 +102,7 @@ class VIconBox extends StatelessWidget {
         color: resolvedIconColor,
       );
     } else {
-      iconWidget = const SizedBox.shrink();
+      child = const SizedBox.shrink();
     }
 
     Widget container = Container(
@@ -95,7 +117,7 @@ class VIconBox extends StatelessWidget {
             : null,
       ),
       alignment: Alignment.center,
-      child: iconWidget,
+      child: child,
     );
 
     if (onTap != null) {

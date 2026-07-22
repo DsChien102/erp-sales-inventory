@@ -53,10 +53,7 @@ class VPageScaffold extends StatelessWidget {
           ? Material(
               color: context.vColors.surface,
               elevation: 8,
-              child: SafeArea(
-                top: false,
-                child: bottomBar!,
-              ),
+              child: SafeArea(top: false, child: bottomBar!),
             )
           : null,
       floatingActionButton: floatingActionButton,

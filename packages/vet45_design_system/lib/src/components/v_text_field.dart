@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import '../tokens/v_colors.dart';
 import '../tokens/v_spacing.dart';
 import '../tokens/v_radius.dart';
 import '../tokens/v_typography.dart';
@@ -39,6 +38,7 @@ class VTextField extends StatelessWidget {
   final InputBorder? border;
   final InputBorder? enabledBorder;
   final InputBorder? focusedBorder;
+  final bool isDense;
   final VTextFieldVariant variant;
   final VComponentTone tone;
   final VComponentEmphasis emphasis;
@@ -74,6 +74,7 @@ class VTextField extends StatelessWidget {
     this.border,
     this.enabledBorder,
     this.focusedBorder,
+    this.isDense = false,
     this.variant = VTextFieldVariant.standard,
     this.tone = VComponentTone.neutral,
     this.emphasis = VComponentEmphasis.medium,
@@ -166,6 +167,7 @@ class VTextField extends StatelessWidget {
       onTapOutside: (event) => FocusManager.instance.primaryFocus?.unfocus(),
       decoration: InputDecoration(
         hintText: hintText,
+        isDense: isDense || isInline,
         hintStyle: VTypography.bodyDefault.copyWith(
           color: dynamicColors.textMuted,
         ),
@@ -226,7 +228,7 @@ class VTextField extends StatelessWidget {
       ),
     );
 
-    if (isInline) {
+    if (isInline || label == null) {
       return Semantics(
         textField: true,
         enabled: isEnabled,

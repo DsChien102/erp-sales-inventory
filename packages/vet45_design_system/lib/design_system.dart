@@ -39,6 +39,7 @@ export 'src/primitives/v_skeleton.dart';
 export 'src/primitives/v_text.dart';
 
 // Components
+export 'src/components/v_avatar.dart';
 export 'src/components/v_button.dart';
 export 'src/components/v_card.dart';
 export 'src/components/v_checkbox.dart';

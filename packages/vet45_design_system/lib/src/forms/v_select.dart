@@ -4,7 +4,7 @@ import '../components/v_dropdown.dart';
 import '../components/v_searchable_dropdown.dart';
 import '../foundation/v_component_contracts.dart';
 import '../foundation/v_context_extensions.dart';
-import '../tokens/v_colors.dart';
+import '../primitives/v_text.dart';
 import '../tokens/v_spacing.dart';
 import '../tokens/v_typography.dart';
 import 'validators/v_select_validator.dart';
@@ -95,9 +95,9 @@ class _VSelectState<T> extends State<VSelect<T>> {
                     ),
                   ),
                 if (widget.isRequired)
-                  const TextSpan(
+                  TextSpan(
                     text: ' *',
-                    style: TextStyle(color: VColors.danger),
+                    style: TextStyle(color: dynamicColors.danger),
                   ),
               ],
             ),
@@ -132,7 +132,7 @@ class _VSelectState<T> extends State<VSelect<T>> {
           const SizedBox(height: VSpacing.space1),
           Text(
             _effectiveError!,
-            style: VTypography.bodySmall.copyWith(color: VColors.danger),
+            style: VTypography.bodySmall.copyWith(color: dynamicColors.danger),
           ),
         ] else if (widget.helperText != null) ...[
           const SizedBox(height: VSpacing.space1),
@@ -162,6 +162,9 @@ class _VSelectState<T> extends State<VSelect<T>> {
   String _extractLabel(Widget child) {
     if (child is Text) {
       return child.data ?? child.textSpan?.toPlainText() ?? '';
+    }
+    if (child is VText) {
+      return child.data;
     }
     if (child is DefaultTextStyle) {
       return _extractLabel(child.child);
