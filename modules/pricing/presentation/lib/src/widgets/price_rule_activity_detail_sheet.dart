@@ -3,6 +3,7 @@ import 'package:vet45_design_system/design_system.dart';
 import 'package:vet45_pricing_application/application.dart';
 import 'package:vet45_pricing_domain/domain.dart';
 
+import 'price_rule_history_shared.dart';
 import 'price_rule_source_order_detail_sheet.dart';
 
 /// D-05 & D-07 SG-06 — Sheet chi tiết Activity — Diff trước/sau & Mask sensitive data.
@@ -318,8 +319,7 @@ class PriceRuleActivityDetailSheet extends StatelessWidget {
   };
 
   String _formatDateTime(DateTime d) =>
-      '${d.day.toString().padLeft(2, '0')}/${d.month.toString().padLeft(2, '0')}/${d.year} '
-      '${d.hour.toString().padLeft(2, '0')}:${d.minute.toString().padLeft(2, '0')}';
+      PriceRuleHistoryShared.formatDateTime(d);
 
   String _formatDateStr(String? dateStr) {
     if (dateStr == null || dateStr.isEmpty) return 'Không giới hạn';

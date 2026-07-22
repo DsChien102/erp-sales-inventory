@@ -23,7 +23,7 @@ Source of truth giữa presentation và application cho EP02. Types sẽ sống 
 | `NOT_FOUND` | Rule/batch không tồn tại hoặc không visible | Not-found state |
 | `VALIDATION_ERROR` | Field/value/date invalid | Field errors |
 | `INVALID_STATUS` | Action không hợp lifecycle | Refresh current state |
-| `DUPLICATE_ACTIVE_RULE` | Active interval conflict (import: **warning**, still importable with acknowledgement; confirm auto-disables overlaps) | Show conflict summary/link; require warning ack on import |
+| `DUPLICATE_ACTIVE_RULE` | Active interval conflicts with another rule (manual create: blocked; import: blocking row error; explicit update excludes its own rule ID) | Create: keep form and show blocking error. Import: skip that row. Preserve the existing active rule. |
 | `BELOW_FLOOR_BLOCKED` | Floor policy chặn | Explain policy/override eligibility |
 | `REFERENCE_INVALID` | Customer/product/unit không hợp lệ | Reselect or row error |
 | `AMBIGUOUS_PRODUCT_UNIT` | Import không resolve được unique/default unit | Row error |
@@ -73,7 +73,7 @@ Source of truth giữa presentation và application cho EP02. Types sẽ sống 
 
 | Symbol | Input summary | Success | Errors |
 | ------ | ------------- | ------- | ------ |
-| `CreateCustomerPriceRuleCommand` | context-derived tenantId/actorId; customerId, productId, productUnitId, rulePriceMinor, currencyCode, effectiveFrom, effectiveTo?, note?, acknowledgeFloorWarning, idempotencyKey | `CreateCustomerPriceRuleResult(rule, warnings)` | `NO_PERMISSION`, `VALIDATION_ERROR`, `BELOW_FLOOR_BLOCKED`, `REFERENCE_INVALID`, `IDEMPOTENCY_CONFLICT`, `SYSTEM_ERROR` |
+| `CreateCustomerPriceRuleCommand` | context-derived tenantId/actorId; customerId, productId, productUnitId, rulePriceMinor, currencyCode, effectiveFrom, effectiveTo?, note?, acknowledgeFloorWarning, idempotencyKey | `CreateCustomerPriceRuleResult(rule, warnings)` | `NO_PERMISSION`, `VALIDATION_ERROR`, `DUPLICATE_ACTIVE_RULE`, `BELOW_FLOOR_BLOCKED`, `REFERENCE_INVALID`, `IDEMPOTENCY_CONFLICT`, `SYSTEM_ERROR` |
 
 `tenantId` và `actorId` được command executor điền từ `IExecutionContext`; form không được cung cấp và mutation RPC luôn lấy actor từ `auth.uid()`. Command có `@RequiresTenant()` và `@RequiresPermission(PricingPermissions.createCustomerPriceRule)`. Date được chuẩn hóa thành calendar date UTC; money luôn là integer minor units.
 
@@ -90,14 +90,14 @@ Server assigns type=`special_price`, source=`manual`, status=`active`, version=`
 | Partner customer provider | `partner._get_customer_snapshot_for_pricing` | internal draft; no client execute |
 | Catalog price-band provider | `catalog._get_product_price_band_snapshot_for_pricing` | internal draft; no client execute |
 
-Mutation rechecks tenant/create permission, references, closed-interval overlap, and floor policy under advisory locks. Nếu gặp active overlap cùng key thì RPC tự disable rule cũ rồi mới ghi rule mới. Nó ghi disable activity cho rule cũ (nếu có) và `created` activity cho rule mới trong cùng transaction. `(tenant_id, idempotency_key)` là unique: same normalized payload returns the original result, different payload returns `IDEMPOTENCY_CONFLICT`.
+Mutation rechecks tenant/create permission, references, closed-interval overlap, and floor policy under advisory locks. Nếu gặp active overlap cùng key thì RPC trả `DUPLICATE_ACTIVE_RULE`, không tạo rule mới, không disable rule cũ và không ghi activity thay thế. `(tenant_id, idempotency_key)` là unique: same normalized payload returns the original result trước duplicate recheck, different payload returns `IDEMPOTENCY_CONFLICT`.
 
 ### Fake scenarios
 
 | scenario_id | Trigger | Fake response |
 | ----------- | ------- | ------------- |
 | `create_rule_ok` | valid unique candidate | active detail DTO |
-| `create_rule_duplicate` | overlapping key | success; conflicting active rule auto-disabled |
+| `create_rule_duplicate` | overlapping key | `DUPLICATE_ACTIVE_RULE`; no mutation |
 | `create_rule_floor_warning` | warn policy | result + warning |
 | `create_rule_floor_blocked` | block/no override | `BELOW_FLOOR_BLOCKED` |
 | `create_rule_reference_invalid` | stale customer/unit | `REFERENCE_INVALID` |
@@ -417,9 +417,9 @@ Template V1: sheets `customer_price_rules` + `instructions`; exact headers `rule
 | Cancel | `pricing.cancel_customer_price_rule_import` | draft trong repo; user-applied test env |
 | Catalog unit resolver | `catalog._resolve_product_unit_for_pricing_import` | internal draft; no client execute |
 
-Draft SQL: `supabase/migrations/_drafts/010_pricing_customer_price_rule_import_s8.sql`, `013_pricing_customer_price_rule_import_overlap_policy.sql` (duplicate → warning + confirm auto-disable), `003_catalog_pricing_import_product_unit_resolver.sql`. No workbook storage; no async worker in V1.
+Draft SQL: `supabase/migrations/_drafts/010_pricing_customer_price_rule_import_s8.sql`, `013_pricing_customer_price_rule_import_overlap_policy.sql` (duplicate → blocking row error + confirm recheck), `003_catalog_pricing_import_product_unit_resolver.sql`. No workbook storage; no async worker in V1.
 
-**BR-07 import overlap:** Preview puts `DUPLICATE_ACTIVE_RULE` in `warning_codes` (not `error_codes`). Confirm keeps rule-key advisory lock, calls `_auto_disable_overlapping_customer_price_rules` immediately before create/update with `replacement_action` `import_created`/`import_updated`, then writes import activity. Same-file conflicts: ascending `row_number`; later row wins; earlier imported rules may be auto-disabled by later rows. No confirm branch fails a row solely for duplicate.
+**BR-05 import overlap:** Preview puts `DUPLICATE_ACTIVE_RULE` in `error_codes`, marks the row `error/skip`, and excludes an explicit update's own `rule_id` from overlap detection. Confirm rechecks overlap after taking the rule-key advisory lock; a conflict marks only that row `failed/skip` and processing continues with the remaining eligible rows. Import never calls `_auto_disable_overlapping_customer_price_rules` and never mutates the conflicting active rule. Same-file conflicts are processed by ascending `row_number`: the first eligible row may import, while a later overlapping row fails. A mixed batch finishes `completed_with_errors`; users may continue whenever `validRows + warningRows > 0`.
 
 FE S8 dùng canonical `CustomerPriceRuleImportTemplateDto.versionV1`, tải template qua `GetCustomerPriceRuleImportTemplateQuery`, lưu bytes bằng app-local `PricingImportFileService`, cho phép partial import khi `validRows + warningRows > 0`, bắt buộc acknowledge warning và gọi cancel command trước khi bỏ batch `ready_to_import`. File-level parser errors được map thành thông báo tiếng Việt; tải workbook lỗi nằm ngoài scope.
 

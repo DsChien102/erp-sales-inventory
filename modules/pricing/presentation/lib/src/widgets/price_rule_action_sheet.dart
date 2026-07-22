@@ -2,11 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:vet45_design_system/design_system.dart';
 import 'package:vet45_pricing_application/application.dart';
 
-import 'price_rule_status_badge.dart';
-
 /// Bottom sheet Thao tác từ màn chi tiết (D-08 — SG-02).
 ///
-/// Header theo design: [VIconBox] | KH • SP / mã • ĐVB | Badge trạng thái.
+/// Chỉ liệt kê action theo [CustomerPriceRuleDetailDto.availableActions]
+/// (không header tóm tắt KH/SP — thông tin đó đã có trên màn chi tiết).
 /// Action rows dùng [Material]+[InkWell] (không [ListTile]) để tránh
 /// exception "ListTile background color or ink splashes may be invisible"
 /// khi sheet không có Material ancestor rõ ràng.
@@ -61,109 +60,60 @@ class PriceRuleActionSheet extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-        // D-08 header summary — khớp design hình 2
-        Padding(
-          padding: const EdgeInsets.fromLTRB(
-            VSpacing.space4,
-            VSpacing.space3,
-            VSpacing.space4,
-            VSpacing.space3,
-          ),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              VIconBox(
-                icon: VIcons.people,
-                size: 40,
-                iconSize: 18,
-                backgroundColor: colors.surfaceAlt,
-                iconColor: colors.textSecondary,
-                borderRadius: VRadius.r12,
-              ),
-              const VGap.horizontalMd(),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    VText(
-                      '${rule.customer.displayName} • ${rule.productUnit.productName}',
-                      variant: VTextVariant.bodyDefault,
-                      color: colors.textPrimary,
-                      style: const TextStyle(fontWeight: FontWeight.w600),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const VGap.xs(),
-                    VText(
-                      '${rule.customer.customerId} • ${rule.productUnit.unitName}',
-                      variant: VTextVariant.bodySmallMono,
-                      color: colors.textSecondary,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ],
+              if (actions.contains(CustomerPriceRuleAvailableActions.edit))
+                _ActionTile(
+                  icon: VIcons.edit,
+                  label: 'Sửa giá riêng',
+                  onTap: () {
+                    Navigator.of(context).pop();
+                    onEdit?.call();
+                  },
                 ),
-              ),
-              const VGap.horizontalSm(),
-              PriceRuleStatusBadge(status: rule.derivedStatus),
+              if (actions.contains(CustomerPriceRuleAvailableActions.disable))
+                _ActionTile(
+                  icon: VIcons.powerOff,
+                  label: 'Tắt giá riêng',
+                  color: colors.danger,
+                  onTap: () {
+                    Navigator.of(context).pop();
+                    onDisable?.call();
+                  },
+                ),
+              if (actions.contains(CustomerPriceRuleAvailableActions.reenable))
+                _ActionTile(
+                  icon: VIcons.power,
+                  label: 'Bật lại giá riêng',
+                  color: colors.success,
+                  onTap: () {
+                    Navigator.of(context).pop();
+                    onReenable?.call();
+                  },
+                ),
+              if (actions.contains(CustomerPriceRuleAvailableActions.history))
+                _ActionTile(
+                  icon: VIcons.history,
+                  label: 'Lịch sử áp dụng & thay đổi',
+                  onTap: () {
+                    Navigator.of(context).pop();
+                    onHistory?.call();
+                  },
+                ),
+              if (actions.isEmpty)
+                const Padding(
+                  padding: EdgeInsets.all(VSpacing.space4),
+                  child: VEmptyState(
+                    icon: VIcons.shield,
+                    title: 'Không có thao tác khả dụng',
+                    description:
+                        'Bạn không có quyền thực hiện thao tác trên giá riêng này.',
+                  ),
+                ),
+              const VGap.md(),
             ],
           ),
         ),
-        Divider(height: 1, thickness: 1, color: colors.borderDefault),
-        if (actions.contains(CustomerPriceRuleAvailableActions.edit))
-          _ActionTile(
-            icon: VIcons.edit,
-            label: 'Sửa giá riêng',
-            onTap: () {
-              Navigator.of(context).pop();
-              onEdit?.call();
-            },
-          ),
-        if (actions.contains(CustomerPriceRuleAvailableActions.disable))
-          _ActionTile(
-            icon: VIcons.powerOff,
-            label: 'Tắt giá riêng',
-            color: colors.danger,
-            onTap: () {
-              Navigator.of(context).pop();
-              onDisable?.call();
-            },
-          ),
-        if (actions.contains(CustomerPriceRuleAvailableActions.reenable))
-          _ActionTile(
-            icon: VIcons.power,
-            label: 'Bật lại giá riêng',
-            color: colors.success,
-            onTap: () {
-              Navigator.of(context).pop();
-              onReenable?.call();
-            },
-          ),
-        if (actions.contains(CustomerPriceRuleAvailableActions.history))
-          _ActionTile(
-            icon: VIcons.history,
-            label: 'Lịch sử áp dụng & thay đổi',
-            onTap: () {
-              Navigator.of(context).pop();
-              onHistory?.call();
-            },
-          ),
-        if (actions.isEmpty)
-          const Padding(
-            padding: EdgeInsets.all(VSpacing.space4),
-            child: VEmptyState(
-              icon: VIcons.shield,
-              title: 'Không có thao tác khả dụng',
-              description:
-                  'Bạn không có quyền thực hiện thao tác trên giá riêng này.',
-            ),
-          ),
-            const VGap.md(),
-          ],
-        ),
       ),
-    ),
-  );
+    );
   }
 }
 

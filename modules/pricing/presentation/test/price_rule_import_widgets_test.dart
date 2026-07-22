@@ -23,6 +23,13 @@ void main() {
       );
 
       expect(_button(tester, 'Tiếp tục').onPressed, isNotNull);
+      expect(
+        find.text('Hệ thống đã kiểm tra file. Vui lòng xem kết quả.'),
+        findsOneWidget,
+      );
+      expect(find.text('Tổng dòng'), findsOneWidget);
+      expect(find.text('Kiểm tra nhanh'), findsOneWidget);
+      expect(find.textContaining('Dữ liệu hợp lệ'), findsOneWidget);
     },
   );
 
@@ -94,16 +101,15 @@ void main() {
     expect(find.textContaining('cột tiêu đề'), findsOneWidget);
   });
 
-  testWidgets('preview row explains errors and warnings in Vietnamese', (
+  testWidgets('preview row renders duplicate as an error in Vietnamese', (
     tester,
   ) async {
     await tester.pumpWidget(
       _host(
         PriceRuleImportRowTile(
           row: _row(
-            errorCodes: const [],
+            errorCodes: const ['DUPLICATE_ACTIVE_RULE'],
             warningCodes: const [
-              'DUPLICATE_ACTIVE_RULE',
               'EFFECTIVE_FROM_DEFAULTED',
               'BELOW_FLOOR_PRICE',
             ],

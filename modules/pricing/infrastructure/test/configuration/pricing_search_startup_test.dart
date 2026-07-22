@@ -259,6 +259,74 @@ void main() {
       expect(supabase.calls, isEmpty);
     },
   );
+
+  test('startup maps permission transport failure to SYSTEM_ERROR', () async {
+    final supabase = FakePricingRpcSupabase();
+    final module = PricingStartup.initializeForTesting(
+      supabase: supabase,
+      executionContext: FakeExecutionContext(tenantId: 'tenant-1'),
+      permissionChecker: const _TechnicalPermissionChecker(),
+      tenantAccessChecker: FakeTenantAccessChecker(),
+    );
+
+    await expectLater(
+      module.executeQueryAsync(_query()),
+      throwsA(
+        isA<PricingBlockedException>().having(
+          (error) => error.code,
+          'code',
+          PricingBlockedCodes.systemError,
+        ),
+      ),
+    );
+    expect(supabase.calls, isEmpty);
+  });
+
+  test('startup maps tenant transport failure to SYSTEM_ERROR', () async {
+    final supabase = FakePricingRpcSupabase();
+    final module = PricingStartup.initializeForTesting(
+      supabase: supabase,
+      executionContext: FakeExecutionContext(tenantId: 'tenant-1'),
+      permissionChecker: FakePermissionChecker(),
+      tenantAccessChecker: const _TechnicalTenantAccessChecker(),
+    );
+
+    await expectLater(
+      module.executeQueryAsync(_query()),
+      throwsA(
+        isA<PricingBlockedException>().having(
+          (error) => error.code,
+          'code',
+          PricingBlockedCodes.systemError,
+        ),
+      ),
+    );
+    expect(supabase.calls, isEmpty);
+  });
+}
+
+final class _TechnicalPermissionChecker implements IPermissionChecker {
+  const _TechnicalPermissionChecker();
+
+  @override
+  Future<void> require(String permissionCode) async {
+    throw ApplicationException(
+      'ClientException: Failed host lookup',
+      cause: Exception('socket unavailable'),
+    );
+  }
+}
+
+final class _TechnicalTenantAccessChecker implements ITenantAccessChecker {
+  const _TechnicalTenantAccessChecker();
+
+  @override
+  Future<void> ensureAccess(String tenantId) async {
+    throw ApplicationException(
+      'ClientException: Failed host lookup',
+      cause: Exception('socket unavailable'),
+    );
+  }
 }
 
 SearchCustomerPriceRulesQuery _query() => SearchCustomerPriceRulesQuery(

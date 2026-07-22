@@ -17,7 +17,7 @@ Directory _repoRoot() {
 void main() {
   final root = _repoRoot();
 
-  test('013 import overlap draft promotes duplicate to warning and auto-disable', () {
+  test('013 import overlap draft blocks duplicate rows without auto-disable', () {
     final sql = File(
       '${root.path}/supabase/migrations/_drafts/'
       '013_pricing_customer_price_rule_import_overlap_policy.sql',
@@ -31,26 +31,32 @@ void main() {
     );
     expect(
       sql,
-      contains("v_warnings := v_warnings || jsonb_build_array('DUPLICATE_ACTIVE_RULE')"),
-    );
-    expect(
-      sql,
-      isNot(contains("v_errors := v_errors || jsonb_build_array('DUPLICATE_ACTIVE_RULE')")),
+      contains(
+        "v_errors := v_errors || jsonb_build_array('DUPLICATE_ACTIVE_RULE')",
+      ),
     );
     expect(
       sql,
       isNot(
         contains(
-          "error_codes = jsonb_build_array('DUPLICATE_ACTIVE_RULE')",
+          "v_warnings := v_warnings || jsonb_build_array('DUPLICATE_ACTIVE_RULE')",
         ),
       ),
     );
     expect(
       sql,
-      contains('pricing._auto_disable_overlapping_customer_price_rules('),
+      contains("error_codes = jsonb_build_array('DUPLICATE_ACTIVE_RULE')"),
     );
-    expect(sql, contains("'import_created'"));
-    expect(sql, contains("'import_updated'"));
+    expect(
+      sql,
+      isNot(
+        contains('pricing._auto_disable_overlapping_customer_price_rules('),
+      ),
+    );
+    expect(sql, contains("action = 'skip'"));
+    expect(sql, contains("row_status = 'failed'"));
+    expect(sql, contains('r.id <> coalesce(v_rule_id'));
+    expect(sql, contains("(v_eval ->> 'matched_rule_id')::uuid"));
   });
 
   test('014 lifecycle draft adds delete resolve exclusion and deleted_at', () {
@@ -66,14 +72,8 @@ void main() {
       ),
     );
     expect(sql, contains('add column if not exists deleted_at timestamptz'));
-    expect(
-      sql,
-      contains('customer_price_rules_deleted_at_status_consistency'),
-    );
-    expect(
-      sql,
-      contains('customer_price_rules_active_period_no_overlap'),
-    );
+    expect(sql, contains('customer_price_rules_deleted_at_status_consistency'));
+    expect(sql, contains('customer_price_rules_active_period_no_overlap'));
     expect(sql, contains('btree_gist'));
     expect(sql, contains("'deleted'"));
     expect(sql, contains('pricing.delete_customer_price_rule('));

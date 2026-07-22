@@ -31,6 +31,7 @@ final class PriceRuleListCubit extends Cubit<PriceRuleListState> {
     String? query,
     CustomerPriceRuleQuickFilter? quickFilter,
   }) async {
+    if (isClosed) return;
     try {
       if (query != null) {
         _query = query.trim().isEmpty ? null : query.trim();
@@ -70,6 +71,7 @@ final class PriceRuleListCubit extends Cubit<PriceRuleListState> {
       );
 
       final tenantId = await _executionContext.requireTenantId();
+      if (isClosed) return;
 
       final aggregatedPage = <CustomerPriceRuleListItemDto>[];
       var hasMore = true;
@@ -81,6 +83,7 @@ final class PriceRuleListCubit extends Cubit<PriceRuleListState> {
         lastResult = await _pricingModule.executeQueryAsync(
           _buildSearchQuery(tenantId: tenantId, cursor: _nextCursor),
         );
+        if (isClosed) return;
         final pageResult = lastResult!;
 
         var batch = _applyClientOnlyFilters(pageResult.page.items);
@@ -106,8 +109,7 @@ final class PriceRuleListCubit extends Cubit<PriceRuleListState> {
           ? aggregatedPage
           : [...currentItems, ...aggregatedPage];
       final hasReachedMax = !hasMore;
-      final availableActions =
-          lastResult?.availableActions ?? const <String>[];
+      final availableActions = lastResult?.availableActions ?? const <String>[];
 
       emit(
         PriceRuleListLoaded(
@@ -121,12 +123,11 @@ final class PriceRuleListCubit extends Cubit<PriceRuleListState> {
           canCreate: availableActions.contains(
             PricingAvailableActions.createManual,
           ),
-          canImport: availableActions.contains(
-            PricingAvailableActions.import,
-          ),
+          canImport: availableActions.contains(PricingAvailableActions.import),
         ),
       );
     } on PricingBlockedException catch (e) {
+      if (isClosed) return;
       if (e.code == PricingBlockedCodes.noPermission) {
         emit(
           PriceRuleListNoPermission(
@@ -152,6 +153,7 @@ final class PriceRuleListCubit extends Cubit<PriceRuleListState> {
         ),
       );
     } on ApplicationException catch (e) {
+      if (isClosed) return;
       emit(
         PriceRuleListError(
           message: e.message,
@@ -166,6 +168,7 @@ final class PriceRuleListCubit extends Cubit<PriceRuleListState> {
         ),
       );
     } catch (error) {
+      if (isClosed) return;
       emit(
         PriceRuleListError(
           message: 'Không thể tải dữ liệu. Vui lòng thử lại.',
@@ -286,8 +289,9 @@ final class PriceRuleListCubit extends Cubit<PriceRuleListState> {
       result = result.where((item) {
         final codes = item.validationOutcome.warningCodes;
         return switch (activeWarning) {
-          PriceRuleWarningFilter.duplicateRule =>
-            codes.contains('duplicate_active_rule'),
+          PriceRuleWarningFilter.duplicateRule => codes.contains(
+            'duplicate_active_rule',
+          ),
           PriceRuleWarningFilter.dataError =>
             item.validationOutcome.blockingCodes.isNotEmpty,
           PriceRuleWarningFilter.belowFloor => true,
@@ -314,17 +318,19 @@ final class PriceRuleListCubit extends Cubit<PriceRuleListState> {
 
     sorted.sort((a, b) {
       return switch (_sortOption) {
-        PriceRuleSortOption.updatedAtDesc =>
-          b.updatedAt.compareTo(a.updatedAt),
+        PriceRuleSortOption.updatedAtDesc => b.updatedAt.compareTo(a.updatedAt),
         PriceRuleSortOption.updatedAtAsc => a.updatedAt.compareTo(b.updatedAt),
-        PriceRuleSortOption.customerNameAsc =>
-          a.customer.displayName.compareTo(b.customer.displayName),
+        PriceRuleSortOption.customerNameAsc => a.customer.displayName.compareTo(
+          b.customer.displayName,
+        ),
         PriceRuleSortOption.customerNameDesc =>
           b.customer.displayName.compareTo(a.customer.displayName),
-        PriceRuleSortOption.priceDesc =>
-          b.price.amountMinor.compareTo(a.price.amountMinor),
-        PriceRuleSortOption.priceAsc =>
-          a.price.amountMinor.compareTo(b.price.amountMinor),
+        PriceRuleSortOption.priceDesc => b.price.amountMinor.compareTo(
+          a.price.amountMinor,
+        ),
+        PriceRuleSortOption.priceAsc => a.price.amountMinor.compareTo(
+          b.price.amountMinor,
+        ),
         PriceRuleSortOption.warningsFirst => () {
           final byWarning = warningScore(a).compareTo(warningScore(b));
           if (byWarning != 0) return byWarning;

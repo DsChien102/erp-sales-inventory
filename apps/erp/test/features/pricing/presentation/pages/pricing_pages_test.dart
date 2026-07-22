@@ -86,6 +86,34 @@ void main() {
       expect(find.text('Chưa có giá riêng nào'), findsOneWidget);
       expect(find.byType(VEmptyState), findsOneWidget);
     });
+
+    testWidgets(
+      'wgt_e02_u01_fr03_01 — offline error uses designed retry state',
+      (tester) async {
+        final module = _SystemErrorPricingModule();
+        GetIt.instance.registerSingleton<IPricingModule>(module);
+
+        await tester.pumpWidget(createTestWidget(const PricingListPage()));
+        await tester.pumpAndSettle();
+
+        expect(find.text('Không tải được danh sách'), findsOneWidget);
+        expect(
+          find.text('Vui lòng kiểm tra kết nối internet\nhoặc thử lại sau.'),
+          findsOneWidget,
+        );
+        expect(find.text('Thử lại'), findsOneWidget);
+        expect(find.byType(VSearchBar), findsNothing);
+        expect(find.byType(VFloatingActionButton), findsNothing);
+
+        final emptyState = tester.widget<VEmptyState>(find.byType(VEmptyState));
+        expect(emptyState.icon, VIcons.cloudOff);
+        expect(emptyState.tone, VComponentTone.danger);
+
+        await tester.tap(find.text('Thử lại'));
+        await tester.pumpAndSettle();
+        expect(module.queryCount, 2);
+      },
+    );
   });
 
   // ── S4 / US-02 ──
@@ -293,4 +321,19 @@ void main() {
       );
     });
   });
+}
+
+final class _SystemErrorPricingModule implements IPricingModule {
+  int queryCount = 0;
+
+  @override
+  Future<TResult> executeQueryAsync<TResult>(IQuery<TResult> query) async {
+    queryCount++;
+    throw const PricingBlockedException(PricingBlockedCodes.systemError);
+  }
+
+  @override
+  Future<TResult> executeCommandAsync<TResult>(ICommand<TResult> command) {
+    throw UnsupportedError('Commands are not used by this test.');
+  }
 }

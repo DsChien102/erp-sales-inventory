@@ -15,8 +15,8 @@ typedef PriceRuleAdvisoryLookup = ({
 ///
 /// SG-03:
 /// - Tất cả field trên 1 màn hình.
-/// - Duplicate active interval được authoritative backend tự disable rule cũ.
-/// - FE không còn phụ thuộc flow bấm lưu lần 2 để ghi đè.
+/// - Duplicate active interval bị authoritative backend chặn khi tạo thủ công.
+/// - FE giữ nguyên dữ liệu form để người dùng điều chỉnh rồi thử lại.
 final class PriceRuleFormCubit extends Cubit<PriceRuleFormState> {
   PriceRuleFormCubit({
     required IPricingModule pricingModule,
@@ -199,7 +199,7 @@ final class PriceRuleFormCubit extends Cubit<PriceRuleFormState> {
     }
   }
 
-  /// SG-03: Submit form. Nếu trùng, authoritative backend sẽ tự disable rule cũ.
+  /// SG-03: Submit form. Tạo thủ công bị chặn nếu trùng active interval.
   Future<void> submit({String? changeReason}) async {
     final current = _editingOrNew();
     if (!current.isValid) return;

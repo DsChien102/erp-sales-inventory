@@ -146,7 +146,13 @@ final class _PricingPermissionChecker implements IPermissionChecker {
   Future<void> require(String permissionCode) async {
     try {
       await _inner.require(permissionCode);
-    } on ApplicationException {
+    } on ApplicationException catch (error) {
+      if (error.cause != null) {
+        throw const PricingBlockedException(
+          PricingBlockedCodes.systemError,
+          message: 'Pricing access check failed.',
+        );
+      }
       throw PricingBlockedException(
         PricingBlockedCodes.noPermission,
         message: 'Permission denied.',
@@ -165,7 +171,13 @@ final class _PricingTenantAccessChecker implements ITenantAccessChecker {
   Future<void> ensureAccess(String tenantId) async {
     try {
       await _inner.ensureAccess(tenantId);
-    } on ApplicationException {
+    } on ApplicationException catch (error) {
+      if (error.cause != null) {
+        throw const PricingBlockedException(
+          PricingBlockedCodes.systemError,
+          message: 'Pricing access check failed.',
+        );
+      }
       throw const PricingBlockedException(
         PricingBlockedCodes.noPermission,
         message: 'Tenant access denied.',

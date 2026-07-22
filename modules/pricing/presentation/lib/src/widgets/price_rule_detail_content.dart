@@ -4,6 +4,7 @@ import 'package:vet45_pricing_application/application.dart';
 import 'package:vet45_pricing_domain/domain.dart';
 
 import 'price_rule_detail_rows.dart';
+import 'price_rule_history_shared.dart';
 import 'price_rule_status_badge.dart';
 import 'price_rule_warning_banner.dart';
 
@@ -109,7 +110,7 @@ class PriceRuleDetailContent extends StatelessWidget {
               ),
               PriceRuleIconDetailRow(
                 icon: VIcons.receipt,
-                label: 'Giá hiện tại',
+                label: 'Giá niêm yết',
                 value: listPrice != null ? _formatMoney(listPrice) : '—',
                 numeric: true,
               ),
@@ -258,11 +259,15 @@ class PriceRuleDetailContent extends StatelessWidget {
     return '$amountLabel ($sign$pctLabel%)';
   }
 
-  String _formatDate(DateTime d) =>
-      '${d.day.toString().padLeft(2, '0')}/${d.month.toString().padLeft(2, '0')}/${d.year}';
+  String _formatDate(DateTime d) {
+    final local = d.toLocal();
+    return '${local.day.toString().padLeft(2, '0')}/'
+        '${local.month.toString().padLeft(2, '0')}/'
+        '${local.year}';
+  }
 
   String _formatDateTime(DateTime d) =>
-      '${_formatDate(d)} ${d.hour.toString().padLeft(2, '0')}:${d.minute.toString().padLeft(2, '0')}';
+      PriceRuleHistoryShared.formatDateTime(d);
 
   String _formatSource(CustomerPriceRuleSourceType src) => switch (src) {
     CustomerPriceRuleSourceType.manual => 'Tạo thủ công',

@@ -96,7 +96,7 @@ disabled disabled, and normalizes fixed needs_review to active.
 
 ### Overlap policy (BR-07 / CPR-INV-06)
 
-`CustomerPriceRuleOverlapPolicy` conflicts only when same tenant/customer/product/product-unit, both rules are `active` with `deletedAt == null`, and closed intervals overlap (`EffectivePeriod.overlaps`). Update/reenable/import exclude the current rule id. Commit paths auto-disable overlapping actives via `_auto_disable_overlapping_customer_price_rules` (reason `AUTO_REPLACED_BY_RULE`). Import preview surfaces `DUPLICATE_ACTIVE_RULE` as a **warning** (importable + acknowledgement), not a hard error; confirm still auto-disables before create/update. DB exclusion constraint on active non-deleted intervals is the final guard (draft `014`).
+`CustomerPriceRuleOverlapPolicy` conflicts only when same tenant/customer/product/product-unit, both rules are `active` with `deletedAt == null`, and closed intervals overlap (`EffectivePeriod.overlaps`). Update/reenable/import exclude the current rule id. Manual create/update and reenable retain their own replacement policy via `_auto_disable_overlapping_customer_price_rules` (reason `AUTO_REPLACED_BY_RULE`). Import is stricter: preview surfaces `DUPLICATE_ACTIVE_RULE` as a blocking row error, confirm rechecks under the rule-key lock, skips only the conflicting row, and never auto-disables the existing active rule. DB exclusion constraint on active non-deleted intervals is the final guard (draft `014`).
 
 ### Eligibility policy (BR-08 / CPR-INV-08)
 

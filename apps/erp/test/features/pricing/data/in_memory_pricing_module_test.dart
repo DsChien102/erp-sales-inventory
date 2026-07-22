@@ -43,10 +43,18 @@ void main() {
     });
 
     test(
-      'SG-03: tạo trùng → tự tắt rule cũ và ghi đè bằng rule mới',
+      'SG-03: tạo trùng → chặn và giữ nguyên rule cũ',
       () async {
-        final existing = (await search()).page.items.firstWhere(
+        final before = await search();
+        final existing = before.page.items.firstWhere(
           (r) => r.persistedStatus == CustomerPriceRuleStatus.active,
+        );
+        final beforeDetail = await module.executeQueryAsync(
+          GetCustomerPriceRuleDetailQuery(
+            tenantId: 't1',
+            ruleId: existing.id,
+            businessDate: businessDate,
+          ),
         );
 
         CreateCustomerPriceRuleCommand buildCommand() => CreateCustomerPriceRuleCommand(
@@ -61,8 +69,16 @@ void main() {
           idempotencyKey: 'test-key',
         );
 
-        final created = await module.executeCommandAsync(buildCommand());
-        expect(created.rule.persistedStatus, CustomerPriceRuleStatus.active);
+        await expectLater(
+          module.executeCommandAsync(buildCommand()),
+          throwsA(
+            isA<PricingBlockedException>().having(
+              (error) => error.code,
+              'code',
+              PricingBlockedCodes.duplicateActiveRule,
+            ),
+          ),
+        );
 
         final oldDetail = await module.executeQueryAsync(
           GetCustomerPriceRuleDetailQuery(
@@ -71,7 +87,9 @@ void main() {
             businessDate: businessDate,
           ),
         );
-        expect(oldDetail.persistedStatus, CustomerPriceRuleStatus.disabled);
+        expect(oldDetail.persistedStatus, CustomerPriceRuleStatus.active);
+        expect(oldDetail.version, beforeDetail.version);
+        expect((await search()).page.items, hasLength(before.page.items.length));
       },
     );
 
@@ -173,5 +191,66 @@ void main() {
       final after = (await search()).page.items.length;
       expect(after, greaterThan(before));
     });
+
+    test(
+      'import: bỏ qua dòng trùng active và tiếp tục các dòng hợp lệ',
+      () async {
+        final existing = (await search()).page.items.firstWhere(
+          (rule) =>
+              rule.customer.customerId == 'KH000123' &&
+              rule.productUnit.productUnitId == 'unit-1a' &&
+              rule.persistedStatus == CustomerPriceRuleStatus.active,
+        );
+
+        final preview = await module.executeCommandAsync(
+          StartCustomerPriceRuleImportCommand(
+            tenantId: 't1',
+            templateVersion: CustomerPriceRuleImportTemplateDto.versionV1,
+            originalFileName: 'mixed.xlsx',
+            fileBytes: Uint8List.fromList(const [1, 2, 3]),
+            importMode: CustomerPriceRuleImportMode.upsert,
+          ),
+        );
+
+        final duplicate = preview.rows.items.singleWhere(
+          (row) => row.errorCodes.contains('DUPLICATE_ACTIVE_RULE'),
+        );
+        expect(duplicate.status, CustomerPriceRuleImportRowStatus.error);
+        expect(duplicate.action, CustomerPriceRuleImportAction.skip);
+        expect(preview.batch.errorRows, 1);
+        expect(
+          preview.batch.validRows + preview.batch.warningRows,
+          greaterThan(0),
+        );
+
+        final result = await module.executeCommandAsync(
+          ConfirmCustomerPriceRuleImportCommand(
+            tenantId: 't1',
+            importId: preview.batch.id,
+            expectedVersion: preview.batch.version,
+            businessDate: businessDate,
+            acknowledgeWarningRows: true,
+          ),
+        );
+
+        expect(
+          result.batch.status,
+          CustomerPriceRuleImportStatus.completedWithErrors,
+        );
+        expect(result.batch.importedRows, greaterThan(0));
+        expect(result.batch.skippedRows, 1);
+
+        final preserved = await module.executeQueryAsync(
+          GetCustomerPriceRuleDetailQuery(
+            tenantId: 't1',
+            ruleId: existing.id,
+            businessDate: businessDate,
+          ),
+        );
+        expect(preserved.persistedStatus, CustomerPriceRuleStatus.active);
+        expect(preserved.version, 1);
+        expect(preserved.price.amountMinor, existing.price.amountMinor);
+      },
+    );
   });
 }

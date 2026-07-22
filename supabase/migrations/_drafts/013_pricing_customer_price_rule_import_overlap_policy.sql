@@ -1,7 +1,7 @@
--- Title: Pricing import overlap policy (BR-07)
+-- Title: Pricing import overlap policy (BR-05)
 -- Kind: patch
 -- Intent: pricing_customer_price_rule_import_overlap_policy
--- Context: TH-04 EP02 BR-07 import auto-disable / duplicate as warning
+-- Context: TH-04 EP02 BR-05 duplicate rows are blocking; partial import continues
 -- Touches: _evaluate_customer_price_rule_import_row, confirm_customer_price_rule_import
 -- Safety: draft only; do not apply or promote without explicit migration review
 -- Depends on: 010_pricing_customer_price_rule_import_s8.sql
@@ -174,7 +174,7 @@ begin
       and v_effective_from <= coalesce(r.effective_to, 'infinity'::date)
     order by r.created_at limit 1;
     if v_conflicting_rule_id is not null then
-      v_warnings := v_warnings || jsonb_build_array('DUPLICATE_ACTIVE_RULE');
+      v_errors := v_errors || jsonb_build_array('DUPLICATE_ACTIVE_RULE');
     end if;
   end if;
 
@@ -326,19 +326,34 @@ begin
       p_tenant_id::text || ':rule:' || v_customer_id::text || ':'
         || v_product_id::text || ':' || v_product_unit_id::text, 0));
 
+    select r.id into v_conflicting_rule_id
+    from pricing.customer_price_rules r
+    where r.tenant_id = p_tenant_id
+      and r.id <> coalesce(
+        (v_eval ->> 'matched_rule_id')::uuid,
+        '00000000-0000-0000-0000-000000000000'::uuid
+      )
+      and r.customer_id = v_customer_id
+      and r.product_id = v_product_id
+      and r.product_unit_id = v_product_unit_id
+      and r.status = 'active'
+      and r.effective_from <= coalesce(v_effective_to, 'infinity'::date)
+      and v_effective_from <= coalesce(r.effective_to, 'infinity'::date)
+    order by r.created_at
+    limit 1;
+    if v_conflicting_rule_id is not null then
+      update pricing.customer_price_rule_import_rows set
+        row_status = 'failed',
+        action = 'skip',
+        error_codes = jsonb_build_array('DUPLICATE_ACTIVE_RULE'),
+        warning_codes = v_eval -> 'warning_codes',
+        updated_at = statement_timestamp()
+      where id = v_row.id;
+      continue;
+    end if;
+
     if (v_eval ->> 'action') = 'create' then
       v_rule_id := gen_random_uuid();
-      perform pricing._auto_disable_overlapping_customer_price_rules(
-        p_tenant_id,
-        v_rule_id,
-        v_customer_id,
-        v_product_id,
-        v_product_unit_id,
-        v_effective_from,
-        v_effective_to,
-        v_actor_id,
-        'import_created'
-      );
       insert into pricing.customer_price_rules (
         id, tenant_id, customer_id, product_id, product_unit_id,
         customer_display_name_snapshot, customer_status_snapshot,
@@ -379,19 +394,6 @@ begin
         continue;
       end if;
       v_rule_id := v_target.id;
-      if v_target.status <> 'disabled' then
-        perform pricing._auto_disable_overlapping_customer_price_rules(
-          p_tenant_id,
-          v_rule_id,
-          v_customer_id,
-          v_product_id,
-          v_product_unit_id,
-          v_effective_from,
-          v_effective_to,
-          v_actor_id,
-          'import_updated'
-        );
-      end if;
       update pricing.customer_price_rules set
         customer_display_name_snapshot = v_customer ->> 'display_name',
         customer_status_snapshot = v_customer ->> 'status',

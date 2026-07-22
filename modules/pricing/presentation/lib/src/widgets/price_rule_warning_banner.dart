@@ -17,7 +17,7 @@ class PriceRuleBelowFloorBanner extends StatelessWidget {
   }
 }
 
-/// D-06 SG-03 — Cảnh báo trùng giá riêng (không chặn lưu).
+/// D-06 SG-03 — Lỗi trùng giá riêng chặn lưu.
 class PriceRuleDuplicateBanner extends StatelessWidget {
   const PriceRuleDuplicateBanner({
     super.key,
@@ -34,8 +34,8 @@ class PriceRuleDuplicateBanner extends StatelessWidget {
       title: 'Trùng giá riêng đang áp dụng',
       message:
           'Đã có giá riêng cho khách hàng, sản phẩm, đơn vị '
-          'trong khoảng thời gian. Lưu giá riêng mới sẽ ghi đè '
-          'giá riêng cũ.',
+          'trong khoảng thời gian. Không thể lưu rule mới; vui lòng '
+          'điều chỉnh khoảng hiệu lực hoặc đối tượng áp dụng.',
       footer: onViewExisting == null
           ? null
           : GestureDetector(

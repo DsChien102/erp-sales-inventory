@@ -4,7 +4,7 @@ import 'package:vet45_pricing_application/application.dart';
 
 import '../formatters/price_rule_import_issue_formatter.dart';
 
-/// Chip thống kê preview import.
+/// Chip thống kê preview import — label trên, số lớn dưới (design Kiểm tra).
 class PriceRuleImportStatChip extends StatelessWidget {
   const PriceRuleImportStatChip({
     super.key,
@@ -21,14 +21,24 @@ class PriceRuleImportStatChip extends StatelessWidget {
   Widget build(BuildContext context) {
     return Expanded(
       child: VCard(
-        padding: const EdgeInsets.all(VSpacing.space2),
+        padding: const EdgeInsets.symmetric(
+          horizontal: VSpacing.space2,
+          vertical: VSpacing.space3,
+        ),
         child: Column(
           children: [
-            VText('$value', variant: VTextVariant.headingH4Mono, color: color),
             VText(
               label,
               variant: VTextVariant.caption,
               color: context.vColors.textMuted,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+            const VGap.xs(),
+            VText(
+              '$value',
+              variant: VTextVariant.headingH4Mono,
+              color: color,
             ),
           ],
         ),
@@ -37,7 +47,50 @@ class PriceRuleImportStatChip extends StatelessWidget {
   }
 }
 
-/// Tile một dòng preview import.
+/// Nhãn hiển thị từ snapshot dòng import (camelCase hoặc snake_case).
+abstract final class PriceRuleImportRowLabels {
+  static String customer(CustomerPriceRuleImportRowPreviewDto row) =>
+      _snap(row.customerSnapshot, const ['displayName', 'display_name']) ??
+      row.customerId ??
+      '—';
+
+  static String product(CustomerPriceRuleImportRowPreviewDto row) =>
+      _snap(row.productSnapshot, const [
+        'productName',
+        'product_name',
+        'sku',
+        'code',
+      ]) ??
+      row.productReferenceId ??
+      '—';
+
+  static String unit(CustomerPriceRuleImportRowPreviewDto row) =>
+      _snap(row.unitSnapshot, const ['unitName', 'unit_name', 'name']) ?? '—';
+
+  static String price(CustomerPriceRuleImportRowPreviewDto row) {
+    final minor = row.normalizedPriceMinor;
+    if (minor != null) return _formatMoney(minor);
+    final raw = row.price?.trim();
+    if (raw == null || raw.isEmpty) return '—';
+    final parsed = int.tryParse(raw.replaceAll(RegExp(r'[^\d]'), ''));
+    return parsed == null ? raw : _formatMoney(parsed);
+  }
+
+  static String? _snap(Map<String, dynamic>? map, List<String> keys) {
+    if (map == null) return null;
+    for (final key in keys) {
+      final value = map[key];
+      if (value is String && value.trim().isNotEmpty) return value.trim();
+    }
+    return null;
+  }
+
+  static String _formatMoney(int value) => value
+      .toString()
+      .replaceAllMapped(RegExp(r'\B(?=(\d{3})+(?!\d))'), (m) => '.');
+}
+
+/// Tile một dòng preview import (cảnh báo / lỗi).
 class PriceRuleImportRowTile extends StatelessWidget {
   const PriceRuleImportRowTile({super.key, required this.row});
 
@@ -45,10 +98,8 @@ class PriceRuleImportRowTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final custName =
-        row.customerSnapshot?['displayName'] ?? row.customerId ?? '';
-    final prodName =
-        row.productSnapshot?['productName'] ?? row.productReferenceId ?? '';
+    final custName = PriceRuleImportRowLabels.customer(row);
+    final prodName = PriceRuleImportRowLabels.product(row);
     final colors = context.vColors;
     final tone = switch (row.status) {
       CustomerPriceRuleImportRowStatus.valid => colors.success,
@@ -141,7 +192,7 @@ class PriceRuleImportConfirmRow extends StatelessWidget {
   }
 }
 
-/// Bullet lưu ý bước 1.
+/// Bullet lưu ý bước 1 / kiểm tra nhanh.
 class PriceRuleImportBullet extends StatelessWidget {
   const PriceRuleImportBullet(this.text, {super.key});
 

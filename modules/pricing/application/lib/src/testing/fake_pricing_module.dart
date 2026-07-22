@@ -373,7 +373,9 @@ final class FakePricingModule implements IPricingModule {
   ) async {
     switch (scenario) {
       case FakePricingScenario.createRuleDuplicate:
-        return _result(command) as TResult;
+        throw const PricingBlockedException(
+          PricingBlockedCodes.duplicateActiveRule,
+        );
       case FakePricingScenario.createRuleFloorBlocked:
         throw const PricingBlockedException(
           PricingBlockedCodes.belowFloorBlocked,
@@ -867,6 +869,44 @@ final class FakePricingModule implements IPricingModule {
               ? const ['EFFECTIVE_FROM_DEFAULTED']
               : const [],
         ),
+        if (rowErrorCodes.isEmpty &&
+            scenario == FakePricingScenario.importReadyMixed)
+          const CustomerPriceRuleImportRowPreviewDto(
+            id: 'import-row-2',
+            rowNumber: 3,
+            ruleId: null,
+            customerId: '00000000-0000-4000-8000-000000000012',
+            productReferenceId: 'PROD-002',
+            price: '130000',
+            effectiveFrom: '2026-07-22',
+            effectiveTo: null,
+            note: null,
+            normalizedPriceMinor: 130000,
+            normalizedEffectiveFrom: null,
+            status: CustomerPriceRuleImportRowStatus.valid,
+            action: CustomerPriceRuleImportAction.create,
+            errorCodes: [],
+            warningCodes: [],
+          ),
+        if (rowErrorCodes.isEmpty &&
+            scenario == FakePricingScenario.importReadyMixed)
+          const CustomerPriceRuleImportRowPreviewDto(
+            id: 'import-row-3',
+            rowNumber: 4,
+            ruleId: null,
+            customerId: '00000000-0000-4000-8000-000000000013',
+            productReferenceId: 'PROD-003',
+            price: '140000',
+            effectiveFrom: '2026-07-22',
+            effectiveTo: null,
+            note: null,
+            normalizedPriceMinor: 140000,
+            normalizedEffectiveFrom: null,
+            status: CustomerPriceRuleImportRowStatus.error,
+            action: CustomerPriceRuleImportAction.skip,
+            errorCodes: ['DUPLICATE_ACTIVE_RULE'],
+            warningCodes: [],
+          ),
       ],
       hasMore: false,
       nextCursor: query?.cursor,
@@ -884,10 +924,10 @@ final class FakePricingModule implements IPricingModule {
     importMode: CustomerPriceRuleImportMode.upsert,
     status: status,
     version: 1,
-    totalRows: 1,
-    validRows: 0,
-    warningRows: 1,
-    errorRows: 0,
+    totalRows: scenario == FakePricingScenario.importReadyMixed ? 3 : 1,
+    validRows: scenario == FakePricingScenario.importReadyMixed ? 1 : 0,
+    warningRows: fileErrorCodes.isEmpty ? 1 : 0,
+    errorRows: scenario == FakePricingScenario.importReadyMixed ? 1 : 0,
     importedRows: status == CustomerPriceRuleImportStatus.completed ? 1 : 0,
     skippedRows: 0,
     failedRows: status == CustomerPriceRuleImportStatus.completedWithErrors

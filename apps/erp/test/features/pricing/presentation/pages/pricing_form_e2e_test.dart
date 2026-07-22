@@ -86,6 +86,50 @@ void main() {
     );
 
     testWidgets(
+      'e2e_e02_u04_fr01_04: duplicate is blocked and preserves form',
+      (tester) async {
+        await setUpPricingE2E(
+          createScenario: FakePricingScenario.createRuleDuplicate,
+        );
+        await tester.pumpWidget(
+          buildPricingRouter(initialLocation: '/pricing/new'),
+        );
+        await tester.pumpAndSettle();
+
+        final cubit = tester
+            .element(findByWgtKey('wgt_e02_u04_fr01_01'))
+            .read<PriceRuleFormCubit>();
+
+        cubit
+          ..selectCustomer(
+            customerId: 'customer-1',
+            customerName: 'Khách hàng mẫu',
+          )
+          ..selectProduct(productId: 'product-1', productName: 'Vaccine mẫu')
+          ..selectProductUnit(productUnitId: 'unit-1', productUnitName: 'Lọ')
+          ..updatePrice(150000)
+          ..updateDates(effectiveFrom: DateTime.utc(2026, 7, 16));
+
+        await tester.pump();
+        await cubit.submit();
+        await tester.pumpAndSettle();
+
+        expect(
+          find.text(
+            'Đã tồn tại giá riêng đang hoạt động trùng thời gian. '
+            'Vui lòng điều chỉnh khoảng hiệu lực hoặc chọn đối tượng khác.',
+          ),
+          findsOneWidget,
+        );
+        expect(findByWgtKey('wgt_e02_u04_fr01_01'), findsOneWidget);
+        final state = cubit.state as PriceRuleFormEditing;
+        expect(state.customerId, 'customer-1');
+        expect(state.productUnitId, 'unit-1');
+        expect(state.rulePriceMinor, 150000);
+      },
+    );
+
+    testWidgets(
       'e2e_e02_u04_fr01_03: create preserves list and parent back stack',
       (tester) async {
         await setUpPricingE2E(

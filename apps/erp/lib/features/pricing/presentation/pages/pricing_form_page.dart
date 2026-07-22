@@ -156,7 +156,9 @@ class _PricingFormPageState extends State<PricingFormPage> {
   }
 
   String _mapErrorToMessage(String code) => switch (code) {
-    PricingBlockedCodes.duplicateActiveRule => 'Trùng giá riêng đã tồn tại.',
+    PricingBlockedCodes.duplicateActiveRule =>
+      'Đã tồn tại giá riêng đang hoạt động trùng thời gian. '
+          'Vui lòng điều chỉnh khoảng hiệu lực hoặc chọn đối tượng khác.',
     PricingBlockedCodes.belowFloorBlocked => 'Giá nhập thấp hơn giá sàn quy định.',
     PricingBlockedCodes.referenceInvalid => 'Khách hàng hoặc sản phẩm không hợp lệ.',
     PricingBlockedCodes.noPermission => 'Bạn không có quyền thực hiện.',
