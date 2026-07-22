@@ -10,5 +10,5 @@ final class MarkupRatioMustBeNonNegativeRule implements IBusinessRule {
   bool isBroken() => ratio < 0;
 
   @override
-  String get message => '$label must be non-negative.';
+  String get message => '$label phải lớn hơn hoặc bằng 0.';
 }

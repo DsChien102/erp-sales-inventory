@@ -845,13 +845,14 @@ Read path (PCC summary): `GetProductControlCenterQuery` → `ProductPriceBandCar
 
 **Scope / rules:**
 
-- FR-01: Giá niêm yết before+after VAT bắt buộc với band đã materialize + Giá sàn optional theo từng **đơn vị đang active**; `customConfig` chưa có Giá cơ sở được phép lưu tỷ lệ với bốn giá materialized là `null`.
-- `listAfterVat` bắt buộc cùng `listBeforeVat` với `manual`/`ruleBased` và `customConfig` đã tính; riêng `customConfig` pending để cả hai là `null`. `floorAfterVat` optional. DB amounts: **numeric**.
+- FR-01: Giá niêm yết before+after VAT bắt buộc với band **đã materialize** + Giá sàn optional theo từng **đơn vị đang active**. Automatic pending (`ruleBased` / `customConfig` chưa materialize) lưu bốn giá là numeric `0` (không dùng `null`).
+- `listAfterVat` bắt buộc cùng `listBeforeVat` với `manual` và band automatic đã materialize; automatic pending dùng `0 / 0`. `floorAfterVat` optional khi đã materialize. DB amounts: **numeric**.
+- `CreateGuidedProductCommand` / `create_guided_product`: khi có base unit + chọn một trong ba mode → luôn tạo một base-unit band; pending automatic không mô tả bằng `null` amounts.
 - Effective window: `effectiveFrom` (default now UTC on set), `effectiveTo` nullable = open-ended. Reads filter `status = active` and in-window.
 - Status VO: default `active` on set; partial unique one active band per `(product_id, product_unit_id)`.
 - FR-02 Foundation MVP: **warn-only** so với Giá cơ sở — `confirmAcknowledgeWarnings=true` để lưu khi có warnings; block policy deferred.
 - Warning codes: `list_price_below_base_price`, `floor_price_below_base_price`, `cannot_compare_base_price` (thiếu tỷ lệ quy đổi).
-- FR-03: `readinessSummary` refresh; `missing_price_band` chỉ clear khi **mọi** đơn vị active có **list before+after VAT** trên band **active + in-window** (floor optional).
+- FR-03: `readinessSummary` refresh; `missing_price_band` chỉ clear khi **mọi** đơn vị active có band **đã materialize** (không clear chỉ vì automatic pending `0`). Automatic complete khi có Giá cơ sở **và** (`ruleBased` resolve được rule active, hoặc `customConfig` đã tính từ ratios); `manual` complete khi có list before+after VAT tuyệt đối.
 - FR-04: change history qua BE RPC `set_product_unit_price_band`; read qua PCC `changeHistoryPreview` (không thêm query mới ở contract).
 - Unit sales roles (EPIC-04/FR-02) **pending** — Foundation coi mọi đơn vị active cần band.
 - `SetInitialPriceBandCommand` (guided create slice #2) giữ nguyên — không deprecate; wire dùng before-VAT params.
@@ -861,8 +862,8 @@ Read path (PCC summary): `GetProductControlCenterQuery` → `ProductPriceBandCar
 
 | `sourceType` | Nguồn tỷ lệ | Trường bắt buộc | Trường phải null | Hành vi tái tính |
 | --- | --- | --- | --- | --- |
-| `ruleBased` | `store_price_rules` | `storePriceRuleId` | `listMarkupRatio`, `floorMarkupRatio` | Đổi base price hoặc Store Rule active |
-| `customConfig` | `product_unit_price_bands` | `listMarkupRatio`; floor ratio optional | `storePriceRuleId` | Thiếu base price: lưu tỷ lệ pending; khi có/đổi base price: materialize lại giá |
+| `ruleBased` | `store_price_rules` active tại thời điểm tái tính | `storePriceRuleId` nullable khi chưa materialize; sau materialize = metadata lần resolve gần nhất | hai ratio riêng trên band | Thiếu Giá cơ sở hoặc chưa có rule active: tạo/giữ band `0`; khi có/đổi Giá cơ sở hoặc rule active đổi: materialize lại từ rule active hiện tại |
+| `customConfig` | `product_unit_price_bands` | `listMarkupRatio`; floor ratio optional | `storePriceRuleId` | Thiếu Giá cơ sở: lưu band `0` và tỷ lệ; khi có/đổi Giá cơ sở: materialize lại |
 | `manual` | Không có | Giá tuyệt đối | rule id và hai ratio | Không tự tái tính |
 
 Ratio wire dùng số thập phân (`40% = 0.40`). Giá materialized dùng `round(basePriceForUnit * (1 + ratio))`; `basePriceForUnit = basePricePerBaseUnit * conversionRateToBase`.
@@ -876,17 +877,17 @@ Permissions:
 
 | Use case | RPC / view | Params (summary) | Notes |
 | -------- | ---------- | ---------------- | ----- |
-| Set price band | `catalog.set_product_unit_price_band` | `p_list_price_before_vat`, `p_list_price_after_vat`, `p_floor_*`, `p_source_type`, `p_store_price_rule_id?`, `p_list_markup_ratio?`, `p_floor_markup_ratio?`, effective/status… | Upsert **active** band; customConfig thiếu base vẫn lưu ratios với giá `null`, có base thì tính dưới lock; manual lưu giá tuyệt đối |
+| Set price band | `catalog.set_product_unit_price_band` | `p_list_price_before_vat`, `p_list_price_after_vat`, `p_floor_*`, `p_source_type`, `p_store_price_rule_id?`, `p_list_markup_ratio?`, `p_floor_markup_ratio?`, effective/status… | Upsert **active** band; automatic thiếu base lưu ratios/`ruleBased` với giá `0`; có base thì tính dưới lock; manual lưu giá tuyệt đối; pending `ruleBased` cho phép `store_price_rule_id` null |
 | List bands per unit | `catalog.list_product_unit_price_bands` | `p_tenant_id`, `p_product_id` | Rows for active `product_units`; left join **active in-window** bands + store rule name |
-| Readiness facts | `catalog._product_operational_facts` (redefined) | existing | `has_price_band` true when **all** active units have valid **before-VAT** active in-window band |
+| Readiness facts | `catalog._product_operational_facts` (redefined) | existing | `has_price_band` true chỉ khi **mọi** đơn vị **active** (cơ sở + quy đổi) có band **đã materialize**; một đơn vị quy đổi thiếu khung giá → giữ `missing_price_band` |
 | Apply store rule | `catalog.apply_store_price_rule` | existing | Writes before-VAT list/floor; returns `list_price_before_vat` / `floor_price_before_vat` |
-| Guided create | `catalog.create_guided_product` | `p_list_price_before_vat?`, `p_floor_price_before_vat?`, `p_price_band_source_type?`, `p_list_markup_ratio?`, `p_floor_markup_ratio?` | Mặc định/Bỏ qua → `ruleBased`; chỉ apply rule khi có unit + base price + active rule. `customConfig` có unit + ratios được lưu kể cả thiếu base; manual hợp lệ lưu trực tiếp |
+| Guided create | `catalog.create_guided_product` | `p_list_price_before_vat?`, `p_floor_price_before_vat?`, `p_price_band_source_type?`, `p_list_markup_ratio?`, `p_floor_markup_ratio?` | Có base unit + mode → luôn tạo base-unit band. Automatic thiếu base: band `0`. `ruleBased` có base + rule active: materialize ngay; không thì pending. Manual hợp lệ lưu trực tiếp |
 
-**Guards:** `inactive_product_unit`, `floor_price_greater_than_list_price`, `validation_exception` (negative prices/ratios), `missing base unit`, `product not found`. `missing_base_price` không áp dụng cho `customConfig`; chỉ các luồng cần materialize ngay như Store Rule vẫn chặn.
+**Guards:** `inactive_product_unit`, `floor_price_greater_than_list_price`, `validation_exception` (negative prices/ratios), `missing base unit`, `product not found`. `missing_base_price` không chặn persist pending automatic; chỉ chặn các luồng materialize tường minh như `apply_store_price_rule` khi thiếu base.
 
-**Change history khung giá:** mọi lần tạo/sửa trực tiếp ghi `price_band_change` theo từng đơn vị. Snapshot chỉ gồm `source_type`, `list_price`, `floor_price` trước–sau; không lưu ratio. `before=null` biểu thị tạo lần đầu. Đổi Giá cơ sở chỉ ghi các band `ruleBased`/`customConfig` thực sự đổi giá; đổi Store Price Rule chỉ ghi các band `ruleBased` thuộc rule đó. Manual không tự tái tính và no-op không tạo history.
+**Change history khung giá:** mọi lần tạo/sửa trực tiếp ghi `price_band_change` theo từng đơn vị. Snapshot chỉ gồm `source_type`, `list_price`, `floor_price` trước–sau; không lưu ratio. `before=null` biểu thị tạo lần đầu. Đổi Giá cơ sở chỉ ghi các band `ruleBased`/`customConfig` thực sự đổi giá; đổi Store Price Rule recalculate **mọi** active `ruleBased` band của tenant theo rule active mới. Manual không tự tái tính và no-op không tạo history.
 
-Draft bổ sung: [`catalog_product_price_band_pending_custom_config.sql`](../../../../supabase/migrations/_drafts/catalog_product_price_band_pending_custom_config.sql)
+Draft: [`catalog_pending_automatic_price_bands.sql`](../../../../supabase/migrations/_drafts/catalog_pending_automatic_price_bands.sql) (supersedes pending-NULL customConfig behavior from `20260721002`; touches `create_guided_product`, `set_product_unit_price_band`, `_recalculate_product_price_bands`, `_product_operational_facts`).
 
 **BE tests:** `product_unit_price_band_handlers_test.dart` (`scn_e06_u03_*`), `product_price_band_rpc_mapper_test.dart`
 

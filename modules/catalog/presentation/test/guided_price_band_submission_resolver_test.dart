@@ -89,8 +89,8 @@ void main() {
       expect(result, isA<GuidedPriceBandReady>());
       final submission = (result as GuidedPriceBandReady).submission;
       expect(submission.sourceType, PriceBandSourceType.customConfig);
-      expect(submission.listBeforeVat, isNull);
-      expect(submission.floorBeforeVat, isNull);
+      expect(submission.listBeforeVat, 0);
+      expect(submission.floorBeforeVat, 0);
       expect(submission.listMarkupRatio, 0.3);
       expect(submission.floorMarkupRatio, 0.1);
     });

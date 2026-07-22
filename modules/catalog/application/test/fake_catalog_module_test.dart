@@ -86,56 +86,186 @@ void main() {
           productId: created.productId,
         ),
       );
-      final history = await module.executeQueryAsync(
-        GetProductChangeHistoryQuery(
-          tenantId: 'tenant-1',
-          productId: created.productId,
-        ),
-      );
 
-      expect(pcc.priceBand.isMissing, isTrue);
-      expect(history.items, isEmpty);
+      expect(pcc.priceBand.sourceType, PriceBandSourceType.ruleBased);
+      expect(pcc.priceBand.listBeforeVat, 0);
+      expect(pcc.priceBand.floorBeforeVat, 0);
+      expect(pcc.priceBand.isMissing, isFalse);
+      expect(
+        created.readinessSummary.blockers.map((b) => b.code),
+        contains(ReadinessBlockerCode.missingPriceBand),
+      );
     });
 
     test('guided create skips store pricing without a unit or base price', () async {
-      final commands = <CreateGuidedProductCommand>[
-        CreateGuidedProductCommand(
+      final moduleWithoutUnit = FakeCatalogModule();
+      final createdWithoutUnit = await moduleWithoutUnit
+          .executeCommandAsync<CreateGuidedProductResult>(
+            CreateGuidedProductCommand(
+              tenantId: 'tenant-1',
+              actorId: 'user-1',
+              productName: 'Thuốc chưa có đơn vị',
+              basePrice: 50000,
+              useStorePriceRule: true,
+              priceBandSourceType: PriceBandSourceType.ruleBased,
+            ),
+          );
+      final pccWithoutUnit = await moduleWithoutUnit.executeQueryAsync(
+        GetProductControlCenterQuery(
           tenantId: 'tenant-1',
-          actorId: 'user-1',
-          productName: 'Thuốc chưa có đơn vị',
-          basePrice: 50000,
-          useStorePriceRule: true,
-          priceBandSourceType: PriceBandSourceType.ruleBased,
+          productId: createdWithoutUnit.productId,
         ),
-        CreateGuidedProductCommand(
-          tenantId: 'tenant-1',
-          actorId: 'user-1',
-          productName: 'Thuốc chưa có giá vốn',
-          baseUnit: const NewTenantUnit('lọ'),
-          useStorePriceRule: true,
-          priceBandSourceType: PriceBandSourceType.ruleBased,
-        ),
-      ];
+      );
+      expect(pccWithoutUnit.priceBand.isMissing, isTrue);
 
-      for (final command in commands) {
+      final moduleWithoutBase = FakeCatalogModule();
+      final createdWithoutBase = await moduleWithoutBase
+          .executeCommandAsync<CreateGuidedProductResult>(
+            CreateGuidedProductCommand(
+              tenantId: 'tenant-1',
+              actorId: 'user-1',
+              productName: 'Thuốc chưa có giá vốn',
+              baseUnit: const NewTenantUnit('lọ'),
+              useStorePriceRule: true,
+              priceBandSourceType: PriceBandSourceType.ruleBased,
+            ),
+          );
+      final pccWithoutBase = await moduleWithoutBase.executeQueryAsync(
+        GetProductControlCenterQuery(
+          tenantId: 'tenant-1',
+          productId: createdWithoutBase.productId,
+        ),
+      );
+      expect(pccWithoutBase.priceBand.isMissing, isFalse);
+      expect(pccWithoutBase.priceBand.sourceType, PriceBandSourceType.ruleBased);
+      expect(pccWithoutBase.priceBand.listBeforeVat, 0);
+      expect(pccWithoutBase.priceBand.floorBeforeVat, 0);
+      expect(
+        createdWithoutBase.readinessSummary.blockers.map((b) => b.code),
+        containsAll(<String>[
+          ReadinessBlockerCode.missingPrice,
+          ReadinessBlockerCode.missingPriceBand,
+        ]),
+      );
+    });
+
+    test(
+      'guided rule-based band persists as zero then uses the active rule after base price is set',
+      () async {
         final module = FakeCatalogModule();
-        final created = await module.executeCommandAsync<CreateGuidedProductResult>(command);
-        final pcc = await module.executeQueryAsync(
-          GetProductControlCenterQuery(
-            tenantId: command.tenantId,
-            productId: created.productId,
+        final created = await module.executeCommandAsync<CreateGuidedProductResult>(
+          CreateGuidedProductCommand(
+            tenantId: 'tenant-1',
+            actorId: 'user-1',
+            productName: 'Thuốc theo giá cửa hàng chờ giá vốn',
+            baseUnit: const NewTenantUnit('Lọ'),
+            useStorePriceRule: true,
+            priceBandSourceType: PriceBandSourceType.ruleBased,
           ),
         );
-        final history = await module.executeQueryAsync(
-          GetProductChangeHistoryQuery(
-            tenantId: command.tenantId,
-            productId: created.productId,
-          ),
+        var pcc = await module.executeQueryAsync(
+          GetProductControlCenterQuery(tenantId: 'tenant-1', productId: created.productId),
+        );
+        expect(pcc.priceBand.sourceType, PriceBandSourceType.ruleBased);
+        expect(pcc.priceBand.listBeforeVat, 0);
+        expect(pcc.priceBand.floorBeforeVat, 0);
+        expect(
+          created.readinessSummary.blockers.map((b) => b.code),
+          contains(ReadinessBlockerCode.missingPrice),
+        );
+        expect(
+          created.readinessSummary.blockers.map((b) => b.code),
+          contains(ReadinessBlockerCode.missingPriceBand),
         );
 
-        expect(pcc.priceBand.isMissing, isTrue);
-        expect(history.items, isEmpty);
-      }
+        await module.executeCommandAsync(
+          SetStorePriceRuleCommand(
+            tenantId: 'tenant-1',
+            name: 'Giá bán mới',
+            listMarkupRatio: 0.30,
+            floorMarkupRatio: 0.10,
+          ),
+        );
+        await module.executeCommandAsync(
+          SetManualBasePriceCommand(
+            tenantId: 'tenant-1',
+            productId: created.productId,
+            basePrice: 100000,
+          ),
+        );
+        pcc = await module.executeQueryAsync(
+          GetProductControlCenterQuery(tenantId: 'tenant-1', productId: created.productId),
+        );
+        expect(pcc.priceBand.listBeforeVat, 130000);
+        expect(pcc.priceBand.floorBeforeVat, 110000);
+      },
+    );
+
+    test(
+      'guided custom-config band persists ratios and zero then recalculates after base price is set',
+      () async {
+        final module = FakeCatalogModule();
+        final created = await module.executeCommandAsync<CreateGuidedProductResult>(
+          CreateGuidedProductCommand(
+            tenantId: 'tenant-1',
+            actorId: 'user-1',
+            productName: 'Thuốc cấu hình riêng chờ giá vốn',
+            baseUnit: const NewTenantUnit('Lọ'),
+            priceBandSourceType: PriceBandSourceType.customConfig,
+            listMarkupRatio: 0.30,
+            floorMarkupRatio: 0.10,
+            listBeforeVat: 0,
+            floorBeforeVat: 0,
+          ),
+        );
+        var pcc = await module.executeQueryAsync(
+          GetProductControlCenterQuery(tenantId: 'tenant-1', productId: created.productId),
+        );
+        expect(pcc.priceBand.sourceType, PriceBandSourceType.customConfig);
+        expect(pcc.priceBand.listBeforeVat, 0);
+        expect(pcc.priceBand.floorBeforeVat, 0);
+
+        await module.executeCommandAsync(
+          SetManualBasePriceCommand(
+            tenantId: 'tenant-1',
+            productId: created.productId,
+            basePrice: 100000,
+          ),
+        );
+        pcc = await module.executeQueryAsync(
+          GetProductControlCenterQuery(tenantId: 'tenant-1', productId: created.productId),
+        );
+        expect(pcc.priceBand.listBeforeVat, 130000);
+        expect(pcc.priceBand.floorBeforeVat, 110000);
+      },
+    );
+
+    test('base price changes do not overwrite a guided manual band', () async {
+      final module = FakeCatalogModule();
+      final created = await module.executeCommandAsync<CreateGuidedProductResult>(
+        CreateGuidedProductCommand(
+          tenantId: 'tenant-1',
+          actorId: 'user-1',
+          productName: 'Thuốc giá thủ công',
+          baseUnit: const NewTenantUnit('Lọ'),
+          priceBandSourceType: PriceBandSourceType.manual,
+          listBeforeVat: 150000,
+          floorBeforeVat: 120000,
+        ),
+      );
+      await module.executeCommandAsync(
+        SetManualBasePriceCommand(
+          tenantId: 'tenant-1',
+          productId: created.productId,
+          basePrice: 100000,
+        ),
+      );
+      final pcc = await module.executeQueryAsync(
+        GetProductControlCenterQuery(tenantId: 'tenant-1', productId: created.productId),
+      );
+      expect(pcc.priceBand.sourceType, PriceBandSourceType.manual);
+      expect(pcc.priceBand.listBeforeVat, 150000);
+      expect(pcc.priceBand.floorBeforeVat, 120000);
     });
 
     test('guided_create_ok returns product and readiness blockers', () async {
@@ -3200,6 +3330,8 @@ void main() {
         scenario: FakeCatalogScenario.scnContractE06U03Fr03_02,
       );
 
+      // Base unit has a band; conversion unit product-9-hop still missing →
+      // readiness must keep missing_price_band (same checklist card as base-only gap).
       final result = await module.executeCommandAsync(
         SetProductUnitPriceBandCommand(
           tenantId: 'tenant-1',
@@ -3216,6 +3348,12 @@ void main() {
           (b) => b.code == ReadinessBlockerCode.missingPriceBand,
         ),
         isTrue,
+      );
+      expect(
+        result.readinessSummary.blockers
+            .firstWhere((b) => b.code == ReadinessBlockerCode.missingPriceBand)
+            .message,
+        'Thiếu khung giá bán',
       );
     });
   });
@@ -3311,8 +3449,8 @@ void main() {
         ),
       );
 
-      expect(pending.listBeforeVat, isNull);
-      expect(pending.floorBeforeVat, isNull);
+      expect(pending.listBeforeVat, 0);
+      expect(pending.floorBeforeVat, 0);
       expect(
         pending.readinessSummary.blockers.map((blocker) => blocker.code),
         containsAll(<String>[

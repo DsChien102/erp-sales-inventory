@@ -7,41 +7,122 @@ void main() {
     final repoRoot = _findRepoRoot();
     final draft = File(
       '${repoRoot.path}/supabase/migrations/_drafts/'
-      'catalog_guided_create_product_note.sql',
+      'catalog_pending_automatic_price_bands.sql',
     );
 
     expect(
       draft.existsSync(),
       isTrue,
-      reason: 'The focused guided-create note draft must be available.',
+      reason: 'The pending automatic price bands draft must be available.',
     );
     if (!draft.existsSync()) return;
 
     final sql = draft.readAsStringSync();
-    expect(sql, contains('-- Kind: surgical'));
-    expect(sql, contains('-- Touches: create_guided_product'));
+    expect(sql, contains('-- Kind: patch'));
+    expect(sql, contains('-- Intent: catalog_pending_automatic_price_bands'));
     expect(
-      RegExp(r'create or replace function catalog\.').allMatches(sql),
-      hasLength(1),
-      reason: 'The draft must redefine only create_guided_product.',
+      sql,
+      contains(
+        '-- Touches: create_guided_product, set_product_unit_price_band, '
+        '_recalculate_product_price_bands, _product_operational_facts',
+      ),
     );
 
     final guided = _functionDefinition(sql, 'create_guided_product');
     expect(guided, contains('p_note text default null'));
     expect(guided, contains('p_note => p_note'));
+    expect(guided, contains('p_list_price_before_vat => 0'));
+    expect(guided, contains("p_source_type => 'customConfig'"));
+    expect(
+      guided,
+      isNot(contains('or p_base_price_after_vat is null')),
+    );
   });
+
+  test(
+    'pending automatic bands persist as zero and materialize from current sources',
+    () {
+      final repoRoot = _findRepoRoot();
+      final draft = File(
+        '${repoRoot.path}/supabase/migrations/_drafts/'
+        'catalog_pending_automatic_price_bands.sql',
+      );
+
+      expect(
+        draft.existsSync(),
+        isTrue,
+        reason: 'The pending automatic price bands draft must be available.',
+      );
+      if (!draft.existsSync()) return;
+
+      final sql = draft.readAsStringSync();
+      expect(sql, contains('-- Kind: patch'));
+      expect(sql, contains('-- Intent: catalog_pending_automatic_price_bands'));
+      expect(sql, contains('product_unit_price_bands_calculation_source_check'));
+      expect(sql, contains('p_note text default null'));
+      expect(sql, contains('p_note => p_note'));
+      expect(
+        sql,
+        contains(
+          '-- Touches: create_guided_product, set_product_unit_price_band, '
+          '_recalculate_product_price_bands, _product_operational_facts',
+        ),
+      );
+
+      final guided = _functionDefinition(sql, 'create_guided_product');
+      expect(guided, contains("when 'ruleBased' then"));
+      expect(guided, contains("when 'customConfig' then"));
+      expect(guided, contains('p_list_price_before_vat => 0'));
+      expect(guided, contains('p_floor_price_before_vat => 0'));
+
+      final setBand = _functionDefinition(sql, 'set_product_unit_price_band');
+      expect(setBand, contains('when v_base_price is null then 0'));
+      expect(
+        setBand,
+        isNot(
+          contains(
+            "raise exception 'validation_exception: use apply_store_price_rule'",
+          ),
+        ),
+      );
+
+      final recalculate = _functionDefinition(
+        sql,
+        '_recalculate_product_price_bands',
+      );
+      expect(recalculate, contains("pb.source_type = 'ruleBased'"));
+      expect(recalculate, contains("pb.source_type = 'customConfig'"));
+      expect(recalculate, isNot(contains("pb.source_type = 'manual'")));
+      expect(recalculate, contains('r.tenant_id = pb.tenant_id'));
+      expect(recalculate, contains("r.status = 'active'"));
+      expect(recalculate, isNot(contains('on sr.id = pb.store_price_rule_id')));
+
+      final facts = _functionDefinition(sql, '_product_operational_facts');
+      expect(facts, contains('as has_price_band'));
+      expect(facts, contains('-- True only when every active unit'));
+      expect(facts, contains('pu.is_active = true'));
+      expect(facts, contains("pb.source_type = 'manual'"));
+      expect(facts, contains("pb.source_type in ('customConfig', 'ruleBased')"));
+      expect(facts, contains("r.status = 'active'"));
+      expect(
+        facts,
+        isNot(contains('and bu.is_base_unit = true')),
+        reason: 'has_price_band must require every active unit, not only the base unit.',
+      );
+    },
+  );
 
   test('custom config can stay pending until a base price exists', () {
     final repoRoot = _findRepoRoot();
-    final draft = File(
-      '${repoRoot.path}/supabase/migrations/_drafts/'
-      'catalog_product_price_band_pending_custom_config.sql',
+    final migration = File(
+      '${repoRoot.path}/supabase/migrations/'
+      '20260721002_catalog_product_price_band_pending_custom_config.sql',
     );
 
-    expect(draft.existsSync(), isTrue);
-    if (!draft.existsSync()) return;
+    expect(migration.existsSync(), isTrue);
+    if (!migration.existsSync()) return;
 
-    final sql = draft.readAsStringSync();
+    final sql = migration.readAsStringSync();
     expect(sql, contains('-- Kind: patch'));
     expect(sql, contains('-- Touches: set_product_unit_price_band'));
     final overloadCleanupIndex = sql.indexOf(
@@ -53,7 +134,7 @@ void main() {
     expect(
       overloadCleanupIndex,
       greaterThanOrEqualTo(0),
-      reason: 'The SQL Editor draft must remove stale RPC overloads.',
+      reason: 'The migration must remove stale RPC overloads.',
     );
     expect(
       overloadCleanupIndex,
