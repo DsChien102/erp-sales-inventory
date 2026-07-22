@@ -203,6 +203,18 @@ class _UnusedAccessGateway implements IIamAccessGateway {
 
   @override
   Future<List<TenantMembershipDto>> listUserTenants() async => const [];
+
+  @override
+  Future<TenantContextDto> switchTenantContext({
+    required String targetTenantId,
+  }) async =>
+      throw UnimplementedError();
+
+  @override
+  Future<TenantContextDto> getValidatedTenantContext({
+    String? sessionTenantId,
+  }) async =>
+      throw UnimplementedError();
 }
 
 class _UnusedExecutionContext implements IExecutionContext {

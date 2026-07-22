@@ -6,6 +6,8 @@ class PlatformOnboardingStepOrganization extends StatelessWidget {
     super.key,
     required this.orgNameController,
     required this.orgDisplayNameController,
+    this.orgLegalNameController,
+    this.orgTaxCodeController,
     required this.orgPhoneController,
     required this.orgEmailController,
     required this.orgAddressController,
@@ -18,6 +20,8 @@ class PlatformOnboardingStepOrganization extends StatelessWidget {
 
   final TextEditingController orgNameController;
   final TextEditingController orgDisplayNameController;
+  final TextEditingController? orgLegalNameController;
+  final TextEditingController? orgTaxCodeController;
   final TextEditingController orgPhoneController;
   final TextEditingController orgEmailController;
   final TextEditingController orgAddressController;
@@ -35,20 +39,15 @@ class PlatformOnboardingStepOrganization extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         VText(
-          'Thông tin tổ chức',
-          variant: VTextVariant.headingH4,
-          style: const TextStyle(fontWeight: FontWeight.w600),
-        ),
-        const VGap.xs(),
-        VText(
-          'Chi tên tổ chức là bắt buộc.',
+          'Chỉ tên tổ chức là bắt buộc.',
           variant: VTextVariant.bodySmall,
           color: colors.textSecondary,
         ),
         const VGap.md(),
         VTextFormField(
           controller: orgNameController,
-          label: 'Tên tổ chức*',
+          label: 'Tên tổ chức',
+          isRequired: true,
           hintText: 'Nhập tên tổ chức (ví dụ: Thú y Minh Phát)',
           onChanged: onOrgNameChanged,
         ),
@@ -57,6 +56,18 @@ class PlatformOnboardingStepOrganization extends StatelessWidget {
           controller: orgDisplayNameController,
           label: 'Tên hiển thị',
           hintText: 'Nhập tên hiển thị trên ứng dụng',
+        ),
+        const VGap.sm(),
+        VTextFormField(
+          controller: orgLegalNameController,
+          label: 'Tên pháp lý',
+          hintText: 'Nhập tên pháp lý của tổ chức',
+        ),
+        const VGap.sm(),
+        VTextFormField(
+          controller: orgTaxCodeController,
+          label: 'Mã số thuế',
+          hintText: 'Nhập mã số thuế',
         ),
         const VGap.sm(),
         VTextFormField(
@@ -79,30 +90,26 @@ class PlatformOnboardingStepOrganization extends StatelessWidget {
           hintText: 'Nhập địa chỉ (ví dụ: 125 Phạm Văn Thuận)',
         ),
         const VGap.sm(),
-        DropdownButtonFormField<String>(
+        VDropdown<String>(
+          label: 'Tỉnh / thành phố',
           value: selectedProvince,
-          decoration: const InputDecoration(
-            labelText: 'Tỉnh / thành phố',
-            border: OutlineInputBorder(),
-          ),
+          hintText: 'Chọn tỉnh / thành phố',
           items: const [
-            DropdownMenuItem(value: 'Đồng Nai', child: Text('Đồng Nai')),
-            DropdownMenuItem(value: 'TP. Hồ Chí Minh', child: Text('TP. Hồ Chí Minh')),
-            DropdownMenuItem(value: 'Hà Nội', child: Text('Hà Nội')),
+            DropdownMenuItem(value: 'Đồng Nai', child: VText('Đồng Nai')),
+            DropdownMenuItem(value: 'TP. Hồ Chí Minh', child: VText('TP. Hồ Chí Minh')),
+            DropdownMenuItem(value: 'Hà Nội', child: VText('Hà Nội')),
           ],
           onChanged: onProvinceChanged,
         ),
         const VGap.sm(),
-        DropdownButtonFormField<String>(
+        VDropdown<String>(
+          label: 'Xã / phường',
           value: selectedWard,
-          decoration: const InputDecoration(
-            labelText: 'Xã / phường',
-            border: OutlineInputBorder(),
-          ),
+          hintText: 'Chọn xã / phường',
           items: const [
-            DropdownMenuItem(value: 'Trấn Biên', child: Text('Trấn Biên')),
-            DropdownMenuItem(value: 'Phường 1', child: Text('Phường 1')),
-            DropdownMenuItem(value: 'Phường 2', child: Text('Phường 2')),
+            DropdownMenuItem(value: 'Trấn Biên', child: VText('Trấn Biên')),
+            DropdownMenuItem(value: 'Phường 1', child: VText('Phường 1')),
+            DropdownMenuItem(value: 'Phường 2', child: VText('Phường 2')),
           ],
           onChanged: onWardChanged,
         ),

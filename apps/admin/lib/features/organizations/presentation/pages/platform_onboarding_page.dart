@@ -28,6 +28,8 @@ class _PlatformOnboardingPageState extends State<PlatformOnboardingPage> {
   // Step 2: Organization state
   final _orgNameController = TextEditingController();
   final _orgDisplayNameController = TextEditingController();
+  final _orgLegalNameController = TextEditingController();
+  final _orgTaxCodeController = TextEditingController();
   final _orgPhoneController = TextEditingController();
   final _orgEmailController = TextEditingController();
   final _orgAddressController = TextEditingController();
@@ -42,6 +44,8 @@ class _PlatformOnboardingPageState extends State<PlatformOnboardingPage> {
     _phoneController.dispose();
     _orgNameController.dispose();
     _orgDisplayNameController.dispose();
+    _orgLegalNameController.dispose();
+    _orgTaxCodeController.dispose();
     _orgPhoneController.dispose();
     _orgEmailController.dispose();
     _orgAddressController.dispose();
@@ -113,6 +117,21 @@ class _PlatformOnboardingPageState extends State<PlatformOnboardingPage> {
     }
   }
 
+  VoidCallback? get _onBackPressed {
+    if (_currentStep == 0) {
+      if (_isNewOwner) {
+        return () {
+          setState(() {
+            _isNewOwner = false;
+          });
+        };
+      } else {
+        return null;
+      }
+    }
+    return _handleBack;
+  }
+
   void _handleBack() {
     if (_currentStep > 0) {
       setState(() {
@@ -149,88 +168,142 @@ class _PlatformOnboardingPageState extends State<PlatformOnboardingPage> {
       ownerInput = OnboardingOwnerInput.existing(_selectedOwner!.userId);
     }
 
-    service.createTenantOnboarding(
+    final result = service.createTenantOnboarding(
       owner: ownerInput,
       organizationName: orgName,
       idempotencyKey: 'idemp-${DateTime.now().millisecondsSinceEpoch}',
     );
 
-    VToast.show(
-      context,
-      title: 'Khởi tạo thành công',
-      message: 'Đã khởi tạo tổ chức thành công.',
-      type: VToastType.success,
+    final ownerName = _isNewOwner
+        ? '${_lastNameController.text.trim()} ${_firstNameController.text.trim()}'.trim()
+        : (_selectedOwner?.fullName ?? 'Lê Thị Lan');
+    final ownerEmail = _isNewOwner
+        ? _emailController.text.trim()
+        : (_selectedOwner?.email ?? 'lan@gmail.com');
+    final ownerPhone = _isNewOwner
+        ? _phoneController.text.trim()
+        : '0901 234 567';
+
+    final initials = orgName.isNotEmpty
+        ? orgName.split(' ').map((e) => e.isNotEmpty ? e[0] : '').take(2).join().toUpperCase()
+        : 'TC';
+
+    final newOrg = OrganizationUiModel(
+      id: result.tenantId,
+      name: orgName,
+      code: 'TEN-${DateTime.now().millisecondsSinceEpoch.toString().substring(7)}',
+      initials: initials.isEmpty ? 'TC' : initials,
+      type: 'Tổ chức nền tảng',
+      status: OrganizationStatus.settingUp,
+      ownerName: ownerName,
+      ownerEmail: ownerEmail,
+      ownerRole: 'Chủ cửa hàng',
+      unverifiedEmail: _isNewOwner,
+      incompleteProfile: true,
+      createdAt: DateTime.now(),
     );
 
-    context.pop();
+    OrganizationMockData.sampleOrganizations.insert(0, newOrg);
+
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(
+        builder: (context) => OrganizationDetailPage(
+          organization: newOrg,
+          showSuccessToastOnBuild: true,
+          onBackPressed: () => Navigator.of(context).pop(true),
+        ),
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     final colors = context.vColors;
 
-    return Scaffold(
-      backgroundColor: colors.background,
-      appBar: VAppBar(
-        title: 'Khởi tạo tổ chức',
-        showBackButton: true,
-      ),
+    return TapRegion(
+      onTapOutside: (_) => FocusManager.instance.primaryFocus?.unfocus(),
+      child: Scaffold(
+        backgroundColor: colors.surfaceAlt,
+        appBar: VAppBar(
+          title: 'Khởi tạo tổ chức',
+          showBackButton: true,
+        ),
       body: Column(
         children: [
-          Padding(
+          Container(
+            color: colors.surfaceAlt,
             padding: const EdgeInsets.symmetric(
-              vertical: VSpacing.space3,
+              vertical: VSpacing.space2,
               horizontal: VSpacing.screenMobile,
             ),
-            child: VSteps(
-              steps: const [
-                VStepItem(title: 'Chủ sở hữu'),
-                VStepItem(title: 'Tổ chức'),
-                VStepItem(title: 'Kiểm tra'),
-              ],
-              currentStep: _currentStep,
+            child: VCard(
+              backgroundColor: colors.surface,
+              padding: const EdgeInsets.symmetric(
+                vertical: VSpacing.space2,
+                horizontal: VSpacing.space2,
+              ),
+              child: VSteps(
+                steps: const [
+                  VStepItem(title: 'Chủ sở hữu'),
+                  VStepItem(title: 'Tổ chức'),
+                  VStepItem(title: 'Kiểm tra'),
+                ],
+                currentStep: _currentStep,
+              ),
             ),
           ),
-          const Divider(height: 1),
 
           Expanded(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(VSpacing.screenMobile),
-              child: _buildStepContent(),
+            child: Container(
+              color: colors.surfaceAlt,
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.only(
+                  left: VSpacing.screenMobile,
+                  right: VSpacing.screenMobile,
+                  bottom: VSpacing.screenMobile,
+                  top: VSpacing.space2,
+                ),
+                child: _buildStepContent(),
+              ),
             ),
           ),
 
-          SafeArea(
-            child: Container(
-              padding: const EdgeInsets.all(VSpacing.screenMobile),
-              decoration: BoxDecoration(
-                color: colors.surface,
-                border: Border(
-                  top: BorderSide(color: colors.borderDefault),
+          Container(
+            color: colors.surface,
+            child: SafeArea(
+              top: false,
+              child: Container(
+                padding: const EdgeInsets.all(VSpacing.screenMobile),
+                decoration: BoxDecoration(
+                  color: colors.surface,
+                  border: Border(
+                    top: BorderSide(color: colors.borderDefault),
+                  ),
                 ),
-              ),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: VButton(
-                      label: 'Quay lại',
-                      variant: VButtonVariant.outline,
-                      onPressed: _handleBack,
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: VButton(
+                        label: 'Quay lại',
+                        variant: VButtonVariant.outline,
+                        onPressed: _onBackPressed,
+                      ),
                     ),
-                  ),
-                  const VGap.horizontalSm(),
-                  Expanded(
-                    child: VButton(
-                      label: _currentStep == 2 ? 'Khởi tạo tổ chức' : 'Tiếp tục',
-                      onPressed: _currentStep == 2 ? _handleSubmit : _handleNext,
+                    const VGap.horizontalSm(),
+                    Expanded(
+                      child: VButton(
+                        label: _currentStep == 2 ? 'Khởi tạo tổ chức' : 'Tiếp tục',
+                        onPressed: _currentStep == 2 ? _handleSubmit : _handleNext,
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),
         ],
       ),
+    ),
     );
   }
 
@@ -268,6 +341,8 @@ class _PlatformOnboardingPageState extends State<PlatformOnboardingPage> {
         return PlatformOnboardingStepOrganization(
           orgNameController: _orgNameController,
           orgDisplayNameController: _orgDisplayNameController,
+          orgLegalNameController: _orgLegalNameController,
+          orgTaxCodeController: _orgTaxCodeController,
           orgPhoneController: _orgPhoneController,
           orgEmailController: _orgEmailController,
           orgAddressController: _orgAddressController,
@@ -283,13 +358,7 @@ class _PlatformOnboardingPageState extends State<PlatformOnboardingPage> {
               _selectedWard = val;
             });
           },
-          onOrgNameChanged: (val) {
-            if (_orgDisplayNameController.text.trim().isEmpty) {
-              setState(() {
-                _orgDisplayNameController.text = val;
-              });
-            }
-          },
+          onOrgNameChanged: (_) {},
         );
       case 2:
         return PlatformOnboardingStepReview(
@@ -301,6 +370,8 @@ class _PlatformOnboardingPageState extends State<PlatformOnboardingPage> {
           email: _isNewOwner ? _emailController.text.trim() : (_selectedOwner?.email ?? ''),
           phone: _isNewOwner ? _phoneController.text.trim() : '',
           orgName: _orgNameController.text.trim(),
+          orgLegalName: _orgLegalNameController.text.trim(),
+          orgTaxCode: _orgTaxCodeController.text.trim(),
           orgPhone: _orgPhoneController.text.trim(),
           orgEmail: _orgEmailController.text.trim(),
           orgAddress: _orgAddressController.text.trim(),

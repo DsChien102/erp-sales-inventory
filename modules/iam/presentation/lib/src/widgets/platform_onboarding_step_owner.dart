@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:vet45_design_system/design_system.dart';
 import 'package:vet45_iam_application/application.dart';
 
-class PlatformOnboardingStepOwner extends StatelessWidget {
+class PlatformOnboardingStepOwner extends StatefulWidget {
   const PlatformOnboardingStepOwner({
     super.key,
     required this.isNewOwner,
@@ -29,127 +29,98 @@ class PlatformOnboardingStepOwner extends StatelessWidget {
   final ValueChanged<String> onSearchQueryChanged;
 
   @override
+  State<PlatformOnboardingStepOwner> createState() => _PlatformOnboardingStepOwnerState();
+}
+
+class _PlatformOnboardingStepOwnerState extends State<PlatformOnboardingStepOwner> {
+  late final FocusNode _searchFocusNode;
+  late final TextEditingController _searchController;
+  bool _isSearching = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _searchFocusNode = FocusNode();
+    _searchController = TextEditingController();
+    _searchFocusNode.addListener(_onFocusChange);
+  }
+
+  void _onFocusChange() {
+    if (_searchFocusNode.hasFocus) {
+      if (!_isSearching) {
+        setState(() {
+          _isSearching = true;
+        });
+      }
+      if (_searchController.text.isNotEmpty) {
+        _searchController.clear();
+      }
+      widget.onSearchQueryChanged('');
+    }
+  }
+
+  @override
+  void dispose() {
+    _searchFocusNode.removeListener(_onFocusChange);
+    _searchFocusNode.dispose();
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final colors = context.vColors;
 
-    if (selectedOwner != null) {
+    // Trạng thái Tạo chủ sở hữu mới (PA-D-03)
+    if (widget.isNewOwner) {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          VText(
-            'Người dùng đã chọn',
-            variant: VTextVariant.bodyDefault,
-            style: const TextStyle(fontWeight: FontWeight.w600),
-          ),
-          const VGap.sm(),
-          VCard(
-            tone: VComponentTone.success,
-            backgroundColor: colors.success.withValues(alpha: 0.05),
-            child: Row(
-              children: [
-                VIconBox(
-                  icon: VIcons.person,
-                  size: 40,
-                  backgroundColor: colors.successBg,
-                  iconColor: colors.success,
-                  isCircular: true,
-                ),
-                const VGap.horizontalMd(),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      VText(
-                        selectedOwner!.fullName,
-                        variant: VTextVariant.bodyDefault,
-                        style: const TextStyle(fontWeight: FontWeight.w600),
-                      ),
-                      const VGap.xs(),
-                      VText(
-                        selectedOwner!.email,
-                        variant: VTextVariant.bodySmall,
-                        color: colors.textSecondary,
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const VGap.md(),
-          VButton(
-            label: 'Chọn người dùng khác',
-            variant: VButtonVariant.outline,
-            onPressed: () => onOwnerSelected(null),
-          ),
-        ],
-      );
-    }
-
-    if (isNewOwner) {
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              VText(
-                'Tạo chủ sở hữu mới',
-                variant: VTextVariant.headingH4,
-                style: const TextStyle(fontWeight: FontWeight.w600),
-              ),
-              TextButton(
-                onPressed: () => onToggleNewOwner(false),
-                child: const VText(
-                  'Chọn người dùng cũ',
-                  variant: VTextVariant.bodySmall,
-                  style: TextStyle(fontWeight: FontWeight.w600),
-                ),
-              ),
-            ],
-          ),
-          const VGap.sm(),
           VTextFormField(
-            controller: lastNameController,
-            label: 'Họ và tên đệm*',
+            controller: widget.lastNameController,
+            label: 'Họ và tên đệm',
+            isRequired: true,
             hintText: 'Nhập họ và tên đệm',
           ),
           const VGap.sm(),
           VTextFormField(
-            controller: firstNameController,
-            label: 'Tên*',
+            controller: widget.firstNameController,
+            label: 'Tên',
+            isRequired: true,
             hintText: 'Nhập tên',
           ),
           const VGap.sm(),
           VTextFormField(
-            controller: emailController,
-            label: 'Email*',
+            controller: widget.emailController,
+            label: 'Email',
+            isRequired: true,
             hintText: 'Nhập email',
             keyboardType: TextInputType.emailAddress,
           ),
           const VGap.sm(),
           VTextFormField(
-            controller: phoneController,
+            controller: widget.phoneController,
             label: 'Số điện thoại',
-            hintText: 'Nhập số điện thoại (Không bắt buộc)',
+            hintText: 'Nhập số điện thoại',
+            helperText: 'Không bắt buộc',
             keyboardType: TextInputType.phone,
           ),
           const VGap.md(),
           VCard(
-            backgroundColor: colors.surfaceAlt,
+            backgroundColor: colors.surface,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 VText(
                   'Quy ước tài khoản',
                   variant: VTextVariant.bodyDefault,
-                  style: const TextStyle(fontWeight: FontWeight.w600),
+                  style: const TextStyle(fontWeight: FontWeight.w700),
                 ),
                 const VGap.sm(),
-                _buildConventionRow('Mật khẩu', 'Người dùng tự thiết lập qua link kích hoạt', colors),
-                const VGap.xs(),
-                _buildConventionRow('Tư cách', 'Chủ sở hữu (Mặc định)', colors),
-                const VGap.xs(),
+                _buildConventionRow('Mật khẩu', 'Người dùng tự thiết lập', colors),
+                const VGap.sm(),
+                _buildConventionRow('Tư cách', 'Chủ sở hữu', colors),
+                const VGap.sm(),
                 _buildConventionRow('Vai trò mặc định', 'Chủ cửa hàng', colors),
               ],
             ),
@@ -158,120 +129,213 @@ class PlatformOnboardingStepOwner extends StatelessWidget {
       );
     }
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            VText(
-              'Chọn chủ sở hữu',
-              variant: VTextVariant.headingH4,
-              style: const TextStyle(fontWeight: FontWeight.w600),
-            ),
-            TextButton(
-              onPressed: () => onToggleNewOwner(true),
-              child: const VText(
-                'Tạo chủ sở hữu mới',
-                variant: VTextVariant.bodySmall,
-                style: TextStyle(fontWeight: FontWeight.w600),
-              ),
-            ),
-          ],
-        ),
-        const VGap.sm(),
-        VSearchBar(
-          hintText: 'Tìm tên hoặc email',
-          onChanged: onSearchQueryChanged,
-        ),
-        const VGap.md(),
-        VText(
-          'Kết quả tìm kiếm',
-          variant: VTextVariant.bodySmall,
-          color: colors.textSecondary,
-        ),
-        const VGap.sm(),
-        if (searchResults.isEmpty)
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: VSpacing.space4),
-            child: Center(
-              child: VText(
-                'Không tìm thấy người dùng phù hợp.',
-                color: colors.textMuted,
-              ),
-            ),
-          )
-        else
-          ListView.separated(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            itemCount: searchResults.length,
-            separatorBuilder: (context, index) => const VGap.sm(),
-            itemBuilder: (context, index) {
-              final user = searchResults[index];
-              return VCard(
-                onTap: () => onOwnerSelected(user),
-                child: Row(
-                  children: [
-                    VIconBox(
-                      icon: VIcons.person,
-                      size: 36,
-                      backgroundColor: colors.surfaceAlt,
-                      iconColor: colors.textSecondary,
-                      isCircular: true,
-                    ),
-                    const VGap.horizontalMd(),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          VText(
-                            user.fullName,
-                            variant: VTextVariant.bodyDefault,
-                            style: const TextStyle(fontWeight: FontWeight.w600),
-                          ),
-                          const VGap.xs(),
-                          VText(
-                            user.email,
-                            variant: VTextVariant.bodySmall,
-                            color: colors.textSecondary,
-                          ),
-                        ],
-                      ),
-                    ),
-                    VIcon(
-                      icon: VIcons.chevronRight,
-                      color: colors.textMuted,
-                      size: 20,
-                    ),
-                  ],
-                ),
-              );
+    // Trạng thái Chọn / Đã chọn Chủ sở hữu (PA-D-02 Ảnh 1 & Dropdown Overlay)
+    return TapRegion(
+      onTapOutside: (_) {
+        if (_isSearching) {
+          _searchFocusNode.unfocus();
+          setState(() {
+            _isSearching = false;
+          });
+        }
+      },
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          VSearchBar(
+            hintText: 'Tìm tên hoặc email',
+            focusNode: _searchFocusNode,
+            controller: _searchController,
+            onChanged: (query) {
+              if (!_isSearching) {
+                setState(() {
+                  _isSearching = true;
+                });
+              }
+              widget.onSearchQueryChanged(query);
             },
           ),
-      ],
+          const VGap.md(),
+
+          // Dropdown List khi đang tìm kiếm (Inline trong Column để hit test toàn bộ item)
+          if (_isSearching) ...[
+            VCard(
+              elevated: true,
+              padding: const EdgeInsets.all(VSpacing.space2),
+              backgroundColor: colors.surface,
+              borderRadius: VRadius.r16,
+              border: Border.all(
+                color: colors.borderDefault,
+                width: 1.5,
+              ),
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxHeight: 260.0),
+                child: widget.searchResults.isEmpty
+                    ? Padding(
+                        padding: const EdgeInsets.all(VSpacing.space4),
+                        child: Center(
+                          child: VText(
+                            'Không tìm thấy người dùng phù hợp.',
+                            color: colors.textMuted,
+                          ),
+                        ),
+                      )
+                    : ListView.separated(
+                        shrinkWrap: true,
+                        padding: EdgeInsets.zero,
+                        itemCount: widget.searchResults.length,
+                        separatorBuilder: (_, _) => const VGap.xs(),
+                        itemBuilder: (context, index) {
+                          final user = widget.searchResults[index];
+                          final isSelected = widget.selectedOwner?.userId == user.userId;
+
+                          return VCard(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: VSpacing.space3,
+                              vertical: VSpacing.space2,
+                            ),
+                            backgroundColor: isSelected ? colors.surfaceBrand : colors.surface,
+                            border: Border.all(
+                              color: isSelected ? colors.primary : colors.borderDefault,
+                              width: 1.5,
+                            ),
+                            borderRadius: VRadius.r12,
+                            onTap: () {
+                              widget.onOwnerSelected(user);
+                              _searchController.clear();
+                              _searchFocusNode.unfocus();
+                              setState(() {
+                                _isSearching = false;
+                              });
+                            },
+                            child: Row(
+                              children: [
+                                VIcon(
+                                  icon: VIcons.person,
+                                  color: isSelected ? colors.primary : colors.textSecondary,
+                                  size: 20,
+                                ),
+                                const VGap.horizontalSm(),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      VText(
+                                        user.fullName,
+                                        variant: VTextVariant.bodyDefault,
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.w700,
+                                          color: colors.textPrimary,
+                                        ),
+                                      ),
+                                      const VGap.xs(),
+                                      VText(
+                                        user.email,
+                                        variant: VTextVariant.bodySmall,
+                                        color: colors.textSecondary,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                Container(
+                                  width: 20,
+                                  height: 20,
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    border: Border.all(
+                                      color: isSelected ? colors.primary : colors.borderDefault,
+                                      width: isSelected ? 6.0 : 1.5,
+                                    ),
+                                    color: colors.surface,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+                        },
+                      ),
+              ),
+            ),
+            const VGap.md(),
+          ],
+
+          // Nội dung hiển thị bên dưới ô VSearchBar khi KHÔNG ở chế độ mở dropdown overlay
+          if (!_isSearching && widget.selectedOwner != null) ...[
+            VText(
+              'Người dùng đã chọn',
+              variant: VTextVariant.bodyDefault,
+              style: const TextStyle(fontWeight: FontWeight.w700),
+            ),
+            const VGap.sm(),
+            VCard(
+              backgroundColor: colors.surfaceBrand,
+              border: Border.all(
+                color: colors.primary,
+                width: 1.5,
+              ),
+              padding: const EdgeInsets.all(VSpacing.space4),
+              borderRadius: VRadius.card,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  VText(
+                    widget.selectedOwner!.fullName,
+                    variant: VTextVariant.bodyDefault,
+                    style: TextStyle(
+                      fontWeight: FontWeight.w700,
+                      color: colors.textPrimary,
+                    ),
+                  ),
+                  const VGap.xs(),
+                  VText(
+                    widget.selectedOwner!.email,
+                    variant: VTextVariant.bodySmall,
+                    color: colors.textSecondary,
+                  ),
+                  const VGap.xs(),
+                  VText(
+                    '0901 234 567',
+                    variant: VTextVariant.bodySmall,
+                    color: colors.textSecondary,
+                  ),
+                ],
+              ),
+            ),
+            const VGap.xs(),
+            VText(
+              'Chọn người dùng khác sẽ thay thế lựa chọn hiện tại.',
+              variant: VTextVariant.bodySmall,
+              color: colors.textSecondary,
+            ),
+            const VGap.md(),
+          ],
+
+          if (!_isSearching)
+            VButton(
+              label: 'Tạo mới',
+              variant: VButtonVariant.outline,
+              fullWidth: true,
+              onPressed: () => widget.onToggleNewOwner(true),
+            ),
+        ],
+      ),
     );
   }
 
   Widget _buildConventionRow(String label, String value, VColorScheme colors) {
     return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        SizedBox(
-          width: 120,
-          child: VText(
-            label,
-            variant: VTextVariant.bodySmall,
-            color: colors.textSecondary,
-          ),
+        VText(
+          label,
+          variant: VTextVariant.bodySmall,
+          color: colors.textSecondary,
         ),
-        Expanded(
-          child: VText(
-            value,
-            variant: VTextVariant.bodySmall,
-            color: colors.textPrimary,
-            style: const TextStyle(fontWeight: FontWeight.w500),
-          ),
+        VText(
+          value,
+          variant: VTextVariant.bodySmall,
+          color: colors.textPrimary,
+          style: const TextStyle(fontWeight: FontWeight.w500),
         ),
       ],
     );
