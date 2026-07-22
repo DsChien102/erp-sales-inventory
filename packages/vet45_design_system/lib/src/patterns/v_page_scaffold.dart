@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 
 import '../components/v_app_bar.dart';
 import '../foundation/v_context_extensions.dart';
-import '../tokens/v_colors.dart';
 
 /// Standard ERP page shell: [VAppBar] + scrollable/flexible body + optional bottom bar.
 class VPageScaffold extends StatelessWidget {
@@ -16,7 +15,7 @@ class VPageScaffold extends StatelessWidget {
     this.leading,
     this.actions,
     this.showBackButton = true,
-    this.centerTitle,
+    this.centerTitle = false,
     this.bottomBar,
     this.floatingActionButton,
     this.resizeToAvoidBottomInset = true,
@@ -29,7 +28,7 @@ class VPageScaffold extends StatelessWidget {
   final Widget? leading;
   final List<Widget>? actions;
   final bool showBackButton;
-  final bool? centerTitle;
+  final bool centerTitle;
   final Widget? bottomBar;
   final Widget? floatingActionButton;
   final bool resizeToAvoidBottomInset;
