@@ -33,8 +33,6 @@ final class PriceRuleFormEditing extends PriceRuleFormState {
     this.listPriceMinor,
     this.floorPriceMinor,
     this.floorPriceHidden = true,
-    this.hasDuplicateWarning = false, // SG-03: cảnh báo không chặn
-    this.conflictingRuleId,
     this.hasStateChanged = false,
     this.fieldErrors = const {},
     this.isSubmitting = false,
@@ -58,12 +56,6 @@ final class PriceRuleFormEditing extends PriceRuleFormState {
   final int? listPriceMinor;
   final int? floorPriceMinor;
   final bool floorPriceHidden;
-
-  /// SG-03: Đã có giá riêng trùng — hiện cảnh báo nhưng không chặn lưu.
-  final bool hasDuplicateWarning;
-
-  /// Rule đang trùng (từ DUPLICATE_ACTIVE_RULE details).
-  final String? conflictingRuleId;
 
   /// D-09: Phiên bản rule đã thay đổi — cần tải lại.
   final bool hasStateChanged;
@@ -108,8 +100,6 @@ final class PriceRuleFormEditing extends PriceRuleFormState {
     Object? listPriceMinor = _sentinel,
     Object? floorPriceMinor = _sentinel,
     bool? floorPriceHidden,
-    bool? hasDuplicateWarning,
-    Object? conflictingRuleId = _sentinel,
     bool? hasStateChanged,
     Map<String, String>? fieldErrors,
     bool? isSubmitting,
@@ -141,10 +131,6 @@ final class PriceRuleFormEditing extends PriceRuleFormState {
           ? this.floorPriceMinor
           : floorPriceMinor as int?,
       floorPriceHidden: floorPriceHidden ?? this.floorPriceHidden,
-      hasDuplicateWarning: hasDuplicateWarning ?? this.hasDuplicateWarning,
-      conflictingRuleId: conflictingRuleId == _sentinel
-          ? this.conflictingRuleId
-          : conflictingRuleId as String?,
       hasStateChanged: hasStateChanged ?? this.hasStateChanged,
       fieldErrors: fieldErrors ?? this.fieldErrors,
       isSubmitting: isSubmitting ?? this.isSubmitting,
@@ -166,8 +152,6 @@ final class PriceRuleFormEditing extends PriceRuleFormState {
     listPriceMinor,
     floorPriceMinor,
     floorPriceHidden,
-    hasDuplicateWarning,
-    conflictingRuleId,
     hasStateChanged,
     fieldErrors,
     isSubmitting,

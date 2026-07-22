@@ -23,6 +23,12 @@ abstract interface class ICustomerPriceRuleCommandGateway {
     required String? reason,
   });
 
+  Future<CustomerPriceRuleDetailDto> delete({
+    required String tenantId,
+    required String ruleId,
+    required int expectedVersion,
+  });
+
   Future<CustomerPriceRuleDetailDto> reenable({
     required String tenantId,
     required String ruleId,

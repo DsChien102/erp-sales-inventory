@@ -12,11 +12,13 @@ class PriceRuleImportPreviewView extends StatelessWidget {
     required this.cubit,
     required this.importDetail,
     required this.rows,
+    this.onBack,
   });
 
   final PriceRuleImportCubit cubit;
   final CustomerPriceRuleImportDetailDto importDetail;
   final List<CustomerPriceRuleImportRowPreviewDto> rows;
+  final VoidCallback? onBack;
 
   @override
   Widget build(BuildContext context) {
@@ -71,7 +73,7 @@ class PriceRuleImportPreviewView extends StatelessWidget {
                   label: 'Quay lại',
                   variant: VButtonVariant.secondary,
                   fullWidth: true,
-                  onPressed: () => cubit.backToChooseFile(),
+                  onPressed: onBack ?? cubit.backToChooseFile,
                 ),
               ),
               const VGap.horizontalMd(),
@@ -80,8 +82,9 @@ class PriceRuleImportPreviewView extends StatelessWidget {
                   label: 'Tiếp tục',
                   variant: VButtonVariant.primary,
                   fullWidth: true,
-                  onPressed:
-                      batch.errorRows == 0 ? cubit.proceedToConfirm : null,
+                  onPressed: batch.validRows + batch.warningRows > 0
+                      ? cubit.proceedToConfirm
+                      : null,
                 ),
               ),
             ],

@@ -24,14 +24,27 @@ final class PriceRuleImportCubit extends Cubit<PriceRuleImportState> {
   String? _importId;
   int? _importVersion;
   PriceRuleImportPreview? _lastPreview;
+  bool _hasCancelableBatch = false;
+
+  bool get hasCancelableBatch => _hasCancelableBatch;
+
+  Future<CustomerPriceRuleImportTemplateDto> loadTemplate() async {
+    final tenantId = await _executionContext.requireTenantId();
+    return _pricingModule.executeQueryAsync(
+      GetCustomerPriceRuleImportTemplateQuery(tenantId: tenantId),
+    );
+  }
 
   /// Bước 1→2: Upload file, nhận preview.
   Future<void> startImport({
     required String fileName,
     required Uint8List fileBytes,
-    CustomerPriceRuleImportMode importMode =
-        CustomerPriceRuleImportMode.upsert,
+    CustomerPriceRuleImportMode importMode = CustomerPriceRuleImportMode.upsert,
   }) async {
+    _importId = null;
+    _importVersion = null;
+    _lastPreview = null;
+    _hasCancelableBatch = false;
     emit(
       PriceRuleImportFileSelected(
         fileName: fileName,
@@ -45,7 +58,7 @@ final class PriceRuleImportCubit extends Cubit<PriceRuleImportState> {
       final detail = await _pricingModule.executeCommandAsync(
         StartCustomerPriceRuleImportCommand(
           tenantId: tenantId,
-          templateVersion: 'v1',
+          templateVersion: CustomerPriceRuleImportTemplateDto.versionV1,
           originalFileName: fileName,
           fileBytes: fileBytes,
           importMode: importMode,
@@ -55,11 +68,26 @@ final class PriceRuleImportCubit extends Cubit<PriceRuleImportState> {
       _importId = detail.batch.id;
       _importVersion = detail.batch.version;
 
+      if (detail.batch.status == CustomerPriceRuleImportStatus.failed) {
+        _hasCancelableBatch = false;
+        emit(
+          PriceRuleImportError(
+            code:
+                detail.batch.fileErrorCodes.firstOrNull ??
+                'IMPORT_FILE_INVALID',
+            step: PriceRuleImportStep.chooseFile,
+          ),
+        );
+        return;
+      }
+
       final preview = PriceRuleImportPreview(
         importDetail: detail,
         rows: detail.rows.items,
       );
       _lastPreview = preview;
+      _hasCancelableBatch =
+          detail.batch.status == CustomerPriceRuleImportStatus.readyToImport;
       emit(preview);
     } on PricingBlockedException catch (e) {
       emit(
@@ -87,10 +115,7 @@ final class PriceRuleImportCubit extends Cubit<PriceRuleImportState> {
 
   /// Bước 2←: Quay lại chọn file.
   void backToChooseFile() {
-    emit(const PriceRuleImportInitial());
-    _importId = null;
-    _importVersion = null;
-    _lastPreview = null;
+    _resetImport();
   }
 
   /// Bước 3←2: Quay lại xem trước (giữ nguyên dữ liệu đã kiểm tra).
@@ -125,13 +150,11 @@ final class PriceRuleImportCubit extends Cubit<PriceRuleImportState> {
         ),
       );
 
+      _hasCancelableBatch = false;
       emit(PriceRuleImportResult(result: result));
     } on PricingBlockedException catch (e) {
       emit(
-        PriceRuleImportError(
-          code: e.code,
-          step: PriceRuleImportStep.confirm,
-        ),
+        PriceRuleImportError(code: e.code, step: PriceRuleImportStep.confirm),
       );
     } catch (_) {
       emit(
@@ -152,5 +175,36 @@ final class PriceRuleImportCubit extends Cubit<PriceRuleImportState> {
         acknowledgeWarningRows: value,
       ),
     );
+  }
+
+  Future<String?> cancelCurrentImport() async {
+    final id = _importId;
+    final version = _importVersion;
+    if (!_hasCancelableBatch || id == null || version == null) return null;
+
+    try {
+      final tenantId = await _executionContext.requireTenantId();
+      await _pricingModule.executeCommandAsync(
+        CancelCustomerPriceRuleImportCommand(
+          tenantId: tenantId,
+          importId: id,
+          expectedVersion: version,
+        ),
+      );
+      _resetImport();
+      return null;
+    } on PricingBlockedException catch (e) {
+      return e.code;
+    } catch (_) {
+      return 'SYSTEM_ERROR';
+    }
+  }
+
+  void _resetImport() {
+    _importId = null;
+    _importVersion = null;
+    _lastPreview = null;
+    _hasCancelableBatch = false;
+    emit(const PriceRuleImportInitial());
   }
 }

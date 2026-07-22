@@ -33,9 +33,16 @@ void main() {
     expect(result.warnings.single.code, 'below_floor_price');
   });
 
+  test('createRuleDuplicate succeeds with auto-disable semantics', () async {
+    final module = FakePricingModule(
+      scenario: FakePricingScenario.createRuleDuplicate,
+    );
+
+    final result = await module.executeCommandAsync(_command());
+    expect(result.rule.id, isNotEmpty);
+  });
+
   for (final entry in {
-    FakePricingScenario.createRuleDuplicate:
-        PricingBlockedCodes.duplicateActiveRule,
     FakePricingScenario.createRuleFloorBlocked:
         PricingBlockedCodes.belowFloorBlocked,
     FakePricingScenario.createRuleReferenceInvalid:

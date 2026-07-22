@@ -23,34 +23,10 @@ final class PriceRuleDetailCubit extends Cubit<PriceRuleDetailState> {
   }) async {
     emit(const PriceRuleDetailLoading());
     try {
-      final tenantId = await _executionContext.requireTenantId();
-      final result = await _pricingModule.executeQueryAsync(
-        GetCustomerPriceRuleDetailQuery(
-          tenantId: tenantId,
-          ruleId: ruleId,
-          businessDate: DateTime.now().toUtc(),
-        ),
-      );
-
-      List<CustomerPriceRuleActivityDto> recentActivities = const [];
-      try {
-        final history = await _pricingModule
-            .executeQueryAsync<CursorPageDto<CustomerPriceRuleActivityDto>>(
-          GetCustomerPriceRuleHistoryQuery(
-            tenantId: tenantId,
-            ruleId: ruleId,
-            limit: 3,
-          ),
-        );
-        recentActivities = history.items;
-      } catch (_) {
-        // History load failed (no permission, not supported, etc.)
-        // — still show detail, hide history section.
-      }
-
+      final result = await _fetchDetail(ruleId: ruleId);
       emit(PriceRuleDetailLoaded(
-        rule: result,
-        recentActivities: recentActivities,
+        rule: result.rule,
+        recentActivities: result.recentActivities,
       ));
     } on PricingBlockedException catch (e) {
       if (e.code == PricingBlockedCodes.noPermission) {
@@ -58,11 +34,82 @@ final class PriceRuleDetailCubit extends Cubit<PriceRuleDetailState> {
       } else if (e.code == PricingBlockedCodes.notFound) {
         emit(const PriceRuleDetailNotFound());
       } else {
-        emit(PriceRuleDetailError(message: e.code));
+        emit(PriceRuleDetailError(message: _messageForBlocked(e)));
       }
+    } on ApplicationException catch (e) {
+      emit(PriceRuleDetailError(message: e.message));
     } catch (error) {
-      emit(PriceRuleDetailError(message: error.toString()));
+      emit(PriceRuleDetailError(
+        message: 'Không thể tải chi tiết. Vui lòng thử lại.',
+      ));
     }
+  }
+
+  /// Refresh detail trước khi mở sheet Thao tác — lấy `availableActions` mới nhất.
+  ///
+  /// Không emit [PriceRuleDetailLoading] để tránh flash skeleton toàn trang.
+  Future<CustomerPriceRuleDetailDto?> refreshDetailForActions({
+    required String ruleId,
+  }) async {
+    _actionErrorMessage = null;
+    try {
+      final result = await _fetchDetail(ruleId: ruleId);
+      emit(PriceRuleDetailLoaded(
+        rule: result.rule,
+        recentActivities: result.recentActivities,
+      ));
+      return result.rule;
+    } on PricingBlockedException catch (e) {
+      _actionErrorMessage = _messageForActionBlocked(e);
+      if (e.code == PricingBlockedCodes.notFound) {
+        emit(const PriceRuleDetailNotFound());
+      } else if (e.code == PricingBlockedCodes.noPermission) {
+        emit(const PriceRuleDetailNoPermission());
+      }
+      return null;
+    } on ApplicationException catch (e) {
+      _actionErrorMessage = e.message;
+      return null;
+    } catch (_) {
+      _actionErrorMessage = 'Không thể tải thao tác. Vui lòng thử lại.';
+      return null;
+    }
+  }
+
+  /// Lỗi từ lần gọi [refreshDetailForActions] / [disableRule] / [reenableRule] gần nhất.
+  String? get actionErrorMessage => _actionErrorMessage;
+
+  String? _actionErrorMessage;
+
+  Future<({CustomerPriceRuleDetailDto rule, List<CustomerPriceRuleActivityDto> recentActivities})>
+      _fetchDetail({
+    required String ruleId,
+  }) async {
+    final tenantId = await _executionContext.requireTenantId();
+    final result = await _pricingModule.executeQueryAsync(
+      GetCustomerPriceRuleDetailQuery(
+        tenantId: tenantId,
+        ruleId: ruleId,
+        businessDate: DateTime.now().toUtc(),
+      ),
+    );
+
+    List<CustomerPriceRuleActivityDto> recentActivities = const [];
+    try {
+      final history = await _pricingModule
+          .executeQueryAsync<CursorPageDto<CustomerPriceRuleActivityDto>>(
+        GetCustomerPriceRuleHistoryQuery(
+          tenantId: tenantId,
+          ruleId: ruleId,
+          limit: 3,
+        ),
+      );
+      recentActivities = history.items;
+    } catch (_) {
+      // History load failed — still show detail.
+    }
+
+    return (rule: result, recentActivities: recentActivities);
   }
 
   /// S6 — Tắt giá riêng.
@@ -71,6 +118,8 @@ final class PriceRuleDetailCubit extends Cubit<PriceRuleDetailState> {
     required int expectedVersion,
     String? reason,
   }) async {
+    _actionErrorMessage = null;
+    final previous = _currentLoadedState;
     try {
       final result = await _pricingModule.executeCommandAsync(
         DisableCustomerPriceRuleCommand(
@@ -86,10 +135,50 @@ final class PriceRuleDetailCubit extends Cubit<PriceRuleDetailState> {
       await _refreshRecentHistory(ruleId: ruleId, rule: result);
       return result;
     } on PricingBlockedException catch (e) {
-      emit(PriceRuleDetailError(message: e.code));
+      _actionErrorMessage = _messageForActionBlocked(e);
+      if (previous != null) {
+        emit(previous);
+      }
       return null;
-    } catch (error) {
-      emit(PriceRuleDetailError(message: error.toString()));
+    } on ApplicationException catch (e) {
+      _actionErrorMessage = e.message;
+      if (previous != null) {
+        emit(previous);
+      }
+      return null;
+    } catch (_) {
+      _actionErrorMessage = 'Không thể tắt giá riêng. Vui lòng thử lại.';
+      if (previous != null) {
+        emit(previous);
+      }
+      return null;
+    }
+  }
+
+  /// S7 — Precheck trước khi bật lại giá riêng (US-08 FR-02).
+  Future<CustomerPriceRuleReenablePrecheckDto?> precheckReenable({
+    required String ruleId,
+    required int expectedVersion,
+  }) async {
+    _actionErrorMessage = null;
+    try {
+      final tenantId = await _executionContext.requireTenantId();
+      return await _pricingModule.executeQueryAsync(
+        PrecheckCustomerPriceRuleReenableQuery(
+          tenantId: tenantId,
+          ruleId: ruleId,
+          expectedVersion: expectedVersion,
+          businessDate: DateTime.now().toUtc(),
+        ),
+      );
+    } on PricingBlockedException catch (e) {
+      _actionErrorMessage = _messageForActionBlocked(e);
+      return null;
+    } on ApplicationException catch (e) {
+      _actionErrorMessage = e.message;
+      return null;
+    } catch (_) {
+      _actionErrorMessage = 'Không thể kiểm tra điều kiện bật lại. Vui lòng thử lại.';
       return null;
     }
   }
@@ -105,6 +194,8 @@ final class PriceRuleDetailCubit extends Cubit<PriceRuleDetailState> {
     bool acknowledgeFloorWarning = false,
     String? precheckToken,
   }) async {
+    _actionErrorMessage = null;
+    final previous = _currentLoadedState;
     try {
       final result = await _pricingModule.executeCommandAsync(
         ReenableCustomerPriceRuleCommand(
@@ -122,12 +213,34 @@ final class PriceRuleDetailCubit extends Cubit<PriceRuleDetailState> {
       await _refreshRecentHistory(ruleId: ruleId, rule: result);
       return result;
     } on PricingBlockedException catch (e) {
-      emit(PriceRuleDetailError(message: e.code));
+      _actionErrorMessage = _messageForActionBlocked(e);
+      if (previous != null) {
+        emit(previous);
+      }
       return null;
-    } catch (error) {
-      emit(PriceRuleDetailError(message: error.toString()));
+    } on ApplicationException catch (e) {
+      _actionErrorMessage = e.message;
+      if (previous != null) {
+        emit(previous);
+      }
+      return null;
+    } catch (_) {
+      _actionErrorMessage = 'Không thể bật lại giá riêng. Vui lòng thử lại.';
+      if (previous != null) {
+        emit(previous);
+      }
       return null;
     }
+  }
+
+  PriceRuleDetailLoaded? get _currentLoadedState {
+    final current = state;
+    return switch (current) {
+      PriceRuleDetailLoaded() => current,
+      PriceRuleDetailActionSuccess(:final rule, :final recentActivities) =>
+        PriceRuleDetailLoaded(rule: rule, recentActivities: recentActivities),
+      _ => null,
+    };
   }
 
   List<CustomerPriceRuleActivityDto> get _currentRecentActivities {
@@ -160,5 +273,58 @@ final class PriceRuleDetailCubit extends Cubit<PriceRuleDetailState> {
     } catch (_) {
       emit(PriceRuleDetailLoaded(rule: rule, recentActivities: const []));
     }
+  }
+
+  String _messageForBlocked(PricingBlockedException e) => switch (e.code) {
+    PricingBlockedCodes.validationError =>
+      e.message ?? 'Dữ liệu không hợp lệ.',
+    PricingBlockedCodes.systemError =>
+      'Không thể tải chi tiết. Vui lòng thử lại.',
+    _ => e.message ?? 'Không thể tải chi tiết. Vui lòng thử lại.',
+  };
+
+  String _messageForActionBlocked(PricingBlockedException e) => switch (e.code) {
+    PricingBlockedCodes.noPermission =>
+      'Bạn không có quyền thực hiện thao tác này.',
+    PricingBlockedCodes.stateChanged =>
+      'Dữ liệu đã thay đổi. Vui lòng tải lại và thử lại.',
+    PricingBlockedCodes.invalidStatus =>
+      'Không thể thực hiện với trạng thái hiện tại.',
+    PricingBlockedCodes.notFound =>
+      'Mức giá riêng không còn tồn tại.',
+    PricingBlockedCodes.belowFloorBlocked =>
+      'Giá dưới sàn và chưa được xác nhận.',
+    PricingBlockedCodes.duplicateActiveRule =>
+      'Đã có giá riêng khác đang áp dụng cho cùng khách hàng và sản phẩm.',
+    PricingBlockedCodes.referenceInvalid =>
+      'Thông tin khách hàng hoặc sản phẩm không còn hợp lệ.',
+    PricingBlockedCodes.validationError =>
+      e.message ?? 'Dữ liệu không hợp lệ.',
+    PricingBlockedCodes.systemError =>
+      'Không thể thực hiện thao tác. Vui lòng thử lại.',
+    _ => e.message ?? 'Không thể thực hiện thao tác. Vui lòng thử lại.',
+  };
+
+  String messageForPrecheckBlocked(RuleValidationOutcomeDto outcome) {
+    final codes = outcome.blockingCodes;
+    if (codes.contains('duplicate_active_rule')) {
+      return 'Đã có giá riêng khác đang áp dụng cho cùng khách hàng và sản phẩm.';
+    }
+    if (codes.contains('effective_period_expired')) {
+      return 'Giá riêng đã hết hiệu lực, không thể bật lại.';
+    }
+    if (codes.contains('customer_reference_invalid')) {
+      return 'Khách hàng không còn hợp lệ để bật lại giá riêng.';
+    }
+    if (codes.contains('product_unit_reference_invalid')) {
+      return 'Sản phẩm hoặc đơn vị bán không còn hợp lệ.';
+    }
+    if (codes.contains('currency_mismatch')) {
+      return 'Đơn vị tiền tệ không khớp với sản phẩm hiện tại.';
+    }
+    if (codes.contains('override_permission_required')) {
+      return 'Giá riêng dưới giá sàn và bạn không có quyền ghi đè.';
+    }
+    return 'Không thể bật lại giá riêng với điều kiện hiện tại.';
   }
 }

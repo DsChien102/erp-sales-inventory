@@ -8,8 +8,8 @@ final class ExcelCustomerPriceRuleImportFileAdapter
     implements ICustomerPriceRuleImportFilePort {
   const ExcelCustomerPriceRuleImportFileAdapter();
 
-  static const templateVersion = 'customer_price_rules_v1';
-  static const fileName = 'customer_price_rules_v1.xlsx';
+  static const templateVersion = CustomerPriceRuleImportTemplateDto.versionV1;
+  static const fileName = CustomerPriceRuleImportTemplateDto.fileNameV1;
   static const mimeType =
       'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
   static const dataSheetName = 'customer_price_rules';

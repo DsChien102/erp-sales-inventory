@@ -4,7 +4,7 @@
 -- Context: TH-04 EP02 S6 CONTRACT + BE
 -- Touches: get_customer_price_rule_detail, disable_customer_price_rule
 -- Safety: draft only; do not apply or promote without explicit migration review
--- Depends on: pricing_customer_price_rule_s1.sql, pricing_customer_price_rule_detail_s3.sql, pricing_customer_price_rule_update_s5.sql
+-- Depends on: 004_pricing_customer_price_rule_s1.sql, 006_pricing_customer_price_rule_detail_s3.sql, 007_pricing_customer_price_rule_update_s5.sql
 
 alter table pricing.customer_price_rules
   add column if not exists disabled_at timestamptz,
@@ -18,8 +18,14 @@ where status = 'disabled'
   and (disabled_at is null or disabled_by is null);
 
 alter table pricing.customer_price_rules
+  drop constraint if exists customer_price_rules_disabled_reason_length;
+
+alter table pricing.customer_price_rules
   add constraint customer_price_rules_disabled_reason_length
   check (disabled_reason is null or length(disabled_reason) <= 500);
+
+alter table pricing.customer_price_rules
+  drop constraint if exists customer_price_rules_disabled_audit_complete;
 
 alter table pricing.customer_price_rules
   add constraint customer_price_rules_disabled_audit_complete
@@ -33,10 +39,30 @@ alter table pricing.customer_price_rule_activities
 
 alter table pricing.customer_price_rule_activities
   add constraint customer_price_rule_activities_activity_type_check
-  check (activity_type in ('created', 'updated', 'disabled'));
+  check (activity_type in (
+    'created', 'updated', 'disabled', 'reenabled',
+    'import_created', 'import_updated',
+    'memory_created', 'memory_updated'
+  ));
 
-alter function pricing.get_customer_price_rule_detail(uuid, uuid, date)
-  rename to _get_customer_price_rule_detail_s3;
+do $$
+begin
+  if to_regprocedure(
+    'pricing._get_customer_price_rule_detail_s3(uuid,uuid,date)'
+  ) is null then
+    if to_regprocedure(
+      'pricing.get_customer_price_rule_detail(uuid,uuid,date)'
+    ) is null then
+      raise exception
+        'pricing.get_customer_price_rule_detail(uuid,uuid,date) is required before S6';
+    end if;
+
+    execute
+      'alter function pricing.get_customer_price_rule_detail(uuid, uuid, date) '
+      'rename to _get_customer_price_rule_detail_s3';
+  end if;
+end;
+$$;
 
 revoke all on function pricing._get_customer_price_rule_detail_s3(uuid, uuid, date)
   from public, anon, authenticated, service_role;

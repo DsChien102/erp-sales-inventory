@@ -35,16 +35,6 @@ final class CreateCustomerPriceRuleCommandHandler
     if (!isIdempotentRetry) {
       _ensureReferencesAreValid(command, context);
     }
-    if (!isIdempotentRetry && context.hasConflictingRule) {
-      throw PricingBlockedException(
-        PricingBlockedCodes.duplicateActiveRule,
-        message: 'An active rule overlaps the requested period.',
-        details: {
-          if (context.conflictingRuleId != null)
-            'conflictingRuleId': context.conflictingRuleId,
-        },
-      );
-    }
     if (!isIdempotentRetry &&
         context.productUnit.isBelowFloor &&
         (!command.acknowledgeFloorWarning || !context.canOverrideFloor)) {

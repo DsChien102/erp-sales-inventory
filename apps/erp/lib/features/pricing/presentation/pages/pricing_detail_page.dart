@@ -44,6 +44,7 @@ class _PricingDetailPageState extends State<PricingDetailPage> {
       value: _cubit,
       child: BlocBuilder<PriceRuleDetailCubit, PriceRuleDetailState>(
         builder: (context, state) {
+          final colors = context.vColors;
           return VPageScaffold(
             key: const Key('wgt_e02_u03_fr01_01'),
             title: 'Chi tiết giá riêng',
@@ -53,7 +54,17 @@ class _PricingDetailPageState extends State<PricingDetailPage> {
                 rule.customer.displayName,
               _ => null,
             },
-            showBackButton: true,
+            showBackButton: false,
+            leading: IconButton(
+              icon: VIcon(icon: VIcons.arrowBack, color: colors.textPrimary),
+              onPressed: () {
+                if (context.canPop()) {
+                  context.pop();
+                } else {
+                  context.go('/pricing');
+                }
+              },
+            ),
             body: _PriceRuleDetailBody(
               state: state,
               ruleId: widget.ruleId,
@@ -63,7 +74,8 @@ class _PricingDetailPageState extends State<PricingDetailPage> {
             ),
             bottomBar: switch (state) {
               PriceRuleDetailLoaded(:final rule) ||
-              PriceRuleDetailActionSuccess(:final rule) =>
+              PriceRuleDetailActionSuccess(:final rule)
+                  when rule.availableActions.isNotEmpty =>
                 _BottomBar(rule: rule, cubit: _cubit),
               _ => null,
             },
@@ -134,46 +146,87 @@ class _PriceRuleDetailBody extends StatelessWidget {
   }
 }
 
-class _BottomBar extends StatelessWidget {
+class _BottomBar extends StatefulWidget {
   const _BottomBar({required this.rule, required this.cubit});
 
   final CustomerPriceRuleDetailDto rule;
   final PriceRuleDetailCubit cubit;
 
   @override
+  State<_BottomBar> createState() => _BottomBarState();
+}
+
+class _BottomBarState extends State<_BottomBar> {
+  bool _isOpeningActions = false;
+
+  Future<void> _openActionSheet() async {
+    if (_isOpeningActions) return;
+    setState(() => _isOpeningActions = true);
+
+    final refreshed = await widget.cubit.refreshDetailForActions(
+      ruleId: widget.rule.id,
+    );
+
+    if (!mounted) return;
+    setState(() => _isOpeningActions = false);
+
+    if (refreshed == null) {
+      final message = widget.cubit.actionErrorMessage;
+      if (message != null) {
+        VToast.show(
+          context,
+          title: 'Không thể mở thao tác',
+          message: message,
+          type: VToastType.danger,
+        );
+      }
+      return;
+    }
+
+    if (!mounted) return;
+    await PriceRuleActionSheet.show(
+      context: context,
+      rule: refreshed,
+      onEdit: () async {
+        final updated = await context.push<CustomerPriceRuleDetailDto>(
+          '/pricing/${refreshed.id}/edit',
+          extra: refreshed,
+        );
+        if (updated != null && context.mounted) {
+          widget.cubit.loadDetail(ruleId: refreshed.id);
+        }
+      },
+      onDisable: () => PriceRuleDisableSheet.show(
+        context: context,
+        rule: refreshed,
+        cubit: widget.cubit,
+      ),
+      onReenable: () {
+        final currentRule = switch (widget.cubit.state) {
+          PriceRuleDetailLoaded(:final rule) => rule,
+          PriceRuleDetailActionSuccess(:final rule) => rule,
+          _ => refreshed,
+        };
+        PriceRuleReenableSheet.show(
+          context: context,
+          rule: currentRule,
+          cubit: widget.cubit,
+        );
+      },
+      onHistory: () => context.push('/pricing/${refreshed.id}/history'),
+    );
+  }
+
+  @override
   Widget build(BuildContext context) {
     return SafeArea(
       child: Padding(
         padding: EdgeInsets.all(VSpacing.space4),
-        // SG-02: CTA primary button
         child: VButton(
-          label: 'Thao tác',
+          label: _isOpeningActions ? 'Đang tải...' : 'Thao tác',
           variant: VButtonVariant.primary,
           fullWidth: true,
-          onPressed: () => PriceRuleActionSheet.show(
-            context: context,
-            rule: rule,
-            onEdit: () async {
-              final updated = await context.push<CustomerPriceRuleDetailDto>(
-                '/pricing/${rule.id}/edit',
-                extra: rule,
-              );
-              if (updated != null && context.mounted) {
-                cubit.loadDetail(ruleId: rule.id);
-              }
-            },
-            onDisable: () => PriceRuleDisableSheet.show(
-              context: context,
-              rule: rule,
-              cubit: cubit,
-            ),
-            onReenable: () => PriceRuleReenableSheet.show(
-              context: context,
-              rule: rule,
-              cubit: cubit,
-            ),
-            onHistory: () => context.push('/pricing/${rule.id}/history'),
-          ),
+          onPressed: _isOpeningActions ? null : _openActionSheet,
         ),
       ),
     );

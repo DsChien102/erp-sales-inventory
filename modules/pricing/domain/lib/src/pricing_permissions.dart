@@ -4,6 +4,7 @@ abstract final class PricingPermissions {
   static const createCustomerPriceRule = 'pricing.customer_price_rule.create';
   static const updateCustomerPriceRule = 'pricing.customer_price_rule.update';
   static const disableCustomerPriceRule = 'pricing.customer_price_rule.disable';
+  static const deleteCustomerPriceRule = 'pricing.customer_price_rule.delete';
   static const reenableCustomerPriceRule =
       'pricing.customer_price_rule.reenable';
   static const overrideFloorPrice =

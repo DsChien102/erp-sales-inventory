@@ -33,14 +33,10 @@ class _PricingFormPageState extends State<PricingFormPage> {
       mode: _isEdit ? PriceRuleFormMode.edit : PriceRuleFormMode.create,
       pricingModule: getIt<IPricingModule>(),
       executionContext: getIt<IExecutionContext>(),
-      advisoryLookup: getIt.isRegistered<PriceRuleAdvisoryLookup>()
-          ? getIt<PriceRuleAdvisoryLookup>()
-          : null,
     );
 
     if (_isEdit) {
-      final initialAmount =
-          (widget.initialRule!.price.amountMinor / 100).round();
+      final initialAmount = widget.initialRule!.price.amountMinor;
       final formatted = VMoneyValidator.format(initialAmount);
       _priceController.value = TextEditingValue(
         text: formatted,
@@ -59,14 +55,11 @@ class _PricingFormPageState extends State<PricingFormPage> {
   }
 
   void _onPriceChanged(int? amountDong) {
-    // Domain lưu amountMinor (×100).
-    _cubit.updatePrice(amountDong == null ? null : amountDong * 100);
+    _cubit.updatePrice(amountDong);
   }
 
   void _onSuccess(BuildContext context, CustomerPriceRuleDetailDto rule) {
-    final message = _isEdit
-        ? 'Đã cập nhật giá riêng'
-        : 'Đã tạo giá riêng thành công';
+    final message = _isEdit ? 'Đã cập nhật giá riêng' : 'Đã tạo giá riêng thành công';
     VToast.show(
       context,
       title: 'Thành công',
@@ -74,6 +67,8 @@ class _PricingFormPageState extends State<PricingFormPage> {
       type: VToastType.success,
     );
     if (_isEdit) {
+      context.pop(rule);
+    } else if (context.canPop()) {
       context.pop(rule);
     } else {
       context.go('/pricing/${rule.id}');
@@ -110,10 +105,7 @@ class _PricingFormPageState extends State<PricingFormPage> {
               );
             }
 
-            final form =
-                state is PriceRuleFormEditing
-                    ? state
-                    : const PriceRuleFormEditing();
+            final form = state is PriceRuleFormEditing ? state : const PriceRuleFormEditing();
             final initialRule = widget.initialRule;
 
             if (_isEdit && form.hasStateChanged) {
@@ -144,10 +136,8 @@ class _PricingFormPageState extends State<PricingFormPage> {
                 onViewConflictingRule: (ruleId) {
                   context.push('/pricing/$ruleId');
                 },
-                onPickCustomer: () =>
-                    context.push<Map<String, String>>('/pricing/pick-customer'),
-                onPickProduct: () =>
-                    context.push<Map<String, String>>('/pricing/pick-product'),
+                onPickCustomer: () => context.push<Map<String, String>>('/pricing/pick-customer'),
+                onPickProduct: () => context.push<Map<String, String>>('/pricing/pick-product'),
                 onPickUnit: () => context.push<Map<String, String>>(
                   '/pricing/pick-unit/${form.productId}',
                 ),
@@ -167,13 +157,12 @@ class _PricingFormPageState extends State<PricingFormPage> {
 
   String _mapErrorToMessage(String code) => switch (code) {
     PricingBlockedCodes.duplicateActiveRule => 'Trùng giá riêng đã tồn tại.',
-    PricingBlockedCodes.belowFloorBlocked =>
-      'Giá nhập thấp hơn giá sàn quy định.',
-    PricingBlockedCodes.referenceInvalid =>
-      'Khách hàng hoặc sản phẩm không hợp lệ.',
+    PricingBlockedCodes.belowFloorBlocked => 'Giá nhập thấp hơn giá sàn quy định.',
+    PricingBlockedCodes.referenceInvalid => 'Khách hàng hoặc sản phẩm không hợp lệ.',
     PricingBlockedCodes.noPermission => 'Bạn không có quyền thực hiện.',
-    PricingBlockedCodes.stateChanged =>
-      'Dữ liệu đã thay đổi. Vui lòng tải lại.',
+    PricingBlockedCodes.stateChanged => 'Dữ liệu đã thay đổi. Vui lòng tải lại.',
+    PricingBlockedCodes.validationError => 'Thông tin nhập không hợp lệ.',
+    PricingBlockedCodes.systemError => 'Không thể lưu giá riêng. Vui lòng thử lại.',
     _ => 'Lỗi: $code',
   };
 }
@@ -192,8 +181,7 @@ class _BottomBar extends StatelessWidget {
   final CustomerPriceRuleDetailDto? initialRule;
 
   String _formatMinor(int amountMinor) {
-    final amount = amountMinor / 100;
-    return '${amount.toStringAsFixed(0).replaceAllMapped(RegExp(r'\B(?=(\d{3})+(?!\d))'), (m) => '.')}đ';
+    return '${amountMinor.toString().replaceAllMapped(RegExp(r'\B(?=(\d{3})+(?!\d))'), (m) => '.')}đ';
   }
 
   String _formatDate(DateTime? date) {
@@ -219,11 +207,7 @@ class _BottomBar extends StatelessWidget {
       if (result == null || !result.confirmed) return;
       changeReason = result.changeReason;
     }
-    if (form.hasDuplicateWarning) {
-      await cubit.submitWithDuplicateAcknowledge(changeReason: changeReason);
-    } else {
-      await cubit.submit(changeReason: changeReason);
-    }
+    await cubit.submit(changeReason: changeReason);
   }
 
   @override
@@ -245,16 +229,10 @@ class _BottomBar extends StatelessWidget {
             const VGap.horizontalMd(),
             Expanded(
               child: VButton(
-                label: isSubmitting
-                    ? 'Đang lưu...'
-                    : form.hasDuplicateWarning
-                        ? 'Lưu (ghi đè giá cũ)'
-                        : 'Lưu',
+                label: isSubmitting ? 'Đang lưu...' : 'Lưu',
                 variant: VButtonVariant.primary,
                 fullWidth: true,
-                onPressed: (isSubmitting || !form.isValid)
-                    ? null
-                    : () => _onSave(context),
+                onPressed: (isSubmitting || !form.isValid) ? null : () => _onSave(context),
               ),
             ),
           ],

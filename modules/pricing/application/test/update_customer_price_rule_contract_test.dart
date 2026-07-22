@@ -90,8 +90,6 @@ void main() {
   for (final entry in {
     FakePricingScenario.updateRuleStateChanged:
         PricingBlockedCodes.stateChanged,
-    FakePricingScenario.updateRuleDuplicate:
-        PricingBlockedCodes.duplicateActiveRule,
     FakePricingScenario.updateRuleFloorBlocked:
         PricingBlockedCodes.belowFloorBlocked,
     FakePricingScenario.updateRuleReferenceInvalid:
@@ -179,17 +177,17 @@ void main() {
       expect(gateway.calls, 0);
     });
 
-    test('blocks advisory duplicate excluding the current rule', () async {
+    test('passes advisory duplicate through authoritative gateway', () async {
+      final gateway = _UpdateGateway(_detail(version: 4));
       final handler = UpdateCustomerPriceRuleCommandHandler(
         updateContextPort: _UpdateContextPort(
           _context(hasConflictingRule: true, conflictingRuleId: 'rule-other'),
         ),
-        commandGateway: _UpdateGateway(_detail(version: 4)),
+        commandGateway: gateway,
       );
-      await expectLater(
-        handler.handle(_command()),
-        _throwsCode(PricingBlockedCodes.duplicateActiveRule),
-      );
+      final result = await handler.handle(_command());
+      expect(result.version, 4);
+      expect(gateway.calls, 1);
     });
 
     test('allows acknowledged below-floor update with override', () async {
@@ -398,6 +396,14 @@ final class _UpdateGateway implements ICustomerPriceRuleCommandGateway {
     required int expectedVersion,
     required String? reason,
   }) => throw UnsupportedError('disable not used');
+
+
+  @override
+  Future<CustomerPriceRuleDetailDto> delete({
+    required String tenantId,
+    required String ruleId,
+    required int expectedVersion,
+  }) => throw UnsupportedError('delete not used');
 
   @override
   Future<CustomerPriceRuleDetailDto> reenable({

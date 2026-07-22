@@ -4,7 +4,7 @@
 -- Context: TH-04 EP02 S7 CONTRACT + BE
 -- Touches: _customer_price_rule_reenable_context, precheck_customer_price_rule_reenable, reenable_customer_price_rule
 -- Safety: draft only; do not apply or promote without explicit migration review
--- Depends on: pricing_customer_price_rule_s1.sql, pricing_customer_price_rule_detail_s3.sql, pricing_customer_price_rule_update_s5.sql, pricing_customer_price_rule_disable_s6.sql
+-- Depends on: 004_pricing_customer_price_rule_s1.sql, 006_pricing_customer_price_rule_detail_s3.sql, 007_pricing_customer_price_rule_update_s5.sql, 008_pricing_customer_price_rule_disable_s6.sql
 -- Requires: non-blank Supabase Vault secret pricing_reenable_fingerprint_hmac_v1
 
 create extension if not exists pgcrypto with schema extensions;
@@ -34,7 +34,6 @@ declare
   v_customer jsonb;
   v_product jsonb;
   v_can_override_floor boolean := false;
-  v_conflicting_rule_id uuid;
   v_floor_price_minor bigint;
   v_list_price_minor bigint;
   v_warning_codes text[] := '{}';
@@ -98,24 +97,6 @@ begin
   if nullif(v_product ->> 'currency_code', '') is null
     or upper(v_product ->> 'currency_code') <> v_rule.currency_code then
     v_blocking_codes := array_append(v_blocking_codes, 'currency_mismatch');
-  end if;
-
-  select r.id
-  into v_conflicting_rule_id
-  from pricing.customer_price_rules r
-  where r.tenant_id = p_tenant_id
-    and r.id <> p_rule_id
-    and r.customer_id = v_rule.customer_id
-    and r.product_id = v_rule.product_id
-    and r.product_unit_id = v_rule.product_unit_id
-    and r.status = 'active'
-    and r.effective_from <= coalesce(v_rule.effective_to, 'infinity'::date)
-    and v_rule.effective_from <= coalesce(r.effective_to, 'infinity'::date)
-  order by r.created_at
-  limit 1;
-
-  if v_conflicting_rule_id is not null then
-    v_blocking_codes := array_append(v_blocking_codes, 'duplicate_active_rule');
   end if;
 
   if v_rule.effective_to is not null
@@ -182,9 +163,6 @@ begin
     'permissions', jsonb_build_object(
       'canOverrideFloor', v_can_override_floor
     ),
-    'duplicate', jsonb_build_object(
-      'conflictingRuleId', v_conflicting_rule_id
-    ),
     'outcome', jsonb_build_object(
       'state', v_outcome_state,
       'warningCodes', to_jsonb(v_warning_codes),
@@ -242,7 +220,6 @@ begin
     'rule_version', v_rule.version,
     'business_date', p_business_date,
     'can_override_floor', v_can_override_floor,
-    'has_conflicting_rule', v_conflicting_rule_id is not null,
     'is_expired', v_is_expired,
     'is_below_floor', v_is_below_floor,
     'has_floor_price', v_floor_price_minor is not null,
@@ -481,13 +458,6 @@ begin
     );
   end if;
 
-  if coalesce((v_context ->> 'has_conflicting_rule')::boolean, false) then
-    perform pricing._raise_pricing_error(
-      'DUPLICATE_ACTIVE_RULE',
-      'An active customer price rule overlaps the requested period.'
-    );
-  end if;
-
   if coalesce((v_context ->> 'is_below_floor')::boolean, false)
     and (
       not coalesce(p_acknowledge_floor_warning, false)
@@ -505,6 +475,18 @@ begin
       )
     );
   end if;
+
+  perform pricing._auto_disable_overlapping_customer_price_rules(
+    p_tenant_id,
+    p_rule_id,
+    v_rule.customer_id,
+    v_rule.product_id,
+    v_rule.product_unit_id,
+    v_rule.effective_from,
+    v_rule.effective_to,
+    v_actor_id,
+    'reenabled'
+  );
 
   v_old_value := jsonb_build_object(
     'status', v_rule.status,

@@ -18,7 +18,7 @@ void main() {
   final root = _repoRoot();
   final sqlPath =
       '${root.path}/supabase/migrations/_drafts/'
-      'pricing_customer_price_rule_history_s10.sql';
+      '012_pricing_customer_price_rule_history_s10.sql';
 
   test('S10 draft header, dependencies, and Touches match replaced functions', () {
     final sql = File(sqlPath).readAsStringSync();
@@ -31,12 +31,12 @@ void main() {
         '-- Touches: _customer_price_rule_history_snapshot, get_customer_price_rule_history',
       ),
     );
-    expect(sql, contains('pricing_customer_price_rule_s1.sql'));
-    expect(sql, contains('pricing_customer_price_rule_update_s5.sql'));
-    expect(sql, contains('pricing_customer_price_rule_disable_s6.sql'));
-    expect(sql, contains('pricing_customer_price_rule_reenable_s7.sql'));
-    expect(sql, contains('pricing_customer_price_rule_import_s8.sql'));
-    expect(sql, contains('pricing_remembered_price_from_order_s9.sql'));
+    expect(sql, contains('004_pricing_customer_price_rule_s1.sql'));
+    expect(sql, contains('007_pricing_customer_price_rule_update_s5.sql'));
+    expect(sql, contains('008_pricing_customer_price_rule_disable_s6.sql'));
+    expect(sql, contains('009_pricing_customer_price_rule_reenable_s7.sql'));
+    expect(sql, contains('010_pricing_customer_price_rule_import_s8.sql'));
+    expect(sql, contains('011_pricing_remembered_price_from_order_s9.sql'));
     expect(_touches(sql), _createdFunctions(sql));
   });
 

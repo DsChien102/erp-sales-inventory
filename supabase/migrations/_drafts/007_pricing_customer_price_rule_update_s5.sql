@@ -4,14 +4,18 @@
 -- Context: TH-04 EP02 S5 CONTRACT + BE
 -- Touches: get_customer_price_rule_update_context, update_customer_price_rule
 -- Safety: draft only; do not apply or promote without explicit migration review
--- Depends on: pricing_customer_price_rule_s1.sql, pricing_customer_price_rule_detail_s3.sql, partner_pricing_customer_snapshot.sql, catalog_pricing_price_band_snapshot.sql
+-- Depends on: 004_pricing_customer_price_rule_s1.sql, 006_pricing_customer_price_rule_detail_s3.sql, 001_partner_pricing_customer_snapshot.sql, 002_catalog_pricing_price_band_snapshot.sql
 
 alter table pricing.customer_price_rule_activities
   drop constraint if exists customer_price_rule_activities_activity_type_check;
 
 alter table pricing.customer_price_rule_activities
   add constraint customer_price_rule_activities_activity_type_check
-  check (activity_type in ('created', 'updated'));
+  check (activity_type in (
+    'created', 'updated', 'disabled', 'reenabled',
+    'import_created', 'import_updated',
+    'memory_created', 'memory_updated'
+  ));
 
 create or replace function pricing.update_customer_price_rule(
   p_tenant_id uuid,
@@ -33,9 +37,7 @@ declare
   v_rule pricing.customer_price_rules%rowtype;
   v_customer jsonb;
   v_product jsonb;
-  v_conflicting_rule_id uuid;
   v_can_override_floor boolean := false;
-  v_can_view_rules boolean := false;
   v_floor_price_minor bigint;
   v_list_price_minor bigint;
   v_warning_codes jsonb := '[]'::jsonb;
@@ -111,10 +113,6 @@ begin
   v_can_override_floor := iam.has_permission(
     p_tenant_id,
     'pricing.customer_price_rule.override_floor_price'
-  );
-  v_can_view_rules := iam.has_permission(
-    p_tenant_id,
-    'pricing.customer_price_rule.view'
   );
   v_is_noop := v_rule.rule_price_minor = p_rule_price_minor
     and v_rule.effective_from = p_effective_from
@@ -199,32 +197,16 @@ begin
         0
       )
     );
-    select r.id into v_conflicting_rule_id
-    from pricing.customer_price_rules r
-    where r.tenant_id = p_tenant_id
-      and r.id <> p_rule_id
-      and r.customer_id = v_rule.customer_id
-      and r.product_id = v_rule.product_id
-      and r.product_unit_id = v_rule.product_unit_id
-      and r.status = 'active'
-      and r.effective_from <= coalesce(p_effective_to, 'infinity'::date)
-      and p_effective_from <= coalesce(r.effective_to, 'infinity'::date)
-    order by r.created_at
-    limit 1;
-  end if;
-
-  if v_conflicting_rule_id is not null then
-    perform pricing._raise_pricing_error(
-      'DUPLICATE_ACTIVE_RULE',
-      'An active customer price rule overlaps the requested period.',
-      jsonb_strip_nulls(
-        jsonb_build_object(
-          'conflictingRuleId', case
-            when v_can_view_rules then v_conflicting_rule_id
-            else null
-          end
-        )
-      )
+    perform pricing._auto_disable_overlapping_customer_price_rules(
+      p_tenant_id,
+      p_rule_id,
+      v_rule.customer_id,
+      v_rule.product_id,
+      v_rule.product_unit_id,
+      p_effective_from,
+      p_effective_to,
+      v_actor_id,
+      'updated'
     );
   end if;
 

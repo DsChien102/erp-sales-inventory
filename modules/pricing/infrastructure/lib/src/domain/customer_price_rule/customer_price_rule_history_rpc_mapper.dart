@@ -90,6 +90,7 @@ abstract final class CustomerPriceRuleHistoryRpcMapper {
         'updated' => CustomerPriceRuleActivityType.updated,
         'disabled' => CustomerPriceRuleActivityType.disabled,
         'reenabled' => CustomerPriceRuleActivityType.reenabled,
+        'deleted' => CustomerPriceRuleActivityType.deleted,
         'import_created' => CustomerPriceRuleActivityType.importCreated,
         'import_updated' => CustomerPriceRuleActivityType.importUpdated,
         'memory_created' => CustomerPriceRuleActivityType.memoryCreated,

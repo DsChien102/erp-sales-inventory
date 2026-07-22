@@ -90,6 +90,18 @@ disabled disabled, and normalizes fixed needs_review to active.
 
 `CustomerPriceRule.disable()` allows only `active` or `needs_review` → `disabled`. A real transition increments `version` exactly once and raises exactly one `CustomerPriceRuleDisabledDomainEvent(ruleId, previousVersion, newVersion)`. Calling `disable()` when already `disabled` is a no-op (no version bump, no event). Persisted `deleted` (or any other status) is invalid for disable. Commit-time audit fields (`disabled_at` / `disabled_by` / `disabled_reason`) and the single `disabled` activity row are owned by the authoritative RPC in the same transaction — Dart domain mirrors the lifecycle invariant for tests only.
 
+### Soft-delete behavior (BR-09)
+
+`CustomerPriceRule.softDelete({required DateTime deletedAt})` allows only `active` or `needs_review` → `deleted`, sets `deletedAt`, increments `version` once, and raises exactly one `CustomerPriceRuleDeletedDomainEvent(ruleId, previousVersion, newVersion)`. Replay on already-`deleted` is idempotent (no version bump, no second event). `disabled` cannot be soft-deleted (`CustomerPriceRuleCanBeDeletedRule`). Reconstitution enforces `status == deleted` ↔ `deletedAt != null`. Search/detail hide deleted; history may still load by ID with `view_history`. Soft-delete UI is out of scope for this delivery — Domain/Application/Infrastructure/SQL only.
+
+### Overlap policy (BR-07 / CPR-INV-06)
+
+`CustomerPriceRuleOverlapPolicy` conflicts only when same tenant/customer/product/product-unit, both rules are `active` with `deletedAt == null`, and closed intervals overlap (`EffectivePeriod.overlaps`). Update/reenable/import exclude the current rule id. Commit paths auto-disable overlapping actives via `_auto_disable_overlapping_customer_price_rules` (reason `AUTO_REPLACED_BY_RULE`). Import preview surfaces `DUPLICATE_ACTIVE_RULE` as a **warning** (importable + acknowledgement), not a hard error; confirm still auto-disables before create/update. DB exclusion constraint on active non-deleted intervals is the final guard (draft `014`).
+
+### Eligibility policy (BR-08 / CPR-INV-08)
+
+`CustomerPriceRuleEligibilityPolicy.isApplicable(rule, businessDate)` is true only when: `active`, `deletedAt == null`, `effectiveFrom <= businessDate <= effectiveTo` (`effectiveTo == null` = open-ended), `blockingCodes` empty and validation not `blocked`. Below-floor **warning** remains applicable when policy already allowed override. Pricing exposes `ResolveApplicableCustomerPriceRuleQuery` / RPC `resolve_applicable_customer_price_rule` — returns at most one applicable rule or `SYSTEM_ERROR` if integrity finds more than one. No Sales integration and no order-price snapshot in this delivery.
+
 ## Value objects
 
 | Value object | Invariant |
@@ -110,7 +122,7 @@ disabled disabled, and normalizes fixed needs_review to active.
 | CPR-INV-03 | `excel_import` source có import ID và ưu tiên import-row ID. |
 | CPR-INV-04 | `sales_order` source có order ID và ưu tiên order-line/request ID. |
 | CPR-INV-05 | Manual source có actor. |
-| CPR-INV-06 | Active intervals cùng key không overlap. |
+| CPR-INV-06 | Sau mỗi commit chỉ còn tối đa một active interval overlap cho cùng key; rule mới/update/reenable/import sẽ auto-disable mọi active overlap cũ trong cùng transaction; DB exclusion constraint bảo vệ lớp cuối. |
 | CPR-INV-07 | Important mutation ghi activity trong cùng commit. |
 | CPR-INV-08 | Disabled/deleted/blocked rule không eligible cho order mới. |
 | CPR-INV-09 | Chỉ `disabled` rule được reenable; blocked precheck outcome không commit. |
@@ -118,7 +130,7 @@ disabled disabled, and normalizes fixed needs_review to active.
 
 ## Reenable fingerprint invariant
 
-Token HMAC-SHA-256 derive từ canonical JSON (`pricing-reenable-s7-v1`) gồm tenant, actor, rule identity/version/status/key/price/currency/effectivity, business date, live reference eligibility, list/floor amounts, override permission, duplicate identity, và sorted outcome codes. HMAC key chỉ tồn tại trong server-side Vault nên hidden floor không thể bị dò bằng hash offline. Display-name changes không ảnh hưởng token; actor, eligibility fields, floor/list, permission, duplicate, rule values/version/status, và outcome codes có ảnh hưởng.
+Token HMAC-SHA-256 derive từ canonical JSON (`pricing-reenable-s7-v1`) gồm tenant, actor, rule identity/version/status/key/price/currency/effectivity, business date, live reference eligibility, list/floor amounts, override permission, và sorted outcome codes. HMAC key chỉ tồn tại trong server-side Vault nên hidden floor không thể bị dò bằng hash offline. Display-name changes không ảnh hưởng token; actor, eligibility fields, floor/list, permission, rule values/version/status, và outcome codes có ảnh hưởng.
 
 Domain: `CustomerPriceRuleCanBeReenabledRule`, `CustomerPriceRule.reenable(RuleValidationOutcome)`, `CustomerPriceRuleReenabledDomainEvent`.
 
@@ -134,8 +146,8 @@ stateDiagram-v2
   disabled --> disabled: edit
   disabled --> active: reenable + valid precheck
   disabled --> disabled: reenable blocked
-  active --> deleted: future soft delete only
-  needs_review --> deleted: future soft delete only
+  active --> deleted: soft delete
+  needs_review --> deleted: soft delete
 ```
 
 `expired` không phải persisted transition; nó được derive từ `effective_to` và business date.
@@ -149,7 +161,7 @@ existing.from <= candidate.to_or_infinity
 AND candidate.from <= existing.to_or_infinity
 ```
 
-Chỉ xét non-deleted active rules trong cùng tenant/key. Khi update/reenable, loại chính rule hiện tại khỏi candidate set. Kiểm tra UI/precheck chỉ hỗ trợ UX; RPC là điểm quyết định cuối.
+Chỉ xét non-deleted active rules trong cùng tenant/key. Khi update/reenable, loại chính rule hiện tại khỏi candidate set. Kiểm tra UI/precheck chỉ hỗ trợ UX; RPC là điểm quyết định cuối và sẽ auto-disable toàn bộ active overlaps còn lại theo lock key trước khi commit rule mới.
 
 ## Floor-price policy
 

@@ -18,6 +18,10 @@ final pricingAccessMetadataRegistry = AccessMetadataRegistry({
     permission: 'pricing.customer_price_rule.create',
     requiresTenant: true,
   ),
+  DeleteCustomerPriceRuleCommand: AccessMetadata(
+    permission: 'pricing.customer_price_rule.delete',
+    requiresTenant: true,
+  ),
   DisableCustomerPriceRuleCommand: AccessMetadata(
     permission: 'pricing.customer_price_rule.disable',
     requiresTenant: true,
@@ -44,6 +48,10 @@ final pricingAccessMetadataRegistry = AccessMetadataRegistry({
   ),
   ReenableCustomerPriceRuleCommand: AccessMetadata(
     permission: 'pricing.customer_price_rule.reenable',
+    requiresTenant: true,
+  ),
+  ResolveApplicableCustomerPriceRuleQuery: AccessMetadata(
+    permission: 'pricing.customer_price_rule.view',
     requiresTenant: true,
   ),
   SaveRememberedPriceFromOrderCommand: AccessMetadata(

@@ -155,8 +155,6 @@ void main() {
   });
 
   for (final entry in {
-    FakePricingScenario.reenablePrecheckBlockedDuplicate:
-        'duplicate_active_rule',
     FakePricingScenario.reenablePrecheckBlockedExpired:
         'effective_period_expired',
     FakePricingScenario.reenablePrecheckBlockedReference:
@@ -197,8 +195,6 @@ void main() {
 
   for (final entry in {
     FakePricingScenario.reenableStateChanged: PricingBlockedCodes.stateChanged,
-    FakePricingScenario.reenableDuplicate:
-        PricingBlockedCodes.duplicateActiveRule,
     FakePricingScenario.reenableFloorBlocked:
         PricingBlockedCodes.belowFloorBlocked,
     FakePricingScenario.reenableReferenceInvalid:
@@ -222,6 +218,24 @@ void main() {
       );
     });
   }
+
+  test('reenablePrecheckBlockedDuplicate now returns valid overwrite path', () async {
+    final result = await FakePricingModule(
+      scenario: FakePricingScenario.reenablePrecheckBlockedDuplicate,
+    ).executeQueryAsync(_precheckQuery());
+
+    expect(result.validationOutcome.outcome, 'valid');
+    expect(result.validationOutcome.blockingCodes, isEmpty);
+  });
+
+  test('reenableDuplicate now returns active detail after overwrite', () async {
+    final result = await FakePricingModule(
+      scenario: FakePricingScenario.reenableDuplicate,
+    ).executeCommandAsync(_reenableCommand());
+
+    expect(result.persistedStatus, CustomerPriceRuleStatus.active);
+    expect(result.version, 5);
+  });
 
   test('reenableFloorOverrideOk returns active detail with warning', () async {
     final result =
@@ -409,6 +423,14 @@ final class _ReenableCommandGateway
     required int expectedVersion,
     required String? reason,
   }) => throw UnsupportedError('disable not used');
+
+
+  @override
+  Future<CustomerPriceRuleDetailDto> delete({
+    required String tenantId,
+    required String ruleId,
+    required int expectedVersion,
+  }) => throw UnsupportedError('delete not used');
 
   @override
   Future<CustomerPriceRuleDetailDto> reenable({

@@ -10,12 +10,11 @@ abstract final class PriceRuleHistoryShared {
         CustomerPriceRuleActivityType.updated => 'Sửa giá',
         CustomerPriceRuleActivityType.disabled => 'Tắt',
         CustomerPriceRuleActivityType.reenabled => 'Bật lại',
+        CustomerPriceRuleActivityType.deleted => 'Xóa',
         CustomerPriceRuleActivityType.importCreated ||
-        CustomerPriceRuleActivityType.importUpdated =>
-          'Nhập Excel',
+        CustomerPriceRuleActivityType.importUpdated => 'Nhập Excel',
         CustomerPriceRuleActivityType.memoryCreated ||
-        CustomerPriceRuleActivityType.memoryUpdated =>
-          'Từ đơn hàng',
+        CustomerPriceRuleActivityType.memoryUpdated => 'Từ đơn hàng',
       };
 
   static String activityLabelDetail(CustomerPriceRuleActivityType type) =>
@@ -24,6 +23,7 @@ abstract final class PriceRuleHistoryShared {
         CustomerPriceRuleActivityType.updated => 'Sửa giá riêng',
         CustomerPriceRuleActivityType.disabled => 'Tắt giá riêng',
         CustomerPriceRuleActivityType.reenabled => 'Bật lại giá riêng',
+        CustomerPriceRuleActivityType.deleted => 'Xóa giá riêng',
         CustomerPriceRuleActivityType.importCreated => 'Tạo từ import',
         CustomerPriceRuleActivityType.importUpdated => 'Cập nhật từ import',
         CustomerPriceRuleActivityType.memoryCreated => 'Ghi nhận nhớ giá',
@@ -31,11 +31,11 @@ abstract final class PriceRuleHistoryShared {
       };
 
   static String sourceLabel(CustomerPriceRuleSourceType src) => switch (src) {
-        CustomerPriceRuleSourceType.manual => 'Tạo thủ công',
-        CustomerPriceRuleSourceType.excelImport => 'Nhập Excel',
-        CustomerPriceRuleSourceType.salesOrder => 'Từ đơn hàng',
-        CustomerPriceRuleSourceType.migration => 'Hệ thống',
-      };
+    CustomerPriceRuleSourceType.manual => 'Tạo thủ công',
+    CustomerPriceRuleSourceType.excelImport => 'Nhập Excel',
+    CustomerPriceRuleSourceType.salesOrder => 'Từ đơn hàng',
+    CustomerPriceRuleSourceType.migration => 'Hệ thống',
+  };
 
   static VIcons activityIcon(CustomerPriceRuleActivityType type) =>
       switch (type) {
@@ -43,23 +43,22 @@ abstract final class PriceRuleHistoryShared {
         CustomerPriceRuleActivityType.updated => VIcons.edit,
         CustomerPriceRuleActivityType.disabled => VIcons.powerOff,
         CustomerPriceRuleActivityType.reenabled => VIcons.power,
+        CustomerPriceRuleActivityType.deleted => VIcons.delete,
         CustomerPriceRuleActivityType.importCreated ||
-        CustomerPriceRuleActivityType.importUpdated =>
-          VIcons.download,
+        CustomerPriceRuleActivityType.importUpdated => VIcons.download,
         CustomerPriceRuleActivityType.memoryCreated ||
-        CustomerPriceRuleActivityType.memoryUpdated =>
-          VIcons.receipt,
+        CustomerPriceRuleActivityType.memoryUpdated => VIcons.receipt,
       };
 
   static VComponentTone activityTone(CustomerPriceRuleActivityType type) =>
       switch (type) {
-        CustomerPriceRuleActivityType.disabled => VComponentTone.danger,
+        CustomerPriceRuleActivityType.disabled ||
+        CustomerPriceRuleActivityType.deleted => VComponentTone.danger,
         CustomerPriceRuleActivityType.reenabled => VComponentTone.success,
         CustomerPriceRuleActivityType.updated => VComponentTone.primary,
         CustomerPriceRuleActivityType.created ||
         CustomerPriceRuleActivityType.importCreated ||
-        CustomerPriceRuleActivityType.memoryCreated =>
-          VComponentTone.info,
+        CustomerPriceRuleActivityType.memoryCreated => VComponentTone.info,
         _ => VComponentTone.neutral,
       };
 
@@ -72,15 +71,13 @@ abstract final class PriceRuleHistoryShared {
       };
 
   static String formatMoney(int amountMinor) {
-    final amount = amountMinor / 100;
-    return '${amount.toStringAsFixed(0).replaceAllMapped(RegExp(r'\B(?=(\d{3})+(?!\d))'), (m) => '.')}đ';
+    return '${amountMinor.toString().replaceAllMapped(RegExp(r'\B(?=(\d{3})+(?!\d))'), (m) => '.')}đ';
   }
 
   static String formatDiffMoney(int? diffMinor) {
     if (diffMinor == null) return '—';
-    final amount = diffMinor / 100;
-    final sign = amount >= 0 ? '+' : '';
-    return '$sign${amount.toStringAsFixed(0).replaceAllMapped(RegExp(r'\B(?=(\d{3})+(?!\d))'), (m) => '.')}đ';
+    final sign = diffMinor >= 0 ? '+' : '';
+    return '$sign${diffMinor.toString().replaceAllMapped(RegExp(r'\B(?=(\d{3})+(?!\d))'), (m) => '.')}đ';
   }
 
   static String formatDateTime(DateTime d) =>
@@ -123,12 +120,15 @@ abstract final class PriceRuleHistoryShared {
     final now = DateTime.now();
     return switch (timeRange) {
       'Tất cả' => true,
-      '7 ngày gần đây' =>
-        createdAt.isAfter(now.subtract(const Duration(days: 7))),
-      '30 ngày gần đây' =>
-        createdAt.isAfter(now.subtract(const Duration(days: 30))),
-      '90 ngày gần đây' =>
-        createdAt.isAfter(now.subtract(const Duration(days: 90))),
+      '7 ngày gần đây' => createdAt.isAfter(
+        now.subtract(const Duration(days: 7)),
+      ),
+      '30 ngày gần đây' => createdAt.isAfter(
+        now.subtract(const Duration(days: 30)),
+      ),
+      '90 ngày gần đây' => createdAt.isAfter(
+        now.subtract(const Duration(days: 90)),
+      ),
       _ => true, // 'Tùy chọn' — chưa có date picker, giữ tất cả
     };
   }

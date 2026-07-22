@@ -137,6 +137,7 @@ abstract final class CustomerPriceRuleSearchRpcMapper {
         'disabled' => CustomerPriceRuleDerivedStatus.disabled,
         'expired' => CustomerPriceRuleDerivedStatus.expired,
         'needs_review' => CustomerPriceRuleDerivedStatus.needsReview,
+        'deleted' => CustomerPriceRuleDerivedStatus.deleted,
         _ => throw FormatException('Unknown derived status: $value.'),
       };
 
@@ -147,6 +148,7 @@ abstract final class CustomerPriceRuleSearchRpcMapper {
         CustomerPriceRuleDerivedStatus.disabled => 'disabled',
         CustomerPriceRuleDerivedStatus.expired => 'expired',
         CustomerPriceRuleDerivedStatus.needsReview => 'needs_review',
+        CustomerPriceRuleDerivedStatus.deleted => 'deleted',
       };
 
   static CustomerPriceRuleSourceType _source(String value) => switch (value) {

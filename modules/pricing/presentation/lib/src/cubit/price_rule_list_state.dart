@@ -97,3 +97,12 @@ final class PriceRuleListError extends PriceRuleListState {
   @override
   List<Object?> get props => [...super.props, message];
 }
+
+final class PriceRuleListNoPermission extends PriceRuleListState {
+  const PriceRuleListNoPermission({
+    super.query,
+    super.quickFilter,
+    super.advancedFilter,
+    super.sortOption,
+  });
+}

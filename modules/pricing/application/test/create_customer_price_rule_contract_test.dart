@@ -76,13 +76,8 @@ void main() {
       );
     });
 
-    test('rejects a duplicate active interval before gateway write', () async {
-      final gateway = _CommandGateway(
-        _result(),
-        error: const PricingBlockedException(
-          PricingBlockedCodes.duplicateActiveRule,
-        ),
-      );
+    test('allows overlapping active interval to be handled authoritatively', () async {
+      final gateway = _CommandGateway(_result());
       final handler = CreateCustomerPriceRuleCommandHandler(
         createContextPort: _ContextPort(
           _validContext().copyWith(conflictingRuleId: 'rule-existing'),
@@ -90,11 +85,10 @@ void main() {
         commandGateway: gateway,
       );
 
-      await expectLater(
-        handler.handle(_command()),
-        _throwsCode(PricingBlockedCodes.duplicateActiveRule),
-      );
-      expect(gateway.lastCandidate, isNull);
+      final result = await handler.handle(_command());
+
+      expect(result.rule.id, 'rule-1');
+      expect(gateway.lastCandidate, isNotNull);
     });
 
     test('blocks below-floor price without acknowledgement', () async {
@@ -393,6 +387,14 @@ final class _CommandGateway implements ICustomerPriceRuleCommandGateway {
     required int expectedVersion,
     required String? reason,
   }) => throw UnsupportedError('disable not used');
+
+
+  @override
+  Future<CustomerPriceRuleDetailDto> delete({
+    required String tenantId,
+    required String ruleId,
+    required int expectedVersion,
+  }) => throw UnsupportedError('delete not used');
 
   @override
   Future<CustomerPriceRuleDetailDto> reenable({

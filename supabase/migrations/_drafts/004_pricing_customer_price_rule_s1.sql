@@ -2,9 +2,9 @@
 -- Kind: foundation
 -- Intent: pricing_customer_price_rule_s1
 -- Context: TH-04 S1 CONTRACT + BE
--- Touches: _raise_pricing_error, _customer_price_rule_result, get_customer_price_rule_create_context, create_customer_price_rule
+-- Touches: _raise_pricing_error, _customer_price_rule_result, _auto_disable_overlapping_customer_price_rules, get_customer_price_rule_create_context, create_customer_price_rule
 -- Safety: draft only; do not apply or promote without an explicit migration review
--- Depends on: partner_pricing_customer_snapshot.sql, catalog_pricing_price_band_snapshot.sql
+-- Depends on: 001_partner_pricing_customer_snapshot.sql, 002_catalog_pricing_price_band_snapshot.sql
 
 create schema if not exists pricing;
 
@@ -42,6 +42,9 @@ create table if not exists pricing.customer_price_rules (
   warning_codes jsonb not null default '[]'::jsonb,
   blocking_codes jsonb not null default '[]'::jsonb,
   note text,
+  disabled_at timestamptz,
+  disabled_by uuid,
+  disabled_reason text,
   created_by uuid not null,
   created_at timestamptz not null default statement_timestamp(),
   updated_by uuid not null,
@@ -51,6 +54,13 @@ create table if not exists pricing.customer_price_rules (
   payload_hash text not null,
   constraint customer_price_rules_period_valid
     check (effective_to is null or effective_to >= effective_from),
+  constraint customer_price_rules_disabled_reason_length
+    check (disabled_reason is null or length(disabled_reason) <= 500),
+  constraint customer_price_rules_disabled_audit_complete
+    check (
+      status <> 'disabled'
+      or (disabled_at is not null and disabled_by is not null)
+    ),
   constraint customer_price_rules_idempotency_unique
     unique (tenant_id, idempotency_key)
 );
@@ -71,7 +81,7 @@ create table if not exists pricing.customer_price_rule_activities (
   tenant_id uuid not null,
   customer_price_rule_id uuid not null
     references pricing.customer_price_rules(id),
-  activity_type text not null check (activity_type in ('created')),
+  activity_type text not null check (activity_type in ('created', 'disabled')),
   old_value jsonb,
   new_value jsonb not null,
   created_by uuid not null,
@@ -166,6 +176,9 @@ as $$
         else 'applying'
       end,
       'note', r.note,
+      'disabled_at', r.disabled_at,
+      'disabled_by', r.disabled_by,
+      'disabled_reason', r.disabled_reason,
       'validation_outcome', jsonb_build_object(
         'outcome', case r.price_check_status
           when 'not_checked' then 'notChecked'
@@ -276,6 +289,101 @@ $$;
 revoke all on function pricing._customer_price_rule_result(uuid, boolean)
   from public, anon, authenticated, service_role;
 
+create or replace function pricing._auto_disable_overlapping_customer_price_rules(
+  p_tenant_id uuid,
+  p_keep_rule_id uuid,
+  p_customer_id uuid,
+  p_product_id uuid,
+  p_product_unit_id uuid,
+  p_effective_from date,
+  p_effective_to date,
+  p_actor_id uuid,
+  p_replacement_action text
+)
+returns integer
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  v_reason text :=
+      'Tự động tắt do bị ghi đè bởi giá riêng ' || p_keep_rule_id::text;
+  v_disabled_count integer := 0;
+begin
+  with locked as (
+    select r.id, r.version, r.status, r.disabled_at, r.disabled_by, r.disabled_reason
+    from pricing.customer_price_rules r
+    where r.tenant_id = p_tenant_id
+      and r.id <> coalesce(p_keep_rule_id, '00000000-0000-0000-0000-000000000000'::uuid)
+      and r.customer_id = p_customer_id
+      and r.product_id = p_product_id
+      and r.product_unit_id = p_product_unit_id
+      and r.status = 'active'
+      and r.effective_from <= coalesce(p_effective_to, 'infinity'::date)
+      and p_effective_from <= coalesce(r.effective_to, 'infinity'::date)
+    for update
+  ),
+  updated as (
+    update pricing.customer_price_rules r
+    set status = 'disabled',
+        disabled_reason = v_reason,
+        disabled_by = p_actor_id,
+        disabled_at = statement_timestamp(),
+        updated_by = p_actor_id,
+        updated_at = statement_timestamp(),
+        version = r.version + 1
+    from locked l
+    where r.id = l.id
+    returning
+      r.id,
+      l.version as old_version,
+      r.version as new_version,
+      r.status,
+      r.disabled_at,
+      r.disabled_by,
+      r.disabled_reason
+  ),
+  activity as (
+    insert into pricing.customer_price_rule_activities (
+      tenant_id,
+      customer_price_rule_id,
+      activity_type,
+      old_value,
+      new_value,
+      created_by
+    )
+    select
+      p_tenant_id,
+      u.id,
+      'disabled',
+      jsonb_build_object(
+        'status', 'active',
+        'version', u.old_version
+      ),
+      jsonb_build_object(
+        'status', u.status,
+        'version', u.new_version,
+        'disabled_at', u.disabled_at,
+        'disabled_by', u.disabled_by,
+        'disabled_reason', u.disabled_reason,
+        'reason_code', 'AUTO_REPLACED_BY_RULE',
+        'replacement_rule_id', p_keep_rule_id,
+        'replacement_action', p_replacement_action
+      ),
+      p_actor_id
+    from updated u
+    returning 1
+  )
+  select count(*)::integer into v_disabled_count from activity;
+
+  return v_disabled_count;
+end;
+$$;
+
+revoke all on function pricing._auto_disable_overlapping_customer_price_rules(
+  uuid, uuid, uuid, uuid, uuid, date, date, uuid, text
+) from public, anon, authenticated, service_role;
+
 create or replace function pricing.get_customer_price_rule_create_context(
   p_tenant_id uuid,
   p_customer_id uuid,
@@ -297,7 +405,7 @@ declare
   v_actor_id uuid := auth.uid();
   v_customer jsonb;
   v_product jsonb;
-  v_conflicting_rule_id uuid;
+  v_conflicting_rule pricing.customer_price_rules%rowtype;
   v_can_override_floor boolean := false;
   v_can_view_rules boolean := false;
   v_idempotency_key_exists boolean := false;
@@ -344,8 +452,8 @@ begin
     p_product_unit_id
   );
 
-  select r.id
-  into v_conflicting_rule_id
+  select r.*
+  into v_conflicting_rule
   from pricing.customer_price_rules r
   where r.tenant_id = p_tenant_id
     and r.customer_id = p_customer_id
@@ -394,10 +502,10 @@ begin
         and not v_can_override_floor,
       'is_below_floor', v_is_below_floor
     ),
-    'has_conflicting_rule', v_conflicting_rule_id is not null,
+    'has_conflicting_rule', v_conflicting_rule.id is not null,
     'idempotency_key_exists', v_idempotency_key_exists,
     'conflicting_rule_id', case
-      when v_can_view_rules then v_conflicting_rule_id
+      when v_can_view_rules then v_conflicting_rule.id
       else null
     end,
     'can_override_floor', v_can_override_floor
@@ -436,10 +544,8 @@ declare
   v_customer jsonb;
   v_product jsonb;
   v_existing pricing.customer_price_rules%rowtype;
-  v_rule_id uuid;
-  v_conflicting_rule_id uuid;
+  v_rule pricing.customer_price_rules%rowtype;
   v_can_override_floor boolean := false;
-  v_can_view_rules boolean := false;
   v_floor_price_minor bigint;
   v_list_price_minor bigint;
   v_is_below_floor boolean := false;
@@ -555,10 +661,6 @@ begin
     p_tenant_id,
     'pricing.customer_price_rule.override_floor_price'
   );
-  v_can_view_rules := iam.has_permission(
-    p_tenant_id,
-    'pricing.customer_price_rule.view'
-  );
   v_floor_price_minor := (v_product ->> 'floor_price_minor')::bigint;
   v_list_price_minor := (v_product ->> 'list_price_minor')::bigint;
   v_is_below_floor := v_floor_price_minor is not null
@@ -597,33 +699,17 @@ begin
     )
   );
 
-  select r.id
-  into v_conflicting_rule_id
-  from pricing.customer_price_rules r
-  where r.tenant_id = p_tenant_id
-    and r.customer_id = p_customer_id
-    and r.product_id = p_product_id
-    and r.product_unit_id = p_product_unit_id
-    and r.status = 'active'
-    and r.effective_from <= coalesce(p_effective_to, 'infinity'::date)
-    and p_effective_from <= coalesce(r.effective_to, 'infinity'::date)
-  order by r.created_at
-  limit 1;
-
-  if v_conflicting_rule_id is not null then
-    perform pricing._raise_pricing_error(
-      'DUPLICATE_ACTIVE_RULE',
-      'An active customer price rule overlaps the requested period.',
-      jsonb_strip_nulls(
-        jsonb_build_object(
-          'conflictingRuleId', case
-            when v_can_view_rules then v_conflicting_rule_id
-            else null
-          end
-        )
-      )
-    );
-  end if;
+  perform pricing._auto_disable_overlapping_customer_price_rules(
+    p_tenant_id,
+    p_rule_id,
+    p_customer_id,
+    p_product_id,
+    p_product_unit_id,
+    p_effective_from,
+    p_effective_to,
+    v_actor_id,
+    'created'
+  );
 
   insert into pricing.customer_price_rules (
     id,
@@ -680,7 +766,7 @@ begin
     btrim(p_idempotency_key),
     v_payload_hash
   )
-  returning id into v_rule_id;
+  returning * into v_rule;
 
   insert into pricing.customer_price_rule_activities (
     tenant_id,
@@ -690,10 +776,10 @@ begin
     created_by
   ) values (
     p_tenant_id,
-    v_rule_id,
+    v_rule.id,
     'created',
     jsonb_build_object(
-      'rule_id', v_rule_id,
+      'rule_id', v_rule.id,
       'customer_id', p_customer_id,
       'product_id', p_product_id,
       'product_unit_id', p_product_unit_id,
@@ -716,7 +802,7 @@ begin
   );
 
   return pricing._customer_price_rule_result(
-    v_rule_id,
+    v_rule.id,
     v_can_override_floor
   );
 end;

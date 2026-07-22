@@ -1,0 +1,230 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:vet45_design_system/design_system.dart';
+import 'package:vet45_pricing_application/application.dart';
+import 'package:vet45_pricing_presentation/presentation.dart';
+import 'package:vet45_shared_application/application.dart';
+import 'package:vet45_shared_testing/shared_testing.dart';
+
+void main() {
+  testWidgets(
+    'preview permits partial import when valid or warning rows remain',
+    (tester) async {
+      final cubit = _cubit();
+      addTearDown(cubit.close);
+      await tester.pumpWidget(
+        _host(
+          PriceRuleImportPreviewView(
+            cubit: cubit,
+            importDetail: _detail(validRows: 1, warningRows: 1, errorRows: 1),
+            rows: const [],
+          ),
+        ),
+      );
+
+      expect(_button(tester, 'Tiếp tục').onPressed, isNotNull);
+    },
+  );
+
+  testWidgets('preview disables continue when no row is importable', (
+    tester,
+  ) async {
+    final cubit = _cubit();
+    addTearDown(cubit.close);
+    await tester.pumpWidget(
+      _host(
+        PriceRuleImportPreviewView(
+          cubit: cubit,
+          importDetail: _detail(validRows: 0, warningRows: 0, errorRows: 2),
+          rows: const [],
+        ),
+      ),
+    );
+
+    expect(_button(tester, 'Tiếp tục').onPressed, isNull);
+  });
+
+  testWidgets('confirm counts warning rows and requires acknowledgement', (
+    tester,
+  ) async {
+    final cubit = _cubit();
+    addTearDown(cubit.close);
+    await tester.pumpWidget(
+      _host(
+        PriceRuleImportConfirmView(
+          cubit: cubit,
+          importDetail: _detail(validRows: 1, warningRows: 1, errorRows: 1),
+          acknowledgeWarningRows: false,
+        ),
+      ),
+    );
+
+    expect(find.text('Import (2 dòng)'), findsOneWidget);
+    expect(_button(tester, 'Import (2 dòng)').onPressed, isNull);
+
+    await tester.pumpWidget(
+      _host(
+        PriceRuleImportConfirmView(
+          cubit: cubit,
+          importDetail: _detail(validRows: 1, warningRows: 1, errorRows: 1),
+          acknowledgeWarningRows: true,
+        ),
+      ),
+    );
+    expect(_button(tester, 'Import (2 dòng)').onPressed, isNotNull);
+  });
+
+  testWidgets('wizard explains file-level errors in Vietnamese', (
+    tester,
+  ) async {
+    final cubit = _cubit();
+    addTearDown(cubit.close);
+    await tester.pumpWidget(
+      _host(
+        PriceRuleImportWizard(
+          cubit: cubit,
+          state: const PriceRuleImportError(
+            code: 'TEMPLATE_HEADER_INVALID',
+            step: PriceRuleImportStep.chooseFile,
+          ),
+        ),
+      ),
+    );
+
+    expect(find.textContaining('cột tiêu đề'), findsOneWidget);
+  });
+
+  testWidgets('preview row explains errors and warnings in Vietnamese', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      _host(
+        PriceRuleImportRowTile(
+          row: _row(
+            errorCodes: const [],
+            warningCodes: const [
+              'DUPLICATE_ACTIVE_RULE',
+              'EFFECTIVE_FROM_DEFAULTED',
+              'BELOW_FLOOR_PRICE',
+            ],
+          ),
+        ),
+      ),
+    );
+
+    expect(
+      find.text('Đã tồn tại giá riêng đang hoạt động trùng thời gian.'),
+      findsOneWidget,
+    );
+    expect(
+      find.text('Ngày bắt đầu để trống, hệ thống sẽ dùng ngày hiện tại.'),
+      findsOneWidget,
+    );
+    expect(
+      find.text('Giá riêng 10.000đ thấp hơn giá sàn 10.500đ.'),
+      findsOneWidget,
+    );
+    expect(find.textContaining('DUPLICATE_ACTIVE_RULE'), findsNothing);
+  });
+
+  testWidgets(
+    'preview row preserves unknown issue codes in Vietnamese fallback',
+    (tester) async {
+      await tester.pumpWidget(
+        _host(
+          PriceRuleImportRowTile(
+            row: _row(
+              errorCodes: const ['UNKNOWN_ERROR'],
+              warningCodes: const ['UNKNOWN_WARNING'],
+            ),
+          ),
+        ),
+      );
+
+      expect(find.text('Lỗi chưa xác định (UNKNOWN_ERROR).'), findsOneWidget);
+      expect(
+        find.text('Cảnh báo chưa xác định (UNKNOWN_WARNING).'),
+        findsOneWidget,
+      );
+    },
+  );
+}
+
+Widget _host(Widget child) => MaterialApp(home: Scaffold(body: child));
+
+VButton _button(WidgetTester tester, String label) => tester.widget<VButton>(
+  find.byWidgetPredicate(
+    (widget) => widget is VButton && widget.label == label,
+  ),
+);
+
+PriceRuleImportCubit _cubit() => PriceRuleImportCubit(
+  pricingModule: _NoopPricingModule(),
+  executionContext: FakeExecutionContext(
+    tenantId: 'tenant-1',
+    userId: 'user-1',
+  ),
+);
+
+CustomerPriceRuleImportDetailDto _detail({
+  required int validRows,
+  required int warningRows,
+  required int errorRows,
+}) => CustomerPriceRuleImportDetailDto(
+  batch: CustomerPriceRuleImportDto(
+    id: 'import-1',
+    templateVersion: CustomerPriceRuleImportTemplateDto.versionV1,
+    originalFileName: CustomerPriceRuleImportTemplateDto.fileNameV1,
+    importMode: CustomerPriceRuleImportMode.upsert,
+    status: CustomerPriceRuleImportStatus.readyToImport,
+    version: 1,
+    totalRows: validRows + warningRows + errorRows,
+    validRows: validRows,
+    warningRows: warningRows,
+    errorRows: errorRows,
+    importedRows: 0,
+    skippedRows: 0,
+    failedRows: 0,
+    fileErrorCodes: const [],
+    createdAt: DateTime.utc(2026, 7, 21),
+  ),
+  rows: const CursorPageDto(items: [], hasMore: false),
+);
+
+CustomerPriceRuleImportRowPreviewDto _row({
+  required List<String> errorCodes,
+  required List<String> warningCodes,
+}) => CustomerPriceRuleImportRowPreviewDto(
+  id: 'row-1',
+  rowNumber: 2,
+  ruleId: null,
+  customerId: '43be4cdf-f9f8-4721-a105-d6a2376205c7',
+  productReferenceId: 'POUNVVP645Y',
+  price: '10000',
+  effectiveFrom: null,
+  effectiveTo: null,
+  note: 'Import thử',
+  customerSnapshot: const {'display_name': 'Ds Chien'},
+  productSnapshot: const {'product_name': 'abc', 'floor_price_minor': 10500},
+  unitSnapshot: const {'unit_name': 'b'},
+  unitResolutionStrategy: ProductUnitResolutionStrategy.defaultSellingUnit,
+  normalizedPriceMinor: 10000,
+  status: errorCodes.isNotEmpty
+      ? CustomerPriceRuleImportRowStatus.error
+      : CustomerPriceRuleImportRowStatus.warning,
+  action: errorCodes.isNotEmpty
+      ? CustomerPriceRuleImportAction.skip
+      : CustomerPriceRuleImportAction.create,
+  errorCodes: errorCodes,
+  warningCodes: warningCodes,
+);
+
+final class _NoopPricingModule implements IPricingModule {
+  @override
+  Future<TResult> executeCommandAsync<TResult>(ICommand<TResult> command) =>
+      throw UnsupportedError('No command expected');
+
+  @override
+  Future<TResult> executeQueryAsync<TResult>(IQuery<TResult> query) =>
+      throw UnsupportedError('No query expected');
+}

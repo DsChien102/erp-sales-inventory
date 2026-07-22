@@ -38,7 +38,8 @@ final class InMemoryPricingModule implements IPricingModule {
     int? listPriceMinor,
     int? floorPriceMinor,
     bool floorPriceHidden,
-  })? lookupProductAdvisory(String productId) {
+  })?
+  lookupProductAdvisory(String productId) {
     for (final product in _products) {
       if (product.id != productId) continue;
       final floor = product.floorMinor;
@@ -67,28 +68,28 @@ final class InMemoryPricingModule implements IPricingModule {
     (id: 'KH000321', name: 'Vịt Thắng Farm'),
   ];
 
-  /// floorMinor = giá sàn (đồng × 100) để tính cảnh báo below_floor.
+  /// floorMinor = giá sàn theo đơn vị đồng để tính cảnh báo below_floor.
   static const _products = [
     (
       id: 'product-1',
       name: 'Vaccine tai xanh THI-50',
       unitId: 'unit-1a',
       unitName: 'Lọ',
-      floorMinor: 15000000,
+      floorMinor: 150000,
     ),
     (
       id: 'product-2',
       name: 'Kháng sinh ANK-500',
       unitId: 'unit-2a',
       unitName: 'Hộp',
-      floorMinor: 9000000,
+      floorMinor: 90000,
     ),
     (
       id: 'product-3',
       name: 'Men tiêu hóa BIO-COLI',
       unitId: 'unit-3a',
       unitName: 'Gói',
-      floorMinor: 7000000,
+      floorMinor: 70000,
     ),
   ];
 
@@ -99,27 +100,27 @@ final class InMemoryPricingModule implements IPricingModule {
     _createSeedRule(
       customer: _customers[0],
       product: _products[0],
-      priceMinor: 18000000,
+      priceMinor: 180000,
       effectiveFrom: today.subtract(const Duration(days: 30)),
     );
     _createSeedRule(
       customer: _customers[1],
       product: _products[1],
-      priceMinor: 8500000, // dưới giá sàn → cảnh báo
+      priceMinor: 85000, // dưới giá sàn → cảnh báo
       effectiveFrom: today.subtract(const Duration(days: 10)),
       effectiveTo: today.add(const Duration(days: 60)),
     );
     _createSeedRule(
       customer: _customers[2],
       product: _products[2],
-      priceMinor: 7500000,
+      priceMinor: 75000,
       effectiveFrom: today.subtract(const Duration(days: 90)),
       disabled: true,
     );
     _createSeedRule(
       customer: _customers[3],
       product: _products[0],
-      priceMinor: 17500000,
+      priceMinor: 175000,
       effectiveFrom: today.add(const Duration(days: 7)),
     );
   }
@@ -151,9 +152,7 @@ final class InMemoryPricingModule implements IPricingModule {
       effectiveFrom: effectiveFrom,
       effectiveTo: effectiveTo,
       sourceType: CustomerPriceRuleSourceType.manual,
-      status: disabled
-          ? CustomerPriceRuleStatus.disabled
-          : CustomerPriceRuleStatus.active,
+      status: disabled ? CustomerPriceRuleStatus.disabled : CustomerPriceRuleStatus.active,
       version: 1,
       createdAt: effectiveFrom,
       updatedAt: effectiveFrom,
@@ -177,12 +176,11 @@ final class InMemoryPricingModule implements IPricingModule {
       CreateCustomerPriceRuleCommand value => _create<TResult>(value),
       UpdateCustomerPriceRuleCommand value => _update<TResult>(value),
       DisableCustomerPriceRuleCommand value => _disable<TResult>(value),
+      DeleteCustomerPriceRuleCommand value => _delete<TResult>(value),
       ReenableCustomerPriceRuleCommand value => _reenable<TResult>(value),
       StartCustomerPriceRuleImportCommand value => _importStart<TResult>(value),
-      ConfirmCustomerPriceRuleImportCommand value =>
-        _importConfirm<TResult>(value),
-      CancelCustomerPriceRuleImportCommand value =>
-        _importCancel<TResult>(value),
+      ConfirmCustomerPriceRuleImportCommand value => _importConfirm<TResult>(value),
+      CancelCustomerPriceRuleImportCommand value => _importCancel<TResult>(value),
       _ => throw UnsupportedError(
         'InMemoryPricingModule: unsupported command ${command.runtimeType}',
       ),
@@ -194,11 +192,11 @@ final class InMemoryPricingModule implements IPricingModule {
     return switch (query) {
       SearchCustomerPriceRulesQuery value => _search<TResult>(value),
       GetCustomerPriceRuleDetailQuery value => _detail<TResult>(value),
-      PrecheckCustomerPriceRuleReenableQuery value =>
-        _reenablePrecheck<TResult>(value),
+      ResolveApplicableCustomerPriceRuleQuery value =>
+          _resolveApplicable<TResult>(value),
+      PrecheckCustomerPriceRuleReenableQuery value => _reenablePrecheck<TResult>(value),
       GetCustomerPriceRuleHistoryQuery value => _historyQuery<TResult>(value),
-      GetCustomerPriceRuleImportTemplateQuery value =>
-        _importTemplate<TResult>(value),
+      GetCustomerPriceRuleImportTemplateQuery value => _importTemplate<TResult>(value),
       GetCustomerPriceRuleImportQuery value => _importGet<TResult>(value),
       _ => throw UnsupportedError(
         'InMemoryPricingModule: unsupported query ${query.runtimeType}',
@@ -218,9 +216,7 @@ final class InMemoryPricingModule implements IPricingModule {
     final q = query.q?.toLowerCase();
     if (q != null && q.isNotEmpty) {
       result = result.where(
-        (r) =>
-            r.customerName.toLowerCase().contains(q) ||
-            r.productName.toLowerCase().contains(q),
+        (r) => r.customerName.toLowerCase().contains(q) || r.productName.toLowerCase().contains(q),
       );
     }
     if (query.customerId != null) {
@@ -232,9 +228,7 @@ final class InMemoryPricingModule implements IPricingModule {
     switch (query.quickFilter) {
       case CustomerPriceRuleQuickFilter.applying:
         result = result.where(
-          (r) =>
-              r.derivedStatus(businessDate) ==
-              CustomerPriceRuleDerivedStatus.applying,
+          (r) => r.derivedStatus(businessDate) == CustomerPriceRuleDerivedStatus.applying,
         );
       case CustomerPriceRuleQuickFilter.belowFloor:
         result = result.where((r) => r.isBelowFloor);
@@ -250,8 +244,7 @@ final class InMemoryPricingModule implements IPricingModule {
       result = result.where((r) => query.sources.contains(r.sourceType));
     }
 
-    final items = result.toList()
-      ..sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
+    final items = result.toList()..sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
 
     return CustomerPriceRuleSearchResultDto(
           page: CursorPageDto(
@@ -320,14 +313,7 @@ final class InMemoryPricingModule implements IPricingModule {
       effectiveTo: command.effectiveTo,
     );
 
-    // SG-03: lần đầu trả cảnh báo; acknowledge → ghi đè (tắt rule cũ).
     if (duplicate != null) {
-      if (!command.acknowledgeFloorWarning) {
-        throw PricingBlockedException(
-          PricingBlockedCodes.duplicateActiveRule,
-          details: {'conflictingRuleId': duplicate.id},
-        );
-      }
       _disableInternal(duplicate, reason: 'Bị ghi đè bởi giá riêng mới');
     }
 
@@ -357,8 +343,7 @@ final class InMemoryPricingModule implements IPricingModule {
       unitName: product.unitName,
       priceMinor: command.rulePriceMinor,
       effectiveFrom: _calendarDate(command.effectiveFrom),
-      effectiveTo:
-          command.effectiveTo == null ? null : _calendarDate(command.effectiveTo!),
+      effectiveTo: command.effectiveTo == null ? null : _calendarDate(command.effectiveTo!),
       sourceType: CustomerPriceRuleSourceType.manual,
       status: CustomerPriceRuleStatus.active,
       version: 1,
@@ -395,12 +380,6 @@ final class InMemoryPricingModule implements IPricingModule {
       excludeRuleId: rule.id,
     );
     if (duplicate != null) {
-      if (!command.acknowledgeFloorWarning) {
-        throw PricingBlockedException(
-          PricingBlockedCodes.duplicateActiveRule,
-          details: {'conflictingRuleId': duplicate.id},
-        );
-      }
       _disableInternal(duplicate, reason: 'Bị ghi đè bởi giá riêng mới');
     }
 
@@ -408,9 +387,7 @@ final class InMemoryPricingModule implements IPricingModule {
     rule
       ..priceMinor = command.rulePriceMinor
       ..effectiveFrom = _calendarDate(command.effectiveFrom)
-      ..effectiveTo = command.effectiveTo == null
-          ? null
-          : _calendarDate(command.effectiveTo!)
+      ..effectiveTo = command.effectiveTo == null ? null : _calendarDate(command.effectiveTo!)
       ..note = command.note
       ..version += 1
       ..updatedAt = DateTime.now().toUtc();
@@ -428,6 +405,81 @@ final class InMemoryPricingModule implements IPricingModule {
     final rule = _find(command.ruleId);
     _disableInternal(rule, reason: command.reason);
     return rule.toDetail(DateTime.now().toUtc()) as TResult;
+  }
+
+  Future<TResult> _delete<TResult>(DeleteCustomerPriceRuleCommand command) async {
+    await _latency();
+    final rule = _find(command.ruleId);
+    if (rule.status == CustomerPriceRuleStatus.deleted) {
+      return rule.toDetail(DateTime.now().toUtc()) as TResult;
+    }
+    if (rule.status == CustomerPriceRuleStatus.disabled) {
+      throw const PricingBlockedException(PricingBlockedCodes.invalidStatus);
+    }
+    if (rule.version != command.expectedVersion) {
+      throw const PricingBlockedException(PricingBlockedCodes.stateChanged);
+    }
+    if (rule.status != CustomerPriceRuleStatus.active &&
+        rule.status != CustomerPriceRuleStatus.needsReview) {
+      throw const PricingBlockedException(PricingBlockedCodes.invalidStatus);
+    }
+    final now = DateTime.now().toUtc();
+    rule
+      ..status = CustomerPriceRuleStatus.deleted
+      ..deletedAt = now
+      ..version += 1
+      ..updatedAt = now;
+    _recordActivity(
+      rule,
+      CustomerPriceRuleActivityType.deleted,
+      oldValue: {'status': 'active', 'version': rule.version - 1},
+      newValue: {'status': 'deleted', 'version': rule.version},
+    );
+    return rule.toDetail(now) as TResult;
+  }
+
+  Future<TResult> _resolveApplicable<TResult>(
+    ResolveApplicableCustomerPriceRuleQuery query,
+  ) async {
+    await _latency();
+    final date = _calendarDate(query.businessDate);
+    final matches = _rules.where((r) {
+      if (r.status != CustomerPriceRuleStatus.active || r.deletedAt != null) {
+        return false;
+      }
+      if (r.customerId != query.customerId ||
+          r.productId != query.productId ||
+          r.productUnitId != query.productUnitId) {
+        return false;
+      }
+      if (r.effectiveFrom.isAfter(date)) return false;
+      final to = r.effectiveTo;
+      if (to != null && to.isBefore(date)) return false;
+      return true;
+    }).toList();
+    if (matches.isEmpty) {
+      return const ResolveApplicableCustomerPriceRuleResultDto() as TResult;
+    }
+    if (matches.length > 1) {
+      throw const PricingBlockedException(PricingBlockedCodes.systemError);
+    }
+    final rule = matches.single;
+    return ResolveApplicableCustomerPriceRuleResultDto(
+          rule: ApplicableCustomerPriceRuleDto(
+            ruleId: rule.id,
+            price: MoneyDto(
+              amountMinor: rule.priceMinor,
+              currencyCode: _currency,
+            ),
+            effectivePeriod: EffectivePeriodDto(
+              effectiveFrom: rule.effectiveFrom,
+              effectiveTo: rule.effectiveTo,
+            ),
+            sourceType: rule.sourceType,
+            version: rule.version,
+          ),
+        )
+        as TResult;
   }
 
   Future<TResult> _reenable<TResult>(
@@ -473,10 +525,9 @@ final class InMemoryPricingModule implements IPricingModule {
   ) async {
     await _latency();
     return CustomerPriceRuleImportTemplateDto(
-          templateVersion: 'customer_price_rules_v1',
-          fileName: 'customer_price_rules_v1.xlsx',
-          mimeType:
-              'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+          templateVersion: CustomerPriceRuleImportTemplateDto.versionV1,
+          fileName: CustomerPriceRuleImportTemplateDto.fileNameV1,
+          mimeType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
           bytes: Uint8List.fromList(const [0x50, 0x4B, 0x03, 0x04]),
         )
         as TResult;
@@ -505,8 +556,8 @@ final class InMemoryPricingModule implements IPricingModule {
     var rowNumber = 2;
     var index = 0;
     for (final entry in [
-      (customer: _customers[0], product: _products[1], priceMinor: 9500000),
-      (customer: _customers[1], product: _products[2], priceMinor: 7200000),
+      (customer: _customers[0], product: _products[1], priceMinor: 95000),
+      (customer: _customers[1], product: _products[2], priceMinor: 72000),
     ]) {
       rows.add(
         CustomerPriceRuleImportRowPreviewDto(
@@ -515,7 +566,7 @@ final class InMemoryPricingModule implements IPricingModule {
           ruleId: null,
           customerId: entry.customer.id,
           productReferenceId: entry.product.id,
-          price: '${entry.priceMinor ~/ 100}',
+          price: '${entry.priceMinor}',
           effectiveFrom: null,
           effectiveTo: null,
           note: null,
@@ -537,7 +588,7 @@ final class InMemoryPricingModule implements IPricingModule {
         ruleId: null,
         customerId: _customers[3].id,
         productReferenceId: _products[2].id,
-        price: '${6800000 ~/ 100}',
+        price: '68000',
         effectiveFrom: null,
         effectiveTo: null,
         note: null,
@@ -547,7 +598,7 @@ final class InMemoryPricingModule implements IPricingModule {
         warningCodes: const ['EFFECTIVE_FROM_DEFAULTED'],
         customerSnapshot: {'displayName': _customers[3].name},
         productSnapshot: {'productName': _products[2].name},
-        normalizedPriceMinor: 6800000,
+        normalizedPriceMinor: 68000,
       ),
     );
     return rows;
@@ -576,8 +627,7 @@ final class InMemoryPricingModule implements IPricingModule {
     var imported = 0;
     var skipped = 0;
     for (final row in record.rows) {
-      final isWarning =
-          row.status == CustomerPriceRuleImportRowStatus.warning;
+      final isWarning = row.status == CustomerPriceRuleImportRowStatus.warning;
       if (isWarning && !command.acknowledgeWarningRows) {
         skipped++;
         continue;
@@ -749,11 +799,9 @@ final class InMemoryPricingModule implements IPricingModule {
     );
   }
 
-  static DateTime _calendarDate(DateTime value) =>
-      DateTime.utc(value.year, value.month, value.day);
+  static DateTime _calendarDate(DateTime value) => DateTime.utc(value.year, value.month, value.day);
 
-  static Future<void> _latency() =>
-      Future<void>.delayed(const Duration(milliseconds: 150));
+  static Future<void> _latency() => Future<void>.delayed(const Duration(milliseconds: 150));
 }
 
 // ── Internal records ──
@@ -778,6 +826,7 @@ final class _RuleRecord {
     this.note,
     this.disabledAt,
     this.disabledReason,
+    this.deletedAt,
   });
 
   final String id;
@@ -798,6 +847,7 @@ final class _RuleRecord {
   DateTime updatedAt;
   DateTime? disabledAt;
   String? disabledReason;
+  DateTime? deletedAt;
 
   int get _floorMinor {
     for (final product in InMemoryPricingModule._products) {
@@ -809,6 +859,9 @@ final class _RuleRecord {
   bool get isBelowFloor => _floorMinor > 0 && priceMinor < _floorMinor;
 
   CustomerPriceRuleDerivedStatus derivedStatus(DateTime businessDate) {
+    if (status == CustomerPriceRuleStatus.deleted) {
+      return CustomerPriceRuleDerivedStatus.deleted;
+    }
     if (status == CustomerPriceRuleStatus.disabled) {
       return CustomerPriceRuleDerivedStatus.disabled;
     }
@@ -868,28 +921,28 @@ final class _RuleRecord {
     sellableStatus: 'active',
   );
 
-  CustomerPriceRuleListItemDto toListItem(DateTime businessDate) =>
-      CustomerPriceRuleListItemDto(
-        id: id,
-        customer: _customerRef,
-        productUnit: _productUnitRef,
-        price: MoneyDto(
-          amountMinor: priceMinor,
-          currencyCode: InMemoryPricingModule._currency,
-        ),
-        effectivePeriod: EffectivePeriodDto(
-          effectiveFrom: effectiveFrom,
-          effectiveTo: effectiveTo,
-        ),
-        ruleType: CustomerPriceRuleType.specialPrice,
-        sourceType: sourceType,
-        persistedStatus: status,
-        derivedStatus: derivedStatus(businessDate),
-        validationOutcome: _validationOutcome,
-        updatedAt: updatedAt,
-      );
+  CustomerPriceRuleListItemDto toListItem(DateTime businessDate) => CustomerPriceRuleListItemDto(
+    id: id,
+    customer: _customerRef,
+    productUnit: _productUnitRef,
+    price: MoneyDto(
+      amountMinor: priceMinor,
+      currencyCode: InMemoryPricingModule._currency,
+    ),
+    effectivePeriod: EffectivePeriodDto(
+      effectiveFrom: effectiveFrom,
+      effectiveTo: effectiveTo,
+    ),
+    ruleType: CustomerPriceRuleType.specialPrice,
+    sourceType: sourceType,
+    persistedStatus: status,
+    derivedStatus: derivedStatus(businessDate),
+    validationOutcome: _validationOutcome,
+    updatedAt: updatedAt,
+  );
 
   CustomerPriceRuleDetailDto toDetail(DateTime businessDate) {
+    final isDeleted = status == CustomerPriceRuleStatus.deleted;
     final isDisabled = status == CustomerPriceRuleStatus.disabled;
     return CustomerPriceRuleDetailDto(
       id: id,
@@ -922,7 +975,9 @@ final class _RuleRecord {
       updatedBy: InMemoryPricingModule._actorId,
       updatedAt: updatedAt,
       version: version,
-      availableActions: isDisabled
+      availableActions: isDeleted
+          ? const []
+          : isDisabled
           ? const [
               CustomerPriceRuleAvailableActions.edit,
               CustomerPriceRuleAvailableActions.reenable,
@@ -936,6 +991,7 @@ final class _RuleRecord {
       disabledAt: disabledAt,
       disabledBy: isDisabled ? InMemoryPricingModule._actorId : null,
       disabledReason: disabledReason,
+      deletedAt: deletedAt,
     );
   }
 }
@@ -961,17 +1017,15 @@ final class _ImportRecord {
   DateTime? confirmedAt;
   DateTime? canceledAt;
 
-  int get _warningRows => rows
-      .where((r) => r.status == CustomerPriceRuleImportRowStatus.warning)
-      .length;
+  int get _warningRows =>
+      rows.where((r) => r.status == CustomerPriceRuleImportRowStatus.warning).length;
 
-  int get _errorRows => rows
-      .where((r) => r.status == CustomerPriceRuleImportRowStatus.error)
-      .length;
+  int get _errorRows =>
+      rows.where((r) => r.status == CustomerPriceRuleImportRowStatus.error).length;
 
   CustomerPriceRuleImportDto toBatch() => CustomerPriceRuleImportDto(
     id: id,
-    templateVersion: 'customer_price_rules_v1',
+    templateVersion: CustomerPriceRuleImportTemplateDto.versionV1,
     originalFileName: fileName,
     importMode: CustomerPriceRuleImportMode.upsert,
     status: status,
@@ -989,9 +1043,8 @@ final class _ImportRecord {
     canceledAt: canceledAt,
   );
 
-  CustomerPriceRuleImportDetailDto toDetail() =>
-      CustomerPriceRuleImportDetailDto(
-        batch: toBatch(),
-        rows: CursorPageDto(items: List.unmodifiable(rows), hasMore: false),
-      );
+  CustomerPriceRuleImportDetailDto toDetail() => CustomerPriceRuleImportDetailDto(
+    batch: toBatch(),
+    rows: CursorPageDto(items: List.unmodifiable(rows), hasMore: false),
+  );
 }

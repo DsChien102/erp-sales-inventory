@@ -4,7 +4,7 @@
 -- Context: TH-04 EP02 S3 CONTRACT + BE
 -- Touches: get_customer_price_rule_detail
 -- Safety: draft only; do not apply or promote without explicit migration review
--- Depends on: pricing_customer_price_rule_s1.sql, partner_pricing_customer_snapshot.sql, catalog_pricing_price_band_snapshot.sql
+-- Depends on: 004_pricing_customer_price_rule_s1.sql, 001_partner_pricing_customer_snapshot.sql, 002_catalog_pricing_price_band_snapshot.sql
 
 create or replace function pricing.get_customer_price_rule_detail(
   p_tenant_id uuid,

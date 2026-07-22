@@ -244,7 +244,10 @@ void main() {
     });
 
     test('deleted cannot be disabled', () {
-      final rule = _reconstitutedRule(status: CustomerPriceRuleStatus.deleted);
+      final rule = _reconstitutedRule(
+        status: CustomerPriceRuleStatus.deleted,
+        deletedAt: DateTime.utc(2026, 7, 1),
+      );
       expect(
         () => rule.disable(),
         throwsA(isA<BusinessRuleValidationException>()),
@@ -345,6 +348,7 @@ CustomerPriceRule _reconstitutedRule({
   CustomerPriceRuleStatus status = CustomerPriceRuleStatus.active,
   CustomerPriceRuleReviewStatus reviewStatus =
       CustomerPriceRuleReviewStatus.clear,
+  DateTime? deletedAt,
 }) => CustomerPriceRule.reconstitute(
   id: 'rule-1',
   key: CustomerPriceRuleKey(
@@ -363,4 +367,5 @@ CustomerPriceRule _reconstitutedRule({
   status: status,
   reviewStatus: reviewStatus,
   version: 3,
+  deletedAt: deletedAt,
 );

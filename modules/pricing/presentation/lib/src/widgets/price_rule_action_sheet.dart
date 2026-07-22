@@ -148,6 +148,16 @@ class PriceRuleActionSheet extends StatelessWidget {
               onHistory?.call();
             },
           ),
+        if (actions.isEmpty)
+          const Padding(
+            padding: EdgeInsets.all(VSpacing.space4),
+            child: VEmptyState(
+              icon: VIcons.shield,
+              title: 'Không có thao tác khả dụng',
+              description:
+                  'Bạn không có quyền thực hiện thao tác trên giá riêng này.',
+            ),
+          ),
             const VGap.md(),
           ],
         ),

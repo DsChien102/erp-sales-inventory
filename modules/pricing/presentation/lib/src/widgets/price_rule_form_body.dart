@@ -107,8 +107,8 @@ class _PriceRuleFormBodyState extends State<PriceRuleFormBody> {
       widget.cubit.selectProduct(
         productId: result['id']!,
         productName: result['name']!,
-        listPriceMinor: listDong == null ? null : listDong * 100,
-        floorPriceMinor: floorDong == null ? null : floorDong * 100,
+        listPriceMinor: listDong,
+        floorPriceMinor: floorDong,
       );
     }
   }
@@ -116,9 +116,14 @@ class _PriceRuleFormBodyState extends State<PriceRuleFormBody> {
   Future<void> _pickUnit() async {
     final result = await widget.onPickUnit?.call();
     if (result != null) {
+      final listDong = int.tryParse(result['listPriceDong'] ?? '');
+      final floorDong = int.tryParse(result['floorPriceDong'] ?? '');
       widget.cubit.selectProductUnit(
         productUnitId: result['id']!,
         productUnitName: result['name']!,
+        listPriceMinor: listDong,
+        floorPriceMinor: floorDong,
+        floorPriceHidden: floorDong == null,
       );
     }
   }
@@ -203,21 +208,10 @@ class _PriceRuleFormBodyState extends State<PriceRuleFormBody> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          if (form.isBelowFloor) ...[
-            const PriceRuleBelowFloorBanner(),
-            const VGap.md(),
-          ],
-          if (form.hasDuplicateWarning) ...[
-            PriceRuleDuplicateBanner(
-              onViewExisting: form.conflictingRuleId != null &&
-                      widget.onViewConflictingRule != null
-                  ? () => widget.onViewConflictingRule!(
-                        form.conflictingRuleId!,
-                      )
-                  : null,
-            ),
-            const VGap.md(),
-          ],
+          _FormWarnings(
+            form: form,
+            onViewConflictingRule: widget.onViewConflictingRule,
+          ),
 
           if (widget.isEdit) ...[
             VSection(
@@ -241,9 +235,7 @@ class _PriceRuleFormBodyState extends State<PriceRuleFormBody> {
                     isRequired: true,
                     controller: _customerController,
                     hintText: 'Tìm và chọn khách hàng...',
-                    onTap: widget.onPickCustomer == null
-                        ? null
-                        : _pickCustomer,
+                    onTap: widget.onPickCustomer == null ? null : _pickCustomer,
                   ),
                   const VGap.md(),
                   _PickerField(
@@ -251,8 +243,7 @@ class _PriceRuleFormBodyState extends State<PriceRuleFormBody> {
                     isRequired: true,
                     controller: _productController,
                     hintText: 'Tìm và chọn sản phẩm...',
-                    onTap:
-                        widget.onPickProduct == null ? null : _pickProduct,
+                    onTap: widget.onPickProduct == null ? null : _pickProduct,
                   ),
                   const VGap.md(),
                   _PickerField(
@@ -363,9 +354,7 @@ class _PickerField extends StatelessWidget {
           controller: controller,
           hintText: hintText,
           enabled: enabled,
-          state: enabled
-              ? VComponentState.enabled
-              : VComponentState.disabled,
+          state: enabled ? VComponentState.enabled : VComponentState.disabled,
           suffixIcon: VIcon(
             icon: VIcons.chevronRight,
             size: 20,
@@ -373,6 +362,37 @@ class _PickerField extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+class _FormWarnings extends StatelessWidget {
+  const _FormWarnings({
+    required this.form,
+    required this.onViewConflictingRule,
+  });
+
+  final PriceRuleFormEditing form;
+  final ValueChanged<String>? onViewConflictingRule;
+
+  @override
+  Widget build(BuildContext context) {
+    final widgets = <Widget>[
+      if (form.isBelowFloor) const PriceRuleBelowFloorBanner(),
+    ];
+    if (widgets.isEmpty) {
+      // Giữ một slot cố định để tránh xáo trộn vị trí subtree form khi warning bật/tắt.
+      return const SizedBox.shrink();
+    }
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        for (var i = 0; i < widgets.length; i++) ...[
+          if (i > 0) const VGap.md(),
+          widgets[i],
+        ],
+        const VGap.md(),
+      ],
     );
   }
 }

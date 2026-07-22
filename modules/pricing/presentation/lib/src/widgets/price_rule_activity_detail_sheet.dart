@@ -103,8 +103,7 @@ class PriceRuleActivityDetailSheet extends StatelessWidget {
                   tone: VComponentTone.info,
                   icon: VIcons.info,
                   title: 'Quyền hạn chế',
-                  message:
-                      'Bạn không có quyền xem một số dữ liệu nhạy cảm.',
+                  message: 'Bạn không có quyền xem một số dữ liệu nhạy cảm.',
                 ),
                 const VGap.md(),
               ],
@@ -194,7 +193,8 @@ class PriceRuleActivityDetailSheet extends StatelessWidget {
                       after: hasSensitivePermission
                           ? _formatDiffMoney(newFloorDiff)
                           : 'Ẩn theo quyền 🔒',
-                      highlightAfter: hasSensitivePermission && newFloorDiff != null,
+                      highlightAfter:
+                          hasSensitivePermission && newFloorDiff != null,
                       isMasked: !hasSensitivePermission,
                     ),
                   ],
@@ -263,7 +263,9 @@ class PriceRuleActivityDetailSheet extends StatelessWidget {
                             orderDate: _formatDateTime(activity.createdAt),
                             productName: 'Sản phẩm theo đơn',
                             unitName: 'Hộp',
-                            priceLabel: newPrice != null ? _formatMoney(newPrice) : '—',
+                            priceLabel: newPrice != null
+                                ? _formatMoney(newPrice)
+                                : '—',
                             staffName: activity.actor.displayName,
                             onViewSourceOrder: onViewSourceOrder,
                           );
@@ -293,28 +295,27 @@ class PriceRuleActivityDetailSheet extends StatelessWidget {
   }
 
   VIcons _icon(CustomerPriceRuleActivityType type) => switch (type) {
-        CustomerPriceRuleActivityType.created => VIcons.addCircle,
-        CustomerPriceRuleActivityType.updated => VIcons.edit,
-        CustomerPriceRuleActivityType.disabled => VIcons.powerOff,
-        CustomerPriceRuleActivityType.reenabled => VIcons.power,
-        CustomerPriceRuleActivityType.importCreated ||
-        CustomerPriceRuleActivityType.importUpdated =>
-          VIcons.download,
-        CustomerPriceRuleActivityType.memoryCreated ||
-        CustomerPriceRuleActivityType.memoryUpdated =>
-          VIcons.receipt,
-      };
+    CustomerPriceRuleActivityType.created => VIcons.addCircle,
+    CustomerPriceRuleActivityType.updated => VIcons.edit,
+    CustomerPriceRuleActivityType.disabled => VIcons.powerOff,
+    CustomerPriceRuleActivityType.reenabled => VIcons.power,
+    CustomerPriceRuleActivityType.deleted => VIcons.delete,
+    CustomerPriceRuleActivityType.importCreated ||
+    CustomerPriceRuleActivityType.importUpdated => VIcons.download,
+    CustomerPriceRuleActivityType.memoryCreated ||
+    CustomerPriceRuleActivityType.memoryUpdated => VIcons.receipt,
+  };
 
   VComponentTone _tone(CustomerPriceRuleActivityType type) => switch (type) {
-        CustomerPriceRuleActivityType.disabled => VComponentTone.danger,
-        CustomerPriceRuleActivityType.reenabled => VComponentTone.success,
-        CustomerPriceRuleActivityType.updated => VComponentTone.primary,
-        CustomerPriceRuleActivityType.created ||
-        CustomerPriceRuleActivityType.importCreated ||
-        CustomerPriceRuleActivityType.memoryCreated =>
-          VComponentTone.info,
-        _ => VComponentTone.neutral,
-      };
+    CustomerPriceRuleActivityType.disabled ||
+    CustomerPriceRuleActivityType.deleted => VComponentTone.danger,
+    CustomerPriceRuleActivityType.reenabled => VComponentTone.success,
+    CustomerPriceRuleActivityType.updated => VComponentTone.primary,
+    CustomerPriceRuleActivityType.created ||
+    CustomerPriceRuleActivityType.importCreated ||
+    CustomerPriceRuleActivityType.memoryCreated => VComponentTone.info,
+    _ => VComponentTone.neutral,
+  };
 
   String _formatDateTime(DateTime d) =>
       '${d.day.toString().padLeft(2, '0')}/${d.month.toString().padLeft(2, '0')}/${d.year} '
@@ -331,23 +332,21 @@ class PriceRuleActivityDetailSheet extends StatelessWidget {
   }
 
   String _formatMoney(int amountMinor) {
-    final amount = amountMinor / 100;
-    return '${amount.toStringAsFixed(0).replaceAllMapped(RegExp(r'\B(?=(\d{3})+(?!\d))'), (m) => '.')}đ';
+    return '${amountMinor.toString().replaceAllMapped(RegExp(r'\B(?=(\d{3})+(?!\d))'), (m) => '.')}đ';
   }
 
   String _formatDiffMoney(int? diffMinor) {
     if (diffMinor == null) return '—';
-    final amount = diffMinor / 100;
-    final sign = amount >= 0 ? '+' : '';
-    return '$sign${amount.toStringAsFixed(0).replaceAllMapped(RegExp(r'\B(?=(\d{3})+(?!\d))'), (m) => '.')}đ';
+    final sign = diffMinor >= 0 ? '+' : '';
+    return '$sign${diffMinor.toString().replaceAllMapped(RegExp(r'\B(?=(\d{3})+(?!\d))'), (m) => '.')}đ';
   }
 
   String _formatSource(CustomerPriceRuleSourceType src) => switch (src) {
-        CustomerPriceRuleSourceType.manual => 'Tạo thủ công',
-        CustomerPriceRuleSourceType.excelImport => 'Nhập Excel',
-        CustomerPriceRuleSourceType.salesOrder => 'Từ đơn hàng',
-        CustomerPriceRuleSourceType.migration => 'Migration',
-      };
+    CustomerPriceRuleSourceType.manual => 'Tạo thủ công',
+    CustomerPriceRuleSourceType.excelImport => 'Nhập Excel',
+    CustomerPriceRuleSourceType.salesOrder => 'Từ đơn hàng',
+    CustomerPriceRuleSourceType.migration => 'Migration',
+  };
 }
 
 class _DiffHeaderRow extends StatelessWidget {
@@ -443,12 +442,13 @@ class _DiffRow extends StatelessWidget {
 }
 
 String _activityLabel(CustomerPriceRuleActivityType type) => switch (type) {
-      CustomerPriceRuleActivityType.created => 'Tạo giá riêng',
-      CustomerPriceRuleActivityType.updated => 'Sửa giá riêng',
-      CustomerPriceRuleActivityType.disabled => 'Tắt giá riêng',
-      CustomerPriceRuleActivityType.reenabled => 'Bật lại giá riêng',
-      CustomerPriceRuleActivityType.importCreated => 'Tạo từ import',
-      CustomerPriceRuleActivityType.importUpdated => 'Cập nhật từ import',
-      CustomerPriceRuleActivityType.memoryCreated => 'Ghi nhận nhớ giá',
-      CustomerPriceRuleActivityType.memoryUpdated => 'Cập nhật giá nhớ',
-    };
+  CustomerPriceRuleActivityType.created => 'Tạo giá riêng',
+  CustomerPriceRuleActivityType.updated => 'Sửa giá riêng',
+  CustomerPriceRuleActivityType.disabled => 'Tắt giá riêng',
+  CustomerPriceRuleActivityType.reenabled => 'Bật lại giá riêng',
+  CustomerPriceRuleActivityType.deleted => 'Xóa giá riêng',
+  CustomerPriceRuleActivityType.importCreated => 'Tạo từ import',
+  CustomerPriceRuleActivityType.importUpdated => 'Cập nhật từ import',
+  CustomerPriceRuleActivityType.memoryCreated => 'Ghi nhận nhớ giá',
+  CustomerPriceRuleActivityType.memoryUpdated => 'Cập nhật giá nhớ',
+};

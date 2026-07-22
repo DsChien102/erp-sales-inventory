@@ -107,6 +107,7 @@ void main() {
         CustomerPriceRuleActivityType.updated,
         CustomerPriceRuleActivityType.disabled,
         CustomerPriceRuleActivityType.reenabled,
+        CustomerPriceRuleActivityType.deleted,
         CustomerPriceRuleActivityType.importCreated,
         CustomerPriceRuleActivityType.importUpdated,
         CustomerPriceRuleActivityType.memoryCreated,

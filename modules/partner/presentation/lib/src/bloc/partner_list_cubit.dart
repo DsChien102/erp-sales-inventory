@@ -22,6 +22,7 @@ final class PartnerListCubit extends Cubit<PartnerListState> {
   String? _query;
 
   Future<void> fetchPartners({bool isRefresh = false, String? query}) async {
+    if (isClosed) return;
     try {
       if (query != null) {
         _query = query.trim().isEmpty ? null : query.trim();
@@ -55,6 +56,7 @@ final class PartnerListCubit extends Cubit<PartnerListState> {
       );
 
       final tenantId = await _executionContext.requireTenantId();
+      if (isClosed) return;
       final page = _nextPage ?? 1;
 
       // Map Role Filter to query param
@@ -103,14 +105,11 @@ final class PartnerListCubit extends Cubit<PartnerListState> {
           sort: sortParam,
         ),
       );
+      if (isClosed) return;
 
-      final pageItems = result.items
-          .where((item) => item.roles.isNotEmpty)
-          .toList(growable: false);
-      final newItems =
-          isRefresh ? pageItems : [...currentItems, ...pageItems];
-      final hasReachedMax =
-          result.items.length < pageSize || result.items.isEmpty;
+      final pageItems = result.items.where((item) => item.roles.isNotEmpty).toList(growable: false);
+      final newItems = isRefresh ? pageItems : [...currentItems, ...pageItems];
+      final hasReachedMax = result.items.length < pageSize || result.items.isEmpty;
       _nextPage = hasReachedMax ? null : page + 1;
 
       emit(
@@ -127,6 +126,7 @@ final class PartnerListCubit extends Cubit<PartnerListState> {
         ),
       );
     } catch (error) {
+      if (isClosed) return;
       emit(
         PartnerListError(
           error.toString(),

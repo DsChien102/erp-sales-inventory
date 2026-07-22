@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:vet45_partner_application/application.dart';
 import 'package:vet45_partner_application/testing.dart';
@@ -141,6 +143,49 @@ void main() {
     expect((cubit.state as PartnerListLoaded).hasReachedMax, isFalse);
     await cubit.close();
   });
+
+  test('ignores a search response that completes after the cubit is closed', () async {
+    final module = _DelayedPartnerModule();
+    final cubit = PartnerListCubit(
+      partnerModule: module,
+      executionContext: FakeExecutionContext(tenantId: 'tenant-1'),
+    );
+
+    final fetch = cubit.fetchPartners();
+    await module.queryStarted.future;
+    await cubit.close();
+    module.complete(
+      const PartnerSearchResultDto(
+        items: [],
+        total: 0,
+        page: 1,
+        limit: 20,
+      ),
+    );
+
+    await expectLater(fetch, completes);
+  });
+}
+
+final class _DelayedPartnerModule implements IPartnerModule {
+  final queryStarted = Completer<void>();
+  final _result = Completer<PartnerSearchResultDto>();
+
+  void complete(PartnerSearchResultDto result) => _result.complete(result);
+
+  @override
+  Future<TResult> executeCommandAsync<TResult>(ICommand<TResult> command) {
+    throw UnsupportedError('commands are not used in this test');
+  }
+
+  @override
+  Future<TResult> executeQueryAsync<TResult>(IQuery<TResult> query) async {
+    if (query is SearchPartnersQuery) {
+      if (!queryStarted.isCompleted) queryStarted.complete();
+      return await _result.future as TResult;
+    }
+    throw UnsupportedError('query ${query.runtimeType} is not supported');
+  }
 }
 
 final class _RecordingPartnerModule implements IPartnerModule {

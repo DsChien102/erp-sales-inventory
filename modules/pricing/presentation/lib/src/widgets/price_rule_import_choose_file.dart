@@ -10,11 +10,13 @@ class PriceRuleImportChooseFileView extends StatelessWidget {
     this.onPickFile,
     this.onDownloadTemplate,
     this.selectedFileName,
+    this.isDownloadingTemplate = false,
   });
 
   final VoidCallback? onPickFile;
   final VoidCallback? onDownloadTemplate;
   final String? selectedFileName;
+  final bool isDownloadingTemplate;
 
   @override
   Widget build(BuildContext context) {
@@ -87,6 +89,7 @@ class PriceRuleImportChooseFileView extends StatelessWidget {
             variant: VButtonVariant.ghost,
             fullWidth: true,
             onPressed: onDownloadTemplate,
+            isLoading: isDownloadingTemplate,
           ),
           const VGap.lg(),
           const VSection(
@@ -96,7 +99,9 @@ class PriceRuleImportChooseFileView extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  PriceRuleImportBullet('File định dạng .xlsx, một rule mỗi dòng'),
+                  PriceRuleImportBullet(
+                    'File định dạng .xlsx, một rule mỗi dòng',
+                  ),
                   PriceRuleImportBullet('Giá phải ≥ 0'),
                   PriceRuleImportBullet('Hệ thống bỏ qua các dòng lỗi'),
                 ],

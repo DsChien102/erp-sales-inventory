@@ -66,6 +66,13 @@ class _PriceRuleDisableSheetState extends State<PriceRuleDisableSheet> {
         message: 'Giá riêng sẽ không áp dụng cho đơn hàng mới.',
         type: VToastType.success,
       );
+    } else {
+      VToast.show(
+        context,
+        title: 'Không thể tắt giá riêng',
+        message: widget.cubit.actionErrorMessage ?? 'Vui lòng thử lại sau.',
+        type: VToastType.danger,
+      );
     }
   }
 
@@ -89,83 +96,83 @@ class _PriceRuleDisableSheetState extends State<PriceRuleDisableSheet> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-          Center(
-            child: VIconBox(
-              icon: VIcons.warning,
-              size: 56,
-              iconSize: 28,
-              tone: VComponentTone.danger,
-              isCircular: true,
-            ),
-          ),
-          const VGap.md(),
-          VText(
-            'Tắt giá riêng?',
-            variant: VTextVariant.headingH3,
-            textAlign: TextAlign.center,
-          ),
-          const VGap.xs(),
-          VText(
-            'Giá riêng sẽ không còn áp dụng cho đơn hàng mới. Lịch sử vẫn được giữ lại.',
-            variant: VTextVariant.bodySmall,
-            color: colors.textSecondary,
-            textAlign: TextAlign.center,
-          ),
-          const VGap.md(),
-          VCard(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                VText(
-                  rule.customer.displayName,
-                  variant: VTextVariant.bodyDefault,
-                  style: const TextStyle(fontWeight: FontWeight.w600),
-                ),
-                const VGap.xs(),
-                VText(
-                  '${rule.productUnit.productName} · ${rule.productUnit.unitName}',
-                  variant: VTextVariant.bodySmall,
-                  color: colors.textSecondary,
-                ),
-                const VGap.xs(),
-                VText(
-                  _formatMoney(rule.price),
-                  variant: VTextVariant.monoNumeric,
-                  style: const TextStyle(fontWeight: FontWeight.w700),
-                ),
-              ],
-            ),
-          ),
-          const VGap.md(),
-          VTextField(
-            label: 'Lý do tắt (không bắt buộc)',
-            controller: _reasonController,
-            maxLines: 2,
-          ),
-          const VGap.md(),
-          Row(
-            children: [
-              Expanded(
-                child: VButton(
-                  label: 'Giữ giá riêng',
-                  variant: VButtonVariant.secondary,
-                  fullWidth: true,
-                  onPressed: _isSubmitting
-                      ? null
-                      : () => Navigator.of(context).pop(false),
+              Center(
+                child: VIconBox(
+                  icon: VIcons.warning,
+                  size: 56,
+                  iconSize: 28,
+                  tone: VComponentTone.danger,
+                  isCircular: true,
                 ),
               ),
-              const VGap.horizontalMd(),
-              Expanded(
-                child: VButton(
-                  label: _isSubmitting ? 'Đang tắt...' : 'Tắt giá riêng',
-                  variant: VButtonVariant.danger,
-                  fullWidth: true,
-                  onPressed: _isSubmitting ? null : _onDisable,
+              const VGap.md(),
+              VText(
+                'Tắt giá riêng?',
+                variant: VTextVariant.headingH3,
+                textAlign: TextAlign.center,
+              ),
+              const VGap.xs(),
+              VText(
+                'Giá riêng sẽ không còn áp dụng cho đơn hàng mới. Lịch sử vẫn được giữ lại.',
+                variant: VTextVariant.bodySmall,
+                color: colors.textSecondary,
+                textAlign: TextAlign.center,
+              ),
+              const VGap.md(),
+              VCard(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    VText(
+                      rule.customer.displayName,
+                      variant: VTextVariant.bodyDefault,
+                      style: const TextStyle(fontWeight: FontWeight.w600),
+                    ),
+                    const VGap.xs(),
+                    VText(
+                      '${rule.productUnit.productName} · ${rule.productUnit.unitName}',
+                      variant: VTextVariant.bodySmall,
+                      color: colors.textSecondary,
+                    ),
+                    const VGap.xs(),
+                    VText(
+                      _formatMoney(rule.price),
+                      variant: VTextVariant.monoNumeric,
+                      style: const TextStyle(fontWeight: FontWeight.w700),
+                    ),
+                  ],
                 ),
               ),
-            ],
-          ),
+              const VGap.md(),
+              VTextField(
+                label: 'Lý do tắt (không bắt buộc)',
+                controller: _reasonController,
+                maxLines: 2,
+              ),
+              const VGap.md(),
+              Row(
+                children: [
+                  Expanded(
+                    child: VButton(
+                      label: 'Giữ giá riêng',
+                      variant: VButtonVariant.secondary,
+                      fullWidth: true,
+                      onPressed: _isSubmitting
+                          ? null
+                          : () => Navigator.of(context).pop(false),
+                    ),
+                  ),
+                  const VGap.horizontalMd(),
+                  Expanded(
+                    child: VButton(
+                      label: _isSubmitting ? 'Đang tắt...' : 'Tắt giá riêng',
+                      variant: VButtonVariant.danger,
+                      fullWidth: true,
+                      onPressed: _isSubmitting ? null : _onDisable,
+                    ),
+                  ),
+                ],
+              ),
             ],
           ),
         ),
@@ -174,7 +181,6 @@ class _PriceRuleDisableSheetState extends State<PriceRuleDisableSheet> {
   }
 
   String _formatMoney(MoneyDto money) {
-    final amount = money.amountMinor / 100;
-    return '${amount.toStringAsFixed(0).replaceAllMapped(RegExp(r'\B(?=(\d{3})+(?!\d))'), (m) => '.')}đ / ${widget.rule.productUnit.unitName}';
+    return '${money.amountMinor.toString().replaceAllMapped(RegExp(r'\B(?=(\d{3})+(?!\d))'), (m) => '.')}đ / ${widget.rule.productUnit.unitName}';
   }
 }

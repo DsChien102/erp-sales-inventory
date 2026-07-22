@@ -4,6 +4,7 @@ import 'package:vet45_pricing_domain/domain.dart';
 import 'package:vet45_shared_infrastructure/infrastructure.dart';
 
 import '../../errors/pricing_error_mapper.dart';
+import 'pricing_delete_rpc_mapper.dart';
 import 'pricing_disable_rpc_mapper.dart';
 import 'pricing_reenable_rpc_mapper.dart';
 import 'pricing_rpc_mapper.dart';
@@ -91,6 +92,34 @@ final class SupabaseCustomerPriceRuleCommandGateway
         ),
       );
       return PricingDisableRpcMapper.resultFromJson(json);
+    } on RpcException catch (error) {
+      throw mapPricingRpcError(error);
+    } on PricingBlockedException {
+      rethrow;
+    } on Object {
+      throw const PricingBlockedException(
+        PricingBlockedCodes.systemError,
+        message: 'Pricing operation failed.',
+      );
+    }
+  }
+
+  @override
+  Future<CustomerPriceRuleDetailDto> delete({
+    required String tenantId,
+    required String ruleId,
+    required int expectedVersion,
+  }) async {
+    try {
+      final json = await _rpcClient.callMap(
+        'delete_customer_price_rule',
+        params: PricingDeleteRpcMapper.params(
+          tenantId: tenantId,
+          ruleId: ruleId,
+          expectedVersion: expectedVersion,
+        ),
+      );
+      return PricingDeleteRpcMapper.resultFromJson(json);
     } on RpcException catch (error) {
       throw mapPricingRpcError(error);
     } on PricingBlockedException {

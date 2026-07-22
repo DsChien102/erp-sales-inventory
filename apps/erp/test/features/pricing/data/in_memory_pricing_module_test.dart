@@ -18,18 +18,21 @@ void main() {
     module = InMemoryPricingModule();
   });
 
-  Future<CustomerPriceRuleSearchResultDto> search() =>
-      module.executeQueryAsync(
-        SearchCustomerPriceRulesQuery(
-          tenantId: 't1',
-          businessDate: businessDate,
-        ),
-      );
+  Future<CustomerPriceRuleSearchResultDto> search() => module.executeQueryAsync(
+    SearchCustomerPriceRulesQuery(
+      tenantId: 't1',
+      businessDate: businessDate,
+    ),
+  );
 
   group('InMemoryPricingModule', () {
     test('search trả về seed rules', () async {
       final result = await search();
       expect(result.page.items, isNotEmpty);
+      expect(
+        result.page.items.map((rule) => rule.price.amountMinor),
+        contains(180000),
+      );
       expect(
         result.availableActions,
         containsAll([
@@ -40,41 +43,25 @@ void main() {
     });
 
     test(
-      'SG-03: tạo trùng → cảnh báo DUPLICATE_ACTIVE_RULE, acknowledge → ghi đè',
+      'SG-03: tạo trùng → tự tắt rule cũ và ghi đè bằng rule mới',
       () async {
         final existing = (await search()).page.items.firstWhere(
           (r) => r.persistedStatus == CustomerPriceRuleStatus.active,
         );
 
-        CreateCustomerPriceRuleCommand buildCommand({required bool ack}) =>
-            CreateCustomerPriceRuleCommand(
-              tenantId: 't1',
-              customerId: existing.customer.customerId,
-              productId: existing.productUnit.productId,
-              productUnitId: existing.productUnit.productUnitId,
-              rulePriceMinor: 20000000,
-              currencyCode: 'VND',
-              effectiveFrom: businessDate,
-              acknowledgeFloorWarning: ack,
-              idempotencyKey: 'test-key',
-            );
-
-        // Lần 1: cảnh báo trùng.
-        await expectLater(
-          module.executeCommandAsync(buildCommand(ack: false)),
-          throwsA(
-            isA<PricingBlockedException>().having(
-              (e) => e.code,
-              'code',
-              PricingBlockedCodes.duplicateActiveRule,
-            ),
-          ),
+        CreateCustomerPriceRuleCommand buildCommand() => CreateCustomerPriceRuleCommand(
+          tenantId: 't1',
+          customerId: existing.customer.customerId,
+          productId: existing.productUnit.productId,
+          productUnitId: existing.productUnit.productUnitId,
+          rulePriceMinor: 200000,
+          currencyCode: 'VND',
+          effectiveFrom: businessDate,
+          acknowledgeFloorWarning: false,
+          idempotencyKey: 'test-key',
         );
 
-        // Lần 2 (acknowledge): ghi đè — rule cũ bị tắt, rule mới active.
-        final created = await module.executeCommandAsync(
-          buildCommand(ack: true),
-        );
+        final created = await module.executeCommandAsync(buildCommand());
         expect(created.rule.persistedStatus, CustomerPriceRuleStatus.active);
 
         final oldDetail = await module.executeQueryAsync(
@@ -96,7 +83,7 @@ void main() {
           customerId: 'KH000123',
           productId: 'product-2',
           productUnitId: 'unit-2a',
-          rulePriceMinor: 10000000,
+          rulePriceMinor: 100000,
           currencyCode: 'VND',
           effectiveFrom: businessDate,
           acknowledgeFloorWarning: false,
@@ -121,7 +108,7 @@ void main() {
           customerId: 'KH000123',
           productId: 'product-2',
           productUnitId: 'unit-2a',
-          rulePriceMinor: 11000000,
+          rulePriceMinor: 110000,
           currencyCode: 'VND',
           effectiveFrom: businessDate,
           acknowledgeFloorWarning: false,
@@ -155,7 +142,7 @@ void main() {
       final detail = await module.executeCommandAsync(
         StartCustomerPriceRuleImportCommand(
           tenantId: 't1',
-          templateVersion: 'v1',
+          templateVersion: CustomerPriceRuleImportTemplateDto.versionV1,
           originalFileName: 'test.xlsx',
           fileBytes: Uint8List.fromList(const [1, 2, 3]),
           importMode: CustomerPriceRuleImportMode.upsert,
@@ -165,6 +152,11 @@ void main() {
         detail.batch.status,
         CustomerPriceRuleImportStatus.readyToImport,
       );
+      expect(
+        detail.rows.items.map((row) => row.normalizedPriceMinor),
+        contains(95000),
+      );
+      expect(detail.rows.items.map((row) => row.price), contains('95000'));
 
       final before = (await search()).page.items.length;
       final result = await module.executeCommandAsync(

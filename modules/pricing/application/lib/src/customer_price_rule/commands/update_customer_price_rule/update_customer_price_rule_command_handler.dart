@@ -51,15 +51,6 @@ final class UpdateCustomerPriceRuleCommandHandler
 
     if (!noOp) {
       _ensureReferencesAreValid(context, current);
-      if (context.hasConflictingRule) {
-        throw PricingBlockedException(
-          PricingBlockedCodes.duplicateActiveRule,
-          details: {
-            if (context.conflictingRuleId != null)
-              'conflictingRuleId': context.conflictingRuleId,
-          },
-        );
-      }
       if (context.productUnit.isBelowFloor &&
           (!command.acknowledgeFloorWarning || !context.canOverrideFloor)) {
         throw PricingBlockedException(

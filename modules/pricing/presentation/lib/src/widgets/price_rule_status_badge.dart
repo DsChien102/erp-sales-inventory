@@ -31,6 +31,10 @@ class PriceRuleStatusBadge extends StatelessWidget {
         'Cần kiểm tra',
         VBadgeStatus.warning,
       ),
+      CustomerPriceRuleDerivedStatus.deleted => (
+        'Đã xóa',
+        VBadgeStatus.cancelled,
+      ),
     };
 
     return VBadge(

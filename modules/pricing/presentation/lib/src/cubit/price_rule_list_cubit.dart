@@ -70,35 +70,44 @@ final class PriceRuleListCubit extends Cubit<PriceRuleListState> {
       );
 
       final tenantId = await _executionContext.requireTenantId();
-      final statuses = _advancedFilter.status == null
-          ? const <CustomerPriceRuleDerivedStatus>[]
-          : [_advancedFilter.status!];
-      final sources = _advancedFilter.source == null
-          ? const <CustomerPriceRuleSourceType>[]
-          : [_advancedFilter.source!];
 
-      final result = await _pricingModule.executeQueryAsync(
-        SearchCustomerPriceRulesQuery(
-          tenantId: tenantId,
-          q: _query,
-          quickFilter: _quickFilter,
-          statuses: statuses,
-          sources: sources,
-          businessDate: DateTime.now().toUtc(),
-          cursor: _nextCursor,
-          limit: _pageSize,
-        ),
-      );
+      final aggregatedPage = <CustomerPriceRuleListItemDto>[];
+      var hasMore = true;
+      var pagesThisCall = 0;
+      final maxPages = _needsClientOnlyFiltering ? 5 : 1;
+      CustomerPriceRuleSearchResultDto? lastResult;
 
-      var pageItems = List<CustomerPriceRuleListItemDto>.of(result.page.items);
-      pageItems = _applyClientFilters(pageItems);
-      pageItems = _applySort(pageItems);
+      while (pagesThisCall < maxPages && hasMore) {
+        lastResult = await _pricingModule.executeQueryAsync(
+          _buildSearchQuery(tenantId: tenantId, cursor: _nextCursor),
+        );
+        final pageResult = lastResult!;
+
+        var batch = _applyClientOnlyFilters(pageResult.page.items);
+        batch = _applySort(batch);
+        aggregatedPage.addAll(batch);
+
+        hasMore = pageResult.page.hasMore;
+        _nextCursor = pageResult.page.nextCursor;
+        pagesThisCall++;
+
+        if (!_needsClientOnlyFiltering) {
+          break;
+        }
+        if (!isRefresh && batch.isNotEmpty) {
+          break;
+        }
+        if (isRefresh && aggregatedPage.length >= _pageSize) {
+          break;
+        }
+      }
 
       final newItems = isRefresh
-          ? pageItems
-          : [...currentItems, ...pageItems];
-      final hasReachedMax = !result.page.hasMore;
-      _nextCursor = result.page.nextCursor;
+          ? aggregatedPage
+          : [...currentItems, ...aggregatedPage];
+      final hasReachedMax = !hasMore;
+      final availableActions =
+          lastResult?.availableActions ?? const <String>[];
 
       emit(
         PriceRuleListLoaded(
@@ -109,18 +118,57 @@ final class PriceRuleListCubit extends Cubit<PriceRuleListState> {
           advancedFilter: _advancedFilter,
           sortOption: _sortOption,
           hasReachedMax: hasReachedMax,
-          canCreate: result.availableActions.contains(
+          canCreate: availableActions.contains(
             PricingAvailableActions.createManual,
           ),
-          canImport: result.availableActions.contains(
+          canImport: availableActions.contains(
             PricingAvailableActions.import,
           ),
+        ),
+      );
+    } on PricingBlockedException catch (e) {
+      if (e.code == PricingBlockedCodes.noPermission) {
+        emit(
+          PriceRuleListNoPermission(
+            query: _query,
+            quickFilter: _quickFilter,
+            advancedFilter: _advancedFilter,
+            sortOption: _sortOption,
+          ),
+        );
+        return;
+      }
+      emit(
+        PriceRuleListError(
+          message: _messageForBlocked(e),
+          items: state.items,
+          query: _query,
+          quickFilter: _quickFilter,
+          advancedFilter: _advancedFilter,
+          sortOption: _sortOption,
+          canCreate: state.canCreate,
+          canImport: state.canImport,
+          totalCount: state.totalCount,
+        ),
+      );
+    } on ApplicationException catch (e) {
+      emit(
+        PriceRuleListError(
+          message: e.message,
+          items: state.items,
+          query: _query,
+          quickFilter: _quickFilter,
+          advancedFilter: _advancedFilter,
+          sortOption: _sortOption,
+          canCreate: state.canCreate,
+          canImport: state.canImport,
+          totalCount: state.totalCount,
         ),
       );
     } catch (error) {
       emit(
         PriceRuleListError(
-          message: error.toString(),
+          message: 'Không thể tải dữ liệu. Vui lòng thử lại.',
           items: state.items,
           query: _query,
           quickFilter: _quickFilter,
@@ -136,11 +184,28 @@ final class PriceRuleListCubit extends Cubit<PriceRuleListState> {
 
   void search(String query) => fetchRules(isRefresh: true, query: query);
 
-  void applyQuickFilter(CustomerPriceRuleQuickFilter filter) =>
-      fetchRules(isRefresh: true, quickFilter: filter);
+  void applyQuickFilter(CustomerPriceRuleQuickFilter filter) {
+    _quickFilter = filter;
+    if (filter == CustomerPriceRuleQuickFilter.belowFloor) {
+      _advancedFilter = _advancedFilter.copyWith(
+        warning: PriceRuleWarningFilter.belowFloor,
+      );
+    } else if (_advancedFilter.warning == PriceRuleWarningFilter.belowFloor) {
+      _advancedFilter = _advancedFilter.copyWith(warning: null);
+    }
+    fetchRules(isRefresh: true);
+  }
 
   void applyAdvancedFilter(PriceRuleAdvancedFilter filter) {
+    final hadBelowFloorWarning =
+        _advancedFilter.warning == PriceRuleWarningFilter.belowFloor;
     _advancedFilter = filter;
+    if (filter.warning == PriceRuleWarningFilter.belowFloor) {
+      _quickFilter = CustomerPriceRuleQuickFilter.belowFloor;
+    } else if (hadBelowFloorWarning &&
+        _quickFilter == CustomerPriceRuleQuickFilter.belowFloor) {
+      _quickFilter = CustomerPriceRuleQuickFilter.all;
+    }
     fetchRules(isRefresh: true);
   }
 
@@ -151,21 +216,81 @@ final class PriceRuleListCubit extends Cubit<PriceRuleListState> {
 
   void refresh() => fetchRules(isRefresh: true);
 
-  List<CustomerPriceRuleListItemDto> _applyClientFilters(
+  String _messageForBlocked(PricingBlockedException e) => switch (e.code) {
+    PricingBlockedCodes.validationError =>
+      e.message ?? 'Dữ liệu tìm kiếm không hợp lệ.',
+    PricingBlockedCodes.systemError =>
+      'Không thể tải dữ liệu. Vui lòng thử lại.',
+    _ => e.message ?? 'Không thể tải dữ liệu. Vui lòng thử lại.',
+  };
+
+  bool get _needsClientOnlyFiltering =>
+      _advancedFilter.warning == PriceRuleWarningFilter.duplicateRule ||
+      _advancedFilter.warning == PriceRuleWarningFilter.dataError ||
+      _advancedFilter.updatedWithin != null;
+
+  SearchCustomerPriceRulesQuery _buildSearchQuery({
+    required String tenantId,
+    String? cursor,
+  }) {
+    return SearchCustomerPriceRulesQuery(
+      tenantId: tenantId,
+      q: _query,
+      quickFilter: _resolveQuickFilter(),
+      statuses: _resolveStatuses(),
+      sources: _resolveSources(),
+      businessDate: DateTime.now().toUtc(),
+      cursor: cursor,
+      limit: _pageSize,
+    );
+  }
+
+  CustomerPriceRuleQuickFilter _resolveQuickFilter() {
+    if (_advancedFilter.warning == PriceRuleWarningFilter.belowFloor) {
+      return CustomerPriceRuleQuickFilter.belowFloor;
+    }
+    return _quickFilter;
+  }
+
+  List<CustomerPriceRuleDerivedStatus> _resolveStatuses() {
+    final statuses = <CustomerPriceRuleDerivedStatus>[];
+    final advancedStatus = _advancedFilter.status;
+    if (advancedStatus != null) {
+      statuses.add(advancedStatus);
+    }
+    if (_quickFilter == CustomerPriceRuleQuickFilter.applying &&
+        _resolveQuickFilter() == CustomerPriceRuleQuickFilter.belowFloor &&
+        advancedStatus == null) {
+      statuses.add(CustomerPriceRuleDerivedStatus.applying);
+    }
+    return statuses;
+  }
+
+  List<CustomerPriceRuleSourceType> _resolveSources() {
+    final source = _advancedFilter.source;
+    if (source == null) {
+      return const [];
+    }
+    return [source];
+  }
+
+  /// V1 RPC chưa hỗ trợ duplicate/data_error warning và updated-date range (US-01 Q-02).
+  List<CustomerPriceRuleListItemDto> _applyClientOnlyFilters(
     List<CustomerPriceRuleListItemDto> items,
   ) {
     var result = items;
     final warning = _advancedFilter.warning;
-    if (warning != null) {
+    if (warning == PriceRuleWarningFilter.duplicateRule ||
+        warning == PriceRuleWarningFilter.dataError) {
+      final activeWarning = warning!;
       result = result.where((item) {
         final codes = item.validationOutcome.warningCodes;
-        return switch (warning) {
-          PriceRuleWarningFilter.belowFloor =>
-            codes.contains('below_floor_price'),
+        return switch (activeWarning) {
           PriceRuleWarningFilter.duplicateRule =>
             codes.contains('duplicate_active_rule'),
           PriceRuleWarningFilter.dataError =>
             item.validationOutcome.blockingCodes.isNotEmpty,
+          PriceRuleWarningFilter.belowFloor => true,
         };
       }).toList();
     }
@@ -175,12 +300,6 @@ final class PriceRuleListCubit extends Cubit<PriceRuleListState> {
       final days = within == PriceRuleUpdatedWithin.last7Days ? 7 : 30;
       final cutoff = DateTime.now().toUtc().subtract(Duration(days: days));
       result = result.where((item) => item.updatedAt.isAfter(cutoff)).toList();
-    }
-
-    // Status filter may already be sent to query; keep client fallback.
-    final status = _advancedFilter.status;
-    if (status != null) {
-      result = result.where((item) => item.derivedStatus == status).toList();
     }
 
     return result;

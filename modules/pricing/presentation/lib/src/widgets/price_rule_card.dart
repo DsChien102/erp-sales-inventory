@@ -17,11 +17,7 @@ import 'price_rule_status_badge.dart';
 ///           Hiệu lực: …                   >
 /// ```
 class PriceRuleCard extends StatelessWidget {
-  const PriceRuleCard({
-    super.key,
-    required this.rule,
-    this.onTap,
-  });
+  const PriceRuleCard({super.key, required this.rule, this.onTap});
 
   final CustomerPriceRuleListItemDto rule;
   final VoidCallback? onTap;
@@ -29,8 +25,9 @@ class PriceRuleCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = context.vColors;
-    final isBelowFloor =
-        rule.validationOutcome.warningCodes.contains('below_floor_price');
+    final isBelowFloor = rule.validationOutcome.warningCodes.contains(
+      'below_floor_price',
+    );
     final listPrice = rule.validationOutcome.listPrice;
     final specialColor = isBelowFloor ? colors.danger : colors.textPrimary;
 
@@ -147,8 +144,7 @@ class PriceRuleCard extends StatelessWidget {
   }
 
   String _formatMoney(MoneyDto money) {
-    final amount = money.amountMinor / 100;
-    return '${amount.toStringAsFixed(0).replaceAllMapped(RegExp(r'\B(?=(\d{3})+(?!\d))'), (m) => '.')}đ';
+    return '${money.amountMinor.toString().replaceAllMapped(RegExp(r'\B(?=(\d{3})+(?!\d))'), (m) => '.')}đ';
   }
 
   String _formatDate(DateTime date) =>
@@ -172,10 +168,7 @@ class PriceRuleCard extends StatelessWidget {
 
 /// Cột badge status — [mainAxisSize.min] để không kéo giãn layout.
 class _StatusBadges extends StatelessWidget {
-  const _StatusBadges({
-    required this.status,
-    required this.isBelowFloor,
-  });
+  const _StatusBadges({required this.status, required this.isBelowFloor});
 
   final CustomerPriceRuleDerivedStatus status;
   final bool isBelowFloor;
@@ -217,11 +210,7 @@ class _PriceColumn extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        VText(
-          label,
-          variant: VTextVariant.caption,
-          color: colors.textMuted,
-        ),
+        VText(label, variant: VTextVariant.caption, color: colors.textMuted),
         const VGap.xs(),
         VText(
           value,

@@ -17,6 +17,8 @@ class PriceRuleImportWizard extends StatelessWidget {
     this.onPickFile,
     this.onDownloadTemplate,
     this.onFinish,
+    this.onBackToChooseFile,
+    this.isDownloadingTemplate = false,
   });
 
   final PriceRuleImportCubit cubit;
@@ -24,30 +26,32 @@ class PriceRuleImportWizard extends StatelessWidget {
   final VoidCallback? onPickFile;
   final VoidCallback? onDownloadTemplate;
   final VoidCallback? onFinish;
+  final VoidCallback? onBackToChooseFile;
+  final bool isDownloadingTemplate;
 
   @override
   Widget build(BuildContext context) {
     return switch (state) {
-      PriceRuleImportInitial() || PriceRuleImportFileSelected() =>
-        PriceRuleImportChooseFileView(
-          onPickFile: onPickFile,
-          onDownloadTemplate: onDownloadTemplate,
-          selectedFileName: state is PriceRuleImportFileSelected
-              ? (state as PriceRuleImportFileSelected).fileName
-              : null,
-        ),
+      PriceRuleImportInitial() ||
+      PriceRuleImportFileSelected() => PriceRuleImportChooseFileView(
+        onPickFile: onPickFile,
+        onDownloadTemplate: onDownloadTemplate,
+        isDownloadingTemplate: isDownloadingTemplate,
+        selectedFileName: state is PriceRuleImportFileSelected
+            ? (state as PriceRuleImportFileSelected).fileName
+            : null,
+      ),
       PriceRuleImportLoading(:final step)
           when step == PriceRuleImportStep.preview ||
               step == PriceRuleImportStep.confirm ||
               step == PriceRuleImportStep.result =>
-        const Center(
-          child: VSkeleton(width: 48, height: 48),
-        ),
+        const Center(child: VSkeleton(width: 48, height: 48)),
       PriceRuleImportPreview(:final importDetail, :final rows) =>
         PriceRuleImportPreviewView(
           cubit: cubit,
           importDetail: importDetail,
           rows: rows,
+          onBack: onBackToChooseFile,
         ),
       PriceRuleImportConfirm(
         :final importDetail,
@@ -67,7 +71,7 @@ class PriceRuleImportWizard extends StatelessWidget {
         title: 'Đã có lỗi xảy ra',
         description: _errorMessage(code),
         actionLabel: 'Thử lại',
-        onActionPressed: () => cubit.backToChooseFile(),
+        onActionPressed: onBackToChooseFile ?? cubit.backToChooseFile,
       ),
       _ => const SizedBox.shrink(),
     };
@@ -76,6 +80,20 @@ class PriceRuleImportWizard extends StatelessWidget {
   String _errorMessage(String code) => switch (code) {
     'NO_PERMISSION' => 'Bạn không có quyền import giá riêng.',
     'SYSTEM_ERROR' => 'Lỗi hệ thống. Vui lòng thử lại.',
+    'TEMPLATE_VERSION_UNSUPPORTED' =>
+      'Phiên bản file mẫu không được hỗ trợ. Vui lòng tải lại file mẫu mới nhất.',
+    'TEMPLATE_HEADER_INVALID' =>
+      'Các cột tiêu đề không đúng file mẫu. Vui lòng dùng file mẫu mới nhất.',
+    'TEMPLATE_SHEET_INVALID' =>
+      'Không tìm thấy sheet dữ liệu đúng định dạng trong file.',
+    'EMPTY_FILE' => 'File không có dòng dữ liệu để import.',
+    'FORMULA_NOT_SUPPORTED' =>
+      'File có ô công thức. Vui lòng chuyển công thức thành giá trị trước khi import.',
+    'UNSUPPORTED_FILE_TYPE' => 'File không đúng định dạng .xlsx.',
+    'ROW_LIMIT_EXCEEDED' => 'File vượt quá số dòng cho phép.',
+    'ARCHIVE_LIMIT_EXCEEDED' =>
+      'File Excel quá lớn hoặc có cấu trúc archive không hợp lệ.',
+    'IMPORT_FILE_INVALID' => 'File import không hợp lệ.',
     _ => 'Đã có lỗi: $code',
   };
 }
@@ -114,8 +132,8 @@ class PriceRuleImportStepIndicator extends StatelessWidget {
                         color: isDone
                             ? colors.success
                             : isActive
-                                ? colors.primary
-                                : colors.surfaceAlt,
+                            ? colors.primary
+                            : colors.surfaceAlt,
                       ),
                       child: Center(
                         child: isDone

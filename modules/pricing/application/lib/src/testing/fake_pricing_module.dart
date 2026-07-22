@@ -11,6 +11,7 @@ import '../contracts/i_pricing_module.dart';
 import '../customer_price_rule/commands/create_customer_price_rule/create_customer_price_rule_command.dart';
 import '../customer_price_rule/commands/create_customer_price_rule/create_customer_price_rule_result.dart';
 import '../customer_price_rule/commands/disable_customer_price_rule/disable_customer_price_rule_command.dart';
+import '../customer_price_rule/commands/delete_customer_price_rule/delete_customer_price_rule_command.dart';
 import '../customer_price_rule/import/commands/cancel_customer_price_rule_import/cancel_customer_price_rule_import_command.dart';
 import '../customer_price_rule/import/commands/confirm_customer_price_rule_import/confirm_customer_price_rule_import_command.dart';
 import '../customer_price_rule/import/commands/start_customer_price_rule_import/start_customer_price_rule_import_command.dart';
@@ -18,6 +19,8 @@ import '../customer_price_rule/import/queries/get_customer_price_rule_import/get
 import '../customer_price_rule/import/queries/get_customer_price_rule_import_template/get_customer_price_rule_import_template_query.dart';
 import '../customer_price_rule/import/shared/customer_price_rule_import_detail_dto.dart';
 import '../customer_price_rule/import/shared/customer_price_rule_import_dto.dart';
+import '../customer_price_rule/queries/resolve_applicable_customer_price_rule/resolve_applicable_customer_price_rule_query.dart';
+import '../customer_price_rule/queries/resolve_applicable_customer_price_rule/resolve_applicable_customer_price_rule_result_dto.dart';
 import '../customer_price_rule/import/shared/customer_price_rule_import_result_dto.dart';
 import '../customer_price_rule/import/shared/customer_price_rule_import_row_preview_dto.dart';
 import '../customer_price_rule/import/shared/customer_price_rule_import_template_dto.dart';
@@ -83,6 +86,15 @@ enum FakePricingScenario {
   disableRuleDenied,
   disableRuleNotFound,
   disableRuleInvalidStatus,
+  deleteRuleOk,
+  deleteRuleAlreadyDeleted,
+  deleteRuleStateChanged,
+  deleteRuleDenied,
+  deleteRuleNotFound,
+  deleteRuleInvalidStatus,
+  resolveApplicableOk,
+  resolveApplicableNone,
+  resolveApplicableDenied,
   reenablePrecheckValid,
   reenablePrecheckWarning,
   reenablePrecheckBlockedDuplicate,
@@ -148,6 +160,7 @@ final class FakePricingModule implements IPricingModule {
       CreateCustomerPriceRuleCommand value => _handleCreate<TResult>(value),
       UpdateCustomerPriceRuleCommand value => _handleUpdate<TResult>(value),
       DisableCustomerPriceRuleCommand value => _handleDisable<TResult>(value),
+      DeleteCustomerPriceRuleCommand value => _handleDelete<TResult>(value),
       ReenableCustomerPriceRuleCommand value => _handleReenable<TResult>(value),
       StartCustomerPriceRuleImportCommand value => _handleImportStart<TResult>(
         value,
@@ -169,6 +182,8 @@ final class FakePricingModule implements IPricingModule {
     return switch (query) {
       SearchCustomerPriceRulesQuery value => _handleSearch<TResult>(value),
       GetCustomerPriceRuleDetailQuery value => _handleDetail<TResult>(value),
+      ResolveApplicableCustomerPriceRuleQuery value =>
+          _handleResolveApplicable<TResult>(value),
       PrecheckCustomerPriceRuleReenableQuery value =>
         _handleReenablePrecheck<TResult>(value),
       GetCustomerPriceRuleImportTemplateQuery value =>
@@ -358,10 +373,7 @@ final class FakePricingModule implements IPricingModule {
   ) async {
     switch (scenario) {
       case FakePricingScenario.createRuleDuplicate:
-        throw const PricingBlockedException(
-          PricingBlockedCodes.duplicateActiveRule,
-          details: {'conflictingRuleId': 'rule-existing'},
-        );
+        return _result(command) as TResult;
       case FakePricingScenario.createRuleFloorBlocked:
         throw const PricingBlockedException(
           PricingBlockedCodes.belowFloorBlocked,
@@ -508,10 +520,7 @@ final class FakePricingModule implements IPricingModule {
       case FakePricingScenario.updateRuleStateChanged:
         throw const PricingBlockedException(PricingBlockedCodes.stateChanged);
       case FakePricingScenario.updateRuleDuplicate:
-        throw const PricingBlockedException(
-          PricingBlockedCodes.duplicateActiveRule,
-          details: {'conflictingRuleId': 'rule-existing'},
-        );
+        return _updateDetail(command) as TResult;
       case FakePricingScenario.updateRuleFloorBlocked:
         throw const PricingBlockedException(
           PricingBlockedCodes.belowFloorBlocked,
@@ -564,6 +573,58 @@ final class FakePricingModule implements IPricingModule {
     }
   }
 
+  Future<TResult> _handleDelete<TResult>(
+    DeleteCustomerPriceRuleCommand command,
+  ) async {
+    switch (scenario) {
+      case FakePricingScenario.deleteRuleStateChanged:
+        throw const PricingBlockedException(PricingBlockedCodes.stateChanged);
+      case FakePricingScenario.deleteRuleDenied:
+        throw const PricingBlockedException(PricingBlockedCodes.noPermission);
+      case FakePricingScenario.deleteRuleNotFound:
+        throw const PricingBlockedException(PricingBlockedCodes.notFound);
+      case FakePricingScenario.deleteRuleInvalidStatus:
+        throw const PricingBlockedException(PricingBlockedCodes.invalidStatus);
+      case FakePricingScenario.deleteRuleAlreadyDeleted:
+        return _deleteDetail(command, version: 4) as TResult;
+      case FakePricingScenario.deleteRuleOk:
+        return _deleteDetail(command, version: command.expectedVersion + 1)
+            as TResult;
+      default:
+        throw UnsupportedError(
+          'FakePricingModule: ${scenario.name} does not support delete.',
+        );
+    }
+  }
+
+  Future<TResult> _handleResolveApplicable<TResult>(
+    ResolveApplicableCustomerPriceRuleQuery query,
+  ) async {
+    switch (scenario) {
+      case FakePricingScenario.resolveApplicableDenied:
+        throw const PricingBlockedException(PricingBlockedCodes.noPermission);
+      case FakePricingScenario.resolveApplicableNone:
+        return const ResolveApplicableCustomerPriceRuleResultDto() as TResult;
+      case FakePricingScenario.resolveApplicableOk:
+        return ResolveApplicableCustomerPriceRuleResultDto(
+              rule: ApplicableCustomerPriceRuleDto(
+                ruleId: '11111111-1111-4111-8111-111111111111',
+                price: const MoneyDto(amountMinor: 125000, currencyCode: 'VND'),
+                effectivePeriod: EffectivePeriodDto(
+                  effectiveFrom: query.businessDate,
+                ),
+                sourceType: CustomerPriceRuleSourceType.manual,
+                version: 2,
+              ),
+            )
+            as TResult;
+      default:
+        throw UnsupportedError(
+          'FakePricingModule: ${scenario.name} does not support resolve.',
+        );
+    }
+  }
+
   Future<TResult> _handleReenablePrecheck<TResult>(
     PrecheckCustomerPriceRuleReenableQuery query,
   ) async {
@@ -580,8 +641,7 @@ final class FakePricingModule implements IPricingModule {
       case FakePricingScenario.reenablePrecheckBlockedDuplicate:
         return _reenablePrecheck(
               query,
-              outcome: 'blocked',
-              blockingCodes: const ['duplicate_active_rule'],
+              outcome: 'valid',
             )
             as TResult;
       case FakePricingScenario.reenablePrecheckBlockedExpired:
@@ -604,6 +664,10 @@ final class FakePricingModule implements IPricingModule {
         throw const PricingBlockedException(PricingBlockedCodes.notFound);
       case FakePricingScenario.reenablePrecheckInvalidStatus:
         throw const PricingBlockedException(PricingBlockedCodes.invalidStatus);
+      case FakePricingScenario.reenableOk:
+      case FakePricingScenario.reenableFloorOverrideOk:
+      case FakePricingScenario.ruleDetailDisabled:
+        return _reenablePrecheck(query, outcome: 'valid') as TResult;
       default:
         throw UnsupportedError(
           'FakePricingModule: ${scenario.name} does not support reenable precheck.',
@@ -618,10 +682,7 @@ final class FakePricingModule implements IPricingModule {
       case FakePricingScenario.reenableStateChanged:
         throw const PricingBlockedException(PricingBlockedCodes.stateChanged);
       case FakePricingScenario.reenableDuplicate:
-        throw const PricingBlockedException(
-          PricingBlockedCodes.duplicateActiveRule,
-          details: {'conflictingRuleId': 'rule-existing'},
-        );
+        return _reenableDetail(command) as TResult;
       case FakePricingScenario.reenableFloorBlocked:
         throw const PricingBlockedException(
           PricingBlockedCodes.belowFloorBlocked,
@@ -655,8 +716,8 @@ final class FakePricingModule implements IPricingModule {
     switch (scenario) {
       case FakePricingScenario.importTemplateV1:
         return CustomerPriceRuleImportTemplateDto(
-              templateVersion: 'customer_price_rules_v1',
-              fileName: 'customer_price_rules_v1.xlsx',
+              templateVersion: CustomerPriceRuleImportTemplateDto.versionV1,
+              fileName: CustomerPriceRuleImportTemplateDto.fileNameV1,
               mimeType:
                   'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
               bytes: Uint8List.fromList(const [0x50, 0x4B, 0x03, 0x04]),
@@ -818,8 +879,8 @@ final class FakePricingModule implements IPricingModule {
     List<String> fileErrorCodes = const [],
   }) => CustomerPriceRuleImportDto(
     id: 'import-1',
-    templateVersion: 'customer_price_rules_v1',
-    originalFileName: 'customer_price_rules_v1.xlsx',
+    templateVersion: CustomerPriceRuleImportTemplateDto.versionV1,
+    originalFileName: CustomerPriceRuleImportTemplateDto.fileNameV1,
     importMode: CustomerPriceRuleImportMode.upsert,
     status: status,
     version: 1,
@@ -974,6 +1035,57 @@ final class FakePricingModule implements IPricingModule {
       disabledAt: at,
       disabledBy: 'fake-user-1',
       disabledReason: reason,
+    );
+  }
+
+  CustomerPriceRuleDetailDto _deleteDetail(
+    DeleteCustomerPriceRuleCommand command, {
+    required int version,
+  }) {
+    final at = DateTime.utc(2026, 7, 16);
+    return CustomerPriceRuleDetailDto(
+      id: command.ruleId,
+      customer: const CustomerRefDto(
+        customerId: '00000000-0000-4000-8000-000000000002',
+        displayName: 'Phòng khám A',
+        status: 'active',
+      ),
+      productUnit: const ProductUnitRefDto(
+        productId: '00000000-0000-4000-8000-000000000003',
+        productName: 'Vaccine A',
+        productUnitId: '00000000-0000-4000-8000-000000000004',
+        unitName: 'Lọ',
+        sellableStatus: 'active',
+      ),
+      price: const MoneyDto(amountMinor: 90000, currencyCode: 'VND'),
+      effectivePeriod: EffectivePeriodDto(
+        effectiveFrom: DateTime.utc(2026, 7, 1),
+      ),
+      ruleType: CustomerPriceRuleType.specialPrice,
+      sourceType: CustomerPriceRuleSourceType.manual,
+      persistedStatus: CustomerPriceRuleStatus.deleted,
+      derivedStatus: CustomerPriceRuleDerivedStatus.deleted,
+      validationOutcome: const RuleValidationOutcomeDto(
+        outcome: 'notChecked',
+        warningCodes: [],
+        blockingCodes: [],
+        floorPriceHidden: true,
+      ),
+      referenceHealth: const CustomerPriceRuleReferenceHealthDto(
+        customerState: CustomerPriceRuleReferenceState.valid,
+        productUnitState: CustomerPriceRuleReferenceState.valid,
+        priceBandState: CustomerPriceRulePriceBandState.current,
+        issueCodes: [],
+        usedStoredPriceBandSnapshot: false,
+      ),
+      sourceTrace: const CustomerPriceRuleSourceTraceDto(hidden: false),
+      createdBy: 'fake-user-1',
+      createdAt: at,
+      updatedBy: 'fake-user-1',
+      updatedAt: at,
+      version: version,
+      availableActions: const [],
+      deletedAt: at,
     );
   }
 
@@ -1132,6 +1244,7 @@ final class FakePricingModule implements IPricingModule {
               outcome: 'warning',
               warningCodes: ['below_floor_price'],
               blockingCodes: [],
+              listPrice: MoneyDto(amountMinor: 150000, currencyCode: 'VND'),
               floorPriceHidden: true,
             ),
             updatedAt: DateTime.utc(2026, 7, 20, 8),
@@ -1164,6 +1277,7 @@ final class FakePricingModule implements IPricingModule {
               outcome: 'notChecked',
               warningCodes: [],
               blockingCodes: [],
+              listPrice: MoneyDto(amountMinor: 260000, currencyCode: 'VND'),
               floorPriceHidden: true,
             ),
             updatedAt: DateTime.utc(2026, 7, 19, 8),

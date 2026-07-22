@@ -18,7 +18,7 @@ void main() {
   final root = _repoRoot();
   final sqlPath =
       '${root.path}/supabase/migrations/_drafts/'
-      'pricing_remembered_price_from_order_s9.sql';
+      '011_pricing_remembered_price_from_order_s9.sql';
 
   test('S9 draft header, dependencies, and Touches match replaced functions', () {
     final sql = File(sqlPath).readAsStringSync();
@@ -31,9 +31,9 @@ void main() {
         '-- Touches: _remembered_price_outcome, save_remembered_price_from_order, get_customer_price_rule_detail',
       ),
     );
-    expect(sql, contains('pricing_customer_price_rule_s1.sql'));
-    expect(sql, contains('partner_pricing_customer_snapshot.sql'));
-    expect(sql, contains('catalog_pricing_price_band_snapshot.sql'));
+    expect(sql, contains('004_pricing_customer_price_rule_s1.sql'));
+    expect(sql, contains('001_partner_pricing_customer_snapshot.sql'));
+    expect(sql, contains('002_catalog_pricing_price_band_snapshot.sql'));
     expect(_touches(sql), _createdFunctions(sql));
   });
 

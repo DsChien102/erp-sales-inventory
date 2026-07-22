@@ -33,6 +33,7 @@ final class CustomerPriceRuleDetailDto {
     this.disabledAt,
     this.disabledBy,
     this.disabledReason,
+    this.deletedAt,
   });
 
   final String id;
@@ -57,4 +58,5 @@ final class CustomerPriceRuleDetailDto {
   final DateTime? disabledAt;
   final String? disabledBy;
   final String? disabledReason;
+  final DateTime? deletedAt;
 }

@@ -4,4 +4,5 @@ enum CustomerPriceRuleDerivedStatus {
   disabled,
   expired,
   needsReview,
+  deleted,
 }

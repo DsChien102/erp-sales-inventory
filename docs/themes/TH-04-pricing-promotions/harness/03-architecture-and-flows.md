@@ -63,7 +63,7 @@ Queries receive tenant from execution context, never trust a caller-supplied ten
    hasSameMutableValues, then always calls the authoritative gateway regardless of no-op/warning.
 5. RPC pricing.update_customer_price_rule locks/current-checks rule; version mismatch → STATE_CHANGED;
    status outside active/needs_review/disabled → INVALID_STATUS.
-6. RPC rechecks overlap/floor/reference, updates rule + version, appends activity (skipped on no-op).
+6. RPC rechecks overlap/floor/reference, auto-disables all overlapping active rules under the rule-key lock, updates rule + version, appends activity (skipped on no-op).
 ```
 
 The advisory RPC (`pricing.get_customer_price_rule_update_context`) is UX-only: it recomputes the same checks for early UI feedback but **never authorizes a commit**. The authoritative RPC (`pricing.update_customer_price_rule`) always re-derives and re-checks tenant/permission, version, status, references, duplicate interval and floor policy itself under a row lock before writing — a stale or bypassed advisory call cannot skip the authoritative recheck.
@@ -113,7 +113,7 @@ sequenceDiagram
   RPC-->>UI: active detail or current error
 ```
 
-Ordering commit: row lock → version → disabled status → canonical context → optional token stale check → reference/duplicate/floor/expired mapping → active transition + one `reenabled` activity.
+Ordering commit: row lock → version → disabled status → rule-key advisory lock → canonical context → optional token stale check → reference/floor/expired mapping → auto-disable overlapping active rules → active transition + one `reenabled` activity.
 
 ## S8 — Excel import
 

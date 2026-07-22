@@ -7,12 +7,14 @@ import 'customer_price_rule_status.dart';
 import 'customer_price_rule_type.dart';
 import 'effective_period.dart';
 import 'events/customer_price_rule_created_domain_event.dart';
+import 'events/customer_price_rule_deleted_domain_event.dart';
 import 'events/customer_price_rule_disabled_domain_event.dart';
 import 'events/customer_price_rule_reenabled_domain_event.dart';
 import 'events/customer_price_rule_updated_domain_event.dart';
 import 'money.dart';
 import 'rule_validation_outcome.dart';
 import 'rule_validation_state.dart';
+import 'rules/customer_price_rule_can_be_deleted_rule.dart';
 import 'rules/customer_price_rule_can_be_disabled_rule.dart';
 import 'rules/customer_price_rule_can_be_reenabled_rule.dart';
 import 'rules/manual_rule_must_have_actor_rule.dart';
@@ -33,13 +35,15 @@ final class CustomerPriceRule extends Entity<String> implements IAggregateRoot {
     required CustomerPriceRuleStatus status,
     required CustomerPriceRuleReviewStatus reviewStatus,
     required int version,
+    required DateTime? deletedAt,
   }) : _price = price,
        _effectivePeriod = effectivePeriod,
        _validationOutcome = validationOutcome,
        _note = note,
        _status = status,
        _reviewStatus = reviewStatus,
-       _version = version;
+       _version = version,
+       _deletedAt = deletedAt;
 
   factory CustomerPriceRule.createManual({
     required String id,
@@ -67,6 +71,7 @@ final class CustomerPriceRule extends Entity<String> implements IAggregateRoot {
           ? CustomerPriceRuleReviewStatus.warning
           : CustomerPriceRuleReviewStatus.clear,
       version: 1,
+      deletedAt: null,
     );
     rule.addDomainEvent(CustomerPriceRuleCreatedDomainEvent(ruleId: id));
     return rule;
@@ -85,9 +90,16 @@ final class CustomerPriceRule extends Entity<String> implements IAggregateRoot {
     required CustomerPriceRuleReviewStatus reviewStatus,
     required int version,
     String? note,
+    DateTime? deletedAt,
   }) {
     if (version <= 0) {
       throw ArgumentError.value(version, 'version', 'must be positive');
+    }
+    final isDeleted = status == CustomerPriceRuleStatus.deleted;
+    if (isDeleted != (deletedAt != null)) {
+      throw ArgumentError(
+        'status == deleted must be equivalent to deletedAt != null',
+      );
     }
     return CustomerPriceRule._(
       id: id,
@@ -102,6 +114,7 @@ final class CustomerPriceRule extends Entity<String> implements IAggregateRoot {
       status: status,
       reviewStatus: reviewStatus,
       version: version,
+      deletedAt: deletedAt,
     );
   }
 
@@ -123,6 +136,8 @@ final class CustomerPriceRule extends Entity<String> implements IAggregateRoot {
   CustomerPriceRuleReviewStatus get reviewStatus => _reviewStatus;
   int _version;
   int get version => _version;
+  DateTime? _deletedAt;
+  DateTime? get deletedAt => _deletedAt;
 
   bool hasSameMutableValues({
     required Money price,
@@ -202,6 +217,23 @@ final class CustomerPriceRule extends Entity<String> implements IAggregateRoot {
     _version += 1;
     addDomainEvent(
       CustomerPriceRuleReenabledDomainEvent(
+        ruleId: id,
+        previousVersion: previousVersion,
+        newVersion: _version,
+      ),
+    );
+    return true;
+  }
+
+  bool softDelete({required DateTime deletedAt}) {
+    if (_status == CustomerPriceRuleStatus.deleted) return false;
+    CustomerPriceRuleCanBeDeletedRule(_status).ensureValid();
+    final previousVersion = _version;
+    _status = CustomerPriceRuleStatus.deleted;
+    _deletedAt = deletedAt;
+    _version += 1;
+    addDomainEvent(
+      CustomerPriceRuleDeletedDomainEvent(
         ruleId: id,
         previousVersion: previousVersion,
         newVersion: _version,

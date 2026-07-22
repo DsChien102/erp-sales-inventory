@@ -83,6 +83,7 @@ void main() {
     'import_updated': CustomerPriceRuleActivityType.importUpdated,
     'memory_created': CustomerPriceRuleActivityType.memoryCreated,
     'memory_updated': CustomerPriceRuleActivityType.memoryUpdated,
+    'deleted': CustomerPriceRuleActivityType.deleted,
   }.entries) {
     test('maps activity_type ${entry.key}', () {
       final page = CustomerPriceRuleHistoryRpcMapper.pageFromJson(

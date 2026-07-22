@@ -14,28 +14,19 @@ class PriceRuleFormReadinessSummary extends StatelessWidget {
     final colors = context.vColors;
     final price = form.rulePriceMinor;
     final list = form.listPriceMinor;
-    final floor =
-        form.floorPriceHidden ? null : form.floorPriceMinor;
+    final floor = form.floorPriceHidden ? null : form.floorPriceMinor;
 
     return VCard(
       backgroundColor: colors.successBg,
-      border: Border.all(
-        color: colors.success.withValues(alpha: 0.35),
-      ),
+      border: Border.all(color: colors.success.withValues(alpha: 0.35)),
       padding: const EdgeInsets.all(VSpacing.space4),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           if (list != null)
-            _ComparisonRow(
-              label: 'Giá hiện tại',
-              value: _formatMinor(list),
-            ),
+            _ComparisonRow(label: 'Giá hiện tại', value: _formatMinor(list)),
           if (floor != null)
-            _ComparisonRow(
-              label: 'Giá sàn',
-              value: _formatMinor(floor),
-            ),
+            _ComparisonRow(label: 'Giá sàn', value: _formatMinor(floor)),
           if (price != null && list != null)
             _ComparisonRow(
               label: 'So với giá hiện tại',
@@ -54,15 +45,13 @@ class PriceRuleFormReadinessSummary extends StatelessWidget {
   }
 
   String _formatMinor(int amountMinor) {
-    final amount = amountMinor / 100;
-    return '${amount.toStringAsFixed(0).replaceAllMapped(RegExp(r'\B(?=(\d{3})+(?!\d))'), (m) => '.')}đ';
+    return '${amountMinor.toString().replaceAllMapped(RegExp(r'\B(?=(\d{3})+(?!\d))'), (m) => '.')}đ';
   }
 
   String _formatDiffWithPercent(int diffMinor, {required int baseMinor}) {
-    final amount = diffMinor / 100;
-    final sign = amount > 0 ? '+' : '';
+    final sign = diffMinor > 0 ? '+' : '';
     final diffLabel =
-        '$sign${amount.toStringAsFixed(0).replaceAllMapped(RegExp(r'\B(?=(\d{3})+(?!\d))'), (m) => '.')}đ';
+        '$sign${diffMinor.toString().replaceAllMapped(RegExp(r'\B(?=(\d{3})+(?!\d))'), (m) => '.')}đ';
     if (baseMinor == 0) return diffLabel;
     final pct = (diffMinor / baseMinor) * 100;
     final pctLabel = pct.toStringAsFixed(1).replaceAll('.', ',');

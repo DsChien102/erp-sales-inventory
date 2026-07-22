@@ -40,21 +40,19 @@ class _PricingListPageState extends State<PricingListPage> {
   }
 
   void _onScroll() {
-    if (_scrollController.position.pixels >=
-        _scrollController.position.maxScrollExtent - 200) {
+    if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent - 200) {
       _cubit.fetchRules();
     }
   }
 
   Future<void> _openAddFlow(BuildContext context) async {
-    final state = _cubit.state;
-    await context.push(
-      '/pricing/choose-method',
-      extra: <String, bool>{
-        'canCreate': state.canCreate,
-        'canImport': state.canImport,
-      },
-    );
+    final ruleId = await context.push<String>('/pricing/choose-method');
+    if (!context.mounted) return;
+
+    if (ruleId != null) {
+      await context.push('/pricing/$ruleId');
+      if (!context.mounted) return;
+    }
     _cubit.refresh();
   }
 
@@ -118,24 +116,26 @@ class _PriceRuleListBody extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return switch (state) {
-      PriceRuleListLoading(:final isFirstLoad) when isFirstLoad =>
-        const _PriceRuleListSkeleton(),
-      PriceRuleListError(:final message) when state.items.isEmpty =>
-        VEmptyState(
-          icon: VIcons.error,
-          title: 'Không thể tải dữ liệu',
-          description: message,
-          actionLabel: 'Thử lại',
-          onActionPressed: cubit.refresh,
-        ),
-      _ when state.items.isEmpty && state is PriceRuleListLoaded =>
-        VEmptyState(
-          icon: VIcons.tag,
-          title: 'Chưa có giá riêng nào',
-          description: 'Tạo giá riêng hoặc nhập từ Excel để bắt đầu.',
-          actionLabel: state.canCreate ? 'Thêm giá riêng' : null,
-          onActionPressed: state.canCreate ? onOpenAdd : null,
-        ),
+      PriceRuleListLoading(:final isFirstLoad) when isFirstLoad => const _PriceRuleListSkeleton(),
+      PriceRuleListNoPermission() => const VEmptyState(
+        icon: VIcons.lock,
+        title: 'Không có quyền truy cập',
+        description: 'Bạn không có quyền xem danh sách giá riêng.',
+      ),
+      PriceRuleListError(:final message) when state.items.isEmpty => VEmptyState(
+        icon: VIcons.error,
+        title: 'Không thể tải dữ liệu',
+        description: message,
+        actionLabel: 'Thử lại',
+        onActionPressed: cubit.refresh,
+      ),
+      _ when state.items.isEmpty && state is PriceRuleListLoaded => VEmptyState(
+        icon: VIcons.tag,
+        title: 'Chưa có giá riêng nào',
+        description: 'Tạo giá riêng hoặc nhập từ Excel để bắt đầu.',
+        actionLabel: state.canCreate ? 'Thêm giá riêng' : null,
+        onActionPressed: state.canCreate ? onOpenAdd : null,
+      ),
       _ => PriceRuleListView(
         cubit: cubit,
         scrollController: scrollController,

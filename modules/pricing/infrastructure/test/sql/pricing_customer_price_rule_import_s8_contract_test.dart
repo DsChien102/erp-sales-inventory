@@ -20,7 +20,7 @@ void main() {
   test('catalog import resolver draft is internal-only provider', () {
     final sql = File(
       '${root.path}/supabase/migrations/_drafts/'
-      'catalog_pricing_import_product_unit_resolver.sql',
+      '003_catalog_pricing_import_product_unit_resolver.sql',
     ).readAsStringSync();
 
     expect(
@@ -45,11 +45,11 @@ void main() {
   test('S8 pricing import draft defines schema, RPCs, and boundaries', () {
     final sql = File(
       '${root.path}/supabase/migrations/_drafts/'
-      'pricing_customer_price_rule_import_s8.sql',
+      '010_pricing_customer_price_rule_import_s8.sql',
     ).readAsStringSync();
 
     expect(_touches(sql), _createdFunctions(sql));
-    expect(sql, contains('catalog_pricing_import_product_unit_resolver.sql'));
+    expect(sql, contains('003_catalog_pricing_import_product_unit_resolver.sql'));
     expect(
       sql,
       contains(
@@ -129,7 +129,7 @@ void main() {
   test('S8 preview redacts internal floor and matched-rule identifiers', () {
     final sql = File(
       '${root.path}/supabase/migrations/_drafts/'
-      'pricing_customer_price_rule_import_s8.sql',
+      '010_pricing_customer_price_rule_import_s8.sql',
     ).readAsStringSync();
     final preview = _functionBody(sql, '_import_row_preview');
 
@@ -148,7 +148,7 @@ void main() {
     () {
       final sql = File(
         '${root.path}/supabase/migrations/_drafts/'
-        'pricing_customer_price_rule_import_s8.sql',
+        '010_pricing_customer_price_rule_import_s8.sql',
       ).readAsStringSync();
       final getBody = _functionBody(sql, 'get_customer_price_rule_import');
 
@@ -167,7 +167,7 @@ void main() {
   test('S8 confirm performs authoritative rule and activity mutations', () {
     final sql = File(
       '${root.path}/supabase/migrations/_drafts/'
-      'pricing_customer_price_rule_import_s8.sql',
+      '010_pricing_customer_price_rule_import_s8.sql',
     ).readAsStringSync();
     final confirm = _functionBody(sql, 'confirm_customer_price_rule_import');
 
@@ -207,7 +207,7 @@ void main() {
   test('S8 confirm policy keeps terminal replay before version rejection', () {
     final sql = File(
       '${root.path}/supabase/migrations/_drafts/'
-      'pricing_customer_price_rule_import_s8.sql',
+      '010_pricing_customer_price_rule_import_s8.sql',
     ).readAsStringSync();
 
     final replayIndex = sql.indexOf("'is_replay', true");

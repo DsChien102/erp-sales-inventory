@@ -4,7 +4,7 @@
 -- Context: TH-04 EP02 S8 CONTRACT + BE
 -- Touches: _import_batch_result, _import_row_preview, _evaluate_customer_price_rule_import_row, create_customer_price_rule_import, get_customer_price_rule_import, confirm_customer_price_rule_import, cancel_customer_price_rule_import
 -- Safety: draft only; do not apply or promote without explicit migration review
--- Depends on: pricing_customer_price_rule_s1.sql, partner_pricing_customer_snapshot.sql, catalog_pricing_price_band_snapshot.sql, catalog_pricing_import_product_unit_resolver.sql
+-- Depends on: 004_pricing_customer_price_rule_s1.sql, 001_partner_pricing_customer_snapshot.sql, 002_catalog_pricing_price_band_snapshot.sql, 003_catalog_pricing_import_product_unit_resolver.sql
 
 alter table pricing.customer_price_rules
   drop constraint if exists customer_price_rules_source_type_check;

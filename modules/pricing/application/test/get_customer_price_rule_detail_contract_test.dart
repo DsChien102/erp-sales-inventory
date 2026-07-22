@@ -294,4 +294,10 @@ final class _ReadGateway implements IPricingReadGateway {
   Future<CursorPageDto<CustomerPriceRuleActivityDto>>
   getCustomerPriceRuleHistory(GetCustomerPriceRuleHistoryQuery query) async =>
       throw UnsupportedError('history not used');
+
+  @override
+  Future<ResolveApplicableCustomerPriceRuleResultDto>
+  resolveApplicableCustomerPriceRule(
+    ResolveApplicableCustomerPriceRuleQuery query,
+  ) async => throw UnsupportedError('resolve not used');
 }

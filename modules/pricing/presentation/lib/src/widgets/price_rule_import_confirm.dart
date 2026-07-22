@@ -21,6 +21,9 @@ class PriceRuleImportConfirmView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final batch = importDetail.batch;
+    final importableRows = batch.validRows + batch.warningRows;
+    final warningAcknowledged =
+        batch.warningRows == 0 || acknowledgeWarningRows;
     final colors = context.vColors;
     return VPagePadding(
       child: Column(
@@ -38,7 +41,7 @@ class PriceRuleImportConfirmView extends StatelessWidget {
                     value: '${batch.totalRows}',
                   ),
                   PriceRuleImportConfirmRow(
-                    label: 'Hợp lệ (sẽ import)',
+                    label: 'Hợp lệ',
                     value: '${batch.validRows}',
                     color: colors.success,
                   ),
@@ -90,12 +93,14 @@ class PriceRuleImportConfirmView extends StatelessWidget {
               const VGap.horizontalMd(),
               Expanded(
                 child: VButton(
-                  label: 'Import (${batch.validRows} dòng)',
+                  label: 'Import ($importableRows dòng)',
                   variant: VButtonVariant.primary,
                   fullWidth: true,
-                  onPressed: () => cubit.confirmImport(
-                    acknowledgeWarningRows: acknowledgeWarningRows,
-                  ),
+                  onPressed: importableRows > 0 && warningAcknowledged
+                      ? () => cubit.confirmImport(
+                          acknowledgeWarningRows: acknowledgeWarningRows,
+                        )
+                      : null,
                 ),
               ),
             ],

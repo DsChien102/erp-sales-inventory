@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
 import 'package:mocktail/mocktail.dart';
@@ -22,8 +23,7 @@ void main() {
 
   setUp(() {
     mockExecutionContext = MockExecutionContext();
-    when(() => mockExecutionContext.requireTenantId())
-        .thenAnswer((_) async => 'test-tenant-id');
+    when(() => mockExecutionContext.requireTenantId()).thenAnswer((_) async => 'test-tenant-id');
 
     final getIt = GetIt.instance;
     if (!getIt.isRegistered<IExecutionContext>()) {
@@ -58,8 +58,7 @@ void main() {
 
   // ── S2 / US-01 ──
   group('wgt_e02_u01 — PricingListPage (S2)', () {
-    testWidgets('wgt_e02_u01_fr01_01 — danh sách + VSearchBar + VCard',
-        (tester) async {
+    testWidgets('wgt_e02_u01_fr01_01 — danh sách + VSearchBar + VCard', (tester) async {
       GetIt.instance.registerSingleton<IPricingModule>(
         FakePricingModule(scenario: FakePricingScenario.searchRulesDefault),
       );
@@ -73,6 +72,7 @@ void main() {
       expect(find.byType(PriceRuleCard), findsWidgets);
       expect(find.byType(VCard), findsWidgets);
       expect(find.text('Khách hàng mẫu'), findsWidgets);
+      expect(find.text('90.000đ'), findsWidgets);
     });
 
     testWidgets('wgt_e02_u01_fr02_01 — empty state dùng VIcons', (tester) async {
@@ -91,6 +91,10 @@ void main() {
   // ── S4 / US-02 ──
   group('wgt_e02_u02 — PricingChooseMethodPage (S4)', () {
     testWidgets('wgt_e02_u02_fr01_01 — chọn phương thức thêm', (tester) async {
+      GetIt.instance.registerSingleton<IPricingModule>(
+        FakePricingModule(scenario: FakePricingScenario.searchRulesDefault),
+      );
+
       await tester.pumpWidget(
         createTestWidget(const PricingChooseMethodPage()),
       );
@@ -105,8 +109,7 @@ void main() {
 
   // ── S3 / US-03 ──
   group('wgt_e02_u03 — PricingDetailPage (S3)', () {
-    testWidgets('wgt_e02_u03_fr01_01 — chi tiết + CTA Thao tác primary',
-        (tester) async {
+    testWidgets('wgt_e02_u03_fr01_01 — chi tiết + CTA Thao tác primary', (tester) async {
       GetIt.instance.registerSingleton<IPricingModule>(
         FakePricingModule(scenario: FakePricingScenario.ruleDetailActive),
       );
@@ -122,13 +125,13 @@ void main() {
       final vButton = tester.widget<VButton>(buttonFinder);
       expect(vButton.label, 'Thao tác');
       expect(vButton.variant, VButtonVariant.primary);
+      expect(find.text('90.000 đ'), findsOneWidget);
     });
   });
 
   // ── S1 / US-04 ──
   group('wgt_e02_u04 — PricingFormPage create (S1)', () {
-    testWidgets('wgt_e02_u04_fr01_01 — form tạo dùng VMoneyField + VSection',
-        (tester) async {
+    testWidgets('wgt_e02_u04_fr01_01 — form tạo dùng VMoneyField + VSection', (tester) async {
       GetIt.instance.registerSingleton<IPricingModule>(
         FakePricingModule(scenario: FakePricingScenario.createRuleOk),
       );
@@ -143,13 +146,21 @@ void main() {
       expect(find.byType(VMoneyField), findsOneWidget);
       expect(find.text('Hủy'), findsOneWidget);
       expect(find.text('Lưu'), findsOneWidget);
+
+      final moneyField = tester.widget<VMoneyField>(find.byType(VMoneyField));
+      moneyField.onChanged?.call(100000);
+      await tester.pump();
+
+      final formContext = tester.element(find.byType(PriceRuleFormBody));
+      final cubit = formContext.read<PriceRuleFormCubit>();
+      final state = cubit.state as PriceRuleFormEditing;
+      expect(state.rulePriceMinor, 100000);
     });
   });
 
   // ── S8 / US-05 ──
   group('wgt_e02_u05 — PricingImportPage (S8)', () {
-    testWidgets('wgt_e02_u05_fr01_01 — wizard import bước chọn file',
-        (tester) async {
+    testWidgets('wgt_e02_u05_fr01_01 — wizard import bước chọn file', (tester) async {
       GetIt.instance.registerSingleton<IPricingModule>(
         FakePricingModule(scenario: FakePricingScenario.importTemplateV1),
       );
@@ -179,6 +190,8 @@ void main() {
       expect(find.byKey(const Key('wgt_e02_u06_fr01_01')), findsOneWidget);
       expect(find.text('Sửa giá riêng'), findsOneWidget);
       expect(find.byType(VMoneyField), findsOneWidget);
+      final moneyField = tester.widget<VMoneyField>(find.byType(VMoneyField));
+      expect(moneyField.controller?.text, '90,000');
     });
   });
 
@@ -248,8 +261,7 @@ void main() {
 
   // ── S10 / US-10 ──
   group('wgt_e02_u10 — PricingHistoryPage (S10)', () {
-    testWidgets('wgt_e02_u10_fr01_01 — timeline lịch sử + search',
-        (tester) async {
+    testWidgets('wgt_e02_u10_fr01_01 — timeline lịch sử + search', (tester) async {
       GetIt.instance.registerSingleton<IPricingModule>(
         FakePricingModule(scenario: FakePricingScenario.historyMixedSources),
       );

@@ -4,7 +4,7 @@
 -- Context: TH-04 EP02 S10 CONTRACT + BE
 -- Touches: _customer_price_rule_history_snapshot, get_customer_price_rule_history
 -- Safety: draft only; do not apply or promote without explicit migration review
--- Depends on: pricing_customer_price_rule_s1.sql, pricing_customer_price_rule_update_s5.sql, pricing_customer_price_rule_disable_s6.sql, pricing_customer_price_rule_reenable_s7.sql, pricing_customer_price_rule_import_s8.sql, pricing_remembered_price_from_order_s9.sql
+-- Depends on: 004_pricing_customer_price_rule_s1.sql, 007_pricing_customer_price_rule_update_s5.sql, 008_pricing_customer_price_rule_disable_s6.sql, 009_pricing_customer_price_rule_reenable_s7.sql, 010_pricing_customer_price_rule_import_s8.sql, 011_pricing_remembered_price_from_order_s9.sql
 
 create index if not exists customer_price_rule_activities_history_page_idx
   on pricing.customer_price_rule_activities (

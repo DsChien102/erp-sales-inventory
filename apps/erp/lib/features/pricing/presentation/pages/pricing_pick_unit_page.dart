@@ -101,10 +101,20 @@ class _PricingPickUnitPageState extends State<PricingPickUnitPage> {
   void _confirm() {
     final unit = _selectedUnit;
     if (unit == null) return;
-    context.pop(<String, String>{
+    final price = _priceByUnitId[unit.id];
+    final payload = <String, String>{
       'id': unit.id,
       'name': unit.name,
-    });
+    };
+    if (price != null && !price.listBeforeVatMissing) {
+      payload['listPriceDong'] = price.listBeforeVat!.toString();
+    }
+    if (price != null &&
+        !price.floorBeforeVatHidden &&
+        !price.floorBeforeVatMissing) {
+      payload['floorPriceDong'] = price.floorBeforeVat!.toString();
+    }
+    context.pop(payload);
   }
 
   @override

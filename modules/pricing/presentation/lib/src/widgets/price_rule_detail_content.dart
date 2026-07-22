@@ -29,8 +29,7 @@ class PriceRuleDetailContent extends StatelessWidget {
     final outcome = rule.validationOutcome;
     final listPrice = outcome.listPrice;
     final floorPrice = outcome.floorPrice;
-    final isBelowFloor =
-        outcome.warningCodes.contains('below_floor_price');
+    final isBelowFloor = outcome.warningCodes.contains('below_floor_price');
     final diff = listPrice == null
         ? null
         : rule.price.amountMinor - listPrice.amountMinor;
@@ -40,7 +39,8 @@ class PriceRuleDetailContent extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          if (rule.derivedStatus == CustomerPriceRuleDerivedStatus.needsReview ||
+          if (rule.derivedStatus ==
+                  CustomerPriceRuleDerivedStatus.needsReview ||
               isBelowFloor) ...[
             PriceRuleReviewBanner(
               issues: [
@@ -103,8 +103,7 @@ class PriceRuleDetailContent extends StatelessWidget {
                 icon: VIcons.tag,
                 label: 'Giá riêng',
                 value: _formatMoney(rule.price),
-                valueColor:
-                    isBelowFloor ? colors.danger : colors.textPrimary,
+                valueColor: isBelowFloor ? colors.danger : colors.textPrimary,
                 valueWeight: FontWeight.w700,
                 numeric: true,
               ),
@@ -127,10 +126,7 @@ class PriceRuleDetailContent extends StatelessWidget {
                 label: 'Chênh lệch',
                 value: diff == null
                     ? '—'
-                    : _formatDiff(
-                        diff,
-                        listPriceMinor: listPrice?.amountMinor,
-                      ),
+                    : _formatDiff(diff, listPriceMinor: listPrice?.amountMinor),
                 valueColor: diff == null
                     ? null
                     : (diff < 0 ? colors.danger : colors.success),
@@ -197,12 +193,14 @@ class PriceRuleDetailContent extends StatelessWidget {
               ],
             ),
           ],
-          if (onViewHistory != null || (recentActivities != null && recentActivities!.isNotEmpty)) ...[
+          if (onViewHistory != null ||
+              (recentActivities != null && recentActivities!.isNotEmpty)) ...[
             const VGap.sm(),
             PriceRuleDetailSectionCard(
               title: 'Lịch sử gần đây',
               children: [
-                if (recentActivities != null && recentActivities!.isNotEmpty) ...[
+                if (recentActivities != null &&
+                    recentActivities!.isNotEmpty) ...[
                   for (final item in recentActivities!.take(3)) ...[
                     PriceRuleRecentHistoryItem(activity: item),
                     const VGap.sm(),
@@ -215,7 +213,9 @@ class PriceRuleDetailContent extends StatelessWidget {
                     onTap: onViewHistory,
                     borderRadius: BorderRadius.circular(VRadius.r8),
                     child: Padding(
-                      padding: const EdgeInsets.symmetric(vertical: VSpacing.space1),
+                      padding: const EdgeInsets.symmetric(
+                        vertical: VSpacing.space1,
+                      ),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
@@ -245,20 +245,16 @@ class PriceRuleDetailContent extends StatelessWidget {
   }
 
   String _formatMoney(MoneyDto money) {
-    final amount = money.amountMinor / 100;
-    return '${amount.toStringAsFixed(0).replaceAllMapped(RegExp(r'\B(?=(\d{3})+(?!\d))'), (m) => '.')} đ';
+    return '${money.amountMinor.toString().replaceAllMapped(RegExp(r'\B(?=(\d{3})+(?!\d))'), (m) => '.')} đ';
   }
 
   String _formatDiff(int diffMinor, {int? listPriceMinor}) {
-    final amount = diffMinor / 100;
-    final sign = amount > 0 ? '+' : '';
+    final sign = diffMinor > 0 ? '+' : '';
     final amountLabel =
-        '$sign${amount.toStringAsFixed(0).replaceAllMapped(RegExp(r'\B(?=(\d{3})+(?!\d))'), (m) => '.')} đ';
+        '$sign${diffMinor.toString().replaceAllMapped(RegExp(r'\B(?=(\d{3})+(?!\d))'), (m) => '.')} đ';
     if (listPriceMinor == null || listPriceMinor == 0) return amountLabel;
     final pct = (diffMinor / listPriceMinor) * 100;
-    final pctLabel = pct
-        .toStringAsFixed(1)
-        .replaceAll('.', ',');
+    final pctLabel = pct.toStringAsFixed(1).replaceAll('.', ',');
     return '$amountLabel ($sign$pctLabel%)';
   }
 

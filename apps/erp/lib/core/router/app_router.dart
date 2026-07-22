@@ -542,19 +542,7 @@ final appRouter = GoRouter(
     GoRoute(
       path: '/pricing/choose-method',
       name: 'pricing.choose-method',
-      builder: (context, state) {
-        final extra = state.extra;
-        final canCreate = extra is Map
-            ? (extra['canCreate'] as bool?) ?? true
-            : true;
-        final canImport = extra is Map
-            ? (extra['canImport'] as bool?) ?? true
-            : true;
-        return PricingChooseMethodPage(
-          canCreate: canCreate,
-          canImport: canImport,
-        );
-      },
+      builder: (context, state) => const PricingChooseMethodPage(),
     ),
     GoRoute(
       path: '/pricing/new',

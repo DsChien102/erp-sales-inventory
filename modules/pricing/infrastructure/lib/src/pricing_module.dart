@@ -84,6 +84,21 @@ final class PricingModule implements IPricingModule {
         );
       }
     }
+    if (command is DeleteCustomerPriceRuleCommand) {
+      final deleteCommand = command as DeleteCustomerPriceRuleCommand;
+      try {
+        return deleteCommand.withExecutionContext(
+              tenantId: await _executionContext.requireTenantId(),
+              actorId: await _executionContext.requireUserId(),
+            )
+            as ICommand<TResult>;
+      } on ApplicationException {
+        throw const PricingBlockedException(
+          PricingBlockedCodes.noPermission,
+          message: 'Execution context is required.',
+        );
+      }
+    }
     if (command is ReenableCustomerPriceRuleCommand) {
       final reenableCommand = command as ReenableCustomerPriceRuleCommand;
       try {

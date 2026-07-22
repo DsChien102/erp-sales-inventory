@@ -8,6 +8,7 @@ final pricingModuleManifest = GeneratedModuleManifest(
   name: 'pricing',
   permissions: [
     'pricing.customer_price_rule.create',
+    'pricing.customer_price_rule.delete',
     'pricing.customer_price_rule.disable',
     'pricing.customer_price_rule.import',
     'pricing.customer_price_rule.override_floor_price',
@@ -21,6 +22,7 @@ final pricingModuleManifest = GeneratedModuleManifest(
     CancelCustomerPriceRuleImportCommand,
     ConfirmCustomerPriceRuleImportCommand,
     CreateCustomerPriceRuleCommand,
+    DeleteCustomerPriceRuleCommand,
     DisableCustomerPriceRuleCommand,
     ReenableCustomerPriceRuleCommand,
     SaveRememberedPriceFromOrderCommand,
@@ -33,6 +35,7 @@ final pricingModuleManifest = GeneratedModuleManifest(
     GetCustomerPriceRuleImportQuery,
     GetCustomerPriceRuleImportTemplateQuery,
     PrecheckCustomerPriceRuleReenableQuery,
+    ResolveApplicableCustomerPriceRuleQuery,
     SearchCustomerPriceRulesQuery,
   ],
 );

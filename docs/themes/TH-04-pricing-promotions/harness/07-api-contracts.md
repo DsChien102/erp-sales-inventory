@@ -23,7 +23,7 @@ Source of truth giữa presentation và application cho EP02. Types sẽ sống 
 | `NOT_FOUND` | Rule/batch không tồn tại hoặc không visible | Not-found state |
 | `VALIDATION_ERROR` | Field/value/date invalid | Field errors |
 | `INVALID_STATUS` | Action không hợp lifecycle | Refresh current state |
-| `DUPLICATE_ACTIVE_RULE` | Active interval conflict | Show conflict summary/link |
+| `DUPLICATE_ACTIVE_RULE` | Active interval conflict (import: **warning**, still importable with acknowledgement; confirm auto-disables overlaps) | Show conflict summary/link; require warning ack on import |
 | `BELOW_FLOOR_BLOCKED` | Floor policy chặn | Explain policy/override eligibility |
 | `REFERENCE_INVALID` | Customer/product/unit không hợp lệ | Reselect or row error |
 | `AMBIGUOUS_PRODUCT_UNIT` | Import không resolve được unique/default unit | Row error |
@@ -73,7 +73,7 @@ Source of truth giữa presentation và application cho EP02. Types sẽ sống 
 
 | Symbol | Input summary | Success | Errors |
 | ------ | ------------- | ------- | ------ |
-| `CreateCustomerPriceRuleCommand` | context-derived tenantId/actorId; customerId, productId, productUnitId, rulePriceMinor, currencyCode, effectiveFrom, effectiveTo?, note?, acknowledgeFloorWarning, idempotencyKey | `CreateCustomerPriceRuleResult(rule, warnings)` | `NO_PERMISSION`, `VALIDATION_ERROR`, `DUPLICATE_ACTIVE_RULE`, `BELOW_FLOOR_BLOCKED`, `REFERENCE_INVALID`, `IDEMPOTENCY_CONFLICT`, `SYSTEM_ERROR` |
+| `CreateCustomerPriceRuleCommand` | context-derived tenantId/actorId; customerId, productId, productUnitId, rulePriceMinor, currencyCode, effectiveFrom, effectiveTo?, note?, acknowledgeFloorWarning, idempotencyKey | `CreateCustomerPriceRuleResult(rule, warnings)` | `NO_PERMISSION`, `VALIDATION_ERROR`, `BELOW_FLOOR_BLOCKED`, `REFERENCE_INVALID`, `IDEMPOTENCY_CONFLICT`, `SYSTEM_ERROR` |
 
 `tenantId` và `actorId` được command executor điền từ `IExecutionContext`; form không được cung cấp và mutation RPC luôn lấy actor từ `auth.uid()`. Command có `@RequiresTenant()` và `@RequiresPermission(PricingPermissions.createCustomerPriceRule)`. Date được chuẩn hóa thành calendar date UTC; money luôn là integer minor units.
 
@@ -90,14 +90,14 @@ Server assigns type=`special_price`, source=`manual`, status=`active`, version=`
 | Partner customer provider | `partner._get_customer_snapshot_for_pricing` | internal draft; no client execute |
 | Catalog price-band provider | `catalog._get_product_price_band_snapshot_for_pricing` | internal draft; no client execute |
 
-Mutation rechecks tenant/create permission, references, duplicate closed-interval overlap and floor policy under advisory locks. It writes rule + `created` activity in one transaction. `(tenant_id, idempotency_key)` is unique: same normalized payload returns the original result, different payload returns `IDEMPOTENCY_CONFLICT`.
+Mutation rechecks tenant/create permission, references, closed-interval overlap, and floor policy under advisory locks. Nếu gặp active overlap cùng key thì RPC tự disable rule cũ rồi mới ghi rule mới. Nó ghi disable activity cho rule cũ (nếu có) và `created` activity cho rule mới trong cùng transaction. `(tenant_id, idempotency_key)` là unique: same normalized payload returns the original result, different payload returns `IDEMPOTENCY_CONFLICT`.
 
 ### Fake scenarios
 
 | scenario_id | Trigger | Fake response |
 | ----------- | ------- | ------------- |
 | `create_rule_ok` | valid unique candidate | active detail DTO |
-| `create_rule_duplicate` | overlapping key | `DUPLICATE_ACTIVE_RULE` |
+| `create_rule_duplicate` | overlapping key | success; conflicting active rule auto-disabled |
 | `create_rule_floor_warning` | warn policy | result + warning |
 | `create_rule_floor_blocked` | block/no override | `BELOW_FLOOR_BLOCKED` |
 | `create_rule_reference_invalid` | stale customer/unit | `REFERENCE_INVALID` |
@@ -112,17 +112,19 @@ Mutation rechecks tenant/create permission, references, duplicate closed-interva
 
 `quickFilter` wire values là `all`, `applying`, `below_floor`. Derived-status wire values là `applying`, `not_yet_effective`, `disabled`, `expired`, `needs_review`; source wire values là `manual`, `excel_import`, `sales_order`, `migration`. `limit` mặc định 20 và hợp lệ trong khoảng 1–100. `q` được trim, blank thành null và tối đa 120 ký tự. `businessDate` là calendar date UTC.
 
-Search dùng Pricing-owned snapshots: customer name/UUID và product name/UUID/reference/SKU. Customer code deferred vì Partner chưa sở hữu field này. Không có custom effectivity hoặc updated-date range trong V1. Tất cả filter kết hợp bằng AND; deleted luôn bị loại.
+Search dùng Pricing-owned snapshots cho customer/product identity (name/UUID/reference/SKU). **Giá hiện tại (`list_price`)** trên list ưu tiên Catalog-live price band (cùng tiêu chí `current` như detail S3), fallback `list_price_snapshot_minor` khi band không current. Customer code deferred vì Partner chưa sở hữu field này. Không có custom effectivity hoặc updated-date range trong V1. Tất cả filter kết hợp bằng AND; deleted luôn bị loại (`status <> 'deleted'` và `deleted_at is null`).
 
 Derived-status precedence: persisted `disabled` → `disabled`; persisted/review blocking hoặc blocking codes → `needs_review`; `effective_to < businessDate` → `expired`; `effective_from > businessDate` → `not_yet_effective`; còn lại → `applying`. Effective boundaries là inclusive.
 
-Cursor opaque, server seek theo `updated_at DESC, id DESC`; Dart không parse cursor. `below_floor` phản ánh validation snapshot gần nhất, không phải Catalog-live. List không trả floor amount; chỉ trả warning codes và `floorPriceHidden`.
+Cursor opaque, server seek theo `updated_at DESC, id DESC`; Dart không parse cursor. `below_floor` quick-filter vẫn phản ánh validation **snapshot** gần nhất (warning code / floor snapshot), không recompute từ Catalog-live. List không trả floor amount; chỉ trả warning codes và `floorPriceHidden` (true khi floor live/snapshot có giá trị).
+
+Draft SQL: `005_pricing_customer_price_rule_search_s2.sql`, patch list-price live `015_pricing_customer_price_rule_search_list_price_live.sql`.
 
 Screen actions có stable values `create_manual` và `import`, lần lượt phụ thuộc quyền create/import. Tenant được bind từ `IExecutionContext`; query guard và RPC đều recheck quyền view/tenant. RPC không nhận actor ID.
 
 | Use case | RPC | Status |
 | -------- | --- | ------ |
-| Search/list | `pricing.search_customer_price_rules` | draft / Pricing snapshot projection |
+| Search/list | `pricing.search_customer_price_rules` | draft / identity snapshot + Catalog-live `list_price` (015) |
 
 | scenario_id | Trigger | Fake response |
 | ----------- | ------- | ------------- |
@@ -168,7 +170,7 @@ Derived precedence (business date inclusive): `disabled` → `needs_review` → 
 - IDs/labels hiển thị vẫn là Pricing-owned stored snapshots (archived references vẫn explainable).
 - Live health/list/floor đến từ `partner._get_customer_snapshot_for_pricing` và `catalog._get_product_price_band_snapshot_for_pricing` — không join provider private tables.
 - Provider `exists=false`/inactive → issue codes + stored price-band fallback khi cần; provider technical failure → `SYSTEM_ERROR`.
-- Live enrichment **không** mutate persisted status, validation snapshot, version, activity, hay S2 list projection.
+- Live enrichment **không** mutate persisted status, validation snapshot, version, hay activity. List search (`015`) cũng enrich `list_price` Catalog-live độc lập; detail không ghi đè projection đã lưu trên rule.
 
 Issue codes ổn định: `customer_reference_inactive`, `customer_reference_missing`, `product_unit_reference_inactive`, `product_unit_reference_missing`, `price_band_currency_mismatch`, `price_band_minor_units_invalid`, `below_floor_price`.
 
@@ -188,7 +190,7 @@ Below-floor luôn expose warning `below_floor_price`. Floor amount chỉ hiện 
 
 | Use case | RPC | Status |
 | -------- | --- | ------ |
-| Rule detail | `pricing.get_customer_price_rule_detail(uuid, uuid, date)` | draft / `_drafts/pricing_customer_price_rule_detail_s3.sql` |
+| Rule detail | `pricing.get_customer_price_rule_detail(uuid, uuid, date)` | draft / `_drafts/006_pricing_customer_price_rule_detail_s3.sql` |
 
 ### Fake scenarios
 
@@ -210,7 +212,7 @@ No server command/RPC. FE derives visible routes from capabilities and destinati
 
 | Symbol | Input summary | Success | Errors |
 | ------ | ------------- | ------- | ------ |
-| `UpdateCustomerPriceRuleCommand` | context-derived `tenantId`/`actorId`; required `ruleId` (canonical UUID), `expectedVersion`, `rulePriceMinor`, `effectiveFrom`; optional `effectiveTo`, `note`; required `acknowledgeFloorWarning` | `CustomerPriceRuleDetailDto` (direct result, no wrapper) | `NO_PERMISSION`, `VALIDATION_ERROR`, `STATE_CHANGED`, `INVALID_STATUS`, `DUPLICATE_ACTIVE_RULE`, `BELOW_FLOOR_BLOCKED`, `REFERENCE_INVALID`, `NOT_FOUND`, `SYSTEM_ERROR` |
+| `UpdateCustomerPriceRuleCommand` | context-derived `tenantId`/`actorId`; required `ruleId` (canonical UUID), `expectedVersion`, `rulePriceMinor`, `effectiveFrom`; optional `effectiveTo`, `note`; required `acknowledgeFloorWarning` | `CustomerPriceRuleDetailDto` (direct result, no wrapper) | `NO_PERMISSION`, `VALIDATION_ERROR`, `STATE_CHANGED`, `INVALID_STATUS`, `BELOW_FLOOR_BLOCKED`, `REFERENCE_INVALID`, `NOT_FOUND`, `SYSTEM_ERROR` |
 
 `tenantId`/`actorId` are replaced by `withExecutionContext(...)` after dispatch, never trusted from caller input. Command carries `@RequiresTenant()` and `@RequiresPermission(PricingPermissions.updateCustomerPriceRule)`. Money stays integer minor units (`rulePriceMinor`); dates are calendar dates UTC. **No** `currencyCode`, customer/product/unit identity, `ruleType`, or `sourceType` field exists on this command — currency and identity/source are immutable via update and are always read from the reconstituted current rule, never from client input.
 
@@ -229,7 +231,7 @@ No server command/RPC. FE derives visible routes from capabilities and destinati
 
 **Authoritative RPC params (exact, in order):** `p_tenant_id uuid`, `p_rule_id uuid`, `p_expected_version integer`, `p_rule_price_minor bigint`, `p_effective_from date`, `p_effective_to date`, `p_note text`, `p_acknowledge_floor_warning boolean`. Neither RPC has a `p_actor_id` parameter; actor identity is always `auth.uid()`.
 
-Authoritative flow: `select ... for update` row lock on the rule → `NOT_FOUND` if missing/deleted → `STATE_CHANGED` if `version <> expected_version` → `INVALID_STATUS` if persisted status is outside `active`/`needs_review`/`disabled` → no-op short-circuit (normalized price/dates/note unchanged) returns current detail with **no** provider revalidation, version increment, or activity row → otherwise revalidate customer/product-unit references (`REFERENCE_INVALID`), floor policy (`BELOW_FLOOR_BLOCKED` for missing acknowledgement or missing override permission), advisory-lock + duplicate active-interval check excluding the current rule (`DUPLICATE_ACTIVE_RULE`) → single `update` (`version = version + 1`, disabled rules stay `disabled`, any other status normalizes to `active` — including a fixed `needs_review` rule, whose validation/review snapshot is refreshed from the recheck) → exactly one `'updated'` activity row with old/new snapshots, same transaction, same statement group.
+Authoritative flow: `select ... for update` row lock on the rule → `NOT_FOUND` if missing/deleted → `STATE_CHANGED` if `version <> expected_version` → `INVALID_STATUS` if persisted status is outside `active`/`needs_review`/`disabled` → no-op short-circuit (normalized price/dates/note unchanged) returns current detail with **no** provider revalidation, version increment, or activity row → otherwise revalidate customer/product-unit references (`REFERENCE_INVALID`), floor policy (`BELOW_FLOOR_BLOCKED` for missing acknowledgement or missing override permission), advisory-lock + duplicate active-interval check excluding the current rule → nếu có conflict thì auto-disable conflicting active rule + ghi disable activity → single `update` (`version = version + 1`, disabled rules stay `disabled`, any other status normalizes to `active` — including a fixed `needs_review` rule, whose validation/review snapshot is refreshed from the recheck) → exactly one `'updated'` activity row with old/new snapshots, same transaction, same statement group.
 
 ### Fake scenarios (all eight `FakePricingScenario.updateRule*` variants)
 
@@ -238,7 +240,7 @@ Authoritative flow: `select ... for update` row lock on the rule → `NOT_FOUND`
 | `updateRuleOk` | current version + changed price | detail with `version = expectedVersion + 1` |
 | `updateRuleNoop` | no actual change vs. current snapshot | current detail, `version` unchanged (no new activity) |
 | `updateRuleStateChanged` | stale `expectedVersion` | `STATE_CHANGED` |
-| `updateRuleDuplicate` | new interval overlaps another active rule | `DUPLICATE_ACTIVE_RULE` |
+| `updateRuleDuplicate` | new interval overlaps another active rule | success; conflicting active rule auto-disabled |
 | `updateRuleFloorWarning` | below floor, acknowledged + override permission | detail with `warningCodes: ['below_floor_price']`, `priceCheckStatus: overrideAllowed` |
 | `updateRuleFloorBlocked` | below floor, missing acknowledgement or override permission | `BELOW_FLOOR_BLOCKED` |
 | `updateRuleReferenceInvalid` | archived/inactive customer or product unit | `REFERENCE_INVALID` |
@@ -337,7 +339,7 @@ No Partner/Catalog provider call, floor check, duplicate check, advisory context
 | Symbol | Input | Success | Errors |
 | ------ | ----- | ------- | ------ |
 | `PrecheckCustomerPriceRuleReenableQuery` | ruleId, expectedVersion, businessDate | `CustomerPriceRuleReenablePrecheckDto` | permission, not found, invalid status, state changed |
-| `ReenableCustomerPriceRuleCommand` | ruleId, expectedVersion, businessDate, precheckToken?, acknowledgeFloorWarning | active `CustomerPriceRuleDetailDto` | duplicate, floor, reference, state changed, invalid status |
+| `ReenableCustomerPriceRuleCommand` | ruleId, expectedVersion, businessDate, precheckToken?, acknowledgeFloorWarning | active `CustomerPriceRuleDetailDto` | floor, reference, state changed, invalid status |
 
 `businessDate` is normalized to a UTC calendar date in both query and command. `precheckToken` when present must be exactly 64 lowercase hexadecimal characters. A supplied stale token returns `STATE_CHANGED` before newly discovered business-validation errors. Token absence never skips authoritative commit-time validation.
 
@@ -352,7 +354,7 @@ Precheck token is advisory/staleness evidence: a stateless HMAC-SHA-256 fingerpr
 | Invalid customer | `blocked / customer_reference_invalid` | `REFERENCE_INVALID` |
 | Invalid product/unit | `blocked / product_unit_reference_invalid` | `REFERENCE_INVALID` |
 | Currency mismatch | `blocked / currency_mismatch` | `REFERENCE_INVALID` |
-| Active overlap | `blocked / duplicate_active_rule` | `DUPLICATE_ACTIVE_RULE` |
+| Active overlap | `valid` (commit auto-disables conflicting active rule) | success |
 | Expired effective period | `blocked / effective_period_expired` | `INVALID_STATUS`, reason `effectivePeriodExpired` |
 | Below floor without override | `blocked / override_permission_required` | `BELOW_FLOOR_BLOCKED` |
 
@@ -372,7 +374,7 @@ Promotion/deployment must provision a non-blank Vault secret named `pricing_reen
 | ----------- | ------- | ------------- |
 | `reenablePrecheckValid` | clean disabled rule | valid outcome + 64-char token |
 | `reenablePrecheckWarning` | below floor warn | warning / below_floor_price |
-| `reenablePrecheckBlockedDuplicate` | active overlap | blocked / duplicate_active_rule |
+| `reenablePrecheckBlockedDuplicate` | active overlap | valid outcome; commit will auto-disable conflicting active rule |
 | `reenablePrecheckBlockedExpired` | expired effective period | blocked / effective_period_expired |
 | `reenablePrecheckBlockedReference` | invalid customer | blocked / customer_reference_invalid |
 | `reenablePrecheckDenied` | missing permission | `NO_PERMISSION` |
@@ -381,7 +383,7 @@ Promotion/deployment must provision a non-blank Vault secret named `pricing_reen
 | `reenableOk` | current valid confirm | active detail, version N+1, no reenable action |
 | `reenableFloorOverrideOk` | below floor acknowledged | active detail with warning |
 | `reenableStateChanged` | state changes after precheck | `STATE_CHANGED` |
-| `reenableDuplicate` | duplicate at commit | `DUPLICATE_ACTIVE_RULE` |
+| `reenableDuplicate` | duplicate at commit | success; conflicting active rule auto-disabled |
 | `reenableFloorBlocked` | floor without override/ack | `BELOW_FLOOR_BLOCKED` |
 | `reenableReferenceInvalid` | reference invalid at commit | `REFERENCE_INVALID` |
 | `reenableExpired` | expired at commit | `INVALID_STATUS` |
@@ -391,7 +393,7 @@ Lane status: CONTRACT `done`, BE `done`, FE `todo`, E2E `todo`.
 
 ## §S8 — US-05 Excel import
 
-Lane status: CONTRACT `in_progress`, BE `in_progress`, FE `todo`, E2E `todo`.
+Lane status: CONTRACT `done`, BE `done`, FE `done`, E2E `done (Fake)`; applied-RPC E2E vẫn cần kiểm chứng thủ công trên môi trường đã chạy draft.
 
 ### Contracts
 
@@ -409,13 +411,19 @@ Template V1: sheets `customer_price_rules` + `instructions`; exact headers `rule
 
 | Use case | RPC | Status |
 | -------- | --- | ------ |
-| Create/validate batch | `pricing.create_customer_price_rule_import` | draft / unapplied |
-| Read batch/rows | `pricing.get_customer_price_rule_import` | draft / unapplied |
-| Confirm | `pricing.confirm_customer_price_rule_import` | draft / unapplied |
-| Cancel | `pricing.cancel_customer_price_rule_import` | draft / unapplied |
+| Create/validate batch | `pricing.create_customer_price_rule_import` | draft trong repo; user-applied test env |
+| Read batch/rows | `pricing.get_customer_price_rule_import` | draft trong repo; user-applied test env |
+| Confirm | `pricing.confirm_customer_price_rule_import` | draft trong repo; user-applied test env |
+| Cancel | `pricing.cancel_customer_price_rule_import` | draft trong repo; user-applied test env |
 | Catalog unit resolver | `catalog._resolve_product_unit_for_pricing_import` | internal draft; no client execute |
 
-Draft SQL: `supabase/migrations/_drafts/pricing_customer_price_rule_import_s8.sql`, `catalog_pricing_import_product_unit_resolver.sql`. No workbook storage; no async worker in V1.
+Draft SQL: `supabase/migrations/_drafts/010_pricing_customer_price_rule_import_s8.sql`, `013_pricing_customer_price_rule_import_overlap_policy.sql` (duplicate → warning + confirm auto-disable), `003_catalog_pricing_import_product_unit_resolver.sql`. No workbook storage; no async worker in V1.
+
+**BR-07 import overlap:** Preview puts `DUPLICATE_ACTIVE_RULE` in `warning_codes` (not `error_codes`). Confirm keeps rule-key advisory lock, calls `_auto_disable_overlapping_customer_price_rules` immediately before create/update with `replacement_action` `import_created`/`import_updated`, then writes import activity. Same-file conflicts: ascending `row_number`; later row wins; earlier imported rules may be auto-disabled by later rows. No confirm branch fails a row solely for duplicate.
+
+FE S8 dùng canonical `CustomerPriceRuleImportTemplateDto.versionV1`, tải template qua `GetCustomerPriceRuleImportTemplateQuery`, lưu bytes bằng app-local `PricingImportFileService`, cho phép partial import khi `validRows + warningRows > 0`, bắt buộc acknowledge warning và gọi cancel command trước khi bỏ batch `ready_to_import`. File-level parser errors được map thành thông báo tiếng Việt; tải workbook lỗi nằm ngoài scope.
+
+Fake E2E evidence: `pricing_import_history_e2e_test.dart` kiểm tra tải đúng filename/bytes, mixed-row confirm partial và cancel batch từ preview. Cubit/widget tests bao phủ tenant query, expectedVersion, cancel failure giữ preview, CTA partial/empty và warning acknowledgement.
 
 ### Fake scenarios
 
@@ -438,7 +446,7 @@ Draft SQL: `supabase/migrations/_drafts/pricing_customer_price_rule_import_s8.sq
 
 ## §S9 — US-09 Remember price from Sales
 
-**S9 baseline 2026-07-16:** CONTRACT + BE frozen. SQL draft `pricing_remembered_price_from_order_s9` chưa apply. FE `todo`, E2E `blocked`. Không có Sales dependency, outbox, hay async worker.
+**S9 baseline 2026-07-16:** CONTRACT + BE frozen. SQL draft `011_pricing_remembered_price_from_order_s9` chưa apply. FE `todo`, E2E `blocked`. Không có Sales dependency, outbox, hay async worker.
 
 ### Contract
 
@@ -496,7 +504,7 @@ Permission: `PricingPermissions.viewCustomerPriceRuleHistory` (`pricing.customer
 
 #### Activity DTO (frozen)
 
-- `id`, `activityType` (`created`/`updated`/`disabled`/`reenabled`/`importCreated`/`importUpdated`/`memoryCreated`/`memoryUpdated`)
+- `id`, `activityType` (`created`/`updated`/`disabled`/`reenabled`/`deleted`/`importCreated`/`importUpdated`/`memoryCreated`/`memoryUpdated`)
 - `actor`: `actorId?`, `displayName`, `isSystemActor` — legacy null actor → `System/Migration` / `isSystemActor=true`; có `created_by` → display prefix 8 chars, không IAM join
 - `sourceType` required (`manual`/`excelImport`/`salesOrder`/`migration`) với deterministic RPC fallback cho legacy rows
 - `oldValue?` (null trên create), `newValue` required (malformed/null → fail closed)
@@ -539,6 +547,43 @@ pricing.get_customer_price_rule_history(
 | `history_malformed_cursor` / `historyMalformedCursor` | invalid cursor | `VALIDATION_ERROR` |
 | `history_denied` / `historyDenied` | missing permission | `NO_PERMISSION` |
 | `history_system_error` / `historySystemError` | gateway failure | `SYSTEM_ERROR` |
+
+## BR-08 — Resolve applicable customer price rule
+
+Pricing-owned resolver only. Does **not** compute final order price, promotions, tax, or list-price fallback. Does **not** integrate Sales.
+
+### Contract
+
+| Symbol | Input summary | Success | Errors |
+| ------ | ------------- | ------- | ------ |
+| `ResolveApplicableCustomerPriceRuleQuery` | tenantId, customerId, productId, productUnitId, businessDate | `ResolveApplicableCustomerPriceRuleResultDto` with optional `ApplicableCustomerPriceRuleDto` (`ruleId`, `price`, `effectivePeriod`, `sourceType`, `version`) | permission, validation, system |
+
+Permission: `pricing.customer_price_rule.view`. Returns `rule: null` when no eligible rule. Eligible = active, not deleted, in closed period for `businessDate`, not blocked / empty `blockingCodes`. More than one applicable row → `SYSTEM_ERROR` (integrity).
+
+### RPC
+
+| Use case | RPC | Status |
+| -------- | --- | ------ |
+| Resolve applicable | `pricing.resolve_applicable_customer_price_rule` | draft `014_pricing_customer_price_rule_lifecycle_eligibility.sql` |
+
+## BR-09 — Soft-delete customer price rule
+
+No FE soft-delete action in this delivery. BE + SQL only.
+
+### Contract
+
+| Symbol | Input summary | Success | Errors |
+| ------ | ------------- | ------- | ------ |
+| `DeleteCustomerPriceRuleCommand` | tenantId, actorId, ruleId, expectedVersion | detail DTO (deleted; `availableActions = []`); replay returns current deleted state | `NOT_FOUND`, `STATE_CHANGED`, `INVALID_STATUS` (disabled), `NO_PERMISSION`, system |
+
+Permission: `pricing.customer_price_rule.delete`. `active`/`needs_review` → `deleted` + `deletedAt` + one `deleted` activity. Already deleted = idempotent replay. Detail DTO may include `deletedAt`.
+
+### RPC / DDL
+
+| Use case | RPC / DDL | Status |
+| -------- | --------- | ------ |
+| Soft delete | `pricing.delete_customer_price_rule` | draft `014` |
+| Exclusion + `deleted_at` | table constraints | draft `014` (manual order after `013`) |
 
 ## Contract freeze checklist
 

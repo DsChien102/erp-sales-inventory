@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:vet45_design_system/design_system.dart';
 import 'package:vet45_pricing_application/application.dart';
 
+import '../formatters/price_rule_import_issue_formatter.dart';
+
 /// Chip thống kê preview import.
 class PriceRuleImportStatChip extends StatelessWidget {
   const PriceRuleImportStatChip({
@@ -54,21 +56,50 @@ class PriceRuleImportRowTile extends StatelessWidget {
       CustomerPriceRuleImportRowStatus.error => colors.danger,
       _ => colors.textMuted,
     };
+    final errorMessages = row.errorCodes
+        .map((code) => PriceRuleImportIssueFormatter.errorMessage(code, row))
+        .toList(growable: false);
+    final warningMessages = row.warningCodes
+        .map((code) => PriceRuleImportIssueFormatter.warningMessage(code, row))
+        .toList(growable: false);
 
     return VCard(
       padding: const EdgeInsets.all(VSpacing.space3),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            width: 8,
-            height: 8,
-            decoration: BoxDecoration(color: tone, shape: BoxShape.circle),
+          Padding(
+            padding: const EdgeInsets.only(top: VSpacing.space1),
+            child: Container(
+              width: 8,
+              height: 8,
+              decoration: BoxDecoration(color: tone, shape: BoxShape.circle),
+            ),
           ),
           const VGap.horizontalSm(),
           Expanded(
-            child: VText(
-              'Dòng ${row.rowNumber}: $custName · $prodName',
-              variant: VTextVariant.bodySmallMono,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                VText(
+                  'Dòng ${row.rowNumber}: $custName · $prodName',
+                  variant: VTextVariant.bodySmallMono,
+                ),
+                if (errorMessages.isNotEmpty || warningMessages.isNotEmpty)
+                  const VGap.xs(),
+                for (final message in errorMessages)
+                  VText(
+                    message,
+                    variant: VTextVariant.bodySmall,
+                    color: colors.danger,
+                  ),
+                for (final message in warningMessages)
+                  VText(
+                    message,
+                    variant: VTextVariant.bodySmall,
+                    color: colors.warning,
+                  ),
+              ],
             ),
           ),
         ],

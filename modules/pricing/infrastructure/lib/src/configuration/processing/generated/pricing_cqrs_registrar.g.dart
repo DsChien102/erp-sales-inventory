@@ -20,6 +20,9 @@ void registerGeneratedPricingValidators(GetIt container) {
     ..registerFactory<ICommandValidator<CreateCustomerPriceRuleCommand>>(
       CreateCustomerPriceRuleCommandValidator.new,
     )
+    ..registerFactory<ICommandValidator<DeleteCustomerPriceRuleCommand>>(
+      DeleteCustomerPriceRuleCommandValidator.new,
+    )
     ..registerFactory<ICommandValidator<DisableCustomerPriceRuleCommand>>(
       DisableCustomerPriceRuleCommandValidator.new,
     )
@@ -70,6 +73,15 @@ void registerGeneratedPricingHandlers({
     logger: logger,
     factory: () => CreateCustomerPriceRuleCommandHandler(
       createContextPort: container.get<ICustomerPriceRuleCreateContextPort>(),
+      commandGateway: container.get<ICustomerPriceRuleCommandGateway>(),
+    ),
+  );
+
+  PricingCommandRegistration.registerBusinessHandler<DeleteCustomerPriceRuleCommand, CustomerPriceRuleDetailDto, DeleteCustomerPriceRuleCommandHandler>(
+    container: container,
+    bus: bus,
+    logger: logger,
+    factory: () => DeleteCustomerPriceRuleCommandHandler(
       commandGateway: container.get<ICustomerPriceRuleCommandGateway>(),
     ),
   );
@@ -166,6 +178,15 @@ void registerGeneratedPricingQueries({
     factory: () => PrecheckCustomerPriceRuleReenableQueryHandler(
       precheckPort: container.get<ICustomerPriceRuleReenablePrecheckPort>(),
       validator: container.get<PrecheckCustomerPriceRuleReenableQueryValidator>(),
+    ),
+    invoke: (query, handler) => handler.handle(query),
+  );
+
+  PricingCommandRegistration.registerQueryHandler<ResolveApplicableCustomerPriceRuleQuery, ResolveApplicableCustomerPriceRuleResultDto, ResolveApplicableCustomerPriceRuleQueryHandler>(
+    bus: bus,
+    factory: () => ResolveApplicableCustomerPriceRuleQueryHandler(
+      readGateway: container.get<IPricingReadGateway>(),
+      validator: container.get<ResolveApplicableCustomerPriceRuleQueryValidator>(),
     ),
     invoke: (query, handler) => handler.handle(query),
   );

@@ -2,17 +2,29 @@ import 'dart:io';
 
 import 'package:test/test.dart';
 
+Directory _repoRoot() {
+  var dir = Directory.current;
+  while (!Directory('${dir.path}/supabase/migrations/_drafts').existsSync()) {
+    final parent = dir.parent;
+    if (parent.path == dir.path) {
+      break;
+    }
+    dir = parent;
+  }
+  return dir;
+}
+
 void main() {
-  final root = Directory('../../..');
+  final root = _repoRoot();
 
   test('provider snapshot functions are internal-only', () {
     final partner = File(
       '${root.path}/supabase/migrations/_drafts/'
-      'partner_pricing_customer_snapshot.sql',
+      '001_partner_pricing_customer_snapshot.sql',
     ).readAsStringSync();
     final catalog = File(
       '${root.path}/supabase/migrations/_drafts/'
-      'catalog_pricing_price_band_snapshot.sql',
+      '002_catalog_pricing_price_band_snapshot.sql',
     ).readAsStringSync();
 
     expect(partner, contains('partner._get_customer_snapshot_for_pricing'));
@@ -34,7 +46,7 @@ void main() {
   test('pricing draft owns atomic create and never reads provider tables', () {
     final sql = File(
       '${root.path}/supabase/migrations/_drafts/'
-      'pricing_customer_price_rule_s1.sql',
+      '004_pricing_customer_price_rule_s1.sql',
     ).readAsStringSync();
 
     expect(
@@ -47,12 +59,16 @@ void main() {
         'create table if not exists pricing.customer_price_rule_activities',
       ),
     );
+    expect(
+      sql,
+      contains('pricing._auto_disable_overlapping_customer_price_rules'),
+    );
     expect(sql, contains('pricing.get_customer_price_rule_create_context'));
     expect(sql, contains('pricing.create_customer_price_rule'));
     expect(sql, contains('pg_advisory_xact_lock'));
     expect(sql, contains('payload_hash'));
     expect(sql, contains('customer_price_rule_activities'));
-    expect(sql, contains("'rule_id', v_rule_id"));
+    expect(sql, contains("'rule_id', v_rule.id"));
     expect(sql, contains("'price_check_status', v_price_check_status"));
     expect(
       sql,
@@ -72,11 +88,19 @@ void main() {
     expect(sql, contains('p_rule_id uuid'));
     expect(sql, contains('p_rule_id,'));
     expect(sql, contains('r.idempotency_key <> btrim(p_idempotency_key)'));
-    expect(sql, contains("'has_conflicting_rule',"));
+    expect(sql, contains("'reason_code', 'AUTO_REPLACED_BY_RULE'"));
+    expect(sql, contains("'replacement_rule_id', p_keep_rule_id"));
+    expect(sql, contains("'replacement_action', p_replacement_action"));
+    expect(sql, contains('from locked l'));
+    expect(sql, contains('from updated u'));
+    expect(
+      sql,
+      contains(
+        'perform pricing._auto_disable_overlapping_customer_price_rules(',
+      ),
+    );
     expect(sql, contains("'idempotency_key_exists',"));
-    expect(sql, contains('jsonb_strip_nulls'));
     expect(sql, contains('not coalesce(p_acknowledge_floor_warning, false)'));
-    expect(sql, isNot(contains('p_actor_id')));
     expect(
       RegExp(r'from\s+partner\.', caseSensitive: false).hasMatch(sql),
       isFalse,
@@ -87,10 +111,41 @@ void main() {
     );
   });
 
+  test('S1 view permission variable stays inside create-context scope', () {
+    final sql = File(
+      '${root.path}/supabase/migrations/_drafts/'
+      '004_pricing_customer_price_rule_s1.sql',
+    ).readAsStringSync();
+    final contextStart = sql.indexOf(
+      'create or replace function pricing.get_customer_price_rule_create_context(',
+    );
+    final createStart = sql.indexOf(
+      'create or replace function pricing.create_customer_price_rule(',
+    );
+    final createEnd = sql.indexOf(
+      'revoke all on function pricing.create_customer_price_rule(',
+      createStart,
+    );
+
+    expect(contextStart, greaterThanOrEqualTo(0));
+    expect(createStart, greaterThan(contextStart));
+    expect(createEnd, greaterThan(createStart));
+
+    final contextFunction = sql.substring(contextStart, createStart);
+    final createFunction = sql.substring(createStart, createEnd);
+    expect(contextFunction, contains('v_can_view_rules boolean := false;'));
+    expect(
+      contextFunction,
+      contains("v_can_view_rules := iam.has_permission("),
+    );
+    expect(createFunction, isNot(contains('v_can_view_rules')));
+    expect(createFunction, isNot(contains('v_conflicting_rule')));
+  });
+
   test('S2 search draft has the exact public RPC and access boundary', () {
     final draft = File(
       '${root.path}/supabase/migrations/_drafts/'
-      'pricing_customer_price_rule_search_s2.sql',
+      '005_pricing_customer_price_rule_search_s2.sql',
     );
 
     expect(
@@ -145,7 +200,7 @@ void main() {
   test('S2 search derives statuses with inclusive effective boundaries', () {
     final sql = File(
       '${root.path}/supabase/migrations/_drafts/'
-      'pricing_customer_price_rule_search_s2.sql',
+      '005_pricing_customer_price_rule_search_s2.sql',
     ).readAsStringSync();
 
     final disabled = sql.indexOf("when r.status = 'disabled' then 'disabled'");
@@ -172,7 +227,7 @@ void main() {
   test('S2 search combines snapshot filters and stable seek pagination', () {
     final sql = File(
       '${root.path}/supabase/migrations/_drafts/'
-      'pricing_customer_price_rule_search_s2.sql',
+      '005_pricing_customer_price_rule_search_s2.sql',
     ).readAsStringSync();
 
     expect(
@@ -204,7 +259,7 @@ void main() {
   test('S2 list redacts floor amount and exposes stable screen actions', () {
     final sql = File(
       '${root.path}/supabase/migrations/_drafts/'
-      'pricing_customer_price_rule_search_s2.sql',
+      '005_pricing_customer_price_rule_search_s2.sql',
     ).readAsStringSync();
 
     expect(sql, isNot(contains("'floor_price',")));
@@ -221,7 +276,7 @@ void main() {
   test('S3 detail draft has the exact public RPC and access boundary', () {
     final draft = File(
       '${root.path}/supabase/migrations/_drafts/'
-      'pricing_customer_price_rule_detail_s3.sql',
+      '006_pricing_customer_price_rule_detail_s3.sql',
     );
     expect(draft.existsSync(), isTrue);
     final sql = draft.readAsStringSync();
@@ -279,7 +334,7 @@ void main() {
     () {
       final sql = File(
         '${root.path}/supabase/migrations/_drafts/'
-        'pricing_customer_price_rule_detail_s3.sql',
+        '006_pricing_customer_price_rule_detail_s3.sql',
       ).readAsStringSync();
 
       final disabled = sql.indexOf(
@@ -328,7 +383,7 @@ void main() {
   test('S1 create helper emits S3-compatible health and lifecycle actions', () {
     final sql = File(
       '${root.path}/supabase/migrations/_drafts/'
-      'pricing_customer_price_rule_s1.sql',
+      '004_pricing_customer_price_rule_s1.sql',
     ).readAsStringSync();
 
     expect(sql, contains("'reference_health'"));
@@ -342,10 +397,31 @@ void main() {
     expect(sql, isNot(contains("jsonb_build_array('view')")));
   });
 
+  test('S1 result helper includes disabled lifecycle audit fields', () {
+    final sql = File(
+      '${root.path}/supabase/migrations/_drafts/'
+      '004_pricing_customer_price_rule_s1.sql',
+    ).readAsStringSync();
+    final helperStart = sql.indexOf(
+      'create or replace function pricing._customer_price_rule_result(',
+    );
+    final helperEnd = sql.indexOf(
+      'revoke all on function pricing._customer_price_rule_result',
+      helperStart,
+    );
+
+    expect(helperStart, greaterThanOrEqualTo(0));
+    expect(helperEnd, greaterThan(helperStart));
+    final helperSql = sql.substring(helperStart, helperEnd);
+    expect(helperSql, contains("'disabled_at', r.disabled_at"));
+    expect(helperSql, contains("'disabled_by', r.disabled_by"));
+    expect(helperSql, contains("'disabled_reason', r.disabled_reason"));
+  });
+
   test('S5 update draft exposes exact RPC signatures and grants', () {
     final draft = File(
       '${root.path}/supabase/migrations/_drafts/'
-      'pricing_customer_price_rule_update_s5.sql',
+      '007_pricing_customer_price_rule_update_s5.sql',
     );
     expect(draft.existsSync(), isTrue);
     final sql = draft.readAsStringSync();
@@ -377,6 +453,21 @@ void main() {
     );
   });
 
+  test('S5 activity constraint accepts rows written by later slices', () {
+    final sql = _s5UpdateSql(root);
+
+    expect(
+      sql,
+      contains(
+        "check (activity_type in (\n"
+        "    'created', 'updated', 'disabled', 'reenabled',\n"
+        "    'import_created', 'import_updated',\n"
+        "    'memory_created', 'memory_updated'\n"
+        '  ));',
+      ),
+    );
+  });
+
   test(
     'S5 authoritative update locks version and suppresses no-op activity',
     () {
@@ -387,6 +478,9 @@ void main() {
       final providers = sql.indexOf(
         'partner._get_customer_snapshot_for_pricing',
       );
+      final helper = sql.indexOf(
+        'perform pricing._auto_disable_overlapping_customer_price_rules(',
+      );
       final update = sql.indexOf('update pricing.customer_price_rules');
       final activity = sql.indexOf(
         'insert into pricing.customer_price_rule_activities',
@@ -395,10 +489,10 @@ void main() {
       expect(version, greaterThan(lock));
       expect(noOp, greaterThan(version));
       expect(providers, greaterThan(noOp));
-      expect(update, greaterThan(providers));
+      expect(helper, greaterThan(providers));
+      expect(update, greaterThan(helper));
       expect(activity, greaterThan(update));
       expect(sql, contains("if v_is_noop then"));
-      expect(sql, contains("v_rule.id <> p_rule_id"));
       expect(sql, contains("activity_type,\n    old_value,\n    new_value"));
       expect(sql, contains("'updated'"));
     },
@@ -427,7 +521,7 @@ void main() {
   test('S6 disable draft is atomic, idempotent-before-version, draft-only', () {
     final draft = File(
       '${root.path}/supabase/migrations/_drafts/'
-      'pricing_customer_price_rule_disable_s6.sql',
+      '008_pricing_customer_price_rule_disable_s6.sql',
     );
     expect(draft.existsSync(), isTrue);
     final sql = draft.readAsStringSync();
@@ -444,7 +538,27 @@ void main() {
     expect(sql, contains('length(disabled_reason) <= 500'));
     expect(
       sql,
-      contains("activity_type in ('created', 'updated', 'disabled')"),
+      contains(
+        'drop constraint if exists '
+        'customer_price_rules_disabled_reason_length',
+      ),
+    );
+    expect(
+      sql,
+      contains(
+        'drop constraint if exists '
+        'customer_price_rules_disabled_audit_complete',
+      ),
+    );
+    expect(
+      sql,
+      contains(
+        "check (activity_type in (\n"
+        "    'created', 'updated', 'disabled', 'reenabled',\n"
+        "    'import_created', 'import_updated',\n"
+        "    'memory_created', 'memory_updated'\n"
+        '  ));',
+      ),
     );
     expect(sql, contains('pricing.disable_customer_price_rule('));
     expect(sql, contains('p_tenant_id uuid'));
@@ -477,6 +591,14 @@ void main() {
     expect(update, greaterThan(version));
     expect(activity, greaterThan(update));
 
+    expect(
+      sql,
+      contains(
+        "to_regprocedure(\n"
+        "    'pricing._get_customer_price_rule_detail_s3(uuid,uuid,date)'\n"
+        '  ) is null',
+      ),
+    );
     expect(sql, contains('rename to _get_customer_price_rule_detail_s3'));
     expect(sql, contains('pricing._get_customer_price_rule_detail_s3('));
     expect(
@@ -498,7 +620,7 @@ void main() {
   test('S7 reenable draft defines helper, RPCs, fingerprint, and ordering', () {
     final draft = File(
       '${root.path}/supabase/migrations/_drafts/'
-      'pricing_customer_price_rule_reenable_s7.sql',
+      '009_pricing_customer_price_rule_reenable_s7.sql',
     );
     expect(draft.existsSync(), isTrue);
     final sql = draft.readAsStringSync();
@@ -525,6 +647,10 @@ void main() {
     );
     expect(sql, contains("'pricing.customer_price_rule.reenable'"));
     expect(sql, contains("'pricing.customer_price_rule.override_floor_price'"));
+    expect(
+      sql,
+      contains('pricing._auto_disable_overlapping_customer_price_rules('),
+    );
     expect(
       RegExp(
         r'create or replace function pricing\.(?:precheck_customer_price_rule_reenable|reenable_customer_price_rule)\([^)]*p_actor_id',
@@ -585,7 +711,11 @@ void main() {
       duplicateLock,
     );
     final token = sql.indexOf('v_current_token <> p_precheck_token', context);
-    final update = sql.indexOf('update pricing.customer_price_rules', token);
+    final helper = sql.indexOf(
+      'perform pricing._auto_disable_overlapping_customer_price_rules(',
+      token,
+    );
+    final update = sql.indexOf('update pricing.customer_price_rules', helper);
     final activity = sql.indexOf(
       'insert into pricing.customer_price_rule_activities',
       update,
@@ -595,7 +725,8 @@ void main() {
     expect(duplicateLock, greaterThan(status));
     expect(context, greaterThan(duplicateLock));
     expect(token, greaterThan(context));
-    expect(update, greaterThan(token));
+    expect(helper, greaterThan(token));
+    expect(update, greaterThan(helper));
     expect(activity, greaterThan(update));
 
     expect(sql, contains('vault.decrypted_secrets'));
@@ -603,6 +734,8 @@ void main() {
     expect(sql, contains('extensions.hmac('));
     expect(sql, isNot(contains('extensions.digest(')));
     expect(sql, contains("'has_floor_price', v_floor_price_minor is not null"));
+    expect(sql, isNot(contains("'has_conflicting_rule'")));
+    expect(sql, isNot(contains("'duplicate', jsonb_build_object(")));
     expect(
       sql,
       contains(
@@ -621,5 +754,5 @@ void main() {
 
 String _s5UpdateSql(Directory root) => File(
   '${root.path}/supabase/migrations/_drafts/'
-  'pricing_customer_price_rule_update_s5.sql',
+  '007_pricing_customer_price_rule_update_s5.sql',
 ).readAsStringSync();

@@ -3,6 +3,7 @@ enum CustomerPriceRuleActivityType {
   updated,
   disabled,
   reenabled,
+  deleted,
   importCreated,
   importUpdated,
   memoryCreated,

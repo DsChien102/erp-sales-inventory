@@ -15,8 +15,8 @@ typedef PriceRuleAdvisoryLookup = ({
 ///
 /// SG-03:
 /// - Tất cả field trên 1 màn hình.
-/// - Cảnh báo trùng (DUPLICATE_ACTIVE_RULE) không chặn lưu: set [hasDuplicateWarning].
-/// - Nếu user bấm lưu lần 2 (acknowledge), gọi command với acknowledgeFloorWarning = true.
+/// - Duplicate active interval được authoritative backend tự disable rule cũ.
+/// - FE không còn phụ thuộc flow bấm lưu lần 2 để ghi đè.
 final class PriceRuleFormCubit extends Cubit<PriceRuleFormState> {
   PriceRuleFormCubit({
     required IPricingModule pricingModule,
@@ -81,8 +81,6 @@ final class PriceRuleFormCubit extends Cubit<PriceRuleFormState> {
         customerId: customerId,
         customerName: customerName,
         customerRoleLabel: customerRoleLabel,
-        hasDuplicateWarning: false,
-        conflictingRuleId: null,
         hasStateChanged: false,
       ),
     );
@@ -105,8 +103,6 @@ final class PriceRuleFormCubit extends Cubit<PriceRuleFormState> {
         listPriceMinor: listPriceMinor,
         floorPriceMinor: floorPriceMinor,
         floorPriceHidden: floorPriceMinor == null,
-        hasDuplicateWarning: false,
-        conflictingRuleId: null,
       ),
     );
     _applyAdvisory(productId);
@@ -115,18 +111,24 @@ final class PriceRuleFormCubit extends Cubit<PriceRuleFormState> {
   void selectProductUnit({
     required String productUnitId,
     required String productUnitName,
+    int? listPriceMinor,
+    int? floorPriceMinor,
+    bool? floorPriceHidden,
   }) {
     final current = _editingOrNew();
     emit(
       current.copyWith(
         productUnitId: productUnitId,
         productUnitName: productUnitName,
-        hasDuplicateWarning: false,
-        conflictingRuleId: null,
+        listPriceMinor: listPriceMinor ?? current.listPriceMinor,
+        floorPriceMinor: floorPriceMinor ?? current.floorPriceMinor,
+        floorPriceHidden: floorPriceHidden ?? current.floorPriceHidden,
       ),
     );
     final productId = current.productId;
-    if (productId != null) {
+    if (productId != null &&
+        listPriceMinor == null &&
+        floorPriceMinor == null) {
       _applyAdvisory(productId);
     }
   }
@@ -157,8 +159,6 @@ final class PriceRuleFormCubit extends Cubit<PriceRuleFormState> {
         effectiveFrom: effectiveFrom ?? current.effectiveFrom,
         effectiveTo:
             effectiveTo == _sentinel ? current.effectiveTo : effectiveTo,
-        hasDuplicateWarning: false,
-        conflictingRuleId: null,
       ),
     );
   }
@@ -168,8 +168,6 @@ final class PriceRuleFormCubit extends Cubit<PriceRuleFormState> {
     emit(
       current.copyWith(
         effectiveTo: null,
-        hasDuplicateWarning: false,
-        conflictingRuleId: null,
       ),
     );
   }
@@ -201,7 +199,7 @@ final class PriceRuleFormCubit extends Cubit<PriceRuleFormState> {
     }
   }
 
-  /// SG-03: Submit form. Nếu trùng → hiện cảnh báo, vẫn cho lưu.
+  /// SG-03: Submit form. Nếu trùng, authoritative backend sẽ tự disable rule cũ.
   Future<void> submit({String? changeReason}) async {
     final current = _editingOrNew();
     if (!current.isValid) return;
@@ -209,8 +207,6 @@ final class PriceRuleFormCubit extends Cubit<PriceRuleFormState> {
     emit(
       current.copyWith(
         isSubmitting: true,
-        hasDuplicateWarning: false,
-        conflictingRuleId: null,
         hasStateChanged: false,
       ),
     );
@@ -230,39 +226,9 @@ final class PriceRuleFormCubit extends Cubit<PriceRuleFormState> {
     }
   }
 
-  /// SG-03: User đã thấy cảnh báo, xác nhận ghi đè.
-  Future<void> submitWithDuplicateAcknowledge({String? changeReason}) async {
-    final current = _editingOrNew();
-    emit(current.copyWith(isSubmitting: true));
-    try {
-      if (_mode == PriceRuleFormMode.create) {
-        await _createRule(current, acknowledgeDuplicate: true);
-      } else {
-        await _updateRule(
-          current,
-          acknowledgeDuplicate: true,
-          changeReason: changeReason,
-        );
-      }
-    } on PricingBlockedException catch (e) {
-      await _handleBlocked(e);
-    } catch (_) {
-      emit(PriceRuleFormError(code: PricingBlockedCodes.systemError));
-      emit(current.copyWith(isSubmitting: false));
-    }
-  }
-
   Future<void> _handleBlocked(PricingBlockedException e) async {
     final editing = _editingOrNew();
-    if (e.code == PricingBlockedCodes.duplicateActiveRule) {
-      emit(
-        editing.copyWith(
-          isSubmitting: false,
-          hasDuplicateWarning: true,
-          conflictingRuleId: e.details['conflictingRuleId'] as String?,
-        ),
-      );
-    } else if (e.code == PricingBlockedCodes.stateChanged) {
+    if (e.code == PricingBlockedCodes.stateChanged) {
       emit(
         editing.copyWith(
           isSubmitting: false,
@@ -284,9 +250,8 @@ final class PriceRuleFormCubit extends Cubit<PriceRuleFormState> {
   }
 
   Future<void> _createRule(
-    PriceRuleFormEditing form, {
-    bool acknowledgeDuplicate = false,
-  }) async {
+    PriceRuleFormEditing form,
+  ) async {
     _idempotencyKey ??= _generateIdempotencyKey();
     final tenantId = await _executionContext.requireTenantId();
     final result = await _pricingModule.executeCommandAsync(
@@ -300,8 +265,7 @@ final class PriceRuleFormCubit extends Cubit<PriceRuleFormState> {
         effectiveFrom: form.effectiveFrom!,
         effectiveTo: form.effectiveTo,
         note: form.note,
-        // SG-03: acknowledgeFloorWarning reused for duplicate override pathway.
-        acknowledgeFloorWarning: acknowledgeDuplicate,
+        acknowledgeFloorWarning: form.isBelowFloor,
         idempotencyKey: _idempotencyKey!,
       ),
     );
@@ -310,7 +274,6 @@ final class PriceRuleFormCubit extends Cubit<PriceRuleFormState> {
 
   Future<void> _updateRule(
     PriceRuleFormEditing form, {
-    bool acknowledgeDuplicate = false,
     String? changeReason,
   }) async {
     final rule = _existingRule!;
@@ -325,7 +288,7 @@ final class PriceRuleFormCubit extends Cubit<PriceRuleFormState> {
         effectiveFrom: form.effectiveFrom!,
         effectiveTo: form.effectiveTo,
         note: note,
-        acknowledgeFloorWarning: acknowledgeDuplicate,
+        acknowledgeFloorWarning: form.isBelowFloor,
       ),
     );
     emit(PriceRuleFormSuccess(rule: result));

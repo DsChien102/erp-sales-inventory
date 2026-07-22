@@ -43,10 +43,23 @@ abstract final class CustomerPriceRuleDetailRpcMapper {
       json['disabled_reason'],
       'disabled_reason',
     );
+    final deletedAt = _optionalInstant(json['deleted_at']);
     if (persistedStatus == CustomerPriceRuleStatus.disabled &&
         (disabledAt == null || disabledBy == null)) {
       throw const FormatException(
         'Disabled customer price rule requires disabled_at and disabled_by.',
+      );
+    }
+    if (persistedStatus == CustomerPriceRuleStatus.deleted &&
+        deletedAt == null) {
+      throw const FormatException(
+        'Deleted customer price rule requires deleted_at.',
+      );
+    }
+    if (persistedStatus != CustomerPriceRuleStatus.deleted &&
+        deletedAt != null) {
+      throw const FormatException(
+        'Non-deleted customer price rule must not include deleted_at.',
       );
     }
 
@@ -104,6 +117,7 @@ abstract final class CustomerPriceRuleDetailRpcMapper {
       disabledAt: disabledAt,
       disabledBy: disabledBy,
       disabledReason: disabledReason,
+      deletedAt: deletedAt,
     );
   }
 
@@ -204,6 +218,7 @@ abstract final class CustomerPriceRuleDetailRpcMapper {
         'disabled' => CustomerPriceRuleDerivedStatus.disabled,
         'expired' => CustomerPriceRuleDerivedStatus.expired,
         'needs_review' => CustomerPriceRuleDerivedStatus.needsReview,
+        'deleted' => CustomerPriceRuleDerivedStatus.deleted,
         _ => throw FormatException('Unknown derived status: $value.'),
       };
 
@@ -226,9 +241,7 @@ abstract final class CustomerPriceRuleDetailRpcMapper {
         'active' => CustomerPriceRuleStatus.active,
         'disabled' => CustomerPriceRuleStatus.disabled,
         'needs_review' => CustomerPriceRuleStatus.needsReview,
-        'deleted' => throw const FormatException(
-          'Deleted rules must map to NOT_FOUND, not a detail payload.',
-        ),
+        'deleted' => CustomerPriceRuleStatus.deleted,
         _ => throw FormatException('Unknown persisted status: $value.'),
       };
 

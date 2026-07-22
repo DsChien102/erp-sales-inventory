@@ -35,6 +35,23 @@ void main() {
     expect(context.hasConflictingRule, isFalse);
   });
 
+  test('context mapper accepts disabled rule lifecycle audit fields', () {
+    final json = updateContextJson();
+    (json['current_rule'] as Map<String, dynamic>)
+      ..['persisted_status'] = 'disabled'
+      ..['derived_status'] = 'disabled'
+      ..['disabled_at'] = '2026-07-16T09:00:00Z'
+      ..['disabled_by'] = 'user-disabled'
+      ..['disabled_reason'] = 'Bị ghi đè tự động';
+
+    final context = PricingUpdateRpcMapper.contextFromJson(
+      command: updateCommand(),
+      json: json,
+    );
+
+    expect(context.currentRule.status, CustomerPriceRuleStatus.disabled);
+  });
+
   test('update params use immutable aggregate currency and no actor', () {
     final params = PricingUpdateRpcMapper.updateParams(
       candidate: updateCandidate(),
@@ -57,6 +74,21 @@ void main() {
     expect(result.id, updateRuleId);
     expect(result.version, 4);
     expect(result.price.amountMinor, 95000);
+  });
+
+  test('update result maps a disabled rule with lifecycle audit fields', () {
+    final json = updateDetailJson(version: 4, amountMinor: 95000)
+      ..['persisted_status'] = 'disabled'
+      ..['derived_status'] = 'disabled'
+      ..['disabled_at'] = '2026-07-16T09:00:00Z'
+      ..['disabled_by'] = 'user-disabled'
+      ..['disabled_reason'] = 'Bị ghi đè tự động';
+
+    final result = PricingUpdateRpcMapper.updateResultFromJson(json);
+
+    expect(result.persistedStatus, CustomerPriceRuleStatus.disabled);
+    expect(result.disabledBy, 'user-disabled');
+    expect(result.disabledReason, 'Bị ghi đè tự động');
   });
 
   for (final code in ['STATE_CHANGED', 'INVALID_STATUS']) {

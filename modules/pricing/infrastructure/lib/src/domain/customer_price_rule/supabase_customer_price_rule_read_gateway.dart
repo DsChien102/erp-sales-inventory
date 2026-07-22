@@ -6,6 +6,7 @@ import '../../errors/pricing_error_mapper.dart';
 import 'customer_price_rule_detail_rpc_mapper.dart';
 import 'customer_price_rule_history_rpc_mapper.dart';
 import 'customer_price_rule_search_rpc_mapper.dart';
+import 'pricing_resolve_applicable_rpc_mapper.dart';
 
 final class SupabaseCustomerPriceRuleReadGateway
     implements IPricingReadGateway {
@@ -77,6 +78,29 @@ final class SupabaseCustomerPriceRuleReadGateway
         PricingBlockedCodes.systemError,
         message: 'Pricing operation failed.',
       );
+    } on Object {
+      throw const PricingBlockedException(
+        PricingBlockedCodes.systemError,
+        message: 'Pricing operation failed.',
+      );
+    }
+  }
+
+  @override
+  Future<ResolveApplicableCustomerPriceRuleResultDto>
+  resolveApplicableCustomerPriceRule(
+    ResolveApplicableCustomerPriceRuleQuery query,
+  ) async {
+    try {
+      final json = await _rpcClient.callMap(
+        'resolve_applicable_customer_price_rule',
+        params: PricingResolveApplicableRpcMapper.params(query),
+      );
+      return PricingResolveApplicableRpcMapper.resultFromJson(json);
+    } on RpcException catch (error) {
+      throw mapPricingRpcError(error);
+    } on PricingBlockedException {
+      rethrow;
     } on Object {
       throw const PricingBlockedException(
         PricingBlockedCodes.systemError,

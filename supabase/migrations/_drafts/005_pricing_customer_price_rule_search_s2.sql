@@ -4,7 +4,7 @@
 -- Context: TH-04 EP02 S2 — list/search/filter customer price rules
 -- Touches: search_customer_price_rules
 -- Safety: draft only; read-only security-definer RPC with tenant/access guards
--- Depends on: pricing_customer_price_rule_s1.sql
+-- Depends on: 004_pricing_customer_price_rule_s1.sql
 
 create extension if not exists unaccent with schema extensions;
 

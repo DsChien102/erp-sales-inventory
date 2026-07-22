@@ -246,6 +246,14 @@ final class _DisableGateway implements ICustomerPriceRuleCommandGateway {
     return result;
   }
 
+
+  @override
+  Future<CustomerPriceRuleDetailDto> delete({
+    required String tenantId,
+    required String ruleId,
+    required int expectedVersion,
+  }) => throw UnsupportedError('delete not used');
+
   @override
   Future<CustomerPriceRuleDetailDto> reenable({
     required String tenantId,

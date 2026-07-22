@@ -7,6 +7,17 @@ import 'package:vet45_pricing_application/testing.dart';
 
 void main() {
   group('S8 import contracts', () {
+    test('publishes the canonical V1 template identifiers', () {
+      expect(
+        CustomerPriceRuleImportTemplateDto.versionV1,
+        'customer_price_rules_v1',
+      );
+      expect(
+        CustomerPriceRuleImportTemplateDto.fileNameV1,
+        'customer_price_rules_v1.xlsx',
+      );
+    });
+
     test('normalizes business date and optional cursor', () {
       final confirm = ConfirmCustomerPriceRuleImportCommand(
         tenantId: 'tenant-1',

@@ -116,4 +116,10 @@ final class _ReadGateway implements IPricingReadGateway {
     }
     return result;
   }
+
+  @override
+  Future<ResolveApplicableCustomerPriceRuleResultDto>
+  resolveApplicableCustomerPriceRule(
+    ResolveApplicableCustomerPriceRuleQuery query,
+  ) async => throw UnsupportedError('resolve not used');
 }
