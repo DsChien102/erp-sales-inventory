@@ -63,6 +63,12 @@ class MorePage extends StatelessWidget {
         onTap: () => context.push('/pricing'),
       ),
       _MoreMenuItem(
+        icon: VIcons.people,
+        title: 'Người dùng & vai trò',
+        subtitle: 'Quản lý thành viên và quyền truy cập',
+        onTap: () => context.push('/more/users-and-roles'),
+      ),
+      _MoreMenuItem(
         icon: VIcons.settings,
         title: 'Thiết lập',
         subtitle: 'Cấu hình hệ thống & hóa đơn điện tử',

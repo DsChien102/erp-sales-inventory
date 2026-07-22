@@ -8,9 +8,11 @@ import 'package:vet45_catalog_presentation/presentation.dart';
 import 'package:vet45_partner_application/application.dart';
 import 'package:vet45_partner_domain/domain.dart';
 import 'package:vet45_pricing_application/application.dart';
+import 'package:vet45_iam_presentation/presentation.dart';
 
 // More Pages
 import '../../features/more/presentation/pages/system_settings_page.dart';
+import '../../features/more/presentation/pages/users_and_roles_page.dart';
 import '../../features/more/presentation/einvoice_settings/pages/einvoice_settings_page.dart';
 import '../../features/more/presentation/einvoice_settings/pages/einvoice_connection_page.dart';
 import '../../features/more/presentation/einvoice_settings/pages/einvoice_template_page.dart';
@@ -103,6 +105,29 @@ final appRouter = GoRouter(
       path: '/more/settings',
       name: 'more.settings',
       builder: (context, state) => const SystemSettingsPage(),
+    ),
+    GoRoute(
+      path: '/more/users-and-roles',
+      name: 'more.users-and-roles',
+      builder: (context, state) => const UsersAndRolesPage(),
+    ),
+    GoRoute(
+      path: '/more/organization-profile',
+      name: 'more.organization-profile',
+      builder: (context, state) => const OrganizationProfilePage(),
+    ),
+    GoRoute(
+      path: '/more/organization-profile/edit',
+      name: 'more.organization-profile.edit',
+      builder: (context, state) => const OrganizationEditProfilePage(),
+    ),
+    GoRoute(
+      path: '/more/organization-profile/legal',
+      name: 'more.organization-profile.legal',
+      builder: (context, state) {
+        final isEdit = state.extra as bool? ?? false;
+        return OrganizationLegalProfileFormPage(isEdit: isEdit);
+      },
     ),
     GoRoute(
       path: '/more/einvoice-settings',
