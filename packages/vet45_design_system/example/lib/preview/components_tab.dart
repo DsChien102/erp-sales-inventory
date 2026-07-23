@@ -42,6 +42,123 @@ class _ComponentsPreviewTabState extends State<ComponentsPreviewTab> {
       padding: const EdgeInsets.all(VSpacing.screenMobile),
       children: [
         PreviewSection(
+          title: 'VBanner',
+          description:
+              'Inline status banner — info / success / warning / error (+ footer).',
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              for (final status in VBannerStatus.values)
+                PreviewStateRow(
+                  label: status.name,
+                  child: VBanner(
+                    status: status,
+                    title: 'Tiêu đề thông báo',
+                    description:
+                        'Mô tả ngắn có thể gồm một hành động tiếp theo.',
+                  ),
+                ),
+              PreviewStateRow(
+                label: 'tone + message alias',
+                child: const VBanner(
+                  tone: VComponentTone.warning,
+                  title: 'Cần kiểm tra',
+                  message: '• Giá riêng đang thấp hơn giá sàn hiện tại',
+                ),
+              ),
+              PreviewStateRow(
+                label: 'With footer',
+                child: VBanner(
+                  status: VBannerStatus.warning,
+                  title: 'Dữ liệu đã thay đổi',
+                  description: 'Tải lại để xem phiên bản mới nhất.',
+                  footer: Align(
+                    alignment: Alignment.centerLeft,
+                    child: VButton(
+                      label: 'Tải lại',
+                      variant: VButtonVariant.secondary,
+                      size: VButtonSize.small,
+                      onPressed: () {},
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        PreviewSection(
+          title: 'VFileDropZone',
+          description:
+              'Drop zone chọn file — empty / valid / invalid / disabled '
+              '(Excel: chưa nhập / kéo hợp lệ / không hợp lệ / chặn quyền). '
+              'Cả 4 state đều dùng border nét đứt. '
+              'Prop action: CTA nằm trong zone (nút chọn file).',
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              PreviewStateRow(
+                label: 'empty + action — chưa nhập',
+                child: VFileDropZone(
+                  state: VFileDropZoneState.empty,
+                  title: 'Kéo & thả file vào đây',
+                  subtitle: 'hoặc',
+                  action: VButton(
+                    label: 'Chọn file từ thiết bị',
+                    variant: VButtonVariant.outline,
+                    size: VButtonSize.small,
+                    onPressed: () {},
+                  ),
+                ),
+              ),
+              PreviewStateRow(
+                label: 'valid — đang kéo hợp lệ',
+                child: VFileDropZone(
+                  state: VFileDropZoneState.valid,
+                  title: 'Thả file để nhập',
+                  subtitle: 'Chỉ nhận file .xlsx',
+                  action: VButton(
+                    label: 'Chọn file từ thiết bị',
+                    variant: VButtonVariant.outline,
+                    size: VButtonSize.small,
+                    onPressed: () {},
+                  ),
+                ),
+              ),
+              PreviewStateRow(
+                label: 'invalid — excel không hợp lệ',
+                child: VFileDropZone(
+                  state: VFileDropZoneState.invalid,
+                  title: 'File không hợp lệ',
+                  subtitle: 'Chỉ nhận file .xlsx đúng mẫu',
+                  action: VButton(
+                    label: 'Chọn file từ thiết bị',
+                    variant: VButtonVariant.outline,
+                    size: VButtonSize.small,
+                    onPressed: () {},
+                  ),
+                ),
+              ),
+              PreviewStateRow(
+                label: 'disabled — chặn quyền',
+                child: const VFileDropZone(
+                  state: VFileDropZoneState.disabled,
+                  title: 'Không có quyền import',
+                  subtitle: 'Liên hệ quản trị viên nếu cần truy cập',
+                ),
+              ),
+              PreviewStateRow(
+                label: 'legacy onTap (không action)',
+                child: VFileDropZone(
+                  state: VFileDropZoneState.empty,
+                  title: 'Chọn hoặc kéo tệp',
+                  subtitle: 'PDF, XLSX hoặc ảnh · tối đa 10 MB',
+                  onTap: () {},
+                ),
+              ),
+            ],
+          ),
+        ),
+        PreviewSection(
           title: 'VButton',
           description: 'Variants, sizes, loading, disabled.',
           child: Column(
@@ -678,32 +795,6 @@ class _ComponentsPreviewTabState extends State<ComponentsPreviewTab> {
                 child: VCard(
                   onTap: () {},
                   child: const Text('Tap me'),
-                ),
-              ),
-            ],
-          ),
-        ),
-        PreviewSection(
-          title: 'VBanner',
-          description: 'Inline status banners (info / success / warning / error).',
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              for (final status in VBannerStatus.values)
-                PreviewStateRow(
-                  label: status.name,
-                  child: VBanner(
-                    status: status,
-                    title: 'Tiêu đề thông báo',
-                    description:
-                        'Mô tả ngắn có thể gồm một hành động tiếp theo.',
-                  ),
-                ),
-              const PreviewStateRow(
-                label: 'Title only',
-                child: VBanner(
-                  status: VBannerStatus.info,
-                  title: 'Chỉ có tiêu đề',
                 ),
               ),
             ],

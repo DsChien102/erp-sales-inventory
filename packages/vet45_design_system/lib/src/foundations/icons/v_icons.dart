@@ -49,6 +49,9 @@ enum VIcons {
   shield,
   cloud,
   cloudOff,
+  cloudUpload,
+  fileUp,
+  fileSpreadsheet,
 
   // Domain & Business Specific Icons
   calendar,
@@ -180,6 +183,12 @@ extension VIconsExtension on VIcons {
         return LucideIcons.cloud;
       case VIcons.cloudOff:
         return LucideIcons.cloudOff;
+      case VIcons.cloudUpload:
+        return LucideIcons.cloudUpload;
+      case VIcons.fileUp:
+        return LucideIcons.fileUp;
+      case VIcons.fileSpreadsheet:
+        return LucideIcons.fileSpreadsheet;
 
       // Domain & Business Specific Icons
       case VIcons.calendar:

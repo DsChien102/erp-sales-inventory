@@ -42,5 +42,21 @@ void main() {
       expect(find.text('Chỉ tiêu đề'), findsOneWidget);
       expect(find.byType(VText), findsOneWidget);
     });
+
+    testWidgets('accepts tone and message aliases with footer', (tester) async {
+      await pumpBanner(
+        tester,
+        VBanner(
+          tone: VComponentTone.danger,
+          title: 'Trùng giá riêng',
+          message: 'Sẽ ghi đè giá cũ.',
+          footer: const VText('Xem chi tiết'),
+        ),
+      );
+
+      expect(find.text('Trùng giá riêng'), findsOneWidget);
+      expect(find.text('Sẽ ghi đè giá cũ.'), findsOneWidget);
+      expect(find.text('Xem chi tiết'), findsOneWidget);
+    });
   });
 }

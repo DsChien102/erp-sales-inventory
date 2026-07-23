@@ -53,6 +53,7 @@ export 'src/components/v_search_bar.dart';
 export 'src/components/v_quick_action_button.dart';
 export 'src/components/v_tabs.dart';
 export 'src/components/v_empty_state.dart';
+export 'src/components/v_file_drop_zone.dart';
 export 'src/components/v_toast.dart';
 export 'src/components/v_dropdown.dart';
 export 'src/components/v_searchable_dropdown.dart';
