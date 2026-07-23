@@ -110,7 +110,7 @@ void main() {
 
     expect(find.text('Import (2 dòng)'), findsOneWidget);
     expect(_button(tester, 'Import (2 dòng)').onPressed, isNull);
-    expect(find.text('Cập nhật giá nhỏ hiện tại'), findsOneWidget);
+    expect(find.text('Cập nhật giá nhớ hiện tại'), findsOneWidget);
     expect(find.text('Bỏ qua, giữ nguyên giá hiện tại'), findsOneWidget);
     expect(find.text('Chỉ cập nhật rule đã có'), findsOneWidget);
 
@@ -237,6 +237,122 @@ void main() {
       );
     },
   );
+
+  testWidgets('preview shows selected conversion unit identity', (tester) async {
+    final cubit = _cubit();
+    addTearDown(cubit.close);
+    final conversionRow = CustomerPriceRuleImportRowPreviewDto(
+      id: 'row-1',
+      rowNumber: 2,
+      ruleId: null,
+      customerId: '00000000-0000-4000-8000-000000000001',
+      productId: '00000000-0000-4000-8000-000000000101',
+      productUnitId: '00000000-0000-4000-8000-000000000202',
+      price: '100000',
+      effectiveFrom: null,
+      effectiveTo: null,
+      note: null,
+      productSnapshot: const {'product_name': 'Vaccine'},
+      unitSnapshot: const {
+        'unit_name': 'Hộp 10 liều',
+        'is_base_unit': false,
+      },
+      unitResolutionStrategy: ProductUnitResolutionStrategy.explicitSelection,
+      status: CustomerPriceRuleImportRowStatus.valid,
+      action: CustomerPriceRuleImportAction.create,
+      errorCodes: const [],
+      warningCodes: const [],
+    );
+
+    await tester.pumpWidget(
+      _host(
+        PriceRuleImportPreviewView(
+          cubit: cubit,
+          importDetail: _detail(validRows: 1, warningRows: 0, errorRows: 0),
+          rows: [conversionRow],
+        ),
+      ),
+    );
+
+    expect(find.text('Vaccine'), findsOneWidget);
+    expect(find.textContaining('Hộp 10 liều'), findsOneWidget);
+    expect(find.textContaining('Đơn vị quy đổi'), findsOneWidget);
+  });
+
+  testWidgets(
+    'REFERENCE_INVALID message mentions customer, product, or unit',
+    (tester) async {
+      await tester.pumpWidget(
+        _host(
+          PriceRuleImportRowTile(
+            row: _row(
+              errorCodes: const ['REFERENCE_INVALID'],
+              warningCodes: const [],
+            ),
+          ),
+        ),
+      );
+
+      expect(
+        find.text('Không tìm thấy khách hàng, sản phẩm hoặc đơn vị hợp lệ.'),
+        findsOneWidget,
+      );
+    },
+  );
+
+  testWidgets(
+    'quick check treats different units of same product as non-duplicates',
+    (tester) async {
+      final cubit = _cubit();
+      addTearDown(cubit.close);
+      final rows = [
+        CustomerPriceRuleImportRowPreviewDto(
+          id: 'row-1',
+          rowNumber: 2,
+          ruleId: null,
+          customerId: '00000000-0000-4000-8000-000000000001',
+          productId: '00000000-0000-4000-8000-000000000101',
+          productUnitId: '00000000-0000-4000-8000-000000000201',
+          price: '100000',
+          effectiveFrom: null,
+          effectiveTo: null,
+          note: null,
+          status: CustomerPriceRuleImportRowStatus.valid,
+          action: CustomerPriceRuleImportAction.create,
+          errorCodes: const [],
+          warningCodes: const [],
+        ),
+        CustomerPriceRuleImportRowPreviewDto(
+          id: 'row-2',
+          rowNumber: 3,
+          ruleId: null,
+          customerId: '00000000-0000-4000-8000-000000000001',
+          productId: '00000000-0000-4000-8000-000000000101',
+          productUnitId: '00000000-0000-4000-8000-000000000202',
+          price: '200000',
+          effectiveFrom: null,
+          effectiveTo: null,
+          note: null,
+          status: CustomerPriceRuleImportRowStatus.valid,
+          action: CustomerPriceRuleImportAction.create,
+          errorCodes: const [],
+          warningCodes: const [],
+        ),
+      ];
+
+      await tester.pumpWidget(
+        _host(
+          PriceRuleImportPreviewView(
+            cubit: cubit,
+            importDetail: _detail(validRows: 2, warningRows: 0, errorRows: 0),
+            rows: rows,
+          ),
+        ),
+      );
+
+      expect(find.textContaining('Trùng rule trong file: 0 dòng'), findsOneWidget);
+    },
+  );
 }
 
 Widget _host(Widget child) => MaterialApp(home: Scaffold(body: child));
@@ -317,15 +433,16 @@ CustomerPriceRuleImportRowPreviewDto _row({
   rowNumber: 2,
   ruleId: null,
   customerId: '43be4cdf-f9f8-4721-a105-d6a2376205c7',
-  productReferenceId: 'POUNVVP645Y',
+  productId: '00000000-0000-4000-8000-000000000101',
+  productUnitId: '00000000-0000-4000-8000-000000000201',
   price: '10000',
   effectiveFrom: null,
   effectiveTo: null,
   note: 'Import thử',
   customerSnapshot: const {'display_name': 'Ds Chien'},
   productSnapshot: const {'product_name': 'abc', 'floor_price_minor': 10500},
-  unitSnapshot: const {'unit_name': 'b'},
-  unitResolutionStrategy: ProductUnitResolutionStrategy.defaultSellingUnit,
+  unitSnapshot: const {'unit_name': 'b', 'is_base_unit': true},
+  unitResolutionStrategy: ProductUnitResolutionStrategy.explicitSelection,
   normalizedPriceMinor: 10000,
   status: errorCodes.isNotEmpty
       ? CustomerPriceRuleImportRowStatus.error

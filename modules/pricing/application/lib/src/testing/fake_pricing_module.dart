@@ -113,8 +113,10 @@ enum FakePricingScenario {
   reenableInvalidStatus,
   importTemplateV1,
   importReadyMixed,
+  importUpsertAutoMatchOne,
+  importUpsertAutoMatchMany,
   importFailedBadFile,
-  importAmbiguousUnit,
+  importProductUnitMismatch,
   importModeMismatch,
   importGetNotFound,
   importConfirmNeedsAcknowledgement,
@@ -183,7 +185,7 @@ final class FakePricingModule implements IPricingModule {
       SearchCustomerPriceRulesQuery value => _handleSearch<TResult>(value),
       GetCustomerPriceRuleDetailQuery value => _handleDetail<TResult>(value),
       ResolveApplicableCustomerPriceRuleQuery value =>
-          _handleResolveApplicable<TResult>(value),
+        _handleResolveApplicable<TResult>(value),
       PrecheckCustomerPriceRuleReenableQuery value =>
         _handleReenablePrecheck<TResult>(value),
       GetCustomerPriceRuleImportTemplateQuery value =>
@@ -641,11 +643,7 @@ final class FakePricingModule implements IPricingModule {
             )
             as TResult;
       case FakePricingScenario.reenablePrecheckBlockedDuplicate:
-        return _reenablePrecheck(
-              query,
-              outcome: 'valid',
-            )
-            as TResult;
+        return _reenablePrecheck(query, outcome: 'valid') as TResult;
       case FakePricingScenario.reenablePrecheckBlockedExpired:
         return _reenablePrecheck(
               query,
@@ -739,8 +737,10 @@ final class FakePricingModule implements IPricingModule {
       case FakePricingScenario.importGetNotFound:
         throw const PricingBlockedException(PricingBlockedCodes.notFound);
       case FakePricingScenario.importReadyMixed:
+      case FakePricingScenario.importUpsertAutoMatchOne:
+      case FakePricingScenario.importUpsertAutoMatchMany:
       case FakePricingScenario.importFailedBadFile:
-      case FakePricingScenario.importAmbiguousUnit:
+      case FakePricingScenario.importProductUnitMismatch:
       case FakePricingScenario.importModeMismatch:
       case FakePricingScenario.importConfirmPartial:
       case FakePricingScenario.importConfirmRetry:
@@ -762,22 +762,28 @@ final class FakePricingModule implements IPricingModule {
               null,
               status: CustomerPriceRuleImportStatus.failed,
               fileErrorCodes: const ['TEMPLATE_HEADER_INVALID'],
+              importMode: command.importMode,
             )
             as TResult;
-      case FakePricingScenario.importAmbiguousUnit:
+      case FakePricingScenario.importProductUnitMismatch:
         return _importDetail(
               null,
-              rowErrorCodes: const ['AMBIGUOUS_PRODUCT_UNIT'],
+              rowErrorCodes: const ['REFERENCE_INVALID'],
+              importMode: command.importMode,
             )
             as TResult;
       case FakePricingScenario.importModeMismatch:
         return _importDetail(
               null,
               rowErrorCodes: const ['IMPORT_MODE_MISMATCH'],
+              importMode: command.importMode,
             )
             as TResult;
       case FakePricingScenario.importReadyMixed:
-        return _importDetail(null) as TResult;
+        return _importDetail(null, importMode: command.importMode) as TResult;
+      case FakePricingScenario.importUpsertAutoMatchOne:
+      case FakePricingScenario.importUpsertAutoMatchMany:
+        return _importDetail(null, importMode: command.importMode) as TResult;
       default:
         throw UnsupportedError(
           'FakePricingModule: ${scenario.name} does not support import start.',
@@ -846,104 +852,222 @@ final class FakePricingModule implements IPricingModule {
         CustomerPriceRuleImportStatus.readyToImport,
     List<String> fileErrorCodes = const [],
     List<String> rowErrorCodes = const [],
-  }) => CustomerPriceRuleImportDetailDto(
-    batch: _importBatch(status: status, fileErrorCodes: fileErrorCodes),
-    rows: CursorPageDto(
-      items: [
-        CustomerPriceRuleImportRowPreviewDto(
-          id: 'import-row-1',
-          rowNumber: 2,
-          ruleId: null,
-          customerId: '00000000-0000-4000-8000-000000000011',
-          productReferenceId: 'PROD-001',
-          price: '120000',
-          effectiveFrom: null,
-          effectiveTo: null,
-          note: 'ưu tiên',
-          status: rowErrorCodes.isEmpty
-              ? CustomerPriceRuleImportRowStatus.warning
-              : CustomerPriceRuleImportRowStatus.error,
-          action: CustomerPriceRuleImportAction.create,
-          errorCodes: rowErrorCodes,
-          warningCodes: rowErrorCodes.isEmpty
-              ? const ['EFFECTIVE_FROM_DEFAULTED']
-              : const [],
+    CustomerPriceRuleImportMode importMode = CustomerPriceRuleImportMode.upsert,
+  }) {
+    if (scenario == FakePricingScenario.importUpsertAutoMatchOne ||
+        scenario == FakePricingScenario.importUpsertAutoMatchMany) {
+      final isOne = scenario == FakePricingScenario.importUpsertAutoMatchOne;
+      return CustomerPriceRuleImportDetailDto(
+        batch: _importBatch(
+          status: status,
+          fileErrorCodes: fileErrorCodes,
+          importMode: importMode,
         ),
-        if (rowErrorCodes.isEmpty &&
-            scenario == FakePricingScenario.importReadyMixed)
-          const CustomerPriceRuleImportRowPreviewDto(
-            id: 'import-row-2',
-            rowNumber: 3,
+        rows: CursorPageDto(
+          items: [
+            CustomerPriceRuleImportRowPreviewDto(
+              id: isOne
+                  ? 'import-row-auto-match-one'
+                  : 'import-row-auto-match-many',
+              rowNumber: 2,
+              ruleId: null,
+              customerId: '00000000-0000-4000-8000-000000000011',
+              productId: '00000000-0000-4000-8000-000000000021',
+              productUnitId: '00000000-0000-4000-8000-000000000031',
+              price: '120000',
+              effectiveFrom: '2026-03-01',
+              effectiveTo: '2026-10-31',
+              note: 'Giá import mới',
+              productSnapshot: const {
+                'product_id': '00000000-0000-4000-8000-000000000021',
+                'product_name': 'Vaccine',
+              },
+              unitSnapshot: const {
+                'product_unit_id': '00000000-0000-4000-8000-000000000031',
+                'unit_name': 'Hộp 10 liều',
+                'is_base_unit': false,
+              },
+              unitResolutionStrategy:
+                  ProductUnitResolutionStrategy.explicitSelection,
+              status: isOne
+                  ? CustomerPriceRuleImportRowStatus.valid
+                  : CustomerPriceRuleImportRowStatus.error,
+              action: isOne
+                  ? CustomerPriceRuleImportAction.update
+                  : CustomerPriceRuleImportAction.skip,
+              errorCodes: isOne
+                  ? const []
+                  : const ['AMBIGUOUS_OVERLAPPING_RULES'],
+              warningCodes: const [],
+              matchedRuleId: isOne
+                  ? '00000000-0000-4000-8000-000000000101'
+                  : null,
+              matchedRuleVersion: isOne ? 3 : null,
+              normalizedPriceMinor: 120000,
+              normalizedEffectiveFrom: DateTime.utc(2026, 3),
+              normalizedEffectiveTo: DateTime.utc(2026, 10, 31),
+              normalizedNote: 'Giá import mới',
+            ),
+          ],
+          hasMore: false,
+          nextCursor: query?.cursor,
+        ),
+      );
+    }
+
+    return CustomerPriceRuleImportDetailDto(
+      batch: _importBatch(
+        status: status,
+        fileErrorCodes: fileErrorCodes,
+        importMode: importMode,
+      ),
+      rows: CursorPageDto(
+        items: [
+          CustomerPriceRuleImportRowPreviewDto(
+            id: 'import-row-1',
+            rowNumber: 2,
             ruleId: null,
-            customerId: '00000000-0000-4000-8000-000000000012',
-            productReferenceId: 'PROD-002',
-            price: '130000',
-            effectiveFrom: '2026-07-22',
+            customerId: '00000000-0000-4000-8000-000000000011',
+            productId: '00000000-0000-4000-8000-000000000101',
+            productUnitId: '00000000-0000-4000-8000-000000000202',
+            price: '120000',
+            effectiveFrom: null,
             effectiveTo: null,
-            note: null,
-            normalizedPriceMinor: 130000,
-            normalizedEffectiveFrom: null,
-            status: CustomerPriceRuleImportRowStatus.valid,
+            note: 'ưu tiên',
+            productSnapshot: const {
+              'product_id': '00000000-0000-4000-8000-000000000101',
+              'product_name': 'Vaccine',
+            },
+            unitSnapshot: const {
+              'product_unit_id': '00000000-0000-4000-8000-000000000202',
+              'unit_name': 'Hộp 10 liều',
+              'is_base_unit': false,
+            },
+            unitResolutionStrategy:
+                ProductUnitResolutionStrategy.explicitSelection,
+            status: rowErrorCodes.isEmpty
+                ? CustomerPriceRuleImportRowStatus.warning
+                : CustomerPriceRuleImportRowStatus.error,
             action: CustomerPriceRuleImportAction.create,
-            errorCodes: [],
-            warningCodes: [],
+            errorCodes: rowErrorCodes,
+            warningCodes: rowErrorCodes.isEmpty
+                ? const ['EFFECTIVE_FROM_DEFAULTED']
+                : const [],
           ),
-        if (rowErrorCodes.isEmpty &&
-            scenario == FakePricingScenario.importReadyMixed)
-          const CustomerPriceRuleImportRowPreviewDto(
-            id: 'import-row-3',
-            rowNumber: 4,
-            ruleId: null,
-            customerId: '00000000-0000-4000-8000-000000000013',
-            productReferenceId: 'PROD-003',
-            price: '140000',
-            effectiveFrom: '2026-07-22',
-            effectiveTo: null,
-            note: null,
-            normalizedPriceMinor: 140000,
-            normalizedEffectiveFrom: null,
-            status: CustomerPriceRuleImportRowStatus.error,
-            action: CustomerPriceRuleImportAction.skip,
-            errorCodes: ['DUPLICATE_ACTIVE_RULE'],
-            warningCodes: [],
-          ),
-      ],
-      hasMore: false,
-      nextCursor: query?.cursor,
-    ),
-  );
+          if (rowErrorCodes.isEmpty &&
+              scenario == FakePricingScenario.importReadyMixed)
+            const CustomerPriceRuleImportRowPreviewDto(
+              id: 'import-row-2',
+              rowNumber: 3,
+              ruleId: null,
+              customerId: '00000000-0000-4000-8000-000000000012',
+              productId: '00000000-0000-4000-8000-000000000102',
+              productUnitId: '00000000-0000-4000-8000-000000000202',
+              price: '130000',
+              effectiveFrom: '2026-07-22',
+              effectiveTo: null,
+              note: null,
+              productSnapshot: {
+                'product_id': '00000000-0000-4000-8000-000000000102',
+                'product_name': 'Vaccine',
+              },
+              unitSnapshot: {
+                'product_unit_id': '00000000-0000-4000-8000-000000000202',
+                'unit_name': 'Hộp 10 liều',
+                'is_base_unit': false,
+              },
+              unitResolutionStrategy:
+                  ProductUnitResolutionStrategy.explicitSelection,
+              normalizedPriceMinor: 130000,
+              normalizedEffectiveFrom: null,
+              status: CustomerPriceRuleImportRowStatus.valid,
+              action: CustomerPriceRuleImportAction.create,
+              errorCodes: [],
+              warningCodes: [],
+            ),
+          if (rowErrorCodes.isEmpty &&
+              scenario == FakePricingScenario.importReadyMixed)
+            const CustomerPriceRuleImportRowPreviewDto(
+              id: 'import-row-3',
+              rowNumber: 4,
+              ruleId: null,
+              customerId: '00000000-0000-4000-8000-000000000013',
+              productId: '00000000-0000-4000-8000-000000000103',
+              productUnitId: '00000000-0000-4000-8000-000000000204',
+              price: '140000',
+              effectiveFrom: '2026-07-22',
+              effectiveTo: null,
+              note: null,
+              productSnapshot: {
+                'product_id': '00000000-0000-4000-8000-000000000103',
+                'product_name': 'Vaccine 3',
+              },
+              unitSnapshot: {
+                'product_unit_id': '00000000-0000-4000-8000-000000000204',
+                'unit_name': 'Hộp',
+                'is_base_unit': false,
+              },
+              unitResolutionStrategy:
+                  ProductUnitResolutionStrategy.explicitSelection,
+              normalizedPriceMinor: 140000,
+              normalizedEffectiveFrom: null,
+              status: CustomerPriceRuleImportRowStatus.error,
+              action: CustomerPriceRuleImportAction.skip,
+              errorCodes: ['DUPLICATE_ACTIVE_RULE'],
+              warningCodes: [],
+            ),
+        ],
+        hasMore: false,
+        nextCursor: query?.cursor,
+      ),
+    );
+  }
 
   CustomerPriceRuleImportDto _importBatch({
     CustomerPriceRuleImportStatus status =
         CustomerPriceRuleImportStatus.readyToImport,
     List<String> fileErrorCodes = const [],
-  }) => CustomerPriceRuleImportDto(
-    id: 'import-1',
-    templateVersion: CustomerPriceRuleImportTemplateDto.versionV1,
-    originalFileName: CustomerPriceRuleImportTemplateDto.fileNameV1,
-    importMode: CustomerPriceRuleImportMode.upsert,
-    status: status,
-    version: 1,
-    totalRows: scenario == FakePricingScenario.importReadyMixed ? 3 : 1,
-    validRows: scenario == FakePricingScenario.importReadyMixed ? 1 : 0,
-    warningRows: fileErrorCodes.isEmpty ? 1 : 0,
-    errorRows: scenario == FakePricingScenario.importReadyMixed ? 1 : 0,
-    importedRows: status == CustomerPriceRuleImportStatus.completed ? 1 : 0,
-    skippedRows: 0,
-    failedRows: status == CustomerPriceRuleImportStatus.completedWithErrors
-        ? 1
-        : 0,
-    fileErrorCodes: fileErrorCodes,
-    createdAt: DateTime.utc(2026, 7, 16, 8),
-    confirmedAt:
-        status == CustomerPriceRuleImportStatus.completed ||
-            status == CustomerPriceRuleImportStatus.completedWithErrors
-        ? DateTime.utc(2026, 7, 16, 9)
-        : null,
-    canceledAt: status == CustomerPriceRuleImportStatus.canceled
-        ? DateTime.utc(2026, 7, 16, 9)
-        : null,
-  );
+    CustomerPriceRuleImportMode importMode = CustomerPriceRuleImportMode.upsert,
+  }) {
+    final isMixed = scenario == FakePricingScenario.importReadyMixed;
+    final isAutoMatchOne =
+        scenario == FakePricingScenario.importUpsertAutoMatchOne;
+    final isAutoMatchMany =
+        scenario == FakePricingScenario.importUpsertAutoMatchMany;
+    final isAutoMatch = isAutoMatchOne || isAutoMatchMany;
+
+    return CustomerPriceRuleImportDto(
+      id: 'import-1',
+      templateVersion: CustomerPriceRuleImportTemplateDto.versionV1,
+      originalFileName: CustomerPriceRuleImportTemplateDto.fileNameV1,
+      importMode: importMode,
+      status: status,
+      version: 1,
+      totalRows: isMixed ? 3 : 1,
+      validRows: isMixed || isAutoMatchOne ? 1 : 0,
+      warningRows: isAutoMatch
+          ? 0
+          : fileErrorCodes.isEmpty
+          ? 1
+          : 0,
+      errorRows: isMixed || isAutoMatchMany ? 1 : 0,
+      importedRows: status == CustomerPriceRuleImportStatus.completed ? 1 : 0,
+      skippedRows: 0,
+      failedRows: status == CustomerPriceRuleImportStatus.completedWithErrors
+          ? 1
+          : 0,
+      fileErrorCodes: fileErrorCodes,
+      createdAt: DateTime.utc(2026, 7, 16, 8),
+      confirmedAt:
+          status == CustomerPriceRuleImportStatus.completed ||
+              status == CustomerPriceRuleImportStatus.completedWithErrors
+          ? DateTime.utc(2026, 7, 16, 9)
+          : null,
+      canceledAt: status == CustomerPriceRuleImportStatus.canceled
+          ? DateTime.utc(2026, 7, 16, 9)
+          : null,
+    );
+  }
 
   CustomerPriceRuleReenablePrecheckDto _reenablePrecheck(
     PrecheckCustomerPriceRuleReenableQuery query, {

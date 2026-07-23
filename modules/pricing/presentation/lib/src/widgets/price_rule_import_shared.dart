@@ -57,11 +57,16 @@ abstract final class PriceRuleImportRowLabels {
         'sku',
         'code',
       ]) ??
-      row.productReferenceId ??
+      row.productId ??
       '—';
 
   static String unit(CustomerPriceRuleImportRowPreviewDto row) =>
       _snap(row.unitSnapshot, const ['unitName', 'unit_name', 'name']) ?? '—';
+
+  static String unitKind(CustomerPriceRuleImportRowPreviewDto row) =>
+      row.unitSnapshot?['is_base_unit'] == true
+          ? 'Đơn vị cơ sở'
+          : 'Đơn vị quy đổi';
 
   static String price(CustomerPriceRuleImportRowPreviewDto row) {
     final minor = row.normalizedPriceMinor;

@@ -91,7 +91,7 @@ class PriceRuleImportConfirmView extends StatelessWidget {
                               choices: const [
                                 VChoiceOption(
                                   value: CustomerPriceRuleImportMode.upsert,
-                                  label: 'Cập nhật giá nhỏ hiện tại',
+                                  label: 'Cập nhật giá nhớ hiện tại',
                                   helpText:
                                       'Cập nhật rule đã khớp; tạo mới nếu chưa có.',
                                 ),

@@ -19,4 +19,9 @@ enum CustomerPriceRuleImportRowStatus {
 
 enum CustomerPriceRuleImportAction { create, update, skip }
 
-enum ProductUnitResolutionStrategy { defaultSellingUnit, ambiguous, notFound }
+enum ProductUnitResolutionStrategy {
+  explicitSelection,
+  defaultSellingUnit,
+  ambiguous,
+  notFound,
+}

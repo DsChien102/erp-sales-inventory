@@ -93,6 +93,51 @@ final class InMemoryPricingModule implements IPricingModule {
     ),
   ];
 
+  static const List<
+    ({
+      String id,
+      String productId,
+      String name,
+      bool isActive,
+      bool isBaseUnit,
+      int? floorMinor,
+    })
+  >
+  _productUnits = [
+    (
+      id: 'unit-1a',
+      productId: 'product-1',
+      name: 'Lọ',
+      isActive: true,
+      isBaseUnit: true,
+      floorMinor: 150000,
+    ),
+    (
+      id: 'unit-1b',
+      productId: 'product-1',
+      name: 'Hộp 10 lọ',
+      isActive: true,
+      isBaseUnit: false,
+      floorMinor: 1500000,
+    ),
+    (
+      id: 'unit-2a',
+      productId: 'product-2',
+      name: 'Hộp',
+      isActive: true,
+      isBaseUnit: true,
+      floorMinor: 90000,
+    ),
+    (
+      id: 'unit-3a',
+      productId: 'product-3',
+      name: 'Gói',
+      isActive: true,
+      isBaseUnit: true,
+      floorMinor: 70000,
+    ),
+  ];
+
   void _seed() {
     final now = DateTime.now().toUtc();
     final today = DateTime.utc(now.year, now.month, now.day);
@@ -574,7 +619,8 @@ final class InMemoryPricingModule implements IPricingModule {
           rowNumber: rowNumber++,
           ruleId: null,
           customerId: entry.customer.id,
-          productReferenceId: entry.product.id,
+          productId: entry.product.id,
+          productUnitId: entry.product.unitId,
           price: '${entry.priceMinor}',
           effectiveFrom: null,
           effectiveTo: null,
@@ -585,10 +631,19 @@ final class InMemoryPricingModule implements IPricingModule {
           action: duplicate == null
               ? CustomerPriceRuleImportAction.create
               : CustomerPriceRuleImportAction.skip,
-          errorCodes: duplicate == null ? const [] : const ['DUPLICATE_ACTIVE_RULE'],
+          errorCodes: duplicate == null
+              ? const []
+              : const ['DUPLICATE_ACTIVE_RULE'],
           warningCodes: const [],
           customerSnapshot: {'displayName': entry.customer.name},
           productSnapshot: {'productName': entry.product.name},
+          unitSnapshot: {
+            'unit_name': entry.product.unitName,
+            'is_base_unit': true,
+            'product_unit_id': entry.product.unitId,
+          },
+          unitResolutionStrategy:
+              ProductUnitResolutionStrategy.explicitSelection,
           normalizedPriceMinor: entry.priceMinor,
         ),
       );
@@ -600,7 +655,8 @@ final class InMemoryPricingModule implements IPricingModule {
         rowNumber: rowNumber,
         ruleId: null,
         customerId: _customers[3].id,
-        productReferenceId: _products[2].id,
+        productId: _products[2].id,
+        productUnitId: _products[2].unitId,
         price: '68000',
         effectiveFrom: null,
         effectiveTo: null,
@@ -611,6 +667,12 @@ final class InMemoryPricingModule implements IPricingModule {
         warningCodes: const ['EFFECTIVE_FROM_DEFAULTED'],
         customerSnapshot: {'displayName': _customers[3].name},
         productSnapshot: {'productName': _products[2].name},
+        unitSnapshot: {
+          'unit_name': _products[2].unitName,
+          'is_base_unit': true,
+          'product_unit_id': _products[2].unitId,
+        },
+        unitResolutionStrategy: ProductUnitResolutionStrategy.explicitSelection,
         normalizedPriceMinor: 68000,
       ),
     );
@@ -685,13 +747,18 @@ final class InMemoryPricingModule implements IPricingModule {
       orElse: () => (id: row.customerId ?? 'unknown', name: 'Khách hàng'),
     );
     final product = _products.firstWhere(
-      (p) => p.id == row.productReferenceId,
-      orElse: () => (
-        id: row.productReferenceId ?? 'unknown',
-        name: 'Sản phẩm',
-        unitId: 'unit-x',
-        unitName: 'Đơn vị',
-        floorMinor: 0,
+      (candidate) => candidate.id == row.productId,
+      orElse: () => throw const PricingBlockedException(
+        PricingBlockedCodes.referenceInvalid,
+      ),
+    );
+    final unit = _productUnits.firstWhere(
+      (candidate) =>
+          candidate.id == row.productUnitId &&
+          candidate.productId == product.id &&
+          candidate.isActive,
+      orElse: () => throw const PricingBlockedException(
+        PricingBlockedCodes.referenceInvalid,
       ),
     );
 
@@ -702,8 +769,8 @@ final class InMemoryPricingModule implements IPricingModule {
       customerName: customer.name,
       productId: product.id,
       productName: product.name,
-      productUnitId: product.unitId,
-      unitName: product.unitName,
+      productUnitId: unit.id,
+      unitName: unit.name,
       priceMinor: row.normalizedPriceMinor ?? 0,
       effectiveFrom: _calendarDate(businessDate),
       effectiveTo: null,
@@ -773,14 +840,10 @@ final class InMemoryPricingModule implements IPricingModule {
     CustomerPriceRuleImportRowPreviewDto row,
     DateTime businessDate,
   ) {
-    final product = _products.where(
-      (candidate) => candidate.id == row.productReferenceId,
-    );
-    if (row.customerId == null || product.isEmpty) return null;
-    final resolvedProduct = product.first;
+    if (row.customerId == null || row.productUnitId == null) return null;
     return _findOverlapping(
       customerId: row.customerId!,
-      productUnitId: resolvedProduct.unitId,
+      productUnitId: row.productUnitId!,
       effectiveFrom: row.normalizedEffectiveFrom ?? businessDate,
       effectiveTo: row.normalizedEffectiveTo,
       excludeRuleId: row.ruleId,

@@ -50,7 +50,8 @@ void main() {
         CustomerPriceRuleImportParsedRow(
           rowNumber: 2,
           customerId: '00000000-0000-4000-8000-000000000001',
-          productReferenceId: 'VAC-001',
+          productId: '00000000-0000-4000-8000-000000000101',
+          productUnitId: '00000000-0000-4000-8000-000000000201',
           price: '90000',
         ),
       ]),
@@ -59,6 +60,17 @@ void main() {
     expect(
       supabase.calls.single.functionName,
       'create_customer_price_rule_import',
+    );
+    final createParams = supabase.calls.single.params;
+    final parseResult = createParams?['p_parse_result'] as Map?;
+    final row = (parseResult?['rows'] as List?)?.single as Map?;
+    expect(
+      row?['product_id'],
+      '00000000-0000-4000-8000-000000000101',
+    );
+    expect(
+      row?['product_unit_id'],
+      '00000000-0000-4000-8000-000000000201',
     );
     expect(detail.batch.id, 'import-1');
   });

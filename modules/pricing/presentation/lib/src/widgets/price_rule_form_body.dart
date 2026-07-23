@@ -214,8 +214,11 @@ class _PriceRuleFormBodyState extends State<PriceRuleFormBody> {
     }
   }
 
+  /// Calendar date as UTC midnight — matches domain/RPC date-only convention.
+  /// Using local midnight here breaks same-day from/to when one side is UTC
+  /// (e.g. loaded from API) and the other is picked in a +UTC offset TZ.
   static DateTime _calendarDate(DateTime value) =>
-      DateTime(value.year, value.month, value.day);
+      DateTime.utc(value.year, value.month, value.day);
 
   @override
   Widget build(BuildContext context) {

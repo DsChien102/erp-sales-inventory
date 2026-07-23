@@ -203,7 +203,10 @@ class _ValidRowsTable extends StatelessWidget {
                     [
                       _cell(PriceRuleImportRowLabels.customer(row)),
                       _cell(PriceRuleImportRowLabels.product(row)),
-                      _cell(PriceRuleImportRowLabels.unit(row)),
+                      _cell(
+                        '${PriceRuleImportRowLabels.unit(row)}\n'
+                        '${PriceRuleImportRowLabels.unitKind(row)}',
+                      ),
                       Align(
                         alignment: Alignment.centerRight,
                         child: _cell(
@@ -282,8 +285,9 @@ class _QuickCheckSection extends StatelessWidget {
           (r) =>
               r.errorCodes.contains('REFERENCE_INVALID') ||
               ((r.customerId == null || r.customerId!.trim().isEmpty) ||
-                  (r.productReferenceId == null ||
-                      r.productReferenceId!.trim().isEmpty) ||
+                  (r.productId == null || r.productId!.trim().isEmpty) ||
+                  (r.productUnitId == null ||
+                      r.productUnitId!.trim().isEmpty) ||
                   (r.price == null || r.price!.trim().isEmpty)),
         )
         .length;
@@ -310,8 +314,8 @@ class _QuickCheckSection extends StatelessWidget {
     final counts = <String, int>{};
     for (final row in rows) {
       final key =
-          '${row.customerId ?? ''}|${row.productReferenceId ?? ''}|'
-          '${PriceRuleImportRowLabels.unit(row)}';
+          '${row.customerId ?? ''}|${row.productId ?? ''}|'
+          '${row.productUnitId ?? ''}';
       if (key == '||') continue;
       counts[key] = (counts[key] ?? 0) + 1;
     }

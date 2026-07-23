@@ -2384,16 +2384,40 @@ final class FakeCatalogModule implements ICatalogModule {
     }
 
     product.baseUnit = unitName;
-    _productUnits.add(
-      _ProductUnit(
-        id: '${product.id}-base',
-        productId: product.id,
-        name: unitName,
-        conversionRateToBase: 1,
-        isBaseUnit: true,
-        isActive: true,
-      ),
+    final baseUnit = _ProductUnit(
+      id: '${product.id}-base',
+      productId: product.id,
+      name: unitName,
+      conversionRateToBase: 1,
+      isBaseUnit: true,
+      isActive: true,
     );
+    _productUnits.add(baseUnit);
+
+    // Parity with SQL set_product_base_unit: first base unit + manage_pricing
+    // + no active band → pending ruleBased zeros (materialize if base exists).
+    if (!product.pricePermissionDenied &&
+        product.priceBandSourceType == null &&
+        baseUnit.priceBandSourceType == null) {
+      baseUnit
+        ..listBeforeVat = 0
+        ..floorBeforeVat = 0
+        ..listAfterVat = 0
+        ..floorAfterVat = 0
+        ..priceBandSourceType = PriceBandSourceType.ruleBased
+        ..storePriceRuleId = null
+        ..storePriceRuleName = null
+        ..listMarkupRatio = null
+        ..floorMarkupRatio = null
+        ..isCustomOverride = false;
+      _syncProductPriceBandSummary(product);
+      if (product.hasBasePrice) {
+        _recalculateFormulaPriceBandsForProduct(
+          product: product,
+          tenantId: command.tenantId,
+        );
+      }
+    }
 
     return SetProductBaseUnitResult(
           productId: product.id,

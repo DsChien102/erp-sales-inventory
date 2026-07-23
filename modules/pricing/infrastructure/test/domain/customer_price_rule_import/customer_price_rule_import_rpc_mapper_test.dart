@@ -13,7 +13,8 @@ void main() {
         CustomerPriceRuleImportParsedRow(
           rowNumber: 2,
           customerId: '00000000-0000-4000-8000-000000000001',
-          productReferenceId: 'VAC-001',
+          productId: '00000000-0000-4000-8000-000000000101',
+          productUnitId: '00000000-0000-4000-8000-000000000201',
           price: '90000',
         ),
       ]),
@@ -29,7 +30,23 @@ void main() {
     expect(params['p_import_mode'], 'create_only');
     final parseResult = params['p_parse_result'] as Map;
     expect(parseResult['kind'], 'parsed');
-    expect((parseResult['rows'] as List).single['row_number'], 2);
+    final row = (parseResult['rows'] as List).single as Map;
+    expect(row['row_number'], 2);
+    expect(
+      row,
+      containsPair(
+        'product_id',
+        '00000000-0000-4000-8000-000000000101',
+      ),
+    );
+    expect(
+      row,
+      containsPair(
+        'product_unit_id',
+        '00000000-0000-4000-8000-000000000201',
+      ),
+    );
+    expect(row.containsKey('product_reference_id'), isFalse);
   });
 
   test('get params allow null cursor and row status', () {
@@ -85,11 +102,13 @@ void main() {
             {
               'id': 'row-1',
               'row_number': 2,
+              'product_id': '00000000-0000-4000-8000-000000000101',
+              'product_unit_id': '00000000-0000-4000-8000-000000000201',
               'status': 'warning',
               'action': 'create',
               'error_codes': [],
               'warning_codes': ['BELOW_FLOOR_PRICE'],
-              'unit_resolution_strategy': 'default_selling_unit',
+              'unit_resolution_strategy': 'explicit_selection',
               'customer_snapshot': {
                 'customer_id': 'customer-1',
                 'display_name': 'Clinic A',
@@ -132,8 +151,16 @@ void main() {
 
       expect(detail.batch.status, CustomerPriceRuleImportStatus.readyToImport);
       expect(
+        detail.rows.items.single.productId,
+        '00000000-0000-4000-8000-000000000101',
+      );
+      expect(
+        detail.rows.items.single.productUnitId,
+        '00000000-0000-4000-8000-000000000201',
+      );
+      expect(
         detail.rows.items.single.unitResolutionStrategy,
-        ProductUnitResolutionStrategy.defaultSellingUnit,
+        ProductUnitResolutionStrategy.explicitSelection,
       );
       expect(
         detail.rows.items.single.customerSnapshot?['display_name'],

@@ -83,6 +83,11 @@ class PriceRuleImportIssueDetailSheet extends StatelessWidget {
                 ),
                 const VGap.xs(),
                 _DetailLine(
+                  label: 'Loại đơn vị',
+                  value: PriceRuleImportRowLabels.unitKind(row),
+                ),
+                const VGap.xs(),
+                _DetailLine(
                   label: 'Giá',
                   value: PriceRuleImportRowLabels.price(row),
                 ),

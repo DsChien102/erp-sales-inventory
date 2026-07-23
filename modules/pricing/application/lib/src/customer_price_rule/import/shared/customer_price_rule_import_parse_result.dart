@@ -3,7 +3,8 @@ final class CustomerPriceRuleImportParsedRow {
     required this.rowNumber,
     this.ruleId,
     this.customerId,
-    this.productReferenceId,
+    this.productId,
+    this.productUnitId,
     this.price,
     this.effectiveFrom,
     this.effectiveTo,
@@ -13,7 +14,8 @@ final class CustomerPriceRuleImportParsedRow {
   final int rowNumber;
   final String? ruleId;
   final String? customerId;
-  final String? productReferenceId;
+  final String? productId;
+  final String? productUnitId;
   final String? price;
   final String? effectiveFrom;
   final String? effectiveTo;

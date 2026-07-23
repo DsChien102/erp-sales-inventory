@@ -28,6 +28,18 @@ void main() {
         ),
       );
     });
+
+    test(
+      'accepts same calendar day when from is UTC and to is local midnight',
+      () async {
+        await validator.validate(
+          _command(
+            effectiveFrom: DateTime.utc(2026, 7, 23),
+            effectiveTo: DateTime(2026, 7, 23),
+          ),
+        );
+      },
+    );
   });
 
   group('CreateCustomerPriceRuleCommandHandler', () {

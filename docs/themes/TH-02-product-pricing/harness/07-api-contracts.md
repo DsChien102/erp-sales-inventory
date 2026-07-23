@@ -426,6 +426,8 @@ Không thêm query gates — FE derive từ `readinessSummary` / `hasBaseUnit`. 
 
 **`catalog.set_product_base_unit` params:** `p_tenant_id`, `p_product_id`, `p_tenant_unit_id uuid` (nullable), `p_new_unit_name text` (nullable) — exactly one of id/name.
 
+**Pending automatic band (parity guided create):** when the product has **no** active `product_unit_price_band` and the caller has `catalog.product.manage_pricing`, the RPC also persists a pending `ruleBased` band (list/floor `0`) via `set_product_unit_price_band`. Callers with only `manage_units` skip this step (no pricing permission regression). Draft: [`catalog_set_base_unit_pending_rule_based_band.sql`](../../../../supabase/migrations/_drafts/catalog_set_base_unit_pending_rule_based_band.sql). Later `set_manual_base_price` recalculation materializes list/floor when a base price exists.
+
 ### Fake scenarios (FE)
 
 | scenario_id | trigger | fake response |

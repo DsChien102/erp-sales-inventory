@@ -40,6 +40,38 @@ void main() {
         );
       },
     );
+
+    test(
+      'accepts same calendar day when from is UTC and to is local midnight',
+      () async {
+        await validator.validate(
+          _command(
+            effectiveFrom: DateTime.utc(2026, 7, 23),
+            // Local midnight — in +UTC offsets this is before UTC midnight
+            // of the same calendar day if compared as instants.
+            effectiveTo: DateTime(2026, 7, 23),
+          ),
+        );
+      },
+    );
+
+    test('rejects effectiveTo on an earlier calendar day', () async {
+      await expectLater(
+        validator.validate(
+          _command(
+            effectiveFrom: DateTime.utc(2026, 7, 23),
+            effectiveTo: DateTime(2026, 7, 22),
+          ),
+        ),
+        throwsA(
+          isA<PricingBlockedException>().having(
+            (e) => e.details['fieldErrors'],
+            'fieldErrors',
+            containsPair('effectiveTo', 'before_effective_from'),
+          ),
+        ),
+      );
+    });
   });
 
   test('withExecutionContext replaces caller tenant and actor only', () {

@@ -89,6 +89,8 @@ void main() {
         await tester.pumpAndSettle();
 
         expect(find.byType(PriceRuleImportPreviewView), findsOneWidget);
+        expect(find.textContaining('Hộp 10 liều'), findsOneWidget);
+        expect(find.textContaining('Đơn vị quy đổi'), findsOneWidget);
 
         cubit.proceedToConfirm();
         await tester.pumpAndSettle();

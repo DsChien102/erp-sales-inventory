@@ -19,7 +19,8 @@ abstract final class PriceRuleImportIssueFormatter {
     'IMPORT_MODE_MISMATCH' =>
       'Dòng dữ liệu không phù hợp với chế độ import đã chọn.',
     'INVALID_RULE_ID' => 'Mã giá riêng không đúng định dạng.',
-    'REFERENCE_INVALID' => 'Không tìm thấy khách hàng hoặc sản phẩm hợp lệ.',
+    'REFERENCE_INVALID' =>
+      'Không tìm thấy khách hàng, sản phẩm hoặc đơn vị hợp lệ.',
     'AMBIGUOUS_PRODUCT_UNIT' =>
       'Không thể xác định duy nhất đơn vị cơ sở đang hoạt động của sản phẩm.',
     'INVALID_PRICE' => 'Giá riêng phải là số nguyên lớn hơn 0.',
@@ -33,6 +34,9 @@ abstract final class PriceRuleImportIssueFormatter {
       'Khách hàng hoặc sản phẩm không khớp với giá riêng cần cập nhật.',
     'BELOW_FLOOR_PRICE' => _belowFloorMessage(row, isBlocked: false),
     'BELOW_FLOOR_BLOCKED' => _belowFloorMessage(row, isBlocked: true),
+    'AMBIGUOUS_OVERLAPPING_RULES' =>
+      'Có nhiều rule đang hiệu lực cùng khớp khách hàng, sản phẩm, đơn vị '
+          'và khoảng thời gian. Hãy thu hẹp khoảng hiệu lực để chỉ khớp một rule.',
     'DUPLICATE_ACTIVE_RULE' =>
       'Đã tồn tại giá riêng đang hoạt động trùng thời gian.',
     'STATE_CHANGED' =>

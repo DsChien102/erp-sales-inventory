@@ -195,7 +195,7 @@ parsed → valid|warning|error → imported|skipped|failed
 
 Confirm chỉ xử lý valid/warning rows được policy cho phép, revalidate references/duplicate/floor tại commit và không apply row đã terminal.
 
-**S8 BE baseline 2026-07-16:** domain aggregate `CustomerPriceRuleImport` + row lifecycle tests; application contracts/validators/handlers; infrastructure XLSX codec + `ExcelCustomerPriceRuleImportFileAdapter`, RPC mapper/gateway, draft SQL (`pricing_customer_price_rule_import_s8.sql`, `catalog_pricing_import_product_unit_resolver.sql`). Identifiers are exact UUID / `product_reference_id` only; default unit is Catalog active base unit.
+**S8 BE baseline 2026-07-16 / explicit-unit corrective 2026-07-23:** domain aggregate `CustomerPriceRuleImport` + row lifecycle tests; application contracts/validators/handlers; infrastructure XLSX codec + `ExcelCustomerPriceRuleImportFileAdapter`, RPC mapper/gateway, draft SQL (`010`/`013`/`003`/`016_pricing_customer_price_rule_import_explicit_unit.sql`). Template V1 rows carry exact `product_id` + `product_unit_id` UUIDs; Catalog resolves the selected active unit (base or conversion) via the 3-uuid overload — no default-to-base-unit for new V1 rows.
 
 ## Memory request aggregate
 

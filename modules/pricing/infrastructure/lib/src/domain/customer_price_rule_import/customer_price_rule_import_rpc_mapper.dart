@@ -106,7 +106,8 @@ abstract final class CustomerPriceRuleImportRpcMapper {
               'row_number': row.rowNumber,
               'rule_id': row.ruleId,
               'customer_id': row.customerId,
-              'product_reference_id': row.productReferenceId,
+              'product_id': row.productId,
+              'product_unit_id': row.productUnitId,
               'price': row.price,
               'effective_from': row.effectiveFrom,
               'effective_to': row.effectiveTo,
@@ -142,7 +143,8 @@ abstract final class CustomerPriceRuleImportRpcMapper {
     rowNumber: _requiredInt(json['row_number']),
     ruleId: json['rule_id'] as String?,
     customerId: json['customer_id'] as String?,
-    productReferenceId: json['product_reference_id'] as String?,
+    productId: json['product_id'] as String?,
+    productUnitId: json['product_unit_id'] as String?,
     price: json['price'] as String?,
     effectiveFrom: json['effective_from'] as String?,
     effectiveTo: json['effective_to'] as String?,
@@ -226,6 +228,7 @@ abstract final class CustomerPriceRuleImportRpcMapper {
   static ProductUnitResolutionStrategy? _unitStrategyFromWire(String? value) =>
       switch (value) {
         null => null,
+        'explicit_selection' => ProductUnitResolutionStrategy.explicitSelection,
         'default_selling_unit' =>
           ProductUnitResolutionStrategy.defaultSellingUnit,
         'ambiguous' => ProductUnitResolutionStrategy.ambiguous,
