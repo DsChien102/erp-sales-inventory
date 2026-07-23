@@ -23,7 +23,8 @@ Source of truth giữa presentation và application cho EP02. Types sẽ sống 
 | `NOT_FOUND` | Rule/batch không tồn tại hoặc không visible | Not-found state |
 | `VALIDATION_ERROR` | Field/value/date invalid | Field errors |
 | `INVALID_STATUS` | Action không hợp lifecycle | Refresh current state |
-| `DUPLICATE_ACTIVE_RULE` | Active interval conflict (import: **warning**, still importable with acknowledgement; confirm auto-disables overlaps) | Show conflict summary/link; require warning ack on import |
+| `DUPLICATE_ACTIVE_RULE` | Active interval conflicts with another rule (manual create: blocked; import: blocking row error; explicit update excludes its own rule ID) | Create: keep form and show blocking error. Import: skip that row. Preserve the existing active rule. |
+| `AMBIGUOUS_OVERLAPPING_RULES` | Blank-`rule_id` `upsert` giao với nhiều active rule cùng customer/product/product-unit | Blocking row error; `skip`; không mutation |
 | `BELOW_FLOOR_BLOCKED` | Floor policy chặn | Explain policy/override eligibility |
 | `REFERENCE_INVALID` | Customer/product/unit không hợp lệ | Reselect or row error |
 | `AMBIGUOUS_PRODUCT_UNIT` | Import không resolve được unique/default unit | Row error |
@@ -73,7 +74,7 @@ Source of truth giữa presentation và application cho EP02. Types sẽ sống 
 
 | Symbol | Input summary | Success | Errors |
 | ------ | ------------- | ------- | ------ |
-| `CreateCustomerPriceRuleCommand` | context-derived tenantId/actorId; customerId, productId, productUnitId, rulePriceMinor, currencyCode, effectiveFrom, effectiveTo?, note?, acknowledgeFloorWarning, idempotencyKey | `CreateCustomerPriceRuleResult(rule, warnings)` | `NO_PERMISSION`, `VALIDATION_ERROR`, `BELOW_FLOOR_BLOCKED`, `REFERENCE_INVALID`, `IDEMPOTENCY_CONFLICT`, `SYSTEM_ERROR` |
+| `CreateCustomerPriceRuleCommand` | context-derived tenantId/actorId; customerId, productId, productUnitId, rulePriceMinor, currencyCode, effectiveFrom, effectiveTo?, note?, acknowledgeFloorWarning, idempotencyKey | `CreateCustomerPriceRuleResult(rule, warnings)` | `NO_PERMISSION`, `VALIDATION_ERROR`, `DUPLICATE_ACTIVE_RULE`, `BELOW_FLOOR_BLOCKED`, `REFERENCE_INVALID`, `IDEMPOTENCY_CONFLICT`, `SYSTEM_ERROR` |
 
 `tenantId` và `actorId` được command executor điền từ `IExecutionContext`; form không được cung cấp và mutation RPC luôn lấy actor từ `auth.uid()`. Command có `@RequiresTenant()` và `@RequiresPermission(PricingPermissions.createCustomerPriceRule)`. Date được chuẩn hóa thành calendar date UTC; money luôn là integer minor units.
 
@@ -90,14 +91,14 @@ Server assigns type=`special_price`, source=`manual`, status=`active`, version=`
 | Partner customer provider | `partner._get_customer_snapshot_for_pricing` | internal draft; no client execute |
 | Catalog price-band provider | `catalog._get_product_price_band_snapshot_for_pricing` | internal draft; no client execute |
 
-Mutation rechecks tenant/create permission, references, closed-interval overlap, and floor policy under advisory locks. Nếu gặp active overlap cùng key thì RPC tự disable rule cũ rồi mới ghi rule mới. Nó ghi disable activity cho rule cũ (nếu có) và `created` activity cho rule mới trong cùng transaction. `(tenant_id, idempotency_key)` là unique: same normalized payload returns the original result, different payload returns `IDEMPOTENCY_CONFLICT`.
+Mutation rechecks tenant/create permission, references, closed-interval overlap, and floor policy under advisory locks. Nếu gặp active overlap cùng key thì RPC trả `DUPLICATE_ACTIVE_RULE`, không tạo rule mới, không disable rule cũ và không ghi activity thay thế. `(tenant_id, idempotency_key)` là unique: same normalized payload returns the original result trước duplicate recheck, different payload returns `IDEMPOTENCY_CONFLICT`.
 
 ### Fake scenarios
 
 | scenario_id | Trigger | Fake response |
 | ----------- | ------- | ------------- |
 | `create_rule_ok` | valid unique candidate | active detail DTO |
-| `create_rule_duplicate` | overlapping key | success; conflicting active rule auto-disabled |
+| `create_rule_duplicate` | overlapping key | `DUPLICATE_ACTIVE_RULE`; no mutation |
 | `create_rule_floor_warning` | warn policy | result + warning |
 | `create_rule_floor_blocked` | block/no override | `BELOW_FLOOR_BLOCKED` |
 | `create_rule_reference_invalid` | stale customer/unit | `REFERENCE_INVALID` |
@@ -405,7 +406,7 @@ Lane status: CONTRACT `done`, BE `done`, FE `done`, E2E `done (Fake)`; applied-R
 | `ConfirmCustomerPriceRuleImportCommand` | importId, expectedVersion, businessDate (UTC date), acknowledgeWarningRows | `CustomerPriceRuleImportResultDto` (terminal only; `isReplay` on completed replay) | invalid status, state changed, validation (acknowledgement), system |
 | `CancelCustomerPriceRuleImportCommand` | importId, expectedVersion | `CustomerPriceRuleImportDto` | invalid status, state changed, system |
 
-Template V1: sheets `customer_price_rules` + `instructions`; exact headers `rule_id`, `customer_id`, `product_reference_id`, `rule_price`, `effective_from`, `effective_to`, `note`. The bounded `archive`+`xml` OOXML codec preserves physical row numbers, supports shared/inline/rich strings and native Excel dates, rejects formulas, extra/reordered headers and unsafe/oversized archives. Blank `effective_from` warns `EFFECTIVE_FROM_DEFAULTED`; confirm defaults it to `businessDate`. Import modes: `create_only`, `update_only`, `upsert`. File/row outcome codes are DTO data (not `PricingBlockedCodes`). Preview snapshots are typed JSON and redact floor/matched-rule identifiers according to permission.
+Template V1 (**breaking**): sheets `customer_price_rules` + `instructions`; exact headers `rule_id`, `customer_id`, `product_id`, `product_unit_id`, `rule_price`, `effective_from`, `effective_to`, `note`. Old workbooks with `product_reference_id` fail `TEMPLATE_HEADER_INVALID`. Both `product_id` and `product_unit_id` are required UUID-shaped row values; Catalog owns exact active product–unit relationship (base or conversion). New rows use `unit_resolution_strategy = explicit_selection` (or `not_found`); `AMBIGUOUS_PRODUCT_UNIT` is not emitted for new V1 imports. `REFERENCE_INVALID` covers malformed/inactive/cross-tenant/mismatched IDs and unusable integer-minor-unit snapshots. Preview and confirm both revalidate. The bounded `archive`+`xml` OOXML codec preserves physical row numbers, supports shared/inline/rich strings and native Excel dates, rejects formulas, extra/reordered headers and unsafe/oversized archives. `rule_price` is integer VND minor: accepts Excel wire `N` / `N.0` / `N.00`, VN thousands `100.000`, and comma thousands `100,000`; non-zero fractional part (e.g. `100000.5`) → `INVALID_PRICE` (draft `018`). Blank `effective_from` warns `EFFECTIVE_FROM_DEFAULTED`; confirm defaults it to `businessDate`. Import modes: `create_only`, `update_only`, `upsert`. File/row outcome codes are DTO data (not `PricingBlockedCodes`). Preview snapshots are typed JSON and redact floor/matched-rule identifiers according to permission.
 
 ### RPC targets
 
@@ -417,9 +418,17 @@ Template V1: sheets `customer_price_rules` + `instructions`; exact headers `rule
 | Cancel | `pricing.cancel_customer_price_rule_import` | draft trong repo; user-applied test env |
 | Catalog unit resolver | `catalog._resolve_product_unit_for_pricing_import` | internal draft; no client execute |
 
-Draft SQL: `supabase/migrations/_drafts/010_pricing_customer_price_rule_import_s8.sql`, `013_pricing_customer_price_rule_import_overlap_policy.sql` (duplicate → warning + confirm auto-disable), `003_catalog_pricing_import_product_unit_resolver.sql`. No workbook storage; no async worker in V1.
+Draft SQL: `supabase/migrations/_drafts/010_pricing_customer_price_rule_import_s8.sql`, `013_pricing_customer_price_rule_import_overlap_policy.sql` (duplicate → blocking row error + confirm recheck), `003_catalog_pricing_import_product_unit_resolver.sql`, `016_pricing_customer_price_rule_import_explicit_unit.sql` (explicit product/unit V1; unapplied), `017_pricing_customer_price_rule_import_auto_match_upsert.sql` (blank-rule upsert auto-match; draft-only / unapplied). No workbook storage; no async worker in V1.
 
-**BR-07 import overlap:** Preview puts `DUPLICATE_ACTIVE_RULE` in `warning_codes` (not `error_codes`). Confirm keeps rule-key advisory lock, calls `_auto_disable_overlapping_customer_price_rules` immediately before create/update with `replacement_action` `import_created`/`import_updated`, then writes import activity. Same-file conflicts: ascending `row_number`; later row wins; earlier imported rules may be auto-disabled by later rows. No confirm branch fails a row solely for duplicate.
+**BR-05 import overlap:** Với `upsert` không có `rule_id`, preview match active
+rule theo `tenant + customer + product + product_unit + closed-interval
+overlap`: `0` match → `create`; `1` match → `update` và lưu
+`matched_rule_id/version`; `>1` match → `AMBIGUOUS_OVERLAPPING_RULES`,
+`error/skip`. Confirm lấy rule-key advisory lock, match lại và chỉ create/update
+khi action, matched ID và version không đổi; drift trả `STATE_CHANGED`.
+Explicit update tiếp tục loại chính `rule_id` khỏi duplicate check và bị
+`DUPLICATE_ACTIVE_RULE` nếu giao với một rule active khác.
+Import never calls `_auto_disable_overlapping_customer_price_rules` and never mutates the conflicting active rule. Same-file conflicts are processed by ascending `row_number`: the first eligible row may import, while a later overlapping row fails. A mixed batch finishes `completed_with_errors`; users may continue whenever `validRows + warningRows > 0`.
 
 FE S8 dùng canonical `CustomerPriceRuleImportTemplateDto.versionV1`, tải template qua `GetCustomerPriceRuleImportTemplateQuery`, lưu bytes bằng app-local `PricingImportFileService`, cho phép partial import khi `validRows + warningRows > 0`, bắt buộc acknowledge warning và gọi cancel command trước khi bỏ batch `ready_to_import`. File-level parser errors được map thành thông báo tiếng Việt; tải workbook lỗi nằm ngoài scope.
 
@@ -432,7 +441,7 @@ Fake E2E evidence: `pricing_import_history_e2e_test.dart` kiểm tra tải đún
 | `importTemplateV1` | template query | V1 bytes/filename |
 | `importReadyMixed` | start/get | ready batch + mixed preview rows |
 | `importFailedBadFile` | start | failed batch + file codes |
-| `importAmbiguousUnit` | start | row `AMBIGUOUS_PRODUCT_UNIT` |
+| `importProductUnitMismatch` | start | row `REFERENCE_INVALID` |
 | `importModeMismatch` | start | row `IMPORT_MODE_MISMATCH` |
 | `importGetNotFound` | get | `NOT_FOUND` |
 | `importConfirmNeedsAcknowledgement` | confirm w/o ack | `VALIDATION_ERROR` acknowledgementRequired |

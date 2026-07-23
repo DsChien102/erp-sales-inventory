@@ -12,8 +12,8 @@ import 'package:vet45_shared_application/application.dart';
 /// khi DB migrations pricing chưa được promote.
 ///
 /// Hành vi theo SG:
-/// - SG-03: tạo/sửa trùng rule → lần 1 trả DUPLICATE_ACTIVE_RULE (FE hiện
-///   cảnh báo), lần 2 (acknowledge) ghi đè: tắt rule cũ, lưu rule mới.
+/// - SG-03: tạo trùng rule → trả DUPLICATE_ACTIVE_RULE và giữ nguyên rule cũ;
+///   sửa trùng vẫn theo policy authoritative riêng của update.
 /// - SG-05: bật lại không validate duplicate — tự tắt rule trùng rồi bật.
 ///
 /// TODO(TH-04): thay bằng PricingStartup khi infrastructure + migrations sẵn sàng.
@@ -89,6 +89,51 @@ final class InMemoryPricingModule implements IPricingModule {
       name: 'Men tiêu hóa BIO-COLI',
       unitId: 'unit-3a',
       unitName: 'Gói',
+      floorMinor: 70000,
+    ),
+  ];
+
+  static const List<
+    ({
+      String id,
+      String productId,
+      String name,
+      bool isActive,
+      bool isBaseUnit,
+      int? floorMinor,
+    })
+  >
+  _productUnits = [
+    (
+      id: 'unit-1a',
+      productId: 'product-1',
+      name: 'Lọ',
+      isActive: true,
+      isBaseUnit: true,
+      floorMinor: 150000,
+    ),
+    (
+      id: 'unit-1b',
+      productId: 'product-1',
+      name: 'Hộp 10 lọ',
+      isActive: true,
+      isBaseUnit: false,
+      floorMinor: 1500000,
+    ),
+    (
+      id: 'unit-2a',
+      productId: 'product-2',
+      name: 'Hộp',
+      isActive: true,
+      isBaseUnit: true,
+      floorMinor: 90000,
+    ),
+    (
+      id: 'unit-3a',
+      productId: 'product-3',
+      name: 'Gói',
+      isActive: true,
+      isBaseUnit: true,
       floorMinor: 70000,
     ),
   ];
@@ -314,7 +359,10 @@ final class InMemoryPricingModule implements IPricingModule {
     );
 
     if (duplicate != null) {
-      _disableInternal(duplicate, reason: 'Bị ghi đè bởi giá riêng mới');
+      throw PricingBlockedException(
+        PricingBlockedCodes.duplicateActiveRule,
+        details: {'conflictingRuleId': duplicate.id},
+      );
     }
 
     final customer = _customers.firstWhere(
@@ -556,26 +604,46 @@ final class InMemoryPricingModule implements IPricingModule {
     var rowNumber = 2;
     var index = 0;
     for (final entry in [
+      (customer: _customers[0], product: _products[0], priceMinor: 160000),
       (customer: _customers[0], product: _products[1], priceMinor: 95000),
       (customer: _customers[1], product: _products[2], priceMinor: 72000),
     ]) {
+      final duplicate = _findOverlapping(
+        customerId: entry.customer.id,
+        productUnitId: entry.product.unitId,
+        effectiveFrom: DateTime.now().toUtc(),
+      );
       rows.add(
         CustomerPriceRuleImportRowPreviewDto(
           id: '$importId-row-${index++}',
           rowNumber: rowNumber++,
           ruleId: null,
           customerId: entry.customer.id,
-          productReferenceId: entry.product.id,
+          productId: entry.product.id,
+          productUnitId: entry.product.unitId,
           price: '${entry.priceMinor}',
           effectiveFrom: null,
           effectiveTo: null,
           note: null,
-          status: CustomerPriceRuleImportRowStatus.valid,
-          action: CustomerPriceRuleImportAction.create,
-          errorCodes: const [],
+          status: duplicate == null
+              ? CustomerPriceRuleImportRowStatus.valid
+              : CustomerPriceRuleImportRowStatus.error,
+          action: duplicate == null
+              ? CustomerPriceRuleImportAction.create
+              : CustomerPriceRuleImportAction.skip,
+          errorCodes: duplicate == null
+              ? const []
+              : const ['DUPLICATE_ACTIVE_RULE'],
           warningCodes: const [],
           customerSnapshot: {'displayName': entry.customer.name},
           productSnapshot: {'productName': entry.product.name},
+          unitSnapshot: {
+            'unit_name': entry.product.unitName,
+            'is_base_unit': true,
+            'product_unit_id': entry.product.unitId,
+          },
+          unitResolutionStrategy:
+              ProductUnitResolutionStrategy.explicitSelection,
           normalizedPriceMinor: entry.priceMinor,
         ),
       );
@@ -587,7 +655,8 @@ final class InMemoryPricingModule implements IPricingModule {
         rowNumber: rowNumber,
         ruleId: null,
         customerId: _customers[3].id,
-        productReferenceId: _products[2].id,
+        productId: _products[2].id,
+        productUnitId: _products[2].unitId,
         price: '68000',
         effectiveFrom: null,
         effectiveTo: null,
@@ -598,6 +667,12 @@ final class InMemoryPricingModule implements IPricingModule {
         warningCodes: const ['EFFECTIVE_FROM_DEFAULTED'],
         customerSnapshot: {'displayName': _customers[3].name},
         productSnapshot: {'productName': _products[2].name},
+        unitSnapshot: {
+          'unit_name': _products[2].unitName,
+          'is_base_unit': true,
+          'product_unit_id': _products[2].unitId,
+        },
+        unitResolutionStrategy: ProductUnitResolutionStrategy.explicitSelection,
         normalizedPriceMinor: 68000,
       ),
     );
@@ -626,10 +701,19 @@ final class InMemoryPricingModule implements IPricingModule {
 
     var imported = 0;
     var skipped = 0;
+    var failed = 0;
     for (final row in record.rows) {
+      if (row.status == CustomerPriceRuleImportRowStatus.error) {
+        skipped++;
+        continue;
+      }
       final isWarning = row.status == CustomerPriceRuleImportRowStatus.warning;
       if (isWarning && !command.acknowledgeWarningRows) {
         skipped++;
+        continue;
+      }
+      if (_findImportConflict(row, command.businessDate) != null) {
+        failed++;
         continue;
       }
       _importRow(row, command.businessDate);
@@ -637,9 +721,12 @@ final class InMemoryPricingModule implements IPricingModule {
     }
 
     record
-      ..status = CustomerPriceRuleImportStatus.completed
+      ..status = skipped > 0 || failed > 0
+          ? CustomerPriceRuleImportStatus.completedWithErrors
+          : CustomerPriceRuleImportStatus.completed
       ..importedRows = imported
       ..skippedRows = skipped
+      ..failedRows = failed
       ..confirmedAt = DateTime.now().toUtc()
       ..version += 1;
 
@@ -660,26 +747,20 @@ final class InMemoryPricingModule implements IPricingModule {
       orElse: () => (id: row.customerId ?? 'unknown', name: 'Khách hàng'),
     );
     final product = _products.firstWhere(
-      (p) => p.id == row.productReferenceId,
-      orElse: () => (
-        id: row.productReferenceId ?? 'unknown',
-        name: 'Sản phẩm',
-        unitId: 'unit-x',
-        unitName: 'Đơn vị',
-        floorMinor: 0,
+      (candidate) => candidate.id == row.productId,
+      orElse: () => throw const PricingBlockedException(
+        PricingBlockedCodes.referenceInvalid,
       ),
     );
-
-    // Ghi đè rule trùng (chính sách import: cập nhật giá nhớ hiện tại).
-    final duplicate = _findOverlapping(
-      customerId: customer.id,
-      productUnitId: product.unitId,
-      effectiveFrom: businessDate,
-      effectiveTo: null,
+    final unit = _productUnits.firstWhere(
+      (candidate) =>
+          candidate.id == row.productUnitId &&
+          candidate.productId == product.id &&
+          candidate.isActive,
+      orElse: () => throw const PricingBlockedException(
+        PricingBlockedCodes.referenceInvalid,
+      ),
     );
-    if (duplicate != null) {
-      _disableInternal(duplicate, reason: 'Bị ghi đè bởi import Excel');
-    }
 
     final now = DateTime.now().toUtc();
     final rule = _RuleRecord(
@@ -688,8 +769,8 @@ final class InMemoryPricingModule implements IPricingModule {
       customerName: customer.name,
       productId: product.id,
       productName: product.name,
-      productUnitId: product.unitId,
-      unitName: product.unitName,
+      productUnitId: unit.id,
+      unitName: unit.name,
       priceMinor: row.normalizedPriceMinor ?? 0,
       effectiveFrom: _calendarDate(businessDate),
       effectiveTo: null,
@@ -753,6 +834,20 @@ final class InMemoryPricingModule implements IPricingModule {
       if (overlaps) return rule;
     }
     return null;
+  }
+
+  _RuleRecord? _findImportConflict(
+    CustomerPriceRuleImportRowPreviewDto row,
+    DateTime businessDate,
+  ) {
+    if (row.customerId == null || row.productUnitId == null) return null;
+    return _findOverlapping(
+      customerId: row.customerId!,
+      productUnitId: row.productUnitId!,
+      effectiveFrom: row.normalizedEffectiveFrom ?? businessDate,
+      effectiveTo: row.normalizedEffectiveTo,
+      excludeRuleId: row.ruleId,
+    );
   }
 
   void _disableInternal(_RuleRecord rule, {String? reason}) {
@@ -1014,6 +1109,7 @@ final class _ImportRecord {
   final DateTime createdAt;
   int importedRows = 0;
   int skippedRows = 0;
+  int failedRows = 0;
   DateTime? confirmedAt;
   DateTime? canceledAt;
 
@@ -1036,7 +1132,7 @@ final class _ImportRecord {
     errorRows: _errorRows,
     importedRows: importedRows,
     skippedRows: skippedRows,
-    failedRows: 0,
+    failedRows: failedRows,
     fileErrorCodes: const [],
     createdAt: createdAt,
     confirmedAt: confirmedAt,

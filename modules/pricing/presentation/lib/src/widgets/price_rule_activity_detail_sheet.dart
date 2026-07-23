@@ -3,6 +3,7 @@ import 'package:vet45_design_system/design_system.dart';
 import 'package:vet45_pricing_application/application.dart';
 import 'package:vet45_pricing_domain/domain.dart';
 
+import 'price_rule_history_shared.dart';
 import 'price_rule_source_order_detail_sheet.dart';
 
 /// D-05 & D-07 SG-06 — Sheet chi tiết Activity — Diff trước/sau & Mask sensitive data.
@@ -29,7 +30,7 @@ class PriceRuleActivityDetailSheet extends StatelessWidget {
   }) {
     return showVBottomSheet(
       context: context,
-      semanticLabel: 'Chi tiết activity giá riêng',
+      semanticLabel: 'Chi tiết hoạt động giá riêng',
       child: PriceRuleActivityDetailSheet(
         activity: activity,
         hasSensitivePermission: hasSensitivePermission,
@@ -76,7 +77,7 @@ class PriceRuleActivityDetailSheet extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   VText(
-                    'Chi tiết activity',
+                    'Chi tiết hoạt động',
                     variant: VTextVariant.headingH4,
                     style: const TextStyle(fontWeight: FontWeight.w700),
                     color: colors.textPrimary,
@@ -318,8 +319,7 @@ class PriceRuleActivityDetailSheet extends StatelessWidget {
   };
 
   String _formatDateTime(DateTime d) =>
-      '${d.day.toString().padLeft(2, '0')}/${d.month.toString().padLeft(2, '0')}/${d.year} '
-      '${d.hour.toString().padLeft(2, '0')}:${d.minute.toString().padLeft(2, '0')}';
+      PriceRuleHistoryShared.formatDateTime(d);
 
   String _formatDateStr(String? dateStr) {
     if (dateStr == null || dateStr.isEmpty) return 'Không giới hạn';
@@ -447,8 +447,8 @@ String _activityLabel(CustomerPriceRuleActivityType type) => switch (type) {
   CustomerPriceRuleActivityType.disabled => 'Tắt giá riêng',
   CustomerPriceRuleActivityType.reenabled => 'Bật lại giá riêng',
   CustomerPriceRuleActivityType.deleted => 'Xóa giá riêng',
-  CustomerPriceRuleActivityType.importCreated => 'Tạo từ import',
-  CustomerPriceRuleActivityType.importUpdated => 'Cập nhật từ import',
+  CustomerPriceRuleActivityType.importCreated => 'Tạo từ nhập Excel',
+  CustomerPriceRuleActivityType.importUpdated => 'Cập nhật từ nhập Excel',
   CustomerPriceRuleActivityType.memoryCreated => 'Ghi nhận nhớ giá',
   CustomerPriceRuleActivityType.memoryUpdated => 'Cập nhật giá nhớ',
 };

@@ -34,6 +34,7 @@ final class PriceRuleFormEditing extends PriceRuleFormState {
     this.floorPriceMinor,
     this.floorPriceHidden = true,
     this.hasStateChanged = false,
+    this.isDirty = false,
     this.fieldErrors = const {},
     this.isSubmitting = false,
   });
@@ -59,6 +60,9 @@ final class PriceRuleFormEditing extends PriceRuleFormState {
 
   /// D-09: Phiên bản rule đã thay đổi — cần tải lại.
   final bool hasStateChanged;
+
+  /// SC-06: Form đã có thay đổi chưa lưu (tạo: đã nhập; sửa: khác baseline).
+  final bool isDirty;
 
   final Map<String, String> fieldErrors;
   final bool isSubmitting;
@@ -101,6 +105,7 @@ final class PriceRuleFormEditing extends PriceRuleFormState {
     Object? floorPriceMinor = _sentinel,
     bool? floorPriceHidden,
     bool? hasStateChanged,
+    bool? isDirty,
     Map<String, String>? fieldErrors,
     bool? isSubmitting,
   }) {
@@ -132,6 +137,7 @@ final class PriceRuleFormEditing extends PriceRuleFormState {
           : floorPriceMinor as int?,
       floorPriceHidden: floorPriceHidden ?? this.floorPriceHidden,
       hasStateChanged: hasStateChanged ?? this.hasStateChanged,
+      isDirty: isDirty ?? this.isDirty,
       fieldErrors: fieldErrors ?? this.fieldErrors,
       isSubmitting: isSubmitting ?? this.isSubmitting,
     );
@@ -153,6 +159,7 @@ final class PriceRuleFormEditing extends PriceRuleFormState {
     floorPriceMinor,
     floorPriceHidden,
     hasStateChanged,
+    isDirty,
     fieldErrors,
     isSubmitting,
   ];

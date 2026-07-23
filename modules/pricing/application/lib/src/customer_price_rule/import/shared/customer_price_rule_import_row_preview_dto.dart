@@ -6,7 +6,8 @@ final class CustomerPriceRuleImportRowPreviewDto {
     required this.rowNumber,
     required this.ruleId,
     required this.customerId,
-    required this.productReferenceId,
+    required this.productId,
+    required this.productUnitId,
     required this.price,
     required this.effectiveFrom,
     required this.effectiveTo,
@@ -32,7 +33,8 @@ final class CustomerPriceRuleImportRowPreviewDto {
   final int rowNumber;
   final String? ruleId;
   final String? customerId;
-  final String? productReferenceId;
+  final String? productId;
+  final String? productUnitId;
   final String? price;
   final String? effectiveFrom;
   final String? effectiveTo;

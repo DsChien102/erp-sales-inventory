@@ -551,6 +551,7 @@ declare
   v_is_below_floor boolean := false;
   v_payload jsonb;
   v_payload_hash text;
+  v_conflicting_rule_id uuid;
   v_warning_codes jsonb := '[]'::jsonb;
   v_price_check_status text := 'not_checked';
   v_review_status text := 'clear';
@@ -699,17 +700,26 @@ begin
     )
   );
 
-  perform pricing._auto_disable_overlapping_customer_price_rules(
-    p_tenant_id,
-    p_rule_id,
-    p_customer_id,
-    p_product_id,
-    p_product_unit_id,
-    p_effective_from,
-    p_effective_to,
-    v_actor_id,
-    'created'
-  );
+  select r.id
+  into v_conflicting_rule_id
+  from pricing.customer_price_rules r
+  where r.tenant_id = p_tenant_id
+    and r.customer_id = p_customer_id
+    and r.product_id = p_product_id
+    and r.product_unit_id = p_product_unit_id
+    and r.status = 'active'
+    and r.effective_from <= coalesce(p_effective_to, 'infinity'::date)
+    and p_effective_from <= coalesce(r.effective_to, 'infinity'::date)
+  limit 1
+  for update;
+
+  if v_conflicting_rule_id is not null then
+    perform pricing._raise_pricing_error(
+      'DUPLICATE_ACTIVE_RULE',
+      'An active customer price rule already overlaps this period.',
+      jsonb_build_object('conflictingRuleId', v_conflicting_rule_id)
+    );
+  end if;
 
   insert into pricing.customer_price_rules (
     id,

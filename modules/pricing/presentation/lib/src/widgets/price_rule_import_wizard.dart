@@ -16,56 +16,119 @@ class PriceRuleImportWizard extends StatelessWidget {
     required this.state,
     this.onPickFile,
     this.onDownloadTemplate,
+    this.onContinue,
+    this.onClearFile,
     this.onFinish,
     this.onBackToChooseFile,
     this.isDownloadingTemplate = false,
+    this.isDragOver = false,
+    this.isFileInvalid = false,
+    this.invalidFileName,
+    this.onDownloadLog,
+    this.isDownloadingLog = false,
   });
 
   final PriceRuleImportCubit cubit;
   final PriceRuleImportState state;
   final VoidCallback? onPickFile;
   final VoidCallback? onDownloadTemplate;
+  final VoidCallback? onContinue;
+  final VoidCallback? onClearFile;
   final VoidCallback? onFinish;
   final VoidCallback? onBackToChooseFile;
   final bool isDownloadingTemplate;
+  final bool isDragOver;
+  final bool isFileInvalid;
+  final String? invalidFileName;
+  final VoidCallback? onDownloadLog;
+  final bool isDownloadingLog;
 
   @override
   Widget build(BuildContext context) {
     return switch (state) {
+      PriceRuleImportNoPermission() => const PriceRuleImportChooseFileView(
+        accessDenied: true,
+      ),
+      PriceRuleImportLoading(:final message) => Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const VSkeleton(width: 48, height: 48),
+            if (message != null) ...[
+              const VGap.md(),
+              VText(
+                message,
+                variant: VTextVariant.bodySmall,
+                color: context.vColors.textSecondary,
+              ),
+            ],
+          ],
+        ),
+      ),
       PriceRuleImportInitial() ||
       PriceRuleImportFileSelected() => PriceRuleImportChooseFileView(
         onPickFile: onPickFile,
         onDownloadTemplate: onDownloadTemplate,
+        onContinue: onContinue,
+        onClearFile: onClearFile,
         isDownloadingTemplate: isDownloadingTemplate,
-        selectedFileName: state is PriceRuleImportFileSelected
-            ? (state as PriceRuleImportFileSelected).fileName
-            : null,
+        isDragOver: isDragOver,
+        isFileInvalid: isFileInvalid,
+        selectedFileName: isFileInvalid
+            ? invalidFileName
+            : state is PriceRuleImportFileSelected
+                ? (state as PriceRuleImportFileSelected).fileName
+                : null,
+        selectedFileSizeBytes: isFileInvalid
+            ? null
+            : state is PriceRuleImportFileSelected
+                ? (state as PriceRuleImportFileSelected).fileSizeBytes
+                : null,
       ),
-      PriceRuleImportLoading(:final step)
-          when step == PriceRuleImportStep.preview ||
-              step == PriceRuleImportStep.confirm ||
-              step == PriceRuleImportStep.result =>
-        const Center(child: VSkeleton(width: 48, height: 48)),
-      PriceRuleImportPreview(:final importDetail, :final rows) =>
+      PriceRuleImportPreview(
+        :final importDetail,
+        :final rows,
+        :final readOnly,
+        :final initialTab,
+      ) =>
         PriceRuleImportPreviewView(
           cubit: cubit,
           importDetail: importDetail,
           rows: rows,
-          onBack: onBackToChooseFile,
+          readOnly: readOnly,
+          initialTab: initialTab,
+          onBack: readOnly
+              ? cubit.backToResult
+              : (onBackToChooseFile ?? cubit.backToChooseFile),
         ),
       PriceRuleImportConfirm(
         :final importDetail,
         :final acknowledgeWarningRows,
+        :final isRefreshingMode,
       ) =>
         PriceRuleImportConfirmView(
           cubit: cubit,
           importDetail: importDetail,
           acknowledgeWarningRows: acknowledgeWarningRows,
+          isRefreshingMode: isRefreshingMode,
         ),
-      PriceRuleImportResult(:final result) => PriceRuleImportResultView(
-        result: result,
-        onFinish: onFinish,
-      ),
+      PriceRuleImportResult(:final result, :final outcome) =>
+        PriceRuleImportResultView(
+          result: result,
+          outcome: outcome,
+          onFinish: onFinish,
+          onDownloadLog: onDownloadLog,
+          isDownloadingLog: isDownloadingLog,
+          onViewValid: () => cubit.reopenPreviewFromResult(
+            tab: PriceRuleImportPreviewTab.valid,
+          ),
+          onViewWarnings: () => cubit.reopenPreviewFromResult(
+            tab: PriceRuleImportPreviewTab.warning,
+          ),
+          onViewErrors: () => cubit.reopenPreviewFromResult(
+            tab: PriceRuleImportPreviewTab.error,
+          ),
+        ),
       PriceRuleImportError(:final code) => VEmptyState(
         icon: VIcons.error,
         title: 'Đã có lỗi xảy ra',
@@ -73,12 +136,11 @@ class PriceRuleImportWizard extends StatelessWidget {
         actionLabel: 'Thử lại',
         onActionPressed: onBackToChooseFile ?? cubit.backToChooseFile,
       ),
-      _ => const SizedBox.shrink(),
     };
   }
 
   String _errorMessage(String code) => switch (code) {
-    'NO_PERMISSION' => 'Bạn không có quyền import giá riêng.',
+    'NO_PERMISSION' => 'Bạn không có quyền nhập giá riêng.',
     'SYSTEM_ERROR' => 'Lỗi hệ thống. Vui lòng thử lại.',
     'TEMPLATE_VERSION_UNSUPPORTED' =>
       'Phiên bản file mẫu không được hỗ trợ. Vui lòng tải lại file mẫu mới nhất.',
@@ -86,14 +148,14 @@ class PriceRuleImportWizard extends StatelessWidget {
       'Các cột tiêu đề không đúng file mẫu. Vui lòng dùng file mẫu mới nhất.',
     'TEMPLATE_SHEET_INVALID' =>
       'Không tìm thấy sheet dữ liệu đúng định dạng trong file.',
-    'EMPTY_FILE' => 'File không có dòng dữ liệu để import.',
+    'EMPTY_FILE' => 'File không có dòng dữ liệu để nhập.',
     'FORMULA_NOT_SUPPORTED' =>
-      'File có ô công thức. Vui lòng chuyển công thức thành giá trị trước khi import.',
+      'File có ô công thức. Vui lòng chuyển công thức thành giá trị trước khi nhập.',
     'UNSUPPORTED_FILE_TYPE' => 'File không đúng định dạng .xlsx.',
     'ROW_LIMIT_EXCEEDED' => 'File vượt quá số dòng cho phép.',
     'ARCHIVE_LIMIT_EXCEEDED' =>
-      'File Excel quá lớn hoặc có cấu trúc archive không hợp lệ.',
-    'IMPORT_FILE_INVALID' => 'File import không hợp lệ.',
+      'File Excel quá lớn hoặc có cấu trúc tệp nén không hợp lệ.',
+    'IMPORT_FILE_INVALID' => 'File nhập không hợp lệ.',
     _ => 'Đã có lỗi: $code',
   };
 }
@@ -108,70 +170,13 @@ class PriceRuleImportStepIndicator extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final current = step.index;
-    final colors = context.vColors;
-    return Padding(
-      padding: const EdgeInsets.symmetric(
-        horizontal: VSpacing.space4,
-        vertical: VSpacing.space3,
-      ),
-      child: Row(
-        children: List.generate(_labels.length, (i) {
-          final isActive = i == current;
-          final isDone = i < current;
-          return Expanded(
-            child: Row(
-              children: [
-                Column(
-                  children: [
-                    Container(
-                      width: 24,
-                      height: 24,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: isDone
-                            ? colors.success
-                            : isActive
-                            ? colors.primary
-                            : colors.surfaceAlt,
-                      ),
-                      child: Center(
-                        child: isDone
-                            ? VIcon(
-                                icon: VIcons.check,
-                                size: 14,
-                                color: colors.surface,
-                              )
-                            : VText(
-                                '${i + 1}',
-                                variant: VTextVariant.monoNumeric,
-                                color: isActive
-                                    ? colors.surface
-                                    : colors.textMuted,
-                                style: const TextStyle(fontSize: 12),
-                              ),
-                      ),
-                    ),
-                    const VGap.xs(),
-                    VText(
-                      _labels[i],
-                      variant: VTextVariant.caption,
-                      color: isDone || isActive
-                          ? colors.textPrimary
-                          : colors.textMuted,
-                    ),
-                  ],
-                ),
-                if (i < _labels.length - 1)
-                  Expanded(
-                    child: Divider(
-                      color: isDone ? colors.success : colors.borderDefault,
-                    ),
-                  ),
-              ],
-            ),
-          );
-        }),
+    return VPagePadding(
+      vertical: VSpacing.space3,
+      child: VSteps(
+        currentStep: step.index,
+        steps: [
+          for (final label in _labels) VStepItem(title: label),
+        ],
       ),
     );
   }

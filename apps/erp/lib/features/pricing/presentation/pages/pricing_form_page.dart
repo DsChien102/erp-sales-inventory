@@ -21,6 +21,8 @@ class _PricingFormPageState extends State<PricingFormPage> {
   late final PriceRuleFormCubit _cubit;
   final TextEditingController _priceController = TextEditingController();
   final TextEditingController _noteController = TextEditingController();
+  bool _allowPop = false;
+  bool _leaveDialogOpen = false;
 
   bool get _isEdit => widget.initialRule != null;
 
@@ -66,6 +68,7 @@ class _PricingFormPageState extends State<PricingFormPage> {
       message: message,
       type: VToastType.success,
     );
+    setState(() => _allowPop = true);
     if (_isEdit) {
       context.pop(rule);
     } else if (context.canPop()) {
@@ -73,6 +76,30 @@ class _PricingFormPageState extends State<PricingFormPage> {
     } else {
       context.go('/pricing/${rule.id}');
     }
+  }
+
+  bool _isFormDirty(PriceRuleFormState state) {
+    return state is PriceRuleFormEditing && state.isDirty;
+  }
+
+  Future<void> _requestLeave() async {
+    final state = _cubit.state;
+    if (!_isFormDirty(state)) {
+      if (Navigator.of(context).canPop()) Navigator.of(context).pop();
+      return;
+    }
+    if (_leaveDialogOpen) return;
+    _leaveDialogOpen = true;
+    final leave = await showPriceRuleLeaveFormDialog(context);
+    if (!mounted) return;
+    _leaveDialogOpen = false;
+    if (!leave) return;
+    setState(() => _allowPop = true);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted && Navigator.of(context).canPop()) {
+        Navigator.of(context).pop();
+      }
+    });
   }
 
   @override
@@ -107,46 +134,77 @@ class _PricingFormPageState extends State<PricingFormPage> {
 
             final form = state is PriceRuleFormEditing ? state : const PriceRuleFormEditing();
             final initialRule = widget.initialRule;
+            final canPop = _allowPop || !form.isDirty;
+
+            // VAppBar default back dùng Navigator.pop() (force) — bỏ qua PopScope.
+            // Leading custom + PopScope: back/Hủy/_requestLeave; swipe/system back qua canPop.
+            final leaveLeading = Padding(
+              padding: const EdgeInsets.all(VSpacing.space2),
+              child: VIconBox(
+                key: const Key('btn_price_rule_form_back'),
+                icon: VIcons.arrowBack,
+                size: 40,
+                backgroundColor: Colors.transparent,
+                onTap: _requestLeave,
+              ),
+            );
 
             if (_isEdit && form.hasStateChanged) {
-              return VPageScaffold(
-                key: const Key('wgt_e02_u06_fr01_01'),
-                title: 'Sửa giá riêng',
-                showBackButton: true,
-                body: PriceRuleFormStateChangedState(
-                  onReload: _cubit.reloadExistingRule,
+              return PopScope<Object?>(
+                canPop: canPop,
+                onPopInvokedWithResult: (didPop, _) {
+                  FocusManager.instance.primaryFocus?.unfocus();
+                  if (!didPop) _requestLeave();
+                },
+                child: VPageScaffold(
+                  key: const Key('wgt_e02_u06_fr01_01'),
+                  title: 'Sửa giá riêng',
+                  showBackButton: false,
+                  leading: leaveLeading,
+                  body: PriceRuleFormStateChangedState(
+                    onReload: _cubit.reloadExistingRule,
+                  ),
                 ),
               );
             }
 
-            return VPageScaffold(
-              key: Key(_isEdit ? 'wgt_e02_u06_fr01_01' : 'wgt_e02_u04_fr01_01'),
-              title: _isEdit ? 'Sửa giá riêng' : 'Tạo giá riêng',
-              subtitle: _isEdit ? initialRule?.customer.displayName : null,
-              showBackButton: true,
-              body: PriceRuleFormBody(
-                cubit: _cubit,
-                form: form,
-                priceController: _priceController,
-                noteController: _noteController,
-                isEdit: _isEdit,
-                onPriceChanged: _onPriceChanged,
-                lastUpdatedAt: initialRule?.updatedAt,
-                lastUpdatedBy: initialRule?.updatedBy,
-                onViewConflictingRule: (ruleId) {
-                  context.push('/pricing/$ruleId');
-                },
-                onPickCustomer: () => context.push<Map<String, String>>('/pricing/pick-customer'),
-                onPickProduct: () => context.push<Map<String, String>>('/pricing/pick-product'),
-                onPickUnit: () => context.push<Map<String, String>>(
-                  '/pricing/pick-unit/${form.productId}',
+            return PopScope<Object?>(
+              canPop: canPop,
+              onPopInvokedWithResult: (didPop, _) {
+                FocusManager.instance.primaryFocus?.unfocus();
+                if (!didPop) _requestLeave();
+              },
+              child: VPageScaffold(
+                key: Key(_isEdit ? 'wgt_e02_u06_fr01_01' : 'wgt_e02_u04_fr01_01'),
+                title: _isEdit ? 'Sửa giá riêng' : 'Tạo giá riêng',
+                subtitle: _isEdit ? initialRule?.customer.displayName : null,
+                showBackButton: false,
+                leading: leaveLeading,
+                body: PriceRuleFormBody(
+                  cubit: _cubit,
+                  form: form,
+                  priceController: _priceController,
+                  noteController: _noteController,
+                  isEdit: _isEdit,
+                  onPriceChanged: _onPriceChanged,
+                  lastUpdatedAt: initialRule?.updatedAt,
+                  lastUpdatedBy: initialRule?.updatedBy,
+                  onViewConflictingRule: (ruleId) {
+                    context.push('/pricing/$ruleId');
+                  },
+                  onPickCustomer: () => context.push<Map<String, String>>('/pricing/pick-customer'),
+                  onPickProduct: () => context.push<Map<String, String>>('/pricing/pick-product'),
+                  onPickUnit: () => context.push<Map<String, String>>(
+                    '/pricing/pick-unit/${form.productId}',
+                  ),
                 ),
-              ),
-              bottomBar: _BottomBar(
-                cubit: _cubit,
-                form: form,
-                isEdit: _isEdit,
-                initialRule: initialRule,
+                bottomBar: _BottomBar(
+                  cubit: _cubit,
+                  form: form,
+                  isEdit: _isEdit,
+                  initialRule: initialRule,
+                  onCancel: _requestLeave,
+                ),
               ),
             );
           },
@@ -156,7 +214,9 @@ class _PricingFormPageState extends State<PricingFormPage> {
   }
 
   String _mapErrorToMessage(String code) => switch (code) {
-    PricingBlockedCodes.duplicateActiveRule => 'Trùng giá riêng đã tồn tại.',
+    PricingBlockedCodes.duplicateActiveRule =>
+      'Đã tồn tại giá riêng đang hoạt động trùng thời gian. '
+          'Vui lòng điều chỉnh khoảng hiệu lực hoặc chọn đối tượng khác.',
     PricingBlockedCodes.belowFloorBlocked => 'Giá nhập thấp hơn giá sàn quy định.',
     PricingBlockedCodes.referenceInvalid => 'Khách hàng hoặc sản phẩm không hợp lệ.',
     PricingBlockedCodes.noPermission => 'Bạn không có quyền thực hiện.',
@@ -172,12 +232,14 @@ class _BottomBar extends StatelessWidget {
     required this.cubit,
     required this.form,
     required this.isEdit,
+    required this.onCancel,
     this.initialRule,
   });
 
   final PriceRuleFormCubit cubit;
   final PriceRuleFormEditing form;
   final bool isEdit;
+  final VoidCallback onCancel;
   final CustomerPriceRuleDetailDto? initialRule;
 
   String _formatMinor(int amountMinor) {
@@ -223,7 +285,7 @@ class _BottomBar extends StatelessWidget {
                 label: 'Hủy',
                 variant: VButtonVariant.secondary,
                 fullWidth: true,
-                onPressed: isSubmitting ? null : () => context.pop(),
+                onPressed: isSubmitting ? null : onCancel,
               ),
             ),
             const VGap.horizontalMd(),

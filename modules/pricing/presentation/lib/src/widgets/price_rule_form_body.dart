@@ -130,14 +130,20 @@ class _PriceRuleFormBodyState extends State<PriceRuleFormBody> {
 
   Future<void> _pickEffectiveFrom() async {
     final form = widget.form;
+    final today = _calendarDate(DateTime.now());
+    final preferred = form.effectiveFrom == null
+        ? today
+        : _calendarDate(form.effectiveFrom!);
+    // Không cho chọn ngày đã qua — clamp initialDate ≥ firstDate.
+    final initialDate = preferred.isBefore(today) ? today : preferred;
     final date = await showDatePicker(
       context: context,
-      initialDate: form.effectiveFrom ?? DateTime.now(),
-      firstDate: DateTime(2000),
+      initialDate: initialDate,
+      firstDate: today,
       lastDate: DateTime(2100),
     );
     if (date != null) {
-      widget.cubit.updateDates(effectiveFrom: date);
+      widget.cubit.updateDates(effectiveFrom: _calendarDate(date));
     }
   }
 
@@ -186,17 +192,33 @@ class _PriceRuleFormBodyState extends State<PriceRuleFormBody> {
       return;
     }
     if (action == 'pick') {
+      final today = _calendarDate(DateTime.now());
+      final from = form.effectiveFrom == null
+          ? today
+          : _calendarDate(form.effectiveFrom!);
+      final firstDate = from.isBefore(today) ? today : from;
+      final preferred = form.effectiveTo == null
+          ? firstDate
+          : _calendarDate(form.effectiveTo!);
+      final initialDate =
+          preferred.isBefore(firstDate) ? firstDate : preferred;
       final date = await showDatePicker(
         context: context,
-        initialDate: form.effectiveTo ?? form.effectiveFrom ?? DateTime.now(),
-        firstDate: form.effectiveFrom ?? DateTime(2000),
+        initialDate: initialDate,
+        firstDate: firstDate,
         lastDate: DateTime(2100),
       );
       if (date != null) {
-        widget.cubit.updateDates(effectiveTo: date);
+        widget.cubit.updateDates(effectiveTo: _calendarDate(date));
       }
     }
   }
+
+  /// Calendar date as UTC midnight — matches domain/RPC date-only convention.
+  /// Using local midnight here breaks same-day from/to when one side is UTC
+  /// (e.g. loaded from API) and the other is picked in a +UTC offset TZ.
+  static DateTime _calendarDate(DateTime value) =>
+      DateTime.utc(value.year, value.month, value.day);
 
   @override
   Widget build(BuildContext context) {

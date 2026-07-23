@@ -19,7 +19,8 @@ final class ExcelCustomerPriceRuleImportFileAdapter
   static const List<String> headers = [
     'rule_id',
     'customer_id',
-    'product_reference_id',
+    'product_id',
+    'product_unit_id',
     'rule_price',
     'effective_from',
     'effective_to',
@@ -112,11 +113,12 @@ final class ExcelCustomerPriceRuleImportFileAdapter
           rowNumber: decodedRow.rowNumber,
           ruleId: _nullableTrimmed(_valueAt(values, 0)),
           customerId: _nullableTrimmed(_valueAt(values, 1)),
-          productReferenceId: _nullableTrimmed(_valueAt(values, 2)),
-          price: _nullableTrimmed(_valueAt(values, 3)),
-          effectiveFrom: _nullableTrimmed(_valueAt(values, 4)),
-          effectiveTo: _nullableTrimmed(_valueAt(values, 5)),
-          note: _valueAt(values, 6),
+          productId: _nullableTrimmed(_valueAt(values, 2)),
+          productUnitId: _nullableTrimmed(_valueAt(values, 3)),
+          price: _nullableTrimmed(_valueAt(values, 4)),
+          effectiveFrom: _nullableTrimmed(_valueAt(values, 5)),
+          effectiveTo: _nullableTrimmed(_valueAt(values, 6)),
+          note: _valueAt(values, 7),
         ),
       );
       if (rows.length > maxDataRows) {

@@ -28,6 +28,18 @@ void main() {
         ),
       );
     });
+
+    test(
+      'accepts same calendar day when from is UTC and to is local midnight',
+      () async {
+        await validator.validate(
+          _command(
+            effectiveFrom: DateTime.utc(2026, 7, 23),
+            effectiveTo: DateTime(2026, 7, 23),
+          ),
+        );
+      },
+    );
   });
 
   group('CreateCustomerPriceRuleCommandHandler', () {
@@ -76,7 +88,7 @@ void main() {
       );
     });
 
-    test('allows overlapping active interval to be handled authoritatively', () async {
+    test('blocks an overlapping active interval before create', () async {
       final gateway = _CommandGateway(_result());
       final handler = CreateCustomerPriceRuleCommandHandler(
         createContextPort: _ContextPort(
@@ -85,10 +97,11 @@ void main() {
         commandGateway: gateway,
       );
 
-      final result = await handler.handle(_command());
-
-      expect(result.rule.id, 'rule-1');
-      expect(gateway.lastCandidate, isNotNull);
+      await expectLater(
+        handler.handle(_command()),
+        _throwsCode(PricingBlockedCodes.duplicateActiveRule),
+      );
+      expect(gateway.lastCandidate, isNull);
     });
 
     test('blocks below-floor price without acknowledgement', () async {

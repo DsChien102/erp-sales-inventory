@@ -1,9 +1,119 @@
+import 'dart:typed_data';
+
 import 'package:test/test.dart';
 import 'package:vet45_pricing_application/application.dart';
 import 'package:vet45_pricing_application/testing.dart';
-import 'package:vet45_pricing_domain/domain.dart';
+import 'package:vet45_pricing_domain/domain.dart'
+    hide
+        CustomerPriceRuleImportMode,
+        CustomerPriceRuleImportRowStatus,
+        CustomerPriceRuleImportStatus;
 
 void main() {
+  test('importReadyMixed exposes duplicate as a skippable row error', () async {
+    final module = FakePricingModule(
+      scenario: FakePricingScenario.importReadyMixed,
+    );
+
+    final detail = await module
+        .executeCommandAsync<CustomerPriceRuleImportDetailDto>(
+          StartCustomerPriceRuleImportCommand(
+            tenantId: 'tenant-1',
+            templateVersion: CustomerPriceRuleImportTemplateDto.versionV1,
+            originalFileName: 'mixed.xlsx',
+            fileBytes: Uint8List.fromList(const [1, 2, 3]),
+            importMode: CustomerPriceRuleImportMode.upsert,
+          ),
+        );
+
+    expect(detail.batch.validRows, 1);
+    expect(detail.batch.warningRows, 1);
+    expect(detail.batch.errorRows, 1);
+    final duplicate = detail.rows.items.singleWhere(
+      (row) => row.errorCodes.contains('DUPLICATE_ACTIVE_RULE'),
+    );
+    expect(duplicate.status, CustomerPriceRuleImportRowStatus.error);
+    expect(duplicate.action, CustomerPriceRuleImportAction.skip);
+  });
+
+  test('importReadyMixed retains selected conversion unit', () async {
+    final module = FakePricingModule(
+      scenario: FakePricingScenario.importReadyMixed,
+    );
+
+    final detail = await module
+        .executeCommandAsync<CustomerPriceRuleImportDetailDto>(
+          StartCustomerPriceRuleImportCommand(
+            tenantId: 'tenant-1',
+            templateVersion: CustomerPriceRuleImportTemplateDto.versionV1,
+            originalFileName: 'mixed.xlsx',
+            fileBytes: Uint8List.fromList(const [1, 2, 3]),
+            importMode: CustomerPriceRuleImportMode.upsert,
+          ),
+        );
+
+    final row = detail.rows.items.first;
+    expect(row.productUnitId, row.unitSnapshot?['product_unit_id']);
+    expect(row.unitSnapshot?['is_base_unit'], isFalse);
+    expect(
+      row.unitResolutionStrategy,
+      ProductUnitResolutionStrategy.explicitSelection,
+    );
+  });
+
+  test(
+    'upsert auto-match one previews an update without input rule id',
+    () async {
+      final module = FakePricingModule(
+        scenario: FakePricingScenario.importUpsertAutoMatchOne,
+      );
+
+      final detail = await module
+          .executeCommandAsync<CustomerPriceRuleImportDetailDto>(
+            StartCustomerPriceRuleImportCommand(
+              tenantId: 'tenant-1',
+              templateVersion: CustomerPriceRuleImportTemplateDto.versionV1,
+              originalFileName: 'auto-match.xlsx',
+              fileBytes: Uint8List.fromList(const [0x50, 0x4B, 0x03, 0x04]),
+              importMode: CustomerPriceRuleImportMode.upsert,
+            ),
+          );
+
+      final row = detail.rows.items.single;
+      expect(row.ruleId, isNull);
+      expect(row.action, CustomerPriceRuleImportAction.update);
+      expect(row.status, CustomerPriceRuleImportRowStatus.valid);
+      expect(row.matchedRuleId, '00000000-0000-4000-8000-000000000101');
+      expect(row.matchedRuleVersion, 3);
+      expect(row.errorCodes, isEmpty);
+    },
+  );
+
+  test('upsert auto-match many previews an ambiguous blocking error', () async {
+    final module = FakePricingModule(
+      scenario: FakePricingScenario.importUpsertAutoMatchMany,
+    );
+
+    final detail = await module
+        .executeCommandAsync<CustomerPriceRuleImportDetailDto>(
+          StartCustomerPriceRuleImportCommand(
+            tenantId: 'tenant-1',
+            templateVersion: CustomerPriceRuleImportTemplateDto.versionV1,
+            originalFileName: 'auto-match.xlsx',
+            fileBytes: Uint8List.fromList(const [0x50, 0x4B, 0x03, 0x04]),
+            importMode: CustomerPriceRuleImportMode.upsert,
+          ),
+        );
+
+    final row = detail.rows.items.single;
+    expect(row.ruleId, isNull);
+    expect(row.action, CustomerPriceRuleImportAction.skip);
+    expect(row.status, CustomerPriceRuleImportRowStatus.error);
+    expect(row.matchedRuleId, isNull);
+    expect(row.matchedRuleVersion, isNull);
+    expect(row.errorCodes, ['AMBIGUOUS_OVERLAPPING_RULES']);
+  });
+
   test('createRuleOk returns an active rule', () async {
     final module = FakePricingModule(
       scenario: FakePricingScenario.createRuleOk,
@@ -33,13 +143,21 @@ void main() {
     expect(result.warnings.single.code, 'below_floor_price');
   });
 
-  test('createRuleDuplicate succeeds with auto-disable semantics', () async {
+  test('createRuleDuplicate returns DUPLICATE_ACTIVE_RULE', () async {
     final module = FakePricingModule(
       scenario: FakePricingScenario.createRuleDuplicate,
     );
 
-    final result = await module.executeCommandAsync(_command());
-    expect(result.rule.id, isNotEmpty);
+    await expectLater(
+      module.executeCommandAsync(_command()),
+      throwsA(
+        isA<PricingBlockedException>().having(
+          (error) => error.code,
+          'code',
+          PricingBlockedCodes.duplicateActiveRule,
+        ),
+      ),
+    );
   });
 
   for (final entry in {

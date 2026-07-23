@@ -107,11 +107,8 @@ class _PriceRuleListSearchAndFilterState
                 children: _filters.map((f) {
                   final (filter, label) = f;
                   final isActive = state.quickFilter == filter;
-                  final countLabel = filter == CustomerPriceRuleQuickFilter.all
-                      ? '$label ${state.totalCount}'
-                      : label;
                   return VChip(
-                    label: countLabel,
+                    label: label,
                     selected: isActive,
                     onTap: () => widget.cubit.applyQuickFilter(filter),
                   );
@@ -121,43 +118,35 @@ class _PriceRuleListSearchAndFilterState
             const VGap.sm(),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: VSpacing.space4),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: VText(
-                      '${state.totalCount} kết quả',
-                      variant: VTextVariant.bodySmall,
-                      color: context.vColors.textSecondary,
+              child: Align(
+                alignment: Alignment.centerRight,
+                child: InkWell(
+                  onTap: () => _openSort(state),
+                  borderRadius: BorderRadius.circular(VRadius.r8),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      vertical: VSpacing.space1,
+                      horizontal: VSpacing.space1,
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        VText(
+                          'Sắp xếp: ${state.sortOption.label}',
+                          variant: VTextVariant.bodySmall,
+                          color: context.vColors.primary,
+                          style: const TextStyle(fontWeight: FontWeight.w600),
+                        ),
+                        const VGap.horizontalXs(),
+                        VIcon(
+                          icon: VIcons.chevronRight,
+                          size: 16,
+                          color: context.vColors.primary,
+                        ),
+                      ],
                     ),
                   ),
-                  InkWell(
-                    onTap: () => _openSort(state),
-                    borderRadius: BorderRadius.circular(VRadius.r8),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                        vertical: VSpacing.space1,
-                        horizontal: VSpacing.space1,
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          VText(
-                            'Sắp xếp: ${state.sortOption.label}',
-                            variant: VTextVariant.bodySmall,
-                            color: context.vColors.primary,
-                            style: const TextStyle(fontWeight: FontWeight.w600),
-                          ),
-                          const VGap.horizontalXs(),
-                          VIcon(
-                            icon: VIcons.chevronRight,
-                            size: 16,
-                            color: context.vColors.primary,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
+                ),
               ),
             ),
             const VGap.sm(),

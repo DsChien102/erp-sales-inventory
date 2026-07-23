@@ -48,6 +48,14 @@ void main() {
       '${root.path}/supabase/migrations/_drafts/'
       '004_pricing_customer_price_rule_s1.sql',
     ).readAsStringSync();
+    final createStart = sql.indexOf(
+      'create or replace function pricing.create_customer_price_rule(',
+    );
+    final createEnd = sql.indexOf(
+      'revoke all on function pricing.create_customer_price_rule(',
+      createStart,
+    );
+    final createFunction = sql.substring(createStart, createEnd);
 
     expect(
       sql,
@@ -93,10 +101,26 @@ void main() {
     expect(sql, contains("'replacement_action', p_replacement_action"));
     expect(sql, contains('from locked l'));
     expect(sql, contains('from updated u'));
+    expect(createFunction, contains("'DUPLICATE_ACTIVE_RULE'"));
+    expect(createFunction, contains("r.status = 'active'"));
     expect(
-      sql,
+      createFunction,
       contains(
-        'perform pricing._auto_disable_overlapping_customer_price_rules(',
+        "r.effective_from <= coalesce(p_effective_to, 'infinity'::date)",
+      ),
+    );
+    expect(
+      createFunction,
+      contains(
+        "p_effective_from <= coalesce(r.effective_to, 'infinity'::date)",
+      ),
+    );
+    expect(
+      createFunction,
+      isNot(
+        contains(
+          'perform pricing._auto_disable_overlapping_customer_price_rules(',
+        ),
       ),
     );
     expect(sql, contains("'idempotency_key_exists',"));
@@ -139,7 +163,7 @@ void main() {
       contains("v_can_view_rules := iam.has_permission("),
     );
     expect(createFunction, isNot(contains('v_can_view_rules')));
-    expect(createFunction, isNot(contains('v_conflicting_rule')));
+    expect(createFunction, contains('v_conflicting_rule_id uuid;'));
   });
 
   test('S2 search draft has the exact public RPC and access boundary', () {

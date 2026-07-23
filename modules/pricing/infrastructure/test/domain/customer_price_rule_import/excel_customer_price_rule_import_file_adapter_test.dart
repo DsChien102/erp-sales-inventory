@@ -28,6 +28,66 @@ void main() {
       expect(parseResult.isParsed, isFalse);
       expect(parseResult.fileErrorCodes, ['EMPTY_FILE']);
     });
+
+    test('V1 template uses explicit product and unit headers', () {
+      expect(ExcelCustomerPriceRuleImportFileAdapter.headers, const [
+        'rule_id',
+        'customer_id',
+        'product_id',
+        'product_unit_id',
+        'rule_price',
+        'effective_from',
+        'effective_to',
+        'note',
+      ]);
+    });
+
+    test('rejects the previous V1 product_reference_id header', () {
+      final result = adapter.parse(
+        templateVersion:
+            ExcelCustomerPriceRuleImportFileAdapter.templateVersion,
+        originalFileName: 'customer_price_rules_v1.xlsx',
+        bytes: _workbookBytes(
+          [_row(price: '100000')],
+          headers: const [
+            'rule_id',
+            'customer_id',
+            'product_reference_id',
+            'rule_price',
+            'effective_from',
+            'effective_to',
+            'note',
+          ],
+        ),
+      );
+
+      expect(result.fileErrorCodes, ['TEMPLATE_HEADER_INVALID']);
+    });
+
+    test('maps explicit product and unit UUIDs', () {
+      final result = adapter.parse(
+        templateVersion:
+            ExcelCustomerPriceRuleImportFileAdapter.templateVersion,
+        originalFileName: 'customer_price_rules_v1.xlsx',
+        bytes: _workbookBytes([
+          _row(
+            customerId: '00000000-0000-4000-8000-000000000001',
+            productId: '00000000-0000-4000-8000-000000000101',
+            productUnitId: '00000000-0000-4000-8000-000000000201',
+            price: '100000',
+          ),
+        ]),
+      );
+
+      expect(
+        result.rows.single.productId,
+        '00000000-0000-4000-8000-000000000101',
+      );
+      expect(
+        result.rows.single.productUnitId,
+        '00000000-0000-4000-8000-000000000201',
+      );
+    });
   });
 
   group('parse failures', () {
@@ -49,7 +109,8 @@ void main() {
         bytes: _workbookBytes([
           _row(
             customerId: '00000000-0000-4000-8000-000000000001',
-            productReferenceId: 'VAC-001',
+            productId: '00000000-0000-4000-8000-000000000101',
+            productUnitId: '00000000-0000-4000-8000-000000000201',
             price: '90000',
           ),
         ]),
@@ -123,13 +184,14 @@ void main() {
         _workbookBytes([
           _row(
             customerId: '00000000-0000-4000-8000-000000000001',
-            productReferenceId: 'VAC-001',
+            productId: '00000000-0000-4000-8000-000000000101',
+            productUnitId: '00000000-0000-4000-8000-000000000201',
             price: '90000',
           ),
         ]),
         'xl/worksheets/sheet1.xml',
         (xml) => xml.replaceFirstMapped(
-          RegExp(r'(<c r="D2"[^>]*>)(<v>)'),
+          RegExp(r'(<c r="E2"[^>]*>)(<v>)'),
           (match) => '${match.group(1)}<f>45000+45000</f>${match.group(2)}',
         ),
       );
@@ -142,6 +204,34 @@ void main() {
       );
 
       expect(result.fileErrorCodes, ['FORMULA_NOT_SUPPORTED']);
+    });
+
+    test('normalizes Excel integer float cells 100000.0 to 100000', () {
+      final bytes = _replaceZipText(
+        _workbookBytes([
+          _row(
+            customerId: '00000000-0000-4000-8000-000000000001',
+            productId: '00000000-0000-4000-8000-000000000101',
+            productUnitId: '00000000-0000-4000-8000-000000000201',
+            price: '100000',
+          ),
+        ]),
+        'xl/worksheets/sheet1.xml',
+        (xml) => xml.replaceFirstMapped(
+          RegExp(r'<c r="E2"[^>]*>.*?</c>'),
+          (_) => '<c r="E2" t="n"><v>100000.0</v></c>',
+        ),
+      );
+
+      final result = adapter.parse(
+        templateVersion:
+            ExcelCustomerPriceRuleImportFileAdapter.templateVersion,
+        originalFileName: 'customer_price_rules_v1.xlsx',
+        bytes: bytes,
+      );
+
+      expect(result.isParsed, isTrue);
+      expect(result.rows.single.price, '100000');
     });
 
     test('rejects archives above the entry-count limit', () {
@@ -210,7 +300,8 @@ void main() {
           _row(),
           _row(
             customerId: '00000000-0000-4000-8000-000000000001',
-            productReferenceId: 'VAC-001',
+            productId: '00000000-0000-4000-8000-000000000101',
+            productUnitId: '00000000-0000-4000-8000-000000000201',
             price: '90,000',
             effectiveFrom: '2026-07-16',
             note: '  hello  ',
@@ -233,7 +324,8 @@ void main() {
         bytes: _workbookBytes([
           _row(
             customerId: '00000000-0000-4000-8000-000000000001',
-            productReferenceId: 'VAC-001',
+            productId: '00000000-0000-4000-8000-000000000101',
+            productUnitId: '00000000-0000-4000-8000-000000000201',
             price: '90000',
             effectiveFrom: '2026-07-16',
           ),
@@ -264,7 +356,8 @@ void main() {
       var bytes = _workbookBytes([
         _row(
           customerId: '00000000-0000-4000-8000-000000000001',
-          productReferenceId: 'VAC-001',
+          productId: '00000000-0000-4000-8000-000000000101',
+            productUnitId: '00000000-0000-4000-8000-000000000201',
           price: '90000',
           note: 'placeholder',
         ),
@@ -273,8 +366,8 @@ void main() {
         bytes,
         'xl/worksheets/sheet1.xml',
         (xml) => xml.replaceFirst(
-          RegExp(r'<c r="G2"[^>]*><v>[^<]*</v></c>'),
-          '<c r="G2" t="inlineStr"><is><r><t>rich </t></r><r><t>note</t></r></is></c>',
+          RegExp(r'<c r="H2"[^>]*><v>[^<]*</v></c>'),
+          '<c r="H2" t="inlineStr"><is><r><t>rich </t></r><r><t>note</t></r></is></c>',
         ),
       );
 
@@ -293,7 +386,8 @@ void main() {
         2001,
         (_) => _row(
           customerId: '00000000-0000-4000-8000-000000000001',
-          productReferenceId: 'VAC-001',
+          productId: '00000000-0000-4000-8000-000000000101',
+            productUnitId: '00000000-0000-4000-8000-000000000201',
           price: '90000',
         ),
       );
@@ -313,7 +407,8 @@ void main() {
         2000,
         (_) => _row(
           customerId: '00000000-0000-4000-8000-000000000001',
-          productReferenceId: 'VAC-001',
+          productId: '00000000-0000-4000-8000-000000000101',
+            productUnitId: '00000000-0000-4000-8000-000000000201',
           price: '90000',
         ),
       );
@@ -365,7 +460,8 @@ class _RowData {
   const _RowData({
     this.ruleId = '',
     this.customerId = '',
-    this.productReferenceId = '',
+    this.productId = '',
+    this.productUnitId = '',
     this.price = '',
     this.effectiveFrom = '',
     this.effectiveTo = '',
@@ -374,7 +470,8 @@ class _RowData {
 
   final String ruleId;
   final String customerId;
-  final String productReferenceId;
+  final String productId;
+  final String productUnitId;
   final String price;
   final String effectiveFrom;
   final String effectiveTo;
@@ -384,7 +481,8 @@ class _RowData {
 _RowData _row({
   String ruleId = '',
   String customerId = '',
-  String productReferenceId = '',
+  String productId = '',
+  String productUnitId = '',
   String price = '',
   String effectiveFrom = '',
   String effectiveTo = '',
@@ -392,7 +490,8 @@ _RowData _row({
 }) => _RowData(
   ruleId: ruleId,
   customerId: customerId,
-  productReferenceId: productReferenceId,
+  productId: productId,
+  productUnitId: productUnitId,
   price: price,
   effectiveFrom: effectiveFrom,
   effectiveTo: effectiveTo,
@@ -411,7 +510,8 @@ Uint8List _workbookBytes(List<_RowData> rows, {List<String>? headers}) {
           (row) => [
             row.ruleId,
             row.customerId,
-            row.productReferenceId,
+            row.productId,
+            row.productUnitId,
             row.price,
             row.effectiveFrom,
             row.effectiveTo,

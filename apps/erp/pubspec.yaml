@@ -32,6 +32,9 @@ dependencies:
   supabase: ^2.13.0
   image_picker: ^1.2.3
   file_picker: ^11.0.2
+  desktop_drop: ^0.7.1
+  cross_file: ^0.3.4+2
+  archive: ^4.0.7
   equatable: ^2.1.0
 
 dev_dependencies:

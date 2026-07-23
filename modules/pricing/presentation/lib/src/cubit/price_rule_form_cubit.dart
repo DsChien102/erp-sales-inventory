@@ -15,8 +15,8 @@ typedef PriceRuleAdvisoryLookup = ({
 ///
 /// SG-03:
 /// - Tất cả field trên 1 màn hình.
-/// - Duplicate active interval được authoritative backend tự disable rule cũ.
-/// - FE không còn phụ thuộc flow bấm lưu lần 2 để ghi đè.
+/// - Duplicate active interval bị authoritative backend chặn khi tạo thủ công.
+/// - FE giữ nguyên dữ liệu form để người dùng điều chỉnh rồi thử lại.
 final class PriceRuleFormCubit extends Cubit<PriceRuleFormState> {
   PriceRuleFormCubit({
     required IPricingModule pricingModule,
@@ -82,6 +82,7 @@ final class PriceRuleFormCubit extends Cubit<PriceRuleFormState> {
         customerName: customerName,
         customerRoleLabel: customerRoleLabel,
         hasStateChanged: false,
+        isDirty: true,
       ),
     );
   }
@@ -103,6 +104,7 @@ final class PriceRuleFormCubit extends Cubit<PriceRuleFormState> {
         listPriceMinor: listPriceMinor,
         floorPriceMinor: floorPriceMinor,
         floorPriceHidden: floorPriceMinor == null,
+        isDirty: true,
       ),
     );
     _applyAdvisory(productId);
@@ -123,6 +125,7 @@ final class PriceRuleFormCubit extends Cubit<PriceRuleFormState> {
         listPriceMinor: listPriceMinor ?? current.listPriceMinor,
         floorPriceMinor: floorPriceMinor ?? current.floorPriceMinor,
         floorPriceHidden: floorPriceHidden ?? current.floorPriceHidden,
+        isDirty: true,
       ),
     );
     final productId = current.productId;
@@ -149,7 +152,7 @@ final class PriceRuleFormCubit extends Cubit<PriceRuleFormState> {
 
   void updatePrice(int? amountMinor) {
     final current = _editingOrNew();
-    emit(current.copyWith(rulePriceMinor: amountMinor));
+    emit(current.copyWith(rulePriceMinor: amountMinor, isDirty: true));
   }
 
   void updateDates({DateTime? effectiveFrom, Object? effectiveTo = _sentinel}) {
@@ -159,6 +162,7 @@ final class PriceRuleFormCubit extends Cubit<PriceRuleFormState> {
         effectiveFrom: effectiveFrom ?? current.effectiveFrom,
         effectiveTo:
             effectiveTo == _sentinel ? current.effectiveTo : effectiveTo,
+        isDirty: true,
       ),
     );
   }
@@ -168,13 +172,19 @@ final class PriceRuleFormCubit extends Cubit<PriceRuleFormState> {
     emit(
       current.copyWith(
         effectiveTo: null,
+        isDirty: true,
       ),
     );
   }
 
   void updateNote(String? note) {
     final current = _editingOrNew();
-    emit(current.copyWith(note: note?.trim().isEmpty == true ? null : note));
+    emit(
+      current.copyWith(
+        note: note?.trim().isEmpty == true ? null : note,
+        isDirty: true,
+      ),
+    );
   }
 
   /// D-09: Tải lại rule khi STATE_CHANGED.
@@ -199,7 +209,7 @@ final class PriceRuleFormCubit extends Cubit<PriceRuleFormState> {
     }
   }
 
-  /// SG-03: Submit form. Nếu trùng, authoritative backend sẽ tự disable rule cũ.
+  /// SG-03: Submit form. Tạo thủ công bị chặn nếu trùng active interval.
   Future<void> submit({String? changeReason}) async {
     final current = _editingOrNew();
     if (!current.isValid) return;

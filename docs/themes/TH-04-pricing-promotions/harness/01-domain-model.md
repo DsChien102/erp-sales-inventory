@@ -96,7 +96,7 @@ disabled disabled, and normalizes fixed needs_review to active.
 
 ### Overlap policy (BR-07 / CPR-INV-06)
 
-`CustomerPriceRuleOverlapPolicy` conflicts only when same tenant/customer/product/product-unit, both rules are `active` with `deletedAt == null`, and closed intervals overlap (`EffectivePeriod.overlaps`). Update/reenable/import exclude the current rule id. Commit paths auto-disable overlapping actives via `_auto_disable_overlapping_customer_price_rules` (reason `AUTO_REPLACED_BY_RULE`). Import preview surfaces `DUPLICATE_ACTIVE_RULE` as a **warning** (importable + acknowledgement), not a hard error; confirm still auto-disables before create/update. DB exclusion constraint on active non-deleted intervals is the final guard (draft `014`).
+`CustomerPriceRuleOverlapPolicy` conflicts only when same tenant/customer/product/product-unit, both rules are `active` with `deletedAt == null`, and closed intervals overlap (`EffectivePeriod.overlaps`). Update/reenable/import exclude the current rule id. Manual create/update and reenable retain their own replacement policy via `_auto_disable_overlapping_customer_price_rules` (reason `AUTO_REPLACED_BY_RULE`). Import is stricter: preview surfaces `DUPLICATE_ACTIVE_RULE` as a blocking row error, confirm rechecks under the rule-key lock, skips only the conflicting row, and never auto-disables the existing active rule. DB exclusion constraint on active non-deleted intervals is the final guard (draft `014`).
 
 ### Eligibility policy (BR-08 / CPR-INV-08)
 
@@ -195,7 +195,7 @@ parsed → valid|warning|error → imported|skipped|failed
 
 Confirm chỉ xử lý valid/warning rows được policy cho phép, revalidate references/duplicate/floor tại commit và không apply row đã terminal.
 
-**S8 BE baseline 2026-07-16:** domain aggregate `CustomerPriceRuleImport` + row lifecycle tests; application contracts/validators/handlers; infrastructure XLSX codec + `ExcelCustomerPriceRuleImportFileAdapter`, RPC mapper/gateway, draft SQL (`pricing_customer_price_rule_import_s8.sql`, `catalog_pricing_import_product_unit_resolver.sql`). Identifiers are exact UUID / `product_reference_id` only; default unit is Catalog active base unit.
+**S8 BE baseline 2026-07-16 / explicit-unit corrective 2026-07-23:** domain aggregate `CustomerPriceRuleImport` + row lifecycle tests; application contracts/validators/handlers; infrastructure XLSX codec + `ExcelCustomerPriceRuleImportFileAdapter`, RPC mapper/gateway, draft SQL (`010`/`013`/`003`/`016_pricing_customer_price_rule_import_explicit_unit.sql`). Template V1 rows carry exact `product_id` + `product_unit_id` UUIDs; Catalog resolves the selected active unit (base or conversion) via the 3-uuid overload — no default-to-base-unit for new V1 rows.
 
 ## Memory request aggregate
 

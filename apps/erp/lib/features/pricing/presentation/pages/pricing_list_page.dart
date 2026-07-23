@@ -67,25 +67,29 @@ class _PricingListPageState extends State<PricingListPage> {
       value: _cubit,
       child: BlocBuilder<PriceRuleListCubit, PriceRuleListState>(
         builder: (context, state) {
+          final isInitialError = state is PriceRuleListError && state.items.isEmpty;
           return VPageScaffold(
             key: const Key('wgt_e02_u01_fr01_01'),
             title: 'Giá riêng / Nhớ giá',
             subtitle: '${state.totalCount} giá riêng',
-            body: Column(
-              children: [
-                PriceRuleListSearchAndFilter(cubit: _cubit),
-                Expanded(
-                  child: _PriceRuleListBody(
-                    state: state,
-                    cubit: _cubit,
-                    scrollController: _scrollController,
-                    onOpenAdd: () => _openAddFlow(context),
-                    onOpenDetail: (ruleId) => _openDetail(context, ruleId),
+            centerTitle: false,
+            body: isInitialError
+                ? _PricingListErrorState(onRetry: _cubit.refresh)
+                : Column(
+                    children: [
+                      PriceRuleListSearchAndFilter(cubit: _cubit),
+                      Expanded(
+                        child: _PriceRuleListBody(
+                          state: state,
+                          cubit: _cubit,
+                          scrollController: _scrollController,
+                          onOpenAdd: () => _openAddFlow(context),
+                          onOpenDetail: (ruleId) => _openDetail(context, ruleId),
+                        ),
+                      ),
+                    ],
                   ),
-                ),
-              ],
-            ),
-            floatingActionButton: (!state.canCreate && !state.canImport)
+            floatingActionButton: (isInitialError || (!state.canCreate && !state.canImport))
                 ? null
                 : VFloatingActionButton(
                     icon: VIcons.add,
@@ -93,6 +97,26 @@ class _PricingListPageState extends State<PricingListPage> {
                   ),
           );
         },
+      ),
+    );
+  }
+}
+
+class _PricingListErrorState extends StatelessWidget {
+  const _PricingListErrorState({required this.onRetry});
+
+  final VoidCallback onRetry;
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: VEmptyState(
+        icon: VIcons.cloudOff,
+        tone: VComponentTone.danger,
+        title: 'Không tải được danh sách',
+        description: 'Vui lòng kiểm tra kết nối internet\nhoặc thử lại sau.',
+        actionLabel: 'Thử lại',
+        onActionPressed: onRetry,
       ),
     );
   }

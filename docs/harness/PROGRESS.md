@@ -252,3 +252,38 @@ Focused verification (2026-07-16 Task 8):
 - GitNexus `detect_changes(scope: all)`: risk **low**, 0 affected execution processes.
 - SQL draft `pricing_customer_price_rule_history_s10.sql` remains unapplied; no timestamped migration / REGISTRY edit.
 - No FE / apps/erp / design-system changes.
+
+## Phase 2.11 — Pricing S8 explicit product/unit import V1 (2026-07-23)
+
+- [x] Breaking Template V1 headers: `product_id` + `product_unit_id` (no V2; old header → `TEMPLATE_HEADER_INVALID`)
+- [x] Application DTOs/enum/`importProductUnitMismatch` + Fake conversion-unit evidence
+- [x] Excel adapter 8-column + fixtures (`gia_rieng_import_test_mixed.xlsx`, LibreOffice fixture)
+- [x] RPC mapper wire keys + `explicit_selection`
+- [x] Draft SQL `016_pricing_customer_price_rule_import_explicit_unit.sql` (**unapplied / unpromoted**)
+- [x] Presentation preview unit kind + in-memory ERP persistence by exact IDs
+- [x] TH-04 harness docs (07/01/05/US-05) updated
+
+Focused verification (2026-07-23, no auto-commit):
+
+- `modules/pricing/application`: contract + fake tests pass
+- `modules/pricing/infrastructure`: import adapter/mapper/gateway + explicit-unit SQL contract pass
+- `modules/pricing/presentation`: `price_rule_import_widgets_test` pass
+- `apps/erp`: `pricing_import_history_e2e_test` pass
+- Draft `016` remains unapplied; workbook regenerations required for old V1 files
+- `melos run migrate:verify-policy -- --strict`: existing Catalog/Partner WARN baseline (not introduced by draft `016`)
+
+## Pricing S8 auto-match upsert verification — 2026-07-23
+
+- Blank-`rule_id` `upsert`: zero/create, one/update, many/`AMBIGUOUS_OVERLAPPING_RULES`.
+- Confirm rematches under the rule-key advisory lock and rejects ID/count/version drift.
+- Stable single match overwrites price, effective interval and note; increments version; writes one `import_updated` activity.
+- SQL remains draft-only in `017_pricing_customer_price_rule_import_auto_match_upsert.sql`; no timestamped migration was created or applied.
+
+Focused verification evidence (no auto-commit, current worktree):
+
+- `modules/pricing/application`: `dart analyze` clean; `fake_pricing_module_test` **24/24** passed.
+- `modules/pricing/infrastructure`: `dart analyze` clean; auto-match SQL contract **5/5** + S8/explicit-unit/lifecycle regression suites **16** total passed.
+- `modules/pricing/presentation`: formatter **1/1**, widgets **14/14**, cubit **9/9** passed; `flutter analyze` reports pre-existing `unused_import` in `price_rule_history_view.dart`.
+- `scripts/ci/verify_harness.sh`: TH-04 structure/traceability OK; pre-existing `guard_presentation_size` errors remain for Catalog pages / `product_guided_create_cubit.dart`.
+- GitNexus worktree `detect_changes`: risk **medium** (includes pre-existing explicit-unit V1 dirty files alongside auto-match).
+- No commit created per user request.

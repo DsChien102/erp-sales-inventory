@@ -134,6 +134,40 @@ void main() {
       ]);
     });
 
+    test('V1 parsed and preview rows expose explicit product-unit identity', () {
+      const parsed = CustomerPriceRuleImportParsedRow(
+        rowNumber: 2,
+        customerId: '00000000-0000-4000-8000-000000000001',
+        productId: '00000000-0000-4000-8000-000000000101',
+        productUnitId: '00000000-0000-4000-8000-000000000201',
+        price: '100000',
+      );
+      const preview = CustomerPriceRuleImportRowPreviewDto(
+        id: 'row-1',
+        rowNumber: 2,
+        ruleId: null,
+        customerId: '00000000-0000-4000-8000-000000000001',
+        productId: '00000000-0000-4000-8000-000000000101',
+        productUnitId: '00000000-0000-4000-8000-000000000201',
+        price: '100000',
+        effectiveFrom: null,
+        effectiveTo: null,
+        note: null,
+        status: CustomerPriceRuleImportRowStatus.valid,
+        action: CustomerPriceRuleImportAction.create,
+        errorCodes: [],
+        warningCodes: [],
+        unitResolutionStrategy: ProductUnitResolutionStrategy.explicitSelection,
+      );
+
+      expect(parsed.productId, preview.productId);
+      expect(parsed.productUnitId, preview.productUnitId);
+      expect(
+        preview.unitResolutionStrategy,
+        ProductUnitResolutionStrategy.explicitSelection,
+      );
+    });
+
     test('fake scenario matrix for S8 is exhaustive', () {
       final importScenarios = FakePricingScenario.values
           .map((scenario) => scenario.name)
@@ -143,7 +177,7 @@ void main() {
         'importTemplateV1',
         'importReadyMixed',
         'importFailedBadFile',
-        'importAmbiguousUnit',
+        'importProductUnitMismatch',
         'importModeMismatch',
         'importGetNotFound',
         'importConfirmNeedsAcknowledgement',

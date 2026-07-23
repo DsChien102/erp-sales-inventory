@@ -1,3 +1,5 @@
+import 'package:cross_file/cross_file.dart';
+import 'package:desktop_drop/desktop_drop.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
@@ -28,8 +30,11 @@ class PricingImportPage extends StatefulWidget {
 class _PricingImportPageState extends State<PricingImportPage> {
   late final PriceRuleImportCubit _cubit;
   bool _isDownloadingTemplate = false;
+  bool _isDownloadingLog = false;
   bool _isCanceling = false;
   bool _allowPop = false;
+  bool _isDragOver = false;
+  String? _invalidDroppedFileName;
 
   @override
   void initState() {
@@ -38,6 +43,7 @@ class _PricingImportPageState extends State<PricingImportPage> {
       pricingModule: GetIt.instance<IPricingModule>(),
       executionContext: GetIt.instance<IExecutionContext>(),
     );
+    _cubit.checkAccess();
   }
 
   @override
@@ -46,11 +52,15 @@ class _PricingImportPageState extends State<PricingImportPage> {
     super.dispose();
   }
 
+  bool _canAcceptDrop(PriceRuleImportState state) =>
+      state is PriceRuleImportInitial || state is PriceRuleImportFileSelected;
+
   Future<void> _pickFile() async {
     try {
       final file = await widget.fileService.pickXlsx();
       if (file == null) return;
-      await _cubit.startImport(fileName: file.name, fileBytes: file.bytes);
+      setState(() => _invalidDroppedFileName = null);
+      _cubit.selectFile(fileName: file.name, fileBytes: file.bytes);
     } catch (_) {
       if (!mounted) return;
       VToast.show(
@@ -59,6 +69,91 @@ class _PricingImportPageState extends State<PricingImportPage> {
         message: 'Hệ thống không thể truy cập file đã chọn. Vui lòng thử lại.',
         type: VToastType.danger,
       );
+    }
+  }
+
+  Future<void> _handleDroppedFiles(List<XFile> files) async {
+    if (!_canAcceptDrop(_cubit.state) || files.isEmpty) return;
+
+    final file = files.first;
+    final name = file.name;
+    if (!name.toLowerCase().endsWith('.xlsx')) {
+      if (!mounted) return;
+      setState(() => _invalidDroppedFileName = name);
+      VToast.show(
+        context,
+        title: 'File không hợp lệ',
+        message: 'Chỉ chấp nhận file Excel định dạng .xlsx.',
+        type: VToastType.danger,
+      );
+      return;
+    }
+
+    try {
+      final bytes = await file.readAsBytes();
+      if (!mounted) return;
+      setState(() => _invalidDroppedFileName = null);
+      _cubit.selectFile(fileName: name, fileBytes: bytes);
+    } catch (_) {
+      if (!mounted) return;
+      setState(() => _invalidDroppedFileName = name);
+      VToast.show(
+        context,
+        title: 'Không thể đọc file',
+        message: 'Hệ thống không thể đọc file đã thả. Vui lòng thử lại.',
+        type: VToastType.danger,
+      );
+    }
+  }
+
+  void _clearFile() {
+    setState(() => _invalidDroppedFileName = null);
+    _cubit.clearSelectedFile();
+  }
+
+  Future<void> _continueWithFile() async {
+    await _cubit.continueWithSelectedFile();
+  }
+
+  Future<void> _downloadImportLog() async {
+    if (_isDownloadingLog) return;
+
+    setState(() => _isDownloadingLog = true);
+    try {
+      final rows = await _cubit.loadRowsForImportLog();
+      if (rows.isEmpty) {
+        if (!mounted) return;
+        VToast.show(
+          context,
+          title: 'Không có nhật ký để tải',
+          message: 'Không tìm thấy dữ liệu dòng nhập để xuất file.',
+          type: VToastType.warning,
+        );
+        return;
+      }
+      final bytes = widget.fileService.buildImportLogXlsx(rows: rows);
+      final batchId = _cubit.currentImportId ?? 'import';
+      final saved = await widget.fileService.saveImportLog(
+        fileName: 'import_log_$batchId.xlsx',
+        bytes: bytes,
+      );
+      if (!mounted || !saved) return;
+      VToast.show(
+        context,
+        title: 'Đã tải nhật ký nhập',
+        message: 'import_log_$batchId.xlsx',
+        type: VToastType.success,
+      );
+    } catch (_) {
+      if (!mounted) return;
+      VToast.show(
+        context,
+        title: 'Không thể tải nhật ký',
+        message: 'Vui lòng thử lại.',
+        type: VToastType.danger,
+      );
+    } finally {
+      if (mounted) setState(() => _isDownloadingLog = false);
     }
   }
 
@@ -82,8 +177,8 @@ class _PricingImportPageState extends State<PricingImportPage> {
         context,
         title: denied ? 'Không có quyền tải file mẫu' : 'Không thể tải file mẫu',
         message: denied
-            ? 'Bạn không có quyền import giá riêng.'
-            : 'Backend từ chối yêu cầu. Vui lòng thử lại.',
+            ? 'Bạn không có quyền nhập giá riêng.'
+            : 'Máy chủ từ chối yêu cầu. Vui lòng thử lại.',
         type: VToastType.danger,
       );
     } catch (_) {
@@ -119,10 +214,10 @@ class _PricingImportPageState extends State<PricingImportPage> {
     if (errorCode != null) {
       VToast.show(
         context,
-        title: 'Không thể hủy import',
+        title: 'Không thể hủy lần nhập',
         message: errorCode == PricingBlockedCodes.stateChanged
-            ? 'Batch đã thay đổi. Vui lòng tải lại và thử lại.'
-            : 'Batch vẫn được giữ nguyên. Vui lòng thử lại.',
+            ? 'Lô dữ liệu đã thay đổi. Vui lòng tải lại và thử lại.'
+            : 'Lô dữ liệu vẫn được giữ nguyên. Vui lòng thử lại.',
         type: VToastType.danger,
       );
       return;
@@ -141,6 +236,18 @@ class _PricingImportPageState extends State<PricingImportPage> {
       value: _cubit,
       child: BlocBuilder<PriceRuleImportCubit, PriceRuleImportState>(
         builder: (context, state) {
+          final hideSteps = switch (state) {
+            PriceRuleImportNoPermission() => true,
+            // Kết quả + xem lại từ kết quả: ẩn VSteps.
+            PriceRuleImportResult() => true,
+            PriceRuleImportPreview(:final readOnly) => readOnly,
+            PriceRuleImportLoading(:final step) =>
+              step == PriceRuleImportStep.chooseFile ||
+                  step == PriceRuleImportStep.result,
+            _ => false,
+          };
+          final acceptDrop = _canAcceptDrop(state);
+
           return PopScope<Object?>(
             canPop: _allowPop || !_cubit.hasCancelableBatch,
             onPopInvokedWithResult: (didPop, _) {
@@ -148,23 +255,45 @@ class _PricingImportPageState extends State<PricingImportPage> {
             },
             child: VPageScaffold(
               key: const Key('wgt_e02_u05_fr01_01'),
-              title: 'Nhập từ Excel',
+              title: 'Nhập giá nhớ',
               showBackButton: true,
-              body: Column(
-                children: [
-                  PriceRuleImportStepIndicator(step: state.step),
-                  Expanded(
-                    child: PriceRuleImportWizard(
-                      cubit: _cubit,
-                      state: state,
-                      onPickFile: _pickFile,
-                      onDownloadTemplate: _downloadTemplate,
-                      isDownloadingTemplate: _isDownloadingTemplate,
-                      onBackToChooseFile: () => _requestCancel(popAfterCancel: false),
-                      onFinish: () => context.pop(),
+              body: DropTarget(
+                enable: acceptDrop,
+                onDragEntered: (_) {
+                  if (acceptDrop) setState(() => _isDragOver = true);
+                },
+                onDragExited: (_) {
+                  if (_isDragOver) setState(() => _isDragOver = false);
+                },
+                onDragDone: (detail) async {
+                  if (_isDragOver) setState(() => _isDragOver = false);
+                  await _handleDroppedFiles(detail.files);
+                },
+                child: Column(
+                  children: [
+                    if (!hideSteps)
+                      PriceRuleImportStepIndicator(step: state.step),
+                    Expanded(
+                      child: PriceRuleImportWizard(
+                        cubit: _cubit,
+                        state: state,
+                        onPickFile: _pickFile,
+                        onContinue: _continueWithFile,
+                        onClearFile: _clearFile,
+                        onDownloadTemplate: _downloadTemplate,
+                        isDownloadingTemplate: _isDownloadingTemplate,
+                        isDragOver: acceptDrop && _isDragOver,
+                        isFileInvalid: _invalidDroppedFileName != null,
+                        invalidFileName: _invalidDroppedFileName,
+                        onDownloadLog: _downloadImportLog,
+                        isDownloadingLog: _isDownloadingLog,
+                        onBackToChooseFile: () =>
+                            _requestCancel(popAfterCancel: false),
+                        onFinish: () => context.pop(),
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           );

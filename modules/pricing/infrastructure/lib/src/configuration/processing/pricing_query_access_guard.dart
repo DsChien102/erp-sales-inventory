@@ -53,7 +53,13 @@ final class PricingQueryAccessGuard {
       return effectiveQuery;
     } on PricingBlockedException {
       rethrow;
-    } on ApplicationException {
+    } on ApplicationException catch (error) {
+      if (error.cause != null) {
+        throw const PricingBlockedException(
+          PricingBlockedCodes.systemError,
+          message: 'Pricing access check failed.',
+        );
+      }
       throw const PricingBlockedException(
         PricingBlockedCodes.noPermission,
         message: 'Execution context is required.',

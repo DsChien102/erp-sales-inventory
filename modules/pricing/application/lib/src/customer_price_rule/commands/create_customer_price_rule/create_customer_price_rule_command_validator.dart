@@ -29,7 +29,11 @@ final class CreateCustomerPriceRuleCommandValidator
     ).hasMatch(command.currencyCode.trim().toUpperCase())) {
       fieldErrors['currencyCode'] = 'invalid_currency';
     }
-    if (command.effectiveTo?.isBefore(command.effectiveFrom) ?? false) {
+    if (command.effectiveTo != null &&
+        _isCalendarDateBefore(
+          command.effectiveTo!,
+          command.effectiveFrom,
+        )) {
       fieldErrors['effectiveTo'] = 'before_effective_from';
     }
     if (fieldErrors.isNotEmpty) {
@@ -40,4 +44,11 @@ final class CreateCustomerPriceRuleCommandValidator
       );
     }
   }
+}
+
+/// Compare calendar Y/M/D only — ignores local vs UTC midnight of the same day.
+bool _isCalendarDateBefore(DateTime a, DateTime b) {
+  if (a.year != b.year) return a.year < b.year;
+  if (a.month != b.month) return a.month < b.month;
+  return a.day < b.day;
 }

@@ -24,8 +24,8 @@ abstract final class PriceRuleHistoryShared {
         CustomerPriceRuleActivityType.disabled => 'Tắt giá riêng',
         CustomerPriceRuleActivityType.reenabled => 'Bật lại giá riêng',
         CustomerPriceRuleActivityType.deleted => 'Xóa giá riêng',
-        CustomerPriceRuleActivityType.importCreated => 'Tạo từ import',
-        CustomerPriceRuleActivityType.importUpdated => 'Cập nhật từ import',
+        CustomerPriceRuleActivityType.importCreated => 'Tạo từ nhập Excel',
+        CustomerPriceRuleActivityType.importUpdated => 'Cập nhật từ nhập Excel',
         CustomerPriceRuleActivityType.memoryCreated => 'Ghi nhận nhớ giá',
         CustomerPriceRuleActivityType.memoryUpdated => 'Cập nhật giá nhớ',
       };
@@ -80,9 +80,14 @@ abstract final class PriceRuleHistoryShared {
     return '$sign${diffMinor.toString().replaceAllMapped(RegExp(r'\B(?=(\d{3})+(?!\d))'), (m) => '.')}đ';
   }
 
-  static String formatDateTime(DateTime d) =>
-      '${d.day.toString().padLeft(2, '0')}/${d.month.toString().padLeft(2, '0')}/${d.year} '
-      '${d.hour.toString().padLeft(2, '0')}:${d.minute.toString().padLeft(2, '0')}';
+  static String formatDateTime(DateTime d) {
+    final local = d.toLocal();
+    return '${local.day.toString().padLeft(2, '0')}/'
+        '${local.month.toString().padLeft(2, '0')}/'
+        '${local.year} '
+        '${local.hour.toString().padLeft(2, '0')}:'
+        '${local.minute.toString().padLeft(2, '0')}';
+  }
 
   static String formatDateStr(String? dateStr) {
     if (dateStr == null || dateStr.isEmpty) return 'Không giới hạn';

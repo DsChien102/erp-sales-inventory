@@ -1504,6 +1504,60 @@ void main() {
         isNot(contains(ReadinessBlockerCode.missingBaseUnit)),
       );
     });
+
+    test(
+      'set base unit creates pending ruleBased band then materializes on base price',
+      () async {
+        final module = FakeCatalogModule(
+          scenario: FakeCatalogScenario.setBaseUnitExisting,
+        );
+
+        await module.executeCommandAsync(
+          SetProductBaseUnitCommand(
+            tenantId: 'tenant-1',
+            productId: 'product-6',
+            selection: const ExistingTenantUnit('unit-lo'),
+          ),
+        );
+
+        final afterUnit = await module.executeQueryAsync(
+          GetProductControlCenterQuery(
+            tenantId: 'tenant-1',
+            productId: 'product-6',
+          ),
+        );
+        expect(afterUnit.priceBand.sourceType, PriceBandSourceType.ruleBased);
+        expect(afterUnit.priceBand.isPendingCalculation, isTrue);
+        expect(afterUnit.priceBand.isMissing, isFalse);
+        expect(
+          afterUnit.readinessSummary.blockers.map((b) => b.code),
+          contains(ReadinessBlockerCode.missingPriceBand),
+        );
+
+        await module.executeCommandAsync(
+          SetManualBasePriceCommand(
+            tenantId: 'tenant-1',
+            productId: 'product-6',
+            basePrice: 45000,
+          ),
+        );
+
+        final afterPrice = await module.executeQueryAsync(
+          GetProductControlCenterQuery(
+            tenantId: 'tenant-1',
+            productId: 'product-6',
+          ),
+        );
+        expect(afterPrice.priceBand.sourceType, PriceBandSourceType.ruleBased);
+        expect(afterPrice.priceBand.isPendingCalculation, isFalse);
+        expect(afterPrice.priceBand.isMissing, isFalse);
+        expect(afterPrice.priceBand.listBeforeVat, greaterThan(0));
+        expect(
+          afterPrice.readinessSummary.blockers.map((b) => b.code),
+          isNot(contains(ReadinessBlockerCode.missingPriceBand)),
+        );
+      },
+    );
   });
 
   group('EPIC-04 / US-02 conversion unit contract', () {

@@ -1,19 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:vet45_design_system/design_system.dart';
 import 'package:vet45_pricing_application/application.dart';
-import 'package:vet45_pricing_domain/domain.dart';
 
 import 'price_rule_status_badge.dart';
 
 /// Card danh sách giá riêng — dùng [VCard] + [VBadge] theo design system.
 ///
-/// Layout (SG-01 hình 2) — badge không đẩy nội dung dưới:
+/// Layout — badge cạnh khối tên/SP (không chung chiều cao với cả card),
+/// nên 2 badge không đẩy giá / hiệu lực xuống:
 /// ```
-/// [Avatar]  Tên KH                    [Đang áp dụng]
-///           Mã • Nguồn                [Dưới giá sàn]
-///           Tên sản phẩm (nội bộ)
+/// [Avatar]  Tên KH                    [Đã tắt]
+///           Tên sản phẩm              [Dưới giá sàn]
 ///           Đơn vị: …
-///           Giá riêng          Giá hiện tại
+///           Giá riêng          Giá niêm yết
 ///           Hiệu lực: …                   >
 /// ```
 class PriceRuleCard extends StatelessWidget {
@@ -46,7 +45,6 @@ class PriceRuleCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Header: tên + mã nằm cạnh cột badge (tránh khoảng trống khi 2 badge).
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -64,11 +62,18 @@ class PriceRuleCard extends StatelessWidget {
                           ),
                           const VGap.xs(),
                           VText(
-                            '${rule.customer.customerId} • ${_formatSource(rule.sourceType)}',
+                            rule.productUnit.productName,
+                            variant: VTextVariant.bodyDefault,
+                            color: colors.textPrimary,
+                            style: const TextStyle(fontWeight: FontWeight.w600),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          const VGap.xs(),
+                          VText(
+                            'Đơn vị: ${rule.productUnit.unitName}',
                             variant: VTextVariant.bodySmall,
                             color: colors.textSecondary,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
                           ),
                         ],
                       ),
@@ -79,21 +84,6 @@ class PriceRuleCard extends StatelessWidget {
                       isBelowFloor: isBelowFloor,
                     ),
                   ],
-                ),
-                const VGap.xs(),
-                VText(
-                  rule.productUnit.productName,
-                  variant: VTextVariant.bodyDefault,
-                  color: colors.textPrimary,
-                  style: const TextStyle(fontWeight: FontWeight.w600),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                const VGap.xs(),
-                VText(
-                  'Đơn vị: ${rule.productUnit.unitName}',
-                  variant: VTextVariant.bodySmall,
-                  color: colors.textSecondary,
                 ),
                 const VGap.sm(),
                 Row(
@@ -107,7 +97,7 @@ class PriceRuleCard extends StatelessWidget {
                     ),
                     Expanded(
                       child: _PriceColumn(
-                        label: 'Giá hiện tại',
+                        label: 'Giá niêm yết',
                         value: listPrice != null
                             ? _formatMoney(listPrice)
                             : '—',
@@ -157,16 +147,9 @@ class PriceRuleCard extends StatelessWidget {
         : _formatDate(period.effectiveTo!);
     return '$from – $to';
   }
-
-  String _formatSource(CustomerPriceRuleSourceType src) => switch (src) {
-    CustomerPriceRuleSourceType.manual => 'Tạo thủ công',
-    CustomerPriceRuleSourceType.excelImport => 'Nhập Excel',
-    CustomerPriceRuleSourceType.salesOrder => 'Từ đơn hàng',
-    CustomerPriceRuleSourceType.migration => 'Migration',
-  };
 }
 
-/// Cột badge status — [mainAxisSize.min] để không kéo giãn layout.
+/// Cột badge status — cùng chiều rộng khi có 2 badge (theo badge dài hơn).
 class _StatusBadges extends StatelessWidget {
   const _StatusBadges({required this.status, required this.isBelowFloor});
 
@@ -175,20 +158,22 @@ class _StatusBadges extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.end,
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        PriceRuleStatusBadge(status: status),
-        if (isBelowFloor) ...[
-          const VGap.xs(),
-          const VBadge(
-            label: 'Dưới giá sàn',
-            status: VBadgeStatus.danger,
-            isSmall: true,
-          ),
+    return IntrinsicWidth(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          PriceRuleStatusBadge(status: status),
+          if (isBelowFloor) ...[
+            const VGap.xs(),
+            const VBadge(
+              label: 'Dưới giá sàn',
+              status: VBadgeStatus.danger,
+              isSmall: true,
+            ),
+          ],
         ],
-      ],
+      ),
     );
   }
 }
