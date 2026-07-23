@@ -22,6 +22,7 @@ class StatusPanel extends StatelessComponent {
 
   @override
   Component build(BuildContext context) {
+    final theme = TuiTheme.of(context);
     final lines = <String>[
       'profile=$activeProfile  environment=$activeEnvironment',
       if (busy) 'status=busy',
@@ -42,10 +43,10 @@ class StatusPanel extends StatelessComponent {
               ' $line',
               style: TextStyle(
                 color: line.contains('[FAIL]')
-                    ? Colors.red
+                    ? theme.error
                     : line.contains('[OK]')
-                        ? Colors.green
-                        : Colors.white,
+                        ? theme.success
+                        : theme.onSurface,
               ),
             );
           },

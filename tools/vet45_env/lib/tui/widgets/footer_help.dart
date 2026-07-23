@@ -8,6 +8,7 @@ class FooterHelp extends StatelessComponent {
 
   @override
   Component build(BuildContext context) {
+    final theme = TuiTheme.of(context);
     final text = confirmPending != null
         ? 'Confirm switch to $confirmPending? [y]es / [n]o'
         : busy
@@ -18,7 +19,7 @@ class FooterHelp extends StatelessComponent {
       child: Text(
         text,
         style: TextStyle(
-          color: confirmPending != null ? Colors.yellow : Colors.brightBlack,
+          color: confirmPending != null ? theme.warning : theme.outline,
         ),
       ),
     );

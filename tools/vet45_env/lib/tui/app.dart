@@ -6,6 +6,7 @@ import '../config_init_service.dart';
 import '../manifest.dart';
 import 'services_bridge.dart';
 import 'shell.dart';
+import 'vet45_tui_theme.dart';
 
 /// Launch the interactive nocterm TUI (lazygit-style).
 Future<void> runVet45Tui({Directory? rootDir}) async {
@@ -22,5 +23,11 @@ Future<void> runVet45Tui({Directory? rootDir}) async {
   final manifest = EnvManifest.load(root);
   final bridge = TuiServicesBridge(manifest: manifest);
 
-  await runApp(Vet45TuiShell(bridge: bridge));
+  await runApp(
+    NoctermApp(
+      title: 'vet45',
+      theme: Vet45TuiTheme.dark,
+      child: Vet45TuiShell(bridge: bridge),
+    ),
+  );
 }

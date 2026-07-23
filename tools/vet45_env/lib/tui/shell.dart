@@ -341,6 +341,7 @@ class Vet45TuiShellState extends State<Vet45TuiShell> {
 
   @override
   Component build(BuildContext context) {
+    final theme = TuiTheme.of(context);
     return Focusable(
       focused: true,
       onKeyEvent: _onKey,
@@ -352,7 +353,7 @@ class Vet45TuiShellState extends State<Vet45TuiShell> {
             Text(
               'vet45 TUI',
               style: TextStyle(
-                color: Colors.cyan,
+                color: theme.primary,
                 fontWeight: FontWeight.bold,
               ),
             ),

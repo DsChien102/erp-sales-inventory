@@ -7,6 +7,7 @@ import 'package:vet45_env/profile_registry.dart';
 import 'package:vet45_env/secrets_loader.dart';
 import 'package:vet45_env/tui/services_bridge.dart';
 import 'package:vet45_env/tui/shell.dart';
+import 'package:vet45_env/tui/vet45_tui_theme.dart';
 
 import '../test_manifest_fixture.dart';
 
@@ -64,11 +65,16 @@ void main() {
     }
   });
 
+  Component themedShell() => TuiTheme(
+        data: Vet45TuiTheme.dark,
+        child: Vet45TuiShell(bridge: bridge),
+      );
+
   test('shell renders profiles and environments', () async {
     await testNocterm(
       'render panels',
       (tester) async {
-        await tester.pumpComponent(Vet45TuiShell(bridge: bridge));
+        await tester.pumpComponent(themedShell());
         expect(tester.terminalState, containsText('Profiles'));
         expect(tester.terminalState, containsText('Environments'));
         expect(tester.terminalState, containsText('default'));
@@ -88,7 +94,7 @@ void main() {
     await testNocterm(
       'keymap',
       (tester) async {
-        await tester.pumpComponent(Vet45TuiShell(bridge: bridge));
+        await tester.pumpComponent(themedShell());
         await tester.sendArrowDown();
         await tester.pump();
         await tester.sendTab();
