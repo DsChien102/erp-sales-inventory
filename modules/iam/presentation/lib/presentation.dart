@@ -51,6 +51,9 @@ export 'src/users/views/organization_invitation_detail_page.dart';
 export 'src/users/views/organization_member_detail_page.dart';
 export 'src/users/views/organization_select_role_page.dart';
 export 'src/users/views/organization_preview_role_change_page.dart';
-export 'src/users/widgets/member_card.dart';
-export 'src/users/widgets/invitation_card.dart';
+export 'src/testing/fake_roles_data.dart';
+export 'src/roles/models/role_ui_model.dart';
+export 'src/roles/views/organization_roles_page.dart';
+export 'src/roles/views/organization_role_detail_page.dart';
+
 

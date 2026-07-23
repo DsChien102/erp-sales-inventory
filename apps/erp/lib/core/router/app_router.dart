@@ -187,6 +187,21 @@ final appRouter = GoRouter(
       },
     ),
     GoRoute(
+      path: '/more/roles',
+      name: 'more.roles',
+      builder: (context, state) => const OrganizationRolesPage(),
+    ),
+    GoRoute(
+      path: '/more/roles/detail',
+      name: 'more.roles.detail',
+      builder: (context, state) {
+        final role = state.extra as RoleUiModel?;
+        return OrganizationRoleDetailPage(
+          role: role ?? FakeRolesData.sampleRoles[1],
+        );
+      },
+    ),
+    GoRoute(
       path: '/more/organization-profile',
       name: 'more.organization-profile',
       builder: (context, state) => const OrganizationProfilePage(),
