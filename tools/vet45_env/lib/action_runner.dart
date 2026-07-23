@@ -8,6 +8,38 @@ import 'profile_registry.dart';
 import 'secrets_loader.dart';
 import 'target_manifest.dart';
 
+/// Resolved command ready to execute (CLI ProcessRunner or TUI PTY).
+class ActionLaunchPlan {
+  ActionLaunchPlan({
+    required this.command,
+    required this.args,
+    required this.workingDirectory,
+    required this.environment,
+    required this.targetId,
+    required this.actionId,
+  });
+
+  final String command;
+  final List<String> args;
+  final String workingDirectory;
+  final Map<String, String> environment;
+  final String targetId;
+  final String actionId;
+
+  String get label => '$targetId/$actionId';
+}
+
+/// Thrown when an action cannot be resolved or a preAction fails.
+class ActionLaunchException implements Exception {
+  ActionLaunchException(this.message, {this.exitCode = 1});
+
+  final String message;
+  final int exitCode;
+
+  @override
+  String toString() => message;
+}
+
 /// Executes declarative actions from target manifests.
 class ActionRunner {
   ActionRunner({
@@ -20,67 +52,36 @@ class ActionRunner {
   final DoctorService doctorService;
   final ProcessRunner _process;
 
-  Future<int> run({
+  /// Validates + expands templates; runs [preActions] via ProcessRunner first.
+  Future<ActionLaunchPlan> resolveLaunch({
     required WorkspaceContext ctx,
     required String targetId,
     required String actionId,
     List<String> extraArgs = const [],
+    bool runPreActions = true,
   }) async {
     final target = manifest.getTarget(targetId);
     final spec = target.actions[actionId];
     if (spec == null) {
-      stderr.writeln('Unknown action "$actionId" for target "$targetId"');
-      stderr.writeln(
+      throw ActionLaunchException(
+        'Unknown action "$actionId" for target "$targetId"\n'
         'Available: ${target.actions.keys.join(', ')}',
+        exitCode: 64,
       );
-      return 64;
     }
 
-    if (!_platformAllowed(spec.platforms)) {
-      stderr.writeln(
-        'Action "$actionId" requires platform: ${spec.platforms.join(', ')}',
-      );
-      return 64;
-    }
-
-    if (spec.requireEnvironments.isNotEmpty &&
-        !spec.requireEnvironments.contains(ctx.environment.id)) {
-      stderr.writeln(
-        'Action "$actionId" requires environment: '
-        '${spec.requireEnvironments.join(' or ')} '
-        '(current: ${ctx.environment.id})',
-      );
-      stderr.writeln('Run: vet45 switch ${ctx.profileId} <env>');
-      return 1;
-    }
-
-    if (spec.requireRailwayEnvironment) {
-      final railway = ctx.environment.railwayEnvironment;
-      if (railway == null || railway.isEmpty) {
-        stderr.writeln(
-          'Action "$actionId" requires Railway environment '
-          '(active: ${ctx.environment.id})',
-        );
-        stderr.writeln('Run: vet45 switch ${ctx.profileId} staging');
-        return 1;
-      }
+    final disabled = disabledReason(
+      spec: spec,
+      ctx: ctx,
+      targetId: targetId,
+    );
+    if (disabled != null) {
+      final exitCode = !isPlatformAllowed(spec.platforms) ? 64 : 1;
+      throw ActionLaunchException(disabled, exitCode: exitCode);
     }
 
     final binding = ctx.environment.binding(targetId);
     final envFile = binding?.envFile;
-
-    if (spec.requireEnvFile &&
-        (envFile == null || !envFile.existsSync())) {
-      stderr.writeln(
-        'Missing env file for target "$targetId" '
-        '(profile ${ctx.profileId} / ${ctx.environment.id})',
-      );
-      if (envFile != null) {
-        stderr.writeln('Expected: ${envFile.path}');
-      }
-      stderr.writeln('Run: vet45 sync --target $targetId');
-      return 1;
-    }
 
     if (spec.requireDoctorTargets.isNotEmpty) {
       for (final doctorTarget in spec.requireDoctorTargets) {
@@ -89,20 +90,31 @@ class ActionRunner {
           targetId: doctorTarget,
         );
         if (!report.ok) {
-          report.printReport();
-          return 1;
+          final detail = report.checks
+              .where((c) => !c.passed && !c.skipped)
+              .map((c) => c.name)
+              .join(', ');
+          throw ActionLaunchException(
+            'Doctor failed for target "$doctorTarget"'
+            '${detail.isEmpty ? '' : ': $detail'}',
+          );
         }
       }
     }
 
-    for (final pre in spec.preActions) {
-      final code = await run(
-        ctx: ctx,
-        targetId: targetId,
-        actionId: pre,
-      );
-      if (code != 0) {
-        return code;
+    if (runPreActions) {
+      for (final pre in spec.preActions) {
+        final code = await run(
+          ctx: ctx,
+          targetId: targetId,
+          actionId: pre,
+        );
+        if (code != 0) {
+          throw ActionLaunchException(
+            'preAction "$pre" failed with exit code $code',
+            exitCode: code,
+          );
+        }
       }
     }
 
@@ -127,7 +139,7 @@ class ActionRunner {
       target.manifestDir ?? manifest.rootDir,
     );
 
-    final command = template.expand(spec.command);
+    var command = template.expand(spec.command);
     final args = [
       ...template.expandAll(spec.args),
       ...extraArgs,
@@ -145,15 +157,90 @@ class ActionRunner {
       environment.addAll(loadDotEnv(envFile));
     }
 
-    return _runCommand(
-      command,
-      args,
+    // Normalize ./script for PTY / Process.start
+    if (command.startsWith('./') || command.startsWith('.\\')) {
+      final scriptPath = TargetManifest.normalizePath(
+        '$cwd/${command.substring(2)}',
+      );
+      if (Platform.isWindows) {
+        return ActionLaunchPlan(
+          command: 'bash',
+          args: [scriptPath, ...args],
+          workingDirectory: cwd,
+          environment: environment,
+          targetId: targetId,
+          actionId: actionId,
+        );
+      }
+      command = scriptPath;
+    }
+
+    return ActionLaunchPlan(
+      command: command,
+      args: args,
       workingDirectory: cwd,
       environment: environment,
+      targetId: targetId,
+      actionId: actionId,
     );
   }
 
-  bool _platformAllowed(List<String> platforms) {
+  Future<int> run({
+    required WorkspaceContext ctx,
+    required String targetId,
+    required String actionId,
+    List<String> extraArgs = const [],
+  }) async {
+    try {
+      final plan = await resolveLaunch(
+        ctx: ctx,
+        targetId: targetId,
+        actionId: actionId,
+        extraArgs: extraArgs,
+      );
+      return _process.run(
+        plan.command,
+        plan.args,
+        workingDirectory: plan.workingDirectory,
+        environment: plan.environment,
+      );
+    } on ActionLaunchException catch (e) {
+      stderr.writeln(e.message);
+      return e.exitCode;
+    }
+  }
+
+  /// Human-readable reason an action cannot run now, or null if enabled.
+  String? disabledReason({
+    required ActionSpec spec,
+    required WorkspaceContext ctx,
+    required String targetId,
+  }) {
+    if (!isPlatformAllowed(spec.platforms)) {
+      return 'Requires platform: ${spec.platforms.join(', ')}';
+    }
+    if (spec.requireEnvironments.isNotEmpty &&
+        !spec.requireEnvironments.contains(ctx.environment.id)) {
+      return 'Requires env ${spec.requireEnvironments.join('|')} '
+          '(now: ${ctx.environment.id})';
+    }
+    if (spec.requireRailwayEnvironment) {
+      final railway = ctx.environment.railwayEnvironment;
+      if (railway == null || railway.isEmpty) {
+        return 'Requires Railway env — switch to staging|production';
+      }
+    }
+    final binding = ctx.environment.binding(targetId);
+    final envFile = binding?.envFile;
+    if (spec.requireEnvFile &&
+        (envFile == null || !envFile.existsSync())) {
+      return 'Missing synced .env — run sync for $targetId '
+          '(${ctx.profileId}/${ctx.environment.id})';
+    }
+    return null;
+  }
+
+  static bool isPlatformAllowed(List<String> platforms) {
     if (platforms.isEmpty) {
       return true;
     }
@@ -179,39 +266,6 @@ class ActionRunner {
     return TargetManifest.normalizePath('${manifestDir.path}/$cwd');
   }
 
-  Future<int> _runCommand(
-    String command,
-    List<String> args, {
-    required String workingDirectory,
-    Map<String, String>? environment,
-  }) async {
-    if (command.startsWith('./') || command.startsWith('.\\')) {
-      final scriptPath = TargetManifest.normalizePath(
-        '$workingDirectory/${command.substring(2)}',
-      );
-      if (Platform.isWindows) {
-        return _process.run(
-          'bash',
-          [scriptPath, ...args],
-          workingDirectory: workingDirectory,
-          environment: environment,
-        );
-      }
-      return _process.run(
-        scriptPath,
-        args,
-        workingDirectory: workingDirectory,
-        environment: environment,
-      );
-    }
-    return _process.run(
-      command,
-      args,
-      workingDirectory: workingDirectory,
-      environment: environment,
-    );
-  }
-
   Future<void> _checkLocalSupabaseReachable(File envFile) async {
     final values = loadDotEnv(envFile);
     final url = values['SUPABASE_URL']?.trim() ?? '';
@@ -223,9 +277,10 @@ class ActionRunner {
     }
     final reachable = await _pingSupabase(url);
     if (!reachable) {
-      stderr.writeln('ERROR: Supabase not reachable at $url');
-      stderr.writeln('       Run: supabase start && vet45 sync');
-      exit(1);
+      throw ActionLaunchException(
+        'ERROR: Supabase not reachable at $url\n'
+        '       Run: supabase start && vet45 sync',
+      );
     }
   }
 

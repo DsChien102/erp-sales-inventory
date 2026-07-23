@@ -1,3 +1,4 @@
+import '../action_runner.dart';
 import '../doctor_service.dart';
 import '../link_service.dart';
 import '../manifest.dart';
@@ -19,6 +20,30 @@ class BridgeActionResult {
   final String? activeEnvironment;
 }
 
+class RunnableTargetInfo {
+  RunnableTargetInfo({
+    required this.id,
+    required this.description,
+  });
+
+  final String id;
+  final String description;
+}
+
+class ActionListItem {
+  ActionListItem({
+    required this.id,
+    required this.description,
+    required this.enabled,
+    this.disabledReason,
+  });
+
+  final String id;
+  final String description;
+  final bool enabled;
+  final String? disabledReason;
+}
+
 /// Wraps env services for the nocterm TUI without calling `exit`.
 class TuiServicesBridge {
   TuiServicesBridge({required EnvManifest manifest})
@@ -26,12 +51,18 @@ class TuiServicesBridge {
         syncService = SyncService(manifest: manifest),
         linkService = SupabaseLinkService(manifest: manifest),
         doctorService =
-            DoctorService(manifest: manifest, skipNetwork: true);
+            DoctorService(manifest: manifest, skipNetwork: true) {
+    actionRunner = ActionRunner(
+      manifest: manifest,
+      doctorService: doctorService,
+    );
+  }
 
   EnvManifest manifest;
   SyncService syncService;
   SupabaseLinkService linkService;
   DoctorService doctorService;
+  late ActionRunner actionRunner;
 
   ActiveState readState() => manifest.readState();
 
@@ -53,12 +84,72 @@ class TuiServicesBridge {
     return ids;
   }
 
+  WorkspaceContext activeContext() {
+    final state = readState();
+    return manifest.context(
+      profileId: state.profileId,
+      environmentId: state.environmentId,
+    );
+  }
+
+  /// Targets that declare at least one action.
+  List<RunnableTargetInfo> runnableTargets() {
+    final list = <RunnableTargetInfo>[];
+    for (final t in manifest.targets.values) {
+      if (t.actions.isEmpty) {
+        continue;
+      }
+      list.add(RunnableTargetInfo(id: t.id, description: t.description));
+    }
+    list.sort((a, b) => a.id.compareTo(b.id));
+    return list;
+  }
+
+  List<ActionListItem> actionsFor(String targetId) {
+    final target = manifest.getTarget(targetId);
+    final ctx = activeContext();
+    final items = <ActionListItem>[];
+    final keys = target.actions.keys.toList()..sort();
+    for (final id in keys) {
+      final spec = target.actions[id]!;
+      final reason = actionRunner.disabledReason(
+        spec: spec,
+        ctx: ctx,
+        targetId: targetId,
+      );
+      items.add(
+        ActionListItem(
+          id: id,
+          description: spec.displayDescription,
+          enabled: reason == null,
+          disabledReason: reason,
+        ),
+      );
+    }
+    return items;
+  }
+
+  Future<ActionLaunchPlan> resolveAction({
+    required String targetId,
+    required String actionId,
+  }) {
+    return actionRunner.resolveLaunch(
+      ctx: activeContext(),
+      targetId: targetId,
+      actionId: actionId,
+    );
+  }
+
   /// Reload manifest + state from disk.
   BridgeActionResult refresh() {
     manifest = EnvManifest.load(manifest.rootDir);
     syncService = SyncService(manifest: manifest);
     linkService = SupabaseLinkService(manifest: manifest);
     doctorService = DoctorService(manifest: manifest, skipNetwork: true);
+    actionRunner = ActionRunner(
+      manifest: manifest,
+      doctorService: doctorService,
+    );
     final state = readState();
     return BridgeActionResult(
       ok: true,

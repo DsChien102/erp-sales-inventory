@@ -155,6 +155,41 @@ void main() {
       expect(code, 1);
       expect(process.invocations, isEmpty);
     });
+
+    test('resolveLaunch expands erp debug without running process', () async {
+      await syncLocal();
+
+      final plan = await runner().resolveLaunch(
+        ctx: manifest.context(environmentId: 'local'),
+        targetId: 'erp',
+        actionId: 'debug',
+      );
+
+      expect(plan.label, 'erp/debug');
+      expect(plan.command, 'flutter');
+      expect(plan.args, contains('development'));
+      expect(plan.args, contains('--dart-define-from-file=.env'));
+      expect(plan.workingDirectory, endsWith('apps/erp'));
+      expect(process.invocations, isEmpty);
+    });
+
+    test('resolveLaunch rejects debug:ios on non-macOS', () async {
+      if (Platform.isMacOS) {
+        return;
+      }
+      await syncLocal();
+
+      expect(
+        () => runner().resolveLaunch(
+          ctx: manifest.context(environmentId: 'local'),
+          targetId: 'erp',
+          actionId: 'debug:ios',
+        ),
+        throwsA(
+          isA<ActionLaunchException>().having((e) => e.exitCode, 'code', 64),
+        ),
+      );
+    });
   });
 }
 

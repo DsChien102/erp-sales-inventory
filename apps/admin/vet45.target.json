@@ -46,6 +46,7 @@
   },
   "actions": {
     "debug": {
+      "description": "Flutter run (device/simulator) with active flavor",
       "command": "flutter",
       "args": [
         "run",
@@ -57,6 +58,7 @@
       "requireEnvFile": true
     },
     "debug:web": {
+      "description": "Flutter run on Chrome",
       "command": "flutter",
       "args": [
         "run",
@@ -70,6 +72,7 @@
       "requireEnvFile": true
     },
     "debug:ios": {
+      "description": "Flutter run on iOS (macOS only)",
       "command": "flutter",
       "args": [
         "run",

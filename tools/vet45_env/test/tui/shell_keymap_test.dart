@@ -104,4 +104,63 @@ void main() {
       size: const Size(100, 40),
     );
   });
+
+  test('key 2 switches to Run mode with Sessions sidebar', () async {
+    await testNocterm(
+      'run mode',
+      (tester) async {
+        await tester.pumpComponent(themedShell());
+        await tester.enterText('2');
+        await tester.pump();
+        // Narrow flex column truncates the Sessions title (e.g. "Ses…").
+        expect(tester.terminalState, containsText('Ses'));
+        expect(tester.terminalState, containsText('Terminal'));
+        expect(tester.terminalState, containsText('n = new'));
+        // Panels must fill their flex slots (no shrink-wrap gap between them).
+        final dump = tester.terminalState.getText();
+        final topBorders = dump
+            .split('\n')
+            .where((l) => l.contains('╭') && l.contains('Terminal'))
+            .toList();
+        expect(topBorders.isNotEmpty, isTrue, reason: dump);
+        final line = topBorders.first;
+        // After Sessions box there should be at most a 1-col spacer before Terminal.
+        final sessionsEnd = line.indexOf('╮');
+        final terminalStart = line.indexOf('╭─ Terminal');
+        expect(sessionsEnd, greaterThan(0));
+        expect(terminalStart, greaterThan(sessionsEnd));
+        expect(
+          terminalStart - sessionsEnd,
+          lessThanOrEqualTo(3),
+          reason: 'gap between Sessions and Terminal: "$line"',
+        );
+        // Terminal border should reach near the right margin (flex 4 of ~100).
+        final terminalEnd = line.lastIndexOf('╮');
+        expect(terminalEnd, greaterThan(70), reason: line);
+        expect(
+          tester.terminalState.containsText('Targets'),
+          isFalse,
+          reason: 'Targets only after n',
+        );
+      },
+      size: const Size(100, 40),
+    );
+  });
+
+  test('key n opens new session picker with Targets', () async {
+    await testNocterm(
+      'new session picker',
+      (tester) async {
+        await tester.pumpComponent(themedShell());
+        await tester.enterText('2');
+        await tester.pump();
+        await tester.enterText('n');
+        await tester.pump();
+        expect(tester.terminalState, containsText('Targets'));
+        expect(tester.terminalState, containsText('Actions'));
+        expect(tester.terminalState, containsText('erp'));
+      },
+      size: const Size(100, 40),
+    );
+  });
 }

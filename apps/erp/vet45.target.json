@@ -50,6 +50,7 @@
   },
   "actions": {
     "debug": {
+      "description": "Flutter run (device/simulator) with active flavor",
       "command": "flutter",
       "args": [
         "run",
@@ -61,6 +62,7 @@
       "requireEnvFile": true
     },
     "debug:web": {
+      "description": "Flutter run on Chrome",
       "command": "flutter",
       "args": [
         "run",
@@ -74,6 +76,7 @@
       "requireEnvFile": true
     },
     "debug:ios": {
+      "description": "Flutter run on iOS (macOS only)",
       "command": "flutter",
       "args": [
         "run",
@@ -88,6 +91,7 @@
       "requireEnvFile": true
     },
     "build-ios": {
+      "description": "Build iOS IPA for TestFlight (staging/production)",
       "command": "./scripts/build_ios.sh",
       "args": ["--env", "{{environmentId}}"],
       "cwd": ".",
@@ -95,6 +99,7 @@
       "requireEnvironments": ["staging", "production"]
     },
     "deploy-ios": {
+      "description": "Upload IPA to App Store Connect",
       "command": "./deploy-ios.sh",
       "args": ["--env", "{{environmentId}}"],
       "cwd": ".",
