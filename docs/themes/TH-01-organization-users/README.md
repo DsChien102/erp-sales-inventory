@@ -11,7 +11,7 @@ Tenant, user, role, phân quyền và nền tảng truy cập đa tenant cho to�
 | iam | **Owner** — auth, tenant, membership, invitation, RBAC, context | `modules/iam/` ([README](../../../modules/iam/README.md)) |
 | Notification (Resend) | Supporting — email delivery | contract `S-NOTIFY` — [harness/03](harness/03-architecture-and-flows.md) |
 | apps/erp | Tenant App | `apps/erp` |
-| apps/admin | Platform Admin App | `apps/admin` (scaffold) |
+| apps/admin | Platform Admin App | `apps/admin` (S15 wired via `IIamModule`) |
 
 ## Tài liệu
 
@@ -28,7 +28,7 @@ Tenant, user, role, phân quyền và nền tảng truy cập đa tenant cho to�
 
 | Epic | Folder | US specs | Status |
 | ---- | ------ | -------- | ------ |
-| EP-01 — Platform onboarding & activate | [Epic-01-platform-onboarding/](Epic-01-platform-onboarding/) | [US-01](Epic-01-platform-onboarding/US-01.md) … [US-05](Epic-01-platform-onboarding/US-05.md) | planned |
+| EP-01 — Platform onboarding & activate | [Epic-01-platform-onboarding/](Epic-01-platform-onboarding/) | [US-01](Epic-01-platform-onboarding/US-01.md) … [US-05](Epic-01-platform-onboarding/US-05.md) | S15 done (US-01–03); US-04/05 planned |
 | EP-02 — Tổ chức & lịch sử quản trị | [Epic-02-tenant-administration/](Epic-02-tenant-administration/) | [US-01](Epic-02-tenant-administration/US-01.md) … [US-10](Epic-02-tenant-administration/US-10.md) | planned (US-04/05 Post-MVP) |
 | EP-03 — Thành viên & lời mời | [Epic-03-membership-invitation/](Epic-03-membership-invitation/) | [US-01](Epic-03-membership-invitation/US-01.md) … [US-06](Epic-03-membership-invitation/US-06.md) | planned |
 | EP-04 — Vai trò & quyền | [Epic-04-roles-permissions/](Epic-04-roles-permissions/) | [US-01](Epic-04-roles-permissions/US-01.md) … [US-03](Epic-04-roles-permissions/US-03.md) | planned |

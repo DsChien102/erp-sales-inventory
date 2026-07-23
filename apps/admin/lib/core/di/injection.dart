@@ -1,4 +1,7 @@
 import 'package:get_it/get_it.dart';
+import 'package:vet45_iam_application/application.dart';
+import 'package:vet45_iam_infrastructure/infrastructure.dart';
+import 'package:vet45_shared_application/application.dart';
 import 'package:vet45_shared_infrastructure/infrastructure.dart';
 
 import '../supabase/supabase_module.dart';
@@ -17,4 +20,20 @@ Future<void> initDependencies({required SupabaseModule supabaseModule}) async {
   );
 
   getIt.registerLazySingleton<IEventsBus>(() => InMemoryEventBusClient());
+
+  final iamRuntime = await IamStartup.initialize(
+    supabase: supabaseModule.client,
+    loggerFactory: getIt<ILoggerFactory>(),
+    integrationEventBus: getIt<IEventsBus>(),
+  );
+
+  getIt
+    ..registerSingleton<IIamModule>(iamRuntime.module)
+    ..registerSingleton<IExecutionContext>(iamRuntime.executionContext)
+    ..registerSingleton<IPermissionChecker>(iamRuntime.permissionChecker)
+    ..registerSingleton<ITenantAccessChecker>(iamRuntime.tenantAccessChecker)
+    ..registerSingleton<IamSession>(iamRuntime.session)
+    ..registerSingleton<ICurrentUser>(iamRuntime.session)
+    ..registerSingleton<ICurrentTenant>(iamRuntime.session)
+    ..registerSingleton<IPrincipalSnapshot>(iamRuntime.session);
 }

@@ -197,6 +197,7 @@ Ghi các cải tiến harness sau khi agent fail (ngày + mô tả ngắn):
 | 2026-07-16 | TH-04 S3 hoàn tất detail query/health/trace/actions + draft RPC provider enrichment; CONTRACT/BE `done`, FE/E2E giữ `todo` |
 | 2026-07-16 | TH-04 S5 hoàn tất update command/handler/reconstitution + advisory/authoritative RPC drafts; §S5 contract freeze + US-06 design reference fix (SG-04→SG-03); CONTRACT/BE `done` theo lane-scoped gate, FE/E2E giữ `todo` |
 | 2026-07-16 | TH-04 S6 hoàn tất disable command/handler/domain + authoritative RPC draft (already-disabled trước version check); §S6 contract freeze; CONTRACT/BE `done` theo lane-scoped gate, FE/E2E giữ `todo` |
+| 2026-07-23 | TH-01 S15 FE/E2E — Admin `IIamModule` wiring (platform users + onboarding); `FakeIamModule` scenarios §S15; roadmap/traceability done |
 
 ## Phase 2.8 — Pricing S8 CONTRACT + BE (TH-04)
 

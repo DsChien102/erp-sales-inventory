@@ -20,12 +20,14 @@ dependencies:
   vet45_shared_application: ^1.0.0
   vet45_shared_infrastructure: ^0.0.1
   vet45_iam_application: ^1.0.0
+  vet45_iam_infrastructure: ^1.0.0
   vet45_iam_presentation: ^1.0.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^6.0.0
+  vet45_shared_testing: ^0.0.1
 
 flutter:
   uses-material-design: true
