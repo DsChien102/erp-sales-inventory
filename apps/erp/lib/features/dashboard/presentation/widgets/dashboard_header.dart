@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:vet45_iam_presentation/presentation.dart';
 import 'package:vet45_design_system/design_system.dart';
 
 class DashboardHeader extends StatelessWidget {
@@ -16,7 +17,7 @@ class DashboardHeader extends StatelessWidget {
           userName: 'Lan',
           branchName: 'Thú y Minh Phát · CN Biên Hoà',
           hasNotification: true,
-          onBranchTap: () {},
+          onBranchTap: () => showSelectOrganizationBottomSheet(context: context),
           onNotificationTap: () {},
           searchBar: const VSearchBar(
             variant: VSearchBarVariant.header,
