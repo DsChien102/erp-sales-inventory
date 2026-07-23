@@ -20,6 +20,13 @@ class AuditLogItemUiModel {
   final String beforeState;
   final String afterState;
   final VIcons icon;
+  final String? category;
+  final String? targetSubjectLabel;
+  final String? targetSubjectValue;
+  final String? targetDetailLabel;
+  final String? targetDetailValue;
+  final String? changeSectionTitle;
+  final bool isActorUnavailable;
 
   const AuditLogItemUiModel({
     required this.id,
@@ -37,5 +44,12 @@ class AuditLogItemUiModel {
     required this.beforeState,
     required this.afterState,
     required this.icon,
+    this.category,
+    this.targetSubjectLabel,
+    this.targetSubjectValue,
+    this.targetDetailLabel,
+    this.targetDetailValue,
+    this.changeSectionTitle,
+    this.isActorUnavailable = false,
   });
 }

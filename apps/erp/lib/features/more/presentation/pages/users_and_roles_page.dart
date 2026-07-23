@@ -126,6 +126,8 @@ class UsersAndRolesPage extends StatelessWidget {
                   context.push('/more/users');
                 } else if (menuItems[i].title == 'Vai trò') {
                   context.push('/more/roles');
+                } else if (menuItems[i].title == 'Lịch sử quản trị') {
+                  context.push('/more/audit-logs');
                 } else {
                   _showNotice(context, menuItems[i].title);
                 }

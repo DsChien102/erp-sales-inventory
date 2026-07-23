@@ -202,6 +202,21 @@ final appRouter = GoRouter(
       },
     ),
     GoRoute(
+      path: '/more/audit-logs',
+      name: 'more.audit-logs',
+      builder: (context, state) => const OrganizationAuditLogsPage(),
+    ),
+    GoRoute(
+      path: '/more/audit-logs/detail',
+      name: 'more.audit-logs.detail',
+      builder: (context, state) {
+        final log = state.extra as AuditLogItemUiModel?;
+        return AuditLogDetailPage(
+          log: log ?? FakeAuditLogsData.sampleAuditLogs[0],
+        );
+      },
+    ),
+    GoRoute(
       path: '/more/organization-profile',
       name: 'more.organization-profile',
       builder: (context, state) => const OrganizationProfilePage(),

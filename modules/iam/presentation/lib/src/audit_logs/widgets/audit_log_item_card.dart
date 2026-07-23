@@ -36,7 +36,7 @@ class AuditLogItemCard extends StatelessWidget {
         children: [
           VIcon(
             icon: log.icon,
-            size: 24,
+            size: 20,
             color: iconColor,
           ),
           const VGap.horizontalMd(),

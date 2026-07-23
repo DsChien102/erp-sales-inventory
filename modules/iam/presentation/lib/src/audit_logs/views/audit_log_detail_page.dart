@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:vet45_design_system/design_system.dart';
 import '../models/audit_log_ui_model.dart';
 
-/// Trang Chi tiết nhật ký đặc quyền (PA-D-03 — Chi tiết nhật ký đặc quyền).
+/// Trang Chi tiết nhật ký đặc quyền (TA-D-02, TA-D-03, TA-D-04).
 class AuditLogDetailPage extends StatelessWidget {
   final AuditLogItemUiModel log;
   final VoidCallback? onBackPressed;
@@ -26,18 +26,23 @@ class AuditLogDetailPage extends StatelessWidget {
     final colors = context.vColors;
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         VText(
           label,
           variant: VTextVariant.bodyDefault,
           color: colors.textSecondary,
         ),
-        VText(
-          value,
-          variant: VTextVariant.bodyDefault,
-          style: TextStyle(
-            fontWeight: FontWeight.w700,
-            color: colors.textPrimary,
+        const SizedBox(width: 16),
+        Flexible(
+          child: VText(
+            value,
+            variant: VTextVariant.bodyDefault,
+            textAlign: TextAlign.right,
+            style: TextStyle(
+              fontWeight: FontWeight.w700,
+              color: colors.textPrimary,
+            ),
           ),
         ),
       ],
@@ -51,27 +56,40 @@ class AuditLogDetailPage extends StatelessWidget {
     Color badgeBg;
     Color badgeFg;
     if (log.status == AuditLogStatus.success) {
-      badgeBg = colors.success.withValues(alpha: 0.12);
+      badgeBg = colors.successBg;
       badgeFg = colors.success;
     } else if (log.status == AuditLogStatus.blocked) {
-      badgeBg = colors.warning.withValues(alpha: 0.12);
+      badgeBg = colors.warningBg;
       badgeFg = colors.warning;
     } else {
-      badgeBg = colors.danger.withValues(alpha: 0.12);
+      badgeBg = colors.dangerBg;
       badgeFg = colors.danger;
     }
 
+    final subjectLabel = log.targetSubjectLabel ?? 'Tổ chức';
+    final subjectValue = log.targetSubjectValue ?? log.targetOrg;
+    final detailLabel = log.targetDetailLabel ?? 'Mã tổ chức';
+    final detailValue = log.targetDetailValue ?? log.targetOrgCode;
+
     return Scaffold(
-      backgroundColor: colors.background,
-      appBar: VAppBar(
-        title: 'Chi tiết hoạt động',
-        showBackButton: true,
+      backgroundColor: colors.surfaceAlt,
+      appBar: AppBar(
+        backgroundColor: colors.surface,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        centerTitle: false,
         leading: IconButton(
           icon: VIcon(
-            icon: VIcons.arrowLeft,
+            icon: VIcons.chevronLeft,
             color: colors.textPrimary,
           ),
           onPressed: onBackPressed ?? () => Navigator.of(context).maybePop(),
+        ),
+        titleSpacing: 0,
+        title: VText(
+          'Chi tiết hoạt động',
+          variant: VTextVariant.headingH4,
+          style: const TextStyle(fontWeight: FontWeight.w700),
         ),
       ),
       body: SingleChildScrollView(
@@ -80,27 +98,32 @@ class AuditLogDetailPage extends StatelessWidget {
           vertical: VSpacing.space4,
         ),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             // Card 1: Top Header Card
             VCard(
               backgroundColor: colors.surface,
               padding: const EdgeInsets.all(VSpacing.space4),
               child: Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  VIcon(
-                    icon: log.icon,
-                    size: 24,
-                    color: log.icon == VIcons.info ? colors.info : colors.textPrimary,
+                  Padding(
+                    padding: const EdgeInsets.only(top: 2),
+                    child: VIcon(
+                      icon: VIcons.history,
+                      size: 20,
+                      color: colors.textPrimary,
+                    ),
                   ),
-                  const VGap.horizontalMd(),
+                  const VGap.horizontalSm(),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         VText(
                           log.title,
-                          style: VTypography.bodyDefault.copyWith(
+                          variant: VTextVariant.bodyDefault,
+                          style: TextStyle(
                             fontWeight: FontWeight.w700,
                             color: colors.textPrimary,
                           ),
@@ -147,7 +170,8 @@ class AuditLogDetailPage extends StatelessWidget {
                 children: [
                   VText(
                     'Người thực hiện & ngữ cảnh',
-                    style: VTypography.bodyDefault.copyWith(
+                    variant: VTextVariant.bodyDefault,
+                    style: TextStyle(
                       fontWeight: FontWeight.w700,
                       color: colors.textPrimary,
                     ),
@@ -170,15 +194,16 @@ class AuditLogDetailPage extends StatelessWidget {
                 children: [
                   VText(
                     'Đối tượng',
-                    style: VTypography.bodyDefault.copyWith(
+                    variant: VTextVariant.bodyDefault,
+                    style: TextStyle(
                       fontWeight: FontWeight.w700,
                       color: colors.textPrimary,
                     ),
                   ),
                   const VGap.md(),
-                  _buildDetailRow(context, 'Tổ chức', log.targetOrg),
+                  _buildDetailRow(context, subjectLabel, subjectValue),
                   const VGap.sm(),
-                  _buildDetailRow(context, 'Mã tổ chức', log.targetOrgCode),
+                  _buildDetailRow(context, detailLabel, detailValue),
                 ],
               ),
             ),
@@ -193,7 +218,8 @@ class AuditLogDetailPage extends StatelessWidget {
                 children: [
                   VText(
                     'Thông tin truy vết',
-                    style: VTypography.bodyDefault.copyWith(
+                    variant: VTextVariant.bodyDefault,
+                    style: TextStyle(
                       fontWeight: FontWeight.w700,
                       color: colors.textPrimary,
                     ),
@@ -209,33 +235,61 @@ class AuditLogDetailPage extends StatelessWidget {
             ),
             const VGap.md(),
 
-            // Card 5: Dữ liệu thay đổi
-            VCard(
-              backgroundColor: colors.surface,
-              padding: const EdgeInsets.all(VSpacing.space4),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  VText(
-                    'Dữ liệu thay đổi',
-                    style: VTypography.bodyDefault.copyWith(
-                      fontWeight: FontWeight.w700,
-                      color: colors.textPrimary,
+            // Card 5: Bottom Section (Warning Banner OR Change Data Card)
+            if (log.isActorUnavailable)
+              VCard(
+                backgroundColor: colors.warningBg,
+                padding: const EdgeInsets.all(VSpacing.space4),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    VText(
+                      'Người thực hiện không còn khả dụng',
+                      variant: VTextVariant.bodyDefault,
+                      style: TextStyle(
+                        fontWeight: FontWeight.w700,
+                        color: colors.warning,
+                      ),
                     ),
-                  ),
-                  const VGap.md(),
-                  _buildDetailRow(context, 'Trước', log.beforeState),
-                  const VGap.sm(),
-                  _buildDetailRow(context, 'Sau', log.afterState),
-                  const VGap.md(),
-                  VText(
-                    'Dữ liệu nhạy cảm đã được che theo chính sách.',
-                    variant: VTextVariant.bodySmall,
-                    color: colors.textSecondary,
-                  ),
-                ],
+                    const VGap.xs(),
+                    VText(
+                      'Tên hiển thị và mã người dùng tại thời điểm phát sinh vẫn được giữ để phục vụ truy vết.',
+                      variant: VTextVariant.bodySmall,
+                      color: colors.textSecondary,
+                    ),
+                  ],
+                ),
+              )
+            else
+              VCard(
+                backgroundColor: colors.surface,
+                padding: const EdgeInsets.all(VSpacing.space4),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    VText(
+                      log.changeSectionTitle ?? 'Dữ liệu thay đổi',
+                      variant: VTextVariant.bodyDefault,
+                      style: TextStyle(
+                        fontWeight: FontWeight.w700,
+                        color: colors.textPrimary,
+                      ),
+                    ),
+                    const VGap.sm(),
+                    VText(
+                      'Trước: ${log.beforeState}',
+                      variant: VTextVariant.bodySmall,
+                      color: colors.textSecondary,
+                    ),
+                    const VGap.xs(),
+                    VText(
+                      'Sau: ${log.afterState}',
+                      variant: VTextVariant.bodySmall,
+                      color: colors.textSecondary,
+                    ),
+                  ],
+                ),
               ),
-            ),
             const VGap.xl(),
           ],
         ),
