@@ -173,13 +173,12 @@ void main() {
         await tester.pump();
         await tester.enterText('n');
         await tester.pump();
-        await tester.sendTab(); // Targets -> Actions
+        await tester.sendTab();
         await tester.pump();
         await tester.enterText('a');
         await tester.pump();
         expect(tester.terminalState, containsText('Extra args'));
         expect(tester.terminalState, containsText('Enter run'));
-        // Resolved flutter command preview (templates may leave empty tokens).
         expect(tester.terminalState, containsText('flutter'));
         await tester.enterText('--device');
         await tester.pump();
@@ -192,6 +191,33 @@ void main() {
           reason: 'Esc cancels args popup',
         );
         expect(tester.terminalState, containsText('a +args'));
+      },
+      size: const Size(100, 40),
+    );
+  });
+
+  test('key slash opens action search overlay', () async {
+    await testNocterm(
+      'action search',
+      (tester) async {
+        await tester.pumpComponent(themedShell());
+        await tester.enterText('2');
+        await tester.pump();
+        await tester.enterText('/');
+        await tester.pump();
+        expect(tester.terminalState, containsText('Search actions'));
+        expect(tester.terminalState, containsText('erp/'));
+        await tester.enterText('debug');
+        await tester.pump();
+        expect(tester.terminalState, containsText('/debug'));
+        await tester.sendEscape();
+        await tester.pump();
+        expect(
+          tester.terminalState.containsText('Search actions'),
+          isFalse,
+          reason: 'Esc closes search',
+        );
+        expect(tester.terminalState, containsText('/ search'));
       },
       size: const Size(100, 40),
     );

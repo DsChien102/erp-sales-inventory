@@ -45,6 +45,25 @@ class ActionListItem {
   final String? disabledReason;
 }
 
+/// Flat hit for vim-style `/` action search (`targetId/actionId`).
+class RunnableActionHit {
+  RunnableActionHit({
+    required this.targetId,
+    required this.actionId,
+    required this.description,
+    required this.enabled,
+    this.disabledReason,
+  });
+
+  final String targetId;
+  final String actionId;
+  final String description;
+  final bool enabled;
+  final String? disabledReason;
+
+  String get label => '$targetId/$actionId';
+}
+
 /// Wraps env services for the nocterm TUI without calling `exit`.
 class TuiServicesBridge {
   TuiServicesBridge({required EnvManifest manifest})
@@ -110,8 +129,8 @@ class TuiServicesBridge {
     final target = manifest.getTarget(targetId);
     final ctx = activeContext();
     final items = <ActionListItem>[];
-    final keys = target.actions.keys.toList()..sort();
-    for (final id in keys) {
+    // Preserve declaration order from vet45.target.json.
+    for (final id in target.actions.keys) {
       final spec = target.actions[id]!;
       final reason = actionRunner.disabledReason(
         spec: spec,
@@ -128,6 +147,56 @@ class TuiServicesBridge {
       );
     }
     return items;
+  }
+
+  /// All target/action pairs (targets sorted by id; actions in JSON order).
+  List<RunnableActionHit> allRunnableActions() {
+    final ctx = activeContext();
+    final hits = <RunnableActionHit>[];
+    final targetIds = manifest.targets.keys.toList()..sort();
+    for (final targetId in targetIds) {
+      final target = manifest.targets[targetId]!;
+      if (target.actions.isEmpty) {
+        continue;
+      }
+      for (final actionId in target.actions.keys) {
+        final spec = target.actions[actionId]!;
+        final reason = actionRunner.disabledReason(
+          spec: spec,
+          ctx: ctx,
+          targetId: targetId,
+        );
+        hits.add(
+          RunnableActionHit(
+            targetId: targetId,
+            actionId: actionId,
+            description: spec.displayDescription,
+            enabled: reason == null,
+            disabledReason: reason,
+          ),
+        );
+      }
+    }
+    return hits;
+  }
+
+  /// Substring search over target id, action id, label, and description.
+  /// Empty [query] returns [allRunnableActions].
+  List<RunnableActionHit> searchActions(String query) {
+    final all = allRunnableActions();
+    final q = query.trim().toLowerCase();
+    if (q.isEmpty) {
+      return all;
+    }
+    return all.where((hit) {
+      final hay = [
+        hit.targetId,
+        hit.actionId,
+        hit.label,
+        hit.description,
+      ].join(' ').toLowerCase();
+      return hay.contains(q);
+    }).toList();
   }
 
   /// Sync preview of the resolved command line (templates expanded, no process).
