@@ -46,13 +46,13 @@ class PriceRuleImportConfirmView extends StatelessWidget {
                       children: [
                         const VGap.md(),
                         VText(
-                          'Chỉ import các dữ liệu hợp lệ',
+                          'Chỉ nhập các dữ liệu hợp lệ',
                           variant: VTextVariant.bodySmall,
                           color: colors.textSecondary,
                         ),
                         const VGap.md(),
                         VSection(
-                          title: 'Tóm tắt import',
+                          title: 'Tóm tắt lần nhập',
                           child: VCard(
                             child: Column(
                               children: [
@@ -147,7 +147,7 @@ class PriceRuleImportConfirmView extends StatelessWidget {
                     const VGap.horizontalMd(),
                     Expanded(
                       child: VButton(
-                        label: 'Import ($importableRows dòng)',
+                        label: 'Nhập ($importableRows dòng)',
                         variant: VButtonVariant.primary,
                         fullWidth: true,
                         onPressed:

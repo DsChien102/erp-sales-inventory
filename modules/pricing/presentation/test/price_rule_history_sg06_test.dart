@@ -122,7 +122,7 @@ void main() {
         ),
       );
 
-      expect(find.text('Chi tiết activity'), findsOneWidget);
+      expect(find.text('Chi tiết hoạt động'), findsOneWidget);
       expect(
         find.text('Bạn không có quyền xem một số dữ liệu nhạy cảm.'),
         findsOneWidget,

@@ -28,7 +28,6 @@ void main() {
         findsOneWidget,
       );
       expect(find.text('Tổng dòng'), findsOneWidget);
-      expect(find.text('Kiểm tra nhanh'), findsOneWidget);
       expect(find.textContaining('Dữ liệu hợp lệ'), findsOneWidget);
     },
   );
@@ -108,8 +107,8 @@ void main() {
       ),
     );
 
-    expect(find.text('Import (2 dòng)'), findsOneWidget);
-    expect(_button(tester, 'Import (2 dòng)').onPressed, isNull);
+    expect(find.text('Nhập (2 dòng)'), findsOneWidget);
+    expect(_button(tester, 'Nhập (2 dòng)').onPressed, isNull);
     expect(find.text('Cập nhật giá nhớ hiện tại'), findsOneWidget);
     expect(find.text('Bỏ qua, giữ nguyên giá hiện tại'), findsOneWidget);
     expect(find.text('Chỉ cập nhật rule đã có'), findsOneWidget);
@@ -123,7 +122,7 @@ void main() {
         ),
       ),
     );
-    expect(_button(tester, 'Import (2 dòng)').onPressed, isNotNull);
+    expect(_button(tester, 'Nhập (2 dòng)').onPressed, isNotNull);
   });
 
   testWidgets('result shows partial outcome and review links', (tester) async {
@@ -143,9 +142,9 @@ void main() {
       ),
     );
 
-    expect(find.text('Import một phần'), findsOneWidget);
+    expect(find.text('Nhập một phần'), findsOneWidget);
     expect(find.textContaining('Dữ liệu hợp lệ'), findsOneWidget);
-    expect(find.textContaining('Cảnh báo'), findsOneWidget);
+    expect(find.textContaining('Cảnh báo'), findsWidgets);
     expect(find.textContaining('Lỗi'), findsWidgets);
   });
 
@@ -161,7 +160,7 @@ void main() {
       ),
     );
 
-    expect(find.text('Không có quyền import'), findsOneWidget);
+    expect(find.text('Không có quyền nhập'), findsOneWidget);
   });
 
   testWidgets('wizard explains file-level errors in Vietnamese', (
@@ -300,59 +299,6 @@ void main() {
     },
   );
 
-  testWidgets(
-    'quick check treats different units of same product as non-duplicates',
-    (tester) async {
-      final cubit = _cubit();
-      addTearDown(cubit.close);
-      final rows = [
-        CustomerPriceRuleImportRowPreviewDto(
-          id: 'row-1',
-          rowNumber: 2,
-          ruleId: null,
-          customerId: '00000000-0000-4000-8000-000000000001',
-          productId: '00000000-0000-4000-8000-000000000101',
-          productUnitId: '00000000-0000-4000-8000-000000000201',
-          price: '100000',
-          effectiveFrom: null,
-          effectiveTo: null,
-          note: null,
-          status: CustomerPriceRuleImportRowStatus.valid,
-          action: CustomerPriceRuleImportAction.create,
-          errorCodes: const [],
-          warningCodes: const [],
-        ),
-        CustomerPriceRuleImportRowPreviewDto(
-          id: 'row-2',
-          rowNumber: 3,
-          ruleId: null,
-          customerId: '00000000-0000-4000-8000-000000000001',
-          productId: '00000000-0000-4000-8000-000000000101',
-          productUnitId: '00000000-0000-4000-8000-000000000202',
-          price: '200000',
-          effectiveFrom: null,
-          effectiveTo: null,
-          note: null,
-          status: CustomerPriceRuleImportRowStatus.valid,
-          action: CustomerPriceRuleImportAction.create,
-          errorCodes: const [],
-          warningCodes: const [],
-        ),
-      ];
-
-      await tester.pumpWidget(
-        _host(
-          PriceRuleImportPreviewView(
-            cubit: cubit,
-            importDetail: _detail(validRows: 2, warningRows: 0, errorRows: 0),
-            rows: rows,
-          ),
-        ),
-      );
-
-      expect(find.textContaining('Trùng rule trong file: 0 dòng'), findsOneWidget);
-    },
-  );
 }
 
 Widget _host(Widget child) => MaterialApp(home: Scaffold(body: child));

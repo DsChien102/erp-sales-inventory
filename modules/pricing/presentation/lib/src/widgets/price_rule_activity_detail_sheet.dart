@@ -30,7 +30,7 @@ class PriceRuleActivityDetailSheet extends StatelessWidget {
   }) {
     return showVBottomSheet(
       context: context,
-      semanticLabel: 'Chi tiết activity giá riêng',
+      semanticLabel: 'Chi tiết hoạt động giá riêng',
       child: PriceRuleActivityDetailSheet(
         activity: activity,
         hasSensitivePermission: hasSensitivePermission,
@@ -77,7 +77,7 @@ class PriceRuleActivityDetailSheet extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   VText(
-                    'Chi tiết activity',
+                    'Chi tiết hoạt động',
                     variant: VTextVariant.headingH4,
                     style: const TextStyle(fontWeight: FontWeight.w700),
                     color: colors.textPrimary,
@@ -447,8 +447,8 @@ String _activityLabel(CustomerPriceRuleActivityType type) => switch (type) {
   CustomerPriceRuleActivityType.disabled => 'Tắt giá riêng',
   CustomerPriceRuleActivityType.reenabled => 'Bật lại giá riêng',
   CustomerPriceRuleActivityType.deleted => 'Xóa giá riêng',
-  CustomerPriceRuleActivityType.importCreated => 'Tạo từ import',
-  CustomerPriceRuleActivityType.importUpdated => 'Cập nhật từ import',
+  CustomerPriceRuleActivityType.importCreated => 'Tạo từ nhập Excel',
+  CustomerPriceRuleActivityType.importUpdated => 'Cập nhật từ nhập Excel',
   CustomerPriceRuleActivityType.memoryCreated => 'Ghi nhận nhớ giá',
   CustomerPriceRuleActivityType.memoryUpdated => 'Cập nhật giá nhớ',
 };

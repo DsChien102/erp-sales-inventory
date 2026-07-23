@@ -14,6 +14,9 @@ class PriceRuleImportChooseFileView extends StatelessWidget {
     this.selectedFileName,
     this.selectedFileSizeBytes,
     this.isDownloadingTemplate = false,
+    this.accessDenied = false,
+    this.isFileInvalid = false,
+    this.isDragOver = false,
   });
 
   final VoidCallback? onPickFile;
@@ -24,10 +27,47 @@ class PriceRuleImportChooseFileView extends StatelessWidget {
   final int? selectedFileSizeBytes;
   final bool isDownloadingTemplate;
 
+  /// Chặn quyền — drop zone + actions disabled.
+  final bool accessDenied;
+
+  /// File đã chọn/thả nhưng không hợp lệ (định dạng / đọc lỗi).
+  final bool isFileInvalid;
+
+  /// Đang kéo file vào vùng thả (highlight visual).
+  final bool isDragOver;
+
+  VFileDropZoneState get _dropZoneState {
+    if (accessDenied) return VFileDropZoneState.disabled;
+    if (isDragOver) return VFileDropZoneState.valid;
+    if (isFileInvalid && selectedFileName == null) {
+      return VFileDropZoneState.invalid;
+    }
+    return VFileDropZoneState.empty;
+  }
+
   @override
   Widget build(BuildContext context) {
+    final hasSelectedFile = selectedFileName != null;
+    final canContinue = !accessDenied && hasSelectedFile && !isFileInvalid;
+    final interactive = !accessDenied;
+    final dropState = _dropZoneState;
     final colors = context.vColors;
-    final hasFile = selectedFileName != null;
+
+    final dropTitle = switch (dropState) {
+      VFileDropZoneState.disabled => 'Không có quyền nhập',
+      VFileDropZoneState.invalid => 'File không hợp lệ',
+      VFileDropZoneState.valid when isDragOver => 'Thả file để nhập',
+      _ => 'Kéo & thả file vào đây',
+    };
+
+    final dropSubtitle = switch (dropState) {
+      VFileDropZoneState.disabled =>
+        'Liên hệ quản trị viên nếu cần truy cập',
+      VFileDropZoneState.invalid =>
+        'Chỉ nhận file .xlsx đúng mẫu',
+      VFileDropZoneState.valid when isDragOver => 'Chỉ nhận file .xlsx',
+      _ => 'hoặc',
+    };
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -39,104 +79,55 @@ class PriceRuleImportChooseFileView extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   const VGap.md(),
-                  VCard(
-                    onTap: onPickFile,
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const VGap.lg(),
-                        VIcon(
-                          icon: VIcons.cloud,
-                          size: VSpacing.space10,
-                          color: colors.primary,
-                        ),
-                        const VGap.sm(),
-                        const VText(
-                          'Kéo & thả file vào đây',
-                          variant: VTextVariant.bodyDefault,
-                        ),
-                        const VGap.xs(),
-                        VText(
-                          'hoặc chọn file .xlsx từ thiết bị',
-                          variant: VTextVariant.bodySmall,
-                          color: colors.textMuted,
-                        ),
-                        const VGap.lg(),
-                      ],
-                    ),
-                  ),
-                  if (hasFile) ...[
-                    const VGap.md(),
-                    VCard(
-                      child: Row(
-                        children: [
-                          VIcon(icon: VIcons.receipt, color: colors.primary),
-                          const VGap.horizontalSm(),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                VText(
-                                  selectedFileName!,
-                                  variant: VTextVariant.bodySmall,
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                                if (selectedFileSizeBytes != null)
-                                  VText(
-                                    _formatFileSize(selectedFileSizeBytes!),
-                                    variant: VTextVariant.caption,
-                                    color: colors.textMuted,
-                                  ),
-                              ],
-                            ),
+                  VFileDropZone(
+                    state: dropState,
+                    title: dropTitle,
+                    subtitle: dropSubtitle,
+                    action: dropState == VFileDropZoneState.disabled
+                        ? null
+                        : VButton(
+                            label: 'Chọn file từ thiết bị',
+                            variant: VButtonVariant.outline,
+                            size: VButtonSize.small,
+                            onPressed: interactive ? onPickFile : null,
                           ),
-                          if (onClearFile != null)
-                            VIconBox(
-                              icon: VIcons.close,
-                              size: VSpacing.space8,
-                              iconSize: VSpacing.space4,
-                              isCircular: true,
-                              tone: VComponentTone.neutral,
-                              onTap: onClearFile,
-                            ),
-                        ],
-                      ),
+                  ),
+                  if (hasSelectedFile) ...[
+                    const VGap.md(),
+                    _SelectedFileCard(
+                      fileName: selectedFileName!,
+                      sizeLabel: selectedFileSizeBytes != null
+                          ? _formatFileSize(selectedFileSizeBytes!)
+                          : null,
+                      isInvalid: isFileInvalid,
+                      onClear: interactive ? onClearFile : null,
                     ),
                   ],
                   const VGap.md(),
-                  VButton(
-                    label: hasFile ? 'Chọn file khác' : 'Chọn file từ thiết bị',
-                    variant: hasFile
-                        ? VButtonVariant.secondary
-                        : VButtonVariant.primary,
-                    fullWidth: true,
-                    onPressed: onPickFile,
-                  ),
-                  const VGap.sm(),
-                  VButton(
-                    label: 'Tải file mẫu import giá riêng',
-                    variant: VButtonVariant.ghost,
-                    fullWidth: true,
-                    onPressed: onDownloadTemplate,
-                    isLoading: isDownloadingTemplate,
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: _DownloadTemplateLink(
+                      onPressed: interactive ? onDownloadTemplate : null,
+                      isLoading: isDownloadingTemplate,
+                      color: colors.primary,
+                    ),
                   ),
                   const VGap.lg(),
-                  const VSection(
-                    title: 'Lưu ý trước khi import',
-                    child: VCard(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          PriceRuleImportBullet(
-                            'File định dạng .xlsx, một rule mỗi dòng',
-                          ),
-                          PriceRuleImportBullet('Giá phải lớn hơn 0'),
-                          PriceRuleImportBullet(
-                            'Dòng lỗi sẽ bị bỏ qua; rule active trùng không bị ghi đè',
-                          ),
-                        ],
-                      ),
+                  const VBanner(
+                    status: VBannerStatus.success,
+                    title: 'Lưu ý trước khi nhập',
+                    footer: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        PriceRuleImportBullet(
+                          'File phải dùng định dạng mẫu (.xlsx)',
+                        ),
+                        PriceRuleImportBullet(
+                          'Mỗi dòng là 1 rule: Khách hàng x Sản phẩm x Đơn vị',
+                        ),
+                        PriceRuleImportBullet('Giá nhập phải >= 0'),
+                        PriceRuleImportBullet('Hệ thống sẽ bỏ qua dòng lỗi'),
+                      ],
                     ),
                   ),
                 ],
@@ -151,7 +142,7 @@ class PriceRuleImportChooseFileView extends StatelessWidget {
             label: 'Tiếp tục',
             variant: VButtonVariant.primary,
             fullWidth: true,
-            onPressed: hasFile ? onContinue : null,
+            onPressed: canContinue ? onContinue : null,
           ),
         ),
       ],
@@ -163,5 +154,131 @@ class PriceRuleImportChooseFileView extends StatelessWidget {
     final kb = bytes / 1024;
     if (kb < 1024) return '${kb.toStringAsFixed(1)} KB';
     return '${(kb / 1024).toStringAsFixed(1)} MB';
+  }
+}
+
+class _SelectedFileCard extends StatelessWidget {
+  const _SelectedFileCard({
+    required this.fileName,
+    this.sizeLabel,
+    this.isInvalid = false,
+    this.onClear,
+  });
+
+  final String fileName;
+  final String? sizeLabel;
+  final bool isInvalid;
+  final VoidCallback? onClear;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.vColors;
+    final meta = [
+      if (sizeLabel != null) sizeLabel!,
+      if (isInvalid) 'File không hợp lệ',
+    ].join(' · ');
+
+    return VCard(
+      child: Row(
+        children: [
+          VIcon(
+            icon: VIcons.fileSpreadsheet,
+            size: VSpacing.space8,
+            color: isInvalid ? colors.danger : colors.success,
+          ),
+          const VGap.horizontalMd(),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                VText(
+                  fileName,
+                  variant: VTextVariant.bodyDefault,
+                  style: const TextStyle(fontWeight: FontWeight.w600),
+                  color: isInvalid ? colors.danger : null,
+                ),
+                if (meta.isNotEmpty) ...[
+                  const VGap.xs(),
+                  VText(
+                    meta,
+                    variant: VTextVariant.bodySmall,
+                    color: isInvalid ? colors.danger : colors.textSecondary,
+                  ),
+                ],
+              ],
+            ),
+          ),
+          if (onClear != null)
+            InkWell(
+              onTap: onClear,
+              borderRadius: BorderRadius.circular(VRadius.r8),
+              child: Padding(
+                padding: const EdgeInsets.all(VSpacing.space1),
+                child: VIcon(
+                  icon: VIcons.delete,
+                  size: VSpacing.space5,
+                  color: colors.textMuted,
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+class _DownloadTemplateLink extends StatelessWidget {
+  const _DownloadTemplateLink({
+    required this.onPressed,
+    required this.color,
+    this.isLoading = false,
+  });
+
+  final VoidCallback? onPressed;
+  final Color color;
+  final bool isLoading;
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: isLoading ? null : onPressed,
+      borderRadius: BorderRadius.circular(VRadius.r8),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(
+          horizontal: VSpacing.space1,
+          vertical: VSpacing.space1,
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (isLoading)
+              SizedBox(
+                width: VSpacing.space4,
+                height: VSpacing.space4,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  color: color,
+                ),
+              )
+            else
+              VIcon(
+                icon: VIcons.download,
+                size: VSpacing.space4,
+                color: onPressed == null
+                    ? context.vColors.disabledFg
+                    : color,
+              ),
+            const VGap.horizontalXs(),
+            VText(
+              'Tải file mẫu nhập giá riêng',
+              variant: VTextVariant.bodySmall,
+              color: onPressed == null
+                  ? context.vColors.disabledFg
+                  : color,
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }

@@ -24,8 +24,8 @@ abstract final class PriceRuleHistoryShared {
         CustomerPriceRuleActivityType.disabled => 'Tắt giá riêng',
         CustomerPriceRuleActivityType.reenabled => 'Bật lại giá riêng',
         CustomerPriceRuleActivityType.deleted => 'Xóa giá riêng',
-        CustomerPriceRuleActivityType.importCreated => 'Tạo từ import',
-        CustomerPriceRuleActivityType.importUpdated => 'Cập nhật từ import',
+        CustomerPriceRuleActivityType.importCreated => 'Tạo từ nhập Excel',
+        CustomerPriceRuleActivityType.importUpdated => 'Cập nhật từ nhập Excel',
         CustomerPriceRuleActivityType.memoryCreated => 'Ghi nhận nhớ giá',
         CustomerPriceRuleActivityType.memoryUpdated => 'Cập nhật giá nhớ',
       };

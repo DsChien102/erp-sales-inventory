@@ -21,6 +21,11 @@ class PriceRuleImportWizard extends StatelessWidget {
     this.onFinish,
     this.onBackToChooseFile,
     this.isDownloadingTemplate = false,
+    this.isDragOver = false,
+    this.isFileInvalid = false,
+    this.invalidFileName,
+    this.onDownloadLog,
+    this.isDownloadingLog = false,
   });
 
   final PriceRuleImportCubit cubit;
@@ -32,16 +37,17 @@ class PriceRuleImportWizard extends StatelessWidget {
   final VoidCallback? onFinish;
   final VoidCallback? onBackToChooseFile;
   final bool isDownloadingTemplate;
+  final bool isDragOver;
+  final bool isFileInvalid;
+  final String? invalidFileName;
+  final VoidCallback? onDownloadLog;
+  final bool isDownloadingLog;
 
   @override
   Widget build(BuildContext context) {
     return switch (state) {
-      PriceRuleImportNoPermission() => const VEmptyState(
-        icon: VIcons.ban,
-        title: 'Không có quyền import',
-        description:
-            'Bạn không có quyền nhập giá riêng từ Excel. '
-            'Liên hệ quản trị viên nếu cần truy cập.',
+      PriceRuleImportNoPermission() => const PriceRuleImportChooseFileView(
+        accessDenied: true,
       ),
       PriceRuleImportLoading(:final message) => Center(
         child: Column(
@@ -66,12 +72,18 @@ class PriceRuleImportWizard extends StatelessWidget {
         onContinue: onContinue,
         onClearFile: onClearFile,
         isDownloadingTemplate: isDownloadingTemplate,
-        selectedFileName: state is PriceRuleImportFileSelected
-            ? (state as PriceRuleImportFileSelected).fileName
-            : null,
-        selectedFileSizeBytes: state is PriceRuleImportFileSelected
-            ? (state as PriceRuleImportFileSelected).fileSizeBytes
-            : null,
+        isDragOver: isDragOver,
+        isFileInvalid: isFileInvalid,
+        selectedFileName: isFileInvalid
+            ? invalidFileName
+            : state is PriceRuleImportFileSelected
+                ? (state as PriceRuleImportFileSelected).fileName
+                : null,
+        selectedFileSizeBytes: isFileInvalid
+            ? null
+            : state is PriceRuleImportFileSelected
+                ? (state as PriceRuleImportFileSelected).fileSizeBytes
+                : null,
       ),
       PriceRuleImportPreview(
         :final importDetail,
@@ -105,6 +117,8 @@ class PriceRuleImportWizard extends StatelessWidget {
           result: result,
           outcome: outcome,
           onFinish: onFinish,
+          onDownloadLog: onDownloadLog,
+          isDownloadingLog: isDownloadingLog,
           onViewValid: () => cubit.reopenPreviewFromResult(
             tab: PriceRuleImportPreviewTab.valid,
           ),
@@ -126,7 +140,7 @@ class PriceRuleImportWizard extends StatelessWidget {
   }
 
   String _errorMessage(String code) => switch (code) {
-    'NO_PERMISSION' => 'Bạn không có quyền import giá riêng.',
+    'NO_PERMISSION' => 'Bạn không có quyền nhập giá riêng.',
     'SYSTEM_ERROR' => 'Lỗi hệ thống. Vui lòng thử lại.',
     'TEMPLATE_VERSION_UNSUPPORTED' =>
       'Phiên bản file mẫu không được hỗ trợ. Vui lòng tải lại file mẫu mới nhất.',
@@ -134,14 +148,14 @@ class PriceRuleImportWizard extends StatelessWidget {
       'Các cột tiêu đề không đúng file mẫu. Vui lòng dùng file mẫu mới nhất.',
     'TEMPLATE_SHEET_INVALID' =>
       'Không tìm thấy sheet dữ liệu đúng định dạng trong file.',
-    'EMPTY_FILE' => 'File không có dòng dữ liệu để import.',
+    'EMPTY_FILE' => 'File không có dòng dữ liệu để nhập.',
     'FORMULA_NOT_SUPPORTED' =>
-      'File có ô công thức. Vui lòng chuyển công thức thành giá trị trước khi import.',
+      'File có ô công thức. Vui lòng chuyển công thức thành giá trị trước khi nhập.',
     'UNSUPPORTED_FILE_TYPE' => 'File không đúng định dạng .xlsx.',
     'ROW_LIMIT_EXCEEDED' => 'File vượt quá số dòng cho phép.',
     'ARCHIVE_LIMIT_EXCEEDED' =>
-      'File Excel quá lớn hoặc có cấu trúc archive không hợp lệ.',
-    'IMPORT_FILE_INVALID' => 'File import không hợp lệ.',
+      'File Excel quá lớn hoặc có cấu trúc tệp nén không hợp lệ.',
+    'IMPORT_FILE_INVALID' => 'File nhập không hợp lệ.',
     _ => 'Đã có lỗi: $code',
   };
 }

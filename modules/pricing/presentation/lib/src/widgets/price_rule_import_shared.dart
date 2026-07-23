@@ -61,7 +61,9 @@ abstract final class PriceRuleImportRowLabels {
       '—';
 
   static String unit(CustomerPriceRuleImportRowPreviewDto row) =>
-      _snap(row.unitSnapshot, const ['unitName', 'unit_name', 'name']) ?? '—';
+      _snap(row.unitSnapshot, const ['unitName', 'unit_name', 'name']) ??
+      row.productUnitId ??
+      '—';
 
   static String unitKind(CustomerPriceRuleImportRowPreviewDto row) =>
       row.unitSnapshot?['is_base_unit'] == true

@@ -205,4 +205,15 @@ final class _FakePricingImportFileService implements PricingImportFileService {
     savedTemplate = template;
     return saveResult;
   }
+
+  @override
+  Future<bool> saveImportLog({
+    required String fileName,
+    required Uint8List bytes,
+  }) async => saveResult;
+
+  @override
+  Uint8List buildImportLogXlsx({
+    required List<CustomerPriceRuleImportRowPreviewDto> rows,
+  }) => Uint8List.fromList(const [0x50, 0x4B]);
 }

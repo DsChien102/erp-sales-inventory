@@ -32,6 +32,28 @@ final class PriceRuleImportCubit extends Cubit<PriceRuleImportState> {
   bool get hasCancelableBatch => _hasCancelableBatch;
   PriceRuleImportPendingFile? get pendingFile => _pendingFile;
   CustomerPriceRuleImportMode get importMode => _importMode;
+  String? get currentImportId => _importId;
+  List<CustomerPriceRuleImportRowPreviewDto>? get lastPreviewRows =>
+      _lastPreview?.rows;
+
+  /// Tải lại toàn bộ dòng (sau confirm) để xuất log `.xlsx`.
+  Future<List<CustomerPriceRuleImportRowPreviewDto>> loadRowsForImportLog() async {
+    final id = _importId;
+    if (id == null) return lastPreviewRows ?? const [];
+    try {
+      final tenantId = await _executionContext.requireTenantId();
+      final detail = await _pricingModule.executeQueryAsync(
+        GetCustomerPriceRuleImportQuery(
+          tenantId: tenantId,
+          importId: id,
+          limit: 5000,
+        ),
+      );
+      return detail.rows.items;
+    } catch (_) {
+      return lastPreviewRows ?? const [];
+    }
+  }
 
   /// SC-07: Probe quyền import khi mở màn (qua template query).
   Future<void> checkAccess() async {
@@ -337,7 +359,7 @@ final class PriceRuleImportCubit extends Cubit<PriceRuleImportState> {
     emit(
       const PriceRuleImportLoading(
         step: PriceRuleImportStep.result,
-        message: 'Đang import...',
+        message: 'Đang nhập dữ liệu...',
       ),
     );
 

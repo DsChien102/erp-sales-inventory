@@ -8,6 +8,8 @@ import 'price_rule_import_issue_detail_sheet.dart';
 import 'price_rule_import_shared.dart';
 
 /// SG-04 — Preview dòng import trước khi xác nhận (khớp design Kiểm tra).
+///
+/// Header (mô tả + chip thống kê + tab) cố định; chỉ danh sách/bảng trong tab cuộn.
 class PriceRuleImportPreviewView extends StatefulWidget {
   const PriceRuleImportPreviewView({
     super.key,
@@ -57,11 +59,12 @@ class _PriceRuleImportPreviewViewState
       children: [
         Expanded(
           child: VPagePadding(
-            child: ListView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 VText(
                   widget.readOnly
-                      ? 'Xem lại dữ liệu đã kiểm tra trước khi import.'
+                      ? 'Xem lại dữ liệu đã kiểm tra trước khi nhập.'
                       : 'Hệ thống đã kiểm tra file. Vui lòng xem kết quả.',
                   variant: VTextVariant.bodySmall,
                   color: colors.textSecondary,
@@ -108,12 +111,11 @@ class _PriceRuleImportPreviewViewState
                   ),
                 ),
                 const VGap.md(),
-                if (_tab == PriceRuleImportPreviewTab.valid)
-                  _ValidRowsTable(rows: _filteredRows)
-                else
-                  _IssueRowsList(rows: _filteredRows),
-                const VGap.lg(),
-                _QuickCheckSection(rows: widget.rows),
+                Expanded(
+                  child: _tab == PriceRuleImportPreviewTab.valid
+                      ? _ValidRowsTable(rows: _filteredRows)
+                      : _IssueRowsList(rows: _filteredRows),
+                ),
               ],
             ),
           ),
@@ -160,6 +162,8 @@ class _ValidRowsTable extends StatelessWidget {
 
   final List<CustomerPriceRuleImportRowPreviewDto> rows;
 
+  static const _columnFlex = [1.4, 1.2, 0.8, 0.9];
+
   @override
   Widget build(BuildContext context) {
     if (rows.isEmpty) {
@@ -170,56 +174,78 @@ class _ValidRowsTable extends StatelessWidget {
       );
     }
 
+    final colors = context.vColors;
+
     return VCard(
       padding: EdgeInsets.zero,
-      child: LayoutBuilder(
-        builder: (context, constraints) {
-          final minWidth = constraints.maxWidth.isFinite
-              ? constraints.maxWidth
-              : MediaQuery.sizeOf(context).width -
-                    (VPagePadding.horizontalForWidth(
-                          MediaQuery.sizeOf(context).width,
-                        ) *
-                        2);
-          return SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: ConstrainedBox(
-              constraints: BoxConstraints(minWidth: minWidth),
-              child: VTable(
-                headers: const [
-                  VTableHeader(title: 'Khách hàng'),
-                  VTableHeader(title: 'Sản phẩm'),
-                  VTableHeader(title: 'Đơn vị'),
-                  VTableHeader(title: 'Giá nhỏ', isNumeric: true),
-                ],
-                columnWidths: const {
-                  0: FlexColumnWidth(1.4),
-                  1: FlexColumnWidth(1.2),
-                  2: FlexColumnWidth(0.8),
-                  3: FlexColumnWidth(0.9),
-                },
-                rows: [
-                  for (final row in rows)
-                    [
-                      _cell(PriceRuleImportRowLabels.customer(row)),
-                      _cell(PriceRuleImportRowLabels.product(row)),
-                      _cell(
-                        '${PriceRuleImportRowLabels.unit(row)}\n'
-                        '${PriceRuleImportRowLabels.unitKind(row)}',
-                      ),
-                      Align(
-                        alignment: Alignment.centerRight,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          _ValidTableHeader(colors: colors),
+          Expanded(
+            child: ListView.separated(
+              itemCount: rows.length,
+              separatorBuilder: (_, _) => Divider(
+                height: 1,
+                thickness: 1,
+                color: colors.borderDefault,
+              ),
+              itemBuilder: (context, index) {
+                final row = rows[index];
+                return Padding(
+                  padding: const EdgeInsets.symmetric(
+                    vertical: VSpacing.space3,
+                    horizontal: VSpacing.space2,
+                  ),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _flexCell(
+                        flex: _columnFlex[0],
                         child: _cell(
-                          PriceRuleImportRowLabels.price(row),
-                          mono: true,
+                          PriceRuleImportRowLabels.customer(row),
+                        ),
+                      ),
+                      _flexCell(
+                        flex: _columnFlex[1],
+                        child: _cell(
+                          PriceRuleImportRowLabels.product(row),
+                        ),
+                      ),
+                      _flexCell(
+                        flex: _columnFlex[2],
+                        child: _cell(
+                          '${PriceRuleImportRowLabels.unit(row)}\n'
+                          '${PriceRuleImportRowLabels.unitKind(row)}',
+                        ),
+                      ),
+                      _flexCell(
+                        flex: _columnFlex[3],
+                        child: Align(
+                          alignment: Alignment.centerRight,
+                          child: _cell(
+                            PriceRuleImportRowLabels.price(row),
+                            mono: true,
+                          ),
                         ),
                       ),
                     ],
-                ],
-              ),
+                  ),
+                );
+              },
             ),
-          );
-        },
+          ),
+        ],
+      ),
+    );
+  }
+
+  static Widget _flexCell({required double flex, required Widget child}) {
+    return Expanded(
+      flex: (flex * 10).round(),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: VSpacing.space2),
+        child: child,
       ),
     );
   }
@@ -230,6 +256,57 @@ class _ValidRowsTable extends StatelessWidget {
       variant: mono ? VTextVariant.monoNumeric : VTextVariant.bodySmall,
       maxLines: 2,
       overflow: TextOverflow.ellipsis,
+    );
+  }
+}
+
+class _ValidTableHeader extends StatelessWidget {
+  const _ValidTableHeader({required this.colors});
+
+  final VColorScheme colors;
+
+  static const _titles = [
+    ('Khách hàng', false),
+    ('Sản phẩm', false),
+    ('Đơn vị', false),
+    ('Giá nhỏ', true),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        border: Border(
+          bottom: BorderSide(color: colors.borderStrong, width: 1.5),
+        ),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(
+          vertical: VSpacing.space3,
+          horizontal: VSpacing.space2,
+        ),
+        child: Row(
+          children: [
+            for (var i = 0; i < _titles.length; i++)
+              Expanded(
+                flex: (_ValidRowsTable._columnFlex[i] * 10).round(),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: VSpacing.space2,
+                  ),
+                  child: VText(
+                    _titles[i].$1.toUpperCase(),
+                    variant: VTextVariant.caption,
+                    color: colors.textSecondary,
+                    style: const TextStyle(fontWeight: FontWeight.w700),
+                    textAlign:
+                        _titles[i].$2 ? TextAlign.right : TextAlign.left,
+                  ),
+                ),
+              ),
+          ],
+        ),
+      ),
     );
   }
 }
@@ -249,76 +326,19 @@ class _IssueRowsList extends StatelessWidget {
       );
     }
 
-    return Column(
-      children: [
-        for (var i = 0; i < rows.length; i++) ...[
-          if (i > 0) const VGap.xs(),
-          PriceRuleImportRowTile(
-            row: rows[i],
-            onTap: () => showPriceRuleImportIssueDetailSheet(
-              context: context,
-              row: rows[i],
-            ),
+    return ListView.separated(
+      itemCount: rows.length,
+      separatorBuilder: (_, _) => const VGap.xs(),
+      itemBuilder: (context, index) {
+        final row = rows[index];
+        return PriceRuleImportRowTile(
+          row: row,
+          onTap: () => showPriceRuleImportIssueDetailSheet(
+            context: context,
+            row: row,
           ),
-        ],
-      ],
+        );
+      },
     );
-  }
-}
-
-class _QuickCheckSection extends StatelessWidget {
-  const _QuickCheckSection({required this.rows});
-
-  final List<CustomerPriceRuleImportRowPreviewDto> rows;
-
-  @override
-  Widget build(BuildContext context) {
-    final belowZero = rows
-        .where(
-          (r) =>
-              r.errorCodes.contains('INVALID_PRICE') ||
-              (r.normalizedPriceMinor != null && r.normalizedPriceMinor! <= 0),
-        )
-        .length;
-    final missingRequired = rows
-        .where(
-          (r) =>
-              r.errorCodes.contains('REFERENCE_INVALID') ||
-              ((r.customerId == null || r.customerId!.trim().isEmpty) ||
-                  (r.productId == null || r.productId!.trim().isEmpty) ||
-                  (r.productUnitId == null ||
-                      r.productUnitId!.trim().isEmpty) ||
-                  (r.price == null || r.price!.trim().isEmpty)),
-        )
-        .length;
-    final duplicateInFile = _duplicateInFileCount(rows);
-
-    return VSection(
-      title: 'Kiểm tra nhanh',
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          PriceRuleImportBullet('Giá nhỏ dưới 0: $belowZero dòng'),
-          PriceRuleImportBullet('Trùng rule trong file: $duplicateInFile dòng'),
-          PriceRuleImportBullet(
-            'Thiếu thông tin bắt buộc: $missingRequired dòng',
-          ),
-        ],
-      ),
-    );
-  }
-
-  static int _duplicateInFileCount(
-    List<CustomerPriceRuleImportRowPreviewDto> rows,
-  ) {
-    final counts = <String, int>{};
-    for (final row in rows) {
-      final key =
-          '${row.customerId ?? ''}|${row.productId ?? ''}|'
-          '${row.productUnitId ?? ''}';
-      if (key == '||') continue;
-      counts[key] = (counts[key] ?? 0) + 1;
-    }
-    return counts.values.fold<int>(0, (sum, c) => c > 1 ? sum + c : sum);
   }
 }
