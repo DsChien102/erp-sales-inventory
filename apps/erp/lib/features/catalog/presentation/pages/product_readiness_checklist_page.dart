@@ -43,11 +43,17 @@ class ProductReadinessChecklistPage extends StatelessWidget {
       body: ProductReadinessChecklistBody(
         readinessView: readinessView,
         onActionTap: (actionId) {
+          // Chỉ chặn các mục phụ thuộc UOM. Custom field / ảnh độc lập đơn vị cơ sở.
+          const actionsRequiringBaseUnit = {
+            'missing_stock',
+            'missing_price',
+            'missing_price_band',
+          };
           final hasMissingBaseUnit = readinessView.readinessSummary.blockers.any(
             (b) => b.code == 'missing_base_unit',
           );
 
-          if (hasMissingBaseUnit && actionId != 'missing_base_unit') {
+          if (hasMissingBaseUnit && actionsRequiringBaseUnit.contains(actionId)) {
             VToast.show(
               context,
               title: 'Yêu cầu',

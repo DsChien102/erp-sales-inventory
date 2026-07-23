@@ -143,7 +143,11 @@ Widget buildCatalogPostCreateRouter() {
         path: '/products/items/pcc/checklist',
         builder: (context, state) {
           final args = state.extra as ProductReadinessChecklistRouteArgs;
-          return ProductReadinessChecklistPage(readinessView: args.readinessView, product: args.product);
+          return ProductReadinessChecklistPage(
+            readinessView: args.readinessView,
+            product: args.product,
+            defaultCustomFieldGroupId: args.defaultCustomFieldGroupId,
+          );
         },
       ),
       GoRoute(
@@ -168,6 +172,13 @@ Widget buildCatalogPostCreateRouter() {
             product: args.product,
             basePriceCard: args.basePriceCard,
           );
+        },
+      ),
+      GoRoute(
+        path: '/products/items/pcc/custom-fields/edit',
+        builder: (context, state) {
+          final args = state.extra as ProductCustomFieldGroupEditRouteArgs;
+          return ProductCustomFieldGroupEditPage(args: args);
         },
       ),
     ],
@@ -202,7 +213,11 @@ Widget buildCatalogDiscoveryRouter() {
         path: '/products/items/pcc/checklist',
         builder: (context, state) {
           final args = state.extra as ProductReadinessChecklistRouteArgs;
-          return ProductReadinessChecklistPage(readinessView: args.readinessView, product: args.product);
+          return ProductReadinessChecklistPage(
+            readinessView: args.readinessView,
+            product: args.product,
+            defaultCustomFieldGroupId: args.defaultCustomFieldGroupId,
+          );
         },
       ),
       GoRoute(
@@ -375,7 +390,15 @@ Widget buildPccMaintenanceRouter(ProductListItemModel product) {
           return ProductReadinessChecklistPage(
             readinessView: args.readinessView,
             product: args.product,
+            defaultCustomFieldGroupId: args.defaultCustomFieldGroupId,
           );
+        },
+      ),
+      GoRoute(
+        path: '/products/items/pcc/custom-fields/edit',
+        builder: (context, state) {
+          final args = state.extra as ProductCustomFieldGroupEditRouteArgs;
+          return ProductCustomFieldGroupEditPage(args: args);
         },
       ),
       GoRoute(
