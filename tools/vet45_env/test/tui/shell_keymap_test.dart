@@ -163,4 +163,37 @@ void main() {
       size: const Size(100, 40),
     );
   });
+
+  test('key a opens extra args prompt in new session picker', () async {
+    await testNocterm(
+      'extra args prompt',
+      (tester) async {
+        await tester.pumpComponent(themedShell());
+        await tester.enterText('2');
+        await tester.pump();
+        await tester.enterText('n');
+        await tester.pump();
+        await tester.sendTab(); // Targets -> Actions
+        await tester.pump();
+        await tester.enterText('a');
+        await tester.pump();
+        expect(tester.terminalState, containsText('Extra args'));
+        expect(tester.terminalState, containsText('Enter run'));
+        // Resolved flutter command preview (templates may leave empty tokens).
+        expect(tester.terminalState, containsText('flutter'));
+        await tester.enterText('--device');
+        await tester.pump();
+        expect(tester.terminalState, containsText('--device'));
+        await tester.sendEscape();
+        await tester.pump();
+        expect(
+          tester.terminalState.containsText('Extra args'),
+          isFalse,
+          reason: 'Esc cancels args popup',
+        );
+        expect(tester.terminalState, containsText('a +args'));
+      },
+      size: const Size(100, 40),
+    );
+  });
 }

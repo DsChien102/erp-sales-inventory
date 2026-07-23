@@ -9,8 +9,10 @@ import 'panels/session_tabs.dart';
 import 'panels/session_terminal.dart';
 import 'panels/status_panel.dart';
 import 'panels/targets_panel.dart';
+import 'parse_cli_args.dart';
 import 'services_bridge.dart';
 import 'session_manager.dart';
+import 'widgets/extra_args_popup.dart';
 import 'widgets/footer_help.dart';
 import 'widgets/mode_bar.dart';
 
@@ -36,6 +38,10 @@ class Vet45TuiShellState extends State<Vet45TuiShell> {
 
   /// When true, Targets/Actions picker is shown (opened with `n`).
   bool newSessionPicker = false;
+
+  /// Prompt for additional CLI args before launching (`a` in picker).
+  bool extraArgsPrompt = false;
+  String extraArgsDraft = '';
 
   late List<String> profiles;
   late List<String> environments;
@@ -262,18 +268,35 @@ class Vet45TuiShellState extends State<Vet45TuiShell> {
   void _openNewSessionPicker() {
     _reloadRunLists();
     newSessionPicker = true;
+    extraArgsPrompt = false;
+    extraArgsDraft = '';
     runFocus = FocusPanelRun.targets;
     _appendLog(
-      'New session: pick target/action, Enter to start, Esc to cancel',
+      'New session: pick target/action, Enter to start, a + args, Esc cancel',
     );
   }
 
   void _closeNewSessionPicker({FocusPanelRun? focus}) {
     newSessionPicker = false;
+    extraArgsPrompt = false;
+    extraArgsDraft = '';
     runFocus = focus ??
         (sessions.hasSessions
             ? FocusPanelRun.terminal
             : FocusPanelRun.sessions);
+  }
+
+  void _openExtraArgsPrompt() {
+    if (busy || targets.isEmpty || actions.isEmpty) {
+      return;
+    }
+    extraArgsPrompt = true;
+    extraArgsDraft = '';
+  }
+
+  void _cancelExtraArgsPrompt() {
+    extraArgsPrompt = false;
+    extraArgsDraft = '';
   }
 
   void _cycleRunFocus({required bool forward}) {
@@ -346,7 +369,7 @@ class Vet45TuiShellState extends State<Vet45TuiShell> {
     );
   }
 
-  Future<void> _launchSelectedAction() async {
+  Future<void> _launchSelectedAction({List<String> extraArgs = const []}) async {
     if (busy || targets.isEmpty || actions.isEmpty) {
       return;
     }
@@ -360,31 +383,39 @@ class Vet45TuiShellState extends State<Vet45TuiShell> {
       });
       return;
     }
-    setState(() => busy = true);
+    setState(() {
+      busy = true;
+      extraArgsPrompt = false;
+    });
     try {
       final plan = await bridge.resolveAction(
         targetId: targets[targetCursor].id,
         actionId: action.id,
+        extraArgs: extraArgs,
       );
       setState(() {
         try {
           sessions.open(plan);
           _closeNewSessionPicker(focus: FocusPanelRun.terminal);
-          _appendLog('Started session ${plan.label}');
+          final extras = extraArgs.isEmpty ? '' : ' ${extraArgs.join(' ')}';
+          _appendLog('Started session ${plan.label}$extras');
         } on StateError catch (e) {
           _appendLog(e.message);
         }
         busy = false;
+        extraArgsDraft = '';
       });
     } on ActionLaunchException catch (e) {
       setState(() {
         _appendLog(e.message);
         busy = false;
+        extraArgsDraft = '';
       });
     } on Object catch (e) {
       setState(() {
         _appendLog('launch failed: $e');
         busy = false;
+        extraArgsDraft = '';
       });
     }
   }
@@ -411,6 +442,10 @@ class Vet45TuiShellState extends State<Vet45TuiShell> {
         return true;
       }
       return false;
+    }
+
+    if (extraArgsPrompt) {
+      return _onExtraArgsPromptKey(event);
     }
 
     if (quitConfirmPending != null) {
@@ -456,6 +491,8 @@ class Vet45TuiShellState extends State<Vet45TuiShell> {
       setState(() {
         mode = TuiMode.env;
         newSessionPicker = false;
+        extraArgsPrompt = false;
+        extraArgsDraft = '';
         quitConfirmPending = null;
       });
       return true;
@@ -464,6 +501,8 @@ class Vet45TuiShellState extends State<Vet45TuiShell> {
       setState(() {
         mode = TuiMode.run;
         newSessionPicker = false;
+        extraArgsPrompt = false;
+        extraArgsDraft = '';
         runFocus = FocusPanelRun.sessions;
         _reloadRunLists();
         quitConfirmPending = null;
@@ -699,8 +738,46 @@ class Vet45TuiShellState extends State<Vet45TuiShell> {
     return false;
   }
 
+  bool _onExtraArgsPromptKey(KeyboardEvent event) {
+    final key = event.logicalKey;
+    if (key == LogicalKey.escape) {
+      setState(_cancelExtraArgsPrompt);
+      return true;
+    }
+    if (key == LogicalKey.enter) {
+      final args = parseCliArgs(extraArgsDraft);
+      _launchSelectedAction(extraArgs: args);
+      return true;
+    }
+    if (key == LogicalKey.backspace) {
+      if (extraArgsDraft.isEmpty) {
+        return true;
+      }
+      setState(() {
+        extraArgsDraft = extraArgsDraft.substring(0, extraArgsDraft.length - 1);
+      });
+      return true;
+    }
+    final ch = event.character;
+    if (ch != null &&
+        ch.isNotEmpty &&
+        !event.isControlPressed &&
+        !event.isAltPressed &&
+        ch != '\n' &&
+        ch != '\r') {
+      setState(() => extraArgsDraft += ch);
+      return true;
+    }
+    return true;
+  }
+
   bool _onNewSessionPickerKey(KeyboardEvent event) {
     final key = event.logicalKey;
+
+    if (key == LogicalKey.escape) {
+      setState(() => _closeNewSessionPicker(focus: FocusPanelRun.sessions));
+      return true;
+    }
 
     if (event.character == 'h' || key == LogicalKey.arrowLeft) {
       if (runFocus == FocusPanelRun.actions) {
@@ -753,10 +830,15 @@ class Vet45TuiShellState extends State<Vet45TuiShell> {
     }
 
     final ch = event.character?.toLowerCase();
+    if (ch == 'a') {
+      setState(_openExtraArgsPrompt);
+      return true;
+    }
     if (ch == '?') {
       setState(() {
         _appendLog(
-          'New session: Tab/hl panels | jk select | Enter start | Esc cancel',
+          'New session: Tab/hl panels | jk select | Enter start | '
+          'a extra args | Esc cancel',
         );
       });
       return true;
@@ -771,43 +853,74 @@ class Vet45TuiShellState extends State<Vet45TuiShell> {
     final runHint = mode != TuiMode.run
         ? null
         : newSessionPicker
-            ? 'New session — Enter start  Esc cancel  Tab panels'
+            ? 'New session — Enter start  a +args  Esc cancel  Tab panels'
             : _terminalCapturesKeys
                 ? 'Terminal focus — keys → PTY  Ctrl+O leave  Ctrl+C interrupt'
                 : runFocus == FocusPanelRun.terminal
                     ? 'Terminal idle — Tab/h leave  x close  j/k sessions'
-                    : 'n new  Tab focus  jk/[ ] sessions  Enter/l terminal  x close'
-                        '  (Ctrl+O leave PTY)';
+                    : 'n new  Tab focus  jk/[ ] sessions  Enter/l terminal  '
+                        'x close  (Ctrl+O leave PTY)';
+
+    final body = Container(
+      padding: const EdgeInsets.all(1),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(
+            'vet45 TUI',
+            style: TextStyle(
+              color: theme.primary,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          ModeBar(mode: mode),
+          const SizedBox(height: 1),
+          if (mode == TuiMode.env) ..._envBody() else ..._runBody(),
+          FooterHelp(
+            busy: busy,
+            confirmPending: confirmPending,
+            hintOverride: quitConfirmPending != null
+                ? 'Quit with open sessions? [y]es / [n]o'
+                : runHint,
+          ),
+        ],
+      ),
+    );
+
+    Component content = body;
+    if (extraArgsPrompt && targets.isNotEmpty && actions.isNotEmpty) {
+      final targetId = targets[targetCursor].id;
+      final actionId = actions[actionCursor].id;
+      content = Stack(
+        fit: StackFit.expand,
+        children: [
+          body,
+          ExtraArgsPopup(
+            title: 'Extra args — $targetId/$actionId',
+            commandLine: _commandPreviewWithDraft(targetId, actionId),
+          ),
+        ],
+      );
+    }
 
     return Focusable(
       focused: !_terminalCapturesKeys,
       onKeyEvent: _onKey,
-      child: Container(
-        padding: const EdgeInsets.all(1),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Text(
-              'vet45 TUI',
-              style: TextStyle(
-                color: theme.primary,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            ModeBar(mode: mode),
-            const SizedBox(height: 1),
-            if (mode == TuiMode.env) ..._envBody() else ..._runBody(),
-            FooterHelp(
-              busy: busy,
-              confirmPending: confirmPending,
-              hintOverride: quitConfirmPending != null
-                  ? 'Quit with open sessions? [y]es / [n]o'
-                  : runHint,
-            ),
-          ],
-        ),
-      ),
+      child: content,
     );
+  }
+
+  /// Base resolved command + live draft (spaces / partial tokens).
+  String _commandPreviewWithDraft(String targetId, String actionId) {
+    final base = bridge.previewActionCommand(
+      targetId: targetId,
+      actionId: actionId,
+    );
+    final draft = extraArgsDraft;
+    if (draft.isEmpty) {
+      return base;
+    }
+    return '$base $draft';
   }
 
   /// Nocterm [Row]/[Column] + [Expanded] does not tighten the cross axis on

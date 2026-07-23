@@ -1,4 +1,5 @@
 import '../action_runner.dart';
+import '../action_spec.dart';
 import '../doctor_service.dart';
 import '../link_service.dart';
 import '../manifest.dart';
@@ -129,14 +130,51 @@ class TuiServicesBridge {
     return items;
   }
 
+  /// Sync preview of the resolved command line (templates expanded, no process).
+  String previewActionCommand({
+    required String targetId,
+    required String actionId,
+    List<String> extraArgs = const [],
+  }) {
+    final target = manifest.getTarget(targetId);
+    final spec = target.actions[actionId];
+    if (spec == null) {
+      return '$targetId/$actionId';
+    }
+    final ctx = activeContext();
+    final binding = ctx.environment.binding(targetId);
+    final template = ActionTemplate(
+      buildActionTemplateVars(
+        profileId: ctx.profileId,
+        environmentId: ctx.environment.id,
+        workspaceRoot: manifest.rootDir.path,
+        secretsFile: ctx.secretsFile.path,
+        railwayEnvironment: ctx.environment.railwayEnvironment,
+        envFile: binding?.envFile?.path,
+        bindingFields: binding?.fields ?? const {},
+      ),
+    );
+    final command = template.expand(spec.command);
+    final args = [
+      ...template.expandAll(spec.args),
+      ...extraArgs,
+    ];
+    if (args.isEmpty) {
+      return command;
+    }
+    return '$command ${args.join(' ')}';
+  }
+
   Future<ActionLaunchPlan> resolveAction({
     required String targetId,
     required String actionId,
+    List<String> extraArgs = const [],
   }) {
     return actionRunner.resolveLaunch(
       ctx: activeContext(),
       targetId: targetId,
       actionId: actionId,
+      extraArgs: extraArgs,
     );
   }
 
