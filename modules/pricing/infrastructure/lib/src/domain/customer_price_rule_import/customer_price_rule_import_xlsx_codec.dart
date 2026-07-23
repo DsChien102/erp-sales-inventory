@@ -438,6 +438,12 @@ abstract final class CustomerPriceRuleImportXlsxCodec {
       }
       return _excelDate(serial, uses1904Dates: uses1904Dates);
     }
+    final numeric = double.tryParse(value);
+    if (numeric != null &&
+        numeric.isFinite &&
+        numeric == numeric.truncateToDouble()) {
+      return numeric.toInt().toString();
+    }
     return value;
   }
 

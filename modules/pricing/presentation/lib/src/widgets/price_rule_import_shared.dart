@@ -75,8 +75,26 @@ abstract final class PriceRuleImportRowLabels {
     if (minor != null) return _formatMoney(minor);
     final raw = row.price?.trim();
     if (raw == null || raw.isEmpty) return '—';
-    final parsed = int.tryParse(raw.replaceAll(RegExp(r'[^\d]'), ''));
+    final parsed = _parseIntegerPrice(raw);
     return parsed == null ? raw : _formatMoney(parsed);
+  }
+
+  /// Mirrors SQL import price parse: VN thousands, Excel N.0/N.00, plain int.
+  static int? _parseIntegerPrice(String raw) {
+    if (RegExp(r'^\d{1,3}(\.\d{3})+$').hasMatch(raw)) {
+      return int.tryParse(raw.replaceAll('.', ''));
+    }
+    final excelFloat = RegExp(r'^(\d+)\.(0{1,2})$').firstMatch(raw);
+    if (excelFloat != null) {
+      return int.tryParse(excelFloat.group(1)!);
+    }
+    if (RegExp(r'^\d+$').hasMatch(raw)) {
+      return int.tryParse(raw);
+    }
+    if (RegExp(r'^\d{1,3}(,\d{3})+$').hasMatch(raw)) {
+      return int.tryParse(raw.replaceAll(',', ''));
+    }
+    return null;
   }
 
   static String? _snap(Map<String, dynamic>? map, List<String> keys) {

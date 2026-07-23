@@ -206,6 +206,34 @@ void main() {
       expect(result.fileErrorCodes, ['FORMULA_NOT_SUPPORTED']);
     });
 
+    test('normalizes Excel integer float cells 100000.0 to 100000', () {
+      final bytes = _replaceZipText(
+        _workbookBytes([
+          _row(
+            customerId: '00000000-0000-4000-8000-000000000001',
+            productId: '00000000-0000-4000-8000-000000000101',
+            productUnitId: '00000000-0000-4000-8000-000000000201',
+            price: '100000',
+          ),
+        ]),
+        'xl/worksheets/sheet1.xml',
+        (xml) => xml.replaceFirstMapped(
+          RegExp(r'<c r="E2"[^>]*>.*?</c>'),
+          (_) => '<c r="E2" t="n"><v>100000.0</v></c>',
+        ),
+      );
+
+      final result = adapter.parse(
+        templateVersion:
+            ExcelCustomerPriceRuleImportFileAdapter.templateVersion,
+        originalFileName: 'customer_price_rules_v1.xlsx',
+        bytes: bytes,
+      );
+
+      expect(result.isParsed, isTrue);
+      expect(result.rows.single.price, '100000');
+    });
+
     test('rejects archives above the entry-count limit', () {
       final archive = Archive();
       for (
