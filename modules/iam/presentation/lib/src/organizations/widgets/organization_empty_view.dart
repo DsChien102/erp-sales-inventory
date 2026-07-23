@@ -68,14 +68,14 @@ class OrganizationEmptyView extends StatelessWidget {
         break;
 
       case OrganizationEmptyStateType.unauthorized:
-        icon = VIcons.warning;
+        icon = VIcons.shield;
         iconBgColor = colors.warningBg;
         iconColor = colors.warning;
-        title = 'Không có quyền xem tổ chức';
+        title = 'Bạn không có quyền quản lý';
         titleColor = null;
-        description = 'Liên hệ chủ cửa hàng để được cấp quyền quản lý tổ chức nền tảng.';
+        description = 'Liên hệ Chủ tổ chức hoặc Quản trị viên để được cấp quyền phù hợp.';
         actionLabel = 'Quay lại';
-        actionTextColor = colors.primary;
+        actionTextColor = colors.success;
         break;
     }
 

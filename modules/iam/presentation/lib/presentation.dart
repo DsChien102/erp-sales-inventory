@@ -43,3 +43,14 @@ export 'src/organization_profile/views/organization_edit_profile_page.dart';
 export 'src/organization_profile/views/organization_legal_profile_form_page.dart';
 export 'src/organization_profile/widgets/organization_profile_actions_bottom_sheet.dart';
 export 'src/organization_profile/widgets/tax_code_duplicate_warning_bottom_sheet.dart';
+export 'src/testing/fake_users_data.dart';
+export 'src/users/models/user_ui_model.dart';
+export 'src/users/views/organization_users_page.dart';
+export 'src/users/views/organization_invite_member_page.dart';
+export 'src/users/views/organization_invitation_detail_page.dart';
+export 'src/users/views/organization_member_detail_page.dart';
+export 'src/users/views/organization_select_role_page.dart';
+export 'src/users/views/organization_preview_role_change_page.dart';
+export 'src/users/widgets/member_card.dart';
+export 'src/users/widgets/invitation_card.dart';
+

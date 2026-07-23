@@ -112,6 +112,81 @@ final appRouter = GoRouter(
       builder: (context, state) => const UsersAndRolesPage(),
     ),
     GoRoute(
+      path: '/more/users',
+      name: 'more.users',
+      builder: (context, state) => const OrganizationUsersPage(),
+    ),
+    GoRoute(
+      path: '/more/users/invite',
+      name: 'more.users.invite',
+      builder: (context, state) => const OrganizationInviteMemberPage(),
+    ),
+    GoRoute(
+      path: '/more/users/invitation-detail',
+      name: 'more.users.invitation-detail',
+      builder: (context, state) {
+        final invitation = state.extra as InvitationUiModel?;
+        return invitation != null
+            ? OrganizationInvitationDetailPage(invitation: invitation)
+            : const OrganizationInvitationDetailPage();
+      },
+    ),
+    GoRoute(
+      path: '/more/users/member-detail',
+      name: 'more.users.member-detail',
+      builder: (context, state) {
+        final member = state.extra as MemberUiModel?;
+        return member != null
+            ? OrganizationMemberDetailPage(member: member)
+            : const OrganizationMemberDetailPage(
+                member: MemberUiModel(
+                  id: 'm1',
+                  name: 'Nguyễn Văn Minh',
+                  email: 'minh@minhphat.vn',
+                  role: 'Nhân viên bán hàng',
+                  status: MemberStatus.active,
+                ),
+              );
+      },
+    ),
+    GoRoute(
+      path: '/more/users/select-role',
+      name: 'more.users.select-role',
+      builder: (context, state) {
+        final member = state.extra as MemberUiModel?;
+        return OrganizationSelectRolePage(
+          member: member ??
+              const MemberUiModel(
+                id: 'm1',
+                name: 'Nguyễn Văn Minh',
+                email: 'minh@minhphat.vn',
+                role: 'Nhân viên bán hàng',
+                status: MemberStatus.active,
+              ),
+        );
+      },
+    ),
+    GoRoute(
+      path: '/more/users/preview-role-change',
+      name: 'more.users.preview-role-change',
+      builder: (context, state) {
+        final extra = state.extra as Map<String, dynamic>?;
+        final member = extra?['member'] as MemberUiModel? ??
+            const MemberUiModel(
+              id: 'm1',
+              name: 'Nguyễn Văn Minh',
+              email: 'minh@minhphat.vn',
+              role: 'Nhân viên bán hàng',
+              status: MemberStatus.active,
+            );
+        final newRole = extra?['newRole'] as String? ?? 'Kế toán';
+        return OrganizationPreviewRoleChangePage(
+          member: member,
+          newRole: newRole,
+        );
+      },
+    ),
+    GoRoute(
       path: '/more/organization-profile',
       name: 'more.organization-profile',
       builder: (context, state) => const OrganizationProfilePage(),

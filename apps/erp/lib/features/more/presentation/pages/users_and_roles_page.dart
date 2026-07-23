@@ -122,6 +122,8 @@ class UsersAndRolesPage extends StatelessWidget {
               onTap: () {
                 if (menuItems[i].title == 'Hồ sơ tổ chức') {
                   context.push('/more/organization-profile');
+                } else if (menuItems[i].title == 'Người dùng') {
+                  context.push('/more/users');
                 } else {
                   _showNotice(context, menuItems[i].title);
                 }
