@@ -1,6 +1,7 @@
 import 'package:nocterm/nocterm.dart';
 
 import '../action_runner.dart';
+import 'panels/action_search_panel.dart';
 import 'panels/actions_panel.dart';
 import 'panels/environments_panel.dart';
 import 'panels/log_panel.dart';
@@ -43,6 +44,16 @@ class Vet45TuiShellState extends State<Vet45TuiShell> {
   bool extraArgsPrompt = false;
   String extraArgsDraft = '';
 
+  /// Target/action for launch or extra-args (picker or search).
+  String? pendingLaunchTargetId;
+  String? pendingLaunchActionId;
+
+  /// Vim-style `/` flat action search (parallel to `n` picker).
+  bool actionSearchOpen = false;
+  String actionSearchQuery = '';
+  int actionSearchCursor = 0;
+  List<RunnableActionHit> actionSearchHits = const [];
+
   late List<String> profiles;
   late List<String> environments;
   late String activeProfile;
@@ -69,6 +80,7 @@ class Vet45TuiShellState extends State<Vet45TuiShell> {
   final targetScroll = ScrollController();
   final actionScroll = ScrollController();
   final sessionScroll = ScrollController();
+  final actionSearchScroll = ScrollController();
 
   TuiServicesBridge get bridge => component.bridge;
 
@@ -114,6 +126,7 @@ class Vet45TuiShellState extends State<Vet45TuiShell> {
     targetScroll.dispose();
     actionScroll.dispose();
     sessionScroll.dispose();
+    actionSearchScroll.dispose();
     super.dispose();
   }
 
@@ -268,8 +281,11 @@ class Vet45TuiShellState extends State<Vet45TuiShell> {
   void _openNewSessionPicker() {
     _reloadRunLists();
     newSessionPicker = true;
+    actionSearchOpen = false;
     extraArgsPrompt = false;
     extraArgsDraft = '';
+    pendingLaunchTargetId = null;
+    pendingLaunchActionId = null;
     runFocus = FocusPanelRun.targets;
     _appendLog(
       'New session: pick target/action, Enter to start, a + args, Esc cancel',
@@ -280,16 +296,67 @@ class Vet45TuiShellState extends State<Vet45TuiShell> {
     newSessionPicker = false;
     extraArgsPrompt = false;
     extraArgsDraft = '';
+    pendingLaunchTargetId = null;
+    pendingLaunchActionId = null;
     runFocus = focus ??
         (sessions.hasSessions
             ? FocusPanelRun.terminal
             : FocusPanelRun.sessions);
   }
 
-  void _openExtraArgsPrompt() {
-    if (busy || targets.isEmpty || actions.isEmpty) {
+  void _refreshActionSearchHits() {
+    actionSearchHits = bridge.searchActions(actionSearchQuery);
+    if (actionSearchHits.isEmpty) {
+      actionSearchCursor = 0;
+    } else {
+      actionSearchCursor =
+          actionSearchCursor.clamp(0, actionSearchHits.length - 1);
+    }
+  }
+
+  void _openActionSearch() {
+    _reloadRunLists();
+    actionSearchOpen = true;
+    actionSearchQuery = '';
+    actionSearchCursor = 0;
+    newSessionPicker = false;
+    extraArgsPrompt = false;
+    extraArgsDraft = '';
+    pendingLaunchTargetId = null;
+    pendingLaunchActionId = null;
+    _refreshActionSearchHits();
+    _appendLog('Action search: type to filter, ↑↓ move, Enter run, Ctrl+A args');
+  }
+
+  void _closeActionSearch() {
+    actionSearchOpen = false;
+    actionSearchQuery = '';
+    actionSearchCursor = 0;
+    actionSearchHits = const [];
+  }
+
+  void _ensureActionSearchVisible() {
+    if (actionSearchHits.isEmpty) {
       return;
     }
+    _afterLayout(
+      () => actionSearchScroll.ensureIndexVisible(index: actionSearchCursor),
+    );
+  }
+
+  void _openExtraArgsPrompt({String? targetId, String? actionId}) {
+    if (busy) {
+      return;
+    }
+    final tid = targetId ??
+        (targets.isNotEmpty ? targets[targetCursor].id : null);
+    final aid = actionId ??
+        (actions.isNotEmpty ? actions[actionCursor].id : null);
+    if (tid == null || aid == null) {
+      return;
+    }
+    pendingLaunchTargetId = tid;
+    pendingLaunchActionId = aid;
     extraArgsPrompt = true;
     extraArgsDraft = '';
   }
@@ -297,6 +364,16 @@ class Vet45TuiShellState extends State<Vet45TuiShell> {
   void _cancelExtraArgsPrompt() {
     extraArgsPrompt = false;
     extraArgsDraft = '';
+    pendingLaunchTargetId = null;
+    pendingLaunchActionId = null;
+  }
+
+  RunnableActionHit? get _selectedSearchHit {
+    if (!actionSearchOpen || actionSearchHits.isEmpty) {
+      return null;
+    }
+    return actionSearchHits[
+        actionSearchCursor.clamp(0, actionSearchHits.length - 1)];
   }
 
   void _cycleRunFocus({required bool forward}) {
@@ -370,15 +447,31 @@ class Vet45TuiShellState extends State<Vet45TuiShell> {
   }
 
   Future<void> _launchSelectedAction({List<String> extraArgs = const []}) async {
-    if (busy || targets.isEmpty || actions.isEmpty) {
+    if (targets.isEmpty || actions.isEmpty) {
       return;
     }
-    final action = actions[actionCursor];
-    if (!action.enabled) {
+    await _launchAction(
+      targetId: targets[targetCursor].id,
+      actionId: actions[actionCursor].id,
+      extraArgs: extraArgs,
+    );
+  }
+
+  Future<void> _launchAction({
+    required String targetId,
+    required String actionId,
+    List<String> extraArgs = const [],
+  }) async {
+    if (busy) {
+      return;
+    }
+    final items = bridge.actionsFor(targetId);
+    final match = items.where((a) => a.id == actionId).firstOrNull;
+    if (match != null && !match.enabled) {
       setState(() {
         _appendLog(
-          'Cannot run ${targets[targetCursor].id}/${action.id}: '
-          '${action.disabledReason ?? 'disabled'}',
+          'Cannot run $targetId/$actionId: '
+          '${match.disabledReason ?? 'disabled'}',
         );
       });
       return;
@@ -389,14 +482,15 @@ class Vet45TuiShellState extends State<Vet45TuiShell> {
     });
     try {
       final plan = await bridge.resolveAction(
-        targetId: targets[targetCursor].id,
-        actionId: action.id,
+        targetId: targetId,
+        actionId: actionId,
         extraArgs: extraArgs,
       );
       setState(() {
         try {
           sessions.open(plan);
           _closeNewSessionPicker(focus: FocusPanelRun.terminal);
+          _closeActionSearch();
           final extras = extraArgs.isEmpty ? '' : ' ${extraArgs.join(' ')}';
           _appendLog('Started session ${plan.label}$extras');
         } on StateError catch (e) {
@@ -404,18 +498,24 @@ class Vet45TuiShellState extends State<Vet45TuiShell> {
         }
         busy = false;
         extraArgsDraft = '';
+        pendingLaunchTargetId = null;
+        pendingLaunchActionId = null;
       });
     } on ActionLaunchException catch (e) {
       setState(() {
         _appendLog(e.message);
         busy = false;
         extraArgsDraft = '';
+        pendingLaunchTargetId = null;
+        pendingLaunchActionId = null;
       });
     } on Object catch (e) {
       setState(() {
         _appendLog('launch failed: $e');
         busy = false;
         extraArgsDraft = '';
+        pendingLaunchTargetId = null;
+        pendingLaunchActionId = null;
       });
     }
   }
@@ -446,6 +546,10 @@ class Vet45TuiShellState extends State<Vet45TuiShell> {
 
     if (extraArgsPrompt) {
       return _onExtraArgsPromptKey(event);
+    }
+
+    if (actionSearchOpen) {
+      return _onActionSearchKey(event);
     }
 
     if (quitConfirmPending != null) {
@@ -491,8 +595,11 @@ class Vet45TuiShellState extends State<Vet45TuiShell> {
       setState(() {
         mode = TuiMode.env;
         newSessionPicker = false;
+        actionSearchOpen = false;
         extraArgsPrompt = false;
         extraArgsDraft = '';
+        pendingLaunchTargetId = null;
+        pendingLaunchActionId = null;
         quitConfirmPending = null;
       });
       return true;
@@ -501,8 +608,11 @@ class Vet45TuiShellState extends State<Vet45TuiShell> {
       setState(() {
         mode = TuiMode.run;
         newSessionPicker = false;
+        actionSearchOpen = false;
         extraArgsPrompt = false;
         extraArgsDraft = '';
+        pendingLaunchTargetId = null;
+        pendingLaunchActionId = null;
         runFocus = FocusPanelRun.sessions;
         _reloadRunLists();
         quitConfirmPending = null;
@@ -654,6 +764,11 @@ class Vet45TuiShellState extends State<Vet45TuiShell> {
       return true;
     }
 
+    if (ch == '/' && !newSessionPicker) {
+      setState(_openActionSearch);
+      return true;
+    }
+
     if (newSessionPicker) {
       return _onNewSessionPickerKey(event);
     }
@@ -728,14 +843,98 @@ class Vet45TuiShellState extends State<Vet45TuiShell> {
     if (ch == '?') {
       setState(() {
         _appendLog(
-          'Run: n new session | Tab focus | jk/[ ] sessions | Enter terminal | '
-          'x close | Ctrl+O leave terminal | Esc cancel picker | 1 Env',
+          'Run: n picker | / search | Tab focus | jk/[ ] sessions | '
+          'Enter terminal | x close | Ctrl+O leave terminal | 1 Env',
         );
       });
       return true;
     }
 
     return false;
+  }
+
+  bool _onActionSearchKey(KeyboardEvent event) {
+    final key = event.logicalKey;
+
+    if (key == LogicalKey.escape) {
+      setState(_closeActionSearch);
+      return true;
+    }
+
+    if (key == LogicalKey.arrowDown ||
+        (key == LogicalKey.keyJ && event.isControlPressed)) {
+      if (actionSearchHits.isEmpty) {
+        return true;
+      }
+      setState(() {
+        actionSearchCursor =
+            (actionSearchCursor + 1).clamp(0, actionSearchHits.length - 1);
+        _ensureActionSearchVisible();
+      });
+      return true;
+    }
+    if (key == LogicalKey.arrowUp ||
+        (key == LogicalKey.keyK && event.isControlPressed)) {
+      if (actionSearchHits.isEmpty) {
+        return true;
+      }
+      setState(() {
+        actionSearchCursor =
+            (actionSearchCursor - 1).clamp(0, actionSearchHits.length - 1);
+        _ensureActionSearchVisible();
+      });
+      return true;
+    }
+
+    if (key == LogicalKey.enter) {
+      final hit = _selectedSearchHit;
+      if (hit == null) {
+        return true;
+      }
+      _launchAction(targetId: hit.targetId, actionId: hit.actionId);
+      return true;
+    }
+
+    // Ctrl+A — extra args for selected hit (letters go into the query).
+    if (key == LogicalKey.keyA && event.isControlPressed) {
+      final hit = _selectedSearchHit;
+      if (hit == null) {
+        return true;
+      }
+      setState(() {
+        _openExtraArgsPrompt(targetId: hit.targetId, actionId: hit.actionId);
+      });
+      return true;
+    }
+
+    if (key == LogicalKey.backspace) {
+      if (actionSearchQuery.isEmpty) {
+        return true;
+      }
+      setState(() {
+        actionSearchQuery =
+            actionSearchQuery.substring(0, actionSearchQuery.length - 1);
+        _refreshActionSearchHits();
+        _ensureActionSearchVisible();
+      });
+      return true;
+    }
+
+    final ch = event.character;
+    if (ch != null &&
+        ch.isNotEmpty &&
+        !event.isControlPressed &&
+        !event.isAltPressed &&
+        ch != '\n' &&
+        ch != '\r') {
+      setState(() {
+        actionSearchQuery += ch;
+        _refreshActionSearchHits();
+        _ensureActionSearchVisible();
+      });
+      return true;
+    }
+    return true;
   }
 
   bool _onExtraArgsPromptKey(KeyboardEvent event) {
@@ -746,7 +945,13 @@ class Vet45TuiShellState extends State<Vet45TuiShell> {
     }
     if (key == LogicalKey.enter) {
       final args = parseCliArgs(extraArgsDraft);
-      _launchSelectedAction(extraArgs: args);
+      final tid = pendingLaunchTargetId;
+      final aid = pendingLaunchActionId;
+      if (tid != null && aid != null) {
+        _launchAction(targetId: tid, actionId: aid, extraArgs: args);
+      } else {
+        _launchSelectedAction(extraArgs: args);
+      }
       return true;
     }
     if (key == LogicalKey.backspace) {
@@ -852,14 +1057,16 @@ class Vet45TuiShellState extends State<Vet45TuiShell> {
     final theme = TuiTheme.of(context);
     final runHint = mode != TuiMode.run
         ? null
-        : newSessionPicker
-            ? 'New session — Enter start  a +args  Esc cancel  Tab panels'
-            : _terminalCapturesKeys
-                ? 'Terminal focus — keys → PTY  Ctrl+O leave  Ctrl+C interrupt'
-                : runFocus == FocusPanelRun.terminal
-                    ? 'Terminal idle — Tab/h leave  x close  j/k sessions'
-                    : 'n new  Tab focus  jk/[ ] sessions  Enter/l terminal  '
-                        'x close  (Ctrl+O leave PTY)';
+        : actionSearchOpen
+            ? 'Search — type filter  ↑↓/Ctrl+jk move  Enter run  Ctrl+A args  Esc'
+            : newSessionPicker
+                ? 'New session — Enter start  a +args  Esc cancel  Tab panels'
+                : _terminalCapturesKeys
+                    ? 'Terminal focus — keys → PTY  Ctrl+O leave  Ctrl+C interrupt'
+                    : runFocus == FocusPanelRun.terminal
+                        ? 'Terminal idle — Tab/h leave  x close  j/k sessions'
+                        : 'n picker  / search  Tab focus  jk/[ ] sessions  '
+                            'Enter/l terminal  x close  (Ctrl+O leave PTY)';
 
     final body = Container(
       padding: const EdgeInsets.all(1),
@@ -888,16 +1095,34 @@ class Vet45TuiShellState extends State<Vet45TuiShell> {
     );
 
     Component content = body;
-    if (extraArgsPrompt && targets.isNotEmpty && actions.isNotEmpty) {
-      final targetId = targets[targetCursor].id;
-      final actionId = actions[actionCursor].id;
+    if (actionSearchOpen) {
       content = Stack(
         fit: StackFit.expand,
         children: [
           body,
+          ActionSearchPanel(
+            query: actionSearchQuery,
+            hits: actionSearchHits,
+            cursor: actionSearchCursor,
+            scrollController: actionSearchScroll,
+          ),
+        ],
+      );
+    }
+
+    final launchTargetId = pendingLaunchTargetId ??
+        (targets.isNotEmpty ? targets[targetCursor].id : null);
+    final launchActionId = pendingLaunchActionId ??
+        (actions.isNotEmpty ? actions[actionCursor].id : null);
+    if (extraArgsPrompt && launchTargetId != null && launchActionId != null) {
+      content = Stack(
+        fit: StackFit.expand,
+        children: [
+          content,
           ExtraArgsPopup(
-            title: 'Extra args — $targetId/$actionId',
-            commandLine: _commandPreviewWithDraft(targetId, actionId),
+            title: 'Extra args — $launchTargetId/$launchActionId',
+            commandLine:
+                _commandPreviewWithDraft(launchTargetId, launchActionId),
           ),
         ],
       );
