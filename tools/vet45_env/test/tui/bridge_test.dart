@@ -38,7 +38,7 @@ void main() {
     Directory('${root.path}/apps/erp').createSync(recursive: true);
     Directory('${root.path}/apps/messaging_worker').createSync(recursive: true);
     writeDotEnv(
-      File('${root.path}/config/default/local.env'),
+      File('${root.path}/.vet45/profiles/default/local.env'),
       {
         'SUPABASE_URL': 'http://127.0.0.1:54321',
         'SUPABASE_ANON_KEY': 'anon-test',
@@ -47,7 +47,7 @@ void main() {
       },
     );
     writeDotEnv(
-      File('${root.path}/config/default/staging.env'),
+      File('${root.path}/.vet45/profiles/default/staging.env'),
       {
         'SUPABASE_URL': 'https://example.supabase.co',
         'SUPABASE_ANON_KEY': 'staging-anon',
@@ -70,7 +70,7 @@ void main() {
   });
 
   test('environmentIds only includes envs with real secrets files', () {
-    File('${root.path}/config/default/production.env.example')
+    File('${root.path}/.vet45/profiles/default/production.env.example')
         .writeAsStringSync('SUPABASE_URL=\n');
     expect(bridge.environmentIds(profileId: 'default'), ['local', 'staging']);
     expect(

@@ -44,7 +44,7 @@ class TargetDiscovery {
       throw StateError(
         'No ${TargetManifest.fileName} found under ${rootDir.path}. '
         'Expected apps/**/${TargetManifest.fileName} '
-        'or config/**/${TargetManifest.fileName}.',
+        'or .vet45/**/${TargetManifest.fileName}.',
       );
     }
     return targets;
@@ -75,7 +75,7 @@ class TargetDiscovery {
 
   List<Directory> _rootsFromInclude(String pattern) {
     // "apps/**/vet45.target.json" → scan under apps/
-    // "config/**/vet45.target.json" → scan under config/
+    // ".vet45/**/vet45.target.json" → scan under .vet45/
     final parts = pattern.split('/');
     final prefix = <String>[];
     for (final part in parts) {

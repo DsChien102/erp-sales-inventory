@@ -31,16 +31,7 @@ void main() {
         'local': {'envFile': '.env'},
         'staging': {'envFile': '.env.staging'},
       },
-      profiles: {
-        'default': {
-          'description': 'Default',
-          'secretsRoot': 'config/default',
-        },
-        'acme': {
-          'description': 'Acme client',
-          'secretsRoot': 'config/acme',
-        },
-      },
+      profileIds: ['default', 'acme'],
     );
     manifest = EnvManifest.load(root);
   });

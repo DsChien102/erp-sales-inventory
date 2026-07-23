@@ -33,11 +33,7 @@ class TuiServicesBridge {
   SupabaseLinkService linkService;
   DoctorService doctorService;
 
-  ActiveState readState() => readActiveState(
-        manifest.rootDir,
-        defaultProfileId: manifest.profiles.defaultProfileId,
-        defaultEnvironmentId: manifest.defaultEnvironmentId,
-      );
+  ActiveState readState() => manifest.readState();
 
   List<String> profileIds() =>
       manifest.profiles.profiles.keys.toList()..sort();

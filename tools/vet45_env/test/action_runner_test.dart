@@ -56,7 +56,7 @@ void main() {
 
     Future<void> syncLocal() async {
       writeDotEnv(
-        File('${root.path}/config/default/local.env'),
+        File('${root.path}/.vet45/profiles/default/local.env'),
         {
           'SUPABASE_URL': 'http://127.0.0.1:54321',
           'SUPABASE_ANON_KEY': 'anon-test',
@@ -91,7 +91,7 @@ void main() {
 
     test('worker serve passes dotenv into environment', () async {
       writeDotEnv(
-        File('${root.path}/config/default/local.env'),
+        File('${root.path}/.vet45/profiles/default/local.env'),
         {
           'SUPABASE_URL': 'http://example.supabase.co',
           'SUPABASE_SERVICE_ROLE_KEY': 'service-test',

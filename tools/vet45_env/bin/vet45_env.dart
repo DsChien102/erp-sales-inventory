@@ -94,11 +94,7 @@ RunService _runService(EnvManifest manifest) {
   );
 }
 
-ActiveState _defaultState(EnvManifest manifest) => readActiveState(
-      manifest.rootDir,
-      defaultProfileId: manifest.profiles.defaultProfileId,
-      defaultEnvironmentId: manifest.defaultEnvironmentId,
-    );
+ActiveState _defaultState(EnvManifest manifest) => manifest.readState();
 
 void _printUsage() {
   stdout.writeln('''
@@ -108,7 +104,8 @@ With no arguments (or `tui`), opens the interactive TUI.
 
 Commands:
   tui                  Open interactive TUI (default when no args)
-  init [--force]       Copy config/<profile>/*.env.example → *.env when missing
+  init <profileId> [--force] [--description "..."]
+                       Scaffold .vet45/profiles/<profileId>/ from .vet45/templates/ and set active
   list                 List profiles, environments, and active selection
   switch [profile] [env] [--profile <id>] [--env <id>] [--target <id>]
                        Switch profile/env, supabase link, and sync (recommended)
@@ -127,8 +124,6 @@ Commands:
                        Run supabase CLI with profile auth.env token (auto link)
   completion bash|zsh  Print shell completion script
 
-  run <target> <action> [args...]  Actions declared in vet45.target.json
-
 Flags:
   --skip-link          Skip supabase link on use/sync/use-and-sync/switch/supabase
   --target <id>        Limit sync/doctor to one registered target
@@ -140,24 +135,40 @@ Flags:
 
 Future<void> _cmdInit(Directory root, List<String> args) async {
   final force = args.contains('--force');
+  final filtered = args.where((a) => a != '--force').toList();
+  final description = _parseDescriptionFlag(filtered);
+  final withoutDesc = _withoutDescriptionFlag(filtered);
+  String? profileId;
+  for (final arg in withoutDesc) {
+    if (!arg.startsWith('-')) {
+      profileId = arg;
+      break;
+    }
+  }
+  if (profileId == null || profileId.isEmpty) {
+    stderr.writeln('Usage: vet45 init <profileId> [--force] [--description "..."]');
+    exit(64);
+  }
+
   final service = ConfigInitService(repoRoot: root);
   try {
-    final result = await service.init(force: force);
-    if (result.created.isEmpty && result.skipped.isNotEmpty) {
-      stdout.writeln('Config already initialized (${result.skipped.length} files kept).');
-      stdout.writeln('Use --force to refresh scaffold files.');
-      return;
-    }
-    stdout.writeln('Initialized profile secrets under config/');
+    final result = await service.init(
+      profileId,
+      force: force,
+      description: description,
+    );
+    stdout.writeln('Initialized profile: ${result.profileId}');
     for (final path in result.created) {
       stdout.writeln('  created $path');
     }
     if (result.skipped.isNotEmpty) {
       stdout.writeln('  skipped ${result.skipped.length} existing file(s)');
     }
+    stdout.writeln('  Active profile set to ${result.profileId}');
     stdout.writeln('');
-    stdout.writeln('Profiles live at config/<profileId>/ (committed *.env.example).');
-    stdout.writeln('Next: fill config/default/*.env then: vet45 sync');
+    stdout.writeln(
+      'Next: fill .vet45/profiles/${result.profileId}/*.env then: vet45 sync',
+    );
   } on StateError catch (e) {
     stderr.writeln(e.message);
     exit(1);
@@ -168,10 +179,13 @@ void _cmdList(EnvManifest manifest) {
   final state = _defaultState(manifest);
   stdout.writeln(
     'Active: profile=${state.profileId} environment=${state.environmentId} '
-    '(defaults: ${manifest.profiles.defaultProfileId} / ${manifest.defaultEnvironmentId})',
+    '(default env: ${manifest.defaultEnvironmentId})',
   );
   stdout.writeln('');
-  stdout.writeln('Profiles:');
+  stdout.writeln('Profiles (local .vet45/profiles/<id>/):');
+  if (manifest.profiles.profiles.isEmpty) {
+    stdout.writeln('  (none — run: vet45 init <profileId>)');
+  }
   for (final entry in manifest.profiles.profiles.entries) {
     final marker = entry.key == state.profileId ? '*' : ' ';
     final profile = entry.value;
@@ -437,7 +451,21 @@ String _parseProfileIdArg(List<String> args, EnvManifest manifest) {
       return args[i];
     }
   }
-  return manifest.profiles.defaultProfileId;
+  throw StateError(
+    'Profile id required. Usage: profile use <id> | profile init <id>',
+  );
+}
+
+List<String> _withoutDescriptionFlag(List<String> args) {
+  final result = <String>[];
+  for (var i = 0; i < args.length; i++) {
+    if (args[i] == '--description') {
+      i++;
+      continue;
+    }
+    result.add(args[i]);
+  }
+  return result;
 }
 
 String _parseIdArg(List<String> args, EnvManifest manifest) {

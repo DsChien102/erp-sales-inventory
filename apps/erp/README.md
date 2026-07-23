@@ -4,7 +4,7 @@ Flutter shell cho modular monolith ERP.
 
 ## Môi trường
 
-Secrets nằm trong `config/default/`; `melos run env:sync` sinh `apps/erp/.env*` (generated — không chỉnh tay).
+Secrets nằm trong `.vet45/profiles/<profileId>/`; `melos run env:sync` sinh `apps/erp/.env*` (generated — không chỉnh tay).
 
 | Lệnh | Mô tả |
 |---|---|
@@ -22,7 +22,7 @@ Chi tiết: [docs/operations/environment-manager.md](../../docs/operations/envir
 
 ```bash
 melos bootstrap
-cp config/default/development.env.example config/default/development.env
+cp .vet45/profiles/<profileId>/development.env.example .vet45/profiles/<profileId>/development.env
 # Điền Supabase URL + keys (remote dev)
 
 melos run env:sync
@@ -37,7 +37,7 @@ melos run env:local
 melos run debug
 ```
 
-Staging/production secrets: `config/default/staging.env`, `config/default/production.env` → `melos run env:use:staging` + `env:sync`.
+Staging/production secrets: `.vet45/profiles/<profileId>/staging.env`, `.vet45/profiles/<profileId>/production.env` → `melos run env:use:staging` + `env:sync`.
 
 ## iOS release
 

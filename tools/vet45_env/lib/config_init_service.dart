@@ -1,22 +1,27 @@
 import 'dart:io';
 
+import 'manifest.dart';
+import 'profile_discovery.dart';
+import 'profile_registry.dart';
 import 'repo_root.dart';
 import 'target_discovery.dart';
 import 'workspace_manifest.dart';
 
 class ConfigInitResult {
   ConfigInitResult({
+    required this.profileId,
     required this.created,
     required this.skipped,
   });
 
+  final String profileId;
   final List<String> created;
   final List<String> skipped;
 
   bool get alreadyInitialized => created.isEmpty && skipped.isNotEmpty;
 }
 
-/// Ensures local `*.env` files exist by copying committed `*.env.example`.
+/// Scaffolds a local profile under `.vet45/profiles/` from [.vet45/templates/].
 class ConfigInitService {
   ConfigInitService({Directory? repoRoot})
       : repoRoot = repoRoot ?? Directory(findRepoRoot());
@@ -26,18 +31,25 @@ class ConfigInitService {
   bool get hasWorkspace =>
       WorkspaceManifest.workspaceFile(repoRoot).existsSync();
 
+  Directory get templatesDir => ProfileDiscovery.templatesDir(repoRoot);
+
+  bool get hasTemplates => templatesDir.existsSync();
+
+  /// True when at least one profile directory exists under `.vet45/profiles/`.
   bool get isInitialized {
     if (!hasWorkspace) {
       return false;
     }
-    final workspace = WorkspaceManifest.load(repoRoot);
-    final defaultProfile = workspace.profiles.getProfile(
-      workspace.profiles.defaultProfileId,
-    );
-    return defaultProfile.secretsDirectory(repoRoot).existsSync();
+    return ProfileDiscovery(rootDir: repoRoot).discover().isNotEmpty;
   }
 
-  Future<ConfigInitResult> init({bool force = false}) async {
+  static final _validProfileId = RegExp(r'^[a-zA-Z][a-zA-Z0-9_-]*$');
+
+  Future<ConfigInitResult> init(
+    String profileId, {
+    bool force = false,
+    String? description,
+  }) async {
     if (!hasWorkspace) {
       throw StateError(
         'Missing ${WorkspaceManifest.fileName} at ${repoRoot.path}. '
@@ -45,76 +57,162 @@ class ConfigInitService {
       );
     }
 
-    final workspace = WorkspaceManifest.load(repoRoot);
-    final defaultProfile = workspace.profiles.getProfile(
-      workspace.profiles.defaultProfileId,
-    );
-    final defaultDir = defaultProfile.secretsDirectory(repoRoot);
-    if (!defaultDir.existsSync()) {
+    final id = profileId.trim();
+    if (id.isEmpty) {
       throw StateError(
-        'Missing committed profile examples at ${defaultDir.path}. '
-        'Check out ${defaultProfile.secretsRoot}/*.env.example from the monorepo.',
+        'Usage: vet45 init <profileId> [--force]\n'
+        'Example: vet45 init acme',
       );
     }
-
-    final dirs = <String>{};
-    for (final profile in workspace.profiles.profiles.values) {
-      dirs.add(profile.secretsRoot);
+    if (!_validProfileId.hasMatch(id)) {
+      throw StateError(
+        'Invalid profile id "$id". Use letters, digits, _ or - '
+        '(must start with a letter).',
+      );
     }
+    if (ProfileDiscovery.reservedNames.contains(id)) {
+      throw StateError('Cannot init reserved profile id: $id');
+    }
+
+    final workspace = WorkspaceManifest.load(repoRoot);
     final discovered = TargetDiscovery(
       rootDir: repoRoot,
       scan: workspace.scan,
     ).discover();
-    for (final target in discovered.values) {
-      if (!target.writeEnvFile && target.secretsFile != null) {
-        final relative = _relativePath(
-          repoRoot,
-          target.manifestDir.path,
-        );
-        dirs.add(relative);
-      }
+    final collidingTarget = discovered[id];
+    if (collidingTarget != null && !collidingTarget.writeEnvFile) {
+      throw StateError('Cannot init reserved target/config id: $id');
     }
+
+    if (!hasTemplates) {
+      throw StateError(
+        'Missing committed templates at ${templatesDir.path}. '
+        'Check out .vet45/templates/ from the monorepo.',
+      );
+    }
+
+    final secretsRoot = '${ProfileDiscovery.profilesRootName}/$id';
+    final profileDir = Directory('${repoRoot.path}/$secretsRoot');
+    profileDir.createSync(recursive: true);
 
     final created = <String>[];
     final skipped = <String>[];
 
-    for (final dirPath in dirs) {
+    _copyExamples(
+      fromDir: templatesDir,
+      toDir: profileDir,
+      relativePrefix: secretsRoot,
+      force: force,
+      created: created,
+      skipped: skipped,
+    );
+
+    // Scaffold secrets-only target dirs (e.g. .vet45/deploy) from colocated examples.
+    for (final target in discovered.values) {
+      if (target.writeEnvFile || target.secretsFile == null) {
+        continue;
+      }
+      final dirPath = _relativePath(repoRoot, target.manifestDir.path);
       final dir = Directory('${repoRoot.path}/$dirPath');
       if (!dir.existsSync()) {
         continue;
       }
-      for (final entity in dir.listSync(followLinks: false)) {
-        if (entity is! File) {
-          continue;
-        }
-        final name = entity.uri.pathSegments.last;
-        if (!name.endsWith('.env.example')) {
-          continue;
-        }
-        final destName = name.replaceFirst(RegExp(r'\.example$'), '');
-        final dest = File('${dir.path}/$destName');
-        final relative = '$dirPath/$destName';
-        if (dest.existsSync() && !_shouldOverwrite(dest.path, force: force)) {
-          skipped.add(relative);
-          continue;
-        }
-        if (dest.existsSync() && _isFilledSecretEnv(dest.path)) {
-          skipped.add(relative);
-          continue;
-        }
-        dest.writeAsStringSync(entity.readAsStringSync());
-        created.add(relative);
-      }
+      _copyExamples(
+        fromDir: dir,
+        toDir: dir,
+        relativePrefix: dirPath,
+        force: force,
+        created: created,
+        skipped: skipped,
+        onlyEnvFiles: true,
+      );
     }
 
     if (created.isEmpty && skipped.isEmpty && !force) {
       throw StateError(
-        'No *.env.example found under profile secrets roots or '
-        'secrets-only target directories.',
+        'No *.env.example found under ${templatesDir.path}.',
       );
     }
 
-    return ConfigInitResult(created: created, skipped: skipped);
+    final envId = tryReadActiveState(
+          repoRoot,
+          defaultEnvironmentId: workspace.defaultEnvironmentId,
+        )?.environmentId ??
+        workspace.defaultEnvironmentId;
+
+    writeActiveState(
+      repoRoot,
+      ActiveState(profileId: id, environmentId: envId),
+    );
+
+    if (description != null && description.trim().isNotEmpty) {
+      // Description is local-only; profiles are not registered in workspace.
+      File('${profileDir.path}/.profile').writeAsStringSync(
+        '${description.trim()}\n',
+      );
+    }
+
+    return ConfigInitResult(
+      profileId: id,
+      created: created,
+      skipped: skipped,
+    );
+  }
+
+  void _copyExamples({
+    required Directory fromDir,
+    required Directory toDir,
+    required String relativePrefix,
+    required bool force,
+    required List<String> created,
+    required List<String> skipped,
+    bool onlyEnvFiles = false,
+  }) {
+    if (!fromDir.existsSync()) {
+      return;
+    }
+    toDir.createSync(recursive: true);
+    for (final entity in fromDir.listSync(followLinks: false)) {
+      if (entity is! File) {
+        continue;
+      }
+      final name = entity.uri.pathSegments.last;
+      if (!name.endsWith('.env.example')) {
+        continue;
+      }
+      // Always copy the example file into the profile dir when sourcing templates.
+      if (!onlyEnvFiles && fromDir.path == templatesDir.path) {
+        final exampleDest = File('${toDir.path}/$name');
+        if (!exampleDest.existsSync() || force) {
+          exampleDest.writeAsStringSync(entity.readAsStringSync());
+          if (!created.contains('$relativePrefix/$name')) {
+            created.add('$relativePrefix/$name');
+          }
+        } else {
+          skipped.add('$relativePrefix/$name');
+        }
+      }
+
+      final destName = name.replaceFirst(RegExp(r'\.example$'), '');
+      final dest = File('${toDir.path}/$destName');
+      final relative = '$relativePrefix/$destName';
+      if (dest.existsSync() && !_shouldOverwrite(dest.path, force: force)) {
+        if (!skipped.contains(relative)) {
+          skipped.add(relative);
+        }
+        continue;
+      }
+      if (dest.existsSync() && _isFilledSecretEnv(dest.path)) {
+        if (!skipped.contains(relative)) {
+          skipped.add(relative);
+        }
+        continue;
+      }
+      dest.writeAsStringSync(entity.readAsStringSync());
+      if (!created.contains(relative)) {
+        created.add(relative);
+      }
+    }
   }
 
   static String _relativePath(Directory root, String absolutePath) {
@@ -186,18 +284,32 @@ void requireConfigInitialized(Directory repoRoot) {
     exit(1);
   }
 
-  final workspace = WorkspaceManifest.load(repoRoot);
-  final defaultProfile = workspace.profiles.getProfile(
-    workspace.profiles.defaultProfileId,
-  );
-  final defaultDir = defaultProfile.secretsDirectory(repoRoot);
-  if (!defaultDir.existsSync()) {
-    stderr.writeln('Missing ${defaultProfile.secretsRoot}/ profile directory.');
+  if (!ProfileDiscovery.templatesDir(repoRoot).existsSync()) {
+    stderr.writeln('Missing .vet45/templates/');
+    stderr.writeln('Check out .vet45/templates/*.env.example from the monorepo.');
+    exit(1);
+  }
+
+  final profiles = ProfileDiscovery(rootDir: repoRoot).discover();
+  if (profiles.isEmpty) {
+    stderr.writeln('No local profiles under .vet45/profiles/.');
     stderr.writeln('');
     stderr.writeln('First-time setup:');
     stderr.writeln('  melos bootstrap');
-    stderr.writeln('  vet45 init');
-    stderr.writeln('  # fill secrets, then: vet45 sync');
+    stderr.writeln('  vet45 init <profileId>');
+    stderr.writeln('  # fill .vet45/profiles/<profileId>/*.env, then: vet45 sync');
+    exit(1);
+  }
+
+  try {
+    final workspace = WorkspaceManifest.load(repoRoot);
+    readActiveState(
+      repoRoot,
+      defaultEnvironmentId: workspace.defaultEnvironmentId,
+      knownProfileIds: profiles.keys.toSet(),
+    );
+  } on StateError catch (e) {
+    stderr.writeln(e.message);
     exit(1);
   }
 }

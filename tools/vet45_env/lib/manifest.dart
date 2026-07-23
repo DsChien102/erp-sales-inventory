@@ -77,7 +77,7 @@ class EnvManifest {
       targets: targets,
       environments: environments,
       rootDir: rootDir,
-      profiles: workspace.profiles,
+      profiles: ProfileRegistry.discover(rootDir),
       workspace: workspace,
     );
   }
@@ -112,11 +112,23 @@ class EnvManifest {
   EnvironmentDefinition resolveEnvironment(String? id) {
     final state = readActiveState(
       rootDir,
-      defaultProfileId: profiles.defaultProfileId,
       defaultEnvironmentId: defaultEnvironmentId,
+      knownProfileIds: profiles.profiles.keys.toSet(),
     );
     return getEnvironment(id ?? state.environmentId);
   }
+
+  ActiveState readState() => readActiveState(
+        rootDir,
+        defaultEnvironmentId: defaultEnvironmentId,
+        knownProfileIds: profiles.profiles.keys.toSet(),
+      );
+
+  ActiveState? tryReadState() => tryReadActiveState(
+        rootDir,
+        defaultEnvironmentId: defaultEnvironmentId,
+        knownProfileIds: profiles.profiles.keys.toSet(),
+      );
 }
 
 class TargetDefinition {

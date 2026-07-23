@@ -14,16 +14,7 @@ void main() {
     root = await Directory.systemTemp.createTemp('vet45_completion_');
     writeTestWorkspace(
       root,
-      profiles: {
-        'default': {
-          'description': 'Default',
-          'secretsRoot': 'config/default',
-        },
-        'acme': {
-          'description': 'Acme',
-          'secretsRoot': 'config/acme',
-        },
-      },
+      profileIds: ['default', 'acme'],
     );
     manifest = EnvManifest.load(root);
   });

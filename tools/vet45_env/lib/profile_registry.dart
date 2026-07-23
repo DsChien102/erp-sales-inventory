@@ -2,9 +2,10 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'manifest.dart';
+import 'profile_discovery.dart';
 import 'secrets_loader.dart';
 
-/// Registered configuration profile (Supabase workspace / client).
+/// Configuration profile (Supabase workspace / client secrets bundle).
 class ProfileDefinition {
   ProfileDefinition({
     required this.id,
@@ -16,20 +17,8 @@ class ProfileDefinition {
   final String description;
 
   /// Directory containing `<environment>.env` and optional `auth.env`.
-  /// Convention: `config/<profileId>/`.
+  /// Convention: `.vet45/profiles/<profileId>/`.
   final String secretsRoot;
-
-  factory ProfileDefinition.fromJson({
-    required String id,
-    required Map<String, dynamic> json,
-  }) {
-    final root = json['secretsRoot'] as String? ?? 'config/$id';
-    return ProfileDefinition(
-      id: id,
-      description: json['description'] as String? ?? id,
-      secretsRoot: root,
-    );
-  }
 
   Directory secretsDirectory(Directory repoRoot) =>
       Directory('${repoRoot.path}/$secretsRoot');
@@ -44,73 +33,37 @@ class ProfileDefinition {
       File('${repoRoot.path}/$secretsRoot/auth.env.example');
 }
 
-/// Profiles section from [vet45.workspace.json].
+/// Discovered profiles under `.vet45/profiles/<id>/` (in-memory, not in workspace JSON).
 class ProfileRegistry {
   ProfileRegistry({
-    required this.defaultProfileId,
     required this.profiles,
     required this.rootDir,
   });
 
-  final String defaultProfileId;
   final Map<String, ProfileDefinition> profiles;
   final Directory rootDir;
 
-  /// Load profiles from the committed workspace manifest.
-  factory ProfileRegistry.fromWorkspaceJson({
-    required Directory rootDir,
-    required Map<String, dynamic>? json,
-  }) {
-    if (json == null) {
-      return ProfileRegistry(
-        defaultProfileId: 'default',
-        profiles: {
-          'default': ProfileDefinition(
-            id: 'default',
-            description: 'Vet45 main',
-            secretsRoot: 'config/default',
-          ),
-        },
-        rootDir: rootDir,
-      );
-    }
-
-    final defaultId = json['defaultProfile'] as String? ?? 'default';
-    final raw = json['entries'] as Map<String, dynamic>? ??
-        json['profiles'] as Map<String, dynamic>? ??
-        {};
-    final profiles = <String, ProfileDefinition>{};
-    for (final entry in raw.entries) {
-      profiles[entry.key] = ProfileDefinition.fromJson(
-        id: entry.key,
-        json: entry.value as Map<String, dynamic>,
-      );
-    }
-    if (profiles.isEmpty) {
-      throw StateError('vet45.workspace.json has no profiles');
-    }
-    if (!profiles.containsKey(defaultId)) {
-      throw StateError(
-        'default profile "$defaultId" not found in vet45.workspace.json',
-      );
-    }
+  factory ProfileRegistry.discover(Directory rootDir) {
     return ProfileRegistry(
-      defaultProfileId: defaultId,
-      profiles: profiles,
+      profiles: ProfileDiscovery(rootDir: rootDir).discover(),
       rootDir: rootDir,
     );
   }
 
+  bool get isEmpty => profiles.isEmpty;
+
   ProfileDefinition getProfile(String id) {
     final profile = profiles[id];
     if (profile == null) {
-      throw ArgumentError('Unknown profile: $id');
+      throw ArgumentError(
+        'Unknown profile: $id\n'
+        'Run: vet45 init $id   # or vet45 list to see existing profiles',
+      );
     }
     return profile;
   }
 
-  ProfileDefinition resolve(String? id) =>
-      getProfile(id ?? defaultProfileId);
+  ProfileDefinition resolve(String id) => getProfile(id);
 }
 
 /// Active profile + environment selection.
@@ -126,28 +79,71 @@ class ActiveState {
 
 File _stateFile(Directory rootDir) => File('${rootDir.path}/.vet45/state.json');
 
+/// Reads active profile/environment from `.vet45/state.json`.
+///
+/// Profile is required (no workspace default). Environment falls back to
+/// [defaultEnvironmentId] when missing from state.
 ActiveState readActiveState(
   Directory rootDir, {
-  required String defaultProfileId,
   required String defaultEnvironmentId,
+  Set<String>? knownProfileIds,
 }) {
   final stateFile = _stateFile(rootDir);
-  if (stateFile.existsSync()) {
-    try {
-      final json =
-          jsonDecode(stateFile.readAsStringSync()) as Map<String, dynamic>;
-      final profile = json['profile'] as String? ?? defaultProfileId;
-      final environment = json['environment'] as String? ?? defaultEnvironmentId;
-      return ActiveState(profileId: profile, environmentId: environment);
-    } on Object {
-      // fall through to legacy
-    }
+  if (!stateFile.existsSync()) {
+    throw StateError(
+      'No active profile. First-time setup:\n'
+      '  vet45 init <profileId>\n'
+      'Then fill .vet45/profiles/<profileId>/*.env and run: vet45 sync',
+    );
   }
-  final legacyEnv = readActive(rootDir);
-  return ActiveState(
-    profileId: defaultProfileId,
-    environmentId: legacyEnv ?? defaultEnvironmentId,
-  );
+
+  late final Map<String, dynamic> json;
+  try {
+    json = jsonDecode(stateFile.readAsStringSync()) as Map<String, dynamic>;
+  } on Object {
+    throw StateError(
+      'Corrupt .vet45/state.json. Re-run: vet45 init <profileId>',
+    );
+  }
+
+  final profile = (json['profile'] as String?)?.trim() ?? '';
+  if (profile.isEmpty) {
+    throw StateError(
+      'No active profile in .vet45/state.json.\n'
+      'Run: vet45 init <profileId>',
+    );
+  }
+
+  if (knownProfileIds != null && !knownProfileIds.contains(profile)) {
+    throw StateError(
+      'Active profile "$profile" not found under .vet45/profiles/.\n'
+      'Run: vet45 init $profile   # or vet45 switch <existingProfile>',
+    );
+  }
+
+  final environment =
+      (json['environment'] as String?)?.trim().isNotEmpty == true
+          ? json['environment'] as String
+          : (readActive(rootDir) ?? defaultEnvironmentId);
+
+  return ActiveState(profileId: profile, environmentId: environment);
+}
+
+/// Best-effort read that returns null when no valid active profile exists.
+ActiveState? tryReadActiveState(
+  Directory rootDir, {
+  required String defaultEnvironmentId,
+  Set<String>? knownProfileIds,
+}) {
+  try {
+    return readActiveState(
+      rootDir,
+      defaultEnvironmentId: defaultEnvironmentId,
+      knownProfileIds: knownProfileIds,
+    );
+  } on StateError {
+    return null;
+  }
 }
 
 void writeActiveState(Directory rootDir, ActiveState state) {
@@ -183,15 +179,32 @@ class WorkspaceContext {
     String? profileId,
     String? environmentId,
   }) {
-    final state = readActiveState(
-      manifest.rootDir,
-      defaultProfileId: manifest.profiles.defaultProfileId,
-      defaultEnvironmentId: manifest.defaultEnvironmentId,
-    );
-    final resolvedProfile = manifest.profiles.resolve(profileId ?? state.profileId);
-    final resolvedEnv = manifest.getEnvironment(
-      environmentId ?? state.environmentId,
-    );
+    final known = manifest.profiles.profiles.keys.toSet();
+    late final String resolvedProfileId;
+    late final String resolvedEnvironmentId;
+
+    if (profileId != null) {
+      resolvedProfileId = profileId;
+      final existing = tryReadActiveState(
+        manifest.rootDir,
+        defaultEnvironmentId: manifest.defaultEnvironmentId,
+        knownProfileIds: known,
+      );
+      resolvedEnvironmentId = environmentId ??
+          existing?.environmentId ??
+          manifest.defaultEnvironmentId;
+    } else {
+      final state = readActiveState(
+        manifest.rootDir,
+        defaultEnvironmentId: manifest.defaultEnvironmentId,
+        knownProfileIds: known,
+      );
+      resolvedProfileId = state.profileId;
+      resolvedEnvironmentId = environmentId ?? state.environmentId;
+    }
+
+    final resolvedProfile = manifest.profiles.resolve(resolvedProfileId);
+    final resolvedEnv = manifest.getEnvironment(resolvedEnvironmentId);
     return WorkspaceContext(
       profile: resolvedProfile,
       environment: resolvedEnv,

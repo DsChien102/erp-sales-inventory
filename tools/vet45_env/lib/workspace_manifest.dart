@@ -1,8 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'profile_registry.dart';
-
 /// Host alignment rule from [vet45.workspace.json] `doctor.alignHosts`.
 class DoctorAlignHostRule {
   const DoctorAlignHostRule({
@@ -62,7 +60,7 @@ class ScanPolicy {
     final include = (json?['include'] as List<dynamic>?)
             ?.map((e) => e as String)
             .toList() ??
-        ['apps/**/vet45.target.json', 'config/**/vet45.target.json'];
+        ['apps/**/vet45.target.json', '.vet45/**/vet45.target.json'];
     final exclude = (json?['exclude'] as List<dynamic>?)
             ?.map((e) => e as String)
             .toList() ??
@@ -109,13 +107,13 @@ class WorkspaceEnvironmentMeta {
   }
 }
 
-/// Loaded [vet45.workspace.json] — environments, profiles, scan policy.
+/// Loaded [vet45.workspace.json] — environments, scan policy, doctor rules.
+/// Profiles are discovered from `.vet45/profiles/<id>/`, not declared here.
 class WorkspaceManifest {
   WorkspaceManifest({
     required this.version,
     required this.defaultEnvironmentId,
     required this.scan,
-    required this.profiles,
     required this.environments,
     required this.rootDir,
     required this.file,
@@ -125,7 +123,6 @@ class WorkspaceManifest {
   final int version;
   final String defaultEnvironmentId;
   final ScanPolicy scan;
-  final ProfileRegistry profiles;
   final Map<String, WorkspaceEnvironmentMeta> environments;
   final Directory rootDir;
   final File file;
@@ -152,10 +149,6 @@ class WorkspaceManifest {
 
     final scan = ScanPolicy.fromJson(json['scan'] as Map<String, dynamic>?);
     final doctor = DoctorConfig.fromJson(json['doctor'] as Map<String, dynamic>?);
-    final profiles = ProfileRegistry.fromWorkspaceJson(
-      rootDir: rootDir,
-      json: json['profiles'] as Map<String, dynamic>?,
-    );
 
     final rawEnvs = json['environments'] as Map<String, dynamic>? ?? {};
     final environments = <String, WorkspaceEnvironmentMeta>{};
@@ -178,7 +171,6 @@ class WorkspaceManifest {
       version: version,
       defaultEnvironmentId: defaultId,
       scan: scan,
-      profiles: profiles,
       environments: environments,
       rootDir: rootDir,
       file: file,
@@ -186,7 +178,6 @@ class WorkspaceManifest {
     );
   }
 
-  /// Serialize workspace JSON (profiles may be updated by profile init).
   Map<String, dynamic> toJson() {
     return {
       'version': version,
@@ -194,16 +185,6 @@ class WorkspaceManifest {
       'scan': {
         'include': scan.include,
         'exclude': scan.exclude,
-      },
-      'profiles': {
-        'defaultProfile': profiles.defaultProfileId,
-        'entries': {
-          for (final entry in profiles.profiles.entries)
-            entry.key: {
-              'description': entry.value.description,
-              'secretsRoot': entry.value.secretsRoot,
-            },
-        },
       },
       'environments': {
         for (final entry in environments.entries)

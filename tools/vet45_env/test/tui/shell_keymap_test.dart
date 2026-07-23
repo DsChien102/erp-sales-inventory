@@ -35,21 +35,12 @@ void main() {
         'local': {'envFile': '.env'},
         'staging': {'envFile': '.env.staging'},
       },
-      profiles: {
-        'default': {
-          'description': 'Default',
-          'secretsRoot': 'config/default',
-        },
-        'acme': {
-          'description': 'Acme',
-          'secretsRoot': 'config/acme',
-        },
-      },
+      profileIds: ['default', 'acme'],
     );
     Directory('${root.path}/apps/erp').createSync(recursive: true);
     Directory('${root.path}/apps/messaging_worker').createSync(recursive: true);
     writeDotEnv(
-      File('${root.path}/config/default/local.env'),
+      File('${root.path}/.vet45/profiles/default/local.env'),
       {
         'SUPABASE_URL': 'http://127.0.0.1:54321',
         'SUPABASE_ANON_KEY': 'anon',
@@ -58,7 +49,7 @@ void main() {
       },
     );
     // staging only as example — must not appear in TUI env list
-    File('${root.path}/config/default/staging.env.example')
+    File('${root.path}/.vet45/profiles/default/staging.env.example')
         .writeAsStringSync('SUPABASE_URL=\n');
     writeActiveState(
       root,

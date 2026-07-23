@@ -71,7 +71,7 @@ melos:
 
     env:init:
       run: dart run tools/vet45_env/bin/run.dart init
-      description: Copy config/<profile>/*.env.example → *.env when missing (first-time setup)
+      description: Scaffold .vet45/profiles/<profileId>/ from templates (pass id after --)
 
     env:list:
       run: dart run tools/vet45_env/bin/run.dart list
@@ -86,8 +86,8 @@ melos:
       description: Set active profile (pass id after --)
 
     profile:init:
-      run: dart run tools/vet45_env/bin/run.dart profile init
-      description: Scaffold a new profile under config/<profileId>/
+      run: dart run tools/vet45_env/bin/run.dart init
+      description: Alias of env:init — scaffold .vet45/profiles/<profileId>/ (pass id after --)
 
     env:use:
       run: dart run tools/vet45_env/bin/run.dart use
