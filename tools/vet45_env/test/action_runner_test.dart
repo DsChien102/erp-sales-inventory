@@ -56,7 +56,7 @@ void main() {
 
     Future<void> syncLocal() async {
       writeDotEnv(
-        File('${root.path}/config/default/local.env'),
+        File('${root.path}/.vet45/profiles/default/local.env'),
         {
           'SUPABASE_URL': 'http://127.0.0.1:54321',
           'SUPABASE_ANON_KEY': 'anon-test',
@@ -91,7 +91,7 @@ void main() {
 
     test('worker serve passes dotenv into environment', () async {
       writeDotEnv(
-        File('${root.path}/config/default/local.env'),
+        File('${root.path}/.vet45/profiles/default/local.env'),
         {
           'SUPABASE_URL': 'http://example.supabase.co',
           'SUPABASE_SERVICE_ROLE_KEY': 'service-test',
@@ -154,6 +154,41 @@ void main() {
 
       expect(code, 1);
       expect(process.invocations, isEmpty);
+    });
+
+    test('resolveLaunch expands erp debug without running process', () async {
+      await syncLocal();
+
+      final plan = await runner().resolveLaunch(
+        ctx: manifest.context(environmentId: 'local'),
+        targetId: 'erp',
+        actionId: 'debug',
+      );
+
+      expect(plan.label, 'erp/debug');
+      expect(plan.command, 'flutter');
+      expect(plan.args, contains('development'));
+      expect(plan.args, contains('--dart-define-from-file=.env'));
+      expect(plan.workingDirectory, endsWith('apps/erp'));
+      expect(process.invocations, isEmpty);
+    });
+
+    test('resolveLaunch rejects debug:ios on non-macOS', () async {
+      if (Platform.isMacOS) {
+        return;
+      }
+      await syncLocal();
+
+      expect(
+        () => runner().resolveLaunch(
+          ctx: manifest.context(environmentId: 'local'),
+          targetId: 'erp',
+          actionId: 'debug:ios',
+        ),
+        throwsA(
+          isA<ActionLaunchException>().having((e) => e.exitCode, 'code', 64),
+        ),
+      );
     });
   });
 }

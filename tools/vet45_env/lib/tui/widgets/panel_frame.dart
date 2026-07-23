@@ -15,7 +15,8 @@ class PanelFrame extends StatelessComponent {
 
   @override
   Component build(BuildContext context) {
-    final borderColor = focused ? Colors.cyan : Colors.brightBlack;
+    final theme = TuiTheme.of(context);
+    final borderColor = focused ? theme.primary : theme.outline;
     return Container(
       decoration: BoxDecoration(
         border: BoxBorder.all(
@@ -25,7 +26,7 @@ class PanelFrame extends StatelessComponent {
         title: BorderTitle(
           text: focused ? '* $title' : title,
           style: TextStyle(
-            color: focused ? Colors.cyan : Colors.white,
+            color: focused ? theme.primary : theme.onSurface,
             fontWeight: focused ? FontWeight.bold : FontWeight.normal,
           ),
         ),

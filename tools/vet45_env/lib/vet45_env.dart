@@ -9,6 +9,7 @@ export 'executable_resolver.dart';
 export 'key_resolver.dart';
 export 'link_service.dart';
 export 'process_runner.dart';
+export 'profile_discovery.dart';
 export 'profile_init_service.dart';
 export 'profile_registry.dart';
 export 'project_ref.dart';

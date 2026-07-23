@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:test/test.dart';
 import 'package:vet45_env/config_init_service.dart';
 import 'package:vet45_env/manifest.dart';
+import 'package:vet45_env/profile_registry.dart';
 import 'package:vet45_env/secrets_loader.dart';
 
 import 'test_manifest_fixture.dart';
@@ -12,19 +13,10 @@ void main() {
 
   setUp(() async {
     root = await Directory.systemTemp.createTemp('vet45_config_init_');
-    File('${root.path}/pubspec.yaml').writeAsStringSync('name: vet45\n');
-    writeTestWorkspace(root);
-    // Committed examples under config/default + config/deploy
-    Directory('${root.path}/config/default').createSync(recursive: true);
-    Directory('${root.path}/config/deploy').createSync(recursive: true);
-    File('${root.path}/config/default/development.env.example').writeAsStringSync(
-      'SUPABASE_URL=\nSUPABASE_ANON_KEY=\n',
-    );
-    File('${root.path}/config/default/auth.env.example').writeAsStringSync(
-      'SUPABASE_ACCESS_TOKEN=\n',
-    );
-    File('${root.path}/config/deploy/deploy.env.example').writeAsStringSync(
-      'APP_STORE_CONNECT_ISSUER_ID=\nAPP_STORE_CONNECT_KEY_IDENTIFIER=\n',
+    writeTestWorkspace(
+      root,
+      profileIds: const [],
+      writeActive: false,
     );
   });
 
@@ -34,51 +26,80 @@ void main() {
     }
   });
 
-  test('init copies examples to env files when missing', () async {
+  test('init requires profile id and scaffolds from templates', () async {
     final service = ConfigInitService(repoRoot: root);
     expect(service.hasWorkspace, isTrue);
-    expect(service.isInitialized, isTrue);
+    expect(service.hasTemplates, isTrue);
+    expect(service.isInitialized, isFalse);
 
-    final result = await service.init();
+    final result = await service.init('acme');
+    expect(result.profileId, 'acme');
     expect(result.created, isNotEmpty);
     expect(
-      File('${root.path}/config/default/development.env').existsSync(),
+      File('${root.path}/.vet45/profiles/acme/local.env').existsSync(),
       isTrue,
     );
     expect(
-      File('${root.path}/config/deploy/deploy.env').existsSync(),
+      File('${root.path}/.vet45/profiles/acme/local.env.example').existsSync(),
+      isTrue,
+    );
+    expect(
+      File('${root.path}/.vet45/deploy/deploy.env').existsSync(),
       isTrue,
     );
 
+    final state = readActiveState(
+      root,
+      defaultEnvironmentId: 'local',
+    );
+    expect(state.profileId, 'acme');
+    expect(state.environmentId, 'local');
+
     final manifest = EnvManifest.load(root);
-    expect(manifest.defaultEnvironmentId, 'local');
+    expect(manifest.profiles.profiles.keys, contains('acme'));
+    expect(manifest.profiles.profiles.containsKey('deploy'), isFalse);
   });
 
   test('init skips filled secrets', () async {
     final service = ConfigInitService(repoRoot: root);
+    await service.init('acme');
     writeDotEnv(
-      File('${root.path}/config/default/development.env'),
+      File('${root.path}/.vet45/profiles/acme/local.env'),
       {'SUPABASE_URL': 'https://filled.supabase.co'},
     );
 
-    final result = await service.init(force: true);
+    final result = await service.init('acme', force: true);
     expect(
-      File('${root.path}/config/default/development.env').readAsStringSync(),
+      File('${root.path}/.vet45/profiles/acme/local.env').readAsStringSync(),
       contains('filled.supabase.co'),
     );
-    expect(result.skipped, contains('config/default/development.env'));
+    expect(result.skipped, contains('.vet45/profiles/acme/local.env'));
   });
 
   test('init fails without workspace manifest', () async {
     File('${root.path}/vet45.workspace.json').deleteSync();
     final service = ConfigInitService(repoRoot: root);
     expect(
-      () => service.init(),
+      () => service.init('acme'),
       throwsA(
         isA<StateError>().having(
           (e) => e.message,
           'message',
           contains('vet45.workspace.json'),
+        ),
+      ),
+    );
+  });
+
+  test('init rejects reserved deploy id', () async {
+    final service = ConfigInitService(repoRoot: root);
+    expect(
+      () => service.init('deploy'),
+      throwsA(
+        isA<StateError>().having(
+          (e) => e.message,
+          'message',
+          contains('reserved'),
         ),
       ),
     );

@@ -44,7 +44,7 @@ void main() {
 
   test('run erp debug invokes flutter with flavor and env file', () async {
     writeDotEnv(
-      File('${root.path}/config/default/local.env'),
+      File('${root.path}/.vet45/profiles/default/local.env'),
       {
         'SUPABASE_URL': 'http://127.0.0.1:54321',
         'SUPABASE_ANON_KEY': 'anon-test',
@@ -67,7 +67,7 @@ void main() {
 
   test('run worker serve loads dotenv into process environment', () async {
     writeDotEnv(
-      File('${root.path}/config/default/local.env'),
+      File('${root.path}/.vet45/profiles/default/local.env'),
       {
         'SUPABASE_URL': 'http://example.supabase.co',
         'SUPABASE_SERVICE_ROLE_KEY': 'service-test',
@@ -97,7 +97,7 @@ void main() {
       return;
     }
     writeDotEnv(
-      File('${root.path}/config/default/local.env'),
+      File('${root.path}/.vet45/profiles/default/local.env'),
       {
         'SUPABASE_URL': 'http://127.0.0.1:54321',
         'SUPABASE_ANON_KEY': 'anon-test',
@@ -112,31 +112,21 @@ void main() {
   });
 
   test('switchWorkspace changes profile and writes erp env', () async {
-    Directory('${root.path}/config/acme').createSync(recursive: true);
     writeTestWorkspace(
       root,
-      profiles: {
-        'default': {
-          'description': 'Default',
-          'secretsRoot': 'config/default',
-        },
-        'acme': {
-          'description': 'Acme',
-          'secretsRoot': 'config/acme',
-        },
-      },
+      profileIds: ['default', 'acme'],
     );
     manifest = EnvManifest.load(root);
 
     writeDotEnv(
-      File('${root.path}/config/default/local.env'),
+      File('${root.path}/.vet45/profiles/default/local.env'),
       {
         'SUPABASE_URL': 'http://default.example',
         'SUPABASE_ANON_KEY': 'default-anon',
       },
     );
     writeDotEnv(
-      File('${root.path}/config/acme/local.env'),
+      File('${root.path}/.vet45/profiles/acme/local.env'),
       {
         'SUPABASE_URL': 'http://acme.example',
         'SUPABASE_ANON_KEY': 'acme-anon',
@@ -153,7 +143,6 @@ void main() {
 
     final state = readActiveState(
       root,
-      defaultProfileId: manifest.profiles.defaultProfileId,
       defaultEnvironmentId: manifest.defaultEnvironmentId,
     );
     expect(state.profileId, 'acme');
@@ -191,7 +180,7 @@ void main() {
     manifest = EnvManifest.load(root);
 
     writeDotEnv(
-      File('${root.path}/config/default/staging.env'),
+      File('${root.path}/.vet45/profiles/default/staging.env'),
       {
         'SUPABASE_URL': 'http://staging.example',
         'SUPABASE_ANON_KEY': 'staging-anon',
@@ -208,7 +197,6 @@ void main() {
 
     final state = readActiveState(
       root,
-      defaultProfileId: manifest.profiles.defaultProfileId,
       defaultEnvironmentId: manifest.defaultEnvironmentId,
     );
     expect(state.environmentId, 'staging');
@@ -219,7 +207,7 @@ void main() {
   });
 
   test('loadDotEnv strips CRLF from values', () {
-    final file = File('${root.path}/config/default/crlf.env');
+    final file = File('${root.path}/.vet45/profiles/default/crlf.env');
     file.writeAsStringSync('KEY=value\r\nOTHER=ok\r\n');
     final values = loadDotEnv(file);
     expect(values['KEY'], 'value');

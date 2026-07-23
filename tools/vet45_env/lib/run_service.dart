@@ -32,14 +32,14 @@ class RunService {
 
   Future<void> useProfile(String profileId) async {
     manifest.profiles.getProfile(profileId);
-    final state = readActiveState(
-      manifest.rootDir,
-      defaultProfileId: manifest.profiles.defaultProfileId,
-      defaultEnvironmentId: manifest.defaultEnvironmentId,
-    );
+    final existing = manifest.tryReadState();
     writeActiveState(
       manifest.rootDir,
-      ActiveState(profileId: profileId, environmentId: state.environmentId),
+      ActiveState(
+        profileId: profileId,
+        environmentId:
+            existing?.environmentId ?? manifest.defaultEnvironmentId,
+      ),
     );
     stdout.writeln('Active profile: $profileId');
   }
@@ -51,13 +51,16 @@ class RunService {
     String? targetId,
     bool skipLink = false,
   }) async {
-    final state = readActiveState(
-      manifest.rootDir,
-      defaultProfileId: manifest.profiles.defaultProfileId,
-      defaultEnvironmentId: manifest.defaultEnvironmentId,
-    );
-    final nextProfile = profileId ?? state.profileId;
-    final nextEnvironment = environmentId ?? state.environmentId;
+    final existing = manifest.tryReadState();
+    final nextProfile = profileId ?? existing?.profileId;
+    if (nextProfile == null) {
+      throw StateError(
+        'No active profile. Run: vet45 init <profileId>',
+      );
+    }
+    final nextEnvironment = environmentId ??
+        existing?.environmentId ??
+        manifest.defaultEnvironmentId;
 
     manifest.profiles.getProfile(nextProfile);
     manifest.getEnvironment(nextEnvironment);

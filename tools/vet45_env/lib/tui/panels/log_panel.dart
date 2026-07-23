@@ -16,13 +16,14 @@ class LogPanel extends StatelessComponent {
 
   @override
   Component build(BuildContext context) {
+    final theme = TuiTheme.of(context);
     return PanelFrame(
       title: 'Log',
       focused: focused,
       child: logs.isEmpty
           ? Text(
               ' (empty)',
-              style: TextStyle(color: Colors.brightBlack),
+              style: TextStyle(color: theme.outline),
             )
           : Scrollbar(
               controller: scrollController,
@@ -36,8 +37,8 @@ class LogPanel extends StatelessComponent {
                     ' $line',
                     style: TextStyle(
                       color: line.contains('FAIL') || line.contains('failed')
-                          ? Colors.red
-                          : Colors.white,
+                          ? theme.error
+                          : theme.onSurface,
                     ),
                   );
                 },

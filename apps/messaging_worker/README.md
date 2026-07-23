@@ -11,7 +11,7 @@ Server-side messaging processor for VET45. Runs adaptive self-loop ticks (~3s wh
 
 Config is versioned in [`railway.toml`](../../railway.toml) at the repo root (Docker build context = monorepo root).
 
-**Runtime env:** edit `config/<profileId>/<env>.env` (not `apps/messaging_worker/.env*`), then `melos run env:sync -- --target worker` (or full `env:sync`). Key deps for the `worker` target are declared in [`vet45.target.json`](vet45.target.json). See [config/default/README.md](../../config/default/README.md).
+**Runtime env:** edit `.vet45/profiles/<profileId>/<env>.env` (not `apps/messaging_worker/.env*`), then `melos run env:sync -- --target worker` (or full `env:sync`). Key deps for the `worker` target are declared in [`vet45.target.json`](vet45.target.json). See [environment-manager.md](../../docs/operations/environment-manager.md).
 
 ## Prerequisites
 
@@ -24,7 +24,7 @@ Config is versioned in [`railway.toml`](../../railway.toml) at the repo root (Do
 From the repo root:
 
 ```bash
-cp config/default/staging.env.example config/default/staging.env
+cp .vet45/profiles/<profileId>/staging.env.example .vet45/profiles/<profileId>/staging.env
 # Điền Supabase URL + keys
 
 melos run env:use:staging
@@ -104,7 +104,7 @@ See [`.gitlab-ci.yml`](../../.gitlab-ci.yml). Jobs:
 
 ### CI/CD variables (per environment)
 
-Set in `config/<profileId>/<env>.env`; `set_secrets.sh --ci` expects the same names:
+Set in `.vet45/profiles/<profileId>/<env>.env`; `set_secrets.sh --ci` expects the same names:
 
 | Variable | Notes |
 |----------|--------|

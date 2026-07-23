@@ -1,3 +1,5 @@
+import '../action_runner.dart';
+import '../action_spec.dart';
 import '../doctor_service.dart';
 import '../link_service.dart';
 import '../manifest.dart';
@@ -19,6 +21,30 @@ class BridgeActionResult {
   final String? activeEnvironment;
 }
 
+class RunnableTargetInfo {
+  RunnableTargetInfo({
+    required this.id,
+    required this.description,
+  });
+
+  final String id;
+  final String description;
+}
+
+class ActionListItem {
+  ActionListItem({
+    required this.id,
+    required this.description,
+    required this.enabled,
+    this.disabledReason,
+  });
+
+  final String id;
+  final String description;
+  final bool enabled;
+  final String? disabledReason;
+}
+
 /// Wraps env services for the nocterm TUI without calling `exit`.
 class TuiServicesBridge {
   TuiServicesBridge({required EnvManifest manifest})
@@ -26,18 +52,20 @@ class TuiServicesBridge {
         syncService = SyncService(manifest: manifest),
         linkService = SupabaseLinkService(manifest: manifest),
         doctorService =
-            DoctorService(manifest: manifest, skipNetwork: true);
+            DoctorService(manifest: manifest, skipNetwork: true) {
+    actionRunner = ActionRunner(
+      manifest: manifest,
+      doctorService: doctorService,
+    );
+  }
 
   EnvManifest manifest;
   SyncService syncService;
   SupabaseLinkService linkService;
   DoctorService doctorService;
+  late ActionRunner actionRunner;
 
-  ActiveState readState() => readActiveState(
-        manifest.rootDir,
-        defaultProfileId: manifest.profiles.defaultProfileId,
-        defaultEnvironmentId: manifest.defaultEnvironmentId,
-      );
+  ActiveState readState() => manifest.readState();
 
   List<String> profileIds() =>
       manifest.profiles.profiles.keys.toList()..sort();
@@ -57,12 +85,109 @@ class TuiServicesBridge {
     return ids;
   }
 
+  WorkspaceContext activeContext() {
+    final state = readState();
+    return manifest.context(
+      profileId: state.profileId,
+      environmentId: state.environmentId,
+    );
+  }
+
+  /// Targets that declare at least one action.
+  List<RunnableTargetInfo> runnableTargets() {
+    final list = <RunnableTargetInfo>[];
+    for (final t in manifest.targets.values) {
+      if (t.actions.isEmpty) {
+        continue;
+      }
+      list.add(RunnableTargetInfo(id: t.id, description: t.description));
+    }
+    list.sort((a, b) => a.id.compareTo(b.id));
+    return list;
+  }
+
+  List<ActionListItem> actionsFor(String targetId) {
+    final target = manifest.getTarget(targetId);
+    final ctx = activeContext();
+    final items = <ActionListItem>[];
+    final keys = target.actions.keys.toList()..sort();
+    for (final id in keys) {
+      final spec = target.actions[id]!;
+      final reason = actionRunner.disabledReason(
+        spec: spec,
+        ctx: ctx,
+        targetId: targetId,
+      );
+      items.add(
+        ActionListItem(
+          id: id,
+          description: spec.displayDescription,
+          enabled: reason == null,
+          disabledReason: reason,
+        ),
+      );
+    }
+    return items;
+  }
+
+  /// Sync preview of the resolved command line (templates expanded, no process).
+  String previewActionCommand({
+    required String targetId,
+    required String actionId,
+    List<String> extraArgs = const [],
+  }) {
+    final target = manifest.getTarget(targetId);
+    final spec = target.actions[actionId];
+    if (spec == null) {
+      return '$targetId/$actionId';
+    }
+    final ctx = activeContext();
+    final binding = ctx.environment.binding(targetId);
+    final template = ActionTemplate(
+      buildActionTemplateVars(
+        profileId: ctx.profileId,
+        environmentId: ctx.environment.id,
+        workspaceRoot: manifest.rootDir.path,
+        secretsFile: ctx.secretsFile.path,
+        railwayEnvironment: ctx.environment.railwayEnvironment,
+        envFile: binding?.envFile?.path,
+        bindingFields: binding?.fields ?? const {},
+      ),
+    );
+    final command = template.expand(spec.command);
+    final args = [
+      ...template.expandAll(spec.args),
+      ...extraArgs,
+    ];
+    if (args.isEmpty) {
+      return command;
+    }
+    return '$command ${args.join(' ')}';
+  }
+
+  Future<ActionLaunchPlan> resolveAction({
+    required String targetId,
+    required String actionId,
+    List<String> extraArgs = const [],
+  }) {
+    return actionRunner.resolveLaunch(
+      ctx: activeContext(),
+      targetId: targetId,
+      actionId: actionId,
+      extraArgs: extraArgs,
+    );
+  }
+
   /// Reload manifest + state from disk.
   BridgeActionResult refresh() {
     manifest = EnvManifest.load(manifest.rootDir);
     syncService = SyncService(manifest: manifest);
     linkService = SupabaseLinkService(manifest: manifest);
     doctorService = DoctorService(manifest: manifest, skipNetwork: true);
+    actionRunner = ActionRunner(
+      manifest: manifest,
+      doctorService: doctorService,
+    );
     final state = readState();
     return BridgeActionResult(
       ok: true,

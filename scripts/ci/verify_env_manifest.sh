@@ -11,11 +11,17 @@ if [[ ! -f "$workspace" ]]; then
   exit 1
 fi
 
+if grep -q '"profiles"' "$workspace"; then
+  echo "FAIL: $workspace must not declare profiles (auto-detect from .vet45/profiles/)"
+  exit 1
+fi
+
 for target in \
   apps/erp/vet45.target.json \
   apps/admin/vet45.target.json \
   apps/messaging_worker/vet45.target.json \
-  config/deploy/vet45.target.json
+  packages/vet45_design_system/example/vet45.target.json \
+  .vet45/deploy/vet45.target.json
 do
   if [[ ! -f "$root/$target" ]]; then
     echo "FAIL: missing $root/$target"
@@ -24,24 +30,29 @@ do
 done
 
 if [[ -d "$root/tools/vet45_env/templates" ]]; then
-  echo "FAIL: obsolete templates dir $root/tools/vet45_env/templates (removed — use config/<profile>/*.env.example)"
+  echo "FAIL: obsolete templates dir $root/tools/vet45_env/templates (use .vet45/templates/)"
   exit 1
 fi
 
-if [[ -d "$root/config/secrets" ]]; then
-  echo "FAIL: obsolete config/secrets/ — use config/<profileId>/ (e.g. config/default/)"
+if [[ -d "$root/config" ]]; then
+  echo "FAIL: obsolete config/ — use .vet45/templates, .vet45/deploy, .vet45/profiles"
+  exit 1
+fi
+
+if [[ ! -d "$root/.vet45/templates" ]]; then
+  echo "FAIL: missing $root/.vet45/templates"
   exit 1
 fi
 
 for example in development local staging production auth; do
-  if [[ ! -f "$root/config/default/${example}.env.example" ]]; then
-    echo "FAIL: missing $root/config/default/${example}.env.example"
+  if [[ ! -f "$root/.vet45/templates/${example}.env.example" ]]; then
+    echo "FAIL: missing $root/.vet45/templates/${example}.env.example"
     exit 1
   fi
 done
 
-if [[ ! -f "$root/config/deploy/deploy.env.example" ]]; then
-  echo "FAIL: missing $root/config/deploy/deploy.env.example"
+if [[ ! -f "$root/.vet45/deploy/deploy.env.example" ]]; then
+  echo "FAIL: missing $root/.vet45/deploy/deploy.env.example"
   exit 1
 fi
 
@@ -110,10 +121,11 @@ echo "$list_out" | grep -q 'manifest:'
 "$root/scripts/env/vet45.sh" list >/dev/null
 test -x "$root/scripts/env/switch.sh"
 
-echo "==> vet45 init (temp smoke — copy examples to env)"
+echo "==> vet45 init (temp smoke)"
 tmp="$(mktemp -d)"
 trap 'rm -rf "$tmp"' EXIT
-mkdir -p "$tmp/tools/vet45_env" "$tmp/apps/erp" "$tmp/apps/admin" "$tmp/apps/messaging_worker" "$tmp/config/deploy" "$tmp/config/default"
+mkdir -p "$tmp/tools/vet45_env" "$tmp/apps/erp" "$tmp/apps/admin" "$tmp/apps/messaging_worker" \
+  "$tmp/packages/vet45_design_system/example" "$tmp/.vet45/deploy" "$tmp/.vet45/templates"
 cp -R "$root/tools/vet45_env/bin" "$tmp/tools/vet45_env/"
 cp -R "$root/tools/vet45_env/lib" "$tmp/tools/vet45_env/"
 cp "$root/tools/vet45_env/pubspec.yaml" "$tmp/tools/vet45_env/pubspec.yaml"
@@ -121,16 +133,20 @@ cp "$root/vet45.workspace.json" "$tmp/vet45.workspace.json"
 cp "$root/apps/erp/vet45.target.json" "$tmp/apps/erp/"
 cp "$root/apps/admin/vet45.target.json" "$tmp/apps/admin/"
 cp "$root/apps/messaging_worker/vet45.target.json" "$tmp/apps/messaging_worker/"
-cp "$root/config/deploy/vet45.target.json" "$tmp/config/deploy/"
-cp "$root/config/default/"*.env.example "$tmp/config/default/"
-cp "$root/config/deploy/deploy.env.example" "$tmp/config/deploy/"
+cp "$root/packages/vet45_design_system/example/vet45.target.json" \
+  "$tmp/packages/vet45_design_system/example/"
+cp "$root/.vet45/deploy/vet45.target.json" "$tmp/.vet45/deploy/"
+cp "$root/.vet45/templates/"*.env.example "$tmp/.vet45/templates/"
+cp "$root/.vet45/deploy/deploy.env.example" "$tmp/.vet45/deploy/"
 sed -i '' '/resolution: workspace/d' "$tmp/tools/vet45_env/pubspec.yaml" 2>/dev/null || \
   sed -i '/resolution: workspace/d' "$tmp/tools/vet45_env/pubspec.yaml"
 printf 'name: vet45\npublish_to: none\nenvironment:\n  sdk: ">=3.11.1 <4.0.0"\n' > "$tmp/pubspec.yaml"
 (cd "$tmp/tools/vet45_env" && dart pub get >/dev/null)
-(cd "$tmp" && dart run tools/vet45_env/bin/vet45_env.dart init >/dev/null)
-test -f "$tmp/config/default/development.env"
+(cd "$tmp" && dart run tools/vet45_env/bin/vet45_env.dart init smokeprofile >/dev/null)
+test -f "$tmp/.vet45/profiles/smokeprofile/development.env"
+test -f "$tmp/.vet45/profiles/smokeprofile/development.env.example"
+test -f "$tmp/.vet45/deploy/deploy.env"
 test ! -d "$tmp/tools/vet45_env/templates"
-test ! -f "$tmp/config/environments.json"
+test ! -d "$tmp/config"
 
 echo "OK: environment manager verified"

@@ -81,6 +81,8 @@ const _workerActions = {
 };
 
 /// Writes a minimal workspace + target layout under [root] for unit tests.
+///
+/// Profiles are local dirs under `.vet45/profiles/<id>/` (not in workspace JSON).
 void writeTestWorkspace(
   Directory root, {
   String defaultEnvironment = 'local',
@@ -92,12 +94,13 @@ void writeTestWorkspace(
   Map<String, Map<String, dynamic>>? erpEnvOverrides,
   Map<String, Map<String, dynamic>>? workerEnvOverrides,
   Map<String, Map<String, dynamic>>? environmentMeta,
-  Map<String, Map<String, String>>? profiles,
-  String defaultProfile = 'default',
+  /// Profile ids to create as `.vet45/profiles/<id>/` directories.
+  List<String> profileIds = const ['default'],
+  String activeProfile = 'default',
+  bool writeActive = true,
+  bool includeTemplates = true,
   bool includeDoctorAlignHosts = true,
 }) {
-  Directory('${root.path}/config/default').createSync(recursive: true);
-
   final environments = <String, dynamic>{
     for (final id in environmentIds)
       id: {
@@ -107,27 +110,19 @@ void writeTestWorkspace(
       },
   };
 
-  final profileEntries = profiles ??
-      {
-        'default': {
-          'description': 'test default',
-          'secretsRoot': 'config/default',
-        },
-      };
-
   final workspace = {
     'version': 1,
     'defaultEnvironment': defaultEnvironment,
     'scan': {
       'include': [
         'apps/**/vet45.target.json',
-        'config/**/vet45.target.json',
+        '.vet45/**/vet45.target.json',
       ],
-      'exclude': ['**/.dart_tool/**', '**/build/**'],
-    },
-    'profiles': {
-      'defaultProfile': defaultProfile,
-      'entries': profileEntries,
+      'exclude': [
+        '**/.dart_tool/**',
+        '**/build/**',
+        '**/.vet45/profiles/**',
+      ],
     },
     'environments': environments,
     if (includeDoctorAlignHosts && includeErp && includeWorker)
@@ -145,6 +140,33 @@ void writeTestWorkspace(
   File('${root.path}/vet45.workspace.json').writeAsStringSync(
     '${const JsonEncoder.withIndent('  ').convert(workspace)}\n',
   );
+
+  if (includeTemplates) {
+    final templates = Directory('${root.path}/.vet45/templates');
+    templates.createSync(recursive: true);
+    for (final envId in environmentIds) {
+      File('${templates.path}/$envId.env.example').writeAsStringSync(
+        'SUPABASE_URL=\nSUPABASE_ANON_KEY=\nSUPABASE_SERVICE_ROLE_KEY=\n',
+      );
+    }
+    File('${templates.path}/auth.env.example').writeAsStringSync(
+      'SUPABASE_ACCESS_TOKEN=\n',
+    );
+  }
+
+  for (final id in profileIds) {
+    Directory('${root.path}/.vet45/profiles/$id').createSync(recursive: true);
+  }
+
+  if (writeActive && profileIds.contains(activeProfile)) {
+    writeActiveState(
+      root,
+      ActiveState(
+        profileId: activeProfile,
+        environmentId: defaultEnvironment,
+      ),
+    );
+  }
 
   if (includeErp) {
     _writeTarget(
@@ -240,7 +262,7 @@ void writeTestWorkspace(
   if (includeDeploy) {
     _writeTarget(
       root,
-      dir: 'config/deploy',
+      dir: '.vet45/deploy',
       id: 'deploy',
       description: 'iOS TestFlight (shared)',
       writeEnvFile: false,
@@ -252,6 +274,9 @@ void writeTestWorkspace(
       environments: {
         for (final id in environmentIds) id: <String, dynamic>{},
       },
+    );
+    File('${root.path}/.vet45/deploy/deploy.env.example').writeAsStringSync(
+      'APP_STORE_CONNECT_ISSUER_ID=\nAPP_STORE_CONNECT_KEY_IDENTIFIER=\n',
     );
   }
 }

@@ -30,6 +30,7 @@ class ProfilesPanel extends StatelessComponent {
           controller: scrollController,
           itemCount: profiles.length,
           itemBuilder: (context, i) => _line(
+            context: context,
             id: profiles[i],
             active: profiles[i] == activeProfile,
             selected: i == cursor,
@@ -40,25 +41,27 @@ class ProfilesPanel extends StatelessComponent {
   }
 
   Component _line({
+    required BuildContext context,
     required String id,
     required bool active,
     required bool selected,
   }) {
+    final theme = TuiTheme.of(context);
     final marker = active ? '<' : ' ';
     final prefix = selected ? '>' : ' ';
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 1),
       decoration: selected && focused
-          ? BoxDecoration(color: Color.fromRGB(30, 40, 50))
+          ? BoxDecoration(color: theme.selectionColor)
           : null,
       child: Text(
         '$prefix $id $marker',
         style: TextStyle(
           color: selected && focused
-              ? Colors.brightCyan
+              ? theme.primary
               : active
-                  ? Colors.brightGreen
-                  : Colors.white,
+                  ? theme.success
+                  : theme.onSurface,
           fontWeight: active ? FontWeight.bold : FontWeight.normal,
         ),
       ),

@@ -32,9 +32,13 @@ void main() {
     expect(manifest.getEnvironment('local').binding('erp')?.flavor, 'development');
     expect(
       manifest.targets['deploy']!.secretsFile!.path,
-      endsWith('config/deploy/deploy.env'),
+      endsWith('.vet45/deploy/deploy.env'),
     );
-    expect(manifest.profiles.defaultProfileId, 'default');
+    expect(manifest.profiles.profiles.keys, contains('default'));
+    expect(
+      manifest.profiles.profiles['default']!.secretsRoot,
+      '.vet45/profiles/default',
+    );
     expect(
       manifest.targets['erp']!.manifestFile!.path,
       endsWith('apps/erp/vet45.target.json'),
@@ -51,7 +55,7 @@ void main() {
     expect(m.defaultEnvironmentId, 'development');
     expect(
       m.targets['deploy']!.secretsFile!.path,
-      endsWith('config/deploy/deploy.env'),
+      endsWith('.vet45/deploy/deploy.env'),
     );
   });
 
@@ -89,7 +93,7 @@ void main() {
 
   test('sync writes erp and worker env from secrets', () async {
     writeDotEnv(
-      File('${root.path}/config/default/local.env'),
+      File('${root.path}/.vet45/profiles/default/local.env'),
       {
         'SUPABASE_URL': 'http://127.0.0.1:54321',
         'SUPABASE_ANON_KEY': 'anon-test',
@@ -119,7 +123,7 @@ void main() {
   test('sync does not copy APP_STORE_CONNECT keys into erp env', () async {
     Directory('${root.path}/apps/erp').createSync(recursive: true);
     writeDotEnv(
-      File('${root.path}/config/default/local.env'),
+      File('${root.path}/.vet45/profiles/default/local.env'),
       {
         'SUPABASE_URL': 'http://127.0.0.1:54321',
         'SUPABASE_ANON_KEY': 'anon-test',
@@ -148,7 +152,7 @@ void main() {
 
   test('full sync partial success when worker keys missing', () async {
     writeDotEnv(
-      File('${root.path}/config/default/local.env'),
+      File('${root.path}/.vet45/profiles/default/local.env'),
       {
         'SUPABASE_URL': 'http://127.0.0.1:54321',
         'SUPABASE_ANON_KEY': 'anon-test',
@@ -175,7 +179,7 @@ void main() {
 
   test('sync --target erp succeeds without worker keys', () async {
     writeDotEnv(
-      File('${root.path}/config/default/local.env'),
+      File('${root.path}/.vet45/profiles/default/local.env'),
       {
         'SUPABASE_URL': 'http://127.0.0.1:54321',
         'SUPABASE_ANON_KEY': 'anon-test',
@@ -194,7 +198,7 @@ void main() {
 
   test('autoGenerate WORKER_TICK_SECRET only when syncing worker', () async {
     writeDotEnv(
-      File('${root.path}/config/default/local.env'),
+      File('${root.path}/.vet45/profiles/default/local.env'),
       {
         'SUPABASE_URL': 'http://127.0.0.1:54321',
         'SUPABASE_ANON_KEY': 'anon-test',
@@ -208,7 +212,7 @@ void main() {
     );
     expect(erpOnly.ok, isTrue);
     final secretsAfterErp = loadDotEnv(
-      File('${root.path}/config/default/local.env'),
+      File('${root.path}/.vet45/profiles/default/local.env'),
     );
     expect(secretsAfterErp.containsKey('WORKER_TICK_SECRET'), isFalse);
 
@@ -218,7 +222,7 @@ void main() {
     );
     expect(workerOnly.ok, isTrue);
     final secretsAfterWorker = loadDotEnv(
-      File('${root.path}/config/default/local.env'),
+      File('${root.path}/.vet45/profiles/default/local.env'),
     );
     expect(secretsAfterWorker['WORKER_TICK_SECRET'], isNotEmpty);
     final worker = loadDotEnv(workerOnly.writtenFiles['worker']!);
@@ -227,7 +231,7 @@ void main() {
 
   test('doctor --target erp ignores missing deploy secrets', () async {
     writeDotEnv(
-      File('${root.path}/config/default/local.env'),
+      File('${root.path}/.vet45/profiles/default/local.env'),
       {
         'SUPABASE_URL': 'http://127.0.0.1:54321',
         'SUPABASE_ANON_KEY': 'anon-test',
@@ -265,7 +269,7 @@ void main() {
 
   test('doctor deploy passes when deploy secrets present', () async {
     writeDotEnv(
-      File('${root.path}/config/deploy/deploy.env'),
+      File('${root.path}/.vet45/deploy/deploy.env'),
       {
         'APP_STORE_CONNECT_ISSUER_ID': 'issuer',
         'APP_STORE_CONNECT_KEY_IDENTIFIER': 'key-id',
@@ -300,7 +304,6 @@ void main() {
     );
     final state = readActiveState(
       root,
-      defaultProfileId: 'default',
       defaultEnvironmentId: 'development',
     );
     expect(state.profileId, 'default');

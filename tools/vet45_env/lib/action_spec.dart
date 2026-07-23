@@ -2,6 +2,7 @@
 class ActionSpec {
   const ActionSpec({
     required this.command,
+    this.description,
     this.args = const [],
     this.cwd = '.',
     this.env = const {},
@@ -16,6 +17,8 @@ class ActionSpec {
   });
 
   final String command;
+  /// Short human label for TUI / docs. Falls back to command line if null.
+  final String? description;
   final List<String> args;
   final String cwd;
   final Map<String, String> env;
@@ -28,10 +31,24 @@ class ActionSpec {
   final bool requireRailwayEnvironment;
   final bool localSupabaseCheck;
 
+  /// Display text for lists (JSON description or compact command line).
+  String get displayDescription {
+    final explicit = description?.trim();
+    if (explicit != null && explicit.isNotEmpty) {
+      return explicit;
+    }
+    if (args.isEmpty) {
+      return command;
+    }
+    final joined = '$command ${args.join(' ')}';
+    return joined.length > 72 ? '${joined.substring(0, 69)}…' : joined;
+  }
+
   factory ActionSpec.fromJson(Map<String, dynamic> json) {
     final rawEnv = json['env'] as Map<String, dynamic>? ?? {};
     return ActionSpec(
       command: json['command'] as String,
+      description: json['description'] as String?,
       args: (json['args'] as List<dynamic>?)
               ?.map((e) => e as String)
               .toList() ??

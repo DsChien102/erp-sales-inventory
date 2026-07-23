@@ -21,7 +21,7 @@ void main() {
     }
   });
 
-  test('discovers targets under apps and config', () {
+    test('discovers targets under apps and .vet45', () {
     writeTestWorkspace(root, includeAdmin: true);
     final workspace = WorkspaceManifest.load(root);
     final targets = TargetDiscovery(
@@ -45,7 +45,7 @@ void main() {
     final manifest = EnvManifest.load(root);
     expect(
       manifest.targets['deploy']!.secretsFile!.path.replaceAll('\\', '/'),
-      endsWith('config/deploy/deploy.env'),
+      endsWith('.vet45/deploy/deploy.env'),
     );
   });
 

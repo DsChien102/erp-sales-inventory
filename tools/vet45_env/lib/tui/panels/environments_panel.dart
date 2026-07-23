@@ -20,13 +20,14 @@ class EnvironmentsPanel extends StatelessComponent {
 
   @override
   Component build(BuildContext context) {
+    final theme = TuiTheme.of(context);
     return PanelFrame(
       title: 'Environments',
       focused: focused,
       child: environments.isEmpty
           ? Text(
               ' (no <env>.env for profile)',
-              style: TextStyle(color: Colors.brightBlack),
+              style: TextStyle(color: theme.outline),
             )
           : Scrollbar(
               controller: scrollController,
@@ -35,6 +36,7 @@ class EnvironmentsPanel extends StatelessComponent {
                 controller: scrollController,
                 itemCount: environments.length,
                 itemBuilder: (context, i) => _line(
+                  context: context,
                   id: environments[i],
                   active: environments[i] == activeEnvironment,
                   selected: i == cursor,
@@ -45,25 +47,27 @@ class EnvironmentsPanel extends StatelessComponent {
   }
 
   Component _line({
+    required BuildContext context,
     required String id,
     required bool active,
     required bool selected,
   }) {
+    final theme = TuiTheme.of(context);
     final marker = active ? '<' : ' ';
     final prefix = selected ? '>' : ' ';
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 1),
       decoration: selected && focused
-          ? BoxDecoration(color: Color.fromRGB(30, 40, 50))
+          ? BoxDecoration(color: theme.selectionColor)
           : null,
       child: Text(
         '$prefix $id $marker',
         style: TextStyle(
           color: selected && focused
-              ? Colors.brightCyan
+              ? theme.primary
               : active
-                  ? Colors.brightGreen
-                  : Colors.white,
+                  ? theme.success
+                  : theme.onSurface,
           fontWeight: active ? FontWeight.bold : FontWeight.normal,
         ),
       ),
