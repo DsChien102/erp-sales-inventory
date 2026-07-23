@@ -90,6 +90,52 @@
         "macos"
       ],
       "requireEnvFile": true
+    },
+    "bump-version": {
+      "description": "Bump version of the app",
+      "command": "./scripts/bump_version.sh",
+      "cwd": ".",
+      "platforms": [
+        "macos"
+      ]
+    },
+    "build-ios": {
+      "description": "Build iOS IPA for TestFlight (staging/production)",
+      "command": "./scripts/build_ios.sh",
+      "args": [
+        "--env",
+        "{{environmentId}}"
+      ],
+      "cwd": ".",
+      "platforms": [
+        "macos"
+      ],
+      "requireEnvironments": [
+        "staging",
+        "production"
+      ]
+    },
+    "deploy-ios": {
+      "description": "Upload IPA to App Store Connect",
+      "command": "./deploy-ios.sh",
+      "args": [
+        "--env",
+        "{{environmentId}}"
+      ],
+      "cwd": ".",
+      "platforms": [
+        "macos"
+      ],
+      "requireEnvironments": [
+        "staging",
+        "production"
+      ],
+      "requireDoctorTargets": [
+        "deploy"
+      ],
+      "preActions": [
+        "build-ios"
+      ]
     }
   }
 }
