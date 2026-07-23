@@ -20,6 +20,7 @@ for target in \
   apps/erp/vet45.target.json \
   apps/admin/vet45.target.json \
   apps/messaging_worker/vet45.target.json \
+  packages/vet45_design_system/example/vet45.target.json \
   .vet45/deploy/vet45.target.json
 do
   if [[ ! -f "$root/$target" ]]; then
@@ -123,7 +124,8 @@ test -x "$root/scripts/env/switch.sh"
 echo "==> vet45 init (temp smoke)"
 tmp="$(mktemp -d)"
 trap 'rm -rf "$tmp"' EXIT
-mkdir -p "$tmp/tools/vet45_env" "$tmp/apps/erp" "$tmp/apps/admin" "$tmp/apps/messaging_worker" "$tmp/.vet45/deploy" "$tmp/.vet45/templates"
+mkdir -p "$tmp/tools/vet45_env" "$tmp/apps/erp" "$tmp/apps/admin" "$tmp/apps/messaging_worker" \
+  "$tmp/packages/vet45_design_system/example" "$tmp/.vet45/deploy" "$tmp/.vet45/templates"
 cp -R "$root/tools/vet45_env/bin" "$tmp/tools/vet45_env/"
 cp -R "$root/tools/vet45_env/lib" "$tmp/tools/vet45_env/"
 cp "$root/tools/vet45_env/pubspec.yaml" "$tmp/tools/vet45_env/pubspec.yaml"
@@ -131,6 +133,8 @@ cp "$root/vet45.workspace.json" "$tmp/vet45.workspace.json"
 cp "$root/apps/erp/vet45.target.json" "$tmp/apps/erp/"
 cp "$root/apps/admin/vet45.target.json" "$tmp/apps/admin/"
 cp "$root/apps/messaging_worker/vet45.target.json" "$tmp/apps/messaging_worker/"
+cp "$root/packages/vet45_design_system/example/vet45.target.json" \
+  "$tmp/packages/vet45_design_system/example/"
 cp "$root/.vet45/deploy/vet45.target.json" "$tmp/.vet45/deploy/"
 cp "$root/.vet45/templates/"*.env.example "$tmp/.vet45/templates/"
 cp "$root/.vet45/deploy/deploy.env.example" "$tmp/.vet45/deploy/"

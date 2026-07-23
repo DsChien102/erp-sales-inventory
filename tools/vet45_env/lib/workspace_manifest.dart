@@ -60,7 +60,7 @@ class ScanPolicy {
     final include = (json?['include'] as List<dynamic>?)
             ?.map((e) => e as String)
             .toList() ??
-        ['apps/**/vet45.target.json', '.vet45/**/vet45.target.json'];
+        ['apps/**/vet45.target.json', 'packages/**/vet45.target.json', '.vet45/**/vet45.target.json'];
     final exclude = (json?['exclude'] as List<dynamic>?)
             ?.map((e) => e as String)
             .toList() ??

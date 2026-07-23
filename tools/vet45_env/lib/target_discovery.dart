@@ -43,7 +43,8 @@ class TargetDiscovery {
     if (targets.isEmpty) {
       throw StateError(
         'No ${TargetManifest.fileName} found under ${rootDir.path}. '
-        'Expected apps/**/${TargetManifest.fileName} '
+        'Expected apps/**/${TargetManifest.fileName}, '
+        'packages/**/${TargetManifest.fileName}, '
         'or .vet45/**/${TargetManifest.fileName}.',
       );
     }

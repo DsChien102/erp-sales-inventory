@@ -4,6 +4,7 @@
   "scan": {
     "include": [
       "apps/**/vet45.target.json",
+      "packages/**/vet45.target.json",
       ".vet45/**/vet45.target.json"
     ],
     "exclude": [
