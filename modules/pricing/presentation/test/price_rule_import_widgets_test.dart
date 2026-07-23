@@ -51,6 +51,48 @@ void main() {
     expect(_button(tester, 'Tiếp tục').onPressed, isNull);
   });
 
+  testWidgets('read-only preview hides continue and shows back to result', (
+    tester,
+  ) async {
+    final cubit = _cubit();
+    addTearDown(cubit.close);
+    await tester.pumpWidget(
+      _host(
+        PriceRuleImportPreviewView(
+          cubit: cubit,
+          importDetail: _detail(validRows: 1, warningRows: 0, errorRows: 0),
+          rows: const [],
+          readOnly: true,
+        ),
+      ),
+    );
+
+    expect(find.text('Tiếp tục'), findsNothing);
+    expect(find.text('Quay lại kết quả'), findsOneWidget);
+  });
+
+  testWidgets('choose file disables continue until a file is selected', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      _host(const PriceRuleImportChooseFileView()),
+    );
+    expect(_button(tester, 'Tiếp tục').onPressed, isNull);
+
+    await tester.pumpWidget(
+      _host(
+        PriceRuleImportChooseFileView(
+          selectedFileName: 'demo.xlsx',
+          selectedFileSizeBytes: 2048,
+          onContinue: () {},
+        ),
+      ),
+    );
+    expect(find.text('demo.xlsx'), findsOneWidget);
+    expect(find.text('2.0 KB'), findsOneWidget);
+    expect(_button(tester, 'Tiếp tục').onPressed, isNotNull);
+  });
+
   testWidgets('confirm counts warning rows and requires acknowledgement', (
     tester,
   ) async {
@@ -68,6 +110,9 @@ void main() {
 
     expect(find.text('Import (2 dòng)'), findsOneWidget);
     expect(_button(tester, 'Import (2 dòng)').onPressed, isNull);
+    expect(find.text('Cập nhật giá nhỏ hiện tại'), findsOneWidget);
+    expect(find.text('Bỏ qua, giữ nguyên giá hiện tại'), findsOneWidget);
+    expect(find.text('Chỉ cập nhật rule đã có'), findsOneWidget);
 
     await tester.pumpWidget(
       _host(
@@ -79,6 +124,44 @@ void main() {
       ),
     );
     expect(_button(tester, 'Import (2 dòng)').onPressed, isNotNull);
+  });
+
+  testWidgets('result shows partial outcome and review links', (tester) async {
+    await tester.pumpWidget(
+      _host(
+        PriceRuleImportResultView(
+          result: _result(
+            importedRows: 2,
+            skippedRows: 1,
+            failedRows: 1,
+            validRows: 2,
+            warningRows: 1,
+            errorRows: 1,
+          ),
+          outcome: PriceRuleImportOutcome.partial,
+        ),
+      ),
+    );
+
+    expect(find.text('Import một phần'), findsOneWidget);
+    expect(find.textContaining('Dữ liệu hợp lệ'), findsOneWidget);
+    expect(find.textContaining('Cảnh báo'), findsOneWidget);
+    expect(find.textContaining('Lỗi'), findsWidgets);
+  });
+
+  testWidgets('wizard shows no-permission empty state', (tester) async {
+    final cubit = _cubit();
+    addTearDown(cubit.close);
+    await tester.pumpWidget(
+      _host(
+        PriceRuleImportWizard(
+          cubit: cubit,
+          state: const PriceRuleImportNoPermission(),
+        ),
+      ),
+    );
+
+    expect(find.text('Không có quyền import'), findsOneWidget);
   });
 
   testWidgets('wizard explains file-level errors in Vietnamese', (
@@ -195,6 +278,35 @@ CustomerPriceRuleImportDetailDto _detail({
     createdAt: DateTime.utc(2026, 7, 21),
   ),
   rows: const CursorPageDto(items: [], hasMore: false),
+);
+
+CustomerPriceRuleImportResultDto _result({
+  required int importedRows,
+  required int skippedRows,
+  required int failedRows,
+  required int validRows,
+  required int warningRows,
+  required int errorRows,
+}) => CustomerPriceRuleImportResultDto(
+  batch: CustomerPriceRuleImportDto(
+    id: 'import-1',
+    templateVersion: CustomerPriceRuleImportTemplateDto.versionV1,
+    originalFileName: CustomerPriceRuleImportTemplateDto.fileNameV1,
+    importMode: CustomerPriceRuleImportMode.upsert,
+    status: CustomerPriceRuleImportStatus.completedWithErrors,
+    version: 2,
+    totalRows: validRows + warningRows + errorRows,
+    validRows: validRows,
+    warningRows: warningRows,
+    errorRows: errorRows,
+    importedRows: importedRows,
+    skippedRows: skippedRows,
+    failedRows: failedRows,
+    fileErrorCodes: const [],
+    createdAt: DateTime.utc(2026, 7, 21),
+  ),
+  processedAt: DateTime.utc(2026, 7, 21, 12),
+  isReplay: false,
 );
 
 CustomerPriceRuleImportRowPreviewDto _row({

@@ -115,6 +115,114 @@ void main() {
       expect(cubit.hasCancelableBatch, isFalse);
     },
   );
+
+  test('selectFile keeps pending bytes until continueWithSelectedFile', () async {
+    final module = _RecordingImportModule();
+    final cubit = _createCubit(module);
+    addTearDown(cubit.close);
+
+    cubit.selectFile(
+      fileName: 'demo.xlsx',
+      fileBytes: Uint8List.fromList(const [1, 2, 3]),
+    );
+
+    expect(
+      cubit.state,
+      isA<PriceRuleImportFileSelected>()
+          .having((s) => s.fileName, 'fileName', 'demo.xlsx')
+          .having((s) => s.fileSizeBytes, 'fileSizeBytes', 3),
+    );
+    expect(module.lastStartCommand, isNull);
+
+    await cubit.continueWithSelectedFile();
+
+    expect(module.lastStartCommand?.originalFileName, 'demo.xlsx');
+    expect(cubit.state, isA<PriceRuleImportPreview>());
+  });
+
+  test('checkAccess emits NoPermission when template is denied', () async {
+    final module = _RecordingImportModule(
+      templateError: const PricingBlockedException(
+        PricingBlockedCodes.noPermission,
+      ),
+    );
+    final cubit = _createCubit(module);
+    addTearDown(cubit.close);
+
+    await cubit.checkAccess();
+
+    expect(cubit.state, isA<PriceRuleImportNoPermission>());
+  });
+
+  test('reopenPreviewFromResult opens read-only then backToResult', () async {
+    final module = _RecordingImportModule(
+      confirmScenario: FakePricingScenario.importConfirmPartial,
+    );
+    final cubit = _createCubit(module);
+    addTearDown(cubit.close);
+    await _startImport(cubit);
+    cubit.proceedToConfirm();
+    await cubit.confirmImport(acknowledgeWarningRows: true);
+
+    expect(cubit.state, isA<PriceRuleImportResult>());
+
+    cubit.reopenPreviewFromResult(tab: PriceRuleImportPreviewTab.error);
+    final preview = cubit.state;
+    expect(
+      preview,
+      isA<PriceRuleImportPreview>()
+          .having((s) => s.readOnly, 'readOnly', isTrue)
+          .having(
+            (s) => s.initialTab,
+            'initialTab',
+            PriceRuleImportPreviewTab.error,
+          ),
+    );
+
+    cubit.backToResult();
+    expect(cubit.state, isA<PriceRuleImportResult>());
+  });
+
+  test('setImportMode keeps confirm and refreshes under the same step', () async {
+    final module = _RecordingImportModule();
+    final cubit = _createCubit(module);
+    addTearDown(cubit.close);
+    await _startImport(cubit);
+    cubit.proceedToConfirm();
+
+    expect(cubit.state, isA<PriceRuleImportConfirm>());
+    expect(
+      module.lastStartCommand?.importMode,
+      CustomerPriceRuleImportMode.upsert,
+    );
+
+    final future = cubit.setImportMode(CustomerPriceRuleImportMode.createOnly);
+    expect(
+      cubit.state,
+      isA<PriceRuleImportConfirm>().having(
+        (s) => s.isRefreshingMode,
+        'isRefreshingMode',
+        isTrue,
+      ),
+    );
+
+    await future;
+
+    expect(
+      module.lastStartCommand?.importMode,
+      CustomerPriceRuleImportMode.createOnly,
+    );
+    expect(module.lastCancelCommand, isNotNull);
+    expect(
+      cubit.state,
+      isA<PriceRuleImportConfirm>().having(
+        (s) => s.isRefreshingMode,
+        'isRefreshingMode',
+        isFalse,
+      ),
+    );
+    expect(cubit.importMode, CustomerPriceRuleImportMode.createOnly);
+  });
 }
 
 PriceRuleImportCubit _createCubit(_RecordingImportModule module) =>
@@ -134,11 +242,15 @@ Future<void> _startImport(PriceRuleImportCubit cubit) => cubit.startImport(
 final class _RecordingImportModule implements IPricingModule {
   _RecordingImportModule({
     this.startScenario = FakePricingScenario.importReadyMixed,
+    this.confirmScenario = FakePricingScenario.importConfirmPartial,
     this.cancelError,
+    this.templateError,
   });
 
   final FakePricingScenario startScenario;
+  final FakePricingScenario confirmScenario;
   final PricingBlockedException? cancelError;
+  final PricingBlockedException? templateError;
   StartCustomerPriceRuleImportCommand? lastStartCommand;
   CancelCustomerPriceRuleImportCommand? lastCancelCommand;
   GetCustomerPriceRuleImportTemplateQuery? lastTemplateQuery;
@@ -153,6 +265,13 @@ final class _RecordingImportModule implements IPricingModule {
       final result = await FakePricingModule(
         scenario: startScenario,
       ).executeCommandAsync<CustomerPriceRuleImportDetailDto>(startCommand);
+      return result as TResult;
+    }
+    if (command is ConfirmCustomerPriceRuleImportCommand) {
+      final confirmCommand = command as ConfirmCustomerPriceRuleImportCommand;
+      final result = await FakePricingModule(
+        scenario: confirmScenario,
+      ).executeCommandAsync<CustomerPriceRuleImportResultDto>(confirmCommand);
       return result as TResult;
     }
     if (command is CancelCustomerPriceRuleImportCommand) {
@@ -173,6 +292,8 @@ final class _RecordingImportModule implements IPricingModule {
     if (query is GetCustomerPriceRuleImportTemplateQuery) {
       final templateQuery = query as GetCustomerPriceRuleImportTemplateQuery;
       lastTemplateQuery = templateQuery;
+      final error = templateError;
+      if (error != null) throw error;
       final result = await FakePricingModule(
         scenario: FakePricingScenario.importTemplateV1,
       ).executeQueryAsync<CustomerPriceRuleImportTemplateDto>(templateQuery);

@@ -184,6 +184,155 @@ void main() {
       final state = cubit.state as PriceRuleFormEditing;
       expect(state.rulePriceMinor, 100000);
     });
+
+    testWidgets('SC-06 — dirty Hủy mở leave confirmation (VConfirmDialog)', (tester) async {
+      GetIt.instance.registerSingleton<IPricingModule>(
+        FakePricingModule(scenario: FakePricingScenario.createRuleOk),
+      );
+
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: VTheme.lightTheme,
+          home: Navigator(
+            onGenerateRoute: (_) => MaterialPageRoute<void>(
+              builder: (_) => const PricingFormPage(),
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      final formContext = tester.element(find.byType(PriceRuleFormBody));
+      formContext.read<PriceRuleFormCubit>().updatePrice(100000);
+      await tester.pump();
+
+      await tester.tap(find.text('Hủy'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Rời khỏi màn hình?'), findsOneWidget);
+      expect(find.byType(VConfirmDialog), findsOneWidget);
+      expect(find.byKey(const Key('wgt_e02_u04_fr01_01')), findsOneWidget);
+    });
+
+    testWidgets('SC-06 — dirty back mở leave confirmation', (tester) async {
+      GetIt.instance.registerSingleton<IPricingModule>(
+        FakePricingModule(scenario: FakePricingScenario.createRuleOk),
+      );
+
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: VTheme.lightTheme,
+          home: Navigator(
+            onGenerateRoute: (_) => MaterialPageRoute<void>(
+              builder: (_) => const PricingFormPage(),
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      final formContext = tester.element(find.byType(PriceRuleFormBody));
+      formContext.read<PriceRuleFormCubit>().updatePrice(100000);
+      await tester.pump();
+
+      await tester.tap(find.byKey(const Key('btn_price_rule_form_back')));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Rời khỏi màn hình?'), findsOneWidget);
+      expect(find.byType(VConfirmDialog), findsOneWidget);
+    });
+
+    testWidgets('SC-06 — dirty system back (maybePop) mở leave confirmation', (tester) async {
+      GetIt.instance.registerSingleton<IPricingModule>(
+        FakePricingModule(scenario: FakePricingScenario.createRuleOk),
+      );
+
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: VTheme.lightTheme,
+          home: Scaffold(
+            body: Builder(
+              builder: (context) => VButton(
+                label: 'Open form',
+                onPressed: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute<void>(
+                      builder: (_) => const PricingFormPage(),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.tap(find.text('Open form'));
+      await tester.pumpAndSettle();
+
+      tester
+          .element(find.byType(PriceRuleFormBody))
+          .read<PriceRuleFormCubit>()
+          .updatePrice(100000);
+      await tester.pumpAndSettle();
+
+      final formContext = tester.element(find.byType(PriceRuleFormBody));
+      expect(
+        (formContext.read<PriceRuleFormCubit>().state as PriceRuleFormEditing)
+            .isDirty,
+        isTrue,
+      );
+
+      final popScope = tester.widget<PopScope<Object?>>(
+        find.byType(PopScope<Object?>).first,
+      );
+      expect(popScope.canPop, isFalse);
+
+      // Swipe/system back → maybePop. Khi doNotPop, maybePop vẫn return true
+      // (request đã handle) nhưng didPop=false → onPopInvoked → leave dialog.
+      await Navigator.of(formContext).maybePop();
+      await tester.pumpAndSettle();
+
+      expect(find.text('Rời khỏi màn hình?'), findsOneWidget);
+      expect(find.byType(VConfirmDialog), findsOneWidget);
+      expect(find.byKey(const Key('wgt_e02_u04_fr01_01')), findsOneWidget);
+    });
+
+    testWidgets('SC-06 — clean Hủy thoát ngay không hỏi', (tester) async {
+      GetIt.instance.registerSingleton<IPricingModule>(
+        FakePricingModule(scenario: FakePricingScenario.createRuleOk),
+      );
+
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: VTheme.lightTheme,
+          home: Scaffold(
+            body: Builder(
+              builder: (context) => VButton(
+                label: 'Open form',
+                onPressed: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute<void>(
+                      builder: (_) => const PricingFormPage(),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.tap(find.text('Open form'));
+      await tester.pumpAndSettle();
+
+      expect(find.byKey(const Key('wgt_e02_u04_fr01_01')), findsOneWidget);
+
+      await tester.tap(find.text('Hủy'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Rời khỏi màn hình?'), findsNothing);
+      expect(find.byKey(const Key('wgt_e02_u04_fr01_01')), findsNothing);
+      expect(find.text('Open form'), findsOneWidget);
+    });
   });
 
   // ── S8 / US-05 ──
@@ -197,7 +346,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.byKey(const Key('wgt_e02_u05_fr01_01')), findsOneWidget);
-      expect(find.text('Nhập từ Excel'), findsOneWidget);
+      expect(find.text('Nhập giá riêng'), findsOneWidget);
       expect(find.byType(PriceRuleImportWizard), findsOneWidget);
     });
   });
@@ -220,6 +369,36 @@ void main() {
       expect(find.byType(VMoneyField), findsOneWidget);
       final moneyField = tester.widget<VMoneyField>(find.byType(VMoneyField));
       expect(moneyField.controller?.text, '90,000');
+    });
+
+    testWidgets('SC-06 — dirty Hủy trên form sửa mở leave confirmation', (tester) async {
+      GetIt.instance.registerSingleton<IPricingModule>(
+        FakePricingModule(scenario: FakePricingScenario.updateRuleOk),
+      );
+      final rule = await loadDetail();
+
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: VTheme.lightTheme,
+          home: Navigator(
+            onGenerateRoute: (_) => MaterialPageRoute<void>(
+              builder: (_) => PricingFormPage(initialRule: rule),
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      final formContext = tester.element(find.byType(PriceRuleFormBody));
+      formContext.read<PriceRuleFormCubit>().updatePrice(rule.price.amountMinor + 5000);
+      await tester.pump();
+
+      await tester.tap(find.text('Hủy'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Rời khỏi màn hình?'), findsOneWidget);
+      expect(find.byType(VConfirmDialog), findsOneWidget);
+      expect(find.byKey(const Key('wgt_e02_u06_fr01_01')), findsOneWidget);
     });
   });
 

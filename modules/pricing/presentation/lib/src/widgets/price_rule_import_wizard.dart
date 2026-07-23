@@ -16,6 +16,8 @@ class PriceRuleImportWizard extends StatelessWidget {
     required this.state,
     this.onPickFile,
     this.onDownloadTemplate,
+    this.onContinue,
+    this.onClearFile,
     this.onFinish,
     this.onBackToChooseFile,
     this.isDownloadingTemplate = false,
@@ -25,6 +27,8 @@ class PriceRuleImportWizard extends StatelessWidget {
   final PriceRuleImportState state;
   final VoidCallback? onPickFile;
   final VoidCallback? onDownloadTemplate;
+  final VoidCallback? onContinue;
+  final VoidCallback? onClearFile;
   final VoidCallback? onFinish;
   final VoidCallback? onBackToChooseFile;
   final bool isDownloadingTemplate;
@@ -32,40 +36,85 @@ class PriceRuleImportWizard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return switch (state) {
+      PriceRuleImportNoPermission() => const VEmptyState(
+        icon: VIcons.ban,
+        title: 'Không có quyền import',
+        description:
+            'Bạn không có quyền nhập giá riêng từ Excel. '
+            'Liên hệ quản trị viên nếu cần truy cập.',
+      ),
+      PriceRuleImportLoading(:final message) => Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const VSkeleton(width: 48, height: 48),
+            if (message != null) ...[
+              const VGap.md(),
+              VText(
+                message,
+                variant: VTextVariant.bodySmall,
+                color: context.vColors.textSecondary,
+              ),
+            ],
+          ],
+        ),
+      ),
       PriceRuleImportInitial() ||
       PriceRuleImportFileSelected() => PriceRuleImportChooseFileView(
         onPickFile: onPickFile,
         onDownloadTemplate: onDownloadTemplate,
+        onContinue: onContinue,
+        onClearFile: onClearFile,
         isDownloadingTemplate: isDownloadingTemplate,
         selectedFileName: state is PriceRuleImportFileSelected
             ? (state as PriceRuleImportFileSelected).fileName
             : null,
+        selectedFileSizeBytes: state is PriceRuleImportFileSelected
+            ? (state as PriceRuleImportFileSelected).fileSizeBytes
+            : null,
       ),
-      PriceRuleImportLoading(:final step)
-          when step == PriceRuleImportStep.preview ||
-              step == PriceRuleImportStep.confirm ||
-              step == PriceRuleImportStep.result =>
-        const Center(child: VSkeleton(width: 48, height: 48)),
-      PriceRuleImportPreview(:final importDetail, :final rows) =>
+      PriceRuleImportPreview(
+        :final importDetail,
+        :final rows,
+        :final readOnly,
+        :final initialTab,
+      ) =>
         PriceRuleImportPreviewView(
           cubit: cubit,
           importDetail: importDetail,
           rows: rows,
-          onBack: onBackToChooseFile,
+          readOnly: readOnly,
+          initialTab: initialTab,
+          onBack: readOnly
+              ? cubit.backToResult
+              : (onBackToChooseFile ?? cubit.backToChooseFile),
         ),
       PriceRuleImportConfirm(
         :final importDetail,
         :final acknowledgeWarningRows,
+        :final isRefreshingMode,
       ) =>
         PriceRuleImportConfirmView(
           cubit: cubit,
           importDetail: importDetail,
           acknowledgeWarningRows: acknowledgeWarningRows,
+          isRefreshingMode: isRefreshingMode,
         ),
-      PriceRuleImportResult(:final result) => PriceRuleImportResultView(
-        result: result,
-        onFinish: onFinish,
-      ),
+      PriceRuleImportResult(:final result, :final outcome) =>
+        PriceRuleImportResultView(
+          result: result,
+          outcome: outcome,
+          onFinish: onFinish,
+          onViewValid: () => cubit.reopenPreviewFromResult(
+            tab: PriceRuleImportPreviewTab.valid,
+          ),
+          onViewWarnings: () => cubit.reopenPreviewFromResult(
+            tab: PriceRuleImportPreviewTab.warning,
+          ),
+          onViewErrors: () => cubit.reopenPreviewFromResult(
+            tab: PriceRuleImportPreviewTab.error,
+          ),
+        ),
       PriceRuleImportError(:final code) => VEmptyState(
         icon: VIcons.error,
         title: 'Đã có lỗi xảy ra',
@@ -73,7 +122,6 @@ class PriceRuleImportWizard extends StatelessWidget {
         actionLabel: 'Thử lại',
         onActionPressed: onBackToChooseFile ?? cubit.backToChooseFile,
       ),
-      _ => const SizedBox.shrink(),
     };
   }
 
@@ -108,70 +156,13 @@ class PriceRuleImportStepIndicator extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final current = step.index;
-    final colors = context.vColors;
-    return Padding(
-      padding: const EdgeInsets.symmetric(
-        horizontal: VSpacing.space4,
-        vertical: VSpacing.space3,
-      ),
-      child: Row(
-        children: List.generate(_labels.length, (i) {
-          final isActive = i == current;
-          final isDone = i < current;
-          return Expanded(
-            child: Row(
-              children: [
-                Column(
-                  children: [
-                    Container(
-                      width: 24,
-                      height: 24,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: isDone
-                            ? colors.success
-                            : isActive
-                            ? colors.primary
-                            : colors.surfaceAlt,
-                      ),
-                      child: Center(
-                        child: isDone
-                            ? VIcon(
-                                icon: VIcons.check,
-                                size: 14,
-                                color: colors.surface,
-                              )
-                            : VText(
-                                '${i + 1}',
-                                variant: VTextVariant.monoNumeric,
-                                color: isActive
-                                    ? colors.surface
-                                    : colors.textMuted,
-                                style: const TextStyle(fontSize: 12),
-                              ),
-                      ),
-                    ),
-                    const VGap.xs(),
-                    VText(
-                      _labels[i],
-                      variant: VTextVariant.caption,
-                      color: isDone || isActive
-                          ? colors.textPrimary
-                          : colors.textMuted,
-                    ),
-                  ],
-                ),
-                if (i < _labels.length - 1)
-                  Expanded(
-                    child: Divider(
-                      color: isDone ? colors.success : colors.borderDefault,
-                    ),
-                  ),
-              ],
-            ),
-          );
-        }),
+    return VPagePadding(
+      vertical: VSpacing.space3,
+      child: VSteps(
+        currentStep: step.index,
+        steps: [
+          for (final label in _labels) VStepItem(title: label),
+        ],
       ),
     );
   }

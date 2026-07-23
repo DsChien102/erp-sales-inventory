@@ -21,10 +21,6 @@ class PriceRuleImportStatChip extends StatelessWidget {
   Widget build(BuildContext context) {
     return Expanded(
       child: VCard(
-        padding: const EdgeInsets.symmetric(
-          horizontal: VSpacing.space2,
-          vertical: VSpacing.space3,
-        ),
         child: Column(
           children: [
             VText(
@@ -92,21 +88,20 @@ abstract final class PriceRuleImportRowLabels {
 
 /// Tile một dòng preview import (cảnh báo / lỗi).
 class PriceRuleImportRowTile extends StatelessWidget {
-  const PriceRuleImportRowTile({super.key, required this.row});
+  const PriceRuleImportRowTile({
+    super.key,
+    required this.row,
+    this.onTap,
+  });
 
   final CustomerPriceRuleImportRowPreviewDto row;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
     final custName = PriceRuleImportRowLabels.customer(row);
     final prodName = PriceRuleImportRowLabels.product(row);
     final colors = context.vColors;
-    final tone = switch (row.status) {
-      CustomerPriceRuleImportRowStatus.valid => colors.success,
-      CustomerPriceRuleImportRowStatus.warning => colors.warning,
-      CustomerPriceRuleImportRowStatus.error => colors.danger,
-      _ => colors.textMuted,
-    };
     final errorMessages = row.errorCodes
         .map((code) => PriceRuleImportIssueFormatter.errorMessage(code, row))
         .toList(growable: false);
@@ -115,17 +110,20 @@ class PriceRuleImportRowTile extends StatelessWidget {
         .toList(growable: false);
 
     return VCard(
-      padding: const EdgeInsets.all(VSpacing.space3),
+      onTap: onTap,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Padding(
-            padding: const EdgeInsets.only(top: VSpacing.space1),
-            child: Container(
-              width: 8,
-              height: 8,
-              decoration: BoxDecoration(color: tone, shape: BoxShape.circle),
-            ),
+          VIconBox(
+            icon: row.status == CustomerPriceRuleImportRowStatus.error
+                ? VIcons.error
+                : VIcons.warning,
+            size: VSpacing.space5,
+            iconSize: VSpacing.space3,
+            isCircular: true,
+            tone: row.status == CustomerPriceRuleImportRowStatus.error
+                ? VComponentTone.danger
+                : VComponentTone.warning,
           ),
           const VGap.horizontalSm(),
           Expanded(
@@ -143,16 +141,26 @@ class PriceRuleImportRowTile extends StatelessWidget {
                     message,
                     variant: VTextVariant.bodySmall,
                     color: colors.danger,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
                   ),
                 for (final message in warningMessages)
                   VText(
                     message,
                     variant: VTextVariant.bodySmall,
                     color: colors.warning,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
                   ),
               ],
             ),
           ),
+          if (onTap != null)
+            VIcon(
+              icon: VIcons.chevronRight,
+              size: VSpacing.space4,
+              color: colors.textMuted,
+            ),
         ],
       ),
     );

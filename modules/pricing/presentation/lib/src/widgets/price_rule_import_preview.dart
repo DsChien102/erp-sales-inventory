@@ -3,9 +3,9 @@ import 'package:vet45_design_system/design_system.dart';
 import 'package:vet45_pricing_application/application.dart';
 
 import '../cubit/price_rule_import_cubit.dart';
+import '../cubit/price_rule_import_state.dart';
+import 'price_rule_import_issue_detail_sheet.dart';
 import 'price_rule_import_shared.dart';
-
-enum _PreviewTab { valid, warning, error }
 
 /// SG-04 — Preview dòng import trước khi xác nhận (khớp design Kiểm tra).
 class PriceRuleImportPreviewView extends StatefulWidget {
@@ -15,12 +15,16 @@ class PriceRuleImportPreviewView extends StatefulWidget {
     required this.importDetail,
     required this.rows,
     this.onBack,
+    this.readOnly = false,
+    this.initialTab = PriceRuleImportPreviewTab.valid,
   });
 
   final PriceRuleImportCubit cubit;
   final CustomerPriceRuleImportDetailDto importDetail;
   final List<CustomerPriceRuleImportRowPreviewDto> rows;
   final VoidCallback? onBack;
+  final bool readOnly;
+  final PriceRuleImportPreviewTab initialTab;
 
   @override
   State<PriceRuleImportPreviewView> createState() =>
@@ -29,15 +33,16 @@ class PriceRuleImportPreviewView extends StatefulWidget {
 
 class _PriceRuleImportPreviewViewState
     extends State<PriceRuleImportPreviewView> {
-  _PreviewTab _tab = _PreviewTab.valid;
+  late PriceRuleImportPreviewTab _tab = widget.initialTab;
 
   CustomerPriceRuleImportDto get _batch => widget.importDetail.batch;
 
   List<CustomerPriceRuleImportRowPreviewDto> get _filteredRows {
     final status = switch (_tab) {
-      _PreviewTab.valid => CustomerPriceRuleImportRowStatus.valid,
-      _PreviewTab.warning => CustomerPriceRuleImportRowStatus.warning,
-      _PreviewTab.error => CustomerPriceRuleImportRowStatus.error,
+      PriceRuleImportPreviewTab.valid => CustomerPriceRuleImportRowStatus.valid,
+      PriceRuleImportPreviewTab.warning =>
+        CustomerPriceRuleImportRowStatus.warning,
+      PriceRuleImportPreviewTab.error => CustomerPriceRuleImportRowStatus.error,
     };
     return widget.rows.where((r) => r.status == status).toList(growable: false);
   }
@@ -51,86 +56,97 @@ class _PriceRuleImportPreviewViewState
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Expanded(
-          child: ListView(
-            padding: const EdgeInsets.all(VSpacing.space4),
-            children: [
-              VText(
-                'Hệ thống đã kiểm tra file. Vui lòng xem kết quả.',
-                variant: VTextVariant.bodySmall,
-                color: colors.textSecondary,
-              ),
-              const VGap.md(),
-              Row(
-                children: [
-                  PriceRuleImportStatChip(
-                    label: 'Tổng dòng',
-                    value: batch.totalRows,
-                    color: colors.textPrimary,
+          child: VPagePadding(
+            child: ListView(
+              children: [
+                VText(
+                  widget.readOnly
+                      ? 'Xem lại dữ liệu đã kiểm tra trước khi import.'
+                      : 'Hệ thống đã kiểm tra file. Vui lòng xem kết quả.',
+                  variant: VTextVariant.bodySmall,
+                  color: colors.textSecondary,
+                ),
+                const VGap.md(),
+                Row(
+                  children: [
+                    PriceRuleImportStatChip(
+                      label: 'Tổng dòng',
+                      value: batch.totalRows,
+                      color: colors.textPrimary,
+                    ),
+                    const VGap.horizontalSm(),
+                    PriceRuleImportStatChip(
+                      label: 'Hợp lệ',
+                      value: batch.validRows,
+                      color: colors.success,
+                    ),
+                    const VGap.horizontalSm(),
+                    PriceRuleImportStatChip(
+                      label: 'Cảnh báo',
+                      value: batch.warningRows,
+                      color: colors.warning,
+                    ),
+                    const VGap.horizontalSm(),
+                    PriceRuleImportStatChip(
+                      label: 'Lỗi',
+                      value: batch.errorRows,
+                      color: colors.danger,
+                    ),
+                  ],
+                ),
+                const VGap.md(),
+                VTabs(
+                  tabs: [
+                    'Dữ liệu hợp lệ (${batch.validRows})',
+                    'Cảnh báo (${batch.warningRows})',
+                    'Lỗi (${batch.errorRows})',
+                  ],
+                  selectedIndex: _tab.index,
+                  isScrollable: true,
+                  onTabSelected: (i) => setState(
+                    () => _tab = PriceRuleImportPreviewTab.values[i],
                   ),
-                  const VGap.horizontalSm(),
-                  PriceRuleImportStatChip(
-                    label: 'Hợp lệ',
-                    value: batch.validRows,
-                    color: colors.success,
-                  ),
-                  const VGap.horizontalSm(),
-                  PriceRuleImportStatChip(
-                    label: 'Cảnh báo',
-                    value: batch.warningRows,
-                    color: colors.warning,
-                  ),
-                  const VGap.horizontalSm(),
-                  PriceRuleImportStatChip(
-                    label: 'Lỗi',
-                    value: batch.errorRows,
-                    color: colors.danger,
-                  ),
-                ],
-              ),
-              const VGap.md(),
-              VTabs(
-                tabs: [
-                  'Dữ liệu hợp lệ (${batch.validRows})',
-                  'Cảnh báo (${batch.warningRows})',
-                  'Lỗi (${batch.errorRows})',
-                ],
-                selectedIndex: _tab.index,
-                isScrollable: true,
-                onTabSelected: (i) => setState(() => _tab = _PreviewTab.values[i]),
-              ),
-              const VGap.md(),
-              if (_tab == _PreviewTab.valid)
-                _ValidRowsTable(rows: _filteredRows)
-              else
-                _IssueRowsList(rows: _filteredRows),
-              const VGap.lg(),
-              _QuickCheckSection(rows: widget.rows),
-            ],
+                ),
+                const VGap.md(),
+                if (_tab == PriceRuleImportPreviewTab.valid)
+                  _ValidRowsTable(rows: _filteredRows)
+                else
+                  _IssueRowsList(rows: _filteredRows),
+                const VGap.lg(),
+                _QuickCheckSection(rows: widget.rows),
+              ],
+            ),
           ),
         ),
-        Padding(
-          padding: const EdgeInsets.all(VSpacing.space4),
+        VPagePadding(
+          applyBottomSafeArea: true,
+          vertical: VSpacing.space2,
           child: Row(
             children: [
               Expanded(
                 child: VButton(
-                  label: 'Quay lại',
+                  label: widget.readOnly ? 'Quay lại kết quả' : 'Quay lại',
                   variant: VButtonVariant.secondary,
                   fullWidth: true,
-                  onPressed: widget.onBack ?? widget.cubit.backToChooseFile,
+                  onPressed: widget.onBack ??
+                      (widget.readOnly
+                          ? widget.cubit.backToResult
+                          : widget.cubit.backToChooseFile),
                 ),
               ),
-              const VGap.horizontalMd(),
-              Expanded(
-                child: VButton(
-                  label: 'Tiếp tục',
-                  variant: VButtonVariant.primary,
-                  fullWidth: true,
-                  onPressed: batch.validRows + batch.warningRows > 0
-                      ? widget.cubit.proceedToConfirm
-                      : null,
+              if (!widget.readOnly) ...[
+                const VGap.horizontalMd(),
+                Expanded(
+                  child: VButton(
+                    label: 'Tiếp tục',
+                    variant: VButtonVariant.primary,
+                    fullWidth: true,
+                    onPressed: batch.validRows + batch.warningRows > 0
+                        ? widget.cubit.proceedToConfirm
+                        : null,
+                  ),
                 ),
-              ),
+              ],
             ],
           ),
         ),
@@ -156,40 +172,51 @@ class _ValidRowsTable extends StatelessWidget {
 
     return VCard(
       padding: EdgeInsets.zero,
-      child: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        child: SizedBox(
-          width: 560,
-          child: VTable(
-            headers: const [
-              VTableHeader(title: 'Khách hàng'),
-              VTableHeader(title: 'Sản phẩm'),
-              VTableHeader(title: 'Đơn vị'),
-              VTableHeader(title: 'Giá nhỏ', isNumeric: true),
-            ],
-            columnWidths: const {
-              0: FlexColumnWidth(1.4),
-              1: FlexColumnWidth(1.2),
-              2: FlexColumnWidth(0.8),
-              3: FlexColumnWidth(0.9),
-            },
-            rows: [
-              for (final row in rows)
-                [
-                  _cell(PriceRuleImportRowLabels.customer(row)),
-                  _cell(PriceRuleImportRowLabels.product(row)),
-                  _cell(PriceRuleImportRowLabels.unit(row)),
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: _cell(
-                      PriceRuleImportRowLabels.price(row),
-                      mono: true,
-                    ),
-                  ),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final minWidth = constraints.maxWidth.isFinite
+              ? constraints.maxWidth
+              : MediaQuery.sizeOf(context).width -
+                    (VPagePadding.horizontalForWidth(
+                          MediaQuery.sizeOf(context).width,
+                        ) *
+                        2);
+          return SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: ConstrainedBox(
+              constraints: BoxConstraints(minWidth: minWidth),
+              child: VTable(
+                headers: const [
+                  VTableHeader(title: 'Khách hàng'),
+                  VTableHeader(title: 'Sản phẩm'),
+                  VTableHeader(title: 'Đơn vị'),
+                  VTableHeader(title: 'Giá nhỏ', isNumeric: true),
                 ],
-            ],
-          ),
-        ),
+                columnWidths: const {
+                  0: FlexColumnWidth(1.4),
+                  1: FlexColumnWidth(1.2),
+                  2: FlexColumnWidth(0.8),
+                  3: FlexColumnWidth(0.9),
+                },
+                rows: [
+                  for (final row in rows)
+                    [
+                      _cell(PriceRuleImportRowLabels.customer(row)),
+                      _cell(PriceRuleImportRowLabels.product(row)),
+                      _cell(PriceRuleImportRowLabels.unit(row)),
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: _cell(
+                          PriceRuleImportRowLabels.price(row),
+                          mono: true,
+                        ),
+                      ),
+                    ],
+                ],
+              ),
+            ),
+          );
+        },
       ),
     );
   }
@@ -223,7 +250,13 @@ class _IssueRowsList extends StatelessWidget {
       children: [
         for (var i = 0; i < rows.length; i++) ...[
           if (i > 0) const VGap.xs(),
-          PriceRuleImportRowTile(row: rows[i]),
+          PriceRuleImportRowTile(
+            row: rows[i],
+            onTap: () => showPriceRuleImportIssueDetailSheet(
+              context: context,
+              row: rows[i],
+            ),
+          ),
         ],
       ],
     );

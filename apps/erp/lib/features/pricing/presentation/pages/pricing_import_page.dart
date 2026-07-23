@@ -38,6 +38,7 @@ class _PricingImportPageState extends State<PricingImportPage> {
       pricingModule: GetIt.instance<IPricingModule>(),
       executionContext: GetIt.instance<IExecutionContext>(),
     );
+    _cubit.checkAccess();
   }
 
   @override
@@ -50,7 +51,7 @@ class _PricingImportPageState extends State<PricingImportPage> {
     try {
       final file = await widget.fileService.pickXlsx();
       if (file == null) return;
-      await _cubit.startImport(fileName: file.name, fileBytes: file.bytes);
+      _cubit.selectFile(fileName: file.name, fileBytes: file.bytes);
     } catch (_) {
       if (!mounted) return;
       VToast.show(
@@ -60,6 +61,10 @@ class _PricingImportPageState extends State<PricingImportPage> {
         type: VToastType.danger,
       );
     }
+  }
+
+  Future<void> _continueWithFile() async {
+    await _cubit.continueWithSelectedFile();
   }
 
   Future<void> _downloadTemplate() async {
@@ -141,6 +146,9 @@ class _PricingImportPageState extends State<PricingImportPage> {
       value: _cubit,
       child: BlocBuilder<PriceRuleImportCubit, PriceRuleImportState>(
         builder: (context, state) {
+          final hideSteps = state is PriceRuleImportNoPermission ||
+              (state is PriceRuleImportLoading &&
+                  state.step == PriceRuleImportStep.chooseFile);
           return PopScope<Object?>(
             canPop: _allowPop || !_cubit.hasCancelableBatch,
             onPopInvokedWithResult: (didPop, _) {
@@ -148,19 +156,23 @@ class _PricingImportPageState extends State<PricingImportPage> {
             },
             child: VPageScaffold(
               key: const Key('wgt_e02_u05_fr01_01'),
-              title: 'Nhập từ Excel',
+              title: 'Nhập giá riêng',
               showBackButton: true,
               body: Column(
                 children: [
-                  PriceRuleImportStepIndicator(step: state.step),
+                  if (!hideSteps)
+                    PriceRuleImportStepIndicator(step: state.step),
                   Expanded(
                     child: PriceRuleImportWizard(
                       cubit: _cubit,
                       state: state,
                       onPickFile: _pickFile,
+                      onContinue: _continueWithFile,
+                      onClearFile: _cubit.clearSelectedFile,
                       onDownloadTemplate: _downloadTemplate,
                       isDownloadingTemplate: _isDownloadingTemplate,
-                      onBackToChooseFile: () => _requestCancel(popAfterCancel: false),
+                      onBackToChooseFile: () =>
+                          _requestCancel(popAfterCancel: false),
                       onFinish: () => context.pop(),
                     ),
                   ),

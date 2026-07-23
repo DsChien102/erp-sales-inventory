@@ -6,11 +6,11 @@ import 'price_rule_status_badge.dart';
 
 /// Card danh sách giá riêng — dùng [VCard] + [VBadge] theo design system.
 ///
-/// Layout — badge không đẩy nội dung dưới:
+/// Layout — badge cạnh khối tên/SP (không chung chiều cao với cả card),
+/// nên 2 badge không đẩy giá / hiệu lực xuống:
 /// ```
-/// [Avatar]  Tên KH                    [Đang áp dụng]
-///                                     [Dưới giá sàn]
-///           Tên sản phẩm (nội bộ)
+/// [Avatar]  Tên KH                    [Đã tắt]
+///           Tên sản phẩm              [Dưới giá sàn]
 ///           Đơn vị: …
 ///           Giá riêng          Giá niêm yết
 ///           Hiệu lực: …                   >
@@ -45,18 +45,37 @@ class PriceRuleCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Header: tên cạnh cột badge (tránh khoảng trống khi 2 badge).
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Expanded(
-                      child: VText(
-                        rule.customer.displayName,
-                        variant: VTextVariant.bodyDefault,
-                        color: colors.textPrimary,
-                        style: const TextStyle(fontWeight: FontWeight.w600),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          VText(
+                            rule.customer.displayName,
+                            variant: VTextVariant.bodyDefault,
+                            color: colors.textPrimary,
+                            style: const TextStyle(fontWeight: FontWeight.w600),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          const VGap.xs(),
+                          VText(
+                            rule.productUnit.productName,
+                            variant: VTextVariant.bodyDefault,
+                            color: colors.textPrimary,
+                            style: const TextStyle(fontWeight: FontWeight.w600),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          const VGap.xs(),
+                          VText(
+                            'Đơn vị: ${rule.productUnit.unitName}',
+                            variant: VTextVariant.bodySmall,
+                            color: colors.textSecondary,
+                          ),
+                        ],
                       ),
                     ),
                     const VGap.horizontalSm(),
@@ -65,21 +84,6 @@ class PriceRuleCard extends StatelessWidget {
                       isBelowFloor: isBelowFloor,
                     ),
                   ],
-                ),
-                const VGap.xs(),
-                VText(
-                  rule.productUnit.productName,
-                  variant: VTextVariant.bodyDefault,
-                  color: colors.textPrimary,
-                  style: const TextStyle(fontWeight: FontWeight.w600),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                const VGap.xs(),
-                VText(
-                  'Đơn vị: ${rule.productUnit.unitName}',
-                  variant: VTextVariant.bodySmall,
-                  color: colors.textSecondary,
                 ),
                 const VGap.sm(),
                 Row(
@@ -145,7 +149,7 @@ class PriceRuleCard extends StatelessWidget {
   }
 }
 
-/// Cột badge status — khi có 2 badge thì cùng chiều rộng (theo badge dài hơn).
+/// Cột badge status — cùng chiều rộng khi có 2 badge (theo badge dài hơn).
 class _StatusBadges extends StatelessWidget {
   const _StatusBadges({required this.status, required this.isBelowFloor});
 

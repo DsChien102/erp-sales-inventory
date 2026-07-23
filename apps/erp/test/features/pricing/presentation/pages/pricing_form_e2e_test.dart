@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:vet45_design_system/design_system.dart';
@@ -215,6 +216,35 @@ void main() {
         expect(findByWgtKey('wgt_e02_u02_fr01_01'), findsOneWidget);
         expect(find.text('Tạo thủ công'), findsOneWidget);
         expect(find.text('Nhập từ Excel'), findsOneWidget);
+      },
+    );
+
+    testWidgets(
+      'e2e_e02_u04_fr01_05: dirty back shows leave confirmation then stay',
+      (tester) async {
+        await setUpPricingE2E();
+        await tester.pumpWidget(
+          buildPricingRouter(initialLocation: '/pricing/new'),
+        );
+        await tester.pumpAndSettle();
+
+        tester
+            .element(findByWgtKey('wgt_e02_u04_fr01_01'))
+            .read<PriceRuleFormCubit>()
+            .updatePrice(150000);
+        await tester.pump();
+
+        await tester.tap(find.byKey(const Key('btn_price_rule_form_back')));
+        await tester.pumpAndSettle();
+
+        expect(find.text('Rời khỏi màn hình?'), findsOneWidget);
+        expect(find.byType(VConfirmDialog), findsOneWidget);
+
+        await tester.tap(find.text('Ở lại chỉnh sửa'));
+        await tester.pumpAndSettle();
+
+        expect(findByWgtKey('wgt_e02_u04_fr01_01'), findsOneWidget);
+        expect(find.text('Rời khỏi màn hình?'), findsNothing);
       },
     );
   });
