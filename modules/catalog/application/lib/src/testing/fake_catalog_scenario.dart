@@ -156,6 +156,7 @@ abstract final class FakeCatalogScenario {
   static const e2eCfValuesOk = 'e2e_cf_values_ok';
   static const e2eCfValuesSaveOk = 'e2e_cf_values_save_ok';
   static const e2eCfValuesRequired = 'e2e_cf_values_required';
+  static const e2eCfValuesMultiRequired = 'e2e_cf_values_multi_required';
   static const customFieldSearchDisplay = 'custom_field_search_display';
   static const customFieldSearchable = 'custom_field_searchable';
   static const customFieldFilterable = 'custom_field_filterable';

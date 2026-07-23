@@ -1,19 +1,41 @@
 import 'package:erp/core/di/injection.dart';
+import 'package:erp/features/catalog/presentation/pages/product_control_center_page.dart';
 import 'package:erp/features/catalog/presentation/pages/product_custom_field_group_edit_page.dart';
 import 'package:erp/features/catalog/presentation/pages/product_readiness_checklist_page.dart';
+import 'package:erp/features/catalog/presentation/utils/resolve_priority_custom_field_group.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:vet45_catalog_application/application.dart';
 import 'package:vet45_catalog_application/testing.dart';
 import 'package:vet45_catalog_presentation/presentation.dart';
+import 'package:vet45_design_system/design_system.dart';
+import 'package:vet45_shared_application/application.dart';
 
 import '../../catalog_e2e_harness.dart';
+
+Finder _customFieldInput(String label) {
+  return find.byWidgetPredicate((widget) => widget is VTextField && widget.label == label);
+}
+
+Future<void> _enterCustomFieldText(
+  WidgetTester tester,
+  String label,
+  String value,
+) async {
+  final field = _customFieldInput(label);
+  await tester.ensureVisible(field);
+  await tester.enterText(
+    find.descendant(of: field, matching: find.byType(TextField)),
+    value,
+  );
+  await tester.pump();
+}
 
 Widget _buildChecklistRouter({
   required ProductReadinessViewDto readinessView,
   required ProductListItemModel product,
-  String? defaultCustomFieldGroupId,
+  List<CustomFieldGroupCardDto> customFieldGroupCards = const [],
 }) {
   final router = GoRouter(
     initialLocation: '/products/items/pcc/checklist',
@@ -23,7 +45,7 @@ Widget _buildChecklistRouter({
         builder: (context, state) => ProductReadinessChecklistPage(
           readinessView: readinessView,
           product: product,
-          defaultCustomFieldGroupId: defaultCustomFieldGroupId,
+          customFieldGroupCards: customFieldGroupCards,
         ),
       ),
       GoRoute(
@@ -173,12 +195,26 @@ void main() {
         businessStatus: ProductBusinessStatus.active,
         readinessStatus: ProductReadinessStatus.needsReview,
       );
+      const cards = [
+        CustomFieldGroupCardDto(
+          groupId: 'group-complete',
+          name: 'Đã đủ',
+          sortOrder: 1,
+          hasRequiredMissing: false,
+        ),
+        CustomFieldGroupCardDto(
+          groupId: 'group-missing',
+          name: 'Thiếu required',
+          sortOrder: 2,
+          hasRequiredMissing: true,
+        ),
+      ];
 
       await tester.pumpWidget(
         _buildChecklistRouter(
           readinessView: readinessView,
           product: product,
-          defaultCustomFieldGroupId: 'group-vet-info',
+          customFieldGroupCards: cards,
         ),
       );
       await tester.pumpAndSettle();
@@ -189,14 +225,14 @@ void main() {
       await tester.tap(find.text('Cập nhật trường'));
       await tester.pumpAndSettle();
 
-      expect(find.byKey(const Key('custom_fields_edit_opened')), findsOneWidget);
+      expect(find.text('custom-fields-edit:group-missing'), findsOneWidget);
       expect(find.text('Vui lòng thiết lập đơn vị cơ sở trước.'), findsNothing);
 
       await tester.pumpWidget(
         _buildChecklistRouter(
           readinessView: readinessView,
           product: product,
-          defaultCustomFieldGroupId: 'group-vet-info',
+          customFieldGroupCards: cards,
         ),
       );
       await tester.pumpAndSettle();
@@ -206,6 +242,90 @@ void main() {
 
       expect(find.text('Vui lòng thiết lập đơn vị cơ sở trước.'), findsOneWidget);
       expect(find.byKey(const Key('stock_opened')), findsNothing);
+    },
+  );
+
+  testWidgets(
+    'e2e_e02_u03_checklist_cf_priority: after save still banners and opens next required group',
+    (tester) async {
+      await setUpErpCatalogE2E(scenario: FakeCatalogScenario.e2eCfValuesMultiRequired);
+
+      final product = productWithBaseUnit();
+      final router = GoRouter(
+        initialLocation: '/products/items/pcc',
+        routes: [
+          GoRoute(
+            path: '/products/items/pcc',
+            builder: (context, state) => ProductControlCenterPage(product: product),
+          ),
+          GoRoute(
+            path: '/products/items/pcc/checklist',
+            builder: (context, state) {
+              final args = state.extra as ProductReadinessChecklistRouteArgs;
+              return ProductReadinessChecklistPage(
+                readinessView: args.readinessView,
+                product: args.product,
+                customFieldGroupCards: args.customFieldGroupCards,
+              );
+            },
+          ),
+          GoRoute(
+            path: '/products/items/pcc/custom-fields/edit',
+            builder: (context, state) {
+              final args = state.extra as ProductCustomFieldGroupEditRouteArgs;
+              return ProductCustomFieldGroupEditPage(args: args);
+            },
+          ),
+        ],
+      );
+
+      await tester.pumpWidget(MaterialApp.router(routerConfig: router));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 800));
+
+      expect(find.textContaining('Cần bổ sung'), findsOneWidget);
+
+      await tester.tap(find.byKey(const Key('btn_readiness_checklist_banner')));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 800));
+      expect(find.byKey(const Key('wgt_e02_u03_checklist')), findsOneWidget);
+
+      await tester.tap(find.text('Cập nhật trường'));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 800));
+      expect(_customFieldInput('Thành phần'), findsOneWidget);
+      expect(_customFieldInput('Bảo quản'), findsNothing);
+
+      await _enterCustomFieldText(tester, 'Thành phần', 'Vitamin A, D, E');
+      await tester.tap(find.text('Lưu thay đổi'));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 800));
+
+      // Pop về PCC: banner bổ sung vẫn còn vì còn nhóm required thứ 2.
+      expect(find.byKey(const Key('wgt_e02_u03_fr01_01')), findsOneWidget);
+      expect(find.textContaining('Cần bổ sung'), findsOneWidget);
+      expect(find.text('Sẵn sàng bán'), findsNothing);
+
+      final tenantId = await getIt.get<IExecutionContext>().requireTenantId();
+      final pcc = await getIt.get<ICatalogModule>().executeQueryAsync(
+        GetProductControlCenterQuery(tenantId: tenantId, productId: product.id),
+      );
+      final nextGroupId = resolvePriorityCustomFieldGroupId(pcc.customFieldGroupCards);
+      final storageGroup = pcc.customFieldGroupCards.firstWhere(
+        (group) => group.name == 'Quy cách & bảo quản',
+      );
+      expect(storageGroup.hasRequiredMissing, isTrue);
+      expect(nextGroupId, storageGroup.groupId);
+
+      await tester.tap(find.byKey(const Key('btn_readiness_checklist_banner')));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 800));
+      await tester.tap(find.text('Cập nhật trường'));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 800));
+
+      expect(_customFieldInput('Thành phần'), findsNothing);
+      expect(_customFieldInput('Bảo quản'), findsOneWidget);
     },
   );
 }

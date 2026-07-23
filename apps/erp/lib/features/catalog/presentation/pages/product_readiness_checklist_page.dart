@@ -4,6 +4,7 @@ import 'package:vet45_catalog_application/application.dart';
 import 'package:vet45_catalog_presentation/presentation.dart';
 import 'package:vet45_design_system/design_system.dart';
 import 'package:vet45_catalog_domain/domain.dart';
+import '../utils/resolve_priority_custom_field_group.dart';
 import 'product_measurement_units_page.dart';
 import 'product_stock_adjustment_page.dart';
 import 'product_manual_base_price_page.dart';
@@ -13,12 +14,12 @@ import 'product_custom_field_group_edit_page.dart';
 class ProductReadinessChecklistRouteArgs {
   final ProductReadinessViewDto readinessView;
   final ProductListItemModel product;
-  final String? defaultCustomFieldGroupId;
+  final List<CustomFieldGroupCardDto> customFieldGroupCards;
 
   const ProductReadinessChecklistRouteArgs({
     required this.readinessView,
     required this.product,
-    this.defaultCustomFieldGroupId,
+    this.customFieldGroupCards = const [],
   });
 }
 
@@ -27,12 +28,12 @@ class ProductReadinessChecklistPage extends StatelessWidget {
     super.key,
     required this.readinessView,
     required this.product,
-    this.defaultCustomFieldGroupId,
+    this.customFieldGroupCards = const [],
   });
 
   final ProductReadinessViewDto readinessView;
   final ProductListItemModel product;
-  final String? defaultCustomFieldGroupId;
+  final List<CustomFieldGroupCardDto> customFieldGroupCards;
 
   @override
   Widget build(BuildContext context) {
@@ -130,11 +131,12 @@ class ProductReadinessChecklistPage extends StatelessWidget {
           }
 
           if (actionId == 'missing_required_custom_fields') {
-            if (defaultCustomFieldGroupId == null) {
+            final groupId = resolvePriorityCustomFieldGroupId(customFieldGroupCards);
+            if (groupId == null) {
               VToast.show(
                 context,
                 title: 'Thông báo',
-                message: 'Không tìm thấy nhóm trường tùy chỉnh.',
+                message: 'Không tìm thấy nhóm trường tùy chỉnh cần bổ sung.',
                 type: VToastType.warning,
               );
               return;
@@ -145,7 +147,7 @@ class ProductReadinessChecklistPage extends StatelessWidget {
                   extra: ProductCustomFieldGroupEditRouteArgs(
                     productId: product.id,
                     productName: product.name,
-                    groupId: defaultCustomFieldGroupId!,
+                    groupId: groupId,
                   ),
                 )
                 .then(popOnReturn);

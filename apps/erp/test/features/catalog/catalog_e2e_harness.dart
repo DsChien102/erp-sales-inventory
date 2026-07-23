@@ -146,7 +146,7 @@ Widget buildCatalogPostCreateRouter() {
           return ProductReadinessChecklistPage(
             readinessView: args.readinessView,
             product: args.product,
-            defaultCustomFieldGroupId: args.defaultCustomFieldGroupId,
+            customFieldGroupCards: args.customFieldGroupCards,
           );
         },
       ),
@@ -216,7 +216,7 @@ Widget buildCatalogDiscoveryRouter() {
           return ProductReadinessChecklistPage(
             readinessView: args.readinessView,
             product: args.product,
-            defaultCustomFieldGroupId: args.defaultCustomFieldGroupId,
+            customFieldGroupCards: args.customFieldGroupCards,
           );
         },
       ),
@@ -390,7 +390,7 @@ Widget buildPccMaintenanceRouter(ProductListItemModel product) {
           return ProductReadinessChecklistPage(
             readinessView: args.readinessView,
             product: args.product,
-            defaultCustomFieldGroupId: args.defaultCustomFieldGroupId,
+            customFieldGroupCards: args.customFieldGroupCards,
           );
         },
       ),

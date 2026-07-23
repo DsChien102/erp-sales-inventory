@@ -552,6 +552,8 @@ final class FakeCatalogModule implements ICatalogModule {
       _seedE2eCustomFieldConfig(addNumberField: true);
     } else if (scenario == FakeCatalogScenario.e2eCfValuesRequired) {
       _seedE2eCustomFieldConfig(requireThanhPhan: true);
+    } else if (scenario == FakeCatalogScenario.e2eCfValuesMultiRequired) {
+      _seedE2eCustomFieldConfig(requireThanhPhan: true, requireBaoQuan: true);
     }
 
     if (scenario == FakeCatalogScenario.customFieldSearchDisplay ||
@@ -567,6 +569,7 @@ final class FakeCatalogModule implements ICatalogModule {
   void _seedE2eCustomFieldConfig({
     bool addNumberField = false,
     bool requireThanhPhan = false,
+    bool requireBaoQuan = false,
   }) {
     _customFieldStore.initializeTemplate(
       InitializeCustomFieldTemplateCommand(tenantId: 'tenant-1'),
@@ -596,6 +599,25 @@ final class FakeCatalogModule implements ICatalogModule {
         ConfigureCustomFieldAttributesCommand(
           tenantId: 'tenant-1',
           fieldId: thanhPhan.fieldId,
+          isRequired: true,
+          isSearchable: false,
+          isFilterable: false,
+          displayOnList: false,
+        ),
+      );
+    }
+
+    if (requireBaoQuan) {
+      final storageGroup = config.groups.firstWhere(
+        (group) => group.name == 'Quy cách & bảo quản',
+      );
+      final baoQuan = storageGroup.fields.firstWhere(
+        (field) => field.name == 'Bảo quản',
+      );
+      _customFieldStore.configureAttributes(
+        ConfigureCustomFieldAttributesCommand(
+          tenantId: 'tenant-1',
+          fieldId: baoQuan.fieldId,
           isRequired: true,
           isSearchable: false,
           isFilterable: false,

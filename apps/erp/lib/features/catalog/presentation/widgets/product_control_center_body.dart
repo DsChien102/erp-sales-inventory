@@ -206,6 +206,9 @@ class ProductControlCenterBody extends StatelessWidget {
 
   Future<void> _openChecklist(BuildContext context) async {
     final cubit = context.read<ProductControlCenterCubit>();
+    // Reload PCC so hasRequiredMissing reflects latest saves before prioritizing group.
+    await cubit.loadControlCenter(product.id);
+    if (!context.mounted) return;
     await cubit.loadReadinessForChecklist(product.id);
     if (!context.mounted) return;
 
@@ -216,8 +219,6 @@ class ProductControlCenterBody extends StatelessWidget {
     final updatedProduct = controlCenter != null
         ? product.copyWith(baseUnit: controlCenter.units.baseUnitName)
         : product;
-    final firstGroupId = controlCenter?.customFieldGroupCards.firstOrNull?.groupId;
-
     await _reloadAfterPush(
       context,
       context.push(
@@ -225,7 +226,7 @@ class ProductControlCenterBody extends StatelessWidget {
         extra: ProductReadinessChecklistRouteArgs(
           readinessView: readinessView,
           product: updatedProduct,
-          defaultCustomFieldGroupId: firstGroupId,
+          customFieldGroupCards: controlCenter?.customFieldGroupCards ?? const [],
         ),
       ),
     );
