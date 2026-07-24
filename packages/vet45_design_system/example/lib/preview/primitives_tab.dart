@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:vet45_design_system/design_system.dart';
 
+import 'icons_gallery.dart';
 import 'preview_section.dart';
 
 class PrimitivesPreviewTab extends StatefulWidget {
@@ -174,18 +175,24 @@ class _PrimitivesPreviewTabState extends State<PrimitivesPreviewTab> {
             ],
           ),
         ),
+        const PreviewSection(
+          title: 'VIcons catalog',
+          description:
+              'Toàn bộ token trong enum VIcons — tìm theo tên để chọn icon khi implement UI.',
+          child: VIconsGalleryPreview(),
+        ),
         PreviewSection(
           title: 'VIconBox',
           child: PreviewStateWrap(
             children: [
-              VIconBox(iconData: Icons.qr_code_scanner, onTap: () {}),
+              VIconBox(icon: VIcons.camera, onTap: () {}),
               VIconBox(
-                iconData: Icons.add,
+                icon: VIcons.add,
                 tone: VComponentTone.primary,
                 onTap: () {},
               ),
               const VIconBox(
-                iconData: Icons.lock_outline,
+                icon: VIcons.lock,
                 tone: VComponentTone.neutral,
               ),
               VAvatar(name: 'Nguyễn Văn A', textSize: 14),
