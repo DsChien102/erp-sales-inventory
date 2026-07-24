@@ -99,7 +99,11 @@ class VDatePickerField extends StatelessWidget {
               height: 48,
               padding: const EdgeInsets.symmetric(horizontal: VSpacing.space4),
               decoration: BoxDecoration(
-                color: isEnabled ? dynamicColors.background : dynamicColors.surfaceAlt,
+                color: !isEnabled
+                    ? dynamicColors.surfaceAlt
+                    : value != null
+                        ? dynamicColors.surfaceAlt
+                        : dynamicColors.surface,
                 border: Border.all(
                   color: isEnabled ? borderColor : dynamicColors.borderDefault,
                   width: borderWidth,
