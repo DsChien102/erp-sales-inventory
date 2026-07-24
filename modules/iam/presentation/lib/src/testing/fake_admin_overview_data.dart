@@ -1,8 +1,8 @@
 import 'package:vet45_design_system/design_system.dart';
-import '../models/admin_overview_ui_model.dart';
+import '../overview/models/admin_overview_ui_model.dart';
 
-/// Dữ liệu mẫu cho màn hình Tổng quan quản trị (PA-D-01).
-abstract final class AdminOverviewMockData {
+/// Fake data for Admin Overview dashboard (PA-D-01).
+abstract final class FakeAdminOverviewData {
   static const AdminOverviewMetricsUiModel metrics = AdminOverviewMetricsUiModel(
     platformUsersCount: 24,
     platformUsersChange: '+2 trong 7 ngày',

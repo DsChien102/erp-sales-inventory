@@ -8,8 +8,8 @@ class AdminOverviewPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = context.vColors;
-    final metrics = AdminOverviewMockData.metrics;
-    final activities = AdminOverviewMockData.recentActivities;
+    final metrics = FakeAdminOverviewData.metrics;
+    final activities = FakeAdminOverviewData.recentActivities;
 
     return SingleChildScrollView(
       padding: const EdgeInsets.symmetric(

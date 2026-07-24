@@ -64,7 +64,7 @@ class _OrganizationsPageState extends State<OrganizationsPage> {
   }
 
   List<OrganizationUiModel> _getFilteredOrganizations() {
-    return OrganizationMockData.sampleOrganizations.where((org) {
+    return FakeOrganizationData.sampleOrganizations.where((org) {
       // Lọc theo trạng thái (Status)
       if (_filterCriteria.status != OrganizationStatus.all &&
           org.status != _filterCriteria.status) {

@@ -1,8 +1,8 @@
 import 'package:vet45_design_system/design_system.dart';
-import '../models/audit_log_ui_model.dart';
+import '../audit_logs/models/audit_log_ui_model.dart';
 
-/// Dữ liệu mẫu cho Nhật ký thao tác nền tảng (PA-D-02 & PA-D-03).
-abstract final class AuditLogMockData {
+/// Fake data for Platform Audit Logs (PA-D-02 & PA-D-03).
+abstract final class FakeAuditLogData {
   static final List<AuditLogItemUiModel> sampleLogs = [
     // Item 1: Đã tạm ngừng tổ chức (PA-D-02 & PA-D-03)
     AuditLogItemUiModel(

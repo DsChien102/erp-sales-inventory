@@ -1,17 +1,18 @@
 import 'package:flutter/foundation.dart';
 import 'package:vet45_iam_application/application.dart';
 
-class MockPlatformService extends ChangeNotifier {
-  MockPlatformService._() {
-    _initMockData();
+/// Fake platform user service for testing and development.
+class FakePlatformUserService extends ChangeNotifier {
+  FakePlatformUserService._() {
+    _initFakeData();
   }
 
-  static final MockPlatformService instance = MockPlatformService._();
+  static final FakePlatformUserService instance = FakePlatformUserService._();
 
   late List<PlatformUserDetailDto> _users;
   late List<Map<String, dynamic>> _organizations; // tenantId, name, status, createdAt
 
-  void _initMockData() {
+  void _initFakeData() {
     _organizations = [
       {
         'tenantId': 'mau-hien',
@@ -184,12 +185,10 @@ class MockPlatformService extends ChangeNotifier {
   }
 
   void sendActivationInvitation(String userId) {
-    // Simulates sending activation email
     notifyListeners();
   }
 
   void requestPlatformPasswordReset(String userId) {
-    // Simulates sending password reset email
     notifyListeners();
   }
 

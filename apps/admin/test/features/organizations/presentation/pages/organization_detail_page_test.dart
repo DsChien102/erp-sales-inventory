@@ -16,7 +16,7 @@ void main() {
   group('OrganizationDetailPage Widget Tests (4 Design Variants)', () {
     testWidgets('PA-D-02: renders Detail Page for Setting Up status (ASC Commerce)',
         (tester) async {
-      final ascCommerceOrg = OrganizationMockData.sampleOrganizations.firstWhere(
+      final ascCommerceOrg = FakeOrganizationData.sampleOrganizations.firstWhere(
         (o) => o.code == 'TEN-000138',
       );
 
@@ -50,7 +50,7 @@ void main() {
 
     testWidgets('PA-D-03: renders Detail Page for Active status with Members (Mậu Hiền)',
         (tester) async {
-      final mauHienOrg = OrganizationMockData.sampleOrganizations.firstWhere(
+      final mauHienOrg = FakeOrganizationData.sampleOrganizations.firstWhere(
         (o) => o.code == 'TEN-000142',
       );
 
@@ -78,7 +78,7 @@ void main() {
 
     testWidgets('PA-D-04: renders Detail Page for Suspended status (VietVet Trading)',
         (tester) async {
-      final vietVetOrg = OrganizationMockData.sampleOrganizations.firstWhere(
+      final vietVetOrg = FakeOrganizationData.sampleOrganizations.firstWhere(
         (o) => o.code == 'TEN-000095',
       );
 
@@ -102,7 +102,7 @@ void main() {
 
     testWidgets('PA-D-05: renders Detail Page for Closed status (Hải Phòng Vet)',
         (tester) async {
-      final haiPhongOrg = OrganizationMockData.sampleOrganizations.firstWhere(
+      final haiPhongOrg = FakeOrganizationData.sampleOrganizations.firstWhere(
         (o) => o.code == 'TEN-000041',
       );
 

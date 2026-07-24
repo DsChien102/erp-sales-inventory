@@ -1,5 +1,4 @@
 import 'package:get_it/get_it.dart';
-import 'package:vet45_shared_application/application.dart';
 import 'package:vet45_shared_infrastructure/infrastructure.dart';
 
 import '../supabase/supabase_module.dart';

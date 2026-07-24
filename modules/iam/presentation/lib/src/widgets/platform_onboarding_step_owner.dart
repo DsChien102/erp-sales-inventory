@@ -15,6 +15,14 @@ class PlatformOnboardingStepOwner extends StatefulWidget {
     required this.onOwnerSelected,
     required this.onToggleNewOwner,
     required this.onSearchQueryChanged,
+    this.onLastNameChanged,
+    this.onFirstNameChanged,
+    this.onEmailChanged,
+    this.onPhoneChanged,
+    this.lastNameErrorText,
+    this.firstNameErrorText,
+    this.emailErrorText,
+    this.phoneErrorText,
   });
 
   final bool isNewOwner;
@@ -27,6 +35,14 @@ class PlatformOnboardingStepOwner extends StatefulWidget {
   final ValueChanged<PlatformUserSummaryDto?> onOwnerSelected;
   final ValueChanged<bool> onToggleNewOwner;
   final ValueChanged<String> onSearchQueryChanged;
+  final ValueChanged<String>? onLastNameChanged;
+  final ValueChanged<String>? onFirstNameChanged;
+  final ValueChanged<String>? onEmailChanged;
+  final ValueChanged<String>? onPhoneChanged;
+  final String? lastNameErrorText;
+  final String? firstNameErrorText;
+  final String? emailErrorText;
+  final String? phoneErrorText;
 
   @override
   State<PlatformOnboardingStepOwner> createState() => _PlatformOnboardingStepOwnerState();
@@ -76,34 +92,42 @@ class _PlatformOnboardingStepOwnerState extends State<PlatformOnboardingStepOwne
       return Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          VTextFormField(
+          VTextField(
             controller: widget.lastNameController,
             label: 'Họ và tên đệm',
             isRequired: true,
             hintText: 'Nhập họ và tên đệm',
+            errorText: widget.lastNameErrorText,
+            onChanged: widget.onLastNameChanged,
           ),
           const VGap.sm(),
-          VTextFormField(
+          VTextField(
             controller: widget.firstNameController,
             label: 'Tên',
             isRequired: true,
             hintText: 'Nhập tên',
+            errorText: widget.firstNameErrorText,
+            onChanged: widget.onFirstNameChanged,
           ),
           const VGap.sm(),
-          VTextFormField(
+          VTextField(
             controller: widget.emailController,
             label: 'Email',
             isRequired: true,
             hintText: 'Nhập email',
             keyboardType: TextInputType.emailAddress,
+            errorText: widget.emailErrorText,
+            onChanged: widget.onEmailChanged,
           ),
           const VGap.sm(),
-          VTextFormField(
+          VTextField(
             controller: widget.phoneController,
             label: 'Số điện thoại',
             hintText: 'Nhập số điện thoại',
             helperText: 'Không bắt buộc',
             keyboardType: TextInputType.phone,
+            errorText: widget.phoneErrorText,
+            onChanged: widget.onPhoneChanged,
           ),
           const VGap.md(),
           VCard(

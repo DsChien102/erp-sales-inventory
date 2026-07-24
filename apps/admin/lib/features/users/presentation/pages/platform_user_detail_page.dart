@@ -3,8 +3,6 @@ import 'package:vet45_design_system/design_system.dart';
 import 'package:vet45_iam_application/application.dart';
 import 'package:vet45_iam_presentation/presentation.dart';
 
-import '../mock_platform_service.dart';
-
 class PlatformUserDetailPage extends StatelessWidget {
   const PlatformUserDetailPage({super.key, required this.userId});
 
@@ -48,7 +46,7 @@ class PlatformUserDetailPage extends StatelessWidget {
                     actionLabel: 'Tạm ngừng',
                     actionVariant: VButtonVariant.dangerOutline,
                     onConfirm: (reason) {
-                      MockPlatformService.instance.suspendPlatformUser(
+                      FakePlatformUserService.instance.suspendPlatformUser(
                         userId,
                         reason,
                       );
@@ -80,7 +78,7 @@ class PlatformUserDetailPage extends StatelessWidget {
                     actionLabel: 'Gửi email',
                     actionVariant: VButtonVariant.primary,
                     onConfirm: (reason) {
-                      MockPlatformService.instance.sendActivationInvitation(
+                      FakePlatformUserService.instance.sendActivationInvitation(
                         userId,
                       );
                       Navigator.pop(context);
@@ -112,7 +110,7 @@ class PlatformUserDetailPage extends StatelessWidget {
                     actionLabel: 'Tạm ngừng',
                     actionVariant: VButtonVariant.dangerOutline,
                     onConfirm: (reason) {
-                      MockPlatformService.instance.suspendPlatformUser(
+                      FakePlatformUserService.instance.suspendPlatformUser(
                         userId,
                         reason,
                       );
@@ -144,7 +142,7 @@ class PlatformUserDetailPage extends StatelessWidget {
                     actionLabel: 'Khôi phục',
                     actionVariant: VButtonVariant.primary,
                     onConfirm: (reason) {
-                      MockPlatformService.instance.restorePlatformUser(userId);
+                      FakePlatformUserService.instance.restorePlatformUser(userId);
                       Navigator.pop(context);
                       VToast.show(
                         context,
@@ -303,7 +301,7 @@ class PlatformUserDetailPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = context.vColors;
-    final service = MockPlatformService.instance;
+    final service = FakePlatformUserService.instance;
 
     return ListenableBuilder(
       listenable: service,

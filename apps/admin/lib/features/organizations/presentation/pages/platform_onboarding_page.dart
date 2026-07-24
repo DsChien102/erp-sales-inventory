@@ -4,8 +4,6 @@ import 'package:vet45_design_system/design_system.dart';
 import 'package:vet45_iam_application/application.dart';
 import 'package:vet45_iam_presentation/presentation.dart';
 
-import 'package:admin/features/users/presentation/mock_platform_service.dart';
-
 class PlatformOnboardingPage extends StatefulWidget {
   const PlatformOnboardingPage({super.key});
 
@@ -25,6 +23,11 @@ class _PlatformOnboardingPageState extends State<PlatformOnboardingPage> {
   final _phoneController = TextEditingController();
   String _ownerSearchQuery = '';
 
+  String? _lastNameErrorText;
+  String? _firstNameErrorText;
+  String? _emailErrorText;
+  String? _phoneErrorText;
+
   // Step 2: Organization state
   final _orgNameController = TextEditingController();
   final _orgDisplayNameController = TextEditingController();
@@ -35,6 +38,10 @@ class _PlatformOnboardingPageState extends State<PlatformOnboardingPage> {
   final _orgAddressController = TextEditingController();
   String? _selectedProvince = 'Đồng Nai';
   String? _selectedWard = 'Trấn Biên';
+
+  String? _orgNameErrorText;
+  String? _orgEmailErrorText;
+  String? _orgPhoneErrorText;
 
   @override
   void dispose() {
@@ -54,22 +61,42 @@ class _PlatformOnboardingPageState extends State<PlatformOnboardingPage> {
 
   bool _validateStep1() {
     if (_isNewOwner) {
-      if (_lastNameController.text.trim().isEmpty ||
-          _firstNameController.text.trim().isEmpty ||
-          _emailController.text.trim().isEmpty) {
-        VToast.show(
-          context,
-          title: 'Lỗi',
-          message: 'Vui lòng nhập đầy đủ Họ, Tên và Email chủ sở hữu mới.',
-          type: VToastType.danger,
-        );
-        return false;
+      final lastName = _lastNameController.text.trim();
+      final firstName = _firstNameController.text.trim();
+      final email = _emailController.text.trim();
+      final phone = _phoneController.text.trim();
+
+      String? lError;
+      String? fError;
+      String? eError;
+      String? pError;
+
+      if (lastName.isEmpty) {
+        lError = 'Họ và tên đệm là bắt buộc.';
       }
-      if (!VEmailValidator.isValid(_emailController.text.trim())) {
+      if (firstName.isEmpty) {
+        fError = 'Tên là bắt buộc.';
+      }
+      if (email.isEmpty) {
+        eError = 'Email là bắt buộc.';
+      } else if (!VEmailValidator.isValid(email)) {
+        eError = 'Email không hợp lệ (ví dụ: user@domain.com).';
+      }
+      if (phone.isNotEmpty && phone.length < 8) {
+        pError = 'Số điện thoại không hợp lệ.';
+      }
+
+      if (lError != null || fError != null || eError != null || pError != null) {
+        setState(() {
+          _lastNameErrorText = lError;
+          _firstNameErrorText = fError;
+          _emailErrorText = eError;
+          _phoneErrorText = pError;
+        });
         VToast.show(
           context,
-          title: 'Lỗi',
-          message: 'Định dạng email chủ sở hữu không hợp lệ.',
+          title: 'Thông tin không hợp lệ',
+          message: 'Vui lòng kiểm tra lại thông tin chủ sở hữu mới.',
           type: VToastType.danger,
         );
         return false;
@@ -78,7 +105,7 @@ class _PlatformOnboardingPageState extends State<PlatformOnboardingPage> {
       if (_selectedOwner == null) {
         VToast.show(
           context,
-          title: 'Lỗi',
+          title: 'Thông tin không hợp lệ',
           message: 'Vui lòng tìm và chọn một chủ sở hữu hiện hữu.',
           type: VToastType.danger,
         );
@@ -89,11 +116,34 @@ class _PlatformOnboardingPageState extends State<PlatformOnboardingPage> {
   }
 
   bool _validateStep2() {
-    if (_orgNameController.text.trim().isEmpty) {
+    final orgName = _orgNameController.text.trim();
+    final orgEmail = _orgEmailController.text.trim();
+    final orgPhone = _orgPhoneController.text.trim();
+
+    String? nameError;
+    String? emailError;
+    String? phoneError;
+
+    if (orgName.isEmpty) {
+      nameError = 'Tên tổ chức là bắt buộc.';
+    }
+    if (orgEmail.isNotEmpty && !VEmailValidator.isValid(orgEmail)) {
+      emailError = 'Email liên hệ không hợp lệ.';
+    }
+    if (orgPhone.isNotEmpty && orgPhone.length < 8) {
+      phoneError = 'Số điện thoại không hợp lệ.';
+    }
+
+    if (nameError != null || emailError != null || phoneError != null) {
+      setState(() {
+        _orgNameErrorText = nameError;
+        _orgEmailErrorText = emailError;
+        _orgPhoneErrorText = phoneError;
+      });
       VToast.show(
         context,
-        title: 'Lỗi',
-        message: 'Tên tổ chức là bắt buộc.',
+        title: 'Thông tin không hợp lệ',
+        message: 'Vui lòng kiểm tra các trường bắt buộc và định dạng bên dưới.',
         type: VToastType.danger,
       );
       return false;
@@ -143,7 +193,7 @@ class _PlatformOnboardingPageState extends State<PlatformOnboardingPage> {
   }
 
   void _handleSubmit() {
-    final service = MockPlatformService.instance;
+    final service = FakePlatformUserService.instance;
     final orgName = _orgNameController.text.trim();
 
     if (orgName.toLowerCase().contains('error') || orgName.toLowerCase().contains('lỗi')) {
@@ -180,9 +230,6 @@ class _PlatformOnboardingPageState extends State<PlatformOnboardingPage> {
     final ownerEmail = _isNewOwner
         ? _emailController.text.trim()
         : (_selectedOwner?.email ?? 'lan@gmail.com');
-    final ownerPhone = _isNewOwner
-        ? _phoneController.text.trim()
-        : '0901 234 567';
 
     final initials = orgName.isNotEmpty
         ? orgName.split(' ').map((e) => e.isNotEmpty ? e[0] : '').take(2).join().toUpperCase()
@@ -203,7 +250,7 @@ class _PlatformOnboardingPageState extends State<PlatformOnboardingPage> {
       createdAt: DateTime.now(),
     );
 
-    OrganizationMockData.sampleOrganizations.insert(0, newOrg);
+    FakeOrganizationData.sampleOrganizations.insert(0, newOrg);
 
     Navigator.of(context).pushReplacement(
       MaterialPageRoute(
@@ -310,7 +357,7 @@ class _PlatformOnboardingPageState extends State<PlatformOnboardingPage> {
   Widget _buildStepContent() {
     switch (_currentStep) {
       case 0:
-        final service = MockPlatformService.instance;
+        final service = FakePlatformUserService.instance;
         final results = service.searchPlatformUsers(query: _ownerSearchQuery);
 
         return PlatformOnboardingStepOwner(
@@ -321,6 +368,30 @@ class _PlatformOnboardingPageState extends State<PlatformOnboardingPage> {
           emailController: _emailController,
           phoneController: _phoneController,
           searchResults: results,
+          lastNameErrorText: _lastNameErrorText,
+          firstNameErrorText: _firstNameErrorText,
+          emailErrorText: _emailErrorText,
+          phoneErrorText: _phoneErrorText,
+          onLastNameChanged: (_) {
+            if (_lastNameErrorText != null) {
+              setState(() => _lastNameErrorText = null);
+            }
+          },
+          onFirstNameChanged: (_) {
+            if (_firstNameErrorText != null) {
+              setState(() => _firstNameErrorText = null);
+            }
+          },
+          onEmailChanged: (_) {
+            if (_emailErrorText != null) {
+              setState(() => _emailErrorText = null);
+            }
+          },
+          onPhoneChanged: (_) {
+            if (_phoneErrorText != null) {
+              setState(() => _phoneErrorText = null);
+            }
+          },
           onOwnerSelected: (user) {
             setState(() {
               _selectedOwner = user;
@@ -348,6 +419,24 @@ class _PlatformOnboardingPageState extends State<PlatformOnboardingPage> {
           orgAddressController: _orgAddressController,
           selectedProvince: _selectedProvince,
           selectedWard: _selectedWard,
+          orgNameErrorText: _orgNameErrorText,
+          orgEmailErrorText: _orgEmailErrorText,
+          orgPhoneErrorText: _orgPhoneErrorText,
+          onOrgNameChanged: (_) {
+            if (_orgNameErrorText != null) {
+              setState(() => _orgNameErrorText = null);
+            }
+          },
+          onOrgEmailChanged: (_) {
+            if (_orgEmailErrorText != null) {
+              setState(() => _orgEmailErrorText = null);
+            }
+          },
+          onOrgPhoneChanged: (_) {
+            if (_orgPhoneErrorText != null) {
+              setState(() => _orgPhoneErrorText = null);
+            }
+          },
           onProvinceChanged: (val) {
             setState(() {
               _selectedProvince = val;
@@ -358,7 +447,6 @@ class _PlatformOnboardingPageState extends State<PlatformOnboardingPage> {
               _selectedWard = val;
             });
           },
-          onOrgNameChanged: (_) {},
         );
       case 2:
         return PlatformOnboardingStepReview(

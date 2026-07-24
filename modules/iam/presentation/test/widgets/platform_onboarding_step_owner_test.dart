@@ -128,7 +128,7 @@ void main() {
 
     expect(find.text('Tạo chủ sở hữu mới'), findsNothing);
     expect(find.text('Chọn người dùng cũ'), findsNothing);
-    expect(find.byType(VTextFormField), findsNWidgets(4));
+    expect(find.byType(VTextField), findsNWidgets(4));
     expect(find.text('Quy ước tài khoản'), findsOneWidget);
   });
 }

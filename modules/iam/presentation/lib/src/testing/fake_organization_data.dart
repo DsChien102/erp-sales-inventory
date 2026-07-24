@@ -1,7 +1,7 @@
-import '../models/organization_ui_model.dart';
+import '../organizations/models/organization_ui_model.dart';
 
-/// Dữ liệu giả cho danh sách tổ chức (18 tổ chức) khớp 100% với ảnh thiết kế.
-abstract final class OrganizationMockData {
+/// Fake organization data for testing & development.
+abstract final class FakeOrganizationData {
   static final List<OrganizationUiModel> sampleOrganizations = [
     // PA-D-03: Mậu Hiền (Đang hoạt động)
     OrganizationUiModel(

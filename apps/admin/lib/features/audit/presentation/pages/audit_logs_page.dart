@@ -65,7 +65,7 @@ class _AuditLogsPageState extends State<AuditLogsPage> {
   }
 
   List<AuditLogItemUiModel> get _filteredLogs {
-    return AuditLogMockData.sampleLogs.where((log) {
+    return FakeAuditLogData.sampleLogs.where((log) {
       // Lọc theo trạng thái (Status)
       if (_filterCriteria.status != null && log.status != _filterCriteria.status) {
         return false;

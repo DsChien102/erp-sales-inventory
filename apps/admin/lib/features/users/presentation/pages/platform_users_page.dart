@@ -5,8 +5,6 @@ import 'package:vet45_design_system/design_system.dart';
 import 'package:vet45_iam_application/application.dart';
 import 'package:vet45_iam_presentation/presentation.dart';
 
-import '../mock_platform_service.dart';
-
 class PlatformUsersPage extends StatefulWidget {
   final bool hasError;
   final bool isUnauthorized;
@@ -228,7 +226,7 @@ class _PlatformUsersPageState extends State<PlatformUsersPage> {
   @override
   Widget build(BuildContext context) {
     final colors = context.vColors;
-    final service = MockPlatformService.instance;
+    final service = FakePlatformUserService.instance;
 
     return Column(
       children: [
