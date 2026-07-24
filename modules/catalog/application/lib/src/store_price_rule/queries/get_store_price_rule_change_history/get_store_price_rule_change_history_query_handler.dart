@@ -1,4 +1,3 @@
-import 'package:vet45_annotations/vet45_annotations.dart';
 import 'package:vet45_shared_application/application.dart';
 
 import 'package:vet45_catalog_application/src/ports/i_store_price_rule_gateway.dart';

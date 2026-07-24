@@ -7,7 +7,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:vet45_catalog_application/application.dart';
-import 'package:vet45_catalog_application/testing.dart';
 import 'package:vet45_catalog_presentation/presentation.dart';
 import 'package:vet45_design_system/design_system.dart';
 import 'package:vet45_shared_application/application.dart';
@@ -95,8 +94,9 @@ void main() {
     expect(find.text('Tồn kho'), findsWidgets);
   });
 
-  testWidgets('e2e_e02_u03_fr02_04: successful create navigates to PCC with product name',
-      (tester) async {
+  testWidgets('e2e_e02_u03_fr02_04: successful create navigates to PCC with product name', (
+    tester,
+  ) async {
     await setUpErpCatalogE2E();
 
     await tester.pumpWidget(buildCatalogPostCreateRouter());
@@ -140,8 +140,9 @@ void main() {
     expect(find.text('Thiết lập đơn vị'), findsOneWidget);
   });
 
-  testWidgets('e2e_e02_u03_fr04_01: readiness refresh drops base unit blocker after create',
-      (tester) async {
+  testWidgets('e2e_e02_u03_fr04_01: readiness refresh drops base unit blocker after create', (
+    tester,
+  ) async {
     await setUpErpCatalogE2E(scenario: FakeCatalogScenario.readinessRefreshAfterUnit);
 
     await tester.pumpWidget(buildCatalogPostCreateRouter());
@@ -158,8 +159,9 @@ void main() {
     expect(find.text('Thiếu khung giá bán'), findsOneWidget);
   });
 
-  testWidgets('e2e_e02_u03_fr01_05: ready to sell product shows success badge without banner',
-      (tester) async {
+  testWidgets('e2e_e02_u03_fr01_05: ready to sell product shows success badge without banner', (
+    tester,
+  ) async {
     await setUpErpCatalogE2E(scenario: FakeCatalogScenario.readinessReadyToSell);
 
     await tester.pumpWidget(buildCatalogPostCreateRouter());

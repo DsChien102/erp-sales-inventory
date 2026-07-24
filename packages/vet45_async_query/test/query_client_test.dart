@@ -200,7 +200,7 @@ void main() {
           client.setQueryData(listKey, [...current, item]);
           return current;
         },
-        onError: (_, __, rollback, ctx) async {
+        onError: (_, _, rollback, ctx) async {
           if (rollback is List<String>) {
             ctx.client.setQueryData(listKey, rollback);
           }

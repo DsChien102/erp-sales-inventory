@@ -2,12 +2,6 @@ import 'package:vet45_partner_application/application.dart';
 import 'package:vet45_partner_domain/domain.dart';
 import 'package:vet45_shared_domain/shared_kernel_domain.dart';
 
-import '../partner/commands/create_partner/create_partner_command.dart';
-import '../partner/shared/delivery_address_input.dart';
-import '../partner/shared/invoice_profile_input.dart';
-import '../partner/shared/organization_profile_input.dart';
-import '../partner/shared/person_profile_input.dart';
-
 /// Maps application inputs to domain types and validates invariants.
 abstract final class PartnerDomainMapper {
   static PersonProfile? toPersonProfile(PersonProfileInput? input) {
@@ -66,9 +60,7 @@ abstract final class PartnerDomainMapper {
     return InvoiceProfile(
       invoiceName: input.invoiceName,
       invoiceAddress: input.invoiceAddress,
-      invoiceEmail: input.invoiceEmail == null
-          ? null
-          : EmailAddress(input.invoiceEmail!),
+      invoiceEmail: input.invoiceEmail == null ? null : EmailAddress(input.invoiceEmail!),
     );
   }
 

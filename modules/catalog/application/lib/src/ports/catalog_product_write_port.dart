@@ -1,6 +1,4 @@
 import 'package:vet45_catalog_domain/domain.dart';
-import 'package:vet45_shared_domain/shared_kernel_domain.dart';
-
 import 'package:vet45_catalog_application/src/ports/i_catalog_read_gateway.dart';
 import 'package:vet45_catalog_application/src/ports/i_product_write_port.dart';
 import 'package:vet45_catalog_application/src/product/shared/product_write_model_mapper.dart';

@@ -110,13 +110,9 @@ class _RecordingStorePriceRuleGateway implements IStorePriceRuleGateway {
 
 class _FakeProductReadinessReadPort implements IProductReadinessReadPort {
   _FakeProductReadinessReadPort({
-    this.hasBaseUnit = true,
-    this.hasBasePrice = true,
     this.hasPriceBand = false,
   });
 
-  final bool hasBaseUnit;
-  final bool hasBasePrice;
   final bool hasPriceBand;
 
   @override
@@ -127,10 +123,10 @@ class _FakeProductReadinessReadPort implements IProductReadinessReadPort {
     return ProductReadinessFacts(
       productId: productId,
       productName: 'Test product',
-      hasBaseUnit: hasBaseUnit,
+      hasBaseUnit: true,
       hasImages: true,
       hasStock: true,
-      hasBasePrice: hasBasePrice,
+      hasBasePrice: true,
       hasPriceBand: hasPriceBand,
       hasRequiredCustomFields: true,
     );

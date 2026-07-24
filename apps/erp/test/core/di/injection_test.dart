@@ -1,7 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:vet45_catalog_application/application.dart';
-import 'package:vet45_catalog_application/testing.dart';
 import 'package:vet45_iam_application/application.dart';
 import 'package:vet45_iam_infrastructure/infrastructure.dart';
 import 'package:vet45_partner_application/application.dart';

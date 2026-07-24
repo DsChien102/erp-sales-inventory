@@ -38,10 +38,8 @@ abstract final class ProductListItemMapper {
         isSoftDeleted: row['is_soft_deleted'] as bool?,
       ),
       facts: facts,
-      listBeforeVat: _toInt(row['list_price_before_vat']) ??
-          _toInt(row['list_price']),
-      floorBeforeVat: _toInt(row['floor_price_before_vat']) ??
-          _toInt(row['floor_price']),
+      listBeforeVat: _toInt(row['list_price_before_vat']) ?? _toInt(row['list_price']),
+      floorBeforeVat: _toInt(row['floor_price_before_vat']) ?? _toInt(row['floor_price']),
       baseUnit: row['base_unit_name'] as String?,
       stockQuantity: _toInt(row['stock_qty']),
       customFieldValues: CustomFieldRpcMapper.listValuesFromJson(
@@ -63,16 +61,6 @@ abstract final class ProductListItemMapper {
       'soft_deleted' => ProductBusinessStatus.softDeleted,
       _ => ProductBusinessStatus.active,
     };
-  }
-
-  static double? _toDouble(Object? value) {
-    if (value == null) {
-      return null;
-    }
-    if (value is num) {
-      return value.toDouble();
-    }
-    return double.tryParse(value.toString());
   }
 
   static int? _toInt(Object? value) {

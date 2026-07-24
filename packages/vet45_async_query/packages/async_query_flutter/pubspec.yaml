@@ -1,9 +1,7 @@
 name: async_query_flutter
 description: Flutter widgets for async_query — UseQuery, UseMutation, QueryClientProvider.
 version: 0.1.0
-repository: https://github.com/example/async_query
-issue_tracker: https://github.com/example/async_query/issues
-homepage: https://github.com/example/async_query
+publish_to: none
 
 environment:
   sdk: ^3.11.0

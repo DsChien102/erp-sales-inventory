@@ -31,7 +31,7 @@ import 'rules/transform_only_person_to_organization_rule.dart';
 /// Partner aggregate root — profile, roles, contacts, lifecycle.
 final class Partner extends Entity<PartnerId> implements IAggregateRoot {
   Partner._({
-    required PartnerId id,
+    required super.id,
     required TenantId tenantId,
     required PartnerType partnerType,
     required PartnerStatus status,
@@ -49,8 +49,7 @@ final class Partner extends Entity<PartnerId> implements IAggregateRoot {
        _personProfile = personProfile,
        _organizationProfile = organizationProfile,
        _contacts = List.of(contacts),
-       _version = version,
-       super(id: id);
+       _version = version;
 
   final TenantId _tenantId;
   PartnerType _partnerType;

@@ -53,7 +53,7 @@ class ProductReadinessChecklistBody extends StatelessWidget {
     return ListView.separated(
       padding: const EdgeInsets.all(VSpacing.space4),
       itemCount: blockers.length,
-      separatorBuilder: (_, __) => const SizedBox(height: VSpacing.space2),
+      separatorBuilder: (_, _) => const SizedBox(height: VSpacing.space2),
       itemBuilder: (context, index) {
         final blocker = blockers[index];
         final ctaLabel = _getCallToAction(blocker.code);

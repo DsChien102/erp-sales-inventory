@@ -1,7 +1,6 @@
 import 'dart:io';
 
 import 'manifest.dart';
-import 'profile_registry.dart';
 import 'secrets_loader.dart';
 
 /// Resolves hosted Supabase project ref for an environment.
@@ -38,8 +37,10 @@ class ProjectRefResolver {
     if (uri == null || uri.host.isEmpty) {
       return null;
     }
-    final match =
-        RegExp(hostedUrlPattern, caseSensitive: false).firstMatch(uri.host);
+    final match = RegExp(
+      hostedUrlPattern,
+      caseSensitive: false,
+    ).firstMatch(uri.host);
     return match?.group(1);
   }
 

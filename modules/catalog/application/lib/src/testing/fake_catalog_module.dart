@@ -3,11 +3,6 @@ import 'package:vet45_catalog_domain/domain.dart';
 import 'package:vet45_shared_application/application.dart';
 import 'package:vet45_shared_domain/shared_kernel_domain.dart';
 
-import 'fake_catalog_custom_field_store.dart';
-import 'fake_catalog_product_builder.dart';
-import 'fake_catalog_scenario.dart';
-import 'fake_product_readiness_builder.dart';
-
 class _TenantUnit {
   _TenantUnit({
     required this.id,
@@ -31,14 +26,13 @@ class _ProductUnit {
     this.listBeforeVat,
     this.floorBeforeVat,
     this.listAfterVat,
-    this.floorAfterVat,
     this.priceBandSourceType,
-    this.listMarkupRatio,
-    this.floorMarkupRatio,
     this.isCustomOverride = false,
     this.hasConversionRate = true,
-    this.hasTransactionUsage = false,
-  });
+  }) : hasTransactionUsage = false,
+       listMarkupRatio = null,
+       floorMarkupRatio = null,
+       floorAfterVat = null;
 
   final String id;
   final String productId;
@@ -94,8 +88,7 @@ class _StorePriceRuleHistoryEntry {
     required this.listMarkupAfter,
     this.floorMarkupBefore,
     required this.floorMarkupAfter,
-    this.actorDisplayName = 'fake-user',
-  });
+  }) : actorDisplayName = 'fake-user';
 
   final String id;
   final DateTime occurredAt;
@@ -167,10 +160,7 @@ class _StoredProduct {
     this.listBeforeVat,
     this.floorBeforeVat,
     this.listAfterVat,
-    this.floorAfterVat,
     this.priceBandSourceType,
-    this.listMarkupRatio,
-    this.floorMarkupRatio,
     this.isCustomOverride = false,
     this.notes,
     this.hasRequiredCustomFields = true,
@@ -179,7 +169,10 @@ class _StoredProduct {
     this.pricePermissionDenied = false,
     this.businessStatus = ProductBusinessStatus.active,
     DateTime? updatedAt,
-  }) : referenceId = referenceId ?? id,
+  }) : floorMarkupRatio = null,
+       listMarkupRatio = null,
+       floorAfterVat = null,
+       referenceId = referenceId ?? id,
        updatedAt = updatedAt ?? DateTime.utc(2026, 1, 1);
 
   final String id;
@@ -2125,7 +2118,7 @@ final class FakeCatalogModule implements ICatalogModule {
         return byStatus;
       }
       if (useRelevance) {
-        final byRank = _approximateRelevanceRank(b, keyword!).compareTo(
+        final byRank = _approximateRelevanceRank(b, keyword).compareTo(
           _approximateRelevanceRank(a, keyword),
         );
         if (byRank != 0) {
@@ -2704,7 +2697,7 @@ final class FakeCatalogModule implements ICatalogModule {
     final isCreate = existing == null;
     final isNoOp =
         !isCreate &&
-        existing!.name == command.name &&
+        existing.name == command.name &&
         existing.listMarkupRatio == command.listMarkupRatio &&
         existing.floorMarkupRatio == command.floorMarkupRatio &&
         existing.status == status;

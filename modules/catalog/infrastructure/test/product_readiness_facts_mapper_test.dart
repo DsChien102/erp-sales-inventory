@@ -1,7 +1,6 @@
 import 'package:test/test.dart';
 import 'package:vet45_catalog_domain/domain.dart';
-
-import '../lib/src/domain/product/product_readiness_facts_mapper.dart';
+import 'package:vet45_catalog_infrastructure/src/domain/product/product_readiness_facts_mapper.dart';
 
 void main() {
   group('ProductReadinessFactsMapper', () {

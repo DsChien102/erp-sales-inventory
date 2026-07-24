@@ -3,7 +3,6 @@ import 'dart:io';
 import 'action_spec.dart';
 import 'profile_registry.dart';
 import 'target_discovery.dart';
-import 'target_manifest.dart';
 import 'workspace_manifest.dart';
 
 export 'repo_root.dart';
@@ -98,10 +97,7 @@ class EnvManifest {
     return env;
   }
 
-  WorkspaceContext context({
-    String? profileId,
-    String? environmentId,
-  }) {
+  WorkspaceContext context({String? profileId, String? environmentId}) {
     return WorkspaceContext.resolve(
       manifest: this,
       profileId: profileId,
@@ -119,16 +115,16 @@ class EnvManifest {
   }
 
   ActiveState readState() => readActiveState(
-        rootDir,
-        defaultEnvironmentId: defaultEnvironmentId,
-        knownProfileIds: profiles.profiles.keys.toSet(),
-      );
+    rootDir,
+    defaultEnvironmentId: defaultEnvironmentId,
+    knownProfileIds: profiles.profiles.keys.toSet(),
+  );
 
   ActiveState? tryReadState() => tryReadActiveState(
-        rootDir,
-        defaultEnvironmentId: defaultEnvironmentId,
-        knownProfileIds: profiles.profiles.keys.toSet(),
-      );
+    rootDir,
+    defaultEnvironmentId: defaultEnvironmentId,
+    knownProfileIds: profiles.profiles.keys.toSet(),
+  );
 }
 
 class TargetDefinition {

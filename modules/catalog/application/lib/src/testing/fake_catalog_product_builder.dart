@@ -1,8 +1,6 @@
 import 'package:vet45_catalog_application/application.dart';
 import 'package:vet45_catalog_domain/domain.dart';
 
-import 'fake_product_readiness_builder.dart';
-
 /// Builds list and control-center DTOs for [FakeCatalogModule].
 abstract final class FakeCatalogProductBuilder {
   static ReadinessSummaryDto readinessSummaryFor({

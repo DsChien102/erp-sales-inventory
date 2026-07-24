@@ -50,7 +50,6 @@ class _ProductListSearchBarState extends State<ProductListSearchBar> {
               variant: VSearchBarVariant.outlined,
               onChanged: _onSearchChanged,
               onSubmitted: _onSearchChanged,
-              // suffix: const _CameraIconButton(),
             ),
           ),
           if (widget.onFilterPressed != null) ...[
@@ -99,20 +98,3 @@ class _FilterButton extends StatelessWidget {
     );
   }
 }
-
-// class _CameraIconButton extends StatelessWidget {
-//   const _CameraIconButton();
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return IconButton(
-//       icon: const Icon(
-//         Icons.camera_alt_outlined,
-//         color: colors.textSecondary,
-//       ),
-//       onPressed: () {
-//         // TODO: Implement barcode scan
-//       },
-//     );
-//   }
-// }

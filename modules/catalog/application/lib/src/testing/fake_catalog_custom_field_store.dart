@@ -2,8 +2,6 @@ import 'package:vet45_catalog_application/application.dart';
 import 'package:vet45_catalog_domain/domain.dart';
 import 'package:vet45_shared_application/application.dart';
 
-import 'fake_catalog_scenario.dart';
-
 class _StoredCustomFieldOption {
   _StoredCustomFieldOption({
     required this.optionId,
@@ -52,13 +50,12 @@ class _StoredCustomField {
     required this.name,
     required this.fieldType,
     this.options = const [],
-    this.isRequired = false,
     this.isSearchable = false,
     this.isFilterable = false,
     this.displayOnList = false,
     this.sortOrder = 0,
     this.isActive = true,
-  });
+  }) : isRequired = false;
 
   final String fieldId;
   final String groupId;
@@ -125,7 +122,7 @@ final class FakeCatalogCustomFieldStore {
   final Map<String, _StoredProductCustomFieldValue> _productValues = {};
   int _nextGroupId = 1;
   int _nextFieldId = 1;
-  int _nextOptionId = 1;
+  final int _nextOptionId = 1;
 
   static const _defaultTemplateId = 'vet_pharmacy_default';
 
@@ -848,7 +845,10 @@ final class FakeCatalogCustomFieldStore {
       fieldId: indication.fieldId,
       textValue: 'hỗ trợ tiêu hóa',
     );
-    _productValues[_valueKey('product-1', requiresPrescription.fieldId)] = _StoredProductCustomFieldValue(
+    _productValues[_valueKey(
+      'product-1',
+      requiresPrescription.fieldId,
+    )] = _StoredProductCustomFieldValue(
       productId: 'product-1',
       fieldId: requiresPrescription.fieldId,
       booleanValue: true,

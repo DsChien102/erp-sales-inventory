@@ -1,5 +1,4 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:vet45_partner_application/application.dart';
 import 'package:vet45_partner_application/testing.dart';
 import 'package:vet45_partner_presentation/presentation.dart';
 import 'package:vet45_shared_testing/shared_testing.dart';
@@ -33,7 +32,7 @@ void main() {
       );
 
       await cubit.loadContacts('p-org-1');
-      
+
       // Search matches "Trần"
       cubit.searchContacts('Trần');
       var loaded = cubit.state as PartnerContactsLoaded;

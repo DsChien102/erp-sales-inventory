@@ -69,7 +69,7 @@ class PartnerSectionHeader extends StatelessWidget {
                   ),
                 if (trailingText != null && trailingIcon != null)
                   const SizedBox(width: VSpacing.space2),
-                if (trailingIcon != null) trailingIcon!,
+                ?trailingIcon,
               ],
             ),
         ],

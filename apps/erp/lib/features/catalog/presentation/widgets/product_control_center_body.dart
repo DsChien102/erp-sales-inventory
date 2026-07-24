@@ -174,15 +174,6 @@ class ProductControlCenterBody extends StatelessWidget {
     );
   }
 
-  void _showEditPlaceholder(BuildContext context) {
-    VToast.show(
-      context,
-      title: 'Chỉnh sửa',
-      message: 'Chức năng sửa thông tin sẽ khả dụng trong slice tiếp theo.',
-      type: VToastType.info,
-    );
-  }
-
   void _reload(BuildContext context) {
     context.read<ProductControlCenterCubit>().loadControlCenter(product.id);
   }

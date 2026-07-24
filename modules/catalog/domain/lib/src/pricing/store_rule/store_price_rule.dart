@@ -7,13 +7,13 @@ import 'rules/markup_ratio_must_be_non_negative_rule.dart';
 /// Tenant-level store price rule (1 per tenant in Foundation).
 final class StorePriceRule extends Entity<String> implements IAggregateRoot {
   StorePriceRule({
-    required String id,
+    required super.id,
     required this.tenantId,
     required this.name,
     required this.listMarkupRatio,
     required this.floorMarkupRatio,
     this.isActive = true,
-  }) : super(id: id);
+  });
 
   final String tenantId;
   final String name;

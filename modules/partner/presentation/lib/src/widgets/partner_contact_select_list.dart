@@ -200,7 +200,7 @@ class _PartnerContactSelectListState extends State<PartnerContactSelectList> {
     return ListView.separated(
       padding: const EdgeInsets.symmetric(horizontal: VSpacing.space4),
       itemCount: _items.length,
-      separatorBuilder: (_, __) => Divider(color: colors.borderDefault, height: 1),
+      separatorBuilder: (_, _) => Divider(color: colors.borderDefault, height: 1),
       itemBuilder: (context, index) {
         final item = _items[index];
 

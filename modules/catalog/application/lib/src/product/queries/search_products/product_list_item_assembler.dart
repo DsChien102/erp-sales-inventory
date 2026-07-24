@@ -1,7 +1,6 @@
 import 'package:vet45_catalog_domain/domain.dart';
 
 import 'package:vet45_catalog_application/src/shared/readiness_summary_dto.dart';
-import 'package:vet45_catalog_application/src/product/queries/list_custom_field_filter_options/custom_field_list_value_dto.dart';
 import 'product_list_item_dto.dart';
 import 'product_list_item_read_row.dart';
 

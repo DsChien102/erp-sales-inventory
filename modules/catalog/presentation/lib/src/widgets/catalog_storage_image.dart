@@ -80,7 +80,7 @@ class _CatalogStorageImageState extends State<CatalogStorageImage> {
         width: widget.width,
         height: widget.height,
         fit: widget.fit,
-        errorBuilder: (_, __, ___) => _placeholder(),
+        errorBuilder: (_, _, _) => _placeholder(),
       );
     }
 
@@ -106,23 +106,23 @@ class _CatalogStorageImageState extends State<CatalogStorageImage> {
           width: widget.width,
           height: widget.height,
           fit: widget.fit,
-          errorBuilder: (_, __, ___) => _placeholder(),
+          errorBuilder: (_, _, _) => _placeholder(),
         );
       },
     );
   }
 
   Widget _placeholder() {
+    final colors = context.vColors;
     return SizedBox(
       width: widget.width,
       height: widget.height,
       child:
           widget.placeholder ??
-          const ColoredBox(
-            color: VColors.surfaceAlt,
-            child: Center(
-              child: Icon(Icons.image_outlined, color: VColors.textMuted),
-            ),
+          VIconBox(
+            backgroundColor: colors.surfaceAlt,
+            icon: VIcons.image,
+            iconColor: colors.textMuted,
           ),
     );
   }

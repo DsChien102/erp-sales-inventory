@@ -1,7 +1,6 @@
 import 'package:test/test.dart';
 import 'package:vet45_catalog_application/application.dart';
 import 'package:vet45_catalog_domain/domain.dart';
-import 'package:vet45_shared_application/application.dart';
 
 class _RecordingProductPriceBandGateway implements IProductPriceBandGateway {
   ProductUnitPriceBandsDto? lastListed;
@@ -72,8 +71,7 @@ class _RecordingProductPriceBandGateway implements IProductPriceBandGateway {
 class _FakeCatalogUnitGateway implements ICatalogUnitGateway {
   _FakeCatalogUnitGateway({
     this.units = const [],
-    this.baseUnitName = 'Lọ',
-  });
+  }) : baseUnitName = 'Lọ';
 
   final List<ProductUnitDto> units;
   final String baseUnitName;
@@ -199,9 +197,9 @@ class _FakeCatalogReadGateway implements ICatalogReadGateway {
 
 class _FakeProductReadinessReadPort implements IProductReadinessReadPort {
   _FakeProductReadinessReadPort({
-    this.hasBaseUnit = true,
     bool Function(int loadCount)? hasPriceBandForLoad,
-  }) : _hasPriceBandForLoad = hasPriceBandForLoad ?? ((_) => false);
+  }) : hasBaseUnit = true,
+       _hasPriceBandForLoad = hasPriceBandForLoad ?? ((_) => false);
 
   final bool hasBaseUnit;
   final bool Function(int loadCount) _hasPriceBandForLoad;
