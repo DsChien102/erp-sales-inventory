@@ -67,6 +67,8 @@ enum VIcons {
   apartment,
   person,
   personAdd,
+  personCheck,
+  personRemove,
   description,
   gridView,
   stickyNote,
@@ -218,6 +220,10 @@ extension VIconsExtension on VIcons {
         return LucideIcons.user;
       case VIcons.personAdd:
         return LucideIcons.userPlus;
+      case VIcons.personCheck:
+        return LucideIcons.userCheck;
+      case VIcons.personRemove:
+        return LucideIcons.userX;
       case VIcons.description:
         return LucideIcons.fileText;
       case VIcons.gridView:
