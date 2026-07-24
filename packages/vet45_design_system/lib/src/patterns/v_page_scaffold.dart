@@ -19,7 +19,6 @@ class VPageScaffold extends StatelessWidget {
     this.bottomBar,
     this.floatingActionButton,
     this.resizeToAvoidBottomInset = true,
-    this.backgroundColor,
   });
 
   final String title;
@@ -34,32 +33,32 @@ class VPageScaffold extends StatelessWidget {
   final Widget? floatingActionButton;
   final bool resizeToAvoidBottomInset;
 
-  /// Page background — defaults to `context.vColors.background`.
-  final Color? backgroundColor;
-
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: backgroundColor ?? context.vColors.background,
-      resizeToAvoidBottomInset: resizeToAvoidBottomInset,
-      appBar: VAppBar(
-        title: title,
-        subtitle: subtitle,
-        titleStyle: titleStyle,
-        leading: leading,
-        actions: actions,
-        showBackButton: showBackButton,
-        centerTitle: centerTitle,
+    return TapRegion(
+      onTapOutside: (_) => FocusManager.instance.primaryFocus?.unfocus(),
+      child: Scaffold(
+        backgroundColor: context.vColors.background,
+        resizeToAvoidBottomInset: resizeToAvoidBottomInset,
+        appBar: VAppBar(
+          title: title,
+          subtitle: subtitle,
+          titleStyle: titleStyle,
+          leading: leading,
+          actions: actions,
+          showBackButton: showBackButton,
+          centerTitle: centerTitle,
+        ),
+        body: body,
+        bottomNavigationBar: bottomBar != null
+            ? Material(
+                color: context.vColors.surface,
+                elevation: 8,
+                child: SafeArea(top: false, child: bottomBar!),
+              )
+            : null,
+        floatingActionButton: floatingActionButton,
       ),
-      body: body,
-      bottomNavigationBar: bottomBar != null
-          ? Material(
-              color: context.vColors.surface,
-              elevation: 8,
-              child: SafeArea(top: false, child: bottomBar!),
-            )
-          : null,
-      floatingActionButton: floatingActionButton,
     );
   }
 }
