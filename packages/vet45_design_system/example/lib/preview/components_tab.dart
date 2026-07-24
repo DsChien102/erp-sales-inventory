@@ -896,14 +896,14 @@ class _ComponentsPreviewTabState extends State<ComponentsPreviewTab> {
           title: 'VFloatingActionButton',
           child: PreviewStateWrap(
             children: [
-              VFloatingActionButton(iconData: Icons.add, onTap: () {}),
+              VFloatingActionButton(icon: VIcons.add, onTap: () {}),
               VFloatingActionButton(
-                iconData: Icons.qr_code_scanner,
+                icon: VIcons.qrCode,
                 backgroundColor: VColors.info,
                 onTap: () {},
               ),
               const VFloatingActionButton(
-                iconData: Icons.print_outlined,
+                icon: VIcons.printer,
                 onTap: null,
               ),
             ],
@@ -926,7 +926,7 @@ class _ComponentsPreviewTabState extends State<ComponentsPreviewTab> {
                       actions: [
                         IconButton(
                           onPressed: () {},
-                          icon: const VIcon(iconData: Icons.more_vert),
+                          icon: const VIcon(icon: VIcons.moreVert),
                         ),
                       ],
                     ),

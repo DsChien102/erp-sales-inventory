@@ -100,6 +100,8 @@ enum VIcons {
   pause,
   contact,
   bolt,
+  qrCode,
+  printer,
 }
 
 /// Extension helper để ánh xạ từ [VIcons] sang [IconData] của Lucide Icons
@@ -282,6 +284,10 @@ extension VIconsExtension on VIcons {
         return LucideIcons.contact;
       case VIcons.bolt:
         return LucideIcons.zap;
+      case VIcons.qrCode:
+        return LucideIcons.qrCode;
+      case VIcons.printer:
+        return LucideIcons.printer;
     }
   }
 }

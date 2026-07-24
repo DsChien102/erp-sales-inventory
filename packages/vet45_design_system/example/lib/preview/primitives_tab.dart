@@ -134,7 +134,7 @@ class _PrimitivesPreviewTabState extends State<PrimitivesPreviewTab> {
                       label: 'Filter B',
                       selected: !_chipSelected,
                       onTap: () => setState(() => _chipSelected = !_chipSelected),
-                      leadingIcon: Icons.tag,
+                      icon: VIcons.tag,
                     ),
                   ],
                 ),
@@ -144,7 +144,7 @@ class _PrimitivesPreviewTabState extends State<PrimitivesPreviewTab> {
                 child: VChip(
                   label: 'Tag removable',
                   onRemove: () {},
-                  leadingIcon: Icons.label_outline,
+                  icon: VIcons.tag,
                 ),
               ),
               PreviewStateRow(
@@ -167,11 +167,11 @@ class _PrimitivesPreviewTabState extends State<PrimitivesPreviewTab> {
           title: 'VIcon',
           child: PreviewStateWrap(
             children: const [
-              VIcon(iconData: Icons.home_rounded),
-              VIcon(iconData: Icons.person_outline, size: 18),
-              VIcon(iconData: Icons.warning_amber_rounded, color: VColors.warning),
-              VIcon(iconData: Icons.check_circle, color: VColors.success, size: 28),
-              VIcon(iconData: Icons.error_outline, color: VColors.danger, size: 28),
+              VIcon(icon: VIcons.home),
+              VIcon(icon: VIcons.person, size: 18),
+              VIcon(icon: VIcons.warning, color: VColors.warning),
+              VIcon(icon: VIcons.success, color: VColors.success, size: 28),
+              VIcon(icon: VIcons.error, color: VColors.danger, size: 28),
             ],
           ),
         ),
