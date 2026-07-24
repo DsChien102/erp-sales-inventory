@@ -1,5 +1,7 @@
 import 'package:vet45_shared_application/application.dart';
 
+import '../authentication/sign_in/sign_in_command.dart';
+import '../authentication/sign_out/sign_out_command.dart';
 import '../contracts/i_iam_module.dart';
 import '../dto/platform_user_detail_dto.dart';
 import '../dto/platform_user_membership_dto.dart';
@@ -15,19 +17,32 @@ import '../platform/send_activation_invitation/send_activation_invitation_comman
 import '../platform/suspend_platform_user/suspend_platform_user_command.dart';
 import 'fake_iam_scenario.dart';
 
-/// In-memory IAM module for Admin FE/widget tests (TH-01 S15).
+/// In-memory IAM module for Admin FE/widget tests (TH-01 S15 + auth).
 final class FakeIamModule implements IIamModule {
-  FakeIamModule({this.scenario = FakeIamScenario.usersSearchOk}) {
+  FakeIamModule({
+    this.scenario = FakeIamScenario.usersSearchOk,
+    this.onSignedIn,
+    this.onSignedOut,
+  }) {
     _seedUsers();
   }
 
   final FakeIamScenario scenario;
+
+  /// Optional hook so tests can update [ICurrentUser] / session after SignIn.
+  final void Function(String email)? onSignedIn;
+
+  /// Optional hook so tests can clear session after SignOut.
+  final void Function()? onSignedOut;
 
   late List<PlatformUserDetailDto> _users;
   final Map<String, TenantOnboardingResultDto> _onboardingByKey = {};
 
   int activationInviteCount = 0;
   int passwordResetCount = 0;
+  int signInCount = 0;
+  int signOutCount = 0;
+  String? lastSignedInEmail;
 
   void _seedUsers() {
     _users = [
@@ -109,6 +124,8 @@ final class FakeIamModule implements IIamModule {
   @override
   Future<TResult> executeCommandAsync<TResult>(ICommand<TResult> command) {
     return switch (command) {
+      SignInCommand c => _handleSignIn<TResult>(c),
+      SignOutCommand _ => _handleSignOut<TResult>(),
       SendActivationInvitationCommand c =>
         _handleActivationInvite<TResult>(c),
       RequestPlatformPasswordResetCommand c =>
@@ -131,6 +148,22 @@ final class FakeIamModule implements IIamModule {
         'FakeIamModule: unsupported query ${query.runtimeType}',
       ),
     };
+  }
+
+  Future<TResult> _handleSignIn<TResult>(SignInCommand command) {
+    if (scenario == FakeIamScenario.authInvalid) {
+      throw ApplicationException('Invalid login credentials');
+    }
+    signInCount++;
+    lastSignedInEmail = command.email;
+    onSignedIn?.call(command.email);
+    return Future.value(null as TResult);
+  }
+
+  Future<TResult> _handleSignOut<TResult>() {
+    signOutCount++;
+    onSignedOut?.call();
+    return Future.value(null as TResult);
   }
 
   Future<TResult> _handleSearch<TResult>(SearchPlatformUsersQuery query) {

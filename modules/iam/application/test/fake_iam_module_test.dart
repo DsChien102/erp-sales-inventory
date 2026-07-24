@@ -153,5 +153,42 @@ void main() {
         throwsA(isA<ValidationException>()),
       );
     });
+
+    test('auth_ok — SignInCommand invokes hook', () async {
+      var hooked = false;
+      final module = FakeIamModule(
+        scenario: FakeIamScenario.authOk,
+        onSignedIn: (_) => hooked = true,
+      );
+
+      await module.executeCommandAsync(
+        SignInCommand(email: 'admin@vet45.local', password: 'secret'),
+      );
+
+      expect(module.signInCount, 1);
+      expect(module.lastSignedInEmail, 'admin@vet45.local');
+      expect(hooked, isTrue);
+    });
+
+    test('auth_invalid — SignInCommand throws', () async {
+      final module = FakeIamModule(scenario: FakeIamScenario.authInvalid);
+
+      expect(
+        () => module.executeCommandAsync(
+          SignInCommand(email: 'x@y.z', password: 'bad'),
+        ),
+        throwsA(isA<ApplicationException>()),
+      );
+    });
+
+    test('SignOutCommand invokes hook', () async {
+      var cleared = false;
+      final module = FakeIamModule(onSignedOut: () => cleared = true);
+
+      await module.executeCommandAsync(SignOutCommand());
+
+      expect(module.signOutCount, 1);
+      expect(cleared, isTrue);
+    });
   });
 }

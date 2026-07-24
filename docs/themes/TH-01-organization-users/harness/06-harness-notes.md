@@ -34,8 +34,9 @@ Chi tiết: [03-architecture-and-flows.md](03-architecture-and-flows.md).
 | Email | **Resend** qua Notification adapter; IAM chỉ delivery request + outcome |
 | Deep link | HTTPS App Link `/i/{opaque}` hoặc `/activate/{opaque}` → app POST token **trong body** |
 | Password reset | Mã 6 số trong app (đã login) — **không** magic link URL |
-| Surfaces | `apps/erp` = Tenant App; `apps/admin` = Platform Admin (scaffold) |
+| Surfaces | `apps/erp` = Tenant App; `apps/admin` = Platform Admin (Login + S15 wired) |
 | Post-MVP | EP-02/US-04 transfer + US-05 close — không slice phase 1 |
+| Platform Admin bootstrap | Không self-signup. Ops: tạo `auth.users` rồi `INSERT INTO iam.platform_admins (user_id)`. Product invite (`CreatePlatformAdmin`) = slice sau. |
 
 ## Pitfalls
 
@@ -46,7 +47,8 @@ Chi tiết: [03-architecture-and-flows.md](03-architecture-and-flows.md).
 - **Resend secrets** — không hardcode; `config/secrets` + env sync.
 - **Interim IAM** — `owner`/`staff` sẽ thay bằng bốn system role MVP (EP-04).
 - **UI** — Design Reference trỏ Theme §5 Screen Groups; không nhân bản wireframe vào US.
-- **Admin Melos** — `apps/admin` chưa workspace; Admin FE E2E deferred cho đến khi wire Melos.
+- **Admin login gate** — sau `SignInCommand`, Admin gọi `IPermissionChecker.require(platform.user.view)`; thiếu `iam.platform_admins` → SignOut + toast (không để tenant user vào dashboard).
+- **Admin Melos** — `apps/admin` trong workspace; Login + S15 FE dùng FakeIamModule.
 
 ## Flywheel log
 
@@ -59,6 +61,7 @@ Chi tiết: [03-architecture-and-flows.md](03-architecture-and-flows.md).
 | 2026-07-20 | S-NOTIFY dùng outbox như task queue (vi phạm internal command) | Refactor: `SendEmailDeliveryCommand` + `iam.internal_commands`; worker claim → CommandBus; đóng debt outbox-as-task-queue |
 | 2026-07-20 | IAM messaging folder/wiring ≠ golden sales (`modules/sales/infrastructure`, `dev-old`) | **Closed:** IAM có `Process{Outbox,Inbox,InternalCommands}` + `ICommandScheduler` + self-consume inbox; adapters `src/adapters/notification/`; thin `IamMessagingModule` |
 | 2026-07-20 | Dart client gọi `enqueue_outbox_message` (vi phạm RPC same-txn) | **Closed:** bỏ `enqueue` khỏi `IIamOutboxClient`; port production chỉ đọc outcome; docs/tests seed outbox như RPC |
+| 2026-07-24 | Admin chưa có Login — mở thẳng dashboard | LoginPage + router guard + platform.user.view gate; ops bootstrap `iam.platform_admins` ghi trong notes |
 
 ## Liên kết
 

@@ -1,4 +1,4 @@
-/// Named fake scenarios from harness/07-api-contracts.md §S15.
+/// Named fake scenarios from harness/07-api-contracts.md §S15 (+ Admin auth).
 enum FakeIamScenario {
   /// Default happy path: searchable users + detail + lifecycle + onboarding.
   usersSearchOk,
@@ -11,4 +11,6 @@ enum FakeIamScenario {
   onboardingNewUserOk,
   onboardingRetryIdempotent,
   onboardingValidationError,
+  authOk,
+  authInvalid,
 }
