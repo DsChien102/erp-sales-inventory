@@ -69,6 +69,12 @@ class MorePage extends StatelessWidget {
         onTap: () => context.push('/more/users-and-roles'),
       ),
       _MoreMenuItem(
+        icon: VIcons.person,
+        title: 'Tài khoản của tôi',
+        subtitle: 'Xem và chỉnh sửa thông tin cá nhân',
+        onTap: () => context.push('/more/my-account'),
+      ),
+      _MoreMenuItem(
         icon: VIcons.settings,
         title: 'Thiết lập',
         subtitle: 'Cấu hình hệ thống & hóa đơn điện tử',

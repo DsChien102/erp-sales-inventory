@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:vet45_design_system/design_system.dart';
 import 'package:go_router/go_router.dart';
 import 'package:vet45_iam_infrastructure/infrastructure.dart';
+import 'package:vet45_iam_application/application.dart';
 import 'package:vet45_shared_application/application.dart';
 import 'package:vet45_catalog_application/application.dart' hide ProductChangeHistoryPage;
 import 'package:vet45_catalog_presentation/presentation.dart';
@@ -70,6 +71,7 @@ import '../../features/pricing/presentation/pages/pricing_pick_product_page.dart
 import '../../features/pricing/presentation/pages/pricing_pick_unit_page.dart';
 
 import '../di/injection.dart';
+import '../errors/exception_mapper.dart';
 
 final appRouter = GoRouter(
   initialLocation: '/',
@@ -215,6 +217,43 @@ final appRouter = GoRouter(
           log: log ?? FakeAuditLogsData.sampleAuditLogs[0],
         );
       },
+    ),
+    GoRoute(
+      path: '/more/my-account',
+      name: 'more.my-account',
+      builder: (context, state) => MyAccountPage(
+        onLogout: () async {
+          final result = await guard(
+            () => getIt<IIamModule>().executeCommandAsync(SignOutCommand()),
+          );
+          if (!context.mounted) return;
+          result.fold(
+            (failure) {
+              VToast.show(
+                context,
+                title: 'Đăng xuất thất bại',
+                message: failure.message,
+                type: VToastType.danger,
+              );
+            },
+            (_) => context.go('/login'),
+          );
+        },
+      ),
+    ),
+    GoRoute(
+      path: '/more/my-account/edit',
+      name: 'more.my-account.edit',
+      builder: (context, state) {
+        final data =
+            state.extra as MyAccountUiModel? ?? MyAccountUiModel.sample;
+        return EditMyAccountPage(data: data);
+      },
+    ),
+    GoRoute(
+      path: '/more/my-account/reset-password',
+      name: 'more.my-account.reset-password',
+      builder: (context, state) => const ResetPasswordPage(),
     ),
     GoRoute(
       path: '/more/organization-profile',

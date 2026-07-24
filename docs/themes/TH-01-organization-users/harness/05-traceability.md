@@ -39,7 +39,7 @@ Tổng product: **6 epic, 32 US** (2 Post-MVP) — [README.md](../README.md).
 | ------ | ---- | ---------- | ------------- | -------- | ------- | ------ |
 | US-01 | CONTRACT | §S1 | application + domain | `ListAccessibleTenantsQuery` + `AccessibleTenantDto` (`TenantLifecycleStatus`) | scn_e05_u01_fr01_01 | done |
 | FR-01.. | BE | §S1 | application + infrastructure + draft SQL | handler + `list_accessible_tenants` RPC | scn_e05_u01_fr01_01 | done |
-| FR-01.. | FE | §S1 | presentation | organization selector list | wgt_e05_u01_fr01_01 | todo |
+| FR-01.. | FE | §S1 | presentation | organization selector list | wgt_e05_u01_fr01_01 | done |
 | FR-01 | E2E | §S1 | integration | ERP via IIamModule | e2e_e05_u01_fr01_01 | todo |
 
 ---
@@ -72,7 +72,7 @@ Tổng product: **6 epic, 32 US** (2 Post-MVP) — [README.md](../README.md).
 | ------ | ---- | ---------- | ------------- | -------- | ------- | ------ |
 | US-02 | CONTRACT | §S7 | application | `CreateInvitationCommand` | fake_iam_module_test | todo |
 | FR-01.. | BE | §S7 | application | handler + email delivery enqueue | scn_e03_u02_fr01_01 | todo |
-| FR-01.. | FE | §S7 | presentation | invite form | wgt_e03_u02_fr01_01 | todo |
+| FR-01.. | FE | §S7 | presentation | invite form | wgt_e03_u02_fr01_01 | done |
 | FR-01 | E2E | §S7 | integration | invite + delivery outcome | e2e_e03_u02_fr01_01 | todo |
 
 ---
@@ -85,6 +85,28 @@ Tổng product: **6 epic, 32 US** (2 Post-MVP) — [README.md](../README.md).
 | FR-01.. | BE | §S8 | application | accept atomic + membership | scn_e03_u03_fr01_01 | todo |
 | FR-01.. | FE | §S8 | presentation | deep-link surface → POST body | wgt_e03_u03_fr01_01 | todo |
 | FR-01 | E2E | §S8 | integration | App Link handoff | e2e_e03_u03_fr01_01 | todo |
+
+---
+
+## S9 — EP-03 / US-04 — Resend / revoke invitation
+
+| Req ID | Role | Contract § | Enforce layer | Artifact | Test id | Status |
+| ------ | ---- | ---------- | ------------- | -------- | ------- | ------ |
+| US-04 | CONTRACT | §S9 | application + domain | `ResendInvitationCommand` / `RevokeInvitationCommand` | tenant_invitation_test | done |
+| FR-01.. | BE | §S9 | application + infrastructure | handler + RPC | scn_e03_u04_fr01_01 | todo |
+| FR-01.. | FE | §S9 | presentation | resend / revoke actions | wgt_e03_u04_fr01_01 | done |
+| FR-01 | E2E | §S9 | integration | resend + revoke | e2e_e03_u04_fr01_01 | todo |
+
+---
+
+## S10 — EP-03 / US-05 + US-06 — Membership status / remove
+
+| Req ID | Role | Contract § | Enforce layer | Artifact | Test id | Status |
+| ------ | ---- | ---------- | ------------- | -------- | ------- | ------ |
+| US-05/06 | CONTRACT | §S10 | application + domain | `DeactivateMemberCommand` / `ReactivateMemberCommand` / `RemoveMemberCommand` + `TenantMembership` + `SoleOwnerGuard` | tenant_membership_test | done |
+| FR-01.. | BE | §S10 | application + infrastructure | handler + RPC | scn_e03_u05_fr01_01 | todo |
+| FR-01.. | FE | §S10 | presentation | member detail lifecycle | wgt_e03_u05_fr01_01 | done |
+| FR-01 | E2E | §S10 | integration | deactivate / remove | e2e_e03_u05_fr01_01 | todo |
 
 ---
 
