@@ -43,8 +43,7 @@ class _ComponentsPreviewTabState extends State<ComponentsPreviewTab> {
       children: [
         PreviewSection(
           title: 'VBanner',
-          description:
-              'Inline status banner — info / success / warning / error (+ footer).',
+          description: 'Inline status banner — info / success / warning / error (+ footer).',
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
@@ -54,8 +53,7 @@ class _ComponentsPreviewTabState extends State<ComponentsPreviewTab> {
                   child: VBanner(
                     status: status,
                     title: 'Tiêu đề thông báo',
-                    description:
-                        'Mô tả ngắn có thể gồm một hành động tiếp theo.',
+                    description: 'Mô tả ngắn có thể gồm một hành động tiếp theo.',
                   ),
                 ),
               PreviewStateRow(
@@ -795,6 +793,31 @@ class _ComponentsPreviewTabState extends State<ComponentsPreviewTab> {
                 child: VCard(
                   onTap: () {},
                   child: const Text('Tap me'),
+                ),
+              ),
+            ],
+          ),
+        ),
+        PreviewSection(
+          title: 'VBanner',
+          description: 'Inline status banners (info / success / warning / error).',
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              for (final status in VBannerStatus.values)
+                PreviewStateRow(
+                  label: status.name,
+                  child: VBanner(
+                    status: status,
+                    title: 'Tiêu đề thông báo',
+                    description: 'Mô tả ngắn có thể gồm một hành động tiếp theo.',
+                  ),
+                ),
+              const PreviewStateRow(
+                label: 'Title only',
+                child: VBanner(
+                  status: VBannerStatus.info,
+                  title: 'Chỉ có tiêu đề',
                 ),
               ),
             ],

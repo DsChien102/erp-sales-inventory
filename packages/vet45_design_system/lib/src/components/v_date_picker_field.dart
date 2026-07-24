@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import '../tokens/v_colors.dart';
 import '../tokens/v_radius.dart';
 import '../tokens/v_spacing.dart';
-import '../tokens/v_typography.dart';
 import '../foundation/v_context_extensions.dart';
 import '../foundation/v_component_contracts.dart';
 import '../primitives/v_icon.dart';
@@ -117,9 +115,7 @@ class VDatePickerField extends StatelessWidget {
                       dateText,
                       variant: VTextVariant.bodyDefault,
                       color: value != null
-                          ? (isEnabled
-                              ? dynamicColors.textPrimary
-                              : dynamicColors.textMuted)
+                          ? (isEnabled ? dynamicColors.textPrimary : dynamicColors.textMuted)
                           : dynamicColors.textMuted,
                     ),
                   ),

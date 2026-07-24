@@ -49,13 +49,14 @@ class _PreviewHomeScreenState extends State<PreviewHomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.vColors;
     return Scaffold(
       appBar: AppBar(
         title: const Text('VET45 Design System Preview'),
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(48),
           child: Container(
-            color: VColors.surface,
+            color: colors.surface,
             child: VTabs(
               tabs: _tabs,
               selectedIndex: _currentTab,

@@ -85,8 +85,7 @@ class _PrimitivesPreviewTabState extends State<PrimitivesPreviewTab> {
           description: 'All VBadgeStatus values.',
           child: PreviewStateWrap(
             children: [
-              for (final status in VBadgeStatus.values)
-                VBadge(label: status.name, status: status),
+              for (final status in VBadgeStatus.values) VBadge(label: status.name, status: status),
               const VBadge(
                 label: 'with dot',
                 status: VBadgeStatus.info,
@@ -171,6 +170,7 @@ class _PrimitivesPreviewTabState extends State<PrimitivesPreviewTab> {
               VIcon(icon: VIcons.person, size: 18),
               VIcon(icon: VIcons.warning, color: VColors.warning),
               VIcon(icon: VIcons.success, color: VColors.success, size: 28),
+              VIcon(icon: VIcons.check, color: VColors.success, size: 28),
               VIcon(icon: VIcons.error, color: VColors.danger, size: 28),
             ],
           ),
@@ -201,8 +201,7 @@ class _PrimitivesPreviewTabState extends State<PrimitivesPreviewTab> {
         ),
         PreviewSection(
           title: 'VSkeleton',
-          description:
-              'Shadcn-style loading bones. Prefer VSkeletonScope when composing many.',
+          description: 'Shadcn-style loading bones. Prefer VSkeletonScope when composing many.',
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [

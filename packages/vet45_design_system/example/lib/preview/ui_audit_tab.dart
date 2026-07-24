@@ -69,6 +69,7 @@ class UIAuditTab extends StatelessWidget {
     final withSemantics = rows.where((e) => e.hasSemantics).length;
     final missingRequired = rows.where((e) => e.hasMissingRequired).length;
     final covered = rows.where((e) => _isCovered(e)).length;
+    final colors = context.vColors;
 
     return ListView(
       padding: const EdgeInsets.all(VSpacing.screenMobile),
@@ -77,12 +78,12 @@ class UIAuditTab extends StatelessWidget {
         const SizedBox(height: VSpacing.space2),
         Text(
           'Contract matrix: docs/audit/contract_matrix.yaml — Pass / Missing / N/A / Pref↓',
-          style: VTypography.bodyDefault.copyWith(color: VColors.textSecondary),
+          style: VTypography.bodyDefault.copyWith(color: colors.textSecondary),
         ),
         const SizedBox(height: VSpacing.space1),
         Text(
           'Snapshot: $vComponentAuditGeneratedAt',
-          style: VTypography.caption.copyWith(color: VColors.textMuted),
+          style: VTypography.caption.copyWith(color: colors.textMuted),
         ),
         const SizedBox(height: VSpacing.space3),
         VCard(
@@ -212,9 +213,10 @@ class PreviewSectionNote extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.vColors;
     return Text(
       text,
-      style: VTypography.caption.copyWith(color: VColors.textSecondary),
+      style: VTypography.caption.copyWith(color: colors.textSecondary),
     );
   }
 }

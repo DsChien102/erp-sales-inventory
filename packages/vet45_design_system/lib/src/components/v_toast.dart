@@ -1,14 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:vet45_design_system/design_system.dart';
-import '../tokens/v_colors.dart';
-import '../tokens/v_spacing.dart';
-import '../tokens/v_radius.dart';
-import '../tokens/v_shadows.dart';
-import '../tokens/v_typography.dart';
-import '../foundation/v_component_contracts.dart';
-import '../primitives/v_icon.dart';
-import '../primitives/v_text.dart';
-import '../foundations/icons/v_icons.dart';
 
 enum VToastType { success, warning, danger, info }
 

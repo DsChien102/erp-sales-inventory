@@ -150,6 +150,7 @@ class TokensPreviewTab extends StatelessWidget {
       decoration: BoxDecoration(
         color: color,
         borderRadius: BorderRadius.circular(VRadius.r6),
+        // ignore: deprecated_member_use
         border: Border.all(color: VColors.borderDefault),
       ),
       padding: const EdgeInsets.symmetric(
@@ -191,6 +192,7 @@ class TokensPreviewTab extends StatelessWidget {
       width: 76,
       height: 76,
       decoration: BoxDecoration(
+        // ignore: deprecated_member_use
         color: VColors.surface,
         borderRadius: BorderRadius.circular(VRadius.r8),
         boxShadow: shadow,

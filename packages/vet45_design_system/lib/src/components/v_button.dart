@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../tokens/v_colors.dart';
 import '../tokens/v_spacing.dart';
 import '../tokens/v_radius.dart';
 import '../tokens/v_typography.dart';
@@ -57,8 +56,7 @@ class VButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final resolvedState = _resolveState();
     final bool isEnabled = resolvedState == VComponentState.enabled;
-    final bool showLoading =
-        resolvedState == VComponentState.loading || isLoading;
+    final bool showLoading = resolvedState == VComponentState.loading || isLoading;
     final dynamicColors = context.vColors;
 
     // Size-based padding and height config
@@ -84,11 +82,13 @@ class VButton extends StatelessWidget {
         break;
     }
 
-    final VComponentTone resolvedTone = tone ?? switch (variant) {
-      VButtonVariant.warning => VComponentTone.warning,
-      VButtonVariant.danger || VButtonVariant.dangerOutline => VComponentTone.danger,
-      _ => VComponentTone.primary,
-    };
+    final VComponentTone resolvedTone =
+        tone ??
+        switch (variant) {
+          VButtonVariant.warning => VComponentTone.warning,
+          VButtonVariant.danger || VButtonVariant.dangerOutline => VComponentTone.danger,
+          _ => VComponentTone.primary,
+        };
 
     // Colors mapping based on variant and state
     Color? getBgColor(Set<WidgetState> states) {

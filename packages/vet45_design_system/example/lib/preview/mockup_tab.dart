@@ -14,6 +14,7 @@ class _AppMockupTabState extends State<VMockupTab> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.vColors;
     // Return a simulated mobile phone preview mockup
     return Center(
       child: SingleChildScrollView(
@@ -23,14 +24,14 @@ class _AppMockupTabState extends State<VMockupTab> {
             Text(
               'THUỐC THÚ Y · PHASE 1',
               style: VTypography.headingH3.copyWith(
-                color: VColors.textPrimary,
+                color: colors.textPrimary,
                 fontWeight: FontWeight.bold,
               ),
             ),
             const SizedBox(height: 4),
             Text(
               'Sales · Cashier · v0.5 · vi-VN',
-              style: VTypography.caption.copyWith(color: VColors.textSecondary),
+              style: VTypography.caption.copyWith(color: colors.textSecondary),
             ),
             const SizedBox(height: 16),
             // Simulated Device Container
@@ -55,7 +56,7 @@ class _AppMockupTabState extends State<VMockupTab> {
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(28),
                 child: Scaffold(
-                  backgroundColor: VColors.background,
+                  backgroundColor: colors.background,
                   body: Column(
                     children: [
                       // Simulated System Status Bar
@@ -138,14 +139,14 @@ class _AppMockupTabState extends State<VMockupTab> {
                                           'Tổng quan hôm nay',
                                           style: VTypography.headingH4.copyWith(
                                             fontWeight: FontWeight.bold,
-                                            color: VColors.textPrimary,
+                                            color: colors.textPrimary,
                                             fontSize: 13,
                                           ),
                                         ),
                                         Text(
                                           '03/06/2026',
                                           style: VTypography.caption.copyWith(
-                                            color: VColors.textSecondary,
+                                            color: colors.textSecondary,
                                             fontFamily: VTypography.monoFontFamily,
                                             fontSize: 11,
                                           ),
@@ -214,7 +215,7 @@ class _AppMockupTabState extends State<VMockupTab> {
                                           'Việc cần xử lý',
                                           style: VTypography.headingH4.copyWith(
                                             fontWeight: FontWeight.bold,
-                                            color: VColors.textPrimary,
+                                            color: colors.textPrimary,
                                             fontSize: 13,
                                           ),
                                         ),
@@ -276,7 +277,7 @@ class _AppMockupTabState extends State<VMockupTab> {
                                           'Hoạt động gần đây',
                                           style: VTypography.headingH4.copyWith(
                                             fontWeight: FontWeight.bold,
-                                            color: VColors.textPrimary,
+                                            color: colors.textPrimary,
                                             fontSize: 13,
                                           ),
                                         ),
@@ -328,7 +329,9 @@ class _AppMockupTabState extends State<VMockupTab> {
                                           ),
                                           const Divider(height: 1, indent: 16, endIndent: 16),
                                           VActivityItem(
-                                            leadingIcon: const Icon(Icons.download_for_offline_outlined),
+                                            leadingIcon: const Icon(
+                                              Icons.download_for_offline_outlined,
+                                            ),
                                             title: 'Nhập kho · PN-20260603-005',
                                             subtitle: 'Amoxicillin · +50 gói',
                                             badgeLabel: 'Đã hoàn tất',
@@ -354,7 +357,7 @@ class _AppMockupTabState extends State<VMockupTab> {
                                       'Lối tắt nghiệp vụ',
                                       style: VTypography.headingH4.copyWith(
                                         fontWeight: FontWeight.bold,
-                                        color: VColors.textPrimary,
+                                        color: colors.textPrimary,
                                         fontSize: 13,
                                       ),
                                     ),
@@ -424,7 +427,10 @@ class _AppMockupTabState extends State<VMockupTab> {
                           VBottomNavigationItem(icon: Icon(Icons.home), label: 'Trang chủ'),
                           VBottomNavigationItem(icon: Icon(Icons.receipt_long), label: 'Đơn hàng'),
                           VBottomNavigationItem(icon: Icon(Icons.widgets), label: 'Sản phẩm'),
-                          VBottomNavigationItem(icon: Icon(Icons.account_balance_wallet), label: 'Công nợ'),
+                          VBottomNavigationItem(
+                            icon: Icon(Icons.account_balance_wallet),
+                            label: 'Công nợ',
+                          ),
                           VBottomNavigationItem(icon: Icon(Icons.more_horiz), label: 'Thêm'),
                         ],
                         onTap: (index) {

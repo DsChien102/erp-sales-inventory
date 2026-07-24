@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../tokens/v_colors.dart';
 import '../tokens/v_radius.dart';
 import '../foundation/v_context_extensions.dart';
 import '../foundation/v_component_contracts.dart';

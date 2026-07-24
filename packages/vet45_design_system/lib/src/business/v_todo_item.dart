@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:vet45_design_system/design_system.dart';
-import '../foundation/v_component_contracts.dart';
 
 class VTodoItem extends StatelessWidget {
   final Widget leadingIcon;
@@ -64,69 +63,69 @@ class VTodoItem extends StatelessWidget {
       label: semanticLabel ?? title,
       button: onTap != null,
       child: VCard(
-      onTap: onTap,
-      padding: const EdgeInsets.all(VSpacing.space3),
-      tone: tone,
-      emphasis: emphasis,
-      child: Row(
-        children: [
-          Container(
-            width: 36,
-            height: 36,
-            decoration: BoxDecoration(
-              color: iconBgColor,
-              borderRadius: BorderRadius.circular(VRadius.r12),
-            ),
-            alignment: Alignment.center,
-            child: IconTheme(
-              data: IconThemeData(
-                color: iconColor,
-                size: 18,
+        onTap: onTap,
+        padding: const EdgeInsets.all(VSpacing.space3),
+        tone: tone,
+        emphasis: emphasis,
+        child: Row(
+          children: [
+            Container(
+              width: 36,
+              height: 36,
+              decoration: BoxDecoration(
+                color: iconBgColor,
+                borderRadius: BorderRadius.circular(VRadius.r12),
               ),
-              child: leadingIcon,
-            ),
-          ),
-          const SizedBox(width: VSpacing.space3),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  title,
-                  style: VTypography.bodyDefault.copyWith(
-                    fontWeight: FontWeight.w600,
-                    color: dynamicColors.textPrimary,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
+              alignment: Alignment.center,
+              child: IconTheme(
+                data: IconThemeData(
+                  color: iconColor,
+                  size: 18,
                 ),
-                const SizedBox(height: 2),
-                Text(
-                  subtitle,
-                  style: VTypography.caption.copyWith(
-                    color: dynamicColors.textSecondary,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ],
+                child: leadingIcon,
+              ),
             ),
-          ),
-          const SizedBox(width: VSpacing.space2),
-          VBadge(
-            label: badgeLabel,
-            status: badgeStatus,
-          ),
-          const SizedBox(width: VSpacing.space1),
-          Icon(
-            Icons.chevron_right,
-            color: dynamicColors.textMuted,
-            size: 18,
-          ),
-        ],
+            const SizedBox(width: VSpacing.space3),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    title,
+                    style: VTypography.bodyDefault.copyWith(
+                      fontWeight: FontWeight.w600,
+                      color: dynamicColors.textPrimary,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    subtitle,
+                    style: VTypography.caption.copyWith(
+                      color: dynamicColors.textSecondary,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: VSpacing.space2),
+            VBadge(
+              label: badgeLabel,
+              status: badgeStatus,
+            ),
+            const SizedBox(width: VSpacing.space1),
+            Icon(
+              Icons.chevron_right,
+              color: dynamicColors.textMuted,
+              size: 18,
+            ),
+          ],
+        ),
       ),
-    ),
     );
   }
 }

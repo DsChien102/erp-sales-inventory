@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:vet45_design_system/design_system.dart';
-import '../foundation/v_component_contracts.dart';
 
 class VMetricCard extends StatelessWidget {
   final Widget icon;
@@ -34,50 +33,50 @@ class VMetricCard extends StatelessWidget {
       label: semanticLabel ?? label,
       button: onTap != null,
       child: VCard(
-      onTap: onTap,
-      padding: const EdgeInsets.all(VSpacing.space3),
-      tone: tone,
-      emphasis: emphasis,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            width: 28,
-            height: 28,
-            decoration: BoxDecoration(
-              color: iconBgColor,
-              borderRadius: BorderRadius.circular(VRadius.r8),
-            ),
-            alignment: Alignment.center,
-            child: IconTheme(
-              data: IconThemeData(
-                color: iconColor,
-                size: 16,
+        onTap: onTap,
+        padding: const EdgeInsets.all(VSpacing.space3),
+        tone: tone,
+        emphasis: emphasis,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 28,
+              height: 28,
+              decoration: BoxDecoration(
+                color: iconBgColor,
+                borderRadius: BorderRadius.circular(VRadius.r8),
               ),
-              child: icon,
+              alignment: Alignment.center,
+              child: IconTheme(
+                data: IconThemeData(
+                  color: iconColor,
+                  size: 16,
+                ),
+                child: icon,
+              ),
             ),
-          ),
-          const SizedBox(height: VSpacing.space2),
-          Text(
-            value,
-            style: VTypography.headingH3.copyWith(
-              color: dynamicColors.textPrimary,
-              fontWeight: FontWeight.w700,
+            const SizedBox(height: VSpacing.space2),
+            Text(
+              value,
+              style: VTypography.headingH3.copyWith(
+                color: dynamicColors.textPrimary,
+                fontWeight: FontWeight.w700,
+              ),
             ),
-          ),
-          const SizedBox(height: 2),
-          Text(
-            label,
-            style: VTypography.caption.copyWith(
-              color: dynamicColors.textSecondary,
+            const SizedBox(height: 2),
+            Text(
+              label,
+              style: VTypography.caption.copyWith(
+                color: dynamicColors.textSecondary,
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
             ),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-        ],
+          ],
+        ),
       ),
-    ),
     );
   }
 }
