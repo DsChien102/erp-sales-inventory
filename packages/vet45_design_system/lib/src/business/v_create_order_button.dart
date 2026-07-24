@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:vet45_design_system/design_system.dart';
-import '../foundation/v_component_contracts.dart';
 
 class VCreateOrderButton extends StatelessWidget {
   final String title;
@@ -36,57 +35,57 @@ class VCreateOrderButton extends StatelessWidget {
       label: semanticLabel ?? title,
       button: onTap != null,
       child: VCard(
-      onTap: onTap,
-      padding: const EdgeInsets.all(VSpacing.space4),
-      tone: tone,
-      emphasis: emphasis,
-      child: Row(
-        children: [
-          Container(
-            width: 48,
-            height: 48,
-            decoration: BoxDecoration(
-              color: iconBg,
-              borderRadius: BorderRadius.circular(VRadius.r12),
+        onTap: onTap,
+        padding: const EdgeInsets.all(VSpacing.space4),
+        tone: tone,
+        emphasis: emphasis,
+        child: Row(
+          children: [
+            Container(
+              width: 48,
+              height: 48,
+              decoration: BoxDecoration(
+                color: iconBg,
+                borderRadius: BorderRadius.circular(VRadius.r12),
+              ),
+              child: Icon(
+                icon,
+                color: Colors.white,
+                size: 24,
+              ),
             ),
-            child: Icon(
-              icon,
-              color: Colors.white,
-              size: 24,
-            ),
-          ),
-          const SizedBox(width: VSpacing.space3),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  title,
-                  style: VTypography.headingH4.copyWith(
-                    fontWeight: FontWeight.w600,
-                    color: dynamicColors.textPrimary,
+            const SizedBox(width: VSpacing.space3),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    title,
+                    style: VTypography.headingH4.copyWith(
+                      fontWeight: FontWeight.w600,
+                      color: dynamicColors.textPrimary,
+                    ),
                   ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  subtitle,
-                  style: VTypography.caption.copyWith(
-                    color: dynamicColors.textSecondary,
+                  const SizedBox(height: 2),
+                  Text(
+                    subtitle,
+                    style: VTypography.caption.copyWith(
+                      color: dynamicColors.textSecondary,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-          const SizedBox(width: VSpacing.space2),
-          Icon(
-            Icons.chevron_right,
-            color: dynamicColors.textMuted,
-            size: 20,
-          ),
-        ],
+            const SizedBox(width: VSpacing.space2),
+            Icon(
+              Icons.chevron_right,
+              color: dynamicColors.textMuted,
+              size: 20,
+            ),
+          ],
+        ),
       ),
-    ),
     );
   }
 }

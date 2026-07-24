@@ -1,6 +1,6 @@
 # Component Audit Report
 
-- Generated at: `2026-07-22T11:13:56.874009`
+- Generated at: `2026-07-23T14:14:15.893690`
 - Matrix: `docs/audit/contract_matrix.yaml`
 - Scope: primitives / components / business / patterns / forms widgets
 
@@ -13,7 +13,7 @@
 | business | `VTodoItem` | business_chrome | Pass (preferred) | Pass (preferred) | — (optional) | Pass (preferred) | Yes |
 | components | `VAppBar` | navigation_chrome | N/A (na) | N/A (na) | N/A (na) | — (optional) | No |
 | components | `VAvatar` | unmapped | Pass (optional) | — (optional) | — (optional) | — (optional) | No |
-| components | `VBanner` | unmapped | — (optional) | — (optional) | — (optional) | Pass (optional) | Yes |
+| components | `VBanner` | unmapped | Pass (optional) | — (optional) | — (optional) | Pass (optional) | Yes |
 | components | `VBottomNavigationBar` | navigation_chrome | N/A (na) | N/A (na) | N/A (na) | — (optional) | No |
 | components | `VBottomSheet` | overlay_shell | Pass (optional) | — (optional) | N/A (na) | Pass (preferred) | Yes |
 | components | `VButton` | action | Pass (required) | Pass (required) | Pass (preferred) | Pass (required) | Yes |
@@ -23,6 +23,7 @@
 | components | `VDatePickerField` | input | Pass (preferred) | Pass (preferred) | Pass (required) | Pass (required) | Yes |
 | components | `VDropdown` | input | Pass (preferred) | Pass (preferred) | Pass (required) | Pass (required) | Yes |
 | components | `VEmptyState` | status_display | Pass (optional) | Pass (optional) | N/A (na) | Pass (preferred) | Yes |
+| components | `VFileDropZone` | input | — (optional) | — (optional) | Pass (required) | Pass (required) | Yes |
 | components | `VFloatingActionButton` | action | Pass (preferred) | Pass (preferred) | Pass (preferred) | Pass (required) | Yes |
 | components | `VHomeHeader` | navigation_chrome | N/A (na) | N/A (na) | N/A (na) | — (optional) | No |
 | components | `VLoading` | status_display | — (optional) | N/A (na) | N/A (na) | Pass (required) | Yes |

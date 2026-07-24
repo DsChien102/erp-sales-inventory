@@ -210,6 +210,14 @@ VProgress:
   state: na
   semanticLabel: required
 
+# --- Input (file) ---
+VFileDropZone:
+  role: input
+  tone: optional
+  emphasis: optional
+  state: required
+  semanticLabel: required
+
 # --- Container ---
 VCard:
   role: container

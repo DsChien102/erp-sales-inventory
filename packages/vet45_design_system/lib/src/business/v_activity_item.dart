@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:vet45_design_system/design_system.dart';
-import '../foundation/v_component_contracts.dart';
 
 class VActivityItem extends StatelessWidget {
   final Widget leadingIcon;
@@ -59,81 +58,81 @@ class VActivityItem extends StatelessWidget {
       label: semanticLabel ?? title,
       button: onTap != null,
       child: InkWell(
-      onTap: onTap,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(
-          horizontal: VSpacing.space3,
-          vertical: 10.0,
-        ),
-        child: Row(
-          children: [
-            Container(
-              width: 36,
-              height: 36,
-              decoration: BoxDecoration(
-                color: dynamicColors.surfaceAlt,
-                borderRadius: BorderRadius.circular(VRadius.r12),
-              ),
-              alignment: Alignment.center,
-              child: IconTheme(
-                data: IconThemeData(
-                  color: iconColor,
-                  size: 18,
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(
+            horizontal: VSpacing.space3,
+            vertical: 10.0,
+          ),
+          child: Row(
+            children: [
+              Container(
+                width: 36,
+                height: 36,
+                decoration: BoxDecoration(
+                  color: dynamicColors.surfaceAlt,
+                  borderRadius: BorderRadius.circular(VRadius.r12),
                 ),
-                child: leadingIcon,
+                alignment: Alignment.center,
+                child: IconTheme(
+                  data: IconThemeData(
+                    color: iconColor,
+                    size: 18,
+                  ),
+                  child: leadingIcon,
+                ),
               ),
-            ),
-            const SizedBox(width: VSpacing.space3),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+              const SizedBox(width: VSpacing.space3),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      title,
+                      style: VTypography.bodyDefault.copyWith(
+                        fontWeight: FontWeight.w600,
+                        color: dynamicColors.textPrimary,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      subtitle,
+                      style: VTypography.caption.copyWith(
+                        color: dynamicColors.textSecondary,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: VSpacing.space2),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text(
-                    title,
-                    style: VTypography.bodyDefault.copyWith(
-                      fontWeight: FontWeight.w600,
-                      color: dynamicColors.textPrimary,
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
+                  VBadge(
+                    label: badgeLabel,
+                    status: badgeStatus,
                   ),
-                  const SizedBox(height: 2),
+                  const SizedBox(height: 4),
                   Text(
-                    subtitle,
+                    time,
                     style: VTypography.caption.copyWith(
-                      color: dynamicColors.textSecondary,
+                      color: dynamicColors.textMuted,
+                      fontFamily: VTypography.monoFontFamily,
+                      fontSize: 10,
                     ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
                   ),
                 ],
               ),
-            ),
-            const SizedBox(width: VSpacing.space2),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                VBadge(
-                  label: badgeLabel,
-                  status: badgeStatus,
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  time,
-                  style: VTypography.caption.copyWith(
-                    color: dynamicColors.textMuted,
-                    fontFamily: VTypography.monoFontFamily,
-                    fontSize: 10,
-                  ),
-                ),
-              ],
-            ),
-          ],
+            ],
+          ),
         ),
       ),
-    ),
     );
   }
 }

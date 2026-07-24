@@ -49,6 +49,9 @@ enum VIcons {
   shield,
   cloud,
   cloudOff,
+  cloudUpload,
+  fileUp,
+  fileSpreadsheet,
 
   // Domain & Business Specific Icons
   calendar,
@@ -97,6 +100,8 @@ enum VIcons {
   pause,
   contact,
   bolt,
+  qrCode,
+  printer,
 }
 
 /// Extension helper để ánh xạ từ [VIcons] sang [IconData] của Lucide Icons
@@ -180,6 +185,12 @@ extension VIconsExtension on VIcons {
         return LucideIcons.cloud;
       case VIcons.cloudOff:
         return LucideIcons.cloudOff;
+      case VIcons.cloudUpload:
+        return LucideIcons.cloudUpload;
+      case VIcons.fileUp:
+        return LucideIcons.fileUp;
+      case VIcons.fileSpreadsheet:
+        return LucideIcons.fileSpreadsheet;
 
       // Domain & Business Specific Icons
       case VIcons.calendar:
@@ -273,6 +284,10 @@ extension VIconsExtension on VIcons {
         return LucideIcons.contact;
       case VIcons.bolt:
         return LucideIcons.zap;
+      case VIcons.qrCode:
+        return LucideIcons.qrCode;
+      case VIcons.printer:
+        return LucideIcons.printer;
     }
   }
 }

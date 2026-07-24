@@ -55,7 +55,7 @@ class VSection extends StatelessWidget {
                   ],
                 ),
               ),
-              if (trailing != null) trailing!,
+              ?trailing,
             ],
           ),
           VGap(gapAfterHeader),

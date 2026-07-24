@@ -16,6 +16,7 @@ class PreviewSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.vColors;
     return Padding(
       padding: const EdgeInsets.only(bottom: VSpacing.space4),
       child: Column(
@@ -27,7 +28,7 @@ class PreviewSection extends StatelessWidget {
             Text(
               description!,
               style: VTypography.bodySmall.copyWith(
-                color: VColors.textSecondary,
+                color: colors.textSecondary,
               ),
             ),
           ],
@@ -52,6 +53,7 @@ class PreviewStateRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.vColors;
     return Padding(
       padding: const EdgeInsets.only(bottom: VSpacing.space3),
       child: Column(
@@ -60,7 +62,7 @@ class PreviewStateRow extends StatelessWidget {
           Text(
             label,
             style: VTypography.caption.copyWith(
-              color: VColors.textSecondary,
+              color: colors.textSecondary,
               fontWeight: FontWeight.w600,
             ),
           ),

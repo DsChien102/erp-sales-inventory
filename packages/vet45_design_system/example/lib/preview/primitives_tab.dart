@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:vet45_design_system/design_system.dart';
 
+import 'icons_gallery.dart';
 import 'preview_section.dart';
 
 class PrimitivesPreviewTab extends StatefulWidget {
@@ -84,8 +85,7 @@ class _PrimitivesPreviewTabState extends State<PrimitivesPreviewTab> {
           description: 'All VBadgeStatus values.',
           child: PreviewStateWrap(
             children: [
-              for (final status in VBadgeStatus.values)
-                VBadge(label: status.name, status: status),
+              for (final status in VBadgeStatus.values) VBadge(label: status.name, status: status),
               const VBadge(
                 label: 'with dot',
                 status: VBadgeStatus.info,
@@ -133,7 +133,7 @@ class _PrimitivesPreviewTabState extends State<PrimitivesPreviewTab> {
                       label: 'Filter B',
                       selected: !_chipSelected,
                       onTap: () => setState(() => _chipSelected = !_chipSelected),
-                      leadingIcon: Icons.tag,
+                      icon: VIcons.tag,
                     ),
                   ],
                 ),
@@ -143,7 +143,7 @@ class _PrimitivesPreviewTabState extends State<PrimitivesPreviewTab> {
                 child: VChip(
                   label: 'Tag removable',
                   onRemove: () {},
-                  leadingIcon: Icons.label_outline,
+                  icon: VIcons.tag,
                 ),
               ),
               PreviewStateRow(
@@ -166,26 +166,33 @@ class _PrimitivesPreviewTabState extends State<PrimitivesPreviewTab> {
           title: 'VIcon',
           child: PreviewStateWrap(
             children: const [
-              VIcon(iconData: Icons.home_rounded),
-              VIcon(iconData: Icons.person_outline, size: 18),
-              VIcon(iconData: Icons.warning_amber_rounded, color: VColors.warning),
-              VIcon(iconData: Icons.check_circle, color: VColors.success, size: 28),
-              VIcon(iconData: Icons.error_outline, color: VColors.danger, size: 28),
+              VIcon(icon: VIcons.home),
+              VIcon(icon: VIcons.person, size: 18),
+              VIcon(icon: VIcons.warning, color: VColors.warning),
+              VIcon(icon: VIcons.success, color: VColors.success, size: 28),
+              VIcon(icon: VIcons.check, color: VColors.success, size: 28),
+              VIcon(icon: VIcons.error, color: VColors.danger, size: 28),
             ],
           ),
+        ),
+        const PreviewSection(
+          title: 'VIcons catalog',
+          description:
+              'Toàn bộ token trong enum VIcons — tìm theo tên để chọn icon khi implement UI.',
+          child: VIconsGalleryPreview(),
         ),
         PreviewSection(
           title: 'VIconBox',
           child: PreviewStateWrap(
             children: [
-              VIconBox(iconData: Icons.qr_code_scanner, onTap: () {}),
+              VIconBox(icon: VIcons.camera, onTap: () {}),
               VIconBox(
-                iconData: Icons.add,
+                icon: VIcons.add,
                 tone: VComponentTone.primary,
                 onTap: () {},
               ),
               const VIconBox(
-                iconData: Icons.lock_outline,
+                icon: VIcons.lock,
                 tone: VComponentTone.neutral,
               ),
               VAvatar(name: 'Nguyễn Văn A', textSize: 14),
@@ -194,8 +201,7 @@ class _PrimitivesPreviewTabState extends State<PrimitivesPreviewTab> {
         ),
         PreviewSection(
           title: 'VSkeleton',
-          description:
-              'Shadcn-style loading bones. Prefer VSkeletonScope when composing many.',
+          description: 'Shadcn-style loading bones. Prefer VSkeletonScope when composing many.',
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
