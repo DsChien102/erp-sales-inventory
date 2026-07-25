@@ -43,7 +43,7 @@ sequenceDiagram
 | ----- | ------------ |
 | TH-01 | TenantCreated, UserAccountCreated, TenantMemberRoleChanged |
 | TH-02 | ProductCreated, AvailableStockChanged, CostPriceRecalculated |
-| TH-04 | SalesOrderCheckedOut (planned) |
+| Sales module | SalesOrderCheckedOut (planned) |
 | TH-06 | Stock movement events (consumer) |
 
 ## Checklist triển khai event mới
@@ -57,5 +57,5 @@ sequenceDiagram
 
 ## Liên kết theo theme
 
-- [TH-02/03-architecture-and-flows.md](themes/TH-02-catalog-and-pricing/03-architecture-and-flows.md)
-- [TH-04 module map](themes/TH-04-sales-orders/02-module-map.md) · [integration & messaging](architecture/07-integration-and-messaging.md)
+- [TH-02 architecture and flows](themes/TH-02-product-pricing/harness/03-architecture-and-flows.md)
+- [TH-04 Pricing module map](themes/TH-04-pricing-promotions/harness/02-module-map.md) · [integration & messaging](architecture/07-integration-and-messaging.md)

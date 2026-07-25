@@ -4,17 +4,18 @@ import 'package:vet45_design_system/design_system.dart';
 import 'product_control_center_formatters.dart';
 
 /// Hiển thị bottom sheet cảnh báo ghi đè khi áp dụng quy tắc lên sản phẩm đã có giá.
+/// Amounts are after-VAT (catalog display default).
 Future<bool?> showPriceBandOverwriteDialog(
   BuildContext context, {
-  int? existingListBeforeVat,
-  int? existingFloorBeforeVat,
+  int? existingListAfterVat,
+  int? existingFloorAfterVat,
 }) {
   return showVBottomSheet<bool>(
     context: context,
     child: PriceBandOverwriteBottomSheet(
       key: const Key('dlg_price_band_overwrite'),
-      existingListBeforeVat: existingListBeforeVat,
-      existingFloorBeforeVat: existingFloorBeforeVat,
+      existingListAfterVat: existingListAfterVat,
+      existingFloorAfterVat: existingFloorAfterVat,
     ),
   );
 }
@@ -22,12 +23,12 @@ Future<bool?> showPriceBandOverwriteDialog(
 class PriceBandOverwriteBottomSheet extends StatelessWidget {
   const PriceBandOverwriteBottomSheet({
     super.key,
-    this.existingListBeforeVat,
-    this.existingFloorBeforeVat,
+    this.existingListAfterVat,
+    this.existingFloorAfterVat,
   });
 
-  final int? existingListBeforeVat;
-  final int? existingFloorBeforeVat;
+  final int? existingListAfterVat;
+  final int? existingFloorAfterVat;
 
   @override
   Widget build(BuildContext context) {
@@ -59,7 +60,7 @@ class PriceBandOverwriteBottomSheet extends StatelessWidget {
                 height: 1.4,
               ),
             ),
-            if (existingListBeforeVat != null || existingFloorBeforeVat != null) ...[
+            if (existingListAfterVat != null || existingFloorAfterVat != null) ...[
               const SizedBox(height: VSpacing.space4),
               Container(
                 padding: const EdgeInsets.all(VSpacing.space3),
@@ -71,17 +72,17 @@ class PriceBandOverwriteBottomSheet extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    if (existingListBeforeVat != null)
+                    if (existingListAfterVat != null)
                       VText(
-                        'Niêm yết hiện tại: ${formatCatalogCurrency(existingListBeforeVat!)}',
+                        'Niêm yết hiện tại: ${formatCatalogCurrency(existingListAfterVat!)}',
                         variant: VTextVariant.bodyDefault,
                         color: dynamicColors.textPrimary,
                       ),
-                    if (existingListBeforeVat != null && existingFloorBeforeVat != null)
+                    if (existingListAfterVat != null && existingFloorAfterVat != null)
                       const SizedBox(height: VSpacing.space1),
-                    if (existingFloorBeforeVat != null)
+                    if (existingFloorAfterVat != null)
                       VText(
-                        'Sàn hiện tại: ${formatCatalogCurrency(existingFloorBeforeVat!)}',
+                        'Sàn hiện tại: ${formatCatalogCurrency(existingFloorAfterVat!)}',
                         variant: VTextVariant.bodyDefault,
                         color: dynamicColors.textPrimary,
                       ),

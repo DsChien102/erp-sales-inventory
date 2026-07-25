@@ -16,6 +16,8 @@ final class ProductListItemDto {
     required this.readinessSummary,
     this.listBeforeVat,
     this.floorBeforeVat,
+    this.listAfterVat,
+    this.floorAfterVat,
     this.baseUnit,
     this.stockQuantity,
     this.stockLabel,
@@ -33,6 +35,8 @@ final class ProductListItemDto {
   final ReadinessSummaryDto readinessSummary;
   final int? listBeforeVat;
   final int? floorBeforeVat;
+  final int? listAfterVat;
+  final int? floorAfterVat;
   final String? baseUnit;
   final int? stockQuantity;
   final String? stockLabel;

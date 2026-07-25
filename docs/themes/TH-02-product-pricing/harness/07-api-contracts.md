@@ -237,10 +237,12 @@ Supporting types:
 | `ProductSearchCriteria` | keyword?, businessStatuses (`Set<ProductStatus>`, default `{active}`), readinessFilter?, includeSoftDeleted (default false), sortOrder |
 | `ProductReadinessFilter` | `readyToSell`, `incomplete` |
 | `ProductSortOrder` | `updatedAtDesc`, `relevanceDesc` (chỉ có ý nghĩa khi `keyword` non-null; FE auto-set khi search) |
-| `ProductListItemDto` | id, name, tradeName?, sku?, barcode?, primaryImageUrl?, businessStatus (`ProductBusinessStatus`), readinessSummary, listBeforeVat?, floorBeforeVat?, baseUnit?, stockQuantity?, stockLabel?, updatedAt |
+| `ProductListItemDto` | id, name, tradeName?, sku?, barcode?, primaryImageUrl?, businessStatus (`ProductBusinessStatus`), readinessSummary, listBeforeVat?, floorBeforeVat?, listAfterVat?, floorAfterVat?, baseUnit?, stockQuantity?, stockLabel?, updatedAt |
 | `ProductSearchResultDto` | items[], totalCount |
 
 Readiness chip trên list: FE derive từ `readinessSummary.status` + `blockers.first` (FR-03).
+
+**UI default (list/PCC):** hiển thị **list/floor after VAT** (`listAfterVat` / `floorAfterVat`). `catalog.search_products` trả `list_price_after_vat` / `floor_price_after_vat` (và before tương ứng); legacy alias `list_price` / `floor_price` = before-VAT only — **không** map after ← `list_price`.
 
 Permissions: `@RequiresPermission(CatalogPermissions.view)` + `@RequiresTenant()`.
 
@@ -316,7 +318,7 @@ Package: `vet45_catalog_application` — `control_center/`.
 | `units` | `ProductUnitsCardDto` | FR-02 | baseUnitName, conversionUnits[] |
 | `stock` | `ProductStockCardDto` | FR-02 | mode, quantity, pendingExternal |
 | `basePrice` | `ProductBasePriceCardDto` | FR-02 | mode, sourceLabel, amount, currency, baseUnitName, canEdit |
-| `priceBand` | `ProductPriceBandCardDto` | FR-02 | listBeforeVat, floorBeforeVat, unitName (UI labels: Giá niêm yết / Giá sàn) |
+| `priceBand` | `ProductPriceBandCardDto` | FR-02 | listBeforeVat, floorBeforeVat, listAfterVat, floorAfterVat, unitName (UI labels: Giá niêm yết / Giá sàn — **default after-VAT**) |
 | `customFieldGroupCards` | `CustomFieldGroupCardDto[]` | FR-03 | **empty** đến EPIC-03 |
 | `readinessSummary` | `ReadinessSummaryDto` | early | reuse US-03 |
 | `checklist` | `ReadinessChecklistItemDto[]` | FR-04 | **pending** — luôn `[]` |
@@ -425,6 +427,8 @@ Không thêm query gates — FE derive từ `readinessSummary` / `hasBaseUnit`. 
 **Tenant unit master (BE design note):** `catalog.tenant_measurement_units` (`tenant_id`, `name`, `name_normalized`, `is_active`) — draft `05_catalog_units.sql`; CONTRACT không promote migration.
 
 **`catalog.set_product_base_unit` params:** `p_tenant_id`, `p_product_id`, `p_tenant_unit_id uuid` (nullable), `p_new_unit_name text` (nullable) — exactly one of id/name.
+
+**Pending automatic band (parity guided create):** when the product has **no** active `product_unit_price_band` and the caller has `catalog.product.manage_pricing`, the RPC also persists a pending `ruleBased` band (list/floor `0`) via `set_product_unit_price_band`. Callers with only `manage_units` skip this step (no pricing permission regression). Draft: [`catalog_set_base_unit_pending_rule_based_band.sql`](../../../../supabase/migrations/_drafts/catalog_set_base_unit_pending_rule_based_band.sql). Later `set_manual_base_price` recalculation materializes list/floor when a base price exists.
 
 ### Fake scenarios (FE)
 
@@ -841,7 +845,7 @@ Supporting types:
 | `PriceBandSourceType` | `ruleBased` \| `customConfig` \| `manual` (shared with US-02) |
 | `ProductPriceBandStatus` | `active` \| `inactive` \| `deleted` |
 
-Read path (PCC summary): `GetProductControlCenterQuery` → `ProductPriceBandCardDto` (base unit **before-VAT** summary). UI labels remain **Giá niêm yết / Giá sàn**; after-VAT reserved (no form fields in this slice).
+Read path (PCC summary): `GetProductControlCenterQuery` → `ProductPriceBandCardDto` (base unit **after-VAT** summary for UI). UI labels remain **Giá niêm yết / Giá sàn**. RPC exposes `list_price_after_vat` / `floor_price_after_vat` (plus before); legacy `list_price` = before-VAT. VAT rate for price-band derivation remains out-of-scope — write paths still mirror `after = before` until a rate exists. Manual/edit forms seed and display after-VAT amounts; submit mirrors dual columns.
 
 **Scope / rules:**
 
@@ -855,7 +859,7 @@ Read path (PCC summary): `GetProductControlCenterQuery` → `ProductPriceBandCar
 - FR-03: `readinessSummary` refresh; `missing_price_band` chỉ clear khi **mọi** đơn vị active có band **đã materialize** (không clear chỉ vì automatic pending `0`). Automatic complete khi có Giá cơ sở **và** (`ruleBased` resolve được rule active, hoặc `customConfig` đã tính từ ratios); `manual` complete khi có list before+after VAT tuyệt đối.
 - FR-04: change history qua BE RPC `set_product_unit_price_band`; read qua PCC `changeHistoryPreview` (không thêm query mới ở contract).
 - Unit sales roles (EPIC-04/FR-02) **pending** — Foundation coi mọi đơn vị active cần band.
-- `SetInitialPriceBandCommand` (guided create slice #2) giữ nguyên — không deprecate; wire dùng before-VAT params.
+- `SetInitialPriceBandCommand` (guided create slice #2) giữ nguyên — không deprecate; wire dùng before-VAT params. UI guided coi giá nhập là after-VAT; BE/fake mirror `listAfterVat = listBeforeVat`.
 - Port: `IProductPriceBandGateway` (BE lane implement).
 
 **Ba cách tính và nguồn dữ liệu:**

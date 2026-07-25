@@ -57,6 +57,12 @@ class MorePage extends StatelessWidget {
         enabled: false,
       ),
       _MoreMenuItem(
+        icon: VIcons.tag,
+        title: 'Giá riêng / Nhớ giá',
+        subtitle: 'Giá riêng theo khách hàng & nhớ giá bán',
+        onTap: () => context.push('/pricing'),
+      ),
+      _MoreMenuItem(
         icon: VIcons.settings,
         title: 'Thiết lập',
         subtitle: 'Cấu hình hệ thống & hóa đơn điện tử',

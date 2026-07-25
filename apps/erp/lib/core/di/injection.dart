@@ -5,6 +5,8 @@ import 'package:vet45_catalog_application/application.dart';
 import 'package:vet45_catalog_infrastructure/infrastructure.dart';
 import 'package:vet45_partner_application/application.dart';
 import 'package:vet45_partner_infrastructure/infrastructure.dart';
+import 'package:vet45_pricing_application/application.dart';
+import 'package:vet45_pricing_infrastructure/infrastructure.dart';
 import 'package:vet45_shared_application/application.dart';
 import 'package:vet45_shared_infrastructure/infrastructure.dart';
 
@@ -58,4 +60,14 @@ Future<void> initDependencies({required SupabaseModule supabaseModule}) async {
   );
 
   getIt.registerSingleton<IPartnerModule>(partnerModule);
+
+  final pricingModule = PricingStartup.initialize(
+    supabase: supabaseModule.client,
+    loggerFactory: getIt<ILoggerFactory>(),
+    executionContext: iamRuntime.executionContext,
+    permissionChecker: iamRuntime.permissionChecker,
+    tenantAccessChecker: iamRuntime.tenantAccessChecker,
+  );
+
+  getIt.registerSingleton<IPricingModule>(pricingModule);
 }

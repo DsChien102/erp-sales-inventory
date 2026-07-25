@@ -75,16 +75,21 @@ class CatalogUiMapper {
     final stockQty = state.parsedBasicStockQuantityBase;
     final baseCost = parseCatalogCurrencyAmount(state.baseCost)?.toDouble();
 
+    // Manual / calculated amounts are treated as after-VAT (UI default).
+    // Guided create wire still uses before-VAT command params; BE/fake mirror after ← before.
     final priceBand = resolvePriceBand(state);
     final listBeforeVat = priceBand.listBeforeVat;
     final floorBeforeVat = priceBand.floorBeforeVat;
+    // Until VAT rate exists for price bands, after == before (mirror).
+    final listAfterVat = listBeforeVat;
+    final floorAfterVat = floorBeforeVat;
 
     ProductReadinessStatus readiness;
     if (state.baseUnit.trim().isEmpty) {
       readiness = ProductReadinessStatus.missingBaseUnit;
     } else if (stockQty == null) {
       readiness = ProductReadinessStatus.missingStockSource;
-    } else if (listBeforeVat == null) {
+    } else if (listAfterVat == null) {
       readiness = ProductReadinessStatus.missingPriceBand;
     } else {
       readiness = ProductReadinessStatus.ready;
@@ -105,6 +110,8 @@ class CatalogUiMapper {
       baseCost: baseCost,
       listBeforeVat: listBeforeVat,
       floorBeforeVat: floorBeforeVat,
+      listAfterVat: listAfterVat,
+      floorAfterVat: floorAfterVat,
     );
   }
 

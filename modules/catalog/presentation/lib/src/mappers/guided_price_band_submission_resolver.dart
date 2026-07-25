@@ -15,7 +15,11 @@ final class GuidedPriceBandSubmission {
 
   final PriceBandSourceType sourceType;
   final bool useStorePriceRule;
+  /// Absolute list amount from UI (treated as after-VAT). Wired to
+  /// [SetInitialPriceBandCommand.listBeforeVat]; BE mirrors after ← before.
   final int? listBeforeVat;
+  /// Absolute floor amount from UI (treated as after-VAT). Wired to
+  /// [SetInitialPriceBandCommand.floorBeforeVat]; BE mirrors after ← before.
   final int? floorBeforeVat;
   final double? listMarkupRatio;
   final double? floorMarkupRatio;

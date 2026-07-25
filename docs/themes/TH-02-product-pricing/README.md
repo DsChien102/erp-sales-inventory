@@ -3,7 +3,7 @@
 **Trạng thái deliver:** `in_progress`  
 **Spec version:** v3 (2026-07)
 
-Master data sản phẩm, readiness, đơn vị tính, tồn kho cơ bản, Giá cơ sở định giá, khung giá bán (Giá niêm yết / Giá sàn) và **thông tin bổ sung** (nhóm & trường cấu hình được) — nền tảng cho bán hàng (TH-04), kho (TH-06) và báo cáo.
+Master data sản phẩm, readiness, đơn vị tính, tồn kho cơ bản, Giá cơ sở định giá, khung giá bán (Giá niêm yết / Giá sàn) và **thông tin bổ sung** (nhóm & trường cấu hình được) — nền tảng cho Sales, chính sách giá (TH-04), kho (TH-06) và báo cáo.
 
 ## Triết lý v3
 

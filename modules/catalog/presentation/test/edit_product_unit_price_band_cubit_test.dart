@@ -47,8 +47,8 @@ void main() {
 
     await cubit.loadInitialData(
       currentSourceType: PriceBandSourceType.customConfig,
-      currentListBeforeVat: 99999,
-      currentFloorBeforeVat: 88888,
+      currentListAfterVat: 99999,
+      currentFloorAfterVat: 88888,
       currentListMarkupRatio: 0.35,
       currentFloorMarkupRatio: 0.15,
     );
@@ -111,8 +111,8 @@ void main() {
     final cubit = createCubit(mediator);
     await cubit.loadInitialData(
       currentSourceType: PriceBandSourceType.manual,
-      currentListBeforeVat: 70000,
-      currentFloorBeforeVat: 60000,
+      currentListAfterVat: 70000,
+      currentFloorAfterVat: 60000,
     );
 
     cubit.updateManualListPrice(75000);

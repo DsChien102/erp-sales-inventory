@@ -5,19 +5,19 @@ import 'package:test/test.dart';
 void main() {
   test('guided create forwards optional note atomically', () {
     final repoRoot = _findRepoRoot();
-    final draft = File(
-      '${repoRoot.path}/supabase/migrations/_drafts/'
-      'catalog_pending_automatic_price_bands.sql',
+    final migration = File(
+      '${repoRoot.path}/supabase/migrations/'
+      '20260722001_catalog_pending_automatic_price_bands.sql',
     );
 
     expect(
-      draft.existsSync(),
+      migration.existsSync(),
       isTrue,
-      reason: 'The pending automatic price bands draft must be available.',
+      reason: 'The pending automatic price bands migration must be available.',
     );
-    if (!draft.existsSync()) return;
+    if (!migration.existsSync()) return;
 
-    final sql = draft.readAsStringSync();
+    final sql = migration.readAsStringSync();
     expect(sql, contains('-- Kind: patch'));
     expect(sql, contains('-- Intent: catalog_pending_automatic_price_bands'));
     expect(
@@ -43,19 +43,19 @@ void main() {
     'pending automatic bands persist as zero and materialize from current sources',
     () {
       final repoRoot = _findRepoRoot();
-      final draft = File(
-        '${repoRoot.path}/supabase/migrations/_drafts/'
-        'catalog_pending_automatic_price_bands.sql',
+      final migration = File(
+        '${repoRoot.path}/supabase/migrations/'
+        '20260722001_catalog_pending_automatic_price_bands.sql',
       );
 
       expect(
-        draft.existsSync(),
+        migration.existsSync(),
         isTrue,
-        reason: 'The pending automatic price bands draft must be available.',
+        reason: 'The pending automatic price bands migration must be available.',
       );
-      if (!draft.existsSync()) return;
+      if (!migration.existsSync()) return;
 
-      final sql = draft.readAsStringSync();
+      final sql = migration.readAsStringSync();
       expect(sql, contains('-- Kind: patch'));
       expect(sql, contains('-- Intent: catalog_pending_automatic_price_bands'));
       expect(sql, contains('product_unit_price_bands_calculation_source_check'));
@@ -407,6 +407,64 @@ void main() {
     final setStoreRule = _functionDefinition(sql, 'set_store_price_rule');
     expect(setStoreRule, contains("p_trigger => 'storeRuleChanged'"));
   });
+
+  test(
+    'set base unit creates pending ruleBased band when product has none',
+    () {
+      final repoRoot = _findRepoRoot();
+      final draft = File(
+        '${repoRoot.path}/supabase/migrations/_drafts/'
+        'catalog_set_base_unit_pending_rule_based_band.sql',
+      );
+
+      expect(
+        draft.existsSync(),
+        isTrue,
+        reason: 'The set-base-unit pending band draft must be available.',
+      );
+      if (!draft.existsSync()) return;
+
+      final sql = draft.readAsStringSync();
+      expect(sql, contains('-- Kind: patch'));
+      expect(
+        sql,
+        contains('-- Intent: catalog_set_base_unit_pending_rule_based_band'),
+      );
+      expect(sql, contains('-- Touches: set_product_base_unit'));
+      expect(
+        sql,
+        contains(
+          '-- Depends on: 20260722001_catalog_pending_automatic_price_bands.sql',
+        ),
+      );
+
+      final setBaseUnit = _functionDefinition(sql, 'set_product_base_unit');
+      expect(
+        setBaseUnit,
+        contains("catalog.product.manage_pricing"),
+      );
+      expect(
+        setBaseUnit,
+        contains('not exists'),
+      );
+      expect(
+        setBaseUnit,
+        contains('catalog.product_unit_price_bands'),
+      );
+      expect(
+        setBaseUnit,
+        contains('catalog.set_product_unit_price_band'),
+      );
+      expect(setBaseUnit, contains("p_source_type => 'ruleBased'"));
+      expect(setBaseUnit, contains('p_list_price_before_vat => 0'));
+      expect(setBaseUnit, contains('p_floor_price_before_vat => 0'));
+      // Readiness refresh must run after the optional pending-band insert.
+      expect(
+        setBaseUnit.indexOf('catalog.set_product_unit_price_band'),
+        lessThan(setBaseUnit.indexOf('catalog._product_operational_facts')),
+      );
+    },
+  );
 }
 
 String _functionDefinition(String sql, String functionName) {

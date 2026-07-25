@@ -1,0 +1,1 @@
+enum CustomerPriceRuleType { specialPrice, rememberedPrice }

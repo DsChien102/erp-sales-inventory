@@ -11,7 +11,7 @@ Khung viết theme mới: [THEME_DOCUMENTATION_TEMPLATE.md](THEME_DOCUMENTATION_
 | **TH-01** | Thiết lập cửa hàng | Tenant, user, role, phân quyền | [TH-01-store-setup/](TH-01-store-setup/) | in_progress (IAM interim) |
 | **TH-02** | Sản phẩm & giá bán | Sản phẩm, SKU, ĐVT, barcode, giá | [TH-02-product-pricing/](TH-02-product-pricing/) | in_progress |
 | **TH-03** | Khách hàng & NCC | Khách hàng, nhà cung cấp, lịch sử giao dịch | [TH-03-partner/](TH-03-partner/) | in_progress |
-| **TH-04** | Bán hàng & đơn hàng | Đơn, nháp, thanh toán, tra cứu | [TH-04-sales-orders/](TH-04-sales-orders/) | planned |
+| **TH-04** | Chính sách giá & ưu đãi | Bảng giá, giá riêng/nhớ giá, khuyến mãi và kiểm soát áp dụng giá | [TH-04-pricing-promotions/](TH-04-pricing-promotions/) | in_progress (EP02) |
 | **TH-05** | Công nợ | Phải thu/phải trả, thanh toán, cấn trừ | [TH-05-receivables-payables/](TH-05-receivables-payables/) | planned |
 | **TH-06** | Kho & giá vốn | Tồn kho, nhập/xuất, kiểm kê, giá vốn | [TH-06-inventory-and-costing/](TH-06-inventory-and-costing/) | planned |
 | **TH-07** | Hóa đơn điện tử | Lập, phát hành, điều chỉnh, đối soát | [TH-07-e-invoice/](TH-07-e-invoice/) | planned |
@@ -28,7 +28,8 @@ Khung viết theme mới: [THEME_DOCUMENTATION_TEMPLATE.md](THEME_DOCUMENTATION_
 | ----- | -------------- | ------- |
 | TH-01 | `modules/iam/` codegen + ERP auth shell | Chưa có Epic/US tree; xem [TH-01 README](TH-01-store-setup/README.md) |
 | TH-02 | README + `harness/00..07` + Epic/US/FR (2 epic, 7 US) | Harness scaffold; `catalog` module greenfield — xem [TH-02 README](TH-02-product-pricing/README.md) |
-| TH-04–TH-07, TH-09–TH-11 | README + scope doc + module-map | Skeleton doc; module packages greenfield |
+| TH-04 | Canonical spec + `harness/00..07` + 6 epic folders; EP02 có 10 US | Harness EP02; `pricing` module greenfield — xem [TH-04 README](TH-04-pricing-promotions/README.md) |
+| TH-05–TH-07, TH-09–TH-11 | README + scope doc + module-map | Skeleton doc; module packages greenfield |
 | TH-03 | README + `harness/00..07` + Epic/US/FR | Epic-01/02 BE+FE done; Epic-03 E2E blocked (cross-module publish) |
 | TH-08 | Chưa có folder | Tạo `TH-08-accounting-and-tax/` khi bắt đầu SRS |
 
@@ -59,7 +60,7 @@ docs/themes/TH-xx-{{slug}}/
 ## Theme ≠ Module
 
 ```text
-TH-04 (Bán hàng)  →  sales (owner) + catalog + partner + inventory + iam (supporting)
+TH-04 (Giá & ưu đãi) → pricing (owner) + catalog + partner + sales + iam (supporting)
 TH-02 (Sản phẩm)  →  catalog (owner) + inventory + costing + iam
 TH-03 (Đối tác)   →  partner (owner) + sales/inventory/accounting (event publishers)
 ```

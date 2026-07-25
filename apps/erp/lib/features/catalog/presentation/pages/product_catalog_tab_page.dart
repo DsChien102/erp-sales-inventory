@@ -206,6 +206,8 @@ class _ProductCatalogTabPageState extends State<ProductCatalogTabPage> {
       readinessStatus: readinessStatus,
       listBeforeVat: dto.listBeforeVat,
       floorBeforeVat: dto.floorBeforeVat,
+      listAfterVat: dto.listAfterVat,
+      floorAfterVat: dto.floorAfterVat,
       baseUnit: dto.baseUnit,
       stockQty: dto.stockQuantity,
       stockLabel: dto.stockLabel,

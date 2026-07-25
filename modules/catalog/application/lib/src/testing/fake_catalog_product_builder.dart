@@ -42,6 +42,8 @@ abstract final class FakeCatalogProductBuilder {
     required ReadinessSummaryDto readinessSummary,
     int? listBeforeVat,
     int? floorBeforeVat,
+    int? listAfterVat,
+    int? floorAfterVat,
     String? baseUnit,
     int? stockQuantity,
     DateTime? updatedAt,
@@ -67,6 +69,8 @@ abstract final class FakeCatalogProductBuilder {
       readinessSummary: readinessSummary,
       listBeforeVat: listBeforeVat,
       floorBeforeVat: floorBeforeVat,
+      listAfterVat: listAfterVat ?? listBeforeVat,
+      floorAfterVat: floorAfterVat ?? floorBeforeVat,
       baseUnit: baseUnit?.isEmpty == true ? null : baseUnit,
       stockQuantity: stockQuantity,
       stockLabel: stockLabel,
@@ -91,6 +95,8 @@ abstract final class FakeCatalogProductBuilder {
     double? baseCost,
     int? listBeforeVat,
     int? floorBeforeVat,
+    int? listAfterVat,
+    int? floorAfterVat,
     PriceBandSourceType? priceBandSourceType,
     String? storePriceRuleName,
     bool isCustomOverride = false,
@@ -105,7 +111,11 @@ abstract final class FakeCatalogProductBuilder {
     final hasImages = images.isNotEmpty;
     final hasStock = stockQty != null;
     final hasBasePrice = baseCost != null;
-    final hasPriceBand = listBeforeVat != null;
+    final resolvedListBeforeVat = listBeforeVat ?? listAfterVat;
+    final resolvedFloorBeforeVat = floorBeforeVat ?? floorAfterVat;
+    final resolvedListAfterVat = listAfterVat ?? listBeforeVat;
+    final resolvedFloorAfterVat = floorAfterVat ?? floorBeforeVat;
+    final hasPriceBand = resolvedListBeforeVat != null && resolvedListAfterVat != null;
     final hasConfiguredPriceBand = priceBandSourceType != null;
     final isPendingCustomConfig =
         priceBandSourceType == PriceBandSourceType.customConfig && !hasPriceBand;
@@ -188,8 +198,10 @@ abstract final class FakeCatalogProductBuilder {
             : null,
       ),
       priceBand: ProductPriceBandCardDto(
-        listBeforeVat: listBeforeVat,
-        floorBeforeVat: floorBeforeVat,
+        listBeforeVat: resolvedListBeforeVat,
+        floorBeforeVat: resolvedFloorBeforeVat,
+        listAfterVat: resolvedListAfterVat,
+        floorAfterVat: resolvedFloorAfterVat,
         unitName: hasBaseUnit ? baseUnit : null,
         isMissing: !hasConfiguredPriceBand,
         isPendingCalculation: isPendingCustomConfig,

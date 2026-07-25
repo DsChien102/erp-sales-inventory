@@ -18,8 +18,8 @@ class _RecordingStorePriceRuleGateway implements IStorePriceRuleGateway {
     lastApplyCommand = command;
     if (command.productId == 'product-1' && !command.confirmOverwrite) {
       throw PriceBandOverwriteRequiredException(
-        existingListBeforeVat: 120000,
-        existingFloorBeforeVat: 95000,
+        existingListAfterVat: 120000,
+        existingFloorAfterVat: 95000,
       );
     }
     if (command.basePriceVersion != null && command.basePriceVersion != 12345) {

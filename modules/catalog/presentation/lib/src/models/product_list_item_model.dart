@@ -18,6 +18,8 @@ class ProductListItemModel {
     this.baseUnit,
     this.listBeforeVat,
     this.floorBeforeVat,
+    this.listAfterVat,
+    this.floorAfterVat,
     this.baseCost,
     this.industryInfo,
     this.notes,
@@ -38,6 +40,8 @@ class ProductListItemModel {
   final String? baseUnit;
   final int? listBeforeVat;
   final int? floorBeforeVat;
+  final int? listAfterVat;
+  final int? floorAfterVat;
   final double? baseCost;
   final String? industryInfo;
   final String? notes;
@@ -78,6 +82,8 @@ class ProductListItemModel {
     String? baseUnit,
     int? listBeforeVat,
     int? floorBeforeVat,
+    int? listAfterVat,
+    int? floorAfterVat,
     double? baseCost,
     String? industryInfo,
     String? notes,
@@ -98,6 +104,8 @@ class ProductListItemModel {
       baseUnit: baseUnit ?? this.baseUnit,
       listBeforeVat: listBeforeVat ?? this.listBeforeVat,
       floorBeforeVat: floorBeforeVat ?? this.floorBeforeVat,
+      listAfterVat: listAfterVat ?? this.listAfterVat,
+      floorAfterVat: floorAfterVat ?? this.floorAfterVat,
       baseCost: baseCost ?? this.baseCost,
       industryInfo: industryInfo ?? this.industryInfo,
       notes: notes ?? this.notes,
