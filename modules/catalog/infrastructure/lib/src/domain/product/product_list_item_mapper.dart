@@ -38,8 +38,12 @@ abstract final class ProductListItemMapper {
         isSoftDeleted: row['is_soft_deleted'] as bool?,
       ),
       facts: facts,
+      // Legacy alias `list_price` / `floor_price` = before-VAT only.
       listBeforeVat: _toInt(row['list_price_before_vat']) ?? _toInt(row['list_price']),
       floorBeforeVat: _toInt(row['floor_price_before_vat']) ?? _toInt(row['floor_price']),
+      // Do not fall back after ← list_price (that column is before-VAT).
+      listAfterVat: _toInt(row['list_price_after_vat']),
+      floorAfterVat: _toInt(row['floor_price_after_vat']),
       baseUnit: row['base_unit_name'] as String?,
       stockQuantity: _toInt(row['stock_qty']),
       customFieldValues: CustomFieldRpcMapper.listValuesFromJson(

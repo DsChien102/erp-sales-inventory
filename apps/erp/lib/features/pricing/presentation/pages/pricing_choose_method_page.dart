@@ -185,15 +185,15 @@ class _PricingChooseMethodPageState extends State<PricingChooseMethodPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const VGap.lg(),
+            const VGap.md(),
             VText('Chọn cách thêm', variant: VTextVariant.headingH4),
-            const VGap.sm(),
+            const VGap.xs(),
             VText(
               'Bạn muốn tạo giá riêng theo cách nào?',
               variant: VTextVariant.bodyDefault,
               color: colors.textSecondary,
             ),
-            const VGap.lg(),
+            const VGap.md(),
             if (_canCreate)
               _MethodCard(
                 icon: VIcons.addCircle,
@@ -201,7 +201,7 @@ class _PricingChooseMethodPageState extends State<PricingChooseMethodPage> {
                 description: 'Nhập thông tin giá riêng cho từng khách hàng.',
                 onTap: () => _openManualCreate(context),
               ),
-            if (_canCreate && _canImport) const VGap.md(),
+            if (_canCreate && _canImport) const VGap.sm(),
             if (_canImport)
               _MethodCard(
                 icon: VIcons.download,

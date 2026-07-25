@@ -44,8 +44,8 @@ class EditProductUnitPriceBandPage extends StatelessWidget {
           )..loadInitialData(
             isNewPriceBand: args.row.isMissing,
             currentSourceType: args.row.sourceType,
-            currentListBeforeVat: args.row.listBeforeVat,
-            currentFloorBeforeVat: args.row.floorBeforeVat,
+            currentListAfterVat: args.row.listAfterVat,
+            currentFloorAfterVat: args.row.floorAfterVat,
             currentListMarkupRatio: args.row.listMarkupRatio,
             currentFloorMarkupRatio: args.row.floorMarkupRatio,
           ),
@@ -62,8 +62,8 @@ class EditProductUnitPriceBandPage extends StatelessWidget {
           } else if (state is EditProductUnitPriceBandNeedsOverwriteConfirm) {
             final confirmed = await showPriceBandOverwriteDialog(
               context,
-              existingListBeforeVat: state.existingListBeforeVat,
-              existingFloorBeforeVat: state.existingFloorBeforeVat,
+              existingListAfterVat: state.existingListAfterVat,
+              existingFloorAfterVat: state.existingFloorAfterVat,
             );
             if (confirmed == true && context.mounted) {
               context.read<EditProductUnitPriceBandCubit>().confirmOverwrite();

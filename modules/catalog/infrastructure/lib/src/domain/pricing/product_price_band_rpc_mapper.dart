@@ -92,6 +92,13 @@ abstract final class ProductPriceBandRpcMapper {
       'floor_price',
       'floor_price_amount',
     ]);
+    // After-VAT must not fall back to legacy list_price (before-VAT).
+    final listAfterVat = _readOptionalPrice(item, const [
+      'list_price_after_vat',
+    ]);
+    final floorAfterVat = _readOptionalPrice(item, const [
+      'floor_price_after_vat',
+    ]);
 
     return ProductPriceBandSnapshotItemDto(
       productId: item['product_id'] as String,
@@ -118,6 +125,8 @@ abstract final class ProductPriceBandRpcMapper {
             const ['floor_price_before_vat_hidden', 'floor_price_hidden'],
           ) ??
           false,
+      listAfterVat: listAfterVat,
+      floorAfterVat: floorAfterVat,
       isUnitActive: item['is_unit_active'] as bool? ?? false,
       productBusinessStatus: _productStatusFromRpc(
         item['product_business_status'] as String?,

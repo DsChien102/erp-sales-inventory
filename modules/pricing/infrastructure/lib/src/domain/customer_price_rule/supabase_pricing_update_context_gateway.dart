@@ -30,10 +30,14 @@ final class SupabasePricingUpdateContextGateway
       throw mapPricingRpcError(error);
     } on PricingBlockedException {
       rethrow;
-    } on Object {
-      throw const PricingBlockedException(
+    } on Object catch (error) {
+      throw PricingBlockedException(
         PricingBlockedCodes.systemError,
         message: 'Pricing operation failed.',
+        details: {
+          'error': error,
+          'params': PricingUpdateRpcMapper.contextParams(command),
+        },
       );
     }
   }

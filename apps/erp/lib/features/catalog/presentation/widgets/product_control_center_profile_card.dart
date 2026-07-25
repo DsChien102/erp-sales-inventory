@@ -22,9 +22,9 @@ class ProductControlCenterProfileCard extends StatelessWidget {
     final dynamicColors = context.vColors;
     final imageReference = profile.primaryImageUrl;
 
-    final listPriceText = priceBand.isMissing || priceBand.listBeforeVat == null
+    final listPriceText = priceBand.isMissing || priceBand.listAfterVat == null
         ? 'Giá niêm yết: --'
-        : 'Giá niêm yết: ${formatCatalogCurrency(priceBand.listBeforeVat)}';
+        : 'Giá niêm yết: ${formatCatalogCurrency(priceBand.listAfterVat)}';
 
     final stockUnit = stock.unitName ?? 'cơ sở';
     final stockText = stock.isMissing

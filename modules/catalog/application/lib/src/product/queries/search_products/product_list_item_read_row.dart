@@ -15,6 +15,8 @@ final class ProductListItemReadRow {
     required this.facts,
     this.listBeforeVat,
     this.floorBeforeVat,
+    this.listAfterVat,
+    this.floorAfterVat,
     this.baseUnit,
     this.stockQuantity,
     this.customFieldValues = const [],
@@ -31,6 +33,8 @@ final class ProductListItemReadRow {
   final ProductReadinessFacts facts;
   final int? listBeforeVat;
   final int? floorBeforeVat;
+  final int? listAfterVat;
+  final int? floorAfterVat;
   final String? baseUnit;
   final int? stockQuantity;
   final List<CustomFieldListValueDto> customFieldValues;

@@ -6,8 +6,8 @@ final class AmountMustBePositiveRule implements IBusinessRule {
   final int amountMinor;
 
   @override
-  bool isBroken() => amountMinor <= 0;
+  bool isBroken() => amountMinor < 0;
 
   @override
-  String get message => 'Money amount must be greater than zero.';
+  String get message => 'Money amount must be positive.';
 }

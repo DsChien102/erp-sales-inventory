@@ -18,7 +18,7 @@ class PriceRuleFormReadinessSummary extends StatelessWidget {
 
     return VCard(
       backgroundColor: colors.successBg,
-      border: Border.all(color: colors.success.withValues(alpha: 0.35)),
+      border: Border.all(color: colors.success),
       padding: const EdgeInsets.all(VSpacing.space4),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,

@@ -2042,6 +2042,8 @@ final class FakeCatalogModule implements ICatalogModule {
       baseCost: product.baseCost,
       listBeforeVat: product.listBeforeVat,
       floorBeforeVat: product.floorBeforeVat,
+      listAfterVat: product.listAfterVat,
+      floorAfterVat: product.floorAfterVat,
       priceBandSourceType: product.priceBandSourceType,
       storePriceRuleName: product.storePriceRuleName,
       isCustomOverride: product.isCustomOverride,
@@ -2228,6 +2230,8 @@ final class FakeCatalogModule implements ICatalogModule {
       readinessSummary: summary,
       listBeforeVat: product.listBeforeVat,
       floorBeforeVat: product.floorBeforeVat,
+      listAfterVat: product.listAfterVat,
+      floorAfterVat: product.floorAfterVat,
       baseUnit: product.baseUnit,
       stockQuantity: product.stockQty,
       updatedAt: product.updatedAt,
@@ -2927,8 +2931,8 @@ final class FakeCatalogModule implements ICatalogModule {
 
     if (_productHasPriceBand(product) && !command.confirmOverwrite) {
       throw PriceBandOverwriteRequiredException(
-        existingListBeforeVat: product.listBeforeVat,
-        existingFloorBeforeVat: product.floorBeforeVat,
+        existingListAfterVat: product.listAfterVat,
+        existingFloorAfterVat: product.floorAfterVat,
       );
     }
 

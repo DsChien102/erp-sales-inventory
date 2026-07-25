@@ -21,6 +21,8 @@ abstract final class ProductListItemAssembler {
       readinessSummary: ReadinessSummaryDto.fromDomain(readiness),
       listBeforeVat: row.listBeforeVat,
       floorBeforeVat: row.floorBeforeVat,
+      listAfterVat: row.listAfterVat,
+      floorAfterVat: row.floorAfterVat,
       baseUnit: row.baseUnit,
       stockQuantity: row.stockQuantity,
       stockLabel: stockLabel,

@@ -158,9 +158,9 @@ class ProductListItemTile extends StatelessWidget {
   }
 
   Widget _buildPriceInfo(VColorScheme colors) {
-    if (item.listBeforeVat != null) {
+    if (item.listAfterVat != null) {
       return VText(
-        formatCatalogCurrency(item.listBeforeVat),
+        formatCatalogCurrency(item.listAfterVat),
         variant: VTextVariant.bodyDefault,
         color: colors.textPrimary,
         style: const TextStyle(fontWeight: FontWeight.w700),

@@ -81,10 +81,14 @@ abstract final class ProductControlCenterMapper {
       basePriceAmount: _toDouble(json['base_price_after_vat']) ??
           _toDouble(json['base_price_amount']),
       basePriceCurrency: json['base_price_currency'] as String? ?? 'VND',
+      // Legacy alias `list_price` / `floor_price` = before-VAT only.
       listBeforeVat: _toInt(json['list_price_before_vat']) ??
           _toInt(json['list_price']),
       floorBeforeVat: _toInt(json['floor_price_before_vat']) ??
           _toInt(json['floor_price']),
+      // Do not fall back after ← list_price (that column is before-VAT).
+      listAfterVat: _toInt(json['list_price_after_vat']),
+      floorAfterVat: _toInt(json['floor_price_after_vat']),
       priceBandSourceType: StorePriceRuleRpcMapper.sourceTypeFromRpc(
         json['price_band_source_type'] as String?,
       ),

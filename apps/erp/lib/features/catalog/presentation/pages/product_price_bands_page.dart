@@ -255,9 +255,9 @@ class ProductPriceBandsPage extends StatelessWidget {
           const SizedBox(height: VSpacing.space4),
           _buildPriceRow(context, 'Giá cơ sở', row.basePrice ?? data.basePrice),
           const SizedBox(height: VSpacing.space2),
-          _buildPriceRow(context, 'Giá niêm yết', row.listBeforeVat),
+          _buildPriceRow(context, 'Giá niêm yết', row.listAfterVat),
           const SizedBox(height: VSpacing.space2),
-          _buildPriceRow(context, 'Giá sàn', row.floorBeforeVat),
+          _buildPriceRow(context, 'Giá sàn', row.floorAfterVat),
         ],
       ),
     );

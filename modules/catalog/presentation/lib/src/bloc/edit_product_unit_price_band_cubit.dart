@@ -20,8 +20,8 @@ class EditProductUnitPriceBandCubit extends Cubit<EditProductUnitPriceBandState>
   Future<void> loadInitialData({
     bool isNewPriceBand = false,
     PriceBandSourceType? currentSourceType,
-    int? currentListBeforeVat,
-    int? currentFloorBeforeVat,
+    int? currentListAfterVat,
+    int? currentFloorAfterVat,
     double? currentListMarkupRatio,
     double? currentFloorMarkupRatio,
   }) async {
@@ -55,12 +55,13 @@ class EditProductUnitPriceBandCubit extends Cubit<EditProductUnitPriceBandState>
           initialSelectedType: initialType,
           customBaseMargin: initialCustomBaseMargin,
           customFloorMargin: initialCustomFloorMargin,
-          manualListPrice: currentListBeforeVat,
-          manualFloorPrice: currentFloorBeforeVat,
+          // Manual amounts are after-VAT (UI default); submit mirrors before = after.
+          manualListPrice: currentListAfterVat,
+          manualFloorPrice: currentFloorAfterVat,
           initialCustomBaseMargin: initialCustomBaseMargin,
           initialCustomFloorMargin: initialCustomFloorMargin,
-          initialManualListPrice: currentListBeforeVat,
-          initialManualFloorPrice: currentFloorBeforeVat,
+          initialManualListPrice: currentListAfterVat,
+          initialManualFloorPrice: currentFloorAfterVat,
         ),
       );
     } catch (e) {
@@ -199,8 +200,8 @@ class EditProductUnitPriceBandCubit extends Cubit<EditProductUnitPriceBandState>
       emit(
         EditProductUnitPriceBandNeedsOverwriteConfirm(
           loaded: currentState.copyWith(isSubmitting: false, clearError: true),
-          existingListBeforeVat: e.existingListBeforeVat,
-          existingFloorBeforeVat: e.existingFloorBeforeVat,
+          existingListAfterVat: e.existingListAfterVat,
+          existingFloorAfterVat: e.existingFloorAfterVat,
         ),
       );
     } on PriceBandWarningsRequireAcknowledgmentException {
