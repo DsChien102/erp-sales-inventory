@@ -72,6 +72,7 @@ export 'src/components/v_progress.dart';
 
 // Forms
 export 'src/forms/validators/v_email_validator.dart';
+export 'src/forms/validators/v_password_validator.dart';
 export 'src/forms/validators/v_money_validator.dart';
 export 'src/forms/validators/v_number_validator.dart';
 export 'src/forms/validators/v_select_validator.dart';
@@ -80,6 +81,7 @@ export 'src/forms/formatters/v_money_input_formatter.dart';
 export 'src/forms/formatters/v_number_input_formatter.dart';
 export 'src/forms/models/v_choice_option.dart';
 export 'src/forms/v_email_field.dart';
+export 'src/forms/v_password_field.dart';
 export 'src/forms/v_money_field.dart';
 export 'src/forms/v_number_field.dart';
 export 'src/forms/v_select.dart';

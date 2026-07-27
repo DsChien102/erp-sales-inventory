@@ -35,14 +35,14 @@ Main tabs in the preview:
 - `Tokens`: colors, typography, spacing, radius, shadows, duration
 - `Primitives`: `VBadge`, `VChip`, `VIcon`, `VIconBox` (state gallery)
 - `Components`: buttons, fields, dropdowns, toggles, overlays, layout widgets — mỗi component một section + states
-- `Forms`: `VEmailField`, `VMoneyField`, `VNumberField`, `VSelect`, `VChoiceList`
+- `Forms`: `VEmailField`, `VPasswordField`, `VMoneyField`, `VNumberField`, `VSelect`, `VChoiceList`
 - `Business`: `VTodoItem`, `VActivityItem`, `VMetricCard`, `VCreateOrderButton`, `VRevenueCard`
 - `UI Audit`: matrix coverage / semantics / tone / state
 
 Component coverage in example includes:
 - Primitives: `VBadge`, `VChip`, `VIcon`, `VIconBox`, `VText`
 - Components: `VButton`, `VCard`, `VCheckbox`, `VRadio`, `VSwitch`, `VFloatingActionButton`, `VTextField`, `VSearchBar`, `VQuickActionButton`, `VTabs`, `VEmptyState`, `VToast`, `VDropdown`, `VSearchableDropdown`, `VQuantitySelector`, `VDatePickerField`, `VHomeHeader`, `VBottomNavigationBar`, `VConfirmDialog` (via `showVConfirmDialog`), `VBottomSheet` (via `showVBottomSheet`), `VAppBar`, `VTable`
-- Forms: `VEmailField`, `VMoneyField`, `VNumberField`, `VSelect`, `VChoiceList`
+- Forms: `VEmailField`, `VPasswordField`, `VMoneyField`, `VNumberField`, `VSelect`, `VChoiceList`
 - Business: `VTodoItem`, `VActivityItem`, `VMetricCard`, `VCreateOrderButton`, `VRevenueCard`
 
 ## Tài liệu roadmap theo hướng Polaris
