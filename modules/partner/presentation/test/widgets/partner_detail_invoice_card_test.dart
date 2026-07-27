@@ -5,7 +5,33 @@ import 'package:vet45_partner_domain/domain.dart';
 import 'package:vet45_partner_presentation/presentation.dart';
 
 void main() {
-  PartnerDetailDto detail({String? taxCode, String? invoiceAddress}) {
+  PartnerDetailDto organization({
+    String? taxCode,
+    String? invoiceName,
+    String? invoiceAddress,
+  }) {
+    return PartnerDetailDto(
+      partnerId: 'p-org',
+      partnerType: PartnerType.organization,
+      status: PartnerStatus.active,
+      displayName: 'Công ty ABC',
+      roles: const [PartnerRoleType.customer],
+      availableActions: const [],
+      expectedVersion: 1,
+      organizationProfile: OrganizationProfileDto(
+        organizationName: 'Công ty ABC',
+        organizationType: OrganizationType.company,
+        phone: '0901234567',
+        taxCode: taxCode,
+        invoice: InvoiceProfileInput(
+          invoiceName: invoiceName,
+          invoiceAddress: invoiceAddress,
+        ),
+      ),
+    );
+  }
+
+  PartnerDetailDto person({String? taxCode, String? invoiceAddress}) {
     return PartnerDetailDto(
       partnerId: 'p-1',
       partnerType: PartnerType.person,
@@ -23,57 +49,74 @@ void main() {
     );
   }
 
-  Future<void> pumpCard(
-    WidgetTester tester, {
-    String? taxCode,
-    String? invoiceAddress,
-  }) {
+  Future<void> pumpCard(WidgetTester tester, PartnerDetailDto dto) {
     return tester.pumpWidget(
       MaterialApp(
         home: Scaffold(
-          body: PartnerDetailInvoiceCard(
-            dto: detail(
-              taxCode: taxCode,
-              invoiceAddress: invoiceAddress,
-            ),
-          ),
+          body: PartnerDetailInvoiceCard(dto: dto),
         ),
       ),
     );
   }
 
-  testWidgets('collapsed badge only names missing invoice address', (tester) async {
+  testWidgets('person badge names missing MST and address', (tester) async {
+    await pumpCard(tester, person());
+    expect(find.text('Thiếu MST và địa chỉ'), findsOneWidget);
+  });
+
+  testWidgets('person badge only names missing invoice address', (tester) async {
     await pumpCard(
       tester,
-      taxCode: '2201018022',
-      invoiceAddress: null,
+      person(taxCode: '2201018022', invoiceAddress: null),
+    );
+    expect(find.text('Thiếu địa chỉ'), findsOneWidget);
+  });
+
+  testWidgets('org badge only names missing invoice address', (tester) async {
+    await pumpCard(
+      tester,
+      organization(
+        taxCode: '2201018022',
+        invoiceName: 'Công ty ABC',
+        invoiceAddress: null,
+      ),
     );
 
     expect(find.text('Thiếu địa chỉ'), findsOneWidget);
-    expect(find.text('Thiếu MST, địa chỉ'), findsNothing);
+    expect(find.textContaining('MST'), findsNothing);
   });
 
-  testWidgets('collapsed badge only names missing tax code', (tester) async {
+  testWidgets('org badge only names missing tax code', (tester) async {
     await pumpCard(
       tester,
-      invoiceAddress: '12 Nguyễn Huệ',
+      organization(
+        invoiceName: 'Công ty ABC',
+        invoiceAddress: '12 Nguyễn Huệ',
+      ),
     );
 
     expect(find.text('Thiếu MST'), findsOneWidget);
-    expect(find.text('Thiếu MST, địa chỉ'), findsNothing);
   });
 
-  testWidgets('collapsed badge names both missing invoice fields', (tester) async {
-    await pumpCard(tester);
+  testWidgets('org badge lists all missing required invoice fields', (tester) async {
+    await pumpCard(tester, organization());
 
-    expect(find.text('Thiếu MST, địa chỉ'), findsOneWidget);
+    expect(
+      find.text('Thiếu MST, tên HĐ và địa chỉ'),
+      findsOneWidget,
+    );
   });
 
-  testWidgets('collapsed badge is hidden when invoice fields are complete', (tester) async {
+  testWidgets('org badge is hidden when required invoice fields are complete', (
+    tester,
+  ) async {
     await pumpCard(
       tester,
-      taxCode: '2201018022',
-      invoiceAddress: '12 Nguyễn Huệ',
+      organization(
+        taxCode: '2201018022',
+        invoiceName: 'Công ty ABC',
+        invoiceAddress: '12 Nguyễn Huệ',
+      ),
     );
 
     expect(find.textContaining('Thiếu'), findsNothing);

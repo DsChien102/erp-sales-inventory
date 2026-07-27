@@ -82,6 +82,7 @@ class PartnerTransformOrganizationForm extends StatelessWidget {
           key: const Key('transform_organization_name'),
           labelKey: const Key('transform_organization_name_label'),
           label: 'Tên tổ chức',
+          hintText: 'Nhập tên tổ chức',
           initialValue: organizationName,
           isRequired: true,
           errorText: errors['organizationName'],
@@ -91,6 +92,7 @@ class PartnerTransformOrganizationForm extends StatelessWidget {
         PartnerTransformLabeledTextField(
           key: const Key('transform_short_name'),
           label: 'Tên viết tắt',
+          hintText: 'Nhập tên viết tắt',
           initialValue: shortName,
           onChanged: onShortNameChanged,
         ),
@@ -98,6 +100,7 @@ class PartnerTransformOrganizationForm extends StatelessWidget {
         PartnerTransformLabeledTextField(
           key: const Key('transform_international_name'),
           label: 'Tên quốc tế',
+          hintText: 'Nhập tên quốc tế',
           initialValue: internationalName,
           onChanged: onInternationalNameChanged,
         ),
@@ -117,6 +120,7 @@ class PartnerTransformOrganizationForm extends StatelessWidget {
         PartnerTransformLabeledTextField(
           key: const Key('transform_email'),
           label: 'Email tổ chức',
+          hintText: 'Nhập email',
           initialValue: email,
           isEmail: true,
           emailValidateOnChanged: false,

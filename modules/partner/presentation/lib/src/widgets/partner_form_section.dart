@@ -15,6 +15,7 @@ class PartnerFormSection extends StatelessWidget {
     required this.child,
     this.summary,
     this.expandedTrailingText,
+    this.showActions = true,
   });
 
   final String title;
@@ -26,6 +27,9 @@ class PartnerFormSection extends StatelessWidget {
   final Widget child;
   final String? summary;
   final String? expandedTrailingText;
+
+  /// When false, expanded body has no «Bỏ qua» / «Tiếp» footer (e.g. note).
+  final bool showActions;
 
   @override
   Widget build(BuildContext context) {
@@ -41,36 +45,32 @@ class PartnerFormSection extends StatelessWidget {
           ),
           if (isExpanded) ...[
             child,
-            Padding(
-              padding: const EdgeInsets.fromLTRB(
-                VSpacing.space4,
-                VSpacing.space2,
-                VSpacing.space4,
-                VSpacing.space3,
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  VButton(
-                    key: const Key('btn_skip'),
-                    label: 'Bỏ qua',
-                    variant: VButtonVariant.ghost,
-                    foregroundColor: colors.primary,
-                    onPressed: onSkip,
-                  ),
-                  SizedBox(
-                    width: 112,
-                    child: VButton(
-                      key: const Key('btn_next'),
-                      label: 'Tiếp',
-                      size: VButtonSize.small,
-                      fullWidth: true,
-                      onPressed: onNext,
+            if (showActions)
+              VPagePadding(
+                vertical: VSpacing.space2,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    VButton(
+                      key: const Key('btn_skip'),
+                      label: 'Bỏ qua',
+                      variant: VButtonVariant.ghost,
+                      foregroundColor: colors.primary,
+                      onPressed: onSkip,
                     ),
-                  ),
-                ],
+                    SizedBox(
+                      width: 112,
+                      child: VButton(
+                        key: const Key('btn_next'),
+                        label: 'Tiếp',
+                        size: VButtonSize.small,
+                        fullWidth: true,
+                        onPressed: onNext,
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ),
           ],
         ],
       ),
@@ -88,7 +88,7 @@ class PartnerFormSection extends StatelessWidget {
     if (isCompleted) {
       return VIcon(
         icon: VIcons.success,
-        size: 18,
+        size: 20,
         color: colors.primary,
       );
     }

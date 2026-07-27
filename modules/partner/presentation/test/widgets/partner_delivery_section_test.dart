@@ -49,49 +49,15 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byKey(const Key('input_delivery_province')), findsOneWidget);
+    expect(find.byType(VCompactSearchableDropdown<String>), findsWidgets);
     expect(
       find.descendant(
         of: find.byKey(const Key('input_delivery_commune')),
-        matching: find.text('Chọn tỉnh / thành phố trước'),
+        matching: find.text('Nhập tỉnh / thành phố trước'),
       ),
       findsOneWidget,
     );
     expect(communeMenu(tester).enabled, isFalse);
-  });
-
-  testWidgets('province and ward dropdowns share builtin trailing layout', (
-    tester,
-  ) async {
-    await tester.pumpWidget(buildDeliverySection());
-    await tester.runAsync(VnAdministrativeUnitsLoader.load);
-    await tester.pumpAndSettle();
-
-    final province = tester.widget<VCompactSearchableDropdown<String>>(
-      find.byKey(const Key('input_delivery_province')),
-    );
-    final ward = tester.widget<VCompactSearchableDropdown<String>>(
-      find.descendant(
-        of: find.byKey(const Key('input_delivery_commune')),
-        matching: find.byType(VCompactSearchableDropdown<String>),
-      ),
-    );
-
-    expect(province.trailingMode, VCompactDropdownTrailingMode.builtin);
-    expect(ward.trailingMode, VCompactDropdownTrailingMode.builtin);
-    expect(ward.stickyActionsReserve, province.stickyActionsReserve);
-    expect(ward.menuHeight, province.menuHeight);
-
-    final fieldFinder = find.byKey(const Key('input_delivery_province'));
-    final menu = tester.widget<DropdownMenu<String>>(
-      find.descendant(
-        of: fieldFinder,
-        matching: find.byType(DropdownMenu<String>),
-      ),
-    );
-    final fieldWidth = tester.getSize(fieldFinder).width;
-    expect(menu.expandedInsets, EdgeInsets.zero);
-    expect(menu.menuStyle?.minimumSize?.resolve({})?.width, fieldWidth);
-    expect(menu.menuStyle?.maximumSize?.resolve({})?.width, fieldWidth);
   });
 
   testWidgets('selecting province enables ward dropdown', (tester) async {
@@ -99,7 +65,8 @@ void main() {
     await tester.runAsync(VnAdministrativeUnitsLoader.load);
     await tester.pumpAndSettle();
 
-    final cubit = tester.element(find.byType(PartnerDeliverySection)).read<PartnerCreateCubit>();
+    final cubit =
+        tester.element(find.byType(PartnerDeliverySection)).read<PartnerCreateCubit>();
     cubit.updateDeliveryProvince('Thành phố Hà Nội');
     await tester.pump();
     await tester.pump();
@@ -107,39 +74,11 @@ void main() {
     expect(
       find.descendant(
         of: find.byKey(const Key('input_delivery_commune')),
-        matching: find.text('Chọn xã / phường'),
+        matching: find.text('Nhập xã / phường'),
       ),
       findsOneWidget,
     );
     expect(communeMenu(tester).enabled, isTrue);
-  });
-
-  testWidgets('province and ward values use the same typography', (
-    tester,
-  ) async {
-    await tester.pumpWidget(buildDeliverySection());
-    await tester.runAsync(VnAdministrativeUnitsLoader.load);
-    await tester.pumpAndSettle();
-
-    final cubit = tester.element(find.byType(PartnerDeliverySection)).read<PartnerCreateCubit>();
-    cubit
-      ..updateDeliveryProvince('Thành phố Hà Nội')
-      ..updateDeliveryCommune('Phường Ba Đình');
-    await tester.pumpAndSettle();
-
-    // Collapsed display — tap to reveal DropdownMenu TextField.
-    await tester.tap(find.text('Phường Ba Đình'));
-    await tester.pumpAndSettle();
-
-    final wardTextField = tester.widget<TextField>(
-      find.descendant(
-        of: find.byKey(const Key('input_delivery_commune')),
-        matching: find.byType(TextField),
-      ),
-    );
-    final expectedStyle = VTypography.bodyDefault;
-    expect(wardTextField.style?.fontSize, expectedStyle.fontSize);
-    expect(wardTextField.style?.fontWeight, expectedStyle.fontWeight);
   });
 
   testWidgets('typing in ward field opens dropdown, filters, and selects', (
@@ -179,34 +118,17 @@ void main() {
     expect(find.text('Phường Đại Mỗ'), findsWidgets);
   });
 
-  testWidgets('province and ward trailing icons share the same slot size', (
-    tester,
-  ) async {
+  testWidgets('detail address uses VTextFormField', (tester) async {
     await tester.pumpWidget(buildDeliverySection());
     await tester.runAsync(VnAdministrativeUnitsLoader.load);
     await tester.pumpAndSettle();
 
-    final cubit = tester.element(find.byType(PartnerDeliverySection)).read<PartnerCreateCubit>();
-    cubit
-      ..updateDeliveryProvince('Thành phố Hà Nội')
-      ..updateDeliveryCommune('Phường Ba Đình');
-    await tester.pumpAndSettle();
-
-    final provinceIcons = find.descendant(
-      of: find.byKey(const Key('input_delivery_province')),
-      matching: find.byIcon(Icons.keyboard_arrow_down),
+    expect(
+      find.descendant(
+        of: find.byKey(const Key('input_delivery_address')),
+        matching: find.byType(VTextFormField),
+      ),
+      findsOneWidget,
     );
-    final wardIcons = find.descendant(
-      of: find.byKey(const Key('input_delivery_commune')),
-      matching: find.byIcon(Icons.keyboard_arrow_down),
-    );
-    expect(provinceIcons, findsOneWidget);
-    expect(wardIcons, findsOneWidget);
-
-    final provinceIconRect = tester.getRect(provinceIcons);
-    final wardIconRect = tester.getRect(wardIcons);
-    expect(provinceIconRect.width, wardIconRect.width);
-    expect(provinceIconRect.height, wardIconRect.height);
-    expect(provinceIconRect.right, moreOrLessEquals(wardIconRect.right, epsilon: 0.5));
   });
 }

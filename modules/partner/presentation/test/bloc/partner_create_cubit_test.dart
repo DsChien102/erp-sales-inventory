@@ -343,6 +343,23 @@ void main() {
     expect(cubit.state.canSubmit, isTrue);
   });
 
+  test('toggleRole selects both customer and supplier independently', () {
+    final cubit = PartnerCreateCubit(
+      partnerType: PartnerType.organization,
+      partnerModule: _RecordingPartnerModule(),
+      executionContext: executionContext,
+    );
+
+    cubit.toggleRole(PartnerRoleType.customer);
+    expect(cubit.state.roles, [PartnerRoleType.customer]);
+
+    cubit.toggleRole(PartnerRoleType.supplier);
+    expect(cubit.state.roles, [PartnerRoleType.customer, PartnerRoleType.supplier]);
+
+    cubit.toggleRole(PartnerRoleType.customer);
+    expect(cubit.state.roles, [PartnerRoleType.supplier]);
+  });
+
   test('edit submit maps to UpdatePartnerProfileCommand and excludes self on dup check', () async {
     final module = _RecordingPartnerModule();
     final cubit = PartnerCreateCubit.edit(

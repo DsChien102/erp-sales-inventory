@@ -79,12 +79,60 @@ void main() {
     expect(find.text('Chọn vai trò giao dịch của hồ sơ này.'), findsOneWidget);
   });
 
+  testWidgets('role buttons toggle independently without KH & NCC shortcut', (
+    tester,
+  ) async {
+    await tester.pumpWidget(buildForm(type: PartnerType.organization));
+
+    expect(find.byKey(const Key('role_both')), findsNothing);
+    expect(find.text('KH & NCC'), findsNothing);
+
+    await tester.tap(find.byKey(const Key('role_customer')));
+    await tester.pump();
+    await tester.tap(find.byKey(const Key('role_supplier')));
+    await tester.pump();
+
+    final context = tester.element(find.byType(PartnerCreateForm));
+    expect(
+      context.read<PartnerCreateCubit>().state.roles,
+      [PartnerRoleType.customer, PartnerRoleType.supplier],
+    );
+
+    await tester.tap(find.byKey(const Key('btn_next')));
+    await tester.pump();
+    expect(find.text('KH & NCC'), findsOneWidget);
+  });
+
   testWidgets('next action is compact and wider', (tester) async {
     await tester.pumpWidget(buildForm(type: PartnerType.person));
 
     expect(
       tester.getSize(find.byKey(const Key('btn_next'))),
       const Size(112, 48),
+    );
+  });
+
+  testWidgets('note section has no skip/next actions', (tester) async {
+    await tester.pumpWidget(buildForm(type: PartnerType.person));
+
+    final context = tester.element(find.byType(PartnerCreateForm));
+    context.read<PartnerCreateCubit>().setActiveSection(PartnerCreateSection.note);
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('input_note')), findsOneWidget);
+    expect(
+      find.descendant(
+        of: find.byKey(const Key('section_note')),
+        matching: find.byKey(const Key('btn_skip')),
+      ),
+      findsNothing,
+    );
+    expect(
+      find.descendant(
+        of: find.byKey(const Key('section_note')),
+        matching: find.byKey(const Key('btn_next')),
+      ),
+      findsNothing,
     );
   });
 

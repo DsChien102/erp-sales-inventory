@@ -3,8 +3,11 @@ import 'package:vet45_design_system/design_system.dart';
 
 import '../data/vn_administrative_unit.dart';
 
-/// Ward picker — same [VCompactSearchableDropdown] params as province
+/// Ward picker — same [VCompactSearchableDropdown] as province
 /// (`trailingMode: builtin`) so trailing icons share one layout.
+///
+/// Remounts when [enabled]/[wards] change so Flutter [DropdownMenu] does not
+/// keep a stale disabled/non-searchable text field after province selection.
 class PartnerWardSearchDropdown extends StatelessWidget {
   const PartnerWardSearchDropdown({
     super.key,
@@ -24,6 +27,8 @@ class PartnerWardSearchDropdown extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return VCompactSearchableDropdown<String>(
+      // Remount when province unlocks wards — keeps enableSearch/filter live.
+      key: ValueKey<Object>('ward_${enabled}_${wards.length}'),
       value: value.isEmpty ? null : value,
       hintText: hintText,
       enabled: enabled,

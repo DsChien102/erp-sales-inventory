@@ -176,17 +176,20 @@ class PartnerCompactDropdown<T> extends StatelessWidget {
   final String? hintText;
   final bool enabled;
 
+  TextStyle _valueStyle(BuildContext context, {required bool hasValue}) {
+    final colors = context.vColors;
+    return VTypography.bodySmall.copyWith(
+      color: hasValue ? colors.textPrimary : colors.textMuted,
+      fontSize: 14,
+      height: 1.2,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final colors = context.vColors;
-
-    DropdownMenuItem<T>? selectedItem;
-    for (final item in items) {
-      if (item.value == value) {
-        selectedItem = item;
-        break;
-      }
-    }
+    final hasValue = value != null;
+    final displayText = hasValue ? value.toString() : (hintText ?? 'Chọn...');
 
     MediaQuery.viewInsetsOf(context);
     final menuHeight = VOverlayMenuLayout.resolvedMenuHeight(
@@ -195,52 +198,53 @@ class PartnerCompactDropdown<T> extends StatelessWidget {
       stickyActionsReserve: 72,
     );
 
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        return MenuAnchor(
-          alignmentOffset: VOverlayMenuLayout.alignmentOffset,
-          crossAxisUnconstrained: false,
-          style: MenuStyle(
-            alignment: VOverlayMenuLayout.alignment,
-            padding: const WidgetStatePropertyAll(EdgeInsets.zero),
-            minimumSize: WidgetStatePropertyAll(Size(constraints.maxWidth, 0)),
-            maximumSize: WidgetStatePropertyAll(
-              Size(constraints.maxWidth, menuHeight),
-            ),
-            backgroundColor: WidgetStatePropertyAll(colors.surface),
-            surfaceTintColor: const WidgetStatePropertyAll(Colors.transparent),
-            elevation: const WidgetStatePropertyAll(4),
-            shape: WidgetStatePropertyAll(
-              RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(VRadius.input),
-                side: BorderSide(color: colors.borderDefault),
+    // Constrain outside MenuAnchor so the row centers the 40px control
+    // against the label (MenuAnchor alone can report a taller intrinsic size).
+    return SizedBox(
+      height: VCompactSearchableDropdown.controlHeight,
+      width: double.infinity,
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          return MenuAnchor(
+            alignmentOffset: VOverlayMenuLayout.alignmentOffset,
+            crossAxisUnconstrained: false,
+            style: MenuStyle(
+              alignment: VOverlayMenuLayout.alignment,
+              padding: const WidgetStatePropertyAll(EdgeInsets.zero),
+              minimumSize: WidgetStatePropertyAll(Size(constraints.maxWidth, 0)),
+              maximumSize: WidgetStatePropertyAll(
+                Size(constraints.maxWidth, menuHeight),
+              ),
+              backgroundColor: WidgetStatePropertyAll(colors.surface),
+              surfaceTintColor: const WidgetStatePropertyAll(Colors.transparent),
+              elevation: const WidgetStatePropertyAll(4),
+              shape: WidgetStatePropertyAll(
+                RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(VRadius.input),
+                  side: BorderSide(color: colors.borderDefault),
+                ),
               ),
             ),
-          ),
-          menuChildren: items
-              .map(
-                (item) => MenuItemButton(
-                  style: MenuItemButton.styleFrom(
-                    minimumSize: Size(constraints.maxWidth, 40),
-                    padding: VCompactSearchableDropdown.contentPadding,
-                  ),
-                  onPressed: enabled ? () => onChanged?.call(item.value) : null,
-                  child: DefaultTextStyle(
-                    style: VTypography.bodySmall.copyWith(
-                      color: colors.textPrimary,
-                      fontSize: 14,
-                      height: 1.2,
+            menuChildren: items
+                .map(
+                  (item) => MenuItemButton(
+                    style: MenuItemButton.styleFrom(
+                      minimumSize: Size(
+                        constraints.maxWidth,
+                        VCompactSearchableDropdown.controlHeight,
+                      ),
+                      padding: VCompactSearchableDropdown.contentPadding,
                     ),
-                    child: item.child,
+                    onPressed: enabled ? () => onChanged?.call(item.value) : null,
+                    child: DefaultTextStyle(
+                      style: _valueStyle(context, hasValue: true),
+                      child: item.child,
+                    ),
                   ),
-                ),
-              )
-              .toList(),
-          builder: (context, controller, child) {
-            return SizedBox(
-              height: VCompactSearchableDropdown.controlHeight,
-              width: double.infinity,
-              child: Material(
+                )
+                .toList(),
+            builder: (context, controller, child) {
+              return Material(
                 color: Colors.transparent,
                 child: InkWell(
                   onTap: !enabled
@@ -263,48 +267,43 @@ class PartnerCompactDropdown<T> extends StatelessWidget {
                       color: enabled ? colors.surface : colors.surfaceAlt,
                       borderRadius: BorderRadius.circular(VRadius.input),
                       border: Border.all(
-                        color: enabled ? colors.borderStrong : colors.borderDefault,
+                        color: enabled
+                            ? colors.borderStrong
+                            : colors.borderDefault,
                       ),
                     ),
                     child: Padding(
                       padding: VCompactSearchableDropdown.contentPadding,
                       child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
                           Expanded(
-                            child: DefaultTextStyle(
-                              style: selectedItem != null
-                                  ? VTypography.bodySmall.copyWith(
-                                      color: colors.textPrimary,
-                                      fontSize: 14,
-                                      height: 1.2,
-                                    )
-                                  : VTypography.bodySmall.copyWith(
-                                      color: colors.textMuted,
-                                      fontSize: 14,
-                                      height: 1.2,
-                                    ),
+                            child: Text(
+                              displayText,
+                              style: _valueStyle(context, hasValue: hasValue),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
-                              child: selectedItem != null
-                                  ? selectedItem.child
-                                  : VText(hintText ?? 'Chọn...'),
                             ),
                           ),
                           VIcon(
-                            icon: VIcons.chevronDown,
+                            icon: controller.isOpen
+                                ? VIcons.chevronUp
+                                : VIcons.chevronDown,
                             size: 18,
-                            color: enabled ? colors.textSecondary : colors.textMuted,
+                            color: enabled
+                                ? colors.textSecondary
+                                : colors.textMuted,
                           ),
                         ],
                       ),
                     ),
                   ),
                 ),
-              ),
-            );
-          },
-        );
-      },
+              );
+            },
+          );
+        },
+      ),
     );
   }
 }
