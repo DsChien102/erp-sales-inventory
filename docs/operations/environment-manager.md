@@ -231,6 +231,8 @@ vet45 sync
 vet45 sync --target erp
 vet45 doctor --target erp
 vet45 supabase -- db push
+vet45 admin create --email admin@local.test   # Auth user + iam.platform_admins
+vet45 admin list
 
 # Melos still works (slower launcher)
 melos run env:list
@@ -363,6 +365,26 @@ Deploy scripts read worker config from **`.vet45/profiles/<profileId>/<env>.env`
 ```
 
 `WORKER_LOG_LEVEL=WARNING` in secrets keeps Railway logs quiet (RPC/command `INFO` suppressed). Tick summary lines still print.
+
+## Platform admin bootstrap
+
+Create an Auth user and grant `iam.platform_admins` using the active profile’s **service role** (same secrets as sync). Preferred over manual SQL:
+
+```bash
+supabase start          # local
+vet45 sync              # pick up SERVICE_ROLE_KEY from supabase status
+vet45 admin create --email admin@local.test [--password '...']
+vet45 admin grant --email admin@local.test
+vet45 admin list
+```
+
+Non-`local` / non-`development` environments require `--yes`. If the email already exists, create is skipped (password unchanged) and only the grant runs. Generated passwords print once on stdout.
+
+Fallback SQL (if CLI unavailable):
+
+```sql
+insert into iam.platform_admins (user_id) values ('<auth-user-uuid>');
+```
 
 ## Troubleshooting
 

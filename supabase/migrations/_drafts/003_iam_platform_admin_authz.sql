@@ -43,3 +43,5 @@ grant execute on function iam.has_platform_permission(text) to authenticated;
 
 revoke all on table iam.platform_admins from public, anon, authenticated;
 grant select on table iam.platform_admins to authenticated;
+-- Ops tooling (`vet45 admin`) inserts via PostgREST as service_role.
+grant select, insert, update on table iam.platform_admins to service_role;
