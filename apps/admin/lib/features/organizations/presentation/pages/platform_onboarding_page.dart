@@ -1,34 +1,57 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:vet45_design_system/design_system.dart';
 import 'package:vet45_iam_application/application.dart';
 import 'package:vet45_iam_presentation/presentation.dart';
 
-class PlatformOnboardingPage extends StatefulWidget {
-  const PlatformOnboardingPage({super.key});
+import '../../../../core/di/injection.dart';
+import '../bloc/platform_onboarding_cubit.dart';
+import '../bloc/platform_onboarding_state.dart';
+
+class PlatformOnboardingPage extends StatelessWidget {
+  const PlatformOnboardingPage({super.key, this.iamModule});
+
+  /// Optional override for widget / E2E tests. Defaults to GetIt [IIamModule].
+  final IIamModule? iamModule;
 
   @override
-  State<PlatformOnboardingPage> createState() => _PlatformOnboardingPageState();
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (_) {
+        final cubit = PlatformOnboardingCubit(
+          iamModule: iamModule ?? getIt<IIamModule>(),
+        );
+        cubit.searchOwners('');
+        return cubit;
+      },
+      child: const _PlatformOnboardingView(),
+    );
+  }
 }
 
-class _PlatformOnboardingPageState extends State<PlatformOnboardingPage> {
+class _PlatformOnboardingView extends StatefulWidget {
+  const _PlatformOnboardingView();
+
+  @override
+  State<_PlatformOnboardingView> createState() =>
+      _PlatformOnboardingViewState();
+}
+
+class _PlatformOnboardingViewState extends State<_PlatformOnboardingView> {
   int _currentStep = 0;
 
-  // Step 1: Owner state
   bool _isNewOwner = false;
   PlatformUserSummaryDto? _selectedOwner;
   final _lastNameController = TextEditingController();
   final _firstNameController = TextEditingController();
   final _emailController = TextEditingController();
   final _phoneController = TextEditingController();
-  String _ownerSearchQuery = '';
 
   String? _lastNameErrorText;
   String? _firstNameErrorText;
   String? _emailErrorText;
   String? _phoneErrorText;
 
-  // Step 2: Organization state
   final _orgNameController = TextEditingController();
   final _orgDisplayNameController = TextEditingController();
   final _orgLegalNameController = TextEditingController();
@@ -86,7 +109,10 @@ class _PlatformOnboardingPageState extends State<PlatformOnboardingPage> {
         pError = 'Số điện thoại không hợp lệ.';
       }
 
-      if (lError != null || fError != null || eError != null || pError != null) {
+      if (lError != null ||
+          fError != null ||
+          eError != null ||
+          pError != null) {
         setState(() {
           _lastNameErrorText = lError;
           _firstNameErrorText = fError;
@@ -101,16 +127,14 @@ class _PlatformOnboardingPageState extends State<PlatformOnboardingPage> {
         );
         return false;
       }
-    } else {
-      if (_selectedOwner == null) {
-        VToast.show(
-          context,
-          title: 'Thông tin không hợp lệ',
-          message: 'Vui lòng tìm và chọn một chủ sở hữu hiện hữu.',
-          type: VToastType.danger,
-        );
-        return false;
-      }
+    } else if (_selectedOwner == null) {
+      VToast.show(
+        context,
+        title: 'Thông tin không hợp lệ',
+        message: 'Vui lòng tìm và chọn một chủ sở hữu hiện hữu.',
+        type: VToastType.danger,
+      );
+      return false;
     }
     return true;
   }
@@ -153,50 +177,27 @@ class _PlatformOnboardingPageState extends State<PlatformOnboardingPage> {
 
   void _handleNext() {
     if (_currentStep == 0) {
-      if (_validateStep1()) {
-        setState(() {
-          _currentStep = 1;
-        });
-      }
+      if (_validateStep1()) setState(() => _currentStep = 1);
     } else if (_currentStep == 1) {
-      if (_validateStep2()) {
-        setState(() {
-          _currentStep = 2;
-        });
-      }
+      if (_validateStep2()) setState(() => _currentStep = 2);
     }
   }
 
   VoidCallback? get _onBackPressed {
     if (_currentStep == 0) {
       if (_isNewOwner) {
-        return () {
-          setState(() {
-            _isNewOwner = false;
-          });
-        };
-      } else {
-        return null;
+        return () => setState(() => _isNewOwner = false);
       }
+      return null;
     }
-    return _handleBack;
+    return () => setState(() => _currentStep--);
   }
 
-  void _handleBack() {
-    if (_currentStep > 0) {
-      setState(() {
-        _currentStep--;
-      });
-    } else {
-      context.pop();
-    }
-  }
-
-  void _handleSubmit() {
-    final service = FakePlatformUserService.instance;
+  Future<void> _handleSubmit() async {
     final orgName = _orgNameController.text.trim();
 
-    if (orgName.toLowerCase().contains('error') || orgName.toLowerCase().contains('lỗi')) {
+    if (orgName.toLowerCase().contains('error') ||
+        orgName.toLowerCase().contains('lỗi')) {
       VToast.show(
         context,
         title: 'Không thể khởi tạo tổ chức',
@@ -212,33 +213,57 @@ class _PlatformOnboardingPageState extends State<PlatformOnboardingPage> {
         lastName: _lastNameController.text.trim(),
         firstName: _firstNameController.text.trim(),
         email: _emailController.text.trim(),
-        phone: _phoneController.text.trim().isEmpty ? null : _phoneController.text.trim(),
+        phone: _phoneController.text.trim().isEmpty
+            ? null
+            : _phoneController.text.trim(),
       );
     } else {
       ownerInput = OnboardingOwnerInput.existing(_selectedOwner!.userId);
     }
 
-    final result = service.createTenantOnboarding(
+    final result = await context.read<PlatformOnboardingCubit>().submit(
       owner: ownerInput,
       organizationName: orgName,
       idempotencyKey: 'idemp-${DateTime.now().millisecondsSinceEpoch}',
     );
 
+    if (!mounted) return;
+
+    if (result == null) {
+      final message =
+          context.read<PlatformOnboardingCubit>().state.errorMessage ??
+          'Không thể khởi tạo tổ chức.';
+      VToast.show(
+        context,
+        title: 'Không thể khởi tạo tổ chức',
+        message: message,
+        type: VToastType.danger,
+      );
+      return;
+    }
+
     final ownerName = _isNewOwner
-        ? '${_lastNameController.text.trim()} ${_firstNameController.text.trim()}'.trim()
+        ? '${_lastNameController.text.trim()} ${_firstNameController.text.trim()}'
+              .trim()
         : (_selectedOwner?.fullName ?? 'Lê Thị Lan');
     final ownerEmail = _isNewOwner
         ? _emailController.text.trim()
         : (_selectedOwner?.email ?? 'lan@gmail.com');
 
     final initials = orgName.isNotEmpty
-        ? orgName.split(' ').map((e) => e.isNotEmpty ? e[0] : '').take(2).join().toUpperCase()
+        ? orgName
+              .split(' ')
+              .map((e) => e.isNotEmpty ? e[0] : '')
+              .take(2)
+              .join()
+              .toUpperCase()
         : 'TC';
 
     final newOrg = OrganizationUiModel(
       id: result.tenantId,
       name: orgName,
-      code: 'TEN-${DateTime.now().millisecondsSinceEpoch.toString().substring(7)}',
+      code:
+          'TEN-${DateTime.now().millisecondsSinceEpoch.toString().substring(7)}',
       initials: initials.isEmpty ? 'TC' : initials,
       type: 'Tổ chức nền tảng',
       status: OrganizationStatus.settingUp,
@@ -252,6 +277,7 @@ class _PlatformOnboardingPageState extends State<PlatformOnboardingPage> {
 
     FakeOrganizationData.sampleOrganizations.insert(0, newOrg);
 
+    if (!mounted) return;
     Navigator.of(context).pushReplacement(
       MaterialPageRoute(
         builder: (context) => OrganizationDetailPage(
@@ -271,141 +297,150 @@ class _PlatformOnboardingPageState extends State<PlatformOnboardingPage> {
       onTapOutside: (_) => FocusManager.instance.primaryFocus?.unfocus(),
       child: Scaffold(
         backgroundColor: colors.surfaceAlt,
-        appBar: VAppBar(
-          title: 'Khởi tạo tổ chức',
-          showBackButton: true,
-        ),
-      body: Column(
-        children: [
-          Container(
-            color: colors.surfaceAlt,
-            padding: const EdgeInsets.symmetric(
-              vertical: VSpacing.space2,
-              horizontal: VSpacing.screenMobile,
-            ),
-            child: VCard(
-              backgroundColor: colors.surface,
+        appBar: VAppBar(title: 'Khởi tạo tổ chức', showBackButton: true),
+        body: Column(
+          children: [
+            Container(
+              color: colors.surfaceAlt,
               padding: const EdgeInsets.symmetric(
                 vertical: VSpacing.space2,
-                horizontal: VSpacing.space2,
+                horizontal: VSpacing.screenMobile,
               ),
-              child: VSteps(
-                steps: const [
-                  VStepItem(title: 'Chủ sở hữu'),
-                  VStepItem(title: 'Tổ chức'),
-                  VStepItem(title: 'Kiểm tra'),
-                ],
-                currentStep: _currentStep,
-              ),
-            ),
-          ),
-
-          Expanded(
-            child: Container(
-              color: colors.surfaceAlt,
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.only(
-                  left: VSpacing.screenMobile,
-                  right: VSpacing.screenMobile,
-                  bottom: VSpacing.screenMobile,
-                  top: VSpacing.space2,
+              child: VCard(
+                backgroundColor: colors.surface,
+                padding: const EdgeInsets.symmetric(
+                  vertical: VSpacing.space2,
+                  horizontal: VSpacing.space2,
                 ),
-                child: _buildStepContent(),
-              ),
-            ),
-          ),
-
-          Container(
-            color: colors.surface,
-            child: SafeArea(
-              top: false,
-              child: Container(
-                padding: const EdgeInsets.all(VSpacing.screenMobile),
-                decoration: BoxDecoration(
-                  color: colors.surface,
-                  border: Border(
-                    top: BorderSide(color: colors.borderDefault),
-                  ),
-                ),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: VButton(
-                        label: 'Quay lại',
-                        variant: VButtonVariant.outline,
-                        onPressed: _onBackPressed,
-                      ),
-                    ),
-                    const VGap.horizontalSm(),
-                    Expanded(
-                      child: VButton(
-                        label: _currentStep == 2 ? 'Khởi tạo tổ chức' : 'Tiếp tục',
-                        onPressed: _currentStep == 2 ? _handleSubmit : _handleNext,
-                      ),
-                    ),
+                child: VSteps(
+                  steps: const [
+                    VStepItem(title: 'Chủ sở hữu'),
+                    VStepItem(title: 'Tổ chức'),
+                    VStepItem(title: 'Kiểm tra'),
                   ],
+                  currentStep: _currentStep,
                 ),
               ),
             ),
-          ),
-        ],
+            Expanded(
+              child: Container(
+                color: colors.surfaceAlt,
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.only(
+                    left: VSpacing.screenMobile,
+                    right: VSpacing.screenMobile,
+                    bottom: VSpacing.screenMobile,
+                    top: VSpacing.space2,
+                  ),
+                  child: _buildStepContent(),
+                ),
+              ),
+            ),
+            Container(
+              color: colors.surface,
+              child: SafeArea(
+                top: false,
+                child: Container(
+                  padding: const EdgeInsets.all(VSpacing.screenMobile),
+                  decoration: BoxDecoration(
+                    color: colors.surface,
+                    border: Border(
+                      top: BorderSide(color: colors.borderDefault),
+                    ),
+                  ),
+                  child:
+                      BlocBuilder<
+                        PlatformOnboardingCubit,
+                        PlatformOnboardingState
+                      >(
+                        buildWhen: (p, c) => p.status != c.status,
+                        builder: (context, state) {
+                          final submitting =
+                              state.status ==
+                              PlatformOnboardingLoadStatus.submitting;
+                          return Row(
+                            children: [
+                              Expanded(
+                                child: VButton(
+                                  label: 'Quay lại',
+                                  variant: VButtonVariant.outline,
+                                  onPressed: submitting ? null : _onBackPressed,
+                                ),
+                              ),
+                              const VGap.horizontalSm(),
+                              Expanded(
+                                child: VButton(
+                                  label: _currentStep == 2
+                                      ? 'Khởi tạo tổ chức'
+                                      : 'Tiếp tục',
+                                  onPressed: submitting
+                                      ? null
+                                      : (_currentStep == 2
+                                            ? _handleSubmit
+                                            : _handleNext),
+                                ),
+                              ),
+                            ],
+                          );
+                        },
+                      ),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
-    ),
     );
   }
 
   Widget _buildStepContent() {
     switch (_currentStep) {
       case 0:
-        final service = FakePlatformUserService.instance;
-        final results = service.searchPlatformUsers(query: _ownerSearchQuery);
-
-        return PlatformOnboardingStepOwner(
-          isNewOwner: _isNewOwner,
-          selectedOwner: _selectedOwner,
-          lastNameController: _lastNameController,
-          firstNameController: _firstNameController,
-          emailController: _emailController,
-          phoneController: _phoneController,
-          searchResults: results,
-          lastNameErrorText: _lastNameErrorText,
-          firstNameErrorText: _firstNameErrorText,
-          emailErrorText: _emailErrorText,
-          phoneErrorText: _phoneErrorText,
-          onLastNameChanged: (_) {
-            if (_lastNameErrorText != null) {
-              setState(() => _lastNameErrorText = null);
-            }
-          },
-          onFirstNameChanged: (_) {
-            if (_firstNameErrorText != null) {
-              setState(() => _firstNameErrorText = null);
-            }
-          },
-          onEmailChanged: (_) {
-            if (_emailErrorText != null) {
-              setState(() => _emailErrorText = null);
-            }
-          },
-          onPhoneChanged: (_) {
-            if (_phoneErrorText != null) {
-              setState(() => _phoneErrorText = null);
-            }
-          },
-          onOwnerSelected: (user) {
-            setState(() {
-              _selectedOwner = user;
-            });
-          },
-          onToggleNewOwner: (val) {
-            setState(() {
-              _isNewOwner = val;
-            });
-          },
-          onSearchQueryChanged: (query) {
-            setState(() {
-              _ownerSearchQuery = query;
-            });
+        return BlocBuilder<PlatformOnboardingCubit, PlatformOnboardingState>(
+          buildWhen: (p, c) => p.searchResults != c.searchResults,
+          builder: (context, state) {
+            return PlatformOnboardingStepOwner(
+              isNewOwner: _isNewOwner,
+              selectedOwner: _selectedOwner,
+              lastNameController: _lastNameController,
+              firstNameController: _firstNameController,
+              emailController: _emailController,
+              phoneController: _phoneController,
+              searchResults: state.searchResults,
+              lastNameErrorText: _lastNameErrorText,
+              firstNameErrorText: _firstNameErrorText,
+              emailErrorText: _emailErrorText,
+              phoneErrorText: _phoneErrorText,
+              onLastNameChanged: (_) {
+                if (_lastNameErrorText != null) {
+                  setState(() => _lastNameErrorText = null);
+                }
+              },
+              onFirstNameChanged: (_) {
+                if (_firstNameErrorText != null) {
+                  setState(() => _firstNameErrorText = null);
+                }
+              },
+              onEmailChanged: (_) {
+                if (_emailErrorText != null) {
+                  setState(() => _emailErrorText = null);
+                }
+              },
+              onPhoneChanged: (_) {
+                if (_phoneErrorText != null) {
+                  setState(() => _phoneErrorText = null);
+                }
+              },
+              onOwnerSelected: (user) {
+                setState(() => _selectedOwner = user);
+              },
+              onToggleNewOwner: (val) {
+                setState(() => _isNewOwner = val);
+              },
+              onSearchQueryChanged: (query) {
+                context.read<PlatformOnboardingCubit>().searchOwners(query);
+              },
+            );
           },
         );
       case 1:
@@ -438,14 +473,10 @@ class _PlatformOnboardingPageState extends State<PlatformOnboardingPage> {
             }
           },
           onProvinceChanged: (val) {
-            setState(() {
-              _selectedProvince = val;
-            });
+            setState(() => _selectedProvince = val);
           },
           onWardChanged: (val) {
-            setState(() {
-              _selectedWard = val;
-            });
+            setState(() => _selectedWard = val);
           },
         );
       case 2:
@@ -455,8 +486,10 @@ class _PlatformOnboardingPageState extends State<PlatformOnboardingPage> {
           firstName: _isNewOwner
               ? _firstNameController.text.trim()
               : (_selectedOwner?.fullName ?? ''),
-          email: _isNewOwner ? _emailController.text.trim() : (_selectedOwner?.email ?? ''),
-          phone: _isNewOwner ? _phoneController.text.trim() : '',
+          email: _isNewOwner
+              ? _emailController.text.trim()
+              : (_selectedOwner?.email ?? ''),
+          phone: _phoneController.text.trim(),
           orgName: _orgNameController.text.trim(),
           orgLegalName: _orgLegalNameController.text.trim(),
           orgTaxCode: _orgTaxCodeController.text.trim(),

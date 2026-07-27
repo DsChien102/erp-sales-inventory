@@ -39,15 +39,16 @@ begin
     raise exception 'platform permission denied';
   end if;
 
+  -- Cast to text: auth.users.email is varchar; RETURNS TABLE requires text (42804).
   return query
   select
     u.id,
     coalesce(
       nullif(trim(concat_ws(' ', u.raw_user_meta_data->>'last_name', u.raw_user_meta_data->>'first_name')), ''),
-      coalesce(u.email, u.id::text)
-    ) as full_name,
-    coalesce(u.email, '') as email,
-    coalesce(p.status, 'active') as status,
+      coalesce(u.email::text, u.id::text)
+    )::text as full_name,
+    coalesce(u.email::text, '')::text as email,
+    coalesce(p.status, 'active')::text as status,
     coalesce(p.created_at, u.created_at) as created_at
   from auth.users u
   left join iam.platform_user_profiles p on p.user_id = u.id
@@ -81,10 +82,10 @@ begin
     u.id as user_id,
     coalesce(
       nullif(trim(concat_ws(' ', u.raw_user_meta_data->>'last_name', u.raw_user_meta_data->>'first_name')), ''),
-      coalesce(u.email, u.id::text)
-    ) as full_name,
-    coalesce(u.email, '') as email,
-    coalesce(p.status, 'active') as status,
+      coalesce(u.email::text, u.id::text)
+    )::text as full_name,
+    coalesce(u.email::text, '')::text as email,
+    coalesce(p.status, 'active')::text as status,
     coalesce(p.email_verified, coalesce(u.email_confirmed_at is not null, false)) as email_verified,
     coalesce(p.created_at, u.created_at) as created_at,
     p.last_login_at

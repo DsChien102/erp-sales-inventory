@@ -119,7 +119,7 @@ Tổng product: **6 epic, 32 US** (2 Post-MVP) — [README.md](../README.md).
 | US-03 | CONTRACT | §S15 | application | `CreateTenantOnboardingCommand` + `OnboardingOwnerInput` / `TenantOnboardingResultDto` | fake_iam_module_test | done |
 | FR-01.. | BE | §S15 | application + infrastructure + draft SQL | handlers + `IPlatformAdminGateway` + RPCs | scn_e01_u01_fr01_01 / scn_e01_u02_fr01_01 / scn_e01_u03_fr01_01 | done |
 | FR-01.. | FE | §S15 | presentation | apps/admin platform users + onboarding wizard | wgt_e01_u01_fr01_01 | done |
-| FR-01 | E2E | §S15 | integration | Admin via IIamModule | e2e_e01_u01_fr01_01 | todo |
+| FR-01 | E2E | §S15 | integration | Admin via IIamModule (US-01 list+detail, US-02 lifecycle, US-03 onboarding) | e2e_e01_u01_fr01_01 | done |
 
 ---
 

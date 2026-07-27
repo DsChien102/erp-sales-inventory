@@ -24,18 +24,17 @@ void main() {
 
     await tester.pumpWidget(
       MaterialApp(
-        home: PlatformUserDetailPage(
-          userId: 'missing-user',
-          iamModule: module,
-        ),
+        home: PlatformUserDetailPage(userId: 'missing-user', iamModule: module),
       ),
     );
     await tester.pumpAndSettle();
 
-    expect(find.textContaining('not found'), findsOneWidget);
+    expect(find.textContaining('Không tìm thấy'), findsOneWidget);
   });
 
-  testWidgets('suspend action updates status badge', (WidgetTester tester) async {
+  testWidgets('suspend action updates status badge', (
+    WidgetTester tester,
+  ) async {
     final module = FakeIamModule(scenario: FakeIamScenario.suspendOk);
 
     await tester.pumpWidget(

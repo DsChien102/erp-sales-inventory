@@ -24,7 +24,7 @@ Thứ tự implement vertical slice. Lane status: `todo` | `in_progress` | `done
 | S12 | [EP-02/US-01](../Epic-02-tenant-administration/US-01.md)–[US-03](../Epic-02-tenant-administration/US-03.md) — Profile + Legal Profile | write | todo | todo | done | todo | D | — |
 | S13 | [EP-02/US-07](../Epic-02-tenant-administration/US-07.md) — Tenant audit history | read | todo | todo | done | todo | D | Audit contract |
 | S14 | [EP-06/US-01](../Epic-06-my-account/US-01.md)–[US-04](../Epic-06-my-account/US-04.md) — My Account | write | todo | todo | done | todo | E | Identity + S-NOTIFY (reset mail) |
-| S15 | [EP-01/US-01](../Epic-01-platform-onboarding/US-01.md)–[US-03](../Epic-01-platform-onboarding/US-03.md) — Platform User + onboarding | write | done | done | done | todo | Admin | S-NOTIFY; apps/admin Melos |
+| S15 | [EP-01/US-01](../Epic-01-platform-onboarding/US-01.md)–[US-03](../Epic-01-platform-onboarding/US-03.md) — Platform User + onboarding | write | done | done | done | done | Admin | S-NOTIFY; apps/admin Melos |
 | S16 | [EP-02/US-06](../Epic-02-tenant-administration/US-06.md), [US-08](../Epic-02-tenant-administration/US-08.md)–[US-10](../Epic-02-tenant-administration/US-10.md) — Platform tenant admin / audit | write | todo | todo | done | todo | Admin | S15 |
 
 **Loại khỏi phase 1:** [EP-02/US-04](../Epic-02-tenant-administration/US-04.md), [US-05](../Epic-02-tenant-administration/US-05.md) — Post-MVP.

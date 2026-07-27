@@ -1,3 +1,4 @@
+import 'package:admin/configurations/app_logging.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:vet45_design_system/design_system.dart';
@@ -10,6 +11,8 @@ import 'core/supabase/supabase_module.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  configureAppLogging(logLevelName: Env.logLevel);
 
   await Supabase.initialize(
     url: Env.supabaseConnectionUrl,
