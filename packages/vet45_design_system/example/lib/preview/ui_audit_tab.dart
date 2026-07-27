@@ -56,6 +56,7 @@ class UIAuditTab extends StatelessWidget {
     'VRevenueCard',
     // Forms (tracked in example even if audit CLI skips forms)
     'VEmailField',
+    'VPasswordField',
     'VMoneyField',
     'VNumberField',
     'VSelect',

@@ -14,8 +14,13 @@ class _FormsPreviewTabState extends State<FormsPreviewTab> {
   final _optionalEmail = TextEditingController();
   final _requiredEmail = TextEditingController();
   final _externalEmail = TextEditingController();
+  final _optionalPassword = TextEditingController();
+  final _requiredPassword = TextEditingController();
+  final _externalPassword = TextEditingController();
+  final _disabledPassword = TextEditingController(text: 'secret123');
   final _hintController = TextEditingController();
   String? _externalEmailError;
+  String? _externalPasswordError;
   int? _moneyValue;
   int? _requiredMoney;
   num? _integerValue;
@@ -32,6 +37,10 @@ class _FormsPreviewTabState extends State<FormsPreviewTab> {
     _optionalEmail.dispose();
     _requiredEmail.dispose();
     _externalEmail.dispose();
+    _optionalPassword.dispose();
+    _requiredPassword.dispose();
+    _externalPassword.dispose();
+    _disabledPassword.dispose();
     _hintController.dispose();
     super.dispose();
   }
@@ -89,6 +98,76 @@ class _FormsPreviewTabState extends State<FormsPreviewTab> {
                       },
                     ),
                   ],
+                ),
+              ),
+            ],
+          ),
+        ),
+        PreviewSection(
+          title: 'VPasswordField',
+          child: Column(
+            children: [
+              PreviewStateRow(
+                label: 'Optional (built-in validation)',
+                child: VPasswordField(
+                  controller: _optionalPassword,
+                  label: 'Mật khẩu',
+                  hintText: '••••••••',
+                  helperText: 'Tối thiểu 8 ký tự; validation sau debounce.',
+                ),
+              ),
+              PreviewStateRow(
+                label: 'Required',
+                child: VPasswordField(
+                  controller: _requiredPassword,
+                  label: 'Mật khẩu bắt buộc',
+                  isRequired: true,
+                ),
+              ),
+              PreviewStateRow(
+                label: 'External errorText override',
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    VPasswordField(
+                      controller: _externalPassword,
+                      label: 'Mật khẩu',
+                      errorText: _externalPasswordError,
+                      onChanged: (_) {
+                        if (_externalPasswordError != null) {
+                          setState(() => _externalPasswordError = null);
+                        }
+                      },
+                    ),
+                    const SizedBox(height: VSpacing.space2),
+                    VButton(
+                      label: 'Set external error',
+                      variant: VButtonVariant.outline,
+                      size: VButtonSize.small,
+                      onPressed: () {
+                        setState(() {
+                          _externalPasswordError =
+                              'Mật khẩu không khớp với xác nhận';
+                        });
+                      },
+                    ),
+                  ],
+                ),
+              ),
+              PreviewStateRow(
+                label: 'Disabled',
+                child: VPasswordField(
+                  controller: _disabledPassword,
+                  label: 'Mật khẩu',
+                  enabled: false,
+                ),
+              ),
+              PreviewStateRow(
+                label: 'Toggle visibility (initially visible)',
+                child: VPasswordField(
+                  label: 'Mật khẩu',
+                  initiallyObscured: false,
+                  helperText: 'Bấm icon mắt để ẩn/hiện.',
                 ),
               ),
             ],
