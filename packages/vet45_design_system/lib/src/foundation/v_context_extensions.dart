@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../theme/v_color_scheme.dart';
 import '../theme/v_density.dart';
+import '../tokens/v_breakpoints.dart';
 
 extension VThemeContext on BuildContext {
   ThemeData get theme => Theme.of(this);
@@ -14,4 +15,7 @@ extension VThemeContext on BuildContext {
 
   // Runtime density contract for controls and fields.
   VDensity get vDensity => theme.extension<VDensity>() ?? VDensity.comfortable;
+
+  /// Current layout breakpoint from [MediaQuery] width.
+  VBreakpoint get vBreakpoint => VBreakpoints.of(this);
 }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 // contract: na tone/emphasis/state
 
+import '../tokens/v_breakpoints.dart';
 import '../tokens/v_spacing.dart';
 
 /// Standard screen inset padding (mobile / tablet / desktop breakpoints).
@@ -24,9 +25,11 @@ class VPagePadding extends StatelessWidget {
   final bool applyBottomSafeArea;
 
   static double horizontalForWidth(double width) {
-    if (width >= 1024) return VSpacing.screenDesktop;
-    if (width >= 600) return VSpacing.screenTablet;
-    return VSpacing.screenMobile;
+    return switch (VBreakpoints.ofWidth(width)) {
+      VBreakpoint.desktop => VSpacing.screenDesktop,
+      VBreakpoint.tablet => VSpacing.screenTablet,
+      VBreakpoint.mobile => VSpacing.screenMobile,
+    };
   }
 
   @override

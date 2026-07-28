@@ -4,6 +4,7 @@ library;
 export 'src/tokens/v_colors.dart';
 export 'src/tokens/v_radius.dart';
 export 'src/tokens/v_spacing.dart';
+export 'src/tokens/v_breakpoints.dart';
 export 'src/tokens/v_typography.dart';
 export 'src/tokens/v_shadows.dart';
 export 'src/tokens/v_assets.dart';
@@ -29,6 +30,10 @@ export 'src/patterns/v_gap.dart';
 export 'src/patterns/v_page_padding.dart';
 export 'src/patterns/v_section.dart';
 export 'src/patterns/v_page_scaffold.dart';
+export 'src/patterns/v_responsive.dart';
+export 'src/patterns/v_responsive_visibility.dart';
+export 'src/patterns/v_content_width.dart';
+export 'src/patterns/v_responsive_grid.dart';
 
 // Primitives
 export 'src/primitives/v_badge.dart';

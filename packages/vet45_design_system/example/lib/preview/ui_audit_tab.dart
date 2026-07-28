@@ -54,6 +54,10 @@ class UIAuditTab extends StatelessWidget {
     'VPagePadding',
     'VSection',
     'VPageScaffold',
+    'VResponsive',
+    'VResponsiveVisibility',
+    'VContentWidth',
+    'VResponsiveGrid',
     // Business
     'VTodoItem',
     'VActivityItem',

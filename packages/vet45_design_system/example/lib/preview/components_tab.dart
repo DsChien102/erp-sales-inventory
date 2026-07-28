@@ -1109,6 +1109,121 @@ class _ComponentsPreviewTabState extends State<ComponentsPreviewTab> {
           ),
         ),
         PreviewSection(
+          title: 'Responsive',
+          description:
+              'Breakpoint tokens (mobile <600, tablet ≥600, desktop ≥1024). '
+              'Resize cửa sổ / chạy web để xem đổi layout.',
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              PreviewStateRow(
+                label: 'Current breakpoint (VResponsive)',
+                child: VResponsive(
+                  builder: (context, breakpoint) {
+                    return VCard(
+                      tone: VComponentTone.info,
+                      child: VText(
+                        'Breakpoint: ${breakpoint.name} '
+                        '(MediaQuery width: ${MediaQuery.sizeOf(context).width.toStringAsFixed(0)})',
+                        variant: VTextVariant.bodyDefault,
+                      ),
+                    );
+                  },
+                ),
+              ),
+              PreviewStateRow(
+                label: 'VResponsiveValue (columns label)',
+                child: VResponsive(
+                  builder: (context, breakpoint) {
+                    const columns = VResponsiveValue(
+                      mobile: 1,
+                      tablet: 2,
+                      desktop: 3,
+                    );
+                    return VText(
+                      'Resolved columns: ${columns.resolve(breakpoint)}',
+                      variant: VTextVariant.bodyDefault,
+                    );
+                  },
+                ),
+              ),
+              PreviewStateRow(
+                label: 'VResponsiveVisibility',
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    VResponsiveVisibility(
+                      visibleOn: VBreakpoint.mobile,
+                      child: VCard(
+                        tone: VComponentTone.warning,
+                        child: VText(
+                          'Chỉ mobile',
+                          variant: VTextVariant.bodySmall,
+                        ),
+                      ),
+                    ),
+                    const VGap.sm(),
+                    VResponsiveVisibility(
+                      visibleFrom: VBreakpoint.tablet,
+                      child: VCard(
+                        tone: VComponentTone.success,
+                        child: VText(
+                          'Từ tablet trở lên',
+                          variant: VTextVariant.bodySmall,
+                        ),
+                      ),
+                    ),
+                    const VGap.sm(),
+                    VResponsiveVisibility(
+                      visibleOn: VBreakpoint.desktop,
+                      child: VCard(
+                        tone: VComponentTone.primary,
+                        child: VText(
+                          'Chỉ desktop',
+                          variant: VTextVariant.bodySmall,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              PreviewStateRow(
+                label: 'VContentWidth',
+                child: ColoredBox(
+                  color: VColors.neutral100,
+                  child: VContentWidth(
+                    child: VCard(
+                      child: VText(
+                        'Max-width centered (tablet 840 / desktop 1120)',
+                        variant: VTextVariant.bodySmall,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              PreviewStateRow(
+                label: 'VResponsiveGrid',
+                child: VResponsiveGrid(
+                  children: [
+                    for (var i = 1; i <= 6; i++)
+                      VCard(
+                        child: SizedBox(
+                          height: 56,
+                          child: Center(
+                            child: VText(
+                              'Tile $i',
+                              variant: VTextVariant.bodyDefault,
+                            ),
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+        PreviewSection(
           title: 'VGap',
           description: 'Vertical and horizontal spacing from tokens.',
           child: Column(
@@ -1149,7 +1264,7 @@ class _ComponentsPreviewTabState extends State<ComponentsPreviewTab> {
           child: VPagePadding(
             child: VCard(
               child: VText(
-                'Screen inset from VSpacing.screenMobile',
+                'Screen inset theo VBreakpoint (mobile 16 / tablet 24 / desktop 32)',
                 variant: VTextVariant.bodySmall,
               ),
             ),
