@@ -2,6 +2,7 @@ import 'package:admin/features/organizations/presentation/pages/organizations_pa
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:vet45_design_system/design_system.dart';
+import 'package:vet45_iam_application/testing.dart';
 import 'package:vet45_iam_presentation/presentation.dart';
 
 void main() {
@@ -129,7 +130,10 @@ void main() {
 
     testWidgets('Navigation: opens detail page when tapping on organization list item & pops back',
         (tester) async {
-      await tester.pumpWidget(buildTestableWidget(const OrganizationsPage()));
+      final module = FakeIamModule(scenario: FakeIamScenario.tenantsSearchOk);
+      await tester.pumpWidget(buildTestableWidget(
+        OrganizationsPage(iamModule: module),
+      ));
       await tester.pumpAndSettle();
 
       // Tap on ASC Commerce card item
@@ -146,7 +150,7 @@ void main() {
 
       // Verify returned to organization list page
       expect(find.byType(VSearchBar), findsOneWidget);
-      expect(find.text('Mậu Hiền'), findsOneWidget);
+      expect(find.text('Mậu Hiên'), findsOneWidget);
     });
   });
 }

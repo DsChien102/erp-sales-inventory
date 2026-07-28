@@ -1,5 +1,6 @@
 import 'package:test/test.dart';
 import 'package:vet45_iam_application/application.dart';
+import 'package:vet45_iam_domain/domain.dart';
 import 'package:vet45_shared_application/application.dart';
 
 class _RecordingPlatformGateway implements IPlatformAdminGateway {
@@ -57,6 +58,54 @@ class _RecordingPlatformGateway implements IPlatformAdminGateway {
   }) async {
     throw UnimplementedError();
   }
+
+  @override
+  Future<List<PlatformTenantSummaryDto>> searchPlatformTenants({
+    String? query,
+    TenantLifecycleStatus? status,
+  }) async =>
+      throw UnimplementedError();
+
+  @override
+  Future<PlatformTenantDetailDto> getPlatformTenant(String tenantId) async =>
+      throw UnimplementedError();
+
+  @override
+  Future<List<PlatformTenantMemberDto>> listPlatformTenantMembers(
+    String tenantId,
+  ) async =>
+      throw UnimplementedError();
+
+  @override
+  Future<void> suspendPlatformTenant({
+    required String tenantId,
+    required String reason,
+  }) async =>
+      throw UnimplementedError();
+
+  @override
+  Future<void> restorePlatformTenant(String tenantId) async =>
+      throw UnimplementedError();
+
+  @override
+  Future<void> transferPlatformTenantOwnership({
+    required String tenantId,
+    required String newOwnerUserId,
+    required String idempotencyKey,
+  }) async =>
+      throw UnimplementedError();
+
+  @override
+  Future<List<PlatformAuditLogSummaryDto>> searchPlatformAuditLogs({
+    String? query,
+    PlatformAuditLogStatus? status,
+  }) async =>
+      throw UnimplementedError();
+
+  @override
+  Future<PlatformAuditLogDetailDto> getPlatformAuditLog(String auditLogId) async =>
+      throw UnimplementedError();
+
 }
 
 void main() {

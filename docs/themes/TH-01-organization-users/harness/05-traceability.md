@@ -123,6 +123,20 @@ Tổng product: **6 epic, 32 US** (2 Post-MVP) — [README.md](../README.md).
 
 ---
 
+## S16 — EP-02 / US-06, US-08–US-10 — Platform tenant admin / audit
+
+| Req ID | Role | Contract § | Enforce layer | Artifact | Test id | Status |
+| ------ | ---- | ---------- | ------------- | -------- | ------- | ------ |
+| US-08 | CONTRACT | §S16 | application | `SearchPlatformTenantsQuery` / `GetPlatformTenantQuery` / `ListPlatformTenantMembersQuery` + DTOs | fake_iam_module_test | done |
+| US-06 | CONTRACT | §S16 | application | `SuspendPlatformTenantCommand` / `RestorePlatformTenantCommand` | fake_iam_module_test | done |
+| US-09 | CONTRACT | §S16 | application | `TransferPlatformTenantOwnershipCommand` | fake_iam_module_test | done |
+| US-10 | CONTRACT | §S16 | application | `SearchPlatformAuditLogsQuery` / `GetPlatformAuditLogQuery` + DTOs | fake_iam_module_test | done |
+| FR-01.. | BE | §S16 | application + infrastructure + draft SQL | handlers + gateway + RPCs `010`–`013` | scn_e02_u06_u08_u09 / scn_e02_u10 | done |
+| FR-01.. | FE | §S16 | presentation | Admin Cubits orgs/detail/audit + `IIamModule` | wgt_e02_u08 / wgt_e02_u10 | done |
+| FR-01 | E2E | §S16 | integration | Admin list→detail, suspend/restore, transfer, audit | e2e_e02_u08_fr01_01 | done |
+
+---
+
 ## Các slice còn lại
 
 Khi bắt đầu slice: copy bảng mẫu trên vào section `S{n} — EP-xx / US-yy`, điền FR rows, cập nhật Status. Post-MVP EP-02/US-04–05: **không** thêm row phase 1.

@@ -191,4 +191,146 @@ void main() {
       expect(cleared, isTrue);
     });
   });
+
+  group('FakeIamModule §S16', () {
+    test('tenants_search_ok — SearchPlatformTenantsQuery', () async {
+      final module = FakeIamModule(scenario: FakeIamScenario.tenantsSearchOk);
+
+      final result = await module.executeQueryAsync(
+        SearchPlatformTenantsQuery(query: 'Mậu'),
+      );
+
+      expect(result, hasLength(1));
+      expect(result.single.tenantId, 'org-001');
+    });
+
+    test('tenant_detail_ok — GetPlatformTenantQuery', () async {
+      final module = FakeIamModule(scenario: FakeIamScenario.tenantDetailOk);
+
+      final detail = await module.executeQueryAsync(
+        GetPlatformTenantQuery(tenantId: 'org-001'),
+      );
+
+      expect(detail.name, 'Mậu Hiên');
+      expect(detail.members, isNotEmpty);
+    });
+
+    test('tenant_forbidden_403 — throws PLATFORM_PERMISSION_DENIED', () async {
+      final module = FakeIamModule(
+        scenario: FakeIamScenario.tenantForbidden403,
+      );
+
+      expect(
+        () => module.executeQueryAsync(SearchPlatformTenantsQuery()),
+        throwsA(
+          isA<ApplicationException>().having(
+            (e) => e.message,
+            'message',
+            contains('PLATFORM_PERMISSION_DENIED'),
+          ),
+        ),
+      );
+    });
+
+    test('tenant_suspend_ok / tenant_restore_ok', () async {
+      final module = FakeIamModule(scenario: FakeIamScenario.tenantSuspendOk);
+
+      await module.executeCommandAsync(
+        SuspendPlatformTenantCommand(
+          tenantId: 'org-001',
+          reason: 'risk review',
+        ),
+      );
+      final suspended = await module.executeQueryAsync(
+        GetPlatformTenantQuery(tenantId: 'org-001'),
+      );
+      expect(suspended.status.name, 'suspended');
+
+      final restoreModule = FakeIamModule(
+        scenario: FakeIamScenario.tenantRestoreOk,
+      );
+      await restoreModule.executeCommandAsync(
+        RestorePlatformTenantCommand(tenantId: 'org-003'),
+      );
+      final restored = await restoreModule.executeQueryAsync(
+        GetPlatformTenantQuery(tenantId: 'org-003'),
+      );
+      expect(restored.status.name, 'active');
+    });
+
+    test('tenant_closed_reject — STATE_CHANGED', () async {
+      final module = FakeIamModule(
+        scenario: FakeIamScenario.tenantClosedReject,
+      );
+
+      expect(
+        () => module.executeCommandAsync(
+          SuspendPlatformTenantCommand(
+            tenantId: 'org-004',
+            reason: 'attempt',
+          ),
+        ),
+        throwsA(isA<ApplicationException>()),
+      );
+    });
+
+    test('ownership_transfer_ok — one owner', () async {
+      final module = FakeIamModule(
+        scenario: FakeIamScenario.ownershipTransferOk,
+      );
+
+      await module.executeCommandAsync(
+        TransferPlatformTenantOwnershipCommand(
+          tenantId: 'org-001',
+          newOwnerUserId: 'hoa-tran',
+          idempotencyKey: 'xfer-1',
+        ),
+      );
+      final detail = await module.executeQueryAsync(
+        GetPlatformTenantQuery(tenantId: 'org-001'),
+      );
+      expect(detail.ownerUserId, 'hoa-tran');
+      expect(detail.members.where((m) => m.isOwner), hasLength(1));
+    });
+
+    test('ownership_invalid_target — VALIDATION_ERROR', () async {
+      final module = FakeIamModule(
+        scenario: FakeIamScenario.ownershipInvalidTarget,
+      );
+
+      expect(
+        () => module.executeCommandAsync(
+          TransferPlatformTenantOwnershipCommand(
+            tenantId: 'org-001',
+            newOwnerUserId: 'hoa-tran',
+            idempotencyKey: 'xfer-bad',
+          ),
+        ),
+        throwsA(isA<ValidationException>()),
+      );
+    });
+
+    test('audit_search_ok / audit detail', () async {
+      final module = FakeIamModule(scenario: FakeIamScenario.auditSearchOk);
+
+      final logs = await module.executeQueryAsync(
+        SearchPlatformAuditLogsQuery(query: 'tạm ngừng'),
+      );
+      expect(logs, isNotEmpty);
+
+      final detail = await module.executeQueryAsync(
+        GetPlatformAuditLogQuery(auditLogId: logs.first.id),
+      );
+      expect(detail.correlationId, isNotEmpty);
+    });
+
+    test('audit_forbidden_403', () async {
+      final module = FakeIamModule(scenario: FakeIamScenario.auditForbidden403);
+
+      expect(
+        () => module.executeQueryAsync(SearchPlatformAuditLogsQuery()),
+        throwsA(isA<ApplicationException>()),
+      );
+    });
+  });
 }

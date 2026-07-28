@@ -7,6 +7,7 @@ import 'package:vet45_iam_presentation/presentation.dart';
 import '../../../../core/di/injection.dart';
 import '../bloc/platform_onboarding_cubit.dart';
 import '../bloc/platform_onboarding_state.dart';
+import 'platform_tenant_detail_page.dart';
 
 class PlatformOnboardingPage extends StatelessWidget {
   const PlatformOnboardingPage({super.key, this.iamModule});
@@ -24,13 +25,15 @@ class PlatformOnboardingPage extends StatelessWidget {
         cubit.searchOwners('');
         return cubit;
       },
-      child: const _PlatformOnboardingView(),
+      child: _PlatformOnboardingView(iamModule: iamModule),
     );
   }
 }
 
 class _PlatformOnboardingView extends StatefulWidget {
-  const _PlatformOnboardingView();
+  const _PlatformOnboardingView({this.iamModule});
+
+  final IIamModule? iamModule;
 
   @override
   State<_PlatformOnboardingView> createState() =>
@@ -280,10 +283,10 @@ class _PlatformOnboardingViewState extends State<_PlatformOnboardingView> {
     if (!mounted) return;
     Navigator.of(context).pushReplacement(
       MaterialPageRoute(
-        builder: (context) => OrganizationDetailPage(
-          organization: newOrg,
+        builder: (context) => PlatformTenantDetailPage(
+          tenantId: result.tenantId,
+          iamModule: widget.iamModule,
           showSuccessToastOnBuild: true,
-          onBackPressed: () => Navigator.of(context).pop(true),
         ),
       ),
     );

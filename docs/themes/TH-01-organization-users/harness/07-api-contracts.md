@@ -41,6 +41,14 @@ Facade: `IIamModule` — mở rộng surface theo roadmap (hiện interim: sign-
 | CMD-PLT-05 | `SuspendPlatformUserCommand` | Command | `platform.user.suspend` | EP-01/US-02 |
 | CMD-PLT-06 | `RestorePlatformUserCommand` | Command | `platform.user.restore` | EP-01/US-02 |
 | CMD-PLT-07 | `CreateTenantOnboardingCommand` | Command | `platform.tenant.create` | EP-01/US-03 |
+| CMD-PLT-08 | `SearchPlatformTenantsQuery` | Query | `platform.tenant.view` | EP-02/US-08 |
+| CMD-PLT-09 | `GetPlatformTenantQuery` | Query | `platform.tenant.view` | EP-02/US-08 |
+| CMD-PLT-10 | `ListPlatformTenantMembersQuery` | Query | `platform.tenant.member.view` | EP-02/US-08 |
+| CMD-PLT-11 | `SuspendPlatformTenantCommand` | Command | `platform.tenant.suspend` | EP-02/US-06 |
+| CMD-PLT-12 | `RestorePlatformTenantCommand` | Command | `platform.tenant.restore` | EP-02/US-06 |
+| CMD-PLT-13 | `TransferPlatformTenantOwnershipCommand` | Command | `platform.tenant.owner.transfer` | EP-02/US-09 |
+| CMD-PLT-14 | `SearchPlatformAuditLogsQuery` | Query | `platform.audit.view` | EP-02/US-10 |
+| CMD-PLT-15 | `GetPlatformAuditLogQuery` | Query | `platform.audit.view` | EP-02/US-10 |
 
 *(Bổ sung đầy đủ khi CONTRACT từng slice — không block scaffold.)*
 
@@ -229,8 +237,52 @@ Platform-scoped (Admin App). Permission codes: `IamPlatformPermissions`. No `@Re
 
 ---
 
+## §S16 — EP-02/US-06, US-08–US-10 — Platform tenant admin / audit
+
+Platform-scoped (Admin App). Permission codes: `IamPlatformPermissions`. No `@RequiresTenant`.
+
+| Symbol | Input | Success | Errors |
+| ------ | ----- | ------- | ------ |
+| `SearchPlatformTenantsQuery` | query?, status? | `List<PlatformTenantSummaryDto>` | PLATFORM_PERMISSION_DENIED |
+| `GetPlatformTenantQuery` | tenantId | `PlatformTenantDetailDto` (+ members) | PLATFORM_PERMISSION_DENIED, VALIDATION_ERROR |
+| `ListPlatformTenantMembersQuery` | tenantId | `List<PlatformTenantMemberDto>` | PLATFORM_PERMISSION_DENIED, VALIDATION_ERROR |
+| `SuspendPlatformTenantCommand` | tenantId, reason | void | PLATFORM_PERMISSION_DENIED, VALIDATION_ERROR, STATE_CHANGED |
+| `RestorePlatformTenantCommand` | tenantId | void | PLATFORM_PERMISSION_DENIED, STATE_CHANGED |
+| `TransferPlatformTenantOwnershipCommand` | tenantId, newOwnerUserId, idempotencyKey | void | PLATFORM_PERMISSION_DENIED, VALIDATION_ERROR, STATE_CHANGED |
+| `SearchPlatformAuditLogsQuery` | query?, status? | `List<PlatformAuditLogSummaryDto>` | PLATFORM_PERMISSION_DENIED |
+| `GetPlatformAuditLogQuery` | auditLogId | `PlatformAuditLogDetailDto` (redacted) | PLATFORM_PERMISSION_DENIED, VALIDATION_ERROR |
+
+**Notes**
+- Tenant status uses domain `TenantLifecycleStatus` (`provisioning` \| `active` \| `suspended` \| `closed`).
+- Closed tenant rejects suspend/restore/ownership transfer (US-06 BR-04, US-09 BR-02).
+- Ownership transfer flips `is_owner` atomically; does **not** change `role` / `role_id` (US-09 BR-03/04).
+- Transfer is retry-safe via `@Idempotent(keyField: 'idempotencyKey')`.
+- Audit detail redacts credentials / tokens / verification codes (US-10 BR-03).
+- Platform authz: `IamPermissionChecker` routes `platform.*` → `IPlatformAdminGateway.hasPlatformPermission`.
+
+**RPCs (draft):**
+- `iam.search_platform_tenants`, `iam.get_platform_tenant`, `iam.list_platform_tenant_members` — [`_drafts/010_iam_platform_tenants_read.sql`](../../../../supabase/migrations/_drafts/010_iam_platform_tenants_read.sql)
+- `iam.suspend_platform_tenant`, `iam.restore_platform_tenant` — [`_drafts/011_iam_platform_tenant_lifecycle.sql`](../../../../supabase/migrations/_drafts/011_iam_platform_tenant_lifecycle.sql)
+- `iam.transfer_platform_tenant_ownership` — [`_drafts/012_iam_platform_transfer_ownership.sql`](../../../../supabase/migrations/_drafts/012_iam_platform_transfer_ownership.sql)
+- `iam.search_platform_audit_logs`, `iam.get_platform_audit_log` — [`_drafts/013_iam_platform_audit_read.sql`](../../../../supabase/migrations/_drafts/013_iam_platform_audit_read.sql)
+
+| scenario_id | trigger | fake response |
+| ----------- | ------- | ------------- |
+| `tenants_search_ok` | query by name/code | matching summaries |
+| `tenant_detail_ok` | known tenantId | detail + members |
+| `tenant_forbidden_403` | missing `platform.tenant.view` | PLATFORM_PERMISSION_DENIED |
+| `tenant_suspend_ok` | active tenant + reason | status → suspended |
+| `tenant_restore_ok` | suspended tenant | status → active |
+| `tenant_closed_reject` | closed tenant lifecycle action | STATE_CHANGED |
+| `ownership_transfer_ok` | active member as new owner | one owner (`is_owner`) |
+| `ownership_invalid_target` | non-member / invalid target | VALIDATION_ERROR |
+| `audit_search_ok` | filter by title/action | matching summaries |
+| `audit_forbidden_403` | missing `platform.audit.view` | PLATFORM_PERMISSION_DENIED |
+
+---
+
 ## Parallel notes
 
 - FE có thể fake: **yes** sau CONTRACT (`FakeIamModule` + fake notification gateway).
 - E2E invite cần S-NOTIFY BE hoặc test double ghi outcome.
-- Admin platform CMDs: §S15 CONTRACT done — xem APPENDICES §6.1.3.
+- Admin platform CMDs: §S15 + §S16 CONTRACT — xem APPENDICES §6.1.3.

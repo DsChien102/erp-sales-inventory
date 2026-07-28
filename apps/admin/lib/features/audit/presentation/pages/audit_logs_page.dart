@@ -1,21 +1,62 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:vet45_design_system/design_system.dart';
+import 'package:vet45_iam_application/application.dart';
 import 'package:vet45_iam_presentation/presentation.dart';
 
-/// Thin Composition Page cho Màn hình Nhật ký nền tảng trong Admin App (PA-D-02).
-class AuditLogsPage extends StatefulWidget {
-  const AuditLogsPage({super.key});
+import '../../../../core/di/injection.dart';
+import '../bloc/platform_audit_logs_cubit.dart';
+import '../bloc/platform_audit_logs_state.dart';
+
+/// Thin Composition Page — nhật ký nền tảng (Admin / EP-02 US-10).
+class AuditLogsPage extends StatelessWidget {
+  const AuditLogsPage({
+    super.key,
+    this.iamModule,
+    this.hasError = false,
+    this.isUnauthorized = false,
+  });
+
+  final IIamModule? iamModule;
+  final bool hasError;
+  final bool isUnauthorized;
 
   @override
-  State<AuditLogsPage> createState() => _AuditLogsPageState();
+  Widget build(BuildContext context) {
+    final module = iamModule ?? getIt<IIamModule>();
+    return BlocProvider(
+      create: (_) {
+        final cubit = PlatformAuditLogsCubit(
+          iamModule: module,
+          initialState: PlatformAuditLogsState(
+            status: isUnauthorized
+                ? PlatformAuditLogsStatus.unauthorized
+                : hasError
+                ? PlatformAuditLogsStatus.failure
+                : PlatformAuditLogsStatus.initial,
+          ),
+        );
+        if (!hasError && !isUnauthorized) {
+          cubit.load();
+        }
+        return cubit;
+      },
+      child: const _AuditLogsView(),
+    );
+  }
 }
 
-class _AuditLogsPageState extends State<AuditLogsPage> {
+class _AuditLogsView extends StatefulWidget {
+  const _AuditLogsView();
+
+  @override
+  State<_AuditLogsView> createState() => _AuditLogsViewState();
+}
+
+class _AuditLogsViewState extends State<_AuditLogsView> {
   final TextEditingController _searchController = TextEditingController();
-  AuditLogFilterCriteria _filterCriteria = const AuditLogFilterCriteria();
-  String _searchQuery = '';
   Timer? _searchDebounceTimer;
 
   @override
@@ -27,31 +68,20 @@ class _AuditLogsPageState extends State<AuditLogsPage> {
   void _onSearchChanged() {
     _searchDebounceTimer?.cancel();
     _searchDebounceTimer = Timer(const Duration(milliseconds: 300), () {
-      if (mounted) {
-        setState(() {
-          _searchQuery = _searchController.text.trim().toLowerCase();
-        });
-      }
+      if (!mounted) return;
+      context.read<PlatformAuditLogsCubit>().setSearchQuery(
+        _searchController.text,
+      );
     });
   }
 
-  Future<void> _handleRefresh() async {
-    await Future.delayed(const Duration(milliseconds: 600));
-    if (mounted) {
-      setState(() {});
-    }
-  }
-
   void _openFilterBottomSheet() {
+    final cubit = context.read<PlatformAuditLogsCubit>();
     showVBottomSheet(
       context: context,
       child: AuditLogFilterBottomSheet(
-        initialCriteria: _filterCriteria,
-        onApply: (newCriteria) {
-          setState(() {
-            _filterCriteria = newCriteria;
-          });
-        },
+        initialCriteria: cubit.state.filterCriteria,
+        onApply: cubit.setFilterCriteria,
       ),
     );
   }
@@ -64,74 +94,65 @@ class _AuditLogsPageState extends State<AuditLogsPage> {
     super.dispose();
   }
 
-  List<AuditLogItemUiModel> get _filteredLogs {
-    return FakeAuditLogData.sampleLogs.where((log) {
-      // Lọc theo trạng thái (Status)
-      if (_filterCriteria.status != null && log.status != _filterCriteria.status) {
-        return false;
-      }
-      // Lọc theo loại chủ thể (Actor Type)
-      if (_filterCriteria.actorType != 'Tất cả') {
-        if (_filterCriteria.actorType == 'Người dùng' && log.actorRole.contains('Hệ thống')) {
-          return false;
-        }
-        if (_filterCriteria.actorType == 'Hệ thống' && !log.actorRole.contains('Hệ thống')) {
-          return false;
-        }
-      }
-      // Lọc theo từ khóa tìm kiếm
-      if (_searchQuery.isNotEmpty) {
-        final titleMatch = log.title.toLowerCase().contains(_searchQuery);
-        final actorMatch = log.actorName.toLowerCase().contains(_searchQuery);
-        final orgMatch = log.targetOrg.toLowerCase().contains(_searchQuery);
-        final codeMatch = log.actionCode.toLowerCase().contains(_searchQuery);
-        return titleMatch || actorMatch || orgMatch || codeMatch;
-      }
-      return true;
-    }).toList();
-  }
-
   @override
   Widget build(BuildContext context) {
-    final filteredLogs = _filteredLogs;
+    return BlocBuilder<PlatformAuditLogsCubit, PlatformAuditLogsState>(
+      builder: (context, state) {
+        if (state.status == PlatformAuditLogsStatus.unauthorized) {
+          return const Center(child: Text('Không có quyền xem nhật ký'));
+        }
+        if (state.status == PlatformAuditLogsStatus.failure) {
+          return Center(
+            child: Text(state.errorMessage ?? 'Không tải được nhật ký'),
+          );
+        }
 
-    return Column(
-      children: [
-        // Thanh tìm kiếm + Nút bộ lọc (Mở AuditLogFilterBottomSheet)
-        OrganizationSearchBar(
-          controller: _searchController,
-          isFilterActive: _filterCriteria.isFilterActive,
-          onFilterTap: _openFilterBottomSheet,
-        ),
+        final filteredLogs = state.filteredLogs;
+        final cubit = context.read<PlatformAuditLogsCubit>();
+        final isLoading =
+            state.status == PlatformAuditLogsStatus.loading &&
+            state.logs.isEmpty;
 
-        // Thanh chip lọc trạng thái nhanh dùng VChip
-        AuditLogFilterChips(
-          selectedStatus: _filterCriteria.status,
-          onStatusSelected: (status) {
-            setState(() {
-              _filterCriteria = _filterCriteria.copyWith(
-                status: status,
-                clearStatus: status == null,
-              );
-            });
-          },
-        ),
-
-        // Danh sách nhật ký thao tác cuộn độc lập
-        Expanded(
-          child: AuditLogListContent(
-            logs: filteredLogs,
-            onRefresh: _handleRefresh,
-            onItemTap: (log) {
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (context) => AuditLogDetailPage(log: log),
-                ),
-              );
-            },
-          ),
-        ),
-      ],
+        return Column(
+          children: [
+            OrganizationSearchBar(
+              controller: _searchController,
+              isFilterActive: state.filterCriteria.isFilterActive,
+              onFilterTap: _openFilterBottomSheet,
+            ),
+            AuditLogFilterChips(
+              selectedStatus: state.filterCriteria.status,
+              onStatusSelected: (status) {
+                cubit.setFilterCriteria(
+                  state.filterCriteria.copyWith(
+                    status: status,
+                    clearStatus: status == null,
+                  ),
+                );
+              },
+            ),
+            Expanded(
+              child: isLoading
+                  ? const Center(child: CircularProgressIndicator())
+                  : AuditLogListContent(
+                      logs: filteredLogs,
+                      onRefresh: () => cubit.load(),
+                      onItemTap: (log) async {
+                        final detail = await cubit.loadDetail(log.id);
+                        if (!context.mounted) return;
+                        await Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) => AuditLogDetailPage(
+                              log: detail ?? log,
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+            ),
+          ],
+        );
+      },
     );
   }
 }

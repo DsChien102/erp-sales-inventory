@@ -20,12 +20,27 @@ class OrganizationDetailPage extends StatefulWidget {
   final VoidCallback? onActionTap;
   final bool showSuccessToastOnBuild;
 
+  /// When set, suspend uses this callback instead of the local fake toast path.
+  final Future<bool> Function(String reason)? onSuspendConfirmed;
+
+  /// When set, restore uses this callback instead of the local fake toast path.
+  final Future<bool> Function()? onRestoreConfirmed;
+
+  /// When set, ownership transfer confirmation delegates to this callback.
+  final Future<bool> Function(String newOwnerUserId)? onTransferOwnership;
+
+  final ValueChanged<OrganizationMemberUiModel>? onMemberTap;
+
   const OrganizationDetailPage({
     super.key,
     required this.organization,
     this.onBackPressed,
     this.onActionTap,
     this.showSuccessToastOnBuild = false,
+    this.onSuspendConfirmed,
+    this.onRestoreConfirmed,
+    this.onTransferOwnership,
+    this.onMemberTap,
   });
 
   @override
@@ -89,6 +104,7 @@ class _OrganizationDetailPageState extends State<OrganizationDetailPage> {
             if (widget.organization.status == OrganizationStatus.active) ...[
               OrganizationDetailMembersCard(
                 organization: widget.organization,
+                onMemberTap: widget.onMemberTap,
               ),
             ] else ...[
               OrganizationDetailOwnerCard(
@@ -123,6 +139,7 @@ class _OrganizationDetailPageState extends State<OrganizationDetailPage> {
             MaterialPageRoute(
               builder: (context) => OrganizationChangeOwnerPage(
                 organization: widget.organization,
+                onConfirmTransfer: widget.onTransferOwnership,
               ),
             ),
           );
@@ -145,7 +162,29 @@ class _OrganizationDetailPageState extends State<OrganizationDetailPage> {
     showVBottomSheet(
       context: context,
       child: OrganizationSuspendConfirmationBottomSheet(
-        onConfirm: (reason) {
+        onConfirm: (reason) async {
+          final callback = widget.onSuspendConfirmed;
+          if (callback != null) {
+            final ok = await callback(reason);
+            if (!context.mounted) return;
+            if (ok) {
+              VToast.show(
+                context,
+                title: 'Thành công',
+                message: 'Đã tạm ngừng tổ chức thành công.',
+                type: VToastType.success,
+              );
+            } else {
+              VToast.show(
+                context,
+                title: 'Lỗi',
+                message: 'Không thể tạm ngừng tổ chức. Vui lòng thử lại.',
+                type: VToastType.danger,
+              );
+            }
+            return;
+          }
+
           final isError = reason.trim().toLowerCase() == 'error' ||
               reason.trim().toLowerCase() == 'lỗi';
           if (isError) {
@@ -172,7 +211,29 @@ class _OrganizationDetailPageState extends State<OrganizationDetailPage> {
     showVBottomSheet(
       context: context,
       child: OrganizationRestoreConfirmationBottomSheet(
-        onConfirm: (reason) {
+        onConfirm: (reason) async {
+          final callback = widget.onRestoreConfirmed;
+          if (callback != null) {
+            final ok = await callback();
+            if (!context.mounted) return;
+            if (ok) {
+              VToast.show(
+                context,
+                title: 'Thành công',
+                message: 'Đã khôi phục tổ chức thành công.',
+                type: VToastType.success,
+              );
+            } else {
+              VToast.show(
+                context,
+                title: 'Lỗi',
+                message: 'Không thể khôi phục tổ chức. Vui lòng thử lại.',
+                type: VToastType.danger,
+              );
+            }
+            return;
+          }
+
           final isError = reason.trim().toLowerCase() == 'error' ||
               reason.trim().toLowerCase() == 'lỗi';
           if (isError) {

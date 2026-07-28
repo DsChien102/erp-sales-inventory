@@ -9,10 +9,14 @@ class OrganizationChangeOwnerPage extends StatefulWidget {
   final OrganizationUiModel organization;
   final VoidCallback? onOwnerChanged;
 
+  /// When set, confirmation calls this with the selected member id.
+  final Future<bool> Function(String newOwnerUserId)? onConfirmTransfer;
+
   const OrganizationChangeOwnerPage({
     super.key,
     required this.organization,
     this.onOwnerChanged,
+    this.onConfirmTransfer,
   });
 
   @override
@@ -94,8 +98,18 @@ class _OrganizationChangeOwnerPageState
       context: context,
       child: OrganizationChangeOwnerConfirmationBottomSheet(
         member: member,
-        onConfirm: () {
-          Navigator.of(context).pop(true); // Trả về true báo đã hoàn tất
+        onConfirm: () async {
+          final transfer = widget.onConfirmTransfer;
+          if (transfer != null) {
+            final ok = await transfer(member.id);
+            if (!context.mounted) return;
+            if (ok) {
+              widget.onOwnerChanged?.call();
+              Navigator.of(context).pop(true);
+            }
+            return;
+          }
+          Navigator.of(context).pop(true);
         },
       ),
     );

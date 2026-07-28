@@ -17,8 +17,20 @@ void registerGeneratedIamValidators(GetIt container) {
     ..registerFactory<ICommandValidator<CreateTenantOnboardingCommand>>(
       CreateTenantOnboardingCommandValidator.new,
     )
+    ..registerFactory<ICommandValidator<RestorePlatformTenantCommand>>(
+      RestorePlatformTenantCommandValidator.new,
+    )
+    ..registerFactory<ICommandValidator<SuspendPlatformTenantCommand>>(
+      SuspendPlatformTenantCommandValidator.new,
+    )
     ..registerFactory<ICommandValidator<SuspendPlatformUserCommand>>(
       SuspendPlatformUserCommandValidator.new,
+    )
+    ..registerFactory<ICommandValidator<SwitchTenantContextCommand>>(
+      SwitchTenantContextCommandValidator.new,
+    )
+    ..registerFactory<ICommandValidator<TransferPlatformTenantOwnershipCommand>>(
+      TransferPlatformTenantOwnershipCommandValidator.new,
     )
     ;
 }
@@ -54,6 +66,15 @@ void registerGeneratedIamHandlers({
     bus: bus,
     logger: logger,
     factory: () => RequestPlatformPasswordResetCommandHandler(
+      platformGateway: container.get<IPlatformAdminGateway>(),
+    ),
+  );
+
+  IamCommandRegistration.registerBusinessHandler<RestorePlatformTenantCommand, void, RestorePlatformTenantCommandHandler>(
+    container: container,
+    bus: bus,
+    logger: logger,
+    factory: () => RestorePlatformTenantCommandHandler(
       platformGateway: container.get<IPlatformAdminGateway>(),
     ),
   );
@@ -96,6 +117,15 @@ void registerGeneratedIamHandlers({
     ),
   );
 
+  IamCommandRegistration.registerBusinessHandler<SuspendPlatformTenantCommand, void, SuspendPlatformTenantCommandHandler>(
+    container: container,
+    bus: bus,
+    logger: logger,
+    factory: () => SuspendPlatformTenantCommandHandler(
+      platformGateway: container.get<IPlatformAdminGateway>(),
+    ),
+  );
+
   IamCommandRegistration.registerBusinessHandler<SuspendPlatformUserCommand, void, SuspendPlatformUserCommandHandler>(
     container: container,
     bus: bus,
@@ -111,6 +141,27 @@ void registerGeneratedIamHandlers({
     logger: logger,
     factory: () => SwitchActiveTenantCommandHandler(
       sessionPort: container.get<IIamSessionPort>(),
+    ),
+  );
+
+  IamCommandRegistration.registerBusinessHandler<SwitchTenantContextCommand, TenantContextDto, SwitchTenantContextCommandHandler>(
+    container: container,
+    bus: bus,
+    logger: logger,
+    factory: () => SwitchTenantContextCommandHandler(
+      accessGateway: container.get<IIamAccessGateway>(),
+      preferencePort: container.get<IPlatformUserPreferencePort>(),
+      sessionPort: container.get<IIamSessionPort>(),
+      currentTenant: container.get<ICurrentTenant>(),
+    ),
+  );
+
+  IamCommandRegistration.registerBusinessHandler<TransferPlatformTenantOwnershipCommand, void, TransferPlatformTenantOwnershipCommandHandler>(
+    container: container,
+    bus: bus,
+    logger: logger,
+    factory: () => TransferPlatformTenantOwnershipCommandHandler(
+      platformGateway: container.get<IPlatformAdminGateway>(),
     ),
   );
 
@@ -140,10 +191,37 @@ void registerGeneratedIamQueries({
     invoke: (query, handler) => handler.handle(query),
   );
 
+  IamCommandRegistration.registerQueryHandler<GetPlatformAuditLogQuery, PlatformAuditLogDetailDto, GetPlatformAuditLogQueryHandler>(
+    bus: bus,
+    factory: () => GetPlatformAuditLogQueryHandler(
+      platformGateway: container.get<IPlatformAdminGateway>(),
+    ),
+    invoke: (query, handler) => handler.handle(query),
+  );
+
+  IamCommandRegistration.registerQueryHandler<GetPlatformTenantQuery, PlatformTenantDetailDto, GetPlatformTenantQueryHandler>(
+    bus: bus,
+    factory: () => GetPlatformTenantQueryHandler(
+      platformGateway: container.get<IPlatformAdminGateway>(),
+    ),
+    invoke: (query, handler) => handler.handle(query),
+  );
+
   IamCommandRegistration.registerQueryHandler<GetPlatformUserQuery, PlatformUserDetailDto, GetPlatformUserQueryHandler>(
     bus: bus,
     factory: () => GetPlatformUserQueryHandler(
       platformGateway: container.get<IPlatformAdminGateway>(),
+    ),
+    invoke: (query, handler) => handler.handle(query),
+  );
+
+  IamCommandRegistration.registerQueryHandler<GetTenantContextQuery, TenantContextDto, GetTenantContextQueryHandler>(
+    bus: bus,
+    factory: () => GetTenantContextQueryHandler(
+      accessGateway: container.get<IIamAccessGateway>(),
+      preferencePort: container.get<IPlatformUserPreferencePort>(),
+      sessionPort: container.get<IIamSessionPort>(),
+      currentTenant: container.get<ICurrentTenant>(),
     ),
     invoke: (query, handler) => handler.handle(query),
   );
@@ -157,10 +235,34 @@ void registerGeneratedIamQueries({
     invoke: (query, handler) => handler.handle(query),
   );
 
+  IamCommandRegistration.registerQueryHandler<ListPlatformTenantMembersQuery, List<PlatformTenantMemberDto>, ListPlatformTenantMembersQueryHandler>(
+    bus: bus,
+    factory: () => ListPlatformTenantMembersQueryHandler(
+      platformGateway: container.get<IPlatformAdminGateway>(),
+    ),
+    invoke: (query, handler) => handler.handle(query),
+  );
+
   IamCommandRegistration.registerQueryHandler<ListTenantMembersQuery, List<TenantMemberDto>, ListTenantMembersQueryHandler>(
     bus: bus,
     factory: () => ListTenantMembersQueryHandler(
       accessGateway: container.get<IIamAccessGateway>(),
+    ),
+    invoke: (query, handler) => handler.handle(query),
+  );
+
+  IamCommandRegistration.registerQueryHandler<SearchPlatformAuditLogsQuery, List<PlatformAuditLogSummaryDto>, SearchPlatformAuditLogsQueryHandler>(
+    bus: bus,
+    factory: () => SearchPlatformAuditLogsQueryHandler(
+      platformGateway: container.get<IPlatformAdminGateway>(),
+    ),
+    invoke: (query, handler) => handler.handle(query),
+  );
+
+  IamCommandRegistration.registerQueryHandler<SearchPlatformTenantsQuery, List<PlatformTenantSummaryDto>, SearchPlatformTenantsQueryHandler>(
+    bus: bus,
+    factory: () => SearchPlatformTenantsQueryHandler(
+      platformGateway: container.get<IPlatformAdminGateway>(),
     ),
     invoke: (query, handler) => handler.handle(query),
   );

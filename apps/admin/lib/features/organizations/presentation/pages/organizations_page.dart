@@ -1,22 +1,65 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:vet45_design_system/design_system.dart';
+import 'package:vet45_iam_application/application.dart';
 import 'package:vet45_iam_presentation/presentation.dart';
 
-/// Thin Composition Page cho Màn hình Danh sách Tổ chức trong Admin App.
-class OrganizationsPage extends StatefulWidget {
-  const OrganizationsPage({super.key});
+import '../../../../core/di/injection.dart';
+import '../bloc/platform_tenants_cubit.dart';
+import '../bloc/platform_tenants_state.dart';
+import 'platform_tenant_detail_page.dart';
+
+/// Thin Composition Page — danh sách tổ chức nền tảng (Admin / EP-02 US-08).
+class OrganizationsPage extends StatelessWidget {
+  const OrganizationsPage({
+    super.key,
+    this.iamModule,
+    this.hasError = false,
+    this.isUnauthorized = false,
+  });
+
+  final IIamModule? iamModule;
+  final bool hasError;
+  final bool isUnauthorized;
 
   @override
-  State<OrganizationsPage> createState() => _OrganizationsPageState();
+  Widget build(BuildContext context) {
+    final module = iamModule ?? getIt<IIamModule>();
+    return BlocProvider(
+      create: (_) {
+        final cubit = PlatformTenantsCubit(
+          iamModule: module,
+          initialState: PlatformTenantsState(
+            status: isUnauthorized
+                ? PlatformTenantsStatus.unauthorized
+                : hasError
+                ? PlatformTenantsStatus.failure
+                : PlatformTenantsStatus.initial,
+          ),
+        );
+        if (!hasError && !isUnauthorized) {
+          cubit.load();
+        }
+        return cubit;
+      },
+      child: _OrganizationsView(iamModule: module),
+    );
+  }
 }
 
-class _OrganizationsPageState extends State<OrganizationsPage> {
+class _OrganizationsView extends StatefulWidget {
+  const _OrganizationsView({required this.iamModule});
+
+  final IIamModule iamModule;
+
+  @override
+  State<_OrganizationsView> createState() => _OrganizationsViewState();
+}
+
+class _OrganizationsViewState extends State<_OrganizationsView> {
   final TextEditingController _searchController = TextEditingController();
-  OrganizationFilterCriteria _filterCriteria =
-      const OrganizationFilterCriteria();
-  String _searchQuery = '';
   Timer? _searchDebounceTimer;
 
   @override
@@ -28,75 +71,22 @@ class _OrganizationsPageState extends State<OrganizationsPage> {
   void _onSearchChanged() {
     _searchDebounceTimer?.cancel();
     _searchDebounceTimer = Timer(const Duration(milliseconds: 300), () {
-      if (mounted) {
-        setState(() {
-          _searchQuery = _searchController.text.trim().toLowerCase();
-        });
-      }
-    });
-  }
-
-  Future<void> _handleRefresh() async {
-    await Future.delayed(const Duration(milliseconds: 600));
-    if (mounted) {
-      setState(() {});
-    }
-  }
-
-  void _onStatusSelected(OrganizationStatus status) {
-    setState(() {
-      _filterCriteria = _filterCriteria.copyWith(status: status);
+      if (!mounted) return;
+      context.read<PlatformTenantsCubit>().setSearchQuery(
+        _searchController.text,
+      );
     });
   }
 
   void _openFilterBottomSheet() {
+    final cubit = context.read<PlatformTenantsCubit>();
     showVBottomSheet(
       context: context,
       child: OrganizationFilterBottomSheet(
-        initialCriteria: _filterCriteria,
-        onApply: (newCriteria) {
-          setState(() {
-            _filterCriteria = newCriteria;
-          });
-        },
+        initialCriteria: cubit.state.filterCriteria,
+        onApply: cubit.setFilterCriteria,
       ),
     );
-  }
-
-  List<OrganizationUiModel> _getFilteredOrganizations() {
-    return FakeOrganizationData.sampleOrganizations.where((org) {
-      // Lọc theo trạng thái (Status)
-      if (_filterCriteria.status != OrganizationStatus.all &&
-          org.status != _filterCriteria.status) {
-        return false;
-      }
-      // Lọc theo vòng đời (Lifecycle)
-      if (_filterCriteria.lifecycle != 'Tất cả') {
-        if (_filterCriteria.lifecycle == 'Tạm ngừng' &&
-            org.status != OrganizationStatus.suspended) {
-          return false;
-        }
-        if (_filterCriteria.lifecycle == 'Đã đóng' &&
-            org.status != OrganizationStatus.closed) {
-          return false;
-        }
-      }
-      // Lọc theo từ khóa tìm kiếm (name hoặc code)
-      if (_searchQuery.isNotEmpty) {
-        final nameMatch = org.name.toLowerCase().contains(_searchQuery);
-        final codeMatch = org.code.toLowerCase().contains(_searchQuery);
-        return nameMatch || codeMatch;
-      }
-      return true;
-    }).toList();
-  }
-
-  void _clearFilters() {
-    setState(() {
-      _searchController.clear();
-      _searchQuery = '';
-      _filterCriteria = const OrganizationFilterCriteria();
-    });
   }
 
   @override
@@ -109,43 +99,63 @@ class _OrganizationsPageState extends State<OrganizationsPage> {
 
   @override
   Widget build(BuildContext context) {
-    final filteredItems = _getFilteredOrganizations();
+    return BlocBuilder<PlatformTenantsCubit, PlatformTenantsState>(
+      builder: (context, state) {
+        if (state.status == PlatformTenantsStatus.unauthorized) {
+          return const Center(child: Text('Không có quyền xem tổ chức'));
+        }
+        if (state.status == PlatformTenantsStatus.failure) {
+          return Center(
+            child: Text(state.errorMessage ?? 'Không tải được danh sách'),
+          );
+        }
 
-    return Column(
-      children: [
-        // Thanh tìm kiếm + Nút bộ lọc
-        OrganizationSearchBar(
-          controller: _searchController,
-          isFilterActive: _filterCriteria.isFilterActive,
-          onFilterTap: _openFilterBottomSheet,
-        ),
+        final filteredItems = state.filteredTenants;
+        final cubit = context.read<PlatformTenantsCubit>();
+        final isLoading =
+            state.status == PlatformTenantsStatus.loading &&
+            state.tenants.isEmpty;
 
-        // Thanh chip lọc trạng thái
-        OrganizationFilterChips(
-          selectedStatus: _filterCriteria.status,
-          onStatusSelected: _onStatusSelected,
-        ),
-
-        // Danh sách tổ chức
-        Expanded(
-          child: OrganizationListContent(
-            organizations: filteredItems,
-            onRefresh: _handleRefresh,
-            onEmptyAction: _clearFilters,
-            onItemTap: (organization) async {
-              final shouldRefresh = await Navigator.of(context).push<bool>(
-                MaterialPageRoute(
-                  builder: (context) =>
-                      OrganizationDetailPage(organization: organization),
-                ),
-              );
-              if (shouldRefresh == true && mounted) {
-                _handleRefresh();
-              }
-            },
-          ),
-        ),
-      ],
+        return Column(
+          children: [
+            OrganizationSearchBar(
+              controller: _searchController,
+              isFilterActive: state.filterCriteria.isFilterActive,
+              onFilterTap: _openFilterBottomSheet,
+            ),
+            OrganizationFilterChips(
+              selectedStatus: state.filterCriteria.status,
+              onStatusSelected: cubit.setStatusFilter,
+            ),
+            Expanded(
+              child: isLoading
+                  ? const Center(child: CircularProgressIndicator())
+                  : OrganizationListContent(
+                      organizations: filteredItems,
+                      onRefresh: () => cubit.load(),
+                      onEmptyAction: () {
+                        _searchController.clear();
+                        cubit.clearFilters();
+                      },
+                      onItemTap: (organization) async {
+                        final shouldRefresh =
+                            await Navigator.of(context).push<bool>(
+                          MaterialPageRoute(
+                            builder: (context) => PlatformTenantDetailPage(
+                              tenantId: organization.id,
+                              iamModule: widget.iamModule,
+                            ),
+                          ),
+                        );
+                        if (shouldRefresh == true && mounted) {
+                          await cubit.load();
+                        }
+                      },
+                    ),
+            ),
+          ],
+        );
+      },
     );
   }
 }

@@ -17,8 +17,17 @@ final iamAccessMetadataRegistry = AccessMetadataRegistry({
   GetCurrentSessionQuery: AccessMetadata(
     isPublic: true,
   ),
+  GetPlatformAuditLogQuery: AccessMetadata(
+    permission: 'platform.audit.view',
+  ),
+  GetPlatformTenantQuery: AccessMetadata(
+    permission: 'platform.tenant.view',
+  ),
   GetPlatformUserQuery: AccessMetadata(
     permission: 'platform.user.view',
+  ),
+  ListPlatformTenantMembersQuery: AccessMetadata(
+    permission: 'platform.tenant.member.view',
   ),
   ListTenantMembersQuery: AccessMetadata(
     permission: 'iam.members.read',
@@ -27,8 +36,17 @@ final iamAccessMetadataRegistry = AccessMetadataRegistry({
   RequestPlatformPasswordResetCommand: AccessMetadata(
     permission: 'platform.user.password_reset.initiate',
   ),
+  RestorePlatformTenantCommand: AccessMetadata(
+    permission: 'platform.tenant.restore',
+  ),
   RestorePlatformUserCommand: AccessMetadata(
     permission: 'platform.user.restore',
+  ),
+  SearchPlatformAuditLogsQuery: AccessMetadata(
+    permission: 'platform.audit.view',
+  ),
+  SearchPlatformTenantsQuery: AccessMetadata(
+    permission: 'platform.tenant.view',
   ),
   SearchPlatformUsersQuery: AccessMetadata(
     permission: 'platform.user.view',
@@ -42,11 +60,18 @@ final iamAccessMetadataRegistry = AccessMetadataRegistry({
   SignOutCommand: AccessMetadata(
     isPublic: true,
   ),
+  SuspendPlatformTenantCommand: AccessMetadata(
+    permission: 'platform.tenant.suspend',
+  ),
   SuspendPlatformUserCommand: AccessMetadata(
     permission: 'platform.user.suspend',
   ),
   SwitchActiveTenantCommand: AccessMetadata(
     requiresTenant: true,
+  ),
+  TransferPlatformTenantOwnershipCommand: AccessMetadata(
+    permission: 'platform.tenant.owner.transfer',
+    idempotencyKeyField: 'idempotencyKey',
   ),
 });
 
