@@ -925,31 +925,6 @@ class _ComponentsPreviewTabState extends State<ComponentsPreviewTab> {
           ),
         ),
         PreviewSection(
-          title: 'VBanner',
-          description: 'Inline status banners (info / success / warning / error).',
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              for (final status in VBannerStatus.values)
-                PreviewStateRow(
-                  label: status.name,
-                  child: VBanner(
-                    status: status,
-                    title: 'Tiêu đề thông báo',
-                    description: 'Mô tả ngắn có thể gồm một hành động tiếp theo.',
-                  ),
-                ),
-              const PreviewStateRow(
-                label: 'Title only',
-                child: VBanner(
-                  status: VBannerStatus.info,
-                  title: 'Chỉ có tiêu đề',
-                ),
-              ),
-            ],
-          ),
-        ),
-        PreviewSection(
           title: 'VEmptyState',
           child: VEmptyState(
             iconData: Icons.inbox_outlined,
