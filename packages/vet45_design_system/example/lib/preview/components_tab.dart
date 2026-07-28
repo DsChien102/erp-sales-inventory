@@ -782,10 +782,14 @@ class _ComponentsPreviewTabState extends State<ComponentsPreviewTab> {
         ),
         PreviewSection(
           title: 'VCard',
+          description:
+              'tone → border + background; emphasis → shadow. '
+              'Compound: VCardHeader / Title / Icon / Action / Content / Footer '
+              '(set padding: EdgeInsets.zero).',
           child: Column(
             children: [
               const PreviewStateRow(
-                label: 'Default',
+                label: 'Default (subtle, neutral)',
                 child: VCard(child: Text('Card content')),
               ),
               PreviewStateRow(
@@ -793,6 +797,128 @@ class _ComponentsPreviewTabState extends State<ComponentsPreviewTab> {
                 child: VCard(
                   onTap: () {},
                   child: const Text('Tap me'),
+                ),
+              ),
+              PreviewStateRow(
+                label: 'Tones',
+                child: PreviewStateWrap(
+                  children: [
+                    for (final tone in VComponentTone.values)
+                      SizedBox(
+                        width: 160,
+                        child: VCard(
+                          tone: tone,
+                          child: VText(
+                            tone.name,
+                            variant: VTextVariant.bodyDefault,
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+              PreviewStateRow(
+                label: 'Emphasis (shadow)',
+                child: PreviewStateWrap(
+                  children: [
+                    for (final emphasis in VComponentEmphasis.values)
+                      SizedBox(
+                        width: 160,
+                        child: VCard(
+                          emphasis: emphasis,
+                          child: VText(
+                            emphasis.name,
+                            variant: VTextVariant.bodyDefault,
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+              const PreviewStateRow(
+                label: 'Tone + strong (danger)',
+                child: VCard(
+                  tone: VComponentTone.danger,
+                  emphasis: VComponentEmphasis.strong,
+                  child: Text('Danger + strong shadow'),
+                ),
+              ),
+              PreviewStateRow(
+                label: 'Composed (Header + Content + Footer)',
+                child: VCard(
+                  padding: EdgeInsets.zero,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      VCardHeader(
+                        title: const VCardTitle(
+                          'Đối tác',
+                          description: 'Thông tin liên hệ chính',
+                        ),
+                        action: VCardAction(
+                          child: VButton(
+                            label: 'Sửa',
+                            size: VButtonSize.small,
+                            variant: VButtonVariant.outline,
+                            onPressed: () {},
+                          ),
+                        ),
+                      ),
+                      const VCardContent(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            VCardIcon(iconData: Icons.store),
+                            VGap.sm(),
+                            VText(
+                              'Nội dung card — forms, list, hoặc mô tả chi tiết.',
+                              variant: VTextVariant.bodyDefault,
+                            ),
+                          ],
+                        ),
+                      ),
+                      VCardFooter(
+                        child: VButton(
+                          label: 'Lưu',
+                          size: VButtonSize.small,
+                          onPressed: () {},
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const PreviewStateRow(
+                label: 'Minimal (title + content)',
+                child: VCard(
+                  padding: EdgeInsets.zero,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      VCardHeader(
+                        title: VCardTitle('Tiêu đề'),
+                      ),
+                      VCardContent(
+                        child: VText(
+                          'Nội dung tối giản.',
+                          variant: VTextVariant.bodyDefault,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const PreviewStateRow(
+                label: 'Content only (padding zero)',
+                child: VCard(
+                  padding: EdgeInsets.zero,
+                  child: VCardContent(
+                    denseTop: false,
+                    child: VText(
+                      'Chỉ body, tự quản lý inset.',
+                      variant: VTextVariant.bodyDefault,
+                    ),
+                  ),
                 ),
               ),
             ],

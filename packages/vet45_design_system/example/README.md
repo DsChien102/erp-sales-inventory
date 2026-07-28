@@ -27,7 +27,7 @@ VS Code: **Run and Debug** → `Design system · example`.
 | Mockup App | Composition nghiệp vụ |
 | Tokens | Colors, typography, spacing, radius, shadows |
 | Primitives | `VBadge`, `VChip`, `VIcon`, `VIconBox`, `VText` |
-| Components | Buttons, fields, dropdowns, overlays, … |
+| Components | Buttons, fields, `VCard` (tone/emphasis + Header/Title/Icon/Action/Content/Footer), dropdowns, overlays, … |
 | Forms | `VEmailField`, `VPasswordField`, `VMoneyField`, `VNumberField`, `VSelect`, `VChoiceList` |
 | Business | `VTodoItem`, `VActivityItem`, `VMetricCard`, … |
 | UI Audit | Coverage matrix |
@@ -41,3 +41,12 @@ Mở tab **Forms** → section **VPasswordField**:
 - External `errorText` override
 - Disabled
 - Toggle visibility (`initiallyObscured: false`)
+
+## VCard
+
+Mở tab **Components** → section **VCard**:
+
+- Default / tappable
+- Tone gallery (neutral → info): border + background
+- Emphasis gallery (subtle / medium / strong): shadow
+- Composed: `VCardHeader` + `VCardContent` + `VCardFooter` (`padding: EdgeInsets.zero`)
