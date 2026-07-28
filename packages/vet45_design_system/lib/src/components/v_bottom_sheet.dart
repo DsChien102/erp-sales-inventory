@@ -32,47 +32,53 @@ class VBottomSheet extends StatelessWidget {
 
     return Semantics(
       label: semanticLabel ?? title ?? 'Bottom sheet',
-      child: Container(
-        decoration: BoxDecoration(
-          color: dynamicColors.surface,
-          borderRadius: const BorderRadius.vertical(
-            top: Radius.circular(VRadius.sheet),
-          ),
+      child: ConstrainedBox(
+        constraints: BoxConstraints(
+          maxHeight: MediaQuery.sizeOf(context).height * 0.9,
         ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Align(
-              alignment: Alignment.center,
-              child: Container(
-                width: 36,
-                height: 4,
-                margin: const EdgeInsets.symmetric(vertical: VSpacing.space2),
-                decoration: BoxDecoration(
-                  color: handleColor,
-                  borderRadius: BorderRadius.circular(VRadius.pill),
-                ),
-              ),
+        child: Container(
+          decoration: BoxDecoration(
+            color: dynamicColors.surface,
+            borderRadius: const BorderRadius.vertical(
+              top: Radius.circular(VRadius.sheet),
             ),
-            if (title != null) ...[
-              Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: VSpacing.space4,
-                  vertical: VSpacing.space2,
-                ),
-                child: Text(
-                  title!,
-                  style: VTypography.headingH3.copyWith(
-                    color: dynamicColors.textPrimary,
-                    fontWeight: FontWeight.w700,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Align(
+                alignment: Alignment.center,
+                child: Container(
+                  width: 36,
+                  height: 4,
+                  margin: const EdgeInsets.symmetric(vertical: VSpacing.space2),
+                  decoration: BoxDecoration(
+                    color: handleColor,
+                    borderRadius: BorderRadius.circular(VRadius.pill),
                   ),
                 ),
               ),
-              Divider(color: dynamicColors.borderDefault, height: 1),
+              if (title != null) ...[
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: VSpacing.space4,
+                    vertical: VSpacing.space2,
+                  ),
+                  child: Text(
+                    title!,
+                    style: VTypography.headingH3.copyWith(
+                      color: dynamicColors.textPrimary,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
+                Divider(color: dynamicColors.borderDefault, height: 1),
+              ],
+              // Avoid Flexible inside MainAxisSize.min (unbounded flex → huge overflow).
+              child,
             ],
-            Flexible(child: child),
-          ],
+          ),
         ),
       ),
     );
