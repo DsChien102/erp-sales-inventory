@@ -37,6 +37,9 @@ class PartnerSectionHeader extends StatelessWidget {
   final Widget? trailingIcon;
   final VoidCallback? onTap;
 
+  /// Fixed trailing icon slot so chevron/lock align across section rows.
+  static const double _iconSlot = 24;
+
   @override
   Widget build(BuildContext context) {
     final colors = context.vColors;
@@ -45,34 +48,47 @@ class PartnerSectionHeader extends StatelessWidget {
         horizontal: VSpacing.space4,
         vertical: VSpacing.space4,
       ),
-      child: Row(
-        children: [
-          Expanded(
-            child: VText(
-              title,
-              variant: VTextVariant.bodyDefault,
-              color: colors.textPrimary,
-              style: const TextStyle(fontWeight: FontWeight.w700),
-            ),
-          ),
-          if (trailingText != null || trailingIcon != null)
-            Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                if (trailingText != null)
-                  VText(
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          // Cap summary width so title stays readable; icon stays flush right.
+          final summaryMaxWidth = constraints.maxWidth * 0.45;
+          return Row(
+            children: [
+              Expanded(
+                child: VText(
+                  title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  variant: VTextVariant.bodyDefault,
+                  color: colors.textPrimary,
+                  style: const TextStyle(fontWeight: FontWeight.w700),
+                ),
+              ),
+              if (trailingText != null) ...[
+                const SizedBox(width: VSpacing.space2),
+                ConstrainedBox(
+                  constraints: BoxConstraints(maxWidth: summaryMaxWidth),
+                  child: VText(
                     trailingText!,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
+                    textAlign: TextAlign.end,
                     variant: VTextVariant.bodyDefault,
                     color: colors.textSecondary,
                   ),
-                if (trailingText != null && trailingIcon != null)
-                  const SizedBox(width: VSpacing.space2),
-                ?trailingIcon,
+                ),
               ],
-            ),
-        ],
+              if (trailingIcon != null) ...[
+                const SizedBox(width: VSpacing.space2),
+                SizedBox(
+                  width: _iconSlot,
+                  height: _iconSlot,
+                  child: Center(child: trailingIcon),
+                ),
+              ],
+            ],
+          );
+        },
       ),
     );
 

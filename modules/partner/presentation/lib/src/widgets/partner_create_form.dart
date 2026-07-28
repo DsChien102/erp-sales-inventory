@@ -113,6 +113,7 @@ class PartnerCreateForm extends StatelessWidget {
             Widget child,
             String? summary,
             String? expandedTrailingText,
+            bool showActions,
             Key key,
           })
         >[
@@ -122,6 +123,7 @@ class PartnerCreateForm extends StatelessWidget {
             child: const PartnerRoleSection(),
             summary: _roleSummary(state.roles),
             expandedTrailingText: null,
+            showActions: true,
             key: const Key('section_role'),
           ),
           (
@@ -136,6 +138,7 @@ class PartnerCreateForm extends StatelessWidget {
                 ? _emptyToNull(state.fullName)
                 : _emptyToNull(state.organizationName),
             expandedTrailingText: null,
+            showActions: true,
             key: const Key('section_main'),
           ),
           if (state.partnerType == PartnerType.organization && !state.isEditMode)
@@ -147,6 +150,7 @@ class PartnerCreateForm extends StatelessWidget {
                   ? _emptyToNull(state.primaryContactName) ?? 'Đã bật'
                   : 'Tùy chọn',
               expandedTrailingText: 'Tùy chọn',
+              showActions: true,
               key: const Key('section_primary_contact'),
             ),
           (
@@ -156,6 +160,7 @@ class PartnerCreateForm extends StatelessWidget {
             child: const PartnerInvoiceSection(),
             summary: _emptyToNull(state.taxCode),
             expandedTrailingText: null,
+            showActions: true,
             key: const Key('section_invoice'),
           ),
           (
@@ -165,6 +170,7 @@ class PartnerCreateForm extends StatelessWidget {
             child: const PartnerDeliverySection(),
             summary: _emptyToNull(state.deliveryProvince) ?? 'Tùy chọn',
             expandedTrailingText: null,
+            showActions: true,
             key: const Key('section_delivery'),
           ),
           (
@@ -174,6 +180,7 @@ class PartnerCreateForm extends StatelessWidget {
             child: const PartnerNoteSection(),
             summary: state.note.trim().isEmpty ? 'Tùy chọn' : 'Đã nhập',
             expandedTrailingText: null,
+            showActions: false,
             key: const Key('section_note'),
           ),
         ];
@@ -189,6 +196,7 @@ class PartnerCreateForm extends StatelessWidget {
               isCompleted: state.completedSections.contains(entry.section),
               summary: entry.summary,
               expandedTrailingText: entry.expandedTrailingText,
+              showActions: entry.showActions,
               onTap: () => cubit.setActiveSection(entry.section),
               onSkip: cubit.skipActiveSection,
               onNext: cubit.continueActiveSection,
@@ -222,7 +230,7 @@ class _LockedTypeCard extends StatelessWidget {
         trailingText: partnerType == PartnerType.person ? 'Cá nhân' : 'Tổ chức',
         trailingIcon: VIcon(
           icon: VIcons.lock,
-          size: 16,
+          size: 20,
           color: context.vColors.textMuted,
         ),
       ),

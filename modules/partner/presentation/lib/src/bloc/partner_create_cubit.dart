@@ -142,6 +142,18 @@ final class PartnerCreateCubit extends Cubit<PartnerCreateState> {
     state.copyWith(roles: List.unmodifiable(value)),
     clearErrors: const ['roles'],
   );
+
+  /// Toggle [role] independently — selecting both customer + supplier = KH & NCC.
+  void toggleRole(PartnerRoleType role) {
+    final next = List<PartnerRoleType>.of(state.roles);
+    if (next.contains(role)) {
+      next.remove(role);
+    } else {
+      next.add(role);
+    }
+    next.sort((a, b) => a.index.compareTo(b.index));
+    updateRoles(next);
+  }
   void updatePersonTitle(String value) => _update(state.copyWith(personTitle: value));
   void updateFullName(String value) =>
       _update(state.copyWith(fullName: value), clearErrors: const ['fullName']);

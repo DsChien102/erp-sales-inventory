@@ -26,7 +26,9 @@ class PartnerOrganizationSection extends StatelessWidget {
           PartnerOutlinedDropdown<String>(
             key: const Key('input_organization_type'),
             label: 'Loại tổ chức',
-            value: state.organizationTypeLabel.isEmpty ? null : state.organizationTypeLabel,
+            value: state.organizationTypeLabel.isEmpty
+                ? null
+                : state.organizationTypeLabel,
             hintText: 'Chọn loại tổ chức',
             items: const [
               DropdownMenuItem(value: 'Công ty', child: VText('Công ty')),
@@ -44,6 +46,7 @@ class PartnerOrganizationSection extends StatelessWidget {
           PartnerOutlinedTextField(
             key: const Key('input_organization_name'),
             label: 'Tên tổ chức',
+            hintText: 'Nhập tên tổ chức',
             initialValue: state.organizationName,
             isRequired: true,
             errorText: state.errors['organizationName'],
@@ -53,6 +56,7 @@ class PartnerOrganizationSection extends StatelessWidget {
           PartnerOutlinedTextField(
             key: const Key('input_short_name'),
             label: 'Tên viết tắt',
+            hintText: 'Nhập tên viết tắt',
             initialValue: state.shortName,
             onChanged: cubit.updateShortName,
           ),
@@ -60,6 +64,7 @@ class PartnerOrganizationSection extends StatelessWidget {
           PartnerOutlinedTextField(
             key: const Key('input_international_name'),
             label: 'Tên quốc tế',
+            hintText: 'Nhập tên quốc tế',
             initialValue: state.internationalName,
             onChanged: cubit.updateInternationalName,
           ),
@@ -67,6 +72,7 @@ class PartnerOrganizationSection extends StatelessWidget {
           PartnerOutlinedTextField(
             key: const Key('input_phone'),
             label: 'SĐT chính',
+            hintText: 'Nhập SĐT chính',
             initialValue: state.phone,
             isRequired: true,
             errorText: state.errors['phone'],
@@ -78,6 +84,7 @@ class PartnerOrganizationSection extends StatelessWidget {
           PartnerOutlinedTextField(
             key: const Key('input_email'),
             label: 'Email',
+            hintText: 'Nhập email',
             initialValue: state.email,
             errorText: state.errors['email'],
             keyboardType: TextInputType.emailAddress,

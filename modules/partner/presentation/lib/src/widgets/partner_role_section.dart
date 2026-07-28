@@ -8,7 +8,7 @@ import '../bloc/partner_create_cubit.dart';
 class PartnerRoleSection extends StatelessWidget {
   const PartnerRoleSection({super.key});
 
-  static const double _buttonGap = VSpacing.space3;
+  static const double _chipGap = VSpacing.space2;
 
   @override
   Widget build(BuildContext context) {
@@ -32,43 +32,29 @@ class PartnerRoleSection extends StatelessWidget {
             variant: VTextVariant.bodySmall,
             color: context.vColors.textSecondary,
           ),
-          const SizedBox(height: VSpacing.space3),
-          Row(
+          const VGap.md(),
+          Wrap(
+            spacing: _chipGap,
+            runSpacing: _chipGap,
             children: [
-              Expanded(
-                child: _RoleButton(
-                  key: const Key('role_customer'),
-                  label: 'Khách hàng',
-                  selected: selected.length == 1 && selected.contains(PartnerRoleType.customer),
-                  onPressed: () => cubit.updateRoles(const [PartnerRoleType.customer]),
-                ),
+              VChip(
+                key: const Key('role_customer'),
+                label: 'Khách hàng',
+                selected: false,
+                emphasis: selected.contains(PartnerRoleType.customer)
+                    ? VComponentEmphasis.strong
+                    : VComponentEmphasis.medium,
+                onTap: () => cubit.toggleRole(PartnerRoleType.customer),
               ),
-              const SizedBox(width: _buttonGap),
-              Expanded(
-                child: _RoleButton(
-                  key: const Key('role_supplier'),
-                  label: 'Nhà cung cấp',
-                  selected: selected.length == 1 && selected.contains(PartnerRoleType.supplier),
-                  onPressed: () => cubit.updateRoles(const [PartnerRoleType.supplier]),
-                ),
+              VChip(
+                key: const Key('role_supplier'),
+                label: 'Nhà cung cấp',
+                selected: false,
+                emphasis: selected.contains(PartnerRoleType.supplier)
+                    ? VComponentEmphasis.strong
+                    : VComponentEmphasis.medium,
+                onTap: () => cubit.toggleRole(PartnerRoleType.supplier),
               ),
-            ],
-          ),
-          const SizedBox(height: _buttonGap),
-          Row(
-            children: [
-              Expanded(
-                child: _RoleButton(
-                  key: const Key('role_both'),
-                  label: 'KH & NCC',
-                  selected: selected.length == 2,
-                  onPressed: () => cubit.updateRoles(
-                    const [PartnerRoleType.customer, PartnerRoleType.supplier],
-                  ),
-                ),
-              ),
-              const SizedBox(width: _buttonGap),
-              const Expanded(child: SizedBox.shrink()),
             ],
           ),
           if (state.errors['roles'] case final error?) ...[
@@ -81,30 +67,6 @@ class PartnerRoleSection extends StatelessWidget {
           ],
         ],
       ),
-    );
-  }
-}
-
-class _RoleButton extends StatelessWidget {
-  const _RoleButton({
-    super.key,
-    required this.label,
-    required this.selected,
-    required this.onPressed,
-  });
-
-  final String label;
-  final bool selected;
-  final VoidCallback onPressed;
-
-  @override
-  Widget build(BuildContext context) {
-    return VButton(
-      label: label,
-      fullWidth: true,
-      size: VButtonSize.large,
-      variant: selected ? VButtonVariant.primary : VButtonVariant.outline,
-      onPressed: onPressed,
     );
   }
 }

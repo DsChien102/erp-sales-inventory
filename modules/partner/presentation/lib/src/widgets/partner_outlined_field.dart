@@ -13,6 +13,7 @@ class PartnerOutlinedTextField extends StatefulWidget {
     this.hintText,
     this.keyboardType,
     this.digitsOnly = false,
+    this.enabled = true,
     this.onChanged,
   });
 
@@ -23,6 +24,7 @@ class PartnerOutlinedTextField extends StatefulWidget {
   final String? hintText;
   final TextInputType? keyboardType;
   final bool digitsOnly;
+  final bool enabled;
   final ValueChanged<String>? onChanged;
 
   @override
@@ -64,6 +66,7 @@ class _PartnerOutlinedTextFieldState extends State<PartnerOutlinedTextField> {
       isRequired: widget.isRequired,
       errorText: widget.errorText,
       hintText: widget.hintText,
+      enabled: widget.enabled,
       keyboardType: widget.keyboardType,
       inputFormatters: widget.digitsOnly
           ? [FilteringTextInputFormatter.digitsOnly]

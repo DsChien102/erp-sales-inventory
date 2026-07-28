@@ -314,11 +314,28 @@ class _PartnerDetailPageState extends State<PartnerDetailPage> {
                 final taxCode = isPerson
                     ? dto.personProfile?.taxCode
                     : dto.organizationProfile?.taxCode;
-                final hasWarning = isPerson
-                    ? (dto.personProfile?.taxCode == null || dto.personProfile?.invoice == null)
-                    : (dto.organizationProfile?.taxCode == null ||
-                          dto.organizationProfile?.invoice == null);
-
+                final missingRequired = isPerson
+                    ? <String>[
+                        if (dto.personProfile?.taxCode?.trim().isEmpty ?? true) 'MST',
+                        if (dto.personProfile?.invoice?.invoiceAddress?.trim().isEmpty ??
+                            true)
+                          'địa chỉ hóa đơn',
+                      ]
+                    : <String>[
+                        if (dto.organizationProfile?.taxCode?.trim().isEmpty ?? true)
+                          'MST',
+                        if (dto.organizationProfile?.invoice?.invoiceName?.trim().isEmpty ??
+                            true)
+                          'tên xuất hóa đơn',
+                        if (dto.organizationProfile?.invoice?.invoiceAddress
+                                ?.trim()
+                                .isEmpty ??
+                            true)
+                          'địa chỉ hóa đơn',
+                      ];
+                final warningDescription = missingRequired.isEmpty
+                    ? null
+                    : 'Thiếu ${_joinWarningLabels(missingRequired)}. ';
                 final List<String> contactParts = [];
                 if (phone != null && phone.isNotEmpty) contactParts.add(phone);
                 if (taxCode != null && taxCode.isNotEmpty) contactParts.add('MST $taxCode');
@@ -348,8 +365,11 @@ class _PartnerDetailPageState extends State<PartnerDetailPage> {
                                 const VGap.md(),
                               ],
 
-                              if (hasWarning && dto.status == PartnerStatus.active) ...[
-                                const PartnerDetailWarningBanner(),
+                              if (warningDescription != null &&
+                                  dto.status == PartnerStatus.active) ...[
+                                PartnerDetailWarningBanner(
+                                  description: warningDescription,
+                                ),
                                 const VGap.md(),
                               ],
 
@@ -453,4 +473,11 @@ class _PartnerDetailPageState extends State<PartnerDetailPage> {
       ),
     );
   }
+}
+
+String _joinWarningLabels(List<String> labels) {
+  if (labels.length == 1) return labels.single;
+  if (labels.length == 2) return '${labels[0]} và ${labels[1]}';
+  final head = labels.sublist(0, labels.length - 1).join(', ');
+  return '$head và ${labels.last}';
 }

@@ -1,17 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:vet45_design_system/design_system.dart';
 
-/// Warning when profile is missing tax/invoice fields (D-03).
+/// Warning when required soft-completeness fields are missing (D-03).
 class PartnerDetailWarningBanner extends StatelessWidget {
-  const PartnerDetailWarningBanner({super.key});
+  const PartnerDetailWarningBanner({
+    super.key,
+    required this.description,
+  });
+
+  final String description;
 
   @override
   Widget build(BuildContext context) {
-    return const VBanner(
+    return VBanner(
       status: VBannerStatus.warning,
       title: 'Hồ sơ còn thiếu thông tin',
-      description:
-          'Thiếu MST và địa chỉ hóa đơn. Một số thông tin có thể cần bổ sung trong tính năng này.',
+      description: description,
     );
   }
 }

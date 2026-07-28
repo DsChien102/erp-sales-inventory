@@ -3,109 +3,81 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:vet45_design_system/design_system.dart';
 
 import '../bloc/partner_create_cubit.dart';
-import 'partner_compact_field.dart';
-import 'partner_form_field_row.dart';
+import 'partner_outlined_field.dart';
 
 class PartnerPrimaryContactSection extends StatelessWidget {
   const PartnerPrimaryContactSection({super.key});
-
-  static const _rowLayout = (
-    dense: true,
-    labelWidth: PartnerFormFieldRow.contactLabelWidth,
-    labelFieldGap: PartnerFormFieldRow.contactLabelFieldGap,
-  );
 
   @override
   Widget build(BuildContext context) {
     final cubit = context.read<PartnerCreateCubit>();
     final state = context.watch<PartnerCreateCubit>().state;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Padding(
-          padding: const EdgeInsets.fromLTRB(
-            VSpacing.space4,
-            0,
-            VSpacing.space4,
-            VSpacing.space1,
-          ),
-          child: VCheckbox(
+
+    return VPagePadding(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          VCheckbox(
             key: const Key('switch_add_primary_contact'),
             value: state.primaryContactEnabled,
             label: 'Thêm người liên hệ chính',
             onChanged: (value) => cubit.setPrimaryContactEnabled(value ?? false),
           ),
-        ),
-        if (state.primaryContactEnabled) ...[
-          PartnerFormFieldRow(
-            label: 'Danh xưng',
-            dense: _rowLayout.dense,
-            labelWidth: _rowLayout.labelWidth,
-            labelFieldGap: _rowLayout.labelFieldGap,
-            field: PartnerCompactTextField(
+          if (state.primaryContactEnabled) ...[
+            const VGap.md(),
+            PartnerOutlinedTextField(
               key: const Key('input_primary_contact_title'),
+              label: 'Danh xưng',
               initialValue: state.primaryContactTitle,
               hintText: 'Nhập danh xưng',
               onChanged: cubit.updatePrimaryContactTitle,
             ),
-          ),
-          PartnerFormFieldRow(
-            label: 'Họ và tên',
-            isRequired: true,
-            dense: _rowLayout.dense,
-            labelWidth: _rowLayout.labelWidth,
-            labelFieldGap: _rowLayout.labelFieldGap,
-            errorText: state.errors['primaryContactName'],
-            field: PartnerCompactTextField(
+            const VGap.md(),
+            PartnerOutlinedTextField(
               key: const Key('input_primary_contact_name'),
+              label: 'Họ và tên',
+              hintText: 'Nhập họ và tên',
               initialValue: state.primaryContactName,
+              isRequired: true,
+              errorText: state.errors['primaryContactName'],
               onChanged: cubit.updatePrimaryContactName,
             ),
-          ),
-          PartnerFormFieldRow(
-            label: 'SĐT chính',
-            isRequired: true,
-            dense: _rowLayout.dense,
-            labelWidth: _rowLayout.labelWidth,
-            labelFieldGap: _rowLayout.labelFieldGap,
-            errorText: state.errors['primaryContactPhone'],
-            field: PartnerCompactTextField(
+            const VGap.md(),
+            PartnerOutlinedTextField(
               key: const Key('input_primary_contact_phone'),
+              label: 'SĐT chính',
               initialValue: state.primaryContactPhone,
+              isRequired: true,
+              errorText: state.errors['primaryContactPhone'],
+              hintText: 'Nhập SĐT chính',
               keyboardType: TextInputType.phone,
               digitsOnly: true,
               onChanged: cubit.updatePrimaryContactPhone,
             ),
-          ),
-          PartnerFormFieldRow(
-            label: 'SĐT phụ',
-            dense: _rowLayout.dense,
-            labelWidth: _rowLayout.labelWidth,
-            labelFieldGap: _rowLayout.labelFieldGap,
-            errorText: state.errors['primaryContactSecondaryPhone'],
-            field: PartnerCompactTextField(
+            const VGap.md(),
+            PartnerOutlinedTextField(
               key: const Key('input_primary_contact_secondary_phone'),
+              label: 'SĐT phụ',
               initialValue: state.primaryContactSecondaryPhone,
+              errorText: state.errors['primaryContactSecondaryPhone'],
+              hintText: 'Nhập SĐT phụ',
               keyboardType: TextInputType.phone,
               digitsOnly: true,
               onChanged: cubit.updatePrimaryContactSecondaryPhone,
             ),
-          ),
-          PartnerFormFieldRow(
-            label: 'Email',
-            dense: _rowLayout.dense,
-            labelWidth: _rowLayout.labelWidth,
-            labelFieldGap: _rowLayout.labelFieldGap,
-            errorText: state.errors['primaryContactEmail'],
-            field: PartnerCompactTextField(
+            const VGap.md(),
+            PartnerOutlinedTextField(
               key: const Key('input_primary_contact_email'),
+              label: 'Email',
+              hintText: 'Nhập email',
               initialValue: state.primaryContactEmail,
+              errorText: state.errors['primaryContactEmail'],
               keyboardType: TextInputType.emailAddress,
               onChanged: cubit.updatePrimaryContactEmail,
             ),
-          ),
+          ],
         ],
-      ],
+      ),
     );
   }
 }

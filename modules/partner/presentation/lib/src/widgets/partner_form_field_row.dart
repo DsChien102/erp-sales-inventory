@@ -28,6 +28,14 @@ class PartnerFormFieldRow extends StatelessWidget {
   static const double contactLabelWidth = 88;
   static const double contactLabelFieldGap = 40;
 
+  /// Shared metrics for invoice + delivery sections (create/edit).
+  static const double detailLabelWidth = 120;
+  static const double detailLabelFieldGap = 12;
+
+  /// Wide enough for full "Tỉnh / Thành phố" — keep ward row identical.
+  static const double deliveryLabelWidth = 136;
+  static const double deliveryLabelFieldGap = 12;
+
   @override
   Widget build(BuildContext context) {
     final colors = context.vColors;

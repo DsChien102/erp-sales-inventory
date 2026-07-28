@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:vet45_design_system/design_system.dart';
 import 'package:vet45_partner_application/application.dart';
+import 'package:vet45_partner_domain/domain.dart';
 
 import 'partner_detail_expandable_card.dart';
 import 'partner_detail_formatters.dart';
@@ -26,12 +27,7 @@ class PartnerDetailInvoiceCard extends StatelessWidget {
     final invoiceName = invoice?.invoiceName?.trim() ?? '';
     final invoiceEmail = invoice?.invoiceEmail?.trim() ?? '';
     final invoiceAddress = invoice?.invoiceAddress?.trim() ?? '';
-    final missingLabel = switch ((taxCode.isEmpty, invoiceAddress.isEmpty)) {
-      (true, true) => 'Thiếu MST, địa chỉ',
-      (true, false) => 'Thiếu MST',
-      (false, true) => 'Thiếu địa chỉ',
-      (false, false) => null,
-    };
+    final missingLabel = _invoiceBadgeLabel(dto);
 
     return PartnerDetailExpandableCard(
       title: 'Hóa đơn / thuế',
@@ -112,4 +108,31 @@ class _InvoiceField extends StatelessWidget {
       ],
     );
   }
+}
+
+String? _invoiceBadgeLabel(PartnerDetailDto dto) {
+  final invoice = PartnerDetailFormatters.invoice(dto);
+  final taxCode = PartnerDetailFormatters.taxCode(dto)?.trim() ?? '';
+  final invoiceName = invoice?.invoiceName?.trim() ?? '';
+  final invoiceAddress = invoice?.invoiceAddress?.trim() ?? '';
+
+  final missing = <String>[];
+  if (taxCode.isEmpty) missing.add('MST');
+
+  if (dto.partnerType == PartnerType.person) {
+    if (invoiceAddress.isEmpty) missing.add('địa chỉ');
+  } else {
+    if (invoiceName.isEmpty) missing.add('tên HĐ');
+    if (invoiceAddress.isEmpty) missing.add('địa chỉ');
+  }
+
+  if (missing.isEmpty) return null;
+  return 'Thiếu ${_joinInvoiceBadgeLabels(missing)}';
+}
+
+String _joinInvoiceBadgeLabels(List<String> labels) {
+  if (labels.length == 1) return labels.single;
+  if (labels.length == 2) return '${labels[0]} và ${labels[1]}';
+  final head = labels.sublist(0, labels.length - 1).join(', ');
+  return '$head và ${labels.last}';
 }
