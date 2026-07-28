@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:vet45_design_system/design_system.dart';
 import '../../lib/src/organizations/widgets/select_organization_bottom_sheet.dart';
-import '../../lib/src/organizations/widgets/confirm_switch_organization_bottom_sheet.dart';
 
 void main() {
   testWidgets('SelectOrganizationBottomSheet renders list of organizations (TA-O-01)',
@@ -33,59 +31,106 @@ void main() {
     expect(find.textContaining('TEN-000095 · Nhân viên bán hàng · Tạm ngừng'), findsOneWidget);
   });
 
-  testWidgets('Selecting an available organization opens ConfirmSwitchOrganizationBottomSheet',
-      (WidgetTester tester) async {
-    tester.view.physicalSize = const Size(800, 1600);
-    tester.view.devicePixelRatio = 1.0;
-    addTearDown(tester.view.resetPhysicalSize);
-    addTearDown(tester.view.resetDevicePixelRatio);
+  testWidgets(
+    'wgt_e05_u02_fr01_01: confirm → onConfirmSwitch success toast',
+    (WidgetTester tester) async {
+      tester.view.physicalSize = const Size(800, 1600);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
 
-    await tester.pumpWidget(
-      MaterialApp(
-        home: Scaffold(
-          body: Builder(
-            builder: (context) => ElevatedButton(
-              onPressed: () => showSelectOrganizationBottomSheet(context: context),
-              child: const Text('Open Sheet'),
+      var switchCalled = false;
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: Builder(
+              builder: (context) => ElevatedButton(
+                onPressed: () => showSelectOrganizationBottomSheet(
+                  context: context,
+                  onConfirmSwitch: (org) async {
+                    switchCalled = true;
+                    await Future<void>.delayed(
+                      const Duration(milliseconds: 20),
+                    );
+                    return org.id == 'org-02';
+                  },
+                ),
+                child: const Text('Open Sheet'),
+              ),
             ),
           ),
         ),
-      ),
-    );
+      );
 
-    await tester.tap(find.text('Open Sheet'));
-    await tester.pumpAndSettle();
+      await tester.tap(find.text('Open Sheet'));
+      await tester.pumpAndSettle();
 
-    expect(find.text('Chọn tổ chức'), findsOneWidget);
+      expect(find.text('Chọn tổ chức'), findsOneWidget);
 
-    // Tap 'Phòng khám Minh Tâm'
-    await tester.tap(find.text('Phòng khám Minh Tâm'));
-    await tester.pumpAndSettle();
+      await tester.tap(find.text('Phòng khám Minh Tâm'));
+      await tester.pumpAndSettle();
 
-    // Verify confirmation sheet opens
-    expect(find.text('Chuyển sang Phòng khám Minh Tâm?'), findsOneWidget);
-    expect(find.text('Dữ liệu và quyền truy cập sẽ được tải lại theo tổ chức đã chọn.'), findsOneWidget);
-    expect(find.text('Quay lại'), findsOneWidget);
-    expect(find.text('Chuyển tổ chức'), findsOneWidget);
+      expect(find.text('Chuyển sang Phòng khám Minh Tâm?'), findsOneWidget);
+      expect(find.text('Quay lại'), findsOneWidget);
+      expect(find.text('Chuyển tổ chức'), findsOneWidget);
 
-    // Tap 'Chuyển tổ chức'
-    await tester.tap(find.text('Chuyển tổ chức'));
-    await tester.pump();
+      await tester.tap(find.text('Chuyển tổ chức'));
+      await tester.pump();
 
-    // Verify VLoading dialog appears
-    expect(find.text('Đang chuyển tổ chức'), findsOneWidget);
-    expect(
-      find.text('Đang tải dữ liệu và quyền truy cập của Phòng khám Minh Tâm.'),
-      findsOneWidget,
-    );
+      expect(find.text('Đang chuyển tổ chức'), findsOneWidget);
 
-    // Advance timer to finish loading
-    await tester.pump(const Duration(milliseconds: 1000));
-    await tester.pumpAndSettle();
+      await tester.pump(const Duration(milliseconds: 50));
+      await tester.pumpAndSettle();
 
-    // Verify VToast success message appears
-    expect(find.text('Đã chuyển sang Phòng khám Minh Tâm.'), findsOneWidget);
-  });
+      expect(switchCalled, isTrue);
+      expect(find.text('Đã chuyển sang Phòng khám Minh Tâm.'), findsOneWidget);
+    },
+  );
+
+  testWidgets(
+    'wgt_e05_u02_fr01_01: onConfirmSwitch false shows danger toast',
+    (WidgetTester tester) async {
+      tester.view.physicalSize = const Size(800, 1600);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: Builder(
+              builder: (context) => ElevatedButton(
+                onPressed: () => showSelectOrganizationBottomSheet(
+                  context: context,
+                  onConfirmSwitch: (_) async {
+                    await Future<void>.delayed(
+                      const Duration(milliseconds: 20),
+                    );
+                    return false;
+                  },
+                ),
+                child: const Text('Open Sheet'),
+              ),
+            ),
+          ),
+        ),
+      );
+
+      await tester.tap(find.text('Open Sheet'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Phòng khám Minh Tâm'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Chuyển tổ chức'));
+      await tester.pump(const Duration(milliseconds: 50));
+      await tester.pumpAndSettle();
+
+      // VToast renders message (not title) when message is non-empty.
+      expect(
+        find.textContaining('Không thể chuyển sang Phòng khám Minh Tâm.'),
+        findsOneWidget,
+      );
+    },
+  );
 
   testWidgets(
       'SelectOrganizationBottomSheet renders OrganizationEmptyView when organizations list is empty',

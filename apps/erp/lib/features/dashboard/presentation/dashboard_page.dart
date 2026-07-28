@@ -1,8 +1,14 @@
 // harness:allow-design-system-bypass — shell tab root (header/appBar có điều kiện + bottom nav), không phải page VAppBar đơn
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:vet45_design_system/design_system.dart';
+import 'package:vet45_iam_application/application.dart';
+import 'package:vet45_iam_presentation/presentation.dart';
 
+import '../../../core/di/injection.dart';
+import '../../tenant_context/presentation/bloc/tenant_context_cubit.dart';
+import '../../tenant_context/presentation/bloc/tenant_context_state.dart';
 import 'models/dashboard_navigation.dart';
 import 'widgets/dashboard_header.dart';
 import 'widgets/erp_bottom_navigation.dart';
@@ -13,10 +19,19 @@ import '../../more/presentation/pages/more_page.dart';
 import '../../catalog/presentation/pages/product_catalog_tab_page.dart';
 import '../../partner/presentation/pages/partner_list_page.dart';
 
-class DashboardPage extends StatefulWidget {
-  const DashboardPage({super.key, this.initialTab = DashboardTab.home});
+class DashboardPage extends StatelessWidget {
+  const DashboardPage({
+    super.key,
+    this.initialTab = DashboardTab.home,
+    this.iamModule,
+    this.userDisplayName = 'Lan',
+    this.autoBootstrap = true,
+  });
 
   final DashboardTab initialTab;
+  final IIamModule? iamModule;
+  final String userDisplayName;
+  final bool autoBootstrap;
 
   static void navigateToTab(BuildContext context, DashboardTab tab) {
     final state = context.findAncestorStateOfType<_DashboardPageState>();
@@ -28,10 +43,34 @@ class DashboardPage extends StatefulWidget {
   }
 
   @override
-  State<DashboardPage> createState() => _DashboardPageState();
+  Widget build(BuildContext context) {
+    final module = iamModule ?? getIt<IIamModule>();
+    return BlocProvider(
+      create: (_) {
+        final cubit = TenantContextCubit(
+          iamModule: module,
+          userDisplayName: userDisplayName,
+        );
+        if (autoBootstrap) {
+          cubit.bootstrap();
+        }
+        return cubit;
+      },
+      child: _DashboardPageBody(initialTab: initialTab),
+    );
+  }
 }
 
-class _DashboardPageState extends State<DashboardPage> {
+class _DashboardPageBody extends StatefulWidget {
+  const _DashboardPageBody({required this.initialTab});
+
+  final DashboardTab initialTab;
+
+  @override
+  State<_DashboardPageBody> createState() => _DashboardPageState();
+}
+
+class _DashboardPageState extends State<_DashboardPageBody> {
   late DashboardTab _currentTab;
 
   @override
@@ -41,7 +80,7 @@ class _DashboardPageState extends State<DashboardPage> {
   }
 
   @override
-  void didUpdateWidget(covariant DashboardPage oldWidget) {
+  void didUpdateWidget(covariant _DashboardPageBody oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.initialTab != widget.initialTab) {
       _currentTab = widget.initialTab.enabled ? widget.initialTab : DashboardTab.home;
@@ -56,73 +95,131 @@ class _DashboardPageState extends State<DashboardPage> {
     context.goNamed('dashboard', extra: tab);
   }
 
-  Widget _buildBody(BuildContext context) {
+  Future<void> _openSelector(BuildContext context) async {
+    final cubit = context.read<TenantContextCubit>();
+    if (cubit.state.tenants.isEmpty && !cubit.state.tenantsLoading) {
+      await cubit.loadAccessibleTenants();
+    }
+    if (!context.mounted) return;
+
+    await showSelectOrganizationBottomSheet(
+      context: context,
+      organizations: cubit.state.tenants,
+      emptyStateType: cubit.state.tenants.isEmpty
+          ? OrganizationEmptyStateType.noAuthorizedOrganizations
+          : null,
+      suspendedOrgName: cubit.state.suspendedOrgName,
+      onConfirmSwitch: (org) async {
+        final ok = await cubit.switchTo(org.id);
+        if (!ok) {
+          final message = cubit.state.errorMessage;
+          if (message != null && message.isNotEmpty) {
+            throw Exception(message);
+          }
+        }
+        return ok;
+      },
+    );
+    cubit.consumeOpenSelectorRequest();
+  }
+
+  Widget _buildHomeBody(BuildContext context, TenantContextState state) {
+    if (state.status == TenantContextLoadStatus.loading ||
+        state.status == TenantContextLoadStatus.initial) {
+      return const Center(child: VLoading());
+    }
+
+    if (state.isBlocked) {
+      return Padding(
+        padding: const EdgeInsets.all(VSpacing.screenMobile),
+        child: OrganizationEmptyView(
+          type: state.emptyStateType ?? OrganizationEmptyStateType.noAuthorizedOrganizations,
+          suspendedOrgName: state.suspendedOrgName,
+          onAction: () => _openSelector(context),
+        ),
+      );
+    }
+
+    if (state.status == TenantContextLoadStatus.failure) {
+      return Padding(
+        padding: const EdgeInsets.all(VSpacing.screenMobile),
+        child: OrganizationEmptyView(
+          type: OrganizationEmptyStateType.loadError,
+          onAction: () => context.read<TenantContextCubit>().bootstrap(),
+        ),
+      );
+    }
+
     final dynamicColors = context.vColors;
+    return CustomScrollView(
+      slivers: [
+        SliverPadding(
+          padding: const EdgeInsets.fromLTRB(
+            VSpacing.screenMobile,
+            VSpacing.space2,
+            VSpacing.screenMobile,
+            VSpacing.space4,
+          ),
+          sliver: SliverList(
+            delegate: SliverChildListDelegate([
+              const SizedBox(height: VSpacing.space5),
+              const _SectionHeader(title: 'Tổng quan hôm nay'),
+              const SizedBox(height: VSpacing.space2),
+              const RevenueSummaryCard(),
+              const SizedBox(height: VSpacing.space2),
+              Row(
+                children: [
+                  Expanded(
+                    child: MetricTile(
+                      icon: Icons.receipt_long_outlined,
+                      iconColor: dynamicColors.info,
+                      iconBackgroundColor: dynamicColors.infoBg,
+                      label: 'Đơn hôm nay',
+                    ),
+                  ),
+                  SizedBox(width: VSpacing.space2),
+                  Expanded(
+                    child: MetricTile(
+                      icon: Icons.account_balance_wallet_outlined,
+                      iconColor: dynamicColors.warning,
+                      iconBackgroundColor: dynamicColors.warningBg,
+                      label: 'Phải thu',
+                    ),
+                  ),
+                  SizedBox(width: VSpacing.space2),
+                  Expanded(
+                    child: MetricTile(
+                      icon: Icons.inventory_2_outlined,
+                      iconColor: dynamicColors.danger,
+                      iconBackgroundColor: dynamicColors.dangerBg,
+                      label: 'Sắp hết',
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: VSpacing.space5),
+              const _SectionHeader(title: 'Việc cần xử lý'),
+              const SizedBox(height: VSpacing.space2),
+              TaskItem(
+                icon: Icons.handshake_outlined,
+                badgeStatus: VBadgeStatus.danger,
+              ),
+              const SizedBox(height: VSpacing.space2),
+              TaskItem(
+                icon: Icons.inventory_2_outlined,
+                badgeStatus: VBadgeStatus.warning,
+              ),
+            ]),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildBody(BuildContext context, TenantContextState state) {
     switch (_currentTab) {
       case DashboardTab.home:
-        return CustomScrollView(
-          slivers: [
-            SliverPadding(
-              padding: const EdgeInsets.fromLTRB(
-                VSpacing.screenMobile,
-                VSpacing.space2,
-                VSpacing.screenMobile,
-                VSpacing.space4,
-              ),
-              sliver: SliverList(
-                delegate: SliverChildListDelegate([
-                  const SizedBox(height: VSpacing.space5),
-                  const _SectionHeader(title: 'Tổng quan hôm nay'),
-                  const SizedBox(height: VSpacing.space2),
-                  const RevenueSummaryCard(),
-                  const SizedBox(height: VSpacing.space2),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: MetricTile(
-                          icon: Icons.receipt_long_outlined,
-                          iconColor: dynamicColors.info,
-                          iconBackgroundColor: dynamicColors.infoBg,
-                          label: 'Đơn hôm nay',
-                        ),
-                      ),
-                      SizedBox(width: VSpacing.space2),
-                      Expanded(
-                        child: MetricTile(
-                          icon: Icons.account_balance_wallet_outlined,
-                          iconColor: dynamicColors.warning,
-                          iconBackgroundColor: dynamicColors.warningBg,
-                          label: 'Phải thu',
-                        ),
-                      ),
-                      SizedBox(width: VSpacing.space2),
-                      Expanded(
-                        child: MetricTile(
-                          icon: Icons.inventory_2_outlined,
-                          iconColor: dynamicColors.danger,
-                          iconBackgroundColor: dynamicColors.dangerBg,
-                          label: 'Sắp hết',
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: VSpacing.space5),
-                  const _SectionHeader(title: 'Việc cần xử lý'),
-                  const SizedBox(height: VSpacing.space2),
-                  TaskItem(
-                    icon: Icons.handshake_outlined,
-                    badgeStatus: VBadgeStatus.danger,
-                  ),
-                  const SizedBox(height: VSpacing.space2),
-                  TaskItem(
-                    icon: Icons.inventory_2_outlined,
-                    badgeStatus: VBadgeStatus.warning,
-                  ),
-                ]),
-              ),
-            ),
-          ],
-        );
+        return _buildHomeBody(context, state);
       case DashboardTab.more:
         return const MorePage();
       case DashboardTab.orders:
@@ -140,27 +237,31 @@ class _DashboardPageState extends State<DashboardPage> {
     final showHeader = _currentTab == DashboardTab.home;
     final showAppBar = _currentTab == DashboardTab.more;
 
-    return Scaffold(
-      backgroundColor: dynamicColors.background,
-      appBar: showAppBar
-          ? VAppBar(
-              title: _getTabTitle(_currentTab),
-              showBackButton: false,
-            )
-          : null,
-      body: Column(
-        children: [
-          if (showHeader) const DashboardHeader(),
-          Expanded(child: _buildBody(context)),
-        ],
-      ),
-      bottomNavigationBar: ErpBottomNavigation(
-        selectedIndex: _currentTab.index,
-        onItemSelected: (index) {
-          final tab = DashboardTab.fromIndex(index);
-          setTab(tab);
-        },
-      ),
+    return BlocBuilder<TenantContextCubit, TenantContextState>(
+      builder: (context, state) {
+        return Scaffold(
+          backgroundColor: dynamicColors.background,
+          appBar: showAppBar
+              ? VAppBar(
+                  title: _getTabTitle(_currentTab),
+                  showBackButton: false,
+                )
+              : null,
+          body: Column(
+            children: [
+              if (showHeader) const DashboardHeader(),
+              Expanded(child: _buildBody(context, state)),
+            ],
+          ),
+          bottomNavigationBar: ErpBottomNavigation(
+            selectedIndex: _currentTab.index,
+            onItemSelected: (index) {
+              final tab = DashboardTab.fromIndex(index);
+              setTab(tab);
+            },
+          ),
+        );
+      },
     );
   }
 

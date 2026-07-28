@@ -25,4 +25,19 @@ enum FakeIamScenario {
   ownershipInvalidTarget,
   auditSearchOk,
   auditForbidden403,
+
+  // ── EP-05 tenant context (S1–S3) ──
+  tenantsSingle,
+  tenantsMulti,
+  tenantsSuspendedDisabled,
+  tenantsProvisioning,
+  switchOk,
+  switchDenied,
+  switchSuspended,
+  switchClosed,
+  switchSameTenant,
+  bootstrapValid,
+  bootstrapInvalid,
+  bootstrapNone,
+  contextInvalidated,
 }

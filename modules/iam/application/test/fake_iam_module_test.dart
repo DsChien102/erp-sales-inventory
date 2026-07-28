@@ -1,6 +1,7 @@
 import 'package:test/test.dart';
 import 'package:vet45_iam_application/application.dart';
 import 'package:vet45_iam_application/testing.dart';
+import 'package:vet45_iam_domain/domain.dart';
 import 'package:vet45_shared_application/application.dart';
 
 void main() {
@@ -330,6 +331,179 @@ void main() {
       expect(
         () => module.executeQueryAsync(SearchPlatformAuditLogsQuery()),
         throwsA(isA<ApplicationException>()),
+      );
+    });
+  });
+
+  group('FakeIamModule §S1–§S3 EP-05', () {
+    test('tenants_multi — ListAccessibleTenantsQuery marks current', () async {
+      final module = FakeIamModule(scenario: FakeIamScenario.tenantsMulti);
+
+      final list = await module.executeQueryAsync(ListAccessibleTenantsQuery());
+
+      expect(list, hasLength(3));
+      expect(list.where((t) => t.isCurrent), hasLength(1));
+      expect(list.firstWhere((t) => t.isCurrent).tenantId, 'org-001');
+    });
+
+    test('tenants_single — one current membership', () async {
+      final module = FakeIamModule(scenario: FakeIamScenario.tenantsSingle);
+
+      final list = await module.executeQueryAsync(ListAccessibleTenantsQuery());
+
+      expect(list, hasLength(1));
+      expect(list.single.isCurrent, isTrue);
+    });
+
+    test('tenants_suspended_disabled — suspended item present', () async {
+      final module = FakeIamModule(
+        scenario: FakeIamScenario.tenantsSuspendedDisabled,
+      );
+
+      final list = await module.executeQueryAsync(ListAccessibleTenantsQuery());
+
+      expect(
+        list.any((t) => t.status == TenantLifecycleStatus.suspended),
+        isTrue,
+      );
+    });
+
+    test('tenants_provisioning — provisioning status in list', () async {
+      final module = FakeIamModule(
+        scenario: FakeIamScenario.tenantsProvisioning,
+      );
+
+      final list = await module.executeQueryAsync(ListAccessibleTenantsQuery());
+
+      expect(
+        list.any((t) => t.status == TenantLifecycleStatus.provisioning),
+        isTrue,
+      );
+    });
+
+    test('switch_ok — SwitchTenantContextCommand updates current', () async {
+      final module = FakeIamModule(scenario: FakeIamScenario.switchOk);
+
+      final ctx = await module.executeCommandAsync(
+        SwitchTenantContextCommand(targetTenantId: 'org-002'),
+      );
+
+      expect(ctx.status, TenantContextStatus.valid);
+      expect(ctx.tenantId, 'org-002');
+      expect(module.currentTenantId, 'org-002');
+      expect(module.lastSelectedTenantId, 'org-002');
+      expect(module.switchTenantCount, 1);
+
+      final list = await module.executeQueryAsync(ListAccessibleTenantsQuery());
+      expect(list.firstWhere((t) => t.isCurrent).tenantId, 'org-002');
+    });
+
+    test('switch_denied — TENANT_ACCESS_DENIED', () async {
+      final module = FakeIamModule(scenario: FakeIamScenario.switchDenied);
+
+      expect(
+        () => module.executeCommandAsync(
+          SwitchTenantContextCommand(targetTenantId: 'org-002'),
+        ),
+        throwsA(
+          isA<ApplicationException>().having(
+            (e) => e.message,
+            'message',
+            contains('TENANT_ACCESS_DENIED'),
+          ),
+        ),
+      );
+    });
+
+    test('switch_suspended — TENANT_SUSPENDED', () async {
+      final module = FakeIamModule(scenario: FakeIamScenario.switchSuspended);
+
+      expect(
+        () => module.executeCommandAsync(
+          SwitchTenantContextCommand(targetTenantId: 'org-003'),
+        ),
+        throwsA(
+          isA<ApplicationException>().having(
+            (e) => e.message,
+            'message',
+            contains('TENANT_SUSPENDED'),
+          ),
+        ),
+      );
+    });
+
+    test('switch_closed — TENANT_CLOSED', () async {
+      final module = FakeIamModule(scenario: FakeIamScenario.switchClosed);
+
+      expect(
+        () => module.executeCommandAsync(
+          SwitchTenantContextCommand(targetTenantId: 'org-004'),
+        ),
+        throwsA(
+          isA<ApplicationException>().having(
+            (e) => e.message,
+            'message',
+            contains('TENANT_CLOSED'),
+          ),
+        ),
+      );
+    });
+
+    test('switch_same_tenant — VALIDATION_ERROR', () async {
+      final module = FakeIamModule(scenario: FakeIamScenario.switchSameTenant);
+
+      expect(
+        () => module.executeCommandAsync(
+          SwitchTenantContextCommand(targetTenantId: 'org-001'),
+        ),
+        throwsA(isA<ValidationException>()),
+      );
+    });
+
+    test('bootstrap_valid — GetTenantContextQuery from last selected', () async {
+      final module = FakeIamModule(scenario: FakeIamScenario.bootstrapValid);
+
+      final ctx = await module.executeQueryAsync(
+        GetTenantContextQuery(bootstrapFromLastSelected: true),
+      );
+
+      expect(ctx.status, TenantContextStatus.valid);
+      expect(ctx.tenantId, 'org-001');
+      expect(ctx.tenantName, 'Thú y Minh Phát');
+    });
+
+    test('bootstrap_invalid — status none (OQ-07)', () async {
+      final module = FakeIamModule(scenario: FakeIamScenario.bootstrapInvalid);
+
+      final ctx = await module.executeQueryAsync(
+        GetTenantContextQuery(bootstrapFromLastSelected: true),
+      );
+
+      expect(ctx.status, TenantContextStatus.none);
+    });
+
+    test('bootstrap_none — status none', () async {
+      final module = FakeIamModule(scenario: FakeIamScenario.bootstrapNone);
+
+      final ctx = await module.executeQueryAsync(
+        GetTenantContextQuery(bootstrapFromLastSelected: true),
+      );
+
+      expect(ctx.status, TenantContextStatus.none);
+    });
+
+    test('context_invalidated — mid-session blocked state', () async {
+      final module = FakeIamModule(
+        scenario: FakeIamScenario.contextInvalidated,
+      );
+
+      final ctx = await module.executeQueryAsync(GetTenantContextQuery());
+
+      expect(ctx.status, TenantContextStatus.invalidated);
+      expect(ctx.blockedErrorCode, 'TENANT_SUSPENDED');
+      expect(
+        ctx.invalidationReason,
+        TenantContextInvalidationReason.tenantSuspended,
       );
     });
   });

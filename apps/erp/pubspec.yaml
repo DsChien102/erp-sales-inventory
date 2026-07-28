@@ -19,6 +19,7 @@ dependencies:
   vet45_design_system: ^1.0.0
   vet45_dashboard_presentation: ^1.0.0
   vet45_iam_application: ^1.0.0
+  vet45_iam_domain: ^1.0.0
   vet45_iam_infrastructure: ^1.0.0
   vet45_iam_presentation: ^1.0.0
   vet45_catalog_domain: ^1.0.0

@@ -4,6 +4,7 @@ import 'package:vet45_shared_application/application.dart';
 import '../authentication/sign_in/sign_in_command.dart';
 import '../authentication/sign_out/sign_out_command.dart';
 import '../contracts/i_iam_module.dart';
+import '../dto/accessible_tenant_dto.dart';
 import '../dto/platform_audit_log_detail_dto.dart';
 import '../dto/platform_audit_log_status.dart';
 import '../dto/platform_audit_log_summary_dto.dart';
@@ -14,6 +15,7 @@ import '../dto/platform_user_detail_dto.dart';
 import '../dto/platform_user_membership_dto.dart';
 import '../dto/platform_user_status.dart';
 import '../dto/platform_user_summary_dto.dart';
+import '../dto/tenant_context_dto.dart';
 import '../dto/tenant_onboarding_result_dto.dart';
 import '../platform/create_tenant_onboarding/create_tenant_onboarding_command.dart';
 import '../platform/get_platform_audit_log/get_platform_audit_log_query.dart';
@@ -30,9 +32,12 @@ import '../platform/send_activation_invitation/send_activation_invitation_comman
 import '../platform/suspend_platform_tenant/suspend_platform_tenant_command.dart';
 import '../platform/suspend_platform_user/suspend_platform_user_command.dart';
 import '../platform/transfer_platform_tenant_ownership/transfer_platform_tenant_ownership_command.dart';
+import '../tenant/get_tenant_context/get_tenant_context_query.dart';
+import '../tenant/list_accessible_tenants/list_accessible_tenants_query.dart';
+import '../tenant/switch_tenant_context/switch_tenant_context_command.dart';
 import 'fake_iam_scenario.dart';
 
-/// In-memory IAM module for Admin FE/widget tests (TH-01 S15/S16 + auth).
+/// In-memory IAM module for Admin/ERP FE tests (TH-01 S15/S16 + EP-05 + auth).
 final class FakeIamModule implements IIamModule {
   FakeIamModule({
     this.scenario = FakeIamScenario.usersSearchOk,
@@ -42,6 +47,7 @@ final class FakeIamModule implements IIamModule {
     _seedUsers();
     _seedTenants();
     _seedAuditLogs();
+    _seedAccessibleTenants();
   }
 
   final FakeIamScenario scenario;
@@ -55,13 +61,18 @@ final class FakeIamModule implements IIamModule {
   late List<PlatformUserDetailDto> _users;
   late List<PlatformTenantDetailDto> _tenants;
   late List<PlatformAuditLogDetailDto> _auditLogs;
+  late List<AccessibleTenantDto> _accessibleTenants;
   final Map<String, TenantOnboardingResultDto> _onboardingByKey = {};
   final Set<String> _ownershipTransferKeys = {};
+
+  String? currentTenantId;
+  String? lastSelectedTenantId;
 
   int activationInviteCount = 0;
   int passwordResetCount = 0;
   int signInCount = 0;
   int signOutCount = 0;
+  int switchTenantCount = 0;
   String? lastSignedInEmail;
 
   void _seedUsers() {
@@ -314,6 +325,94 @@ final class FakeIamModule implements IIamModule {
     }
   }
 
+  void _seedAccessibleTenants() {
+    const minhPhat = AccessibleTenantDto(
+      tenantId: 'org-001',
+      name: 'Thú y Minh Phát',
+      roleLabel: 'Chủ cửa hàng',
+      status: TenantLifecycleStatus.active,
+    );
+    const minhTam = AccessibleTenantDto(
+      tenantId: 'org-002',
+      name: 'Phòng khám Minh Tâm',
+      roleLabel: 'Kế toán',
+      status: TenantLifecycleStatus.active,
+    );
+    const ascSuspended = AccessibleTenantDto(
+      tenantId: 'org-003',
+      name: 'ASC Commerce',
+      roleLabel: 'Nhân viên bán hàng',
+      status: TenantLifecycleStatus.suspended,
+    );
+    const provisioning = AccessibleTenantDto(
+      tenantId: 'org-005',
+      name: 'Vet45 Provisioning',
+      roleLabel: 'Chủ cửa hàng',
+      status: TenantLifecycleStatus.provisioning,
+    );
+    const closed = AccessibleTenantDto(
+      tenantId: 'org-004',
+      name: 'Closed Clinic',
+      roleLabel: 'Nhân viên',
+      status: TenantLifecycleStatus.closed,
+    );
+
+    final multi = <AccessibleTenantDto>[minhPhat, minhTam, ascSuspended];
+
+    switch (scenario) {
+      case FakeIamScenario.tenantsSingle:
+        _accessibleTenants = [minhPhat];
+        currentTenantId = 'org-001';
+        lastSelectedTenantId = 'org-001';
+        break;
+      case FakeIamScenario.tenantsProvisioning:
+        _accessibleTenants = [minhPhat, provisioning];
+        currentTenantId = 'org-001';
+        lastSelectedTenantId = 'org-001';
+        break;
+      case FakeIamScenario.tenantsSuspendedDisabled:
+      case FakeIamScenario.switchSuspended:
+        _accessibleTenants = multi;
+        currentTenantId = 'org-001';
+        lastSelectedTenantId = 'org-001';
+        break;
+      case FakeIamScenario.switchClosed:
+        _accessibleTenants = [minhPhat, closed];
+        currentTenantId = 'org-001';
+        lastSelectedTenantId = 'org-001';
+        break;
+      case FakeIamScenario.bootstrapInvalid:
+        _accessibleTenants = [minhPhat, minhTam];
+        currentTenantId = null;
+        lastSelectedTenantId = 'org-gone';
+        break;
+      case FakeIamScenario.bootstrapNone:
+        _accessibleTenants = [minhPhat, minhTam];
+        currentTenantId = null;
+        lastSelectedTenantId = null;
+        break;
+      case FakeIamScenario.contextInvalidated:
+        _accessibleTenants = [minhPhat, minhTam];
+        currentTenantId = 'org-001';
+        lastSelectedTenantId = 'org-001';
+        break;
+      case FakeIamScenario.bootstrapValid:
+      case FakeIamScenario.tenantsMulti:
+      case FakeIamScenario.switchOk:
+      case FakeIamScenario.switchDenied:
+      case FakeIamScenario.switchSameTenant:
+        _accessibleTenants = multi;
+        currentTenantId = 'org-001';
+        lastSelectedTenantId = 'org-001';
+        break;
+      default:
+        _accessibleTenants = multi;
+        currentTenantId = 'org-001';
+        lastSelectedTenantId = 'org-001';
+        break;
+    }
+  }
+
   @override
   Future<TResult> executeCommandAsync<TResult>(ICommand<TResult> command) {
     return switch (command) {
@@ -330,6 +429,7 @@ final class FakeIamModule implements IIamModule {
       RestorePlatformTenantCommand c => _handleRestoreTenant<TResult>(c),
       TransferPlatformTenantOwnershipCommand c =>
         _handleTransferOwnership<TResult>(c),
+      SwitchTenantContextCommand c => _handleSwitchTenantContext<TResult>(c),
       _ => throw UnsupportedError(
         'FakeIamModule: unsupported command ${command.runtimeType}',
       ),
@@ -346,6 +446,8 @@ final class FakeIamModule implements IIamModule {
       ListPlatformTenantMembersQuery q => _handleListMembers<TResult>(q),
       SearchPlatformAuditLogsQuery q => _handleSearchAudit<TResult>(q),
       GetPlatformAuditLogQuery q => _handleGetAuditDetail<TResult>(q),
+      ListAccessibleTenantsQuery _ => _handleListAccessibleTenants<TResult>(),
+      GetTenantContextQuery q => _handleGetTenantContext<TResult>(q),
       _ => throw UnsupportedError(
         'FakeIamModule: unsupported query ${query.runtimeType}',
       ),
@@ -761,5 +863,151 @@ final class FakeIamModule implements IIamModule {
       throw ValidationException('Audit log not found: ${query.auditLogId}');
     }
     return Future.value(_auditLogs[index] as TResult);
+  }
+
+  Future<TResult> _handleListAccessibleTenants<TResult>() {
+    final list = _accessibleTenants
+        .map(
+          (t) => t.copyWith(
+            isCurrent: currentTenantId != null && t.tenantId == currentTenantId,
+          ),
+        )
+        .toList(growable: false);
+    return Future.value(list as TResult);
+  }
+
+  Future<TResult> _handleSwitchTenantContext<TResult>(
+    SwitchTenantContextCommand command,
+  ) {
+    if (scenario == FakeIamScenario.switchDenied) {
+      throw ApplicationException('TENANT_ACCESS_DENIED');
+    }
+    if (scenario == FakeIamScenario.switchSameTenant ||
+        command.targetTenantId == currentTenantId) {
+      throw ValidationException('Target tenant must differ from current');
+    }
+
+    final match = _accessibleTenants
+        .where((t) => t.tenantId == command.targetTenantId)
+        .firstOrNull;
+    if (match == null) {
+      throw ApplicationException('TENANT_ACCESS_DENIED');
+    }
+    if (scenario == FakeIamScenario.switchSuspended ||
+        match.status == TenantLifecycleStatus.suspended) {
+      throw ApplicationException('TENANT_SUSPENDED');
+    }
+    if (scenario == FakeIamScenario.switchClosed ||
+        match.status == TenantLifecycleStatus.closed) {
+      throw ApplicationException('TENANT_CLOSED');
+    }
+    if (match.status == TenantLifecycleStatus.provisioning) {
+      throw ApplicationException('TENANT_ACCESS_DENIED');
+    }
+
+    currentTenantId = match.tenantId;
+    lastSelectedTenantId = match.tenantId;
+    switchTenantCount++;
+
+    final context = TenantContextDto(
+      status: TenantContextStatus.valid,
+      tenantId: match.tenantId,
+      tenantName: match.name,
+      roleLabel: match.roleLabel,
+      tenantStatus: match.status,
+      permissions: const ['tenant.access'],
+    );
+    return Future.value(context as TResult);
+  }
+
+  Future<TResult> _handleGetTenantContext<TResult>(
+    GetTenantContextQuery query,
+  ) {
+    if (query.bootstrapFromLastSelected) {
+      if (scenario == FakeIamScenario.bootstrapNone ||
+          lastSelectedTenantId == null ||
+          lastSelectedTenantId!.trim().isEmpty) {
+        return Future.value(
+          const TenantContextDto(status: TenantContextStatus.none) as TResult,
+        );
+      }
+      if (scenario == FakeIamScenario.bootstrapInvalid) {
+        return Future.value(
+          const TenantContextDto(status: TenantContextStatus.none) as TResult,
+        );
+      }
+
+      final match = _accessibleTenants
+          .where((t) => t.tenantId == lastSelectedTenantId)
+          .firstOrNull;
+      if (match == null ||
+          match.status == TenantLifecycleStatus.suspended ||
+          match.status == TenantLifecycleStatus.closed) {
+        // OQ-07: invalid preference → none (do not auto-pick).
+        return Future.value(
+          const TenantContextDto(status: TenantContextStatus.none) as TResult,
+        );
+      }
+
+      currentTenantId = match.tenantId;
+      return Future.value(
+        TenantContextDto(
+              status: TenantContextStatus.valid,
+              tenantId: match.tenantId,
+              tenantName: match.name,
+              roleLabel: match.roleLabel,
+              tenantStatus: match.status,
+              permissions: const ['tenant.access'],
+            )
+            as TResult,
+      );
+    }
+
+    if (scenario == FakeIamScenario.contextInvalidated) {
+      return Future.value(
+        TenantContextDto(
+              status: TenantContextStatus.invalidated,
+              tenantId: currentTenantId,
+              tenantName: 'Thú y Minh Phát',
+              invalidationReason:
+                  TenantContextInvalidationReason.tenantSuspended,
+              blockedErrorCode: 'TENANT_SUSPENDED',
+            )
+            as TResult,
+      );
+    }
+
+    if (currentTenantId == null || currentTenantId!.trim().isEmpty) {
+      return Future.value(
+        const TenantContextDto(status: TenantContextStatus.none) as TResult,
+      );
+    }
+
+    final match = _accessibleTenants
+        .where((t) => t.tenantId == currentTenantId)
+        .firstOrNull;
+    if (match == null) {
+      return Future.value(
+        const TenantContextDto(
+              status: TenantContextStatus.invalidated,
+              invalidationReason:
+                  TenantContextInvalidationReason.membershipRemoved,
+              blockedErrorCode: 'TENANT_ACCESS_DENIED',
+            )
+            as TResult,
+      );
+    }
+
+    return Future.value(
+      TenantContextDto(
+            status: TenantContextStatus.valid,
+            tenantId: match.tenantId,
+            tenantName: match.name,
+            roleLabel: match.roleLabel,
+            tenantStatus: match.status,
+            permissions: const ['tenant.access'],
+          )
+          as TResult,
+    );
   }
 }

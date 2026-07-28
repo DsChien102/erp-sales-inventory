@@ -307,10 +307,14 @@ class _SelectOrganizationBottomSheetState
 }
 
 /// Helper function mở VBottomSheet Chọn tổ chức.
+///
+/// [onConfirmSwitch] replaces the fake delay on the production path — ERP
+/// wires this to `TenantContextCubit.switchTo`. Returns `true` on success.
 Future<SelectOrganizationItemUiModel?> showSelectOrganizationBottomSheet({
   required BuildContext context,
   List<SelectOrganizationItemUiModel>? organizations,
   ValueChanged<SelectOrganizationItemUiModel>? onOrganizationSelected,
+  Future<bool> Function(SelectOrganizationItemUiModel org)? onConfirmSwitch,
   OrganizationEmptyStateType? emptyStateType,
   String? suspendedOrgName,
   VoidCallback? onEmptyAction,
@@ -339,16 +343,28 @@ Future<SelectOrganizationItemUiModel?> showSelectOrganizationBottomSheet({
     VLoading.show(
       context: context,
       title: 'Đang chuyển tổ chức',
-      description: 'Đang tải dữ liệu và quyền truy cập của ${selectedOrg.name}.',
+      description:
+          'Đang tải dữ liệu và quyền truy cập của ${selectedOrg.name}.',
     );
 
-    await Future.delayed(const Duration(milliseconds: 1000));
+    var success = true;
+    Object? switchError;
+    try {
+      if (onConfirmSwitch != null) {
+        success = await onConfirmSwitch(selectedOrg);
+      }
+    } catch (e) {
+      success = false;
+      switchError = e;
+    }
 
     if (context.mounted) {
       Navigator.of(context, rootNavigator: true).pop();
     }
 
-    if (context.mounted) {
+    if (!context.mounted) return null;
+
+    if (success) {
       onOrganizationSelected?.call(selectedOrg);
       VToast.show(
         context,
@@ -356,14 +372,25 @@ Future<SelectOrganizationItemUiModel?> showSelectOrganizationBottomSheet({
         message: 'Đã chuyển sang ${selectedOrg.name}.',
         type: VToastType.success,
       );
+      return selectedOrg;
     }
-    return selectedOrg;
+
+    final message = switchError?.toString() ??
+        'Không thể chuyển sang ${selectedOrg.name}.';
+    VToast.show(
+      context,
+      title: 'Không thành công',
+      message: message,
+      type: VToastType.danger,
+    );
+    return null;
   } else if (confirmed == false) {
     // Nếu người dùng chọn "Quay lại", mở lại sheet chọn tổ chức
     return showSelectOrganizationBottomSheet(
       context: context,
       organizations: organizations,
       onOrganizationSelected: onOrganizationSelected,
+      onConfirmSwitch: onConfirmSwitch,
       emptyStateType: emptyStateType,
       suspendedOrgName: suspendedOrgName,
       onEmptyAction: onEmptyAction,
