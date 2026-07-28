@@ -446,28 +446,20 @@ final class FakeIamModule implements IIamModule {
     return switch (command) {
       SignInCommand c => _handleSignIn<TResult>(c),
       SignOutCommand _ => _handleSignOut<TResult>(),
-      SendActivationInvitationCommand c =>
-        _handleActivationInvite<TResult>(c),
-      RequestPlatformPasswordResetCommand c =>
-        _handlePasswordReset<TResult>(c),
+      SendActivationInvitationCommand c => _handleActivationInvite<TResult>(c),
+      RequestPlatformPasswordResetCommand c => _handlePasswordReset<TResult>(c),
       SuspendPlatformUserCommand c => _handleSuspendUser<TResult>(c),
       RestorePlatformUserCommand c => _handleRestoreUser<TResult>(c),
       CreateTenantOnboardingCommand c => _handleOnboarding<TResult>(c),
       SuspendPlatformTenantCommand c => _handleSuspendTenant<TResult>(c),
       RestorePlatformTenantCommand c => _handleRestoreTenant<TResult>(c),
-      TransferPlatformTenantOwnershipCommand c =>
-        _handleTransferOwnership<TResult>(c),
+      TransferPlatformTenantOwnershipCommand c => _handleTransferOwnership<TResult>(c),
       SwitchTenantContextCommand c => _handleSwitchTenantContext<TResult>(c),
-      UpdateMyIdentityProfileCommand c =>
-        _handleUpdateMyProfile<TResult>(c),
-      RequestMyPasswordResetCommand _ =>
-        _handleRequestMyPasswordReset<TResult>(),
-      ResendMyPasswordResetCommand c =>
-        _handleResendMyPasswordReset<TResult>(c),
-      VerifyMyPasswordResetCommand c =>
-        _handleVerifyMyPasswordReset<TResult>(c),
-      CompleteMyPasswordResetCommand c =>
-        _handleCompleteMyPasswordReset<TResult>(c),
+      UpdateMyIdentityProfileCommand c => _handleUpdateMyProfile<TResult>(c),
+      RequestMyPasswordResetCommand _ => _handleRequestMyPasswordReset<TResult>(),
+      ResendMyPasswordResetCommand c => _handleResendMyPasswordReset<TResult>(c),
+      VerifyMyPasswordResetCommand c => _handleVerifyMyPasswordReset<TResult>(c),
+      CompleteMyPasswordResetCommand c => _handleCompleteMyPasswordReset<TResult>(c),
       _ => throw UnsupportedError(
         'FakeIamModule: unsupported command ${command.runtimeType}',
       ),
@@ -518,9 +510,7 @@ final class FakeIamModule implements IIamModule {
     final q = query.query?.trim().toLowerCase();
     if (q != null && q.isNotEmpty) {
       filtered = filtered.where(
-        (u) =>
-            u.fullName.toLowerCase().contains(q) ||
-            u.email.toLowerCase().contains(q),
+        (u) => u.fullName.toLowerCase().contains(q) || u.email.toLowerCase().contains(q),
       );
     }
     final summaries = filtered
@@ -607,8 +597,7 @@ final class FakeIamModule implements IIamModule {
       throw ApplicationException('STATE_CHANGED');
     }
     final user = _users[index];
-    if (user.status != PlatformUserStatus.suspended &&
-        scenario == FakeIamScenario.restoreOk) {
+    if (user.status != PlatformUserStatus.suspended && scenario == FakeIamScenario.restoreOk) {
       throw ApplicationException('STATE_CHANGED');
     }
     _users[index] = PlatformUserDetailDto(
@@ -645,8 +634,7 @@ final class FakeIamModule implements IIamModule {
 
     final isNewUserScenario =
         scenario == FakeIamScenario.onboardingNewUserOk ||
-        (scenario != FakeIamScenario.onboardingExistingUserOk &&
-            command.owner.isNewUser);
+        (scenario != FakeIamScenario.onboardingExistingUserOk && command.owner.isNewUser);
 
     final result = isNewUserScenario
         ? TenantOnboardingResultDto(
@@ -688,9 +676,7 @@ final class FakeIamModule implements IIamModule {
     final q = query.query?.trim().toLowerCase();
     if (q != null && q.isNotEmpty) {
       filtered = filtered.where(
-        (t) =>
-            t.name.toLowerCase().contains(q) ||
-            t.code.toLowerCase().contains(q),
+        (t) => t.name.toLowerCase().contains(q) || t.code.toLowerCase().contains(q),
       );
     }
     final summaries = filtered
@@ -817,8 +803,7 @@ final class FakeIamModule implements IIamModule {
     final memberIndex = tenant.members.indexWhere(
       (m) => m.userId == command.newOwnerUserId,
     );
-    if (memberIndex == -1 ||
-        scenario == FakeIamScenario.ownershipInvalidTarget) {
+    if (memberIndex == -1 || scenario == FakeIamScenario.ownershipInvalidTarget) {
       throw ValidationException('Invalid ownership transfer target');
     }
     final newOwner = tenant.members[memberIndex];
@@ -921,14 +906,11 @@ final class FakeIamModule implements IIamModule {
     if (scenario == FakeIamScenario.switchDenied) {
       throw ApplicationException('TENANT_ACCESS_DENIED');
     }
-    if (scenario == FakeIamScenario.switchSameTenant ||
-        command.targetTenantId == currentTenantId) {
+    if (scenario == FakeIamScenario.switchSameTenant || command.targetTenantId == currentTenantId) {
       throw ValidationException('Target tenant must differ from current');
     }
 
-    final match = _accessibleTenants
-        .where((t) => t.tenantId == command.targetTenantId)
-        .firstOrNull;
+    final match = _accessibleTenants.where((t) => t.tenantId == command.targetTenantId).firstOrNull;
     if (match == null) {
       throw ApplicationException('TENANT_ACCESS_DENIED');
     }
@@ -936,8 +918,7 @@ final class FakeIamModule implements IIamModule {
         match.status == TenantLifecycleStatus.suspended) {
       throw ApplicationException('TENANT_SUSPENDED');
     }
-    if (scenario == FakeIamScenario.switchClosed ||
-        match.status == TenantLifecycleStatus.closed) {
+    if (scenario == FakeIamScenario.switchClosed || match.status == TenantLifecycleStatus.closed) {
       throw ApplicationException('TENANT_CLOSED');
     }
     if (match.status == TenantLifecycleStatus.provisioning) {
@@ -976,9 +957,7 @@ final class FakeIamModule implements IIamModule {
         );
       }
 
-      final match = _accessibleTenants
-          .where((t) => t.tenantId == lastSelectedTenantId)
-          .firstOrNull;
+      final match = _accessibleTenants.where((t) => t.tenantId == lastSelectedTenantId).firstOrNull;
       if (match == null ||
           match.status == TenantLifecycleStatus.suspended ||
           match.status == TenantLifecycleStatus.closed) {
@@ -1008,8 +987,7 @@ final class FakeIamModule implements IIamModule {
               status: TenantContextStatus.invalidated,
               tenantId: currentTenantId,
               tenantName: 'Thú y Minh Phát',
-              invalidationReason:
-                  TenantContextInvalidationReason.tenantSuspended,
+              invalidationReason: TenantContextInvalidationReason.tenantSuspended,
               blockedErrorCode: 'TENANT_SUSPENDED',
             )
             as TResult,
@@ -1022,15 +1000,12 @@ final class FakeIamModule implements IIamModule {
       );
     }
 
-    final match = _accessibleTenants
-        .where((t) => t.tenantId == currentTenantId)
-        .firstOrNull;
+    final match = _accessibleTenants.where((t) => t.tenantId == currentTenantId).firstOrNull;
     if (match == null) {
       return Future.value(
         const TenantContextDto(
               status: TenantContextStatus.invalidated,
-              invalidationReason:
-                  TenantContextInvalidationReason.membershipRemoved,
+              invalidationReason: TenantContextInvalidationReason.membershipRemoved,
               blockedErrorCode: 'TENANT_ACCESS_DENIED',
             )
             as TResult,
@@ -1104,8 +1079,7 @@ final class FakeIamModule implements IIamModule {
   Future<TResult> _handleResendMyPasswordReset<TResult>(
     ResendMyPasswordResetCommand command,
   ) {
-    if (scenario == FakeIamScenario.resetCodeExpired ||
-        command.operationId != _resetOperationId) {
+    if (scenario == FakeIamScenario.resetCodeExpired || command.operationId != _resetOperationId) {
       throw ApplicationException('RESET_CODE_EXPIRED');
     }
     myPasswordResetRequestCount++;
@@ -1127,15 +1101,13 @@ final class FakeIamModule implements IIamModule {
     if (scenario == FakeIamScenario.resetCodeExpired) {
       throw ApplicationException('RESET_CODE_EXPIRED');
     }
-    if (scenario == FakeIamScenario.resetAttemptsExceeded ||
-        _resetVerifyAttempts >= 5) {
+    if (scenario == FakeIamScenario.resetAttemptsExceeded || _resetVerifyAttempts >= 5) {
       throw ApplicationException('RESET_CODE_ATTEMPTS_EXCEEDED');
     }
     if (command.operationId != _resetOperationId) {
       throw ApplicationException('RESET_CODE_EXPIRED');
     }
-    if (scenario == FakeIamScenario.resetCodeInvalid ||
-        command.code.trim() != '123456') {
+    if (scenario == FakeIamScenario.resetCodeInvalid || command.code.trim() != '123456') {
       _resetVerifyAttempts++;
       throw ApplicationException('RESET_CODE_INVALID');
     }
@@ -1149,8 +1121,7 @@ final class FakeIamModule implements IIamModule {
     if (!_resetVerified || command.operationId != _resetOperationId) {
       throw ApplicationException('RESET_CODE_EXPIRED');
     }
-    if (scenario == FakeIamScenario.resetPasswordPolicy ||
-        command.newPassword.length < 8) {
+    if (scenario == FakeIamScenario.resetPasswordPolicy || command.newPassword.length < 8) {
       throw ApplicationException('PASSWORD_POLICY_VIOLATION');
     }
     _resetOperationId = null;

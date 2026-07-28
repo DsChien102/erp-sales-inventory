@@ -96,6 +96,9 @@ Tổng product: **6 epic, 32 US** (2 Post-MVP) — [README.md](../README.md).
 | FR-01.. | BE | §S6 | application + infrastructure | handler + RPC | scn_e03_u01_fr01_01 | todo |
 | FR-01.. | FE | §S6 | presentation | `OrganizationUsersPage` + Member/Invitation cards & filters | wgt_e03_u01_fr01_01 | done |
 | FR-01 | E2E | §S6 | integration | members list & tab switching | e2e_e03_u01_fr01_01 | todo |
+||||||| parent of 7a1b1fd2 (feat(tenant-context): implement BE + E2E for slice S1, S2, S3)
+| FR-01.. | FE | §S3 | presentation | bootstrap + blocked state | wgt_e05_u03_fr01_01 | todo |
+| FR-01 | E2E | §S3 | integration | bootstrap + invalidate | e2e_e05_u03_fr01_01 | todo |
 
 ---
 
