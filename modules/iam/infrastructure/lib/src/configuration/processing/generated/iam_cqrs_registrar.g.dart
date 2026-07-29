@@ -14,8 +14,14 @@ void registerGeneratedIamValidators(GetIt container) {
     ..registerFactory<ICommandValidator<AssignMemberRoleCommand>>(
       AssignMemberRoleCommandValidator.new,
     )
+    ..registerFactory<ICommandValidator<CompleteMyPasswordResetCommand>>(
+      CompleteMyPasswordResetCommandValidator.new,
+    )
     ..registerFactory<ICommandValidator<CreateTenantOnboardingCommand>>(
       CreateTenantOnboardingCommandValidator.new,
+    )
+    ..registerFactory<ICommandValidator<ResendMyPasswordResetCommand>>(
+      ResendMyPasswordResetCommandValidator.new,
     )
     ..registerFactory<ICommandValidator<RestorePlatformTenantCommand>>(
       RestorePlatformTenantCommandValidator.new,
@@ -31,6 +37,12 @@ void registerGeneratedIamValidators(GetIt container) {
     )
     ..registerFactory<ICommandValidator<TransferPlatformTenantOwnershipCommand>>(
       TransferPlatformTenantOwnershipCommandValidator.new,
+    )
+    ..registerFactory<ICommandValidator<UpdateMyIdentityProfileCommand>>(
+      UpdateMyIdentityProfileCommandValidator.new,
+    )
+    ..registerFactory<ICommandValidator<VerifyMyPasswordResetCommand>>(
+      VerifyMyPasswordResetCommandValidator.new,
     )
     ;
 }
@@ -52,6 +64,15 @@ void registerGeneratedIamHandlers({
     ),
   );
 
+  IamCommandRegistration.registerBusinessHandler<CompleteMyPasswordResetCommand, void, CompleteMyPasswordResetCommandHandler>(
+    container: container,
+    bus: bus,
+    logger: logger,
+    factory: () => CompleteMyPasswordResetCommandHandler(
+      identityGateway: container.get<IIdentitySelfServiceGateway>(),
+    ),
+  );
+
   IamCommandRegistration.registerBusinessHandler<CreateTenantOnboardingCommand, TenantOnboardingResultDto, CreateTenantOnboardingCommandHandler>(
     container: container,
     bus: bus,
@@ -61,12 +82,30 @@ void registerGeneratedIamHandlers({
     ),
   );
 
+  IamCommandRegistration.registerBusinessHandler<RequestMyPasswordResetCommand, PasswordResetOperationDto, RequestMyPasswordResetCommandHandler>(
+    container: container,
+    bus: bus,
+    logger: logger,
+    factory: () => RequestMyPasswordResetCommandHandler(
+      identityGateway: container.get<IIdentitySelfServiceGateway>(),
+    ),
+  );
+
   IamCommandRegistration.registerBusinessHandler<RequestPlatformPasswordResetCommand, void, RequestPlatformPasswordResetCommandHandler>(
     container: container,
     bus: bus,
     logger: logger,
     factory: () => RequestPlatformPasswordResetCommandHandler(
       platformGateway: container.get<IPlatformAdminGateway>(),
+    ),
+  );
+
+  IamCommandRegistration.registerBusinessHandler<ResendMyPasswordResetCommand, PasswordResetOperationDto, ResendMyPasswordResetCommandHandler>(
+    container: container,
+    bus: bus,
+    logger: logger,
+    factory: () => ResendMyPasswordResetCommandHandler(
+      identityGateway: container.get<IIdentitySelfServiceGateway>(),
     ),
   );
 
@@ -165,6 +204,24 @@ void registerGeneratedIamHandlers({
     ),
   );
 
+  IamCommandRegistration.registerBusinessHandler<UpdateMyIdentityProfileCommand, MyIdentityProfileDto, UpdateMyIdentityProfileCommandHandler>(
+    container: container,
+    bus: bus,
+    logger: logger,
+    factory: () => UpdateMyIdentityProfileCommandHandler(
+      identityGateway: container.get<IIdentitySelfServiceGateway>(),
+    ),
+  );
+
+  IamCommandRegistration.registerBusinessHandler<VerifyMyPasswordResetCommand, void, VerifyMyPasswordResetCommandHandler>(
+    container: container,
+    bus: bus,
+    logger: logger,
+    factory: () => VerifyMyPasswordResetCommandHandler(
+      identityGateway: container.get<IIdentitySelfServiceGateway>(),
+    ),
+  );
+
   IamCommandRegistration.registerInternalHandler<SendEmailDeliveryCommand, SendEmailDeliveryCommandHandler>(
     container: container,
     bus: bus,
@@ -187,6 +244,14 @@ void registerGeneratedIamQueries({
     bus: bus,
     factory: () => GetCurrentSessionQueryHandler(
       sessionPort: container.get<IIamSessionPort>(),
+    ),
+    invoke: (query, handler) => handler.handle(query),
+  );
+
+  IamCommandRegistration.registerQueryHandler<GetMyIdentityProfileQuery, MyIdentityProfileDto, GetMyIdentityProfileQueryHandler>(
+    bus: bus,
+    factory: () => GetMyIdentityProfileQueryHandler(
+      identityGateway: container.get<IIdentitySelfServiceGateway>(),
     ),
     invoke: (query, handler) => handler.handle(query),
   );

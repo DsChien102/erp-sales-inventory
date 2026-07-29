@@ -49,6 +49,13 @@ Facade: `IIamModule` — mở rộng surface theo roadmap (hiện interim: sign-
 | CMD-PLT-13 | `TransferPlatformTenantOwnershipCommand` | Command | `platform.tenant.owner.transfer` | EP-02/US-09 |
 | CMD-PLT-14 | `SearchPlatformAuditLogsQuery` | Query | `platform.audit.view` | EP-02/US-10 |
 | CMD-PLT-15 | `GetPlatformAuditLogQuery` | Query | `platform.audit.view` | EP-02/US-10 |
+| CMD-ID-01 | `GetMyIdentityProfileQuery` | Query | Authenticated (`@PublicAccess`) | EP-06/US-01 |
+| CMD-ID-02 | `UpdateMyIdentityProfileCommand` | Command | Authenticated (`@PublicAccess`) | EP-06/US-02 |
+| CMD-ID-03 | `RequestMyPasswordResetCommand` | Command | Authenticated (`@PublicAccess`) | EP-06/US-03 |
+| CMD-ID-04 | `ResendMyPasswordResetCommand` | Command | Authenticated (`@PublicAccess`) | EP-06/US-03 |
+| CMD-ID-05 | `VerifyMyPasswordResetCommand` | Command | Authenticated (`@PublicAccess`) | EP-06/US-03 |
+| CMD-ID-06 | `CompleteMyPasswordResetCommand` | Command | Authenticated (`@PublicAccess`) | EP-06/US-03 |
+| — | `SignOutCommand` (reuse) | Command | Authenticated (`@PublicAccess`) | EP-06/US-04 |
 
 *(Bổ sung đầy đủ khi CONTRACT từng slice — không block scaffold.)*
 
@@ -281,8 +288,53 @@ Platform-scoped (Admin App). Permission codes: `IamPlatformPermissions`. No `@Re
 
 ---
 
+## §S14 — EP-06/US-01–US-04 — My Account (Identity self-service)
+
+Tenant App self-service. Actor: Authenticated Platform User. **No** TenantContext / Membership. Theme 1 orchestrates via `IIdentitySelfServiceGateway` — does not persist profile copy, codes, passwords, or session tokens.
+
+Do **not** reuse Admin `RequestPlatformPasswordResetCommand` (`platform.user.password_reset.initiate`).
+
+| Symbol | Input | Success | Errors |
+| ------ | ----- | ------- | ------ |
+| `GetMyIdentityProfileQuery` | — | `MyIdentityProfileDto` | SYSTEM_ERROR / not authenticated |
+| `UpdateMyIdentityProfileCommand` | firstName, lastName, phoneNumber?, avatarUrl? | `MyIdentityProfileDto` | VALIDATION_ERROR |
+| `RequestMyPasswordResetCommand` | — | `PasswordResetOperationDto` (operationId, maskedEmail; **no** code) | VALIDATION_ERROR (unverified email), rate-limit |
+| `ResendMyPasswordResetCommand` | operationId | `PasswordResetOperationDto` | RESET_CODE_EXPIRED, rate-limit |
+| `VerifyMyPasswordResetCommand` | operationId, code | void | RESET_CODE_INVALID, RESET_CODE_EXPIRED, RESET_CODE_ATTEMPTS_EXCEEDED |
+| `CompleteMyPasswordResetCommand` | operationId, newPassword | void (session kept) | PASSWORD_POLICY_VIOLATION, RESET_CODE_* |
+| `SignOutCommand` | — | void | SYSTEM_ERROR (still clear local) |
+
+**Notes**
+- Email is read-only on profile form (US-01/US-02).
+- Password reset = 6-digit in-app code after login — **not** magic link / App Link.
+- Responses/logs never include password, hash, or verification code.
+- After `CompleteMyPasswordResetCommand`, keep current session and return to profile (FR-05).
+- Side effect (request/resend): mutation RPC `enqueue_outbox_message` (`iam.email.delivery_requested`, template `password_reset_code`) — Dart must not enqueue outbox.
+- Avatar: nullable `avatarUrl` string only in S14 (OQ-10 upload deferred).
+
+**RPCs (draft):**
+- `iam.get_my_identity_profile`, `iam.update_my_identity_profile` — [`_drafts/iam_identity_self_service.sql`](../../../../supabase/migrations/_drafts/iam_identity_self_service.sql)
+- `iam.request_my_password_reset`, `iam.resend_my_password_reset`, `iam.verify_my_password_reset`, `iam.complete_my_password_reset` — same draft
+
+| scenario_id | trigger | fake response |
+| ----------- | ------- | ------------- |
+| `my_profile_ok` | open My Account | profile DTO (minh@gmail.com) |
+| `my_profile_load_fail` | get profile | SYSTEM_ERROR |
+| `update_profile_ok` | save edit form | updated profile |
+| `update_validation_error` | empty first/last name | VALIDATION_ERROR |
+| `reset_request_ok` | start reset | operationId + maskedEmail |
+| `reset_code_invalid` | wrong 6-digit code | RESET_CODE_INVALID |
+| `reset_code_expired` | expired operation | RESET_CODE_EXPIRED |
+| `reset_attempts_exceeded` | too many verify tries | RESET_CODE_ATTEMPTS_EXCEEDED |
+| `reset_password_policy` | short password | PASSWORD_POLICY_VIOLATION |
+| `reset_complete_ok` | verify + complete | void success, session kept |
+| `logout_ok` | confirm logout | SignOut clears session |
+
+---
+
 ## Parallel notes
 
 - FE có thể fake: **yes** sau CONTRACT (`FakeIamModule` + fake notification gateway).
 - E2E invite cần S-NOTIFY BE hoặc test double ghi outcome.
 - Admin platform CMDs: §S15 + §S16 CONTRACT — xem APPENDICES §6.1.3.
+- S14 My Account: §S14 CONTRACT — xem APPENDICES §6.1.5.

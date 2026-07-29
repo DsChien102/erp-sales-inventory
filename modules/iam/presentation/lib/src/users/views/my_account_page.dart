@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:vet45_design_system/design_system.dart';
+import 'package:vet45_iam_application/application.dart';
+import 'package:vet45_shared_application/application.dart';
 
+import '../widgets/logout_confirmation_bottom_sheet.dart';
+import '../widgets/my_account_actions_bottom_sheet.dart';
 import 'edit_my_account_page.dart';
 import 'reset_password_page.dart';
 
@@ -11,6 +15,7 @@ class MyAccountUiModel {
   final String email;
   final String emailStatus;
   final String phoneNumber;
+  final String? avatarUrl;
 
   const MyAccountUiModel({
     required this.firstName,
@@ -18,9 +23,23 @@ class MyAccountUiModel {
     required this.email,
     required this.emailStatus,
     required this.phoneNumber,
+    this.avatarUrl,
   });
 
   String get fullName => '$firstName $lastName'.trim();
+
+  bool get hasName => fullName.isNotEmpty;
+
+  factory MyAccountUiModel.fromDto(MyIdentityProfileDto dto) {
+    return MyAccountUiModel(
+      firstName: dto.firstName,
+      lastName: dto.lastName,
+      email: dto.email,
+      emailStatus: dto.emailVerified ? 'Đã xác minh' : 'Chưa xác minh',
+      phoneNumber: dto.phoneNumber ?? '',
+      avatarUrl: dto.avatarUrl,
+    );
+  }
 
   static const sample = MyAccountUiModel(
     firstName: 'Nguyễn Văn',
@@ -35,11 +54,13 @@ class MyAccountUiModel {
 class MyAccountPage extends StatefulWidget {
   final MyAccountUiModel data;
   final VoidCallback? onLogout;
+  final IIamModule? iamModule;
 
   const MyAccountPage({
     super.key,
     this.data = MyAccountUiModel.sample,
     this.onLogout,
+    this.iamModule,
   });
 
   @override
@@ -49,263 +70,124 @@ class MyAccountPage extends StatefulWidget {
 class _MyAccountPageState extends State<MyAccountPage> {
   bool _isActionsOpen = false;
   late MyAccountUiModel _accountData;
+  bool _isLoading = false;
+  String? _loadError;
 
   @override
   void initState() {
     super.initState();
     _accountData = widget.data;
+    if (widget.iamModule != null) {
+      _loadProfile();
+    }
+  }
+
+  Future<void> _loadProfile() async {
+    final module = widget.iamModule;
+    if (module == null) return;
+
+    setState(() {
+      _isLoading = true;
+      _loadError = null;
+    });
+
+    try {
+      final dto = await module.executeQueryAsync<MyIdentityProfileDto>(
+        GetMyIdentityProfileQuery(),
+      );
+      if (!mounted) return;
+      setState(() {
+        _accountData = MyAccountUiModel.fromDto(dto);
+        _isLoading = false;
+      });
+    } on ApplicationException catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _isLoading = false;
+        _loadError = e.message;
+      });
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _isLoading = false;
+        _loadError = e.toString();
+      });
+    }
   }
 
   void _showLogoutConfirmation() {
-    showVBottomSheet<void>(
+    showLogoutConfirmationBottomSheet(
       context: context,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(
-          horizontal: VSpacing.screenMobile,
-          vertical: VSpacing.space4,
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            VText(
-              'Đăng xuất khỏi VET45?',
-              variant: VTextVariant.headingH3,
-              color: context.vColors.danger,
-              style: const TextStyle(fontWeight: FontWeight.w700),
-            ),
-            const VGap.xs(),
-            VText(
-              'Bạn sẽ cần đăng nhập lại để tiếp tục sử dụng ứng dụng.',
-              variant: VTextVariant.bodySmall,
-              color: context.vColors.textSecondary,
-            ),
-            const VGap.xl(),
-            VButton(
-              label: 'Quay lại',
-              variant: VButtonVariant.outline,
-              fullWidth: true,
-              onPressed: () => Navigator.of(context).pop(),
-            ),
-            const VGap.md(),
-            VButton(
-              label: 'Đăng xuất',
-              variant: VButtonVariant.dangerOutline,
-              fullWidth: true,
-              onPressed: () {
-                Navigator.of(context).pop();
-                widget.onLogout?.call();
-              },
-            ),
-            const VGap.md(),
-          ],
-        ),
-      ),
+      onConfirm: () => widget.onLogout?.call(),
     );
   }
 
+  String _maskEmail(String email) {
+    final at = email.indexOf('@');
+    if (at <= 0) return '***';
+    final local = email.substring(0, at);
+    final domain = email.substring(at);
+    if (local.length <= 2) return '${local[0]}***$domain';
+    return '${local.substring(0, 2)}***$domain';
+  }
+
   void _showActionsBottomSheet() {
-    setState(() {
-      _isActionsOpen = true;
-    });
+    setState(() => _isActionsOpen = true);
 
-    showVBottomSheet<void>(
+    showMyAccountActionsBottomSheet(
       context: context,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(
-          horizontal: VSpacing.screenMobile,
-          vertical: VSpacing.space4,
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            VText(
-              'Thao tác tài khoản',
-              variant: VTextVariant.headingH3,
-              style: const TextStyle(fontWeight: FontWeight.w700),
+      onEditProfile: () async {
+        final updated = await Navigator.of(context).push<MyAccountUiModel>(
+          MaterialPageRoute(
+            builder: (context) => EditMyAccountPage(
+              data: _accountData,
+              iamModule: widget.iamModule,
             ),
-            const VGap.md(),
-            VCard(
-              onTap: () async {
-                Navigator.of(context).pop();
-                final updated = await Navigator.of(context).push<MyAccountUiModel>(
-                  MaterialPageRoute(
-                    builder: (context) => EditMyAccountPage(data: _accountData),
-                  ),
-                );
+          ),
+        );
 
-                if (updated != null && mounted) {
-                  setState(() {
-                    _accountData = updated;
-                  });
-                  VToast.show(
-                    context,
-                    title: 'Thành công',
-                    message: 'Đã cập nhật thông tin cá nhân',
-                    type: VToastType.success,
-                  );
-                }
-              },
-              padding: const EdgeInsets.all(VSpacing.space4),
-              child: Row(
-                children: [
-                  VIcon(
-                    icon: VIcons.edit,
-                    size: 20,
-                    color: context.vColors.textPrimary,
-                  ),
-                  const SizedBox(width: VSpacing.space3),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        VText(
-                          'Chỉnh sửa thông tin cá nhân',
-                          variant: VTextVariant.bodyDefault,
-                          style: const TextStyle(fontWeight: FontWeight.w700),
-                        ),
-                        const VGap.xs(),
-                        VText(
-                          'Cập nhật hồ sơ cá nhân',
-                          variant: VTextVariant.bodySmall,
-                          color: context.vColors.textSecondary,
-                        ),
-                      ],
-                    ),
-                  ),
-                  VIcon(
-                    icon: VIcons.chevronRight,
-                    size: 20,
-                    color: context.vColors.textSecondary,
-                  ),
-                ],
-              ),
+        if (updated != null && mounted) {
+          setState(() => _accountData = updated);
+          VToast.show(
+            context,
+            title: 'Thành công',
+            message: 'Đã cập nhật thông tin cá nhân',
+            type: VToastType.success,
+          );
+        }
+      },
+      onResetPassword: () async {
+        final result = await Navigator.of(context).push<bool>(
+          MaterialPageRoute(
+            builder: (context) => ResetPasswordPage(
+              emailMasked: _maskEmail(_accountData.email),
+              iamModule: widget.iamModule,
             ),
-            const VGap.sm(),
-            VCard(
-              onTap: () async {
-                Navigator.of(context).pop();
-                final result = await Navigator.of(context).push<bool>(
-                  MaterialPageRoute(
-                    builder: (context) => const ResetPasswordPage(),
-                  ),
-                );
+          ),
+        );
 
-                if (result == true && mounted) {
-                  VToast.show(
-                    context,
-                    title: 'Thành công',
-                    message: 'Đã đặt lại mật khẩu.',
-                    type: VToastType.success,
-                  );
-                }
-              },
-              padding: const EdgeInsets.all(VSpacing.space4),
-              child: Row(
-                children: [
-                  VIcon(
-                    icon: VIcons.lock,
-                    size: 20,
-                    color: context.vColors.textPrimary,
-                  ),
-                  const SizedBox(width: VSpacing.space3),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        VText(
-                          'Đặt lại mật khẩu',
-                          variant: VTextVariant.bodyDefault,
-                          style: const TextStyle(fontWeight: FontWeight.w700),
-                        ),
-                        const VGap.xs(),
-                        VText(
-                          'Xác minh email và tạo mật khẩu mới',
-                          variant: VTextVariant.bodySmall,
-                          color: context.vColors.textSecondary,
-                        ),
-                      ],
-                    ),
-                  ),
-                  VIcon(
-                    icon: VIcons.chevronRight,
-                    size: 20,
-                    color: context.vColors.textSecondary,
-                  ),
-                ],
-              ),
-            ),
-            const VGap.sm(),
-            Container(
-              decoration: BoxDecoration(
-                color: context.vColors.dangerBg,
-                borderRadius: BorderRadius.circular(VRadius.card),
-                border: Border.all(color: context.vColors.danger),
-              ),
-              child: Material(
-                color: Colors.transparent,
-                child: InkWell(
-                  onTap: () {
-                    Navigator.of(context).pop();
-                    _showLogoutConfirmation();
-                  },
-                  borderRadius: BorderRadius.circular(VRadius.card),
-                  child: Padding(
-                    padding: const EdgeInsets.all(VSpacing.space4),
-                    child: Row(
-                      children: [
-                        VIcon(
-                          icon: VIcons.logout,
-                          size: 20,
-                          color: context.vColors.danger,
-                        ),
-                        const SizedBox(width: VSpacing.space3),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              VText(
-                                'Đăng xuất',
-                                variant: VTextVariant.bodyDefault,
-                                color: context.vColors.danger,
-                                style: const TextStyle(fontWeight: FontWeight.w700),
-                              ),
-                              const VGap.xs(),
-                              VText(
-                                'Kết thúc phiên sử dụng hiện tại',
-                                variant: VTextVariant.bodySmall,
-                                color: context.vColors.textSecondary,
-                              ),
-                            ],
-                          ),
-                        ),
-                        VIcon(
-                          icon: VIcons.chevronRight,
-                          size: 20,
-                          color: context.vColors.danger,
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            ),
-            const VGap.lg(),
-          ],
-        ),
-      ),
+        if (result == true && mounted) {
+          VToast.show(
+            context,
+            title: 'Thành công',
+            message: 'Đã đặt lại mật khẩu.',
+            type: VToastType.success,
+          );
+        }
+      },
+      onLogout: _showLogoutConfirmation,
     ).then((_) {
       if (mounted) {
-        setState(() {
-          _isActionsOpen = false;
-        });
+        setState(() => _isActionsOpen = false);
       }
     });
   }
 
-  Widget _buildInfoRow(BuildContext context, String label, String value) {
+  Widget _buildInfoRow(BuildContext context, String label, String? value) {
     final colors = context.vColors;
+    final hasValue = value != null && value.trim().isNotEmpty;
+    final displayValue = hasValue ? value.trim() : '(chưa có)';
+
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: VSpacing.space2),
       child: Row(
@@ -320,9 +202,10 @@ class _MyAccountPageState extends State<MyAccountPage> {
           const VGap.horizontalSm(),
           Flexible(
             child: VText(
-              value,
+              displayValue,
               variant: VTextVariant.bodyDefault,
-              style: const TextStyle(fontWeight: FontWeight.w700),
+              color: hasValue ? null : colors.textMuted,
+              style: TextStyle(fontWeight: hasValue ? FontWeight.w700 : null),
               textAlign: TextAlign.end,
             ),
           ),
@@ -335,6 +218,45 @@ class _MyAccountPageState extends State<MyAccountPage> {
   Widget build(BuildContext context) {
     final colors = context.vColors;
     final data = _accountData;
+
+    if (_isLoading) {
+      return const VPageScaffold(
+        title: 'Tài khoản của tôi',
+        body: Center(child: VLoading(size: 40)),
+      );
+    }
+
+    if (_loadError != null) {
+      return VPageScaffold(
+        title: 'Tài khoản của tôi',
+        body: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(VSpacing.screenMobile),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                VText(
+                  'Không tải được hồ sơ',
+                  variant: VTextVariant.headingH4,
+                ),
+                const VGap.sm(),
+                VText(
+                  _loadError!,
+                  variant: VTextVariant.bodySmall,
+                  color: colors.textSecondary,
+                  textAlign: TextAlign.center,
+                ),
+                const VGap.lg(),
+                VButton(
+                  label: 'Thử lại',
+                  onPressed: _loadProfile,
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
 
     return VPageScaffold(
       title: 'Tài khoản của tôi',
@@ -363,8 +285,9 @@ class _MyAccountPageState extends State<MyAccountPage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       VText(
-                        data.fullName,
+                        data.hasName ? data.fullName : '(chưa có tên)',
                         variant: VTextVariant.headingH4,
+                        color: data.hasName ? null : colors.textMuted,
                         style: const TextStyle(fontWeight: FontWeight.w700),
                       ),
                       const VGap.xs(),

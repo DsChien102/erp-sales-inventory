@@ -24,5 +24,18 @@ ApplicationException mapIamRpcError(RpcException error) {
     return ApplicationException('TENANT_CLOSED', cause: error);
   }
 
+  if (message.contains('reset_code_invalid')) {
+    return ApplicationException('RESET_CODE_INVALID', cause: error);
+  }
+  if (message.contains('reset_code_expired')) {
+    return ApplicationException('RESET_CODE_EXPIRED', cause: error);
+  }
+  if (message.contains('reset_code_attempts_exceeded')) {
+    return ApplicationException('RESET_CODE_ATTEMPTS_EXCEEDED', cause: error);
+  }
+  if (message.contains('password_policy_violation')) {
+    return ApplicationException('PASSWORD_POLICY_VIOLATION', cause: error);
+  }
+
   return ApplicationException(raw, cause: error);
 }

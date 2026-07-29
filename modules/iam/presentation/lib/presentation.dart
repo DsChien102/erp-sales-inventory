@@ -59,6 +59,8 @@ export 'src/users/views/organization_preview_role_change_page.dart';
 export 'src/users/views/my_account_page.dart';
 export 'src/users/views/edit_my_account_page.dart';
 export 'src/users/views/reset_password_page.dart';
+export 'src/users/widgets/logout_confirmation_bottom_sheet.dart';
+export 'src/users/widgets/my_account_actions_bottom_sheet.dart';
 export 'src/testing/fake_roles_data.dart';
 export 'src/roles/models/role_ui_model.dart';
 export 'src/roles/views/organization_roles_page.dart';

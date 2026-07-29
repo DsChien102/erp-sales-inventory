@@ -40,4 +40,17 @@ enum FakeIamScenario {
   bootstrapInvalid,
   bootstrapNone,
   contextInvalidated,
+
+  // ── EP-06 My Account (S14) ──
+  myProfileOk,
+  myProfileLoadFail,
+  updateProfileOk,
+  updateValidationError,
+  resetRequestOk,
+  resetCodeInvalid,
+  resetCodeExpired,
+  resetAttemptsExceeded,
+  resetPasswordPolicy,
+  resetCompleteOk,
+  logoutOk,
 }

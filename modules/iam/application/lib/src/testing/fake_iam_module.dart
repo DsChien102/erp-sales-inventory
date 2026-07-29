@@ -17,6 +17,14 @@ import '../dto/platform_user_status.dart';
 import '../dto/platform_user_summary_dto.dart';
 import '../dto/tenant_context_dto.dart';
 import '../dto/tenant_onboarding_result_dto.dart';
+import '../identity/commands/complete_my_password_reset/complete_my_password_reset_command.dart';
+import '../identity/commands/request_my_password_reset/request_my_password_reset_command.dart';
+import '../identity/commands/resend_my_password_reset/resend_my_password_reset_command.dart';
+import '../identity/commands/update_my_identity_profile/update_my_identity_profile_command.dart';
+import '../identity/commands/verify_my_password_reset/verify_my_password_reset_command.dart';
+import '../identity/queries/get_my_identity_profile/get_my_identity_profile_query.dart';
+import '../identity/shared/my_identity_profile_dto.dart';
+import '../identity/shared/password_reset_operation_dto.dart';
 import '../platform/create_tenant_onboarding/create_tenant_onboarding_command.dart';
 import '../platform/get_platform_audit_log/get_platform_audit_log_query.dart';
 import '../platform/get_platform_tenant/get_platform_tenant_query.dart';
@@ -48,6 +56,7 @@ final class FakeIamModule implements IIamModule {
     _seedTenants();
     _seedAuditLogs();
     _seedAccessibleTenants();
+    _seedMyProfile();
   }
 
   final FakeIamScenario scenario;
@@ -64,16 +73,35 @@ final class FakeIamModule implements IIamModule {
   late List<AccessibleTenantDto> _accessibleTenants;
   final Map<String, TenantOnboardingResultDto> _onboardingByKey = {};
   final Set<String> _ownershipTransferKeys = {};
+  late MyIdentityProfileDto _myProfile;
+  String? _resetOperationId;
+  bool _resetVerified = false;
+  int _resetVerifyAttempts = 0;
 
   String? currentTenantId;
   String? lastSelectedTenantId;
 
   int activationInviteCount = 0;
   int passwordResetCount = 0;
+  int myPasswordResetRequestCount = 0;
   int signInCount = 0;
   int signOutCount = 0;
   int switchTenantCount = 0;
   String? lastSignedInEmail;
+
+  void _seedMyProfile() {
+    _myProfile = const MyIdentityProfileDto(
+      userId: 'minh-nguyen',
+      firstName: 'Nguyễn Văn',
+      lastName: 'Minh',
+      email: 'minh@gmail.com',
+      emailVerified: true,
+      phoneNumber: '0901 234 567',
+    );
+    _resetOperationId = null;
+    _resetVerified = false;
+    _resetVerifyAttempts = 0;
+  }
 
   void _seedUsers() {
     _users = [
@@ -430,6 +458,16 @@ final class FakeIamModule implements IIamModule {
       TransferPlatformTenantOwnershipCommand c =>
         _handleTransferOwnership<TResult>(c),
       SwitchTenantContextCommand c => _handleSwitchTenantContext<TResult>(c),
+      UpdateMyIdentityProfileCommand c =>
+        _handleUpdateMyProfile<TResult>(c),
+      RequestMyPasswordResetCommand _ =>
+        _handleRequestMyPasswordReset<TResult>(),
+      ResendMyPasswordResetCommand c =>
+        _handleResendMyPasswordReset<TResult>(c),
+      VerifyMyPasswordResetCommand c =>
+        _handleVerifyMyPasswordReset<TResult>(c),
+      CompleteMyPasswordResetCommand c =>
+        _handleCompleteMyPasswordReset<TResult>(c),
       _ => throw UnsupportedError(
         'FakeIamModule: unsupported command ${command.runtimeType}',
       ),
@@ -448,6 +486,7 @@ final class FakeIamModule implements IIamModule {
       GetPlatformAuditLogQuery q => _handleGetAuditDetail<TResult>(q),
       ListAccessibleTenantsQuery _ => _handleListAccessibleTenants<TResult>(),
       GetTenantContextQuery q => _handleGetTenantContext<TResult>(q),
+      GetMyIdentityProfileQuery _ => _handleGetMyProfile<TResult>(),
       _ => throw UnsupportedError(
         'FakeIamModule: unsupported query ${query.runtimeType}',
       ),
@@ -1009,5 +1048,114 @@ final class FakeIamModule implements IIamModule {
           )
           as TResult,
     );
+  }
+
+  Future<TResult> _handleGetMyProfile<TResult>() {
+    if (scenario == FakeIamScenario.myProfileLoadFail) {
+      throw ApplicationException('SYSTEM_ERROR');
+    }
+    return Future.value(_myProfile as TResult);
+  }
+
+  Future<TResult> _handleUpdateMyProfile<TResult>(
+    UpdateMyIdentityProfileCommand command,
+  ) {
+    if (scenario == FakeIamScenario.updateValidationError ||
+        command.firstName.trim().isEmpty ||
+        command.lastName.trim().isEmpty) {
+      throw ValidationException('firstName and lastName are required');
+    }
+    _myProfile = _myProfile.copyWith(
+      firstName: command.firstName.trim(),
+      lastName: command.lastName.trim(),
+      phoneNumber: command.phoneNumber?.trim(),
+      avatarUrl: command.avatarUrl?.trim(),
+    );
+    return Future.value(_myProfile as TResult);
+  }
+
+  String _maskEmail(String email) {
+    final at = email.indexOf('@');
+    if (at <= 0) return '***';
+    final local = email.substring(0, at);
+    final domain = email.substring(at);
+    if (local.length <= 2) return '${local[0]}***$domain';
+    return '${local.substring(0, 2)}***$domain';
+  }
+
+  Future<TResult> _handleRequestMyPasswordReset<TResult>() {
+    if (!_myProfile.emailVerified) {
+      throw ValidationException('Email must be verified');
+    }
+    myPasswordResetRequestCount++;
+    _resetOperationId = 'op-reset-1';
+    _resetVerified = false;
+    _resetVerifyAttempts = 0;
+    return Future.value(
+      PasswordResetOperationDto(
+            operationId: _resetOperationId!,
+            maskedEmail: _maskEmail(_myProfile.email),
+            resendAfterSeconds: 45,
+          )
+          as TResult,
+    );
+  }
+
+  Future<TResult> _handleResendMyPasswordReset<TResult>(
+    ResendMyPasswordResetCommand command,
+  ) {
+    if (scenario == FakeIamScenario.resetCodeExpired ||
+        command.operationId != _resetOperationId) {
+      throw ApplicationException('RESET_CODE_EXPIRED');
+    }
+    myPasswordResetRequestCount++;
+    _resetVerified = false;
+    _resetVerifyAttempts = 0;
+    return Future.value(
+      PasswordResetOperationDto(
+            operationId: _resetOperationId!,
+            maskedEmail: _maskEmail(_myProfile.email),
+            resendAfterSeconds: 45,
+          )
+          as TResult,
+    );
+  }
+
+  Future<TResult> _handleVerifyMyPasswordReset<TResult>(
+    VerifyMyPasswordResetCommand command,
+  ) {
+    if (scenario == FakeIamScenario.resetCodeExpired) {
+      throw ApplicationException('RESET_CODE_EXPIRED');
+    }
+    if (scenario == FakeIamScenario.resetAttemptsExceeded ||
+        _resetVerifyAttempts >= 5) {
+      throw ApplicationException('RESET_CODE_ATTEMPTS_EXCEEDED');
+    }
+    if (command.operationId != _resetOperationId) {
+      throw ApplicationException('RESET_CODE_EXPIRED');
+    }
+    if (scenario == FakeIamScenario.resetCodeInvalid ||
+        command.code.trim() != '123456') {
+      _resetVerifyAttempts++;
+      throw ApplicationException('RESET_CODE_INVALID');
+    }
+    _resetVerified = true;
+    return Future.value(null as TResult);
+  }
+
+  Future<TResult> _handleCompleteMyPasswordReset<TResult>(
+    CompleteMyPasswordResetCommand command,
+  ) {
+    if (!_resetVerified || command.operationId != _resetOperationId) {
+      throw ApplicationException('RESET_CODE_EXPIRED');
+    }
+    if (scenario == FakeIamScenario.resetPasswordPolicy ||
+        command.newPassword.length < 8) {
+      throw ApplicationException('PASSWORD_POLICY_VIOLATION');
+    }
+    _resetOperationId = null;
+    _resetVerified = false;
+    _resetVerifyAttempts = 0;
+    return Future.value(null as TResult);
   }
 }

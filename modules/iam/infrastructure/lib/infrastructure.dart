@@ -31,3 +31,4 @@ export 'src/configuration/processing/processing_module.dart';
 export 'src/configuration/processing/testing/in_memory_messaging_gateways.dart';
 export 'src/configuration/session/iam_session.dart';
 export 'src/domain/platform/supabase_platform_admin_gateway.dart';
+export 'src/domain/identity/supabase_identity_self_service_gateway.dart';

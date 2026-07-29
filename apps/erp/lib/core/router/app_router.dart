@@ -222,6 +222,7 @@ final appRouter = GoRouter(
       path: '/more/my-account',
       name: 'more.my-account',
       builder: (context, state) => MyAccountPage(
+        iamModule: getIt<IIamModule>(),
         onLogout: () async {
           final result = await guard(
             () => getIt<IIamModule>().executeCommandAsync(SignOutCommand()),
@@ -247,13 +248,18 @@ final appRouter = GoRouter(
       builder: (context, state) {
         final data =
             state.extra as MyAccountUiModel? ?? MyAccountUiModel.sample;
-        return EditMyAccountPage(data: data);
+        return EditMyAccountPage(
+          data: data,
+          iamModule: getIt<IIamModule>(),
+        );
       },
     ),
     GoRoute(
       path: '/more/my-account/reset-password',
       name: 'more.my-account.reset-password',
-      builder: (context, state) => const ResetPasswordPage(),
+      builder: (context, state) => ResetPasswordPage(
+        iamModule: getIt<IIamModule>(),
+      ),
     ),
     GoRoute(
       path: '/more/organization-profile',

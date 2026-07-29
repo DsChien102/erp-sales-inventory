@@ -137,6 +137,20 @@ Tổng product: **6 epic, 32 US** (2 Post-MVP) — [README.md](../README.md).
 
 ---
 
+## S14 — EP-06 / US-01–US-04 — My Account
+
+| Req ID | Role | Contract § | Enforce layer | Artifact | Test id | Status |
+| ------ | ---- | ---------- | ------------- | -------- | ------- | ------ |
+| US-01 | CONTRACT | §S14 | application | `GetMyIdentityProfileQuery` + `MyIdentityProfileDto` | fake_iam_module_test | done |
+| US-02 | CONTRACT | §S14 | application | `UpdateMyIdentityProfileCommand` | fake_iam_module_test | done |
+| US-03 | CONTRACT | §S14 | application | `Request/Resend/Verify/CompleteMyPasswordResetCommand` + `PasswordResetOperationDto` | fake_iam_module_test | done |
+| US-04 | CONTRACT | §S14 | application | `SignOutCommand` (reuse) | fake_iam_module_test | done |
+| FR-01.. | BE | §S14 | application + infrastructure + draft SQL | handlers + `IIdentitySelfServiceGateway` + RPCs | scn_e06_u01_u02_u03_my_account_test | done |
+| FR-01.. | FE | §S14 | presentation | My Account / Edit / Reset wired `IIamModule` | wgt my_account_* + logout sheet | done |
+| FR-01 | E2E | §S14 | integration | ERP via FakeIamModule / IIamModule | e2e_e06_u01_fr01_01 | done |
+
+---
+
 ## Các slice còn lại
 
 Khi bắt đầu slice: copy bảng mẫu trên vào section `S{n} — EP-xx / US-yy`, điền FR rows, cập nhật Status. Post-MVP EP-02/US-04–05: **không** thêm row phase 1.

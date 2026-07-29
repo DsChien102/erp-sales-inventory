@@ -14,6 +14,7 @@ dependencies:
   get_it: ^9.2.1
   vet45_design_system: ^1.0.0
   vet45_iam_application: ^1.0.0
+  vet45_shared_application: ^1.0.0
 
 dev_dependencies:
   flutter_test:

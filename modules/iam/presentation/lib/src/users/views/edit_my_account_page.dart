@@ -1,15 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:vet45_design_system/design_system.dart';
+import 'package:vet45_iam_application/application.dart';
+import 'package:vet45_shared_application/application.dart';
 
 import 'my_account_page.dart';
 
 /// Trang Chỉnh sửa thông tin cá nhân (TA-D-02).
 class EditMyAccountPage extends StatefulWidget {
   final MyAccountUiModel data;
+  final IIamModule? iamModule;
 
   const EditMyAccountPage({
     super.key,
     this.data = MyAccountUiModel.sample,
+    this.iamModule,
   });
 
   @override
@@ -20,6 +24,7 @@ class _EditMyAccountPageState extends State<EditMyAccountPage> {
   late final TextEditingController _firstNameController;
   late final TextEditingController _lastNameController;
   late final TextEditingController _phoneNumberController;
+  bool _isSaving = false;
 
   @override
   void initState() {
@@ -50,15 +55,56 @@ class _EditMyAccountPageState extends State<EditMyAccountPage> {
         _lastNameController.text.trim().isNotEmpty;
   }
 
-  void _handleSave() {
-    if (!_isValid) return;
+  Future<void> _handleSave() async {
+    if (!_isValid || _isSaving) return;
+
+    final firstName = _firstNameController.text.trim();
+    final lastName = _lastNameController.text.trim();
+    final phoneNumber = _phoneNumberController.text.trim();
+
+    final module = widget.iamModule;
+    if (module != null) {
+      setState(() => _isSaving = true);
+      try {
+        final dto = await module.executeCommandAsync<MyIdentityProfileDto>(
+          UpdateMyIdentityProfileCommand(
+            firstName: firstName,
+            lastName: lastName,
+            phoneNumber: phoneNumber.isEmpty ? null : phoneNumber,
+            avatarUrl: widget.data.avatarUrl,
+          ),
+        );
+        if (!mounted) return;
+        Navigator.of(context).pop(MyAccountUiModel.fromDto(dto));
+      } on ApplicationException catch (e) {
+        if (!mounted) return;
+        setState(() => _isSaving = false);
+        VToast.show(
+          context,
+          title: 'Không lưu được',
+          message: e.message,
+          type: VToastType.danger,
+        );
+      } catch (e) {
+        if (!mounted) return;
+        setState(() => _isSaving = false);
+        VToast.show(
+          context,
+          title: 'Không lưu được',
+          message: e.toString(),
+          type: VToastType.danger,
+        );
+      }
+      return;
+    }
 
     final updatedData = MyAccountUiModel(
-      firstName: _firstNameController.text.trim(),
-      lastName: _lastNameController.text.trim(),
+      firstName: firstName,
+      lastName: lastName,
       email: widget.data.email,
       emailStatus: widget.data.emailStatus,
-      phoneNumber: _phoneNumberController.text.trim(),
+      phoneNumber: phoneNumber,
+      avatarUrl: widget.data.avatarUrl,
     );
 
     Navigator.of(context).pop(updatedData);
@@ -171,17 +217,17 @@ class _EditMyAccountPageState extends State<EditMyAccountPage> {
                   label: 'Hủy',
                   variant: VButtonVariant.outline,
                   fullWidth: true,
-                  onPressed: () => Navigator.of(context).pop(),
+                  onPressed: _isSaving ? null : () => Navigator.of(context).pop(),
                 ),
               ),
               const VGap.horizontalSm(),
               Expanded(
                 child: VButton(
-                  label: 'Lưu thay đổi',
+                  label: _isSaving ? 'Đang lưu...' : 'Lưu thay đổi',
                   variant: VButtonVariant.primary,
                   tone: VComponentTone.primary,
                   fullWidth: true,
-                  onPressed: _isValid ? _handleSave : null,
+                  onPressed: _isValid && !_isSaving ? _handleSave : null,
                 ),
               ),
             ],
