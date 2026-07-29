@@ -194,6 +194,11 @@ class ConfigInitService {
       }
 
       final destName = name.replaceFirst(RegExp(r'\.example$'), '');
+      // auth.env is optional — init only scaffolds auth.env.example.
+      // Create the real file yourself when you need SUPABASE_ACCESS_TOKEN.
+      if (destName == 'auth.env') {
+        continue;
+      }
       final dest = File('${toDir.path}/$destName');
       final relative = '$relativePrefix/$destName';
       if (dest.existsSync() && !_shouldOverwrite(dest.path, force: force)) {

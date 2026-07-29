@@ -145,6 +145,8 @@ printf 'name: vet45\npublish_to: none\nenvironment:\n  sdk: ">=3.11.1 <4.0.0"\n'
 (cd "$tmp" && dart run tools/vet45_env/bin/vet45_env.dart init smokeprofile >/dev/null)
 test -f "$tmp/.vet45/profiles/smokeprofile/development.env"
 test -f "$tmp/.vet45/profiles/smokeprofile/development.env.example"
+test -f "$tmp/.vet45/profiles/smokeprofile/auth.env.example"
+test ! -f "$tmp/.vet45/profiles/smokeprofile/auth.env"
 test -f "$tmp/.vet45/deploy/deploy.env"
 test ! -d "$tmp/tools/vet45_env/templates"
 test ! -d "$tmp/config"

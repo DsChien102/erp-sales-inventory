@@ -44,6 +44,14 @@ void main() {
       isTrue,
     );
     expect(
+      File('${root.path}/.vet45/profiles/acme/auth.env.example').existsSync(),
+      isTrue,
+    );
+    expect(
+      File('${root.path}/.vet45/profiles/acme/auth.env').existsSync(),
+      isFalse,
+    );
+    expect(
       File('${root.path}/.vet45/deploy/deploy.env').existsSync(),
       isTrue,
     );
