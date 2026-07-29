@@ -74,7 +74,10 @@ void main() {
       );
       registerModule(module);
 
-      final cubit = TenantContextCubit(iamModule: module);
+      final cubit = TenantContextCubit(
+        iamModule: module,
+        userDisplayName: 'Nguyễn Văn A',
+      );
       await cubit.loadAccessibleTenants();
 
       await tester.pumpWidget(
@@ -127,7 +130,10 @@ void main() {
 
       final module = FakeIamModule(scenario: FakeIamScenario.switchOk);
       registerModule(module);
-      final cubit = TenantContextCubit(iamModule: module);
+      final cubit = TenantContextCubit(
+        iamModule: module,
+        userDisplayName: 'Nguyễn Văn A',
+      );
       await cubit.bootstrap();
 
       await tester.pumpWidget(
@@ -182,7 +188,10 @@ void main() {
 
       final module = FakeIamModule(scenario: FakeIamScenario.switchDenied);
       registerModule(module);
-      final cubit = TenantContextCubit(iamModule: module);
+      final cubit = TenantContextCubit(
+        iamModule: module,
+        userDisplayName: 'Nguyễn Văn A',
+      );
       await cubit.loadAccessibleTenants();
 
       await tester.pumpWidget(

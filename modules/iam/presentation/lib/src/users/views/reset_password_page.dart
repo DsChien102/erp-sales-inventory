@@ -12,14 +12,23 @@ enum ResetPasswordStep { verifyCode, createNewPassword }
 
 /// Trang Đặt lại mật khẩu (TA-D-03).
 class ResetPasswordPage extends StatefulWidget {
-  final String emailMasked;
+  final String email;
   final IIamModule? iamModule;
 
   const ResetPasswordPage({
     super.key,
-    this.emailMasked = 'mi***@gmail.com',
+    this.email = '',
     this.iamModule,
   });
+
+  /// Mask email: "nhhaha@gmail.com" → "nh***@gmail.com"
+  static String maskEmail(String email) {
+    final parts = email.split('@');
+    if (parts.length != 2 || parts[0].length < 2) return email;
+    final local = parts[0];
+    final masked = '${local.substring(0, 2)}***';
+    return '$masked@${parts[1]}';
+  }
 
   @override
   State<ResetPasswordPage> createState() => _ResetPasswordPageState();
@@ -49,7 +58,7 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
     _codeController = TextEditingController();
     _newPasswordController = TextEditingController();
     _confirmPasswordController = TextEditingController();
-    _emailMasked = widget.emailMasked;
+    _emailMasked = ResetPasswordPage.maskEmail(widget.email);
     _startResendTimer();
     if (widget.iamModule != null) {
       _requestReset();

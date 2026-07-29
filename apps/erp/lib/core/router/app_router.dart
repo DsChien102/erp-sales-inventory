@@ -22,6 +22,8 @@ import '../../features/more/presentation/einvoice_settings/bloc/einvoice_setting
 
 // Auth
 import '../../features/auth/presentation/pages/login_page.dart';
+import '../../features/auth/presentation/pages/activation_code_page.dart';
+import '../../features/auth/presentation/pages/account_activation_page.dart';
 
 // Dashboard
 import '../../features/dashboard/presentation/dashboard_page.dart';
@@ -77,13 +79,13 @@ final appRouter = GoRouter(
   initialLocation: '/',
   redirect: (context, state) {
     final isAuthenticated = getIt<ICurrentUser>().userId != null;
-    final isLoginRoute = state.matchedLocation == '/login';
+    final isAuthRoute = state.matchedLocation.startsWith('/login');
 
-    if (!isAuthenticated && !isLoginRoute) {
+    if (!isAuthenticated && !isAuthRoute) {
       return '/login';
     }
 
-    if (isAuthenticated && isLoginRoute) {
+    if (isAuthenticated && isAuthRoute) {
       return '/';
     }
 
@@ -93,7 +95,38 @@ final appRouter = GoRouter(
     GoRoute(
       path: '/login',
       name: 'login',
-      builder: (context, state) => const LoginPage(),
+      builder: (context, state) {
+        final extra = state.extra as Map<String, dynamic>?;
+        return LoginPage(
+          prefilledEmail: extra?['prefilledEmail'] as String?,
+          showSuccessBanner: extra?['showSuccessBanner'] as bool? ?? false,
+        );
+      },
+      routes: [
+        GoRoute(
+          path: 'enter-code',
+          name: 'login.enter_code',
+          builder: (context, state) => const ActivationCodePage(),
+        ),
+        GoRoute(
+          path: 'activate',
+          name: 'login.activate',
+          builder: (context, state) {
+            final extra = state.extra as Map<String, dynamic>?;
+            return AccountActivationPage(
+              email: extra?['email'] as String?,
+            );
+          },
+        ),
+        GoRoute(
+          path: 'reset-password',
+          name: 'login.reset_password',
+          builder: (context, state) {
+            final email = state.extra as String? ?? '';
+            return ResetPasswordPage(email: email);
+          },
+        ),
+      ],
     ),
     GoRoute(
       path: '/',
@@ -157,7 +190,8 @@ final appRouter = GoRouter(
       builder: (context, state) {
         final member = state.extra as MemberUiModel?;
         return OrganizationSelectRolePage(
-          member: member ??
+          member:
+              member ??
               const MemberUiModel(
                 id: 'm1',
                 name: 'Nguyễn Văn Minh',
@@ -173,7 +207,8 @@ final appRouter = GoRouter(
       name: 'more.users.preview-role-change',
       builder: (context, state) {
         final extra = state.extra as Map<String, dynamic>?;
-        final member = extra?['member'] as MemberUiModel? ??
+        final member =
+            extra?['member'] as MemberUiModel? ??
             const MemberUiModel(
               id: 'm1',
               name: 'Nguyễn Văn Minh',

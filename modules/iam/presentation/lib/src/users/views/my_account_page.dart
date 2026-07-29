@@ -160,7 +160,7 @@ class _MyAccountPageState extends State<MyAccountPage> {
         final result = await Navigator.of(context).push<bool>(
           MaterialPageRoute(
             builder: (context) => ResetPasswordPage(
-              emailMasked: _maskEmail(_accountData.email),
+              email: _accountData.email,
               iamModule: widget.iamModule,
             ),
           ),
