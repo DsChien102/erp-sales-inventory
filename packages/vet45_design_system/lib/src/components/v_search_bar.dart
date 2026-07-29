@@ -17,6 +17,7 @@ class VSearchBar extends StatefulWidget {
   final ValueChanged<String>? onChanged;
   final ValueChanged<String>? onSubmitted;
   final VoidCallback? onTap;
+  final VoidCallback? onClear;
   final bool readOnly;
   final bool autofocus;
   final FocusNode? focusNode;
@@ -35,6 +36,7 @@ class VSearchBar extends StatefulWidget {
     this.onChanged,
     this.onSubmitted,
     this.onTap,
+    this.onClear,
     this.readOnly = false,
     this.autofocus = false,
     this.focusNode,
@@ -58,9 +60,16 @@ class _VSearchBarState extends State<VSearchBar> {
     super.initState();
     _focusNode = widget.focusNode ?? FocusNode();
     _focusNode.addListener(_handleFocusChange);
+    widget.controller?.addListener(_handleControllerChange);
   }
 
   void _handleFocusChange() {
+    if (mounted) {
+      setState(() {});
+    }
+  }
+
+  void _handleControllerChange() {
     if (mounted) {
       setState(() {});
     }
@@ -78,10 +87,15 @@ class _VSearchBarState extends State<VSearchBar> {
       _focusNode = widget.focusNode ?? FocusNode();
       _focusNode.addListener(_handleFocusChange);
     }
+    if (widget.controller != oldWidget.controller) {
+      oldWidget.controller?.removeListener(_handleControllerChange);
+      widget.controller?.addListener(_handleControllerChange);
+    }
   }
 
   @override
   void dispose() {
+    widget.controller?.removeListener(_handleControllerChange);
     if (widget.focusNode == null) {
       _focusNode.dispose();
     } else {
@@ -94,8 +108,8 @@ class _VSearchBarState extends State<VSearchBar> {
   Widget build(BuildContext context) {
     final dynamicColors = context.vColors;
     final isFocused = _focusNode.hasFocus;
-    final resolvedState = widget.state ??
-        (widget.enabled ? VComponentState.enabled : VComponentState.disabled);
+    final resolvedState =
+        widget.state ?? (widget.enabled ? VComponentState.enabled : VComponentState.disabled);
     final isEnabled = resolvedState == VComponentState.enabled;
 
     Color bg;
@@ -138,6 +152,22 @@ class _VSearchBarState extends State<VSearchBar> {
         hintColor = Colors.white.withValues(alpha: 0.8);
         break;
     }
+
+    final hasText = widget.controller?.text.isNotEmpty ?? false;
+    final clearButton = widget.onClear != null && hasText
+        ? GestureDetector(
+            onTap: () {
+              widget.controller?.clear();
+              widget.onClear?.call();
+            },
+            child: VIcon(
+              icon: VIcons.close,
+              color: iconColor,
+              size: 20,
+            ),
+          )
+        : null;
+    final effectiveSuffix = widget.suffix ?? clearButton;
 
     Widget content = Row(
       children: [
@@ -183,9 +213,9 @@ class _VSearchBarState extends State<VSearchBar> {
                   ),
                 ),
         ),
-        if (widget.suffix != null) ...[
+        if (effectiveSuffix != null) ...[
           const SizedBox(width: VSpacing.space2),
-          widget.suffix!,
+          effectiveSuffix,
         ],
       ],
     );
@@ -195,24 +225,24 @@ class _VSearchBarState extends State<VSearchBar> {
       enabled: isEnabled,
       label: widget.semanticLabel ?? widget.hintText,
       child: Container(
-      height: 44,
-      padding: EdgeInsets.only(
-        left: VSpacing.space4,
-        right: widget.suffix != null ? 4.0 : VSpacing.space4,
+        height: 44,
+        padding: EdgeInsets.only(
+          left: VSpacing.space4,
+          right: effectiveSuffix != null ? VSpacing.space3 : VSpacing.space4,
+        ),
+        decoration: BoxDecoration(
+          color: bg,
+          borderRadius: BorderRadius.circular(VRadius.searchBar),
+          border: border,
+        ),
+        child: widget.onTap != null
+            ? InkWell(
+                onTap: widget.onTap,
+                borderRadius: BorderRadius.circular(VRadius.searchBar),
+                child: content,
+              )
+            : content,
       ),
-      decoration: BoxDecoration(
-        color: bg,
-        borderRadius: BorderRadius.circular(VRadius.searchBar),
-        border: border,
-      ),
-      child: widget.onTap != null
-          ? InkWell(
-              onTap: widget.onTap,
-              borderRadius: BorderRadius.circular(VRadius.searchBar),
-              child: content,
-            )
-          : content,
-    ),
     );
   }
 }
