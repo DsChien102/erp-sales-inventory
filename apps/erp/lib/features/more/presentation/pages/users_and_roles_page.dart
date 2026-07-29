@@ -1,11 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:vet45_design_system/design_system.dart';
+import 'package:vet45_iam_presentation/presentation.dart';
 
 /// Trang Quản lý "Người dùng & vai trò" trong ERP App tuân thủ 100% Design System với VPageScaffold.
-class UsersAndRolesPage extends StatelessWidget {
+class UsersAndRolesPage extends StatefulWidget {
   const UsersAndRolesPage({super.key});
 
+  @override
+  State<UsersAndRolesPage> createState() => _UsersAndRolesPageState();
+}
+
+class _UsersAndRolesPageState extends State<UsersAndRolesPage> {
   void _showNotice(BuildContext context, String featureName) {
     VToast.show(
       context,
@@ -13,6 +19,13 @@ class UsersAndRolesPage extends StatelessWidget {
       message: 'Tính năng đang được khởi tạo.',
       type: VToastType.info,
     );
+  }
+
+  Future<void> _handleOpenSetup() async {
+    await context.push('/more/organization-setup');
+    if (mounted) {
+      setState(() {});
+    }
   }
 
   @override
@@ -55,66 +68,68 @@ class UsersAndRolesPage extends StatelessWidget {
           vertical: VSpacing.space4,
         ),
         children: [
-          // Banner cảnh báo Cần hoàn tất thiết lập
-          VCard(
-            backgroundColor: colors.warningBg,
-            padding: const EdgeInsets.all(VSpacing.space4),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                VText(
-                  'Cần hoàn tất',
-                  variant: VTextVariant.bodySmall,
-                  style: TextStyle(
-                    fontWeight: FontWeight.w600,
-                    color: colors.warning,
-                  ),
-                ),
-                const VGap.xs(),
-                VText(
-                  'Tổ chức chưa hoàn tất thiết lập',
-                  variant: VTextVariant.headingH4,
-                  style: TextStyle(
-                    fontWeight: FontWeight.w700,
-                    color: colors.textPrimary,
-                  ),
-                ),
-                const VGap.xs(),
-                VText(
-                  'Còn 1 điều kiện bắt buộc trước khi có thể bắt đầu vận hành.',
-                  variant: VTextVariant.bodySmall,
-                  color: colors.textSecondary,
-                ),
-                const VGap.sm(),
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: GestureDetector(
-                    onTap: () => _showNotice(context, 'Hoàn tất thiết lập tổ chức'),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        VText(
-                          'Xem và hoàn tất',
-                          variant: VTextVariant.bodySmall,
-                          style: TextStyle(
-                            fontWeight: FontWeight.w600,
-                            color: colors.primary,
-                          ),
-                        ),
-                        const VGap.horizontalXs(),
-                        VIcon(
-                          icon: VIcons.chevronRight,
-                          size: 16,
-                          color: colors.primary,
-                        ),
-                      ],
+          // Banner cảnh báo Cần hoàn tất thiết lập (hiển thị khi chưa kích hoạt)
+          if (!FakeOrganizationSetupData.isActivated) ...[
+            VCard(
+              backgroundColor: colors.warningBg,
+              padding: const EdgeInsets.all(VSpacing.space4),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  VText(
+                    'Cần hoàn tất',
+                    variant: VTextVariant.bodySmall,
+                    style: TextStyle(
+                      fontWeight: FontWeight.w600,
+                      color: colors.warning,
                     ),
                   ),
-                ),
-              ],
+                  const VGap.xs(),
+                  VText(
+                    'Tổ chức chưa hoàn tất thiết lập',
+                    variant: VTextVariant.headingH4,
+                    style: TextStyle(
+                      fontWeight: FontWeight.w700,
+                      color: colors.textPrimary,
+                    ),
+                  ),
+                  const VGap.xs(),
+                  VText(
+                    'Còn 1 điều kiện bắt buộc trước khi có thể bắt đầu vận hành.',
+                    variant: VTextVariant.bodySmall,
+                    color: colors.textSecondary,
+                  ),
+                  const VGap.sm(),
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: GestureDetector(
+                      onTap: _handleOpenSetup,
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          VText(
+                            'Xem và hoàn tất',
+                            variant: VTextVariant.bodySmall,
+                            style: TextStyle(
+                              fontWeight: FontWeight.w600,
+                              color: colors.primary,
+                            ),
+                          ),
+                          const VGap.horizontalXs(),
+                          VIcon(
+                            icon: VIcons.chevronRight,
+                            size: 16,
+                            color: colors.primary,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
-          const VGap.sm(),
+            const VGap.sm(),
+          ],
 
           // 5 Card danh mục tùy chọn
           for (int i = 0; i < menuItems.length; i++) ...[
@@ -168,7 +183,7 @@ class UsersAndRolesPage extends StatelessWidget {
                   ),
                   VIcon(
                     icon: VIcons.chevronRight,
-                    size: 20,
+                    size: 16,
                     color: colors.textSecondary,
                   ),
                 ],

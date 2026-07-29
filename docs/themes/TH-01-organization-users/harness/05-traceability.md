@@ -108,6 +108,15 @@ Tổng product: **6 epic, 32 US** (2 Post-MVP) — [README.md](../README.md).
 | FR-01.. | FE | §S10 | presentation | member detail lifecycle | wgt_e03_u05_fr01_01 | done |
 | FR-01 | E2E | §S10 | integration | deactivate / remove | e2e_e03_u05_fr01_01 | todo |
 
+## S11 — EP-01 / US-04 + US-05 — Readiness + activate Tenant
+
+| Req ID | Role | Contract § | Enforce layer | Artifact | Test id | Status |
+| ------ | ---- | ---------- | ------------- | -------- | ------- | ------ |
+| US-04/05 | CONTRACT | §S11 | application | `TenantSetupReadiness` / `ActivateTenantCommand` | fake_iam_module_test | todo |
+| FR-01.. | BE | §S11 | application + infrastructure | handler + RPC | scn_e01_u04_fr01_01 | todo |
+| FR-01.. | FE | §S11 | presentation | `OrganizationSetupPage` + `ConfirmActivateOrganizationBottomSheet` | organization_setup_pages_test | done |
+| FR-01 | E2E | §S11 | integration | ERP setup & activate tenant flow | e2e_e01_u04_fr01_01 | todo |
+
 ---
 
 ## S15 — EP-01 / US-01–US-03 — Platform User + onboarding

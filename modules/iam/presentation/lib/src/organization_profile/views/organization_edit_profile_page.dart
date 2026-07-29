@@ -5,16 +5,19 @@ import '../data/vn_administrative_units_loader.dart';
 import '../mock/organization_profile_mock_data.dart';
 import '../models/organization_profile_ui_model.dart';
 import '../../organizations/widgets/organization_empty_view.dart';
+import '../../testing/fake_organization_setup_data.dart';
 
 /// Trang Chỉnh thông tin tổ chức (TA-D-02).
 class OrganizationEditProfilePage extends StatefulWidget {
   final OrganizationProfileUiModel profile;
   final bool hasPermission;
+  final VoidCallback? onSaveSuccess;
 
   const OrganizationEditProfilePage({
     super.key,
     this.profile = OrganizationProfileMockData.sampleProfile,
     this.hasPermission = true,
+    this.onSaveSuccess,
   });
 
   @override
@@ -80,13 +83,20 @@ class _OrganizationEditProfilePageState extends State<OrganizationEditProfilePag
   }
 
   void _saveChanges() {
-    VToast.show(
-      context,
-      title: 'Đã lưu thay đổi',
-      message: 'Thông tin tổ chức đã được cập nhật thành công.',
-      type: VToastType.success,
-    );
-    Navigator.of(context).pop();
+    FakeOrganizationSetupData.isReadyToActivate = true;
+    if (widget.onSaveSuccess != null) {
+      widget.onSaveSuccess!();
+    } else {
+      if (Navigator.of(context).canPop()) {
+        Navigator.of(context).pop(true);
+      }
+      VToast.show(
+        context,
+        title: 'Thành công',
+        message: 'Đã cập nhật thông tin tổ chức.',
+        type: VToastType.success,
+      );
+    }
   }
 
   @override

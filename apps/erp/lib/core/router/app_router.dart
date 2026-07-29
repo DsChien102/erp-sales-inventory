@@ -315,6 +315,21 @@ final appRouter = GoRouter(
       },
     ),
     GoRoute(
+      path: '/more/organization-setup',
+      name: 'more.organization-setup',
+      builder: (context, state) => const OrganizationSetupPage(),
+    ),
+    GoRoute(
+      path: '/more/organization-setup/incomplete',
+      name: 'more.organization-setup.incomplete',
+      builder: (context, state) => const OrganizationSetupPage(),
+    ),
+    GoRoute(
+      path: '/more/organization-setup/ready',
+      name: 'more.organization-setup.ready',
+      builder: (context, state) => const OrganizationSetupPage(),
+    ),
+    GoRoute(
       path: '/more/einvoice-settings',
       name: 'more.einvoice-settings',
       builder: (context, state) {

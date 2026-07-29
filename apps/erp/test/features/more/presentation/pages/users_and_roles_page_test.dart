@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:erp/features/more/presentation/pages/users_and_roles_page.dart';
+import 'package:vet45_iam_presentation/presentation.dart';
 
 void main() {
+  setUp(() {
+    FakeOrganizationSetupData.reset();
+  });
+
   testWidgets('UsersAndRolesPage renders header, warning banner, and 5 menu cards', (WidgetTester tester) async {
     tester.view.physicalSize = const Size(800, 1600);
     tester.view.devicePixelRatio = 1.0;
