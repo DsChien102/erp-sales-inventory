@@ -98,12 +98,17 @@ begin
   on conflict (user_id) do nothing;
 
   perform iam.enqueue_outbox_message(
-    '00000000-0000-0000-0000-000000000001'::uuid,
+    '00000000-0000-0000-0000-000000000000'::uuid,
     'iam.email.delivery_requested',
     jsonb_build_object(
       'template_id', 'activation_invitation',
-      'user_id', p_user_id,
-      'actor_user_id', v_actor
+      'to_email', (select email from auth.users where id = p_user_id),
+      'correlation_id', gen_random_uuid()::text,
+      'outcome_id', gen_random_uuid()::text,
+      'locale', 'vi',
+      'refs', jsonb_build_object(
+        'user_id', p_user_id::text
+      )
     )
   );
 
@@ -126,14 +131,20 @@ begin
   end if;
 
   -- Initiate only — never return credentials to Platform Admin.
-  -- Sentinel tenant_id for platform-scoped outbox (NOT NULL constraint).
+  -- Sentinel tenant_id = 000...000 for platform-scoped outbox (NOT NULL constraint).
+  -- delivery_code stored by Identity (via 014 draft) — worker fetches via peek RPC.
   perform iam.enqueue_outbox_message(
-    '00000000-0000-0000-0000-000000000001'::uuid,
+    '00000000-0000-0000-0000-000000000000'::uuid,
     'iam.email.delivery_requested',
     jsonb_build_object(
       'template_id', 'password_reset_code',
-      'user_id', p_user_id,
-      'actor_user_id', v_actor
+      'to_email', (select email from auth.users where id = p_user_id),
+      'correlation_id', gen_random_uuid()::text,
+      'outcome_id', gen_random_uuid()::text,
+      'locale', 'vi',
+      'refs', jsonb_build_object(
+        'user_id', p_user_id::text
+      )
     )
   );
 

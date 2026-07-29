@@ -11,7 +11,8 @@ class _FakeIdentityGateway implements IIdentitySelfServiceGateway {
     this.requestError,
     this.verifyError,
     this.completeError,
-  });
+    List<String>? callLog,
+  }) : callLog = callLog ?? <String>[];
 
   MyIdentityProfileDto? profile;
   Object? getError;
@@ -22,6 +23,7 @@ class _FakeIdentityGateway implements IIdentitySelfServiceGateway {
   int requestCount = 0;
   String? lastVerifiedCode;
   String? lastNewPassword;
+  final List<String> callLog;
 
   @override
   Future<MyIdentityProfileDto> getMyIdentityProfile() async {
@@ -88,7 +90,39 @@ class _FakeIdentityGateway implements IIdentitySelfServiceGateway {
     required String newPassword,
   }) async {
     if (completeError != null) throw completeError!;
+    callLog.add('complete');
     lastNewPassword = newPassword;
+  }
+}
+
+/// Records updatePassword calls and optional failure for complete-reset tests.
+class _RecordingAuthenticator implements IAuthenticator {
+  _RecordingAuthenticator({
+    this.updatePasswordError,
+    List<String>? callLog,
+  }) : callLog = callLog ?? <String>[];
+
+  final Object? updatePasswordError;
+  final List<String> callLog;
+  String? lastUpdatedPassword;
+
+  @override
+  String? get currentEmail => null;
+
+  @override
+  String? get currentUserId => null;
+
+  @override
+  Future<void> signIn({required String email, required String password}) async {}
+
+  @override
+  Future<void> signOut() async {}
+
+  @override
+  Future<void> updatePassword(String newPassword) async {
+    lastUpdatedPassword = newPassword;
+    callLog.add('updatePassword');
+    if (updatePasswordError != null) throw updatePasswordError!;
   }
 }
 
@@ -208,12 +242,15 @@ void main() {
       );
     });
 
-    test('reset_complete_ok — completes after verify', () async {
-      final gateway = _FakeIdentityGateway(profile: sample);
+    test('reset_complete_ok — updates password then completes after verify', () async {
+      final callLog = <String>[];
+      final gateway = _FakeIdentityGateway(profile: sample, callLog: callLog);
+      final authenticator = _RecordingAuthenticator(callLog: callLog);
       final verify = VerifyMyPasswordResetCommandHandler(
         identityGateway: gateway,
       );
       final complete = CompleteMyPasswordResetCommandHandler(
+        authenticator: authenticator,
         identityGateway: gateway,
       );
 
@@ -228,7 +265,36 @@ void main() {
       );
 
       expect(gateway.lastVerifiedCode, '123456');
+      expect(authenticator.lastUpdatedPassword, 'password1');
       expect(gateway.lastNewPassword, 'password1');
+      expect(callLog, ['updatePassword', 'complete']);
+    });
+
+    test('reset_complete_auth_fail — skips gateway when updatePassword fails', () async {
+      final callLog = <String>[];
+      final gateway = _FakeIdentityGateway(profile: sample, callLog: callLog);
+      final authenticator = _RecordingAuthenticator(
+        updatePasswordError: Exception('auth_rejected'),
+        callLog: callLog,
+      );
+      final complete = CompleteMyPasswordResetCommandHandler(
+        authenticator: authenticator,
+        identityGateway: gateway,
+      );
+
+      await expectLater(
+        complete.handle(
+          CompleteMyPasswordResetCommand(
+            operationId: 'op-1',
+            newPassword: 'password1',
+          ),
+        ),
+        throwsA(isA<Exception>()),
+      );
+
+      expect(authenticator.lastUpdatedPassword, 'password1');
+      expect(gateway.lastNewPassword, isNull);
+      expect(callLog, ['updatePassword']);
     });
 
     test('reset_password_policy — validator rejects short password', () async {

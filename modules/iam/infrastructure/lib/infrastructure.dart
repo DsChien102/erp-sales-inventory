@@ -3,6 +3,7 @@ library;
 export 'src/adapters/notification/email_template_renderer.dart';
 export 'src/adapters/notification/iam_email_sender_gateway.dart';
 export 'src/adapters/notification/supabase_email_delivery_gateways.dart';
+export 'src/adapters/notification/supabase_password_reset_code_gateway.dart';
 export 'src/adapters/notification/supabase_email_delivery_port.dart';
 export 'src/configuration/data_access/data_access_module.dart';
 export 'src/configuration/events_bus/events_bus_module.dart';

@@ -69,6 +69,7 @@ void registerGeneratedIamHandlers({
     bus: bus,
     logger: logger,
     factory: () => CompleteMyPasswordResetCommandHandler(
+      authenticator: container.get<IAuthenticator>(),
       identityGateway: container.get<IIdentitySelfServiceGateway>(),
     ),
   );

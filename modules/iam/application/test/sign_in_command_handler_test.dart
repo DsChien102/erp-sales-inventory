@@ -19,6 +19,9 @@ class _RecordingAuthenticator implements IAuthenticator {
   Future<void> signOut() async {
     signedInEmail = null;
   }
+
+  @override
+  Future<void> updatePassword(String newPassword) async {}
 }
 
 class _RecordingSessionPort implements IIamSessionPort {

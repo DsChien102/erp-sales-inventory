@@ -28,4 +28,11 @@ final class SupabaseAuthenticator implements IAuthenticator {
   Future<void> signOut() {
     return _supabase.auth.signOut();
   }
+
+  @override
+  Future<void> updatePassword(String newPassword) {
+    return _supabase.auth.updateUser(
+      UserAttributes(password: newPassword),
+    );
+  }
 }

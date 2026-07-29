@@ -67,19 +67,54 @@ Facade: `IIamModule` — mở rộng surface theo roadmap (hiện interim: sign-
 
 | Symbol | Input (summary) | Success | Errors |
 | ------ | --------------- | ------- | ------ |
-| Mutation RPC (invitation / activation) | business params + email fields | persist + `enqueue_outbox_message` (`iam.email.delivery_requested`) + optional outcome `queued` (same txn) | VALIDATION_ERROR |
+| Mutation RPC (invitation / activation / password reset) | business params + email fields | persist + `enqueue_outbox_message` (`iam.email.delivery_requested`, full payload) + optional outcome `queued` (same txn) | VALIDATION_ERROR |
 | `FakeEmailDeliveryPort.enqueue` (FE/unit only) | `EnqueueEmailDeliveryRequest` | simulates RPC side effect → outcome status per scenario | — |
 | `EmailDeliveryRequestedIntegrationEvent` → IE handler | outbox/inbox payload | `ICommandScheduler.enqueue(SendEmailDeliveryCommand, sourceEventId)` | — |
-| `SendEmailDeliveryCommand` (internal command, worker) | same payload via serializer; handler calls Resend then updates outcome | outcome `sent` / `failed` | SYSTEM_ERROR (worker `fail_internal_command`) |
+| `SendEmailDeliveryCommand` (internal command, worker) | same payload via serializer; for `password_reset_code`: calls `iam.peek_password_reset_delivery_code` (service_role) then renders code into email body; calls Resend then updates outcome | outcome `sent` / `failed` | SYSTEM_ERROR (worker `fail_internal_command`) |
 | `IEmailDeliveryPort.getOutcomeByCorrelationId` / outcome RPCs | correlationId | `EmailDeliveryOutcomeDto` | — |
 
-**Anti-pattern:** Dart `IIamOutboxClient` / port gọi `enqueue_outbox_message` — cấm; chỉ worker claim/complete/fail.
+**Anti-pattern:** Dart `IIamOutboxClient` / port gọi `enqueue_outbox_message` — cấm; chỉ worker claim/complete/fail. **Cấm** plaintext code/token/password trong payload, `refs`, API response, audit, logs.
 
-**Outcome RPCs (draft):** `iam.record_email_delivery_outcome`, `iam.get_email_delivery_outcome_by_correlation` — [`_drafts/iam_notify_email_delivery_outcome.sql`](../../../../supabase/migrations/_drafts/iam_notify_email_delivery_outcome.sql) (chưa promote).
+**Outcome RPCs (draft):** `iam.record_email_delivery_outcome`, `iam.get_email_delivery_outcome_by_correlation` — [`_drafts/iam_notify_email_delivery_outcome.sql`](../../../../supabase/migrations/_drafts/001_iam_notify_email_delivery_outcome.sql) (chưa promote).
 
 **Templates (logical):** `activation_invitation`, `tenant_invitation`, `password_reset_code`, `security_notification`.
 
 **Email CTA (tenant invite):** HTTPS App Link `https://{host}/i/{opaque}` — opaque map tới invitation; accept API dùng token trong body (xem §S8).
+
+### Wire payload `iam.email.delivery_requested`
+
+Envelope injected bởi `ProcessOutboxCommandHandler` nếu thiếu: `id`, `tenant_id`, `occurred_on`.
+
+| Field | Required | Ghi chú |
+| ----- | -------- | ------- |
+| `template_id` | yes | `activation_invitation` \| `tenant_invitation` \| `password_reset_code` \| `security_notification` |
+| `to_email` | yes | Resolve trong **mutation RPC** lúc enqueue (đọc `auth.users.email`) — worker không resolve |
+| `correlation_id` | yes | UUID text; dùng track outcome |
+| `outcome_id` | yes | UUID text; id row `email_delivery_outcomes` (optional `queued` insert cùng txn) |
+| `locale` | no | default `vi` |
+| `refs` | no | Opaque IDs only — **cấm** code/token/password; xem bảng refs theo template |
+| `app_link_url` | no | HTTPS App Link CTA cho invite/activate |
+
+**`tenant_id` platform sentinel:** `00000000-0000-0000-0000-000000000000` (= `EmailDeliveryConstants.platformTenantId`). Dùng cho mọi email không gắn tenant (activation, password reset). Worker/handler map sentinel → `tenantId: null` khi ghi outcome.
+
+**`refs` per template:**
+
+| template_id | refs keys |
+| ----------- | --------- |
+| `password_reset_code` | `{ "operation_id": "<uuid>", "user_id": "<uuid>" }` |
+| `activation_invitation` | `{ "user_id": "<uuid>" }` + `app_link_url` |
+| `tenant_invitation` | `{ "invitation_id": "<uuid>", "user_id": "<uuid>" }` + `app_link_url` |
+| `security_notification` | opaque — tùy use-case |
+
+**Code reset qua email (phương án worker-fetch):** SQL mutation enqueue **không** có code trong payload/refs; SQL lưu thêm cột `delivery_code` (plaintext, `service_role` only) trên `iam.password_reset_operations`. Worker (internal command) gọi RPC `iam.peek_password_reset_delivery_code(p_operation_id uuid) → text` trước khi render/send. Sau khi `complete_my_password_reset` hoặc hết hạn, RPC xóa/NULL `delivery_code`. Dart renderer đọc mã từ gateway response, không từ `refs`.
+
+**Peek RPC contract:**
+
+| RPC | Auth | Returns | Điều kiện |
+| --- | ---- | ------- | --------- |
+| `iam.peek_password_reset_delivery_code(p_operation_id uuid)` | `service_role` only | `text` (6-digit code) | operation chưa completed, chưa hết hạn; không xóa khi peek |
+
+**Draft:** [`_drafts/014_iam_identity_self_service.sql`](../../../../supabase/migrations/_drafts/014_iam_identity_self_service.sql) (chưa promote).
 
 ### Fake scenarios (FE / BE unit)
 

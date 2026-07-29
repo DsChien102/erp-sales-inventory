@@ -21,6 +21,11 @@
       "description": "Shared secret for worker tick auth (auto-generated on sync if empty)"
     },
     {
+      "name": "WORKER_ENV",
+      "default": "development",
+      "description": "Environment for the messaging worker (e.g., production, staging, development)"
+    },
+    {
       "name": "WORKER_LOG_LEVEL",
       "default": "WARNING",
       "description": "Messaging worker log level"
@@ -64,6 +69,12 @@
       "name": "RESEND_API_KEY",
       "required": false,
       "description": "API key for Resend email service"
+    },
+    {
+      "name": "RESEND_FROM_DOMAIN",
+      "default": "resend.dev",
+      "description": "Domain used as sender for Resend email service"
+ 
     },
     {
       "name": "APP_LINK_BASE_URL",

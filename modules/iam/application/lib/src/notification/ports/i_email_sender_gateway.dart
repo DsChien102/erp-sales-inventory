@@ -14,6 +14,10 @@ final class EmailSendResult {
 }
 
 /// Sends a rendered email via the configured provider (e.g. Resend).
+///
+/// For `password_reset_code`: implementation must resolve plaintext code via
+/// [IPasswordResetCodeGateway] using `refs['operation_id']` before rendering.
+/// Code must NOT come from `refs` directly.
 abstract interface class IEmailSenderGateway {
   Future<EmailSendResult> send({
     required EmailTemplateId templateId,

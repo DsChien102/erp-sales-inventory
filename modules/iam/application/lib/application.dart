@@ -53,6 +53,7 @@ export 'src/notification/integration_events/email_delivery_requested_integration
 export 'src/notification/ports/i_email_delivery_outcome_store.dart';
 export 'src/notification/ports/i_email_delivery_port.dart';
 export 'src/notification/ports/i_email_sender_gateway.dart';
+export 'src/notification/ports/i_password_reset_code_gateway.dart';
 export 'src/notification/shared/email_delivery_outcome_dto.dart';
 export 'src/notification/shared/email_delivery_status.dart';
 export 'src/notification/shared/email_template_id.dart';

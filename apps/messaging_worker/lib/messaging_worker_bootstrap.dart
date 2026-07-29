@@ -53,7 +53,10 @@ final class MessagingWorkerBootstrap {
         loggerFactory: resolvedLoggerFactory,
         integrationEventBus: sharedBus,
         restoreSession: false,
-        resendClient: ResendEmailClient(apiKey: resolvedConfig.resendApiKey),
+        resendClient: ResendEmailClient(
+          apiKey: resolvedConfig.resendApiKey,
+          fromEmail: resolvedConfig.resendFromEmail,
+        ),
       );
       resolvedIamModule = runtime.messagingModule;
     }

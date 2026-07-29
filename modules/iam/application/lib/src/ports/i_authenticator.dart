@@ -4,6 +4,9 @@ abstract interface class IAuthenticator {
 
   Future<void> signOut();
 
+  /// Updates the authenticated user's password (GoTrue `updateUser`).
+  Future<void> updatePassword(String newPassword);
+
   String? get currentUserId;
 
   String? get currentEmail;

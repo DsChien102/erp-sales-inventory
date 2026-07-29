@@ -8,7 +8,7 @@ import 'i_resend_client.dart';
 final class ResendEmailClient implements IResendClient {
   ResendEmailClient({
     required String? apiKey,
-    String fromEmail = 'VET45 <noreply@vet45.local>',
+    String fromEmail = 'Resend <onboarding@resend.dev>',
     http.Client? httpClient,
     Uri? endpoint,
   }) : _apiKey = apiKey,

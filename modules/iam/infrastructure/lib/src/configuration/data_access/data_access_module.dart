@@ -7,6 +7,7 @@ import 'package:vet45_shared_application/application.dart';
 import 'package:vet45_shared_infrastructure/infrastructure.dart';
 
 import '../../adapters/notification/iam_email_sender_gateway.dart';
+import '../../adapters/notification/supabase_password_reset_code_gateway.dart';
 import '../../adapters/notification/supabase_email_delivery_gateways.dart';
 import '../../adapters/notification/supabase_email_delivery_port.dart';
 import '../../domain/access/supabase_iam_access_gateway.dart';
@@ -90,9 +91,15 @@ final class IamDataAccessModule {
       ..registerSingleton<IResendClient>(
         resendClient ?? ResendEmailClient(apiKey: null),
       )
+      ..registerSingleton<IPasswordResetCodeGateway>(
+        SupabasePasswordResetCodeGateway(
+          rpcClient: container.get<SupabaseSchemaRpcClient>(),
+        ),
+      )
       ..registerSingleton<IEmailSenderGateway>(
         IamEmailSenderGateway(
           resendClient: container.get<IResendClient>(),
+          codeGateway: container.get<IPasswordResetCodeGateway>(),
         ),
       )
       ..registerSingleton<IEmailDeliveryOutcomeStore>(

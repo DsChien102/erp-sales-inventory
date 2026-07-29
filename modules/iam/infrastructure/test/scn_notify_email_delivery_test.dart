@@ -29,8 +29,14 @@ void main() {
 
       final container = GetIt.asNewInstance();
       container
+        ..registerSingleton<IPasswordResetCodeGateway>(
+          _NullPasswordResetCodeGateway(),
+        )
         ..registerSingleton<IEmailSenderGateway>(
-          IamEmailSenderGateway(resendClient: resend),
+          IamEmailSenderGateway(
+            resendClient: resend,
+            codeGateway: container.get<IPasswordResetCodeGateway>(),
+          ),
         )
         ..registerSingleton<IEmailDeliveryOutcomeStore>(outcomes)
         ..registerFactory(
@@ -171,4 +177,10 @@ void main() {
       expect(internal.failedErrors, isNotEmpty);
     });
   });
+}
+
+/// Stub gateway: always returns null (no password-reset ops in notification tests).
+final class _NullPasswordResetCodeGateway implements IPasswordResetCodeGateway {
+  @override
+  Future<String?> peekDeliveryCode(String operationId) async => null;
 }
