@@ -10,6 +10,7 @@ import '../widgets/invitation_card.dart';
 import '../widgets/invitation_filter_bottom_sheet.dart';
 import '../widgets/member_card.dart';
 import '../widgets/member_filter_bottom_sheet.dart';
+import '../widgets/organization_users_widgets.dart';
 import 'organization_invitation_detail_page.dart';
 import 'organization_invite_member_page.dart';
 import 'organization_member_detail_page.dart';
@@ -241,6 +242,13 @@ class _OrganizationUsersPageState extends State<OrganizationUsersPage> {
     }
   }
 
+  Future<void> _handleRefresh() async {
+    if (_hasError) {
+      setState(() => _hasError = false);
+    }
+    widget.onRetry?.call();
+  }
+
   @override
   Widget build(BuildContext context) {
     final colors = context.vColors;
@@ -321,14 +329,14 @@ class _OrganizationUsersPageState extends State<OrganizationUsersPage> {
                   child: Row(
                     children: [
                       Expanded(
-                        child: _buildTabButton(
+                        child: OrganizationUsersTabButton(
                           label: 'Thành viên',
                           isActive: isMemberTab,
                           onTap: () => setState(() => _activeTabIndex = 0),
                         ),
                       ),
                       Expanded(
-                        child: _buildTabButton(
+                        child: OrganizationUsersTabButton(
                           label: 'Lời mời',
                           isActive: !isMemberTab,
                           onTap: () => setState(() => _activeTabIndex = 1),
@@ -348,39 +356,51 @@ class _OrganizationUsersPageState extends State<OrganizationUsersPage> {
                   child: Row(
                     children: isMemberTab
                         ? [
-                            _buildFilterChip('Tất cả', _selectedMemberFilter == 'Tất cả', (val) {
-                              setState(() => _selectedMemberFilter = val);
-                            }),
+                            OrganizationUsersFilterChip(
+                              label: 'Tất cả',
+                              isSelected: _selectedMemberFilter == 'Tất cả',
+                              onSelect: (val) {
+                                setState(() => _selectedMemberFilter = val);
+                              },
+                            ),
                             const VGap.horizontalSm(),
-                            _buildFilterChip('Hoạt động', _selectedMemberFilter == 'Hoạt động', (
-                              val,
-                            ) {
-                              setState(() => _selectedMemberFilter = val);
-                            }),
+                            OrganizationUsersFilterChip(
+                              label: 'Hoạt động',
+                              isSelected: _selectedMemberFilter == 'Hoạt động',
+                              onSelect: (val) {
+                                setState(() => _selectedMemberFilter = val);
+                              },
+                            ),
                             const VGap.horizontalSm(),
-                            _buildFilterChip('Tạm ngừng', _selectedMemberFilter == 'Tạm ngừng', (
-                              val,
-                            ) {
-                              setState(() => _selectedMemberFilter = val);
-                            }),
+                            OrganizationUsersFilterChip(
+                              label: 'Tạm ngừng',
+                              isSelected: _selectedMemberFilter == 'Tạm ngừng',
+                              onSelect: (val) {
+                                setState(() => _selectedMemberFilter = val);
+                              },
+                            ),
                           ]
                         : [
-                            _buildFilterChip('Tất cả', _selectedInvitationFilter == 'Tất cả', (
-                              val,
-                            ) {
-                              setState(() => _selectedInvitationFilter = val);
-                            }),
+                            OrganizationUsersFilterChip(
+                              label: 'Tất cả',
+                              isSelected: _selectedInvitationFilter == 'Tất cả',
+                              onSelect: (val) {
+                                setState(() => _selectedInvitationFilter = val);
+                              },
+                            ),
                             const VGap.horizontalSm(),
-                            _buildFilterChip('Đang chờ', _selectedInvitationFilter == 'Đang chờ', (
-                              val,
-                            ) {
-                              setState(() => _selectedInvitationFilter = val);
-                            }),
+                            OrganizationUsersFilterChip(
+                              label: 'Đang chờ',
+                              isSelected: _selectedInvitationFilter == 'Đang chờ',
+                              onSelect: (val) {
+                                setState(() => _selectedInvitationFilter = val);
+                              },
+                            ),
                             const VGap.horizontalSm(),
-                            _buildFilterChip(
-                              'Sắp hết hạn',
-                              _selectedInvitationFilter == 'Sắp hết hạn',
-                              (val) {
+                            OrganizationUsersFilterChip(
+                              label: 'Sắp hết hạn',
+                              isSelected: _selectedInvitationFilter == 'Sắp hết hạn',
+                              onSelect: (val) {
                                 setState(() => _selectedInvitationFilter = val);
                               },
                             ),
@@ -390,7 +410,23 @@ class _OrganizationUsersPageState extends State<OrganizationUsersPage> {
 
                 // Main Content area
                 Expanded(
-                  child: _buildMainContent(colors, isMemberTab),
+                  child: OrganizationUsersMainContent(
+                    isUnauthorized: widget.isUnauthorized,
+                    hasError: _hasError,
+                    isMemberTab: isMemberTab,
+                    isFiltered: _isFiltered,
+                    members: _filteredMembers,
+                    invitations: _filteredInvitations,
+                    onRefresh: _handleRefresh,
+                    onClearFilter: _clearSearchAndFilter,
+                    onInviteMember: _navigateToInviteMember,
+                    onErrorRetry: () {
+                      setState(() => _hasError = false);
+                      widget.onRetry?.call();
+                    },
+                    onMemberTap: _navigateToMemberDetail,
+                    onInvitationTap: _navigateToInvitationDetail,
+                  ),
                 ),
               ],
             ),
@@ -418,7 +454,7 @@ class _OrganizationUsersPageState extends State<OrganizationUsersPage> {
                         child: VIcon(
                           icon: VIcons.add,
                           size: 26,
-                          color: Colors.white,
+                          color: VColors.neutral0,
                         ),
                       ),
                     ),
@@ -426,306 +462,6 @@ class _OrganizationUsersPageState extends State<OrganizationUsersPage> {
                 ),
               ),
           ],
-        ),
-      ),
-    );
-  }
-
-  Future<void> _handleRefresh() async {
-    widget.onRetry?.call();
-    await Future.delayed(const Duration(milliseconds: 600));
-    if (mounted) {
-      setState(() {
-        _hasError = false;
-      });
-    }
-  }
-
-  Widget _buildScrollableEmptyState(Widget emptyStateWidget) {
-    return RefreshIndicator(
-      onRefresh: _handleRefresh,
-      child: SingleChildScrollView(
-        physics: const AlwaysScrollableScrollPhysics(),
-        child: Container(
-          height: 480,
-          alignment: Alignment.center,
-          child: emptyStateWidget,
-        ),
-      ),
-    );
-  }
-
-  Widget _buildMainContent(dynamic colors, bool isMemberTab) {
-    // Unauthorized / Permission denied state (matching Image 1 design & app/admin)
-    if (widget.isUnauthorized) {
-      return _buildScrollableEmptyState(
-        _buildEmptyState(
-          icon: VIcons.shield,
-          iconBgColor: colors.warningBg,
-          iconColor: colors.warning,
-          title: 'Bạn không có quyền quản lý',
-          subtitle: 'Liên hệ Chủ tổ chức hoặc Quản trị viên để được cấp quyền phù hợp.',
-          actionText: 'Quay lại',
-          actionColor: colors.success,
-          onAction: () {
-            if (Navigator.canPop(context)) {
-              Navigator.of(context).pop();
-            }
-          },
-        ),
-      );
-    }
-
-    // TA-S-03 Error state
-    if (_hasError) {
-      return _buildScrollableEmptyState(
-        _buildEmptyState(
-          icon: VIcons.close,
-          iconBgColor: colors.dangerBg,
-          iconColor: colors.danger,
-          title: 'Không thể tải danh sách',
-          titleColor: colors.danger,
-          subtitle: 'Đã xảy ra lỗi khi tải thành viên. Vui lòng thử lại.',
-          actionText: 'Thử lại',
-          actionColor: colors.danger,
-          onAction: () {
-            setState(() => _hasError = false);
-            widget.onRetry?.call();
-          },
-        ),
-      );
-    }
-
-    if (isMemberTab) {
-      if (_filteredMembers.isEmpty) {
-        if (_isFiltered) {
-          // TA-S-02 Search / Filter empty state
-          return _buildScrollableEmptyState(
-            _buildEmptyState(
-              icon: VIcons.search,
-              title: 'Không tìm thấy kết quả',
-              subtitle: 'Thử từ khóa khác hoặc xóa bộ lọc đang áp dụng.',
-              actionText: 'Xóa bộ lọc',
-              onAction: _clearSearchAndFilter,
-            ),
-          );
-        }
-        // TA-S-01 Empty state
-        return _buildScrollableEmptyState(
-          _buildEmptyState(
-            icon: VIcons.info,
-            title: 'Chưa có thành viên khác',
-            subtitle: 'Mời thêm người dùng để cùng vận hành tổ chức.',
-            actionText: 'Mời thành viên',
-            onAction: _navigateToInviteMember,
-          ),
-        );
-      }
-
-      return RefreshIndicator(
-        onRefresh: _handleRefresh,
-        child: ListView.separated(
-          physics: const AlwaysScrollableScrollPhysics(),
-          padding: const EdgeInsets.only(
-            left: VSpacing.screenMobile,
-            right: VSpacing.screenMobile,
-            bottom: 80,
-          ),
-          itemCount: _filteredMembers.length,
-          separatorBuilder: (_, __) => const VGap.sm(),
-          itemBuilder: (context, index) {
-            final member = _filteredMembers[index];
-            return MemberCard(
-              member: member,
-              onTap: () => _navigateToMemberDetail(member),
-            );
-          },
-        ),
-      );
-    }
-
-    // Invitation tab
-    if (_filteredInvitations.isEmpty) {
-      if (_isFiltered) {
-        // TA-S-02 Search / Filter empty state
-        return _buildScrollableEmptyState(
-          _buildEmptyState(
-            icon: VIcons.search,
-            title: 'Không tìm thấy kết quả',
-            subtitle: 'Thử từ khóa khác hoặc xóa bộ lọc đang áp dụng.',
-            actionText: 'Xóa bộ lọc',
-            onAction: _clearSearchAndFilter,
-          ),
-        );
-      }
-      // TA-S-01 Empty state
-      return _buildScrollableEmptyState(
-        _buildEmptyState(
-          icon: VIcons.info,
-          title: 'Chưa có lời mời nào',
-          subtitle: 'Tạo lời mời mới để thêm người dùng vào tổ chức.',
-          actionText: 'Mời thành viên',
-          onAction: _navigateToInviteMember,
-        ),
-      );
-    }
-
-    return RefreshIndicator(
-      onRefresh: _handleRefresh,
-      child: ListView.separated(
-        physics: const AlwaysScrollableScrollPhysics(),
-        padding: const EdgeInsets.only(
-          left: VSpacing.screenMobile,
-          right: VSpacing.screenMobile,
-          bottom: 80,
-        ),
-        itemCount: _filteredInvitations.length,
-        separatorBuilder: (_, __) => const VGap.sm(),
-        itemBuilder: (context, index) {
-          final invitation = _filteredInvitations[index];
-          return InvitationCard(
-            invitation: invitation,
-            onTap: () => _navigateToInvitationDetail(invitation),
-          );
-        },
-      ),
-    );
-  }
-
-  Widget _buildTabButton({
-    required String label,
-    required bool isActive,
-    required VoidCallback onTap,
-  }) {
-    final colors = context.vColors;
-    return GestureDetector(
-      onTap: onTap,
-      behavior: HitTestBehavior.opaque,
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: VSpacing.space3),
-        alignment: Alignment.center,
-        decoration: BoxDecoration(
-          border: Border(
-            bottom: BorderSide(
-              color: isActive ? colors.success : Colors.transparent,
-              width: 2,
-            ),
-          ),
-        ),
-        child: VText(
-          label,
-          variant: VTextVariant.bodyDefault,
-          style: TextStyle(
-            fontWeight: isActive ? FontWeight.w700 : FontWeight.w500,
-            color: isActive ? colors.textPrimary : colors.textSecondary,
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildFilterChip(
-    String label,
-    bool isSelected,
-    ValueChanged<String> onSelect,
-  ) {
-    final colors = context.vColors;
-    return GestureDetector(
-      onTap: () => onSelect(label),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 150),
-        padding: const EdgeInsets.symmetric(
-          horizontal: VSpacing.space3,
-          vertical: VSpacing.space1 + 2,
-        ),
-        decoration: BoxDecoration(
-          color: isSelected ? colors.successBg : colors.surface,
-          borderRadius: BorderRadius.circular(VRadius.pill),
-          border: Border.all(
-            color: isSelected ? colors.success : colors.borderDefault,
-          ),
-        ),
-        child: VText(
-          label,
-          variant: VTextVariant.bodySmall,
-          style: TextStyle(
-            fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
-            color: isSelected ? colors.success : colors.textSecondary,
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildEmptyState({
-    required VIcons icon,
-    Color? iconBgColor,
-    Color? iconColor,
-    required String title,
-    Color? titleColor,
-    required String subtitle,
-    required String actionText,
-    Color? actionColor,
-    required VoidCallback onAction,
-  }) {
-    final colors = context.vColors;
-    return Align(
-      alignment: const Alignment(0, -0.85),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: VSpacing.screenMobile),
-        child: VCard(
-          padding: const EdgeInsets.symmetric(
-            horizontal: VSpacing.space5,
-            vertical: VSpacing.space6,
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                width: 56,
-                height: 56,
-                decoration: BoxDecoration(
-                  color: iconBgColor ?? colors.surfaceAlt,
-                  shape: BoxShape.circle,
-                ),
-                child: Center(
-                  child: VIcon(
-                    icon: icon,
-                    size: 28,
-                    color: iconColor ?? colors.textSecondary,
-                  ),
-                ),
-              ),
-              const VGap.md(),
-              VText(
-                title,
-                variant: VTextVariant.headingH4,
-                style: TextStyle(
-                  fontWeight: FontWeight.w700,
-                  color: titleColor ?? colors.textPrimary,
-                ),
-              ),
-              const VGap.xs(),
-              VText(
-                subtitle,
-                variant: VTextVariant.bodySmall,
-                color: colors.textSecondary,
-                textAlign: TextAlign.center,
-              ),
-              const VGap.md(),
-              GestureDetector(
-                onTap: onAction,
-                child: VText(
-                  actionText,
-                  variant: VTextVariant.bodyDefault,
-                  style: TextStyle(
-                    fontWeight: FontWeight.w600,
-                    color: actionColor ?? colors.primary,
-                  ),
-                ),
-              ),
-            ],
-          ),
         ),
       ),
     );

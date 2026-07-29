@@ -126,7 +126,7 @@ class _MemberFilterBottomSheetState extends State<MemberFilterBottomSheet> {
 
           // Section 1: Trạng thái
           const _FilterSectionTitle(title: 'Trạng thái'),
-          const SizedBox(height: 8),
+          const VGap.xs(),
           Wrap(
             spacing: VSpacing.space2,
             runSpacing: VSpacing.space2,
@@ -147,7 +147,7 @@ class _MemberFilterBottomSheetState extends State<MemberFilterBottomSheet> {
 
           // Section 2: Vai trò
           const _FilterSectionTitle(title: 'Vai trò'),
-          const SizedBox(height: 8),
+          const VGap.xs(),
           Wrap(
             spacing: VSpacing.space2,
             runSpacing: VSpacing.space2,
@@ -168,7 +168,7 @@ class _MemberFilterBottomSheetState extends State<MemberFilterBottomSheet> {
 
           // Section 3: Sắp xếp
           const _FilterSectionTitle(title: 'Sắp xếp'),
-          const SizedBox(height: 8),
+          const VGap.xs(),
           Wrap(
             spacing: VSpacing.space2,
             runSpacing: VSpacing.space2,
@@ -198,7 +198,7 @@ class _MemberFilterBottomSheetState extends State<MemberFilterBottomSheet> {
                   onPressed: _resetFilter,
                 ),
               ),
-              const SizedBox(width: 12),
+              const VGap.horizontalMd(),
               Expanded(
                 child: VButton(
                   label: 'Áp dụng',
@@ -268,9 +268,10 @@ class _SelectableFilterChip extends StatelessWidget {
             width: 1.0,
           ),
         ),
-        child: Text(
+        child: VText(
           label,
-          style: VTypography.bodySmall.copyWith(
+          variant: VTextVariant.bodySmall,
+          style: TextStyle(
             color: isSelected ? VColors.success : colors.textPrimary,
             fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
           ),

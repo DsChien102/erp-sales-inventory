@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:vet45_design_system/design_system.dart';
 
 import '../models/user_ui_model.dart';
+import '../widgets/member_detail_bottom_sheets.dart';
 
 /// Trang Chi tiết thành viên (TA-D-01).
 class OrganizationMemberDetailPage extends StatefulWidget {
@@ -48,7 +49,7 @@ class _OrganizationMemberDetailPageState extends State<OrganizationMemberDetailP
               style: const TextStyle(fontWeight: FontWeight.w700),
             ),
             const VGap.md(),
-            _buildBottomSheetOption(
+            MemberDetailOptionItem(
               icon: VIcons.shield,
               title: 'Thay đổi vai trò',
               subtitle: isActive ? 'Cập nhật quyền vận hành' : 'Cập nhật quyền khi kích hoạt lại',
@@ -59,394 +60,51 @@ class _OrganizationMemberDetailPageState extends State<OrganizationMemberDetailP
                   extra: _member,
                 );
                 if (newRole != null && context.mounted) {
-                  _showChangeRoleConfirmBottomSheet(context, newRole);
+                  showChangeRoleConfirmBottomSheet(
+                    context: context,
+                    member: _member,
+                    newRole: newRole,
+                    onConfirmed: (updated) => setState(() => _member = updated),
+                  );
                 }
               },
             ),
             const VGap.sm(),
-            _buildBottomSheetOption(
+            MemberDetailOptionItem(
               icon: isActive ? VIcons.pause : VIcons.personCheck,
               title: isActive ? 'Tạm ngừng thành viên' : 'Kích hoạt lại',
               subtitle: isActive ? 'Dừng quyền truy cập tạm thời' : 'Khôi phục quyền truy cập',
               onTap: () {
                 Navigator.of(context).pop();
                 if (isActive) {
-                  _showSuspendConfirmBottomSheet(context);
+                  showSuspendConfirmBottomSheet(
+                    context: context,
+                    member: _member,
+                    onConfirmed: (updated) => setState(() => _member = updated),
+                  );
                 } else {
-                  _showReactivateConfirmBottomSheet(context);
+                  showReactivateConfirmBottomSheet(
+                    context: context,
+                    member: _member,
+                    onConfirmed: (updated) => setState(() => _member = updated),
+                  );
                 }
               },
             ),
             const VGap.sm(),
-            _buildBottomSheetOption(
+            MemberDetailOptionItem(
               icon: VIcons.personRemove,
               title: 'Loại khỏi tổ chức',
               subtitle: 'Kết thúc tư cách thành viên',
               isDanger: true,
               onTap: () {
                 Navigator.of(context).pop();
-                _showRemoveConfirmBottomSheet(context);
-              },
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  void _showChangeRoleConfirmBottomSheet(BuildContext context, String newRole) {
-    final colors = context.vColors;
-
-    showVBottomSheet(
-      context: context,
-      child: Padding(
-        padding: const EdgeInsets.only(
-          left: VSpacing.space4,
-          right: VSpacing.space4,
-          top: VSpacing.space2,
-          bottom: VSpacing.space6,
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            VText(
-              'Đổi vai trò của ${_member.name}?',
-              variant: VTextVariant.headingH3,
-              style: const TextStyle(fontWeight: FontWeight.w700),
-            ),
-            const VGap.xs(),
-            VText(
-              'Vai trò ${_member.role} → $newRole. Quyền mới có hiệu lực ở yêu cầu tiếp theo.',
-              variant: VTextVariant.bodyDefault,
-              color: colors.textSecondary,
-            ),
-            const VGap.xl(),
-            VButton(
-              label: 'Quay lại',
-              variant: VButtonVariant.outline,
-              tone: VComponentTone.neutral,
-              fullWidth: true,
-              onPressed: () => Navigator.of(context).pop(),
-            ),
-            const VGap.sm(),
-            VButton(
-              label: 'Xác nhận thay đổi',
-              variant: VButtonVariant.primary,
-              tone: VComponentTone.success,
-              fullWidth: true,
-              onPressed: () {
-                Navigator.of(context).pop();
-                setState(() {
-                  _member = MemberUiModel(
-                    id: _member.id,
-                    name: _member.name,
-                    email: _member.email,
-                    role: newRole,
-                    status: _member.status,
-                    identityText: _member.identityText,
-                    joinedDate: _member.joinedDate,
-                    lastActiveDate: _member.lastActiveDate,
-                    dataVersion: 'v9',
-                    suspendedAt: _member.suspendedAt,
-                    suspendedBy: _member.suspendedBy,
-                  );
-                });
-                VToast.show(
-                  context,
-                  title: 'Đã thay đổi vai trò.',
-                  message: '',
-                  type: VToastType.success,
+                showRemoveConfirmBottomSheet(
+                  context: context,
+                  member: _member,
+                  onConfirmed: (updated) => setState(() => _member = updated),
                 );
               },
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  void _showSuspendConfirmBottomSheet(BuildContext context) {
-    final colors = context.vColors;
-
-    showVBottomSheet(
-      context: context,
-      child: Padding(
-        padding: const EdgeInsets.only(
-          left: VSpacing.space4,
-          right: VSpacing.space4,
-          top: VSpacing.space2,
-          bottom: VSpacing.space6,
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            VText(
-              'Tạm ngừng thành viên?',
-              variant: VTextVariant.headingH3,
-              style: TextStyle(
-                fontWeight: FontWeight.w700,
-                color: colors.danger,
-              ),
-            ),
-            const VGap.xs(),
-            VText(
-              'Thành viên mất quyền truy cập tới khi được kích hoạt lại.',
-              variant: VTextVariant.bodyDefault,
-              color: colors.textSecondary,
-            ),
-            const VGap.xl(),
-            VButton(
-              label: 'Quay lại',
-              variant: VButtonVariant.outline,
-              tone: VComponentTone.neutral,
-              fullWidth: true,
-              onPressed: () => Navigator.of(context).pop(),
-            ),
-            const VGap.sm(),
-            VButton(
-              label: 'Tạm ngừng',
-              variant: VButtonVariant.dangerOutline,
-              fullWidth: true,
-              onPressed: () {
-                Navigator.of(context).pop();
-                setState(() {
-                  _member = MemberUiModel(
-                    id: _member.id,
-                    name: _member.name,
-                    email: _member.email,
-                    role: _member.role,
-                    status: MemberStatus.suspended,
-                    identityText: _member.identityText,
-                    joinedDate: _member.joinedDate,
-                    lastActiveDate: _member.lastActiveDate,
-                    dataVersion: _member.dataVersion,
-                    suspendedAt: _member.suspendedAt ?? '14/07/2026 · 09:30',
-                    suspendedBy: _member.suspendedBy ?? 'Lê Thị Lan',
-                  );
-                });
-                VToast.show(
-                  context,
-                  title: 'Đã tạm ngừng thành viên.',
-                  message: '',
-                  type: VToastType.success,
-                );
-              },
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  void _showReactivateConfirmBottomSheet(BuildContext context) {
-    final colors = context.vColors;
-
-    showVBottomSheet(
-      context: context,
-      child: Padding(
-        padding: const EdgeInsets.only(
-          left: VSpacing.space4,
-          right: VSpacing.space4,
-          top: VSpacing.space2,
-          bottom: VSpacing.space6,
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            VText(
-              'Kích hoạt lại thành viên?',
-              variant: VTextVariant.headingH3,
-              style: TextStyle(
-                fontWeight: FontWeight.w700,
-                color: colors.textPrimary,
-              ),
-            ),
-            const VGap.xs(),
-            VText(
-              'Quyền truy cập sẽ được khôi phục theo vai trò hiện hành.',
-              variant: VTextVariant.bodyDefault,
-              color: colors.textSecondary,
-            ),
-            const VGap.xl(),
-            VButton(
-              label: 'Quay lại',
-              variant: VButtonVariant.outline,
-              tone: VComponentTone.neutral,
-              fullWidth: true,
-              onPressed: () => Navigator.of(context).pop(),
-            ),
-            const VGap.sm(),
-            VButton(
-              label: 'Kích hoạt lại',
-              variant: VButtonVariant.primary,
-              tone: VComponentTone.success,
-              fullWidth: true,
-              onPressed: () {
-                Navigator.of(context).pop();
-                setState(() {
-                  _member = MemberUiModel(
-                    id: _member.id,
-                    name: _member.name,
-                    email: _member.email,
-                    role: _member.role,
-                    status: MemberStatus.active,
-                    identityText: _member.identityText,
-                    joinedDate: _member.joinedDate,
-                    lastActiveDate: _member.lastActiveDate,
-                    dataVersion: 'v10',
-                    suspendedAt: _member.suspendedAt,
-                    suspendedBy: _member.suspendedBy,
-                  );
-                });
-                VToast.show(
-                  context,
-                  title: 'Đã kích hoạt lại thành viên.',
-                  message: '',
-                  type: VToastType.success,
-                );
-              },
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  void _showRemoveConfirmBottomSheet(BuildContext context) {
-    final colors = context.vColors;
-
-    showVBottomSheet(
-      context: context,
-      child: Padding(
-        padding: const EdgeInsets.only(
-          left: VSpacing.space4,
-          right: VSpacing.space4,
-          top: VSpacing.space2,
-          bottom: VSpacing.space6,
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            VText(
-              'Loại thành viên khỏi tổ chức?',
-              variant: VTextVariant.headingH3,
-              style: TextStyle(
-                fontWeight: FontWeight.w700,
-                color: colors.danger,
-              ),
-            ),
-            const VGap.xs(),
-            VText(
-              'Membership sẽ kết thúc vĩnh viễn. Người này cần lời mời mới nếu quay lại.',
-              variant: VTextVariant.bodyDefault,
-              color: colors.textSecondary,
-            ),
-            const VGap.xl(),
-            VButton(
-              label: 'Quay lại',
-              variant: VButtonVariant.outline,
-              tone: VComponentTone.neutral,
-              fullWidth: true,
-              onPressed: () => Navigator.of(context).pop(),
-            ),
-            const VGap.sm(),
-            VButton(
-              label: 'Loại thành viên',
-              variant: VButtonVariant.dangerOutline,
-              fullWidth: true,
-              onPressed: () {
-                Navigator.of(context).pop();
-                setState(() {
-                  _member = MemberUiModel(
-                    id: _member.id,
-                    name: _member.name,
-                    email: _member.email,
-                    role: _member.role,
-                    status: MemberStatus.removed,
-                    identityText: _member.identityText,
-                    joinedDate: _member.joinedDate,
-                    lastActiveDate: _member.lastActiveDate,
-                    dataVersion: _member.dataVersion,
-                    suspendedAt: _member.suspendedAt,
-                    suspendedBy: _member.suspendedBy,
-                    removedAt: _member.removedAt ?? '14/07/2026 · 09:45',
-                    removedBy: _member.removedBy ?? 'Lê Thị Lan',
-                    previousRole: _member.previousRole ?? _member.role,
-                  );
-                });
-                VToast.show(
-                  context,
-                  title: 'Đã loại thành viên khỏi tổ chức.',
-                  message: '',
-                  type: VToastType.success,
-                );
-              },
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildBottomSheetOption({
-    required VIcons icon,
-    required String title,
-    required String subtitle,
-    required VoidCallback onTap,
-    bool isDanger = false,
-  }) {
-    final colors = context.vColors;
-
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(VRadius.card),
-      child: Container(
-        padding: const EdgeInsets.all(VSpacing.space4),
-        decoration: BoxDecoration(
-          color: isDanger ? colors.dangerBg : colors.surface,
-          border: Border.all(
-            color: isDanger ? colors.danger : colors.borderDefault,
-            width: 1,
-          ),
-          borderRadius: BorderRadius.circular(VRadius.card),
-        ),
-        child: Row(
-          children: [
-            VIcon(
-              icon: icon,
-              size: 24,
-              color: isDanger ? colors.danger : colors.textPrimary,
-            ),
-            const VGap.horizontalMd(),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  VText(
-                    title,
-                    variant: VTextVariant.bodyDefault,
-                    style: TextStyle(
-                      fontWeight: FontWeight.w700,
-                      color: isDanger ? colors.danger : colors.textPrimary,
-                    ),
-                  ),
-                  const VGap.xs(),
-                  VText(
-                    subtitle,
-                    variant: VTextVariant.bodySmall,
-                    color: colors.textSecondary,
-                  ),
-                ],
-              ),
-            ),
-            VIcon(
-              icon: VIcons.chevronRight,
-              size: 20,
-              color: isDanger ? colors.danger : colors.textSecondary,
             ),
           ],
         ),
@@ -473,7 +131,7 @@ class _OrganizationMemberDetailPageState extends State<OrganizationMemberDetailP
                 trailingIcon: const VIcon(
                   icon: VIcons.chevronUp,
                   size: 18,
-                  color: Colors.white,
+                  color: VColors.neutral0,
                 ),
                 variant: VButtonVariant.primary,
                 tone: VComponentTone.success,

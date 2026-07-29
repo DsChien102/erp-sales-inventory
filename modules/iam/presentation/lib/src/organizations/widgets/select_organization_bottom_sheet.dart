@@ -283,7 +283,7 @@ class _SelectOrganizationBottomSheetState
             width: 8,
             height: 8,
             decoration: const BoxDecoration(
-              color: Colors.white,
+              color: VColors.neutral0,
               shape: BoxShape.circle,
             ),
           ),

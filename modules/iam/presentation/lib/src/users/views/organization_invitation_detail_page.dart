@@ -256,7 +256,7 @@ class _OrganizationInvitationDetailPageState extends State<OrganizationInvitatio
           trailingIcon: const VIcon(
             icon: VIcons.chevronUp,
             size: 18,
-            color: Colors.white,
+            color: VColors.neutral0,
           ),
           variant: VButtonVariant.primary,
           tone: VComponentTone.success,
