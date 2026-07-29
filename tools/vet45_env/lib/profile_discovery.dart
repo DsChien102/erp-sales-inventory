@@ -10,13 +10,9 @@ class ProfileDiscovery {
   final Directory rootDir;
 
   static const profilesRootName = '.vet45/profiles';
-  static const templatesDirName = '.vet45/templates';
 
   static Directory profilesDir(Directory rootDir) =>
       Directory('${rootDir.path}/$profilesRootName');
-
-  static Directory templatesDir(Directory rootDir) =>
-      Directory('${rootDir.path}/$templatesDirName');
 
   /// Reserved directory names under `.vet45/profiles/` that are never profiles.
   static const reservedNames = {'_templates', 'templates'};

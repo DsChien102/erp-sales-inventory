@@ -7,11 +7,13 @@
   "keys": [
     {
       "name": "APP_STORE_CONNECT_ISSUER_ID",
-      "required": true
+      "required": true,
+      "description": "App Store Connect API issuer ID"
     },
     {
       "name": "APP_STORE_CONNECT_KEY_IDENTIFIER",
-      "required": true
+      "required": true,
+      "description": "App Store Connect API key identifier"
     }
   ],
   "environments": {

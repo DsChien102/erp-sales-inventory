@@ -11,19 +11,23 @@
     {
       "name": "SUPABASE_CONNECTION_URL",
       "from": "SUPABASE_URL",
-      "required": true
+      "required": true,
+      "description": "Supabase project URL (mapped to SUPABASE_CONNECTION_URL in app .env)"
     },
     {
       "name": "SUPABASE_ANON_KEY",
-      "required": true
+      "required": true,
+      "description": "Supabase anon/public key for Flutter ERP"
     },
     {
       "name": "LOG_LEVEL",
-      "default": "INFO"
+      "default": "INFO",
+      "description": "ERP application log level"
     },
     {
       "name": "MESSAGING_CLIENT_POLL_ENABLED",
-      "default": "false"
+      "default": "false",
+      "description": "Enable client-side messaging poll loop in ERP"
     }
   ],
   "environments": {

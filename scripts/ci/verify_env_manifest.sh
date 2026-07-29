@@ -30,26 +30,19 @@ do
 done
 
 if [[ -d "$root/tools/vet45_env/templates" ]]; then
-  echo "FAIL: obsolete templates dir $root/tools/vet45_env/templates (use .vet45/templates/)"
+  echo "FAIL: obsolete templates dir $root/tools/vet45_env/templates"
+  exit 1
+fi
+
+if [[ -d "$root/.vet45/templates" ]]; then
+  echo "FAIL: obsolete .vet45/templates/ — examples are generated from vet45.target.json"
   exit 1
 fi
 
 if [[ -d "$root/config" ]]; then
-  echo "FAIL: obsolete config/ — use .vet45/templates, .vet45/deploy, .vet45/profiles"
+  echo "FAIL: obsolete config/ — use .vet45/deploy, .vet45/profiles"
   exit 1
 fi
-
-if [[ ! -d "$root/.vet45/templates" ]]; then
-  echo "FAIL: missing $root/.vet45/templates"
-  exit 1
-fi
-
-for example in development local staging production auth; do
-  if [[ ! -f "$root/.vet45/templates/${example}.env.example" ]]; then
-    echo "FAIL: missing $root/.vet45/templates/${example}.env.example"
-    exit 1
-  fi
-done
 
 if [[ ! -f "$root/.vet45/deploy/deploy.env.example" ]]; then
   echo "FAIL: missing $root/.vet45/deploy/deploy.env.example"
@@ -121,11 +114,14 @@ echo "$list_out" | grep -q 'manifest:'
 "$root/scripts/env/vet45.sh" list >/dev/null
 test -x "$root/scripts/env/switch.sh"
 
-echo "==> vet45 init (temp smoke)"
+echo "==> vet45 example --check"
+"$root/.vet45/bin/vet45" example --check
+
+echo "==> vet45 init (temp smoke, no templates/)"
 tmp="$(mktemp -d)"
 trap 'rm -rf "$tmp"' EXIT
 mkdir -p "$tmp/tools/vet45_env" "$tmp/apps/erp" "$tmp/apps/admin" "$tmp/apps/messaging_worker" \
-  "$tmp/packages/vet45_design_system/example" "$tmp/.vet45/deploy" "$tmp/.vet45/templates"
+  "$tmp/packages/vet45_design_system/example" "$tmp/.vet45/deploy"
 cp -R "$root/tools/vet45_env/bin" "$tmp/tools/vet45_env/"
 cp -R "$root/tools/vet45_env/lib" "$tmp/tools/vet45_env/"
 cp "$root/tools/vet45_env/pubspec.yaml" "$tmp/tools/vet45_env/pubspec.yaml"
@@ -136,8 +132,6 @@ cp "$root/apps/messaging_worker/vet45.target.json" "$tmp/apps/messaging_worker/"
 cp "$root/packages/vet45_design_system/example/vet45.target.json" \
   "$tmp/packages/vet45_design_system/example/"
 cp "$root/.vet45/deploy/vet45.target.json" "$tmp/.vet45/deploy/"
-cp "$root/.vet45/templates/"*.env.example "$tmp/.vet45/templates/"
-cp "$root/.vet45/deploy/deploy.env.example" "$tmp/.vet45/deploy/"
 sed -i '' '/resolution: workspace/d' "$tmp/tools/vet45_env/pubspec.yaml" 2>/dev/null || \
   sed -i '/resolution: workspace/d' "$tmp/tools/vet45_env/pubspec.yaml"
 printf 'name: vet45\npublish_to: none\nenvironment:\n  sdk: ">=3.11.1 <4.0.0"\n' > "$tmp/pubspec.yaml"
@@ -145,7 +139,13 @@ printf 'name: vet45\npublish_to: none\nenvironment:\n  sdk: ">=3.11.1 <4.0.0"\n'
 (cd "$tmp" && dart run tools/vet45_env/bin/vet45_env.dart init smokeprofile >/dev/null)
 test -f "$tmp/.vet45/profiles/smokeprofile/development.env"
 test -f "$tmp/.vet45/profiles/smokeprofile/development.env.example"
+test -f "$tmp/.vet45/profiles/smokeprofile/auth.env.example"
+test ! -f "$tmp/.vet45/profiles/smokeprofile/auth.env"
 test -f "$tmp/.vet45/deploy/deploy.env"
+test -f "$tmp/.vet45/deploy/deploy.env.example"
+grep -q '# erp:' "$tmp/.vet45/profiles/smokeprofile/development.env.example"
+grep -q '# worker:' "$tmp/.vet45/profiles/smokeprofile/development.env.example"
+test ! -d "$tmp/.vet45/templates"
 test ! -d "$tmp/tools/vet45_env/templates"
 test ! -d "$tmp/config"
 

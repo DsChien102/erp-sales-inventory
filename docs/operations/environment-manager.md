@@ -12,7 +12,8 @@ Melos-centric workflow to keep ERP, messaging worker, and Supabase targets align
 | [`.vet45/templates/`](../../.vet45/templates/) | **Committed** — scaffold source for `vet45 init <profileId>` |
 | `.vet45/profiles/<profileId>/` | Local profile dir (under `.vet45/`, gitignored) |
 | `.vet45/profiles/<profileId>/<env>.env` | Profile secrets per environment |
-| `.vet45/profiles/<profileId>/auth.env` | Per-profile Supabase CLI token (optional) |
+| `.vet45/profiles/<profileId>/auth.env.example` | Scaffold only — `init` does not create `auth.env` |
+| `.vet45/profiles/<profileId>/auth.env` | Optional — create when you need a per-profile Supabase CLI token |
 | `.vet45/deploy/deploy.env` | Shared iOS TestFlight credentials (gitignored) |
 | `.vet45/state.json` | Gitignored `{ profile, environment }` — **required** active profile |
 | `.vet45/active` | Legacy environment id pointer (still updated) |
@@ -40,7 +41,8 @@ melos run profile:list
 # Preferred: switch profile + sync in one step
 vet45 switch acme
 # Lightweight (no sync): melos run profile:use -- acme  then vet45 sync
-# Set SUPABASE_ACCESS_TOKEN in .vet45/profiles/acme/auth.env
+# Optional: create auth.env and set SUPABASE_ACCESS_TOKEN for multi-account CLI
+# cp .vet45/profiles/acme/auth.env.example .vet45/profiles/acme/auth.env
 melos run supabase -- db push
 ```
 

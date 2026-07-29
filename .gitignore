@@ -85,9 +85,7 @@ apps/erp/.env
 **/.env.*
 !**/.env.*.example
 .vet45/
-# Track committed env kit under .vet45 (templates + deploy target)
-!.vet45/templates/
-!.vet45/templates/**
+# Track committed env kit under .vet45 (deploy target + generated examples)
 !.vet45/deploy/
 !.vet45/deploy/**
 .vet45/deploy/deploy.env

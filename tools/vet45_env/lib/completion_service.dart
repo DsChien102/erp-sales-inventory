@@ -9,6 +9,7 @@ class CompletionService {
   static const topLevelCommands = [
     'tui',
     'init',
+    'example',
     'list',
     'switch',
     'use',
@@ -36,6 +37,7 @@ class CompletionService {
     '--skip-link',
     '--offline',
     '--force',
+    '--check',
     '--help',
   ];
 

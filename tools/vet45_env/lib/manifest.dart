@@ -165,6 +165,7 @@ class TargetKeySpec {
     required this.name,
     this.from,
     this.fromManifest,
+    this.description,
     this.required = false,
     this.defaultValue,
     this.autoGenerate = false,
@@ -173,17 +174,24 @@ class TargetKeySpec {
   final String name;
   final String? from;
   final String? fromManifest;
+
+  /// Human-readable purpose for generated `.env.example` comments.
+  /// Required for secrets keys (not `fromManifest`) when running `vet45 example --check`.
+  final String? description;
   final bool required;
   final String? defaultValue;
   final bool autoGenerate;
 
   String get sourceKey => from ?? name;
 
+  bool get isManifestDerived => fromManifest != null;
+
   factory TargetKeySpec.fromJson(Map<String, dynamic> json) {
     return TargetKeySpec(
       name: json['name'] as String,
       from: json['from'] as String?,
       fromManifest: json['fromManifest'] as String?,
+      description: json['description'] as String?,
       required: json['required'] as bool? ?? false,
       defaultValue: json['default'] as String?,
       autoGenerate: json['autoGenerate'] as bool? ?? false,
