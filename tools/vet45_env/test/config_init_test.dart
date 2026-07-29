@@ -26,10 +26,9 @@ void main() {
     }
   });
 
-  test('init requires profile id and scaffolds from templates', () async {
+  test('init requires profile id and scaffolds from target aggregate', () async {
     final service = ConfigInitService(repoRoot: root);
     expect(service.hasWorkspace, isTrue);
-    expect(service.hasTemplates, isTrue);
     expect(service.isInitialized, isFalse);
 
     final result = await service.init('acme');
@@ -55,6 +54,13 @@ void main() {
       File('${root.path}/.vet45/deploy/deploy.env').existsSync(),
       isTrue,
     );
+
+    final example = File(
+      '${root.path}/.vet45/profiles/acme/local.env.example',
+    ).readAsStringSync();
+    expect(example, contains('# erp: Supabase project URL for ERP'));
+    expect(example, contains('# worker: Supabase project URL for worker'));
+    expect(example, contains('SUPABASE_URL='));
 
     final state = readActiveState(
       root,

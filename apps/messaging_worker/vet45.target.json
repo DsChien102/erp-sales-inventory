@@ -6,48 +6,59 @@
   "keys": [
     {
       "name": "SUPABASE_URL",
-      "required": true
+      "required": true,
+      "description": "Supabase project URL for messaging worker"
     },
     {
       "name": "SUPABASE_SERVICE_ROLE_KEY",
-      "required": true
+      "required": true,
+      "description": "Supabase service-role key for worker RPCs"
     },
     {
       "name": "WORKER_TICK_SECRET",
       "required": true,
-      "autoGenerate": true
+      "autoGenerate": true,
+      "description": "Shared secret for worker tick auth (auto-generated on sync if empty)"
     },
     {
       "name": "WORKER_LOG_LEVEL",
-      "default": "WARNING"
+      "default": "WARNING",
+      "description": "Messaging worker log level"
     },
     {
       "name": "WORKER_TENANT_BATCH_SIZE",
-      "default": "20"
+      "default": "20",
+      "description": "Max tenants processed per worker tick"
     },
     {
       "name": "WORKER_MODULE_BATCH_SIZE",
-      "default": "10"
+      "default": "10",
+      "description": "Max modules processed per tenant batch"
     },
     {
       "name": "WORKER_MAX_ROUNDS_PER_TICK",
-      "default": "5"
+      "default": "5",
+      "description": "Max processing rounds inside one worker tick"
     },
     {
       "name": "WORKER_TICK_ACTIVE_SECONDS",
-      "default": "3"
+      "default": "3",
+      "description": "Sleep seconds between ticks while work remains"
     },
     {
       "name": "WORKER_TICK_IDLE_SECONDS",
-      "default": "15"
+      "default": "15",
+      "description": "Sleep seconds when no work was found"
     },
     {
       "name": "WORKER_TICK_MAX_IDLE_SECONDS",
-      "default": "30"
+      "default": "30",
+      "description": "Upper bound for idle backoff between ticks"
     },
     {
       "name": "PORT",
-      "default": "8080"
+      "default": "8080",
+      "description": "HTTP listen port for worker health/serve"
     }
   ],
   "environments": {

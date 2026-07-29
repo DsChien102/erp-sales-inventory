@@ -98,7 +98,7 @@ void writeTestWorkspace(
   List<String> profileIds = const ['default'],
   String activeProfile = 'default',
   bool writeActive = true,
-  bool includeTemplates = true,
+  bool includeTemplates = false,
   bool includeDoctorAlignHosts = true,
 }) {
   final environments = <String, dynamic>{
@@ -142,16 +142,7 @@ void writeTestWorkspace(
   );
 
   if (includeTemplates) {
-    final templates = Directory('${root.path}/.vet45/templates');
-    templates.createSync(recursive: true);
-    for (final envId in environmentIds) {
-      File('${templates.path}/$envId.env.example').writeAsStringSync(
-        'SUPABASE_URL=\nSUPABASE_ANON_KEY=\nSUPABASE_SERVICE_ROLE_KEY=\n',
-      );
-    }
-    File('${templates.path}/auth.env.example').writeAsStringSync(
-      'SUPABASE_ACCESS_TOKEN=\n',
-    );
+    // Legacy flag — templates/ removed; no-op kept for old call sites.
   }
 
   for (final id in profileIds) {
@@ -181,10 +172,23 @@ void writeTestWorkspace(
           'name': 'SUPABASE_CONNECTION_URL',
           'from': 'SUPABASE_URL',
           'required': true,
+          'description': 'Supabase project URL for ERP',
         },
-        {'name': 'SUPABASE_ANON_KEY', 'required': true},
-        {'name': 'LOG_LEVEL', 'default': 'INFO'},
-        {'name': 'MESSAGING_CLIENT_POLL_ENABLED', 'default': 'false'},
+        {
+          'name': 'SUPABASE_ANON_KEY',
+          'required': true,
+          'description': 'Supabase anon key for ERP',
+        },
+        {
+          'name': 'LOG_LEVEL',
+          'default': 'INFO',
+          'description': 'ERP log level',
+        },
+        {
+          'name': 'MESSAGING_CLIENT_POLL_ENABLED',
+          'default': 'false',
+          'description': 'ERP messaging poll flag',
+        },
       ],
       environments: {
         for (final id in environmentIds)
@@ -212,8 +216,13 @@ void writeTestWorkspace(
           'name': 'SUPABASE_CONNECTION_URL',
           'from': 'SUPABASE_URL',
           'required': true,
+          'description': 'Supabase project URL for Admin',
         },
-        {'name': 'SUPABASE_ANON_KEY', 'required': true},
+        {
+          'name': 'SUPABASE_ANON_KEY',
+          'required': true,
+          'description': 'Supabase anon key for Admin',
+        },
       ],
       environments: {
         for (final id in environmentIds)
@@ -235,21 +244,62 @@ void writeTestWorkspace(
       description: 'Messaging worker',
       kind: 'dart-worker',
       keys: [
-        {'name': 'SUPABASE_URL', 'required': true},
-        {'name': 'SUPABASE_SERVICE_ROLE_KEY', 'required': true},
+        {
+          'name': 'SUPABASE_URL',
+          'required': true,
+          'description': 'Supabase project URL for worker',
+        },
+        {
+          'name': 'SUPABASE_SERVICE_ROLE_KEY',
+          'required': true,
+          'description': 'Supabase service role for worker',
+        },
         {
           'name': 'WORKER_TICK_SECRET',
           'required': true,
           'autoGenerate': true,
+          'description': 'Worker tick auth secret',
         },
-        {'name': 'WORKER_LOG_LEVEL', 'default': 'WARNING'},
-        {'name': 'WORKER_TENANT_BATCH_SIZE', 'default': '20'},
-        {'name': 'WORKER_MODULE_BATCH_SIZE', 'default': '10'},
-        {'name': 'WORKER_MAX_ROUNDS_PER_TICK', 'default': '5'},
-        {'name': 'WORKER_TICK_ACTIVE_SECONDS', 'default': '3'},
-        {'name': 'WORKER_TICK_IDLE_SECONDS', 'default': '15'},
-        {'name': 'WORKER_TICK_MAX_IDLE_SECONDS', 'default': '30'},
-        {'name': 'PORT', 'default': '8080'},
+        {
+          'name': 'WORKER_LOG_LEVEL',
+          'default': 'WARNING',
+          'description': 'Worker log level',
+        },
+        {
+          'name': 'WORKER_TENANT_BATCH_SIZE',
+          'default': '20',
+          'description': 'Worker tenant batch size',
+        },
+        {
+          'name': 'WORKER_MODULE_BATCH_SIZE',
+          'default': '10',
+          'description': 'Worker module batch size',
+        },
+        {
+          'name': 'WORKER_MAX_ROUNDS_PER_TICK',
+          'default': '5',
+          'description': 'Worker max rounds per tick',
+        },
+        {
+          'name': 'WORKER_TICK_ACTIVE_SECONDS',
+          'default': '3',
+          'description': 'Worker active tick sleep',
+        },
+        {
+          'name': 'WORKER_TICK_IDLE_SECONDS',
+          'default': '15',
+          'description': 'Worker idle tick sleep',
+        },
+        {
+          'name': 'WORKER_TICK_MAX_IDLE_SECONDS',
+          'default': '30',
+          'description': 'Worker max idle sleep',
+        },
+        {
+          'name': 'PORT',
+          'default': '8080',
+          'description': 'Worker HTTP port',
+        },
       ],
       environments: {
         for (final id in environmentIds)
@@ -268,15 +318,20 @@ void writeTestWorkspace(
       writeEnvFile: false,
       secretsFile: 'deploy.env',
       keys: [
-        {'name': 'APP_STORE_CONNECT_ISSUER_ID', 'required': true},
-        {'name': 'APP_STORE_CONNECT_KEY_IDENTIFIER', 'required': true},
+        {
+          'name': 'APP_STORE_CONNECT_ISSUER_ID',
+          'required': true,
+          'description': 'ASC issuer ID',
+        },
+        {
+          'name': 'APP_STORE_CONNECT_KEY_IDENTIFIER',
+          'required': true,
+          'description': 'ASC key identifier',
+        },
       ],
       environments: {
         for (final id in environmentIds) id: <String, dynamic>{},
       },
-    );
-    File('${root.path}/.vet45/deploy/deploy.env.example').writeAsStringSync(
-      'APP_STORE_CONNECT_ISSUER_ID=\nAPP_STORE_CONNECT_KEY_IDENTIFIER=\n',
     );
   }
 }

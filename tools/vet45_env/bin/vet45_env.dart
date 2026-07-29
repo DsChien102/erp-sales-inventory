@@ -6,8 +6,10 @@ import 'package:vet45_env/tui/launch_mode.dart';
 import 'package:vet45_env/completion_service.dart';
 import 'package:vet45_env/config_init_service.dart';
 import 'package:vet45_env/doctor_service.dart';
+import 'package:vet45_env/example_generator.dart';
 import 'package:vet45_env/link_service.dart';
 import 'package:vet45_env/manifest.dart';
+import 'package:vet45_env/profile_discovery.dart';
 import 'package:vet45_env/profile_init_service.dart';
 import 'package:vet45_env/profile_registry.dart';
 import 'package:vet45_env/run_service.dart';
@@ -15,6 +17,7 @@ import 'package:vet45_env/switch_command_args.dart';
 import 'package:vet45_env/supabase_command_args.dart';
 import 'package:vet45_env/supabase_delegate_service.dart';
 import 'package:vet45_env/sync_service.dart';
+import 'package:vet45_env/workspace_manifest.dart';
 
 Future<void> main(List<String> args) async {
   final mode = parseLaunchMode(args);
@@ -34,6 +37,11 @@ Future<void> main(List<String> args) async {
 
   if (command == 'init') {
     await _cmdInit(root, rest);
+    return;
+  }
+
+  if (command == 'example') {
+    await _cmdExample(root, rest);
     return;
   }
 
@@ -105,7 +113,9 @@ With no arguments (or `tui`), opens the interactive TUI.
 Commands:
   tui                  Open interactive TUI (default when no args)
   init <profileId> [--force] [--description "..."]
-                       Scaffold .vet45/profiles/<profileId>/ from .vet45/templates/ and set active
+                       Scaffold .vet45/profiles/<profileId>/ from target keys and set active
+  example [--check] [--profile <id>] [--force]
+                       Generate .env.example from vet45.target.json (or validate --check)
   list                 List profiles, environments, and active selection
   switch [profile] [env] [--profile <id>] [--env <id>] [--target <id>]
                        Switch profile/env, supabase link, and sync (recommended)
@@ -173,6 +183,96 @@ Future<void> _cmdInit(Directory root, List<String> args) async {
     stderr.writeln(e.message);
     exit(1);
   }
+}
+
+Future<void> _cmdExample(Directory root, List<String> args) async {
+  final checkOnly = args.contains('--check');
+  final force = args.contains('--force');
+  final filtered = args
+      .where((a) => a != '--check' && a != '--force')
+      .toList();
+  final profileFlag = _parseNamedFlag(filtered, '--profile');
+
+  late final ExampleGenerator generator;
+  try {
+    generator = ExampleGenerator(repoRoot: root);
+  } on Object catch (e) {
+    stderr.writeln('vet45 example: failed to load workspace/targets: $e');
+    exit(1);
+  }
+
+  try {
+    generator.ensureDescriptionsPresent();
+  } on StateError catch (e) {
+    stderr.writeln(e.message);
+    exit(1);
+  }
+
+  for (final envId in generator.workspace.environments.keys) {
+    generator.renderProfileExample(environmentId: envId);
+  }
+  generator.renderAuthExample();
+  if (generator.targets.containsKey('deploy')) {
+    generator.renderDeployExample();
+  }
+
+  if (checkOnly) {
+    stdout.writeln('OK: env example descriptions and generate dry-run passed');
+    return;
+  }
+
+  String? profileId = profileFlag;
+  if (profileId == null || profileId.isEmpty) {
+    final profiles = ProfileDiscovery(rootDir: root).discover();
+    if (profiles.isEmpty) {
+      stderr.writeln(
+        'No profiles under .vet45/profiles/. '
+        'Run: vet45 init <profileId>   or   vet45 example --profile <id>',
+      );
+      exit(1);
+    }
+    try {
+      final workspace = WorkspaceManifest.load(root);
+      profileId = readActiveState(
+        root,
+        defaultEnvironmentId: workspace.defaultEnvironmentId,
+        knownProfileIds: profiles.keys.toSet(),
+      ).profileId;
+    } on StateError catch (e) {
+      stderr.writeln(e.message);
+      exit(1);
+    }
+  }
+
+  final secretsRoot = '${ProfileDiscovery.profilesRootName}/$profileId';
+  final profileDir = Directory('${root.path}/$secretsRoot');
+  final result = generator.writeExamples(
+    profileDir: profileDir,
+    relativeProfilePrefix: secretsRoot,
+    force: force,
+    forceExamples: true,
+    writeEnvCopies: true,
+  );
+  stdout.writeln('Generated env examples for profile: $profileId');
+  for (final path in result.created) {
+    stdout.writeln('  created $path');
+  }
+  if (result.skipped.isNotEmpty) {
+    stdout.writeln('  skipped ${result.skipped.length} existing file(s)');
+  }
+}
+
+String? _parseNamedFlag(List<String> args, String flag) {
+  for (var i = 0; i < args.length; i++) {
+    final arg = args[i];
+    if (arg == flag && i + 1 < args.length) {
+      return args[i + 1];
+    }
+    if (arg.startsWith('$flag=')) {
+      return arg.substring(flag.length + 1);
+    }
+  }
+  return null;
 }
 
 void _cmdList(EnvManifest manifest) {

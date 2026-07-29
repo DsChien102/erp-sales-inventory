@@ -75,7 +75,11 @@ melos:
 
     env:init:
       run: dart run tools/vet45_env/bin/run.dart init
-      description: Scaffold .vet45/profiles/<profileId>/ from templates (pass id after --)
+      description: Scaffold .vet45/profiles/<profileId>/ from target keys (pass id after --)
+
+    env:example:
+      run: dart run tools/vet45_env/bin/run.dart example
+      description: Generate .env.example from vet45.target.json (or --check)
 
     env:list:
       run: dart run tools/vet45_env/bin/run.dart list
@@ -91,7 +95,7 @@ melos:
 
     profile:init:
       run: dart run tools/vet45_env/bin/run.dart init
-      description: Alias of env:init — scaffold .vet45/profiles/<profileId>/ (pass id after --)
+      description: Alias of env:init — scaffold profiles from target keys (pass id after --)
 
     env:use:
       run: dart run tools/vet45_env/bin/run.dart use
