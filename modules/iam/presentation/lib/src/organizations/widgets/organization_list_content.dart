@@ -11,6 +11,7 @@ class OrganizationListContent extends StatelessWidget {
   final ValueChanged<OrganizationUiModel>? onItemTap;
   final Future<void> Function()? onRefresh;
   final OrganizationEmptyStateType emptyType;
+  final String? customActionLabel;
   final VoidCallback? onEmptyAction;
 
   const OrganizationListContent({
@@ -19,6 +20,7 @@ class OrganizationListContent extends StatelessWidget {
     this.onItemTap,
     this.onRefresh,
     this.emptyType = OrganizationEmptyStateType.noResults,
+    this.customActionLabel,
     this.onEmptyAction,
   });
 
@@ -27,12 +29,21 @@ class OrganizationListContent extends StatelessWidget {
     final colors = context.vColors;
 
     if (organizations.isEmpty) {
-      final emptyBody = SingleChildScrollView(
-        physics: const AlwaysScrollableScrollPhysics(),
-        child: OrganizationEmptyView(
-          type: emptyType,
-          onAction: onEmptyAction ?? () {},
-        ),
+      final emptyBody = LayoutBuilder(
+        builder: (context, constraints) {
+          return SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            child: SizedBox(
+              height: constraints.maxHeight,
+              width: double.infinity,
+              child: OrganizationEmptyView(
+                type: emptyType,
+                customActionLabel: customActionLabel,
+                onAction: onEmptyAction ?? () {},
+              ),
+            ),
+          );
+        },
       );
 
       if (onRefresh != null) {

@@ -80,6 +80,62 @@ void main() {
     await tester.pumpAndSettle();
   });
 
+  testWidgets(
+    'PlatformUsersPage shows noResults with Xóa tìm kiếm when search-only matches nothing',
+    (WidgetTester tester) async {
+      final module = FakeIamModule();
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(body: PlatformUsersPage(iamModule: module)),
+        ),
+      );
+
+      await tester.pumpAndSettle();
+
+      await tester.enterText(find.byType(VSearchBar), 'dasdasdas');
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 350));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Không tìm thấy người dùng'), findsOneWidget);
+      expect(find.text('Xóa tìm kiếm'), findsOneWidget);
+      expect(find.byIcon(VIcons.close.value), findsOneWidget);
+
+      await tester.tap(find.text('Xóa tìm kiếm'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Lê Thị Lan'), findsOneWidget);
+    },
+  );
+
+  testWidgets(
+    'PlatformUsersPage tapping x icon on VSearchBar clears search and reloads list',
+    (WidgetTester tester) async {
+      final module = FakeIamModule();
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(body: PlatformUsersPage(iamModule: module)),
+        ),
+      );
+
+      await tester.pumpAndSettle();
+
+      await tester.enterText(find.byType(VSearchBar), 'dasdasdas');
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 350));
+      await tester.pumpAndSettle();
+
+      expect(find.byIcon(VIcons.close.value), findsOneWidget);
+
+      await tester.tap(find.byIcon(VIcons.close.value));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Lê Thị Lan'), findsOneWidget);
+    },
+  );
+
   testWidgets('PlatformUsersPage support pull-to-refresh', (
     WidgetTester tester,
   ) async {

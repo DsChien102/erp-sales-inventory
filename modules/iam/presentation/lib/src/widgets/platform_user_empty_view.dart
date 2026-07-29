@@ -11,11 +11,13 @@ enum PlatformUserEmptyStateType {
 class PlatformUserEmptyView extends StatelessWidget {
   final PlatformUserEmptyStateType type;
   final VoidCallback onAction;
+  final String? customActionLabel;
 
   const PlatformUserEmptyView({
     super.key,
     required this.type,
     required this.onAction,
+    this.customActionLabel,
   });
 
   @override
@@ -28,7 +30,7 @@ class PlatformUserEmptyView extends StatelessWidget {
     final String title;
     final Color? titleColor;
     final String description;
-    final String actionLabel;
+    String actionLabel;
     final Color actionTextColor;
 
     switch (type) {
@@ -75,6 +77,10 @@ class PlatformUserEmptyView extends StatelessWidget {
         actionLabel = 'Quay lại';
         actionTextColor = colors.primary;
         break;
+    }
+
+    if (customActionLabel != null) {
+      actionLabel = customActionLabel!;
     }
 
     return Align(

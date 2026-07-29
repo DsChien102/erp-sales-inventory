@@ -125,6 +125,73 @@ final class PlatformUsersCubit extends Cubit<PlatformUsersState> {
     );
   }
 
+  Future<void> resetFiltersAndLoad() async {
+    if (isClosed) return;
+    emit(
+      state.copyWith(
+        status: PlatformUsersStatus.loading,
+        filterStatus: 0,
+        filterActivation: 0,
+        filterEmail: 0,
+        selectedFilterIndex: 0,
+        searchQuery: '',
+        clearError: true,
+      ),
+    );
+
+    try {
+      final summaries = await _iamModule
+          .executeQueryAsync<List<PlatformUserSummaryDto>>(
+            SearchPlatformUsersQuery(),
+          );
+      if (isClosed) return;
+
+      final detailsById = <String, PlatformUserDetailDto>{};
+      for (final summary in summaries) {
+        try {
+          final detail = await _iamModule
+              .executeQueryAsync<PlatformUserDetailDto>(
+                GetPlatformUserQuery(userId: summary.userId),
+              );
+          detailsById[summary.userId] = detail;
+        } catch (_) {}
+      }
+      if (isClosed) return;
+
+      emit(
+        state.copyWith(
+          status: PlatformUsersStatus.success,
+          users: summaries,
+          detailsById: detailsById,
+          clearError: true,
+        ),
+      );
+    } on ApplicationException catch (e) {
+      if (isClosed) return;
+      final message = e.message;
+      final unauthorized =
+          message.contains('PLATFORM_PERMISSION_DENIED') ||
+          message.contains('403') ||
+          message.contains('permission');
+      emit(
+        state.copyWith(
+          status: unauthorized
+              ? PlatformUsersStatus.unauthorized
+              : PlatformUsersStatus.failure,
+          errorMessage: message,
+        ),
+      );
+    } catch (e) {
+      if (isClosed) return;
+      emit(
+        state.copyWith(
+          status: PlatformUsersStatus.failure,
+          errorMessage: e.toString(),
+        ),
+      );
+    }
+  }
+
   void clearUnauthorized() {
     emit(
       state.copyWith(

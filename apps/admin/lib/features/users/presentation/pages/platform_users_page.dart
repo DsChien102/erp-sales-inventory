@@ -59,18 +59,19 @@ class _PlatformUsersViewState extends State<_PlatformUsersView> {
   final TextEditingController _searchController = TextEditingController();
   Timer? _debounceTimer;
 
-  static const _filters = [
-    'Tất cả',
-    'Hoạt động',
-    'Chờ kích hoạt',
-    'Tạm ngừng',
-  ];
+  static const _filters = ['Tất cả', 'Hoạt động', 'Chờ kích hoạt', 'Tạm ngừng'];
 
   @override
   void dispose() {
     _searchController.dispose();
     _debounceTimer?.cancel();
     super.dispose();
+  }
+
+  void _clearSearchAndReload(BuildContext context) {
+    _debounceTimer?.cancel();
+    _searchController.clear();
+    context.read<PlatformUsersCubit>().resetFiltersAndLoad();
   }
 
   void _showFilterBottomSheet(BuildContext context) {
@@ -363,10 +364,7 @@ class _PlatformUsersListBody extends StatelessWidget {
             onRefresh: handleRefresh,
             child: SingleChildScrollView(
               physics: const AlwaysScrollableScrollPhysics(),
-              child: SizedBox(
-                height: constraints.maxHeight,
-                child: child,
-              ),
+              child: SizedBox(height: constraints.maxHeight, child: child),
             ),
           );
         }
@@ -394,30 +392,40 @@ class _PlatformUsersListBody extends StatelessWidget {
           return const Center(child: CircularProgressIndicator());
         }
 
+        final hasSearchQuery =
+            searchController.text.trim().isNotEmpty ||
+            state.searchQuery.trim().isNotEmpty;
+        final hasFilter =
+            state.selectedFilterIndex != 0 || state.isFilterApplied;
+        final isFiltered = hasSearchQuery || hasFilter;
+
         final users = state.filteredUsers;
         if (users.isEmpty) {
-          if (state.users.isEmpty) {
+          if (isFiltered) {
+            final actionLabel = (hasSearchQuery && !hasFilter)
+                ? 'Xóa tìm kiếm'
+                : 'Xóa bộ lọc';
             return wrapEmpty(
               PlatformUserEmptyView(
-                type: PlatformUserEmptyStateType.noUsers,
+                type: PlatformUserEmptyStateType.noResults,
+                customActionLabel: actionLabel,
                 onAction: () {
-                  VToast.show(
-                    context,
-                    title: 'Thông tin',
-                    message: 'Mở chức năng thêm người dùng.',
-                    type: VToastType.info,
-                  );
+                  searchController.clear();
+                  cubit.resetFiltersAndLoad();
                 },
               ),
             );
           }
           return wrapEmpty(
             PlatformUserEmptyView(
-              type: PlatformUserEmptyStateType.noResults,
+              type: PlatformUserEmptyStateType.noUsers,
               onAction: () {
-                cubit.resetFilters();
-                searchController.clear();
-                cubit.load(query: '');
+                VToast.show(
+                  context,
+                  title: 'Thông tin',
+                  message: 'Mở chức năng thêm người dùng.',
+                  type: VToastType.info,
+                );
               },
             ),
           );

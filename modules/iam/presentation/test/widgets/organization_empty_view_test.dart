@@ -76,10 +76,13 @@ void main() {
     );
 
     expect(find.text('Không tìm thấy tổ chức'), findsOneWidget);
-    expect(find.text('Thử từ khóa khác.'), findsOneWidget);
-    expect(find.text('Xóa tìm kiếm'), findsOneWidget);
+    expect(
+      find.text('Thử từ khóa khác hoặc xóa bộ lọc đang áp dụng.'),
+      findsOneWidget,
+    );
+    expect(find.text('Xóa bộ lọc'), findsOneWidget);
 
-    await tester.tap(find.text('Xóa tìm kiếm'));
+    await tester.tap(find.text('Xóa bộ lọc'));
     expect(actionCalled, isTrue);
   });
 
@@ -99,10 +102,9 @@ void main() {
       ),
     );
 
-    expect(find.text('Không thể tải danh sách tổ chức'), findsOneWidget);
+    expect(find.text('Không thể tải danh sách'), findsOneWidget);
     expect(
-      find.text(
-          'Kiểm tra kết nối mạng và thử lại. Dữ liệu cũ không được hiển thị khi quyền truy cập có thể đã thay đổi.'),
+      find.text('Đã xảy ra lỗi khi tải danh sách tổ chức. Vui lòng thử lại.'),
       findsOneWidget,
     );
     expect(find.text('Thử lại'), findsOneWidget);
@@ -126,15 +128,42 @@ void main() {
       ),
     );
 
-    expect(find.text('Bạn không có quyền quản lý'), findsOneWidget);
+    expect(find.text('Không có quyền xem tổ chức'), findsOneWidget);
     expect(
       find.text(
-          'Liên hệ Chủ tổ chức hoặc Quản trị viên để được cấp quyền phù hợp.'),
+          'Liên hệ chủ cửa hàng để được cấp quyền quản lý tổ chức nền tảng.'),
       findsOneWidget,
     );
     expect(find.text('Quay lại'), findsOneWidget);
 
     await tester.tap(find.text('Quay lại'));
+    expect(actionCalled, isTrue);
+  });
+
+  testWidgets('OrganizationEmptyView renders noOrganizations state correctly',
+      (tester) async {
+    bool actionCalled = false;
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: OrganizationEmptyView(
+            type: OrganizationEmptyStateType.noOrganizations,
+            onAction: () => actionCalled = true,
+          ),
+        ),
+      ),
+    );
+
+    expect(find.text('Chưa có tổ chức'), findsOneWidget);
+    expect(
+      find.text(
+          'Khởi tạo tổ chức đầu tiên để bắt đầu quản lý tổ chức trên nền tảng.'),
+      findsOneWidget,
+    );
+    expect(find.text('Khởi tạo tổ chức'), findsOneWidget);
+
+    await tester.tap(find.text('Khởi tạo tổ chức'));
     expect(actionCalled, isTrue);
   });
 }

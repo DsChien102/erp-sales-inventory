@@ -66,6 +66,39 @@ Tổng product: **6 epic, 32 US** (2 Post-MVP) — [README.md](../README.md).
 
 ---
 
+## S4 — EP-04 / US-01 + US-02 — Role catalog + permissions
+
+| Req ID | Role | Contract § | Enforce layer | Artifact | Test id | Status |
+| ------ | ---- | ---------- | ------------- | -------- | ------- | ------ |
+| US-01/02 | CONTRACT | §S4 | application + domain | `ListRolesQuery` / `GetRoleDetailQuery` | fake_iam_module_test | todo |
+| FR-01.. | BE | §S4 | application + infrastructure | handlers + RPC | scn_e04_u01_fr01_01 | todo |
+| FR-01.. | FE | §S4 | presentation | `OrganizationRolesPage` + `OrganizationRoleDetailPage` | wgt_e04_u01_fr01_01 | done |
+| FR-01 | E2E | §S4 | integration | roles & permissions catalog | e2e_e04_u01_fr01_01 | todo |
+
+---
+
+## S5 — EP-04 / US-03 — Change member role
+
+| Req ID | Role | Contract § | Enforce layer | Artifact | Test id | Status |
+| ------ | ---- | ---------- | ------------- | -------- | ------- | ------ |
+| US-03 | CONTRACT | §S5 | application + domain | `AssignMemberRoleCommand` | fake_iam_module_test | todo |
+| FR-01.. | BE | §S5 | application + infrastructure | handler + RPC | scn_e04_u03_fr01_01 | todo |
+| FR-01.. | FE | §S5 | presentation | `OrganizationSelectRolePage` + `OrganizationPreviewRoleChangePage` | wgt_e04_u03_fr01_01 | done |
+| FR-01 | E2E | §S5 | integration | change role flow | e2e_e04_u03_fr01_01 | todo |
+
+---
+
+## S6 — EP-03 / US-01 — List members & invitations
+
+| Req ID | Role | Contract § | Enforce layer | Artifact | Test id | Status |
+| ------ | ---- | ---------- | ------------- | -------- | ------- | ------ |
+| US-01 | CONTRACT | §S6 | application | `ListTenantMembersQuery` / `ListTenantInvitationsQuery` | fake_iam_module_test | done |
+| FR-01.. | BE | §S6 | application + infrastructure | handler + RPC | scn_e03_u01_fr01_01 | todo |
+| FR-01.. | FE | §S6 | presentation | `OrganizationUsersPage` + Member/Invitation cards & filters | wgt_e03_u01_fr01_01 | done |
+| FR-01 | E2E | §S6 | integration | members list & tab switching | e2e_e03_u01_fr01_01 | todo |
+
+---
+
 ## S7 — EP-03 / US-02 — Invite member
 
 | Req ID | Role | Contract § | Enforce layer | Artifact | Test id | Status |

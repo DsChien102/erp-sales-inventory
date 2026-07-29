@@ -101,17 +101,50 @@ class _OrganizationsViewState extends State<_OrganizationsView> {
   Widget build(BuildContext context) {
     return BlocBuilder<PlatformTenantsCubit, PlatformTenantsState>(
       builder: (context, state) {
+        final cubit = context.read<PlatformTenantsCubit>();
+
+        OrganizationEmptyStateType emptyType;
+        String? customActionLabel;
+        VoidCallback? onEmptyAction;
+
         if (state.status == PlatformTenantsStatus.unauthorized) {
-          return const Center(child: Text('Không có quyền xem tổ chức'));
-        }
-        if (state.status == PlatformTenantsStatus.failure) {
-          return Center(
-            child: Text(state.errorMessage ?? 'Không tải được danh sách'),
-          );
+          emptyType = OrganizationEmptyStateType.unauthorized;
+          onEmptyAction = () {
+            _searchController.clear();
+            cubit.clearFilters();
+          };
+        } else if (state.status == PlatformTenantsStatus.failure) {
+          emptyType = OrganizationEmptyStateType.loadError;
+          onEmptyAction = () => cubit.load();
+        } else {
+          final hasSearchQuery = _searchController.text.trim().isNotEmpty ||
+              state.searchQuery.trim().isNotEmpty;
+          final hasFilter = state.filterCriteria.isFilterActive;
+          final isFiltered = hasSearchQuery || hasFilter;
+
+          if (isFiltered) {
+            emptyType = OrganizationEmptyStateType.noResults;
+            customActionLabel = (hasSearchQuery && !hasFilter)
+                ? 'Xóa tìm kiếm'
+                : 'Xóa bộ lọc';
+            onEmptyAction = () {
+              _searchController.clear();
+              cubit.clearFilters();
+            };
+          } else {
+            emptyType = OrganizationEmptyStateType.noOrganizations;
+            onEmptyAction = () {
+              _searchController.clear();
+              cubit.clearFilters();
+            };
+          }
         }
 
-        final filteredItems = state.filteredTenants;
-        final cubit = context.read<PlatformTenantsCubit>();
+        final filteredItems = (state.status == PlatformTenantsStatus.unauthorized ||
+                state.status == PlatformTenantsStatus.failure)
+            ? const <OrganizationUiModel>[]
+            : state.filteredTenants;
+
         final isLoading =
             state.status == PlatformTenantsStatus.loading &&
             state.tenants.isEmpty;
@@ -132,11 +165,10 @@ class _OrganizationsViewState extends State<_OrganizationsView> {
                   ? const Center(child: CircularProgressIndicator())
                   : OrganizationListContent(
                       organizations: filteredItems,
+                      emptyType: emptyType,
+                      customActionLabel: customActionLabel,
                       onRefresh: () => cubit.load(),
-                      onEmptyAction: () {
-                        _searchController.clear();
-                        cubit.clearFilters();
-                      },
+                      onEmptyAction: onEmptyAction,
                       onItemTap: (organization) async {
                         final shouldRefresh =
                             await Navigator.of(context).push<bool>(
