@@ -32,6 +32,85 @@ void main() {
 
     await expectLater(operation, completes);
   });
+
+  group('applyQuickFilter and applyAdvancedFilter sync', () {
+    test('applyQuickFilter applying updates advancedFilter status and activeCount', () async {
+      final module = _ImmediatePricingModule();
+      final cubit = _createCubit(module);
+
+      cubit.applyQuickFilter(CustomerPriceRuleQuickFilter.applying);
+      await pumpEventQueue();
+
+      expect(cubit.state.quickFilter, CustomerPriceRuleQuickFilter.applying);
+      expect(
+        cubit.state.advancedFilter.status,
+        CustomerPriceRuleDerivedStatus.applying,
+      );
+      expect(cubit.state.advancedFilter.activeCount, 1);
+    });
+
+    test('applyQuickFilter belowFloor updates advancedFilter warning and activeCount', () async {
+      final module = _ImmediatePricingModule();
+      final cubit = _createCubit(module);
+
+      cubit.applyQuickFilter(CustomerPriceRuleQuickFilter.belowFloor);
+      await pumpEventQueue();
+
+      expect(cubit.state.quickFilter, CustomerPriceRuleQuickFilter.belowFloor);
+      expect(
+        cubit.state.advancedFilter.warning,
+        PriceRuleWarningFilter.belowFloor,
+      );
+      expect(cubit.state.advancedFilter.activeCount, 1);
+    });
+
+    test('applyQuickFilter all resets quick filter and activeCount', () async {
+      final module = _ImmediatePricingModule();
+      final cubit = _createCubit(module);
+
+      cubit.applyQuickFilter(CustomerPriceRuleQuickFilter.applying);
+      await pumpEventQueue();
+      expect(cubit.state.advancedFilter.activeCount, 1);
+
+      cubit.applyQuickFilter(CustomerPriceRuleQuickFilter.all);
+      await pumpEventQueue();
+
+      expect(cubit.state.quickFilter, CustomerPriceRuleQuickFilter.all);
+      expect(cubit.state.advancedFilter.status, null);
+      expect(cubit.state.advancedFilter.warning, null);
+      expect(cubit.state.advancedFilter.activeCount, 0);
+    });
+
+    test('applyAdvancedFilter with applying status syncs quickFilter', () async {
+      final module = _ImmediatePricingModule();
+      final cubit = _createCubit(module);
+
+      cubit.applyAdvancedFilter(
+        const PriceRuleAdvancedFilter(
+          status: CustomerPriceRuleDerivedStatus.applying,
+        ),
+      );
+      await pumpEventQueue();
+
+      expect(cubit.state.quickFilter, CustomerPriceRuleQuickFilter.applying);
+      expect(cubit.state.advancedFilter.activeCount, 1);
+    });
+
+    test('applyAdvancedFilter with belowFloor warning syncs quickFilter', () async {
+      final module = _ImmediatePricingModule();
+      final cubit = _createCubit(module);
+
+      cubit.applyAdvancedFilter(
+        const PriceRuleAdvancedFilter(
+          warning: PriceRuleWarningFilter.belowFloor,
+        ),
+      );
+      await pumpEventQueue();
+
+      expect(cubit.state.quickFilter, CustomerPriceRuleQuickFilter.belowFloor);
+      expect(cubit.state.advancedFilter.activeCount, 1);
+    });
+  });
 }
 
 PriceRuleListCubit _createCubit(IPricingModule module) => PriceRuleListCubit(
@@ -58,6 +137,21 @@ final class _DelayedPricingModule implements IPricingModule {
   Future<TResult> executeQueryAsync<TResult>(IQuery<TResult> query) async {
     if (!started.isCompleted) started.complete();
     return await _result.future as TResult;
+  }
+
+  @override
+  Future<TResult> executeCommandAsync<TResult>(ICommand<TResult> command) {
+    throw UnsupportedError('Commands are not used by this test.');
+  }
+}
+
+final class _ImmediatePricingModule implements IPricingModule {
+  @override
+  Future<TResult> executeQueryAsync<TResult>(IQuery<TResult> query) async {
+    return const CustomerPriceRuleSearchResultDto(
+      page: CursorPageDto(items: [], hasMore: false),
+      availableActions: [],
+    ) as TResult;
   }
 
   @override

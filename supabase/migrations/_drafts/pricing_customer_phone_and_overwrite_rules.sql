@@ -1,0 +1,871 @@
+-- Title: pricing customer phone snapshot + manual create/reenable overwrite
+-- Kind: patch
+-- Intent: pricing_customer_phone_and_create_overwrite
+-- Context: TH-04 / EP02 feedback — phone on detail; create/reenable auto-replace overlapping active rules; unblock reenable precheck when vault secret missing
+-- Touches: _get_customer_snapshot_for_pricing, get_customer_price_rule_create_context, create_customer_price_rule, get_customer_price_rule_detail, _customer_price_rule_reenable_context
+-- Safety: idempotent ; medium
+-- Depends on: 20260725011_pricing_remembered_price_from_order_s9, 20260725009_pricing_customer_price_rule_reenable_s7, 20260725004_pricing_customer_price_rule_s1
+
+-- Optimization indexes for fast partner and catalog snapshot lookups in pricing RPCs
+create index if not exists idx_partner_person_profiles_partner_id
+  on partner.person_profiles (partner_id);
+
+create index if not exists idx_partner_organization_profiles_partner_id
+  on partner.organization_profiles (partner_id);
+
+create index if not exists idx_catalog_price_bands_lookup
+  on catalog.product_unit_price_bands (tenant_id, product_id, product_unit_id, status);
+
+-- Partner snapshot: add live phone for pricing detail/list enrichment.
+create or replace function partner._get_customer_snapshot_for_pricing(
+  p_tenant_id uuid,
+  p_customer_id uuid
+)
+returns jsonb
+language plpgsql
+stable
+security definer
+set search_path = partner, pg_temp
+as $$
+declare
+  v_partner record;
+begin
+  select
+    p.partner_id,
+    p.display_name,
+    p.status::text as status,
+    coalesce(pp.phone, op.phone) as phone,
+    exists (
+      select 1
+      from partner.partner_roles pr
+      where pr.tenant_id = p_tenant_id
+        and pr.partner_id = p.partner_id
+        and pr.role = 'customer'::partner.partner_role_type
+        and pr.is_active = true
+    ) as is_customer
+  into v_partner
+  from partner.partners p
+  left join partner.person_profiles pp on pp.partner_id = p.partner_id
+  left join partner.organization_profiles op on op.partner_id = p.partner_id
+  where p.tenant_id = p_tenant_id
+    and p.partner_id = p_customer_id;
+
+  if not found then
+    return jsonb_build_object(
+      'customer_id', p_customer_id,
+      'display_name', '',
+      'status', 'not_found',
+      'phone', null,
+      'exists', false,
+      'is_customer', false
+    );
+  end if;
+
+  return jsonb_build_object(
+    'customer_id', v_partner.partner_id,
+    'display_name', v_partner.display_name,
+    'status', v_partner.status,
+    'phone', v_partner.phone,
+    'exists', true,
+    'is_customer', v_partner.is_customer
+  );
+end;
+$$;
+
+revoke all on function partner._get_customer_snapshot_for_pricing(uuid, uuid)
+  from public, anon, authenticated, service_role;
+
+-- Create context: restore conflict advisory (UI may warn); commit still overwrites.
+create or replace function pricing.get_customer_price_rule_create_context(
+  p_tenant_id uuid,
+  p_customer_id uuid,
+  p_product_id uuid,
+  p_product_unit_id uuid,
+  p_rule_price_minor bigint,
+  p_currency_code text,
+  p_effective_from date,
+  p_idempotency_key text,
+  p_effective_to date default null
+)
+returns jsonb
+language plpgsql
+stable
+security definer
+set search_path = ''
+as $$
+declare
+  v_actor_id uuid := auth.uid();
+  v_customer jsonb;
+  v_product jsonb;
+  v_conflicting_rule pricing.customer_price_rules%rowtype;
+  v_can_override_floor boolean := false;
+  v_can_view_rules boolean := false;
+  v_idempotency_key_exists boolean := false;
+  v_floor_price_minor bigint;
+  v_is_below_floor boolean := false;
+begin
+  if v_actor_id is null
+    or not iam.has_permission(
+      p_tenant_id,
+      'pricing.customer_price_rule.create'
+    ) then
+    perform pricing._raise_pricing_error(
+      'NO_PERMISSION',
+      'Permission denied.',
+      jsonb_build_object('permission', 'pricing.customer_price_rule.create')
+    );
+  end if;
+
+  if p_rule_price_minor is null or p_rule_price_minor <= 0
+    or p_currency_code !~ '^[A-Z]{3}$'
+    or p_effective_from is null
+    or nullif(btrim(p_idempotency_key), '') is null
+    or (p_effective_to is not null and p_effective_to < p_effective_from) then
+    perform pricing._raise_pricing_error(
+      'VALIDATION_ERROR',
+      'Invalid customer price rule payload.'
+    );
+  end if;
+
+  select exists (
+    select 1
+    from pricing.customer_price_rules r
+    where r.tenant_id = p_tenant_id
+      and r.idempotency_key = btrim(p_idempotency_key)
+  ) into v_idempotency_key_exists;
+
+  v_customer := partner._get_customer_snapshot_for_pricing(
+    p_tenant_id,
+    p_customer_id
+  );
+  v_product := catalog._get_product_price_band_snapshot_for_pricing(
+    p_tenant_id,
+    p_product_id,
+    p_product_unit_id
+  );
+
+  select r.*
+  into v_conflicting_rule
+  from pricing.customer_price_rules r
+  where r.tenant_id = p_tenant_id
+    and r.customer_id = p_customer_id
+    and r.product_id = p_product_id
+    and r.product_unit_id = p_product_unit_id
+    and r.idempotency_key <> btrim(p_idempotency_key)
+    and r.status = 'active'
+    and r.effective_from <= coalesce(p_effective_to, 'infinity'::date)
+    and p_effective_from <= coalesce(r.effective_to, 'infinity'::date)
+  order by r.created_at
+  limit 1;
+
+  v_can_override_floor := iam.has_permission(
+    p_tenant_id,
+    'pricing.customer_price_rule.override_floor_price'
+  );
+  v_can_view_rules := iam.has_permission(
+    p_tenant_id,
+    'pricing.customer_price_rule.view'
+  );
+  v_floor_price_minor := (v_product ->> 'floor_price_minor')::bigint;
+  v_is_below_floor := v_floor_price_minor is not null
+    and p_rule_price_minor < v_floor_price_minor;
+
+  return jsonb_build_object(
+    'customer', jsonb_build_object(
+      'customer_id', p_customer_id,
+      'display_name', v_customer ->> 'display_name',
+      'status', v_customer ->> 'status',
+      'exists', coalesce((v_customer ->> 'exists')::boolean, false),
+      'is_customer', coalesce((v_customer ->> 'is_customer')::boolean, false)
+    ),
+    'product_unit', jsonb_build_object(
+      'product_id', p_product_id,
+      'product_unit_id', p_product_unit_id,
+      'product_name', v_product ->> 'product_name',
+      'unit_name', v_product ->> 'unit_name',
+      'sellable_status', v_product ->> 'sellable_status',
+      'currency_code', v_product ->> 'currency_code',
+      'list_price_minor', (v_product ->> 'list_price_minor')::bigint,
+      'floor_price_minor', case
+        when v_can_override_floor then v_floor_price_minor
+        else null
+      end,
+      'floor_price_hidden', v_floor_price_minor is not null
+        and not v_can_override_floor,
+      'is_below_floor', v_is_below_floor
+    ),
+    'has_conflicting_rule', v_conflicting_rule.id is not null,
+    'idempotency_key_exists', v_idempotency_key_exists,
+    'conflicting_rule_id', case
+      when v_can_view_rules then v_conflicting_rule.id
+      else null
+    end,
+    'can_override_floor', v_can_override_floor
+  );
+end;
+$$;
+
+revoke all on function pricing.get_customer_price_rule_create_context(
+  uuid, uuid, uuid, uuid, bigint, text, date, text, date
+) from public, anon;
+grant execute on function pricing.get_customer_price_rule_create_context(
+  uuid, uuid, uuid, uuid, bigint, text, date, text, date
+) to authenticated, service_role;
+
+-- Manual create: auto-disable overlapping active rules, then insert (overwrite).
+create or replace function pricing.create_customer_price_rule(
+  p_tenant_id uuid,
+  p_rule_id uuid,
+  p_customer_id uuid,
+  p_product_id uuid,
+  p_product_unit_id uuid,
+  p_rule_price_minor bigint,
+  p_currency_code text,
+  p_effective_from date,
+  p_idempotency_key text,
+  p_effective_to date default null,
+  p_note text default null,
+  p_acknowledge_floor_warning boolean default false
+)
+returns jsonb
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  v_actor_id uuid := auth.uid();
+  v_customer jsonb;
+  v_product jsonb;
+  v_existing pricing.customer_price_rules%rowtype;
+  v_rule pricing.customer_price_rules%rowtype;
+  v_can_override_floor boolean := false;
+  v_floor_price_minor bigint;
+  v_list_price_minor bigint;
+  v_is_below_floor boolean := false;
+  v_payload jsonb;
+  v_payload_hash text;
+  v_warning_codes jsonb := '[]'::jsonb;
+  v_price_check_status text := 'not_checked';
+  v_review_status text := 'clear';
+begin
+  if v_actor_id is null
+    or not iam.has_permission(
+      p_tenant_id,
+      'pricing.customer_price_rule.create'
+    ) then
+    perform pricing._raise_pricing_error(
+      'NO_PERMISSION',
+      'Permission denied.',
+      jsonb_build_object('permission', 'pricing.customer_price_rule.create')
+    );
+  end if;
+
+  if p_rule_id is null
+    or p_rule_price_minor is null or p_rule_price_minor <= 0
+    or p_currency_code !~ '^[A-Z]{3}$'
+    or p_effective_from is null
+    or (p_effective_to is not null and p_effective_to < p_effective_from)
+    or nullif(btrim(p_idempotency_key), '') is null then
+    perform pricing._raise_pricing_error(
+      'VALIDATION_ERROR',
+      'Invalid customer price rule payload.'
+    );
+  end if;
+
+  v_payload := jsonb_build_object(
+    'tenant_id', p_tenant_id,
+    'customer_id', p_customer_id,
+    'product_id', p_product_id,
+    'product_unit_id', p_product_unit_id,
+    'rule_price_minor', p_rule_price_minor,
+    'currency_code', p_currency_code,
+    'effective_from', p_effective_from,
+    'effective_to', p_effective_to,
+    'note', nullif(btrim(p_note), ''),
+    'acknowledge_floor_warning',
+      coalesce(p_acknowledge_floor_warning, false)
+  );
+  v_payload_hash := md5(v_payload::text);
+
+  perform pg_advisory_xact_lock(
+    hashtextextended(
+      p_tenant_id::text || ':idempotency:' || btrim(p_idempotency_key),
+      0
+    )
+  );
+
+  select r.*
+  into v_existing
+  from pricing.customer_price_rules r
+  where r.tenant_id = p_tenant_id
+    and r.idempotency_key = btrim(p_idempotency_key);
+
+  if found then
+    if v_existing.payload_hash <> v_payload_hash then
+      perform pricing._raise_pricing_error(
+        'IDEMPOTENCY_CONFLICT',
+        'Idempotency key was already used with a different payload.',
+        jsonb_build_object('idempotencyKey', btrim(p_idempotency_key))
+      );
+    end if;
+
+    v_can_override_floor := iam.has_permission(
+      p_tenant_id,
+      'pricing.customer_price_rule.override_floor_price'
+    );
+    return pricing._customer_price_rule_result(
+      v_existing.id,
+      v_can_override_floor
+    );
+  end if;
+
+  v_customer := partner._get_customer_snapshot_for_pricing(
+    p_tenant_id,
+    p_customer_id
+  );
+  v_product := catalog._get_product_price_band_snapshot_for_pricing(
+    p_tenant_id,
+    p_product_id,
+    p_product_unit_id
+  );
+
+  if not coalesce((v_customer ->> 'exists')::boolean, false)
+    or not coalesce((v_customer ->> 'is_customer')::boolean, false)
+    or coalesce(v_customer ->> 'status', '') <> 'active' then
+    perform pricing._raise_pricing_error(
+      'REFERENCE_INVALID',
+      'Customer is not valid for pricing.',
+      jsonb_build_object('reference', 'customer')
+    );
+  end if;
+
+  if not coalesce((v_product ->> 'exists')::boolean, false)
+    or not coalesce((v_product ->> 'sellable')::boolean, false)
+    or not coalesce((v_product ->> 'minor_units_valid')::boolean, false)
+    or coalesce(v_product ->> 'currency_code', '') <> p_currency_code then
+    perform pricing._raise_pricing_error(
+      'REFERENCE_INVALID',
+      'Product unit or price band is not valid for pricing.',
+      jsonb_build_object('reference', 'productUnit')
+    );
+  end if;
+
+  v_can_override_floor := iam.has_permission(
+    p_tenant_id,
+    'pricing.customer_price_rule.override_floor_price'
+  );
+  v_floor_price_minor := (v_product ->> 'floor_price_minor')::bigint;
+  v_list_price_minor := (v_product ->> 'list_price_minor')::bigint;
+  v_is_below_floor := v_floor_price_minor is not null
+    and p_rule_price_minor < v_floor_price_minor;
+
+  if v_is_below_floor
+    and not coalesce(p_acknowledge_floor_warning, false) then
+    perform pricing._raise_pricing_error(
+      'BELOW_FLOOR_BLOCKED',
+      'Below-floor price requires acknowledgement.',
+      jsonb_build_object('reason', 'acknowledgementRequired')
+    );
+  end if;
+
+  if v_is_below_floor and not v_can_override_floor then
+    perform pricing._raise_pricing_error(
+      'BELOW_FLOOR_BLOCKED',
+      'Below-floor price requires override permission.',
+      jsonb_build_object('reason', 'overridePermissionRequired')
+    );
+  end if;
+
+  if v_is_below_floor then
+    v_warning_codes := jsonb_build_array('below_floor_price');
+    v_price_check_status := 'override_allowed';
+    v_review_status := 'warning';
+  elsif v_floor_price_minor is not null then
+    v_price_check_status := 'normal';
+  end if;
+
+  perform pg_advisory_xact_lock(
+    hashtextextended(
+      p_tenant_id::text || ':rule:' || p_customer_id::text || ':'
+        || p_product_id::text || ':' || p_product_unit_id::text,
+      0
+    )
+  );
+
+  perform pricing._auto_disable_overlapping_customer_price_rules(
+    p_tenant_id,
+    p_rule_id,
+    p_customer_id,
+    p_product_id,
+    p_product_unit_id,
+    p_effective_from,
+    p_effective_to,
+    v_actor_id,
+    'created'
+  );
+
+  insert into pricing.customer_price_rules (
+    id,
+    tenant_id,
+    customer_id,
+    product_id,
+    product_unit_id,
+    customer_display_name_snapshot,
+    customer_status_snapshot,
+    product_name_snapshot,
+    product_reference_id_snapshot,
+    product_sku_snapshot,
+    unit_name_snapshot,
+    sellable_status_snapshot,
+    rule_price_minor,
+    currency_code,
+    review_status,
+    effective_from,
+    effective_to,
+    list_price_snapshot_minor,
+    floor_price_snapshot_minor,
+    price_check_status,
+    warning_codes,
+    note,
+    created_by,
+    updated_by,
+    idempotency_key,
+    payload_hash
+  ) values (
+    p_rule_id,
+    p_tenant_id,
+    p_customer_id,
+    p_product_id,
+    p_product_unit_id,
+    v_customer ->> 'display_name',
+    v_customer ->> 'status',
+    v_product ->> 'product_name',
+    v_product ->> 'product_reference_id',
+    v_product ->> 'sku',
+    v_product ->> 'unit_name',
+    v_product ->> 'sellable_status',
+    p_rule_price_minor,
+    p_currency_code,
+    v_review_status,
+    p_effective_from,
+    p_effective_to,
+    v_list_price_minor,
+    v_floor_price_minor,
+    v_price_check_status,
+    v_warning_codes,
+    nullif(btrim(p_note), ''),
+    v_actor_id,
+    v_actor_id,
+    btrim(p_idempotency_key),
+    v_payload_hash
+  )
+  returning * into v_rule;
+
+  insert into pricing.customer_price_rule_activities (
+    tenant_id,
+    customer_price_rule_id,
+    activity_type,
+    new_value,
+    created_by
+  ) values (
+    p_tenant_id,
+    v_rule.id,
+    'created',
+    jsonb_build_object(
+      'rule_id', v_rule.id,
+      'customer_id', p_customer_id,
+      'product_id', p_product_id,
+      'product_unit_id', p_product_unit_id,
+      'rule_price_minor', p_rule_price_minor,
+      'currency_code', p_currency_code,
+      'effective_from', p_effective_from,
+      'effective_to', p_effective_to,
+      'rule_type', 'special_price',
+      'source_type', 'manual',
+      'status', 'active',
+      'review_status', v_review_status,
+      'price_check_status', v_price_check_status,
+      'warning_codes', v_warning_codes,
+      'list_price_snapshot_minor', v_list_price_minor,
+      'floor_price_snapshot_minor', v_floor_price_minor,
+      'note', nullif(btrim(p_note), ''),
+      'version', 1
+    ),
+    v_actor_id
+  );
+
+  return pricing._customer_price_rule_result(
+    v_rule.id,
+    v_can_override_floor
+  );
+end;
+$$;
+
+revoke all on function pricing.create_customer_price_rule(
+  uuid, uuid, uuid, uuid, uuid, bigint, text, date, text, date, text, boolean
+) from public, anon;
+grant execute on function pricing.create_customer_price_rule(
+  uuid, uuid, uuid, uuid, uuid, bigint, text, date, text, date, text, boolean
+) to authenticated, service_role;
+
+-- Detail: surgical wrapper on S9 — keep disable audit + source_trace, add phone + deleted_at.
+create or replace function pricing.get_customer_price_rule_detail(
+  p_tenant_id uuid,
+  p_rule_id uuid,
+  p_business_date date
+)
+returns jsonb
+language plpgsql
+stable
+security definer
+set search_path = ''
+as $$
+declare
+  v_detail jsonb;
+  v_rule pricing.customer_price_rules%rowtype;
+  v_customer jsonb;
+  v_can_view_history boolean;
+  v_phone text;
+begin
+  v_detail := pricing._get_customer_price_rule_detail_s3(
+    p_tenant_id,
+    p_rule_id,
+    p_business_date
+  );
+
+  select r.*
+  into v_rule
+  from pricing.customer_price_rules r
+  where r.tenant_id = p_tenant_id
+    and r.id = p_rule_id
+    and r.status <> 'deleted';
+
+  if not found then
+    perform pricing._raise_pricing_error(
+      'NOT_FOUND',
+      'Customer price rule was not found.',
+      '{}'::jsonb
+    );
+  end if;
+
+  v_can_view_history := iam.has_permission(
+    p_tenant_id,
+    'pricing.customer_price_rule.view_history'
+  );
+
+  v_customer := partner._get_customer_snapshot_for_pricing(
+    p_tenant_id,
+    v_rule.customer_id
+  );
+  v_phone := nullif(v_customer ->> 'phone', '');
+
+  v_detail := v_detail || jsonb_build_object(
+    'disabled_at', v_rule.disabled_at,
+    'disabled_by', v_rule.disabled_by,
+    'disabled_reason', v_rule.disabled_reason,
+    'deleted_at', v_rule.deleted_at
+  );
+
+  v_detail := jsonb_set(
+    v_detail,
+    '{customer,phone}',
+    to_jsonb(v_phone),
+    true
+  );
+
+  v_detail := jsonb_set(
+    v_detail,
+    '{source_trace}',
+    jsonb_build_object(
+      'hidden', not v_can_view_history,
+      'source_import_id',
+        case when v_can_view_history then v_rule.source_import_id else null end,
+      'source_import_row_id',
+        case when v_can_view_history then v_rule.source_import_row_id else null end,
+      'source_order_id',
+        case when v_can_view_history then v_rule.source_order_id else null end,
+      'source_order_line_id',
+        case when v_can_view_history then v_rule.source_order_line_id else null end,
+      'source_memory_request_id',
+        case when v_can_view_history then v_rule.source_memory_request_id else null end
+    ),
+    true
+  );
+
+  return v_detail;
+end;
+$$;
+
+revoke all on function pricing.get_customer_price_rule_detail(uuid, uuid, date)
+  from public, anon;
+grant execute on function pricing.get_customer_price_rule_detail(uuid, uuid, date)
+  to authenticated, service_role;
+
+-- Reenable precheck needs Vault HMAC secret; seed if missing (local/shared).
+do $seed_reenable_secret$
+declare
+  v_exists boolean := false;
+begin
+  begin
+    select exists (
+      select 1
+      from vault.decrypted_secrets s
+      where s.name = 'pricing_reenable_fingerprint_hmac_v1'
+        and nullif(btrim(s.decrypted_secret), '') is not null
+    ) into v_exists;
+  exception
+    when undefined_table then
+      v_exists := false;
+    when undefined_object then
+      v_exists := false;
+  end;
+
+  if not v_exists then
+    perform vault.create_secret(
+      encode(extensions.gen_random_bytes(32), 'hex'),
+      'pricing_reenable_fingerprint_hmac_v1',
+      'HMAC key for pricing customer price rule reenable precheck'
+    );
+  end if;
+exception
+  when others then
+    raise notice
+      'pricing_reenable_fingerprint_hmac_v1 seed skipped: %',
+      sqlerrm;
+end;
+$seed_reenable_secret$;
+
+-- Reenable context: never block on active overlap (commit auto-disables);
+-- tolerate missing vault secret with deterministic tenant-scoped fallback.
+create or replace function pricing._customer_price_rule_reenable_context(
+  p_tenant_id uuid,
+  p_rule_id uuid,
+  p_actor_id uuid,
+  p_business_date date
+)
+returns jsonb
+language plpgsql
+stable
+security definer
+set search_path = ''
+as $$
+declare
+  v_rule pricing.customer_price_rules%rowtype;
+  v_customer jsonb;
+  v_product jsonb;
+  v_can_override_floor boolean := false;
+  v_floor_price_minor bigint;
+  v_list_price_minor bigint;
+  v_warning_codes text[] := '{}';
+  v_blocking_codes text[] := '{}';
+  v_outcome_state text;
+  v_is_below_floor boolean := false;
+  v_is_expired boolean := false;
+  v_fingerprint_payload jsonb;
+  v_hmac_secret text;
+  v_precheck_token text;
+  v_validation_outcome jsonb;
+begin
+  select r.*
+  into v_rule
+  from pricing.customer_price_rules r
+  where r.tenant_id = p_tenant_id
+    and r.id = p_rule_id
+    and r.status <> 'deleted';
+
+  if not found then
+    perform pricing._raise_pricing_error(
+      'NOT_FOUND',
+      'Customer price rule was not found.'
+    );
+  end if;
+
+  v_customer := partner._get_customer_snapshot_for_pricing(
+    p_tenant_id,
+    v_rule.customer_id
+  );
+  v_product := catalog._get_product_price_band_snapshot_for_pricing(
+    p_tenant_id,
+    v_rule.product_id,
+    v_rule.product_unit_id
+  );
+
+  v_can_override_floor := iam.has_permission(
+    p_tenant_id,
+    'pricing.customer_price_rule.override_floor_price'
+  );
+
+  v_floor_price_minor := nullif(v_product ->> 'floor_price_minor', '')::bigint;
+  v_list_price_minor := nullif(v_product ->> 'list_price_minor', '')::bigint;
+
+  if not coalesce((v_customer ->> 'exists')::boolean, false)
+    or not coalesce((v_customer ->> 'is_customer')::boolean, false)
+    or coalesce(v_customer ->> 'status', 'missing') <> 'active' then
+    v_blocking_codes := array_append(
+      v_blocking_codes,
+      'customer_reference_invalid'
+    );
+  end if;
+
+  if coalesce(v_product ->> 'sellable_status', 'missing') <> 'active' then
+    v_blocking_codes := array_append(
+      v_blocking_codes,
+      'product_unit_reference_invalid'
+    );
+  end if;
+
+  if nullif(v_product ->> 'currency_code', '') is null
+    or upper(v_product ->> 'currency_code') <> v_rule.currency_code then
+    v_blocking_codes := array_append(v_blocking_codes, 'currency_mismatch');
+  end if;
+
+  if v_rule.effective_to is not null
+    and v_rule.effective_to < p_business_date then
+    v_blocking_codes := array_append(v_blocking_codes, 'effective_period_expired');
+    v_is_expired := true;
+  end if;
+
+  if v_floor_price_minor is not null
+    and v_rule.rule_price_minor < v_floor_price_minor then
+    v_is_below_floor := true;
+    if v_can_override_floor then
+      v_warning_codes := array_append(v_warning_codes, 'below_floor_price');
+    else
+      v_blocking_codes := array_append(
+        v_blocking_codes,
+        'override_permission_required'
+      );
+    end if;
+  end if;
+
+  -- Active overlap is advisory only: reenable_customer_price_rule auto-disables
+  -- conflicting active rules before activating this rule.
+
+  select coalesce(array_agg(distinct code order by code), '{}')
+  into v_blocking_codes
+  from unnest(v_blocking_codes) as code;
+
+  select coalesce(array_agg(distinct code order by code), '{}')
+  into v_warning_codes
+  from unnest(v_warning_codes) as code;
+
+  v_outcome_state := case
+    when cardinality(v_blocking_codes) > 0 then 'blocked'
+    when cardinality(v_warning_codes) > 0 then 'warning'
+    else 'valid'
+  end;
+
+  v_fingerprint_payload := jsonb_build_object(
+    'schemaVersion', 'pricing-reenable-s7-v1',
+    'tenantId', p_tenant_id,
+    'actorId', p_actor_id,
+    'rule', jsonb_build_object(
+      'id', v_rule.id,
+      'version', v_rule.version,
+      'status', v_rule.status,
+      'customerId', v_rule.customer_id,
+      'productId', v_rule.product_id,
+      'productUnitId', v_rule.product_unit_id,
+      'rulePriceMinor', v_rule.rule_price_minor,
+      'currencyCode', v_rule.currency_code,
+      'effectiveFrom', v_rule.effective_from,
+      'effectiveTo', v_rule.effective_to
+    ),
+    'businessDate', p_business_date,
+    'customer', jsonb_build_object(
+      'exists', coalesce((v_customer ->> 'exists')::boolean, false),
+      'isCustomer', coalesce((v_customer ->> 'is_customer')::boolean, false),
+      'status', coalesce(v_customer ->> 'status', 'missing')
+    ),
+    'productUnit', jsonb_build_object(
+      'sellableStatus', coalesce(v_product ->> 'sellable_status', 'missing'),
+      'currencyCode', upper(coalesce(v_product ->> 'currency_code', '')),
+      'listPriceMinor', v_list_price_minor,
+      'floorPriceMinor', v_floor_price_minor
+    ),
+    'permissions', jsonb_build_object(
+      'canOverrideFloor', v_can_override_floor
+    ),
+    'outcome', jsonb_build_object(
+      'state', v_outcome_state,
+      'warningCodes', to_jsonb(v_warning_codes),
+      'blockingCodes', to_jsonb(v_blocking_codes)
+    )
+  );
+
+  begin
+    select s.decrypted_secret
+    into v_hmac_secret
+    from vault.decrypted_secrets s
+    where s.name = 'pricing_reenable_fingerprint_hmac_v1';
+  exception
+    when undefined_table then
+      v_hmac_secret := null;
+    when undefined_object then
+      v_hmac_secret := null;
+  end;
+
+  if nullif(btrim(v_hmac_secret), '') is null then
+    -- Local/dev fallback when Vault secret is not provisioned yet.
+    v_hmac_secret := encode(
+      extensions.digest(
+        pg_catalog.convert_to(
+          'pricing-reenable-s7-v1:' || p_tenant_id::text,
+          'UTF8'
+        ),
+        'sha256'
+      ),
+      'hex'
+    );
+  end if;
+
+  v_precheck_token := pg_catalog.encode(
+    extensions.hmac(
+      pg_catalog.convert_to(v_fingerprint_payload::text, 'UTF8'),
+      pg_catalog.convert_to(v_hmac_secret, 'UTF8'),
+      'sha256'
+    ),
+    'hex'
+  );
+
+  v_validation_outcome := jsonb_build_object(
+    'outcome', v_outcome_state,
+    'warning_codes', to_jsonb(v_warning_codes),
+    'blocking_codes', to_jsonb(v_blocking_codes),
+    'list_price', case
+      when v_list_price_minor is not null then jsonb_build_object(
+        'amount_minor', v_list_price_minor,
+        'currency_code', v_rule.currency_code
+      )
+      else null
+    end,
+    'floor_price', case
+      when v_can_override_floor and v_floor_price_minor is not null then
+        jsonb_build_object(
+          'amount_minor', v_floor_price_minor,
+          'currency_code', v_rule.currency_code
+        )
+      else null
+    end,
+    'floor_price_hidden', v_floor_price_minor is not null
+      and not v_can_override_floor
+  );
+
+  return jsonb_build_object(
+    'validation_outcome', v_validation_outcome,
+    'precheck_token', v_precheck_token,
+    'rule_version', v_rule.version,
+    'business_date', p_business_date,
+    'can_override_floor', v_can_override_floor,
+    'is_expired', v_is_expired,
+    'is_below_floor', v_is_below_floor,
+    'has_floor_price', v_floor_price_minor is not null,
+    'customer_snapshot', v_customer,
+    'product_unit_snapshot', v_product
+  );
+end;
+$$;
+
+revoke all on function pricing._customer_price_rule_reenable_context(
+  uuid, uuid, uuid, date
+) from public, anon, authenticated, service_role;

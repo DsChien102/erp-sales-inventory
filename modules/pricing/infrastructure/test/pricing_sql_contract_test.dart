@@ -19,12 +19,12 @@ void main() {
 
   test('provider snapshot functions are internal-only', () {
     final partner = File(
-      '${root.path}/supabase/migrations/_drafts/'
-      '001_partner_pricing_customer_snapshot.sql',
+      '${root.path}/supabase/migrations/'
+      '20260725001_partner_pricing_customer_snapshot.sql',
     ).readAsStringSync();
     final catalog = File(
-      '${root.path}/supabase/migrations/_drafts/'
-      '002_catalog_pricing_price_band_snapshot.sql',
+      '${root.path}/supabase/migrations/'
+      '20260725002_catalog_pricing_price_band_snapshot.sql',
     ).readAsStringSync();
 
     expect(partner, contains('partner._get_customer_snapshot_for_pricing'));
@@ -45,8 +45,8 @@ void main() {
 
   test('pricing draft owns atomic create and never reads provider tables', () {
     final sql = File(
-      '${root.path}/supabase/migrations/_drafts/'
-      '004_pricing_customer_price_rule_s1.sql',
+      '${root.path}/supabase/migrations/'
+      '20260725004_pricing_customer_price_rule_s1.sql',
     ).readAsStringSync();
     final createStart = sql.indexOf(
       'create or replace function pricing.create_customer_price_rule(',
@@ -101,6 +101,7 @@ void main() {
     expect(sql, contains("'replacement_action', p_replacement_action"));
     expect(sql, contains('from locked l'));
     expect(sql, contains('from updated u'));
+    // Canonical S1 still blocks duplicates until overwrite draft is promoted.
     expect(createFunction, contains("'DUPLICATE_ACTIVE_RULE'"));
     expect(createFunction, contains("r.status = 'active'"));
     expect(
@@ -135,10 +136,73 @@ void main() {
     );
   });
 
-  test('S1 view permission variable stays inside create-context scope', () {
+  test('overwrite draft auto-disables on create and keeps disabled detail fields', () {
     final sql = File(
       '${root.path}/supabase/migrations/_drafts/'
-      '004_pricing_customer_price_rule_s1.sql',
+      'pricing_customer_phone_and_overwrite_rules.sql',
+    ).readAsStringSync();
+    final createStart = sql.indexOf(
+      'create or replace function pricing.create_customer_price_rule(',
+    );
+    final createEnd = sql.indexOf(
+      'revoke all on function pricing.create_customer_price_rule(',
+      createStart,
+    );
+    final createFunction = sql.substring(createStart, createEnd);
+    final detailStart = sql.indexOf(
+      'create or replace function pricing.get_customer_price_rule_detail(',
+    );
+    final detailEnd = sql.indexOf(
+      'revoke all on function pricing.get_customer_price_rule_detail(',
+      detailStart,
+    );
+    final detailFunction = sql.substring(detailStart, detailEnd);
+    final contextStart = sql.indexOf(
+      'create or replace function pricing.get_customer_price_rule_create_context(',
+    );
+    final contextEnd = sql.indexOf(
+      'revoke all on function pricing.get_customer_price_rule_create_context(',
+      contextStart,
+    );
+    final contextFunction = sql.substring(contextStart, contextEnd);
+
+    expect(sql, contains('-- Touches: _get_customer_snapshot_for_pricing'));
+    expect(sql, contains("'phone'"));
+    expect(sql, contains('coalesce(pp.phone, op.phone)'));
+    expect(
+      createFunction,
+      contains(
+        'perform pricing._auto_disable_overlapping_customer_price_rules(',
+      ),
+    );
+    expect(createFunction, isNot(contains("'DUPLICATE_ACTIVE_RULE'")));
+    expect(contextFunction, contains("'has_conflicting_rule'"));
+    expect(contextFunction, contains('v_conflicting_rule.id is not null'));
+    expect(contextFunction, isNot(contains("'has_conflicting_rule', false")));
+    expect(detailFunction, contains("pricing._get_customer_price_rule_detail_s3("));
+    expect(detailFunction, contains("'disabled_at'"));
+    expect(detailFunction, contains("'disabled_by'"));
+    expect(detailFunction, contains("'disabled_reason'"));
+    expect(detailFunction, contains("'deleted_at'"));
+    expect(detailFunction, contains("'{customer,phone}'"));
+    expect(detailFunction, contains("'source_memory_request_id'"));
+    expect(
+      sql,
+      isNot(contains('create or replace function pricing._auto_disable_overlapping_customer_price_rules(')),
+    );
+    expect(
+      sql,
+      contains('create or replace function pricing._customer_price_rule_reenable_context('),
+    );
+    expect(sql, contains('pricing-reenable-s7-v1:'));
+    expect(sql, contains('pricing_reenable_fingerprint_hmac_v1'));
+    expect(sql, isNot(contains("'duplicate_active_rule'")));
+  });
+
+  test('S1 view permission variable stays inside create-context scope', () {
+    final sql = File(
+      '${root.path}/supabase/migrations/'
+      '20260725004_pricing_customer_price_rule_s1.sql',
     ).readAsStringSync();
     final contextStart = sql.indexOf(
       'create or replace function pricing.get_customer_price_rule_create_context(',
@@ -168,8 +232,8 @@ void main() {
 
   test('S2 search draft has the exact public RPC and access boundary', () {
     final draft = File(
-      '${root.path}/supabase/migrations/_drafts/'
-      '005_pricing_customer_price_rule_search_s2.sql',
+      '${root.path}/supabase/migrations/'
+      '20260725005_pricing_customer_price_rule_search_s2.sql',
     );
 
     expect(
@@ -223,8 +287,8 @@ void main() {
 
   test('S2 search derives statuses with inclusive effective boundaries', () {
     final sql = File(
-      '${root.path}/supabase/migrations/_drafts/'
-      '005_pricing_customer_price_rule_search_s2.sql',
+      '${root.path}/supabase/migrations/'
+      '20260725005_pricing_customer_price_rule_search_s2.sql',
     ).readAsStringSync();
 
     final disabled = sql.indexOf("when r.status = 'disabled' then 'disabled'");
@@ -250,8 +314,8 @@ void main() {
 
   test('S2 search combines snapshot filters and stable seek pagination', () {
     final sql = File(
-      '${root.path}/supabase/migrations/_drafts/'
-      '005_pricing_customer_price_rule_search_s2.sql',
+      '${root.path}/supabase/migrations/'
+      '20260725005_pricing_customer_price_rule_search_s2.sql',
     ).readAsStringSync();
 
     expect(
@@ -282,8 +346,8 @@ void main() {
 
   test('S2 list redacts floor amount and exposes stable screen actions', () {
     final sql = File(
-      '${root.path}/supabase/migrations/_drafts/'
-      '005_pricing_customer_price_rule_search_s2.sql',
+      '${root.path}/supabase/migrations/'
+      '20260725005_pricing_customer_price_rule_search_s2.sql',
     ).readAsStringSync();
 
     expect(sql, isNot(contains("'floor_price',")));
@@ -299,8 +363,8 @@ void main() {
 
   test('S3 detail draft has the exact public RPC and access boundary', () {
     final draft = File(
-      '${root.path}/supabase/migrations/_drafts/'
-      '006_pricing_customer_price_rule_detail_s3.sql',
+      '${root.path}/supabase/migrations/'
+      '20260725006_pricing_customer_price_rule_detail_s3.sql',
     );
     expect(draft.existsSync(), isTrue);
     final sql = draft.readAsStringSync();
@@ -357,8 +421,8 @@ void main() {
     'S3 detail derives status with inclusive boundaries and health codes',
     () {
       final sql = File(
-        '${root.path}/supabase/migrations/_drafts/'
-        '006_pricing_customer_price_rule_detail_s3.sql',
+        '${root.path}/supabase/migrations/'
+        '20260725006_pricing_customer_price_rule_detail_s3.sql',
       ).readAsStringSync();
 
       final disabled = sql.indexOf(
@@ -406,8 +470,8 @@ void main() {
 
   test('S1 create helper emits S3-compatible health and lifecycle actions', () {
     final sql = File(
-      '${root.path}/supabase/migrations/_drafts/'
-      '004_pricing_customer_price_rule_s1.sql',
+      '${root.path}/supabase/migrations/'
+      '20260725004_pricing_customer_price_rule_s1.sql',
     ).readAsStringSync();
 
     expect(sql, contains("'reference_health'"));
@@ -423,8 +487,8 @@ void main() {
 
   test('S1 result helper includes disabled lifecycle audit fields', () {
     final sql = File(
-      '${root.path}/supabase/migrations/_drafts/'
-      '004_pricing_customer_price_rule_s1.sql',
+      '${root.path}/supabase/migrations/'
+      '20260725004_pricing_customer_price_rule_s1.sql',
     ).readAsStringSync();
     final helperStart = sql.indexOf(
       'create or replace function pricing._customer_price_rule_result(',
@@ -444,8 +508,8 @@ void main() {
 
   test('S5 update draft exposes exact RPC signatures and grants', () {
     final draft = File(
-      '${root.path}/supabase/migrations/_drafts/'
-      '007_pricing_customer_price_rule_update_s5.sql',
+      '${root.path}/supabase/migrations/'
+      '20260725007_pricing_customer_price_rule_update_s5.sql',
     );
     expect(draft.existsSync(), isTrue);
     final sql = draft.readAsStringSync();
@@ -544,8 +608,8 @@ void main() {
 
   test('S6 disable draft is atomic, idempotent-before-version, draft-only', () {
     final draft = File(
-      '${root.path}/supabase/migrations/_drafts/'
-      '008_pricing_customer_price_rule_disable_s6.sql',
+      '${root.path}/supabase/migrations/'
+      '20260725008_pricing_customer_price_rule_disable_s6.sql',
     );
     expect(draft.existsSync(), isTrue);
     final sql = draft.readAsStringSync();
@@ -596,7 +660,6 @@ void main() {
     expect(sql, isNot(contains('partner.')));
     expect(sql, isNot(contains('catalog.')));
     expect(sql, isNot(contains('sales.')));
-    expect(sql, isNot(contains('/migrations/20')));
     expect(
       RegExp(r'update\s+.*\borders\b', caseSensitive: false).hasMatch(sql),
       isFalse,
@@ -643,8 +706,8 @@ void main() {
 
   test('S7 reenable draft defines helper, RPCs, fingerprint, and ordering', () {
     final draft = File(
-      '${root.path}/supabase/migrations/_drafts/'
-      '009_pricing_customer_price_rule_reenable_s7.sql',
+      '${root.path}/supabase/migrations/'
+      '20260725009_pricing_customer_price_rule_reenable_s7.sql',
     );
     expect(draft.existsSync(), isTrue);
     final sql = draft.readAsStringSync();
@@ -777,6 +840,6 @@ void main() {
 }
 
 String _s5UpdateSql(Directory root) => File(
-  '${root.path}/supabase/migrations/_drafts/'
-  '007_pricing_customer_price_rule_update_s5.sql',
+  '${root.path}/supabase/migrations/'
+  '20260725007_pricing_customer_price_rule_update_s5.sql',
 ).readAsStringSync();

@@ -375,9 +375,7 @@ final class FakePricingModule implements IPricingModule {
   ) async {
     switch (scenario) {
       case FakePricingScenario.createRuleDuplicate:
-        throw const PricingBlockedException(
-          PricingBlockedCodes.duplicateActiveRule,
-        );
+        return _result(command) as TResult;
       case FakePricingScenario.createRuleFloorBlocked:
         throw const PricingBlockedException(
           PricingBlockedCodes.belowFloorBlocked,
@@ -1099,6 +1097,7 @@ final class FakePricingModule implements IPricingModule {
         customerId: '00000000-0000-4000-8000-000000000002',
         displayName: 'Phòng khám A',
         status: 'active',
+        phone: '0866641800',
       ),
       productUnit: const ProductUnitRefDto(
         productId: '00000000-0000-4000-8000-000000000003',
@@ -1156,6 +1155,7 @@ final class FakePricingModule implements IPricingModule {
         customerId: '00000000-0000-4000-8000-000000000002',
         displayName: 'Phòng khám A',
         status: 'active',
+        phone: '0866641800',
       ),
       productUnit: const ProductUnitRefDto(
         productId: '00000000-0000-4000-8000-000000000003',
@@ -1213,6 +1213,7 @@ final class FakePricingModule implements IPricingModule {
         customerId: '00000000-0000-4000-8000-000000000002',
         displayName: 'Phòng khám A',
         status: 'active',
+        phone: '0866641800',
       ),
       productUnit: const ProductUnitRefDto(
         productId: '00000000-0000-4000-8000-000000000003',
@@ -1266,6 +1267,7 @@ final class FakePricingModule implements IPricingModule {
         customerId: '00000000-0000-4000-8000-000000000002',
         displayName: 'Phòng khám A',
         status: 'active',
+        phone: '0866641800',
       ),
       productUnit: const ProductUnitRefDto(
         productId: '00000000-0000-4000-8000-000000000003',
@@ -1346,6 +1348,7 @@ final class FakePricingModule implements IPricingModule {
         customerId: '00000000-0000-4000-8000-000000000002',
         displayName: customerDisplayName,
         status: 'active',
+        phone: '0912345678',
       ),
       productUnit: ProductUnitRefDto(
         productId: '00000000-0000-4000-8000-000000000003',
@@ -1388,6 +1391,7 @@ final class FakePricingModule implements IPricingModule {
               customerId: 'customer-1',
               displayName: 'Khách hàng mẫu',
               status: 'active',
+              phone: '0866641800',
             ),
             productUnit: const ProductUnitRefDto(
               productId: 'product-1',
@@ -1419,6 +1423,7 @@ final class FakePricingModule implements IPricingModule {
               customerId: 'customer-2',
               displayName: 'Khách hàng tương lai',
               status: 'active',
+              phone: '0866641800',
             ),
             productUnit: const ProductUnitRefDto(
               productId: 'product-2',
@@ -1474,6 +1479,7 @@ final class FakePricingModule implements IPricingModule {
           customerId: command.customerId,
           displayName: 'Khách hàng mẫu',
           status: 'active',
+          phone: '0866641800',
         ),
         productUnit: ProductUnitRefDto(
           productId: command.productId,

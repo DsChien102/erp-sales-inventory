@@ -176,6 +176,8 @@ void main() {
       expect(importScenarios, {
         'importTemplateV1',
         'importReadyMixed',
+        'importUpsertAutoMatchOne',
+        'importUpsertAutoMatchMany',
         'importFailedBadFile',
         'importProductUnitMismatch',
         'importModeMismatch',

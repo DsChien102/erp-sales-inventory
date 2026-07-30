@@ -118,22 +118,31 @@ class _PriceRuleDetailBody extends StatelessWidget {
             ),
           ),
         ),
-      PriceRuleDetailNotFound() => const VEmptyState(
-          icon: VIcons.search,
-          title: 'Không tìm thấy',
-          description: 'Mức giá riêng này không tồn tại hoặc đã bị xóa.',
+      PriceRuleDetailNotFound() => const Align(
+          alignment: Alignment(0.0, -0.3),
+          child: VEmptyState(
+            icon: VIcons.search,
+            title: 'Không tìm thấy',
+            description: 'Mức giá riêng này không tồn tại hoặc đã bị xóa.',
+          ),
         ),
-      PriceRuleDetailNoPermission() => const VEmptyState(
-          icon: VIcons.lock,
-          title: 'Không có quyền truy cập',
-          description: 'Bạn không có quyền xem mức giá riêng này.',
+      PriceRuleDetailNoPermission() => const Align(
+          alignment: Alignment(0.0, -0.3),
+          child: VEmptyState(
+            icon: VIcons.lock,
+            title: 'Không có quyền truy cập',
+            description: 'Bạn không có quyền xem mức giá riêng này.',
+          ),
         ),
-      PriceRuleDetailError(:final message) => VEmptyState(
-          icon: VIcons.error,
-          title: 'Đã xảy ra lỗi',
-          description: message,
-          actionLabel: 'Thử lại',
-          onActionPressed: onRetry,
+      PriceRuleDetailError(:final message) => Align(
+          alignment: const Alignment(0.0, -0.3),
+          child: VEmptyState(
+            icon: VIcons.error,
+            title: 'Đã xảy ra lỗi',
+            description: message,
+            actionLabel: 'Thử lại',
+            onActionPressed: onRetry,
+          ),
         ),
       PriceRuleDetailLoaded(:final rule, :final recentActivities) ||
       PriceRuleDetailActionSuccess(:final rule, :final recentActivities) =>

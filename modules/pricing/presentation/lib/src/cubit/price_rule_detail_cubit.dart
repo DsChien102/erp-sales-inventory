@@ -307,9 +307,6 @@ final class PriceRuleDetailCubit extends Cubit<PriceRuleDetailState> {
 
   String messageForPrecheckBlocked(RuleValidationOutcomeDto outcome) {
     final codes = outcome.blockingCodes;
-    if (codes.contains('duplicate_active_rule')) {
-      return 'Đã có giá riêng khác đang áp dụng cho cùng khách hàng và sản phẩm.';
-    }
     if (codes.contains('effective_period_expired')) {
       return 'Giá riêng đã hết hiệu lực, không thể bật lại.';
     }
