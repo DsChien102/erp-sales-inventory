@@ -166,63 +166,36 @@ class _BottomBar extends StatefulWidget {
 }
 
 class _BottomBarState extends State<_BottomBar> {
-  bool _isOpeningActions = false;
-
   Future<void> _openActionSheet() async {
-    if (_isOpeningActions) return;
-    setState(() => _isOpeningActions = true);
+    final currentRule = switch (widget.cubit.state) {
+      PriceRuleDetailLoaded(:final rule) => rule,
+      PriceRuleDetailActionSuccess(:final rule) => rule,
+      _ => widget.rule,
+    };
 
-    final refreshed = await widget.cubit.refreshDetailForActions(
-      ruleId: widget.rule.id,
-    );
-
-    if (!mounted) return;
-    setState(() => _isOpeningActions = false);
-
-    if (refreshed == null) {
-      final message = widget.cubit.actionErrorMessage;
-      if (message != null) {
-        VToast.show(
-          context,
-          title: 'Không thể mở thao tác',
-          message: message,
-          type: VToastType.danger,
-        );
-      }
-      return;
-    }
-
-    if (!mounted) return;
     await PriceRuleActionSheet.show(
       context: context,
-      rule: refreshed,
+      rule: currentRule,
       onEdit: () async {
         final updated = await context.push<CustomerPriceRuleDetailDto>(
-          '/pricing/${refreshed.id}/edit',
-          extra: refreshed,
+          '/pricing/${currentRule.id}/edit',
+          extra: currentRule,
         );
         if (updated != null && context.mounted) {
-          widget.cubit.loadDetail(ruleId: refreshed.id);
+          widget.cubit.loadDetail(ruleId: currentRule.id);
         }
       },
       onDisable: () => PriceRuleDisableSheet.show(
         context: context,
-        rule: refreshed,
+        rule: currentRule,
         cubit: widget.cubit,
       ),
-      onReenable: () {
-        final currentRule = switch (widget.cubit.state) {
-          PriceRuleDetailLoaded(:final rule) => rule,
-          PriceRuleDetailActionSuccess(:final rule) => rule,
-          _ => refreshed,
-        };
-        PriceRuleReenableSheet.show(
-          context: context,
-          rule: currentRule,
-          cubit: widget.cubit,
-        );
-      },
-      onHistory: () => context.push('/pricing/${refreshed.id}/history'),
+      onReenable: () => PriceRuleReenableSheet.show(
+        context: context,
+        rule: currentRule,
+        cubit: widget.cubit,
+      ),
+      onHistory: () => context.push('/pricing/${currentRule.id}/history'),
     );
   }
 
@@ -232,10 +205,10 @@ class _BottomBarState extends State<_BottomBar> {
       child: Padding(
         padding: EdgeInsets.all(VSpacing.space4),
         child: VButton(
-          label: _isOpeningActions ? 'Đang tải...' : 'Thao tác',
+          label: 'Thao tác',
           variant: VButtonVariant.primary,
           fullWidth: true,
-          onPressed: _isOpeningActions ? null : _openActionSheet,
+          onPressed: _openActionSheet,
         ),
       ),
     );

@@ -157,11 +157,18 @@ final class PriceRuleFormCubit extends Cubit<PriceRuleFormState> {
 
   void updateDates({DateTime? effectiveFrom, Object? effectiveTo = _sentinel}) {
     final current = _editingOrNew();
+    final newFrom = effectiveFrom ?? current.effectiveFrom;
+    final newTo = effectiveTo == _sentinel ? current.effectiveTo : effectiveTo as DateTime?;
+    final rule = _existingRule;
+    final isDateChanged = rule != null &&
+        (newFrom != rule.effectivePeriod.effectiveFrom ||
+            newTo != rule.effectivePeriod.effectiveTo);
+
     emit(
       current.copyWith(
-        effectiveFrom: effectiveFrom ?? current.effectiveFrom,
-        effectiveTo:
-            effectiveTo == _sentinel ? current.effectiveTo : effectiveTo,
+        effectiveFrom: newFrom,
+        effectiveTo: newTo,
+        hasConflictingRule: isDateChanged,
         isDirty: true,
       ),
     );
@@ -169,9 +176,15 @@ final class PriceRuleFormCubit extends Cubit<PriceRuleFormState> {
 
   void clearEffectiveTo() {
     final current = _editingOrNew();
+    final rule = _existingRule;
+    final isDateChanged = rule != null &&
+        (current.effectiveFrom != rule.effectivePeriod.effectiveFrom ||
+            rule.effectivePeriod.effectiveTo != null);
+
     emit(
       current.copyWith(
         effectiveTo: null,
+        hasConflictingRule: isDateChanged,
         isDirty: true,
       ),
     );
