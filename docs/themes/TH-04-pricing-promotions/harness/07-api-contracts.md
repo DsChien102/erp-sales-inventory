@@ -400,7 +400,7 @@ Lane status: CONTRACT `done`, BE `done`, FE `done`, E2E `done (Fake)`; applied-R
 
 | Symbol | Input | Success | Errors |
 | ------ | ----- | ------- | ------ |
-| `GetCustomerPriceRuleImportTemplateQuery` | tenant context | `CustomerPriceRuleImportTemplateDto` (`customer_price_rules_v1.xlsx`) | permission, system |
+| `GetCustomerPriceRuleImportTemplateQuery` | tenant context | `CustomerPriceRuleImportTemplateDto` (`Mau_nho_gia.xlsx`) | permission, system |
 | `StartCustomerPriceRuleImportCommand` | templateVersion, originalFileName, fileBytes (≤5 MiB), importMode | `CustomerPriceRuleImportDetailDto` | permission, validation, system |
 | `GetCustomerPriceRuleImportQuery` | importId, rowStatus?, cursor?, limit (1–100) | batch + paged `CustomerPriceRuleImportRowPreviewDto` | permission, not found, system |
 | `ConfirmCustomerPriceRuleImportCommand` | importId, expectedVersion, businessDate (UTC date), acknowledgeWarningRows | `CustomerPriceRuleImportResultDto` (terminal only; `isReplay` on completed replay) | invalid status, state changed, validation (acknowledgement), system |

@@ -34,7 +34,7 @@ void main() {
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 100));
 
-      expect(fileService.savedTemplate?.fileName, 'customer_price_rules_v1.xlsx');
+      expect(fileService.savedTemplate?.fileName, 'Mau_nho_gia.xlsx');
       expect(
         fileService.savedTemplate?.bytes,
         Uint8List.fromList(const [0x50, 0x4B, 0x03, 0x04]),
