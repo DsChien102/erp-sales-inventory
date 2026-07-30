@@ -14,7 +14,7 @@ void main() {
       );
       expect(
         CustomerPriceRuleImportTemplateDto.fileNameV1,
-        'customer_price_rules_v1.xlsx',
+        'Mau_nho_gia.xlsx',
       );
     });
 

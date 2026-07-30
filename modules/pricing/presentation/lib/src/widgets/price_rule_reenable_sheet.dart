@@ -182,12 +182,12 @@ class _PriceRuleReenableSheetState extends State<PriceRuleReenableSheet> {
       color: Colors.transparent,
       child: SafeArea(
         top: false,
-        child: SingleChildScrollView(
+        child: Padding(
           padding: const EdgeInsets.fromLTRB(
             VSpacing.space4,
             VSpacing.space2,
             VSpacing.space4,
-            VSpacing.space4,
+            VSpacing.space5,
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
