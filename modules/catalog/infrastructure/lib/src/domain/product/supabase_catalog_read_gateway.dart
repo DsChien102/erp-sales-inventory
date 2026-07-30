@@ -39,6 +39,10 @@ final class SupabaseCatalogReadGateway implements ICatalogReadGateway {
       }
 
       final totalCount = (rows.first['total_count'] as num?)?.toInt() ?? rows.length;
+      final readyToSellCount = (rows.first['ready_to_sell_count'] as num?)?.toInt();
+      final incompleteCount = (rows.first['incomplete_count'] as num?)?.toInt();
+      final inactiveCount = (rows.first['inactive_count'] as num?)?.toInt();
+
       final items = rows
           .map(ProductListItemMapper.fromRow)
           .map(ProductListItemAssembler.toDto)
@@ -47,6 +51,9 @@ final class SupabaseCatalogReadGateway implements ICatalogReadGateway {
       return ProductSearchResultDto(
         items: items,
         totalCount: totalCount,
+        readyToSellCount: readyToSellCount,
+        incompleteCount: incompleteCount,
+        inactiveCount: inactiveCount,
       );
     } on RpcException catch (error) {
       throw mapCatalogRpcError(error);

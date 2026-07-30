@@ -133,7 +133,11 @@ class _ProductCatalogTabPageState extends State<ProductCatalogTabPage> {
     }
   }
 
-  void _showFilterBottomSheet() {
+  Future<void> _showFilterBottomSheet() async {
+    if (_filterOptions.isEmpty) {
+      await _loadFilterOptions();
+    }
+    if (!mounted) return;
     showVBottomSheet(
       context: context,
       title: 'Lọc sản phẩm',

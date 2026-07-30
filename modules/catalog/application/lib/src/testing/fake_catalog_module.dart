@@ -1870,9 +1870,32 @@ final class FakeCatalogModule implements ICatalogModule {
     final end = (query.offset + query.limit).clamp(0, items.length);
     final page = items.sublist(start, end);
 
+    int? readyToSellCount;
+    int? incompleteCount;
+    int? inactiveCount;
+
+    if (query.criteria.keyword == null &&
+        query.criteria.readinessFilter == null &&
+        query.criteria.customFieldFilters.isEmpty) {
+      final allCatalogVisible = _products.where((p) => !p.isSoftDeleted).toList();
+      final activeProducts = allCatalogVisible
+          .where((p) => p.businessStatus == ProductBusinessStatus.active)
+          .toList();
+      readyToSellCount = activeProducts
+          .where((p) => _readinessSummaryFor(p).status == ReadinessStatus.readyToSell)
+          .length;
+      incompleteCount = activeProducts.length - readyToSellCount;
+      inactiveCount = allCatalogVisible
+          .where((p) => p.businessStatus == ProductBusinessStatus.inactive)
+          .length;
+    }
+
     return ProductSearchResultDto(
           items: page,
           totalCount: items.length,
+          readyToSellCount: readyToSellCount,
+          incompleteCount: incompleteCount,
+          inactiveCount: inactiveCount,
         )
         as TResult;
   }
