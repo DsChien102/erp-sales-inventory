@@ -24,6 +24,7 @@ Tài liệu tầng **platform** — áp dụng cho mọi theme (TH-01..TH-11). �
 | [06-cross-cutting-concerns.md](06-cross-cutting-concerns.md) | IAM, tenant, DI, module settings |
 | [07-integration-and-messaging.md](07-integration-and-messaging.md) | Integration events, outbox, worker |
 | [08-data-and-security.md](08-data-and-security.md) | Postgres schema, RLS, multi-tenant |
+| [app-link-in-depth.md](app-link-in-depth.md) | Cơ chế App Links (Android) / Universal Links (iOS): verify + handoff |
 | [harness-engineering.md](harness-engineering.md) | Harness Engineering — context, constraints, verification, flywheel |
 
 ## Diagrams
