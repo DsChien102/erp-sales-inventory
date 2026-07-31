@@ -88,20 +88,19 @@ void main() {
       );
     });
 
-    test('blocks an overlapping active interval before create', () async {
+    test('allows creating rule with overlapping active interval (auto-overwrite)', () async {
       final gateway = _CommandGateway(_result());
       final handler = CreateCustomerPriceRuleCommandHandler(
         createContextPort: _ContextPort(
-          _validContext().copyWith(conflictingRuleId: 'rule-existing'),
+          _validContext().copyWith(conflictingRuleId: 'rule-existing', hasConflictingRule: true),
         ),
         commandGateway: gateway,
       );
 
-      await expectLater(
-        handler.handle(_command()),
-        _throwsCode(PricingBlockedCodes.duplicateActiveRule),
-      );
-      expect(gateway.lastCandidate, isNull);
+      final result = await handler.handle(_command());
+
+      expect(result.rule.id, 'rule-1');
+      expect(gateway.lastCandidate, isNotNull);
     });
 
     test('blocks below-floor price without acknowledgement', () async {

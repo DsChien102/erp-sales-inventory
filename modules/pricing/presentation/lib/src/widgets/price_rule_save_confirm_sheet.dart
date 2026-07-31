@@ -21,6 +21,7 @@ class PriceRuleSaveConfirmSheet extends StatefulWidget {
     required this.newFromLabel,
     required this.oldToLabel,
     required this.newToLabel,
+    this.showOverwriteWarning = false,
     required this.onConfirm,
   });
 
@@ -32,6 +33,7 @@ class PriceRuleSaveConfirmSheet extends StatefulWidget {
   final String newFromLabel;
   final String oldToLabel;
   final String newToLabel;
+  final bool showOverwriteWarning;
   final ValueChanged<String?> onConfirm;
 
   static Future<({bool confirmed, String? changeReason})?> show({
@@ -42,6 +44,7 @@ class PriceRuleSaveConfirmSheet extends StatefulWidget {
     required String newFromLabel,
     required String oldToLabel,
     required String newToLabel,
+    bool showOverwriteWarning = false,
   }) async {
     final result = await showVBottomSheet<({bool confirmed, String? reason})>(
       context: context,
@@ -53,6 +56,7 @@ class PriceRuleSaveConfirmSheet extends StatefulWidget {
         newFromLabel: newFromLabel,
         oldToLabel: oldToLabel,
         newToLabel: newToLabel,
+        showOverwriteWarning: showOverwriteWarning,
       ),
     );
     if (result == null) {
@@ -74,6 +78,7 @@ class _PriceRuleSaveConfirmSheetHost extends StatelessWidget {
     required this.newFromLabel,
     required this.oldToLabel,
     required this.newToLabel,
+    required this.showOverwriteWarning,
   });
 
   final String oldPriceLabel;
@@ -82,6 +87,7 @@ class _PriceRuleSaveConfirmSheetHost extends StatelessWidget {
   final String newFromLabel;
   final String oldToLabel;
   final String newToLabel;
+  final bool showOverwriteWarning;
 
   @override
   Widget build(BuildContext context) {
@@ -92,6 +98,7 @@ class _PriceRuleSaveConfirmSheetHost extends StatelessWidget {
       newFromLabel: newFromLabel,
       oldToLabel: oldToLabel,
       newToLabel: newToLabel,
+      showOverwriteWarning: showOverwriteWarning,
       onConfirm: (reason) => Navigator.of(context).pop((
         confirmed: true,
         reason: reason,
@@ -114,6 +121,12 @@ class _PriceRuleSaveConfirmSheetState
   Widget build(BuildContext context) {
     final colors = context.vColors;
     final reasonLength = _reasonController.text.length;
+
+    final hasDateChange =
+        (widget.oldFromLabel != widget.newFromLabel &&
+            widget.oldFromLabel.isNotEmpty) ||
+        (widget.oldToLabel != widget.newToLabel);
+    final shouldShowWarning = widget.showOverwriteWarning || hasDateChange;
 
     return Material(
       color: Colors.transparent,
@@ -193,6 +206,16 @@ class _PriceRuleSaveConfirmSheetState
                   ],
                 ),
               ),
+              if (shouldShowWarning) ...[
+                const VGap.md(),
+                const VBanner(
+                  tone: VComponentTone.info,
+                  icon: VIcons.info,
+                  title: 'Lưu ý tự động ghi đè',
+                  message:
+                      'Cập nhật thời gian hiệu lực này sẽ tự động tắt giá riêng đang áp dụng trùng khoảng thời gian (nếu có).',
+                ),
+              ],
               const VGap.md(),
               VTextField(
                 label: 'Lý do thay đổi (không bắt buộc)',

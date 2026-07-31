@@ -23,7 +23,7 @@ Source of truth giữa presentation và application cho EP02. Types sẽ sống 
 | `NOT_FOUND` | Rule/batch không tồn tại hoặc không visible | Not-found state |
 | `VALIDATION_ERROR` | Field/value/date invalid | Field errors |
 | `INVALID_STATUS` | Action không hợp lifecycle | Refresh current state |
-| `DUPLICATE_ACTIVE_RULE` | Active interval conflicts with another rule (manual create: blocked; import: blocking row error; explicit update excludes its own rule ID) | Create: keep form and show blocking error. Import: skip that row. Preserve the existing active rule. |
+| `DUPLICATE_ACTIVE_RULE` | Active interval conflicts with another rule (manual create: auto-disable then create — **not** this code; import: blocking row error; explicit update excludes its own rule ID and may auto-disable) | Create: success with old active disabled. Import: skip that row. |
 | `AMBIGUOUS_OVERLAPPING_RULES` | Blank-`rule_id` `upsert` giao với nhiều active rule cùng customer/product/product-unit | Blocking row error; `skip`; không mutation |
 | `BELOW_FLOOR_BLOCKED` | Floor policy chặn | Explain policy/override eligibility |
 | `REFERENCE_INVALID` | Customer/product/unit không hợp lệ | Reselect or row error |
@@ -74,7 +74,7 @@ Source of truth giữa presentation và application cho EP02. Types sẽ sống 
 
 | Symbol | Input summary | Success | Errors |
 | ------ | ------------- | ------- | ------ |
-| `CreateCustomerPriceRuleCommand` | context-derived tenantId/actorId; customerId, productId, productUnitId, rulePriceMinor, currencyCode, effectiveFrom, effectiveTo?, note?, acknowledgeFloorWarning, idempotencyKey | `CreateCustomerPriceRuleResult(rule, warnings)` | `NO_PERMISSION`, `VALIDATION_ERROR`, `DUPLICATE_ACTIVE_RULE`, `BELOW_FLOOR_BLOCKED`, `REFERENCE_INVALID`, `IDEMPOTENCY_CONFLICT`, `SYSTEM_ERROR` |
+| `CreateCustomerPriceRuleCommand` | context-derived tenantId/actorId; customerId, productId, productUnitId, rulePriceMinor, currencyCode, effectiveFrom, effectiveTo?, note?, acknowledgeFloorWarning, idempotencyKey | `CreateCustomerPriceRuleResult(rule, warnings)` | `NO_PERMISSION`, `VALIDATION_ERROR`, `BELOW_FLOOR_BLOCKED`, `REFERENCE_INVALID`, `IDEMPOTENCY_CONFLICT`, `SYSTEM_ERROR` |
 
 `tenantId` và `actorId` được command executor điền từ `IExecutionContext`; form không được cung cấp và mutation RPC luôn lấy actor từ `auth.uid()`. Command có `@RequiresTenant()` và `@RequiresPermission(PricingPermissions.createCustomerPriceRule)`. Date được chuẩn hóa thành calendar date UTC; money luôn là integer minor units.
 
@@ -91,14 +91,14 @@ Server assigns type=`special_price`, source=`manual`, status=`active`, version=`
 | Partner customer provider | `partner._get_customer_snapshot_for_pricing` | internal draft; no client execute |
 | Catalog price-band provider | `catalog._get_product_price_band_snapshot_for_pricing` | internal draft; no client execute |
 
-Mutation rechecks tenant/create permission, references, closed-interval overlap, and floor policy under advisory locks. Nếu gặp active overlap cùng key thì RPC trả `DUPLICATE_ACTIVE_RULE`, không tạo rule mới, không disable rule cũ và không ghi activity thay thế. `(tenant_id, idempotency_key)` là unique: same normalized payload returns the original result trước duplicate recheck, different payload returns `IDEMPOTENCY_CONFLICT`.
+Mutation rechecks tenant/create permission, references, closed-interval overlap, and floor policy under advisory locks. Nếu gặp active overlap cùng key thì RPC gọi `_auto_disable_overlapping_customer_price_rules` (reason `AUTO_REPLACED_BY_RULE`, action `created`), rồi insert rule mới — **không** trả `DUPLICATE_ACTIVE_RULE`. Create-context vẫn trả `has_conflicting_rule` / `conflicting_rule_id` làm advisory UX; application **không** block sớm trên conflict. `(tenant_id, idempotency_key)` là unique: same normalized payload returns the original result trước overlap handling, different payload returns `IDEMPOTENCY_CONFLICT`. Draft SQL: `pricing_customer_phone_and_overwrite_rules.sql`.
 
 ### Fake scenarios
 
 | scenario_id | Trigger | Fake response |
 | ----------- | ------- | ------------- |
 | `create_rule_ok` | valid unique candidate | active detail DTO |
-| `create_rule_duplicate` | overlapping key | `DUPLICATE_ACTIVE_RULE`; no mutation |
+| `create_rule_duplicate` | overlapping key | success; overlapping active rule(s) auto-disabled |
 | `create_rule_floor_warning` | warn policy | result + warning |
 | `create_rule_floor_blocked` | block/no override | `BELOW_FLOOR_BLOCKED` |
 | `create_rule_reference_invalid` | stale customer/unit | `REFERENCE_INVALID` |
@@ -367,7 +367,7 @@ Precheck token is advisory/staleness evidence: a stateless HMAC-SHA-256 fingerpr
 | Reenable | `pricing.reenable_customer_price_rule` | p_tenant_id, p_rule_id, p_expected_version, p_business_date, p_precheck_token, p_acknowledge_floor_warning | drafted / unapplied |
 
 Actor derives from `auth.uid()`; no `p_actor_id`.
-Promotion/deployment must provision a non-blank Vault secret named `pricing_reenable_fingerprint_hmac_v1`; a missing secret fails closed with `SYSTEM_ERROR`.
+Promotion/deployment must provision a non-blank Vault secret named `pricing_reenable_fingerprint_hmac_v1`. Draft `pricing_customer_phone_and_overwrite_rules.sql` seeds the secret when missing and falls back to a deterministic tenant-scoped key so local precheck is not hard-blocked by `SYSTEM_ERROR`.
 
 ### Fake scenarios
 
@@ -400,7 +400,7 @@ Lane status: CONTRACT `done`, BE `done`, FE `done`, E2E `done (Fake)`; applied-R
 
 | Symbol | Input | Success | Errors |
 | ------ | ----- | ------- | ------ |
-| `GetCustomerPriceRuleImportTemplateQuery` | tenant context | `CustomerPriceRuleImportTemplateDto` (`customer_price_rules_v1.xlsx`) | permission, system |
+| `GetCustomerPriceRuleImportTemplateQuery` | tenant context | `CustomerPriceRuleImportTemplateDto` (`Mau_nho_gia.xlsx`) | permission, system |
 | `StartCustomerPriceRuleImportCommand` | templateVersion, originalFileName, fileBytes (≤5 MiB), importMode | `CustomerPriceRuleImportDetailDto` | permission, validation, system |
 | `GetCustomerPriceRuleImportQuery` | importId, rowStatus?, cursor?, limit (1–100) | batch + paged `CustomerPriceRuleImportRowPreviewDto` | permission, not found, system |
 | `ConfirmCustomerPriceRuleImportCommand` | importId, expectedVersion, businessDate (UTC date), acknowledgeWarningRows | `CustomerPriceRuleImportResultDto` (terminal only; `isReplay` on completed replay) | invalid status, state changed, validation (acknowledgement), system |

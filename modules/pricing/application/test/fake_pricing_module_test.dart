@@ -143,21 +143,14 @@ void main() {
     expect(result.warnings.single.code, 'below_floor_price');
   });
 
-  test('createRuleDuplicate returns DUPLICATE_ACTIVE_RULE', () async {
+  test('createRuleDuplicate overwrites and creates rule successfully', () async {
     final module = FakePricingModule(
       scenario: FakePricingScenario.createRuleDuplicate,
     );
 
-    await expectLater(
-      module.executeCommandAsync(_command()),
-      throwsA(
-        isA<PricingBlockedException>().having(
-          (error) => error.code,
-          'code',
-          PricingBlockedCodes.duplicateActiveRule,
-        ),
-      ),
-    );
+    final result = await module.executeCommandAsync(_command());
+
+    expect(result.rule.id, isNotNull);
   });
 
   for (final entry in {

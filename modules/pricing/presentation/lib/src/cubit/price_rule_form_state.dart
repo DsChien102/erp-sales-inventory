@@ -33,6 +33,8 @@ final class PriceRuleFormEditing extends PriceRuleFormState {
     this.listPriceMinor,
     this.floorPriceMinor,
     this.floorPriceHidden = true,
+    this.hasConflictingRule = false,
+    this.conflictingRuleId,
     this.hasStateChanged = false,
     this.isDirty = false,
     this.fieldErrors = const {},
@@ -57,6 +59,8 @@ final class PriceRuleFormEditing extends PriceRuleFormState {
   final int? listPriceMinor;
   final int? floorPriceMinor;
   final bool floorPriceHidden;
+  final bool hasConflictingRule;
+  final String? conflictingRuleId;
 
   /// D-09: Phiên bản rule đã thay đổi — cần tải lại.
   final bool hasStateChanged;
@@ -104,6 +108,8 @@ final class PriceRuleFormEditing extends PriceRuleFormState {
     Object? listPriceMinor = _sentinel,
     Object? floorPriceMinor = _sentinel,
     bool? floorPriceHidden,
+    bool? hasConflictingRule,
+    Object? conflictingRuleId = _sentinel,
     bool? hasStateChanged,
     bool? isDirty,
     Map<String, String>? fieldErrors,
@@ -136,6 +142,10 @@ final class PriceRuleFormEditing extends PriceRuleFormState {
           ? this.floorPriceMinor
           : floorPriceMinor as int?,
       floorPriceHidden: floorPriceHidden ?? this.floorPriceHidden,
+      hasConflictingRule: hasConflictingRule ?? this.hasConflictingRule,
+      conflictingRuleId: conflictingRuleId == _sentinel
+          ? this.conflictingRuleId
+          : conflictingRuleId as String?,
       hasStateChanged: hasStateChanged ?? this.hasStateChanged,
       isDirty: isDirty ?? this.isDirty,
       fieldErrors: fieldErrors ?? this.fieldErrors,
@@ -158,6 +168,8 @@ final class PriceRuleFormEditing extends PriceRuleFormState {
     listPriceMinor,
     floorPriceMinor,
     floorPriceHidden,
+    hasConflictingRule,
+    conflictingRuleId,
     hasStateChanged,
     isDirty,
     fieldErrors,

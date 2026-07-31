@@ -118,22 +118,31 @@ class _PriceRuleDetailBody extends StatelessWidget {
             ),
           ),
         ),
-      PriceRuleDetailNotFound() => const VEmptyState(
-          icon: VIcons.search,
-          title: 'Không tìm thấy',
-          description: 'Mức giá riêng này không tồn tại hoặc đã bị xóa.',
+      PriceRuleDetailNotFound() => const Align(
+          alignment: Alignment(0.0, -0.3),
+          child: VEmptyState(
+            icon: VIcons.search,
+            title: 'Không tìm thấy',
+            description: 'Mức giá riêng này không tồn tại hoặc đã bị xóa.',
+          ),
         ),
-      PriceRuleDetailNoPermission() => const VEmptyState(
-          icon: VIcons.lock,
-          title: 'Không có quyền truy cập',
-          description: 'Bạn không có quyền xem mức giá riêng này.',
+      PriceRuleDetailNoPermission() => const Align(
+          alignment: Alignment(0.0, -0.3),
+          child: VEmptyState(
+            icon: VIcons.lock,
+            title: 'Không có quyền truy cập',
+            description: 'Bạn không có quyền xem mức giá riêng này.',
+          ),
         ),
-      PriceRuleDetailError(:final message) => VEmptyState(
-          icon: VIcons.error,
-          title: 'Đã xảy ra lỗi',
-          description: message,
-          actionLabel: 'Thử lại',
-          onActionPressed: onRetry,
+      PriceRuleDetailError(:final message) => Align(
+          alignment: const Alignment(0.0, -0.3),
+          child: VEmptyState(
+            icon: VIcons.error,
+            title: 'Đã xảy ra lỗi',
+            description: message,
+            actionLabel: 'Thử lại',
+            onActionPressed: onRetry,
+          ),
         ),
       PriceRuleDetailLoaded(:final rule, :final recentActivities) ||
       PriceRuleDetailActionSuccess(:final rule, :final recentActivities) =>
@@ -157,63 +166,36 @@ class _BottomBar extends StatefulWidget {
 }
 
 class _BottomBarState extends State<_BottomBar> {
-  bool _isOpeningActions = false;
-
   Future<void> _openActionSheet() async {
-    if (_isOpeningActions) return;
-    setState(() => _isOpeningActions = true);
+    final currentRule = switch (widget.cubit.state) {
+      PriceRuleDetailLoaded(:final rule) => rule,
+      PriceRuleDetailActionSuccess(:final rule) => rule,
+      _ => widget.rule,
+    };
 
-    final refreshed = await widget.cubit.refreshDetailForActions(
-      ruleId: widget.rule.id,
-    );
-
-    if (!mounted) return;
-    setState(() => _isOpeningActions = false);
-
-    if (refreshed == null) {
-      final message = widget.cubit.actionErrorMessage;
-      if (message != null) {
-        VToast.show(
-          context,
-          title: 'Không thể mở thao tác',
-          message: message,
-          type: VToastType.danger,
-        );
-      }
-      return;
-    }
-
-    if (!mounted) return;
     await PriceRuleActionSheet.show(
       context: context,
-      rule: refreshed,
+      rule: currentRule,
       onEdit: () async {
         final updated = await context.push<CustomerPriceRuleDetailDto>(
-          '/pricing/${refreshed.id}/edit',
-          extra: refreshed,
+          '/pricing/${currentRule.id}/edit',
+          extra: currentRule,
         );
         if (updated != null && context.mounted) {
-          widget.cubit.loadDetail(ruleId: refreshed.id);
+          widget.cubit.loadDetail(ruleId: currentRule.id);
         }
       },
       onDisable: () => PriceRuleDisableSheet.show(
         context: context,
-        rule: refreshed,
+        rule: currentRule,
         cubit: widget.cubit,
       ),
-      onReenable: () {
-        final currentRule = switch (widget.cubit.state) {
-          PriceRuleDetailLoaded(:final rule) => rule,
-          PriceRuleDetailActionSuccess(:final rule) => rule,
-          _ => refreshed,
-        };
-        PriceRuleReenableSheet.show(
-          context: context,
-          rule: currentRule,
-          cubit: widget.cubit,
-        );
-      },
-      onHistory: () => context.push('/pricing/${refreshed.id}/history'),
+      onReenable: () => PriceRuleReenableSheet.show(
+        context: context,
+        rule: currentRule,
+        cubit: widget.cubit,
+      ),
+      onHistory: () => context.push('/pricing/${currentRule.id}/history'),
     );
   }
 
@@ -223,10 +205,10 @@ class _BottomBarState extends State<_BottomBar> {
       child: Padding(
         padding: EdgeInsets.all(VSpacing.space4),
         child: VButton(
-          label: _isOpeningActions ? 'Đang tải...' : 'Thao tác',
+          label: 'Thao tác',
           variant: VButtonVariant.primary,
           fullWidth: true,
-          onPressed: _isOpeningActions ? null : _openActionSheet,
+          onPressed: _openActionSheet,
         ),
       ),
     );

@@ -26,7 +26,7 @@ void main() {
       );
 
       expect(template.templateVersion, 'customer_price_rules_v1');
-      expect(template.fileName, 'customer_price_rules_v1.xlsx');
+      expect(template.fileName, 'Mau_nho_gia.xlsx');
       expect(supabase.calls, isEmpty);
     },
   );
