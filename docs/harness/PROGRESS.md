@@ -198,6 +198,8 @@ Ghi các cải tiến harness sau khi agent fail (ngày + mô tả ngắn):
 | 2026-07-16 | TH-04 S5 hoàn tất update command/handler/reconstitution + advisory/authoritative RPC drafts; §S5 contract freeze + US-06 design reference fix (SG-04→SG-03); CONTRACT/BE `done` theo lane-scoped gate, FE/E2E giữ `todo` |
 | 2026-07-16 | TH-04 S6 hoàn tất disable command/handler/domain + authoritative RPC draft (already-disabled trước version check); §S6 contract freeze; CONTRACT/BE `done` theo lane-scoped gate, FE/E2E giữ `todo` |
 | 2026-07-23 | TH-01 S15 FE/E2E — Admin `IIamModule` wiring (platform users + onboarding); `FakeIamModule` scenarios §S15; roadmap/traceability done |
+| 2026-07-30 | TH-01 Contract Gaps Task 11 — semantic guard TH-01 xanh; roadmap/traceability/§S14 status corrected (S1–S3 FE/E2E done; S14 E2E done; S6–S9 BE giữ todo vì Unavailable invitation adapters; dual S14 surface documented). Draft SQL unpromoted. |
+| 2026-07-30 | TH-01 S6–S9 BE completion — repaired FakeIam S1–S3 drift; member JSON-page RPC; invitation read RPCs; delivery projection; real command/acceptance/identity adapters + wiring. FE/E2E not evaluated. Draft SQL unpromoted. `verify_harness.sh` still exits 1 on pre-existing TH-03/TH-04 missing APPENDICES. |
 
 ## Phase 2.8 — Pricing S8 CONTRACT + BE (TH-04)
 

@@ -95,7 +95,7 @@ Không cung cấp API xem EffectivePermissions của một thành viên khác tr
 |POST|`/platform/onboarding-operations`|`platform.tenant.create`|Khởi tạo multi-step onboarding|
 |GET|`/platform/onboarding-operations/{operation_id}`|`platform.tenant.view`|Đọc trạng thái từng bước và kết quả|
 |POST|`/platform/onboarding-operations/{operation_id}/retry`|Quyền ban đầu của operation|Tiếp tục operation bị partial failure|
-|GET|`/platform/audit-logs`|`platform.audit.view`|Truy vấn privileged Platform Audit|
+|GET|`/platform/audit-logs`|`platform.audit.view`|Truy vấn IAM audit (platform scope)|
 
 ### 6.1.4 Provisioning orchestration contract
 
@@ -129,7 +129,7 @@ Không cung cấp API xem EffectivePermissions của một thành viên khác tr
 
 ### 6.1.5 Identity self-service contracts
 
-Các endpoint dưới đây là logical contract do Platform Identity sở hữu; physical route có thể được chuẩn hóa theo Platform Identity API convention.
+Các endpoint dưới đây là logical contract do IAM application CQRS (`identity/`) sở hữu; Auth vẫn là credential/session authority. Physical route có thể chuẩn hóa theo convention nền tảng.
 
 |Method|Logical endpoint|Actor|Purpose|
 |---|---|---|---|
@@ -145,11 +145,11 @@ Các endpoint dưới đây là logical contract do Platform Identity sở hữu
 
 - Email đăng nhập không được cập nhật qua self-service profile form hiện tại.
 
-- Theme 1 không lưu profile copy, mã xác nhận, password hoặc session token.
+- IAM lưu self-service profile fields tại `iam.platform_user_profiles`; Auth identity fields chỉ được join/read dưới dạng snapshot an toàn cho presentation, không phải credential authority của IAM.
 
 - Password-reset response không trả password, password hash hoặc credential material.
 
-- Session hiện hành và các session khác được xử lý theo Platform Identity security policy.
+- Session hiện hành và các session khác tuân theo policy của Supabase Auth; completion chỉ expose `currentSessionRotated`/`otherSessionsRevoked`.
 
 - Profile và credential operation không phụ thuộc TenantContext hoặc Membership.
 
@@ -397,6 +397,7 @@ Tên persona trong bảng là conceptual platform roles. Physical storage và ma
 |`STEP_UP_AUTH_REQUIRED`|403|Cần re-authentication hoặc MFA|Mở step-up flow|
 |`TENANT_ACCESS_DENIED`|403|Không có Tenant access hợp lệ|Xóa Tenant data và mở selector|
 |`INVITATION_EMAIL_MISMATCH`|403|Verified email không khớp email được mời|Yêu cầu đăng nhập đúng email|
+|`INVITATION_TOKEN_INVALID`|404|Token lời mời không hợp lệ hoặc không tồn tại|Không lộ account existence|
 |`TENANT_NOT_FOUND`|404|Không tồn tại hoặc non-enumerating denial|Generic not-found state|
 |`RESOURCE_NOT_FOUND`|404|Resource không tồn tại hoặc không được disclose|Quay về màn an toàn|
 |`PLATFORM_USER_NOT_FOUND`|404|Platform User đích không tồn tại|Refresh hoặc tìm lại|
@@ -411,6 +412,7 @@ Tên persona trong bảng là conceptual platform roles. Physical storage và ma
 |`INVITATION_EXPIRED`|409|Invitation hết hạn|Yêu cầu lời mời mới|
 |`INVITATION_REVOKED`|409|Invitation đã bị thu hồi|Đóng flow|
 |`INVITATION_ALREADY_USED`|409|Invitation đã ở terminal state|Mở Tenant khi còn access|
+|`INVITATION_PENDING_EXISTS`|409|Đã có lời mời pending cùng email|Mở invitation hiện có hoặc revoke|
 |`ROLE_NOT_ASSIGNABLE`|409|Role inactive hoặc deprecated|Chọn role khác|
 |`LAST_OWNER_PROTECTED`|409|Thao tác ảnh hưởng sole Owner|Yêu cầu Owner hợp lệ khác|
 |`OWNER_TARGET_INVALID`|409|Owner mới không phải active Membership cùng Tenant|Chọn lại thành viên|
@@ -431,6 +433,8 @@ Tên persona trong bảng là conceptual platform roles. Physical storage và ma
 |`RESET_RATE_LIMITED`|429|Gửi hoặc xác minh quá thường xuyên|Hiển thị thời gian thử lại|
 |`SYSTEM_ERROR`|500|Lỗi không mong đợi|Safe retry kèm correlation ID|
 
+**Canonical renames (2026-07-29):** `NO_PERMISSION` → `PERMISSION_DENIED`; `NOT_FOUND` → `RESOURCE_NOT_FOUND`; `INVITATION_ALREADY_ACCEPTED` → `INVITATION_ALREADY_USED`; password-reset `RATE_LIMITED` → `RESET_RATE_LIMITED`; `ATTEMPTS_EXCEEDED` → `RESET_CODE_ATTEMPTS_EXCEEDED`; `IDENTITY_CONFLICT` → `PLATFORM_USER_ALREADY_EXISTS`. Legal Profile duplicate tax code là success warning `DuplicateTaxCodeWarningDto` (`DUPLICATE_TAX_CODE_WARNING`), không phải blocked exception.
+
 Các lỗi liên quan `tenant.close` hoặc tenant-facing ownership transfer chỉ được kích hoạt khi capability Post-MVP được triển khai.
 
 ## 6.5 Glossary
@@ -440,13 +444,9 @@ Các lỗi liên quan `tenant.close` hoặc tenant-facing ownership transfer ch�
 |Tenant|Tổ chức|Ranh giới dữ liệu, quyền, cấu hình và giao dịch độc lập|D-01|`tenants`|
 |Tenant App|Ứng dụng VET45 dành cho tổ chức|Application surface dùng TenantContext cho Owner và thành viên|D-04|TenantContext|
 |Platform Admin App|Ứng dụng quản trị nền tảng|Application surface nội bộ cho privileged VET45 actor|Platform reference|PlatformAdminContext|
-|Platform User|Người dùng nền tảng|Danh tính dùng chung trên toàn VET45|Referenced|PlatformUser|
-|Platform User Profile|Hồ sơ người dùng|Hồ sơ cá nhân do Platform Identity sở hữu|Platform Identity|PlatformUser|
-|My Account|Tài khoản của tôi|Khu vực tự quản lý hồ sơ, mật khẩu và đăng xuất|Platform Identity|PlatformUser, PasswordResetOperation|
-|VET45 System Admin|Quản trị viên hệ thống|Actor tạo Platform User, Tenant và thực hiện onboarding|Platform reference|Platform authorization grant|
-|Platform Operator|Nhân sự vận hành nền tảng|Actor thực hiện privileged lifecycle operation|Platform reference|Platform authorization grant|
-|PlatformAdminContext|Ngữ cảnh quản trị nền tảng|Context dùng platform permission và không yêu cầu Tenant Membership|D-04 reference|Runtime model|
-|PlatformOnboardingOperation|Phiên khởi tạo tổ chức|Orchestration state cho create User, Tenant và Owner|Platform reference|PlatformOnboardingOperation|
+|Platform User|Người dùng nền tảng|Danh tính dùng chung trên toàn VET45|Auth + IAM profile|PlatformUser|
+|Platform User Profile|Hồ sơ người dùng|Hồ sơ cá nhân do IAM sở hữu (`iam.platform_user_profiles`)|IAM|`iam.platform_user_profiles`|
+|My Account|Tài khoản của tôi|Khu vực tự quản lý hồ sơ, mật khẩu và đăng xuất|IAM profile + Auth credential|PlatformUser, PasswordResetOperation|
 |Activation Invitation|Lời mời kích hoạt tài khoản|Identity-owned one-time activation flow|Platform Identity|Không phải `tenant_invitations`|
 |TenantMembership|Thành viên tổ chức|Quan hệ giữa Platform User và Tenant|D-02|`tenant_memberships`|
 |TenantInvitation|Lời mời tham gia tổ chức|Email invitation tạo Membership khi được chấp nhận|D-02|`tenant_invitations`|
@@ -460,7 +460,11 @@ Các lỗi liên quan `tenant.close` hoặc tenant-facing ownership transfer ch�
 |TenantContext|Ngữ cảnh tổ chức|Tenant hiện hành trong Tenant App|D-04|Runtime model|
 |LastSelectedTenant|Tổ chức được chọn gần nhất|User preference và không phải access grant|D-04 reference|Preference model|
 |TenantReadiness|Mức độ sẵn sàng|Derived blocker và warning cho activation|D-01|Derived model|
-|PasswordResetOperation|Phiên đặt lại mật khẩu|Identity-owned flow gửi mã, xác minh và đổi mật khẩu|Platform Identity|Referenced model|
+|PasswordResetOperation|Phiên đặt lại mật khẩu|IAM metadata + Auth OTP/password; không lưu raw code|IAM + Supabase Auth|`iam.password_reset_operations`|
+|VET45 System Admin|Quản trị viên hệ thống|Actor tạo Platform User, Tenant và thực hiện onboarding|Platform reference|Platform authorization grant|
+|Platform Operator|Nhân sự vận hành nền tảng|Actor thực hiện privileged lifecycle operation|Platform reference|Platform authorization grant|
+|PlatformAdminContext|Ngữ cảnh quản trị nền tảng|Context dùng platform permission và không yêu cầu Tenant Membership|D-04 reference|Runtime model|
+|PlatformOnboardingOperation|Phiên khởi tạo tổ chức|Orchestration state do IAM persist (OQ-02)|IAM|operationId / idempotencyKey / correlationId|
 |Store|Điểm bán|Địa điểm bán hàng, không phải Tenant|External|Store capability|
 |Warehouse|Kho|Địa điểm quản lý tồn kho, không phải Tenant|Theme 7|Warehouse entity|
 |AA|Activation Action|Product usage signal|Product analytics|—|
@@ -471,15 +475,27 @@ Các lỗi liên quan `tenant.close` hoặc tenant-facing ownership transfer ch�
 |ID|Question|Owner|Status|Notes|
 |---|---|---|---|---|
 |OQ-01|Exact Platform User lifecycle code và self-registration policy ngoài activation invitation là gì?|Platform Identity|Open|Theme 1 chỉ phụ thuộc contract tối thiểu|
-|OQ-02|PlatformOnboardingOperation được persistence tại service nào và retention trong bao lâu?|Architecture|Open|Cần cho retry và support; không thuộc Tenant aggregate|
-|OQ-03|Những privileged action nào bắt buộc step-up authentication?|Security / Product|Open|Tối thiểu cần đánh giá suspend, restore, ownership transfer và credential operation|
+|OQ-02|PlatformOnboardingOperation được persistence tại service nào và retention trong bao lâu?|Architecture|**Closed (2026-07-29)**|IAM lưu theo `operationId`, `idempotencyKey`, `correlationId`, `status`, `completedSteps`, `failedStep`; retry tiếp tục từ bước chưa hoàn tất. Không thuộc Tenant aggregate. Retention chi tiết thuộc ops note ngoài MVP contract shape.|
+|OQ-03|Những privileged action nào bắt buộc step-up authentication?|Security / Product|**Closed (2026-07-29)**|Privileged provider có thể yêu cầu step-up trên suspend/restore/ownership transfer và credential-adjacent; application surface map `STEP_UP_AUTH_REQUIRED`.|
 |OQ-04|Platform permission và Tenant permission dùng chung physical catalog hay bounded storage riêng?|Architecture|Open|Không được gán platform permission qua Membership role|
-|OQ-05|Tenant Audit UI được xem những platform-operator action nào và áp dụng redaction ở mức nào?|Security / Product|Open|Platform Audit sở hữu policy|
+|OQ-05|Tenant Audit UI được xem những platform-operator action nào và áp dụng redaction ở mức nào?|Security / Product|**Closed (2026-07-29)**|S13/S16 chỉ hiển thị IAM-owned audit events từ `iam.audit_logs`; token, OTP, credential và PII ngoài allowlist bị redact trước persistence.|
 |OQ-06|Legal Profile có cần versioning riêng ngoài current state và Audit hay không?|Product / Accounting|Open|Cần phối hợp Theme 8–9|
-|OQ-07|Khi LastSelectedTenant không còn hợp lệ nhưng User có nhiều Tenant accessible, hệ thống mở selector hay chọn deterministic fallback?|Product / UX|Open|Initial bootstrap chưa có MVP visual coverage|
-|OQ-08|Notification cung cấp delivery outcome cho Tenant Invitation qua synchronous query hay event projection?|Architecture / Notification|Open|Invitation lifecycle không phụ thuộc delivery outcome|
-|OQ-09|Sau khi đặt lại mật khẩu trong phiên đã xác thực, phiên hiện hành và các phiên khác được giữ hoặc thu hồi theo policy nào?|Security / Platform Identity|Open|UI hiện giả định quay về profile sau thành công|
+|OQ-07|Khi LastSelectedTenant không còn hợp lệ nhưng User có nhiều Tenant accessible, hệ thống mở selector hay chọn deterministic fallback?|Product / UX|**Closed (2026-07-29)**|`TenantContextStatus.none`; không auto-select; FE mở selector.|
+|OQ-08|Notification cung cấp delivery outcome cho Tenant Invitation qua synchronous query hay event projection?|Architecture / Notification|**Closed (2026-07-29)**|Async projection; create/resend trả initial `queued`; detail/list đọc theo `correlationId`. Invitation lifecycle độc lập delivery outcome.|
+|OQ-09|Sau khi đặt lại mật khẩu trong phiên đã xác thực, phiên hiện hành và các phiên khác được giữ hoặc thu hồi theo policy nào?|Security / Platform Identity|**Closed (2026-07-29)**|Complete → `PasswordResetCompletionResultDto(currentSessionRotated: true, otherSessionsRevoked: true)`; thu hồi session khác, session hiện hành rotate và tiếp tục hợp lệ.|
 |OQ-10|Avatar được lưu tại Platform Identity hay shared media capability và áp dụng giới hạn file nào?|Architecture / Platform Identity|Open|Theme 1 chỉ giữ asset reference|
+
+### 6.6.1 Ownership boundary (chốt 2026-07-29)
+
+Đồng bộ harness `01` / `02` / `07`:
+
+| Data/capability | Authority | IAM responsibility |
+| --- | --- | --- |
+| Login email, verified state, credential, recovery OTP, session | Supabase Auth | Read-only snapshot / orchestration |
+| Platform User profile fields | IAM, `iam.platform_user_profiles` | Self-service owner |
+| IAM audit history | IAM, `iam.audit_logs` | Append immutable, redact before persist, tenant/platform views |
+| Email delivery | Notification/Resend | IAM publishes request and reads outcome projection |
+| Tenant/Invitation/Membership/Role | IAM | Domain owner |
 
 
 

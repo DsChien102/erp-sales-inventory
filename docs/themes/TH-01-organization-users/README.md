@@ -50,7 +50,7 @@ TH-01 / EP-{nn} / US-{nn} / FR-{nn} / BR-{nn} / SCN-{nn}
 ## Kiến trúc chốt (harness)
 
 - **Email:** Resend qua Notification boundary — [harness/03-architecture-and-flows.md](harness/03-architecture-and-flows.md)
-- **Mở app từ Gmail:** HTTPS App Link + opaque path → POST token trong body
+- **Invitation confirmation:** Email chỉ chứa opaque token và hướng dẫn tự mở app khi đang đăng xuất. User copy/paste token; API nhận token trong JSON body; không URL/query/deep-link token.
 
 ## Agent prompt mẫu
 

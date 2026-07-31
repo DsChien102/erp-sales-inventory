@@ -6,6 +6,18 @@ Golden: mở rộng [`modules/iam/`](../../../../modules/iam/README.md).
 
 ## Quyết định kiến trúc (chốt 2026-07-16)
 
+### Ownership boundary (chốt 2026-07-29 — Contract Gaps Task 1)
+
+| Data/capability | Authority | IAM responsibility |
+| --- | --- | --- |
+| Login email, verified state, credential, recovery OTP, session | Supabase Auth | Read-only snapshot / orchestration |
+| Platform User profile fields | IAM, `iam.platform_user_profiles` | Self-service owner |
+| IAM audit history | IAM, `iam.audit_logs` | Append immutable, redact before persist, tenant/platform views |
+| Email delivery | Notification/Resend | IAM publishes request and reads outcome projection |
+| Tenant/Invitation/Membership/Role | IAM | Domain owner |
+
+Đồng bộ với [01-domain-model.md](01-domain-model.md), [02-module-map.md](02-module-map.md), [07-api-contracts.md](07-api-contracts.md). Quyết định OQ contract: [APPENDICES.md](../APPENDICES.md) §6.6.
+
 ### Email = Resend (Notification boundary)
 
 | Điểm | Quyết định |
@@ -13,6 +25,7 @@ Golden: mở rộng [`modules/iam/`](../../../../modules/iam/README.md).
 | Provider | **Resend** — activation invitation, Tenant Invitation, password-reset code, security notification |
 | Ownership | Notification: mutation RPC `enqueue_outbox_message` (`iam.email.delivery_requested`) + optional queued outcome → worker self-consume inbox → `ICommandScheduler.enqueue(SendEmailDeliveryCommand)` → Resend (`packages/vet45_resend`); **delivery outcome** projection cho UI |
 | Không | Theme 1 / IAM **không** gọi `enqueue_outbox_message` từ Dart; không dùng outbox làm task queue gửi mail trực tiếp; không sở hữu raw token / mã xác nhận; không dùng Supabase Auth mailer làm SoT Tenant Invitation |
+| Delivery outcome | **OQ-08 closed:** async projection; create/resend trả `queued`; UI đọc theo `correlationId` |
 | Secrets | `RESEND_API_KEY` (và related) chỉ qua `config/secrets` + `melos run env:sync` |
 | Implement | Contract [07-api-contracts.md](07-api-contracts.md) §S-NOTIFY; consume path `Process*` + adapters `src/adapters/notification/`; publish path = RPC (invitation slice wires same-txn) |
 
@@ -51,27 +64,34 @@ sequenceDiagram
 1. **Activation invitation** — Platform Identity (EP-01/US-02, US-03)
 2. **Tenant Invitation** — Theme 1 Membership (EP-03); Invitation lifecycle **độc lập** delivery outcome (fail email ≠ revoke)
 
-### Mở app từ Gmail = HTTPS App Link + opaque token
+### Xác nhận từ email = manual opaque token, không URL
 
-APPENDICES: raw token trong **request body**, không đặt trên API URL/query log.
+Email không chứa link hoặc URL xác nhận. Backend sinh raw token; người nhận tự mở app khi đang đăng xuất, copy/paste token vào màn xác nhận. Token chỉ được gửi tới API trong **JSON body**.
 
 | Lớp | Quy ước |
 | --- | ------- |
-| Email CTA | HTTPS App Link / Universal Link: `https://app…/i/{opaque}` (tenant invite) hoặc `/activate/{opaque}` |
-| Opaque | One-time, ngắn hạn; client đọc từ deep-link **path**; không log raw |
-| App | Mở invitation/activation surface → login nếu cần → `POST …/accept` (hoặc Identity activate) với token trong **JSON body** |
-| Password reset | **Không** magic link URL — EP-06/US-03 dùng mã 6 số trong app (user đã login) |
+| Email | Chỉ hiển thị opaque token và hướng dẫn tự mở app; không button, URL, route hoặc token trong query string |
+| Token | Backend sinh 32-byte CSPRNG, Base64URL; one-time; chỉ `SHA-256(token)` persist; raw token không log |
+| Entry surface | Màn “Tôi có mã lời mời” chỉ xuất hiện khi chưa đăng nhập |
+| Inspect | Hash token → kiểm tra pending/expiry/revoke/consume → trả invitation preview và `accountExists`; token sai không lộ account status |
+| Existing account | Chuyển sang Invitation Login; `invitee_email` điền sẵn và khóa read-only → login → accept |
+| New account | Chuyển sang Registration; email điền sẵn, khóa read-only; invitation token đồng thời là email proof → tạo verified identity → accept |
+| Activation | Dùng token riêng do Platform Identity sở hữu; người dùng nhập thủ công, không dùng URL xác nhận |
+| Password reset | EP-06/US-03 dùng mã 6 số nhập trong app; tách khỏi invitation/activation token |
 | Surface | Tenant invite → `apps/erp`; activation/admin → `apps/admin` khi surface sẵn sàng |
 
 ```mermaid
 flowchart LR
-  Gmail[Gmail_link] --> HTTPS[HTTPS_AppLink_opaque]
-  HTTPS --> App[Flutter_App]
-  App --> Auth[Login_if_needed]
-  Auth --> API["POST_accept_body_token"]
+  Mail[Email_with_opaque_token] --> Open[User_opens_app_manually]
+  Open --> Entry[Logged_out_token_entry]
+  Entry --> Inspect[InspectInvitationToken]
+  Inspect -->|account_exists| Login[Locked_email_login]
+  Inspect -->|new_account| Register[Locked_email_registration]
+  Login --> Accept["POST_accept_token_in_body"]
+  Register --> Accept
 ```
 
-**Pitfalls:** deep-link path ≠ API query string; không `GET` accept kèm token; resend = invalidate opaque cũ.
+**Pitfalls:** không persist token phía client; không log/analytics raw token; gửi lại lời mời phải rotate token và vô hiệu token cũ; chỉ consume token sau khi Membership được tạo thành công.
 
 ---
 
@@ -86,14 +106,16 @@ Admin App → resolve/create Platform User (Identity)
   → Owner activates identity → Tenant App → readiness → ActivateTenant
 ```
 
-### Tenant Invitation + accept (App Link)
+### Tenant Invitation + manual token confirmation
 
 ```text
 1. CreateInvitationCommand → invitation RPC (persist + `enqueue_outbox_message` + queued outcome, same txn)
 2. Worker → ProcessOutbox/Inbox/Internal → Resend; outcome projection cập nhật `sent`/`failed`
 
-3. User mở app → login + verified email khớp
-4. AcceptInvitationCommand(token in body) → Membership active + invitation accepted (atomic)
+3. User đang đăng xuất tự mở app → nhập token → inspect invitation + resolve account theo canonical email
+4a. Account đã tồn tại → Invitation Login khóa email → login
+4b. Chưa có account → Registration khóa email; token là email proof → tạo verified Platform User
+5. AcceptInvitationCommand(token in body) → Membership active + invitation accepted + token consumed (atomic IAM)
 ```
 
 ### Switch Tenant context (EP-05)
@@ -107,9 +129,9 @@ UI → ListAccessibleTenantsQuery → selector
 ### My Account password reset (EP-06)
 
 ```text
-Authenticated user → request code (Identity) → Resend email code
-  → verify code in app → set new password
-  (không deep-link magic URL)
+Authenticated user → request code (Auth/Resend) → verify code in app → set new password
+  → revoke other sessions; rotate current session (OQ-09 closed)
+  (không URL xác nhận)
 ```
 
 ## Điểm commit RPC (target — draft SQL theo slice)

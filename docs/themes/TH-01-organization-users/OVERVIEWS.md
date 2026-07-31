@@ -11,7 +11,7 @@ Hai application surface:
 1. **Tenant App** — Owner / quản trị / thành viên (TenantContext)
 2. **Platform Admin App** — System Admin / Platform Operator (PlatformAdminContext; không cần Membership Tenant đích)
 
-Theme 1 **không** sở hữu Platform User DB, credential, session — điều phối qua Platform Identity.
+Theme 1 không sở hữu credential/session authority; self-service profile fields do IAM sở hữu còn identity/session authority thuộc Supabase Auth.
 
 ## Business context
 
@@ -27,7 +27,7 @@ Tenant là ranh giới dữ liệu/quyền/cấu hình/giao dịch của một �
 | Membership / Invitation | Invite email, resend/revoke, accept/decline; active/inactive/removed |
 | Role | Bốn system role cố định; đổi role Membership; catalog read-only |
 | Context | TenantContext, PlatformAdminContext, chuyển tổ chức, LastSelectedTenant |
-| Audit | Query Platform Audit (tenant / platform scope) |
+| Audit | Query IAM audit (`iam.audit_logs`) cho tenant / platform scope |
 | My Account | Profile, password reset, logout qua Identity |
 
 Chi tiết: [Theme-1-organization-users.md](Theme-1-organization-users.md) §1.3.
@@ -43,7 +43,7 @@ Chi tiết: [Theme-1-organization-users.md](Theme-1-organization-users.md) §1.4
 
 ## Cross-theme boundaries
 
-Theme 1 cung cấp Tenant/actor/Membership/role context; **không** truy vấn bảng nghiệp vụ Theme khác. Platform Identity / Authorization / Audit / Notification / Preference là capability được tham chiếu — xem bảng đầy đủ §1.5 canonical.
+Theme 1 cung cấp Tenant/actor/Membership/role context; **không** truy vấn bảng nghiệp vụ Theme khác. Supabase Auth / Authorization / IAM audit / Notification / Preference là capability được tham chiếu — xem bảng đầy đủ §1.5 canonical.
 
 ## Users & roles
 

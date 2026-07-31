@@ -32,8 +32,10 @@ Chi tiết: [03-architecture-and-flows.md](03-architecture-and-flows.md).
 | Chủ đề | Chốt |
 | ------ | ---- |
 | Email | **Resend** qua Notification adapter; IAM chỉ delivery request + outcome |
-| Deep link | HTTPS App Link `/i/{opaque}` hoặc `/activate/{opaque}` → app POST token **trong body** |
-| Password reset | Mã 6 số trong app (đã login) — **không** magic link URL |
+| Invitation confirmation | Email chỉ chứa opaque token; user đang đăng xuất tự mở app và copy/paste token; API nhận token **trong body** |
+| Existing account | Token hợp lệ → Invitation Login với `invitee_email` điền sẵn và khóa read-only |
+| New account | Token hợp lệ là email proof → Registration khóa email → tạo verified Platform User → accept invitation |
+| Password reset | Mã 6 số trong app (đã login) — không dùng URL xác nhận |
 | Surfaces | `apps/erp` = Tenant App; `apps/admin` = Platform Admin (Login + S15 wired) |
 | Post-MVP | EP-02/US-04 transfer + US-05 close — không slice phase 1 |
 | Platform Admin bootstrap | Không self-signup. Preferred: `vet45 admin create --email …` (Auth Admin + `iam.platform_admins`). Fallback SQL: `INSERT INTO iam.platform_admins (user_id)`. Product invite (`CreatePlatformAdmin`) = slice sau. |
@@ -43,7 +45,8 @@ Chi tiết: [03-architecture-and-flows.md](03-architecture-and-flows.md).
 - **Owner ≠ role** — `is_owner` độc lập `role_id`; không suy Owner từ role `Chủ cửa hàng`.
 - **Activation invitation ≠ Tenant Invitation** — hai lifecycle, hai template Resend.
 - **Delivery ≠ Invitation status** — fail Resend không tự revoke/expire invitation.
-- **Token** — chỉ `token_hash` persist; opaque trên App Link path; API accept dùng body; không log raw.
+- **Token** — backend sinh 32-byte CSPRNG Base64URL; chỉ `token_hash` persist; user copy/paste; API dùng body; không log raw.
+- **Gửi lại lời mời** — IAM rotate token và vô hiệu token cũ trước khi Notification gửi email mới qua Resend.
 - **Resend secrets** — không hardcode; `config/secrets` + env sync.
 - **Interim IAM** — `owner`/`staff` sẽ thay bằng bốn system role MVP (EP-04).
 - **UI** — Design Reference trỏ Theme §5 Screen Groups; không nhân bản wireframe vào US.
@@ -54,11 +57,12 @@ Chi tiết: [03-architecture-and-flows.md](03-architecture-and-flows.md).
 
 | Date | Lỗi / ghi chú | Biện pháp |
 | ---- | ------------- | --------- |
-| 2026-07-16 | Scaffold harness TH-01 sau Epic/US decomposition | harness/00–07; chốt Resend + App Link |
+| 2026-07-16 | Scaffold harness TH-01 sau Epic/US decomposition | harness/00–07; chốt Resend + invitation confirmation |
 | 2026-07-16 | README link `02-module-map.md` thiếu SoT | SoT = harness/02; root redirect |
 | 2026-07-19 | S-NOTIFY: worker registry rỗng; chưa có Dart claim client | Bootstrap đăng ký `iam`; draft outcome SQL (chưa promote). *(Lịch sử: lần đầu dùng outbox gateway — đã thay bằng internal command 2026-07-20.)* |
 | 2026-07-19 | Resend HTTP nằm trong IAM infra — khó tái dùng module khác | Tách `packages/vet45_resend` (`IResendClient` / real / fake) |
 | 2026-07-20 | S-NOTIFY dùng outbox như task queue (vi phạm internal command) | Refactor: `SendEmailDeliveryCommand` + `iam.internal_commands`; worker claim → CommandBus; đóng debt outbox-as-task-queue |
+| 2026-07-29 | Bỏ URL confirmation | Email chỉ chứa backend-generated opaque token; user nhập token khi logged out; existing account login khóa email, new account đăng ký với token làm email proof |
 | 2026-07-20 | IAM messaging folder/wiring ≠ golden sales (`modules/sales/infrastructure`, `dev-old`) | **Closed:** IAM có `Process{Outbox,Inbox,InternalCommands}` + `ICommandScheduler` + self-consume inbox; adapters `src/adapters/notification/`; thin `IamMessagingModule` |
 | 2026-07-20 | Dart client gọi `enqueue_outbox_message` (vi phạm RPC same-txn) | **Closed:** bỏ `enqueue` khỏi `IIamOutboxClient`; port production chỉ đọc outcome; docs/tests seed outbox như RPC |
 | 2026-07-24 | Admin chưa có Login — mở thẳng dashboard | LoginPage + router guard + platform.user.view gate; ops bootstrap `iam.platform_admins` ghi trong notes |

@@ -6,7 +6,7 @@
 
 ## Mục tiêu epic
 
-Cho Platform User đã đăng nhập tự xem/cập nhật hồ sơ cá nhân, đặt lại mật khẩu và đăng xuất qua Platform Identity; Theme 1 chỉ điều phối application flow.
+Cho Platform User đã đăng nhập tự xem/cập nhật hồ sơ cá nhân (IAM `iam.platform_user_profiles`), đặt lại mật khẩu và đăng xuất qua IAM identity CQRS; Supabase Auth sở hữu credential/session; Theme 1 không lưu mã reset, password hay session token.
 
 ## Phạm vi
 

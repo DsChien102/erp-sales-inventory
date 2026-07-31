@@ -17,7 +17,7 @@ Hai application surface: **Tenant App** = [`apps/erp`](../../../../apps/erp); **
 6. harness/07-api-contracts.md — contract + fake scenarios (TRƯỚC khi chọn lane)
 7. Epic-{nn}-*/US-{nn}.md — FR table + BR/EC/SCN (product, một file/US)
 8. harness/01-domain-model.md + harness/02-module-map.md
-9. harness/03-architecture-and-flows.md — khi viết RPC/gateway / Resend / App Link (BE lane)
+9. harness/03-architecture-and-flows.md — khi viết RPC/gateway / Resend / manual token confirmation (BE lane)
    - SQL schema: draft vào supabase/migrations/_drafts/ (AGENTS.md)
 10. harness/05-traceability.md — cập nhật row theo Role khi slice in_progress
 11. Skill theo layer / lane:
@@ -28,7 +28,7 @@ Hai application surface: **Tenant App** = [`apps/erp`](../../../../apps/erp); **
     - đọc `Design Reference` trong US file
     - đọc Screen Group tương ứng trong Theme-1-organization-users.md §5
     - tạo widget manifest TRƯỚC khi implement
-12. harness/06-harness-notes.md — pitfalls đã ghi (Owner≠role, Resend, App Link)
+12. harness/06-harness-notes.md — pitfalls đã ghi (Owner≠role, Resend, invitation token)
 ```
 
 ## Sau khi code
