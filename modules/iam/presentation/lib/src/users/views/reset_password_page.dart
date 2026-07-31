@@ -70,15 +70,16 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
     if (module == null || _isRequesting) return;
     setState(() => _isRequesting = true);
     try {
-      final op = await module.executeCommandAsync<PasswordResetOperationDto>(
+      final op = await module.executeCommandAsync<PasswordResetRequestResultDto>(
         RequestMyPasswordResetCommand(),
       );
       if (!mounted) return;
+      final seconds = op.resendAvailableAt.difference(DateTime.now().toUtc()).inSeconds;
       setState(() {
         _operationId = op.operationId;
         _emailMasked = op.maskedEmail;
         _isRequesting = false;
-        _secondsRemaining = op.resendAfterSeconds ?? 45;
+        _secondsRemaining = seconds < 0 ? 0 : seconds;
       });
       _startResendTimer();
     } on ApplicationException catch (e) {
@@ -102,7 +103,7 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
     }
   }
 
-void _startResendTimer() {
+  void _startResendTimer() {
     _resendTimer?.cancel();
     _resendTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (_secondsRemaining > 0) {
@@ -119,14 +120,15 @@ void _startResendTimer() {
     final module = widget.iamModule;
     if (module != null && _operationId != null) {
       try {
-        final op = await module.executeCommandAsync<PasswordResetOperationDto>(
+        final op = await module.executeCommandAsync<PasswordResetRequestResultDto>(
           ResendMyPasswordResetCommand(operationId: _operationId!),
         );
         if (!mounted) return;
+        final seconds = op.resendAvailableAt.difference(DateTime.now().toUtc()).inSeconds;
         setState(() {
           _operationId = op.operationId;
           _emailMasked = op.maskedEmail;
-          _secondsRemaining = op.resendAfterSeconds ?? 45;
+          _secondsRemaining = seconds < 0 ? 0 : seconds;
         });
         _startResendTimer();
         VToast.show(
@@ -165,12 +167,17 @@ void _startResendTimer() {
     final module = widget.iamModule;
     if (module != null) {
       try {
-        await module.executeCommandAsync<void>(
+        final result = await module.executeCommandAsync<PasswordResetVerifyResultDto>(
           VerifyMyPasswordResetCommand(
             operationId: _operationId ?? '',
             code: _codeController.text.trim(),
           ),
         );
+        if (!result.verified) {
+          if (!mounted) return;
+          setState(() => _isVerifyingCode = false);
+          return;
+        }
         if (!mounted) return;
         setState(() {
           _isVerifyingCode = false;
@@ -245,7 +252,7 @@ void _startResendTimer() {
     final module = widget.iamModule;
     if (module != null) {
       try {
-        await module.executeCommandAsync<void>(
+        await module.executeCommandAsync<PasswordResetCompletionResultDto>(
           CompleteMyPasswordResetCommand(
             operationId: _operationId ?? '',
             newPassword: newPass,
@@ -298,8 +305,7 @@ void _startResendTimer() {
   @override
   Widget build(BuildContext context) {
     final colors = context.vColors;
-    final isLoading =
-        _isVerifyingCode || _isSubmittingPassword || _isRequesting;
+    final isLoading = _isVerifyingCode || _isSubmittingPassword || _isRequesting;
 
     return Stack(
       children: [

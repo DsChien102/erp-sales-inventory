@@ -26,14 +26,15 @@ final class PlatformUsersCubit extends Cubit<PlatformUsersState> {
     );
 
     try {
-      final summaries = await _iamModule
-          .executeQueryAsync<List<PlatformUserSummaryDto>>(
+      final page = await _iamModule
+          .executeQueryAsync<CursorPageDto<PlatformUserSummaryDto>>(
             SearchPlatformUsersQuery(
               query: nextQuery.trim().isEmpty ? null : nextQuery.trim(),
             ),
           );
       if (isClosed) return;
 
+      final summaries = page.items;
       final detailsById = <String, PlatformUserDetailDto>{};
       for (final summary in summaries) {
         try {

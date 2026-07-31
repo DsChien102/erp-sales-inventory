@@ -67,7 +67,7 @@ void main() {
   testWidgets('shows Admin branding', (tester) async {
     final session = IamSession();
     registerDeps(
-      iam: FakeIamModule(scenario: FakeIamScenario.authOk),
+      iam: FakeIamModule(scenario: FakeIamScenario.authSignInOk),
       permissionChecker: FakePermissionChecker(),
       session: session,
     );
@@ -83,7 +83,7 @@ void main() {
   testWidgets('successful sign-in navigates home', (tester) async {
     final session = IamSession();
     final iam = FakeIamModule(
-      scenario: FakeIamScenario.authOk,
+      scenario: FakeIamScenario.authSignInOk,
       onSignedIn: (_) {
         session.apply(
           const PrincipalAccessDto(
@@ -136,7 +136,7 @@ void main() {
   testWidgets('non-platform admin is signed out with message', (tester) async {
     final session = IamSession();
     final iam = FakeIamModule(
-      scenario: FakeIamScenario.authOk,
+      scenario: FakeIamScenario.authSignInOk,
       onSignedIn: (_) {
         session.apply(
           const PrincipalAccessDto(

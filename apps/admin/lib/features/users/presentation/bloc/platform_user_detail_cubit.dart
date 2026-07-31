@@ -57,27 +57,43 @@ final class PlatformUserDetailCubit extends Cubit<PlatformUserDetailState> {
   }
 
   Future<bool> suspend({required String reason}) async {
+    final version = state.user?.version ?? 1;
     return _runMutation(
       () => _iamModule.executeCommandAsync<void>(
-        SuspendPlatformUserCommand(userId: userId, reason: reason),
+        SuspendPlatformUserCommand(
+          userId: userId,
+          reason: reason,
+          expectedVersion: version,
+          idempotencyKey: 'suspend-$userId-$version',
+        ),
       ),
       successMessage: 'Đã tạm ngừng tài khoản thành công.',
     );
   }
 
   Future<bool> restore() async {
+    final version = state.user?.version ?? 1;
     return _runMutation(
       () => _iamModule.executeCommandAsync<void>(
-        RestorePlatformUserCommand(userId: userId),
+        RestorePlatformUserCommand(
+          userId: userId,
+          expectedVersion: version,
+          idempotencyKey: 'restore-$userId-$version',
+        ),
       ),
       successMessage: 'Đã khôi phục tài khoản thành công.',
     );
   }
 
   Future<bool> sendActivationInvitation() async {
+    final version = state.user?.version ?? 1;
     return _runMutation(
       () => _iamModule.executeCommandAsync<void>(
-        SendActivationInvitationCommand(userId: userId),
+        SendActivationInvitationCommand(
+          userId: userId,
+          expectedVersion: version,
+          idempotencyKey: 'activate-$userId-$version',
+        ),
       ),
       successMessage: 'Đã gửi lại email kích hoạt thành công.',
     );

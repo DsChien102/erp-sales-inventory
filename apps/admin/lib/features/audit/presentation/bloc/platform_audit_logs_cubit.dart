@@ -27,17 +27,17 @@ final class PlatformAuditLogsCubit extends Cubit<PlatformAuditLogsState> {
     );
 
     try {
-      final summaries = await _iamModule
-          .executeQueryAsync<List<PlatformAuditLogSummaryDto>>(
+      final page = await _iamModule
+          .executeQueryAsync<CursorPageDto<PlatformAuditLogSummaryDto>>(
             SearchPlatformAuditLogsQuery(
-              query: nextQuery.trim().isEmpty ? null : nextQuery.trim(),
+              action: nextQuery.trim().isEmpty ? null : nextQuery.trim(),
             ),
           );
       if (isClosed) return;
       emit(
         state.copyWith(
           status: PlatformAuditLogsStatus.success,
-          logs: summaries.map(PlatformAuditUiMapper.fromSummary).toList(),
+          logs: page.items.map(PlatformAuditUiMapper.fromSummary).toList(),
           clearError: true,
         ),
       );

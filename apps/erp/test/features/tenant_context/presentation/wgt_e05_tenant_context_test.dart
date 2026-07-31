@@ -76,7 +76,7 @@ void main() {
 
       final cubit = TenantContextCubit(
         iamModule: module,
-        userDisplayName: 'Nguyễn Văn A',
+        userDisplayName: 'Lan',
       );
       await cubit.loadAccessibleTenants();
 
@@ -132,7 +132,7 @@ void main() {
       registerModule(module);
       final cubit = TenantContextCubit(
         iamModule: module,
-        userDisplayName: 'Nguyễn Văn A',
+        userDisplayName: 'Lan',
       );
       await cubit.bootstrap();
 
@@ -190,7 +190,7 @@ void main() {
       registerModule(module);
       final cubit = TenantContextCubit(
         iamModule: module,
-        userDisplayName: 'Nguyễn Văn A',
+        userDisplayName: 'Lan',
       );
       await cubit.loadAccessibleTenants();
 
@@ -258,7 +258,7 @@ void main() {
     });
 
     testWidgets('bootstrap none → blocked empty state', (tester) async {
-      final module = FakeIamModule(scenario: FakeIamScenario.bootstrapNone);
+      final module = FakeIamModule(scenario: FakeIamScenario.contextNone);
       registerModule(module);
 
       await tester.pumpWidget(wrapDashboard(module));

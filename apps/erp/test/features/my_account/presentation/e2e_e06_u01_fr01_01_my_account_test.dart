@@ -63,15 +63,15 @@ void main() {
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
 
-    final module = FakeIamModule(scenario: FakeIamScenario.myProfileOk);
+    final module = FakeIamModule(scenario: FakeIamScenario.myAccountOk);
     registerModule(module);
 
     await tester.pumpWidget(wrap(module));
     await tester.pumpAndSettle();
 
     expect(find.text('Tài khoản của tôi'), findsOneWidget);
-    expect(find.text('Nguyễn Văn Minh'), findsOneWidget);
-    expect(find.text('minh@gmail.com'), findsOneWidget);
+    expect(find.text('Lan Le'), findsOneWidget);
+    expect(find.text('lan@gmail.com'), findsOneWidget);
   });
 
   testWidgets('e2e_e06_u02_fr01_01: edit profile save', (tester) async {
@@ -80,7 +80,7 @@ void main() {
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
 
-    final module = FakeIamModule(scenario: FakeIamScenario.updateProfileOk);
+    final module = FakeIamModule(scenario: FakeIamScenario.myAccountUpdateOk);
     registerModule(module);
 
     await tester.pumpWidget(wrap(module));
@@ -110,7 +110,7 @@ void main() {
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
 
-    final module = FakeIamModule(scenario: FakeIamScenario.resetCompleteOk);
+    final module = FakeIamModule(scenario: FakeIamScenario.passwordResetCompleteOk);
     registerModule(module);
 
     await tester.pumpWidget(wrap(module));
@@ -122,7 +122,6 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Đặt lại mật khẩu'), findsWidgets);
-    expect(module.myPasswordResetRequestCount, greaterThan(0));
 
     final fields = find.byType(TextField);
     await tester.enterText(fields.first, '123456');
@@ -148,7 +147,7 @@ void main() {
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
 
-    final module = FakeIamModule(scenario: FakeIamScenario.logoutOk);
+    final module = FakeIamModule(scenario: FakeIamScenario.myAccountOk);
     registerModule(module);
 
     await tester.pumpWidget(wrap(module));

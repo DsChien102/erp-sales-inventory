@@ -21,8 +21,8 @@ final class PlatformOnboardingCubit extends Cubit<PlatformOnboardingState> {
       ),
     );
     try {
-      final results = await _iamModule
-          .executeQueryAsync<List<PlatformUserSummaryDto>>(
+      final page = await _iamModule
+          .executeQueryAsync<CursorPageDto<PlatformUserSummaryDto>>(
             SearchPlatformUsersQuery(
               query: query.trim().isEmpty ? null : query.trim(),
             ),
@@ -31,7 +31,7 @@ final class PlatformOnboardingCubit extends Cubit<PlatformOnboardingState> {
       emit(
         state.copyWith(
           status: PlatformOnboardingLoadStatus.idle,
-          searchResults: results,
+          searchResults: page.items,
           clearError: true,
         ),
       );

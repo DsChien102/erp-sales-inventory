@@ -64,7 +64,12 @@ final class PlatformTenantDetailCubit extends Cubit<PlatformTenantDetailState> {
     emit(state.copyWith(actionInProgress: true, clearError: true));
     try {
       await _iamModule.executeCommandAsync(
-        SuspendPlatformTenantCommand(tenantId: tenantId, reason: reason),
+        SuspendPlatformTenantCommand(
+          tenantId: tenantId,
+          reason: reason,
+          expectedVersion: 1,
+          idempotencyKey: 'suspend-$tenantId',
+        ),
       );
       await load();
       return true;
@@ -92,7 +97,11 @@ final class PlatformTenantDetailCubit extends Cubit<PlatformTenantDetailState> {
     emit(state.copyWith(actionInProgress: true, clearError: true));
     try {
       await _iamModule.executeCommandAsync(
-        RestorePlatformTenantCommand(tenantId: tenantId),
+        RestorePlatformTenantCommand(
+          tenantId: tenantId,
+          expectedVersion: 1,
+          idempotencyKey: 'restore-$tenantId',
+        ),
       );
       await load();
       return true;
@@ -126,6 +135,7 @@ final class PlatformTenantDetailCubit extends Cubit<PlatformTenantDetailState> {
         TransferPlatformTenantOwnershipCommand(
           tenantId: tenantId,
           newOwnerUserId: newOwnerUserId,
+          expectedVersion: 1,
           idempotencyKey: idempotencyKey,
         ),
       );

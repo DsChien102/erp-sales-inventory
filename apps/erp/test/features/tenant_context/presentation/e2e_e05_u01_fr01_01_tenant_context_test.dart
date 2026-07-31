@@ -121,7 +121,7 @@ void main() {
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
 
-    final module = FakeIamModule(scenario: FakeIamScenario.bootstrapNone);
+    final module = FakeIamModule(scenario: FakeIamScenario.contextNone);
     registerModule(module);
 
     await tester.pumpWidget(wrap(module));

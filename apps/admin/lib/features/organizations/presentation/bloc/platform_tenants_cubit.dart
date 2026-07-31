@@ -27,14 +27,15 @@ final class PlatformTenantsCubit extends Cubit<PlatformTenantsState> {
     );
 
     try {
-      final summaries = await _iamModule
-          .executeQueryAsync<List<PlatformTenantSummaryDto>>(
+      final page = await _iamModule
+          .executeQueryAsync<CursorPageDto<PlatformTenantSummaryDto>>(
             SearchPlatformTenantsQuery(
               query: nextQuery.trim().isEmpty ? null : nextQuery.trim(),
             ),
           );
       if (isClosed) return;
 
+      final summaries = page.items;
       final tenants = <OrganizationUiModel>[];
       for (final summary in summaries) {
         try {
