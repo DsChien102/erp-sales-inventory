@@ -4,7 +4,7 @@ import 'package:vet45_shared_infrastructure/infrastructure.dart';
 
 /// Fetches plaintext password-reset delivery code via service_role RPC.
 ///
-/// Calls `iam.peek_password_reset_delivery_code` (draft 014) — returns null
+/// Calls `iam.peek_password_reset_delivery_code` (superseded draft 022) — returns null
 /// if the operation is expired, completed, or not found. Caller must treat
 /// null as a terminal failure (skip send, record outcome failed).
 final class SupabasePasswordResetCodeGateway

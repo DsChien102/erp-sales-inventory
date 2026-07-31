@@ -10,6 +10,7 @@ final class PlatformTenantDetailDto {
     required this.code,
     required this.status,
     required this.createdAt,
+    this.version = 1,
     this.ownerUserId,
     this.ownerName,
     this.ownerEmail,
@@ -29,6 +30,7 @@ final class PlatformTenantDetailDto {
   final String code;
   final TenantLifecycleStatus status;
   final DateTime createdAt;
+  final int version;
   final String? ownerUserId;
   final String? ownerName;
   final String? ownerEmail;

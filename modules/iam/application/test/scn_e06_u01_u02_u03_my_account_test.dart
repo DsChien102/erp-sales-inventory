@@ -3,159 +3,123 @@ import 'package:vet45_iam_application/application.dart';
 import 'package:vet45_shared_application/application.dart';
 
 /// scn_e06_u01/u02/u03 — Identity self-service handlers (§S14).
-class _FakeIdentityGateway implements IIdentitySelfServiceGateway {
-  _FakeIdentityGateway({
-    this.profile,
-    this.getError,
-    this.updateError,
-    this.requestError,
-    this.verifyError,
-    this.completeError,
-    List<String>? callLog,
-  }) : callLog = callLog ?? <String>[];
+final class _FakePlatformIdentitySelfServicePort implements IPlatformIdentitySelfServicePort {
+  _FakePlatformIdentitySelfServicePort({this.getError, this.verifyError});
 
-  MyIdentityProfileDto? profile;
   Object? getError;
-  Object? updateError;
-  Object? requestError;
   Object? verifyError;
-  Object? completeError;
   int requestCount = 0;
+  int completeCalls = 0;
   String? lastVerifiedCode;
-  String? lastNewPassword;
-  final List<String> callLog;
+  String? lastOperationId;
+
+  MyAccountDto _account = const MyAccountDto(
+    userId: 'user-1',
+    email: 'lan@example.com',
+    givenName: 'Lan',
+    familyName: 'Le',
+    phone: '+84901234567',
+    emailVerified: true,
+    avatarReference: 'avatar-1',
+  );
 
   @override
-  Future<MyIdentityProfileDto> getMyIdentityProfile() async {
+  Future<MyAccountDto> getMyAccount() async {
     if (getError != null) throw getError!;
-    return profile!;
+    return _account;
   }
 
   @override
-  Future<MyIdentityProfileDto> updateMyIdentityProfile({
-    required String firstName,
-    required String lastName,
-    String? phoneNumber,
-    String? avatarUrl,
+  Future<MyAccountDto> updateMyAccount({
+    required String? avatarReference,
+    required String givenName,
+    required String familyName,
+    required String? phone,
   }) async {
-    if (updateError != null) throw updateError!;
-    profile = MyIdentityProfileDto(
-      userId: profile?.userId ?? 'u1',
-      firstName: firstName,
-      lastName: lastName,
-      email: profile?.email ?? 'minh@gmail.com',
-      emailVerified: profile?.emailVerified ?? true,
-      phoneNumber: phoneNumber,
-      avatarUrl: avatarUrl,
+    _account = MyAccountDto(
+      userId: _account.userId,
+      email: _account.email,
+      givenName: givenName,
+      familyName: familyName,
+      phone: phone,
+      emailVerified: _account.emailVerified,
+      avatarReference: avatarReference,
     );
-    return profile!;
+    return _account;
   }
 
   @override
-  Future<PasswordResetOperationDto> requestMyPasswordReset() async {
-    if (requestError != null) throw requestError!;
+  Future<PasswordResetRequestResultDto> requestPasswordReset() async {
     requestCount++;
-    return const PasswordResetOperationDto(
+    return PasswordResetRequestResultDto(
       operationId: 'op-1',
-      maskedEmail: 'mi***@gmail.com',
-      resendAfterSeconds: 45,
+      maskedEmail: 'l***@example.com',
+      expiresAt: DateTime.utc(2026, 7, 30, 11),
+      resendAvailableAt: DateTime.utc(2026, 7, 30, 10, 1),
     );
   }
 
   @override
-  Future<PasswordResetOperationDto> resendMyPasswordReset({
+  Future<PasswordResetRequestResultDto> resendPasswordResetCode({
     required String operationId,
   }) async {
-    if (requestError != null) throw requestError!;
     requestCount++;
-    return PasswordResetOperationDto(
+    return PasswordResetRequestResultDto(
       operationId: operationId,
-      maskedEmail: 'mi***@gmail.com',
-      resendAfterSeconds: 45,
+      maskedEmail: 'l***@example.com',
+      expiresAt: DateTime.utc(2026, 7, 30, 11, 5),
+      resendAvailableAt: DateTime.utc(2026, 7, 30, 10, 6),
     );
   }
 
   @override
-  Future<void> verifyMyPasswordReset({
+  Future<PasswordResetVerifyResultDto> verifyPasswordResetCode({
     required String operationId,
     required String code,
   }) async {
     if (verifyError != null) throw verifyError!;
+    lastOperationId = operationId;
     lastVerifiedCode = code;
+    return const PasswordResetVerifyResultDto(verified: true);
   }
 
   @override
-  Future<void> completeMyPasswordReset({
+  Future<PasswordResetCompletionResultDto> completePasswordReset({
     required String operationId,
     required String newPassword,
   }) async {
-    if (completeError != null) throw completeError!;
-    callLog.add('complete');
-    lastNewPassword = newPassword;
-  }
-}
-
-/// Records updatePassword calls and optional failure for complete-reset tests.
-class _RecordingAuthenticator implements IAuthenticator {
-  _RecordingAuthenticator({
-    this.updatePasswordError,
-    List<String>? callLog,
-  }) : callLog = callLog ?? <String>[];
-
-  final Object? updatePasswordError;
-  final List<String> callLog;
-  String? lastUpdatedPassword;
-
-  @override
-  String? get currentEmail => null;
-
-  @override
-  String? get currentUserId => null;
-
-  @override
-  Future<void> signIn({required String email, required String password}) async {}
-
-  @override
-  Future<void> signOut() async {}
-
-  @override
-  Future<void> updatePassword(String newPassword) async {
-    lastUpdatedPassword = newPassword;
-    callLog.add('updatePassword');
-    if (updatePasswordError != null) throw updatePasswordError!;
+    completeCalls += 1;
+    lastOperationId = operationId;
+    return const PasswordResetCompletionResultDto(
+      currentSessionRotated: true,
+      otherSessionsRevoked: true,
+    );
   }
 }
 
 void main() {
-  const sample = MyIdentityProfileDto(
-    userId: 'u1',
-    firstName: 'Nguyễn Văn',
-    lastName: 'Minh',
-    email: 'minh@gmail.com',
-    emailVerified: true,
-    phoneNumber: '0901 234 567',
-  );
-
   group('scn_e06_u01_fr01_01 GetMyIdentityProfileQueryHandler', () {
     test('my_profile_ok — returns profile', () async {
-      final gateway = _FakeIdentityGateway(profile: sample);
+      final port = _FakePlatformIdentitySelfServicePort();
       final handler = GetMyIdentityProfileQueryHandler(
-        identityGateway: gateway,
+        identityPort: port,
       );
 
       final dto = await handler.handle(GetMyIdentityProfileQuery());
 
-      expect(dto.email, 'minh@gmail.com');
-      expect(dto.firstName, 'Nguyễn Văn');
-      expect(dto.lastName, 'Minh');
+      expect(dto.email, 'lan@example.com');
+      expect(dto.firstName, 'Lan');
+      expect(dto.lastName, 'Le');
+      expect(dto.phoneNumber, '+84901234567');
+      expect(dto.avatarUrl, 'avatar-1');
     });
 
     test('my_profile_load_fail — propagates gateway error', () async {
-      final gateway = _FakeIdentityGateway(
+      final port = _FakePlatformIdentitySelfServicePort(
         getError: ApplicationException('SYSTEM_ERROR'),
       );
       final handler = GetMyIdentityProfileQueryHandler(
-        identityGateway: gateway,
+        identityPort: port,
       );
 
       expect(
@@ -173,9 +137,9 @@ void main() {
 
   group('scn_e06_u02_fr01_01 UpdateMyIdentityProfileCommandHandler', () {
     test('update_profile_ok — updates names and phone', () async {
-      final gateway = _FakeIdentityGateway(profile: sample);
+      final port = _FakePlatformIdentitySelfServicePort();
       final handler = UpdateMyIdentityProfileCommandHandler(
-        identityGateway: gateway,
+        identityPort: port,
       );
 
       final dto = await handler.handle(
@@ -189,11 +153,10 @@ void main() {
       expect(dto.firstName, 'Trần Văn');
       expect(dto.lastName, 'A');
       expect(dto.phoneNumber, '0911 111 111');
-      expect(dto.email, 'minh@gmail.com');
+      expect(dto.email, 'lan@example.com');
     });
 
-    test('update_validation_error — empty firstName rejected by validator',
-        () async {
+    test('update_validation_error — empty firstName rejected by validator', () async {
       final validator = UpdateMyIdentityProfileCommandValidator();
 
       expect(
@@ -206,26 +169,42 @@ void main() {
   });
 
   group('scn_e06_u03_fr01_01 password reset handlers', () {
-    test('reset_request_ok — returns operation without code', () async {
-      final gateway = _FakeIdentityGateway(profile: sample);
+    test('reset_request_ok — returns typed metadata result', () async {
+      final port = _FakePlatformIdentitySelfServicePort();
       final handler = RequestMyPasswordResetCommandHandler(
-        identityGateway: gateway,
+        identityPort: port,
       );
 
       final op = await handler.handle(RequestMyPasswordResetCommand());
 
       expect(op.operationId, 'op-1');
-      expect(op.maskedEmail, 'mi***@gmail.com');
-      expect(gateway.requestCount, 1);
+      expect(op.maskedEmail, 'l***@example.com');
+      expect(op.expiresAt, DateTime.utc(2026, 7, 30, 11));
+      expect(op.resendAvailableAt, DateTime.utc(2026, 7, 30, 10, 1));
+      expect(port.requestCount, 1);
+    });
+
+    test('reset_resend_ok — returns refreshed result metadata', () async {
+      final port = _FakePlatformIdentitySelfServicePort();
+      final handler = ResendMyPasswordResetCommandHandler(identityPort: port);
+
+      final op = await handler.handle(
+        ResendMyPasswordResetCommand(operationId: 'op-1'),
+      );
+
+      expect(op.operationId, 'op-1');
+      expect(op.maskedEmail, 'l***@example.com');
+      expect(op.expiresAt, DateTime.utc(2026, 7, 30, 11, 5));
+      expect(op.resendAvailableAt, DateTime.utc(2026, 7, 30, 10, 6));
+      expect(port.requestCount, 1);
     });
 
     test('reset_code_invalid — verify propagates error', () async {
-      final gateway = _FakeIdentityGateway(
-        profile: sample,
+      final port = _FakePlatformIdentitySelfServicePort(
         verifyError: ApplicationException('RESET_CODE_INVALID'),
       );
       final handler = VerifyMyPasswordResetCommandHandler(
-        identityGateway: gateway,
+        identityPort: port,
       );
 
       expect(
@@ -242,59 +221,36 @@ void main() {
       );
     });
 
-    test('reset_complete_ok — updates password then completes after verify', () async {
-      final callLog = <String>[];
-      final gateway = _FakeIdentityGateway(profile: sample, callLog: callLog);
-      final authenticator = _RecordingAuthenticator(callLog: callLog);
+    test('reset_verify_ok — returns verified true', () async {
+      final port = _FakePlatformIdentitySelfServicePort();
       final verify = VerifyMyPasswordResetCommandHandler(
-        identityGateway: gateway,
-      );
-      final complete = CompleteMyPasswordResetCommandHandler(
-        authenticator: authenticator,
-        identityGateway: gateway,
+        identityPort: port,
       );
 
-      await verify.handle(
+      final result = await verify.handle(
         VerifyMyPasswordResetCommand(operationId: 'op-1', code: '123456'),
       );
-      await complete.handle(
+
+      expect(result.verified, isTrue);
+      expect(port.lastVerifiedCode, '123456');
+    });
+
+    test('reset_complete_ok — completes once and returns policy flags', () async {
+      final port = _FakePlatformIdentitySelfServicePort();
+      final complete = CompleteMyPasswordResetCommandHandler(
+        identityPort: port,
+      );
+
+      final result = await complete.handle(
         CompleteMyPasswordResetCommand(
           operationId: 'op-1',
           newPassword: 'password1',
         ),
       );
 
-      expect(gateway.lastVerifiedCode, '123456');
-      expect(authenticator.lastUpdatedPassword, 'password1');
-      expect(gateway.lastNewPassword, 'password1');
-      expect(callLog, ['updatePassword', 'complete']);
-    });
-
-    test('reset_complete_auth_fail — skips gateway when updatePassword fails', () async {
-      final callLog = <String>[];
-      final gateway = _FakeIdentityGateway(profile: sample, callLog: callLog);
-      final authenticator = _RecordingAuthenticator(
-        updatePasswordError: Exception('auth_rejected'),
-        callLog: callLog,
-      );
-      final complete = CompleteMyPasswordResetCommandHandler(
-        authenticator: authenticator,
-        identityGateway: gateway,
-      );
-
-      await expectLater(
-        complete.handle(
-          CompleteMyPasswordResetCommand(
-            operationId: 'op-1',
-            newPassword: 'password1',
-          ),
-        ),
-        throwsA(isA<Exception>()),
-      );
-
-      expect(authenticator.lastUpdatedPassword, 'password1');
-      expect(gateway.lastNewPassword, isNull);
-      expect(callLog, ['updatePassword']);
+      expect(result.currentSessionRotated, isTrue);
+      expect(result.otherSessionsRevoked, isTrue);
+      expect(port.completeCalls, 1);
     });
 
     test('reset_password_policy — validator rejects short password', () async {

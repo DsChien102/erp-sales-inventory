@@ -3,6 +3,7 @@ import 'package:vet45_iam_domain/domain.dart';
 /// Tenant row for the current user's accessible-tenants selector (S1).
 ///
 /// [status] uses domain [TenantLifecycleStatus] (aligned with D-01).
+/// [isSelectable] is true only when [status] is [TenantLifecycleStatus.active].
 final class AccessibleTenantDto {
   const AccessibleTenantDto({
     required this.tenantId,
@@ -19,6 +20,9 @@ final class AccessibleTenantDto {
   final String roleLabel;
   final TenantLifecycleStatus status;
   final bool isCurrent;
+
+  /// Selectable in switcher only when tenant lifecycle is active.
+  bool get isSelectable => status == TenantLifecycleStatus.active;
 
   AccessibleTenantDto copyWith({
     String? tenantId,

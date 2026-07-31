@@ -1,0 +1,321 @@
+-- Title: iam tenant profile + legal profile (S12 / EP-02 US-01–US-03)
+-- Kind: patch
+-- Intent: iam_tenant_profile_legal
+-- Touches: iam.get_tenant, iam.update_tenant_profile, iam.upsert_legal_profile
+-- Notes: Draft only — do not apply via supabase migration up until promoted.
+--        Extends tenants with profile fields; tenant_legal_profiles 0..1.
+--        Dual-write legacy name ↔ display_name during compatibility window.
+
+-- ── DDL ─────────────────────────────────────────────────────────────────────
+
+alter table iam.tenants
+  add column if not exists display_name text,
+  add column if not exists contact_email text,
+  add column if not exists contact_phone text,
+  add column if not exists contact_address_text text,
+  add column if not exists province_code text,
+  add column if not exists commune_code text,
+  add column if not exists business_timezone text not null default 'Asia/Ho_Chi_Minh',
+  add column if not exists base_currency_code text not null default 'VND',
+  add column if not exists created_by_user_id uuid,
+  add column if not exists status_changed_at timestamptz,
+  add column if not exists version int not null default 1,
+  add column if not exists updated_at timestamptz not null default now();
+
+update iam.tenants
+set display_name = coalesce(display_name, name)
+where display_name is null;
+
+create table if not exists iam.tenant_legal_profiles (
+  tenant_id uuid primary key references iam.tenants (id) on delete cascade,
+  legal_entity_type text not null,
+  legal_name text not null,
+  tax_code text not null,
+  registered_address_text text,
+  province_code text,
+  commune_code text,
+  version int not null default 1,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  constraint tenant_legal_profiles_entity_type_chk
+    check (legal_entity_type in ('HOUSEHOLD_BUSINESS', 'ENTERPRISE'))
+);
+
+create index if not exists tenant_legal_profiles_tax_code_idx
+  on iam.tenant_legal_profiles (tax_code);
+
+-- ── Helper: tenant json ─────────────────────────────────────────────────────
+
+create or replace function iam._tenant_json(p_tenant iam.tenants)
+returns jsonb
+language plpgsql
+stable
+security definer
+set search_path = iam, pg_temp
+as $$
+declare
+  v_legal jsonb := null;
+begin
+  select jsonb_build_object(
+    'tenant_id', lp.tenant_id,
+    'legal_entity_type', lp.legal_entity_type,
+    'legal_name', lp.legal_name,
+    'tax_code', lp.tax_code,
+    'registered_address_text', lp.registered_address_text,
+    'province_code', lp.province_code,
+    'commune_code', lp.commune_code,
+    'version', lp.version,
+    'created_at', lp.created_at,
+    'updated_at', lp.updated_at
+  )
+  into v_legal
+  from iam.tenant_legal_profiles lp
+  where lp.tenant_id = p_tenant.id;
+
+  return jsonb_build_object(
+    'tenant_id', p_tenant.id,
+    'display_name', coalesce(p_tenant.display_name, p_tenant.name),
+    'status', p_tenant.status,
+    'version', p_tenant.version,
+    'business_timezone', p_tenant.business_timezone,
+    'base_currency_code', p_tenant.base_currency_code,
+    'contact_email', p_tenant.contact_email,
+    'contact_phone', p_tenant.contact_phone,
+    'contact_address_text', p_tenant.contact_address_text,
+    'province_code', p_tenant.province_code,
+    'commune_code', p_tenant.commune_code,
+    'created_at', p_tenant.created_at,
+    'updated_at', p_tenant.updated_at,
+    'activated_at', p_tenant.activated_at,
+    'legal_profile', v_legal
+  );
+end;
+$$;
+
+-- ── get_tenant ──────────────────────────────────────────────────────────────
+
+create or replace function iam.get_tenant(p_tenant_id uuid)
+returns jsonb
+language plpgsql
+security definer
+set search_path = iam, pg_temp
+as $$
+declare
+  v_row iam.tenants;
+begin
+  if auth.uid() is null then
+    raise exception 'AUTHENTICATION_REQUIRED';
+  end if;
+
+  if not iam.has_permission(p_tenant_id, 'tenant.view') then
+    raise exception 'PERMISSION_DENIED';
+  end if;
+
+  select * into v_row from iam.tenants t where t.id = p_tenant_id;
+  if not found then
+    raise exception 'RESOURCE_NOT_FOUND';
+  end if;
+
+  return iam._tenant_json(v_row);
+end;
+$$;
+
+-- ── update_tenant_profile ───────────────────────────────────────────────────
+
+create or replace function iam.update_tenant_profile(
+  p_tenant_id uuid,
+  p_display_name text,
+  p_contact_email text,
+  p_contact_phone text,
+  p_contact_address_text text,
+  p_province_code text,
+  p_commune_code text,
+  p_expected_version int
+)
+returns jsonb
+language plpgsql
+security definer
+set search_path = iam, pg_temp
+as $$
+declare
+  v_row iam.tenants;
+begin
+  if auth.uid() is null then
+    raise exception 'AUTHENTICATION_REQUIRED';
+  end if;
+
+  if not iam.has_permission(p_tenant_id, 'tenant.profile.update') then
+    raise exception 'PERMISSION_DENIED';
+  end if;
+
+  select * into v_row from iam.tenants t where t.id = p_tenant_id for update;
+  if not found then
+    raise exception 'RESOURCE_NOT_FOUND';
+  end if;
+
+  if v_row.version <> p_expected_version then
+    raise exception 'STATE_CHANGED';
+  end if;
+
+  update iam.tenants
+  set
+    display_name = p_display_name,
+    name = p_display_name,
+    contact_email = p_contact_email,
+    contact_phone = p_contact_phone,
+    contact_address_text = p_contact_address_text,
+    province_code = p_province_code,
+    commune_code = p_commune_code,
+    version = v_row.version + 1,
+    updated_at = now()
+  where id = p_tenant_id
+  returning * into v_row;
+
+  -- Tenant profile change audited in the same transaction; PII masked by helper.
+  perform iam.append_audit_log(
+    p_scope => 'tenant',
+    p_tenant_id => p_tenant_id,
+    p_actor_user_id => auth.uid(),
+    p_event_code => 'iam.tenant.profile_updated',
+    p_subject_type => 'tenant',
+    p_subject_id => p_tenant_id::text,
+    p_result => 'success',
+    p_source => 'iam',
+    p_tracking_id => p_tenant_id::text || ':' || v_row.version::text,
+    p_after => jsonb_build_object(
+      'display_name', p_display_name,
+      'contact_email', p_contact_email,
+      'contact_phone', p_contact_phone
+    )
+  );
+
+  return iam._tenant_json(v_row);
+end;
+$$;
+
+-- ── upsert_legal_profile ────────────────────────────────────────────────────
+
+create or replace function iam.upsert_legal_profile(
+  p_tenant_id uuid,
+  p_legal_entity_type text,
+  p_legal_name text,
+  p_tax_code text,
+  p_registered_address_text text,
+  p_province_code text,
+  p_commune_code text,
+  p_expected_version int,
+  p_allow_duplicate_tax_code boolean default false
+)
+returns jsonb
+language plpgsql
+security definer
+set search_path = iam, pg_temp
+as $$
+declare
+  v_row iam.tenants;
+  v_profile iam.tenant_legal_profiles;
+  v_duplicate_count int := 0;
+begin
+  if auth.uid() is null then
+    raise exception 'AUTHENTICATION_REQUIRED';
+  end if;
+
+  if not iam.has_permission(p_tenant_id, 'tenant.legal_profile.update') then
+    raise exception 'PERMISSION_DENIED';
+  end if;
+
+  select * into v_row from iam.tenants t where t.id = p_tenant_id for update;
+  if not found then
+    raise exception 'RESOURCE_NOT_FOUND';
+  end if;
+
+  if v_row.version <> p_expected_version then
+    raise exception 'STATE_CHANGED';
+  end if;
+
+  select count(*) into v_duplicate_count
+  from iam.tenant_legal_profiles lp
+  where lp.tax_code = p_tax_code
+    and lp.tenant_id <> p_tenant_id;
+
+  if v_duplicate_count > 0 and not p_allow_duplicate_tax_code then
+    return jsonb_build_object(
+      'tenant_version', v_row.version,
+      'warning', jsonb_build_object(
+        'code', 'DUPLICATE_TAX_CODE_WARNING',
+        'message', 'Tax code already used by another organization'
+      )
+    );
+  end if;
+
+  insert into iam.tenant_legal_profiles (
+    tenant_id,
+    legal_entity_type,
+    legal_name,
+    tax_code,
+    registered_address_text,
+    province_code,
+    commune_code,
+    version
+  )
+  values (
+    p_tenant_id,
+    p_legal_entity_type,
+    p_legal_name,
+    p_tax_code,
+    p_registered_address_text,
+    p_province_code,
+    p_commune_code,
+    1
+  )
+  on conflict (tenant_id) do update
+  set
+    legal_entity_type = excluded.legal_entity_type,
+    legal_name = excluded.legal_name,
+    tax_code = excluded.tax_code,
+    registered_address_text = excluded.registered_address_text,
+    province_code = excluded.province_code,
+    commune_code = excluded.commune_code,
+    version = iam.tenant_legal_profiles.version + 1,
+    updated_at = now()
+  returning * into v_profile;
+
+  update iam.tenants
+  set version = v_row.version + 1, updated_at = now()
+  where id = p_tenant_id
+  returning * into v_row;
+
+  -- Legal profile change audited in same transaction; tax code masked by helper.
+  perform iam.append_audit_log(
+    p_scope => 'tenant',
+    p_tenant_id => p_tenant_id,
+    p_actor_user_id => auth.uid(),
+    p_event_code => 'iam.tenant.legal_profile_updated',
+    p_subject_type => 'legal_profile',
+    p_subject_id => p_tenant_id::text,
+    p_result => 'success',
+    p_source => 'iam',
+    p_tracking_id => p_tenant_id::text || ':legal:' || v_profile.version::text,
+    p_after => jsonb_build_object(
+      'legal_name', v_profile.legal_name,
+      'tax_code', v_profile.tax_code
+    )
+  );
+
+  return jsonb_build_object(
+    'tenant_version', v_row.version,
+    'profile', jsonb_build_object(
+      'tenant_id', v_profile.tenant_id,
+      'legal_entity_type', v_profile.legal_entity_type,
+      'legal_name', v_profile.legal_name,
+      'tax_code', v_profile.tax_code,
+      'registered_address_text', v_profile.registered_address_text,
+      'province_code', v_profile.province_code,
+      'commune_code', v_profile.commune_code,
+      'version', v_profile.version,
+      'created_at', v_profile.created_at,
+      'updated_at', v_profile.updated_at
+    )
+  );
+end;
+$$;

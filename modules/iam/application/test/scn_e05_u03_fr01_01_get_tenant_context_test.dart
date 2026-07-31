@@ -82,8 +82,14 @@ class _ScenarioAccessGateway implements IIamAccessGateway {
   Future<bool> isMember(String tenantId) async => true;
 
   @override
-  Future<List<TenantMemberDto>> listTenantMembers(String tenantId) async =>
-      const [];
+  Future<CursorPageDto<TenantMemberDto>> listTenantMembers({
+    required String tenantId,
+    String? search,
+    String? status,
+    String? cursor,
+    int limit = 20,
+  }) async =>
+      const CursorPageDto<TenantMemberDto>(items: []);
 
   @override
   Future<List<TenantMembershipDto>> listUserTenants() async => const [];
@@ -196,6 +202,53 @@ void main() {
         TenantContextInvalidationReason.tenantSuspended,
       );
       expect(result.blockedErrorCode, 'TENANT_SUSPENDED');
+    });
+
+    test('context_identity_inactive — mid-session identity denial', () async {
+      final handler = GetTenantContextQueryHandler(
+        accessGateway: _ScenarioAccessGateway((_) async {
+          return const TenantContextDto(
+            status: TenantContextStatus.invalidated,
+            tenantId: 'tenant-cur',
+            invalidationReason:
+                TenantContextInvalidationReason.identityInactive,
+            blockedErrorCode: 'OWNER_IDENTITY_UNAVAILABLE',
+          );
+        }),
+        preferencePort: _FakePreferencePort(null),
+        sessionPort: _FakeSessionPort(),
+        currentTenant: _FakeCurrentTenant('tenant-cur'),
+      );
+
+      final result = await handler.handle(GetTenantContextQuery());
+      expect(result.status, TenantContextStatus.invalidated);
+      expect(
+        result.invalidationReason,
+        TenantContextInvalidationReason.identityInactive,
+      );
+    });
+
+    test('context_permissions_refreshed — still valid context', () async {
+      final handler = GetTenantContextQueryHandler(
+        accessGateway: _ScenarioAccessGateway((_) async {
+          return const TenantContextDto(
+            status: TenantContextStatus.valid,
+            tenantId: 'tenant-cur',
+            tenantName: 'Org',
+            roleLabel: 'staff',
+            permissions: ['tenant.view'],
+            tenantStatus: TenantLifecycleStatus.active,
+          );
+        }),
+        preferencePort: _FakePreferencePort(null),
+        sessionPort: _FakeSessionPort(),
+        currentTenant: _FakeCurrentTenant('tenant-cur'),
+      );
+
+      final result = await handler.handle(GetTenantContextQuery());
+      expect(result.status, TenantContextStatus.valid);
+      expect(result.permissions, ['tenant.view']);
+      expect(result.invalidationReason, isNull);
     });
   });
 }

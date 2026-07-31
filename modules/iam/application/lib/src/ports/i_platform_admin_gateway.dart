@@ -1,8 +1,8 @@
 import 'package:vet45_iam_domain/domain.dart';
 
+import '../dto/cursor_page_dto.dart';
 import '../dto/onboarding_owner_input.dart';
 import '../dto/platform_audit_log_detail_dto.dart';
-import '../dto/platform_audit_log_status.dart';
 import '../dto/platform_audit_log_summary_dto.dart';
 import '../dto/platform_tenant_detail_dto.dart';
 import '../dto/platform_tenant_member_dto.dart';
@@ -10,6 +10,7 @@ import '../dto/platform_tenant_summary_dto.dart';
 import '../dto/platform_user_detail_dto.dart';
 import '../dto/platform_user_status.dart';
 import '../dto/platform_user_summary_dto.dart';
+import '../dto/tenant_onboarding_operation_dto.dart';
 import '../dto/tenant_onboarding_result_dto.dart';
 
 /// Port for platform-scoped Admin reads/mutations (TH-01 S15/S16).
@@ -18,23 +19,39 @@ import '../dto/tenant_onboarding_result_dto.dart';
 abstract interface class IPlatformAdminGateway {
   Future<bool> hasPlatformPermission(String permission);
 
-  Future<List<PlatformUserSummaryDto>> searchPlatformUsers({
+  Future<CursorPageDto<PlatformUserSummaryDto>> searchPlatformUsers({
     String? query,
     PlatformUserStatus? status,
+    String? cursor,
+    int limit = 20,
   });
 
   Future<PlatformUserDetailDto> getPlatformUser(String userId);
 
-  Future<void> sendActivationInvitation(String userId);
+  Future<void> sendActivationInvitation({
+    required String userId,
+    required int expectedVersion,
+    required String idempotencyKey,
+  });
 
-  Future<void> requestPasswordReset(String userId);
+  Future<void> requestPasswordReset({
+    required String userId,
+    required int expectedVersion,
+    required String idempotencyKey,
+  });
 
   Future<void> suspendPlatformUser({
     required String userId,
     required String reason,
+    required int expectedVersion,
+    required String idempotencyKey,
   });
 
-  Future<void> restorePlatformUser(String userId);
+  Future<void> restorePlatformUser({
+    required String userId,
+    required int expectedVersion,
+    required String idempotencyKey,
+  });
 
   Future<TenantOnboardingResultDto> createTenantOnboarding({
     required OnboardingOwnerInput owner,
@@ -43,11 +60,24 @@ abstract interface class IPlatformAdminGateway {
     String? correlationId,
   });
 
+  Future<TenantOnboardingOperationDto?> getTenantOnboardingOperation(
+    String operationId,
+  );
+
+  Future<TenantOnboardingOperationDto> retryTenantOnboardingOperation({
+    required String operationId,
+    required String idempotencyKey,
+  });
+
   // ── S16: platform tenants / audit ──────────────────────────
 
-  Future<List<PlatformTenantSummaryDto>> searchPlatformTenants({
+  Future<CursorPageDto<PlatformTenantSummaryDto>> searchPlatformTenants({
     String? query,
     TenantLifecycleStatus? status,
+    String? readinessState,
+    String? warningCode,
+    String? cursor,
+    int limit = 20,
   });
 
   Future<PlatformTenantDetailDto> getPlatformTenant(String tenantId);
@@ -59,19 +89,35 @@ abstract interface class IPlatformAdminGateway {
   Future<void> suspendPlatformTenant({
     required String tenantId,
     required String reason,
+    required int expectedVersion,
+    required String idempotencyKey,
   });
 
-  Future<void> restorePlatformTenant(String tenantId);
+  Future<void> restorePlatformTenant({
+    required String tenantId,
+    required int expectedVersion,
+    required String idempotencyKey,
+  });
 
   Future<void> transferPlatformTenantOwnership({
     required String tenantId,
     required String newOwnerUserId,
+    required int expectedVersion,
     required String idempotencyKey,
   });
 
-  Future<List<PlatformAuditLogSummaryDto>> searchPlatformAuditLogs({
-    String? query,
-    PlatformAuditLogStatus? status,
+  Future<CursorPageDto<PlatformAuditLogSummaryDto>> searchPlatformAuditLogs({
+    DateTime? fromUtc,
+    DateTime? toUtc,
+    String? actorUserId,
+    String? targetType,
+    String? targetId,
+    String? action,
+    String? result,
+    String? source,
+    String? correlationId,
+    String? cursor,
+    int limit = 20,
   });
 
   Future<PlatformAuditLogDetailDto> getPlatformAuditLog(String auditLogId);

@@ -17,6 +17,8 @@ final class SuspendPlatformTenantCommandHandler
     return _platformGateway.suspendPlatformTenant(
       tenantId: command.tenantId,
       reason: command.reason,
+      expectedVersion: command.expectedVersion,
+      idempotencyKey: command.idempotencyKey,
     );
   }
 }

@@ -10,10 +10,12 @@ final class TransferPlatformTenantOwnershipCommand extends CommandBase<void>
     String? id,
     required this.tenantId,
     required this.newOwnerUserId,
+    required this.expectedVersion,
     required this.idempotencyKey,
   }) : super(id);
 
   final String tenantId;
   final String newOwnerUserId;
+  final int expectedVersion;
   final String idempotencyKey;
 }

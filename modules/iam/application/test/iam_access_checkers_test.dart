@@ -55,8 +55,14 @@ class _FakeAccessGateway implements IIamAccessGateway {
       throw UnimplementedError('S3 BE');
 
   @override
-  Future<List<TenantMemberDto>> listTenantMembers(String tenantId) async =>
-      const [];
+  Future<CursorPageDto<TenantMemberDto>> listTenantMembers({
+    required String tenantId,
+    String? search,
+    String? status,
+    String? cursor,
+    int limit = 20,
+  }) async =>
+      const CursorPageDto<TenantMemberDto>(items: []);
 
   @override
   Future<void> assignMemberRole({

@@ -25,7 +25,6 @@ final class SendEmailDeliveryCommandHandler
       toEmail: command.toEmail,
       locale: command.locale,
       refs: command.refs,
-      appLinkUrl: command.appLinkUrl,
     );
 
     final status = result.isSuccess

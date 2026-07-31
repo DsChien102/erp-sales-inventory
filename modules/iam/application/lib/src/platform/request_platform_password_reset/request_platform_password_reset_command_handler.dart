@@ -14,6 +14,10 @@ final class RequestPlatformPasswordResetCommandHandler
 
   @override
   Future<void> handle(RequestPlatformPasswordResetCommand command) {
-    return _platformGateway.requestPasswordReset(command.userId);
+    return _platformGateway.requestPasswordReset(
+      userId: command.userId,
+      expectedVersion: command.expectedVersion,
+      idempotencyKey: command.idempotencyKey,
+    );
   }
 }

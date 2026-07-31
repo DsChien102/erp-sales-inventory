@@ -17,6 +17,8 @@ final class SuspendPlatformUserCommandHandler
     return _platformGateway.suspendPlatformUser(
       userId: command.userId,
       reason: command.reason,
+      expectedVersion: command.expectedVersion,
+      idempotencyKey: command.idempotencyKey,
     );
   }
 }

@@ -14,6 +14,10 @@ final class RestorePlatformTenantCommandHandler
 
   @override
   Future<void> handle(RestorePlatformTenantCommand command) {
-    return _platformGateway.restorePlatformTenant(command.tenantId);
+    return _platformGateway.restorePlatformTenant(
+      tenantId: command.tenantId,
+      expectedVersion: command.expectedVersion,
+      idempotencyKey: command.idempotencyKey,
+    );
   }
 }

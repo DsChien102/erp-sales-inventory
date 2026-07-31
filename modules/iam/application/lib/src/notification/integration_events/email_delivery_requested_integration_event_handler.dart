@@ -1,5 +1,4 @@
 import 'package:vet45_iam_integration_events/integration_events.dart';
-import 'package:vet45_shared_infrastructure/infrastructure.dart';
 
 import '../../configurations/commands/i_command_scheduler.dart';
 import '../commands/send_email_delivery/send_email_delivery_command.dart';
@@ -28,7 +27,7 @@ final class EmailDeliveryRequestedIntegrationEventHandler
         outcomeId: event.outcomeId,
         locale: event.locale,
         refs: event.refs,
-        appLinkUrl: event.appLinkUrl,
+        secretPayloadCiphertext: event.secretPayloadCiphertext,
       ),
       sourceEventId: event.id,
     );

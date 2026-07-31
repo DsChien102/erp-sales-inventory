@@ -5,6 +5,8 @@ import '../../ports/i_iam_access_gateway.dart';
 import '../../ports/i_iam_session_port.dart';
 import '../../ports/i_platform_user_preference_port.dart';
 import '../../dto/tenant_context_dto.dart';
+import '../../shared/iam_blocked_codes.dart';
+import '../../shared/iam_blocked_exception.dart';
 import 'switch_tenant_context_command.dart';
 
 @CommandHandlerFor(SwitchTenantContextCommand)
@@ -28,9 +30,11 @@ final class SwitchTenantContextCommandHandler
 
   @override
   Future<TenantContextDto> handle(SwitchTenantContextCommand command) async {
+    final previousTenantId = _currentTenant.tenantId;
+
     final differRule = TargetTenantMustDifferFromCurrentRule(
       targetTenantId: command.targetTenantId,
-      currentTenantId: _currentTenant.tenantId,
+      currentTenantId: previousTenantId,
     );
     if (differRule.isBroken()) {
       throw ValidationException(differRule.message);
@@ -47,8 +51,25 @@ final class SwitchTenantContextCommandHandler
       );
     }
 
-    await _preferencePort.setLastSelectedTenantId(context.tenantId);
-    await _sessionPort.establishAfterSignIn(tenantId: context.tenantId);
+    // Step 3: establish session before preference so preference failure can
+    // restore the previous session.
+    try {
+      await _sessionPort.establishAfterSignIn(tenantId: context.tenantId);
+    } catch (_) {
+      throw const IamBlockedException(IamBlockedCodes.systemError);
+    }
+
+    try {
+      await _preferencePort.setLastSelectedTenantId(context.tenantId);
+    } catch (_) {
+      try {
+        await _sessionPort.establishAfterSignIn(tenantId: previousTenantId);
+      } catch (_) {
+        // Best-effort restore; still surface preference failure.
+      }
+      throw const IamBlockedException(IamBlockedCodes.systemError);
+    }
+
     return context;
   }
 }

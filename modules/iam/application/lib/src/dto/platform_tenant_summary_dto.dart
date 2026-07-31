@@ -11,6 +11,8 @@ final class PlatformTenantSummaryDto {
     this.ownerName,
     this.ownerEmail,
     this.memberCount = 0,
+    this.readinessState,
+    this.warningCode,
   });
 
   final String tenantId;
@@ -21,4 +23,6 @@ final class PlatformTenantSummaryDto {
   final String? ownerName;
   final String? ownerEmail;
   final int memberCount;
+  final String? readinessState;
+  final String? warningCode;
 }

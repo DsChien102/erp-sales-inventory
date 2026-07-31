@@ -32,15 +32,30 @@ class _RecordingAccessGateway implements IIamAccessGateway {
   Future<bool> isMember(String tenantId) async => true;
 
   @override
-  Future<List<TenantMemberDto>> listTenantMembers(String tenantId) async {
+  Future<CursorPageDto<TenantMemberDto>> listTenantMembers({
+    required String tenantId,
+    String? search,
+    String? status,
+    String? cursor,
+    int limit = 20,
+  }) async {
     listedTenantId = tenantId;
-    return [
-      TenantMemberDto(
-        userId: 'user-1',
-        role: 'owner',
-        createdAt: DateTime.utc(2026, 1, 1),
-      ),
-    ];
+    return CursorPageDto<TenantMemberDto>(
+      items: [
+        TenantMemberDto(
+          membershipId: 'm-1',
+          userId: 'user-1',
+          displayName: 'User One',
+          email: 'user1@example.com',
+          roleId: 'role-owner',
+          roleLabel: 'owner',
+          isOwner: true,
+          status: 'active',
+          joinedAt: DateTime.utc(2026, 1, 1),
+          version: 1,
+        ),
+      ],
+    );
   }
 
   @override
@@ -95,13 +110,13 @@ void main() {
     final gateway = _RecordingAccessGateway();
     final handler = ListTenantMembersQueryHandler(accessGateway: gateway);
 
-    final members = await handler.handle(
+    final page = await handler.handle(
       ListTenantMembersQuery(tenantId: 'tenant-42'),
     );
 
     expect(gateway.listedTenantId, 'tenant-42');
-    expect(members, hasLength(1));
-    expect(members.first.role, 'owner');
+    expect(page.items, hasLength(1));
+    expect(page.items.first.roleLabel, 'owner');
   });
 
   test('AssignMemberRoleCommandHandler delegates to gateway', () async {

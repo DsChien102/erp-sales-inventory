@@ -24,7 +24,11 @@ class _FakePreferencePort implements IPlatformUserPreferencePort {
 }
 
 class _FakeSessionPort implements IIamSessionPort {
+  _FakeSessionPort({this.failEstablish = false});
+
   String? establishedTenantId;
+  final bool failEstablish;
+  int establishCount = 0;
 
   @override
   SessionDto get snapshot => const SessionDto(isAuthenticated: true);
@@ -34,11 +38,25 @@ class _FakeSessionPort implements IIamSessionPort {
 
   @override
   Future<void> establishAfterSignIn({String? tenantId}) async {
+    establishCount++;
+    if (failEstablish && establishCount == 1) {
+      throw StateError('session establish failed');
+    }
     establishedTenantId = tenantId;
   }
 
   @override
   Future<void> restoreFromPersistedAuth() async {}
+}
+
+class _FailingPreferencePort implements IPlatformUserPreferencePort {
+  @override
+  Future<String?> getLastSelectedTenantId() async => null;
+
+  @override
+  Future<void> setLastSelectedTenantId(String? tenantId) async {
+    throw StateError('preference write failed');
+  }
 }
 
 class _ScenarioAccessGateway implements IIamAccessGateway {
@@ -88,8 +106,14 @@ class _ScenarioAccessGateway implements IIamAccessGateway {
   Future<bool> isMember(String tenantId) async => true;
 
   @override
-  Future<List<TenantMemberDto>> listTenantMembers(String tenantId) async =>
-      const [];
+  Future<CursorPageDto<TenantMemberDto>> listTenantMembers({
+    required String tenantId,
+    String? search,
+    String? status,
+    String? cursor,
+    int limit = 20,
+  }) async =>
+      const CursorPageDto<TenantMemberDto>(items: []);
 
   @override
   Future<List<TenantMembershipDto>> listUserTenants() async => const [];
@@ -214,6 +238,67 @@ void main() {
           ),
         ),
       );
+    });
+
+    test('switch_session_failure — preference unchanged', () async {
+      final preference = _FakePreferencePort();
+      final handler = SwitchTenantContextCommandHandler(
+        accessGateway: _ScenarioAccessGateway(
+          switchResult: const TenantContextDto(
+            status: TenantContextStatus.valid,
+            tenantId: 'tenant-b',
+            tenantName: 'Beta',
+            roleLabel: 'staff',
+            tenantStatus: TenantLifecycleStatus.active,
+          ),
+        ),
+        preferencePort: preference,
+        sessionPort: _FakeSessionPort(failEstablish: true),
+        currentTenant: _FakeCurrentTenant('tenant-a'),
+      );
+
+      await expectLater(
+        handler.handle(SwitchTenantContextCommand(targetTenantId: 'tenant-b')),
+        throwsA(
+          isA<IamBlockedException>().having(
+            (e) => e.code,
+            'code',
+            IamBlockedCodes.systemError,
+          ),
+        ),
+      );
+      expect(preference.lastSelected, isNull);
+    });
+
+    test('switch_preference_failure — restores previous session', () async {
+      final session = _FakeSessionPort();
+      final handler = SwitchTenantContextCommandHandler(
+        accessGateway: _ScenarioAccessGateway(
+          switchResult: const TenantContextDto(
+            status: TenantContextStatus.valid,
+            tenantId: 'tenant-b',
+            tenantName: 'Beta',
+            roleLabel: 'staff',
+            tenantStatus: TenantLifecycleStatus.active,
+          ),
+        ),
+        preferencePort: _FailingPreferencePort(),
+        sessionPort: session,
+        currentTenant: _FakeCurrentTenant('tenant-a'),
+      );
+
+      await expectLater(
+        handler.handle(SwitchTenantContextCommand(targetTenantId: 'tenant-b')),
+        throwsA(
+          isA<IamBlockedException>().having(
+            (e) => e.code,
+            'code',
+            IamBlockedCodes.systemError,
+          ),
+        ),
+      );
+      expect(session.establishedTenantId, 'tenant-a');
+      expect(session.establishCount, 2);
     });
   });
 }

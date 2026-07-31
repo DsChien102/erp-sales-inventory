@@ -5,4 +5,8 @@ enum TenantContextInvalidationReason {
   tenantSuspended,
   tenantClosed,
   accessDenied,
+  identityInactive,
+  roleNoLongerAssignable,
+  permissionsChanged,
+  ownershipChanged,
 }

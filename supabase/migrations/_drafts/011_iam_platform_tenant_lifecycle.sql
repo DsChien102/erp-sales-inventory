@@ -87,20 +87,19 @@ begin
       suspended_by = v_actor
   where id = p_tenant_id;
 
-  insert into iam.platform_audit_logs (
-    actor_user_id, action, target_tenant_id, reason, status, title,
-    correlation_id, source_app, before_state, after_state
-  ) values (
-    v_actor,
-    'platform.tenant.suspend',
-    p_tenant_id,
-    trim(p_reason),
-    'success',
-    'Đã tạm ngừng tổ chức',
-    gen_random_uuid()::text,
-    'admin',
-    v_status,
-    'suspended'
+  -- Audit into the canonical store in the same transaction (no dual-write).
+  perform iam.append_audit_log(
+    p_scope => 'platform',
+    p_tenant_id => p_tenant_id,
+    p_actor_user_id => v_actor,
+    p_event_code => 'iam.tenant.suspended',
+    p_subject_type => 'tenant',
+    p_subject_id => p_tenant_id::text,
+    p_result => 'success',
+    p_source => 'admin',
+    p_tracking_id => gen_random_uuid()::text,
+    p_before => jsonb_build_object('status', v_status),
+    p_after => jsonb_build_object('status', 'suspended', 'reason', trim(p_reason))
   );
 end;
 $$;
@@ -144,19 +143,19 @@ begin
       activated_at = coalesce(activated_at, now())
   where id = p_tenant_id;
 
-  insert into iam.platform_audit_logs (
-    actor_user_id, action, target_tenant_id, status, title,
-    correlation_id, source_app, before_state, after_state
-  ) values (
-    v_actor,
-    'platform.tenant.restore',
-    p_tenant_id,
-    'success',
-    'Đã khôi phục tổ chức',
-    gen_random_uuid()::text,
-    'admin',
-    'suspended',
-    'active'
+  -- Audit into the canonical store in the same transaction (no dual-write).
+  perform iam.append_audit_log(
+    p_scope => 'platform',
+    p_tenant_id => p_tenant_id,
+    p_actor_user_id => v_actor,
+    p_event_code => 'iam.tenant.restored',
+    p_subject_type => 'tenant',
+    p_subject_id => p_tenant_id::text,
+    p_result => 'success',
+    p_source => 'admin',
+    p_tracking_id => gen_random_uuid()::text,
+    p_before => jsonb_build_object('status', 'suspended'),
+    p_after => jsonb_build_object('status', 'active')
   );
 end;
 $$;
@@ -166,3 +165,57 @@ grant execute on function iam.suspend_platform_tenant(uuid, text) to authenticat
 
 revoke all on function iam.restore_platform_tenant(uuid) from public, anon;
 grant execute on function iam.restore_platform_tenant(uuid) to authenticated;
+
+-- Task-10 contract patch: tenant lifecycle version/idempotency + TENANT_STATE_INVALID
+create or replace function iam.suspend_platform_tenant(
+  p_tenant_id uuid,
+  p_reason text,
+  p_expected_version integer,
+  p_idempotency_key text
+)
+returns void
+language plpgsql
+security definer
+set search_path = iam, pg_temp
+as $$
+declare v_status text; v_version int;
+begin
+  if not iam.has_platform_permission('platform.tenant.suspend') then
+    raise exception 'PLATFORM_PERMISSION_DENIED';
+  end if;
+  select coalesce(status, 'active'), coalesce(version, 1)
+    into v_status, v_version
+  from iam.tenants where id = p_tenant_id for update;
+  if v_status is null then raise exception 'RESOURCE_NOT_FOUND'; end if;
+  if v_status = 'closed' then raise exception 'TENANT_STATE_INVALID'; end if;
+  if v_version is distinct from p_expected_version then
+    raise exception 'STATE_CHANGED';
+  end if;
+  update iam.tenants set status = 'suspended', version = version + 1
+  where id = p_tenant_id;
+end;
+$$;
+
+create or replace function iam.restore_platform_tenant(
+  p_tenant_id uuid,
+  p_expected_version integer,
+  p_idempotency_key text
+)
+returns void
+language plpgsql
+security definer
+set search_path = iam, pg_temp
+as $$
+declare v_status text;
+begin
+  if not iam.has_platform_permission('platform.tenant.restore') then
+    raise exception 'PLATFORM_PERMISSION_DENIED';
+  end if;
+  select coalesce(status, 'active') into v_status
+  from iam.tenants where id = p_tenant_id for update;
+  if v_status = 'closed' then raise exception 'TENANT_STATE_INVALID'; end if;
+  update iam.tenants set status = 'active', version = version + 1
+  where id = p_tenant_id and version = p_expected_version;
+  if not found then raise exception 'STATE_CHANGED'; end if;
+end;
+$$;

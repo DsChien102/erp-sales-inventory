@@ -1,4 +1,5 @@
 import '../dto/accessible_tenant_dto.dart';
+import '../dto/cursor_page_dto.dart';
 import '../dto/principal_access_dto.dart';
 import '../dto/tenant_context_dto.dart';
 import '../dto/tenant_member_dto.dart';
@@ -26,7 +27,14 @@ abstract interface class IIamAccessGateway {
     String? sessionTenantId,
   });
 
-  Future<List<TenantMemberDto>> listTenantMembers(String tenantId);
+  /// S6 members list — cursor page + filters.
+  Future<CursorPageDto<TenantMemberDto>> listTenantMembers({
+    required String tenantId,
+    String? search,
+    String? status,
+    String? cursor,
+    int limit = 20,
+  });
 
   Future<void> assignMemberRole({
     required String tenantId,

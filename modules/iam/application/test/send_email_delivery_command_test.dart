@@ -13,7 +13,6 @@ void main() {
         outcomeId: 'out-1',
         locale: 'vi',
         refs: const <String, String>{'invitation_id': 'inv-1'},
-        appLinkUrl: 'https://app.example.com/i/opaque',
       );
 
       expect(command.commandType, SendEmailDeliveryCommand.type);
@@ -21,6 +20,8 @@ void main() {
 
       final payload = command.toJson();
       expect(payload.containsKey('id'), isFalse);
+      expect(payload['event_version'], 1);
+      expect(payload.containsKey('app_link_url'), isFalse);
 
       final restored = SendEmailDeliveryCommand.fromJson(
         payload,
@@ -34,7 +35,27 @@ void main() {
       expect(restored.outcomeId, command.outcomeId);
       expect(restored.locale, command.locale);
       expect(restored.refs, command.refs);
-      expect(restored.appLinkUrl, command.appLinkUrl);
+    });
+
+    test('platform tenant serializes tenant_id null and restores sentinel', () {
+      final command = SendEmailDeliveryCommand(
+        id: 'cmd-platform',
+        tenantId: EmailDeliveryConstants.platformTenantId,
+        templateId: EmailTemplateId.activationInvitation,
+        toEmail: 'owner@example.com',
+        correlationId: 'corr-p',
+        outcomeId: 'out-p',
+      );
+
+      final payload = command.toJson();
+      expect(payload['tenant_id'], isNull);
+      expect(payload['event_version'], 1);
+
+      final restored = SendEmailDeliveryCommand.fromJson(
+        payload,
+        id: 'cmd-platform',
+      );
+      expect(restored.tenantId, EmailDeliveryConstants.platformTenantId);
     });
   });
 }

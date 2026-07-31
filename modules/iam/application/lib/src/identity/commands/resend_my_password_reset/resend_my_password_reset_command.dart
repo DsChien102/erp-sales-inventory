@@ -1,11 +1,11 @@
 import 'package:vet45_shared_application/application.dart';
 
-import '../../shared/password_reset_operation_dto.dart';
+import '../../../dto/password_reset_request_result_dto.dart';
 
 @PublicAccess()
 final class ResendMyPasswordResetCommand
-    extends CommandBase<PasswordResetOperationDto>
-    implements ICommand<PasswordResetOperationDto> {
+    extends CommandBase<PasswordResetRequestResultDto>
+    implements ICommand<PasswordResetRequestResultDto> {
   ResendMyPasswordResetCommand({
     String? id,
     required this.operationId,

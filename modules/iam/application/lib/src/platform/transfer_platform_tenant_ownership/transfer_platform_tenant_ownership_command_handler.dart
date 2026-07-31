@@ -17,6 +17,7 @@ final class TransferPlatformTenantOwnershipCommandHandler
     return _platformGateway.transferPlatformTenantOwnership(
       tenantId: command.tenantId,
       newOwnerUserId: command.newOwnerUserId,
+      expectedVersion: command.expectedVersion,
       idempotencyKey: command.idempotencyKey,
     );
   }

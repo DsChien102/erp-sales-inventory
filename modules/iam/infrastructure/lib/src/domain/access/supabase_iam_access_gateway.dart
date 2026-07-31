@@ -105,21 +105,54 @@ final class SupabaseIamAccessGateway implements IIamAccessGateway {
   }
 
   @override
-  Future<List<TenantMemberDto>> listTenantMembers(String tenantId) async {
+  Future<CursorPageDto<TenantMemberDto>> listTenantMembers({
+    required String tenantId,
+    String? search,
+    String? status,
+    String? cursor,
+    int limit = 20,
+  }) async {
     try {
-      final rows = await _rpcClient.callList(
+      final page = await _rpcClient.callMap(
         'list_tenant_members',
-        params: <String, dynamic>{'p_tenant_id': tenantId},
+        params: <String, dynamic>{
+          'p_tenant_id': tenantId,
+          if (search != null) 'p_search': search,
+          if (status != null) 'p_status': status,
+          if (cursor != null) 'p_cursor': cursor,
+          'p_limit': limit,
+        },
       );
-      return rows
-          .map(
-            (row) => TenantMemberDto(
+      final rows = (page['items'] as List<dynamic>? ?? const []);
+      final items = rows
+          .map((raw) {
+            final row = Map<String, dynamic>.from(raw as Map);
+            return TenantMemberDto(
+              membershipId: row['membership_id'] as String? ??
+                  row['user_id'] as String,
               userId: row['user_id'] as String,
-              role: row['role'] as String,
-              createdAt: DateTime.parse(row['created_at'] as String),
-            ),
-          )
+              displayName: row['display_name'] as String? ?? '',
+              email: row['email'] as String? ?? '',
+              roleId: row['role_id'] as String? ??
+                  row['role'] as String? ??
+                  '',
+              roleLabel: row['role_label'] as String? ??
+                  row['role'] as String? ??
+                  '',
+              isOwner: row['is_owner'] as bool? ?? false,
+              status: row['status'] as String? ?? 'active',
+              joinedAt: DateTime.parse(
+                (row['joined_at'] as String?) ??
+                    (row['created_at'] as String),
+              ),
+              version: (row['version'] as num?)?.toInt() ?? 1,
+            );
+          })
           .toList(growable: false);
+      return CursorPageDto<TenantMemberDto>(
+        items: items,
+        nextCursor: page['next_cursor'] as String?,
+      );
     } on RpcException catch (error) {
       throw mapIamRpcError(error);
     }
@@ -223,6 +256,12 @@ final class SupabaseIamAccessGateway implements IIamAccessGateway {
       'tenantSuspended' => TenantContextInvalidationReason.tenantSuspended,
       'tenantClosed' => TenantContextInvalidationReason.tenantClosed,
       'accessDenied' => TenantContextInvalidationReason.accessDenied,
+      'identityInactive' => TenantContextInvalidationReason.identityInactive,
+      'roleNoLongerAssignable' =>
+        TenantContextInvalidationReason.roleNoLongerAssignable,
+      'permissionsChanged' =>
+        TenantContextInvalidationReason.permissionsChanged,
+      'ownershipChanged' => TenantContextInvalidationReason.ownershipChanged,
       _ => null,
     };
 

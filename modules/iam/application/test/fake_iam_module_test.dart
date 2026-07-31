@@ -1,6 +1,5 @@
 import 'package:test/test.dart';
 import 'package:vet45_iam_application/application.dart';
-import 'package:vet45_iam_application/testing.dart';
 import 'package:vet45_iam_domain/domain.dart';
 import 'package:vet45_shared_application/application.dart';
 
@@ -13,8 +12,8 @@ void main() {
         SearchPlatformUsersQuery(query: 'lan@gmail.com'),
       );
 
-      expect(result, hasLength(1));
-      expect(result.single.email, 'lan@gmail.com');
+      expect(result.items, hasLength(1));
+      expect(result.items.single.email, 'lan@gmail.com');
     });
 
     test('user_detail_ok — GetPlatformUserQuery returns memberships', () async {
@@ -49,7 +48,11 @@ void main() {
       );
 
       await module.executeCommandAsync(
-        SendActivationInvitationCommand(userId: 'hoa-tran'),
+        SendActivationInvitationCommand(
+          userId: 'hoa-tran',
+          expectedVersion: 1,
+          idempotencyKey: 'act-hoa',
+        ),
       );
 
       expect(module.activationInviteCount, 1);
@@ -59,7 +62,12 @@ void main() {
       final module = FakeIamModule(scenario: FakeIamScenario.suspendOk);
 
       await module.executeCommandAsync(
-        SuspendPlatformUserCommand(userId: 'lan-le', reason: 'policy'),
+        SuspendPlatformUserCommand(
+          userId: 'lan-le',
+          reason: 'policy',
+          expectedVersion: 1,
+          idempotencyKey: 'sus-lan',
+        ),
       );
       final suspended = await module.executeQueryAsync(
         GetPlatformUserQuery(userId: 'lan-le'),
@@ -68,7 +76,11 @@ void main() {
 
       final restoreModule = FakeIamModule(scenario: FakeIamScenario.restoreOk);
       await restoreModule.executeCommandAsync(
-        RestorePlatformUserCommand(userId: 'minh-nguyen'),
+        RestorePlatformUserCommand(
+          userId: 'minh-nguyen',
+          expectedVersion: 1,
+          idempotencyKey: 'res-minh',
+        ),
       );
       final restored = await restoreModule.executeQueryAsync(
         GetPlatformUserQuery(userId: 'minh-nguyen'),
@@ -155,10 +167,10 @@ void main() {
       );
     });
 
-    test('auth_ok — SignInCommand invokes hook', () async {
+    test('auth_sign_in_ok — SignInCommand invokes hook', () async {
       var hooked = false;
       final module = FakeIamModule(
-        scenario: FakeIamScenario.authOk,
+        scenario: FakeIamScenario.authSignInOk,
         onSignedIn: (_) => hooked = true,
       );
 
@@ -169,6 +181,21 @@ void main() {
       expect(module.signInCount, 1);
       expect(module.lastSignedInEmail, 'admin@vet45.local');
       expect(hooked, isTrue);
+    });
+
+    test('S0 sign-in then session query returns safe authenticated DTO', () async {
+      final module = FakeIamModule(scenario: FakeIamScenario.authSignInOk);
+
+      await module.executeCommandAsync<void>(
+        SignInCommand(email: 'admin@vet45.local', password: 'secret'),
+      );
+      final session = await module.executeQueryAsync<SessionDto>(
+        GetCurrentSessionQuery(),
+      );
+
+      expect(session.isAuthenticated, isTrue);
+      expect(session.email, 'admin@vet45.local');
+      expect(session.permissions, isNot(contains('secret')));
     });
 
     test('auth_invalid — SignInCommand throws', () async {
@@ -191,6 +218,36 @@ void main() {
       expect(module.signOutCount, 1);
       expect(cleared, isTrue);
     });
+
+    test('S0 expired fake throws exact code and clears authentication', () async {
+      final module = FakeIamModule(scenario: FakeIamScenario.authSessionExpired);
+      module.establishAuthenticatedSessionForTesting('admin@vet45.local');
+
+      await expectLater(
+        () => module.executeQueryAsync<SessionDto>(GetCurrentSessionQuery()),
+        throwsA(
+          isA<IamBlockedException>().having(
+            (error) => error.code,
+            'code',
+            IamBlockedCodes.sessionExpired,
+          ),
+        ),
+      );
+      expect(module.isAuthenticated, isFalse);
+    });
+
+    test('S0 sign-out clears fake session even when remote sign-out fails', () async {
+      final module = FakeIamModule(scenario: FakeIamScenario.signOutRemoteError);
+      module.establishAuthenticatedSessionForTesting('admin@vet45.local');
+
+      final result = await module.executeCommandAsync<SignOutResultDto>(
+        SignOutCommand(),
+      );
+
+      expect(result.localCleared, isTrue);
+      expect(result.remoteSucceeded, isFalse);
+      expect(module.isAuthenticated, isFalse);
+    });
   });
 
   group('FakeIamModule §S16', () {
@@ -201,8 +258,8 @@ void main() {
         SearchPlatformTenantsQuery(query: 'Mậu'),
       );
 
-      expect(result, hasLength(1));
-      expect(result.single.tenantId, 'org-001');
+      expect(result.items, hasLength(1));
+      expect(result.items.single.tenantId, 'org-001');
     });
 
     test('tenant_detail_ok — GetPlatformTenantQuery', () async {
@@ -240,6 +297,8 @@ void main() {
         SuspendPlatformTenantCommand(
           tenantId: 'org-001',
           reason: 'risk review',
+          expectedVersion: 1,
+          idempotencyKey: 'sus-t',
         ),
       );
       final suspended = await module.executeQueryAsync(
@@ -251,7 +310,11 @@ void main() {
         scenario: FakeIamScenario.tenantRestoreOk,
       );
       await restoreModule.executeCommandAsync(
-        RestorePlatformTenantCommand(tenantId: 'org-003'),
+        RestorePlatformTenantCommand(
+          tenantId: 'org-003',
+          expectedVersion: 1,
+          idempotencyKey: 'res-t',
+        ),
       );
       final restored = await restoreModule.executeQueryAsync(
         GetPlatformTenantQuery(tenantId: 'org-003'),
@@ -259,7 +322,7 @@ void main() {
       expect(restored.status.name, 'active');
     });
 
-    test('tenant_closed_reject — STATE_CHANGED', () async {
+    test('tenant_closed_reject — TENANT_STATE_INVALID', () async {
       final module = FakeIamModule(
         scenario: FakeIamScenario.tenantClosedReject,
       );
@@ -269,9 +332,17 @@ void main() {
           SuspendPlatformTenantCommand(
             tenantId: 'org-004',
             reason: 'attempt',
+            expectedVersion: 1,
+            idempotencyKey: 'sus-t',
           ),
         ),
-        throwsA(isA<ApplicationException>()),
+        throwsA(
+          isA<IamBlockedException>().having(
+            (e) => e.code,
+            'code',
+            IamBlockedCodes.tenantStateInvalid,
+          ),
+        ),
       );
     });
 
@@ -284,6 +355,7 @@ void main() {
         TransferPlatformTenantOwnershipCommand(
           tenantId: 'org-001',
           newOwnerUserId: 'hoa-tran',
+          expectedVersion: 1,
           idempotencyKey: 'xfer-1',
         ),
       );
@@ -294,7 +366,7 @@ void main() {
       expect(detail.members.where((m) => m.isOwner), hasLength(1));
     });
 
-    test('ownership_invalid_target — VALIDATION_ERROR', () async {
+    test('ownership_invalid_target — OWNER_TARGET_INVALID', () async {
       final module = FakeIamModule(
         scenario: FakeIamScenario.ownershipInvalidTarget,
       );
@@ -304,10 +376,17 @@ void main() {
           TransferPlatformTenantOwnershipCommand(
             tenantId: 'org-001',
             newOwnerUserId: 'hoa-tran',
+            expectedVersion: 1,
             idempotencyKey: 'xfer-bad',
           ),
         ),
-        throwsA(isA<ValidationException>()),
+        throwsA(
+          isA<IamBlockedException>().having(
+            (e) => e.code,
+            'code',
+            IamBlockedCodes.ownerTargetInvalid,
+          ),
+        ),
       );
     });
 
@@ -315,12 +394,12 @@ void main() {
       final module = FakeIamModule(scenario: FakeIamScenario.auditSearchOk);
 
       final logs = await module.executeQueryAsync(
-        SearchPlatformAuditLogsQuery(query: 'tạm ngừng'),
+        SearchPlatformAuditLogsQuery(action: null),
       );
-      expect(logs, isNotEmpty);
+      expect(logs.items, isNotEmpty);
 
       final detail = await module.executeQueryAsync(
-        GetPlatformAuditLogQuery(auditLogId: logs.first.id),
+        GetPlatformAuditLogQuery(auditLogId: logs.items.first.id),
       );
       expect(detail.correlationId, isNotEmpty);
     });
@@ -482,8 +561,8 @@ void main() {
       expect(ctx.status, TenantContextStatus.none);
     });
 
-    test('bootstrap_none — status none', () async {
-      final module = FakeIamModule(scenario: FakeIamScenario.bootstrapNone);
+    test('context_none — status none', () async {
+      final module = FakeIamModule(scenario: FakeIamScenario.contextNone);
 
       final ctx = await module.executeQueryAsync(
         GetTenantContextQuery(bootstrapFromLastSelected: true),

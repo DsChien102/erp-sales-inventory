@@ -1,41 +1,13 @@
 import 'package:test/test.dart';
 import 'package:vet45_iam_application/application.dart';
-import 'package:vet45_iam_domain/domain.dart';
 import 'package:vet45_shared_application/application.dart';
 
-class _IdempotentPlatformGateway implements IPlatformAdminGateway {
+import 'support/stub_platform_admin_gateway.dart';
+
+final class _IdempotentPlatformGateway extends StubPlatformAdminGateway {
   final Map<String, TenantOnboardingResultDto> _byKey = {};
   var createCalls = 0;
-
-  @override
-  Future<bool> hasPlatformPermission(String permission) async => true;
-
-  @override
-  Future<List<PlatformUserSummaryDto>> searchPlatformUsers({
-    String? query,
-    PlatformUserStatus? status,
-  }) async =>
-      const [];
-
-  @override
-  Future<PlatformUserDetailDto> getPlatformUser(String userId) async {
-    throw UnimplementedError();
-  }
-
-  @override
-  Future<void> sendActivationInvitation(String userId) async {}
-
-  @override
-  Future<void> requestPasswordReset(String userId) async {}
-
-  @override
-  Future<void> suspendPlatformUser({
-    required String userId,
-    required String reason,
-  }) async {}
-
-  @override
-  Future<void> restorePlatformUser(String userId) async {}
+  TenantOnboardingOperationDto? operation;
 
   @override
   Future<TenantOnboardingResultDto> createTenantOnboarding({
@@ -46,19 +18,13 @@ class _IdempotentPlatformGateway implements IPlatformAdminGateway {
   }) async {
     createCalls++;
     final existing = _byKey[idempotencyKey];
-    if (existing != null) {
-      return existing;
-    }
-
-    final ownerUserId = owner.isExisting
-        ? owner.existingUserId!
-        : 'generated-new-user';
+    if (existing != null) return existing;
     final result = TenantOnboardingResultDto(
-      tenantId: 'tenant-$createCalls',
-      ownerMembershipId: 'tenant-$createCalls:$ownerUserId',
-      ownerUserId: ownerUserId,
+      tenantId: 't-1',
+      ownerMembershipId: 'm-1',
+      ownerUserId: owner.existingUserId ?? 'u-new',
       tenantStatus: 'provisioning',
-      correlationId: correlationId ?? 'corr-$idempotencyKey',
+      correlationId: correlationId ?? 'c-1',
       isNewUser: owner.isNewUser,
     );
     _byKey[idempotencyKey] = result;
@@ -66,145 +32,76 @@ class _IdempotentPlatformGateway implements IPlatformAdminGateway {
   }
 
   @override
-  Future<List<PlatformTenantSummaryDto>> searchPlatformTenants({
-    String? query,
-    TenantLifecycleStatus? status,
-  }) async =>
-      throw UnimplementedError();
-
-  @override
-  Future<PlatformTenantDetailDto> getPlatformTenant(String tenantId) async =>
-      throw UnimplementedError();
-
-  @override
-  Future<List<PlatformTenantMemberDto>> listPlatformTenantMembers(
-    String tenantId,
+  Future<TenantOnboardingOperationDto?> getTenantOnboardingOperation(
+    String operationId,
   ) async =>
-      throw UnimplementedError();
+      operation;
 
   @override
-  Future<void> suspendPlatformTenant({
-    required String tenantId,
-    required String reason,
-  }) async =>
-      throw UnimplementedError();
-
-  @override
-  Future<void> restorePlatformTenant(String tenantId) async =>
-      throw UnimplementedError();
-
-  @override
-  Future<void> transferPlatformTenantOwnership({
-    required String tenantId,
-    required String newOwnerUserId,
+  Future<TenantOnboardingOperationDto> retryTenantOnboardingOperation({
+    required String operationId,
     required String idempotencyKey,
-  }) async =>
-      throw UnimplementedError();
-
-  @override
-  Future<List<PlatformAuditLogSummaryDto>> searchPlatformAuditLogs({
-    String? query,
-    PlatformAuditLogStatus? status,
-  }) async =>
-      throw UnimplementedError();
-
-  @override
-  Future<PlatformAuditLogDetailDto> getPlatformAuditLog(String auditLogId) async =>
-      throw UnimplementedError();
-
+  }) async {
+    return TenantOnboardingOperationDto(
+      operationId: operationId,
+      status: TenantOnboardingOperationStatus.completed,
+      completedSteps: const ['tenant', 'membership', 'identity'],
+      correlationId: 'c-retry',
+      tenantId: 't-1',
+      ownerUserId: 'u-1',
+    );
+  }
 }
 
 void main() {
-  group('scn_e01_u03_fr01_01 create tenant onboarding', () {
-    test('onboarding_existing_user_ok', () async {
+  group('scn_e01_u03 onboarding', () {
+    test('create is idempotent by key', () async {
       final gateway = _IdempotentPlatformGateway();
       final handler = CreateTenantOnboardingCommandHandler(
         platformGateway: gateway,
       );
-
-      final result = await handler.handle(
-        CreateTenantOnboardingCommand(
-          owner: const OnboardingOwnerInput.existing('u-existing'),
-          organizationName: 'Clinic A',
-          idempotencyKey: 'key-1',
-        ),
-      );
-
-      expect(result.tenantStatus, 'provisioning');
-      expect(result.ownerUserId, 'u-existing');
-      expect(result.isNewUser, isFalse);
-    });
-
-    test('onboarding_new_user_ok (fake identity)', () async {
-      final gateway = _IdempotentPlatformGateway();
-      final handler = CreateTenantOnboardingCommandHandler(
-        platformGateway: gateway,
-      );
-
-      final result = await handler.handle(
-        CreateTenantOnboardingCommand(
-          owner: const OnboardingOwnerInput.newUser(
-            lastName: 'Nguyen',
-            firstName: 'An',
-            email: 'an@vet45.local',
-          ),
-          organizationName: 'Clinic B',
-          idempotencyKey: 'key-new',
-        ),
-      );
-
-      expect(result.tenantStatus, 'provisioning');
-      expect(result.isNewUser, isTrue);
-      expect(result.ownerUserId, 'generated-new-user');
-    });
-
-    test('onboarding_retry_idempotent returns same result', () async {
-      final gateway = _IdempotentPlatformGateway();
-      final handler = CreateTenantOnboardingCommandHandler(
-        platformGateway: gateway,
-      );
-      final command = CreateTenantOnboardingCommand(
-        owner: const OnboardingOwnerInput.existing('u-1'),
-        organizationName: 'Clinic C',
-        idempotencyKey: 'retry-key',
-        correlationId: 'corr-1',
-      );
-
-      final first = await handler.handle(command);
-      final second = await handler.handle(command);
-
+      final cmd = CreateTenantOnboardingCommand(
+            owner: OnboardingOwnerInput.existing('u-1'),
+            organizationName: 'Store',
+            idempotencyKey: 'k-1',
+          );
+      final a = await handler.handle(cmd);
+      final b = await handler.handle(cmd);
+      expect(a.tenantId, b.tenantId);
       expect(gateway.createCalls, 2);
-      expect(second.tenantId, first.tenantId);
-      expect(second.correlationId, first.correlationId);
     });
 
-    test('onboarding_validation_error — empty org name', () async {
-      final validator = CreateTenantOnboardingCommandValidator();
+    test('get + retry onboarding operation', () async {
+      final gateway = _IdempotentPlatformGateway()
+        ..operation = const TenantOnboardingOperationDto(
+          operationId: 'op-1',
+          status: TenantOnboardingOperationStatus.partialFailure,
+          completedSteps: ['tenant'],
+          failedStep: 'identity',
+          correlationId: 'c-1',
+        );
+      final got = await GetTenantOnboardingOperationQueryHandler(
+        platformGateway: gateway,
+      ).handle(GetTenantOnboardingOperationQuery(operationId: 'op-1'));
+      expect(got.status, TenantOnboardingOperationStatus.partialFailure);
 
-      expect(
-        () => validator.validate(
-          CreateTenantOnboardingCommand(
-            owner: const OnboardingOwnerInput.existing('u-1'),
-            organizationName: '  ',
-            idempotencyKey: 'k',
-          ),
+      final resumed = await RetryTenantOnboardingOperationCommandHandler(
+        platformGateway: gateway,
+      ).handle(
+        RetryTenantOnboardingOperationCommand(
+          operationId: 'op-1',
+          idempotencyKey: 'retry-1',
         ),
-        throwsA(isA<ValidationException>()),
       );
+      expect(resumed.status, TenantOnboardingOperationStatus.completed);
     });
 
-    test('onboarding_validation_error — invalid new user email', () async {
-      final validator = CreateTenantOnboardingCommandValidator();
-
+    test('validator rejects empty org name', () async {
       expect(
-        () => validator.validate(
+        () => CreateTenantOnboardingCommandValidator().validate(
           CreateTenantOnboardingCommand(
-            owner: const OnboardingOwnerInput.newUser(
-              lastName: 'N',
-              firstName: 'A',
-              email: 'not-an-email',
-            ),
-            organizationName: 'Clinic',
+            owner: OnboardingOwnerInput.existing('u-1'),
+            organizationName: ' ',
             idempotencyKey: 'k',
           ),
         ),

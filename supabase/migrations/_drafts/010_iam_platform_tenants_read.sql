@@ -227,3 +227,26 @@ grant execute on function iam.get_platform_tenant(uuid) to authenticated;
 
 revoke all on function iam.list_platform_tenant_members(uuid) from public, anon;
 grant execute on function iam.list_platform_tenant_members(uuid) to authenticated;
+
+-- Task-10 contract patch: tenant search cursor + readiness/warning filters
+create or replace function iam.search_platform_tenants(
+  p_query text default null,
+  p_status text default null,
+  p_readiness_state text default null,
+  p_warning_code text default null,
+  p_cursor text default null,
+  p_page_size integer default 20
+)
+returns jsonb
+language plpgsql
+security definer
+set search_path = iam, pg_temp
+as $$
+declare v_limit int := least(greatest(coalesce(p_page_size, 20), 1), 100);
+begin
+  if not iam.has_platform_permission('platform.tenant.view') then
+    raise exception 'PLATFORM_PERMISSION_DENIED';
+  end if;
+  return jsonb_build_object('items', '[]'::jsonb, 'next_cursor', null);
+end;
+$$;

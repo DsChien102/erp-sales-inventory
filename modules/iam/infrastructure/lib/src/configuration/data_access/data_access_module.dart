@@ -6,6 +6,17 @@ import 'package:vet45_resend/vet45_resend.dart';
 import 'package:vet45_shared_application/application.dart';
 import 'package:vet45_shared_infrastructure/infrastructure.dart';
 
+import '../../adapters/audit/supabase_tenant_audit_read_port.dart';
+import '../../adapters/identity/password_reset_operation_store.dart';
+import '../../adapters/identity/supabase_auth_account_client.dart';
+import '../../adapters/identity/supabase_platform_identity_self_service_adapter.dart';
+import '../../adapters/identity/unavailable_tenant_activation_identity_port.dart';
+import '../../adapters/invitation/invitation_auth_client.dart';
+import '../../adapters/invitation/supabase_invitation_identity_adapter.dart';
+import '../../domain/invitation/supabase_tenant_invitation_acceptance_port.dart';
+import '../../domain/invitation/supabase_tenant_invitation_command_gateway.dart';
+import '../../domain/invitation/supabase_tenant_invitation_read_port.dart';
+import '../../domain/platform_user/supabase_platform_user_profile_gateway.dart';
 import '../../adapters/notification/iam_email_sender_gateway.dart';
 import '../../adapters/notification/supabase_password_reset_code_gateway.dart';
 import '../../adapters/notification/supabase_email_delivery_gateways.dart';
@@ -13,8 +24,13 @@ import '../../adapters/notification/supabase_email_delivery_port.dart';
 import '../../domain/access/supabase_iam_access_gateway.dart';
 import '../../domain/access/supabase_platform_user_preference_port.dart';
 import '../../domain/auth/supabase_authenticator.dart';
-import '../../domain/identity/supabase_identity_self_service_gateway.dart';
+import '../../domain/membership/supabase_tenant_membership_command_gateway.dart';
+import '../../domain/membership/supabase_tenant_membership_read_gateway.dart';
 import '../../domain/platform/supabase_platform_admin_gateway.dart';
+import '../../domain/tenant/supabase_tenant_activation_command_gateway.dart';
+import '../../domain/tenant/supabase_tenant_profile_command_gateway.dart';
+import '../../domain/tenant/supabase_tenant_profile_read_gateway.dart';
+import '../../domain/tenant/supabase_tenant_readiness_gateway.dart';
 import '../session/iam_execution_context.dart';
 import '../session/iam_session.dart';
 import '../session/iam_session_coordinator.dart';
@@ -46,13 +62,80 @@ final class IamDataAccessModule {
           rpcClient: container.get<SupabaseSchemaRpcClient>(),
         ),
       )
-      ..registerSingleton<IPlatformAdminGateway>(
-        SupabasePlatformAdminGateway(
+      ..registerSingleton<ITenantMembershipReadGateway>(
+        SupabaseTenantMembershipReadGateway(
           rpcClient: container.get<SupabaseSchemaRpcClient>(),
         ),
       )
-      ..registerSingleton<IIdentitySelfServiceGateway>(
-        SupabaseIdentitySelfServiceGateway(
+      ..registerSingleton<ITenantMembershipCommandGateway>(
+        SupabaseTenantMembershipCommandGateway(
+          rpcClient: container.get<SupabaseSchemaRpcClient>(),
+        ),
+      )
+      ..registerSingleton<ITenantProfileReadGateway>(
+        SupabaseTenantProfileReadGateway(
+          rpcClient: container.get<SupabaseSchemaRpcClient>(),
+        ),
+      )
+      ..registerSingleton<ITenantProfileCommandGateway>(
+        SupabaseTenantProfileCommandGateway(
+          rpcClient: container.get<SupabaseSchemaRpcClient>(),
+        ),
+      )
+      ..registerSingleton<ITenantReadinessGateway>(
+        SupabaseTenantReadinessGateway(
+          rpcClient: container.get<SupabaseSchemaRpcClient>(),
+        ),
+      )
+      ..registerSingleton<ITenantActivationCommandGateway>(
+        SupabaseTenantActivationCommandGateway(
+          rpcClient: container.get<SupabaseSchemaRpcClient>(),
+        ),
+      )
+      ..registerSingleton<ITenantActivationIdentityPort>(
+        UnavailableTenantActivationIdentityPort(),
+      )
+      ..registerSingleton<ITenantAuditReadPort>(
+        SupabaseTenantAuditReadPort(
+          rpcClient: container.get<SupabaseSchemaRpcClient>(),
+        ),
+      )
+      ..registerSingleton<ITenantInvitationReadPort>(
+        SupabaseTenantInvitationReadPort(
+          rpcClient: container.get<SupabaseSchemaRpcClient>(),
+        ),
+      )
+      ..registerSingleton<ITenantInvitationCommandGateway>(
+        SupabaseTenantInvitationCommandGateway(
+          rpcClient: container.get<SupabaseSchemaRpcClient>(),
+        ),
+      )
+      ..registerSingleton<ITenantInvitationAcceptancePort>(
+        SupabaseTenantInvitationAcceptancePort(
+          rpcClient: container.get<SupabaseSchemaRpcClient>(),
+        ),
+      )
+      ..registerSingleton<IInvitationIdentityPort>(
+        SupabaseInvitationIdentityAdapter(
+          authClient: SupabaseInvitationAuthClient(supabase),
+          profileGateway: SupabasePlatformUserProfileGateway(
+            rpcClient: container.get<SupabaseSchemaRpcClient>(),
+          ),
+        ),
+      )
+      ..registerSingleton<IPlatformIdentitySelfServicePort>(
+        SupabasePlatformIdentitySelfServiceAdapter(
+          profileGateway: SupabasePlatformUserProfileGateway(
+            rpcClient: container.get<SupabaseSchemaRpcClient>(),
+          ),
+          authClient: SupabaseAuthAccountClient(supabase),
+          passwordResetStore: SupabasePasswordResetOperationStore(
+            rpcClient: container.get<SupabaseSchemaRpcClient>(),
+          ),
+        ),
+      )
+      ..registerSingleton<IPlatformAdminGateway>(
+        SupabasePlatformAdminGateway(
           rpcClient: container.get<SupabaseSchemaRpcClient>(),
         ),
       )

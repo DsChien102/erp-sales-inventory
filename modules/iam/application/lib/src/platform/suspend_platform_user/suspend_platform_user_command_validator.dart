@@ -9,5 +9,8 @@ final class SuspendPlatformUserCommandValidator
     if (command.reason.trim().isEmpty) {
       throw ValidationException('Suspend reason is required');
     }
+    if (command.idempotencyKey.trim().isEmpty) {
+      throw ValidationException('Idempotency key is required');
+    }
   }
 }

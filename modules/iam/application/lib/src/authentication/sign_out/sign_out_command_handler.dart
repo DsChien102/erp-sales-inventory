@@ -1,12 +1,13 @@
 import 'package:vet45_shared_application/application.dart';
 
+import '../../dto/sign_out_result_dto.dart';
 import '../../ports/i_authenticator.dart';
 import '../../ports/i_iam_session_port.dart';
 import 'sign_out_command.dart';
 
 @CommandHandlerFor(SignOutCommand)
 final class SignOutCommandHandler
-    implements ICommandHandler<SignOutCommand, void> {
+    implements ICommandHandler<SignOutCommand, SignOutResultDto> {
   SignOutCommandHandler({
     required IAuthenticator authenticator,
     required IIamSessionPort sessionPort,
@@ -17,8 +18,19 @@ final class SignOutCommandHandler
   final IIamSessionPort _sessionPort;
 
   @override
-  Future<void> handle(SignOutCommand command) async {
-    await _authenticator.signOut();
-    await _sessionPort.clear();
+  Future<SignOutResultDto> handle(SignOutCommand command) async {
+    var remoteSucceeded = false;
+    try {
+      await _authenticator.signOut();
+      remoteSucceeded = true;
+    } catch (_) {
+      remoteSucceeded = false;
+    } finally {
+      await _sessionPort.clear();
+    }
+    return SignOutResultDto(
+      localCleared: true,
+      remoteSucceeded: remoteSucceeded,
+    );
   }
 }

@@ -1,23 +1,25 @@
 import 'package:vet45_iam_domain/domain.dart';
 import 'package:vet45_shared_application/application.dart';
 
+import '../../dto/cursor_page_dto.dart';
 import '../../dto/platform_user_status.dart';
 import '../../dto/platform_user_summary_dto.dart';
 
 /// Search / list Platform Users (EP-01/US-01).
 @RequiresPermission(IamPlatformPermissions.userView)
 final class SearchPlatformUsersQuery
-    extends QueryBase<List<PlatformUserSummaryDto>>
-    implements IQuery<List<PlatformUserSummaryDto>> {
+    extends QueryBase<CursorPageDto<PlatformUserSummaryDto>>
+    implements IQuery<CursorPageDto<PlatformUserSummaryDto>> {
   SearchPlatformUsersQuery({
     String? id,
     this.query,
     this.status,
+    this.cursor,
+    this.limit = 20,
   }) : super(id);
 
-  /// Free-text search by name or email (optional).
   final String? query;
-
-  /// Filter by identity status (optional).
   final PlatformUserStatus? status;
+  final String? cursor;
+  final int limit;
 }

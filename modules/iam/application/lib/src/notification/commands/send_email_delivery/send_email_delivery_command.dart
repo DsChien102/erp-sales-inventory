@@ -1,6 +1,7 @@
 import 'package:vet45_shared_application/application.dart';
 
 import '../../shared/email_template_id.dart';
+import '../../shared/enqueue_email_delivery_request.dart';
 
 /// Durable internal command: deliver one email via the notification provider.
 final class SendEmailDeliveryCommand extends InternalCommandBase<void>
@@ -14,7 +15,7 @@ final class SendEmailDeliveryCommand extends InternalCommandBase<void>
     required this.outcomeId,
     this.locale = 'vi',
     this.refs = const <String, String>{},
-    this.appLinkUrl,
+    this.secretPayloadCiphertext,
   }) : super(id);
 
   static const type = 'iam.notification.send_email_delivery';
@@ -22,6 +23,8 @@ final class SendEmailDeliveryCommand extends InternalCommandBase<void>
   @override
   String get commandType => type;
 
+  /// Messaging partition tenant. Platform-scoped mail uses
+  /// [EmailDeliveryConstants.platformTenantId].
   @override
   final String tenantId;
 
@@ -31,19 +34,23 @@ final class SendEmailDeliveryCommand extends InternalCommandBase<void>
   final String outcomeId;
   final String locale;
   final Map<String, String> refs;
-  final String? appLinkUrl;
+  final String? secretPayloadCiphertext;
 
   @override
   Map<String, dynamic> toJson() {
     return stripInternalCommandRowId(<String, dynamic>{
-      'tenant_id': tenantId,
+      'event_version': 1,
+      'tenant_id': tenantId == EmailDeliveryConstants.platformTenantId
+          ? null
+          : tenantId,
       'template_id': templateId.wireValue,
       'to_email': toEmail,
       'correlation_id': correlationId,
       'outcome_id': outcomeId,
       'locale': locale,
       'refs': refs,
-      if (appLinkUrl != null) 'app_link_url': appLinkUrl,
+      if (secretPayloadCiphertext != null)
+        'secret_payload_ciphertext': secretPayloadCiphertext,
     });
   }
 
@@ -63,9 +70,14 @@ final class SendEmailDeliveryCommand extends InternalCommandBase<void>
       }
     }
 
+    final tenantRaw = normalized['tenant_id'];
+    final tenantId = tenantRaw == null || tenantRaw == ''
+        ? EmailDeliveryConstants.platformTenantId
+        : tenantRaw as String;
+
     return SendEmailDeliveryCommand(
       id: id,
-      tenantId: normalized['tenant_id'] as String,
+      tenantId: tenantId,
       templateId: EmailTemplateId.fromWire(
         normalized['template_id'] as String,
       ),
@@ -74,7 +86,8 @@ final class SendEmailDeliveryCommand extends InternalCommandBase<void>
       outcomeId: normalized['outcome_id'] as String,
       locale: (normalized['locale'] as String?) ?? 'vi',
       refs: refs,
-      appLinkUrl: normalized['app_link_url'] as String?,
+      secretPayloadCiphertext:
+          normalized['secret_payload_ciphertext'] as String?,
     );
   }
 }

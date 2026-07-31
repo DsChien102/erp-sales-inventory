@@ -1,0 +1,327 @@
+-- Title: iam tenant invitation create (S7 / EP-03 US-02)
+-- Kind: patch
+-- Intent: iam_tenant_invitation_create
+-- Context: TH-01 §S7 CreateInvitationCommand
+-- Touches: iam.create_tenant_invitation
+-- Safety: idempotent ; medium
+-- Depends on: iam.memberships (status/id), iam.has_permission, iam.enqueue_outbox_message,
+--             iam.record_email_delivery_outcome, auth.users
+-- Notes: Draft only — do not apply via supabase migration up until promoted.
+--        Raw invitation token never persisted; only SHA-256 token_hash.
+--        Transient secret for email uses encode+prefix stand-in until vault key wiring.
+
+create extension if not exists pgcrypto;
+
+-- ── Minimal role catalog (assignability gate for invites) ───────────────────
+
+create table if not exists iam.role_definitions (
+  id uuid primary key,
+  code text not null unique,
+  label text not null,
+  status text not null default 'active'
+    check (status in ('active', 'inactive', 'deprecated')),
+  created_at timestamptz not null default timezone('utc', now()),
+  updated_at timestamptz not null default timezone('utc', now())
+);
+
+-- ── Invitations ─────────────────────────────────────────────────────────────
+
+create table if not exists iam.tenant_invitations (
+  id uuid primary key default gen_random_uuid(),
+  tenant_id uuid not null references iam.tenants (id),
+  invitee_email text not null,
+  initial_role_id uuid not null references iam.role_definitions (id),
+  status text not null default 'pending'
+    check (status in ('pending', 'accepted', 'declined', 'revoked', 'expired')),
+  token_hash text not null,
+  invited_by_membership_id uuid not null,
+  accepted_membership_id uuid,
+  expires_at timestamptz not null,
+  status_changed_at timestamptz not null default timezone('utc', now()),
+  version int not null default 1,
+  created_at timestamptz not null default timezone('utc', now()),
+  updated_at timestamptz not null default timezone('utc', now()),
+  delivery_correlation_id text,
+  last_sent_at timestamptz,
+  constraint tenant_invitations_token_hash_uidx unique (token_hash)
+);
+
+alter table iam.tenant_invitations
+  add column if not exists delivery_correlation_id text,
+  add column if not exists last_sent_at timestamptz;
+
+create unique index if not exists tenant_invitations_pending_email_uidx
+  on iam.tenant_invitations (tenant_id, invitee_email)
+  where status = 'pending';
+
+create unique index if not exists tenant_invitations_accepted_membership_uidx
+  on iam.tenant_invitations (accepted_membership_id)
+  where accepted_membership_id is not null;
+
+create index if not exists tenant_invitations_tenant_status_expires_idx
+  on iam.tenant_invitations (tenant_id, status, expires_at);
+
+-- ── Idempotency store ───────────────────────────────────────────────────────
+
+create table if not exists iam.tenant_invitation_operations (
+  tenant_id uuid not null,
+  idempotency_key text not null,
+  payload_hash text not null,
+  result jsonb not null,
+  created_at timestamptz not null default timezone('utc', now()),
+  primary key (tenant_id, idempotency_key)
+);
+
+-- ── create_tenant_invitation ────────────────────────────────────────────────
+
+create or replace function iam.create_tenant_invitation(
+  p_tenant_id uuid,
+  p_invitee_email text,
+  p_initial_role_id uuid,
+  p_idempotency_key text
+)
+returns jsonb
+language plpgsql
+security definer
+set search_path = iam, pg_temp
+as $$
+declare
+  v_caller uuid := auth.uid();
+  v_email text;
+  v_role iam.role_definitions;
+  v_actor_membership iam.memberships;
+  v_existing_membership iam.memberships;
+  v_existing_op iam.tenant_invitation_operations;
+  v_payload_hash text;
+  v_invitation iam.tenant_invitations;
+  v_raw_token text;
+  v_token_hash text;
+  v_now timestamptz := timezone('utc', now());
+  v_expires_at timestamptz;
+  v_message_id uuid := gen_random_uuid();
+  v_correlation_id text := gen_random_uuid()::text;
+  v_outcome_id uuid := gen_random_uuid();
+  v_masked text;
+  v_ciphertext text;
+  v_result jsonb;
+begin
+  if v_caller is null then
+    raise exception 'AUTHENTICATION_REQUIRED';
+  end if;
+
+  if p_idempotency_key is null or trim(p_idempotency_key) = '' then
+    raise exception 'VALIDATION_ERROR';
+  end if;
+
+  if not iam.has_permission(p_tenant_id, 'tenant.member.invite') then
+    raise exception 'PERMISSION_DENIED';
+  end if;
+
+  v_email := lower(trim(coalesce(p_invitee_email, '')));
+  if v_email = '' or position('@' in v_email) = 0 then
+    raise exception 'VALIDATION_ERROR';
+  end if;
+
+  v_payload_hash := md5(
+    p_tenant_id::text || '|' || v_email || '|' || p_initial_role_id::text
+  );
+
+  select * into v_existing_op
+  from iam.tenant_invitation_operations o
+  where o.tenant_id = p_tenant_id
+    and o.idempotency_key = p_idempotency_key;
+
+  if found then
+    if v_existing_op.payload_hash <> v_payload_hash then
+      raise exception 'IDEMPOTENCY_CONFLICT';
+    end if;
+    return v_existing_op.result;
+  end if;
+
+  select * into v_role
+  from iam.role_definitions r
+  where r.id = p_initial_role_id;
+
+  if not found or v_role.status <> 'active' then
+    raise exception 'ROLE_NOT_ASSIGNABLE';
+  end if;
+
+  select * into v_actor_membership
+  from iam.memberships m
+  where m.tenant_id = p_tenant_id
+    and m.user_id = v_caller
+    and m.status = 'active'
+  for update;
+
+  if not found then
+    raise exception 'PERMISSION_DENIED';
+  end if;
+
+  select m.* into v_existing_membership
+  from iam.memberships m
+  join auth.users u on u.id = m.user_id
+  where m.tenant_id = p_tenant_id
+    and lower(trim(u.email::text)) = v_email
+    and m.status in ('active', 'inactive')
+  limit 1;
+
+  if found then
+    if v_existing_membership.status = 'active' then
+      raise exception 'DUPLICATE_MEMBERSHIP';
+    end if;
+    if v_existing_membership.status = 'inactive' then
+      raise exception 'MEMBERSHIP_INACTIVE';
+    end if;
+  end if;
+
+  if exists (
+    select 1
+    from iam.tenant_invitations i
+    where i.tenant_id = p_tenant_id
+      and i.invitee_email = v_email
+      and i.status = 'pending'
+  ) then
+    raise exception 'INVITATION_PENDING_EXISTS';
+  end if;
+
+  -- 32-byte CSPRNG → Base64URL (strip padding).
+  v_raw_token := translate(
+    encode(gen_random_bytes(32), 'base64'),
+    '+/',
+    '-_'
+  );
+  v_raw_token := rtrim(v_raw_token, '=');
+  v_token_hash := encode(digest(v_raw_token, 'sha256'), 'hex');
+  v_expires_at := v_now + interval '7 days';
+
+  -- Transient ciphertext stand-in (production: encrypt with key outside DB).
+  v_ciphertext := 'transient:' || encode(convert_to(v_raw_token, 'UTF8'), 'base64');
+  -- Clear local var after constructing ciphertext materials for outbox.
+  -- v_raw_token is only referenced in ciphertext build and must not appear in
+  -- refs, audit, or persisted invitation columns.
+
+  insert into iam.tenant_invitations (
+    tenant_id,
+    invitee_email,
+    initial_role_id,
+    status,
+    token_hash,
+    invited_by_membership_id,
+    expires_at,
+    status_changed_at,
+    version,
+    created_at,
+    updated_at,
+    delivery_correlation_id,
+    last_sent_at
+  )
+  values (
+    p_tenant_id,
+    v_email,
+    p_initial_role_id,
+    'pending',
+    v_token_hash,
+    v_actor_membership.id,
+    v_expires_at,
+    v_now,
+    1,
+    v_now,
+    v_now,
+    v_correlation_id,
+    v_now
+  )
+  returning * into v_invitation;
+
+  v_masked := left(v_email, 1) || '***' || substring(v_email from position('@' in v_email));
+
+  perform iam.enqueue_outbox_message(
+    p_tenant_id,
+    'iam.email.delivery_requested',
+    jsonb_build_object(
+      'event_version', 1,
+      'id', v_message_id,
+      'occurred_on', v_now,
+      'tenant_id', p_tenant_id,
+      'template_id', 'tenant_invitation',
+      'to_email', v_email,
+      'correlation_id', v_correlation_id,
+      'outcome_id', v_outcome_id,
+      'locale', 'vi',
+      'refs', jsonb_build_object(
+        'invitation_id', v_invitation.id::text,
+        'tenant_id', p_tenant_id::text
+      ),
+      'secret_payload_ciphertext', v_ciphertext
+    ),
+    v_message_id
+  );
+
+  perform iam.record_email_delivery_outcome(
+    p_correlation_id := v_correlation_id,
+    p_template_id := 'tenant_invitation',
+    p_status := 'queued',
+    p_tenant_id := p_tenant_id,
+    p_to_email_masked := v_masked,
+    p_id := v_outcome_id
+  );
+
+  -- Ensure raw token is not retained after outbox enqueue.
+  v_raw_token := null;
+
+  perform iam.append_audit_log(
+    p_scope => 'tenant',
+    p_tenant_id => p_tenant_id,
+    p_actor_user_id => v_caller,
+    p_event_code => 'tenant.invitation.created',
+    p_subject_type => 'invitation',
+    p_subject_id => v_invitation.id::text,
+    p_result => 'success',
+    p_source => 'iam',
+    p_tracking_id => p_idempotency_key,
+    p_before => null,
+    p_after => jsonb_build_object(
+      'invitation_id', v_invitation.id,
+      'invitee_email_masked', v_masked,
+      'initial_role_id', p_initial_role_id,
+      'delivery_correlation_id', v_correlation_id
+    )
+  );
+
+  v_result := jsonb_build_object(
+    'invitation_id', v_invitation.id,
+    'invitee_email', v_invitation.invitee_email,
+    'initial_role_id', v_invitation.initial_role_id,
+    'initial_role_label', v_role.label,
+    'status', v_invitation.status,
+    'expires_at', v_invitation.expires_at,
+    'delivery_status', 'queued',
+    'delivery_correlation_id', v_correlation_id,
+    'version', v_invitation.version,
+    'created_at', v_invitation.created_at,
+    'created_by', v_caller::text,
+    'last_sent_at', v_now,
+    'revoked_at', null,
+    'declined_at', null
+  );
+
+  insert into iam.tenant_invitation_operations (
+    tenant_id,
+    idempotency_key,
+    payload_hash,
+    result
+  )
+  values (
+    p_tenant_id,
+    p_idempotency_key,
+    v_payload_hash,
+    v_result
+  );
+
+  return v_result;
+end;
+$$;
+
+revoke all on function iam.create_tenant_invitation(uuid, text, uuid, text)
+  from public, anon;
+grant execute on function iam.create_tenant_invitation(uuid, text, uuid, text)
+  to authenticated;

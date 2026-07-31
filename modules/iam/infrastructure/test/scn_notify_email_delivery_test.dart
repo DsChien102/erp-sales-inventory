@@ -98,7 +98,6 @@ void main() {
     Future<({String messageId, String outcomeId})> seedRpcOutbox({
       required String tenantId,
       required String correlationId,
-      String? appLinkUrl,
       Map<String, String> refs = const <String, String>{},
     }) async {
       final messageId = const Uuid().v4();
@@ -112,7 +111,6 @@ void main() {
         toEmail: 'invitee@example.com',
         correlationId: correlationId,
         outcomeId: outcomeId,
-        appLinkUrl: appLinkUrl,
         refs: refs,
       );
       outbox.seed(
@@ -141,7 +139,6 @@ void main() {
       await seedRpcOutbox(
         tenantId: tenantId,
         correlationId: correlationId,
-        appLinkUrl: 'https://app.example.com/i/opaque',
         refs: const <String, String>{'invitation_id': 'inv-1'},
       );
       expect(outbox.messages, hasLength(1));

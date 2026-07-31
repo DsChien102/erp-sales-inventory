@@ -14,6 +14,10 @@ final class SendActivationInvitationCommandHandler
 
   @override
   Future<void> handle(SendActivationInvitationCommand command) {
-    return _platformGateway.sendActivationInvitation(command.userId);
+    return _platformGateway.sendActivationInvitation(
+      userId: command.userId,
+      expectedVersion: command.expectedVersion,
+      idempotencyKey: command.idempotencyKey,
+    );
   }
 }

@@ -1,26 +1,23 @@
 import 'package:vet45_shared_application/application.dart';
 
-import '../../../ports/i_authenticator.dart';
-import '../../ports/i_identity_self_service_gateway.dart';
+import '../../../ports/i_platform_identity_self_service_port.dart';
+import '../../../dto/password_reset_completion_result_dto.dart';
 import 'complete_my_password_reset_command.dart';
 
 @CommandHandlerFor(CompleteMyPasswordResetCommand)
 final class CompleteMyPasswordResetCommandHandler
-    implements ICommandHandler<CompleteMyPasswordResetCommand, void> {
+    implements ICommandHandler<CompleteMyPasswordResetCommand, PasswordResetCompletionResultDto> {
   CompleteMyPasswordResetCommandHandler({
-    required IAuthenticator authenticator,
-    required IIdentitySelfServiceGateway identityGateway,
-  }) : _authenticator = authenticator,
-       _identityGateway = identityGateway;
+    required IPlatformIdentitySelfServicePort identityPort,
+  }) : _identityPort = identityPort;
 
-  final IAuthenticator _authenticator;
-  final IIdentitySelfServiceGateway _identityGateway;
+  final IPlatformIdentitySelfServicePort _identityPort;
 
   @override
-  Future<void> handle(CompleteMyPasswordResetCommand command) async {
-    // Credential write via GoTrue first — if this fails, operation stays open.
-    await _authenticator.updatePassword(command.newPassword);
-    await _identityGateway.completeMyPasswordReset(
+  Future<PasswordResetCompletionResultDto> handle(
+    CompleteMyPasswordResetCommand command,
+  ) {
+    return _identityPort.completePasswordReset(
       operationId: command.operationId.trim(),
       newPassword: command.newPassword,
     );

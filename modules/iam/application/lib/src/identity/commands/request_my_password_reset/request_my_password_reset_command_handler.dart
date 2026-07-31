@@ -1,23 +1,23 @@
 import 'package:vet45_shared_application/application.dart';
 
-import '../../ports/i_identity_self_service_gateway.dart';
-import '../../shared/password_reset_operation_dto.dart';
+import '../../../ports/i_platform_identity_self_service_port.dart';
+import '../../../dto/password_reset_request_result_dto.dart';
 import 'request_my_password_reset_command.dart';
 
 @CommandHandlerFor(RequestMyPasswordResetCommand)
 final class RequestMyPasswordResetCommandHandler
     implements
-        ICommandHandler<RequestMyPasswordResetCommand, PasswordResetOperationDto> {
+        ICommandHandler<RequestMyPasswordResetCommand, PasswordResetRequestResultDto> {
   RequestMyPasswordResetCommandHandler({
-    required IIdentitySelfServiceGateway identityGateway,
-  }) : _identityGateway = identityGateway;
+    required IPlatformIdentitySelfServicePort identityPort,
+  }) : _identityPort = identityPort;
 
-  final IIdentitySelfServiceGateway _identityGateway;
+  final IPlatformIdentitySelfServicePort _identityPort;
 
   @override
-  Future<PasswordResetOperationDto> handle(
+  Future<PasswordResetRequestResultDto> handle(
     RequestMyPasswordResetCommand command,
   ) {
-    return _identityGateway.requestMyPasswordReset();
+    return _identityPort.requestPasswordReset();
   }
 }

@@ -14,6 +14,10 @@ final class RestorePlatformUserCommandHandler
 
   @override
   Future<void> handle(RestorePlatformUserCommand command) {
-    return _platformGateway.restorePlatformUser(command.userId);
+    return _platformGateway.restorePlatformUser(
+      userId: command.userId,
+      expectedVersion: command.expectedVersion,
+      idempotencyKey: command.idempotencyKey,
+    );
   }
 }

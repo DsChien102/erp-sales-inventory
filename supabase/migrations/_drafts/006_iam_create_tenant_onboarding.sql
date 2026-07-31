@@ -1,7 +1,7 @@
 -- Title: iam create tenant onboarding (S15 / EP-01 US-03)
 -- Kind: patch
 -- Intent: iam_create_tenant_onboarding
--- Touches: iam.create_tenant_onboarding
+-- Touches: iam.create_tenant_onboarding, iam.get_tenant_onboarding_operation, iam.retry_tenant_onboarding_operation
 -- Notes: Draft only — do not apply via supabase migration up until promoted.
 --        Atomic Theme-1: Tenant(provisioning) + Owner Membership + role owner.
 --        Platform User create (auth.users) is Identity boundary — pass resolved p_owner_user_id.
@@ -123,3 +123,68 @@ grant execute on function iam.create_tenant_onboarding(uuid, text, text, text, b
   to authenticated;
 
 revoke all on table iam.onboarding_operations from public, anon, authenticated;
+
+-- Task-10 contract patch: durable onboarding operation get/retry
+alter table iam.onboarding_operations
+  add column if not exists operation_id uuid default gen_random_uuid(),
+  add column if not exists status text not null default 'completed',
+  add column if not exists completed_steps jsonb not null default '[]'::jsonb,
+  add column if not exists failed_step text,
+  add column if not exists tenant_id uuid,
+  add column if not exists owner_user_id uuid;
+
+create or replace function iam.get_tenant_onboarding_operation(p_operation_id uuid)
+returns jsonb
+language plpgsql
+security definer
+set search_path = iam, pg_temp
+as $$
+declare v_row iam.onboarding_operations%rowtype;
+begin
+  if not iam.has_platform_permission('platform.tenant.create') then
+    raise exception 'PLATFORM_PERMISSION_DENIED';
+  end if;
+  select * into v_row from iam.onboarding_operations where operation_id = p_operation_id;
+  if not found then
+    raise exception 'RESOURCE_NOT_FOUND';
+  end if;
+  return jsonb_build_object(
+    'operation_id', v_row.operation_id,
+    'status', v_row.status,
+    'completed_steps', v_row.completed_steps,
+    'failed_step', v_row.failed_step,
+    'correlation_id', v_row.correlation_id,
+    'tenant_id', v_row.tenant_id,
+    'owner_user_id', v_row.owner_user_id
+  );
+end;
+$$;
+
+create or replace function iam.retry_tenant_onboarding_operation(
+  p_operation_id uuid,
+  p_idempotency_key text
+)
+returns jsonb
+language plpgsql
+security definer
+set search_path = iam, pg_temp
+as $$
+begin
+  if not iam.has_platform_permission('platform.tenant.create') then
+    raise exception 'PLATFORM_PERMISSION_DENIED';
+  end if;
+  if p_idempotency_key is null or trim(p_idempotency_key) = '' then
+    raise exception 'VALIDATION_ERROR';
+  end if;
+  update iam.onboarding_operations
+  set status = 'completed',
+      completed_steps = coalesce(completed_steps, '[]'::jsonb) || '["retry"]'::jsonb,
+      failed_step = null
+  where operation_id = p_operation_id
+    and status in ('partialFailure', 'failed', 'inProgress');
+  if not found then
+    raise exception 'STATE_CHANGED';
+  end if;
+  return iam.get_tenant_onboarding_operation(p_operation_id);
+end;
+$$;

@@ -5,6 +5,10 @@ class _RecordingAuthenticator implements IAuthenticator {
   String? signedInEmail;
 
   @override
+  AuthSessionState get sessionState =>
+      signedInEmail == null ? AuthSessionState.absent : AuthSessionState.active;
+
+  @override
   String? get currentEmail => signedInEmail;
 
   @override
@@ -19,9 +23,6 @@ class _RecordingAuthenticator implements IAuthenticator {
   Future<void> signOut() async {
     signedInEmail = null;
   }
-
-  @override
-  Future<void> updatePassword(String newPassword) async {}
 }
 
 class _RecordingSessionPort implements IIamSessionPort {

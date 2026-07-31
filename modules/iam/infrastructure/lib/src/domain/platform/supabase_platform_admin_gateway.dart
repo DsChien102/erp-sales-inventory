@@ -6,10 +6,7 @@ import 'package:vet45_shared_infrastructure/infrastructure.dart';
 
 import '../../errors/iam_error_mapper.dart';
 
-/// Supabase RPC adapter for platform Admin operations (TH-01 S15).
-///
-/// New-user onboarding (create `auth.users`) is a Platform Identity boundary —
-/// this gateway only calls Theme-1 RPC with a resolved [ownerUserId].
+/// Supabase RPC adapter for platform Admin operations (TH-01 S15/S16).
 final class SupabasePlatformAdminGateway implements IPlatformAdminGateway {
   SupabasePlatformAdminGateway({
     required SupabaseSchemaRpcClient rpcClient,
@@ -31,19 +28,29 @@ final class SupabasePlatformAdminGateway implements IPlatformAdminGateway {
   }
 
   @override
-  Future<List<PlatformUserSummaryDto>> searchPlatformUsers({
+  Future<CursorPageDto<PlatformUserSummaryDto>> searchPlatformUsers({
     String? query,
     PlatformUserStatus? status,
+    String? cursor,
+    int limit = 20,
   }) async {
     try {
-      final rows = await _rpcClient.callList(
+      final page = await _rpcClient.callMap(
         'search_platform_users',
         params: <String, dynamic>{
           'p_query': query,
           'p_status': status == null ? null : _statusToSql(status),
+          'p_cursor': cursor,
+          'p_page_size': limit,
         },
       );
-      return rows.map(_mapSummary).toList(growable: false);
+      final items = (page['items'] as List? ?? const [])
+          .map((e) => _mapSummary((e as Map).cast<String, dynamic>()))
+          .toList(growable: false);
+      return CursorPageDto(
+        items: items,
+        nextCursor: page['next_cursor'] as String?,
+      );
     } on RpcException catch (error) {
       throw mapIamRpcError(error);
     }
@@ -66,11 +73,19 @@ final class SupabasePlatformAdminGateway implements IPlatformAdminGateway {
   }
 
   @override
-  Future<void> sendActivationInvitation(String userId) async {
+  Future<void> sendActivationInvitation({
+    required String userId,
+    required int expectedVersion,
+    required String idempotencyKey,
+  }) async {
     try {
       await _rpcClient.callScalar<Object?>(
         'send_activation_invitation',
-        params: <String, dynamic>{'p_user_id': userId},
+        params: <String, dynamic>{
+          'p_user_id': userId,
+          'p_expected_version': expectedVersion,
+          'p_idempotency_key': idempotencyKey,
+        },
       );
     } on RpcException catch (error) {
       throw mapIamRpcError(error);
@@ -78,11 +93,19 @@ final class SupabasePlatformAdminGateway implements IPlatformAdminGateway {
   }
 
   @override
-  Future<void> requestPasswordReset(String userId) async {
+  Future<void> requestPasswordReset({
+    required String userId,
+    required int expectedVersion,
+    required String idempotencyKey,
+  }) async {
     try {
       await _rpcClient.callScalar<Object?>(
         'request_platform_password_reset',
-        params: <String, dynamic>{'p_user_id': userId},
+        params: <String, dynamic>{
+          'p_user_id': userId,
+          'p_expected_version': expectedVersion,
+          'p_idempotency_key': idempotencyKey,
+        },
       );
     } on RpcException catch (error) {
       throw mapIamRpcError(error);
@@ -93,6 +116,8 @@ final class SupabasePlatformAdminGateway implements IPlatformAdminGateway {
   Future<void> suspendPlatformUser({
     required String userId,
     required String reason,
+    required int expectedVersion,
+    required String idempotencyKey,
   }) async {
     try {
       await _rpcClient.callScalar<Object?>(
@@ -100,6 +125,8 @@ final class SupabasePlatformAdminGateway implements IPlatformAdminGateway {
         params: <String, dynamic>{
           'p_user_id': userId,
           'p_reason': reason,
+          'p_expected_version': expectedVersion,
+          'p_idempotency_key': idempotencyKey,
         },
       );
     } on RpcException catch (error) {
@@ -108,11 +135,19 @@ final class SupabasePlatformAdminGateway implements IPlatformAdminGateway {
   }
 
   @override
-  Future<void> restorePlatformUser(String userId) async {
+  Future<void> restorePlatformUser({
+    required String userId,
+    required int expectedVersion,
+    required String idempotencyKey,
+  }) async {
     try {
       await _rpcClient.callScalar<Object?>(
         'restore_platform_user',
-        params: <String, dynamic>{'p_user_id': userId},
+        params: <String, dynamic>{
+          'p_user_id': userId,
+          'p_expected_version': expectedVersion,
+          'p_idempotency_key': idempotencyKey,
+        },
       );
     } on RpcException catch (error) {
       throw mapIamRpcError(error);
@@ -151,21 +186,69 @@ final class SupabasePlatformAdminGateway implements IPlatformAdminGateway {
     }
   }
 
+  @override
+  Future<TenantOnboardingOperationDto?> getTenantOnboardingOperation(
+    String operationId,
+  ) async {
+    try {
+      final result = await _rpcClient.callMap(
+        'get_tenant_onboarding_operation',
+        params: <String, dynamic>{'p_operation_id': operationId},
+      );
+      if (result.isEmpty) return null;
+      return _mapOnboardingOperation(result);
+    } on RpcException catch (error) {
+      throw mapIamRpcError(error);
+    }
+  }
 
   @override
-  Future<List<PlatformTenantSummaryDto>> searchPlatformTenants({
-    String? query,
-    TenantLifecycleStatus? status,
+  Future<TenantOnboardingOperationDto> retryTenantOnboardingOperation({
+    required String operationId,
+    required String idempotencyKey,
   }) async {
     try {
-      final rows = await _rpcClient.callList(
+      final result = await _rpcClient.callMap(
+        'retry_tenant_onboarding_operation',
+        params: <String, dynamic>{
+          'p_operation_id': operationId,
+          'p_idempotency_key': idempotencyKey,
+        },
+      );
+      return _mapOnboardingOperation(result);
+    } on RpcException catch (error) {
+      throw mapIamRpcError(error);
+    }
+  }
+
+  @override
+  Future<CursorPageDto<PlatformTenantSummaryDto>> searchPlatformTenants({
+    String? query,
+    TenantLifecycleStatus? status,
+    String? readinessState,
+    String? warningCode,
+    String? cursor,
+    int limit = 20,
+  }) async {
+    try {
+      final page = await _rpcClient.callMap(
         'search_platform_tenants',
         params: <String, dynamic>{
           'p_query': query,
           'p_status': status == null ? null : _tenantStatusToSql(status),
+          'p_readiness_state': readinessState,
+          'p_warning_code': warningCode,
+          'p_cursor': cursor,
+          'p_page_size': limit,
         },
       );
-      return rows.map(_mapTenantSummary).toList(growable: false);
+      final items = (page['items'] as List? ?? const [])
+          .map((e) => _mapTenantSummary((e as Map).cast<String, dynamic>()))
+          .toList(growable: false);
+      return CursorPageDto(
+        items: items,
+        nextCursor: page['next_cursor'] as String?,
+      );
     } on RpcException catch (error) {
       throw mapIamRpcError(error);
     }
@@ -206,6 +289,8 @@ final class SupabasePlatformAdminGateway implements IPlatformAdminGateway {
   Future<void> suspendPlatformTenant({
     required String tenantId,
     required String reason,
+    required int expectedVersion,
+    required String idempotencyKey,
   }) async {
     try {
       await _rpcClient.callScalar<Object?>(
@@ -213,6 +298,8 @@ final class SupabasePlatformAdminGateway implements IPlatformAdminGateway {
         params: <String, dynamic>{
           'p_tenant_id': tenantId,
           'p_reason': reason,
+          'p_expected_version': expectedVersion,
+          'p_idempotency_key': idempotencyKey,
         },
       );
     } on RpcException catch (error) {
@@ -221,11 +308,19 @@ final class SupabasePlatformAdminGateway implements IPlatformAdminGateway {
   }
 
   @override
-  Future<void> restorePlatformTenant(String tenantId) async {
+  Future<void> restorePlatformTenant({
+    required String tenantId,
+    required int expectedVersion,
+    required String idempotencyKey,
+  }) async {
     try {
       await _rpcClient.callScalar<Object?>(
         'restore_platform_tenant',
-        params: <String, dynamic>{'p_tenant_id': tenantId},
+        params: <String, dynamic>{
+          'p_tenant_id': tenantId,
+          'p_expected_version': expectedVersion,
+          'p_idempotency_key': idempotencyKey,
+        },
       );
     } on RpcException catch (error) {
       throw mapIamRpcError(error);
@@ -236,6 +331,7 @@ final class SupabasePlatformAdminGateway implements IPlatformAdminGateway {
   Future<void> transferPlatformTenantOwnership({
     required String tenantId,
     required String newOwnerUserId,
+    required int expectedVersion,
     required String idempotencyKey,
   }) async {
     try {
@@ -244,6 +340,7 @@ final class SupabasePlatformAdminGateway implements IPlatformAdminGateway {
         params: <String, dynamic>{
           'p_tenant_id': tenantId,
           'p_new_owner_user_id': newOwnerUserId,
+          'p_expected_version': expectedVersion,
           'p_idempotency_key': idempotencyKey,
         },
       );
@@ -253,26 +350,52 @@ final class SupabasePlatformAdminGateway implements IPlatformAdminGateway {
   }
 
   @override
-  Future<List<PlatformAuditLogSummaryDto>> searchPlatformAuditLogs({
-    String? query,
-    PlatformAuditLogStatus? status,
+  Future<CursorPageDto<PlatformAuditLogSummaryDto>> searchPlatformAuditLogs({
+    DateTime? fromUtc,
+    DateTime? toUtc,
+    String? actorUserId,
+    String? targetType,
+    String? targetId,
+    String? action,
+    String? result,
+    String? source,
+    String? correlationId,
+    String? cursor,
+    int limit = 20,
   }) async {
     try {
-      final rows = await _rpcClient.callList(
+      final page = await _rpcClient.callMap(
         'search_platform_audit_logs',
         params: <String, dynamic>{
-          'p_query': query,
-          'p_status': status == null ? null : _auditStatusToSql(status),
+          'p_from': fromUtc?.toUtc().toIso8601String(),
+          'p_to': toUtc?.toUtc().toIso8601String(),
+          'p_actor_user_id': actorUserId,
+          'p_target_type': targetType,
+          'p_target_id': targetId,
+          'p_action': action,
+          'p_result': result,
+          'p_source': source,
+          'p_correlation_id': correlationId,
+          'p_cursor': cursor,
+          'p_page_size': limit,
         },
       );
-      return rows.map(_mapAuditSummary).toList(growable: false);
+      final items = (page['items'] as List? ?? const [])
+          .map((e) => _mapAuditSummary((e as Map).cast<String, dynamic>()))
+          .toList(growable: false);
+      return CursorPageDto(
+        items: items,
+        nextCursor: page['next_cursor'] as String?,
+      );
     } on RpcException catch (error) {
       throw mapIamRpcError(error);
     }
   }
 
   @override
-  Future<PlatformAuditLogDetailDto> getPlatformAuditLog(String auditLogId) async {
+  Future<PlatformAuditLogDetailDto> getPlatformAuditLog(
+    String auditLogId,
+  ) async {
     try {
       final result = await _rpcClient.callMap(
         'get_platform_audit_log',
@@ -291,10 +414,32 @@ final class SupabasePlatformAdminGateway implements IPlatformAdminGateway {
     if (owner.isExisting) {
       return owner.existingUserId!;
     }
-    // Platform Identity boundary — creating auth.users is out of Theme-1 scope.
     throw ApplicationException(
       'New Platform User creation requires Platform Identity; '
       'resolve an existing userId for interim onboarding',
+    );
+  }
+
+  TenantOnboardingOperationDto _mapOnboardingOperation(
+    Map<String, dynamic> row,
+  ) {
+    final stepsRaw = row['completed_steps'];
+    final steps = switch (stepsRaw) {
+      final List list => list.map((e) => e.toString()).toList(growable: false),
+      _ => const <String>[],
+    };
+    return TenantOnboardingOperationDto(
+      operationId: row['operation_id'] as String,
+      status:
+          TenantOnboardingOperationStatusCodes.fromCode(
+            row['status'] as String?,
+          ) ??
+          TenantOnboardingOperationStatus.inProgress,
+      completedSteps: steps,
+      failedStep: row['failed_step'] as String?,
+      correlationId: row['correlation_id'] as String? ?? '',
+      tenantId: row['tenant_id'] as String?,
+      ownerUserId: row['owner_user_id'] as String?,
     );
   }
 
@@ -333,6 +478,7 @@ final class SupabasePlatformAdminGateway implements IPlatformAdminGateway {
       status: _statusFromSql(json['status'] as String?),
       emailVerified: json['email_verified'] as bool? ?? false,
       createdAt: DateTime.parse(json['created_at'] as String),
+      version: (json['version'] as num?)?.toInt() ?? 1,
       lastLoginAt: lastLoginRaw is String ? DateTime.parse(lastLoginRaw) : null,
       memberships: memberships,
     );
@@ -364,6 +510,8 @@ final class SupabasePlatformAdminGateway implements IPlatformAdminGateway {
       ownerName: row['owner_name'] as String?,
       ownerEmail: row['owner_email'] as String?,
       memberCount: (row['member_count'] as num?)?.toInt() ?? 0,
+      readinessState: row['readiness_state'] as String?,
+      warningCode: row['warning_code'] as String?,
     );
   }
 
@@ -382,6 +530,7 @@ final class SupabasePlatformAdminGateway implements IPlatformAdminGateway {
       code: json['code'] as String? ?? '',
       status: _tenantStatusFromSql(json['status'] as String?),
       createdAt: DateTime.parse(json['created_at'] as String),
+      version: (json['version'] as num?)?.toInt() ?? 1,
       ownerUserId: json['owner_user_id'] as String?,
       ownerName: json['owner_name'] as String?,
       ownerEmail: json['owner_email'] as String?,
@@ -419,16 +568,19 @@ final class SupabasePlatformAdminGateway implements IPlatformAdminGateway {
 
   PlatformAuditLogSummaryDto _mapAuditSummary(Map<String, dynamic> row) {
     return PlatformAuditLogSummaryDto(
-      id: row['id'] as String,
-      title: row['title'] as String? ?? '',
-      actionCode: row['action_code'] as String? ?? '',
-      status: _auditStatusFromSql(row['status'] as String?),
+      id: row['id'] as String? ?? row['audit_log_id'] as String,
+      title: row['title'] as String? ?? row['event_code'] as String? ?? '',
+      actionCode:
+          row['action_code'] as String? ?? row['event_code'] as String? ?? '',
+      status: _auditStatusFromSql(row['status'] as String? ?? row['result'] as String?),
       actorName: row['actor_name'] as String? ?? '',
       actorRole: row['actor_role'] as String? ?? '',
       targetOrgName: row['target_org_name'] as String? ?? '',
       targetOrgCode: row['target_org_code'] as String? ?? '',
-      timestamp: DateTime.parse(row['created_at'] as String),
-      sourceApp: row['source_app'] as String? ?? '',
+      timestamp: DateTime.parse(
+        (row['created_at'] ?? row['occurred_at']) as String,
+      ),
+      sourceApp: row['source_app'] as String? ?? row['source'] as String? ?? '',
     );
   }
 
@@ -443,7 +595,9 @@ final class SupabasePlatformAdminGateway implements IPlatformAdminGateway {
       actorRole: json['actor_role'] as String? ?? '',
       targetOrgName: json['target_org_name'] as String? ?? '',
       targetOrgCode: json['target_org_code'] as String? ?? '',
-      timestamp: DateTime.parse(json['timestamp'] as String),
+      timestamp: DateTime.parse(
+        (json['timestamp'] ?? json['created_at']) as String,
+      ),
       sourceApp: json['source_app'] as String? ?? '',
       correlationId: json['correlation_id'] as String? ?? '',
       beforeState: json['before_state'] as String? ?? '',
@@ -474,14 +628,6 @@ final class SupabasePlatformAdminGateway implements IPlatformAdminGateway {
     };
   }
 
-  static String _auditStatusToSql(PlatformAuditLogStatus status) {
-    return switch (status) {
-      PlatformAuditLogStatus.success => 'success',
-      PlatformAuditLogStatus.blocked => 'blocked',
-      PlatformAuditLogStatus.error => 'error',
-    };
-  }
-
   static PlatformAuditLogStatus _auditStatusFromSql(String? raw) {
     return switch (raw) {
       'blocked' => PlatformAuditLogStatus.blocked,
@@ -489,6 +635,4 @@ final class SupabasePlatformAdminGateway implements IPlatformAdminGateway {
       _ => PlatformAuditLogStatus.success,
     };
   }
-
 }
-
