@@ -172,8 +172,6 @@ void main() {
       expect(find.text('Thông tin áp dụng'), findsOneWidget);
       expect(find.text('Thời gian hiệu lực'), findsOneWidget);
       expect(find.byType(VMoneyField), findsOneWidget);
-      expect(find.byKey(const Key('input_price_rule_note')), findsOneWidget);
-      expect(find.byType(VTextFormField), findsOneWidget);
       expect(find.text('Hủy'), findsOneWidget);
       expect(find.text('Lưu'), findsOneWidget);
 

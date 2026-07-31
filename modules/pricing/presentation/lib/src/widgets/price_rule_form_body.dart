@@ -323,12 +323,10 @@ class _PriceRuleFormBodyState extends State<PriceRuleFormBody> {
           ),
           const VGap.md(),
 
-          VTextFormField(
-            key: const Key('input_price_rule_note'),
+          VTextField(
             label: 'Ghi chú',
             controller: widget.noteController,
             maxLines: 3,
-            maxLength: 500,
             onChanged: widget.cubit.updateNote,
           ),
 
@@ -403,14 +401,6 @@ class _FormWarnings extends StatelessWidget {
   Widget build(BuildContext context) {
     final widgets = <Widget>[
       if (form.isBelowFloor) const PriceRuleBelowFloorBanner(),
-      if (form.hasConflictingRule)
-        const VBanner(
-          tone: VComponentTone.info,
-          icon: VIcons.info,
-          title: 'Lưu ý tự động ghi đè giá trùng',
-          message:
-              'Khoảng thời gian hiệu lực mới bị trùng với giá riêng đang áp dụng khác. Khi lưu, giá riêng cũ sẽ tự động bị tắt.',
-        ),
     ];
     if (widgets.isEmpty) {
       // Giữ một slot cố định để tránh xáo trộn vị trí subtree form khi warning bật/tắt.

@@ -182,12 +182,12 @@ class _PriceRuleReenableSheetState extends State<PriceRuleReenableSheet> {
       color: Colors.transparent,
       child: SafeArea(
         top: false,
-        child: Padding(
+        child: SingleChildScrollView(
           padding: const EdgeInsets.fromLTRB(
             VSpacing.space4,
             VSpacing.space2,
             VSpacing.space4,
-            VSpacing.space5,
+            VSpacing.space4,
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -265,15 +265,14 @@ class _PriceRuleReenableSheetState extends State<PriceRuleReenableSheet> {
                     () => _acknowledgeFloorWarning = value ?? false,
                   ),
                 ),
-              ],
-              if (!_isBlocked) ...[
+              ] else if (!_isBlocked) ...[
                 const VGap.md(),
                 VBanner(
                   tone: VComponentTone.info,
                   icon: VIcons.info,
                   title: 'Lưu ý',
                   message:
-                      'Bật lại giá riêng này sẽ tự động tắt giá riêng đang áp dụng trùng khách hàng / sản phẩm / đơn vị (nếu có).',
+                      'Bật lại giá riêng này sẽ tự động tắt giá riêng trùng (nếu có).',
                 ),
               ],
               const VGap.md(),

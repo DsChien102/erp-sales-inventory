@@ -257,9 +257,6 @@ class _BottomBar extends StatelessWidget {
     String? changeReason;
     if (isEdit && initialRule != null && form.rulePriceMinor != null) {
       final rule = initialRule!;
-      final isDateChanged =
-          form.effectiveFrom != rule.effectivePeriod.effectiveFrom ||
-          form.effectiveTo != rule.effectivePeriod.effectiveTo;
       final result = await PriceRuleSaveConfirmSheet.show(
         context: context,
         oldPriceLabel: _formatMinor(rule.price.amountMinor),
@@ -268,7 +265,6 @@ class _BottomBar extends StatelessWidget {
         newFromLabel: _formatDate(form.effectiveFrom),
         oldToLabel: _formatDate(rule.effectivePeriod.effectiveTo),
         newToLabel: _formatDate(form.effectiveTo),
-        showOverwriteWarning: form.hasConflictingRule || isDateChanged,
       );
       if (result == null || !result.confirmed) return;
       changeReason = result.changeReason;

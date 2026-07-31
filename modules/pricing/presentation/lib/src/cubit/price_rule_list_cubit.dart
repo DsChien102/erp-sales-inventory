@@ -189,41 +189,24 @@ final class PriceRuleListCubit extends Cubit<PriceRuleListState> {
 
   void applyQuickFilter(CustomerPriceRuleQuickFilter filter) {
     _quickFilter = filter;
-    switch (filter) {
-      case CustomerPriceRuleQuickFilter.applying:
-        _advancedFilter = _advancedFilter.copyWith(
-          status: CustomerPriceRuleDerivedStatus.applying,
-          warning: _advancedFilter.warning == PriceRuleWarningFilter.belowFloor
-              ? null
-              : _advancedFilter.warning,
-        );
-      case CustomerPriceRuleQuickFilter.belowFloor:
-        _advancedFilter = _advancedFilter.copyWith(
-          warning: PriceRuleWarningFilter.belowFloor,
-          status: _advancedFilter.status == CustomerPriceRuleDerivedStatus.applying
-              ? null
-              : _advancedFilter.status,
-        );
-      case CustomerPriceRuleQuickFilter.all:
-        _advancedFilter = _advancedFilter.copyWith(
-          status: _advancedFilter.status == CustomerPriceRuleDerivedStatus.applying
-              ? null
-              : _advancedFilter.status,
-          warning: _advancedFilter.warning == PriceRuleWarningFilter.belowFloor
-              ? null
-              : _advancedFilter.warning,
-        );
+    if (filter == CustomerPriceRuleQuickFilter.belowFloor) {
+      _advancedFilter = _advancedFilter.copyWith(
+        warning: PriceRuleWarningFilter.belowFloor,
+      );
+    } else if (_advancedFilter.warning == PriceRuleWarningFilter.belowFloor) {
+      _advancedFilter = _advancedFilter.copyWith(warning: null);
     }
     fetchRules(isRefresh: true);
   }
 
   void applyAdvancedFilter(PriceRuleAdvancedFilter filter) {
+    final hadBelowFloorWarning =
+        _advancedFilter.warning == PriceRuleWarningFilter.belowFloor;
     _advancedFilter = filter;
     if (filter.warning == PriceRuleWarningFilter.belowFloor) {
       _quickFilter = CustomerPriceRuleQuickFilter.belowFloor;
-    } else if (filter.status == CustomerPriceRuleDerivedStatus.applying) {
-      _quickFilter = CustomerPriceRuleQuickFilter.applying;
-    } else {
+    } else if (hadBelowFloorWarning &&
+        _quickFilter == CustomerPriceRuleQuickFilter.belowFloor) {
       _quickFilter = CustomerPriceRuleQuickFilter.all;
     }
     fetchRules(isRefresh: true);
@@ -269,9 +252,6 @@ final class PriceRuleListCubit extends Cubit<PriceRuleListState> {
     if (_advancedFilter.warning == PriceRuleWarningFilter.belowFloor) {
       return CustomerPriceRuleQuickFilter.belowFloor;
     }
-    if (_advancedFilter.status == CustomerPriceRuleDerivedStatus.applying) {
-      return CustomerPriceRuleQuickFilter.applying;
-    }
     return _quickFilter;
   }
 
@@ -280,6 +260,11 @@ final class PriceRuleListCubit extends Cubit<PriceRuleListState> {
     final advancedStatus = _advancedFilter.status;
     if (advancedStatus != null) {
       statuses.add(advancedStatus);
+    }
+    if (_quickFilter == CustomerPriceRuleQuickFilter.applying &&
+        _resolveQuickFilter() == CustomerPriceRuleQuickFilter.belowFloor &&
+        advancedStatus == null) {
+      statuses.add(CustomerPriceRuleDerivedStatus.applying);
     }
     return statuses;
   }

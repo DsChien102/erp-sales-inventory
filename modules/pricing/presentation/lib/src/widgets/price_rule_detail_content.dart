@@ -46,7 +46,7 @@ class PriceRuleDetailContent extends StatelessWidget {
             PriceRuleReviewBanner(
               issues: [
                 if (isBelowFloor) 'Giá riêng đang thấp hơn giá sàn hiện tại',
-                ...rule.referenceHealth.issueCodes.map(_formatIssueCode),
+                ...rule.referenceHealth.issueCodes,
               ],
             ),
             const VGap.sm(),
@@ -72,9 +72,9 @@ class PriceRuleDetailContent extends StatelessWidget {
                   value: rule.customer.displayName,
                 ),
                 PriceRuleIconDetailRow(
-                  icon: VIcons.phone,
-                  label: 'Số điện thoại',
-                  value: rule.customer.phone ?? '—',
+                  icon: VIcons.tag,
+                  label: 'Mã khách hàng',
+                  value: rule.customer.customerId,
                   numeric: true,
                 ),
                 PriceRuleIconDetailRow(
@@ -274,19 +274,5 @@ class PriceRuleDetailContent extends StatelessWidget {
     CustomerPriceRuleSourceType.excelImport => 'Nhập Excel',
     CustomerPriceRuleSourceType.salesOrder => 'Từ đơn hàng',
     CustomerPriceRuleSourceType.migration => 'Migration',
-  };
-
-  String _formatIssueCode(String code) => switch (code) {
-    'customer_reference_inactive' => 'Khách hàng đã ngừng hoạt động',
-    'customer_reference_missing' => 'Khách hàng không tồn tại trên hệ thống',
-    'product_unit_reference_inactive' =>
-      'Sản phẩm / đơn vị bán đã ngừng kinh doanh',
-    'product_unit_reference_missing' =>
-      'Sản phẩm / đơn vị bán không tồn tại trên hệ thống',
-    'price_band_minor_units_invalid' =>
-      'Mệnh giá đơn vị tiền tệ không hợp lệ',
-    'price_band_currency_mismatch' =>
-      'Loại tiền tệ không khớp với khung giá niêm yết',
-    _ => code,
   };
 }

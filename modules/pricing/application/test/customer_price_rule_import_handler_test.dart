@@ -148,7 +148,7 @@ final class RecordingImportFilePort
     templateCalls++;
     return CustomerPriceRuleImportTemplateDto(
       templateVersion: 'customer_price_rules_v1',
-      fileName: 'Mau_nho_gia.xlsx',
+      fileName: 'customer_price_rules_v1.xlsx',
       mimeType:
           'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
       bytes: Uint8List(0),

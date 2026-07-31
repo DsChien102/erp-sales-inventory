@@ -36,6 +36,8 @@ class _PriceRuleFilterBottomSheetState
     _filter = widget.initial;
   }
 
+  void _clearAll() => setState(() => _filter = PriceRuleAdvancedFilter.empty);
+
   void _resetAndApply() {
     Navigator.of(context).pop(PriceRuleAdvancedFilter.empty);
   }
@@ -54,10 +56,21 @@ class _PriceRuleFilterBottomSheetState
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              VText(
-                'Bộ lọc giá riêng / nhớ giá',
-                variant: VTextVariant.headingH4,
-                style: const TextStyle(fontWeight: FontWeight.w700),
+              Row(
+                children: [
+                  Expanded(
+                    child: VText(
+                      'Bộ lọc giá riêng / nhớ giá',
+                      variant: VTextVariant.headingH4,
+                      style: const TextStyle(fontWeight: FontWeight.w700),
+                    ),
+                  ),
+                  VButton(
+                    label: 'Xóa tất cả',
+                    variant: VButtonVariant.ghost,
+                    onPressed: _clearAll,
+                  ),
+                ],
               ),
               const VGap.md(),
               _SectionTitle(title: 'Trạng thái'),
@@ -76,8 +89,7 @@ class _PriceRuleFilterBottomSheetState
                   _chip(
                     label: 'Đang áp dụng',
                     selected:
-                        _filter.status ==
-                        CustomerPriceRuleDerivedStatus.applying,
+                        _filter.status == CustomerPriceRuleDerivedStatus.applying,
                     onTap: () => setState(
                       () => _filter = _filter.copyWith(
                         status: CustomerPriceRuleDerivedStatus.applying,
@@ -87,8 +99,7 @@ class _PriceRuleFilterBottomSheetState
                   _chip(
                     label: 'Đã tắt',
                     selected:
-                        _filter.status ==
-                        CustomerPriceRuleDerivedStatus.disabled,
+                        _filter.status == CustomerPriceRuleDerivedStatus.disabled,
                     onTap: () => setState(
                       () => _filter = _filter.copyWith(
                         status: CustomerPriceRuleDerivedStatus.disabled,
@@ -98,8 +109,7 @@ class _PriceRuleFilterBottomSheetState
                   _chip(
                     label: 'Hết hiệu lực',
                     selected:
-                        _filter.status ==
-                        CustomerPriceRuleDerivedStatus.expired,
+                        _filter.status == CustomerPriceRuleDerivedStatus.expired,
                     onTap: () => setState(
                       () => _filter = _filter.copyWith(
                         status: CustomerPriceRuleDerivedStatus.expired,
@@ -108,8 +118,7 @@ class _PriceRuleFilterBottomSheetState
                   ),
                   _chip(
                     label: 'Cần kiểm tra',
-                    selected:
-                        _filter.status ==
+                    selected: _filter.status ==
                         CustomerPriceRuleDerivedStatus.needsReview,
                     onTap: () => setState(
                       () => _filter = _filter.copyWith(
@@ -145,8 +154,8 @@ class _PriceRuleFilterBottomSheetState
                   ),
                   _chip(
                     label: 'Trùng rule',
-                    selected:
-                        _filter.warning == PriceRuleWarningFilter.duplicateRule,
+                    selected: _filter.warning ==
+                        PriceRuleWarningFilter.duplicateRule,
                     onTap: () => setState(
                       () => _filter = _filter.copyWith(
                         warning: PriceRuleWarningFilter.duplicateRule,
@@ -191,8 +200,7 @@ class _PriceRuleFilterBottomSheetState
                   ),
                   _chip(
                     label: 'Nhập Excel',
-                    selected:
-                        _filter.source ==
+                    selected: _filter.source ==
                         CustomerPriceRuleSourceType.excelImport,
                     onTap: () => setState(
                       () => _filter = _filter.copyWith(
@@ -202,8 +210,7 @@ class _PriceRuleFilterBottomSheetState
                   ),
                   _chip(
                     label: 'Từ đơn hàng',
-                    selected:
-                        _filter.source ==
+                    selected: _filter.source ==
                         CustomerPriceRuleSourceType.salesOrder,
                     onTap: () => setState(
                       () => _filter = _filter.copyWith(
@@ -213,8 +220,8 @@ class _PriceRuleFilterBottomSheetState
                   ),
                   _chip(
                     label: 'Migration',
-                    selected:
-                        _filter.source == CustomerPriceRuleSourceType.migration,
+                    selected: _filter.source ==
+                        CustomerPriceRuleSourceType.migration,
                     onTap: () => setState(
                       () => _filter = _filter.copyWith(
                         source: CustomerPriceRuleSourceType.migration,
@@ -232,13 +239,11 @@ class _PriceRuleFilterBottomSheetState
                 children: [
                   _chip(
                     label: '7 ngày gần đây',
-                    selected:
-                        _filter.updatedWithin ==
+                    selected: _filter.updatedWithin ==
                         PriceRuleUpdatedWithin.last7Days,
                     onTap: () => setState(
                       () => _filter = _filter.copyWith(
-                        updatedWithin:
-                            _filter.updatedWithin ==
+                        updatedWithin: _filter.updatedWithin ==
                                 PriceRuleUpdatedWithin.last7Days
                             ? null
                             : PriceRuleUpdatedWithin.last7Days,
@@ -247,13 +252,11 @@ class _PriceRuleFilterBottomSheetState
                   ),
                   _chip(
                     label: '30 ngày gần đây',
-                    selected:
-                        _filter.updatedWithin ==
+                    selected: _filter.updatedWithin ==
                         PriceRuleUpdatedWithin.last30Days,
                     onTap: () => setState(
                       () => _filter = _filter.copyWith(
-                        updatedWithin:
-                            _filter.updatedWithin ==
+                        updatedWithin: _filter.updatedWithin ==
                                 PriceRuleUpdatedWithin.last30Days
                             ? null
                             : PriceRuleUpdatedWithin.last30Days,
