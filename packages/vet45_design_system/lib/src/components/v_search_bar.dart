@@ -157,7 +157,9 @@ class _VSearchBarState extends State<VSearchBar> {
     final clearButton = widget.onClear != null && hasText
         ? GestureDetector(
             onTap: () {
-              widget.controller?.clear();
+              if (widget.controller != null) {
+                widget.controller!.value = TextEditingValue.empty;
+              }
               widget.onClear?.call();
             },
             child: VIcon(
@@ -195,7 +197,7 @@ class _VSearchBarState extends State<VSearchBar> {
                   enabled: isEnabled,
                   onTapOutside: (event) {
                     FocusManager.instance.primaryFocus?.unfocus();
-                  },
+                  }, 
                   style: VTypography.bodyDefault.copyWith(color: textColor),
                   decoration: InputDecoration(
                     hintText: widget.hintText,

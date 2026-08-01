@@ -74,6 +74,9 @@ export 'src/components/v_table.dart';
 export 'src/components/v_loading.dart';
 export 'src/components/v_steps.dart';
 export 'src/components/v_progress.dart';
+export 'src/components/v_segmented_control.dart';
+export 'src/components/v_swipe_action_record.dart';
+export 'src/components/v_numeric_keypad_sheet.dart';
 
 // Forms
 export 'src/forms/validators/v_email_validator.dart';

@@ -31,8 +31,9 @@ class VTabs extends StatelessWidget {
     final dynamicColors = context.vColors;
 
     final Color activeColor = switch (tone) {
-      VComponentTone.warning => Colors.orange,
-      VComponentTone.danger => Colors.red,
+      VComponentTone.warning => dynamicColors.warning,
+      VComponentTone.danger => dynamicColors.danger,
+      VComponentTone.success => dynamicColors.success,
       _ => dynamicColors.primary,
     };
 
@@ -56,7 +57,9 @@ class VTabs extends StatelessWidget {
             decoration: BoxDecoration(
               border: Border(
                 bottom: BorderSide(
-                  color: isSelected ? (isDisabled ? dynamicColors.disabledFg : activeColor) : Colors.transparent,
+                  color: isSelected
+                      ? (isDisabled ? dynamicColors.disabledFg : activeColor)
+                      : Colors.transparent,
                   width: indicatorWidth,
                 ),
               ),
@@ -98,16 +101,16 @@ class VTabs extends StatelessWidget {
       label: semanticLabel ?? 'Tabs',
       explicitChildNodes: true,
       child: Container(
-      decoration: BoxDecoration(
-        border: Border(
-          bottom: BorderSide(
-            color: dynamicColors.borderDefault,
-            width: 1,
+        decoration: BoxDecoration(
+          border: Border(
+            bottom: BorderSide(
+              color: dynamicColors.borderDefault,
+              width: 1,
+            ),
           ),
         ),
+        child: content,
       ),
-      child: content,
-    ),
     );
   }
 }

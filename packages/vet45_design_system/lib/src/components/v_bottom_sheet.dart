@@ -94,23 +94,30 @@ Future<T?> showVBottomSheet<T>({
   required Widget child,
   VComponentTone? tone,
   String? semanticLabel,
-  double maxHeightFraction = 0.95,
+  bool isDismissible = true,
+  bool enableDrag = true,
 }) {
   return showModalBottomSheet<T>(
     context: context,
     backgroundColor: Colors.transparent,
     isScrollControlled: true,
-    builder: (context) => VBottomSheet(
-      title: title,
-      tone: tone,
-      semanticLabel: semanticLabel,
-      maxHeightFraction: maxHeightFraction,
-      child: Padding(
-        padding: EdgeInsets.only(
-          bottom: MediaQuery.of(context).viewInsets.bottom,
+    isDismissible: isDismissible,
+    enableDrag: enableDrag,
+    useSafeArea: false,
+    builder: (context) {
+      final bottomInset = MediaQuery.viewInsetsOf(context).bottom;
+      return VBottomSheet(
+        title: title,
+        tone: tone,
+        semanticLabel: semanticLabel,
+        child: SafeArea(
+          top: false,
+          child: Padding(
+            padding: EdgeInsets.only(bottom: bottomInset),
+            child: child,
+          ),
         ),
-        child: child,
-      ),
-    ),
+      );
+    },
   );
 }

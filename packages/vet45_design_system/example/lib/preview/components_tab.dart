@@ -27,6 +27,8 @@ class _ComponentsPreviewTabState extends State<ComponentsPreviewTab> {
   int _navIndex = 0;
   DateTime? _date;
   bool _centerTitle = false;
+  int _segmentIndex = 0;
+  int _orderLineQty = 1;
   final _textController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
 
@@ -79,6 +81,158 @@ class _ComponentsPreviewTabState extends State<ComponentsPreviewTab> {
                       onPressed: () {},
                     ),
                   ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        PreviewSection(
+          title: 'VSegmentedControl',
+          description:
+              'Three-option mutually exclusive selection — selected uses brand fill; '
+              'overall height 44px.',
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              PreviewStateRow(
+                label: 'interactive',
+                child: VSegmentedControl(
+                  segments: const ['Mục 1', 'Mục 2', 'Mục 3'],
+                  selectedIndex: _segmentIndex,
+                  onChanged: (i) => setState(() => _segmentIndex = i),
+                ),
+              ),
+              PreviewStateRow(
+                label: 'two segments',
+                child: VSegmentedControl(
+                  segments: const ['Bán', 'Trả'],
+                  selectedIndex: 0,
+                  onChanged: _noopInt,
+                ),
+              ),
+              const PreviewStateRow(
+                label: 'disabled',
+                child: VSegmentedControl(
+                  segments: ['Mục 1', 'Mục 2', 'Mục 3'],
+                  selectedIndex: 1,
+                  enabled: false,
+                  onChanged: _noopInt,
+                ),
+              ),
+            ],
+          ),
+        ),
+        PreviewSection(
+          title: 'VSwipeActionRecord',
+          description:
+              'Swipe trái hiện action destructive. Vuốt / tap lại để đóng. '
+              'Consumer gắn confirmation trên onAction.',
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              PreviewStateRow(
+                label: 'default — vuốt trái',
+                child: VSwipeActionRecord(
+                  title: 'Record title',
+                  supportingText1: 'Supporting information',
+                  supportingText2: 'Additional context',
+                  summary: '0 items  •  0đ',
+                  timestamp: '00:00',
+                  onAction: () {},
+                  onTap: () {},
+                ),
+              ),
+              PreviewStateRow(
+                label: 'with badge',
+                child: VSwipeActionRecord(
+                  title: 'Đơn nháp cần kiểm tra',
+                  supportingText1: '0901 234 567',
+                  supportingText2: 'Ghi chú đơn',
+                  summary: '3 mặt hàng  •  450.000đ',
+                  timestamp: '14:20',
+                  badgeLabel: 'Cần kiểm tra',
+                  onAction: () {},
+                  onTap: () {},
+                ),
+              ),
+              PreviewStateRow(
+                label: 'disabled',
+                child: VSwipeActionRecord(
+                  title: 'Không thể vuốt',
+                  supportingText1: 'Supporting information',
+                  supportingText2: 'Additional context',
+                  summary: '1 item  •  100.000đ',
+                  timestamp: '09:30',
+                  enabled: false,
+                  onAction: () {},
+                ),
+              ),
+            ],
+          ),
+        ),
+        PreviewSection(
+          title: 'VNumericKeypadSheet',
+          description:
+              'Bottom sheet keypad — Quantity (có `.`) / Money (có `000`). '
+              'Preserve value until Lưu.',
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              PreviewStateRow(
+                label: 'embedded — quantity',
+                child: VNumericKeypadSheet(
+                  mode: VNumericKeypadMode.quantity,
+                  unitLabel: 'Đơn vị: Can',
+                  initialRaw: '2',
+                  onCancel: () {},
+                  onSave: (_) {},
+                ),
+              ),
+              PreviewStateRow(
+                label: 'embedded — money',
+                child: VNumericKeypadSheet(
+                  mode: VNumericKeypadMode.money,
+                  unitLabel: 'Đơn vị: VND',
+                  initialRaw: '2200000',
+                  onCancel: () {},
+                  onSave: (_) {},
+                ),
+              ),
+              PreviewStateRow(
+                label: 'show as sheet',
+                child: Wrap(
+                  spacing: VSpacing.space2,
+                  runSpacing: VSpacing.space2,
+                  children: [
+                    VButton(
+                      label: 'Nhập số lượng',
+                      onPressed: () async {
+                        final raw = await showVNumericKeypadSheet(
+                          context: context,
+                          mode: VNumericKeypadMode.quantity,
+                          unitLabel: 'Đơn vị: Can',
+                          initialRaw: '$_orderLineQty',
+                        );
+                        if (raw != null && mounted) {
+                          final parsed = int.tryParse(raw.split('.').first);
+                          if (parsed != null) {
+                            setState(() => _orderLineQty = parsed);
+                          }
+                        }
+                      },
+                    ),
+                    VButton(
+                      label: 'Nhập số tiền',
+                      variant: VButtonVariant.secondary,
+                      onPressed: () {
+                        showVNumericKeypadSheet(
+                          context: context,
+                          mode: VNumericKeypadMode.money,
+                          initialRaw: '2200000',
+                        );
+                      },
+                    ),
+                  ],
                 ),
               ),
             ],

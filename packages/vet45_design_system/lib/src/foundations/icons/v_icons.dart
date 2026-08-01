@@ -103,6 +103,10 @@ enum VIcons {
   bolt,
   qrCode,
   printer,
+  share2,
+  fileCheck,
+  receiptText,
+  send,
 }
 
 /// Lucide font glyphs used by [VIcons].
@@ -527,6 +531,26 @@ abstract final class _Lucide {
     fontFamily: 'Lucide',
     fontPackage: 'lucide_icons_flutter',
   );
+  static const share2 = IconData(
+    57686,
+    fontFamily: 'Lucide',
+    fontPackage: 'lucide_icons_flutter',
+  );
+  static const fileCheck = IconData(
+    57537,
+    fontFamily: 'Lucide',
+    fontPackage: 'lucide_icons_flutter',
+  );
+  static const receiptText = IconData(
+    58796,
+    fontFamily: 'Lucide',
+    fontPackage: 'lucide_icons_flutter',
+  );
+  static const send = IconData(
+    57682,
+    fontFamily: 'Lucide',
+    fontPackage: 'lucide_icons_flutter',
+  );
 }
 
 /// Extension helper để ánh xạ từ [VIcons] sang [IconData] của Lucide Icons
@@ -717,6 +741,14 @@ extension VIconsExtension on VIcons {
         return _Lucide.qrCode;
       case VIcons.printer:
         return _Lucide.printer;
+      case VIcons.share2:
+        return _Lucide.share2;
+      case VIcons.fileCheck:
+        return _Lucide.fileCheck;
+      case VIcons.receiptText:
+        return _Lucide.receiptText;
+      case VIcons.send:
+        return _Lucide.send;
     }
   }
 }
