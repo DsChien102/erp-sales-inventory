@@ -926,12 +926,59 @@ class _ComponentsPreviewTabState extends State<ComponentsPreviewTab> {
         ),
         PreviewSection(
           title: 'VEmptyState',
-          child: VEmptyState(
-            iconData: Icons.inbox_outlined,
-            title: 'No orders yet',
-            description: 'Create your first sales order to get started.',
-            actionLabel: 'Create order',
-            onActionPressed: () {},
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              VEmptyState(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const VEmptyHeader(
+                      children: [
+                        VEmptyMedia(iconData: Icons.inbox_outlined),
+                        VEmptyTitle('No orders yet'),
+                        VEmptyDescription(
+                          'Create your first sales order to get started.',
+                        ),
+                      ],
+                    ),
+                    const VGap.xl(),
+                    VEmptyContent(
+                      child: VButton(
+                        label: 'Create order',
+                        onPressed: () {},
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const VGap.lg(),
+              VEmptyState(
+                bordered: true,
+                filled: true,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const VEmptyHeader(
+                      children: [
+                        VEmptyMedia(iconData: Icons.cloud_outlined),
+                        VEmptyTitle('Cloud storage empty'),
+                        VEmptyDescription(
+                          'Upload files to access them anywhere.',
+                        ),
+                      ],
+                    ),
+                    const VGap.xl(),
+                    VEmptyContent(
+                      child: VButton(
+                        label: 'Upload files',
+                        onPressed: () {},
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
         ),
         PreviewSection(
