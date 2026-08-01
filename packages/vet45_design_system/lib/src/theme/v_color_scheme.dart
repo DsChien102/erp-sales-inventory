@@ -12,6 +12,7 @@ class VColorScheme extends ThemeExtension<VColorScheme> {
   final Color textPrimary;
   final Color textSecondary;
   final Color textMuted;
+  final Color textBrand;
   final Color primary;
   final Color primaryHover;
   final Color primaryPressed;
@@ -43,6 +44,7 @@ class VColorScheme extends ThemeExtension<VColorScheme> {
     required this.textPrimary,
     required this.textSecondary,
     required this.textMuted,
+    required this.textBrand,
     required this.primary,
     required this.primaryHover,
     required this.primaryPressed,
@@ -74,6 +76,7 @@ class VColorScheme extends ThemeExtension<VColorScheme> {
     textPrimary: VColors.textPrimary,
     textSecondary: VColors.textSecondary,
     textMuted: VColors.textMuted,
+    textBrand: VColors.primary700,
     primary: VColors.primary,
     primaryHover: VColors.primary600,
     primaryPressed: VColors.primaryPressed,
@@ -105,6 +108,7 @@ class VColorScheme extends ThemeExtension<VColorScheme> {
     textPrimary: VColors.neutral0,
     textSecondary: VColors.neutral300,
     textMuted: VColors.neutral400,
+    textBrand: VColors.primary300,
     primary: VColors.primary400,
     primaryHover: VColors.primary300,
     primaryPressed: VColors.primary300,
@@ -136,6 +140,7 @@ class VColorScheme extends ThemeExtension<VColorScheme> {
     Color? textPrimary,
     Color? textSecondary,
     Color? textMuted,
+    Color? textBrand,
     Color? primary,
     Color? primaryHover,
     Color? primaryPressed,
@@ -165,6 +170,7 @@ class VColorScheme extends ThemeExtension<VColorScheme> {
       textPrimary: textPrimary ?? this.textPrimary,
       textSecondary: textSecondary ?? this.textSecondary,
       textMuted: textMuted ?? this.textMuted,
+      textBrand: textBrand ?? this.textBrand,
       primary: primary ?? this.primary,
       primaryHover: primaryHover ?? this.primaryHover,
       primaryPressed: primaryPressed ?? this.primaryPressed,
@@ -201,6 +207,7 @@ class VColorScheme extends ThemeExtension<VColorScheme> {
       textPrimary: Color.lerp(textPrimary, other.textPrimary, t)!,
       textSecondary: Color.lerp(textSecondary, other.textSecondary, t)!,
       textMuted: Color.lerp(textMuted, other.textMuted, t)!,
+      textBrand: Color.lerp(textBrand, other.textBrand, t)!,
       primary: Color.lerp(primary, other.primary, t)!,
       primaryHover: Color.lerp(primaryHover, other.primaryHover, t)!,
       primaryPressed: Color.lerp(primaryPressed, other.primaryPressed, t)!,

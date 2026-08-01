@@ -47,6 +47,7 @@ class _PrimitivesPreviewTabState extends State<PrimitivesPreviewTab> {
                             VText('textPrimary', color: colors.textPrimary),
                             VText('textSecondary', color: colors.textSecondary),
                             VText('textMuted', color: colors.textMuted),
+                            VText('textBrand', color: colors.textBrand),
                             const VText('danger', color: VColors.danger),
                           ],
                         );
