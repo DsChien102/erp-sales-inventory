@@ -107,6 +107,16 @@ enum VIcons {
   fileCheck,
   receiptText,
   send,
+  minus,
+  banknoteArrowDown,
+  badgePercent,
+  scanLine,
+  clock,
+  clipboardClock,
+  rotateCcwKey,
+  fileXCorner,
+  pencil,
+  save,
 }
 
 /// Lucide font glyphs used by [VIcons].
@@ -551,6 +561,51 @@ abstract final class _Lucide {
     fontFamily: 'Lucide',
     fontPackage: 'lucide_icons_flutter',
   );
+  static const minus = IconData(
+    57620,
+    fontFamily: 'Lucide',
+    fontPackage: 'lucide_icons_flutter',
+  );
+  static const banknote = IconData(
+    57426,
+    fontFamily: 'Lucide',
+    fontPackage: 'lucide_icons_flutter',
+  );
+  static const badgePercent = IconData(
+    58489,
+    fontFamily: 'Lucide',
+    fontPackage: 'lucide_icons_flutter',
+  );
+  static const scanLine = IconData(
+    57944,
+    fontFamily: 'Lucide',
+    fontPackage: 'lucide_icons_flutter',
+  );
+  static const clock = IconData(
+    57479,
+    fontFamily: 'Lucide',
+    fontPackage: 'lucide_icons_flutter',
+  );
+  static const clipboardClock = IconData(
+    59016,
+    fontFamily: 'Lucide',
+    fontPackage: 'lucide_icons_flutter',
+  );
+  static const fileX = IconData(
+    57549,
+    fontFamily: 'Lucide',
+    fontPackage: 'lucide_icons_flutter',
+  );
+  static const pencil = IconData(
+    57849,
+    fontFamily: 'Lucide',
+    fontPackage: 'lucide_icons_flutter',
+  );
+  static const save = IconData(
+    57677,
+    fontFamily: 'Lucide',
+    fontPackage: 'lucide_icons_flutter',
+  );
 }
 
 /// Extension helper để ánh xạ từ [VIcons] sang [IconData] của Lucide Icons
@@ -749,6 +804,26 @@ extension VIconsExtension on VIcons {
         return _Lucide.receiptText;
       case VIcons.send:
         return _Lucide.send;
+      case VIcons.minus:
+        return _Lucide.minus;
+      case VIcons.banknoteArrowDown:
+        return _Lucide.banknote;
+      case VIcons.badgePercent:
+        return _Lucide.badgePercent;
+      case VIcons.scanLine:
+        return _Lucide.scanLine;
+      case VIcons.clock:
+        return _Lucide.clock;
+      case VIcons.clipboardClock:
+        return _Lucide.clipboardClock;
+      case VIcons.rotateCcwKey:
+        return _Lucide.rotateCcw;
+      case VIcons.fileXCorner:
+        return _Lucide.fileX;
+      case VIcons.pencil:
+        return _Lucide.pencil;
+      case VIcons.save:
+        return _Lucide.save;
     }
   }
 }

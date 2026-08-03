@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 
 import '../patterns/v_gap.dart';
-import 'v_button.dart';
+import '../foundation/v_context_extensions.dart';
+import '../primitives/v_text.dart';
+import '../tokens/v_radius.dart';
 
 /// Keypad mode for [VNumericKeypadSheet] / [VNumericKeypadGrid].
 enum VNumericKeypadMode {
@@ -47,9 +49,16 @@ class VNumericKeypadGrid extends StatelessWidget {
           if (r > 0) const VGap.sm(),
           Row(
             children: [
-              for (var c = 0; c < rows[r].length; c++) ...[
+              for (var c = 0; c < 3; c++) ...[
                 if (c > 0) const VGap.horizontalSm(),
-                Expanded(child: _buildKey(rows[r][c])),
+                Expanded(
+                  child: _Key(
+                    label: rows[r][c],
+                    onTap: rows[r][c].isEmpty
+                        ? null
+                        : () => rows[r][c] == '⌫' ? onBackspace() : onKey(rows[r][c]),
+                  ),
+                ),
               ],
             ],
           ),
@@ -57,15 +66,42 @@ class VNumericKeypadGrid extends StatelessWidget {
       ],
     );
   }
+}
 
-  Widget _buildKey(String key) {
-    if (key.isEmpty) return const SizedBox.shrink();
-    return VButton(
-      label: key,
-      variant: VButtonVariant.outline,
-      size: VButtonSize.large,
-      fullWidth: true,
-      onPressed: () => key == '⌫' ? onBackspace() : onKey(key),
+class _Key extends StatelessWidget {
+  const _Key({required this.label, this.onTap});
+
+  final String label;
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.vColors;
+    final isSpecial = label == '000' || label == '⌫' || label == '.';
+
+    return Material(
+      color: colors.surface,
+      borderRadius: BorderRadius.circular(VRadius.card),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(VRadius.card),
+        child: Container(
+          height: 52,
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(VRadius.card),
+            border: Border.all(color: colors.borderDefault),
+          ),
+          child: VText(
+            label,
+            variant: isSpecial ? VTextVariant.headingH4 : VTextVariant.headingH2,
+            style: TextStyle(
+              fontSize: isSpecial ? 16 : 22,
+              height: isSpecial ? 22 / 16 : 28 / 22,
+            ),
+          ),
+        ),
+      ),
     );
   }
 }
