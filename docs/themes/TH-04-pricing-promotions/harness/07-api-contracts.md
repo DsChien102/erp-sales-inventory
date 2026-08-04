@@ -118,7 +118,7 @@ Mutation rechecks tenant/create permission, references, closed-interval overlap,
 
 `quickFilter` wire values là `all`, `applying`, `below_floor`. Derived-status wire values là `applying`, `not_yet_effective`, `disabled`, `expired`, `needs_review`; source wire values là `manual`, `excel_import`, `sales_order`, `migration`. `limit` mặc định 20 và hợp lệ trong khoảng 1–100. `q` được trim, blank thành null và tối đa 120 ký tự. `businessDate` là calendar date UTC.
 
-Search dùng Pricing-owned snapshots cho customer/product identity (name/UUID/reference/SKU). **Giá hiện tại (`list_price`)** trên list ưu tiên Catalog-live price band (cùng tiêu chí `current` như detail S3), fallback `list_price_snapshot_minor` khi band không current. Customer code deferred vì Partner chưa sở hữu field này. Không có custom effectivity hoặc updated-date range trong V1. Tất cả filter kết hợp bằng AND; deleted luôn bị loại (`status <> 'deleted'` và `deleted_at is null`).
+Search dùng Pricing-owned snapshots cho customer/product identity (name/UUID/reference/SKU). **Giá hiện tại (`list_price`)** trên list ưu tiên Catalog-live price band (cùng tiêu chí `current` như detail S3), fallback `list_price_snapshot_minor` khi band không current. Search hỗ trợ tìm theo số điện thoại khách hàng (thay thế mã khách hàng theo product update Theme-4). Không có custom effectivity hoặc updated-date range trong V1. Tất cả filter kết hợp bằng AND; deleted luôn bị loại (`status <> 'deleted'` và `deleted_at is null`).
 
 Derived-status precedence: persisted `disabled` → `disabled`; persisted/review blocking hoặc blocking codes → `needs_review`; `effective_to < businessDate` → `expired`; `effective_from > businessDate` → `not_yet_effective`; còn lại → `applying`. Effective boundaries là inclusive.
 

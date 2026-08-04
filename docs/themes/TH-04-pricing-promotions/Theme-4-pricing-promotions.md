@@ -1061,7 +1061,7 @@ erDiagram
 |`tenant_id`|UUID|Yes|FK|`tenants.id`|Tenant sở hữu dòng import\.|
 |`import_id`|UUID|Yes|FK|`customer_price_rule_imports.id`|Batch import cha\.|
 |`row_number`|integer|Yes|—|—|Số dòng trong file Excel\. Unique trong `import_id`\.|
-|`raw_customer_ref`|text|Yes|—|—|Giá trị khách hàng từ Excel; có thể là mã, tên, SĐT hoặc định danh được template hỗ trợ\.|
+|`raw_customer_ref`|text|Yes|—|—|Số điện thoại khách hàng lấy từ Excel, lưu dưới dạng dữ liệu gốc trước khi chuẩn hóa và đối chiếu với hồ sơ khách hàng\.|
 |`raw_product_ref`|text|Yes|—|—|Giá trị sản phẩm từ Excel; có thể là mã, tên, SKU hoặc barcode được template hỗ trợ\.|
 |`raw_price`|text|Yes|—|—|Giá raw từ Excel\.|
 |`raw_effective_from`|text|No|—|—|Ngày bắt đầu raw từ Excel\.|
@@ -1160,7 +1160,7 @@ US này chỉ tập trung vào danh sách, tìm kiếm, lọc, kiểm tra nhanh 
 |---|---|---|
 |**FR\-01**<br>|Hiển thị danh sách giá riêng / nhớ giá|Người dùng có quyền có thể xem danh sách giá riêng / nhớ giá thuộc tenant hiện tại|
 |**FR\-02**|Hiển thị thông tin tóm tắt của từng giá riêng|Mỗi item hiển thị khách hàng, sản phẩm, đơn vị bán, giá riêng / giá nhớ, trạng thái và cảnh báo chính nếu có|
-|**FR\-03**|Tìm kiếm giá riêng / nhớ giá|Người dùng có thể tìm theo tên khách hàng, mã khách hàng, tên sản phẩm, mã sản phẩm hoặc SKU|
+|**FR\-03**|Tìm kiếm giá riêng / nhớ giá|Người dùng có thể tìm theo tên khách hàng, **số điện thoại khách hàng**, tên sản phẩm, mã sản phẩm hoặc SKU\.|
 |**FR\-04**|Lọc nhanh theo nhóm nghiệp vụ chính|Người dùng có thể lọc nhanh theo `Tất cả`, `Đang áp dụng`, `Dưới giá sàn`|
 |**FR\-05**|Lọc nâng cao danh sách giá riêng / nhớ giá|Người dùng có thể lọc trạng thái, nguồn tạo và thời gian cập nhật nếu hệ thống hỗ trợ|
 |**FR\-06**|Hiển thị cảnh báo cần kiểm tra|Giá riêng có rủi ro như dưới giá sàn, dữ liệu không hợp lệ hoặc trùng rule phải được đánh dấu rõ ràng|
@@ -1277,7 +1277,7 @@ Màn hình danh sách giúp người dùng kiểm soát nhanh các giá riêng /
 # 29/7/2026    Lê Xuân Lộc    PE    Passed   SC-07    
 ```
 
-#### 4\.2\.1\.7 Edge cases
+4\.2\.1\.7 Edge cases
 
 |ID|Edge Case|Hướng xử lý đề xuất|
 |---|---|---|
@@ -1825,7 +1825,7 @@ Flow nhập Excel giúp người dùng đưa dữ liệu giá riêng số lượ
 |---|---|
 |**Tải file mẫu**|Cho phép tải template Excel đúng cấu trúc|
 |**Chọn file Excel**|Cho phép upload file `.xlsx` hợp lệ|
-|**Hướng dẫn ngắn**|Nêu rõ các cột bắt buộc và lưu ý về mã khách hàng/SKU/đơn vị bán|
+|**Hướng dẫn ngắn**|Nêu rõ các cột bắt buộc và lưu ý về số điện thoại khách hàng/SKU/đơn vị bán|
 |**Trạng thái upload**|Hiển thị tên file, dung lượng và trạng thái đang kiểm tra|
 
 ##### 4\.2\.5\.4\.5 Preview và validation
@@ -1974,7 +1974,7 @@ Màn hình sửa giá riêng giúp người dùng cập nhật mức giá hoặc
 |---|---|
 |**Giá rỗng/không hợp lệ**|Inline error tại input giá|
 |**Ngày hiệu lực sai**|Inline error tại field ngày|
-|**Trùng rule**|Alert ghi đè lên rule cũ|
+|**Trùng rule**|Alert ghi đè lên rũ cũ|
 |**Dưới giá sàn**|Warning nổi bật, chặn hoặc cho lưu tùy policy|
 |**Không có thay đổi**|CTA `Lưu` disabled|
 
@@ -2022,7 +2022,7 @@ Màn hình sửa giá riêng giúp người dùng cập nhật mức giá hoặc
 # 30/7/2026    Lê Xuân Lộc    PE    Failed    SC-01    Không test được
 ```
 
-#### 4\.2\.6\.7 Edge cases
+4\.2\.6\.7 Edge cases
 
 |ID|Edge Case|Hướng xử lý đề xuất|
 |---|---|---|
@@ -2195,7 +2195,7 @@ Flow tắt giá riêng giúp người dùng xác nhận rõ tác động trướ
 
 US\-08 cho phép Quản lý cửa hàng hoặc Quản trị viên áp dụng lại một giá riêng đã tắt khi chính sách cũ cần tiếp tục sử dụng hoặc thỏa thuận với khách hàng được khôi phục\.
 
-Bật lại giá riêng có rủi ro cao hơn thao tác tắt, vì rule sẽ quay lại ảnh hưởng pricing engine cho đơn hàng mới\. Vì vậy, trước khi bật lại, hệ thống cần kiểm tra rule còn hợp lệ không: khách hàng còn hoạt động, sản phẩm/đơn vị bán còn bán được, hiệu lực còn phù hợp; nếu trùng rule active khác, hệ thống yêu cầu người dùng xác nhận ghi đè trước khi bật lại và không vi phạm policy giá sàn\.
+Bật lại giá riêng có rủi ro cao hơn thao tác tắt, vì rule sẽ quay lại ảnh hưởng pricing engine cho đơn hàng mới\. Vì vậy, trước khi bật lại, hệ thống cần kiểm tra rule còn hợp lệ không: khách hàng còn hoạt động, sản phẩm/đơn vị bán còn bán được, hiệu lực còn phù hợp, ếu trùng rule active khác, hệ thống yêu cầu người dùng xác nhận ghi đè trước khi bật lại và không vi phạm policy giá sàn\.
 
 Trigger `Bật lại giá riêng` từ màn chi tiết thuộc US\-03, nên Designs của US\-08 chỉ cover kiểm tra, xác nhận, kết quả và state bị chặn/không có quyền\.
 
@@ -2299,7 +2299,7 @@ Flow bật lại giá riêng giúp người dùng khôi phục rule đã tắt m
 #### \#DEV    22/7/2026    PASS      Long     Dev  SC\-05
 \#DEV    22/7/2026    Failed      Long     Dev  SC\-06
 \#DEV    22/7/2026    PASS      Long     Dev  SC\-07
-#### 4\.2\.8\.7 Edge cases
+4\.2\.8\.7 Edge cases
 
 |ID|Edge Case|Hướng xử lý đề xuất|
 |---|---|---|
@@ -2450,7 +2450,7 @@ US\-09 đảm bảo mức giá thực tế đã được người dùng xác nh�
 |**SC\-07**|Ghi lịch sử|Rule được tạo hoặc cập nhật từ đơn hàng|EP02 xử lý thành công|Lịch sử rule có activity liên kết đến đơn hàng nguồn|
 
 #### 
-#### 4\.2\.9\.7 Edge cases
+4\.2\.9\.7 Edge cases
 
 |ID|Edge Case|Hướng xử lý đề xuất|
 |---|---|---|
@@ -2605,7 +2605,7 @@ Màn hình lịch sử giúp người dùng kiểm tra toàn bộ dấu vết th
 ```
 
 #### 
-#### 4\.2\.10\.7 Edge cases
+4\.2\.10\.7 Edge cases
 
 |ID|Edge Case|Hướng xử lý đề xuất|
 |---|---|---|
@@ -2637,29 +2637,29 @@ Mỗi **screen group** bên dưới gồm một **bảng screen map**\. Sau mỗ
 
 ### SG\-01 — Danh sách \& kiểm soát nhanh
 
-![Image](https://internal-api-drive-stream-sg.larksuite.com/space/api/box/stream/download/authcode/?code=ZjBhNzZjMTM1ZGEwNjNjMmZmM2UyYzBiM2M2NzkyOWFfZWEwOGRkOTg3NzBjZWQzMDliMGYxYzk4ZWUyN2EyZDBfSUQ6NzY2MDQ1MDMzODczODM5MjgwMl8xNzg1ODA4OTE0OjE3ODU4OTUzMTRfVjM)
+![Image](https://internal-api-drive-stream-sg.larksuite.com/space/api/box/stream/download/authcode/?code=Nzk1M2JlMTk4MmU4MTJjN2VmNzE4YTIwYzg3ZGY4MjhfYWExMGJlMWRkMDAwMWNmZjVlYzI3NTNjNGQwYmE5YWNfSUQ6NzY2MDQ1MDMzODczODM5MjgwMl8xNzg1ODIzODk2OjE3ODU5MTAyOTZfVjM)
 
 ### SG\-02 — Chi tiết \& action
 
-![Image](https://internal-api-drive-stream-sg.larksuite.com/space/api/box/stream/download/authcode/?code=MGNlMzdkMDMzNDUwYzdkNWFkYmEzNjZiZGE2ZDEzMDNfNjhlZmJlMjhmYTVlZGQ5MjlmYmQwOGM4MmIzYWQwYmFfSUQ6NzY2ODE0MjI4ODA5NDIzNjM3OV8xNzg1ODA4OTE0OjE3ODU4OTUzMTRfVjM)
+![Image](https://internal-api-drive-stream-sg.larksuite.com/space/api/box/stream/download/authcode/?code=ZTYwOTMyYzY3Yjc3YmUzNGQ4NjFhMGQxYTQ2NjNlNmJfOTk4NmQxOWRlMWZhYWIzYjdhMDRmMDQzOGIxOGNhMjNfSUQ6NzY2ODE0MjI4ODA5NDIzNjM3OV8xNzg1ODIzODk3OjE3ODU5MTAyOTdfVjM)
 
 ### SG\-03 — Tạo / sửa giá riêng
 
-![Image](https://internal-api-drive-stream-sg.larksuite.com/space/api/box/stream/download/authcode/?code=NTMxYjA2YWZlMmNkM2RmODk1ZTMzNDQ1OGNmNDAxNjhfNmZkZWM3NjVjOGIxZmVlOTIzZjc4OGViNjJlNjEyY2NfSUQ6NzY2MDQ2NzM5Mzk1Mjc3OTk5Nl8xNzg1ODA4OTE0OjE3ODU4OTUzMTRfVjM)
+![Image](https://internal-api-drive-stream-sg.larksuite.com/space/api/box/stream/download/authcode/?code=ZjE4NWNjZjcyZWI3NDlhZjU4NGE4YTM2ZDgxZDZhZjlfOTIwYTkzOGNkMzkzNjA2NWVkOTcyZWEzMDcyZWI5NzRfSUQ6NzY2MDQ2NzM5Mzk1Mjc3OTk5Nl8xNzg1ODIzODk2OjE3ODU5MTAyOTZfVjM)
 
 ### SG\-04 — Nhập Excel
 
-![Image](https://internal-api-drive-stream-sg.larksuite.com/space/api/box/stream/download/authcode/?code=OTA1NzdlYzgzYTdhZWViOTExYTA2ZjgwNzVjMjNmODdfYTg0M2IyNjFhMzc4Y2FkZjBhZjY5NGYyOTk2OWJiODFfSUQ6NzY1OTcwODkyOTExMDUyNzcwOV8xNzg1ODA4OTE0OjE3ODU4OTUzMTRfVjM)
+![Image](https://internal-api-drive-stream-sg.larksuite.com/space/api/box/stream/download/authcode/?code=NTFiMDdkZWNmOGY2YWQ1ODE0NmEwMWI0YzZhZTc0NWFfYjFmOGNlMDA0ZDVkOGY2OTgwODVlNjFjNmZiNjI2N2JfSUQ6NzY1OTcwODkyOTExMDUyNzcwOV8xNzg1ODIzODk2OjE3ODU5MTAyOTZfVjM)
 
-![Image](https://internal-api-drive-stream-sg.larksuite.com/space/api/box/stream/download/authcode/?code=NTI1M2Q5OWFmODQ5NjdjMjczZjFlZmNlM2ExNjdiMDBfMjFjZTM5YzVjYjA0NThlNjJjYjFkZjM5ODE4OWZiYzdfSUQ6NzY2MDQ3MDQwMTQyNTY3Mzk1N18xNzg1ODA4OTE0OjE3ODU4OTUzMTRfVjM)
+![Image](https://internal-api-drive-stream-sg.larksuite.com/space/api/box/stream/download/authcode/?code=ZTdiYjY4ZTg1OTRhZmE2ZmI4NTIyZTMzNTk2ZTE3NjRfYWEzOThhMWM0ZTA3ODhlNDcyYjc0N2E0YjU3MDJhMzdfSUQ6NzY2MDQ3MDQwMTQyNTY3Mzk1N18xNzg1ODIzODk2OjE3ODU5MTAyOTZfVjM)
 
 ### SG\-05 — Tắt / bật lại giá riêng
 
-![Image](https://internal-api-drive-stream-sg.larksuite.com/space/api/box/stream/download/authcode/?code=ODI5NDRmMzJiNzE5NThlNmM2ZDRkNDQ2YWQwYzYyZTFfYmU1ZmRlNDMwY2UyMmQzOGFkZWQ0NjQ5MjIwZjNjY2JfSUQ6NzY2MDQ5NjQ2NDM1MDU2NDA2M18xNzg1ODA4OTE0OjE3ODU4OTUzMTRfVjM)
+![Image](https://internal-api-drive-stream-sg.larksuite.com/space/api/box/stream/download/authcode/?code=YWM0OTMwY2JkM2IyMGMxNDNmYTlhZmFkZmM1MmYwZmVfNDUwNGU5NjNmMTgwZmI0ODMwYWM5NDM0NmJkNDBhNDVfSUQ6NzY2MDQ5NjQ2NDM1MDU2NDA2M18xNzg1ODIzODk2OjE3ODU5MTAyOTZfVjM)
 
 ### SG\-06 — Nhớ giá \& lịch sử
 
-![Image](https://internal-api-drive-stream-sg.larksuite.com/space/api/box/stream/download/authcode/?code=NmNjZjRhOThjZDcxNThmZDU2Y2U2M2ExNDAzZTcyYjNfOTYxNzFmZTg5ZWMyZWVkODZmZTQyMmM0ZWEyZDYwZDdfSUQ6NzY2MDQ4MjMyMzM1OTUxODQyN18xNzg1ODA4OTE0OjE3ODU4OTUzMTRfVjM)
+![Image](https://internal-api-drive-stream-sg.larksuite.com/space/api/box/stream/download/authcode/?code=ODcxYTZkMDkzODEyMmM2M2ZlOTg4OGJiYWU1NjY5MWFfMGQxZTY3ODE0YmY0ODdjMzU5ZDJkNzMwNTMzYWE2MjlfSUQ6NzY2MDQ4MjMyMzM1OTUxODQyN18xNzg1ODIzODk2OjE3ODU5MTAyOTZfVjM)
 
 # 5\. Epic EP03 — Chương trình khuyến mại
 
@@ -3374,7 +3374,7 @@ Màn hình danh sách CTKM giúp người dùng kiểm soát toàn bộ CTKM the
 |**D\-06**|Confirmation modal cho action nhạy cảm|BR\-04, FR\-06|
 |**D\-07**|Empty / No result / Loading / Error|FR\-07|
 
-![Image](https://internal-api-drive-stream-sg.larksuite.com/space/api/box/stream/download/authcode/?code=ZDU5YzIyNzVhMGQxNGUzMzdiYTc4MjFlMWJkOTA5YmNfNGQ1MTgyNTBlNDgzZjU2YTk5Yzc3ZjExNjg2MDQyMzJfSUQ6NzY1OTI1Njc0ODM2NTc2MjI3Ml8xNzg1ODA4OTE0OjE3ODU4OTUzMTRfVjM)
+![Image](https://internal-api-drive-stream-sg.larksuite.com/space/api/box/stream/download/authcode/?code=NDc5OWY3ZjhlMDNkZjliODcyMDk0ODc5ZGE4MDI1OWNfNzEzMGYxNjBiMTRhZjllYzQ0MDQ1ODJmNGFmN2YyNmJfSUQ6NzY1OTI1Njc0ODM2NTc2MjI3Ml8xNzg1ODIzODk2OjE3ODU5MTAyOTZfVjM)
 
 #### 5\.3\.1\.6 Scenarios
 
@@ -3558,7 +3558,7 @@ Màn hình chọn loại hoặc mẫu CTKM giúp người dùng chọn đúng h�
 |**D\-****05**|Lỗi tải mẫu CTKM nhưng vẫn chọn được loại CTKM|FR\-01, FR\-08|
 |**D\-****06**|Không có quyền tạo CTKM|FR\-09, BR\-01|
 
-![Image](https://internal-api-drive-stream-sg.larksuite.com/space/api/box/stream/download/authcode/?code=MWNjMTk3ZTJiNDFjZjc3ZDVjYmNjYzBjZWVlMGQyNmZfYzY0YjRlZmNhMWI1NzY3NjQ0ODk3ZjkyM2UwYjZkZDJfSUQ6NzY1OTI1OTE5MDg2MjcyODkzM18xNzg1ODA4OTE0OjE3ODU4OTUzMTRfVjM)
+![Image](https://internal-api-drive-stream-sg.larksuite.com/space/api/box/stream/download/authcode/?code=NzBiZmM5MzQ4NDI1OGY0YzY4MzliMjdhOWQ3OTQ3MDFfZjZlZDhjMzY0MjBiZmY0YTU5YTU4M2ZmNTg1OWRlMzNfSUQ6NzY1OTI1OTE5MDg2MjcyODkzM18xNzg1ODIzODk2OjE3ODU5MTAyOTZfVjM)
 
 #### 5\.3\.2\.6 Scenarios
 
@@ -3744,11 +3744,11 @@ Màn hình chi tiết CTKM giúp người dùng kiểm tra cấu hình, trạng 
 |**D\-12**|CTA — Đã kết thúc|CTKM đã kết thúc chỉ có một action chính là `Nhân bản`|FR\-07|
 |**D\-13**|CTA — Đã hủy|CTKM đã hủy chỉ có một action chính là `Nhân bản`|FR\-07|
 
-![Image](https://internal-api-drive-stream-sg.larksuite.com/space/api/box/stream/download/authcode/?code=NGYxMTcwYjdkM2E5MzY5MTVhMDVmNGYxM2MyNWJhMTZfZmYwYmJlOGFjYzFkMTdiOTBjZmFhYjMwYmZlMWUxOTJfSUQ6NzY1OTI3NTgyMTQ1ODM5NDg0M18xNzg1ODA4OTE0OjE3ODU4OTUzMTRfVjM)
+![Image](https://internal-api-drive-stream-sg.larksuite.com/space/api/box/stream/download/authcode/?code=YjdjYjUwMzE2ZWNhNTA5MzY1ODVmMGY2NzBjYzk2MGJfZjA1NjEyMzRkOTU2NmI1ZDk1NTk0ZTljYjg1NTBmNDlfSUQ6NzY1OTI3NTgyMTQ1ODM5NDg0M18xNzg1ODIzODk3OjE3ODU5MTAyOTdfVjM)
 
-![Image](https://internal-api-drive-stream-sg.larksuite.com/space/api/box/stream/download/authcode/?code=MmVmODBhMDQ2MTJmYzg5YWZhNjgzM2U3MjYwZDUwODlfZWE3YTg4ZjUxNWZjNmEyYzM3N2Y1MWVkZGM1MGZiYjJfSUQ6NzY1OTMzMTY4NjUyNjAxMzE1OF8xNzg1ODA4OTE0OjE3ODU4OTUzMTRfVjM)
+![Image](https://internal-api-drive-stream-sg.larksuite.com/space/api/box/stream/download/authcode/?code=NWZjZTA0OGNmZTYwZGQ3NTZkNWJjOTlkMWJkNDQxZGRfZGY5ZGQ2ZDczMTc5NWE5ZGQ1MjdlZDlhMDUwOWFkOWZfSUQ6NzY1OTMzMTY4NjUyNjAxMzE1OF8xNzg1ODIzODk2OjE3ODU5MTAyOTZfVjM)
 
-![Image](https://internal-api-drive-stream-sg.larksuite.com/space/api/box/stream/download/authcode/?code=ZWU5NmE0MmNiNzc5ZTY3NmJhYjE0YzRlZDAyMzhmY2ZfYTRmYzdjZWZjNjA1YzYwODMzOTg1MDRlODI5YjE1MThfSUQ6NzY1OTMzMzk2MTg2ODc3NTE0MV8xNzg1ODA4OTE0OjE3ODU4OTUzMTRfVjM)
+![Image](https://internal-api-drive-stream-sg.larksuite.com/space/api/box/stream/download/authcode/?code=MTk1YmU2NWU3MmNmOGE3MGE1ZWVmOTQ3NjU3YTM4NWNfMGFmNDQ1OTExY2QwZDE3N2Y5OWEwNzc3YjJhY2ZiNTRfSUQ6NzY1OTMzMzk2MTg2ODc3NTE0MV8xNzg1ODIzODk2OjE3ODU5MTAyOTZfVjM)
 
 #### 5\.3\.3\.6 Scenarios
 
@@ -3899,11 +3899,11 @@ Màn hình giúp người dùng kiểm tra nhanh CTKM đã đủ điều kiện 
 |**D\-06**|Bật thành công — chuyển `Sắp chạy`|FR\-08, BR\-07|
 |**D\-07**|Error / No permission / State changed|FR\-06, FR\-08, BR\-01, BR\-06|
 
-![Image](https://internal-api-drive-stream-sg.larksuite.com/space/api/box/stream/download/authcode/?code=NGNlZThmMjA0ODQwYjgxN2Q5MDAyM2M5ZDUyZTgxYmNfZTQzM2UyZGRmYTFhZDlhNDNlOWJmNTQ3ODQxYjhkNGJfSUQ6NzY1OTMzNzQzNjU4MjY2MTg1MV8xNzg1ODA4OTE0OjE3ODU4OTUzMTRfVjM)
+![Image](https://internal-api-drive-stream-sg.larksuite.com/space/api/box/stream/download/authcode/?code=YjU2MTk5N2RlNjBlNzk2MGYwMjhhZDhlODI0NWI4NDZfYWYzZDgyN2FkN2JmZWQ2MTA4ZjRlMzAwZjhhMTUzYjZfSUQ6NzY1OTMzNzQzNjU4MjY2MTg1MV8xNzg1ODIzODk2OjE3ODU5MTAyOTZfVjM)
 
-![Image](https://internal-api-drive-stream-sg.larksuite.com/space/api/box/stream/download/authcode/?code=ZGY0MzJlYmIxZTc0NmQyNjAxNGYwNTE4ODg4ZmZjZTNfMDIxYjA3YjUxNWQzOWVlZTU4MTg5YTQ4ZTYxNzJkMDZfSUQ6NzY1OTMzOTM2OTUxMzg0ODU1MF8xNzg1ODA4OTE0OjE3ODU4OTUzMTRfVjM)
+![Image](https://internal-api-drive-stream-sg.larksuite.com/space/api/box/stream/download/authcode/?code=YzMzMzA5YWI2YTRiMzQ3YmNhNTEyYzJkZWEzY2ViNGVfY2ZmNzNhYzllYWZlOTFhMmE0MDg4ZTQwMWJkOWE0N2NfSUQ6NzY1OTMzOTM2OTUxMzg0ODU1MF8xNzg1ODIzODk3OjE3ODU5MTAyOTdfVjM)
 
-![Image](https://internal-api-drive-stream-sg.larksuite.com/space/api/box/stream/download/authcode/?code=ZGFlZjliYzBmMGE5OTM2MjFlODkwNmQ4MjkyZTI3MTVfMDhhZmIxNDcyNWU0YjAwMmEyNmUyMGMwMDcyZmYxZGRfSUQ6NzY1OTM0MzgwOTA4Nzc4NjcxOF8xNzg1ODA4OTE0OjE3ODU4OTUzMTRfVjM)
+![Image](https://internal-api-drive-stream-sg.larksuite.com/space/api/box/stream/download/authcode/?code=NGExMzRmYTk1M2RjYTcyNzQ2NDUzNzM0YTQ5YjUzNTdfYjYyOTNjMmUyZmZjYmY4Y2U0ZWQxZGI1MjgyMmRkYWFfSUQ6NzY1OTM0MzgwOTA4Nzc4NjcxOF8xNzg1ODIzODk3OjE3ODU5MTAyOTdfVjM)
 
 #### 5\.3\.4\.6 Scenarios
 
@@ -4068,9 +4068,9 @@ UI của US\-05 giúp người dùng tạm dừng hoặc bật lại CTKM một 
 |**D\-06**|Bật lại bị chặn do hết hạn/thiếu thiết lập/xung đột|FR\-04, FR\-07, BR\-06, BR\-07|
 |**D\-07**|Không có quyền tạm dừng/bật lại|FR\-08|
 
-![Image](https://internal-api-drive-stream-sg.larksuite.com/space/api/box/stream/download/authcode/?code=OTcyZTliNTQxZGIwYzk1YzI5MDFiNzgxNWQxMjVhYmFfMGYzYWZmNjRmNTQ0NTQ2NDQ0YmM5ZTE3NDk2MzI3ZTNfSUQ6NzY1OTM1MTc5NjI1NDk1MzE5MF8xNzg1ODA4OTE0OjE3ODU4OTUzMTRfVjM)
+![Image](https://internal-api-drive-stream-sg.larksuite.com/space/api/box/stream/download/authcode/?code=NDY0YTdjYTI1YTc5Yzg4YjY3MmQxNmQ4N2IwOTFkYTVfODkyZTAzN2RjMDYzYjJjMmVlZjEzMDc1OGE3MDgwMmRfSUQ6NzY1OTM1MTc5NjI1NDk1MzE5MF8xNzg1ODIzODk2OjE3ODU5MTAyOTZfVjM)
 
-![Image](https://internal-api-drive-stream-sg.larksuite.com/space/api/box/stream/download/authcode/?code=MGE2ZjQ5YWQ0ZWFkODQzZDZkNzUxZWU5YjQzMzEyZmZfODA0YzU2ZTYxMWJjOTgyMTI3MjllYTVkOGJiYmFlZDVfSUQ6NzY1OTM1NzE3ODI5MzM3NDY4M18xNzg1ODA4OTE0OjE3ODU4OTUzMTRfVjM)
+![Image](https://internal-api-drive-stream-sg.larksuite.com/space/api/box/stream/download/authcode/?code=M2I0OWU1MWQ4MDMxNTU4MjI2NzQ4MTQ2NWIxYjU4NDdfMTMxNTQ3NWU2MjNiYzBlM2FiMTJkMzQ3M2VhMGM5YzZfSUQ6NzY1OTM1NzE3ODI5MzM3NDY4M18xNzg1ODIzODk2OjE3ODU5MTAyOTZfVjM)
 
 #### 5\.3\.5\.6 Scenarios
 
@@ -4225,9 +4225,9 @@ UI của US\-06 giúp người dùng thực hiện hành động kết thúc ho�
 |**D\-07**|Bị chặn do trạng thái/điều kiện không hợp lệ|FR\-08, BR\-07|
 |**D\-08**|Không có quyền kết thúc/hủy CTKM|FR\-08|
 
-![Image](https://internal-api-drive-stream-sg.larksuite.com/space/api/box/stream/download/authcode/?code=NmY3MzIxMzA2ODczNWViMGUyNTMyZDVlY2QyYzFmMTNfZDBlZWRmZmM4NGVkMDdkNWExYjdkNTRlYzUyNWE5OWFfSUQ6NzY1OTM0Nzk1MzQyNTEyNTA4NV8xNzg1ODA4OTE0OjE3ODU4OTUzMTRfVjM)
+![Image](https://internal-api-drive-stream-sg.larksuite.com/space/api/box/stream/download/authcode/?code=YWZlODIwNWU4OWE4OGVhNmRkNGY4MDQ5YjcwY2U3ZGFfMWJhMzIzYjU3NzFlNTU0NjhhOTU0MjE1NTBjODFmM2FfSUQ6NzY1OTM0Nzk1MzQyNTEyNTA4NV8xNzg1ODIzODk2OjE3ODU5MTAyOTZfVjM)
 
-![Image](https://internal-api-drive-stream-sg.larksuite.com/space/api/box/stream/download/authcode/?code=YjBiZWZjN2M1NTAzNTQ3ODIzOTZlMTkyYmUwMWVmZTVfNDhhYjZkNTQ0M2NmZDkyZDI5ZmM2MjQyMjViNjdkYWVfSUQ6NzY1OTQ0NTY5NjQyODQxMjY0NV8xNzg1ODA4OTE0OjE3ODU4OTUzMTRfVjM)
+![Image](https://internal-api-drive-stream-sg.larksuite.com/space/api/box/stream/download/authcode/?code=ZGRlOWIyODNmZDMyNzcyODA2MTk0MmZlNGRkY2NhMTRfZTQzMWM1ODUxMGQxYTI0MjgyMGE0ZTI2OTUyZmJhY2ZfSUQ6NzY1OTQ0NTY5NjQyODQxMjY0NV8xNzg1ODIzODk2OjE3ODU5MTAyOTZfVjM)
 
 #### 5\.3\.6\.6 Scenarios
 
@@ -4394,9 +4394,9 @@ Màn hình giúp người dùng hiểu rõ CTKM nào đang được dùng làm n
 |**D\-05**|Tạo bản nháp thành công nhưng có cảnh báo|FR\-06, FR\-07|
 |**D\-06**|Error / No permission / Source changed|FR\-06, FR\-07, BR\-01|
 
-![Image](https://internal-api-drive-stream-sg.larksuite.com/space/api/box/stream/download/authcode/?code=ODI4MmIzNDZjMDkxMWJiOTNmYzlhOGM4YmJlNTMyOTBfYzFjNzYwNmIyY2Y4NGJjNTJhNzZhYzgyNDQ3NzRiNzFfSUQ6NzY1OTM1NzYzMDM0MzMwMjg4Nl8xNzg1ODA4OTE0OjE3ODU4OTUzMTRfVjM)
+![Image](https://internal-api-drive-stream-sg.larksuite.com/space/api/box/stream/download/authcode/?code=MDg0MTUzZTI5ZmUyNTY3ZjZmYzk2YTUyMmYwZmYyNjRfOGVlOTA2YWMzMjAyMThiZDUxZTBiNGJmMGU3ZDExYjNfSUQ6NzY1OTM1NzYzMDM0MzMwMjg4Nl8xNzg1ODIzODk2OjE3ODU5MTAyOTZfVjM)
 
-![Image](https://internal-api-drive-stream-sg.larksuite.com/space/api/box/stream/download/authcode/?code=ODI4YjhlZDM2NzljZjIzNWFkODMzMDMyMDFiMjY1YjZfYjIwOGQ0MzdkZWY5N2JmMWEzOTQxNzk0MDgyMTA4NTNfSUQ6NzY1OTM2MTYwNzQ4MzMzMDI3MV8xNzg1ODA4OTE0OjE3ODU4OTUzMTRfVjM)
+![Image](https://internal-api-drive-stream-sg.larksuite.com/space/api/box/stream/download/authcode/?code=ZTZkOTA1ZDRlZThhYWE5MzlmMjEwMGQ5MTY3Mjg5YTZfZDExMTFkOThiOWNlNTM2YzlmODM2MjQ4Y2IwM2ZjZDVfSUQ6NzY1OTM2MTYwNzQ4MzMzMDI3MV8xNzg1ODIzODk2OjE3ODU5MTAyOTZfVjM)
 
 #### 5\.3\.7\.6 Scenarios
 
@@ -4562,11 +4562,11 @@ UI của US\-08 giúp quản trị viên chọn nhiều CTKM từ danh sách và
 |**D\-09**|Không có quyền thao tác hàng loạt|FR\-04, BR\-01|
 |**D\-10**|Không có CTKM hợp lệ cho action đã chọn|BR\-05, BR\-06|
 
-![Image](https://internal-api-drive-stream-sg.larksuite.com/space/api/box/stream/download/authcode/?code=ZmQ1MzQ1N2U5MmFkOGVkYjI1NjY0MjY4YTZhNjI4NDFfYTMyNDU4NTIzNmFkNDgyM2ZjOWRhZmQ2ZTEyNzc2Y2ZfSUQ6NzY1OTM2MjE1NjYzNDM5NDMzMV8xNzg1ODA4OTE0OjE3ODU4OTUzMTRfVjM)
+![Image](https://internal-api-drive-stream-sg.larksuite.com/space/api/box/stream/download/authcode/?code=MzAxM2ZjNGYyZjZjYzc1MGFiODkxNGFkYmNiODkzZDRfZWY5NTBjMmQyYmRhY2QwMWNlN2Q0ZjY4N2E5YmI1YWFfSUQ6NzY1OTM2MjE1NjYzNDM5NDMzMV8xNzg1ODIzODk3OjE3ODU5MTAyOTdfVjM)
 
-![Image](https://internal-api-drive-stream-sg.larksuite.com/space/api/box/stream/download/authcode/?code=ZjdjOGZkM2MxOWYyOGE0MGExMWY4M2JiNWYxYjY1OTVfYTE5MzU5M2RjOTFhNWE2NjI0Mjg0Y2E1YmE5MTNmMGVfSUQ6NzY1OTM2ODkyNDY4NDc4MzMyNV8xNzg1ODA4OTE0OjE3ODU4OTUzMTRfVjM)
+![Image](https://internal-api-drive-stream-sg.larksuite.com/space/api/box/stream/download/authcode/?code=ZDdmZmI5ZGQ5YWIyZmVhZGFlMjZiZThiZTk4ZGI0M2FfYjhlNjM0NGNmYjQ0NTVhMTkwMmJkNjYwM2ZiMmM5NzNfSUQ6NzY1OTM2ODkyNDY4NDc4MzMyNV8xNzg1ODIzODk2OjE3ODU5MTAyOTZfVjM)
 
-![Image](https://internal-api-drive-stream-sg.larksuite.com/space/api/box/stream/download/authcode/?code=NzE3MDQ2NWEwNzFjNWM0MzAxOTc4MjQzYTNiMmI0ZDNfMTU1ODAxYmE1MTEwMGUzYzY3NWFhZTJhOWVhN2Y0NGRfSUQ6NzY1OTQyODI4MTczNjkwODUxMl8xNzg1ODA4OTE0OjE3ODU4OTUzMTRfVjM)
+![Image](https://internal-api-drive-stream-sg.larksuite.com/space/api/box/stream/download/authcode/?code=ODM0N2MwNGUwYjVhMjg3NTBlMGYyMjhlYmE5ZTY4ODNfNjU4Zjk3NjBiNDRlMTFkMTY2ZGViYmZjNDdiYzc5ZDZfSUQ6NzY1OTQyODI4MTczNjkwODUxMl8xNzg1ODIzODk2OjE3ODU5MTAyOTZfVjM)
 
 #### 5\.3\.8\.6 Scenarios
 
