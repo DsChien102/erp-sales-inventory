@@ -128,6 +128,12 @@ class _VPasswordFieldState extends State<VPasswordField> {
       onPressed: isEnabled ? _toggleObscured : null,
       icon: Icon(_obscured ? Icons.visibility_off : Icons.visibility),
       tooltip: _obscured ? 'Hiện mật khẩu' : 'Ẩn mật khẩu',
+      padding: EdgeInsets.zero,
+      visualDensity: VisualDensity.compact,
+      constraints: const BoxConstraints.tightFor(width: 24, height: 24),
+      style: const ButtonStyle(
+        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+      ),
     );
   }
 
