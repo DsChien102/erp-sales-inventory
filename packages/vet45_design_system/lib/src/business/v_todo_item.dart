@@ -27,36 +27,36 @@ class VTodoItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final dynamicColors = context.vColors;
+    final colors = context.vColors;
     Color iconBgColor;
     Color iconColor;
 
     switch (badgeStatus) {
       case VBadgeStatus.danger:
       case VBadgeStatus.overdue:
-        iconBgColor = VColors.dangerBg;
-        iconColor = VColors.danger;
+        iconBgColor = colors.dangerBg;
+        iconColor = colors.danger;
         break;
       case VBadgeStatus.warning:
       case VBadgeStatus.partiallyPaid:
       case VBadgeStatus.outstanding:
-        iconBgColor = VColors.warningBg;
-        iconColor = VColors.warning;
+        iconBgColor = colors.warningBg;
+        iconColor = colors.warning;
         break;
       case VBadgeStatus.success:
       case VBadgeStatus.completed:
       case VBadgeStatus.paid:
-        iconBgColor = VColors.successBg;
-        iconColor = VColors.success;
+        iconBgColor = colors.successBg;
+        iconColor = colors.success;
         break;
       case VBadgeStatus.info:
       case VBadgeStatus.pending:
-        iconBgColor = VColors.infoBg;
-        iconColor = VColors.info;
+        iconBgColor = colors.infoBg;
+        iconColor = colors.info;
         break;
       default:
-        iconBgColor = dynamicColors.surfaceAlt;
-        iconColor = dynamicColors.textSecondary;
+        iconBgColor = colors.surfaceAlt;
+        iconColor = colors.textSecondary;
     }
 
     return Semantics(
@@ -95,7 +95,7 @@ class VTodoItem extends StatelessWidget {
                     title,
                     style: VTypography.bodyDefault.copyWith(
                       fontWeight: FontWeight.w600,
-                      color: dynamicColors.textPrimary,
+                      color: colors.textPrimary,
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
@@ -104,7 +104,7 @@ class VTodoItem extends StatelessWidget {
                   Text(
                     subtitle,
                     style: VTypography.caption.copyWith(
-                      color: dynamicColors.textSecondary,
+                      color: colors.textSecondary,
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
@@ -120,7 +120,7 @@ class VTodoItem extends StatelessWidget {
             const SizedBox(width: VSpacing.space1),
             Icon(
               Icons.chevron_right,
-              color: dynamicColors.textMuted,
+              color: colors.textMuted,
               size: 18,
             ),
           ],

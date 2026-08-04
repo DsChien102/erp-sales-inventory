@@ -48,7 +48,7 @@ class _PrimitivesPreviewTabState extends State<PrimitivesPreviewTab> {
                             VText('textSecondary', color: colors.textSecondary),
                             VText('textMuted', color: colors.textMuted),
                             VText('textBrand', color: colors.textBrand),
-                            const VText('danger', color: VColors.danger),
+                            VText('danger', color: colors.danger),
                           ],
                         );
                       },
@@ -165,15 +165,20 @@ class _PrimitivesPreviewTabState extends State<PrimitivesPreviewTab> {
         ),
         PreviewSection(
           title: 'VIcon',
-          child: PreviewStateWrap(
-            children: const [
-              VIcon(icon: VIcons.home),
-              VIcon(icon: VIcons.person, size: 18),
-              VIcon(icon: VIcons.warning, color: VColors.warning),
-              VIcon(icon: VIcons.success, color: VColors.success, size: 28),
-              VIcon(icon: VIcons.check, color: VColors.success, size: 28),
-              VIcon(icon: VIcons.error, color: VColors.danger, size: 28),
-            ],
+          child: Builder(
+            builder: (context) {
+              final colors = context.vColors;
+              return PreviewStateWrap(
+                children: [
+                  const VIcon(icon: VIcons.home),
+                  const VIcon(icon: VIcons.person, size: 18),
+                  VIcon(icon: VIcons.warning, color: colors.warning),
+                  VIcon(icon: VIcons.success, color: colors.success, size: 28),
+                  VIcon(icon: VIcons.check, color: colors.success, size: 28),
+                  VIcon(icon: VIcons.error, color: colors.danger, size: 28),
+                ],
+              );
+            },
           ),
         ),
         const PreviewSection(

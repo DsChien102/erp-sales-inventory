@@ -317,19 +317,14 @@ class _PartnerDetailPageState extends State<PartnerDetailPage> {
                 final missingRequired = isPerson
                     ? <String>[
                         if (dto.personProfile?.taxCode?.trim().isEmpty ?? true) 'MST',
-                        if (dto.personProfile?.invoice?.invoiceAddress?.trim().isEmpty ??
-                            true)
+                        if (dto.personProfile?.invoice?.invoiceAddress?.trim().isEmpty ?? true)
                           'địa chỉ hóa đơn',
                       ]
                     : <String>[
-                        if (dto.organizationProfile?.taxCode?.trim().isEmpty ?? true)
-                          'MST',
-                        if (dto.organizationProfile?.invoice?.invoiceName?.trim().isEmpty ??
-                            true)
+                        if (dto.organizationProfile?.taxCode?.trim().isEmpty ?? true) 'MST',
+                        if (dto.organizationProfile?.invoice?.invoiceName?.trim().isEmpty ?? true)
                           'tên xuất hóa đơn',
-                        if (dto.organizationProfile?.invoice?.invoiceAddress
-                                ?.trim()
-                                .isEmpty ??
+                        if (dto.organizationProfile?.invoice?.invoiceAddress?.trim().isEmpty ??
                             true)
                           'địa chỉ hóa đơn',
                       ];
@@ -446,15 +441,15 @@ class _PartnerDetailPageState extends State<PartnerDetailPage> {
                               ),
                               const SizedBox(width: VSpacing.space3),
                               Expanded(
-                                  child: VButton(
-                                    label: 'Thao tác',
-                                    variant: VButtonVariant.primary,
-                                    trailingIcon: const VIcon(
-                                      icon: VIcons.expandLess,
-                                      size: 20,
-                                      color: VColors.neutral0,
-                                    ),
-                                    onPressed: () => _showActionSheet(context, dto),
+                                child: VButton(
+                                  label: 'Thao tác',
+                                  variant: VButtonVariant.primary,
+                                  trailingIcon: const VIcon(
+                                    icon: VIcons.expandLess,
+                                    size: 20,
+                                    color: Colors.white,
+                                  ),
+                                  onPressed: () => _showActionSheet(context, dto),
                                 ),
                               ),
                             ],

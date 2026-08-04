@@ -111,14 +111,12 @@ class _DashboardPageState extends State<DashboardPage> {
                   const SizedBox(height: VSpacing.space2),
                   TaskItem(
                     icon: Icons.handshake_outlined,
-                    iconColor: dynamicColors.danger,
-                    iconBackgroundColor: dynamicColors.dangerBg,
+                    badgeStatus: VBadgeStatus.danger,
                   ),
                   const SizedBox(height: VSpacing.space2),
                   TaskItem(
                     icon: Icons.inventory_2_outlined,
-                    iconColor: dynamicColors.warning,
-                    iconBackgroundColor: dynamicColors.warningBg,
+                    badgeStatus: VBadgeStatus.warning,
                   ),
                 ]),
               ),

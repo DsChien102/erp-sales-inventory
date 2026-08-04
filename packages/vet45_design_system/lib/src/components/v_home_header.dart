@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 // contract: na tone/emphasis/state
-import '../tokens/v_colors.dart';
 import '../tokens/v_spacing.dart';
 import '../tokens/v_typography.dart';
 import '../foundation/v_context_extensions.dart';
@@ -110,8 +109,8 @@ class VHomeHeader extends StatelessWidget {
                       child: Container(
                         width: 8,
                         height: 8,
-                        decoration: const BoxDecoration(
-                          color: VColors.warning,
+                        decoration: BoxDecoration(
+                          color: dynamicColors.warning,
                           shape: BoxShape.circle,
                         ),
                       ),

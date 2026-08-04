@@ -83,6 +83,6 @@ void main() {
       find.byKey(const Key('transform_blocked_back')),
     );
     expect(button.variant, VButtonVariant.outline);
-    expect(button.foregroundColor, VColors.success);
+    expect(button.foregroundColor, VColorScheme.light.success);
   });
 }

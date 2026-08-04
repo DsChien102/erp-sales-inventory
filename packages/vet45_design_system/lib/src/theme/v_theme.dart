@@ -16,20 +16,20 @@ class VTheme {
     return ThemeData(
       useMaterial3: true,
       brightness: Brightness.light,
-      scaffoldBackgroundColor: VColors.background,
+      scaffoldBackgroundColor: VColors.neutral25,
       fontFamily: VTypography.fontFamily,
       colorScheme: const ColorScheme.light(
         primary: VColors.primary500,
         error: VColors.danger,
-        surface: VColors.surface,
+        surface: VColors.neutral0,
       ),
       extensions: [
         VColorScheme.light,
         VDensity.fromMode(densityMode),
       ],
       appBarTheme: const AppBarTheme(
-        backgroundColor: VColors.surface,
-        foregroundColor: VColors.textPrimary,
+        backgroundColor: VColors.neutral0,
+        foregroundColor: VColors.neutral900,
         elevation: 0,
       ),
       textSelectionTheme: const TextSelectionThemeData(
@@ -39,15 +39,15 @@ class VTheme {
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: VColors.surface,
+        fillColor: VColors.neutral0,
         hoverColor: Colors.transparent,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(VRadius.input),
-          borderSide: const BorderSide(color: VColors.borderStrong),
+          borderSide: const BorderSide(color: VColors.neutral300),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(VRadius.input),
-          borderSide: const BorderSide(color: VColors.borderStrong),
+          borderSide: const BorderSide(color: VColors.neutral300),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(VRadius.input),
@@ -73,11 +73,11 @@ class VTheme {
         ),
       ),
       cardTheme: CardThemeData(
-        color: VColors.surface,
+        color: VColors.neutral0,
         elevation: 0,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(VRadius.card),
-          side: const BorderSide(color: VColors.borderDefault),
+          side: const BorderSide(color: VColors.neutral200),
         ),
       ),
     );

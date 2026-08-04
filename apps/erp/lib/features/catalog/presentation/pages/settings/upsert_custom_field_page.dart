@@ -416,7 +416,7 @@ class _UpsertCustomFieldPageState extends State<UpsertCustomFieldPage> {
                           ),
                         ),
                         IconButton(
-                          icon: const VIcon(icon: VIcons.delete, color: VColors.danger),
+                          icon: VIcon(icon: VIcons.delete, color: colors.danger),
                           onPressed: () => _removeOption(optId),
                         ),
                       ],

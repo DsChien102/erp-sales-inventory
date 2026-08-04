@@ -52,8 +52,8 @@ class PartnerDuplicateSheet extends StatelessWidget {
         children: [
           VIconBox(
             icon: VIcons.warning,
-            backgroundColor: _isExact ? VColors.dangerBg : VColors.warningBg,
-            iconColor: _isExact ? VColors.danger : VColors.warning,
+            backgroundColor: _isExact ? colors.dangerBg : colors.warningBg,
+            iconColor: _isExact ? colors.danger : colors.warning,
             isCircular: true,
             size: 48,
             iconSize: 24,

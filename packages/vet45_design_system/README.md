@@ -10,6 +10,17 @@ Import it in features or application packages:
 import 'package:vet45_design_system/design_system.dart';
 ```
 
+### Colors / theming
+
+Use **semantic** colors from the active theme — not the raw palette:
+
+```dart
+final colors = context.vColors;
+// colors.primary, colors.textPrimary, colors.danger, colors.surface, …
+```
+
+`VColors` is the primitive palette for theme builders (`VColorScheme.light` / `dark`, `VTheme`) and the Tokens preview swatches only. Do not use `VColors.*` in components, apps, or modules — dark mode and theme swaps will not apply.
+
 ## Example app
 
 Run preview app:

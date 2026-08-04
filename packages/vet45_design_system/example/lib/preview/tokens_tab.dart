@@ -30,6 +30,7 @@ class TokensPreviewTab extends StatelessWidget {
           title: 'Colors — Neutrals',
           child: _colorGrid([
             _tile('neutral0', VColors.neutral0, VColors.neutral900),
+            _tile('neutral25', VColors.neutral25, VColors.neutral900),
             _tile('neutral50', VColors.neutral50, VColors.neutral900),
             _tile('neutral100', VColors.neutral100, VColors.neutral900),
             _tile('neutral200', VColors.neutral200, VColors.neutral900),
@@ -111,9 +112,18 @@ class TokensPreviewTab extends StatelessWidget {
               Text('Radius Card: ${VRadius.card} px', style: VTypography.bodyDefault),
               Text('Radius Sheet: ${VRadius.sheet} px', style: VTypography.bodyDefault),
               const SizedBox(height: VSpacing.space3),
-              Text('Screen padding mobile: ${VSpacing.screenMobile} px', style: VTypography.bodyDefault),
-              Text('Screen padding tablet: ${VSpacing.screenTablet} px', style: VTypography.bodyDefault),
-              Text('Screen padding desktop: ${VSpacing.screenDesktop} px', style: VTypography.bodyDefault),
+              Text(
+                'Screen padding mobile: ${VSpacing.screenMobile} px',
+                style: VTypography.bodyDefault,
+              ),
+              Text(
+                'Screen padding tablet: ${VSpacing.screenTablet} px',
+                style: VTypography.bodyDefault,
+              ),
+              Text(
+                'Screen padding desktop: ${VSpacing.screenDesktop} px',
+                style: VTypography.bodyDefault,
+              ),
               Text('Breakpoint tablet ≥ ${VBreakpoints.tablet}', style: VTypography.bodyDefault),
               Text('Breakpoint desktop ≥ ${VBreakpoints.desktop}', style: VTypography.bodyDefault),
               Text('Min touch: ${VSpacing.minTouchTarget} px', style: VTypography.bodyDefault),
@@ -154,8 +164,7 @@ class TokensPreviewTab extends StatelessWidget {
       decoration: BoxDecoration(
         color: color,
         borderRadius: BorderRadius.circular(VRadius.r6),
-        // ignore: deprecated_member_use
-        border: Border.all(color: VColors.borderDefault),
+        border: Border.all(color: VColors.neutral200),
       ),
       padding: const EdgeInsets.symmetric(
         horizontal: VSpacing.space2,
@@ -196,8 +205,7 @@ class TokensPreviewTab extends StatelessWidget {
       width: 76,
       height: 76,
       decoration: BoxDecoration(
-        // ignore: deprecated_member_use
-        color: VColors.surface,
+        color: VColors.neutral0,
         borderRadius: BorderRadius.circular(VRadius.r8),
         boxShadow: shadow,
       ),

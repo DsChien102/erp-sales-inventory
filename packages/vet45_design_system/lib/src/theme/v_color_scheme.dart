@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../tokens/v_colors.dart';
 
 @immutable
@@ -67,19 +68,19 @@ class VColorScheme extends ThemeExtension<VColorScheme> {
 
   // Light theme color scheme mapping
   static final VColorScheme light = VColorScheme(
-    background: VColors.background,
-    surface: VColors.surface,
-    surfaceAlt: VColors.surfaceAlt,
-    surfaceBrand: VColors.surfaceBrand,
-    borderDefault: VColors.borderDefault,
-    borderStrong: VColors.borderStrong,
-    textPrimary: VColors.textPrimary,
-    textSecondary: VColors.textSecondary,
-    textMuted: VColors.textMuted,
+    background: VColors.neutral25,
+    surface: VColors.neutral0,
+    surfaceAlt: VColors.neutral100,
+    surfaceBrand: VColors.primary50,
+    borderDefault: VColors.neutral200,
+    borderStrong: VColors.neutral300,
+    textPrimary: VColors.neutral900,
+    textSecondary: VColors.neutral500,
+    textMuted: VColors.neutral400,
     textBrand: VColors.primary700,
-    primary: VColors.primary,
+    primary: VColors.primary500,
     primaryHover: VColors.primary600,
-    primaryPressed: VColors.primaryPressed,
+    primaryPressed: VColors.primary600,
     primaryFocus: VColors.primary500,
     surfaceHover: VColors.neutral50,
     surfacePressed: VColors.neutral100,

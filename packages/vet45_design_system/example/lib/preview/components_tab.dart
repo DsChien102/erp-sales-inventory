@@ -40,6 +40,7 @@ class _ComponentsPreviewTabState extends State<ComponentsPreviewTab> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.vColors;
     return ListView(
       padding: const EdgeInsets.all(VSpacing.screenMobile),
       children: [
@@ -1307,7 +1308,7 @@ class _ComponentsPreviewTabState extends State<ComponentsPreviewTab> {
               VFloatingActionButton(icon: VIcons.add, onTap: () {}),
               VFloatingActionButton(
                 icon: VIcons.qrCode,
-                backgroundColor: VColors.info,
+                backgroundColor: colors.info,
                 onTap: () {},
               ),
               const VFloatingActionButton(
@@ -1474,7 +1475,7 @@ class _ComponentsPreviewTabState extends State<ComponentsPreviewTab> {
               PreviewStateRow(
                 label: 'VContentWidth',
                 child: ColoredBox(
-                  color: VColors.neutral100,
+                  color: colors.surfaceAlt,
                   child: VContentWidth(
                     child: VCard(
                       child: VText(
@@ -1518,13 +1519,17 @@ class _ComponentsPreviewTabState extends State<ComponentsPreviewTab> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Container(height: 8, width: 48, color: VColors.primary100),
+                    Container(height: 8, width: 48, color: colors.surfaceBrand),
                     const VGap.xs(),
-                    Container(height: 8, width: 48, color: VColors.primary200),
+                    Container(height: 8, width: 48, color: colors.focusRing),
                     const VGap.sm(),
-                    Container(height: 8, width: 48, color: VColors.primary300),
+                    Container(
+                      height: 8,
+                      width: 48,
+                      color: colors.primary.withValues(alpha: 0.55),
+                    ),
                     const VGap.md(),
-                    Container(height: 8, width: 48, color: VColors.primary400),
+                    Container(height: 8, width: 48, color: colors.primary),
                   ],
                 ),
               ),
@@ -1532,11 +1537,11 @@ class _ComponentsPreviewTabState extends State<ComponentsPreviewTab> {
                 label: 'Horizontal',
                 child: Row(
                   children: [
-                    Container(height: 24, width: 24, color: VColors.primary100),
+                    Container(height: 24, width: 24, color: colors.surfaceBrand),
                     const VGap.horizontalSm(),
-                    Container(height: 24, width: 24, color: VColors.primary200),
+                    Container(height: 24, width: 24, color: colors.focusRing),
                     const VGap.horizontalMd(),
-                    Container(height: 24, width: 24, color: VColors.primary300),
+                    Container(height: 24, width: 24, color: colors.primary),
                   ],
                 ),
               ),

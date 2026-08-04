@@ -54,8 +54,6 @@ class _EInvoiceSettingsView extends StatelessWidget {
               // Card 1: Connection
               _SettingsItemCard(
                 icon: VIcons.power,
-                iconBackgroundColor: VColors.successBg,
-                iconColor: VColors.success,
                 title: 'Kết nối dịch vụ hóa đơn điện tử',
                 subtitle: 'Nhà cung cấp: MISA meInvoice',
                 badge: state.misaConnected
@@ -107,8 +105,6 @@ class _EInvoiceSettingsView extends StatelessWidget {
               // Card 2: Default template
               _SettingsItemCard(
                 icon: VIcons.gridView,
-                iconBackgroundColor: VColors.successBg,
-                iconColor: VColors.success,
                 title: 'Mẫu hóa đơn mặc định',
                 subtitle: state.misaConnected
                     ? (state.selectedTemplate ?? 'Chưa chọn mẫu hóa đơn')
@@ -129,8 +125,6 @@ class _EInvoiceSettingsView extends StatelessWidget {
               // Card 3: Auto-issuance and auto-send
               _SettingsItemCard(
                 icon: VIcons.bolt,
-                iconBackgroundColor: VColors.successBg,
-                iconColor: VColors.success,
                 title: 'Phát hành và gửi hóa đơn',
                 showDivider: false,
                 content: Padding(
@@ -191,8 +185,6 @@ class _EInvoiceSettingsView extends StatelessWidget {
 class _SettingsItemCard extends StatelessWidget {
   const _SettingsItemCard({
     required this.icon,
-    this.iconBackgroundColor,
-    this.iconColor,
     required this.title,
     this.subtitle,
     this.badge,
@@ -203,8 +195,6 @@ class _SettingsItemCard extends StatelessWidget {
   });
 
   final VIcons icon;
-  final Color? iconBackgroundColor;
-  final Color? iconColor;
   final String title;
   final String? subtitle;
   final Widget? badge;
@@ -230,8 +220,8 @@ class _SettingsItemCard extends StatelessWidget {
             icon: icon,
             size: 40,
             iconSize: 20,
-            backgroundColor: iconBackgroundColor ?? colors.successBg,
-            iconColor: iconColor ?? colors.success,
+            backgroundColor: colors.successBg,
+            iconColor: colors.success,
             borderRadius: VRadius.r12,
           ),
           const SizedBox(width: VSpacing.space3),

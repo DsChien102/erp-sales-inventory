@@ -135,9 +135,9 @@ class _EInvoiceAutoPageState extends State<EInvoiceAutoPage> {
                                 const SizedBox(height: VSpacing.space2),
                                 Row(
                                   children: [
-                                    const VIcon(
+                                    VIcon(
                                       icon: VIcons.info,
-                                      color: VColors.warning,
+                                      color: colors.warning,
                                       size: 16,
                                     ),
                                     const VGap.horizontalSm(),
@@ -157,9 +157,9 @@ class _EInvoiceAutoPageState extends State<EInvoiceAutoPage> {
                                 const SizedBox(height: VSpacing.space2),
                                 Row(
                                   children: [
-                                    const VIcon(
+                                    VIcon(
                                       icon: VIcons.info,
-                                      color: VColors.warning,
+                                      color: colors.warning,
                                       size: 16,
                                     ),
                                     const VGap.horizontalSm(),
@@ -228,9 +228,9 @@ class _EInvoiceAutoPageState extends State<EInvoiceAutoPage> {
                                 const SizedBox(height: VSpacing.space2),
                                 Row(
                                   children: [
-                                    const VIcon(
+                                    VIcon(
                                       icon: VIcons.info,
-                                      color: VColors.warning,
+                                      color: colors.warning,
                                       size: 16,
                                     ),
                                     const VGap.horizontalSm(),

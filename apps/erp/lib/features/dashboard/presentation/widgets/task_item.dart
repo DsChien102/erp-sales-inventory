@@ -4,8 +4,7 @@ import 'package:vet45_design_system/design_system.dart';
 class TaskItem extends StatelessWidget {
   const TaskItem({
     required this.icon,
-    required this.iconColor,
-    required this.iconBackgroundColor,
+    required this.badgeStatus,
     this.title = 'Công việc cần xử lý',
     this.subtitle = 'Mô tả công việc chi tiết',
     this.badgeLabel = 'Chờ xử lý',
@@ -13,19 +12,10 @@ class TaskItem extends StatelessWidget {
   });
 
   final IconData icon;
-  final Color iconColor;
-  final Color iconBackgroundColor;
+  final VBadgeStatus badgeStatus;
   final String title;
   final String subtitle;
   final String badgeLabel;
-
-  VBadgeStatus get _badgeStatus {
-    if (iconColor == VColors.danger) return VBadgeStatus.danger;
-    if (iconColor == VColors.success) return VBadgeStatus.success;
-    if (iconColor == VColors.info) return VBadgeStatus.info;
-    if (iconColor == VColors.warning) return VBadgeStatus.warning;
-    return VBadgeStatus.warning;
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -34,7 +24,7 @@ class TaskItem extends StatelessWidget {
       title: title,
       subtitle: subtitle,
       badgeLabel: badgeLabel,
-      badgeStatus: _badgeStatus,
+      badgeStatus: badgeStatus,
       onTap: () {},
     );
   }
