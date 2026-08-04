@@ -81,7 +81,7 @@ class CustomFieldGroupDetailPage extends StatelessWidget {
         : colors.textMuted;
     final statusBg = group.status == CustomFieldConfigStatus.active
         ? colors.successBg
-        : VColors.neutral100;
+        : colors.surfaceAlt;
     final statusText = group.status == CustomFieldConfigStatus.active ? 'Đang dùng' : 'Tạm tắt';
 
     return CustomScrollView(
@@ -140,7 +140,7 @@ class CustomFieldGroupDetailPage extends StatelessWidget {
                   ),
                   child: Row(
                     children: [
-                      const VIcon(icon: VIcons.add, size: 16, color: VColors.success),
+                      VIcon(icon: VIcons.add, size: 16, color: colors.success),
                       const VGap.horizontalXs(),
                       VText(
                         'Thêm trường',
@@ -203,7 +203,7 @@ class CustomFieldGroupDetailPage extends StatelessWidget {
                 color: colors.successBg,
                 borderRadius: BorderRadius.circular(VRadius.r12),
               ),
-              child: const VIcon(icon: VIcons.checkList, size: 32, color: VColors.success),
+              child: VIcon(icon: VIcons.checkList, size: 32, color: colors.success),
             ),
             const SizedBox(height: VSpacing.space4),
             VText(
@@ -319,7 +319,7 @@ class CustomFieldGroupDetailPage extends StatelessWidget {
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                           decoration: BoxDecoration(
-                            color: VColors.neutral100,
+                            color: colors.surfaceAlt,
                             borderRadius: BorderRadius.circular(VRadius.pill),
                           ),
                           child: VText(

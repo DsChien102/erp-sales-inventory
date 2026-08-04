@@ -11,13 +11,17 @@ class VBottomSheet extends StatelessWidget {
   final VComponentTone? tone;
   final String? semanticLabel;
 
+  /// Max height as a fraction of screen height. Defaults to 0.95.
+  final double maxHeightFraction;
+
   const VBottomSheet({
     super.key,
     this.title,
     required this.child,
     this.tone,
     this.semanticLabel,
-  });
+    this.maxHeightFraction = 0.95,
+  }) : assert(maxHeightFraction > 0 && maxHeightFraction <= 1);
 
   @override
   Widget build(BuildContext context) {
@@ -34,7 +38,7 @@ class VBottomSheet extends StatelessWidget {
       label: semanticLabel ?? title ?? 'Bottom sheet',
       child: ConstrainedBox(
         constraints: BoxConstraints(
-          maxHeight: MediaQuery.sizeOf(context).height * 0.9,
+          maxHeight: MediaQuery.sizeOf(context).height * maxHeightFraction,
         ),
         child: Container(
           decoration: BoxDecoration(
@@ -75,7 +79,6 @@ class VBottomSheet extends StatelessWidget {
                 ),
                 Divider(color: dynamicColors.borderDefault, height: 1),
               ],
-              // Avoid Flexible inside MainAxisSize.min (unbounded flex → huge overflow).
               child,
             ],
           ),
@@ -91,21 +94,30 @@ Future<T?> showVBottomSheet<T>({
   required Widget child,
   VComponentTone? tone,
   String? semanticLabel,
+  bool isDismissible = true,
+  bool enableDrag = true,
 }) {
   return showModalBottomSheet<T>(
     context: context,
     backgroundColor: Colors.transparent,
     isScrollControlled: true,
-    builder: (context) => VBottomSheet(
-      title: title,
-      tone: tone,
-      semanticLabel: semanticLabel,
-      child: Padding(
-        padding: EdgeInsets.only(
-          bottom: MediaQuery.of(context).viewInsets.bottom,
+    isDismissible: isDismissible,
+    enableDrag: enableDrag,
+    useSafeArea: false,
+    builder: (context) {
+      final bottomInset = MediaQuery.viewInsetsOf(context).bottom;
+      return VBottomSheet(
+        title: title,
+        tone: tone,
+        semanticLabel: semanticLabel,
+        child: SafeArea(
+          top: false,
+          child: Padding(
+            padding: EdgeInsets.only(bottom: bottomInset),
+            child: child,
+          ),
         ),
-        child: child,
-      ),
-    ),
+      );
+    },
   );
 }

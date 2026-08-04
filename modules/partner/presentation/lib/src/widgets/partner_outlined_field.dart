@@ -134,7 +134,7 @@ class _PartnerOutlinedMultilineTextFieldState
 
   @override
   Widget build(BuildContext context) {
-    return VTextField(
+    return VTextFormField(
       controller: _controller,
       label: widget.label,
       isRequired: widget.isRequired,

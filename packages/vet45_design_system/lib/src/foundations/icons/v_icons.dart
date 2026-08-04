@@ -103,6 +103,20 @@ enum VIcons {
   bolt,
   qrCode,
   printer,
+  share2,
+  fileCheck,
+  receiptText,
+  send,
+  minus,
+  banknoteArrowDown,
+  badgePercent,
+  scanLine,
+  clock,
+  clipboardClock,
+  rotateCcwKey,
+  fileXCorner,
+  pencil,
+  save,
 }
 
 /// Lucide font glyphs used by [VIcons].
@@ -527,6 +541,71 @@ abstract final class _Lucide {
     fontFamily: 'Lucide',
     fontPackage: 'lucide_icons_flutter',
   );
+  static const share2 = IconData(
+    57686,
+    fontFamily: 'Lucide',
+    fontPackage: 'lucide_icons_flutter',
+  );
+  static const fileCheck = IconData(
+    57537,
+    fontFamily: 'Lucide',
+    fontPackage: 'lucide_icons_flutter',
+  );
+  static const receiptText = IconData(
+    58796,
+    fontFamily: 'Lucide',
+    fontPackage: 'lucide_icons_flutter',
+  );
+  static const send = IconData(
+    57682,
+    fontFamily: 'Lucide',
+    fontPackage: 'lucide_icons_flutter',
+  );
+  static const minus = IconData(
+    57620,
+    fontFamily: 'Lucide',
+    fontPackage: 'lucide_icons_flutter',
+  );
+  static const banknote = IconData(
+    57426,
+    fontFamily: 'Lucide',
+    fontPackage: 'lucide_icons_flutter',
+  );
+  static const badgePercent = IconData(
+    58489,
+    fontFamily: 'Lucide',
+    fontPackage: 'lucide_icons_flutter',
+  );
+  static const scanLine = IconData(
+    57944,
+    fontFamily: 'Lucide',
+    fontPackage: 'lucide_icons_flutter',
+  );
+  static const clock = IconData(
+    57479,
+    fontFamily: 'Lucide',
+    fontPackage: 'lucide_icons_flutter',
+  );
+  static const clipboardClock = IconData(
+    59016,
+    fontFamily: 'Lucide',
+    fontPackage: 'lucide_icons_flutter',
+  );
+  static const fileX = IconData(
+    57549,
+    fontFamily: 'Lucide',
+    fontPackage: 'lucide_icons_flutter',
+  );
+  static const pencil = IconData(
+    57849,
+    fontFamily: 'Lucide',
+    fontPackage: 'lucide_icons_flutter',
+  );
+  static const save = IconData(
+    57677,
+    fontFamily: 'Lucide',
+    fontPackage: 'lucide_icons_flutter',
+  );
 }
 
 /// Extension helper để ánh xạ từ [VIcons] sang [IconData] của Lucide Icons
@@ -717,6 +796,34 @@ extension VIconsExtension on VIcons {
         return _Lucide.qrCode;
       case VIcons.printer:
         return _Lucide.printer;
+      case VIcons.share2:
+        return _Lucide.share2;
+      case VIcons.fileCheck:
+        return _Lucide.fileCheck;
+      case VIcons.receiptText:
+        return _Lucide.receiptText;
+      case VIcons.send:
+        return _Lucide.send;
+      case VIcons.minus:
+        return _Lucide.minus;
+      case VIcons.banknoteArrowDown:
+        return _Lucide.banknote;
+      case VIcons.badgePercent:
+        return _Lucide.badgePercent;
+      case VIcons.scanLine:
+        return _Lucide.scanLine;
+      case VIcons.clock:
+        return _Lucide.clock;
+      case VIcons.clipboardClock:
+        return _Lucide.clipboardClock;
+      case VIcons.rotateCcwKey:
+        return _Lucide.rotateCcw;
+      case VIcons.fileXCorner:
+        return _Lucide.fileX;
+      case VIcons.pencil:
+        return _Lucide.pencil;
+      case VIcons.save:
+        return _Lucide.save;
     }
   }
 }

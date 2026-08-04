@@ -61,12 +61,9 @@ class _PartnerCompactTextFieldState extends State<PartnerCompactTextField> {
         controller: _controller,
         hintText: widget.hintText,
         keyboardType: widget.keyboardType,
-        inputFormatters: widget.digitsOnly
-            ? [FilteringTextInputFormatter.digitsOnly]
-            : null,
+        inputFormatters: widget.digitsOnly ? [FilteringTextInputFormatter.digitsOnly] : null,
         onChanged: widget.onChanged,
         isDense: true,
-        contentPadding: VCompactSearchableDropdown.contentPadding,
         textStyle: VTypography.bodyDefault.copyWith(
           color: colors.textPrimary,
           height: 1.2,
@@ -96,12 +93,10 @@ class PartnerCompactMultilineTextField extends StatefulWidget {
   final ValueChanged<String>? onChanged;
 
   @override
-  State<PartnerCompactMultilineTextField> createState() =>
-      _PartnerCompactMultilineTextFieldState();
+  State<PartnerCompactMultilineTextField> createState() => _PartnerCompactMultilineTextFieldState();
 }
 
-class _PartnerCompactMultilineTextFieldState
-    extends State<PartnerCompactMultilineTextField> {
+class _PartnerCompactMultilineTextFieldState extends State<PartnerCompactMultilineTextField> {
   late final TextEditingController _controller;
 
   @override
@@ -132,11 +127,10 @@ class _PartnerCompactMultilineTextFieldState
   Widget build(BuildContext context) {
     final colors = context.vColors;
     final formatters = <TextInputFormatter>[
-      if (widget.maxLength != null)
-        LengthLimitingTextInputFormatter(widget.maxLength),
+      if (widget.maxLength != null) LengthLimitingTextInputFormatter(widget.maxLength),
     ];
 
-    return VTextField(
+    return VTextFormField(
       controller: _controller,
       hintText: widget.hintText,
       minLines: widget.minLines,
@@ -144,14 +138,6 @@ class _PartnerCompactMultilineTextFieldState
       inputFormatters: formatters.isEmpty ? null : formatters,
       onChanged: widget.onChanged,
       isDense: true,
-      contentPadding: widget.maxLength == null
-          ? VCompactSearchableDropdown.contentPadding
-          : const EdgeInsets.fromLTRB(
-              VSpacing.space3,
-              VSpacing.space3 - 1,
-              VSpacing.space3,
-              VSpacing.space8,
-            ),
       textStyle: VTypography.bodyDefault.copyWith(
         color: colors.textPrimary,
         height: 1.2,
@@ -267,9 +253,7 @@ class PartnerCompactDropdown<T> extends StatelessWidget {
                       color: enabled ? colors.surface : colors.surfaceAlt,
                       borderRadius: BorderRadius.circular(VRadius.input),
                       border: Border.all(
-                        color: enabled
-                            ? colors.borderStrong
-                            : colors.borderDefault,
+                        color: enabled ? colors.borderStrong : colors.borderDefault,
                       ),
                     ),
                     child: Padding(
@@ -286,13 +270,9 @@ class PartnerCompactDropdown<T> extends StatelessWidget {
                             ),
                           ),
                           VIcon(
-                            icon: controller.isOpen
-                                ? VIcons.chevronUp
-                                : VIcons.chevronDown,
+                            icon: controller.isOpen ? VIcons.chevronUp : VIcons.chevronDown,
                             size: 18,
-                            color: enabled
-                                ? colors.textSecondary
-                                : colors.textMuted,
+                            color: enabled ? colors.textSecondary : colors.textMuted,
                           ),
                         ],
                       ),

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 import '../foundation/v_context_extensions.dart';
 import '../foundation/v_component_contracts.dart';
-import '../tokens/v_colors.dart';
 import '../tokens/v_spacing.dart';
 import '../tokens/v_typography.dart';
 import 'models/v_choice_option.dart';
@@ -113,9 +112,9 @@ class _VChoiceListState<T> extends State<VChoiceList<T>> {
                 children: [
                   TextSpan(text: widget.title!),
                   if (widget.isRequired)
-                    const TextSpan(
+                    TextSpan(
                       text: ' *',
-                      style: TextStyle(color: VColors.danger),
+                      style: TextStyle(color: dynamicColors.danger),
                     ),
                 ],
               ),
@@ -126,7 +125,7 @@ class _VChoiceListState<T> extends State<VChoiceList<T>> {
           if (_effectiveError != null) ...[
             Text(
               _effectiveError!,
-              style: VTypography.bodySmall.copyWith(color: VColors.danger),
+              style: VTypography.bodySmall.copyWith(color: dynamicColors.danger),
             ),
           ] else if (widget.helperText != null) ...[
             Text(

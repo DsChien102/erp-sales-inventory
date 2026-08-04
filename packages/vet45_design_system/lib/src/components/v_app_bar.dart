@@ -91,7 +91,7 @@ class VAppBar extends StatelessWidget implements PreferredSizeWidget {
           (showBackButton && Navigator.of(context).canPop()
               ? IconButton(
                   icon: VIcon(
-                    icon: VIcons.arrowLeft,
+                    icon: VIcons.chevronLeft,
                     color: dynamicColors.textPrimary,
                   ),
                   onPressed: () => Navigator.of(context).pop(),

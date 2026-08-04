@@ -21,6 +21,8 @@ class _PartnerTransformSuccessToast extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.vColors;
+    // Always-dark toast chrome: textPrimary as dark panel, white foreground.
     return Container(
       key: const Key('toast_partner_transform_success'),
       margin: const EdgeInsets.symmetric(
@@ -32,41 +34,41 @@ class _PartnerTransformSuccessToast extends StatelessWidget {
         vertical: 14,
       ),
       decoration: BoxDecoration(
-        color: VColors.neutral900,
+        color: colors.textPrimary,
         borderRadius: BorderRadius.circular(VRadius.r16),
         boxShadow: VShadows.e2,
-        border: Border.all(color: VColors.neutral0.withValues(alpha: 0.06)),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
       ),
       child: Row(
         children: [
           Container(
             width: 24,
             height: 24,
-            decoration: const BoxDecoration(
-              color: VColors.success,
+            decoration: BoxDecoration(
+              color: colors.success,
               shape: BoxShape.circle,
             ),
             alignment: Alignment.center,
             child: const Icon(
               Icons.check_rounded,
-              color: VColors.neutral0,
+              color: Colors.white,
               size: 14,
             ),
           ),
           const SizedBox(width: VSpacing.space3),
-          Expanded(
+          const Expanded(
             child: VText(
               'Đã chuyển đổi thành công.',
               variant: VTextVariant.bodyDefault,
-              color: VColors.neutral0,
-              style: const TextStyle(fontWeight: FontWeight.w600),
+              color: Colors.white,
+              style: TextStyle(fontWeight: FontWeight.w600),
             ),
           ),
           GestureDetector(
             onTap: () => ScaffoldMessenger.of(context).hideCurrentSnackBar(),
             child: Icon(
               Icons.close_rounded,
-              color: VColors.neutral0.withValues(alpha: 0.54),
+              color: Colors.white.withValues(alpha: 0.54),
               size: 20,
             ),
           ),

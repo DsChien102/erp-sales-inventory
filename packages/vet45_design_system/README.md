@@ -10,6 +10,17 @@ Import it in features or application packages:
 import 'package:vet45_design_system/design_system.dart';
 ```
 
+### Colors / theming
+
+Use **semantic** colors from the active theme — not the raw palette:
+
+```dart
+final colors = context.vColors;
+// colors.primary, colors.textPrimary, colors.danger, colors.surface, …
+```
+
+`VColors` is the primitive palette for theme builders (`VColorScheme.light` / `dark`, `VTheme`) and the Tokens preview swatches only. Do not use `VColors.*` in components, apps, or modules — dark mode and theme swaps will not apply.
+
 ## Example app
 
 Run preview app:
@@ -41,7 +52,7 @@ Main tabs in the preview:
 
 Component coverage in example includes:
 - Primitives: `VBadge`, `VChip`, `VIcon`, `VIconBox`, `VText`
-- Components: `VButton`, `VCard` (+ `VCardHeader` / `VCardTitle` / `VCardIcon` / `VCardAction` / `VCardContent` / `VCardFooter`; tone→bg+border, emphasis→shadow), `VCheckbox`, `VRadio`, `VSwitch`, `VFloatingActionButton`, `VTextField`, `VSearchBar`, `VQuickActionButton`, `VTabs`, `VEmptyState`, `VToast`, `VDropdown`, `VSearchableDropdown`, `VQuantitySelector`, `VDatePickerField`, `VHomeHeader`, `VBottomNavigationBar`, `VConfirmDialog` (via `showVConfirmDialog`), `VBottomSheet` (via `showVBottomSheet`), `VAppBar`, `VTable`
+- Components: `VButton`, `VCard` (+ `VCardHeader` / `VCardTitle` / `VCardIcon` / `VCardAction` / `VCardContent` / `VCardFooter`; tone→bg+border, emphasis→shadow), `VCheckbox`, `VRadio`, `VSwitch`, `VFloatingActionButton`, `VTextField`, `VSearchBar`, `VQuickActionButton`, `VTabs`, `VEmptyState` (+ `VEmptyHeader` / `VEmptyMedia` / `VEmptyTitle` / `VEmptyDescription` / `VEmptyContent`; `bordered`/`filled` opt-in), `VToast`, `VDropdown`, `VSearchableDropdown`, `VQuantitySelector`, `VDatePickerField`, `VHomeHeader`, `VBottomNavigationBar`, `VConfirmDialog` (via `showVConfirmDialog`), `VBottomSheet` (via `showVBottomSheet`), `VAppBar`, `VTable`
 - Layout / responsive: `VBreakpoint` (mobile under 600, tablet 600+, desktop 1024+), `VResponsive`, `VResponsiveValue`, `VResponsiveVisibility`, `VContentWidth`, `VResponsiveGrid`, `VPagePadding`, `VGap`, `VSection`, `VPageScaffold`
 - Forms: `VEmailField`, `VPasswordField`, `VMoneyField`, `VNumberField`, `VSelect`, `VChoiceList`
 - Business: `VTodoItem`, `VActivityItem`, `VMetricCard`, `VCreateOrderButton`, `VRevenueCard`

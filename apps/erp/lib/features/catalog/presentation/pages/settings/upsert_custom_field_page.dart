@@ -325,7 +325,7 @@ class _UpsertCustomFieldPageState extends State<UpsertCustomFieldPage> {
                 hintText: 'Nhập tên trường',
               ),
               const SizedBox(height: VSpacing.space4),
-              VTextField(
+              VTextFormField(
                 controller: _descriptionController,
                 label: 'Mô tả (tuỳ chọn)',
                 hintText: 'Nhập mô tả',
@@ -416,7 +416,7 @@ class _UpsertCustomFieldPageState extends State<UpsertCustomFieldPage> {
                           ),
                         ),
                         IconButton(
-                          icon: const VIcon(icon: VIcons.delete, color: VColors.danger),
+                          icon: VIcon(icon: VIcons.delete, color: colors.danger),
                           onPressed: () => _removeOption(optId),
                         ),
                       ],

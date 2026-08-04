@@ -34,21 +34,21 @@ class VActivityItem extends StatelessWidget {
     switch (badgeStatus) {
       case VBadgeStatus.danger:
       case VBadgeStatus.overdue:
-        iconColor = VColors.danger;
+        iconColor = dynamicColors.danger;
         break;
       case VBadgeStatus.warning:
       case VBadgeStatus.partiallyPaid:
       case VBadgeStatus.outstanding:
-        iconColor = VColors.warning;
+        iconColor = dynamicColors.warning;
         break;
       case VBadgeStatus.success:
       case VBadgeStatus.completed:
       case VBadgeStatus.paid:
-        iconColor = VColors.success;
+        iconColor = dynamicColors.success;
         break;
       case VBadgeStatus.info:
       case VBadgeStatus.pending:
-        iconColor = VColors.info;
+        iconColor = dynamicColors.info;
         break;
       default:
         iconColor = dynamicColors.primary;

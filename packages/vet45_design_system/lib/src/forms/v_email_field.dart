@@ -23,20 +23,13 @@ class VEmailField extends StatefulWidget {
     this.enabled = true,
     this.onChanged,
     this.isRequired = false,
-    this.minLines,
-    this.maxLines = 1,
     this.inputFormatters,
     this.textStyle,
     this.textAlign = TextAlign.start,
     this.autofocus = false,
     this.focusNode,
     this.onSubmitted,
-    this.contentPadding,
-    this.fillColor,
-    this.border,
-    this.enabledBorder,
-    this.focusedBorder,
-    this.variant = VTextFieldVariant.standard,
+    this.border = true,
     this.debounceDuration = VDuration.normal,
     this.validateOnChanged = true,
     this.invalidEmailMessage = VEmailValidator.defaultInvalidEmailMessage,
@@ -63,20 +56,13 @@ class VEmailField extends StatefulWidget {
   final bool enabled;
   final ValueChanged<String>? onChanged;
   final bool isRequired;
-  final int? minLines;
-  final int? maxLines;
   final List<TextInputFormatter>? inputFormatters;
   final TextStyle? textStyle;
   final TextAlign textAlign;
   final bool autofocus;
   final FocusNode? focusNode;
   final ValueChanged<String>? onSubmitted;
-  final EdgeInsetsGeometry? contentPadding;
-  final Color? fillColor;
-  final InputBorder? border;
-  final InputBorder? enabledBorder;
-  final InputBorder? focusedBorder;
-  final VTextFieldVariant variant;
+  final bool border;
   final Duration debounceDuration;
   final bool validateOnChanged;
   final String invalidEmailMessage;
@@ -141,8 +127,6 @@ class _VEmailFieldState extends State<VEmailField> {
       keyboardType: TextInputType.emailAddress,
       onChanged: _handleChanged,
       isRequired: widget.isRequired,
-      minLines: widget.minLines,
-      maxLines: widget.maxLines,
       inputFormatters: [
         LengthLimitingTextInputFormatter(widget.maxLength),
         ...?widget.inputFormatters,
@@ -152,12 +136,7 @@ class _VEmailFieldState extends State<VEmailField> {
       autofocus: widget.autofocus,
       focusNode: widget.focusNode,
       onSubmitted: widget.onSubmitted,
-      contentPadding: widget.contentPadding,
-      fillColor: widget.fillColor,
       border: widget.border,
-      enabledBorder: widget.enabledBorder,
-      focusedBorder: widget.focusedBorder,
-      variant: widget.variant,
       tone: widget.tone,
       emphasis: widget.emphasis,
       state: (widget.errorText ?? _internalError) != null

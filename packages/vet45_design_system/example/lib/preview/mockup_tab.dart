@@ -39,7 +39,7 @@ class _AppMockupTabState extends State<VMockupTab> {
               width: 375,
               height: 760,
               decoration: BoxDecoration(
-                color: VColors.neutral900,
+                color: colors.textPrimary,
                 borderRadius: BorderRadius.circular(36),
                 boxShadow: const [
                   BoxShadow(
@@ -49,7 +49,7 @@ class _AppMockupTabState extends State<VMockupTab> {
                   ),
                 ],
                 border: Border.all(
-                  color: VColors.neutral300,
+                  color: colors.borderStrong,
                   width: 8,
                 ),
               ),
@@ -62,7 +62,7 @@ class _AppMockupTabState extends State<VMockupTab> {
                       // Simulated System Status Bar
                       Container(
                         height: 24,
-                        color: VColors.neutral900,
+                        color: colors.textPrimary,
                         padding: const EdgeInsets.symmetric(horizontal: 16),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -168,8 +168,8 @@ class _AppMockupTabState extends State<VMockupTab> {
                                             icon: const Icon(Icons.receipt_long),
                                             value: '12',
                                             label: 'Đơn hôm nay',
-                                            iconColor: VColors.info,
-                                            iconBgColor: VColors.infoBg,
+                                            iconColor: colors.info,
+                                            iconBgColor: colors.infoBg,
                                             onTap: () {},
                                           ),
                                         ),
@@ -179,8 +179,8 @@ class _AppMockupTabState extends State<VMockupTab> {
                                             icon: const Icon(Icons.account_balance_wallet),
                                             value: '3.4tr',
                                             label: 'Phải thu',
-                                            iconColor: VColors.warning,
-                                            iconBgColor: VColors.warningBg,
+                                            iconColor: colors.warning,
+                                            iconBgColor: colors.warningBg,
                                             onTap: () {},
                                           ),
                                         ),
@@ -190,8 +190,8 @@ class _AppMockupTabState extends State<VMockupTab> {
                                             icon: const Icon(Icons.inventory_2),
                                             value: '2',
                                             label: 'Sắp hết',
-                                            iconColor: VColors.danger,
-                                            iconBgColor: VColors.dangerBg,
+                                            iconColor: colors.danger,
+                                            iconBgColor: colors.dangerBg,
                                             onTap: () {},
                                           ),
                                         ),
@@ -227,13 +227,13 @@ class _AppMockupTabState extends State<VMockupTab> {
                                               Text(
                                                 'Xem tất cả',
                                                 style: VTypography.caption.copyWith(
-                                                  color: VColors.primary500,
+                                                  color: colors.primary,
                                                   fontWeight: FontWeight.w600,
                                                 ),
                                               ),
-                                              const Icon(
+                                              Icon(
                                                 Icons.chevron_right,
-                                                color: VColors.primary500,
+                                                color: colors.primary,
                                                 size: 14,
                                               ),
                                             ],
@@ -289,13 +289,13 @@ class _AppMockupTabState extends State<VMockupTab> {
                                               Text(
                                                 'Xem tất cả',
                                                 style: VTypography.caption.copyWith(
-                                                  color: VColors.primary500,
+                                                  color: colors.primary,
                                                   fontWeight: FontWeight.w600,
                                                 ),
                                               ),
-                                              const Icon(
+                                              Icon(
                                                 Icons.chevron_right,
-                                                color: VColors.primary500,
+                                                color: colors.primary,
                                                 size: 14,
                                               ),
                                             ],

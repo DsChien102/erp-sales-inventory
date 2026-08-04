@@ -27,6 +27,8 @@ class _ComponentsPreviewTabState extends State<ComponentsPreviewTab> {
   int _navIndex = 0;
   DateTime? _date;
   bool _centerTitle = false;
+  int _segmentIndex = 0;
+  int _orderLineQty = 1;
   final _textController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
 
@@ -38,6 +40,7 @@ class _ComponentsPreviewTabState extends State<ComponentsPreviewTab> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.vColors;
     return ListView(
       padding: const EdgeInsets.all(VSpacing.screenMobile),
       children: [
@@ -79,6 +82,158 @@ class _ComponentsPreviewTabState extends State<ComponentsPreviewTab> {
                       onPressed: () {},
                     ),
                   ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        PreviewSection(
+          title: 'VSegmentedControl',
+          description:
+              'Three-option mutually exclusive selection — selected uses brand fill; '
+              'overall height 44px.',
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              PreviewStateRow(
+                label: 'interactive',
+                child: VSegmentedControl(
+                  segments: const ['Mục 1', 'Mục 2', 'Mục 3'],
+                  selectedIndex: _segmentIndex,
+                  onChanged: (i) => setState(() => _segmentIndex = i),
+                ),
+              ),
+              PreviewStateRow(
+                label: 'two segments',
+                child: VSegmentedControl(
+                  segments: const ['Bán', 'Trả'],
+                  selectedIndex: 0,
+                  onChanged: _noopInt,
+                ),
+              ),
+              const PreviewStateRow(
+                label: 'disabled',
+                child: VSegmentedControl(
+                  segments: ['Mục 1', 'Mục 2', 'Mục 3'],
+                  selectedIndex: 1,
+                  enabled: false,
+                  onChanged: _noopInt,
+                ),
+              ),
+            ],
+          ),
+        ),
+        PreviewSection(
+          title: 'VSwipeActionRecord',
+          description:
+              'Swipe trái hiện action destructive. Vuốt / tap lại để đóng. '
+              'Consumer gắn confirmation trên onAction.',
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              PreviewStateRow(
+                label: 'default — vuốt trái',
+                child: VSwipeActionRecord(
+                  title: 'Record title',
+                  supportingText1: 'Supporting information',
+                  supportingText2: 'Additional context',
+                  summary: '0 items  •  0đ',
+                  timestamp: '00:00',
+                  onAction: () {},
+                  onTap: () {},
+                ),
+              ),
+              PreviewStateRow(
+                label: 'with badge',
+                child: VSwipeActionRecord(
+                  title: 'Đơn nháp cần kiểm tra',
+                  supportingText1: '0901 234 567',
+                  supportingText2: 'Ghi chú đơn',
+                  summary: '3 mặt hàng  •  450.000đ',
+                  timestamp: '14:20',
+                  badgeLabel: 'Cần kiểm tra',
+                  onAction: () {},
+                  onTap: () {},
+                ),
+              ),
+              PreviewStateRow(
+                label: 'disabled',
+                child: VSwipeActionRecord(
+                  title: 'Không thể vuốt',
+                  supportingText1: 'Supporting information',
+                  supportingText2: 'Additional context',
+                  summary: '1 item  •  100.000đ',
+                  timestamp: '09:30',
+                  enabled: false,
+                  onAction: () {},
+                ),
+              ),
+            ],
+          ),
+        ),
+        PreviewSection(
+          title: 'VNumericKeypadSheet',
+          description:
+              'Bottom sheet keypad — Quantity (có `.`) / Money (có `000`). '
+              'Preserve value until Lưu.',
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              PreviewStateRow(
+                label: 'embedded — quantity',
+                child: VNumericKeypadSheet(
+                  mode: VNumericKeypadMode.quantity,
+                  unitLabel: 'Đơn vị: Can',
+                  initialRaw: '2',
+                  onCancel: () {},
+                  onSave: (_) {},
+                ),
+              ),
+              PreviewStateRow(
+                label: 'embedded — money',
+                child: VNumericKeypadSheet(
+                  mode: VNumericKeypadMode.money,
+                  unitLabel: 'Đơn vị: VND',
+                  initialRaw: '2200000',
+                  onCancel: () {},
+                  onSave: (_) {},
+                ),
+              ),
+              PreviewStateRow(
+                label: 'show as sheet',
+                child: Wrap(
+                  spacing: VSpacing.space2,
+                  runSpacing: VSpacing.space2,
+                  children: [
+                    VButton(
+                      label: 'Nhập số lượng',
+                      onPressed: () async {
+                        final raw = await showVNumericKeypadSheet(
+                          context: context,
+                          mode: VNumericKeypadMode.quantity,
+                          unitLabel: 'Đơn vị: Can',
+                          initialRaw: '$_orderLineQty',
+                        );
+                        if (raw != null && mounted) {
+                          final parsed = int.tryParse(raw.split('.').first);
+                          if (parsed != null) {
+                            setState(() => _orderLineQty = parsed);
+                          }
+                        }
+                      },
+                    ),
+                    VButton(
+                      label: 'Nhập số tiền',
+                      variant: VButtonVariant.secondary,
+                      onPressed: () {
+                        showVNumericKeypadSheet(
+                          context: context,
+                          mode: VNumericKeypadMode.money,
+                          initialRaw: '2200000',
+                        );
+                      },
+                    ),
+                  ],
                 ),
               ),
             ],
@@ -230,6 +385,9 @@ class _ComponentsPreviewTabState extends State<ComponentsPreviewTab> {
         ),
         PreviewSection(
           title: 'VTextField',
+          description:
+              'States: enabled / disabled / error. '
+              'Tone, emphasis, prefix/suffix icon & suffixText, required, dense, border toggle.',
           child: Column(
             children: [
               const PreviewStateRow(
@@ -237,7 +395,7 @@ class _ComponentsPreviewTabState extends State<ComponentsPreviewTab> {
                 child: VTextField(hintText: 'Enter text…'),
               ),
               PreviewStateRow(
-                label: 'Label + helper',
+                label: 'Label + helper + value',
                 child: VTextField(
                   controller: _textController,
                   label: 'Customer phone',
@@ -245,15 +403,24 @@ class _ComponentsPreviewTabState extends State<ComponentsPreviewTab> {
                   helperText: 'We will send SMS.',
                 ),
               ),
-              PreviewStateRow(
+              const PreviewStateRow(
+                label: 'Required',
+                child: VTextField(
+                  label: 'Tax code',
+                  hintText: 'Required field',
+                  isRequired: true,
+                ),
+              ),
+              const PreviewStateRow(
                 label: 'Error',
                 child: VTextField(
                   label: 'Email',
+                  hintText: 'name@company.com',
                   errorText: 'Email address is invalid.',
                 ),
               ),
               const PreviewStateRow(
-                label: 'Disabled',
+                label: 'Disabled (enabled: false)',
                 child: VTextField(
                   label: 'Store code',
                   hintText: 'VET45_HCM_01',
@@ -261,22 +428,93 @@ class _ComponentsPreviewTabState extends State<ComponentsPreviewTab> {
                   prefixIcon: Icon(Icons.store),
                 ),
               ),
+              const PreviewStateRow(
+                label: 'State disabled',
+                child: VTextField(
+                  label: 'Locked',
+                  hintText: 'Cannot edit',
+                  state: VComponentState.disabled,
+                ),
+              ),
+              const PreviewStateRow(
+                label: 'Prefix icon',
+                child: VTextField(
+                  label: 'Search SKU',
+                  hintText: 'AMX-500',
+                  prefixIcon: Icon(Icons.search),
+                ),
+              ),
               PreviewStateRow(
-                label: 'Password + suffix',
+                label: 'Suffix icon (password)',
                 child: VTextField(
                   label: 'Password',
                   obscureText: _obscure,
+                  hintText: '••••••••',
                   suffixIcon: IconButton(
-                    icon: Icon(_obscure ? Icons.visibility : Icons.visibility_off),
+                    icon: Icon(
+                      _obscure ? Icons.visibility : Icons.visibility_off,
+                    ),
                     onPressed: () => setState(() => _obscure = !_obscure),
                   ),
                 ),
               ),
               const PreviewStateRow(
-                label: 'Inline variant',
+                label: 'Suffix text',
                 child: VTextField(
-                  variant: VTextFieldVariant.inline,
-                  hintText: 'Inline edit',
+                  label: 'Weight',
+                  hintText: '0',
+                  keyboardType: TextInputType.number,
+                  suffixText: 'kg',
+                ),
+              ),
+              const PreviewStateRow(
+                label: 'Prefix + suffix text',
+                child: VTextField(
+                  label: 'Amount',
+                  hintText: '0',
+                  keyboardType: TextInputType.number,
+                  prefixIcon: Icon(Icons.payments_outlined),
+                  suffixText: 'VND',
+                ),
+              ),
+              const PreviewStateRow(
+                label: 'Tone primary',
+                child: VTextField(
+                  label: 'Brand focus',
+                  hintText: 'Primary border',
+                  tone: VComponentTone.primary,
+                ),
+              ),
+              const PreviewStateRow(
+                label: 'Tone danger',
+                child: VTextField(
+                  label: 'Critical',
+                  hintText: 'Danger border',
+                  tone: VComponentTone.danger,
+                ),
+              ),
+              const PreviewStateRow(
+                label: 'Emphasis strong',
+                child: VTextField(
+                  label: 'Strong border',
+                  hintText: 'Thicker outline',
+                  emphasis: VComponentEmphasis.strong,
+                ),
+              ),
+              const PreviewStateRow(
+                label: 'Dense',
+                child: VTextField(
+                  label: 'Compact',
+                  hintText: 'isDense',
+                  isDense: true,
+                ),
+              ),
+              const PreviewStateRow(
+                label: 'No border',
+                child: VTextField(
+                  label: 'Borderless',
+                  hintText: 'border: false',
+                  border: false,
                 ),
               ),
             ],
@@ -926,12 +1164,59 @@ class _ComponentsPreviewTabState extends State<ComponentsPreviewTab> {
         ),
         PreviewSection(
           title: 'VEmptyState',
-          child: VEmptyState(
-            iconData: Icons.inbox_outlined,
-            title: 'No orders yet',
-            description: 'Create your first sales order to get started.',
-            actionLabel: 'Create order',
-            onActionPressed: () {},
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              VEmptyState(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const VEmptyHeader(
+                      children: [
+                        VEmptyMedia(iconData: Icons.inbox_outlined),
+                        VEmptyTitle('No orders yet'),
+                        VEmptyDescription(
+                          'Create your first sales order to get started.',
+                        ),
+                      ],
+                    ),
+                    const VGap.xl(),
+                    VEmptyContent(
+                      child: VButton(
+                        label: 'Create order',
+                        onPressed: () {},
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const VGap.lg(),
+              VEmptyState(
+                bordered: true,
+                filled: true,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const VEmptyHeader(
+                      children: [
+                        VEmptyMedia(iconData: Icons.cloud_outlined),
+                        VEmptyTitle('Cloud storage empty'),
+                        VEmptyDescription(
+                          'Upload files to access them anywhere.',
+                        ),
+                      ],
+                    ),
+                    const VGap.xl(),
+                    VEmptyContent(
+                      child: VButton(
+                        label: 'Upload files',
+                        onPressed: () {},
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
         ),
         PreviewSection(
@@ -1023,7 +1308,7 @@ class _ComponentsPreviewTabState extends State<ComponentsPreviewTab> {
               VFloatingActionButton(icon: VIcons.add, onTap: () {}),
               VFloatingActionButton(
                 icon: VIcons.qrCode,
-                backgroundColor: VColors.info,
+                backgroundColor: colors.info,
                 onTap: () {},
               ),
               const VFloatingActionButton(
@@ -1190,7 +1475,7 @@ class _ComponentsPreviewTabState extends State<ComponentsPreviewTab> {
               PreviewStateRow(
                 label: 'VContentWidth',
                 child: ColoredBox(
-                  color: VColors.neutral100,
+                  color: colors.surfaceAlt,
                   child: VContentWidth(
                     child: VCard(
                       child: VText(
@@ -1234,13 +1519,17 @@ class _ComponentsPreviewTabState extends State<ComponentsPreviewTab> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Container(height: 8, width: 48, color: VColors.primary100),
+                    Container(height: 8, width: 48, color: colors.surfaceBrand),
                     const VGap.xs(),
-                    Container(height: 8, width: 48, color: VColors.primary200),
+                    Container(height: 8, width: 48, color: colors.focusRing),
                     const VGap.sm(),
-                    Container(height: 8, width: 48, color: VColors.primary300),
+                    Container(
+                      height: 8,
+                      width: 48,
+                      color: colors.primary.withValues(alpha: 0.55),
+                    ),
                     const VGap.md(),
-                    Container(height: 8, width: 48, color: VColors.primary400),
+                    Container(height: 8, width: 48, color: colors.primary),
                   ],
                 ),
               ),
@@ -1248,11 +1537,11 @@ class _ComponentsPreviewTabState extends State<ComponentsPreviewTab> {
                 label: 'Horizontal',
                 child: Row(
                   children: [
-                    Container(height: 24, width: 24, color: VColors.primary100),
+                    Container(height: 24, width: 24, color: colors.surfaceBrand),
                     const VGap.horizontalSm(),
-                    Container(height: 24, width: 24, color: VColors.primary200),
+                    Container(height: 24, width: 24, color: colors.focusRing),
                     const VGap.horizontalMd(),
-                    Container(height: 24, width: 24, color: VColors.primary300),
+                    Container(height: 24, width: 24, color: colors.primary),
                   ],
                 ),
               ),

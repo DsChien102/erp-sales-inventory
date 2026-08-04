@@ -21,11 +21,11 @@ void main() {
 
     testWidgets('custom color is applied', (tester) async {
       await tester.pumpWidget(
-        wrap(const VText('Colored', color: VColors.danger)),
+        wrap(VText('Colored', color: VColorScheme.light.danger)),
       );
 
       final text = tester.widget<Text>(find.text('Colored'));
-      expect(text.style?.color, VColors.danger);
+      expect(text.style?.color, VColorScheme.light.danger);
     });
 
     testWidgets('variant maps to typography fontSize', (tester) async {

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../tokens/v_colors.dart';
 import '../tokens/v_spacing.dart';
 import '../tokens/v_radius.dart';
 import '../tokens/v_typography.dart';
@@ -84,38 +83,38 @@ class VBadge extends StatelessWidget {
       case VBadgeStatus.success:
       case VBadgeStatus.completed:
       case VBadgeStatus.paid:
-        backgroundColor = VColors.successBg;
-        textColor = VColors.success;
+        backgroundColor = dynamicColors.successBg;
+        textColor = dynamicColors.success;
         break;
 
       case VBadgeStatus.warning:
       case VBadgeStatus.partiallyPaid:
       case VBadgeStatus.outstanding:
-        backgroundColor = VColors.warningBg;
-        textColor = VColors.warning;
+        backgroundColor = dynamicColors.warningBg;
+        textColor = dynamicColors.warning;
         break;
 
       case VBadgeStatus.danger:
       case VBadgeStatus.overdue:
-        backgroundColor = VColors.dangerBg;
-        textColor = VColors.danger;
+        backgroundColor = dynamicColors.dangerBg;
+        textColor = dynamicColors.danger;
         break;
 
       case VBadgeStatus.info:
       case VBadgeStatus.pending:
-        backgroundColor = VColors.infoBg;
-        textColor = VColors.info;
+        backgroundColor = dynamicColors.infoBg;
+        textColor = dynamicColors.info;
         break;
 
       case VBadgeStatus.processing:
-        backgroundColor = VColors.secondarySurface;
+        backgroundColor = dynamicColors.surfaceBrand;
         textColor = dynamicColors.primary;
         break;
 
       case VBadgeStatus.draft:
       case VBadgeStatus.cancelled:
-        backgroundColor = VColors.neutral100;
-        textColor = VColors.neutral600;
+        backgroundColor = dynamicColors.surfaceAlt;
+        textColor = dynamicColors.textSecondary;
         break;
 
       case VBadgeStatus.locked:
@@ -128,23 +127,23 @@ class VBadge extends StatelessWidget {
     if (tone != null) {
       switch (resolvedTone) {
         case VComponentTone.success:
-          backgroundColor = VColors.successBg;
-          textColor = VColors.success;
+          backgroundColor = dynamicColors.successBg;
+          textColor = dynamicColors.success;
         case VComponentTone.warning:
-          backgroundColor = VColors.warningBg;
-          textColor = VColors.warning;
+          backgroundColor = dynamicColors.warningBg;
+          textColor = dynamicColors.warning;
         case VComponentTone.danger:
-          backgroundColor = VColors.dangerBg;
-          textColor = VColors.danger;
+          backgroundColor = dynamicColors.dangerBg;
+          textColor = dynamicColors.danger;
         case VComponentTone.info:
-          backgroundColor = VColors.infoBg;
-          textColor = VColors.info;
+          backgroundColor = dynamicColors.infoBg;
+          textColor = dynamicColors.info;
         case VComponentTone.primary:
-          backgroundColor = VColors.secondarySurface;
+          backgroundColor = dynamicColors.surfaceBrand;
           textColor = dynamicColors.primary;
         case VComponentTone.neutral:
-          backgroundColor = VColors.neutral100;
-          textColor = VColors.neutral600;
+          backgroundColor = dynamicColors.surfaceAlt;
+          textColor = dynamicColors.textSecondary;
       }
     }
 

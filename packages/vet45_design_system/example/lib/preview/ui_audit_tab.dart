@@ -32,6 +32,11 @@ class UIAuditTab extends StatelessWidget {
     'VQuickActionButton',
     'VTabs',
     'VEmptyState',
+    'VEmptyHeader',
+    'VEmptyMedia',
+    'VEmptyTitle',
+    'VEmptyDescription',
+    'VEmptyContent',
     'VBanner',
     'VFileDropZone',
     'VToast',
@@ -42,6 +47,9 @@ class UIAuditTab extends StatelessWidget {
     'VSearchableDropdown',
     'VCompactSearchableDropdown',
     'VQuantitySelector',
+    'VSegmentedControl',
+    'VSwipeActionRecord',
+    'VNumericKeypadSheet',
     'VDatePickerField',
     'VHomeHeader',
     'VBottomNavigationBar',
@@ -102,10 +110,10 @@ class UIAuditTab extends StatelessWidget {
             spacing: VSpacing.space2,
             runSpacing: VSpacing.space2,
             children: [
-              _metricChip('Tổng component', '$total'),
-              _metricChip('Đã có demo', '$covered/$total'),
-              _metricChip('Có Semantics', '$withSemantics/$total'),
-              _metricChip('Missing required', '$missingRequired'),
+              _metricChip('Tổng component', '$total', colors.surfaceAlt),
+              _metricChip('Đã có demo', '$covered/$total', colors.surfaceAlt),
+              _metricChip('Có Semantics', '$withSemantics/$total', colors.surfaceAlt),
+              _metricChip('Missing required', '$missingRequired', colors.surfaceAlt),
             ],
           ),
         ),
@@ -181,14 +189,14 @@ class UIAuditTab extends StatelessWidget {
     return parent != null && _exampleCoverage.contains(parent);
   }
 
-  Widget _metricChip(String label, String value) {
+  Widget _metricChip(String label, String value, Color background) {
     return Container(
       padding: const EdgeInsets.symmetric(
         horizontal: VSpacing.space2,
         vertical: VSpacing.space1,
       ),
       decoration: BoxDecoration(
-        color: VColors.neutral100,
+        color: background,
         borderRadius: BorderRadius.circular(VRadius.pill),
       ),
       child: Text('$label: $value', style: VTypography.bodySmall),

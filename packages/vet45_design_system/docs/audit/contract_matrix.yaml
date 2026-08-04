@@ -256,6 +256,27 @@ VTabs:
   state: na
   semanticLabel: optional
 
+VSegmentedControl:
+  role: navigation_chrome
+  tone: preferred
+  emphasis: preferred
+  state: preferred
+  semanticLabel: preferred
+
+VSwipeActionRecord:
+  role: business_chrome
+  tone: preferred
+  emphasis: preferred
+  state: preferred
+  semanticLabel: preferred
+
+VNumericKeypadSheet:
+  role: overlay_shell
+  tone: preferred
+  emphasis: preferred
+  state: optional
+  semanticLabel: preferred
+
 VSteps:
   role: navigation_chrome
   tone: optional

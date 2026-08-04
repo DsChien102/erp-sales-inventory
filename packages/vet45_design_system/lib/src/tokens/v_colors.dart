@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 class VColors {
   VColors._();
 
-  static const Color primary50 = Color(0xFFF1F9F2);
+  static const Color primary50 = Color(0xFFE8F6EC);
   static const Color primary100 = Color(0xFFDCEFDE);
   static const Color primary200 = Color(0xFFB8DFBD);
   static const Color primary300 = Color(0xFF8DCB96);
@@ -14,9 +14,8 @@ class VColors {
   static const Color primary800 = Color(0xFF1F4D26);
   static const Color primary900 = Color(0xFF163A1C);
 
-  static const Color secondarySurface = Color(0xFFEBF4EC);
-
   static const Color neutral0 = Color(0xFFFFFFFF);
+  static const Color neutral25 = Color(0xFFF6F8F9);
   static const Color neutral50 = Color(0xFFF8FAFB);
   static const Color neutral100 = Color(0xFFF1F3F5);
   static const Color neutral200 = Color(0xFFE5E8EB);
@@ -36,27 +35,4 @@ class VColors {
   static const Color dangerPressed = Color(0xFFB53232);
   static const Color info = Color(0xFF2F6FE0);
   static const Color infoBg = Color(0xFFE8F0FC);
-
-  @Deprecated('use v_color_scheme.dart')
-  static const Color background = Color(0xFFF6F8F9);
-  @Deprecated('use v_color_scheme.dart')
-  static const Color surface = Color(0xFFFFFFFF);
-  @Deprecated('use v_color_scheme.dart')
-  static const Color surfaceAlt = Color(0xFFF1F3F5);
-  @Deprecated('use v_color_scheme.dart')
-  static const Color surfaceBrand = Color(0xFFEBF4EC);
-  @Deprecated('use v_color_scheme.dart')
-  static const Color borderDefault = Color(0xFFE5E8EB);
-  @Deprecated('use v_color_scheme.dart')
-  static const Color borderStrong = Color(0xFFD0D5DA);
-  @Deprecated('use v_color_scheme.dart')
-  static const Color primary = primary500;
-  @Deprecated('use v_color_scheme.dart')
-  static const Color primaryPressed = primary600;
-  @Deprecated('use v_color_scheme.dart')
-  static const Color textPrimary = neutral900;
-  @Deprecated('use v_color_scheme.dart')
-  static const Color textSecondary = neutral500;
-  @Deprecated('use v_color_scheme.dart')
-  static const Color textMuted = neutral400;
 }

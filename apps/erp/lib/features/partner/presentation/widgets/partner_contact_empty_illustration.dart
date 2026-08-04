@@ -71,7 +71,7 @@ class PartnerContactEmptyIllustration extends StatelessWidget {
               ),
               child: const VIcon(
                 icon: VIcons.add,
-                color: VColors.neutral0,
+                color: Colors.white,
                 size: 16,
               ),
             ),

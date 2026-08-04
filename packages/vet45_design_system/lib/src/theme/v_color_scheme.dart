@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../tokens/v_colors.dart';
 
 @immutable
@@ -12,6 +13,7 @@ class VColorScheme extends ThemeExtension<VColorScheme> {
   final Color textPrimary;
   final Color textSecondary;
   final Color textMuted;
+  final Color textBrand;
   final Color primary;
   final Color primaryHover;
   final Color primaryPressed;
@@ -43,6 +45,7 @@ class VColorScheme extends ThemeExtension<VColorScheme> {
     required this.textPrimary,
     required this.textSecondary,
     required this.textMuted,
+    required this.textBrand,
     required this.primary,
     required this.primaryHover,
     required this.primaryPressed,
@@ -65,18 +68,19 @@ class VColorScheme extends ThemeExtension<VColorScheme> {
 
   // Light theme color scheme mapping
   static final VColorScheme light = VColorScheme(
-    background: VColors.background,
-    surface: VColors.surface,
-    surfaceAlt: VColors.surfaceAlt,
-    surfaceBrand: VColors.surfaceBrand,
-    borderDefault: VColors.borderDefault,
-    borderStrong: VColors.borderStrong,
-    textPrimary: VColors.textPrimary,
-    textSecondary: VColors.textSecondary,
-    textMuted: VColors.textMuted,
-    primary: VColors.primary,
+    background: VColors.neutral25,
+    surface: VColors.neutral0,
+    surfaceAlt: VColors.neutral100,
+    surfaceBrand: VColors.primary50,
+    borderDefault: VColors.neutral200,
+    borderStrong: VColors.neutral300,
+    textPrimary: VColors.neutral900,
+    textSecondary: VColors.neutral500,
+    textMuted: VColors.neutral400,
+    textBrand: VColors.primary700,
+    primary: VColors.primary500,
     primaryHover: VColors.primary600,
-    primaryPressed: VColors.primaryPressed,
+    primaryPressed: VColors.primary600,
     primaryFocus: VColors.primary500,
     surfaceHover: VColors.neutral50,
     surfacePressed: VColors.neutral100,
@@ -105,6 +109,7 @@ class VColorScheme extends ThemeExtension<VColorScheme> {
     textPrimary: VColors.neutral0,
     textSecondary: VColors.neutral300,
     textMuted: VColors.neutral400,
+    textBrand: VColors.primary300,
     primary: VColors.primary400,
     primaryHover: VColors.primary300,
     primaryPressed: VColors.primary300,
@@ -136,6 +141,7 @@ class VColorScheme extends ThemeExtension<VColorScheme> {
     Color? textPrimary,
     Color? textSecondary,
     Color? textMuted,
+    Color? textBrand,
     Color? primary,
     Color? primaryHover,
     Color? primaryPressed,
@@ -165,6 +171,7 @@ class VColorScheme extends ThemeExtension<VColorScheme> {
       textPrimary: textPrimary ?? this.textPrimary,
       textSecondary: textSecondary ?? this.textSecondary,
       textMuted: textMuted ?? this.textMuted,
+      textBrand: textBrand ?? this.textBrand,
       primary: primary ?? this.primary,
       primaryHover: primaryHover ?? this.primaryHover,
       primaryPressed: primaryPressed ?? this.primaryPressed,
@@ -201,6 +208,7 @@ class VColorScheme extends ThemeExtension<VColorScheme> {
       textPrimary: Color.lerp(textPrimary, other.textPrimary, t)!,
       textSecondary: Color.lerp(textSecondary, other.textSecondary, t)!,
       textMuted: Color.lerp(textMuted, other.textMuted, t)!,
+      textBrand: Color.lerp(textBrand, other.textBrand, t)!,
       primary: Color.lerp(primary, other.primary, t)!,
       primaryHover: Color.lerp(primaryHover, other.primaryHover, t)!,
       primaryPressed: Color.lerp(primaryPressed, other.primaryPressed, t)!,

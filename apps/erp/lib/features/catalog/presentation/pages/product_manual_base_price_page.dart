@@ -237,7 +237,7 @@ class _ProductManualBasePriceViewState extends State<_ProductManualBasePriceView
                                   color: dynamicColors.textSecondary,
                                 ),
                                 const SizedBox(height: VSpacing.space2),
-                                VTextField(
+                                VTextFormField(
                                   controller: _noteController,
                                   hintText: 'Nhập ghi chú...',
                                   maxLines: 4,

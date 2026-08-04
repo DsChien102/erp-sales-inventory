@@ -78,10 +78,6 @@ class _PartnerTransformLabeledTextFieldState extends State<PartnerTransformLabel
             errorText: widget.errorText,
             onChanged: widget.onChanged,
             validateOnChanged: widget.emailValidateOnChanged,
-            contentPadding: const EdgeInsets.symmetric(
-              horizontal: VSpacing.space3,
-              vertical: 10,
-            ),
           )
         else
           VTextField(
@@ -91,10 +87,6 @@ class _PartnerTransformLabeledTextFieldState extends State<PartnerTransformLabel
             errorText: widget.errorText,
             onChanged: widget.onChanged,
             inputFormatters: widget.digitsOnly ? [FilteringTextInputFormatter.digitsOnly] : null,
-            contentPadding: const EdgeInsets.symmetric(
-              horizontal: VSpacing.space3,
-              vertical: 10,
-            ),
           ),
       ],
     );

@@ -29,17 +29,11 @@ class VPasswordField extends StatefulWidget {
     this.autofocus = false,
     this.focusNode,
     this.onSubmitted,
-    this.contentPadding,
-    this.fillColor,
-    this.border,
-    this.enabledBorder,
-    this.focusedBorder,
-    this.variant = VTextFieldVariant.standard,
+    this.border = true,
     this.debounceDuration = VDuration.normal,
     this.validateOnChanged = true,
     this.initiallyObscured = true,
-    this.requiredPasswordMessage =
-        VPasswordValidator.defaultRequiredPasswordMessage,
+    this.requiredPasswordMessage = VPasswordValidator.defaultRequiredPasswordMessage,
     this.minLength = VPasswordValidator.defaultMinLength,
     this.maxLength = VPasswordValidator.defaultMaxLength,
     this.minLengthPasswordMessage,
@@ -68,12 +62,7 @@ class VPasswordField extends StatefulWidget {
   final bool autofocus;
   final FocusNode? focusNode;
   final ValueChanged<String>? onSubmitted;
-  final EdgeInsetsGeometry? contentPadding;
-  final Color? fillColor;
-  final InputBorder? border;
-  final InputBorder? enabledBorder;
-  final InputBorder? focusedBorder;
-  final VTextFieldVariant variant;
+  final bool border;
   final Duration debounceDuration;
   final bool validateOnChanged;
   final bool initiallyObscured;
@@ -134,12 +123,17 @@ class _VPasswordFieldState extends State<VPasswordField> {
 
   Widget? get _resolvedSuffixIcon {
     if (widget.suffixIcon != null) return widget.suffixIcon;
-    final isEnabled =
-        widget.enabled && widget.state != VComponentState.disabled;
+    final isEnabled = widget.enabled && widget.state != VComponentState.disabled;
     return IconButton(
       onPressed: isEnabled ? _toggleObscured : null,
       icon: Icon(_obscured ? Icons.visibility_off : Icons.visibility),
       tooltip: _obscured ? 'Hiện mật khẩu' : 'Ẩn mật khẩu',
+      padding: EdgeInsets.zero,
+      visualDensity: VisualDensity.compact,
+      constraints: const BoxConstraints.tightFor(width: 24, height: 24),
+      style: const ButtonStyle(
+        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+      ),
     );
   }
 
@@ -160,7 +154,6 @@ class _VPasswordFieldState extends State<VPasswordField> {
       keyboardType: TextInputType.visiblePassword,
       onChanged: _handleChanged,
       isRequired: widget.isRequired,
-      maxLines: 1,
       inputFormatters: [
         LengthLimitingTextInputFormatter(widget.maxLength),
         ...?widget.inputFormatters,
@@ -170,12 +163,7 @@ class _VPasswordFieldState extends State<VPasswordField> {
       autofocus: widget.autofocus,
       focusNode: widget.focusNode,
       onSubmitted: widget.onSubmitted,
-      contentPadding: widget.contentPadding,
-      fillColor: widget.fillColor,
       border: widget.border,
-      enabledBorder: widget.enabledBorder,
-      focusedBorder: widget.focusedBorder,
-      variant: widget.variant,
       tone: widget.tone,
       emphasis: widget.emphasis,
       state: (widget.errorText ?? _internalError) != null

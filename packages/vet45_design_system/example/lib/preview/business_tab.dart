@@ -8,6 +8,7 @@ class BusinessPreviewTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.vColors;
     return ListView(
       padding: const EdgeInsets.all(VSpacing.screenMobile),
       children: [
@@ -54,8 +55,8 @@ class BusinessPreviewTab extends StatelessWidget {
                   icon: const Icon(Icons.receipt_long),
                   value: '12',
                   label: 'Đơn hôm nay',
-                  iconColor: VColors.info,
-                  iconBgColor: VColors.infoBg,
+                  iconColor: colors.info,
+                  iconBgColor: colors.infoBg,
                   onTap: () {},
                 ),
               ),
@@ -65,8 +66,8 @@ class BusinessPreviewTab extends StatelessWidget {
                   icon: const Icon(Icons.inventory_2),
                   value: '0',
                   label: 'Sắp hết',
-                  iconColor: VColors.danger,
-                  iconBgColor: VColors.dangerBg,
+                  iconColor: colors.danger,
+                  iconBgColor: colors.dangerBg,
                 ),
               ),
             ],

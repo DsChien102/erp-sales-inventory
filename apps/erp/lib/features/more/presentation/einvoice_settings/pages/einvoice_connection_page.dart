@@ -267,7 +267,9 @@ class _EInvoiceConnectionPageState extends State<EInvoiceConnectionPage> {
 
                             // Password
                             VTextField(
-                              label: state.misaConnected ? 'Mật khẩu (để trống nếu không đổi)' : 'Mật khẩu',
+                              label: state.misaConnected
+                                  ? 'Mật khẩu (để trống nếu không đổi)'
+                                  : 'Mật khẩu',
                               controller: _passwordController,
                               enabled: !state.isSubmitting,
                               isRequired: !state.misaConnected,
@@ -282,9 +284,7 @@ class _EInvoiceConnectionPageState extends State<EInvoiceConnectionPage> {
                                   });
                                 },
                                 icon: VIcon(
-                                  icon: _obscurePassword
-                                      ? VIcons.visibility
-                                      : VIcons.visibilityOff,
+                                  icon: _obscurePassword ? VIcons.visibility : VIcons.visibilityOff,
                                   color: colors.textSecondary,
                                 ),
                               ),
@@ -320,7 +320,11 @@ class _EInvoiceConnectionPageState extends State<EInvoiceConnectionPage> {
                         const SizedBox(height: VSpacing.space4),
                         VButton(
                           label: 'Kiểm tra lại kết nối',
-                          leadingIcon: VIcon(icon: VIcons.refresh, color: colors.textPrimary, size: 18),
+                          leadingIcon: VIcon(
+                            icon: VIcons.refresh,
+                            color: colors.textPrimary,
+                            size: 18,
+                          ),
                           variant: VButtonVariant.outline,
                           fullWidth: true,
                           isLoading: state.isSubmitting,
@@ -340,9 +344,9 @@ class _EInvoiceConnectionPageState extends State<EInvoiceConnectionPage> {
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                const VIcon(
+                                VIcon(
                                   icon: VIcons.powerOff,
-                                  color: VColors.danger,
+                                  color: colors.danger,
                                   size: 18,
                                 ),
                                 const SizedBox(width: VSpacing.space2),
@@ -375,7 +379,6 @@ class _EInvoiceConnectionPageState extends State<EInvoiceConnectionPage> {
                   ),
                   child: VButton(
                     label: 'Lưu & kiểm tra kết nối',
-                    leadingIcon: const VIcon(icon: VIcons.check, color: VColors.neutral0, size: 18),
                     isLoading: state.isSubmitting,
                     fullWidth: true,
                     onPressed: (state.isSubmitting || !_isFormValid) ? null : _submit,

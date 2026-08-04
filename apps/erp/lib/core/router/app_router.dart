@@ -113,11 +113,10 @@ final appRouter = GoRouter(
           WidgetsBinding.instance.addPostFrameCallback((_) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                content: Text(
+                content: VText(
                   'Bạn không có quyền thiết lập hóa đơn điện tử',
-                  style: VTypography.bodyDefault.copyWith(color: VColors.neutral0),
                 ),
-                backgroundColor: VColors.danger,
+                backgroundColor: context.vColors.danger,
                 behavior: SnackBarBehavior.floating,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(VRadius.card),
@@ -262,8 +261,7 @@ final appRouter = GoRouter(
       builder: (context, state) {
         final partnerId = state.pathParameters['partnerId']!;
         final showCreateSuccessToast = state.uri.queryParameters['created'] == '1';
-        final showTransformSuccessToast =
-            state.uri.queryParameters['transformed'] == '1';
+        final showTransformSuccessToast = state.uri.queryParameters['transformed'] == '1';
         return PartnerDetailPage(
           partnerId: partnerId,
           partnerModule: getIt<IPartnerModule>(),

@@ -155,8 +155,8 @@ class _PartnerTransformViewState extends State<_PartnerTransformView> {
                     ),
               if (context.watch<PartnerTransformCubit>().state.isSubmitting)
                 ColoredBox(
-                  color: VColors.neutral900,
-                  child: Center(child: CircularProgressIndicator()),
+                  color: context.vColors.textPrimary,
+                  child: const Center(child: CircularProgressIndicator()),
                 ),
             ],
           ),

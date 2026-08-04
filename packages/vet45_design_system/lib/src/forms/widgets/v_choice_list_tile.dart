@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 import '../../components/v_checkbox.dart';
 import '../../foundation/v_context_extensions.dart';
-import '../../tokens/v_colors.dart';
 import '../../tokens/v_radius.dart';
 import '../../tokens/v_spacing.dart';
 import '../../tokens/v_typography.dart';
@@ -52,7 +51,7 @@ class VChoiceListTile<T> extends StatelessWidget {
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(VRadius.input),
           border: hasError
-              ? Border.all(color: VColors.danger.withValues(alpha: 0.5))
+              ? Border.all(color: dynamicColors.danger.withValues(alpha: 0.5))
               : null,
         ),
         child: Column(
