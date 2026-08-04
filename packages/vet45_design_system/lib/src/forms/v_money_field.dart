@@ -33,12 +33,7 @@ class VMoneyField extends StatefulWidget {
     this.autofocus = false,
     this.focusNode,
     this.onSubmitted,
-    this.contentPadding,
-    this.fillColor,
-    this.border,
-    this.enabledBorder,
-    this.focusedBorder,
-    this.variant = VTextFieldVariant.standard,
+    this.border = true,
     this.debounceDuration = VDuration.normal,
     this.requiredMessage = VMoneyValidator.defaultRequiredMessage,
     this.invalidMessage = VMoneyValidator.defaultInvalidMessage,
@@ -71,12 +66,7 @@ class VMoneyField extends StatefulWidget {
   final bool autofocus;
   final FocusNode? focusNode;
   final ValueChanged<String>? onSubmitted;
-  final EdgeInsetsGeometry? contentPadding;
-  final Color? fillColor;
-  final InputBorder? border;
-  final InputBorder? enabledBorder;
-  final InputBorder? focusedBorder;
-  final VTextFieldVariant variant;
+  final bool border;
   final Duration debounceDuration;
   final String requiredMessage;
   final String invalidMessage;
@@ -184,12 +174,7 @@ class _VMoneyFieldState extends State<VMoneyField> {
       autofocus: widget.autofocus,
       focusNode: widget.focusNode,
       onSubmitted: widget.onSubmitted,
-      contentPadding: widget.contentPadding,
-      fillColor: widget.fillColor,
       border: widget.border,
-      enabledBorder: widget.enabledBorder,
-      focusedBorder: widget.focusedBorder,
-      variant: widget.variant,
       tone: widget.tone,
       emphasis: widget.emphasis,
       state: (widget.errorText ?? _internalError) != null

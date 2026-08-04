@@ -40,6 +40,7 @@ class VTheme {
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: VColors.surface,
+        hoverColor: Colors.transparent,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(VRadius.input),
           borderSide: const BorderSide(color: VColors.borderStrong),
@@ -114,6 +115,7 @@ class VTheme {
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: VColors.neutral700,
+        hoverColor: Colors.transparent,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(VRadius.input),
           borderSide: const BorderSide(color: VColors.neutral600),

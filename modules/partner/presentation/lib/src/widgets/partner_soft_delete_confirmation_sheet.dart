@@ -113,7 +113,7 @@ class _PartnerSoftDeleteConfirmationSheetState extends State<PartnerSoftDeleteCo
                 style: const TextStyle(fontWeight: FontWeight.w600),
               ),
               const SizedBox(height: VSpacing.space2),
-              VTextField(
+              VTextFormField(
                 key: const Key('soft_delete_reason_input'),
                 controller: _reasonController,
                 hintText: 'Nhập lý do (nếu có)',

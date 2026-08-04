@@ -144,7 +144,7 @@ class _PriceRuleDisableSheetState extends State<PriceRuleDisableSheet> {
                 ),
               ),
               const VGap.md(),
-              VTextField(
+              VTextFormField(
                 label: 'Lý do tắt (không bắt buộc)',
                 controller: _reasonController,
                 maxLines: 2,

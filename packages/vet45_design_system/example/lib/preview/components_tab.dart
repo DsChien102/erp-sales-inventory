@@ -384,6 +384,9 @@ class _ComponentsPreviewTabState extends State<ComponentsPreviewTab> {
         ),
         PreviewSection(
           title: 'VTextField',
+          description:
+              'States: enabled / disabled / error. '
+              'Tone, emphasis, prefix/suffix icon & suffixText, required, dense, border toggle.',
           child: Column(
             children: [
               const PreviewStateRow(
@@ -391,7 +394,7 @@ class _ComponentsPreviewTabState extends State<ComponentsPreviewTab> {
                 child: VTextField(hintText: 'Enter text…'),
               ),
               PreviewStateRow(
-                label: 'Label + helper',
+                label: 'Label + helper + value',
                 child: VTextField(
                   controller: _textController,
                   label: 'Customer phone',
@@ -399,15 +402,24 @@ class _ComponentsPreviewTabState extends State<ComponentsPreviewTab> {
                   helperText: 'We will send SMS.',
                 ),
               ),
-              PreviewStateRow(
+              const PreviewStateRow(
+                label: 'Required',
+                child: VTextField(
+                  label: 'Tax code',
+                  hintText: 'Required field',
+                  isRequired: true,
+                ),
+              ),
+              const PreviewStateRow(
                 label: 'Error',
                 child: VTextField(
                   label: 'Email',
+                  hintText: 'name@company.com',
                   errorText: 'Email address is invalid.',
                 ),
               ),
               const PreviewStateRow(
-                label: 'Disabled',
+                label: 'Disabled (enabled: false)',
                 child: VTextField(
                   label: 'Store code',
                   hintText: 'VET45_HCM_01',
@@ -415,22 +427,93 @@ class _ComponentsPreviewTabState extends State<ComponentsPreviewTab> {
                   prefixIcon: Icon(Icons.store),
                 ),
               ),
+              const PreviewStateRow(
+                label: 'State disabled',
+                child: VTextField(
+                  label: 'Locked',
+                  hintText: 'Cannot edit',
+                  state: VComponentState.disabled,
+                ),
+              ),
+              const PreviewStateRow(
+                label: 'Prefix icon',
+                child: VTextField(
+                  label: 'Search SKU',
+                  hintText: 'AMX-500',
+                  prefixIcon: Icon(Icons.search),
+                ),
+              ),
               PreviewStateRow(
-                label: 'Password + suffix',
+                label: 'Suffix icon (password)',
                 child: VTextField(
                   label: 'Password',
                   obscureText: _obscure,
+                  hintText: '••••••••',
                   suffixIcon: IconButton(
-                    icon: Icon(_obscure ? Icons.visibility : Icons.visibility_off),
+                    icon: Icon(
+                      _obscure ? Icons.visibility : Icons.visibility_off,
+                    ),
                     onPressed: () => setState(() => _obscure = !_obscure),
                   ),
                 ),
               ),
               const PreviewStateRow(
-                label: 'Inline variant',
+                label: 'Suffix text',
                 child: VTextField(
-                  variant: VTextFieldVariant.inline,
-                  hintText: 'Inline edit',
+                  label: 'Weight',
+                  hintText: '0',
+                  keyboardType: TextInputType.number,
+                  suffixText: 'kg',
+                ),
+              ),
+              const PreviewStateRow(
+                label: 'Prefix + suffix text',
+                child: VTextField(
+                  label: 'Amount',
+                  hintText: '0',
+                  keyboardType: TextInputType.number,
+                  prefixIcon: Icon(Icons.payments_outlined),
+                  suffixText: 'VND',
+                ),
+              ),
+              const PreviewStateRow(
+                label: 'Tone primary',
+                child: VTextField(
+                  label: 'Brand focus',
+                  hintText: 'Primary border',
+                  tone: VComponentTone.primary,
+                ),
+              ),
+              const PreviewStateRow(
+                label: 'Tone danger',
+                child: VTextField(
+                  label: 'Critical',
+                  hintText: 'Danger border',
+                  tone: VComponentTone.danger,
+                ),
+              ),
+              const PreviewStateRow(
+                label: 'Emphasis strong',
+                child: VTextField(
+                  label: 'Strong border',
+                  hintText: 'Thicker outline',
+                  emphasis: VComponentEmphasis.strong,
+                ),
+              ),
+              const PreviewStateRow(
+                label: 'Dense',
+                child: VTextField(
+                  label: 'Compact',
+                  hintText: 'isDense',
+                  isDense: true,
+                ),
+              ),
+              const PreviewStateRow(
+                label: 'No border',
+                child: VTextField(
+                  label: 'Borderless',
+                  hintText: 'border: false',
+                  border: false,
                 ),
               ),
             ],

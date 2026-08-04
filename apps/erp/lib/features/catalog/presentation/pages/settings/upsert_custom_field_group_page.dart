@@ -233,7 +233,7 @@ class _UpsertCustomFieldGroupPageState extends State<UpsertCustomFieldGroupPage>
                 hintText: 'Nhập tên nhóm',
               ),
               const SizedBox(height: VSpacing.space4),
-              VTextField(
+              VTextFormField(
                 controller: _descriptionController,
                 label: 'Mô tả (tuỳ chọn)',
                 hintText: 'Nhập mô tả nhóm',

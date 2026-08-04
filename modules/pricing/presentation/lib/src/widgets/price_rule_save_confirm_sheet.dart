@@ -92,16 +92,13 @@ class _PriceRuleSaveConfirmSheetHost extends StatelessWidget {
       newFromLabel: newFromLabel,
       oldToLabel: oldToLabel,
       newToLabel: newToLabel,
-      onConfirm: (reason) => Navigator.of(context).pop((
-        confirmed: true,
-        reason: reason,
-      )),
+      onConfirm: (reason) =>
+          Navigator.of(context).pop((confirmed: true, reason: reason)),
     );
   }
 }
 
-class _PriceRuleSaveConfirmSheetState
-    extends State<PriceRuleSaveConfirmSheet> {
+class _PriceRuleSaveConfirmSheetState extends State<PriceRuleSaveConfirmSheet> {
   final TextEditingController _reasonController = TextEditingController();
 
   @override
@@ -142,10 +139,9 @@ class _PriceRuleSaveConfirmSheetState
                     ),
                   ),
                   InkWell(
-                    onTap: () => Navigator.of(context).pop((
-                      confirmed: false,
-                      reason: null,
-                    )),
+                    onTap: () => Navigator.of(
+                      context,
+                    ).pop((confirmed: false, reason: null)),
                     borderRadius: BorderRadius.circular(VRadius.r8),
                     child: Padding(
                       padding: const EdgeInsets.all(VSpacing.space1),
@@ -194,7 +190,7 @@ class _PriceRuleSaveConfirmSheetState
                 ),
               ),
               const VGap.md(),
-              VTextField(
+              VTextFormField(
                 label: 'Lý do thay đổi (không bắt buộc)',
                 hintText: 'Nhập lý do thay đổi...',
                 controller: _reasonController,
@@ -224,10 +220,9 @@ class _PriceRuleSaveConfirmSheetState
                       label: 'Hủy',
                       variant: VButtonVariant.secondary,
                       fullWidth: true,
-                      onPressed: () => Navigator.of(context).pop((
-                        confirmed: false,
-                        reason: null,
-                      )),
+                      onPressed: () => Navigator.of(
+                        context,
+                      ).pop((confirmed: false, reason: null)),
                     ),
                   ),
                   const VGap.horizontalMd(),
@@ -253,11 +248,7 @@ class _PriceRuleSaveConfirmSheetState
 }
 
 class _ChangeRow extends StatelessWidget {
-  const _ChangeRow({
-    required this.label,
-    required this.from,
-    required this.to,
-  });
+  const _ChangeRow({required this.label, required this.from, required this.to});
 
   final String label;
   final String from;
@@ -288,7 +279,9 @@ class _ChangeRow extends StatelessWidget {
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: VSpacing.space2),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: VSpacing.space2,
+                ),
                 child: VText(
                   '→',
                   variant: VTextVariant.bodyDefault,
@@ -312,4 +305,3 @@ class _ChangeRow extends StatelessWidget {
     );
   }
 }
-

@@ -259,7 +259,7 @@ class _PartnerContactFormState extends State<PartnerContactForm> {
                 const SizedBox(height: VSpacing.space4),
 
                 // 6. Ghi chú
-                VTextField(
+                VTextFormField(
                   key: const Key('input_contact_note'),
                   controller: _noteController,
                   label: 'Ghi chú',
