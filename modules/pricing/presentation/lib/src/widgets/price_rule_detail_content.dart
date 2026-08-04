@@ -72,9 +72,9 @@ class PriceRuleDetailContent extends StatelessWidget {
                   value: rule.customer.displayName,
                 ),
                 PriceRuleIconDetailRow(
-                  icon: VIcons.tag,
-                  label: 'Mã khách hàng',
-                  value: rule.customer.customerId,
+                  icon: VIcons.phone,
+                  label: 'Số điện thoại',
+                  value: rule.customer.phone ?? '—',
                   numeric: true,
                 ),
                 PriceRuleIconDetailRow(

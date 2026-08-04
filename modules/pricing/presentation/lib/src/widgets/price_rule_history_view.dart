@@ -211,6 +211,31 @@ class _PriceRuleHistoryViewState extends State<PriceRuleHistoryView> {
             ),
           ),
 
+          if (widget.customerName != null || widget.productUnitName != null) ...[
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: VSpacing.space4),
+              child: Row(
+                children: [
+                  if (widget.customerName != null)
+                    VText(
+                      widget.customerName!,
+                      variant: VTextVariant.bodyDefault,
+                      style: const TextStyle(fontWeight: FontWeight.w600),
+                    ),
+                  if (widget.productUnitName != null) ...[
+                    const VGap.horizontalXs(),
+                    VText(
+                      widget.productUnitName!,
+                      variant: VTextVariant.caption,
+                      color: colors.textMuted,
+                    ),
+                  ],
+                ],
+              ),
+            ),
+            const VGap.xs(),
+          ],
+
           // Quick Filter Chips (D-02)
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,

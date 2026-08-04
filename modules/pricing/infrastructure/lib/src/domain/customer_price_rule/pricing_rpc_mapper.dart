@@ -50,6 +50,7 @@ abstract final class PricingRpcMapper {
       customer: CustomerSnapshot(
         customerId: _string(customer, 'customer_id'),
         displayName: _string(customer, 'display_name'),
+        phone: customer['phone'] as String?,
         status: _string(customer, 'status'),
         exists: customer['exists'] as bool? ?? false,
         isCustomer: customer['is_customer'] as bool? ?? false,

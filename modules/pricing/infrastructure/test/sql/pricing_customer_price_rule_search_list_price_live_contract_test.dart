@@ -4,7 +4,7 @@ import 'package:test/test.dart';
 
 Directory _repoRoot() {
   var dir = Directory.current;
-  while (!Directory('${dir.path}/supabase/migrations/_drafts').existsSync()) {
+  while (!Directory('${dir.path}/supabase/migrations').existsSync()) {
     final parent = dir.parent;
     if (parent.path == dir.path) {
       break;
@@ -14,10 +14,22 @@ Directory _repoRoot() {
   return dir;
 }
 
+File _resolveSql(Directory root, String name) {
+  final draft = File('${root.path}/supabase/migrations/_drafts/$name');
+  if (draft.existsSync()) return draft;
+  final migrationsDir = Directory('${root.path}/supabase/migrations');
+  for (final entity in migrationsDir.listSync()) {
+    if (entity is File && entity.path.endsWith(name)) {
+      return entity;
+    }
+  }
+  return draft;
+}
+
 void main() {
   test('015 search list price prefers Catalog-live then snapshot fallback', () {
-    final sql = File(
-      '${_repoRoot().path}/supabase/migrations/_drafts/'
+    final sql = _resolveSql(
+      _repoRoot(),
       '015_pricing_customer_price_rule_search_list_price_live.sql',
     ).readAsStringSync();
 
