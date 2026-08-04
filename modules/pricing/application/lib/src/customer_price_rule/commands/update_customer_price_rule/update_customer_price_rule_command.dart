@@ -19,6 +19,7 @@ final class UpdateCustomerPriceRuleCommand
     this.effectiveTo,
     this.note,
     required this.acknowledgeFloorWarning,
+    this.acknowledgeOverwrite = false,
   }) : super(id);
 
   @override
@@ -31,6 +32,7 @@ final class UpdateCustomerPriceRuleCommand
   final DateTime? effectiveTo;
   final String? note;
   final bool acknowledgeFloorWarning;
+  final bool acknowledgeOverwrite;
 
   UpdateCustomerPriceRuleCommand withExecutionContext({
     required String tenantId,
@@ -46,5 +48,6 @@ final class UpdateCustomerPriceRuleCommand
     effectiveTo: effectiveTo,
     note: note,
     acknowledgeFloorWarning: acknowledgeFloorWarning,
+    acknowledgeOverwrite: acknowledgeOverwrite,
   );
 }

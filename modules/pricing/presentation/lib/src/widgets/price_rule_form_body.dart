@@ -409,7 +409,7 @@ class _FormWarnings extends StatelessWidget {
           icon: VIcons.info,
           title: 'Lưu ý tự động ghi đè giá trùng',
           message:
-              'Khoảng thời gian hiệu lực mới bị trùng với giá riêng đang áp dụng khác. Khi lưu, giá riêng cũ sẽ tự động bị tắt.',
+              'Khoảng thời gian hiệu lực mới bị trùng với giá riêng đang áp dụng khác. Khi lưu, hệ thống sẽ tự động ghi đè giá riêng cũ.',
         ),
     ];
     if (widgets.isEmpty) {

@@ -23,6 +23,7 @@ final class SupabaseCustomerPriceRuleCommandGateway
     required CustomerPriceRule candidate,
     required String idempotencyKey,
     required bool acknowledgeFloorWarning,
+    bool acknowledgeOverwrite = false,
   }) async {
     try {
       final json = await _rpcClient.callMap(
@@ -31,6 +32,7 @@ final class SupabaseCustomerPriceRuleCommandGateway
           candidate: candidate,
           idempotencyKey: idempotencyKey,
           acknowledgeFloorWarning: acknowledgeFloorWarning,
+          acknowledgeOverwrite: acknowledgeOverwrite,
         ),
       );
       return PricingRpcMapper.createResultFromJson(json);
@@ -51,6 +53,7 @@ final class SupabaseCustomerPriceRuleCommandGateway
     required CustomerPriceRule candidate,
     required int expectedVersion,
     required bool acknowledgeFloorWarning,
+    bool acknowledgeOverwrite = false,
   }) async {
     try {
       final json = await _rpcClient.callMap(
@@ -59,6 +62,7 @@ final class SupabaseCustomerPriceRuleCommandGateway
           candidate: candidate,
           expectedVersion: expectedVersion,
           acknowledgeFloorWarning: acknowledgeFloorWarning,
+          acknowledgeOverwrite: acknowledgeOverwrite,
         ),
       );
       return PricingUpdateRpcMapper.updateResultFromJson(json);

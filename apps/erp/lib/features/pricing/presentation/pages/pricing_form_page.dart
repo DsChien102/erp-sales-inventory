@@ -107,16 +107,30 @@ class _PricingFormPageState extends State<PricingFormPage> {
     return BlocProvider.value(
       value: _cubit,
       child: BlocListener<PriceRuleFormCubit, PriceRuleFormState>(
-        listener: (context, state) {
+        listener: (context, state) async {
           if (state is PriceRuleFormSuccess) {
             _onSuccess(context, state.rule);
           } else if (state is PriceRuleFormError) {
-            VToast.show(
-              context,
-              title: 'Lỗi',
-              message: _mapErrorToMessage(state.code),
-              type: VToastType.danger,
-            );
+            if (state.code == PricingBlockedCodes.duplicateActiveRule) {
+              final confirmed = await showPriceRuleOverwriteConfirmDialog(context);
+              if (confirmed && context.mounted) {
+                await _cubit.confirmOverwrite();
+              } else if (context.mounted) {
+                VToast.show(
+                  context,
+                  title: 'Lỗi',
+                  message: _mapErrorToMessage(state.code),
+                  type: VToastType.danger,
+                );
+              }
+            } else {
+              VToast.show(
+                context,
+                title: 'Lỗi',
+                message: _mapErrorToMessage(state.code),
+                type: VToastType.danger,
+              );
+            }
           }
         },
         child: BlocBuilder<PriceRuleFormCubit, PriceRuleFormState>(
@@ -272,6 +286,10 @@ class _BottomBar extends StatelessWidget {
       );
       if (result == null || !result.confirmed) return;
       changeReason = result.changeReason;
+      if (form.hasConflictingRule || isDateChanged) {
+        await cubit.confirmOverwrite(changeReason: changeReason);
+        return;
+      }
     }
     await cubit.submit(changeReason: changeReason);
   }

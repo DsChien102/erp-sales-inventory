@@ -17,6 +17,7 @@ final class ReenableCustomerPriceRuleCommand
     required DateTime businessDate,
     this.precheckToken,
     required this.acknowledgeFloorWarning,
+    this.acknowledgeOverwrite = false,
   }) : businessDate = DateTime.utc(
          businessDate.year,
          businessDate.month,
@@ -32,6 +33,7 @@ final class ReenableCustomerPriceRuleCommand
   final DateTime businessDate;
   final String? precheckToken;
   final bool acknowledgeFloorWarning;
+  final bool acknowledgeOverwrite;
 
   ReenableCustomerPriceRuleCommand withExecutionContext({
     required String tenantId,
@@ -45,5 +47,6 @@ final class ReenableCustomerPriceRuleCommand
     businessDate: businessDate,
     precheckToken: precheckToken,
     acknowledgeFloorWarning: acknowledgeFloorWarning,
+    acknowledgeOverwrite: acknowledgeOverwrite,
   );
 }

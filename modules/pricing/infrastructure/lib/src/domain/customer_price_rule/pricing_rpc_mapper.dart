@@ -24,6 +24,7 @@ abstract final class PricingRpcMapper {
     required CustomerPriceRule candidate,
     required String idempotencyKey,
     required bool acknowledgeFloorWarning,
+    bool acknowledgeOverwrite = false,
   }) => <String, dynamic>{
     'p_tenant_id': candidate.key.tenantId,
     'p_rule_id': candidate.id,
@@ -38,6 +39,7 @@ abstract final class PricingRpcMapper {
         : _date(candidate.effectivePeriod.effectiveTo!),
     'p_note': candidate.note,
     'p_acknowledge_floor_warning': acknowledgeFloorWarning,
+    'p_acknowledge_overwrite': acknowledgeOverwrite,
     'p_idempotency_key': idempotencyKey.trim(),
   };
 

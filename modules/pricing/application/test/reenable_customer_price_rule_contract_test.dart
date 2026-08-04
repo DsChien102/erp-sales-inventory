@@ -407,6 +407,7 @@ final class _ReenableCommandGateway
     required CustomerPriceRule candidate,
     required String idempotencyKey,
     required bool acknowledgeFloorWarning,
+    bool acknowledgeOverwrite = false,
   }) => throw UnsupportedError('create not used');
 
   @override
@@ -414,6 +415,7 @@ final class _ReenableCommandGateway
     required CustomerPriceRule candidate,
     required int expectedVersion,
     required bool acknowledgeFloorWarning,
+    bool acknowledgeOverwrite = false,
   }) => throw UnsupportedError('update not used');
 
   @override

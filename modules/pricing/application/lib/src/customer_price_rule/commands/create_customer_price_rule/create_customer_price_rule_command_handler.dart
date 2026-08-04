@@ -32,13 +32,16 @@ final class CreateCustomerPriceRuleCommandHandler
   ) async {
     final context = await _createContextPort.load(command);
     final isIdempotentRetry = context.idempotencyKeyExists;
-    if (!isIdempotentRetry && context.hasConflictingRule) {
+    if (!isIdempotentRetry &&
+        context.hasConflictingRule &&
+        !command.acknowledgeOverwrite) {
       throw PricingBlockedException(
         PricingBlockedCodes.duplicateActiveRule,
         message: 'An active customer price rule already overlaps this period.',
         details: {
           if (context.conflictingRuleId != null)
             'conflictingRuleId': context.conflictingRuleId,
+          'reason': 'overwriteRequired',
         },
       );
     }
@@ -119,6 +122,7 @@ final class CreateCustomerPriceRuleCommandHandler
       candidate: candidate,
       idempotencyKey: command.idempotencyKey,
       acknowledgeFloorWarning: command.acknowledgeFloorWarning,
+      acknowledgeOverwrite: command.acknowledgeOverwrite,
     );
   }
 

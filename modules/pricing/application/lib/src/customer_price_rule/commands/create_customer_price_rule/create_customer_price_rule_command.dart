@@ -19,6 +19,7 @@ final class CreateCustomerPriceRuleCommand
     required this.currencyCode,
     required this.effectiveFrom,
     required this.acknowledgeFloorWarning,
+    this.acknowledgeOverwrite = false,
     required this.idempotencyKey,
     this.effectiveTo,
     this.note,
@@ -36,6 +37,7 @@ final class CreateCustomerPriceRuleCommand
   final DateTime? effectiveTo;
   final String? note;
   final bool acknowledgeFloorWarning;
+  final bool acknowledgeOverwrite;
   final String idempotencyKey;
 
   CreateCustomerPriceRuleCommand withExecutionContext({
@@ -54,6 +56,7 @@ final class CreateCustomerPriceRuleCommand
     effectiveTo: effectiveTo,
     note: note,
     acknowledgeFloorWarning: acknowledgeFloorWarning,
+    acknowledgeOverwrite: acknowledgeOverwrite,
     idempotencyKey: idempotencyKey,
   );
 }

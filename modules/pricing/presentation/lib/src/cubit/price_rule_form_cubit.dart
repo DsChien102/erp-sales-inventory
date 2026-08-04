@@ -261,6 +261,21 @@ final class PriceRuleFormCubit extends Cubit<PriceRuleFormState> {
     } else if (e.code == PricingBlockedCodes.noPermission) {
       emit(const PriceRuleFormNoPermission());
       emit(editing.copyWith(isSubmitting: false));
+    } else if (e.code == PricingBlockedCodes.duplicateActiveRule) {
+      final conflictingId = e.details['conflictingRuleId'] as String?;
+      emit(
+        PriceRuleFormError(
+          code: e.code,
+          fieldErrors: _parseFieldErrors(e),
+        ),
+      );
+      emit(
+        editing.copyWith(
+          isSubmitting: false,
+          hasConflictingRule: true,
+          conflictingRuleId: conflictingId,
+        ),
+      );
     } else {
       emit(
         PriceRuleFormError(
@@ -272,9 +287,33 @@ final class PriceRuleFormCubit extends Cubit<PriceRuleFormState> {
     }
   }
 
+  Future<void> confirmOverwrite({String? changeReason}) async {
+    final current = _editingOrNew();
+    emit(current.copyWith(isSubmitting: true));
+
+    try {
+      if (_mode == PriceRuleFormMode.create) {
+        await _createRule(current, acknowledgeOverwrite: true);
+      } else {
+        await _updateRule(
+          current,
+          changeReason: changeReason,
+          acknowledgeOverwrite: true,
+        );
+      }
+    } on PricingBlockedException catch (e) {
+      await _handleBlocked(e);
+    } catch (error) {
+      final editing = _editingOrNew();
+      emit(const PriceRuleFormError(code: PricingBlockedCodes.systemError));
+      emit(editing.copyWith(isSubmitting: false));
+    }
+  }
+
   Future<void> _createRule(
-    PriceRuleFormEditing form,
-  ) async {
+    PriceRuleFormEditing form, {
+    bool acknowledgeOverwrite = false,
+  }) async {
     _idempotencyKey ??= _generateIdempotencyKey();
     final tenantId = await _executionContext.requireTenantId();
     final result = await _pricingModule.executeCommandAsync(
@@ -289,6 +328,7 @@ final class PriceRuleFormCubit extends Cubit<PriceRuleFormState> {
         effectiveTo: form.effectiveTo,
         note: form.note,
         acknowledgeFloorWarning: form.isBelowFloor,
+        acknowledgeOverwrite: acknowledgeOverwrite,
         idempotencyKey: _idempotencyKey!,
       ),
     );
@@ -298,6 +338,7 @@ final class PriceRuleFormCubit extends Cubit<PriceRuleFormState> {
   Future<void> _updateRule(
     PriceRuleFormEditing form, {
     String? changeReason,
+    bool acknowledgeOverwrite = false,
   }) async {
     final rule = _existingRule!;
     final tenantId = await _executionContext.requireTenantId();
@@ -312,6 +353,7 @@ final class PriceRuleFormCubit extends Cubit<PriceRuleFormState> {
         effectiveTo: form.effectiveTo,
         note: note,
         acknowledgeFloorWarning: form.isBelowFloor,
+        acknowledgeOverwrite: acknowledgeOverwrite,
       ),
     );
     emit(PriceRuleFormSuccess(rule: result));

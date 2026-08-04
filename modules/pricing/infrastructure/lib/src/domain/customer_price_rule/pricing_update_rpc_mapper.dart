@@ -85,6 +85,7 @@ abstract final class PricingUpdateRpcMapper {
     required CustomerPriceRule candidate,
     required int expectedVersion,
     required bool acknowledgeFloorWarning,
+    bool acknowledgeOverwrite = false,
   }) => {
     'p_tenant_id': candidate.key.tenantId,
     'p_rule_id': candidate.id,
@@ -96,6 +97,7 @@ abstract final class PricingUpdateRpcMapper {
         : _date(candidate.effectivePeriod.effectiveTo!),
     'p_note': candidate.note,
     'p_acknowledge_floor_warning': acknowledgeFloorWarning,
+    'p_acknowledge_overwrite': acknowledgeOverwrite,
   };
 
   static CustomerPriceRuleDetailDto updateResultFromJson(

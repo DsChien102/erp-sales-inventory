@@ -209,7 +209,7 @@ class _PriceRuleSaveConfirmSheetState extends State<PriceRuleSaveConfirmSheet> {
                   icon: VIcons.info,
                   title: 'Lưu ý tự động ghi đè',
                   message:
-                      'Cập nhật thời gian hiệu lực này sẽ tự động tắt giá riêng đang áp dụng trùng khoảng thời gian (nếu có).',
+                      'Cập nhật thời gian hiệu lực này sẽ tự động ghi đè giá riêng đang áp dụng trùng khoảng thời gian (nếu có).',
                 ),
               ],
               const VGap.md(),

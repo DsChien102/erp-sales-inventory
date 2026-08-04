@@ -6,7 +6,6 @@ import 'price_rule_history_filter_sheet.dart';
 import 'price_rule_history_shared.dart';
 import 'price_rule_history_states.dart';
 import 'price_rule_history_timeline_tile.dart';
-import 'price_rule_status_badge.dart';
 
 /// SG-06 — Full Timeline lịch sử giá riêng (D-02, D-04, D-08 system states).
 class PriceRuleHistoryView extends StatefulWidget {
