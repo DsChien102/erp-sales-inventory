@@ -110,6 +110,19 @@ SQL drafts EP02 được đánh số promote-order `001`…`015` trong `[supabas
 
 Lane status is determined by the artifacts and verification owned by that lane. Workspace-wide failures outside a lane are recorded in `docs/harness/PROGRESS.md` as technical debt instead of holding a completed lane in `in_progress`.
 
+## Follow-up (docs 2026-08-04) — EP02 overwrite-confirm catch-up
+
+Product Theme-4 + harness `01`/`03`/`07` đã chốt: overlap → `OVERWRITE_REQUIRED` → confirm → soft-delete overlapping actives (create/update/import/reenable/memory). **Không implement trong PR docs-only.**
+
+| Lane | Status note |
+| ---- | ----------- |
+| CONTRACT | Docs ahead of code — reopen when implementing `acknowledgeOverwrite` + fake scenarios |
+| BE | Current code may still block/auto-disable/`MANUAL_RULE_PROTECTED` |
+| FE | Confirm dialog + Sales memory overwrite UX chưa theo SSOT mới |
+| E2E | S9 Sales publisher vẫn `blocked`; Fake E2E cần cập nhật sau BE |
+
+S9 FE vẫn `todo` như bảng trên.
+
 ## Where is the “BE” code?
 
 

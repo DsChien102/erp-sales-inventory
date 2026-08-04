@@ -39,7 +39,7 @@ cd apps/erp && flutter test test/features/pricing/
 
 - Below-floor system default là `block_with_override`; tenant-specific policy deferred.
 - Dưới floor chỉ commit khi request đã acknowledge và actor có `pricing.customer_price_rule.override_floor_price`; cả hai failure dùng `BELOW_FLOOR_BLOCKED` với `details.reason` khác nhau.
-- Precheck chỉ hỗ trợ UX. Mutation RPC lấy actor từ `auth.uid()` và recheck tenant/create permission, provider references, duplicate closed-interval overlap và floor policy.
+- Precheck chỉ hỗ trợ UX. Mutation RPC lấy actor từ `auth.uid()` và recheck tenant/create permission, provider references, closed-interval overlap và floor policy. **Target docs:** overlap → `OVERWRITE_REQUIRED` rồi soft-delete khi acknowledge (legacy auto-disable/`DUPLICATE_ACTIVE_RULE` = drift).
 - Floor snapshot bị redact với actor không có override permission; server vẫn trả `isBelowFloor` để enforce acknowledgement mà không lộ amount.
 - Không có floor trả outcome `notChecked`; currency mismatch hoặc Catalog numeric không tương thích integer minor units trả `REFERENCE_INVALID`, không round qua `double`.
 - S1 idempotency dùng unique tenant + key + normalized payload hash; same payload trả original result, different payload trả `IDEMPOTENCY_CONFLICT`.
@@ -100,10 +100,12 @@ cd apps/erp && flutter test test/features/pricing/
 - Không dùng customer/product/unit display label làm identity.
 - Không bỏ `product_unit_id` vì Excel V1 thiếu cột unit; phải resolve hoặc row error.
 - Không tin precheck/cache tại commit time.
-- Không overwrite active manual rule từ Sales memory request mặc định.
+- Overlap active → yêu cầu **overwrite-confirm** rồi soft-delete; không coi `DUPLICATE_ACTIVE_RULE` blocked là product SSOT nữa (legacy code vẫn có thể trả code cũ — `DOC_AHEAD_OF_CODE`).
+- Không phân biệt nguồn rule cũ khi nhớ giá từ Sales (bỏ pitfall “không overwrite manual”).
 - Không lưu tiền bằng `double`.
 - Không ghi activity sau transaction như best-effort side effect; activity phải cùng commit.
 - Không coi RPC draft là migration đã apply.
+- Docs-only PR không được “sửa cho khớp” Dart/SQL khi Theme-4 đã đổi policy — ghi drift và mở catch-up slice.
 
 ## Flywheel log
 
@@ -112,8 +114,20 @@ cd apps/erp && flutter test test/features/pricing/
 | 2026-07-14 | TH-04 cũ mất sau fetch; catalog còn stale Sales link | Recreate canonical TH-04 folder and reconcile catalog/cross-links. |
 | 2026-07-14 | Source spec dùng REST references | Normalize to CQRS symbols + `pricing.*` RPC targets. |
 | 2026-07-14 | Sales dependency có thể block toàn S9 | Block only E2E lane; use fake/public contract for CONTRACT/BE/FE. |
+| 2026-08-04 | Theme-4 đổi duplicate → overwrite-confirm; harness/US/contracts lệch code | Sync docs-only (`DOC_AHEAD_OF_CODE`); note known drift: code still blocks/`MANUAL_RULE_PROTECTED`/auto-disable. |
+
+## Known drift (implementation still blocks duplicates)
+
+Đến khi catch-up slice chạy, Dart/SQL/Fake có thể vẫn:
+
+- Trả `DUPLICATE_ACTIVE_RULE` blocked trên create/import
+- Auto-disable overlapping (`AUTO_REPLACED_BY_RULE`) trên update/reenable
+- Sales memory: `MANUAL_RULE_PROTECTED`
+
+Product + harness docs là SSOT mới; test ids cũ vẫn cover behavior legacy.
 
 ## Open follow-ups
 
-- Chốt memory upsert interval semantics trước S9 BE sign-off.
-- Chốt identifier columns/template version cho Excel trước S8 contract freeze.
+- **EP02 overwrite-confirm catch-up** (Contract/BE/FE): `acknowledgeOverwrite`, soft-delete overlapping, deprecate `DUPLICATE_ACTIVE_RULE` / `MANUAL_RULE_PROTECTED`, Fake scenarios `*_overwrite_*`, FE confirm dialog — xem [04-slice-roadmap.md](04-slice-roadmap.md).
+- Chốt memory upsert interval semantics trước S9 FE/E2E sign-off (đã supersede Q-02 trong US-09 docs).
+- Promote/apply SQL drafts khi môi trường sẵn sàng.

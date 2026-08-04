@@ -34,7 +34,7 @@ sequenceDiagram
   H-->>UI: CreateCustomerPriceRuleResult
 ```
 
-Snapshot precheck cannot guarantee commit. RPC rechecks tenant/references/duplicate/floor policy in the authoritative transaction.
+Snapshot precheck cannot guarantee commit. RPC rechecks tenant/references/overlap/floor policy in the authoritative transaction. **DOC_AHEAD_OF_CODE:** on active overlap without `acknowledgeOverwrite`, return `OVERWRITE_REQUIRED` (no mutation); with acknowledge, soft-delete overlapping actives then insert.
 
 ## S2/S3 — Read list and detail
 
@@ -63,7 +63,7 @@ Queries receive tenant from execution context, never trust a caller-supplied ten
    hasSameMutableValues, then always calls the authoritative gateway regardless of no-op/warning.
 5. RPC pricing.update_customer_price_rule locks/current-checks rule; version mismatch → STATE_CHANGED;
    status outside active/needs_review/disabled → INVALID_STATUS.
-6. RPC rechecks overlap/floor/reference, auto-disables all overlapping active rules under the rule-key lock, updates rule + version, appends activity (skipped on no-op).
+6. RPC rechecks overlap/floor/reference. Without `acknowledgeOverwrite`, overlapping actives → `OVERWRITE_REQUIRED` (no write). With acknowledge: soft-delete overlapping actives under the rule-key lock, update rule + version, append activity (skipped on no-op; include overwrite activity when soft-deletes ran).
 ```
 
 The advisory RPC (`pricing.get_customer_price_rule_update_context`) is UX-only: it recomputes the same checks for early UI feedback but **never authorizes a commit**. The authoritative RPC (`pricing.update_customer_price_rule`) always re-derives and re-checks tenant/permission, version, status, references, duplicate interval and floor policy itself under a row lock before writing — a stale or bypassed advisory call cannot skip the authoritative recheck.
@@ -113,7 +113,7 @@ sequenceDiagram
   RPC-->>UI: active detail or current error
 ```
 
-Ordering commit: row lock → version → disabled status → rule-key advisory lock → canonical context → optional token stale check → reference/floor/expired mapping → auto-disable overlapping active rules → active transition + one `reenabled` activity.
+Ordering commit: row lock → version → disabled status → rule-key advisory lock → canonical context → optional token stale check → reference/floor/expired mapping → if overlap and not acknowledged → `OVERWRITE_REQUIRED`; if acknowledged → soft-delete overlapping actives → active transition + one `reenabled` activity (+ overwrite activities).
 
 ## S8 — Excel import
 
@@ -137,6 +137,7 @@ Confirm command
   → terminal completed|completed_with_errors → replay (isReplay=true) before version check
   → reject when warning rows exist and acknowledgement=false
   → process valid/warning rows in row_number,id order with advisory rule-key lock
+  → rows with `duplicate_rule_overwrite_required` require `acknowledgeOverwrite` (batch or per-row) then soft-delete overlapping actives before create/update
   → skip preview-error rows; per-row business failure → failed (no exception swallow)
   → completed only when failed/skipped are zero, else completed_with_errors
 
@@ -160,13 +161,13 @@ sequenceDiagram
   Med->>H: scoped execute
   H->>GW: save request
   GW->>RPC: idempotent atomic processing
-  RPC-->>H: created|updated|skipped|blocked
+  RPC-->>H: created|updated|skipped|blocked|overwrite_required
   H-->>Sales: RememberedPriceOutcomeDto
 ```
 
 E2E is blocked until Sales publisher/confirmation flow exists. Pricing contract, handler, RPC draft and fake-based tests are not blocked.
 
-Authoritative RPC transaction order (frozen): auth/permission → scalar validation → SHA-256 canonical payload hash → memory idempotency advisory lock → same-key replay → request insert → anonymous short-circuit → rule-key advisory lock → Partner/Catalog providers only → deterministic stored outcomes or atomic rule/activity mutation. Technical SQL failures roll back request/rule/activity together.
+Authoritative RPC transaction order (target docs): auth/permission → scalar validation → SHA-256 canonical payload hash → memory idempotency advisory lock → same-key replay → request insert → anonymous short-circuit → rule-key advisory lock → Partner/Catalog providers → if active overlap without acknowledge → `overwrite_required` (no mutation); with `acknowledgeOverwrite` → soft-delete overlapping actives → create/update remembered rule. **DOC_AHEAD_OF_CODE:** current code may still emit `MANUAL_RULE_PROTECTED` / `DUPLICATE_ACTIVE_RULE`.
 
 ## S10 — History
 
@@ -180,10 +181,10 @@ UI → GetCustomerPriceRuleHistoryQuery
 
 | Use case | Atomic responsibilities |
 | -------- | ----------------------- |
-| create/update | tenant/access, reference, duplicate, floor, rule write, activity |
-| disable/reenable | version/status, reenable validations, transition, activity |
-| import confirm | batch/row idempotency, per-row validation, rule/activity, counters |
-| memory save | idempotency payload check, manual protection, rule/request/activity |
+| create/update | tenant/access, reference, overlap (overwrite-confirm → soft-delete), floor, rule write, activity |
+| disable/reenable | version/status, reenable validations, overwrite-confirm if needed, transition, activity |
+| import confirm | batch/row idempotency, per-row validation, overwrite soft-deletes, rule/activity, counters |
+| memory save | idempotency payload check, overwrite-confirm (any source), rule/request/activity |
 
 ## Error mapping
 

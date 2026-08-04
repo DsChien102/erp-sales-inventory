@@ -2,6 +2,8 @@
 
 Ma trận truy vết product → role → contract → artifact → test. Tất cả row khởi tạo `todo`, trừ US-02 CONTRACT/BE là `n/a` và S9 E2E là `blocked` theo roadmap.
 
+> **2026-08-04:** Overwrite-confirm đã sync vào Theme-4 / US / `07`. Test ids hiện tại vẫn cover behavior legacy (block/auto-disable/`MANUAL_RULE_PROTECTED`) cho đến catch-up slice.
+
 ```text
 Requirement: e02/u{us}/fr{fr}/{TYPE}-{id}
 Tests: scn_e02_u{us}_fr{fr}_{nn} (BE), wgt_e02_u{us}_fr{fr}_{nn} (FE), e2e_e02_u{us}_fr{fr}_{nn} (E2E)
@@ -15,7 +17,7 @@ Lane E2E dưới đây = **Fake mediator** (`FakePricingModule` / `PricingE2eMod
 
 | Req ID | Role | US | Symbol | FE page | Key FakePricingScenario | E2E id (primary) | E2E status |
 | ----- | ---- | -- | ------ | ------- | ----------------------- | ---------------- | ---------- |
-| S1 | E2E | US-04 | `CreateCustomerPriceRuleCommand` | `pricing_form_page` | `createRuleOk`, `createRuleFloorBlocked`, `createRuleDuplicate` | `e2e_e02_u04_fr01_01` | done (Fake) |
+| S1 | E2E | US-04 | `CreateCustomerPriceRuleCommand` | `pricing_form_page` | `createRuleOk`, `createRuleFloorBlocked`, `create_rule_overwrite_required` (target); legacy `createRuleDuplicate` deprecated | `e2e_e02_u04_fr01_01` | done (Fake) — **DOC_AHEAD_OF_CODE** overwrite UX |
 | S2 | E2E | US-01 | `SearchCustomerPriceRulesQuery` | `pricing_list_page` | `searchRulesDefault`, `searchRulesEmpty` | `e2e_e02_u01_fr01_01` | done (Fake) |
 | S3 | E2E | US-03 | `GetCustomerPriceRuleDetailQuery` | `pricing_detail_page` | `ruleDetailActive`, `ruleDetailNotFound` | `e2e_e02_u03_fr01_01` | done (Fake) |
 | S4 | E2E | US-02 | (presentation) | `pricing_choose_method_page` | capability routes | `e2e_e02_u02_fr01_01` | done (Fake) |
@@ -113,7 +115,7 @@ Harness: `apps/erp/test/features/pricing/pricing_e2e_harness.dart`.
 | FR-05 | BE | §S9 | infrastructure | `memory_created` / `memory_updated` activity trace | pricing_remembered_price_from_order_s9_contract_test | done |
 | BR-01 | BE | §S9 | infrastructure | anonymous → `ANONYMOUS_CUSTOMER` stored skip | pricing_remembered_price_from_order_s9_contract_test | done |
 | BR-03..04 | BE | §S9 | infrastructure | replay-before-live + `IDEMPOTENCY_CONFLICT` | pricing_remembered_price_from_order_s9_contract_test, supabase_remembered_price_gateway_test | done |
-| BR-05..06 | BE | §S9 | domain/infrastructure | manual protection + remembered rule type/source | remembered_price_request_test, pricing_remembered_price_from_order_s9_contract_test | done |
+| BR-05..06 | BE | §S9 | domain/infrastructure | overwrite-confirm vs any active overlapping rule (docs); legacy tests still cover `MANUAL_RULE_PROTECTED` | remembered_price_request_test, pricing_remembered_price_from_order_s9_contract_test | done (legacy) / catch-up todo |
 | EC-01..04 | BE | §S9 | application/infrastructure | fake scenarios + mapper/gateway/startup tests | fake_pricing_module_test, pricing_remembered_price_startup_test | done |
 | SCN-01..03 | BE | §S9 | application/infrastructure | handler + fake + SQL contract coverage | scn_e02_u09_scn01_01 | done |
 | AC-01..04 | BE | §S9 | application/infrastructure | contract isolation, idempotency, protection, trace | save_remembered_price_from_order_contract_test, customer_price_rule_detail_rpc_mapper_test | done |

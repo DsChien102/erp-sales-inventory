@@ -94,9 +94,13 @@ disabled disabled, and normalizes fixed needs_review to active.
 
 `CustomerPriceRule.softDelete({required DateTime deletedAt})` allows only `active` or `needs_review` → `deleted`, sets `deletedAt`, increments `version` once, and raises exactly one `CustomerPriceRuleDeletedDomainEvent(ruleId, previousVersion, newVersion)`. Replay on already-`deleted` is idempotent (no version bump, no second event). `disabled` cannot be soft-deleted (`CustomerPriceRuleCanBeDeletedRule`). Reconstitution enforces `status == deleted` ↔ `deletedAt != null`. Search/detail hide deleted; history may still load by ID with `view_history`. Soft-delete UI is out of scope for this delivery — Domain/Application/Infrastructure/SQL only.
 
-### Overlap policy (BR-07 / CPR-INV-06)
+### Overlap policy (BR-07 / CPR-INV-06) — **DOC_AHEAD_OF_CODE (2026-08-04)**
 
-`CustomerPriceRuleOverlapPolicy` conflicts only when same tenant/customer/product/product-unit, both rules are `active` with `deletedAt == null`, and closed intervals overlap (`EffectivePeriod.overlaps`). Update/reenable/import exclude the current rule id. Manual create/update and reenable retain their own replacement policy via `_auto_disable_overlapping_customer_price_rules` (reason `AUTO_REPLACED_BY_RULE`). Import is stricter: preview surfaces `DUPLICATE_ACTIVE_RULE` as a blocking row error, confirm rechecks under the rule-key lock, skips only the conflicting row, and never auto-disables the existing active rule. DB exclusion constraint on active non-deleted intervals is the final guard (draft `014`).
+`CustomerPriceRuleOverlapPolicy` detects conflict when same tenant/customer/product/product-unit, both rules are `active` with `deletedAt == null`, and closed intervals overlap (`EffectivePeriod.overlaps`). Update/reenable/import exclude the current rule id from the candidate set.
+
+**Product policy (Theme-4 SSOT):** overlap is **not** a hard block by default. Mutation returns warning/outcome `OVERWRITE_REQUIRED` (`duplicate_rule_overwrite_required`) with overlapping rule refs. Commit proceeds only when the caller sets `acknowledgeOverwrite=true` (and has permission for the source action). On confirm, RPC **soft-deletes** all overlapping active rules in the same transaction, then creates/updates/reenables the candidate. Runtime duplicate **does not** auto-create `needs_review` (that status is for migration/legacy ambiguous data only).
+
+**Known drift:** current Dart/SQL may still use `_auto_disable_overlapping_customer_price_rules` (`AUTO_REPLACED_BY_RULE`) and/or block with `DUPLICATE_ACTIVE_RULE`. Treat those as implementation lag until the overwrite-confirm catch-up slice. DB exclusion constraint on active non-deleted intervals remains the final integrity guard.
 
 ### Eligibility policy (BR-08 / CPR-INV-08)
 
@@ -122,7 +126,7 @@ disabled disabled, and normalizes fixed needs_review to active.
 | CPR-INV-03 | `excel_import` source có import ID và ưu tiên import-row ID. |
 | CPR-INV-04 | `sales_order` source có order ID và ưu tiên order-line/request ID. |
 | CPR-INV-05 | Manual source có actor. |
-| CPR-INV-06 | Sau mỗi commit chỉ còn tối đa một active interval overlap cho cùng key; rule mới/update/reenable/import sẽ auto-disable mọi active overlap cũ trong cùng transaction; DB exclusion constraint bảo vệ lớp cuối. |
+| CPR-INV-06 | Sau mỗi commit thành công chỉ còn tối đa một active interval overlap cho cùng key; khi user xác nhận ghi đè, overlapping actives bị soft-delete trong cùng transaction trước khi lưu/bật candidate; DB exclusion constraint bảo vệ lớp cuối. |
 | CPR-INV-07 | Important mutation ghi activity trong cùng commit. |
 | CPR-INV-08 | Disabled/deleted/blocked rule không eligible cho order mới. |
 | CPR-INV-09 | Chỉ `disabled` rule được reenable; blocked precheck outcome không commit. |
@@ -139,18 +143,18 @@ Domain: `CustomerPriceRuleCanBeReenabledRule`, `CustomerPriceRule.reenable(RuleV
 ```mermaid
 stateDiagram-v2
   [*] --> active: create/import/memory valid
-  [*] --> needs_review: warning/blocking intake
+  [*] --> needs_review: migration/legacy ambiguous intake only
   active --> active: update
+  active --> deleted: soft delete on overwrite confirm
   active --> disabled: disable
   needs_review --> disabled: disable
   disabled --> disabled: edit
-  disabled --> active: reenable + valid precheck
+  disabled --> active: reenable + valid precheck (+ overwrite confirm if needed)
   disabled --> disabled: reenable blocked
-  active --> deleted: soft delete
   needs_review --> deleted: soft delete
 ```
 
-`expired` không phải persisted transition; nó được derive từ `effective_to` và business date.
+`expired` không phải persisted transition; nó được derive từ `effective_to` và business date. Runtime duplicate create/update/import/reenable/memory **không** chuyển candidate sang `needs_review`.
 
 ## Duplicate interval policy
 
@@ -161,7 +165,7 @@ existing.from <= candidate.to_or_infinity
 AND candidate.from <= existing.to_or_infinity
 ```
 
-Chỉ xét non-deleted active rules trong cùng tenant/key. Khi update/reenable, loại chính rule hiện tại khỏi candidate set. Kiểm tra UI/precheck chỉ hỗ trợ UX; RPC là điểm quyết định cuối và sẽ auto-disable toàn bộ active overlaps còn lại theo lock key trước khi commit rule mới.
+Chỉ xét non-deleted active rules trong cùng tenant/key. Khi update/reenable, loại chính rule hiện tại khỏi candidate set. Precheck/UI trả `OVERWRITE_REQUIRED` + refs; RPC commit với `acknowledgeOverwrite=true` soft-delete toàn bộ active overlaps còn lại theo lock key trước khi lưu candidate. Không confirm → không mutation (blocking chỉ vì thiếu confirm/quyền, không vì “duplicate là lỗi dữ liệu”).
 
 ## Floor-price policy
 

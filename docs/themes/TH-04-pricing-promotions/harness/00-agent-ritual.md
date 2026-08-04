@@ -27,6 +27,7 @@ Thứ tự đọc khi implement một slice. `pricing` là future bounded contex
 - Command handler không trả `Either`/`Result`; map lỗi ở presentation boundary.
 - Không direct PostgREST write; mutation đi qua mediator → pipeline → handler → gateway → RPC.
 - SQL chỉ được draft trong `supabase/migrations/_drafts/`; không tạo timestamp migration.
+- **EP02 mutation:** đọc Theme-4 EP02 domain + [07-api-contracts.md](07-api-contracts.md) mục overwrite (`OVERWRITE_REQUIRED` / `acknowledgeOverwrite`) trước khi code. Docs có thể **ahead of code** (`DOC_AHEAD_OF_CODE` trong `07`/`06`); PR docs-only không sửa Dart/SQL.
 
 ## Trước khi sửa symbol
 
