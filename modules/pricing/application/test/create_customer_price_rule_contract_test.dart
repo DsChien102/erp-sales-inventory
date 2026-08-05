@@ -379,6 +379,7 @@ final class _CommandGateway implements ICustomerPriceRuleCommandGateway {
     required CustomerPriceRule candidate,
     required String idempotencyKey,
     required bool acknowledgeFloorWarning,
+    bool acknowledgeOverwrite = false,
   }) async {
     lastCandidate = candidate;
     lastIdempotencyKey = idempotencyKey;
@@ -391,6 +392,7 @@ final class _CommandGateway implements ICustomerPriceRuleCommandGateway {
     required CustomerPriceRule candidate,
     required int expectedVersion,
     required bool acknowledgeFloorWarning,
+    bool acknowledgeOverwrite = false,
   }) => throw UnsupportedError('update not used');
 
   @override

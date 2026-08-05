@@ -40,4 +40,5 @@ export 'src/widgets/price_rule_leave_form_dialog.dart';
 export 'src/widgets/price_rule_history_filter_sheet.dart';
 export 'src/widgets/price_rule_activity_detail_sheet.dart';
 export 'src/widgets/price_rule_source_order_detail_sheet.dart';
+export 'src/widgets/price_rule_overwrite_confirm_dialog.dart';
 

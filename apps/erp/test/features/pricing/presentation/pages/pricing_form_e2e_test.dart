@@ -115,6 +115,15 @@ void main() {
         await cubit.submit();
         await tester.pumpAndSettle();
 
+        expect(find.text('Ghi đè giá riêng trùng?'), findsOneWidget);
+        await tester.tap(
+          find.descendant(
+            of: find.byType(VConfirmDialog),
+            matching: find.text('Hủy'),
+          ),
+        );
+        await tester.pumpAndSettle();
+
         expect(
           find.text(
             'Đã tồn tại giá riêng đang hoạt động trùng thời gian. '

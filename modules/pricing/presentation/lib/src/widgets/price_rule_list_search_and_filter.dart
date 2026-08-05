@@ -87,7 +87,7 @@ class _PriceRuleListSearchAndFilterState
                   Expanded(
                     child: VSearchBar(
                       controller: _searchController,
-                      hintText: 'Tìm theo khách hàng, sản phẩm...',
+                      hintText: 'Tìm theo khách hàng, SĐT, sản phẩm...',
                       onChanged: _onSearchChanged,
                     ),
                   ),

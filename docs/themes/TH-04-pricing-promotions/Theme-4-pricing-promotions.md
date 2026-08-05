@@ -1,4 +1,4 @@
-# Theme 4: Chính sách giá và ưu đãi
+# Theme 4: Giá bán
 
 # 1\. Theme overview
 
@@ -106,7 +106,7 @@ Các phần này có thể liên quan tới giá/khuyến mại, nhưng không n
 
 ## 1\.5 Người dùng chính
 
-|Vai trò|Nhu cầu chính|
+|**Vai trò**|**Nhu cầu chính**|
 |---|---|
 |**Chủ hộ / chủ doanh nghiệp**|Kiểm soát chính sách giá, tránh sai giá, xem tác động kinh doanh|
 |**Quản lý cửa hàng**|Kiểm tra giá đang áp dụng, xử lý giá riêng/CTKM theo quyền|
@@ -116,7 +116,7 @@ Các phần này có thể liên quan tới giá/khuyến mại, nhưng không n
 
 ## 1\.6 Khái niệm chính
 
-|Khái niệm|Mô tả ngắn|
+|**Khái niệm**|**Mô tả ngắn**|
 |---|---|
 |**Giá bán mặc định**|Giá cơ bản của sản phẩm khi không có chính sách đặc biệt|
 |**Bảng giá**|Tập hợp giá áp dụng cho một nhóm sản phẩm/khách hàng/kênh bán|
@@ -468,7 +468,7 @@ Customer price rule là domain lõi của EP02, đại diện cho một giá ri�
 
 - CPR\-BR\-06: Nếu có `effective_to`, `effective_from` phải nhỏ hơn hoặc bằng `effective_to`\.
 
-- CPR\-BR\-07: Không được có nhiều rule active trùng `tenant_id + customer_id + product_id + product_unit_id` và giao nhau về hiệu lực\.
+- CPR\-BR\-07: Tại thời điểm hoàn tất một command, không được tồn tại nhiều rule active có cùng tenant\_id, customer\_id, product\_id, product\_unit\_id và giao nhau về hiệu lực\. Nếu rule đang tạo, sửa hoặc bật lại trùng với rule active hiện có, hệ thống phải yêu cầu người dùng xác nhận ghi đè\. Khi xác nhận, hệ thống xóa mềm toàn bộ rule active bị trùng trước khi lưu hoặc kích hoạt rule mới\.
 
 - CPR\-BR\-08: Rule có `status = disabled` không được pricing engine áp dụng cho đơn hàng mới\.
 
@@ -502,7 +502,7 @@ Persisted lifecycle:
 
 - `disabled`: rule đã bị tắt; không áp dụng cho đơn hàng mới; action chính gồm view, edit nếu policy cho phép, reenable\.
 
-- `needs_review`: rule cần kiểm tra do migration/import conflict, dữ liệu không hợp lệ hoặc policy yêu cầu review; không áp dụng nếu lỗi blocking; action chính gồm view, edit/fix, disable\.
+- needs\_review: Dùng cho dữ liệu migration, dữ liệu cũ hoặc dữ liệu chưa xác định được rule nào cần giữ\. Duplicate phát hiện trong thao tác tạo, sửa, import, nhớ giá hoặc bật lại không tự tạo rule needs\_review; hệ thống phải yêu cầu người dùng xác nhận ghi đè trước khi hoàn tất thao tác\.
 
 - `deleted`: rule đã bị xóa mềm; không áp dụng; chỉ xem audit nếu có quyền\.
 
@@ -606,7 +606,7 @@ Rule intake quản lý các luồng đưa dữ liệu vào EP02: tạo thủ cô
 
 - RI\-BR\-09: Request nhớ giá từ Sales phải idempotent theo order/order line để tránh tạo/cập nhật trùng\.
 
-- RI\-BR\-10: Nếu đã có giá riêng thủ công active cho cùng key, request nhớ giá từ Sales không tự ghi đè trừ khi policy cho phép\.
+- RI\-BR\-10: Nếu request nhớ giá từ Sales trùng với một rule active cùng key và giao nhau về hiệu lực, EP02 phải trả kết quả overwrite\_required để Sales hiển thị cảnh báo ghi đè\. Sau khi người dùng xác nhận, EP02 xóa mềm rule active cũ và lưu rule nhớ giá mới\. Không phân biệt rule cũ được tạo thủ công, nhập Excel, từ Sales hay migration\.
 
 **Invariants**
 
@@ -756,7 +756,7 @@ Validation \& review đảm bảo rule chỉ được tạo, sửa, bật lại 
 
 - VR\-BR\-06: Hiệu lực phải hợp lệ: `effective_from <= effective_to` nếu có `effective_to`\.
 
-- VR\-BR\-07: Rule active không được giao hiệu lực với rule active khác cùng customer, product và product unit\.
+- VR\-BR\-07: Nếu candidate rule giao hiệu lực với rule active khác cùng customer, product và product unit, validation phải trả warning duplicate\_rule\_overwrite\_required cùng thông tin rule bị trùng\. Duplicate chỉ trở thành blocking khi người dùng chưa xác nhận ghi đè hoặc không có quyền thực hiện thao tác nguồn\.
 
 - VR\-BR\-08: Giá dưới giá sàn phải được đánh dấu `below_floor_price`; policy quyết định warning hay blocking\.
 
@@ -780,7 +780,7 @@ Validation \& review đảm bảo rule chỉ được tạo, sửa, bật lại 
 
 - `warning`: có cảnh báo nhưng có thể tiếp tục nếu policy cho phép\. Ví dụ: `below_floor_price`, `price_higher_than_current_price`, `missing_optional_effective_to`\.
 
-- `blocked`: có lỗi nghiệp vụ, không được lưu/import/bật lại\. Ví dụ: `customer_not_found`, `product_not_found`, `ambiguous_product_unit`, `duplicate_active_rule`, `invalid_effective_period`, `price_must_be_positive`\.
+- `blocked`: có lỗi nghiệp vụ, không được lưu/import/bật lại\. Ví dụ: `customer_not_found`, `product_not_found`, `ambiguous_product_unit`, `invalid_effective_period`, `price_must_be_positive`\.
 
 - `needs_review`: dữ liệu cần người dùng kiểm tra trước khi được tin cậy hoàn toàn\. Ví dụ: `migration_missing_audit`, `manual_review_required`, `source_data_changed`\.
 
@@ -930,7 +930,7 @@ Relationship summary:
 |`customers` 1\-n `customer_price_rules`|Một khách hàng có thể có nhiều rule giá riêng / nhớ giá\.|
 |`products` 1\-n `customer_price_rules`|Một sản phẩm có thể có nhiều rule theo khách hàng/đơn vị bán\.|
 |`product_units` 1\-n `customer_price_rules`|Một đơn vị bán có thể được nhiều rule tham chiếu\.|
-|`customer_price_rule_imports` 1\-n `customer_price_rule_import_rows`|Một batch import có nhiều dòng\.|
+|`customer_price_rule_imports` 1\-n `customer_price_rule_import_rows`|Một batch import có nhiều dòng\.<br>|
 |`customer_price_rule_imports` 1\-n `customer_price_rules`|Một batch import có thể tạo/cập nhật nhiều rule\.|
 |`customer_price_rule_import_rows` 0/1\-n `customer_price_rules`|Một dòng import có thể tạo/cập nhật một rule\.|
 |`orders` 1\-n `price_memory_requests`|Một đơn hàng có thể phát sinh nhiều request nhớ giá\.|
@@ -1061,7 +1061,7 @@ erDiagram
 |`tenant_id`|UUID|Yes|FK|`tenants.id`|Tenant sở hữu dòng import\.|
 |`import_id`|UUID|Yes|FK|`customer_price_rule_imports.id`|Batch import cha\.|
 |`row_number`|integer|Yes|—|—|Số dòng trong file Excel\. Unique trong `import_id`\.|
-|`raw_customer_ref`|text|Yes|—|—|Giá trị khách hàng từ Excel; có thể là mã, tên, SĐT hoặc định danh được template hỗ trợ\.|
+|`raw_customer_ref`|text|Yes|—|—|Số điện thoại khách hàng lấy từ Excel, lưu dưới dạng dữ liệu gốc trước khi chuẩn hóa và đối chiếu với hồ sơ khách hàng\.|
 |`raw_product_ref`|text|Yes|—|—|Giá trị sản phẩm từ Excel; có thể là mã, tên, SKU hoặc barcode được template hỗ trợ\.|
 |`raw_price`|text|Yes|—|—|Giá raw từ Excel\.|
 |`raw_effective_from`|text|No|—|—|Ngày bắt đầu raw từ Excel\.|
@@ -1160,7 +1160,7 @@ US này chỉ tập trung vào danh sách, tìm kiếm, lọc, kiểm tra nhanh 
 |---|---|---|
 |**FR\-01**<br>|Hiển thị danh sách giá riêng / nhớ giá|Người dùng có quyền có thể xem danh sách giá riêng / nhớ giá thuộc tenant hiện tại|
 |**FR\-02**|Hiển thị thông tin tóm tắt của từng giá riêng|Mỗi item hiển thị khách hàng, sản phẩm, đơn vị bán, giá riêng / giá nhớ, trạng thái và cảnh báo chính nếu có|
-|**FR\-03**|Tìm kiếm giá riêng / nhớ giá|Người dùng có thể tìm theo tên khách hàng, mã khách hàng, tên sản phẩm, mã sản phẩm hoặc SKU|
+|**FR\-03**|Tìm kiếm giá riêng / nhớ giá|Người dùng có thể tìm theo tên khách hàng, **số điện thoại khách hàng**, tên sản phẩm, mã sản phẩm hoặc SKU\.|
 |**FR\-04**|Lọc nhanh theo nhóm nghiệp vụ chính|Người dùng có thể lọc nhanh theo `Tất cả`, `Đang áp dụng`, `Dưới giá sàn`|
 |**FR\-05**|Lọc nâng cao danh sách giá riêng / nhớ giá|Người dùng có thể lọc trạng thái, nguồn tạo và thời gian cập nhật nếu hệ thống hỗ trợ|
 |**FR\-06**|Hiển thị cảnh báo cần kiểm tra|Giá riêng có rủi ro như dưới giá sàn, dữ liệu không hợp lệ hoặc trùng rule phải được đánh dấu rõ ràng|
@@ -1175,7 +1175,7 @@ US này chỉ tập trung vào danh sách, tìm kiếm, lọc, kiểm tra nhanh 
 |**BR\-03**|Giá riêng được xem là `Đang áp dụng` khi rule active, còn hiệu lực và không có lỗi blocking|
 |**BR\-04**|Giá riêng đã tắt hoặc hết hiệu lực không được áp dụng cho đơn hàng mới nhưng vẫn có thể hiển thị để kiểm tra|
 |**BR\-05**|Giá riêng thấp hơn giá sàn hiện tại phải hiển thị cảnh báo `Dưới giá sàn`|
-|**BR\-06**|Không được có nhiều rule active trùng khách hàng, sản phẩm, đơn vị bán và giao nhau về hiệu lực|
+|**BR\-06**|Sau khi một thao tác tạo, sửa, import, bật lại hoặc lưu nhớ giá hoàn tất, hệ thống không được để tồn tại nhiều rule active trùng khách hàng, sản phẩm, đơn vị bán và giao nhau về hiệu lực\.|
 |**BR\-07**|Người dùng không có quyền xem dữ liệu nhạy cảm sẽ bị ẩn giá sàn hoặc bị chặn truy cập theo policy phân quyền|
 
 #### 4\.2\.1\.4 UI Contract
@@ -1256,10 +1256,28 @@ Màn hình danh sách giúp người dùng kiểm soát nhanh các giá riêng /
 |**SC\-03**|Lọc giá riêng đang áp dụng|Danh sách có nhiều trạng thái|Người dùng chọn quick filter `Đang áp dụng`|Hệ thống chỉ hiển thị giá riêng active, còn hiệu lực và không có lỗi blocking|
 |**SC\-04**|Lọc giá riêng dưới giá sàn|Có giá riêng thấp hơn giá sàn hiện tại|Người dùng chọn quick filter `Dưới giá sàn`|Hệ thống chỉ hiển thị các item có cảnh báo dưới giá sàn|
 |**SC\-05**|Mở bộ lọc nâng cao|Người dùng cần lọc sâu hơn quick filter|Người dùng bấm icon filter|Hệ thống mở bộ lọc nâng cao|
-|**SC\-06**|Điều hướng từ danh sách|Người dùng đang xem danh sách|Người dùng tap item hoặc bấm CTA `+`|Hệ thống mở chi tiết giá riêng hoặc chuyển sang màn chọn cách thêm|
-|**SC\-07**|Hiển thị state đặc biệt|Dữ liệu rỗng, không có kết quả, lỗi tải dữ liệu hoặc thiếu quyền|Người dùng mở hoặc thao tác trên danh sách|Hệ thống hiển thị state tương ứng và CTA xử lý nếu phù hợp|
+|**SC\-06**|Điều hướng từ danh sách<br>|Người dùng đang xem danh sách|Người dùng tap item hoặc bấm CTA `+`|Hệ thống mở chi tiết giá riêng hoặc chuyển sang màn chọn cách thêm|
+|**SC\-07**|Hiển thị state đặc biệt<br>|Dữ liệu rỗng, không có kết quả, lỗi tải dữ liệu hoặc thiếu quyền|Người dùng mở hoặc thao tác trên danh sách|Hệ thống hiển thị state tương ứng và CTA xử lý nếu phù hợp|
 
-#### 4\.2\.1\.7 Edge cases
+```Python
+#DEV    22/7/2026    Passed    Chiến     Dev  SC-01
+#DEV    22/7/2026    Passed    Chiến     Dev  SC-02
+#DEV    22/7/2026    Passed    Chiến     Dev  SC-03
+#DEV    22/7/2026    Passed    Chiến     Dev  SC-04
+#DEV    22/7/2026    Passed    Chiến     Dev  SC-05
+#DEV    22/7/2026    Passed    Chiến     Dev  SC-06
+#DEV    22/7/2026    Failed      Chiến     Dev  SC-07
+
+# 29/7/2026    Lê Xuân Lộc    PE    Passed    SC-01
+# 29/7/2026    Lê Xuân Lộc    PE    Passed    SC-02
+# 29/7/2026    Lê Xuân Lộc    PE    Passed    SC-03
+# 29/7/2026    Lê Xuân Lộc    PE    Passed    SC-04
+# 29/7/2026    Lê Xuân Lộc    PE    Passed    SC-05
+# 29/7/2026    Lê Xuân Lộc    PE    Passed    SC-06
+# 29/7/2026    Lê Xuân Lộc    PE    Passed   SC-07    
+```
+
+4\.2\.1\.7 Edge cases
 
 |ID|Edge Case|Hướng xử lý đề xuất|
 |---|---|---|
@@ -1267,7 +1285,7 @@ Màn hình danh sách giúp người dùng kiểm soát nhanh các giá riêng /
 |**EC\-02**|Khách hàng, sản phẩm hoặc đơn vị bán không còn hoạt động|Hiển thị cảnh báo dữ liệu không hợp lệ và không áp dụng cho đơn mới nếu là lỗi blocking|
 |**EC\-03**|Giá riêng dưới giá sàn nhưng user không có quyền xem giá sàn|Vẫn hiển thị badge cảnh báo nếu policy cho phép, nhưng ẩn giá sàn cụ thể|
 |**EC\-04**|Có rule trùng do import hoặc migration|Gắn cảnh báo `Trùng rule` hoặc đưa vào nhóm `Cần kiểm tra`|
-|**EC\-05**|Search có dấu / không dấu hoặc khác chữ hoa thường|Nên hỗ trợ tìm kiếm không phân biệt dấu tiếng Việt và không phân biệt hoa thường|
+|**EC\-05**|Search có dấu / không dấu hoặc khác chữ hoa thường<br>|Nên hỗ trợ tìm kiếm không phân biệt dấu tiếng Việt và không phân biệt hoa thường|
 |**EC\-06**|Danh sách rất lớn|Dùng pagination, infinite scroll hoặc server\-side search/filter|
 |**EC\-07**|Dữ liệu thay đổi trong lúc người dùng đang xem|Khi refresh hoặc quay lại từ detail, danh sách cập nhật trạng thái mới nhất|
 
@@ -1383,9 +1401,21 @@ Màn hình / bottom sheet giúp người dùng chọn nhanh cách thêm giá ri�
 |---|---|---|---|---|
 |**SC\-01**|Chọn tạo thủ công từ danh sách|Người dùng có quyền tạo thủ công|Người dùng bấm `+` và chọn `Tạo thủ công`|Hệ thống mở US\-04 — Tạo giá riêng thủ công|
 |**SC\-02**|Chọn nhập Excel từ danh sách|Người dùng có quyền import|Người dùng bấm `+` và chọn `Nhập từ Excel`|Hệ thống mở US\-05 — Nhập giá riêng bằng Excel|
-|**SC\-03**|Người dùng chỉ có quyền tạo thủ công|Người dùng không có quyền import|Người dùng mở chọn cách thêm|Hệ thống chỉ cho phép chọn `Tạo thủ công` hoặc disabled `Nhập từ Excel`|
+|**SC\-03**|Người dùng chỉ có quyền tạo thủ công<br>|Người dùng không có quyền import<br>|Người dùng mở chọn cách thêm<br>|Hệ thống chỉ cho phép chọn `Tạo thủ công` hoặc disabled `Nhập từ Excel`|
 |**SC\-04**|Người dùng không có quyền thêm|Người dùng không có quyền tạo thủ công và không có quyền import|Người dùng bấm CTA thêm|Hệ thống hiển thị no\-permission state hoặc chặn CTA từ màn trước|
 |**SC\-05**|Đóng bottom sheet|Bottom sheet đang mở|Người dùng đóng bottom sheet|Hệ thống quay lại màn trước và không tạo dữ liệu|
+
+```Plain Text
+#DEV    22/7/2026    Passed    Chiến     Dev  SC-01
+#DEV    22/7/2026    Passed    Chiến     Dev  SC-02
+#DEV    22/7/2026    Failed      Chiến     Dev  SC-03
+#DEV    22/7/2026    Failed      Chiến     Dev  SC-04
+#DEV    22/7/2026    Passed    Chiến     Dev  SC-05
+
+#PE    29/7/2026    Lê Xuân Lộc    Passed    SC-01, SC-02, SC-05. SC-03, SC-04 chưa thể test được
+```
+
+
 
 #### 4\.2\.2\.7 Edge cases
 
@@ -1535,13 +1565,31 @@ Màn hình chi tiết giúp người dùng kiểm tra đầy đủ một giá ri
 
 |ID|Scenario|Given|When|Then|
 |---|---|---|---|---|
-|**SC\-01**<br>|Xem chi tiết giá riêng đang áp dụng|Người dùng có quyền xem giá riêng|Người dùng mở chi tiết một rule đang áp dụng|Hệ thống hiển thị đầy đủ thông tin khách hàng, sản phẩm, giá, hiệu lực và CTA phù hợp|
+|**SC\-01**<br>|Xem chi tiết giá riêng đang áp dụng<br>|Người dùng có quyền xem giá riêng<br>|Người dùng mở chi tiết một rule đang áp dụng|Hệ thống hiển thị đầy đủ thông tin khách hàng, sản phẩm, giá, hiệu lực và CTA phù hợp|
 |**SC\-02**|Kiểm tra giá riêng dưới giá sàn|Rule có giá riêng thấp hơn giá sàn hiện tại|Người dùng mở chi tiết rule|Hệ thống hiển thị cảnh báo `Dưới giá sàn` và chênh lệch với giá sàn|
 |**SC\-03**|Xem giá riêng đã tắt|Rule đã bị tắt trước đó|Người dùng mở chi tiết rule|Hệ thống hiển thị trạng thái `Đã tắt` và không coi rule là đang áp dụng|
 |**SC\-04**|Xem giá riêng hết hiệu lực|Rule đã quá ngày kết thúc|Người dùng mở chi tiết rule|Hệ thống hiển thị trạng thái hết hiệu lực và không áp dụng cho đơn mới|
 |**SC\-05**|User bị giới hạn quyền xem giá|Người dùng có quyền xem giới hạn|Người dùng mở chi tiết rule|Hệ thống ẩn giá sàn hoặc dữ liệu nhạy cảm theo policy|
 |**SC\-06**|Điều hướng sang flow liên quan|Người dùng có quyền và trạng thái cho phép|Người dùng bấm `Sửa`, `Tắt giá riêng`, `Bật lại giá riêng` hoặc `Lịch sử áp dụng & thay đổi`|Hệ thống điều hướng sang US tương ứng|
 |**SC\-07**|Không có quyền thao tác|Người dùng chỉ có quyền xem|Người dùng mở chi tiết rule|Hệ thống cho xem thông tin được phép nhưng ẩn hoặc disable CTA thao tác|
+
+```Python
+#DEV    22/7/2026    Passed    Chiến     Dev  SC-01
+#DEV    22/7/2026    Passed    Chiến     Dev  SC-02
+#DEV    22/7/2026    Passed    Chiến     Dev  SC-03
+#DEV    22/7/2026    Passed    Chiến     Dev  SC-04
+#DEV    22/7/2026    Failed      Chiến     Dev  SC-05
+#DEV    22/7/2026    Passed    Chiến     Dev  SC-06
+#DEV    22/7/2026    Failed      Chiến     Dev  SC-07
+
+# 30/7/2026    Lê Xuân Lộc    PE    Passed SC-01
+# 30/7/2026    Lê Xuân Lộc    PE    Passed SC-02
+# 30/7/2026    Lê Xuân Lộc    PE    Passed SC-03
+# 30/7/2026    Lê Xuân Lộc    PE    Passed SC-04
+# 30/7/2026    Lê Xuân Lộc    PE    Failed SC-05    Chưa thể test được do chưa làm phân quyền
+# 30/7/2026    Lê Xuân Lộc    PE    Passed SC-06
+# 30/7/2026    Lê Xuân Lộc    PE    Failed SC-07    Chưa thể test được do chưa làm phân quyền
+```
 
 #### 4\.2\.3\.7 Edge cases
 
@@ -1581,13 +1629,13 @@ US này chỉ xử lý việc tạo giá riêng thủ công\. Entry point chọn
 
 |ID|Functional Requirement|Acceptance Criteria|
 |---|---|---|
-|**FR\-01**|Hiển thị form tạo giá riêng thủ công|Người dùng có quyền có thể mở form tạo giá riêng sau khi chọn `Tạo thủ công` từ US\-02|
+|**FR\-01**|Hiển thị form tạo giá riêng thủ công<br>|Người dùng có quyền có thể mở form tạo giá riêng sau khi chọn `Tạo thủ công` từ US\-02|
 |**FR\-02**|Chọn đối tượng áp dụng|Người dùng có thể chọn khách hàng áp dụng giá riêng|
 |**FR\-03**|Chọn sản phẩm và đơn vị bán|Người dùng có thể chọn sản phẩm và đơn vị bán cụ thể để áp dụng giá riêng|
 |**FR\-04**|Nhập giá riêng|Người dùng có thể nhập giá riêng hợp lệ cho tổ hợp khách hàng × sản phẩm × đơn vị bán|
 |**FR\-05**|Thiết lập hiệu lực|Người dùng có thể thiết lập ngày bắt đầu và ngày kết thúc nếu cần|
 |**FR\-06**|Preview và kiểm tra trước khi lưu|Hệ thống hiển thị giá hiện tại, giá sàn nếu có quyền, chênh lệch và cảnh báo như dưới giá sàn hoặc trùng rule|
-|**FR\-07**|Lưu giá riêng thủ công|Khi dữ liệu hợp lệ, hệ thống tạo rule giá riêng nguồn `Tạo thủ công`, ghi audit log và hiển thị feedback thành công|
+|**FR\-07**|Lưu giá riêng thủ công|Nếu không có rule trùng, hệ thống tạo rule giá riêng mới\.  Nếu có rule active trùng, hệ thống hiển thị cảnh báo ghi đè\. Sau khi người dùng xác nhận, hệ thống xóa mềm rule cũ, tạo rule mới và ghi audit log trong cùng một transaction\.|
 
 #### 4\.2\.4\.3 Business rules
 
@@ -1597,7 +1645,7 @@ US này chỉ xử lý việc tạo giá riêng thủ công\. Entry point chọn
 |**BR\-02**|Giá riêng phải thuộc tenant hiện tại và gắn với khách hàng, sản phẩm và đơn vị bán cụ thể|
 |**BR\-03**|Giá riêng phải lớn hơn 0 và được lưu bằng kiểu dữ liệu tiền tệ/decimal|
 |**BR\-04**|Ngày bắt đầu phải nhỏ hơn hoặc bằng ngày kết thúc nếu người dùng thiết lập ngày kết thúc|
-|**BR\-05**|Không được tạo rule active trùng đối tượng áp dụng, sản phẩm, đơn vị bán và giao nhau về hiệu lực|
+|**BR\-05**|Khi tạo rule trùng với rule active cùng đối tượng áp dụng và giao nhau về hiệu lực, hệ thống phải cảnh báo trước khi ghi đè\.  Chỉ sau khi người dùng xác nhận, hệ thống mới xóa mềm rule cũ và tạo rule mới\.|
 |**BR\-06**|Giá riêng thấp hơn giá sàn hiện tại phải hiển thị cảnh báo; hệ thống có thể chặn lưu nếu policy không cho phép hoặc user không có quyền override|
 |**BR\-07**|Khi lưu thành công, rule có nguồn tạo là `Tạo thủ công` và thao tác phải được ghi vào lịch sử thay đổi|
 
@@ -1649,7 +1697,7 @@ Màn hình tạo giá riêng thủ công giúp người dùng thiết lập mộ
 |---|---|
 |**Thiếu field bắt buộc**|Hiển thị inline error tại field tương ứng|
 |**Giá riêng không hợp lệ**|Hiển thị lỗi dưới input giá riêng|
-|**Trùng rule đang áp dụng**|Hiển thị alert blocking và gợi ý mở rule hiện có|
+|**Trùng rule đang áp dụng**|Hiển thị alert blocking và cần sự xác nhận của người dùng|
 |**Dưới giá sàn**|Hiển thị warning nổi bật; chặn hoặc cho lưu tùy policy|
 |**Sản phẩm/đơn vị bán không hợp lệ**|Chặn lưu và yêu cầu chọn lại|
 
@@ -1674,9 +1722,21 @@ Màn hình tạo giá riêng thủ công giúp người dùng thiết lập mộ
 |**SC\-01**|Tạo giá riêng cho một khách hàng|Người dùng có quyền tạo giá riêng|Người dùng chọn khách hàng, sản phẩm, đơn vị bán, nhập giá hợp lệ và bấm `Lưu`|Hệ thống tạo giá riêng nguồn `Tạo thủ công`|
 |**SC\-02**|Preview giá trước khi lưu|Người dùng đã chọn sản phẩm và đơn vị bán|Người dùng nhập giá riêng|Hệ thống hiển thị giá hiện tại, giá sàn nếu có quyền và chênh lệch|
 |**SC\-03**|Cảnh báo dưới giá sàn|Giá riêng nhập vào thấp hơn giá sàn hiện tại|Người dùng nhập hoặc rời khỏi field giá riêng|Hệ thống hiển thị cảnh báo dưới giá sàn và xử lý theo policy|
-|**SC\-04**|Chặn rule trùng|Đã tồn tại rule active trùng đối tượng, sản phẩm, đơn vị bán và hiệu lực|Người dùng bấm `Lưu`|Hệ thống chặn lưu và thông báo rule đã tồn tại|
+|**SC\-04**|Ghi đè trùng rule<br>|Đã tồn tại rule active trùng khách hàng, sản phẩm, đơn vị bán và giao nhau về hiệu lực|Người dùng bấm `Lưu`|Hệ thống hiển thị cảnh báo ghi đè và chưa thay đổi dữ liệu  When người dùng xác nhận "Ghi đè và lưu" Then hệ thống xóa mềm rule active cũ And hệ thống tạo rule mới ở trạng thái active And hệ thống ghi audit cho cả rule cũ và rule mới And hệ thống hiển thị thông báo "Đã ghi đè giá riêng"<br>|
 |**SC\-05**|Chặn dữ liệu thiếu hoặc không hợp lệ|Form thiếu field bắt buộc hoặc ngày hiệu lực sai|Người dùng bấm `Lưu`|Hệ thống hiển thị lỗi và không tạo rule|
 |**SC\-06**|Thoát khi có dữ liệu chưa lưu|Người dùng đã nhập dữ liệu vào form|Người dùng bấm `←` hoặc `Hủy`|Hệ thống hỏi xác nhận trước khi thoát|
+
+```Plain Text
+#DEV    22/7/2026    PASS      Long     Dev  SC-01
+#DEV    22/7/2026    PASS      Long     Dev  SC-02
+#DEV    22/7/2026    PASS      Long     Dev  SC-03
+#DEV    22/7/2026    PASS      Long     Dev  SC-04
+#DEV    22/7/2026    PASS      Long     Dev  SC-05
+#DEV    22/7/2026    PASS      Long     Dev  SC-06
+
+
+# 22/7/2026    Le Xuan Loc    PE    Pass     SC-01 đến SC-06
+```
 
 #### 4\.2\.4\.7 Edge cases
 
@@ -1765,7 +1825,7 @@ Flow nhập Excel giúp người dùng đưa dữ liệu giá riêng số lượ
 |---|---|
 |**Tải file mẫu**|Cho phép tải template Excel đúng cấu trúc|
 |**Chọn file Excel**|Cho phép upload file `.xlsx` hợp lệ|
-|**Hướng dẫn ngắn**|Nêu rõ các cột bắt buộc và lưu ý về mã khách hàng/SKU/đơn vị bán|
+|**Hướng dẫn ngắn**|Nêu rõ các cột bắt buộc và lưu ý về số điện thoại khách hàng/SKU/đơn vị bán|
 |**Trạng thái upload**|Hiển thị tên file, dung lượng và trạng thái đang kiểm tra|
 
 ##### 4\.2\.5\.4\.5 Preview và validation
@@ -1802,6 +1862,20 @@ Flow nhập Excel giúp người dùng đưa dữ liệu giá riêng số lượ
 |**SC\-05**|Import dòng hợp lệ|File có ít nhất một dòng hợp lệ|User xác nhận import|Hệ thống tạo/cập nhật rule hợp lệ|
 |**SC\-06**|Import không có dòng hợp lệ|Toàn bộ file lỗi|User xem preview|CTA import disabled và hệ thống yêu cầu sửa file|
 |**SC\-07**|Không có quyền import|User thiếu quyền import|User mở flow|Hệ thống hiển thị no\-permission state|
+
+\#DEV    22/7/2026    PASS      Chiến     Dev  SC\-01
+
+\#DEV    22/7/2026    PASS      Chiến     Dev  SC\-02
+
+\#DEV    22/7/2026    PASS      Chiến     Dev  SC\-03
+
+\#DEV    22/7/2026    PASS      Chiến     Dev  SC\-04
+
+\#DEV    22/7/2026    PASS      Chiến     Dev  SC\-05
+
+\#DEV    22/7/2026    PASS      Chiến     Dev  SC\-06
+
+\#DEV    22/7/2026    FAILED      Chiến     Dev  SC\-07
 
 #### 4\.2\.5\.7 Edge cases
 
@@ -1857,7 +1931,7 @@ Trong V1, để tránh thay đổi bản chất rule và giảm rủi ro tạo t
 |**BR\-02**|Khách hàng, sản phẩm và đơn vị bán là thông tin định danh rule, mặc định không chỉnh sửa trong V1|
 |**BR\-03**|Giá riêng sau sửa phải lớn hơn 0|
 |**BR\-04**|Ngày bắt đầu phải nhỏ hơn hoặc bằng ngày kết thúc nếu có ngày kết thúc|
-|**BR\-05**|Sau khi sửa, rule không được trùng rule active khác cùng khách hàng, sản phẩm, đơn vị bán và giao nhau hiệu lực|
+|**BR\-05**|Nếu việc sửa rule hiện tại làm giao hiệu lực với một rule active khác cùng key, hệ thống phải cảnh báo ghi đè\.  Sau khi người dùng xác nhận, hệ thống xóa mềm rule active bị trùng và lưu nội dung mới của rule đang được sửa\.|
 |**BR\-06**|Giá riêng dưới giá sàn phải hiển thị cảnh báo hoặc bị chặn theo policy|
 |**BR\-07**|Thay đổi giá riêng chỉ ảnh hưởng đơn hàng mới; dữ liệu đơn hàng cũ giữ snapshot giá đã bán|
 
@@ -1900,7 +1974,7 @@ Màn hình sửa giá riêng giúp người dùng cập nhật mức giá hoặc
 |---|---|
 |**Giá rỗng/không hợp lệ**|Inline error tại input giá|
 |**Ngày hiệu lực sai**|Inline error tại field ngày|
-|**Trùng rule**|Alert blocking, CTA lưu disabled|
+|**Trùng rule**|Alert ghi đè lên rũ cũ|
 |**Dưới giá sàn**|Warning nổi bật, chặn hoặc cho lưu tùy policy|
 |**Không có thay đổi**|CTA `Lưu` disabled|
 
@@ -1925,12 +1999,30 @@ Màn hình sửa giá riêng giúp người dùng cập nhật mức giá hoặc
 |**SC\-01**|Mở form sửa|User có quyền sửa|User bấm `Sửa` từ chi tiết rule|Hệ thống mở form prefilled|
 |**SC\-02**|Sửa giá hợp lệ|User nhập giá mới hợp lệ|User bấm `Lưu`|Hệ thống cập nhật rule và ghi audit log|
 |**SC\-03**|Sửa thời gian hiệu lực|User chỉnh ngày bắt đầu/kết thúc hợp lệ|User bấm `Lưu`|Hệ thống cập nhật hiệu lực rule|
-|**SC\-04**|Giá dưới giá sàn|Giá mới thấp hơn giá sàn|User nhập giá mới|Hệ thống hiển thị cảnh báo hoặc chặn theo policy|
-|**SC\-05**|Trùng rule sau khi sửa|Thay đổi hiệu lực làm giao nhau với rule khác|User bấm `Lưu`|Hệ thống chặn lưu|
+|**SC\-04**|Giá dưới giá sàn|Giá mới thấp hơn giá sàn|User nhập giá mới<br>|Hệ thống hiển thị cảnh báo hoặc chặn theo policy|
+|**SC\-05**|Trùng rule sau khi sửa|Thay đổi hiệu lực làm rule đang sửa giao nhau với một rule active khác|User bấm `Lưu`<br>|Hệ thống hiển thị cảnh báo ghi đè  When người dùng xác nhận Then hệ thống xóa mềm rule active bị trùng And hệ thống lưu thay đổi của rule đang sửa And hệ thống ghi audit cho cả hai rule<br>|
 |**SC\-06**|Thoát khi có thay đổi chưa lưu|User đã chỉnh dữ liệu|User bấm `←` hoặc `Hủy`|Hệ thống hỏi xác nhận thoát|
 |**SC\-07**|Không có quyền sửa|User chỉ có quyền xem|User cố mở form sửa|Hệ thống chặn hoặc hiển thị no\-permission state|
 
-#### 4\.2\.6\.7 Edge cases
+```Python
+#DEV    22/7/2026    PASS      Long     Dev  SC-01
+#DEV    22/7/2026    PASS      Long     Dev  SC-02
+#DEV    22/7/2026    PASS      Long     Dev  SC-03
+#DEV    22/7/2026    PASS      Long     Dev  SC-04
+#DEV    22/7/2026    PASS       Long     Dev  SC-05
+#DEV    22/7/2026    PASS      Long     Dev  SC-06
+#DEV    22/7/2026    Failed      Long     Dev  SC-07
+
+# 30/7/2026    Lê Xuân Lộc    PE    Passed    SC-01
+# 30/7/2026    Lê Xuân Lộc    PE    Passed    SC-02
+# 30/7/2026    Lê Xuân Lộc    PE    Passed    SC-03
+# 30/7/2026    Lê Xuân Lộc    PE    Passed    SC-04
+# 30/7/2026    Lê Xuân Lộc    PE    Failed    SC-05    Chưa hiện cảnh báo cũng như không cho phép lưu
+# 30/7/2026    Lê Xuân Lộc    PE    Passed    SC-06
+# 30/7/2026    Lê Xuân Lộc    PE    Failed    SC-01    Không test được
+```
+
+4\.2\.6\.7 Edge cases
 
 |ID|Edge Case|Hướng xử lý đề xuất|
 |---|---|---|
@@ -2049,11 +2141,29 @@ Flow tắt giá riêng giúp người dùng xác nhận rõ tác động trướ
 |---|---|---|---|---|
 |**SC\-01**|Mở confirmation tắt|Rule đang có thể tắt và user có quyền|User chọn `Tắt giá riêng`|Hệ thống mở confirmation modal|
 |**SC\-02**|Giữ giá riêng|Confirmation đang mở|User chọn `Giữ giá riêng`|Modal đóng và dữ liệu không thay đổi|
-|**SC\-03**|Tắt giá riêng thành công|User xác nhận tắt|Hệ thống xử lý thành công|Rule chuyển sang `Đã tắt` và hiển thị toast|
+|**SC\-03**|Tắt giá riêng thành công|User xác nhận tắt|Hệ thống xử lý thành công<br>|Rule chuyển sang `Đã tắt` và hiển thị toast|
 |**SC\-04**|Nhập lý do tắt|User nhập lý do trước khi xác nhận|User xác nhận tắt|Lý do được ghi vào audit log|
 |**SC\-05**|Rule đã tắt|Rule đã ở trạng thái `Đã tắt`|User cố thực hiện tắt|Hệ thống chặn thao tác|
-|**SC\-06**|Không có quyền tắt|User thiếu quyền|User cố tắt rule|Hệ thống hiển thị no\-permission state|
+|**SC\-06**|Không có quyền tắt|User thiếu quyền|User cố tắt rule<br>|Hệ thống hiển thị no\-permission state|
 |**SC\-07**|Trạng thái thay đổi trong lúc xác nhận|Rule bị thay đổi bởi user khác|User xác nhận tắt|Hệ thống yêu cầu tải lại dữ liệu|
+
+```Plain Text
+#DEV    22/7/2026    PASS      Long     Dev  SC-01
+#DEV    22/7/2026    PASS      Long     Dev  SC-02
+#DEV    22/7/2026    PASS      Long     Dev  SC-03
+#DEV    22/7/2026    PASS      Long     Dev  SC-04
+#DEV    22/7/2026    PASS      Long     Dev  SC-05
+#DEV    22/7/2026    Failed      Long     Dev  SC-06
+#DEV    22/7/2026    Failed      Long     Dev  SC-07
+
+# 30/7/2026    Lê Xuân Lộc    PE    Passed    SC-01
+# 30/7/2026    Lê Xuân Lộc    PE    Passed    SC-02
+# 30/7/2026    Lê Xuân Lộc    PE    Passed    SC-03
+# 30/7/2026    Lê Xuân Lộc    PE    Passed    SC-04
+# 30/7/2026    Lê Xuân Lộc    PE    Passed    SC-05
+# 30/7/2026    Lê Xuân Lộc    PE    Failed    SC-06    Chưa có phân quyền để test    
+# 30/7/2026    Lê Xuân Lộc    PE    Failed    SC-07    Chưa có phân quyền để test
+```
 
 #### 4\.2\.7\.7 Edge cases
 
@@ -2085,7 +2195,7 @@ Flow tắt giá riêng giúp người dùng xác nhận rõ tác động trướ
 
 US\-08 cho phép Quản lý cửa hàng hoặc Quản trị viên áp dụng lại một giá riêng đã tắt khi chính sách cũ cần tiếp tục sử dụng hoặc thỏa thuận với khách hàng được khôi phục\.
 
-Bật lại giá riêng có rủi ro cao hơn thao tác tắt, vì rule sẽ quay lại ảnh hưởng pricing engine cho đơn hàng mới\. Vì vậy, trước khi bật lại, hệ thống cần kiểm tra rule còn hợp lệ không: khách hàng còn hoạt động, sản phẩm/đơn vị bán còn bán được, hiệu lực còn phù hợp, không trùng rule active khác và không vi phạm policy giá sàn\.
+Bật lại giá riêng có rủi ro cao hơn thao tác tắt, vì rule sẽ quay lại ảnh hưởng pricing engine cho đơn hàng mới\. Vì vậy, trước khi bật lại, hệ thống cần kiểm tra rule còn hợp lệ không: khách hàng còn hoạt động, sản phẩm/đơn vị bán còn bán được, hiệu lực còn phù hợp, ếu trùng rule active khác, hệ thống yêu cầu người dùng xác nhận ghi đè trước khi bật lại và không vi phạm policy giá sàn\.
 
 Trigger `Bật lại giá riêng` từ màn chi tiết thuộc US\-03, nên Designs của US\-08 chỉ cover kiểm tra, xác nhận, kết quả và state bị chặn/không có quyền\.
 
@@ -2108,7 +2218,7 @@ Trigger `Bật lại giá riêng` từ màn chi tiết thuộc US\-03, nên Desi
 |**BR\-01**|Chỉ user có quyền bật lại giá riêng mới được xác nhận thao tác|
 |**BR\-02**|Chỉ rule ở trạng thái `Đã tắt` mới được bật lại trực tiếp|
 |**BR\-03**|Khách hàng, sản phẩm và đơn vị bán của rule phải còn hợp lệ trong tenant hiện tại|
-|**BR\-04**|Rule bật lại không được trùng rule active khác cùng khách hàng, sản phẩm, đơn vị bán và giao nhau hiệu lực|
+|**BR\-04**|Nếu rule được bật lại trùng với rule active khác cùng khách hàng, sản phẩm, đơn vị bán và giao nhau về hiệu lực, hệ thống phải hiển thị cảnh báo ghi đè\.  Sau khi người dùng xác nhận, hệ thống xóa mềm rule active hiện tại và bật lại rule được chọn\.|
 |**BR\-05**|Nếu rule đã hết hiệu lực, user phải sửa hiệu lực trước khi bật lại|
 |**BR\-06**|Giá riêng dưới giá sàn phải hiển thị cảnh báo hoặc bị chặn theo policy|
 |**BR\-07**|Bật lại chỉ ảnh hưởng đơn hàng mới và phải ghi audit log|
@@ -2174,13 +2284,22 @@ Flow bật lại giá riêng giúp người dùng khôi phục rule đã tắt m
 |---|---|---|---|---|
 |**SC\-01**|Kiểm tra rule hợp lệ|Rule đã tắt và dữ liệu còn hợp lệ|User chọn bật lại|Hệ thống hiển thị pre\-check hợp lệ|
 |**SC\-02**|Xác nhận bật lại|Pre\-check không có lỗi blocking|User xác nhận `Bật lại giá riêng`|Rule chuyển sang `Đang áp dụng`|
-|**SC\-03**|Bị chặn do hết hiệu lực|Rule đã quá ngày kết thúc|User cố bật lại|Hệ thống chặn và gợi ý sửa hiệu lực|
-|**SC\-04**|Bị chặn do trùng rule active|Đã có rule khác đang áp dụng cùng key|User cố bật lại|Hệ thống chặn và gợi ý xem rule đang áp dụng|
+|**SC\-03**|Bị chặn do hết hiệu lực<br>|Rule đã quá ngày kết thúc<br>|User cố bật lại<br>|Hệ thống chặn và gợi ý sửa hiệu lực|
+|**SC\-04**|Ghi đè rule active khi bật lại<br>|Đã có rule khác đang áp dụng cùng key|User cố bật lại|Hệ thống hiển thị cảnh báo\. Sau khi user xác nhận, hệ thống xóa mềm rule đang active và bật lại rule đã chọn\.|
 |**SC\-05**|Cảnh báo dưới giá sàn|Giá riêng thấp hơn giá sàn hiện tại|User kiểm tra bật lại|Hệ thống hiển thị warning hoặc chặn theo policy|
 |**SC\-06**|Không có quyền bật lại|User thiếu quyền|User cố bật lại rule|Hệ thống hiển thị no\-permission state|
 |**SC\-07**|Hủy thao tác bật lại|Confirmation đang mở|User chọn hủy|Rule vẫn ở trạng thái `Đã tắt`|
 
-#### 4\.2\.8\.7 Edge cases
+#### \#DEV    22/7/2026    PASS      Long     Dev  SC\-01
+\#DEV    22/7/2026    PASS      Long     Dev  SC\-02
+\#DEV    22/7/2026    Failed      Long     Dev  SC\-03
+
+#### \#DEV    22/7/2026    Failed      Long     Dev  SC\-04
+
+#### \#DEV    22/7/2026    PASS      Long     Dev  SC\-05
+\#DEV    22/7/2026    Failed      Long     Dev  SC\-06
+\#DEV    22/7/2026    PASS      Long     Dev  SC\-07
+4\.2\.8\.7 Edge cases
 
 |ID|Edge Case|Hướng xử lý đề xuất|
 |---|---|---|
@@ -2232,7 +2351,7 @@ US này không thiết kế lại luồng bán hàng, không xử lý màn tạo
 |**BR\-02**|Key của nhớ giá là khách hàng × sản phẩm × đơn vị bán trong tenant hiện tại|
 |**BR\-03**|Giá bán được lưu phải lớn hơn 0 và là giá sau khi người bán đã xác nhận trong đơn hàng|
 |**BR\-04**|Không ghi nhận nhớ giá nếu đơn hàng bị hủy hoặc chưa đạt trạng thái được phép lưu theo rule của Sales|
-|**BR\-05**|Nếu đã có giá riêng thủ công active cho cùng key, hệ thống không tự ghi đè nếu policy chưa cho phép|
+|**BR\-05**|Nếu đã có bất kỳ rule active nào cùng key và giao nhau về hiệu lực, EP02 phải trả kết quả overwrite\_required\.  Sau khi người dùng xác nhận ghi đè trên Sales, EP02 xóa mềm rule cũ và lưu rule nhớ giá mới từ đơn hàng\.|
 |**BR\-06**|Giá nhớ thấp hơn giá sàn phải được cảnh báo hoặc bị chặn theo policy kiểm soát giá|
 |**BR\-07**|Mọi lần tạo/cập nhật nhớ giá từ đơn hàng phải ghi audit log gồm đơn hàng nguồn, người thực hiện và thời gian|
 
@@ -2324,13 +2443,14 @@ US\-09 đảm bảo mức giá thực tế đã được người dùng xác nh�
 |---|---|---|---|---|
 |**SC\-01**|Tạo mới nhớ giá từ đơn hàng|Đơn hàng có khách hàng cụ thể và chưa có rule cùng key|Sales gửi request lưu nhớ giá|EP02 tạo rule nhớ giá nguồn `Từ đơn hàng`|
 |**SC\-02**|Cập nhật nhớ giá hiện có|Đã có rule nhớ giá cùng khách hàng, sản phẩm, đơn vị bán|Sales gửi giá bán mới được xác nhận|EP02 cập nhật rule theo policy|
-|**SC\-03**|Không ghi đè giá riêng thủ công|Đã có giá riêng thủ công active cùng key|Sales gửi request lưu nhớ giá|EP02 chặn hoặc yêu cầu xử lý theo policy|
+|**SC\-03**|Ghi đè giá riêng hiện có bằng nhớ giá|Đã có giá riêng thủ công active cùng key|Sales gửi request lưu nhớ giá|EP02 trả overwrite\_required  When người dùng xác nhận ghi đè Then EP02 xóa mềm rule active cũ And tạo rule nhớ giá nguồn "Từ đơn hàng" And trả kết quả overwritten|
 |**SC\-04**|Chặn khách lẻ|Đơn hàng dùng khách lẻ mặc định không có định danh|Sales gửi request lưu nhớ giá|EP02 không tạo rule nhớ giá|
 |**SC\-05**|Cảnh báo hoặc chặn dưới giá sàn|Giá bán thực tế thấp hơn giá sàn|Sales gửi request lưu nhớ giá|EP02 cảnh báo hoặc chặn theo quyền/policy|
 |**SC\-06**|Không có quyền lưu|User không có quyền lưu nhớ giá|Sales gửi request|EP02 trả `No permission`|
 |**SC\-07**|Ghi lịch sử|Rule được tạo hoặc cập nhật từ đơn hàng|EP02 xử lý thành công|Lịch sử rule có activity liên kết đến đơn hàng nguồn|
 
-#### 4\.2\.9\.7 Edge cases
+#### 
+4\.2\.9\.7 Edge cases
 
 |ID|Edge Case|Hướng xử lý đề xuất|
 |---|---|---|
@@ -2369,7 +2489,7 @@ US này không xử lý việc tạo, sửa, tắt, bật lại hoặc lưu nh�
 |ID|Functional Requirement|Acceptance Criteria|
 |---|---|---|
 |**FR\-01**|Hiển thị lịch sử của một rule giá riêng / nhớ giá|Người dùng có quyền có thể xem danh sách activity liên quan đến rule|
-|**FR\-02**|Phân loại loại lịch sử|Hệ thống phân biệt tạo mới, sửa, tắt, bật lại, import Excel, ghi nhận từ đơn hàng và áp dụng trong bán hàng|
+|**FR\-02**|Phân loại loại lịch sử|Hệ thống phân biệt tạo mới, sửa, ghi đè, tắt, bật lại, nhập Excel, ghi nhận từ đơn hàng và áp dụng trong bán hàng\.|
 |**FR\-03**|Hiển thị thông tin từng activity|Mỗi activity hiển thị thời gian, người thực hiện, hành động, nguồn và nội dung thay đổi chính|
 |**FR\-04**|Xem chi tiết một activity|Người dùng có thể xem diff trước/sau, lý do, nguồn và liên kết dữ liệu liên quan nếu có|
 |**FR\-05**|Kiểm soát quyền xem dữ liệu nhạy cảm|Hệ thống ẩn giá sàn, chênh lệch hoặc dữ liệu nhạy cảm nếu user không có quyền|
@@ -2463,8 +2583,29 @@ Màn hình lịch sử giúp người dùng kiểm tra toàn bộ dấu vết th
 |**SC\-05**|Ẩn giá sàn theo quyền|User không có quyền xem giá sàn|User mở lịch sử có diff liên quan giá sàn|Hệ thống ẩn giá sàn và chênh lệch với giá sàn|
 |**SC\-06**|Không có kết quả sau khi lọc|Bộ lọc không khớp activity nào|User áp dụng bộ lọc|Hệ thống hiển thị no\-result state|
 |**SC\-07**|Không có quyền xem lịch sử|User thiếu quyền audit/history|User mở màn lịch sử|Hệ thống hiển thị no\-permission state|
+|SC\-08|Xem lịch sử ghi đè rule|Một rule cũ đã bị ghi đè bởi rule mới|Người dùng mở lịch sử|Hệ thống hiển thị rule cũ, rule mới, giá cũ, giá mới, người xác nhận và thời gian ghi đè And người dùng có thể mở rule thay thế nếu có quyền<br>|
 
-#### 4\.2\.10\.7 Edge cases
+```Python
+#DEV    22/7/2026    PASS      Long     Dev  SC-01
+#DEV    22/7/2026    PASS      Long     Dev  SC-02
+#DEV    22/7/2026    Failed      Long     Dev  SC-03
+#DEV    22/7/2026    Failed      Long     Dev  SC-04
+#DEV    22/7/2026    Failed      Long     Dev  SC-05
+#DEV    22/7/2026    PASS      Long     Dev  SC-06
+#DEV    22/7/2026    Failed      Long     Dev  SC-07
+
+
+#30/7/2026    Lê Xuân Lộc    PE    Passed    SC-01
+#30/7/2026    Lê Xuân Lộc    PE    Passed    SC-02
+#30/7/2026    Lê Xuân Lộc    PE    Failed    SC-03    Chưa có module bán hàng -> chưa thể test
+#30/7/2026    Lê Xuân Lộc    PE    Failed    SC-04    Cần define lại import excel
+#30/7/2026    Lê Xuân Lộc    PE    Failed    SC-05    Chưa thể test
+#30/7/2026    Lê Xuân Lộc    PE    Passed    SC-06
+#30/7/2026    Lê Xuân Lộc    PE    Failed    SC-07    Chưa có phân quyền để test
+```
+
+#### 
+4\.2\.10\.7 Edge cases
 
 |ID|Edge Case|Hướng xử lý đề xuất|
 |---|---|---|
@@ -2496,33 +2637,29 @@ Mỗi **screen group** bên dưới gồm một **bảng screen map**\. Sau mỗ
 
 ### SG\-01 — Danh sách \& kiểm soát nhanh
 
-![image\.png](Images_attachments/image.png)
+![Image](https://internal-api-drive-stream-sg.larksuite.com/space/api/box/stream/download/authcode/?code=Nzk1M2JlMTk4MmU4MTJjN2VmNzE4YTIwYzg3ZGY4MjhfYWExMGJlMWRkMDAwMWNmZjVlYzI3NTNjNGQwYmE5YWNfSUQ6NzY2MDQ1MDMzODczODM5MjgwMl8xNzg1ODIzODk2OjE3ODU5MTAyOTZfVjM)
 
 ### SG\-02 — Chi tiết \& action
 
-![image\.png](Images_attachments/image%201.png)
+![Image](https://internal-api-drive-stream-sg.larksuite.com/space/api/box/stream/download/authcode/?code=ZTYwOTMyYzY3Yjc3YmUzNGQ4NjFhMGQxYTQ2NjNlNmJfOTk4NmQxOWRlMWZhYWIzYjdhMDRmMDQzOGIxOGNhMjNfSUQ6NzY2ODE0MjI4ODA5NDIzNjM3OV8xNzg1ODIzODk3OjE3ODU5MTAyOTdfVjM)
 
 ### SG\-03 — Tạo / sửa giá riêng
 
-![image\.png](Images_attachments/image%2020.png)
-
-![image\.png](Images_attachments/image%2021.png)
+![Image](https://internal-api-drive-stream-sg.larksuite.com/space/api/box/stream/download/authcode/?code=ZjE4NWNjZjcyZWI3NDlhZjU4NGE4YTM2ZDgxZDZhZjlfOTIwYTkzOGNkMzkzNjA2NWVkOTcyZWEzMDcyZWI5NzRfSUQ6NzY2MDQ2NzM5Mzk1Mjc3OTk5Nl8xNzg1ODIzODk2OjE3ODU5MTAyOTZfVjM)
 
 ### SG\-04 — Nhập Excel
 
-![image\.png](Images_attachments/image%2019.png)
+![Image](https://internal-api-drive-stream-sg.larksuite.com/space/api/box/stream/download/authcode/?code=NTFiMDdkZWNmOGY2YWQ1ODE0NmEwMWI0YzZhZTc0NWFfYjFmOGNlMDA0ZDVkOGY2OTgwODVlNjFjNmZiNjI2N2JfSUQ6NzY1OTcwODkyOTExMDUyNzcwOV8xNzg1ODIzODk2OjE3ODU5MTAyOTZfVjM)
 
-![image\.png](Images_attachments/image%2024.png)
+![Image](https://internal-api-drive-stream-sg.larksuite.com/space/api/box/stream/download/authcode/?code=ZTdiYjY4ZTg1OTRhZmE2ZmI4NTIyZTMzNTk2ZTE3NjRfYWEzOThhMWM0ZTA3ODhlNDcyYjc0N2E0YjU3MDJhMzdfSUQ6NzY2MDQ3MDQwMTQyNTY3Mzk1N18xNzg1ODIzODk2OjE3ODU5MTAyOTZfVjM)
 
 ### SG\-05 — Tắt / bật lại giá riêng
 
-![image\.png](Images_attachments/image%2022.png)
-
-![image\.png](Images_attachments/image%207.png)
+![Image](https://internal-api-drive-stream-sg.larksuite.com/space/api/box/stream/download/authcode/?code=YWM0OTMwY2JkM2IyMGMxNDNmYTlhZmFkZmM1MmYwZmVfNDUwNGU5NjNmMTgwZmI0ODMwYWM5NDM0NmJkNDBhNDVfSUQ6NzY2MDQ5NjQ2NDM1MDU2NDA2M18xNzg1ODIzODk2OjE3ODU5MTAyOTZfVjM)
 
 ### SG\-06 — Nhớ giá \& lịch sử
 
-![image\.png](Images_attachments/image%2011.png)
+![Image](https://internal-api-drive-stream-sg.larksuite.com/space/api/box/stream/download/authcode/?code=ODcxYTZkMDkzODEyMmM2M2ZlOTg4OGJiYWU1NjY5MWFfMGQxZTY3ODE0YmY0ODdjMzU5ZDJkNzMwNTMzYWE2MjlfSUQ6NzY2MDQ4MjMyMzM1OTUxODQyN18xNzg1ODIzODk2OjE3ODU5MTAyOTZfVjM)
 
 # 5\. Epic EP03 — Chương trình khuyến mại
 
@@ -3237,7 +3374,7 @@ Màn hình danh sách CTKM giúp người dùng kiểm soát toàn bộ CTKM the
 |**D\-06**|Confirmation modal cho action nhạy cảm|BR\-04, FR\-06|
 |**D\-07**|Empty / No result / Loading / Error|FR\-07|
 
-![image\.png](Images_attachments/image%205.png)
+![Image](https://internal-api-drive-stream-sg.larksuite.com/space/api/box/stream/download/authcode/?code=NDc5OWY3ZjhlMDNkZjliODcyMDk0ODc5ZGE4MDI1OWNfNzEzMGYxNjBiMTRhZjllYzQ0MDQ1ODJmNGFmN2YyNmJfSUQ6NzY1OTI1Njc0ODM2NTc2MjI3Ml8xNzg1ODIzODk2OjE3ODU5MTAyOTZfVjM)
 
 #### 5\.3\.1\.6 Scenarios
 
@@ -3250,6 +3387,24 @@ Màn hình danh sách CTKM giúp người dùng kiểm soát toàn bộ CTKM the
 |**SC\-05**|Mở chi tiết CTKM|Người dùng thấy một CTKM trong danh sách|Người dùng chọn CTKM đó|Hệ thống điều hướng sang màn hình chi tiết CTKM|
 |**SC\-06**|Thực hiện action theo trạng thái|CTKM có trạng thái hợp lệ cho action|Người dùng mở menu action|Hệ thống chỉ hiển thị các action được phép|
 |**SC\-07**|Gặp lỗi tải danh sách|Hệ thống không tải được dữ liệu|Người dùng mở màn hình danh sách|Hệ thống hiển thị error state và cho phép thử lại|
+
+```Python
+#DEV    22/7/2026    Passed    Chiến     Dev  SC-01
+#DEV    22/7/2026    Passed    Chiến     Dev  SC-02
+#DEV    22/7/2026    Passed    Chiến     Dev  SC-03
+#DEV    22/7/2026    Passed    Chiến     Dev  SC-04
+#DEV    22/7/2026    Passed    Chiến     Dev  SC-05
+#DEV    22/7/2026    Passed    Chiến     Dev  SC-06
+#DEV    22/7/2026    Failed      Chiến     Dev  SC-07
+
+#31/7/2026    Lê Xuân Lộc    PE    Passed    SC-01
+#31/7/2026    Lê Xuân Lộc    PE    Passed    SC-02
+#31/7/2026    Lê Xuân Lộc    PE    Passed    SC-03
+#31/7/2026    Lê Xuân Lộc    PE    Failed    SC-04    Chưa hiển thị cảnh báo xung đột
+#31/7/2026    Lê Xuân Lộc    PE    Passed    SC-05
+#31/7/2026    Lê Xuân Lộc    PE    Passed    SC-06
+#31/7/2026    Lê Xuân Lộc    PE    Failed    SC-07    Chưa gặp lỗi không hiển thị để test
+```
 
 #### 5\.3\.1\.7 Edge cases
 
@@ -3403,7 +3558,7 @@ Màn hình chọn loại hoặc mẫu CTKM giúp người dùng chọn đúng h�
 |**D\-****05**|Lỗi tải mẫu CTKM nhưng vẫn chọn được loại CTKM|FR\-01, FR\-08|
 |**D\-****06**|Không có quyền tạo CTKM|FR\-09, BR\-01|
 
-![image\.png](Images_attachments/image%2016.png)
+![Image](https://internal-api-drive-stream-sg.larksuite.com/space/api/box/stream/download/authcode/?code=NzBiZmM5MzQ4NDI1OGY0YzY4MzliMjdhOWQ3OTQ3MDFfZjZlZDhjMzY0MjBiZmY0YTU5YTU4M2ZmNTg1OWRlMzNfSUQ6NzY1OTI1OTE5MDg2MjcyODkzM18xNzg1ODIzODk2OjE3ODU5MTAyOTZfVjM)
 
 #### 5\.3\.2\.6 Scenarios
 
@@ -3589,11 +3744,11 @@ Màn hình chi tiết CTKM giúp người dùng kiểm tra cấu hình, trạng 
 |**D\-12**|CTA — Đã kết thúc|CTKM đã kết thúc chỉ có một action chính là `Nhân bản`|FR\-07|
 |**D\-13**|CTA — Đã hủy|CTKM đã hủy chỉ có một action chính là `Nhân bản`|FR\-07|
 
-![image\.png](Images_attachments/image%206.png)
+![Image](https://internal-api-drive-stream-sg.larksuite.com/space/api/box/stream/download/authcode/?code=YjdjYjUwMzE2ZWNhNTA5MzY1ODVmMGY2NzBjYzk2MGJfZjA1NjEyMzRkOTU2NmI1ZDk1NTk0ZTljYjg1NTBmNDlfSUQ6NzY1OTI3NTgyMTQ1ODM5NDg0M18xNzg1ODIzODk3OjE3ODU5MTAyOTdfVjM)
 
-![image\.png](Images_attachments/image%2012.png)
+![Image](https://internal-api-drive-stream-sg.larksuite.com/space/api/box/stream/download/authcode/?code=NWZjZTA0OGNmZTYwZGQ3NTZkNWJjOTlkMWJkNDQxZGRfZGY5ZGQ2ZDczMTc5NWE5ZGQ1MjdlZDlhMDUwOWFkOWZfSUQ6NzY1OTMzMTY4NjUyNjAxMzE1OF8xNzg1ODIzODk2OjE3ODU5MTAyOTZfVjM)
 
-![image\.png](Images_attachments/image%208.png)
+![Image](https://internal-api-drive-stream-sg.larksuite.com/space/api/box/stream/download/authcode/?code=MTk1YmU2NWU3MmNmOGE3MGE1ZWVmOTQ3NjU3YTM4NWNfMGFmNDQ1OTExY2QwZDE3N2Y5OWEwNzc3YjJhY2ZiNTRfSUQ6NzY1OTMzMzk2MTg2ODc3NTE0MV8xNzg1ODIzODk2OjE3ODU5MTAyOTZfVjM)
 
 #### 5\.3\.3\.6 Scenarios
 
@@ -3744,11 +3899,11 @@ Màn hình giúp người dùng kiểm tra nhanh CTKM đã đủ điều kiện 
 |**D\-06**|Bật thành công — chuyển `Sắp chạy`|FR\-08, BR\-07|
 |**D\-07**|Error / No permission / State changed|FR\-06, FR\-08, BR\-01, BR\-06|
 
-![image\.png](Images_attachments/image%2023.png)
+![Image](https://internal-api-drive-stream-sg.larksuite.com/space/api/box/stream/download/authcode/?code=YjU2MTk5N2RlNjBlNzk2MGYwMjhhZDhlODI0NWI4NDZfYWYzZDgyN2FkN2JmZWQ2MTA4ZjRlMzAwZjhhMTUzYjZfSUQ6NzY1OTMzNzQzNjU4MjY2MTg1MV8xNzg1ODIzODk2OjE3ODU5MTAyOTZfVjM)
 
-![image\.png](Images_attachments/image%2025.png)
+![Image](https://internal-api-drive-stream-sg.larksuite.com/space/api/box/stream/download/authcode/?code=YzMzMzA5YWI2YTRiMzQ3YmNhNTEyYzJkZWEzY2ViNGVfY2ZmNzNhYzllYWZlOTFhMmE0MDg4ZTQwMWJkOWE0N2NfSUQ6NzY1OTMzOTM2OTUxMzg0ODU1MF8xNzg1ODIzODk3OjE3ODU5MTAyOTdfVjM)
 
-![image\.png](Images_attachments/image%2017.png)
+![Image](https://internal-api-drive-stream-sg.larksuite.com/space/api/box/stream/download/authcode/?code=NGExMzRmYTk1M2RjYTcyNzQ2NDUzNzM0YTQ5YjUzNTdfYjYyOTNjMmUyZmZjYmY4Y2U0ZWQxZGI1MjgyMmRkYWFfSUQ6NzY1OTM0MzgwOTA4Nzc4NjcxOF8xNzg1ODIzODk3OjE3ODU5MTAyOTdfVjM)
 
 #### 5\.3\.4\.6 Scenarios
 
@@ -3913,9 +4068,9 @@ UI của US\-05 giúp người dùng tạm dừng hoặc bật lại CTKM một 
 |**D\-06**|Bật lại bị chặn do hết hạn/thiếu thiết lập/xung đột|FR\-04, FR\-07, BR\-06, BR\-07|
 |**D\-07**|Không có quyền tạm dừng/bật lại|FR\-08|
 
-![image\.png](Images_attachments/image%2014.png)
+![Image](https://internal-api-drive-stream-sg.larksuite.com/space/api/box/stream/download/authcode/?code=NDY0YTdjYTI1YTc5Yzg4YjY3MmQxNmQ4N2IwOTFkYTVfODkyZTAzN2RjMDYzYjJjMmVlZjEzMDc1OGE3MDgwMmRfSUQ6NzY1OTM1MTc5NjI1NDk1MzE5MF8xNzg1ODIzODk2OjE3ODU5MTAyOTZfVjM)
 
-![image\.png](Images_attachments/image%2015.png)
+![Image](https://internal-api-drive-stream-sg.larksuite.com/space/api/box/stream/download/authcode/?code=M2I0OWU1MWQ4MDMxNTU4MjI2NzQ4MTQ2NWIxYjU4NDdfMTMxNTQ3NWU2MjNiYzBlM2FiMTJkMzQ3M2VhMGM5YzZfSUQ6NzY1OTM1NzE3ODI5MzM3NDY4M18xNzg1ODIzODk2OjE3ODU5MTAyOTZfVjM)
 
 #### 5\.3\.5\.6 Scenarios
 
@@ -4070,9 +4225,9 @@ UI của US\-06 giúp người dùng thực hiện hành động kết thúc ho�
 |**D\-07**|Bị chặn do trạng thái/điều kiện không hợp lệ|FR\-08, BR\-07|
 |**D\-08**|Không có quyền kết thúc/hủy CTKM|FR\-08|
 
-![image\.png](Images_attachments/image%2010.png)
+![Image](https://internal-api-drive-stream-sg.larksuite.com/space/api/box/stream/download/authcode/?code=YWZlODIwNWU4OWE4OGVhNmRkNGY4MDQ5YjcwY2U3ZGFfMWJhMzIzYjU3NzFlNTU0NjhhOTU0MjE1NTBjODFmM2FfSUQ6NzY1OTM0Nzk1MzQyNTEyNTA4NV8xNzg1ODIzODk2OjE3ODU5MTAyOTZfVjM)
 
-![image\.png](Images_attachments/image%203.png)
+![Image](https://internal-api-drive-stream-sg.larksuite.com/space/api/box/stream/download/authcode/?code=ZGRlOWIyODNmZDMyNzcyODA2MTk0MmZlNGRkY2NhMTRfZTQzMWM1ODUxMGQxYTI0MjgyMGE0ZTI2OTUyZmJhY2ZfSUQ6NzY1OTQ0NTY5NjQyODQxMjY0NV8xNzg1ODIzODk2OjE3ODU5MTAyOTZfVjM)
 
 #### 5\.3\.6\.6 Scenarios
 
@@ -4239,9 +4394,9 @@ Màn hình giúp người dùng hiểu rõ CTKM nào đang được dùng làm n
 |**D\-05**|Tạo bản nháp thành công nhưng có cảnh báo|FR\-06, FR\-07|
 |**D\-06**|Error / No permission / Source changed|FR\-06, FR\-07, BR\-01|
 
-![image\.png](Images_attachments/image%209.png)
+![Image](https://internal-api-drive-stream-sg.larksuite.com/space/api/box/stream/download/authcode/?code=MDg0MTUzZTI5ZmUyNTY3ZjZmYzk2YTUyMmYwZmYyNjRfOGVlOTA2YWMzMjAyMThiZDUxZTBiNGJmMGU3ZDExYjNfSUQ6NzY1OTM1NzYzMDM0MzMwMjg4Nl8xNzg1ODIzODk2OjE3ODU5MTAyOTZfVjM)
 
-![image\.png](Images_attachments/image%2018.png)
+![Image](https://internal-api-drive-stream-sg.larksuite.com/space/api/box/stream/download/authcode/?code=ZTZkOTA1ZDRlZThhYWE5MzlmMjEwMGQ5MTY3Mjg5YTZfZDExMTFkOThiOWNlNTM2YzlmODM2MjQ4Y2IwM2ZjZDVfSUQ6NzY1OTM2MTYwNzQ4MzMzMDI3MV8xNzg1ODIzODk2OjE3ODU5MTAyOTZfVjM)
 
 #### 5\.3\.7\.6 Scenarios
 
@@ -4407,11 +4562,11 @@ UI của US\-08 giúp quản trị viên chọn nhiều CTKM từ danh sách và
 |**D\-09**|Không có quyền thao tác hàng loạt|FR\-04, BR\-01|
 |**D\-10**|Không có CTKM hợp lệ cho action đã chọn|BR\-05, BR\-06|
 
-![image\.png](Images_attachments/image%202.png)
+![Image](https://internal-api-drive-stream-sg.larksuite.com/space/api/box/stream/download/authcode/?code=MzAxM2ZjNGYyZjZjYzc1MGFiODkxNGFkYmNiODkzZDRfZWY5NTBjMmQyYmRhY2QwMWNlN2Q0ZjY4N2E5YmI1YWFfSUQ6NzY1OTM2MjE1NjYzNDM5NDMzMV8xNzg1ODIzODk3OjE3ODU5MTAyOTdfVjM)
 
-![image\.png](Images_attachments/image%204.png)
+![Image](https://internal-api-drive-stream-sg.larksuite.com/space/api/box/stream/download/authcode/?code=ZDdmZmI5ZGQ5YWIyZmVhZGFlMjZiZThiZTk4ZGI0M2FfYjhlNjM0NGNmYjQ0NTVhMTkwMmJkNjYwM2ZiMmM5NzNfSUQ6NzY1OTM2ODkyNDY4NDc4MzMyNV8xNzg1ODIzODk2OjE3ODU5MTAyOTZfVjM)
 
-![image\.png](Images_attachments/image%2013.png)
+![Image](https://internal-api-drive-stream-sg.larksuite.com/space/api/box/stream/download/authcode/?code=ODM0N2MwNGUwYjVhMjg3NTBlMGYyMjhlYmE5ZTY4ODNfNjU4Zjk3NjBiNDRlMTFkMTY2ZGViYmZjNDdiYzc5ZDZfSUQ6NzY1OTQyODI4MTczNjkwODUxMl8xNzg1ODIzODk2OjE3ODU5MTAyOTZfVjM)
 
 #### 5\.3\.8\.6 Scenarios
 

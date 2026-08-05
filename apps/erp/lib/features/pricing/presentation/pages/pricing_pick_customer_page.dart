@@ -121,7 +121,7 @@ class _PricingPickCustomerPageState extends State<PricingPickCustomerPage> {
               VSpacing.space2,
             ),
             child: VSearchBar(
-              hintText: 'Tìm tên hoặc mã khách hàng...',
+              hintText: 'Tìm tên hoặc số điện thoại khách hàng...',
               controller: _searchController,
               autofocus: true,
               onChanged: _onQueryChanged,

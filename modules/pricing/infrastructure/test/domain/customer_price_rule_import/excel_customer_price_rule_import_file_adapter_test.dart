@@ -16,7 +16,7 @@ void main() {
       final template = adapter.createTemplateV1();
 
       expect(template.templateVersion, 'customer_price_rules_v1');
-      expect(template.fileName, 'customer_price_rules_v1.xlsx');
+      expect(template.fileName, 'Mau_nho_gia.xlsx');
       expect(template.mimeType, contains('spreadsheetml'));
 
       final parseResult = adapter.parse(

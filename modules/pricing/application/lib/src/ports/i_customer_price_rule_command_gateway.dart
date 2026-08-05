@@ -8,12 +8,14 @@ abstract interface class ICustomerPriceRuleCommandGateway {
     required CustomerPriceRule candidate,
     required String idempotencyKey,
     required bool acknowledgeFloorWarning,
+    bool acknowledgeOverwrite = false,
   });
 
   Future<CustomerPriceRuleDetailDto> update({
     required CustomerPriceRule candidate,
     required int expectedVersion,
     required bool acknowledgeFloorWarning,
+    bool acknowledgeOverwrite = false,
   });
 
   Future<CustomerPriceRuleDetailDto> disable({

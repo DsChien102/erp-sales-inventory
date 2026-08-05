@@ -203,6 +203,7 @@ final class PriceRuleDetailCubit extends Cubit<PriceRuleDetailState> {
           expectedVersion: expectedVersion,
           businessDate: DateTime.now().toUtc(),
           acknowledgeFloorWarning: acknowledgeFloorWarning,
+          acknowledgeOverwrite: true,
           precheckToken: precheckToken,
         ),
       );

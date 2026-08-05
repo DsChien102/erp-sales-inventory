@@ -65,6 +65,7 @@ abstract final class CustomerPriceRuleSearchRpcMapper {
       customer: CustomerRefDto(
         customerId: _requiredString(customer, 'customer_id'),
         displayName: _requiredString(customer, 'display_name'),
+        phone: customer['phone'] as String?,
         status: _requiredString(customer, 'status'),
       ),
       productUnit: ProductUnitRefDto(

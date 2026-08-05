@@ -11,7 +11,7 @@ Khung viết theme mới: [THEME_DOCUMENTATION_TEMPLATE.md](THEME_DOCUMENTATION_
 | **TH-01** | Thiết lập cửa hàng | Tenant, user, role, phân quyền | [TH-01-store-setup/](TH-01-store-setup/) | in_progress (IAM interim) |
 | **TH-02** | Sản phẩm & giá bán | Sản phẩm, SKU, ĐVT, barcode, giá | [TH-02-product-pricing/](TH-02-product-pricing/) | in_progress |
 | **TH-03** | Khách hàng & NCC | Khách hàng, nhà cung cấp, lịch sử giao dịch | [TH-03-partner/](TH-03-partner/) | in_progress |
-| **TH-04** | Chính sách giá & ưu đãi | Bảng giá, giá riêng/nhớ giá, khuyến mãi và kiểm soát áp dụng giá | [TH-04-pricing-promotions/](TH-04-pricing-promotions/) | in_progress (EP02) |
+| **TH-04** | Giá bán | Giá riêng/nhớ giá (EP02 active), khuyến mãi và kiểm soát áp dụng giá (deferred) | [TH-04-pricing-promotions/](TH-04-pricing-promotions/) | in_progress (EP02) |
 | **TH-05** | Công nợ | Phải thu/phải trả, thanh toán, cấn trừ | [TH-05-receivables-payables/](TH-05-receivables-payables/) | planned |
 | **TH-06** | Kho & giá vốn | Tồn kho, nhập/xuất, kiểm kê, giá vốn | [TH-06-inventory-and-costing/](TH-06-inventory-and-costing/) | planned |
 | **TH-07** | Hóa đơn điện tử | Lập, phát hành, điều chỉnh, đối soát | [TH-07-e-invoice/](TH-07-e-invoice/) | planned |
@@ -60,7 +60,7 @@ docs/themes/TH-xx-{{slug}}/
 ## Theme ≠ Module
 
 ```text
-TH-04 (Giá & ưu đãi) → pricing (owner) + catalog + partner + sales + iam (supporting)
+TH-04 (Giá bán) → pricing (owner) + catalog + partner + sales + iam (supporting)
 TH-02 (Sản phẩm)  →  catalog (owner) + inventory + costing + iam
 TH-03 (Đối tác)   →  partner (owner) + sales/inventory/accounting (event publishers)
 ```

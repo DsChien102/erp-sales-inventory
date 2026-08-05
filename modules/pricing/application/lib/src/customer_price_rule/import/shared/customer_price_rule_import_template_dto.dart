@@ -2,7 +2,7 @@ import 'dart:typed_data';
 
 final class CustomerPriceRuleImportTemplateDto {
   static const versionV1 = 'customer_price_rules_v1';
-  static const fileNameV1 = 'customer_price_rules_v1.xlsx';
+  static const fileNameV1 = 'Mau_nho_gia.xlsx';
 
   const CustomerPriceRuleImportTemplateDto({
     required this.templateVersion,

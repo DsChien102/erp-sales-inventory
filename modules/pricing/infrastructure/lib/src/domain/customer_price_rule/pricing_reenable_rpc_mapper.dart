@@ -45,6 +45,7 @@ abstract final class PricingReenableRpcMapper {
     'p_business_date': _date(command.businessDate),
     'p_precheck_token': command.precheckToken,
     'p_acknowledge_floor_warning': command.acknowledgeFloorWarning,
+    'p_acknowledge_overwrite': command.acknowledgeOverwrite,
   };
 
   static CustomerPriceRuleDetailDto reenableResultFromJson(

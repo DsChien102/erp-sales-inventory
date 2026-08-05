@@ -6,7 +6,6 @@ import 'price_rule_history_filter_sheet.dart';
 import 'price_rule_history_shared.dart';
 import 'price_rule_history_states.dart';
 import 'price_rule_history_timeline_tile.dart';
-import 'price_rule_status_badge.dart';
 
 /// SG-06 — Full Timeline lịch sử giá riêng (D-02, D-04, D-08 system states).
 class PriceRuleHistoryView extends StatefulWidget {
@@ -210,6 +209,31 @@ class _PriceRuleHistoryViewState extends State<PriceRuleHistoryView> {
               ],
             ),
           ),
+
+          if (widget.customerName != null || widget.productUnitName != null) ...[
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: VSpacing.space4),
+              child: Row(
+                children: [
+                  if (widget.customerName != null)
+                    VText(
+                      widget.customerName!,
+                      variant: VTextVariant.bodyDefault,
+                      style: const TextStyle(fontWeight: FontWeight.w600),
+                    ),
+                  if (widget.productUnitName != null) ...[
+                    const VGap.horizontalXs(),
+                    VText(
+                      widget.productUnitName!,
+                      variant: VTextVariant.caption,
+                      color: colors.textMuted,
+                    ),
+                  ],
+                ],
+              ),
+            ),
+            const VGap.xs(),
+          ],
 
           // Quick Filter Chips (D-02)
           SingleChildScrollView(

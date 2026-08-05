@@ -1,10 +1,12 @@
-# TH-04: Chính sách giá & ưu đãi
+# TH-04: Giá bán
 
 **Trạng thái deliver:** `in_progress` — chỉ EP02 Giá riêng / Nhớ giá đang active; EP01 và EP03–EP06 được giữ làm boundary nhưng deferred.
 
 ## Mục tiêu
 
-Quản lý chính sách giá theo tenant, trong đó giai đoạn hiện tại tập trung vào giá riêng theo khách hàng và cơ chế nhớ giá từ đơn bán. Theme không sở hữu sản phẩm, khách hàng hay đơn bán; các dữ liệu đó được nhận qua snapshot/port của bounded context tương ứng.
+Quản lý giá bán theo tenant, trong đó giai đoạn hiện tại tập trung vào giá riêng theo khách hàng và cơ chế nhớ giá từ đơn bán. Theme không sở hữu sản phẩm, khách hàng hay đơn bán; các dữ liệu đó được nhận qua snapshot/port của bounded context tương ứng.
+
+**EP02 overlap policy (product SSOT):** khi tạo/sửa/import/bật lại/nhớ giá trùng rule active cùng key và giao hiệu lực → cảnh báo ghi đè (`overwrite_required`); sau khi user xác nhận, soft-delete rule cũ rồi lưu/bật rule mới. Chi tiết: [Theme-4 § EP02](Theme-4-pricing-promotions.md) · [harness/07-api-contracts.md](harness/07-api-contracts.md).
 
 ## Module tham gia
 

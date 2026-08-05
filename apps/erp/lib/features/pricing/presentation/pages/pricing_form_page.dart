@@ -107,16 +107,30 @@ class _PricingFormPageState extends State<PricingFormPage> {
     return BlocProvider.value(
       value: _cubit,
       child: BlocListener<PriceRuleFormCubit, PriceRuleFormState>(
-        listener: (context, state) {
+        listener: (context, state) async {
           if (state is PriceRuleFormSuccess) {
             _onSuccess(context, state.rule);
           } else if (state is PriceRuleFormError) {
-            VToast.show(
-              context,
-              title: 'Lỗi',
-              message: _mapErrorToMessage(state.code),
-              type: VToastType.danger,
-            );
+            if (state.code == PricingBlockedCodes.duplicateActiveRule) {
+              final confirmed = await showPriceRuleOverwriteConfirmDialog(context);
+              if (confirmed && context.mounted) {
+                await _cubit.confirmOverwrite();
+              } else if (context.mounted) {
+                VToast.show(
+                  context,
+                  title: 'Lỗi',
+                  message: _mapErrorToMessage(state.code),
+                  type: VToastType.danger,
+                );
+              }
+            } else {
+              VToast.show(
+                context,
+                title: 'Lỗi',
+                message: _mapErrorToMessage(state.code),
+                type: VToastType.danger,
+              );
+            }
           }
         },
         child: BlocBuilder<PriceRuleFormCubit, PriceRuleFormState>(
@@ -257,6 +271,9 @@ class _BottomBar extends StatelessWidget {
     String? changeReason;
     if (isEdit && initialRule != null && form.rulePriceMinor != null) {
       final rule = initialRule!;
+      final isDateChanged =
+          form.effectiveFrom != rule.effectivePeriod.effectiveFrom ||
+          form.effectiveTo != rule.effectivePeriod.effectiveTo;
       final result = await PriceRuleSaveConfirmSheet.show(
         context: context,
         oldPriceLabel: _formatMinor(rule.price.amountMinor),
@@ -265,9 +282,14 @@ class _BottomBar extends StatelessWidget {
         newFromLabel: _formatDate(form.effectiveFrom),
         oldToLabel: _formatDate(rule.effectivePeriod.effectiveTo),
         newToLabel: _formatDate(form.effectiveTo),
+        showOverwriteWarning: form.hasConflictingRule || isDateChanged,
       );
       if (result == null || !result.confirmed) return;
       changeReason = result.changeReason;
+      if (form.hasConflictingRule || isDateChanged) {
+        await cubit.confirmOverwrite(changeReason: changeReason);
+        return;
+      }
     }
     await cubit.submit(changeReason: changeReason);
   }

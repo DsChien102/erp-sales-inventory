@@ -106,6 +106,7 @@ final class UpdateCustomerPriceRuleCommandHandler
       candidate: current,
       expectedVersion: command.expectedVersion,
       acknowledgeFloorWarning: command.acknowledgeFloorWarning,
+      acknowledgeOverwrite: command.acknowledgeOverwrite,
     );
   }
 

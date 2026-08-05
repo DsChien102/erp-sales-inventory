@@ -10,8 +10,10 @@ Canonical spec: [Theme-4-pricing-promotions.md](Theme-4-pricing-promotions.md).
 | Thiết lập | Tạo thủ công hoặc import Excel theo khách hàng × sản phẩm × đơn vị |
 | Vòng đời | Chỉnh sửa, vô hiệu hóa, kích hoạt lại, đánh dấu cần rà soát |
 | Nhớ giá | Nhận yêu cầu idempotent từ Sales để lưu giá đã chốt |
-| Kiểm soát | Kiểm tra trùng khoảng hiệu lực, giá sàn và tham chiếu snapshot |
-| Lịch sử | Nhật ký thay đổi append-only, read-only |
+| Kiểm soát | Kiểm tra trùng khoảng hiệu lực (ghi đè có xác nhận), giá sàn và tham chiếu snapshot |
+| Lịch sử | Nhật ký thay đổi append-only, read-only (gồm activity ghi đè) |
+
+**Overlap / ghi đè:** Sau khi một command tạo, sửa, import, bật lại hoặc nhớ giá hoàn tất, không được tồn tại nhiều rule active trùng `customer × product × unit` và giao hiệu lực. Khi phát hiện trùng, hệ thống yêu cầu xác nhận ghi đè rồi soft-delete rule active cũ — không auto tạo `needs_review` từ duplicate runtime. Xem Theme-4 EP02 domain (CPR-BR-07, VR-BR-07, RI-BR-10).
 
 ## Ngoài phạm vi EP02
 
