@@ -123,40 +123,44 @@ class PlatformOnboardingStepOrganization extends StatelessWidget {
             return Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                VDropdown<String>(
+                _SearchDropdownField(
                   label: 'Tỉnh / thành phố',
-                  value: provinceValue,
-                  hintText: hasError
-                      ? 'Không tải được tỉnh / thành phố'
-                      : isLoading
-                      ? 'Đang tải tỉnh / thành phố'
-                      : 'Chọn tỉnh / thành phố',
-                  enabled: !isLoading && !hasError && units.isNotEmpty,
-                  items: units
-                      .map(
-                        (unit) => DropdownMenuItem(
-                          value: unit.fullName,
-                          child: VText(unit.fullName),
-                        ),
-                      )
-                      .toList(growable: false),
-                  onChanged: onProvinceChanged,
+                  child: VCompactSearchableDropdown<String>(
+                    value: provinceValue,
+                    hintText: hasError
+                        ? 'Không tải được tỉnh / thành phố'
+                        : isLoading
+                        ? 'Đang tải tỉnh / thành phố'
+                        : 'Chọn tỉnh / thành phố',
+                    enabled: !isLoading && !hasError && units.isNotEmpty,
+                    items: units
+                        .map(
+                          (unit) => DropdownMenuEntry(
+                            value: unit.fullName,
+                            label: unit.fullName,
+                          ),
+                        )
+                        .toList(growable: false),
+                    onChanged: onProvinceChanged,
+                  ),
                 ),
                 const VGap.sm(),
-                VDropdown<String>(
+                _SearchDropdownField(
                   label: 'Xã / phường',
-                  value: wardValue,
-                  hintText: province == null ? 'Chọn tỉnh / thành phố trước' : 'Chọn xã / phường',
-                  enabled: !isLoading && !hasError && province != null,
-                  items: wards
-                      .map(
-                        (ward) => DropdownMenuItem(
-                          value: ward.fullName,
-                          child: VText(ward.fullName),
-                        ),
-                      )
-                      .toList(growable: false),
-                  onChanged: onWardChanged,
+                  child: VCompactSearchableDropdown<String>(
+                    value: wardValue,
+                    hintText: province == null ? 'Chọn tỉnh / thành phố trước' : 'Chọn xã / phường',
+                    enabled: !isLoading && !hasError && province != null,
+                    items: wards
+                        .map(
+                          (ward) => DropdownMenuEntry(
+                            value: ward.fullName,
+                            label: ward.fullName,
+                          ),
+                        )
+                        .toList(growable: false),
+                    onChanged: onWardChanged,
+                  ),
                 ),
               ],
             );
@@ -183,5 +187,32 @@ class PlatformOnboardingStepOrganization extends StatelessWidget {
       if (ward.fullName == fullName) return true;
     }
     return false;
+  }
+}
+
+class _SearchDropdownField extends StatelessWidget {
+  const _SearchDropdownField({
+    required this.label,
+    required this.child,
+  });
+
+  final String label;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        VText(
+          label,
+          variant: VTextVariant.bodySmall,
+          color: context.vColors.textPrimary,
+          style: const TextStyle(fontWeight: FontWeight.w700),
+        ),
+        const VGap.sm(),
+        child,
+      ],
+    );
   }
 }

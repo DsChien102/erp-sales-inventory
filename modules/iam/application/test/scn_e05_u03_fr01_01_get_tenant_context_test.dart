@@ -127,6 +127,38 @@ void main() {
       expect(session.establishedTenantId, 'tenant-pref');
     });
 
+    test(
+      'bootstrap_current_session — no preference resolves current tenant',
+      () async {
+        final session = _FakeSessionPort();
+        final preference = _FakePreferencePort(null);
+        final handler = GetTenantContextQueryHandler(
+          accessGateway: _ScenarioAccessGateway((id) async {
+            expect(id, 'tenant-cur');
+            return const TenantContextDto(
+              status: TenantContextStatus.valid,
+              tenantId: 'tenant-cur',
+              tenantName: 'Current',
+              roleLabel: 'owner',
+              tenantStatus: TenantLifecycleStatus.provisioning,
+            );
+          }),
+          preferencePort: preference,
+          sessionPort: session,
+          currentTenant: _FakeCurrentTenant('tenant-cur'),
+        );
+
+        final result = await handler.handle(
+          GetTenantContextQuery(bootstrapFromLastSelected: true),
+        );
+
+        expect(result.status, TenantContextStatus.valid);
+        expect(result.tenantId, 'tenant-cur');
+        expect(session.establishedTenantId, 'tenant-cur');
+        expect(preference.lastSelected, 'tenant-cur');
+      },
+    );
+
     test('bootstrap_invalid — OQ-07 returns none without auto-pick', () async {
       final session = _FakeSessionPort();
       final handler = GetTenantContextQueryHandler(

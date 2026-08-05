@@ -241,47 +241,53 @@ class _EditProfileViewState extends State<_EditProfileView> {
                   final selectedProvince = _findProvinceByCode(units, _selectedProvinceCode);
                   final provinceItems = units
                       .map(
-                        (u) => DropdownMenuItem<String>(
+                        (u) => DropdownMenuEntry<String>(
                           value: u.code,
-                          child: VText(u.fullName),
+                          label: u.fullName,
                         ),
                       )
                       .toList(growable: false);
                   final wardList = selectedProvince?.wards ?? const <VnWard>[];
                   final wardItems = wardList
                       .map(
-                        (w) => DropdownMenuItem<String>(
+                        (w) => DropdownMenuEntry<String>(
                           value: w.code,
-                          child: VText(w.fullName),
+                          label: w.fullName,
                         ),
                       )
                       .toList(growable: false);
 
                   return Column(
                     children: [
-                      VDropdown<String>(
+                      _SearchDropdownField(
                         label: 'Tỉnh / thành phố',
-                        hintText: 'Chọn tỉnh / thành phố',
-                        value: selectedProvince?.code,
-                        items: provinceItems,
-                        onChanged: (code) {
-                          setState(() {
-                            _selectedProvinceCode = code;
-                            _selectedCommuneCode = null;
-                          });
-                        },
+                        child: VCompactSearchableDropdown<String>(
+                          value: selectedProvince?.code,
+                          hintText: 'Chọn tỉnh / thành phố',
+                          collapsedWhenUnfocused: false,
+                          items: provinceItems,
+                          onChanged: (code) {
+                            setState(() {
+                              _selectedProvinceCode = code;
+                              _selectedCommuneCode = null;
+                            });
+                          },
+                        ),
                       ),
                       const VGap.md(),
-                      VDropdown<String>(
+                      _SearchDropdownField(
                         label: 'Xã / phường',
-                        hintText: 'Chọn xã / phường',
-                        value: wardItems.any((i) => i.value == _selectedCommuneCode)
-                            ? _selectedCommuneCode
-                            : null,
-                        items: wardItems,
-                        onChanged: (code) {
-                          setState(() => _selectedCommuneCode = code);
-                        },
+                        child: VCompactSearchableDropdown<String>(
+                          value: wardItems.any((i) => i.value == _selectedCommuneCode)
+                              ? _selectedCommuneCode
+                              : null,
+                          hintText: 'Chọn xã / phường',
+                          collapsedWhenUnfocused: false,
+                          items: wardItems,
+                          onChanged: (code) {
+                            setState(() => _selectedCommuneCode = code);
+                          },
+                        ),
                       ),
                     ],
                   );
@@ -291,6 +297,33 @@ class _EditProfileViewState extends State<_EditProfileView> {
           ),
         );
       },
+    );
+  }
+}
+
+class _SearchDropdownField extends StatelessWidget {
+  const _SearchDropdownField({
+    required this.label,
+    required this.child,
+  });
+
+  final String label;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        VText(
+          label,
+          variant: VTextVariant.bodySmall,
+          color: context.vColors.textPrimary,
+          style: const TextStyle(fontWeight: FontWeight.w700),
+        ),
+        const VGap.sm(),
+        child,
+      ],
     );
   }
 }

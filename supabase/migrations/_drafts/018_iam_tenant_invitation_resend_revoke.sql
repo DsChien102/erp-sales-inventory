@@ -412,6 +412,6 @@ grant execute on function iam.revoke_tenant_invitation(uuid, uuid, int, text, te
   to authenticated;
 
 revoke all on function iam.is_current_tenant_invitation_delivery(uuid, text)
-  from public, anon;
+  from public, anon, authenticated;
 grant execute on function iam.is_current_tenant_invitation_delivery(uuid, text)
-  to authenticated;
+  to service_role;

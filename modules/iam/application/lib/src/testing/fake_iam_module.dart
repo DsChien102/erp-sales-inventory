@@ -2533,9 +2533,16 @@ final class FakeIamModule implements IIamModule {
     GetTenantContextQuery query,
   ) {
     if (query.bootstrapFromLastSelected) {
-      if (scenario == FakeIamScenario.contextNone ||
-          lastSelectedTenantId == null ||
-          lastSelectedTenantId!.trim().isEmpty) {
+      if (scenario == FakeIamScenario.contextNone) {
+        return Future.value(
+          const TenantContextDto(status: TenantContextStatus.none) as TResult,
+        );
+      }
+      final bootstrapTenantId =
+          (lastSelectedTenantId == null || lastSelectedTenantId!.trim().isEmpty)
+          ? currentTenantId
+          : lastSelectedTenantId;
+      if (bootstrapTenantId == null || bootstrapTenantId.trim().isEmpty) {
         return Future.value(
           const TenantContextDto(status: TenantContextStatus.none) as TResult,
         );
@@ -2546,7 +2553,9 @@ final class FakeIamModule implements IIamModule {
         );
       }
 
-      final match = _accessibleTenants.where((t) => t.tenantId == lastSelectedTenantId).firstOrNull;
+      final match = _accessibleTenants
+          .where((t) => t.tenantId == bootstrapTenantId)
+          .firstOrNull;
       if (match == null ||
           match.status == TenantLifecycleStatus.suspended ||
           match.status == TenantLifecycleStatus.closed) {
@@ -2557,6 +2566,7 @@ final class FakeIamModule implements IIamModule {
       }
 
       currentTenantId = match.tenantId;
+      lastSelectedTenantId ??= match.tenantId;
       return Future.value(
         TenantContextDto(
               status: TenantContextStatus.valid,

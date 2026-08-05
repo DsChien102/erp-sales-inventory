@@ -28,13 +28,17 @@ final class GetTenantContextQueryHandler
   @override
   Future<TenantContextDto> handle(GetTenantContextQuery query) async {
     if (query.bootstrapFromLastSelected) {
-      final lastSelected = await _preferencePort.getLastSelectedTenantId();
-      if (lastSelected == null || lastSelected.trim().isEmpty) {
+      final lastSelected = _trimToNull(
+        await _preferencePort.getLastSelectedTenantId(),
+      );
+      final bootstrapTenantId =
+          lastSelected ?? _trimToNull(_currentTenant.tenantId);
+      if (bootstrapTenantId == null) {
         return const TenantContextDto(status: TenantContextStatus.none);
       }
 
       final context = await _accessGateway.getValidatedTenantContext(
-        sessionTenantId: lastSelected,
+        sessionTenantId: bootstrapTenantId,
       );
 
       // OQ-07: invalid preference → none (do not auto-pick another tenant).
@@ -44,6 +48,9 @@ final class GetTenantContextQueryHandler
       }
 
       await _sessionPort.establishAfterSignIn(tenantId: context.tenantId);
+      if (lastSelected == null) {
+        await _preferencePort.setLastSelectedTenantId(context.tenantId);
+      }
       return context;
     }
 
@@ -55,5 +62,11 @@ final class GetTenantContextQueryHandler
     return _accessGateway.getValidatedTenantContext(
       sessionTenantId: currentTenantId,
     );
+  }
+
+  String? _trimToNull(String? value) {
+    final trimmed = value?.trim();
+    if (trimmed == null || trimmed.isEmpty) return null;
+    return trimmed;
   }
 }

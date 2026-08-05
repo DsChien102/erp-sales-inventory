@@ -58,6 +58,7 @@ abstract final class VOverlayMenuLayout {
   static Future<void> ensureOpensDownward(
     BuildContext context, {
     double stickyActionsReserve = 0,
+    bool anticipateKeyboard = false,
   }) {
     if (!context.mounted || !VRouteOverlayGuard.isLayoutReady(context)) {
       return Future<void>.value();
@@ -69,7 +70,7 @@ abstract final class VOverlayMenuLayout {
       context,
       duration: const Duration(milliseconds: 220),
       curve: Curves.easeOut,
-      alignment: hasKeyboard ? 0.02 : 0.12,
+      alignment: hasKeyboard || anticipateKeyboard ? 0.02 : 0.12,
     );
   }
 }

@@ -600,6 +600,20 @@ void main() {
       expect(ctx.tenantName, 'Thú y Minh Phát');
     });
 
+    test('bootstrap_current_session — no preference uses current tenant', () async {
+      final module = FakeIamModule(scenario: FakeIamScenario.bootstrapValid)
+        ..currentTenantId = 'org-001'
+        ..lastSelectedTenantId = null;
+
+      final ctx = await module.executeQueryAsync(
+        GetTenantContextQuery(bootstrapFromLastSelected: true),
+      );
+
+      expect(ctx.status, TenantContextStatus.valid);
+      expect(ctx.tenantId, 'org-001');
+      expect(module.lastSelectedTenantId, 'org-001');
+    });
+
     test('bootstrap_invalid — status none (OQ-07)', () async {
       final module = FakeIamModule(scenario: FakeIamScenario.bootstrapInvalid);
 
