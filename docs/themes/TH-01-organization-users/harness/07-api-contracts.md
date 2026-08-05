@@ -352,10 +352,12 @@ Tenant-scoped. Permission: `tenant.member.invite`. Actor/`createdBy` từ execut
 
 | Symbol | Input | Success | Errors |
 | ------ | ----- | ------- | ------ |
+| `ListAssignableInvitationRolesQuery` | tenantId | `List<AssignableRoleOptionDto>` (`roleId`, `label`) — roles assignable for invite | PERMISSION_DENIED, AUTHENTICATION_REQUIRED, SYSTEM_ERROR |
 | `CreateInvitationCommand` | tenantId, inviteeEmail, initialRoleId, idempotencyKey | `InvitationDetailDto` (`status=pending`, `deliveryStatus` initial, no token/hash) | VALIDATION_ERROR, DUPLICATE_MEMBERSHIP, MEMBERSHIP_INACTIVE, INVITATION_PENDING_EXISTS, ROLE_NOT_ASSIGNABLE, IDEMPOTENCY_CONFLICT, PERMISSION_DENIED, AUTHENTICATION_REQUIRED, SYSTEM_ERROR |
 
 ### Locked rules
 
+- Role picker options load via `ListAssignableInvitationRolesQuery` (D1 locked) — không hardcode `FakeRolesData` trên production.
 - Expiry = exactly **7 days** from server UTC creation time.
 - Canonical email = trim + lowercase; empty/invalid → `VALIDATION_ERROR`.
 - One pending invitation per `(tenantId, canonicalEmail)`.
@@ -527,6 +529,10 @@ Atomic boundary: Tenant + Owner Membership + role + IAM outbox; Identity creatio
 
 **Notes**
 - Password-reset initiate only; Platform Admin never receives credentials (BR-01/BR-02).
+- `PlatformUserSummaryDto.status` / `PlatformUserDetailDto.status` are effective activation status derived from Supabase Auth: `active` when `auth.users.email_confirmed_at is not null`, otherwise `pendingActivation`.
+- `PlatformUserDetailDto.emailVerified` is Auth-derived: `auth.users.email_confirmed_at is not null`.
+- `iam.platform_user_profiles.status` and `iam.platform_user_profiles.email_verified` are legacy/ignored for Platform User read DTOs until their lifecycle meaning is redefined.
+- `SearchPlatformUsersQuery.status` filters by effective status, not by `iam.platform_user_profiles.status`.
 - Create onboarding: `@Idempotent(keyField: 'idempotencyKey')`.
 - **OQ-02 (closed):** IAM persists operation by `operationId` / `idempotencyKey` / `correlationId` / status / steps.
 - Owner first role fixed `Chủ cửa hàng`; `is_owner=true` independent of role label.
@@ -544,6 +550,10 @@ Atomic boundary: Tenant + Owner Membership + role + IAM outbox; Identity creatio
 | `users_search_ok` | query by email | cursor page of summaries |
 | `users_search_paged` | cursor/limit | nextCursor when more |
 | `user_detail_ok` | known userId | detail + memberships + version |
+| `user_verified_profile_pending_reads_active` | profile pending/false + Auth confirmed | list/detail status `active`, detail `emailVerified=true` |
+| `user_unverified_profile_pending_reads_pending` | profile pending/false + Auth unconfirmed | list/detail status `pendingActivation`, detail `emailVerified=false` |
+| `users_filter_active_uses_effective_status` | filter `active` | includes profile-pending users with Auth confirmed |
+| `users_filter_pending_uses_effective_status` | filter `pendingActivation` | excludes profile-pending users with Auth confirmed |
 | `user_forbidden_403` | missing `platform.user.view` | PLATFORM_PERMISSION_DENIED |
 | `activation_resend_ok` | pendingActivation + version/key | void success |
 | `suspend_ok` | active user + reason | status → suspended |

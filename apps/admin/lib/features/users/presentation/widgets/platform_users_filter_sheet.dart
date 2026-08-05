@@ -1,18 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:vet45_design_system/design_system.dart';
+import 'package:vet45_iam_application/application.dart';
 
-/// Advanced filter bottom sheet for platform users list.
-Future<({int status, int activation, int email})?> showPlatformUsersFilterSheet({
+typedef PlatformUsersFilterResult = ({
+  bool applied,
+  PlatformUserStatus? status,
+});
+
+/// Status-only filter sheet for platform users list (contract: query + status).
+Future<PlatformUsersFilterResult?> showPlatformUsersFilterSheet({
   required BuildContext context,
-  required int filterStatus,
-  required int filterActivation,
-  required int filterEmail,
+  PlatformUserStatus? selected,
 }) {
-  int tempStatus = filterStatus;
-  int tempActivation = filterActivation;
-  int tempEmail = filterEmail;
+  PlatformUserStatus? temp = selected;
 
-  return showVBottomSheet<({int status, int activation, int email})>(
+  return showVBottomSheet<PlatformUsersFilterResult>(
     context: context,
     child: StatefulBuilder(
       builder: (context, setSheetState) {
@@ -22,114 +24,54 @@ Future<({int status, int activation, int email})?> showPlatformUsersFilterSheet(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              VText(
+              const VText(
                 'Bộ lọc người dùng nền tảng',
                 variant: VTextVariant.headingH3,
-                style: const TextStyle(fontWeight: FontWeight.w700),
+                style: TextStyle(fontWeight: FontWeight.w700),
               ),
               const VGap.lg(),
-              VText(
+              const VText(
                 'Trạng thái',
                 variant: VTextVariant.bodyDefault,
-                style: const TextStyle(fontWeight: FontWeight.w600),
+                style: TextStyle(fontWeight: FontWeight.w600),
               ),
               const VGap.sm(),
               Wrap(
                 spacing: VSpacing.space2,
+                runSpacing: VSpacing.space2,
                 children: [
                   VChip(
                     label: 'Tất cả',
-                    emphasis: tempStatus == 0
+                    emphasis: temp == null
                         ? VComponentEmphasis.strong
                         : VComponentEmphasis.medium,
-                    onTap: () => setSheetState(() => tempStatus = 0),
-                  ),
-                  VChip(
-                    label: 'Hoạt động',
-                    emphasis: tempStatus == 1
-                        ? VComponentEmphasis.strong
-                        : VComponentEmphasis.medium,
-                    onTap: () => setSheetState(() => tempStatus = 1),
-                  ),
-                  VChip(
-                    label: 'Tạm ngừng',
-                    emphasis: tempStatus == 2
-                        ? VComponentEmphasis.strong
-                        : VComponentEmphasis.medium,
-                    onTap: () => setSheetState(() => tempStatus = 2),
-                  ),
-                ],
-              ),
-              const VGap.lg(),
-              VText(
-                'Kích hoạt',
-                variant: VTextVariant.bodyDefault,
-                style: const TextStyle(fontWeight: FontWeight.w600),
-              ),
-              const VGap.sm(),
-              Wrap(
-                spacing: VSpacing.space2,
-                children: [
-                  VChip(
-                    label: 'Tất cả',
-                    emphasis: tempActivation == 0
-                        ? VComponentEmphasis.strong
-                        : VComponentEmphasis.medium,
-                    onTap: () => setSheetState(() => tempActivation = 0),
-                  ),
-                  VChip(
-                    label: 'Đã kích hoạt',
-                    emphasis: tempActivation == 1
-                        ? VComponentEmphasis.strong
-                        : VComponentEmphasis.medium,
-                    onTap: () => setSheetState(() => tempActivation = 1),
+                    onTap: () => setSheetState(() => temp = null),
                   ),
                   VChip(
                     label: 'Chờ kích hoạt',
-                    emphasis: tempActivation == 2
+                    emphasis: temp == PlatformUserStatus.pendingActivation
                         ? VComponentEmphasis.strong
                         : VComponentEmphasis.medium,
-                    onTap: () => setSheetState(() => tempActivation = 2),
+                    onTap: () => setSheetState(
+                      () => temp = PlatformUserStatus.pendingActivation,
+                    ),
                   ),
                   VChip(
-                    label: 'Hết hạn',
-                    emphasis: tempActivation == 3
+                    label: 'Hoạt động',
+                    emphasis: temp == PlatformUserStatus.active
                         ? VComponentEmphasis.strong
                         : VComponentEmphasis.medium,
-                    onTap: () => setSheetState(() => tempActivation = 3),
-                  ),
-                ],
-              ),
-              const VGap.lg(),
-              VText(
-                'Email',
-                variant: VTextVariant.bodyDefault,
-                style: const TextStyle(fontWeight: FontWeight.w600),
-              ),
-              const VGap.sm(),
-              Wrap(
-                spacing: VSpacing.space2,
-                children: [
-                  VChip(
-                    label: 'Tất cả',
-                    emphasis: tempEmail == 0
-                        ? VComponentEmphasis.strong
-                        : VComponentEmphasis.medium,
-                    onTap: () => setSheetState(() => tempEmail = 0),
+                    onTap: () =>
+                        setSheetState(() => temp = PlatformUserStatus.active),
                   ),
                   VChip(
-                    label: 'Đã xác minh',
-                    emphasis: tempEmail == 1
+                    label: 'Tạm ngừng',
+                    emphasis: temp == PlatformUserStatus.suspended
                         ? VComponentEmphasis.strong
                         : VComponentEmphasis.medium,
-                    onTap: () => setSheetState(() => tempEmail = 1),
-                  ),
-                  VChip(
-                    label: 'Chưa xác minh',
-                    emphasis: tempEmail == 2
-                        ? VComponentEmphasis.strong
-                        : VComponentEmphasis.medium,
-                    onTap: () => setSheetState(() => tempEmail = 2),
+                    onTap: () => setSheetState(
+                      () => temp = PlatformUserStatus.suspended,
+                    ),
                   ),
                 ],
               ),
@@ -140,29 +82,17 @@ Future<({int status, int activation, int email})?> showPlatformUsersFilterSheet(
                     child: VButton(
                       label: 'Đặt lại',
                       variant: VButtonVariant.outline,
-                      onPressed: () {
-                        setSheetState(() {
-                          tempStatus = 0;
-                          tempActivation = 0;
-                          tempEmail = 0;
-                        });
-                      },
+                      onPressed: () => setSheetState(() => temp = null),
                     ),
                   ),
                   const VGap.horizontalSm(),
                   Expanded(
                     child: VButton(
                       label: 'Áp dụng',
-                      onPressed: () {
-                        Navigator.pop(
-                          context,
-                          (
-                            status: tempStatus,
-                            activation: tempActivation,
-                            email: tempEmail,
-                          ),
-                        );
-                      },
+                      onPressed: () => Navigator.pop(
+                        context,
+                        (applied: true, status: temp),
+                      ),
                     ),
                   ),
                 ],

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:vet45_design_system/design_system.dart';
 import '../../lib/src/audit_logs/widgets/audit_log_empty_view.dart';
 
 void main() {

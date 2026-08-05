@@ -39,7 +39,7 @@ void main() {
     });
 
     test('persists token_hash only and uses 7-day expiry', () {
-      expect(sql, contains("encode(digest(v_raw_token, 'sha256'), 'hex')"));
+      expect(sql, contains('v_token_hash := iam._invitation_token_hash(v_raw_token);'));
       expect(sql, contains("interval '7 days'"));
       expect(sql, contains('token_hash text not null'));
       expect(sql, isNot(contains('invitation_token text')));
@@ -99,6 +99,30 @@ void main() {
       );
       expect(resultBlock, isNot(contains("'token'")));
       expect(resultBlock, isNot(contains("'token_hash'")));
+    });
+
+    test('defines a Crockford Base32 code generator', () {
+      expect(sql, contains('function iam._generate_invitation_code()'));
+      // Bảng chữ 32 ký tự, bỏ I/L/O/U.
+      expect(sql, contains('0123456789ABCDEFGHJKMNPQRSTVWXYZ'));
+      // Sinh ngẫu nhiên mã hoá, không dùng random() thường.
+      expect(sql, contains('gen_random_bytes'));
+    });
+
+    test('defines canonical token hash shared by create and inspect', () {
+      expect(sql, contains('create or replace function iam._invitation_token_hash('));
+      expect(sql, contains('upper('));
+      expect(sql, contains('regexp_replace'));
+      expect(sql, contains("'[^0-9A-Za-z]'"));
+      expect(sql, contains('v_token_hash := iam._invitation_token_hash(v_raw_token);'));
+    });
+
+    test('create uses the code generator, not a 32-byte base64url token', () {
+      final fn = sql.substring(
+        sql.indexOf('create or replace function iam.create_tenant_invitation('),
+      );
+      expect(fn, contains('iam._generate_invitation_code()'));
+      expect(fn, isNot(contains('gen_random_bytes(32)')));
     });
   });
 }

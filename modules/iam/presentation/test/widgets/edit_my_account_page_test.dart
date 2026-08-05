@@ -5,7 +5,7 @@ import 'package:vet45_iam_presentation/presentation.dart';
 
 void main() {
   testWidgets(
-    'EditMyAccountPage (TA-D-02) renders avatar card, input fields, read-only email, and dirty-checks save button',
+    'wgt_e06_u02_fr01_01: EditMyAccountPage (TA-D-02) renders avatar card, input fields, read-only email, and dirty-checks save button',
     (WidgetTester tester) async {
       tester.view.physicalSize = const Size(800, 1600);
       tester.view.devicePixelRatio = 1.0;
@@ -14,7 +14,7 @@ void main() {
 
       await tester.pumpWidget(
         const MaterialApp(
-          home: EditMyAccountPage(),
+          home: EditMyAccountPage(data: MyAccountUiModel.sample),
         ),
       );
 

@@ -18,4 +18,9 @@ abstract interface class IEmailDeliveryOutcomeStore {
   });
 
   Future<EmailDeliveryOutcomeDto?> getByCorrelationId(String correlationId);
+
+  Future<bool> isCurrentTenantInvitationDelivery({
+    required String invitationId,
+    required String correlationId,
+  });
 }

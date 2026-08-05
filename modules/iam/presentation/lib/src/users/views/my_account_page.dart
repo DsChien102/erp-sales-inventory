@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:vet45_design_system/design_system.dart';
 import 'package:vet45_iam_application/application.dart';
-import 'package:vet45_shared_application/application.dart';
 
+import '../../shared/iam_load_status.dart';
+import '../bloc/my_account_cubit.dart';
+import '../bloc/my_account_state.dart';
 import '../widgets/logout_confirmation_bottom_sheet.dart';
 import '../widgets/my_account_actions_bottom_sheet.dart';
 import 'edit_my_account_page.dart';
@@ -50,70 +53,63 @@ class MyAccountUiModel {
   );
 }
 
-/// Trang Tài khoản của tôi (TA-D-01).
-class MyAccountPage extends StatefulWidget {
-  final MyAccountUiModel data;
-  final VoidCallback? onLogout;
-  final IIamModule? iamModule;
-
+/// Trang Tài khoản của tôi (TA-D-01) — state owner: [MyAccountCubit].
+class MyAccountPage extends StatelessWidget {
   const MyAccountPage({
     super.key,
-    this.data = MyAccountUiModel.sample,
+    this.data,
     this.onLogout,
     this.iamModule,
+    this.cubit,
   });
 
+  /// Test-only seed when [iamModule]/[cubit] are null. Production injects module.
+  final MyAccountUiModel? data;
+  final Future<void> Function()? onLogout;
+  final IIamModule? iamModule;
+  final MyAccountCubit? cubit;
+
   @override
-  State<MyAccountPage> createState() => _MyAccountPageState();
+  Widget build(BuildContext context) {
+    if (cubit != null) {
+      return BlocProvider.value(
+        value: cubit!,
+        child: _MyAccountBody(onLogout: onLogout),
+      );
+    }
+    if (iamModule != null) {
+      return BlocProvider(
+        create: (_) => MyAccountCubit(iamModule: iamModule!)..load(),
+        child: _MyAccountBody(onLogout: onLogout),
+      );
+    }
+    assert(
+      data != null,
+      'MyAccountPage requires data when iamModule/cubit is null',
+    );
+    return _MyAccountSampleBody(
+      data: data!,
+      onLogout: onLogout,
+    );
+  }
 }
 
-class _MyAccountPageState extends State<MyAccountPage> {
-  bool _isActionsOpen = false;
-  late MyAccountUiModel _accountData;
-  bool _isLoading = false;
-  String? _loadError;
+class _MyAccountSampleBody extends StatefulWidget {
+  const _MyAccountSampleBody({
+    required this.data,
+    this.onLogout,
+  });
+
+  final MyAccountUiModel data;
+  final Future<void> Function()? onLogout;
 
   @override
-  void initState() {
-    super.initState();
-    _accountData = widget.data;
-    if (widget.iamModule != null) {
-      _loadProfile();
-    }
-  }
+  State<_MyAccountSampleBody> createState() => _MyAccountSampleBodyState();
+}
 
-  Future<void> _loadProfile() async {
-    final module = widget.iamModule;
-    if (module == null) return;
-
-    setState(() {
-      _isLoading = true;
-      _loadError = null;
-    });
-
-    try {
-      final dto = await module.executeQueryAsync<MyIdentityProfileDto>(
-        GetMyIdentityProfileQuery(),
-      );
-      if (!mounted) return;
-      setState(() {
-        _accountData = MyAccountUiModel.fromDto(dto);
-        _isLoading = false;
-      });
-    } on ApplicationException catch (e) {
-      if (!mounted) return;
-      setState(() {
-        _isLoading = false;
-        _loadError = e.message;
-      });
-    } catch (e) {
-      if (!mounted) return;
-      setState(() {
-        _isLoading = false;
-        _loadError = e.toString();
-      });
-    }
-  }
+class _MyAccountSampleBodyState extends State<_MyAccountSampleBody> {
+  late MyAccountUiModel _accountData = widget.data;
+  bool _isActionsOpen = false;
 
   void _showLogoutConfirmation() {
     showLogoutConfirmationBottomSheet(
@@ -131,21 +127,17 @@ class _MyAccountPageState extends State<MyAccountPage> {
     return '${local.substring(0, 2)}***$domain';
   }
 
-  void _showActionsBottomSheet() {
+  Future<void> _showActionsBottomSheet() async {
     setState(() => _isActionsOpen = true);
 
-    showMyAccountActionsBottomSheet(
+    await showMyAccountActionsBottomSheet(
       context: context,
       onEditProfile: () async {
         final updated = await Navigator.of(context).push<MyAccountUiModel>(
           MaterialPageRoute(
-            builder: (context) => EditMyAccountPage(
-              data: _accountData,
-              iamModule: widget.iamModule,
-            ),
+            builder: (context) => EditMyAccountPage(data: _accountData),
           ),
         );
-
         if (updated != null && mounted) {
           setState(() => _accountData = updated);
           VToast.show(
@@ -160,12 +152,10 @@ class _MyAccountPageState extends State<MyAccountPage> {
         final result = await Navigator.of(context).push<bool>(
           MaterialPageRoute(
             builder: (context) => ResetPasswordPage(
-              email: _accountData.email,
-              iamModule: widget.iamModule,
+              emailMasked: _maskEmail(_accountData.email),
             ),
           ),
         );
-
         if (result == true && mounted) {
           VToast.show(
             context,
@@ -182,6 +172,168 @@ class _MyAccountPageState extends State<MyAccountPage> {
       }
     });
   }
+
+  @override
+  Widget build(BuildContext context) {
+    return _MyAccountScaffold(
+      accountData: _accountData,
+      isActionsOpen: _isActionsOpen,
+      onShowActions: _showActionsBottomSheet,
+    );
+  }
+}
+
+class _MyAccountBody extends StatefulWidget {
+  const _MyAccountBody({this.onLogout});
+
+  final Future<void> Function()? onLogout;
+
+  @override
+  State<_MyAccountBody> createState() => _MyAccountBodyState();
+}
+
+class _MyAccountBodyState extends State<_MyAccountBody> {
+  bool _isActionsOpen = false;
+
+  void _showLogoutConfirmation() {
+    showLogoutConfirmationBottomSheet(
+      context: context,
+      onConfirm: () => widget.onLogout?.call(),
+    );
+  }
+
+  String _maskEmail(String email) {
+    final at = email.indexOf('@');
+    if (at <= 0) return '***';
+    final local = email.substring(0, at);
+    final domain = email.substring(at);
+    if (local.length <= 2) return '${local[0]}***$domain';
+    return '${local.substring(0, 2)}***$domain';
+  }
+
+  Future<void> _showActionsBottomSheet(
+    MyAccountUiModel accountData,
+    IIamModule iamModule,
+  ) async {
+    setState(() => _isActionsOpen = true);
+    final accountCubit = context.read<MyAccountCubit>();
+
+    await showMyAccountActionsBottomSheet(
+      context: context,
+      onEditProfile: () async {
+        final updated = await Navigator.of(context).push<MyAccountUiModel>(
+          MaterialPageRoute(
+            builder: (context) => EditMyAccountPage(
+              data: accountData,
+              iamModule: iamModule,
+            ),
+          ),
+        );
+        if (updated != null && mounted) {
+          await accountCubit.load();
+          if (!mounted) return;
+          VToast.show(
+            context,
+            title: 'Thành công',
+            message: 'Đã cập nhật thông tin cá nhân',
+            type: VToastType.success,
+          );
+        }
+      },
+      onResetPassword: () async {
+        final result = await Navigator.of(context).push<bool>(
+          MaterialPageRoute(
+            builder: (context) => ResetPasswordPage(
+              emailMasked: _maskEmail(accountData.email),
+              iamModule: iamModule,
+            ),
+          ),
+        );
+        if (result == true && mounted) {
+          VToast.show(
+            context,
+            title: 'Thành công',
+            message: 'Đã đặt lại mật khẩu.',
+            type: VToastType.success,
+          );
+        }
+      },
+      onLogout: _showLogoutConfirmation,
+    ).then((_) {
+      if (mounted) {
+        setState(() => _isActionsOpen = false);
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<MyAccountCubit, MyAccountState>(
+      builder: (context, state) {
+        final colors = context.vColors;
+        if (state.status == IamLoadStatus.loading ||
+            state.status == IamLoadStatus.initial) {
+          return const VPageScaffold(
+            title: 'Tài khoản của tôi',
+            body: Center(child: VLoading(size: 40)),
+          );
+        }
+
+        if (state.status == IamLoadStatus.failure || state.profile == null) {
+          return VPageScaffold(
+            title: 'Tài khoản của tôi',
+            body: Center(
+              child: Padding(
+                padding: const EdgeInsets.all(VSpacing.screenMobile),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    VText(
+                      'Không tải được hồ sơ',
+                      variant: VTextVariant.headingH4,
+                    ),
+                    const VGap.sm(),
+                    VText(
+                      state.failure?.message ?? 'Đã xảy ra lỗi',
+                      variant: VTextVariant.bodySmall,
+                      color: colors.textSecondary,
+                      textAlign: TextAlign.center,
+                    ),
+                    const VGap.lg(),
+                    VButton(
+                      label: 'Thử lại',
+                      onPressed: () => context.read<MyAccountCubit>().load(),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          );
+        }
+
+        final accountData = MyAccountUiModel.fromDto(state.profile!);
+        final iamModule = context.read<MyAccountCubit>().iamModule;
+
+        return _MyAccountScaffold(
+          accountData: accountData,
+          isActionsOpen: _isActionsOpen,
+          onShowActions: () => _showActionsBottomSheet(accountData, iamModule),
+        );
+      },
+    );
+  }
+}
+
+class _MyAccountScaffold extends StatelessWidget {
+  const _MyAccountScaffold({
+    required this.accountData,
+    required this.isActionsOpen,
+    required this.onShowActions,
+  });
+
+  final MyAccountUiModel accountData;
+  final bool isActionsOpen;
+  final VoidCallback onShowActions;
 
   Widget _buildInfoRow(BuildContext context, String label, String? value) {
     final colors = context.vColors;
@@ -217,46 +369,7 @@ class _MyAccountPageState extends State<MyAccountPage> {
   @override
   Widget build(BuildContext context) {
     final colors = context.vColors;
-    final data = _accountData;
-
-    if (_isLoading) {
-      return const VPageScaffold(
-        title: 'Tài khoản của tôi',
-        body: Center(child: VLoading(size: 40)),
-      );
-    }
-
-    if (_loadError != null) {
-      return VPageScaffold(
-        title: 'Tài khoản của tôi',
-        body: Center(
-          child: Padding(
-            padding: const EdgeInsets.all(VSpacing.screenMobile),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                VText(
-                  'Không tải được hồ sơ',
-                  variant: VTextVariant.headingH4,
-                ),
-                const VGap.sm(),
-                VText(
-                  _loadError!,
-                  variant: VTextVariant.bodySmall,
-                  color: colors.textSecondary,
-                  textAlign: TextAlign.center,
-                ),
-                const VGap.lg(),
-                VButton(
-                  label: 'Thử lại',
-                  onPressed: _loadProfile,
-                ),
-              ],
-            ),
-          ),
-        ),
-      );
-    }
+    final data = accountData;
 
     return VPageScaffold(
       title: 'Tài khoản của tôi',
@@ -266,7 +379,6 @@ class _MyAccountPageState extends State<MyAccountPage> {
           vertical: VSpacing.space4,
         ),
         children: [
-          // Card 1 — Tóm tắt danh tính cá nhân (không click)
           VCard(
             padding: const EdgeInsets.all(VSpacing.space4),
             child: Row(
@@ -303,8 +415,6 @@ class _MyAccountPageState extends State<MyAccountPage> {
             ),
           ),
           const VGap.md(),
-
-          // Card 2 — Thông tin cá nhân
           VCard(
             padding: const EdgeInsets.all(VSpacing.space4),
             child: Column(
@@ -345,11 +455,11 @@ class _MyAccountPageState extends State<MyAccountPage> {
               tone: VComponentTone.primary,
               fullWidth: true,
               trailingIcon: VIcon(
-                icon: _isActionsOpen ? VIcons.chevronDown : VIcons.chevronUp,
+                icon: isActionsOpen ? VIcons.chevronDown : VIcons.chevronUp,
                 color: VColors.neutral0,
                 size: 18,
               ),
-              onPressed: _showActionsBottomSheet,
+              onPressed: onShowActions,
             ),
           ),
         ),

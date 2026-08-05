@@ -16,7 +16,13 @@ class MemberCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = context.vColors;
-    final isActive = member.status == MemberStatus.active;
+    // Keep labels aligned with the member detail badge so a removed member
+    // never reads as merely "Tạm ngừng" in the list.
+    final (badgeLabel, badgeStatus) = switch (member.status) {
+      MemberStatus.active => ('Hoạt động', VBadgeStatus.success),
+      MemberStatus.suspended => ('Tạm ngừng', VBadgeStatus.danger),
+      MemberStatus.removed => ('Đã loại', VBadgeStatus.danger),
+    };
 
     return VCard(
       onTap: onTap,
@@ -34,10 +40,24 @@ class MemberCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                VText(
-                  member.name,
-                  variant: VTextVariant.bodyDefault,
-                  style: const TextStyle(fontWeight: FontWeight.w700),
+                Row(
+                  children: [
+                    Flexible(
+                      child: VText(
+                        member.name,
+                        variant: VTextVariant.bodyDefault,
+                        style: const TextStyle(fontWeight: FontWeight.w700),
+                      ),
+                    ),
+                    if (member.isOwner) ...[
+                      const VGap.horizontalSm(),
+                      const VBadge(
+                        label: 'Chủ sở hữu',
+                        status: VBadgeStatus.success,
+                        isSmall: true,
+                      ),
+                    ],
+                  ],
                 ),
                 const VGap.xs(),
                 VText(
@@ -50,8 +70,8 @@ class MemberCard extends StatelessWidget {
           ),
           const VGap.horizontalSm(),
           VBadge(
-            label: isActive ? 'Hoạt động' : 'Tạm ngừng',
-            status: isActive ? VBadgeStatus.success : VBadgeStatus.danger,
+            label: badgeLabel,
+            status: badgeStatus,
             isSmall: true,
           ),
         ],

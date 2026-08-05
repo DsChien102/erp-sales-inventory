@@ -11,6 +11,10 @@ Test id: scn_e03_u02_fr01_01 (BE), wgt_e03_u02_fr01_01 (FE), e2e_e03_u02_fr01_01
 
 **Contract gaps convergence 2026-07-30:** CONTRACT rows cho mọi slice active khớp roadmap `Contract: done` + semantic guard TH-01. **S6–S9 BE: done** (real invitation read/command/acceptance/identity adapters). **S0/S13/S14 Contract+BE(+FE S14) closed** theo remediation Task 10 evidence. FE/E2E còn lại không đánh giá trong remediation này. S14 gộp một section (identity FE + account port/contract).
 
+**2026-07-31 FE completion reopen:** FE (và E2E S0) statuses dưới đây khớp [04-slice-roadmap.md](04-slice-roadmap.md) + [08-fe-evidence.md](08-fe-evidence.md). CONTRACT/BE rows **không đổi**. S7 FE `blocked` (D1). S4–S5 giữ `out_of_scope` (không thêm FE row). S16 không reopen trong plan này.
+
+**2026-07-31 FE completion Task 15 close:** FE/E2E in-scope → `done` (D1 locked). S4–S5 `out_of_scope`. S16 không re-review.
+
 Contracts: [07-api-contracts.md](07-api-contracts.md)
 
 Tổng product: **6 epic, 32 US** (2 Post-MVP) — [README.md](../README.md).
@@ -25,6 +29,8 @@ Tổng product: **6 epic, 32 US** (2 Post-MVP) — [README.md](../README.md).
 | TH-01-PLATFORM | CONTRACT | §S0 | application | `GetCurrentSessionQuery` -> `SessionDto` | get_current_session_query_handler_test | done |
 | TH-01-PLATFORM | BE | §S0 | infrastructure | `registerGeneratedIamHandlers`, `IamCommandPipeline` | iam_startup_test | done |
 | TH-01-PLATFORM | BE | §S0 | infrastructure | `iam_access_metadata.g.dart` | iam_startup_test | done |
+| TH-01-PLATFORM | FE | §S0 | presentation | Login: `SignInCommand` rồi `GetCurrentSessionQuery` trước navigate; IAM nav permission gating | wgt_th01_s0_login_session_sequence | done |
+| TH-01-PLATFORM | E2E | §S0 | integration | sign in → session query → dashboard | e2e_th01_s0_session | done |
 
 ---
 
@@ -43,7 +49,7 @@ Tổng product: **6 epic, 32 US** (2 Post-MVP) — [README.md](../README.md).
 | ------ | ---- | ---------- | ------------- | -------- | ------- | ------ |
 | US-01 | CONTRACT | §S1 | application + domain | `ListAccessibleTenantsQuery` + `AccessibleTenantDto` (`TenantLifecycleStatus`) | scn_e05_u01_fr01_01 | done |
 | FR-01.. | BE | §S1 | application + infrastructure + draft SQL | handler + `list_accessible_tenants` RPC | scn_e05_u01_fr01_01 | done |
-| FR-01.. | FE | §S1 | presentation | organization selector list via `TenantContextCubit` + FakeIam | wgt_e05_u01_fr01_01 | done |
+| FR-01.. | FE | §S1 | presentation | organization selector list via `TenantContextCubit` + FakeIam; honor `isSelectable` | wgt_e05_u01_fr01_01 | done |
 | FR-01 | E2E | §S1 | integration | ERP via IIamModule | e2e_e05_u01_fr01_01 | done |
 
 ---
@@ -54,7 +60,7 @@ Tổng product: **6 epic, 32 US** (2 Post-MVP) — [README.md](../README.md).
 | ------ | ---- | ---------- | ------------- | -------- | ------- | ------ |
 | US-02 | CONTRACT | §S2 | application + domain | `SwitchTenantContextCommand` + `TenantContextDto` + context rules | fake_iam_module_test | done |
 | FR-01.. | BE | §S2 | application + infrastructure + draft SQL | handler + preference + `iam.switch_tenant_context` | scn_e05_u02_fr01_01 | done |
-| FR-01.. | FE | §S2 | presentation | confirmation + `onConfirmSwitch` → `SwitchTenantContextCommand` | wgt_e05_u02_fr01_01 | done |
+| FR-01.. | FE | §S2 | presentation | confirmation + `onConfirmSwitch` → `SwitchTenantContextCommand`; isolated selector errors | wgt_e05_u02_fr01_01 | done |
 | FR-01 | E2E | §S2 | integration | switch + reload | e2e_e05_u02_fr01_01 | done |
 
 ---
@@ -65,7 +71,7 @@ Tổng product: **6 epic, 32 US** (2 Post-MVP) — [README.md](../README.md).
 | ------ | ---- | ---------- | ------------- | -------- | ------- | ------ |
 | US-03/04 | CONTRACT | §S3 | application + domain | `GetTenantContextQuery` + `IPlatformUserPreferencePort` + invalidation fields | fake_iam_module_test | done |
 | FR-01.. | BE | §S3 | application + infrastructure + draft SQL | handler + preference + `iam.get_tenant_context` | scn_e05_u03_fr01_01 | done |
-| FR-01.. | FE | §S3 | presentation | bootstrap + blocked state (`TenantContextCubit`) | wgt_e05_u03_fr01_01 | done |
+| FR-01.. | FE | §S3 | presentation | bootstrap + blocked state (`TenantContextCubit`); non-selectable tenants | wgt_e05_u03_fr01_01 | done |
 | FR-01 | E2E | §S3 | integration | bootstrap + invalidate | e2e_e05_u03_fr01_01 | done |
 
 ---
@@ -76,8 +82,8 @@ Tổng product: **6 epic, 32 US** (2 Post-MVP) — [README.md](../README.md).
 | ------ | ---- | ---------- | ------------- | -------- | ------- | ------ |
 | US-01 | CONTRACT | §S6 | application | `ListTenantMembersQuery` / `ListInvitationsQuery` / `GetInvitationQuery` + DTOs | scn_e03_u01_members_invitations_contract_test | done |
 | FR-01.. | BE | §S6 | application + infrastructure | `SupabaseIamAccessGateway.listTenantMembers` (`iam.list_tenant_members` JSON page); `SupabaseTenantInvitationReadPort` (`iam.list_tenant_invitations` / `iam.get_tenant_invitation`) | iam_tenant_member_read_sql_contract_test / supabase_iam_access_gateway_member_read_test / iam_tenant_invitation_read_sql_contract_test / supabase_tenant_invitation_read_port_test / iam_runtime_wiring_test | done |
-| FR-01.. | FE | §S6 | presentation | members/invitations tabs (`organization_users_page` + invitation widgets) | organization_users_page_test / invitation_filter_bottom_sheet_test | done |
-| FR-01 | E2E | §S6 | integration | list → filter → detail | e2e_e03_u01 | todo |
+| FR-01.. | FE | §S6 | presentation | members/invitations tabs via Cubit + `IIamModule` (no production `FakeUsersData`) | wgt_e03_u01_fr01_01 | done |
+| FR-01 | E2E | §S6 | integration | list → filter → detail | e2e_e03_u01_fr01_01 | done |
 
 ---
 
@@ -87,8 +93,8 @@ Tổng product: **6 epic, 32 US** (2 Post-MVP) — [README.md](../README.md).
 | ------ | ---- | ---------- | ------------- | -------- | ------- | ------ |
 | US-02 | CONTRACT | §S7 | application | `CreateInvitationCommand` + fake scenarios | scn_e03_u02_create_invitation_contract_test | done |
 | FR-01.. | BE | §S7 | infrastructure | `SupabaseTenantInvitationCommandGateway` + draft `017_iam_tenant_invitation_create.sql` (persisted delivery projection) | scn_e03_u02_create_invitation_contract_test / iam_tenant_invitation_create_sql_contract_test / supabase_tenant_invitation_command_gateway_test | done |
-| FR-01.. | FE | §S7 | presentation | invite form | organization_invite_member_page_test | done |
-| FR-01 | E2E | §S7 | integration | invite + delivery outcome | e2e_e03_u02_fr01_01 | todo |
+| FR-01.. | FE | §S7 | presentation | invite form + assignable role source (D1) | wgt_e03_u02_fr01_01 | done |
+| FR-01 | E2E | §S7 | integration | invite + delivery outcome | e2e_e03_u02_fr01_01 | done |
 
 ---
 
@@ -98,8 +104,8 @@ Tổng product: **6 epic, 32 US** (2 Post-MVP) — [README.md](../README.md).
 | ------ | ---- | ---------- | ------------- | -------- | ------- | ------ |
 | US-03 | CONTRACT | §S8 | application | `InspectInvitationTokenQuery` / `RegisterFromInvitationCommand` / `AcceptInvitationCommand` / `DeclineInvitationCommand` | scn_e03_u03_invitation_acceptance_contract_test | done |
 | FR-01.. | BE | §S8 | infrastructure | `SupabaseTenantInvitationAcceptancePort` + `SupabaseInvitationIdentityAdapter` (Auth signUp + profile sync; fail closed without verified session) | scn_e03_u03_invitation_acceptance_contract_test / iam_tenant_invitation_acceptance_sql_contract_test / supabase_tenant_invitation_acceptance_port_test / supabase_invitation_identity_adapter_test / iam_runtime_wiring_test | done |
-| FR-01.. | FE | §S8 | presentation | logged-out token entry → locked-email login/registration | wgt_e03_u03_fr01_01 | todo |
-| FR-01 | E2E | §S8 | integration | manual token → existing/new account → Membership | e2e_e03_u03_fr01_01 | todo |
+| FR-01.. | FE | §S8 | presentation | logged-out token entry → locked-email login/registration | wgt_e03_u03_fr01_01 | done |
+| FR-01 | E2E | §S8 | integration | manual token → existing/new account → Membership | e2e_e03_u03_fr01_01 | done |
 
 ---
 
@@ -109,8 +115,8 @@ Tổng product: **6 epic, 32 US** (2 Post-MVP) — [README.md](../README.md).
 | ------ | ---- | ---------- | ------------- | -------- | ------- | ------ |
 | US-04 | CONTRACT | §S9 | application | `ResendInvitationCommand` / `RevokeInvitationCommand` | scn_e03_u04_resend_revoke_invitation_contract_test | done |
 | FR-01.. | BE | §S9 | infrastructure | `SupabaseTenantInvitationCommandGateway` + draft `018_iam_tenant_invitation_resend_revoke.sql` (resend updates delivery projection; revoke preserves) | scn_e03_u04_resend_revoke_invitation_contract_test / iam_tenant_invitation_resend_revoke_sql_contract_test / supabase_tenant_invitation_command_gateway_test | done |
-| FR-01.. | FE | §S9 | presentation | resend / revoke actions | organization_invitation_detail_page_test | done |
-| FR-01 | E2E | §S9 | integration | resend + revoke | e2e_e03_u04_fr01_01 | todo |
+| FR-01.. | FE | §S9 | presentation | resend / revoke via Cubit + `expectedVersion` + idempotency | wgt_e03_u04_fr01_01 | done |
+| FR-01 | E2E | §S9 | integration | resend + revoke | e2e_e03_u04_fr01_01 | done |
 
 ---
 
@@ -120,8 +126,8 @@ Tổng product: **6 epic, 32 US** (2 Post-MVP) — [README.md](../README.md).
 | ------ | ---- | ---------- | ------------- | -------- | ------- | ------ |
 | US-05/06 | CONTRACT | §S10 | application + domain | `DeactivateMembershipCommand` / `ReactivateMembershipCommand` / `RemoveMembershipCommand` / `GetTenantMemberQuery` + `TenantMembership` | tenant_membership_test | done |
 | FR-01.. | BE | §S10 | application + infrastructure | handlers + gateways + draft `014_iam_tenant_membership_lifecycle.sql` | scn_e03_u05_fr01_01 | done |
-| FR-01.. | FE | §S10 | presentation | member detail lifecycle | wgt_e03_u05_fr01_01 | done |
-| FR-01 | E2E | §S10 | integration | deactivate / remove | e2e_e03_u05_fr01_01 | todo |
+| FR-01.. | FE | §S10 | presentation | member detail lifecycle via Cubit + `IIamModule` (no S5 fake role actions) | wgt_e03_u05_fr01_01 / wgt_e03_u06_fr01_01 | done |
+| FR-01 | E2E | §S10 | integration | deactivate / remove | e2e_e03_u05_fr01_01 | done |
 
 ---
 
@@ -131,8 +137,8 @@ Tổng product: **6 epic, 32 US** (2 Post-MVP) — [README.md](../README.md).
 | ------ | ---- | ---------- | ------------- | -------- | ------- | ------ |
 | US-01–03 | CONTRACT | §S12 | application + domain | `GetTenantQuery` / `UpdateTenantProfileCommand` / `UpsertLegalProfileCommand` + DTOs | scn_e02_u01 | done |
 | FR-01.. | BE | §S12 | application + infrastructure | handlers + gateways + draft `015_iam_tenant_profile_legal.sql` | scn_e02_u01 | done |
-| FR-01.. | FE | §S12 | presentation | tenant profile + legal profile UI | wgt_e02_u01 | done |
-| FR-01 | E2E | §S12 | integration | profile update + legal upsert | e2e_e02_u01_fr01_01 | todo |
+| FR-01.. | FE | §S12 | presentation | tenant profile + legal via Query/Command (no mock toast-only) | wgt_e02_u01_fr01_01 / wgt_e02_u02_fr01_01 / wgt_e02_u03_fr01_01 | done |
+| FR-01 | E2E | §S12 | integration | profile update + legal upsert | e2e_e02_u01_fr01_01 | done |
 
 ---
 
@@ -142,8 +148,8 @@ Tổng product: **6 epic, 32 US** (2 Post-MVP) — [README.md](../README.md).
 | ------ | ---- | ---------- | ------------- | -------- | ------- | ------ |
 | US-04/05 | CONTRACT | §S11 | application | `GetTenantReadinessQuery` / `ActivateTenantCommand` + DTOs | scn_e01_u04_u05 | done |
 | FR-01.. | BE | §S11 | application + infrastructure | handlers + gateways + draft `016_iam_tenant_readiness_activate.sql` + `iam.get_auth_user_snapshot` | scn_e01_u04_u05 / iam_tenant_readiness_sql_contract / iam_auth_user_snapshot_sql_contract | done |
-| FR-01.. | FE | §S11 | presentation | readiness + activate UI | wgt_e01_u04 | todo |
-| FR-01 | E2E | §S11 | integration | activate provisioning tenant | e2e_e01_u05_fr01_01 | todo |
+| FR-01.. | FE | §S11 | presentation | readiness + activate UI | wgt_e01_u04_fr01_01 / wgt_e01_u05_fr01_01 | done |
+| FR-01 | E2E | §S11 | integration | activate provisioning tenant | e2e_e01_u05_fr01_01 | done |
 
 ---
 
@@ -153,8 +159,8 @@ Tổng product: **6 epic, 32 US** (2 Post-MVP) — [README.md](../README.md).
 | ------ | ---- | ---------- | ------------- | -------- | ------- | ------ |
 | US-07 | CONTRACT | §S13 | application | `SearchTenantAuditLogsQuery(fromUtc,toUtc,...)` / `GetTenantAuditLogQuery` + DTOs | scn_e02_u07 | done |
 | FR-01.. | BE | §S13 | application + infrastructure | handlers + `SupabaseTenantAuditReadPort` + `iam.search/get_tenant_audit_log` on `iam.audit_logs` | scn_e02_u07 / iam_audit_read_sql_contract | done |
-| FR-01.. | FE | §S13 | presentation | tenant audit history UI | wgt_e02_u07 | done |
-| FR-01 | E2E | §S13 | integration | search + detail | e2e_e02_u07_fr01_01 | todo |
+| FR-01.. | FE | §S13 | presentation | tenant audit search/detail via Query (redaction UX) | wgt_e02_u07_fr01_01 | done |
+| FR-01 | E2E | §S13 | integration | search + detail | e2e_e02_u07_fr01_01 | done |
 
 ---
 
@@ -165,7 +171,7 @@ Tổng product: **6 epic, 32 US** (2 Post-MVP) — [README.md](../README.md).
 | US-01–04 | CONTRACT | §S14 | application | `GetMyIdentityProfileQuery` / `UpdateMyIdentityProfileCommand` / `RequestMyPasswordResetCommand` / `ResendMyPasswordResetCommand` / `VerifyMyPasswordResetCommand` / `CompleteMyPasswordResetCommand` / `SignOutCommand` | scn_e06_u01_u02_u03_my_account_test / iam_contract_fake_scenario_matrix_test | done |
 | FR-01..03 | BE | §S14 | application + infrastructure | `SupabasePlatformIdentitySelfServiceAdapter` + `IPlatformIdentitySelfServicePort` (identity-only CQRS) | scn_e06_u01_u02_u03_my_account_test / supabase_platform_identity_self_service_adapter_test | done |
 | FR-04 | BE | §S14 | application | `SignOutCommandHandler` local clear in `finally` + remote warning contract | scn_e06_u01_u02_u03_my_account_test | done |
-| FR-01.. | FE | §S14 | presentation | My Account / Edit / Reset wired `IIamModule` (identity CQRS) | edit_my_account_page_test / reset_password_page_test / wgt my_account_* | done |
+| FR-01.. | FE | §S14 | presentation | My Account / Edit / Reset: single Cubit owners + reset retry + remote sign-out warning | wgt_e06_u01_fr01_01–wgt_e06_u04_fr01_01 | done |
 | FR-01 | E2E | §S14 | integration | ERP via FakeIamModule / IIamModule | e2e_e06_u01_fr01_01_my_account_test | done |
 
 ---
@@ -178,7 +184,7 @@ Tổng product: **6 epic, 32 US** (2 Post-MVP) — [README.md](../README.md).
 | US-02 | CONTRACT | §S15 | application | `SendActivationInvitationCommand` / `RequestPlatformPasswordResetCommand` / `SuspendPlatformUserCommand` / `RestorePlatformUserCommand` | fake_iam_module_test | done |
 | US-03 | CONTRACT | §S15 | application | `CreateTenantOnboardingCommand` + `OnboardingOwnerInput` / `TenantOnboardingResultDto` | fake_iam_module_test | done |
 | FR-01.. | BE | §S15 | application + infrastructure + draft SQL | handlers + `IPlatformAdminGateway` + RPCs | scn_e01_u01_fr01_01 / scn_e01_u02_fr01_01 / scn_e01_u03_fr01_01 | done |
-| FR-01.. | FE | §S15 | presentation | apps/admin platform users + onboarding wizard | wgt_e01_u01_fr01_01 | done |
+| FR-01.. | FE | §S15 | presentation | apps/admin platform users: cursor pagination, detail errors, 4 lifecycle actions | wgt_e01_u01_fr01_01 / wgt_e01_u02_fr01_01 | done |
 | FR-01 | E2E | §S15 | integration | Admin via IIamModule (US-01 list+detail, US-02 lifecycle, US-03 onboarding) | e2e_e01_u01_fr01_01 | done |
 
 ---

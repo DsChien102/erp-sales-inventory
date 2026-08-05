@@ -21,6 +21,10 @@ class InvitationCard extends StatelessWidget {
       InvitationStatus.failed => ('Lỗi gửi', VBadgeStatus.danger),
       InvitationStatus.pending => ('Đang chờ', VBadgeStatus.warning),
       InvitationStatus.expiring => ('Sắp hết hạn', VBadgeStatus.danger),
+      InvitationStatus.accepted => ('Đã chấp nhận', VBadgeStatus.success),
+      InvitationStatus.declined => ('Đã từ chối', VBadgeStatus.cancelled),
+      InvitationStatus.revoked => ('Đã thu hồi', VBadgeStatus.cancelled),
+      InvitationStatus.expired => ('Hết hạn', VBadgeStatus.locked),
     };
 
     return VCard(

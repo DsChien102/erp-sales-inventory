@@ -1,3 +1,5 @@
+// ignore_for_file: prefer_initializing_formals
+
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:vet45_iam_application/application.dart';
 import 'package:vet45_shared_application/application.dart';
@@ -51,6 +53,14 @@ final class PlatformOnboardingCubit extends Cubit<PlatformOnboardingState> {
     required OnboardingOwnerInput owner,
     required String organizationName,
     required String idempotencyKey,
+    String? organizationDisplayName,
+    String? contactEmail,
+    String? contactPhone,
+    String? contactAddressText,
+    String? provinceCode,
+    String? communeCode,
+    String? legalName,
+    String? taxCode,
   }) async {
     if (isClosed) return null;
     emit(
@@ -66,6 +76,14 @@ final class PlatformOnboardingCubit extends Cubit<PlatformOnboardingState> {
             CreateTenantOnboardingCommand(
               owner: owner,
               organizationName: organizationName,
+              organizationDisplayName: organizationDisplayName,
+              contactEmail: contactEmail,
+              contactPhone: contactPhone,
+              contactAddressText: contactAddressText,
+              provinceCode: provinceCode,
+              communeCode: communeCode,
+              legalName: legalName,
+              taxCode: taxCode,
               idempotencyKey: idempotencyKey,
             ),
           );

@@ -5,8 +5,7 @@ import 'package:vet45_shared_infrastructure/infrastructure.dart';
 import '../../errors/iam_error_mapper.dart';
 
 /// Projection store for email delivery outcomes via Supabase RPCs.
-final class SupabaseEmailDeliveryOutcomeGateway
-    implements IEmailDeliveryOutcomeStore {
+final class SupabaseEmailDeliveryOutcomeGateway implements IEmailDeliveryOutcomeStore {
   SupabaseEmailDeliveryOutcomeGateway({
     required SupabaseSchemaRpcClient rpcClient,
   }) : _rpcClient = rpcClient;
@@ -62,6 +61,25 @@ final class SupabaseEmailDeliveryOutcomeGateway
         return null;
       }
       return _mapOutcome(rows.first);
+    } on RpcException catch (error) {
+      throw mapIamRpcError(error);
+    }
+  }
+
+  @override
+  Future<bool> isCurrentTenantInvitationDelivery({
+    required String invitationId,
+    required String correlationId,
+  }) async {
+    try {
+      final result = await _rpcClient.callScalar<bool>(
+        'is_current_tenant_invitation_delivery',
+        params: <String, dynamic>{
+          'p_invitation_id': invitationId,
+          'p_correlation_id': correlationId,
+        },
+      );
+      return result ?? false;
     } on RpcException catch (error) {
       throw mapIamRpcError(error);
     }

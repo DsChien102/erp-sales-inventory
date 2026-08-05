@@ -57,8 +57,9 @@ final class SupabasePlatformIdentitySelfServiceAdapter implements IPlatformIdent
     _requireAuthenticated();
     final store = _requireStore();
     final email = _requireEmail();
+    // The RPC generates the code, stores only its hash, and enqueues the code
+    // email via the outbox transient channel. No Supabase Auth OTP is issued.
     final operation = await store.begin();
-    await _guardProvider(() => _authClient.sendRecoveryOtp(email: email));
     return PasswordResetRequestResultDto(
       operationId: operation.operationId,
       maskedEmail: _maskEmail(email),
@@ -74,15 +75,8 @@ final class SupabasePlatformIdentitySelfServiceAdapter implements IPlatformIdent
     _requireAuthenticated();
     final store = _requireStore();
     final email = _requireEmail();
-    final current = await store.get(operationId);
-    if (current.status == 'completed') {
-      throw const IamBlockedException(IamBlockedCodes.stateChanged);
-    }
-    if (DateTime.now().toUtc().isBefore(current.resendAvailableAt.toUtc())) {
-      throw const IamBlockedException(IamBlockedCodes.resetRateLimited);
-    }
+    // Rate-limit + status checks (and the fresh code email) are owned by the RPC.
     final refreshed = await store.touchResend(operationId);
-    await _guardProvider(() => _authClient.sendRecoveryOtp(email: email));
     return PasswordResetRequestResultDto(
       operationId: refreshed.operationId,
       maskedEmail: _maskEmail(email),
@@ -98,19 +92,9 @@ final class SupabasePlatformIdentitySelfServiceAdapter implements IPlatformIdent
   }) async {
     _requireAuthenticated();
     final store = _requireStore();
-    final email = _requireEmail();
-    final current = await store.get(operationId);
-    if (current.status == 'completed') {
-      throw const IamBlockedException(IamBlockedCodes.stateChanged);
-    }
-    if (DateTime.now().toUtc().isAfter(current.expiresAt.toUtc())) {
-      throw const IamBlockedException(IamBlockedCodes.resetCodeExpired);
-    }
-    await _guardVerify(
-      () => _authClient.verifyRecoveryOtp(email: email, code: code),
-    );
-    await store.markVerified(operationId);
-    return const PasswordResetVerifyResultDto(verified: true);
+    // The RPC compares the code against the stored hash and marks verified.
+    final verified = await store.verifyCode(operationId, code.trim());
+    return PasswordResetVerifyResultDto(verified: verified);
   }
 
   @override
@@ -183,41 +167,6 @@ final class SupabasePlatformIdentitySelfServiceAdapter implements IPlatformIdent
     return '$head***$domain';
   }
 
-  /// Redacts provider errors; request/resend map to a rate-limit-aware failure.
-  Future<void> _guardProvider(Future<void> Function() action) async {
-    try {
-      await action();
-    } on IamBlockedException {
-      rethrow;
-    } catch (error) {
-      if (_isRateLimited(error)) {
-        throw const IamBlockedException(IamBlockedCodes.resetRateLimited);
-      }
-      throw const IamBlockedException(IamBlockedCodes.systemError);
-    }
-  }
-
-  Future<void> _guardVerify(Future<void> Function() action) async {
-    try {
-      await action();
-    } on IamBlockedException {
-      rethrow;
-    } catch (error) {
-      final code = _errorCode(error);
-      final text = error.toString().toLowerCase();
-      if (_isExpiredCode(code) || text.contains('expired')) {
-        throw const IamBlockedException(IamBlockedCodes.resetCodeExpired);
-      }
-      if (_isAttemptsExceededCode(code) || _isRateLimited(error) || text.contains('too many')) {
-        throw const IamBlockedException(IamBlockedCodes.resetCodeAttemptsExceeded);
-      }
-      if (_isInvalidOtpCode(code) || text.contains('invalid') || text.contains('otp')) {
-        throw const IamBlockedException(IamBlockedCodes.resetCodeInvalid);
-      }
-      throw const IamBlockedException(IamBlockedCodes.systemError);
-    }
-  }
-
   Future<void> _guardPasswordUpdate(Future<void> Function() action) async {
     try {
       await action();
@@ -255,32 +204,6 @@ final class SupabasePlatformIdentitySelfServiceAdapter implements IPlatformIdent
       return error.code?.toLowerCase();
     }
     return null;
-  }
-
-  bool _isRateLimited(Object error) {
-    final code = _errorCode(error);
-    if (code == 'over_request_rate_limit' || code == 'too_many_requests') {
-      return true;
-    }
-    final text = error.toString().toLowerCase();
-    return text.contains('rate') || text.contains('429') || text.contains('too many');
-  }
-
-  bool _isInvalidOtpCode(String? code) {
-    return code == 'otp_expired_or_invalid' ||
-        code == 'invalid_grant' ||
-        code == 'otp_invalid' ||
-        code == 'invalid_otp';
-  }
-
-  bool _isExpiredCode(String? code) {
-    return code == 'otp_expired' || code == 'expired_otp';
-  }
-
-  bool _isAttemptsExceededCode(String? code) {
-    return code == 'too_many_attempts' ||
-        code == 'otp_too_many_attempts' ||
-        code == 'over_request_rate_limit';
   }
 
   bool _isWeakPasswordCode(String? code) {

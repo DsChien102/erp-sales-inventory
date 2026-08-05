@@ -82,7 +82,7 @@ void main() {
       expect(item.version, 3);
     });
 
-    test('omits nullable search/status/cursor params', () async {
+    test('always sends nullable search/status/cursor as null', () async {
       final supabase = FakeIamRpcSupabase()
         ..registerHandler(
           'list_tenant_members',
@@ -97,11 +97,11 @@ void main() {
 
       expect(supabase.calls.single.params, {
         'p_tenant_id': 'tenant-1',
+        'p_search': null,
+        'p_status': null,
+        'p_cursor': null,
         'p_limit': 10,
       });
-      expect(supabase.calls.single.params!.containsKey('p_search'), isFalse);
-      expect(supabase.calls.single.params!.containsKey('p_status'), isFalse);
-      expect(supabase.calls.single.params!.containsKey('p_cursor'), isFalse);
     });
 
     test('maps PERMISSION_DENIED stably', () async {

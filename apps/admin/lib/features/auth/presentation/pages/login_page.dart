@@ -63,6 +63,7 @@ class _LoginPageState extends State<LoginPage> {
         SignInCommand(
           email: _emailController.text.trim(),
           password: _passwordController.text,
+          requireTenantContext: false,
         ),
       ),
     );

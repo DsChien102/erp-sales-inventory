@@ -161,4 +161,28 @@ void main() {
     expect(find.textContaining('Chuyển sang ASC'), findsNothing);
     expect(module.switchTenantCount, 0);
   });
+
+  testWidgets('e2e_e05_u01_fr01_03: closed tenant badge and not tappable', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(800, 1600);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    final module = FakeIamModule(scenario: FakeIamScenario.tenantsClosedDisabled);
+    registerModule(module);
+
+    await tester.pumpWidget(wrap(module));
+    await tester.pumpAndSettle();
+
+    await openSelectorFromHeader(tester);
+
+    expect(find.text('Closed Clinic'), findsOneWidget);
+    expect(find.textContaining('Đã đóng'), findsOneWidget);
+    await tester.tap(find.text('Closed Clinic'));
+    await tester.pumpAndSettle();
+    expect(find.textContaining('Chuyển sang'), findsNothing);
+    expect(module.switchTenantCount, 0);
+  });
 }

@@ -1,6 +1,4 @@
-import 'package:erp/features/my_account/presentation/bloc/my_account_cubit.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
@@ -29,7 +27,7 @@ void main() {
       ..registerSingleton<IIamModule>(module);
   }
 
-  Widget wrap(FakeIamModule module) {
+  Widget wrap(FakeIamModule module, {bool warnRemoteSignOut = false}) {
     final router = GoRouter(
       initialLocation: '/more/my-account',
       routes: [
@@ -41,16 +39,32 @@ void main() {
         ),
         GoRoute(
           path: '/more/my-account',
-          builder: (context, state) => BlocProvider(
-            create: (_) => MyAccountCubit(iamModule: module)..load(),
-            child: MyAccountPage(
-              iamModule: module,
-              onLogout: () async {
-                await module.executeCommandAsync(SignOutCommand());
-                if (context.mounted) context.go('/login');
-              },
-            ),
+          builder: (context, state) => MyAccountPage(
+            iamModule: module,
+            onLogout: () async {
+              final result = await module
+                  .executeCommandAsync<SignOutResultDto>(SignOutCommand());
+              if (!result.localCleared) return;
+              if (warnRemoteSignOut && !result.remoteSucceeded && context.mounted) {
+                VToast.show(
+                  context,
+                  title: 'Cảnh báo',
+                  message:
+                      'Phiên trên máy đã đóng; máy chủ chưa xác nhận đăng xuất',
+                  type: VToastType.warning,
+                );
+              }
+              if (context.mounted) context.go('/login');
+            },
           ),
+        ),
+        GoRoute(
+          path: '/more/my-account/edit',
+          builder: (context, state) => EditMyAccountPage(iamModule: module),
+        ),
+        GoRoute(
+          path: '/more/my-account/reset-password',
+          builder: (context, state) => ResetPasswordPage(iamModule: module),
         ),
       ],
     );
@@ -110,7 +124,8 @@ void main() {
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
 
-    final module = FakeIamModule(scenario: FakeIamScenario.passwordResetCompleteOk);
+    final module =
+        FakeIamModule(scenario: FakeIamScenario.passwordResetCompleteOk);
     registerModule(module);
 
     await tester.pumpWidget(wrap(module));
@@ -165,4 +180,33 @@ void main() {
     expect(module.signOutCount, 1);
     expect(find.text('Login'), findsOneWidget);
   });
+
+  testWidgets(
+    'e2e_e06_u04_fr01_02: remote sign-out failure still clears local and warns',
+    (tester) async {
+      tester.view.physicalSize = const Size(800, 1600);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
+      final module = FakeIamModule(scenario: FakeIamScenario.signOutRemoteError);
+      registerModule(module);
+
+      await tester.pumpWidget(wrap(module, warnRemoteSignOut: true));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('Thao tác'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Đăng xuất'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.widgetWithText(VButton, 'Đăng xuất'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Login'), findsOneWidget);
+      expect(
+        find.textContaining('máy chủ chưa xác nhận'),
+        findsOneWidget,
+      );
+    },
+  );
 }

@@ -7,29 +7,38 @@ import 'package:vet45_iam_presentation/presentation.dart';
 import '../../../../core/di/injection.dart';
 import '../bloc/platform_user_detail_cubit.dart';
 import '../bloc/platform_user_detail_state.dart';
+import '../widgets/platform_user_action_sheet.dart';
 
 class PlatformUserDetailPage extends StatelessWidget {
   const PlatformUserDetailPage({
     super.key,
     required this.userId,
     this.iamModule,
+    this.cubit,
   });
 
   final String userId;
 
   /// Optional override for widget / E2E tests. Defaults to GetIt [IIamModule].
   final IIamModule? iamModule;
+  final PlatformUserDetailCubit? cubit;
 
   @override
   Widget build(BuildContext context) {
+    if (cubit != null) {
+      return BlocProvider.value(
+        value: cubit!,
+        child: const _PlatformUserDetailView(),
+      );
+    }
     return BlocProvider(
       create: (_) {
-        final cubit = PlatformUserDetailCubit(
+        final created = PlatformUserDetailCubit(
           iamModule: iamModule ?? getIt<IIamModule>(),
           userId: userId,
         );
-        cubit.load();
-        return cubit;
+        created.load();
+        return created;
       },
       child: const _PlatformUserDetailView(),
     );
@@ -39,12 +48,10 @@ class PlatformUserDetailPage extends StatelessWidget {
 class _PlatformUserDetailView extends StatelessWidget {
   const _PlatformUserDetailView();
 
-  void _showActionsBottomSheet(
-    BuildContext context,
-    PlatformUserDetailDto user,
-  ) {
+  void _showActionsBottomSheet(BuildContext context) {
     final colors = context.vColors;
     final cubit = context.read<PlatformUserDetailCubit>();
+    final state = cubit.state;
 
     showVBottomSheet(
       context: context,
@@ -54,53 +61,20 @@ class _PlatformUserDetailView extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            VText(
+            const VText(
               'Thao tác người dùng',
               variant: VTextVariant.headingH3,
-              style: const TextStyle(fontWeight: FontWeight.w700),
+              style: TextStyle(fontWeight: FontWeight.w700),
             ),
             const VGap.md(),
-            if (user.status == PlatformUserStatus.active) ...[
-              _ActionCard(
-                icon: VIcons.pause,
-                title: 'Tạm ngừng người dùng',
-                subtitle: 'Chặn đăng nhập trên toàn nền tảng',
-                isDestructive: true,
-                onTap: () {
-                  Navigator.pop(context);
-                  _showConfirmationSheet(
-                    context: context,
-                    title: 'Tạm ngừng người dùng?',
-                    titleColor: colors.danger,
-                    description:
-                        'Người dùng sẽ không thể đăng nhập hoặc truy cập tổ chức. Dữ liệu vẫn được giữ lại.',
-                    actionLabel: 'Tạm ngừng',
-                    actionVariant: VButtonVariant.dangerOutline,
-                    onConfirm: (reason) async {
-                      final ok = await cubit.suspend(reason: reason);
-                      if (context.mounted) {
-                        Navigator.pop(context);
-                        if (ok) {
-                          VToast.show(
-                            context,
-                            title: 'Thành công',
-                            message: 'Đã tạm ngừng tài khoản thành công.',
-                            type: VToastType.success,
-                          );
-                        }
-                      }
-                    },
-                  );
-                },
-              ),
-            ] else if (user.status == PlatformUserStatus.pendingActivation) ...[
-              _ActionCard(
+            if (state.showActivationInvite) ...[
+              PlatformUserActionCard(
                 icon: VIcons.mail,
                 title: 'Gửi lại email kích hoạt',
                 subtitle: 'Vô hiệu hóa liên kết cũ và gửi email mới',
                 onTap: () {
                   Navigator.pop(context);
-                  _showConfirmationSheet(
+                  _confirm(
                     context: context,
                     title: 'Gửi lại email kích hoạt?',
                     titleColor: colors.textPrimary,
@@ -108,32 +82,44 @@ class _PlatformUserDetailView extends StatelessWidget {
                         'Liên kết kích hoạt cũ sẽ hết hiệu lực. Email mới được gửi tới người dùng.',
                     actionLabel: 'Gửi email',
                     actionVariant: VButtonVariant.primary,
-                    onConfirm: (_) async {
-                      final ok = await cubit.sendActivationInvitation();
-                      if (context.mounted) {
-                        Navigator.pop(context);
-                        if (ok) {
-                          VToast.show(
-                            context,
-                            title: 'Thành công',
-                            message: 'Đã gửi lại email kích hoạt thành công.',
-                            type: VToastType.success,
-                          );
-                        }
-                      }
-                    },
+                    onConfirm: (_) => cubit.sendActivationInvitation(),
+                    successFallback: 'Đã gửi lại email kích hoạt thành công.',
                   );
                 },
               ),
               const VGap.md(),
-              _ActionCard(
+            ],
+            if (state.showPasswordReset) ...[
+              PlatformUserActionCard(
+                icon: VIcons.lock,
+                title: 'Đặt lại mật khẩu',
+                subtitle: 'Gửi yêu cầu đặt lại mật khẩu cho người dùng',
+                onTap: () {
+                  Navigator.pop(context);
+                  _confirm(
+                    context: context,
+                    title: 'Gửi yêu cầu đặt lại mật khẩu?',
+                    titleColor: colors.textPrimary,
+                    description:
+                        'Hệ thống gửi hướng dẫn đặt lại mật khẩu. Admin không nhận mật khẩu mới.',
+                    actionLabel: 'Gửi yêu cầu',
+                    actionVariant: VButtonVariant.primary,
+                    onConfirm: (_) => cubit.requestPasswordReset(),
+                    successFallback: 'Đã gửi yêu cầu đặt lại mật khẩu.',
+                  );
+                },
+              ),
+              const VGap.md(),
+            ],
+            if (state.showSuspend) ...[
+              PlatformUserActionCard(
                 icon: VIcons.pause,
                 title: 'Tạm ngừng người dùng',
-                subtitle: 'Chặn kích hoạt và đăng nhập',
+                subtitle: 'Chặn đăng nhập trên toàn nền tảng',
                 isDestructive: true,
                 onTap: () {
                   Navigator.pop(context);
-                  _showConfirmationSheet(
+                  _confirm(
                     context: context,
                     title: 'Tạm ngừng người dùng?',
                     titleColor: colors.danger,
@@ -141,31 +127,22 @@ class _PlatformUserDetailView extends StatelessWidget {
                         'Người dùng sẽ không thể đăng nhập hoặc truy cập tổ chức. Dữ liệu vẫn được giữ lại.',
                     actionLabel: 'Tạm ngừng',
                     actionVariant: VButtonVariant.dangerOutline,
-                    onConfirm: (reason) async {
-                      final ok = await cubit.suspend(reason: reason);
-                      if (context.mounted) {
-                        Navigator.pop(context);
-                        if (ok) {
-                          VToast.show(
-                            context,
-                            title: 'Thành công',
-                            message: 'Đã tạm ngừng tài khoản thành công.',
-                            type: VToastType.success,
-                          );
-                        }
-                      }
-                    },
+                    requireReason: true,
+                    onConfirm: (reason) => cubit.suspend(reason: reason),
+                    successFallback: 'Đã tạm ngừng tài khoản thành công.',
                   );
                 },
               ),
-            ] else if (user.status == PlatformUserStatus.suspended) ...[
-              _ActionCard(
+              const VGap.md(),
+            ],
+            if (state.showRestore) ...[
+              PlatformUserActionCard(
                 icon: VIcons.person,
                 title: 'Khôi phục người dùng',
                 subtitle: 'Cho phép đăng nhập lại',
                 onTap: () {
                   Navigator.pop(context);
-                  _showConfirmationSheet(
+                  _confirm(
                     context: context,
                     title: 'Khôi phục người dùng?',
                     titleColor: colors.textPrimary,
@@ -173,92 +150,65 @@ class _PlatformUserDetailView extends StatelessWidget {
                         'Người dùng có thể đăng nhập lại theo quyền hiện hành.',
                     actionLabel: 'Khôi phục',
                     actionVariant: VButtonVariant.primary,
-                    onConfirm: (_) async {
-                      final ok = await cubit.restore();
-                      if (context.mounted) {
-                        Navigator.pop(context);
-                        if (ok) {
-                          VToast.show(
-                            context,
-                            title: 'Thành công',
-                            message: 'Đã khôi phục tài khoản thành công.',
-                            type: VToastType.success,
-                          );
-                        }
-                      }
-                    },
+                    onConfirm: (_) => cubit.restore(),
+                    successFallback: 'Đã khôi phục tài khoản thành công.',
                   );
                 },
               ),
+              const VGap.md(),
             ],
-            const VGap.md(),
           ],
         ),
       ),
     );
   }
 
-  void _showConfirmationSheet({
+  Future<void> _confirm({
     required BuildContext context,
     required String title,
     required Color titleColor,
     required String description,
     required String actionLabel,
     required VButtonVariant actionVariant,
-    required Future<void> Function(String reason) onConfirm,
-  }) {
-    final reasonController = TextEditingController();
-
-    showVBottomSheet(
+    required Future<bool> Function(String reason) onConfirm,
+    required String successFallback,
+    bool requireReason = false,
+  }) async {
+    final cubit = context.read<PlatformUserDetailCubit>();
+    await showPlatformUserConfirmSheet(
       context: context,
-      child: Padding(
-        padding: const EdgeInsets.all(VSpacing.screenMobile),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            VText(
-              title,
-              variant: VTextVariant.headingH3,
-              color: titleColor,
-              style: const TextStyle(fontWeight: FontWeight.w700),
-            ),
-            const VGap.sm(),
-            VText(
-              description,
-              variant: VTextVariant.bodyDefault,
-              color: context.vColors.textSecondary,
-            ),
-            const VGap.md(),
-            VTextFormField(
-              label: 'Lý do (tuỳ chọn)',
-              controller: reasonController,
-              isRequired: false,
-              maxLines: 1,
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: VSpacing.space3,
-                vertical: VSpacing.space2,
-              ),
-              helperText: 'Lý do được lưu trong lịch sử quản trị.',
-            ),
-            const VGap.lg(),
-            VButton(
-              label: 'Quay lại',
-              variant: VButtonVariant.outline,
-              fullWidth: true,
-              onPressed: () => Navigator.pop(context),
-            ),
-            const VGap.sm(),
-            VButton(
-              label: actionLabel,
-              variant: actionVariant,
-              fullWidth: true,
-              onPressed: () => onConfirm(reasonController.text.trim()),
-            ),
-          ],
-        ),
-      ),
+      title: title,
+      titleColor: titleColor,
+      description: description,
+      actionLabel: actionLabel,
+      actionVariant: actionVariant,
+      requireReason: requireReason,
+      onConfirm: onConfirm,
     );
+    if (!context.mounted) return;
+    final message = cubit.state.successMessage;
+    if (message != null) {
+      VToast.show(
+        context,
+        title: 'Thành công',
+        message: message.isEmpty ? successFallback : message,
+        type: VToastType.success,
+      );
+      cubit.clearFeedback();
+      return;
+    }
+    final failure = cubit.state.failure;
+    if (failure != null) {
+      final isStepUp =
+          failure.code == IamBlockedCodes.stepUpAuthRequired;
+      VToast.show(
+        context,
+        title: isStepUp ? 'Cần xác thực bổ sung' : 'Không hoàn tất',
+        message: failure.message,
+        type: VToastType.danger,
+      );
+      cubit.clearFeedback();
+    }
   }
 
   @override
@@ -267,21 +217,20 @@ class _PlatformUserDetailView extends StatelessWidget {
 
     return BlocBuilder<PlatformUserDetailCubit, PlatformUserDetailState>(
       builder: (context, state) {
-        if (state.status == PlatformUserDetailStatus.loading ||
-            state.status == PlatformUserDetailStatus.initial) {
+        if (state.status == IamLoadStatus.loading ||
+            state.status == IamLoadStatus.initial) {
           return Scaffold(
             appBar: VAppBar(title: 'Chi tiết người dùng', showBackButton: true),
             body: const Center(child: CircularProgressIndicator()),
           );
         }
 
-        final user = state.user;
-        if (user == null || state.status == PlatformUserDetailStatus.notFound) {
+        if (state.status == IamLoadStatus.unauthorized) {
           return Scaffold(
             appBar: VAppBar(title: 'Chi tiết người dùng', showBackButton: true),
             body: Center(
               child: VText(
-                'Không tìm thấy người dùng này.',
+                state.failure?.message ?? 'Bạn không có quyền xem.',
                 variant: VTextVariant.bodyDefault,
                 color: colors.textSecondary,
               ),
@@ -289,6 +238,59 @@ class _PlatformUserDetailView extends StatelessWidget {
           );
         }
 
+        if (state.status == IamLoadStatus.empty || state.user == null) {
+          return Scaffold(
+            appBar: VAppBar(title: 'Chi tiết người dùng', showBackButton: true),
+            body: Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  VText(
+                    state.failure?.code == IamBlockedCodes.resourceNotFound
+                        ? 'Không tìm thấy người dùng này.'
+                        : (state.failure?.message ?? 'Không tải được chi tiết.'),
+                    variant: VTextVariant.bodyDefault,
+                    color: colors.textSecondary,
+                  ),
+                  if (state.status == IamLoadStatus.failure) ...[
+                    const VGap.md(),
+                    VButton(
+                      label: 'Thử lại',
+                      onPressed: () =>
+                          context.read<PlatformUserDetailCubit>().load(),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+          );
+        }
+
+        if (state.status == IamLoadStatus.failure) {
+          return Scaffold(
+            appBar: VAppBar(title: 'Chi tiết người dùng', showBackButton: true),
+            body: Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  VText(
+                    state.failure?.message ?? 'Không tải được chi tiết.',
+                    variant: VTextVariant.bodyDefault,
+                    color: colors.textSecondary,
+                  ),
+                  const VGap.md(),
+                  VButton(
+                    label: 'Thử lại',
+                    onPressed: () =>
+                        context.read<PlatformUserDetailCubit>().load(),
+                  ),
+                ],
+              ),
+            ),
+          );
+        }
+
+        final user = state.user!;
         final badgeStatus = user.status == PlatformUserStatus.active
             ? VBadgeStatus.success
             : user.status == PlatformUserStatus.pendingActivation
@@ -301,16 +303,22 @@ class _PlatformUserDetailView extends StatelessWidget {
             ? 'Chờ kích hoạt'
             : 'Đã tạm ngừng';
 
+        final canAct = state.showActivationInvite ||
+            state.showPasswordReset ||
+            state.showSuspend ||
+            state.showRestore;
+
         return Scaffold(
           backgroundColor: colors.background,
           appBar: VAppBar(
             title: 'Chi tiết người dùng',
             showBackButton: true,
             actions: [
-              IconButton(
-                icon: const VIcon(icon: VIcons.moreHoriz),
-                onPressed: () => _showActionsBottomSheet(context, user),
-              ),
+              if (canAct)
+                IconButton(
+                  icon: const VIcon(icon: VIcons.moreHoriz),
+                  onPressed: () => _showActionsBottomSheet(context),
+                ),
             ],
           ),
           body: Column(
@@ -362,11 +370,6 @@ class _PlatformUserDetailView extends StatelessWidget {
                                     ],
                                   ),
                                 ),
-                                VIcon(
-                                  icon: VIcons.chevronRight,
-                                  color: colors.textMuted,
-                                  size: 20,
-                                ),
                               ],
                             ),
                           ),
@@ -383,115 +386,37 @@ class _PlatformUserDetailView extends StatelessWidget {
                   ],
                 ),
               ),
-              Container(
-                decoration: BoxDecoration(
-                  color: colors.surface,
-                  border: Border(top: BorderSide(color: colors.borderDefault)),
-                ),
-                child: SafeArea(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: VSpacing.screenMobile,
-                      vertical: VSpacing.space3,
+              if (canAct)
+                Container(
+                  decoration: BoxDecoration(
+                    color: colors.surface,
+                    border: Border(
+                      top: BorderSide(color: colors.borderDefault),
                     ),
-                    child: VButton(
-                      label: 'Thao tác',
-                      fullWidth: true,
-                      trailingIcon: const VIcon(
-                        icon: VIcons.chevronUp,
-                        color: Colors.white,
-                        size: 16,
+                  ),
+                  child: SafeArea(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: VSpacing.screenMobile,
+                        vertical: VSpacing.space3,
                       ),
-                      onPressed: () => _showActionsBottomSheet(context, user),
+                      child: VButton(
+                        label: 'Thao tác',
+                        fullWidth: true,
+                        trailingIcon: const VIcon(
+                          icon: VIcons.chevronUp,
+                          color: Colors.white,
+                          size: 16,
+                        ),
+                        onPressed: () => _showActionsBottomSheet(context),
+                      ),
                     ),
                   ),
                 ),
-              ),
             ],
           ),
         );
       },
-    );
-  }
-}
-
-class _ActionCard extends StatelessWidget {
-  const _ActionCard({
-    required this.icon,
-    required this.title,
-    required this.subtitle,
-    required this.onTap,
-    this.isDestructive = false,
-  });
-
-  final VIcons icon;
-  final String title;
-  final String subtitle;
-  final VoidCallback onTap;
-  final bool isDestructive;
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = context.vColors;
-    final cardBg = isDestructive ? colors.dangerBg : colors.surface;
-    final cardBorder = isDestructive
-        ? colors.danger.withValues(alpha: 0.18)
-        : colors.borderDefault;
-    final textColor = isDestructive ? colors.danger : colors.textPrimary;
-    final subtitleColor = isDestructive
-        ? colors.danger.withValues(alpha: 0.7)
-        : colors.textSecondary;
-    final iconColor = isDestructive ? colors.danger : colors.textPrimary;
-
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(VRadius.r12),
-        child: Ink(
-          decoration: BoxDecoration(
-            color: cardBg,
-            borderRadius: BorderRadius.circular(VRadius.r12),
-            border: Border.all(color: cardBorder, width: 1),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: VSpacing.space4,
-              vertical: 14,
-            ),
-            child: Row(
-              children: [
-                VIcon(icon: icon, color: iconColor, size: 24),
-                const VGap.horizontalMd(),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      VText(
-                        title,
-                        variant: VTextVariant.bodyDefault,
-                        color: textColor,
-                        style: const TextStyle(fontWeight: FontWeight.w600),
-                      ),
-                      const VGap.xs(),
-                      VText(
-                        subtitle,
-                        variant: VTextVariant.bodySmall,
-                        color: subtitleColor,
-                      ),
-                    ],
-                  ),
-                ),
-                VIcon(
-                  icon: VIcons.chevronRight,
-                  color: isDestructive ? colors.danger : colors.textMuted,
-                  size: 20,
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
     );
   }
 }

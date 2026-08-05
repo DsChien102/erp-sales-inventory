@@ -2,11 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:vet45_design_system/design_system.dart';
 
-import '../../testing/fake_roles_data.dart';
 import '../models/role_ui_model.dart';
 import 'organization_role_detail_page.dart';
 
 /// Trang Danh sách Vai trò hệ thống (TA-D-01 & TA-S-02).
+///
+/// S4 out_of_scope — production routes redirect away; tests pass [initialRoles].
 class OrganizationRolesPage extends StatefulWidget {
   final List<RoleUiModel> initialRoles;
   final bool hasError;
@@ -14,7 +15,7 @@ class OrganizationRolesPage extends StatefulWidget {
 
   const OrganizationRolesPage({
     super.key,
-    this.initialRoles = FakeRolesData.sampleRoles,
+    this.initialRoles = const [],
     this.hasError = false,
     this.onRetry,
   });

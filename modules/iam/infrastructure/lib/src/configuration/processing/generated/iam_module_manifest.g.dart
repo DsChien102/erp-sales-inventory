@@ -85,6 +85,7 @@ final iamModuleManifest = GeneratedModuleManifest(
     GetTenantReadinessQuery,
     InspectInvitationTokenQuery,
     ListAccessibleTenantsQuery,
+    ListAssignableInvitationRolesQuery,
     ListInvitationsQuery,
     ListPlatformTenantMembersQuery,
     ListTenantMembersQuery,

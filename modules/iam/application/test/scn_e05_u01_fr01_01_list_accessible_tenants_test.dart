@@ -22,29 +22,21 @@ class _ScenarioAccessGateway implements IIamAccessGateway {
   @override
   Future<TenantContextDto> switchTenantContext({
     required String targetTenantId,
-  }) async =>
-      throw UnimplementedError('S2 BE');
+  }) async => throw UnimplementedError('S2 BE');
 
   @override
   Future<TenantContextDto> getValidatedTenantContext({
     String? sessionTenantId,
-  }) async =>
-      throw UnimplementedError('S3 BE');
+  }) async => throw UnimplementedError('S3 BE');
 
   @override
-  Future<String> bootstrapOwner({String tenantName = 'My Store'}) async =>
-      'tenant-1';
-
-  @override
-  Future<PrincipalAccessDto?> getSessionContext({String? tenantId}) async =>
-      null;
+  Future<PrincipalAccessDto?> getSessionContext({String? tenantId}) async => null;
 
   @override
   Future<bool> hasPermission({
     required String tenantId,
     required String permission,
-  }) async =>
-      true;
+  }) async => true;
 
   @override
   Future<bool> isMember(String tenantId) async => true;
@@ -56,8 +48,7 @@ class _ScenarioAccessGateway implements IIamAccessGateway {
     String? status,
     String? cursor,
     int limit = 20,
-  }) async =>
-      const CursorPageDto<TenantMemberDto>(items: []);
+  }) async => const CursorPageDto<TenantMemberDto>(items: []);
 
   @override
   Future<List<TenantMembershipDto>> listUserTenants() async => const [];
@@ -214,8 +205,7 @@ void main() {
       expect(result.single.status, TenantLifecycleStatus.closed);
     });
 
-    test('tenants_excludes_inactive_membership — gateway omits inactive',
-        () async {
+    test('tenants_excludes_inactive_membership — gateway omits inactive', () async {
       // Contract: inactive memberships never appear in accessible list.
       final gateway = _ScenarioAccessGateway(const [
         AccessibleTenantDto(
@@ -236,8 +226,7 @@ void main() {
       expect(result.any((t) => t.tenantId == 'tenant-inactive'), isFalse);
     });
 
-    test('tenants_authentication_required — gateway auth error propagates',
-        () async {
+    test('tenants_authentication_required — gateway auth error propagates', () async {
       final handler = ListAccessibleTenantsQueryHandler(
         accessGateway: _AuthFailAccessGateway(),
         currentTenant: _FakeCurrentTenant(null),
@@ -295,29 +284,21 @@ class _AuthFailAccessGateway implements IIamAccessGateway {
   @override
   Future<TenantContextDto> switchTenantContext({
     required String targetTenantId,
-  }) async =>
-      throw UnimplementedError();
+  }) async => throw UnimplementedError();
 
   @override
   Future<TenantContextDto> getValidatedTenantContext({
     String? sessionTenantId,
-  }) async =>
-      throw UnimplementedError();
+  }) async => throw UnimplementedError();
 
   @override
-  Future<String> bootstrapOwner({String tenantName = 'My Store'}) async =>
-      'tenant-1';
-
-  @override
-  Future<PrincipalAccessDto?> getSessionContext({String? tenantId}) async =>
-      null;
+  Future<PrincipalAccessDto?> getSessionContext({String? tenantId}) async => null;
 
   @override
   Future<bool> hasPermission({
     required String tenantId,
     required String permission,
-  }) async =>
-      true;
+  }) async => true;
 
   @override
   Future<bool> isMember(String tenantId) async => true;
@@ -329,8 +310,7 @@ class _AuthFailAccessGateway implements IIamAccessGateway {
     String? status,
     String? cursor,
     int limit = 20,
-  }) async =>
-      const CursorPageDto<TenantMemberDto>(items: []);
+  }) async => const CursorPageDto<TenantMemberDto>(items: []);
 
   @override
   Future<List<TenantMembershipDto>> listUserTenants() async => const [];

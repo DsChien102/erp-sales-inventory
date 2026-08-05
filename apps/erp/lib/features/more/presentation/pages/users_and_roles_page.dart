@@ -1,196 +1,237 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:vet45_design_system/design_system.dart';
-import 'package:vet45_iam_presentation/presentation.dart';
+import 'package:vet45_iam_application/application.dart';
 
-/// Trang Quản lý "Người dùng & vai trò" trong ERP App tuân thủ 100% Design System với VPageScaffold.
-class UsersAndRolesPage extends StatefulWidget {
-  const UsersAndRolesPage({super.key});
+import '../../../../core/di/injection.dart';
+import '../bloc/iam_feature_access_cubit.dart';
+import '../bloc/iam_feature_access_state.dart';
+
+/// Trang Quản lý "Người dùng & vai trò" — gated theo session permissions.
+class UsersAndRolesPage extends StatelessWidget {
+  const UsersAndRolesPage({super.key, this.iamModule, this.accessCubit});
+
+  final IIamModule? iamModule;
+  final IamFeatureAccessCubit? accessCubit;
 
   @override
-  State<UsersAndRolesPage> createState() => _UsersAndRolesPageState();
+  Widget build(BuildContext context) {
+    if (accessCubit != null) {
+      return BlocProvider.value(
+        value: accessCubit!,
+        child: const _UsersAndRolesView(),
+      );
+    }
+
+    return BlocProvider(
+      create: (_) => IamFeatureAccessCubit(iamModule: iamModule ?? getIt<IIamModule>())..load(),
+      child: const _UsersAndRolesView(),
+    );
+  }
 }
 
-class _UsersAndRolesPageState extends State<UsersAndRolesPage> {
-  void _showNotice(BuildContext context, String featureName) {
-    VToast.show(
-      context,
-      title: featureName,
-      message: 'Tính năng đang được khởi tạo.',
-      type: VToastType.info,
+class _UsersAndRolesView extends StatelessWidget {
+  const _UsersAndRolesView();
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<IamFeatureAccessCubit, IamFeatureAccessState>(
+      builder: (context, access) {
+        final colors = context.vColors;
+        final readinessBanner = access.readinessBanner;
+        final items = <_HubMenuItem>[
+          if (access.canViewTenantProfile)
+            _HubMenuItem(
+              icon: VIcons.apartment,
+              title: 'Hồ sơ tổ chức',
+              subtitle: 'Thông tin liên hệ và địa chỉ tổ chức',
+              onTap: () => context.push('/more/organization-profile'),
+            ),
+          if (access.canViewMembers)
+            _HubMenuItem(
+              icon: VIcons.people,
+              title: 'Người dùng',
+              subtitle: 'Thành viên, lời mời và quyền truy cập',
+              onTap: () => context.push('/more/users'),
+            ),
+          if (access.canViewMembers)
+            _HubMenuItem(
+              icon: VIcons.shield,
+              title: 'Vai trò',
+              subtitle: 'Phạm vi thao tác theo từng vai trò',
+              onTap: () => _showComingSoonToast(context),
+            ),
+          if (access.canViewTenantProfile)
+            _HubMenuItem(
+              icon: VIcons.shield,
+              title: 'Quyền sở hữu',
+              subtitle: 'Chủ tổ chức và chuyển quyền sở hữu',
+              onTap: () => _showComingSoonToast(context),
+            ),
+          if (access.canViewTenantAudit)
+            _HubMenuItem(
+              icon: VIcons.listView,
+              title: 'Lịch sử quản trị',
+              subtitle: 'Theo dõi thay đổi người dùng và quyền',
+              onTap: () => context.push('/more/audit-logs'),
+            ),
+        ];
+
+        return VPageScaffold(
+          title: 'Người dùng & vai trò',
+          body: ListView(
+            padding: const EdgeInsets.symmetric(
+              horizontal: VSpacing.screenMobile,
+              vertical: VSpacing.space4,
+            ),
+            children: [
+              if (readinessBanner != null) ...[
+                VCard(
+                  key: const Key('iam_readiness_hub_banner'),
+                  backgroundColor: readinessBanner.tone == IamReadinessHubBannerTone.success
+                      ? colors.successBg
+                      : colors.warningBg,
+                  padding: const EdgeInsets.all(VSpacing.space4),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      VText(
+                        readinessBanner.eyebrow,
+                        variant: VTextVariant.bodySmall,
+                        style: TextStyle(
+                          fontWeight: FontWeight.w600,
+                          color: readinessBanner.tone == IamReadinessHubBannerTone.success
+                              ? colors.success
+                              : colors.warning,
+                        ),
+                      ),
+                      const VGap.xs(),
+                      VText(
+                        readinessBanner.title,
+                        variant: VTextVariant.headingH4,
+                        style: TextStyle(
+                          fontWeight: FontWeight.w700,
+                          color: colors.textPrimary,
+                        ),
+                      ),
+                      const VGap.xs(),
+                      VText(
+                        readinessBanner.body,
+                        variant: VTextVariant.bodySmall,
+                        color: colors.textSecondary,
+                      ),
+                      const VGap.sm(),
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: GestureDetector(
+                          onTap: () => context.push('/more/readiness'),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              VText(
+                                'Xem và hoàn tất',
+                                variant: VTextVariant.bodySmall,
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  color: colors.primary,
+                                ),
+                              ),
+                              const VGap.horizontalXs(),
+                              VIcon(
+                                icon: VIcons.chevronRight,
+                                size: 16,
+                                color: colors.primary,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const VGap.sm(),
+              ],
+              for (var i = 0; i < items.length; i++) ...[
+                _HubMenuCard(item: items[i]),
+                if (i < items.length - 1) const VGap.sm(),
+              ],
+            ],
+          ),
+        );
+      },
     );
   }
 
-  Future<void> _handleOpenSetup() async {
-    await context.push('/more/organization-setup');
-    if (mounted) {
-      setState(() {});
-    }
+  void _showComingSoonToast(BuildContext context) {
+    VToast.show(
+      context,
+      title: 'Chức năng làm sau',
+      message: '',
+      type: VToastType.info,
+    );
   }
+}
+
+final class _HubMenuItem {
+  const _HubMenuItem({
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+    required this.onTap,
+  });
+
+  final VIcons icon;
+  final String title;
+  final String subtitle;
+  final VoidCallback onTap;
+}
+
+class _HubMenuCard extends StatelessWidget {
+  const _HubMenuCard({required this.item});
+
+  final _HubMenuItem item;
 
   @override
   Widget build(BuildContext context) {
     final colors = context.vColors;
-
-    final menuItems = [
-      (
-        icon: VIcons.apartment,
-        title: 'Hồ sơ tổ chức',
-        subtitle: 'Thông tin liên hệ và địa chỉ tổ chức',
+    return VCard(
+      onTap: item.onTap,
+      padding: const EdgeInsets.symmetric(
+        horizontal: VSpacing.space4,
+        vertical: VSpacing.space4,
       ),
-      (
-        icon: VIcons.people,
-        title: 'Người dùng',
-        subtitle: 'Thành viên, lời mời và quyền truy cập',
-      ),
-      (
-        icon: VIcons.shield,
-        title: 'Vai trò',
-        subtitle: 'Phạm vi thao tác theo từng vai trò',
-      ),
-      (
-        icon: VIcons.lock,
-        title: 'Quyền sở hữu',
-        subtitle: 'Chủ tổ chức và chuyển quyền sở hữu',
-      ),
-      (
-        icon: VIcons.listView,
-        title: 'Lịch sử quản trị',
-        subtitle: 'Theo dõi thay đổi người dùng và quyền',
-      ),
-    ];
-
-    return VPageScaffold(
-      title: 'Người dùng & vai trò',
-      body: ListView(
-        padding: const EdgeInsets.symmetric(
-          horizontal: VSpacing.screenMobile,
-          vertical: VSpacing.space4,
-        ),
+      child: Row(
         children: [
-          // Banner cảnh báo Cần hoàn tất thiết lập (hiển thị khi chưa kích hoạt)
-          if (!FakeOrganizationSetupData.isActivated) ...[
-            VCard(
-              backgroundColor: colors.warningBg,
-              padding: const EdgeInsets.all(VSpacing.space4),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  VText(
-                    'Cần hoàn tất',
-                    variant: VTextVariant.bodySmall,
-                    style: TextStyle(
-                      fontWeight: FontWeight.w600,
-                      color: colors.warning,
-                    ),
-                  ),
-                  const VGap.xs(),
-                  VText(
-                    'Tổ chức chưa hoàn tất thiết lập',
-                    variant: VTextVariant.headingH4,
-                    style: TextStyle(
-                      fontWeight: FontWeight.w700,
-                      color: colors.textPrimary,
-                    ),
-                  ),
-                  const VGap.xs(),
-                  VText(
-                    'Còn 1 điều kiện bắt buộc trước khi có thể bắt đầu vận hành.',
-                    variant: VTextVariant.bodySmall,
-                    color: colors.textSecondary,
-                  ),
-                  const VGap.sm(),
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: GestureDetector(
-                      onTap: _handleOpenSetup,
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          VText(
-                            'Xem và hoàn tất',
-                            variant: VTextVariant.bodySmall,
-                            style: TextStyle(
-                              fontWeight: FontWeight.w600,
-                              color: colors.primary,
-                            ),
-                          ),
-                          const VGap.horizontalXs(),
-                          VIcon(
-                            icon: VIcons.chevronRight,
-                            size: 16,
-                            color: colors.primary,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const VGap.sm(),
-          ],
-
-          // 5 Card danh mục tùy chọn
-          for (int i = 0; i < menuItems.length; i++) ...[
-            VCard(
-              onTap: () {
-                if (menuItems[i].title == 'Hồ sơ tổ chức') {
-                  context.push('/more/organization-profile');
-                } else if (menuItems[i].title == 'Người dùng') {
-                  context.push('/more/users');
-                } else if (menuItems[i].title == 'Vai trò') {
-                  context.push('/more/roles');
-                } else if (menuItems[i].title == 'Lịch sử quản trị') {
-                  context.push('/more/audit-logs');
-                } else {
-                  _showNotice(context, menuItems[i].title);
-                }
-              },
-              padding: const EdgeInsets.symmetric(
-                horizontal: VSpacing.space4,
-                vertical: VSpacing.space4,
-              ),
-              child: Row(
-                children: [
-                  VIcon(
-                    icon: menuItems[i].icon,
-                    size: 20,
+          VIcon(icon: item.icon, size: 20, color: colors.textPrimary),
+          const VGap.horizontalSm(),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                VText(
+                  item.title,
+                  variant: VTextVariant.bodyDefault,
+                  style: TextStyle(
+                    fontWeight: FontWeight.w700,
                     color: colors.textPrimary,
                   ),
-                  const VGap.horizontalSm(),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        VText(
-                          menuItems[i].title,
-                          variant: VTextVariant.bodyDefault,
-                          style: TextStyle(
-                            fontWeight: FontWeight.w700,
-                            color: colors.textPrimary,
-                          ),
-                        ),
-                        const VGap.xs(),
-                        VText(
-                          menuItems[i].subtitle,
-                          variant: VTextVariant.bodySmall,
-                          color: colors.textSecondary,
-                        ),
-                      ],
-                    ),
-                  ),
-                  VIcon(
-                    icon: VIcons.chevronRight,
-                    size: 16,
-                    color: colors.textSecondary,
-                  ),
-                ],
-              ),
+                ),
+                const VGap.xs(),
+                VText(
+                  item.subtitle,
+                  variant: VTextVariant.bodySmall,
+                  color: colors.textSecondary,
+                ),
+              ],
             ),
-            if (i < menuItems.length - 1) const VGap.sm(),
-          ],
+          ),
+          VIcon(
+            icon: VIcons.chevronRight,
+            size: 20,
+            color: colors.textSecondary,
+          ),
         ],
       ),
     );

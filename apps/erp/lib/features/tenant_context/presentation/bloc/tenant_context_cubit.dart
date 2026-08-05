@@ -7,24 +7,32 @@ import 'package:vet45_shared_application/application.dart';
 import '../mappers/accessible_tenant_ui_mapper.dart';
 import 'tenant_context_state.dart';
 
+/// Applies [TenantContextDto.permissions] to navigation/session after switch.
+typedef TenantContextPermissionsApplier = void Function(TenantContextDto context);
+
 final class TenantContextCubit extends Cubit<TenantContextState> {
   TenantContextCubit({
     required IIamModule iamModule,
     required String userDisplayName,
     TenantContextState? initialState,
+    TenantContextPermissionsApplier? applyPermissions,
   }) : _iamModule = iamModule,
+       _applyPermissions = applyPermissions,
        super(
          initialState ?? TenantContextState(userDisplayName: userDisplayName),
        );
 
   final IIamModule _iamModule;
+  final TenantContextPermissionsApplier? _applyPermissions;
 
   Future<void> bootstrap() async {
     if (isClosed) return;
     emit(
       state.copyWith(
         status: TenantContextLoadStatus.loading,
-        clearError: true,
+        clearContextFailure: true,
+        clearSelectorFailure: true,
+        clearSwitchFailure: true,
         clearEmptyState: true,
         openSelectorRequested: false,
       ),
@@ -40,20 +48,12 @@ final class TenantContextCubit extends Cubit<TenantContextState> {
       if (isClosed) return;
 
       _emitResolvedContext(context);
-    } on ApplicationException catch (e) {
+    } catch (error) {
       if (isClosed) return;
       emit(
         state.copyWith(
           status: TenantContextLoadStatus.failure,
-          errorMessage: e.message,
-        ),
-      );
-    } catch (e) {
-      if (isClosed) return;
-      emit(
-        state.copyWith(
-          status: TenantContextLoadStatus.failure,
-          errorMessage: e.toString(),
+          contextFailure: IamUiFailureMapper.from(error),
         ),
       );
     }
@@ -61,7 +61,13 @@ final class TenantContextCubit extends Cubit<TenantContextState> {
 
   Future<void> loadAccessibleTenants() async {
     if (isClosed) return;
-    emit(state.copyWith(tenantsLoading: true, clearError: true));
+    final keepStatus = state.status;
+    emit(
+      state.copyWith(
+        tenantsLoading: true,
+        clearSelectorFailure: true,
+      ),
+    );
 
     try {
       final dtos = await _iamModule.executeQueryAsync<List<AccessibleTenantDto>>(
@@ -71,26 +77,22 @@ final class TenantContextCubit extends Cubit<TenantContextState> {
 
       emit(
         state.copyWith(
+          status: keepStatus,
           tenants: AccessibleTenantUiMapper.fromList(dtos),
           tenantsLoading: false,
+          clearSelectorFailure: true,
         ),
       );
-    } on ApplicationException catch (e) {
+    } catch (error) {
       if (isClosed) return;
+      // Selector load failure must not demote a valid dashboard context.
+      // Clear stale rows so selector shows loadError/retry instead of old data.
       emit(
         state.copyWith(
+          status: keepStatus,
+          tenants: const [],
           tenantsLoading: false,
-          status: TenantContextLoadStatus.failure,
-          errorMessage: e.message,
-        ),
-      );
-    } catch (e) {
-      if (isClosed) return;
-      emit(
-        state.copyWith(
-          tenantsLoading: false,
-          status: TenantContextLoadStatus.failure,
-          errorMessage: e.toString(),
+          selectorFailure: IamUiFailureMapper.from(error),
         ),
       );
     }
@@ -99,7 +101,12 @@ final class TenantContextCubit extends Cubit<TenantContextState> {
   /// Returns `true` when switch succeeds. Confirmation is UI-only.
   Future<bool> switchTo(String tenantId) async {
     if (isClosed) return false;
-    emit(state.copyWith(isSwitching: true, clearError: true));
+    emit(
+      state.copyWith(
+        isSwitching: true,
+        clearSwitchFailure: true,
+      ),
+    );
 
     try {
       final context = await _iamModule.executeCommandAsync<TenantContextDto>(
@@ -110,6 +117,8 @@ final class TenantContextCubit extends Cubit<TenantContextState> {
       await loadAccessibleTenants();
       if (isClosed) return false;
 
+      _applyPermissions?.call(context);
+
       emit(
         state.copyWith(
           status: TenantContextLoadStatus.ready,
@@ -118,36 +127,24 @@ final class TenantContextCubit extends Cubit<TenantContextState> {
           isSwitching: false,
           openSelectorRequested: false,
           clearEmptyState: true,
-          clearError: true,
+          clearSwitchFailure: true,
+          clearContextFailure: true,
         ),
       );
       return true;
-    } on ApplicationException catch (e) {
+    } catch (error) {
       if (isClosed) return false;
+      final failure = _mapFailure(error);
       emit(
         state.copyWith(
           isSwitching: false,
-          errorMessage: e.message,
+          switchFailure: failure,
         ),
       );
-      return false;
-    } on ValidationException catch (e) {
-      if (isClosed) return false;
-      emit(
-        state.copyWith(
-          isSwitching: false,
-          errorMessage: e.message,
-        ),
-      );
-      return false;
-    } catch (e) {
-      if (isClosed) return false;
-      emit(
-        state.copyWith(
-          isSwitching: false,
-          errorMessage: e.toString(),
-        ),
-      );
+
+      if (_shouldReloadTenantsAfterSwitchFailure(failure)) {
+        await loadAccessibleTenants();
+      }
       return false;
     }
   }
@@ -162,7 +159,48 @@ final class TenantContextCubit extends Cubit<TenantContextState> {
     emit(state.copyWith(openSelectorRequested: true));
   }
 
+  /// Empty-state for the selector sheet: loadError wins over empty list.
+  OrganizationEmptyStateType? get selectorEmptyStateType {
+    if (state.selectorFailure != null) {
+      return OrganizationEmptyStateType.loadError;
+    }
+    if (state.tenants.isEmpty) {
+      return OrganizationEmptyStateType.noAuthorizedOrganizations;
+    }
+    return null;
+  }
+
+  /// Retry load for selector sheet. Returns tenants on success, `null` on fail.
+  Future<List<SelectOrganizationItemUiModel>?> retryLoadAccessibleTenants() async {
+    await loadAccessibleTenants();
+    if (isClosed) return null;
+    if (state.selectorFailure != null) return null;
+    return state.tenants;
+  }
+
+  IamUiFailure _mapFailure(Object error) {
+    if (error is ApplicationException) {
+      final trimmed = error.message.trim();
+      // Preserve stable switch codes (e.g. TENANT_ACCESS_DENIED / TENANT_CLOSED)
+      // that are not yet in IamBlockedCodes catalog.
+      if (trimmed.isNotEmpty &&
+          trimmed == trimmed.toUpperCase() &&
+          trimmed.contains('_')) {
+        return IamUiFailure(code: trimmed, message: trimmed);
+      }
+    }
+    return IamUiFailureMapper.from(error);
+  }
+
+  bool _shouldReloadTenantsAfterSwitchFailure(IamUiFailure failure) {
+    return failure.code == IamBlockedCodes.tenantSuspended ||
+        failure.code == 'TENANT_CLOSED';
+  }
+
   void _emitResolvedContext(TenantContextDto context) {
+    if (context.status == TenantContextStatus.valid) {
+      _applyPermissions?.call(context);
+    }
     switch (context.status) {
       case TenantContextStatus.valid:
         emit(
@@ -171,7 +209,7 @@ final class TenantContextCubit extends Cubit<TenantContextState> {
             current: context,
             branchDisplayName: context.tenantName,
             clearEmptyState: true,
-            clearError: true,
+            clearContextFailure: true,
             openSelectorRequested: false,
           ),
         );
@@ -184,15 +222,17 @@ final class TenantContextCubit extends Cubit<TenantContextState> {
             branchDisplayName: null,
             emptyStateType: OrganizationEmptyStateType.noAuthorizedOrganizations,
             openSelectorRequested: true,
-            clearError: true,
+            clearContextFailure: true,
           ),
         );
         break;
       case TenantContextStatus.invalidated:
         final inaccessible =
-            context.invalidationReason == TenantContextInvalidationReason.tenantSuspended ||
-            context.invalidationReason == TenantContextInvalidationReason.tenantClosed ||
-            context.blockedErrorCode == 'TENANT_SUSPENDED' ||
+            context.invalidationReason ==
+                TenantContextInvalidationReason.tenantSuspended ||
+            context.invalidationReason ==
+                TenantContextInvalidationReason.tenantClosed ||
+            context.blockedErrorCode == IamBlockedCodes.tenantSuspended ||
             context.blockedErrorCode == 'TENANT_CLOSED';
         emit(
           state.copyWith(
@@ -205,7 +245,7 @@ final class TenantContextCubit extends Cubit<TenantContextState> {
                 : OrganizationEmptyStateType.noAuthorizedOrganizations,
             suspendedOrgName: context.tenantName,
             openSelectorRequested: true,
-            clearError: true,
+            clearContextFailure: true,
           ),
         );
         break;

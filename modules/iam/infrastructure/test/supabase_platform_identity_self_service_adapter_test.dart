@@ -48,8 +48,6 @@ void main() {
       expect(account.email, 'lan@gmail.com');
       expect(account.emailVerified, isFalse);
       expect(gateway.updateCalls, 1);
-      expect(authClient.sendRecoveryOtpCalls, 0);
-      expect(authClient.verifyRecoveryOtpCalls, 0);
       expect(authClient.updatePasswordCalls, 0);
       expect(authClient.signOutOtherSessionsCalls, 0);
       expect(gateway.lastUpdate?.familyName, 'Nguyen');
@@ -109,6 +107,25 @@ void main() {
       );
     });
 
+    test('request enqueues via store.begin without issuing an Auth OTP', () async {
+      final authClient = _FakeAuthClient(
+        userId: 'user-1',
+        email: 'lan@gmail.com',
+        verified: true,
+      );
+      final store = _FakePasswordResetOperationStore();
+      final adapter = SupabasePlatformIdentitySelfServiceAdapter(
+        profileGateway: _FakeProfileGateway(),
+        authClient: authClient,
+        passwordResetStore: store,
+      );
+
+      final result = await adapter.requestPasswordReset();
+
+      expect(store.beginCalls, 1);
+      expect(result.maskedEmail, 'l***@gmail.com');
+    });
+
     test('request/resend/verify/complete use locked DTOs and side effects once', () async {
       final authClient = _FakeAuthClient(
         userId: 'user-1',
@@ -141,26 +158,50 @@ void main() {
         isTrue,
       );
       expect(verifyResult.verified, isTrue);
+      expect(store.verifyCodeCalls, 1);
+      expect(store.lastVerifyArgs, ('op-1', '123456'));
       expect(completeResult.currentSessionRotated, isTrue);
       expect(completeResult.otherSessionsRevoked, isTrue);
       expect(authClient.updatePasswordCalls, 1);
       expect(authClient.signOutOtherSessionsCalls, 1);
-      expect(store.markVerifiedCalls, 1);
       expect(store.markCompletedCalls, 1);
       expect(authClient.lastPassword, isNull);
-      expect(authClient.lastRecoveryCode, isNull);
     });
 
-    test('verify maps known invalid/rotated OTP to RESET_CODE_INVALID', () async {
-      final authClient = _FakeAuthClient(
-        userId: 'user-1',
-        email: 'lan@gmail.com',
-        verified: true,
-      )..verifyFailure = AuthException('invalid otp', code: 'invalid_otp');
+    test('verify trims the submitted code before delegating to the store', () async {
+      final store = _FakePasswordResetOperationStore();
       final adapter = SupabasePlatformIdentitySelfServiceAdapter(
         profileGateway: _FakeProfileGateway(),
-        authClient: authClient,
-        passwordResetStore: _FakePasswordResetOperationStore(),
+        authClient: _FakeAuthClient(
+          userId: 'user-1',
+          email: 'lan@gmail.com',
+          verified: true,
+        ),
+        passwordResetStore: store,
+      );
+      final request = await adapter.requestPasswordReset();
+
+      await adapter.verifyPasswordResetCode(
+        operationId: request.operationId,
+        code: '  123456  ',
+      );
+
+      expect(store.lastVerifyArgs, ('op-1', '123456'));
+    });
+
+    test('verify propagates store RESET_CODE_INVALID', () async {
+      final store = _FakePasswordResetOperationStore()
+        ..verifyFailure = const IamBlockedException(
+          IamBlockedCodes.resetCodeInvalid,
+        );
+      final adapter = SupabasePlatformIdentitySelfServiceAdapter(
+        profileGateway: _FakeProfileGateway(),
+        authClient: _FakeAuthClient(
+          userId: 'user-1',
+          email: 'lan@gmail.com',
+          verified: true,
+        ),
+        passwordResetStore: store,
       );
       final request = await adapter.requestPasswordReset();
 
@@ -174,62 +215,6 @@ void main() {
             (e) => e.code,
             'code',
             IamBlockedCodes.resetCodeInvalid,
-          ),
-        ),
-      );
-    });
-
-    test('verify maps provider attempts exceeded to RESET_CODE_ATTEMPTS_EXCEEDED', () async {
-      final authClient = _FakeAuthClient(
-        userId: 'user-1',
-        email: 'lan@gmail.com',
-        verified: true,
-      )..verifyFailure = AuthException('too many attempts', code: 'otp_too_many_attempts');
-      final adapter = SupabasePlatformIdentitySelfServiceAdapter(
-        profileGateway: _FakeProfileGateway(),
-        authClient: authClient,
-        passwordResetStore: _FakePasswordResetOperationStore(),
-      );
-      final request = await adapter.requestPasswordReset();
-
-      await expectLater(
-        () => adapter.verifyPasswordResetCode(
-          operationId: request.operationId,
-          code: '000000',
-        ),
-        throwsA(
-          isA<IamBlockedException>().having(
-            (e) => e.code,
-            'code',
-            IamBlockedCodes.resetCodeAttemptsExceeded,
-          ),
-        ),
-      );
-    });
-
-    test('verify maps unknown provider failure to SYSTEM_ERROR', () async {
-      final authClient = _FakeAuthClient(
-        userId: 'user-1',
-        email: 'lan@gmail.com',
-        verified: true,
-      )..verifyFailure = Exception('socket hang up');
-      final adapter = SupabasePlatformIdentitySelfServiceAdapter(
-        profileGateway: _FakeProfileGateway(),
-        authClient: authClient,
-        passwordResetStore: _FakePasswordResetOperationStore(),
-      );
-      final request = await adapter.requestPasswordReset();
-
-      await expectLater(
-        () => adapter.verifyPasswordResetCode(
-          operationId: request.operationId,
-          code: '000000',
-        ),
-        throwsA(
-          isA<IamBlockedException>().having(
-            (e) => e.code,
-            'code',
-            IamBlockedCodes.systemError,
           ),
         ),
       );
@@ -312,12 +297,8 @@ final class _FakeAuthClient implements AuthAccountClient {
   final String? email;
   final bool verified;
   int updatePasswordCalls = 0;
-  int sendRecoveryOtpCalls = 0;
-  int verifyRecoveryOtpCalls = 0;
   int signOutOtherSessionsCalls = 0;
   String? lastPassword;
-  String? lastRecoveryCode;
-  Object? verifyFailure;
   Object? updatePasswordFailure;
   Object? signOutOtherSessionsFailure;
 
@@ -329,25 +310,6 @@ final class _FakeAuthClient implements AuthAccountClient {
 
   @override
   bool get isEmailVerified => verified;
-
-  @override
-  Future<void> sendRecoveryOtp({required String email}) async {
-    sendRecoveryOtpCalls++;
-  }
-
-  @override
-  Future<void> verifyRecoveryOtp({
-    required String email,
-    required String code,
-  }) async {
-    if (verifyFailure != null) {
-      throw verifyFailure!;
-    }
-    verifyRecoveryOtpCalls++;
-    lastRecoveryCode = code;
-    // do not keep sensitive raw values after call
-    lastRecoveryCode = null;
-  }
 
   @override
   Future<void> updatePassword(String newPassword) async {
@@ -405,13 +367,19 @@ final class _FakeProfileGateway implements PlatformUserProfileGateway {
   }
 }
 
-final class _FakePasswordResetOperationStore implements PasswordResetOperationStore {
+final class _FakePasswordResetOperationStore
+    implements PasswordResetOperationStore {
   String _status = 'pending';
-  int markVerifiedCalls = 0;
+  int beginCalls = 0;
+  int verifyCodeCalls = 0;
   int markCompletedCalls = 0;
+  bool verifyResult = true;
+  Object? verifyFailure;
+  (String, String)? lastVerifyArgs;
 
   @override
   Future<PasswordResetOperation> begin() async {
+    beginCalls++;
     _status = 'pending';
     final now = DateTime.now().toUtc();
     return PasswordResetOperation(
@@ -436,6 +404,19 @@ final class _FakePasswordResetOperationStore implements PasswordResetOperationSt
   }
 
   @override
+  Future<bool> verifyCode(String operationId, String code) async {
+    verifyCodeCalls++;
+    lastVerifyArgs = (operationId, code);
+    if (verifyFailure != null) {
+      throw verifyFailure!;
+    }
+    if (verifyResult) {
+      _status = 'verified';
+    }
+    return verifyResult;
+  }
+
+  @override
   Future<void> markCompleted(String operationId) async {
     markCompletedCalls++;
     _status = 'completed';
@@ -443,7 +424,6 @@ final class _FakePasswordResetOperationStore implements PasswordResetOperationSt
 
   @override
   Future<void> markVerified(String operationId) async {
-    markVerifiedCalls++;
     _status = 'verified';
   }
 

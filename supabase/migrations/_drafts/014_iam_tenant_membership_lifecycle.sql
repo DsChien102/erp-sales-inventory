@@ -670,6 +670,12 @@ begin
 end;
 $$;
 
+-- INTERIM (Phase 2, pre-SRS role management): no per-role feature gating yet.
+-- Any ACTIVE member of the tenant is granted every feature permission
+-- (view AND write). Owner-only operations (assign_member_role, ownership
+-- transfer, tenant lifecycle) are NOT gated here — they keep their own direct
+-- `role = 'owner'` guards — so this widening does not expose them.
+-- Revert to per-role role_permissions gating when SRS Theme 1 lands.
 create or replace function iam.has_permission(
   p_tenant_id uuid,
   p_permission text
@@ -681,32 +687,17 @@ set search_path = iam, pg_temp
 as $$
 declare
   v_user_id uuid := auth.uid();
-  v_role text;
 begin
   if v_user_id is null then
     return false;
   end if;
 
-  select m.role
-  into v_role
-  from iam.memberships m
-  where m.user_id = v_user_id
-    and m.tenant_id = p_tenant_id
-    and m.status = 'active';
-
-  if v_role is null then
-    return false;
-  end if;
-
-  if v_role = 'owner' then
-    return true;
-  end if;
-
   return exists (
     select 1
-    from iam.role_permissions rp
-    where rp.role = v_role
-      and rp.permission = p_permission
+    from iam.memberships m
+    where m.user_id = v_user_id
+      and m.tenant_id = p_tenant_id
+      and m.status = 'active'
   );
 end;
 $$;

@@ -9,6 +9,7 @@ import 'package:vet45_iam_presentation/presentation.dart';
 import '../../../core/di/injection.dart';
 import '../../tenant_context/presentation/bloc/tenant_context_cubit.dart';
 import '../../tenant_context/presentation/bloc/tenant_context_state.dart';
+import '../../tenant_context/presentation/tenant_context_selector.dart';
 import 'models/dashboard_navigation.dart';
 import 'widgets/dashboard_header.dart';
 import 'widgets/erp_bottom_navigation.dart';
@@ -50,6 +51,7 @@ class DashboardPage extends StatelessWidget {
         final cubit = TenantContextCubit(
           iamModule: module,
           userDisplayName: userDisplayName,
+          applyPermissions: applyTenantContextPermissions,
         );
         if (autoBootstrap) {
           cubit.bootstrap();
@@ -95,33 +97,8 @@ class _DashboardPageState extends State<_DashboardPageBody> {
     context.goNamed('dashboard', extra: tab);
   }
 
-  Future<void> _openSelector(BuildContext context) async {
-    final cubit = context.read<TenantContextCubit>();
-    if (cubit.state.tenants.isEmpty && !cubit.state.tenantsLoading) {
-      await cubit.loadAccessibleTenants();
-    }
-    if (!context.mounted) return;
-
-    await showSelectOrganizationBottomSheet(
-      context: context,
-      organizations: cubit.state.tenants,
-      emptyStateType: cubit.state.tenants.isEmpty
-          ? OrganizationEmptyStateType.noAuthorizedOrganizations
-          : null,
-      suspendedOrgName: cubit.state.suspendedOrgName,
-      onConfirmSwitch: (org) async {
-        final ok = await cubit.switchTo(org.id);
-        if (!ok) {
-          final message = cubit.state.errorMessage;
-          if (message != null && message.isNotEmpty) {
-            throw Exception(message);
-          }
-        }
-        return ok;
-      },
-    );
-    cubit.consumeOpenSelectorRequest();
-  }
+  Future<void> _openSelector(BuildContext context) =>
+      openTenantContextSelector(context);
 
   Widget _buildHomeBody(BuildContext context, TenantContextState state) {
     if (state.status == TenantContextLoadStatus.loading ||

@@ -25,9 +25,14 @@ void main() {
       }
     });
 
-    test('owner identity uses platform profile status and Auth snapshot', () {
+    test('owner identity uses Auth-derived activation and Auth snapshot', () {
       expect(sql, contains('iam.get_auth_user_snapshot(v_owner_user)'));
-      expect(sql, contains('from iam.platform_user_profiles p'));
+      expect(
+        sql,
+        contains('iam._platform_user_effective_status(u.email_confirmed_at)'),
+      );
+      expect(sql, isNot(contains('from iam.platform_user_profiles p')));
+      expect(sql, isNot(contains('select p.status')));
       expect(sql, contains('OWNER_IDENTITY_INACTIVE'));
       expect(sql, contains('OWNER_IDENTITY_UNAVAILABLE'));
       expect(sql, contains('OWNER_EMAIL_UNVERIFIED'));

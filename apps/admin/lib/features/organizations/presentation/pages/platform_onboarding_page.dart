@@ -62,8 +62,8 @@ class _PlatformOnboardingViewState extends State<_PlatformOnboardingView> {
   final _orgPhoneController = TextEditingController();
   final _orgEmailController = TextEditingController();
   final _orgAddressController = TextEditingController();
-  String? _selectedProvince = 'Đồng Nai';
-  String? _selectedWard = 'Trấn Biên';
+  String? _selectedProvince;
+  String? _selectedWard;
 
   String? _orgNameErrorText;
   String? _orgEmailErrorText;
@@ -92,45 +92,49 @@ class _PlatformOnboardingViewState extends State<_PlatformOnboardingView> {
       final email = _emailController.text.trim();
       final phone = _phoneController.text.trim();
 
-      String? lError;
-      String? fError;
-      String? eError;
-      String? pError;
+      String? lastNameError;
+      String? firstNameError;
+      String? emailError;
+      String? phoneError;
 
       if (lastName.isEmpty) {
-        lError = 'Họ và tên đệm là bắt buộc.';
+        lastNameError = 'Họ và tên đệm là bắt buộc.';
       }
       if (firstName.isEmpty) {
-        fError = 'Tên là bắt buộc.';
+        firstNameError = 'Tên là bắt buộc.';
       }
       if (email.isEmpty) {
-        eError = 'Email là bắt buộc.';
+        emailError = 'Email là bắt buộc.';
       } else if (!VEmailValidator.isValid(email)) {
-        eError = 'Email không hợp lệ (ví dụ: user@domain.com).';
+        emailError = 'Email không hợp lệ.';
       }
       if (phone.isNotEmpty && phone.length < 8) {
-        pError = 'Số điện thoại không hợp lệ.';
+        phoneError = 'Số điện thoại không hợp lệ.';
       }
 
-      if (lError != null ||
-          fError != null ||
-          eError != null ||
-          pError != null) {
+      if (lastNameError != null ||
+          firstNameError != null ||
+          emailError != null ||
+          phoneError != null) {
         setState(() {
-          _lastNameErrorText = lError;
-          _firstNameErrorText = fError;
-          _emailErrorText = eError;
-          _phoneErrorText = pError;
+          _lastNameErrorText = lastNameError;
+          _firstNameErrorText = firstNameError;
+          _emailErrorText = emailError;
+          _phoneErrorText = phoneError;
         });
         VToast.show(
           context,
           title: 'Thông tin không hợp lệ',
-          message: 'Vui lòng kiểm tra lại thông tin chủ sở hữu mới.',
+          message:
+              'Vui lòng kiểm tra các trường bắt buộc và định dạng bên dưới.',
           type: VToastType.danger,
         );
         return false;
       }
-    } else if (_selectedOwner == null) {
+      return true;
+    }
+
+    if (_selectedOwner == null) {
       VToast.show(
         context,
         title: 'Thông tin không hợp lệ',
@@ -227,6 +231,26 @@ class _PlatformOnboardingViewState extends State<_PlatformOnboardingView> {
     final result = await context.read<PlatformOnboardingCubit>().submit(
       owner: ownerInput,
       organizationName: orgName,
+      organizationDisplayName: _orgDisplayNameController.text.trim().isEmpty
+          ? null
+          : _orgDisplayNameController.text.trim(),
+      contactEmail: _orgEmailController.text.trim().isEmpty
+          ? null
+          : _orgEmailController.text.trim(),
+      contactPhone: _orgPhoneController.text.trim().isEmpty
+          ? null
+          : _orgPhoneController.text.trim(),
+      contactAddressText: _orgAddressController.text.trim().isEmpty
+          ? null
+          : _orgAddressController.text.trim(),
+      provinceCode: _selectedProvince,
+      communeCode: _selectedWard,
+      legalName: _orgLegalNameController.text.trim().isEmpty
+          ? null
+          : _orgLegalNameController.text.trim(),
+      taxCode: _orgTaxCodeController.text.trim().isEmpty
+          ? null
+          : _orgTaxCodeController.text.trim(),
       idempotencyKey: 'idemp-${DateTime.now().millisecondsSinceEpoch}',
     );
 
@@ -244,41 +268,6 @@ class _PlatformOnboardingViewState extends State<_PlatformOnboardingView> {
       );
       return;
     }
-
-    final ownerName = _isNewOwner
-        ? '${_lastNameController.text.trim()} ${_firstNameController.text.trim()}'
-              .trim()
-        : (_selectedOwner?.fullName ?? 'Lê Thị Lan');
-    final ownerEmail = _isNewOwner
-        ? _emailController.text.trim()
-        : (_selectedOwner?.email ?? 'lan@gmail.com');
-
-    final initials = orgName.isNotEmpty
-        ? orgName
-              .split(' ')
-              .map((e) => e.isNotEmpty ? e[0] : '')
-              .take(2)
-              .join()
-              .toUpperCase()
-        : 'TC';
-
-    final newOrg = OrganizationUiModel(
-      id: result.tenantId,
-      name: orgName,
-      code:
-          'TEN-${DateTime.now().millisecondsSinceEpoch.toString().substring(7)}',
-      initials: initials.isEmpty ? 'TC' : initials,
-      type: 'Tổ chức nền tảng',
-      status: OrganizationStatus.settingUp,
-      ownerName: ownerName,
-      ownerEmail: ownerEmail,
-      ownerRole: 'Chủ cửa hàng',
-      unverifiedEmail: _isNewOwner,
-      incompleteProfile: true,
-      createdAt: DateTime.now(),
-    );
-
-    FakeOrganizationData.sampleOrganizations.insert(0, newOrg);
 
     if (!mounted) return;
     Navigator.of(context).pushReplacement(
@@ -476,14 +465,17 @@ class _PlatformOnboardingViewState extends State<_PlatformOnboardingView> {
             }
           },
           onProvinceChanged: (val) {
-            setState(() => _selectedProvince = val);
+            setState(() {
+              _selectedProvince = val;
+              _selectedWard = null;
+            });
           },
           onWardChanged: (val) {
             setState(() => _selectedWard = val);
           },
         );
       case 2:
-        return PlatformOnboardingStepReview(
+        final review = PlatformOnboardingStepReview(
           isNewOwner: _isNewOwner,
           lastName: _lastNameController.text.trim(),
           firstName: _isNewOwner
@@ -501,6 +493,26 @@ class _PlatformOnboardingViewState extends State<_PlatformOnboardingView> {
           orgAddress: _orgAddressController.text.trim(),
           selectedProvince: _selectedProvince,
           selectedWard: _selectedWard,
+        );
+        final ownerEmail = _isNewOwner
+            ? _emailController.text.trim()
+            : (_selectedOwner?.email ?? '');
+        final colors = context.vColors;
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            review,
+            const VGap.md(),
+            VCard(
+              tone: VComponentTone.info,
+              child: VText(
+                'Sau khi khởi tạo, hệ thống sẽ gửi mã mời tham gia tới '
+                '$ownerEmail. Chủ sở hữu nhập mã trong ứng dụng để tham gia tổ chức.',
+                variant: VTextVariant.bodySmall,
+                color: colors.textSecondary,
+              ),
+            ),
+          ],
         );
       default:
         return const SizedBox.shrink();

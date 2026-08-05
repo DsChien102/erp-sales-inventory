@@ -75,11 +75,13 @@ import '../platform/suspend_platform_user/suspend_platform_user_command.dart';
 import '../platform/transfer_platform_tenant_ownership/transfer_platform_tenant_ownership_command.dart';
 import '../dto/cursor_page_dto.dart';
 import '../dto/tenant_member_dto.dart';
+import '../dto/assignable_role_option_dto.dart';
 import '../invitation/accept_invitation/accept_invitation_command.dart';
 import '../invitation/create_invitation/create_invitation_command.dart';
 import '../invitation/decline_invitation/decline_invitation_command.dart';
 import '../invitation/get_invitation/get_invitation_query.dart';
 import '../invitation/inspect_invitation_token/inspect_invitation_token_query.dart';
+import '../invitation/list_assignable_invitation_roles/list_assignable_invitation_roles_query.dart';
 import '../invitation/list_invitations/list_invitations_query.dart';
 import '../invitation/resend_invitation/resend_invitation_command.dart';
 import '../invitation/revoke_invitation/revoke_invitation_command.dart';
@@ -155,6 +157,7 @@ final class FakeIamModule implements IIamModule {
   int signOutCount = 0;
   int switchTenantCount = 0;
   String? lastSignedInEmail;
+  bool? lastSignInRequireTenantContext;
 
   void establishAuthenticatedSessionForTesting(String email) {
     _isAuthenticated = true;
@@ -244,6 +247,7 @@ final class FakeIamModule implements IIamModule {
         ownerName: 'Lê Thị Lan',
         ownerEmail: 'lan@gmail.com',
         activatedAt: DateTime(2026, 7, 12, 16, 45),
+        lastActivityAt: DateTime(2026, 7, 13, 9, 18),
         members: const [
           PlatformTenantMemberDto(
             userId: 'lan-le',
@@ -296,6 +300,7 @@ final class FakeIamModule implements IIamModule {
         ownerUserId: 'lan-le',
         ownerName: 'Lê Thị Lan',
         ownerEmail: 'lan@gmail.com',
+        activatedAt: DateTime(2026, 7, 2, 9, 15),
         suspendedAt: DateTime(2026, 7, 13, 7, 30),
         suspendedBy: 'Tùng Nguyễn',
         suspendReason: 'Rà soát rủi ro truy cập',
@@ -321,6 +326,28 @@ final class FakeIamModule implements IIamModule {
         closedAt: DateTime(2026, 6, 30, 18),
         closedBy: 'Nhân viên vận hành nền tảng',
         closeReason: 'Kết thúc hợp đồng dịch vụ',
+        members: const [
+          PlatformTenantMemberDto(
+            userId: 'lan-le',
+            fullName: 'Lê Thị Lan',
+            email: 'lan@gmail.com',
+            roleLabel: 'Chủ cửa hàng',
+            isOwner: true,
+          ),
+        ],
+      ),
+      PlatformTenantDetailDto(
+        tenantId: 'org-005',
+        name: 'Legacy Setup Suspended',
+        code: 'TEN-LEGACY',
+        status: TenantLifecycleStatus.suspended,
+        createdAt: DateTime(2026, 8, 1, 8),
+        ownerUserId: 'lan-le',
+        ownerName: 'Lê Thị Lan',
+        ownerEmail: 'lan@gmail.com',
+        suspendedAt: DateTime(2026, 8, 2, 10),
+        suspendedBy: 'Tùng Nguyễn',
+        suspendReason: 'Legacy never activated tenant',
         members: const [
           PlatformTenantMemberDto(
             userId: 'lan-le',
@@ -765,6 +792,7 @@ final class FakeIamModule implements IIamModule {
       ListTenantMembersQuery q => _handleListTenantMembers<TResult>(q),
       ListInvitationsQuery q => _handleListInvitations<TResult>(q),
       GetInvitationQuery q => _handleGetInvitation<TResult>(q),
+      ListAssignableInvitationRolesQuery q => _handleListAssignableInvitationRoles<TResult>(q),
       InspectInvitationTokenQuery q => _handleInspectInvitationToken<TResult>(q),
       ListAccessibleTenantsQuery _ => _handleListAccessibleTenants<TResult>(),
       GetTenantContextQuery q => _handleGetTenantContext<TResult>(q),
@@ -780,6 +808,7 @@ final class FakeIamModule implements IIamModule {
     }
     signInCount++;
     lastSignedInEmail = command.email;
+    lastSignInRequireTenantContext = command.requireTenantContext;
     _isAuthenticated = true;
     _authenticatedEmail = command.email;
     onSignedIn?.call(command.email);
@@ -846,6 +875,8 @@ final class FakeIamModule implements IIamModule {
 
   Future<TResult> _handleSearchUsers<TResult>(SearchPlatformUsersQuery query) {
     _requirePlatformView();
+    _isAuthenticated = true;
+    _authenticatedEmail ??= 'admin@vet45.local';
     Iterable<PlatformUserDetailDto> filtered = _users;
     if (query.status != null) {
       filtered = filtered.where((u) => u.status == query.status);
@@ -878,9 +909,11 @@ final class FakeIamModule implements IIamModule {
 
   Future<TResult> _handleGetUserDetail<TResult>(GetPlatformUserQuery query) {
     _requirePlatformView();
+    _isAuthenticated = true;
+    _authenticatedEmail ??= 'admin@vet45.local';
     final index = _users.indexWhere((u) => u.userId == query.userId);
     if (index == -1) {
-      throw ValidationException('Platform user not found: ${query.userId}');
+      throw const IamBlockedException(IamBlockedCodes.resourceNotFound);
     }
     return Future.value(_users[index] as TResult);
   }
@@ -1011,12 +1044,12 @@ final class FakeIamModule implements IIamModule {
 
     final result = isNewUserScenario
         ? TenantOnboardingResultDto(
+            // Hướng 1: new owner is not created — an activation code is issued.
             tenantId: 'tenant-new-1',
-            ownerMembershipId: 'mem-new-1',
-            ownerUserId: 'user-new-1',
             tenantStatus: 'provisioning',
             correlationId: command.correlationId ?? 'corr-new-1',
             isNewUser: true,
+            activationIssued: true,
           )
         : TenantOnboardingResultDto(
             tenantId: 'tenant-exist-1',
@@ -1026,6 +1059,61 @@ final class FakeIamModule implements IIamModule {
             correlationId: command.correlationId ?? 'corr-exist-1',
             isNewUser: false,
           );
+
+    if (!_tenants.any((tenant) => tenant.tenantId == result.tenantId)) {
+      final owner = command.owner;
+      PlatformUserDetailDto? existingOwner;
+      if (owner.isExisting) {
+        for (final user in _users) {
+          if (user.userId == owner.existingUserId) {
+            existingOwner = user;
+            break;
+          }
+        }
+      }
+      final ownerUserId = result.ownerUserId;
+      // Hướng 1: a new owner has no account/membership yet (activation pending),
+      // so the tenant shows no owner until the owner activates.
+      if (ownerUserId == null) {
+        _tenants.add(
+          PlatformTenantDetailDto(
+            tenantId: result.tenantId,
+            name: command.organizationName.trim(),
+            code: 'TEN-NEW',
+            status: TenantLifecycleStatus.provisioning,
+            createdAt: DateTime(2026, 8, 3, 9),
+            ownerUserId: null,
+            ownerName: '',
+            ownerEmail: '',
+            members: const [],
+          ),
+        );
+      } else {
+        final ownerName = existingOwner?.fullName ?? 'Chủ sở hữu';
+        final ownerEmail = existingOwner?.email ?? 'owner@example.local';
+        _tenants.add(
+          PlatformTenantDetailDto(
+            tenantId: result.tenantId,
+            name: command.organizationName.trim(),
+            code: 'TEN-NEW',
+            status: TenantLifecycleStatus.provisioning,
+            createdAt: DateTime(2026, 8, 3, 9),
+            ownerUserId: ownerUserId,
+            ownerName: ownerName,
+            ownerEmail: ownerEmail,
+            members: [
+              PlatformTenantMemberDto(
+                userId: ownerUserId,
+                fullName: ownerName,
+                email: ownerEmail,
+                roleLabel: 'Chủ cửa hàng',
+                isOwner: true,
+              ),
+            ],
+          ),
+        );
+      }
+    }
 
     if (scenario == FakeIamScenario.onboardingRetryIdempotent ||
         scenario == FakeIamScenario.onboardingExistingUserOk ||
@@ -1120,6 +1208,10 @@ final class FakeIamModule implements IIamModule {
         scenario == FakeIamScenario.tenantClosedReject) {
       throw const IamBlockedException(IamBlockedCodes.tenantStateInvalid);
     }
+    if (tenant.status != TenantLifecycleStatus.active) {
+      throw const IamBlockedException(IamBlockedCodes.tenantStateInvalid);
+    }
+    final suspendedAt = DateTime.now();
     _tenants[index] = PlatformTenantDetailDto(
       tenantId: tenant.tenantId,
       name: tenant.name,
@@ -1132,7 +1224,8 @@ final class FakeIamModule implements IIamModule {
       ownerEmail: tenant.ownerEmail,
       ownerRoleLabel: tenant.ownerRoleLabel,
       activatedAt: tenant.activatedAt,
-      suspendedAt: DateTime.now(),
+      lastActivityAt: suspendedAt,
+      suspendedAt: suspendedAt,
       suspendReason: command.reason,
       members: tenant.members,
     );
@@ -1152,21 +1245,25 @@ final class FakeIamModule implements IIamModule {
         scenario == FakeIamScenario.tenantClosedReject) {
       throw const IamBlockedException(IamBlockedCodes.tenantStateInvalid);
     }
-    if (tenant.status != TenantLifecycleStatus.suspended &&
-        scenario == FakeIamScenario.tenantRestoreOk) {
-      throw ApplicationException('STATE_CHANGED');
+    if (tenant.status != TenantLifecycleStatus.suspended) {
+      throw const IamBlockedException(IamBlockedCodes.tenantStateInvalid);
+    }
+    if (tenant.activatedAt == null) {
+      throw const IamBlockedException(IamBlockedCodes.tenantStateInvalid);
     }
     _tenants[index] = PlatformTenantDetailDto(
       tenantId: tenant.tenantId,
       name: tenant.name,
       code: tenant.code,
       status: TenantLifecycleStatus.active,
+      version: tenant.version + 1,
       createdAt: tenant.createdAt,
       ownerUserId: tenant.ownerUserId,
       ownerName: tenant.ownerName,
       ownerEmail: tenant.ownerEmail,
       ownerRoleLabel: tenant.ownerRoleLabel,
-      activatedAt: tenant.activatedAt ?? DateTime.now(),
+      activatedAt: tenant.activatedAt,
+      lastActivityAt: DateTime.now(),
       members: tenant.members,
     );
     return Future.value(null as TResult);
@@ -1581,6 +1678,20 @@ final class FakeIamModule implements IIamModule {
             as TResult,
       );
     }
+    if (scenario == FakeIamScenario.readinessWarningOnly) {
+      return Future.value(
+        TenantReadinessDto(
+              tenantId: tenant.tenantId,
+              status: TenantLifecycleStatus.provisioning,
+              blockers: const [],
+              warnings: const [TenantReadinessIssueCodes.legalProfileMissing],
+              evaluatedAt: DateTime.now().toUtc(),
+              tenantVersion: tenant.version,
+              canActivate: true,
+            )
+            as TResult,
+      );
+    }
     final warnings = tenant.legalProfile == null
         ? const [TenantReadinessIssueCodes.legalProfileMissing]
         : const <String>[];
@@ -1677,8 +1788,22 @@ final class FakeIamModule implements IIamModule {
     if (eventCode != null) {
       items = items.where((s) => s.eventCode == eventCode).toList();
     }
+    final result = query.result;
+    if (result != null) {
+      items = items.where((s) => s.result.code == result).toList();
+    }
+    final subjectType = query.subjectType;
+    if (subjectType != null) {
+      items = items.where((s) => s.subjectType == subjectType).toList();
+    }
+    final actorUserId = query.actorUserId;
+    if (actorUserId != null) {
+      items = items.where((s) => s.actorUserId == actorUserId).toList();
+    }
+    // Cursor-paginated fake: first page exposes opaque cursor; next page clears it.
+    final nextCursor = query.cursor == null && items.isNotEmpty ? 'opaque-next-cursor' : null;
     return Future.value(
-      TenantAuditLogSearchPageDto(items: items) as TResult,
+      TenantAuditLogSearchPageDto(items: items, nextCursor: nextCursor) as TResult,
     );
   }
 
@@ -1712,6 +1837,27 @@ final class FakeIamModule implements IIamModule {
     }
     if (scenario == FakeIamScenario.tenantAuditCrossTenant) {
       throw const IamBlockedException(IamBlockedCodes.resourceNotFound);
+    }
+    if (query.auditLogId == 'AUD-REDACTED') {
+      return Future.value(
+        TenantAuditLogDetailDto(
+              auditLogId: query.auditLogId,
+              tenantId: query.tenantId,
+              eventCode: _tenantAuditDetail.eventCode,
+              result: _tenantAuditDetail.result,
+              occurredAt: _tenantAuditDetail.occurredAt,
+              source: _tenantAuditDetail.source,
+              trackingId: _tenantAuditDetail.trackingId,
+              actorUnavailable: false,
+              beforeRedacted: true,
+              afterRedacted: true,
+              actorUserId: _tenantAuditDetail.actorUserId,
+              actorDisplayName: _tenantAuditDetail.actorDisplayName,
+              subjectType: _tenantAuditDetail.subjectType,
+              subjectId: _tenantAuditDetail.subjectId,
+            )
+            as TResult,
+      );
     }
     if (query.auditLogId != _tenantAuditDetail.auditLogId ||
         query.tenantId != _tenantAuditDetail.tenantId) {
@@ -1782,6 +1928,36 @@ final class FakeIamModule implements IIamModule {
             items: page,
             nextCursor: rows.length > limit ? 'next' : null,
           )
+          as TResult,
+    );
+  }
+
+  Future<TResult> _handleListAssignableInvitationRoles<TResult>(
+    ListAssignableInvitationRolesQuery query,
+  ) {
+    if (scenario == FakeIamScenario.memberInvitationForbidden ||
+        scenario == FakeIamScenario.inviteForbidden) {
+      throw const IamBlockedException(IamBlockedCodes.permissionDenied);
+    }
+    return Future.value(
+      const <AssignableRoleOptionDto>[
+            AssignableRoleOptionDto(
+              roleId: 'role-staff',
+              label: 'Nhân viên bán hàng',
+            ),
+            AssignableRoleOptionDto(
+              roleId: 'role-warehouse',
+              label: 'Thủ kho',
+            ),
+            AssignableRoleOptionDto(
+              roleId: 'role-accountant',
+              label: 'Kế toán',
+            ),
+            AssignableRoleOptionDto(
+              roleId: 'role-manager',
+              label: 'Quản lý',
+            ),
+          ]
           as TResult,
     );
   }
@@ -2467,110 +2643,5 @@ final class FakeIamModule implements IIamModule {
           )
           as TResult,
     );
-  }
-
-  Future<TResult> _handleGetMyProfile<TResult>() {
-    if (scenario == FakeIamScenario.myProfileLoadFail) {
-      throw ApplicationException('SYSTEM_ERROR');
-    }
-    return Future.value(_myProfile as TResult);
-  }
-
-  Future<TResult> _handleUpdateMyProfile<TResult>(
-    UpdateMyIdentityProfileCommand command,
-  ) {
-    if (scenario == FakeIamScenario.updateValidationError ||
-        command.firstName.trim().isEmpty ||
-        command.lastName.trim().isEmpty) {
-      throw ValidationException('firstName and lastName are required');
-    }
-    _myProfile = _myProfile.copyWith(
-      firstName: command.firstName.trim(),
-      lastName: command.lastName.trim(),
-      phoneNumber: command.phoneNumber?.trim(),
-      avatarUrl: command.avatarUrl?.trim(),
-    );
-    return Future.value(_myProfile as TResult);
-  }
-
-  String _maskEmail(String email) {
-    final at = email.indexOf('@');
-    if (at <= 0) return '***';
-    final local = email.substring(0, at);
-    final domain = email.substring(at);
-    if (local.length <= 2) return '${local[0]}***$domain';
-    return '${local.substring(0, 2)}***$domain';
-  }
-
-  Future<TResult> _handleRequestMyPasswordReset<TResult>() {
-    if (!_myProfile.emailVerified) {
-      throw ValidationException('Email must be verified');
-    }
-    myPasswordResetRequestCount++;
-    _resetOperationId = 'op-reset-1';
-    _resetVerified = false;
-    _resetVerifyAttempts = 0;
-    return Future.value(
-      PasswordResetOperationDto(
-            operationId: _resetOperationId!,
-            maskedEmail: _maskEmail(_myProfile.email),
-            resendAfterSeconds: 45,
-          )
-          as TResult,
-    );
-  }
-
-  Future<TResult> _handleResendMyPasswordReset<TResult>(
-    ResendMyPasswordResetCommand command,
-  ) {
-    if (scenario == FakeIamScenario.resetCodeExpired || command.operationId != _resetOperationId) {
-      throw ApplicationException('RESET_CODE_EXPIRED');
-    }
-    myPasswordResetRequestCount++;
-    _resetVerified = false;
-    _resetVerifyAttempts = 0;
-    return Future.value(
-      PasswordResetOperationDto(
-            operationId: _resetOperationId!,
-            maskedEmail: _maskEmail(_myProfile.email),
-            resendAfterSeconds: 45,
-          )
-          as TResult,
-    );
-  }
-
-  Future<TResult> _handleVerifyMyPasswordReset<TResult>(
-    VerifyMyPasswordResetCommand command,
-  ) {
-    if (scenario == FakeIamScenario.resetCodeExpired) {
-      throw ApplicationException('RESET_CODE_EXPIRED');
-    }
-    if (scenario == FakeIamScenario.resetAttemptsExceeded || _resetVerifyAttempts >= 5) {
-      throw ApplicationException('RESET_CODE_ATTEMPTS_EXCEEDED');
-    }
-    if (command.operationId != _resetOperationId) {
-      throw ApplicationException('RESET_CODE_EXPIRED');
-    }
-    if (scenario == FakeIamScenario.resetCodeInvalid || command.code.trim() != '123456') {
-      _resetVerifyAttempts++;
-      throw ApplicationException('RESET_CODE_INVALID');
-    }
-    _resetVerified = true;
-    return Future.value(null as TResult);
-  }
-
-  Future<TResult> _handleCompleteMyPasswordReset<TResult>(
-    CompleteMyPasswordResetCommand command,
-  ) {
-    if (!_resetVerified || command.operationId != _resetOperationId) {
-      throw ApplicationException('RESET_CODE_EXPIRED');
-    }
-    if (scenario == FakeIamScenario.resetPasswordPolicy || command.newPassword.length < 8) {
-      throw ApplicationException('PASSWORD_POLICY_VIOLATION');
-    }
-    _resetOperationId = null;
-    _resetVerified = false;
-    _resetVerifyAttempts = 0;
-    return Future.value(null as TResult);
   }
 }

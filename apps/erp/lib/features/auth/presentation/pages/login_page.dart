@@ -1,15 +1,53 @@
 // harness:allow-design-system-bypass — login shell không dùng VAppBar (branded form, không phải page ERP chuẩn)
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:vet45_design_system/design_system.dart';
 import 'package:vet45_iam_application/application.dart';
 
 import '../../../../core/di/injection.dart';
-import '../../../../core/errors/exception_mapper.dart';
+import '../bloc/login_cubit.dart';
+import '../bloc/login_state.dart';
 
-class LoginPage extends StatefulWidget {
+class LoginPage extends StatelessWidget {
   const LoginPage({
     super.key,
+    this.iamModule,
+    this.cubit,
+    this.prefilledEmail,
+    this.showSuccessBanner = false,
+  });
+
+  /// Production router injects GetIt module; tests pass explicit module/cubit.
+  final IIamModule? iamModule;
+  final LoginCubit? cubit;
+  final String? prefilledEmail;
+  final bool showSuccessBanner;
+
+  @override
+  Widget build(BuildContext context) {
+    if (cubit != null) {
+      return BlocProvider.value(
+        value: cubit!,
+        child: _LoginView(
+          prefilledEmail: prefilledEmail,
+          showSuccessBanner: showSuccessBanner,
+        ),
+      );
+    }
+
+    return BlocProvider(
+      create: (_) => LoginCubit(iamModule: iamModule ?? getIt<IIamModule>()),
+      child: _LoginView(
+        prefilledEmail: prefilledEmail,
+        showSuccessBanner: showSuccessBanner,
+      ),
+    );
+  }
+}
+
+class _LoginView extends StatefulWidget {
+  const _LoginView({
     this.prefilledEmail,
     this.showSuccessBanner = false,
   });
@@ -18,14 +56,13 @@ class LoginPage extends StatefulWidget {
   final bool showSuccessBanner;
 
   @override
-  State<LoginPage> createState() => _LoginPageState();
+  State<_LoginView> createState() => _LoginViewState();
 }
 
-class _LoginPageState extends State<LoginPage> {
+class _LoginViewState extends State<_LoginView> {
   late final TextEditingController _emailController;
   final _passwordController = TextEditingController();
 
-  var _isSubmitting = false;
   String? _emailError;
   String? _passwordError;
 
@@ -43,7 +80,7 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   @override
-  void didUpdateWidget(LoginPage oldWidget) {
+  void didUpdateWidget(_LoginView oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.prefilledEmail != null && widget.prefilledEmail != oldWidget.prefilledEmail) {
       _emailController.text = widget.prefilledEmail!;
@@ -78,46 +115,13 @@ class _LoginPageState extends State<LoginPage> {
     return emailError == null && passwordError == null;
   }
 
-  Future<void> _submit() async {
-    if (_isSubmitting || !_validateFields()) {
+  void _submit() {
+    if (!_validateFields()) {
       return;
     }
-
-    setState(() => _isSubmitting = true);
-
-    final result = await guard(
-      () => getIt<IIamModule>().executeCommandAsync(
-        SignInCommand(
-          email: _emailController.text.trim(),
-          password: _passwordController.text,
-        ),
-      ),
-    );
-
-    if (!mounted) {
-      return;
-    }
-
-    setState(() => _isSubmitting = false);
-
-    result.fold(
-      (failure) {
-        VToast.show(
-          context,
-          title: 'Đăng nhập thất bại',
-          message: failure.message,
-          type: VToastType.danger,
-        );
-      },
-      (_) {
-        VToast.show(
-          context,
-          title: 'Đăng nhập thành công',
-          message: 'Chào mừng bạn quay trở lại!',
-          type: VToastType.success,
-        );
-        context.go('/');
-      },
+    context.read<LoginCubit>().submit(
+      email: _emailController.text.trim(),
+      password: _passwordController.text,
     );
   }
 
@@ -165,210 +169,225 @@ class _LoginPageState extends State<LoginPage> {
   Widget build(BuildContext context) {
     final dynamicColors = context.vColors;
 
-    return Scaffold(
-      backgroundColor: dynamicColors.surface,
-      body: SafeArea(
-        child: VContentWidth(
-          maxWidth: _mobileLayoutWidth,
-          child: SingleChildScrollView(
-            child: ConstrainedBox(
-              constraints: BoxConstraints(
-                minHeight:
-                    MediaQuery.of(context).size.height -
-                    MediaQuery.of(context).padding.top -
-                    MediaQuery.of(context).padding.bottom,
-              ),
-              child: IntrinsicHeight(
-                child: VPagePadding(
-                  horizontal: VSpacing.screenMobile,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const VGap.xxl(),
+    return BlocConsumer<LoginCubit, LoginState>(
+      listenWhen: (previous, current) => previous.status != current.status,
+      listener: (context, state) {
+        if (state.status == LoginStatus.failure && state.failure != null) {
+          VToast.show(
+            context,
+            title: 'Đăng nhập thất bại',
+            message: state.failure!.message,
+            type: VToastType.danger,
+          );
+        }
+        if (state.status == LoginStatus.success && state.session?.isAuthenticated == true) {
+          VToast.show(
+            context,
+            title: 'Đăng nhập thành công',
+            message: 'Chào mừng bạn quay trở lại!',
+            type: VToastType.success,
+          );
+          context.go('/');
+        }
+      },
+      builder: (context, state) {
+        final isSubmitting = state.isSubmitting;
 
-                      // Logo Icon
-                      Container(
-                        width: 80,
-                        height: 80,
-                        alignment: Alignment.center,
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                            colors: [
-                              dynamicColors.primary,
-                              dynamicColors.primaryFocus,
-                            ],
-                          ),
-                          borderRadius: BorderRadius.circular(VRadius.r12),
-                          boxShadow: [
-                            BoxShadow(
-                              color: dynamicColors.surfaceBrand,
-                              blurRadius: 18,
-                              offset: const Offset(0, 10),
-                            ),
-                          ],
-                        ),
-                        child: VText(
-                          'V45',
-                          variant: VTextVariant.headingH3,
-                          color: dynamicColors.surface,
-                          style: const TextStyle(
-                            fontWeight: FontWeight.w900,
-                            letterSpacing: 0,
-                          ),
-                        ),
-                      ),
-                      const VGap.lg(),
-
-                      // App Title & Subtitle
-                      VText(
-                        'VET45',
-                        variant: VTextVariant.headingH1,
-                        color: dynamicColors.textPrimary,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.w700,
-                          letterSpacing: 0,
-                        ),
-                      ),
-                      const VGap.xs(),
-                      VText(
-                        'Quản trị bán hàng thuốc thú y',
-                        variant: VTextVariant.bodyDefault,
-                        color: dynamicColors.textSecondary,
-                      ),
-                      const VGap.xl(),
-
-                      // Cảnh báo mã kích hoạt hợp lệ (nếu quay lại từ màn hình nhập mã 123456 - Ảnh 4)
-                      if (widget.showSuccessBanner) ...[
-                        VCard(
-                          tone: VComponentTone.success,
-                          child: Row(
-                            children: [
-                              const VCardIcon(
-                                icon: VIcons.success,
-                                tone: VComponentTone.success,
+        return Scaffold(
+          backgroundColor: dynamicColors.surface,
+          body: SafeArea(
+            child: VContentWidth(
+              maxWidth: _mobileLayoutWidth,
+              child: SingleChildScrollView(
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(
+                    minHeight:
+                        MediaQuery.of(context).size.height -
+                        MediaQuery.of(context).padding.top -
+                        MediaQuery.of(context).padding.bottom,
+                  ),
+                  child: IntrinsicHeight(
+                    child: VPagePadding(
+                      horizontal: VSpacing.screenMobile,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const VGap.xxl(),
+                          Container(
+                            width: 80,
+                            height: 80,
+                            alignment: Alignment.center,
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                                colors: [
+                                  dynamicColors.primary,
+                                  dynamicColors.primaryFocus,
+                                ],
                               ),
-                              const VGap.horizontalMd(),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    VText(
-                                      'Mã kích hoạt hợp lệ',
-                                      variant: VTextVariant.headingH4,
-                                      color: dynamicColors.success,
+                              borderRadius: BorderRadius.circular(VRadius.r12),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: dynamicColors.surfaceBrand,
+                                  blurRadius: 18,
+                                  offset: const Offset(0, 10),
+                                ),
+                              ],
+                            ),
+                            child: VText(
+                              'V45',
+                              variant: VTextVariant.headingH3,
+                              color: dynamicColors.surface,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w900,
+                                letterSpacing: 0,
+                              ),
+                            ),
+                          ),
+                          const VGap.lg(),
+                          VText(
+                            'VET45',
+                            variant: VTextVariant.headingH1,
+                            color: dynamicColors.textPrimary,
+                            style: const TextStyle(
+                              fontWeight: FontWeight.w700,
+                              letterSpacing: 0,
+                            ),
+                          ),
+                          const VGap.xs(),
+                          VText(
+                            'Quản trị bán hàng thuốc thú y',
+                            variant: VTextVariant.bodyDefault,
+                            color: dynamicColors.textSecondary,
+                          ),
+                          const VGap.xl(),
+                          if (widget.showSuccessBanner) ...[
+                            VCard(
+                              tone: VComponentTone.success,
+                              child: Row(
+                                children: [
+                                  const VCardIcon(
+                                    icon: VIcons.success,
+                                    tone: VComponentTone.success,
+                                  ),
+                                  const VGap.horizontalMd(),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        VText(
+                                          'Mã kích hoạt hợp lệ',
+                                          variant: VTextVariant.headingH4,
+                                          color: dynamicColors.success,
+                                        ),
+                                        const VGap.xs(),
+                                        VText(
+                                          'Đăng nhập đúng tài khoản để tiếp nhận lời mời và vào VET45.',
+                                          variant: VTextVariant.bodySmall,
+                                          color: dynamicColors.textSecondary,
+                                        ),
+                                      ],
                                     ),
-                                    const VGap.xs(),
-                                    VText(
-                                      'Đăng nhập đúng tài khoản để tiếp nhận lời mời và vào VET45.',
-                                      variant: VTextVariant.bodySmall,
-                                      color: dynamicColors.textSecondary,
-                                    ),
-                                  ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const VGap.lg(),
+                          ],
+                          VEmailField(
+                            controller: _emailController,
+                            label: 'Email',
+                            hintText: 'Nhập email',
+                            enabled: !isSubmitting,
+                            errorText: _emailError,
+                            prefixIcon: VIcon(icon: VIcons.mail),
+                            onChanged: (_) {
+                              if (_emailError != null) {
+                                setState(() => _emailError = null);
+                              }
+                            },
+                          ),
+                          const VGap.md(),
+                          VPasswordField(
+                            controller: _passwordController,
+                            label: 'Mật khẩu',
+                            hintText: 'Nhập mật khẩu',
+                            minLength: 1,
+                            enabled: !isSubmitting,
+                            errorText: _passwordError,
+                            prefixIcon: VIcon(icon: VIcons.lock),
+                            onChanged: (_) {
+                              if (_passwordError != null) {
+                                setState(() => _passwordError = null);
+                              }
+                            },
+                            onSubmitted: (_) => _submit(),
+                          ),
+                          const VGap.md(),
+                          Align(
+                            alignment: Alignment.centerLeft,
+                            child: TextButton(
+                              onPressed: isSubmitting ? null : _navigateToResetPassword,
+                              style: TextButton.styleFrom(
+                                padding: EdgeInsets.zero,
+                                minimumSize: Size.zero,
+                                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                              ),
+                              child: VText(
+                                'Quên mật khẩu?',
+                                variant: VTextVariant.bodyDefault,
+                                color: dynamicColors.primary,
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.w600,
                                 ),
                               ),
-                            ],
+                            ),
                           ),
-                        ),
-                        const VGap.lg(),
-                      ],
-
-                      // Field 1: Số điện thoại hoặc email
-                      VTextField(
-                        controller: _emailController,
-                        label: 'Email',
-                        hintText: 'Nhập email',
-                        enabled: !_isSubmitting,
-                        errorText: _emailError,
-                        onChanged: (_) {
-                          if (_emailError != null) {
-                            setState(() => _emailError = null);
-                          }
-                        },
-                      ),
-                      const VGap.md(),
-
-                      // Field 2: Mật khẩu
-                      VPasswordField(
-                        controller: _passwordController,
-                        label: 'Mật khẩu',
-                        hintText: 'Nhập mật khẩu',
-                        minLength: 1,
-                        enabled: !_isSubmitting,
-                        errorText: _passwordError,
-                        onChanged: (_) {
-                          if (_passwordError != null) {
-                            setState(() => _passwordError = null);
-                          }
-                        },
-                        onSubmitted: (_) => _submit(),
-                      ),
-                      const VGap.md(),
-
-                      // Link: Quên mật khẩu?
-                      Align(
-                        alignment: Alignment.centerLeft,
-                        child: TextButton(
-                          onPressed: _isSubmitting ? null : _navigateToResetPassword,
-                          style: TextButton.styleFrom(
-                            padding: EdgeInsets.zero,
-                            minimumSize: Size.zero,
-                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                          const VGap.lg(),
+                          VButton(
+                            label: 'Đăng nhập',
+                            isLoading: isSubmitting,
+                            fullWidth: true,
+                            onPressed: isSubmitting ? null : _submit,
                           ),
-                          child: VText(
-                            'Quên mật khẩu?',
+                          const VGap.lg(),
+                          VText(
+                            'Bạn đã nhận được lời mời?',
                             variant: VTextVariant.bodyDefault,
-                            color: dynamicColors.primary,
-                            style: const TextStyle(fontWeight: FontWeight.w600),
+                            color: dynamicColors.textSecondary,
                           ),
-                        ),
+                          const VGap.md(),
+                          GestureDetector(
+                            onTap: () => context.push('/invitation'),
+                            child: VText(
+                              'Kích hoạt tài khoản',
+                              variant: VTextVariant.bodyDefault,
+                              color: dynamicColors.primary,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                          ),
+                          const Spacer(),
+                          Padding(
+                            padding: const EdgeInsets.only(bottom: VSpacing.md),
+                            child: VText(
+                              '© VET45 · Phiên bản Mobile',
+                              variant: VTextVariant.bodySmall,
+                              color: dynamicColors.textMuted,
+                            ),
+                          ),
+                        ],
                       ),
-                      const VGap.lg(),
-
-                      // Primary Button: Đăng nhập
-                      VButton(
-                        label: 'Đăng nhập',
-                        isLoading: _isSubmitting,
-                        fullWidth: true,
-                        onPressed: _isSubmitting ? null : _submit,
-                      ),
-                      const VGap.lg(),
-
-                      // Bottom action: Kích hoạt tài khoản
-                      VText(
-                        'Bạn đã nhận được lời mời?',
-                        variant: VTextVariant.bodyDefault,
-                        color: dynamicColors.textSecondary,
-                      ),
-                      const VGap.md(),
-                      GestureDetector(
-                        onTap: () => context.push('/login/enter-code'),
-                        child: VText(
-                          'Kích hoạt tài khoản',
-                          variant: VTextVariant.bodyDefault,
-                          color: dynamicColors.primary,
-                          style: const TextStyle(fontWeight: FontWeight.w700),
-                        ),
-                      ),
-
-                      const Spacer(),
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: VSpacing.md),
-                        child: VText(
-                          '© VET45 · Phiên bản Mobile',
-                          variant: VTextVariant.bodySmall,
-                          color: dynamicColors.textMuted,
-                        ),
-                      ),
-                    ],
+                    ),
                   ),
                 ),
               ),
             ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 }

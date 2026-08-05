@@ -1,30 +1,258 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:vet45_design_system/design_system.dart';
+import 'package:vet45_iam_application/application.dart';
+import 'package:vet45_shared_application/application.dart';
 
+import '../../shared/iam_load_status.dart';
+import '../../shared/idempotency_key_factory.dart';
+import '../bloc/organization_invitation_detail_cubit.dart';
+import '../bloc/organization_invitation_detail_state.dart';
+import '../mappers/invitation_ui_mapper.dart';
 import '../models/user_ui_model.dart';
+import '../widgets/revoke_invitation_bottom_sheet.dart';
 
-/// Trang Chi tiết lời mời (TA-D-05, TA-D-06, TA-D-07) kèm các Bottom Sheet thao tác (TA-O-01, TA-O-02).
-class OrganizationInvitationDetailPage extends StatefulWidget {
-  final InvitationUiModel invitation;
-
+/// Chi tiết lời mời — loads by [invitationId] via [GetInvitationQuery].
+class OrganizationInvitationDetailPage extends StatelessWidget {
   const OrganizationInvitationDetailPage({
     super.key,
-    this.invitation = const InvitationUiModel(
-      id: 'i2',
-      email: 'banhang@minhphat.vn',
-      role: 'Nhân viên bán hàng',
-      statusDetail: 'Nhân viên bán hàng · Hết hạn sau 7 ngày',
-      status: InvitationStatus.pending,
-    ),
+    required this.invitationId,
+    this.iamModule,
+    this.executionContext,
+    this.keyFactory,
+    this.clock,
+    this.cubit,
   });
 
+  final String invitationId;
+  final IIamModule? iamModule;
+  final IExecutionContext? executionContext;
+  final IdempotencyKeyFactory? keyFactory;
+  final DateTime Function()? clock;
+  final OrganizationInvitationDetailCubit? cubit;
+
   @override
-  State<OrganizationInvitationDetailPage> createState() => _OrganizationInvitationDetailPageState();
+  Widget build(BuildContext context) {
+    if (cubit != null) {
+      return BlocProvider.value(
+        value: cubit!,
+        child: _InvitationDetailView(clock: clock),
+      );
+    }
+    assert(
+      iamModule != null && executionContext != null,
+      'OrganizationInvitationDetailPage requires iamModule + '
+      'executionContext or cubit',
+    );
+    return BlocProvider(
+      create: (_) => OrganizationInvitationDetailCubit(
+        invitationId: invitationId,
+        iamModule: iamModule!,
+        executionContext: executionContext!,
+        keyFactory: keyFactory ?? const UuidIdempotencyKeyFactory(),
+      )..load(),
+      child: _InvitationDetailView(clock: clock),
+    );
+  }
 }
 
-class _OrganizationInvitationDetailPageState extends State<OrganizationInvitationDetailPage> {
+class _InvitationDetailView extends StatelessWidget {
+  const _InvitationDetailView({this.clock});
+
+  final DateTime Function()? clock;
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocConsumer<OrganizationInvitationDetailCubit,
+        OrganizationInvitationDetailState>(
+      listenWhen: (previous, current) =>
+          previous.failure != current.failure ||
+          previous.successMessage != current.successMessage ||
+          previous.deliveryWarning != current.deliveryWarning,
+      listener: (context, state) {
+        final failure = state.failure;
+        if (failure != null) {
+          VToast.show(
+            context,
+            title: failure.requiresReload
+                ? 'Dữ liệu đã thay đổi'
+                : 'Không thực hiện được',
+            message: failure.message,
+            type: failure.requiresReload
+                ? VToastType.warning
+                : VToastType.danger,
+          );
+          context
+              .read<OrganizationInvitationDetailCubit>()
+              .clearFeedback();
+          return;
+        }
+        final message = state.successMessage;
+        if (message != null) {
+          VToast.show(
+            context,
+            title: state.deliveryWarning ? 'Cảnh báo gửi email' : 'Thành công',
+            message: message,
+            type: state.deliveryWarning
+                ? VToastType.warning
+                : VToastType.success,
+          );
+          context
+              .read<OrganizationInvitationDetailCubit>()
+              .clearFeedback();
+        }
+      },
+      builder: (context, state) {
+        if (state.status == IamLoadStatus.loading ||
+            state.status == IamLoadStatus.initial) {
+          return const VPageScaffold(
+            title: 'Chi tiết lời mời',
+            body: Center(child: VLoading(size: 40)),
+          );
+        }
+
+        if (state.status == IamLoadStatus.failure ||
+            state.invitation == null) {
+          final colors = context.vColors;
+          return VPageScaffold(
+            title: 'Chi tiết lời mời',
+            body: Center(
+              child: Padding(
+                padding: const EdgeInsets.all(VSpacing.screenMobile),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const VText(
+                      'Không tải được lời mời',
+                      variant: VTextVariant.headingH4,
+                    ),
+                    const VGap.sm(),
+                    VText(
+                      state.failure?.message ?? 'Đã xảy ra lỗi',
+                      variant: VTextVariant.bodySmall,
+                      color: colors.textSecondary,
+                      textAlign: TextAlign.center,
+                    ),
+                    const VGap.lg(),
+                    VButton(
+                      label: 'Thử lại',
+                      onPressed: () => context
+                          .read<OrganizationInvitationDetailCubit>()
+                          .load(),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          );
+        }
+
+        final now = (clock ?? (() => DateTime.now().toUtc()))();
+        final invitation = InvitationUiMapper.fromDetail(
+          state.invitation!,
+          nowUtc: now,
+        );
+        final colors = context.vColors;
+        final (badgeLabel, badgeStatus) = switch (invitation.status) {
+          InvitationStatus.failed => ('Lỗi gửi', VBadgeStatus.danger),
+          InvitationStatus.pending => ('Đang chờ', VBadgeStatus.warning),
+          InvitationStatus.expiring => ('Sắp hết hạn', VBadgeStatus.danger),
+          InvitationStatus.accepted => ('Đã chấp nhận', VBadgeStatus.success),
+          InvitationStatus.declined => ('Đã từ chối', VBadgeStatus.cancelled),
+          InvitationStatus.revoked => ('Đã thu hồi', VBadgeStatus.cancelled),
+          InvitationStatus.expired => ('Hết hạn', VBadgeStatus.locked),
+        };
+
+        return VPageScaffold(
+          title: 'Chi tiết lời mời',
+          body: ListView(
+            padding: const EdgeInsets.symmetric(
+              horizontal: VSpacing.screenMobile,
+              vertical: VSpacing.space4,
+            ),
+            children: [
+              VCard(
+                padding: const EdgeInsets.all(VSpacing.space4),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Expanded(
+                          child: VText(
+                            invitation.email,
+                            variant: VTextVariant.headingH4,
+                            style: const TextStyle(
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ),
+                        VBadge(
+                          label: badgeLabel,
+                          status: badgeStatus,
+                          isSmall: true,
+                        ),
+                      ],
+                    ),
+                    const VGap.sm(),
+                    VText(
+                      invitation.statusDetail,
+                      variant: VTextVariant.bodySmall,
+                      color: colors.textSecondary,
+                    ),
+                    if (invitation.deliveryStatus.isNotEmpty) ...[
+                      const VGap.sm(),
+                      VText(
+                        'Giao nhận: ${invitation.deliveryStatus}',
+                        variant: VTextVariant.bodySmall,
+                        color: colors.textMuted,
+                      ),
+                    ],
+                    if (state.invitation!.status != 'pending') ...[
+                      const VGap.sm(),
+                      VText(
+                        'Trạng thái: ${state.invitation!.status}',
+                        variant: VTextVariant.bodySmall,
+                        color: colors.textMuted,
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            ],
+          ),
+          bottomBar: state.canMutate
+              ? Container(
+                  padding: const EdgeInsets.all(VSpacing.screenMobile),
+                  decoration: BoxDecoration(
+                    color: colors.surface,
+                    border: Border(
+                      top: BorderSide(color: colors.borderDefault),
+                    ),
+                  ),
+                  child: SafeArea(
+                    top: false,
+                    child: VButton(
+                      label: 'Thao tác',
+                      variant: VButtonVariant.primary,
+                      tone: VComponentTone.primary,
+                      fullWidth: true,
+                      isLoading: state.isSubmitting,
+                      onPressed: state.isSubmitting
+                          ? null
+                          : () => _showActionBottomSheet(context),
+                    ),
+                  ),
+                )
+              : null,
+        );
+      },
+    );
+  }
+
   void _showActionBottomSheet(BuildContext context) {
+    final cubit = context.read<OrganizationInvitationDetailCubit>();
     showVBottomSheet(
       context: context,
       title: 'Thao tác lời mời',
@@ -33,34 +261,24 @@ class _OrganizationInvitationDetailPageState extends State<OrganizationInvitatio
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            // Option 1: Gửi lại lời mời
-            _buildActionItem(
-              context: context,
+            _ActionItem(
               icon: VIcons.refresh,
               title: 'Gửi lại lời mời',
               subtitle: 'Gửi lại email đến người nhận',
-              onTap: () {
+              onTap: () async {
                 Navigator.of(context).pop();
-                VToast.show(
-                  context,
-                  title: 'Đã gửi lại lời mời',
-                  message: 'Email lời mời đã được gửi lại thành công.',
-                  type: VToastType.success,
-                );
+                await cubit.resend();
               },
             ),
             const VGap.sm(),
-
-            // Option 2: Thu hồi lời mời (Danger)
-            _buildActionItem(
-              context: context,
+            _ActionItem(
               icon: VIcons.delete,
               title: 'Thu hồi lời mời',
               subtitle: 'Người nhận không thể tiếp tục tham gia',
               isDanger: true,
               onTap: () {
-                Navigator.of(context).pop(); // Close TA-O-01
-                _showRevokeConfirmationBottomSheet(context); // Open TA-O-02
+                Navigator.of(context).pop();
+                _openRevokeSheet(context, cubit);
               },
             ),
             const VGap.md(),
@@ -70,68 +288,46 @@ class _OrganizationInvitationDetailPageState extends State<OrganizationInvitatio
     );
   }
 
-  void _showRevokeConfirmationBottomSheet(BuildContext context) {
-    final colors = context.vColors;
-    showVBottomSheet(
+  Future<void> _openRevokeSheet(
+    BuildContext context,
+    OrganizationInvitationDetailCubit cubit,
+  ) async {
+    final revoked = await showRevokeInvitationBottomSheet(
       context: context,
-      child: Padding(
-        padding: const EdgeInsets.all(VSpacing.screenMobile),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            VText(
-              'Thu hồi lời mời?',
-              variant: VTextVariant.headingH3,
-              style: TextStyle(
-                fontWeight: FontWeight.w700,
-                color: colors.danger,
-              ),
-            ),
-            const VGap.xs(),
-            VText(
-              'Người nhận sẽ không thể dùng liên kết hiện tại để tham gia tổ chức.',
-              variant: VTextVariant.bodyDefault,
-              color: colors.textSecondary,
-            ),
-            const VGap.lg(),
-            VButton(
-              label: 'Quay lại',
-              variant: VButtonVariant.outline,
-              fullWidth: true,
-              onPressed: () => Navigator.of(context).pop(),
-            ),
-            const VGap.sm(),
-            VButton(
-              label: 'Thu hồi lời mời',
-              variant: VButtonVariant.dangerOutline,
-              fullWidth: true,
-              onPressed: () {
-                Navigator.of(context).pop(); // Close bottom sheet
-                try {
-                  context.pop(true);
-                } catch (_) {
-                  Navigator.of(context).pop(true);
-                }
-              },
-            ),
-            const VGap.sm(),
-          ],
-        ),
-      ),
+      onRevoke: (reason) async {
+        await cubit.revoke(reason: reason);
+        return cubit.state.failure == null &&
+            cubit.state.invitation?.status == 'revoked';
+      },
     );
+    if (revoked == true && context.mounted) {
+      try {
+        context.pop(true);
+      } catch (_) {
+        // Widget tests / no GoRouter.
+      }
+    }
   }
+}
 
-  Widget _buildActionItem({
-    required BuildContext context,
-    required VIcons icon,
-    required String title,
-    required String subtitle,
-    required VoidCallback onTap,
-    bool isDanger = false,
-  }) {
+class _ActionItem extends StatelessWidget {
+  const _ActionItem({
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+    required this.onTap,
+    this.isDanger = false,
+  });
+
+  final VIcons icon;
+  final String title;
+  final String subtitle;
+  final VoidCallback onTap;
+  final bool isDanger;
+
+  @override
+  Widget build(BuildContext context) {
     final colors = context.vColors;
-
     final bgColor = isDanger ? colors.dangerBg : colors.surface;
     final borderColor = isDanger ? colors.danger : colors.borderDefault;
     final iconColor = isDanger ? colors.danger : colors.textPrimary;
@@ -148,11 +344,7 @@ class _OrganizationInvitationDetailPageState extends State<OrganizationInvitatio
         ),
         child: Row(
           children: [
-            VIcon(
-              icon: icon,
-              size: 22,
-              color: iconColor,
-            ),
+            VIcon(icon: icon, size: 22, color: iconColor),
             const VGap.horizontalMd(),
             Expanded(
               child: Column(
@@ -183,222 +375,6 @@ class _OrganizationInvitationDetailPageState extends State<OrganizationInvitatio
           ],
         ),
       ),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = context.vColors;
-    final invitation = widget.invitation;
-
-    final (badgeLabel, badgeStatus) = switch (invitation.status) {
-      InvitationStatus.failed => ('Lỗi gửi', VBadgeStatus.danger),
-      InvitationStatus.pending => ('Đang chờ', VBadgeStatus.warning),
-      InvitationStatus.expiring => ('Sắp hết hạn', VBadgeStatus.danger),
-    };
-
-    final (
-      statusDesc,
-      dateLabel,
-      emailStatusText,
-      bannerBg,
-      bannerBorder,
-      bannerIcon,
-      bannerIconColor,
-      bannerTitle,
-      bannerTitleColor,
-      bannerMsg,
-    ) = switch (invitation.status) {
-      InvitationStatus.failed => (
-        'Lời mời còn hiệu lực · Email chưa gửi',
-        'Ngày tạo',
-        'Gửi thất bại',
-        colors.dangerBg,
-        colors.danger.withValues(alpha: 0.4),
-        VIcons.error,
-        colors.danger,
-        'Không gửi được email',
-        colors.danger,
-        'Lời mời vẫn còn hiệu lực. Hãy gửi lại email hoặc thu hồi lời mời.',
-      ),
-      InvitationStatus.pending => (
-        'Đang chờ người nhận phản hồi',
-        'Ngày gửi',
-        'Đã gửi',
-        colors.infoBg,
-        colors.info.withValues(alpha: 0.4),
-        VIcons.info,
-        colors.info,
-        'Đang chờ người nhận',
-        colors.info,
-        'Người nhận chưa chấp nhận lời mời. Có thể gửi lại hoặc thu hồi trong mục Thao tác.',
-      ),
-      InvitationStatus.expiring => (
-        'Hết hạn trong 1 ngày',
-        'Ngày gửi',
-        'Đã gửi',
-        colors.warningBg,
-        colors.warning.withValues(alpha: 0.4),
-        VIcons.warning,
-        colors.warning,
-        'Sắp hết hạn',
-        colors.warning,
-        'Lời mời sẽ hết hạn trong 1 ngày. Gửi lại để tạo lời mời mới với thời hạn mới.',
-      ),
-    };
-
-    return VPageScaffold(
-      title: 'Chi tiết lời mời',
-      bottomBar: Padding(
-        padding: const EdgeInsets.all(VSpacing.screenMobile),
-        child: VButton(
-          label: 'Thao tác',
-          trailingIcon: const VIcon(
-            icon: VIcons.chevronUp,
-            size: 18,
-            color: VColors.neutral0,
-          ),
-          variant: VButtonVariant.primary,
-          tone: VComponentTone.success,
-          fullWidth: true,
-          onPressed: () => _showActionBottomSheet(context),
-        ),
-      ),
-      body: GestureDetector(
-        onTap: () => FocusScope.of(context).unfocus(),
-        behavior: HitTestBehavior.translucent,
-        child: ListView(
-          padding: const EdgeInsets.all(VSpacing.screenMobile),
-          children: [
-            // Card 1: Top summary card
-            VCard(
-              padding: const EdgeInsets.all(VSpacing.space4),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Expanded(
-                        child: VText(
-                          invitation.email,
-                          variant: VTextVariant.headingH4,
-                          style: const TextStyle(fontWeight: FontWeight.w700),
-                        ),
-                      ),
-                      VBadge(
-                        label: badgeLabel,
-                        status: badgeStatus,
-                        isSmall: true,
-                      ),
-                    ],
-                  ),
-                  const VGap.xs(),
-                  VText(
-                    '${invitation.role} · Thú y Minh Phát',
-                    variant: VTextVariant.bodySmall,
-                    color: colors.textSecondary,
-                  ),
-                  const VGap.md(),
-                  VText(
-                    statusDesc,
-                    variant: VTextVariant.bodyDefault,
-                    style: const TextStyle(fontWeight: FontWeight.w500),
-                  ),
-                ],
-              ),
-            ),
-            const VGap.md(),
-
-            // Card 2: Thông tin lời mời
-            VCard(
-              padding: const EdgeInsets.all(VSpacing.space4),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  VText(
-                    'Thông tin lời mời',
-                    variant: VTextVariant.headingH4,
-                    style: const TextStyle(fontWeight: FontWeight.w700),
-                  ),
-                  const VGap.md(),
-                  _buildDetailRow('Tổ chức', 'Thú y Minh Phát'),
-                  const VGap.sm(),
-                  _buildDetailRow(dateLabel, '14/07/2026 · 17:05'),
-                  const VGap.sm(),
-                  _buildDetailRow('Hết hạn', '21/07/2026 · 17:05'),
-                  const VGap.sm(),
-                  _buildDetailRow('Trạng thái email', emailStatusText),
-                ],
-              ),
-            ),
-            const VGap.md(),
-
-            // Card 3: Status-specific Notice Box Banner
-            Container(
-              padding: const EdgeInsets.all(VSpacing.space4),
-              decoration: BoxDecoration(
-                color: bannerBg,
-                borderRadius: BorderRadius.circular(VRadius.card),
-                border: Border.all(
-                  color: bannerBorder,
-                ),
-              ),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  VIcon(
-                    icon: bannerIcon,
-                    size: 22,
-                    color: bannerIconColor,
-                  ),
-                  const VGap.horizontalMd(),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        VText(
-                          bannerTitle,
-                          variant: VTextVariant.bodyDefault,
-                          style: TextStyle(
-                            fontWeight: FontWeight.w600,
-                            color: bannerTitleColor,
-                          ),
-                        ),
-                        const VGap.xs(),
-                        VText(
-                          bannerMsg,
-                          variant: VTextVariant.bodySmall,
-                          color: colors.textPrimary,
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildDetailRow(String label, String value) {
-    final colors = context.vColors;
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        VText(
-          label,
-          variant: VTextVariant.bodySmall,
-          color: colors.textSecondary,
-        ),
-        VText(
-          value,
-          variant: VTextVariant.bodySmall,
-          style: const TextStyle(fontWeight: FontWeight.w600),
-        ),
-      ],
     );
   }
 }

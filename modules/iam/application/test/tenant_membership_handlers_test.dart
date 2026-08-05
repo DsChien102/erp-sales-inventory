@@ -9,24 +9,18 @@ class _RecordingAccessGateway implements IIamAccessGateway {
   String? switchedTenantId;
 
   @override
-  Future<String> bootstrapOwner({String tenantName = 'My Store'}) async =>
-      'tenant-1';
-
-  @override
-  Future<PrincipalAccessDto?> getSessionContext({String? tenantId}) async =>
-      PrincipalAccessDto(
-        userId: 'user-1',
-        tenantId: tenantId ?? 'tenant-1',
-        role: 'owner',
-        permissions: const [IamPermissions.membersRead],
-      );
+  Future<PrincipalAccessDto?> getSessionContext({String? tenantId}) async => PrincipalAccessDto(
+    userId: 'user-1',
+    tenantId: tenantId ?? 'tenant-1',
+    role: 'owner',
+    permissions: const [IamPermissions.membersRead],
+  );
 
   @override
   Future<bool> hasPermission({
     required String tenantId,
     required String permission,
-  }) async =>
-      true;
+  }) async => true;
 
   @override
   Future<bool> isMember(String tenantId) async => true;
@@ -67,14 +61,12 @@ class _RecordingAccessGateway implements IIamAccessGateway {
   @override
   Future<TenantContextDto> switchTenantContext({
     required String targetTenantId,
-  }) async =>
-      throw UnimplementedError('S2 BE');
+  }) async => throw UnimplementedError('S2 BE');
 
   @override
   Future<TenantContextDto> getValidatedTenantContext({
     String? sessionTenantId,
-  }) async =>
-      throw UnimplementedError('S3 BE');
+  }) async => throw UnimplementedError('S3 BE');
 
   @override
   Future<void> assignMemberRole({
@@ -97,12 +89,17 @@ class _RecordingSessionPort implements IIamSessionPort {
   Future<void> clear() async {}
 
   @override
-  Future<void> establishAfterSignIn({String? tenantId}) async {
+  Future<void> establishAfterSignIn({
+    String? tenantId,
+    bool requireTenantContext = true,
+  }) async {
     establishedTenantId = tenantId;
   }
 
   @override
-  Future<void> restoreFromPersistedAuth() async {}
+  Future<void> restoreFromPersistedAuth({
+    bool requireTenantContext = true,
+  }) async {}
 }
 
 void main() {

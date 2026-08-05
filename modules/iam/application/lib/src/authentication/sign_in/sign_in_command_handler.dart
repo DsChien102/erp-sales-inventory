@@ -21,6 +21,8 @@ final class SignInCommandHandler implements ICommandHandler<SignInCommand, void>
       email: command.email,
       password: command.password,
     );
-    await _sessionPort.establishAfterSignIn();
+    await _sessionPort.establishAfterSignIn(
+      requireTenantContext: command.requireTenantContext,
+    );
   }
 }

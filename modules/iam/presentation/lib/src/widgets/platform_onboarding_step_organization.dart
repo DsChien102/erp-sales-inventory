@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:vet45_design_system/design_system.dart';
 
+import '../organization_profile/data/vn_administrative_units_loader.dart';
+
 class PlatformOnboardingStepOrganization extends StatelessWidget {
   const PlatformOnboardingStepOrganization({
     super.key,
@@ -21,6 +23,7 @@ class PlatformOnboardingStepOrganization extends StatelessWidget {
     this.orgNameErrorText,
     this.orgEmailErrorText,
     this.orgPhoneErrorText,
+    this.administrativeUnitsFuture,
   });
 
   final TextEditingController orgNameController;
@@ -40,6 +43,7 @@ class PlatformOnboardingStepOrganization extends StatelessWidget {
   final String? orgNameErrorText;
   final String? orgEmailErrorText;
   final String? orgPhoneErrorText;
+  final Future<List<VnAdministrativeUnit>>? administrativeUnitsFuture;
 
   @override
   Widget build(BuildContext context) {
@@ -105,30 +109,79 @@ class PlatformOnboardingStepOrganization extends StatelessWidget {
           hintText: 'Nhập địa chỉ (ví dụ: 125 Phạm Văn Thuận)',
         ),
         const VGap.sm(),
-        VDropdown<String>(
-          label: 'Tỉnh / thành phố',
-          value: selectedProvince,
-          hintText: 'Chọn tỉnh / thành phố',
-          items: const [
-            DropdownMenuItem(value: 'Đồng Nai', child: VText('Đồng Nai')),
-            DropdownMenuItem(value: 'TP. Hồ Chí Minh', child: VText('TP. Hồ Chí Minh')),
-            DropdownMenuItem(value: 'Hà Nội', child: VText('Hà Nội')),
-          ],
-          onChanged: onProvinceChanged,
-        ),
-        const VGap.sm(),
-        VDropdown<String>(
-          label: 'Xã / phường',
-          value: selectedWard,
-          hintText: 'Chọn xã / phường',
-          items: const [
-            DropdownMenuItem(value: 'Trấn Biên', child: VText('Trấn Biên')),
-            DropdownMenuItem(value: 'Phường 1', child: VText('Phường 1')),
-            DropdownMenuItem(value: 'Phường 2', child: VText('Phường 2')),
-          ],
-          onChanged: onWardChanged,
+        FutureBuilder<List<VnAdministrativeUnit>>(
+          future: administrativeUnitsFuture ?? VnAdministrativeUnitsLoader.load(),
+          builder: (context, snapshot) {
+            final units = snapshot.data ?? const <VnAdministrativeUnit>[];
+            final isLoading = snapshot.connectionState != ConnectionState.done;
+            final hasError = snapshot.hasError;
+            final province = _findProvinceByName(units, selectedProvince);
+            final provinceValue = province?.fullName;
+            final wards = province?.wards ?? const <VnWard>[];
+            final wardValue = _containsWardName(wards, selectedWard) ? selectedWard : null;
+
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                VDropdown<String>(
+                  label: 'Tỉnh / thành phố',
+                  value: provinceValue,
+                  hintText: hasError
+                      ? 'Không tải được tỉnh / thành phố'
+                      : isLoading
+                      ? 'Đang tải tỉnh / thành phố'
+                      : 'Chọn tỉnh / thành phố',
+                  enabled: !isLoading && !hasError && units.isNotEmpty,
+                  items: units
+                      .map(
+                        (unit) => DropdownMenuItem(
+                          value: unit.fullName,
+                          child: VText(unit.fullName),
+                        ),
+                      )
+                      .toList(growable: false),
+                  onChanged: onProvinceChanged,
+                ),
+                const VGap.sm(),
+                VDropdown<String>(
+                  label: 'Xã / phường',
+                  value: wardValue,
+                  hintText: province == null ? 'Chọn tỉnh / thành phố trước' : 'Chọn xã / phường',
+                  enabled: !isLoading && !hasError && province != null,
+                  items: wards
+                      .map(
+                        (ward) => DropdownMenuItem(
+                          value: ward.fullName,
+                          child: VText(ward.fullName),
+                        ),
+                      )
+                      .toList(growable: false),
+                  onChanged: onWardChanged,
+                ),
+              ],
+            );
+          },
         ),
       ],
     );
+  }
+
+  VnAdministrativeUnit? _findProvinceByName(
+    List<VnAdministrativeUnit> units,
+    String? fullName,
+  ) {
+    if (fullName == null) return null;
+    for (final unit in units) {
+      if (unit.fullName == fullName) return unit;
+    }
+    return null;
+  }
+
+  bool _containsWardName(List<VnWard> wards, String? fullName) {
+    if (fullName == null) return false;
+    for (final ward in wards) {
+      if (ward.fullName == fullName) return true;
+    }
+    return false;
   }
 }

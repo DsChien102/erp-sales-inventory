@@ -83,7 +83,7 @@ declare
   v_legal_exists boolean := false;
   v_duplicate_tax boolean := false;
   v_owner_user uuid;
-  v_owner_profile_status text;
+  v_owner_effective_status text;
   v_owner_tax_code text;
   v_snapshot jsonb;
 begin
@@ -101,16 +101,16 @@ begin
   end if;
 
   if coalesce(v_tenant.display_name, v_tenant.name, '') = '' then
-    v_blockers := v_blockers || to_jsonb('TENANT_DISPLAY_NAME_MISSING');
+    v_blockers := v_blockers || to_jsonb('TENANT_DISPLAY_NAME_MISSING'::text);
   end if;
   if coalesce(v_tenant.contact_email, '') = '' then
-    v_blockers := v_blockers || to_jsonb('TENANT_CONTACT_EMAIL_MISSING_OR_INVALID');
+    v_blockers := v_blockers || to_jsonb('TENANT_CONTACT_EMAIL_MISSING_OR_INVALID'::text);
   end if;
   if coalesce(v_tenant.contact_phone, '') = '' then
-    v_blockers := v_blockers || to_jsonb('TENANT_CONTACT_PHONE_MISSING_OR_INVALID');
+    v_blockers := v_blockers || to_jsonb('TENANT_CONTACT_PHONE_MISSING_OR_INVALID'::text);
   end if;
   if coalesce(v_tenant.contact_address_text, '') = '' then
-    v_blockers := v_blockers || to_jsonb('TENANT_CONTACT_ADDRESS_MISSING');
+    v_blockers := v_blockers || to_jsonb('TENANT_CONTACT_ADDRESS_MISSING'::text);
   end if;
 
   select count(*) into v_owner_count
@@ -122,7 +122,7 @@ begin
   if v_owner_count <> 1 then
     v_blockers := v_blockers || to_jsonb('OWNER_MEMBERSHIP_INVALID'::text);
   else
-    -- Owner identity readiness: active Platform User profile + verified email.
+    -- Owner identity readiness: Auth-confirmed identity + verified email.
     select m.user_id into v_owner_user
     from iam.memberships m
     where m.tenant_id = p_tenant_id
@@ -130,11 +130,12 @@ begin
       and m.status = 'active'
     limit 1;
 
-    select p.status into v_owner_profile_status
-    from iam.platform_user_profiles p
-    where p.user_id = v_owner_user;
+    select iam._platform_user_effective_status(u.email_confirmed_at)
+    into v_owner_effective_status
+    from auth.users u
+    where u.id = v_owner_user;
 
-    if coalesce(v_owner_profile_status, '') <> 'active' then
+    if coalesce(v_owner_effective_status, '') <> 'active' then
       v_blockers := v_blockers || to_jsonb('OWNER_IDENTITY_INACTIVE'::text);
     end if;
 

@@ -53,10 +53,59 @@ void main() {
     });
 
     test('suspended tenant does not consume token before raise', () {
-      final suspendIdx = sql.indexOf("raise exception 'TENANT_SUSPENDED'");
-      final consumeIdx = sql.indexOf("status = 'accepted'");
+      final tenantInviteBranch = sql.substring(
+        sql.indexOf('select * into v_tenant from iam.tenants t where t.id = v_inv.tenant_id'),
+        sql.indexOf("p_event_code => 'tenant.invitation.accepted'"),
+      );
+      final suspendIdx = tenantInviteBranch.indexOf("raise exception 'TENANT_SUSPENDED'");
+      final consumeIdx = tenantInviteBranch.indexOf(
+        "update iam.tenant_invitations\n  set\n    status = 'accepted'",
+      );
       expect(suspendIdx, greaterThan(0));
       expect(consumeIdx, greaterThan(suspendIdx));
+    });
+
+    test('owner activation code is accepted by invitation RPCs', () {
+      final inspectFn = sql.substring(
+        sql.indexOf('create or replace function iam.inspect_invitation_token('),
+        sql.indexOf('create or replace function iam.accept_invitation('),
+      );
+      expect(inspectFn, contains('iam.owner_activations'));
+      expect(inspectFn, contains("'initial_role_id', 'owner'"));
+      expect(inspectFn, contains("'initial_role_label', 'Chủ sở hữu'"));
+
+      final acceptFn = sql.substring(
+        sql.indexOf('create or replace function iam.accept_invitation('),
+        sql.indexOf('create or replace function iam.decline_invitation('),
+      );
+      expect(acceptFn, contains('from iam.owner_activations oa'));
+      expect(acceptFn, contains("role = 'owner'"));
+      expect(acceptFn, contains("status = 'active'"));
+      expect(acceptFn, contains('iam._membership_detail_json(v_membership)'));
+    });
+
+    test('first tenant invitation accepted into an ownerless tenant becomes owner', () {
+      final inspectFn = sql.substring(
+        sql.indexOf('create or replace function iam.inspect_invitation_token('),
+        sql.indexOf('create or replace function iam.accept_invitation('),
+      );
+      expect(inspectFn, contains('v_should_be_owner := not exists'));
+      expect(
+        inspectFn,
+        contains(
+          "'initial_role_label', case when v_should_be_owner then 'Chủ sở hữu'",
+        ),
+      );
+
+      final acceptFn = sql.substring(
+        sql.indexOf('create or replace function iam.accept_invitation('),
+        sql.indexOf('create or replace function iam.decline_invitation('),
+      );
+      expect(acceptFn, contains('v_effective_role := case'));
+      expect(acceptFn, contains("when v_should_be_owner then 'owner'"));
+      expect(acceptFn, contains('v_effective_role = \'owner\''));
+      expect(acceptFn, isNot(contains("status = 'active',\n          activated_at")));
+      expect(acceptFn, isNot(contains("status = case when status = 'provisioning'")));
     });
 
     test('invalid inspect path does not build account_exists success payload', () {
@@ -66,6 +115,10 @@ void main() {
     });
 
     test('grants inspect/decline to anon for logged-out flows', () {
+      // EXECUTE is inert without schema USAGE — the foundation migration
+      // revokes schema iam from anon, so S8 must grant it back or PostgREST
+      // answers 42501 `permission denied for schema iam`.
+      expect(sql, contains('grant usage on schema iam to anon'));
       expect(
         sql,
         contains(
@@ -98,6 +151,16 @@ void main() {
       expect(declineFn, isNot(contains("'last_sent_at', null")));
       expect(declineFn, isNot(contains("'token'")));
       expect(declineFn, isNot(contains("'token_hash'")));
+    });
+
+    test('token hash normalises case and separators', () {
+      final fn = sql.substring(
+        sql.indexOf('create or replace function iam._invitation_token_hash('),
+      );
+      // Bỏ ký tự không thuộc bảng chữ (gạch/space) rồi viết HOA trước khi băm.
+      expect(fn, contains('upper('));
+      expect(fn, contains("regexp_replace"));
+      expect(fn, contains("'[^0-9A-Za-z]'"));
     });
   });
 }

@@ -27,6 +27,7 @@ abstract final class IamStartup {
     required ILoggerFactory loggerFactory,
     IEventsBus? integrationEventBus,
     bool restoreSession = true,
+    bool requireTenantSession = true,
     IResendClient? resendClient,
   }) async {
     final container = GetIt.asNewInstance();
@@ -36,6 +37,7 @@ abstract final class IamStartup {
       loggerFactory,
       integrationEventBus: integrationEventBus,
       restoreSession: restoreSession,
+      requireTenantSession: requireTenantSession,
       resendClient: resendClient,
     );
   }
@@ -47,17 +49,18 @@ abstract final class IamStartup {
     ILoggerFactory? loggerFactory,
     IEventsBus? integrationEventBus,
     bool restoreSession = true,
+    bool requireTenantSession = true,
     IResendClient? resendClient,
   }) {
     final resolvedContainer = container ?? GetIt.asNewInstance();
-    final resolvedLoggerFactory =
-        loggerFactory ?? const NullLoggerFactory();
+    final resolvedLoggerFactory = loggerFactory ?? const NullLoggerFactory();
     return _configure(
       resolvedContainer,
       supabase,
       resolvedLoggerFactory,
       integrationEventBus: integrationEventBus,
       restoreSession: restoreSession,
+      requireTenantSession: requireTenantSession,
       resendClient: resendClient,
     );
   }
@@ -79,6 +82,7 @@ abstract final class IamStartup {
     ILoggerFactory loggerFactory, {
     IEventsBus? integrationEventBus,
     required bool restoreSession,
+    required bool requireTenantSession,
     IResendClient? resendClient,
   }) async {
     final commandLogger = loggerFactory.named('iam.commands');
@@ -130,7 +134,9 @@ abstract final class IamStartup {
     final session = container.get<IamSession>();
     final sessionPort = container.get<IIamSessionPort>();
     if (restoreSession) {
-      await sessionPort.restoreFromPersistedAuth();
+      await sessionPort.restoreFromPersistedAuth(
+        requireTenantContext: requireTenantSession,
+      );
     }
 
     const messagingModule = IamMessagingModule();

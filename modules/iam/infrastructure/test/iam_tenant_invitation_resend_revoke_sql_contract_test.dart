@@ -19,9 +19,16 @@ void main() {
       expect(
         sql,
         contains(
-          'Touches: iam.resend_tenant_invitation, iam.revoke_tenant_invitation',
+          'create or replace function iam.is_current_tenant_invitation_delivery(',
         ),
       );
+      expect(
+        sql,
+        contains(
+          'Touches: iam.resend_tenant_invitation, iam.revoke_tenant_invitation,',
+        ),
+      );
+      expect(sql, contains('iam.is_current_tenant_invitation_delivery'));
     });
 
     test('locks invitation row and checks version / pending', () {
@@ -35,12 +42,21 @@ void main() {
 
     test('resend rotates token, 7-day expiry, enqueues one outbox', () {
       expect(sql, contains("interval '7 days'"));
-      expect(sql, contains("encode(digest(v_raw_token, 'sha256'), 'hex')"));
+      expect(sql, contains('v_token_hash := iam._invitation_token_hash(v_raw_token);'));
       expect(sql, contains("'template_id', 'tenant_invitation'"));
       expect(sql, contains("'secret_payload_ciphertext', v_ciphertext"));
       expect(sql, contains('iam.enqueue_outbox_message('));
       expect(sql, contains("iam.record_email_delivery_outcome("));
       expect(sql, contains("version = version + 1"));
+    });
+
+    test('resend rotates to a generated 8-char code', () {
+      final fn = sql.substring(
+        sql.indexOf('create or replace function iam.resend_tenant_invitation('),
+        sql.indexOf('create or replace function iam.revoke_tenant_invitation('),
+      );
+      expect(fn, contains('iam._generate_invitation_code()'));
+      expect(fn, isNot(contains('gen_random_bytes(32)')));
     });
 
     test('revoke never enqueues email and stores reason in audit', () {
@@ -50,7 +66,12 @@ void main() {
       expect(revokeFn, isNot(contains('iam.enqueue_outbox_message(')));
       expect(revokeFn, contains("'revoke_reason', v_reason"));
       expect(revokeFn, contains("status = 'revoked'"));
-      expect(revokeFn, contains('token_hash = encode(digest(gen_random_bytes(32)'));
+      expect(
+        revokeFn,
+        contains(
+          'token_hash = encode(extensions.digest(extensions.gen_random_bytes(32)',
+        ),
+      );
     });
 
     test('idempotency conflict on different payload', () {
@@ -76,6 +97,23 @@ void main() {
       expect(revokeUpdate, contains("status = 'revoked'"));
       expect(revokeFn, contains('status_changed_at'));
       expect(sql, isNot(contains("'token_hash'")));
+    });
+
+    test('freshness RPC only returns true for pending current correlation', () {
+      final fn = sql.substring(
+        sql.indexOf(
+          'create or replace function iam.is_current_tenant_invitation_delivery(',
+        ),
+        sql.indexOf('drop function if exists iam._invitation_detail_json('),
+      );
+      expect(fn, contains('i.delivery_correlation_id = p_correlation_id'));
+      expect(fn, contains("i.status = 'pending'"));
+      expect(
+        sql,
+        contains(
+          'grant execute on function iam.is_current_tenant_invitation_delivery(uuid, text)',
+        ),
+      );
     });
   });
 }

@@ -1,6 +1,7 @@
 import 'package:erp/features/dashboard/presentation/dashboard_page.dart';
 import 'package:erp/features/dashboard/presentation/widgets/dashboard_header.dart';
 import 'package:erp/features/tenant_context/presentation/bloc/tenant_context_cubit.dart';
+import 'package:erp/features/tenant_context/presentation/bloc/tenant_context_state.dart';
 import 'package:erp/features/tenant_context/presentation/mappers/accessible_tenant_ui_mapper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -25,13 +26,13 @@ void main() {
     await getIt.reset();
   });
 
-  void registerModule(FakeIamModule module) {
+  void registerModule(IIamModule module) {
     getIt
       ..registerSingleton<IExecutionContext>(FakeExecutionContext())
       ..registerSingleton<IIamModule>(module);
   }
 
-  Widget wrapDashboard(FakeIamModule module) {
+  Widget wrapDashboard(IIamModule module) {
     final router = GoRouter(
       initialLocation: '/',
       routes: [
@@ -48,22 +49,56 @@ void main() {
   }
 
   group('wgt_e05_u01_fr01_01 — list accessible tenants', () {
-    testWidgets('mapper marks suspended as disabled', (tester) async {
+    test('mapper: owner may select their provisioning tenant (self-onboard)', () {
       const dto = AccessibleTenantDto(
+        tenantId: 'org-provisioning',
+        name: 'Đang thiết lập',
+        roleLabel: 'Owner',
+        status: TenantLifecycleStatus.provisioning,
+      );
+      // The DTO's canonical flag stays active-only …
+      expect(dto.isSelectable, isFalse);
+      // … but the ERP selector lets an owner enter to complete activation.
+      final ui = AccessibleTenantUiMapper.fromDto(dto);
+      expect(ui.isSelectable, isTrue);
+      expect(ui.status, TenantLifecycleStatus.provisioning);
+    });
+
+    test('mapper: non-owner cannot select a provisioning tenant', () {
+      const dto = AccessibleTenantDto(
+        tenantId: 'org-provisioning-staff',
+        name: 'Đang thiết lập',
+        roleLabel: 'Staff',
+        status: TenantLifecycleStatus.provisioning,
+      );
+      final ui = AccessibleTenantUiMapper.fromDto(dto);
+      expect(ui.isSelectable, isFalse);
+    });
+
+    test('mapper marks suspended/closed as not selectable', () {
+      const suspended = AccessibleTenantDto(
         tenantId: 'org-003',
         name: 'ASC Commerce',
         roleLabel: 'Staff',
         status: TenantLifecycleStatus.suspended,
       );
+      final suspendedUi = AccessibleTenantUiMapper.fromDto(suspended);
+      expect(suspendedUi.isSelectable, isFalse);
+      expect(suspendedUi.status, TenantLifecycleStatus.suspended);
 
-      final ui = AccessibleTenantUiMapper.fromDto(dto);
-      expect(ui.isSuspended, isTrue);
-      expect(ui.code, startsWith('TEN-'));
+      const closed = AccessibleTenantDto(
+        tenantId: 'org-004',
+        name: 'Đã đóng',
+        roleLabel: 'Owner',
+        status: TenantLifecycleStatus.closed,
+      );
+      final closedUi = AccessibleTenantUiMapper.fromDto(closed);
+      expect(closedUi.isSelectable, isFalse);
+      expect(closedUi.status, TenantLifecycleStatus.closed);
+      expect(closedUi.code, startsWith('TEN-'));
     });
 
-    testWidgets('selector lists FakeIam tenants; suspended not tappable', (
-      tester,
-    ) async {
+    testWidgets('selector: suspended not tappable', (tester) async {
       tester.view.physicalSize = const Size(800, 1600);
       tester.view.devicePixelRatio = 1.0;
       addTearDown(tester.view.resetPhysicalSize);
@@ -116,6 +151,254 @@ void main() {
 
       expect(find.text('Chọn tổ chức'), findsOneWidget);
       expect(find.textContaining('Chuyển sang'), findsNothing);
+
+      await cubit.close();
+    });
+
+    testWidgets('selector: provisioning not tappable', (tester) async {
+      tester.view.physicalSize = const Size(800, 1600);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
+      final cubit = TenantContextCubit(
+        iamModule: FakeIamModule(),
+        userDisplayName: 'Lan',
+        initialState: TenantContextState(
+          userDisplayName: 'Lan',
+          status: TenantContextLoadStatus.ready,
+          tenants: const [
+            SelectOrganizationItemUiModel(
+              id: 'org-provisioning',
+              name: 'Đang thiết lập',
+              code: 'TEN-PROV',
+              roleLabel: 'Owner',
+              status: TenantLifecycleStatus.provisioning,
+              isSelectable: false,
+            ),
+            SelectOrganizationItemUiModel(
+              id: 'org-active',
+              name: 'Thú y Minh Phát',
+              code: 'TEN-ACTIVE',
+              roleLabel: 'Owner',
+              status: TenantLifecycleStatus.active,
+              isSelectable: true,
+            ),
+          ],
+        ),
+      );
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: BlocProvider.value(
+            value: cubit,
+            child: Scaffold(
+              body: Builder(
+                builder: (context) {
+                  return ElevatedButton(
+                    onPressed: () {
+                      showSelectOrganizationBottomSheet(
+                        context: context,
+                        organizations: cubit.state.tenants,
+                      );
+                    },
+                    child: const Text('Open'),
+                  );
+                },
+              ),
+            ),
+          ),
+        ),
+      );
+
+      await tester.tap(find.text('Open'));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('Đang thiết lập'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Chọn tổ chức'), findsOneWidget);
+      expect(find.textContaining('Chuyển sang'), findsNothing);
+
+      await cubit.close();
+    });
+
+    testWidgets('selector: closed not tappable', (tester) async {
+      tester.view.physicalSize = const Size(800, 1600);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
+      final cubit = TenantContextCubit(
+        iamModule: FakeIamModule(),
+        userDisplayName: 'Lan',
+        initialState: TenantContextState(
+          userDisplayName: 'Lan',
+          status: TenantContextLoadStatus.ready,
+          tenants: const [
+            SelectOrganizationItemUiModel(
+              id: 'org-closed',
+              name: 'Org Closed',
+              code: 'TEN-CLOSED',
+              roleLabel: 'Owner',
+              status: TenantLifecycleStatus.closed,
+              isSelectable: false,
+            ),
+            SelectOrganizationItemUiModel(
+              id: 'org-active',
+              name: 'Thú y Minh Phát',
+              code: 'TEN-ACTIVE',
+              roleLabel: 'Owner',
+              status: TenantLifecycleStatus.active,
+              isSelectable: true,
+            ),
+          ],
+        ),
+      );
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: BlocProvider.value(
+            value: cubit,
+            child: Scaffold(
+              body: Builder(
+                builder: (context) {
+                  return ElevatedButton(
+                    onPressed: () {
+                      showSelectOrganizationBottomSheet(
+                        context: context,
+                        organizations: cubit.state.tenants,
+                      );
+                    },
+                    child: const Text('Open'),
+                  );
+                },
+              ),
+            ),
+          ),
+        ),
+      );
+
+      await tester.tap(find.text('Open'));
+      await tester.pumpAndSettle();
+      expect(find.textContaining('Đã đóng'), findsOneWidget);
+
+      await tester.tap(find.text('Org Closed'));
+      await tester.pumpAndSettle();
+      expect(find.text('Chọn tổ chức'), findsOneWidget);
+      expect(find.textContaining('Chuyển sang'), findsNothing);
+
+      await cubit.close();
+    });
+
+    testWidgets(
+      'selector load failure keeps ready context (isolated selectorFailure)',
+      (tester) async {
+        final module = _SelectorFailModule(
+          FakeIamModule(scenario: FakeIamScenario.bootstrapValid),
+        );
+        registerModule(module);
+
+        final cubit = TenantContextCubit(
+          iamModule: module,
+          userDisplayName: 'Lan',
+        );
+        await cubit.bootstrap();
+        expect(cubit.state.status, TenantContextLoadStatus.ready);
+        expect(cubit.state.contextFailure, isNull);
+
+        module.failNextList = true;
+        await cubit.loadAccessibleTenants();
+
+        expect(cubit.state.status, TenantContextLoadStatus.ready);
+        expect(cubit.state.selectorFailure, isNotNull);
+        expect(cubit.state.tenants, isEmpty);
+        expect(cubit.state.contextFailure, isNull);
+        expect(cubit.state.branchDisplayName, isNotNull);
+        expect(
+          cubit.selectorEmptyStateType,
+          OrganizationEmptyStateType.loadError,
+        );
+
+        await cubit.close();
+      },
+    );
+
+    testWidgets('selector loadError retry reloads list in sheet', (
+      tester,
+    ) async {
+      tester.view.physicalSize = const Size(800, 1600);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
+      final module = _SelectorFailModule(
+        FakeIamModule(scenario: FakeIamScenario.tenantsMulti),
+      );
+      registerModule(module);
+      final cubit = TenantContextCubit(
+        iamModule: module,
+        userDisplayName: 'Lan',
+      );
+      module.failNextList = true;
+      await cubit.loadAccessibleTenants();
+      expect(cubit.state.selectorFailure, isNotNull);
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: BlocProvider.value(
+            value: cubit,
+            child: Scaffold(
+              body: Builder(
+                builder: (context) {
+                  return ElevatedButton(
+                    onPressed: () {
+                      showSelectOrganizationBottomSheet(
+                        context: context,
+                        organizations: cubit.state.tenants,
+                        emptyStateType: cubit.selectorEmptyStateType,
+                        onRetryLoad: cubit.retryLoadAccessibleTenants,
+                      );
+                    },
+                    child: const Text('Open'),
+                  );
+                },
+              ),
+            ),
+          ),
+        ),
+      );
+
+      await tester.tap(find.text('Open'));
+      await tester.pumpAndSettle();
+      expect(find.text('Không thể tải danh sách tổ chức'), findsOneWidget);
+
+      await tester.tap(find.text('Thử lại'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Không thể tải danh sách tổ chức'), findsNothing);
+      expect(find.text('Thú y Minh Phát'), findsOneWidget);
+      expect(cubit.state.selectorFailure, isNull);
+
+      await cubit.close();
+    });
+
+    test('switch success applies TenantContextDto.permissions', () async {
+      final applied = <TenantContextDto>[];
+      final module = FakeIamModule(scenario: FakeIamScenario.switchOk);
+      final cubit = TenantContextCubit(
+        iamModule: module,
+        userDisplayName: 'Lan',
+        applyPermissions: applied.add,
+      );
+      await cubit.bootstrap();
+      applied.clear();
+
+      final ok = await cubit.switchTo('org-002');
+      expect(ok, isTrue);
+      expect(applied, hasLength(1));
+      expect(applied.single.permissions, isNotEmpty);
+      expect(applied.single.tenantId, 'org-002');
 
       await cubit.close();
     });
@@ -180,7 +463,9 @@ void main() {
       await cubit.close();
     });
 
-    testWidgets('switch denied shows failure toast', (tester) async {
+    testWidgets('switch denied keeps context and sets switchFailure', (
+      tester,
+    ) async {
       tester.view.physicalSize = const Size(800, 1600);
       tester.view.devicePixelRatio = 1.0;
       addTearDown(tester.view.resetPhysicalSize);
@@ -192,7 +477,8 @@ void main() {
         iamModule: module,
         userDisplayName: 'Lan',
       );
-      await cubit.loadAccessibleTenants();
+      await cubit.bootstrap();
+      final beforeBranch = cubit.state.branchDisplayName;
 
       await tester.pumpWidget(
         MaterialApp(
@@ -213,7 +499,7 @@ void main() {
                           final ok = await cubit.switchTo(org.id);
                           if (!ok) {
                             throw Exception(
-                              cubit.state.errorMessage ?? 'denied',
+                              cubit.state.switchFailure?.message ?? 'denied',
                             );
                           }
                           return ok;
@@ -239,6 +525,9 @@ void main() {
 
       expect(find.textContaining('TENANT_ACCESS_DENIED'), findsOneWidget);
       expect(module.switchTenantCount, 0);
+      expect(cubit.state.branchDisplayName, beforeBranch);
+      expect(cubit.state.switchFailure, isNotNull);
+      expect(cubit.state.isSwitching, isFalse);
 
       await cubit.close();
     });
@@ -309,4 +598,25 @@ void main() {
       expect(ctx.status, TenantContextStatus.invalidated);
     });
   });
+}
+
+final class _SelectorFailModule implements IIamModule {
+  _SelectorFailModule(this.delegate);
+
+  final FakeIamModule delegate;
+  bool failNextList = false;
+
+  @override
+  Future<TResult> executeCommandAsync<TResult>(ICommand<TResult> command) {
+    return delegate.executeCommandAsync(command);
+  }
+
+  @override
+  Future<TResult> executeQueryAsync<TResult>(IQuery<TResult> query) {
+    if (failNextList && query is ListAccessibleTenantsQuery) {
+      failNextList = false;
+      throw const IamBlockedException(IamBlockedCodes.systemError);
+    }
+    return delegate.executeQueryAsync(query);
+  }
 }

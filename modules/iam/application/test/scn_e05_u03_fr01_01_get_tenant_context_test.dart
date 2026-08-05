@@ -35,12 +35,17 @@ class _FakeSessionPort implements IIamSessionPort {
   Future<void> clear() async {}
 
   @override
-  Future<void> establishAfterSignIn({String? tenantId}) async {
+  Future<void> establishAfterSignIn({
+    String? tenantId,
+    bool requireTenantContext = true,
+  }) async {
     establishedTenantId = tenantId;
   }
 
   @override
-  Future<void> restoreFromPersistedAuth() async {}
+  Future<void> restoreFromPersistedAuth({
+    bool requireTenantContext = true,
+  }) async {}
 }
 
 class _ScenarioAccessGateway implements IIamAccessGateway {
@@ -51,32 +56,24 @@ class _ScenarioAccessGateway implements IIamAccessGateway {
   @override
   Future<TenantContextDto> getValidatedTenantContext({
     String? sessionTenantId,
-  }) =>
-      onValidate(sessionTenantId);
+  }) => onValidate(sessionTenantId);
 
   @override
   Future<TenantContextDto> switchTenantContext({
     required String targetTenantId,
-  }) async =>
-      throw UnimplementedError();
+  }) async => throw UnimplementedError();
 
   @override
   Future<List<AccessibleTenantDto>> listAccessibleTenants() async => const [];
 
   @override
-  Future<String> bootstrapOwner({String tenantName = 'My Store'}) async =>
-      'tenant-1';
-
-  @override
-  Future<PrincipalAccessDto?> getSessionContext({String? tenantId}) async =>
-      null;
+  Future<PrincipalAccessDto?> getSessionContext({String? tenantId}) async => null;
 
   @override
   Future<bool> hasPermission({
     required String tenantId,
     required String permission,
-  }) async =>
-      true;
+  }) async => true;
 
   @override
   Future<bool> isMember(String tenantId) async => true;
@@ -88,8 +85,7 @@ class _ScenarioAccessGateway implements IIamAccessGateway {
     String? status,
     String? cursor,
     int limit = 20,
-  }) async =>
-      const CursorPageDto<TenantMemberDto>(items: []);
+  }) async => const CursorPageDto<TenantMemberDto>(items: []);
 
   @override
   Future<List<TenantMembershipDto>> listUserTenants() async => const [];
@@ -104,8 +100,7 @@ class _ScenarioAccessGateway implements IIamAccessGateway {
 
 void main() {
   group('scn_e05_u03_fr01_01 GetTenantContextQueryHandler', () {
-    test('bootstrap_valid — preference resolves + establishes session',
-        () async {
+    test('bootstrap_valid — preference resolves + establishes session', () async {
       final session = _FakeSessionPort();
       final handler = GetTenantContextQueryHandler(
         accessGateway: _ScenarioAccessGateway((id) async {
@@ -139,8 +134,7 @@ void main() {
           return const TenantContextDto(
             status: TenantContextStatus.invalidated,
             tenantId: 'tenant-gone',
-            invalidationReason:
-                TenantContextInvalidationReason.membershipRemoved,
+            invalidationReason: TenantContextInvalidationReason.membershipRemoved,
             blockedErrorCode: 'MEMBERSHIP_REMOVED',
           );
         }),
@@ -183,8 +177,7 @@ void main() {
           return const TenantContextDto(
             status: TenantContextStatus.invalidated,
             tenantId: 'tenant-cur',
-            invalidationReason:
-                TenantContextInvalidationReason.tenantSuspended,
+            invalidationReason: TenantContextInvalidationReason.tenantSuspended,
             blockedErrorCode: 'TENANT_SUSPENDED',
             tenantStatus: TenantLifecycleStatus.suspended,
           );
@@ -210,8 +203,7 @@ void main() {
           return const TenantContextDto(
             status: TenantContextStatus.invalidated,
             tenantId: 'tenant-cur',
-            invalidationReason:
-                TenantContextInvalidationReason.identityInactive,
+            invalidationReason: TenantContextInvalidationReason.identityInactive,
             blockedErrorCode: 'OWNER_IDENTITY_UNAVAILABLE',
           );
         }),

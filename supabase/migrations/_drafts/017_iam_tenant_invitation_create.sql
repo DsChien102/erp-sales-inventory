@@ -10,7 +10,47 @@
 --        Raw invitation token never persisted; only SHA-256 token_hash.
 --        Transient secret for email uses encode+prefix stand-in until vault key wiring.
 
-create extension if not exists pgcrypto;
+-- Supabase installs pgcrypto under schema `extensions` (not on iam search_path).
+create extension if not exists pgcrypto with schema extensions;
+
+-- 8-char Crockford Base32 invitation code (excludes I, L, O, U).
+-- Uppercase, no separators; the display layer inserts the dash.
+create or replace function iam._generate_invitation_code()
+returns text
+language plpgsql
+volatile
+as $$
+declare
+  v_alphabet constant text := '0123456789ABCDEFGHJKMNPQRSTVWXYZ';
+  v_bytes bytea := extensions.gen_random_bytes(8);
+  v_code text := '';
+  v_i int;
+begin
+  for v_i in 0..7 loop
+    -- 256 is divisible by 32 → uniform mapping.
+    v_code := v_code || substr(v_alphabet, (get_byte(v_bytes, v_i) % 32) + 1, 1);
+  end loop;
+  return v_code;
+end;
+$$;
+
+revoke all on function iam._generate_invitation_code() from public, anon;
+
+create or replace function iam._invitation_token_hash(p_token text)
+returns text
+language sql
+immutable
+as $$
+  -- Store and inspect use one canonical hash: strip copy/paste separators and
+  -- uppercase before hashing.
+  select encode(
+    extensions.digest(
+      upper(regexp_replace(coalesce(p_token, ''), '[^0-9A-Za-z]', '', 'g')),
+      'sha256'
+    ),
+    'hex'
+  );
+$$;
 
 -- ── Minimal role catalog (assignability gate for invites) ───────────────────
 
@@ -184,14 +224,10 @@ begin
     raise exception 'INVITATION_PENDING_EXISTS';
   end if;
 
-  -- 32-byte CSPRNG → Base64URL (strip padding).
-  v_raw_token := translate(
-    encode(gen_random_bytes(32), 'base64'),
-    '+/',
-    '-_'
-  );
-  v_raw_token := rtrim(v_raw_token, '=');
-  v_token_hash := encode(digest(v_raw_token, 'sha256'), 'hex');
+  -- 8-char Crockford Base32 code (uppercase, no separators). Hash the
+  -- canonical form directly; the display layer inserts the dash.
+  v_raw_token := iam._generate_invitation_code();
+  v_token_hash := iam._invitation_token_hash(v_raw_token);
   v_expires_at := v_now + interval '7 days';
 
   -- Transient ciphertext stand-in (production: encrypt with key outside DB).

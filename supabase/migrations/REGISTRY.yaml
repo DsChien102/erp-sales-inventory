@@ -129,7 +129,6 @@ catalog:
 
 iam:
   assign_member_role: 20260701000001_iam_tenant_membership_ops.sql
-  bootstrap_owner: 20260630000001_iam_foundation.sql
   get_session_context: 20260630000001_iam_foundation.sql
   has_permission: 20260630000001_iam_foundation.sql
   list_tenant_members: 20260701000001_iam_tenant_membership_ops.sql

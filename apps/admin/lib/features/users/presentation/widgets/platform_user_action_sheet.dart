@@ -83,6 +83,7 @@ class PlatformUserActionCard extends StatelessWidget {
   }
 }
 
+/// Confirm sheet — stays open on failure; caller pops only on success.
 Future<void> showPlatformUserConfirmSheet({
   required BuildContext context,
   required String title,
@@ -90,61 +91,153 @@ Future<void> showPlatformUserConfirmSheet({
   required String description,
   required String actionLabel,
   required VButtonVariant actionVariant,
-  required Future<void> Function(String reason) onConfirm,
+  required Future<bool> Function(String reason) onConfirm,
   bool requireReason = false,
+  String? localError,
 }) {
-  final reasonController = TextEditingController();
-
   return showVBottomSheet(
     context: context,
-    child: Padding(
+    child: _PlatformUserConfirmSheetBody(
+      title: title,
+      titleColor: titleColor,
+      description: description,
+      actionLabel: actionLabel,
+      actionVariant: actionVariant,
+      onConfirm: onConfirm,
+      requireReason: requireReason,
+    ),
+  );
+}
+
+class _PlatformUserConfirmSheetBody extends StatefulWidget {
+  const _PlatformUserConfirmSheetBody({
+    required this.title,
+    required this.titleColor,
+    required this.description,
+    required this.actionLabel,
+    required this.actionVariant,
+    required this.onConfirm,
+    required this.requireReason,
+  });
+
+  final String title;
+  final Color titleColor;
+  final String description;
+  final String actionLabel;
+  final VButtonVariant actionVariant;
+  final Future<bool> Function(String reason) onConfirm;
+  final bool requireReason;
+
+  @override
+  State<_PlatformUserConfirmSheetBody> createState() =>
+      _PlatformUserConfirmSheetBodyState();
+}
+
+class _PlatformUserConfirmSheetBodyState
+    extends State<_PlatformUserConfirmSheetBody> {
+  late final TextEditingController _reasonController;
+  bool _submitting = false;
+  String? _error;
+
+  @override
+  void initState() {
+    super.initState();
+    _reasonController = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    _reasonController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _submit() async {
+    if (_submitting) return;
+    final reason = _reasonController.text.trim();
+    if (widget.requireReason && reason.isEmpty) {
+      setState(() => _error = 'Vui lòng nhập lý do.');
+      return;
+    }
+    setState(() {
+      _submitting = true;
+      _error = null;
+    });
+    final ok = await widget.onConfirm(reason);
+    if (!mounted) return;
+    if (ok) {
+      Navigator.of(context).pop();
+      return;
+    }
+    setState(() {
+      _submitting = false;
+      _error = 'Không hoàn tất thao tác. Vui lòng thử lại.';
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.vColors;
+    return Padding(
       padding: const EdgeInsets.all(VSpacing.screenMobile),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           VText(
-            title,
+            widget.title,
             variant: VTextVariant.headingH3,
-            style: TextStyle(fontWeight: FontWeight.w700, color: titleColor),
+            style: TextStyle(
+              fontWeight: FontWeight.w700,
+              color: widget.titleColor,
+            ),
           ),
           const VGap.sm(),
           VText(
-            description,
+            widget.description,
             variant: VTextVariant.bodyDefault,
-            color: context.vColors.textSecondary,
+            color: colors.textSecondary,
           ),
-          const VGap.md(),
-          VTextFormField(
-            controller: reasonController,
-            label: 'Lý do',
-            hintText: 'Nhập lý do',
-            isRequired: requireReason,
-            maxLines: 1,
-            contentPadding: const EdgeInsets.symmetric(
-              horizontal: VSpacing.space3,
-              vertical: VSpacing.space2,
+          if (widget.requireReason) ...[
+            const VGap.md(),
+            VTextFormField(
+              controller: _reasonController,
+              label: 'Lý do',
+              hintText: 'Nhập lý do',
+              isRequired: true,
+              enabled: !_submitting,
+              maxLines: 2,
+              errorText: _error,
+              helperText: 'Lý do được lưu trong lịch sử quản trị.',
+              onChanged: (_) {
+                if (_error != null) setState(() => _error = null);
+              },
             ),
-            helperText: 'Lý do được lưu trong lịch sử quản trị.',
-          ),
+          ] else if (_error != null) ...[
+            const VGap.sm(),
+            VText(
+              _error!,
+              variant: VTextVariant.bodySmall,
+              color: colors.danger,
+            ),
+          ],
           const VGap.lg(),
           VButton(
             label: 'Quay lại',
             variant: VButtonVariant.outline,
             fullWidth: true,
-            onPressed: () => Navigator.pop(context),
+            onPressed: _submitting ? null : () => Navigator.pop(context),
           ),
           const VGap.sm(),
           VButton(
-            label: actionLabel,
-            variant: actionVariant,
+            label: widget.actionLabel,
+            variant: widget.actionVariant,
             fullWidth: true,
-            onPressed: () {
-              onConfirm(reasonController.text.trim());
-            },
+            isLoading: _submitting,
+            onPressed: _submitting ? null : _submit,
           ),
+          const VGap.sm(),
         ],
       ),
-    ),
-  );
+    );
+  }
 }

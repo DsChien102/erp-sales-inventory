@@ -79,6 +79,10 @@ final iamAccessMetadataRegistry = AccessMetadataRegistry({
   InspectInvitationTokenQuery: AccessMetadata(
     isPublic: true,
   ),
+  ListAssignableInvitationRolesQuery: AccessMetadata(
+    permission: 'tenant.member.invite',
+    requiresTenant: true,
+  ),
   ListInvitationsQuery: AccessMetadata(
     permission: 'tenant.member.view',
     requiresTenant: true,

@@ -25,9 +25,10 @@ final class SupabaseTenantInvitationReadPort
         'list_tenant_invitations',
         params: <String, dynamic>{
           'p_tenant_id': tenantId,
-          if (search != null) 'p_search': search,
-          if (status != null) 'p_status': status,
-          if (cursor != null) 'p_cursor': cursor,
+          // PostgREST matches by exact param set — always send optionals (null OK).
+          'p_search': search,
+          'p_status': status,
+          'p_cursor': cursor,
           'p_limit': limit,
         },
       );

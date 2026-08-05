@@ -1,104 +1,103 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:vet45_iam_application/testing.dart';
 import 'package:vet45_iam_presentation/presentation.dart';
+import 'package:vet45_shared_testing/shared_testing.dart';
 
 void main() {
-  testWidgets('OrganizationAuditLogsPage renders header, search bar, filter chips, and log list', (WidgetTester tester) async {
+  testWidgets('wgt_e02_u07_fr01_01: loads audit logs via SearchTenantAuditLogsQuery without FakeAuditLogsData',
+      (tester) async {
     tester.view.physicalSize = const Size(800, 1600);
     tester.view.devicePixelRatio = 1.0;
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
 
     await tester.pumpWidget(
-      const MaterialApp(
-        home: OrganizationAuditLogsPage(),
+      MaterialApp(
+        home: OrganizationAuditLogsPage(
+          iamModule:
+              FakeIamModule(scenario: FakeIamScenario.tenantAuditSearchOk),
+          executionContext: FakeExecutionContext(tenantId: 'org-001'),
+          clockLocal: () => DateTime(2026, 7, 31),
+        ),
       ),
     );
+    await tester.pumpAndSettle();
 
-    // Verify title & header
     expect(find.text('Lịch sử quản trị'), findsOneWidget);
-    expect(find.textContaining('hoạt động trong 30 ngày'), findsOneWidget);
-
-    // Verify search bar hint
-    expect(find.text('Tìm người thực hiện hoặc hoạt động'), findsOneWidget);
-
-    // Verify Quick Filter category chips
-    expect(find.text('Tất cả'), findsWidgets);
-    expect(find.text('Thành viên'), findsWidgets);
-    expect(find.text('Vai trò'), findsWidgets);
-    expect(find.text('Tổ chức'), findsWidgets);
-
-    // Verify Subtitle meta text
-    expect(find.text('Thời gian: 30 ngày gần đây · Mới nhất trước'), findsOneWidget);
-
-    // Verify items in the fake log list
-    expect(find.text('Thay đổi vai trò thành viên'), findsOneWidget);
-    expect(find.text('Cập nhật email liên hệ'), findsOneWidget);
-    expect(find.text('Mời thành viên'), findsOneWidget);
-    expect(find.text('Đã đồng bộ quyền hiệu lực'), findsOneWidget);
+    expect(find.textContaining('hoạt động'), findsWidgets);
+    expect(find.text('Tải thêm'), findsOneWidget);
   });
 
-  testWidgets('OrganizationAuditLogsPage filters list by quick category chip', (WidgetTester tester) async {
+  testWidgets('actor unavailable detail shows generic actor message',
+      (tester) async {
     tester.view.physicalSize = const Size(800, 1600);
     tester.view.devicePixelRatio = 1.0;
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
 
     await tester.pumpWidget(
-      const MaterialApp(
-        home: OrganizationAuditLogsPage(),
+      MaterialApp(
+        home: AuditLogDetailPage(
+          auditLogId: 'AUD-T-001',
+          iamModule: FakeIamModule(
+            scenario: FakeIamScenario.tenantAuditActorUnavailable,
+          ),
+          executionContext: FakeExecutionContext(tenantId: 'org-001'),
+        ),
       ),
     );
-
-    // Tap 'Vai trò' category chip
-    await tester.tap(find.text('Vai trò').first);
     await tester.pumpAndSettle();
 
-    // Verify filtered result contains 'Thay đổi vai trò thành viên' and does NOT contain 'Cập nhật email liên hệ'
-    expect(find.text('Thay đổi vai trò thành viên'), findsOneWidget);
-    expect(find.text('Cập nhật email liên hệ'), findsNothing);
+    expect(
+      find.text('Không còn thông tin người thực hiện'),
+      findsWidgets,
+    );
   });
 
-  testWidgets('OrganizationAuditLogsPage displays empty state on non-matching search', (WidgetTester tester) async {
+  testWidgets('redacted detail does not render raw before/after values',
+      (tester) async {
     tester.view.physicalSize = const Size(800, 1600);
     tester.view.devicePixelRatio = 1.0;
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
 
     await tester.pumpWidget(
-      const MaterialApp(
-        home: OrganizationAuditLogsPage(),
+      MaterialApp(
+        home: AuditLogDetailPage(
+          auditLogId: 'AUD-REDACTED',
+          iamModule:
+              FakeIamModule(scenario: FakeIamScenario.tenantAuditDetailOk),
+          executionContext: FakeExecutionContext(tenantId: 'org-001'),
+        ),
       ),
     );
-
-    // Enter search query
-    await tester.enterText(find.byType(TextField), 'NonExistentActionKeywordsXYZ');
-    await tester.pump(const Duration(milliseconds: 350));
     await tester.pumpAndSettle();
 
-    expect(find.text('Không có hoạt động phù hợp'), findsOneWidget);
-    expect(find.text('Xóa bộ lọc'), findsOneWidget);
+    expect(find.textContaining('[Đã che theo chính sách]'), findsWidgets);
+    expect(find.textContaining('display_name: Old'), findsNothing);
+    expect(find.textContaining('display_name: New'), findsNothing);
   });
 
-  testWidgets('OrganizationAuditLogsPage displays unauthorized empty state when isUnauthorized is true', (WidgetTester tester) async {
+  testWidgets('cross-tenant detail shows generic not found', (tester) async {
+    tester.view.physicalSize = const Size(800, 1600);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
     await tester.pumpWidget(
-      const MaterialApp(
-        home: OrganizationAuditLogsPage(isUnauthorized: true),
+      MaterialApp(
+        home: AuditLogDetailPage(
+          auditLogId: 'AUD-T-999',
+          iamModule: FakeIamModule(
+            scenario: FakeIamScenario.tenantAuditCrossTenant,
+          ),
+          executionContext: FakeExecutionContext(tenantId: 'org-001'),
+        ),
       ),
     );
+    await tester.pumpAndSettle();
 
-    expect(find.text('Bạn không có quyền xem lịch sử quản trị'), findsOneWidget);
-    expect(find.text('Quay lại'), findsOneWidget);
-  });
-
-  testWidgets('OrganizationAuditLogsPage displays load error state when hasError is true', (WidgetTester tester) async {
-    await tester.pumpWidget(
-      const MaterialApp(
-        home: OrganizationAuditLogsPage(hasError: true),
-      ),
-    );
-
-    expect(find.text('Không thể tải lịch sử quản trị'), findsOneWidget);
-    expect(find.text('Thử lại'), findsOneWidget);
+    expect(find.text('Không tìm thấy hoạt động'), findsOneWidget);
   });
 }

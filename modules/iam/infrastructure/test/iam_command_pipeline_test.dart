@@ -21,19 +21,13 @@ class _RecordingAccessGateway implements IIamAccessGateway {
   }
 
   @override
-  Future<String> bootstrapOwner({String tenantName = 'My Store'}) async =>
-      'tenant-1';
-
-  @override
-  Future<PrincipalAccessDto?> getSessionContext({String? tenantId}) async =>
-      null;
+  Future<PrincipalAccessDto?> getSessionContext({String? tenantId}) async => null;
 
   @override
   Future<bool> hasPermission({
     required String tenantId,
     required String permission,
-  }) async =>
-      true;
+  }) async => true;
 
   @override
   Future<bool> isMember(String tenantId) async => true;
@@ -45,8 +39,7 @@ class _RecordingAccessGateway implements IIamAccessGateway {
     String? status,
     String? cursor,
     int limit = 20,
-  }) async =>
-      const CursorPageDto<TenantMemberDto>(items: []);
+  }) async => const CursorPageDto<TenantMemberDto>(items: []);
 
   @override
   Future<List<AccessibleTenantDto>> listAccessibleTenants() async => const [];
@@ -54,14 +47,12 @@ class _RecordingAccessGateway implements IIamAccessGateway {
   @override
   Future<TenantContextDto> switchTenantContext({
     required String targetTenantId,
-  }) async =>
-      throw UnimplementedError('S2 BE');
+  }) async => throw UnimplementedError('S2 BE');
 
   @override
   Future<TenantContextDto> getValidatedTenantContext({
     String? sessionTenantId,
-  }) async =>
-      throw UnimplementedError('S3 BE');
+  }) async => throw UnimplementedError('S3 BE');
 
   @override
   Future<List<TenantMembershipDto>> listUserTenants() async => const [];
@@ -78,19 +69,13 @@ class _ThrowingAccessGateway implements IIamAccessGateway {
   }
 
   @override
-  Future<String> bootstrapOwner({String tenantName = 'My Store'}) async =>
-      'tenant-1';
-
-  @override
-  Future<PrincipalAccessDto?> getSessionContext({String? tenantId}) async =>
-      null;
+  Future<PrincipalAccessDto?> getSessionContext({String? tenantId}) async => null;
 
   @override
   Future<bool> hasPermission({
     required String tenantId,
     required String permission,
-  }) async =>
-      true;
+  }) async => true;
 
   @override
   Future<bool> isMember(String tenantId) async => true;
@@ -102,8 +87,7 @@ class _ThrowingAccessGateway implements IIamAccessGateway {
     String? status,
     String? cursor,
     int limit = 20,
-  }) async =>
-      const CursorPageDto<TenantMemberDto>(items: []);
+  }) async => const CursorPageDto<TenantMemberDto>(items: []);
 
   @override
   Future<List<AccessibleTenantDto>> listAccessibleTenants() async => const [];
@@ -111,14 +95,12 @@ class _ThrowingAccessGateway implements IIamAccessGateway {
   @override
   Future<TenantContextDto> switchTenantContext({
     required String targetTenantId,
-  }) async =>
-      throw UnimplementedError('S2 BE');
+  }) async => throw UnimplementedError('S2 BE');
 
   @override
   Future<TenantContextDto> getValidatedTenantContext({
     String? sessionTenantId,
-  }) async =>
-      throw UnimplementedError('S3 BE');
+  }) async => throw UnimplementedError('S3 BE');
 
   @override
   Future<List<TenantMembershipDto>> listUserTenants() async => const [];
@@ -134,17 +116,18 @@ void main() {
         ..registerSingleton<IPermissionChecker>(permissionChecker)
         ..registerSingleton<ITenantAccessChecker>(FakeTenantAccessChecker());
 
-      final pipeline = IamCommandPipeline.buildBusinessPipeline<
-        AssignMemberRoleCommand,
-        void,
-        AssignMemberRoleCommandHandler
-      >(
-        container: container,
-        handler: AssignMemberRoleCommandHandler(
-          accessGateway: gateway,
-        ),
-        invoke: (command, handler) => handler.handle(command),
-      );
+      final pipeline =
+          IamCommandPipeline.buildBusinessPipeline<
+            AssignMemberRoleCommand,
+            void,
+            AssignMemberRoleCommandHandler
+          >(
+            container: container,
+            handler: AssignMemberRoleCommandHandler(
+              accessGateway: gateway,
+            ),
+            invoke: (command, handler) => handler.handle(command),
+          );
 
       await pipeline(
         AssignMemberRoleCommand(
@@ -166,17 +149,18 @@ void main() {
         )
         ..registerSingleton<ITenantAccessChecker>(FakeTenantAccessChecker());
 
-      final pipeline = IamCommandPipeline.buildBusinessPipeline<
-        AssignMemberRoleCommand,
-        void,
-        AssignMemberRoleCommandHandler
-      >(
-        container: container,
-        handler: AssignMemberRoleCommandHandler(
-          accessGateway: _ThrowingAccessGateway(),
-        ),
-        invoke: (command, handler) => handler.handle(command),
-      );
+      final pipeline =
+          IamCommandPipeline.buildBusinessPipeline<
+            AssignMemberRoleCommand,
+            void,
+            AssignMemberRoleCommandHandler
+          >(
+            container: container,
+            handler: AssignMemberRoleCommandHandler(
+              accessGateway: _ThrowingAccessGateway(),
+            ),
+            invoke: (command, handler) => handler.handle(command),
+          );
 
       await expectLater(
         pipeline(

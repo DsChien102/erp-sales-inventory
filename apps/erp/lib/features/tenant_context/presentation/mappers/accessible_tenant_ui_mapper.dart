@@ -6,15 +6,22 @@ final class AccessibleTenantUiMapper {
   const AccessibleTenantUiMapper._();
 
   static SelectOrganizationItemUiModel fromDto(AccessibleTenantDto dto) {
+    // Base rule: only active tenants are operational/selectable.
+    // Owner exception: an owner may enter their own provisioning tenant to
+    // complete activation (readiness → "Kích hoạt tổ chức") from within ERP.
+    final isOwner = dto.roleLabel.toLowerCase() == 'owner';
+    final isSelectable =
+        dto.isSelectable ||
+        (dto.status == TenantLifecycleStatus.provisioning && isOwner);
+
     return SelectOrganizationItemUiModel(
       id: dto.tenantId,
       name: dto.name,
       code: _codeFor(dto.tenantId),
       roleLabel: dto.roleLabel,
+      status: dto.status,
       isCurrent: dto.isCurrent,
-      isSuspended:
-          dto.status == TenantLifecycleStatus.suspended ||
-          dto.status == TenantLifecycleStatus.closed,
+      isSelectable: isSelectable,
     );
   }
 

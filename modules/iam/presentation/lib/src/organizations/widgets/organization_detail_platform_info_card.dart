@@ -92,15 +92,15 @@ class OrganizationDetailPlatformInfoCard extends StatelessWidget {
         return [
           (
             label: 'Kích hoạt lúc',
-            value: _formatDateTime(organization.activatedAt ?? organization.createdAt),
+            value: _formatDateTime(organization.activatedAt),
           ),
           (
             label: 'Hoạt động gần nhất',
-            value: _formatDateTime(organization.lastActiveAt ?? organization.createdAt),
+            value: _formatDateTime(organization.lastActiveAt),
           ),
           (
             label: 'Phiên bản dữ liệu',
-            value: organization.dataVersion ?? 'v12',
+            value: organization.dataVersion ?? '--',
           ),
         ];
 
@@ -108,15 +108,15 @@ class OrganizationDetailPlatformInfoCard extends StatelessWidget {
         return [
           (
             label: 'Tạm ngừng lúc',
-            value: _formatDateTime(organization.suspendedAt ?? organization.createdAt),
+            value: _formatDateTime(organization.suspendedAt),
           ),
           (
             label: 'Người thực hiện',
-            value: organization.suspendedBy ?? 'Hệ thống',
+            value: _displayOrDash(organization.suspendedBy),
           ),
           (
             label: 'Lý do',
-            value: organization.suspendReason ?? 'Rà soát rủi ro truy cập',
+            value: _displayOrDash(organization.suspendReason),
           ),
         ];
 
@@ -124,15 +124,15 @@ class OrganizationDetailPlatformInfoCard extends StatelessWidget {
         return [
           (
             label: 'Đóng lúc',
-            value: _formatDateTime(organization.closedAt ?? organization.createdAt),
+            value: _formatDateTime(organization.closedAt),
           ),
           (
             label: 'Người thực hiện',
-            value: organization.closedBy ?? 'Nhân viên vận hành nền tảng',
+            value: _displayOrDash(organization.closedBy),
           ),
           (
             label: 'Lý do',
-            value: organization.closeReason ?? 'Kết thúc hợp đồng dịch vụ',
+            value: _displayOrDash(organization.closeReason),
           ),
         ];
 
@@ -144,5 +144,11 @@ class OrganizationDetailPlatformInfoCard extends StatelessWidget {
           ),
         ];
     }
+  }
+
+  static String _displayOrDash(String? value) {
+    final trimmed = value?.trim();
+    if (trimmed == null || trimmed.isEmpty) return '--';
+    return trimmed;
   }
 }

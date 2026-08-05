@@ -1,10 +1,10 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:vet45_iam_application/application.dart';
-import 'package:vet45_shared_application/application.dart';
+import 'package:vet45_iam_presentation/presentation.dart';
 
 import 'platform_users_state.dart';
 
-/// Loads and filters platform users via [IIamModule] (Admin / EP-01 US-01).
+/// Loads platform users via [SearchPlatformUsersQuery] only (no detail fan-out).
 final class PlatformUsersCubit extends Cubit<PlatformUsersState> {
   PlatformUsersCubit({
     required IIamModule iamModule,
@@ -14,200 +14,124 @@ final class PlatformUsersCubit extends Cubit<PlatformUsersState> {
 
   final IIamModule _iamModule;
 
-  Future<void> load({String? query}) async {
+  Future<void> load({bool reset = true}) async {
     if (isClosed) return;
-    final nextQuery = query ?? state.searchQuery;
-    emit(
-      state.copyWith(
-        status: PlatformUsersStatus.loading,
-        searchQuery: nextQuery,
-        clearError: true,
-      ),
-    );
+    if (reset) {
+      emit(
+        state.copyWith(
+          status: IamLoadStatus.loading,
+          clearFailure: true,
+          clearNextCursor: true,
+          isLoadingMore: false,
+        ),
+      );
+    }
 
     try {
       final page = await _iamModule
           .executeQueryAsync<CursorPageDto<PlatformUserSummaryDto>>(
             SearchPlatformUsersQuery(
-              query: nextQuery.trim().isEmpty ? null : nextQuery.trim(),
+              query: state.searchQuery.trim().isEmpty
+                  ? null
+                  : state.searchQuery.trim(),
+              status: state.statusFilter,
+              cursor: reset ? null : state.nextCursor,
             ),
           );
       if (isClosed) return;
 
-      final summaries = page.items;
-      final detailsById = <String, PlatformUserDetailDto>{};
-      for (final summary in summaries) {
-        try {
-          final detail = await _iamModule
-              .executeQueryAsync<PlatformUserDetailDto>(
-                GetPlatformUserQuery(userId: summary.userId),
-              );
-          detailsById[summary.userId] = detail;
-        } catch (_) {
-          // Keep summary-only row when detail fetch fails.
-        }
-      }
-      if (isClosed) return;
+      final users = reset
+          ? page.items
+          : _dedupeAppend(state.users, page.items);
 
       emit(
         state.copyWith(
-          status: PlatformUsersStatus.success,
-          users: summaries,
-          detailsById: detailsById,
-          clearError: true,
+          status: users.isEmpty ? IamLoadStatus.empty : IamLoadStatus.success,
+          users: users,
+          nextCursor: page.nextCursor,
+          clearNextCursor: page.nextCursor == null,
+          isLoadingMore: false,
+          clearFailure: true,
         ),
       );
-    } on ApplicationException catch (e) {
+    } catch (error) {
       if (isClosed) return;
-      final message = e.message;
-      final unauthorized =
-          message.contains('PLATFORM_PERMISSION_DENIED') ||
-          message.contains('403') ||
-          message.contains('permission');
+      final failure = IamUiFailureMapper.from(error);
       emit(
         state.copyWith(
-          status: unauthorized
-              ? PlatformUsersStatus.unauthorized
-              : PlatformUsersStatus.failure,
-          errorMessage: message,
-        ),
-      );
-    } catch (e) {
-      if (isClosed) return;
-      emit(
-        state.copyWith(
-          status: PlatformUsersStatus.failure,
-          errorMessage: e.toString(),
+          status: failure.code == IamBlockedCodes.platformPermissionDenied
+              ? IamLoadStatus.unauthorized
+              : IamLoadStatus.failure,
+          failure: failure,
+          isLoadingMore: false,
         ),
       );
     }
   }
 
-  void setSearchQuery(String query) {
-    emit(state.copyWith(searchQuery: query));
+  Future<void> loadNextPage() async {
+    if (isClosed || state.isLoadingMore || !state.hasMore) return;
+    emit(state.copyWith(isLoadingMore: true, clearFailure: true));
+    await load(reset: false);
   }
 
-  void setSelectedFilterIndex(int index) {
-    emit(state.copyWith(selectedFilterIndex: index));
+  Future<void> setSearchQuery(String value) async {
+    if (isClosed) return;
+    emit(state.copyWith(searchQuery: value));
+    await load(reset: true);
   }
 
-  void applyAdvancedFilters({
-    required int filterStatus,
-    required int filterActivation,
-    required int filterEmail,
-  }) {
-    var selectedFilterIndex = state.selectedFilterIndex;
-    if (filterStatus == 0) {
-      selectedFilterIndex = 0;
-    } else if (filterStatus == 1) {
-      selectedFilterIndex = 1;
-    } else if (filterStatus == 2) {
-      selectedFilterIndex = 3;
-    }
+  Future<void> setStatusFilter(PlatformUserStatus? status) async {
+    if (isClosed) return;
     emit(
       state.copyWith(
-        filterStatus: filterStatus,
-        filterActivation: filterActivation,
-        filterEmail: filterEmail,
-        selectedFilterIndex: selectedFilterIndex,
+        statusFilter: status,
+        clearStatusFilter: status == null,
       ),
     );
+    await load(reset: true);
   }
 
-  void resetFilters() {
-    emit(
-      state.copyWith(
-        filterStatus: 0,
-        filterActivation: 0,
-        filterEmail: 0,
-        selectedFilterIndex: 0,
-        searchQuery: '',
-      ),
-    );
-  }
+  Future<void> refresh() => load(reset: true);
 
   Future<void> resetFiltersAndLoad() async {
     if (isClosed) return;
     emit(
       state.copyWith(
-        status: PlatformUsersStatus.loading,
-        filterStatus: 0,
-        filterActivation: 0,
-        filterEmail: 0,
-        selectedFilterIndex: 0,
         searchQuery: '',
-        clearError: true,
+        clearStatusFilter: true,
+        clearFailure: true,
       ),
     );
-
-    try {
-      final summaries = await _iamModule
-          .executeQueryAsync<List<PlatformUserSummaryDto>>(
-            SearchPlatformUsersQuery(),
-          );
-      if (isClosed) return;
-
-      final detailsById = <String, PlatformUserDetailDto>{};
-      for (final summary in summaries) {
-        try {
-          final detail = await _iamModule
-              .executeQueryAsync<PlatformUserDetailDto>(
-                GetPlatformUserQuery(userId: summary.userId),
-              );
-          detailsById[summary.userId] = detail;
-        } catch (_) {}
-      }
-      if (isClosed) return;
-
-      emit(
-        state.copyWith(
-          status: PlatformUsersStatus.success,
-          users: summaries,
-          detailsById: detailsById,
-          clearError: true,
-        ),
-      );
-    } on ApplicationException catch (e) {
-      if (isClosed) return;
-      final message = e.message;
-      final unauthorized =
-          message.contains('PLATFORM_PERMISSION_DENIED') ||
-          message.contains('403') ||
-          message.contains('permission');
-      emit(
-        state.copyWith(
-          status: unauthorized
-              ? PlatformUsersStatus.unauthorized
-              : PlatformUsersStatus.failure,
-          errorMessage: message,
-        ),
-      );
-    } catch (e) {
-      if (isClosed) return;
-      emit(
-        state.copyWith(
-          status: PlatformUsersStatus.failure,
-          errorMessage: e.toString(),
-        ),
-      );
-    }
+    await load(reset: true);
   }
 
   void clearUnauthorized() {
+    if (isClosed) return;
     emit(
       state.copyWith(
-        status: PlatformUsersStatus.success,
-        clearError: true,
+        status: IamLoadStatus.success,
+        clearFailure: true,
       ),
     );
   }
 
   void clearFailure() {
-    emit(
-      state.copyWith(
-        status: PlatformUsersStatus.success,
-        clearError: true,
-      ),
-    );
+    if (isClosed) return;
+    emit(state.copyWith(clearFailure: true));
+  }
+
+  List<PlatformUserSummaryDto> _dedupeAppend(
+    List<PlatformUserSummaryDto> existing,
+    List<PlatformUserSummaryDto> incoming,
+  ) {
+    final seen = existing.map((u) => u.userId).toSet();
+    final out = List<PlatformUserSummaryDto>.of(existing);
+    for (final item in incoming) {
+      if (seen.add(item.userId)) {
+        out.add(item);
+      }
+    }
+    return out;
   }
 }

@@ -16,6 +16,7 @@ final class PlatformTenantDetailDto {
     this.ownerEmail,
     this.ownerRoleLabel = 'Chủ cửa hàng',
     this.activatedAt,
+    this.lastActivityAt,
     this.suspendedAt,
     this.suspendedBy,
     this.suspendReason,
@@ -36,6 +37,7 @@ final class PlatformTenantDetailDto {
   final String? ownerEmail;
   final String ownerRoleLabel;
   final DateTime? activatedAt;
+  final DateTime? lastActivityAt;
   final DateTime? suspendedAt;
   final String? suspendedBy;
   final String? suspendReason;

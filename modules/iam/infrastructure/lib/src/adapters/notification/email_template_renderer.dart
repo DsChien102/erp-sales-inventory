@@ -2,8 +2,8 @@ import 'package:vet45_iam_application/application.dart';
 
 /// Builds subject/body for the four Theme 1 email templates.
 ///
-/// For [EmailTemplateId.passwordResetCode] pass the plaintext [code] fetched
-/// via [IPasswordResetCodeGateway]. If [code] is null the render still
+/// For [EmailTemplateId.passwordResetCode] pass the plaintext [code] decoded
+/// from the outbox transient secret channel. If [code] is null the render still
 /// succeeds but omits the code block (should not happen in production).
 abstract final class EmailTemplateRenderer {
   static ({String subject, String html, String text}) render({
@@ -17,20 +17,40 @@ abstract final class EmailTemplateRenderer {
     final link = appLinkUrl ?? '';
     switch (templateId) {
       case EmailTemplateId.activationInvitation:
+        final activationBlock = code != null
+            ? '<p>Nhập mã sau trong ứng dụng VET45 để tham gia tổ chức:</p>'
+                  '<p style="font-size:1.25rem;letter-spacing:.1rem;'
+                  'font-weight:bold;word-break:break-all">$code</p>'
+            : '';
+        final activationText = code != null ? ' Mã tham gia: $code' : '';
         return (
-          subject: 'Kích hoạt tài khoản VET45',
+          subject: 'Lời mời tham gia tổ chức trên VET45',
           html:
-              '<p>Xin chào,</p><p>Hãy kích hoạt tài khoản VET45.</p>'
+              '<p>Xin chào,</p>'
+              '<p>Bạn được mời làm chủ sở hữu một tổ chức trên VET45.</p>'
+              '$activationBlock'
               '${link.isEmpty ? '' : '<p><a href="$link">Mở ứng dụng</a></p>'}',
-          text: 'Kích hoạt tài khoản VET45 ($locale). $link',
+          text:
+              'Lời mời tham gia tổ chức trên VET45 ($locale).$activationText $link',
         );
       case EmailTemplateId.tenantInvitation:
+        // Display the code as-is (8 contiguous chars, no XXXX-XXXX grouping).
+        final display = code;
+        final inviteBlock = display != null
+            ? '<p>Nhập mã lời mời sau trong ứng dụng VET45:</p>'
+                  '<p style="font-size:1.25rem;letter-spacing:.1rem;'
+                  'font-weight:bold;word-break:break-all">$display</p>'
+            : '';
+        final inviteText = display != null ? ' Mã lời mời: $display' : '';
         return (
           subject: 'Lời mời tham gia tổ chức trên VET45',
           html:
               '<p>Bạn được mời tham gia một tổ chức trên VET45.</p>'
+              '$inviteBlock'
               '${link.isEmpty ? '' : '<p><a href="$link">Mở lời mời</a></p>'}',
-          text: 'Lời mời tham gia tổ chức VET45 ($locale) → $toEmail. $link',
+          text:
+              'Lời mời tham gia tổ chức VET45 ($locale) → $toEmail.'
+              '$inviteText $link',
         );
       case EmailTemplateId.passwordResetCode:
         final codeBlock = code != null

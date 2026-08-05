@@ -3,7 +3,7 @@
 -- Intent: iam_platform_users_read
 -- Touches: iam.search_platform_users, iam.get_platform_user, iam.get_my_platform_user_profile
 -- Notes: Draft only — do not apply via supabase migration up until promoted.
---        Identity fields (email/name) read from auth.users; Theme-1 owns status profile.
+--        Identity fields (email/name/status/emailVerified) read from auth.users.
 --        S14: iam.platform_user_profiles is the canonical self-service profile table.
 --        Login email is NEVER stored here; infrastructure adapter reads it from Supabase Auth.
 
@@ -25,6 +25,18 @@ alter table iam.platform_user_profiles
   add column if not exists updated_at timestamptz not null default now();
 
 alter table iam.platform_user_profiles enable row level security;
+
+create or replace function iam._platform_user_effective_status(
+  p_email_confirmed_at timestamptz
+) returns text
+language sql
+immutable
+as $$
+  select case
+    when p_email_confirmed_at is not null then 'active'
+    else 'pending_activation'
+  end;
+$$;
 
 -- S14 US-01: self-only profile read. Resolves user from auth.uid();
 -- never accepts a user_id parameter and never returns login email.
@@ -86,51 +98,6 @@ grant execute on function iam.get_my_platform_user_profile() to authenticated;
 alter table iam.memberships
   add column if not exists is_owner boolean not null default false;
 
-create or replace function iam.search_platform_users(
-  p_query text default null,
-  p_status text default null
-)
-returns table (
-  user_id uuid,
-  full_name text,
-  email text,
-  status text,
-  created_at timestamptz
-)
-language plpgsql
-security definer
-set search_path = iam, auth, pg_temp
-as $$
-begin
-  if not iam.has_platform_permission('platform.user.view') then
-    raise exception 'platform permission denied';
-  end if;
-
-  -- Cast to text: auth.users.email is varchar; RETURNS TABLE requires text (42804).
-  return query
-  select
-    u.id,
-    coalesce(
-      nullif(trim(concat_ws(' ', u.raw_user_meta_data->>'last_name', u.raw_user_meta_data->>'first_name')), ''),
-      coalesce(u.email::text, u.id::text)
-    )::text as full_name,
-    coalesce(u.email::text, '')::text as email,
-    coalesce(p.status, 'active')::text as status,
-    coalesce(p.created_at, u.created_at) as created_at
-  from auth.users u
-  left join iam.platform_user_profiles p on p.user_id = u.id
-  where (p_status is null or coalesce(p.status, 'active') = p_status)
-    and (
-      p_query is null
-      or p_query = ''
-      or u.email ilike '%' || p_query || '%'
-      or coalesce(u.raw_user_meta_data->>'first_name', '') ilike '%' || p_query || '%'
-      or coalesce(u.raw_user_meta_data->>'last_name', '') ilike '%' || p_query || '%'
-    )
-  order by coalesce(p.created_at, u.created_at) desc;
-end;
-$$;
-
 create or replace function iam.get_platform_user(p_user_id uuid)
 returns jsonb
 language plpgsql
@@ -148,12 +115,13 @@ begin
   select
     u.id as user_id,
     coalesce(
-      nullif(trim(concat_ws(' ', u.raw_user_meta_data->>'last_name', u.raw_user_meta_data->>'first_name')), ''),
-      coalesce(u.email::text, u.id::text)
+      nullif(trim(concat_ws(' ', p.given_name, p.family_middle_name)), ''),
+      nullif(trim(concat_ws(' ', u.raw_user_meta_data->>'first_name', u.raw_user_meta_data->>'last_name')), ''),
+      ''
     )::text as full_name,
     coalesce(u.email::text, '')::text as email,
-    coalesce(p.status, 'active')::text as status,
-    coalesce(p.email_verified, coalesce(u.email_confirmed_at is not null, false)) as email_verified,
+    iam._platform_user_effective_status(u.email_confirmed_at)::text as status,
+    (u.email_confirmed_at is not null) as email_verified,
     coalesce(p.created_at, u.created_at) as created_at,
     p.last_login_at
   into v_row
@@ -195,9 +163,7 @@ begin
 end;
 $$;
 
-revoke all on function iam.search_platform_users(text, text) from public, anon;
 revoke all on function iam.get_platform_user(uuid) from public, anon;
-grant execute on function iam.search_platform_users(text, text) to authenticated;
 grant execute on function iam.get_platform_user(uuid) to authenticated;
 
 revoke all on table iam.platform_user_profiles from public, anon, authenticated;
@@ -230,16 +196,34 @@ begin
       from (
         select
           u.id as user_id,
+          coalesce(
+            nullif(
+              trim(concat_ws(' ', p.given_name, p.family_middle_name)),
+              ''
+            ),
+            nullif(
+              trim(concat_ws(' ', u.raw_user_meta_data->>'first_name', u.raw_user_meta_data->>'last_name')),
+              ''
+            ),
+            ''
+          )::text as full_name,
           coalesce(u.email::text, '')::text as email,
-          coalesce(p.status, 'active')::text as status,
+          iam._platform_user_effective_status(u.email_confirmed_at)::text as status,
           coalesce(p.created_at, u.created_at) as created_at,
           coalesce(p.version, 1) as version
         from auth.users u
         left join iam.platform_user_profiles p on p.user_id = u.id
-        where (p_status is null or coalesce(p.status, 'active') = p_status)
+        where (
+            p_status is null
+            or iam._platform_user_effective_status(u.email_confirmed_at) = p_status
+          )
           and (
             p_query is null or p_query = ''
             or u.email ilike '%' || p_query || '%'
+            or coalesce(p.given_name, '') ilike '%' || p_query || '%'
+            or coalesce(p.family_middle_name, '') ilike '%' || p_query || '%'
+            or coalesce(u.raw_user_meta_data->>'first_name', '') ilike '%' || p_query || '%'
+            or coalesce(u.raw_user_meta_data->>'last_name', '') ilike '%' || p_query || '%'
           )
         order by coalesce(p.created_at, u.created_at) desc
         limit v_limit
@@ -249,3 +233,6 @@ begin
   );
 end;
 $$;
+
+revoke all on function iam.search_platform_users(text, text, text, integer) from public, anon;
+grant execute on function iam.search_platform_users(text, text, text, integer) to authenticated;

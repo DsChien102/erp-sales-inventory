@@ -10,6 +10,7 @@ import 'package:vet45_iam_presentation/presentation.dart';
 import '../../../../core/di/injection.dart';
 import '../bloc/platform_users_cubit.dart';
 import '../bloc/platform_users_state.dart';
+import '../widgets/platform_users_filter_sheet.dart';
 
 class PlatformUsersPage extends StatelessWidget {
   const PlatformUsersPage({
@@ -32,10 +33,10 @@ class PlatformUsersPage extends StatelessWidget {
           iamModule: iamModule ?? getIt<IIamModule>(),
           initialState: PlatformUsersState(
             status: isUnauthorized
-                ? PlatformUsersStatus.unauthorized
+                ? IamLoadStatus.unauthorized
                 : hasError
-                ? PlatformUsersStatus.failure
-                : PlatformUsersStatus.initial,
+                ? IamLoadStatus.failure
+                : IamLoadStatus.initial,
           ),
         );
         if (!hasError && !isUnauthorized) {
@@ -57,189 +58,36 @@ class _PlatformUsersView extends StatefulWidget {
 
 class _PlatformUsersViewState extends State<_PlatformUsersView> {
   final TextEditingController _searchController = TextEditingController();
+  final ScrollController _scrollController = ScrollController();
   Timer? _debounceTimer;
 
-  static const _filters = ['Tất cả', 'Hoạt động', 'Chờ kích hoạt', 'Tạm ngừng'];
+  static const _filters = <(String, PlatformUserStatus?)>[
+    ('Tất cả', null),
+    ('Hoạt động', PlatformUserStatus.active),
+    ('Chờ kích hoạt', PlatformUserStatus.pendingActivation),
+    ('Tạm ngừng', PlatformUserStatus.suspended),
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController.addListener(_onScroll);
+  }
 
   @override
   void dispose() {
     _searchController.dispose();
+    _scrollController.dispose();
     _debounceTimer?.cancel();
     super.dispose();
   }
 
-  void _clearSearchAndReload(BuildContext context) {
-    _debounceTimer?.cancel();
-    _searchController.clear();
-    context.read<PlatformUsersCubit>().resetFiltersAndLoad();
-  }
-
-  void _showFilterBottomSheet(BuildContext context) {
-    final cubit = context.read<PlatformUsersCubit>();
-    var tempStatus = cubit.state.filterStatus;
-    var tempActivation = cubit.state.filterActivation;
-    var tempEmail = cubit.state.filterEmail;
-
-    showVBottomSheet(
-      context: context,
-      child: StatefulBuilder(
-        builder: (context, setSheetState) {
-          return Padding(
-            padding: const EdgeInsets.all(VSpacing.screenMobile),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                VText(
-                  'Bộ lọc người dùng nền tảng',
-                  variant: VTextVariant.headingH3,
-                  style: const TextStyle(fontWeight: FontWeight.w700),
-                ),
-                const VGap.lg(),
-                VText(
-                  'Trạng thái',
-                  variant: VTextVariant.bodyDefault,
-                  style: const TextStyle(fontWeight: FontWeight.w600),
-                ),
-                const VGap.sm(),
-                Wrap(
-                  spacing: VSpacing.space2,
-                  children: [
-                    VChip(
-                      label: 'Tất cả',
-                      emphasis: tempStatus == 0
-                          ? VComponentEmphasis.strong
-                          : VComponentEmphasis.medium,
-                      onTap: () => setSheetState(() => tempStatus = 0),
-                    ),
-                    VChip(
-                      label: 'Hoạt động',
-                      emphasis: tempStatus == 1
-                          ? VComponentEmphasis.strong
-                          : VComponentEmphasis.medium,
-                      onTap: () => setSheetState(() => tempStatus = 1),
-                    ),
-                    VChip(
-                      label: 'Tạm ngừng',
-                      emphasis: tempStatus == 2
-                          ? VComponentEmphasis.strong
-                          : VComponentEmphasis.medium,
-                      onTap: () => setSheetState(() => tempStatus = 2),
-                    ),
-                  ],
-                ),
-                const VGap.md(),
-                VText(
-                  'Kích hoạt',
-                  variant: VTextVariant.bodyDefault,
-                  style: const TextStyle(fontWeight: FontWeight.w600),
-                ),
-                const VGap.sm(),
-                Wrap(
-                  spacing: VSpacing.space2,
-                  runSpacing: VSpacing.space2,
-                  children: [
-                    VChip(
-                      label: 'Tất cả',
-                      emphasis: tempActivation == 0
-                          ? VComponentEmphasis.strong
-                          : VComponentEmphasis.medium,
-                      onTap: () => setSheetState(() => tempActivation = 0),
-                    ),
-                    VChip(
-                      label: 'Đã kích hoạt',
-                      emphasis: tempActivation == 1
-                          ? VComponentEmphasis.strong
-                          : VComponentEmphasis.medium,
-                      onTap: () => setSheetState(() => tempActivation = 1),
-                    ),
-                    VChip(
-                      label: 'Chờ kích hoạt',
-                      emphasis: tempActivation == 2
-                          ? VComponentEmphasis.strong
-                          : VComponentEmphasis.medium,
-                      onTap: () => setSheetState(() => tempActivation = 2),
-                    ),
-                    VChip(
-                      label: 'Hết hạn',
-                      emphasis: tempActivation == 3
-                          ? VComponentEmphasis.strong
-                          : VComponentEmphasis.medium,
-                      onTap: () => setSheetState(() => tempActivation = 3),
-                    ),
-                  ],
-                ),
-                const VGap.md(),
-                VText(
-                  'Xác minh email',
-                  variant: VTextVariant.bodyDefault,
-                  style: const TextStyle(fontWeight: FontWeight.w600),
-                ),
-                const VGap.sm(),
-                Wrap(
-                  spacing: VSpacing.space2,
-                  children: [
-                    VChip(
-                      label: 'Tất cả',
-                      emphasis: tempEmail == 0
-                          ? VComponentEmphasis.strong
-                          : VComponentEmphasis.medium,
-                      onTap: () => setSheetState(() => tempEmail = 0),
-                    ),
-                    VChip(
-                      label: 'Đã xác minh',
-                      emphasis: tempEmail == 1
-                          ? VComponentEmphasis.strong
-                          : VComponentEmphasis.medium,
-                      onTap: () => setSheetState(() => tempEmail = 1),
-                    ),
-                    VChip(
-                      label: 'Chưa xác minh',
-                      emphasis: tempEmail == 2
-                          ? VComponentEmphasis.strong
-                          : VComponentEmphasis.medium,
-                      onTap: () => setSheetState(() => tempEmail = 2),
-                    ),
-                  ],
-                ),
-                const VGap.xl(),
-                Row(
-                  children: [
-                    Expanded(
-                      child: VButton(
-                        label: 'Đặt lại',
-                        variant: VButtonVariant.outline,
-                        onPressed: () {
-                          cubit.resetFilters();
-                          _searchController.clear();
-                          cubit.load(query: '');
-                          Navigator.pop(context);
-                        },
-                      ),
-                    ),
-                    const VGap.horizontalSm(),
-                    Expanded(
-                      child: VButton(
-                        label: 'Áp dụng',
-                        variant: VButtonVariant.primary,
-                        onPressed: () {
-                          cubit.applyAdvancedFilters(
-                            filterStatus: tempStatus,
-                            filterActivation: tempActivation,
-                            filterEmail: tempEmail,
-                          );
-                          Navigator.pop(context);
-                        },
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          );
-        },
-      ),
-    );
+  void _onScroll() {
+    if (!_scrollController.hasClients) return;
+    final position = _scrollController.position;
+    if (position.pixels >= position.maxScrollExtent - 120) {
+      context.read<PlatformUsersCubit>().loadNextPage();
+    }
   }
 
   @override
@@ -260,13 +108,13 @@ class _PlatformUsersViewState extends State<_PlatformUsersView> {
                   controller: _searchController,
                   hintText: 'Tìm tên hoặc email',
                   onChanged: (value) {
-                    if (_debounceTimer?.isActive ?? false) {
-                      _debounceTimer!.cancel();
-                    }
+                    _debounceTimer?.cancel();
                     _debounceTimer = Timer(
                       const Duration(milliseconds: 300),
                       () {
-                        context.read<PlatformUsersCubit>().load(query: value);
+                        context.read<PlatformUsersCubit>().setSearchQuery(
+                          value,
+                        );
                       },
                     );
                   },
@@ -290,7 +138,19 @@ class _PlatformUsersViewState extends State<_PlatformUsersView> {
                         ? colors.success
                         : colors.borderDefault,
                     borderRadius: VRadius.button,
-                    onTap: () => _showFilterBottomSheet(context),
+                    onTap: () async {
+                      final cubit = context.read<PlatformUsersCubit>();
+                      final result = await showPlatformUsersFilterSheet(
+                        context: context,
+                        selected: cubit.state.statusFilter,
+                      );
+                      if (!context.mounted ||
+                          result == null ||
+                          !result.applied) {
+                        return;
+                      }
+                      await cubit.setStatusFilter(result.status);
+                    },
                   );
                 },
               ),
@@ -298,7 +158,7 @@ class _PlatformUsersViewState extends State<_PlatformUsersView> {
           ),
         ),
         BlocBuilder<PlatformUsersCubit, PlatformUsersState>(
-          buildWhen: (p, c) => p.selectedFilterIndex != c.selectedFilterIndex,
+          buildWhen: (p, c) => p.statusFilter != c.statusFilter,
           builder: (context, state) {
             return SingleChildScrollView(
               scrollDirection: Axis.horizontal,
@@ -307,21 +167,21 @@ class _PlatformUsersViewState extends State<_PlatformUsersView> {
                 vertical: VSpacing.space1,
               ),
               child: Row(
-                children: List.generate(_filters.length, (index) {
-                  final isSelected = state.selectedFilterIndex == index;
-                  return Padding(
-                    padding: const EdgeInsets.only(right: VSpacing.space2),
-                    child: VChip(
-                      label: _filters[index],
-                      emphasis: isSelected
-                          ? VComponentEmphasis.strong
-                          : VComponentEmphasis.medium,
-                      onTap: () => context
-                          .read<PlatformUsersCubit>()
-                          .setSelectedFilterIndex(index),
+                children: [
+                  for (final entry in _filters)
+                    Padding(
+                      padding: const EdgeInsets.only(right: VSpacing.space2),
+                      child: VChip(
+                        label: entry.$1,
+                        emphasis: state.statusFilter == entry.$2
+                            ? VComponentEmphasis.strong
+                            : VComponentEmphasis.medium,
+                        onTap: () => context
+                            .read<PlatformUsersCubit>()
+                            .setStatusFilter(entry.$2),
+                      ),
                     ),
-                  );
-                }),
+                ],
               ),
             );
           },
@@ -332,6 +192,7 @@ class _PlatformUsersViewState extends State<_PlatformUsersView> {
               return _PlatformUsersListBody(
                 state: state,
                 searchController: _searchController,
+                scrollController: _scrollController,
               );
             },
           ),
@@ -345,10 +206,12 @@ class _PlatformUsersListBody extends StatelessWidget {
   const _PlatformUsersListBody({
     required this.state,
     required this.searchController,
+    required this.scrollController,
   });
 
   final PlatformUsersState state;
   final TextEditingController searchController;
+  final ScrollController scrollController;
 
   @override
   Widget build(BuildContext context) {
@@ -357,7 +220,7 @@ class _PlatformUsersListBody extends StatelessWidget {
 
     return LayoutBuilder(
       builder: (context, constraints) {
-        Future<void> handleRefresh() => cubit.load();
+        Future<void> handleRefresh() => cubit.refresh();
 
         Widget wrapEmpty(Widget child) {
           return RefreshIndicator(
@@ -369,7 +232,7 @@ class _PlatformUsersListBody extends StatelessWidget {
           );
         }
 
-        if (state.status == PlatformUsersStatus.unauthorized) {
+        if (state.status == IamLoadStatus.unauthorized) {
           return wrapEmpty(
             PlatformUserEmptyView(
               type: PlatformUserEmptyStateType.unauthorized,
@@ -378,55 +241,43 @@ class _PlatformUsersListBody extends StatelessWidget {
           );
         }
 
-        if (state.status == PlatformUsersStatus.failure) {
+        if (state.status == IamLoadStatus.failure) {
           return wrapEmpty(
             PlatformUserEmptyView(
               type: PlatformUserEmptyStateType.loadError,
-              onAction: () => cubit.load(),
+              onAction: () => cubit.refresh(),
             ),
           );
         }
 
-        if (state.status == PlatformUsersStatus.loading ||
-            state.status == PlatformUsersStatus.initial) {
+        if (state.status == IamLoadStatus.loading ||
+            state.status == IamLoadStatus.initial) {
           return const Center(child: CircularProgressIndicator());
         }
 
-        final hasSearchQuery =
-            searchController.text.trim().isNotEmpty ||
-            state.searchQuery.trim().isNotEmpty;
-        final hasFilter =
-            state.selectedFilterIndex != 0 || state.isFilterApplied;
-        final isFiltered = hasSearchQuery || hasFilter;
-
-        final users = state.filteredUsers;
+        final users = state.users;
         if (users.isEmpty) {
-          if (isFiltered) {
-            final actionLabel = (hasSearchQuery && !hasFilter)
-                ? 'Xóa tìm kiếm'
-                : 'Xóa bộ lọc';
-            return wrapEmpty(
-              PlatformUserEmptyView(
-                type: PlatformUserEmptyStateType.noResults,
-                customActionLabel: actionLabel,
-                onAction: () {
-                  searchController.clear();
-                  cubit.resetFiltersAndLoad();
-                },
-              ),
-            );
-          }
+          final hasQuery =
+              state.searchQuery.trim().isNotEmpty || state.statusFilter != null;
           return wrapEmpty(
             PlatformUserEmptyView(
-              type: PlatformUserEmptyStateType.noUsers,
-              onAction: () {
-                VToast.show(
-                  context,
-                  title: 'Thông tin',
-                  message: 'Mở chức năng thêm người dùng.',
-                  type: VToastType.info,
-                );
-              },
+              type: hasQuery
+                  ? PlatformUserEmptyStateType.noResults
+                  : PlatformUserEmptyStateType.noUsers,
+              onAction: hasQuery
+                  ? () async {
+                      searchController.clear();
+                      await cubit.setSearchQuery('');
+                      await cubit.setStatusFilter(null);
+                    }
+                  : () {
+                      VToast.show(
+                        context,
+                        title: 'Thông tin',
+                        message: 'Mở chức năng thêm người dùng.',
+                        type: VToastType.info,
+                      );
+                    },
             ),
           );
         }
@@ -434,14 +285,22 @@ class _PlatformUsersListBody extends StatelessWidget {
         return RefreshIndicator(
           onRefresh: handleRefresh,
           child: ListView.separated(
+            controller: scrollController,
             padding: const EdgeInsets.symmetric(
               horizontal: VSpacing.screenMobile,
               vertical: VSpacing.space3,
             ),
-            itemCount: users.length,
+            itemCount: users.length + (state.isLoadingMore ? 1 : 0),
             separatorBuilder: (context, index) => const VGap.sm(),
             itemBuilder: (context, index) {
+              if (index >= users.length) {
+                return const Padding(
+                  padding: EdgeInsets.all(VSpacing.space4),
+                  child: Center(child: CircularProgressIndicator()),
+                );
+              }
               final user = users[index];
+              final displayName = _platformUserDisplayName(user);
               return VCard(
                 padding: const EdgeInsets.symmetric(
                   horizontal: VSpacing.space4,
@@ -471,13 +330,13 @@ class _PlatformUsersListBody extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           VText(
-                            user.fullName,
+                            displayName,
                             variant: VTextVariant.bodyDefault,
                             style: const TextStyle(fontWeight: FontWeight.w600),
                           ),
                           const VGap.xs(),
                           VText(
-                            'Người dùng nền tảng',
+                            user.email,
                             variant: VTextVariant.bodySmall,
                             color: colors.textSecondary,
                           ),
@@ -497,5 +356,14 @@ class _PlatformUsersListBody extends StatelessWidget {
         );
       },
     );
+  }
+
+  String _platformUserDisplayName(PlatformUserSummaryDto user) {
+    final name = user.fullName.trim();
+    final email = user.email.trim();
+    if (name.isEmpty || name.toLowerCase() == email.toLowerCase()) {
+      return '';
+    }
+    return name;
   }
 }

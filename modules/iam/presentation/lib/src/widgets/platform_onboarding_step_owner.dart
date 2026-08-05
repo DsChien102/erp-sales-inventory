@@ -23,6 +23,7 @@ class PlatformOnboardingStepOwner extends StatefulWidget {
     this.firstNameErrorText,
     this.emailErrorText,
     this.phoneErrorText,
+    this.allowNewOwnerCreation = true,
   });
 
   final bool isNewOwner;
@@ -43,6 +44,7 @@ class PlatformOnboardingStepOwner extends StatefulWidget {
   final String? firstNameErrorText;
   final String? emailErrorText;
   final String? phoneErrorText;
+  final bool allowNewOwnerCreation;
 
   @override
   State<PlatformOnboardingStepOwner> createState() => _PlatformOnboardingStepOwnerState();
@@ -184,7 +186,7 @@ class _PlatformOnboardingStepOwnerState extends State<PlatformOnboardingStepOwne
           // Dropdown List khi đang tìm kiếm (Inline trong Column để hit test toàn bộ item)
           if (_isSearching) ...[
             VCard(
-              elevated: true,
+              emphasis: VComponentEmphasis.medium,
               padding: const EdgeInsets.all(VSpacing.space2),
               backgroundColor: colors.surface,
               borderRadius: VRadius.r16,
@@ -212,6 +214,7 @@ class _PlatformOnboardingStepOwnerState extends State<PlatformOnboardingStepOwne
                         itemBuilder: (context, index) {
                           final user = widget.searchResults[index];
                           final isSelected = widget.selectedOwner?.userId == user.userId;
+                          final displayName = _platformUserDisplayName(user);
 
                           return VCard(
                             padding: const EdgeInsets.symmetric(
@@ -245,7 +248,7 @@ class _PlatformOnboardingStepOwnerState extends State<PlatformOnboardingStepOwne
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
                                       VText(
-                                        user.fullName,
+                                        displayName,
                                         variant: VTextVariant.bodyDefault,
                                         style: TextStyle(
                                           fontWeight: FontWeight.w700,
@@ -303,7 +306,7 @@ class _PlatformOnboardingStepOwnerState extends State<PlatformOnboardingStepOwne
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   VText(
-                    widget.selectedOwner!.fullName,
+                    _platformUserDisplayName(widget.selectedOwner!),
                     variant: VTextVariant.bodyDefault,
                     style: TextStyle(
                       fontWeight: FontWeight.w700,
@@ -334,12 +337,18 @@ class _PlatformOnboardingStepOwnerState extends State<PlatformOnboardingStepOwne
             const VGap.md(),
           ],
 
-          if (!_isSearching)
+          if (!_isSearching && widget.allowNewOwnerCreation)
             VButton(
               label: 'Tạo mới',
               variant: VButtonVariant.outline,
               fullWidth: true,
               onPressed: () => widget.onToggleNewOwner(true),
+            )
+          else if (!_isSearching)
+            VText(
+              'Chọn một người dùng hiện hữu để làm chủ sở hữu tổ chức.',
+              variant: VTextVariant.bodySmall,
+              color: colors.textSecondary,
             ),
         ],
       ),
@@ -363,5 +372,14 @@ class _PlatformOnboardingStepOwnerState extends State<PlatformOnboardingStepOwne
         ),
       ],
     );
+  }
+
+  String _platformUserDisplayName(PlatformUserSummaryDto user) {
+    final name = user.fullName.trim();
+    final email = user.email.trim();
+    if (name.isEmpty || name.toLowerCase() == email.toLowerCase()) {
+      return '';
+    }
+    return name;
   }
 }

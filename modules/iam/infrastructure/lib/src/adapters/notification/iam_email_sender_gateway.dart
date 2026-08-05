@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:vet45_iam_application/application.dart';
 import 'package:vet45_resend/vet45_resend.dart';
 
@@ -5,19 +7,17 @@ import 'email_template_renderer.dart';
 
 /// Renders templates and sends via Resend.
 ///
-/// For [EmailTemplateId.passwordResetCode]: fetches plaintext code via
-/// [IPasswordResetCodeGateway] using `refs['operation_id']` before rendering.
-/// If peek returns null (expired/completed), send is skipped and a failure
-/// result is returned so the worker marks the outcome failed.
+/// For [EmailTemplateId.passwordResetCode], [EmailTemplateId.tenantInvitation],
+/// and [EmailTemplateId.activationInvitation]: decodes the raw code/token from
+/// the transient `secret_payload_ciphertext` channel (key outside DB). If it is
+/// absent or malformed, send is skipped and a failure result is returned — an
+/// email without its code is useless to the recipient, so the worker marks the
+/// outcome failed instead of delivering it.
 final class IamEmailSenderGateway implements IEmailSenderGateway {
-  IamEmailSenderGateway({
-    required IResendClient resendClient,
-    required IPasswordResetCodeGateway codeGateway,
-  }) : _resend = resendClient,
-       _codeGateway = codeGateway;
+  IamEmailSenderGateway({required IResendClient resendClient})
+    : _resend = resendClient;
 
   final IResendClient _resend;
-  final IPasswordResetCodeGateway _codeGateway;
 
   @override
   Future<EmailSendResult> send({
@@ -26,21 +26,33 @@ final class IamEmailSenderGateway implements IEmailSenderGateway {
     required String locale,
     required Map<String, String> refs,
     String? appLinkUrl,
+    String? secretPayloadCiphertext,
   }) async {
     String? code;
-    if (templateId == EmailTemplateId.passwordResetCode) {
-      final operationId = refs['operation_id'];
-      if (operationId == null) {
-        return const EmailSendResult(
-          isSuccess: false,
-          error: 'password_reset_code: missing refs.operation_id',
-        );
-      }
-      code = await _codeGateway.peekDeliveryCode(operationId);
+    if (templateId == EmailTemplateId.activationInvitation) {
+      code = _decodeTransientSecret(secretPayloadCiphertext);
       if (code == null) {
         return const EmailSendResult(
           isSuccess: false,
-          error: 'password_reset_code: operation expired or completed',
+          error: 'activation_invitation: missing or malformed secret payload',
+        );
+      }
+    }
+    if (templateId == EmailTemplateId.tenantInvitation) {
+      code = _decodeTransientSecret(secretPayloadCiphertext);
+      if (code == null) {
+        return const EmailSendResult(
+          isSuccess: false,
+          error: 'tenant_invitation: missing or malformed secret payload',
+        );
+      }
+    }
+    if (templateId == EmailTemplateId.passwordResetCode) {
+      code = _decodeTransientSecret(secretPayloadCiphertext);
+      if (code == null) {
+        return const EmailSendResult(
+          isSuccess: false,
+          error: 'password_reset_code: missing or malformed secret payload',
         );
       }
     }
@@ -66,5 +78,26 @@ final class IamEmailSenderGateway implements IEmailSenderGateway {
       messageId: result.messageId,
       error: result.error,
     );
+  }
+
+  /// Transient stand-in envelope written by the mutation RPC:
+  /// `transient:` + base64(UTF-8 raw token). Returns null when absent or
+  /// undecodable so the caller can fail the delivery instead of sending an
+  /// email with no code in it.
+  static String? _decodeTransientSecret(String? ciphertext) {
+    const prefix = 'transient:';
+    if (ciphertext == null || !ciphertext.startsWith(prefix)) {
+      return null;
+    }
+    final encoded = ciphertext.substring(prefix.length);
+    if (encoded.isEmpty) {
+      return null;
+    }
+    try {
+      final decoded = utf8.decode(base64.decode(encoded));
+      return decoded.isEmpty ? null : decoded;
+    } on FormatException {
+      return null;
+    }
   }
 }

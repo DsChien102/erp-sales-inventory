@@ -9,16 +9,17 @@ import 'package:vet45_shared_infrastructure/infrastructure.dart';
 import '../../adapters/audit/supabase_tenant_audit_read_port.dart';
 import '../../adapters/identity/password_reset_operation_store.dart';
 import '../../adapters/identity/supabase_auth_account_client.dart';
+import '../../adapters/identity/supabase_platform_identity_provisioning_adapter.dart';
 import '../../adapters/identity/supabase_platform_identity_self_service_adapter.dart';
 import '../../adapters/identity/unavailable_tenant_activation_identity_port.dart';
 import '../../adapters/invitation/invitation_auth_client.dart';
 import '../../adapters/invitation/supabase_invitation_identity_adapter.dart';
+import '../../adapters/invitation/supabase_assignable_invitation_role_read_port.dart';
 import '../../domain/invitation/supabase_tenant_invitation_acceptance_port.dart';
 import '../../domain/invitation/supabase_tenant_invitation_command_gateway.dart';
 import '../../domain/invitation/supabase_tenant_invitation_read_port.dart';
 import '../../domain/platform_user/supabase_platform_user_profile_gateway.dart';
 import '../../adapters/notification/iam_email_sender_gateway.dart';
-import '../../adapters/notification/supabase_password_reset_code_gateway.dart';
 import '../../adapters/notification/supabase_email_delivery_gateways.dart';
 import '../../adapters/notification/supabase_email_delivery_port.dart';
 import '../../domain/access/supabase_iam_access_gateway.dart';
@@ -105,6 +106,11 @@ final class IamDataAccessModule {
           rpcClient: container.get<SupabaseSchemaRpcClient>(),
         ),
       )
+      ..registerSingleton<IAssignableInvitationRoleReadPort>(
+        SupabaseAssignableInvitationRoleReadPort(
+          rpcClient: container.get<SupabaseSchemaRpcClient>(),
+        ),
+      )
       ..registerSingleton<ITenantInvitationCommandGateway>(
         SupabaseTenantInvitationCommandGateway(
           rpcClient: container.get<SupabaseSchemaRpcClient>(),
@@ -132,6 +138,11 @@ final class IamDataAccessModule {
           passwordResetStore: SupabasePasswordResetOperationStore(
             rpcClient: container.get<SupabaseSchemaRpcClient>(),
           ),
+        ),
+      )
+      ..registerSingleton<IPlatformIdentityProvisioningPort>(
+        SupabasePlatformIdentityProvisioningAdapter(
+          rpcClient: container.get<SupabaseSchemaRpcClient>(),
         ),
       )
       ..registerSingleton<IPlatformAdminGateway>(
@@ -174,15 +185,9 @@ final class IamDataAccessModule {
       ..registerSingleton<IResendClient>(
         resendClient ?? ResendEmailClient(apiKey: null),
       )
-      ..registerSingleton<IPasswordResetCodeGateway>(
-        SupabasePasswordResetCodeGateway(
-          rpcClient: container.get<SupabaseSchemaRpcClient>(),
-        ),
-      )
       ..registerSingleton<IEmailSenderGateway>(
         IamEmailSenderGateway(
           resendClient: container.get<IResendClient>(),
-          codeGateway: container.get<IPasswordResetCodeGateway>(),
         ),
       )
       ..registerSingleton<IEmailDeliveryOutcomeStore>(

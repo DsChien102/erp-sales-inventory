@@ -31,6 +31,11 @@ abstract interface class PasswordResetOperationStore {
 
   Future<PasswordResetOperation> touchResend(String operationId);
 
+  /// Verifies [code] against the stored hash for [operationId].
+  /// Returns whether the code matched; raises [IamBlockedException] for
+  /// expired / attempts-exceeded / not-found / completed states.
+  Future<bool> verifyCode(String operationId, String code);
+
   Future<void> markVerified(String operationId);
 
   Future<void> markCompleted(String operationId);
@@ -61,6 +66,19 @@ final class SupabasePasswordResetOperationStore
         'resend_password_reset_operation',
         params: {'p_operation_id': operationId},
       );
+
+  @override
+  Future<bool> verifyCode(String operationId, String code) async {
+    try {
+      final row = await _rpcClient.callMap(
+        'verify_password_reset_code',
+        params: {'p_operation_id': operationId, 'p_code': code},
+      );
+      return (row['verified'] as bool?) ?? false;
+    } on RpcException catch (error) {
+      throw mapIamBlockedRpcError(error);
+    }
+  }
 
   @override
   Future<void> markVerified(String operationId) => _callVoid(

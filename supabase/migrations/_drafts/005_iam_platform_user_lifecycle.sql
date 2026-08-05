@@ -92,17 +92,20 @@ begin
     raise exception 'platform permission denied';
   end if;
 
-  select status into v_status
-  from iam.platform_user_profiles
-  where user_id = p_user_id;
-
-  if v_status is not null and v_status <> 'pending_activation' then
-    raise exception 'state changed: user is not pending activation';
-  end if;
-
-  select u.email::text into v_email
+  select
+    iam._platform_user_effective_status(u.email_confirmed_at),
+    u.email::text
+  into v_status, v_email
   from auth.users u
   where u.id = p_user_id;
+
+  if v_status is null then
+    raise exception 'RESOURCE_NOT_FOUND';
+  end if;
+
+  if v_status <> 'pending_activation' then
+    raise exception 'STATE_CHANGED';
+  end if;
 
   if v_email is null or length(trim(v_email)) = 0 then
     raise exception 'VALIDATION_ERROR: activation invitee email missing';
@@ -381,12 +384,23 @@ language plpgsql
 security definer
 set search_path = iam, pg_temp
 as $$
+declare
+  v_status text;
 begin
   if not iam.has_platform_permission('platform.user.activation_invite.send') then
     raise exception 'PLATFORM_PERMISSION_DENIED';
   end if;
   if p_idempotency_key is null or trim(p_idempotency_key) = '' then
     raise exception 'VALIDATION_ERROR';
+  end if;
+  select iam._platform_user_effective_status(u.email_confirmed_at) into v_status
+  from auth.users u
+  where u.id = p_user_id;
+  if v_status is null then
+    raise exception 'RESOURCE_NOT_FOUND';
+  end if;
+  if v_status <> 'pending_activation' then
+    raise exception 'STATE_CHANGED';
   end if;
   -- outbox enqueue remains in original body; version gate:
   perform 1 from iam.platform_user_profiles

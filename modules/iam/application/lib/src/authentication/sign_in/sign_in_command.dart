@@ -6,8 +6,10 @@ final class SignInCommand extends CommandBase<void> implements ICommand<void> {
     String? id,
     required this.email,
     required this.password,
+    this.requireTenantContext = true,
   }) : super(id);
 
   final String email;
   final String password;
+  final bool requireTenantContext;
 }

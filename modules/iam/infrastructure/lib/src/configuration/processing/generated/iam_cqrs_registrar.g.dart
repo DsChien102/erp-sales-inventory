@@ -490,6 +490,14 @@ void registerGeneratedIamQueries({
     invoke: (query, handler) => handler.handle(query),
   );
 
+  IamCommandRegistration.registerQueryHandler<ListAssignableInvitationRolesQuery, List<AssignableRoleOptionDto>, ListAssignableInvitationRolesQueryHandler>(
+    bus: bus,
+    factory: () => ListAssignableInvitationRolesQueryHandler(
+      readPort: container.get<IAssignableInvitationRoleReadPort>(),
+    ),
+    invoke: (query, handler) => handler.handle(query),
+  );
+
   IamCommandRegistration.registerQueryHandler<ListInvitationsQuery, CursorPageDto<InvitationSummaryDto>, ListInvitationsQueryHandler>(
     bus: bus,
     factory: () => ListInvitationsQueryHandler(

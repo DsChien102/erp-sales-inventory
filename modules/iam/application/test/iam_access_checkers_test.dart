@@ -14,24 +14,18 @@ class _FakeAccessGateway implements IIamAccessGateway {
   final bool allowed;
 
   @override
-  Future<String> bootstrapOwner({String tenantName = 'My Store'}) async =>
-      'tenant-1';
-
-  @override
-  Future<PrincipalAccessDto?> getSessionContext({String? tenantId}) async =>
-      PrincipalAccessDto(
-        userId: 'user-1',
-        tenantId: tenantId ?? 'tenant-1',
-        role: 'staff',
-        permissions: const [InterimPermissionCodes.partnerRead],
-      );
+  Future<PrincipalAccessDto?> getSessionContext({String? tenantId}) async => PrincipalAccessDto(
+    userId: 'user-1',
+    tenantId: tenantId ?? 'tenant-1',
+    role: 'staff',
+    permissions: const [InterimPermissionCodes.partnerRead],
+  );
 
   @override
   Future<bool> hasPermission({
     required String tenantId,
     required String permission,
-  }) async =>
-      allowed;
+  }) async => allowed;
 
   @override
   Future<bool> isMember(String tenantId) async => member;
@@ -45,14 +39,12 @@ class _FakeAccessGateway implements IIamAccessGateway {
   @override
   Future<TenantContextDto> switchTenantContext({
     required String targetTenantId,
-  }) async =>
-      throw UnimplementedError('S2 BE');
+  }) async => throw UnimplementedError('S2 BE');
 
   @override
   Future<TenantContextDto> getValidatedTenantContext({
     String? sessionTenantId,
-  }) async =>
-      throw UnimplementedError('S3 BE');
+  }) async => throw UnimplementedError('S3 BE');
 
   @override
   Future<CursorPageDto<TenantMemberDto>> listTenantMembers({
@@ -61,8 +53,7 @@ class _FakeAccessGateway implements IIamAccessGateway {
     String? status,
     String? cursor,
     int limit = 20,
-  }) async =>
-      const CursorPageDto<TenantMemberDto>(items: []);
+  }) async => const CursorPageDto<TenantMemberDto>(items: []);
 
   @override
   Future<void> assignMemberRole({

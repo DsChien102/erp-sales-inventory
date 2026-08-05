@@ -11,10 +11,34 @@ void main() {
     name: 'Mậu Hiền',
     code: 'TEN-000142',
     status: OrganizationStatus.active,
+    members: [
+      OrganizationMemberUiModel(
+        id: 'mem-01',
+        name: 'Trần Thị Hoa',
+        email: 'hoa@minhphat.vn',
+        role: 'Kế toán',
+        avatarInitials: 'TH',
+      ),
+      OrganizationMemberUiModel(
+        id: 'mem-02',
+        name: 'Nguyễn Văn Minh',
+        email: 'minh@minhphat.vn',
+        role: 'Nhân viên bán hàng',
+        avatarInitials: 'NV',
+      ),
+    ],
   );
 
-  testWidgets('OrganizationChangeOwnerPage renders member list and search bar',
-      (tester) async {
+  const emptyOrg = OrganizationUiModel(
+    id: 'org-empty',
+    name: 'Tổ chức trống',
+    code: 'TEN-EMPTY',
+    status: OrganizationStatus.active,
+  );
+
+  testWidgets('OrganizationChangeOwnerPage renders provided members', (
+    tester,
+  ) async {
     await tester.pumpWidget(
       const MaterialApp(
         home: OrganizationChangeOwnerPage(organization: sampleOrg),
@@ -25,29 +49,44 @@ void main() {
     expect(find.text('Chọn thành viên đang hoạt động'), findsOneWidget);
     expect(find.text('Trần Thị Hoa'), findsOneWidget);
     expect(find.text('Nguyễn Văn Minh'), findsOneWidget);
-    expect(find.text('Phạm Ngọc Mai'), findsOneWidget);
+    expect(find.text('Phạm Ngọc Mai'), findsNothing);
   });
 
-  testWidgets(
-      'Tapping member card updates radio selection and clicking Tiếp tục opens confirmation sheet',
-      (tester) async {
+  testWidgets('does not render hard-coded members when organization is empty', (
+    tester,
+  ) async {
     await tester.pumpWidget(
       const MaterialApp(
-        home: OrganizationChangeOwnerPage(organization: sampleOrg),
+        home: OrganizationChangeOwnerPage(organization: emptyOrg),
       ),
     );
 
-    // Tap on second member (Nguyễn Văn Minh)
-    await tester.tap(find.text('Nguyễn Văn Minh'));
-    await tester.pumpAndSettle();
-
-    // Click Tiếp tục
-    await tester.tap(find.widgetWithText(VButton, 'Tiếp tục'));
-    await tester.pumpAndSettle();
-
-    expect(
-        find.byType(OrganizationChangeOwnerConfirmationBottomSheet), findsOneWidget);
-    expect(find.text('Chuyển quyền sở hữu cho Nguyễn Văn Minh?'), findsOneWidget);
-    expect(find.text('Chuyển quyền'), findsOneWidget);
+    expect(find.text('Trần Thị Hoa'), findsNothing);
+    expect(find.text('Nguyễn Văn Minh'), findsNothing);
+    expect(find.text('Phạm Ngọc Mai'), findsNothing);
+    expect(find.text('Chưa có thành viên đang hoạt động'), findsOneWidget);
   });
+
+  testWidgets(
+    'Tapping member card updates radio selection and clicking Tiếp tục opens confirmation sheet',
+    (tester) async {
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: OrganizationChangeOwnerPage(organization: sampleOrg),
+        ),
+      );
+
+      // Tap on second member (Nguyễn Văn Minh)
+      await tester.tap(find.text('Nguyễn Văn Minh'));
+      await tester.pumpAndSettle();
+
+      // Click Tiếp tục
+      await tester.tap(find.widgetWithText(VButton, 'Tiếp tục'));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(OrganizationChangeOwnerConfirmationBottomSheet), findsOneWidget);
+      expect(find.text('Chuyển quyền sở hữu cho Nguyễn Văn Minh?'), findsOneWidget);
+      expect(find.text('Chuyển quyền'), findsOneWidget);
+    },
+  );
 }

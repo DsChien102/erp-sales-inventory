@@ -1,48 +1,87 @@
+import 'package:erp/features/more/presentation/bloc/iam_feature_access_cubit.dart';
+import 'package:erp/features/more/presentation/pages/users_and_roles_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:erp/features/more/presentation/pages/users_and_roles_page.dart';
-import 'package:vet45_iam_presentation/presentation.dart';
+import 'package:vet45_design_system/design_system.dart';
+import 'package:vet45_iam_application/application.dart';
+import 'package:vet45_shared_application/application.dart';
 
 void main() {
-  setUp(() {
-    FakeOrganizationSetupData.reset();
-  });
+  testWidgets(
+    'UsersAndRolesPage renders all hub cards from the design',
+    (WidgetTester tester) async {
+      tester.view.physicalSize = const Size(800, 1600);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
 
-  testWidgets('UsersAndRolesPage renders header, warning banner, and 5 menu cards', (WidgetTester tester) async {
+      final cubit = IamFeatureAccessCubit(
+        iamModule: _OwnerSessionModule(),
+      );
+      await cubit.load();
+      addTearDown(cubit.close);
+
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: VTheme.lightTheme,
+          home: UsersAndRolesPage(accessCubit: cubit),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('Người dùng & vai trò'), findsWidgets);
+      expect(find.text('Cần hoàn tất'), findsOneWidget);
+      expect(find.text('Hồ sơ tổ chức'), findsOneWidget);
+      expect(find.text('Người dùng'), findsOneWidget);
+      expect(find.text('Vai trò'), findsOneWidget);
+      expect(find.text('Quyền sở hữu'), findsOneWidget);
+      expect(find.text('Lịch sử quản trị'), findsOneWidget);
+    },
+  );
+
+  testWidgets('UsersAndRolesPage shows coming soon toast for roles and ownership', (
+    WidgetTester tester,
+  ) async {
     tester.view.physicalSize = const Size(800, 1600);
     tester.view.devicePixelRatio = 1.0;
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
 
+    final cubit = IamFeatureAccessCubit(iamModule: _OwnerSessionModule());
+    await cubit.load();
+    addTearDown(cubit.close);
+
     await tester.pumpWidget(
-      const MaterialApp(
-        home: UsersAndRolesPage(),
+      MaterialApp(
+        theme: VTheme.lightTheme,
+        home: UsersAndRolesPage(accessCubit: cubit),
       ),
     );
+    await tester.pumpAndSettle();
 
-    // Verify app bar title
-    expect(find.text('Người dùng & vai trò'), findsWidgets);
+    await tester.tap(find.text('Vai trò'));
+    await tester.pumpAndSettle();
+    expect(find.text('Chức năng làm sau'), findsOneWidget);
 
-    // Verify warning banner
-    expect(find.text('Cần hoàn tất'), findsOneWidget);
-    expect(find.text('Tổ chức chưa hoàn tất thiết lập'), findsOneWidget);
-    expect(find.text('Còn 1 điều kiện bắt buộc trước khi có thể bắt đầu vận hành.'), findsOneWidget);
-    expect(find.text('Xem và hoàn tất'), findsOneWidget);
-
-    // Verify 5 option cards
-    expect(find.text('Hồ sơ tổ chức'), findsOneWidget);
-    expect(find.text('Thông tin liên hệ và địa chỉ tổ chức'), findsOneWidget);
-
-    expect(find.text('Người dùng'), findsOneWidget);
-    expect(find.text('Thành viên, lời mời và quyền truy cập'), findsOneWidget);
-
-    expect(find.text('Vai trò'), findsOneWidget);
-    expect(find.text('Phạm vi thao tác theo từng vai trò'), findsOneWidget);
-
-    expect(find.text('Quyền sở hữu'), findsOneWidget);
-    expect(find.text('Chủ tổ chức và chuyển quyền sở hữu'), findsOneWidget);
-
-    expect(find.text('Lịch sử quản trị'), findsOneWidget);
-    expect(find.text('Theo dõi thay đổi người dùng và quyền'), findsOneWidget);
+    await tester.tap(find.text('Quyền sở hữu'));
+    await tester.pumpAndSettle();
+    expect(find.text('Chức năng làm sau'), findsWidgets);
   });
+}
+
+final class _OwnerSessionModule implements IIamModule {
+  @override
+  Future<TResult> executeCommandAsync<TResult>(ICommand<TResult> command) {
+    throw UnsupportedError(command.runtimeType.toString());
+  }
+
+  @override
+  Future<TResult> executeQueryAsync<TResult>(IQuery<TResult> query) async {
+    return const SessionDto(
+          isAuthenticated: true,
+          userId: 'owner-1',
+          role: 'owner',
+        )
+        as TResult;
+  }
 }

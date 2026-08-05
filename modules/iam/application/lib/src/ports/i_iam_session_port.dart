@@ -4,9 +4,12 @@ import '../dto/session_dto.dart';
 abstract interface class IIamSessionPort {
   SessionDto get snapshot;
 
-  Future<void> establishAfterSignIn({String? tenantId});
+  Future<void> establishAfterSignIn({
+    String? tenantId,
+    bool requireTenantContext = true,
+  });
 
   Future<void> clear();
 
-  Future<void> restoreFromPersistedAuth();
+  Future<void> restoreFromPersistedAuth({bool requireTenantContext = true});
 }

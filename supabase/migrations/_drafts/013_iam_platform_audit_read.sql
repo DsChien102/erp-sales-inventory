@@ -196,63 +196,6 @@ as $$
     - 'secret';
 $$;
 
-create or replace function iam.search_platform_audit_logs(
-  p_query text default null,
-  p_status text default null
-)
-returns table (
-  id uuid,
-  title text,
-  action_code text,
-  status text,
-  actor_name text,
-  actor_role text,
-  target_org_name text,
-  target_org_code text,
-  created_at timestamptz,
-  source_app text
-)
-language plpgsql
-security definer
-set search_path = iam, auth, pg_temp
-as $$
-begin
-  if not iam.has_platform_permission('platform.audit.view') then
-    raise exception 'platform permission denied';
-  end if;
-
-  -- Converged onto canonical iam.audit_logs (platform scope).
-  return query
-  select
-    a.id,
-    a.event_code::text as title,
-    a.event_code::text as action_code,
-    a.result::text as status,
-    coalesce(
-      nullif(trim(concat_ws(' ', u.raw_user_meta_data->>'last_name', u.raw_user_meta_data->>'first_name')), ''),
-      coalesce(u.email::text, 'Hệ thống')
-    )::text as actor_name,
-    'Nhân viên vận hành nền tảng'::text as actor_role,
-    coalesce(t.name, '')::text as target_org_name,
-    coalesce(t.code, left(coalesce(t.id::text, ''), 8))::text as target_org_code,
-    a.occurred_at as created_at,
-    a.source::text as source_app
-  from iam.audit_logs a
-  left join auth.users u on u.id = a.actor_user_id
-  left join iam.tenants t on t.id = a.tenant_id
-  where a.scope = 'platform'
-    and (p_status is null or a.result = p_status)
-    and (
-      p_query is null
-      or p_query = ''
-      or a.event_code ilike '%' || p_query || '%'
-      or coalesce(t.name, '') ilike '%' || p_query || '%'
-    )
-  order by a.occurred_at desc, a.id desc
-  limit 200;
-end;
-$$;
-
 create or replace function iam.get_platform_audit_log(p_audit_log_id uuid)
 returns jsonb
 language plpgsql
@@ -281,8 +224,8 @@ begin
       coalesce(u.email::text, 'Hệ thống')
     ) as actor_name,
     'Nhân viên vận hành nền tảng' as actor_role,
-    coalesce(t.name, '') as target_org_name,
-    coalesce(t.code, left(coalesce(t.id::text, ''), 8)) as target_org_code,
+    coalesce(t.name, a.subject_type, '') as target_org_name,
+    coalesce(t.code, a.subject_id, left(coalesce(t.id::text, ''), 8)) as target_org_code,
     -- Values were already redacted at write time; never un-redact on read.
     coalesce(a.after_state, '{}'::jsonb) as payload
   into v_row
@@ -319,9 +262,6 @@ begin
   );
 end;
 $$;
-
-revoke all on function iam.search_platform_audit_logs(text, text) from public, anon;
-grant execute on function iam.search_platform_audit_logs(text, text) to authenticated;
 
 revoke all on function iam.get_platform_audit_log(uuid) from public, anon;
 grant execute on function iam.get_platform_audit_log(uuid) to authenticated;
@@ -527,11 +467,99 @@ language plpgsql
 security definer
 set search_path = iam, auth, pg_temp
 as $$
-declare v_limit int := least(greatest(coalesce(p_page_size, 20), 1), 100);
+declare
+  v_limit int := least(greatest(coalesce(p_page_size, 20), 1), 100);
+  v_cur_occurred timestamptz;
+  v_cur_id uuid;
+  v_items jsonb;
+  v_count int;
+  v_next text;
 begin
   if not iam.has_platform_permission('platform.audit.view') then
     raise exception 'PLATFORM_PERMISSION_DENIED';
   end if;
-  return jsonb_build_object('items', '[]'::jsonb, 'next_cursor', null);
+
+  -- Cursor encodes (occurred_at, id) like the tenant-scoped search.
+  if p_cursor is not null and p_cursor <> '' then
+    v_cur_occurred := split_part(p_cursor, '|', 1)::timestamptz;
+    v_cur_id := split_part(p_cursor, '|', 2)::uuid;
+  end if;
+
+  -- Read from the canonical immutable store (platform scope). p_action is a
+  -- free-text search term (the FE search box "Tìm tên hoặc mã tổ chức" is wired
+  -- to this param), so it matches event_code OR the target org name/code.
+  with filtered as (
+    select
+      a.id,
+      a.event_code,
+      a.result,
+      a.occurred_at,
+      a.source,
+      coalesce(
+        nullif(trim(concat_ws(' ', u.raw_user_meta_data->>'last_name', u.raw_user_meta_data->>'first_name')), ''),
+        coalesce(u.email::text, 'Hệ thống')
+      ) as actor_name,
+      coalesce(t.name, '') as target_org_name,
+      coalesce(t.code, left(coalesce(t.id::text, ''), 8)) as target_org_code
+    from iam.audit_logs a
+    left join auth.users u on u.id = a.actor_user_id
+    left join iam.tenants t on t.id = a.tenant_id
+    where a.scope = 'platform'
+      and (p_from is null or a.occurred_at >= p_from)
+      and (p_to is null or a.occurred_at <= p_to)
+      and (p_actor_user_id is null or a.actor_user_id::text = p_actor_user_id)
+      and (p_target_type is null or a.subject_type = p_target_type)
+      and (p_target_id is null or a.subject_id = p_target_id)
+      and (p_result is null or a.result = p_result)
+      and (p_source is null or a.source = p_source)
+      and (p_correlation_id is null or a.tracking_id = p_correlation_id)
+      and (
+        p_action is null or p_action = ''
+        or a.event_code ilike '%' || p_action || '%'
+        or coalesce(t.name, '') ilike '%' || p_action || '%'
+        or coalesce(t.code, '') ilike '%' || p_action || '%'
+      )
+      and (
+        v_cur_occurred is null
+        or (a.occurred_at, a.id) < (v_cur_occurred, v_cur_id)
+      )
+    order by a.occurred_at desc, a.id desc
+    limit v_limit + 1
+  )
+  select
+    jsonb_agg(
+      jsonb_build_object(
+        'id', f.id,
+        'title', f.event_code,
+        'action_code', f.event_code,
+        'status', f.result,
+        'actor_name', f.actor_name,
+        'actor_role', 'Nhân viên vận hành nền tảng',
+        'target_org_name', f.target_org_name,
+        'target_org_code', f.target_org_code,
+        'created_at', f.occurred_at,
+        'source_app', f.source
+      )
+      order by f.occurred_at desc, f.id desc
+    ),
+    count(*)
+  into v_items, v_count
+  from (select * from filtered order by occurred_at desc, id desc limit v_limit) f;
+
+  -- Extra row beyond the page → emit a next cursor.
+  if v_count = v_limit then
+    select f.occurred_at::text || '|' || f.id::text into v_next
+    from (select * from filtered order by occurred_at desc, id desc limit v_limit) f
+    order by f.occurred_at asc, f.id asc
+    limit 1;
+  end if;
+
+  return jsonb_build_object(
+    'items', coalesce(v_items, '[]'::jsonb),
+    'next_cursor', v_next
+  );
 end;
 $$;
+
+revoke all on function iam.search_platform_audit_logs(timestamptz, timestamptz, text, text, text, text, text, text, text, text, integer) from public, anon;
+grant execute on function iam.search_platform_audit_logs(timestamptz, timestamptz, text, text, text, text, text, text, text, text, integer) to authenticated;

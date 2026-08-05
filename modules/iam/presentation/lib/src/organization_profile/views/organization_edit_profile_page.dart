@@ -1,76 +1,77 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:vet45_design_system/design_system.dart';
+import 'package:vet45_iam_application/application.dart';
+import 'package:vet45_shared_application/application.dart';
 
-import '../data/vn_administrative_units_loader.dart';
-import '../mock/organization_profile_mock_data.dart';
-import '../models/organization_profile_ui_model.dart';
 import '../../organizations/widgets/organization_empty_view.dart';
-import '../../testing/fake_organization_setup_data.dart';
+import '../../shared/iam_load_status.dart';
+import '../bloc/organization_profile_cubit.dart';
+import '../bloc/organization_profile_form_input.dart';
+import '../bloc/organization_profile_state.dart';
+import '../data/vn_administrative_units_loader.dart';
+import '../mappers/organization_profile_ui_mapper.dart';
 
-/// Trang Chỉnh thông tin tổ chức (TA-D-02).
-class OrganizationEditProfilePage extends StatefulWidget {
-  final OrganizationProfileUiModel profile;
-  final bool hasPermission;
-  final VoidCallback? onSaveSuccess;
-
+/// Trang Chỉnh thông tin tổ chức (TA-D-02 / S12).
+class OrganizationEditProfilePage extends StatelessWidget {
   const OrganizationEditProfilePage({
     super.key,
-    this.profile = OrganizationProfileMockData.sampleProfile,
-    this.hasPermission = true,
-    this.onSaveSuccess,
+    this.iamModule,
+    this.executionContext,
+    this.cubit,
   });
 
+  final IIamModule? iamModule;
+  final IExecutionContext? executionContext;
+  final OrganizationProfileCubit? cubit;
+
   @override
-  State<OrganizationEditProfilePage> createState() => _OrganizationEditProfilePageState();
+  Widget build(BuildContext context) {
+    if (cubit != null) {
+      return BlocProvider.value(
+        value: cubit!,
+        child: const _EditProfileView(),
+      );
+    }
+    assert(
+      iamModule != null && executionContext != null,
+      'OrganizationEditProfilePage requires iamModule + executionContext or cubit',
+    );
+    return BlocProvider(
+      create: (_) => OrganizationProfileCubit(
+        iamModule: iamModule!,
+        executionContext: executionContext!,
+      )..load(),
+      child: const _EditProfileView(),
+    );
+  }
 }
 
-class _OrganizationEditProfilePageState extends State<OrganizationEditProfilePage> {
+class _EditProfileView extends StatefulWidget {
+  const _EditProfileView();
+
+  @override
+  State<_EditProfileView> createState() => _EditProfileViewState();
+}
+
+class _EditProfileViewState extends State<_EditProfileView> {
   late final TextEditingController _nameController;
   late final TextEditingController _phoneController;
   late final TextEditingController _emailController;
   late final TextEditingController _addressController;
   late final Future<List<VnAdministrativeUnit>> _unitsFuture = VnAdministrativeUnitsLoader.load();
 
-  String? _selectedCity = 'Đồng Nai';
-  String? _selectedWard = 'Trấn Biên';
-
-  VnAdministrativeUnit? _findProvince(
-    List<VnAdministrativeUnit> units,
-    String? name,
-  ) {
-    if (name == null || name.isEmpty) return null;
-    for (final unit in units) {
-      if (unit.fullName == name ||
-          unit.fullName.endsWith(name) ||
-          name.endsWith(unit.fullName)) {
-        return unit;
-      }
-    }
-    return null;
-  }
-
-  VnWard? _findWard(
-    List<VnWard> wards,
-    String? name,
-  ) {
-    if (name == null || name.isEmpty) return null;
-    for (final ward in wards) {
-      if (ward.fullName == name ||
-          ward.fullName.endsWith(name) ||
-          name.endsWith(ward.fullName)) {
-        return ward;
-      }
-    }
-    return null;
-  }
+  String? _selectedProvinceCode;
+  String? _selectedCommuneCode;
+  bool _seeded = false;
 
   @override
   void initState() {
     super.initState();
-    _nameController = TextEditingController(text: widget.profile.name);
-    _phoneController = TextEditingController(text: widget.profile.phone);
-    _emailController = TextEditingController(text: widget.profile.email);
-    _addressController = TextEditingController(text: '125 Phạm Văn Thuận');
+    _nameController = TextEditingController();
+    _phoneController = TextEditingController();
+    _emailController = TextEditingController();
+    _addressController = TextEditingController();
   }
 
   @override
@@ -82,188 +83,214 @@ class _OrganizationEditProfilePageState extends State<OrganizationEditProfilePag
     super.dispose();
   }
 
-  void _saveChanges() {
-    FakeOrganizationSetupData.isReadyToActivate = true;
-    if (widget.onSaveSuccess != null) {
-      widget.onSaveSuccess!();
-    } else {
-      if (Navigator.of(context).canPop()) {
-        Navigator.of(context).pop(true);
-      }
+  void _seedFromState(OrganizationProfileState state) {
+    if (_seeded || state.tenant == null) return;
+    final profile = OrganizationProfileUiMapper.fromTenant(state.tenant!);
+    _nameController.text = profile.name;
+    _phoneController.text = profile.phone;
+    _emailController.text = profile.email;
+    _addressController.text = profile.address;
+    _selectedProvinceCode = profile.provinceCode;
+    _selectedCommuneCode = profile.communeCode;
+    _seeded = true;
+  }
+
+  VnAdministrativeUnit? _findProvinceByCode(
+    List<VnAdministrativeUnit> units,
+    String? code,
+  ) {
+    if (code == null || code.isEmpty) return null;
+    for (final unit in units) {
+      if (unit.code == code) return unit;
+    }
+    return null;
+  }
+
+  Future<void> _save(BuildContext context) async {
+    final cubit = context.read<OrganizationProfileCubit>();
+    final ok = await cubit.updateProfile(
+      TenantProfileFormInput(
+        displayName: _nameController.text,
+        contactEmail: _emailController.text,
+        contactPhone: _phoneController.text,
+        contactAddressText: _addressController.text,
+        provinceCode: _selectedProvinceCode,
+        communeCode: _selectedCommuneCode,
+      ),
+    );
+    if (!context.mounted) return;
+    final state = cubit.state;
+    if (state.failure != null) {
       VToast.show(
         context,
-        title: 'Thành công',
-        message: 'Đã cập nhật thông tin tổ chức.',
-        type: VToastType.success,
+        title: state.failure!.requiresReload ? 'Dữ liệu đã thay đổi' : 'Không lưu được',
+        message: state.failure!.message,
+        type: state.failure!.requiresReload ? VToastType.warning : VToastType.danger,
       );
+      cubit.clearFeedback();
+      // Keep user in form after STATE_CHANGED / validation.
+      return;
     }
+    if (!ok) return;
+    VToast.show(
+      context,
+      title: state.successMessage ?? 'Đã lưu thay đổi',
+      message: 'Thông tin tổ chức đã được cập nhật thành công.',
+      type: VToastType.success,
+    );
+    cubit.clearFeedback();
+    Navigator.of(context).pop(true);
   }
 
   @override
   Widget build(BuildContext context) {
-    if (!widget.hasPermission) {
-      return VPageScaffold(
-        title: 'Chỉnh thông tin tổ chức',
-        body: OrganizationEmptyView(
-          type: OrganizationEmptyStateType.unauthorized,
-          onAction: () => Navigator.of(context).pop(),
-        ),
-      );
-    }
+    return BlocConsumer<OrganizationProfileCubit, OrganizationProfileState>(
+      listenWhen: (p, c) => p.tenant != c.tenant && !_seeded,
+      listener: (context, state) => _seedFromState(state),
+      builder: (context, state) {
+        _seedFromState(state);
 
-    final colors = context.vColors;
+        if (state.status == IamLoadStatus.loading || state.status == IamLoadStatus.initial) {
+          return const VPageScaffold(
+            title: 'Chỉnh thông tin tổ chức',
+            body: Center(child: VLoading(size: 40)),
+          );
+        }
 
-    return VPageScaffold(
-      title: 'Chỉnh thông tin tổ chức',
-      bottomBar: Padding(
-        padding: const EdgeInsets.all(VSpacing.screenMobile),
-        child: Row(
-          children: [
-            Expanded(
-              child: VButton(
-                label: 'Hủy',
-                variant: VButtonVariant.outline,
-                fullWidth: true,
-                onPressed: () => Navigator.of(context).pop(),
+        if (state.status == IamLoadStatus.failure && state.tenant == null) {
+          if (state.failure?.code == IamBlockedCodes.permissionDenied) {
+            return VPageScaffold(
+              title: 'Chỉnh thông tin tổ chức',
+              body: OrganizationEmptyView(
+                type: OrganizationEmptyStateType.unauthorized,
+                onAction: () => Navigator.of(context).pop(),
               ),
+            );
+          }
+        }
+
+        final colors = context.vColors;
+        return VPageScaffold(
+          title: 'Chỉnh thông tin tổ chức',
+          bottomBar: Padding(
+            padding: const EdgeInsets.all(VSpacing.screenMobile),
+            child: Row(
+              children: [
+                Expanded(
+                  child: VButton(
+                    label: 'Hủy',
+                    variant: VButtonVariant.outline,
+                    fullWidth: true,
+                    onPressed: state.isSubmittingProfile ? null : () => Navigator.of(context).pop(),
+                  ),
+                ),
+                const VGap.horizontalSm(),
+                Expanded(
+                  child: VButton(
+                    label: 'Lưu thay đổi',
+                    variant: VButtonVariant.primary,
+                    tone: VComponentTone.success,
+                    fullWidth: true,
+                    isLoading: state.isSubmittingProfile,
+                    onPressed: state.isSubmittingProfile ? null : () => _save(context),
+                  ),
+                ),
+              ],
             ),
-            const VGap.horizontalSm(),
-            Expanded(
-              child: VButton(
-                label: 'Lưu thay đổi',
-                variant: VButtonVariant.primary,
-                tone: VComponentTone.success,
-                fullWidth: true,
-                onPressed: _saveChanges,
+          ),
+          body: ListView(
+            padding: const EdgeInsets.all(VSpacing.screenMobile),
+            children: [
+              VText(
+                'Thông tin liên hệ này độc lập với hồ sơ pháp lý và chứng từ đã phát hành.',
+                variant: VTextVariant.bodySmall,
+                color: colors.textSecondary,
               ),
-            ),
-          ],
-        ),
-      ),
-      body: ListView(
-        padding: const EdgeInsets.all(VSpacing.screenMobile),
-        children: [
-          VText(
-            'Thông tin liên hệ này độc lập với hồ sơ pháp lý và chứng từ đã phát hành.',
-            variant: VTextVariant.bodySmall,
-            color: colors.textSecondary,
-          ),
-          const VGap.md(),
-
-          // Field 1: Tên tổ chức *
-          VTextField(
-            label: 'Tên tổ chức',
-            isRequired: true,
-            controller: _nameController,
-            helperText: 'Tên hiển thị.',
-          ),
-          const VGap.md(),
-
-          // Field 2: Số điện thoại
-          VTextField(
-            label: 'Số điện thoại',
-            controller: _phoneController,
-            keyboardType: TextInputType.phone,
-          ),
-          const VGap.md(),
-
-          // Field 3: Email liên hệ
-          VTextField(
-            label: 'Email liên hệ',
-            controller: _emailController,
-            keyboardType: TextInputType.emailAddress,
-          ),
-          const VGap.md(),
-
-          // Field 4: Địa chỉ liên hệ
-          VTextField(
-            label: 'Địa chỉ liên hệ',
-            controller: _addressController,
-          ),
-          const VGap.md(),
-
-          // Field 5 & 6: Tỉnh / thành phố & Xã / phường
-          FutureBuilder<List<VnAdministrativeUnit>>(
-            future: _unitsFuture,
-            builder: (context, snapshot) {
-              final units = snapshot.data ?? const [];
-              final selectedProvince = _findProvince(units, _selectedCity);
-              final provinceItems = units.isNotEmpty
-                  ? units
-                      .map((u) => DropdownMenuItem<String>(
-                            value: u.fullName,
-                            child: VText(u.fullName),
-                          ))
-                      .toList(growable: false)
-                  : [
-                      if (_selectedCity != null)
-                        DropdownMenuItem<String>(
-                          value: _selectedCity,
-                          child: VText(_selectedCity!),
+              const VGap.md(),
+              VTextField(
+                label: 'Tên tổ chức',
+                isRequired: true,
+                controller: _nameController,
+                helperText: 'Tên hiển thị.',
+              ),
+              const VGap.md(),
+              VTextField(
+                label: 'Số điện thoại',
+                isRequired: true,
+                controller: _phoneController,
+                keyboardType: TextInputType.phone,
+              ),
+              const VGap.md(),
+              VTextField(
+                label: 'Email liên hệ',
+                isRequired: true,
+                controller: _emailController,
+                keyboardType: TextInputType.emailAddress,
+              ),
+              const VGap.md(),
+              VTextField(
+                label: 'Địa chỉ liên hệ',
+                isRequired: true,
+                controller: _addressController,
+              ),
+              const VGap.md(),
+              FutureBuilder<List<VnAdministrativeUnit>>(
+                future: _unitsFuture,
+                builder: (context, snapshot) {
+                  final units = snapshot.data ?? const [];
+                  final selectedProvince = _findProvinceByCode(units, _selectedProvinceCode);
+                  final provinceItems = units
+                      .map(
+                        (u) => DropdownMenuItem<String>(
+                          value: u.code,
+                          child: VText(u.fullName),
                         ),
-                    ];
-
-              final wardList = selectedProvince?.wards ?? const <VnWard>[];
-              final wardItems = wardList.isNotEmpty
-                  ? wardList
-                      .map((w) => DropdownMenuItem<String>(
-                            value: w.fullName,
-                            child: VText(w.fullName),
-                          ))
-                      .toList(growable: false)
-                  : [
-                      if (_selectedWard != null)
-                        DropdownMenuItem<String>(
-                          value: _selectedWard,
-                          child: VText(_selectedWard!),
+                      )
+                      .toList(growable: false);
+                  final wardList = selectedProvince?.wards ?? const <VnWard>[];
+                  final wardItems = wardList
+                      .map(
+                        (w) => DropdownMenuItem<String>(
+                          value: w.code,
+                          child: VText(w.fullName),
                         ),
-                    ];
+                      )
+                      .toList(growable: false);
 
-              final effectiveCity = provinceItems.any((item) => item.value == _selectedCity)
-                  ? _selectedCity
-                  : (selectedProvince?.fullName ?? _selectedCity);
-
-              final effectiveWard = wardItems.any((item) => item.value == _selectedWard)
-                  ? _selectedWard
-                  : (_findWard(wardList, _selectedWard)?.fullName ?? _selectedWard);
-
-              return Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  VDropdown<String>(
-                    label: 'Tỉnh / thành phố',
-                    hintText: 'Chọn tỉnh / thành phố',
-                    value: effectiveCity,
-                    items: provinceItems,
-                    onChanged: (val) {
-                      setState(() {
-                        _selectedCity = val;
-                        _selectedWard = null;
-                      });
-                    },
-                  ),
-                  const VGap.md(),
-                  VDropdown<String>(
-                    label: 'Xã / phường',
-                    hintText: _selectedCity != null && _selectedCity!.isNotEmpty
-                        ? 'Chọn xã / phường'
-                        : 'Chọn tỉnh / thành phố trước',
-                    enabled: _selectedCity != null && _selectedCity!.isNotEmpty,
-                    value: effectiveWard,
-                    items: wardItems,
-                    onChanged: (val) {
-                      setState(() {
-                        _selectedWard = val;
-                      });
-                    },
-                  ),
-                ],
-              );
-            },
+                  return Column(
+                    children: [
+                      VDropdown<String>(
+                        label: 'Tỉnh / thành phố',
+                        hintText: 'Chọn tỉnh / thành phố',
+                        value: selectedProvince?.code,
+                        items: provinceItems,
+                        onChanged: (code) {
+                          setState(() {
+                            _selectedProvinceCode = code;
+                            _selectedCommuneCode = null;
+                          });
+                        },
+                      ),
+                      const VGap.md(),
+                      VDropdown<String>(
+                        label: 'Xã / phường',
+                        hintText: 'Chọn xã / phường',
+                        value: wardItems.any((i) => i.value == _selectedCommuneCode)
+                            ? _selectedCommuneCode
+                            : null,
+                        items: wardItems,
+                        onChanged: (code) {
+                          setState(() => _selectedCommuneCode = code);
+                        },
+                      ),
+                    ],
+                  );
+                },
+              ),
+            ],
           ),
-          const VGap.md(),
-        ],
-      ),
+        );
+      },
     );
   }
 }

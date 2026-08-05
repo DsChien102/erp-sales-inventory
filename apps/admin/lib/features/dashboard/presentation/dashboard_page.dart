@@ -41,7 +41,9 @@ class _DashboardPageState extends State<DashboardPage> {
   void didUpdateWidget(covariant DashboardPage oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.initialTab != widget.initialTab) {
-      _currentTab = widget.initialTab.enabled ? widget.initialTab : AdminTab.home;
+      _currentTab = widget.initialTab.enabled
+          ? widget.initialTab
+          : AdminTab.home;
     }
   }
 
@@ -83,17 +85,8 @@ class _DashboardPageState extends State<DashboardPage> {
     }
   }
 
-  String? _getTabSubtitle(AdminTab tab) {
-    switch (tab) {
-      case AdminTab.users:
-        return '24 người dùng';
-      case AdminTab.organizations:
-        return '18 tổ chức';
-      case AdminTab.audit:
-        return '126 hoạt động trong 24 giờ';
-      default:
-        return null;
-    }
+  String? _getTabSubtitle(AdminTab _) {
+    return null;
   }
 
   List<Widget>? _getTabActions(AdminTab tab) {

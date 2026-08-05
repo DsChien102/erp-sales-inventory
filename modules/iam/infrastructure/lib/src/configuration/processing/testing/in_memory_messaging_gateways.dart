@@ -278,8 +278,7 @@ final class StoredInboxMessage {
 }
 
 /// In-memory internal commands + [ICommandScheduler] for unit tests.
-final class InMemoryIamInternalCommands
-    implements IIamInternalCommandClient, ICommandScheduler {
+final class InMemoryIamInternalCommands implements IIamInternalCommandClient, ICommandScheduler {
   final List<_StoredInternalCommand> _commands = <_StoredInternalCommand>[];
   final List<String> failedErrors = <String>[];
   final InternalCommandSerializer serializer;
@@ -431,10 +430,9 @@ final class _StoredInternalCommand {
   String? error;
 }
 
-final class InMemoryEmailDeliveryOutcomeStore
-    implements IEmailDeliveryOutcomeStore {
-  final Map<String, EmailDeliveryOutcomeDto> byCorrelation =
-      <String, EmailDeliveryOutcomeDto>{};
+final class InMemoryEmailDeliveryOutcomeStore implements IEmailDeliveryOutcomeStore {
+  final Map<String, EmailDeliveryOutcomeDto> byCorrelation = <String, EmailDeliveryOutcomeDto>{};
+  final Map<String, String> currentInvitationCorrelationById = <String, String>{};
 
   @override
   Future<String> record({
@@ -448,8 +446,7 @@ final class InMemoryEmailDeliveryOutcomeStore
     String provider = EmailDeliveryConstants.providerResend,
     String? id,
   }) async {
-    final resolvedId =
-        id ?? byCorrelation[correlationId]?.id ?? const Uuid().v4();
+    final resolvedId = id ?? byCorrelation[correlationId]?.id ?? const Uuid().v4();
     final dto = EmailDeliveryOutcomeDto(
       id: resolvedId,
       tenantId: tenantId,
@@ -470,5 +467,14 @@ final class InMemoryEmailDeliveryOutcomeStore
     String correlationId,
   ) async {
     return byCorrelation[correlationId];
+  }
+
+  @override
+  Future<bool> isCurrentTenantInvitationDelivery({
+    required String invitationId,
+    required String correlationId,
+  }) async {
+    final current = currentInvitationCorrelationById[invitationId];
+    return current == null || current == correlationId;
   }
 }

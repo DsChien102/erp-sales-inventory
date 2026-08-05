@@ -3,34 +3,64 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:vet45_design_system/design_system.dart';
 import 'package:vet45_iam_application/application.dart';
 import 'package:vet45_iam_presentation/presentation.dart';
+import 'package:vet45_iam_presentation/testing.dart';
 import 'package:vet45_shared_application/application.dart';
 
-final class _RecordingIamModule implements IIamModule {
-  _RecordingIamModule({this.verifyResult = true});
+/// Local scripted delegate for Cubit unit tests (ScriptedIamModule not in package).
+final class _ScriptedIamModule implements IIamModule {
+  _ScriptedIamModule({
+    required this.onCommand,
+    required this.onQuery,
+  });
+
+  final Future<Object?> Function(Object message) onCommand;
+  final Future<Object?> Function(Object message) onQuery;
+
+  @override
+  Future<TResult> executeCommandAsync<TResult>(
+    ICommand<TResult> command,
+  ) async {
+    return await onCommand(command) as TResult;
+  }
+
+  @override
+  Future<TResult> executeQueryAsync<TResult>(IQuery<TResult> query) async {
+    return await onQuery(query) as TResult;
+  }
+}
+
+final class _RecordingPageIamModule implements IIamModule {
+  _RecordingPageIamModule({
+    this.verifyResult = true,
+    this.resendAvailableAfter = const Duration(seconds: 2),
+  });
 
   final bool verifyResult;
+  final Duration resendAvailableAfter;
   final List<Type> commandTypes = <Type>[];
+  DateTime Function() clock = DateTime.now;
 
   @override
   Future<TResult> executeCommandAsync<TResult>(
     ICommand<TResult> command,
   ) async {
     commandTypes.add(command.runtimeType);
+    final now = clock().toUtc();
     return switch (command) {
       RequestMyPasswordResetCommand() =>
         PasswordResetRequestResultDto(
               operationId: 'op-1',
               maskedEmail: 'l***@example.com',
-              expiresAt: DateTime.now().toUtc().add(const Duration(minutes: 10)),
-              resendAvailableAt: DateTime.now().toUtc().add(const Duration(seconds: 2)),
+              expiresAt: now.add(const Duration(minutes: 10)),
+              resendAvailableAt: now.add(resendAvailableAfter),
             )
             as TResult,
       ResendMyPasswordResetCommand() =>
         PasswordResetRequestResultDto(
               operationId: 'op-1',
               maskedEmail: 'l***@example.com',
-              expiresAt: DateTime.now().toUtc().add(const Duration(minutes: 10)),
-              resendAvailableAt: DateTime.now().toUtc().add(const Duration(seconds: 3)),
+              expiresAt: now.add(const Duration(minutes: 10)),
+              resendAvailableAt: now.add(const Duration(seconds: 3)),
             )
             as TResult,
       VerifyMyPasswordResetCommand() =>
@@ -57,6 +87,70 @@ Future<void> _settleRequest(WidgetTester tester) async {
 }
 
 void main() {
+  group('PasswordResetCubit', () {
+    test('failed initial request retries Request command', () async {
+      var requestCount = 0;
+      final scripted = _ScriptedIamModule(
+        onCommand: (message) async {
+          if (message is RequestMyPasswordResetCommand) {
+            requestCount += 1;
+            if (requestCount == 1) {
+              throw const IamBlockedException(IamBlockedCodes.systemError);
+            }
+            return PasswordResetRequestResultDto(
+              operationId: 'reset-op-1',
+              maskedEmail: 'l***@example.com',
+              expiresAt: DateTime.utc(2026, 7, 31, 9, 10),
+              resendAvailableAt: DateTime.utc(2026, 7, 31, 9, 1),
+            );
+          }
+          throw UnsupportedError(message.runtimeType.toString());
+        },
+        onQuery: (message) async =>
+            throw UnsupportedError(message.runtimeType.toString()),
+      );
+      final module = RecordingIamModule(scripted);
+      final cubit = PasswordResetCubit(
+        iamModule: module,
+        clock: () => DateTime.utc(2026, 7, 31, 9),
+      );
+      await cubit.request();
+      await cubit.retry();
+      expect(module.commandsOf<RequestMyPasswordResetCommand>(), hasLength(2));
+      expect(module.commandsOf<ResendMyPasswordResetCommand>(), isEmpty);
+      await cubit.close();
+    });
+
+    test('resend uses operationId returned by request', () async {
+      final scripted = _ScriptedIamModule(
+        onCommand: (message) async {
+          if (message is RequestMyPasswordResetCommand ||
+              message is ResendMyPasswordResetCommand) {
+            return PasswordResetRequestResultDto(
+              operationId: 'reset-op-1',
+              maskedEmail: 'l***@example.com',
+              expiresAt: DateTime.utc(2026, 7, 31, 9, 10),
+              resendAvailableAt: DateTime.utc(2026, 7, 31, 9),
+            );
+          }
+          throw UnsupportedError(message.runtimeType.toString());
+        },
+        onQuery: (message) async =>
+            throw UnsupportedError(message.runtimeType.toString()),
+      );
+      final module = RecordingIamModule(scripted);
+      final cubit = PasswordResetCubit(
+        iamModule: module,
+        clock: () => DateTime.utc(2026, 7, 31, 9),
+      );
+      await cubit.request();
+      await cubit.resend();
+      final command = module.commandsOf<ResendMyPasswordResetCommand>().single;
+      expect(command.operationId, 'reset-op-1');
+      await cubit.close();
+    });
+  });
+
   testWidgets(
     'ResetPasswordPage requests reset, shows countdown, then resends',
     (WidgetTester tester) async {
@@ -65,11 +159,16 @@ void main() {
       addTearDown(tester.view.resetPhysicalSize);
       addTearDown(tester.view.resetDevicePixelRatio);
 
-      final module = _RecordingIamModule();
+      var now = DateTime.utc(2026, 7, 31, 9);
+      final module = _RecordingPageIamModule();
+      module.clock = () => now;
 
       await tester.pumpWidget(
         MaterialApp(
-          home: ResetPasswordPage(iamModule: module),
+          home: ResetPasswordPage(
+            iamModule: module,
+            clock: () => now,
+          ),
         ),
       );
       await _settleRequest(tester);
@@ -81,12 +180,16 @@ void main() {
       );
       expect(
         find.byWidgetPredicate(
-          (w) => w is VButton && w.label.startsWith('Gửi lại mã sau 00:') && w.onPressed == null,
+          (w) =>
+              w is VButton &&
+              w.label.startsWith('Gửi lại mã sau 00:') &&
+              w.onPressed == null,
         ),
         findsOneWidget,
       );
 
       for (var i = 0; i < 5; i++) {
+        now = now.add(const Duration(seconds: 1));
         await tester.pump(const Duration(seconds: 1));
         if (find.widgetWithText(VButton, 'Gửi lại mã').evaluate().isNotEmpty) {
           break;
@@ -101,7 +204,10 @@ void main() {
       expect(module.commandTypes, contains(ResendMyPasswordResetCommand));
       expect(
         find.byWidgetPredicate(
-          (w) => w is VButton && w.label.startsWith('Gửi lại mã sau 00:') && w.onPressed == null,
+          (w) =>
+              w is VButton &&
+              w.label.startsWith('Gửi lại mã sau 00:') &&
+              w.onPressed == null,
         ),
         findsOneWidget,
       );
@@ -116,7 +222,7 @@ void main() {
       addTearDown(tester.view.resetPhysicalSize);
       addTearDown(tester.view.resetDevicePixelRatio);
 
-      final module = _RecordingIamModule(verifyResult: false);
+      final module = _RecordingPageIamModule(verifyResult: false);
 
       await tester.pumpWidget(
         MaterialApp(
@@ -144,7 +250,7 @@ void main() {
       addTearDown(tester.view.resetPhysicalSize);
       addTearDown(tester.view.resetDevicePixelRatio);
 
-      final module = _RecordingIamModule();
+      final module = _RecordingPageIamModule();
 
       await tester.pumpWidget(
         MaterialApp(
@@ -171,7 +277,7 @@ void main() {
       addTearDown(tester.view.resetPhysicalSize);
       addTearDown(tester.view.resetDevicePixelRatio);
 
-      final module = _RecordingIamModule();
+      final module = _RecordingPageIamModule();
       Object? popResult;
 
       await tester.pumpWidget(
@@ -214,7 +320,9 @@ void main() {
       await tester.pumpAndSettle(const Duration(milliseconds: 100));
 
       expect(
-        module.commandTypes.where((t) => t == CompleteMyPasswordResetCommand).length,
+        module.commandTypes
+            .where((t) => t == CompleteMyPasswordResetCommand)
+            .length,
         1,
       );
       expect(popResult, isTrue);
@@ -234,7 +342,7 @@ void main() {
 
       await tester.pumpWidget(
         const MaterialApp(
-          home: ResetPasswordPage(),
+          home: ResetPasswordPage(emailMasked: 'mi***@gmail.com'),
         ),
       );
 

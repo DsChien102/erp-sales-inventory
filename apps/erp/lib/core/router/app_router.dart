@@ -3,6 +3,7 @@ import 'package:vet45_design_system/design_system.dart';
 import 'package:go_router/go_router.dart';
 import 'package:vet45_iam_infrastructure/infrastructure.dart';
 import 'package:vet45_iam_application/application.dart';
+import 'package:vet45_iam_domain/domain.dart';
 import 'package:vet45_shared_application/application.dart';
 import 'package:vet45_catalog_application/application.dart' hide ProductChangeHistoryPage;
 import 'package:vet45_catalog_presentation/presentation.dart';
@@ -22,8 +23,8 @@ import '../../features/more/presentation/einvoice_settings/bloc/einvoice_setting
 
 // Auth
 import '../../features/auth/presentation/pages/login_page.dart';
-import '../../features/auth/presentation/pages/activation_code_page.dart';
-import '../../features/auth/presentation/pages/account_activation_page.dart';
+import '../../features/auth/presentation/pages/invitation_token_page.dart';
+import '../../features/auth/presentation/pages/owner_activation_page.dart';
 
 // Dashboard
 import '../../features/dashboard/presentation/dashboard_page.dart';
@@ -79,13 +80,14 @@ final appRouter = GoRouter(
   initialLocation: '/',
   redirect: (context, state) {
     final isAuthenticated = getIt<ICurrentUser>().userId != null;
-    final isAuthRoute = state.matchedLocation.startsWith('/login');
+    final location = state.matchedLocation;
+    final isPublicRoute = location.startsWith('/login') || location == '/invitation';
 
-    if (!isAuthenticated && !isAuthRoute) {
+    if (!isAuthenticated && !isPublicRoute) {
       return '/login';
     }
 
-    if (isAuthenticated && isAuthRoute) {
+    if (isAuthenticated && location.startsWith('/login')) {
       return '/';
     }
 
@@ -98,35 +100,33 @@ final appRouter = GoRouter(
       builder: (context, state) {
         final extra = state.extra as Map<String, dynamic>?;
         return LoginPage(
+          iamModule: getIt<IIamModule>(),
           prefilledEmail: extra?['prefilledEmail'] as String?,
           showSuccessBanner: extra?['showSuccessBanner'] as bool? ?? false,
         );
       },
       routes: [
         GoRoute(
-          path: 'enter-code',
-          name: 'login.enter_code',
-          builder: (context, state) => const ActivationCodePage(),
-        ),
-        GoRoute(
-          path: 'activate',
-          name: 'login.activate',
-          builder: (context, state) {
-            final extra = state.extra as Map<String, dynamic>?;
-            return AccountActivationPage(
-              email: extra?['email'] as String?,
-            );
-          },
-        ),
-        GoRoute(
           path: 'reset-password',
           name: 'login.reset_password',
           builder: (context, state) {
             final email = state.extra as String? ?? '';
-            return ResetPasswordPage(email: email);
+            return ResetPasswordPage(emailMasked: email);
           },
         ),
       ],
+    ),
+    GoRoute(
+      path: '/invitation',
+      name: 'invitation',
+      builder: (context, state) => InvitationTokenPage(
+        iamModule: getIt<IIamModule>(),
+      ),
+    ),
+    GoRoute(
+      path: '/owner-activation',
+      name: 'owner-activation',
+      builder: (context, state) => const OwnerActivationPage(),
     ),
     GoRoute(
       path: '/',
@@ -144,84 +144,87 @@ final appRouter = GoRouter(
     GoRoute(
       path: '/more/users-and-roles',
       name: 'more.users-and-roles',
-      builder: (context, state) => const UsersAndRolesPage(),
+      builder: (context, state) => UsersAndRolesPage(
+        iamModule: getIt<IIamModule>(),
+      ),
     ),
     GoRoute(
       path: '/more/users',
       name: 'more.users',
-      builder: (context, state) => const OrganizationUsersPage(),
+      builder: (context, state) {
+        if (!_hasTenantPermission(IamPermissions.memberView)) {
+          return _permissionDeniedScaffold(
+            context,
+            message: 'Bạn không có quyền xem thành viên',
+          );
+        }
+        return OrganizationUsersPage(
+          iamModule: getIt<IIamModule>(),
+          executionContext: getIt<IExecutionContext>(),
+        );
+      },
     ),
     GoRoute(
       path: '/more/users/invite',
       name: 'more.users.invite',
-      builder: (context, state) => const OrganizationInviteMemberPage(),
+      builder: (context, state) => OrganizationInviteMemberPage(
+        iamModule: getIt<IIamModule>(),
+        executionContext: getIt<IExecutionContext>(),
+      ),
+    ),
+    GoRoute(
+      path: '/more/users/invitations/:invitationId',
+      name: 'more.users.invitation-detail',
+      builder: (context, state) {
+        final invitationId = state.pathParameters['invitationId'];
+        if (invitationId == null || invitationId.isEmpty) {
+          return _permissionDeniedScaffold(
+            context,
+            message: 'Thiếu mã lời mời',
+          );
+        }
+        return OrganizationInvitationDetailPage(
+          invitationId: invitationId,
+          iamModule: getIt<IIamModule>(),
+          executionContext: getIt<IExecutionContext>(),
+        );
+      },
+    ),
+    GoRoute(
+      path: '/more/users/members/:membershipId',
+      name: 'more.users.member-detail',
+      builder: (context, state) {
+        final membershipId = state.pathParameters['membershipId'];
+        if (membershipId == null || membershipId.isEmpty) {
+          return _permissionDeniedScaffold(
+            context,
+            message: 'Thiếu mã thành viên',
+          );
+        }
+        return OrganizationMemberDetailPage(
+          membershipId: membershipId,
+          iamModule: getIt<IIamModule>(),
+          executionContext: getIt<IExecutionContext>(),
+        );
+      },
     ),
     GoRoute(
       path: '/more/users/invitation-detail',
-      name: 'more.users.invitation-detail',
-      builder: (context, state) {
-        final invitation = state.extra as InvitationUiModel?;
-        return invitation != null
-            ? OrganizationInvitationDetailPage(invitation: invitation)
-            : const OrganizationInvitationDetailPage();
-      },
+      redirect: (context, state) => '/more/users',
     ),
     GoRoute(
       path: '/more/users/member-detail',
-      name: 'more.users.member-detail',
-      builder: (context, state) {
-        final member = state.extra as MemberUiModel?;
-        return member != null
-            ? OrganizationMemberDetailPage(member: member)
-            : const OrganizationMemberDetailPage(
-                member: MemberUiModel(
-                  id: 'm1',
-                  name: 'Nguyễn Văn Minh',
-                  email: 'minh@minhphat.vn',
-                  role: 'Nhân viên bán hàng',
-                  status: MemberStatus.active,
-                ),
-              );
-      },
+      redirect: (context, state) => '/more/users',
     ),
     GoRoute(
       path: '/more/users/select-role',
       name: 'more.users.select-role',
-      builder: (context, state) {
-        final member = state.extra as MemberUiModel?;
-        return OrganizationSelectRolePage(
-          member:
-              member ??
-              const MemberUiModel(
-                id: 'm1',
-                name: 'Nguyễn Văn Minh',
-                email: 'minh@minhphat.vn',
-                role: 'Nhân viên bán hàng',
-                status: MemberStatus.active,
-              ),
-        );
-      },
+      redirect: (context, state) => '/more/users-and-roles',
     ),
     GoRoute(
       path: '/more/users/preview-role-change',
       name: 'more.users.preview-role-change',
-      builder: (context, state) {
-        final extra = state.extra as Map<String, dynamic>?;
-        final member =
-            extra?['member'] as MemberUiModel? ??
-            const MemberUiModel(
-              id: 'm1',
-              name: 'Nguyễn Văn Minh',
-              email: 'minh@minhphat.vn',
-              role: 'Nhân viên bán hàng',
-              status: MemberStatus.active,
-            );
-        final newRole = extra?['newRole'] as String? ?? 'Kế toán';
-        return OrganizationPreviewRoleChangePage(
-          member: member,
-          newRole: newRole,
-        );
-      },
+      redirect: (context, state) => '/more/users-and-roles',
     ),
     GoRoute(
       path: '/more/roles',
@@ -231,25 +234,43 @@ final appRouter = GoRouter(
     GoRoute(
       path: '/more/roles/detail',
       name: 'more.roles.detail',
-      builder: (context, state) {
-        final role = state.extra as RoleUiModel?;
-        return OrganizationRoleDetailPage(
-          role: role ?? FakeRolesData.sampleRoles[1],
-        );
-      },
+      redirect: (context, state) => '/more/users-and-roles',
     ),
     GoRoute(
       path: '/more/audit-logs',
       name: 'more.audit-logs',
-      builder: (context, state) => const OrganizationAuditLogsPage(),
+      builder: (context, state) {
+        if (!_hasTenantPermission(IamPermissions.tenantAuditView)) {
+          return _permissionDeniedScaffold(
+            context,
+            message: 'Bạn không có quyền xem lịch sử quản trị',
+          );
+        }
+        return OrganizationAuditLogsPage(
+          iamModule: getIt<IIamModule>(),
+          executionContext: getIt<IExecutionContext>(),
+        );
+      },
     ),
     GoRoute(
       path: '/more/audit-logs/detail',
+      redirect: (context, state) => '/more/audit-logs',
+    ),
+    GoRoute(
+      path: '/more/audit-logs/:auditLogId',
       name: 'more.audit-logs.detail',
       builder: (context, state) {
-        final log = state.extra as AuditLogItemUiModel?;
+        final auditLogId = state.pathParameters['auditLogId'];
+        if (auditLogId == null || auditLogId.isEmpty || auditLogId == 'detail') {
+          return _permissionDeniedScaffold(
+            context,
+            message: 'Thiếu mã nhật ký',
+          );
+        }
         return AuditLogDetailPage(
-          log: log ?? FakeAuditLogsData.sampleAuditLogs[0],
+          auditLogId: auditLogId,
+          iamModule: getIt<IIamModule>(),
+          executionContext: getIt<IExecutionContext>(),
         );
       },
     ),
@@ -260,7 +281,7 @@ final appRouter = GoRouter(
         iamModule: getIt<IIamModule>(),
         onLogout: () async {
           final result = await guard(
-            () => getIt<IIamModule>().executeCommandAsync(SignOutCommand()),
+            () => getIt<IIamModule>().executeCommandAsync<SignOutResultDto>(SignOutCommand()),
           );
           if (!context.mounted) return;
           result.fold(
@@ -272,7 +293,26 @@ final appRouter = GoRouter(
                 type: VToastType.danger,
               );
             },
-            (_) => context.go('/login'),
+            (signOut) {
+              if (!signOut.localCleared) {
+                VToast.show(
+                  context,
+                  title: 'Đăng xuất thất bại',
+                  message: 'Không thể đóng phiên trên máy.',
+                  type: VToastType.danger,
+                );
+                return;
+              }
+              if (!signOut.remoteSucceeded) {
+                VToast.show(
+                  context,
+                  title: 'Cảnh báo',
+                  message: 'Phiên trên máy đã đóng; máy chủ chưa xác nhận đăng xuất',
+                  type: VToastType.warning,
+                );
+              }
+              context.go('/login');
+            },
           );
         },
       ),
@@ -280,14 +320,9 @@ final appRouter = GoRouter(
     GoRoute(
       path: '/more/my-account/edit',
       name: 'more.my-account.edit',
-      builder: (context, state) {
-        final data =
-            state.extra as MyAccountUiModel? ?? MyAccountUiModel.sample;
-        return EditMyAccountPage(
-          data: data,
-          iamModule: getIt<IIamModule>(),
-        );
-      },
+      builder: (context, state) => EditMyAccountPage(
+        iamModule: getIt<IIamModule>(),
+      ),
     ),
     GoRoute(
       path: '/more/my-account/reset-password',
@@ -299,35 +334,50 @@ final appRouter = GoRouter(
     GoRoute(
       path: '/more/organization-profile',
       name: 'more.organization-profile',
-      builder: (context, state) => const OrganizationProfilePage(),
+      builder: (context, state) {
+        if (!_hasTenantPermission(IamPermissions.tenantView)) {
+          return _permissionDeniedScaffold(
+            context,
+            message: 'Bạn không có quyền xem hồ sơ tổ chức',
+          );
+        }
+        return OrganizationProfilePage(
+          iamModule: getIt<IIamModule>(),
+          executionContext: getIt<IExecutionContext>(),
+        );
+      },
     ),
     GoRoute(
       path: '/more/organization-profile/edit',
       name: 'more.organization-profile.edit',
-      builder: (context, state) => const OrganizationEditProfilePage(),
+      builder: (context, state) {
+        final cubit = state.extra is OrganizationProfileCubit
+            ? state.extra! as OrganizationProfileCubit
+            : null;
+        if (cubit != null) {
+          return OrganizationEditProfilePage(cubit: cubit);
+        }
+        return OrganizationEditProfilePage(
+          iamModule: getIt<IIamModule>(),
+          executionContext: getIt<IExecutionContext>(),
+        );
+      },
     ),
     GoRoute(
       path: '/more/organization-profile/legal',
       name: 'more.organization-profile.legal',
       builder: (context, state) {
-        final isEdit = state.extra as bool? ?? false;
-        return OrganizationLegalProfileFormPage(isEdit: isEdit);
+        final cubit = state.extra is OrganizationProfileCubit
+            ? state.extra! as OrganizationProfileCubit
+            : null;
+        if (cubit != null) {
+          return OrganizationLegalProfileFormPage(cubit: cubit);
+        }
+        return OrganizationLegalProfileFormPage(
+          iamModule: getIt<IIamModule>(),
+          executionContext: getIt<IExecutionContext>(),
+        );
       },
-    ),
-    GoRoute(
-      path: '/more/organization-setup',
-      name: 'more.organization-setup',
-      builder: (context, state) => const OrganizationSetupPage(),
-    ),
-    GoRoute(
-      path: '/more/organization-setup/incomplete',
-      name: 'more.organization-setup.incomplete',
-      builder: (context, state) => const OrganizationSetupPage(),
-    ),
-    GoRoute(
-      path: '/more/organization-setup/ready',
-      name: 'more.organization-setup.ready',
-      builder: (context, state) => const OrganizationSetupPage(),
     ),
     GoRoute(
       path: '/more/einvoice-settings',
@@ -829,5 +879,45 @@ final appRouter = GoRouter(
         return PricingHistoryPage(ruleId: ruleId);
       },
     ),
+    GoRoute(
+      path: '/more/readiness',
+      name: 'more.readiness',
+      builder: (context, state) {
+        if (!_hasTenantPermission(IamPermissions.tenantReadinessView)) {
+          return _permissionDeniedScaffold(
+            context,
+            message: 'Bạn không có quyền xem readiness',
+          );
+        }
+        return TenantReadinessPage(
+          iamModule: getIt<IIamModule>(),
+          executionContext: getIt<IExecutionContext>(),
+          canActivateTenant: _hasTenantPermission(
+            IamPermissions.tenantActivate,
+          ),
+        );
+      },
+    ),
   ],
 );
+
+bool _hasTenantPermission(String code) {
+  return getIt<IamSession>().hasPermission(code);
+}
+
+Widget _permissionDeniedScaffold(
+  BuildContext context, {
+  required String message,
+}) {
+  WidgetsBinding.instance.addPostFrameCallback((_) {
+    if (!context.mounted) return;
+    VToast.show(
+      context,
+      title: 'Không có quyền',
+      message: message,
+      type: VToastType.danger,
+    );
+    context.go('/');
+  });
+  return const Scaffold(body: SizedBox.shrink());
+}

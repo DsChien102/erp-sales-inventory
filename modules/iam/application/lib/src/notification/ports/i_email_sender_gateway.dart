@@ -15,9 +15,9 @@ final class EmailSendResult {
 
 /// Sends a rendered email via the configured provider (e.g. Resend).
 ///
-/// For `password_reset_code`: implementation must resolve plaintext code via
-/// [IPasswordResetCodeGateway] using `refs['operation_id']` before rendering.
-/// Code must NOT come from `refs` directly.
+/// For both `password_reset_code` and `tenant_invitation`: the raw code/token
+/// arrives only via [secretPayloadCiphertext] (transient encrypted channel
+/// enqueued by the mutation RPC). It is never present in `refs`.
 abstract interface class IEmailSenderGateway {
   Future<EmailSendResult> send({
     required EmailTemplateId templateId,
@@ -25,5 +25,6 @@ abstract interface class IEmailSenderGateway {
     required String locale,
     required Map<String, String> refs,
     String? appLinkUrl,
+    String? secretPayloadCiphertext,
   });
 }

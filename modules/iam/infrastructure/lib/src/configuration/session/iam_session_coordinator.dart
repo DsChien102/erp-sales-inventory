@@ -17,13 +17,21 @@ final class IamSessionCoordinator implements IIamSessionPort {
   final IAuthenticator _authenticator;
 
   @override
-  SessionDto get snapshot =>
-      _session.toDto(email: _authenticator.currentEmail);
+  SessionDto get snapshot => _session.toDto(email: _authenticator.currentEmail);
 
   @override
-  Future<void> establishAfterSignIn({String? tenantId}) async {
-    if (_authenticator.currentUserId == null) {
+  Future<void> establishAfterSignIn({
+    String? tenantId,
+    bool requireTenantContext = true,
+  }) async {
+    final currentUserId = _authenticator.currentUserId;
+    if (currentUserId == null) {
       throw ApplicationException('Not authenticated');
+    }
+
+    if (!requireTenantContext && tenantId == null) {
+      _session.applyAuthenticatedUser(currentUserId);
+      return;
     }
 
     if (tenantId != null) {
@@ -37,14 +45,7 @@ final class IamSessionCoordinator implements IIamSessionPort {
       return;
     }
 
-    var context = await _accessGateway.getSessionContext(tenantId: tenantId);
-    if (context == null) {
-      final bootstrappedTenantId = await _accessGateway.bootstrapOwner();
-      context = await _accessGateway.getSessionContext(
-        tenantId: bootstrappedTenantId,
-      );
-    }
-
+    final context = await _accessGateway.getSessionContext(tenantId: tenantId);
     if (context == null) {
       throw ApplicationException('Failed to establish IAM session');
     }
@@ -58,21 +59,22 @@ final class IamSessionCoordinator implements IIamSessionPort {
   }
 
   @override
-  Future<void> restoreFromPersistedAuth() async {
-    if (_authenticator.currentUserId == null) {
+  Future<void> restoreFromPersistedAuth({
+    bool requireTenantContext = true,
+  }) async {
+    final currentUserId = _authenticator.currentUserId;
+    if (currentUserId == null) {
       _session.clear();
       return;
     }
 
-    try {
-      var context = await _accessGateway.getSessionContext();
-      if (context == null) {
-        final bootstrappedTenantId = await _accessGateway.bootstrapOwner();
-        context = await _accessGateway.getSessionContext(
-          tenantId: bootstrappedTenantId,
-        );
-      }
+    if (!requireTenantContext) {
+      _session.applyAuthenticatedUser(currentUserId);
+      return;
+    }
 
+    try {
+      final context = await _accessGateway.getSessionContext();
       if (context != null) {
         _session.apply(context);
       } else {

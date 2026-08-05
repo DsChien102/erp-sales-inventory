@@ -17,7 +17,9 @@ final class TenantContextState {
     this.tenants = const [],
     this.branchDisplayName,
     required this.userDisplayName,
-    this.errorMessage,
+    this.contextFailure,
+    this.selectorFailure,
+    this.switchFailure,
     this.blockedErrorCode,
     this.emptyStateType,
     this.suspendedOrgName,
@@ -31,7 +33,9 @@ final class TenantContextState {
   final List<SelectOrganizationItemUiModel> tenants;
   final String? branchDisplayName;
   final String userDisplayName;
-  final String? errorMessage;
+  final IamUiFailure? contextFailure;
+  final IamUiFailure? selectorFailure;
+  final IamUiFailure? switchFailure;
   final String? blockedErrorCode;
   final OrganizationEmptyStateType? emptyStateType;
   final String? suspendedOrgName;
@@ -51,14 +55,18 @@ final class TenantContextState {
     List<SelectOrganizationItemUiModel>? tenants,
     String? branchDisplayName,
     String? userDisplayName,
-    String? errorMessage,
+    IamUiFailure? contextFailure,
+    IamUiFailure? selectorFailure,
+    IamUiFailure? switchFailure,
     String? blockedErrorCode,
     OrganizationEmptyStateType? emptyStateType,
     String? suspendedOrgName,
     bool? tenantsLoading,
     bool? isSwitching,
     bool? openSelectorRequested,
-    bool clearError = false,
+    bool clearContextFailure = false,
+    bool clearSelectorFailure = false,
+    bool clearSwitchFailure = false,
     bool clearCurrent = false,
     bool clearEmptyState = false,
   }) {
@@ -68,8 +76,16 @@ final class TenantContextState {
       tenants: tenants ?? this.tenants,
       branchDisplayName: branchDisplayName ?? this.branchDisplayName,
       userDisplayName: userDisplayName ?? this.userDisplayName,
-      errorMessage: clearError ? null : (errorMessage ?? this.errorMessage),
-      blockedErrorCode: clearError
+      contextFailure: clearContextFailure
+          ? null
+          : (contextFailure ?? this.contextFailure),
+      selectorFailure: clearSelectorFailure
+          ? null
+          : (selectorFailure ?? this.selectorFailure),
+      switchFailure: clearSwitchFailure
+          ? null
+          : (switchFailure ?? this.switchFailure),
+      blockedErrorCode: clearContextFailure
           ? null
           : (blockedErrorCode ?? this.blockedErrorCode),
       emptyStateType: clearEmptyState

@@ -5,7 +5,7 @@ import 'package:vet45_iam_application/testing.dart';
 
 /// wgt_e01_u02_fr01_01 — Platform user detail + lifecycle via IIamModule.
 void main() {
-  testWidgets('loads detail for known userId', (WidgetTester tester) async {
+  testWidgets('loads detail for known userId — wgt_e01_u02_fr01_01', (WidgetTester tester) async {
     final module = FakeIamModule(scenario: FakeIamScenario.userDetailOk);
 
     await tester.pumpWidget(

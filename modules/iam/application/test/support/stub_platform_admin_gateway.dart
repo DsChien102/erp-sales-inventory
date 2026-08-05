@@ -12,28 +12,24 @@ base class StubPlatformAdminGateway implements IPlatformAdminGateway {
     PlatformUserStatus? status,
     String? cursor,
     int limit = 20,
-  }) async =>
-      throw UnimplementedError();
+  }) async => throw UnimplementedError();
 
   @override
-  Future<PlatformUserDetailDto> getPlatformUser(String userId) async =>
-      throw UnimplementedError();
+  Future<PlatformUserDetailDto> getPlatformUser(String userId) async => throw UnimplementedError();
 
   @override
   Future<void> sendActivationInvitation({
     required String userId,
     required int expectedVersion,
     required String idempotencyKey,
-  }) async =>
-      throw UnimplementedError();
+  }) async => throw UnimplementedError();
 
   @override
   Future<void> requestPasswordReset({
     required String userId,
     required int expectedVersion,
     required String idempotencyKey,
-  }) async =>
-      throw UnimplementedError();
+  }) async => throw UnimplementedError();
 
   @override
   Future<void> suspendPlatformUser({
@@ -41,38 +37,46 @@ base class StubPlatformAdminGateway implements IPlatformAdminGateway {
     required String reason,
     required int expectedVersion,
     required String idempotencyKey,
-  }) async =>
-      throw UnimplementedError();
+  }) async => throw UnimplementedError();
 
   @override
   Future<void> restorePlatformUser({
     required String userId,
     required int expectedVersion,
     required String idempotencyKey,
-  }) async =>
-      throw UnimplementedError();
+  }) async => throw UnimplementedError();
 
   @override
   Future<TenantOnboardingResultDto> createTenantOnboarding({
-    required OnboardingOwnerInput owner,
+    required bool isNewUser,
     required String organizationName,
     required String idempotencyKey,
+    String? organizationDisplayName,
+    String? contactEmail,
+    String? contactPhone,
+    String? contactAddressText,
+    String? provinceCode,
+    String? communeCode,
+    String? legalName,
+    String? taxCode,
+    String? ownerUserId,
+    String? ownerEmail,
+    String? ownerGivenName,
+    String? ownerFamilyName,
+    String? ownerPhone,
     String? correlationId,
-  }) async =>
-      throw UnimplementedError();
+  }) async => throw UnimplementedError();
 
   @override
   Future<TenantOnboardingOperationDto?> getTenantOnboardingOperation(
     String operationId,
-  ) async =>
-      throw UnimplementedError();
+  ) async => throw UnimplementedError();
 
   @override
   Future<TenantOnboardingOperationDto> retryTenantOnboardingOperation({
     required String operationId,
     required String idempotencyKey,
-  }) async =>
-      throw UnimplementedError();
+  }) async => throw UnimplementedError();
 
   @override
   Future<CursorPageDto<PlatformTenantSummaryDto>> searchPlatformTenants({
@@ -82,8 +86,7 @@ base class StubPlatformAdminGateway implements IPlatformAdminGateway {
     String? warningCode,
     String? cursor,
     int limit = 20,
-  }) async =>
-      throw UnimplementedError();
+  }) async => throw UnimplementedError();
 
   @override
   Future<PlatformTenantDetailDto> getPlatformTenant(String tenantId) async =>
@@ -92,8 +95,7 @@ base class StubPlatformAdminGateway implements IPlatformAdminGateway {
   @override
   Future<List<PlatformTenantMemberDto>> listPlatformTenantMembers(
     String tenantId,
-  ) async =>
-      throw UnimplementedError();
+  ) async => throw UnimplementedError();
 
   @override
   Future<void> suspendPlatformTenant({
@@ -101,16 +103,14 @@ base class StubPlatformAdminGateway implements IPlatformAdminGateway {
     required String reason,
     required int expectedVersion,
     required String idempotencyKey,
-  }) async =>
-      throw UnimplementedError();
+  }) async => throw UnimplementedError();
 
   @override
   Future<void> restorePlatformTenant({
     required String tenantId,
     required int expectedVersion,
     required String idempotencyKey,
-  }) async =>
-      throw UnimplementedError();
+  }) async => throw UnimplementedError();
 
   @override
   Future<void> transferPlatformTenantOwnership({
@@ -118,8 +118,7 @@ base class StubPlatformAdminGateway implements IPlatformAdminGateway {
     required String newOwnerUserId,
     required int expectedVersion,
     required String idempotencyKey,
-  }) async =>
-      throw UnimplementedError();
+  }) async => throw UnimplementedError();
 
   @override
   Future<CursorPageDto<PlatformAuditLogSummaryDto>> searchPlatformAuditLogs({
@@ -134,12 +133,10 @@ base class StubPlatformAdminGateway implements IPlatformAdminGateway {
     String? correlationId,
     String? cursor,
     int limit = 20,
-  }) async =>
-      throw UnimplementedError();
+  }) async => throw UnimplementedError();
 
   @override
   Future<PlatformAuditLogDetailDto> getPlatformAuditLog(
     String auditLogId,
-  ) async =>
-      throw UnimplementedError();
+  ) async => throw UnimplementedError();
 }

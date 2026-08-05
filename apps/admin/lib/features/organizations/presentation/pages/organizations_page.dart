@@ -9,6 +9,7 @@ import 'package:vet45_iam_presentation/presentation.dart';
 import '../../../../core/di/injection.dart';
 import '../bloc/platform_tenants_cubit.dart';
 import '../bloc/platform_tenants_state.dart';
+import 'platform_onboarding_page.dart';
 import 'platform_tenant_detail_page.dart';
 
 /// Thin Composition Page — danh sách tổ chức nền tảng (Admin / EP-02 US-08).
@@ -89,6 +90,18 @@ class _OrganizationsViewState extends State<_OrganizationsView> {
     );
   }
 
+  Future<void> _openOnboardingWizard() async {
+    final shouldRefresh = await Navigator.of(context).push<bool>(
+      MaterialPageRoute(
+        builder: (context) =>
+            PlatformOnboardingPage(iamModule: widget.iamModule),
+      ),
+    );
+    if (shouldRefresh == true && mounted) {
+      await context.read<PlatformTenantsCubit>().load();
+    }
+  }
+
   @override
   void dispose() {
     _searchDebounceTimer?.cancel();
@@ -117,7 +130,8 @@ class _OrganizationsViewState extends State<_OrganizationsView> {
           emptyType = OrganizationEmptyStateType.loadError;
           onEmptyAction = () => cubit.load();
         } else {
-          final hasSearchQuery = _searchController.text.trim().isNotEmpty ||
+          final hasSearchQuery =
+              _searchController.text.trim().isNotEmpty ||
               state.searchQuery.trim().isNotEmpty;
           final hasFilter = state.filterCriteria.isFilterActive;
           final isFiltered = hasSearchQuery || hasFilter;
@@ -136,11 +150,13 @@ class _OrganizationsViewState extends State<_OrganizationsView> {
             onEmptyAction = () {
               _searchController.clear();
               cubit.clearFilters();
+              unawaited(_openOnboardingWizard());
             };
           }
         }
 
-        final filteredItems = (state.status == PlatformTenantsStatus.unauthorized ||
+        final filteredItems =
+            (state.status == PlatformTenantsStatus.unauthorized ||
                 state.status == PlatformTenantsStatus.failure)
             ? const <OrganizationUiModel>[]
             : state.filteredTenants;
@@ -170,15 +186,15 @@ class _OrganizationsViewState extends State<_OrganizationsView> {
                       onRefresh: () => cubit.load(),
                       onEmptyAction: onEmptyAction,
                       onItemTap: (organization) async {
-                        final shouldRefresh =
-                            await Navigator.of(context).push<bool>(
-                          MaterialPageRoute(
-                            builder: (context) => PlatformTenantDetailPage(
-                              tenantId: organization.id,
-                              iamModule: widget.iamModule,
-                            ),
-                          ),
-                        );
+                        final shouldRefresh = await Navigator.of(context)
+                            .push<bool>(
+                              MaterialPageRoute(
+                                builder: (context) => PlatformTenantDetailPage(
+                                  tenantId: organization.id,
+                                  iamModule: widget.iamModule,
+                                ),
+                              ),
+                            );
                         if (shouldRefresh == true && mounted) {
                           await cubit.load();
                         }

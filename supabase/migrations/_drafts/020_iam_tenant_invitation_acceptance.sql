@@ -10,7 +10,7 @@
 --        Actor email for accept is resolved from auth.uid() — never from client input.
 --        Invalid token raises INVITATION_TOKEN_INVALID without account leak fields.
 
-create extension if not exists pgcrypto;
+create extension if not exists pgcrypto with schema extensions;
 
 -- Token-scoped idempotency (accept/decline) keyed by token_hash + operation.
 create table if not exists iam.tenant_invitation_token_operations (
@@ -28,7 +28,15 @@ returns text
 language sql
 immutable
 as $$
-  select encode(digest(trim(p_token), 'sha256'), 'hex');
+  -- Normalise before hashing so a code typed with dashes or lower-case
+  -- (K7P2-9XQM, k7p29xqm) matches the stored hash of the canonical form.
+  select encode(
+    extensions.digest(
+      upper(regexp_replace(coalesce(p_token, ''), '[^0-9A-Za-z]', '', 'g')),
+      'sha256'
+    ),
+    'hex'
+  );
 $$;
 
 create or replace function iam._load_invitation_by_token(p_token text)
@@ -70,9 +78,13 @@ set search_path = iam, pg_temp
 as $$
 declare
   v_inv iam.tenant_invitations;
+  v_owner_activation record;
   v_role iam.role_definitions;
   v_tenant iam.tenants;
   v_account_exists boolean := false;
+  v_should_be_owner boolean := false;
+  v_hash text;
+  v_legacy_hash text;
   v_now timestamptz := timezone('utc', now());
 begin
   begin
@@ -80,7 +92,53 @@ begin
   exception
     when others then
       if sqlerrm like 'INVITATION_TOKEN_INVALID%' then
-        raise exception 'INVITATION_TOKEN_INVALID';
+        v_hash := iam._invitation_token_hash(p_token);
+        v_legacy_hash := encode(
+          extensions.digest(upper(trim(coalesce(p_token, ''))), 'sha256'),
+          'hex'
+        );
+
+        select * into v_owner_activation
+        from iam.owner_activations oa
+        where oa.code_hash in (v_hash, v_legacy_hash)
+        limit 1;
+
+        if not found then
+          raise exception 'INVITATION_TOKEN_INVALID';
+        end if;
+
+        if v_owner_activation.status = 'accepted' then
+          raise exception 'INVITATION_ALREADY_USED';
+        end if;
+        if v_owner_activation.status = 'expired'
+            or v_owner_activation.expires_at <= v_now then
+          raise exception 'INVITATION_EXPIRED';
+        end if;
+        if v_owner_activation.status <> 'pending' then
+          raise exception 'INVITATION_TOKEN_INVALID';
+        end if;
+
+        select * into v_tenant
+        from iam.tenants t
+        where t.id = v_owner_activation.tenant_id;
+
+        select exists (
+          select 1
+          from auth.users u
+          left join iam.platform_user_profiles p on p.user_id = u.id
+          where lower(trim(u.email::text)) = v_owner_activation.invitee_email
+            and coalesce(p.status, 'active') <> 'pending_activation'
+        ) into v_account_exists;
+
+        return jsonb_build_object(
+          'tenant_id', v_owner_activation.tenant_id,
+          'tenant_name', coalesce(v_tenant.name, ''),
+          'invitee_email', v_owner_activation.invitee_email,
+          'initial_role_id', 'owner',
+          'initial_role_label', 'Chủ sở hữu',
+          'expires_at', v_owner_activation.expires_at,
+          'account_exists', v_account_exists
+        );
       end if;
       raise;
   end;
@@ -102,6 +160,14 @@ begin
   select * into v_tenant from iam.tenants t where t.id = v_inv.tenant_id;
   select * into v_role from iam.role_definitions r where r.id = v_inv.initial_role_id;
 
+  v_should_be_owner := not exists (
+    select 1
+    from iam.memberships m
+    where m.tenant_id = v_inv.tenant_id
+      and m.status = 'active'
+      and (m.is_owner is true or m.role = 'owner')
+  );
+
   select exists (
     select 1 from auth.users u
     where lower(trim(u.email::text)) = v_inv.invitee_email
@@ -111,8 +177,8 @@ begin
     'tenant_id', v_inv.tenant_id,
     'tenant_name', coalesce(v_tenant.name, ''),
     'invitee_email', v_inv.invitee_email,
-    'initial_role_id', v_inv.initial_role_id,
-    'initial_role_label', coalesce(v_role.label, ''),
+    'initial_role_id', case when v_should_be_owner then 'owner' else v_inv.initial_role_id::text end,
+    'initial_role_label', case when v_should_be_owner then 'Chủ sở hữu' else coalesce(v_role.label, '') end,
     'expires_at', v_inv.expires_at,
     'account_exists', v_account_exists
   );
@@ -133,13 +199,17 @@ as $$
 declare
   v_caller uuid := auth.uid();
   v_inv iam.tenant_invitations;
+  v_owner_activation record;
   v_tenant iam.tenants;
   v_role iam.role_definitions;
   v_hash text;
+  v_legacy_hash text;
   v_email text;
   v_payload_hash text;
   v_existing iam.tenant_invitation_token_operations;
   v_membership iam.memberships;
+  v_effective_role text;
+  v_should_be_owner boolean := false;
   v_now timestamptz := timezone('utc', now());
   v_result jsonb;
 begin
@@ -167,7 +237,135 @@ begin
     return v_existing.result;
   end if;
 
-  v_inv := iam._load_invitation_by_token(p_token);
+  begin
+    v_inv := iam._load_invitation_by_token(p_token);
+  exception
+    when others then
+      if sqlerrm not like 'INVITATION_TOKEN_INVALID%' then
+        raise;
+      end if;
+
+      v_legacy_hash := encode(
+        extensions.digest(upper(trim(coalesce(p_token, ''))), 'sha256'),
+        'hex'
+      );
+
+      select * into v_owner_activation
+      from iam.owner_activations oa
+      where oa.code_hash in (v_hash, v_legacy_hash)
+      for update;
+
+      if not found then
+        raise exception 'INVITATION_TOKEN_INVALID';
+      end if;
+
+      select lower(trim(u.email::text)) into v_email
+      from auth.users u
+      where u.id = v_caller;
+
+      if lower(coalesce(v_email, '')) <> lower(v_owner_activation.invitee_email) then
+        update iam.owner_activations
+        set attempt_count = attempt_count + 1
+        where id = v_owner_activation.id;
+        raise exception 'INVITATION_EMAIL_MISMATCH';
+      end if;
+
+      if v_owner_activation.status = 'accepted' then
+        raise exception 'INVITATION_ALREADY_USED';
+      end if;
+      if v_owner_activation.status = 'expired'
+          or v_owner_activation.expires_at <= v_now then
+        update iam.owner_activations
+        set status = 'expired'
+        where id = v_owner_activation.id;
+        raise exception 'INVITATION_EXPIRED';
+      end if;
+      if v_owner_activation.status <> 'pending' then
+        raise exception 'INVITATION_TOKEN_INVALID';
+      end if;
+
+      select * into v_tenant
+      from iam.tenants t
+      where t.id = v_owner_activation.tenant_id
+      for update;
+      if not found then
+        raise exception 'INVITATION_TOKEN_INVALID';
+      end if;
+      if coalesce(v_tenant.status, 'active') = 'suspended' then
+        raise exception 'TENANT_SUSPENDED';
+      end if;
+
+      update iam.memberships
+      set role = 'owner',
+          status = 'active',
+          is_owner = true,
+          version = version + 1,
+          updated_at = v_now
+      where tenant_id = v_owner_activation.tenant_id
+        and user_id = v_caller
+        and status in ('active', 'inactive')
+      returning * into v_membership;
+
+      if not found then
+        insert into iam.memberships (
+          tenant_id,
+          user_id,
+          role,
+          status,
+          is_owner,
+          version,
+          created_at,
+          updated_at
+        )
+        values (
+          v_owner_activation.tenant_id,
+          v_caller,
+          'owner',
+          'active',
+          true,
+          1,
+          v_now,
+          v_now
+        )
+        returning * into v_membership;
+      end if;
+
+      update iam.platform_user_profiles
+      set status = 'active',
+          email_verified = true,
+          updated_at = v_now
+      where user_id = v_caller;
+
+      if not found then
+        insert into iam.platform_user_profiles (
+          user_id, status, email_verified, given_name, family_middle_name,
+          phone_number, created_at, updated_at
+        )
+        values (
+          v_caller, 'active', true, v_owner_activation.given_name,
+          v_owner_activation.family_name, v_owner_activation.phone, v_now, v_now
+        );
+      end if;
+
+      update iam.owner_activations
+      set status = 'accepted',
+          accepted_at = v_now,
+          code_hash = encode(
+            extensions.digest(extensions.gen_random_bytes(32), 'sha256'),
+            'hex'
+          )
+      where id = v_owner_activation.id;
+
+      v_result := iam._membership_detail_json(v_membership);
+
+      insert into iam.tenant_invitation_token_operations (
+        token_hash, operation, idempotency_key, payload_hash, result
+      ) values (
+        v_hash, 'accept', p_idempotency_key, v_payload_hash, v_result
+      );
+
+      return v_result;
+  end;
 
   select * into v_tenant from iam.tenants t where t.id = v_inv.tenant_id for update;
   if not found then
@@ -214,6 +412,18 @@ begin
     raise exception 'ROLE_NOT_ASSIGNABLE';
   end if;
 
+  v_should_be_owner := not exists (
+    select 1
+    from iam.memberships m
+    where m.tenant_id = v_inv.tenant_id
+      and m.status = 'active'
+      and (m.is_owner is true or m.role = 'owner')
+  );
+  v_effective_role := case
+    when v_should_be_owner then 'owner'
+    else coalesce(v_role.code, 'staff')
+  end;
+
   insert into iam.memberships (
     tenant_id,
     user_id,
@@ -227,9 +437,9 @@ begin
   values (
     v_inv.tenant_id,
     v_caller,
-    coalesce(v_role.code, 'staff'),
+    v_effective_role,
     'active',
-    false,
+    v_effective_role = 'owner',
     1,
     v_now,
     v_now
@@ -244,7 +454,7 @@ begin
     version = version + 1,
     updated_at = v_now,
     -- rotate hash so old token cannot be reused
-    token_hash = encode(digest(gen_random_bytes(32), 'sha256'), 'hex')
+    token_hash = encode(extensions.digest(extensions.gen_random_bytes(32), 'sha256'), 'hex')
   where id = v_inv.id
   returning * into v_inv;
 
@@ -339,7 +549,7 @@ begin
     status_changed_at = v_now,
     version = version + 1,
     updated_at = v_now,
-    token_hash = encode(digest(gen_random_bytes(32), 'sha256'), 'hex')
+    token_hash = encode(extensions.digest(extensions.gen_random_bytes(32), 'sha256'), 'hex')
   where id = v_inv.id
   returning * into v_inv;
 
@@ -377,6 +587,15 @@ begin
   return v_result;
 end;
 $$;
+
+-- S8 is reachable before sign-in: an invitee inspects/declines a token while
+-- still anonymous. `20260630000001_iam_foundation.sql` revokes the iam schema
+-- from anon and grants USAGE only to authenticated, so the per-function grants
+-- below are inert without schema USAGE — PostgREST fails with
+-- `permission denied for schema iam` (42501). USAGE alone exposes nothing:
+-- tables stay revoked and every other function is granted to authenticated
+-- only.
+grant usage on schema iam to anon;
 
 revoke all on function iam.inspect_invitation_token(text) from public, anon;
 grant execute on function iam.inspect_invitation_token(text) to anon, authenticated;

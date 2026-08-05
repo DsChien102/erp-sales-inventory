@@ -40,12 +40,14 @@ abstract final class PlatformTenantUiMapper {
       ownerRole: dto.ownerRoleLabel,
       createdAt: dto.createdAt,
       activatedAt: dto.activatedAt,
+      lastActiveAt: dto.lastActivityAt,
       suspendedAt: dto.suspendedAt,
       suspendedBy: dto.suspendedBy,
       suspendReason: dto.suspendReason,
       closedAt: dto.closedAt,
       closedBy: dto.closedBy,
       closeReason: dto.closeReason,
+      dataVersion: 'v${dto.version}',
       members: dto.members
           .map(
             (m) => OrganizationMemberUiModel(

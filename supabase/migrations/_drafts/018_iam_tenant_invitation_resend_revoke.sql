@@ -2,7 +2,8 @@
 -- Kind: patch
 -- Intent: iam_tenant_invitation_resend_revoke
 -- Context: TH-01 §S9 ResendInvitationCommand / RevokeInvitationCommand
--- Touches: iam.resend_tenant_invitation, iam.revoke_tenant_invitation
+-- Touches: iam.resend_tenant_invitation, iam.revoke_tenant_invitation,
+--          iam.is_current_tenant_invitation_delivery
 -- Safety: idempotent ; medium
 -- Depends on: iam.tenant_invitations, iam.role_definitions, iam.has_permission,
 --             iam.enqueue_outbox_message, iam.record_email_delivery_outcome, iam.append_audit_log
@@ -25,6 +26,25 @@ create table if not exists iam.tenant_invitation_mutate_operations (
   created_at timestamptz not null default timezone('utc', now()),
   primary key (tenant_id, invitation_id, operation, idempotency_key)
 );
+
+create or replace function iam.is_current_tenant_invitation_delivery(
+  p_invitation_id uuid,
+  p_correlation_id text
+)
+returns boolean
+language sql
+stable
+security definer
+set search_path = iam, pg_temp
+as $$
+  select exists (
+    select 1
+    from iam.tenant_invitations i
+    where i.id = p_invitation_id
+      and i.delivery_correlation_id = p_correlation_id
+      and i.status = 'pending'
+  );
+$$;
 
 drop function if exists iam._invitation_detail_json(
   iam.tenant_invitations,
@@ -169,9 +189,8 @@ begin
 
   select * into v_role from iam.role_definitions r where r.id = v_inv.initial_role_id;
 
-  v_raw_token := translate(encode(gen_random_bytes(32), 'base64'), '+/', '-_');
-  v_raw_token := rtrim(v_raw_token, '=');
-  v_token_hash := encode(digest(v_raw_token, 'sha256'), 'hex');
+  v_raw_token := iam._generate_invitation_code();
+  v_token_hash := iam._invitation_token_hash(v_raw_token);
   v_ciphertext := 'transient:' || encode(convert_to(v_raw_token, 'UTF8'), 'base64');
 
   update iam.tenant_invitations
@@ -337,7 +356,7 @@ begin
   set
     status = 'revoked',
     revoke_reason = v_reason,
-    token_hash = encode(digest(gen_random_bytes(32), 'sha256'), 'hex'),
+    token_hash = encode(extensions.digest(extensions.gen_random_bytes(32), 'sha256'), 'hex'),
     version = version + 1,
     status_changed_at = v_now,
     updated_at = v_now
@@ -390,4 +409,9 @@ grant execute on function iam.resend_tenant_invitation(uuid, uuid, int, text)
 revoke all on function iam.revoke_tenant_invitation(uuid, uuid, int, text, text)
   from public, anon;
 grant execute on function iam.revoke_tenant_invitation(uuid, uuid, int, text, text)
+  to authenticated;
+
+revoke all on function iam.is_current_tenant_invitation_delivery(uuid, text)
+  from public, anon;
+grant execute on function iam.is_current_tenant_invitation_delivery(uuid, text)
   to authenticated;

@@ -37,7 +37,10 @@ class _FakeSessionPort implements IIamSessionPort {
   Future<void> clear() async {}
 
   @override
-  Future<void> establishAfterSignIn({String? tenantId}) async {
+  Future<void> establishAfterSignIn({
+    String? tenantId,
+    bool requireTenantContext = true,
+  }) async {
     establishCount++;
     if (failEstablish && establishCount == 1) {
       throw StateError('session establish failed');
@@ -46,7 +49,9 @@ class _FakeSessionPort implements IIamSessionPort {
   }
 
   @override
-  Future<void> restoreFromPersistedAuth() async {}
+  Future<void> restoreFromPersistedAuth({
+    bool requireTenantContext = true,
+  }) async {}
 }
 
 class _FailingPreferencePort implements IPlatformUserPreferencePort {
@@ -81,26 +86,19 @@ class _ScenarioAccessGateway implements IIamAccessGateway {
   @override
   Future<TenantContextDto> getValidatedTenantContext({
     String? sessionTenantId,
-  }) async =>
-      const TenantContextDto(status: TenantContextStatus.none);
+  }) async => const TenantContextDto(status: TenantContextStatus.none);
 
   @override
   Future<List<AccessibleTenantDto>> listAccessibleTenants() async => const [];
 
   @override
-  Future<String> bootstrapOwner({String tenantName = 'My Store'}) async =>
-      'tenant-1';
-
-  @override
-  Future<PrincipalAccessDto?> getSessionContext({String? tenantId}) async =>
-      null;
+  Future<PrincipalAccessDto?> getSessionContext({String? tenantId}) async => null;
 
   @override
   Future<bool> hasPermission({
     required String tenantId,
     required String permission,
-  }) async =>
-      true;
+  }) async => true;
 
   @override
   Future<bool> isMember(String tenantId) async => true;
@@ -112,8 +110,7 @@ class _ScenarioAccessGateway implements IIamAccessGateway {
     String? status,
     String? cursor,
     int limit = 20,
-  }) async =>
-      const CursorPageDto<TenantMemberDto>(items: []);
+  }) async => const CursorPageDto<TenantMemberDto>(items: []);
 
   @override
   Future<List<TenantMembershipDto>> listUserTenants() async => const [];

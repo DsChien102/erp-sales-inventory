@@ -15,6 +15,9 @@ alter table iam.tenants
   add column if not exists activated_at timestamptz;
 
 alter table iam.tenants
+  add column if not exists updated_at timestamptz not null default now();
+
+alter table iam.tenants
   add column if not exists suspended_at timestamptz;
 
 alter table iam.tenants
@@ -32,68 +35,12 @@ alter table iam.tenants
 alter table iam.tenants
   add column if not exists closed_by uuid;
 
+alter table iam.tenants
+  add column if not exists version int not null default 1;
+
 alter table iam.memberships
-  add column if not exists is_owner boolean not null default false;
-
-create or replace function iam.search_platform_tenants(
-  p_query text default null,
-  p_status text default null
-)
-returns table (
-  tenant_id uuid,
-  name text,
-  code text,
-  status text,
-  created_at timestamptz,
-  owner_name text,
-  owner_email text,
-  member_count bigint
-)
-language plpgsql
-security definer
-set search_path = iam, auth, pg_temp
-as $$
-begin
-  if not iam.has_platform_permission('platform.tenant.view') then
-    raise exception 'platform permission denied';
-  end if;
-
-  return query
-  select
-    t.id,
-    t.name::text,
-    coalesce(t.code, left(t.id::text, 8))::text as code,
-    coalesce(t.status, 'active')::text as status,
-    t.created_at,
-    (
-      select coalesce(
-        nullif(trim(concat_ws(' ', ou.raw_user_meta_data->>'last_name', ou.raw_user_meta_data->>'first_name')), ''),
-        coalesce(ou.email::text, '')
-      )::text
-      from iam.memberships om
-      join auth.users ou on ou.id = om.user_id
-      where om.tenant_id = t.id and om.is_owner
-      limit 1
-    ) as owner_name,
-    (
-      select coalesce(ou.email::text, '')::text
-      from iam.memberships om
-      join auth.users ou on ou.id = om.user_id
-      where om.tenant_id = t.id and om.is_owner
-      limit 1
-    ) as owner_email,
-    (select count(*) from iam.memberships m where m.tenant_id = t.id) as member_count
-  from iam.tenants t
-  where (p_status is null or coalesce(t.status, 'active') = p_status)
-    and (
-      p_query is null
-      or p_query = ''
-      or t.name ilike '%' || p_query || '%'
-      or coalesce(t.code, '') ilike '%' || p_query || '%'
-    )
-  order by t.created_at desc;
-end;
-$$;
+  add column if not exists is_owner boolean not null default false,
+  add column if not exists status text not null default 'active';
 
 create or replace function iam.get_platform_tenant(p_tenant_id uuid)
 returns jsonb
@@ -115,7 +62,9 @@ begin
     t.name,
     coalesce(t.code, left(t.id::text, 8)) as code,
     coalesce(t.status, 'active') as status,
+    coalesce(t.version, 1) as version,
     t.created_at,
+    t.updated_at,
     t.activated_at,
     t.suspended_at,
     t.suspend_reason,
@@ -134,20 +83,34 @@ begin
   select jsonb_agg(
     jsonb_build_object(
       'user_id', m.user_id,
-      'full_name', coalesce(
-        nullif(trim(concat_ws(' ', u.raw_user_meta_data->>'last_name', u.raw_user_meta_data->>'first_name')), ''),
-        coalesce(u.email::text, m.user_id::text)
-      )::text,
-      'email', coalesce(u.email::text, '')::text,
+      'full_name', m.full_name,
+      'email', m.email,
       'role', m.role::text,
+      'role_label', m.role_label,
       'is_owner', m.is_owner
     )
     order by m.is_owner desc, m.created_at
   )
   into v_members
-  from iam.memberships m
-  join auth.users u on u.id = m.user_id
-  where m.tenant_id = p_tenant_id;
+  from (
+    select distinct on (m.user_id)
+      m.user_id,
+      coalesce(
+        nullif(trim(concat_ws(' ', u.raw_user_meta_data->>'last_name', u.raw_user_meta_data->>'first_name')), ''),
+        coalesce(u.email::text, m.user_id::text)
+      )::text as full_name,
+      coalesce(u.email::text, '')::text as email,
+      m.role,
+      coalesce(rd.label, m.role::text) as role_label,
+      m.is_owner,
+      m.created_at
+    from iam.memberships m
+    join auth.users u on u.id = m.user_id
+    left join iam.role_definitions rd on rd.code = m.role
+    where m.tenant_id = p_tenant_id
+      and coalesce(m.status, 'active') = 'active'
+    order by m.user_id, m.is_owner desc, m.created_at desc
+  ) m;
 
   select
     m.user_id,
@@ -156,11 +119,14 @@ begin
       coalesce(u.email::text, '')
     )::text as owner_name,
     coalesce(u.email::text, '')::text as owner_email,
-    m.role::text as owner_role
+    coalesce(rd.label, m.role::text) as owner_role
   into v_owner
   from iam.memberships m
   join auth.users u on u.id = m.user_id
-  where m.tenant_id = p_tenant_id and m.is_owner
+  left join iam.role_definitions rd on rd.code = m.role
+  where m.tenant_id = p_tenant_id
+    and m.is_owner
+    and coalesce(m.status, 'active') = 'active'
   limit 1;
 
   return jsonb_build_object(
@@ -168,14 +134,36 @@ begin
     'name', v_tenant.name,
     'code', v_tenant.code,
     'status', v_tenant.status,
+    'version', v_tenant.version,
     'created_at', v_tenant.created_at,
     'activated_at', v_tenant.activated_at,
+    'last_activity_at', coalesce(v_tenant.updated_at, v_tenant.activated_at, v_tenant.created_at),
     'suspended_at', v_tenant.suspended_at,
     'suspend_reason', v_tenant.suspend_reason,
-    'suspended_by', v_tenant.suspended_by,
+    'suspended_by', (
+      select coalesce(
+        nullif(
+          trim(concat_ws(' ', u.raw_user_meta_data->>'last_name', u.raw_user_meta_data->>'first_name')),
+          ''
+        ),
+        u.email::text
+      )
+      from auth.users u
+      where u.id = v_tenant.suspended_by
+    ),
     'closed_at', v_tenant.closed_at,
     'close_reason', v_tenant.close_reason,
-    'closed_by', v_tenant.closed_by,
+    'closed_by', (
+      select coalesce(
+        nullif(
+          trim(concat_ws(' ', u.raw_user_meta_data->>'last_name', u.raw_user_meta_data->>'first_name')),
+          ''
+        ),
+        u.email::text
+      )
+      from auth.users u
+      where u.id = v_tenant.closed_by
+    ),
     'owner_user_id', v_owner.user_id,
     'owner_name', v_owner.owner_name,
     'owner_email', v_owner.owner_email,
@@ -205,22 +193,32 @@ begin
   return query
   select
     m.user_id,
-    coalesce(
-      nullif(trim(concat_ws(' ', u.raw_user_meta_data->>'last_name', u.raw_user_meta_data->>'first_name')), ''),
-      coalesce(u.email::text, m.user_id::text)
-    )::text as full_name,
-    coalesce(u.email::text, '')::text as email,
-    m.role::text as role_label,
+    m.full_name,
+    m.email,
+    m.role_label,
     m.is_owner
-  from iam.memberships m
-  join auth.users u on u.id = m.user_id
-  where m.tenant_id = p_tenant_id
+  from (
+    select distinct on (m.user_id)
+      m.user_id,
+      coalesce(
+        nullif(trim(concat_ws(' ', u.raw_user_meta_data->>'last_name', u.raw_user_meta_data->>'first_name')), ''),
+        coalesce(u.email::text, m.user_id::text)
+      )::text as full_name,
+      coalesce(u.email::text, '')::text as email,
+      m.role,
+      coalesce(rd.label, m.role::text) as role_label,
+      m.is_owner,
+      m.created_at
+    from iam.memberships m
+    join auth.users u on u.id = m.user_id
+    left join iam.role_definitions rd on rd.code = m.role
+    where m.tenant_id = p_tenant_id
+      and coalesce(m.status, 'active') = 'active'
+    order by m.user_id, m.is_owner desc, m.created_at desc
+  ) m
   order by m.is_owner desc, m.created_at;
 end;
 $$;
-
-revoke all on function iam.search_platform_tenants(text, text) from public, anon;
-grant execute on function iam.search_platform_tenants(text, text) to authenticated;
 
 revoke all on function iam.get_platform_tenant(uuid) from public, anon;
 grant execute on function iam.get_platform_tenant(uuid) to authenticated;
@@ -240,13 +238,92 @@ create or replace function iam.search_platform_tenants(
 returns jsonb
 language plpgsql
 security definer
-set search_path = iam, pg_temp
+set search_path = iam, auth, pg_temp
 as $$
-declare v_limit int := least(greatest(coalesce(p_page_size, 20), 1), 100);
+declare
+  v_limit int := least(greatest(coalesce(p_page_size, 20), 1), 100);
+  v_offset int := case
+    when coalesce(p_cursor, '') ~ '^[0-9]+$' then p_cursor::int
+    else 0
+  end;
+  v_items jsonb := '[]'::jsonb;
+  v_next_cursor text;
 begin
   if not iam.has_platform_permission('platform.tenant.view') then
     raise exception 'PLATFORM_PERMISSION_DENIED';
   end if;
-  return jsonb_build_object('items', '[]'::jsonb, 'next_cursor', null);
+
+  with filtered as (
+    select
+      t.id as tenant_id,
+      t.name::text,
+      coalesce(t.code, left(t.id::text, 8))::text as code,
+      coalesce(t.status, 'active')::text as status,
+      t.created_at,
+      (
+        select coalesce(
+          nullif(trim(concat_ws(' ', ou.raw_user_meta_data->>'last_name', ou.raw_user_meta_data->>'first_name')), ''),
+          coalesce(ou.email::text, '')
+        )::text
+        from iam.memberships om
+        join auth.users ou on ou.id = om.user_id
+        where om.tenant_id = t.id
+          and om.is_owner
+          and coalesce(om.status, 'active') = 'active'
+        limit 1
+      ) as owner_name,
+      (
+        select coalesce(ou.email::text, '')::text
+        from iam.memberships om
+        join auth.users ou on ou.id = om.user_id
+        where om.tenant_id = t.id
+          and om.is_owner
+          and coalesce(om.status, 'active') = 'active'
+        limit 1
+      ) as owner_email,
+      (
+        select count(distinct m.user_id)
+        from iam.memberships m
+        where m.tenant_id = t.id
+          and coalesce(m.status, 'active') = 'active'
+      ) as member_count,
+      null::text as readiness_state,
+      null::text as warning_code
+    from iam.tenants t
+    where (p_status is null or coalesce(t.status, 'active') = p_status)
+      and p_readiness_state is null
+      and p_warning_code is null
+      and (
+        p_query is null
+        or p_query = ''
+        or t.name ilike '%' || p_query || '%'
+        or coalesce(t.code, '') ilike '%' || p_query || '%'
+      )
+  ),
+  windowed as (
+    select
+      filtered.*,
+      row_number() over (order by filtered.created_at desc, filtered.tenant_id) as rn
+    from filtered
+  ),
+  page_rows as (
+    select *
+    from windowed
+    where rn > v_offset and rn <= v_offset + v_limit
+  )
+  select
+    coalesce(jsonb_agg(to_jsonb(page_rows) - 'rn' order by page_rows.rn), '[]'::jsonb),
+    case
+      when exists(select 1 from windowed where rn > v_offset + v_limit)
+      then (v_offset + v_limit)::text
+      else null
+    end
+  into v_items, v_next_cursor
+  from page_rows;
+
+  return jsonb_build_object('items', v_items, 'next_cursor', v_next_cursor);
 end;
 $$;
+
+revoke all on function iam.search_platform_tenants(text, text, text, text, text, integer) from public, anon;
+grant execute on function iam.search_platform_tenants(text, text, text, text, text, integer) to authenticated;

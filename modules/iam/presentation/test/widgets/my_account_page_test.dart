@@ -4,7 +4,7 @@ import 'package:vet45_design_system/design_system.dart';
 import 'package:vet45_iam_presentation/presentation.dart';
 
 void main() {
-  testWidgets('MyAccountPage (TA-D-01) renders header, account summary and info rows',
+  testWidgets('wgt_e06_u01_fr01_01: MyAccountPage (TA-D-01) renders header, account summary and info rows',
       (WidgetTester tester) async {
     tester.view.physicalSize = const Size(800, 1600);
     tester.view.devicePixelRatio = 1.0;
@@ -13,7 +13,7 @@ void main() {
 
     await tester.pumpWidget(
       const MaterialApp(
-        home: MyAccountPage(),
+        home: MyAccountPage(data: MyAccountUiModel.sample),
       ),
     );
 
@@ -54,7 +54,7 @@ void main() {
 
     await tester.pumpWidget(
       const MaterialApp(
-        home: MyAccountPage(),
+        home: MyAccountPage(data: MyAccountUiModel.sample),
       ),
     );
 
@@ -80,7 +80,8 @@ void main() {
     await tester.pumpWidget(
       MaterialApp(
         home: MyAccountPage(
-          onLogout: () {
+          data: MyAccountUiModel.sample,
+          onLogout: () async {
             logoutCalled = true;
           },
         ),
@@ -125,7 +126,7 @@ void main() {
 
     await tester.pumpWidget(
       const MaterialApp(
-        home: MyAccountPage(),
+        home: MyAccountPage(data: MyAccountUiModel.sample),
       ),
     );
 

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:vet45_iam_presentation/presentation.dart';
+import 'package:vet45_iam_presentation/testing.dart';
 
 void main() {
   testWidgets('OrganizationRolesPage renders system roles list (TA-D-01)', (
@@ -12,8 +13,10 @@ void main() {
     addTearDown(tester.view.resetDevicePixelRatio);
 
     await tester.pumpWidget(
-      const MaterialApp(
-        home: OrganizationRolesPage(),
+      MaterialApp(
+        home: OrganizationRolesPage(
+          initialRoles: FakeRolesData.sampleRoles,
+        ),
       ),
     );
     await tester.pumpAndSettle();
@@ -51,8 +54,10 @@ void main() {
     addTearDown(tester.view.resetDevicePixelRatio);
 
     await tester.pumpWidget(
-      const MaterialApp(
-        home: OrganizationRolesPage(),
+      MaterialApp(
+        home: OrganizationRolesPage(
+          initialRoles: FakeRolesData.sampleRoles,
+        ),
       ),
     );
     await tester.pumpAndSettle();
@@ -75,6 +80,7 @@ void main() {
     await tester.pumpWidget(
       MaterialApp(
         home: OrganizationRolesPage(
+          initialRoles: FakeRolesData.sampleRoles,
           hasError: true,
           onRetry: () => retried = true,
         ),

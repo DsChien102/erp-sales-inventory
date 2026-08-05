@@ -1,9 +1,9 @@
 import 'package:vet45_design_system/design_system.dart';
 
-/// Trạng thái của nhật ký thao tác nền tảng.
+/// Trạng thái của nhật ký thao tác.
 enum AuditLogStatus { success, blocked, error }
 
-/// Model dữ liệu nhật ký thao tác nền tảng (Audit Log Item UI Model).
+/// Model dữ liệu nhật ký thao tác (Audit Log Item UI Model).
 class AuditLogItemUiModel {
   final String id;
   final String title;
@@ -27,6 +27,8 @@ class AuditLogItemUiModel {
   final String? targetDetailValue;
   final String? changeSectionTitle;
   final bool isActorUnavailable;
+  final bool beforeRedacted;
+  final bool afterRedacted;
 
   const AuditLogItemUiModel({
     required this.id,
@@ -51,5 +53,7 @@ class AuditLogItemUiModel {
     this.targetDetailValue,
     this.changeSectionTitle,
     this.isActorUnavailable = false,
+    this.beforeRedacted = false,
+    this.afterRedacted = false,
   });
 }

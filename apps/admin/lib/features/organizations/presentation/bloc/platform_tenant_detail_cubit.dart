@@ -15,6 +15,12 @@ final class PlatformTenantDetailCubit extends Cubit<PlatformTenantDetailState> {
   final IIamModule _iamModule;
   final String tenantId;
 
+  int get _expectedVersion {
+    final raw = state.organization?.dataVersion;
+    if (raw == null) return 1;
+    return int.tryParse(raw.replaceFirst(RegExp(r'^[vV]'), '')) ?? 1;
+  }
+
   Future<void> load() async {
     if (isClosed) return;
     emit(
@@ -61,23 +67,32 @@ final class PlatformTenantDetailCubit extends Cubit<PlatformTenantDetailState> {
 
   Future<bool> suspend({required String reason}) async {
     if (isClosed) return false;
+    final trimmed = reason.trim();
+    if (trimmed.isEmpty) {
+      emit(
+        state.copyWith(
+          actionInProgress: false,
+          errorMessage: 'Vui lòng nhập lý do tạm ngừng.',
+        ),
+      );
+      return false;
+    }
     emit(state.copyWith(actionInProgress: true, clearError: true));
     try {
       await _iamModule.executeCommandAsync(
         SuspendPlatformTenantCommand(
           tenantId: tenantId,
-          reason: reason,
-          expectedVersion: 1,
-          idempotencyKey: 'suspend-$tenantId',
+          reason: trimmed,
+          expectedVersion: _expectedVersion,
+          idempotencyKey:
+              'suspend-$tenantId-${DateTime.now().microsecondsSinceEpoch}',
         ),
       );
       await load();
       return true;
     } on ApplicationException catch (e) {
       if (!isClosed) {
-        emit(
-          state.copyWith(actionInProgress: false, errorMessage: e.message),
-        );
+        emit(state.copyWith(actionInProgress: false, errorMessage: e.message));
       }
       return false;
     } catch (e) {
@@ -99,17 +114,16 @@ final class PlatformTenantDetailCubit extends Cubit<PlatformTenantDetailState> {
       await _iamModule.executeCommandAsync(
         RestorePlatformTenantCommand(
           tenantId: tenantId,
-          expectedVersion: 1,
-          idempotencyKey: 'restore-$tenantId',
+          expectedVersion: _expectedVersion,
+          idempotencyKey:
+              'restore-$tenantId-${DateTime.now().microsecondsSinceEpoch}',
         ),
       );
       await load();
       return true;
     } on ApplicationException catch (e) {
       if (!isClosed) {
-        emit(
-          state.copyWith(actionInProgress: false, errorMessage: e.message),
-        );
+        emit(state.copyWith(actionInProgress: false, errorMessage: e.message));
       }
       return false;
     } catch (e) {
@@ -135,7 +149,7 @@ final class PlatformTenantDetailCubit extends Cubit<PlatformTenantDetailState> {
         TransferPlatformTenantOwnershipCommand(
           tenantId: tenantId,
           newOwnerUserId: newOwnerUserId,
-          expectedVersion: 1,
+          expectedVersion: _expectedVersion,
           idempotencyKey: idempotencyKey,
         ),
       );
@@ -143,9 +157,7 @@ final class PlatformTenantDetailCubit extends Cubit<PlatformTenantDetailState> {
       return true;
     } on ApplicationException catch (e) {
       if (!isClosed) {
-        emit(
-          state.copyWith(actionInProgress: false, errorMessage: e.message),
-        );
+        emit(state.copyWith(actionInProgress: false, errorMessage: e.message));
       }
       return false;
     } catch (e) {

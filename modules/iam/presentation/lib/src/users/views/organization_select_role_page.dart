@@ -3,26 +3,40 @@ import 'package:go_router/go_router.dart';
 import 'package:vet45_design_system/design_system.dart';
 
 import '../models/user_ui_model.dart';
+import '../invitation_role_options.dart';
 
 class RoleOptionItem {
   final String title;
   final String description;
   final int permissionCount;
+  final String? roleId;
 
   const RoleOptionItem({
     required this.title,
     required this.description,
     required this.permissionCount,
+    this.roleId,
   });
+
+  factory RoleOptionItem.fromInvitationOption(InvitationRoleOption option) {
+    return RoleOptionItem(
+      title: option.label,
+      description: 'Vai trò được gán khi tham gia',
+      permissionCount: 0,
+      roleId: option.roleId,
+    );
+  }
 }
 
 /// Màn hình Chọn vai trò (TA-D-03).
 class OrganizationSelectRolePage extends StatefulWidget {
   final MemberUiModel member;
+  final List<InvitationRoleOption>? invitationRoleOptions;
 
   const OrganizationSelectRolePage({
     super.key,
     required this.member,
+    this.invitationRoleOptions,
   });
 
   @override
@@ -56,6 +70,13 @@ class _OrganizationSelectRolePageState extends State<OrganizationSelectRolePage>
   ];
 
   List<RoleOptionItem> get _orderedRoles {
+    final fromInvite = widget.invitationRoleOptions;
+    if (fromInvite != null && fromInvite.isNotEmpty) {
+      return fromInvite
+          .map(RoleOptionItem.fromInvitationOption)
+          .toList(growable: false);
+    }
+
     final currentRoleTitle = widget.member.role;
     final index = _availableRoles.indexWhere((r) => r.title == currentRoleTitle);
 

@@ -1,92 +1,47 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:vet45_design_system/design_system.dart';
+import 'package:vet45_iam_application/application.dart';
+import 'package:vet45_iam_application/testing.dart';
 import 'package:vet45_iam_presentation/presentation.dart';
+import 'package:vet45_iam_presentation/testing.dart';
+import 'package:vet45_shared_testing/shared_testing.dart';
 
 void main() {
-  testWidgets('OrganizationLegalProfileFormPage renders unauthorized empty view when hasPermission is false', (WidgetTester tester) async {
+  testWidgets('wgt_e02_u03_fr01_01: legal form does not use endsWith 999 simulation', (tester) async {
     tester.view.physicalSize = const Size(800, 1600);
     tester.view.devicePixelRatio = 1.0;
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
 
-    await tester.pumpWidget(
-      const MaterialApp(
-        home: OrganizationLegalProfileFormPage(hasPermission: false),
-      ),
+    final module = RecordingIamModule(
+      FakeIamModule(scenario: FakeIamScenario.tenantProfileOk),
     );
-
-    expect(find.text('Không có quyền xem tổ chức'), findsOneWidget);
-    expect(find.text('Liên hệ chủ cửa hàng để được cấp quyền quản lý tổ chức nền tảng.'), findsOneWidget);
-    expect(find.text('Quay lại'), findsOneWidget);
-  });
-
-  testWidgets('OrganizationLegalProfileFormPage renders Add mode (TA-D-03) with disabled save button initially', (WidgetTester tester) async {
-    tester.view.physicalSize = const Size(800, 1600);
-    tester.view.devicePixelRatio = 1.0;
-    addTearDown(tester.view.resetPhysicalSize);
-    addTearDown(tester.view.resetDevicePixelRatio);
+    final cubit = OrganizationProfileCubit(
+      iamModule: module,
+      executionContext: FakeExecutionContext(tenantId: 'org-001'),
+    );
+    await cubit.load();
 
     await tester.pumpWidget(
-      const MaterialApp(
-        home: OrganizationLegalProfileFormPage(isEdit: false),
+      MaterialApp(
+        home: OrganizationLegalProfileFormPage(cubit: cubit),
       ),
     );
-
-    // Title & top note
-    expect(find.text('Thêm hồ sơ pháp lý'), findsWidgets);
-    expect(find.text('Thay đổi hiện tại không làm thay đổi chứng từ lịch sử.'), findsOneWidget);
-
-    // Form fields present
-    expect(find.byType(VTextField), findsNWidgets(3));
-    expect(find.byType(VDropdown<String>), findsNWidgets(3));
-
-    // Save button initial state is disabled (onPressed is null)
-    final saveButtonFinder = find.widgetWithText(VButton, 'Lưu hồ sơ');
-    expect(saveButtonFinder, findsOneWidget);
-    final saveButton = tester.widget<VButton>(saveButtonFinder);
-    expect(saveButton.onPressed, isNull);
-  });
-
-  testWidgets('OrganizationLegalProfileFormPage renders Edit mode (TA-D-04) pre-filled and triggers duplicate tax code sheet (TA-O-02)', (WidgetTester tester) async {
-    tester.view.physicalSize = const Size(800, 1600);
-    tester.view.devicePixelRatio = 1.0;
-    addTearDown(tester.view.resetPhysicalSize);
-    addTearDown(tester.view.resetDevicePixelRatio);
-
-    await tester.pumpWidget(
-      const MaterialApp(
-        home: OrganizationLegalProfileFormPage(isEdit: true),
-      ),
-    );
-
-    // Title
-    expect(find.text('Chỉnh hồ sơ pháp lý'), findsWidgets);
-
-    // Pre-filled values
-    expect(find.text('Hộ kinh doanh'), findsOneWidget);
-    expect(find.text('HKD Thú y Minh Phát'), findsOneWidget);
-    expect(find.text('360123456789'), findsOneWidget);
-    expect(find.text('125 Phạm Văn Thuận'), findsOneWidget);
-    expect(find.text('Đồng Nai'), findsOneWidget);
-    expect(find.text('Trấn Biên'), findsOneWidget);
-
-    // Type in tax code field to trigger hasChanges
-    await tester.enterText(find.byType(TextField).at(1), '360123456789999');
     await tester.pumpAndSettle();
 
-    // Enable Save button, tap 'Lưu hồ sơ'
-    final saveButtonFinder = find.widgetWithText(VButton, 'Lưu hồ sơ');
-    final saveButton = tester.widget<VButton>(saveButtonFinder);
-    expect(saveButton.onPressed, isNotNull);
+    expect(find.text('Chỉnh hồ sơ pháp lý'), findsOneWidget);
+    expect(find.text('Lưu hồ sơ'), findsOneWidget);
 
-    await tester.tap(saveButtonFinder);
+    // Tax code ending with 999 must not auto-open mock duplicate sheet.
+    final taxFields = find.byType(TextField);
+    expect(taxFields, findsWidgets);
+    await tester.enterText(taxFields.at(1), '0123456999');
+    await tester.tap(find.widgetWithText(VButton, 'Lưu hồ sơ'));
     await tester.pumpAndSettle();
 
-    // Verify duplicate tax code warning bottom sheet opens (TA-O-02)
-    expect(find.text('Mã số thuế đã được ghi nhận'), findsOneWidget);
-    expect(find.text('Có thể tiếp tục lưu'), findsOneWidget);
-    expect(find.text('Vẫn lưu'), findsOneWidget);
-    expect(find.text('Kiểm tra lại'), findsOneWidget);
+    expect(find.text('Mã số thuế đã được ghi nhận'), findsNothing);
+    expect(module.commandsOf<UpsertLegalProfileCommand>(), hasLength(1));
+    await cubit.close();
   });
 }

@@ -156,30 +156,55 @@ final class SupabasePlatformAdminGateway implements IPlatformAdminGateway {
 
   @override
   Future<TenantOnboardingResultDto> createTenantOnboarding({
-    required OnboardingOwnerInput owner,
+    required bool isNewUser,
     required String organizationName,
     required String idempotencyKey,
+    String? organizationDisplayName,
+    String? contactEmail,
+    String? contactPhone,
+    String? contactAddressText,
+    String? provinceCode,
+    String? communeCode,
+    String? legalName,
+    String? taxCode,
+    String? ownerUserId,
+    String? ownerEmail,
+    String? ownerGivenName,
+    String? ownerFamilyName,
+    String? ownerPhone,
     String? correlationId,
   }) async {
-    final ownerUserId = await _resolveOwnerUserId(owner);
     try {
       final result = await _rpcClient.callMap(
         'create_tenant_onboarding',
         params: <String, dynamic>{
           'p_owner_user_id': ownerUserId,
           'p_org_name': organizationName,
+          'p_org_display_name': organizationDisplayName,
+          'p_org_contact_email': contactEmail,
+          'p_org_contact_phone': contactPhone,
+          'p_org_contact_address_text': contactAddressText,
+          'p_org_province_code': provinceCode,
+          'p_org_commune_code': communeCode,
+          'p_org_legal_name': legalName,
+          'p_org_tax_code': taxCode,
           'p_idempotency_key': idempotencyKey,
           'p_correlation_id': correlationId,
-          'p_is_new_user': owner.isNewUser,
+          'p_is_new_user': isNewUser,
+          'p_owner_email': ownerEmail,
+          'p_owner_given_name': ownerGivenName,
+          'p_owner_family_name': ownerFamilyName,
+          'p_owner_phone': ownerPhone,
         },
       );
       return TenantOnboardingResultDto(
         tenantId: result['tenant_id'] as String,
-        ownerMembershipId: result['owner_membership_id'] as String,
-        ownerUserId: result['owner_user_id'] as String,
+        ownerMembershipId: result['owner_membership_id'] as String?,
+        ownerUserId: result['owner_user_id'] as String?,
         tenantStatus: result['tenant_status'] as String,
         correlationId: result['correlation_id'] as String,
-        isNewUser: result['is_new_user'] as bool? ?? owner.isNewUser,
+        isNewUser: result['is_new_user'] as bool? ?? isNewUser,
+        activationIssued: result['activation_issued'] as bool? ?? false,
       );
     } on RpcException catch (error) {
       throw mapIamRpcError(error);
@@ -410,16 +435,6 @@ final class SupabasePlatformAdminGateway implements IPlatformAdminGateway {
     }
   }
 
-  Future<String> _resolveOwnerUserId(OnboardingOwnerInput owner) async {
-    if (owner.isExisting) {
-      return owner.existingUserId!;
-    }
-    throw ApplicationException(
-      'New Platform User creation requires Platform Identity; '
-      'resolve an existing userId for interim onboarding',
-    );
-  }
-
   TenantOnboardingOperationDto _mapOnboardingOperation(
     Map<String, dynamic> row,
   ) {
@@ -456,17 +471,18 @@ final class SupabasePlatformAdminGateway implements IPlatformAdminGateway {
   PlatformUserDetailDto _mapDetail(Map<String, dynamic> json) {
     final membershipsRaw = json['memberships'];
     final memberships = switch (membershipsRaw) {
-      final List<dynamic> list => list
-          .map((e) => e as Map<String, dynamic>)
-          .map(
-            (m) => PlatformUserMembershipDto(
-              tenantId: m['tenant_id'] as String,
-              tenantName: m['tenant_name'] as String? ?? '',
-              roleLabel: m['role'] as String? ?? '',
-              isOwner: m['is_owner'] as bool? ?? false,
-            ),
-          )
-          .toList(growable: false),
+      final List<dynamic> list =>
+        list
+            .map((e) => e as Map<String, dynamic>)
+            .map(
+              (m) => PlatformUserMembershipDto(
+                tenantId: m['tenant_id'] as String,
+                tenantName: m['tenant_name'] as String? ?? '',
+                roleLabel: m['role'] as String? ?? '',
+                isOwner: m['is_owner'] as bool? ?? false,
+              ),
+            )
+            .toList(growable: false),
       _ => const <PlatformUserMembershipDto>[],
     };
 
@@ -517,13 +533,19 @@ final class SupabasePlatformAdminGateway implements IPlatformAdminGateway {
 
   PlatformTenantDetailDto _mapTenantDetail(Map<String, dynamic> json) {
     final membersRaw = json['members'];
-    final members = switch (membersRaw) {
-      final List<dynamic> list => list
-          .map((e) => e as Map<String, dynamic>)
-          .map(_mapTenantMemberFromJson)
-          .toList(growable: false),
+    final mappedMembers = switch (membersRaw) {
+      final List<dynamic> list =>
+        list
+            .map((e) => e as Map<String, dynamic>)
+            .map(_mapTenantMemberFromJson)
+            .toList(growable: false),
       _ => const <PlatformTenantMemberDto>[],
     };
+    final membersByUserId = <String, PlatformTenantMemberDto>{};
+    for (final member in mappedMembers) {
+      membersByUserId.putIfAbsent(member.userId, () => member);
+    }
+    final members = membersByUserId.values.toList(growable: false);
     return PlatformTenantDetailDto(
       tenantId: json['tenant_id'] as String,
       name: json['name'] as String? ?? '',
@@ -536,6 +558,7 @@ final class SupabasePlatformAdminGateway implements IPlatformAdminGateway {
       ownerEmail: json['owner_email'] as String?,
       ownerRoleLabel: json['owner_role'] as String? ?? 'Chủ cửa hàng',
       activatedAt: _parseDate(json['activated_at']),
+      lastActivityAt: _parseDate(json['last_activity_at']),
       suspendedAt: _parseDate(json['suspended_at']),
       suspendedBy: json['suspended_by'] as String?,
       suspendReason: json['suspend_reason'] as String?,
@@ -561,7 +584,8 @@ final class SupabasePlatformAdminGateway implements IPlatformAdminGateway {
       userId: m['user_id'] as String,
       fullName: m['full_name'] as String? ?? '',
       email: m['email'] as String? ?? '',
-      roleLabel: m['role'] as String? ?? '',
+      roleLabel:
+          m['role_label'] as String? ?? m['label_text'] as String? ?? m['role'] as String? ?? '',
       isOwner: m['is_owner'] as bool? ?? false,
     );
   }
@@ -570,13 +594,12 @@ final class SupabasePlatformAdminGateway implements IPlatformAdminGateway {
     return PlatformAuditLogSummaryDto(
       id: row['id'] as String? ?? row['audit_log_id'] as String,
       title: row['title'] as String? ?? row['event_code'] as String? ?? '',
-      actionCode:
-          row['action_code'] as String? ?? row['event_code'] as String? ?? '',
+      actionCode: row['action_code'] as String? ?? row['event_code'] as String? ?? '',
       status: _auditStatusFromSql(row['status'] as String? ?? row['result'] as String?),
       actorName: row['actor_name'] as String? ?? '',
       actorRole: row['actor_role'] as String? ?? '',
-      targetOrgName: row['target_org_name'] as String? ?? '',
-      targetOrgCode: row['target_org_code'] as String? ?? '',
+      targetOrgName: row['target_org_name'] as String? ?? row['subject_type'] as String? ?? '',
+      targetOrgCode: row['target_org_code'] as String? ?? row['subject_id'] as String? ?? '',
       timestamp: DateTime.parse(
         (row['created_at'] ?? row['occurred_at']) as String,
       ),
@@ -593,8 +616,8 @@ final class SupabasePlatformAdminGateway implements IPlatformAdminGateway {
       statusLabel: json['status_label'] as String? ?? '',
       actorName: json['actor_name'] as String? ?? '',
       actorRole: json['actor_role'] as String? ?? '',
-      targetOrgName: json['target_org_name'] as String? ?? '',
-      targetOrgCode: json['target_org_code'] as String? ?? '',
+      targetOrgName: json['target_org_name'] as String? ?? json['subject_type'] as String? ?? '',
+      targetOrgCode: json['target_org_code'] as String? ?? json['subject_id'] as String? ?? '',
       timestamp: DateTime.parse(
         (json['timestamp'] ?? json['created_at']) as String,
       ),

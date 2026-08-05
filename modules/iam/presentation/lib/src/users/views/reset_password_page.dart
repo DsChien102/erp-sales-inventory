@@ -1,41 +1,68 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:vet45_design_system/design_system.dart';
 import 'package:vet45_iam_application/application.dart';
-import 'package:vet45_shared_application/application.dart';
 
+import '../../shared/iam_ui_failure.dart';
+import '../bloc/password_reset_cubit.dart';
+import '../bloc/password_reset_state.dart';
 import '../widgets/reset_password_create_password_step.dart';
 import '../widgets/reset_password_verify_code_step.dart';
 
-enum ResetPasswordStep { verifyCode, createNewPassword }
-
 /// Trang Đặt lại mật khẩu (TA-D-03).
-class ResetPasswordPage extends StatefulWidget {
-  final String email;
-  final IIamModule? iamModule;
-
+class ResetPasswordPage extends StatelessWidget {
   const ResetPasswordPage({
     super.key,
-    this.email = '',
+    this.emailMasked = '',
     this.iamModule,
+    this.cubit,
+    this.clock,
   });
 
-  /// Mask email: "nhhaha@gmail.com" → "nh***@gmail.com"
-  static String maskEmail(String email) {
-    final parts = email.split('@');
-    if (parts.length != 2 || parts[0].length < 2) return email;
-    final local = parts[0];
-    final masked = '${local.substring(0, 2)}***';
-    return '$masked@${parts[1]}';
-  }
+  final String emailMasked;
+  final IIamModule? iamModule;
+  final PasswordResetCubit? cubit;
+  final DateTime Function()? clock;
 
   @override
-  State<ResetPasswordPage> createState() => _ResetPasswordPageState();
+  Widget build(BuildContext context) {
+    if (cubit != null) {
+      return BlocProvider.value(
+        value: cubit!,
+        child: const _ResetPasswordBody(),
+      );
+    }
+    if (iamModule != null) {
+      return BlocProvider(
+        create: (_) {
+          final created = PasswordResetCubit(
+            iamModule: iamModule!,
+            clock: clock,
+          );
+          unawaited(created.request());
+          return created;
+        },
+        child: const _ResetPasswordBody(),
+      );
+    }
+    return _ResetPasswordSampleBody(emailMasked: emailMasked);
+  }
 }
 
-class _ResetPasswordPageState extends State<ResetPasswordPage> {
-  ResetPasswordStep _currentStep = ResetPasswordStep.verifyCode;
+class _ResetPasswordSampleBody extends StatefulWidget {
+  const _ResetPasswordSampleBody({required this.emailMasked});
+
+  final String emailMasked;
+
+  @override
+  State<_ResetPasswordSampleBody> createState() =>
+      _ResetPasswordSampleBodyState();
+}
+
+class _ResetPasswordSampleBodyState extends State<_ResetPasswordSampleBody> {
+  PasswordResetStep _currentStep = PasswordResetStep.verifyCode;
 
   late final TextEditingController _codeController;
   late final TextEditingController _newPasswordController;
@@ -46,11 +73,8 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
 
   bool _isVerifyingCode = false;
   bool _isSubmittingPassword = false;
-  bool _isRequesting = false;
   String? _newPasswordError;
   String? _confirmPasswordError;
-  String? _operationId;
-  late String _emailMasked;
 
   @override
   void initState() {
@@ -58,58 +82,15 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
     _codeController = TextEditingController();
     _newPasswordController = TextEditingController();
     _confirmPasswordController = TextEditingController();
-    _emailMasked = ResetPasswordPage.maskEmail(widget.email);
     _startResendTimer();
-    if (widget.iamModule != null) {
-      _requestReset();
-    }
-  }
-
-  Future<void> _requestReset() async {
-    final module = widget.iamModule;
-    if (module == null || _isRequesting) return;
-    setState(() => _isRequesting = true);
-    try {
-      final op = await module.executeCommandAsync<PasswordResetRequestResultDto>(
-        RequestMyPasswordResetCommand(),
-      );
-      if (!mounted) return;
-      final seconds = op.resendAvailableAt.difference(DateTime.now().toUtc()).inSeconds;
-      setState(() {
-        _operationId = op.operationId;
-        _emailMasked = op.maskedEmail;
-        _isRequesting = false;
-        _secondsRemaining = seconds < 0 ? 0 : seconds;
-      });
-      _startResendTimer();
-    } on ApplicationException catch (e) {
-      if (!mounted) return;
-      setState(() => _isRequesting = false);
-      VToast.show(
-        context,
-        title: 'Không gửi được mã',
-        message: e.message,
-        type: VToastType.danger,
-      );
-    } catch (e) {
-      if (!mounted) return;
-      setState(() => _isRequesting = false);
-      VToast.show(
-        context,
-        title: 'Không gửi được mã',
-        message: e.toString(),
-        type: VToastType.danger,
-      );
-    }
   }
 
   void _startResendTimer() {
     _resendTimer?.cancel();
+    _secondsRemaining = 45;
     _resendTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (_secondsRemaining > 0) {
-        setState(() {
-          _secondsRemaining--;
-        });
+        setState(() => _secondsRemaining--);
       } else {
         timer.cancel();
       }
@@ -117,38 +98,6 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
   }
 
   Future<void> _handleResendCode() async {
-    final module = widget.iamModule;
-    if (module != null && _operationId != null) {
-      try {
-        final op = await module.executeCommandAsync<PasswordResetRequestResultDto>(
-          ResendMyPasswordResetCommand(operationId: _operationId!),
-        );
-        if (!mounted) return;
-        final seconds = op.resendAvailableAt.difference(DateTime.now().toUtc()).inSeconds;
-        setState(() {
-          _operationId = op.operationId;
-          _emailMasked = op.maskedEmail;
-          _secondsRemaining = seconds < 0 ? 0 : seconds;
-        });
-        _startResendTimer();
-        VToast.show(
-          context,
-          title: 'Thông báo',
-          message: 'Đã gửi lại mã xác nhận.',
-          type: VToastType.info,
-        );
-      } on ApplicationException catch (e) {
-        if (!mounted) return;
-        VToast.show(
-          context,
-          title: 'Không gửi lại được',
-          message: e.message,
-          type: VToastType.danger,
-        );
-      }
-      return;
-    }
-
     _startResendTimer();
     VToast.show(
       context,
@@ -159,58 +108,13 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
   }
 
   Future<void> _handleVerifyCode() async {
-    if (!_isCodeValid || _isVerifyingCode) return;
-    setState(() {
-      _isVerifyingCode = true;
-    });
-
-    final module = widget.iamModule;
-    if (module != null) {
-      try {
-        final result = await module.executeCommandAsync<PasswordResetVerifyResultDto>(
-          VerifyMyPasswordResetCommand(
-            operationId: _operationId ?? '',
-            code: _codeController.text.trim(),
-          ),
-        );
-        if (!result.verified) {
-          if (!mounted) return;
-          setState(() => _isVerifyingCode = false);
-          return;
-        }
-        if (!mounted) return;
-        setState(() {
-          _isVerifyingCode = false;
-          _currentStep = ResetPasswordStep.createNewPassword;
-        });
-      } on ApplicationException catch (e) {
-        if (!mounted) return;
-        setState(() => _isVerifyingCode = false);
-        VToast.show(
-          context,
-          title: 'Mã không hợp lệ',
-          message: e.message,
-          type: VToastType.danger,
-        );
-      } catch (e) {
-        if (!mounted) return;
-        setState(() => _isVerifyingCode = false);
-        VToast.show(
-          context,
-          title: 'Mã không hợp lệ',
-          message: e.toString(),
-          type: VToastType.danger,
-        );
-      }
-      return;
-    }
-
+    if (_codeController.text.trim().isEmpty || _isVerifyingCode) return;
+    setState(() => _isVerifyingCode = true);
     await Future<void>.delayed(const Duration(milliseconds: 800));
     if (!mounted) return;
-
     setState(() {
       _isVerifyingCode = false;
-      _currentStep = ResetPasswordStep.createNewPassword;
+      _currentStep = PasswordResetStep.createNewPassword;
     });
   }
 
@@ -245,46 +149,9 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
       return;
     }
 
-    setState(() {
-      _isSubmittingPassword = true;
-    });
-
-    final module = widget.iamModule;
-    if (module != null) {
-      try {
-        await module.executeCommandAsync<PasswordResetCompletionResultDto>(
-          CompleteMyPasswordResetCommand(
-            operationId: _operationId ?? '',
-            newPassword: newPass,
-          ),
-        );
-        if (!mounted) return;
-        Navigator.of(context).pop(true);
-      } on ApplicationException catch (e) {
-        if (!mounted) return;
-        setState(() => _isSubmittingPassword = false);
-        VToast.show(
-          context,
-          title: 'Không thể đặt lại mật khẩu',
-          message: e.message,
-          type: VToastType.danger,
-        );
-      } catch (e) {
-        if (!mounted) return;
-        setState(() => _isSubmittingPassword = false);
-        VToast.show(
-          context,
-          title: 'Không thể đặt lại mật khẩu',
-          message: e.toString(),
-          type: VToastType.danger,
-        );
-      }
-      return;
-    }
-
+    setState(() => _isSubmittingPassword = true);
     await Future<void>.delayed(const Duration(milliseconds: 600));
     if (!mounted) return;
-
     Navigator.of(context).pop(true);
   }
 
@@ -297,23 +164,22 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
     super.dispose();
   }
 
-  bool get _isCodeValid => _codeController.text.trim().isNotEmpty;
-
   bool get _isPasswordFormFilled =>
-      _newPasswordController.text.isNotEmpty && _confirmPasswordController.text.isNotEmpty;
+      _newPasswordController.text.isNotEmpty &&
+      _confirmPasswordController.text.isNotEmpty;
 
   @override
   Widget build(BuildContext context) {
     final colors = context.vColors;
-    final isLoading = _isVerifyingCode || _isSubmittingPassword || _isRequesting;
+    final isLoading = _isVerifyingCode || _isSubmittingPassword;
 
     return Stack(
       children: [
         VPageScaffold(
           title: 'Đặt lại mật khẩu',
-          body: _currentStep == ResetPasswordStep.verifyCode
+          body: _currentStep == PasswordResetStep.verifyCode
               ? ResetPasswordVerifyCodeStep(
-                  emailMasked: _emailMasked,
+                  emailMasked: widget.emailMasked,
                   codeController: _codeController,
                   secondsRemaining: _secondsRemaining,
                   isVerifying: _isVerifyingCode,
@@ -333,48 +199,17 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
                     });
                   },
                 ),
-          bottomBar: _currentStep == ResetPasswordStep.createNewPassword
-              ? Container(
-                  padding: const EdgeInsets.all(VSpacing.screenMobile),
-                  decoration: BoxDecoration(
-                    color: colors.surface,
-                    border: Border(
-                      top: BorderSide(color: colors.borderDefault),
-                    ),
-                  ),
-                  child: SafeArea(
-                    top: false,
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: VButton(
-                            label: 'Quay lại',
-                            variant: VButtonVariant.outline,
-                            fullWidth: true,
-                            onPressed: isLoading
-                                ? null
-                                : () {
-                                    setState(() {
-                                      _currentStep = ResetPasswordStep.verifyCode;
-                                    });
-                                  },
-                          ),
-                        ),
-                        const VGap.horizontalSm(),
-                        Expanded(
-                          child: VButton(
-                            label: 'Đặt lại mật khẩu',
-                            variant: VButtonVariant.primary,
-                            tone: VComponentTone.primary,
-                            fullWidth: true,
-                            onPressed: _isPasswordFormFilled && !isLoading
-                                ? _handleResetPassword
-                                : null,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
+          bottomBar: _currentStep == PasswordResetStep.createNewPassword
+              ? _PasswordBottomBar(
+                  isLoading: isLoading,
+                  onBack: () {
+                    setState(() {
+                      _currentStep = PasswordResetStep.verifyCode;
+                    });
+                  },
+                  onSubmit: _isPasswordFormFilled && !isLoading
+                      ? _handleResetPassword
+                      : null,
                 )
               : null,
         ),
@@ -382,12 +217,276 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
           Positioned.fill(
             child: Container(
               color: colors.surface.withValues(alpha: 0.5),
-              child: const Center(
-                child: VLoading(size: 40),
-              ),
+              child: const Center(child: VLoading(size: 40)),
             ),
           ),
       ],
+    );
+  }
+}
+
+class _ResetPasswordBody extends StatefulWidget {
+  const _ResetPasswordBody();
+
+  @override
+  State<_ResetPasswordBody> createState() => _ResetPasswordBodyState();
+}
+
+class _ResetPasswordBodyState extends State<_ResetPasswordBody> {
+  late final TextEditingController _codeController;
+  late final TextEditingController _newPasswordController;
+  late final TextEditingController _confirmPasswordController;
+  Timer? _tickTimer;
+  String? _newPasswordError;
+  String? _confirmPasswordError;
+  IamUiFailure? _lastShownFailure;
+  bool _completionHandled = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _codeController = TextEditingController();
+    _newPasswordController = TextEditingController();
+    _confirmPasswordController = TextEditingController();
+    _tickTimer = Timer.periodic(const Duration(seconds: 1), (_) {
+      if (!mounted) return;
+      context.read<PasswordResetCubit>().tick();
+    });
+  }
+
+  @override
+  void dispose() {
+    _tickTimer?.cancel();
+    _codeController.dispose();
+    _newPasswordController.dispose();
+    _confirmPasswordController.dispose();
+    super.dispose();
+  }
+
+  bool get _isPasswordFormFilled =>
+      _newPasswordController.text.isNotEmpty &&
+      _confirmPasswordController.text.isNotEmpty;
+
+  Future<void> _handleVerify() async {
+    await context.read<PasswordResetCubit>().verify(_codeController.text);
+  }
+
+  Future<void> _handleResend() async {
+    final cubit = context.read<PasswordResetCubit>();
+    await cubit.resend();
+    if (!mounted) return;
+    if (cubit.state.failure == null) {
+      VToast.show(
+        context,
+        title: 'Thông báo',
+        message: 'Đã gửi lại mã xác nhận.',
+        type: VToastType.info,
+      );
+    }
+  }
+
+  Future<void> _handleComplete() async {
+    final newPass = _newPasswordController.text;
+    final confirmPass = _confirmPasswordController.text;
+
+    String? newErr;
+    String? confirmErr;
+
+    if (newPass.length < 8) {
+      newErr = 'Mật khẩu phải chứa tối thiểu 8 ký tự';
+    }
+    if (newPass != confirmPass) {
+      confirmErr = 'Mật khẩu nhập lại không trùng khớp';
+    }
+
+    setState(() {
+      _newPasswordError = newErr;
+      _confirmPasswordError = confirmErr;
+    });
+
+    if (newErr != null || confirmErr != null) {
+      VToast.show(
+        context,
+        title: 'Không thể đặt lại mật khẩu',
+        message: 'Vui lòng kiểm tra lại thông tin mật khẩu bên dưới.',
+        type: VToastType.danger,
+      );
+      return;
+    }
+
+    await context.read<PasswordResetCubit>().complete(newPass);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.vColors;
+
+    return BlocConsumer<PasswordResetCubit, PasswordResetState>(
+      listener: (context, state) {
+        if (state.failure != null &&
+            !identical(state.failure, _lastShownFailure)) {
+          _lastShownFailure = state.failure;
+          final isRequestPhase = state.request == null;
+          VToast.show(
+            context,
+            title: isRequestPhase ? 'Không gửi được mã' : 'Không thể tiếp tục',
+            message: state.failure!.message,
+            type: VToastType.danger,
+          );
+        }
+
+        if (state.completion != null && !_completionHandled) {
+          _completionHandled = true;
+          Navigator.of(context).pop(true);
+        }
+      },
+      builder: (context, state) {
+        if (state.step == PasswordResetStep.initial && state.isSubmitting) {
+          return const VPageScaffold(
+            title: 'Đặt lại mật khẩu',
+            body: Center(child: VLoading(size: 40)),
+          );
+        }
+
+        if (state.step == PasswordResetStep.initial &&
+            state.failure != null &&
+            state.request == null) {
+          return VPageScaffold(
+            title: 'Đặt lại mật khẩu',
+            body: Center(
+              child: Padding(
+                padding: const EdgeInsets.all(VSpacing.screenMobile),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    VText(
+                      'Không gửi được mã',
+                      variant: VTextVariant.headingH4,
+                    ),
+                    const VGap.sm(),
+                    VText(
+                      state.failure!.message,
+                      variant: VTextVariant.bodySmall,
+                      color: colors.textSecondary,
+                      textAlign: TextAlign.center,
+                    ),
+                    const VGap.lg(),
+                    VButton(
+                      label: 'Thử lại',
+                      onPressed: state.isSubmitting
+                          ? null
+                          : () => context.read<PasswordResetCubit>().retry(),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          );
+        }
+
+        final isLoading = state.isSubmitting;
+
+        return Stack(
+          children: [
+            VPageScaffold(
+              title: 'Đặt lại mật khẩu',
+              body: state.step == PasswordResetStep.createNewPassword
+                  ? ResetPasswordCreatePasswordStep(
+                      newPasswordController: _newPasswordController,
+                      confirmPasswordController: _confirmPasswordController,
+                      newPasswordError: _newPasswordError,
+                      confirmPasswordError: _confirmPasswordError,
+                      onChanged: () {
+                        setState(() {
+                          _newPasswordError = null;
+                          _confirmPasswordError = null;
+                        });
+                      },
+                    )
+                  : ResetPasswordVerifyCodeStep(
+                      emailMasked: state.maskedEmail.isEmpty
+                          ? '***'
+                          : state.maskedEmail,
+                      codeController: _codeController,
+                      secondsRemaining: state.resendSecondsRemaining,
+                      isVerifying: state.isSubmitting &&
+                          state.step == PasswordResetStep.verifyCode,
+                      onCodeChanged: (_) => setState(() {}),
+                      onVerify: _handleVerify,
+                      onResend: state.canResend ? _handleResend : null,
+                    ),
+              bottomBar: state.step == PasswordResetStep.createNewPassword
+                  ? _PasswordBottomBar(
+                      isLoading: isLoading,
+                      onBack: () =>
+                          context.read<PasswordResetCubit>().returnToVerify(),
+                      onSubmit: _isPasswordFormFilled && !isLoading
+                          ? _handleComplete
+                          : null,
+                    )
+                  : null,
+            ),
+            if (isLoading)
+              Positioned.fill(
+                child: Container(
+                  color: colors.surface.withValues(alpha: 0.5),
+                  child: const Center(child: VLoading(size: 40)),
+                ),
+              ),
+          ],
+        );
+      },
+    );
+  }
+}
+
+class _PasswordBottomBar extends StatelessWidget {
+  const _PasswordBottomBar({
+    required this.isLoading,
+    required this.onBack,
+    required this.onSubmit,
+  });
+
+  final bool isLoading;
+  final VoidCallback onBack;
+  final VoidCallback? onSubmit;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.vColors;
+    return Container(
+      padding: const EdgeInsets.all(VSpacing.screenMobile),
+      decoration: BoxDecoration(
+        color: colors.surface,
+        border: Border(
+          top: BorderSide(color: colors.borderDefault),
+        ),
+      ),
+      child: SafeArea(
+        top: false,
+        child: Row(
+          children: [
+            Expanded(
+              child: VButton(
+                label: 'Quay lại',
+                variant: VButtonVariant.outline,
+                fullWidth: true,
+                onPressed: isLoading ? null : onBack,
+              ),
+            ),
+            const VGap.horizontalSm(),
+            Expanded(
+              child: VButton(
+                label: 'Đặt lại mật khẩu',
+                variant: VButtonVariant.primary,
+                tone: VComponentTone.primary,
+                fullWidth: true,
+                onPressed: onSubmit,
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

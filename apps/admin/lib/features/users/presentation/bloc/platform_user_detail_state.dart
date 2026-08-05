@@ -1,43 +1,83 @@
 import 'package:vet45_iam_application/application.dart';
+import 'package:vet45_iam_domain/domain.dart';
+import 'package:vet45_iam_presentation/presentation.dart';
 
-enum PlatformUserDetailStatus {
-  initial,
-  loading,
-  success,
-  failure,
-  notFound,
+enum PlatformUserMutation {
+  activationInvite,
+  passwordReset,
+  suspend,
+  restore,
 }
 
 final class PlatformUserDetailState {
   const PlatformUserDetailState({
-    this.status = PlatformUserDetailStatus.initial,
+    this.status = IamLoadStatus.initial,
     this.user,
-    this.errorMessage,
-    this.successMessage,
     this.isSubmitting = false,
+    this.activeMutation,
+    this.failure,
+    this.successMessage,
+    this.permissions = const [],
   });
 
-  final PlatformUserDetailStatus status;
+  final IamLoadStatus status;
   final PlatformUserDetailDto? user;
-  final String? errorMessage;
-  final String? successMessage;
   final bool isSubmitting;
+  final PlatformUserMutation? activeMutation;
+  final IamUiFailure? failure;
+  final String? successMessage;
+  final List<String> permissions;
+
+  bool hasPermission(String code) {
+    // Mirror SessionDto.hasPermission: owner role grants all mapped codes.
+    if (permissions.contains('__owner__')) return true;
+    return permissions.contains(code);
+  }
+
+  bool get canSendActivationInvite =>
+      hasPermission(IamPlatformPermissions.userActivationInviteSend);
+  bool get canRequestPasswordReset =>
+      hasPermission(IamPlatformPermissions.userPasswordResetInitiate);
+  bool get canSuspend => hasPermission(IamPlatformPermissions.userSuspend);
+  bool get canRestore => hasPermission(IamPlatformPermissions.userRestore);
+
+  bool get showActivationInvite =>
+      user?.status == PlatformUserStatus.pendingActivation &&
+      canSendActivationInvite;
+  bool get showPasswordReset =>
+      user?.status == PlatformUserStatus.active && canRequestPasswordReset;
+  bool get showSuspend =>
+      (user?.status == PlatformUserStatus.active ||
+          user?.status == PlatformUserStatus.pendingActivation) &&
+      canSuspend;
+  bool get showRestore =>
+      user?.status == PlatformUserStatus.suspended && canRestore;
 
   PlatformUserDetailState copyWith({
-    PlatformUserDetailStatus? status,
+    IamLoadStatus? status,
     PlatformUserDetailDto? user,
-    String? errorMessage,
-    String? successMessage,
     bool? isSubmitting,
-    bool clearMessages = false,
+    PlatformUserMutation? activeMutation,
+    IamUiFailure? failure,
+    String? successMessage,
+    List<String>? permissions,
+    bool clearUser = false,
+    bool clearActiveMutation = false,
+    bool clearFailure = false,
+    bool clearSuccessMessage = false,
   }) {
     return PlatformUserDetailState(
       status: status ?? this.status,
-      user: user ?? this.user,
-      errorMessage: clearMessages ? null : (errorMessage ?? this.errorMessage),
-      successMessage:
-          clearMessages ? null : (successMessage ?? this.successMessage),
+      user: clearUser ? null : (user ?? this.user),
       isSubmitting: isSubmitting ?? this.isSubmitting,
+      activeMutation: clearActiveMutation
+          ? null
+          : (activeMutation ?? this.activeMutation),
+      failure: clearFailure ? null : (failure ?? this.failure),
+      successMessage: clearSuccessMessage
+          ? null
+          : (successMessage ?? this.successMessage),
+      permissions: permissions ?? this.permissions,
     );
   }
 }

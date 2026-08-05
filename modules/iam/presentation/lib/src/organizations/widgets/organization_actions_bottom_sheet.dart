@@ -24,6 +24,7 @@ class OrganizationActionsBottomSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = context.vColors;
     final isSuspended = organization.status == OrganizationStatus.suspended;
+    final isActive = organization.status == OrganizationStatus.active;
 
     return Padding(
       padding: const EdgeInsets.only(
@@ -62,7 +63,6 @@ class OrganizationActionsBottomSheet extends StatelessWidget {
           ),
           const VGap.md(),
 
-          // Action 2: Tạm ngừng (nếu Active) hoặc Khôi phục (nếu Suspended)
           if (isSuspended) ...[
             _ActionButtonCard(
               title: 'Khôi phục tổ chức',
@@ -74,7 +74,7 @@ class OrganizationActionsBottomSheet extends StatelessWidget {
                 onRestoreTap?.call();
               },
             ),
-          ] else ...[
+          ] else if (isActive) ...[
             _ActionButtonCard(
               title: 'Tạm ngừng tổ chức',
               subtitle: 'Chặn toàn bộ quyền vận hành',

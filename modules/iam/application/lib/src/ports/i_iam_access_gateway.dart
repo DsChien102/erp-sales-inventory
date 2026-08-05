@@ -48,7 +48,4 @@ abstract interface class IIamAccessGateway {
   });
 
   Future<bool> isMember(String tenantId);
-
-  /// Dev/bootstrap — creates owner tenant when user has no membership.
-  Future<String> bootstrapOwner({String tenantName = 'My Store'});
 }

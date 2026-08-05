@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:vet45_design_system/design_system.dart';
+import 'package:vet45_iam_domain/domain.dart';
 import 'confirm_switch_organization_bottom_sheet.dart';
 import 'organization_empty_view.dart';
 
@@ -9,42 +10,19 @@ class SelectOrganizationItemUiModel {
   final String name;
   final String code;
   final String roleLabel;
+  final TenantLifecycleStatus status;
   final bool isCurrent;
-  final bool isSuspended;
+  final bool isSelectable;
 
   const SelectOrganizationItemUiModel({
     required this.id,
     required this.name,
     required this.code,
     required this.roleLabel,
+    required this.status,
     this.isCurrent = false,
-    this.isSuspended = false,
+    this.isSelectable = true,
   });
-
-  static const List<SelectOrganizationItemUiModel> defaultOrganizations = [
-    SelectOrganizationItemUiModel(
-      id: 'org-01',
-      name: 'Thú y Minh Phát',
-      code: 'TEN-000138',
-      roleLabel: 'Chủ cửa hàng',
-      isCurrent: true,
-    ),
-    SelectOrganizationItemUiModel(
-      id: 'org-02',
-      name: 'Phòng khám Minh Tâm',
-      code: 'TEN-000204',
-      roleLabel: 'Kế toán',
-      isCurrent: false,
-    ),
-    SelectOrganizationItemUiModel(
-      id: 'org-03',
-      name: 'ASC Commerce',
-      code: 'TEN-000095',
-      roleLabel: 'Nhân viên bán hàng',
-      isCurrent: false,
-      isSuspended: true,
-    ),
-  ];
 }
 
 /// VBottomSheet Chọn tổ chức (TA-O-01 — Chọn tổ chức).
@@ -55,13 +33,19 @@ class SelectOrganizationBottomSheet extends StatefulWidget {
   final String? suspendedOrgName;
   final VoidCallback? onEmptyAction;
 
+  /// When non-null, "Thử lại" on [OrganizationEmptyStateType.loadError] calls
+  /// this and replaces the sheet content with the returned list (or keeps
+  /// loadError when the future returns `null`).
+  final Future<List<SelectOrganizationItemUiModel>?> Function()? onRetryLoad;
+
   const SelectOrganizationBottomSheet({
     super.key,
-    this.organizations = SelectOrganizationItemUiModel.defaultOrganizations,
+    this.organizations = const [],
     this.onOrganizationSelected,
     this.emptyStateType,
     this.suspendedOrgName,
     this.onEmptyAction,
+    this.onRetryLoad,
   });
 
   @override
@@ -73,6 +57,16 @@ class _SelectOrganizationBottomSheetState
     extends State<SelectOrganizationBottomSheet> {
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
+  late List<SelectOrganizationItemUiModel> _organizations;
+  OrganizationEmptyStateType? _emptyStateType;
+  bool _retrying = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _organizations = List<SelectOrganizationItemUiModel>.of(widget.organizations);
+    _emptyStateType = widget.emptyStateType;
+  }
 
   @override
   void dispose() {
@@ -81,17 +75,45 @@ class _SelectOrganizationBottomSheetState
   }
 
   List<SelectOrganizationItemUiModel> get _filteredOrganizations {
-    if (_searchQuery.isEmpty) return widget.organizations;
-    return widget.organizations.where((org) {
+    if (_searchQuery.isEmpty) return _organizations;
+    return _organizations.where((org) {
       return org.name.toLowerCase().contains(_searchQuery) ||
           org.code.toLowerCase().contains(_searchQuery);
     }).toList();
   }
 
   void _handleSelectOrganization(SelectOrganizationItemUiModel org) {
-    if (org.isCurrent || org.isSuspended) return;
+    if (org.isCurrent || !org.isSelectable) return;
     widget.onOrganizationSelected?.call(org);
     Navigator.of(context).pop(org);
+  }
+
+  Future<void> _handleEmptyAction() async {
+    if (_emptyStateType == OrganizationEmptyStateType.loadError &&
+        widget.onRetryLoad != null) {
+      if (_retrying) return;
+      setState(() => _retrying = true);
+      try {
+        final refreshed = await widget.onRetryLoad!();
+        if (!mounted) return;
+        if (refreshed != null) {
+          setState(() {
+            _organizations = List<SelectOrganizationItemUiModel>.of(refreshed);
+            _emptyStateType = refreshed.isEmpty
+                ? OrganizationEmptyStateType.noAuthorizedOrganizations
+                : null;
+            _retrying = false;
+          });
+          return;
+        }
+      } finally {
+        if (mounted && _retrying) {
+          setState(() => _retrying = false);
+        }
+      }
+      return;
+    }
+    widget.onEmptyAction?.call();
   }
 
   @override
@@ -124,11 +146,16 @@ class _SelectOrganizationBottomSheetState
             },
           ),
           const VGap.md(),
-          if (widget.emptyStateType != null)
+          if (_retrying)
+            const Padding(
+              padding: EdgeInsets.symmetric(vertical: VSpacing.space6),
+              child: Center(child: CircularProgressIndicator()),
+            )
+          else if (_emptyStateType != null)
             OrganizationEmptyView(
-              type: widget.emptyStateType!,
+              type: _emptyStateType!,
               suspendedOrgName: widget.suspendedOrgName,
-              onAction: widget.onEmptyAction ?? () {},
+              onAction: _handleEmptyAction,
               isCompact: true,
             )
           else if (items.isEmpty)
@@ -145,7 +172,7 @@ class _SelectOrganizationBottomSheetState
                   )
                 : OrganizationEmptyView(
                     type: OrganizationEmptyStateType.noAuthorizedOrganizations,
-                    onAction: widget.onEmptyAction ?? () {},
+                    onAction: _handleEmptyAction,
                     isCompact: true,
                   )
           else
@@ -172,11 +199,10 @@ class _SelectOrganizationBottomSheetState
     SelectOrganizationItemUiModel org,
   ) {
     final isCurrent = org.isCurrent;
-    final isSuspended = org.isSuspended;
+    final canTap = !isCurrent && org.isSelectable;
+    final muted = !canTap && !isCurrent;
 
-    final Color bgColor = isCurrent
-        ? colors.successBg
-        : colors.surface;
+    final Color bgColor = isCurrent ? colors.successBg : colors.surface;
 
     final Border border = isCurrent
         ? Border.all(color: colors.success, width: 1.5)
@@ -184,30 +210,21 @@ class _SelectOrganizationBottomSheetState
 
     final Color iconColor = isCurrent
         ? colors.success
-        : isSuspended
+        : muted
             ? colors.disabledFg
             : colors.textSecondary;
 
-    final Color titleColor = isSuspended
-        ? colors.disabledFg
-        : colors.textPrimary;
+    final Color titleColor = muted ? colors.disabledFg : colors.textPrimary;
 
-    final Color subtitleColor = isSuspended
-        ? colors.disabledFg
-        : colors.textSecondary;
+    final Color subtitleColor =
+        muted ? colors.disabledFg : colors.textSecondary;
 
-    final String statusSuffix = isCurrent
-        ? ' · Hiện tại'
-        : isSuspended
-            ? ' · Tạm ngừng'
-            : '';
+    final String statusSuffix = _statusSuffix(org);
 
     return Material(
       color: Colors.transparent,
       child: InkWell(
-        onTap: (isCurrent || isSuspended)
-            ? null
-            : () => _handleSelectOrganization(org),
+        onTap: canTap ? () => _handleSelectOrganization(org) : null,
         borderRadius: BorderRadius.circular(VRadius.card),
         child: Container(
           padding: const EdgeInsets.all(VSpacing.space4),
@@ -257,7 +274,11 @@ class _SelectOrganizationBottomSheetState
                 ),
               ),
               const VGap.horizontalSm(),
-              _buildRadioIndicator(colors, isCurrent: isCurrent, isSuspended: isSuspended),
+              _buildRadioIndicator(
+                colors,
+                isCurrent: isCurrent,
+                muted: muted,
+              ),
             ],
           ),
         ),
@@ -265,10 +286,20 @@ class _SelectOrganizationBottomSheetState
     );
   }
 
+  String _statusSuffix(SelectOrganizationItemUiModel org) {
+    if (org.isCurrent) return ' · Hiện tại';
+    return switch (org.status) {
+      TenantLifecycleStatus.suspended => ' · Tạm ngừng',
+      TenantLifecycleStatus.closed => ' · Đã đóng',
+      TenantLifecycleStatus.provisioning => ' · Đang thiết lập',
+      TenantLifecycleStatus.active => '',
+    };
+  }
+
   Widget _buildRadioIndicator(
     dynamic colors, {
     required bool isCurrent,
-    required bool isSuspended,
+    required bool muted,
   }) {
     if (isCurrent) {
       return Container(
@@ -298,7 +329,7 @@ class _SelectOrganizationBottomSheetState
         color: Colors.transparent,
         shape: BoxShape.circle,
         border: Border.all(
-          color: isSuspended ? colors.borderDefault : colors.borderDefault,
+          color: colors.borderDefault,
           width: 1.5,
         ),
       ),
@@ -318,15 +349,16 @@ Future<SelectOrganizationItemUiModel?> showSelectOrganizationBottomSheet({
   OrganizationEmptyStateType? emptyStateType,
   String? suspendedOrgName,
   VoidCallback? onEmptyAction,
+  Future<List<SelectOrganizationItemUiModel>?> Function()? onRetryLoad,
 }) async {
   final selectedOrg = await showVBottomSheet<SelectOrganizationItemUiModel>(
     context: context,
     child: SelectOrganizationBottomSheet(
-      organizations:
-          organizations ?? SelectOrganizationItemUiModel.defaultOrganizations,
+      organizations: organizations ?? const [],
       emptyStateType: emptyStateType,
       suspendedOrgName: suspendedOrgName,
       onEmptyAction: onEmptyAction,
+      onRetryLoad: onRetryLoad,
     ),
   );
 
@@ -385,7 +417,6 @@ Future<SelectOrganizationItemUiModel?> showSelectOrganizationBottomSheet({
     );
     return null;
   } else if (confirmed == false) {
-    // Nếu người dùng chọn "Quay lại", mở lại sheet chọn tổ chức
     return showSelectOrganizationBottomSheet(
       context: context,
       organizations: organizations,
@@ -394,6 +425,7 @@ Future<SelectOrganizationItemUiModel?> showSelectOrganizationBottomSheet({
       emptyStateType: emptyStateType,
       suspendedOrgName: suspendedOrgName,
       onEmptyAction: onEmptyAction,
+      onRetryLoad: onRetryLoad,
     );
   }
 

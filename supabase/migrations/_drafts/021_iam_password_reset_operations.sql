@@ -1,17 +1,24 @@
 -- Title: iam self-service password reset operations (S14 / EP-06 US-03)
 -- Kind: patch
 -- Intent: iam_password_reset_operations
--- Touches: iam.begin_password_reset_operation, iam.get_password_reset_operation, iam.resend_password_reset_operation, iam.mark_password_reset_operation_verified, iam.mark_password_reset_operation_completed
+-- Touches: iam.begin_password_reset_operation, iam.get_password_reset_operation, iam.resend_password_reset_operation, iam.verify_password_reset_code, iam.mark_password_reset_operation_verified, iam.mark_password_reset_operation_completed
 -- Notes: Draft only — do not apply via supabase migration up until promoted.
---        Metadata ONLY: operation id, user id, status, timestamps, attempt count.
---        The recovery code (and any hash of it) is NEVER stored here; the raw
---        code lives exclusively inside Supabase Auth.
+--        B2: app owns the 6-digit code. This table stores ONLY a bcrypt HASH
+--        (code_hash) plus lifecycle metadata; the raw code is NEVER persisted —
+--        it travels once to the messaging worker through the outbox transient
+--        channel (secret_payload_ciphertext), same mechanism as tenant_invitation.
+--        Supabase Auth recovery OTP is NOT used for this flow.
 --
--- CONFLICT: Legacy harness `_superseded/022_iam_identity_self_service.sql`
--- used a different shape (id, code_hash, delivery_code). Do not re-apply that
--- file on the same DB. This draft reshapes an incompatible table before create.
+-- Legacy dev drafts used an incompatible shape (id, code_hash, delivery_code).
+-- This draft reshapes that table before create so local reset/re-apply stays
+-- idempotent while keeping the canonical B2 table contract below.
+
+create extension if not exists pgcrypto with schema extensions;
 
 -- Drop legacy / incompatible shape so draft re-apply is idempotent.
+-- Legacy 022 shape is identified by the plaintext `delivery_code` column or the
+-- absence of `operation_id`. The B2 shape (operation_id + code_hash, no
+-- delivery_code) is preserved across re-applies.
 do $$
 begin
   if to_regclass('iam.password_reset_operations') is null then
@@ -23,7 +30,7 @@ begin
     from information_schema.columns
     where table_schema = 'iam'
       and table_name = 'password_reset_operations'
-      and column_name = 'code_hash'
+      and column_name = 'delivery_code'
   ) or not exists (
     select 1
     from information_schema.columns
@@ -41,41 +48,99 @@ create table if not exists iam.password_reset_operations (
   status text not null default 'pending'
     check (status in ('pending', 'verified', 'completed')),
   attempt_count int not null default 0,
+  code_hash text,
   expires_at timestamptz not null,
   resend_available_at timestamptz not null,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
 
+-- Idempotent for DBs already carrying the metadata-only B2 predecessor.
+alter table iam.password_reset_operations
+  add column if not exists code_hash text;
+
 alter table iam.password_reset_operations enable row level security;
 
 create index if not exists password_reset_operations_user_idx
   on iam.password_reset_operations (user_id, created_at desc);
 
--- Config-aligned windows: OTP expiry 600s, resend frequency 60s.
+-- Config-aligned windows: code expiry 600s, resend frequency 60s.
+-- B2: generates the 6-digit code, stores only its bcrypt hash, and enqueues the
+-- code email via the outbox transient channel. The raw code is nulled before
+-- returning and never persisted.
 create or replace function iam.begin_password_reset_operation()
 returns jsonb
 language plpgsql
 security definer
-set search_path = iam, pg_temp
+set search_path = iam, extensions, pg_temp
 as $$
 declare
   v_user_id uuid := auth.uid();
+  v_email text;
   v_row iam.password_reset_operations;
+  v_code text;
+  v_ciphertext text;
+  v_message_id uuid := gen_random_uuid();
+  v_correlation_id text := gen_random_uuid()::text;
+  v_outcome_id uuid := gen_random_uuid();
+  v_platform_partition uuid := '00000000-0000-0000-0000-000000000000'::uuid;
+  v_masked text;
 begin
   if v_user_id is null then
     raise exception 'AUTHENTICATION_REQUIRED';
   end if;
 
+  select u.email::text into v_email from auth.users u where u.id = v_user_id;
+  if v_email is null or length(trim(v_email)) = 0 then
+    raise exception 'VALIDATION_ERROR: reset email missing';
+  end if;
+
+  v_code := lpad((floor(random() * 1000000))::int::text, 6, '0');
+  v_masked := left(v_email, 1) || '***' || substring(v_email from position('@' in v_email));
+
   insert into iam.password_reset_operations (
-    user_id, status, attempt_count, expires_at, resend_available_at
+    user_id, status, attempt_count, code_hash, expires_at, resend_available_at
   )
   values (
-    v_user_id, 'pending', 0, now() + interval '600 seconds',
+    v_user_id, 'pending', 0,
+    extensions.crypt(v_code, extensions.gen_salt('bf')),
+    now() + interval '600 seconds',
     now() + interval '60 seconds'
   )
   returning * into v_row;
 
+  v_ciphertext := 'transient:' || encode(convert_to(v_code, 'UTF8'), 'base64');
+
+  perform iam.enqueue_outbox_message(
+    v_platform_partition,
+    'iam.email.delivery_requested',
+    jsonb_build_object(
+      'event_version', 1,
+      'id', v_message_id,
+      'occurred_on', timezone('utc', now()),
+      'tenant_id', null,
+      'template_id', 'password_reset_code',
+      'to_email', lower(trim(v_email)),
+      'correlation_id', v_correlation_id,
+      'outcome_id', v_outcome_id,
+      'locale', 'vi',
+      'refs', jsonb_build_object('operation_id', v_row.operation_id::text),
+      'secret_payload_ciphertext', v_ciphertext
+    ),
+    v_message_id
+  );
+
+  perform iam.record_email_delivery_outcome(
+    p_correlation_id := v_correlation_id,
+    p_template_id := 'password_reset_code',
+    p_status := 'queued',
+    p_tenant_id := null,
+    p_to_email_masked := v_masked,
+    p_id := v_outcome_id
+  );
+
+  v_code := null;
+  v_ciphertext := null;
   return iam._password_reset_operation_json(v_row);
 end;
 $$;
@@ -102,19 +167,30 @@ begin
 end;
 $$;
 
+-- B2: issues a fresh code + hash and re-enqueues the code email. Resets the
+-- attempt counter so the new code gets its full allowance.
 create or replace function iam.resend_password_reset_operation(p_operation_id uuid)
 returns jsonb
 language plpgsql
 security definer
-set search_path = iam, pg_temp
+set search_path = iam, extensions, pg_temp
 as $$
 declare
+  v_user_id uuid := auth.uid();
+  v_email text;
   v_row iam.password_reset_operations;
+  v_code text;
+  v_ciphertext text;
+  v_message_id uuid := gen_random_uuid();
+  v_correlation_id text := gen_random_uuid()::text;
+  v_outcome_id uuid := gen_random_uuid();
+  v_platform_partition uuid := '00000000-0000-0000-0000-000000000000'::uuid;
+  v_masked text;
 begin
   select * into v_row
   from iam.password_reset_operations o
   where o.operation_id = p_operation_id
-    and o.user_id = auth.uid()
+    and o.user_id = v_user_id
   for update;
 
   if not found then
@@ -129,14 +205,51 @@ begin
     raise exception 'RESET_RATE_LIMITED';
   end if;
 
+  select u.email::text into v_email from auth.users u where u.id = v_user_id;
+  v_code := lpad((floor(random() * 1000000))::int::text, 6, '0');
+  v_masked := left(v_email, 1) || '***' || substring(v_email from position('@' in v_email));
+
   update iam.password_reset_operations
-  set expires_at = now() + interval '600 seconds',
+  set code_hash = extensions.crypt(v_code, extensions.gen_salt('bf')),
+      expires_at = now() + interval '600 seconds',
       resend_available_at = now() + interval '60 seconds',
-      attempt_count = attempt_count + 1,
+      attempt_count = 0,
       updated_at = now()
   where operation_id = p_operation_id
   returning * into v_row;
 
+  v_ciphertext := 'transient:' || encode(convert_to(v_code, 'UTF8'), 'base64');
+
+  perform iam.enqueue_outbox_message(
+    v_platform_partition,
+    'iam.email.delivery_requested',
+    jsonb_build_object(
+      'event_version', 1,
+      'id', v_message_id,
+      'occurred_on', timezone('utc', now()),
+      'tenant_id', null,
+      'template_id', 'password_reset_code',
+      'to_email', lower(trim(v_email)),
+      'correlation_id', v_correlation_id,
+      'outcome_id', v_outcome_id,
+      'locale', 'vi',
+      'refs', jsonb_build_object('operation_id', v_row.operation_id::text),
+      'secret_payload_ciphertext', v_ciphertext
+    ),
+    v_message_id
+  );
+
+  perform iam.record_email_delivery_outcome(
+    p_correlation_id := v_correlation_id,
+    p_template_id := 'password_reset_code',
+    p_status := 'queued',
+    p_tenant_id := null,
+    p_to_email_masked := v_masked,
+    p_id := v_outcome_id
+  );
+
+  v_code := null;
+  v_ciphertext := null;
   return iam._password_reset_operation_json(v_row);
 end;
 $$;
@@ -159,6 +272,56 @@ begin
   if not found then
     raise exception 'STATE_CHANGED';
   end if;
+end;
+$$;
+
+-- B2: verifies the submitted code against the stored bcrypt hash. Increments
+-- the attempt counter on mismatch; marks the operation verified on success.
+create or replace function iam.verify_password_reset_code(
+  p_operation_id uuid,
+  p_code text
+)
+returns jsonb
+language plpgsql
+security definer
+set search_path = iam, extensions, pg_temp
+as $$
+declare
+  v_user_id uuid := auth.uid();
+  v_row iam.password_reset_operations;
+begin
+  select * into v_row
+  from iam.password_reset_operations o
+  where o.operation_id = p_operation_id
+    and o.user_id = v_user_id
+  for update;
+
+  if not found then
+    raise exception 'RESOURCE_NOT_FOUND';
+  end if;
+  if v_row.status = 'completed' then
+    raise exception 'STATE_CHANGED';
+  end if;
+  if now() > v_row.expires_at then
+    raise exception 'RESET_CODE_EXPIRED';
+  end if;
+  if v_row.attempt_count >= 5 then
+    raise exception 'RESET_CODE_ATTEMPTS_EXCEEDED';
+  end if;
+
+  if v_row.code_hash is null
+     or extensions.crypt(coalesce(p_code, ''), v_row.code_hash) <> v_row.code_hash then
+    update iam.password_reset_operations
+    set attempt_count = attempt_count + 1, updated_at = now()
+    where operation_id = p_operation_id;
+    raise exception 'RESET_CODE_INVALID';
+  end if;
+
+  update iam.password_reset_operations
+  set status = 'verified', updated_at = now()
+  where operation_id = p_operation_id;
+
+  return jsonb_build_object('verified', true);
 end;
 $$;
 
@@ -202,12 +365,14 @@ $$;
 revoke all on function iam.begin_password_reset_operation() from public, anon;
 revoke all on function iam.get_password_reset_operation(uuid) from public, anon;
 revoke all on function iam.resend_password_reset_operation(uuid) from public, anon;
+revoke all on function iam.verify_password_reset_code(uuid, text) from public, anon;
 revoke all on function iam.mark_password_reset_operation_verified(uuid) from public, anon;
 revoke all on function iam.mark_password_reset_operation_completed(uuid) from public, anon;
 
 grant execute on function iam.begin_password_reset_operation() to authenticated;
 grant execute on function iam.get_password_reset_operation(uuid) to authenticated;
 grant execute on function iam.resend_password_reset_operation(uuid) to authenticated;
+grant execute on function iam.verify_password_reset_code(uuid, text) to authenticated;
 grant execute on function iam.mark_password_reset_operation_verified(uuid) to authenticated;
 grant execute on function iam.mark_password_reset_operation_completed(uuid) to authenticated;
 

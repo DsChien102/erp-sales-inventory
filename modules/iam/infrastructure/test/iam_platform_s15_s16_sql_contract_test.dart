@@ -17,8 +17,7 @@ void main() {
         '012_iam_platform_transfer_ownership.sql',
         '013_iam_platform_audit_read.sql',
       ])
-        name: File('${root.path}/supabase/migrations/_drafts/$name')
-            .readAsStringSync(),
+        name: File('${root.path}/supabase/migrations/_drafts/$name').readAsStringSync(),
     };
   });
 
@@ -34,6 +33,86 @@ void main() {
     expect(
       drafts['013_iam_platform_audit_read.sql'],
       contains('p_correlation_id'),
+    );
+  });
+
+  test('010 tenant cursor search returns rows from tenants table', () {
+    final sql = drafts['010_iam_platform_tenants_read.sql']!;
+
+    expect(sql, contains('from iam.tenants t'));
+    expect(sql, contains('jsonb_agg'));
+    expect(sql, contains('owner_name'));
+    expect(sql, contains('member_count'));
+    expect(sql, isNot(contains("jsonb_build_object('items', '[]'::jsonb")));
+  });
+
+  test('010 tenant member reads return one active membership per user', () {
+    final sql = drafts['010_iam_platform_tenants_read.sql']!;
+
+    expect(sql, contains('distinct on (m.user_id)'));
+    expect(sql, contains("coalesce(m.status, 'active') = 'active'"));
+    expect(sql, contains('order by m.user_id, m.is_owner desc, m.created_at desc'));
+  });
+
+  test('010 tenant detail members expose DB role labels', () {
+    final sql = drafts['010_iam_platform_tenants_read.sql']!;
+
+    expect(sql, contains("'role_label', m.role_label"));
+    expect(sql, contains('coalesce(rd.label, m.role::text) as role_label'));
+    expect(sql, contains('left join iam.role_definitions rd on rd.code = m.role'));
+  });
+
+  test('010 tenant detail preserves DB role labels', () {
+    final sql = drafts['010_iam_platform_tenants_read.sql']!;
+
+    expect(sql, contains("'role_label', m.role_label"));
+    expect(sql, contains('coalesce(rd.label, m.role::text) as role_label'));
+    expect(sql, contains('left join iam.role_definitions rd on rd.code = m.role'));
+  });
+
+  test('010 get_platform_tenant returns optimistic concurrency version', () {
+    final sql = drafts['010_iam_platform_tenants_read.sql']!;
+
+    expect(sql, contains("coalesce(t.version, 1) as version"));
+    expect(sql, contains("'version', v_tenant.version"));
+  });
+
+  test('011 restore_platform_tenant clears suspend fields on version match', () {
+    final sql = drafts['011_iam_platform_tenant_lifecycle.sql']!;
+
+    expect(sql, contains('suspended_at = null'));
+    expect(sql, contains('suspend_reason = null'));
+    expect(sql, contains('suspended_by = null'));
+    expect(sql, contains('updated_at = now()'));
+    expect(sql, contains("v_status <> 'suspended'"));
+    expect(sql, contains('v_activated_at timestamptz'));
+    expect(sql, contains('coalesce(version, 1), activated_at'));
+    expect(sql, contains('if v_activated_at is null then'));
+    expect(sql, contains("set status = 'active'"));
+    expect(sql, isNot(contains('activated_at = coalesce(activated_at, now())')));
+  });
+
+  test('011 versioned suspend persists reason actor and audit', () {
+    final sql = drafts['011_iam_platform_tenant_lifecycle.sql']!;
+
+    expect(sql, contains("if v_status <> 'active' then"));
+    expect(sql, contains('suspend_reason = trim(p_reason)'));
+    expect(sql, contains('suspended_by = v_actor'));
+    expect(sql, contains('updated_at = now()'));
+    expect(sql, contains("'iam.tenant.suspended'"));
+  });
+
+  test('010 get_platform_tenant resolves platform metadata fields', () {
+    final sql = drafts['010_iam_platform_tenants_read.sql']!;
+
+    expect(sql, contains("'suspended_by', ("));
+    expect(sql, contains('where u.id = v_tenant.suspended_by'));
+    expect(sql, contains('add column if not exists updated_at'));
+    expect(
+      sql,
+      contains(
+        "'last_activity_at', coalesce(v_tenant.updated_at, v_tenant.activated_at, v_tenant.created_at)",
+      ),
     );
   });
 

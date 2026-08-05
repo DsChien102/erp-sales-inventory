@@ -18,11 +18,22 @@ class OrganizationSuspendConfirmationBottomSheet extends StatefulWidget {
 class _OrganizationSuspendConfirmationBottomSheetState
     extends State<OrganizationSuspendConfirmationBottomSheet> {
   final TextEditingController _reasonController = TextEditingController();
+  String? _error;
 
   @override
   void dispose() {
     _reasonController.dispose();
     super.dispose();
+  }
+
+  void _submit() {
+    final reason = _reasonController.text.trim();
+    if (reason.isEmpty) {
+      setState(() => _error = 'Vui lòng nhập lý do.');
+      return;
+    }
+    Navigator.of(context).pop();
+    widget.onConfirm?.call(reason);
   }
 
   @override
@@ -60,6 +71,10 @@ class _OrganizationSuspendConfirmationBottomSheetState
             label: 'Lý do',
             hintText: 'Nhập lý do',
             helperText: 'Lý do được lưu trong lịch sử quản trị.',
+            errorText: _error,
+            onChanged: (_) {
+              if (_error != null) setState(() => _error = null);
+            },
           ),
           const VGap.lg(),
           VButton(
@@ -73,10 +88,7 @@ class _OrganizationSuspendConfirmationBottomSheetState
             label: 'Tạm ngừng',
             variant: VButtonVariant.dangerOutline,
             fullWidth: true,
-            onPressed: () {
-              Navigator.of(context).pop();
-              widget.onConfirm?.call(_reasonController.text);
-            },
+            onPressed: _submit,
           ),
         ],
       ),

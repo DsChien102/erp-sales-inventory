@@ -322,6 +322,55 @@ void main() {
       expect(restored.status.name, 'active');
     });
 
+    test('tenant_suspend_rejects_never_activated_tenant', () async {
+      final module = FakeIamModule(scenario: FakeIamScenario.tenantSuspendOk);
+
+      final before = await module.executeQueryAsync(
+        GetPlatformTenantQuery(tenantId: 'org-002'),
+      );
+      expect(before.status, TenantLifecycleStatus.provisioning);
+      expect(before.activatedAt, isNull);
+
+      expect(
+        () => module.executeCommandAsync(
+          SuspendPlatformTenantCommand(
+            tenantId: 'org-002',
+            reason: 'risk review',
+            expectedVersion: before.version,
+            idempotencyKey: 'sus-provisioning',
+          ),
+        ),
+        throwsA(
+          isA<IamBlockedException>().having(
+            (e) => e.code,
+            'code',
+            IamBlockedCodes.tenantStateInvalid,
+          ),
+        ),
+      );
+    });
+
+    test('tenant_restore_rejects_suspended_never_activated_tenant', () async {
+      final module = FakeIamModule(scenario: FakeIamScenario.tenantRestoreOk);
+
+      expect(
+        () => module.executeCommandAsync(
+          RestorePlatformTenantCommand(
+            tenantId: 'org-005',
+            expectedVersion: 1,
+            idempotencyKey: 'res-legacy-never-activated',
+          ),
+        ),
+        throwsA(
+          isA<IamBlockedException>().having(
+            (e) => e.code,
+            'code',
+            IamBlockedCodes.tenantStateInvalid,
+          ),
+        ),
+      );
+    });
+
     test('tenant_closed_reject — TENANT_STATE_INVALID', () async {
       final module = FakeIamModule(
         scenario: FakeIamScenario.tenantClosedReject,

@@ -55,7 +55,9 @@ void main() {
     expect(find.text('Lê Thị Lan'), findsNothing);
   });
 
-  testWidgets('tapping search bar opens dropdown overlay with scrollable user VCards', (tester) async {
+  testWidgets('tapping search bar opens dropdown overlay with scrollable user VCards', (
+    tester,
+  ) async {
     await tester.pumpWidget(buildTestableWidget());
 
     await tester.tap(find.byType(VSearchBar));
@@ -67,7 +69,9 @@ void main() {
     expect(find.byType(VCard), findsNWidgets(3));
   });
 
-  testWidgets('selecting an item from dropdown overlay immediately displays selected owner VCard', (tester) async {
+  testWidgets('selecting an item from dropdown overlay immediately displays selected owner VCard', (
+    tester,
+  ) async {
     PlatformUserSummaryDto? currentSelected;
 
     await tester.pumpWidget(
@@ -123,12 +127,35 @@ void main() {
     expect(find.text('Trần Thị Hoa'), findsOneWidget);
   });
 
-  testWidgets('renders creation form directly without top header row when isNewOwner is true', (tester) async {
+  testWidgets('renders creation form directly without top header row when isNewOwner is true', (
+    tester,
+  ) async {
     await tester.pumpWidget(buildTestableWidget(isNewOwner: true));
 
     expect(find.text('Tạo chủ sở hữu mới'), findsNothing);
     expect(find.text('Chọn người dùng cũ'), findsNothing);
     expect(find.byType(VTextField), findsNWidgets(4));
     expect(find.text('Quy ước tài khoản'), findsOneWidget);
+  });
+
+  testWidgets('leaves selected owner name blank when it falls back to email', (tester) async {
+    final emailFallbackUser = PlatformUserSummaryDto(
+      userId: 'u-email',
+      fullName: 'longhjk345@gmail.com',
+      email: 'longhjk345@gmail.com',
+      status: PlatformUserStatus.active,
+      createdAt: DateTime.parse('2026-01-01T00:00:00Z'),
+    );
+
+    await tester.pumpWidget(
+      buildTestableWidget(
+        selectedOwner: emailFallbackUser,
+        searchResults: [emailFallbackUser],
+      ),
+    );
+
+    expect(find.text('Người dùng đã chọn'), findsOneWidget);
+    expect(find.text('Không có tên'), findsNothing);
+    expect(find.text('longhjk345@gmail.com'), findsOneWidget);
   });
 }

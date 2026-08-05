@@ -1,7 +1,6 @@
 import 'package:vet45_iam_domain/domain.dart';
 
 import '../dto/cursor_page_dto.dart';
-import '../dto/onboarding_owner_input.dart';
 import '../dto/platform_audit_log_detail_dto.dart';
 import '../dto/platform_audit_log_summary_dto.dart';
 import '../dto/platform_tenant_detail_dto.dart';
@@ -54,9 +53,22 @@ abstract interface class IPlatformAdminGateway {
   });
 
   Future<TenantOnboardingResultDto> createTenantOnboarding({
-    required OnboardingOwnerInput owner,
+    required bool isNewUser,
     required String organizationName,
     required String idempotencyKey,
+    String? organizationDisplayName,
+    String? contactEmail,
+    String? contactPhone,
+    String? contactAddressText,
+    String? provinceCode,
+    String? communeCode,
+    String? legalName,
+    String? taxCode,
+    String? ownerUserId,
+    String? ownerEmail,
+    String? ownerGivenName,
+    String? ownerFamilyName,
+    String? ownerPhone,
     String? correlationId,
   });
 

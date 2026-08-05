@@ -1,0 +1,175 @@
+-- Title: iam owner activation storage (TH-01 / EP-01 onboarding new owner)
+-- Kind: patch
+-- Intent: iam_owner_activation
+-- Touches: iam.owner_activations, iam.inspect_owner_activation, iam.accept_owner_activation
+-- Notes: Draft only — do not apply via supabase migration up until promoted.
+--        Mirrors iam.tenant_invitations. Raw activation code is NEVER persisted;
+--        only the sha256 code_hash is stored. Password/email-confirm happen in the
+--        messaging_worker via the GoTrue Admin API (only service-role context).
+
+create table if not exists iam.owner_activations (
+  id uuid primary key default gen_random_uuid(),
+  tenant_id uuid not null,
+  invitee_email text not null,
+  -- Owner profile captured by the operator at onboarding; applied to the account
+  -- the owner creates at activation time (Hướng 1: no user until activation).
+  given_name text,
+  family_name text,
+  phone text,
+  code_hash text not null,
+  status text not null default 'pending'
+    check (status in ('pending','accepted','expired')),
+  attempt_count int not null default 0,
+  expires_at timestamptz not null,
+  accepted_at timestamptz,
+  created_at timestamptz not null default timezone('utc', now())
+);
+
+alter table iam.owner_activations
+  add column if not exists given_name text,
+  add column if not exists family_name text,
+  add column if not exists phone text;
+
+alter table iam.owner_activations enable row level security;
+
+create unique index if not exists owner_activations_pending_email_uidx
+  on iam.owner_activations (tenant_id, invitee_email)
+  where status = 'pending';
+
+create index if not exists owner_activations_code_hash_idx
+  on iam.owner_activations (code_hash);
+
+-- Immutable to app roles: storage is RPC-only (see iam.accept_owner_activation).
+revoke insert, update, delete on table iam.owner_activations
+  from public, anon, authenticated;
+
+-- Read-only inspect for the ERP activation screen (before signUp). Non-enumerating:
+-- an invalid/expired/used code returns {valid:false} without revealing anything.
+create or replace function iam.inspect_owner_activation(p_code text)
+returns jsonb
+language plpgsql
+security definer
+set search_path = iam, auth, pg_temp
+as $$
+declare
+  v_row iam.owner_activations;
+  v_hash text;
+begin
+  if p_code is null or trim(p_code) = '' then
+    return jsonb_build_object('valid', false);
+  end if;
+  v_hash := encode(extensions.digest(upper(trim(p_code)), 'sha256'), 'hex');
+  select * into v_row
+  from iam.owner_activations
+  where code_hash = v_hash
+    and status = 'pending'
+    and expires_at > timezone('utc', now());
+  if not found then
+    return jsonb_build_object('valid', false);
+  end if;
+  return jsonb_build_object(
+    'valid', true,
+    'invitee_email', v_row.invitee_email,
+    'tenant_id', v_row.tenant_id,
+    'given_name', v_row.given_name,
+    'family_name', v_row.family_name,
+    'phone', v_row.phone,
+    -- Tells the client whether to log in (existing account) or sign up (new).
+    'account_exists', exists (
+      select 1 from auth.users u where lower(u.email::text) = v_row.invitee_email
+    )
+  );
+end;
+$$;
+
+-- Accept an activation AFTER the owner has signed up (auth.uid() present, email
+-- confirmed by GoTrue). Creates the owner membership (is_owner=true) + an active
+-- platform profile, and marks the activation accepted. Never touches iam.tenants.
+create or replace function iam.accept_owner_activation(
+  p_code text,
+  p_idempotency_key text
+)
+returns jsonb
+language plpgsql
+security definer
+set search_path = iam, auth, pg_temp
+as $$
+declare
+  v_caller uuid := auth.uid();
+  v_email text;
+  v_row iam.owner_activations;
+  v_hash text;
+  v_membership_id text;
+begin
+  if v_caller is null then
+    raise exception 'AUTHENTICATION_REQUIRED';
+  end if;
+  if p_idempotency_key is null or trim(p_idempotency_key) = '' then
+    raise exception 'VALIDATION_ERROR';
+  end if;
+
+  select lower(u.email::text) into v_email from auth.users u where u.id = v_caller;
+  v_hash := encode(extensions.digest(upper(trim(coalesce(p_code, ''))), 'sha256'), 'hex');
+
+  select * into v_row from iam.owner_activations where code_hash = v_hash for update;
+  if not found then
+    raise exception 'INVITATION_TOKEN_INVALID';
+  end if;
+
+  v_membership_id := v_row.tenant_id::text || ':' || v_caller::text;
+
+  -- Idempotent replay.
+  if v_row.status = 'accepted' then
+    return jsonb_build_object('membership_id', v_membership_id, 'tenant_id', v_row.tenant_id);
+  end if;
+  if v_row.status = 'expired' or v_row.expires_at <= timezone('utc', now()) then
+    update iam.owner_activations set status = 'expired' where id = v_row.id;
+    raise exception 'INVITATION_EXPIRED';
+  end if;
+  if v_row.attempt_count >= 5 then
+    raise exception 'INVITATION_TOKEN_INVALID';
+  end if;
+  if lower(coalesce(v_email, '')) <> lower(v_row.invitee_email) then
+    update iam.owner_activations set attempt_count = attempt_count + 1 where id = v_row.id;
+    raise exception 'INVITATION_TOKEN_INVALID';
+  end if;
+
+  -- First owner of the provisioning tenant.
+  if not exists (
+    select 1 from iam.memberships m
+    where m.tenant_id = v_row.tenant_id and m.user_id = v_caller and m.status = 'active'
+  ) then
+    insert into iam.memberships (tenant_id, user_id, role, is_owner, status)
+    values (v_row.tenant_id, v_caller, 'owner', true, 'active');
+  end if;
+
+  update iam.platform_user_profiles set status = 'active' where user_id = v_caller;
+  if not found then
+    insert into iam.platform_user_profiles (user_id, status)
+    values (v_caller, 'active');
+  end if;
+
+  update iam.owner_activations
+     set status = 'accepted', accepted_at = timezone('utc', now())
+   where id = v_row.id;
+
+  perform iam.append_audit_log(
+    p_scope => 'platform',
+    p_tenant_id => v_row.tenant_id,
+    p_actor_user_id => v_caller,
+    p_event_code => 'iam.owner.activated',
+    p_subject_type => 'membership',
+    p_subject_id => v_membership_id,
+    p_result => 'success',
+    p_source => 'auth',
+    p_tracking_id => coalesce(p_idempotency_key, gen_random_uuid()::text)
+  );
+
+  return jsonb_build_object('membership_id', v_membership_id, 'tenant_id', v_row.tenant_id);
+end;
+$$;
+
+revoke all on function iam.inspect_owner_activation(text) from public;
+grant execute on function iam.inspect_owner_activation(text) to anon, authenticated;
+revoke all on function iam.accept_owner_activation(text, text) from public, anon;
+grant execute on function iam.accept_owner_activation(text, text) to authenticated;

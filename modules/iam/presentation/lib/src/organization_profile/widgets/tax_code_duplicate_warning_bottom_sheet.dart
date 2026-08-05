@@ -3,11 +3,13 @@ import 'package:vet45_design_system/design_system.dart';
 
 /// Bottom Sheet Cảnh báo mã số thuế trùng (TA-O-02).
 class TaxCodeDuplicateWarningBottomSheet extends StatelessWidget {
+  final String? message;
   final VoidCallback? onSaveAnyway;
   final VoidCallback? onReview;
 
   const TaxCodeDuplicateWarningBottomSheet({
     super.key,
+    this.message,
     this.onSaveAnyway,
     this.onReview,
   });
@@ -15,6 +17,9 @@ class TaxCodeDuplicateWarningBottomSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = context.vColors;
+    final body = (message != null && message!.trim().isNotEmpty)
+        ? message!.trim()
+        : 'Mã số thuế này đã xuất hiện ở hồ sơ khác. Hệ thống không tiết lộ tổ chức liên quan.';
 
     return Padding(
       padding: const EdgeInsets.only(
@@ -37,13 +42,11 @@ class TaxCodeDuplicateWarningBottomSheet extends StatelessWidget {
           ),
           const VGap.xs(),
           VText(
-            'Mã số thuế này đã xuất hiện ở hồ sơ khác. Hệ thống không tiết lộ tổ chức liên quan.',
+            body,
             variant: VTextVariant.bodySmall,
             color: colors.textSecondary,
           ),
           const VGap.md(),
-
-          // Alert Box
           Container(
             padding: const EdgeInsets.all(VSpacing.space4),
             decoration: BoxDecoration(
@@ -84,8 +87,6 @@ class TaxCodeDuplicateWarningBottomSheet extends StatelessWidget {
             ),
           ),
           const VGap.lg(),
-
-          // Action 1: Vẫn lưu
           VButton(
             label: 'Vẫn lưu',
             variant: VButtonVariant.primary,
@@ -97,8 +98,6 @@ class TaxCodeDuplicateWarningBottomSheet extends StatelessWidget {
             },
           ),
           const VGap.sm(),
-
-          // Action 2: Kiểm tra lại
           VButton(
             label: 'Kiểm tra lại',
             variant: VButtonVariant.outline,

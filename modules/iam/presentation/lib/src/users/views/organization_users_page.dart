@@ -1,166 +1,80 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:vet45_design_system/design_system.dart';
+import 'package:vet45_iam_application/application.dart';
+import 'package:vet45_shared_application/application.dart';
 
-import '../../testing/fake_users_data.dart';
+import '../../shared/iam_load_status.dart';
+import '../bloc/organization_users_cubit.dart';
+import '../bloc/organization_users_state.dart';
 import '../models/user_ui_model.dart';
-import '../widgets/invitation_card.dart';
-import '../widgets/invitation_filter_bottom_sheet.dart';
-import '../widgets/member_card.dart';
-import '../widgets/member_filter_bottom_sheet.dart';
-import '../widgets/organization_users_widgets.dart';
-import 'organization_invitation_detail_page.dart';
+import '../widgets/organization_users_body.dart';
 import 'organization_invite_member_page.dart';
-import 'organization_member_detail_page.dart';
 
-/// Trang Danh sách người dùng & Lời mời (TA-D-01 & TA-D-02, TA-S-01, TA-S-02, TA-S-03).
-class OrganizationUsersPage extends StatefulWidget {
-  final List<MemberUiModel> initialMembers;
-  final List<InvitationUiModel> initialInvitations;
-  final bool hasError;
-  final bool isUnauthorized;
-  final VoidCallback? onRetry;
-
+/// Trang Danh sách người dùng & Lời mời — composition root for [OrganizationUsersCubit].
+class OrganizationUsersPage extends StatelessWidget {
   const OrganizationUsersPage({
     super.key,
-    this.initialMembers = FakeUsersData.sampleMembers,
-    this.initialInvitations = FakeUsersData.sampleInvitations,
-    this.hasError = false,
-    this.isUnauthorized = false,
-    this.onRetry,
+    this.iamModule,
+    this.executionContext,
+    this.cubit,
   });
 
+  final IIamModule? iamModule;
+  final IExecutionContext? executionContext;
+  final OrganizationUsersCubit? cubit;
+
   @override
-  State<OrganizationUsersPage> createState() => _OrganizationUsersPageState();
+  Widget build(BuildContext context) {
+    if (cubit != null) {
+      return BlocProvider.value(
+        value: cubit!,
+        child: const _OrganizationUsersView(),
+      );
+    }
+    assert(
+      iamModule != null && executionContext != null,
+      'OrganizationUsersPage requires iamModule + executionContext or cubit',
+    );
+    return BlocProvider(
+      create: (_) => OrganizationUsersCubit(
+        iamModule: iamModule!,
+        executionContext: executionContext!,
+      )..loadInitial(),
+      child: const _OrganizationUsersView(),
+    );
+  }
 }
 
-class _OrganizationUsersPageState extends State<OrganizationUsersPage> {
-  int _activeTabIndex = 0; // 0: Thành viên, 1: Lời mời
+class _OrganizationUsersView extends StatelessWidget {
+  const _OrganizationUsersView();
 
-  final TextEditingController _searchController = TextEditingController();
-  String _searchQuery = '';
-  Timer? _debounce;
+  String _subtitle(OrganizationUsersState state) {
+    final isMember = state.activeTab == OrganizationUsersTab.members;
+    final status = isMember ? state.memberStatus : state.invitationStatus;
+    final failure = isMember ? state.memberFailure : state.invitationFailure;
+    final items = isMember ? state.members : state.invitations;
+    final search = isMember ? state.memberSearch : state.invitationSearch;
+    final filter = isMember ? state.memberFilter : state.invitationFilter;
+    final isFiltered = search.trim().isNotEmpty || filter != null;
 
-  // Filter chips selection
-  String _selectedMemberFilter = 'Tất cả';
-  String _selectedInvitationFilter = 'Tất cả';
-
-  MemberFilterCriteria _memberFilterCriteria = const MemberFilterCriteria();
-  InvitationFilterCriteria _invitationFilterCriteria = const InvitationFilterCriteria();
-
-  late bool _hasError;
-
-  @override
-  void initState() {
-    super.initState();
-    _hasError = widget.hasError;
-    _searchController.addListener(_onSearchChanged);
-  }
-
-  void _onSearchChanged() {
-    if (_debounce?.isActive ?? false) _debounce!.cancel();
-    _debounce = Timer(const Duration(milliseconds: 300), () {
-      if (mounted) {
-        setState(() {
-          _searchQuery = _searchController.text.trim().toLowerCase();
-        });
+    if (status == IamLoadStatus.failure) {
+      if (failure?.code == IamBlockedCodes.permissionDenied) {
+        return 'Chưa cấp quyền';
       }
-    });
-  }
-
-  @override
-  void didUpdateWidget(covariant OrganizationUsersPage oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (widget.hasError != oldWidget.hasError) {
-      setState(() {
-        _hasError = widget.hasError;
-      });
+      return 'Không tải được';
     }
-  }
-
-  @override
-  void dispose() {
-    _debounce?.cancel();
-    _searchController.dispose();
-    super.dispose();
-  }
-
-  bool get _isFiltered {
-    final isMemberTab = _activeTabIndex == 0;
-    final activeFilter = isMemberTab ? _selectedMemberFilter : _selectedInvitationFilter;
-    return _searchQuery.isNotEmpty || activeFilter != 'Tất cả';
-  }
-
-  void _clearSearchAndFilter() {
-    setState(() {
-      _searchController.clear();
-      _searchQuery = '';
-      _selectedMemberFilter = 'Tất cả';
-      _selectedInvitationFilter = 'Tất cả';
-      _memberFilterCriteria = const MemberFilterCriteria();
-      _invitationFilterCriteria = const InvitationFilterCriteria();
-    });
-  }
-
-  List<MemberUiModel> get _filteredMembers {
-    var result = widget.initialMembers.where((member) {
-      final statusFilter = _memberFilterCriteria.status != 'Tất cả'
-          ? _memberFilterCriteria.status
-          : _selectedMemberFilter;
-      if (statusFilter == 'Hoạt động' && member.status != MemberStatus.active) {
-        return false;
-      }
-      if (statusFilter == 'Tạm ngừng' && member.status != MemberStatus.suspended) {
-        return false;
-      }
-
-      if (_memberFilterCriteria.role != 'Tất cả') {
-        if (!member.role.contains(_memberFilterCriteria.role)) {
-          return false;
-        }
-      }
-
-      if (_searchQuery.isNotEmpty) {
-        final nameMatch = member.name.toLowerCase().contains(_searchQuery);
-        final emailMatch = member.email.toLowerCase().contains(_searchQuery);
-        return nameMatch || emailMatch;
-      }
-      return true;
-    }).toList();
-
-    if (_memberFilterCriteria.sort == 'Tên A–Z') {
-      result.sort((a, b) => a.name.compareTo(b.name));
-    } else if (_memberFilterCriteria.sort == 'Tên Z–A') {
-      result.sort((a, b) => b.name.compareTo(a.name));
+    if (status == IamLoadStatus.loading || status == IamLoadStatus.initial) {
+      return isMember ? 'Đang tải thành viên' : 'Đang tải lời mời';
     }
-
-    return result;
+    if (isFiltered && items.isEmpty) return '0 kết quả';
+    return isMember
+        ? '${items.length} thành viên'
+        : '${items.length} lời mời';
   }
 
-  List<InvitationUiModel> get _filteredInvitations {
-    return widget.initialInvitations.where((invitation) {
-      final statusFilter = _invitationFilterCriteria.status != 'Tất cả'
-          ? _invitationFilterCriteria.status
-          : _selectedInvitationFilter;
-      if (statusFilter == 'Đang chờ' && invitation.status != InvitationStatus.pending) {
-        return false;
-      }
-      if (statusFilter == 'Sắp hết hạn' && invitation.status != InvitationStatus.expiring) {
-        return false;
-      }
-
-      if (_searchQuery.isNotEmpty) {
-        final emailMatch = invitation.email.toLowerCase().contains(_searchQuery);
-        final roleMatch = invitation.role.toLowerCase().contains(_searchQuery);
-        return emailMatch || roleMatch;
-      }
-      return true;
-    }).toList();
-  }
-
-  Future<void> _navigateToInviteMember() async {
+  Future<void> _navigateInvite(BuildContext context) async {
     dynamic result;
     try {
       result = await context.push('/more/users/invite');
@@ -171,299 +85,62 @@ class _OrganizationUsersPageState extends State<OrganizationUsersPage> {
         ),
       );
     }
-    if (result == true && mounted) {
-      VToast.show(
-        context,
-        title: 'Đã thu hồi lời mời.',
-        message: '',
-        type: VToastType.success,
-      );
+    if (result == true && context.mounted) {
+      await context.read<OrganizationUsersCubit>().loadInvitations(reset: true);
     }
   }
 
-  Future<void> _openFilterBottomSheet() async {
-    if (_activeTabIndex == 0) {
-      final newCriteria = await showVBottomSheet<MemberFilterCriteria>(
-        context: context,
-        child: MemberFilterBottomSheet(
-          initialCriteria: _memberFilterCriteria,
-        ),
-      );
-      if (newCriteria != null && mounted) {
-        setState(() {
-          _memberFilterCriteria = newCriteria;
-        });
+  Future<void> _openMember(BuildContext context, MemberUiModel member) async {
+    try {
+      await context.push('/more/users/members/${member.id}');
+      // A lifecycle action (suspend / reactivate / remove) inside the detail
+      // page mutates member status; refresh on return so the list badge never
+      // shows a stale value.
+      if (context.mounted) {
+        await context.read<OrganizationUsersCubit>().loadMembers(reset: true);
       }
-    } else {
-      final newCriteria = await showVBottomSheet<InvitationFilterCriteria>(
-        context: context,
-        child: InvitationFilterBottomSheet(
-          initialCriteria: _invitationFilterCriteria,
-        ),
-      );
-      if (newCriteria != null && mounted) {
-        setState(() {
-          _invitationFilterCriteria = newCriteria;
-        });
-      }
+    } catch (_) {
+      // Navigator fallback omitted — production uses go_router paths.
     }
   }
 
-  Future<void> _navigateToInvitationDetail(InvitationUiModel invitation) async {
+  Future<void> _openInvitation(
+    BuildContext context,
+    InvitationUiModel invitation,
+  ) async {
     dynamic result;
     try {
-      result = await context.push('/more/users/invitation-detail', extra: invitation);
-    } catch (_) {
-      result = await Navigator.of(context).push(
-        MaterialPageRoute(
-          builder: (_) => OrganizationInvitationDetailPage(invitation: invitation),
-        ),
+      result = await context.push(
+        '/more/users/invitations/${invitation.id}',
       );
+    } catch (_) {
+      result = null;
     }
-    if (result == true && mounted) {
+    if (result == true && context.mounted) {
       VToast.show(
         context,
         title: 'Đã thu hồi lời mời.',
         message: '',
         type: VToastType.success,
       );
+      await context.read<OrganizationUsersCubit>().loadInvitations(reset: true);
     }
-  }
-
-  Future<void> _navigateToMemberDetail(MemberUiModel member) async {
-    try {
-      await context.push('/more/users/member-detail', extra: member);
-    } catch (_) {
-      await Navigator.of(context).push(
-        MaterialPageRoute(
-          builder: (_) => OrganizationMemberDetailPage(member: member),
-        ),
-      );
-    }
-  }
-
-  Future<void> _handleRefresh() async {
-    if (_hasError) {
-      setState(() => _hasError = false);
-    }
-    widget.onRetry?.call();
   }
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.vColors;
-    final isMemberTab = _activeTabIndex == 0;
-    final memberCount = _filteredMembers.length;
-    final invitationCount = _filteredInvitations.length;
-    final currentCount = isMemberTab ? memberCount : invitationCount;
-
-    final isFilterActive = isMemberTab
-        ? (_memberFilterCriteria.isFilterActive || _selectedMemberFilter != 'Tất cả')
-        : (_invitationFilterCriteria.isFilterActive || _selectedInvitationFilter != 'Tất cả');
-
-    final String subtitleText;
-    if (widget.isUnauthorized) {
-      subtitleText = 'Chưa cấp quyền';
-    } else if (_hasError) {
-      subtitleText = 'Không tải được';
-    } else if (_isFiltered && currentCount == 0) {
-      subtitleText = '0 kết quả';
-    } else {
-      subtitleText = isMemberTab ? '$memberCount thành viên' : '$invitationCount lời mời';
-    }
-
-    return VPageScaffold(
-      title: 'Người dùng',
-      subtitle: subtitleText,
-      body: GestureDetector(
-        onTap: () => FocusScope.of(context).unfocus(),
-        behavior: HitTestBehavior.translucent,
-        child: Stack(
-          children: [
-            Column(
-              children: [
-                // Search & Filter bar area
-                Container(
-                  color: colors.surface,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: VSpacing.screenMobile,
-                    vertical: VSpacing.space2,
-                  ),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: VSearchBar(
-                          hintText: 'Tìm tên hoặc email',
-                          controller: _searchController,
-                        ),
-                      ),
-                      const VGap.horizontalSm(),
-                      Container(
-                        height: 44,
-                        width: 44,
-                        decoration: BoxDecoration(
-                          color: isFilterActive
-                              ? colors.primary.withValues(alpha: 0.1)
-                              : colors.surface,
-                          border: Border.all(
-                            color: isFilterActive ? colors.primary : colors.borderDefault,
-                          ),
-                          borderRadius: BorderRadius.circular(VRadius.button),
-                        ),
-                        child: IconButton(
-                          icon: VIcon(
-                            icon: VIcons.tune,
-                            size: 20,
-                            color: isFilterActive ? colors.primary : colors.textPrimary,
-                          ),
-                          onPressed: _openFilterBottomSheet,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-
-                // Tab header (Thành viên / Lời mời)
-                Container(
-                  color: colors.surface,
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: OrganizationUsersTabButton(
-                          label: 'Thành viên',
-                          isActive: isMemberTab,
-                          onTap: () => setState(() => _activeTabIndex = 0),
-                        ),
-                      ),
-                      Expanded(
-                        child: OrganizationUsersTabButton(
-                          label: 'Lời mời',
-                          isActive: !isMemberTab,
-                          onTap: () => setState(() => _activeTabIndex = 1),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                Divider(height: 1, color: colors.borderDefault),
-
-                // Filter Chips row
-                Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: VSpacing.screenMobile,
-                    vertical: VSpacing.space3,
-                  ),
-                  child: Row(
-                    children: isMemberTab
-                        ? [
-                            OrganizationUsersFilterChip(
-                              label: 'Tất cả',
-                              isSelected: _selectedMemberFilter == 'Tất cả',
-                              onSelect: (val) {
-                                setState(() => _selectedMemberFilter = val);
-                              },
-                            ),
-                            const VGap.horizontalSm(),
-                            OrganizationUsersFilterChip(
-                              label: 'Hoạt động',
-                              isSelected: _selectedMemberFilter == 'Hoạt động',
-                              onSelect: (val) {
-                                setState(() => _selectedMemberFilter = val);
-                              },
-                            ),
-                            const VGap.horizontalSm(),
-                            OrganizationUsersFilterChip(
-                              label: 'Tạm ngừng',
-                              isSelected: _selectedMemberFilter == 'Tạm ngừng',
-                              onSelect: (val) {
-                                setState(() => _selectedMemberFilter = val);
-                              },
-                            ),
-                          ]
-                        : [
-                            OrganizationUsersFilterChip(
-                              label: 'Tất cả',
-                              isSelected: _selectedInvitationFilter == 'Tất cả',
-                              onSelect: (val) {
-                                setState(() => _selectedInvitationFilter = val);
-                              },
-                            ),
-                            const VGap.horizontalSm(),
-                            OrganizationUsersFilterChip(
-                              label: 'Đang chờ',
-                              isSelected: _selectedInvitationFilter == 'Đang chờ',
-                              onSelect: (val) {
-                                setState(() => _selectedInvitationFilter = val);
-                              },
-                            ),
-                            const VGap.horizontalSm(),
-                            OrganizationUsersFilterChip(
-                              label: 'Sắp hết hạn',
-                              isSelected: _selectedInvitationFilter == 'Sắp hết hạn',
-                              onSelect: (val) {
-                                setState(() => _selectedInvitationFilter = val);
-                              },
-                            ),
-                          ],
-                  ),
-                ),
-
-                // Main Content area
-                Expanded(
-                  child: OrganizationUsersMainContent(
-                    isUnauthorized: widget.isUnauthorized,
-                    hasError: _hasError,
-                    isMemberTab: isMemberTab,
-                    isFiltered: _isFiltered,
-                    members: _filteredMembers,
-                    invitations: _filteredInvitations,
-                    onRefresh: _handleRefresh,
-                    onClearFilter: _clearSearchAndFilter,
-                    onInviteMember: _navigateToInviteMember,
-                    onErrorRetry: () {
-                      setState(() => _hasError = false);
-                      widget.onRetry?.call();
-                    },
-                    onMemberTap: _navigateToMemberDetail,
-                    onInvitationTap: _navigateToInvitationDetail,
-                  ),
-                ),
-              ],
-            ),
-
-            // Floating Action Button (+) (Ẩn ở tab Thành viên)
-            if (!widget.isUnauthorized && !isMemberTab)
-              Positioned(
-                right: VSpacing.screenMobile,
-                bottom: MediaQuery.of(context).padding.bottom + VSpacing.space4,
-                child: Material(
-                  color: Colors.transparent,
-                  elevation: 4,
-                  shape: const CircleBorder(),
-                  child: InkWell(
-                    onTap: _navigateToInviteMember,
-                    customBorder: const CircleBorder(),
-                    child: Container(
-                      width: 52,
-                      height: 52,
-                      decoration: BoxDecoration(
-                        color: colors.success,
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Center(
-                        child: VIcon(
-                          icon: VIcons.add,
-                          size: 26,
-                          color: VColors.neutral0,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-          ],
-        ),
-      ),
+    return BlocBuilder<OrganizationUsersCubit, OrganizationUsersState>(
+      builder: (context, state) {
+        return VPageScaffold(
+          title: 'Người dùng',
+          subtitle: _subtitle(state),
+          body: OrganizationUsersBody(
+            onMemberTap: (m) => _openMember(context, m),
+            onInvitationTap: (i) => _openInvitation(context, i),
+            onInviteTap: () => _navigateInvite(context),
+          ),
+        );
+      },
     );
   }
 }

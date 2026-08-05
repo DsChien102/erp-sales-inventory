@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:get_it/get_it.dart';
 import 'package:test/test.dart';
 import 'package:uuid/uuid.dart';
@@ -29,14 +31,8 @@ void main() {
 
       final container = GetIt.asNewInstance();
       container
-        ..registerSingleton<IPasswordResetCodeGateway>(
-          _NullPasswordResetCodeGateway(),
-        )
         ..registerSingleton<IEmailSenderGateway>(
-          IamEmailSenderGateway(
-            resendClient: resend,
-            codeGateway: container.get<IPasswordResetCodeGateway>(),
-          ),
+          IamEmailSenderGateway(resendClient: resend),
         )
         ..registerSingleton<IEmailDeliveryOutcomeStore>(outcomes)
         ..registerFactory(
@@ -100,6 +96,10 @@ void main() {
       required String correlationId,
       Map<String, String> refs = const <String, String>{},
     }) async {
+      // Mirrors iam.create_tenant_invitation: the raw token always ships on the
+      // transient secret channel, never in refs.
+      final ciphertext =
+          'transient:${base64.encode(utf8.encode('raw-invitation-token'))}';
       final messageId = const Uuid().v4();
       final outcomeId = const Uuid().v4();
       final occurredOn = DateTime.now().toUtc();
@@ -112,6 +112,7 @@ void main() {
         correlationId: correlationId,
         outcomeId: outcomeId,
         refs: refs,
+        secretPayloadCiphertext: ciphertext,
       );
       outbox.seed(
         tenantId: tenantId,
@@ -174,10 +175,4 @@ void main() {
       expect(internal.failedErrors, isNotEmpty);
     });
   });
-}
-
-/// Stub gateway: always returns null (no password-reset ops in notification tests).
-final class _NullPasswordResetCodeGateway implements IPasswordResetCodeGateway {
-  @override
-  Future<String?> peekDeliveryCode(String operationId) async => null;
 }

@@ -17,9 +17,7 @@ final class SupabaseIamAccessGateway implements IIamAccessGateway {
     try {
       final result = await _rpcClient.callMap(
         'get_session_context',
-        params: tenantId == null
-            ? null
-            : <String, dynamic>{'p_tenant_id': tenantId},
+        params: tenantId == null ? null : <String, dynamic>{'p_tenant_id': tenantId},
       );
 
       if (result.isEmpty) {
@@ -91,9 +89,7 @@ final class SupabaseIamAccessGateway implements IIamAccessGateway {
     try {
       final result = await _rpcClient.callMap(
         'get_tenant_context',
-        params: sessionTenantId == null
-            ? null
-            : <String, dynamic>{'p_tenant_id': sessionTenantId},
+        params: sessionTenantId == null ? null : <String, dynamic>{'p_tenant_id': sessionTenantId},
       );
       if (result.isEmpty) {
         return const TenantContextDto(status: TenantContextStatus.none);
@@ -117,9 +113,10 @@ final class SupabaseIamAccessGateway implements IIamAccessGateway {
         'list_tenant_members',
         params: <String, dynamic>{
           'p_tenant_id': tenantId,
-          if (search != null) 'p_search': search,
-          if (status != null) 'p_status': status,
-          if (cursor != null) 'p_cursor': cursor,
+          // PostgREST matches by exact param set — always send optionals (null OK).
+          'p_search': search,
+          'p_status': status,
+          'p_cursor': cursor,
           'p_limit': limit,
         },
       );
@@ -128,22 +125,16 @@ final class SupabaseIamAccessGateway implements IIamAccessGateway {
           .map((raw) {
             final row = Map<String, dynamic>.from(raw as Map);
             return TenantMemberDto(
-              membershipId: row['membership_id'] as String? ??
-                  row['user_id'] as String,
+              membershipId: row['membership_id'] as String? ?? row['user_id'] as String,
               userId: row['user_id'] as String,
               displayName: row['display_name'] as String? ?? '',
               email: row['email'] as String? ?? '',
-              roleId: row['role_id'] as String? ??
-                  row['role'] as String? ??
-                  '',
-              roleLabel: row['role_label'] as String? ??
-                  row['role'] as String? ??
-                  '',
+              roleId: row['role_id'] as String? ?? row['role'] as String? ?? '',
+              roleLabel: row['role_label'] as String? ?? row['role'] as String? ?? '',
               isOwner: row['is_owner'] as bool? ?? false,
               status: row['status'] as String? ?? 'active',
               joinedAt: DateTime.parse(
-                (row['joined_at'] as String?) ??
-                    (row['created_at'] as String),
+                (row['joined_at'] as String?) ?? (row['created_at'] as String),
               ),
               version: (row['version'] as num?)?.toInt() ?? 1,
             );
@@ -203,22 +194,6 @@ final class SupabaseIamAccessGateway implements IIamAccessGateway {
     return context != null;
   }
 
-  @override
-  Future<String> bootstrapOwner({String tenantName = 'My Store'}) async {
-    try {
-      final tenantId = await _rpcClient.callScalar<String>(
-        'bootstrap_owner',
-        params: <String, dynamic>{'p_tenant_name': tenantName},
-      );
-      if (tenantId == null) {
-        throw RpcException('bootstrap_owner returned null tenant id');
-      }
-      return tenantId;
-    } on RpcException catch (error) {
-      throw mapIamRpcError(error);
-    }
-  }
-
   PrincipalAccessDto _mapPrincipalAccess(Map<String, dynamic> json) {
     final permissionsRaw = json['permissions'];
     final permissions = switch (permissionsRaw) {
@@ -251,16 +226,13 @@ final class SupabaseIamAccessGateway implements IIamAccessGateway {
     final reasonRaw = json['invalidation_reason'] as String?;
     final invalidationReason = switch (reasonRaw) {
       'membershipRemoved' => TenantContextInvalidationReason.membershipRemoved,
-      'membershipInactive' =>
-        TenantContextInvalidationReason.membershipInactive,
+      'membershipInactive' => TenantContextInvalidationReason.membershipInactive,
       'tenantSuspended' => TenantContextInvalidationReason.tenantSuspended,
       'tenantClosed' => TenantContextInvalidationReason.tenantClosed,
       'accessDenied' => TenantContextInvalidationReason.accessDenied,
       'identityInactive' => TenantContextInvalidationReason.identityInactive,
-      'roleNoLongerAssignable' =>
-        TenantContextInvalidationReason.roleNoLongerAssignable,
-      'permissionsChanged' =>
-        TenantContextInvalidationReason.permissionsChanged,
+      'roleNoLongerAssignable' => TenantContextInvalidationReason.roleNoLongerAssignable,
+      'permissionsChanged' => TenantContextInvalidationReason.permissionsChanged,
       'ownershipChanged' => TenantContextInvalidationReason.ownershipChanged,
       _ => null,
     };
@@ -273,9 +245,7 @@ final class SupabaseIamAccessGateway implements IIamAccessGateway {
       tenantName: json['tenant_name'] as String?,
       roleLabel: json['role'] as String?,
       permissions: permissions,
-      tenantStatus: tenantStatusRaw == null
-          ? null
-          : _mapTenantStatus(tenantStatusRaw),
+      tenantStatus: tenantStatusRaw == null ? null : _mapTenantStatus(tenantStatusRaw),
       invalidationReason: invalidationReason,
       blockedErrorCode: json['blocked_error_code'] as String?,
     );

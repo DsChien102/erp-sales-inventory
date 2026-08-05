@@ -1,4 +1,5 @@
 import 'package:admin/features/organizations/presentation/pages/platform_onboarding_page.dart';
+import 'package:admin/features/users/presentation/bloc/platform_user_detail_cubit.dart';
 import 'package:admin/features/users/presentation/pages/platform_user_detail_page.dart';
 import 'package:admin/features/users/presentation/pages/platform_users_page.dart';
 import 'package:flutter/material.dart';
@@ -247,6 +248,58 @@ void main() {
   // ──────────────────────────────────────────────────────────
   // US-03 — Onboarding wizard
   // ──────────────────────────────────────────────────────────
+
+  group('US-02 password reset + step-up', () {
+    testWidgets(
+      'e2e_e01_u02_fr01_02: request password reset via IIamModule',
+      (tester) async {
+        final module = FakeIamModule(scenario: FakeIamScenario.userDetailOk);
+
+        await tester.pumpWidget(
+          MaterialApp(
+            home: PlatformUserDetailPage(userId: 'lan-le', iamModule: module),
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        await tester.tap(find.text('Thao tác'));
+        await tester.pumpAndSettle();
+        await tester.tap(find.text('Đặt lại mật khẩu'));
+        await tester.pumpAndSettle();
+        await tester.tap(find.text('Gửi yêu cầu'));
+        await tester.pumpAndSettle();
+
+        expect(module.passwordResetCount, 1);
+      },
+    );
+
+    testWidgets(
+      'e2e_e01_u02_fr01_03: step-up required maps typed failure on suspend',
+      (tester) async {
+        final module = FakeIamModule(scenario: FakeIamScenario.stepUpRequired);
+        final cubit = PlatformUserDetailCubit(
+          iamModule: module,
+          userId: 'lan-le',
+        );
+        await cubit.load();
+
+        await tester.pumpWidget(
+          MaterialApp(
+            home: PlatformUserDetailPage(
+              userId: 'lan-le',
+              cubit: cubit,
+            ),
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        final ok = await cubit.suspend(reason: 'kiểm tra step-up');
+        expect(ok, isFalse);
+        expect(cubit.state.failure?.code, IamBlockedCodes.stepUpAuthRequired);
+        await cubit.close();
+      },
+    );
+  });
 
   group('US-03 SCN-01 — onboarding existing owner', () {
     testWidgets(

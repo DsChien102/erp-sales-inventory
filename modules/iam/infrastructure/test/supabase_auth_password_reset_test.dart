@@ -21,7 +21,7 @@ void main() {
 
     final request = await adapter.requestPasswordReset();
     expect(request.maskedEmail, 'l***@gmail.com');
-    expect(auth.sentOtp, 1);
+    expect(store.beginCalls, 1);
 
     await adapter.verifyPasswordResetCode(
       operationId: request.operationId,
@@ -55,10 +55,9 @@ void main() {
     expect(resent.operationId, request.operationId);
     expect(resent.maskedEmail, 'l***@gmail.com');
     expect(resent.expiresAt.isAfter(resent.resendAvailableAt), isTrue);
-    expect(auth.sentOtp, 2);
   });
 
-  test('responses never include raw otp/password/token', () async {
+  test('responses never include raw code/password/token', () async {
     final adapter = buildAdapter(_FakeStore(), _FakeAuth());
     final request = await adapter.requestPasswordReset();
     final blob = [
@@ -70,7 +69,6 @@ void main() {
     expect(blob, isNot(contains('123456')));
     expect(blob, isNot(contains('password')));
     expect(blob, isNot(contains('token')));
-    expect(blob, isNot(contains('otp')));
   });
 
   test('verify after expiry maps to RESET_CODE_EXPIRED', () async {
@@ -93,10 +91,9 @@ void main() {
     );
   });
 
-  test('provider invalid code maps to RESET_CODE_INVALID', () async {
-    final store = _FakeStore();
-    final auth = _FakeAuth(verifyError: Exception('otp invalid'));
-    final adapter = buildAdapter(store, auth);
+  test('invalid code maps to RESET_CODE_INVALID', () async {
+    final store = _FakeStore(invalidCode: true);
+    final adapter = buildAdapter(store, _FakeAuth());
     final request = await adapter.requestPasswordReset();
 
     expect(
@@ -194,25 +191,35 @@ final class _MutableOp {
   DateTime resendAvailableAt;
 }
 
+/// Fake store that mirrors the RPC-owned validation of the B2 design: expiry,
+/// invalid-code and resend rate-limit are decided here (not by the adapter).
 final class _FakeStore implements PasswordResetOperationStore {
   _FakeStore({
     this.expired = false,
     this.resendLocked = false,
+    this.invalidCode = false,
   });
 
   final bool expired;
   final bool resendLocked;
+  final bool invalidCode;
   final Map<String, _MutableOp> operations = {};
   int _seq = 0;
+  int beginCalls = 0;
 
   @override
   Future<PasswordResetOperation> begin() async {
+    beginCalls++;
     final id = 'op-${_seq++}';
     final now = DateTime.now().toUtc();
     operations[id] = _MutableOp(
       'pending',
-      expired ? now.subtract(const Duration(seconds: 1)) : now.add(const Duration(minutes: 10)),
-      resendLocked ? now.add(const Duration(seconds: 60)) : now.subtract(const Duration(seconds: 1)),
+      expired
+          ? now.subtract(const Duration(seconds: 1))
+          : now.add(const Duration(minutes: 10)),
+      resendLocked
+          ? now.add(const Duration(seconds: 60))
+          : now.subtract(const Duration(seconds: 1)),
     );
     return _toDto(id);
   }
@@ -222,8 +229,27 @@ final class _FakeStore implements PasswordResetOperationStore {
       _toDto(operationId);
 
   @override
+  Future<bool> verifyCode(String operationId, String code) async {
+    final op = operations[operationId]!;
+    if (op.status == 'completed') {
+      throw const IamBlockedException(IamBlockedCodes.stateChanged);
+    }
+    if (expired || DateTime.now().toUtc().isAfter(op.expiresAt)) {
+      throw const IamBlockedException(IamBlockedCodes.resetCodeExpired);
+    }
+    if (invalidCode) {
+      throw const IamBlockedException(IamBlockedCodes.resetCodeInvalid);
+    }
+    op.status = 'verified';
+    return true;
+  }
+
+  @override
   Future<PasswordResetOperation> touchResend(String operationId) async {
     final op = operations[operationId]!;
+    if (DateTime.now().toUtc().isBefore(op.resendAvailableAt)) {
+      throw const IamBlockedException(IamBlockedCodes.resetRateLimited);
+    }
     final now = DateTime.now().toUtc();
     op.expiresAt = now.add(const Duration(minutes: 10));
     op.resendAvailableAt = now.add(const Duration(seconds: 60));
@@ -253,11 +279,9 @@ final class _FakeStore implements PasswordResetOperationStore {
 }
 
 final class _FakeAuth implements AuthAccountClient {
-  _FakeAuth({this.verifyError, this.updatePasswordError});
+  _FakeAuth({this.updatePasswordError});
 
-  final Object? verifyError;
   final Object? updatePasswordError;
-  int sentOtp = 0;
   int passwordUpdates = 0;
   int otherSessionsSignedOut = 0;
 
@@ -269,21 +293,6 @@ final class _FakeAuth implements AuthAccountClient {
 
   @override
   bool get isEmailVerified => true;
-
-  @override
-  Future<void> sendRecoveryOtp({required String email}) async {
-    sentOtp++;
-  }
-
-  @override
-  Future<void> verifyRecoveryOtp({
-    required String email,
-    required String code,
-  }) async {
-    if (verifyError != null) {
-      throw verifyError!;
-    }
-  }
 
   @override
   Future<void> updatePassword(String newPassword) async {

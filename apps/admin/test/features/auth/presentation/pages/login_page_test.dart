@@ -5,7 +5,6 @@ import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import 'package:vet45_design_system/design_system.dart';
 import 'package:vet45_iam_application/application.dart';
-import 'package:vet45_iam_application/testing.dart';
 import 'package:vet45_iam_domain/domain.dart';
 import 'package:vet45_iam_infrastructure/infrastructure.dart';
 import 'package:vet45_shared_application/application.dart';
@@ -46,22 +45,14 @@ void main() {
         return null;
       },
       routes: [
-        GoRoute(
-          path: '/login',
-          builder: (context, state) => const LoginPage(),
-        ),
+        GoRoute(path: '/login', builder: (context, state) => const LoginPage()),
         GoRoute(
           path: '/',
-          builder: (context, state) => const Scaffold(
-            body: Text('admin-home'),
-          ),
+          builder: (context, state) => const Scaffold(body: Text('admin-home')),
         ),
       ],
     );
-    return MaterialApp.router(
-      theme: VTheme.lightTheme,
-      routerConfig: router,
-    );
+    return MaterialApp.router(theme: VTheme.lightTheme, routerConfig: router);
   }
 
   testWidgets('shows Admin branding', (tester) async {
@@ -85,14 +76,7 @@ void main() {
     final iam = FakeIamModule(
       scenario: FakeIamScenario.authSignInOk,
       onSignedIn: (_) {
-        session.apply(
-          const PrincipalAccessDto(
-            userId: 'admin-1',
-            tenantId: '',
-            role: 'platform_admin',
-            permissions: [IamPlatformPermissions.userView],
-          ),
-        );
+        session.applyAuthenticatedUser('admin-1');
       },
     );
     registerDeps(
@@ -104,13 +88,15 @@ void main() {
     await tester.pumpWidget(buildApp());
     await tester.pumpAndSettle();
 
-    await tester.enterText(find.byType(TextFormField).at(0), 'admin@vet45.local');
-    await tester.enterText(find.byType(TextFormField).at(1), 'secret');
+    await tester.enterText(find.byType(TextField).at(0), 'admin@vet45.local');
+    await tester.enterText(find.byType(TextField).at(1), 'secret');
+    await tester.pump();
     await tester.tap(find.text('Đăng nhập'));
     await tester.pumpAndSettle();
 
     expect(find.text('admin-home'), findsOneWidget);
     expect(iam.signInCount, 1);
+    expect(iam.lastSignInRequireTenantContext, isFalse);
   });
 
   testWidgets('invalid credentials show failure toast', (tester) async {
@@ -124,8 +110,9 @@ void main() {
     await tester.pumpWidget(buildApp());
     await tester.pumpAndSettle();
 
-    await tester.enterText(find.byType(TextFormField).at(0), 'bad@x.y');
-    await tester.enterText(find.byType(TextFormField).at(1), 'nope');
+    await tester.enterText(find.byType(TextField).at(0), 'bad@x.y');
+    await tester.enterText(find.byType(TextField).at(1), 'nope');
+    await tester.pump();
     await tester.tap(find.text('Đăng nhập'));
     await tester.pumpAndSettle();
 
@@ -160,8 +147,9 @@ void main() {
     await tester.pumpWidget(buildApp());
     await tester.pumpAndSettle();
 
-    await tester.enterText(find.byType(TextFormField).at(0), 'user@tenant.local');
-    await tester.enterText(find.byType(TextFormField).at(1), 'secret');
+    await tester.enterText(find.byType(TextField).at(0), 'user@tenant.local');
+    await tester.enterText(find.byType(TextField).at(1), 'secret');
+    await tester.pump();
     await tester.tap(find.text('Đăng nhập'));
     await tester.pumpAndSettle();
 

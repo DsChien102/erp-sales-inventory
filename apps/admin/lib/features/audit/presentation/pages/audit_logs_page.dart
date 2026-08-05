@@ -142,7 +142,7 @@ class _AuditLogsViewState extends State<_AuditLogsView> {
                         if (!context.mounted) return;
                         await Navigator.of(context).push(
                           MaterialPageRoute(
-                            builder: (context) => AuditLogDetailPage(
+                            builder: (context) => AuditLogDetailBody(
                               log: detail ?? log,
                             ),
                           ),

@@ -1,299 +1,172 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:vet45_design_system/design_system.dart';
-import '../models/audit_log_ui_model.dart';
+import 'package:vet45_iam_application/application.dart';
+import 'package:vet45_shared_application/application.dart';
 
-/// Trang Chi tiết nhật ký đặc quyền (TA-D-02, TA-D-03, TA-D-04).
+import '../../shared/iam_load_status.dart';
+import '../bloc/tenant_audit_logs_cubit.dart';
+import '../bloc/tenant_audit_logs_state.dart';
+import '../mappers/tenant_audit_ui_mapper.dart';
+import '../widgets/audit_log_detail_body.dart';
+
+/// Chi tiết nhật ký — loads by [auditLogId] via [GetTenantAuditLogQuery].
 class AuditLogDetailPage extends StatelessWidget {
-  final AuditLogItemUiModel log;
-  final VoidCallback? onBackPressed;
-
   const AuditLogDetailPage({
     super.key,
-    required this.log,
+    required this.auditLogId,
+    this.iamModule,
+    this.executionContext,
+    this.cubit,
     this.onBackPressed,
   });
 
-  String _formatTimestamp(DateTime dt) {
-    final day = dt.day.toString().padLeft(2, '0');
-    final month = dt.month.toString().padLeft(2, '0');
-    final year = dt.year;
-    final hour = dt.hour.toString().padLeft(2, '0');
-    final minute = dt.minute.toString().padLeft(2, '0');
-    return '$day/$month/$year · $hour:$minute';
-  }
+  final String auditLogId;
+  final IIamModule? iamModule;
+  final IExecutionContext? executionContext;
+  final TenantAuditLogsCubit? cubit;
+  final VoidCallback? onBackPressed;
 
-  Widget _buildDetailRow(BuildContext context, String label, String value) {
-    final colors = context.vColors;
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        VText(
-          label,
-          variant: VTextVariant.bodyDefault,
-          color: colors.textSecondary,
+  @override
+  Widget build(BuildContext context) {
+    if (cubit != null) {
+      return BlocProvider.value(
+        value: cubit!,
+        child: _AuditLogDetailView(
+          auditLogId: auditLogId,
+          onBackPressed: onBackPressed,
         ),
-        const SizedBox(width: 16),
-        Flexible(
-          child: VText(
-            value,
-            variant: VTextVariant.bodyDefault,
-            textAlign: TextAlign.right,
-            style: TextStyle(
-              fontWeight: FontWeight.w700,
-              color: colors.textPrimary,
-            ),
-          ),
-        ),
-      ],
+      );
+    }
+    assert(
+      iamModule != null && executionContext != null,
+      'AuditLogDetailPage requires iamModule + executionContext or cubit',
     );
+    return BlocProvider(
+      create: (_) => TenantAuditLogsCubit(
+        iamModule: iamModule!,
+        executionContext: executionContext!,
+      )..loadDetail(auditLogId),
+      child: _AuditLogDetailView(
+        auditLogId: auditLogId,
+        onBackPressed: onBackPressed,
+      ),
+    );
+  }
+}
+
+class _AuditLogDetailView extends StatefulWidget {
+  const _AuditLogDetailView({
+    required this.auditLogId,
+    this.onBackPressed,
+  });
+
+  final String auditLogId;
+  final VoidCallback? onBackPressed;
+
+  @override
+  State<_AuditLogDetailView> createState() => _AuditLogDetailViewState();
+}
+
+class _AuditLogDetailViewState extends State<_AuditLogDetailView> {
+  @override
+  void initState() {
+    super.initState();
+    final cubit = context.read<TenantAuditLogsCubit>();
+    if (cubit.state.selectedDetail?.auditLogId != widget.auditLogId) {
+      cubit.loadDetail(widget.auditLogId);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     final colors = context.vColors;
-
-    Color badgeBg;
-    Color badgeFg;
-    if (log.status == AuditLogStatus.success) {
-      badgeBg = colors.successBg;
-      badgeFg = colors.success;
-    } else if (log.status == AuditLogStatus.blocked) {
-      badgeBg = colors.warningBg;
-      badgeFg = colors.warning;
-    } else {
-      badgeBg = colors.dangerBg;
-      badgeFg = colors.danger;
-    }
-
-    final subjectLabel = log.targetSubjectLabel ?? 'Tổ chức';
-    final subjectValue = log.targetSubjectValue ?? log.targetOrg;
-    final detailLabel = log.targetDetailLabel ?? 'Mã tổ chức';
-    final detailValue = log.targetDetailValue ?? log.targetOrgCode;
-
-    return Scaffold(
-      backgroundColor: colors.surfaceAlt,
-      appBar: AppBar(
-        backgroundColor: colors.surface,
-        elevation: 0,
-        scrolledUnderElevation: 0,
-        centerTitle: false,
-        leading: IconButton(
-          icon: VIcon(
-            icon: VIcons.chevronLeft,
-            color: colors.textPrimary,
-          ),
-          onPressed: onBackPressed ?? () => Navigator.of(context).maybePop(),
-        ),
-        titleSpacing: 0,
-        title: VText(
-          'Chi tiết hoạt động',
-          variant: VTextVariant.headingH4,
-          style: const TextStyle(fontWeight: FontWeight.w700),
-        ),
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(
-          horizontal: VSpacing.screenMobile,
-          vertical: VSpacing.space4,
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            // Card 1: Top Header Card
-            VCard(
+    return BlocBuilder<TenantAuditLogsCubit, TenantAuditLogsState>(
+      builder: (context, state) {
+        if (state.detailStatus == IamLoadStatus.loading ||
+            state.detailStatus == IamLoadStatus.initial) {
+          return Scaffold(
+            backgroundColor: colors.surfaceAlt,
+            appBar: AppBar(
               backgroundColor: colors.surface,
-              padding: const EdgeInsets.all(VSpacing.space4),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.only(top: 2),
-                    child: VIcon(
-                      icon: VIcons.history,
-                      size: 20,
-                      color: colors.textPrimary,
-                    ),
-                  ),
-                  const VGap.horizontalSm(),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        VText(
-                          log.title,
-                          variant: VTextVariant.bodyDefault,
-                          style: TextStyle(
-                            fontWeight: FontWeight.w700,
-                            color: colors.textPrimary,
-                          ),
-                        ),
-                        const VGap.xs(),
-                        VText(
-                          '${log.actionCode} · ${log.id}',
-                          variant: VTextVariant.bodySmall,
-                          color: colors.textSecondary,
-                        ),
-                      ],
-                    ),
-                  ),
-                  const VGap.horizontalSm(),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: VSpacing.space3,
-                      vertical: VSpacing.space1,
-                    ),
-                    decoration: BoxDecoration(
-                      color: badgeBg,
-                      borderRadius: BorderRadius.circular(VRadius.pill),
-                    ),
-                    child: VText(
-                      log.statusLabel,
-                      variant: VTextVariant.bodySmall,
-                      style: TextStyle(
-                        fontWeight: FontWeight.w600,
-                        color: badgeFg,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const VGap.md(),
-
-            // Card 2: Người thực hiện & ngữ cảnh
-            VCard(
-              backgroundColor: colors.surface,
-              padding: const EdgeInsets.all(VSpacing.space4),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  VText(
-                    'Người thực hiện & ngữ cảnh',
-                    variant: VTextVariant.bodyDefault,
-                    style: TextStyle(
-                      fontWeight: FontWeight.w700,
-                      color: colors.textPrimary,
-                    ),
-                  ),
-                  const VGap.md(),
-                  _buildDetailRow(context, 'Người thực hiện', log.actorName),
-                  const VGap.sm(),
-                  _buildDetailRow(context, 'Loại chủ thể', log.actorRole),
-                ],
-              ),
-            ),
-            const VGap.md(),
-
-            // Card 3: Đối tượng
-            VCard(
-              backgroundColor: colors.surface,
-              padding: const EdgeInsets.all(VSpacing.space4),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  VText(
-                    'Đối tượng',
-                    variant: VTextVariant.bodyDefault,
-                    style: TextStyle(
-                      fontWeight: FontWeight.w700,
-                      color: colors.textPrimary,
-                    ),
-                  ),
-                  const VGap.md(),
-                  _buildDetailRow(context, subjectLabel, subjectValue),
-                  const VGap.sm(),
-                  _buildDetailRow(context, detailLabel, detailValue),
-                ],
-              ),
-            ),
-            const VGap.md(),
-
-            // Card 4: Thông tin truy vết
-            VCard(
-              backgroundColor: colors.surface,
-              padding: const EdgeInsets.all(VSpacing.space4),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  VText(
-                    'Thông tin truy vết',
-                    variant: VTextVariant.bodyDefault,
-                    style: TextStyle(
-                      fontWeight: FontWeight.w700,
-                      color: colors.textPrimary,
-                    ),
-                  ),
-                  const VGap.md(),
-                  _buildDetailRow(context, 'Thời điểm', _formatTimestamp(log.timestamp)),
-                  const VGap.sm(),
-                  _buildDetailRow(context, 'Nguồn', log.sourceApp),
-                  const VGap.sm(),
-                  _buildDetailRow(context, 'Mã theo dõi', log.correlationId),
-                ],
-              ),
-            ),
-            const VGap.md(),
-
-            // Card 5: Bottom Section (Warning Banner OR Change Data Card)
-            if (log.isActorUnavailable)
-              VCard(
-                backgroundColor: colors.warningBg,
-                padding: const EdgeInsets.all(VSpacing.space4),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    VText(
-                      'Người thực hiện không còn khả dụng',
-                      variant: VTextVariant.bodyDefault,
-                      style: TextStyle(
-                        fontWeight: FontWeight.w700,
-                        color: colors.warning,
-                      ),
-                    ),
-                    const VGap.xs(),
-                    VText(
-                      'Tên hiển thị và mã người dùng tại thời điểm phát sinh vẫn được giữ để phục vụ truy vết.',
-                      variant: VTextVariant.bodySmall,
-                      color: colors.textSecondary,
-                    ),
-                  ],
+              elevation: 0,
+              leading: IconButton(
+                icon: VIcon(
+                  icon: VIcons.chevronLeft,
+                  color: colors.textPrimary,
                 ),
-              )
-            else
-              VCard(
-                backgroundColor: colors.surface,
-                padding: const EdgeInsets.all(VSpacing.space4),
+                onPressed: widget.onBackPressed ??
+                    () => Navigator.of(context).maybePop(),
+              ),
+              title: const VText(
+                'Chi tiết hoạt động',
+                variant: VTextVariant.headingH4,
+                style: TextStyle(fontWeight: FontWeight.w700),
+              ),
+            ),
+            body: const Center(child: VLoading(size: 40)),
+          );
+        }
+
+        if (state.detailStatus == IamLoadStatus.failure ||
+            state.selectedDetail == null) {
+          return Scaffold(
+            backgroundColor: colors.surfaceAlt,
+            appBar: AppBar(
+              backgroundColor: colors.surface,
+              elevation: 0,
+              leading: IconButton(
+                icon: VIcon(
+                  icon: VIcons.chevronLeft,
+                  color: colors.textPrimary,
+                ),
+                onPressed: widget.onBackPressed ??
+                    () => Navigator.of(context).maybePop(),
+              ),
+              title: const VText(
+                'Chi tiết hoạt động',
+                variant: VTextVariant.headingH4,
+                style: TextStyle(fontWeight: FontWeight.w700),
+              ),
+            ),
+            body: Center(
+              child: Padding(
+                padding: const EdgeInsets.all(VSpacing.screenMobile),
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    VText(
-                      log.changeSectionTitle ?? 'Dữ liệu thay đổi',
-                      variant: VTextVariant.bodyDefault,
-                      style: TextStyle(
-                        fontWeight: FontWeight.w700,
-                        color: colors.textPrimary,
-                      ),
+                    const VText(
+                      'Không tìm thấy hoạt động',
+                      variant: VTextVariant.headingH4,
                     ),
                     const VGap.sm(),
                     VText(
-                      'Trước: ${log.beforeState}',
+                      state.detailFailure?.message ??
+                          'Nhật ký không tồn tại hoặc không thuộc tổ chức hiện tại.',
                       variant: VTextVariant.bodySmall,
                       color: colors.textSecondary,
+                      textAlign: TextAlign.center,
                     ),
-                    const VGap.xs(),
-                    VText(
-                      'Sau: ${log.afterState}',
-                      variant: VTextVariant.bodySmall,
-                      color: colors.textSecondary,
+                    const VGap.lg(),
+                    VButton(
+                      label: 'Thử lại',
+                      onPressed: () => context
+                          .read<TenantAuditLogsCubit>()
+                          .loadDetail(widget.auditLogId),
                     ),
                   ],
                 ),
               ),
-            const VGap.xl(),
-          ],
-        ),
-      ),
+            ),
+          );
+        }
+
+        final log = TenantAuditUiMapper.fromDetail(state.selectedDetail!);
+        return AuditLogDetailBody(
+          log: log,
+          onBackPressed: widget.onBackPressed,
+        );
+      },
     );
   }
 }

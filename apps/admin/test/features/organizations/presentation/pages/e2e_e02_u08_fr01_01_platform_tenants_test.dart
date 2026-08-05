@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
 import 'package:vet45_iam_application/application.dart';
-import 'package:vet45_iam_application/testing.dart';
 import 'package:vet45_shared_application/application.dart';
 import 'package:vet45_shared_testing/shared_testing.dart';
 
@@ -91,6 +90,8 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('Đang hoạt động'), findsWidgets);
+      expect(find.text('Hoạt động gần nhất'), findsOneWidget);
+      expect(find.text('13/07/2026 · 09:18'), findsOneWidget);
 
       await tester.tap(find.text('Thao tác'));
       await tester.pumpAndSettle();

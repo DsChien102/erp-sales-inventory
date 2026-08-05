@@ -20,50 +20,19 @@ class OrganizationChangeOwnerPage extends StatefulWidget {
   });
 
   @override
-  State<OrganizationChangeOwnerPage> createState() =>
-      _OrganizationChangeOwnerPageState();
+  State<OrganizationChangeOwnerPage> createState() => _OrganizationChangeOwnerPageState();
 }
 
-class _OrganizationChangeOwnerPageState
-    extends State<OrganizationChangeOwnerPage> {
+class _OrganizationChangeOwnerPageState extends State<OrganizationChangeOwnerPage> {
   final TextEditingController _searchController = TextEditingController();
   late List<OrganizationMemberUiModel> _members;
-  late String _selectedMemberId;
-
-  static const List<OrganizationMemberUiModel> _defaultMockMembers = [
-    OrganizationMemberUiModel(
-      id: 'mem-01',
-      name: 'Trần Thị Hoa',
-      email: 'hoa@minhphat.vn',
-      role: 'Kế toán',
-      avatarInitials: 'TH',
-    ),
-    OrganizationMemberUiModel(
-      id: 'mem-02',
-      name: 'Nguyễn Văn Minh',
-      email: 'minh@minhphat.vn',
-      role: 'Nhân viên bán hàng',
-      avatarInitials: 'NV',
-    ),
-    OrganizationMemberUiModel(
-      id: 'mem-03',
-      name: 'Phạm Ngọc Mai',
-      email: 'mai@minhphat.vn',
-      role: 'Thủ kho',
-      avatarInitials: 'PN',
-    ),
-  ];
+  String? _selectedMemberId;
 
   @override
   void initState() {
     super.initState();
-    // Bổ sung mock data thành viên nếu danh sách trống hoặc ít hơn 3
-    if (widget.organization.members.length >= 3) {
-      _members = widget.organization.members;
-    } else {
-      _members = _defaultMockMembers;
-    }
-    _selectedMemberId = _members.first.id;
+    _members = widget.organization.members;
+    _selectedMemberId = _members.isEmpty ? null : _members.first.id;
   }
 
   @override
@@ -167,22 +136,30 @@ class _OrganizationChangeOwnerPageState
             ),
             const VGap.md(),
 
-            // Danh sách thành viên (Radio cards)
-            ...filtered.map((member) {
-              final isSelected = member.id == _selectedMemberId;
-              return Padding(
-                padding: const EdgeInsets.only(bottom: VSpacing.space3),
-                child: _MemberRadioCard(
-                  member: member,
-                  isSelected: isSelected,
-                  onTap: () {
-                    setState(() {
-                      _selectedMemberId = member.id;
-                    });
-                  },
-                ),
-              );
-            }),
+            if (filtered.isEmpty)
+              VText(
+                _members.isEmpty
+                    ? 'Chưa có thành viên đang hoạt động'
+                    : 'Không tìm thấy thành viên phù hợp',
+                variant: VTextVariant.bodySmall,
+                color: colors.textSecondary,
+              )
+            else
+              ...filtered.map((member) {
+                final isSelected = member.id == _selectedMemberId;
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: VSpacing.space3),
+                  child: _MemberRadioCard(
+                    member: member,
+                    isSelected: isSelected,
+                    onTap: () {
+                      setState(() {
+                        _selectedMemberId = member.id;
+                      });
+                    },
+                  ),
+                );
+              }),
             const VGap.xl(),
           ],
         ),
@@ -217,9 +194,7 @@ class _OrganizationChangeOwnerPageState
                   variant: VButtonVariant.primary,
                   tone: VComponentTone.success,
                   fullWidth: true,
-                  onPressed: _selectedMember != null
-                      ? () => _showConfirmation(context)
-                      : null,
+                  onPressed: _selectedMember != null ? () => _showConfirmation(context) : null,
                 ),
               ),
             ],
@@ -268,9 +243,7 @@ class _MemberRadioCard extends StatelessWidget {
                 width: 44,
                 height: 44,
                 decoration: BoxDecoration(
-                  color: isSelected
-                      ? colors.surfaceBrand
-                      : colors.surfaceAlt,
+                  color: isSelected ? colors.surfaceBrand : colors.surfaceAlt,
                   borderRadius: BorderRadius.circular(VRadius.r12),
                 ),
                 alignment: Alignment.center,
@@ -279,9 +252,7 @@ class _MemberRadioCard extends StatelessWidget {
                   variant: VTextVariant.bodyDefault,
                   style: TextStyle(
                     fontWeight: FontWeight.w700,
-                    color: isSelected
-                        ? colors.primary
-                        : colors.textSecondary,
+                    color: isSelected ? colors.primary : colors.textSecondary,
                   ),
                 ),
               ),

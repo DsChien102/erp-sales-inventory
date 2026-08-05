@@ -1,30 +1,64 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:vet45_design_system/design_system.dart';
 import 'package:vet45_iam_application/application.dart';
-import 'package:vet45_shared_application/application.dart';
 
+import '../../shared/iam_load_status.dart';
+import '../bloc/my_account_edit_cubit.dart';
+import '../bloc/my_account_edit_state.dart';
 import 'my_account_page.dart';
 
 /// Trang Chỉnh sửa thông tin cá nhân (TA-D-02).
-class EditMyAccountPage extends StatefulWidget {
-  final MyAccountUiModel data;
-  final IIamModule? iamModule;
-
+class EditMyAccountPage extends StatelessWidget {
   const EditMyAccountPage({
     super.key,
-    this.data = MyAccountUiModel.sample,
+    this.data,
     this.iamModule,
+    this.cubit,
   });
 
+  /// Test-only seed when [iamModule]/[cubit] are null. Production injects module.
+  final MyAccountUiModel? data;
+  final IIamModule? iamModule;
+  final MyAccountEditCubit? cubit;
+
   @override
-  State<EditMyAccountPage> createState() => _EditMyAccountPageState();
+  Widget build(BuildContext context) {
+    if (cubit != null) {
+      return BlocProvider.value(
+        value: cubit!,
+        child: const _EditMyAccountBody(),
+      );
+    }
+    if (iamModule != null) {
+      return BlocProvider(
+        create: (_) => MyAccountEditCubit(iamModule: iamModule!)..load(),
+        child: const _EditMyAccountBody(),
+      );
+    }
+    assert(
+      data != null,
+      'EditMyAccountPage requires data when iamModule/cubit is null',
+    );
+    return _EditMyAccountSampleBody(data: data!);
+  }
 }
 
-class _EditMyAccountPageState extends State<EditMyAccountPage> {
+class _EditMyAccountSampleBody extends StatefulWidget {
+  const _EditMyAccountSampleBody({required this.data});
+
+  final MyAccountUiModel data;
+
+  @override
+  State<_EditMyAccountSampleBody> createState() =>
+      _EditMyAccountSampleBodyState();
+}
+
+class _EditMyAccountSampleBodyState extends State<_EditMyAccountSampleBody> {
   late final TextEditingController _firstNameController;
   late final TextEditingController _lastNameController;
   late final TextEditingController _phoneNumberController;
-  bool _isSaving = false;
+  late final TextEditingController _emailController;
 
   @override
   void initState() {
@@ -33,6 +67,7 @@ class _EditMyAccountPageState extends State<EditMyAccountPage> {
     _lastNameController = TextEditingController(text: widget.data.lastName);
     _phoneNumberController =
         TextEditingController(text: widget.data.phoneNumber);
+    _emailController = TextEditingController(text: widget.data.email);
   }
 
   @override
@@ -40,6 +75,7 @@ class _EditMyAccountPageState extends State<EditMyAccountPage> {
     _firstNameController.dispose();
     _lastNameController.dispose();
     _phoneNumberController.dispose();
+    _emailController.dispose();
     super.dispose();
   }
 
@@ -55,65 +91,227 @@ class _EditMyAccountPageState extends State<EditMyAccountPage> {
         _lastNameController.text.trim().isNotEmpty;
   }
 
-  Future<void> _handleSave() async {
-    if (!_isValid || _isSaving) return;
-
-    final firstName = _firstNameController.text.trim();
-    final lastName = _lastNameController.text.trim();
-    final phoneNumber = _phoneNumberController.text.trim();
-
-    final module = widget.iamModule;
-    if (module != null) {
-      setState(() => _isSaving = true);
-      try {
-        final dto = await module.executeCommandAsync<MyIdentityProfileDto>(
-          UpdateMyIdentityProfileCommand(
-            firstName: firstName,
-            lastName: lastName,
-            phoneNumber: phoneNumber.isEmpty ? null : phoneNumber,
-            avatarUrl: widget.data.avatarUrl,
-          ),
-        );
-        if (!mounted) return;
-        Navigator.of(context).pop(MyAccountUiModel.fromDto(dto));
-      } on ApplicationException catch (e) {
-        if (!mounted) return;
-        setState(() => _isSaving = false);
-        VToast.show(
-          context,
-          title: 'Không lưu được',
-          message: e.message,
-          type: VToastType.danger,
-        );
-      } catch (e) {
-        if (!mounted) return;
-        setState(() => _isSaving = false);
-        VToast.show(
-          context,
-          title: 'Không lưu được',
-          message: e.toString(),
-          type: VToastType.danger,
-        );
-      }
-      return;
-    }
-
-    final updatedData = MyAccountUiModel(
-      firstName: firstName,
-      lastName: lastName,
-      email: widget.data.email,
-      emailStatus: widget.data.emailStatus,
-      phoneNumber: phoneNumber,
-      avatarUrl: widget.data.avatarUrl,
+  void _handleSave() {
+    if (!_isValid) return;
+    Navigator.of(context).pop(
+      MyAccountUiModel(
+        firstName: _firstNameController.text.trim(),
+        lastName: _lastNameController.text.trim(),
+        email: widget.data.email,
+        emailStatus: widget.data.emailStatus,
+        phoneNumber: _phoneNumberController.text.trim(),
+        avatarUrl: widget.data.avatarUrl,
+      ),
     );
-
-    Navigator.of(context).pop(updatedData);
   }
 
   @override
   Widget build(BuildContext context) {
+    return _EditFormScaffold(
+      fullName: widget.data.fullName,
+      firstNameController: _firstNameController,
+      lastNameController: _lastNameController,
+      phoneNumberController: _phoneNumberController,
+      emailController: _emailController,
+      isSaving: false,
+      isValid: _isValid,
+      onChanged: () => setState(() {}),
+      onSave: _handleSave,
+      onCancel: () => Navigator.of(context).pop(),
+    );
+  }
+}
+
+class _EditMyAccountBody extends StatefulWidget {
+  const _EditMyAccountBody();
+
+  @override
+  State<_EditMyAccountBody> createState() => _EditMyAccountBodyState();
+}
+
+class _EditMyAccountBodyState extends State<_EditMyAccountBody> {
+  late final TextEditingController _firstNameController;
+  late final TextEditingController _lastNameController;
+  late final TextEditingController _phoneNumberController;
+  late final TextEditingController _emailController;
+  String? _baselineFirstName;
+  String? _baselineLastName;
+  String? _baselinePhone;
+  String? _avatarUrl;
+  bool _controllersSeeded = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _firstNameController = TextEditingController();
+    _lastNameController = TextEditingController();
+    _phoneNumberController = TextEditingController();
+    _emailController = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    _firstNameController.dispose();
+    _lastNameController.dispose();
+    _phoneNumberController.dispose();
+    _emailController.dispose();
+    super.dispose();
+  }
+
+  void _seedFromProfile(MyIdentityProfileDto profile) {
+    if (_controllersSeeded) return;
+    _controllersSeeded = true;
+    _firstNameController.text = profile.firstName;
+    _lastNameController.text = profile.lastName;
+    _phoneNumberController.text = profile.phoneNumber ?? '';
+    _emailController.text = profile.email;
+    _baselineFirstName = profile.firstName;
+    _baselineLastName = profile.lastName;
+    _baselinePhone = profile.phoneNumber ?? '';
+    _avatarUrl = profile.avatarUrl;
+  }
+
+  bool get _hasChanges {
+    if (_baselineFirstName == null) return false;
+    return _firstNameController.text.trim() != _baselineFirstName!.trim() ||
+        _lastNameController.text.trim() != _baselineLastName!.trim() ||
+        _phoneNumberController.text.trim() != _baselinePhone!.trim();
+  }
+
+  bool get _isValid {
+    return _hasChanges &&
+        _firstNameController.text.trim().isNotEmpty &&
+        _lastNameController.text.trim().isNotEmpty;
+  }
+
+  Future<void> _handleSave() async {
+    if (!_isValid) return;
+    final cubit = context.read<MyAccountEditCubit>();
+    final ok = await cubit.save(
+      firstName: _firstNameController.text.trim(),
+      lastName: _lastNameController.text.trim(),
+      phoneNumber: _phoneNumberController.text.trim().isEmpty
+          ? null
+          : _phoneNumberController.text.trim(),
+      avatarUrl: _avatarUrl,
+    );
+    if (!mounted) return;
+    if (!ok) {
+      final failure = cubit.state.failure;
+      VToast.show(
+        context,
+        title: 'Không lưu được',
+        message: failure?.message ?? 'Đã xảy ra lỗi',
+        type: VToastType.danger,
+      );
+      return;
+    }
+    final saved = cubit.state.savedProfile;
+    if (saved == null) return;
+    Navigator.of(context).pop(MyAccountUiModel.fromDto(saved));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocConsumer<MyAccountEditCubit, MyAccountEditState>(
+      listener: (context, state) {
+        if (state.profile != null) {
+          _seedFromProfile(state.profile!);
+        }
+      },
+      builder: (context, state) {
+        final colors = context.vColors;
+        if (state.status == IamLoadStatus.loading ||
+            state.status == IamLoadStatus.initial) {
+          return const VPageScaffold(
+            title: 'Chỉnh sửa thông tin',
+            body: Center(child: VLoading(size: 40)),
+          );
+        }
+
+        if (state.status == IamLoadStatus.failure && state.profile == null) {
+          return VPageScaffold(
+            title: 'Chỉnh sửa thông tin',
+            body: Center(
+              child: Padding(
+                padding: const EdgeInsets.all(VSpacing.screenMobile),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    VText(
+                      'Không tải được hồ sơ',
+                      variant: VTextVariant.headingH4,
+                    ),
+                    const VGap.sm(),
+                    VText(
+                      state.failure?.message ?? 'Đã xảy ra lỗi',
+                      variant: VTextVariant.bodySmall,
+                      color: colors.textSecondary,
+                      textAlign: TextAlign.center,
+                    ),
+                    const VGap.lg(),
+                    VButton(
+                      label: 'Thử lại',
+                      onPressed: () =>
+                          context.read<MyAccountEditCubit>().load(),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          );
+        }
+
+        final profile = state.profile;
+        final fullName = profile == null
+            ? ''
+            : '${profile.firstName} ${profile.lastName}'.trim();
+
+        return _EditFormScaffold(
+          fullName: fullName,
+          firstNameController: _firstNameController,
+          lastNameController: _lastNameController,
+          phoneNumberController: _phoneNumberController,
+          emailController: _emailController,
+          isSaving: state.isSubmitting,
+          isValid: _isValid,
+          onChanged: () => setState(() {}),
+          onSave: _handleSave,
+          onCancel: () => Navigator.of(context).pop(),
+        );
+      },
+    );
+  }
+}
+
+class _EditFormScaffold extends StatelessWidget {
+  const _EditFormScaffold({
+    required this.fullName,
+    required this.firstNameController,
+    required this.lastNameController,
+    required this.phoneNumberController,
+    required this.emailController,
+    required this.isSaving,
+    required this.isValid,
+    required this.onChanged,
+    required this.onSave,
+    required this.onCancel,
+  });
+
+  final String fullName;
+  final TextEditingController firstNameController;
+  final TextEditingController lastNameController;
+  final TextEditingController phoneNumberController;
+  final TextEditingController emailController;
+  final bool isSaving;
+  final bool isValid;
+  final VoidCallback onChanged;
+  final VoidCallback onSave;
+  final VoidCallback onCancel;
+
+  @override
+  Widget build(BuildContext context) {
     final colors = context.vColors;
-    final data = widget.data;
 
     return VPageScaffold(
       title: 'Chỉnh sửa thông tin',
@@ -123,13 +321,12 @@ class _EditMyAccountPageState extends State<EditMyAccountPage> {
           vertical: VSpacing.space4,
         ),
         children: [
-          // Card Ảnh đại diện (Tạm thời không gán sự kiện click)
           VCard(
             padding: const EdgeInsets.all(VSpacing.space4),
             child: Row(
               children: [
                 VAvatar(
-                  name: data.fullName,
+                  name: fullName,
                   size: 48,
                 ),
                 const VGap.horizontalSm(),
@@ -160,41 +357,33 @@ class _EditMyAccountPageState extends State<EditMyAccountPage> {
             ),
           ),
           const VGap.lg(),
-
-          // 1. Họ và tên đệm *
           VTextField(
             label: 'Họ và tên đệm',
             isRequired: true,
             hintText: 'Nhập họ và tên đệm',
-            controller: _firstNameController,
-            onChanged: (_) => setState(() {}),
+            controller: firstNameController,
+            onChanged: (_) => onChanged(),
           ),
           const VGap.md(),
-
-          // 2. Tên *
           VTextField(
             label: 'Tên',
             isRequired: true,
             hintText: 'Nhập tên',
-            controller: _lastNameController,
-            onChanged: (_) => setState(() {}),
+            controller: lastNameController,
+            onChanged: (_) => onChanged(),
           ),
           const VGap.md(),
-
-          // 3. Số điện thoại
           VTextField(
             label: 'Số điện thoại',
             hintText: 'Nhập số điện thoại',
             keyboardType: TextInputType.phone,
-            controller: _phoneNumberController,
-            onChanged: (_) => setState(() {}),
+            controller: phoneNumberController,
+            onChanged: (_) => onChanged(),
           ),
           const VGap.md(),
-
-          // 4. Email đăng nhập (Read-only)
           VTextField(
             label: 'Email đăng nhập',
-            controller: TextEditingController(text: data.email),
+            controller: emailController,
             enabled: false,
           ),
           const VGap.xl(),
@@ -217,17 +406,17 @@ class _EditMyAccountPageState extends State<EditMyAccountPage> {
                   label: 'Hủy',
                   variant: VButtonVariant.outline,
                   fullWidth: true,
-                  onPressed: _isSaving ? null : () => Navigator.of(context).pop(),
+                  onPressed: isSaving ? null : onCancel,
                 ),
               ),
               const VGap.horizontalSm(),
               Expanded(
                 child: VButton(
-                  label: _isSaving ? 'Đang lưu...' : 'Lưu thay đổi',
+                  label: isSaving ? 'Đang lưu...' : 'Lưu thay đổi',
                   variant: VButtonVariant.primary,
                   tone: VComponentTone.primary,
                   fullWidth: true,
-                  onPressed: _isValid && !_isSaving ? _handleSave : null,
+                  onPressed: isValid && !isSaving ? onSave : null,
                 ),
               ),
             ],

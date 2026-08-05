@@ -1,11 +1,15 @@
 import 'package:admin/features/organizations/presentation/pages/organizations_page.dart';
+import 'package:admin/features/organizations/presentation/pages/platform_onboarding_page.dart';
+import 'package:admin/features/dashboard/presentation/dashboard_page.dart';
+import 'package:admin/features/dashboard/presentation/models/admin_tab.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
+import 'package:go_router/go_router.dart';
 import 'package:vet45_design_system/design_system.dart';
 import 'package:vet45_iam_application/application.dart';
-import 'package:vet45_iam_application/testing.dart';
 import 'package:vet45_iam_presentation/presentation.dart';
+import 'package:vet45_shared_application/application.dart';
 import 'package:vet45_shared_testing/shared_testing.dart';
 
 void main() {
@@ -20,14 +24,37 @@ void main() {
   });
 
   Widget buildTestableWidget(Widget child) {
-    return MaterialApp(
-      home: Scaffold(
-        body: child,
-      ),
-    );
+    return MaterialApp(home: Scaffold(body: child));
   }
 
   group('OrganizationsPage Widget Tests', () {
+    testWidgets('dashboard shell does not show a hard-coded tenant count', (
+      tester,
+    ) async {
+      final module = _EmptyPlatformTenantModule();
+      getIt
+        ..registerSingleton(FakeExecutionContext())
+        ..registerSingleton<IIamModule>(module);
+
+      final router = GoRouter(
+        routes: [
+          GoRoute(
+            path: '/',
+            name: 'dashboard',
+            builder: (_, _) =>
+                const DashboardPage(initialTab: AdminTab.organizations),
+          ),
+        ],
+      );
+
+      await tester.pumpWidget(MaterialApp.router(routerConfig: router));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Tổ chức'), findsOneWidget);
+      expect(find.text('18 tổ chức'), findsNothing);
+      expect(find.text('Chưa có tổ chức'), findsOneWidget);
+    });
+
     testWidgets(
       'wgt_e02_u08_fr01_01: renders search bar, filter chips, and list',
       (tester) async {
@@ -98,5 +125,42 @@ void main() {
 
       expect(find.byType(OrganizationEmptyView), findsOneWidget);
     });
+
+    testWidgets('opens onboarding wizard from empty organization CTA', (
+      tester,
+    ) async {
+      final module = _EmptyPlatformTenantModule();
+
+      await tester.pumpWidget(
+        buildTestableWidget(OrganizationsPage(iamModule: module)),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('Chưa có tổ chức'), findsOneWidget);
+
+      await tester.tap(find.text('Khởi tạo tổ chức'));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(PlatformOnboardingPage), findsOneWidget);
+    });
   });
+}
+
+final class _EmptyPlatformTenantModule implements IIamModule {
+  @override
+  Future<TResult> executeCommandAsync<TResult>(ICommand<TResult> command) {
+    throw UnsupportedError('Unexpected command ${command.runtimeType}');
+  }
+
+  @override
+  Future<TResult> executeQueryAsync<TResult>(IQuery<TResult> query) async {
+    if (query is SearchPlatformTenantsQuery) {
+      return const CursorPageDto<PlatformTenantSummaryDto>(items: [])
+          as TResult;
+    }
+    if (query is SearchPlatformUsersQuery) {
+      return const CursorPageDto<PlatformUserSummaryDto>(items: []) as TResult;
+    }
+    throw UnsupportedError('Unexpected query ${query.runtimeType}');
+  }
 }
