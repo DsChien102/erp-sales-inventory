@@ -196,12 +196,24 @@ final class PriceRuleListCubit extends Cubit<PriceRuleListState> {
     } else if (_advancedFilter.warning == PriceRuleWarningFilter.belowFloor) {
       _advancedFilter = _advancedFilter.copyWith(warning: null);
     }
+
+    if (filter == CustomerPriceRuleQuickFilter.applying) {
+      _advancedFilter = _advancedFilter.copyWith(
+        status: CustomerPriceRuleDerivedStatus.applying,
+      );
+    } else if (_advancedFilter.status ==
+        CustomerPriceRuleDerivedStatus.applying) {
+      _advancedFilter = _advancedFilter.copyWith(status: null);
+    }
+
     fetchRules(isRefresh: true);
   }
 
   void applyAdvancedFilter(PriceRuleAdvancedFilter filter) {
     final hadBelowFloorWarning =
         _advancedFilter.warning == PriceRuleWarningFilter.belowFloor;
+    final hadApplyingStatus =
+        _advancedFilter.status == CustomerPriceRuleDerivedStatus.applying;
     _advancedFilter = filter;
     if (filter.warning == PriceRuleWarningFilter.belowFloor) {
       _quickFilter = CustomerPriceRuleQuickFilter.belowFloor;
@@ -209,6 +221,14 @@ final class PriceRuleListCubit extends Cubit<PriceRuleListState> {
         _quickFilter == CustomerPriceRuleQuickFilter.belowFloor) {
       _quickFilter = CustomerPriceRuleQuickFilter.all;
     }
+
+    if (filter.status == CustomerPriceRuleDerivedStatus.applying) {
+      _quickFilter = CustomerPriceRuleQuickFilter.applying;
+    } else if (hadApplyingStatus &&
+        _quickFilter == CustomerPriceRuleQuickFilter.applying) {
+      _quickFilter = CustomerPriceRuleQuickFilter.all;
+    }
+
     fetchRules(isRefresh: true);
   }
 
@@ -260,10 +280,7 @@ final class PriceRuleListCubit extends Cubit<PriceRuleListState> {
     final advancedStatus = _advancedFilter.status;
     if (advancedStatus != null) {
       statuses.add(advancedStatus);
-    }
-    if (_quickFilter == CustomerPriceRuleQuickFilter.applying &&
-        _resolveQuickFilter() == CustomerPriceRuleQuickFilter.belowFloor &&
-        advancedStatus == null) {
+    } else if (_quickFilter == CustomerPriceRuleQuickFilter.applying) {
       statuses.add(CustomerPriceRuleDerivedStatus.applying);
     }
     return statuses;

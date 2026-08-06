@@ -17,6 +17,7 @@ class PriceRuleFilterBottomSheet extends StatefulWidget {
   }) {
     return showVBottomSheet<PriceRuleAdvancedFilter>(
       context: context,
+      title: 'Bộ lọc giá riêng / nhớ giá',
       child: PriceRuleFilterBottomSheet(initial: initial),
     );
   }
@@ -36,8 +37,6 @@ class _PriceRuleFilterBottomSheetState
     _filter = widget.initial;
   }
 
-  void _clearAll() => setState(() => _filter = PriceRuleAdvancedFilter.empty);
-
   void _resetAndApply() {
     Navigator.of(context).pop(PriceRuleAdvancedFilter.empty);
   }
@@ -56,22 +55,6 @@ class _PriceRuleFilterBottomSheetState
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
-                children: [
-                  Expanded(
-                    child: VText(
-                      'Bộ lọc giá riêng / nhớ giá',
-                      variant: VTextVariant.headingH4,
-                      style: const TextStyle(fontWeight: FontWeight.w700),
-                    ),
-                  ),
-                  VButton(
-                    label: 'Xóa tất cả',
-                    variant: VButtonVariant.ghost,
-                    onPressed: _clearAll,
-                  ),
-                ],
-              ),
               const VGap.md(),
               _SectionTitle(title: 'Trạng thái'),
               const VGap.sm(),

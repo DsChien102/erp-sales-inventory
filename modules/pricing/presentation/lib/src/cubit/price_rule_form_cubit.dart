@@ -272,7 +272,6 @@ final class PriceRuleFormCubit extends Cubit<PriceRuleFormState> {
       emit(
         editing.copyWith(
           isSubmitting: false,
-          hasConflictingRule: true,
           conflictingRuleId: conflictingId,
         ),
       );
