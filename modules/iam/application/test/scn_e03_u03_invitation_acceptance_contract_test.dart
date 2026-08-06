@@ -189,7 +189,7 @@ void main() {
             givenName: 'Lan',
             familyName: 'Le',
           ),
-          credentialProof: 'secret',
+          credentialProof: 'password1!',
           idempotencyKey: 'idem',
         ),
       );

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:vet45_design_system/design_system.dart';
 import 'package:vet45_iam_application/application.dart';
+import 'package:vet45_iam_domain/domain.dart';
 
 import '../../shared/iam_ui_failure.dart';
 import '../bloc/password_reset_cubit.dart';
@@ -127,8 +128,9 @@ class _ResetPasswordSampleBodyState extends State<_ResetPasswordSampleBody> {
     String? newErr;
     String? confirmErr;
 
-    if (newPass.length < 8) {
-      newErr = 'Mật khẩu phải chứa tối thiểu 8 ký tự';
+    final policyError = PasswordPolicy.validate(newPass);
+    if (policyError != null) {
+      newErr = policyError;
     }
     if (newPass != confirmPass) {
       confirmErr = 'Mật khẩu nhập lại không trùng khớp';
@@ -292,8 +294,9 @@ class _ResetPasswordBodyState extends State<_ResetPasswordBody> {
     String? newErr;
     String? confirmErr;
 
-    if (newPass.length < 8) {
-      newErr = 'Mật khẩu phải chứa tối thiểu 8 ký tự';
+    final policyError = PasswordPolicy.validate(newPass);
+    if (policyError != null) {
+      newErr = policyError;
     }
     if (newPass != confirmPass) {
       confirmErr = 'Mật khẩu nhập lại không trùng khớp';

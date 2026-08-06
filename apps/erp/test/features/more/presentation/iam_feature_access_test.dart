@@ -27,14 +27,16 @@ void main() {
       expect(access.canViewMembers, isTrue);
       expect(access.canInviteMembers, isFalse);
       expect(access.canViewTenantAudit, isFalse);
-      expect(access.canOpenIamHub, isTrue);
+      // Hub "Người dùng & vai trò" là owner-only — member thường không mở được.
+      expect(access.canOpenIamHub, isFalse);
     });
 
     test('owner role grants all mapped permissions via hasPermission', () {
       const session = SessionDto(
         isAuthenticated: true,
         userId: 'owner-1',
-        role: 'owner',
+        role: 'store_owner',
+        isOwner: true,
         permissions: [],
       );
       const access = IamFeatureAccessState(
@@ -102,7 +104,8 @@ void main() {
           const SessionDto(
             isAuthenticated: true,
             userId: 'owner-1',
-            role: 'owner',
+            role: 'store_owner',
+            isOwner: true,
           ),
         ),
       );
@@ -139,7 +142,8 @@ void main() {
           session: const SessionDto(
             isAuthenticated: true,
             userId: 'owner-1',
-            role: 'owner',
+            role: 'store_owner',
+            isOwner: true,
             tenantId: 'org-001',
           ),
           readiness: TenantReadinessDto(
@@ -190,7 +194,8 @@ void main() {
           session: const SessionDto(
             isAuthenticated: true,
             userId: 'owner-1',
-            role: 'owner',
+            role: 'store_owner',
+            isOwner: true,
             tenantId: 'org-001',
           ),
           readiness: TenantReadinessDto(
@@ -239,7 +244,8 @@ void main() {
           session: const SessionDto(
             isAuthenticated: true,
             userId: 'owner-1',
-            role: 'owner',
+            role: 'store_owner',
+            isOwner: true,
             tenantId: 'org-001',
           ),
           readiness: TenantReadinessDto(
@@ -283,7 +289,8 @@ void main() {
           session: const SessionDto(
             isAuthenticated: true,
             userId: 'owner-1',
-            role: 'owner',
+            role: 'store_owner',
+            isOwner: true,
             tenantId: 'org-001',
           ),
           readiness: TenantReadinessDto(

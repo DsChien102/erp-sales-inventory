@@ -124,7 +124,8 @@ void main() {
           const PrincipalAccessDto(
             userId: 'user-1',
             tenantId: 'tenant-1',
-            role: 'owner',
+            role: 'store_owner',
+            isOwner: true,
             permissions: [],
           ),
         );

@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:vet45_design_system/design_system.dart';
+import 'package:vet45_iam_domain/domain.dart';
 
 import '../../data/owner_activation_client.dart';
 import '../bloc/owner_activation_cubit.dart';
@@ -124,8 +125,10 @@ class _OwnerActivationViewState extends State<_OwnerActivationView> {
                     VPasswordField(
                       controller: _passwordController,
                       label: 'Mật khẩu mới',
-                      hintText: 'Tối thiểu 8 ký tự',
-                      minLength: 8,
+                      hintText: 'Nhập mật khẩu mới',
+                      helperText: PasswordPolicy.requirementText,
+                      minLength: PasswordPolicy.minLength,
+                      validateOnChanged: false,
                       enabled: !isSubmitting,
                       prefixIcon: VIcon(icon: VIcons.lock),
                       onSubmitted: (_) => _submit(),

@@ -17,8 +17,9 @@ class MorePage extends StatelessWidget {
 
   Future<void> _logout(BuildContext context) async {
     final result = await guard(
-      () => (iamModule ?? getIt<IIamModule>())
-          .executeCommandAsync<SignOutResultDto>(SignOutCommand()),
+      () => (iamModule ?? getIt<IIamModule>()).executeCommandAsync<SignOutResultDto>(
+        SignOutCommand(),
+      ),
     );
 
     if (!context.mounted) return;
@@ -46,8 +47,7 @@ class MorePage extends StatelessWidget {
           VToast.show(
             context,
             title: 'Cảnh báo',
-            message:
-                'Phiên trên máy đã đóng; máy chủ chưa xác nhận đăng xuất',
+            message: 'Phiên trên máy đã đóng; máy chủ chưa xác nhận đăng xuất',
             type: VToastType.warning,
           );
         }
@@ -66,9 +66,7 @@ class MorePage extends StatelessWidget {
     }
 
     return BlocProvider(
-      create: (_) =>
-          IamFeatureAccessCubit(iamModule: iamModule ?? getIt<IIamModule>())
-            ..load(),
+      create: (_) => IamFeatureAccessCubit(iamModule: iamModule ?? getIt<IIamModule>())..load(),
       child: _MoreView(onLogout: _logout),
     );
   }
@@ -83,75 +81,74 @@ class _MoreView extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<IamFeatureAccessCubit, IamFeatureAccessState>(
       builder: (context, access) {
-          final menuItems = <_MoreMenuItem>[
-            const _MoreMenuItem(
+        final menuItems = <_MoreMenuItem>[
+          const _MoreMenuItem(
+            icon: VIcons.people,
+            title: 'Khách hàng & NCC',
+            subtitle: 'Quản lý khách hàng & nhà cung cấp',
+            enabled: false,
+          ),
+          const _MoreMenuItem(
+            icon: VIcons.download,
+            title: 'Đơn nhập',
+            subtitle: 'Nhập kho từ nhà cung cấp',
+            enabled: false,
+          ),
+          const _MoreMenuItem(
+            icon: VIcons.warehouse,
+            title: 'Kho',
+            subtitle: 'Tồn kho, phiếu nhập, điều chỉnh',
+            enabled: false,
+          ),
+          const _MoreMenuItem(
+            icon: VIcons.chart,
+            title: 'Báo cáo',
+            subtitle: 'Doanh thu, tồn kho, công nợ',
+            enabled: false,
+          ),
+          _MoreMenuItem(
+            icon: VIcons.tag,
+            title: 'Giá riêng / Nhớ giá',
+            subtitle: 'Giá riêng theo khách hàng & nhớ giá bán',
+            onTap: () => context.push('/pricing'),
+          ),
+          if (access.canOpenIamHub)
+            _MoreMenuItem(
               icon: VIcons.people,
-              title: 'Khách hàng & NCC',
-              subtitle: 'Quản lý khách hàng & nhà cung cấp',
-              enabled: false,
+              title: 'Người dùng & vai trò',
+              subtitle: 'Quản lý thành viên và quyền truy cập',
+              onTap: () => context.push('/more/users-and-roles'),
             ),
-            const _MoreMenuItem(
-              icon: VIcons.download,
-              title: 'Đơn nhập',
-              subtitle: 'Nhập kho từ nhà cung cấp',
-              enabled: false,
-            ),
-            const _MoreMenuItem(
-              icon: VIcons.warehouse,
-              title: 'Kho',
-              subtitle: 'Tồn kho, phiếu nhập, điều chỉnh',
-              enabled: false,
-            ),
-            const _MoreMenuItem(
-              icon: VIcons.chart,
-              title: 'Báo cáo',
-              subtitle: 'Doanh thu, tồn kho, công nợ',
-              enabled: false,
-            ),
-            _MoreMenuItem(
-              icon: VIcons.tag,
-              title: 'Giá riêng / Nhớ giá',
-              subtitle: 'Giá riêng theo khách hàng & nhớ giá bán',
-              onTap: () => context.push('/pricing'),
-            ),
-            if (access.canOpenIamHub)
-              _MoreMenuItem(
-                icon: VIcons.people,
-                title: 'Người dùng & vai trò',
-                subtitle: 'Quản lý thành viên và quyền truy cập',
-                onTap: () => context.push('/more/users-and-roles'),
-              ),
-            _MoreMenuItem(
-              icon: VIcons.person,
-              title: 'Tài khoản của tôi',
-              subtitle: 'Xem và chỉnh sửa thông tin cá nhân',
-              onTap: () => context.push('/more/my-account'),
-            ),
-            _MoreMenuItem(
-              icon: VIcons.settings,
-              title: 'Thiết lập',
-              subtitle: 'Cấu hình hệ thống & hóa đơn điện tử',
-              onTap: () => context.push('/more/settings'),
-            ),
-            _MoreMenuItem(
-              icon: VIcons.logout,
-              title: 'Đăng xuất',
-              subtitle: 'Thoát khỏi tài khoản hiện tại',
-              isDestructive: true,
-              onTap: () => onLogout(context),
-            ),
-          ];
+          _MoreMenuItem(
+            icon: VIcons.person,
+            title: 'Tài khoản của tôi',
+            subtitle: 'Xem và chỉnh sửa thông tin cá nhân',
+            onTap: () => context.push('/more/my-account'),
+          ),
+          _MoreMenuItem(
+            icon: VIcons.settings,
+            title: 'Thiết lập',
+            subtitle: 'Cấu hình hệ thống & hóa đơn điện tử',
+            onTap: () => context.push('/more/settings'),
+          ),
+          _MoreMenuItem(
+            icon: VIcons.logout,
+            title: 'Đăng xuất',
+            subtitle: 'Thoát khỏi tài khoản hiện tại',
+            isDestructive: true,
+            onTap: () => onLogout(context),
+          ),
+        ];
 
-          return ListView.separated(
-            padding: const EdgeInsets.symmetric(
-              horizontal: VSpacing.screenMobile,
-              vertical: VSpacing.space4,
-            ),
-            itemCount: menuItems.length,
-            separatorBuilder: (context, index) =>
-                const SizedBox(height: VSpacing.space3),
-            itemBuilder: (context, index) => menuItems[index],
-          );
+        return ListView.separated(
+          padding: const EdgeInsets.symmetric(
+            horizontal: VSpacing.screenMobile,
+            vertical: VSpacing.space4,
+          ),
+          itemCount: menuItems.length,
+          separatorBuilder: (context, index) => const SizedBox(height: VSpacing.space3),
+          itemBuilder: (context, index) => menuItems[index],
+        );
       },
     );
   }
@@ -178,12 +175,9 @@ class _MoreMenuItem extends StatelessWidget {
   Widget build(BuildContext context) {
     final dynamicColors = context.vColors;
     final isEnabled = enabled && onTap != null;
-    final titleColor =
-        isDestructive ? dynamicColors.danger : dynamicColors.textPrimary;
-    final iconColor =
-        isDestructive ? dynamicColors.danger : dynamicColors.primary;
-    final iconBackgroundColor =
-        isDestructive ? dynamicColors.dangerBg : dynamicColors.surfaceBrand;
+    final titleColor = isDestructive ? dynamicColors.danger : dynamicColors.textPrimary;
+    final iconColor = isDestructive ? dynamicColors.danger : dynamicColors.primary;
+    final iconBackgroundColor = isDestructive ? dynamicColors.dangerBg : dynamicColors.surfaceBrand;
 
     return Opacity(
       opacity: isEnabled ? 1 : 0.45,

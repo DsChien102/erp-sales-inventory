@@ -1,3 +1,4 @@
+import 'package:vet45_iam_domain/domain.dart';
 import 'package:vet45_shared_application/application.dart';
 
 import '../../ports/i_invitation_identity_port.dart';
@@ -35,7 +36,7 @@ final class RegisterFromInvitationCommandHandler
     if (key.isEmpty) {
       throw const IamBlockedException(IamBlockedCodes.validationError);
     }
-    if (command.credentialProof.trim().isEmpty) {
+    if (!PasswordPolicy.isValid(command.credentialProof.trim())) {
       throw const IamBlockedException(IamBlockedCodes.validationError);
     }
     if (command.profile.givenName.trim().isEmpty ||

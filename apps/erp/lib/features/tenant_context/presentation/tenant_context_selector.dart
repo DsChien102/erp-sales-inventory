@@ -21,6 +21,7 @@ void applyTenantContextPermissions(TenantContextDto context) {
       userId: userId,
       tenantId: tenantId,
       role: context.roleLabel ?? session.role ?? '',
+      isOwner: context.isOwner,
       permissions: context.permissions,
     ),
   );

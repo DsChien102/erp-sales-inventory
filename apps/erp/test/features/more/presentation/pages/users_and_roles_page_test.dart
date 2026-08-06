@@ -80,7 +80,8 @@ final class _OwnerSessionModule implements IIamModule {
     return const SessionDto(
           isAuthenticated: true,
           userId: 'owner-1',
-          role: 'owner',
+          role: 'store_owner',
+          isOwner: true,
         )
         as TResult;
   }

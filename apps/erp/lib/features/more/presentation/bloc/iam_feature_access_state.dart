@@ -44,9 +44,9 @@ final class IamFeatureAccessState {
   bool get canActivateTenant => _has(IamPermissions.tenantActivate);
   bool get canViewTenantAudit => _has(IamPermissions.tenantAuditView);
 
-  /// Hub entry when any phase-1 read capability is present. No roles (S4).
-  bool get canOpenIamHub =>
-      canViewMembers || canViewTenantProfile || canViewReadiness || canViewTenantAudit;
+  /// Org-admin hub (members, roles, tenant profile/readiness/audit) is
+  /// OWNER-ONLY: chỉ chủ sở hữu tổ chức mới mở được "Người dùng & vai trò".
+  bool get canOpenIamHub => session?.isOwner ?? false;
 
   IamReadinessHubBanner? get readinessBanner {
     if (!canViewReadiness) return null;

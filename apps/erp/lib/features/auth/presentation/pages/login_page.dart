@@ -116,10 +116,10 @@ class _LoginViewState extends State<_LoginView> {
   }
 
   void _submit() {
-    if (!_validateFields()) {
-      return;
-    }
-    context.read<LoginCubit>().submit(
+    final loginCubit = context.read<LoginCubit>();
+    if (loginCubit.state.isSubmitting) return;
+    if (!_validateFields()) return;
+    loginCubit.submit(
       email: _emailController.text.trim(),
       password: _passwordController.text,
     );
@@ -299,9 +299,8 @@ class _LoginViewState extends State<_LoginView> {
                             controller: _emailController,
                             label: 'Email',
                             hintText: 'Nhập email',
-                            enabled: !isSubmitting,
+                            validateOnChanged: false,
                             errorText: _emailError,
-                            prefixIcon: VIcon(icon: VIcons.mail),
                             onChanged: (_) {
                               if (_emailError != null) {
                                 setState(() => _emailError = null);
@@ -314,9 +313,8 @@ class _LoginViewState extends State<_LoginView> {
                             label: 'Mật khẩu',
                             hintText: 'Nhập mật khẩu',
                             minLength: 1,
-                            enabled: !isSubmitting,
+                            validateOnChanged: false,
                             errorText: _passwordError,
-                            prefixIcon: VIcon(icon: VIcons.lock),
                             onChanged: (_) {
                               if (_passwordError != null) {
                                 setState(() => _passwordError = null);
@@ -327,21 +325,10 @@ class _LoginViewState extends State<_LoginView> {
                           const VGap.md(),
                           Align(
                             alignment: Alignment.centerLeft,
-                            child: TextButton(
+                            child: VButton(
+                              label: 'Quên mật khẩu?',
+                              variant: VButtonVariant.link,
                               onPressed: isSubmitting ? null : _navigateToResetPassword,
-                              style: TextButton.styleFrom(
-                                padding: EdgeInsets.zero,
-                                minimumSize: Size.zero,
-                                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                              ),
-                              child: VText(
-                                'Quên mật khẩu?',
-                                variant: VTextVariant.bodyDefault,
-                                color: dynamicColors.primary,
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
                             ),
                           ),
                           const VGap.lg(),
@@ -358,16 +345,10 @@ class _LoginViewState extends State<_LoginView> {
                             color: dynamicColors.textSecondary,
                           ),
                           const VGap.md(),
-                          GestureDetector(
-                            onTap: () => context.push('/invitation'),
-                            child: VText(
-                              'Kích hoạt tài khoản',
-                              variant: VTextVariant.bodyDefault,
-                              color: dynamicColors.primary,
-                              style: const TextStyle(
-                                fontWeight: FontWeight.w700,
-                              ),
-                            ),
+                          VButton(
+                            label: 'Kích hoạt tài khoản',
+                            variant: VButtonVariant.link,
+                            onPressed: () => context.push('/invitation'),
                           ),
                           const Spacer(),
                           Padding(

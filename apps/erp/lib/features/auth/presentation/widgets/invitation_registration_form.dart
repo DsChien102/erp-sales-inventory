@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:vet45_design_system/design_system.dart';
 import 'package:vet45_iam_application/application.dart';
+import 'package:vet45_iam_domain/domain.dart';
 
 /// ID-D-02 — Trang Kích hoạt tài khoản cho người được mời chưa có tài khoản.
 ///
@@ -70,11 +72,7 @@ class _InvitationRegistrationFormState
   bool _validateForm() {
     final given = _givenNameController.text.trim();
     final family = _familyNameController.text.trim();
-    final passwordError = VPasswordValidator.validate(
-      _passwordController.text,
-      isRequired: true,
-      minLength: 1,
-    );
+    final passwordError = PasswordPolicy.validate(_passwordController.text);
 
     String? confirmPasswordError;
     if (_confirmPasswordController.text.isEmpty) {
@@ -95,16 +93,7 @@ class _InvitationRegistrationFormState
         _passwordError != null ||
         _confirmPasswordError != null;
 
-    if (hasError) {
-      VToast.show(
-        context,
-        title: 'Thông tin chưa hợp lệ',
-        message: 'Vui lòng kiểm tra và điền đầy đủ các trường bắt buộc',
-        type: VToastType.danger,
-      );
-      return false;
-    }
-    return true;
+    return !hasError;
   }
 
   Future<void> _submit() async {
@@ -254,6 +243,10 @@ class _InvitationRegistrationFormState
                   label: 'Số điện thoại',
                   hintText: 'Nhập số điện thoại',
                   keyboardType: TextInputType.phone,
+                  inputFormatters: [
+                    FilteringTextInputFormatter.digitsOnly,
+                    LengthLimitingTextInputFormatter(11),
+                  ],
                   enabled: !isSubmitting,
                 ),
                 const VGap.md(),
@@ -265,7 +258,9 @@ class _InvitationRegistrationFormState
                   label: 'Mật khẩu',
                   isRequired: true,
                   hintText: 'Nhập mật khẩu',
-                  minLength: 1,
+                  helperText: PasswordPolicy.requirementText,
+                  minLength: PasswordPolicy.minLength,
+                  validateOnChanged: false,
                   enabled: !isSubmitting,
                   errorText: _passwordError,
                   onChanged: (_) {
@@ -284,6 +279,7 @@ class _InvitationRegistrationFormState
                   isRequired: true,
                   hintText: 'Nhập lại mật khẩu',
                   minLength: 1,
+                  validateOnChanged: false,
                   enabled: !isSubmitting,
                   errorText: _confirmPasswordError,
                   onChanged: (_) {

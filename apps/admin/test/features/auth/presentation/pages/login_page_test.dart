@@ -130,6 +130,7 @@ void main() {
             userId: 'tenant-user',
             tenantId: 't-1',
             role: 'staff',
+            isOwner: false,
             permissions: [],
           ),
         );

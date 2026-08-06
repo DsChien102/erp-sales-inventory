@@ -33,6 +33,7 @@ void main() {
           userId: 'user-1',
           tenantId: 'tenant-1',
           role: role,
+          isOwner: false,
           permissions: permissions,
         ),
       );

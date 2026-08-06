@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:vet45_design_system/design_system.dart';
 import 'package:vet45_iam_application/application.dart';
+import 'package:vet45_iam_domain/domain.dart';
 import 'package:vet45_iam_presentation/presentation.dart';
 import 'package:vet45_iam_presentation/testing.dart';
 import 'package:vet45_shared_application/application.dart';
@@ -395,16 +396,16 @@ void main() {
       await tester.pump();
 
       expect(
-        find.text('Mật khẩu phải chứa tối thiểu 8 ký tự'),
+        find.text(PasswordPolicy.violationMessage),
         findsOneWidget,
       );
       expect(find.text('Mật khẩu nhập lại không trùng khớp'), findsOneWidget);
 
-      await tester.enterText(passwordFields.at(0), 'Password123');
-      await tester.enterText(passwordFields.at(1), 'Password123');
+      await tester.enterText(passwordFields.at(0), 'Password123!');
+      await tester.enterText(passwordFields.at(1), 'Password123!');
       await tester.pump();
 
-      expect(find.text('Mật khẩu phải chứa tối thiểu 8 ký tự'), findsNothing);
+      expect(find.text(PasswordPolicy.violationMessage), findsNothing);
       expect(find.text('Mật khẩu nhập lại không trùng khớp'), findsNothing);
     },
   );

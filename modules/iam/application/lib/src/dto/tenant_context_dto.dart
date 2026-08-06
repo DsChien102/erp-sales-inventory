@@ -7,6 +7,7 @@ final class TenantContextDto {
     this.tenantId,
     this.tenantName,
     this.roleLabel,
+    this.isOwner = false,
     this.permissions = const [],
     this.tenantStatus,
     this.invalidationReason,
@@ -17,8 +18,11 @@ final class TenantContextDto {
   final String? tenantId;
   final String? tenantName;
 
-  /// Interim: role code (e.g. owner/staff). FE may localize later.
+  /// Interim: role code (e.g. store_owner/staff). FE may localize later.
   final String? roleLabel;
+
+  /// Ownership is orthogonal to [roleLabel] (Owner ≠ role).
+  final bool isOwner;
   final List<String> permissions;
   final TenantLifecycleStatus? tenantStatus;
 
@@ -33,6 +37,7 @@ final class TenantContextDto {
     String? tenantId,
     String? tenantName,
     String? roleLabel,
+    bool? isOwner,
     List<String>? permissions,
     TenantLifecycleStatus? tenantStatus,
     TenantContextInvalidationReason? invalidationReason,
@@ -43,6 +48,7 @@ final class TenantContextDto {
       tenantId: tenantId ?? this.tenantId,
       tenantName: tenantName ?? this.tenantName,
       roleLabel: roleLabel ?? this.roleLabel,
+      isOwner: isOwner ?? this.isOwner,
       permissions: permissions ?? this.permissions,
       tenantStatus: tenantStatus ?? this.tenantStatus,
       invalidationReason: invalidationReason ?? this.invalidationReason,

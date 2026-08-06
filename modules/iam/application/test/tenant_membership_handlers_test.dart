@@ -12,7 +12,8 @@ class _RecordingAccessGateway implements IIamAccessGateway {
   Future<PrincipalAccessDto?> getSessionContext({String? tenantId}) async => PrincipalAccessDto(
     userId: 'user-1',
     tenantId: tenantId ?? 'tenant-1',
-    role: 'owner',
+    role: 'store_owner',
+    isOwner: true,
     permissions: const [IamPermissions.membersRead],
   );
 

@@ -38,7 +38,7 @@ final class IamPermissionChecker implements IPermissionChecker {
       return;
     }
 
-    if (_principalSnapshot.role == 'owner') {
+    if (_principalSnapshot.isOwner) {
       return;
     }
 

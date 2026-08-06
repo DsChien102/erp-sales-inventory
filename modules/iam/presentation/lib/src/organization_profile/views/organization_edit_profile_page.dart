@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:vet45_design_system/design_system.dart';
 import 'package:vet45_iam_application/application.dart';
@@ -65,6 +66,11 @@ class _EditProfileViewState extends State<_EditProfileView> {
   String? _selectedCommuneCode;
   bool _seeded = false;
 
+  String? _nameError;
+  String? _phoneError;
+  String? _emailError;
+  String? _addressError;
+
   @override
   void initState() {
     super.initState();
@@ -106,7 +112,43 @@ class _EditProfileViewState extends State<_EditProfileView> {
     return null;
   }
 
+  /// Client-side validation — chỉ chạy khi bấm "Lưu thay đổi".
+  bool _validate() {
+    final name = _nameController.text.trim();
+    final phone = _phoneController.text.trim();
+    final address = _addressController.text.trim();
+
+    final nameError = name.isEmpty ? 'Vui lòng nhập tên tổ chức' : null;
+    String? phoneError;
+    // Đếm theo chữ số để chấp nhận cả định dạng nội địa (0xxx) lẫn quốc tế (+84xxx).
+    final phoneDigits = phone.replaceAll(RegExp(r'[^0-9]'), '');
+    if (phone.isEmpty) {
+      phoneError = 'Vui lòng nhập số điện thoại';
+    } else if (phoneDigits.length < 8 || phoneDigits.length > 15) {
+      phoneError = 'Số điện thoại không hợp lệ';
+    }
+    final emailError = VEmailValidator.validate(
+      _emailController.text,
+      isRequired: true,
+      requiredEmailMessage: 'Vui lòng nhập email liên hệ',
+    );
+    final addressError = address.isEmpty ? 'Vui lòng nhập địa chỉ liên hệ' : null;
+
+    setState(() {
+      _nameError = nameError;
+      _phoneError = phoneError;
+      _emailError = emailError;
+      _addressError = addressError;
+    });
+
+    return nameError == null &&
+        phoneError == null &&
+        emailError == null &&
+        addressError == null;
+  }
+
   Future<void> _save(BuildContext context) async {
+    if (!_validate()) return;
     final cubit = context.read<OrganizationProfileCubit>();
     final ok = await cubit.updateProfile(
       TenantProfileFormInput(
@@ -212,6 +254,10 @@ class _EditProfileViewState extends State<_EditProfileView> {
                 isRequired: true,
                 controller: _nameController,
                 helperText: 'Tên hiển thị.',
+                errorText: _nameError,
+                onChanged: (_) {
+                  if (_nameError != null) setState(() => _nameError = null);
+                },
               ),
               const VGap.md(),
               VTextField(
@@ -219,19 +265,36 @@ class _EditProfileViewState extends State<_EditProfileView> {
                 isRequired: true,
                 controller: _phoneController,
                 keyboardType: TextInputType.phone,
+                // Chỉ cho nhập chữ số và dấu '+' (đầu số quốc gia) — chặn chữ cái.
+                inputFormatters: [
+                  FilteringTextInputFormatter.allow(RegExp(r'[0-9+]')),
+                  LengthLimitingTextInputFormatter(16),
+                ],
+                errorText: _phoneError,
+                onChanged: (_) {
+                  if (_phoneError != null) setState(() => _phoneError = null);
+                },
               ),
               const VGap.md(),
-              VTextField(
+              VEmailField(
                 label: 'Email liên hệ',
                 isRequired: true,
                 controller: _emailController,
-                keyboardType: TextInputType.emailAddress,
+                validateOnChanged: false,
+                errorText: _emailError,
+                onChanged: (_) {
+                  if (_emailError != null) setState(() => _emailError = null);
+                },
               ),
               const VGap.md(),
               VTextField(
                 label: 'Địa chỉ liên hệ',
                 isRequired: true,
                 controller: _addressController,
+                errorText: _addressError,
+                onChanged: (_) {
+                  if (_addressError != null) setState(() => _addressError = null);
+                },
               ),
               const VGap.md(),
               FutureBuilder<List<VnAdministrativeUnit>>(

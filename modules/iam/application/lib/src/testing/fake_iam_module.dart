@@ -436,7 +436,7 @@ final class FakeIamModule implements IIamModule {
         membershipId: 'mem-owner-1',
         tenantId: 'org-001',
         userId: 'lan-le',
-        role: 'owner',
+        role: 'store_owner',
         isOwner: true,
         isSoleOwner: true,
         status: MembershipStatus.active,
@@ -866,7 +866,8 @@ final class FakeIamModule implements IIamModule {
             userId: 'fake-user',
             email: _authenticatedEmail,
             tenantId: currentTenantId,
-            role: 'owner',
+            role: 'store_owner',
+            isOwner: true,
             permissions: const ['tenant.read'],
           )
           as TResult,
@@ -2402,7 +2403,7 @@ final class FakeIamModule implements IIamModule {
     if (!_passwordResetVerified || _passwordResetOperationId != command.operationId) {
       throw const IamBlockedException(IamBlockedCodes.stateChanged);
     }
-    if (command.newPassword.length < 8) {
+    if (!PasswordPolicy.isValid(command.newPassword)) {
       throw ValidationException('PASSWORD_POLICY_VIOLATION');
     }
     _passwordResetOperationId = null;

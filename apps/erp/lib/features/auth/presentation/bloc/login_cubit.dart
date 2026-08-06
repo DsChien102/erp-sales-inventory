@@ -15,6 +15,10 @@ final class LoginCubit extends Cubit<LoginState> {
     required String email,
     required String password,
   }) async {
+    if (state.isSubmitting) {
+      return;
+    }
+
     emit(
       state.copyWith(
         status: LoginStatus.submitting,

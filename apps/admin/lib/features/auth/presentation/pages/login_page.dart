@@ -21,6 +21,15 @@ class _LoginPageState extends State<LoginPage> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   var _isSubmitting = false;
+  String? _emailError;
+  String? _passwordError;
+
+  /// Giữ bề ngang trong khoảng breakpoint mobile trên mọi thiết bị.
+  static const _mobileLayoutWidth = VResponsiveValue<double>(
+    mobile: 450,
+    tablet: 450,
+    desktop: 450,
+  );
 
   bool get _canSubmit =>
       _emailController.text.trim().isNotEmpty &&
@@ -50,9 +59,30 @@ class _LoginPageState extends State<LoginPage> {
     super.dispose();
   }
 
+  bool _validateFields() {
+    final emailError = VEmailValidator.validate(
+      _emailController.text,
+      isRequired: true,
+      requiredEmailMessage: 'Vui lòng nhập email',
+    );
+    // Login chỉ bắt buộc có mật khẩu — không enforce policy độ dài tạo mật khẩu.
+    final passwordError = VPasswordValidator.validate(
+      _passwordController.text,
+      isRequired: true,
+      minLength: 1,
+      requiredPasswordMessage: 'Vui lòng nhập mật khẩu',
+    );
+
+    setState(() {
+      _emailError = emailError;
+      _passwordError = passwordError;
+    });
+
+    return emailError == null && passwordError == null;
+  }
+
   Future<void> _submit() async {
-    final isValid = _formKey.currentState?.validate() ?? false;
-    if (!isValid || _isSubmitting || !_canSubmit) {
+    if (_isSubmitting || !_canSubmit || !_validateFields()) {
       return;
     }
 
@@ -130,113 +160,124 @@ class _LoginPageState extends State<LoginPage> {
       body: SafeArea(
         child: Form(
           key: _formKey,
-          child: LayoutBuilder(
-            builder: (context, constraints) {
-              return SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: VSpacing.space6,
+          child: VContentWidth(
+            maxWidth: _mobileLayoutWidth,
+            child: SingleChildScrollView(
+              child: ConstrainedBox(
+                constraints: BoxConstraints(
+                  minHeight:
+                      MediaQuery.of(context).size.height -
+                      MediaQuery.of(context).padding.top -
+                      MediaQuery.of(context).padding.bottom,
                 ),
-                child: ConstrainedBox(
-                  constraints: BoxConstraints(minHeight: constraints.maxHeight),
-                  child: Column(
-                    children: [
-                      const SizedBox(
-                        height: VSpacing.space12 + VSpacing.space4,
-                      ),
-                      Container(
-                        width: 80,
-                        height: 80,
-                        alignment: Alignment.center,
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                            colors: [
-                              dynamicColors.primary,
-                              dynamicColors.primaryFocus,
+                child: IntrinsicHeight(
+                  child: VPagePadding(
+                    horizontal: VSpacing.screenMobile,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const VGap.xxl(),
+                        Container(
+                          width: 80,
+                          height: 80,
+                          alignment: Alignment.center,
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                              colors: [
+                                dynamicColors.primary,
+                                dynamicColors.primaryFocus,
+                              ],
+                            ),
+                            borderRadius: BorderRadius.circular(VRadius.r12),
+                            boxShadow: [
+                              BoxShadow(
+                                color: dynamicColors.surfaceBrand,
+                                blurRadius: 18,
+                                offset: const Offset(0, 10),
+                              ),
                             ],
                           ),
-                          borderRadius: BorderRadius.circular(VRadius.r12),
-                          boxShadow: [
-                            BoxShadow(
-                              color: dynamicColors.surfaceBrand,
-                              blurRadius: 18,
-                              offset: const Offset(0, 10),
+                          child: VText(
+                            'V45',
+                            variant: VTextVariant.headingH3,
+                            color: dynamicColors.surface,
+                            style: const TextStyle(
+                              fontWeight: FontWeight.w900,
+                              letterSpacing: 0,
                             ),
-                          ],
+                          ),
                         ),
-                        child: VText(
-                          'V45',
-                          variant: VTextVariant.headingH3,
-                          color: dynamicColors.surface,
+                        const VGap.lg(),
+                        VText(
+                          'VET45 ADMIN',
+                          variant: VTextVariant.headingH1,
+                          color: dynamicColors.textPrimary,
                           style: const TextStyle(
-                            fontWeight: FontWeight.w900,
+                            fontWeight: FontWeight.w700,
                             letterSpacing: 0,
                           ),
                         ),
-                      ),
-                      const SizedBox(height: VSpacing.space5),
-                      VText(
-                        'VET45 ADMIN',
-                        variant: VTextVariant.headingH1,
-                        color: dynamicColors.textPrimary,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.w700,
-                          letterSpacing: 0,
-                        ),
-                      ),
-                      const SizedBox(height: VSpacing.space1 + 2),
-                      VText(
-                        'Nền tảng quản trị',
-                        variant: VTextVariant.bodyDefault,
-                        color: dynamicColors.textSecondary,
-                      ),
-                      const SizedBox(height: VSpacing.space10),
-                      VEmailField(
-                        label: 'Số điện thoại hoặc email',
-                        hintText: 'Nhập SĐT hoặc email',
-                        prefixIcon: VIcon(
-                          icon: VIcons.mail,
+                        const VGap.xs(),
+                        VText(
+                          'Nền tảng quản trị',
+                          variant: VTextVariant.bodyDefault,
                           color: dynamicColors.textSecondary,
                         ),
-                        controller: _emailController,
-                        enabled: !_isSubmitting,
-                      ),
-                      const SizedBox(height: 18),
-                      VPasswordField(
-                        label: 'Mật khẩu',
-                        hintText: 'Nhập mật khẩu',
-                        controller: _passwordController,
-                        enabled: !_isSubmitting,
-                        validateOnChanged: false,
-                        prefixIcon: VIcon(
-                          icon: VIcons.lock,
-                          color: dynamicColors.textSecondary,
+                        const VGap.xl(),
+                        VEmailField(
+                          label: 'Email',
+                          hintText: 'Nhập email',
+                          controller: _emailController,
+                          enabled: !_isSubmitting,
+                          validateOnChanged: false,
+                          errorText: _emailError,
+                          onChanged: (_) {
+                            if (_emailError != null) {
+                              setState(() => _emailError = null);
+                            }
+                          },
                         ),
-                        requiredPasswordMessage: 'Vui lòng nhập mật khẩu',
-                      ),
-                      const VGap.xl(),
-                      VButton(
-                        label: 'Đăng nhập',
-                        isLoading: _isSubmitting,
-                        fullWidth: true,
-                        onPressed: (_canSubmit && !_isSubmitting)
-                            ? _submit
-                            : null,
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(top: 180, bottom: 24),
-                        child: VText(
-                          '© VET45 · Admin',
-                          variant: VTextVariant.bodySmall,
-                          color: dynamicColors.textMuted,
+                        const VGap.md(),
+                        VPasswordField(
+                          label: 'Mật khẩu',
+                          hintText: 'Nhập mật khẩu',
+                          controller: _passwordController,
+                          enabled: !_isSubmitting,
+                          validateOnChanged: false,
+                          errorText: _passwordError,
+                          requiredPasswordMessage: 'Vui lòng nhập mật khẩu',
+                          onChanged: (_) {
+                            if (_passwordError != null) {
+                              setState(() => _passwordError = null);
+                            }
+                          },
                         ),
-                      ),
-                    ],
+                        const VGap.lg(),
+                        VButton(
+                          label: 'Đăng nhập',
+                          isLoading: _isSubmitting,
+                          fullWidth: true,
+                          onPressed: (_canSubmit && !_isSubmitting)
+                              ? _submit
+                              : null,
+                        ),
+                        const Spacer(),
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: VSpacing.md),
+                          child: VText(
+                            '© VET45 · Admin',
+                            variant: VTextVariant.bodySmall,
+                            color: dynamicColors.textMuted,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-              );
-            },
+              ),
+            ),
           ),
         ),
       ),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:vet45_design_system/design_system.dart';
+import 'package:vet45_iam_domain/domain.dart';
 
 /// Step 2 — create new password after code verified.
 class ResetPasswordCreatePasswordStep extends StatelessWidget {
@@ -64,7 +65,7 @@ class ResetPasswordCreatePasswordStep extends StatelessWidget {
               ),
               const VGap.xs(),
               VText(
-                'Tối thiểu 8 ký tự, gồm chữ hoa, chữ thường và số.',
+                PasswordPolicy.requirementText,
                 variant: VTextVariant.bodySmall,
                 color: colors.textSecondary,
               ),

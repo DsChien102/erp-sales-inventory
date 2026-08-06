@@ -6,6 +6,7 @@ final class SessionDto {
     this.email,
     this.tenantId,
     this.role,
+    this.isOwner = false,
     this.permissions = const [],
   });
 
@@ -14,8 +15,10 @@ final class SessionDto {
   final String? email;
   final String? tenantId;
   final String? role;
+
+  /// Ownership is orthogonal to [role] (Owner ≠ role); owner keeps full bypass.
+  final bool isOwner;
   final List<String> permissions;
 
-  bool hasPermission(String code) =>
-      role == 'owner' || permissions.contains(code);
+  bool hasPermission(String code) => isOwner || permissions.contains(code);
 }

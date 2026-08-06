@@ -13,6 +13,7 @@ export 'src/membership/rules/role_must_be_assignable_on_reactivate_rule.dart';
 export 'src/membership/rules/sole_owner_protected_rule.dart';
 export 'src/membership/tenant_membership.dart';
 export 'src/membership/tenant_membership_id.dart';
+export 'src/password_policy.dart';
 export 'src/role_code.dart';
 export 'src/tenant/legal_entity_type.dart';
 export 'src/tenant/rules/contact_email_format_rule.dart';

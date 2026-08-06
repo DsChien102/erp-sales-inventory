@@ -205,6 +205,7 @@ final class SupabaseIamAccessGateway implements IIamAccessGateway {
       userId: json['user_id'] as String,
       tenantId: json['tenant_id'] as String,
       role: json['role'] as String,
+      isOwner: json['is_owner'] as bool? ?? false,
       permissions: permissions,
     );
   }
@@ -244,6 +245,7 @@ final class SupabaseIamAccessGateway implements IIamAccessGateway {
       tenantId: json['tenant_id'] as String?,
       tenantName: json['tenant_name'] as String?,
       roleLabel: json['role'] as String?,
+      isOwner: json['is_owner'] as bool? ?? false,
       permissions: permissions,
       tenantStatus: tenantStatusRaw == null ? null : _mapTenantStatus(tenantStatusRaw),
       invalidationReason: invalidationReason,

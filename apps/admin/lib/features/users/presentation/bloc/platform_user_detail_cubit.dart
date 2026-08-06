@@ -272,7 +272,7 @@ final class PlatformUserDetailCubit extends Cubit<PlatformUserDetailState> {
   }
 
   static List<String> _permissionsFromSession(SessionDto session) {
-    if (session.role == 'owner') {
+    if (session.isOwner) {
       return const ['__owner__'];
     }
     return List<String>.of(session.permissions);

@@ -1,5 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:logging/logging.dart';
+import 'package:vet45_iam_domain/domain.dart';
 
 import '../../data/owner_activation_client.dart';
 import 'owner_activation_state.dart';
@@ -31,11 +32,12 @@ final class OwnerActivationCubit extends Cubit<OwnerActivationState> {
       );
       return;
     }
-    if (password.length < 8) {
+    final passwordError = PasswordPolicy.validate(password);
+    if (passwordError != null) {
       emit(
         state.copyWith(
           step: OwnerActivationStep.failed,
-          errorMessage: 'Mật khẩu phải có tối thiểu 8 ký tự.',
+          errorMessage: passwordError,
         ),
       );
       return;

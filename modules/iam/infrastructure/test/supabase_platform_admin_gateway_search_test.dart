@@ -52,7 +52,7 @@ void main() {
             'user_id': 'user-owner',
             'full_name': 'Owner User',
             'email': 'owner@example.com',
-            'role': 'owner',
+            'role': 'store_owner',
             'is_owner': true,
           },
           {
@@ -101,16 +101,16 @@ void main() {
             'user_id': 'user-owner',
             'full_name': 'Owner User',
             'email': 'owner@example.com',
-            'role': 'owner',
+            'role': 'store_owner',
             'role_label': 'Chủ cửa hàng',
             'is_owner': true,
           },
           {
-            'user_id': 'user-manager',
+            'user_id': 'user-staff',
             'full_name': 'Đỗ Sỹ Chiến',
-            'email': 'manager@example.com',
-            'role': 'manager',
-            'role_label': 'Quản lý',
+            'email': 'staff@example.com',
+            'role': 'staff',
+            'role_label': 'Nhân viên bán hàng',
             'is_owner': false,
           },
         ],
@@ -128,7 +128,7 @@ void main() {
 
     expect(detail.members.map((m) => m.roleLabel), [
       'Chủ cửa hàng',
-      'Quản lý',
+      'Nhân viên bán hàng',
     ]);
   });
 

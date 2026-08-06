@@ -18,6 +18,7 @@ class _FakeAccessGateway implements IIamAccessGateway {
     userId: 'user-1',
     tenantId: tenantId ?? 'tenant-1',
     role: 'staff',
+    isOwner: false,
     permissions: const [InterimPermissionCodes.partnerRead],
   );
 
@@ -66,11 +67,15 @@ class _FakeAccessGateway implements IIamAccessGateway {
 class _FakePrincipalSnapshot implements IPrincipalSnapshot {
   _FakePrincipalSnapshot({
     this.role = 'staff',
+    this.isOwner = false,
     Set<String> permissions = const {},
   }) : _permissions = permissions;
 
   @override
   final String? role;
+
+  @override
+  final bool isOwner;
 
   final Set<String> _permissions;
 
@@ -82,7 +87,7 @@ void main() {
   group('IamPermissionChecker', () {
     test('allows owner without gateway call', () async {
       final checker = IamPermissionChecker(
-        principalSnapshot: _FakePrincipalSnapshot(role: 'owner'),
+        principalSnapshot: _FakePrincipalSnapshot(isOwner: true),
         accessGateway: _FakeAccessGateway(allowed: false),
         executionContext: FakeExecutionContext(),
       );

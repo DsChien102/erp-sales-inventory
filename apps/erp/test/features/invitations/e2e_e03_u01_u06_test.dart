@@ -195,11 +195,11 @@ void main() {
       );
       await tester.enterText(
         find.byKey(const Key('invitation_register_password')),
-        'password1',
+        'password1!',
       );
       await tester.enterText(
         find.byKey(const Key('invitation_register_confirm_password')),
-        'password1',
+        'password1!',
       );
       await tester.tap(find.byKey(const Key('invitation_accept_submit')));
       await tester.pumpAndSettle();
