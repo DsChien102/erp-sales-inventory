@@ -87,15 +87,19 @@ class PriceRuleCard extends StatelessWidget {
                 ),
                 const VGap.sm(),
                 Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Expanded(
+                      flex: 3,
                       child: _PriceColumn(
                         label: 'Giá riêng',
                         value: _formatMoney(rule.price),
                         valueColor: specialColor,
                       ),
                     ),
+                    const VGap.horizontalMd(),
                     Expanded(
+                      flex: 2,
                       child: _PriceColumn(
                         label: 'Giá niêm yết',
                         value: listPrice != null
@@ -202,6 +206,8 @@ class _PriceColumn extends StatelessWidget {
           variant: VTextVariant.monoNumeric,
           color: valueColor,
           style: const TextStyle(fontWeight: FontWeight.w700),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
         ),
       ],
     );

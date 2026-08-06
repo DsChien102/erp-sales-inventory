@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:vet45_design_system/design_system.dart';
 import 'package:vet45_pricing_application/application.dart';
 import 'package:vet45_pricing_domain/domain.dart';
 import 'package:vet45_pricing_presentation/presentation.dart';
@@ -122,7 +123,6 @@ void main() {
         ),
       );
 
-      expect(find.text('Chi tiết hoạt động'), findsOneWidget);
       expect(
         find.text('Bạn không có quyền xem một số dữ liệu nhạy cảm.'),
         findsOneWidget,

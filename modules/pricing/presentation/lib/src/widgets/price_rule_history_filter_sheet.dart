@@ -123,23 +123,11 @@ class _PriceRuleHistoryFilterSheetState
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  VText(
-                    'Bộ lọc lịch sử',
-                    variant: VTextVariant.headingH4,
-                    style: const TextStyle(fontWeight: FontWeight.w700),
-                    color: colors.textPrimary,
-                  ),
-                  VButton(
-                    label: 'Xóa tất cả',
-                    variant: VButtonVariant.ghost,
-                    size: VButtonSize.small,
-                    foregroundColor: colors.danger,
-                    onPressed: _reset,
-                  ),
-                ],
+              VText(
+                'Bộ lọc lịch sử',
+                variant: VTextVariant.headingH3,
+                style: const TextStyle(fontWeight: FontWeight.w700),
+                color: colors.textPrimary,
               ),
               const VGap.md(),
               _FilterGroup(
@@ -204,9 +192,12 @@ class _PriceRuleHistoryFilterSheetState
                   Expanded(
                     child: VButton(
                       label: 'Đặt lại',
-                      variant: VButtonVariant.secondary,
+                      variant: VButtonVariant.outline,
                       fullWidth: true,
-                      onPressed: _reset,
+                      onPressed: () {
+                        _reset();
+                        widget.onApply(const PriceRuleHistoryFilterState());
+                      },
                     ),
                   ),
                   const VGap.horizontalMd(),

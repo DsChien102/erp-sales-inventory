@@ -76,22 +76,52 @@ class _ComparisonRow extends StatelessWidget {
     final colors = context.vColors;
     return Padding(
       padding: const EdgeInsets.only(bottom: VSpacing.space2),
-      child: Row(
-        children: [
-          Expanded(
-            child: VText(
-              label,
-              variant: VTextVariant.bodySmall,
-              color: colors.textPrimary,
-            ),
-          ),
-          VText(
-            value,
-            variant: VTextVariant.monoNumeric,
-            color: valueColor ?? colors.textPrimary,
-            textAlign: TextAlign.end,
-          ),
-        ],
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final isLongValue = value.length > 20;
+          if (isLongValue) {
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                VText(
+                  label,
+                  variant: VTextVariant.bodySmall,
+                  color: colors.textPrimary,
+                ),
+                const SizedBox(height: 2),
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: VText(
+                    value,
+                    variant: VTextVariant.monoNumeric,
+                    color: valueColor ?? colors.textPrimary,
+                    textAlign: TextAlign.end,
+                  ),
+                ),
+              ],
+            );
+          }
+          return Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              VText(
+                label,
+                variant: VTextVariant.bodySmall,
+                color: colors.textPrimary,
+              ),
+              const SizedBox(width: VSpacing.space2),
+              Flexible(
+                child: VText(
+                  value,
+                  variant: VTextVariant.monoNumeric,
+                  color: valueColor ?? colors.textPrimary,
+                  textAlign: TextAlign.end,
+                ),
+              ),
+            ],
+          );
+        },
       ),
     );
   }

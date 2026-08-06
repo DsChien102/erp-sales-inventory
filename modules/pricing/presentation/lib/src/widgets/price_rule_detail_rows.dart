@@ -7,7 +7,7 @@ import 'price_rule_history_shared.dart';
 /// Cột label cố định — khớp pattern PartnerDetailInfoRow (+ chỗ icon).
 const double kPriceRuleDetailLabelWidth = 128;
 
-/// Section card: title + divider trong [VCard], padding gọn như design.
+/// Section card: title + divider trong [VCard], padding thoáng đẹp như design.
 class PriceRuleDetailSectionCard extends StatelessWidget {
   const PriceRuleDetailSectionCard({
     super.key,
@@ -22,7 +22,7 @@ class PriceRuleDetailSectionCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = context.vColors;
     return VCard(
-      padding: const EdgeInsets.all(VSpacing.space3),
+      padding: const EdgeInsets.all(VSpacing.space4),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -31,9 +31,9 @@ class PriceRuleDetailSectionCard extends StatelessWidget {
             variant: VTextVariant.headingH4,
             style: const TextStyle(fontWeight: FontWeight.w700),
           ),
-          const VGap.sm(),
+          const VGap.md(),
           Divider(height: 1, thickness: 1, color: colors.borderDefault),
-          const VGap.sm(),
+          const VGap.md(),
           ...children,
         ],
       ),
@@ -65,7 +65,7 @@ class PriceRuleIconDetailRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = context.vColors;
     return Padding(
-      padding: EdgeInsets.only(bottom: isLast ? 0 : VSpacing.space2),
+      padding: EdgeInsets.only(bottom: isLast ? 0 : VSpacing.space4),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -119,7 +119,7 @@ class PriceRuleIconDetailRowWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = context.vColors;
     return Padding(
-      padding: EdgeInsets.only(bottom: isLast ? 0 : VSpacing.space2),
+      padding: EdgeInsets.only(bottom: isLast ? 0 : VSpacing.space4),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
@@ -137,10 +137,7 @@ class PriceRuleIconDetailRowWidget extends StatelessWidget {
             ),
           ),
           Expanded(
-            child: Align(
-              alignment: Alignment.centerRight,
-              child: child,
-            ),
+            child: Align(alignment: Alignment.centerRight, child: child),
           ),
         ],
       ),
@@ -181,42 +178,71 @@ class PriceRuleRecentHistoryItem extends StatelessWidget {
             children: [
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.baseline,
+                textBaseline: TextBaseline.alphabetic,
                 children: [
                   Expanded(
                     child: VText(
                       PriceRuleHistoryShared.activityLabelDetail(
                         activity.activityType,
                       ),
-                      variant: VTextVariant.bodySmall,
-                      style: const TextStyle(fontWeight: FontWeight.w700),
+                      variant: VTextVariant.bodyDefault,
+                      style: const TextStyle(fontWeight: FontWeight.w600),
                     ),
                   ),
+                  const SizedBox(width: VSpacing.space2),
                   VText(
                     PriceRuleHistoryShared.formatDateTime(activity.createdAt),
-                    variant: VTextVariant.caption,
+                    variant: VTextVariant.bodySmall,
                     color: colors.textMuted,
                   ),
                 ],
               ),
+              const SizedBox(height: 2),
               VText(
                 '${activity.actor.displayName} · ${PriceRuleHistoryShared.sourceLabel(activity.sourceType)}',
-                variant: VTextVariant.caption,
+                variant: VTextVariant.bodySmall,
                 color: colors.textSecondary,
               ),
-              const VGap.xs(),
-              if (activity.activityType == CustomerPriceRuleActivityType.updated &&
+              const SizedBox(height: 4),
+              if (activity.activityType ==
+                      CustomerPriceRuleActivityType.updated &&
                   oldPrice != null &&
                   newPrice != null)
-                VText(
-                  'Giá đổi từ ${PriceRuleHistoryShared.formatMoney(oldPrice)} → ${PriceRuleHistoryShared.formatMoney(newPrice)}',
-                  variant: VTextVariant.bodySmallMono,
-                  color: colors.textPrimary,
+                Wrap(
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  children: [
+                    VText(
+                      'Giá đổi từ ',
+                      variant: VTextVariant.bodySmall,
+                      color: colors.textSecondary,
+                    ),
+                    VText(
+                      PriceRuleHistoryShared.formatMoney(oldPrice),
+                      variant: VTextVariant.bodySmall,
+                      color: colors.textPrimary,
+                      style: const TextStyle(fontWeight: FontWeight.w600),
+                    ),
+                    VText(
+                      ' → ',
+                      variant: VTextVariant.bodySmall,
+                      color: colors.success,
+                      style: const TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    VText(
+                      PriceRuleHistoryShared.formatMoney(newPrice),
+                      variant: VTextVariant.bodySmall,
+                      color: colors.success,
+                      style: const TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                  ],
                 )
               else if (orderId != null)
                 VText(
                   'Đơn #$orderId',
-                  variant: VTextVariant.bodySmallMono,
+                  variant: VTextVariant.bodySmall,
                   color: colors.primary,
+                  style: const TextStyle(fontWeight: FontWeight.w500),
                 )
               else if (summary != null)
                 VText(
@@ -227,8 +253,9 @@ class PriceRuleRecentHistoryItem extends StatelessWidget {
               else
                 VText(
                   'Giá áp dụng: ${newPrice != null ? PriceRuleHistoryShared.formatMoney(newPrice) : '—'}',
-                  variant: VTextVariant.bodySmallMono,
-                  color: colors.textSecondary,
+                  variant: VTextVariant.bodySmall,
+                  color: colors.textPrimary,
+                  style: const TextStyle(fontWeight: FontWeight.w500),
                 ),
             ],
           ),
