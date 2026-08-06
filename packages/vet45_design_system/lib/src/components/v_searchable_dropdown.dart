@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../foundation/v_context_extensions.dart';
 import '../foundation/v_component_contracts.dart';
 import '../foundation/v_dropdown_filter.dart';
+import '../tokens/v_borders.dart';
 import '../tokens/v_radius.dart';
 import '../tokens/v_spacing.dart';
 import '../tokens/v_typography.dart';
@@ -82,7 +83,7 @@ class VSearchableDropdown<T> extends StatelessWidget {
                   shape: WidgetStatePropertyAll(
                     RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(VRadius.input),
-                      side: BorderSide(color: colors.borderDefault),
+                      side: VBorders.side(colors.borderDefault),
                     ),
                   ),
                 ),
@@ -95,21 +96,12 @@ class VSearchableDropdown<T> extends StatelessWidget {
                   hintStyle: VTypography.bodyDefault.copyWith(
                     color: colors.textMuted,
                   ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(VRadius.input),
-                    borderSide: BorderSide(
-                      color: borderColor,
-                      width: emphasis == VComponentEmphasis.strong ? 1.5 : 1,
-                    ),
+                  enabledBorder: VBorders.outlineInput(
+                    borderColor,
+                    width: VBorders.widthFor(emphasis),
                   ),
-                  disabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(VRadius.input),
-                    borderSide: BorderSide(color: colors.borderDefault),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(VRadius.input),
-                    borderSide: BorderSide(color: colors.borderStrong),
-                  ),
+                  disabledBorder: VBorders.outlineInput(colors.borderDefault),
+                  focusedBorder: VBorders.outlineInput(colors.borderStrong),
                   constraints: const BoxConstraints(minHeight: 44, maxHeight: 44),
                 ),
                 onSelected: onChanged,

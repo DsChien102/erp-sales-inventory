@@ -4,6 +4,7 @@ import '../foundation/v_component_contracts.dart';
 import '../foundation/v_context_extensions.dart';
 import '../foundations/icons/v_icons.dart';
 import '../theme/v_color_scheme.dart';
+import '../tokens/v_borders.dart';
 import '../tokens/v_radius.dart';
 import '../tokens/v_spacing.dart';
 import '../tokens/v_typography.dart';
@@ -178,13 +179,13 @@ class VChip extends StatelessWidget {
         return _ChipColors(
           background: colors.surface,
           foreground: colors.textPrimary,
-          border: Border.all(color: colors.borderDefault),
+          border: VBorders.all(colors.borderDefault),
         );
       case VComponentEmphasis.strong:
         return _ChipColors(
           background: colors.surfaceBrand,
           foreground: colors.primary,
-          border: Border.all(color: colors.primary.withValues(alpha: 0.35)),
+          border: VBorders.all(colors.primary.withValues(alpha: 0.35)),
         );
     }
   }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../tokens/v_borders.dart';
 import '../tokens/v_spacing.dart';
 import '../tokens/v_typography.dart';
 import '../foundation/v_context_extensions.dart';
@@ -77,9 +78,9 @@ class VSteps extends StatelessWidget {
             decoration: BoxDecoration(
               color: dynamicColors.successBg,
               shape: BoxShape.circle,
-              border: Border.all(
-                color: dynamicColors.success,
-                width: 1.5,
+              border: VBorders.all(
+                dynamicColors.success,
+                width: VBorders.medium,
               ),
             ),
             child: Center(

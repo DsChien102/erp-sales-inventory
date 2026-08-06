@@ -3,9 +3,12 @@ import 'package:flutter/services.dart';
 
 import '../foundation/v_component_contracts.dart';
 import '../foundation/v_context_extensions.dart';
+import '../foundations/icons/v_icons.dart';
 import '../patterns/v_gap.dart';
+import '../primitives/v_icon.dart';
 import '../primitives/v_text.dart';
-import '../tokens/v_radius.dart';
+import '../theme/v_color_scheme.dart';
+import '../tokens/v_borders.dart';
 import '../tokens/v_spacing.dart';
 import '../tokens/v_typography.dart';
 import 'v_text_field_affix.dart';
@@ -128,59 +131,56 @@ class _VTextFieldState extends State<VTextField> {
     if (mounted) setState(() {});
   }
 
+  InputBorder _outline(Color color, double width) {
+    if (!widget.border) return InputBorder.none;
+    return VBorders.outlineInput(color, width: width);
+  }
+
+  Widget? _message(VColorScheme colors, {required bool hasError}) {
+    final text = hasError ? widget.errorText : widget.helperText;
+    if (text == null) return null;
+    return Padding(
+      padding: const EdgeInsets.only(left: 4),
+      child: Row(
+        children: [
+          VIcon(
+            icon: hasError ? VIcons.error : VIcons.info,
+            color: hasError ? colors.danger : colors.textSecondary,
+            iconSize: VIconSize.sm,
+          ),
+          const VGap.horizontalXs(),
+          VText(
+            text,
+            variant: VTextVariant.bodySmall,
+            color: hasError ? colors.danger : colors.textSecondary,
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final colors = context.vColors;
     final isEnabled = widget.enabled && widget.state != VComponentState.disabled;
     final hasError = widget.errorText != null;
+    final useDanger = hasError || widget.tone == VComponentTone.danger;
     final focused = isEnabled && _focusNode.hasFocus;
+    final isDense = widget.isDense;
+    final borderWidth = VBorders.widthFor(widget.emphasis);
 
-    final showBorder = widget.border;
-    final toneBorderColor = switch (widget.tone) {
-      VComponentTone.primary => colors.primary,
-      VComponentTone.danger => colors.danger,
-      _ => colors.borderStrong,
-    };
-    final borderWidth = widget.emphasis == VComponentEmphasis.strong ? 1.5 : 1.0;
-
-    const none = InputBorder.none;
-    final outline = showBorder
-        ? OutlineInputBorder(
-            borderRadius: BorderRadius.circular(VRadius.input),
-            borderSide: BorderSide(color: toneBorderColor, width: borderWidth),
-          )
-        : none;
-    final errorOutline = showBorder
-        ? OutlineInputBorder(
-            borderRadius: BorderRadius.circular(VRadius.input),
-            borderSide: BorderSide(color: colors.danger),
-          )
-        : none;
-    final focusedOutline = showBorder
-        ? OutlineInputBorder(
-            borderRadius: BorderRadius.circular(VRadius.input),
-            borderSide: BorderSide(
-              color: switch (widget.tone) {
-                VComponentTone.danger => colors.danger,
-                VComponentTone.primary => colors.primary,
-                _ => colors.primary,
-              },
-              width: 1.5,
-            ),
-          )
-        : none;
-    final focusedErrorOutline = showBorder
-        ? OutlineInputBorder(
-            borderRadius: BorderRadius.circular(VRadius.input),
-            borderSide: BorderSide(color: colors.danger, width: 1.5),
-          )
-        : none;
-    final disabledOutline = showBorder
-        ? OutlineInputBorder(
-            borderRadius: BorderRadius.circular(VRadius.input),
-            borderSide: BorderSide(color: colors.borderDefault),
-          )
-        : none;
+    final restingBorderColor = hasError
+        ? colors.danger
+        : switch (widget.tone) {
+            VComponentTone.primary => colors.primary,
+            VComponentTone.danger => colors.danger,
+            _ => colors.borderStrong,
+          };
+    final focusBorderColor = useDanger ? colors.danger : colors.primary;
+    final restingBorder = _outline(restingBorderColor, borderWidth);
+    final focusBorder = _outline(focusBorderColor, borderWidth);
+    final dangerBorder = _outline(colors.danger, borderWidth);
+    final disabledBorder = _outline(colors.borderDefault, borderWidth);
 
     final resolvedSuffix =
         widget.suffixIcon ??
@@ -189,14 +189,18 @@ class _VTextFieldState extends State<VTextField> {
             : VText(
                 widget.suffixText!,
                 variant: VTextVariant.bodyDefault,
-                color: colors.textSecondary,
+                color: colors.textMuted,
               ));
+
+    final affixOuter = isDense ? kVTextFieldAffixOuterDense : kVTextFieldAffixOuter;
+    final affixInner = isDense ? kVTextFieldAffixInnerDense : kVTextFieldAffixInner;
 
     final baseTextStyle =
         widget.textStyle ??
         VTypography.bodyDefault.copyWith(
           color: isEnabled ? colors.textPrimary : colors.textSecondary,
         );
+
     final field = TextField(
       controller: widget.controller,
       enabled: isEnabled,
@@ -209,90 +213,55 @@ class _VTextFieldState extends State<VTextField> {
       inputFormatters: widget.inputFormatters,
       textAlign: widget.textAlign,
       onSubmitted: widget.onSubmitted,
-      cursorColor: hasError || widget.tone == VComponentTone.danger
-          ? colors.danger
-          : colors.primary,
-      style: hasError
-          ? baseTextStyle.copyWith(color: colors.danger)
-          : baseTextStyle,
+      cursorColor: useDanger ? colors.danger : colors.primary,
+      style: hasError ? baseTextStyle.copyWith(color: colors.danger) : baseTextStyle,
       onTapOutside: (_) => FocusManager.instance.primaryFocus?.unfocus(),
       decoration: InputDecoration(
         hintText: widget.hintText,
-        isDense: widget.isDense,
-        hintStyle: VTypography.bodyDefault.copyWith(color: colors.textMuted),
+        isDense: isDense,
+        hintStyle: VTypography.bodyDefault.copyWith(
+          color: colors.textMuted,
+          fontWeight: FontWeight.w500,
+        ),
         prefixIconConstraints: const BoxConstraints(minWidth: 0, minHeight: 0),
         prefixIcon: wrapVTextFieldAffix(
           widget.prefixIcon,
-          outerInset: widget.isDense
-              ? kVTextFieldAffixOuterDense
-              : kVTextFieldAffixOuter,
-          innerInset: widget.isDense
-              ? kVTextFieldAffixInnerDense
-              : kVTextFieldAffixInner,
+          outerInset: affixOuter,
+          innerInset: affixInner,
           isLeading: true,
         ),
         suffixIconConstraints:
             widget.suffixIconConstraints ?? const BoxConstraints(minWidth: 0, minHeight: 0),
         suffixIcon: wrapVTextFieldAffix(
           resolvedSuffix,
-          outerInset: widget.isDense
-              ? kVTextFieldAffixOuterDense
-              : kVTextFieldAffixOuter,
-          innerInset: widget.isDense
-              ? kVTextFieldAffixInnerDense
-              : kVTextFieldAffixInner,
+          outerInset: affixOuter,
+          innerInset: affixInner,
           isLeading: false,
         ),
         filled: true,
         fillColor: isEnabled ? colors.surface : colors.surfaceAlt,
         hoverColor: Colors.transparent,
         contentPadding: vTextFieldContentPadding(
-          base: widget.isDense ? VTextField.densePadding : VTextField.padding,
+          base: isDense ? VTextField.densePadding : VTextField.padding,
           hasPrefix: widget.prefixIcon != null,
           hasSuffix: resolvedSuffix != null,
         ),
-        border: hasError ? errorOutline : outline,
-        enabledBorder: hasError ? errorOutline : outline,
-        focusedBorder: hasError ? focusedErrorOutline : focusedOutline,
-        disabledBorder: disabledOutline,
+        border: restingBorder,
+        enabledBorder: restingBorder,
+        focusedBorder: focusBorder,
+        disabledBorder: disabledBorder,
         // Keep error chrome on the input only; message is rendered below the ring.
-        errorBorder: errorOutline,
-        focusedErrorBorder: focusedErrorOutline,
+        errorBorder: dangerBorder,
+        focusedErrorBorder: dangerBorder,
       ),
     );
 
-    final ringed = VTextFieldFocusRing(
-      focused: focused,
-      danger: widget.tone == VComponentTone.danger || hasError,
-      child: field,
-    );
-
-    final semanticsLabel = widget.semanticLabel ?? widget.label ?? widget.hintText ?? 'Text field';
-
-    final message = hasError
-        ? Padding(
-            padding: const EdgeInsets.only(left: 4),
-            child: VText(
-              widget.errorText!,
-              variant: VTextVariant.bodySmall,
-              color: colors.danger,
-            ),
-          )
-        : (widget.helperText != null
-              ? Padding(
-                  padding: const EdgeInsets.only(left: 4),
-                  child: VText(
-                    widget.helperText!,
-                    variant: VTextVariant.bodySmall,
-                    color: colors.textSecondary,
-                  ),
-                )
-              : null);
+    final message = _message(colors, hasError: hasError);
 
     return Semantics(
       textField: true,
       enabled: isEnabled,
-      label: semanticsLabel,
+      label: widget.semanticLabel ?? widget.label ?? widget.hintText ?? 'Text field',
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
@@ -317,9 +286,13 @@ class _VTextFieldState extends State<VTextField> {
             ),
             const VGap.sm(),
           ],
-          ringed,
+          VTextFieldFocusRing(
+            focused: focused,
+            danger: useDanger,
+            child: field,
+          ),
           if (message != null) ...[
-            const VGap.xs(),
+            const VGap.sm(),
             message,
           ],
         ],

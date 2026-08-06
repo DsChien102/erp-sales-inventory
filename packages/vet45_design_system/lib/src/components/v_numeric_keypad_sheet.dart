@@ -6,6 +6,7 @@ import '../foundation/v_context_extensions.dart';
 import '../patterns/v_gap.dart';
 import '../primitives/v_text.dart';
 import '../theme/v_color_scheme.dart';
+import '../tokens/v_borders.dart';
 import '../tokens/v_radius.dart';
 import '../tokens/v_spacing.dart';
 import 'v_button.dart';
@@ -154,7 +155,9 @@ class _VNumericKeypadSheetState extends State<VNumericKeypadSheet> {
   Widget build(BuildContext context) {
     final colors = context.vColors;
     final displayBorder = Color.lerp(_borderAccent(colors), colors.borderDefault, 0.35)!;
-    final borderWidth = widget.emphasis == VComponentEmphasis.strong ? 2.0 : 1.0;
+    final borderWidth = widget.emphasis == VComponentEmphasis.strong
+        ? VBorders.thick
+        : VBorders.thin;
 
     return Semantics(
       label: widget.semanticLabel ?? _resolvedTitle,
@@ -197,7 +200,7 @@ class _VNumericKeypadSheetState extends State<VNumericKeypadSheet> {
               decoration: BoxDecoration(
                 color: colors.surface,
                 borderRadius: BorderRadius.circular(VRadius.card),
-                border: Border.all(color: displayBorder, width: borderWidth),
+                border: VBorders.all(displayBorder, width: borderWidth),
               ),
               child: VText(_displayValue, variant: VTextVariant.headingH1),
             ),

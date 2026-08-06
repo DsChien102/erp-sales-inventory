@@ -66,7 +66,7 @@ class VToast extends StatelessWidget {
     Widget iconWidget = switch (type) {
       VToastType.success => _ToastIcon(
         backgroundColor: colors.success,
-        icon: VIcons.check,
+        icon: VIcons.success,
       ),
       VToastType.warning => _ToastIcon(
         backgroundColor: colors.warning,
@@ -88,11 +88,11 @@ class VToast extends StatelessWidget {
         color: backgroundColor,
         borderRadius: BorderRadius.circular(VRadius.r16),
         boxShadow: VShadows.e2,
-        border: Border.all(
-          color: type == VToastType.success
+        border: VBorders.all(
+          type == VToastType.success
               ? const Color(0xFFFFFFFF).withValues(alpha: 0.06)
               : _toneAccent(resolvedTone, colors).withValues(alpha: 0.12),
-          width: emphasis == VComponentEmphasis.strong ? 1.5 : 1,
+          width: VBorders.widthFor(emphasis),
         ),
       ),
       child: ClipRRect(

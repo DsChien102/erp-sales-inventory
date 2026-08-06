@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../tokens/v_borders.dart';
 import '../tokens/v_radius.dart';
 import '../tokens/v_typography.dart';
 import '../foundation/v_context_extensions.dart';
@@ -52,9 +53,9 @@ class VCheckbox extends StatelessWidget {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(VRadius.r4),
       ),
-      side: BorderSide(
-        color: dynamicColors.borderStrong,
-        width: 1.5,
+      side: VBorders.side(
+        dynamicColors.borderStrong,
+        width: VBorders.medium,
       ),
     );
 

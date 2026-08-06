@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import '../tokens/v_radius.dart';
+import '../tokens/v_borders.dart';
 import '../tokens/v_typography.dart';
 import '../foundation/v_context_extensions.dart';
 import '../foundation/v_component_contracts.dart';
@@ -98,7 +98,12 @@ class _VQuantitySelectorState extends State<VQuantitySelector> {
       _ => colors.borderStrong,
     };
 
-    final borderWidth = widget.emphasis == VComponentEmphasis.strong ? 2.0 : 1.0;
+    final borderWidth = widget.emphasis == VComponentEmphasis.strong
+        ? VBorders.thick
+        : VBorders.thin;
+    final focusWidth = widget.emphasis == VComponentEmphasis.strong
+        ? VBorders.thick
+        : VBorders.medium;
 
     return Semantics(
       textField: true,
@@ -129,40 +134,23 @@ class _VQuantitySelectorState extends State<VQuantitySelector> {
               maxWidth: 28,
               maxHeight: 44,
             ),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(VRadius.input),
-              borderSide: BorderSide(
-                color: isEnabled ? borderColor : colors.borderDefault,
-                width: borderWidth,
-              ),
+            border: VBorders.outlineInput(
+              isEnabled ? borderColor : colors.borderDefault,
+              width: borderWidth,
             ),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(VRadius.input),
-              borderSide: BorderSide(
-                color: isEnabled ? borderColor : colors.borderDefault,
-                width: borderWidth,
-              ),
+            enabledBorder: VBorders.outlineInput(
+              isEnabled ? borderColor : colors.borderDefault,
+              width: borderWidth,
             ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(VRadius.input),
-              borderSide: BorderSide(
-                color: colors.primary,
-                width: widget.emphasis == VComponentEmphasis.strong ? 2.0 : 1.5,
-              ),
+            focusedBorder: VBorders.outlineInput(
+              colors.primary,
+              width: focusWidth,
             ),
-            disabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(VRadius.input),
-              borderSide: BorderSide(
-                color: colors.borderDefault,
-              ),
-            ),
-            errorBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(VRadius.input),
-              borderSide: BorderSide(color: colors.danger),
-            ),
-            focusedErrorBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(VRadius.input),
-              borderSide: BorderSide(color: colors.danger, width: 2.0),
+            disabledBorder: VBorders.outlineInput(colors.borderDefault),
+            errorBorder: VBorders.outlineInput(colors.danger),
+            focusedErrorBorder: VBorders.outlineInput(
+              colors.danger,
+              width: VBorders.thick,
             ),
             suffixIcon: Container(
               width: 24,

@@ -7,6 +7,7 @@ import '../patterns/v_gap.dart';
 import '../primitives/v_icon_box.dart';
 import '../primitives/v_text.dart';
 import '../theme/v_color_scheme.dart';
+import '../tokens/v_borders.dart';
 import '../tokens/v_radius.dart';
 import '../tokens/v_shadows.dart';
 import '../tokens/v_spacing.dart';
@@ -84,7 +85,7 @@ class VCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: backgroundColor ?? toneBg,
         borderRadius: BorderRadius.circular(resolvedRadius),
-        border: border ?? Border.all(color: toneBorder, width: 1),
+        border: border ?? VBorders.all(toneBorder),
         boxShadow: _resolveShadow(),
       ),
       child: Material(

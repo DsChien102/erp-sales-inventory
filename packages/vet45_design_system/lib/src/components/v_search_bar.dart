@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../tokens/v_borders.dart';
 import '../tokens/v_radius.dart';
 import '../tokens/v_spacing.dart';
 import '../tokens/v_typography.dart';
@@ -124,14 +125,14 @@ class _VSearchBarState extends State<VSearchBar> {
       _ => dynamicColors.primary,
     };
 
-    final borderWidth = widget.emphasis == VComponentEmphasis.strong ? 1.5 : 1.0;
+    final borderWidth = VBorders.widthFor(widget.emphasis);
 
     switch (widget.variant) {
       case VSearchBarVariant.outlined:
         bg = isEnabled ? dynamicColors.surface : dynamicColors.surfaceAlt;
-        border = Border.all(
-          color: isFocused ? focusBorderColor : dynamicColors.borderDefault,
-          width: isFocused ? 1.5 : borderWidth,
+        border = VBorders.all(
+          isFocused ? focusBorderColor : dynamicColors.borderDefault,
+          width: isFocused ? VBorders.medium : borderWidth,
         );
         iconColor = dynamicColors.textSecondary;
         textColor = dynamicColors.textPrimary;
@@ -139,14 +140,18 @@ class _VSearchBarState extends State<VSearchBar> {
         break;
       case VSearchBarVariant.filled:
         bg = dynamicColors.surfaceAlt;
-        border = isFocused ? Border.all(color: dynamicColors.primary, width: 1.5) : null;
+        border = isFocused
+            ? VBorders.all(dynamicColors.primary, width: VBorders.medium)
+            : null;
         iconColor = dynamicColors.textSecondary;
         textColor = dynamicColors.textPrimary;
         hintColor = dynamicColors.textSecondary;
         break;
       case VSearchBarVariant.header:
         bg = Colors.white.withValues(alpha: 0.15);
-        border = isFocused ? Border.all(color: Colors.white, width: 1.5) : null;
+        border = isFocused
+            ? VBorders.all(Colors.white, width: VBorders.medium)
+            : null;
         iconColor = Colors.white;
         textColor = Colors.white;
         hintColor = Colors.white.withValues(alpha: 0.8);

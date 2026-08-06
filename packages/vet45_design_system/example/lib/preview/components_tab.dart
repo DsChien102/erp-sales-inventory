@@ -313,7 +313,9 @@ class _ComponentsPreviewTabState extends State<ComponentsPreviewTab> {
         ),
         PreviewSection(
           title: 'VButton',
-          description: 'Variants, sizes, loading, disabled.',
+          description:
+              'Variants (incl. link: underline on hover/focus/press), '
+              'sizes, loading, disabled.',
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -339,6 +341,42 @@ class _ComponentsPreviewTabState extends State<ComponentsPreviewTab> {
                         onPressed: () {},
                         isLoading: _loading,
                       ),
+                  ],
+                ),
+              ),
+              PreviewStateRow(
+                label: 'Link',
+                child: PreviewStateWrap(
+                  children: [
+                    VButton(
+                      label: 'Forgot password?',
+                      variant: VButtonVariant.link,
+                      onPressed: () {},
+                    ),
+                    VButton(
+                      label: 'With icons',
+                      variant: VButtonVariant.link,
+                      leadingIcon: const Icon(Icons.link, size: 16),
+                      trailingIcon: const Icon(Icons.arrow_outward, size: 16),
+                      onPressed: () {},
+                    ),
+                    const VButton(
+                      label: 'Disabled link',
+                      variant: VButtonVariant.link,
+                      onPressed: null,
+                    ),
+                    VButton(
+                      label: 'Loading link',
+                      variant: VButtonVariant.link,
+                      state: VComponentState.loading,
+                      onPressed: () {},
+                    ),
+                    VButton(
+                      label: 'Custom color',
+                      variant: VButtonVariant.link,
+                      foregroundColor: context.vColors.danger,
+                      onPressed: () {},
+                    ),
                   ],
                 ),
               ),

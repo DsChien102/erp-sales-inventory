@@ -2,6 +2,7 @@ library;
 
 // Tokens
 export 'src/tokens/v_colors.dart';
+export 'src/tokens/v_borders.dart';
 export 'src/tokens/v_radius.dart';
 export 'src/tokens/v_spacing.dart';
 export 'src/tokens/v_breakpoints.dart';

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../tokens/v_borders.dart';
 import '../tokens/v_spacing.dart';
 import '../tokens/v_radius.dart';
 import '../tokens/v_typography.dart';
@@ -7,7 +8,18 @@ import '../foundation/v_component_contracts.dart';
 import '../primitives/v_text.dart';
 import '../patterns/v_gap.dart';
 
-enum VButtonVariant { primary, secondary, outline, ghost, danger, dangerOutline, warning }
+enum VButtonVariant {
+  primary,
+  secondary,
+  outline,
+  ghost,
+  danger,
+  dangerOutline,
+  warning,
+
+  /// Text-only action: no fill/splash/padding; underline on hover, focus, or press.
+  link,
+}
 
 enum VButtonSize { small, medium, large }
 
@@ -52,12 +64,34 @@ class VButton extends StatelessWidget {
     return VComponentState.enabled;
   }
 
+  static TextStyle _textStyleForSize(VButtonSize size) {
+    return switch (size) {
+      VButtonSize.small => VTypography.bodySmall.copyWith(fontWeight: FontWeight.w600),
+      VButtonSize.medium => VTypography.bodyDefault.copyWith(fontWeight: FontWeight.w600),
+      VButtonSize.large => VTypography.headingH4.copyWith(fontWeight: FontWeight.w600),
+    };
+  }
+
   @override
   Widget build(BuildContext context) {
     final resolvedState = _resolveState();
     final bool isEnabled = resolvedState == VComponentState.enabled;
     final bool showLoading = resolvedState == VComponentState.loading || isLoading;
     final dynamicColors = context.vColors;
+
+    if (variant == VButtonVariant.link) {
+      return _VButtonLink(
+        label: label,
+        onPressed: onPressed,
+        isEnabled: isEnabled,
+        showLoading: showLoading,
+        leadingIcon: leadingIcon,
+        trailingIcon: trailingIcon,
+        textStyle: _textStyleForSize(size),
+        foregroundColor: foregroundColor,
+        semanticLabel: semanticLabel,
+      );
+    }
 
     // Size-based padding and height config
     final double height;
@@ -68,17 +102,17 @@ class VButton extends StatelessWidget {
       case VButtonSize.small:
         height = context.vDensity.controlHeightSmall;
         padding = const EdgeInsets.symmetric(horizontal: VSpacing.space3);
-        textStyle = VTypography.bodySmall.copyWith(fontWeight: FontWeight.w600);
+        textStyle = _textStyleForSize(size);
         break;
       case VButtonSize.medium:
         height = context.vDensity.controlHeightMedium;
         padding = const EdgeInsets.symmetric(horizontal: VSpacing.space4);
-        textStyle = VTypography.bodyDefault.copyWith(fontWeight: FontWeight.w600);
+        textStyle = _textStyleForSize(size);
         break;
       case VButtonSize.large:
         height = context.vDensity.controlHeightLarge;
         padding = const EdgeInsets.symmetric(horizontal: VSpacing.space6);
-        textStyle = VTypography.headingH4.copyWith(fontWeight: FontWeight.w600);
+        textStyle = _textStyleForSize(size);
         break;
     }
 
@@ -158,6 +192,9 @@ class VButton extends StatelessWidget {
             return dynamicColors.warning.withValues(alpha: 0.8);
           }
           return dynamicColors.warning;
+        case VButtonVariant.link:
+          // Unreachable: link uses `_VButtonLink` early return.
+          return Colors.transparent;
       }
     }
 
@@ -180,6 +217,7 @@ class VButton extends StatelessWidget {
         case VButtonVariant.warning:
           return Colors.white;
         case VButtonVariant.secondary:
+        case VButtonVariant.link:
           return dynamicColors.primary;
         case VButtonVariant.dangerOutline:
           return dynamicColors.danger;
@@ -191,16 +229,16 @@ class VButton extends StatelessWidget {
 
     BorderSide getBorderSide(Set<WidgetState> states) {
       if (variant == VButtonVariant.outline) {
-        return BorderSide(color: dynamicColors.borderDefault);
+        return VBorders.side(dynamicColors.borderDefault);
       }
       if (variant == VButtonVariant.dangerOutline) {
         if (states.contains(WidgetState.disabled)) {
-          return BorderSide(color: dynamicColors.danger.withValues(alpha: 0.2));
+          return VBorders.side(dynamicColors.danger.withValues(alpha: 0.2));
         }
-        return BorderSide(color: dynamicColors.danger);
+        return VBorders.side(dynamicColors.danger);
       }
       if (variant == VButtonVariant.danger && states.contains(WidgetState.disabled)) {
-        return BorderSide(color: dynamicColors.danger.withValues(alpha: 0.15));
+        return VBorders.side(dynamicColors.danger.withValues(alpha: 0.15));
       }
       return BorderSide.none;
     }
@@ -301,6 +339,130 @@ class VButton extends StatelessWidget {
       enabled: isEnabled,
       label: semanticLabel ?? label,
       child: buttonWidget,
+    );
+  }
+}
+
+/// Link-styled control: no Material splash/padding; underline tracks text width.
+final class _VButtonLink extends StatefulWidget {
+  const _VButtonLink({
+    required this.label,
+    required this.onPressed,
+    required this.isEnabled,
+    required this.showLoading,
+    required this.textStyle,
+    this.leadingIcon,
+    this.trailingIcon,
+    this.foregroundColor,
+    this.semanticLabel,
+  });
+
+  final String label;
+  final VoidCallback? onPressed;
+  final bool isEnabled;
+  final bool showLoading;
+  final Widget? leadingIcon;
+  final Widget? trailingIcon;
+  final TextStyle textStyle;
+  final Color? foregroundColor;
+  final String? semanticLabel;
+
+  @override
+  State<_VButtonLink> createState() => _VButtonLinkState();
+}
+
+final class _VButtonLinkState extends State<_VButtonLink> {
+  bool _hovered = false;
+  bool _focused = false;
+  bool _pressed = false;
+
+  bool get _showUnderline => widget.isEnabled && (_hovered || _focused || _pressed);
+
+  Color _resolveForeground(BuildContext context) {
+    final colors = context.vColors;
+    if (!widget.isEnabled) return colors.textMuted;
+    return widget.foregroundColor ?? colors.primary;
+  }
+
+  void _setPressed(bool value) {
+    if (_pressed == value) return;
+    setState(() => _pressed = value);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final fg = _resolveForeground(context);
+    final labelStyle = widget.textStyle.copyWith(
+      color: fg,
+      decoration: _showUnderline ? TextDecoration.underline : TextDecoration.none,
+      decorationColor: fg,
+    );
+
+    final content = IconTheme(
+      data: IconThemeData(color: fg, size: 16),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (widget.showLoading) ...[
+            SizedBox(
+              width: 16,
+              height: 16,
+              child: CircularProgressIndicator(
+                strokeWidth: 2,
+                valueColor: AlwaysStoppedAnimation<Color>(fg),
+              ),
+            ),
+            const VGap.horizontalSm(),
+          ] else if (widget.leadingIcon != null) ...[
+            widget.leadingIcon!,
+            const VGap.horizontalSm(),
+          ],
+          VText(widget.label, style: labelStyle, maxLines: 1),
+          if (!widget.showLoading && widget.trailingIcon != null) ...[
+            const VGap.horizontalSm(),
+            widget.trailingIcon!,
+          ],
+        ],
+      ),
+    );
+
+    return Semantics(
+      button: true,
+      enabled: widget.isEnabled,
+      label: widget.semanticLabel ?? widget.label,
+      child: FocusableActionDetector(
+        enabled: widget.isEnabled,
+        mouseCursor: widget.isEnabled ? SystemMouseCursors.click : SystemMouseCursors.basic,
+        onShowHoverHighlight: (show) {
+          if (_hovered == show) return;
+          setState(() => _hovered = show);
+        },
+        onShowFocusHighlight: (show) {
+          if (_focused == show) return;
+          setState(() => _focused = show);
+        },
+        actions: <Type, Action<Intent>>{
+          ActivateIntent: CallbackAction<ActivateIntent>(
+            onInvoke: (_) {
+              widget.onPressed?.call();
+              return null;
+            },
+          ),
+        },
+        child: GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTapDown: widget.isEnabled ? (_) => _setPressed(true) : null,
+          onTapUp: widget.isEnabled ? (_) => _setPressed(false) : null,
+          onTapCancel: widget.isEnabled ? () => _setPressed(false) : null,
+          onTap: widget.isEnabled ? widget.onPressed : null,
+          child: Align(
+            alignment: Alignment.center,
+            widthFactor: 1,
+            heightFactor: 1,
+            child: content,
+          ),
+        ),
+      ),
     );
   }
 }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 // contract: na tone/emphasis/state
 import '../foundation/v_context_extensions.dart';
+import '../tokens/v_borders.dart';
 
 class VBottomNavigationItem {
   final Widget icon;
@@ -35,7 +36,7 @@ class VBottomNavigationBar extends StatelessWidget {
       decoration: BoxDecoration(
         color: dynamicColors.surface,
         border: Border(
-          top: BorderSide(color: dynamicColors.borderDefault, width: 1),
+          top: VBorders.side(dynamicColors.borderDefault),
         ),
       ),
       padding: EdgeInsets.only(

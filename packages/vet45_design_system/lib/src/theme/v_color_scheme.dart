@@ -74,7 +74,7 @@ class VColorScheme extends ThemeExtension<VColorScheme> {
     surfaceBrand: VColors.primary50,
     borderDefault: VColors.neutral200,
     borderStrong: VColors.neutral300,
-    textPrimary: VColors.neutral900,
+    textPrimary: VColors.primary900,
     textSecondary: VColors.neutral500,
     textMuted: VColors.neutral400,
     textBrand: VColors.primary700,
