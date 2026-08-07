@@ -42,12 +42,10 @@ VS Code: **Run and Debug** → `Design system · example` (hoặc `melos · desi
 **Agent rule:** khi thêm/đổi public UI trong package này, phải cover example catalog (mọi state API hiện có) — xem [`.cursor/rules/vet45-design-system-example.mdc`](../../.cursor/rules/vet45-design-system-example.mdc).
 
 Main tabs in the preview:
-- `Mockup App`: business-oriented page composition
 - `Tokens`: colors, typography, spacing, radius, shadows, duration
 - `Primitives`: `VBadge`, `VChip`, `VIcon`, `VIconBox` (state gallery)
 - `Components`: buttons, fields, dropdowns, toggles, overlays, layout widgets — mỗi component một section + states
 - `Forms`: `VEmailField`, `VPasswordField`, `VMoneyField`, `VNumberField`, `VSelect`, `VChoiceList`
-- `Business`: `VTodoItem`, `VActivityItem`, `VMetricCard`, `VCreateOrderButton`, `VRevenueCard`
 - `UI Audit`: matrix coverage / semantics / tone / state
 
 Component coverage in example includes:
@@ -55,7 +53,8 @@ Component coverage in example includes:
 - Components: `VButton`, `VCard` (+ `VCardHeader` / `VCardTitle` / `VCardIcon` / `VCardAction` / `VCardContent` / `VCardFooter`; tone→bg+border, emphasis→shadow), `VCheckbox`, `VRadio`, `VSwitch`, `VFloatingActionButton`, `VTextField`, `VSearchBar`, `VQuickActionButton`, `VTabs`, `VEmptyState` (+ `VEmptyHeader` / `VEmptyMedia` / `VEmptyTitle` / `VEmptyDescription` / `VEmptyContent`; `bordered`/`filled` opt-in), `VToast`, `VDropdown`, `VSearchableDropdown`, `VQuantitySelector`, `VDatePickerField`, `VHomeHeader`, `VBottomNavigationBar`, `VConfirmDialog` (via `showVConfirmDialog`), `VBottomSheet` (via `showVBottomSheet`), `VAppBar`, `VTable`
 - Layout / responsive: `VBreakpoint` (mobile under 600, tablet 600+, desktop 1024+), `VResponsive`, `VResponsiveValue`, `VResponsiveVisibility`, `VContentWidth`, `VResponsiveGrid`, `VPagePadding`, `VGap`, `VSection`, `VPageScaffold`
 - Forms: `VEmailField`, `VPasswordField`, `VMoneyField`, `VNumberField`, `VSelect`, `VChoiceList`
-- Business: `VTodoItem`, `VActivityItem`, `VMetricCard`, `VCreateOrderButton`, `VRevenueCard`
+
+Product/business chrome (dashboard cards, todo rows, …) lives in module presentation packages (e.g. `vet45_dashboard_presentation`), not in this design system.
 
 ## Tài liệu roadmap theo hướng Polaris
 

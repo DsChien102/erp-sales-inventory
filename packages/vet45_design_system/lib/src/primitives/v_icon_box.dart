@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../tokens/v_borders.dart';
 import '../tokens/v_radius.dart';
 import '../foundation/v_context_extensions.dart';
 import '../foundation/v_component_contracts.dart';
@@ -112,7 +113,7 @@ class VIconBox extends StatelessWidget {
         shape: isCircular ? BoxShape.circle : BoxShape.rectangle,
         borderRadius: isCircular ? null : BorderRadius.circular(resolvedRadius),
         border: borderColor != null
-            ? Border.all(color: borderColor!, width: borderWidth ?? 1.0)
+            ? VBorders.all(borderColor!, width: borderWidth ?? VBorders.thin)
             : null,
       ),
       alignment: Alignment.center,

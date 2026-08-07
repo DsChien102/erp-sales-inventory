@@ -5,7 +5,7 @@ import '../foundation/v_component_contracts.dart';
 import '../foundation/v_context_extensions.dart';
 import '../patterns/v_gap.dart';
 import '../primitives/v_text.dart';
-import '../tokens/v_radius.dart';
+import '../tokens/v_borders.dart';
 import '../tokens/v_spacing.dart';
 import '../tokens/v_typography.dart';
 import 'v_text_field_affix.dart';
@@ -132,8 +132,7 @@ class _VTextFormFieldState extends State<VTextFormField> {
   int _currentLength = 0;
 
   TextEditingController get _effectiveController =>
-      widget.controller ??
-      (_localController ??= TextEditingController(text: widget.initialValue));
+      widget.controller ?? (_localController ??= TextEditingController(text: widget.initialValue));
 
   FocusNode get _focusNode => widget.focusNode ?? _ownedFocusNode!;
 
@@ -200,15 +199,13 @@ class _VTextFormFieldState extends State<VTextFormField> {
   @override
   Widget build(BuildContext context) {
     final colors = context.vColors;
-    final isEnabled =
-        widget.enabled && widget.state != VComponentState.disabled;
+    final isEnabled = widget.enabled && widget.state != VComponentState.disabled;
     final toneBorderColor = switch (widget.tone) {
       VComponentTone.primary => colors.primary,
       VComponentTone.danger => colors.danger,
       _ => colors.borderStrong,
     };
-    final borderWidth =
-        widget.emphasis == VComponentEmphasis.strong ? 1.5 : 1.0;
+    final borderWidth = VBorders.widthFor(widget.emphasis);
 
     final defaultStyle = VTypography.bodyDefault.copyWith(
       color: isEnabled ? colors.textPrimary : colors.textSecondary,
@@ -216,8 +213,7 @@ class _VTextFormFieldState extends State<VTextFormField> {
 
     final minLines = widget.effectiveMinLines;
     final maxLines = widget.effectiveMaxLines;
-    final basePadding =
-        widget.isDense ? VTextFormField.densePadding : VTextFormField.padding;
+    final basePadding = widget.isDense ? VTextFormField.densePadding : VTextFormField.padding;
     final contentPadding = widget.showCounter && widget.maxLength != null
         ? basePadding.copyWith(
             bottom: basePadding.bottom + VSpacing.space4,
@@ -226,31 +222,20 @@ class _VTextFormFieldState extends State<VTextFormField> {
 
     final showBorder = widget.border;
     const none = InputBorder.none;
-    final outline = showBorder
-        ? OutlineInputBorder(
-            borderRadius: BorderRadius.circular(VRadius.input),
-            borderSide: BorderSide(color: toneBorderColor, width: borderWidth),
-          )
-        : none;
-    final focusedOutline = showBorder
-        ? OutlineInputBorder(
-            borderRadius: BorderRadius.circular(VRadius.input),
-            borderSide: BorderSide(
-              color: switch (widget.tone) {
-                VComponentTone.danger => colors.danger,
-                VComponentTone.primary => colors.primary,
-                _ => colors.primary,
-              },
-              width: 1.5,
-            ),
-          )
-        : none;
-    final disabledOutline = showBorder
-        ? OutlineInputBorder(
-            borderRadius: BorderRadius.circular(VRadius.input),
-            borderSide: BorderSide(color: colors.borderDefault),
-          )
-        : none;
+    InputBorder outlineOf(Color color, {double? width}) {
+      if (!showBorder) return none;
+      return VBorders.outlineInput(color, width: width ?? borderWidth);
+    }
+
+    final outline = outlineOf(toneBorderColor);
+    final focusedOutline = outlineOf(
+      switch (widget.tone) {
+        VComponentTone.danger => colors.danger,
+        VComponentTone.primary => colors.primary,
+        _ => colors.primary,
+      },
+    );
+    final disabledOutline = outlineOf(colors.borderDefault);
 
     return FormField<String>(
       initialValue: widget.initialValue,
@@ -259,32 +244,24 @@ class _VTextFormFieldState extends State<VTextFormField> {
       autovalidateMode: widget.autovalidateMode,
       builder: (FormFieldState<String> fieldState) {
         final hasValidationError = fieldState.hasError;
-        final displayErrorText =
-            hasValidationError ? fieldState.errorText : widget.errorText;
+        final displayErrorText = hasValidationError ? fieldState.errorText : widget.errorText;
 
         final InputBorder activeBorder;
         if (!showBorder) {
           activeBorder = none;
         } else if (displayErrorText != null) {
-          activeBorder = OutlineInputBorder(
-            borderRadius: BorderRadius.circular(VRadius.input),
-            borderSide: BorderSide(
-              color: colors.danger,
-              width: hasValidationError ? 2 : 1,
-            ),
+          activeBorder = outlineOf(
+            colors.danger,
+            width: hasValidationError ? VBorders.medium : borderWidth,
           );
         } else {
           activeBorder = outline;
         }
 
-        final focusedErrorBorder = showBorder
-            ? OutlineInputBorder(
-                borderRadius: BorderRadius.circular(VRadius.input),
-                borderSide: BorderSide(color: colors.danger, width: 1.5),
-              )
-            : none;
+        final focusedErrorBorder = outlineOf(colors.danger);
 
-        final resolvedSuffix = widget.suffixIcon ??
+        final resolvedSuffix =
+            widget.suffixIcon ??
             (widget.suffixText == null
                 ? null
                 : VText(
@@ -311,8 +288,7 @@ class _VTextFormFieldState extends State<VTextFormField> {
           inputFormatters: widget.inputFormatters,
           textAlign: widget.textAlign,
           onSubmitted: widget.onFieldSubmitted,
-          cursorColor: displayErrorText != null ||
-                  widget.tone == VComponentTone.danger
+          cursorColor: displayErrorText != null || widget.tone == VComponentTone.danger
               ? colors.danger
               : colors.primary,
           style: displayErrorText != null
@@ -323,30 +299,20 @@ class _VTextFormFieldState extends State<VTextFormField> {
             hintText: widget.hintText,
             isDense: widget.isDense,
             alignLabelWithHint: true,
-            hintStyle:
-                VTypography.bodyDefault.copyWith(color: colors.textMuted),
-            prefixIconConstraints:
-                const BoxConstraints(minWidth: 0, minHeight: 0),
+            hintStyle: VTypography.bodyDefault.copyWith(color: colors.textMuted),
+            prefixIconConstraints: const BoxConstraints(minWidth: 0, minHeight: 0),
             prefixIcon: wrapVTextFieldAffix(
               widget.prefixIcon,
-              outerInset: widget.isDense
-                  ? kVTextFieldAffixOuterDense
-                  : kVTextFieldAffixOuter,
-              innerInset: widget.isDense
-                  ? kVTextFieldAffixInnerDense
-                  : kVTextFieldAffixInner,
+              outerInset: widget.isDense ? kVTextFieldAffixOuterDense : kVTextFieldAffixOuter,
+              innerInset: widget.isDense ? kVTextFieldAffixInnerDense : kVTextFieldAffixInner,
               isLeading: true,
             ),
-            suffixIconConstraints: widget.suffixIconConstraints ??
-                const BoxConstraints(minWidth: 0, minHeight: 0),
+            suffixIconConstraints:
+                widget.suffixIconConstraints ?? const BoxConstraints(minWidth: 0, minHeight: 0),
             suffixIcon: wrapVTextFieldAffix(
               resolvedSuffix,
-              outerInset: widget.isDense
-                  ? kVTextFieldAffixOuterDense
-                  : kVTextFieldAffixOuter,
-              innerInset: widget.isDense
-                  ? kVTextFieldAffixInnerDense
-                  : kVTextFieldAffixInner,
+              outerInset: widget.isDense ? kVTextFieldAffixOuterDense : kVTextFieldAffixOuter,
+              innerInset: widget.isDense ? kVTextFieldAffixInnerDense : kVTextFieldAffixInner,
               isLeading: false,
             ),
             filled: true,
@@ -359,8 +325,7 @@ class _VTextFormFieldState extends State<VTextFormField> {
             ),
             border: activeBorder,
             enabledBorder: displayErrorText != null ? activeBorder : outline,
-            focusedBorder:
-                displayErrorText != null ? focusedErrorBorder : focusedOutline,
+            focusedBorder: displayErrorText != null ? focusedErrorBorder : focusedOutline,
             disabledBorder: disabledOutline,
           ),
         );
@@ -394,10 +359,7 @@ class _VTextFormFieldState extends State<VTextFormField> {
         return Semantics(
           textField: true,
           enabled: isEnabled,
-          label: widget.semanticLabel ??
-              widget.label ??
-              widget.hintText ??
-              'Text form field',
+          label: widget.semanticLabel ?? widget.label ?? widget.hintText ?? 'Text form field',
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,

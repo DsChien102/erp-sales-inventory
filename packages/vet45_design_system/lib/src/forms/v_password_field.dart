@@ -2,9 +2,11 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:vet45_design_system/src/primitives/v_icon.dart';
 
 import '../components/v_text_field.dart';
 import '../foundation/v_component_contracts.dart';
+import '../foundations/icons/v_icons.dart';
 import '../tokens/v_duration.dart';
 import 'validators/v_password_validator.dart';
 
@@ -126,7 +128,10 @@ class _VPasswordFieldState extends State<VPasswordField> {
     final isEnabled = widget.enabled && widget.state != VComponentState.disabled;
     return IconButton(
       onPressed: isEnabled ? _toggleObscured : null,
-      icon: Icon(_obscured ? Icons.visibility_off : Icons.visibility),
+      icon: VIcon(
+        icon: _obscured ? VIcons.visibility : VIcons.visibilityOff,
+        iconColor: VIconColor.muted,
+      ),
       tooltip: _obscured ? 'Hiện mật khẩu' : 'Ẩn mật khẩu',
       padding: EdgeInsets.zero,
       visualDensity: VisualDensity.compact,

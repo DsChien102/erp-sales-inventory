@@ -2,15 +2,10 @@
 
 - Generated at: `2026-07-29T10:42:46.149714`
 - Matrix: `docs/audit/contract_matrix.yaml`
-- Scope: primitives / components / business / patterns / forms widgets
+- Scope: primitives / components / patterns / forms widgets
 
 | Category | Class | Role | Tone | Emphasis | State | semanticLabel | Semantics |
 |---|---|---|---|---|---|---|---|
-| business | `VActivityItem` | business_chrome | Pass (preferred) | Pass (preferred) | — (optional) | Pass (preferred) | Yes |
-| business | `VCreateOrderButton` | action | Pass (preferred) | Pass (preferred) | — (optional) | Pass (preferred) | Yes |
-| business | `VMetricCard` | business_chrome | Pass (preferred) | Pass (preferred) | — (optional) | Pass (preferred) | Yes |
-| business | `VRevenueCard` | business_chrome | Pass (preferred) | Pass (preferred) | — (optional) | Pass (preferred) | Yes |
-| business | `VTodoItem` | business_chrome | Pass (preferred) | Pass (preferred) | — (optional) | Pass (preferred) | Yes |
 | components | `VAppBar` | navigation_chrome | N/A (na) | N/A (na) | N/A (na) | — (optional) | No |
 | components | `VAvatar` | unmapped | Pass (optional) | — (optional) | — (optional) | — (optional) | No |
 | components | `VBanner` | unmapped | Pass (optional) | — (optional) | — (optional) | Pass (optional) | Yes |

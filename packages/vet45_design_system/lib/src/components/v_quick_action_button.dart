@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../tokens/v_borders.dart';
 import '../tokens/v_spacing.dart';
 import '../tokens/v_radius.dart';
 import '../tokens/v_typography.dart';
@@ -51,7 +52,7 @@ class VQuickActionButton extends StatelessWidget {
       _ => dynamicColors.primary,
     };
 
-    final borderWidth = emphasis == VComponentEmphasis.strong ? 1.5 : 1.0;
+    final borderWidth = VBorders.widthFor(emphasis);
 
     return Semantics(
       button: true,
@@ -70,8 +71,8 @@ class VQuickActionButton extends StatelessWidget {
             decoration: BoxDecoration(
               color: dynamicColors.surface,
               borderRadius: BorderRadius.circular(VRadius.r16),
-              border: Border.all(
-                color: dynamicColors.borderDefault,
+              border: VBorders.all(
+                dynamicColors.borderDefault,
                 width: borderWidth,
               ),
             ),

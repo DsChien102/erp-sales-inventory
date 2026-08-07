@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../tokens/v_borders.dart';
 import '../tokens/v_colors.dart';
 import '../tokens/v_radius.dart';
 import '../tokens/v_typography.dart';
@@ -41,25 +42,16 @@ class VTheme {
         filled: true,
         fillColor: VColors.neutral0,
         hoverColor: Colors.transparent,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(VRadius.input),
-          borderSide: const BorderSide(color: VColors.neutral300),
+        border: VBorders.outlineInput(VColors.neutral300),
+        enabledBorder: VBorders.outlineInput(VColors.neutral300),
+        focusedBorder: VBorders.outlineInput(
+          VColors.primary500,
+          width: VBorders.thick,
         ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(VRadius.input),
-          borderSide: const BorderSide(color: VColors.neutral300),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(VRadius.input),
-          borderSide: const BorderSide(color: VColors.primary500, width: 2),
-        ),
-        errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(VRadius.input),
-          borderSide: const BorderSide(color: VColors.danger),
-        ),
-        focusedErrorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(VRadius.input),
-          borderSide: const BorderSide(color: VColors.danger, width: 2),
+        errorBorder: VBorders.outlineInput(VColors.danger),
+        focusedErrorBorder: VBorders.outlineInput(
+          VColors.danger,
+          width: VBorders.thick,
         ),
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
@@ -77,7 +69,7 @@ class VTheme {
         elevation: 0,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(VRadius.card),
-          side: const BorderSide(color: VColors.neutral200),
+          side: VBorders.side(VColors.neutral200),
         ),
       ),
     );
@@ -116,25 +108,16 @@ class VTheme {
         filled: true,
         fillColor: VColors.neutral700,
         hoverColor: Colors.transparent,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(VRadius.input),
-          borderSide: const BorderSide(color: VColors.neutral600),
+        border: VBorders.outlineInput(VColors.neutral600),
+        enabledBorder: VBorders.outlineInput(VColors.neutral600),
+        focusedBorder: VBorders.outlineInput(
+          VColors.primary400,
+          width: VBorders.thick,
         ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(VRadius.input),
-          borderSide: const BorderSide(color: VColors.neutral600),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(VRadius.input),
-          borderSide: const BorderSide(color: VColors.primary400, width: 2),
-        ),
-        errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(VRadius.input),
-          borderSide: const BorderSide(color: VColors.danger),
-        ),
-        focusedErrorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(VRadius.input),
-          borderSide: const BorderSide(color: VColors.danger, width: 2),
+        errorBorder: VBorders.outlineInput(VColors.danger),
+        focusedErrorBorder: VBorders.outlineInput(
+          VColors.danger,
+          width: VBorders.thick,
         ),
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
@@ -152,7 +135,7 @@ class VTheme {
         elevation: 0,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(VRadius.card),
-          side: const BorderSide(color: VColors.neutral600),
+          side: VBorders.side(VColors.neutral600),
         ),
       ),
     );

@@ -6,6 +6,7 @@ import '../foundations/icons/v_icons.dart';
 import '../patterns/v_gap.dart';
 import '../primitives/v_icon_box.dart';
 import '../primitives/v_text.dart';
+import '../tokens/v_borders.dart';
 import '../tokens/v_radius.dart';
 import '../tokens/v_spacing.dart';
 import 'v_button.dart';
@@ -109,9 +110,7 @@ class VEmptyState extends StatelessWidget {
     final Color? bg = backgroundColor ??
         (filled ? colors.surfaceAlt : null);
     final Border? resolvedBorder = border ??
-        (bordered
-            ? Border.all(color: colors.borderDefault, width: 1)
-            : null);
+        (bordered ? VBorders.all(colors.borderDefault) : null);
 
     final hasDecoration = bg != null || resolvedBorder != null;
 

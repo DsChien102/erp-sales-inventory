@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../tokens/v_borders.dart';
 import '../tokens/v_radius.dart';
 import '../tokens/v_spacing.dart';
 import '../foundation/v_context_extensions.dart';
@@ -54,7 +55,7 @@ class VDatePickerField extends StatelessWidget {
       _ => dynamicColors.borderDefault,
     };
 
-    final borderWidth = emphasis == VComponentEmphasis.strong ? 1.5 : 1.0;
+    final borderWidth = VBorders.widthFor(emphasis);
 
     return Semantics(
       button: true,
@@ -102,8 +103,8 @@ class VDatePickerField extends StatelessWidget {
                     : value != null
                         ? dynamicColors.surfaceAlt
                         : dynamicColors.surface,
-                border: Border.all(
-                  color: isEnabled ? borderColor : dynamicColors.borderDefault,
+                border: VBorders.all(
+                  isEnabled ? borderColor : dynamicColors.borderDefault,
                   width: borderWidth,
                 ),
                 borderRadius: BorderRadius.circular(VRadius.input),

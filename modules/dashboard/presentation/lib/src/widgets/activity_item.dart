@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:vet45_design_system/design_system.dart';
 
-class VActivityItem extends StatelessWidget {
+class ActivityItem extends StatelessWidget {
   final Widget leadingIcon;
   final String title;
   final String subtitle;
@@ -13,7 +13,7 @@ class VActivityItem extends StatelessWidget {
   final VComponentEmphasis emphasis;
   final String? semanticLabel;
 
-  const VActivityItem({
+  const ActivityItem({
     super.key,
     required this.leadingIcon,
     required this.title,

@@ -17,7 +17,7 @@ Forms (VEmailField, VMoneyField, VSelect, ...)
   ↓
 Patterns (VGap, VPagePadding, VSection, VPageScaffold)  ← NEW
   ↓
-Business (VMetricCard, VTodoItem, ...) — generic ERP chrome only
+Business chrome lives in module presentation (e.g. dashboard), not design system.
   ↓
 Module presentation (partner_transform_stepper, product_control_center_section_card)
   ↓

@@ -4,6 +4,7 @@ import '../foundation/v_dropdown_filter.dart';
 import '../foundation/v_overlay_menu_layout.dart';
 import '../foundation/v_route_overlay_guard.dart';
 import '../foundation/v_component_contracts.dart';
+import '../tokens/v_borders.dart';
 import '../tokens/v_radius.dart';
 import '../tokens/v_typography.dart';
 import '../foundation/v_context_extensions.dart';
@@ -268,12 +269,12 @@ class _VCompactSearchableDropdownState<T>
       VComponentTone.danger => colors.danger,
       _ => isEnabled ? colors.borderStrong : colors.borderDefault,
     };
-    final borderWidth = widget.emphasis == VComponentEmphasis.strong ? 1.5 : 1.0;
+    final borderWidth = VBorders.widthFor(widget.emphasis);
 
     return BoxDecoration(
       color: isEnabled ? colors.surface : colors.surfaceAlt,
       borderRadius: BorderRadius.circular(VRadius.input),
-      border: Border.all(color: borderColor, width: borderWidth),
+      border: VBorders.all(borderColor, width: borderWidth),
     );
   }
 
@@ -406,10 +407,7 @@ class _VCompactSearchableDropdownState<T>
 
     InputBorder border(Color color) {
       if (_useExternalTrailing) return InputBorder.none;
-      return OutlineInputBorder(
-        borderRadius: BorderRadius.circular(VRadius.input),
-        borderSide: BorderSide(color: color),
-      );
+      return VBorders.outlineInput(color);
     }
 
     // Prefer [expandedInsets] over [width]: DropdownMenu otherwise parents every
@@ -450,7 +448,7 @@ class _VCompactSearchableDropdownState<T>
         shape: WidgetStatePropertyAll(
           RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(VRadius.input),
-            side: BorderSide(color: colors.borderDefault),
+            side: VBorders.side(colors.borderDefault),
           ),
         ),
       ),

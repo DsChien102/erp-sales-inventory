@@ -51,21 +51,21 @@ class VTypography {
     fontFamily: fontFamily,
     fontSize: 14,
     height: 22 / 14,
-    fontWeight: FontWeight.w400,
+    fontWeight: FontWeight.w500,
   );
 
   static const TextStyle bodySmall = TextStyle(
     fontFamily: fontFamily,
     fontSize: 13,
     height: 20 / 13,
-    fontWeight: FontWeight.w400,
+    fontWeight: FontWeight.w500,
   );
 
   static const TextStyle caption = TextStyle(
     fontFamily: fontFamily,
     fontSize: 12,
     height: 16 / 12,
-    fontWeight: FontWeight.w500,
+    fontWeight: FontWeight.w600,
     letterSpacing: 0.1,
   );
 

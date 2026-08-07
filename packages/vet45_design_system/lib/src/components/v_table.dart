@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../tokens/v_borders.dart';
 import '../tokens/v_spacing.dart';
 import '../tokens/v_typography.dart';
 import '../foundation/v_context_extensions.dart';
@@ -50,8 +51,8 @@ class VTable extends StatelessWidget {
       child: Table(
       columnWidths: columnWidths,
       border: TableBorder(
-        bottom: BorderSide(color: dynamicColors.borderDefault),
-        horizontalInside: BorderSide(color: dynamicColors.borderDefault),
+        bottom: VBorders.side(dynamicColors.borderDefault),
+        horizontalInside: VBorders.side(dynamicColors.borderDefault),
       ),
       defaultVerticalAlignment: TableCellVerticalAlignment.middle,
       children: [
@@ -59,11 +60,11 @@ class VTable extends StatelessWidget {
         TableRow(
           decoration: BoxDecoration(
             border: Border(
-              bottom: BorderSide(
-                color: resolvedTone == VComponentTone.neutral
+              bottom: VBorders.side(
+                resolvedTone == VComponentTone.neutral
                     ? dynamicColors.borderStrong
                     : headerAccent,
-                width: emphasis == VComponentEmphasis.strong ? 2 : 1.5,
+                width: VBorders.widthFor(emphasis),
               ),
             ),
           ),

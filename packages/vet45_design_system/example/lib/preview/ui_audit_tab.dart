@@ -66,12 +66,6 @@ class UIAuditTab extends StatelessWidget {
     'VResponsiveVisibility',
     'VContentWidth',
     'VResponsiveGrid',
-    // Business
-    'VTodoItem',
-    'VActivityItem',
-    'VMetricCard',
-    'VCreateOrderButton',
-    'VRevenueCard',
     // Forms (tracked in example even if audit CLI skips forms)
     'VEmailField',
     'VPasswordField',

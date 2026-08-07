@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../patterns/v_gap.dart';
 import '../foundation/v_context_extensions.dart';
 import '../primitives/v_text.dart';
+import '../tokens/v_borders.dart';
 import '../tokens/v_radius.dart';
 
 /// Keypad mode for [VNumericKeypadSheet] / [VNumericKeypadGrid].
@@ -90,7 +91,7 @@ class _Key extends StatelessWidget {
           alignment: Alignment.center,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(VRadius.card),
-            border: Border.all(color: colors.borderDefault),
+            border: VBorders.all(colors.borderDefault),
           ),
           child: VText(
             label,

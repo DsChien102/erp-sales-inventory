@@ -51,10 +51,10 @@ class VToast extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Color backgroundColor = context.vColors.textPrimary; // Dark premium background
-    Color textColor = context.vColors.surface;
-    Color closeIconColor = context.vColors.surface;
     final colors = context.vColors;
+    final backgroundColor = colors.toastSurface;
+    final textColor = colors.surface;
+    final closeIconColor = colors.surface;
 
     final VComponentTone resolvedTone = switch (type) {
       VToastType.success => VComponentTone.success,
@@ -66,7 +66,7 @@ class VToast extends StatelessWidget {
     Widget iconWidget = switch (type) {
       VToastType.success => _ToastIcon(
         backgroundColor: colors.success,
-        icon: VIcons.check,
+        icon: VIcons.success,
       ),
       VToastType.warning => _ToastIcon(
         backgroundColor: colors.warning,
@@ -74,7 +74,7 @@ class VToast extends StatelessWidget {
       ),
       VToastType.danger => _ToastIcon(
         backgroundColor: colors.danger,
-        icon: VIcons.close,
+        icon: VIcons.error,
       ),
       VToastType.info => _ToastIcon(
         backgroundColor: colors.info,
@@ -88,11 +88,11 @@ class VToast extends StatelessWidget {
         color: backgroundColor,
         borderRadius: BorderRadius.circular(VRadius.r16),
         boxShadow: VShadows.e2,
-        border: Border.all(
-          color: type == VToastType.success
+        border: VBorders.all(
+          type == VToastType.success
               ? const Color(0xFFFFFFFF).withValues(alpha: 0.06)
               : _toneAccent(resolvedTone, colors).withValues(alpha: 0.12),
-          width: emphasis == VComponentEmphasis.strong ? 1.5 : 1,
+          width: VBorders.widthFor(emphasis),
         ),
       ),
       child: ClipRRect(

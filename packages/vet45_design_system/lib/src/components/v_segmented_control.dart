@@ -5,6 +5,7 @@ import '../foundation/v_context_extensions.dart';
 import '../patterns/v_gap.dart';
 import '../primitives/v_text.dart';
 import '../theme/v_color_scheme.dart';
+import '../tokens/v_borders.dart';
 import '../tokens/v_radius.dart';
 import '../tokens/v_spacing.dart';
 
@@ -107,8 +108,7 @@ class _Segment extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final borderWidth =
-        emphasis == VComponentEmphasis.strong ? 1.5 : 1.0;
+    final borderWidth = VBorders.widthFor(emphasis);
 
     return Semantics(
       button: true,
@@ -127,8 +127,8 @@ class _Segment extends StatelessWidget {
               borderRadius: BorderRadius.circular(VRadius.r8),
               border: selected
                   ? null
-                  : Border.all(
-                      color: colors.borderDefault,
+                  : VBorders.all(
+                      colors.borderDefault,
                       width: borderWidth,
                     ),
             ),

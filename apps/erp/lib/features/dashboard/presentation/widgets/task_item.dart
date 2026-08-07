@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:vet45_dashboard_presentation/presentation.dart';
 import 'package:vet45_design_system/design_system.dart';
 
 class TaskItem extends StatelessWidget {
@@ -19,7 +20,7 @@ class TaskItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return VTodoItem(
+    return TodoItem(
       leadingIcon: Icon(icon),
       title: title,
       subtitle: subtitle,

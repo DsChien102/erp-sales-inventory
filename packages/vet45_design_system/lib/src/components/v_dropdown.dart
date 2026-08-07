@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../tokens/v_borders.dart';
 import '../tokens/v_radius.dart';
 import '../tokens/v_spacing.dart';
 import '../tokens/v_typography.dart';
@@ -85,7 +86,7 @@ class VDropdown<T> extends StatelessWidget {
               elevation: 4,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(VRadius.input),
-                side: BorderSide(color: colors.borderDefault),
+                side: VBorders.side(colors.borderDefault),
               ),
               constraints: BoxConstraints(
                 minWidth: constraints.maxWidth,
@@ -116,9 +117,9 @@ class VDropdown<T> extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: isEnabled ? colors.surface : colors.surfaceAlt,
                   borderRadius: BorderRadius.circular(VRadius.input),
-                  border: Border.all(
-                    color: borderColor,
-                    width: emphasis == VComponentEmphasis.strong ? 1.5 : 1,
+                  border: VBorders.all(
+                    borderColor,
+                    width: VBorders.widthFor(emphasis),
                   ),
                 ),
                 child: Row(
