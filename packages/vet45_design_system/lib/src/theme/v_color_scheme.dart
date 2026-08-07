@@ -25,6 +25,9 @@ class VColorScheme extends ThemeExtension<VColorScheme> {
   final Color disabledBorder;
   final Color disabledFg;
 
+  /// Inverted surface for toast / snackbar chrome (not text).
+  final Color toastSurface;
+
   // Semantic and status colors
   final Color success;
   final Color successBg;
@@ -56,6 +59,7 @@ class VColorScheme extends ThemeExtension<VColorScheme> {
     required this.disabledBg,
     required this.disabledBorder,
     required this.disabledFg,
+    required this.toastSurface,
     required this.success,
     required this.successBg,
     required this.warning,
@@ -88,6 +92,7 @@ class VColorScheme extends ThemeExtension<VColorScheme> {
     disabledBg: VColors.neutral100,
     disabledBorder: VColors.neutral200,
     disabledFg: VColors.neutral400,
+    toastSurface: VColors.neutral900,
     success: VColors.success,
     successBg: VColors.successBg,
     warning: VColors.warning,
@@ -120,6 +125,7 @@ class VColorScheme extends ThemeExtension<VColorScheme> {
     disabledBg: VColors.neutral700,
     disabledBorder: VColors.neutral600,
     disabledFg: VColors.neutral500,
+    toastSurface: VColors.neutral0,
     success: VColors.success,
     successBg: VColors.neutral700,
     warning: VColors.warning,
@@ -152,6 +158,7 @@ class VColorScheme extends ThemeExtension<VColorScheme> {
     Color? disabledBg,
     Color? disabledBorder,
     Color? disabledFg,
+    Color? toastSurface,
     Color? success,
     Color? successBg,
     Color? warning,
@@ -182,6 +189,7 @@ class VColorScheme extends ThemeExtension<VColorScheme> {
       disabledBg: disabledBg ?? this.disabledBg,
       disabledBorder: disabledBorder ?? this.disabledBorder,
       disabledFg: disabledFg ?? this.disabledFg,
+      toastSurface: toastSurface ?? this.toastSurface,
       success: success ?? this.success,
       successBg: successBg ?? this.successBg,
       warning: warning ?? this.warning,
@@ -219,6 +227,7 @@ class VColorScheme extends ThemeExtension<VColorScheme> {
       disabledBg: Color.lerp(disabledBg, other.disabledBg, t)!,
       disabledBorder: Color.lerp(disabledBorder, other.disabledBorder, t)!,
       disabledFg: Color.lerp(disabledFg, other.disabledFg, t)!,
+      toastSurface: Color.lerp(toastSurface, other.toastSurface, t)!,
       success: Color.lerp(success, other.success, t)!,
       successBg: Color.lerp(successBg, other.successBg, t)!,
       warning: Color.lerp(warning, other.warning, t)!,

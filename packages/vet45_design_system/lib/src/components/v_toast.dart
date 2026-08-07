@@ -51,10 +51,10 @@ class VToast extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Color backgroundColor = context.vColors.textPrimary; // Dark premium background
-    Color textColor = context.vColors.surface;
-    Color closeIconColor = context.vColors.surface;
     final colors = context.vColors;
+    final backgroundColor = colors.toastSurface;
+    final textColor = colors.surface;
+    final closeIconColor = colors.surface;
 
     final VComponentTone resolvedTone = switch (type) {
       VToastType.success => VComponentTone.success,
@@ -74,7 +74,7 @@ class VToast extends StatelessWidget {
       ),
       VToastType.danger => _ToastIcon(
         backgroundColor: colors.danger,
-        icon: VIcons.close,
+        icon: VIcons.error,
       ),
       VToastType.info => _ToastIcon(
         backgroundColor: colors.info,
