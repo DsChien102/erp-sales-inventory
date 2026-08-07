@@ -95,10 +95,3 @@ export 'src/forms/v_money_field.dart';
 export 'src/forms/v_number_field.dart';
 export 'src/forms/v_select.dart';
 export 'src/forms/v_choice_list.dart';
-
-// Business Components
-export 'src/business/v_todo_item.dart';
-export 'src/business/v_activity_item.dart';
-export 'src/business/v_metric_card.dart';
-export 'src/business/v_create_order_button.dart';
-export 'src/business/v_revenue_card.dart';

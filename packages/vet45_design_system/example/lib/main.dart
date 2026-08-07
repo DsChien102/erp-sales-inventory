@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:vet45_design_system/design_system.dart';
 
-import 'preview/business_tab.dart';
 import 'preview/components_tab.dart';
 import 'preview/forms_tab.dart';
-import 'preview/mockup_tab.dart';
 import 'preview/primitives_tab.dart';
 import 'preview/tokens_tab.dart';
 import 'preview/ui_audit_tab.dart';
@@ -38,12 +36,10 @@ class _PreviewHomeScreenState extends State<PreviewHomeScreen> {
   int _currentTab = 0;
 
   static const _tabs = [
-    'Mockup App',
     'Tokens',
     'Primitives',
     'Components',
     'Forms',
-    'Business',
     'UI Audit',
   ];
 
@@ -72,12 +68,10 @@ class _PreviewHomeScreenState extends State<PreviewHomeScreen> {
         child: IndexedStack(
           index: _currentTab,
           children: const [
-            VMockupTab(),
             TokensPreviewTab(),
             PrimitivesPreviewTab(),
             ComponentsPreviewTab(),
             FormsPreviewTab(),
-            BusinessPreviewTab(),
             UIAuditTab(),
           ],
         ),

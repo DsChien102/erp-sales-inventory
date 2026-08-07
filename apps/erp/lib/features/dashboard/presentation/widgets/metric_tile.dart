@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:vet45_design_system/design_system.dart';
+import 'package:vet45_dashboard_presentation/presentation.dart';
 
 class MetricTile extends StatelessWidget {
   const MetricTile({
@@ -19,7 +19,7 @@ class MetricTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return VMetricCard(
+    return MetricCard(
       icon: Icon(icon),
       value: value,
       label: label,

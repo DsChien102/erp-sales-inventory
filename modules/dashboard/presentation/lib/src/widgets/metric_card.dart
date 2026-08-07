@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:vet45_design_system/design_system.dart';
 
-class VMetricCard extends StatelessWidget {
+class MetricCard extends StatelessWidget {
   final Widget icon;
   final String value;
   final String label;
@@ -12,7 +12,7 @@ class VMetricCard extends StatelessWidget {
   final VComponentEmphasis emphasis;
   final String? semanticLabel;
 
-  const VMetricCard({
+  const MetricCard({
     super.key,
     required this.icon,
     required this.value,

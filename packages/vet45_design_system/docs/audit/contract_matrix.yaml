@@ -67,13 +67,6 @@ VQuickActionButton:
   state: preferred
   semanticLabel: required
 
-VCreateOrderButton:
-  role: action
-  tone: preferred
-  emphasis: preferred
-  state: optional
-  semanticLabel: preferred
-
 # --- Input ---
 VTextField:
   role: input
@@ -333,32 +326,3 @@ VPageScaffold:
   emphasis: na
   state: na
   semanticLabel: na
-
-# --- Business ---
-VTodoItem:
-  role: business_chrome
-  tone: preferred
-  emphasis: preferred
-  state: optional
-  semanticLabel: preferred
-
-VActivityItem:
-  role: business_chrome
-  tone: preferred
-  emphasis: preferred
-  state: optional
-  semanticLabel: preferred
-
-VMetricCard:
-  role: business_chrome
-  tone: preferred
-  emphasis: preferred
-  state: optional
-  semanticLabel: preferred
-
-VRevenueCard:
-  role: business_chrome
-  tone: preferred
-  emphasis: preferred
-  state: optional
-  semanticLabel: preferred

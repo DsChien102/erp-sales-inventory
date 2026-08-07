@@ -24,12 +24,10 @@ VS Code: **Run and Debug** → `Design system · example`.
 
 | Tab | Nội dung |
 | --- | --- |
-| Mockup App | Composition nghiệp vụ |
 | Tokens | Colors, typography, spacing, radius, shadows |
 | Primitives | `VBadge`, `VChip`, `VIcon`, `VIconBox`, `VText` |
 | Components | Buttons, fields, `VCard`, Responsive kit (`VResponsive` / grid / content width), dropdowns, overlays, … |
 | Forms | `VEmailField`, `VPasswordField`, `VMoneyField`, `VNumberField`, `VSelect`, `VChoiceList` |
-| Business | `VTodoItem`, `VActivityItem`, `VMetricCard`, … |
 | UI Audit | Coverage matrix |
 
 ## VPasswordField

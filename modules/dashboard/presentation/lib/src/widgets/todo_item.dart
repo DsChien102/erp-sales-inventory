@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:vet45_design_system/design_system.dart';
 
-class VTodoItem extends StatelessWidget {
+class TodoItem extends StatelessWidget {
   final Widget leadingIcon;
   final String title;
   final String subtitle;
@@ -12,7 +12,7 @@ class VTodoItem extends StatelessWidget {
   final VComponentEmphasis emphasis;
   final String? semanticLabel;
 
-  const VTodoItem({
+  const TodoItem({
     super.key,
     required this.leadingIcon,
     required this.title,
