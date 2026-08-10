@@ -5,6 +5,7 @@ import 'package:vet45_design_system/design_system.dart';
 /// Ô nhập giá riêng — bọc [VMoneyField], xử lý selection tại feature layer.
 ///
 /// Tránh crash `range.start > text.length` khi xóa hết số tiền mà không sửa DS.
+/// Giới hạn nhập số tiền tối đa không vượt quá giới hạn int (2.147.483.647đ).
 class PriceRulePriceField extends StatefulWidget {
   const PriceRulePriceField({
     super.key,
@@ -13,6 +14,7 @@ class PriceRulePriceField extends StatefulWidget {
     this.label = 'Giá riêng cho khách',
     this.isRequired = true,
     this.min = 1,
+    this.max = 999999999999,
   });
 
   final TextEditingController controller;
@@ -20,6 +22,7 @@ class PriceRulePriceField extends StatefulWidget {
   final String label;
   final bool isRequired;
   final int min;
+  final int max;
 
   @override
   State<PriceRulePriceField> createState() => _PriceRulePriceFieldState();
@@ -55,6 +58,13 @@ class _PriceRulePriceFieldState extends State<PriceRulePriceField> {
     }
   }
 
+  static String _formatMax(int max) {
+    return max.toString().replaceAllMapped(
+      RegExp(r'\B(?=(\d{3})+(?!\d))'),
+      (m) => '.',
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return VMoneyField(
@@ -65,9 +75,37 @@ class _PriceRulePriceFieldState extends State<PriceRulePriceField> {
       suffixText: 'đ',
       onChanged: widget.onChanged,
       min: widget.min,
+      max: widget.max,
+      maxMessage: 'Giá nhập tối đa ${_formatMax(widget.max)}đ',
       textStyle: VTypography.monoNumeric,
-      inputFormatters: const [PriceRuleMoneySelectionClampFormatter()],
+      inputFormatters: [
+        PriceRuleMoneyMaxFormatter(widget.max),
+        const PriceRuleMoneySelectionClampFormatter(),
+      ],
     );
+  }
+}
+
+/// Formatter ngăn nhập số tiền lớn hơn [max].
+class PriceRuleMoneyMaxFormatter extends TextInputFormatter {
+  const PriceRuleMoneyMaxFormatter(this.max);
+
+  final int max;
+
+  @override
+  TextEditingValue formatEditUpdate(
+    TextEditingValue oldValue,
+    TextEditingValue newValue,
+  ) {
+    final digitsOnly = newValue.text.replaceAll(RegExp(r'[^0-9]'), '');
+    if (digitsOnly.isEmpty) {
+      return newValue;
+    }
+    final parsed = int.tryParse(digitsOnly);
+    if (parsed == null || parsed > max) {
+      return oldValue;
+    }
+    return newValue;
   }
 }
 

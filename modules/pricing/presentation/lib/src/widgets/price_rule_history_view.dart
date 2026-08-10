@@ -48,7 +48,8 @@ enum _HistoryQuickFilter { all, priceEdit, fromOrder, excelImport }
 
 class _PriceRuleHistoryViewState extends State<PriceRuleHistoryView> {
   _HistoryQuickFilter _quickFilter = _HistoryQuickFilter.all;
-  PriceRuleHistoryFilterState _filterState = const PriceRuleHistoryFilterState();
+  PriceRuleHistoryFilterState _filterState =
+      const PriceRuleHistoryFilterState();
   final TextEditingController _search = TextEditingController();
   bool _isNewestFirst = true;
 
@@ -100,8 +101,9 @@ class _PriceRuleHistoryViewState extends State<PriceRuleHistoryView> {
       }
 
       if (q.isEmpty) return true;
-      final label =
-          PriceRuleHistoryShared.activityLabel(item.activityType).toLowerCase();
+      final label = PriceRuleHistoryShared.activityLabel(
+        item.activityType,
+      ).toLowerCase();
       final actor = item.actor.displayName.toLowerCase();
       return label.contains(q) || actor.contains(q);
     }).toList();
@@ -172,202 +174,233 @@ class _PriceRuleHistoryViewState extends State<PriceRuleHistoryView> {
 
     return Column(
       children: [
-          // Search bar + Filter Icon Button
-          Padding(
-            padding: const EdgeInsets.fromLTRB(
-              VSpacing.space4,
-              VSpacing.space3,
-              VSpacing.space4,
-              VSpacing.space2,
-            ),
-            child: Row(
-              children: [
-                Expanded(
-                  child: VSearchBar(
-                    hintText: 'Tìm theo hành động, người thực hiện...',
-                    controller: _search,
-                    onChanged: (_) => setState(() {}),
-                  ),
-                ),
-                const VGap.horizontalSm(),
-                VIconBox(
-                  icon: VIcons.tune,
-                  size: 44,
-                  iconSize: 20,
-                  backgroundColor: _filterState.isFiltered
-                      ? colors.primary.withValues(alpha: 0.1)
-                      : colors.surface,
-                  iconColor: _filterState.isFiltered
-                      ? colors.primary
-                      : colors.textPrimary,
-                  borderColor: _filterState.isFiltered
-                      ? colors.primary
-                      : colors.borderDefault,
-                  borderRadius: VRadius.button,
-                  onTap: _openFilterSheet,
-                ),
-              ],
-            ),
+        // Search bar + Filter Icon Button
+        Padding(
+          padding: const EdgeInsets.fromLTRB(
+            VSpacing.space4,
+            VSpacing.space3,
+            VSpacing.space4,
+            VSpacing.space2,
           ),
-
-          if (widget.customerName != null || widget.productUnitName != null) ...[
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: VSpacing.space4),
-              child: Row(
+          child: Row(
+            children: [
+              Expanded(
+                child: VSearchBar(
+                  hintText: 'Tìm theo hành động, người thực hiện...',
+                  controller: _search,
+                  onChanged: (_) => setState(() {}),
+                ),
+              ),
+              const VGap.horizontalSm(),
+              Stack(
+                clipBehavior: Clip.none,
                 children: [
-                  if (widget.customerName != null)
-                    VText(
-                      widget.customerName!,
-                      variant: VTextVariant.bodyDefault,
-                      style: const TextStyle(fontWeight: FontWeight.w600),
+                  VIconBox(
+                    icon: VIcons.tune,
+                    size: 44,
+                    iconSize: 20,
+                    backgroundColor:
+                        (_filterState.isFiltered ||
+                            _quickFilter != _HistoryQuickFilter.all)
+                        ? colors.primary.withValues(alpha: 0.1)
+                        : colors.surface,
+                    iconColor:
+                        (_filterState.isFiltered ||
+                            _quickFilter != _HistoryQuickFilter.all)
+                        ? colors.primary
+                        : colors.textPrimary,
+                    borderColor:
+                        (_filterState.isFiltered ||
+                            _quickFilter != _HistoryQuickFilter.all)
+                        ? colors.primary
+                        : colors.borderDefault,
+                    borderRadius: VRadius.button,
+                    onTap: _openFilterSheet,
+                  ),
+                  if (_filterState.isFiltered ||
+                      _quickFilter != _HistoryQuickFilter.all)
+                    Positioned(
+                      top: -2,
+                      right: -2,
+                      child: Container(
+                        width: 10,
+                        height: 10,
+                        decoration: BoxDecoration(
+                          color: colors.primary,
+                          shape: BoxShape.circle,
+                          border: Border.all(color: colors.surface, width: 1.5),
+                        ),
+                      ),
                     ),
-                  if (widget.productUnitName != null) ...[
-                    const VGap.horizontalXs(),
-                    VText(
-                      widget.productUnitName!,
-                      variant: VTextVariant.caption,
-                      color: colors.textMuted,
-                    ),
-                  ],
                 ],
               ),
-            ),
-            const VGap.xs(),
-          ],
+            ],
+          ),
+        ),
 
-          // Quick Filter Chips (D-02)
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
+        if (widget.customerName != null || widget.productUnitName != null) ...[
+          Padding(
             padding: const EdgeInsets.symmetric(horizontal: VSpacing.space4),
             child: Row(
-              spacing: VSpacing.sm,
               children: [
-                for (final entry in _HistoryQuickFilter.values)
-                  VChip(
-                    label: switch (entry) {
-                      _HistoryQuickFilter.all => 'Tất cả',
-                      _HistoryQuickFilter.priceEdit => 'Sửa giá',
-                      _HistoryQuickFilter.fromOrder => 'Từ đơn hàng',
-                      _HistoryQuickFilter.excelImport => 'Nhập Excel',
-                    },
-                    selected: _quickFilter == entry,
-                    onTap: () => setState(() => _quickFilter = entry),
+                if (widget.customerName != null)
+                  VText(
+                    widget.customerName!,
+                    variant: VTextVariant.bodyDefault,
+                    style: const TextStyle(fontWeight: FontWeight.w600),
                   ),
-              ],
-            ),
-          ),
-
-          // Active filter tags bar (D-04 A)
-          if (_filterState.isFiltered) ...[
-            const VGap.xs(),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: VSpacing.space4),
-              child: Row(
-                children: [
-                  if (_filterState.activityType != 'Tất cả') ...[
-                    VChip(
-                      label: '${_filterState.activityType} ✕',
-                      selected: true,
-                      onTap: () => setState(() =>
-                          _filterState = _filterState.copyWith(activityType: 'Tất cả')),
-                    ),
-                    const VGap.horizontalXs(),
-                  ],
-                  if (_filterState.timeRange != 'Tất cả') ...[
-                    VChip(
-                      label: '${_filterState.timeRange} ✕',
-                      selected: true,
-                      onTap: () => setState(() =>
-                          _filterState = _filterState.copyWith(timeRange: 'Tất cả')),
-                    ),
-                    const VGap.horizontalXs(),
-                  ],
-                  VButton(
-                    label: 'Xóa lọc',
-                    variant: VButtonVariant.ghost,
-                    size: VButtonSize.small,
-                    foregroundColor: colors.danger,
-                    onPressed: _resetAllFilters,
+                if (widget.productUnitName != null) ...[
+                  const VGap.horizontalXs(),
+                  VText(
+                    widget.productUnitName!,
+                    variant: VTextVariant.caption,
+                    color: colors.textMuted,
                   ),
                 ],
-              ),
+              ],
             ),
-          ],
+          ),
+          const VGap.xs(),
+        ],
 
-          // Sort & Result counter header row
-          Padding(
-            padding: const EdgeInsets.fromLTRB(
-              VSpacing.space4,
-              VSpacing.space2,
-              VSpacing.space4,
-              VSpacing.space1,
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                VText(
-                  '${filtered.length} kết quả',
-                  variant: VTextVariant.caption,
-                  color: colors.textMuted,
+        // Quick Filter Chips (D-02)
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          padding: const EdgeInsets.symmetric(horizontal: VSpacing.space4),
+          child: Row(
+            spacing: VSpacing.sm,
+            children: [
+              for (final entry in _HistoryQuickFilter.values)
+                VChip(
+                  label: switch (entry) {
+                    _HistoryQuickFilter.all => 'Tất cả',
+                    _HistoryQuickFilter.priceEdit => 'Sửa giá',
+                    _HistoryQuickFilter.fromOrder => 'Từ đơn hàng',
+                    _HistoryQuickFilter.excelImport => 'Nhập Excel',
+                  },
+                  selected: _quickFilter == entry,
+                  onTap: () => setState(() => _quickFilter = entry),
                 ),
-                InkWell(
-                  onTap: () => setState(() => _isNewestFirst = !_isNewestFirst),
-                  child: Row(
-                    children: [
-                      VText(
-                        _isNewestFirst ? 'Mới nhất trước' : 'Cũ nhất trước',
-                        variant: VTextVariant.caption,
-                        color: colors.textSecondary,
-                        style: const TextStyle(fontWeight: FontWeight.w600),
+            ],
+          ),
+        ),
+
+        // Active filter tags bar (D-04 A)
+        if (_filterState.isFiltered) ...[
+          const VGap.xs(),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: VSpacing.space4),
+            child: Row(
+              children: [
+                if (_filterState.activityType != 'Tất cả') ...[
+                  VChip(
+                    label: '${_filterState.activityType} ✕',
+                    selected: true,
+                    onTap: () => setState(
+                      () => _filterState = _filterState.copyWith(
+                        activityType: 'Tất cả',
                       ),
-                      const VGap.horizontalXs(),
-                      VIcon(
-                        icon: VIcons.chevronDown,
-                        size: 14,
-                        color: colors.textSecondary,
-                      ),
-                    ],
+                    ),
                   ),
+                  const VGap.horizontalXs(),
+                ],
+                if (_filterState.timeRange != 'Tất cả') ...[
+                  VChip(
+                    label: '${_filterState.timeRange} ✕',
+                    selected: true,
+                    onTap: () => setState(
+                      () => _filterState = _filterState.copyWith(
+                        timeRange: 'Tất cả',
+                      ),
+                    ),
+                  ),
+                  const VGap.horizontalXs(),
+                ],
+                VButton(
+                  label: 'Xóa lọc',
+                  variant: VButtonVariant.ghost,
+                  size: VButtonSize.small,
+                  foregroundColor: colors.danger,
+                  onPressed: _resetAllFilters,
                 ),
               ],
             ),
           ),
-
-          // Timeline List or Empty state (D-04 B & D-08 1)
-          Expanded(
-            child: filtered.isEmpty
-                ? PriceRuleHistoryEmptyView(
-                    isFiltered: _filterState.isFiltered ||
-                        _quickFilter != _HistoryQuickFilter.all ||
-                        _search.text.isNotEmpty,
-                    onReset: _resetAllFilters,
-                    onBack: widget.onBack,
-                  )
-                : ListView.builder(
-                    padding: const EdgeInsets.all(VSpacing.space4),
-                    itemCount: filtered.length + (widget.hasMore ? 1 : 0),
-                    itemBuilder: (context, i) {
-                      if (i == filtered.length) {
-                        widget.onLoadMore();
-                        return const Padding(
-                          padding: EdgeInsets.all(VSpacing.space4),
-                          child: Center(
-                            child: VSkeleton(width: 40, height: 40),
-                          ),
-                        );
-                      }
-                      final item = filtered[i];
-                      final isLastItem = i == filtered.length - 1;
-                      return PriceRuleHistoryTimelineTile(
-                        activity: item,
-                        isLast: isLastItem,
-                        hasSensitivePermission: widget.hasSensitivePermission,
-                        onViewRuleDetail: widget.onViewRuleDetail,
-                      );
-                    },
-                  ),
-          ),
         ],
-      );
+
+        // Sort & Result counter header row
+        Padding(
+          padding: const EdgeInsets.fromLTRB(
+            VSpacing.space4,
+            VSpacing.space2,
+            VSpacing.space4,
+            VSpacing.space1,
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              VText(
+                '${filtered.length} kết quả',
+                variant: VTextVariant.caption,
+                color: colors.textMuted,
+              ),
+              InkWell(
+                onTap: () => setState(() => _isNewestFirst = !_isNewestFirst),
+                child: Row(
+                  children: [
+                    VText(
+                      _isNewestFirst ? 'Mới nhất trước' : 'Cũ nhất trước',
+                      variant: VTextVariant.caption,
+                      color: colors.textSecondary,
+                      style: const TextStyle(fontWeight: FontWeight.w600),
+                    ),
+                    const VGap.horizontalXs(),
+                    VIcon(
+                      icon: VIcons.chevronDown,
+                      size: 14,
+                      color: colors.textSecondary,
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+
+        // Timeline List or Empty state (D-04 B & D-08 1)
+        Expanded(
+          child: filtered.isEmpty
+              ? PriceRuleHistoryEmptyView(
+                  isFiltered:
+                      _filterState.isFiltered ||
+                      _quickFilter != _HistoryQuickFilter.all ||
+                      _search.text.isNotEmpty,
+                  onReset: _resetAllFilters,
+                  onBack: widget.onBack,
+                )
+              : ListView.builder(
+                  padding: const EdgeInsets.all(VSpacing.space4),
+                  itemCount: filtered.length + (widget.hasMore ? 1 : 0),
+                  itemBuilder: (context, i) {
+                    if (i == filtered.length) {
+                      widget.onLoadMore();
+                      return const Padding(
+                        padding: EdgeInsets.all(VSpacing.space4),
+                        child: Center(child: VSkeleton(width: 40, height: 40)),
+                      );
+                    }
+                    final item = filtered[i];
+                    final isLastItem = i == filtered.length - 1;
+                    return PriceRuleHistoryTimelineTile(
+                      activity: item,
+                      isLast: isLastItem,
+                      hasSensitivePermission: widget.hasSensitivePermission,
+                      onViewRuleDetail: widget.onViewRuleDetail,
+                    );
+                  },
+                ),
+        ),
+      ],
+    );
   }
 }

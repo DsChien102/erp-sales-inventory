@@ -4,7 +4,7 @@ import 'package:vet45_design_system/design_system.dart';
 import 'package:vet45_pricing_presentation/presentation.dart';
 
 void main() {
-  testWidgets('showPriceRuleLeaveFormDialog uses VConfirmDialog copy',
+  testWidgets('showPriceRuleLeaveFormDialog uses VBottomSheet copy',
       (tester) async {
     await tester.pumpWidget(
       MaterialApp(
@@ -27,6 +27,6 @@ void main() {
     expect(find.text('Những thay đổi chưa lưu sẽ bị mất.'), findsOneWidget);
     expect(find.text('Ở lại chỉnh sửa'), findsOneWidget);
     expect(find.text('Rời khỏi'), findsOneWidget);
-    expect(find.byType(VConfirmDialog), findsOneWidget);
+    expect(find.byType(VBottomSheet), findsOneWidget);
   });
 }

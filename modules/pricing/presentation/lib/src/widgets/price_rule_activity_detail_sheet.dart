@@ -30,6 +30,7 @@ class PriceRuleActivityDetailSheet extends StatelessWidget {
   }) {
     return showVBottomSheet(
       context: context,
+      title: 'Chi tiết hoạt động',
       semanticLabel: 'Chi tiết hoạt động giá riêng',
       child: PriceRuleActivityDetailSheet(
         activity: activity,
@@ -73,31 +74,6 @@ class PriceRuleActivityDetailSheet extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  VText(
-                    'Chi tiết hoạt động',
-                    variant: VTextVariant.headingH4,
-                    style: const TextStyle(fontWeight: FontWeight.w700),
-                    color: colors.textPrimary,
-                  ),
-                  InkWell(
-                    onTap: () => Navigator.of(context).pop(),
-                    borderRadius: BorderRadius.circular(VRadius.r8),
-                    child: Padding(
-                      padding: const EdgeInsets.all(VSpacing.space1),
-                      child: VIcon(
-                        icon: VIcons.close,
-                        size: 20,
-                        color: colors.textSecondary,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              const VGap.md(),
-
               // D-07: Banner ẩn dữ liệu nhạy cảm nếu không có quyền
               if (!hasSensitivePermission) ...[
                 VBanner(
@@ -356,7 +332,7 @@ class _DiffHeaderRow extends StatelessWidget {
     return Row(
       children: [
         Expanded(
-          flex: 4,
+          flex: 3,
           child: VText(
             'Trường',
             variant: VTextVariant.caption,
@@ -364,8 +340,9 @@ class _DiffHeaderRow extends StatelessWidget {
             style: const TextStyle(fontWeight: FontWeight.w600),
           ),
         ),
+        const SizedBox(width: VSpacing.space2),
         Expanded(
-          flex: 3,
+          flex: 4,
           child: VText(
             'Trước',
             variant: VTextVariant.caption,
@@ -373,8 +350,9 @@ class _DiffHeaderRow extends StatelessWidget {
             style: const TextStyle(fontWeight: FontWeight.w600),
           ),
         ),
+        const SizedBox(width: VSpacing.space2),
         Expanded(
-          flex: 3,
+          flex: 4,
           child: VText(
             'Sau',
             variant: VTextVariant.caption,
@@ -406,34 +384,45 @@ class _DiffRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = context.vColors;
     return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Expanded(
-          flex: 4,
+          flex: 3,
           child: VText(
             label,
             variant: VTextVariant.bodySmall,
             color: colors.textSecondary,
           ),
         ),
+        const SizedBox(width: VSpacing.space2),
         Expanded(
-          flex: 3,
-          child: VText(
-            before,
-            variant: VTextVariant.bodySmallMono,
-            color: isMasked ? colors.textMuted : colors.textPrimary,
+          flex: 4,
+          child: Padding(
+            padding: const EdgeInsets.only(right: VSpacing.space2),
+            child: VText(
+              before,
+              variant: VTextVariant.bodySmall,
+              color: isMasked ? colors.textMuted : colors.textPrimary,
+              style: isMasked
+                  ? null
+                  : const TextStyle(fontWeight: FontWeight.w600),
+            ),
           ),
         ),
+        const SizedBox(width: VSpacing.space2),
         Expanded(
-          flex: 3,
+          flex: 4,
           child: VText(
             after,
-            variant: VTextVariant.bodySmallMono,
+            variant: VTextVariant.bodySmall,
             color: isMasked
                 ? colors.textMuted
                 : (highlightAfter ? colors.success : colors.textPrimary),
             style: highlightAfter && !isMasked
                 ? const TextStyle(fontWeight: FontWeight.w700)
-                : null,
+                : (isMasked
+                      ? null
+                      : const TextStyle(fontWeight: FontWeight.w600)),
           ),
         ),
       ],

@@ -63,7 +63,7 @@ class PriceRuleDetailContent extends StatelessWidget {
 
           // Header summary — không có title trong card
           VCard(
-            padding: const EdgeInsets.all(VSpacing.space3),
+            padding: const EdgeInsets.all(VSpacing.space4),
             child: Column(
               children: [
                 PriceRuleIconDetailRow(
@@ -96,7 +96,7 @@ class PriceRuleDetailContent extends StatelessWidget {
               ],
             ),
           ),
-          const VGap.sm(),
+          const VGap.md(),
           PriceRuleDetailSectionCard(
             title: 'Thông tin giá',
             children: [
@@ -137,7 +137,7 @@ class PriceRuleDetailContent extends StatelessWidget {
               ),
             ],
           ),
-          const VGap.sm(),
+          const VGap.md(),
 
           PriceRuleDetailSectionCard(
             title: 'Hiệu lực & nguồn',
@@ -166,7 +166,7 @@ class PriceRuleDetailContent extends StatelessWidget {
           ),
 
           if (rule.persistedStatus == CustomerPriceRuleStatus.disabled) ...[
-            const VGap.sm(),
+            const VGap.md(),
             PriceRuleDetailSectionCard(
               title: 'Thông tin tắt',
               children: [
@@ -196,18 +196,26 @@ class PriceRuleDetailContent extends StatelessWidget {
           ],
           if (onViewHistory != null ||
               (recentActivities != null && recentActivities!.isNotEmpty)) ...[
-            const VGap.sm(),
+            const VGap.md(),
             PriceRuleDetailSectionCard(
               title: 'Lịch sử gần đây',
               children: [
                 if (recentActivities != null &&
                     recentActivities!.isNotEmpty) ...[
-                  for (final item in recentActivities!.take(3)) ...[
-                    PriceRuleRecentHistoryItem(activity: item),
-                    const VGap.sm(),
+                  for (var i = 0; i < recentActivities!.take(3).length; i++) ...[
+                    PriceRuleRecentHistoryItem(
+                      activity: recentActivities!.take(3).elementAt(i),
+                    ),
+                    if (i < recentActivities!.take(3).length - 1) ...[
+                      const VGap.md(),
+                      Divider(height: 1, color: colors.borderDefault),
+                      const VGap.md(),
+                    ] else ...[
+                      const VGap.md(),
+                    ],
                   ],
                   Divider(height: 1, color: colors.borderDefault),
-                  const VGap.sm(),
+                  const VGap.md(),
                 ],
                 if (onViewHistory != null)
                   InkWell(

@@ -2,16 +2,62 @@ import 'package:flutter/material.dart';
 import 'package:vet45_design_system/design_system.dart';
 
 /// SC-06 — Xác nhận thoát form tạo/sửa giá riêng khi còn thay đổi chưa lưu.
+/// Sử dụng [showVBottomSheet] theo chuẩn Design System.
 Future<bool> showPriceRuleLeaveFormDialog(BuildContext context) async {
-  var confirmed = false;
-  await showVConfirmDialog(
+  final result = await showVBottomSheet<bool>(
     context: context,
     title: 'Rời khỏi màn hình?',
-    message: 'Những thay đổi chưa lưu sẽ bị mất.',
-    cancelLabel: 'Ở lại chỉnh sửa',
-    actionLabel: 'Rời khỏi',
-    isDestructive: true,
-    onAction: () => confirmed = true,
+    child: const _PriceRuleLeaveFormSheet(),
   );
-  return confirmed;
+  return result ?? false;
+}
+
+class _PriceRuleLeaveFormSheet extends StatelessWidget {
+  const _PriceRuleLeaveFormSheet();
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.vColors;
+    return SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(
+          VSpacing.space4,
+          VSpacing.space3,
+          VSpacing.space4,
+          VSpacing.space4,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            VText(
+              'Những thay đổi chưa lưu sẽ bị mất.',
+              variant: VTextVariant.bodyDefault,
+              color: colors.textSecondary,
+            ),
+            const SizedBox(height: VSpacing.space6),
+            Row(
+              children: [
+                Expanded(
+                  child: VButton(
+                    label: 'Ở lại chỉnh sửa',
+                    variant: VButtonVariant.outline,
+                    onPressed: () => Navigator.of(context).pop(false),
+                  ),
+                ),
+                const SizedBox(width: VSpacing.space3),
+                Expanded(
+                  child: VButton(
+                    label: 'Rời khỏi',
+                    variant: VButtonVariant.danger,
+                    onPressed: () => Navigator.of(context).pop(true),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }

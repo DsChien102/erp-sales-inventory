@@ -115,13 +115,8 @@ void main() {
         await cubit.submit();
         await tester.pumpAndSettle();
 
-        expect(find.text('Ghi đè giá riêng trùng?'), findsOneWidget);
-        await tester.tap(
-          find.descendant(
-            of: find.byType(VConfirmDialog),
-            matching: find.text('Hủy'),
-          ),
-        );
+        expect(find.text('Tự động ghi đè giá trùng?'), findsOneWidget);
+        await tester.tap(find.widgetWithText(VButton, 'Hủy').last);
         await tester.pumpAndSettle();
 
         expect(
@@ -129,8 +124,9 @@ void main() {
             'Đã tồn tại giá riêng đang hoạt động trùng thời gian. '
             'Vui lòng điều chỉnh khoảng hiệu lực hoặc chọn đối tượng khác.',
           ),
-          findsOneWidget,
+          findsNothing,
         );
+        expect(find.text('Lưu ý tự động ghi đè giá trùng'), findsNothing);
         expect(findByWgtKey('wgt_e02_u04_fr01_01'), findsOneWidget);
         final state = cubit.state as PriceRuleFormEditing;
         expect(state.customerId, 'customer-1');
@@ -192,7 +188,7 @@ void main() {
 
         expect(findByWgtKey('wgt_e02_u01_fr01_01'), findsOneWidget);
         final listBackButton = find.byWidgetPredicate(
-          (widget) => widget is VIcon && widget.icon == VIcons.arrowLeft,
+          (widget) => widget is VIcon && widget.icon == VIcons.chevronLeft,
         );
         expect(listBackButton, findsOneWidget);
 

@@ -49,18 +49,19 @@ class PriceRuleHistoryTimelineTile extends StatelessWidget {
             Column(
               children: [
                 VIconBox(
-                  icon: PriceRuleHistoryShared.activityIcon(activity.activityType),
+                  icon: PriceRuleHistoryShared.activityIcon(
+                    activity.activityType,
+                  ),
                   size: 36,
                   iconSize: 18,
-                  tone: PriceRuleHistoryShared.activityTone(activity.activityType),
+                  tone: PriceRuleHistoryShared.activityTone(
+                    activity.activityType,
+                  ),
                   isCircular: true,
                 ),
                 if (!isLast)
                   Expanded(
-                    child: Container(
-                      width: 2,
-                      color: colors.borderDefault,
-                    ),
+                    child: Container(width: 2, color: colors.borderDefault),
                   ),
               ],
             ),
@@ -69,7 +70,7 @@ class PriceRuleHistoryTimelineTile extends StatelessWidget {
               child: Padding(
                 padding: const EdgeInsets.only(bottom: VSpacing.space3),
                 child: VCard(
-                  padding: const EdgeInsets.all(VSpacing.space3),
+                  padding: const EdgeInsets.all(VSpacing.space4),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -84,13 +85,15 @@ class PriceRuleHistoryTimelineTile extends StatelessWidget {
                                   PriceRuleHistoryShared.activityLabel(
                                     activity.activityType,
                                   ),
-                                  variant: VTextVariant.bodyDefault,
-                                  style: const TextStyle(fontWeight: FontWeight.w700),
+                                  variant: VTextVariant.headingH4,
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.w700,
+                                  ),
                                 ),
                                 const VGap.xs(),
                                 VText(
                                   '${activity.actor.displayName} · ${PriceRuleHistoryShared.sourceLabel(activity.sourceType)}',
-                                  variant: VTextVariant.caption,
+                                  variant: VTextVariant.bodySmall,
                                   color: colors.textSecondary,
                                 ),
                               ],
@@ -103,9 +106,10 @@ class PriceRuleHistoryTimelineTile extends StatelessWidget {
                                 label: PriceRuleHistoryShared.sourceLabel(
                                   activity.sourceType,
                                 ),
-                                status: PriceRuleHistoryShared.sourceBadgeStatus(
-                                  activity.sourceType,
-                                ),
+                                status:
+                                    PriceRuleHistoryShared.sourceBadgeStatus(
+                                      activity.sourceType,
+                                    ),
                                 isSmall: true,
                               ),
                               const VGap.xs(),
@@ -113,9 +117,8 @@ class PriceRuleHistoryTimelineTile extends StatelessWidget {
                                 PriceRuleHistoryShared.formatDateTime(
                                   activity.createdAt,
                                 ),
-                                variant: VTextVariant.caption,
+                                variant: VTextVariant.bodySmall,
                                 color: colors.textMuted,
-                                style: const TextStyle(fontSize: 11),
                               ),
                             ],
                           ),
@@ -133,7 +136,8 @@ class PriceRuleHistoryTimelineTile extends StatelessWidget {
                                 CustomerPriceRuleActivityType.updated &&
                             oldPrice != null &&
                             newPrice != null)
-                          Row(
+                          Wrap(
+                            crossAxisAlignment: WrapCrossAlignment.center,
                             children: [
                               VText(
                                 'Giá đổi từ ',
@@ -142,21 +146,26 @@ class PriceRuleHistoryTimelineTile extends StatelessWidget {
                               ),
                               VText(
                                 PriceRuleHistoryShared.formatMoney(oldPrice),
-                                variant: VTextVariant.bodySmallMono,
+                                variant: VTextVariant.bodySmall,
                                 color: colors.textPrimary,
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                ),
                               ),
                               VText(
                                 ' → ',
                                 variant: VTextVariant.bodySmall,
                                 color: colors.success,
-                                style: const TextStyle(fontWeight: FontWeight.bold),
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
-                              Flexible(
-                                child: VText(
-                                  PriceRuleHistoryShared.formatMoney(newPrice),
-                                  variant: VTextVariant.bodySmallMono,
-                                  color: colors.success,
-                                  style: const TextStyle(fontWeight: FontWeight.bold),
+                              VText(
+                                PriceRuleHistoryShared.formatMoney(newPrice),
+                                variant: VTextVariant.bodySmall,
+                                color: colors.success,
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
                                 ),
                               ),
                             ],
@@ -164,7 +173,7 @@ class PriceRuleHistoryTimelineTile extends StatelessWidget {
                         else if (orderId != null)
                           VText(
                             'Đơn #$orderId',
-                            variant: VTextVariant.bodySmallMono,
+                            variant: VTextVariant.bodySmall,
                             color: colors.primary,
                             style: const TextStyle(fontWeight: FontWeight.w600),
                           )

@@ -71,13 +71,13 @@ abstract final class PriceRuleHistoryShared {
       };
 
   static String formatMoney(int amountMinor) {
-    return '${amountMinor.toString().replaceAllMapped(RegExp(r'\B(?=(\d{3})+(?!\d))'), (m) => '.')}đ';
+    return '${amountMinor.toString().replaceAllMapped(RegExp(r'\B(?=(\d{3})+(?!\d))'), (m) => '.')} đ';
   }
 
   static String formatDiffMoney(int? diffMinor) {
     if (diffMinor == null) return '—';
     final sign = diffMinor >= 0 ? '+' : '';
-    return '$sign${diffMinor.toString().replaceAllMapped(RegExp(r'\B(?=(\d{3})+(?!\d))'), (m) => '.')}đ';
+    return '$sign${diffMinor.toString().replaceAllMapped(RegExp(r'\B(?=(\d{3})+(?!\d))'), (m) => '.')} đ';
   }
 
   static String formatDateTime(DateTime d) {

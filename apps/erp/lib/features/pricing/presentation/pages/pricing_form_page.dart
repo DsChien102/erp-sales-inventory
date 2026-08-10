@@ -115,13 +115,6 @@ class _PricingFormPageState extends State<PricingFormPage> {
               final confirmed = await showPriceRuleOverwriteConfirmDialog(context);
               if (confirmed && context.mounted) {
                 await _cubit.confirmOverwrite();
-              } else if (context.mounted) {
-                VToast.show(
-                  context,
-                  title: 'Lỗi',
-                  message: _mapErrorToMessage(state.code),
-                  type: VToastType.danger,
-                );
               }
             } else {
               VToast.show(
