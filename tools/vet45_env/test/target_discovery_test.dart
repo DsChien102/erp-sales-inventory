@@ -45,7 +45,7 @@ void main() {
     final manifest = EnvManifest.load(root);
     expect(
       manifest.targets['deploy']!.secretsFile!.path.replaceAll('\\', '/'),
-      endsWith('.vet45/deploy/deploy.env'),
+      endsWith('deploy/deploy.env'),
     );
   });
 

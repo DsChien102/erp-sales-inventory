@@ -32,7 +32,7 @@ void main() {
     expect(manifest.getEnvironment('local').binding('erp')?.flavor, 'development');
     expect(
       manifest.targets['deploy']!.secretsFile!.path,
-      endsWith('.vet45/deploy/deploy.env'),
+      endsWith('deploy/deploy.env'),
     );
     expect(manifest.profiles.profiles.keys, contains('default'));
     expect(
@@ -55,7 +55,7 @@ void main() {
     expect(m.defaultEnvironmentId, 'development');
     expect(
       m.targets['deploy']!.secretsFile!.path,
-      endsWith('.vet45/deploy/deploy.env'),
+      endsWith('deploy/deploy.env'),
     );
   });
 
@@ -269,7 +269,7 @@ void main() {
 
   test('doctor deploy passes when deploy secrets present', () async {
     writeDotEnv(
-      File('${root.path}/.vet45/deploy/deploy.env'),
+      File('${root.path}/deploy/deploy.env'),
       {
         'APP_STORE_CONNECT_ISSUER_ID': 'issuer',
         'APP_STORE_CONNECT_KEY_IDENTIFIER': 'key-id',

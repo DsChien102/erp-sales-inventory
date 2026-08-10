@@ -8,13 +8,13 @@ Melos-centric workflow to keep ERP, messaging worker, and Supabase targets align
 | -------- | ------- |
 | [`vet45.workspace.json`](../../vet45.workspace.json) | **Committed** — environments, scan policy, doctor |
 | `apps/*/vet45.target.json` | **Committed** — per-app keys + per-env bindings (auto-discovered) |
-| [`.vet45/deploy/vet45.target.json`](../../.vet45/deploy/vet45.target.json) | **Committed** — secrets-only deploy target |
+| [`deploy/vet45.target.json`](../../deploy/vet45.target.json) | **Committed** — secrets-only deploy target |
 | [`.vet45/templates/`](../../.vet45/templates/) | **Committed** — scaffold source for `vet45 init <profileId>` |
 | `.vet45/profiles/<profileId>/` | Local profile dir (under `.vet45/`, gitignored) |
 | `.vet45/profiles/<profileId>/<env>.env` | Profile secrets per environment |
 | `.vet45/profiles/<profileId>/auth.env.example` | Scaffold only — `init` does not create `auth.env` |
 | `.vet45/profiles/<profileId>/auth.env` | Optional — create when you need a per-profile Supabase CLI token |
-| `.vet45/deploy/deploy.env` | Shared iOS TestFlight credentials (gitignored) |
+| `deploy/deploy.env` | Shared iOS TestFlight credentials (gitignored) |
 | `.vet45/state.json` | Gitignored `{ profile, environment }` — **required** active profile |
 | `.vet45/active` | Legacy environment id pointer (still updated) |
 | `.vet45/bin/vet45[.exe]` | Local AOT binary from `melos run env:build` (fast CLI) |
@@ -32,7 +32,7 @@ Use profiles when you switch between Supabase accounts or client secret bundles.
 | -------- | ----- |
 | `.vet45/templates/` | Committed scaffold |
 | `.vet45/profiles/<profileId>/` | Local profiles (`vet45 init <id>`) |
-| `.vet45/deploy/deploy.env` | Shared across all profiles |
+| `deploy/deploy.env` | Shared across all profiles |
 
 ```bash
 vet45 init acme                  # scaffold + set active profile
@@ -57,7 +57,7 @@ Each **target** (registered directory/app) declares which secrets it needs. Sync
 | `erp` | `apps/erp/vet45.target.json` | `apps/erp/.env*` | `SUPABASE_URL` → `SUPABASE_CONNECTION_URL`, `SUPABASE_ANON_KEY` |
 | `admin` | `apps/admin/vet45.target.json` | `apps/admin/.env*` | same as erp (no messaging poll flag) |
 | `worker` | `apps/messaging_worker/vet45.target.json` | `apps/messaging_worker/.env*` | `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `WORKER_TICK_SECRET` (+ optional tuning) |
-| `deploy` | `.vet45/deploy/vet45.target.json` | none (secrets-only) | `APP_STORE_CONNECT_*` in `.vet45/deploy/deploy.env` |
+| `deploy` | `deploy/vet45.target.json` | none (secrets-only) | `APP_STORE_CONNECT_*` in `deploy/deploy.env` |
 
 Key specs live in each `vet45.target.json` (`required`, `default`, `from` rename, `fromManifest`, `autoGenerate`). Per-env bindings in the same file set `envFile`, `flavor`, `appEnv`, etc.
 
@@ -100,7 +100,7 @@ melos run env:init -- mylocal    # or: vet45 init mylocal
 melos run env:build              # AOT binary → .vet45/bin (skip Melos for daily CLI)
 source scripts/env/activate.sh   # Windows: . .\scripts\env\activate.ps1  or activate.bat
 # Fill Supabase URL + keys in .vet45/profiles/mylocal/*.env
-# Optional iOS deploy: fill .vet45/deploy/deploy.env (scaffolded by init)
+# Optional iOS deploy: fill deploy/deploy.env (scaffolded by init)
 # Local stack only: supabase start && melos run env:local
 
 vet45 sync                   # preferred (AOT); or: melos run env:sync
@@ -272,7 +272,7 @@ WORKER_TICK_IDLE_SECONDS=15
 WORKER_TICK_MAX_IDLE_SECONDS=30
 PORT=8080
 
-# Deploy-only (shared) — .vet45/deploy/deploy.env
+# Deploy-only (shared) — deploy/deploy.env
 APP_STORE_CONNECT_ISSUER_ID=
 APP_STORE_CONNECT_KEY_IDENTIFIER=
 ```
@@ -288,7 +288,7 @@ APP_STORE_CONNECT_KEY_IDENTIFIER=
 ```
 vet45.workspace.json       # Committed — environments, scan, doctor
 apps/*/vet45.target.json   # Committed — per-target keys + bindings
-.vet45/deploy/vet45.target.json
+deploy/vet45.target.json
 tools/vet45_env/           # Dart package (entry: bin/vet45_env.dart → AOT name `vet45`)
 scripts/env/vet45.sh|.bat|.ps1   # Prefer AOT `.vet45/bin/vet45`, else dart run
 .vet45/bin/vet45[.exe]     # AOT binary (`melos run env:build`)
@@ -370,7 +370,7 @@ Deploy scripts read worker config from **`.vet45/profiles/<profileId>/<env>.env`
 | ------- | --- |
 | Full `env:sync` exit 1 but erp works | Fill worker keys, or use `env:sync -- --target erp` / `melos run debug` |
 | `Missing SUPABASE_SERVICE_ROLE_KEY` on worker | `supabase start` then `melos run env:sync -- --target worker` |
-| Doctor fails on deploy | Add `.vet45/deploy/deploy.env`, or `env:doctor -- --target erp` |
+| Doctor fails on deploy | Add `deploy/deploy.env`, or `env:doctor -- --target erp` |
 | Switch remote dev/staging project | `melos run env:use:<env>` or `melos run env:link` |
 | `supabase cli link` mismatch | `melos run env:sync` then `melos run env:doctor` |
 | Edited generated `.env` lost | Edit `.vet45/profiles/<profileId>/<env>.env` then re-sync |

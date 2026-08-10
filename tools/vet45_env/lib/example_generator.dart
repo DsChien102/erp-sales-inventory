@@ -214,7 +214,7 @@ class ExampleGenerator {
     buffer.writeln(
       '# Shared deploy secrets (iOS TestFlight / App Store Connect).',
     );
-    buffer.writeln('# Generated from .vet45/deploy/vet45.target.json');
+    buffer.writeln('# Generated from deploy/vet45.target.json');
     buffer.writeln();
     for (final entry in collectDeployEntries()) {
       _writeEntry(buffer, entry, commentOutValues: false);

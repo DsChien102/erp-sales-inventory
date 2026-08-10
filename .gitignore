@@ -85,10 +85,8 @@ apps/erp/.env
 **/.env.*
 !**/.env.*.example
 .vet45/
-# Track committed env kit under .vet45 (deploy target + generated examples)
-!.vet45/deploy/
-!.vet45/deploy/**
-.vet45/deploy/deploy.env
-!.vet45/deploy/deploy.env.example
+.vet45
+# Shared iOS deploy secrets (target + example are committed under deploy/)
+deploy/deploy.env
 # App env files remain ignored via **/.env rules above
 
