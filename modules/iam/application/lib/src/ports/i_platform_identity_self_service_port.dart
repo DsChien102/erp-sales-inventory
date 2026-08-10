@@ -1,7 +1,7 @@
-import '../dto/my_account_dto.dart';
-import '../dto/password_reset_completion_result_dto.dart';
-import '../dto/password_reset_request_result_dto.dart';
-import '../dto/password_reset_verify_result_dto.dart';
+import '../identity/shared/my_account_dto.dart';
+import '../identity/shared/password_reset_completion_result_dto.dart';
+import '../identity/shared/password_reset_request_result_dto.dart';
+import '../identity/shared/password_reset_verify_result_dto.dart';
 
 /// Platform Identity self-service port (§S14, plan §3.2/§3.3).
 ///

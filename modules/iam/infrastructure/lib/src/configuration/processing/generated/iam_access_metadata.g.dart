@@ -169,9 +169,6 @@ final iamAccessMetadataRegistry = AccessMetadataRegistry({
     permission: 'platform.user.suspend',
     idempotencyKeyField: 'idempotencyKey',
   ),
-  SwitchActiveTenantCommand: AccessMetadata(
-    requiresTenant: true,
-  ),
   TransferPlatformTenantOwnershipCommand: AccessMetadata(
     permission: 'platform.tenant.owner.transfer',
     idempotencyKeyField: 'idempotencyKey',
@@ -191,4 +188,3 @@ final iamAccessMetadataRegistry = AccessMetadataRegistry({
     isPublic: true,
   ),
 });
-

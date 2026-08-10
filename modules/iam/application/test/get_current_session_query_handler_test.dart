@@ -1,6 +1,5 @@
 import 'package:test/test.dart';
 import 'package:vet45_iam_application/application.dart';
-import 'package:vet45_shared_application/application.dart';
 
 class _FakeAuthenticator implements IAuthenticator {
   _FakeAuthenticator(this._state);
@@ -85,11 +84,13 @@ void main() {
       sessionPort: sessionPort,
     );
 
-    expect(
+    await expectLater(
       () => handler.handle(GetCurrentSessionQuery()),
       throwsA(
-        predicate(
-          (e) => e is ApplicationException && e.toString().contains('SESSION_EXPIRED'),
+        isA<IamBlockedException>().having(
+          (e) => e.code,
+          'code',
+          IamBlockedCodes.sessionExpired,
         ),
       ),
     );

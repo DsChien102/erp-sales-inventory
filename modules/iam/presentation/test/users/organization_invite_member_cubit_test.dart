@@ -1,5 +1,4 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:vet45_iam_application/application.dart';
 import 'package:vet45_iam_application/testing.dart';
 import 'package:vet45_iam_presentation/presentation.dart';
 import 'package:vet45_iam_presentation/testing.dart';

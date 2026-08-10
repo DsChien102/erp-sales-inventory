@@ -1,4 +1,4 @@
-import '../dto/tenant_activation_result_dto.dart';
+import '../tenant/shared/tenant_activation_result_dto.dart';
 
 /// Command port for Tenant activation (§S11).
 abstract interface class ITenantActivationCommandGateway {

@@ -1,7 +1,7 @@
-import '../dto/my_account_dto.dart';
-import '../dto/password_reset_completion_result_dto.dart';
-import '../dto/password_reset_request_result_dto.dart';
-import '../dto/password_reset_verify_result_dto.dart';
+import '../identity/shared/my_account_dto.dart';
+import '../identity/shared/password_reset_completion_result_dto.dart';
+import '../identity/shared/password_reset_request_result_dto.dart';
+import '../identity/shared/password_reset_verify_result_dto.dart';
 import '../ports/i_platform_identity_self_service_port.dart';
 import '../shared/iam_blocked_codes.dart';
 import '../shared/iam_blocked_exception.dart';

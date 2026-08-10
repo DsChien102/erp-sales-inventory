@@ -62,7 +62,6 @@ final iamModuleManifest = GeneratedModuleManifest(
     SignOutCommand,
     SuspendPlatformTenantCommand,
     SuspendPlatformUserCommand,
-    SwitchActiveTenantCommand,
     SwitchTenantContextCommand,
     TransferPlatformTenantOwnershipCommand,
     UpdateMyIdentityProfileCommand,
@@ -95,4 +94,3 @@ final iamModuleManifest = GeneratedModuleManifest(
     SearchTenantAuditLogsQuery,
   ],
 );
-

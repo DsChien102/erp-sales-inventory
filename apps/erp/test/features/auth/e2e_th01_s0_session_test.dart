@@ -5,7 +5,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import 'package:vet45_design_system/design_system.dart';
-import 'package:vet45_iam_application/application.dart';
 import 'package:vet45_iam_application/testing.dart';
 import 'package:vet45_iam_presentation/testing.dart';
 import 'package:vet45_shared_application/application.dart';
@@ -23,7 +22,7 @@ void main() {
     await getIt.reset();
   });
 
-  Future<void> _setPhone(WidgetTester tester) async {
+  Future<void> setPhone(WidgetTester tester) async {
     tester.view.physicalSize = const Size(800, 1600);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.resetPhysicalSize);
@@ -33,7 +32,7 @@ void main() {
   testWidgets(
     'e2e_th01_s0_session: sign in then session query opens dashboard',
     (tester) async {
-      await _setPhone(tester);
+      await setPhone(tester);
 
       final module = RecordingIamModule(
         FakeIamModule(scenario: FakeIamScenario.authSignInOk),
@@ -80,7 +79,7 @@ void main() {
   testWidgets(
     'e2e_th01_s0_session: invalid credentials stay on login',
     (tester) async {
-      await _setPhone(tester);
+      await setPhone(tester);
 
       final module = FakeIamModule(scenario: FakeIamScenario.authInvalid);
       getIt
@@ -96,8 +95,7 @@ void main() {
           ),
           GoRoute(
             path: '/',
-            builder: (context, state) =>
-                const Scaffold(body: Text('HOME_OK')),
+            builder: (context, state) => const Scaffold(body: Text('HOME_OK')),
           ),
         ],
       );

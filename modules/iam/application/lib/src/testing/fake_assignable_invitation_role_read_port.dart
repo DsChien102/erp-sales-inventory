@@ -1,4 +1,4 @@
-import '../dto/assignable_role_option_dto.dart';
+import '../invitation/shared/assignable_role_option_dto.dart';
 import '../ports/i_assignable_invitation_role_read_port.dart';
 
 /// In-memory assignable roles for unit/fake tests (S7 / D1).

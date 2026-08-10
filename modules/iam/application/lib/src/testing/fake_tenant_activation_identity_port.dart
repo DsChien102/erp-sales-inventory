@@ -1,4 +1,4 @@
-import '../dto/tenant_activation_identity_snapshot.dart';
+import '../tenant/shared/tenant_activation_identity_snapshot.dart';
 import '../ports/i_tenant_activation_identity_port.dart';
 import '../shared/iam_blocked_codes.dart';
 import '../shared/iam_blocked_exception.dart';

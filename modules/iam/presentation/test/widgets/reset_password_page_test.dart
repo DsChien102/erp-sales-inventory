@@ -107,8 +107,7 @@ void main() {
           }
           throw UnsupportedError(message.runtimeType.toString());
         },
-        onQuery: (message) async =>
-            throw UnsupportedError(message.runtimeType.toString()),
+        onQuery: (message) async => throw UnsupportedError(message.runtimeType.toString()),
       );
       final module = RecordingIamModule(scripted);
       final cubit = PasswordResetCubit(
@@ -125,8 +124,7 @@ void main() {
     test('resend uses operationId returned by request', () async {
       final scripted = _ScriptedIamModule(
         onCommand: (message) async {
-          if (message is RequestMyPasswordResetCommand ||
-              message is ResendMyPasswordResetCommand) {
+          if (message is RequestMyPasswordResetCommand || message is ResendMyPasswordResetCommand) {
             return PasswordResetRequestResultDto(
               operationId: 'reset-op-1',
               maskedEmail: 'l***@example.com',
@@ -136,8 +134,7 @@ void main() {
           }
           throw UnsupportedError(message.runtimeType.toString());
         },
-        onQuery: (message) async =>
-            throw UnsupportedError(message.runtimeType.toString()),
+        onQuery: (message) async => throw UnsupportedError(message.runtimeType.toString()),
       );
       final module = RecordingIamModule(scripted);
       final cubit = PasswordResetCubit(
@@ -181,10 +178,7 @@ void main() {
       );
       expect(
         find.byWidgetPredicate(
-          (w) =>
-              w is VButton &&
-              w.label.startsWith('Gửi lại mã sau 00:') &&
-              w.onPressed == null,
+          (w) => w is VButton && w.label.startsWith('Gửi lại mã sau 00:') && w.onPressed == null,
         ),
         findsOneWidget,
       );
@@ -205,10 +199,7 @@ void main() {
       expect(module.commandTypes, contains(ResendMyPasswordResetCommand));
       expect(
         find.byWidgetPredicate(
-          (w) =>
-              w is VButton &&
-              w.label.startsWith('Gửi lại mã sau 00:') &&
-              w.onPressed == null,
+          (w) => w is VButton && w.label.startsWith('Gửi lại mã sau 00:') && w.onPressed == null,
         ),
         findsOneWidget,
       );
@@ -321,9 +312,7 @@ void main() {
       await tester.pumpAndSettle(const Duration(milliseconds: 100));
 
       expect(
-        module.commandTypes
-            .where((t) => t == CompleteMyPasswordResetCommand)
-            .length,
+        module.commandTypes.where((t) => t == CompleteMyPasswordResetCommand).length,
         1,
       );
       expect(popResult, isTrue);

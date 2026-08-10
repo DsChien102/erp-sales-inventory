@@ -80,29 +80,6 @@ class _RecordingAccessGateway implements IIamAccessGateway {
   }
 }
 
-class _RecordingSessionPort implements IIamSessionPort {
-  String? establishedTenantId;
-
-  @override
-  SessionDto get snapshot => const SessionDto(isAuthenticated: true);
-
-  @override
-  Future<void> clear() async {}
-
-  @override
-  Future<void> establishAfterSignIn({
-    String? tenantId,
-    bool requireTenantContext = true,
-  }) async {
-    establishedTenantId = tenantId;
-  }
-
-  @override
-  Future<void> restoreFromPersistedAuth({
-    bool requireTenantContext = true,
-  }) async {}
-}
-
 void main() {
   test('ListTenantMembersQueryHandler delegates to gateway', () async {
     final gateway = _RecordingAccessGateway();
@@ -131,16 +108,5 @@ void main() {
 
     expect(gateway.assignedUserId, 'user-2');
     expect(gateway.assignedRole, 'staff');
-  });
-
-  test('SwitchActiveTenantCommandHandler switches session tenant', () async {
-    final sessionPort = _RecordingSessionPort();
-    final handler = SwitchActiveTenantCommandHandler(sessionPort: sessionPort);
-
-    await handler.handle(
-      SwitchActiveTenantCommand(tenantId: 'tenant-99'),
-    );
-
-    expect(sessionPort.establishedTenantId, 'tenant-99');
   });
 }

@@ -1,16 +1,16 @@
 import 'package:vet45_iam_domain/domain.dart';
 
-import '../dto/cursor_page_dto.dart';
-import '../dto/platform_audit_log_detail_dto.dart';
-import '../dto/platform_audit_log_summary_dto.dart';
-import '../dto/platform_tenant_detail_dto.dart';
-import '../dto/platform_tenant_member_dto.dart';
-import '../dto/platform_tenant_summary_dto.dart';
-import '../dto/platform_user_detail_dto.dart';
-import '../dto/platform_user_status.dart';
-import '../dto/platform_user_summary_dto.dart';
-import '../dto/tenant_onboarding_operation_dto.dart';
-import '../dto/tenant_onboarding_result_dto.dart';
+import '../shared/cursor_page_dto.dart';
+import '../platform/queries/get_platform_audit_log/platform_audit_log_detail_dto.dart';
+import '../platform/shared/platform_audit_log_summary_dto.dart';
+import '../platform/queries/get_platform_tenant/platform_tenant_detail_dto.dart';
+import '../platform/shared/platform_tenant_member_dto.dart';
+import '../platform/shared/platform_tenant_summary_dto.dart';
+import '../platform/shared/platform_user_detail_dto.dart';
+import '../platform/shared/platform_user_status.dart';
+import '../platform/shared/platform_user_summary_dto.dart';
+import '../platform/shared/tenant_onboarding_operation_dto.dart';
+import '../platform/shared/tenant_onboarding_result_dto.dart';
 
 /// Port for platform-scoped Admin reads/mutations (TH-01 S15/S16).
 ///

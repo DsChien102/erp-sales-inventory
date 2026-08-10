@@ -1,5 +1,5 @@
-import '../dto/tenant_audit_log_detail_dto.dart';
-import '../dto/tenant_audit_log_search_page_dto.dart';
+import '../tenant/shared/tenant_audit_log_detail_dto.dart';
+import '../tenant/shared/tenant_audit_log_search_page_dto.dart';
 
 /// Platform Audit read port for tenant-scoped history (§S13).
 abstract interface class ITenantAuditReadPort {

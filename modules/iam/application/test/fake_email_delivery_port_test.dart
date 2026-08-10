@@ -1,6 +1,5 @@
 import 'package:test/test.dart';
 import 'package:vet45_iam_application/testing.dart';
-import 'package:vet45_iam_application/application.dart';
 
 void main() {
   group('FakeEmailDeliveryPort', () {

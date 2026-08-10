@@ -2,7 +2,7 @@ import 'package:admin/features/users/presentation/pages/platform_users_page.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:vet45_design_system/design_system.dart';
-import 'package:vet45_iam_application/application.dart';
+import 'package:vet45_iam_application/testing.dart';
 import 'package:vet45_shared_application/application.dart';
 
 void main() {

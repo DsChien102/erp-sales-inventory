@@ -1,5 +1,5 @@
-import '../dto/onboarding_owner_input.dart';
-import '../dto/platform_owner_identity_resolution_dto.dart';
+import '../platform/shared/onboarding_owner_input.dart';
+import '../platform/shared/platform_owner_identity_resolution_dto.dart';
 
 /// Privileged Platform Identity boundary used by onboarding.
 abstract interface class IPlatformIdentityProvisioningPort {

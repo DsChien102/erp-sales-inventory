@@ -69,9 +69,7 @@ class _OrganizationUsersView extends StatelessWidget {
       return isMember ? 'Đang tải thành viên' : 'Đang tải lời mời';
     }
     if (isFiltered && items.isEmpty) return '0 kết quả';
-    return isMember
-        ? '${items.length} thành viên'
-        : '${items.length} lời mời';
+    return isMember ? '${items.length} thành viên' : '${items.length} lời mời';
   }
 
   Future<void> _navigateInvite(BuildContext context) async {
@@ -79,11 +77,13 @@ class _OrganizationUsersView extends StatelessWidget {
     try {
       result = await context.push('/more/users/invite');
     } catch (_) {
-      result = await Navigator.of(context).push(
-        MaterialPageRoute(
-          builder: (_) => const OrganizationInviteMemberPage(),
-        ),
-      );
+      if (context.mounted) {
+        result = await Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (_) => const OrganizationInviteMemberPage(),
+          ),
+        );
+      }
     }
     if (result == true && context.mounted) {
       await context.read<OrganizationUsersCubit>().loadInvitations(reset: true);

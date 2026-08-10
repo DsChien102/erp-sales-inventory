@@ -7,7 +7,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import 'package:vet45_design_system/design_system.dart';
-import 'package:vet45_iam_application/application.dart';
+import 'package:vet45_iam_application/testing.dart';
 import 'package:vet45_iam_presentation/presentation.dart';
 import 'package:vet45_shared_application/application.dart';
 import 'package:vet45_shared_testing/shared_testing.dart';
@@ -41,8 +41,7 @@ void main() {
           GoRoute(
             path: '/',
             name: 'dashboard',
-            builder: (_, _) =>
-                const DashboardPage(initialTab: AdminTab.organizations),
+            builder: (_, _) => const DashboardPage(initialTab: AdminTab.organizations),
           ),
         ],
       );
@@ -155,8 +154,7 @@ final class _EmptyPlatformTenantModule implements IIamModule {
   @override
   Future<TResult> executeQueryAsync<TResult>(IQuery<TResult> query) async {
     if (query is SearchPlatformTenantsQuery) {
-      return const CursorPageDto<PlatformTenantSummaryDto>(items: [])
-          as TResult;
+      return const CursorPageDto<PlatformTenantSummaryDto>(items: []) as TResult;
     }
     if (query is SearchPlatformUsersQuery) {
       return const CursorPageDto<PlatformUserSummaryDto>(items: []) as TResult;

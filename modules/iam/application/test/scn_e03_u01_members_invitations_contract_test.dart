@@ -1,5 +1,5 @@
 import 'package:test/test.dart';
-import 'package:vet45_iam_application/application.dart';
+import 'package:vet45_iam_application/testing.dart';
 
 void main() {
   group('scn_e03_u01 members invitations contract', () {

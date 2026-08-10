@@ -1,7 +1,7 @@
-import '../dto/tenant_audit_log_detail_dto.dart';
-import '../dto/tenant_audit_log_result.dart';
-import '../dto/tenant_audit_log_search_page_dto.dart';
-import '../dto/tenant_audit_log_summary_dto.dart';
+import '../tenant/shared/tenant_audit_log_detail_dto.dart';
+import '../tenant/shared/tenant_audit_log_result.dart';
+import '../tenant/shared/tenant_audit_log_search_page_dto.dart';
+import '../tenant/shared/tenant_audit_log_summary_dto.dart';
 import '../ports/i_tenant_audit_read_port.dart';
 import '../shared/iam_blocked_codes.dart';
 import '../shared/iam_blocked_exception.dart';

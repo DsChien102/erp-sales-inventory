@@ -2,7 +2,7 @@ import 'package:admin/features/organizations/presentation/pages/platform_onboard
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:vet45_design_system/design_system.dart';
-import 'package:vet45_iam_application/application.dart';
+import 'package:vet45_iam_application/testing.dart';
 import 'package:vet45_iam_presentation/testing.dart';
 
 /// wgt_e01_u03_fr01_01 — Onboarding wizard via IIamModule.

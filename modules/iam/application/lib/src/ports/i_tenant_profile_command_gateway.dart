@@ -1,5 +1,5 @@
-import '../dto/tenant_dto.dart';
-import '../dto/upsert_legal_profile_result_dto.dart';
+import '../tenant/shared/tenant_dto.dart';
+import '../tenant/commands/upsert_legal_profile/upsert_legal_profile_result_dto.dart';
 
 /// Command port for Tenant profile + Legal Profile mutations (§S12).
 abstract interface class ITenantProfileCommandGateway {

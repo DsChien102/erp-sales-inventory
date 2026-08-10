@@ -1,4 +1,4 @@
-import '../dto/session_dto.dart';
+import '../authentication/shared/session_dto.dart';
 
 /// Coordinates in-memory session after auth events.
 abstract interface class IIamSessionPort {

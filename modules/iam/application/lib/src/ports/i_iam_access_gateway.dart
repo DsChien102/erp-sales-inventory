@@ -1,9 +1,9 @@
-import '../dto/accessible_tenant_dto.dart';
-import '../dto/cursor_page_dto.dart';
-import '../dto/principal_access_dto.dart';
-import '../dto/tenant_context_dto.dart';
-import '../dto/tenant_member_dto.dart';
-import '../dto/tenant_membership_dto.dart';
+import '../tenant/shared/accessible_tenant_dto.dart';
+import '../shared/cursor_page_dto.dart';
+import '../authentication/shared/principal_access_dto.dart';
+import '../tenant/shared/tenant_context_dto.dart';
+import '../tenant/shared/tenant_member_dto.dart';
+import '../tenant/shared/tenant_membership_dto.dart';
 
 /// Port for IAM access reads — infrastructure implements via Supabase RPC.
 abstract interface class IIamAccessGateway {

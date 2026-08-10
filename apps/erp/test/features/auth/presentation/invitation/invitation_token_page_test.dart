@@ -24,7 +24,7 @@ void main() {
         routes: <RouteBase>[
           GoRoute(
             path: '/invitation',
-            builder: (_, __) => InvitationTokenPage(iamModule: module),
+            builder: (_, _) => InvitationTokenPage(iamModule: module),
           ),
         ],
       );

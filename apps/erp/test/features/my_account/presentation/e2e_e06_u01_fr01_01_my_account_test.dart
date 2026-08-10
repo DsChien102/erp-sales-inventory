@@ -3,7 +3,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import 'package:vet45_design_system/design_system.dart';
-import 'package:vet45_iam_application/application.dart';
 import 'package:vet45_iam_application/testing.dart';
 import 'package:vet45_iam_presentation/presentation.dart';
 import 'package:vet45_shared_application/application.dart';
@@ -42,15 +41,13 @@ void main() {
           builder: (context, state) => MyAccountPage(
             iamModule: module,
             onLogout: () async {
-              final result = await module
-                  .executeCommandAsync<SignOutResultDto>(SignOutCommand());
+              final result = await module.executeCommandAsync<SignOutResultDto>(SignOutCommand());
               if (!result.localCleared) return;
               if (warnRemoteSignOut && !result.remoteSucceeded && context.mounted) {
                 VToast.show(
                   context,
                   title: 'Cảnh báo',
-                  message:
-                      'Phiên trên máy đã đóng; máy chủ chưa xác nhận đăng xuất',
+                  message: 'Phiên trên máy đã đóng; máy chủ chưa xác nhận đăng xuất',
                   type: VToastType.warning,
                 );
               }
@@ -124,8 +121,7 @@ void main() {
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
 
-    final module =
-        FakeIamModule(scenario: FakeIamScenario.passwordResetCompleteOk);
+    final module = FakeIamModule(scenario: FakeIamScenario.passwordResetCompleteOk);
     registerModule(module);
 
     await tester.pumpWidget(wrap(module));

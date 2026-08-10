@@ -1,7 +1,7 @@
 import 'package:erp/features/auth/presentation/bloc/invitation_acceptance_cubit.dart';
 import 'package:erp/features/auth/presentation/bloc/invitation_acceptance_state.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:vet45_iam_application/application.dart';
+import 'package:vet45_iam_application/testing.dart';
 import 'package:vet45_iam_domain/domain.dart';
 import 'package:vet45_iam_presentation/presentation.dart';
 import 'package:vet45_iam_presentation/testing.dart';

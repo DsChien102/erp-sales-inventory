@@ -12,9 +12,6 @@ report() {
 
 while IFS= read -r -d '' dto_dir; do
   rel="${dto_dir#$root/}"
-  if [[ "$rel" == modules/iam/application/lib/src/dto ]]; then
-    continue
-  fi
   report "global application dto/ folder forbidden (colocate DTOs per use-case): $rel"
 done < <(find "$root/modules" -path '*/application/lib/src/dto' -type d -print0 2>/dev/null)
 

@@ -62,7 +62,7 @@ abstract final class EmailTemplateRenderer {
           html:
               '<p>Nhập mã xác nhận trong ứng dụng để đặt lại mật khẩu.</p>'
               '$codeBlock',
-          text: '${codeText}Đặt lại mật khẩu VET45 — nhập mã trong ứng dụng ($locale).',
+          text: '$codeTextĐặt lại mật khẩu VET45 — nhập mã trong ứng dụng ($locale).',
         );
       case EmailTemplateId.securityNotification:
         return (

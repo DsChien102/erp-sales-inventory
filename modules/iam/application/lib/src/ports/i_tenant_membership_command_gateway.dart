@@ -1,4 +1,4 @@
-import '../dto/tenant_member_detail_dto.dart';
+import '../tenant/shared/tenant_member_detail_dto.dart';
 
 /// Command port for TenantMembership lifecycle mutations (S10).
 abstract interface class ITenantMembershipCommandGateway {

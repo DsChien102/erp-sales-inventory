@@ -1,4 +1,4 @@
-import '../dto/cursor_page_dto.dart';
+import '../shared/cursor_page_dto.dart';
 import '../invitation/shared/invitation_detail_dto.dart';
 import '../invitation/shared/invitation_summary_dto.dart';
 

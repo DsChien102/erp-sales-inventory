@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import '../../lib/src/audit_logs/widgets/audit_log_empty_view.dart';
+import 'package:vet45_iam_presentation/src/audit_logs/widgets/audit_log_empty_view.dart';
 
 void main() {
   Widget buildTestableWidget(Widget child) {
@@ -9,8 +9,7 @@ void main() {
     );
   }
 
-  testWidgets('AuditLogEmptyView renders noAuditLogs state correctly',
-      (WidgetTester tester) async {
+  testWidgets('AuditLogEmptyView renders noAuditLogs state correctly', (WidgetTester tester) async {
     bool tapped = false;
 
     await tester.pumpWidget(
@@ -24,8 +23,7 @@ void main() {
 
     expect(find.text('Chưa có hoạt động quản trị'), findsOneWidget);
     expect(
-      find.text(
-          'Các thay đổi người dùng, vai trò và thiết lập sẽ được ghi lại tại đây.'),
+      find.text('Các thay đổi người dùng, vai trò và thiết lập sẽ được ghi lại tại đây.'),
       findsOneWidget,
     );
     expect(find.text('Tải lại'), findsOneWidget);
@@ -34,8 +32,7 @@ void main() {
     expect(tapped, isTrue);
   });
 
-  testWidgets('AuditLogEmptyView renders noResults state correctly',
-      (WidgetTester tester) async {
+  testWidgets('AuditLogEmptyView renders noResults state correctly', (WidgetTester tester) async {
     bool tapped = false;
 
     await tester.pumpWidget(
@@ -58,8 +55,7 @@ void main() {
     expect(tapped, isTrue);
   });
 
-  testWidgets('AuditLogEmptyView renders loadError state correctly',
-      (WidgetTester tester) async {
+  testWidgets('AuditLogEmptyView renders loadError state correctly', (WidgetTester tester) async {
     bool tapped = false;
 
     await tester.pumpWidget(
@@ -82,8 +78,9 @@ void main() {
     expect(tapped, isTrue);
   });
 
-  testWidgets('AuditLogEmptyView renders unauthorized state correctly',
-      (WidgetTester tester) async {
+  testWidgets('AuditLogEmptyView renders unauthorized state correctly', (
+    WidgetTester tester,
+  ) async {
     bool tapped = false;
 
     await tester.pumpWidget(
@@ -97,8 +94,7 @@ void main() {
 
     expect(find.text('Bạn không có quyền xem lịch sử quản trị'), findsOneWidget);
     expect(
-      find.text(
-          'Liên hệ Chủ sở hữu hoặc người có quyền quản trị để được cấp quyền.'),
+      find.text('Liên hệ Chủ sở hữu hoặc người có quyền quản trị để được cấp quyền.'),
       findsOneWidget,
     );
     expect(find.text('Quay lại'), findsOneWidget);

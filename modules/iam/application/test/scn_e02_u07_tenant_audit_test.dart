@@ -1,5 +1,5 @@
 import 'package:test/test.dart';
-import 'package:vet45_iam_application/application.dart';
+import 'package:vet45_iam_application/testing.dart';
 
 final class _RecordingTenantAuditReadPort implements ITenantAuditReadPort {
   DateTime? receivedFrom;

@@ -1,7 +1,7 @@
 import 'package:vet45_shared_application/application.dart';
 
 import '../../../ports/i_platform_identity_self_service_port.dart';
-import '../../../dto/password_reset_verify_result_dto.dart';
+import '../../shared/password_reset_verify_result_dto.dart';
 import 'verify_my_password_reset_command.dart';
 
 @CommandHandlerFor(VerifyMyPasswordResetCommand)

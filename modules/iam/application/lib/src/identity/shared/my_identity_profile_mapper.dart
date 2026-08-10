@@ -1,4 +1,4 @@
-import '../../dto/my_account_dto.dart';
+import 'my_account_dto.dart';
 import 'my_identity_profile_dto.dart';
 
 MyIdentityProfileDto myIdentityProfileFromAccount(MyAccountDto account) {

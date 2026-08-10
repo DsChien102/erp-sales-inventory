@@ -6,7 +6,17 @@ First bounded context with **codegen enabled**. Other modules should mirror this
 
 ```text
 modules/iam/
-  application/          # commands, queries, handlers, DTOs, ports
+  application/          # aggregate → commands|queries/<use_case>/ + shared DTOs, ports
+    lib/src/
+      authentication/   # commands + queries + shared
+      identity/
+      invitation/
+      notification/
+      platform/
+      tenant/
+      ports/            # cross-aggregate port interfaces
+      shared/           # blocked codes, cursor page, …
+      testing/
   domain/               # thin rules (RoleCode, IamPermissions, InterimPermissionCodes)
   infrastructure/
     lib/src/configuration/

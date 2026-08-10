@@ -3,7 +3,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import 'package:vet45_design_system/design_system.dart';
-import 'package:vet45_iam_application/application.dart';
 import 'package:vet45_iam_application/testing.dart';
 import 'package:vet45_iam_presentation/presentation.dart';
 import 'package:vet45_iam_presentation/testing.dart';
@@ -22,14 +21,14 @@ void main() {
     await getIt.reset();
   });
 
-  Future<void> _phone(WidgetTester tester) async {
+  Future<void> phone(WidgetTester tester) async {
     tester.view.physicalSize = const Size(800, 1600);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
   }
 
-  void _register(IIamModule module) {
+  void register(IIamModule module) {
     getIt
       ..registerSingleton<IExecutionContext>(
         FakeExecutionContext(tenantId: 'org-001'),
@@ -40,11 +39,11 @@ void main() {
   testWidgets(
     'e2e_e02_u01_fr01_01: load profile → edit → UpdateTenantProfileCommand',
     (tester) async {
-      await _phone(tester);
+      await phone(tester);
       final module = RecordingIamModule(
         FakeIamModule(scenario: FakeIamScenario.tenantProfileUpdateOk),
       );
-      _register(module);
+      register(module);
 
       final router = GoRouter(
         initialLocation: '/more/organization-profile',
@@ -96,11 +95,11 @@ void main() {
   testWidgets(
     'e2e_e02_u01_fr01_02: legal duplicate warning then confirm',
     (tester) async {
-      await _phone(tester);
+      await phone(tester);
       final module = RecordingIamModule(
         FakeIamModule(scenario: FakeIamScenario.legalDuplicateWarning),
       );
-      _register(module);
+      register(module);
 
       final cubit = OrganizationProfileCubit(
         iamModule: module,
@@ -137,11 +136,11 @@ void main() {
   testWidgets(
     'e2e_e02_u01_fr01_03: profile STATE_CHANGED / stale version surfaces failure',
     (tester) async {
-      await _phone(tester);
+      await phone(tester);
       final module = FakeIamModule(
         scenario: FakeIamScenario.tenantProfileStale,
       );
-      _register(module);
+      register(module);
 
       final cubit = OrganizationProfileCubit(
         iamModule: module,
@@ -167,11 +166,11 @@ void main() {
   testWidgets(
     'e2e_e02_u07_fr01_01: audit search → detail by auditLogId',
     (tester) async {
-      await _phone(tester);
+      await phone(tester);
       final module = FakeIamModule(
         scenario: FakeIamScenario.tenantAuditSearchOk,
       );
-      _register(module);
+      register(module);
 
       final router = GoRouter(
         initialLocation: '/more/audit-logs',
@@ -218,11 +217,11 @@ void main() {
   testWidgets(
     'e2e_e02_u07_fr01_02: audit forbidden shows unauthorized state',
     (tester) async {
-      await _phone(tester);
+      await phone(tester);
       final module = FakeIamModule(
         scenario: FakeIamScenario.tenantAuditForbidden,
       );
-      _register(module);
+      register(module);
 
       await tester.pumpWidget(
         MaterialApp(

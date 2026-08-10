@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:vet45_iam_domain/domain.dart';
 
-import '../../lib/src/organizations/widgets/select_organization_bottom_sheet.dart';
+import 'package:vet45_iam_presentation/src/organizations/widgets/select_organization_bottom_sheet.dart';
 
 const _fixtureOrganizations = <SelectOrganizationItemUiModel>[
   SelectOrganizationItemUiModel(

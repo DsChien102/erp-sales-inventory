@@ -1,5 +1,4 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:vet45_iam_application/application.dart';
 import 'package:vet45_iam_application/testing.dart';
 import 'package:vet45_iam_presentation/presentation.dart';
 import 'package:vet45_iam_presentation/testing.dart';
@@ -59,8 +58,7 @@ void main() {
   test('page 2 receives exact cursor from page 1', () async {
     var page = 0;
     final scripted = _ScriptedIamModule(
-      onCommand: (message) async =>
-          throw UnsupportedError(message.runtimeType.toString()),
+      onCommand: (message) async => throw UnsupportedError(message.runtimeType.toString()),
       onQuery: (message) async {
         if (message is! ListTenantMembersQuery) {
           throw UnsupportedError(message.runtimeType.toString());

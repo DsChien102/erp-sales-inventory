@@ -1,4 +1,4 @@
-import '../../dto/tenant_member_detail_dto.dart';
+import '../../tenant/shared/tenant_member_detail_dto.dart';
 
 /// Result of RegisterFromInvitationCommand (§S8).
 final class InvitationRegistrationResultDto {

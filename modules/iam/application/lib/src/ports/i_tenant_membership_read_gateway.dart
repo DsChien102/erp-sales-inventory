@@ -1,4 +1,4 @@
-import '../dto/tenant_member_detail_dto.dart';
+import '../tenant/shared/tenant_member_detail_dto.dart';
 
 /// Read port for TenantMembership detail (S10).
 abstract interface class ITenantMembershipReadGateway {

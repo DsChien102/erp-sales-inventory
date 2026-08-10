@@ -303,7 +303,7 @@ class OrganizationUsersMainContent extends StatelessWidget {
             bottom: 80,
           ),
           itemCount: members.length,
-          separatorBuilder: (_, __) => const VGap.sm(),
+          separatorBuilder: (_, _) => const VGap.sm(),
           itemBuilder: (context, index) {
             final member = members[index];
             return MemberCard(
@@ -349,7 +349,7 @@ class OrganizationUsersMainContent extends StatelessWidget {
           bottom: 80,
         ),
         itemCount: invitations.length,
-        separatorBuilder: (_, __) => const VGap.sm(),
+        separatorBuilder: (_, _) => const VGap.sm(),
         itemBuilder: (context, index) {
           final invitation = invitations[index];
           return InvitationCard(

@@ -46,7 +46,36 @@ guarded_areas=(
   "modules/catalog/application/lib/src/product_custom_field_value"
   "modules/partner/application/lib/src/partner"
   "modules/partner/application/lib/src/partner_history"
+  "modules/iam/application/lib/src/authentication"
+  "modules/iam/application/lib/src/invitation"
+  "modules/iam/application/lib/src/tenant"
+  "modules/iam/application/lib/src/identity"
+  "modules/iam/application/lib/src/platform"
+  "modules/iam/application/lib/src/notification"
 )
+
+# Non-use-case dirs allowed beside commands/queries/shared (skill layout).
+allowed_aggregate_dirs=(
+  shared
+  commands
+  queries
+  ports
+  integration_events
+  testing
+  event_handlers
+  services
+  internal_commands
+  notifications
+)
+
+is_allowed_aggregate_dir() {
+  local name="$1"
+  local allowed
+  for allowed in "${allowed_aggregate_dirs[@]}"; do
+    [[ "$name" == "$allowed" ]] && return 0
+  done
+  return 1
+}
 
 for area in "${guarded_areas[@]}"; do
   area_path="$root/$area"
@@ -65,7 +94,9 @@ for area in "${guarded_areas[@]}"; do
 
     while IFS= read -r -d '' dir; do
       base="$(basename "$dir")"
-      [[ "$base" == "shared" || "$base" == "commands" || "$base" == "queries" ]] && continue
+      if is_allowed_aggregate_dir "$base"; then
+        continue
+      fi
       report "use_case folder must live under commands/ or queries/, not directly under aggregate: ${dir#$root/}"
     done < <(find "$area_path" -mindepth 1 -maxdepth 1 -type d -print0 2>/dev/null)
   else
