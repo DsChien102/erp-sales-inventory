@@ -174,7 +174,7 @@ platform:
   rebuild_messaging_backlog_stats_view: 20260623000001_platform_messaging_foundation.sql
 
 pricing:
-  _auto_disable_overlapping_customer_price_rules: 20260805002_pricing_patch_overwrite_confirm.sql
+  _auto_disable_overlapping_customer_price_rules: 20260810001_pricing_patch_overwrite_disabled_rules.sql
   _customer_price_rule_history_snapshot: 20260725012_pricing_customer_price_rule_history_s10.sql
   _customer_price_rule_reenable_context: 20260725009_pricing_customer_price_rule_reenable_s7.sql
   _customer_price_rule_result: 20260805001_pricing_patch_customer_phone_snapshot.sql
@@ -187,11 +187,11 @@ pricing:
   _remembered_price_outcome: 20260725011_pricing_remembered_price_from_order_s9.sql
   cancel_customer_price_rule_import: 20260725010_pricing_customer_price_rule_import_s8.sql
   confirm_customer_price_rule_import: 20260725017_pricing_customer_price_rule_import_auto_match_upsert.sql
-  create_customer_price_rule: 20260805002_pricing_patch_overwrite_confirm.sql
+  create_customer_price_rule: 20260810001_pricing_patch_overwrite_disabled_rules.sql
   create_customer_price_rule_import: 20260725016_pricing_customer_price_rule_import_explicit_unit.sql
   delete_customer_price_rule: 20260725014_pricing_customer_price_rule_lifecycle_eligibility.sql
   disable_customer_price_rule: 20260725008_pricing_customer_price_rule_disable_s6.sql
-  get_customer_price_rule_create_context: 20260725004_pricing_customer_price_rule_s1.sql
+  get_customer_price_rule_create_context: 20260810001_pricing_patch_overwrite_disabled_rules.sql
   get_customer_price_rule_detail: 20260725011_pricing_remembered_price_from_order_s9.sql
   get_customer_price_rule_history: 20260725012_pricing_customer_price_rule_history_s10.sql
   get_customer_price_rule_import: 20260725010_pricing_customer_price_rule_import_s8.sql
@@ -201,7 +201,7 @@ pricing:
   resolve_applicable_customer_price_rule: 20260725014_pricing_customer_price_rule_lifecycle_eligibility.sql
   save_remembered_price_from_order: 20260725011_pricing_remembered_price_from_order_s9.sql
   search_customer_price_rules: 20260805001_pricing_patch_customer_phone_snapshot.sql
-  update_customer_price_rule: 20260805002_pricing_patch_overwrite_confirm.sql
+  update_customer_price_rule: 20260810001_pricing_patch_overwrite_disabled_rules.sql
 
 bootstrap_grandfathered:
   - 20260623000001_platform_messaging_foundation.sql
@@ -297,6 +297,7 @@ bootstrap_grandfathered:
   - 20260805001_pricing_patch_customer_phone_snapshot.sql
   - 20260805002_pricing_patch_overwrite_confirm.sql
   - 20260805003_catalog_search_products_summary_counts.sql
+  - 20260810001_pricing_patch_overwrite_disabled_rules.sql
 
 # Phase 2 pilot: split _drafts/catalog_product_sku_barcode_inline_normalize.sql
 #   into 001_catalog_patch_sku_barcode_schema.sql + 002_catalog_patch_sku_barcode_rpcs.sql
