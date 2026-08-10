@@ -51,7 +51,7 @@ void main() {
       isFalse,
     );
     expect(
-      File('${root.path}/.vet45/deploy/deploy.env').existsSync(),
+      File('${root.path}/deploy/deploy.env').existsSync(),
       isTrue,
     );
 

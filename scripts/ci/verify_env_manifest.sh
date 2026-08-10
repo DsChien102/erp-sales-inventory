@@ -21,7 +21,7 @@ for target in \
   apps/admin/vet45.target.json \
   apps/messaging_worker/vet45.target.json \
   packages/vet45_design_system/example/vet45.target.json \
-  .vet45/deploy/vet45.target.json
+  deploy/vet45.target.json
 do
   if [[ ! -f "$root/$target" ]]; then
     echo "FAIL: missing $root/$target"
@@ -40,12 +40,12 @@ if [[ -d "$root/.vet45/templates" ]]; then
 fi
 
 if [[ -d "$root/config" ]]; then
-  echo "FAIL: obsolete config/ — use .vet45/deploy, .vet45/profiles"
+  echo "FAIL: obsolete config/ — use deploy/, .vet45/profiles"
   exit 1
 fi
 
-if [[ ! -f "$root/.vet45/deploy/deploy.env.example" ]]; then
-  echo "FAIL: missing $root/.vet45/deploy/deploy.env.example"
+if [[ ! -f "$root/deploy/deploy.env.example" ]]; then
+  echo "FAIL: missing $root/deploy/deploy.env.example"
   exit 1
 fi
 
@@ -121,7 +121,7 @@ echo "==> vet45 init (temp smoke, no templates/)"
 tmp="$(mktemp -d)"
 trap 'rm -rf "$tmp"' EXIT
 mkdir -p "$tmp/tools/vet45_env" "$tmp/apps/erp" "$tmp/apps/admin" "$tmp/apps/messaging_worker" \
-  "$tmp/packages/vet45_design_system/example" "$tmp/.vet45/deploy"
+  "$tmp/packages/vet45_design_system/example" "$tmp/deploy"
 cp -R "$root/tools/vet45_env/bin" "$tmp/tools/vet45_env/"
 cp -R "$root/tools/vet45_env/lib" "$tmp/tools/vet45_env/"
 cp "$root/tools/vet45_env/pubspec.yaml" "$tmp/tools/vet45_env/pubspec.yaml"
@@ -131,7 +131,7 @@ cp "$root/apps/admin/vet45.target.json" "$tmp/apps/admin/"
 cp "$root/apps/messaging_worker/vet45.target.json" "$tmp/apps/messaging_worker/"
 cp "$root/packages/vet45_design_system/example/vet45.target.json" \
   "$tmp/packages/vet45_design_system/example/"
-cp "$root/.vet45/deploy/vet45.target.json" "$tmp/.vet45/deploy/"
+cp "$root/deploy/vet45.target.json" "$tmp/deploy/"
 sed -i '' '/resolution: workspace/d' "$tmp/tools/vet45_env/pubspec.yaml" 2>/dev/null || \
   sed -i '/resolution: workspace/d' "$tmp/tools/vet45_env/pubspec.yaml"
 printf 'name: vet45\npublish_to: none\nenvironment:\n  sdk: ">=3.11.1 <4.0.0"\n' > "$tmp/pubspec.yaml"
@@ -141,8 +141,8 @@ test -f "$tmp/.vet45/profiles/smokeprofile/development.env"
 test -f "$tmp/.vet45/profiles/smokeprofile/development.env.example"
 test -f "$tmp/.vet45/profiles/smokeprofile/auth.env.example"
 test ! -f "$tmp/.vet45/profiles/smokeprofile/auth.env"
-test -f "$tmp/.vet45/deploy/deploy.env"
-test -f "$tmp/.vet45/deploy/deploy.env.example"
+test -f "$tmp/deploy/deploy.env"
+test -f "$tmp/deploy/deploy.env.example"
 grep -q '# erp:' "$tmp/.vet45/profiles/smokeprofile/development.env.example"
 grep -q '# worker:' "$tmp/.vet45/profiles/smokeprofile/development.env.example"
 test ! -d "$tmp/.vet45/templates"

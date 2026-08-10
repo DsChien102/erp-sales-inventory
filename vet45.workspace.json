@@ -5,7 +5,7 @@
     "include": [
       "apps/**/vet45.target.json",
       "packages/**/vet45.target.json",
-      ".vet45/**/vet45.target.json"
+      "deploy/**/vet45.target.json"
     ],
     "exclude": [
       "**/.dart_tool/**",

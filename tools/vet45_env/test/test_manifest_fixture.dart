@@ -116,7 +116,7 @@ void writeTestWorkspace(
     'scan': {
       'include': [
         'apps/**/vet45.target.json',
-        '.vet45/**/vet45.target.json',
+        'deploy/**/vet45.target.json',
       ],
       'exclude': [
         '**/.dart_tool/**',
@@ -312,7 +312,7 @@ void writeTestWorkspace(
   if (includeDeploy) {
     _writeTarget(
       root,
-      dir: '.vet45/deploy',
+      dir: 'deploy',
       id: 'deploy',
       description: 'iOS TestFlight (shared)',
       writeEnvFile: false,

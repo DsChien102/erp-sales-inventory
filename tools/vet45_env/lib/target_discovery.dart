@@ -76,7 +76,7 @@ class TargetDiscovery {
 
   List<Directory> _rootsFromInclude(String pattern) {
     // "apps/**/vet45.target.json" → scan under apps/
-    // ".vet45/**/vet45.target.json" → scan under .vet45/
+    // "deploy/**/vet45.target.json" → scan under deploy/
     final parts = pattern.split('/');
     final prefix = <String>[];
     for (final part in parts) {
