@@ -55,6 +55,7 @@ export 'src/components/v_switch.dart';
 export 'src/components/v_floating_action_button.dart';
 export 'src/components/v_text_field.dart';
 export 'src/components/v_text_form_field.dart';
+export 'src/components/v_verification_code_field.dart';
 export 'src/components/v_search_bar.dart';
 export 'src/components/v_quick_action_button.dart';
 export 'src/components/v_tabs.dart';

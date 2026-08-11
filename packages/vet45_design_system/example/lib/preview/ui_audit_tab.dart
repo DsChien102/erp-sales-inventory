@@ -28,6 +28,7 @@ class UIAuditTab extends StatelessWidget {
     'VSwitch',
     'VFloatingActionButton',
     'VTextField',
+    'VVerificationCodeField',
     'VSearchBar',
     'VQuickActionButton',
     'VTabs',

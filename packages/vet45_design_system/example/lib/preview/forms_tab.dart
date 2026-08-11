@@ -21,6 +21,9 @@ class _FormsPreviewTabState extends State<FormsPreviewTab> {
   final _hintController = TextEditingController();
   String? _externalEmailError;
   String? _externalPasswordError;
+  String? _otpError;
+  String _otpCompleted = '';
+  String _inviteCompleted = '';
   int? _moneyValue;
   int? _requiredMoney;
   num? _integerValue;
@@ -50,6 +53,113 @@ class _FormsPreviewTabState extends State<FormsPreviewTab> {
     return ListView(
       padding: const EdgeInsets.all(VSpacing.screenMobile),
       children: [
+        PreviewSection(
+          title: 'VVerificationCodeField',
+          child: Column(
+            children: [
+              PreviewStateRow(
+                label: 'Default + helper + onCompleted',
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    VVerificationCodeField(
+                      label: 'Mã xác thực',
+                      helperText: 'Nhập 6 số từ SMS / authenticator.',
+                      autofocus: false,
+                      onChanged: (_) {
+                        if (_otpError != null) {
+                          setState(() => _otpError = null);
+                        }
+                      },
+                      onCompleted: (code) {
+                        setState(() => _otpCompleted = code);
+                        VToast.show(
+                          context,
+                          title: 'OTP đủ',
+                          message: code,
+                          type: VToastType.success,
+                        );
+                      },
+                    ),
+                    if (_otpCompleted.isNotEmpty) ...[
+                      const SizedBox(height: VSpacing.space2),
+                      VText(
+                        'Completed: $_otpCompleted',
+                        variant: VTextVariant.bodySmall,
+                        color: context.vColors.textSecondary,
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+              PreviewStateRow(
+                label: 'External error / danger',
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    VVerificationCodeField(
+                      label: 'Mã 2FA',
+                      errorText: _otpError,
+                      tone: _otpError != null
+                          ? VComponentTone.danger
+                          : VComponentTone.neutral,
+                      onChanged: (_) {
+                        if (_otpError != null) {
+                          setState(() => _otpError = null);
+                        }
+                      },
+                      onCompleted: (code) {
+                        setState(() => _otpCompleted = code);
+                      },
+                    ),
+                    const SizedBox(height: VSpacing.space2),
+                    VButton(
+                      label: 'Set external error',
+                      variant: VButtonVariant.outline,
+                      size: VButtonSize.small,
+                      onPressed: () {
+                        setState(() {
+                          _otpError = 'Mã xác thực không đúng hoặc đã hết hạn';
+                        });
+                      },
+                    ),
+                  ],
+                ),
+              ),
+              PreviewStateRow(
+                label: 'Alphanumeric 8-char (uppercase)',
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    VVerificationCodeField(
+                      length: 8,
+                      charset: VVerificationCodeCharset.alphanumeric,
+                      label: 'Mã lời mời',
+                      helperText: '8 ký tự chữ và số, tự viết hoa.',
+                      onCompleted: (code) {
+                        setState(() => _inviteCompleted = code);
+                        VToast.show(
+                          context,
+                          title: 'Mã đủ',
+                          message: code,
+                          type: VToastType.success,
+                        );
+                      },
+                    ),
+                    if (_inviteCompleted.isNotEmpty) ...[
+                      const SizedBox(height: VSpacing.space2),
+                      VText(
+                        'Completed: $_inviteCompleted',
+                        variant: VTextVariant.bodySmall,
+                        color: context.vColors.textSecondary,
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
         PreviewSection(
           title: 'VEmailField',
           child: Column(
