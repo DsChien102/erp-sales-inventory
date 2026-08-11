@@ -124,7 +124,7 @@ melos run env:local
 melos run env:doctor
 melos run worker:serve          # dart trên host
 melos run worker:once
-melos run worker:docker         # docker compose
+melos run worker:docker         # docker compose (tag = active env)
 melos run worker:verify
 ```
 

@@ -51,14 +51,8 @@ case "$MODE" in
     exit 0
     ;;
   docker)
-    if [[ ! -f "$ENV_FILE" ]]; then
-      echo "ERROR: Missing worker env file: ${ENV_FILE}"
-      echo "       Run: melos run env:sync"
-      exit 1
-    fi
     export WORKER_ENV_FILE="$ENV_FILE"
-    cd "$ROOT"
-    exec docker compose up --build messaging-worker
+    exec "$ROOT/scripts/dev/worker_docker.sh"
     ;;
   serve | once)
     check_supabase_reachable

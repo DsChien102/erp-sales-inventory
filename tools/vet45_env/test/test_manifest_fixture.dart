@@ -63,12 +63,12 @@ const _workerActions = {
     'requireEnvFile': true,
   },
   'docker': {
-    'command': 'docker',
-    'args': ['compose', 'up', '--build', 'messaging-worker'],
+    'command': './scripts/dev/worker_docker.sh',
     'cwd': '{{workspaceRoot}}',
     'env': {
       'WORKER_ENV_FILE': '{{envFile}}',
       'WORKER_SUPABASE_URL': '{{dockerSupabaseUrl}}',
+      'WORKER_IMAGE_TAG': '{{environmentId}}',
     },
     'requireEnvFile': true,
   },
@@ -303,7 +303,7 @@ void writeTestWorkspace(
       ],
       environments: {
         for (final id in environmentIds)
-          id: workerEnvOverrides?[id] ?? {'envFile': '.env'},
+          id: workerEnvOverrides?[id] ?? _defaultWorkerEnv(id),
       },
       actions: _workerActions,
     );
@@ -364,6 +364,18 @@ void _writeTarget(
   File('${targetDir.path}/vet45.target.json').writeAsStringSync(
     '${const JsonEncoder.withIndent('  ').convert(json)}\n',
   );
+}
+
+Map<String, dynamic> _defaultWorkerEnv(String id) {
+  return switch (id) {
+    'local' => {
+      'envFile': '.env',
+      'dockerSupabaseUrl': 'http://host.docker.internal:54321',
+    },
+    'staging' => {'envFile': '.env.staging'},
+    'production' => {'envFile': '.env.production'},
+    _ => {'envFile': '.env'},
+  };
 }
 
 WorkspaceContext testContext(EnvManifest manifest, String environmentId) =>

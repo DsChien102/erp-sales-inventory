@@ -83,7 +83,7 @@ supabase start
 melos run env:local
 melos run env:doctor
 melos run worker:serve    # dart on host
-melos run worker:docker   # docker compose (AOT binary)
+melos run worker:docker   # docker compose (AOT; tag = active env)
 melos run worker:once
 ```
 

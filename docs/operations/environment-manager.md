@@ -331,7 +331,7 @@ Melos scripts call `dart run …/run.dart` (spawns AOT if built).
 | Git Bash | Optional; needed for `deploy:worker` / legacy `.sh` deploy scripts via `bash` |
 | Prompt activate | `scripts\env\activate.bat` (CMD) or `. .\scripts\env\activate.ps1` (PowerShell) |
 | iOS build/deploy | macOS only — `debug:ios`, `build:ios`, `deploy:ios` exit with clear message on Windows |
-| Docker Desktop | For `melos run worker:docker`; uses `host.docker.internal` |
+| Docker Desktop | For `melos run worker:docker`; `host.docker.internal` only on env `local` |
 
 On Windows CMD: `scripts\env\vet45.bat sync --target erp`
 
@@ -349,12 +349,20 @@ vet45 doctor --target erp --offline
 
 ## Docker worker
 
+Image is env-agnostic (`vet45/messaging-worker:<environmentId>`). Runtime secrets come from the generated worker env file after `vet45 switch`.
+
 ```bash
-melos run env:development   # or env:local for Supabase CLI only
+# Local supabase start — rewrite URL to host.docker.internal
+supabase start
+vet45 switch --env local
+melos run worker:docker
+
+# Remote project — keep SUPABASE_URL from generated .env / .env.staging
+vet45 switch --env development   # or staging
 melos run worker:docker
 ```
 
-Compose reads `WORKER_ENV_FILE` (set by `vet45.sh run worker docker`) and overrides `SUPABASE_URL` to `host.docker.internal:54321` for local Supabase.
+`worker:docker` sets `WORKER_ENV_FILE` and `WORKER_IMAGE_TAG`. `WORKER_SUPABASE_URL` (and `docker-compose.local.yml`) is set **only** for env `local`.
 
 ## Railway deploy
 

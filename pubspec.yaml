@@ -255,7 +255,7 @@ melos:
     worker:docker:
       run: dart run tools/vet45_env/bin/run.dart run worker docker
       stdio: inherit
-      description: Run messaging worker in Docker (Railway-like AOT binary)
+      description: Run messaging worker in Docker (AOT; image tag = active env)
 
     worker:verify:
       run: ./apps/messaging_worker/scripts/verify_build.sh

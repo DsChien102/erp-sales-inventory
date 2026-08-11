@@ -84,8 +84,7 @@
   ],
   "environments": {
     "development": {
-      "envFile": ".env",
-      "dockerSupabaseUrl": "http://host.docker.internal:54321"
+      "envFile": ".env"
     },
     "local": {
       "envFile": ".env",
@@ -126,18 +125,13 @@
       "requireEnvFile": true
     },
     "docker": {
-      "description": "Docker Compose up messaging-worker",
-      "command": "docker",
-      "args": [
-        "compose",
-        "up",
-        "--build",
-        "messaging-worker"
-      ],
+      "description": "Docker Compose up messaging-worker (image tagged by env)",
+      "command": "./scripts/dev/worker_docker.sh",
       "cwd": "{{workspaceRoot}}",
       "env": {
         "WORKER_ENV_FILE": "{{envFile}}",
-        "WORKER_SUPABASE_URL": "{{dockerSupabaseUrl}}"
+        "WORKER_SUPABASE_URL": "{{dockerSupabaseUrl}}",
+        "WORKER_IMAGE_TAG": "{{environmentId}}"
       },
       "requireEnvFile": true
     },
