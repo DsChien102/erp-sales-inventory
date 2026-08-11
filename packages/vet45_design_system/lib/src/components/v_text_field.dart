@@ -145,14 +145,16 @@ class _VTextFieldState extends State<VTextField> {
         children: [
           VIcon(
             icon: hasError ? VIcons.error : VIcons.info,
-            color: hasError ? colors.danger : colors.textSecondary,
+            color: hasError ? colors.danger : colors.textMuted,
             iconSize: VIconSize.sm,
           ),
           const VGap.horizontalXs(),
-          VText(
-            text,
-            variant: VTextVariant.bodySmall,
-            color: hasError ? colors.danger : colors.textSecondary,
+          Flexible(
+            child: VText(
+              text,
+              variant: VTextVariant.bodySmall,
+              color: hasError ? colors.danger : colors.textMuted,
+            ),
           ),
         ],
       ),
