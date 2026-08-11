@@ -13,10 +13,14 @@ final class WorkerEnv {
     required this.tenantBatchSize,
     required this.moduleBatchSize,
     required this.maxRoundsPerTick,
+    this.environment = 'unknown',
     this.tickActiveSeconds = 3,
     this.tickIdleSeconds = 15,
     this.tickMaxIdleSeconds = 30,
     this.logLevel = Level.WARNING,
+    this.resendApiKey,
+    this.resendFromDomain = 'resend.dev',
+    this.appLinkBaseUrl,
   });
 
   final String supabaseUrl;
@@ -25,10 +29,34 @@ final class WorkerEnv {
   final int tenantBatchSize;
   final int moduleBatchSize;
   final int maxRoundsPerTick;
+  final String environment;
   final int tickActiveSeconds;
   final int tickIdleSeconds;
   final int tickMaxIdleSeconds;
   final Level logLevel;
+
+  /// Optional. Missing key → Resend client soft-fails (outcome `failed`).
+  final String? resendApiKey;
+
+  /// Verified Resend sender domain (e.g. `mail.vet45.vn`).
+  final String resendFromDomain;
+
+  /// Optional HTTPS App Link origin (e.g. `https://app.vet45.example`).
+  final String? appLinkBaseUrl;
+
+  String get resendFromEmail {
+    final normalized = environment.trim().toLowerCase();
+    final environmentLabel = switch (normalized) {
+      'development' || 'develop' || 'dev' => 'dev',
+      'staging' || 'stage' => 'staging',
+      'production' || 'prod' => null,
+      _ => normalized.isEmpty ? 'unknown' : normalized,
+    };
+    final displayName = environmentLabel == null
+        ? 'VET45'
+        : 'VET45 ($environmentLabel)';
+    return '$displayName <noreply@$resendFromDomain>';
+  }
 
   WorkerTickPolicy toTickPolicy() {
     return WorkerTickPolicy(
@@ -44,6 +72,7 @@ final class WorkerEnv {
       supabaseUrl: _require(env, 'SUPABASE_URL'),
       supabaseServiceRoleKey: _require(env, 'SUPABASE_SERVICE_ROLE_KEY'),
       tickSecret: _require(env, 'WORKER_TICK_SECRET'),
+      environment: _resolveEnvironment(env),
       tenantBatchSize: _parsePositiveInt(
         env['WORKER_TENANT_BATCH_SIZE'],
         defaultValue: 20,
@@ -75,7 +104,22 @@ final class WorkerEnv {
         maxValue: 300,
       ),
       logLevel: _parseLogLevel(env['WORKER_LOG_LEVEL']),
+      resendApiKey: _optional(env, 'RESEND_API_KEY'),
+      resendFromDomain: _optional(env, 'RESEND_FROM_DOMAIN') ?? 'resend.dev',
+      appLinkBaseUrl: _optional(env, 'APP_LINK_BASE_URL'),
     );
+  }
+
+  static String _resolveEnvironment(Map<String, String> env) {
+    final explicit = env['WORKER_ENV']?.trim();
+    if (explicit != null && explicit.isNotEmpty && explicit != 'unknown') {
+      return explicit;
+    }
+    final railway = env['RAILWAY_ENVIRONMENT_NAME']?.trim();
+    if (railway != null && railway.isNotEmpty) {
+      return railway;
+    }
+    return explicit?.isNotEmpty == true ? explicit! : 'unknown';
   }
 
   static Level _parseLogLevel(String? raw) {
@@ -98,6 +142,14 @@ final class WorkerEnv {
     final value = env[key];
     if (value == null || value.isEmpty) {
       throw StateError('Missing required environment variable: $key');
+    }
+    return value;
+  }
+
+  static String? _optional(Map<String, String> env, String key) {
+    final value = env[key];
+    if (value == null || value.isEmpty) {
+      return null;
     }
     return value;
   }

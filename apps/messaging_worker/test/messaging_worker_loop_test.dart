@@ -10,9 +10,9 @@ class _FakeSupabaseClient extends Fake implements SupabaseClient {}
 
 void main() {
   group('MessagingWorkerBootstrap', () {
-    test('wires shared integration bus with empty module registry', () {
+    test('wires shared integration bus with IAM messaging module', () async {
       final sharedBus = InMemoryEventBusClient();
-      final context = MessagingWorkerBootstrap.bootstrap(
+      final context = await MessagingWorkerBootstrap.bootstrap(
         config: const WorkerEnv(
           supabaseUrl: 'https://example.supabase.co',
           supabaseServiceRoleKey: 'service-role-key',
@@ -23,16 +23,20 @@ void main() {
         ),
         supabaseClient: _FakeSupabaseClient(),
         integrationEventBus: sharedBus,
+        iamMessagingModule: _RecordingModule('iam', <String>[]),
       );
 
       expect(identical(context.integrationEventBus, sharedBus), isTrue);
-      expect(context.registry.modules.map((module) => module.name).toList(), isEmpty);
+      expect(
+        context.registry.modules.map((module) => module.name).toList(),
+        ['iam'],
+      );
     });
   });
 
   group('MessagingWorkerLoop', () {
     test('returns no-op metrics when discovery finds no tenants', () async {
-      final context = MessagingWorkerBootstrap.bootstrap(
+      final context = await MessagingWorkerBootstrap.bootstrap(
         config: const WorkerEnv(
           supabaseUrl: 'https://example.supabase.co',
           supabaseServiceRoleKey: 'service-role-key',
@@ -42,6 +46,7 @@ void main() {
           maxRoundsPerTick: 5,
         ),
         supabaseClient: _FakeSupabaseClient(),
+        iamMessagingModule: _RecordingModule('iam', <String>[]),
       );
       final loop = MessagingWorkerLoop(
         context: context,
@@ -59,7 +64,7 @@ void main() {
 
     test('processes modules in registry order per tenant', () async {
       final callOrder = <String>[];
-      final context = MessagingWorkerBootstrap.bootstrap(
+      final context = await MessagingWorkerBootstrap.bootstrap(
         config: const WorkerEnv(
           supabaseUrl: 'https://example.supabase.co',
           supabaseServiceRoleKey: 'service-role-key',
@@ -70,6 +75,7 @@ void main() {
         ),
         supabaseClient: _FakeSupabaseClient(),
         integrationEventBus: InMemoryEventBusClient(),
+        iamMessagingModule: _RecordingModule('iam', <String>[]),
       );
       final loop = MessagingWorkerLoop(
         context: MessagingWorkerContext(
@@ -97,7 +103,7 @@ void main() {
 
     test('stops after maxRoundsPerTick even if backlog remains', () async {
       var discoveryCalls = 0;
-      final context = MessagingWorkerBootstrap.bootstrap(
+      final context = await MessagingWorkerBootstrap.bootstrap(
         config: const WorkerEnv(
           supabaseUrl: 'https://example.supabase.co',
           supabaseServiceRoleKey: 'service-role-key',
@@ -107,6 +113,7 @@ void main() {
           maxRoundsPerTick: 2,
         ),
         supabaseClient: _FakeSupabaseClient(),
+        iamMessagingModule: _RecordingModule('iam', <String>[]),
       );
       final loop = MessagingWorkerLoop(
         context: MessagingWorkerContext(

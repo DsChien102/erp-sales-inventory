@@ -69,7 +69,7 @@ sequenceDiagram
 - Consumer handler **chỉ enqueue** qua `ICommandScheduler`; execution thuộc `ProcessInternalCommandsCommandHandler` + `CommandsExecutor`.
 - Dispatcher wiring do codegen sinh (`createGenerated{Module}IntegrationEventDispatcher`).
 - Internal-command serialize/deserialize: `ISerializableInternalCommand` + `InternalCommandSerializer` (`vet45_shared`) + codegen `cqrs_internal_registry`.
-- Reference: `modules/partner/` (inbox projection cho transaction history).
+- Golden layout: `modules/sales/` (`SalesStartup.processMessagingOnce`, `Process{Outbox,Inbox,InternalCommands}`, `SupabaseSalesCommandScheduler`); inbox projection ví dụ: `modules/partner/`.
 
 ## Package integration events
 
@@ -84,6 +84,16 @@ Registry deserialize: `IamIntegrationEventRegistry`, tương tự catalog/sales.
 - `apps/messaging_worker` — self-loop tick, service role Supabase
 - Module handlers đăng ký trong worker bootstrap
 - **Không** khuyến nghị client POST `/tick` — xem playbook deploy
+
+## Trạng thái module (2026-07)
+
+| Module | Messaging Dart hôm nay | Ghi chú |
+| ------ | ---------------------- | ------- |
+| **Target (golden)** | `ProcessOutbox` → `ProcessInbox` → `ProcessInternalCommands` qua `CommandBus` + `ICommandScheduler`; folder `configuration/processing/{outbox,inbox,internal_commands}` | Golden = `modules/sales/infrastructure` (`SalesStartup.processMessagingOnce` + `Process{Outbox,Inbox,InternalCommands}` + `SupabaseSalesCommandScheduler`); catalog/partner cùng pattern; sequence “Luồng consume (target)” ở trên |
+| **IAM (S-NOTIFY)** | Consume: `ProcessOutbox` → `ProcessInbox` (self-consume) → `ProcessInternalCommands` qua `IamStartup.processMessagingOnce`. Publish: **mutation RPC** `enqueue_outbox_message` (không Dart client). Folder `configuration/processing/{outbox,inbox,internal_commands}`; adapters `src/adapters/notification/` | `IIamOutboxClient` chỉ claim/complete/fail; event `iam.email.delivery_requested` → `SendEmailDeliveryCommand` qua `ICommandScheduler` |
+| Partner (working tree) | Greenfield / reboot TH-03 | Rebuild theo golden khi implement |
+
+Reference code IAM: `EmailDeliveryRequestedIntegrationEvent`, `ICommandScheduler`, `SendEmailDeliveryCommand`, `IamStartup.processMessagingOnce`, `IamRuntime.messagingModule`.
 
 ## ERP client messaging
 

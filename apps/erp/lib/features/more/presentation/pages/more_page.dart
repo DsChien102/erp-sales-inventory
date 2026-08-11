@@ -1,17 +1,25 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:vet45_design_system/design_system.dart';
 import 'package:vet45_iam_application/application.dart';
 
 import '../../../../core/di/injection.dart';
 import '../../../../core/errors/exception_mapper.dart';
+import '../bloc/iam_feature_access_cubit.dart';
+import '../bloc/iam_feature_access_state.dart';
 
 class MorePage extends StatelessWidget {
-  const MorePage({super.key});
+  const MorePage({super.key, this.iamModule, this.accessCubit});
+
+  final IIamModule? iamModule;
+  final IamFeatureAccessCubit? accessCubit;
 
   Future<void> _logout(BuildContext context) async {
     final result = await guard(
-      () => getIt<IIamModule>().executeCommandAsync(SignOutCommand()),
+      () => (iamModule ?? getIt<IIamModule>()).executeCommandAsync<SignOutResultDto>(
+        SignOutCommand(),
+      ),
     );
 
     if (!context.mounted) return;
@@ -25,66 +33,123 @@ class MorePage extends StatelessWidget {
           type: VToastType.danger,
         );
       },
-      (_) => context.go('/login'),
+      (signOut) {
+        if (!signOut.localCleared) {
+          VToast.show(
+            context,
+            title: 'Đăng xuất thất bại',
+            message: 'Không thể đóng phiên trên máy.',
+            type: VToastType.danger,
+          );
+          return;
+        }
+        if (!signOut.remoteSucceeded) {
+          VToast.show(
+            context,
+            title: 'Cảnh báo',
+            message: 'Phiên trên máy đã đóng; máy chủ chưa xác nhận đăng xuất',
+            type: VToastType.warning,
+          );
+        }
+        context.go('/login');
+      },
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    final menuItems = [
-      const _MoreMenuItem(
-        icon: VIcons.people,
-        title: 'Khách hàng & NCC',
-        subtitle: 'Quản lý khách hàng & nhà cung cấp',
-        enabled: false,
-      ),
-      const _MoreMenuItem(
-        icon: VIcons.download,
-        title: 'Đơn nhập',
-        subtitle: 'Nhập kho từ nhà cung cấp',
-        enabled: false,
-      ),
-      const _MoreMenuItem(
-        icon: VIcons.warehouse,
-        title: 'Kho',
-        subtitle: 'Tồn kho, phiếu nhập, điều chỉnh',
-        enabled: false,
-      ),
-      const _MoreMenuItem(
-        icon: VIcons.chart,
-        title: 'Báo cáo',
-        subtitle: 'Doanh thu, tồn kho, công nợ',
-        enabled: false,
-      ),
-      _MoreMenuItem(
-        icon: VIcons.tag,
-        title: 'Giá riêng / Nhớ giá',
-        subtitle: 'Giá riêng theo khách hàng & nhớ giá bán',
-        onTap: () => context.push('/pricing'),
-      ),
-      _MoreMenuItem(
-        icon: VIcons.settings,
-        title: 'Thiết lập',
-        subtitle: 'Cấu hình hệ thống & hóa đơn điện tử',
-        onTap: () => context.push('/more/settings'),
-      ),
-      _MoreMenuItem(
-        icon: VIcons.logout,
-        title: 'Đăng xuất',
-        subtitle: 'Thoát khỏi tài khoản hiện tại',
-        isDestructive: true,
-        onTap: () => _logout(context),
-      ),
-    ];
+    if (accessCubit != null) {
+      return BlocProvider.value(
+        value: accessCubit!,
+        child: _MoreView(onLogout: _logout),
+      );
+    }
 
-    return ListView.separated(
-      padding: const EdgeInsets.symmetric(
-        horizontal: VSpacing.screenMobile,
-        vertical: VSpacing.space4,
-      ),
-      itemCount: menuItems.length,
-      separatorBuilder: (context, index) => const SizedBox(height: VSpacing.space3),
-      itemBuilder: (context, index) => menuItems[index],
+    return BlocProvider(
+      create: (_) => IamFeatureAccessCubit(iamModule: iamModule ?? getIt<IIamModule>())..load(),
+      child: _MoreView(onLogout: _logout),
+    );
+  }
+}
+
+class _MoreView extends StatelessWidget {
+  const _MoreView({required this.onLogout});
+
+  final Future<void> Function(BuildContext context) onLogout;
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<IamFeatureAccessCubit, IamFeatureAccessState>(
+      builder: (context, access) {
+        final menuItems = <_MoreMenuItem>[
+          const _MoreMenuItem(
+            icon: VIcons.people,
+            title: 'Khách hàng & NCC',
+            subtitle: 'Quản lý khách hàng & nhà cung cấp',
+            enabled: false,
+          ),
+          const _MoreMenuItem(
+            icon: VIcons.download,
+            title: 'Đơn nhập',
+            subtitle: 'Nhập kho từ nhà cung cấp',
+            enabled: false,
+          ),
+          const _MoreMenuItem(
+            icon: VIcons.warehouse,
+            title: 'Kho',
+            subtitle: 'Tồn kho, phiếu nhập, điều chỉnh',
+            enabled: false,
+          ),
+          const _MoreMenuItem(
+            icon: VIcons.chart,
+            title: 'Báo cáo',
+            subtitle: 'Doanh thu, tồn kho, công nợ',
+            enabled: false,
+          ),
+          _MoreMenuItem(
+            icon: VIcons.tag,
+            title: 'Giá riêng / Nhớ giá',
+            subtitle: 'Giá riêng theo khách hàng & nhớ giá bán',
+            onTap: () => context.push('/pricing'),
+          ),
+          if (access.canOpenIamHub)
+            _MoreMenuItem(
+              icon: VIcons.people,
+              title: 'Người dùng & vai trò',
+              subtitle: 'Quản lý thành viên và quyền truy cập',
+              onTap: () => context.push('/more/users-and-roles'),
+            ),
+          _MoreMenuItem(
+            icon: VIcons.person,
+            title: 'Tài khoản của tôi',
+            subtitle: 'Xem và chỉnh sửa thông tin cá nhân',
+            onTap: () => context.push('/more/my-account'),
+          ),
+          _MoreMenuItem(
+            icon: VIcons.settings,
+            title: 'Thiết lập',
+            subtitle: 'Cấu hình hệ thống & hóa đơn điện tử',
+            onTap: () => context.push('/more/settings'),
+          ),
+          _MoreMenuItem(
+            icon: VIcons.logout,
+            title: 'Đăng xuất',
+            subtitle: 'Thoát khỏi tài khoản hiện tại',
+            isDestructive: true,
+            onTap: () => onLogout(context),
+          ),
+        ];
+
+        return ListView.separated(
+          padding: const EdgeInsets.symmetric(
+            horizontal: VSpacing.screenMobile,
+            vertical: VSpacing.space4,
+          ),
+          itemCount: menuItems.length,
+          separatorBuilder: (context, index) => const SizedBox(height: VSpacing.space3),
+          itemBuilder: (context, index) => menuItems[index],
+        );
+      },
     );
   }
 }

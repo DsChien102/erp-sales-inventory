@@ -37,12 +37,9 @@ void main() {
                                 ListTile(
                                   title: const Text('5. Dia chi giao hang'),
                                   trailing: Icon(
-                                    expanded
-                                        ? Icons.expand_less
-                                        : Icons.expand_more,
+                                    expanded ? Icons.expand_less : Icons.expand_more,
                                   ),
-                                  onTap: () =>
-                                      setState(() => expanded = !expanded),
+                                  onTap: () => setState(() => expanded = !expanded),
                                 ),
                                 if (expanded)
                                   Padding(
@@ -55,8 +52,7 @@ void main() {
                                         ),
                                         const SizedBox(width: 16),
                                         Expanded(
-                                          child: VCompactSearchableDropdown<
-                                              String>(
+                                          child: VCompactSearchableDropdown<String>(
                                             value: null,
                                             hintText: 'Chon',
                                             stickyActionsReserve: 72,
@@ -101,6 +97,10 @@ void main() {
       );
       expect(tester.takeException(), isNull);
       expect(find.byType(ErrorWidget), findsNothing);
+
+      await tester.tap(find.text('Chon'));
+      await tester.pumpAndSettle();
+
       expect(find.byType(DropdownMenu<String>), findsOneWidget);
 
       final menu = tester.widget<DropdownMenu<String>>(

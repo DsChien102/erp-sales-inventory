@@ -7,11 +7,13 @@ environment:
 
 workspace:
   - apps/erp
+  - apps/admin
   - apps/messaging_worker
   - packages/vet45_lints
   - packages/vet45_design_system
   - packages/vet45_annotations
   - packages/vet45_adapters
+  - packages/vet45_resend
   - packages/vet45_generator
   - packages/vet45_shared/application
   - packages/vet45_shared/domain
@@ -253,7 +255,7 @@ melos:
     worker:docker:
       run: dart run tools/vet45_env/bin/run.dart run worker docker
       stdio: inherit
-      description: Run messaging worker in Docker (Railway-like AOT binary)
+      description: Run messaging worker in Docker (AOT; image tag = active env)
 
     worker:verify:
       run: ./apps/messaging_worker/scripts/verify_build.sh

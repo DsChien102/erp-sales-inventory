@@ -30,9 +30,11 @@ Temporary contracts until SRS Theme 1 (full store provisioning + role management
 - `assign_member_role` — caller must be `owner` of the tenant
 - `get_session_context(tenant_id)` — explicit tenant switch requires membership
 
-## Dev bootstrap
+## Legacy bootstrap
 
-`bootstrap_owner` remains for first-login dev convenience. **Deprecated** when SRS onboarding lands — replace with formal store provisioning.
+`bootstrap_owner` has been removed from the app contract and from the IAM
+foundation schema. Tenant provisioning now belongs to formal onboarding/store
+provisioning flows.
 
 ## Cross-module permission placeholders (temporary)
 
@@ -55,7 +57,7 @@ IAM **enforce** mọi permission qua `iam.role_permissions` / `IamPermissionChec
 ## Align later (SRS Theme 1)
 
 - Full aggregates (Tenant, Membership, Role catalog)
-- Remove `bootstrap_owner`
+- Keep tenant provisioning in formal onboarding/store provisioning flows
 - `strict_access_metadata: true` on IAM codegen
 - Integration events + messaging worker install
 - Hoàn tất permission manifest ownership (mục trên)

@@ -40,7 +40,22 @@ Future<void> main(List<String> arguments) async {
   final config = WorkerEnv.fromPlatform();
   configurePackageLogging(level: config.logLevel);
 
-  final context = MessagingWorkerBootstrap.bootstrap(
+  final workerEnvironment = _resolveWorkerEnvironment(
+    Platform.environment,
+  );
+  stdout.writeln(
+    jsonEncode({
+      'event': 'worker_startup',
+      'environment': workerEnvironment,
+      'mode': runOnce ? 'once' : 'serve',
+      'supabaseHost': Uri.parse(config.supabaseUrl).host,
+      'resendConfigured': config.resendApiKey != null,
+      'appLinkConfigured': config.appLinkBaseUrl != null,
+      'logLevel': config.logLevel.name,
+    }),
+  );
+
+  final context = await MessagingWorkerBootstrap.bootstrap(
     config: config,
     loggerFactory: const LoggingLoggerFactory(),
   );
@@ -80,4 +95,18 @@ Future<void> main(List<String> arguments) async {
     scheduler.stop();
     await httpServer.close(force: true);
   }
+}
+
+String _resolveWorkerEnvironment(Map<String, String> environment) {
+  final explicit = environment['WORKER_ENV']?.trim();
+  if (explicit != null && explicit.isNotEmpty && explicit != 'unknown') {
+    return explicit;
+  }
+
+  final railway = environment['RAILWAY_ENVIRONMENT_NAME']?.trim();
+  if (railway != null && railway.isNotEmpty) {
+    return railway;
+  }
+
+  return explicit?.isNotEmpty == true ? explicit! : 'unknown';
 }

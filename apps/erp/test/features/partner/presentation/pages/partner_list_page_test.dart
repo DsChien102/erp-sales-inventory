@@ -22,16 +22,22 @@ void main() {
   Widget buildTestableWidget({
     required FakePartnerModule partnerModule,
     required List<String> permissions,
+    // INTERIM: any member (role != null) has full feature access. Pass
+    // role: null to simulate a non-member (feature screens are locked).
+    String? role = 'staff',
   }) {
-    final session = IamSession()
-      ..apply(
+    final session = IamSession();
+    if (role != null) {
+      session.apply(
         PrincipalAccessDto(
           userId: 'user-1',
           tenantId: 'tenant-1',
-          role: 'staff',
+          role: role,
+          isOwner: false,
           permissions: permissions,
         ),
       );
+    }
 
     getIt
       ..registerSingleton<IExecutionContext>(FakeExecutionContext())
@@ -87,19 +93,22 @@ void main() {
     expect(find.text('Tạo tổ chức'), findsOneWidget);
   });
 
-  testWidgets('wgt_e01_u02_scn07_01: hides create FAB without partner.create', (
+  testWidgets('wgt_e01_u02_scn07_01: locks the screen for a non-member', (
     tester,
   ) async {
+    // INTERIM policy: a user with no tenant membership (role == null) has no
+    // feature access, so the partner screen shows the locked state.
     await tester.pumpWidget(
       buildTestableWidget(
         partnerModule: FakePartnerModule(scenario: FakePartnerScenario.searchEmpty),
-        permissions: const [PartnerPermissions.view],
+        role: null,
+        permissions: const [],
       ),
     );
     await tester.pumpAndSettle();
 
     expect(find.byKey(const Key('btn_create_partner')), findsNothing);
-    expect(find.text('Chưa có KH & NCC'), findsOneWidget);
+    expect(find.text('Bạn không có quyền xem\nKH & NCC'), findsOneWidget);
   });
 
   testWidgets('wgt_e01_u02_fr01_03: selecting organization opens create page', (

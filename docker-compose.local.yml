@@ -1,0 +1,9 @@
+# Overlay for env `local` only — applied when WORKER_SUPABASE_URL is set.
+# Rewrites loopback Supabase (127.0.0.1:54321) so the container can reach
+# `supabase start` on the Docker host.
+services:
+  messaging-worker:
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    environment:
+      SUPABASE_URL: ${WORKER_SUPABASE_URL}

@@ -14,6 +14,15 @@ final class SupabaseAuthenticator implements IAuthenticator {
   String? get currentUserId => _supabase.auth.currentUser?.id;
 
   @override
+  AuthSessionState get sessionState {
+    final session = _supabase.auth.currentSession;
+    if (session == null) {
+      return AuthSessionState.absent;
+    }
+    return session.isExpired ? AuthSessionState.expired : AuthSessionState.active;
+  }
+
+  @override
   Future<void> signIn({
     required String email,
     required String password,

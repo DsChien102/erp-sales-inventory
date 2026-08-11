@@ -9,42 +9,65 @@ class _RecordingAccessGateway implements IIamAccessGateway {
   String? switchedTenantId;
 
   @override
-  Future<String> bootstrapOwner({String tenantName = 'My Store'}) async =>
-      'tenant-1';
-
-  @override
-  Future<PrincipalAccessDto?> getSessionContext({String? tenantId}) async =>
-      PrincipalAccessDto(
-        userId: 'user-1',
-        tenantId: tenantId ?? 'tenant-1',
-        role: 'owner',
-        permissions: const [IamPermissions.membersRead],
-      );
+  Future<PrincipalAccessDto?> getSessionContext({String? tenantId}) async => PrincipalAccessDto(
+    userId: 'user-1',
+    tenantId: tenantId ?? 'tenant-1',
+    role: 'store_owner',
+    isOwner: true,
+    permissions: const [IamPermissions.membersRead],
+  );
 
   @override
   Future<bool> hasPermission({
     required String tenantId,
     required String permission,
-  }) async =>
-      true;
+  }) async => true;
 
   @override
   Future<bool> isMember(String tenantId) async => true;
 
   @override
-  Future<List<TenantMemberDto>> listTenantMembers(String tenantId) async {
+  Future<CursorPageDto<TenantMemberDto>> listTenantMembers({
+    required String tenantId,
+    String? search,
+    String? status,
+    String? cursor,
+    int limit = 20,
+  }) async {
     listedTenantId = tenantId;
-    return [
-      TenantMemberDto(
-        userId: 'user-1',
-        role: 'owner',
-        createdAt: DateTime.utc(2026, 1, 1),
-      ),
-    ];
+    return CursorPageDto<TenantMemberDto>(
+      items: [
+        TenantMemberDto(
+          membershipId: 'm-1',
+          userId: 'user-1',
+          displayName: 'User One',
+          email: 'user1@example.com',
+          roleId: 'role-owner',
+          roleLabel: 'owner',
+          isOwner: true,
+          status: 'active',
+          joinedAt: DateTime.utc(2026, 1, 1),
+          version: 1,
+        ),
+      ],
+    );
   }
 
   @override
   Future<List<TenantMembershipDto>> listUserTenants() async => const [];
+
+  @override
+  Future<List<AccessibleTenantDto>> listAccessibleTenants() async => const [];
+
+  @override
+  Future<TenantContextDto> switchTenantContext({
+    required String targetTenantId,
+  }) async => throw UnimplementedError('S2 BE');
+
+  @override
+  Future<TenantContextDto> getValidatedTenantContext({
+    String? sessionTenantId,
+  }) async => throw UnimplementedError('S3 BE');
 
   @override
   Future<void> assignMemberRole({
@@ -57,36 +80,18 @@ class _RecordingAccessGateway implements IIamAccessGateway {
   }
 }
 
-class _RecordingSessionPort implements IIamSessionPort {
-  String? establishedTenantId;
-
-  @override
-  SessionDto get snapshot => const SessionDto(isAuthenticated: true);
-
-  @override
-  Future<void> clear() async {}
-
-  @override
-  Future<void> establishAfterSignIn({String? tenantId}) async {
-    establishedTenantId = tenantId;
-  }
-
-  @override
-  Future<void> restoreFromPersistedAuth() async {}
-}
-
 void main() {
   test('ListTenantMembersQueryHandler delegates to gateway', () async {
     final gateway = _RecordingAccessGateway();
     final handler = ListTenantMembersQueryHandler(accessGateway: gateway);
 
-    final members = await handler.handle(
+    final page = await handler.handle(
       ListTenantMembersQuery(tenantId: 'tenant-42'),
     );
 
     expect(gateway.listedTenantId, 'tenant-42');
-    expect(members, hasLength(1));
-    expect(members.first.role, 'owner');
+    expect(page.items, hasLength(1));
+    expect(page.items.first.roleLabel, 'owner');
   });
 
   test('AssignMemberRoleCommandHandler delegates to gateway', () async {
@@ -103,16 +108,5 @@ void main() {
 
     expect(gateway.assignedUserId, 'user-2');
     expect(gateway.assignedRole, 'staff');
-  });
-
-  test('SwitchActiveTenantCommandHandler switches session tenant', () async {
-    final sessionPort = _RecordingSessionPort();
-    final handler = SwitchActiveTenantCommandHandler(sessionPort: sessionPort);
-
-    await handler.handle(
-      SwitchActiveTenantCommand(tenantId: 'tenant-99'),
-    );
-
-    expect(sessionPort.establishedTenantId, 'tenant-99');
   });
 }

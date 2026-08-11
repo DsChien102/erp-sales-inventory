@@ -82,6 +82,8 @@ domain/
 
 **Không dùng** thư mục phẳng cũ: `repositories/`, `read_models/`, `mappers/` ở root `lib/src/`.
 
+**Messaging layout (bắt buộc cho module mới):** queue/drain clients + `ProcessOutbox` / `ProcessInbox` / `ProcessInternalCommands` nằm dưới `configuration/processing/{outbox,inbox,internal_commands}/` — **không** đặt drain ở `lib/src/messaging/`. Golden = `modules/sales/infrastructure` trên `dev-old` (`SalesStartup.processMessagingOnce` + thin worker adapter). IAM S-NOTIFY đã align layout này (`IamStartup.processMessagingOnce`; email adapters ở `src/adapters/notification/`). Chi tiết: [07-integration-and-messaging.md](architecture/07-integration-and-messaging.md) §Trạng thái module.
+
 ---
 
 ## 3. `domain/` folder rules

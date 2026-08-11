@@ -71,8 +71,7 @@ class VCompactSearchableDropdown<T> extends StatefulWidget {
   );
 
   @override
-  State<VCompactSearchableDropdown<T>> createState() =>
-      _VCompactSearchableDropdownState<T>();
+  State<VCompactSearchableDropdown<T>> createState() => _VCompactSearchableDropdownState<T>();
 }
 
 enum VCompactDropdownTrailingMode {
@@ -80,8 +79,8 @@ enum VCompactDropdownTrailingMode {
   external,
 }
 
-class _VCompactSearchableDropdownState<T>
-    extends State<VCompactSearchableDropdown<T>> with WidgetsBindingObserver {
+class _VCompactSearchableDropdownState<T> extends State<VCompactSearchableDropdown<T>>
+    with WidgetsBindingObserver {
   late final MenuController _menuController;
   late final FocusNode _focusNode;
   late final bool _ownsMenuController;
@@ -91,21 +90,16 @@ class _VCompactSearchableDropdownState<T>
   bool _isDismissing = false;
   bool _isFullyReady = false;
   bool _wasShowingCollapsed = true;
+
   /// Geometry-clamped menu height — updated post-frame only (never in build).
   double? _clampedMenuHeight;
 
-  bool get _hasValue =>
-      widget.value != null && widget.value.toString().isNotEmpty;
+  bool get _hasValue => widget.value != null && widget.value.toString().isNotEmpty;
 
-  bool get _showCollapsedValue =>
-      widget.collapsedWhenUnfocused &&
-      !_forceEditing &&
-      !_openMenuOnly &&
-      !_focusNode.hasFocus &&
-      _hasValue;
+  bool get _showCollapsedField =>
+      widget.collapsedWhenUnfocused && !_forceEditing && !_openMenuOnly && !_focusNode.hasFocus;
 
-  bool get _useExternalTrailing =>
-      widget.trailingMode == VCompactDropdownTrailingMode.external;
+  bool get _useExternalTrailing => widget.trailingMode == VCompactDropdownTrailingMode.external;
 
   @override
   void initState() {
@@ -190,15 +184,20 @@ class _VCompactSearchableDropdownState<T>
     });
   }
 
-  double get _menuHeightForBuild =>
-      _clampedMenuHeight ?? widget.menuHeight;
+  double get _menuHeightForBuild => _clampedMenuHeight ?? widget.menuHeight;
 
-  void _startEditing() {
+  Future<void> _startEditing() async {
     if (!widget.enabled || !VRouteOverlayGuard.isLayoutReady(context)) return;
     setState(() {
       _forceEditing = true;
       _openMenuOnly = false;
     });
+    await VOverlayMenuLayout.ensureOpensDownward(
+      context,
+      stickyActionsReserve: widget.stickyActionsReserve,
+      anticipateKeyboard: true,
+    );
+    if (!mounted || !VRouteOverlayGuard.isLayoutReady(context)) return;
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted || !VRouteOverlayGuard.isLayoutReady(context)) return;
       _focusNode.requestFocus();
@@ -208,7 +207,7 @@ class _VCompactSearchableDropdownState<T>
   Future<void> _openMenuFromTrailing() async {
     if (!widget.enabled || !VRouteOverlayGuard.isLayoutReady(context)) return;
     _focusNode.unfocus();
-    if (_showCollapsedValue) {
+    if (_showCollapsedField) {
       setState(() {
         _forceEditing = true;
         _openMenuOnly = true;
@@ -310,9 +309,7 @@ class _VCompactSearchableDropdownState<T>
               child: Text(
                 display ?? widget.hintText ?? 'Chọn...',
                 style: _textStyle(
-                  widget.enabled
-                      ? (display != null ? colors.textPrimary : colors.textMuted)
-                      : colors.textMuted,
+                  widget.enabled ? colors.textMuted : colors.textMuted,
                 ),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
@@ -330,6 +327,7 @@ class _VCompactSearchableDropdownState<T>
 
   Widget _buildCollapsedField() {
     final colors = context.vColors;
+    final display = _hasValue ? widget.value.toString() : null;
 
     return _buildBaseField(
       onTap: _startEditing,
@@ -340,9 +338,11 @@ class _VCompactSearchableDropdownState<T>
             child: Padding(
               padding: const EdgeInsets.fromLTRB(12, 0, 4, 0),
               child: Text(
-                widget.value.toString(),
+                display ?? widget.hintText ?? 'Chọn...',
                 style: _textStyle(
-                  widget.enabled ? colors.textPrimary : colors.textMuted,
+                  widget.enabled
+                      ? (display != null ? colors.textPrimary : colors.textMuted)
+                      : colors.textMuted,
                 ),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
@@ -510,7 +510,7 @@ class _VCompactSearchableDropdownState<T>
 
     final bool showCollapsed;
     if (VRouteOverlayGuard.isLayoutReady(context)) {
-      showCollapsed = _showCollapsedValue;
+      showCollapsed = _showCollapsedField;
       _wasShowingCollapsed = showCollapsed;
     } else {
       showCollapsed = _wasShowingCollapsed;
@@ -521,37 +521,37 @@ class _VCompactSearchableDropdownState<T>
     }
 
     return buildContent(
-    SizedBox(
-      height: VCompactSearchableDropdown.controlHeight,
-      width: double.infinity,
-      child: LayoutBuilder(
-        builder: (context, constraints) {
-          final fieldWidth = _resolvedWidth(constraints);
-          final menuWidth = _useExternalTrailing
-              ? fieldWidth - VCompactSearchableDropdown.trailingIconWidth
-              : fieldWidth;
+      SizedBox(
+        height: VCompactSearchableDropdown.controlHeight,
+        width: double.infinity,
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final fieldWidth = _resolvedWidth(constraints);
+            final menuWidth = _useExternalTrailing
+                ? fieldWidth - VCompactSearchableDropdown.trailingIconWidth
+                : fieldWidth;
 
-          final menu = _buildDropdownMenu(
-            menuWidth: menuWidth,
-            resolvedMenuHeight: resolvedMenuHeight,
-          );
+            final menu = _buildDropdownMenu(
+              menuWidth: menuWidth,
+              resolvedMenuHeight: resolvedMenuHeight,
+            );
 
-          if (!_useExternalTrailing) {
-            return menu;
-          }
+            if (!_useExternalTrailing) {
+              return menu;
+            }
 
-          return DecoratedBox(
-            decoration: _decoration(context),
-            child: Row(
-              children: [
-                Expanded(child: menu),
-                _buildTrailingButton(isOpen: _menuController.isOpen),
-              ],
-            ),
-          );
-        },
+            return DecoratedBox(
+              decoration: _decoration(context),
+              child: Row(
+                children: [
+                  Expanded(child: menu),
+                  _buildTrailingButton(isOpen: _menuController.isOpen),
+                ],
+              ),
+            );
+          },
+        ),
       ),
-    ),
     );
   }
 }

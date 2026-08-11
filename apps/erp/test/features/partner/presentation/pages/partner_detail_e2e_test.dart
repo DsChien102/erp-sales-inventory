@@ -36,6 +36,7 @@ void main() {
           userId: 'user-1',
           tenantId: 'tenant-1',
           role: 'staff',
+          isOwner: false,
           permissions: permissions,
         ),
       );

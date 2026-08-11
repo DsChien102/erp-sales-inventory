@@ -118,7 +118,7 @@ partner/           → Partner aggregate
 partner_history/   → read model (not aggregate)
 ```
 
-Legacy: IAM `authentication/` / `tenant/`, catalog `custom_fields/` — migrate later.
+Legacy: catalog `custom_fields/` — migrate later. IAM application aggregates follow partner canonical layout (`commands/`|`queries/` + colocated/`shared` DTOs).
 
 ---
 

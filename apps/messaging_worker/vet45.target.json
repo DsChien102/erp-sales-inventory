@@ -21,6 +21,11 @@
       "description": "Shared secret for worker tick auth (auto-generated on sync if empty)"
     },
     {
+      "name": "WORKER_ENV",
+      "default": "development",
+      "description": "Environment for the messaging worker (e.g., production, staging, development)"
+    },
+    {
       "name": "WORKER_LOG_LEVEL",
       "default": "WARNING",
       "description": "Messaging worker log level"
@@ -59,12 +64,27 @@
       "name": "PORT",
       "default": "8080",
       "description": "HTTP listen port for worker health/serve"
+    },
+    {
+      "name": "RESEND_API_KEY",
+      "required": false,
+      "description": "API key for Resend email service"
+    },
+    {
+      "name": "RESEND_FROM_DOMAIN",
+      "default": "resend.dev",
+      "description": "Domain used as sender for Resend email service"
+ 
+    },
+    {
+      "name": "APP_LINK_BASE_URL",
+      "required": false,
+      "description": "Base URL used for generating application links"
     }
   ],
   "environments": {
     "development": {
-      "envFile": ".env",
-      "dockerSupabaseUrl": "http://host.docker.internal:54321"
+      "envFile": ".env"
     },
     "local": {
       "envFile": ".env",
@@ -81,7 +101,11 @@
     "serve": {
       "description": "Run messaging worker (long-poll loop)",
       "command": "dart",
-      "args": ["run", "bin/worker.dart", "--serve"],
+      "args": [
+        "run",
+        "bin/worker.dart",
+        "--serve"
+      ],
       "cwd": ".",
       "passEnvFile": true,
       "localSupabaseCheck": true,
@@ -90,27 +114,34 @@
     "once": {
       "description": "Run one worker tick then exit",
       "command": "dart",
-      "args": ["run", "bin/worker.dart", "--once"],
+      "args": [
+        "run",
+        "bin/worker.dart",
+        "--once"
+      ],
       "cwd": ".",
       "passEnvFile": true,
       "localSupabaseCheck": true,
       "requireEnvFile": true
     },
     "docker": {
-      "description": "Docker Compose up messaging-worker",
-      "command": "docker",
-      "args": ["compose", "up", "--build", "messaging-worker"],
+      "description": "Docker Compose up messaging-worker (image tagged by env)",
+      "command": "./scripts/dev/worker_docker.sh",
       "cwd": "{{workspaceRoot}}",
       "env": {
         "WORKER_ENV_FILE": "{{envFile}}",
-        "WORKER_SUPABASE_URL": "{{dockerSupabaseUrl}}"
+        "WORKER_SUPABASE_URL": "{{dockerSupabaseUrl}}",
+        "WORKER_IMAGE_TAG": "{{environmentId}}"
       },
       "requireEnvFile": true
     },
     "deploy": {
       "description": "Deploy worker to Railway (staging/production)",
       "command": "./scripts/deploy.sh",
-      "args": ["--env", "{{railwayEnvironment}}"],
+      "args": [
+        "--env",
+        "{{railwayEnvironment}}"
+      ],
       "cwd": ".",
       "requireRailwayEnvironment": true
     }

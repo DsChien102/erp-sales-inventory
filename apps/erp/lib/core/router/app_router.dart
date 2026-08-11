@@ -2,15 +2,19 @@ import 'package:flutter/material.dart';
 import 'package:vet45_design_system/design_system.dart';
 import 'package:go_router/go_router.dart';
 import 'package:vet45_iam_infrastructure/infrastructure.dart';
+import 'package:vet45_iam_application/application.dart';
+import 'package:vet45_iam_domain/domain.dart';
 import 'package:vet45_shared_application/application.dart';
 import 'package:vet45_catalog_application/application.dart' hide ProductChangeHistoryPage;
 import 'package:vet45_catalog_presentation/presentation.dart';
 import 'package:vet45_partner_application/application.dart';
 import 'package:vet45_partner_domain/domain.dart';
 import 'package:vet45_pricing_application/application.dart';
+import 'package:vet45_iam_presentation/presentation.dart';
 
 // More Pages
 import '../../features/more/presentation/pages/system_settings_page.dart';
+import '../../features/more/presentation/pages/users_and_roles_page.dart';
 import '../../features/more/presentation/einvoice_settings/pages/einvoice_settings_page.dart';
 import '../../features/more/presentation/einvoice_settings/pages/einvoice_connection_page.dart';
 import '../../features/more/presentation/einvoice_settings/pages/einvoice_template_page.dart';
@@ -19,6 +23,8 @@ import '../../features/more/presentation/einvoice_settings/bloc/einvoice_setting
 
 // Auth
 import '../../features/auth/presentation/pages/login_page.dart';
+import '../../features/auth/presentation/pages/invitation_token_page.dart';
+import '../../features/auth/presentation/pages/owner_activation_page.dart';
 
 // Dashboard
 import '../../features/dashboard/presentation/dashboard_page.dart';
@@ -68,18 +74,20 @@ import '../../features/pricing/presentation/pages/pricing_pick_product_page.dart
 import '../../features/pricing/presentation/pages/pricing_pick_unit_page.dart';
 
 import '../di/injection.dart';
+import '../errors/exception_mapper.dart';
 
 final appRouter = GoRouter(
   initialLocation: '/',
   redirect: (context, state) {
     final isAuthenticated = getIt<ICurrentUser>().userId != null;
-    final isLoginRoute = state.matchedLocation == '/login';
+    final location = state.matchedLocation;
+    final isPublicRoute = location.startsWith('/login') || location == '/invitation';
 
-    if (!isAuthenticated && !isLoginRoute) {
+    if (!isAuthenticated && !isPublicRoute) {
       return '/login';
     }
 
-    if (isAuthenticated && isLoginRoute) {
+    if (isAuthenticated && location.startsWith('/login')) {
       return '/';
     }
 
@@ -89,7 +97,39 @@ final appRouter = GoRouter(
     GoRoute(
       path: '/login',
       name: 'login',
-      builder: (context, state) => const LoginPage(),
+      builder: (context, state) {
+        final extra = state.extra as Map<String, dynamic>?;
+        return LoginPage(
+          iamModule: getIt<IIamModule>(),
+          prefilledEmail: extra?['prefilledEmail'] as String?,
+          showSuccessBanner: extra?['showSuccessBanner'] as bool? ?? false,
+        );
+      },
+      routes: [
+        GoRoute(
+          path: 'reset-password',
+          name: 'login.reset_password',
+          builder: (context, state) {
+            final email = state.extra as String? ?? '';
+            return ResetPasswordPage(
+              iamModule: getIt<IIamModule>(),
+              requestEmail: email,
+            );
+          },
+        ),
+      ],
+    ),
+    GoRoute(
+      path: '/invitation',
+      name: 'invitation',
+      builder: (context, state) => InvitationTokenPage(
+        iamModule: getIt<IIamModule>(),
+      ),
+    ),
+    GoRoute(
+      path: '/owner-activation',
+      name: 'owner-activation',
+      builder: (context, state) => const OwnerActivationPage(),
     ),
     GoRoute(
       path: '/',
@@ -103,6 +143,244 @@ final appRouter = GoRouter(
       path: '/more/settings',
       name: 'more.settings',
       builder: (context, state) => const SystemSettingsPage(),
+    ),
+    GoRoute(
+      path: '/more/users-and-roles',
+      name: 'more.users-and-roles',
+      builder: (context, state) => UsersAndRolesPage(
+        iamModule: getIt<IIamModule>(),
+      ),
+    ),
+    GoRoute(
+      path: '/more/users',
+      name: 'more.users',
+      builder: (context, state) {
+        if (!_hasTenantPermission(IamPermissions.memberView)) {
+          return _permissionDeniedScaffold(
+            context,
+            message: 'Bạn không có quyền xem thành viên',
+          );
+        }
+        return OrganizationUsersPage(
+          iamModule: getIt<IIamModule>(),
+          executionContext: getIt<IExecutionContext>(),
+        );
+      },
+    ),
+    GoRoute(
+      path: '/more/users/invite',
+      name: 'more.users.invite',
+      builder: (context, state) => OrganizationInviteMemberPage(
+        iamModule: getIt<IIamModule>(),
+        executionContext: getIt<IExecutionContext>(),
+      ),
+    ),
+    GoRoute(
+      path: '/more/users/invitations/:invitationId',
+      name: 'more.users.invitation-detail',
+      builder: (context, state) {
+        final invitationId = state.pathParameters['invitationId'];
+        if (invitationId == null || invitationId.isEmpty) {
+          return _permissionDeniedScaffold(
+            context,
+            message: 'Thiếu mã lời mời',
+          );
+        }
+        return OrganizationInvitationDetailPage(
+          invitationId: invitationId,
+          iamModule: getIt<IIamModule>(),
+          executionContext: getIt<IExecutionContext>(),
+        );
+      },
+    ),
+    GoRoute(
+      path: '/more/users/members/:membershipId',
+      name: 'more.users.member-detail',
+      builder: (context, state) {
+        final membershipId = state.pathParameters['membershipId'];
+        if (membershipId == null || membershipId.isEmpty) {
+          return _permissionDeniedScaffold(
+            context,
+            message: 'Thiếu mã thành viên',
+          );
+        }
+        return OrganizationMemberDetailPage(
+          membershipId: membershipId,
+          iamModule: getIt<IIamModule>(),
+          executionContext: getIt<IExecutionContext>(),
+        );
+      },
+    ),
+    GoRoute(
+      path: '/more/users/invitation-detail',
+      redirect: (context, state) => '/more/users',
+    ),
+    GoRoute(
+      path: '/more/users/member-detail',
+      redirect: (context, state) => '/more/users',
+    ),
+    GoRoute(
+      path: '/more/users/select-role',
+      name: 'more.users.select-role',
+      redirect: (context, state) => '/more/users-and-roles',
+    ),
+    GoRoute(
+      path: '/more/users/preview-role-change',
+      name: 'more.users.preview-role-change',
+      redirect: (context, state) => '/more/users-and-roles',
+    ),
+    GoRoute(
+      path: '/more/roles',
+      name: 'more.roles',
+      builder: (context, state) => const OrganizationRolesPage(),
+    ),
+    GoRoute(
+      path: '/more/roles/detail',
+      name: 'more.roles.detail',
+      redirect: (context, state) => '/more/users-and-roles',
+    ),
+    GoRoute(
+      path: '/more/audit-logs',
+      name: 'more.audit-logs',
+      builder: (context, state) {
+        if (!_hasTenantPermission(IamPermissions.tenantAuditView)) {
+          return _permissionDeniedScaffold(
+            context,
+            message: 'Bạn không có quyền xem lịch sử quản trị',
+          );
+        }
+        return OrganizationAuditLogsPage(
+          iamModule: getIt<IIamModule>(),
+          executionContext: getIt<IExecutionContext>(),
+        );
+      },
+    ),
+    GoRoute(
+      path: '/more/audit-logs/detail',
+      redirect: (context, state) => '/more/audit-logs',
+    ),
+    GoRoute(
+      path: '/more/audit-logs/:auditLogId',
+      name: 'more.audit-logs.detail',
+      builder: (context, state) {
+        final auditLogId = state.pathParameters['auditLogId'];
+        if (auditLogId == null || auditLogId.isEmpty || auditLogId == 'detail') {
+          return _permissionDeniedScaffold(
+            context,
+            message: 'Thiếu mã nhật ký',
+          );
+        }
+        return AuditLogDetailPage(
+          auditLogId: auditLogId,
+          iamModule: getIt<IIamModule>(),
+          executionContext: getIt<IExecutionContext>(),
+        );
+      },
+    ),
+    GoRoute(
+      path: '/more/my-account',
+      name: 'more.my-account',
+      builder: (context, state) => MyAccountPage(
+        iamModule: getIt<IIamModule>(),
+        onLogout: () async {
+          final result = await guard(
+            () => getIt<IIamModule>().executeCommandAsync<SignOutResultDto>(SignOutCommand()),
+          );
+          if (!context.mounted) return;
+          result.fold(
+            (failure) {
+              VToast.show(
+                context,
+                title: 'Đăng xuất thất bại',
+                message: failure.message,
+                type: VToastType.danger,
+              );
+            },
+            (signOut) {
+              if (!signOut.localCleared) {
+                VToast.show(
+                  context,
+                  title: 'Đăng xuất thất bại',
+                  message: 'Không thể đóng phiên trên máy.',
+                  type: VToastType.danger,
+                );
+                return;
+              }
+              if (!signOut.remoteSucceeded) {
+                VToast.show(
+                  context,
+                  title: 'Cảnh báo',
+                  message: 'Phiên trên máy đã đóng; máy chủ chưa xác nhận đăng xuất',
+                  type: VToastType.warning,
+                );
+              }
+              context.go('/login');
+            },
+          );
+        },
+      ),
+    ),
+    GoRoute(
+      path: '/more/my-account/edit',
+      name: 'more.my-account.edit',
+      builder: (context, state) => EditMyAccountPage(
+        iamModule: getIt<IIamModule>(),
+      ),
+    ),
+    GoRoute(
+      path: '/more/my-account/reset-password',
+      name: 'more.my-account.reset-password',
+      builder: (context, state) => ResetPasswordPage(
+        iamModule: getIt<IIamModule>(),
+      ),
+    ),
+    GoRoute(
+      path: '/more/organization-profile',
+      name: 'more.organization-profile',
+      builder: (context, state) {
+        if (!_hasTenantPermission(IamPermissions.tenantView)) {
+          return _permissionDeniedScaffold(
+            context,
+            message: 'Bạn không có quyền xem hồ sơ tổ chức',
+          );
+        }
+        return OrganizationProfilePage(
+          iamModule: getIt<IIamModule>(),
+          executionContext: getIt<IExecutionContext>(),
+        );
+      },
+    ),
+    GoRoute(
+      path: '/more/organization-profile/edit',
+      name: 'more.organization-profile.edit',
+      builder: (context, state) {
+        final cubit = state.extra is OrganizationProfileCubit
+            ? state.extra! as OrganizationProfileCubit
+            : null;
+        if (cubit != null) {
+          return OrganizationEditProfilePage(cubit: cubit);
+        }
+        return OrganizationEditProfilePage(
+          iamModule: getIt<IIamModule>(),
+          executionContext: getIt<IExecutionContext>(),
+        );
+      },
+    ),
+    GoRoute(
+      path: '/more/organization-profile/legal',
+      name: 'more.organization-profile.legal',
+      builder: (context, state) {
+        final cubit = state.extra is OrganizationProfileCubit
+            ? state.extra! as OrganizationProfileCubit
+            : null;
+        if (cubit != null) {
+          return OrganizationLegalProfileFormPage(cubit: cubit);
+        }
+        return OrganizationLegalProfileFormPage(
+          iamModule: getIt<IIamModule>(),
+          executionContext: getIt<IExecutionContext>(),
+        );
+      },
     ),
     GoRoute(
       path: '/more/einvoice-settings',
@@ -604,5 +882,45 @@ final appRouter = GoRouter(
         return PricingHistoryPage(ruleId: ruleId);
       },
     ),
+    GoRoute(
+      path: '/more/readiness',
+      name: 'more.readiness',
+      builder: (context, state) {
+        if (!_hasTenantPermission(IamPermissions.tenantReadinessView)) {
+          return _permissionDeniedScaffold(
+            context,
+            message: 'Bạn không có quyền xem readiness',
+          );
+        }
+        return TenantReadinessPage(
+          iamModule: getIt<IIamModule>(),
+          executionContext: getIt<IExecutionContext>(),
+          canActivateTenant: _hasTenantPermission(
+            IamPermissions.tenantActivate,
+          ),
+        );
+      },
+    ),
   ],
 );
+
+bool _hasTenantPermission(String code) {
+  return getIt<IamSession>().hasPermission(code);
+}
+
+Widget _permissionDeniedScaffold(
+  BuildContext context, {
+  required String message,
+}) {
+  WidgetsBinding.instance.addPostFrameCallback((_) {
+    if (!context.mounted) return;
+    VToast.show(
+      context,
+      title: 'Không có quyền',
+      message: message,
+      type: VToastType.danger,
+    );
+    context.go('/');
+  });
+  return const Scaffold(body: SizedBox.shrink());
+}

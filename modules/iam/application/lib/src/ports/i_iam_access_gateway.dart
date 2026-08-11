@@ -1,6 +1,9 @@
-import '../dto/principal_access_dto.dart';
-import '../dto/tenant_member_dto.dart';
-import '../dto/tenant_membership_dto.dart';
+import '../tenant/shared/accessible_tenant_dto.dart';
+import '../shared/cursor_page_dto.dart';
+import '../authentication/shared/principal_access_dto.dart';
+import '../tenant/shared/tenant_context_dto.dart';
+import '../tenant/shared/tenant_member_dto.dart';
+import '../tenant/shared/tenant_membership_dto.dart';
 
 /// Port for IAM access reads — infrastructure implements via Supabase RPC.
 abstract interface class IIamAccessGateway {
@@ -8,7 +11,30 @@ abstract interface class IIamAccessGateway {
 
   Future<List<TenantMembershipDto>> listUserTenants();
 
-  Future<List<TenantMemberDto>> listTenantMembers(String tenantId);
+  /// Accessible tenants for the authenticated actor (S1).
+  /// Returns `isCurrent: false`; handler sets current from session.
+  Future<List<AccessibleTenantDto>> listAccessibleTenants();
+
+  /// Switch tenant context after re-validating access (S2).
+  /// RPC target: `iam.switch_tenant_context`.
+  Future<TenantContextDto> switchTenantContext({
+    required String targetTenantId,
+  });
+
+  /// Validate current or candidate session tenant (S3).
+  /// RPC target: `iam.get_tenant_context`.
+  Future<TenantContextDto> getValidatedTenantContext({
+    String? sessionTenantId,
+  });
+
+  /// S6 members list — cursor page + filters.
+  Future<CursorPageDto<TenantMemberDto>> listTenantMembers({
+    required String tenantId,
+    String? search,
+    String? status,
+    String? cursor,
+    int limit = 20,
+  });
 
   Future<void> assignMemberRole({
     required String tenantId,
@@ -22,7 +48,4 @@ abstract interface class IIamAccessGateway {
   });
 
   Future<bool> isMember(String tenantId);
-
-  /// Dev/bootstrap — creates owner tenant when user has no membership.
-  Future<String> bootstrapOwner({String tenantName = 'My Store'});
 }

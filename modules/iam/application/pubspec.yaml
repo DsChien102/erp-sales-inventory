@@ -9,7 +9,9 @@ environment:
 
 dependencies:
   vet45_iam_domain: ^1.0.0
+  vet45_iam_integration_events: ^1.0.0
   vet45_shared_application: ^1.0.0
+  vet45_shared_infrastructure: ^0.0.1
   vet45_annotations: ^0.1.0
   meta: ^1.17.0
 

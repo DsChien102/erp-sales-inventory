@@ -173,6 +173,82 @@ void main() {
       expect(process.invocations, isEmpty);
     });
 
+    test('worker docker local rewrites Supabase to host.docker.internal',
+        () async {
+      await syncLocal();
+
+      final plan = await runner().resolveLaunch(
+        ctx: manifest.context(environmentId: 'local'),
+        targetId: 'worker',
+        actionId: 'docker',
+      );
+
+      expect(plan.label, 'worker/docker');
+      expect(plan.command, endsWith('worker_docker.sh'));
+      expect(
+        plan.environment['WORKER_SUPABASE_URL'],
+        'http://host.docker.internal:54321',
+      );
+      expect(plan.environment['WORKER_IMAGE_TAG'], 'local');
+      expect(
+        plan.environment['WORKER_ENV_FILE'],
+        endsWith('apps/messaging_worker/.env'),
+      );
+      expect(process.invocations, isEmpty);
+    });
+
+    test('worker docker remote keeps generated SUPABASE_URL', () async {
+      final remoteRoot = await Directory.systemTemp.createTemp(
+        'vet45_docker_dev_',
+      );
+      addTearDown(() {
+        if (remoteRoot.existsSync()) {
+          remoteRoot.deleteSync(recursive: true);
+        }
+      });
+      writeTestWorkspace(
+        remoteRoot,
+        defaultEnvironment: 'development',
+        environmentIds: const ['development'],
+      );
+      writeDotEnv(
+        File('${remoteRoot.path}/.vet45/profiles/default/development.env'),
+        {
+          'SUPABASE_URL': 'https://example.supabase.co',
+          'SUPABASE_ANON_KEY': 'anon-test',
+          'SUPABASE_SERVICE_ROLE_KEY': 'service-test',
+          'WORKER_TICK_SECRET': 'tick-test',
+        },
+      );
+      writeActive(remoteRoot, 'development');
+      final remoteManifest = EnvManifest.load(remoteRoot);
+      final sync = await SyncService(manifest: remoteManifest).sync(
+        remoteManifest.context(environmentId: 'development'),
+        targetId: 'worker',
+      );
+      expect(sync.ok, isTrue);
+
+      final plan = await ActionRunner(
+        manifest: remoteManifest,
+        doctorService: DoctorService(
+          manifest: remoteManifest,
+          skipNetwork: true,
+        ),
+        processRunner: process,
+      ).resolveLaunch(
+        ctx: remoteManifest.context(environmentId: 'development'),
+        targetId: 'worker',
+        actionId: 'docker',
+      );
+
+      expect(plan.environment.containsKey('WORKER_SUPABASE_URL'), isFalse);
+      expect(plan.environment['WORKER_IMAGE_TAG'], 'development');
+      expect(
+        plan.environment['WORKER_ENV_FILE'],
+        endsWith('apps/messaging_worker/.env'),
+      );
+    });
+
     test('resolveLaunch rejects debug:ios on non-macOS', () async {
       if (Platform.isMacOS) {
         return;

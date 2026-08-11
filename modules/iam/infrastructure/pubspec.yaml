@@ -9,7 +9,9 @@ environment:
 
 dependencies:
   get_it: ^9.2.1
+  gotrue: ^2.27.1
   meta: ^1.17.0
+  quiver: ^3.2.2
   supabase: ^2.12.2
   uuid: ^4.5.3
   vet45_adapters: ^0.1.0
@@ -17,6 +19,7 @@ dependencies:
   vet45_iam_application: ^1.0.0
   vet45_iam_domain: ^1.0.0
   vet45_iam_integration_events: ^1.0.0
+  vet45_resend: ^0.1.0
   vet45_shared_application: ^1.0.0
   vet45_shared_domain: ^1.0.0
   vet45_shared_infrastructure: ^0.0.1

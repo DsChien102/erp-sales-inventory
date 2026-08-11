@@ -1,0 +1,169 @@
+// harness:allow-design-system-bypass — owner activation shell mirrors login (branded form)
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:vet45_design_system/design_system.dart';
+import 'package:vet45_iam_domain/domain.dart';
+
+import '../../data/owner_activation_client.dart';
+import '../bloc/owner_activation_cubit.dart';
+import '../bloc/owner_activation_state.dart';
+
+/// Owner account activation: enter the activation code + a new password.
+class OwnerActivationPage extends StatelessWidget {
+  const OwnerActivationPage({super.key, this.cubit, this.client});
+
+  final OwnerActivationCubit? cubit;
+  final OwnerActivationClient? client;
+
+  @override
+  Widget build(BuildContext context) {
+    if (cubit != null) {
+      return BlocProvider.value(
+        value: cubit!,
+        child: const _OwnerActivationView(),
+      );
+    }
+    return BlocProvider(
+      create: (_) => OwnerActivationCubit(
+        client:
+            client ?? SupabaseOwnerActivationClient(Supabase.instance.client),
+        idempotencyKey:
+            'owner-activation-${DateTime.now().microsecondsSinceEpoch}',
+      ),
+      child: const _OwnerActivationView(),
+    );
+  }
+}
+
+class _OwnerActivationView extends StatefulWidget {
+  const _OwnerActivationView();
+
+  @override
+  State<_OwnerActivationView> createState() => _OwnerActivationViewState();
+}
+
+class _OwnerActivationViewState extends State<_OwnerActivationView> {
+  String _code = '';
+  final _passwordController = TextEditingController();
+
+  static final _codePattern = RegExp(r'^[0-9A-Z]{8}$');
+
+  static const _mobileLayoutWidth = VResponsiveValue<double>(
+    mobile: 500,
+    tablet: 500,
+    desktop: 500,
+  );
+
+  @override
+  void dispose() {
+    _passwordController.dispose();
+    super.dispose();
+  }
+
+  void _submit() {
+    final code = _code.trim();
+    if (!_codePattern.hasMatch(code)) return;
+    context.read<OwnerActivationCubit>().submit(
+          code: code,
+          password: _passwordController.text,
+        );
+  }
+
+  bool get _canSubmit {
+    final password = _passwordController.text;
+    return _codePattern.hasMatch(_code.trim()) &&
+        password.isNotEmpty &&
+        PasswordPolicy.validate(password) == null;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.vColors;
+
+    return BlocConsumer<OwnerActivationCubit, OwnerActivationState>(
+      listenWhen: (prev, next) => prev.step != next.step,
+      listener: (context, state) {
+        if (state.step == OwnerActivationStep.failed &&
+            state.errorMessage != null) {
+          VToast.show(
+            context,
+            title: 'Kích hoạt thất bại',
+            message: state.errorMessage!,
+            type: VToastType.danger,
+          );
+        }
+        if (state.step == OwnerActivationStep.activated) {
+          VToast.show(
+            context,
+            title: 'Kích hoạt thành công',
+            message: 'Chào mừng bạn đến với VET45!',
+            type: VToastType.success,
+          );
+          context.go('/');
+        }
+      },
+      builder: (context, state) {
+        final isSubmitting = state.isSubmitting;
+
+        return Scaffold(
+          backgroundColor: colors.surface,
+          appBar: VAppBar(title: 'Kích hoạt tài khoản', showBackButton: true),
+          body: SafeArea(
+            child: VContentWidth(
+              maxWidth: _mobileLayoutWidth,
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(VSpacing.screenMobile),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    const VGap.lg(),
+                    VText(
+                      'Nhập mã kích hoạt đã gửi tới email của bạn, rồi đặt mật khẩu mới để đăng nhập.',
+                      variant: VTextVariant.bodyDefault,
+                      color: colors.textSecondary,
+                    ),
+                    const VGap.xl(),
+                    VVerificationCodeField(
+                      length: 8,
+                      charset: VVerificationCodeCharset.alphanumeric,
+                      label: 'Mã kích hoạt',
+                      isRequired: true,
+                      autofocus: true,
+                      enabled: !isSubmitting,
+                      onChanged: (value) => setState(() => _code = value),
+                    ),
+                    const VGap.md(),
+                    VPasswordField(
+                      controller: _passwordController,
+                      label: 'Mật khẩu mới',
+                      hintText: 'Nhập mật khẩu mới',
+                      helperText: PasswordPolicy.requirementText,
+                      minLength: PasswordPolicy.minLength,
+                      validateOnChanged: false,
+                      enabled: !isSubmitting,
+                      prefixIcon: VIcon(icon: VIcons.lock),
+                      onChanged: (_) => setState(() {}),
+                      onSubmitted: (_) {
+                        if (_canSubmit && !isSubmitting) _submit();
+                      },
+                    ),
+                    const VGap.xl(),
+                    VButton(
+                      label: 'Kích hoạt tài khoản',
+                      isLoading: isSubmitting,
+                      fullWidth: true,
+                      onPressed:
+                          !isSubmitting && _canSubmit ? _submit : null,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+}

@@ -1,0 +1,135 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:vet45_design_system/design_system.dart';
+import 'package:vet45_iam_application/testing.dart';
+import 'package:vet45_iam_presentation/presentation.dart';
+import 'package:vet45_shared_testing/shared_testing.dart';
+
+void main() {
+  testWidgets('wgt_e03_u01_fr01_01: OrganizationUsersPage loads real members (no FakeUsersData)', (
+    WidgetTester tester,
+  ) async {
+    tester.view.physicalSize = const Size(800, 1600);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    final module = FakeIamModule(scenario: FakeIamScenario.membersSearchOk);
+    final cubit = OrganizationUsersCubit(
+      iamModule: module,
+      executionContext: FakeExecutionContext(tenantId: 'org-001'),
+      searchDebounce: Duration.zero,
+      clock: () => DateTime.utc(2026, 7, 31),
+    );
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: OrganizationUsersPage(cubit: cubit),
+      ),
+    );
+    await cubit.loadInitial();
+    await tester.pumpAndSettle();
+
+    expect(find.text('Người dùng'), findsWidgets);
+    expect(find.textContaining('thành viên'), findsWidgets);
+    expect(find.text('Lan Le'), findsOneWidget);
+    expect(find.text('Nguyễn Văn Minh'), findsNothing);
+
+    await cubit.close();
+  });
+
+  testWidgets('OrganizationUsersPage switches to invitation tab', (
+    WidgetTester tester,
+  ) async {
+    tester.view.physicalSize = const Size(800, 1600);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    final module = FakeIamModule(scenario: FakeIamScenario.invitationsSearchOk);
+    final cubit = OrganizationUsersCubit(
+      iamModule: module,
+      executionContext: FakeExecutionContext(tenantId: 'org-001'),
+      searchDebounce: Duration.zero,
+      clock: () => DateTime.utc(2026, 7, 31),
+    );
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: OrganizationUsersPage(cubit: cubit),
+      ),
+    );
+    await cubit.loadInitial();
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Lời mời'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('invitee@example.com'), findsOneWidget);
+    expect(find.text('Nguyễn Văn Minh'), findsNothing);
+
+    await cubit.close();
+  });
+
+  testWidgets('member filter chip triggers server status query', (
+    WidgetTester tester,
+  ) async {
+    tester.view.physicalSize = const Size(800, 1600);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    final module = FakeIamModule(scenario: FakeIamScenario.membersSearchOk);
+    final cubit = OrganizationUsersCubit(
+      iamModule: module,
+      executionContext: FakeExecutionContext(tenantId: 'org-001'),
+      searchDebounce: Duration.zero,
+    );
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: OrganizationUsersPage(cubit: cubit),
+      ),
+    );
+    await cubit.loadInitial();
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Tạm ngừng').first);
+    await tester.pumpAndSettle();
+
+    expect(find.text('Minh Nguyen'), findsOneWidget);
+    expect(find.text('Lan Le'), findsNothing);
+
+    await cubit.close();
+  });
+
+  testWidgets('forbidden shows permission empty state', (
+    WidgetTester tester,
+  ) async {
+    tester.view.physicalSize = const Size(800, 1600);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    final cubit = OrganizationUsersCubit(
+      iamModule: FakeIamModule(
+        scenario: FakeIamScenario.memberInvitationForbidden,
+      ),
+      executionContext: FakeExecutionContext(tenantId: 'org-001'),
+      searchDebounce: Duration.zero,
+    );
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: OrganizationUsersPage(cubit: cubit),
+      ),
+    );
+    await cubit.loadMembers(reset: true);
+    await tester.pumpAndSettle();
+
+    expect(find.text('Bạn không có quyền quản lý'), findsOneWidget);
+    expect(find.byType(VSearchBar), findsOneWidget);
+
+    await cubit.close();
+  });
+}

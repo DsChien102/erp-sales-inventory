@@ -6,8 +6,10 @@ final class RoleCode {
     }
   }
 
-  static final owner = RoleCode('owner');
+  static final storeOwner = RoleCode('store_owner');
   static final staff = RoleCode('staff');
+  static final accountant = RoleCode('accountant');
+  static final warehouse = RoleCode('warehouse');
 
   final String value;
 }

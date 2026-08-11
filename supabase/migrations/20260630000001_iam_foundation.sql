@@ -174,43 +174,6 @@ begin
 end;
 $$;
 
--- Dev/bootstrap helper: first login creates an owner tenant when user has no membership.
-create or replace function iam.bootstrap_owner(p_tenant_name text default 'My Store')
-returns uuid
-language plpgsql
-security definer
-set search_path = iam, pg_temp
-as $$
-declare
-  v_user_id uuid := auth.uid();
-  v_tenant_id uuid;
-begin
-  if v_user_id is null then
-    raise exception 'not authenticated';
-  end if;
-
-  select m.tenant_id
-  into v_tenant_id
-  from iam.memberships m
-  where m.user_id = v_user_id
-  order by m.created_at
-  limit 1;
-
-  if v_tenant_id is not null then
-    return v_tenant_id;
-  end if;
-
-  insert into iam.tenants (name)
-  values (coalesce(nullif(trim(p_tenant_name), ''), 'My Store'))
-  returning id into v_tenant_id;
-
-  insert into iam.memberships (tenant_id, user_id, role)
-  values (v_tenant_id, v_user_id, 'owner');
-
-  return v_tenant_id;
-end;
-$$;
-
 revoke all on schema iam from public, anon;
 grant usage on schema iam to authenticated;
 
@@ -220,9 +183,7 @@ grant select on iam.tenants, iam.memberships, iam.role_permissions to authentica
 revoke all on function iam.get_session_context(uuid) from public, anon;
 revoke all on function iam.list_user_tenants() from public, anon;
 revoke all on function iam.has_permission(uuid, text) from public, anon;
-revoke all on function iam.bootstrap_owner(text) from public, anon;
 
 grant execute on function iam.get_session_context(uuid) to authenticated;
 grant execute on function iam.list_user_tenants() to authenticated;
 grant execute on function iam.has_permission(uuid, text) to authenticated;
-grant execute on function iam.bootstrap_owner(text) to authenticated;

@@ -146,7 +146,7 @@ partner/
 
 DTO dùng chung trong cùng aggregate → `<aggregate>/shared/`. DTO/input dùng chéo aggregate → `src/shared/`. Port vẫn ở `src/ports/`.
 
-**Legacy:** IAM (`authentication/`, `tenant/`) và catalog (`custom_fields/`, `pricing/`) chưa migrate — partner là golden reference mới.
+**Legacy:** catalog (`custom_fields/`, `pricing/`) chưa migrate — partner + IAM (`identity/`, `platform/`, `authentication/`, `invitation/`, `tenant/`, `notification/`) là golden reference hiện tại.
 
 **DTO colocation (bắt buộc):**
 

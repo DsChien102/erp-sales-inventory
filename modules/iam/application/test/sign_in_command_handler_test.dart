@@ -5,6 +5,10 @@ class _RecordingAuthenticator implements IAuthenticator {
   String? signedInEmail;
 
   @override
+  AuthSessionState get sessionState =>
+      signedInEmail == null ? AuthSessionState.absent : AuthSessionState.active;
+
+  @override
   String? get currentEmail => signedInEmail;
 
   @override
@@ -23,6 +27,7 @@ class _RecordingAuthenticator implements IAuthenticator {
 
 class _RecordingSessionPort implements IIamSessionPort {
   var established = false;
+  var requireTenantContext = true;
 
   @override
   SessionDto get snapshot => SessionDto(
@@ -37,12 +42,18 @@ class _RecordingSessionPort implements IIamSessionPort {
   }
 
   @override
-  Future<void> establishAfterSignIn({String? tenantId}) async {
+  Future<void> establishAfterSignIn({
+    String? tenantId,
+    bool requireTenantContext = true,
+  }) async {
     established = true;
+    this.requireTenantContext = requireTenantContext;
   }
 
   @override
-  Future<void> restoreFromPersistedAuth() async {}
+  Future<void> restoreFromPersistedAuth({
+    bool requireTenantContext = true,
+  }) async {}
 }
 
 void main() {
@@ -60,5 +71,27 @@ void main() {
 
     expect(authenticator.signedInEmail, 'owner@vet45.com');
     expect(sessionPort.established, isTrue);
+    expect(sessionPort.requireTenantContext, isTrue);
+  });
+
+  test('SignInCommandHandler can establish auth-only platform session', () async {
+    final authenticator = _RecordingAuthenticator();
+    final sessionPort = _RecordingSessionPort();
+    final handler = SignInCommandHandler(
+      authenticator: authenticator,
+      sessionPort: sessionPort,
+    );
+
+    await handler.handle(
+      SignInCommand(
+        email: 'admin@vet45.com',
+        password: 'secret',
+        requireTenantContext: false,
+      ),
+    );
+
+    expect(authenticator.signedInEmail, 'admin@vet45.com');
+    expect(sessionPort.established, isTrue);
+    expect(sessionPort.requireTenantContext, isFalse);
   });
 }

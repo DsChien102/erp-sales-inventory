@@ -1,0 +1,278 @@
+import 'package:test/test.dart';
+import 'package:vet45_iam_application/application.dart';
+import 'package:vet45_iam_domain/domain.dart';
+import 'package:vet45_shared_application/application.dart';
+
+/// scn_e05_u03_fr01_01 — GetTenantContextQueryHandler scenarios (§S3).
+class _FakeCurrentTenant implements ICurrentTenant {
+  _FakeCurrentTenant(this.tenantId);
+
+  @override
+  final String? tenantId;
+}
+
+class _FakePreferencePort implements IPlatformUserPreferencePort {
+  _FakePreferencePort(this.lastSelected);
+
+  String? lastSelected;
+
+  @override
+  Future<String?> getLastSelectedTenantId() async => lastSelected;
+
+  @override
+  Future<void> setLastSelectedTenantId(String? tenantId) async {
+    lastSelected = tenantId;
+  }
+}
+
+class _FakeSessionPort implements IIamSessionPort {
+  String? establishedTenantId;
+
+  @override
+  SessionDto get snapshot => const SessionDto(isAuthenticated: true);
+
+  @override
+  Future<void> clear() async {}
+
+  @override
+  Future<void> establishAfterSignIn({
+    String? tenantId,
+    bool requireTenantContext = true,
+  }) async {
+    establishedTenantId = tenantId;
+  }
+
+  @override
+  Future<void> restoreFromPersistedAuth({
+    bool requireTenantContext = true,
+  }) async {}
+}
+
+class _ScenarioAccessGateway implements IIamAccessGateway {
+  _ScenarioAccessGateway(this.onValidate);
+
+  final Future<TenantContextDto> Function(String? sessionTenantId) onValidate;
+
+  @override
+  Future<TenantContextDto> getValidatedTenantContext({
+    String? sessionTenantId,
+  }) => onValidate(sessionTenantId);
+
+  @override
+  Future<TenantContextDto> switchTenantContext({
+    required String targetTenantId,
+  }) async => throw UnimplementedError();
+
+  @override
+  Future<List<AccessibleTenantDto>> listAccessibleTenants() async => const [];
+
+  @override
+  Future<PrincipalAccessDto?> getSessionContext({String? tenantId}) async => null;
+
+  @override
+  Future<bool> hasPermission({
+    required String tenantId,
+    required String permission,
+  }) async => true;
+
+  @override
+  Future<bool> isMember(String tenantId) async => true;
+
+  @override
+  Future<CursorPageDto<TenantMemberDto>> listTenantMembers({
+    required String tenantId,
+    String? search,
+    String? status,
+    String? cursor,
+    int limit = 20,
+  }) async => const CursorPageDto<TenantMemberDto>(items: []);
+
+  @override
+  Future<List<TenantMembershipDto>> listUserTenants() async => const [];
+
+  @override
+  Future<void> assignMemberRole({
+    required String tenantId,
+    required String userId,
+    required String role,
+  }) async {}
+}
+
+void main() {
+  group('scn_e05_u03_fr01_01 GetTenantContextQueryHandler', () {
+    test('bootstrap_valid — preference resolves + establishes session', () async {
+      final session = _FakeSessionPort();
+      final handler = GetTenantContextQueryHandler(
+        accessGateway: _ScenarioAccessGateway((id) async {
+          expect(id, 'tenant-pref');
+          return const TenantContextDto(
+            status: TenantContextStatus.valid,
+            tenantId: 'tenant-pref',
+            tenantName: 'Preferred',
+            roleLabel: 'owner',
+            tenantStatus: TenantLifecycleStatus.active,
+          );
+        }),
+        preferencePort: _FakePreferencePort('tenant-pref'),
+        sessionPort: session,
+        currentTenant: _FakeCurrentTenant(null),
+      );
+
+      final result = await handler.handle(
+        GetTenantContextQuery(bootstrapFromLastSelected: true),
+      );
+
+      expect(result.status, TenantContextStatus.valid);
+      expect(result.tenantId, 'tenant-pref');
+      expect(session.establishedTenantId, 'tenant-pref');
+    });
+
+    test(
+      'bootstrap_current_session — no preference resolves current tenant',
+      () async {
+        final session = _FakeSessionPort();
+        final preference = _FakePreferencePort(null);
+        final handler = GetTenantContextQueryHandler(
+          accessGateway: _ScenarioAccessGateway((id) async {
+            expect(id, 'tenant-cur');
+            return const TenantContextDto(
+              status: TenantContextStatus.valid,
+              tenantId: 'tenant-cur',
+              tenantName: 'Current',
+              roleLabel: 'owner',
+              tenantStatus: TenantLifecycleStatus.provisioning,
+            );
+          }),
+          preferencePort: preference,
+          sessionPort: session,
+          currentTenant: _FakeCurrentTenant('tenant-cur'),
+        );
+
+        final result = await handler.handle(
+          GetTenantContextQuery(bootstrapFromLastSelected: true),
+        );
+
+        expect(result.status, TenantContextStatus.valid);
+        expect(result.tenantId, 'tenant-cur');
+        expect(session.establishedTenantId, 'tenant-cur');
+        expect(preference.lastSelected, 'tenant-cur');
+      },
+    );
+
+    test('bootstrap_invalid — OQ-07 returns none without auto-pick', () async {
+      final session = _FakeSessionPort();
+      final handler = GetTenantContextQueryHandler(
+        accessGateway: _ScenarioAccessGateway((id) async {
+          return const TenantContextDto(
+            status: TenantContextStatus.invalidated,
+            tenantId: 'tenant-gone',
+            invalidationReason: TenantContextInvalidationReason.membershipRemoved,
+            blockedErrorCode: 'MEMBERSHIP_REMOVED',
+          );
+        }),
+        preferencePort: _FakePreferencePort('tenant-gone'),
+        sessionPort: session,
+        currentTenant: _FakeCurrentTenant(null),
+      );
+
+      final result = await handler.handle(
+        GetTenantContextQuery(bootstrapFromLastSelected: true),
+      );
+
+      expect(result.status, TenantContextStatus.none);
+      expect(session.establishedTenantId, isNull);
+    });
+
+    test('context_none — no preference / no session', () async {
+      final handler = GetTenantContextQueryHandler(
+        accessGateway: _ScenarioAccessGateway(
+          (_) async => const TenantContextDto(status: TenantContextStatus.none),
+        ),
+        preferencePort: _FakePreferencePort(null),
+        sessionPort: _FakeSessionPort(),
+        currentTenant: _FakeCurrentTenant(null),
+      );
+
+      final bootstrap = await handler.handle(
+        GetTenantContextQuery(bootstrapFromLastSelected: true),
+      );
+      expect(bootstrap.status, TenantContextStatus.none);
+
+      final current = await handler.handle(GetTenantContextQuery());
+      expect(current.status, TenantContextStatus.none);
+    });
+
+    test('context_invalidated — current session returns invalidated', () async {
+      final handler = GetTenantContextQueryHandler(
+        accessGateway: _ScenarioAccessGateway((id) async {
+          expect(id, 'tenant-cur');
+          return const TenantContextDto(
+            status: TenantContextStatus.invalidated,
+            tenantId: 'tenant-cur',
+            invalidationReason: TenantContextInvalidationReason.tenantSuspended,
+            blockedErrorCode: 'TENANT_SUSPENDED',
+            tenantStatus: TenantLifecycleStatus.suspended,
+          );
+        }),
+        preferencePort: _FakePreferencePort(null),
+        sessionPort: _FakeSessionPort(),
+        currentTenant: _FakeCurrentTenant('tenant-cur'),
+      );
+
+      final result = await handler.handle(GetTenantContextQuery());
+
+      expect(result.status, TenantContextStatus.invalidated);
+      expect(
+        result.invalidationReason,
+        TenantContextInvalidationReason.tenantSuspended,
+      );
+      expect(result.blockedErrorCode, 'TENANT_SUSPENDED');
+    });
+
+    test('context_identity_inactive — mid-session identity denial', () async {
+      final handler = GetTenantContextQueryHandler(
+        accessGateway: _ScenarioAccessGateway((_) async {
+          return const TenantContextDto(
+            status: TenantContextStatus.invalidated,
+            tenantId: 'tenant-cur',
+            invalidationReason: TenantContextInvalidationReason.identityInactive,
+            blockedErrorCode: 'OWNER_IDENTITY_UNAVAILABLE',
+          );
+        }),
+        preferencePort: _FakePreferencePort(null),
+        sessionPort: _FakeSessionPort(),
+        currentTenant: _FakeCurrentTenant('tenant-cur'),
+      );
+
+      final result = await handler.handle(GetTenantContextQuery());
+      expect(result.status, TenantContextStatus.invalidated);
+      expect(
+        result.invalidationReason,
+        TenantContextInvalidationReason.identityInactive,
+      );
+    });
+
+    test('context_permissions_refreshed — still valid context', () async {
+      final handler = GetTenantContextQueryHandler(
+        accessGateway: _ScenarioAccessGateway((_) async {
+          return const TenantContextDto(
+            status: TenantContextStatus.valid,
+            tenantId: 'tenant-cur',
+            tenantName: 'Org',
+            roleLabel: 'staff',
+            permissions: ['tenant.view'],
+            tenantStatus: TenantLifecycleStatus.active,
+          );
+        }),
+        preferencePort: _FakePreferencePort(null),
+        sessionPort: _FakeSessionPort(),
+        currentTenant: _FakeCurrentTenant('tenant-cur'),
+      );
+
+      final result = await handler.handle(GetTenantContextQuery());
+      expect(result.status, TenantContextStatus.valid);
+      expect(result.permissions, ['tenant.view']);
+      expect(result.invalidationReason, isNull);
+    });
+  });
+}

@@ -23,9 +23,7 @@ final class WorkerHttpServer {
       ..get('/health', _handleHealth)
       ..post('/tick', _handleTick);
 
-    return Pipeline()
-        .addMiddleware(logRequests())
-        .addHandler(router.call);
+    return Pipeline().addMiddleware(logRequests()).addHandler(router.call);
   }
 
   Future<HttpServer> serve({required int port}) {

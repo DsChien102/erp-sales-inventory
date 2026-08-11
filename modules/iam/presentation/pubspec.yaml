@@ -11,13 +11,19 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  flutter_bloc: ^9.1.1
   get_it: ^9.2.1
+  go_router: ^17.0.0
+  uuid: ^4.5.3
   vet45_design_system: ^1.0.0
   vet45_iam_application: ^1.0.0
+  vet45_iam_domain: ^1.0.0
+  vet45_shared_application: ^1.0.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   vet45_lints: ^1.0.0
+  vet45_shared_testing: ^0.0.1
 
 flutter:
