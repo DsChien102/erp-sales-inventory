@@ -9,8 +9,44 @@ workspace:
   - packages/vet45_lints
   - packages/vet45_annotations
   - packages/vet45_adapters
+  - packages/vet45_resend
   - packages/vet45_generator
   - packages/vet45_shared/application
   - packages/vet45_shared/domain
   - packages/vet45_shared/infrastructure
   - packages/vet45_shared/testing
+  - modules/catalog/domain
+  - modules/catalog/application
+  - modules/catalog/infrastructure
+  - modules/catalog/integration_events
+  - modules/sales/domain
+  - modules/sales/application
+  - modules/sales/infrastructure
+  - modules/sales/integration_events
+  - modules/iam/domain
+  - modules/iam/application
+  - modules/iam/infrastructure
+  - modules/iam/integration_events
+  - modules/partner/domain
+  - modules/partner/application
+  - modules/partner/infrastructure
+  - modules/partner/integration_events
+  - modules/pricing/domain
+  - modules/pricing/application
+  - modules/pricing/infrastructure
+  - modules/inventory/domain
+  - modules/inventory/application
+  - modules/inventory/infrastructure
+  - modules/inventory/integration_events
+  - modules/costing/domain
+  - modules/costing/application
+  - modules/costing/infrastructure
+  - modules/costing/integration_events
+  - modules/dashboard/domain
+  - modules/dashboard/application
+  - modules/dashboard/infrastructure
+  - modules/dashboard/integration_events
+  - modules/accounting/domain
+  - modules/accounting/application
+  - modules/accounting/infrastructure
+  - modules/accounting/integration_events

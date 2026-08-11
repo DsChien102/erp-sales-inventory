@@ -21,7 +21,7 @@ Required test IDs: plan § Required FE evidence IDs.
 
 | Slice | Production entrypoint | Query/Command evidence | Fake scenario test | Permission evidence | Error evidence | E2E test | Status |
 | ----- | --------------------- | ---------------------- | ------------------ | ------------------- | -------------- | -------- | ------ |
-| S0 | `/login` → `LoginPage` + IAM nav gating | `SignInCommand` rồi `GetCurrentSessionQuery` | `FakeIamScenario.authSignInOk` / `authInvalid` | session permissions cho menu (More gating) | invalid credentials stay on login | `e2e_th01_s0_session` | `done` |
+| S0 | `/login` → `LoginPage` + IAM nav gating | `SignInCommand` rồi `GetCurrentSessionQuery`; forgot-password → `RequestPasswordResetByEmailCommand` | `FakeIamScenario.authSignInOk` / `authInvalid` / `passwordResetByEmailOk` | session permissions cho menu (More gating) | invalid credentials stay on login | `e2e_th01_s0_session` / `wgt_th01_s0_forgot_password_opens_public_reset_with_email` | `done` |
 | S1 | Tenant selector / `TenantContextCubit` | `ListAccessibleTenantsQuery`; honor `AccessibleTenantDto.isSelectable` | `tenantsMulti` / `tenantsProvisioning` | selector disable non-selectable | selector error không fail dashboard | `e2e_e05_u01_fr01_01` | `done` |
 | S2 | Switch tenant confirmation | `SwitchTenantContextCommand` | `switchOk` / `switchDenied` | confirm sheet | isolated selector danger toast | `e2e_e05_u02_fr01_01` | `done` |
 | S3 | Bootstrap / invalidation UI | `GetTenantContextQuery(bootstrapFromLastSelected)` | `bootstrapValid` / `bootstrapInvalid` / `contextInvalidated` | blocked bootstrap state | invalidation UI | `e2e_e05_u03_fr01_01` | `done` |

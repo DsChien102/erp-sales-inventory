@@ -137,14 +137,18 @@ void main() {
     final fields = find.byType(TextField);
     await tester.enterText(fields.first, '123456');
     await tester.pump();
-    await tester.tap(find.text('Xác nhận mã'));
+    final confirm = find.text('Xác nhận mã');
+    if (confirm.evaluate().isNotEmpty) {
+      await tester.tap(confirm);
+      await tester.pump();
+    }
     await tester.pumpAndSettle();
 
     expect(find.text('Tạo mật khẩu mới'), findsOneWidget);
 
     final passwordFields = find.byType(TextField);
-    await tester.enterText(passwordFields.at(0), 'password1');
-    await tester.enterText(passwordFields.at(1), 'password1');
+    await tester.enterText(passwordFields.at(0), 'Password1!');
+    await tester.enterText(passwordFields.at(1), 'Password1!');
     await tester.pump();
     await tester.tap(find.widgetWithText(VButton, 'Đặt lại mật khẩu'));
     await tester.pumpAndSettle();

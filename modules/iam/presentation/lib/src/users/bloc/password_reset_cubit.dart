@@ -8,6 +8,7 @@ import 'password_reset_state.dart';
 final class PasswordResetCubit extends Cubit<PasswordResetState> {
   PasswordResetCubit({
     required IIamModule iamModule,
+    this.requestEmail,
     DateTime Function()? clock,
   }) : _iamModule = iamModule,
        _clock = clock ?? (() => DateTime.now().toUtc()),
@@ -15,6 +16,12 @@ final class PasswordResetCubit extends Cubit<PasswordResetState> {
 
   final IIamModule _iamModule;
   final DateTime Function() _clock;
+
+  /// When set, use public (logged-out) reset-by-email commands.
+  final String? requestEmail;
+
+  bool get _isPublic =>
+      requestEmail != null && requestEmail!.trim().isNotEmpty;
 
   void tick() {
     if (isClosed) return;
@@ -39,7 +46,11 @@ final class PasswordResetCubit extends Cubit<PasswordResetState> {
     try {
       final result =
           await _iamModule.executeCommandAsync<PasswordResetRequestResultDto>(
-            RequestMyPasswordResetCommand(),
+            _isPublic
+                ? RequestPasswordResetByEmailCommand(
+                    email: requestEmail!.trim(),
+                  )
+                : RequestMyPasswordResetCommand(),
           );
       if (isClosed) return;
       emit(
@@ -93,7 +104,9 @@ final class PasswordResetCubit extends Cubit<PasswordResetState> {
     try {
       final result =
           await _iamModule.executeCommandAsync<PasswordResetRequestResultDto>(
-            ResendMyPasswordResetCommand(operationId: operationId),
+            _isPublic
+                ? ResendPasswordResetByEmailCommand(operationId: operationId)
+                : ResendMyPasswordResetCommand(operationId: operationId),
           );
       if (isClosed) return;
       emit(
@@ -142,10 +155,15 @@ final class PasswordResetCubit extends Cubit<PasswordResetState> {
     try {
       final result =
           await _iamModule.executeCommandAsync<PasswordResetVerifyResultDto>(
-            VerifyMyPasswordResetCommand(
-              operationId: operationId,
-              code: code.trim(),
-            ),
+            _isPublic
+                ? VerifyPasswordResetByEmailCommand(
+                    operationId: operationId,
+                    code: code.trim(),
+                  )
+                : VerifyMyPasswordResetCommand(
+                    operationId: operationId,
+                    code: code.trim(),
+                  ),
           );
       if (isClosed) return;
       if (!result.verified) {
@@ -198,10 +216,15 @@ final class PasswordResetCubit extends Cubit<PasswordResetState> {
     try {
       final result = await _iamModule
           .executeCommandAsync<PasswordResetCompletionResultDto>(
-            CompleteMyPasswordResetCommand(
-              operationId: operationId,
-              newPassword: newPassword,
-            ),
+            _isPublic
+                ? CompletePasswordResetByEmailCommand(
+                    operationId: operationId,
+                    newPassword: newPassword,
+                  )
+                : CompleteMyPasswordResetCommand(
+                    operationId: operationId,
+                    newPassword: newPassword,
+                  ),
           );
       if (isClosed) return;
       emit(

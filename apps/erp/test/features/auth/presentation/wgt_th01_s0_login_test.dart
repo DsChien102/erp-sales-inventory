@@ -8,6 +8,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:vet45_design_system/design_system.dart';
 import 'package:vet45_iam_application/testing.dart';
+import 'package:vet45_iam_presentation/presentation.dart';
 import 'package:vet45_iam_presentation/testing.dart';
 import 'package:vet45_shared_application/application.dart';
 
@@ -148,6 +149,64 @@ void main() {
 
       expect(find.text('INVITATION_ROUTE'), findsOneWidget);
       expect(find.text('OWNER_ACTIVATION_ROUTE'), findsNothing);
+    },
+  );
+
+  testWidgets(
+    'wgt_th01_s0_forgot_password_opens_public_reset_with_email',
+    (tester) async {
+      tester.view.physicalSize = const Size(800, 1600);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
+      final module = RecordingIamModule(
+        FakeIamModule(scenario: FakeIamScenario.passwordResetByEmailOk),
+      );
+      final cubit = LoginCubit(iamModule: module);
+      addTearDown(cubit.close);
+
+      final router = GoRouter(
+        initialLocation: '/login',
+        routes: [
+          GoRoute(
+            path: '/login',
+            builder: (context, state) => LoginPage(cubit: cubit),
+            routes: [
+              GoRoute(
+                path: 'reset-password',
+                builder: (context, state) => ResetPasswordPage(
+                  iamModule: module,
+                  requestEmail: state.extra as String? ?? '',
+                ),
+              ),
+            ],
+          ),
+        ],
+      );
+
+      await tester.pumpWidget(
+        MaterialApp.router(
+          theme: VTheme.lightTheme,
+          routerConfig: router,
+        ),
+      );
+
+      await tester.enterText(find.byType(TextField).first, 'lan@example.com');
+      await tester.tap(find.text('Quên mật khẩu?'));
+      await tester.pump();
+      await tester.pump();
+
+      expect(find.text('Xác minh email'), findsOneWidget);
+      expect(
+        module.commands.whereType<RequestPasswordResetByEmailCommand>(),
+        hasLength(1),
+      );
+      expect(
+        module.commands.whereType<RequestPasswordResetByEmailCommand>().single.email,
+        'lan@example.com',
+      );
+      expect(module.commands.whereType<RequestMyPasswordResetCommand>(), isEmpty);
     },
   );
 

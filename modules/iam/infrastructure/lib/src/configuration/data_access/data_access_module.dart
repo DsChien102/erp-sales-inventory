@@ -9,6 +9,7 @@ import 'package:vet45_shared_infrastructure/infrastructure.dart';
 import '../../adapters/audit/supabase_tenant_audit_read_port.dart';
 import '../../adapters/identity/password_reset_operation_store.dart';
 import '../../adapters/identity/supabase_auth_account_client.dart';
+import '../../adapters/identity/supabase_password_reset_public_adapter.dart';
 import '../../adapters/identity/supabase_platform_identity_provisioning_adapter.dart';
 import '../../adapters/identity/supabase_platform_identity_self_service_adapter.dart';
 import '../../adapters/identity/unavailable_tenant_activation_identity_port.dart';
@@ -127,6 +128,11 @@ final class IamDataAccessModule {
           profileGateway: SupabasePlatformUserProfileGateway(
             rpcClient: container.get<SupabaseSchemaRpcClient>(),
           ),
+        ),
+      )
+      ..registerSingleton<IPasswordResetPublicPort>(
+        SupabasePasswordResetPublicAdapter(
+          rpcClient: container.get<SupabaseSchemaRpcClient>(),
         ),
       )
       ..registerSingleton<IPlatformIdentitySelfServicePort>(

@@ -40,10 +40,14 @@ import '../shared/iam_blocked_codes.dart';
 import '../shared/iam_blocked_exception.dart';
 import '../shared/tenant_readiness_issue_codes.dart';
 import '../identity/commands/complete_my_password_reset/complete_my_password_reset_command.dart';
+import '../identity/commands/complete_password_reset_by_email/complete_password_reset_by_email_command.dart';
 import '../identity/commands/request_my_password_reset/request_my_password_reset_command.dart';
+import '../identity/commands/request_password_reset_by_email/request_password_reset_by_email_command.dart';
 import '../identity/commands/resend_my_password_reset/resend_my_password_reset_command.dart';
+import '../identity/commands/resend_password_reset_by_email/resend_password_reset_by_email_command.dart';
 import '../identity/commands/update_my_identity_profile/update_my_identity_profile_command.dart';
 import '../identity/commands/verify_my_password_reset/verify_my_password_reset_command.dart';
+import '../identity/commands/verify_password_reset_by_email/verify_password_reset_by_email_command.dart';
 import '../identity/queries/get_my_identity_profile/get_my_identity_profile_query.dart';
 import '../identity/shared/my_identity_profile_dto.dart';
 import '../tenant/commands/activate_tenant/activate_tenant_command.dart';
@@ -134,6 +138,7 @@ final class FakeIamModule implements IIamModule {
   late List<TenantAuditLogSummaryDto> _tenantAuditSummaries;
   late MyIdentityProfileDto _myProfile;
   String? _passwordResetOperationId;
+  String? _passwordResetMaskedEmail;
   bool _passwordResetVerified = false;
   bool _isAuthenticated = false;
   String? _authenticatedEmail;
@@ -754,6 +759,14 @@ final class FakeIamModule implements IIamModule {
       ResendMyPasswordResetCommand c => _handleResendMyPasswordReset<TResult>(c),
       VerifyMyPasswordResetCommand c => _handleVerifyMyPasswordReset<TResult>(c),
       CompleteMyPasswordResetCommand c => _handleCompleteMyPasswordReset<TResult>(c),
+      RequestPasswordResetByEmailCommand c =>
+        _handleRequestPasswordResetByEmail<TResult>(c),
+      ResendPasswordResetByEmailCommand c =>
+        _handleResendPasswordResetByEmail<TResult>(c),
+      VerifyPasswordResetByEmailCommand c =>
+        _handleVerifyPasswordResetByEmail<TResult>(c),
+      CompletePasswordResetByEmailCommand c =>
+        _handleCompletePasswordResetByEmail<TResult>(c),
       DeactivateMembershipCommand c => _handleDeactivateMembership<TResult>(c),
       ReactivateMembershipCommand c => _handleReactivateMembership<TResult>(c),
       RemoveMembershipCommand c => _handleRemoveMembership<TResult>(c),
@@ -2395,6 +2408,81 @@ final class FakeIamModule implements IIamModule {
     _passwordResetVerified = true;
     return Future.value(
       const PasswordResetVerifyResultDto(verified: true) as TResult,
+    );
+  }
+
+  Future<TResult> _handleRequestPasswordResetByEmail<TResult>(
+    RequestPasswordResetByEmailCommand command,
+  ) {
+    if (scenario == FakeIamScenario.identityUnavailable) {
+      throw const IamBlockedException(IamBlockedCodes.systemError);
+    }
+    _passwordResetOperationId = 'op-public-reset-1';
+    _passwordResetVerified = false;
+    _passwordResetMaskedEmail = _maskEmail(command.email.trim());
+    final now = DateTime.now().toUtc();
+    return Future.value(
+      PasswordResetRequestResultDto(
+            operationId: _passwordResetOperationId!,
+            maskedEmail: _passwordResetMaskedEmail!,
+            expiresAt: now.add(const Duration(minutes: 10)),
+            resendAvailableAt: now.add(const Duration(seconds: 45)),
+          )
+          as TResult,
+    );
+  }
+
+  Future<TResult> _handleResendPasswordResetByEmail<TResult>(
+    ResendPasswordResetByEmailCommand command,
+  ) {
+    if (_passwordResetOperationId != command.operationId) {
+      throw const IamBlockedException(IamBlockedCodes.resetCodeInvalid);
+    }
+    _passwordResetVerified = false;
+    final now = DateTime.now().toUtc();
+    return Future.value(
+      PasswordResetRequestResultDto(
+            operationId: _passwordResetOperationId!,
+            maskedEmail: _passwordResetMaskedEmail ?? 'u***@example.com',
+            expiresAt: now.add(const Duration(minutes: 10)),
+            resendAvailableAt: now.add(const Duration(seconds: 45)),
+          )
+          as TResult,
+    );
+  }
+
+  Future<TResult> _handleVerifyPasswordResetByEmail<TResult>(
+    VerifyPasswordResetByEmailCommand command,
+  ) {
+    if (scenario == FakeIamScenario.passwordResetInvalidCode ||
+        command.code.trim() != '123456' ||
+        _passwordResetOperationId != command.operationId) {
+      throw const IamBlockedException(IamBlockedCodes.resetCodeInvalid);
+    }
+    _passwordResetVerified = true;
+    return Future.value(
+      const PasswordResetVerifyResultDto(verified: true) as TResult,
+    );
+  }
+
+  Future<TResult> _handleCompletePasswordResetByEmail<TResult>(
+    CompletePasswordResetByEmailCommand command,
+  ) {
+    if (!_passwordResetVerified ||
+        _passwordResetOperationId != command.operationId) {
+      throw const IamBlockedException(IamBlockedCodes.resetCodeInvalid);
+    }
+    if (!PasswordPolicy.isValid(command.newPassword)) {
+      throw ValidationException('PASSWORD_POLICY_VIOLATION');
+    }
+    _passwordResetOperationId = null;
+    _passwordResetVerified = false;
+    return Future.value(
+      const PasswordResetCompletionResultDto(
+            currentSessionRotated: false,
+            otherSessionsRevoked: true,
+          )
+          as TResult,
     );
   }
 

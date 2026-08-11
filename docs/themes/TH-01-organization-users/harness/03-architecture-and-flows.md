@@ -134,6 +134,18 @@ Authenticated user → request code (Auth/Resend) → verify code in app → set
   (không URL xác nhận)
 ```
 
+### Logged-out forgot password (S0 companion)
+
+```text
+Login "Quên mật khẩu?" (email trên form)
+  → RequestPasswordResetByEmailCommand
+  → cùng UI mã 6 số / mật khẩu mới
+  → CompletePasswordResetByEmailCommand (không session hiện hành)
+  → pop về login + toast
+Anti-enumeration: request luôn cùng shape; không lộ email tồn tại.
+Không dùng RequestMyPasswordResetCommand (S14 / auth.uid()).
+```
+
 ## Điểm commit RPC (target — draft SQL theo slice)
 
 | Nhóm | RPC (ví dụ naming) |

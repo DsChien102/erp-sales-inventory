@@ -15,6 +15,10 @@ void main() {
         contains(FakeIamScenario.authSessionExpired),
       );
       expect(FakeIamScenario.values, contains(FakeIamScenario.authSignOutOk));
+      expect(
+        FakeIamScenario.values,
+        contains(FakeIamScenario.passwordResetByEmailOk),
+      );
 
       final signIn = FakeIamModule(scenario: FakeIamScenario.authSignInOk);
       await signIn.executeCommandAsync(

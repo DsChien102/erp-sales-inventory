@@ -140,6 +140,38 @@ void main() {
       await cubit.close();
     });
 
+    test('public requestEmail uses by-email commands', () async {
+      final scripted = _ScriptedIamModule(
+        onCommand: (message) async {
+          if (message is RequestPasswordResetByEmailCommand) {
+            expect(message.email, 'lan@example.com');
+            return PasswordResetRequestResultDto(
+              operationId: 'op-public-1',
+              maskedEmail: 'l***@example.com',
+              expiresAt: DateTime.utc(2026, 7, 31, 9, 10),
+              resendAvailableAt: DateTime.utc(2026, 7, 31, 9, 1),
+            );
+          }
+          throw UnsupportedError(message.runtimeType.toString());
+        },
+        onQuery: (message) async =>
+            throw UnsupportedError(message.runtimeType.toString()),
+      );
+      final module = RecordingIamModule(scripted);
+      final cubit = PasswordResetCubit(
+        iamModule: module,
+        requestEmail: 'lan@example.com',
+        clock: () => DateTime.utc(2026, 7, 31, 9),
+      );
+      await cubit.request();
+      expect(
+        module.commandsOf<RequestPasswordResetByEmailCommand>(),
+        hasLength(1),
+      );
+      expect(module.commandsOf<RequestMyPasswordResetCommand>(), isEmpty);
+      await cubit.close();
+    });
+
     test('resend uses operationId returned by request', () async {
       final scripted = _ScriptedIamModule(
         onCommand: (message) async {

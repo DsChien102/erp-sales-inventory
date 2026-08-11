@@ -111,7 +111,10 @@ final appRouter = GoRouter(
           name: 'login.reset_password',
           builder: (context, state) {
             final email = state.extra as String? ?? '';
-            return ResetPasswordPage(emailMasked: email);
+            return ResetPasswordPage(
+              iamModule: getIt<IIamModule>(),
+              requestEmail: email,
+            );
           },
         ),
       ],

@@ -157,6 +157,7 @@ enum FakeIamScenario {
   passwordResetVerifyOk,
   passwordResetInvalidCode,
   passwordResetCompleteOk,
+  passwordResetByEmailOk,
   signOutOk,
   signOutRemoteError,
   identityUnavailable,

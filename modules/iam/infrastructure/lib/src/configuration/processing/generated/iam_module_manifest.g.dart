@@ -41,6 +41,7 @@ final iamModuleManifest = GeneratedModuleManifest(
     ActivateTenantCommand,
     AssignMemberRoleCommand,
     CompleteMyPasswordResetCommand,
+    CompletePasswordResetByEmailCommand,
     CreateInvitationCommand,
     CreateTenantOnboardingCommand,
     DeactivateMembershipCommand,
@@ -49,9 +50,11 @@ final iamModuleManifest = GeneratedModuleManifest(
     RegisterFromInvitationCommand,
     RemoveMembershipCommand,
     RequestMyPasswordResetCommand,
+    RequestPasswordResetByEmailCommand,
     RequestPlatformPasswordResetCommand,
     ResendInvitationCommand,
     ResendMyPasswordResetCommand,
+    ResendPasswordResetByEmailCommand,
     RestorePlatformTenantCommand,
     RestorePlatformUserCommand,
     RetryTenantOnboardingOperationCommand,
@@ -68,6 +71,7 @@ final iamModuleManifest = GeneratedModuleManifest(
     UpdateTenantProfileCommand,
     UpsertLegalProfileCommand,
     VerifyMyPasswordResetCommand,
+    VerifyPasswordResetByEmailCommand,
   ],
   queryTypes: [
     GetCurrentSessionQuery,
@@ -94,3 +98,4 @@ final iamModuleManifest = GeneratedModuleManifest(
     SearchTenantAuditLogsQuery,
   ],
 );
+

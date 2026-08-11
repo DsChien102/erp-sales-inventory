@@ -20,17 +20,26 @@ void registerGeneratedIamValidators(GetIt container) {
     ..registerFactory<ICommandValidator<CompleteMyPasswordResetCommand>>(
       CompleteMyPasswordResetCommandValidator.new,
     )
+    ..registerFactory<ICommandValidator<CompletePasswordResetByEmailCommand>>(
+      CompletePasswordResetByEmailCommandValidator.new,
+    )
     ..registerFactory<ICommandValidator<CreateInvitationCommand>>(
       CreateInvitationCommandValidator.new,
     )
     ..registerFactory<ICommandValidator<CreateTenantOnboardingCommand>>(
       CreateTenantOnboardingCommandValidator.new,
     )
+    ..registerFactory<ICommandValidator<RequestPasswordResetByEmailCommand>>(
+      RequestPasswordResetByEmailCommandValidator.new,
+    )
     ..registerFactory<ICommandValidator<ResendInvitationCommand>>(
       ResendInvitationCommandValidator.new,
     )
     ..registerFactory<ICommandValidator<ResendMyPasswordResetCommand>>(
       ResendMyPasswordResetCommandValidator.new,
+    )
+    ..registerFactory<ICommandValidator<ResendPasswordResetByEmailCommand>>(
+      ResendPasswordResetByEmailCommandValidator.new,
     )
     ..registerFactory<ICommandValidator<RestorePlatformTenantCommand>>(
       RestorePlatformTenantCommandValidator.new,
@@ -58,7 +67,11 @@ void registerGeneratedIamValidators(GetIt container) {
     )
     ..registerFactory<ICommandValidator<VerifyMyPasswordResetCommand>>(
       VerifyMyPasswordResetCommandValidator.new,
-    );
+    )
+    ..registerFactory<ICommandValidator<VerifyPasswordResetByEmailCommand>>(
+      VerifyPasswordResetByEmailCommandValidator.new,
+    )
+    ;
 }
 
 void registerGeneratedIamHandlers({
@@ -69,11 +82,7 @@ void registerGeneratedIamHandlers({
 }) {
   registerGeneratedIamValidators(container);
 
-  IamCommandRegistration.registerBusinessHandler<
-    AcceptInvitationCommand,
-    TenantMemberDetailDto,
-    AcceptInvitationCommandHandler
-  >(
+  IamCommandRegistration.registerBusinessHandler<AcceptInvitationCommand, TenantMemberDetailDto, AcceptInvitationCommandHandler>(
     container: container,
     bus: bus,
     logger: logger,
@@ -82,11 +91,7 @@ void registerGeneratedIamHandlers({
     ),
   );
 
-  IamCommandRegistration.registerBusinessHandler<
-    ActivateTenantCommand,
-    TenantActivationResultDto,
-    ActivateTenantCommandHandler
-  >(
+  IamCommandRegistration.registerBusinessHandler<ActivateTenantCommand, TenantActivationResultDto, ActivateTenantCommandHandler>(
     container: container,
     bus: bus,
     logger: logger,
@@ -95,11 +100,7 @@ void registerGeneratedIamHandlers({
     ),
   );
 
-  IamCommandRegistration.registerBusinessHandler<
-    AssignMemberRoleCommand,
-    void,
-    AssignMemberRoleCommandHandler
-  >(
+  IamCommandRegistration.registerBusinessHandler<AssignMemberRoleCommand, void, AssignMemberRoleCommandHandler>(
     container: container,
     bus: bus,
     logger: logger,
@@ -108,11 +109,7 @@ void registerGeneratedIamHandlers({
     ),
   );
 
-  IamCommandRegistration.registerBusinessHandler<
-    CompleteMyPasswordResetCommand,
-    PasswordResetCompletionResultDto,
-    CompleteMyPasswordResetCommandHandler
-  >(
+  IamCommandRegistration.registerBusinessHandler<CompleteMyPasswordResetCommand, PasswordResetCompletionResultDto, CompleteMyPasswordResetCommandHandler>(
     container: container,
     bus: bus,
     logger: logger,
@@ -121,11 +118,16 @@ void registerGeneratedIamHandlers({
     ),
   );
 
-  IamCommandRegistration.registerBusinessHandler<
-    CreateInvitationCommand,
-    InvitationDetailDto,
-    CreateInvitationCommandHandler
-  >(
+  IamCommandRegistration.registerBusinessHandler<CompletePasswordResetByEmailCommand, PasswordResetCompletionResultDto, CompletePasswordResetByEmailCommandHandler>(
+    container: container,
+    bus: bus,
+    logger: logger,
+    factory: () => CompletePasswordResetByEmailCommandHandler(
+      publicResetPort: container.get<IPasswordResetPublicPort>(),
+    ),
+  );
+
+  IamCommandRegistration.registerBusinessHandler<CreateInvitationCommand, InvitationDetailDto, CreateInvitationCommandHandler>(
     container: container,
     bus: bus,
     logger: logger,
@@ -134,11 +136,7 @@ void registerGeneratedIamHandlers({
     ),
   );
 
-  IamCommandRegistration.registerBusinessHandler<
-    CreateTenantOnboardingCommand,
-    TenantOnboardingResultDto,
-    CreateTenantOnboardingCommandHandler
-  >(
+  IamCommandRegistration.registerBusinessHandler<CreateTenantOnboardingCommand, TenantOnboardingResultDto, CreateTenantOnboardingCommandHandler>(
     container: container,
     bus: bus,
     logger: logger,
@@ -147,11 +145,7 @@ void registerGeneratedIamHandlers({
     ),
   );
 
-  IamCommandRegistration.registerBusinessHandler<
-    DeactivateMembershipCommand,
-    TenantMemberDetailDto,
-    DeactivateMembershipCommandHandler
-  >(
+  IamCommandRegistration.registerBusinessHandler<DeactivateMembershipCommand, TenantMemberDetailDto, DeactivateMembershipCommandHandler>(
     container: container,
     bus: bus,
     logger: logger,
@@ -160,11 +154,7 @@ void registerGeneratedIamHandlers({
     ),
   );
 
-  IamCommandRegistration.registerBusinessHandler<
-    DeclineInvitationCommand,
-    InvitationDetailDto,
-    DeclineInvitationCommandHandler
-  >(
+  IamCommandRegistration.registerBusinessHandler<DeclineInvitationCommand, InvitationDetailDto, DeclineInvitationCommandHandler>(
     container: container,
     bus: bus,
     logger: logger,
@@ -173,11 +163,7 @@ void registerGeneratedIamHandlers({
     ),
   );
 
-  IamCommandRegistration.registerBusinessHandler<
-    ReactivateMembershipCommand,
-    TenantMemberDetailDto,
-    ReactivateMembershipCommandHandler
-  >(
+  IamCommandRegistration.registerBusinessHandler<ReactivateMembershipCommand, TenantMemberDetailDto, ReactivateMembershipCommandHandler>(
     container: container,
     bus: bus,
     logger: logger,
@@ -186,11 +172,7 @@ void registerGeneratedIamHandlers({
     ),
   );
 
-  IamCommandRegistration.registerBusinessHandler<
-    RegisterFromInvitationCommand,
-    InvitationRegistrationResultDto,
-    RegisterFromInvitationCommandHandler
-  >(
+  IamCommandRegistration.registerBusinessHandler<RegisterFromInvitationCommand, InvitationRegistrationResultDto, RegisterFromInvitationCommandHandler>(
     container: container,
     bus: bus,
     logger: logger,
@@ -200,11 +182,7 @@ void registerGeneratedIamHandlers({
     ),
   );
 
-  IamCommandRegistration.registerBusinessHandler<
-    RemoveMembershipCommand,
-    TenantMemberDetailDto,
-    RemoveMembershipCommandHandler
-  >(
+  IamCommandRegistration.registerBusinessHandler<RemoveMembershipCommand, TenantMemberDetailDto, RemoveMembershipCommandHandler>(
     container: container,
     bus: bus,
     logger: logger,
@@ -213,11 +191,7 @@ void registerGeneratedIamHandlers({
     ),
   );
 
-  IamCommandRegistration.registerBusinessHandler<
-    RequestMyPasswordResetCommand,
-    PasswordResetRequestResultDto,
-    RequestMyPasswordResetCommandHandler
-  >(
+  IamCommandRegistration.registerBusinessHandler<RequestMyPasswordResetCommand, PasswordResetRequestResultDto, RequestMyPasswordResetCommandHandler>(
     container: container,
     bus: bus,
     logger: logger,
@@ -226,11 +200,16 @@ void registerGeneratedIamHandlers({
     ),
   );
 
-  IamCommandRegistration.registerBusinessHandler<
-    RequestPlatformPasswordResetCommand,
-    void,
-    RequestPlatformPasswordResetCommandHandler
-  >(
+  IamCommandRegistration.registerBusinessHandler<RequestPasswordResetByEmailCommand, PasswordResetRequestResultDto, RequestPasswordResetByEmailCommandHandler>(
+    container: container,
+    bus: bus,
+    logger: logger,
+    factory: () => RequestPasswordResetByEmailCommandHandler(
+      publicResetPort: container.get<IPasswordResetPublicPort>(),
+    ),
+  );
+
+  IamCommandRegistration.registerBusinessHandler<RequestPlatformPasswordResetCommand, void, RequestPlatformPasswordResetCommandHandler>(
     container: container,
     bus: bus,
     logger: logger,
@@ -239,11 +218,7 @@ void registerGeneratedIamHandlers({
     ),
   );
 
-  IamCommandRegistration.registerBusinessHandler<
-    ResendInvitationCommand,
-    InvitationDetailDto,
-    ResendInvitationCommandHandler
-  >(
+  IamCommandRegistration.registerBusinessHandler<ResendInvitationCommand, InvitationDetailDto, ResendInvitationCommandHandler>(
     container: container,
     bus: bus,
     logger: logger,
@@ -252,11 +227,7 @@ void registerGeneratedIamHandlers({
     ),
   );
 
-  IamCommandRegistration.registerBusinessHandler<
-    ResendMyPasswordResetCommand,
-    PasswordResetRequestResultDto,
-    ResendMyPasswordResetCommandHandler
-  >(
+  IamCommandRegistration.registerBusinessHandler<ResendMyPasswordResetCommand, PasswordResetRequestResultDto, ResendMyPasswordResetCommandHandler>(
     container: container,
     bus: bus,
     logger: logger,
@@ -265,11 +236,16 @@ void registerGeneratedIamHandlers({
     ),
   );
 
-  IamCommandRegistration.registerBusinessHandler<
-    RestorePlatformTenantCommand,
-    void,
-    RestorePlatformTenantCommandHandler
-  >(
+  IamCommandRegistration.registerBusinessHandler<ResendPasswordResetByEmailCommand, PasswordResetRequestResultDto, ResendPasswordResetByEmailCommandHandler>(
+    container: container,
+    bus: bus,
+    logger: logger,
+    factory: () => ResendPasswordResetByEmailCommandHandler(
+      publicResetPort: container.get<IPasswordResetPublicPort>(),
+    ),
+  );
+
+  IamCommandRegistration.registerBusinessHandler<RestorePlatformTenantCommand, void, RestorePlatformTenantCommandHandler>(
     container: container,
     bus: bus,
     logger: logger,
@@ -278,11 +254,7 @@ void registerGeneratedIamHandlers({
     ),
   );
 
-  IamCommandRegistration.registerBusinessHandler<
-    RestorePlatformUserCommand,
-    void,
-    RestorePlatformUserCommandHandler
-  >(
+  IamCommandRegistration.registerBusinessHandler<RestorePlatformUserCommand, void, RestorePlatformUserCommandHandler>(
     container: container,
     bus: bus,
     logger: logger,
@@ -291,11 +263,7 @@ void registerGeneratedIamHandlers({
     ),
   );
 
-  IamCommandRegistration.registerBusinessHandler<
-    RetryTenantOnboardingOperationCommand,
-    TenantOnboardingOperationDto,
-    RetryTenantOnboardingOperationCommandHandler
-  >(
+  IamCommandRegistration.registerBusinessHandler<RetryTenantOnboardingOperationCommand, TenantOnboardingOperationDto, RetryTenantOnboardingOperationCommandHandler>(
     container: container,
     bus: bus,
     logger: logger,
@@ -304,11 +272,7 @@ void registerGeneratedIamHandlers({
     ),
   );
 
-  IamCommandRegistration.registerBusinessHandler<
-    RevokeInvitationCommand,
-    InvitationDetailDto,
-    RevokeInvitationCommandHandler
-  >(
+  IamCommandRegistration.registerBusinessHandler<RevokeInvitationCommand, InvitationDetailDto, RevokeInvitationCommandHandler>(
     container: container,
     bus: bus,
     logger: logger,
@@ -317,11 +281,7 @@ void registerGeneratedIamHandlers({
     ),
   );
 
-  IamCommandRegistration.registerBusinessHandler<
-    SendActivationInvitationCommand,
-    void,
-    SendActivationInvitationCommandHandler
-  >(
+  IamCommandRegistration.registerBusinessHandler<SendActivationInvitationCommand, void, SendActivationInvitationCommandHandler>(
     container: container,
     bus: bus,
     logger: logger,
@@ -340,11 +300,7 @@ void registerGeneratedIamHandlers({
     ),
   );
 
-  IamCommandRegistration.registerBusinessHandler<
-    SignOutCommand,
-    SignOutResultDto,
-    SignOutCommandHandler
-  >(
+  IamCommandRegistration.registerBusinessHandler<SignOutCommand, SignOutResultDto, SignOutCommandHandler>(
     container: container,
     bus: bus,
     logger: logger,
@@ -354,11 +310,7 @@ void registerGeneratedIamHandlers({
     ),
   );
 
-  IamCommandRegistration.registerBusinessHandler<
-    SuspendPlatformTenantCommand,
-    void,
-    SuspendPlatformTenantCommandHandler
-  >(
+  IamCommandRegistration.registerBusinessHandler<SuspendPlatformTenantCommand, void, SuspendPlatformTenantCommandHandler>(
     container: container,
     bus: bus,
     logger: logger,
@@ -367,11 +319,7 @@ void registerGeneratedIamHandlers({
     ),
   );
 
-  IamCommandRegistration.registerBusinessHandler<
-    SuspendPlatformUserCommand,
-    void,
-    SuspendPlatformUserCommandHandler
-  >(
+  IamCommandRegistration.registerBusinessHandler<SuspendPlatformUserCommand, void, SuspendPlatformUserCommandHandler>(
     container: container,
     bus: bus,
     logger: logger,
@@ -380,11 +328,7 @@ void registerGeneratedIamHandlers({
     ),
   );
 
-  IamCommandRegistration.registerBusinessHandler<
-    SwitchTenantContextCommand,
-    TenantContextDto,
-    SwitchTenantContextCommandHandler
-  >(
+  IamCommandRegistration.registerBusinessHandler<SwitchTenantContextCommand, TenantContextDto, SwitchTenantContextCommandHandler>(
     container: container,
     bus: bus,
     logger: logger,
@@ -396,11 +340,7 @@ void registerGeneratedIamHandlers({
     ),
   );
 
-  IamCommandRegistration.registerBusinessHandler<
-    TransferPlatformTenantOwnershipCommand,
-    void,
-    TransferPlatformTenantOwnershipCommandHandler
-  >(
+  IamCommandRegistration.registerBusinessHandler<TransferPlatformTenantOwnershipCommand, void, TransferPlatformTenantOwnershipCommandHandler>(
     container: container,
     bus: bus,
     logger: logger,
@@ -409,11 +349,7 @@ void registerGeneratedIamHandlers({
     ),
   );
 
-  IamCommandRegistration.registerBusinessHandler<
-    UpdateMyIdentityProfileCommand,
-    MyIdentityProfileDto,
-    UpdateMyIdentityProfileCommandHandler
-  >(
+  IamCommandRegistration.registerBusinessHandler<UpdateMyIdentityProfileCommand, MyIdentityProfileDto, UpdateMyIdentityProfileCommandHandler>(
     container: container,
     bus: bus,
     logger: logger,
@@ -422,11 +358,7 @@ void registerGeneratedIamHandlers({
     ),
   );
 
-  IamCommandRegistration.registerBusinessHandler<
-    UpdateTenantProfileCommand,
-    TenantDto,
-    UpdateTenantProfileCommandHandler
-  >(
+  IamCommandRegistration.registerBusinessHandler<UpdateTenantProfileCommand, TenantDto, UpdateTenantProfileCommandHandler>(
     container: container,
     bus: bus,
     logger: logger,
@@ -435,11 +367,7 @@ void registerGeneratedIamHandlers({
     ),
   );
 
-  IamCommandRegistration.registerBusinessHandler<
-    UpsertLegalProfileCommand,
-    UpsertLegalProfileResultDto,
-    UpsertLegalProfileCommandHandler
-  >(
+  IamCommandRegistration.registerBusinessHandler<UpsertLegalProfileCommand, UpsertLegalProfileResultDto, UpsertLegalProfileCommandHandler>(
     container: container,
     bus: bus,
     logger: logger,
@@ -448,11 +376,7 @@ void registerGeneratedIamHandlers({
     ),
   );
 
-  IamCommandRegistration.registerBusinessHandler<
-    VerifyMyPasswordResetCommand,
-    PasswordResetVerifyResultDto,
-    VerifyMyPasswordResetCommandHandler
-  >(
+  IamCommandRegistration.registerBusinessHandler<VerifyMyPasswordResetCommand, PasswordResetVerifyResultDto, VerifyMyPasswordResetCommandHandler>(
     container: container,
     bus: bus,
     logger: logger,
@@ -461,10 +385,16 @@ void registerGeneratedIamHandlers({
     ),
   );
 
-  IamCommandRegistration.registerInternalHandler<
-    SendEmailDeliveryCommand,
-    SendEmailDeliveryCommandHandler
-  >(
+  IamCommandRegistration.registerBusinessHandler<VerifyPasswordResetByEmailCommand, PasswordResetVerifyResultDto, VerifyPasswordResetByEmailCommandHandler>(
+    container: container,
+    bus: bus,
+    logger: logger,
+    factory: () => VerifyPasswordResetByEmailCommandHandler(
+      publicResetPort: container.get<IPasswordResetPublicPort>(),
+    ),
+  );
+
+  IamCommandRegistration.registerInternalHandler<SendEmailDeliveryCommand, SendEmailDeliveryCommandHandler>(
     container: container,
     bus: bus,
     logger: logger,
@@ -475,17 +405,14 @@ void registerGeneratedIamHandlers({
     inner: (command) => container.get<SendEmailDeliveryCommandHandler>().handle(command),
     commandClient: internalCommandClient,
   );
+
 }
 
 void registerGeneratedIamQueries({
   required QueryBus bus,
   required GetIt container,
 }) {
-  IamCommandRegistration.registerQueryHandler<
-    GetCurrentSessionQuery,
-    SessionDto,
-    GetCurrentSessionQueryHandler
-  >(
+  IamCommandRegistration.registerQueryHandler<GetCurrentSessionQuery, SessionDto, GetCurrentSessionQueryHandler>(
     bus: bus,
     factory: () => GetCurrentSessionQueryHandler(
       authenticator: container.get<IAuthenticator>(),
@@ -494,11 +421,7 @@ void registerGeneratedIamQueries({
     invoke: (query, handler) => handler.handle(query),
   );
 
-  IamCommandRegistration.registerQueryHandler<
-    GetInvitationQuery,
-    InvitationDetailDto,
-    GetInvitationQueryHandler
-  >(
+  IamCommandRegistration.registerQueryHandler<GetInvitationQuery, InvitationDetailDto, GetInvitationQueryHandler>(
     bus: bus,
     factory: () => GetInvitationQueryHandler(
       readPort: container.get<ITenantInvitationReadPort>(),
@@ -506,11 +429,7 @@ void registerGeneratedIamQueries({
     invoke: (query, handler) => handler.handle(query),
   );
 
-  IamCommandRegistration.registerQueryHandler<
-    GetMyIdentityProfileQuery,
-    MyIdentityProfileDto,
-    GetMyIdentityProfileQueryHandler
-  >(
+  IamCommandRegistration.registerQueryHandler<GetMyIdentityProfileQuery, MyIdentityProfileDto, GetMyIdentityProfileQueryHandler>(
     bus: bus,
     factory: () => GetMyIdentityProfileQueryHandler(
       identityPort: container.get<IPlatformIdentitySelfServicePort>(),
@@ -518,11 +437,7 @@ void registerGeneratedIamQueries({
     invoke: (query, handler) => handler.handle(query),
   );
 
-  IamCommandRegistration.registerQueryHandler<
-    GetPlatformAuditLogQuery,
-    PlatformAuditLogDetailDto,
-    GetPlatformAuditLogQueryHandler
-  >(
+  IamCommandRegistration.registerQueryHandler<GetPlatformAuditLogQuery, PlatformAuditLogDetailDto, GetPlatformAuditLogQueryHandler>(
     bus: bus,
     factory: () => GetPlatformAuditLogQueryHandler(
       platformGateway: container.get<IPlatformAdminGateway>(),
@@ -530,11 +445,7 @@ void registerGeneratedIamQueries({
     invoke: (query, handler) => handler.handle(query),
   );
 
-  IamCommandRegistration.registerQueryHandler<
-    GetPlatformTenantQuery,
-    PlatformTenantDetailDto,
-    GetPlatformTenantQueryHandler
-  >(
+  IamCommandRegistration.registerQueryHandler<GetPlatformTenantQuery, PlatformTenantDetailDto, GetPlatformTenantQueryHandler>(
     bus: bus,
     factory: () => GetPlatformTenantQueryHandler(
       platformGateway: container.get<IPlatformAdminGateway>(),
@@ -542,11 +453,7 @@ void registerGeneratedIamQueries({
     invoke: (query, handler) => handler.handle(query),
   );
 
-  IamCommandRegistration.registerQueryHandler<
-    GetPlatformUserQuery,
-    PlatformUserDetailDto,
-    GetPlatformUserQueryHandler
-  >(
+  IamCommandRegistration.registerQueryHandler<GetPlatformUserQuery, PlatformUserDetailDto, GetPlatformUserQueryHandler>(
     bus: bus,
     factory: () => GetPlatformUserQueryHandler(
       platformGateway: container.get<IPlatformAdminGateway>(),
@@ -554,11 +461,7 @@ void registerGeneratedIamQueries({
     invoke: (query, handler) => handler.handle(query),
   );
 
-  IamCommandRegistration.registerQueryHandler<
-    GetTenantAuditLogQuery,
-    TenantAuditLogDetailDto,
-    GetTenantAuditLogQueryHandler
-  >(
+  IamCommandRegistration.registerQueryHandler<GetTenantAuditLogQuery, TenantAuditLogDetailDto, GetTenantAuditLogQueryHandler>(
     bus: bus,
     factory: () => GetTenantAuditLogQueryHandler(
       auditReadPort: container.get<ITenantAuditReadPort>(),
@@ -566,11 +469,7 @@ void registerGeneratedIamQueries({
     invoke: (query, handler) => handler.handle(query),
   );
 
-  IamCommandRegistration.registerQueryHandler<
-    GetTenantContextQuery,
-    TenantContextDto,
-    GetTenantContextQueryHandler
-  >(
+  IamCommandRegistration.registerQueryHandler<GetTenantContextQuery, TenantContextDto, GetTenantContextQueryHandler>(
     bus: bus,
     factory: () => GetTenantContextQueryHandler(
       accessGateway: container.get<IIamAccessGateway>(),
@@ -581,11 +480,7 @@ void registerGeneratedIamQueries({
     invoke: (query, handler) => handler.handle(query),
   );
 
-  IamCommandRegistration.registerQueryHandler<
-    GetTenantMemberQuery,
-    TenantMemberDetailDto,
-    GetTenantMemberQueryHandler
-  >(
+  IamCommandRegistration.registerQueryHandler<GetTenantMemberQuery, TenantMemberDetailDto, GetTenantMemberQueryHandler>(
     bus: bus,
     factory: () => GetTenantMemberQueryHandler(
       readGateway: container.get<ITenantMembershipReadGateway>(),
@@ -593,11 +488,7 @@ void registerGeneratedIamQueries({
     invoke: (query, handler) => handler.handle(query),
   );
 
-  IamCommandRegistration.registerQueryHandler<
-    GetTenantOnboardingOperationQuery,
-    TenantOnboardingOperationDto,
-    GetTenantOnboardingOperationQueryHandler
-  >(
+  IamCommandRegistration.registerQueryHandler<GetTenantOnboardingOperationQuery, TenantOnboardingOperationDto, GetTenantOnboardingOperationQueryHandler>(
     bus: bus,
     factory: () => GetTenantOnboardingOperationQueryHandler(
       platformGateway: container.get<IPlatformAdminGateway>(),
@@ -613,11 +504,7 @@ void registerGeneratedIamQueries({
     invoke: (query, handler) => handler.handle(query),
   );
 
-  IamCommandRegistration.registerQueryHandler<
-    GetTenantReadinessQuery,
-    TenantReadinessDto,
-    GetTenantReadinessQueryHandler
-  >(
+  IamCommandRegistration.registerQueryHandler<GetTenantReadinessQuery, TenantReadinessDto, GetTenantReadinessQueryHandler>(
     bus: bus,
     factory: () => GetTenantReadinessQueryHandler(
       readinessGateway: container.get<ITenantReadinessGateway>(),
@@ -625,11 +512,7 @@ void registerGeneratedIamQueries({
     invoke: (query, handler) => handler.handle(query),
   );
 
-  IamCommandRegistration.registerQueryHandler<
-    InspectInvitationTokenQuery,
-    InvitationTokenInspectionDto,
-    InspectInvitationTokenQueryHandler
-  >(
+  IamCommandRegistration.registerQueryHandler<InspectInvitationTokenQuery, InvitationTokenInspectionDto, InspectInvitationTokenQueryHandler>(
     bus: bus,
     factory: () => InspectInvitationTokenQueryHandler(
       acceptancePort: container.get<ITenantInvitationAcceptancePort>(),
@@ -637,11 +520,7 @@ void registerGeneratedIamQueries({
     invoke: (query, handler) => handler.handle(query),
   );
 
-  IamCommandRegistration.registerQueryHandler<
-    ListAccessibleTenantsQuery,
-    List<AccessibleTenantDto>,
-    ListAccessibleTenantsQueryHandler
-  >(
+  IamCommandRegistration.registerQueryHandler<ListAccessibleTenantsQuery, List<AccessibleTenantDto>, ListAccessibleTenantsQueryHandler>(
     bus: bus,
     factory: () => ListAccessibleTenantsQueryHandler(
       accessGateway: container.get<IIamAccessGateway>(),
@@ -650,11 +529,7 @@ void registerGeneratedIamQueries({
     invoke: (query, handler) => handler.handle(query),
   );
 
-  IamCommandRegistration.registerQueryHandler<
-    ListAssignableInvitationRolesQuery,
-    List<AssignableRoleOptionDto>,
-    ListAssignableInvitationRolesQueryHandler
-  >(
+  IamCommandRegistration.registerQueryHandler<ListAssignableInvitationRolesQuery, List<AssignableRoleOptionDto>, ListAssignableInvitationRolesQueryHandler>(
     bus: bus,
     factory: () => ListAssignableInvitationRolesQueryHandler(
       readPort: container.get<IAssignableInvitationRoleReadPort>(),
@@ -662,11 +537,7 @@ void registerGeneratedIamQueries({
     invoke: (query, handler) => handler.handle(query),
   );
 
-  IamCommandRegistration.registerQueryHandler<
-    ListInvitationsQuery,
-    CursorPageDto<InvitationSummaryDto>,
-    ListInvitationsQueryHandler
-  >(
+  IamCommandRegistration.registerQueryHandler<ListInvitationsQuery, CursorPageDto<InvitationSummaryDto>, ListInvitationsQueryHandler>(
     bus: bus,
     factory: () => ListInvitationsQueryHandler(
       readPort: container.get<ITenantInvitationReadPort>(),
@@ -674,11 +545,7 @@ void registerGeneratedIamQueries({
     invoke: (query, handler) => handler.handle(query),
   );
 
-  IamCommandRegistration.registerQueryHandler<
-    ListPlatformTenantMembersQuery,
-    List<PlatformTenantMemberDto>,
-    ListPlatformTenantMembersQueryHandler
-  >(
+  IamCommandRegistration.registerQueryHandler<ListPlatformTenantMembersQuery, List<PlatformTenantMemberDto>, ListPlatformTenantMembersQueryHandler>(
     bus: bus,
     factory: () => ListPlatformTenantMembersQueryHandler(
       platformGateway: container.get<IPlatformAdminGateway>(),
@@ -686,11 +553,7 @@ void registerGeneratedIamQueries({
     invoke: (query, handler) => handler.handle(query),
   );
 
-  IamCommandRegistration.registerQueryHandler<
-    ListTenantMembersQuery,
-    CursorPageDto<TenantMemberDto>,
-    ListTenantMembersQueryHandler
-  >(
+  IamCommandRegistration.registerQueryHandler<ListTenantMembersQuery, CursorPageDto<TenantMemberDto>, ListTenantMembersQueryHandler>(
     bus: bus,
     factory: () => ListTenantMembersQueryHandler(
       accessGateway: container.get<IIamAccessGateway>(),
@@ -698,11 +561,7 @@ void registerGeneratedIamQueries({
     invoke: (query, handler) => handler.handle(query),
   );
 
-  IamCommandRegistration.registerQueryHandler<
-    SearchPlatformAuditLogsQuery,
-    CursorPageDto<PlatformAuditLogSummaryDto>,
-    SearchPlatformAuditLogsQueryHandler
-  >(
+  IamCommandRegistration.registerQueryHandler<SearchPlatformAuditLogsQuery, CursorPageDto<PlatformAuditLogSummaryDto>, SearchPlatformAuditLogsQueryHandler>(
     bus: bus,
     factory: () => SearchPlatformAuditLogsQueryHandler(
       platformGateway: container.get<IPlatformAdminGateway>(),
@@ -710,11 +569,7 @@ void registerGeneratedIamQueries({
     invoke: (query, handler) => handler.handle(query),
   );
 
-  IamCommandRegistration.registerQueryHandler<
-    SearchPlatformTenantsQuery,
-    CursorPageDto<PlatformTenantSummaryDto>,
-    SearchPlatformTenantsQueryHandler
-  >(
+  IamCommandRegistration.registerQueryHandler<SearchPlatformTenantsQuery, CursorPageDto<PlatformTenantSummaryDto>, SearchPlatformTenantsQueryHandler>(
     bus: bus,
     factory: () => SearchPlatformTenantsQueryHandler(
       platformGateway: container.get<IPlatformAdminGateway>(),
@@ -722,11 +577,7 @@ void registerGeneratedIamQueries({
     invoke: (query, handler) => handler.handle(query),
   );
 
-  IamCommandRegistration.registerQueryHandler<
-    SearchPlatformUsersQuery,
-    CursorPageDto<PlatformUserSummaryDto>,
-    SearchPlatformUsersQueryHandler
-  >(
+  IamCommandRegistration.registerQueryHandler<SearchPlatformUsersQuery, CursorPageDto<PlatformUserSummaryDto>, SearchPlatformUsersQueryHandler>(
     bus: bus,
     factory: () => SearchPlatformUsersQueryHandler(
       platformGateway: container.get<IPlatformAdminGateway>(),
@@ -734,15 +585,13 @@ void registerGeneratedIamQueries({
     invoke: (query, handler) => handler.handle(query),
   );
 
-  IamCommandRegistration.registerQueryHandler<
-    SearchTenantAuditLogsQuery,
-    TenantAuditLogSearchPageDto,
-    SearchTenantAuditLogsQueryHandler
-  >(
+  IamCommandRegistration.registerQueryHandler<SearchTenantAuditLogsQuery, TenantAuditLogSearchPageDto, SearchTenantAuditLogsQueryHandler>(
     bus: bus,
     factory: () => SearchTenantAuditLogsQueryHandler(
       auditReadPort: container.get<ITenantAuditReadPort>(),
     ),
     invoke: (query, handler) => handler.handle(query),
   );
+
 }
+

@@ -33,6 +33,7 @@ export 'src/configuration/session/iam_session.dart';
 export 'src/adapters/audit/supabase_tenant_audit_read_port.dart';
 export 'src/adapters/identity/password_reset_operation_store.dart';
 export 'src/adapters/identity/supabase_auth_account_client.dart';
+export 'src/adapters/identity/supabase_password_reset_public_adapter.dart';
 export 'src/adapters/identity/supabase_platform_identity_self_service_adapter.dart';
 export 'src/domain/invitation/supabase_tenant_invitation_acceptance_port.dart';
 export 'src/domain/invitation/supabase_tenant_invitation_command_gateway.dart';

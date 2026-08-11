@@ -21,6 +21,9 @@ final iamAccessMetadataRegistry = AccessMetadataRegistry({
   CompleteMyPasswordResetCommand: AccessMetadata(
     isPublic: true,
   ),
+  CompletePasswordResetByEmailCommand: AccessMetadata(
+    isPublic: true,
+  ),
   CreateInvitationCommand: AccessMetadata(
     permission: 'tenant.member.invite',
     requiresTenant: true,
@@ -109,6 +112,9 @@ final iamAccessMetadataRegistry = AccessMetadataRegistry({
   RequestMyPasswordResetCommand: AccessMetadata(
     isPublic: true,
   ),
+  RequestPasswordResetByEmailCommand: AccessMetadata(
+    isPublic: true,
+  ),
   RequestPlatformPasswordResetCommand: AccessMetadata(
     permission: 'platform.user.password_reset.initiate',
     idempotencyKeyField: 'idempotencyKey',
@@ -119,6 +125,9 @@ final iamAccessMetadataRegistry = AccessMetadataRegistry({
     idempotencyKeyField: 'idempotencyKey',
   ),
   ResendMyPasswordResetCommand: AccessMetadata(
+    isPublic: true,
+  ),
+  ResendPasswordResetByEmailCommand: AccessMetadata(
     isPublic: true,
   ),
   RestorePlatformTenantCommand: AccessMetadata(
@@ -187,4 +196,8 @@ final iamAccessMetadataRegistry = AccessMetadataRegistry({
   VerifyMyPasswordResetCommand: AccessMetadata(
     isPublic: true,
   ),
+  VerifyPasswordResetByEmailCommand: AccessMetadata(
+    isPublic: true,
+  ),
 });
+

@@ -61,6 +61,10 @@ Facade: `IIamModule` — mở rộng surface theo roadmap (hiện interim: sign-
 | CMD-ACC-04 | `ResendMyPasswordResetCommand` | Command | Authenticated | EP-06/US-03 |
 | CMD-ACC-05 | `VerifyMyPasswordResetCommand` | Command | Authenticated | EP-06/US-03 |
 | CMD-ACC-06 | `CompleteMyPasswordResetCommand` | Command | Authenticated | EP-06/US-03 |
+| CMD-ACC-08 | `RequestPasswordResetByEmailCommand` | Command | Anonymous | S0 forgot-password |
+| CMD-ACC-09 | `ResendPasswordResetByEmailCommand` | Command | Anonymous | S0 forgot-password |
+| CMD-ACC-10 | `VerifyPasswordResetByEmailCommand` | Command | Anonymous | S0 forgot-password |
+| CMD-ACC-11 | `CompletePasswordResetByEmailCommand` | Command | Anonymous | S0 forgot-password |
 | CMD-ACC-07 | `SignOutCommand` | Command | Authenticated | EP-06/US-04 |
 | CMD-PLT-01 | `SearchPlatformUsersQuery` | Query | `platform.user.view` | EP-01/US-01 |
 | CMD-PLT-02 | `GetPlatformUserQuery` | Query | `platform.user.view` | EP-01/US-01 |
@@ -114,6 +118,23 @@ Auth/session surface for Tenant App + Admin. Actor từ Auth session / `IExecuti
 | `auth_session_expired` | expired provider session | SESSION_EXPIRED; local state cleared |
 | `auth_sign_out_ok` | authenticated | `SignOutResultDto(localCleared: true, remoteSucceeded: true)` |
 | `sign_out_remote_error` | provider logout fails | `SignOutResultDto(localCleared: true, remoteSucceeded: false)` |
+| `password_reset_by_email_ok` | logged-out email | `PasswordResetRequestResultDto` (same shape whether email exists) |
+
+### Logged-out forgot password (S0 companion — not S14)
+
+S14 `RequestMy*` stays authenticated / `auth.uid()`. Login uses a **separate** public port.
+
+| Symbol | Input | Success | Errors |
+| ------ | ----- | ------- | ------ |
+| `RequestPasswordResetByEmailCommand` | email | `PasswordResetRequestResultDto` | VALIDATION_ERROR, SYSTEM_ERROR |
+| `ResendPasswordResetByEmailCommand` | operationId | `PasswordResetRequestResultDto` | RESET_RATE_LIMITED, RESET_CODE_INVALID, SYSTEM_ERROR |
+| `VerifyPasswordResetByEmailCommand` | operationId, code | `PasswordResetVerifyResultDto` | RESET_CODE_INVALID, RESET_CODE_EXPIRED, RESET_CODE_ATTEMPTS_EXCEEDED, SYSTEM_ERROR |
+| `CompletePasswordResetByEmailCommand` | operationId, newPassword | `PasswordResetCompletionResultDto(currentSessionRotated: false, otherSessionsRevoked: true)` | RESET_CODE_INVALID, PASSWORD_POLICY_VIOLATION, SYSTEM_ERROR |
+
+**Notes**
+- Anti-enumeration: request always returns the same DTO shape; unknown email does not enqueue mail.
+- Verify/complete never return `RESOURCE_NOT_FOUND` for a missing operation (`RESET_CODE_INVALID`).
+- Draft RPCs: `iam.begin/resend/verify/complete_password_reset_*_by_email` — [`_drafts/026_iam_password_reset_by_email.sql`](../../../../supabase/migrations/_drafts/026_iam_password_reset_by_email.sql).
 
 ---
 

@@ -17,12 +17,16 @@ class ResetPasswordPage extends StatelessWidget {
   const ResetPasswordPage({
     super.key,
     this.emailMasked = '',
+    this.requestEmail,
     this.iamModule,
     this.cubit,
     this.clock,
   });
 
   final String emailMasked;
+
+  /// Logged-out forgot-password: request a code for this email (public commands).
+  final String? requestEmail;
   final IIamModule? iamModule;
   final PasswordResetCubit? cubit;
   final DateTime Function()? clock;
@@ -40,6 +44,7 @@ class ResetPasswordPage extends StatelessWidget {
         create: (_) {
           final created = PasswordResetCubit(
             iamModule: iamModule!,
+            requestEmail: requestEmail,
             clock: clock,
           );
           unawaited(created.request());

@@ -31,6 +31,13 @@ void main() {
       );
     });
 
+    test('registers the public password-reset adapter', () {
+      expect(
+        container.get<IPasswordResetPublicPort>(),
+        isA<SupabasePasswordResetPublicAdapter>(),
+      );
+    });
+
     test('registers the real tenant audit read adapter', () {
       expect(
         container.get<ITenantAuditReadPort>(),
