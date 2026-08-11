@@ -45,8 +45,10 @@ class _OwnerActivationView extends StatefulWidget {
 }
 
 class _OwnerActivationViewState extends State<_OwnerActivationView> {
-  final _codeController = TextEditingController();
+  String _code = '';
   final _passwordController = TextEditingController();
+
+  static final _codePattern = RegExp(r'^[0-9A-Z]{8}$');
 
   static const _mobileLayoutWidth = VResponsiveValue<double>(
     mobile: 500,
@@ -56,16 +58,24 @@ class _OwnerActivationViewState extends State<_OwnerActivationView> {
 
   @override
   void dispose() {
-    _codeController.dispose();
     _passwordController.dispose();
     super.dispose();
   }
 
   void _submit() {
+    final code = _code.trim();
+    if (!_codePattern.hasMatch(code)) return;
     context.read<OwnerActivationCubit>().submit(
-      code: _codeController.text.trim(),
-      password: _passwordController.text,
-    );
+          code: code,
+          password: _passwordController.text,
+        );
+  }
+
+  bool get _canSubmit {
+    final password = _passwordController.text;
+    return _codePattern.hasMatch(_code.trim()) &&
+        password.isNotEmpty &&
+        PasswordPolicy.validate(password) == null;
   }
 
   @override
@@ -115,11 +125,14 @@ class _OwnerActivationViewState extends State<_OwnerActivationView> {
                       color: colors.textSecondary,
                     ),
                     const VGap.xl(),
-                    VTextField(
-                      controller: _codeController,
+                    VVerificationCodeField(
+                      length: 8,
+                      charset: VVerificationCodeCharset.alphanumeric,
                       label: 'Mã kích hoạt',
-                      hintText: 'Nhập mã trong email',
+                      isRequired: true,
+                      autofocus: true,
                       enabled: !isSubmitting,
+                      onChanged: (value) => setState(() => _code = value),
                     ),
                     const VGap.md(),
                     VPasswordField(
@@ -131,14 +144,18 @@ class _OwnerActivationViewState extends State<_OwnerActivationView> {
                       validateOnChanged: false,
                       enabled: !isSubmitting,
                       prefixIcon: VIcon(icon: VIcons.lock),
-                      onSubmitted: (_) => _submit(),
+                      onChanged: (_) => setState(() {}),
+                      onSubmitted: (_) {
+                        if (_canSubmit && !isSubmitting) _submit();
+                      },
                     ),
                     const VGap.xl(),
                     VButton(
                       label: 'Kích hoạt tài khoản',
                       isLoading: isSubmitting,
                       fullWidth: true,
-                      onPressed: isSubmitting ? null : _submit,
+                      onPressed:
+                          !isSubmitting && _canSubmit ? _submit : null,
                     ),
                   ],
                 ),

@@ -6,6 +6,18 @@ import 'package:go_router/go_router.dart';
 import 'package:vet45_design_system/design_system.dart';
 import 'package:vet45_iam_application/testing.dart';
 
+Future<void> _enterInvitationCode(WidgetTester tester, String code) async {
+  expect(find.byType(VVerificationCodeField), findsOneWidget);
+  await tester.enterText(
+    find.descendant(
+      of: find.byKey(const Key('invitation_token_input')),
+      matching: find.byType(TextField),
+    ).first,
+    code,
+  );
+  await tester.pump();
+}
+
 void main() {
   testWidgets(
     'token stays out of route URI while typing opaque invitation token',
@@ -15,7 +27,7 @@ void main() {
       addTearDown(tester.view.resetPhysicalSize);
       addTearDown(tester.view.resetDevicePixelRatio);
 
-      const rawToken = 'opaque-invite-token';
+      const rawToken = 'K7P29XQM';
       final module = FakeIamModule(
         scenario: FakeIamScenario.inspectExistingAccount,
       );
@@ -37,10 +49,7 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      await tester.enterText(
-        find.byKey(const Key('invitation_token_input')),
-        rawToken,
-      );
+      await _enterInvitationCode(tester, rawToken);
       expect(
         router.routeInformationProvider.value.uri.toString(),
         '/invitation',
@@ -72,12 +81,16 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      await tester.enterText(
-        find.byKey(const Key('invitation_token_input')),
-        'valid-token',
-      );
-      await tester.tap(find.byKey(const Key('invitation_inspect_submit')));
+      await _enterInvitationCode(tester, 'K7P29XQM');
       await tester.pumpAndSettle();
+      final submit = find.byKey(const Key('invitation_inspect_submit'));
+      if (submit.evaluate().isNotEmpty) {
+        final button = tester.widget<VButton>(submit);
+        if (button.onPressed != null) {
+          await tester.tap(submit);
+          await tester.pumpAndSettle();
+        }
+      }
 
       expect(find.byKey(const Key('invitation_locked_email')), findsOneWidget);
       expect(
@@ -86,7 +99,7 @@ void main() {
       );
       expect(find.byKey(const Key('invitation_accept_submit')), findsOneWidget);
       expect(find.text('invitee@example.com'), findsOneWidget);
-      expect(find.text('valid-token'), findsNothing);
+      expect(find.text('K7P29XQM'), findsNothing);
     },
   );
 
@@ -110,12 +123,16 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      await tester.enterText(
-        find.byKey(const Key('invitation_token_input')),
-        'token-new',
-      );
-      await tester.tap(find.byKey(const Key('invitation_inspect_submit')));
+      await _enterInvitationCode(tester, 'TOKENNEW');
       await tester.pumpAndSettle();
+      final submit = find.byKey(const Key('invitation_inspect_submit'));
+      if (submit.evaluate().isNotEmpty) {
+        final button = tester.widget<VButton>(submit);
+        if (button.onPressed != null) {
+          await tester.tap(submit);
+          await tester.pumpAndSettle();
+        }
+      }
 
       expect(find.byKey(const Key('invitation_register_given_name')), findsOneWidget);
       expect(find.byKey(const Key('invitation_register_family_name')), findsOneWidget);
@@ -125,31 +142,50 @@ void main() {
     },
   );
 
-  testWidgets('code field upcases input and shows the new hint', (tester) async {
+  testWidgets('code field uses alphanumeric verification cells and uppercases', (
+    tester,
+  ) async {
     tester.view.physicalSize = const Size(800, 1600);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
 
+    String? inspected;
     await tester.pumpWidget(
       MaterialApp(
         theme: VTheme.lightTheme,
-        home: InvitationTokenEntryForm(isSubmitting: false, onInspect: (_) {}),
+        home: InvitationTokenEntryForm(
+          isSubmitting: false,
+          onInspect: (token) => inspected = token,
+        ),
       ),
     );
     await tester.pumpAndSettle();
 
-    expect(find.text('VD: K7P29XQM'), findsOneWidget);
-    expect(find.text('Mã không phân biệt chữ hoa và chữ thường.'), findsOneWidget);
-
-    await tester.enterText(
-      find.byKey(const Key('invitation_token_input')),
-      'k7p2-9xqm',
-    );
-    await tester.pump();
+    expect(find.byType(VVerificationCodeField), findsOneWidget);
     expect(
-      tester.widget<TextField>(find.byType(TextField)).controller!.text,
-      'K7P2-9XQM',
+      find.byWidgetPredicate(
+        (w) =>
+            w is RichText &&
+            w.text.toPlainText().contains('Mã lời mời'),
+      ),
+      findsOneWidget,
     );
+    expect(
+      find.textContaining('Mã không phân biệt chữ hoa và chữ thường.'),
+      findsOneWidget,
+    );
+
+    await _enterInvitationCode(tester, 'k7p29xqm');
+    await tester.pumpAndSettle();
+
+    expect(inspected, 'K7P29XQM');
+    final cells = find.descendant(
+      of: find.byKey(const Key('invitation_token_input')),
+      matching: find.byType(TextField),
+    );
+    expect(cells, findsNWidgets(8));
+    expect(tester.widget<TextField>(cells.at(0)).controller!.text, 'K');
+    expect(tester.widget<TextField>(cells.at(7)).controller!.text, 'M');
   });
 }

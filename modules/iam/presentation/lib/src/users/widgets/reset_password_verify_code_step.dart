@@ -6,26 +6,28 @@ class ResetPasswordVerifyCodeStep extends StatelessWidget {
   const ResetPasswordVerifyCodeStep({
     super.key,
     required this.emailMasked,
-    required this.codeController,
+    required this.code,
     required this.secondsRemaining,
     required this.isVerifying,
     required this.onCodeChanged,
     required this.onVerify,
     required this.onResend,
+    this.errorText,
   });
 
   final String emailMasked;
-  final TextEditingController codeController;
+  final String code;
   final int secondsRemaining;
   final bool isVerifying;
   final ValueChanged<String> onCodeChanged;
   final VoidCallback? onVerify;
   final VoidCallback? onResend;
+  final String? errorText;
 
   @override
   Widget build(BuildContext context) {
     final colors = context.vColors;
-    final isCodeValid = codeController.text.trim().isNotEmpty;
+    final isCodeValid = RegExp(r'^\d{6}$').hasMatch(code);
 
     return ListView(
       padding: const EdgeInsets.symmetric(
@@ -53,13 +55,16 @@ class ResetPasswordVerifyCodeStep extends StatelessWidget {
           ),
         ),
         const VGap.lg(),
-        VTextField(
+        VVerificationCodeField(
+          length: 6,
+          charset: VVerificationCodeCharset.numeric,
           label: 'Mã xác nhận',
           isRequired: true,
-          hintText: '12345',
-          keyboardType: TextInputType.number,
-          controller: codeController,
+          autofocus: true,
+          enabled: !isVerifying,
+          errorText: errorText,
           onChanged: onCodeChanged,
+          onCompleted: (_) => onVerify?.call(),
         ),
         const VGap.lg(),
         VButton(

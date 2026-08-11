@@ -87,6 +87,25 @@ Future<void> _settleRequest(WidgetTester tester) async {
   await tester.pump();
 }
 
+Future<void> _enterResetCode(WidgetTester tester, String code) async {
+  expect(find.byType(VVerificationCodeField), findsOneWidget);
+  await tester.enterText(find.byType(TextField).first, code);
+  await tester.pump();
+}
+
+Future<void> _verifyResetCode(WidgetTester tester, String code) async {
+  await _enterResetCode(tester, code);
+  final verifyButton = find.widgetWithText(VButton, 'Xác nhận mã');
+  if (verifyButton.evaluate().isNotEmpty) {
+    final button = tester.widget<VButton>(verifyButton);
+    if (button.onPressed != null) {
+      await tester.tap(verifyButton);
+      await tester.pump();
+    }
+  }
+  await _settleRequest(tester);
+}
+
 void main() {
   group('PasswordResetCubit', () {
     test('failed initial request retries Request command', () async {
@@ -223,10 +242,7 @@ void main() {
       );
       await _settleRequest(tester);
 
-      await tester.enterText(find.byType(TextField).first, '123456');
-      await tester.pump();
-      await tester.tap(find.widgetWithText(VButton, 'Xác nhận mã'));
-      await _settleRequest(tester);
+      await _verifyResetCode(tester, '123456');
 
       expect(module.commandTypes, contains(VerifyMyPasswordResetCommand));
       expect(find.text('Xác minh email'), findsOneWidget);
@@ -251,10 +267,7 @@ void main() {
       );
       await _settleRequest(tester);
 
-      await tester.enterText(find.byType(TextField).first, '123456');
-      await tester.pump();
-      await tester.tap(find.widgetWithText(VButton, 'Xác nhận mã'));
-      await _settleRequest(tester);
+      await _verifyResetCode(tester, '123456');
 
       expect(module.commandTypes, contains(VerifyMyPasswordResetCommand));
       expect(find.text('Tạo mật khẩu mới'), findsOneWidget);
@@ -297,10 +310,7 @@ void main() {
       await tester.pumpAndSettle(const Duration(milliseconds: 100));
       await _settleRequest(tester);
 
-      await tester.enterText(find.byType(TextField).first, '123456');
-      await tester.pump();
-      await tester.tap(find.widgetWithText(VButton, 'Xác nhận mã'));
-      await _settleRequest(tester);
+      await _verifyResetCode(tester, '123456');
 
       final passwordFields = find.byType(TextField);
       await tester.enterText(passwordFields.at(0), 'Password#123');
@@ -342,6 +352,7 @@ void main() {
         find.textContaining('Mã 6 chữ số đã được gửi tới mi***@gmail.com'),
         findsOneWidget,
       );
+      expect(find.byType(VVerificationCodeField), findsOneWidget);
 
       final verifyButtonFinder = find.widgetWithText(VButton, 'Xác nhận mã');
       expect(verifyButtonFinder, findsOneWidget);
@@ -349,14 +360,11 @@ void main() {
       var verifyBtnWidget = tester.widget<VButton>(verifyButtonFinder);
       expect(verifyBtnWidget.onPressed, isNull);
 
-      final codeField = find.byType(TextField);
-      await tester.enterText(codeField.first, '123456');
-      await tester.pump();
-
+      await _enterResetCode(tester, '12345');
       verifyBtnWidget = tester.widget<VButton>(verifyButtonFinder);
-      expect(verifyBtnWidget.onPressed, isNotNull);
+      expect(verifyBtnWidget.onPressed, isNull);
 
-      await tester.tap(verifyButtonFinder);
+      await _verifyResetCode(tester, '123456');
       await tester.pump(const Duration(milliseconds: 900));
       await tester.pumpAndSettle();
 

@@ -65,7 +65,7 @@ class _ResetPasswordSampleBody extends StatefulWidget {
 class _ResetPasswordSampleBodyState extends State<_ResetPasswordSampleBody> {
   PasswordResetStep _currentStep = PasswordResetStep.verifyCode;
 
-  late final TextEditingController _codeController;
+  String _code = '';
   late final TextEditingController _newPasswordController;
   late final TextEditingController _confirmPasswordController;
 
@@ -80,7 +80,6 @@ class _ResetPasswordSampleBodyState extends State<_ResetPasswordSampleBody> {
   @override
   void initState() {
     super.initState();
-    _codeController = TextEditingController();
     _newPasswordController = TextEditingController();
     _confirmPasswordController = TextEditingController();
     _startResendTimer();
@@ -109,7 +108,7 @@ class _ResetPasswordSampleBodyState extends State<_ResetPasswordSampleBody> {
   }
 
   Future<void> _handleVerifyCode() async {
-    if (_codeController.text.trim().isEmpty || _isVerifyingCode) return;
+    if (!RegExp(r'^\d{6}$').hasMatch(_code) || _isVerifyingCode) return;
     setState(() => _isVerifyingCode = true);
     await Future<void>.delayed(const Duration(milliseconds: 800));
     if (!mounted) return;
@@ -160,7 +159,6 @@ class _ResetPasswordSampleBodyState extends State<_ResetPasswordSampleBody> {
   @override
   void dispose() {
     _resendTimer?.cancel();
-    _codeController.dispose();
     _newPasswordController.dispose();
     _confirmPasswordController.dispose();
     super.dispose();
@@ -182,10 +180,10 @@ class _ResetPasswordSampleBodyState extends State<_ResetPasswordSampleBody> {
           body: _currentStep == PasswordResetStep.verifyCode
               ? ResetPasswordVerifyCodeStep(
                   emailMasked: widget.emailMasked,
-                  codeController: _codeController,
+                  code: _code,
                   secondsRemaining: _secondsRemaining,
                   isVerifying: _isVerifyingCode,
-                  onCodeChanged: (_) => setState(() {}),
+                  onCodeChanged: (value) => setState(() => _code = value),
                   onVerify: _handleVerifyCode,
                   onResend: _handleResendCode,
                 )
@@ -235,7 +233,7 @@ class _ResetPasswordBody extends StatefulWidget {
 }
 
 class _ResetPasswordBodyState extends State<_ResetPasswordBody> {
-  late final TextEditingController _codeController;
+  String _code = '';
   late final TextEditingController _newPasswordController;
   late final TextEditingController _confirmPasswordController;
   Timer? _tickTimer;
@@ -247,7 +245,6 @@ class _ResetPasswordBodyState extends State<_ResetPasswordBody> {
   @override
   void initState() {
     super.initState();
-    _codeController = TextEditingController();
     _newPasswordController = TextEditingController();
     _confirmPasswordController = TextEditingController();
     _tickTimer = Timer.periodic(const Duration(seconds: 1), (_) {
@@ -259,7 +256,6 @@ class _ResetPasswordBodyState extends State<_ResetPasswordBody> {
   @override
   void dispose() {
     _tickTimer?.cancel();
-    _codeController.dispose();
     _newPasswordController.dispose();
     _confirmPasswordController.dispose();
     super.dispose();
@@ -270,7 +266,7 @@ class _ResetPasswordBodyState extends State<_ResetPasswordBody> {
       _confirmPasswordController.text.isNotEmpty;
 
   Future<void> _handleVerify() async {
-    await context.read<PasswordResetCubit>().verify(_codeController.text);
+    await context.read<PasswordResetCubit>().verify(_code);
   }
 
   Future<void> _handleResend() async {
@@ -410,11 +406,11 @@ class _ResetPasswordBodyState extends State<_ResetPasswordBody> {
                       emailMasked: state.maskedEmail.isEmpty
                           ? '***'
                           : state.maskedEmail,
-                      codeController: _codeController,
+                      code: _code,
                       secondsRemaining: state.resendSecondsRemaining,
                       isVerifying: state.isSubmitting &&
                           state.step == PasswordResetStep.verifyCode,
-                      onCodeChanged: (_) => setState(() {}),
+                      onCodeChanged: (value) => setState(() => _code = value),
                       onVerify: _handleVerify,
                       onResend: state.canResend ? _handleResend : null,
                     ),

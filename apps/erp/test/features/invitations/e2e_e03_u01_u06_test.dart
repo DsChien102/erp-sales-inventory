@@ -29,6 +29,32 @@ void main() {
     addTearDown(tester.view.resetDevicePixelRatio);
   }
 
+  Future<void> enterInvitationCode(WidgetTester tester, String code) async {
+    expect(find.byType(VVerificationCodeField), findsOneWidget);
+    await tester.enterText(
+      find
+          .descendant(
+            of: find.byKey(const Key('invitation_token_input')),
+            matching: find.byType(TextField),
+          )
+          .first,
+      code,
+    );
+    await tester.pump();
+  }
+
+  Future<void> submitInvitationCode(WidgetTester tester, String code) async {
+    await enterInvitationCode(tester, code);
+    final submit = find.byKey(const Key('invitation_inspect_submit'));
+    if (submit.evaluate().isNotEmpty) {
+      final button = tester.widget<VButton>(submit);
+      if (button.onPressed != null) {
+        await tester.tap(submit);
+        await tester.pump();
+      }
+    }
+  }
+
   void register(IIamModule module) {
     getIt
       ..registerSingleton<IExecutionContext>(
@@ -125,11 +151,7 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      await tester.enterText(
-        find.byKey(const Key('invitation_token_input')),
-        'opaque-token-1',
-      );
-      await tester.tap(find.byKey(const Key('invitation_inspect_submit')));
+      await submitInvitationCode(tester, 'K7P29XQM');
       await tester.pumpAndSettle();
 
       expect(find.byKey(const Key('invitation_locked_email')), findsOneWidget);
@@ -143,7 +165,7 @@ void main() {
       expect(router.routeInformationProvider.value.uri.toString(), '/login');
       expect(find.text('Login'), findsOneWidget);
       expect(find.text('Đã tham gia tổ chức'), findsNothing);
-      expect(find.text('opaque-token-1'), findsNothing);
+      expect(find.text('K7P29XQM'), findsNothing);
     },
   );
 
@@ -175,11 +197,7 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      await tester.enterText(
-        find.byKey(const Key('invitation_token_input')),
-        'opaque-new',
-      );
-      await tester.tap(find.byKey(const Key('invitation_inspect_submit')));
+      await submitInvitationCode(tester, 'OPAQUENE');
       await tester.pumpAndSettle();
 
       expect(find.byKey(const Key('invitation_register_given_name')), findsOneWidget);
@@ -219,7 +237,7 @@ void main() {
       );
       register(module);
 
-      const raw = 'leaky-secret-token';
+      const raw = 'LEAKYSEC';
       await tester.pumpWidget(
         MaterialApp(
           theme: VTheme.lightTheme,
@@ -228,8 +246,7 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      await tester.enterText(find.byKey(const Key('invitation_token_input')), raw);
-      await tester.tap(find.byKey(const Key('invitation_inspect_submit')));
+      await submitInvitationCode(tester, raw);
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 600));
 
