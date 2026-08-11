@@ -55,6 +55,7 @@ class OrganizationMemberUiModel {
   final String email;
   final String role;
   final String? avatarInitials;
+  final bool isOwner;
 
   const OrganizationMemberUiModel({
     required this.id,
@@ -62,6 +63,7 @@ class OrganizationMemberUiModel {
     this.email = '',
     this.role = 'Thành viên tổ chức',
     this.avatarInitials,
+    this.isOwner = false,
   });
 
   String get resolvedInitials {
@@ -86,6 +88,7 @@ class OrganizationUiModel {
   final String type;
   final OrganizationStatus status;
   final String? initials;
+  final String? ownerUserId;
   final String? ownerName;
   final String? ownerEmail;
   final String ownerRole;
@@ -110,6 +113,7 @@ class OrganizationUiModel {
     this.type = 'Tổ chức nền tảng',
     required this.status,
     this.initials,
+    this.ownerUserId,
     this.ownerName,
     this.ownerEmail,
     this.ownerRole = 'Chủ cửa hàng',
@@ -127,6 +131,20 @@ class OrganizationUiModel {
     this.closedBy,
     this.closeReason,
   });
+
+  /// Active members eligible as new owner (excludes current owner).
+  List<OrganizationMemberUiModel> get transferOwnershipCandidates {
+    return members
+        .where((m) {
+          if (m.isOwner) return false;
+          final ownerId = ownerUserId;
+          if (ownerId != null && ownerId.isNotEmpty && m.id == ownerId) {
+            return false;
+          }
+          return true;
+        })
+        .toList();
+  }
 
   int get memberCount => members.isNotEmpty ? members.length : 1;
 

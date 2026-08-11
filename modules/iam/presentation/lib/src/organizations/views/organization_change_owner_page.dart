@@ -31,8 +31,8 @@ class _OrganizationChangeOwnerPageState extends State<OrganizationChangeOwnerPag
   @override
   void initState() {
     super.initState();
-    _members = widget.organization.members;
-    _selectedMemberId = _members.isEmpty ? null : _members.first.id;
+    _members = widget.organization.transferOwnershipCandidates;
+    _selectedMemberId = null;
   }
 
   @override
@@ -52,11 +52,18 @@ class _OrganizationChangeOwnerPageState extends State<OrganizationChangeOwnerPag
   }
 
   OrganizationMemberUiModel? get _selectedMember {
-    try {
-      return _members.firstWhere((m) => m.id == _selectedMemberId);
-    } catch (_) {
-      return _members.isNotEmpty ? _members.first : null;
+    final selectedId = _selectedMemberId;
+    if (selectedId == null) return null;
+    for (final member in _members) {
+      if (member.id == selectedId) return member;
     }
+    return null;
+  }
+
+  void _toggleMember(String memberId) {
+    setState(() {
+      _selectedMemberId = _selectedMemberId == memberId ? null : memberId;
+    });
   }
 
   void _showConfirmation(BuildContext context) {
@@ -152,11 +159,7 @@ class _OrganizationChangeOwnerPageState extends State<OrganizationChangeOwnerPag
                   child: _MemberRadioCard(
                     member: member,
                     isSelected: isSelected,
-                    onTap: () {
-                      setState(() {
-                        _selectedMemberId = member.id;
-                      });
-                    },
+                    onTap: () => _toggleMember(member.id),
                   ),
                 );
               }),

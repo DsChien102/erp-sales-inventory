@@ -35,6 +35,7 @@ abstract final class PlatformTenantUiMapper {
       name: dto.name,
       code: dto.code,
       status: toOrganizationStatus(dto.status),
+      ownerUserId: dto.ownerUserId,
       ownerName: dto.ownerName,
       ownerEmail: dto.ownerEmail,
       ownerRole: dto.ownerRoleLabel,
@@ -55,6 +56,7 @@ abstract final class PlatformTenantUiMapper {
               name: m.fullName,
               email: m.email,
               role: m.roleLabel,
+              isOwner: m.isOwner,
             ),
           )
           .toList(),

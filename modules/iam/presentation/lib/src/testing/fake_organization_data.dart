@@ -14,11 +14,13 @@ abstract final class FakeOrganizationData {
       ownerName: 'Lê Thị Lan',
       ownerEmail: 'lan@gmail.com',
       ownerRole: 'Chủ cửa hàng',
+      ownerUserId: 'mem-01',
       members: const [
         OrganizationMemberUiModel(
           id: 'mem-01',
           name: 'Lê Thị Lan',
-          role: 'Thành viên tổ chức',
+          role: 'Chủ cửa hàng',
+          isOwner: true,
         ),
         OrganizationMemberUiModel(
           id: 'mem-02',

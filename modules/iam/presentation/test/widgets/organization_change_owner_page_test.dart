@@ -11,7 +11,16 @@ void main() {
     name: 'Mậu Hiền',
     code: 'TEN-000142',
     status: OrganizationStatus.active,
+    ownerUserId: 'owner-01',
     members: [
+      OrganizationMemberUiModel(
+        id: 'owner-01',
+        name: 'Lê Thị Lan',
+        email: 'lan@minhphat.vn',
+        role: 'Chủ cửa hàng',
+        avatarInitials: 'LL',
+        isOwner: true,
+      ),
       OrganizationMemberUiModel(
         id: 'mem-01',
         name: 'Trần Thị Hoa',
@@ -52,6 +61,39 @@ void main() {
     expect(find.text('Phạm Ngọc Mai'), findsNothing);
   });
 
+  testWidgets('excludes current owner from transfer candidates', (tester) async {
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: OrganizationChangeOwnerPage(organization: sampleOrg),
+      ),
+    );
+
+    expect(find.text('Lê Thị Lan'), findsNothing);
+    expect(find.text('Trần Thị Hoa'), findsOneWidget);
+    expect(find.text('Nguyễn Văn Minh'), findsOneWidget);
+  });
+
+  testWidgets('Continue is disabled until a member is selected; tap again unselects', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: OrganizationChangeOwnerPage(organization: sampleOrg),
+      ),
+    );
+
+    final continueFinder = find.widgetWithText(VButton, 'Tiếp tục');
+    expect(tester.widget<VButton>(continueFinder).onPressed, isNull);
+
+    await tester.tap(find.text('Trần Thị Hoa'));
+    await tester.pumpAndSettle();
+    expect(tester.widget<VButton>(continueFinder).onPressed, isNotNull);
+
+    await tester.tap(find.text('Trần Thị Hoa'));
+    await tester.pumpAndSettle();
+    expect(tester.widget<VButton>(continueFinder).onPressed, isNull);
+  });
+
   testWidgets('does not render hard-coded members when organization is empty', (
     tester,
   ) async {
@@ -76,7 +118,7 @@ void main() {
         ),
       );
 
-      // Tap on second member (Nguyễn Văn Minh)
+      // Tap on candidate (Nguyễn Văn Minh)
       await tester.tap(find.text('Nguyễn Văn Minh'));
       await tester.pumpAndSettle();
 
