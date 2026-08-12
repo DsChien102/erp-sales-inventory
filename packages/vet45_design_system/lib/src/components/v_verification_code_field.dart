@@ -26,6 +26,9 @@ enum VVerificationCodeCharset {
 }
 
 /// Multi-box field for OTP or alphanumeric verification codes.
+///
+/// Uses one hidden [TextField] for IME input (backspace / paste / autofill) and
+/// paints digit slots as display-only cells.
 class VVerificationCodeField extends StatefulWidget {
   static const double cellWidth = 48;
 
@@ -56,7 +59,7 @@ class VVerificationCodeField extends StatefulWidget {
   final VComponentState state;
   final String? semanticLabel;
 
-  /// When true (default), cells advertise [AutofillHints.oneTimeCode].
+  /// When true (default), the hidden field advertises [AutofillHints.oneTimeCode].
   final bool enableAutofill;
 
   const VVerificationCodeField({
@@ -83,20 +86,30 @@ class VVerificationCodeField extends StatefulWidget {
 }
 
 class _VVerificationCodeFieldState extends State<VVerificationCodeField> {
-  late List<TextEditingController> _controllers;
-  late List<FocusNode> _focusNodes;
+  late final TextEditingController _controller;
+  late final FocusNode _focusNode;
   String _lastCompleted = '';
 
   bool get _isAlphanumeric => widget.charset == VVerificationCodeCharset.alphanumeric;
 
+  String get _code => _controller.text;
+
+  /// Slot that shows the focus ring while the hidden field is focused.
+  int get _activeIndex {
+    final len = _code.length;
+    if (len >= widget.length) return widget.length - 1;
+    return len;
+  }
+
   @override
   void initState() {
     super.initState();
-    _createFields(widget.length);
+    _controller = TextEditingController();
+    _focusNode = FocusNode()..addListener(_handleFocusChange);
     if (widget.autofocus) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted && _focusNodes.isNotEmpty) {
-          _focusNodes.first.requestFocus();
+        if (mounted && widget.enabled) {
+          _focusNode.requestFocus();
         }
       });
     }
@@ -106,50 +119,42 @@ class _VVerificationCodeFieldState extends State<VVerificationCodeField> {
   void didUpdateWidget(covariant VVerificationCodeField oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.length != widget.length || oldWidget.charset != widget.charset) {
-      _disposeFields();
-      _createFields(widget.length);
+      final cleaned = _sanitize(_controller.text);
+      if (cleaned != _controller.text) {
+        _controller.value = TextEditingValue(
+          text: cleaned,
+          selection: TextSelection.collapsed(offset: cleaned.length),
+        );
+      }
       _lastCompleted = '';
+      _notifyChanged(cleaned);
     }
   }
 
   @override
   void dispose() {
-    _disposeFields();
+    _focusNode
+      ..removeListener(_handleFocusChange)
+      ..dispose();
+    _controller.dispose();
     super.dispose();
-  }
-
-  void _createFields(int length) {
-    _controllers = List.generate(length, (_) => TextEditingController());
-    _focusNodes = List.generate(length, (index) {
-      final node = FocusNode(
-        onKeyEvent: (focusNode, event) => _onKeyEvent(index, event),
-      );
-      node.addListener(_handleFocusChange);
-      return node;
-    });
-  }
-
-  void _disposeFields() {
-    for (final node in _focusNodes) {
-      node.removeListener(_handleFocusChange);
-      node.dispose();
-    }
-    for (final controller in _controllers) {
-      controller.dispose();
-    }
   }
 
   void _handleFocusChange() {
     if (mounted) setState(() {});
   }
 
-  String get _code => _controllers.map((c) => c.text).join();
-
   String _sanitize(String raw) {
+    var cleaned = raw;
     if (_isAlphanumeric) {
-      return raw.toUpperCase().replaceAll(RegExp(r'[^0-9A-Z]'), '');
+      cleaned = cleaned.toUpperCase().replaceAll(RegExp(r'[^0-9A-Z]'), '');
+    } else {
+      cleaned = cleaned.replaceAll(RegExp(r'[^0-9]'), '');
     }
-    return raw.replaceAll(RegExp(r'[^0-9]'), '');
+    if (cleaned.length > widget.length) {
+      cleaned = cleaned.substring(0, widget.length);
+    }
+    return cleaned;
   }
 
   List<TextInputFormatter> get _inputFormatters {
@@ -157,13 +162,16 @@ class _VVerificationCodeFieldState extends State<VVerificationCodeField> {
       return [
         FilteringTextInputFormatter.allow(RegExp(r'[0-9a-zA-Z]')),
         _UpperCaseTextFormatter(),
+        LengthLimitingTextInputFormatter(widget.length),
       ];
     }
-    return [FilteringTextInputFormatter.digitsOnly];
+    return [
+      FilteringTextInputFormatter.digitsOnly,
+      LengthLimitingTextInputFormatter(widget.length),
+    ];
   }
 
-  void _notifyChanged() {
-    final code = _code;
+  void _notifyChanged(String code) {
     widget.onChanged?.call(code);
     if (code.length == widget.length) {
       if (code != _lastCompleted) {
@@ -175,88 +183,16 @@ class _VVerificationCodeFieldState extends State<VVerificationCodeField> {
     }
   }
 
-  void _setChar(int index, String char) {
-    final controller = _controllers[index];
-    controller.value = TextEditingValue(
-      text: char,
-      selection: TextSelection.collapsed(offset: char.length),
-    );
-  }
-
-  void _applyChars(int startIndex, String raw) {
-    final cleaned = _sanitize(raw);
-    if (cleaned.isEmpty) return;
-
-    var writeIndex = startIndex;
-    for (var i = 0; i < cleaned.length && writeIndex < widget.length; i++) {
-      _setChar(writeIndex, cleaned[i]);
-      writeIndex++;
-    }
-
-    final focusIndex = writeIndex < widget.length ? writeIndex : widget.length - 1;
-    if (writeIndex >= widget.length) {
-      _focusNodes[focusIndex].unfocus();
-    } else {
-      _focusNodes[focusIndex].requestFocus();
-    }
-
-    setState(() {});
-    _notifyChanged();
-  }
-
-  void _onCellChanged(int index, String value) {
-    if (value.length > 1) {
-      _applyChars(index, value);
-      return;
-    }
-
-    if (value.isEmpty) {
-      setState(() {});
-      _notifyChanged();
-      return;
-    }
-
+  void _onChanged(String value) {
     final cleaned = _sanitize(value);
-    if (cleaned.isEmpty) {
-      _controllers[index].clear();
-      setState(() {});
-      _notifyChanged();
-      return;
+    if (cleaned != _controller.text) {
+      _controller.value = TextEditingValue(
+        text: cleaned,
+        selection: TextSelection.collapsed(offset: cleaned.length),
+      );
     }
-
-    _setChar(index, cleaned[cleaned.length - 1]);
-
-    if (index < widget.length - 1) {
-      _focusNodes[index + 1].requestFocus();
-    } else {
-      _focusNodes[index].unfocus();
-    }
-
     setState(() {});
-    _notifyChanged();
-  }
-
-  KeyEventResult _onKeyEvent(int index, KeyEvent event) {
-    if (event is! KeyDownEvent) return KeyEventResult.ignored;
-    if (event.logicalKey != LogicalKeyboardKey.backspace) {
-      return KeyEventResult.ignored;
-    }
-
-    if (_controllers[index].text.isNotEmpty) {
-      return KeyEventResult.ignored;
-    }
-
-    if (index <= 0) return KeyEventResult.ignored;
-
-    _controllers[index - 1].clear();
-    _focusNodes[index - 1].requestFocus();
-    setState(() {});
-    _notifyChanged();
-    return KeyEventResult.handled;
-  }
-
-  InputBorder _outline(Color color, double width) {
-    return VBorders.outlineInput(color, width: width);
+    _notifyChanged(cleaned);
   }
 
   Widget? _message(VColorScheme colors, {required bool hasError}) {
@@ -293,7 +229,10 @@ class _VVerificationCodeFieldState extends State<VVerificationCodeField> {
     required double cellW,
     required double cellH,
   }) {
-    final focused = isEnabled && _focusNodes[index].hasFocus;
+    final code = _code;
+    final char = index < code.length ? code[index] : '';
+    final focused = isEnabled && _focusNode.hasFocus && index == _activeIndex;
+
     final restingBorderColor = widget.errorText != null
         ? colors.danger
         : switch (widget.tone) {
@@ -302,57 +241,39 @@ class _VVerificationCodeFieldState extends State<VVerificationCodeField> {
             _ => colors.borderStrong,
           };
     final focusBorderColor = useDanger ? colors.danger : colors.primary;
-    final restingBorder = _outline(restingBorderColor, borderWidth);
-    final focusBorder = _outline(focusBorderColor, borderWidth);
-    final dangerBorder = _outline(colors.danger, borderWidth);
-    final disabledBorder = _outline(colors.borderDefault, borderWidth);
+    final borderColor = !isEnabled
+        ? colors.borderDefault
+        : focused
+        ? focusBorderColor
+        : restingBorderColor;
 
     final textStyle = VTypography.headingH3.copyWith(
       color: isEnabled
           ? (useDanger && widget.errorText != null ? colors.danger : colors.textPrimary)
           : colors.textMuted,
       fontWeight: FontWeight.w700,
-      // Slightly tighter for alphanumeric / narrower cells.
       fontSize: cellW < VVerificationCodeField.cellWidth
           ? VTypography.headingH4.fontSize
           : VTypography.headingH3.fontSize,
     );
 
-    final field = SizedBox(
+    final cell = SizedBox(
       width: cellW,
       height: cellH,
-      child: TextField(
-        controller: _controllers[index],
-        focusNode: _focusNodes[index],
-        enabled: isEnabled,
-        keyboardType: _isAlphanumeric ? TextInputType.visiblePassword : TextInputType.number,
-        textCapitalization: _isAlphanumeric
-            ? TextCapitalization.characters
-            : TextCapitalization.none,
-        textAlign: TextAlign.center,
-        textAlignVertical: TextAlignVertical.center,
-        style: textStyle,
-        cursorColor: useDanger ? colors.danger : colors.primary,
-        expands: true,
-        maxLines: null,
-        minLines: null,
-        autofillHints: widget.enableAutofill ? const [AutofillHints.oneTimeCode] : null,
-        inputFormatters: _inputFormatters,
-        onChanged: (value) => _onCellChanged(index, value),
-        onTapOutside: (_) => FocusManager.instance.primaryFocus?.unfocus(),
-        decoration: InputDecoration(
-          isDense: true,
-          filled: true,
-          fillColor: isEnabled ? colors.surface : colors.surfaceAlt,
-          hoverColor: Colors.transparent,
-          contentPadding: EdgeInsets.zero,
-          constraints: BoxConstraints.tightFor(width: cellW, height: cellH),
-          border: restingBorder,
-          enabledBorder: restingBorder,
-          focusedBorder: focusBorder,
-          disabledBorder: disabledBorder,
-          errorBorder: dangerBorder,
-          focusedErrorBorder: dangerBorder,
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          color: isEnabled ? colors.surface : colors.surfaceAlt,
+          borderRadius: BorderRadius.circular(VRadius.input),
+          border: Border.fromBorderSide(
+            VBorders.side(borderColor, width: borderWidth),
+          ),
+        ),
+        child: Center(
+          child: Text(
+            char,
+            style: textStyle,
+            textAlign: TextAlign.center,
+          ),
         ),
       ),
     );
@@ -361,7 +282,38 @@ class _VVerificationCodeFieldState extends State<VVerificationCodeField> {
       focused: focused,
       danger: useDanger,
       innerRadius: VRadius.input,
-      child: field,
+      child: cell,
+    );
+  }
+
+  Widget _buildHiddenInput({required bool isEnabled}) {
+    return TextField(
+      controller: _controller,
+      focusNode: _focusNode,
+      enabled: isEnabled,
+      autofocus: widget.autofocus,
+      keyboardType: _isAlphanumeric ? TextInputType.visiblePassword : TextInputType.number,
+      textCapitalization: _isAlphanumeric
+          ? TextCapitalization.characters
+          : TextCapitalization.none,
+      showCursor: false,
+      enableInteractiveSelection: true,
+      style: const TextStyle(color: Colors.transparent, height: 0.01, fontSize: 1),
+      cursorColor: Colors.transparent,
+      autofillHints: widget.enableAutofill ? const [AutofillHints.oneTimeCode] : null,
+      inputFormatters: _inputFormatters,
+      onChanged: _onChanged,
+      onTapOutside: (_) => FocusManager.instance.primaryFocus?.unfocus(),
+      decoration: const InputDecoration(
+        border: InputBorder.none,
+        enabledBorder: InputBorder.none,
+        focusedBorder: InputBorder.none,
+        disabledBorder: InputBorder.none,
+        filled: false,
+        isCollapsed: true,
+        contentPadding: EdgeInsets.zero,
+        counterText: '',
+      ),
     );
   }
 
@@ -378,6 +330,7 @@ class _VVerificationCodeFieldState extends State<VVerificationCodeField> {
       textField: true,
       enabled: isEnabled,
       label: widget.semanticLabel ?? widget.label ?? 'Verification code',
+      value: _code,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
@@ -415,20 +368,33 @@ class _VVerificationCodeFieldState extends State<VVerificationCodeField> {
                   ? math.max(48.0, cellW + 8)
                   : VVerificationCodeField.cellHeight;
 
-              return Row(
+              return Stack(
+                alignment: Alignment.centerLeft,
                 children: [
-                  for (var i = 0; i < widget.length; i++) ...[
-                    if (i > 0) SizedBox(width: gap),
-                    _buildCell(
-                      index: i,
-                      colors: colors,
-                      isEnabled: isEnabled,
-                      useDanger: useDanger,
-                      borderWidth: borderWidth,
-                      cellW: cellW,
-                      cellH: cellH,
+                  IgnorePointer(
+                    child: Row(
+                      children: [
+                        for (var i = 0; i < widget.length; i++) ...[
+                          if (i > 0) SizedBox(width: gap),
+                          _buildCell(
+                            index: i,
+                            colors: colors,
+                            isEnabled: isEnabled,
+                            useDanger: useDanger,
+                            borderWidth: borderWidth,
+                            cellW: cellW,
+                            cellH: cellH,
+                          ),
+                        ],
+                      ],
                     ),
-                  ],
+                  ),
+                  Positioned.fill(
+                    child: Opacity(
+                      opacity: 0,
+                      child: _buildHiddenInput(isEnabled: isEnabled),
+                    ),
+                  ),
                 ],
               );
             },
@@ -453,7 +419,7 @@ final class _UpperCaseTextFormatter extends TextInputFormatter {
     if (upper == newValue.text) return newValue;
     return TextEditingValue(
       text: upper,
-      selection: newValue.selection,
+      selection: TextSelection.collapsed(offset: upper.length),
       composing: TextRange.empty,
     );
   }
