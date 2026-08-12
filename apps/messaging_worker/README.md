@@ -9,7 +9,7 @@ Server-side messaging processor for VET45. Runs adaptive self-loop ticks (~3s wh
 | `messaging-worker` (Railway) | HTTP + adaptive tick loop per tenant. **IAM hôm nay:** chỉ đăng ký path drain `internal_commands` (S-NOTIFY email). Full outbox → inbox → internal khi module wire `Process*` (partner-style). |
 | Supabase `platform` schema | Tenant discovery RPC + backlog stats view |
 
-Config is versioned in [`railway.toml`](../../railway.toml) at the repo root (Docker build context = monorepo root).
+Infra is versioned in [`.railway/railway.ts`](../../.railway/railway.ts) (Railway IaC). Docker build context remains the monorepo root (`apps/messaging_worker/Dockerfile`). See [`.railway/README.md`](../../.railway/README.md).
 
 **Runtime env:** edit `.vet45/profiles/<profileId>/<env>.env` (not `apps/messaging_worker/.env*`), then `melos run env:sync -- --target worker` (or full `env:sync`). Key deps for the `worker` target are declared in [`vet45.target.json`](vet45.target.json). See [environment-manager.md](../../docs/operations/environment-manager.md).
 
@@ -48,11 +48,19 @@ Hoặc:
 ./apps/messaging_worker/scripts/deploy.sh --env production
 ```
 
-Push secrets when they change:
+Push **secrets** when they change (Supabase, tick secret, Resend). Worker knobs are owned by IaC — do not set them via `set_secrets.sh`:
 
 ```bash
 melos run deploy:worker -- --secrets
 ./apps/messaging_worker/scripts/deploy.sh --env production --secrets
+```
+
+Infra-only change (no image rebuild):
+
+```bash
+npm install                          # once: railway TypeScript SDK
+./scripts/railway-config.sh plan     # Node 22
+./scripts/railway-config.sh apply    # staging linked environment
 ```
 
 ## Validate
@@ -112,7 +120,9 @@ Set in `.vet45/profiles/<profileId>/<env>.env`; `set_secrets.sh --ci` expects th
 | `SUPABASE_URL` | Staging or production URL |
 | `SUPABASE_SERVICE_ROLE_KEY` | Worker only; never ship to ERP |
 | `WORKER_TICK_SECRET` | Manual `/tick` auth |
-| `WORKER_LOG_LEVEL` | Default `WARNING` — use `FINE`/`INFO` only when debugging |
+| `RESEND_API_KEY` | Optional in CI; required on Railway to send mail |
+| `RESEND_FROM_DOMAIN` | Optional; sender domain for Resend |
+| `APP_LINK_BASE_URL` | Optional; links in outbound mail |
 
 Use CircleCI **contexts** `vet45-staging` / `vet45-production` for staging vs production (see [docs/operations/environments.md](../../docs/operations/environments.md)).
 
@@ -141,7 +151,8 @@ Trước khi set `MESSAGING_CLIENT_POLL_ENABLED=false` trên ERP staging/product
 
 | Script | Purpose |
 |--------|---------|
-| `scripts/set_secrets.sh` | Push vars to Railway (`--ci` for CircleCI) |
+| `scripts/set_secrets.sh` | Push secrets only to Railway (`--ci` for CircleCI) |
 | `scripts/verify_supabase.sh` | Check platform RPC + view |
 | `scripts/verify_build.sh` | Local AOT compile (+ optional Docker) |
-| `scripts/deploy.sh` | Main deploy entrypoint |
+| `scripts/deploy.sh` | Code deploy (`railway up`) |
+| [`scripts/railway-config.sh`](../../scripts/railway-config.sh) | `railway config plan` / `apply` (Node 22) |

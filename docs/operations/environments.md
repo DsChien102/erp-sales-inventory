@@ -102,18 +102,21 @@ File: [.circleci/config.yml](../../.circleci/config.yml)
 
 | Context | Variables |
 |---|---|
-| `vet45-staging` | `ERP_STAGING_SUPABASE_URL`, `ERP_STAGING_SUPABASE_ANON_KEY`, `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `WORKER_TICK_SECRET` |
-| `vet45-production` | `ERP_PRODUCTION_SUPABASE_URL`, `ERP_PRODUCTION_SUPABASE_ANON_KEY`, worker secrets tương ứng |
+| `vet45-staging` | `ERP_STAGING_SUPABASE_URL`, `ERP_STAGING_SUPABASE_ANON_KEY`, `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `WORKER_TICK_SECRET`, `RESEND_API_KEY`, `RESEND_FROM_DOMAIN` |
+| `vet45-production` | `ERP_PRODUCTION_SUPABASE_URL`, `ERP_PRODUCTION_SUPABASE_ANON_KEY`, worker secrets tương ứng (kể cả `RESEND_*`) |
 | `vet45-deploy` | `APP_STORE_CONNECT_ISSUER_ID`, `APP_STORE_CONNECT_KEY_IDENTIFIER`, API key |
 
 Phase 1: chỉ bật `verify` nếu chưa có macOS executor / signing.
 
 ## Đồng bộ messaging worker
 
+Infra (knobs, healthcheck, Dockerfile watch patterns): [`.railway/railway.ts`](../../.railway/railway.ts). Code image: `deploy.sh` / `railway up`. Secrets: `set_secrets.sh` (Supabase, tick, Resend) — không set knobs.
+
 ```bash
 melos run env:use:staging
 melos run deploy:worker              # code-only redeploy
 melos run deploy:worker -- --secrets # push Railway secrets + deploy
+./scripts/railway-config.sh plan     # preview IaC (Node 22)
 ```
 
 Trước khi tắt `MESSAGING_CLIENT_POLL_ENABLED` trên staging ERP, deploy worker:

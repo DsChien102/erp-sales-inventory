@@ -262,6 +262,9 @@ SUPABASE_DB_PASSWORD=       # optional; for supabase link
 SUPABASE_ANON_KEY=          # erp
 SUPABASE_SERVICE_ROLE_KEY=  # worker
 WORKER_TICK_SECRET=         # worker (auto-generated on worker sync if empty)
+RESEND_API_KEY=             # worker (optional locally; required on Railway to send mail)
+RESEND_FROM_DOMAIN=         # worker (optional)
+APP_LINK_BASE_URL=          # worker (optional)
 LOG_LEVEL=INFO              # erp
 MESSAGING_CLIENT_POLL_ENABLED=false
 
