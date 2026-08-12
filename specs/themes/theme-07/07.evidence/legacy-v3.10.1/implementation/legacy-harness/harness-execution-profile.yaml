@@ -1,0 +1,14 @@
+schema_version: "1.0"
+theme: "T7"
+theme_name: "Kho và giá vốn"
+freeze_id: "T7-PACKAGE-FREEZE-v4.1.0"
+source_decision_freeze_id: "T7-BASELINE-FREEZE-v4.0.0"
+source_hierarchy: "17 BJ / 70 UC / 3 CAP operations / 4 PROC steps"
+evidence_target: "REPO_EXECUTED"
+highest_current_evidence: "STATIC_VALIDATED"
+pilots: ["P0-01", "P0-04", "P0-06"]
+blocker_policy: "repo_dependent_tests_are_blocked_not_passed"
+hard_gates: ["source_integrity", "trace_closure", "p0_fences", "atomic_coverage", "fixture_linkage", "evidence_honesty", "human_handoff"]
+commands:
+  package_validation: "./validate_package.sh"
+  harness_validation: "cd harness && python3 validate_harness_pack.py . --strict"

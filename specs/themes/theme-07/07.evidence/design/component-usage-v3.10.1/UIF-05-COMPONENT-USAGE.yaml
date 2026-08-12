@@ -1,0 +1,122 @@
+uiAuthority: Figma Design System v2.0.2
+figmaDsLock: ../FIGMA-DS-LOCK.json
+figmaMappingRegistry: ../figma-ds/html-figma-ds-mapping.json
+legacyComponentFieldsStatus: MAPPING_INPUT_ONLY
+version: 1.3.7
+uif: UIF-05
+bj: BJ-05
+authority: Figma Design System v2.0.2
+surfaces:
+  SCR-025:
+    ds:
+    - VPageScaffold
+    - VAppBar
+    - VPagePadding
+    - VSearchBar
+    - VChip
+    - VCard
+    - VText
+    - VBadge
+    - VIcon
+    - VEmptyState
+    composition: InventoryTaskQueue
+    rules:
+    - default_filter: ALL
+    - filter_order:
+      - ALL
+      - ACTIONABLE
+      - WAITING
+    - filters_are_not_tabs: true
+    - order_scoped_data: true
+  SCR-026:
+    ds:
+    - VCard
+    - VText
+    - VBadge
+    - VBanner
+    - VButton
+    composition: PickOrderOverview
+    rules:
+    - multi_lot: true
+    - physical_correction_blocks_handover: true
+    - shortage_is_waiting: true
+    - waiting_item_navigation_affordance: false
+  SCR-027:
+    ds:
+    - VCard
+    - VQuantitySelector
+    - VButton
+    - VBottomSheet
+    - VTextFormField
+    - VBanner
+    composition: PickLotAllocation
+    rules:
+    - alternative_lot_fields:
+      - lot_code
+      - expiry
+      - available_quantity
+    - alternative_preselected: false
+    - override_requires_reason: true
+    - picked_quantity_resets_when_switching_picked_lot: true
+  SCR-028:
+    ds:
+    - VCard
+    - VText
+    - VQuantitySelector
+    - VButton
+    - VBanner
+    composition: ActualHandoverReview
+    rules:
+    - render_only_picked_allocations: true
+    - show_handover_product_count: true
+    - show_remaining_product_count: true
+    - cross_uom_numeric_aggregation: false
+    - normal_rule_as_helper_not_banner: true
+    - source_changed_blocks_commit: true
+  SCR-029:
+    ds:
+    - VEmptyState
+    - VCard
+    - VText
+    - VButton
+    - VBanner
+    composition: OperationResult
+    rules:
+    - back_to_commit_screen: false
+    - distinct_states:
+      - COMPLETED
+      - PARTIAL_COMPLETED
+      - UNKNOWN
+      - REJECTED_EXECUTION
+      - PERMISSION_DENIED
+uxCorrection_v1_4_1:
+  latestUxCorrection: 1.4.1
+  waitingQueueRow:
+    readOnly: true
+    chevron: false
+    maxMetadataLines: 1
+  duplicateNormalProgressBadge: false
+semanticHierarchy_v1_4_2:
+  latestUxCorrection: 1.4.2
+  queueMetadataBudget: customer_and_warehouse
+  progressVocabulary: dong_hang
+  partialHandoverAllowanceExplainedNearCTA: true
+  normalPartialAllowanceUsesBanner: false
+  allocationVocabulary: lot_when_lot_tracked
+
+phase3Calibration_v2_0_2:
+  status: CALIBRATED
+  uiAuthority: Figma Design System v2.0.2
+  parentRelease: 2.0.1
+  rendererRelease: 2.0.2
+  exactRuntimeMapping: ../figma-ds/html-figma-ds-mapping.json
+  genericCardIsCanonical: false
+  legacyQuantitySelectorAllowedInProductRenderer: false
+  quantityEntry: VTextField
+  navigationRow: DS v2 / List Row
+  navigationRowNode: '525:519'
+  readOnlyFactRow: DS v2 / Info Row
+  readOnlyFactRowNode: '525:351'
+  stickyFooter: DS v2 / Sticky Footer
+  stickyFooterNode: '549:927'
+  behaviorSemanticsChanged: false

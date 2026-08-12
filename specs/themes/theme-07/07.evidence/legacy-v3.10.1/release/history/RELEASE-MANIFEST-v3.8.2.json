@@ -1,0 +1,35 @@
+{
+  "version": "3.8.2",
+  "parentVersion": "3.8.1",
+  "date": "2026-09-15",
+  "status": "WAREHOUSE_HOME_ACTION_HIERARCHY_QA_PASS",
+  "scope": "Full Theme 7 browser prototype. Refines the v3.8.1 task-driven Kho Home by moving Tạo thao tác from a standalone Primary CTA after Tra cứu into the Việc của bạn work context as a Secondary VButton.",
+  "businessJourneys": 17,
+  "supportingCapabilities": 1,
+  "canonicalRouteOccurrences": 89,
+  "activeUniqueScreens": 77,
+  "declaredRouteStateRenders": 518,
+  "canonicalCanvas": "402x874",
+  "change": {
+    "businessRuleChanges": false,
+    "stateMachineChanges": false,
+    "businessJourneyDecompositionChanges": false,
+    "primaryWarehouseHomePattern": "TASK_DRIVEN_WAREHOUSE_WORK_CENTER",
+    "createActionPlacement": "WORK_CONTEXT",
+    "createActionEmphasis": "SECONDARY",
+    "standalonePrimaryCreateCta": false,
+    "manualActionsBehindCreateAction": 4,
+    "secondaryFunctionCatalog": true,
+    "secondaryCatalogCoverage": "17_BJ_PLUS_CAP_01",
+    "duplicatedBusinessRenderers": 0,
+    "sharedRuntime": true
+  },
+  "qa": {
+    "warehouseHomeActionHierarchy": "specs/themes/theme-07/prototype/html/qa/WAREHOUSE-HOME-ACTION-HIERARCHY-QA-v3.8.2.json",
+    "semanticFlowLogic": "specs/themes/theme-07/prototype/html/qa/FLOW-LOGIC-E2E-QA-v3.8.2.json",
+    "runtimeUi": "specs/themes/theme-07/prototype/html/qa/RUNTIME-UI-QA-v3.8.2.json",
+    "allFlowSmoke": "specs/themes/theme-07/prototype/html/qa/ALL-FLOWS-RUNTIME-SMOKE-v3.8.2.json",
+    "deviceFrame": "specs/themes/theme-07/prototype/html/qa/DEVICE-FRAME-QA-v3.8.2.json"
+  },
+  "evidenceBoundary": "Browser prototype only; production backend transaction/database/outbox/network/concurrency/crash-restart atomicity requires backend/integration QA."
+}

@@ -1,0 +1,31 @@
+{
+  "questions": [
+    {
+      "id": "IQ-001",
+      "question": "Repository và database adapter nào sẽ được dùng để chạy RED/GREEN cho toàn bộ test catalog?",
+      "owner": "Engineering Lead",
+      "classification": "SLICE_GATED",
+      "affected_slice": "all repo tests",
+      "decision_gate": "before RED/GREEN execution",
+      "status": "OPEN"
+    },
+    {
+      "id": "IQ-002",
+      "question": "Theme 10 sẽ chốt quy tắc nhiều bậc, all-unit hay incremental cho chiết khấu mua hàng như thế nào?",
+      "owner": "Theme 10 — Mua hàng Owner",
+      "classification": "DEFERRED",
+      "affected_slice": "XREF-02 / T10-BJ-DISCOUNT-SCENARIO (outbound)",
+      "decision_gate": "before Theme 10 receiver adoption; does not block Theme 7 v4.1.0 freeze",
+      "status": "OPEN"
+    },
+    {
+      "id": "IQ-003",
+      "question": "Broker, retention policy và SLO vận hành nào sẽ áp dụng cho các adapter sự kiện của Theme 7?",
+      "owner": "Platform Lead",
+      "classification": "DEFERRED",
+      "affected_slice": "integration adapters",
+      "decision_gate": "before integration deployment",
+      "status": "OPEN"
+    }
+  ]
+}

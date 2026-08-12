@@ -1,0 +1,59 @@
+{
+  "status": "FAIL",
+  "renders": 89,
+  "failures": [
+    {
+      "f": "CAP-01",
+      "s": "SCR-062",
+      "state": "READY",
+      "text": 217,
+      "template": "",
+      "app": [
+        402,
+        874
+      ],
+      "x": 0,
+      "bx": 0
+    },
+    {
+      "f": "CAP-01",
+      "s": "SCR-063",
+      "state": "READY",
+      "text": 185,
+      "template": "",
+      "app": [
+        402,
+        874
+      ],
+      "x": 0,
+      "bx": 0
+    },
+    {
+      "f": "CAP-01",
+      "s": "SCR-064",
+      "state": "READY",
+      "text": 242,
+      "template": "",
+      "app": [
+        402,
+        874
+      ],
+      "x": 0,
+      "bx": 0
+    },
+    {
+      "f": "CAP-01",
+      "s": "SCR-065",
+      "state": "COMPLETED",
+      "text": 166,
+      "template": "",
+      "app": [
+        402,
+        874
+      ],
+      "x": 0,
+      "bx": 0
+    }
+  ],
+  "errors": []
+}

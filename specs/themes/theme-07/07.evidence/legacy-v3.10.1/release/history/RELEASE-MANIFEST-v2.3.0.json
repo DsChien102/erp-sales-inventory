@@ -1,0 +1,94 @@
+{
+  "schemaVersion": 1,
+  "release": "2.3.0",
+  "parentRelease": "2.2.0",
+  "releaseDate": "2026-09-09",
+  "type": "CUMULATIVE_THEME7_HARNESS_RELEASE",
+  "status": "BJ08_STRUCTURAL_MIGRATION_REVIEW_READY",
+  "embeddedTheme7ProductPackageBaseline": "4.3.1",
+  "uiAuthority": "Figma Design System",
+  "figmaFileKey": "QVJolM5tAdFKkhP7RIwe3y",
+  "workingDsAuditTarget": "2.0.3",
+  "exactLocalDsMirrorInherited": "2.0.2",
+  "migrationScope": {
+    "migrated": [
+      "UIF-08"
+    ],
+    "legacyPendingCount": 16
+  },
+  "qa": {
+    "bj08Migration": {
+      "status": "PASS",
+      "passed": 38,
+      "checks": 38,
+      "browserErrors": 0
+    },
+    "allFlowRuntimeSmoke": {
+      "status": "PASS",
+      "renders": 85,
+      "failures": 0,
+      "browserErrors": 0
+    },
+    "releaseValidation": {
+      "status": "PASS",
+      "passed": 18,
+      "checks": 18
+    }
+  },
+  "explicitGaps": [
+    "No canonical VET45 VTimePicker master was confirmed; BJ08 keeps this as an explicit DS gap.",
+    "Count-reason persistence, assigned-counter authority, and evidence/price-basis schema remain Product-contract clarifications; v2.3.0 does not invent missing backend schema."
+  ],
+  "historicalValidatorPolicy": {
+    "validate_package.py": "INHERITED_NOT_APPLICABLE_TO_V2X_HARNESS_BASELINE",
+    "validate-design-readiness.py": "INHERITED_NOT_APPLICABLE_TO_V2X_HARNESS_BASELINE",
+    "evidence": "Both validators already fail on the delivered v2.2.0 baseline because they target historical frozen-package artifacts/extension structure; v2.3.0 preserves that historical evidence rather than rewriting the current Harness to satisfy stale assumptions."
+  },
+  "deltaFromParent": {
+    "added": [
+      "RELEASE-MANIFEST-v2.3.0.json",
+      "RELEASE-VALIDATION-v2.3.0.json",
+      "RELEASE-VALIDATION-v2.3.0.md",
+      "SHA256SUMS-v2.3.0.txt",
+      "specs/themes/theme-07/prototype/contracts/figma-ds/BJ08-MIGRATION-CLOSURE-v2.3.0.json",
+      "specs/themes/theme-07/prototype/contracts/figma-ds/BJ08-MIGRATION-CONTRACT-v2.3.0.md",
+      "specs/themes/theme-07/prototype/contracts/figma-ds/FIGMA-DS-WORKING-FREEZE-v2.3.0.md",
+      "specs/themes/theme-07/prototype/contracts/figma-ds/THEME7-MIGRATION-READINESS-v2.3.0.md",
+      "specs/themes/theme-07/prototype/html/CHANGELOG-v2.3.0.md",
+      "specs/themes/theme-07/prototype/html/qa/ALL-FLOWS-RUNTIME-SMOKE-v2.3.0.json",
+      "specs/themes/theme-07/prototype/html/qa/ALL-FLOWS-RUNTIME-SMOKE-v2.3.0.md",
+      "specs/themes/theme-07/prototype/html/qa/BJ08-FIGMA-DS-MIGRATION-QA-v2.3.0.json",
+      "specs/themes/theme-07/prototype/html/qa/BJ08-FIGMA-DS-MIGRATION-QA-v2.3.0.md",
+      "specs/themes/theme-07/prototype/html/qa/all_flow_smoke_v230.py",
+      "specs/themes/theme-07/prototype/html/qa/bj08_figma_ds_migration_v230.py",
+      "specs/themes/theme-07/prototype/html/qa/bj08_visual_capture_v230.py",
+      "specs/themes/theme-07/prototype/html/qa/v230-bj08-captures/BJ08-contact-sheet.png",
+      "specs/themes/theme-07/prototype/html/qa/v230-bj08-captures/SCR-042.png",
+      "specs/themes/theme-07/prototype/html/qa/v230-bj08-captures/SCR-043.png",
+      "specs/themes/theme-07/prototype/html/qa/v230-bj08-captures/SCR-044.png",
+      "specs/themes/theme-07/prototype/html/qa/v230-bj08-captures/SCR-045.png",
+      "specs/themes/theme-07/prototype/html/qa/v230-bj08-captures/SCR-046.png",
+      "specs/themes/theme-07/prototype/html/qa/v230-bj08-captures/SCR-047.png",
+      "specs/themes/theme-07/release/validate_release_v230.py"
+    ],
+    "modified": [
+      "README.md",
+      "index.html",
+      "specs/themes/theme-07/change-log.md",
+      "specs/themes/theme-07/prototype/contracts/figma-ds/UIF-MIGRATION-STATUS.json",
+      "specs/themes/theme-07/prototype/html/README.md",
+      "specs/themes/theme-07/prototype/html/app.js",
+      "specs/themes/theme-07/prototype/html/figma-ds-runtime/RUNTIME-STATUS.md",
+      "specs/themes/theme-07/prototype/html/figma-ds-runtime/runtime-registry.json",
+      "specs/themes/theme-07/prototype/html/index.html",
+      "specs/themes/theme-07/prototype/html/styles.css",
+      "specs/themes/theme-07/prototype/html/workbench-data.js",
+      "specs/themes/theme-07/prototype/html/workbench-data.json"
+    ],
+    "removed": []
+  },
+  "inheritedRegistryHashes": {
+    "action-registry.json": "b44ae29e765485597ed9124bc04fa7b2a5b76db2ccca38bfde6c2178bbf53f09",
+    "screen-registry.json": "20d3abc7a229ba54aaa436942ffa767f9914b9af2e8c8e6f901b4049ceab5ebf"
+  }
+}

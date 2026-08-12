@@ -1,0 +1,32 @@
+{
+  "result": "FAIL",
+  "gates": [
+    [
+      "17 active flows",
+      true
+    ],
+    [
+      "Workbench version 2.0.1",
+      false
+    ],
+    [
+      "Active screen registry present",
+      true
+    ],
+    [
+      "No browser page errors",
+      true
+    ],
+    [
+      "All active states rendered",
+      true
+    ],
+    [
+      "No Product UI semantic/runtime issues",
+      true
+    ]
+  ],
+  "renders": 497,
+  "issues": [],
+  "pageErrors": []
+}

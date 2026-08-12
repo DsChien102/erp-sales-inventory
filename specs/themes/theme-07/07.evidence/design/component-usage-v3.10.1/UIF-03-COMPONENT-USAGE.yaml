@@ -1,0 +1,22 @@
+uiAuthority: Figma Design System v2.0.2
+figmaDsLock: ../FIGMA-DS-LOCK.json
+figmaMappingRegistry: ../figma-ds/html-figma-ds-mapping.json
+legacyComponentFieldsStatus: MAPPING_INPUT_ONLY
+version: 3.9.7
+uif: UIF-03
+screens:
+- SCR-014
+- SCR-015
+- SCR-017
+- SCR-019
+rules:
+- no_architecture_explanation_in_product_ui
+- system_known_context_read_only
+- one_commit_surface
+- unknown_no_blind_retry
+- viewport_402x874
+- valuation_basis_by_receipt_item
+- complete_direct_cost_basis_contextual
+- transaction_uom_plus_base_uom_consequence
+- no_normal_ready_badge
+- server_authoritative_preview_and_result

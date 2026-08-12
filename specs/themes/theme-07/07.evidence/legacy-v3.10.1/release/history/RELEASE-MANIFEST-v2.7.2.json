@@ -1,0 +1,16 @@
+{
+  "release": "2.7.2",
+  "parent": "2.7.1",
+  "status": "REVIEW_READY",
+  "scope": "Detail composition alignment with live Figma DS across migrated Theme 7 Product UI",
+  "figmaAuthority": {
+    "fileKey": "QVJolM5tAdFKkhP7RIwe3y",
+    "patternsPage": "505:5891",
+    "mobileDetailTemplate": "551:1396",
+    "summaryCard": "525:552",
+    "infoRow": "525:351"
+  },
+  "businessBehaviorChanged": false,
+  "corrected": ["UIF-01/BJ01", "UIF-02/BJ02", "UIF-05/BJ05"],
+  "reviewedUnchanged": ["UIF-04/BJ04", "UIF-08/BJ08"]
+}

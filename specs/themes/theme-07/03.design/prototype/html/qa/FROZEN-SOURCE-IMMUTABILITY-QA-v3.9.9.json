@@ -1,0 +1,10 @@
+{
+  "version": "3.9.9",
+  "status": "PASS",
+  "baseline": "parent ZIP v3.9.8",
+  "filesCompared": 108,
+  "candidateFiles": 108,
+  "added": [],
+  "removed": [],
+  "changed": []
+}

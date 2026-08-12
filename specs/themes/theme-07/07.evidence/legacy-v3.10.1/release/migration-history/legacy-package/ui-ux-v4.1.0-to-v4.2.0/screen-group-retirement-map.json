@@ -1,0 +1,240 @@
+[
+  {
+    "legacy_screen_group_id": "SG-01",
+    "legacy_name": "Tồn kho và khả dụng",
+    "status": "RETIRED",
+    "replacement": "SCREEN_REGISTRY_AND_NAVIGATION_AREA",
+    "navigation_areas": [
+      "NAV-01"
+    ],
+    "canonical_screen_ids": [
+      "SCR-001",
+      "SCR-002",
+      "SCR-003",
+      "SCR-004",
+      "SCR-005"
+    ]
+  },
+  {
+    "legacy_screen_group_id": "SG-02",
+    "legacy_name": "Nhận hàng",
+    "status": "RETIRED",
+    "replacement": "SCREEN_REGISTRY_AND_NAVIGATION_AREA",
+    "navigation_areas": [
+      "NAV-02"
+    ],
+    "canonical_screen_ids": [
+      "SCR-006",
+      "SCR-007",
+      "SCR-008",
+      "SCR-009",
+      "SCR-010",
+      "SCR-011",
+      "SCR-012",
+      "SCR-013"
+    ]
+  },
+  {
+    "legacy_screen_group_id": "SG-03",
+    "legacy_name": "Hàng chờ giá",
+    "status": "RETIRED",
+    "replacement": "SCREEN_REGISTRY_AND_NAVIGATION_AREA",
+    "navigation_areas": [
+      "NAV-04"
+    ],
+    "canonical_screen_ids": [
+      "SCR-014",
+      "SCR-015",
+      "SCR-016",
+      "SCR-017",
+      "SCR-018",
+      "SCR-019"
+    ]
+  },
+  {
+    "legacy_screen_group_id": "SG-04",
+    "legacy_name": "Reservation và thiếu hàng",
+    "status": "RETIRED",
+    "replacement": "SCREEN_REGISTRY_AND_NAVIGATION_AREA",
+    "navigation_areas": [
+      "NAV-02"
+    ],
+    "canonical_screen_ids": [
+      "SCR-020",
+      "SCR-021",
+      "SCR-022",
+      "SCR-023",
+      "SCR-024"
+    ]
+  },
+  {
+    "legacy_screen_group_id": "SG-06",
+    "legacy_name": "Pick, pack và bàn giao",
+    "status": "RETIRED",
+    "replacement": "SCREEN_REGISTRY_AND_NAVIGATION_AREA",
+    "navigation_areas": [
+      "NAV-02"
+    ],
+    "canonical_screen_ids": [
+      "SCR-025",
+      "SCR-026",
+      "SCR-027",
+      "SCR-028",
+      "SCR-029"
+    ]
+  },
+  {
+    "legacy_screen_group_id": "SG-07",
+    "legacy_name": "Khách trả và phân loại",
+    "status": "RETIRED",
+    "replacement": "SCREEN_REGISTRY_AND_NAVIGATION_AREA",
+    "navigation_areas": [
+      "NAV-02"
+    ],
+    "canonical_screen_ids": [
+      "SCR-030",
+      "SCR-031",
+      "SCR-032",
+      "SCR-033",
+      "SCR-034",
+      "SCR-035"
+    ]
+  },
+  {
+    "legacy_screen_group_id": "SG-08",
+    "legacy_name": "Trạng thái, trả nhà cung cấp và tiêu hủy",
+    "status": "RETIRED",
+    "replacement": "SCREEN_REGISTRY_AND_NAVIGATION_AREA",
+    "navigation_areas": [
+      "NAV-02"
+    ],
+    "canonical_screen_ids": [
+      "SCR-036",
+      "SCR-037",
+      "SCR-038",
+      "SCR-039",
+      "SCR-040",
+      "SCR-041"
+    ]
+  },
+  {
+    "legacy_screen_group_id": "SG-09",
+    "legacy_name": "Kiểm kê",
+    "status": "RETIRED",
+    "replacement": "SCREEN_REGISTRY_AND_NAVIGATION_AREA",
+    "navigation_areas": [
+      "NAV-02"
+    ],
+    "canonical_screen_ids": [
+      "SCR-042",
+      "SCR-043",
+      "SCR-044",
+      "SCR-045",
+      "SCR-046",
+      "SCR-047"
+    ]
+  },
+  {
+    "legacy_screen_group_id": "SG-10",
+    "legacy_name": "Operation, phê duyệt và sửa sai",
+    "status": "RETIRED",
+    "replacement": "SCREEN_REGISTRY_AND_NAVIGATION_AREA",
+    "navigation_areas": [
+      "NAV-03"
+    ],
+    "canonical_screen_ids": [
+      "SCR-048",
+      "SCR-049",
+      "SCR-050",
+      "SCR-051",
+      "SCR-052",
+      "SCR-053"
+    ]
+  },
+  {
+    "legacy_screen_group_id": "SG-11",
+    "legacy_name": "Thẻ kho và lịch sử",
+    "status": "RETIRED",
+    "replacement": "SCREEN_REGISTRY_AND_NAVIGATION_AREA",
+    "navigation_areas": [
+      "NAV-05"
+    ],
+    "canonical_screen_ids": [
+      "SCR-054",
+      "SCR-055",
+      "SCR-056",
+      "SCR-057",
+      "SCR-058",
+      "SCR-059"
+    ]
+  },
+  {
+    "legacy_screen_group_id": "SG-12",
+    "legacy_name": "Chính sách tồn sản phẩm và chỉ báo",
+    "status": "RETIRED",
+    "replacement": "SCREEN_REGISTRY_AND_NAVIGATION_AREA",
+    "navigation_areas": [
+      "NAV-01",
+      "NAV-06"
+    ],
+    "canonical_screen_ids": [
+      "SCR-060",
+      "SCR-061",
+      "SCR-062",
+      "SCR-063",
+      "SCR-064",
+      "SCR-065"
+    ]
+  },
+  {
+    "legacy_screen_group_id": "SG-13",
+    "legacy_name": "Opening balance và Chuyển đổi chính thức",
+    "status": "RETIRED",
+    "replacement": "SCREEN_REGISTRY_AND_NAVIGATION_AREA",
+    "navigation_areas": [
+      "NAV-06"
+    ],
+    "canonical_screen_ids": [
+      "SCR-066",
+      "SCR-067",
+      "SCR-068",
+      "SCR-069",
+      "SCR-070",
+      "SCR-071"
+    ]
+  },
+  {
+    "legacy_screen_group_id": "SG-14",
+    "legacy_name": "Tính giá vốn và đóng kỳ",
+    "status": "RETIRED",
+    "replacement": "SCREEN_REGISTRY_AND_NAVIGATION_AREA",
+    "navigation_areas": [
+      "NAV-04"
+    ],
+    "canonical_screen_ids": [
+      "SCR-072",
+      "SCR-073",
+      "SCR-074",
+      "SCR-075",
+      "SCR-076",
+      "SCR-077"
+    ]
+  },
+  {
+    "legacy_screen_group_id": "SG-15",
+    "legacy_name": "Tin cậy, UNKNOWN và đối soát",
+    "status": "RETIRED",
+    "replacement": "SCREEN_REGISTRY_AND_NAVIGATION_AREA",
+    "navigation_areas": [
+      "NAV-03"
+    ],
+    "canonical_screen_ids": [
+      "SCR-078",
+      "SCR-079",
+      "SCR-080",
+      "SCR-081",
+      "SCR-082",
+      "SCR-083"
+    ]
+  }
+]

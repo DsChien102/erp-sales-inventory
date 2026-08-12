@@ -1,0 +1,184 @@
+{
+  "status": "FAIL",
+  "passed": 22,
+  "total": 27,
+  "checks": [
+    {
+      "name": "v2.9.3 CSS has no raw colors",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Grouped surface helper is Layout composition, not invented DS component",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Live canonical component refs retained",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "SCR037 has one grouped collection, not one outer surface per Product",
+      "pass": false,
+      "note": {
+        "collection": 1,
+        "groups": 3
+      }
+    },
+    {
+      "name": "SCR037 Product+UOM uses exact Status/Compact 370x52",
+      "pass": false,
+      "note": 3
+    },
+    {
+      "name": "SCR037 allocation uses exact Navigation/Default 370x76",
+      "pass": false,
+      "note": 4
+    },
+    {
+      "name": "SCR037 Product badges are semantic progress, not raw quantities",
+      "pass": true,
+      "note": [
+        "0/2 đã kiểm",
+        "0/1 đã kiểm",
+        "0/1 đã kiểm"
+      ]
+    },
+    {
+      "name": "SCR037 verification sheet uses semantic status badge",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "SCR037 verification quantity is Info Row data",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "SCR039 uses one grouped review surface",
+      "pass": true,
+      "note": {
+        "collection": 1,
+        "groups": 3
+      }
+    },
+    {
+      "name": "SCR039 repeated Product subgroups have no independent card boundary",
+      "pass": false,
+      "note": ""
+    },
+    {
+      "name": "SCR039 Product rows are exact Status/Compact and semantically Đã kiểm",
+      "pass": false,
+      "note": ""
+    },
+    {
+      "name": "SCR039 allocation evidence is exact Key-value 338x44",
+      "pass": true,
+      "note": 4
+    },
+    {
+      "name": "SCR039 has no raw quantity VBadge",
+      "pass": true,
+      "note": [
+        "Đã kiểm",
+        "Đã kiểm",
+        "Đã kiểm"
+      ]
+    },
+    {
+      "name": "SCR041 Product badge is semantic Đã bàn giao",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "SCR041 last evidence can scroll fully above sticky footer",
+      "pass": true,
+      "note": {
+        "ok": true,
+        "scrollTop": 104,
+        "scrollHeight": 806,
+        "clientHeight": 702,
+        "lastBottom": 796.8539428710938,
+        "footerTop": 809.9775390625
+      }
+    },
+    {
+      "name": "SCR028 uses one handover grouped collection, no per-Product outer card",
+      "pass": true,
+      "note": {
+        "collection": 1,
+        "groups": 2
+      }
+    },
+    {
+      "name": "SCR028 Product summary is exact Status/Compact with semantic Đã lấy",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "SCR028 allocation fact rows remain exact Key-value 338x44",
+      "pass": true,
+      "note": 3
+    },
+    {
+      "name": "SCR028 editable actual fields remain 338px canonical controls",
+      "pass": true,
+      "note": 3
+    },
+    {
+      "name": "SCR028 Product badges do not carry raw quantities",
+      "pass": true,
+      "note": [
+        "Đã lấy",
+        "Đã lấy"
+      ]
+    },
+    {
+      "name": "SCR035 uses one result grouped collection, no per-Product outer cards",
+      "pass": true,
+      "note": {
+        "collection": 1,
+        "groups": 2
+      }
+    },
+    {
+      "name": "SCR035 Product rows are exact Status/Compact with semantic classification status",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "SCR035 child evidence is canonical Info Row 338x44",
+      "pass": true,
+      "note": 2
+    },
+    {
+      "name": "SCR035 nested section title remains H4 16/22, not result H2",
+      "pass": true,
+      "note": {
+        "font": "16px",
+        "line": "22px",
+        "left": 636.2584228515625,
+        "textAlign": "left"
+      }
+    },
+    {
+      "name": "Product viewport remains exact 402x874 with no horizontal overflow",
+      "pass": true,
+      "note": {
+        "app": [
+          402,
+          874
+        ],
+        "overflow": 0
+      }
+    },
+    {
+      "name": "No browser errors",
+      "pass": true,
+      "note": []
+    }
+  ],
+  "browserErrors": []
+}

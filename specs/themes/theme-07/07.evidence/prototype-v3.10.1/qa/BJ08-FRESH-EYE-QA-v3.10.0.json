@@ -1,0 +1,100 @@
+{
+  "version": "3.10.0",
+  "status": "PASS",
+  "passed": 18,
+  "total": 18,
+  "checks": [
+    {
+      "name": "list is task-oriented and keeps search/filter",
+      "pass": true,
+      "note": "9:41\nLTE  100%\nKiểm kê kho\nTất cả\nĐang đếm\nChờ duyệt\nKK-0709-03\nKho trung tâm · Toàn kho · 12/38 đã đếm\nĐang đếm\nKK-0708-02\nKho trung tâm · Nhóm vaccine · Đã đếm xong\nChờ duyệt\nTạo phiên kiểm kê"
+    },
+    {
+      "name": "browse list exposes no destructive cancel",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "open form uses business copy without technical English",
+      "pass": true,
+      "note": "9:41\nLTE  100%\nTạo phiên kiểm kê\nKho\nKho trung tâm\nThời điểm chốt\nKhi mở phiên\nNgười đếm\nNguyễn An\nPhạm vi\nToàn kho\nSản phẩm\nNhóm sản phẩm\nLô\nLý do kiểm kê\nPhạm vi được khóa khi mở phiên\nHệ thống chốt số sổ sau khi phạm vi đã được khóa. Nhóm sản phẩm được cố định theo thành viên tại thời điểm mở.\nMở phiên kiểm kê"
+    },
+    {
+      "name": "open form explains lock/cutoff in user terms",
+      "pass": true,
+      "note": "9:41\nLTE  100%\nTạo phiên kiểm kê\nKho\nKho trung tâm\nThời điểm chốt\nKhi mở phiên\nNgười đếm\nNguyễn An\nPhạm vi\nToàn kho\nSản phẩm\nNhóm sản phẩm\nLô\nLý do kiểm kê\nPhạm vi được khóa khi mở phiên\nHệ thống chốt số sổ sau khi phạm vi đã được khóa. Nhóm sản phẩm được cố định theo thành viên tại thời điểm mở.\nMở phiên kiểm kê"
+    },
+    {
+      "name": "unresolved valuation blocker is actionable Vietnamese",
+      "pass": true,
+      "note": "9:41\nLTE  100%\nTạo phiên kiểm kê\nChưa thể mở phiên\nPhạm vi còn hàng chờ xác nhận giá trị. Hoàn tất phần giá trị hàng nhận trước khi kiểm kê.\nKho\nKho trung tâm\nNgười đếm\nNguyễn An\nVề kiểm kê"
+    },
+    {
+      "name": "blind count truly hides book and variance",
+      "pass": true,
+      "note": "9:41\nLTE  100%\nĐếm mù\nĐếm mù\nSố lượng theo sổ chỉ xuất hiện sau khi nộp lần đếm đầu.\nPhiên\nKK-1709-01\nKho\nKho trung tâm\nNgười đếm\nNguyễn An\nHàng trong phạm vi\nAmox 500\nSP-00128 · Lô L2407-A · Bán được · hộp\nSố lượng thực tế\n—\nhộp\nGăng tay M\nSP-00410 · Lô L2405-M · Cách ly · hộp\nSố lượng thực tế\n—\nhộp\nThêm hàng thực tế\nHủy phiên\nNộp kết quả đếm"
+    },
+    {
+      "name": "physical stock state distinguishes otherwise similar goods",
+      "pass": true,
+      "note": "9:41\nLTE  100%\nĐếm mù\nĐếm mù\nSố lượng theo sổ chỉ xuất hiện sau khi nộp lần đếm đầu.\nPhiên\nKK-1709-01\nKho\nKho trung tâm\nNgười đếm\nNguyễn An\nHàng trong phạm vi\nAmox 500\nSP-00128 · Lô L2407-A · Bán được · hộp\nSố lượng thực tế\n—\nhộp\nGăng tay M\nSP-00410 · Lô L2405-M · Cách ly · hộp\nSố lượng thực tế\n—\nhộp\nThêm hàng thực tế\nHủy phiên\nNộp kết quả đếm"
+    },
+    {
+      "name": "counter has no price field",
+      "pass": true,
+      "note": "9:41\nLTE  100%\nĐếm mù\nĐếm mù\nSố lượng theo sổ chỉ xuất hiện sau khi nộp lần đếm đầu.\nPhiên\nKK-1709-01\nKho\nKho trung tâm\nNgười đếm\nNguyễn An\nHàng trong phạm vi\nAmox 500\nSP-00128 · Lô L2407-A · Bán được · hộp\nSố lượng thực tế\n—\nhộp\nGăng tay M\nSP-00410 · Lô L2405-M · Cách ly · hộp\nSố lượng thực tế\n—\nhộp\nThêm hàng thực tế\nHủy phiên\nNộp kết quả đếm"
+    },
+    {
+      "name": "recount presents book, first count and variance together",
+      "pass": true,
+      "note": "9:41\nLTE  100%\nChênh lệch và đếm lại\nĐếm lại lần 1\n2 dòng còn chênh lệch. Kết quả vòng trước được giữ nguyên trong lịch sử.\nDòng cần đếm lại\nAmox 500\nSP-00128 · Lô L2407-A · Bán được · hộp\nTheo sổ\n20 hộp\nLần đếm đầu\n18 hộp\nChênh lệch\n-2 hộp\nSố lượng đếm lại\n—\nhộp\nGăng tay M\nSP-00410 · Lô L2405-M · Cách ly · hộp\nTheo sổ\n6 hộp\nLần đếm đầu\n7 hộp\nChênh lệch\n+1 hộp\nSố lượng đếm lại\n—\nhộp\nCăn cứ giá hàng thừa\nĐã xác nhận\nKhóa phạm vi\nĐang giữ\nHủy phiên\nGửi kết quả đếm lại"
+    },
+    {
+      "name": "recount makes prior evidence preservation understandable",
+      "pass": true,
+      "note": "9:41\nLTE  100%\nChênh lệch và đếm lại\nĐếm lại lần 1\n2 dòng còn chênh lệch. Kết quả vòng trước được giữ nguyên trong lịch sử.\nDòng cần đếm lại\nAmox 500\nSP-00128 · Lô L2407-A · Bán được · hộp\nTheo sổ\n20 hộp\nLần đếm đầu\n18 hộp\nChênh lệch\n-2 hộp\nSố lượng đếm lại\n—\nhộp\nGăng tay M\nSP-00410 · Lô L2405-M · Cách ly · hộp\nTheo sổ\n6 hộp\nLần đếm đầu\n7 hộp\nChênh lệch\n+1 hộp\nSố lượng đếm lại\n—\nhộp\nCăn cứ giá hàng thừa\nĐã xác nhận\nKhóa phạm vi\nĐang giữ\nHủy phiên\nGửi kết quả đếm lại"
+    },
+    {
+      "name": "missing surplus value basis blocks without asking counter for price",
+      "pass": true,
+      "note": "9:41\nLTE  100%\nChênh lệch và đếm lại\nĐếm lại lần 1\n2 dòng còn chênh lệch. Kết quả vòng trước được giữ nguyên trong lịch sử.\nDòng cần đếm lại\nAmox 500\nSP-00128 · Lô L2407-A · Bán được · hộp\nTheo sổ\n20 hộp\nLần đếm đầu\n18 hộp\nChênh lệch\n-2 hộp\nSố lượng đếm lại\n—\nhộp\nGăng tay M\nSP-00410 · Lô L2405-M · Cách ly · hộp\nTheo sổ\n6 hộp\nLần đếm đầu\n7 hộp\nChênh lệch\n+1 hộp\nSố lượng đếm lại\n—\nhộp\nThiếu căn cứ giá hàng thừa\nPhiên vẫn được khóa. Căn cứ giá phải đến từ nguồn có thẩm quyền; người đếm không nhập giá.\nHủy phiên\nGửi kết quả đếm lại"
+    },
+    {
+      "name": "approval is read-only and decision-focused",
+      "pass": true,
+      "note": "9:41\nLTE  100%\nDuyệt kết quả kiểm kê\nCần quyết định độc lập\nBạn chỉ rà soát kết quả và quyết định; không sửa số đếm.\nPhiên\nKK-1709-01\nLần đếm lại\n1\nNgười đã tham gia đếm\nNguyễn An\nMức duyệt\nĐã xác định theo rủi ro hiện hành\nAmox 500 · L2407-A\nTrạng thái\nBán được\nTheo sổ\n20 hộp\nĐếm lại\n18 hộp\nChênh lệch\n-2 hộp\nCăn cứ giá thiếu\nGiá vốn đã khóa\nGăng tay M · L2405-M\nTrạng thái\nCách ly\nTheo sổ\n6 hộp\nĐếm lại\n7 hộp\nChênh lệch\n+1 hộp\nCăn cứ giá hàng thừa\nĐã xác nhận\nYêu cầu xem lại\nDuyệt và điều chỉnh"
+    },
+    {
+      "name": "approval has no cancel action",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "financial risk is not exposed as unmasked amount",
+      "pass": true,
+      "note": "9:41\nLTE  100%\nDuyệt kết quả kiểm kê\nCần quyết định độc lập\nBạn chỉ rà soát kết quả và quyết định; không sửa số đếm.\nPhiên\nKK-1709-01\nLần đếm lại\n1\nNgười đã tham gia đếm\nNguyễn An\nMức duyệt\nĐã xác định theo rủi ro hiện hành\nAmox 500 · L2407-A\nTrạng thái\nBán được\nTheo sổ\n20 hộp\nĐếm lại\n18 hộp\nChênh lệch\n-2 hộp\nCăn cứ giá thiếu\nGiá vốn đã khóa\nGăng tay M · L2405-M\nTrạng thái\nCách ly\nTheo sổ\n6 hộp\nĐếm lại\n7 hộp\nChênh lệch\n+1 hộp\nCăn cứ giá hàng thừa\nĐã xác nhận\nYêu cầu xem lại\nDuyệt và điều chỉnh"
+    },
+    {
+      "name": "zero result says no adjustment and unlocked",
+      "pass": true,
+      "note": "9:41\nLTE  100%\nKết quả kiểm kê\nĐã hoàn tất kiểm kê\n\nKết quả thực tế khớp số sổ. Không cần tạo điều chỉnh và phạm vi đã mở khóa.\n\nPhiên\nKK-1709-01\nĐiều chỉnh\nKhông tạo\nKhóa phạm vi\nĐã mở\nHoàn tất lúc\n17/09/2026 09:50\nVề kiểm kê"
+    },
+    {
+      "name": "UNKNOWN UI prohibits blind retry and offers verification",
+      "pass": true,
+      "note": "9:41\nLTE  100%\nKết quả kiểm kê\nĐang xác minh kết quả\n\nKhông gửi lại thao tác. Hệ thống cần xác minh đúng lần xử lý này.\n\nPhiên\nKK-1709-01\nLần xử lý\nGiữ nguyên\nTồn kho\nChưa kết luận\nChuyển sang xác minh"
+    },
+    {
+      "name": "focused BJ08 surfaces fit canonical 402x874",
+      "pass": true,
+      "note": "[]"
+    },
+    {
+      "name": "fresh-eye browser has no errors",
+      "pass": true,
+      "note": "[]"
+    }
+  ],
+  "browserErrors": [],
+  "captures": 9
+}

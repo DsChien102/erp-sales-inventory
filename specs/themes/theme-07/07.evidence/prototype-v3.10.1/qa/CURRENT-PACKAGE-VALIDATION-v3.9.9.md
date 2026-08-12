@@ -1,0 +1,45 @@
+# Current Package Validation — v3.9.9
+
+**Result: PASS · 41/41**
+
+- PASS — root package identifies v3.9.9
+- PASS — prototype manifests identify v3.9.9 parent v3.9.8
+- PASS — current registries identify v3.9.9
+- PASS — v3.9.9 assets load after v3.9.8 hardening
+- PASS — BJ14 focused deep review passes
+- PASS — BJ14 fresh-eye passes
+- PASS — prior locked regression passes
+- PASS — Wave 3 cross-BJ audit passes
+- PASS — frozen source parent-ZIP comparison passes 108/108
+- PASS — full-theme end-user regression passes
+- PASS — flow logic passes 21 checks
+- PASS — all-flow smoke passes 89 renders
+- PASS — runtime UI passes 514 states / 89 routes
+- PASS — representative coherence passes
+- PASS — device frame passes all 89 screens
+- PASS — approved DR164..170 exist as real rows
+- PASS — BJ14 binds unified valuation ordering
+- PASS — data entities carry shared valuation ordering
+- PASS — ProductCostResult entity exists
+- PASS — successor reconciliation is incremental
+- PASS — Official Cost cannot backdate before publication commit
+- PASS — run separates run type / calculation / posting period
+- PASS — dirty scope is Product plus posting period
+- PASS — weighted-average edge states are explicit
+- PASS — BC-IV-02 is calculate-only without ledger mutation
+- PASS — BC-IV-03 owns atomic publication
+- PASS — UC14-03 is read-only review
+- PASS — UC14-04 owns publication finality
+- PASS — technical contracts expose calculate/read/publish APIs
+- PASS — EVT-IV-04 preserves product result and predecessor lineage
+- PASS — contract registry no longer assigns BC-IV-03 to UC14-03
+- PASS — trace index maps UC14-03 query-only
+- PASS — active UIF14 keeps SCR075 retired
+- PASS — current screen registry hardens active BJ14 surfaces
+- PASS — runtime uses unified cutoff and ProductCostResult semantics
+- PASS — runtime dirty scope is source-owned/read-only
+- PASS — runtime publish is forward-effective
+- PASS — runtime stale guard uses run input hash
+- PASS — runtime UNKNOWN hands same publication to BJ17
+- PASS — manifest marks BJ14 lock candidate
+- PASS — BJ14 visual evidence contains five focused captures

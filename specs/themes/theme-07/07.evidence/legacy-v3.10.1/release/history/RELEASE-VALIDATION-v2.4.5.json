@@ -1,0 +1,14 @@
+{
+  "release": "2.4.5",
+  "parent": "2.4.4",
+  "status": "PASS",
+  "businessBehaviorChanged": false,
+  "scope": "BJ01 Key-value Row alignment hardening with component-owned typography preserved; all other Theme 7 flows carried forward.",
+  "qa": {
+    "bj01KeyValueAlignment": "PASS 34/34",
+    "allFlowRuntime": "PASS 85/85",
+    "browserErrors": 0,
+    "javascriptSyntax": "PASS",
+    "newComponentsCreated": 0
+  }
+}

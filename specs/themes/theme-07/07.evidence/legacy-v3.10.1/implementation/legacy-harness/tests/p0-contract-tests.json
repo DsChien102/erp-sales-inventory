@@ -1,0 +1,1654 @@
+{
+  "freeze_id": "T7-PACKAGE-FREEZE-v4.1.0",
+  "count": 48,
+  "tests": [
+    {
+      "id": "TST-P001-CAUSAL_MISMATCH",
+      "title": "P0-01 — CAUSAL_MISMATCH",
+      "source_refs": [
+        "T7-DR-020",
+        "T7-DR-021",
+        "P0-01"
+      ],
+      "contract_ids": [
+        "P0-01"
+      ],
+      "story": "",
+      "test_type": "P0_E2E",
+      "priority": "P0",
+      "fixture_ids": [
+        "FX-TST-P0-01-FENCE"
+      ],
+      "preconditions": [
+        "Owner chain: Inventory Operations + Inventory Valuation",
+        "Physical receipt and valuation have separate authoritative commit points."
+      ],
+      "action": "Exercise CAUSAL_MISMATCH at the P0-01 owner boundary with the same stable identity where applicable.",
+      "expected": [
+        "P0-01/Inventory Operations + Inventory Valuation: Mismatched causal evidence cannot create finality.",
+        "No derived projection or transport outcome may replace owner finality."
+      ],
+      "gate_ids": [
+        "GATE-P0"
+      ],
+      "required_evidence_level": "REPO_EXECUTED",
+      "status": "BLOCKED_BY_REPO_ADAPTER",
+      "blocker": "Actual VET45 repository adapter is not present in this package",
+      "evidence_level": "GENERATED"
+    },
+    {
+      "id": "TST-P001-CONCURRENCY",
+      "title": "P0-01 — CONCURRENCY",
+      "source_refs": [
+        "T7-DR-020",
+        "T7-DR-021",
+        "P0-01"
+      ],
+      "contract_ids": [
+        "P0-01"
+      ],
+      "story": "",
+      "test_type": "P0_E2E",
+      "priority": "P0",
+      "fixture_ids": [
+        "FX-TST-P0-01-FENCE"
+      ],
+      "preconditions": [
+        "Owner chain: Inventory Operations + Inventory Valuation",
+        "Physical receipt and valuation have separate authoritative commit points."
+      ],
+      "action": "Exercise CONCURRENCY at the P0-01 owner boundary with the same stable identity where applicable.",
+      "expected": [
+        "P0-01/Inventory Operations + Inventory Valuation: Exactly one competing mutation wins; invariants remain true.",
+        "No derived projection or transport outcome may replace owner finality."
+      ],
+      "gate_ids": [
+        "GATE-P0"
+      ],
+      "required_evidence_level": "REPO_EXECUTED",
+      "status": "BLOCKED_BY_REPO_ADAPTER",
+      "blocker": "Actual VET45 repository adapter is not present in this package",
+      "evidence_level": "GENERATED"
+    },
+    {
+      "id": "TST-P001-DUPLICATE",
+      "title": "P0-01 — DUPLICATE",
+      "source_refs": [
+        "T7-DR-020",
+        "T7-DR-021",
+        "P0-01"
+      ],
+      "contract_ids": [
+        "P0-01"
+      ],
+      "story": "",
+      "test_type": "P0_E2E",
+      "priority": "P0",
+      "fixture_ids": [
+        "FX-TST-P0-01-FENCE"
+      ],
+      "preconditions": [
+        "Owner chain: Inventory Operations + Inventory Valuation",
+        "Physical receipt and valuation have separate authoritative commit points."
+      ],
+      "action": "Exercise DUPLICATE at the P0-01 owner boundary with the same stable identity where applicable.",
+      "expected": [
+        "P0-01/Inventory Operations + Inventory Valuation: Same identity/payload returns the prior result without a second effect.",
+        "No derived projection or transport outcome may replace owner finality."
+      ],
+      "gate_ids": [
+        "GATE-P0"
+      ],
+      "required_evidence_level": "REPO_EXECUTED",
+      "status": "BLOCKED_BY_REPO_ADAPTER",
+      "blocker": "Actual VET45 repository adapter is not present in this package",
+      "evidence_level": "GENERATED"
+    },
+    {
+      "id": "TST-P001-HAPPY",
+      "title": "P0-01 — HAPPY",
+      "source_refs": [
+        "T7-DR-020",
+        "T7-DR-021",
+        "P0-01"
+      ],
+      "contract_ids": [
+        "P0-01"
+      ],
+      "story": "",
+      "test_type": "P0_E2E",
+      "priority": "P0",
+      "fixture_ids": [
+        "FX-TST-P0-01-FENCE"
+      ],
+      "preconditions": [
+        "Owner chain: Inventory Operations + Inventory Valuation",
+        "Physical receipt and valuation have separate authoritative commit points."
+      ],
+      "action": "Exercise HAPPY at the P0-01 owner boundary with the same stable identity where applicable.",
+      "expected": [
+        "P0-01/Inventory Operations + Inventory Valuation: Owner effect commits once and finality is COMPLETED.",
+        "No derived projection or transport outcome may replace owner finality."
+      ],
+      "gate_ids": [
+        "GATE-P0"
+      ],
+      "required_evidence_level": "REPO_EXECUTED",
+      "status": "BLOCKED_BY_REPO_ADAPTER",
+      "blocker": "Actual VET45 repository adapter is not present in this package",
+      "evidence_level": "GENERATED"
+    },
+    {
+      "id": "TST-P001-IDEMPOTENCY_CONFLICT",
+      "title": "P0-01 — IDEMPOTENCY_CONFLICT",
+      "source_refs": [
+        "T7-DR-020",
+        "T7-DR-021",
+        "P0-01"
+      ],
+      "contract_ids": [
+        "P0-01"
+      ],
+      "story": "",
+      "test_type": "P0_E2E",
+      "priority": "P0",
+      "fixture_ids": [
+        "FX-TST-P0-01-FENCE"
+      ],
+      "preconditions": [
+        "Owner chain: Inventory Operations + Inventory Valuation",
+        "Physical receipt and valuation have separate authoritative commit points."
+      ],
+      "action": "Exercise IDEMPOTENCY_CONFLICT at the P0-01 owner boundary with the same stable identity where applicable.",
+      "expected": [
+        "P0-01/Inventory Operations + Inventory Valuation: Same identity with another fingerprint is rejected with owner effect NONE.",
+        "No derived projection or transport outcome may replace owner finality."
+      ],
+      "gate_ids": [
+        "GATE-P0"
+      ],
+      "required_evidence_level": "REPO_EXECUTED",
+      "status": "BLOCKED_BY_REPO_ADAPTER",
+      "blocker": "Actual VET45 repository adapter is not present in this package",
+      "evidence_level": "GENERATED"
+    },
+    {
+      "id": "TST-P001-REVERSAL",
+      "title": "P0-01 — REVERSAL",
+      "source_refs": [
+        "T7-DR-020",
+        "T7-DR-021",
+        "P0-01"
+      ],
+      "contract_ids": [
+        "P0-01"
+      ],
+      "story": "",
+      "test_type": "P0_E2E",
+      "priority": "P0",
+      "fixture_ids": [
+        "FX-TST-P0-01-FENCE"
+      ],
+      "preconditions": [
+        "Owner chain: Inventory Operations + Inventory Valuation",
+        "Physical receipt and valuation have separate authoritative commit points."
+      ],
+      "action": "Exercise REVERSAL at the P0-01 owner boundary with the same stable identity where applicable.",
+      "expected": [
+        "P0-01/Inventory Operations + Inventory Valuation: Correction is additive and preserves the original/correction chain.",
+        "No derived projection or transport outcome may replace owner finality."
+      ],
+      "gate_ids": [
+        "GATE-P0"
+      ],
+      "required_evidence_level": "REPO_EXECUTED",
+      "status": "BLOCKED_BY_REPO_ADAPTER",
+      "blocker": "Actual VET45 repository adapter is not present in this package",
+      "evidence_level": "GENERATED"
+    },
+    {
+      "id": "TST-P001-STALE_VERSION",
+      "title": "P0-01 — STALE_VERSION",
+      "source_refs": [
+        "T7-DR-020",
+        "T7-DR-021",
+        "P0-01"
+      ],
+      "contract_ids": [
+        "P0-01"
+      ],
+      "story": "",
+      "test_type": "P0_E2E",
+      "priority": "P0",
+      "fixture_ids": [
+        "FX-TST-P0-01-FENCE"
+      ],
+      "preconditions": [
+        "Owner chain: Inventory Operations + Inventory Valuation",
+        "Physical receipt and valuation have separate authoritative commit points."
+      ],
+      "action": "Exercise STALE_VERSION at the P0-01 owner boundary with the same stable identity where applicable.",
+      "expected": [
+        "P0-01/Inventory Operations + Inventory Valuation: Stale input is rejected before mutation.",
+        "No derived projection or transport outcome may replace owner finality."
+      ],
+      "gate_ids": [
+        "GATE-P0"
+      ],
+      "required_evidence_level": "REPO_EXECUTED",
+      "status": "BLOCKED_BY_REPO_ADAPTER",
+      "blocker": "Actual VET45 repository adapter is not present in this package",
+      "evidence_level": "GENERATED"
+    },
+    {
+      "id": "TST-P001-UNKNOWN",
+      "title": "P0-01 — UNKNOWN",
+      "source_refs": [
+        "T7-DR-020",
+        "T7-DR-021",
+        "P0-01"
+      ],
+      "contract_ids": [
+        "P0-01"
+      ],
+      "story": "",
+      "test_type": "P0_E2E",
+      "priority": "P0",
+      "fixture_ids": [
+        "FX-TST-P0-01-FENCE"
+      ],
+      "preconditions": [
+        "Owner chain: Inventory Operations + Inventory Valuation",
+        "Physical receipt and valuation have separate authoritative commit points."
+      ],
+      "action": "Exercise UNKNOWN at the P0-01 owner boundary with the same stable identity where applicable.",
+      "expected": [
+        "P0-01/Inventory Operations + Inventory Valuation: Result remains UNKNOWN and is queried/resumed with the same identity.",
+        "No derived projection or transport outcome may replace owner finality."
+      ],
+      "gate_ids": [
+        "GATE-P0"
+      ],
+      "required_evidence_level": "REPO_EXECUTED",
+      "status": "BLOCKED_BY_REPO_ADAPTER",
+      "blocker": "Actual VET45 repository adapter is not present in this package",
+      "evidence_level": "GENERATED"
+    },
+    {
+      "id": "TST-P002-CAUSAL_MISMATCH",
+      "title": "P0-02 — CAUSAL_MISMATCH",
+      "source_refs": [
+        "T7-DR-041",
+        "P0-02"
+      ],
+      "contract_ids": [
+        "P0-02"
+      ],
+      "story": "",
+      "test_type": "P0_E2E",
+      "priority": "P0",
+      "fixture_ids": [
+        "FX-TST-P0-02-FENCE"
+      ],
+      "preconditions": [
+        "Owner chain: Inventory Operations + Inventory Valuation",
+        "Return quantity/value commit once at RETURN_PENDING; classification never double-posts value."
+      ],
+      "action": "Exercise CAUSAL_MISMATCH at the P0-02 owner boundary with the same stable identity where applicable.",
+      "expected": [
+        "P0-02/Inventory Operations + Inventory Valuation: Mismatched causal evidence cannot create finality.",
+        "No derived projection or transport outcome may replace owner finality."
+      ],
+      "gate_ids": [
+        "GATE-P0"
+      ],
+      "required_evidence_level": "REPO_EXECUTED",
+      "status": "BLOCKED_BY_REPO_ADAPTER",
+      "blocker": "Actual VET45 repository adapter is not present in this package",
+      "evidence_level": "GENERATED"
+    },
+    {
+      "id": "TST-P002-CONCURRENCY",
+      "title": "P0-02 — CONCURRENCY",
+      "source_refs": [
+        "T7-DR-041",
+        "P0-02"
+      ],
+      "contract_ids": [
+        "P0-02"
+      ],
+      "story": "",
+      "test_type": "P0_E2E",
+      "priority": "P0",
+      "fixture_ids": [
+        "FX-TST-P0-02-FENCE"
+      ],
+      "preconditions": [
+        "Owner chain: Inventory Operations + Inventory Valuation",
+        "Return quantity/value commit once at RETURN_PENDING; classification never double-posts value."
+      ],
+      "action": "Exercise CONCURRENCY at the P0-02 owner boundary with the same stable identity where applicable.",
+      "expected": [
+        "P0-02/Inventory Operations + Inventory Valuation: Exactly one competing mutation wins; invariants remain true.",
+        "No derived projection or transport outcome may replace owner finality."
+      ],
+      "gate_ids": [
+        "GATE-P0"
+      ],
+      "required_evidence_level": "REPO_EXECUTED",
+      "status": "BLOCKED_BY_REPO_ADAPTER",
+      "blocker": "Actual VET45 repository adapter is not present in this package",
+      "evidence_level": "GENERATED"
+    },
+    {
+      "id": "TST-P002-DUPLICATE",
+      "title": "P0-02 — DUPLICATE",
+      "source_refs": [
+        "T7-DR-041",
+        "P0-02"
+      ],
+      "contract_ids": [
+        "P0-02"
+      ],
+      "story": "",
+      "test_type": "P0_E2E",
+      "priority": "P0",
+      "fixture_ids": [
+        "FX-TST-P0-02-FENCE"
+      ],
+      "preconditions": [
+        "Owner chain: Inventory Operations + Inventory Valuation",
+        "Return quantity/value commit once at RETURN_PENDING; classification never double-posts value."
+      ],
+      "action": "Exercise DUPLICATE at the P0-02 owner boundary with the same stable identity where applicable.",
+      "expected": [
+        "P0-02/Inventory Operations + Inventory Valuation: Same identity/payload returns the prior result without a second effect.",
+        "No derived projection or transport outcome may replace owner finality."
+      ],
+      "gate_ids": [
+        "GATE-P0"
+      ],
+      "required_evidence_level": "REPO_EXECUTED",
+      "status": "BLOCKED_BY_REPO_ADAPTER",
+      "blocker": "Actual VET45 repository adapter is not present in this package",
+      "evidence_level": "GENERATED"
+    },
+    {
+      "id": "TST-P002-HAPPY",
+      "title": "P0-02 — HAPPY",
+      "source_refs": [
+        "T7-DR-041",
+        "P0-02"
+      ],
+      "contract_ids": [
+        "P0-02"
+      ],
+      "story": "",
+      "test_type": "P0_E2E",
+      "priority": "P0",
+      "fixture_ids": [
+        "FX-TST-P0-02-FENCE"
+      ],
+      "preconditions": [
+        "Owner chain: Inventory Operations + Inventory Valuation",
+        "Return quantity/value commit once at RETURN_PENDING; classification never double-posts value."
+      ],
+      "action": "Exercise HAPPY at the P0-02 owner boundary with the same stable identity where applicable.",
+      "expected": [
+        "P0-02/Inventory Operations + Inventory Valuation: Owner effect commits once and finality is COMPLETED.",
+        "No derived projection or transport outcome may replace owner finality."
+      ],
+      "gate_ids": [
+        "GATE-P0"
+      ],
+      "required_evidence_level": "REPO_EXECUTED",
+      "status": "BLOCKED_BY_REPO_ADAPTER",
+      "blocker": "Actual VET45 repository adapter is not present in this package",
+      "evidence_level": "GENERATED"
+    },
+    {
+      "id": "TST-P002-IDEMPOTENCY_CONFLICT",
+      "title": "P0-02 — IDEMPOTENCY_CONFLICT",
+      "source_refs": [
+        "T7-DR-041",
+        "P0-02"
+      ],
+      "contract_ids": [
+        "P0-02"
+      ],
+      "story": "",
+      "test_type": "P0_E2E",
+      "priority": "P0",
+      "fixture_ids": [
+        "FX-TST-P0-02-FENCE"
+      ],
+      "preconditions": [
+        "Owner chain: Inventory Operations + Inventory Valuation",
+        "Return quantity/value commit once at RETURN_PENDING; classification never double-posts value."
+      ],
+      "action": "Exercise IDEMPOTENCY_CONFLICT at the P0-02 owner boundary with the same stable identity where applicable.",
+      "expected": [
+        "P0-02/Inventory Operations + Inventory Valuation: Same identity with another fingerprint is rejected with owner effect NONE.",
+        "No derived projection or transport outcome may replace owner finality."
+      ],
+      "gate_ids": [
+        "GATE-P0"
+      ],
+      "required_evidence_level": "REPO_EXECUTED",
+      "status": "BLOCKED_BY_REPO_ADAPTER",
+      "blocker": "Actual VET45 repository adapter is not present in this package",
+      "evidence_level": "GENERATED"
+    },
+    {
+      "id": "TST-P002-REVERSAL",
+      "title": "P0-02 — REVERSAL",
+      "source_refs": [
+        "T7-DR-041",
+        "P0-02"
+      ],
+      "contract_ids": [
+        "P0-02"
+      ],
+      "story": "",
+      "test_type": "P0_E2E",
+      "priority": "P0",
+      "fixture_ids": [
+        "FX-TST-P0-02-FENCE"
+      ],
+      "preconditions": [
+        "Owner chain: Inventory Operations + Inventory Valuation",
+        "Return quantity/value commit once at RETURN_PENDING; classification never double-posts value."
+      ],
+      "action": "Exercise REVERSAL at the P0-02 owner boundary with the same stable identity where applicable.",
+      "expected": [
+        "P0-02/Inventory Operations + Inventory Valuation: Correction is additive and preserves the original/correction chain.",
+        "No derived projection or transport outcome may replace owner finality."
+      ],
+      "gate_ids": [
+        "GATE-P0"
+      ],
+      "required_evidence_level": "REPO_EXECUTED",
+      "status": "BLOCKED_BY_REPO_ADAPTER",
+      "blocker": "Actual VET45 repository adapter is not present in this package",
+      "evidence_level": "GENERATED"
+    },
+    {
+      "id": "TST-P002-STALE_VERSION",
+      "title": "P0-02 — STALE_VERSION",
+      "source_refs": [
+        "T7-DR-041",
+        "P0-02"
+      ],
+      "contract_ids": [
+        "P0-02"
+      ],
+      "story": "",
+      "test_type": "P0_E2E",
+      "priority": "P0",
+      "fixture_ids": [
+        "FX-TST-P0-02-FENCE"
+      ],
+      "preconditions": [
+        "Owner chain: Inventory Operations + Inventory Valuation",
+        "Return quantity/value commit once at RETURN_PENDING; classification never double-posts value."
+      ],
+      "action": "Exercise STALE_VERSION at the P0-02 owner boundary with the same stable identity where applicable.",
+      "expected": [
+        "P0-02/Inventory Operations + Inventory Valuation: Stale input is rejected before mutation.",
+        "No derived projection or transport outcome may replace owner finality."
+      ],
+      "gate_ids": [
+        "GATE-P0"
+      ],
+      "required_evidence_level": "REPO_EXECUTED",
+      "status": "BLOCKED_BY_REPO_ADAPTER",
+      "blocker": "Actual VET45 repository adapter is not present in this package",
+      "evidence_level": "GENERATED"
+    },
+    {
+      "id": "TST-P002-UNKNOWN",
+      "title": "P0-02 — UNKNOWN",
+      "source_refs": [
+        "T7-DR-041",
+        "P0-02"
+      ],
+      "contract_ids": [
+        "P0-02"
+      ],
+      "story": "",
+      "test_type": "P0_E2E",
+      "priority": "P0",
+      "fixture_ids": [
+        "FX-TST-P0-02-FENCE"
+      ],
+      "preconditions": [
+        "Owner chain: Inventory Operations + Inventory Valuation",
+        "Return quantity/value commit once at RETURN_PENDING; classification never double-posts value."
+      ],
+      "action": "Exercise UNKNOWN at the P0-02 owner boundary with the same stable identity where applicable.",
+      "expected": [
+        "P0-02/Inventory Operations + Inventory Valuation: Result remains UNKNOWN and is queried/resumed with the same identity.",
+        "No derived projection or transport outcome may replace owner finality."
+      ],
+      "gate_ids": [
+        "GATE-P0"
+      ],
+      "required_evidence_level": "REPO_EXECUTED",
+      "status": "BLOCKED_BY_REPO_ADAPTER",
+      "blocker": "Actual VET45 repository adapter is not present in this package",
+      "evidence_level": "GENERATED"
+    },
+    {
+      "id": "TST-P003-CAUSAL_MISMATCH",
+      "title": "P0-03 — CAUSAL_MISMATCH",
+      "source_refs": [
+        "T7-DR-042",
+        "T7-DR-054",
+        "P0-03"
+      ],
+      "contract_ids": [
+        "P0-03"
+      ],
+      "story": "",
+      "test_type": "P0_E2E",
+      "priority": "P0",
+      "fixture_ids": [
+        "FX-TST-P0-03-FENCE"
+      ],
+      "preconditions": [
+        "Owner chain: Inventory Operations + Inventory Valuation",
+        "Confirmed handover is the inventory/value linearization point."
+      ],
+      "action": "Exercise CAUSAL_MISMATCH at the P0-03 owner boundary with the same stable identity where applicable.",
+      "expected": [
+        "P0-03/Inventory Operations + Inventory Valuation: Mismatched causal evidence cannot create finality.",
+        "No derived projection or transport outcome may replace owner finality."
+      ],
+      "gate_ids": [
+        "GATE-P0"
+      ],
+      "required_evidence_level": "REPO_EXECUTED",
+      "status": "BLOCKED_BY_REPO_ADAPTER",
+      "blocker": "Actual VET45 repository adapter is not present in this package",
+      "evidence_level": "GENERATED"
+    },
+    {
+      "id": "TST-P003-CONCURRENCY",
+      "title": "P0-03 — CONCURRENCY",
+      "source_refs": [
+        "T7-DR-042",
+        "T7-DR-054",
+        "P0-03"
+      ],
+      "contract_ids": [
+        "P0-03"
+      ],
+      "story": "",
+      "test_type": "P0_E2E",
+      "priority": "P0",
+      "fixture_ids": [
+        "FX-TST-P0-03-FENCE"
+      ],
+      "preconditions": [
+        "Owner chain: Inventory Operations + Inventory Valuation",
+        "Confirmed handover is the inventory/value linearization point."
+      ],
+      "action": "Exercise CONCURRENCY at the P0-03 owner boundary with the same stable identity where applicable.",
+      "expected": [
+        "P0-03/Inventory Operations + Inventory Valuation: Exactly one competing mutation wins; invariants remain true.",
+        "No derived projection or transport outcome may replace owner finality."
+      ],
+      "gate_ids": [
+        "GATE-P0"
+      ],
+      "required_evidence_level": "REPO_EXECUTED",
+      "status": "BLOCKED_BY_REPO_ADAPTER",
+      "blocker": "Actual VET45 repository adapter is not present in this package",
+      "evidence_level": "GENERATED"
+    },
+    {
+      "id": "TST-P003-DUPLICATE",
+      "title": "P0-03 — DUPLICATE",
+      "source_refs": [
+        "T7-DR-042",
+        "T7-DR-054",
+        "P0-03"
+      ],
+      "contract_ids": [
+        "P0-03"
+      ],
+      "story": "",
+      "test_type": "P0_E2E",
+      "priority": "P0",
+      "fixture_ids": [
+        "FX-TST-P0-03-FENCE"
+      ],
+      "preconditions": [
+        "Owner chain: Inventory Operations + Inventory Valuation",
+        "Confirmed handover is the inventory/value linearization point."
+      ],
+      "action": "Exercise DUPLICATE at the P0-03 owner boundary with the same stable identity where applicable.",
+      "expected": [
+        "P0-03/Inventory Operations + Inventory Valuation: Same identity/payload returns the prior result without a second effect.",
+        "No derived projection or transport outcome may replace owner finality."
+      ],
+      "gate_ids": [
+        "GATE-P0"
+      ],
+      "required_evidence_level": "REPO_EXECUTED",
+      "status": "BLOCKED_BY_REPO_ADAPTER",
+      "blocker": "Actual VET45 repository adapter is not present in this package",
+      "evidence_level": "GENERATED"
+    },
+    {
+      "id": "TST-P003-HAPPY",
+      "title": "P0-03 — HAPPY",
+      "source_refs": [
+        "T7-DR-042",
+        "T7-DR-054",
+        "P0-03"
+      ],
+      "contract_ids": [
+        "P0-03"
+      ],
+      "story": "",
+      "test_type": "P0_E2E",
+      "priority": "P0",
+      "fixture_ids": [
+        "FX-TST-P0-03-FENCE"
+      ],
+      "preconditions": [
+        "Owner chain: Inventory Operations + Inventory Valuation",
+        "Confirmed handover is the inventory/value linearization point."
+      ],
+      "action": "Exercise HAPPY at the P0-03 owner boundary with the same stable identity where applicable.",
+      "expected": [
+        "P0-03/Inventory Operations + Inventory Valuation: Owner effect commits once and finality is COMPLETED.",
+        "No derived projection or transport outcome may replace owner finality."
+      ],
+      "gate_ids": [
+        "GATE-P0"
+      ],
+      "required_evidence_level": "REPO_EXECUTED",
+      "status": "BLOCKED_BY_REPO_ADAPTER",
+      "blocker": "Actual VET45 repository adapter is not present in this package",
+      "evidence_level": "GENERATED"
+    },
+    {
+      "id": "TST-P003-IDEMPOTENCY_CONFLICT",
+      "title": "P0-03 — IDEMPOTENCY_CONFLICT",
+      "source_refs": [
+        "T7-DR-042",
+        "T7-DR-054",
+        "P0-03"
+      ],
+      "contract_ids": [
+        "P0-03"
+      ],
+      "story": "",
+      "test_type": "P0_E2E",
+      "priority": "P0",
+      "fixture_ids": [
+        "FX-TST-P0-03-FENCE"
+      ],
+      "preconditions": [
+        "Owner chain: Inventory Operations + Inventory Valuation",
+        "Confirmed handover is the inventory/value linearization point."
+      ],
+      "action": "Exercise IDEMPOTENCY_CONFLICT at the P0-03 owner boundary with the same stable identity where applicable.",
+      "expected": [
+        "P0-03/Inventory Operations + Inventory Valuation: Same identity with another fingerprint is rejected with owner effect NONE.",
+        "No derived projection or transport outcome may replace owner finality."
+      ],
+      "gate_ids": [
+        "GATE-P0"
+      ],
+      "required_evidence_level": "REPO_EXECUTED",
+      "status": "BLOCKED_BY_REPO_ADAPTER",
+      "blocker": "Actual VET45 repository adapter is not present in this package",
+      "evidence_level": "GENERATED"
+    },
+    {
+      "id": "TST-P003-REVERSAL",
+      "title": "P0-03 — REVERSAL",
+      "source_refs": [
+        "T7-DR-042",
+        "T7-DR-054",
+        "P0-03"
+      ],
+      "contract_ids": [
+        "P0-03"
+      ],
+      "story": "",
+      "test_type": "P0_E2E",
+      "priority": "P0",
+      "fixture_ids": [
+        "FX-TST-P0-03-FENCE"
+      ],
+      "preconditions": [
+        "Owner chain: Inventory Operations + Inventory Valuation",
+        "Confirmed handover is the inventory/value linearization point."
+      ],
+      "action": "Exercise REVERSAL at the P0-03 owner boundary with the same stable identity where applicable.",
+      "expected": [
+        "P0-03/Inventory Operations + Inventory Valuation: Correction is additive and preserves the original/correction chain.",
+        "No derived projection or transport outcome may replace owner finality."
+      ],
+      "gate_ids": [
+        "GATE-P0"
+      ],
+      "required_evidence_level": "REPO_EXECUTED",
+      "status": "BLOCKED_BY_REPO_ADAPTER",
+      "blocker": "Actual VET45 repository adapter is not present in this package",
+      "evidence_level": "GENERATED"
+    },
+    {
+      "id": "TST-P003-STALE_VERSION",
+      "title": "P0-03 — STALE_VERSION",
+      "source_refs": [
+        "T7-DR-042",
+        "T7-DR-054",
+        "P0-03"
+      ],
+      "contract_ids": [
+        "P0-03"
+      ],
+      "story": "",
+      "test_type": "P0_E2E",
+      "priority": "P0",
+      "fixture_ids": [
+        "FX-TST-P0-03-FENCE"
+      ],
+      "preconditions": [
+        "Owner chain: Inventory Operations + Inventory Valuation",
+        "Confirmed handover is the inventory/value linearization point."
+      ],
+      "action": "Exercise STALE_VERSION at the P0-03 owner boundary with the same stable identity where applicable.",
+      "expected": [
+        "P0-03/Inventory Operations + Inventory Valuation: Stale input is rejected before mutation.",
+        "No derived projection or transport outcome may replace owner finality."
+      ],
+      "gate_ids": [
+        "GATE-P0"
+      ],
+      "required_evidence_level": "REPO_EXECUTED",
+      "status": "BLOCKED_BY_REPO_ADAPTER",
+      "blocker": "Actual VET45 repository adapter is not present in this package",
+      "evidence_level": "GENERATED"
+    },
+    {
+      "id": "TST-P003-UNKNOWN",
+      "title": "P0-03 — UNKNOWN",
+      "source_refs": [
+        "T7-DR-042",
+        "T7-DR-054",
+        "P0-03"
+      ],
+      "contract_ids": [
+        "P0-03"
+      ],
+      "story": "",
+      "test_type": "P0_E2E",
+      "priority": "P0",
+      "fixture_ids": [
+        "FX-TST-P0-03-FENCE"
+      ],
+      "preconditions": [
+        "Owner chain: Inventory Operations + Inventory Valuation",
+        "Confirmed handover is the inventory/value linearization point."
+      ],
+      "action": "Exercise UNKNOWN at the P0-03 owner boundary with the same stable identity where applicable.",
+      "expected": [
+        "P0-03/Inventory Operations + Inventory Valuation: Result remains UNKNOWN and is queried/resumed with the same identity.",
+        "No derived projection or transport outcome may replace owner finality."
+      ],
+      "gate_ids": [
+        "GATE-P0"
+      ],
+      "required_evidence_level": "REPO_EXECUTED",
+      "status": "BLOCKED_BY_REPO_ADAPTER",
+      "blocker": "Actual VET45 repository adapter is not present in this package",
+      "evidence_level": "GENERATED"
+    },
+    {
+      "id": "TST-P004-CAUSAL_MISMATCH",
+      "title": "P0-04 — CAUSAL_MISMATCH",
+      "source_refs": [
+        "T7-DR-067",
+        "T7-DR-068",
+        "T7-DR-069",
+        "P0-04"
+      ],
+      "contract_ids": [
+        "P0-04"
+      ],
+      "story": "",
+      "test_type": "P0_E2E",
+      "priority": "P0",
+      "fixture_ids": [
+        "FX-TST-P0-04-FENCE"
+      ],
+      "preconditions": [
+        "Owner chain: Inventory Control + Inventory Valuation",
+        "Approved control totals commit atomically before activation."
+      ],
+      "action": "Exercise CAUSAL_MISMATCH at the P0-04 owner boundary with the same stable identity where applicable.",
+      "expected": [
+        "P0-04/Inventory Control + Inventory Valuation: Mismatched causal evidence cannot create finality.",
+        "No derived projection or transport outcome may replace owner finality."
+      ],
+      "gate_ids": [
+        "GATE-P0"
+      ],
+      "required_evidence_level": "REPO_EXECUTED",
+      "status": "BLOCKED_BY_REPO_ADAPTER",
+      "blocker": "Actual VET45 repository adapter is not present in this package",
+      "evidence_level": "GENERATED"
+    },
+    {
+      "id": "TST-P004-CONCURRENCY",
+      "title": "P0-04 — CONCURRENCY",
+      "source_refs": [
+        "T7-DR-067",
+        "T7-DR-068",
+        "T7-DR-069",
+        "P0-04"
+      ],
+      "contract_ids": [
+        "P0-04"
+      ],
+      "story": "",
+      "test_type": "P0_E2E",
+      "priority": "P0",
+      "fixture_ids": [
+        "FX-TST-P0-04-FENCE"
+      ],
+      "preconditions": [
+        "Owner chain: Inventory Control + Inventory Valuation",
+        "Approved control totals commit atomically before activation."
+      ],
+      "action": "Exercise CONCURRENCY at the P0-04 owner boundary with the same stable identity where applicable.",
+      "expected": [
+        "P0-04/Inventory Control + Inventory Valuation: Exactly one competing mutation wins; invariants remain true.",
+        "No derived projection or transport outcome may replace owner finality."
+      ],
+      "gate_ids": [
+        "GATE-P0"
+      ],
+      "required_evidence_level": "REPO_EXECUTED",
+      "status": "BLOCKED_BY_REPO_ADAPTER",
+      "blocker": "Actual VET45 repository adapter is not present in this package",
+      "evidence_level": "GENERATED"
+    },
+    {
+      "id": "TST-P004-DUPLICATE",
+      "title": "P0-04 — DUPLICATE",
+      "source_refs": [
+        "T7-DR-067",
+        "T7-DR-068",
+        "T7-DR-069",
+        "P0-04"
+      ],
+      "contract_ids": [
+        "P0-04"
+      ],
+      "story": "",
+      "test_type": "P0_E2E",
+      "priority": "P0",
+      "fixture_ids": [
+        "FX-TST-P0-04-FENCE"
+      ],
+      "preconditions": [
+        "Owner chain: Inventory Control + Inventory Valuation",
+        "Approved control totals commit atomically before activation."
+      ],
+      "action": "Exercise DUPLICATE at the P0-04 owner boundary with the same stable identity where applicable.",
+      "expected": [
+        "P0-04/Inventory Control + Inventory Valuation: Same identity/payload returns the prior result without a second effect.",
+        "No derived projection or transport outcome may replace owner finality."
+      ],
+      "gate_ids": [
+        "GATE-P0"
+      ],
+      "required_evidence_level": "REPO_EXECUTED",
+      "status": "BLOCKED_BY_REPO_ADAPTER",
+      "blocker": "Actual VET45 repository adapter is not present in this package",
+      "evidence_level": "GENERATED"
+    },
+    {
+      "id": "TST-P004-HAPPY",
+      "title": "P0-04 — HAPPY",
+      "source_refs": [
+        "T7-DR-067",
+        "T7-DR-068",
+        "T7-DR-069",
+        "P0-04"
+      ],
+      "contract_ids": [
+        "P0-04"
+      ],
+      "story": "",
+      "test_type": "P0_E2E",
+      "priority": "P0",
+      "fixture_ids": [
+        "FX-TST-P0-04-FENCE"
+      ],
+      "preconditions": [
+        "Owner chain: Inventory Control + Inventory Valuation",
+        "Approved control totals commit atomically before activation."
+      ],
+      "action": "Exercise HAPPY at the P0-04 owner boundary with the same stable identity where applicable.",
+      "expected": [
+        "P0-04/Inventory Control + Inventory Valuation: Owner effect commits once and finality is COMPLETED.",
+        "No derived projection or transport outcome may replace owner finality."
+      ],
+      "gate_ids": [
+        "GATE-P0"
+      ],
+      "required_evidence_level": "REPO_EXECUTED",
+      "status": "BLOCKED_BY_REPO_ADAPTER",
+      "blocker": "Actual VET45 repository adapter is not present in this package",
+      "evidence_level": "GENERATED"
+    },
+    {
+      "id": "TST-P004-IDEMPOTENCY_CONFLICT",
+      "title": "P0-04 — IDEMPOTENCY_CONFLICT",
+      "source_refs": [
+        "T7-DR-067",
+        "T7-DR-068",
+        "T7-DR-069",
+        "P0-04"
+      ],
+      "contract_ids": [
+        "P0-04"
+      ],
+      "story": "",
+      "test_type": "P0_E2E",
+      "priority": "P0",
+      "fixture_ids": [
+        "FX-TST-P0-04-FENCE"
+      ],
+      "preconditions": [
+        "Owner chain: Inventory Control + Inventory Valuation",
+        "Approved control totals commit atomically before activation."
+      ],
+      "action": "Exercise IDEMPOTENCY_CONFLICT at the P0-04 owner boundary with the same stable identity where applicable.",
+      "expected": [
+        "P0-04/Inventory Control + Inventory Valuation: Same identity with another fingerprint is rejected with owner effect NONE.",
+        "No derived projection or transport outcome may replace owner finality."
+      ],
+      "gate_ids": [
+        "GATE-P0"
+      ],
+      "required_evidence_level": "REPO_EXECUTED",
+      "status": "BLOCKED_BY_REPO_ADAPTER",
+      "blocker": "Actual VET45 repository adapter is not present in this package",
+      "evidence_level": "GENERATED"
+    },
+    {
+      "id": "TST-P004-REVERSAL",
+      "title": "P0-04 — REVERSAL",
+      "source_refs": [
+        "T7-DR-067",
+        "T7-DR-068",
+        "T7-DR-069",
+        "P0-04"
+      ],
+      "contract_ids": [
+        "P0-04"
+      ],
+      "story": "",
+      "test_type": "P0_E2E",
+      "priority": "P0",
+      "fixture_ids": [
+        "FX-TST-P0-04-FENCE"
+      ],
+      "preconditions": [
+        "Owner chain: Inventory Control + Inventory Valuation",
+        "Approved control totals commit atomically before activation."
+      ],
+      "action": "Exercise REVERSAL at the P0-04 owner boundary with the same stable identity where applicable.",
+      "expected": [
+        "P0-04/Inventory Control + Inventory Valuation: Correction is additive and preserves the original/correction chain.",
+        "No derived projection or transport outcome may replace owner finality."
+      ],
+      "gate_ids": [
+        "GATE-P0"
+      ],
+      "required_evidence_level": "REPO_EXECUTED",
+      "status": "BLOCKED_BY_REPO_ADAPTER",
+      "blocker": "Actual VET45 repository adapter is not present in this package",
+      "evidence_level": "GENERATED"
+    },
+    {
+      "id": "TST-P004-STALE_VERSION",
+      "title": "P0-04 — STALE_VERSION",
+      "source_refs": [
+        "T7-DR-067",
+        "T7-DR-068",
+        "T7-DR-069",
+        "P0-04"
+      ],
+      "contract_ids": [
+        "P0-04"
+      ],
+      "story": "",
+      "test_type": "P0_E2E",
+      "priority": "P0",
+      "fixture_ids": [
+        "FX-TST-P0-04-FENCE"
+      ],
+      "preconditions": [
+        "Owner chain: Inventory Control + Inventory Valuation",
+        "Approved control totals commit atomically before activation."
+      ],
+      "action": "Exercise STALE_VERSION at the P0-04 owner boundary with the same stable identity where applicable.",
+      "expected": [
+        "P0-04/Inventory Control + Inventory Valuation: Stale input is rejected before mutation.",
+        "No derived projection or transport outcome may replace owner finality."
+      ],
+      "gate_ids": [
+        "GATE-P0"
+      ],
+      "required_evidence_level": "REPO_EXECUTED",
+      "status": "BLOCKED_BY_REPO_ADAPTER",
+      "blocker": "Actual VET45 repository adapter is not present in this package",
+      "evidence_level": "GENERATED"
+    },
+    {
+      "id": "TST-P004-UNKNOWN",
+      "title": "P0-04 — UNKNOWN",
+      "source_refs": [
+        "T7-DR-067",
+        "T7-DR-068",
+        "T7-DR-069",
+        "P0-04"
+      ],
+      "contract_ids": [
+        "P0-04"
+      ],
+      "story": "",
+      "test_type": "P0_E2E",
+      "priority": "P0",
+      "fixture_ids": [
+        "FX-TST-P0-04-FENCE"
+      ],
+      "preconditions": [
+        "Owner chain: Inventory Control + Inventory Valuation",
+        "Approved control totals commit atomically before activation."
+      ],
+      "action": "Exercise UNKNOWN at the P0-04 owner boundary with the same stable identity where applicable.",
+      "expected": [
+        "P0-04/Inventory Control + Inventory Valuation: Result remains UNKNOWN and is queried/resumed with the same identity.",
+        "No derived projection or transport outcome may replace owner finality."
+      ],
+      "gate_ids": [
+        "GATE-P0"
+      ],
+      "required_evidence_level": "REPO_EXECUTED",
+      "status": "BLOCKED_BY_REPO_ADAPTER",
+      "blocker": "Actual VET45 repository adapter is not present in this package",
+      "evidence_level": "GENERATED"
+    },
+    {
+      "id": "TST-P005-CAUSAL_MISMATCH",
+      "title": "P0-05 — CAUSAL_MISMATCH",
+      "source_refs": [
+        "T7-DR-064",
+        "T7-DR-065",
+        "T7-DR-066",
+        "T7-DR-071",
+        "P0-05"
+      ],
+      "contract_ids": [
+        "P0-05"
+      ],
+      "story": "",
+      "test_type": "P0_E2E",
+      "priority": "P0",
+      "fixture_ids": [
+        "FX-TST-P0-05-FENCE"
+      ],
+      "preconditions": [
+        "Owner chain: Inventory Operations + Inventory Valuation",
+        "Correction is additive; UNKNOWN/dependencies fence reversal."
+      ],
+      "action": "Exercise CAUSAL_MISMATCH at the P0-05 owner boundary with the same stable identity where applicable.",
+      "expected": [
+        "P0-05/Inventory Operations + Inventory Valuation: Mismatched causal evidence cannot create finality.",
+        "No derived projection or transport outcome may replace owner finality."
+      ],
+      "gate_ids": [
+        "GATE-P0"
+      ],
+      "required_evidence_level": "REPO_EXECUTED",
+      "status": "BLOCKED_BY_REPO_ADAPTER",
+      "blocker": "Actual VET45 repository adapter is not present in this package",
+      "evidence_level": "GENERATED"
+    },
+    {
+      "id": "TST-P005-CONCURRENCY",
+      "title": "P0-05 — CONCURRENCY",
+      "source_refs": [
+        "T7-DR-064",
+        "T7-DR-065",
+        "T7-DR-066",
+        "T7-DR-071",
+        "P0-05"
+      ],
+      "contract_ids": [
+        "P0-05"
+      ],
+      "story": "",
+      "test_type": "P0_E2E",
+      "priority": "P0",
+      "fixture_ids": [
+        "FX-TST-P0-05-FENCE"
+      ],
+      "preconditions": [
+        "Owner chain: Inventory Operations + Inventory Valuation",
+        "Correction is additive; UNKNOWN/dependencies fence reversal."
+      ],
+      "action": "Exercise CONCURRENCY at the P0-05 owner boundary with the same stable identity where applicable.",
+      "expected": [
+        "P0-05/Inventory Operations + Inventory Valuation: Exactly one competing mutation wins; invariants remain true.",
+        "No derived projection or transport outcome may replace owner finality."
+      ],
+      "gate_ids": [
+        "GATE-P0"
+      ],
+      "required_evidence_level": "REPO_EXECUTED",
+      "status": "BLOCKED_BY_REPO_ADAPTER",
+      "blocker": "Actual VET45 repository adapter is not present in this package",
+      "evidence_level": "GENERATED"
+    },
+    {
+      "id": "TST-P005-DUPLICATE",
+      "title": "P0-05 — DUPLICATE",
+      "source_refs": [
+        "T7-DR-064",
+        "T7-DR-065",
+        "T7-DR-066",
+        "T7-DR-071",
+        "P0-05"
+      ],
+      "contract_ids": [
+        "P0-05"
+      ],
+      "story": "",
+      "test_type": "P0_E2E",
+      "priority": "P0",
+      "fixture_ids": [
+        "FX-TST-P0-05-FENCE"
+      ],
+      "preconditions": [
+        "Owner chain: Inventory Operations + Inventory Valuation",
+        "Correction is additive; UNKNOWN/dependencies fence reversal."
+      ],
+      "action": "Exercise DUPLICATE at the P0-05 owner boundary with the same stable identity where applicable.",
+      "expected": [
+        "P0-05/Inventory Operations + Inventory Valuation: Same identity/payload returns the prior result without a second effect.",
+        "No derived projection or transport outcome may replace owner finality."
+      ],
+      "gate_ids": [
+        "GATE-P0"
+      ],
+      "required_evidence_level": "REPO_EXECUTED",
+      "status": "BLOCKED_BY_REPO_ADAPTER",
+      "blocker": "Actual VET45 repository adapter is not present in this package",
+      "evidence_level": "GENERATED"
+    },
+    {
+      "id": "TST-P005-HAPPY",
+      "title": "P0-05 — HAPPY",
+      "source_refs": [
+        "T7-DR-064",
+        "T7-DR-065",
+        "T7-DR-066",
+        "T7-DR-071",
+        "P0-05"
+      ],
+      "contract_ids": [
+        "P0-05"
+      ],
+      "story": "",
+      "test_type": "P0_E2E",
+      "priority": "P0",
+      "fixture_ids": [
+        "FX-TST-P0-05-FENCE"
+      ],
+      "preconditions": [
+        "Owner chain: Inventory Operations + Inventory Valuation",
+        "Correction is additive; UNKNOWN/dependencies fence reversal."
+      ],
+      "action": "Exercise HAPPY at the P0-05 owner boundary with the same stable identity where applicable.",
+      "expected": [
+        "P0-05/Inventory Operations + Inventory Valuation: Owner effect commits once and finality is COMPLETED.",
+        "No derived projection or transport outcome may replace owner finality."
+      ],
+      "gate_ids": [
+        "GATE-P0"
+      ],
+      "required_evidence_level": "REPO_EXECUTED",
+      "status": "BLOCKED_BY_REPO_ADAPTER",
+      "blocker": "Actual VET45 repository adapter is not present in this package",
+      "evidence_level": "GENERATED"
+    },
+    {
+      "id": "TST-P005-IDEMPOTENCY_CONFLICT",
+      "title": "P0-05 — IDEMPOTENCY_CONFLICT",
+      "source_refs": [
+        "T7-DR-064",
+        "T7-DR-065",
+        "T7-DR-066",
+        "T7-DR-071",
+        "P0-05"
+      ],
+      "contract_ids": [
+        "P0-05"
+      ],
+      "story": "",
+      "test_type": "P0_E2E",
+      "priority": "P0",
+      "fixture_ids": [
+        "FX-TST-P0-05-FENCE"
+      ],
+      "preconditions": [
+        "Owner chain: Inventory Operations + Inventory Valuation",
+        "Correction is additive; UNKNOWN/dependencies fence reversal."
+      ],
+      "action": "Exercise IDEMPOTENCY_CONFLICT at the P0-05 owner boundary with the same stable identity where applicable.",
+      "expected": [
+        "P0-05/Inventory Operations + Inventory Valuation: Same identity with another fingerprint is rejected with owner effect NONE.",
+        "No derived projection or transport outcome may replace owner finality."
+      ],
+      "gate_ids": [
+        "GATE-P0"
+      ],
+      "required_evidence_level": "REPO_EXECUTED",
+      "status": "BLOCKED_BY_REPO_ADAPTER",
+      "blocker": "Actual VET45 repository adapter is not present in this package",
+      "evidence_level": "GENERATED"
+    },
+    {
+      "id": "TST-P005-REVERSAL",
+      "title": "P0-05 — REVERSAL",
+      "source_refs": [
+        "T7-DR-064",
+        "T7-DR-065",
+        "T7-DR-066",
+        "T7-DR-071",
+        "P0-05"
+      ],
+      "contract_ids": [
+        "P0-05"
+      ],
+      "story": "",
+      "test_type": "P0_E2E",
+      "priority": "P0",
+      "fixture_ids": [
+        "FX-TST-P0-05-FENCE"
+      ],
+      "preconditions": [
+        "Owner chain: Inventory Operations + Inventory Valuation",
+        "Correction is additive; UNKNOWN/dependencies fence reversal."
+      ],
+      "action": "Exercise REVERSAL at the P0-05 owner boundary with the same stable identity where applicable.",
+      "expected": [
+        "P0-05/Inventory Operations + Inventory Valuation: Correction is additive and preserves the original/correction chain.",
+        "No derived projection or transport outcome may replace owner finality."
+      ],
+      "gate_ids": [
+        "GATE-P0"
+      ],
+      "required_evidence_level": "REPO_EXECUTED",
+      "status": "BLOCKED_BY_REPO_ADAPTER",
+      "blocker": "Actual VET45 repository adapter is not present in this package",
+      "evidence_level": "GENERATED"
+    },
+    {
+      "id": "TST-P005-STALE_VERSION",
+      "title": "P0-05 — STALE_VERSION",
+      "source_refs": [
+        "T7-DR-064",
+        "T7-DR-065",
+        "T7-DR-066",
+        "T7-DR-071",
+        "P0-05"
+      ],
+      "contract_ids": [
+        "P0-05"
+      ],
+      "story": "",
+      "test_type": "P0_E2E",
+      "priority": "P0",
+      "fixture_ids": [
+        "FX-TST-P0-05-FENCE"
+      ],
+      "preconditions": [
+        "Owner chain: Inventory Operations + Inventory Valuation",
+        "Correction is additive; UNKNOWN/dependencies fence reversal."
+      ],
+      "action": "Exercise STALE_VERSION at the P0-05 owner boundary with the same stable identity where applicable.",
+      "expected": [
+        "P0-05/Inventory Operations + Inventory Valuation: Stale input is rejected before mutation.",
+        "No derived projection or transport outcome may replace owner finality."
+      ],
+      "gate_ids": [
+        "GATE-P0"
+      ],
+      "required_evidence_level": "REPO_EXECUTED",
+      "status": "BLOCKED_BY_REPO_ADAPTER",
+      "blocker": "Actual VET45 repository adapter is not present in this package",
+      "evidence_level": "GENERATED"
+    },
+    {
+      "id": "TST-P005-UNKNOWN",
+      "title": "P0-05 — UNKNOWN",
+      "source_refs": [
+        "T7-DR-064",
+        "T7-DR-065",
+        "T7-DR-066",
+        "T7-DR-071",
+        "P0-05"
+      ],
+      "contract_ids": [
+        "P0-05"
+      ],
+      "story": "",
+      "test_type": "P0_E2E",
+      "priority": "P0",
+      "fixture_ids": [
+        "FX-TST-P0-05-FENCE"
+      ],
+      "preconditions": [
+        "Owner chain: Inventory Operations + Inventory Valuation",
+        "Correction is additive; UNKNOWN/dependencies fence reversal."
+      ],
+      "action": "Exercise UNKNOWN at the P0-05 owner boundary with the same stable identity where applicable.",
+      "expected": [
+        "P0-05/Inventory Operations + Inventory Valuation: Result remains UNKNOWN and is queried/resumed with the same identity.",
+        "No derived projection or transport outcome may replace owner finality."
+      ],
+      "gate_ids": [
+        "GATE-P0"
+      ],
+      "required_evidence_level": "REPO_EXECUTED",
+      "status": "BLOCKED_BY_REPO_ADAPTER",
+      "blocker": "Actual VET45 repository adapter is not present in this package",
+      "evidence_level": "GENERATED"
+    },
+    {
+      "id": "TST-P006-CAUSAL_MISMATCH",
+      "title": "P0-06 — CAUSAL_MISMATCH",
+      "source_refs": [
+        "T7-DR-071",
+        "T7-DR-090",
+        "P0-06"
+      ],
+      "contract_ids": [
+        "P0-06"
+      ],
+      "story": "",
+      "test_type": "P0_E2E",
+      "priority": "P0",
+      "fixture_ids": [
+        "FX-TST-P0-06-FENCE"
+      ],
+      "preconditions": [
+        "Owner chain: Inventory Control",
+        "Only authoritative evidence resolves UNKNOWN; identity is preserved."
+      ],
+      "action": "Exercise CAUSAL_MISMATCH at the P0-06 owner boundary with the same stable identity where applicable.",
+      "expected": [
+        "P0-06/Inventory Control: Mismatched causal evidence cannot create finality.",
+        "No derived projection or transport outcome may replace owner finality."
+      ],
+      "gate_ids": [
+        "GATE-P0"
+      ],
+      "required_evidence_level": "REPO_EXECUTED",
+      "status": "BLOCKED_BY_REPO_ADAPTER",
+      "blocker": "Actual VET45 repository adapter is not present in this package",
+      "evidence_level": "GENERATED"
+    },
+    {
+      "id": "TST-P006-CONCURRENCY",
+      "title": "P0-06 — CONCURRENCY",
+      "source_refs": [
+        "T7-DR-071",
+        "T7-DR-090",
+        "P0-06"
+      ],
+      "contract_ids": [
+        "P0-06"
+      ],
+      "story": "",
+      "test_type": "P0_E2E",
+      "priority": "P0",
+      "fixture_ids": [
+        "FX-TST-P0-06-FENCE"
+      ],
+      "preconditions": [
+        "Owner chain: Inventory Control",
+        "Only authoritative evidence resolves UNKNOWN; identity is preserved."
+      ],
+      "action": "Exercise CONCURRENCY at the P0-06 owner boundary with the same stable identity where applicable.",
+      "expected": [
+        "P0-06/Inventory Control: Exactly one competing mutation wins; invariants remain true.",
+        "No derived projection or transport outcome may replace owner finality."
+      ],
+      "gate_ids": [
+        "GATE-P0"
+      ],
+      "required_evidence_level": "REPO_EXECUTED",
+      "status": "BLOCKED_BY_REPO_ADAPTER",
+      "blocker": "Actual VET45 repository adapter is not present in this package",
+      "evidence_level": "GENERATED"
+    },
+    {
+      "id": "TST-P006-DUPLICATE",
+      "title": "P0-06 — DUPLICATE",
+      "source_refs": [
+        "T7-DR-071",
+        "T7-DR-090",
+        "P0-06"
+      ],
+      "contract_ids": [
+        "P0-06"
+      ],
+      "story": "",
+      "test_type": "P0_E2E",
+      "priority": "P0",
+      "fixture_ids": [
+        "FX-TST-P0-06-FENCE"
+      ],
+      "preconditions": [
+        "Owner chain: Inventory Control",
+        "Only authoritative evidence resolves UNKNOWN; identity is preserved."
+      ],
+      "action": "Exercise DUPLICATE at the P0-06 owner boundary with the same stable identity where applicable.",
+      "expected": [
+        "P0-06/Inventory Control: Same identity/payload returns the prior result without a second effect.",
+        "No derived projection or transport outcome may replace owner finality."
+      ],
+      "gate_ids": [
+        "GATE-P0"
+      ],
+      "required_evidence_level": "REPO_EXECUTED",
+      "status": "BLOCKED_BY_REPO_ADAPTER",
+      "blocker": "Actual VET45 repository adapter is not present in this package",
+      "evidence_level": "GENERATED"
+    },
+    {
+      "id": "TST-P006-HAPPY",
+      "title": "P0-06 — HAPPY",
+      "source_refs": [
+        "T7-DR-071",
+        "T7-DR-090",
+        "P0-06"
+      ],
+      "contract_ids": [
+        "P0-06"
+      ],
+      "story": "",
+      "test_type": "P0_E2E",
+      "priority": "P0",
+      "fixture_ids": [
+        "FX-TST-P0-06-FENCE"
+      ],
+      "preconditions": [
+        "Owner chain: Inventory Control",
+        "Only authoritative evidence resolves UNKNOWN; identity is preserved."
+      ],
+      "action": "Exercise HAPPY at the P0-06 owner boundary with the same stable identity where applicable.",
+      "expected": [
+        "P0-06/Inventory Control: Owner effect commits once and finality is COMPLETED.",
+        "No derived projection or transport outcome may replace owner finality."
+      ],
+      "gate_ids": [
+        "GATE-P0"
+      ],
+      "required_evidence_level": "REPO_EXECUTED",
+      "status": "BLOCKED_BY_REPO_ADAPTER",
+      "blocker": "Actual VET45 repository adapter is not present in this package",
+      "evidence_level": "GENERATED"
+    },
+    {
+      "id": "TST-P006-IDEMPOTENCY_CONFLICT",
+      "title": "P0-06 — IDEMPOTENCY_CONFLICT",
+      "source_refs": [
+        "T7-DR-071",
+        "T7-DR-090",
+        "P0-06"
+      ],
+      "contract_ids": [
+        "P0-06"
+      ],
+      "story": "",
+      "test_type": "P0_E2E",
+      "priority": "P0",
+      "fixture_ids": [
+        "FX-TST-P0-06-FENCE"
+      ],
+      "preconditions": [
+        "Owner chain: Inventory Control",
+        "Only authoritative evidence resolves UNKNOWN; identity is preserved."
+      ],
+      "action": "Exercise IDEMPOTENCY_CONFLICT at the P0-06 owner boundary with the same stable identity where applicable.",
+      "expected": [
+        "P0-06/Inventory Control: Same identity with another fingerprint is rejected with owner effect NONE.",
+        "No derived projection or transport outcome may replace owner finality."
+      ],
+      "gate_ids": [
+        "GATE-P0"
+      ],
+      "required_evidence_level": "REPO_EXECUTED",
+      "status": "BLOCKED_BY_REPO_ADAPTER",
+      "blocker": "Actual VET45 repository adapter is not present in this package",
+      "evidence_level": "GENERATED"
+    },
+    {
+      "id": "TST-P006-REVERSAL",
+      "title": "P0-06 — REVERSAL",
+      "source_refs": [
+        "T7-DR-071",
+        "T7-DR-090",
+        "P0-06"
+      ],
+      "contract_ids": [
+        "P0-06"
+      ],
+      "story": "",
+      "test_type": "P0_E2E",
+      "priority": "P0",
+      "fixture_ids": [
+        "FX-TST-P0-06-FENCE"
+      ],
+      "preconditions": [
+        "Owner chain: Inventory Control",
+        "Only authoritative evidence resolves UNKNOWN; identity is preserved."
+      ],
+      "action": "Exercise REVERSAL at the P0-06 owner boundary with the same stable identity where applicable.",
+      "expected": [
+        "P0-06/Inventory Control: Correction is additive and preserves the original/correction chain.",
+        "No derived projection or transport outcome may replace owner finality."
+      ],
+      "gate_ids": [
+        "GATE-P0"
+      ],
+      "required_evidence_level": "REPO_EXECUTED",
+      "status": "BLOCKED_BY_REPO_ADAPTER",
+      "blocker": "Actual VET45 repository adapter is not present in this package",
+      "evidence_level": "GENERATED"
+    },
+    {
+      "id": "TST-P006-STALE_VERSION",
+      "title": "P0-06 — STALE_VERSION",
+      "source_refs": [
+        "T7-DR-071",
+        "T7-DR-090",
+        "P0-06"
+      ],
+      "contract_ids": [
+        "P0-06"
+      ],
+      "story": "",
+      "test_type": "P0_E2E",
+      "priority": "P0",
+      "fixture_ids": [
+        "FX-TST-P0-06-FENCE"
+      ],
+      "preconditions": [
+        "Owner chain: Inventory Control",
+        "Only authoritative evidence resolves UNKNOWN; identity is preserved."
+      ],
+      "action": "Exercise STALE_VERSION at the P0-06 owner boundary with the same stable identity where applicable.",
+      "expected": [
+        "P0-06/Inventory Control: Stale input is rejected before mutation.",
+        "No derived projection or transport outcome may replace owner finality."
+      ],
+      "gate_ids": [
+        "GATE-P0"
+      ],
+      "required_evidence_level": "REPO_EXECUTED",
+      "status": "BLOCKED_BY_REPO_ADAPTER",
+      "blocker": "Actual VET45 repository adapter is not present in this package",
+      "evidence_level": "GENERATED"
+    },
+    {
+      "id": "TST-P006-UNKNOWN",
+      "title": "P0-06 — UNKNOWN",
+      "source_refs": [
+        "T7-DR-071",
+        "T7-DR-090",
+        "P0-06"
+      ],
+      "contract_ids": [
+        "P0-06"
+      ],
+      "story": "",
+      "test_type": "P0_E2E",
+      "priority": "P0",
+      "fixture_ids": [
+        "FX-TST-P0-06-FENCE"
+      ],
+      "preconditions": [
+        "Owner chain: Inventory Control",
+        "Only authoritative evidence resolves UNKNOWN; identity is preserved."
+      ],
+      "action": "Exercise UNKNOWN at the P0-06 owner boundary with the same stable identity where applicable.",
+      "expected": [
+        "P0-06/Inventory Control: Result remains UNKNOWN and is queried/resumed with the same identity.",
+        "No derived projection or transport outcome may replace owner finality."
+      ],
+      "gate_ids": [
+        "GATE-P0"
+      ],
+      "required_evidence_level": "REPO_EXECUTED",
+      "status": "BLOCKED_BY_REPO_ADAPTER",
+      "blocker": "Actual VET45 repository adapter is not present in this package",
+      "evidence_level": "GENERATED"
+    }
+  ]
+}

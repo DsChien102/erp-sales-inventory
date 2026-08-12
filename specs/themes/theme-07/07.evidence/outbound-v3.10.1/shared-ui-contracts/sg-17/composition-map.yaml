@@ -1,0 +1,119 @@
+schema_version: "1.1"
+map_id: "SG-17-UI-COMPOSITION"
+status: "STATIC_VALIDATED_DERIVED"
+screen_group: "SG-17"
+name: "Rà soát căn cứ định giá và lợi nhuận"
+journeys:
+  - "T2-BJ-PRICING-REVIEW"
+  - "RPT-BJ-PROFIT-VIEWS"
+principles:
+  - "Mỗi Screen có base tree; state chỉ ghi delta."
+  - "CTA mutation luôn có Action ID, BC chính và API chính."
+  - "Controller/trace của prototype không thuộc sản phẩm."
+  - "Mobile-first 390 px; tên Screen hiển thị trước khi chọn."
+shared_shell:
+  component_id: "layout.page-scaffold"
+  component: "VPageScaffold"
+  children:
+    - {role: "GlobalAppBar", component_id: "navigation.app-bar", component: "VAppBar"}
+    - {role: "ScreenContent", component_id: "layout.section", component: "VSection"}
+    - {role: "Feedback", component_id: "status.result-panel", component: "VResultPanel"}
+screens:
+  SCR-17-01:
+    name: "Đợt rà soát định giá"
+    route: "#/sg-17/scr-01"
+    archetype: "list"
+    base_tree:
+      - {role: "search", component_id: "input.search", component: "input.search"}
+      - {role: "select", component_id: "input.select", component: "input.select"}
+      - {role: "list", component_id: "data.list", component: "data.list"}
+    state_deltas:
+      READY: {message_key: "ui.sg-17.scr-17-01.ready", preserve_input: false}
+      LOADING: {message_key: "ui.sg-17.scr-17-01.loading", preserve_input: false}
+      EMPTY: {message_key: "ui.sg-17.scr-17-01.empty", preserve_input: false}
+      FILTER_EMPTY: {message_key: "ui.sg-17.scr-17-01.filter_empty", preserve_input: false}
+      PERMISSION_DENIED: {message_key: "ui.sg-17.scr-17-01.permission_denied", preserve_input: false}
+  SCR-17-02:
+    name: "Nhóm theo nguồn hiện tại"
+    route: "#/sg-17/scr-02"
+    archetype: "dashboard"
+    base_tree:
+      - {role: "metric-grid", component_id: "data.metric-grid", component: "data.metric-grid"}
+      - {role: "list", component_id: "data.list", component: "data.list"}
+    state_deltas:
+      READY: {message_key: "ui.sg-17.scr-17-02.ready", preserve_input: false}
+      LOADING: {message_key: "ui.sg-17.scr-17-02.loading", preserve_input: false}
+      EMPTY: {message_key: "ui.sg-17.scr-17-02.empty", preserve_input: false}
+      STALE: {message_key: "ui.sg-17.scr-17-02.stale", preserve_input: false}
+      PERMISSION_DENIED: {message_key: "ui.sg-17.scr-17-02.permission_denied", preserve_input: false}
+      BULK_ELIGIBLE_OFFICIAL: {message_key: "ui.sg-17.scr-17-02.bulk_eligible_official", preserve_input: false}
+      INDIVIDUAL_DECISION_REQUIRED: {message_key: "ui.sg-17.scr-17-02.individual_decision_required", preserve_input: false}
+  SCR-17-03:
+    name: "Quyết định theo sản phẩm"
+    route: "#/sg-17/scr-03"
+    archetype: "form"
+    base_tree:
+      - {role: "section", component_id: "layout.section", component: "layout.section"}
+      - {role: "field-group", component_id: "input.field-group", component: "input.field-group"}
+      - {role: "validation-summary", component_id: "status.validation-summary", component: "status.validation-summary"}
+      - {role: "PrimaryAction", component_id: "action.button", component: "VButton", action_id: "ACT-17-APPLY-REVIEW", bc_id: "BC-XD-03", api_id: "API-X-03"}
+    state_deltas:
+      READY: {message_key: "ui.sg-17.scr-17-03.ready", preserve_input: false}
+      VALIDATION_ERROR: {message_key: "ui.sg-17.scr-17-03.validation_error", preserve_input: true}
+      CONFLICT: {message_key: "ui.sg-17.scr-17-03.conflict", preserve_input: true}
+      LOCKED: {message_key: "ui.sg-17.scr-17-03.locked", preserve_input: false}
+      PERMISSION_DENIED: {message_key: "ui.sg-17.scr-17-03.permission_denied", preserve_input: false}
+      INDIVIDUAL_DECISION_REQUIRED: {message_key: "ui.sg-17.scr-17-03.individual_decision_required", preserve_input: false}
+  SCR-17-04:
+    name: "So sánh lợi nhuận"
+    route: "#/sg-17/scr-04"
+    archetype: "dashboard"
+    base_tree:
+      - {role: "metric-grid", component_id: "data.metric-grid", component: "data.metric-grid"}
+      - {role: "list", component_id: "data.list", component: "data.list"}
+      - {role: "PrimaryAction", component_id: "action.button", component: "VButton", action_id: "ACT-17-REFRESH-MARGIN", bc_id: "BC-XD-04", api_id: "API-Q-03"}
+    state_deltas:
+      READY: {message_key: "ui.sg-17.scr-17-04.ready", preserve_input: false}
+      LOADING: {message_key: "ui.sg-17.scr-17-04.loading", preserve_input: false}
+      EMPTY: {message_key: "ui.sg-17.scr-17-04.empty", preserve_input: false}
+      STALE: {message_key: "ui.sg-17.scr-17-04.stale", preserve_input: false}
+      PERMISSION_DENIED: {message_key: "ui.sg-17.scr-17-04.permission_denied", preserve_input: false}
+      MARGIN_SOURCE_INCOMPLETE: {message_key: "ui.sg-17.scr-17-04.margin_source_incomplete", preserve_input: false}
+  SCR-17-05:
+    name: "Rà soát quyết định"
+    route: "#/sg-17/scr-05"
+    archetype: "review"
+    base_tree:
+      - {role: "review-summary", component_id: "data.review-summary", component: "data.review-summary"}
+      - {role: "confirm-dialog", component_id: "overlay.confirm-dialog", component: "overlay.confirm-dialog"}
+      - {role: "button", component_id: "action.button", component: "action.button"}
+      - {role: "PrimaryAction", component_id: "action.button", component: "VButton", action_id: "ACT-17-APPLY-REVIEW", bc_id: "BC-XD-03", api_id: "API-X-03"}
+    state_deltas:
+      READY: {message_key: "ui.sg-17.scr-17-05.ready", preserve_input: false}
+      VALIDATION_ERROR: {message_key: "ui.sg-17.scr-17-05.validation_error", preserve_input: true}
+      APPROVAL_REQUIRED: {message_key: "ui.sg-17.scr-17-05.approval_required", preserve_input: false}
+      PERMISSION_DENIED: {message_key: "ui.sg-17.scr-17-05.permission_denied", preserve_input: false}
+      DRAFT_NOT_PUBLISHED: {message_key: "ui.sg-17.scr-17-05.draft_not_published", preserve_input: false}
+  SCR-17-06:
+    name: "Kết quả áp dụng"
+    route: "#/sg-17/scr-06"
+    archetype: "result"
+    base_tree:
+      - {role: "result-panel", component_id: "status.result-panel", component: "status.result-panel"}
+      - {role: "next-step", component_id: "action.next-step", component: "action.next-step"}
+      - {role: "PrimaryAction", component_id: "action.button", component: "VButton", action_id: "ACT-17-APPLY-REVIEW", bc_id: "BC-XD-03", api_id: "API-X-03"}
+    state_deltas:
+      COMPLETED: {message_key: "ui.sg-17.scr-17-06.completed", preserve_input: false}
+      UNKNOWN: {message_key: "ui.sg-17.scr-17-06.unknown", preserve_input: true}
+      REJECTED_EXECUTION: {message_key: "ui.sg-17.scr-17-06.rejected_execution", preserve_input: false}
+      PERMISSION_DENIED: {message_key: "ui.sg-17.scr-17-06.permission_denied", preserve_input: false}
+      DRAFT_NOT_PUBLISHED: {message_key: "ui.sg-17.scr-17-06.draft_not_published", preserve_input: false}
+responsive_deltas:
+  desktop: {layout: "controller + 390px design viewport + trace"}
+  mobile: {breakpoint: "920px", layout: "controller → design viewport → trace", min_test_width: "360px"}
+quality_gates:
+  all_screens_declared: true
+  all_states_declared: true
+  orphan_actions_allowed: false
+  prototype_only_controls_marked: true
+  sensitive_values_in_dom_without_permission: false

@@ -1,0 +1,87 @@
+{
+  "result": "PASS",
+  "passed": 16,
+  "checks": 16,
+  "details": [
+    {
+      "name": "completed receipt result uses Detail template",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "completed receipt result has no synthetic VEmptyState",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "completed receipt result has composed result hero",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "permission state dynamically uses State template",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "permission state contains canonical VEmptyState",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "inventory-condition Info Rows use canonical spacing",
+      "pass": true,
+      "detail": "[{\"gap\": 8, \"h\": 44}, {\"gap\": 8, \"h\": 44}, {\"gap\": 8, \"h\": 44}, {\"gap\": 8, \"h\": 44}]"
+    },
+    {
+      "name": "inventory-condition reason is exact VTextarea",
+      "pass": true,
+      "detail": "{\"owner\": \"VTextarea\", \"h\": 88, \"resize\": \"none\"}"
+    },
+    {
+      "name": "opening balance value uses VMoneyField",
+      "pass": true,
+      "detail": "{\"owner\": \"VMoneyField\", \"value\": \"386.240.000\", \"suffix\": \"₫\"}"
+    },
+    {
+      "name": "VMoneyField displays formatted VND + suffix",
+      "pass": true,
+      "detail": "{\"owner\": \"VMoneyField\", \"value\": \"386.240.000\", \"suffix\": \"₫\"}"
+    },
+    {
+      "name": "VMoneyField display formatting preserves normalized numeric value",
+      "pass": true,
+      "detail": "400500000/400.500.000"
+    },
+    {
+      "name": "classification screen never exposes raw null",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "direct completed result never exposes raw null",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "UIF-09/SCR-038 has no horizontal overflow",
+      "pass": true,
+      "detail": "0"
+    },
+    {
+      "name": "UIF-12/SCR-067 has no horizontal overflow",
+      "pass": true,
+      "detail": "0"
+    },
+    {
+      "name": "UIF-06/SCR-035 has no horizontal overflow",
+      "pass": true,
+      "detail": "0"
+    },
+    {
+      "name": "no browser page errors",
+      "pass": true,
+      "detail": "[]"
+    }
+  ]
+}

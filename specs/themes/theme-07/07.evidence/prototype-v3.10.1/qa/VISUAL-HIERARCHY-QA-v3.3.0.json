@@ -1,0 +1,18 @@
+{
+  "version": "3.3.0",
+  "status": "PASS",
+  "passed": 2,
+  "total": 2,
+  "checks": [
+    {
+      "name": "full cumulative harness renders cleanly",
+      "pass": true,
+      "note": "states=497 bad=[]"
+    },
+    {
+      "name": "no browser page errors",
+      "pass": true,
+      "note": "[]"
+    }
+  ]
+}

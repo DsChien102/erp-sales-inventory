@@ -1,0 +1,191 @@
+{
+  "schemaVersion": 1,
+  "release": "2.2.0-candidate",
+  "source": {
+    "fileKey": "QVJolM5tAdFKkhP7RIwe3y",
+    "pageId": "505:5889",
+    "sectionId": "3391:5696",
+    "catalogFrameId": "511:700",
+    "catalogName": "Catalog grid",
+    "capturedAt": "2026-09-08",
+    "designSystemVersion": "2.0.2"
+  },
+  "wrapper": {
+    "componentSetId": "511:673",
+    "name": "DS v2 / Icon",
+    "sizes": [
+      16,
+      20,
+      24,
+      32,
+      48,
+      72
+    ],
+    "tones": [
+      "Primary",
+      "Secondary",
+      "Muted",
+      "Brand",
+      "Success",
+      "Warning",
+      "Danger",
+      "Info",
+      "Inverse"
+    ]
+  },
+  "productRule": "Product UI uses approved Icon Library instances through DS v2 / Icon. The raw Lucide Icons vendor section is source material only and is not directly consumable by Product UI.",
+  "approvedCount": 28,
+  "approvedIcons": [
+    {
+      "instanceNodeId": "515:126",
+      "semanticLabel": "Quay lại",
+      "glyph": "li:chevron-left"
+    },
+    {
+      "instanceNodeId": "515:130",
+      "semanticLabel": "Tiếp tục",
+      "glyph": "li:chevron-right"
+    },
+    {
+      "instanceNodeId": "515:134",
+      "semanticLabel": "Mở rộng",
+      "glyph": "li:chevron-down"
+    },
+    {
+      "instanceNodeId": "515:138",
+      "semanticLabel": "Thu gọn",
+      "glyph": "li:chevron-up"
+    },
+    {
+      "instanceNodeId": "515:142",
+      "semanticLabel": "Tìm kiếm",
+      "glyph": "li:search"
+    },
+    {
+      "instanceNodeId": "515:146",
+      "semanticLabel": "Lọc",
+      "glyph": "li:sliders-horizontal"
+    },
+    {
+      "instanceNodeId": "515:150",
+      "semanticLabel": "Thêm",
+      "glyph": "li:plus"
+    },
+    {
+      "instanceNodeId": "515:154",
+      "semanticLabel": "Sửa",
+      "glyph": "li:pencil"
+    },
+    {
+      "instanceNodeId": "515:158",
+      "semanticLabel": "Xóa",
+      "glyph": "li:trash-2"
+    },
+    {
+      "instanceNodeId": "515:162",
+      "semanticLabel": "Đóng",
+      "glyph": "li:x"
+    },
+    {
+      "instanceNodeId": "515:166",
+      "semanticLabel": "Thành công",
+      "glyph": "li:circle-check"
+    },
+    {
+      "instanceNodeId": "515:170",
+      "semanticLabel": "Cảnh báo",
+      "glyph": "li:triangle-alert"
+    },
+    {
+      "instanceNodeId": "515:174",
+      "semanticLabel": "Lỗi",
+      "glyph": "li:circle-x"
+    },
+    {
+      "instanceNodeId": "515:178",
+      "semanticLabel": "Thông tin",
+      "glyph": "li:info"
+    },
+    {
+      "instanceNodeId": "515:182",
+      "semanticLabel": "Người dùng",
+      "glyph": "li:user"
+    },
+    {
+      "instanceNodeId": "515:186",
+      "semanticLabel": "Thành viên",
+      "glyph": "li:users"
+    },
+    {
+      "instanceNodeId": "515:190",
+      "semanticLabel": "Tổ chức",
+      "glyph": "li:building-2"
+    },
+    {
+      "instanceNodeId": "515:194",
+      "semanticLabel": "Cửa hàng",
+      "glyph": "li:store"
+    },
+    {
+      "instanceNodeId": "515:198",
+      "semanticLabel": "Kho",
+      "glyph": "li:warehouse"
+    },
+    {
+      "instanceNodeId": "515:202",
+      "semanticLabel": "Vai trò & quyền",
+      "glyph": "li:shield-check"
+    },
+    {
+      "instanceNodeId": "515:206",
+      "semanticLabel": "Lịch sử",
+      "glyph": "li:history"
+    },
+    {
+      "instanceNodeId": "515:210",
+      "semanticLabel": "Email",
+      "glyph": "li:mail"
+    },
+    {
+      "instanceNodeId": "515:214",
+      "semanticLabel": "Gửi",
+      "glyph": "li:send"
+    },
+    {
+      "instanceNodeId": "515:218",
+      "semanticLabel": "Đăng xuất",
+      "glyph": "li:log-out"
+    },
+    {
+      "instanceNodeId": "515:222",
+      "semanticLabel": "Thiết lập",
+      "glyph": "li:settings"
+    },
+    {
+      "instanceNodeId": "515:226",
+      "semanticLabel": "Thao tác thêm",
+      "glyph": "li:ellipsis"
+    },
+    {
+      "instanceNodeId": "515:230",
+      "semanticLabel": "Làm mới",
+      "glyph": "li:refresh-cw"
+    },
+    {
+      "instanceNodeId": "515:234",
+      "semanticLabel": "Nhật ký",
+      "glyph": "li:logs"
+    }
+  ],
+  "vendorSource": {
+    "frameId": "494:3990",
+    "name": "Lucide Icons",
+    "role": "VENDOR_SOURCE_POOL_ONLY"
+  },
+  "governance": [
+    "Search the approved Icon Library first.",
+    "If no suitable approved icon exists, choose from the approved vendor source and add it to the VET45 Icon Library before Product use.",
+    "Do not copy raw Lucide vendor instances into Product UI.",
+    "Do not use hand-authored SVG paths or a glyph-name-only substitution as exactness evidence."
+  ]
+}

@@ -1,0 +1,50 @@
+{
+  "release": "2.5.2",
+  "parent": "2.5.1",
+  "scope": [
+    "BJ02/UIF-02 Quick receiving real-flow correction",
+    "BJ02/UIF-02 clipping/overflow and UX hardening",
+    "Live Figma DS Info Row 525:351 sync across HTML active renders",
+    "BJ01/UIF-01 and BJ08/UIF-08 business/flow carried forward; their Info Row instances consume the shared live sync",
+    "all other Theme 7 flows regression-protected"
+  ],
+  "businessBehaviorChanged": false,
+  "businessContractAlignment": [
+    "UC-02-02 direct Product/UOM -> SCR-084 restored",
+    "no new Supplier/Product master creation",
+    "Quick approval remains mandatory"
+  ],
+  "migration": {
+    "newlyMigrated": [],
+    "corrected": [
+      "UIF-02"
+    ],
+    "migratedCumulative": [
+      "UIF-01",
+      "UIF-02",
+      "UIF-08"
+    ],
+    "newFeatureComponentsCreated": 0,
+    "sharedDsRefresh": [
+      "DS v2 / Info Row 525:351"
+    ]
+  },
+  "qa": {
+    "bj02QuickFlow": "PASS 21/21",
+    "allFlowRuntime": "PASS 85/85",
+    "bj01Regression": "PASS 34/34",
+    "browserErrors": 0,
+    "javascriptSyntax": "PASS",
+    "infoRowLiveSync": "PASS 497/497 state renders; 1052 visible Info Row instances; 0 anatomy/overlap failures"
+  },
+  "designAuthority": {
+    "business": "BJ/UC/Decision/Behavioral/UI contracts",
+    "ui": "Live Figma Design System v2.0.3 working canonical surface",
+    "localMirror": "Inherited exact variable/style mirror v2.0.2; global byte-exact v2.0.3 mirror not claimed",
+    "infoRowCurrentMaster": "525:351 refreshed 2026-09-10: 338x44, justify-between, gap0, value right-aligned"
+  },
+  "registryPreservation": {
+    "actionRegistrySha256": "35f59f04480d6a41f24e1735a88ac14e478319bc57f85e842ac5ff885f6b332a",
+    "screenRegistrySha256": "20d3abc7a229ba54aaa436942ffa767f9914b9af2e8c8e6f901b4049ceab5ebf"
+  }
+}

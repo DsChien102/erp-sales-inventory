@@ -1,0 +1,30 @@
+{
+  "version": "2.9.4",
+  "parentVersion": "2.9.3",
+  "status": "PASS",
+  "reviewReady": true,
+  "scope": "BJ07 Product/UOM -> LOT hierarchy correction on preparation, review and result surfaces; business behavior preserved.",
+  "productViewport": {"width": 402, "height": 874},
+  "businessBehaviorChanged": false,
+  "newCoreDesignSystemComponentsCreated": 0,
+  "gates": {
+    "productLotHierarchy": {"status": "PASS", "passed": 21, "total": 21, "browserErrors": 0},
+    "allFlowRuntime": {"status": "PASS", "renders": 85, "failures": 0, "browserErrors": 0},
+    "deviceFrame": {"status": "PASS", "passed": 7, "total": 7, "screensChecked": 85, "browserErrors": 0},
+    "priorBjRegression": {"status": "PASS", "passed": 23, "total": 23, "browserErrors": 0},
+    "bj05Bj06Regression": {"status": "PASS", "passed": 32, "total": 32},
+    "reviewWorkbenchFit": {"status": "PASS", "passed": 3, "total": 3},
+    "javascriptSyntax": {"status": "PASS", "files": ["app.js", "workbench-data.js"]},
+    "focusedVisualReview": {"status": "PASS", "captures": ["SCR037-PREPARE", "SCR037-VERIFY-SHEET", "SCR039-REVIEW", "SCR041-COMPLETED"]}
+  },
+  "uxLocks": [
+    "Product/UOM and LOT must not share the same card-like visual treatment when one is the parent context of the other",
+    "one homogeneous Product/LOT collection owns one grouped surface",
+    "Product/UOM parent uses a lightweight VIcon + VText + VBadge group-header composition",
+    "actionable LOT/non-LOT children use flat nested navigation rows with explicit hierarchy connector and no duplicated package icon",
+    "read-only review/result allocation evidence remains canonical Key-value Row",
+    "raw quantity is data, not status badge",
+    "no cross-UOM aggregation",
+    "exact-source verification and final commit behavior are unchanged"
+  ]
+}

@@ -1,0 +1,81 @@
+# Semantic Hierarchy QA v1.4.3
+
+**Result: PASS · 73/73 checks**
+
+Lens: 2-second semantic scan — user should identify object role, parent/child hierarchy, state and expected action without decoding helper prose.
+
+## Checks
+
+- PASS — BJ01 benchmark keeps Product identity separate from LOT section
+- PASS — BJ01 benchmark remains horizontally safe
+- PASS — BJ02 Product search row exposes action hint
+- PASS — BJ02 Product search rows remain full-row buttons
+- PASS — BJ02 Product search keeps identity and UOM
+- PASS — BJ02 Product search horizontal safety
+- PASS — Inventory Operations renderer no longer exposes ambiguous mục hàng vocabulary
+- PASS — BJ02 LOT review visibly labels the raw code role
+- PASS — BJ03 scope Product parent uses explicit role
+- PASS — BJ03 quantity control self-describes valuation task
+- PASS — BJ03 selected quantity no longer relies on old generic label
+- PASS — BJ03 scope footnote is concise
+- PASS — BJ03 scope remains horizontally safe
+- PASS — BJ03 calculation has explicit Product role
+- PASS — BJ03 calculation scope is structured, not one packed meta value
+- PASS — BJ03 calculation vocabulary uses dòng hàng
+- PASS — BJ03 normal late-cost guidance is quiet footnote
+- PASS — BJ03 calculation normal state has no persistent banner
+- PASS — BJ03 calculation remains horizontally safe
+- PASS — BJ03 review group amount has semantic label
+- PASS — BJ03 availability effect grouped under Product
+- PASS — BJ03 normal physical-state rule is quiet text
+- PASS — BJ03 review remains horizontally safe
+- PASS — BJ03 result groups by Product+UOM
+- PASS — BJ03 result labels group financial value
+- PASS — BJ03 result makes sellability effect explicit
+- PASS — BJ03 result does not flatten Product into repeated meta row labels
+- PASS — BJ03 result remains horizontally safe
+- PASS — BJ04 benchmark keeps explicit Cần/Đã giữ roles
+- PASS — BJ04 benchmark remains horizontally safe
+- PASS — BJ05 queue helper no longer carries item count
+- PASS — BJ05 queue helper preserves customer and warehouse
+- PASS — BJ05 progress vocabulary is dòng, not mục
+- PASS — BJ05 partial handover allowance is visible near enabled CTA
+- PASS — BJ05 partial allowance uses quiet note, not banner
+- PASS — BJ05 review summary vocabulary uses dòng hàng
+- PASS — BJ05 screens remain horizontally safe
+- PASS — BJ06 return lines separate source LOT role
+- PASS — BJ06 source LOT is not packed into Product helper
+- PASS — BJ06 progress vocabulary uses dòng
+- PASS — BJ06 actual LOT is a separate labeled fact
+- PASS — BJ06 approval evidence has explicit role label
+- PASS — BJ06 result groups Product parent and allocation child
+- PASS — BJ06 result hides zero classification states
+- PASS — BJ06 result shows only meaningful classification outcomes
+- PASS — BJ06 result uses dòng hàng vocabulary
+- PASS — BJ06 result remains horizontally safe
+- PASS — BJ07 preparation has Product parent headers
+- PASS — BJ07 preparation has distinct child allocation rows
+- PASS — BJ07 LOT children explicitly say Lô cần kiểm
+- PASS — BJ07 non-LOT child explicitly says Phần hàng cần kiểm
+- PASS — BJ07 unverified rows expose light action hint, not badge spam
+- PASS — BJ07 progress copy removes ambiguous mục
+- PASS — BJ07 preparation remains horizontally safe
+- PASS — BJ07 verification sheet action title is task-oriented
+- PASS — BJ07 verification sheet separates Product and target LOT
+- PASS — BJ07 LOT input states verification meaning
+- PASS — BJ07 LOT input explicitly denies source edit
+- PASS — BJ07 old edit-like label is gone
+- PASS — BJ07 sheet retains mismatch and confirm actions
+- PASS — BJ07 typed wrong LOT gives inline mismatch feedback
+- PASS — BJ07 wrong typed LOT disables confirmation
+- PASS — BJ07 matching typed LOT re-enables confirmation
+- PASS — BJ07 confirm updates physical evidence and closes sheet
+- PASS — BJ07 verification does not mutate authoritative LOT
+- PASS — BJ07 final review groups Product parent and allocations
+- PASS — BJ07 final review removes ambiguous count meta
+- PASS — BJ07 final review still preserves mixed UOM
+- PASS — BJ07 result groups same Product+UOM instead of flattening
+- PASS — BJ07 result explicitly labels LOT children
+- PASS — BJ07 result does not aggregate mixed UOM
+- PASS — BJ07 result remains horizontally safe
+- PASS — No page JavaScript errors

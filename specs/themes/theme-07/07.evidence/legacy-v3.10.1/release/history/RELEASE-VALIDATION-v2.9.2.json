@@ -1,0 +1,50 @@
+{
+  "version": "2.9.2",
+  "parentVersion": "2.9.1",
+  "status": "PASS",
+  "reviewReady": true,
+  "scope": "Cross-migrated Product+UOM surface correction; BJ07 primary, BJ05/BJ06 hardened; business behavior preserved.",
+  "productViewport": {
+    "width": 402,
+    "height": 874
+  },
+  "reviewDeviceBorderBox": {
+    "width": 418,
+    "height": 890,
+    "bezel": 8
+  },
+  "businessBehaviorChanged": false,
+  "newFeatureComponentsCreated": 0,
+  "gates": {
+    "bj07FigmaDsUx": {"status": "PASS", "passed": 32, "total": 32, "browserErrors": 0},
+    "productHierarchyCrossMigrated": {"status": "PASS", "passed": 18, "total": 18, "renders": 33, "browserErrors": 0},
+    "migratedVisualIntegrity": {"status": "PASS", "passed": 7, "total": 7, "screensChecked": 33},
+    "bj05Bj06Regression": {"status": "PASS", "passed": 32, "total": 32},
+    "priorBjRegression": {"status": "PASS", "passed": 23, "total": 23, "browserErrors": 0},
+    "allFlowRuntime": {"status": "PASS", "renders": 85, "failures": 0, "browserErrors": 0},
+    "deviceFrame": {"status": "PASS", "passed": 7, "total": 7, "screensChecked": 85, "browserErrors": 0},
+    "reviewWorkbenchFit": {"status": "PASS", "passed": 3, "total": 3},
+    "mobilePrototypeValidator": {"status": "PASS", "counts": {"BLOCKER": 0, "HIGH": 0, "MEDIUM": 0, "LOW": 0}},
+    "javascriptSyntax": {"status": "PASS", "files": ["app.js", "workbench-data.js"]}
+  },
+  "figmaAuthority": {
+    "fileKey": "QVJolM5tAdFKkhP7RIwe3y",
+    "components": [
+      "DS v2 / List Row 525:519",
+      "DS v2 / Info Row 525:351",
+      "DS v2 / Key-value Row 525:358",
+      "VBadge 525:309",
+      "VBanner 526:4215",
+      "VBottomSheet 4695:6353"
+    ],
+    "priorThemeProductReference": "Theme 1 live Product UI, including TA-D-01 267:3444 and organization/member/audit detail compositions"
+  },
+  "uxLocks": [
+    "use an existing semantic DS primitive for Product+UOM identity/status instead of floating text plus badge",
+    "Product+UOM parent and LOT/non-LOT allocation child must have distinct visual weight",
+    "entity plus child facts belong in one coherent grouped surface when they form one scan unit",
+    "badges stay inside the component anatomy that owns the status/summary",
+    "review canonical DS then Patterns/Templates then mature prior-Theme Product UI before HTML composition",
+    "no cross-UOM aggregation"
+  ]
+}

@@ -1,0 +1,467 @@
+{
+  "result": "PASS",
+  "passed": 92,
+  "checks": 92,
+  "details": [
+    {
+      "name": "Product app.js byte-identical to v2.1.2",
+      "pass": true,
+      "detail": "28d9addcd117123f1c51f22df791d56505f665e6d392393e47a1eb9e38b30915"
+    },
+    {
+      "name": "Product styles.css byte-identical to v2.1.2",
+      "pass": true,
+      "detail": "22001c6feae06dc69a4e3e44939116d8de58047c2e4641f6b79df469531503b0"
+    },
+    {
+      "name": "Product workbench-data.js byte-identical to v2.1.2",
+      "pass": true,
+      "detail": "cb5b08aeda7e3a7ca3604b4785170edc9f70d6e961d2ea67fee64340ec44306f"
+    },
+    {
+      "name": "Product workbench-data.json byte-identical to v2.1.2",
+      "pass": true,
+      "detail": "acd673000fe9e56e1132c6949e8b2d29aa0871f0581144a227c484b82ada1eb7"
+    },
+    {
+      "name": "119 exact Figma variables remain locked",
+      "pass": true,
+      "detail": "119"
+    },
+    {
+      "name": "15 text styles locked",
+      "pass": true,
+      "detail": "15"
+    },
+    {
+      "name": "21 paint styles locked",
+      "pass": true,
+      "detail": "21"
+    },
+    {
+      "name": "4 effect styles locked",
+      "pass": true,
+      "detail": "4"
+    },
+    {
+      "name": "64 component assets indexed",
+      "pass": true,
+      "detail": "64"
+    },
+    {
+      "name": "22 pattern/template assets indexed",
+      "pass": true,
+      "detail": "22"
+    },
+    {
+      "name": "source identity lock now exposes migration gates",
+      "pass": true,
+      "detail": "SOURCE_IDENTITY_LOCKED_MIGRATION_GATES_OPEN"
+    },
+    {
+      "name": "approved Product Icon Library has 28 entries",
+      "pass": true,
+      "detail": "28"
+    },
+    {
+      "name": "approved icon entries are unique",
+      "pass": true,
+      "detail": "28"
+    },
+    {
+      "name": "raw Lucide catalog is vendor-only",
+      "pass": true,
+      "detail": "VENDOR_SOURCE_POOL_ONLY"
+    },
+    {
+      "name": "source governance forbids raw Lucide direct Product use",
+      "pass": true,
+      "detail": "True"
+    },
+    {
+      "name": "live binding DS v2 / Icon --vet45-v2-icon-primary matches exact mirror",
+      "pass": true,
+      "detail": "#2f3640 vs #2f3640"
+    },
+    {
+      "name": "live binding DS v2 / Icon --vet45-v2-icon-secondary matches exact mirror",
+      "pass": true,
+      "detail": "#6b7480 vs #6b7480"
+    },
+    {
+      "name": "live binding DS v2 / Icon --vet45-v2-icon-muted matches exact mirror",
+      "pass": true,
+      "detail": "#9aa3ad vs #9aa3ad"
+    },
+    {
+      "name": "live binding DS v2 / Icon --vet45-v2-icon-brand matches exact mirror",
+      "pass": true,
+      "detail": "#26612f vs #26612f"
+    },
+    {
+      "name": "live binding DS v2 / Icon --vet45-v2-icon-success matches exact mirror",
+      "pass": true,
+      "detail": "#3b9448 vs #3b9448"
+    },
+    {
+      "name": "live binding DS v2 / Icon --vet45-v2-icon-warning matches exact mirror",
+      "pass": true,
+      "detail": "#d98a0b vs #d98a0b"
+    },
+    {
+      "name": "live binding DS v2 / Icon --vet45-v2-icon-danger matches exact mirror",
+      "pass": true,
+      "detail": "#d14343 vs #d14343"
+    },
+    {
+      "name": "live binding DS v2 / Icon --vet45-v2-icon-info matches exact mirror",
+      "pass": true,
+      "detail": "#2f6fe0 vs #2f6fe0"
+    },
+    {
+      "name": "live binding DS v2 / Icon --vet45-v2-icon-inverse matches exact mirror",
+      "pass": true,
+      "detail": "#ffffff vs #ffffff"
+    },
+    {
+      "name": "live binding VButton --vet45-v2-space-2 matches exact mirror",
+      "pass": true,
+      "detail": "8px vs 8px"
+    },
+    {
+      "name": "live binding VButton --vet45-v2-space-4 matches exact mirror",
+      "pass": true,
+      "detail": "16px vs 16px"
+    },
+    {
+      "name": "live binding VButton --vet45-v2-space-0 matches exact mirror",
+      "pass": true,
+      "detail": "0px vs 0px"
+    },
+    {
+      "name": "live binding VButton --vet45-v2-radius-3 matches exact mirror",
+      "pass": true,
+      "detail": "8px vs 8px"
+    },
+    {
+      "name": "live binding VButton --vet45-v2-action-primary-default matches exact mirror",
+      "pass": true,
+      "detail": "#3b9448 vs #3b9448"
+    },
+    {
+      "name": "live binding VButton --vet45-v2-action-primary-pressed matches exact mirror",
+      "pass": true,
+      "detail": "#2f7a3a vs #2f7a3a"
+    },
+    {
+      "name": "live binding VButton --vet45-v2-action-secondary-border matches exact mirror",
+      "pass": true,
+      "detail": "#d0d5da vs #d0d5da"
+    },
+    {
+      "name": "live binding VTextField --vet45-v2-text-primary matches exact mirror",
+      "pass": true,
+      "detail": "#0e1116 vs #0e1116"
+    },
+    {
+      "name": "live binding VTextField --vet45-v2-text-secondary matches exact mirror",
+      "pass": true,
+      "detail": "#6b7480 vs #6b7480"
+    },
+    {
+      "name": "live binding VTextField --vet45-v2-border-default matches exact mirror",
+      "pass": true,
+      "detail": "#e5e8eb vs #e5e8eb"
+    },
+    {
+      "name": "live binding VTextField --vet45-v2-border-brand matches exact mirror",
+      "pass": true,
+      "detail": "#b8dfbd vs #b8dfbd"
+    },
+    {
+      "name": "live binding VTextField --vet45-v2-border-danger matches exact mirror",
+      "pass": true,
+      "detail": "#d14343 vs #d14343"
+    },
+    {
+      "name": "live binding VTextField --vet45-v2-radius-3 matches exact mirror",
+      "pass": true,
+      "detail": "8px vs 8px"
+    },
+    {
+      "name": "live binding DS v2 / List Row --vet45-v2-space-1 matches exact mirror",
+      "pass": true,
+      "detail": "4px vs 4px"
+    },
+    {
+      "name": "live binding DS v2 / List Row --vet45-v2-space-2 matches exact mirror",
+      "pass": true,
+      "detail": "8px vs 8px"
+    },
+    {
+      "name": "live binding DS v2 / List Row --vet45-v2-space-3 matches exact mirror",
+      "pass": true,
+      "detail": "12px vs 12px"
+    },
+    {
+      "name": "live binding DS v2 / List Row --vet45-v2-space-4 matches exact mirror",
+      "pass": true,
+      "detail": "16px vs 16px"
+    },
+    {
+      "name": "live binding DS v2 / List Row --vet45-v2-radius-4 matches exact mirror",
+      "pass": true,
+      "detail": "12px vs 12px"
+    },
+    {
+      "name": "live binding DS v2 / List Row --vet45-v2-radius-pill matches exact mirror",
+      "pass": true,
+      "detail": "999px vs 999px"
+    },
+    {
+      "name": "live binding DS v2 / List Row --vet45-v2-surface-brand matches exact mirror",
+      "pass": true,
+      "detail": "#ebf4ec vs #ebf4ec"
+    },
+    {
+      "name": "live binding DS v2 / List Row --vet45-v2-border-strong matches exact mirror",
+      "pass": true,
+      "detail": "#d0d5da vs #d0d5da"
+    },
+    {
+      "name": "live binding DS v2 / Sticky Footer --vet45-v2-space-2 matches exact mirror",
+      "pass": true,
+      "detail": "8px vs 8px"
+    },
+    {
+      "name": "live binding DS v2 / Sticky Footer --vet45-v2-space-3 matches exact mirror",
+      "pass": true,
+      "detail": "12px vs 12px"
+    },
+    {
+      "name": "live binding DS v2 / Sticky Footer --vet45-v2-space-4 matches exact mirror",
+      "pass": true,
+      "detail": "16px vs 16px"
+    },
+    {
+      "name": "live binding DS v2 / Sticky Footer --vet45-v2-space-6 matches exact mirror",
+      "pass": true,
+      "detail": "24px vs 24px"
+    },
+    {
+      "name": "live binding DS v2 / Sticky Footer --vet45-v2-radius-3 matches exact mirror",
+      "pass": true,
+      "detail": "8px vs 8px"
+    },
+    {
+      "name": "live binding DS v2 / Sticky Footer --vet45-v2-border-default matches exact mirror",
+      "pass": true,
+      "detail": "#e5e8eb vs #e5e8eb"
+    },
+    {
+      "name": "live binding VBanner --vet45-v2-surface-info matches exact mirror",
+      "pass": true,
+      "detail": "#e8f0fc vs #e8f0fc"
+    },
+    {
+      "name": "live binding VBanner --vet45-v2-border-info matches exact mirror",
+      "pass": true,
+      "detail": "#2f6fe0 vs #2f6fe0"
+    },
+    {
+      "name": "live binding VBanner --vet45-v2-surface-success matches exact mirror",
+      "pass": true,
+      "detail": "#dcefde vs #dcefde"
+    },
+    {
+      "name": "live binding VBanner --vet45-v2-border-success matches exact mirror",
+      "pass": true,
+      "detail": "#3b9448 vs #3b9448"
+    },
+    {
+      "name": "live binding VBanner --vet45-v2-surface-warning matches exact mirror",
+      "pass": true,
+      "detail": "#fdf3e0 vs #fdf3e0"
+    },
+    {
+      "name": "live binding VBanner --vet45-v2-border-warning matches exact mirror",
+      "pass": true,
+      "detail": "#d98a0b vs #d98a0b"
+    },
+    {
+      "name": "live binding VBanner --vet45-v2-surface-danger matches exact mirror",
+      "pass": true,
+      "detail": "#fbe8e8 vs #fbe8e8"
+    },
+    {
+      "name": "live binding VBanner --vet45-v2-border-danger matches exact mirror",
+      "pass": true,
+      "detail": "#d14343 vs #d14343"
+    },
+    {
+      "name": "live binding DS v2 / Search & Filter Header --vet45-v2-touch-minimum matches exact mirror",
+      "pass": true,
+      "detail": "44px vs 44px"
+    },
+    {
+      "name": "live binding DS v2 / Search & Filter Header --vet45-v2-radius-4 matches exact mirror",
+      "pass": true,
+      "detail": "12px vs 12px"
+    },
+    {
+      "name": "live binding DS v2 / Search & Filter Header --vet45-v2-radius-pill matches exact mirror",
+      "pass": true,
+      "detail": "999px vs 999px"
+    },
+    {
+      "name": "live binding DS v2 / Search & Filter Header --vet45-v2-space-2 matches exact mirror",
+      "pass": true,
+      "detail": "8px vs 8px"
+    },
+    {
+      "name": "live binding DS v2 / Search & Filter Header --vet45-v2-space-3 matches exact mirror",
+      "pass": true,
+      "detail": "12px vs 12px"
+    },
+    {
+      "name": "live binding DS v2 / Search & Filter Header --vet45-v2-space-4 matches exact mirror",
+      "pass": true,
+      "detail": "16px vs 16px"
+    },
+    {
+      "name": "Label / Small exact style is 12/16",
+      "pass": true,
+      "detail": "(12, 16)"
+    },
+    {
+      "name": "Mono / Numeric exact style is 14/22",
+      "pass": true,
+      "detail": "(14, 22)"
+    },
+    {
+      "name": "live VButton has 48 variants",
+      "pass": true,
+      "detail": "48"
+    },
+    {
+      "name": "live Icon wrapper has 54 variants",
+      "pass": true,
+      "detail": "54"
+    },
+    {
+      "name": "Sticky Footer includes 5 live variants",
+      "pass": true,
+      "detail": "5"
+    },
+    {
+      "name": "icon demand audited across all 497 declared state renders",
+      "pass": true,
+      "detail": "497"
+    },
+    {
+      "name": "7 actually-rendered legacy icon semantics remain source-gated",
+      "pass": true,
+      "detail": "['VIcons.lock', 'VIcons.clock', 'VIcons.inbox', 'VIcons.description', 'VIcons.check', 'VIcons.bolt', 'VIcons.inventory']"
+    },
+    {
+      "name": "all rendered legacy SVGs are at least semantically annotated",
+      "pass": true,
+      "detail": "0"
+    },
+    {
+      "name": "12 legacy generic-sheet contexts inventoried",
+      "pass": true,
+      "detail": "12"
+    },
+    {
+      "name": "4 read-only/detail sheet contexts need source decision",
+      "pass": true,
+      "detail": "4"
+    },
+    {
+      "name": "8 generic-sheet contexts already resolve to exact patterns",
+      "pass": true,
+      "detail": "8"
+    },
+    {
+      "name": "runtime status reflects live reconnection with gates open",
+      "pass": true,
+      "detail": "IN_PROGRESS_LIVE_SOURCE_RECONNECTED_GATES_OPEN"
+    },
+    {
+      "name": "runtime Product wiring OFF",
+      "pass": true,
+      "detail": "False"
+    },
+    {
+      "name": "runtime retains at least 9 source-captured specimens",
+      "pass": true,
+      "detail": "9"
+    },
+    {
+      "name": "runtime blockers are concrete and non-empty",
+      "pass": true,
+      "detail": "5"
+    },
+    {
+      "name": "Product index does not load runtime.js",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "Product index does not load runtime.css",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "Product app.js does not import runtime candidate",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "Product styles.css does not import runtime candidate",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "all 17 UIF remain legacy/not structurally migrated",
+      "pass": true,
+      "detail": "17"
+    },
+    {
+      "name": "UIF source status does not falsely claim frozen runtime",
+      "pass": true,
+      "detail": "MAPPING_EXACT_RUNTIME_GATES_OPEN"
+    },
+    {
+      "name": "all legacy DS demand names resolve to a canonical target/composition/owned slot",
+      "pass": true,
+      "detail": "[]"
+    },
+    {
+      "name": "all demanded page templates exist in live registry",
+      "pass": true,
+      "detail": "[]"
+    },
+    {
+      "name": "runtime CSS uses only locked Figma WEB variables",
+      "pass": true,
+      "detail": "[]"
+    },
+    {
+      "name": "no guessed icon SVG assets have been committed",
+      "pass": true,
+      "detail": "[]"
+    },
+    {
+      "name": "live preflight honestly says not yet 100% freeze-ready",
+      "pass": true,
+      "detail": "NOT_YET_100_PERCENT_FREEZE_READY"
+    },
+    {
+      "name": "five explicit freeze gates remain open",
+      "pass": true,
+      "detail": "[('G1', 'OPEN'), ('G2', 'OPEN'), ('G3', 'OPEN'), ('G4', 'OPEN'), ('G5', 'OPEN')]"
+    }
+  ]
+}

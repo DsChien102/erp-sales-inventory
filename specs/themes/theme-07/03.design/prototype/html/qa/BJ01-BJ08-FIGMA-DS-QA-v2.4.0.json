@@ -1,0 +1,188 @@
+{
+  "status": "PASS",
+  "checks": [
+    {
+      "name": "No raw hex colors in v2.4 DS/Product block",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "No raw rgb/rgba colors in v2.4 DS/Product block",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Canonical semantic sheet radius consumed",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Canonical border width token consumed",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Disabled uses opacity token",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ01 Search/Filter Header uses live Figma node",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ01/BJ08 List Row uses live Figma node",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ08 Numeric keypad uses live Figma node",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ08 Confirmation Sheet uses live Figma node",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Legacy Theme7TimeField removed from active BJ08 renderer",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ01 list has one search field",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ01 list has five canonical filter chips",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ01 product results are direct List Rows",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ01 has no legacy Tra cứu/Cần chú ý tabs",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ01 search filters runtime results",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ01 whole-row navigation goes to SCR-003",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ01 detail has single primary Khả dụng metric",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ01 detail has no mutation footer",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ01 LOT detail is contextual overlay",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ08 blind count does not render book quantity data",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ08 quantity entry opens Numeric Keypad Sheet",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ08 Numeric Keypad is canonical DS overlay",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ08 first-submit uses canonical confirmation",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ08 first submit goes to recount",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ08 recount has no invented evidence textarea",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ08 recount has editable recount quantities",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ08 maker submit returns to maker read-only pending state",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ08 maker pending state has no approve control",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ08 approver cannot edit count",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ08 approval has approve and request-review only",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ08 request-review requires reason",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ08 request-review returns to recount and keeps non-terminal session",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ08 completed result has no mutation CTA",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ08 UNKNOWN offers verification handoff, not blind retry",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ01/BJ08 target screens have no horizontal overflow",
+      "pass": true,
+      "note": "[('SCR-001', 0), ('SCR-003', 0), ('SCR-042', 0), ('SCR-043', 0), ('SCR-044', 0), ('SCR-045', 0), ('SCR-046', 0), ('SCR-047', 0)]"
+    },
+    {
+      "name": "No browser page errors during target QA",
+      "pass": true,
+      "note": ""
+    }
+  ],
+  "passed": 36,
+  "total": 36,
+  "browserErrors": []
+}

@@ -1,0 +1,41 @@
+# Static Consistency QA — v3.6.3
+
+**Result: 37/37 PASS**
+
+- PASS — 17 business journeys + 1 supporting capability
+- PASS — 89 canonical flow-screen occurrences
+- PASS — 77 active unique screens
+- PASS — every active screen has a screen contract
+- PASS — every active flow/support capability has a flow document
+- PASS — active screen registry/workbench names and states aligned
+- PASS — registry/workbench version v3.6.3
+- PASS — runtime-state registry synchronized
+- PASS — runtime registry covers 518 route-states
+- PASS — SCR-062 supporting screen remains rendered
+- PASS — SCR-063 supporting screen remains rendered
+- PASS — SCR-064 supporting screen remains rendered
+- PASS — SCR-065 supporting screen remains rendered
+- PASS — BJ08 cancellation removed from browse-list contract
+- PASS — BJ08 cancellation owned by opened-session contract
+- PASS — v3.6 CSS cascade preserved
+- PASS — v3.6 JS cascade preserved
+- PASS — v3.6.2 list rhythm patch preserved
+- PASS — v3.6.3 disabled Navigation state uses DS opacity
+- PASS — v3.6.3 runtime version patch exists
+- PASS — UIF-03 waiting peer stays Navigation + Disabled
+- PASS — UIF-13 waiting peer stays Navigation + Disabled
+- PASS — global cross-UIF rule documented
+- PASS — UX pattern registry documents homogeneous Navigation list
+- PASS — CAP-01 effective renderers declared
+- PASS — BJ08 active-session cancel correction exists
+- PASS — representative-state coherence correction exists
+- PASS — feedback/toast semantic layer exists
+- PASS — single-row chip lock preserved
+- PASS — HTML manifests identify v3.6.3
+- PASS — authority separates business, Figma DS and HTML prototype roles
+- PASS — CAP-01 doc preserves BG-006 integration uncertainty
+- PASS — SCR-062 contract exists
+- PASS — SCR-063 contract exists
+- PASS — SCR-064 contract exists
+- PASS — SCR-065 contract exists
+- PASS — representative result defaults are stable

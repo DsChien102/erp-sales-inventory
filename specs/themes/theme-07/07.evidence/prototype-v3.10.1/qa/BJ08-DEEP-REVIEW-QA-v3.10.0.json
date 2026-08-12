@@ -1,0 +1,685 @@
+{
+  "version": "3.10.0",
+  "status": "PASS",
+  "passed": 135,
+  "total": 135,
+  "scope": "Wave 4 / BJ08 forensic semantic, trace, runtime and interaction review",
+  "checks": [
+    {
+      "name": "candidate manifest is v3.10.0 on parent v3.9.9",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "workbench identifies v3.10.0",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "v3.10.0 runtime overlay is loaded once",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "v3.10.0 overlay loads after v3.9.9",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "DR-171 exists and is ACTIVE",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "DR-172 exists and is ACTIVE",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "DR-173 exists and is ACTIVE",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "DR-174 exists and is ACTIVE",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "DR-175 exists and is ACTIVE",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "DR-176 exists and is ACTIVE",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "DR-177 exists and is ACTIVE",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "DR171 locks barrier before cutoff",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "DR172 establishes CountScopeSnapshot",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "DR173 names PhysicalCountKey and unresolved valuation blocker",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "DR174 locks immutable count rounds",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "DR175 generalizes ApprovalCase subject",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "DR176 prohibits counter-entered surplus price",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "DR177 zero variance bypasses approval",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ08 carries CountScopeSnapshot",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ08 carries PhysicalCountKey",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ08 carries CountAdjustmentBasis",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ08 carries PRICE_BASIS_REQUIRED",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ08 carries REQUEST_RECOUNT",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ08 carries immutable StockCountSubmission semantics",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ08 zero first count ends without approval",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ08 recount zero ends without approval",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ08 nonzero routes independent approval",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ08 cancellation preserves evidence",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ08 UNKNOWN preserves identity",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "UC08-01 actor authority explicit",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "UC08-01 has four stable acceptance anchors",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "UC08-02 actor authority explicit",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "UC08-02 has four stable acceptance anchors",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "UC08-03 actor authority explicit",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "UC08-03 has four stable acceptance anchors",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "UC08-04 actor authority explicit",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "UC08-04 has four stable acceptance anchors",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "UC08-05 actor authority explicit",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "UC08-05 has four stable acceptance anchors",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "UC08-01 orders barrier before cutoff",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "UC08-01 unresolved valuation is safe rejection",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "UC08-02 blind DOM contract explicit",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "UC08-02 zero path excludes ApprovalCase",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "UC08-03 appends immutable recount",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "UC08-03 surplus basis blocks approval",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "UC08-04 approval subject is stock-count session",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "UC08-04 risk does not net signs",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "UC08-04 stale basis has effect NONE",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "UC08-05 cancel only session context",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "UC08-05 cancel creates no adjustment",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Inventory Control owns 9 entities",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "CountScopeSnapshot entity exists",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "StockCountSubmission entity exists",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "StockCountSession stores assignment snapshot",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "StockCountLine uses physical key hash",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "StockCountLine no longer stores first/recount quantities directly",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "ApprovalCase supports stock-count subject",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "ApprovalCase operation_id nullable for stock count",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "ApprovalCase stores excluded actors",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "ApprovalCase supports request recount",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "InventoryLock records barrier before cutoff",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BC-IC-01 present",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BC-IC-02 present",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BC-IC-03 present",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BC-IC-08 present",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BC-IC-01 atomic open orders barrier before cutoff",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BC-IC-02 zero variance completes without approval",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BC-IC-03 rechecks risk/value basis",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BC-IC-08 cancellation preserves immutable evidence",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "technical contract contains API-C-14",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "technical contract contains API-C-15",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "technical contract contains API-C-16",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "technical contract contains API-C-27",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "technical contract contains COUNT_SCOPE_HAS_UNRESOLVED_VALUATION",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "technical contract contains COUNT_APPROVAL_SNAPSHOT_STALE",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "technical contract contains COUNT_VALUE_BASIS_STALE",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "technical lock enforcement covers prospective keys",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "technical zero variance has no ApprovalCase",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "trace UC08-01 includes DR171..177",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "trace UC08-02 includes DR171..177",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "trace UC08-03 includes DR171..177",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "trace UC08-04 includes DR171..177",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "trace UC08-05 includes DR171..177",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "contract registry BC-IC-01 amended",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "contract registry BC-IC-02 immutable submission finality",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "contract registry BC-IC-03 stock-count subject finality",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "cancel action exact screen ownership",
+      "pass": true,
+      "note": "{'id': 'ACT-09-CANCEL', 'label': 'Hủy phiên kiểm kê', 'bc': 'BC-IC-08', 'api': 'API-C-27', 'permission': 'Quyền theo hợp đồng kỹ thuật, tenant và warehouse scope; máy chủ kiểm tra lại', 'confirmation': 'Có', 'effect': 'Cancel exact session + release lock atomically; no adjustment; immutable count/approval evidence retained; reason required.', 'screen_ids': ['SCR-044', 'SCR-045'], 'evidence_level': 'STATIC_VALIDATED_DERIVED'}"
+    },
+    {
+      "name": "SCR-042 current registry is v3.10.0",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "SCR-043 current registry is v3.10.0",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "SCR-044 current registry is v3.10.0",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "SCR-045 current registry is v3.10.0",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "SCR-046 current registry is v3.10.0",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "SCR-047 current registry is v3.10.0",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "SCR046 registry does not own cancel",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "SCR042 registry does not own cancel",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "legacy list has no cancel",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "legacy count owns cancel",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "legacy recount owns cancel",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "legacy approval has no cancel",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "UIF08 rendered v3.10.0",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "UIF08 has 16 transitions",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "UIF08 zero first count goes to result",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "UIF08 zero recount goes to result",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "UIF08 cancel only count/recount",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "UIF08 UNKNOWN hands to BJ17",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "SCR044 blind contract excludes book",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "SCR045 contract has round and basis status",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "SCR046 contract is independent approval",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "SCR047 has zero/no-adjustment result",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "component usage maps cancel only 044/045",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "runtime overlay contains decisions:[171,172,173,174,175,176",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "runtime overlay contains getRoundHistory",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "runtime overlay contains COUNT_SCOPE_HAS_UNRESOLVED_VALUATI",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "runtime overlay contains SELF_APPROVAL_NOT_ALLOWED",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "runtime overlay contains data-v350-action=\"handoff-unknown\"",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "runtime validates blank first count",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "runtime validates blank recount",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "runtime new session resets immutable-round fixture",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "runtime no counter price input",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "runtime list retains search/filter",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "runtime list has no cancel",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "runtime blind hides book and variance",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "runtime blind exposes physical states",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "runtime blank first count rejected",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "runtime zero variance direct result",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "runtime nonzero first routes recount",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "runtime blank recount rejected",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "runtime nonzero recount routes approval task",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "runtime contributor self-approval blocked",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "runtime request recount advances round",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "runtime immutable history retains FIRST and RECOUNT",
+      "pass": true,
+      "note": "[{'round': 1, 'type': 'FIRST', 'actor': 'Nguyễn An', 'values': {'amox': '18', 'glove': '7'}, 'hash': 'cnt-first-v3100'}, {'round': 2, 'type': 'RECOUNT', 'actor': 'Nguyễn An', 'values': {'amox': '18', 'glove': '7'}, 'hash': 'cnt-recount-2-v3100'}]"
+    },
+    {
+      "name": "runtime cancel returns authoritative cancelled result",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "runtime UNKNOWN preserves exact operation identity",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ08 representative screens fit 402x874 without horizontal overflow",
+      "pass": true,
+      "note": "[]"
+    },
+    {
+      "name": "BJ08 focused browser has no page errors",
+      "pass": true,
+      "note": "[]"
+    }
+  ],
+  "browserErrors": []
+}

@@ -1,0 +1,10 @@
+{
+  "command": "python3 validate_harness_pack.py . --strict",
+  "cwd": "harness",
+  "timestamp": "2026-08-23T17:01:04+07:00",
+  "exit_code": 0,
+  "stdout": "{\"blocked_checks\": [\"G14_REPOSITORY_EXECUTION\"], \"gates\": {\"BLOCKED\": 1, \"PASS\": 14}, \"hard_failures\": [], \"verdict\": \"CONDITIONALLY_READY\"}",
+  "validator": "validate_harness_pack.py/1.4.0",
+  "evidence_level": "STATIC_VALIDATED",
+  "repository_execution": "BLOCKED_BY_REPO_ADAPTER"
+}

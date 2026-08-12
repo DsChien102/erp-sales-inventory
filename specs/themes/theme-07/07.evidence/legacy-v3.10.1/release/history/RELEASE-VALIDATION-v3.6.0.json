@@ -1,0 +1,36 @@
+{
+  "version": "3.6.0",
+  "parentVersion": "3.5.1",
+  "status": "PASS",
+  "decision": "FULL_THEME_BROWSER_PROTOTYPE_BASELINE",
+  "scope": {
+    "businessJourneys": 17,
+    "supportingCapabilities": 1,
+    "canonicalRouteOccurrences": 89,
+    "activeUniqueScreens": 77,
+    "declaredRouteStates": 518,
+    "auditControlStates": 272
+  },
+  "qa": {
+    "static": "30/30",
+    "semanticFlowLogic": "21/21",
+    "fullThemeCompletion": "14/14",
+    "representativeCoherence": "8/8",
+    "runtimeUi": "14/14",
+    "allFlowSmoke": "89/89",
+    "deviceFrame": "7/7",
+    "packageValidation": "32/32",
+    "designReadiness": "PASS",
+    "priorBjRegression": "23/23",
+    "valuationIntegration": "14/14",
+    "bj05Bj06Ux": "32/32",
+    "reviewFit": "3/3",
+    "browserErrors": 0
+  },
+  "authority": {
+    "business": "BJ/UC/Decision/Flow/Contract",
+    "theme7Design": "HTML prototype/harness",
+    "figma": "Current VET45 Design System and prior-theme design reference only"
+  },
+  "evidenceBoundary": "Browser prototype only; backend transaction/database/outbox/network/concurrency/crash-restart atomicity requires backend/integration QA."
+}

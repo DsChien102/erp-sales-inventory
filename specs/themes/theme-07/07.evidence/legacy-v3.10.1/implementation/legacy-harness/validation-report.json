@@ -1,0 +1,297 @@
+{
+  "schema_version": "1.0",
+  "validator": "validate_harness_pack.py/1.4.0",
+  "validated_at": "2026-08-23T10:01:04.592580+00:00",
+  "verdict": "CONDITIONALLY_READY",
+  "highest_evidence_level": "STATIC_VALIDATED",
+  "inventory_summary": {
+    "customer_journeys": 17,
+    "domains": 3,
+    "epics": 3,
+    "stories": 77,
+    "screen_groups": 14,
+    "screens": 83,
+    "p0_contracts": 6,
+    "business_rules": 102,
+    "invariants": 38,
+    "stable_blocks": 280,
+    "detailed_story_sections": 77,
+    "requirements": 314,
+    "api_operations": 40,
+    "permission_intents": 22,
+    "events": 23,
+    "reason_codes": 117,
+    "open_questions": 3,
+    "owned_entities": 23,
+    "projections": 10,
+    "business_journeys": 17,
+    "canonical_use_cases": 70,
+    "supporting_story_slices": 7,
+    "outbound_use_cases": 19
+  },
+  "coverage_summary": {
+    "requirements": 314,
+    "covered_requirements": 314,
+    "coverage_rows": 607,
+    "contracts": 280,
+    "tests": 607,
+    "fixtures": 565,
+    "blocked_repo_tests": 607
+  },
+  "gates": [
+    {
+      "gate_id": "G00_REQUIRED_FILES",
+      "name": "Required artifact set",
+      "hard_gate": true,
+      "status": "PASS",
+      "evidence_level": "STATIC_VALIDATED",
+      "summary": "18/18 required files present.",
+      "evidence_refs": [
+        "harness-execution-profile.yaml",
+        "contract-registry.json",
+        "trace-index.json",
+        "validation-rules.yaml",
+        "test-catalog.json",
+        "fixture-registry.json",
+        "coverage-matrix.csv",
+        "implementation-questions.json",
+        "source-checksums.json",
+        "srs-inventory.json",
+        "validation-report.json",
+        "validation-report.md",
+        "executive-handoff.md",
+        "run-report.md",
+        "representative-samples.md",
+        "residual-risk-register.md",
+        "artifact-index.md",
+        "run-manifest.json"
+      ],
+      "failures": []
+    },
+    {
+      "gate_id": "G01_SOURCE_INTEGRITY",
+      "name": "Parse and source checksum integrity",
+      "hard_gate": true,
+      "status": "PASS",
+      "evidence_level": "STATIC_VALIDATED",
+      "summary": "All machine-readable artifacts parse and source files retain their recorded checksums.",
+      "evidence_refs": [
+        "contract-registry.json",
+        "trace-index.json",
+        "test-catalog.json",
+        "fixture-registry.json",
+        "implementation-questions.json",
+        "source-checksums.json",
+        "srs-inventory.json",
+        "run-manifest.json",
+        "harness-execution-profile.yaml",
+        "validation-rules.yaml"
+      ],
+      "failures": []
+    },
+    {
+      "gate_id": "G02_FREEZE_INTEGRITY",
+      "name": "Frozen source and freeze-ID integrity",
+      "hard_gate": true,
+      "status": "PASS",
+      "evidence_level": "STATIC_VALIDATED",
+      "summary": "108 frozen source files checked; freeze identity must match profile, Decision Log, Trace Matrix and Freeze Manifest.",
+      "evidence_refs": [
+        "source-checksums.json",
+        "harness-execution-profile.yaml",
+        "trace-index.json",
+        "run-manifest.json"
+      ],
+      "failures": []
+    },
+    {
+      "gate_id": "G03_INVENTORY_COVERAGE",
+      "name": "Semantic inventory and package manifest",
+      "hard_gate": true,
+      "status": "PASS",
+      "evidence_level": "STATIC_VALIDATED",
+      "summary": "Inventory declares 23 entities, 10 projections, 38 invariants, 77 stories and 6 P0 contracts.",
+      "evidence_refs": [
+        "srs-inventory.json",
+        "run-manifest.json"
+      ],
+      "failures": []
+    },
+    {
+      "gate_id": "G04_STABLE_ID_UNIQUENESS",
+      "name": "Stable-ID uniqueness",
+      "hard_gate": true,
+      "status": "PASS",
+      "evidence_level": "STATIC_VALIDATED",
+      "summary": "Checked 280 contracts, 607 tests and 565 fixtures.",
+      "evidence_refs": [
+        "contract-registry.json",
+        "test-catalog.json",
+        "fixture-registry.json"
+      ],
+      "failures": []
+    },
+    {
+      "gate_id": "G05_TRACE_CLOSURE",
+      "name": "Atomic source-to-contract-to-test trace closure",
+      "hard_gate": true,
+      "status": "PASS",
+      "evidence_level": "STATIC_VALIDATED",
+      "summary": "314/314 requirements, 40/40 API operations, 23/23 events, 22/22 permissions, 117/117 reasons and 38/38 invariants mapped.",
+      "evidence_refs": [
+        "trace-index.json",
+        "coverage-matrix.csv"
+      ],
+      "failures": []
+    },
+    {
+      "gate_id": "G06_AUTHORITY_FINALITY",
+      "name": "Authority and finality contract shape",
+      "hard_gate": true,
+      "status": "PASS",
+      "evidence_level": "STATIC_VALIDATED",
+      "summary": "Every contract declares owner, source, finality semantics, safe failure and evidence level.",
+      "evidence_refs": [
+        "contract-registry.json"
+      ],
+      "failures": []
+    },
+    {
+      "gate_id": "G07_P0_COVERAGE",
+      "name": "P0 fence coverage",
+      "hard_gate": true,
+      "status": "PASS",
+      "evidence_level": "STATIC_VALIDATED",
+      "summary": "6 P0 contracts checked for 8 fence dimensions each.",
+      "evidence_refs": [
+        "contract-registry.json",
+        "test-catalog.json"
+      ],
+      "failures": []
+    },
+    {
+      "gate_id": "G08_SAFE_FAILURE",
+      "name": "Idempotency, UNKNOWN and reason-code safety",
+      "hard_gate": true,
+      "status": "PASS",
+      "evidence_level": "STATIC_VALIDATED",
+      "summary": "6 P0 UNKNOWN tests and 117 reason-code contracts checked.",
+      "evidence_refs": [
+        "test-catalog.json",
+        "contract-registry.json"
+      ],
+      "failures": []
+    },
+    {
+      "gate_id": "G09_TEST_FIXTURE_LINKAGE",
+      "name": "Test, fixture and gate linkage",
+      "hard_gate": true,
+      "status": "PASS",
+      "evidence_level": "STATIC_VALIDATED",
+      "summary": "607 tests linked to 565 fixtures and declared gates.",
+      "evidence_refs": [
+        "test-catalog.json",
+        "fixture-registry.json"
+      ],
+      "failures": []
+    },
+    {
+      "gate_id": "G10_NO_PLACEHOLDERS",
+      "name": "No unresolved placeholders",
+      "hard_gate": true,
+      "status": "PASS",
+      "evidence_level": "STATIC_VALIDATED",
+      "summary": "Scanned text artifacts for unresolved placeholder patterns.",
+      "evidence_refs": [
+        "representative-samples.md",
+        "validate_harness_pack.py",
+        "coverage-matrix.csv",
+        "validation-report.md",
+        "implementation-questions.json",
+        "run-manifest.json",
+        "residual-risk-register.md",
+        "source-checksums.json",
+        "trace-index.json",
+        "contract-registry.json",
+        "validation-rules.yaml",
+        "artifact-index.md",
+        "executive-handoff.md",
+        "harness-execution-profile.yaml",
+        "validation-report.json",
+        "run-report.md",
+        "srs-inventory.json",
+        "test-catalog.json",
+        "fixture-registry.json"
+      ],
+      "failures": []
+    },
+    {
+      "gate_id": "G11_EVIDENCE_VERDICT_HONESTY",
+      "name": "Evidence-level and verdict honesty",
+      "hard_gate": true,
+      "status": "PASS",
+      "evidence_level": "STATIC_VALIDATED",
+      "summary": "Package-only evidence is reported as CONDITIONALLY_READY; repo-dependent tests remain blocked.",
+      "evidence_refs": [
+        "run-manifest.json",
+        "executive-handoff.md",
+        "test-catalog.json"
+      ],
+      "failures": []
+    },
+    {
+      "gate_id": "G12_HUMAN_HANDOFF",
+      "name": "Human handoff completeness",
+      "hard_gate": true,
+      "status": "PASS",
+      "evidence_level": "STATIC_VALIDATED",
+      "summary": "Executive handoff includes verdict, evidence ceiling, execution scope, findings, coverage, samples, risks and navigation.",
+      "evidence_refs": [
+        "executive-handoff.md",
+        "representative-samples.md",
+        "residual-risk-register.md",
+        "artifact-index.md"
+      ],
+      "failures": []
+    },
+    {
+      "gate_id": "G13_IMPLEMENTATION_QUESTIONS",
+      "name": "Implementation-question classification",
+      "hard_gate": false,
+      "status": "PASS",
+      "evidence_level": "STATIC_VALIDATED",
+      "summary": "3 open questions retained with owner, classification and decision gate.",
+      "evidence_refs": [
+        "implementation-questions.json"
+      ],
+      "failures": []
+    },
+    {
+      "gate_id": "G14_REPOSITORY_EXECUTION",
+      "name": "Actual repository execution",
+      "hard_gate": false,
+      "status": "BLOCKED",
+      "evidence_level": "GENERATED",
+      "summary": "0 tests have repository execution evidence; repo adapter required for the selected pilots.",
+      "evidence_refs": [
+        "test-catalog.json",
+        "run-report.md"
+      ],
+      "failures": []
+    }
+  ],
+  "hard_failures": [],
+  "blocked_checks": [
+    "G14_REPOSITORY_EXECUTION"
+  ],
+  "blocked_check_details": [
+    {
+      "gate_id": "G14_REPOSITORY_EXECUTION",
+      "owner": "Engineering / QA",
+      "unblock_action": "Implement the actual repository adapter and execute the selected pilot with recorded commands, exits and logs."
+    }
+  ],
+  "skipped_checks": [],
+  "source_checksum_status": "PASS",
+  "package_checksum_status": "PASS"
+}

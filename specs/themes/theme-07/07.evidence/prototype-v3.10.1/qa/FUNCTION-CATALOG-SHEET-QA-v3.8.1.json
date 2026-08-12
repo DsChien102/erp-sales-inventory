@@ -1,0 +1,175 @@
+{
+  "version": "3.8.1",
+  "status": "PASS",
+  "checks": [
+    {
+      "name": "runtime version",
+      "pass": true,
+      "note": "3.8.1"
+    },
+    {
+      "name": "two workbench tabs preserved",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "task-driven Warehouse Home remains primary",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "three work items remain visible by default",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "manual entry remains a single CTA",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "secondary full-function entry is present once",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "secondary entry is not part of the primary work queue",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "home still hides long-tail journey names",
+      "pass": true,
+      "note": "9:41\nLTE  100%\nKho\nViệc của bạn\n5 việc\nPN-260816-04\nMinh Dũng · 2 dòng hàng · Cần nhận\nCần nhận\nSO-260827-21\nĐại lý An Phú · 2 sản phẩm · Đang lấy\nĐang lấy\nKK-0709-03\nKho trung tâm · 12/38 đã đếm\nĐang đếm\nXem 2 việc khác\nTra cứu\nTồn kho\nTra cứu số lượng, lô và khả dụng\n3 cần chú ý\nBáo cáo & thẻ kho\nXem tồn tại thời điểm và lịch sử biến động\nTạo thao tác\nTất cả chức năng kho\nXem các chức năng và thiết lập khác\nTrang chủ\nBán hàng\nĐơn hàng\nĐối tác\nThêm"
+    },
+    {
+      "name": "manual sheet still has exactly four manual actions",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "manual sheet no longer has explicit Close CTA",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "manual sheet no longer shows explanatory helper",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Escape dismisses manual sheet",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "backdrop dismisses manual sheet",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "full-function catalog opens as a secondary screen",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "catalog exposes exactly all 17 BJ + CAP-01",
+      "pass": true,
+      "note": [
+        "UIF-01",
+        "UIF-15",
+        "UIF-02",
+        "UIF-05",
+        "UIF-06",
+        "UIF-07",
+        "UIF-08",
+        "UIF-09",
+        "UIF-10",
+        "UIF-03",
+        "UIF-13",
+        "UIF-14",
+        "UIF-11",
+        "UIF-16",
+        "UIF-17",
+        "UIF-04",
+        "UIF-12",
+        "CAP-01"
+      ]
+    },
+    {
+      "name": "catalog uses six visual groups without extra category routes",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "contextual/exception/setup entries are labeled with origin cues",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "catalog row enters shared existing BJ runtime",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "catalog entry screen has module Back",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Back from catalog-launched flow returns to catalog",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "catalog Back returns to task-driven Warehouse Home",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "manual quick receipt still enters direct SCR-008",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "manual direct entry keeps direct Back-to-Kho contract",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "manual direct Back returns to Warehouse Home",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "canonical 402x874 product / 418x890 review frame preserved",
+      "pass": true,
+      "note": {
+        "rw": 402,
+        "rh": 874,
+        "dw": 418,
+        "dh": 890,
+        "x": 0,
+        "cx": 0
+      }
+    },
+    {
+      "name": "Warehouse Home has no horizontal overflow",
+      "pass": true,
+      "note": {
+        "rw": 402,
+        "rh": 874,
+        "dw": 418,
+        "dh": 890,
+        "x": 0,
+        "cx": 0
+      }
+    },
+    {
+      "name": "no browser page errors",
+      "pass": true,
+      "note": []
+    }
+  ],
+  "browserErrors": []
+}

@@ -1,0 +1,486 @@
+{
+  "version": "3.6.4",
+  "status": "PASS",
+  "scope": "All declared Theme 7 route-state renders; Sticky Footer single/dual action geometry and semantics.",
+  "routeStatesScanned": 518,
+  "visibleFooterOccurrences": 288,
+  "dualFooterOccurrences": 17,
+  "singleFooterOccurrences": 271,
+  "checks": [
+    {
+      "name": "runtime_version",
+      "status": "PASS",
+      "detail": "runtime=3.6.4 expected=3.6.4"
+    },
+    {
+      "name": "no_browser_page_errors",
+      "status": "PASS",
+      "detail": "errors=0"
+    },
+    {
+      "name": "dual_footer_occurrences",
+      "status": "PASS",
+      "detail": "observed=17 expected=17"
+    },
+    {
+      "name": "no_footer_with_3plus_actions",
+      "status": "PASS",
+      "detail": "max=2"
+    },
+    {
+      "name": "dual_actions_horizontal",
+      "status": "PASS",
+      "detail": "violations=0"
+    },
+    {
+      "name": "dual_footer_exact_geometry",
+      "status": "PASS",
+      "detail": "violations=0"
+    },
+    {
+      "name": "secondary_or_destructive_left_primary_right",
+      "status": "PASS",
+      "detail": "violations=0"
+    },
+    {
+      "name": "no_footer_bleed_outside_product_viewport",
+      "status": "PASS",
+      "detail": "violations=0"
+    },
+    {
+      "name": "dual_footer_ds_metadata",
+      "status": "PASS",
+      "detail": "violations=0"
+    },
+    {
+      "name": "danger_dual_footer_semantics",
+      "status": "PASS",
+      "detail": "violations=0"
+    },
+    {
+      "name": "single_primary_footer_regression",
+      "status": "PASS",
+      "detail": "checked=271 violations=0"
+    }
+  ],
+  "dualFooterMatrix": [
+    {
+      "flow": "UIF-02",
+      "screen": "SCR-011",
+      "state": "READY",
+      "footerCls": "app-actions is-split approval-actions figma-sticky-footer v361-dual-footer v361-dual-footer--danger",
+      "dsLayout": "Dual",
+      "dsTone": "Danger",
+      "buttons": [
+        {
+          "text": "Từ chối",
+          "w": 181,
+          "h": 44,
+          "primary": false,
+          "danger": true
+        },
+        {
+          "text": "Duyệt",
+          "w": 181,
+          "h": 44,
+          "primary": true,
+          "danger": false
+        }
+      ]
+    },
+    {
+      "flow": "UIF-02",
+      "screen": "SCR-011",
+      "state": "VALIDATION_ERROR",
+      "footerCls": "app-actions is-split approval-actions figma-sticky-footer v361-dual-footer v361-dual-footer--danger",
+      "dsLayout": "Dual",
+      "dsTone": "Danger",
+      "buttons": [
+        {
+          "text": "Từ chối",
+          "w": 181,
+          "h": 44,
+          "primary": false,
+          "danger": true
+        },
+        {
+          "text": "Duyệt",
+          "w": 181,
+          "h": 44,
+          "primary": true,
+          "danger": false
+        }
+      ]
+    },
+    {
+      "flow": "UIF-02",
+      "screen": "SCR-011",
+      "state": "APPROVAL_REQUIRED",
+      "footerCls": "app-actions is-split approval-actions figma-sticky-footer v361-dual-footer v361-dual-footer--danger",
+      "dsLayout": "Dual",
+      "dsTone": "Danger",
+      "buttons": [
+        {
+          "text": "Từ chối",
+          "w": 181,
+          "h": 44,
+          "primary": false,
+          "danger": true
+        },
+        {
+          "text": "Duyệt",
+          "w": 181,
+          "h": 44,
+          "primary": true,
+          "danger": false
+        }
+      ]
+    },
+    {
+      "flow": "UIF-02",
+      "screen": "SCR-011",
+      "state": "SELF_APPROVAL_NOT_ALLOWED",
+      "footerCls": "app-actions is-split approval-actions figma-sticky-footer v361-dual-footer v361-dual-footer--danger",
+      "dsLayout": "Dual",
+      "dsTone": "Danger",
+      "buttons": [
+        {
+          "text": "Từ chối",
+          "w": 181,
+          "h": 44,
+          "primary": false,
+          "danger": true
+        },
+        {
+          "text": "Duyệt",
+          "w": 181,
+          "h": 44,
+          "primary": true,
+          "danger": false
+        }
+      ]
+    },
+    {
+      "flow": "UIF-02",
+      "screen": "SCR-011",
+      "state": "FINANCIAL_MASKED",
+      "footerCls": "app-actions is-split approval-actions figma-sticky-footer v361-dual-footer v361-dual-footer--danger",
+      "dsLayout": "Dual",
+      "dsTone": "Danger",
+      "buttons": [
+        {
+          "text": "Từ chối",
+          "w": 181,
+          "h": 44,
+          "primary": false,
+          "danger": true
+        },
+        {
+          "text": "Duyệt",
+          "w": 181,
+          "h": 44,
+          "primary": true,
+          "danger": false
+        }
+      ]
+    },
+    {
+      "flow": "UIF-08",
+      "screen": "SCR-044",
+      "state": "BLIND_COUNT",
+      "footerCls": "app-actions figma-sticky-footer v361-dual-footer v361-dual-footer--danger",
+      "dsLayout": "Dual",
+      "dsTone": "Danger",
+      "buttons": [
+        {
+          "text": "Hủy phiên",
+          "w": 181,
+          "h": 44,
+          "primary": false,
+          "danger": true
+        },
+        {
+          "text": "Nộp kết quả đếm",
+          "w": 181,
+          "h": 44,
+          "primary": true,
+          "danger": false
+        }
+      ]
+    },
+    {
+      "flow": "UIF-08",
+      "screen": "SCR-044",
+      "state": "VALIDATION_ERROR",
+      "footerCls": "app-actions figma-sticky-footer v361-dual-footer v361-dual-footer--danger",
+      "dsLayout": "Dual",
+      "dsTone": "Danger",
+      "buttons": [
+        {
+          "text": "Hủy phiên",
+          "w": 181,
+          "h": 44,
+          "primary": false,
+          "danger": true
+        },
+        {
+          "text": "Nộp kết quả đếm",
+          "w": 181,
+          "h": 44,
+          "primary": true,
+          "danger": false
+        }
+      ]
+    },
+    {
+      "flow": "UIF-08",
+      "screen": "SCR-045",
+      "state": "RECOUNT_REQUIRED",
+      "footerCls": "app-actions figma-sticky-footer ac310-footer-stack v361-dual-footer v361-dual-footer--danger",
+      "dsLayout": "Dual",
+      "dsTone": "Danger",
+      "buttons": [
+        {
+          "text": "Hủy phiên",
+          "w": 181,
+          "h": 44,
+          "primary": false,
+          "danger": true
+        },
+        {
+          "text": "Gửi chờ duyệt",
+          "w": 181,
+          "h": 44,
+          "primary": true,
+          "danger": false
+        }
+      ]
+    },
+    {
+      "flow": "UIF-08",
+      "screen": "SCR-045",
+      "state": "EVIDENCE_REQUIRED",
+      "footerCls": "app-actions figma-sticky-footer ac310-footer-stack v361-dual-footer v361-dual-footer--danger",
+      "dsLayout": "Dual",
+      "dsTone": "Danger",
+      "buttons": [
+        {
+          "text": "Hủy phiên",
+          "w": 181,
+          "h": 44,
+          "primary": false,
+          "danger": true
+        },
+        {
+          "text": "Gửi chờ duyệt",
+          "w": 181,
+          "h": 44,
+          "primary": true,
+          "danger": false
+        }
+      ]
+    },
+    {
+      "flow": "UIF-08",
+      "screen": "SCR-045",
+      "state": "PRICE_BASIS_REQUIRED",
+      "footerCls": "app-actions figma-sticky-footer ac310-footer-stack v361-dual-footer v361-dual-footer--danger",
+      "dsLayout": "Dual",
+      "dsTone": "Danger",
+      "buttons": [
+        {
+          "text": "Hủy phiên",
+          "w": 181,
+          "h": 44,
+          "primary": false,
+          "danger": true
+        },
+        {
+          "text": "Gửi chờ duyệt",
+          "w": 181,
+          "h": 44,
+          "primary": true,
+          "danger": false
+        }
+      ]
+    },
+    {
+      "flow": "UIF-08",
+      "screen": "SCR-045",
+      "state": "VALIDATION_ERROR",
+      "footerCls": "app-actions figma-sticky-footer ac310-footer-stack v361-dual-footer v361-dual-footer--danger",
+      "dsLayout": "Dual",
+      "dsTone": "Danger",
+      "buttons": [
+        {
+          "text": "Hủy phiên",
+          "w": 181,
+          "h": 44,
+          "primary": false,
+          "danger": true
+        },
+        {
+          "text": "Gửi chờ duyệt",
+          "w": 181,
+          "h": 44,
+          "primary": true,
+          "danger": false
+        }
+      ]
+    },
+    {
+      "flow": "UIF-08",
+      "screen": "SCR-046",
+      "state": "APPROVAL_REQUIRED",
+      "footerCls": "app-actions figma-sticky-footer ds24-footer-stack v361-dual-footer",
+      "dsLayout": "Dual",
+      "dsTone": "Default",
+      "buttons": [
+        {
+          "text": "Yêu cầu xem lại",
+          "w": 181,
+          "h": 44,
+          "primary": false,
+          "danger": false
+        },
+        {
+          "text": "Duyệt và điều chỉnh",
+          "w": 181,
+          "h": 44,
+          "primary": true,
+          "danger": false
+        }
+      ]
+    },
+    {
+      "flow": "UIF-08",
+      "screen": "SCR-046",
+      "state": "APPROVAL_REVIEW",
+      "footerCls": "app-actions figma-sticky-footer ac310-two-actions v361-dual-footer",
+      "dsLayout": "Dual",
+      "dsTone": "Default",
+      "buttons": [
+        {
+          "text": "Yêu cầu xem lại",
+          "w": 181,
+          "h": 44,
+          "primary": false,
+          "danger": false
+        },
+        {
+          "text": "Duyệt",
+          "w": 181,
+          "h": 44,
+          "primary": true,
+          "danger": false
+        }
+      ]
+    },
+    {
+      "flow": "UIF-11",
+      "screen": "SCR-051",
+      "state": "READY",
+      "footerCls": "app-actions figma-sticky-footer ac310-two-actions v361-dual-footer v361-dual-footer--danger",
+      "dsLayout": "Dual",
+      "dsTone": "Danger",
+      "buttons": [
+        {
+          "text": "Từ chối",
+          "w": 181,
+          "h": 44,
+          "primary": false,
+          "danger": true
+        },
+        {
+          "text": "Duyệt",
+          "w": 181,
+          "h": 44,
+          "primary": true,
+          "danger": false
+        }
+      ]
+    },
+    {
+      "flow": "UIF-11",
+      "screen": "SCR-051",
+      "state": "VALIDATION_ERROR",
+      "footerCls": "app-actions figma-sticky-footer ac310-two-actions v361-dual-footer v361-dual-footer--danger",
+      "dsLayout": "Dual",
+      "dsTone": "Danger",
+      "buttons": [
+        {
+          "text": "Từ chối",
+          "w": 181,
+          "h": 44,
+          "primary": false,
+          "danger": true
+        },
+        {
+          "text": "Duyệt",
+          "w": 181,
+          "h": 44,
+          "primary": true,
+          "danger": false
+        }
+      ]
+    },
+    {
+      "flow": "UIF-12",
+      "screen": "SCR-070",
+      "state": "READY",
+      "footerCls": "app-actions figma-sticky-footer ac310-two-actions v361-dual-footer v361-dual-footer--danger",
+      "dsLayout": "Dual",
+      "dsTone": "Danger",
+      "buttons": [
+        {
+          "text": "Từ chối",
+          "w": 181,
+          "h": 44,
+          "primary": false,
+          "danger": true
+        },
+        {
+          "text": "Duyệt",
+          "w": 181,
+          "h": 44,
+          "primary": true,
+          "danger": false
+        }
+      ]
+    },
+    {
+      "flow": "CAP-01",
+      "screen": "SCR-064",
+      "state": "READY",
+      "footerCls": "app-actions figma-sticky-footer v360-dual-actions v361-dual-footer",
+      "dsLayout": "Dual",
+      "dsTone": "Default",
+      "buttons": [
+        {
+          "text": "Chỉnh sửa",
+          "w": 181,
+          "h": 44,
+          "primary": false,
+          "danger": false
+        },
+        {
+          "text": "Lưu chính sách",
+          "w": 181,
+          "h": 44,
+          "primary": true,
+          "danger": false
+        }
+      ]
+    }
+  ],
+  "violations": {
+    "horizontal": [],
+    "geometry": [],
+    "order": [],
+    "bleed": [],
+    "dsMetadata": [],
+    "dangerSemantics": [],
+    "singleRegression": [],
+    "browserErrors": []
+  }
+}

@@ -1,0 +1,625 @@
+[
+  {
+    "flow": "UIF-02",
+    "screen": "SCR-006",
+    "name": "Chọn cách nhận hàng",
+    "state": "READY",
+    "path": "001-UIF-02-SCR-006-READY.png"
+  },
+  {
+    "flow": "UIF-02",
+    "screen": "SCR-007",
+    "name": "Chứng từ chờ nhận",
+    "state": "READY",
+    "path": "002-UIF-02-SCR-007-READY.png"
+  },
+  {
+    "flow": "UIF-02",
+    "screen": "SCR-008",
+    "name": "Thông tin nhập hàng nhanh",
+    "state": "READY",
+    "path": "003-UIF-02-SCR-008-READY.png"
+  },
+  {
+    "flow": "UIF-02",
+    "screen": "SCR-009",
+    "name": "Hàng thực nhận",
+    "state": "READY",
+    "path": "004-UIF-02-SCR-009-READY.png"
+  },
+  {
+    "flow": "UIF-02",
+    "screen": "SCR-084",
+    "name": "Chi tiết hàng thực nhận",
+    "state": "READY",
+    "path": "005-UIF-02-SCR-084-READY.png"
+  },
+  {
+    "flow": "UIF-02",
+    "screen": "SCR-010",
+    "name": "Rà soát và gửi xử lý",
+    "state": "READY",
+    "path": "006-UIF-02-SCR-010-READY.png"
+  },
+  {
+    "flow": "UIF-02",
+    "screen": "SCR-011",
+    "name": "Phê duyệt yêu cầu nhận hàng",
+    "state": "READY",
+    "path": "007-UIF-02-SCR-011-READY.png"
+  },
+  {
+    "flow": "UIF-02",
+    "screen": "SCR-012",
+    "name": "Kết quả nhận hàng",
+    "state": "COMPLETED",
+    "path": "008-UIF-02-SCR-012-COMPLETED.png"
+  },
+  {
+    "flow": "UIF-02",
+    "screen": "SCR-013",
+    "name": "Đối soát kết quả nhận hàng",
+    "state": "READY",
+    "path": "009-UIF-02-SCR-013-READY.png"
+  },
+  {
+    "flow": "UIF-01",
+    "screen": "SCR-001",
+    "name": "Tồn kho",
+    "state": "READY",
+    "path": "010-UIF-01-SCR-001-READY.png"
+  },
+  {
+    "flow": "UIF-01",
+    "screen": "SCR-003",
+    "name": "Chi tiết tồn kho",
+    "state": "READY",
+    "path": "011-UIF-01-SCR-003-READY.png"
+  },
+  {
+    "flow": "UIF-03",
+    "screen": "SCR-014",
+    "name": "Hàng chờ xác nhận giá nhập",
+    "state": "READY",
+    "path": "012-UIF-03-SCR-014-READY.png"
+  },
+  {
+    "flow": "UIF-03",
+    "screen": "SCR-015",
+    "name": "Chọn hàng cần xác nhận giá",
+    "state": "READY",
+    "path": "013-UIF-03-SCR-015-READY.png"
+  },
+  {
+    "flow": "UIF-03",
+    "screen": "SCR-017",
+    "name": "Rà soát xác nhận giá",
+    "state": "READY",
+    "path": "014-UIF-03-SCR-017-READY.png"
+  },
+  {
+    "flow": "UIF-03",
+    "screen": "SCR-019",
+    "name": "Kết quả xác nhận giá",
+    "state": "COMPLETED",
+    "path": "015-UIF-03-SCR-019-COMPLETED.png"
+  },
+  {
+    "flow": "UIF-13",
+    "screen": "SCR-085",
+    "name": "Chi phí mua bổ sung",
+    "state": "READY",
+    "path": "016-UIF-13-SCR-085-READY.png"
+  },
+  {
+    "flow": "UIF-13",
+    "screen": "SCR-086",
+    "name": "Nguồn và phạm vi chi phí",
+    "state": "READY",
+    "path": "017-UIF-13-SCR-086-READY.png"
+  },
+  {
+    "flow": "UIF-13",
+    "screen": "SCR-087",
+    "name": "Phân bổ chi phí",
+    "state": "READY",
+    "path": "018-UIF-13-SCR-087-READY.png"
+  },
+  {
+    "flow": "UIF-13",
+    "screen": "SCR-088",
+    "name": "Rà soát ghi chi phí",
+    "state": "READY",
+    "path": "019-UIF-13-SCR-088-READY.png"
+  },
+  {
+    "flow": "UIF-13",
+    "screen": "SCR-089",
+    "name": "Kết quả ghi chi phí",
+    "state": "COMPLETED",
+    "path": "020-UIF-13-SCR-089-COMPLETED.png"
+  },
+  {
+    "flow": "UIF-04",
+    "screen": "SCR-021",
+    "name": "Giữ hàng theo đơn",
+    "state": "PARTIAL",
+    "path": "021-UIF-04-SCR-021-PARTIAL.png"
+  },
+  {
+    "flow": "UIF-05",
+    "screen": "SCR-025",
+    "name": "Đơn cần lấy hàng",
+    "state": "READY",
+    "path": "022-UIF-05-SCR-025-READY.png"
+  },
+  {
+    "flow": "UIF-05",
+    "screen": "SCR-026",
+    "name": "Hàng cần lấy",
+    "state": "READY",
+    "path": "023-UIF-05-SCR-026-READY.png"
+  },
+  {
+    "flow": "UIF-05",
+    "screen": "SCR-027",
+    "name": "Chi tiết lấy hàng",
+    "state": "READY",
+    "path": "024-UIF-05-SCR-027-READY.png"
+  },
+  {
+    "flow": "UIF-05",
+    "screen": "SCR-028",
+    "name": "Rà soát bàn giao",
+    "state": "READY",
+    "path": "025-UIF-05-SCR-028-READY.png"
+  },
+  {
+    "flow": "UIF-05",
+    "screen": "SCR-029",
+    "name": "Kết quả bàn giao",
+    "state": "COMPLETED",
+    "path": "026-UIF-05-SCR-029-COMPLETED.png"
+  },
+  {
+    "flow": "UIF-06",
+    "screen": "SCR-030",
+    "name": "Hàng khách trả",
+    "state": "READY",
+    "path": "027-UIF-06-SCR-030-READY.png"
+  },
+  {
+    "flow": "UIF-06",
+    "screen": "SCR-031",
+    "name": "Hàng khách trả",
+    "state": "READY",
+    "path": "028-UIF-06-SCR-031-READY.png"
+  },
+  {
+    "flow": "UIF-06",
+    "screen": "SCR-032",
+    "name": "Chi tiết hàng trả",
+    "state": "READY",
+    "path": "029-UIF-06-SCR-032-READY.png"
+  },
+  {
+    "flow": "UIF-06",
+    "screen": "SCR-033",
+    "name": "Phân loại hàng trả",
+    "state": "READY",
+    "path": "030-UIF-06-SCR-033-READY.png"
+  },
+  {
+    "flow": "UIF-06",
+    "screen": "SCR-035",
+    "name": "Kết quả hàng trả",
+    "state": "RECEIVED_PENDING_CLASSIFICATION",
+    "path": "031-UIF-06-SCR-035-RECEIVED_PENDING_CLASSIFICATION.png"
+  },
+  {
+    "flow": "UIF-06",
+    "screen": "SCR-034",
+    "name": "Ngoại lệ lô cần duyệt",
+    "state": "READY",
+    "path": "032-UIF-06-SCR-034-READY.png"
+  },
+  {
+    "flow": "UIF-07",
+    "screen": "SCR-036",
+    "name": "Hàng chờ trả nhà cung cấp",
+    "state": "READY",
+    "path": "033-UIF-07-SCR-036-READY.png"
+  },
+  {
+    "flow": "UIF-07",
+    "screen": "SCR-037",
+    "name": "Chuẩn bị hàng trả",
+    "state": "READY",
+    "path": "034-UIF-07-SCR-037-READY.png"
+  },
+  {
+    "flow": "UIF-07",
+    "screen": "SCR-039",
+    "name": "Bàn giao trả nhà cung cấp",
+    "state": "READY",
+    "path": "035-UIF-07-SCR-039-READY.png"
+  },
+  {
+    "flow": "UIF-07",
+    "screen": "SCR-041",
+    "name": "Kết quả xử lý",
+    "state": "COMPLETED",
+    "path": "036-UIF-07-SCR-041-COMPLETED.png"
+  },
+  {
+    "flow": "UIF-09",
+    "screen": "SCR-036",
+    "name": "Hàng chờ trả nhà cung cấp",
+    "state": "READY",
+    "path": "037-UIF-09-SCR-036-READY.png"
+  },
+  {
+    "flow": "UIF-09",
+    "screen": "SCR-037",
+    "name": "Chuẩn bị hàng trả",
+    "state": "READY",
+    "path": "038-UIF-09-SCR-037-READY.png"
+  },
+  {
+    "flow": "UIF-09",
+    "screen": "SCR-038",
+    "name": "Chuyển trạng thái",
+    "state": "READY",
+    "path": "039-UIF-09-SCR-038-READY.png"
+  },
+  {
+    "flow": "UIF-09",
+    "screen": "SCR-041",
+    "name": "Kết quả xử lý",
+    "state": "COMPLETED",
+    "path": "040-UIF-09-SCR-041-COMPLETED.png"
+  },
+  {
+    "flow": "UIF-09",
+    "screen": "SCR-056",
+    "name": "Chi tiết movement",
+    "state": "READY",
+    "path": "041-UIF-09-SCR-056-READY.png"
+  },
+  {
+    "flow": "UIF-10",
+    "screen": "SCR-036",
+    "name": "Hàng chờ trả nhà cung cấp",
+    "state": "READY",
+    "path": "042-UIF-10-SCR-036-READY.png"
+  },
+  {
+    "flow": "UIF-10",
+    "screen": "SCR-037",
+    "name": "Chuẩn bị hàng trả",
+    "state": "READY",
+    "path": "043-UIF-10-SCR-037-READY.png"
+  },
+  {
+    "flow": "UIF-10",
+    "screen": "SCR-040",
+    "name": "Yêu cầu tiêu hủy",
+    "state": "READY",
+    "path": "044-UIF-10-SCR-040-READY.png"
+  },
+  {
+    "flow": "UIF-10",
+    "screen": "SCR-041",
+    "name": "Kết quả xử lý",
+    "state": "COMPLETED",
+    "path": "045-UIF-10-SCR-041-COMPLETED.png"
+  },
+  {
+    "flow": "UIF-08",
+    "screen": "SCR-042",
+    "name": "Kiểm kê kho",
+    "state": "READY",
+    "path": "046-UIF-08-SCR-042-READY.png"
+  },
+  {
+    "flow": "UIF-08",
+    "screen": "SCR-043",
+    "name": "Tạo phiên kiểm kê",
+    "state": "READY",
+    "path": "047-UIF-08-SCR-043-READY.png"
+  },
+  {
+    "flow": "UIF-08",
+    "screen": "SCR-044",
+    "name": "Đếm mù",
+    "state": "BLIND_COUNT",
+    "path": "048-UIF-08-SCR-044-BLIND_COUNT.png"
+  },
+  {
+    "flow": "UIF-08",
+    "screen": "SCR-045",
+    "name": "Chênh lệch và đếm lại",
+    "state": "RECOUNT_REQUIRED",
+    "path": "049-UIF-08-SCR-045-RECOUNT_REQUIRED.png"
+  },
+  {
+    "flow": "UIF-08",
+    "screen": "SCR-046",
+    "name": "Duyệt điều chỉnh",
+    "state": "APPROVAL_REQUIRED",
+    "path": "050-UIF-08-SCR-046-APPROVAL_REQUIRED.png"
+  },
+  {
+    "flow": "UIF-08",
+    "screen": "SCR-047",
+    "name": "Kết quả kiểm kê",
+    "state": "COMPLETED",
+    "path": "051-UIF-08-SCR-047-COMPLETED.png"
+  },
+  {
+    "flow": "UIF-11",
+    "screen": "SCR-048",
+    "name": "Nghiệp vụ cần kiểm soát",
+    "state": "READY",
+    "path": "052-UIF-11-SCR-048-READY.png"
+  },
+  {
+    "flow": "UIF-11",
+    "screen": "SCR-049",
+    "name": "Chi tiết nghiệp vụ kho",
+    "state": "CORRECTABLE",
+    "path": "053-UIF-11-SCR-049-CORRECTABLE.png"
+  },
+  {
+    "flow": "UIF-11",
+    "screen": "SCR-052",
+    "name": "Hủy hoặc chọn cách sửa",
+    "state": "CORRECTION_ROUTE",
+    "path": "054-UIF-11-SCR-052-CORRECTION_ROUTE.png"
+  },
+  {
+    "flow": "UIF-11",
+    "screen": "SCR-050",
+    "name": "Nội dung sửa sai",
+    "state": "READY",
+    "path": "055-UIF-11-SCR-050-READY.png"
+  },
+  {
+    "flow": "UIF-11",
+    "screen": "SCR-053",
+    "name": "Kết quả sửa sai",
+    "state": "PENDING_APPROVAL",
+    "path": "056-UIF-11-SCR-053-PENDING_APPROVAL.png"
+  },
+  {
+    "flow": "UIF-11",
+    "screen": "SCR-051",
+    "name": "Duyệt sửa sai",
+    "state": "READY",
+    "path": "057-UIF-11-SCR-051-READY.png"
+  },
+  {
+    "flow": "UIF-12",
+    "screen": "SCR-066",
+    "name": "Khởi tạo tồn kho",
+    "state": "READY",
+    "path": "058-UIF-12-SCR-066-READY.png"
+  },
+  {
+    "flow": "UIF-12",
+    "screen": "SCR-067",
+    "name": "Dữ liệu tồn kho đầu kỳ",
+    "state": "READY",
+    "path": "059-UIF-12-SCR-067-READY.png"
+  },
+  {
+    "flow": "UIF-12",
+    "screen": "SCR-068",
+    "name": "Kết quả kiểm tra dữ liệu",
+    "state": "READY",
+    "path": "060-UIF-12-SCR-068-READY.png"
+  },
+  {
+    "flow": "UIF-12",
+    "screen": "SCR-069",
+    "name": "Rà soát số dư đầu kỳ",
+    "state": "READY",
+    "path": "061-UIF-12-SCR-069-READY.png"
+  },
+  {
+    "flow": "UIF-12",
+    "screen": "SCR-070",
+    "name": "Duyệt số dư đầu kỳ",
+    "state": "READY",
+    "path": "062-UIF-12-SCR-070-READY.png"
+  },
+  {
+    "flow": "UIF-12",
+    "screen": "SCR-071",
+    "name": "Kết quả khởi tạo tồn kho",
+    "state": "COMPLETED",
+    "path": "063-UIF-12-SCR-071-COMPLETED.png"
+  },
+  {
+    "flow": "UIF-14",
+    "screen": "SCR-072",
+    "name": "Giá vốn",
+    "state": "READY",
+    "path": "064-UIF-14-SCR-072-READY.png"
+  },
+  {
+    "flow": "UIF-14",
+    "screen": "SCR-073",
+    "name": "Thiết lập lần tính",
+    "state": "READY",
+    "path": "065-UIF-14-SCR-073-READY.png"
+  },
+  {
+    "flow": "UIF-14",
+    "screen": "SCR-074",
+    "name": "Kết quả lần tính",
+    "state": "READY",
+    "path": "066-UIF-14-SCR-074-READY.png"
+  },
+  {
+    "flow": "UIF-14",
+    "screen": "SCR-076",
+    "name": "Rà soát công bố",
+    "state": "READY",
+    "path": "067-UIF-14-SCR-076-READY.png"
+  },
+  {
+    "flow": "UIF-14",
+    "screen": "SCR-077",
+    "name": "Kết quả công bố",
+    "state": "COMPLETED",
+    "path": "068-UIF-14-SCR-077-COMPLETED.png"
+  },
+  {
+    "flow": "UIF-15",
+    "screen": "SCR-054",
+    "name": "Tra cứu thẻ kho",
+    "state": "READY",
+    "path": "069-UIF-15-SCR-054-READY.png"
+  },
+  {
+    "flow": "UIF-15",
+    "screen": "SCR-055",
+    "name": "Danh sách biến động",
+    "state": "READY",
+    "path": "070-UIF-15-SCR-055-READY.png"
+  },
+  {
+    "flow": "UIF-15",
+    "screen": "SCR-056",
+    "name": "Chi tiết movement",
+    "state": "READY",
+    "path": "071-UIF-15-SCR-056-READY.png"
+  },
+  {
+    "flow": "UIF-15",
+    "screen": "SCR-057",
+    "name": "Dòng thời gian nguồn",
+    "state": "READY",
+    "path": "072-UIF-15-SCR-057-READY.png"
+  },
+  {
+    "flow": "UIF-15",
+    "screen": "SCR-058",
+    "name": "Xuất báo cáo",
+    "state": "READY",
+    "path": "073-UIF-15-SCR-058-READY.png"
+  },
+  {
+    "flow": "UIF-15",
+    "screen": "SCR-059",
+    "name": "Kết quả xuất báo cáo",
+    "state": "COMPLETED",
+    "path": "074-UIF-15-SCR-059-COMPLETED.png"
+  },
+  {
+    "flow": "UIF-16",
+    "screen": "SCR-078",
+    "name": "Hồ sơ cần kiểm tra",
+    "state": "READY",
+    "path": "075-UIF-16-SCR-078-READY.png"
+  },
+  {
+    "flow": "UIF-16",
+    "screen": "SCR-079",
+    "name": "Bằng chứng & kết luận",
+    "state": "PROJECTION_MISMATCH",
+    "path": "076-UIF-16-SCR-079-PROJECTION_MISMATCH.png"
+  },
+  {
+    "flow": "UIF-16",
+    "screen": "SCR-080",
+    "name": "Phương án xử lý",
+    "state": "READY",
+    "path": "077-UIF-16-SCR-080-READY.png"
+  },
+  {
+    "flow": "UIF-16",
+    "screen": "SCR-081",
+    "name": "Đang khôi phục số liệu",
+    "state": "READY",
+    "path": "078-UIF-16-SCR-081-READY.png"
+  },
+  {
+    "flow": "UIF-16",
+    "screen": "SCR-082",
+    "name": "Rà soát kết quả",
+    "state": "READY",
+    "path": "079-UIF-16-SCR-082-READY.png"
+  },
+  {
+    "flow": "UIF-16",
+    "screen": "SCR-083",
+    "name": "Kết quả xử lý",
+    "state": "RESOLVED",
+    "path": "080-UIF-16-SCR-083-RESOLVED.png"
+  },
+  {
+    "flow": "UIF-17",
+    "screen": "SCR-078",
+    "name": "Hồ sơ cần kiểm tra",
+    "state": "READY",
+    "path": "081-UIF-17-SCR-078-READY.png"
+  },
+  {
+    "flow": "UIF-17",
+    "screen": "SCR-079",
+    "name": "Bằng chứng & kết luận",
+    "state": "PROJECTION_MISMATCH",
+    "path": "082-UIF-17-SCR-079-PROJECTION_MISMATCH.png"
+  },
+  {
+    "flow": "UIF-17",
+    "screen": "SCR-080",
+    "name": "Phương án xử lý",
+    "state": "READY",
+    "path": "083-UIF-17-SCR-080-READY.png"
+  },
+  {
+    "flow": "UIF-17",
+    "screen": "SCR-082",
+    "name": "Rà soát kết quả",
+    "state": "READY",
+    "path": "084-UIF-17-SCR-082-READY.png"
+  },
+  {
+    "flow": "UIF-17",
+    "screen": "SCR-083",
+    "name": "Kết quả xử lý",
+    "state": "RESOLVED",
+    "path": "085-UIF-17-SCR-083-RESOLVED.png"
+  },
+  {
+    "flow": "CAP-01",
+    "screen": "SCR-062",
+    "name": "Cấu hình chính sách tồn",
+    "state": "READY",
+    "path": "086-CAP-01-SCR-062-READY.png"
+  },
+  {
+    "flow": "CAP-01",
+    "screen": "SCR-063",
+    "name": "Cấu hình hàng cận hạn",
+    "state": "READY",
+    "path": "087-CAP-01-SCR-063-READY.png"
+  },
+  {
+    "flow": "CAP-01",
+    "screen": "SCR-064",
+    "name": "Rà soát chính sách",
+    "state": "READY",
+    "path": "088-CAP-01-SCR-064-READY.png"
+  },
+  {
+    "flow": "CAP-01",
+    "screen": "SCR-065",
+    "name": "Kết quả cập nhật",
+    "state": "COMPLETED",
+    "path": "089-CAP-01-SCR-065-COMPLETED.png"
+  }
+]

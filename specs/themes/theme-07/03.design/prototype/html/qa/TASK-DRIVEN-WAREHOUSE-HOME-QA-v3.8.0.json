@@ -1,0 +1,190 @@
+{
+  "version": "3.8.0",
+  "status": "PASS",
+  "checks": [
+    {
+      "name": "runtime version",
+      "pass": true,
+      "note": "3.8.0"
+    },
+    {
+      "name": "two workbench tabs preserved",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ/UIF remains default review mode",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "full-theme mode still starts at Thêm",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Kho task-driven home reachable",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "only three concrete work items are visible by default",
+      "pass": true,
+      "note": 3
+    },
+    {
+      "name": "Product home has five direct choices total before expansion",
+      "pass": true,
+      "note": 5
+    },
+    {
+      "name": "home does not expose old flat-hub catalog",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "contextual/setup/recovery journey labels are absent from home",
+      "pass": true,
+      "note": "9:41\nLTE  100%\nKho\nViệc của bạn\n5 việc\nPN-260816-04\nMinh Dũng · 2 dòng hàng · Cần nhận\nCần nhận\nSO-260827-21\nĐại lý An Phú · 2 sản phẩm · Đang lấy\nĐang lấy\nKK-0709-03\nKho trung tâm · 12/38 đã đếm\nĐang đếm\nXem 2 việc khác\nTra cứu\nTồn kho\nTra cứu số lượng, lô và khả dụng\n3 cần chú ý\nBáo cáo & thẻ kho\nXem tồn tại thời điểm và lịch sử biến động\nTạo thao tác\nTrang chủ\nBán hàng\nĐơn hàng\nĐối tác\nThêm"
+    },
+    {
+      "name": "search + work + utility + one create CTA are present",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "work list expands inline to five concrete tasks",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "task expansion does not push navigation",
+      "pass": true,
+      "note": "about:blank?uif=UIF-02&screen=SCR-006&state=READY&flow=document&viewport=mobile&mode=theme&app=inventory"
+    },
+    {
+      "name": "expanded home still avoids exhaustive Theme catalog",
+      "pass": true,
+      "note": 7
+    },
+    {
+      "name": "receipt work item routes directly to existing BJ02 work screen",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "direct task entry Back returns to Kho",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "receipt task Back lands on Kho work center",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "inventory search opens BJ01 with the query",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "search direct entry Back returns to Kho",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "manual action opens canonical bottom sheet",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "manual action sheet contains exactly four actions",
+      "pass": true,
+      "note": 4
+    },
+    {
+      "name": "manual action labels are the intended four",
+      "pass": true,
+      "note": [
+        "Nhập hàng nhanh",
+        "Tạo phiên kiểm kê",
+        "Chuyển tình trạng hàng",
+        "Tạo yêu cầu tiêu hủy"
+      ]
+    },
+    {
+      "name": "quick receipt action routes directly to SCR-008",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "manual direct entry Back returns to Kho",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "new count action routes directly to create-count screen",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "review tab still exposes all 17 BJ + CAP-01",
+      "pass": true,
+      "note": [
+        "UIF-02",
+        "UIF-01",
+        "UIF-04",
+        "UIF-05",
+        "UIF-06",
+        "UIF-07",
+        "UIF-03",
+        "UIF-13",
+        "UIF-14",
+        "UIF-09",
+        "UIF-10",
+        "UIF-08",
+        "UIF-11",
+        "UIF-12",
+        "UIF-15",
+        "UIF-16",
+        "UIF-17",
+        "CAP-01"
+      ]
+    },
+    {
+      "name": "legacy BJ/UIF review controls remain visible",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "canonical 402x874 product / 418x890 review frame preserved",
+      "pass": true,
+      "note": {
+        "rw": 402,
+        "rh": 874,
+        "dw": 418,
+        "dh": 890,
+        "x": 0,
+        "cx": 0
+      }
+    },
+    {
+      "name": "Warehouse Home has no horizontal overflow",
+      "pass": true,
+      "note": {
+        "rw": 402,
+        "rh": 874,
+        "dw": 418,
+        "dh": 890,
+        "x": 0,
+        "cx": 0
+      }
+    },
+    {
+      "name": "no browser page errors",
+      "pass": true,
+      "note": []
+    }
+  ],
+  "browserErrors": []
+}

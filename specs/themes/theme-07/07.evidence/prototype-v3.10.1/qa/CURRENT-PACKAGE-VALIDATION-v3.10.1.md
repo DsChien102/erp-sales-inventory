@@ -1,0 +1,70 @@
+# Current Package Validation — v3.10.1
+
+**Result: PASS · 66/66**
+
+- PASS — root package identifies v3.10.1
+- PASS — prototype manifests use direct parent v3.10.0
+- PASS — current registries identify v3.10.1
+- PASS — screen registry current prototype status identifies BJ09
+- PASS — v3.10.1 overlay loads exactly once after v3.10.0 layer
+- PASS — BJ09 deep review passes 127/127
+- PASS — BJ09 fresh-eye passes 31/31
+- PASS — prior locked regression passes 37/37 including BJ08
+- PASS — Wave 3 cross-BJ audit remains 35/35
+- PASS — frozen source direct-parent comparison passes 108/108
+- PASS — full-theme end-user regression passes 19/19
+- PASS — flow logic passes 26 checks
+- PASS — all-flow smoke passes 89 renders
+- PASS — runtime UI passes 514 route-state renders / 89 routes
+- PASS — representative coherence passes 8/8
+- PASS — device frame passes 7/7 over 89 routes
+- PASS — structural package gate passes
+- PASS — T7-DR-178 exists ACTIVE
+- PASS — T7-DR-179 exists ACTIVE
+- PASS — T7-DR-180 exists ACTIVE
+- PASS — T7-DR-181 exists ACTIVE
+- PASS — T7-DR-182 exists ACTIVE
+- PASS — T7-DR-183 exists ACTIVE
+- PASS — T7-DR-184 exists ACTIVE
+- PASS — canonical state is DEMO and TRIAL is explicitly retired
+- PASS — state policy is versioned/immutable
+- PASS — partial quantity resolves exact valuation slices
+- PASS — STATE_TRANSFER preserves valuation and book value
+- PASS — expiry is system-derived
+- PASS — reservation reconciliation is atomic
+- PASS — approval binds immutable StateChangeBasis
+- PASS — BJ09 separates submit/approval/system execution
+- PASS — all four BJ09 UCs carry v3.10.1 amendment semantics
+- PASS — UC09-02 says approval decision does not mutate stock
+- PASS — UC09-03 owns system-derived expiry
+- PASS — UC09-04 owns system execution boundary
+- PASS — data owns immutable StateTransitionPolicyVersion
+- PASS — data owns immutable StateChangeBasis
+- PASS — InventoryMovement has valuation_state_snapshot
+- PASS — BC-IO-10 exact basis execution and no value movement
+- PASS — BC-IC-06 exact approval basis
+- PASS — BC-IC-07 locks submit basis
+- PASS — API-C-10 is system execution endpoint
+- PASS — technical errors cover ambiguity/stale/policy/approval mismatch
+- PASS — EVT-IO-08 includes basis/policy/reservation lineage
+- PASS — ACT-08-STATE is trace-only system execution
+- PASS — SCR038 From is read-only and destination policy-driven
+- PASS — SCR038 has stale-basis state
+- PASS — SCR041 owns processing/system result states
+- PASS — UIF09 separates HANDOFF and SYSTEM transition
+- PASS — component usage binds policy and immutable basis
+- PASS — trace UC09-01 carries DR178..184
+- PASS — trace UC09-02 carries DR178..184
+- PASS — trace UC09-03 carries DR178..184
+- PASS — trace UC09-04 carries DR178..184
+- PASS — contract registry contains new IC entities
+- PASS — contract registry marks amended state-change BCs
+- PASS — active loaded JS contains no TRIAL enum
+- PASS — runtime policy uses DEMO
+- PASS — runtime approval stores decision before system commit
+- PASS — runtime system commit preserves valuation and no value movement
+- PASS — runtime expiry has no manual action
+- PASS — runtime supports atomic reservation impact preview
+- PASS — runtime fixture hash explicitly not production hash
+- PASS — manifest marks BJ09 lock candidate
+- PASS — BJ09 focused evidence has ten captures

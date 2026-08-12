@@ -1,0 +1,148 @@
+{
+  "version": "3.6.2",
+  "status": "PASS",
+  "baselineIndependentCollisionPairs": 8,
+  "postFixIndependentCollisionPairs": 0,
+  "routeStatesScanned": 518,
+  "checks": [
+    {
+      "name": "runtime version",
+      "pass": true,
+      "note": "3.6.2"
+    },
+    {
+      "name": "all declared route-state renders scanned",
+      "pass": true,
+      "note": 518
+    },
+    {
+      "name": "no independent surfaced cards touch or collide",
+      "pass": true,
+      "note": []
+    },
+    {
+      "name": "joined parent-child composites remain allowed",
+      "pass": true,
+      "note": "joined=5"
+    },
+    {
+      "name": "reported BJ08 session list uses 12px peer-card gap",
+      "pass": true,
+      "note": {
+        "count": 2,
+        "gap": 12
+      }
+    },
+    {
+      "name": "BJ15 fallback result card rhythm fixed",
+      "pass": true,
+      "note": [
+        {
+          "state": "ARCHIVED_DATA",
+          "count": 3,
+          "gaps": [
+            12,
+            12
+          ]
+        },
+        {
+          "state": "STALE",
+          "count": 3,
+          "gaps": [
+            12,
+            12
+          ]
+        }
+      ]
+    },
+    {
+      "name": "BJ09 history timeline cards separated",
+      "pass": true,
+      "note": [
+        {
+          "state": "CONFLICT",
+          "count": 2,
+          "gap": 12
+        },
+        {
+          "state": "LOCKED",
+          "count": 2,
+          "gap": 12
+        },
+        {
+          "state": "FINANCIAL_RESTRICTED",
+          "count": 2,
+          "gap": 12
+        }
+      ]
+    },
+    {
+      "name": "no Product content horizontal overflow",
+      "pass": true,
+      "note": []
+    },
+    {
+      "name": "no browser page errors",
+      "pass": true,
+      "note": []
+    }
+  ],
+  "joinedCompositePairs": [
+    {
+      "flow": "UIF-09",
+      "screen": "SCR-037",
+      "state": "READY",
+      "gap": 0,
+      "parent": "body-stack",
+      "a": "ds24-list-row ac310-product-row",
+      "b": "ac310-surface ",
+      "aText": "Amox 500\nSP-00128 · Lô L2407-A · 18 hộp\nBán được",
+      "bText": "Thông tin\nHạn dùng\n30/11/2026\nTồn vật lý\n18 hộp\nKhả dụng bán\n18 hộp"
+    },
+    {
+      "flow": "UIF-09",
+      "screen": "SCR-037",
+      "state": "EXPIRED",
+      "gap": 0,
+      "parent": "body-stack",
+      "a": "ds24-list-row ac310-product-row",
+      "b": "ac310-surface ",
+      "aText": "Amox 500\nSP-00128 · Lô L2407-A · 18 hộp\nHết hạn",
+      "bText": "Thông tin\nHạn dùng\n30/11/2026\nTồn vật lý\n18 hộp\nKhả dụng bán\n0 hộp"
+    },
+    {
+      "flow": "UIF-09",
+      "screen": "SCR-037",
+      "state": "LOCKED",
+      "gap": 0,
+      "parent": "body-stack",
+      "a": "ds24-list-row ac310-product-row",
+      "b": "ac310-surface ",
+      "aText": "Amox 500\nSP-00128 · Lô L2407-A · 18 hộp\nBán được",
+      "bText": "Thông tin\nHạn dùng\n30/11/2026\nTồn vật lý\n18 hộp\nKhả dụng bán\n18 hộp"
+    },
+    {
+      "flow": "UIF-10",
+      "screen": "SCR-037",
+      "state": "READY",
+      "gap": 0,
+      "parent": "body-stack",
+      "a": "ds24-list-row ac310-product-row",
+      "b": "ac310-surface ",
+      "aText": "Amox 500\nSP-00128 · Lô L2407-A · 6 hộp\nCách ly",
+      "bText": "Thông tin\nTồn vật lý\n6 hộp\nQuyền sở hữu\nHàng của tổ chức\nCó thể xử lý\n6 hộp"
+    },
+    {
+      "flow": "UIF-10",
+      "screen": "SCR-037",
+      "state": "LOCKED",
+      "gap": 0,
+      "parent": "body-stack",
+      "a": "ds24-list-row ac310-product-row",
+      "b": "ac310-surface ",
+      "aText": "Amox 500\nSP-00128 · Lô L2407-A · 6 hộp\nCách ly",
+      "bText": "Thông tin\nTồn vật lý\n6 hộp\nQuyền sở hữu\nHàng của tổ chức\nCó thể xử lý\n6 hộp"
+    }
+  ],
+  "browserErrors": []
+}

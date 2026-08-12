@@ -1,0 +1,78 @@
+{
+  "release": "2.7.4",
+  "status": "PASS",
+  "passed": 14,
+  "total": 14,
+  "checks": [
+    {
+      "name": "Release is cumulative from v2.7.3",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "Business behavior unchanged",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "Figma DS sheet + typography QA",
+      "pass": true,
+      "detail": "24/24"
+    },
+    {
+      "name": "BJ05 regression",
+      "pass": true,
+      "detail": "71/71"
+    },
+    {
+      "name": "Cross-BJ UI hardening regression",
+      "pass": true,
+      "detail": "24/24"
+    },
+    {
+      "name": "List Row full audit",
+      "pass": true,
+      "detail": "instances=32 issues=0"
+    },
+    {
+      "name": "Info Row full audit",
+      "pass": true,
+      "detail": "instances=264 issues=0"
+    },
+    {
+      "name": "All-flow runtime smoke",
+      "pass": true,
+      "detail": "renders=85"
+    },
+    {
+      "name": "Official mobile prototype contract",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "Prototype manifest 402×874/offline/Inspect",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "JavaScript syntax",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "Action registry preserved",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "Screen registry preserved",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "Visual evidence for Form Sheet default/filled",
+      "pass": true,
+      "detail": ""
+    }
+  ]
+}

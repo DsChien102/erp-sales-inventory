@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 1,
+  "release": "2.4.2",
+  "figmaFileKey": "QVJolM5tAdFKkhP7RIwe3y",
+  "designSystemVersion": "2.0.3",
+  "verifiedAt": "2026-09-09",
+  "purpose": "Scoped live corrections that supersede the older v2.0.2 registry snapshot for active Product implementation until a full DS census is rerun.",
+  "components": {
+    "VBottomSheet": {
+      "nodeId": "4695:6353",
+      "assetType": "COMPONENT",
+      "section": "06. Overlays",
+      "status": "CANONICAL_LIVE",
+      "geometry": {
+        "width": 402,
+        "paddingTop": 12,
+        "paddingHorizontal": 16,
+        "paddingBottom": 44,
+        "gap": 12,
+        "handle": [48, 4],
+        "topRadius": 20
+      },
+      "note": "Actual component master top radius is 20px while Radius/Sheet currently resolves to 16px. Product instances follow the master for component fidelity."
+    }
+  }
+}

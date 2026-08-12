@@ -1,0 +1,173 @@
+{
+  "status": "PASS",
+  "passed": 33,
+  "total": 33,
+  "failed": [],
+  "checks": [
+    {
+      "name": "Root README identifies v2.7.1 and parent v2.7.0",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Launcher targets BJ05 and v2.7.1 release validation",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "HTML manifest is cumulative from v2.7.0",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "v2.7.1 correction CSS is wired after v2.7.0 BJ05 layer",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Correction CSS introduces no raw color values",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Live List Row node 525:519 is release-locked",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Live Info Row node 525:351 is release-locked",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Live Key-value Row node 525:358 is release-locked",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Live VToast node 526:4305 is release-locked",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "List Row density locks Default=76 and Compact=52",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "List Row affordance semantics are explicit",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Info Row grouping preserves transparent 338x44 primitive",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "VToast release lock is 370x56 with semantic leading circle",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Shared primitive QA passes 31/31",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Full List Row audit passes 30 rendered canonical instances",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Full Info Row audit passes 265 rendered instances",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ05 Product/DS QA passes 71/71",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "All-flow runtime smoke passes 85 active renders",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ04 regression remains 34/34",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "UIF-05 migration remains review-ready",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Runtime registry records shared primitive correction",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "No new feature component created",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ05 business behavior unchanged",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ05 physical stock commit boundary retained",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ05 cross-UOM aggregation remains prohibited",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "UNKNOWN no-blind-retry rule retained",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "app.js syntax passes Node check",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Action registry hash remains preserved",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Screen registry hash remains preserved",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Visual QA report is PASS",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ05 has 10 canonical 402x874 captures",
+      "pass": true,
+      "note": "count=10 sizes=[(402, 874)]"
+    },
+    {
+      "name": "Shared primitive visual evidence exists",
+      "pass": true,
+      "note": "count=3 sizes=[(402, 874)]"
+    },
+    {
+      "name": "Inherited package-validator gap is documented, not hidden",
+      "pass": true,
+      "note": ""
+    }
+  ]
+}

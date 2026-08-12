@@ -1,0 +1,133 @@
+[
+  {
+    "source": "BJ-01",
+    "action": "MERGE_TARGET",
+    "target": "BJ-01"
+  },
+  {
+    "source": "BJ-02",
+    "action": "KEEP",
+    "target": "BJ-02"
+  },
+  {
+    "source": "BJ-03",
+    "action": "KEEP",
+    "target": "BJ-03"
+  },
+  {
+    "source": "BJ-04",
+    "action": "KEEP",
+    "target": "BJ-04"
+  },
+  {
+    "source": "BJ-05",
+    "action": "MOVE",
+    "target": "XREF-01",
+    "handoff": "T5-BJ-CHECKOUT-POS"
+  },
+  {
+    "source": "BJ-06",
+    "action": "KEEP",
+    "target": "BJ-05"
+  },
+  {
+    "source": "BJ-07",
+    "action": "KEEP",
+    "target": "BJ-06"
+  },
+  {
+    "source": "BJ-08",
+    "action": "KEEP",
+    "target": "BJ-07"
+  },
+  {
+    "source": "BJ-09",
+    "action": "KEEP",
+    "target": "BJ-08"
+  },
+  {
+    "source": "BJ-10",
+    "action": "KEEP",
+    "target": "BJ-09",
+    "owner": "Inventory Control"
+  },
+  {
+    "source": "BJ-11",
+    "action": "KEEP",
+    "target": "BJ-10"
+  },
+  {
+    "source": "BJ-12",
+    "action": "KEEP",
+    "target": "BJ-11"
+  },
+  {
+    "source": "BJ-13",
+    "action": "KEEP",
+    "target": "BJ-12"
+  },
+  {
+    "source": "BJ-14",
+    "action": "KEEP",
+    "target": "BJ-13"
+  },
+  {
+    "source": "BJ-15",
+    "action": "KEEP",
+    "target": "BJ-14"
+  },
+  {
+    "source": "BJ-16",
+    "action": "RECLASSIFY",
+    "target": "CAP-01"
+  },
+  {
+    "source": "BJ-17",
+    "action": "MERGE",
+    "target": "BJ-01"
+  },
+  {
+    "source": "BJ-18",
+    "action": "KEEP",
+    "target": "BJ-15"
+  },
+  {
+    "source": "BJ-19",
+    "action": "KEEP",
+    "target": "BJ-16"
+  },
+  {
+    "source": "BJ-20",
+    "action": "KEEP",
+    "target": "BJ-17"
+  },
+  {
+    "source": "BJ-21",
+    "action": "RECLASSIFY",
+    "target": "PROC-01"
+  },
+  {
+    "source": "BJ-22",
+    "action": "MOVE",
+    "target": "XREF-02",
+    "handoff": "T10-BJ-DISCOUNT-SCENARIO"
+  },
+  {
+    "source": "BJ-23",
+    "action": "MOVE",
+    "target": "XREF-03",
+    "handoff": "T2-BJ-PRICING-BASIS"
+  },
+  {
+    "source": "BJ-24",
+    "action": "MOVE",
+    "target": "XREF-04",
+    "handoff": "T2-BJ-PRICING-REVIEW"
+  },
+  {
+    "source": "BJ-25",
+    "action": "MOVE",
+    "target": "XREF-05",
+    "handoff": "RPT-BJ-PROFIT-VIEWS"
+  }
+]

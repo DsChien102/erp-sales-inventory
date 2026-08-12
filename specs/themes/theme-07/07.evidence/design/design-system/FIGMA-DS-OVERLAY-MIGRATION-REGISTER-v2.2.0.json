@@ -1,0 +1,108 @@
+{
+  "schemaVersion": 1,
+  "release": "2.2.0-candidate",
+  "rule": "Naked VBottomSheet is not a canonical Product target. Every legacy sheet must resolve to an exact Figma overlay pattern/component before UIF migration.",
+  "items": [
+    {
+      "legacy": "val03EvidenceSheet",
+      "line": 244,
+      "uif": "UIF-03",
+      "intent": "Evidence/calculation; conflict mode adds source selection + required reason",
+      "canonical": "Form Sheet when conflict; read-only mode has no exact Info Sheet equivalent",
+      "status": "SOURCE_DECISION_REQUIRED"
+    },
+    {
+      "legacy": "bj01LotSheet",
+      "line": 1466,
+      "uif": "UIF-01",
+      "intent": "Read-only LOT detail",
+      "canonical": "No canonical read-only Info/Detail Sheet master",
+      "status": "SOURCE_DECISION_REQUIRED"
+    },
+    {
+      "legacy": "bj01ProvenanceSheet",
+      "line": 1470,
+      "uif": "UIF-01",
+      "intent": "Read-only provenance/as-of detail",
+      "canonical": "No canonical read-only Info/Detail Sheet master",
+      "status": "SOURCE_DECISION_REQUIRED"
+    },
+    {
+      "legacy": "io07VerificationSheet",
+      "line": 1709,
+      "uif": "UIF-07",
+      "intent": "Verification form/action task",
+      "canonical": "DS v2 / Form Sheet · 1353:6355",
+      "status": "RESOLVABLE_EXACT"
+    },
+    {
+      "legacy": "io05OverrideLotSheet",
+      "line": 1812,
+      "uif": "UIF-05",
+      "intent": "Choose alternate LOT + required reason",
+      "canonical": "DS v2 / Form Sheet · 1353:6355 (selection controls + reason)",
+      "status": "RESOLVABLE_EXACT"
+    },
+    {
+      "legacy": "io06RejectSheet",
+      "line": 1912,
+      "uif": "UIF-06",
+      "intent": "Reject approval with mandatory reason",
+      "canonical": "DS v2 / Confirmation Sheet · 550:1058 · Danger/Reason",
+      "status": "RESOLVABLE_EXACT"
+    },
+    {
+      "legacy": "io06ClassificationSheet",
+      "line": 1924,
+      "uif": "UIF-06",
+      "intent": "Classify quantities across four business states",
+      "canonical": "DS v2 / Form Sheet · 1353:6355",
+      "status": "RESOLVABLE_EXACT"
+    },
+    {
+      "legacy": "ic08CancelSheet",
+      "line": 1967,
+      "uif": "UIF-08",
+      "intent": "Cancel count session with reason",
+      "canonical": "DS v2 / Confirmation Sheet · 550:1058 · Danger/Reason",
+      "status": "RESOLVABLE_EXACT"
+    },
+    {
+      "legacy": "cr11RejectSheet",
+      "line": 2230,
+      "uif": "UIF-11",
+      "intent": "Reject correction with mandatory reason",
+      "canonical": "DS v2 / Confirmation Sheet · 550:1058 · Danger/Reason",
+      "status": "RESOLVABLE_EXACT"
+    },
+    {
+      "legacy": "cf12RejectSheet",
+      "line": 2449,
+      "uif": "UIF-12",
+      "intent": "Reject opening balance with mandatory reason",
+      "canonical": "DS v2 / Confirmation Sheet · 550:1058 · Danger/Reason",
+      "status": "RESOLVABLE_EXACT"
+    },
+    {
+      "legacy": "cf15ProductSheet",
+      "line": 2511,
+      "uif": "UIF-15",
+      "intent": "Read-only product inventory detail + handoff action",
+      "canonical": "No canonical read-only Info/Detail Sheet master",
+      "status": "SOURCE_DECISION_REQUIRED"
+    },
+    {
+      "legacy": "openRejectSheet",
+      "line": 3613,
+      "uif": "UIF-02",
+      "intent": "Reject receiving approval with mandatory reason",
+      "canonical": "DS v2 / Confirmation Sheet · 550:1058 · Danger/Reason",
+      "status": "RESOLVABLE_EXACT"
+    }
+  ],
+  "summary": {
+    "total": 12,
+    "resolvableExact": 8,
+    "sourceDecisionRequired": 4
+  }
+}

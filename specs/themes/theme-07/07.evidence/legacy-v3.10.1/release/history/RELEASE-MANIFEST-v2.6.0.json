@@ -1,0 +1,35 @@
+{
+  "release": "2.6.0",
+  "parent": "2.5.5",
+  "scope": [
+    "Structurally migrate BJ04/UIF-04 read-only reservation projection to the live Figma DS canonical surface",
+    "Keep SCR-021 as the only active contextual Product surface",
+    "Use Info Row + List Row(Status) + VBadge/VBanner semantics instead of legacy card-heavy grouping",
+    "Keep reservation create/amend/release/re-evaluate source/system-driven with no Inventory mutation CTA",
+    "Preserve prior BJ01/BJ02/BJ08 migrated Product surfaces and non-target registries"
+  ],
+  "businessBehaviorChanged": false,
+  "migration": {
+    "newlyMigrated": ["UIF-04"],
+    "corrected": [],
+    "migratedCumulative": ["UIF-01", "UIF-02", "UIF-04", "UIF-08"],
+    "newFeatureComponentsCreated": 0,
+    "sharedDsRefresh": []
+  },
+  "qa": {
+    "bj04FigmaDs": "PASS 34/34",
+    "allFlowRuntime": "PASS 85/85",
+    "browserErrors": 0,
+    "javascriptSyntax": "PASS",
+    "visualReview": "PASS on PARTIAL/FULL/RELEASED/STALE/LOADING/PERMISSION_DENIED captures"
+  },
+  "designAuthority": {
+    "business": "BJ/UC/Decision/Behavioral/UI contracts",
+    "ui": "Live Figma Design System canonical surface",
+    "bj04Composition": "Mobile / Detail + DS v2 / Info Row 525:351 + DS v2 / List Row 525:519 + VBadge 525:309 + VBanner 526:4215"
+  },
+  "registryPreservation": {
+    "actionRegistrySha256": "35f59f04480d6a41f24e1735a88ac14e478319bc57f85e842ac5ff885f6b332a",
+    "screenRegistrySha256": "20d3abc7a229ba54aaa436942ffa767f9914b9af2e8c8e6f901b4049ceab5ebf"
+  }
+}

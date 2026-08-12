@@ -1,0 +1,95 @@
+schema_version: "1.1"
+manifest_id: "SG-17-PROTOTYPE-MANIFEST"
+status: "TEMPORARY_NON_CANONICAL_STATIC_VALIDATED"
+baseline:
+  version: "4.0.0"
+  freeze_id: "T7-PACKAGE-FREEZE-v4.1.0"
+  source_decision_freeze_id: "T7-BASELINE-FREEZE-v4.0.0"
+entrypoint: "../../prototype-v4.0.0/index.html#/sg-17/scr-01"
+runtime:
+  kind: "static-html"
+  external_dependencies: []
+  requires_build: false
+  requires_backend: false
+  gitlab_pages_compatible: true
+screen_group:
+  id: "SG-17"
+  name: "Rà soát căn cứ định giá và lợi nhuận"
+  routes:
+    - id: "SCR-17-01"
+      hash: "#/sg-17/scr-01"
+      label: "01 · Đợt rà soát định giá"
+      states:
+        - "READY"
+        - "LOADING"
+        - "EMPTY"
+        - "FILTER_EMPTY"
+        - "PERMISSION_DENIED"
+    - id: "SCR-17-02"
+      hash: "#/sg-17/scr-02"
+      label: "02 · Nhóm theo nguồn hiện tại"
+      states:
+        - "READY"
+        - "LOADING"
+        - "EMPTY"
+        - "STALE"
+        - "PERMISSION_DENIED"
+        - "BULK_ELIGIBLE_OFFICIAL"
+        - "INDIVIDUAL_DECISION_REQUIRED"
+    - id: "SCR-17-03"
+      hash: "#/sg-17/scr-03"
+      label: "03 · Quyết định theo sản phẩm"
+      states:
+        - "READY"
+        - "VALIDATION_ERROR"
+        - "CONFLICT"
+        - "LOCKED"
+        - "PERMISSION_DENIED"
+        - "INDIVIDUAL_DECISION_REQUIRED"
+    - id: "SCR-17-04"
+      hash: "#/sg-17/scr-04"
+      label: "04 · So sánh lợi nhuận"
+      states:
+        - "READY"
+        - "LOADING"
+        - "EMPTY"
+        - "STALE"
+        - "PERMISSION_DENIED"
+        - "MARGIN_SOURCE_INCOMPLETE"
+    - id: "SCR-17-05"
+      hash: "#/sg-17/scr-05"
+      label: "05 · Rà soát quyết định"
+      states:
+        - "READY"
+        - "VALIDATION_ERROR"
+        - "APPROVAL_REQUIRED"
+        - "PERMISSION_DENIED"
+        - "DRAFT_NOT_PUBLISHED"
+    - id: "SCR-17-06"
+      hash: "#/sg-17/scr-06"
+      label: "06 · Kết quả áp dụng"
+      states:
+        - "COMPLETED"
+        - "UNKNOWN"
+        - "REJECTED_EXECUTION"
+        - "PERMISSION_DENIED"
+        - "DRAFT_NOT_PUBLISHED"
+actions:
+  - {action_id: "ACT-17-REFRESH-MARGIN", bc_id: "BC-XD-04", api_id: "API-Q-03"}
+  - {action_id: "ACT-17-APPLY-REVIEW", bc_id: "BC-XD-03", api_id: "API-X-03"}
+required_metadata:
+  - "data-prototype-only"
+  - "data-design-viewport"
+  - "data-trace-only"
+  - "data-screen-group-id"
+  - "data-screen-id"
+  - "data-state-id"
+  - "data-action-id"
+  - "data-primary-bc-id"
+  - "data-api-id"
+authority:
+  behavior: "../../../srs/06-shared-behavioral-contracts.md"
+  technical_realization: "../../../srs/07-technical-contracts.md"
+  human_ui_contract: "ui-contract.md"
+  machine_ui_contract: "composition-map.yaml"
+  executable_review: "../../prototype-v4.0.0/index.html"

@@ -1,0 +1,391 @@
+{
+  "schemaVersion": 1,
+  "release": "2.2.0-candidate",
+  "source": {
+    "fileKey": "QVJolM5tAdFKkhP7RIwe3y",
+    "capturedAt": "2026-09-08",
+    "designSystemVersion": "2.0.2"
+  },
+  "nodes": {
+    "521:529": {
+      "name": "VButton",
+      "componentSetBounds": "1312x843",
+      "variantCount": 48,
+      "variants": [
+        {
+          "Hierarchy": "Primary",
+          "State": "Default",
+          "Size": "Small",
+          "height": 36
+        },
+        {
+          "Hierarchy": "Primary",
+          "State": "Default",
+          "Size": "Default",
+          "height": 44
+        },
+        {
+          "Hierarchy": "Primary",
+          "State": "Default",
+          "Size": "Large",
+          "height": 52
+        },
+        {
+          "Hierarchy": "Primary",
+          "State": "Pressed",
+          "Size": "Small",
+          "height": 36
+        },
+        {
+          "Hierarchy": "Primary",
+          "State": "Pressed",
+          "Size": "Default",
+          "height": 44
+        },
+        {
+          "Hierarchy": "Primary",
+          "State": "Pressed",
+          "Size": "Large",
+          "height": 52
+        },
+        {
+          "Hierarchy": "Primary",
+          "State": "Disabled",
+          "Size": "Small",
+          "height": 36
+        },
+        {
+          "Hierarchy": "Primary",
+          "State": "Disabled",
+          "Size": "Default",
+          "height": 44
+        },
+        {
+          "Hierarchy": "Primary",
+          "State": "Disabled",
+          "Size": "Large",
+          "height": 52
+        },
+        {
+          "Hierarchy": "Primary",
+          "State": "Loading",
+          "Size": "Small",
+          "height": 36
+        },
+        {
+          "Hierarchy": "Primary",
+          "State": "Loading",
+          "Size": "Default",
+          "height": 44
+        },
+        {
+          "Hierarchy": "Primary",
+          "State": "Loading",
+          "Size": "Large",
+          "height": 52
+        },
+        {
+          "Hierarchy": "Secondary",
+          "State": "Default",
+          "Size": "Small",
+          "height": 36
+        },
+        {
+          "Hierarchy": "Secondary",
+          "State": "Default",
+          "Size": "Default",
+          "height": 44
+        },
+        {
+          "Hierarchy": "Secondary",
+          "State": "Default",
+          "Size": "Large",
+          "height": 52
+        },
+        {
+          "Hierarchy": "Secondary",
+          "State": "Pressed",
+          "Size": "Small",
+          "height": 36
+        },
+        {
+          "Hierarchy": "Secondary",
+          "State": "Pressed",
+          "Size": "Default",
+          "height": 44
+        },
+        {
+          "Hierarchy": "Secondary",
+          "State": "Pressed",
+          "Size": "Large",
+          "height": 52
+        },
+        {
+          "Hierarchy": "Secondary",
+          "State": "Disabled",
+          "Size": "Small",
+          "height": 36
+        },
+        {
+          "Hierarchy": "Secondary",
+          "State": "Disabled",
+          "Size": "Default",
+          "height": 44
+        },
+        {
+          "Hierarchy": "Secondary",
+          "State": "Disabled",
+          "Size": "Large",
+          "height": 52
+        },
+        {
+          "Hierarchy": "Secondary",
+          "State": "Loading",
+          "Size": "Small",
+          "height": 36
+        },
+        {
+          "Hierarchy": "Secondary",
+          "State": "Loading",
+          "Size": "Default",
+          "height": 44
+        },
+        {
+          "Hierarchy": "Secondary",
+          "State": "Loading",
+          "Size": "Large",
+          "height": 52
+        },
+        {
+          "Hierarchy": "Tertiary",
+          "State": "Default",
+          "Size": "Small",
+          "height": 36
+        },
+        {
+          "Hierarchy": "Tertiary",
+          "State": "Default",
+          "Size": "Default",
+          "height": 44
+        },
+        {
+          "Hierarchy": "Tertiary",
+          "State": "Default",
+          "Size": "Large",
+          "height": 52
+        },
+        {
+          "Hierarchy": "Tertiary",
+          "State": "Pressed",
+          "Size": "Small",
+          "height": 36
+        },
+        {
+          "Hierarchy": "Tertiary",
+          "State": "Pressed",
+          "Size": "Default",
+          "height": 44
+        },
+        {
+          "Hierarchy": "Tertiary",
+          "State": "Pressed",
+          "Size": "Large",
+          "height": 52
+        },
+        {
+          "Hierarchy": "Tertiary",
+          "State": "Disabled",
+          "Size": "Small",
+          "height": 36
+        },
+        {
+          "Hierarchy": "Tertiary",
+          "State": "Disabled",
+          "Size": "Default",
+          "height": 44
+        },
+        {
+          "Hierarchy": "Tertiary",
+          "State": "Disabled",
+          "Size": "Large",
+          "height": 52
+        },
+        {
+          "Hierarchy": "Tertiary",
+          "State": "Loading",
+          "Size": "Small",
+          "height": 36
+        },
+        {
+          "Hierarchy": "Tertiary",
+          "State": "Loading",
+          "Size": "Default",
+          "height": 44
+        },
+        {
+          "Hierarchy": "Tertiary",
+          "State": "Loading",
+          "Size": "Large",
+          "height": 52
+        },
+        {
+          "Hierarchy": "Danger",
+          "State": "Default",
+          "Size": "Small",
+          "height": 36
+        },
+        {
+          "Hierarchy": "Danger",
+          "State": "Default",
+          "Size": "Default",
+          "height": 44
+        },
+        {
+          "Hierarchy": "Danger",
+          "State": "Default",
+          "Size": "Large",
+          "height": 52
+        },
+        {
+          "Hierarchy": "Danger",
+          "State": "Pressed",
+          "Size": "Small",
+          "height": 36
+        },
+        {
+          "Hierarchy": "Danger",
+          "State": "Pressed",
+          "Size": "Default",
+          "height": 44
+        },
+        {
+          "Hierarchy": "Danger",
+          "State": "Pressed",
+          "Size": "Large",
+          "height": 52
+        },
+        {
+          "Hierarchy": "Danger",
+          "State": "Disabled",
+          "Size": "Small",
+          "height": 36
+        },
+        {
+          "Hierarchy": "Danger",
+          "State": "Disabled",
+          "Size": "Default",
+          "height": 44
+        },
+        {
+          "Hierarchy": "Danger",
+          "State": "Disabled",
+          "Size": "Large",
+          "height": 52
+        },
+        {
+          "Hierarchy": "Danger",
+          "State": "Loading",
+          "Size": "Small",
+          "height": 36
+        },
+        {
+          "Hierarchy": "Danger",
+          "State": "Loading",
+          "Size": "Default",
+          "height": 44
+        },
+        {
+          "Hierarchy": "Danger",
+          "State": "Loading",
+          "Size": "Large",
+          "height": 52
+        }
+      ],
+      "evidence": "Live get_metadata + screenshot"
+    },
+    "547:1594": {
+      "name": "VAppBar",
+      "componentSetBounds": "402x72",
+      "variants": [
+        {
+          "Type": "Root",
+          "nodeId": "547:39",
+          "size": "402x56"
+        },
+        {
+          "Type": "Back",
+          "nodeId": "547:1567",
+          "size": "402x56"
+        },
+        {
+          "Type": "Context",
+          "nodeId": "547:1580",
+          "size": "402x56"
+        },
+        {
+          "Type": "Root context",
+          "nodeId": "1041:11282",
+          "size": "402x56"
+        }
+      ],
+      "evidence": "Live get_metadata"
+    },
+    "549:927": {
+      "name": "DS v2 / Sticky Footer",
+      "componentSetBounds": "402x92",
+      "variants": [
+        {
+          "Layout": "Single",
+          "Tone": "Default",
+          "size": "402x92"
+        },
+        {
+          "Layout": "Single",
+          "Tone": "Danger",
+          "size": "402x92"
+        },
+        {
+          "Layout": "Dual",
+          "Tone": "Default",
+          "size": "402x92"
+        },
+        {
+          "Layout": "Dual",
+          "Tone": "Danger",
+          "size": "402x92"
+        },
+        {
+          "Layout": "Commerce",
+          "Tone": "Default",
+          "size": "402x128"
+        }
+      ],
+      "evidence": "Live get_metadata + screenshot"
+    },
+    "511:673": {
+      "name": "DS v2 / Icon",
+      "variantCount": 54,
+      "sizes": [
+        16,
+        20,
+        24,
+        32,
+        48,
+        72
+      ],
+      "tones": [
+        "Primary",
+        "Secondary",
+        "Muted",
+        "Brand",
+        "Success",
+        "Warning",
+        "Danger",
+        "Info",
+        "Inverse"
+      ],
+      "evidence": "Live Foundations metadata + live variable defs"
+    }
+  },
+  "rule": "Structural evidence is used to detect incompleteness/drift. It is not a license to infer descendant anatomy that has not been captured through an allowed exact design-context path."
+}

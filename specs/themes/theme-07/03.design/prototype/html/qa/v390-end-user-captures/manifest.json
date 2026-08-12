@@ -1,0 +1,32 @@
+[
+  {
+    "file": "01-OPERATOR-WAREHOUSE-HOME.png",
+    "label": "Operator work projection",
+    "flow": "UIF-02",
+    "screen": "SCR-006"
+  },
+  {
+    "file": "02-CONTROLLER-WAREHOUSE-HOME.png",
+    "label": "Controller work projection",
+    "flow": "UIF-02",
+    "screen": "SCR-006"
+  },
+  {
+    "file": "03-STATE-CHANGE-OBJECT-SELECTION.png",
+    "label": "Manual state change starts from object selection",
+    "flow": "UIF-09",
+    "screen": "SCR-036"
+  },
+  {
+    "file": "04-MANAGER-FUNCTION-CATALOG.png",
+    "label": "Manager long-tail catalog projection",
+    "flow": "UIF-09",
+    "screen": "SCR-036"
+  },
+  {
+    "file": "05-SUBMITTED-HANDOFF-LOCK.png",
+    "label": "Submitted receipt is locked and returns to Warehouse Home",
+    "flow": "UIF-02",
+    "screen": "SCR-010"
+  }
+]

@@ -1,0 +1,131 @@
+/* VET45 Theme 7 v2.5.0 — BJ02 live Figma DS fidelity layer.
+   Authority: Figma pages 01 Foundations & Icons, 02 Components, 03 Patterns & Templates.
+   Component-first: existing V_* -> other canonical component -> Pattern/Template -> composition. */
+
+body[data-active-uif="UIF-02"] .figma-calibrated-shell,
+body[data-active-uif="UIF-02"] .figma-calibrated-shell button,
+body[data-active-uif="UIF-02"] .figma-calibrated-shell input,
+body[data-active-uif="UIF-02"] .figma-calibrated-shell textarea,
+body[data-active-uif="UIF-02"] .figma-calibrated-shell select {
+  font-family:"Inter",system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+}
+body[data-active-uif="UIF-02"] .figma-calibrated-shell{width:402px;height:874px;min-height:874px;overflow:hidden;background:var(--vet45-v2-surface-canvas);color:var(--vet45-v2-text-primary)}
+body[data-active-uif="UIF-02"] .figma-calibrated-shell>.app-statusbar{height:24px;min-height:24px;flex-basis:24px;padding:0 var(--vet45-v2-space-4);background:var(--vet45-v2-surface-default);font-size:12px;line-height:16px;font-weight:500;letter-spacing:.1px}
+body[data-active-uif="UIF-02"] .figma-calibrated-shell>.app-header{height:56px;min-height:56px;flex-basis:56px;border:0;background:var(--vet45-v2-surface-default)}
+body[data-active-uif="UIF-02"] .figma-calibrated-shell .app-appbar,
+body[data-active-uif="UIF-02"] .figma-calibrated-shell .app-appbar.has-subtitle{height:56px;min-height:56px;padding:0 var(--vet45-v2-space-4);gap:var(--vet45-v2-space-2);align-items:center;background:var(--vet45-v2-surface-default)}
+body[data-active-uif="UIF-02"] .figma-calibrated-shell .app-back-button{width:44px!important;height:44px!important;flex:0 0 44px!important;margin-left:-10px;padding:0;display:grid;place-items:center;border:0;background:transparent;color:var(--vet45-v2-icon-primary)}
+body[data-active-uif="UIF-02"] .figma-calibrated-shell .app-appbar-copy h3{margin:0;font-size:16px!important;line-height:22px!important;font-weight:600!important;letter-spacing:0!important}
+body[data-active-uif="UIF-02"] .figma-calibrated-shell .app-appbar-copy span{margin:0;font-size:13px!important;line-height:20px!important;font-weight:400!important;letter-spacing:0!important;color:var(--vet45-v2-text-secondary)}
+body[data-active-uif="UIF-02"] .figma-calibrated-shell>.app-content{padding:0 var(--vet45-v2-space-4) var(--vet45-v2-space-4);background:var(--vet45-v2-surface-canvas);scrollbar-width:none}
+body[data-active-uif="UIF-02"] .figma-calibrated-shell>.app-content::-webkit-scrollbar{display:none}
+body[data-active-uif="UIF-02"] .figma-calibrated-shell .body-stack{width:370px;gap:var(--vet45-v2-space-3);padding-top:var(--vet45-v2-space-4)}
+
+/* List Row 525:519 — no third text line, no feature card wrapper. */
+body[data-active-uif="UIF-02"] .bj02-choice-stack{display:flex;flex-direction:column;width:370px;gap:var(--vet45-v2-space-3)}
+body[data-active-uif="UIF-02"] .bj02-ds-list-row{width:370px;height:76px;min-height:76px;padding:0 var(--vet45-v2-space-6) 0 var(--vet45-v2-space-4);display:flex;align-items:center;gap:var(--vet45-v2-space-3);border:var(--vet45-v2-border-width-thin) solid var(--vet45-v2-border-default);border-radius:var(--vet45-v2-radius-4);background:var(--vet45-v2-surface-default);color:var(--vet45-v2-text-primary);box-shadow:none;text-align:left}
+body[data-active-uif="UIF-02"] .bj02-ds-list-row:disabled{opacity:var(--vet45-v2-opacity-disabled);cursor:default}
+body[data-active-uif="UIF-02"] .bj02-ds-list-leading,body[data-active-uif="UIF-02"] .bj02-ds-list-trailing{width:20px;height:20px;flex:0 0 20px;display:grid;place-items:center;color:var(--vet45-v2-icon-primary)}
+body[data-active-uif="UIF-02"] .bj02-ds-list-trailing{color:var(--vet45-v2-icon-secondary)}
+body[data-active-uif="UIF-02"] .bj02-ds-list-leading .icon,body[data-active-uif="UIF-02"] .bj02-ds-list-trailing .icon{width:20px;height:20px}
+body[data-active-uif="UIF-02"] .bj02-ds-list-copy{display:flex;flex:1 1 auto;min-width:0;flex-direction:column;gap:var(--vet45-v2-space-1)}
+body[data-active-uif="UIF-02"] .bj02-ds-list-copy strong{font-size:14px;line-height:20px;font-weight:600;letter-spacing:0}
+body[data-active-uif="UIF-02"] .bj02-ds-list-copy span{font-size:13px;line-height:20px;font-weight:400;letter-spacing:0;color:var(--vet45-v2-text-secondary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+body[data-active-uif="UIF-02"] .bj02-radio-control{width:20px;height:20px;border:2px solid var(--vet45-v2-border-strong);border-radius:50%;background:var(--vet45-v2-surface-default);box-sizing:border-box}
+
+/* VSearchBar 522:7245. */
+body[data-active-uif="UIF-02"] .bj02-search,
+body[data-active-uif="UIF-02"] .quick-overview-search{width:370px;height:44px;min-height:44px;padding:0 var(--vet45-v2-space-4);display:flex;align-items:center;gap:var(--vet45-v2-space-2);border:var(--vet45-v2-border-width-thin) solid var(--vet45-v2-border-default);border-radius:var(--vet45-v2-radius-3);background:var(--vet45-v2-surface-default);box-sizing:border-box}
+body[data-active-uif="UIF-02"] .bj02-search>span:first-child,body[data-active-uif="UIF-02"] .quick-overview-search>.search-leading{width:20px;height:20px;flex:0 0 20px;color:var(--vet45-v2-icon-primary)}
+body[data-active-uif="UIF-02"] .bj02-search .icon,body[data-active-uif="UIF-02"] .quick-overview-search .icon{width:20px;height:20px}
+body[data-active-uif="UIF-02"] .bj02-search input,body[data-active-uif="UIF-02"] .quick-overview-search input{flex:1 1 auto;min-width:0;width:auto;height:22px;padding:0;border:0;outline:0;background:transparent;font-size:14px;line-height:22px;font-weight:400;color:var(--vet45-v2-text-primary)}
+body[data-active-uif="UIF-02"] .bj02-search input::placeholder,body[data-active-uif="UIF-02"] .quick-overview-search input::placeholder{color:var(--vet45-v2-text-secondary);opacity:1}
+
+/* Record Card 1001:7201 — used when BJ02 needs more than List Row's two-line anatomy. */
+body[data-active-uif="UIF-02"] .bj02-record-stack{display:flex;width:370px;flex-direction:column;gap:var(--vet45-v2-space-3)}
+body[data-active-uif="UIF-02"] .bj02-record-card{width:370px;height:116px;min-height:116px;padding:var(--vet45-v2-space-3);display:flex;flex-direction:column;align-items:stretch;gap:var(--vet45-v2-space-1);overflow:hidden;border:var(--vet45-v2-border-width-thin) solid var(--vet45-v2-border-default);border-radius:var(--vet45-v2-radius-4);background:var(--vet45-v2-surface-default);box-shadow:none;text-align:left;color:var(--vet45-v2-text-primary);box-sizing:border-box}
+body[data-active-uif="UIF-02"] .bj02-record-head{height:22px;min-height:22px;display:flex;align-items:center;justify-content:space-between;gap:var(--vet45-v2-space-2);overflow:hidden}
+body[data-active-uif="UIF-02"] .bj02-record-head>strong{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:16px;line-height:22px;font-weight:600;letter-spacing:0}
+body[data-active-uif="UIF-02"] .bj02-record-support{width:346px;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:13px;line-height:20px;font-weight:400}
+body[data-active-uif="UIF-02"] .bj02-record-support.secondary{color:var(--vet45-v2-text-secondary)}
+body[data-active-uif="UIF-02"] .bj02-record-support.primary{color:var(--vet45-v2-text-primary)}
+body[data-active-uif="UIF-02"] .bj02-record-meta{height:18px;display:flex;align-items:center;justify-content:space-between;gap:var(--vet45-v2-space-2);overflow:hidden;color:var(--vet45-v2-text-secondary);font-size:12px;line-height:16px;font-weight:500;letter-spacing:.1px}
+body[data-active-uif="UIF-02"] .bj02-record-meta>span:first-child{flex:1 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+body[data-active-uif="UIF-02"] .bj02-record-meta>span:last-child{flex:0 0 auto;text-align:right}
+
+/* Form primitives. Public fields Fill Container in Product UI; preserve 44px input anatomy. */
+body[data-active-uif="UIF-02"] .form-stack{width:370px;gap:var(--vet45-v2-space-4)}
+body[data-active-uif="UIF-02"] .form-field{width:370px;display:flex;flex-direction:column;gap:var(--vet45-v2-space-2);margin:0}
+body[data-active-uif="UIF-02"] .form-field>label,body[data-active-uif="UIF-02"] .quantity-label strong{margin:0;font-size:14px;line-height:20px;font-weight:600;letter-spacing:0;color:var(--vet45-v2-text-primary)}
+body[data-active-uif="UIF-02"] .input-shell,body[data-active-uif="UIF-02"] .combobox-anchor{width:370px;height:44px;min-height:44px;padding:0 var(--vet45-v2-space-4);display:flex;align-items:center;gap:var(--vet45-v2-space-2);border:var(--vet45-v2-border-width-thin) solid var(--vet45-v2-border-default);border-radius:var(--vet45-v2-radius-3);background:var(--vet45-v2-surface-default);box-sizing:border-box}
+body[data-active-uif="UIF-02"] .input-shell input,body[data-active-uif="UIF-02"] .combobox-anchor input{width:100%;height:22px;padding:0;border:0!important;outline:0;background:transparent;font-size:14px;line-height:22px;font-weight:400;color:var(--vet45-v2-text-primary)}
+body[data-active-uif="UIF-02"] .input-shell--readonly{opacity:var(--vet45-v2-opacity-disabled)}
+body[data-active-uif="UIF-02"] .input-shell--textarea{height:auto;min-height:88px;padding:var(--vet45-v2-space-3) var(--vet45-v2-space-4);align-items:flex-start}
+body[data-active-uif="UIF-02"] .input-shell--textarea textarea{width:100%;min-height:62px;padding:0;border:0;outline:0;resize:none;background:transparent;font-size:14px;line-height:22px;font-weight:400;color:var(--vet45-v2-text-primary)}
+body[data-active-uif="UIF-02"] .field-error,body[data-active-uif="UIF-02"] .field-help{font-size:12px;line-height:16px;font-weight:500;letter-spacing:.1px}
+
+/* VFileDropZone 522:7507. The master is 310x116; center it in the 370 content column. */
+body[data-active-uif="UIF-02"] .file-drop-zone{align-self:center;width:310px;height:116px;min-height:116px;padding:var(--vet45-v2-space-5) 0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:var(--vet45-v2-space-2);border:var(--vet45-v2-border-width-thin) dashed var(--vet45-v2-border-default);border-radius:var(--vet45-v2-radius-4);background:var(--vet45-v2-surface-default);box-sizing:border-box;text-align:center}
+body[data-active-uif="UIF-02"] .file-drop-zone input{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}
+body[data-active-uif="UIF-02"] .file-drop-icon,body[data-active-uif="UIF-02"] .file-drop-icon .icon{width:24px;height:24px;flex:0 0 24px;color:var(--vet45-v2-icon-primary)}
+body[data-active-uif="UIF-02"] .file-drop-copy{display:flex;flex-direction:column;align-items:center;gap:var(--vet45-v2-space-2)}
+body[data-active-uif="UIF-02"] .file-drop-copy strong{font-size:14px;line-height:20px;font-weight:600;letter-spacing:0}
+body[data-active-uif="UIF-02"] .file-drop-copy small{font-size:12px;line-height:16px;font-weight:500;letter-spacing:.1px;color:var(--vet45-v2-text-secondary)}
+
+/* Four classification fields are authoritative and remain visible. Each is a canonical-width text field, not a custom stepper. */
+body[data-active-uif="UIF-02"] .quantity-grid,body[data-active-uif="UIF-02"] .quantity-grid--exceptions{display:flex;flex-direction:column;width:370px;gap:var(--vet45-v2-space-4)}
+body[data-active-uif="UIF-02"] .quantity-field{width:370px;display:flex;flex-direction:column;gap:var(--vet45-v2-space-2);padding:0;border:0;background:transparent}
+body[data-active-uif="UIF-02"] .quantity-control{width:370px;height:44px;min-height:44px;margin:0;padding:0 var(--vet45-v2-space-4);display:flex;align-items:center;border:var(--vet45-v2-border-width-thin) solid var(--vet45-v2-border-default);border-radius:var(--vet45-v2-radius-3);background:var(--vet45-v2-surface-default);box-sizing:border-box}
+body[data-active-uif="UIF-02"] .quantity-control input{width:100%;height:22px;padding:0;border:0;outline:0;background:transparent;font-size:14px;line-height:22px;font-weight:400;color:var(--vet45-v2-text-primary)}
+body[data-active-uif="UIF-02"] .derived-total-row,body[data-active-uif="UIF-02"] .quantity-source-context{width:338px;min-height:44px;align-self:center;padding:0 var(--vet45-v2-space-3);display:flex;align-items:center;justify-content:space-between;gap:var(--vet45-v2-space-3);border-radius:var(--vet45-v2-radius-3);background:var(--vet45-v2-surface-brand);box-sizing:border-box}
+body[data-active-uif="UIF-02"] .derived-total-row span,body[data-active-uif="UIF-02"] .quantity-source-context span{font-size:14px;line-height:20px;font-weight:600}
+body[data-active-uif="UIF-02"] .derived-total-row strong,body[data-active-uif="UIF-02"] .quantity-source-context strong{font-size:16px;line-height:22px;font-weight:600;color:var(--vet45-v2-text-brand);white-space:nowrap}
+
+/* Review sections: one grouped surface, flat facts; no repeated nested card soup. */
+body[data-active-uif="UIF-02"] .review-card{width:370px;margin:0;padding:0;overflow:hidden;border:var(--vet45-v2-border-width-thin) solid var(--vet45-v2-border-default);border-radius:var(--vet45-v2-radius-4);background:var(--vet45-v2-surface-default);box-shadow:none}
+body[data-active-uif="UIF-02"] .review-card-header{min-height:44px;padding:var(--vet45-v2-space-3) var(--vet45-v2-space-4);display:flex;align-items:center;justify-content:space-between;gap:var(--vet45-v2-space-2);background:transparent}
+body[data-active-uif="UIF-02"] .review-card-header strong{font-size:14px;line-height:20px;font-weight:600}
+body[data-active-uif="UIF-02"] .review-card-body{padding:0 var(--vet45-v2-space-4) var(--vet45-v2-space-4);display:flex;flex-direction:column;gap:var(--vet45-v2-space-2)}
+body[data-active-uif="UIF-02"] .review-line{min-height:28px;display:flex;align-items:flex-start;justify-content:space-between;gap:var(--vet45-v2-space-4)}
+body[data-active-uif="UIF-02"] .review-line>span{flex:0 0 auto;font-size:13px;line-height:20px;font-weight:400;color:var(--vet45-v2-text-secondary)}
+body[data-active-uif="UIF-02"] .review-line>strong{min-width:0;flex:1 1 auto;text-align:right;font-size:14px;line-height:20px;font-weight:600;color:var(--vet45-v2-text-primary);overflow-wrap:anywhere}
+
+/* Sticky Footer 549:927. */
+body[data-active-uif="UIF-02"] .figma-sticky-footer{height:92px;min-height:92px;padding:var(--vet45-v2-space-4);gap:var(--vet45-v2-space-3);border-top:var(--vet45-v2-border-width-thin) solid var(--vet45-v2-border-default);background:var(--vet45-v2-surface-default)}
+body[data-active-uif="UIF-02"] .figma-sticky-footer .button{height:52px;min-height:52px;border-radius:var(--vet45-v2-radius-3);font-size:14px;line-height:20px;font-weight:600}
+
+/* Never turn product-only composition into a fake DS component. */
+body[data-active-uif="UIF-02"] [data-ds-role="product-search-composition"],
+body[data-active-uif="UIF-02"] [data-ds-role="uom-selection-composition"],
+body[data-active-uif="UIF-02"] [data-ds-role="lot-editor-composition"],
+body[data-active-uif="UIF-02"] [data-ds-role="lot-allocation-composition"]{width:370px}
+/* VDatePicker 522:7368: approved 20px leading calendar icon; suppress browser-native trailing indicator. */
+body[data-active-uif="UIF-02"] .bj02-date-shell .bj02-date-leading{width:20px;height:20px;flex:0 0 20px;display:grid;place-items:center;color:var(--vet45-v2-icon-primary)}
+body[data-active-uif="UIF-02"] .bj02-date-shell .bj02-date-leading .icon{width:20px;height:20px}
+body[data-active-uif="UIF-02"] .bj02-date-shell input{flex:1 1 auto;min-width:0}
+body[data-active-uif="UIF-02"] .bj02-date-shell input::-webkit-calendar-picker-indicator{opacity:0;width:0;height:0;margin:0;padding:0}
+/* Search Results Dropdown 1280:6136. Entity/product identity uses canonical Selection List Row
+   because BJ02 must not invent selling price/stock data merely to fill Product Result Card. */
+body[data-active-uif="UIF-02"] .combobox-html-renderer{position:relative}
+body[data-active-uif="UIF-02"] .combobox-menu{width:370px;max-height:260px;padding:var(--vet45-v2-space-2);display:flex;flex-direction:column;gap:var(--vet45-v2-space-2);overflow-y:auto;border:var(--vet45-v2-border-width-thin) solid var(--vet45-v2-border-default);border-radius:var(--vet45-v2-radius-4);background:var(--vet45-v2-surface-default);box-shadow:0 4px 12px rgba(0,0,0,.12);box-sizing:border-box;z-index:8}
+body[data-active-uif="UIF-02"] .combobox-menu[hidden]{display:none!important}
+body[data-active-uif="UIF-02"] .bj02-search-option{width:354px;height:76px;min-height:76px;padding:0 var(--vet45-v2-space-6) 0 var(--vet45-v2-space-4);display:flex;align-items:center;gap:var(--vet45-v2-space-3);flex:0 0 76px;border:var(--vet45-v2-border-width-thin) solid var(--vet45-v2-border-default);border-radius:var(--vet45-v2-radius-4);background:var(--vet45-v2-surface-default);color:var(--vet45-v2-text-primary);text-align:left;box-sizing:border-box}
+body[data-active-uif="UIF-02"] .bj02-search-option-leading{width:20px;height:20px;flex:0 0 20px;display:grid;place-items:center;color:var(--vet45-v2-icon-primary)}
+body[data-active-uif="UIF-02"] .bj02-search-option-leading .icon{width:20px;height:20px}
+body[data-active-uif="UIF-02"] .bj02-search-option .combobox-option-copy{flex:1 1 auto;min-width:0;display:flex;flex-direction:column;gap:var(--vet45-v2-space-1)}
+body[data-active-uif="UIF-02"] .bj02-search-option .combobox-option-copy strong{font-size:14px;line-height:20px;font-weight:600;color:var(--vet45-v2-text-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+body[data-active-uif="UIF-02"] .bj02-search-option .combobox-option-copy small{font-size:13px;line-height:20px;font-weight:400;color:var(--vet45-v2-text-secondary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+body[data-active-uif="UIF-02"] .bj02-search-option:hover,body[data-active-uif="UIF-02"] .bj02-search-option:focus-visible{background:var(--vet45-v2-surface-subtle);outline:0}
+/* Summary Card 525:552 — receipt context, exact two-line responsibility. */
+body[data-active-uif="UIF-02"] .bj02-summary-card{width:370px;height:112px;min-height:112px;padding:var(--vet45-v2-space-4);display:flex;flex-direction:column;align-items:flex-start;gap:var(--vet45-v2-space-2);border:var(--vet45-v2-border-width-thin) solid var(--vet45-v2-border-default);border-radius:var(--vet45-v2-radius-5);background:var(--vet45-v2-surface-subtle);box-sizing:border-box}
+body[data-active-uif="UIF-02"] .bj02-summary-card strong{font-size:16px;line-height:22px;font-weight:600;color:var(--vet45-v2-text-primary)}
+body[data-active-uif="UIF-02"] .bj02-summary-card span{font-size:13px;line-height:20px;font-weight:400;color:var(--vet45-v2-text-secondary)}
+/* Confirmation Sheet 550:1058 — destructive clears and handled-zero confirmations use
+   the existing canonical bottom-sheet anatomy, never a custom centered dialog. */
+body[data-active-uif="UIF-02"] .confirm-backdrop{position:absolute!important;inset:0!important;display:flex!important;align-items:flex-end!important;justify-content:center!important;background:rgba(14,17,22,.36)!important;z-index:40!important}
+body[data-active-uif="UIF-02"] .confirm-dialog[data-ds-component="DS v2 / Confirmation Sheet"]{position:relative!important;width:402px!important;min-width:402px!important;max-width:402px!important;min-height:280px!important;height:auto!important;margin:0!important;padding:12px 16px 44px!important;display:flex!important;flex-direction:column!important;align-items:stretch!important;gap:12px!important;border:0!important;border-radius:20px 20px 0 0!important;background:var(--vet45-v2-surface-default)!important;box-shadow:none!important;box-sizing:border-box!important}
+body[data-active-uif="UIF-02"] .confirm-dialog[data-ds-component="DS v2 / Confirmation Sheet"]::before{content:"";width:48px;height:4px;min-height:4px;align-self:center;border-radius:var(--vet45-v2-radius-pill);background:var(--vet45-v2-border-strong)}
+body[data-active-uif="UIF-02"] .confirm-dialog[data-ds-component="DS v2 / Confirmation Sheet"] h3{width:370px;margin:0;font-size:18px;line-height:24px;font-weight:600;letter-spacing:-.2px;color:var(--vet45-v2-text-primary)}
+body[data-active-uif="UIF-02"] .confirm-dialog[data-ds-component="DS v2 / Confirmation Sheet"] p{width:370px;margin:0;font-size:14px;line-height:22px;font-weight:400;color:var(--vet45-v2-text-secondary)}
+body[data-active-uif="UIF-02"] .confirm-dialog-actions{width:370px;display:flex!important;flex-direction:column!important;gap:12px!important;margin:0!important}
+body[data-active-uif="UIF-02"] .confirm-dialog-actions .button{width:370px!important;height:44px!important;min-height:44px!important;margin:0!important;border-radius:var(--vet45-v2-radius-3)!important}

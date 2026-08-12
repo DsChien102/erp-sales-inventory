@@ -1,0 +1,91 @@
+@import url('../figma-ds.exact.css');
+@import url('../figma-ds.styles.exact.css');
+
+/* VET45 Figma DS v2.0.2 runtime candidate.
+   IMPORTANT: This layer is isolated from Product UIFs until frozen.
+   It contains only structures backed by captured live Figma context. */
+* { box-sizing: border-box; }
+.vds-runtime { font-family: Inter, Arial, sans-serif; color: var(--vet45-v2-text-primary); }
+.vds-stack { display:flex; flex-direction:column; gap:var(--vet45-v2-space-3); }
+.vds-row { display:flex; align-items:center; gap:var(--vet45-v2-space-2); flex-wrap:wrap; }
+.vds-specimen { background:var(--vet45-v2-surface-canvas); padding:24px; border-radius:16px; }
+.vds-specimen h2 { margin:0 0 16px; font-size:18px; line-height:24px; font-weight:600; letter-spacing:-.2px; }
+.vds-specimen h3 { margin:20px 0 12px; font-size:16px; line-height:22px; font-weight:600; }
+
+/* VButton · 521:529 */
+.vds-button { height:44px; min-width:160px; border:0; border-radius:var(--vet45-v2-radius-3); padding:0 var(--vet45-v2-space-4); display:inline-flex; align-items:center; justify-content:center; gap:var(--vet45-v2-space-2); font:600 14px/20px Inter,Arial,sans-serif; cursor:pointer; }
+.vds-button[data-size="Small"] { height:36px; }
+.vds-button[data-size="Large"] { height:52px; }
+.vds-button[data-hierarchy="Primary"] { background:var(--vet45-v2-action-primary-default); color:var(--vet45-v2-text-inverse); }
+.vds-button[data-hierarchy="Primary"][data-state="Pressed"] { background:var(--vet45-v2-action-primary-pressed); }
+.vds-button[data-hierarchy="Secondary"] { background:var(--vet45-v2-surface-default); color:var(--vet45-v2-text-primary); border:1px solid var(--vet45-v2-action-secondary-border); }
+.vds-button[data-hierarchy="Secondary"][data-state="Pressed"] { background:var(--vet45-v2-surface-subtle); }
+.vds-button[data-hierarchy="Tertiary"] { background:var(--vet45-v2-surface-default); color:var(--vet45-v2-text-brand); }
+.vds-button[data-hierarchy="Tertiary"][data-state="Pressed"] { background:var(--vet45-v2-surface-brand); }
+.vds-button[data-hierarchy="Danger"] { background:var(--vet45-v2-surface-default); color:var(--vet45-v2-text-danger); border:1px solid var(--vet45-v2-border-danger); }
+.vds-button[data-hierarchy="Danger"][data-state="Pressed"] { background:var(--vet45-v2-surface-danger); }
+.vds-button[data-state="Disabled"] { opacity:var(--vet45-v2-opacity-disabled); pointer-events:none; }
+
+/* Canonical 96px field shell · VTextField 522:7186 / VSelect 522:7291 / VMoneyField 522:7322 / VDatePicker 522:7368 */
+.vds-field { width:370px; min-height:96px; display:flex; flex-direction:column; gap:var(--vet45-v2-space-2); }
+.vds-field__label { font:600 14px/20px Inter,Arial,sans-serif; color:var(--vet45-v2-text-primary); }
+.vds-field__input { height:44px; width:100%; display:flex; align-items:center; gap:var(--vet45-v2-space-2); padding:0 var(--vet45-v2-space-4); border:1px solid var(--vet45-v2-border-default); border-radius:var(--vet45-v2-radius-3); background:var(--vet45-v2-surface-default); color:var(--vet45-v2-text-secondary); font:400 14px/22px Inter,Arial,sans-serif; }
+.vds-field[data-state="Focused"] .vds-field__input { border:2px solid var(--vet45-v2-border-brand); }
+.vds-field[data-state="Filled"] .vds-field__input { color:var(--vet45-v2-text-primary); }
+.vds-field[data-state="Error"] .vds-field__input { border-color:var(--vet45-v2-border-danger); }
+.vds-field[data-state="Disabled"] { opacity:var(--vet45-v2-opacity-disabled); pointer-events:none; }
+.vds-field__helper { font:500 12px/16px Inter,Arial,sans-serif; letter-spacing:.1px; color:var(--vet45-v2-text-secondary); }
+.vds-field[data-state="Error"] .vds-field__helper { color:var(--vet45-v2-text-danger); }
+.vds-field__suffix { margin-left:auto; font:600 14px/20px Inter,Arial,sans-serif; color:var(--vet45-v2-text-secondary); }
+
+/* VTextarea · 522:7212 */
+.vds-textarea { width:370px; min-height:140px; display:flex; flex-direction:column; gap:var(--vet45-v2-space-2); }
+.vds-textarea__box { width:370px; height:88px; padding:12px 16px; border:1px solid var(--vet45-v2-border-default); border-radius:var(--vet45-v2-radius-3); background:var(--vet45-v2-surface-default); font:400 14px/22px Inter,Arial,sans-serif; color:var(--vet45-v2-text-secondary); }
+.vds-textarea[data-state="Focused"] .vds-textarea__box { border:2px solid var(--vet45-v2-border-brand); }
+.vds-textarea[data-state="Filled"] .vds-textarea__box { color:var(--vet45-v2-text-primary); }
+.vds-textarea[data-state="Error"] .vds-textarea__box { border-color:var(--vet45-v2-border-danger); }
+.vds-textarea[data-state="Error"] .vds-field__helper { color:var(--vet45-v2-text-danger); }
+.vds-textarea[data-state="Disabled"] { opacity:var(--vet45-v2-opacity-disabled); }
+
+/* DS v2 / Info Row · 525:351 */
+.vds-info-row { width:338px; height:44px; display:flex; align-items:center; justify-content:space-between; gap:0; padding:0; }
+.vds-info-row__label { flex:0 0 auto; font:400 13px/20px Inter,Arial,sans-serif; color:var(--vet45-v2-text-secondary); white-space:nowrap; }
+.vds-info-row__value { flex:0 0 auto; font:600 14px/20px Inter,Arial,sans-serif; color:var(--vet45-v2-text-primary); text-align:right; white-space:nowrap; }
+.vds-info-row[data-state="Disabled"] { opacity:var(--vet45-v2-opacity-disabled); }
+
+/* VBadge · 525:309 */
+.vds-badge { min-height:30px; padding:0 var(--vet45-v2-space-3); border-radius:var(--vet45-v2-radius-pill); display:inline-flex; align-items:center; justify-content:center; font:600 12px/16px Inter,Arial,sans-serif; }
+.vds-badge[data-style="Soft"][data-tone="Neutral"] { background:var(--vet45-v2-surface-subtle); color:var(--vet45-v2-text-primary); }
+.vds-badge[data-style="Soft"][data-tone="Success"] { background:var(--vet45-v2-surface-success); color:var(--vet45-v2-text-success); }
+.vds-badge[data-style="Soft"][data-tone="Warning"] { background:var(--vet45-v2-surface-warning); color:var(--vet45-v2-text-warning); }
+.vds-badge[data-style="Soft"][data-tone="Danger"] { background:var(--vet45-v2-surface-danger); color:var(--vet45-v2-text-danger); }
+.vds-badge[data-style="Soft"][data-tone="Info"] { background:var(--vet45-v2-surface-info); color:var(--vet45-v2-text-info); }
+.vds-badge[data-style="Strong"][data-tone="Neutral"] { background:var(--vet45-v2-text-primary); color:var(--vet45-v2-text-inverse); }
+.vds-badge[data-style="Strong"][data-tone="Success"] { background:var(--vet45-v2-text-success); color:var(--vet45-v2-text-inverse); }
+.vds-badge[data-style="Strong"][data-tone="Warning"] { background:var(--vet45-v2-text-warning); color:var(--vet45-v2-text-inverse); }
+.vds-badge[data-style="Strong"][data-tone="Danger"] { background:var(--vet45-v2-text-danger); color:var(--vet45-v2-text-inverse); }
+.vds-badge[data-style="Strong"][data-tone="Info"] { background:var(--vet45-v2-text-info); color:var(--vet45-v2-text-inverse); }
+
+/* VChip · 522:7449 */
+.vds-chip { min-height:34px; padding:0 var(--vet45-v2-space-3); display:inline-flex; align-items:center; border-radius:var(--vet45-v2-radius-pill); border:1px solid var(--vet45-v2-border-default); background:var(--vet45-v2-surface-default); font:600 12px/16px Inter,Arial,sans-serif; color:var(--vet45-v2-text-primary); }
+.vds-chip[data-tone="Brand"] { background:var(--vet45-v2-surface-brand); border-color:var(--vet45-v2-border-brand); color:var(--vet45-v2-text-brand); }
+.vds-chip[data-tone="Success"] { background:var(--vet45-v2-surface-success); border-color:var(--vet45-v2-border-success); color:var(--vet45-v2-text-success); }
+.vds-chip[data-tone="Warning"] { background:var(--vet45-v2-surface-warning); border-color:var(--vet45-v2-border-warning); color:var(--vet45-v2-text-warning); }
+.vds-chip[data-tone="Danger"] { background:var(--vet45-v2-surface-danger); border-color:var(--vet45-v2-border-danger); color:var(--vet45-v2-text-danger); }
+.vds-chip[data-state="Disabled"] { opacity:var(--vet45-v2-opacity-disabled); }
+
+/* VSegmentedControl · 1049:9619 */
+.vds-segmented { width:370px; height:44px; padding:4px; gap:4px; border-radius:10px; background:var(--vet45-v2-surface-subtle); display:flex; }
+.vds-segmented__item { flex:1; height:36px; display:flex; align-items:center; justify-content:center; border-radius:8px; border:1px solid var(--vet45-v2-border-default); background:var(--vet45-v2-surface-default); color:var(--vet45-v2-text-primary); font:600 14px/20px Inter,Arial,sans-serif; }
+.vds-segmented__item[aria-selected="true"] { border-color:transparent; background:var(--vet45-v2-action-primary-default); color:var(--vet45-v2-text-inverse); }
+
+/* DS v2 / Record Card · 1001:7201 */
+.vds-record-card { width:370px; height:116px; border:1px solid var(--vet45-v2-border-default); border-radius:var(--vet45-v2-radius-4); background:var(--vet45-v2-surface-default); padding:12px; display:flex; flex-direction:column; gap:4px; overflow:hidden; }
+.vds-record-card__header { height:22px; display:flex; align-items:center; justify-content:space-between; gap:8px; }
+.vds-record-card__title { margin:0; font:600 16px/22px Inter,Arial,sans-serif; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.vds-record-card__support { font:400 13px/20px Inter,Arial,sans-serif; color:var(--vet45-v2-text-secondary); }
+.vds-record-card__context { font:400 13px/20px Inter,Arial,sans-serif; color:var(--vet45-v2-text-primary); }
+.vds-record-card__meta { display:flex; justify-content:space-between; font:500 12px/16px Inter,Arial,sans-serif; letter-spacing:.1px; color:var(--vet45-v2-text-secondary); }
+
+/* Runtime-only audit UI */
+.vds-runtime-note { padding:12px 16px; border:1px solid var(--vet45-v2-border-warning); border-radius:12px; background:var(--vet45-v2-surface-warning); font:400 13px/20px Inter,Arial,sans-serif; }

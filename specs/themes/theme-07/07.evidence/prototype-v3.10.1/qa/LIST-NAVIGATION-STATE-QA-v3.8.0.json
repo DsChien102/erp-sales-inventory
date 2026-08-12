@@ -1,0 +1,330 @@
+{
+  "version": "3.8.0",
+  "status": "PASS",
+  "baselineMixedPeerCollectionStateRenders": 10,
+  "affectedScreens": [
+    "UIF-03/SCR-014",
+    "UIF-13/SCR-085"
+  ],
+  "routeStatesScanned": 518,
+  "checks": [
+    {
+      "name": "runtime version",
+      "pass": true,
+      "note": "3.8.0"
+    },
+    {
+      "name": "all 518 declared route-state renders scanned",
+      "pass": true,
+      "note": 518
+    },
+    {
+      "name": "no mixed Navigation/Status peer collection remains",
+      "pass": true,
+      "note": []
+    },
+    {
+      "name": "every visible Navigation row keeps a chevron",
+      "pass": true,
+      "note": []
+    },
+    {
+      "name": "every Disabled Navigation row is natively disabled and uses DS opacity 0.4",
+      "pass": true,
+      "note": []
+    },
+    {
+      "name": "every enabled Navigation row is an interactive button",
+      "pass": true,
+      "note": []
+    },
+    {
+      "name": "reported UIF-03 waiting row keeps Navigation anatomy and is Disabled",
+      "pass": true,
+      "note": [
+        {
+          "text": "PN-260816-04 | Minh Dũng · 2 dòng hàng · Chờ 19 ngày | Cần đối chiếu",
+          "type": "Navigation",
+          "state": "Default",
+          "tag": "BUTTON",
+          "disabled": false,
+          "chevron": true,
+          "opacity": 1
+        },
+        {
+          "text": "PN-260816-02 | An Việt · 1 dòng hàng · Chờ 19 ngày | Chờ căn cứ",
+          "type": "Navigation",
+          "state": "Disabled",
+          "tag": "BUTTON",
+          "disabled": true,
+          "chevron": true,
+          "opacity": 0.4
+        },
+        {
+          "text": "PN-260901-03 | Phương Nam · 1 dòng hàng · Chờ 3 ngày | Có thể xử lý",
+          "type": "Navigation",
+          "state": "Default",
+          "tag": "BUTTON",
+          "disabled": false,
+          "chevron": true,
+          "opacity": 1
+        },
+        {
+          "text": "PN-260902-07 | VietVet · 2 dòng hàng · Chờ 2 ngày | Có thể xử lý",
+          "type": "Navigation",
+          "state": "Default",
+          "tag": "BUTTON",
+          "disabled": false,
+          "chevron": true,
+          "opacity": 1
+        }
+      ]
+    },
+    {
+      "name": "UIF-03 actionable peers remain enabled Navigation rows",
+      "pass": true,
+      "note": [
+        {
+          "text": "PN-260816-04 | Minh Dũng · 2 dòng hàng · Chờ 19 ngày | Cần đối chiếu",
+          "type": "Navigation",
+          "state": "Default",
+          "tag": "BUTTON",
+          "disabled": false,
+          "chevron": true,
+          "opacity": 1
+        },
+        {
+          "text": "PN-260816-02 | An Việt · 1 dòng hàng · Chờ 19 ngày | Chờ căn cứ",
+          "type": "Navigation",
+          "state": "Disabled",
+          "tag": "BUTTON",
+          "disabled": true,
+          "chevron": true,
+          "opacity": 0.4
+        },
+        {
+          "text": "PN-260901-03 | Phương Nam · 1 dòng hàng · Chờ 3 ngày | Có thể xử lý",
+          "type": "Navigation",
+          "state": "Default",
+          "tag": "BUTTON",
+          "disabled": false,
+          "chevron": true,
+          "opacity": 1
+        },
+        {
+          "text": "PN-260902-07 | VietVet · 2 dòng hàng · Chờ 2 ngày | Có thể xử lý",
+          "type": "Navigation",
+          "state": "Default",
+          "tag": "BUTTON",
+          "disabled": false,
+          "chevron": true,
+          "opacity": 1
+        }
+      ]
+    },
+    {
+      "name": "UIF-13 waiting row keeps Navigation anatomy and is Disabled",
+      "pass": true,
+      "note": [
+        {
+          "text": "VC-8842 · dòng 1 | Chi phí vận chuyển · Vận tải An Phát · Chờ 4 ngày | Có thể xử lý",
+          "type": "Navigation",
+          "state": "Default",
+          "tag": "BUTTON",
+          "disabled": false,
+          "chevron": true,
+          "opacity": 1
+        },
+        {
+          "text": "INS-2609-17 · dòng 2 | Phí bảo hiểm hàng mua · Bảo hiểm Minh Thành · Chờ 2 ngày | Có thể xử lý",
+          "type": "Navigation",
+          "state": "Default",
+          "tag": "BUTTON",
+          "disabled": false,
+          "chevron": true,
+          "opacity": 1
+        },
+        {
+          "text": "VC-8890 · dòng 1 | Chi phí vận chuyển · Logistics Đông Dương · Chờ 6 ngày | Đang chờ",
+          "type": "Navigation",
+          "state": "Disabled",
+          "tag": "BUTTON",
+          "disabled": true,
+          "chevron": true,
+          "opacity": 0.4
+        },
+        {
+          "text": "CK-2609-06 · dòng 1 | Điều chỉnh chiết khấu mua · Minh Dũng · Chờ 1 ngày | Có thể xử lý",
+          "type": "Navigation",
+          "state": "Default",
+          "tag": "BUTTON",
+          "disabled": false,
+          "chevron": true,
+          "opacity": 1
+        }
+      ]
+    },
+    {
+      "name": "UIF-13 actionable peers remain enabled Navigation rows",
+      "pass": true,
+      "note": [
+        {
+          "text": "VC-8842 · dòng 1 | Chi phí vận chuyển · Vận tải An Phát · Chờ 4 ngày | Có thể xử lý",
+          "type": "Navigation",
+          "state": "Default",
+          "tag": "BUTTON",
+          "disabled": false,
+          "chevron": true,
+          "opacity": 1
+        },
+        {
+          "text": "INS-2609-17 · dòng 2 | Phí bảo hiểm hàng mua · Bảo hiểm Minh Thành · Chờ 2 ngày | Có thể xử lý",
+          "type": "Navigation",
+          "state": "Default",
+          "tag": "BUTTON",
+          "disabled": false,
+          "chevron": true,
+          "opacity": 1
+        },
+        {
+          "text": "VC-8890 · dòng 1 | Chi phí vận chuyển · Logistics Đông Dương · Chờ 6 ngày | Đang chờ",
+          "type": "Navigation",
+          "state": "Disabled",
+          "tag": "BUTTON",
+          "disabled": true,
+          "chevron": true,
+          "opacity": 0.4
+        },
+        {
+          "text": "CK-2609-06 · dòng 1 | Điều chỉnh chiết khấu mua · Minh Dũng · Chờ 1 ngày | Có thể xử lý",
+          "type": "Navigation",
+          "state": "Default",
+          "tag": "BUTTON",
+          "disabled": false,
+          "chevron": true,
+          "opacity": 1
+        }
+      ]
+    },
+    {
+      "name": "UIF-03 disabled row cannot navigate",
+      "pass": true,
+      "note": {
+        "before": "SCR-014",
+        "afterDisabled": "SCR-014",
+        "afterActionable": "SCR-015"
+      }
+    },
+    {
+      "name": "UIF-03 actionable row still navigates",
+      "pass": true,
+      "note": {
+        "before": "SCR-014",
+        "afterDisabled": "SCR-014",
+        "afterActionable": "SCR-015"
+      }
+    },
+    {
+      "name": "UIF-13 disabled row cannot navigate",
+      "pass": true,
+      "note": {
+        "before": "SCR-085",
+        "afterDisabled": "SCR-085",
+        "afterActionable": "SCR-086"
+      }
+    },
+    {
+      "name": "UIF-13 actionable row still navigates",
+      "pass": true,
+      "note": {
+        "before": "SCR-085",
+        "afterDisabled": "SCR-085",
+        "afterActionable": "SCR-086"
+      }
+    },
+    {
+      "name": "no browser page errors",
+      "pass": true,
+      "note": []
+    }
+  ],
+  "reportedSamples": {
+    "val03": [
+      {
+        "text": "PN-260816-04 | Minh Dũng · 2 dòng hàng · Chờ 19 ngày | Cần đối chiếu",
+        "type": "Navigation",
+        "state": "Default",
+        "tag": "BUTTON",
+        "disabled": false,
+        "chevron": true,
+        "opacity": 1
+      },
+      {
+        "text": "PN-260816-02 | An Việt · 1 dòng hàng · Chờ 19 ngày | Chờ căn cứ",
+        "type": "Navigation",
+        "state": "Disabled",
+        "tag": "BUTTON",
+        "disabled": true,
+        "chevron": true,
+        "opacity": 0.4
+      },
+      {
+        "text": "PN-260901-03 | Phương Nam · 1 dòng hàng · Chờ 3 ngày | Có thể xử lý",
+        "type": "Navigation",
+        "state": "Default",
+        "tag": "BUTTON",
+        "disabled": false,
+        "chevron": true,
+        "opacity": 1
+      },
+      {
+        "text": "PN-260902-07 | VietVet · 2 dòng hàng · Chờ 2 ngày | Có thể xử lý",
+        "type": "Navigation",
+        "state": "Default",
+        "tag": "BUTTON",
+        "disabled": false,
+        "chevron": true,
+        "opacity": 1
+      }
+    ],
+    "val13": [
+      {
+        "text": "VC-8842 · dòng 1 | Chi phí vận chuyển · Vận tải An Phát · Chờ 4 ngày | Có thể xử lý",
+        "type": "Navigation",
+        "state": "Default",
+        "tag": "BUTTON",
+        "disabled": false,
+        "chevron": true,
+        "opacity": 1
+      },
+      {
+        "text": "INS-2609-17 · dòng 2 | Phí bảo hiểm hàng mua · Bảo hiểm Minh Thành · Chờ 2 ngày | Có thể xử lý",
+        "type": "Navigation",
+        "state": "Default",
+        "tag": "BUTTON",
+        "disabled": false,
+        "chevron": true,
+        "opacity": 1
+      },
+      {
+        "text": "VC-8890 · dòng 1 | Chi phí vận chuyển · Logistics Đông Dương · Chờ 6 ngày | Đang chờ",
+        "type": "Navigation",
+        "state": "Disabled",
+        "tag": "BUTTON",
+        "disabled": true,
+        "chevron": true,
+        "opacity": 0.4
+      },
+      {
+        "text": "CK-2609-06 · dòng 1 | Điều chỉnh chiết khấu mua · Minh Dũng · Chờ 1 ngày | Có thể xử lý",
+        "type": "Navigation",
+        "state": "Default",
+        "tag": "BUTTON",
+        "disabled": false,
+        "chevron": true,
+        "opacity": 1
+      }
+    ]
+  },
+  "browserErrors": []
+}

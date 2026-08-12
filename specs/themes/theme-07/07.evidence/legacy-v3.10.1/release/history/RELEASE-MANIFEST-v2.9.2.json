@@ -1,0 +1,61 @@
+{
+  "version": "2.9.2",
+  "parent": "2.9.1",
+  "status": "PRODUCT_GROUP_SURFACE_CORRECTED_REVIEW_READY",
+  "scope": [
+    "BJ07 Product+UOM group surface correction on SCR-037, SCR-039 and SCR-041",
+    "BJ05 handover Product+UOM and allocation hierarchy hardening on SCR-028",
+    "BJ06 result Product+UOM hierarchy hardening on SCR-035",
+    "cross-migrated audit of BJ01, BJ02, BJ04, BJ05, BJ06, BJ07 and BJ08",
+    "preserve business behavior, navigation/finality and inventory commit boundaries"
+  ],
+  "productViewport": {
+    "width": 402,
+    "height": 874
+  },
+  "reviewDeviceBorderBox": {
+    "width": 418,
+    "height": 890,
+    "bezel": 8
+  },
+  "businessBehaviorChanged": false,
+  "newFeatureComponentsCreated": 0,
+  "productWiring": [
+    "UIF-01",
+    "UIF-02",
+    "UIF-04",
+    "UIF-05",
+    "UIF-06",
+    "UIF-07",
+    "UIF-08"
+  ],
+  "figmaAuthority": {
+    "fileKey": "QVJolM5tAdFKkhP7RIwe3y",
+    "componentRefs": [
+      "DS v2 / List Row 525:519",
+      "DS v2 / Info Row 525:351",
+      "DS v2 / Key-value Row 525:358",
+      "VBadge 525:309",
+      "VBanner 526:4215",
+      "VBottomSheet 4695:6353"
+    ],
+    "priorThemeReferences": [
+      "Theme 1 / TA-D-01 Quyền sở hữu & vòng đời 267:3444",
+      "Theme 1 / Platform organization detail compositions",
+      "Theme 1 / Member and audit detail compositions"
+    ]
+  },
+  "qa": {
+    "bj07FigmaDsUx": "PASS 32/32",
+    "productHierarchyCrossMigrated": "PASS 18/18 · 33 migrated default renders · 0 browser errors",
+    "migratedVisualIntegrity": "PASS 7/7 · 33 screens checked",
+    "bj05Bj06Regression": "PASS 32/32",
+    "priorBjRegression": "PASS 23/23 · 0 browser errors",
+    "allFlowRuntime": "PASS 85/85 · 0 browser errors",
+    "deviceFrame": "PASS 7/7 · 85 screens checked · 0 browser errors",
+    "reviewWorkbenchFit": "PASS 3/3",
+    "mobilePrototypeValidator": "PASS · 0 findings",
+    "javascriptSyntax": "PASS"
+  },
+  "summary": "Replaces the remaining floating Product+UOM text/badge compositions with canonical Status/Compact List Row identity inside coherent grouped surfaces, while preserving lower-level allocation semantics and all business behavior."
+}

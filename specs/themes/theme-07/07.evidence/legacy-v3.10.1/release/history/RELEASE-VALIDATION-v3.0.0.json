@@ -1,0 +1,103 @@
+{
+  "version": "3.0.0",
+  "parentVersion": "2.9.4",
+  "status": "PASS",
+  "reviewReady": true,
+  "scope": "Inventory Valuation cluster BJ03 + BJ13 + BJ14 DS/UX redesign; business handlers and journey topology preserved.",
+  "productViewport": {
+    "width": 402,
+    "height": 874
+  },
+  "reviewDeviceBorderBox": {
+    "width": 418,
+    "height": 890,
+    "bezel": 8
+  },
+  "businessBehaviorChanged": false,
+  "newCoreDesignSystemComponentsCreated": 0,
+  "gates": {
+    "valuationCluster": {
+      "status": "PASS",
+      "passed": 28,
+      "total": 28,
+      "activeScreens": 14,
+      "browserErrors": 0
+    },
+    "valuationScenarios": {
+      "status": "PASS",
+      "passed": 27,
+      "total": 27
+    },
+    "valuationEndUser": {
+      "status": "PASS",
+      "passed": 54,
+      "total": 54
+    },
+    "valuationIntegration": {
+      "status": "PASS",
+      "passed": 14,
+      "total": 14
+    },
+    "allFlowRuntime": {
+      "status": "PASS",
+      "renders": 85,
+      "failures": 0,
+      "browserErrors": 0
+    },
+    "deviceFrame": {
+      "status": "PASS",
+      "passed": 7,
+      "total": 7,
+      "screensChecked": 85,
+      "browserErrors": 0
+    },
+    "priorBjRegression": {
+      "status": "PASS",
+      "passed": 23,
+      "total": 23,
+      "browserErrors": 0
+    },
+    "bj07ProductLotRegression": {
+      "status": "PASS",
+      "passed": 21,
+      "total": 21
+    },
+    "reviewWorkbenchFit": {
+      "status": "PASS",
+      "passed": 3,
+      "total": 3
+    },
+    "javascriptSyntax": {
+      "status": "PASS",
+      "files": [
+        "app.js",
+        "workbench-data.js"
+      ]
+    },
+    "focusedVisualReview": {
+      "status": "PASS",
+      "captures": [
+        "UIF-03-SCR-014",
+        "UIF-03-SCR-015",
+        "UIF-03-SCR-015-EVIDENCE",
+        "UIF-03-SCR-017-POPULATED",
+        "UIF-13-SCR-087",
+        "UIF-13-SCR-088",
+        "UIF-13-SCR-089",
+        "UIF-14-SCR-072",
+        "UIF-14-SCR-073",
+        "UIF-14-SCR-074",
+        "UIF-14-SCR-076"
+      ]
+    }
+  },
+  "uxLocks": [
+    "Product/BJ/contract defines behavior; live Figma DS defines presentation.",
+    "Product/UOM parent and LOT/non-LOT child must not be rendered as peer cards.",
+    "One homogeneous collection owns at most one dominant grouped surface.",
+    "Money and quantity are values, not status badges.",
+    "Internal BJ handoff/orchestration explanation stays outside Product UI.",
+    "BJ14 policy method is read-only; two run-kind choices use canonical VRadio.",
+    "No new core DS component when existing primitives/compositions cover the responsibility."
+  ]
+}

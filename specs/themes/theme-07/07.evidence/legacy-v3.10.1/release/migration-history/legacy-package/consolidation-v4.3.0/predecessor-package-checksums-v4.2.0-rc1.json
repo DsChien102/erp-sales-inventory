@@ -1,0 +1,2318 @@
+{
+  "algorithm": "sha256",
+  "package_version": "4.2.0-rc1",
+  "freeze_id": "T7-UIUX-FREEZE-v4.2.0-rc1",
+  "generated_at": "2026-08-24T06:03:47+07:00",
+  "files": [
+    {
+      "path": "CHECKSUMS.sha256",
+      "size": 57205,
+      "sha256": "b6da23c5c0bce3a86e04afe810afcf00dd20ced7cabf6a16efe6893061e2aa5d"
+    },
+    {
+      "path": "README.md",
+      "size": 1480,
+      "sha256": "aa6911900279720dbd5a9279d763e9c04e8e3d617769902083496ad0602bc8a6"
+    },
+    {
+      "path": "artifact-index.md",
+      "size": 627,
+      "sha256": "4ad00e0f225d5fa8f4903453885b97d91f77cec8ac6a1df727008340204712f0"
+    },
+    {
+      "path": "change-log.md",
+      "size": 3358,
+      "sha256": "3702d56f135eb2d4f1e028bc628532951397557c5abad36b63c9c10cf043531b"
+    },
+    {
+      "path": "harness/README.md",
+      "size": 328,
+      "sha256": "22d0b7939c01d55c9015518094a0d1351fa7c86b898d53995212b98a67cdfde6"
+    },
+    {
+      "path": "harness/artifact-index.md",
+      "size": 1542,
+      "sha256": "17352eae5b82d244a8e9155209848b4912cd72117c37f286d21e41a8bbfe8e9d"
+    },
+    {
+      "path": "harness/contract-registry.json",
+      "size": 165006,
+      "sha256": "a7afadf1613635496cc443a6f46ed2d47709905283120a2c8d127936660ab95d"
+    },
+    {
+      "path": "harness/coverage-matrix.csv",
+      "size": 176793,
+      "sha256": "b9d699f42361f19267d583acdc5d63b0cafe67e43751a7995a7c1c4f1dd9a9eb"
+    },
+    {
+      "path": "harness/evidence/canonical-strict-run.json",
+      "size": 459,
+      "sha256": "7660ec105191ce7c81b6bdd83356e095a791067a097443894261605cbc829ecc"
+    },
+    {
+      "path": "harness/executive-handoff.md",
+      "size": 4566,
+      "sha256": "4728b2fe073727f9b4a0a316210f308946a2021441f4c5ea2e2cc6d279773209"
+    },
+    {
+      "path": "harness/fixture-registry.json",
+      "size": 395877,
+      "sha256": "fb8e00a1984be3e36acc6db6622bd75560c5511e9ffef699dfd13c4e59c867fb"
+    },
+    {
+      "path": "harness/fixtures/fixtures.json",
+      "size": 395877,
+      "sha256": "fb8e00a1984be3e36acc6db6622bd75560c5511e9ffef699dfd13c4e59c867fb"
+    },
+    {
+      "path": "harness/frozen-source/Decision-Log.md",
+      "size": 88737,
+      "sha256": "118da3812e4825c3b05d2a092b7f1d5459c9338e76908be41b27e707dcdef231"
+    },
+    {
+      "path": "harness/frozen-source/Freeze-Manifest.md",
+      "size": 412,
+      "sha256": "8e06ccd2bde469fbee513987d759416393acd00e994d4dc99adad5e6d35b3052"
+    },
+    {
+      "path": "harness/frozen-source/srs/01-overview.md",
+      "size": 16047,
+      "sha256": "a780db35ae2e64403c3e41ffea844871be6137a55787c6be5909387dee0a8710"
+    },
+    {
+      "path": "harness/frozen-source/srs/02-business-journeys/00-business-journey-map.md",
+      "size": 3462,
+      "sha256": "9127773c811de6411e645827dc682a259c6e4e881c4904a1678c2e65e4beeb65"
+    },
+    {
+      "path": "harness/frozen-source/srs/02-business-journeys/01-BJ-01-theo-doi-ton-kha-dung-va-chi-bao-van-hanh.md",
+      "size": 5650,
+      "sha256": "b92e12bb934f4015e7b7b31c55c8c13f529a29c634f368721a17e72f32484561"
+    },
+    {
+      "path": "harness/frozen-source/srs/02-business-journeys/02-BJ-02-nhan-hang-mua.md",
+      "size": 8464,
+      "sha256": "602ac5d004b41c634b58b9643afc9c7d801ffef103e9b454267bda9b0dd71bee"
+    },
+    {
+      "path": "harness/frozen-source/srs/02-business-journeys/03-BJ-03-xac-nhan-gia-tri-ban-dau-cua-hang-nhan.md",
+      "size": 6023,
+      "sha256": "922dfac2567a642f2c872ab174dac044f6419116e60926502c310ad2e644f624"
+    },
+    {
+      "path": "harness/frozen-source/srs/02-business-journeys/04-BJ-04-quan-ly-vong-doi-giu-hang.md",
+      "size": 6170,
+      "sha256": "d0594dacd69a5dcbf04bebbdcb25fe787c88e6b680833d3d37bdbd40190ede5c"
+    },
+    {
+      "path": "harness/frozen-source/srs/02-business-journeys/05-BJ-05-lay-hang-va-ban-giao-don.md",
+      "size": 6005,
+      "sha256": "472d259eef9791490625104d1421cdcfdade7eff3225f6dd34818f135b8b1e80"
+    },
+    {
+      "path": "harness/frozen-source/srs/02-business-journeys/06-BJ-06-tiep-nhan-va-phan-loai-hang-khach-tra.md",
+      "size": 7587,
+      "sha256": "1c94761d2558c1aa43543abef0ee764b2242115d0370fa3c75b324362ac4399c"
+    },
+    {
+      "path": "harness/frozen-source/srs/02-business-journeys/07-BJ-07-thuc-hien-tra-hang-cho-nha-cung-cap.md",
+      "size": 7212,
+      "sha256": "6a8b3293f28820cd63a75d15f3da282ffff274a7a4205b73c41068b492fdd21d"
+    },
+    {
+      "path": "harness/frozen-source/srs/02-business-journeys/08-BJ-08-kiem-ke-va-dieu-chinh-chenh-lech.md",
+      "size": 8169,
+      "sha256": "d87183cc0a4d04c1837f9beee69140e5de9c152982d5b0fa044a151bcf4880c7"
+    },
+    {
+      "path": "harness/frozen-source/srs/02-business-journeys/09-BJ-09-quan-ly-trang-thai-hang.md",
+      "size": 7443,
+      "sha256": "3aaedcc6b068f91320d131f1bd3b5b1a59b5472a582932f1bc58574b836e6c15"
+    },
+    {
+      "path": "harness/frozen-source/srs/02-business-journeys/10-BJ-10-tieu-huy-hang.md",
+      "size": 6876,
+      "sha256": "a26fb1d5102429f690291f679090c136af7be62f866496a3e832fc4075e7014b"
+    },
+    {
+      "path": "harness/frozen-source/srs/02-business-journeys/11-BJ-11-huy-va-sua-sai-nghiep-vu-kho.md",
+      "size": 9312,
+      "sha256": "64a5c907a8482d8f3597794501ab32dafe707b67f9f3a59c3994132fb2345158"
+    },
+    {
+      "path": "harness/frozen-source/srs/02-business-journeys/12-BJ-12-khoi-tao-so-du-ton-kho-dau-ky.md",
+      "size": 7096,
+      "sha256": "18f068712c1e0debad667ec174dd839e65141d7eb1a8df92a6b0d3cce22aea18"
+    },
+    {
+      "path": "harness/frozen-source/srs/02-business-journeys/13-BJ-13-ghi-nhan-chi-phi-mua-den-muon.md",
+      "size": 6262,
+      "sha256": "48ff72d360eff045f3b874be068964309b130ab6c600695b0ecacc68cceecf44"
+    },
+    {
+      "path": "harness/frozen-source/srs/02-business-journeys/14-BJ-14-tinh-va-cong-bo-gia-von.md",
+      "size": 6978,
+      "sha256": "58c2392c075743455ad2fad560160ad453f52b06d44adf43ae5ec73bb40a6909"
+    },
+    {
+      "path": "harness/frozen-source/srs/02-business-journeys/15-BJ-15-tra-cuu-bao-cao-ton-va-the-kho.md",
+      "size": 6700,
+      "sha256": "4c6746bc3ad027747beeefe2f41aa4ddec9769e76dd1fe6f55e4159431902727"
+    },
+    {
+      "path": "harness/frozen-source/srs/02-business-journeys/16-BJ-16-dieu-tra-va-doi-soat-sai-lech.md",
+      "size": 7975,
+      "sha256": "dc70b4d82f6e1b5d777c3e5a533e9fa4ca4d1875652b9e8f5b700a97203f2ca8"
+    },
+    {
+      "path": "harness/frozen-source/srs/02-business-journeys/17-BJ-17-phuc-hoi-nghiep-vu-ket-qua-chua-xac-dinh.md",
+      "size": 6929,
+      "sha256": "37fee6a7cd695e03c5b2e35fb3d44a9a2f288cc19039433702e433ae5263cd4e"
+    },
+    {
+      "path": "harness/frozen-source/srs/03-domain-foundation.md",
+      "size": 24553,
+      "sha256": "128bacd94337790cade608b21deba5e333a064045c37f768bff65cb44e27bab8"
+    },
+    {
+      "path": "harness/frozen-source/srs/04-data-entities.md",
+      "size": 73755,
+      "sha256": "3e7ce39bdc1416c70cbfcfeb888a3552752c0cd90a4118c42d2c648b78dedf5c"
+    },
+    {
+      "path": "harness/frozen-source/srs/05-use-cases/00-use-case-map.md",
+      "size": 19206,
+      "sha256": "0f93d4ec4d4fbb572a03ca054a400be11ca74c6b55e0d9e54f2d3840624a745c"
+    },
+    {
+      "path": "harness/frozen-source/srs/05-use-cases/BJ-01-theo-doi-ton-kha-dung-va-chi-bao-van-hanh/UC-01-01-xac-dinh-ngu-canh-va-san-pham.md",
+      "size": 9377,
+      "sha256": "1a574ed0e1b5cad3de6f4d400e046807577132343fa9952bcecd7ccca1bee194"
+    },
+    {
+      "path": "harness/frozen-source/srs/05-use-cases/BJ-01-theo-doi-ton-kha-dung-va-chi-bao-van-hanh/UC-01-02-xem-ton-va-kha-dung.md",
+      "size": 8253,
+      "sha256": "74750ee592e00a567c1c03bc8cf240c0f881c0f871fe7f8432a5a83c838121d8"
+    },
+    {
+      "path": "harness/frozen-source/srs/05-use-cases/BJ-01-theo-doi-ton-kha-dung-va-chi-bao-van-hanh/UC-01-03-xem-trace-summary.md",
+      "size": 8587,
+      "sha256": "3301cf0a9f44ff4953690b10f657ac4055f773d66b133afcf7b55d12003d1a22"
+    },
+    {
+      "path": "harness/frozen-source/srs/05-use-cases/BJ-01-theo-doi-ton-kha-dung-va-chi-bao-van-hanh/UC-01-04-xem-ton-thap-va-luong-goi-y.md",
+      "size": 8114,
+      "sha256": "f8e7ca7e6e91a387977a128b318f4ab0cf71a1b4f55a8af2bb25225d3713340b"
+    },
+    {
+      "path": "harness/frozen-source/srs/05-use-cases/BJ-01-theo-doi-ton-kha-dung-va-chi-bao-van-hanh/UC-01-05-xem-hang-can-han-va-het-han.md",
+      "size": 8053,
+      "sha256": "7cebe190a32a82f69ca6797c4ea830465766c25e0e3ec25f9ce877d9d2c2d9c6"
+    },
+    {
+      "path": "harness/frozen-source/srs/05-use-cases/BJ-02-nhan-hang-mua/UC-02-01-chuan-bi-nhan-theo-chung-tu.md",
+      "size": 9090,
+      "sha256": "32bef9a33d960503d844e9750b31f23e1eb097fc9e2ba888c7de5e14ae419486"
+    },
+    {
+      "path": "harness/frozen-source/srs/05-use-cases/BJ-02-nhan-hang-mua/UC-02-02-chuan-bi-nhap-hang-nhanh.md",
+      "size": 9523,
+      "sha256": "c209c3d56340cde62671fe7ca841ae8059a9d8aa5e3e921541bfbf25a33801da"
+    },
+    {
+      "path": "harness/frozen-source/srs/05-use-cases/BJ-02-nhan-hang-mua/UC-02-03-phe-duyet-yeu-cau-nhan-hang.md",
+      "size": 9139,
+      "sha256": "8cf3199ddf363775fdcb5cd3bfafdb46a4d18e46f2f8d0028560fe6a57d71219"
+    },
+    {
+      "path": "harness/frozen-source/srs/05-use-cases/BJ-02-nhan-hang-mua/UC-02-04-ghi-nhan-hang-vao-ton-vat-ly.md",
+      "size": 8751,
+      "sha256": "be0d229fd02a61b366fbcdfa3607d3109459db7dc73752e1d75387398d017da6"
+    },
+    {
+      "path": "harness/frozen-source/srs/05-use-cases/BJ-02-nhan-hang-mua/UC-02-05-truy-van-va-phuc-hoi-ngan-ket-qua-nhan-hang.md",
+      "size": 5654,
+      "sha256": "1142d235df637bb250a391f60856309ffae522331e4d529f7ced93923ee016f7"
+    },
+    {
+      "path": "harness/frozen-source/srs/05-use-cases/BJ-03-xac-nhan-gia-tri-ban-dau-cua-hang-nhan/UC-03-01-chon-pham-vi-can-dinh-gia.md",
+      "size": 8434,
+      "sha256": "e447064ce6cfdff14cdcae76f2c2b074ec07ef921993c4a41a0872d984ac2934"
+    },
+    {
+      "path": "harness/frozen-source/srs/05-use-cases/BJ-03-xac-nhan-gia-tri-ban-dau-cua-hang-nhan/UC-03-02-xac-dinh-gia-nhap-thuc-te.md",
+      "size": 8502,
+      "sha256": "d8f0f61cb0ea6d8c2900cc7436bc129a001c80f3dd4b6db555be6248c68326a6"
+    },
+    {
+      "path": "harness/frozen-source/srs/05-use-cases/BJ-03-xac-nhan-gia-tri-ban-dau-cua-hang-nhan/UC-03-03-xac-nhan-gia-tri.md",
+      "size": 8439,
+      "sha256": "22e5c0f5b21225f5ca2d6262d94912aebdd7a78f3dc005c3c562564a4fa60f8e"
+    },
+    {
+      "path": "harness/frozen-source/srs/05-use-cases/BJ-04-quan-ly-vong-doi-giu-hang/UC-04-01-tao-reservation.md",
+      "size": 8188,
+      "sha256": "8a69b7b644ab781118aa44f8bc15c7ce1a05703db9e75c9a5a79387e08330e94"
+    },
+    {
+      "path": "harness/frozen-source/srs/05-use-cases/BJ-04-quan-ly-vong-doi-giu-hang/UC-04-02-dieu-chinh-reservation.md",
+      "size": 8305,
+      "sha256": "a681c447c77d2e6657b3c69ff9d740bdbbde727c80c2918b9fd57e2437471be4"
+    },
+    {
+      "path": "harness/frozen-source/srs/05-use-cases/BJ-04-quan-ly-vong-doi-giu-hang/UC-04-03-ket-thuc-va-giai-phong.md",
+      "size": 8313,
+      "sha256": "2e0b70e5cc526c7b322b3cd9983becf60e177d035af4a90f676c201b7df97bf4"
+    },
+    {
+      "path": "harness/frozen-source/srs/05-use-cases/BJ-04-quan-ly-vong-doi-giu-hang/UC-04-04-danh-gia-lai-va-xu-ly-thieu.md",
+      "size": 8325,
+      "sha256": "0a8d8012108c212fac26df8643da89c21081b844eaa32622a51b7b88c46ce7a6"
+    },
+    {
+      "path": "harness/frozen-source/srs/05-use-cases/BJ-05-lay-hang-va-ban-giao-don/UC-05-01-lap-allocation.md",
+      "size": 7890,
+      "sha256": "76504907b449a79b1140048332959d8951cff70d74607488fec00a18d12f31e5"
+    },
+    {
+      "path": "harness/frozen-source/srs/05-use-cases/BJ-05-lay-hang-va-ban-giao-don/UC-05-02-xac-nhan-hang-da-lay.md",
+      "size": 7942,
+      "sha256": "d23d6e071a10b80ed190574da76fef725af04ab15136973eba44f2efa90bbf97"
+    },
+    {
+      "path": "harness/frozen-source/srs/05-use-cases/BJ-05-lay-hang-va-ban-giao-don/UC-05-03-ban-giao-hang.md",
+      "size": 7988,
+      "sha256": "0415cc4841a744d267456bdec8964ab048773ca12246a93dd7ed038c6b944aa1"
+    },
+    {
+      "path": "harness/frozen-source/srs/05-use-cases/BJ-05-lay-hang-va-ban-giao-don/UC-05-04-phuc-hoi-allocation-stale.md",
+      "size": 8233,
+      "sha256": "df74cbb08b44f93307ce76ddb73e8310ae8c90c9ef89bf4efd0d2d4fb1da5bab"
+    },
+    {
+      "path": "harness/frozen-source/srs/05-use-cases/BJ-05-lay-hang-va-ban-giao-don/UC-05-05-ghi-xuat-kho-nguyen-tu.md",
+      "size": 9254,
+      "sha256": "327e5c1a81dfe07d8a1fa4113616e074f7e6f9984b63832ae1246e5ba8bc08c8"
+    },
+    {
+      "path": "harness/frozen-source/srs/05-use-cases/BJ-06-tiep-nhan-va-phan-loai-hang-khach-tra/UC-06-01-xac-minh-hang-duoc-phep-nhan-tra.md",
+      "size": 8781,
+      "sha256": "51640414b702b06d78b33cbbc6db56d680f4f0f0a2b2101e5636d165dca78ff1"
+    },
+    {
+      "path": "harness/frozen-source/srs/05-use-cases/BJ-06-tiep-nhan-va-phan-loai-hang-khach-tra/UC-06-02-xu-ly-ngoai-le-truy-vet.md",
+      "size": 8752,
+      "sha256": "9ddd747f199d7d1f0cc1c5d3dd468ba241848893b0ff64e0d4053586bc1abc3a"
+    },
+    {
+      "path": "harness/frozen-source/srs/05-use-cases/BJ-06-tiep-nhan-va-phan-loai-hang-khach-tra/UC-06-03-ghi-nhan-hang-khach-tra.md",
+      "size": 8776,
+      "sha256": "23a9d381118101fb6049c6807d961e34b4a02996bd4f8305f23f4084920d771b"
+    },
+    {
+      "path": "harness/frozen-source/srs/05-use-cases/BJ-06-tiep-nhan-va-phan-loai-hang-khach-tra/UC-06-04-phan-loai-hang-thuc-nhan.md",
+      "size": 8722,
+      "sha256": "7735f6242217903eaf0cacc370460a184cb0623c86555e5a517f127de1866d37"
+    },
+    {
+      "path": "harness/frozen-source/srs/05-use-cases/BJ-07-thuc-hien-tra-hang-cho-nha-cung-cap/UC-07-01-xac-minh-pham-vi-tra.md",
+      "size": 8463,
+      "sha256": "24e05712bc7292f4b2d0f3495472ac42524897911d09118fe9638d79a1cffd32"
+    },
+    {
+      "path": "harness/frozen-source/srs/05-use-cases/BJ-07-thuc-hien-tra-hang-cho-nha-cung-cap/UC-07-02-dua-hang-vao-cho-tra.md",
+      "size": 8521,
+      "sha256": "9238f9d3049741d4c2f9334c55886d546ba510bbfdae12fbf90317ee9dbabcf0"
+    },
+    {
+      "path": "harness/frozen-source/srs/05-use-cases/BJ-07-thuc-hien-tra-hang-cho-nha-cung-cap/UC-07-03-dieu-chinh-hoac-huy-truoc-ban-giao.md",
+      "size": 8679,
+      "sha256": "dad54bb465cb888c56cd5b48331bec77f9acf28ddf75ffde20190982f6d4a9c6"
+    },
+    {
+      "path": "harness/frozen-source/srs/05-use-cases/BJ-07-thuc-hien-tra-hang-cho-nha-cung-cap/UC-07-04-ghi-nhan-ban-giao-tra-nha-cung-cap.md",
+      "size": 8579,
+      "sha256": "6d4ec6519dc127f1e3fb9da5846311b6953ad39a707765067d0683e3a34e9870"
+    },
+    {
+      "path": "harness/frozen-source/srs/05-use-cases/BJ-08-kiem-ke-va-dieu-chinh-chenh-lech/UC-08-01-mo-va-khoa-pham-vi.md",
+      "size": 8601,
+      "sha256": "5117a439396fdb29387e92aa94c718deb9ac4d1083526388a4545cac117d9afa"
+    },
+    {
+      "path": "harness/frozen-source/srs/05-use-cases/BJ-08-kiem-ke-va-dieu-chinh-chenh-lech/UC-08-02-ghi-nhan-lan-dem-mu.md",
+      "size": 8638,
+      "sha256": "95c993196bef4e644302663c3368695889fecb7fc7a7c6ccb25d46926538576f"
+    },
+    {
+      "path": "harness/frozen-source/srs/05-use-cases/BJ-08-kiem-ke-va-dieu-chinh-chenh-lech/UC-08-03-dem-lai-va-hoan-thien-bang-chung.md",
+      "size": 8690,
+      "sha256": "4fb8a008ac2496c246e2efc99aa3eafc4f97c2053f699e0daac78883bfe1e069"
+    },
+    {
+      "path": "harness/frozen-source/srs/05-use-cases/BJ-08-kiem-ke-va-dieu-chinh-chenh-lech/UC-08-04-duyet-va-dieu-chinh.md",
+      "size": 8675,
+      "sha256": "51b81cb575619305ce262efee99da5f1d6d9a1fbfad279ccb803ee9b249050c9"
+    },
+    {
+      "path": "harness/frozen-source/srs/05-use-cases/BJ-08-kiem-ke-va-dieu-chinh-chenh-lech/UC-08-05-huy-phien-kiem-ke.md",
+      "size": 8644,
+      "sha256": "bb589dcd5333c73807d61e5cb25ac8b50e26f81e9f9e4518772fb8f819337897"
+    },
+    {
+      "path": "harness/frozen-source/srs/05-use-cases/BJ-09-quan-ly-trang-thai-hang/UC-09-01-chuan-bi-thay-doi-trang-thai.md",
+      "size": 8869,
+      "sha256": "d676965044c613c57ff2be70db9bac60e54b8201077459cbb36e56e64ee0e330"
+    },
+    {
+      "path": "harness/frozen-source/srs/05-use-cases/BJ-09-quan-ly-trang-thai-hang/UC-09-02-phe-duyet-thay-doi-trang-thai.md",
+      "size": 8471,
+      "sha256": "ef0ec84996bf70fdb837dcff465264caf701132d469e03d6cbe92dcf6bc6d21a"
+    },
+    {
+      "path": "harness/frozen-source/srs/05-use-cases/BJ-09-quan-ly-trang-thai-hang/UC-09-03-xac-dinh-hang-het-han.md",
+      "size": 8595,
+      "sha256": "08c3be6dc9eb1b0d77d8e46b1ec8bb6632e3cb5308ac9dd5e9d6ea455995de14"
+    },
+    {
+      "path": "harness/frozen-source/srs/05-use-cases/BJ-09-quan-ly-trang-thai-hang/UC-09-04-ghi-state-movement.md",
+      "size": 8533,
+      "sha256": "83c55ef837076918f0c6d14dbc27108e784a34c59fad42257f8bbcd5d712bc40"
+    },
+    {
+      "path": "harness/frozen-source/srs/05-use-cases/BJ-10-tieu-huy-hang/UC-10-01-chuan-bi-yeu-cau-tieu-huy.md",
+      "size": 8837,
+      "sha256": "da89eb2ba90008ec0a36ab7cdb45b237bf65f967a6f385b1e4b0a3fb56f030e9"
+    },
+    {
+      "path": "harness/frozen-source/srs/05-use-cases/BJ-10-tieu-huy-hang/UC-10-02-phe-duyet-tieu-huy.md",
+      "size": 8454,
+      "sha256": "082f2731a321ea68a591526dc65b011577a6a703c1f3cca0fdd4cd32776f272d"
+    },
+    {
+      "path": "harness/frozen-source/srs/05-use-cases/BJ-10-tieu-huy-hang/UC-10-03-xac-nhan-da-tieu-huy.md",
+      "size": 8515,
+      "sha256": "001ba1b7206c647c466d32616c95226290496778518a6d25df778bea34e1fb40"
+    },
+    {
+      "path": "harness/frozen-source/srs/05-use-cases/BJ-10-tieu-huy-hang/UC-10-04-ghi-giam-hang-tieu-huy.md",
+      "size": 8549,
+      "sha256": "83ee0e31610edb82a5484503ae905825845a53ff27b9e75fc245a3865a74aaf9"
+    },
+    {
+      "path": "harness/frozen-source/srs/05-use-cases/BJ-11-huy-va-sua-sai-nghiep-vu-kho/UC-11-01-xac-dinh-duong-xu-ly.md",
+      "size": 8954,
+      "sha256": "90c90939a31bbcf9dff71b56b8f29538466b5406c396ec81baf1ad44a9df2957"
+    },
+    {
+      "path": "harness/frozen-source/srs/05-use-cases/BJ-11-huy-va-sua-sai-nghiep-vu-kho/UC-11-02-huy-operation-chua-thuc-thi.md",
+      "size": 8676,
+      "sha256": "f4dfc952cd257a59d78d707a80b068e33567129a1f1607a38c3511fc1eb633d8"
+    },
+    {
+      "path": "harness/frozen-source/srs/05-use-cases/BJ-11-huy-va-sua-sai-nghiep-vu-kho/UC-11-03-chuan-bi-phuong-an-correction.md",
+      "size": 8943,
+      "sha256": "b7ae99a1673706f4d6245910154629aba7485dd19a5b44c346357a3914b93e30"
+    },
+    {
+      "path": "harness/frozen-source/srs/05-use-cases/BJ-11-huy-va-sua-sai-nghiep-vu-kho/UC-11-04-phe-duyet-correction.md",
+      "size": 8510,
+      "sha256": "b244082403cf07677dd9f17f7d3c0fbc97758f863f86eb6eeb0e26b16d0bf205"
+    },
+    {
+      "path": "harness/frozen-source/srs/05-use-cases/BJ-11-huy-va-sua-sai-nghiep-vu-kho/UC-11-05-ghi-correction-chain.md",
+      "size": 8675,
+      "sha256": "cd32399dcbd9f83564f69caba102db278cf5c5754c3e728acccfaffe0ea5262b"
+    },
+    {
+      "path": "harness/frozen-source/srs/05-use-cases/BJ-12-khoi-tao-so-du-ton-kho-dau-ky/UC-12-01-nap-va-kiem-tra-batch-dau-ky.md",
+      "size": 8872,
+      "sha256": "fff5445f34510b9be4218425d57614b79e3d9c7b588e65b4979d5e0c3f37a35a"
+    },
+    {
+      "path": "harness/frozen-source/srs/05-use-cases/BJ-12-khoi-tao-so-du-ton-kho-dau-ky/UC-12-02-ra-soat-va-duyet-batch.md",
+      "size": 8737,
+      "sha256": "1575e91190ecbe688bb33b35fb4d858bfdf12b65aadc9119dc81ac20428e8fcf"
+    },
+    {
+      "path": "harness/frozen-source/srs/05-use-cases/BJ-12-khoi-tao-so-du-ton-kho-dau-ky/UC-12-03-commit-va-kich-hoat-ton-kho.md",
+      "size": 8900,
+      "sha256": "2abeae8d9985a9ea040c6cd7d919258857f366c95516ce28f5916da11f2fe5a4"
+    },
+    {
+      "path": "harness/frozen-source/srs/05-use-cases/BJ-13-ghi-nhan-chi-phi-mua-den-muon/UC-13-01-xac-dinh-nguon-va-pham-vi.md",
+      "size": 8528,
+      "sha256": "79b945dddd0037f4f9b7507bb50c5b58b0907c4f0280d28023795d494e068f3a"
+    },
+    {
+      "path": "harness/frozen-source/srs/05-use-cases/BJ-13-ghi-nhan-chi-phi-mua-den-muon/UC-13-02-tinh-va-phan-bo-chi-phi.md",
+      "size": 8497,
+      "sha256": "8cd88957397cb8f29ec4990500f59220f9ad8157eeecd76ec213e8d787f48b4e"
+    },
+    {
+      "path": "harness/frozen-source/srs/05-use-cases/BJ-13-ghi-nhan-chi-phi-mua-den-muon/UC-13-03-xac-nhan-ghi-nhan-chi-phi.md",
+      "size": 8578,
+      "sha256": "3b396827709f7d9e75c9161c4532db6effa1d2e31681d787372782de13750609"
+    },
+    {
+      "path": "harness/frozen-source/srs/05-use-cases/BJ-14-tinh-va-cong-bo-gia-von/UC-14-01-xac-dinh-ky-pham-vi-va-chinh-sach.md",
+      "size": 8745,
+      "sha256": "cc3ba1b670d648c34551e37a290ad4adfd1a61e6b36b7ce5941c9d58aab9f1bc"
+    },
+    {
+      "path": "harness/frozen-source/srs/05-use-cases/BJ-14-tinh-va-cong-bo-gia-von/UC-14-02-tinh-gia-von-va-phat-hien-blocker.md",
+      "size": 8700,
+      "sha256": "96a96cfd39c9d2e00b76a8f2d00ee667e17b7314714ff6b3218518c8e5be7d2c"
+    },
+    {
+      "path": "harness/frozen-source/srs/05-use-cases/BJ-14-tinh-va-cong-bo-gia-von/UC-14-03-ra-soat-ket-qua.md",
+      "size": 8709,
+      "sha256": "a8c8bab3ea31760958a4ca5108ebada6789892e16bae7d1e36e8932af9e72c6d"
+    },
+    {
+      "path": "harness/frozen-source/srs/05-use-cases/BJ-14-tinh-va-cong-bo-gia-von/UC-14-04-cong-bo-gia-von.md",
+      "size": 8737,
+      "sha256": "974d5820b08e2bd26ca341220e7a086dc9f4c024b9b777cac08da785bdcc82f0"
+    },
+    {
+      "path": "harness/frozen-source/srs/05-use-cases/BJ-15-tra-cuu-bao-cao-ton-va-the-kho/UC-15-01-xac-dinh-bao-cao-va-pham-vi.md",
+      "size": 8275,
+      "sha256": "dbe04c5d2050627e0a448ec3c8bc375f982f30dbdb1f8c0d237bcab7c07d5721"
+    },
+    {
+      "path": "harness/frozen-source/srs/05-use-cases/BJ-15-tra-cuu-bao-cao-ton-va-the-kho/UC-15-02-xem-bao-cao-ton-kho.md",
+      "size": 8194,
+      "sha256": "6782b7c7feaafc0cf3536aae44a6dc09053d047854423708b09c8fe8eb81d57a"
+    },
+    {
+      "path": "harness/frozen-source/srs/05-use-cases/BJ-15-tra-cuu-bao-cao-ton-va-the-kho/UC-15-03-xem-the-kho-va-lich-su.md",
+      "size": 8247,
+      "sha256": "467d78332ce1149afaa236c0a564c1aab017f65ad5b12c3a7543625befab48b3"
+    },
+    {
+      "path": "harness/frozen-source/srs/05-use-cases/BJ-15-tra-cuu-bao-cao-ton-va-the-kho/UC-15-04-xuat-bao-cao.md",
+      "size": 8187,
+      "sha256": "18e4b1c62189546dbea50a1a6f8dbebc2ef351d2eaa29ef4a7d8b6e4234256e7"
+    },
+    {
+      "path": "harness/frozen-source/srs/05-use-cases/BJ-16-dieu-tra-va-doi-soat-sai-lech/UC-16-01-mo-va-phan-loai-ho-so-doi-soat.md",
+      "size": 8858,
+      "sha256": "600a0dee7399dca23f9fc84ea1003c20eb3e80397fec4c209fa473df45fa16e0"
+    },
+    {
+      "path": "harness/frozen-source/srs/05-use-cases/BJ-16-dieu-tra-va-doi-soat-sai-lech/UC-16-02-bao-ve-pham-vi-rui-ro.md",
+      "size": 8806,
+      "sha256": "f65dd42ea70e7d1ed2831eb0144cbdc80ef33b0a3be355ccd59424177f88a969"
+    },
+    {
+      "path": "harness/frozen-source/srs/05-use-cases/BJ-16-dieu-tra-va-doi-soat-sai-lech/UC-16-03-dieu-tra-va-xac-dinh-nguyen-nhan.md",
+      "size": 8796,
+      "sha256": "b519723a7855426350971af8a5b54763d13d4bb27bb2cc4df6751d1d61131f6a"
+    },
+    {
+      "path": "harness/frozen-source/srs/05-use-cases/BJ-16-dieu-tra-va-doi-soat-sai-lech/UC-16-04-xac-minh-va-cap-nhat-ket-qua-doi-soat.md",
+      "size": 8865,
+      "sha256": "8986ccb0df4b395f8e09804b4c2d4fea9d69eb848c4f17dec01d0d01eba0b1e6"
+    },
+    {
+      "path": "harness/frozen-source/srs/05-use-cases/BJ-17-phuc-hoi-nghiep-vu-ket-qua-chua-xac-dinh/UC-17-01-thu-thap-va-danh-gia-bang-chung.md",
+      "size": 8771,
+      "sha256": "86f31cbc446f5c4c18c1b5cbae4599a484ed325094b31431a3e5ab94251a4f54"
+    },
+    {
+      "path": "harness/frozen-source/srs/05-use-cases/BJ-17-phuc-hoi-nghiep-vu-ket-qua-chua-xac-dinh/UC-17-02-xac-lap-operation-da-hoan-tat.md",
+      "size": 8802,
+      "sha256": "6557a9c92bc9602ff11e943ac77e68525745e752975bd36dfb61cd8bc9ee9190"
+    },
+    {
+      "path": "harness/frozen-source/srs/05-use-cases/BJ-17-phuc-hoi-nghiep-vu-ket-qua-chua-xac-dinh/UC-17-03-tiep-tuc-cung-operation-identity.md",
+      "size": 8769,
+      "sha256": "5c1b29bf45ea752cdceb9aa58f1bef530034bd9a6a1296161b1917104fd1552a"
+    },
+    {
+      "path": "harness/frozen-source/srs/05-use-cases/BJ-17-phuc-hoi-nghiep-vu-ket-qua-chua-xac-dinh/UC-17-04-giu-chua-xac-dinh-va-escalated.md",
+      "size": 8823,
+      "sha256": "d8bb1a2edbd83debef8394b8d1add9668f29f7c008be780c7093c9031a7c0b3b"
+    },
+    {
+      "path": "harness/frozen-source/srs/05-use-cases/CAP-01-quan-ly-chinh-sach-ton-va-can-han/00-capability.md",
+      "size": 2421,
+      "sha256": "442b04262f3f84ddc500d1c52c95be0619b98fff1eb9fc99af3e502078df97f3"
+    },
+    {
+      "path": "harness/frozen-source/srs/05-use-cases/CAP-01-quan-ly-chinh-sach-ton-va-can-han/CAP-01-OP-01-cau-hinh-nguong-ton-san-pham.md",
+      "size": 8445,
+      "sha256": "f069eaa38c27214e0690b7a9138aea7b4a6fefa73aa585e177f9f183ace2fbed"
+    },
+    {
+      "path": "harness/frozen-source/srs/05-use-cases/CAP-01-quan-ly-chinh-sach-ton-va-can-han/CAP-01-OP-02-cau-hinh-can-han-mac-dinh.md",
+      "size": 8425,
+      "sha256": "8b0ce86d27080525a16220708db4416b11fc42c3b7127bd84039e9b98d7b6c84"
+    },
+    {
+      "path": "harness/frozen-source/srs/05-use-cases/CAP-01-quan-ly-chinh-sach-ton-va-can-han/CAP-01-OP-03-ghi-de-can-han-theo-san-pham.md",
+      "size": 8411,
+      "sha256": "8fb94ad1233932107284be25c3ed2614c2ef16200944e4188f826e2917792362"
+    },
+    {
+      "path": "harness/frozen-source/srs/06-shared-behavioral-contracts.md",
+      "size": 43822,
+      "sha256": "87ca83a8af677d707ca79e5afdcb50a614eb79ba5ef2a13894b6312b94d3210e"
+    },
+    {
+      "path": "harness/frozen-source/srs/07-technical-contracts.md",
+      "size": 33876,
+      "sha256": "7f4136cdbd016499e20543f62054b21ddb68a110a8fb79706d46d3fee38f7ef1"
+    },
+    {
+      "path": "harness/frozen-source/srs/07-technical-procedures/PROC-01-dung-lai-du-lieu-dan-xuat-tu-so-kho/00-procedure.md",
+      "size": 2249,
+      "sha256": "c0385139ec162ae29cf7d29310bedf3f2a3a026ec1a23c394ed4795599ba854c"
+    },
+    {
+      "path": "harness/frozen-source/srs/07-technical-procedures/PROC-01-dung-lai-du-lieu-dan-xuat-tu-so-kho/PROC-01-STEP-01-chuan-bi-pham-vi-dung-lai.md",
+      "size": 8815,
+      "sha256": "215d0d980949098a65b7f65029665fc0c4810f5ac1076ce9fe8fecc2a5d9b3b5"
+    },
+    {
+      "path": "harness/frozen-source/srs/07-technical-procedures/PROC-01-dung-lai-du-lieu-dan-xuat-tu-so-kho/PROC-01-STEP-02-bao-ve-phien-ban-du-lieu-dan-xuat.md",
+      "size": 8842,
+      "sha256": "e0c8b4e89a8852331b63f3c25442400fb688881d0a63491cb61f196a600d24e5"
+    },
+    {
+      "path": "harness/frozen-source/srs/07-technical-procedures/PROC-01-dung-lai-du-lieu-dan-xuat-tu-so-kho/PROC-01-STEP-03-dung-lai-tu-ledger.md",
+      "size": 8700,
+      "sha256": "8b7d87d64c3bd4d5cca595257cc6cba83789f3034c03f1312c4a82d08590f245"
+    },
+    {
+      "path": "harness/frozen-source/srs/07-technical-procedures/PROC-01-dung-lai-du-lieu-dan-xuat-tu-so-kho/PROC-01-STEP-04-xac-minh-va-cong-bo-ket-qua.md",
+      "size": 8792,
+      "sha256": "53769aab1d4a7258a81a484e6a90cdd9858243f6e864da01db0b16c50b3bd01e"
+    },
+    {
+      "path": "harness/frozen-source/srs/08-ui-ux.md",
+      "size": 27424,
+      "sha256": "8be8ca3606d0d4f673fbc93dddc451911e6bfd15e89620c230208c906caf7808"
+    },
+    {
+      "path": "harness/frozen-source/srs/09-traceability-quality.md",
+      "size": 10633,
+      "sha256": "04ce368163a382df8d4307f9294c13483c1d5a70112a5605db5d6abb1e4374ec"
+    },
+    {
+      "path": "harness/frozen-source/srs/README.md",
+      "size": 1963,
+      "sha256": "191ced647a3638d1eeedfab577486bb3631fad151d3f1807b26c7f3a5fd1cf43"
+    },
+    {
+      "path": "harness/harness-execution-profile.yaml",
+      "size": 680,
+      "sha256": "4f23b9982f21ec51e1e8ca693e0b776a1974bc4ef77df97a6b02f93daa71a574"
+    },
+    {
+      "path": "harness/implementation-questions.json",
+      "size": 1192,
+      "sha256": "a9db6084d8493a870d67b3eb79e51980bbd6ac5345f093c1cfa5cca9b4ab5708"
+    },
+    {
+      "path": "harness/representative-samples.md",
+      "size": 1171,
+      "sha256": "009949e3eb82aec0af01ae80fabf5b81b2441487a85bede4f4c6b0825d24d183"
+    },
+    {
+      "path": "harness/residual-risk-register.md",
+      "size": 1041,
+      "sha256": "ccd05fd0d8955157423d4fda89f74779535851b6b66c8ac9914137041b28b620"
+    },
+    {
+      "path": "harness/run-manifest.json",
+      "size": 28523,
+      "sha256": "69cc1ba6dfdb763ef6f349de544d484ab01a25659953b7effcd81c2fc0ab71ce"
+    },
+    {
+      "path": "harness/run-report.md",
+      "size": 1681,
+      "sha256": "42268581a9b0981561443182a87218ff822a6f165bd64dbe74a7c76a23114ad9"
+    },
+    {
+      "path": "harness/srs-inventory.json",
+      "size": 218011,
+      "sha256": "ec9a111c9b29544d9cbc3d160139292efe01d504623039fb3c7387b07d6a2828"
+    },
+    {
+      "path": "harness/test-catalog.json",
+      "size": 727143,
+      "sha256": "1dafa982350912758df00167267b70bede403b978e83a23ce4e8220c03fb32f3"
+    },
+    {
+      "path": "harness/tests/p0-contract-tests.json",
+      "size": 55152,
+      "sha256": "0766033271193b31ec633aa62ddcda05526bd6955f47f88c34c26aee6c518eb6"
+    },
+    {
+      "path": "harness/trace-index.json",
+      "size": 130747,
+      "sha256": "460b8587dcd56e81f980353e5700a42414acea00ffe267b64994d3e9f3849262"
+    },
+    {
+      "path": "harness/validate_harness_pack.py",
+      "size": 33742,
+      "sha256": "b985edbca223f4e3cd97b701a5237c7c8bcdb6725a3cb3fd3a6660c7c6810ae4"
+    },
+    {
+      "path": "harness/validation-report.json",
+      "size": 9193,
+      "sha256": "7ad3ee69eb9b5f4586fe303f531fc00624508eacc249da834faf33a808865027"
+    },
+    {
+      "path": "harness/validation-report.md",
+      "size": 3044,
+      "sha256": "45847ec11ff33874b9b2035a38e18ee987f02c41bc958f7f12223db750e70e26"
+    },
+    {
+      "path": "harness/validation-rules.yaml",
+      "size": 791,
+      "sha256": "2677664ed03a04df14cf400dcdae2de8f0cf9575be7e3bc1d16b021365700ebc"
+    },
+    {
+      "path": "id-migration-map.json",
+      "size": 32897,
+      "sha256": "581fe0f6ecd9f0bd71ae1d1a60dafc77f9f0cf334a1f5f2f43433aa606b2ca1f"
+    },
+    {
+      "path": "id-migration-map.md",
+      "size": 1448,
+      "sha256": "46024b4817b5d2b9e7b5f9f4bc9ded724e9f2e74f9ef2b17872a8caede30ca3b"
+    },
+    {
+      "path": "journey-flow-audit.md",
+      "size": 349,
+      "sha256": "4745694f28993faa0107dab2d2d4593ab4323d819df470e74362ee698330e182"
+    },
+    {
+      "path": "know-how/decisions/decision-migration-record.md",
+      "size": 904,
+      "sha256": "2bbddbbee12f47a7b55d5cd20e825bbe4c4586ac6a949b5d5fed98ab4506c8d3"
+    },
+    {
+      "path": "know-how/decisions/decision-register.md",
+      "size": 79262,
+      "sha256": "32f14955823a2b7f33235832bcd48636ab818fe949b4387dc21a37f3aa301c05"
+    },
+    {
+      "path": "know-how/decisions/decision-review.md",
+      "size": 716,
+      "sha256": "1b5d4a5f39e69d7a6022bf5e46e174f206ced842c36135b4876bf075e56aed27"
+    },
+    {
+      "path": "know-how/glossary/glossary-review.md",
+      "size": 640,
+      "sha256": "2a263cefec9052a664d73667fc72ac03e686ef0645e543a7b85b352171714f54"
+    },
+    {
+      "path": "know-how/glossary/glossary.md",
+      "size": 40688,
+      "sha256": "571057ad82c20db1c8a8be8a69f6732c312f277e49ca466ecf9d98f56bcbe444"
+    },
+    {
+      "path": "know-how/know-how-review.md",
+      "size": 1083,
+      "sha256": "ecd5d358739b5780fe7484fe7492e39607b9fdf1a0c5e2c190b80239d6cec529"
+    },
+    {
+      "path": "know-how/quizz.html",
+      "size": 131637,
+      "sha256": "c217455847a5ae90bdcabf90906836af0f77d8f5b31e8edfe0f3d896bf73611d"
+    },
+    {
+      "path": "know-how/wiki/00-table-of-contents.md",
+      "size": 9260,
+      "sha256": "cfbf64178ee45e10915c84c2a2bc402b4a1a326ae51e651bb951c3b0ec90c6a1"
+    },
+    {
+      "path": "know-how/wiki/KB-KGV-001-pham-vi-quan-ly-ton-kho-va-gia-von.md",
+      "size": 9828,
+      "sha256": "c7864b8f742c3728a9a1d4144b46f5cfc08b06250853fc85654b411a59284e7a"
+    },
+    {
+      "path": "know-how/wiki/KB-KGV-002-ranh-gioi-trach-nhiem-giua-cac-he-thong-nghiep-vu.md",
+      "size": 7848,
+      "sha256": "498d053064cf98f36f81f9471ed5097cca6b10bce6f0cee4e04e12913cc37d16"
+    },
+    {
+      "path": "know-how/wiki/KB-KGV-003-kho-cua-hang-va-khoa-dinh-danh-so-du-ton-kho.md",
+      "size": 7078,
+      "sha256": "a093561ef0a7cc8d0aecbc0a3477040401b9f24b5a136ecf9d7316c9d8491d23"
+    },
+    {
+      "path": "know-how/wiki/KB-KGV-004-don-vi-tinh-va-cach-quy-doi-so-luong-ton-kho.md",
+      "size": 8032,
+      "sha256": "e72d7bbaa9088d979430adb3e049ec05e2b92dec4e676099ede7688d1f26bc7b"
+    },
+    {
+      "path": "know-how/wiki/KB-KGV-005-ton-vat-ly-va-ton-kha-dung.md",
+      "size": 9804,
+      "sha256": "ec60664193e8d38df9dff587d5eb6f28b0448e92eace2f90067a325fb147d5fe"
+    },
+    {
+      "path": "know-how/wiki/KB-KGV-006-tinh-chinh-thuc-cua-ton-kho-va-nguyen-tac-chong-xuat-am.md",
+      "size": 5436,
+      "sha256": "c0eac19831fd0c535f48655a7673fcf775fc531380667ccbb4526c7a6c80cbf4"
+    },
+    {
+      "path": "know-how/wiki/KB-KGV-007-nhan-hang-mua-va-xu-ly-chenh-lech-giao-nhan.md",
+      "size": 9402,
+      "sha256": "fca68d66ac66184aa35d32f6d0a75a843e13e61449d2e7c64c44a2c44fb69305"
+    },
+    {
+      "path": "know-how/wiki/KB-KGV-008-hang-da-nhan-nhung-chua-chot-gia.md",
+      "size": 11291,
+      "sha256": "5dafc2b6af31b60826916823b725acaa3d9de73ebb1ceb9254f2598c627df229"
+    },
+    {
+      "path": "know-how/wiki/KB-KGV-009-giu-hang-va-xu-ly-don-khong-du-ton-kha-dung.md",
+      "size": 7972,
+      "sha256": "efdb7f941db7851ac8dbf88f91ab774c9aec86f05b7cc6f32c272c2e25de729a"
+    },
+    {
+      "path": "know-how/wiki/KB-KGV-010-chon-hang-de-xuat-va-thoi-diem-hoan-tat-xuat-ban.md",
+      "size": 7710,
+      "sha256": "0df41f91490f8a84359afa890e4a8244c4ead743d6b593e9262cc183323b861f"
+    },
+    {
+      "path": "know-how/wiki/KB-KGV-011-kiem-ke-hang-ton-kho-tu-khoa-pham-vi-den-dieu-chinh-chenh-lech.md",
+      "size": 5402,
+      "sha256": "c96368a4dec17dbfd1a0bf9fbda5726313cf2582352cb4e3d9387ce6f9b83d8a"
+    },
+    {
+      "path": "know-how/wiki/KB-KGV-012-hang-khach-tra-tu-tiep-nhan-den-phan-loai.md",
+      "size": 8700,
+      "sha256": "44d628f4ea65a0003638a7479afadbdabe0b6d4ea6231971d5c6fad07c74a441"
+    },
+    {
+      "path": "know-how/wiki/KB-KGV-013-tra-hang-cho-nha-cung-cap.md",
+      "size": 6824,
+      "sha256": "25be946ab4f77b87499644ab8b10e809a6f2b3b26f4e366c7ed454c5799e6eaa"
+    },
+    {
+      "path": "know-how/wiki/KB-KGV-014-hang-can-han-het-han-hu-hong-va-tieu-huy.md",
+      "size": 8065,
+      "sha256": "fe783bfe6887b293f0d487ad0fc2dc1389fd307b6b046abd27cba867e968ca71"
+    },
+    {
+      "path": "know-how/wiki/KB-KGV-015-don-gia-ton-kho-chinh-thuc-va-tong-gia-tri-ghi-so.md",
+      "size": 9148,
+      "sha256": "58dc93d62ca020d66f2952cc7d033d2f5f662480a86c403d14f6b19595f40193"
+    },
+    {
+      "path": "know-how/wiki/KB-KGV-016-vi-sao-tinh-song-song-hai-phuong-phap-gia-von.md",
+      "size": 10698,
+      "sha256": "26340e672dced5f863a3c80c19c6cf6e34df06f40ceca3b72e92e856f73020b6"
+    },
+    {
+      "path": "know-how/wiki/KB-KGV-017-cong-bo-don-gia-ton-kho-va-ghi-nhan-gia-von-xuat-ban.md",
+      "size": 6096,
+      "sha256": "af05241cf5cd12557f4ed43506dc2c6aa1da8bb86cf88bb22ace85adb2253715"
+    },
+    {
+      "path": "know-how/wiki/KB-KGV-018-doi-soat-gia-von-cuoi-ky-va-cap-nhat-dot-xuat-giua-ky.md",
+      "size": 6382,
+      "sha256": "d9c451b9f70b1040b157202c79493e876c7a701c790f89375ef2b1f4d2da9104"
+    },
+    {
+      "path": "know-how/wiki/KB-KGV-019-cac-thanh-phan-hinh-thanh-gia-nhap-thuc-te.md",
+      "size": 8739,
+      "sha256": "979b8efe043f2575f0bddaf004c5a9fbd00d3cd5a4382e20d58ba4ada4c7a660"
+    },
+    {
+      "path": "know-how/wiki/KB-KGV-020-dinh-gia-hang-tra-tieu-huy-va-chenh-lech-thua-thieu.md",
+      "size": 9022,
+      "sha256": "bd0fcb3f1a2c7797d331e0a80c2169060f9e88f0b02430619aa8289d28eed3c3"
+    },
+    {
+      "path": "know-how/wiki/KB-KGV-021-sua-sai-ton-kho-khong-sua-lich-su.md",
+      "size": 12301,
+      "sha256": "6d63272c24c49ccf10924f1fdb344d1b53b682d72aec9c8a0a18f86becbedf01"
+    },
+    {
+      "path": "know-how/wiki/KB-KGV-022-chuan-bi-du-lieu-so-du-ton-kho-dau-ky.md",
+      "size": 8493,
+      "sha256": "19029fa355a8b1b1515ceb601807a2f551d141cc70069679ef1980b85221d731"
+    },
+    {
+      "path": "know-how/wiki/KB-KGV-023-xac-nhan-so-du-dau-ky-chuyen-doi-chinh-thuc-va-doi-soat-migration.md",
+      "size": 9025,
+      "sha256": "d07a00919ce71a708d7fc9b514891b7a553d7331b4fa5ae4f1444b61a8ca8326"
+    },
+    {
+      "path": "know-how/wiki/KB-KGV-024-chinh-sach-quan-ly-hang-thong-thuong-theo-lo-hoac-theo-serial.md",
+      "size": 6565,
+      "sha256": "793d3c78a9bcc992c7136ac65de191c5ea2fb2af290bd41016909c02ebf1b2ad"
+    },
+    {
+      "path": "know-how/wiki/KB-KGV-025-danh-tinh-va-vong-doi-cua-mot-lo-hang.md",
+      "size": 6089,
+      "sha256": "a1c4a176b24e6fe42ddc0363dad82e9cc18842d97681fcf64ac29eec908895e8"
+    },
+    {
+      "path": "know-how/wiki/KB-KGV-026-danh-tinh-va-vong-doi-cua-mot-serial.md",
+      "size": 4995,
+      "sha256": "a25d2afe60e57cb13c687cc09f2e8724f253e47c64e4c5c4e820f8f930ff2685"
+    },
+    {
+      "path": "know-how/wiki/KB-KGV-027-vong-doi-cua-mot-inventory-operation.md",
+      "size": 9834,
+      "sha256": "f345a62b60e0656d60c2bbb3856add9331d025ed3b719d883a65ff07a47db699"
+    },
+    {
+      "path": "know-how/wiki/KB-KGV-028-idempotency-phien-ban-nguon-va-xu-ly-ket-qua-chua-xac-dinh.md",
+      "size": 9500,
+      "sha256": "00d61d0001a8e0b02db87c13a137b67cf1481e420627690b90810d2bfba0cf35"
+    },
+    {
+      "path": "know-how/wiki/KB-KGV-029-tinh-nguyen-tu-khi-ghi-ton-kho-va-phat-su-kien.md",
+      "size": 8028,
+      "sha256": "961f1bbbbf5d37cea47d0cb796db15caad0e2c2bf3c0a3d2a17b019087b29719"
+    },
+    {
+      "path": "know-how/wiki/KB-KGV-030-quyen-chuc-nang-pham-vi-kho-va-bao-ve-du-lieu-tai-chinh.md",
+      "size": 7683,
+      "sha256": "fb40a290901c16e356bbd40bb510776caa2553b35f06679138bae2f87c033df2"
+    },
+    {
+      "path": "know-how/wiki/KB-KGV-031-phe-duyet-inventory-operation-theo-muc-rui-ro.md",
+      "size": 11347,
+      "sha256": "ca6cbc9a05e43a131039f0ba0296ad3c54b66d3a3706aa818c658c84ba4d59b8"
+    },
+    {
+      "path": "know-how/wiki/KB-KGV-032-movement-ledger-so-du-dan-xuat-va-phuc-hoi-sau-su-co.md",
+      "size": 7957,
+      "sha256": "6e60ceac895d8cf913e38047b0aee5964c7224e6a2511accbc2472ac6cbe77f9"
+    },
+    {
+      "path": "know-how/wiki/KB-KGV-033-the-kho-bao-cao-lich-su-va-doi-soat-nguon.md",
+      "size": 8543,
+      "sha256": "4e43fcefbbe02a3e23e4ce60381d79cf1d108f9922cffcb3c91dce6089421ed6"
+    },
+    {
+      "path": "know-how/wiki/KB-KGV-034-quyen-so-huu-hang-hoa-hang-ky-gui-va-hang-demo.md",
+      "size": 8501,
+      "sha256": "f57bdabf0703aa65f260f98d1268b04d81817fe6c6957f5306dff30ae4ac5699"
+    },
+    {
+      "path": "know-how/wiki/KB-KGV-035-combo-ban-hang-va-ton-kho-theo-thanh-phan.md",
+      "size": 7297,
+      "sha256": "b40f41d1c62ff524fb4415a166d3ff9637b4f93c98883efcbd74148811eec4d3"
+    },
+    {
+      "path": "know-how/wiki/KB-KGV-036-ton-du-kien-va-de-xuat-bo-sung-hang.md",
+      "size": 5592,
+      "sha256": "0e94c11c54e26d3b11d133c56aa55d2dce59a4853823712f61fcecc1bda4da6c"
+    },
+    {
+      "path": "know-how/wiki/KB-KGV-037-ngung-kinh-doanh-san-pham-va-dong-kho.md",
+      "size": 5124,
+      "sha256": "9ebb4a5acc626bb2eff047e68fd399b325155008455154c59b1468316c36dba7"
+    },
+    {
+      "path": "know-how/wiki/KB-KGV-038-canh-bao-ton-kho-va-vong-doi-xu-ly.md",
+      "size": 5591,
+      "sha256": "5fcf219c564dea1005cc6e8521b096932220c6c147b9a1751ddd22138ae16807"
+    },
+    {
+      "path": "know-how/wiki/KB-KGV-039-ban-hang-pos-offline.md",
+      "size": 5753,
+      "sha256": "e42752b54d01ecbf2a4f9b1ad891e2b371a16986514a1300bd40cba7e8ce974c"
+    },
+    {
+      "path": "know-how/wiki/KB-KGV-040-hieu-nang-va-nang-luc-xu-ly-cua-he-thong-ton-kho.md",
+      "size": 7360,
+      "sha256": "b49dcf9f0ef1a16df6aab5362d6ab8b2ea0100cf336eaa8c5b331c308be846ab"
+    },
+    {
+      "path": "know-how/wiki/KB-KGV-041-cach-kiem-soat-thay-doi-doi-voi-quy-tac-nghiep-vu.md",
+      "size": 8957,
+      "sha256": "21c2be0e5c594befe4cf07f318ab85d950c649a16894a1e63287f70284cbc66a"
+    },
+    {
+      "path": "know-how/wiki/KB-KGV-042-kien-truc-mo-rong-va-ranh-gioi-mvp.md",
+      "size": 5981,
+      "sha256": "5a538926327e284b64c7e921d5cfb2f89f680bd47253d04cbedb3b6f1a21b95b"
+    },
+    {
+      "path": "know-how/wiki/KB-KGV-043-kich-ban-chiet-khau-mua-hang-theo-ky.md",
+      "size": 5557,
+      "sha256": "363d9afff035a376e17d06dcc302b8794e182f8dc3ca0e496f49d57264fab49c"
+    },
+    {
+      "path": "know-how/wiki/KB-KGV-044-tu-gia-von-tham-chieu-den-gia-ban-giao-dich.md",
+      "size": 5468,
+      "sha256": "2366c3d61cb7701a901c8391e08a48af5291ae2c9435dbeb81ae49b8a82a6468"
+    },
+    {
+      "path": "know-how/wiki/KB-KGV-045-ra-soat-gia-von-tham-chieu-sau-chot-ky.md",
+      "size": 5585,
+      "sha256": "d14ebab7649fab71add901f89c3c6cd04f349edfce4a9c845230101db92da141"
+    },
+    {
+      "path": "know-how/wiki/wiki-review.md",
+      "size": 1534,
+      "sha256": "ddea1be2f3db5669cd7f136510cdb4f634042c58e2f08993f70295451d07adf1"
+    },
+    {
+      "path": "migration/bj-v4.0.0-to-v4.1.0/cutover-checklist.md",
+      "size": 1936,
+      "sha256": "72b26f1fcf96eac674947410b59e7034e2bfc20b2041a30fd0a04211f114f072"
+    },
+    {
+      "path": "migration/bj-v4.0.0-to-v4.1.0/decision-crosswalk.json",
+      "size": 8609,
+      "sha256": "7cc047e8612279e6fbdda55fc1fc94a829c94e64c28914609a19345acf8f15a7"
+    },
+    {
+      "path": "migration/bj-v4.0.0-to-v4.1.0/decision-ledger.md",
+      "size": 5750,
+      "sha256": "ce83a659b2ef2458c76a1b71ee5aa46913a869b0ed5d5fe4d459d179aa35d633"
+    },
+    {
+      "path": "migration/bj-v4.0.0-to-v4.1.0/final-target-map-and-migration-matrix.md",
+      "size": 3972,
+      "sha256": "ad3f3f29fa5a80ae3439258df52a6314b632d7aea0382ab92f14520b744b4457"
+    },
+    {
+      "path": "migration/bj-v4.0.0-to-v4.1.0/historical-id-migration-v3.1.0.json",
+      "size": 31127,
+      "sha256": "6c3b9d8e83c84e7a5de586aa6aac946dce59f2c6ac4ddfee4e5da62f72c2fca0"
+    },
+    {
+      "path": "migration/bj-v4.0.0-to-v4.1.0/historical-id-migration-v3.1.0.md",
+      "size": 21669,
+      "sha256": "22f3e1d5355aed4ba33502ada07647196a85b1b37c3d3fa3b7d01d5ac9905885"
+    },
+    {
+      "path": "migration/bj-v4.0.0-to-v4.1.0/migration-registry.json",
+      "size": 2166,
+      "sha256": "0852967a771b8d45c70ba890182d190436f6d62b5d78327efe349bcc9441d3fe"
+    },
+    {
+      "path": "migration/bj-v4.0.0-to-v4.1.0/release-freeze.json",
+      "size": 709,
+      "sha256": "3624924a21aaa546d01acb62eb5ddae6e2ddf86b6bb998bfe8d2d1743a93e9a1"
+    },
+    {
+      "path": "migration/bj-v4.0.0-to-v4.1.0/source-3.1.0-sha256.txt",
+      "size": 2774,
+      "sha256": "ebce88015d3b26de7fea86903296dd1aca2582d1765c1aa1795e5386221ca5d8"
+    },
+    {
+      "path": "migration/bj-v4.0.0-to-v4.1.0/source-candidate-manifest.yml",
+      "size": 1425,
+      "sha256": "27c7ae84a9351eeea6e22cd1d6666104753cb23d1aa53c9d3b1c70c569057b44"
+    },
+    {
+      "path": "migration/bj-v4.0.0-to-v4.1.0/source-v4.0.0-evidence.json",
+      "size": 1628,
+      "sha256": "3833a378a0c735b6afd14690f5960b93f5e0740bfebead69ea6006a1de822a2e"
+    },
+    {
+      "path": "migration/bj-v4.0.0-to-v4.1.0/target-decision-trace.json",
+      "size": 6780,
+      "sha256": "12a233acf20dad78baf090cf6a69e1634e32c07b650e0bc71629bea86a48eb87"
+    },
+    {
+      "path": "migration/bj-v4.0.0-to-v4.1.0/target-decision-trace.md",
+      "size": 2356,
+      "sha256": "86bc5de4c7b6a7aeb2a6e1aa95f3c5bd4446edf3ba0dd2497084a72ea8a43e37"
+    },
+    {
+      "path": "migration/bj-v4.0.0-to-v4.1.0/uc-reference-rewrite-registry.json",
+      "size": 28616,
+      "sha256": "34019679e6646a30b1ed46420aa03bf6392169f2be4b7736f2959ea51e9e4848"
+    },
+    {
+      "path": "migration/bj-v4.0.0-to-v4.1.0/validation-report.md",
+      "size": 975,
+      "sha256": "7f90d50b27c0c61f32000618bdac9e8e7dea06433244c2b4e8c275201b08a9b5"
+    },
+    {
+      "path": "migration/ui-ux-v4.1.0-to-v4.2.0/README.md",
+      "size": 2008,
+      "sha256": "06963b299cdce54cec8b4a269efaa5fa58c6513c496e09ada0de209d2dccb887"
+    },
+    {
+      "path": "migration/ui-ux-v4.1.0-to-v4.2.0/legacy-screen-catalog-v4.1.0.json",
+      "size": 119129,
+      "sha256": "58be5cbb4d8b0ab545bd06ab962f67472da32bd7c3553fc741954a785e3ea252"
+    },
+    {
+      "path": "migration/ui-ux-v4.1.0-to-v4.2.0/legacy-ui-contracts-readme-v4.1.0.md",
+      "size": 3154,
+      "sha256": "c7d12dfbdcc952c8b9d24741ffcb5764ca34eb594b463b9b16351af3c2717e25"
+    },
+    {
+      "path": "migration/ui-ux-v4.1.0-to-v4.2.0/screen-group-retirement-map.json",
+      "size": 5170,
+      "sha256": "8d2f681a484353e188d2f6596e3f24a6841cbe07f2bf0a6d5e98b0b049ec9534"
+    },
+    {
+      "path": "migration/ui-ux-v4.1.0-to-v4.2.0/screen-id-migration-map.json",
+      "size": 15026,
+      "sha256": "3258c18993267a8eefb89563e8abb89bf8155e67b49dc944843a91f9087abe03"
+    },
+    {
+      "path": "mobile-file-index.md",
+      "size": 328,
+      "sha256": "767842b73dade6d3154174ccf3c3879c3af2c7a9ce305c22fbbec711ccf8ebac"
+    },
+    {
+      "path": "outbound/README.md",
+      "size": 1149,
+      "sha256": "124de8153f36ff305b4570909b0e75870bae939813100cad55cc69dadb5297a7"
+    },
+    {
+      "path": "outbound/prototype-v4.0.0/README.md",
+      "size": 1029,
+      "sha256": "f7aa05964eba8c59d62711e3bfd342bcf6ff6ea31f7c1bf1085e1fb3942846fc"
+    },
+    {
+      "path": "outbound/prototype-v4.0.0/index.html",
+      "size": 143554,
+      "sha256": "085031a86d146c927de122864a42c702561fab0e48fb768cf7f297447b015d2f"
+    },
+    {
+      "path": "outbound/prototype-v4.0.0/prototype.manifest.json",
+      "size": 822,
+      "sha256": "fe5fec40d9e12801017e0da90832de17b0f489521a1242d1d176724796d45f28"
+    },
+    {
+      "path": "outbound/prototype-v4.0.0/screen-catalog.snapshot.json",
+      "size": 138895,
+      "sha256": "8a3e4232bdb04387bc91c290d2eba79ddbe06156c7cc9f4c534479d7a77c676e"
+    },
+    {
+      "path": "outbound/prototype-v4.0.0/screen-map.md",
+      "size": 2517,
+      "sha256": "8d23f244116d4a637d93a967fc8d0a623777e830542df45ae7c9f5dfcc742037"
+    },
+    {
+      "path": "outbound/prototype-v4.0.0/scripts/build-prototype.mjs",
+      "size": 48226,
+      "sha256": "50ec2be706ee69ff7fd74683aa5515446ad511aa168dabc95cf6e0e2131856d0"
+    },
+    {
+      "path": "outbound/prototype-v4.0.0/scripts/validate-prototype.mjs",
+      "size": 4272,
+      "sha256": "58316902138eb5a4f6f873ce9bd82308e82e90980021124efe08edfee680c721"
+    },
+    {
+      "path": "outbound/reporting-analytics/rpt-bj-profit-views.md",
+      "size": 6443,
+      "sha256": "d4583b747eef5ec3118487a677ce0d02d4e0b4ecc8b7b717f35d6e20db16cfca"
+    },
+    {
+      "path": "outbound/reporting-analytics/use-cases/RPT-UC-PV-01-xac-dinh-pham-vi-phan-tich.md",
+      "size": 8224,
+      "sha256": "d271762747adf882adf9aa37a546081265d940c173ca505df397bc287df85872"
+    },
+    {
+      "path": "outbound/reporting-analytics/use-cases/RPT-UC-PV-02-hop-nhat-nguon-co-provenance.md",
+      "size": 8247,
+      "sha256": "424d9dd4840d4b1baeb4d9e753904224d2086a407b0f4aae82631571c90169d1"
+    },
+    {
+      "path": "outbound/reporting-analytics/use-cases/RPT-UC-PV-03-hien-thi-ba-cach-nhin-loi-nhuan.md",
+      "size": 8252,
+      "sha256": "5e2826f053d34650755c573cc7267dd83aa45712009c57c16930cc0906d82be0"
+    },
+    {
+      "path": "outbound/reporting-analytics/use-cases/RPT-UC-PV-04-truy-nguyen-va-xuat-ket-qua.md",
+      "size": 8245,
+      "sha256": "94ea393feb7524f066ab155ac74a0aa428c9468d7ef8c3a75cbec4a6cbdfc790"
+    },
+    {
+      "path": "outbound/shared-prototype/contracts/README.md",
+      "size": 348,
+      "sha256": "af8ab930eb501499b29909a2535832e4f170969050cdf008bfbc288a9514af96"
+    },
+    {
+      "path": "outbound/shared-prototype/contracts/sg-16/composition-map.yaml",
+      "size": 6280,
+      "sha256": "1f988ffdc198577c44d24aefe18de661397c7bf62b3512f2e09d0c6357c9259b"
+    },
+    {
+      "path": "outbound/shared-prototype/contracts/sg-16/prototype-manifest.yaml",
+      "size": 2531,
+      "sha256": "c622def0f71b46ff0efc139d284bbf6f1d38f93dba0572b70ec68d965b200e6a"
+    },
+    {
+      "path": "outbound/shared-prototype/contracts/sg-16/ui-contract.md",
+      "size": 13799,
+      "sha256": "810b299f1b6fb431f6ca474f317d8d0e5caf57feb1c84f318222d2557a810b8d"
+    },
+    {
+      "path": "outbound/shared-prototype/contracts/sg-17/composition-map.yaml",
+      "size": 7250,
+      "sha256": "89942fd1851fbc7872e21646aeed103a08f89dca210c6c267195789f60655b97"
+    },
+    {
+      "path": "outbound/shared-prototype/contracts/sg-17/prototype-manifest.yaml",
+      "size": 2761,
+      "sha256": "3683601c400c552389d961b678805a57ae32aef3ac7f82e7afddc351f8c6c895"
+    },
+    {
+      "path": "outbound/shared-prototype/contracts/sg-17/ui-contract.md",
+      "size": 15577,
+      "sha256": "e5c707c4c0d6de88bc1d6472938c897041cdc643a364200e0a33327cfcae232e"
+    },
+    {
+      "path": "outbound/theme-02-product/proposed-t2-bj-base-price-publication.md",
+      "size": 832,
+      "sha256": "5d1a69fc0fbde475a8fb72cf4c20e9430905b407fefee45bed17e2859ae8810a"
+    },
+    {
+      "path": "outbound/theme-02-product/t2-bj-pricing-basis.md",
+      "size": 2812,
+      "sha256": "7c9d1ef8286c71f2401daafd01e183762869aabbe7566856d3c9c9f6f6f3929d"
+    },
+    {
+      "path": "outbound/theme-02-product/t2-bj-pricing-review.md",
+      "size": 2138,
+      "sha256": "53194aabfa34b4c56ab6ce7e085b90d6bcfe7fd9531497408a83d423baa2e6e9"
+    },
+    {
+      "path": "outbound/theme-02-product/use-cases/T2-UC-PB-01-chon-nguon-gia-von-tham-chieu.md",
+      "size": 8589,
+      "sha256": "4aedb9494647499168741a3ee0ee8b7ff5a520620ea58b2e9b023b4eaf3c2c13"
+    },
+    {
+      "path": "outbound/theme-02-product/use-cases/T2-UC-PB-02-kiem-tra-nguon-goc-dinh-gia.md",
+      "size": 9436,
+      "sha256": "486fc3d79937a48480a3c841ed05f5288a793e60b7f812624c4765a48455351a"
+    },
+    {
+      "path": "outbound/theme-02-product/use-cases/T2-UC-PB-03-cong-bo-gia-von-tham-chieu-dinh-gia.md",
+      "size": 8608,
+      "sha256": "be58fe18677c31ece7d714a200209e832f98df99a15211141d4288a0af3ccdef"
+    },
+    {
+      "path": "outbound/theme-02-product/use-cases/T2-UC-PB-04-tao-du-thao-gia-ban.md",
+      "size": 8553,
+      "sha256": "b4c0b505ef246e536f6d246178b605bffd7f4ca0935517e6665a7caae9abccbc"
+    },
+    {
+      "path": "outbound/theme-02-product/use-cases/T2-UC-PR-01-mo-dot-ra-soat-dinh-gia.md",
+      "size": 8491,
+      "sha256": "6b78b272faa67871ac98f2513bca8969dd930f0eca64935034be95cfcfa4300b"
+    },
+    {
+      "path": "outbound/theme-02-product/use-cases/T2-UC-PR-02-xu-ly-nhom-dung-official-cost.md",
+      "size": 8504,
+      "sha256": "0cd7f441534da8be4ea6c03e4cfeef0560943fd2c1b4787603e3eae4a26efb4e"
+    },
+    {
+      "path": "outbound/theme-02-product/use-cases/T2-UC-PR-03-quyet-dinh-cho-nguon-du-kien.md",
+      "size": 8544,
+      "sha256": "5ce94a5f34f09c6d45b43249c41777648934b964a76c13d8ab54c9ad659497bc"
+    },
+    {
+      "path": "outbound/theme-02-product/use-cases/T2-UC-PR-04-hoan-tat-ket-qua-ra-soat.md",
+      "size": 8598,
+      "sha256": "d0d3c1efa62b4ed0186e651b4abf0faebc2516e91f7f399483850dc0c2deaf20"
+    },
+    {
+      "path": "outbound/theme-05-sales-pos/t5-bj-checkout-pos.md",
+      "size": 3608,
+      "sha256": "63c6cc0879cfff50f55ff68f02509ce30786e4cdf0e8546270b6553d4adfde62"
+    },
+    {
+      "path": "outbound/theme-05-sales-pos/prototype/contracts/sg-05/composition-map.yaml",
+      "size": 5923,
+      "sha256": "5117175c7dd6f80deddef43ed789308df163d9caa5e7ebc0380a49621df8a8b7"
+    },
+    {
+      "path": "outbound/theme-05-sales-pos/prototype/contracts/sg-05/prototype-manifest.yaml",
+      "size": 2317,
+      "sha256": "1c92d8d34c9101951ca01b0d4d2908684136a2a1c26886e16a254cda89d58616"
+    },
+    {
+      "path": "outbound/theme-05-sales-pos/prototype/contracts/sg-05/ui-contract.md",
+      "size": 12691,
+      "sha256": "f95af3dd0db76d94f529b5f79055533141b65f2feac1247a6fb3ac6ac55730f1"
+    },
+    {
+      "path": "outbound/theme-05-sales-pos/use-cases/T5-UC-CP-01-kiem-tra-dieu-kien-xuat.md",
+      "size": 8449,
+      "sha256": "b86465644212633febf1560273cc14c7ff87eda1fddeface42454946f03f3c14"
+    },
+    {
+      "path": "outbound/theme-05-sales-pos/use-cases/T5-UC-CP-02-chon-hang-va-ghi-xuat.md",
+      "size": 8465,
+      "sha256": "c79f6ac7681fceec5e7fc895cbece9fd183aa36f8c1a357014c1c2557daf87ec"
+    },
+    {
+      "path": "outbound/theme-05-sales-pos/use-cases/T5-UC-CP-03-phuc-hoi-finality.md",
+      "size": 8436,
+      "sha256": "40ba4ddc928da2a63a1803358a426035cb80a75948e59ded0cd494d5ba9c4398"
+    },
+    {
+      "path": "outbound/theme-10-purchase/t10-bj-discount-scenario.md",
+      "size": 6684,
+      "sha256": "a21c5b7e4dccdd3a50d81c1c0802c0978444f49a73d3874b9ab388dc51cad3c0"
+    },
+    {
+      "path": "outbound/theme-10-purchase/use-cases/T10-UC-DS-01-tao-gia-dinh-kich-ban.md",
+      "size": 8584,
+      "sha256": "520276462f8ddd5a452f91dc89a6402fed20385c588065f3b7bc428b3074f4d1"
+    },
+    {
+      "path": "outbound/theme-10-purchase/use-cases/T10-UC-DS-02-quy-doi-quyen-loi-du-kien.md",
+      "size": 8593,
+      "sha256": "58b0071e18b2b04deab9962845a8e8e2d5d3153f1ba47589bb5a7c979ea0272a"
+    },
+    {
+      "path": "outbound/theme-10-purchase/use-cases/T10-UC-DS-03-ra-soat-va-so-sanh-kich-ban.md",
+      "size": 8529,
+      "sha256": "140d2faf103360c0b568b29da61c6d2515657d5260814d83f9d2d4ea98a283c2"
+    },
+    {
+      "path": "outbound/theme-10-purchase/use-cases/T10-UC-DS-04-ban-giao-ket-qua-du-kien.md",
+      "size": 8576,
+      "sha256": "ae5242194b5f6ebc52e6110e587a19e70c339a6dcb21e7eeb67432d423e361f6"
+    },
+    {
+      "path": "prototype/README.md",
+      "size": 191,
+      "sha256": "f7fc5cea18d38ce0ae42970ae7c221bb352a3bf4e2a2227e2608e1a65bf0884d"
+    },
+    {
+      "path": "review-log.md",
+      "size": 319,
+      "sha256": "a5f466450a008b86e2d9bb12540012de8b224e02c3ebadb8c4a8c81d78dd0a49"
+    },
+    {
+      "path": "srs/01-overview.md",
+      "size": 16047,
+      "sha256": "a780db35ae2e64403c3e41ffea844871be6137a55787c6be5909387dee0a8710"
+    },
+    {
+      "path": "srs/02-business-journeys/00-business-journey-map.md",
+      "size": 3462,
+      "sha256": "9127773c811de6411e645827dc682a259c6e4e881c4904a1678c2e65e4beeb65"
+    },
+    {
+      "path": "srs/02-business-journeys/01-BJ-01-theo-doi-ton-kha-dung-va-chi-bao-van-hanh.md",
+      "size": 5650,
+      "sha256": "b92e12bb934f4015e7b7b31c55c8c13f529a29c634f368721a17e72f32484561"
+    },
+    {
+      "path": "srs/02-business-journeys/02-BJ-02-nhan-hang-mua.md",
+      "size": 8464,
+      "sha256": "602ac5d004b41c634b58b9643afc9c7d801ffef103e9b454267bda9b0dd71bee"
+    },
+    {
+      "path": "srs/02-business-journeys/03-BJ-03-xac-nhan-gia-tri-ban-dau-cua-hang-nhan.md",
+      "size": 6023,
+      "sha256": "922dfac2567a642f2c872ab174dac044f6419116e60926502c310ad2e644f624"
+    },
+    {
+      "path": "srs/02-business-journeys/04-BJ-04-quan-ly-vong-doi-giu-hang.md",
+      "size": 6170,
+      "sha256": "d0594dacd69a5dcbf04bebbdcb25fe787c88e6b680833d3d37bdbd40190ede5c"
+    },
+    {
+      "path": "srs/02-business-journeys/05-BJ-05-lay-hang-va-ban-giao-don.md",
+      "size": 6005,
+      "sha256": "472d259eef9791490625104d1421cdcfdade7eff3225f6dd34818f135b8b1e80"
+    },
+    {
+      "path": "srs/02-business-journeys/06-BJ-06-tiep-nhan-va-phan-loai-hang-khach-tra.md",
+      "size": 7587,
+      "sha256": "1c94761d2558c1aa43543abef0ee764b2242115d0370fa3c75b324362ac4399c"
+    },
+    {
+      "path": "srs/02-business-journeys/07-BJ-07-thuc-hien-tra-hang-cho-nha-cung-cap.md",
+      "size": 7212,
+      "sha256": "6a8b3293f28820cd63a75d15f3da282ffff274a7a4205b73c41068b492fdd21d"
+    },
+    {
+      "path": "srs/02-business-journeys/08-BJ-08-kiem-ke-va-dieu-chinh-chenh-lech.md",
+      "size": 8169,
+      "sha256": "d87183cc0a4d04c1837f9beee69140e5de9c152982d5b0fa044a151bcf4880c7"
+    },
+    {
+      "path": "srs/02-business-journeys/09-BJ-09-quan-ly-trang-thai-hang.md",
+      "size": 7443,
+      "sha256": "3aaedcc6b068f91320d131f1bd3b5b1a59b5472a582932f1bc58574b836e6c15"
+    },
+    {
+      "path": "srs/02-business-journeys/10-BJ-10-tieu-huy-hang.md",
+      "size": 6876,
+      "sha256": "a26fb1d5102429f690291f679090c136af7be62f866496a3e832fc4075e7014b"
+    },
+    {
+      "path": "srs/02-business-journeys/11-BJ-11-huy-va-sua-sai-nghiep-vu-kho.md",
+      "size": 9312,
+      "sha256": "64a5c907a8482d8f3597794501ab32dafe707b67f9f3a59c3994132fb2345158"
+    },
+    {
+      "path": "srs/02-business-journeys/12-BJ-12-khoi-tao-so-du-ton-kho-dau-ky.md",
+      "size": 7096,
+      "sha256": "18f068712c1e0debad667ec174dd839e65141d7eb1a8df92a6b0d3cce22aea18"
+    },
+    {
+      "path": "srs/02-business-journeys/13-BJ-13-ghi-nhan-chi-phi-mua-den-muon.md",
+      "size": 6262,
+      "sha256": "48ff72d360eff045f3b874be068964309b130ab6c600695b0ecacc68cceecf44"
+    },
+    {
+      "path": "srs/02-business-journeys/14-BJ-14-tinh-va-cong-bo-gia-von.md",
+      "size": 6978,
+      "sha256": "58c2392c075743455ad2fad560160ad453f52b06d44adf43ae5ec73bb40a6909"
+    },
+    {
+      "path": "srs/02-business-journeys/15-BJ-15-tra-cuu-bao-cao-ton-va-the-kho.md",
+      "size": 6700,
+      "sha256": "4c6746bc3ad027747beeefe2f41aa4ddec9769e76dd1fe6f55e4159431902727"
+    },
+    {
+      "path": "srs/02-business-journeys/16-BJ-16-dieu-tra-va-doi-soat-sai-lech.md",
+      "size": 7975,
+      "sha256": "dc70b4d82f6e1b5d777c3e5a533e9fa4ca4d1875652b9e8f5b700a97203f2ca8"
+    },
+    {
+      "path": "srs/02-business-journeys/17-BJ-17-phuc-hoi-nghiep-vu-ket-qua-chua-xac-dinh.md",
+      "size": 6929,
+      "sha256": "37fee6a7cd695e03c5b2e35fb3d44a9a2f288cc19039433702e433ae5263cd4e"
+    },
+    {
+      "path": "srs/03-domain-foundation.md",
+      "size": 24553,
+      "sha256": "128bacd94337790cade608b21deba5e333a064045c37f768bff65cb44e27bab8"
+    },
+    {
+      "path": "srs/04-data-entities.md",
+      "size": 73755,
+      "sha256": "3e7ce39bdc1416c70cbfcfeb888a3552752c0cd90a4118c42d2c648b78dedf5c"
+    },
+    {
+      "path": "srs/05-use-cases/00-use-case-map.md",
+      "size": 20287,
+      "sha256": "e037f970ead2de7c5c9358f44d339917a9737197671797c6204363a80c730a7d"
+    },
+    {
+      "path": "srs/05-use-cases/BJ-01-theo-doi-ton-kha-dung-va-chi-bao-van-hanh/UC-01-01-xac-dinh-ngu-canh-va-san-pham.md",
+      "size": 9321,
+      "sha256": "44c0557c049875558f9b0ef286e4aa38b32b7b1a117b0111de8d121f6d997054"
+    },
+    {
+      "path": "srs/05-use-cases/BJ-01-theo-doi-ton-kha-dung-va-chi-bao-van-hanh/UC-01-02-xem-ton-va-kha-dung.md",
+      "size": 8250,
+      "sha256": "a141e7327434a62b05d7666d4e601a7d8c3e0a5e73427142a3e0fbdc65c08785"
+    },
+    {
+      "path": "srs/05-use-cases/BJ-01-theo-doi-ton-kha-dung-va-chi-bao-van-hanh/UC-01-03-xem-trace-summary.md",
+      "size": 8584,
+      "sha256": "de9d4341e63a6e9251db4455c658d683d64c3704ac2d92a1ba0fe9e876826f12"
+    },
+    {
+      "path": "srs/05-use-cases/BJ-01-theo-doi-ton-kha-dung-va-chi-bao-van-hanh/UC-01-04-xem-ton-thap-va-luong-goi-y.md",
+      "size": 8134,
+      "sha256": "30b5585dea0c1315e34e82d5fe6059999586314c1f58f32da38264b28c6b83d0"
+    },
+    {
+      "path": "srs/05-use-cases/BJ-01-theo-doi-ton-kha-dung-va-chi-bao-van-hanh/UC-01-05-xem-hang-can-han-va-het-han.md",
+      "size": 8073,
+      "sha256": "df6eb8cf09af405ca6a72e362c4556ba3f85aa001dd8b46884bd45c740bc1040"
+    },
+    {
+      "path": "srs/05-use-cases/BJ-02-nhan-hang-mua/UC-02-01-chuan-bi-nhan-theo-chung-tu.md",
+      "size": 9184,
+      "sha256": "da056a7754b6edff5c33824fc37b153d564ab4de7b5979f93fdc0951788ebc38"
+    },
+    {
+      "path": "srs/05-use-cases/BJ-02-nhan-hang-mua/UC-02-02-chuan-bi-nhap-hang-nhanh.md",
+      "size": 9617,
+      "sha256": "420126215e61ebad479ad6414d89b69988cd83f94504422e6e9f97f82c874e1e"
+    },
+    {
+      "path": "srs/05-use-cases/BJ-02-nhan-hang-mua/UC-02-03-phe-duyet-yeu-cau-nhan-hang.md",
+      "size": 9180,
+      "sha256": "9043fd2465615d1063ff02faf58187c1af79b630daff0bcc43817a25507b30a2"
+    },
+    {
+      "path": "srs/05-use-cases/BJ-02-nhan-hang-mua/UC-02-04-ghi-nhan-hang-vao-ton-vat-ly.md",
+      "size": 8739,
+      "sha256": "e5cca2c267ad410c1d74f9ffb054b923a0d7fc30b586e3c37b089c52573e1db7"
+    },
+    {
+      "path": "srs/05-use-cases/BJ-02-nhan-hang-mua/UC-02-05-truy-van-va-phuc-hoi-ngan-ket-qua-nhan-hang.md",
+      "size": 5635,
+      "sha256": "d3d77d6b83a4a3f7d104230eb99fc1f892d2d01870632293a672c08fe73b8897"
+    },
+    {
+      "path": "srs/05-use-cases/BJ-03-xac-nhan-gia-tri-ban-dau-cua-hang-nhan/UC-03-01-chon-pham-vi-can-dinh-gia.md",
+      "size": 8471,
+      "sha256": "b61177137587f0bc53ae3efb324bdcdcec83988a4ea1e547203fc0ba68f80d74"
+    },
+    {
+      "path": "srs/05-use-cases/BJ-03-xac-nhan-gia-tri-ban-dau-cua-hang-nhan/UC-03-02-xac-dinh-gia-nhap-thuc-te.md",
+      "size": 8539,
+      "sha256": "c28a34ddaed35cdeab5229889e34d7946b0f3897001782eacdb3626d3b9fb811"
+    },
+    {
+      "path": "srs/05-use-cases/BJ-03-xac-nhan-gia-tri-ban-dau-cua-hang-nhan/UC-03-03-xac-nhan-gia-tri.md",
+      "size": 8476,
+      "sha256": "a10ed5c3a85ecbab9cdca2bcb714971924ee28da74fa30040ad8254fe6c36649"
+    },
+    {
+      "path": "srs/05-use-cases/BJ-04-quan-ly-vong-doi-giu-hang/UC-04-01-tao-reservation.md",
+      "size": 8227,
+      "sha256": "bb701560760700be2964edcd8032794f98160b6ca9a4af0db9d4e31bb0245eb5"
+    },
+    {
+      "path": "srs/05-use-cases/BJ-04-quan-ly-vong-doi-giu-hang/UC-04-02-dieu-chinh-reservation.md",
+      "size": 8291,
+      "sha256": "b5cb7fe6e11a17e3adc773543fe911b2942edaae45c18228fe240876fcdb3831"
+    },
+    {
+      "path": "srs/05-use-cases/BJ-04-quan-ly-vong-doi-giu-hang/UC-04-03-ket-thuc-va-giai-phong.md",
+      "size": 8246,
+      "sha256": "57a7ac5c30a5a524e3b151557bb4584b0e84915a249a7325a89c830751386261"
+    },
+    {
+      "path": "srs/05-use-cases/BJ-04-quan-ly-vong-doi-giu-hang/UC-04-04-danh-gia-lai-va-xu-ly-thieu.md",
+      "size": 8311,
+      "sha256": "4356c5a4e3575b7b337c978927335cf5a14284f4ac520976e59396d44344442c"
+    },
+    {
+      "path": "srs/05-use-cases/BJ-05-lay-hang-va-ban-giao-don/UC-05-01-lap-allocation.md",
+      "size": 7919,
+      "sha256": "77cd616d8d60f8c5dbfbade9cb5070fae0bee30a6cb16d911f4840673ae7e8fc"
+    },
+    {
+      "path": "srs/05-use-cases/BJ-05-lay-hang-va-ban-giao-don/UC-05-02-xac-nhan-hang-da-lay.md",
+      "size": 7918,
+      "sha256": "176ef3a0231312af027fe8313f4397f20b88ffddd0ae5dfca758d2ff5d40881e"
+    },
+    {
+      "path": "srs/05-use-cases/BJ-05-lay-hang-va-ban-giao-don/UC-05-03-ban-giao-hang.md",
+      "size": 8017,
+      "sha256": "3767579d11b115c6deb2d5d8f2e2f56cc3c62fbe45992d83f87de33bb8549e4f"
+    },
+    {
+      "path": "srs/05-use-cases/BJ-05-lay-hang-va-ban-giao-don/UC-05-04-phuc-hoi-allocation-stale.md",
+      "size": 8262,
+      "sha256": "84f46ee093a4f7797f7127c745d91802e3fd602540667867ce9c920b8e985e27"
+    },
+    {
+      "path": "srs/05-use-cases/BJ-05-lay-hang-va-ban-giao-don/UC-05-05-ghi-xuat-kho-nguyen-tu.md",
+      "size": 9201,
+      "sha256": "55c07a6492c3efbc0fec8a771a97f70545dd34344be6cf8e005d2ca383e4089d"
+    },
+    {
+      "path": "srs/05-use-cases/BJ-06-tiep-nhan-va-phan-loai-hang-khach-tra/UC-06-01-xac-minh-hang-duoc-phep-nhan-tra.md",
+      "size": 8805,
+      "sha256": "f0756e5ce9b3b346c23b7a311266392b5e093555403749e8de7e35d0d7bee4e2"
+    },
+    {
+      "path": "srs/05-use-cases/BJ-06-tiep-nhan-va-phan-loai-hang-khach-tra/UC-06-02-xu-ly-ngoai-le-truy-vet.md",
+      "size": 8723,
+      "sha256": "7575eb506b830250910f98d00664f7c5addffd7f70bcde37d106ba81b4448150"
+    },
+    {
+      "path": "srs/05-use-cases/BJ-06-tiep-nhan-va-phan-loai-hang-khach-tra/UC-06-03-ghi-nhan-hang-khach-tra.md",
+      "size": 8800,
+      "sha256": "641b04a5812cdbc5420dfefb8320bf5901d662f774a940736c5981feeb30c792"
+    },
+    {
+      "path": "srs/05-use-cases/BJ-06-tiep-nhan-va-phan-loai-hang-khach-tra/UC-06-04-phan-loai-hang-thuc-nhan.md",
+      "size": 8799,
+      "sha256": "257e549fc812881ca246f2770e2abab068f57a19957d4f5c6b37baa4bf3b64d0"
+    },
+    {
+      "path": "srs/05-use-cases/BJ-07-thuc-hien-tra-hang-cho-nha-cung-cap/UC-07-01-xac-minh-pham-vi-tra.md",
+      "size": 8476,
+      "sha256": "f01b5634db443e74b1f8e6406af891a99ff56b7da355e7e5296c29e9664bf76b"
+    },
+    {
+      "path": "srs/05-use-cases/BJ-07-thuc-hien-tra-hang-cho-nha-cung-cap/UC-07-02-dua-hang-vao-cho-tra.md",
+      "size": 8534,
+      "sha256": "4049b5f8a57e9d4307951a7dd9449c83b962c3336c06447831795b39b135d2ce"
+    },
+    {
+      "path": "srs/05-use-cases/BJ-07-thuc-hien-tra-hang-cho-nha-cung-cap/UC-07-03-dieu-chinh-hoac-huy-truoc-ban-giao.md",
+      "size": 8692,
+      "sha256": "44d197c82e9c2f87945b2a1f3aade5cd91fb0cbab3bbf94c0e5234f56065b917"
+    },
+    {
+      "path": "srs/05-use-cases/BJ-07-thuc-hien-tra-hang-cho-nha-cung-cap/UC-07-04-ghi-nhan-ban-giao-tra-nha-cung-cap.md",
+      "size": 8592,
+      "sha256": "7309f311820ca5934d6372dbad6488cd7dde836225952ed09e7a940410f62f1c"
+    },
+    {
+      "path": "srs/05-use-cases/BJ-08-kiem-ke-va-dieu-chinh-chenh-lech/UC-08-01-mo-va-khoa-pham-vi.md",
+      "size": 8644,
+      "sha256": "8941a83e200e696825d4dd769be30fd19abc98655c0cc125048127d6ec40f687"
+    },
+    {
+      "path": "srs/05-use-cases/BJ-08-kiem-ke-va-dieu-chinh-chenh-lech/UC-08-02-ghi-nhan-lan-dem-mu.md",
+      "size": 8628,
+      "sha256": "999ced1ee611081f648774c7e983be269441a861f4ac4d57d807bd68d9cc12a8"
+    },
+    {
+      "path": "srs/05-use-cases/BJ-08-kiem-ke-va-dieu-chinh-chenh-lech/UC-08-03-dem-lai-va-hoan-thien-bang-chung.md",
+      "size": 8680,
+      "sha256": "55a76c6a36694ab20df9b3478d966777f7ed2d92e65dc5be78726d05f0272a36"
+    },
+    {
+      "path": "srs/05-use-cases/BJ-08-kiem-ke-va-dieu-chinh-chenh-lech/UC-08-04-duyet-va-dieu-chinh.md",
+      "size": 8718,
+      "sha256": "80dbfa72329551f8d599748c91493d4d47608d87a37d86e897ab4a704b6196ce"
+    },
+    {
+      "path": "srs/05-use-cases/BJ-08-kiem-ke-va-dieu-chinh-chenh-lech/UC-08-05-huy-phien-kiem-ke.md",
+      "size": 8687,
+      "sha256": "e0b6affe1145ec453a9575233fafedc7beddbaf46110fc1fa832e91183834ad6"
+    },
+    {
+      "path": "srs/05-use-cases/BJ-09-quan-ly-trang-thai-hang/UC-09-01-chuan-bi-thay-doi-trang-thai.md",
+      "size": 8935,
+      "sha256": "8ccf1b02046a74a9e0e2be37015647cfba8134bb1693cab37c283ff9ca9b2bd1"
+    },
+    {
+      "path": "srs/05-use-cases/BJ-09-quan-ly-trang-thai-hang/UC-09-02-phe-duyet-thay-doi-trang-thai.md",
+      "size": 8484,
+      "sha256": "eb44d41a6493808a1d88c10d627e5931238ac416221813db209d207326d2bfa8"
+    },
+    {
+      "path": "srs/05-use-cases/BJ-09-quan-ly-trang-thai-hang/UC-09-03-xac-dinh-hang-het-han.md",
+      "size": 8661,
+      "sha256": "6c400c7a174a168fd24926b270ba256e8bafff9a558998580470ec4f2d91becc"
+    },
+    {
+      "path": "srs/05-use-cases/BJ-09-quan-ly-trang-thai-hang/UC-09-04-ghi-state-movement.md",
+      "size": 8599,
+      "sha256": "c46bd2c4a120f25578f480addfb2d8f37cc689252b712a82ed18c4abdd1b06fb"
+    },
+    {
+      "path": "srs/05-use-cases/BJ-10-tieu-huy-hang/UC-10-01-chuan-bi-yeu-cau-tieu-huy.md",
+      "size": 8903,
+      "sha256": "4282c0ec36524d7a43e7d715d801981ab6f85cb43048d67915ad25d392e8cea8"
+    },
+    {
+      "path": "srs/05-use-cases/BJ-10-tieu-huy-hang/UC-10-02-phe-duyet-tieu-huy.md",
+      "size": 8414,
+      "sha256": "102adc4841e4aa828c2ee271145f261aadefb0195ed2f172cce921e64663e6f7"
+    },
+    {
+      "path": "srs/05-use-cases/BJ-10-tieu-huy-hang/UC-10-03-xac-nhan-da-tieu-huy.md",
+      "size": 8475,
+      "sha256": "751ac57ed97a4ad56c66f5e056c515f167ddc470fa9bedfea1f54b163a478790"
+    },
+    {
+      "path": "srs/05-use-cases/BJ-10-tieu-huy-hang/UC-10-04-ghi-giam-hang-tieu-huy.md",
+      "size": 8509,
+      "sha256": "904e434b747fe034fe93cfb10e2a3d311549bbd27d53750e2cde81861608676d"
+    },
+    {
+      "path": "srs/05-use-cases/BJ-11-huy-va-sua-sai-nghiep-vu-kho/UC-11-01-xac-dinh-duong-xu-ly.md",
+      "size": 9023,
+      "sha256": "2dc83be354224a84b085f8dd6460550063cdcc620dc1361984def989ca74c5e1"
+    },
+    {
+      "path": "srs/05-use-cases/BJ-11-huy-va-sua-sai-nghiep-vu-kho/UC-11-02-huy-operation-chua-thuc-thi.md",
+      "size": 8692,
+      "sha256": "ebdbcee5f954598c3731a9d7ab80eff200d23da74555af447636cd578bcd061f"
+    },
+    {
+      "path": "srs/05-use-cases/BJ-11-huy-va-sua-sai-nghiep-vu-kho/UC-11-03-chuan-bi-phuong-an-correction.md",
+      "size": 8959,
+      "sha256": "5ca7c18c467826ba4acbf56db6736f2fbb1da2784d7d2a9e6f2f9a44f3b9182c"
+    },
+    {
+      "path": "srs/05-use-cases/BJ-11-huy-va-sua-sai-nghiep-vu-kho/UC-11-04-phe-duyet-correction.md",
+      "size": 8526,
+      "sha256": "52bd62c575fe4e99dda93dafee79d81034f74e8f0e4975b223940454227adb25"
+    },
+    {
+      "path": "srs/05-use-cases/BJ-11-huy-va-sua-sai-nghiep-vu-kho/UC-11-05-ghi-correction-chain.md",
+      "size": 8691,
+      "sha256": "7436a62f156f3034c65150e8df5b33ce406c6f4f3d6a59ac972a1d1f69e4f698"
+    },
+    {
+      "path": "srs/05-use-cases/BJ-12-khoi-tao-so-du-ton-kho-dau-ky/UC-12-01-nap-va-kiem-tra-batch-dau-ky.md",
+      "size": 8963,
+      "sha256": "81ca55992d997b49d2f28b9578eaf5214dc6ec004c10e1a0c07fe06770b9cdbd"
+    },
+    {
+      "path": "srs/05-use-cases/BJ-12-khoi-tao-so-du-ton-kho-dau-ky/UC-12-02-ra-soat-va-duyet-batch.md",
+      "size": 8775,
+      "sha256": "4dc484af6f7b8f35aa8d2b7aaab90737dbc46df40c084fede4547f408f581d77"
+    },
+    {
+      "path": "srs/05-use-cases/BJ-12-khoi-tao-so-du-ton-kho-dau-ky/UC-12-03-commit-va-kich-hoat-ton-kho.md",
+      "size": 8938,
+      "sha256": "48eadff9158afbb4b404c72513bcc3b607f3ebb44534b231c03a489fe2e06873"
+    },
+    {
+      "path": "srs/05-use-cases/BJ-13-ghi-nhan-chi-phi-mua-den-muon/UC-13-01-xac-dinh-nguon-va-pham-vi.md",
+      "size": 8565,
+      "sha256": "a697f95ef4bd526f36689b75ba933f1b68530140fd0e30b78356f92a6e9d0e4d"
+    },
+    {
+      "path": "srs/05-use-cases/BJ-13-ghi-nhan-chi-phi-mua-den-muon/UC-13-02-tinh-va-phan-bo-chi-phi.md",
+      "size": 8481,
+      "sha256": "9952f2bedc3b1d4522948a32418ca3f747aaf5122857c3b8906410b4c455451d"
+    },
+    {
+      "path": "srs/05-use-cases/BJ-13-ghi-nhan-chi-phi-mua-den-muon/UC-13-03-xac-nhan-ghi-nhan-chi-phi.md",
+      "size": 8615,
+      "sha256": "b3c1e66e35b1bf4ca0eb90ba3ff9d65ffdcdda96f0bbbbfb50d400151d2f1355"
+    },
+    {
+      "path": "srs/05-use-cases/BJ-14-tinh-va-cong-bo-gia-von/UC-14-01-xac-dinh-ky-pham-vi-va-chinh-sach.md",
+      "size": 8782,
+      "sha256": "2c8dc9181bac6b25eab7498b8b2743a9414b155784bdcdb84be2751522a2ef93"
+    },
+    {
+      "path": "srs/05-use-cases/BJ-14-tinh-va-cong-bo-gia-von/UC-14-02-tinh-gia-von-va-phat-hien-blocker.md",
+      "size": 8737,
+      "sha256": "2a1e6384c11e3be05347abb81d0fb95b6a19770d29a6d4a5204714be6226d913"
+    },
+    {
+      "path": "srs/05-use-cases/BJ-14-tinh-va-cong-bo-gia-von/UC-14-03-ra-soat-ket-qua.md",
+      "size": 8799,
+      "sha256": "b3484dbf95cb340c2879c87bee562c83e55f3c8e571b9ed6ff1f5aa2e05777f7"
+    },
+    {
+      "path": "srs/05-use-cases/BJ-14-tinh-va-cong-bo-gia-von/UC-14-04-cong-bo-gia-von.md",
+      "size": 8774,
+      "sha256": "ebb0c21d6e9ac5eb3f161ffd1088505249dbffd5c72c1a51546dd451e61c8c0e"
+    },
+    {
+      "path": "srs/05-use-cases/BJ-15-tra-cuu-bao-cao-ton-va-the-kho/UC-15-01-xac-dinh-bao-cao-va-pham-vi.md",
+      "size": 8270,
+      "sha256": "1246d2619461616e5d2cb2b74c210bae3fce29d2a4d761afcc8d07b695b7c6ad"
+    },
+    {
+      "path": "srs/05-use-cases/BJ-15-tra-cuu-bao-cao-ton-va-the-kho/UC-15-02-xem-bao-cao-ton-kho.md",
+      "size": 8189,
+      "sha256": "ab80f823d20aacf3c923b67a7f461dd8adf1884275f4aeb3ad2f5468dbab0607"
+    },
+    {
+      "path": "srs/05-use-cases/BJ-15-tra-cuu-bao-cao-ton-va-the-kho/UC-15-03-xem-the-kho-va-lich-su.md",
+      "size": 8348,
+      "sha256": "068fdda4aeba93dcb5b692e8758636a6958b4a52f6b7880f956096e9a5f3d641"
+    },
+    {
+      "path": "srs/05-use-cases/BJ-15-tra-cuu-bao-cao-ton-va-the-kho/UC-15-04-xuat-bao-cao.md",
+      "size": 8235,
+      "sha256": "c313650912a6cd646eeb5e53accbb375380afdde20ea4c36602e22786321d613"
+    },
+    {
+      "path": "srs/05-use-cases/BJ-16-dieu-tra-va-doi-soat-sai-lech/UC-16-01-mo-va-phan-loai-ho-so-doi-soat.md",
+      "size": 8844,
+      "sha256": "1c159accfa9c2e89e22178ec517de0f7fd169862ac1b78a306d975db750c841c"
+    },
+    {
+      "path": "srs/05-use-cases/BJ-16-dieu-tra-va-doi-soat-sai-lech/UC-16-02-bao-ve-pham-vi-rui-ro.md",
+      "size": 8845,
+      "sha256": "aee8e8ba93c9c5f1311ed197fb84e40e031fceed79f194b8f7e948cce8347fda"
+    },
+    {
+      "path": "srs/05-use-cases/BJ-16-dieu-tra-va-doi-soat-sai-lech/UC-16-03-dieu-tra-va-xac-dinh-nguyen-nhan.md",
+      "size": 8835,
+      "sha256": "76c3a92cd7f8e53a47916a23a92ba28c7da2b8318633777c735438901c4a85c4"
+    },
+    {
+      "path": "srs/05-use-cases/BJ-16-dieu-tra-va-doi-soat-sai-lech/UC-16-04-xac-minh-va-cap-nhat-ket-qua-doi-soat.md",
+      "size": 8904,
+      "sha256": "5d111bdc4af4fe73c36a2195a1367b9baefb711e535045fce3a30cbd9102d563"
+    },
+    {
+      "path": "srs/05-use-cases/BJ-17-phuc-hoi-nghiep-vu-ket-qua-chua-xac-dinh/UC-17-01-thu-thap-va-danh-gia-bang-chung.md",
+      "size": 8810,
+      "sha256": "cae9aa3e4616e496c3fb883385d7dc840aef12221fcee35714f924befca72c98"
+    },
+    {
+      "path": "srs/05-use-cases/BJ-17-phuc-hoi-nghiep-vu-ket-qua-chua-xac-dinh/UC-17-02-xac-lap-operation-da-hoan-tat.md",
+      "size": 8894,
+      "sha256": "d9afcb7082a8197b0244af0268ec4d3ef4a1a0ccbe48fdb714b15967e869ca3e"
+    },
+    {
+      "path": "srs/05-use-cases/BJ-17-phuc-hoi-nghiep-vu-ket-qua-chua-xac-dinh/UC-17-03-tiep-tuc-cung-operation-identity.md",
+      "size": 8861,
+      "sha256": "11b77ec8f2e3b105564ec666c4d8e1ecb26ea422ffe305c4716b0a268f84bedd"
+    },
+    {
+      "path": "srs/05-use-cases/BJ-17-phuc-hoi-nghiep-vu-ket-qua-chua-xac-dinh/UC-17-04-giu-chua-xac-dinh-va-escalated.md",
+      "size": 8862,
+      "sha256": "7dffe8bd305a0a7784e4a60027749164149396f010ef2cc4bde69e0afa5ddb2a"
+    },
+    {
+      "path": "srs/05-use-cases/CAP-01-quan-ly-chinh-sach-ton-va-can-han/00-capability.md",
+      "size": 2421,
+      "sha256": "442b04262f3f84ddc500d1c52c95be0619b98fff1eb9fc99af3e502078df97f3"
+    },
+    {
+      "path": "srs/05-use-cases/CAP-01-quan-ly-chinh-sach-ton-va-can-han/CAP-01-OP-01-cau-hinh-nguong-ton-san-pham.md",
+      "size": 8518,
+      "sha256": "de0cae5f94719c259854fdea2569a77bceab360486174cc289ce1b5e922422f6"
+    },
+    {
+      "path": "srs/05-use-cases/CAP-01-quan-ly-chinh-sach-ton-va-can-han/CAP-01-OP-02-cau-hinh-can-han-mac-dinh.md",
+      "size": 8498,
+      "sha256": "f0236c35c3372b5cd2af6dc47e1de7ea0cb5d580f8d2c8c451880d13011ece57"
+    },
+    {
+      "path": "srs/05-use-cases/CAP-01-quan-ly-chinh-sach-ton-va-can-han/CAP-01-OP-03-ghi-de-can-han-theo-san-pham.md",
+      "size": 8484,
+      "sha256": "e4f051e3e0d67f1c94e145dc1c1f5df15fc21c4512addb71582df918baeeab7f"
+    },
+    {
+      "path": "srs/06-shared-behavioral-contracts.md",
+      "size": 43822,
+      "sha256": "87ca83a8af677d707ca79e5afdcb50a614eb79ba5ef2a13894b6312b94d3210e"
+    },
+    {
+      "path": "srs/07-technical-contracts.md",
+      "size": 33876,
+      "sha256": "7f4136cdbd016499e20543f62054b21ddb68a110a8fb79706d46d3fee38f7ef1"
+    },
+    {
+      "path": "srs/07-technical-procedures/PROC-01-dung-lai-du-lieu-dan-xuat-tu-so-kho/00-procedure.md",
+      "size": 2249,
+      "sha256": "c0385139ec162ae29cf7d29310bedf3f2a3a026ec1a23c394ed4795599ba854c"
+    },
+    {
+      "path": "srs/07-technical-procedures/PROC-01-dung-lai-du-lieu-dan-xuat-tu-so-kho/PROC-01-STEP-01-chuan-bi-pham-vi-dung-lai.md",
+      "size": 8854,
+      "sha256": "85f6df8b2d1709ae935ffe37ef75cf806d83a9d58e3c0f92161fb96bc90e1059"
+    },
+    {
+      "path": "srs/07-technical-procedures/PROC-01-dung-lai-du-lieu-dan-xuat-tu-so-kho/PROC-01-STEP-02-bao-ve-phien-ban-du-lieu-dan-xuat.md",
+      "size": 8881,
+      "sha256": "f8decde7fd0f2f8e2c4a1219f73ca8fcc86bdaed00d4e2f5e8907188d3983d21"
+    },
+    {
+      "path": "srs/07-technical-procedures/PROC-01-dung-lai-du-lieu-dan-xuat-tu-so-kho/PROC-01-STEP-03-dung-lai-tu-ledger.md",
+      "size": 8686,
+      "sha256": "d3d182e742680e88011019407cbd63f40a3fec6e3563ffe02168244afcb41d46"
+    },
+    {
+      "path": "srs/07-technical-procedures/PROC-01-dung-lai-du-lieu-dan-xuat-tu-so-kho/PROC-01-STEP-04-xac-minh-va-cong-bo-ket-qua.md",
+      "size": 8831,
+      "sha256": "a3089c5adf83724dabf9f57e2ff254797470b4d12164c9f84fa4f6c7983f0e6d"
+    },
+    {
+      "path": "srs/08-ui-ux.md",
+      "size": 5241,
+      "sha256": "ce7ca56143a0f3c454b81e89c7cf85d7fd83ca933a29f33788824cdff6d3cd47"
+    },
+    {
+      "path": "srs/09-traceability-quality.md",
+      "size": 11020,
+      "sha256": "54c1f7ee34c8a028765c559b4706f1c0480d89ce9e494eb91e8ed4128e49c483"
+    },
+    {
+      "path": "srs/README.md",
+      "size": 1681,
+      "sha256": "0e9dae15e1a71c57d4743ddde8989ef15090afd17d6fbda38e83f9681c93ce50"
+    },
+    {
+      "path": "theme.manifest.yaml",
+      "size": 2310,
+      "sha256": "0d007b36325c3d7825b14db88890b237a5c885d152d5461306d5a2ea3767450c"
+    },
+    {
+      "path": "prototype/contracts/README.md",
+      "size": 1193,
+      "sha256": "63b08d8bdaa83609fa9a7743313bc520d5c13f0374ef32c11554b6d14277b71c"
+    },
+    {
+      "path": "prototype/contracts/action-registry.json",
+      "size": 15904,
+      "sha256": "5c9220d1deff8d12e4578bc5e08c4b86a013edddeeea28daae033be3ba5bf1af"
+    },
+    {
+      "path": "prototype/contracts/bj-ui-flow-map.md",
+      "size": 4477,
+      "sha256": "03a7bac4e73555a5b5ac07c9cb638f3e1bf31a6f58ffc7fd32f2507057bc3b1e"
+    },
+    {
+      "path": "prototype/contracts/design-system-profile.md",
+      "size": 2537,
+      "sha256": "e53d7c95ea0ec60fa269f5634929af5011b0b879d70292bf8bfa03f0755f029b"
+    },
+    {
+      "path": "prototype/contracts/executive-handoff.md",
+      "size": 1588,
+      "sha256": "39a0071a37faab745a7f5be5c38b3a8efb467c9b61a42d576ad1bb5d4bfd353c"
+    },
+    {
+      "path": "prototype/contracts/navigation-areas.md",
+      "size": 6812,
+      "sha256": "52ada1ff370f9ddbcc8dca41a7bab24627275d9ad7e309a02267e37546fdb32f"
+    },
+    {
+      "path": "prototype/contracts/screen-registry.json",
+      "size": 142994,
+      "sha256": "64778441fbe4589c898abc8d5ba16ca45717da03d35bf5a822486c2f51355237"
+    },
+    {
+      "path": "prototype/contracts/screen-registry.md",
+      "size": 10245,
+      "sha256": "84ede16e677bff24b3a5457df3d107298d3864e603d1cb142292ff987f788d37"
+    },
+    {
+      "path": "prototype/contracts/screens/SCR-001.md",
+      "size": 3441,
+      "sha256": "d588ff9364ae93447e484edd5b518eca3f429fdcede45ad0667d8d94d6747b20"
+    },
+    {
+      "path": "prototype/contracts/screens/SCR-002.md",
+      "size": 3692,
+      "sha256": "76d03d1163869871537a71754228f543517c6952379b84f11f70ddef99195634"
+    },
+    {
+      "path": "prototype/contracts/screens/SCR-003.md",
+      "size": 3595,
+      "sha256": "023aa418107750b034ddb1b1f60d3b07e441030f2ac4bfa224459a2695348c0e"
+    },
+    {
+      "path": "prototype/contracts/screens/SCR-004.md",
+      "size": 3902,
+      "sha256": "0787e5e6c6c3dbc7cb29675e35be62d596d953691a5428ba5d3de7dd176d280e"
+    },
+    {
+      "path": "prototype/contracts/screens/SCR-005.md",
+      "size": 3550,
+      "sha256": "5b6b44befc55067b69f890305074ac2bc71523401048c0c080cbca748c4d5c15"
+    },
+    {
+      "path": "prototype/contracts/screens/SCR-006.md",
+      "size": 3665,
+      "sha256": "4257e5df8ed65beabc8d8762a525f5a181895ebd36a8841874f5b51b33dea05e"
+    },
+    {
+      "path": "prototype/contracts/screens/SCR-007.md",
+      "size": 3729,
+      "sha256": "914522975d87019941364f85124300355f0fbf77eda92794403d40be492c14c1"
+    },
+    {
+      "path": "prototype/contracts/screens/SCR-008.md",
+      "size": 4014,
+      "sha256": "88e4cd35ab85d6dd2526109143cec604606cff43d3de410539aafe0508d74ece"
+    },
+    {
+      "path": "prototype/contracts/screens/SCR-009.md",
+      "size": 4341,
+      "sha256": "faaeb3eaf0d3da88258603124f336c453d679da39d3a932b7aa26f39d63f7cba"
+    },
+    {
+      "path": "prototype/contracts/screens/SCR-010.md",
+      "size": 4121,
+      "sha256": "988d3c6b7b2fc01164e6454e11df9e4d61120bfb1972f11c08bb324469b27c35"
+    },
+    {
+      "path": "prototype/contracts/screens/SCR-011.md",
+      "size": 4001,
+      "sha256": "584a8c1cda7a7c9206d80d30ee30b3cc19c4df7123e34debf5d89511a3532bee"
+    },
+    {
+      "path": "prototype/contracts/screens/SCR-012.md",
+      "size": 4031,
+      "sha256": "7ff38f974cec8cc04e65606ca8ad4a0ba260c1701b868eb9b346cd59ec6d846c"
+    },
+    {
+      "path": "prototype/contracts/screens/SCR-013.md",
+      "size": 3850,
+      "sha256": "0435c3b5142415de7a132a263445a3f5b32f81951d09beddedf07e9651b9f38d"
+    },
+    {
+      "path": "prototype/contracts/screens/SCR-014.md",
+      "size": 3631,
+      "sha256": "9ac8767a139d260fde7859780b23fac21493e118669547f61943c992af069c74"
+    },
+    {
+      "path": "prototype/contracts/screens/SCR-015.md",
+      "size": 4051,
+      "sha256": "fef628ea7f54bf908dcc7d3857c727b219a35ddd55457911931c4c94d2a76e84"
+    },
+    {
+      "path": "prototype/contracts/screens/SCR-016.md",
+      "size": 3482,
+      "sha256": "d5314fb2f9d60af13251e1cc7c960580ee9dfe18a6f32675a82679f577f8e309"
+    },
+    {
+      "path": "prototype/contracts/screens/SCR-017.md",
+      "size": 3612,
+      "sha256": "c126c3532b26d88cddc2142fbbc087bc5fae47fd2ad254e365c653e4e489b835"
+    },
+    {
+      "path": "prototype/contracts/screens/SCR-018.md",
+      "size": 3600,
+      "sha256": "ce74ef213ffe241349ac8c1bd62723d5e3e6e466993077d8dd59239bacfad8f5"
+    },
+    {
+      "path": "prototype/contracts/screens/SCR-019.md",
+      "size": 3703,
+      "sha256": "7f0f36f834d80c5e5b7a3b12dd9db20d3e85b43fa4e0a0b1241d9ef551380282"
+    },
+    {
+      "path": "prototype/contracts/screens/SCR-020.md",
+      "size": 3386,
+      "sha256": "29660db2ad4d717bdf32d5d0e402c65fb38a17c69efac0d2595ddce027261b9d"
+    },
+    {
+      "path": "prototype/contracts/screens/SCR-021.md",
+      "size": 4077,
+      "sha256": "8974a5828d1ff8a282ab37f4f77b247892fe28f9db91477a9264b097716ecd3d"
+    },
+    {
+      "path": "prototype/contracts/screens/SCR-022.md",
+      "size": 3611,
+      "sha256": "b6633cffd8440f01518c3f14d879aadc1b28c4d67000ccfe4a98544ebf733856"
+    },
+    {
+      "path": "prototype/contracts/screens/SCR-023.md",
+      "size": 3994,
+      "sha256": "dd712b01c8f22ab23613e619d819023117ec0107dca5355c410c67d4bdb0df93"
+    },
+    {
+      "path": "prototype/contracts/screens/SCR-024.md",
+      "size": 3858,
+      "sha256": "f78a30a3aa61ab8cd349ac8c74f485b644d015de2f441d9dc8ba79fb8a73c49e"
+    },
+    {
+      "path": "prototype/contracts/screens/SCR-025.md",
+      "size": 3364,
+      "sha256": "5202657508d4b262ebc8b51154602e9011f01bbb83a0eb732ed759a684d6f595"
+    },
+    {
+      "path": "prototype/contracts/screens/SCR-026.md",
+      "size": 3821,
+      "sha256": "a829df40c91c61a1f7fa93ac891b1d3fa36e2f997a2dea4a2236359aa39d443f"
+    },
+    {
+      "path": "prototype/contracts/screens/SCR-027.md",
+      "size": 3816,
+      "sha256": "3e73086e4f857d60473d7c38b2dad246344b798696e7dbc1acc100a7149b73dd"
+    },
+    {
+      "path": "prototype/contracts/screens/SCR-028.md",
+      "size": 3700,
+      "sha256": "2402489899008f5ba173425a5eac224c9d60209e45184dce9c430b7cb0f35963"
+    },
+    {
+      "path": "prototype/contracts/screens/SCR-029.md",
+      "size": 3582,
+      "sha256": "41c68fb13a55e33c194110538d7faab071fa3c3ea9597829258012040d27940f"
+    },
+    {
+      "path": "prototype/contracts/screens/SCR-030.md",
+      "size": 3407,
+      "sha256": "6d25fc59f37049d45124547bceebbb7cdfd045393eb24dfd62030d4067f20ead"
+    },
+    {
+      "path": "prototype/contracts/screens/SCR-031.md",
+      "size": 3980,
+      "sha256": "6b91bcca4da904f36fff4a36ebc8ee773b402d86b8967b2251129724a233b984"
+    },
+    {
+      "path": "prototype/contracts/screens/SCR-032.md",
+      "size": 3592,
+      "sha256": "93d1daa287372030cdfcfc8bd078a84ed4cef09bf3354cf8145ecda9ca0f21fc"
+    },
+    {
+      "path": "prototype/contracts/screens/SCR-033.md",
+      "size": 3827,
+      "sha256": "d7171baa0e549f96c01fd77a6847a38f9064e1a2bc6ac7b0758a7ea1550b3e08"
+    },
+    {
+      "path": "prototype/contracts/screens/SCR-034.md",
+      "size": 3465,
+      "sha256": "d385678f9430bb3737183eca29937d024a3cb3a3025bab209579d07f84975a24"
+    },
+    {
+      "path": "prototype/contracts/screens/SCR-035.md",
+      "size": 3603,
+      "sha256": "c20601dbc47fa15ae8181cbb28291866ea893a084cc9995644d350d38acac46f"
+    },
+    {
+      "path": "prototype/contracts/screens/SCR-036.md",
+      "size": 4289,
+      "sha256": "847ab83f4dc1c72ae7c75b0cdf80bc82857252260a3c6f8dd2eb8f3679734237"
+    },
+    {
+      "path": "prototype/contracts/screens/SCR-037.md",
+      "size": 3844,
+      "sha256": "aa10361bd8bd3d2c34c33f2c0fa6f5dd5e87ab3171e201c7e3917c47b9fca624"
+    },
+    {
+      "path": "prototype/contracts/screens/SCR-038.md",
+      "size": 4006,
+      "sha256": "1b956f44036d48682cfdda9d93ebe896216146f5b640a08e9c208b9d72c87947"
+    },
+    {
+      "path": "prototype/contracts/screens/SCR-039.md",
+      "size": 3502,
+      "sha256": "330c890d416bcf6601980ca73381e57d0f386e5689745db417a6ed05e0d8d1d6"
+    },
+    {
+      "path": "prototype/contracts/screens/SCR-040.md",
+      "size": 3610,
+      "sha256": "849735229bd90cb23c4c493401fad0e7e57805b01d3cb80312994246dfa14d8e"
+    },
+    {
+      "path": "prototype/contracts/screens/SCR-041.md",
+      "size": 4194,
+      "sha256": "2ff2db191bd87968c3e47ef0a9eb8839778e789baed563e60cdd83d8d2c9683c"
+    },
+    {
+      "path": "prototype/contracts/screens/SCR-042.md",
+      "size": 3402,
+      "sha256": "5c81b9dbf9f7429b8cc46fd40420c56dee7a06caf037d6792f4ddd04b3fe68ed"
+    },
+    {
+      "path": "prototype/contracts/screens/SCR-043.md",
+      "size": 3579,
+      "sha256": "087a8aa5970bb9dae9a6a76bb1432c6ae62bf411d00a86b0ac5082580b2b813e"
+    },
+    {
+      "path": "prototype/contracts/screens/SCR-044.md",
+      "size": 3836,
+      "sha256": "00fdf865ef569177c7a57778debafd1941feab39e1e7fc201f8a5857a87e3f37"
+    },
+    {
+      "path": "prototype/contracts/screens/SCR-045.md",
+      "size": 3748,
+      "sha256": "d834423ee9989db8b521cab4eeb001cb644c985b5db48c423a80489c5d4adef8"
+    },
+    {
+      "path": "prototype/contracts/screens/SCR-046.md",
+      "size": 3945,
+      "sha256": "a3bee16a42bb2af465d96899c16273070dffa81ec131bbfb46e4c54b238e5657"
+    },
+    {
+      "path": "prototype/contracts/screens/SCR-047.md",
+      "size": 3593,
+      "sha256": "006699a37da5d4dcc497fab1f74527f1a2a59853a582b1a1dfbe2fef3202ab5b"
+    },
+    {
+      "path": "prototype/contracts/screens/SCR-048.md",
+      "size": 3590,
+      "sha256": "ea0f49aca571a7dc423e8f713d0a714c66abf6c325d7479419fa45ea487672fd"
+    },
+    {
+      "path": "prototype/contracts/screens/SCR-049.md",
+      "size": 4052,
+      "sha256": "8468caf28cde98385a87c92129d8362f177884d66d5266bd183dd2141c53ff33"
+    },
+    {
+      "path": "prototype/contracts/screens/SCR-050.md",
+      "size": 3998,
+      "sha256": "f36765f61a78c00e187f9eeb0a33bbc8199b77ff1f2ab29d9e3183df38c13395"
+    },
+    {
+      "path": "prototype/contracts/screens/SCR-051.md",
+      "size": 3775,
+      "sha256": "f3e19906b06b319bdaf8a59625b40225025cc1c84ebb093e75ae8c1c293f1877"
+    },
+    {
+      "path": "prototype/contracts/screens/SCR-052.md",
+      "size": 4239,
+      "sha256": "70da8e68f94a9807f01903346ca83c9fc4d54fc841a2b513ad53992e9a90d659"
+    },
+    {
+      "path": "prototype/contracts/screens/SCR-053.md",
+      "size": 3760,
+      "sha256": "9fa8b94f8b675426fcd26231a9504d09e6b5f73f79be7f4ecc1a01665d7648c6"
+    },
+    {
+      "path": "prototype/contracts/screens/SCR-054.md",
+      "size": 3584,
+      "sha256": "a0cd5c55e378a460693071c5e087b3814108504b7a2c795cca9a9aa267914ddc"
+    },
+    {
+      "path": "prototype/contracts/screens/SCR-055.md",
+      "size": 3959,
+      "sha256": "8c08bc4f5dfccf4f3aa4a2efd887282c5c915aab18ce9d2ba27e077397bec36b"
+    },
+    {
+      "path": "prototype/contracts/screens/SCR-056.md",
+      "size": 3729,
+      "sha256": "20b3f5e58bff9da1d0944614ab70f92f12653f63d6f9cfde7598b55b28046c4f"
+    },
+    {
+      "path": "prototype/contracts/screens/SCR-057.md",
+      "size": 3536,
+      "sha256": "bc5a1c76e03099fc971bdcb86bdec0d6278de58847ab018f7fa4181ad67233d4"
+    },
+    {
+      "path": "prototype/contracts/screens/SCR-058.md",
+      "size": 3593,
+      "sha256": "90b1713e4568fa518203804db5437321cb887ec8bcd7afa1f105bfbaabb29f58"
+    },
+    {
+      "path": "prototype/contracts/screens/SCR-059.md",
+      "size": 3491,
+      "sha256": "55ac357f1d1e5e6b476ab0e6d8ab57b3ab6bd83d2e68a689a1ecf5de31a78b71"
+    },
+    {
+      "path": "prototype/contracts/screens/SCR-060.md",
+      "size": 4252,
+      "sha256": "38524bbbc7f55ec44dfb09f6fdf2fc82cf81104657671945861f73fa93775070"
+    },
+    {
+      "path": "prototype/contracts/screens/SCR-061.md",
+      "size": 3879,
+      "sha256": "dd8c7bc17ad6f0a56100a9c83fb219976272734afc84ac4da9b27d6d11e920d1"
+    },
+    {
+      "path": "prototype/contracts/screens/SCR-062.md",
+      "size": 3654,
+      "sha256": "54ab329f7fda77fd16fb11015f8b5d2c9d6388413cc69a60903adde6cb61d3a4"
+    },
+    {
+      "path": "prototype/contracts/screens/SCR-063.md",
+      "size": 3638,
+      "sha256": "62b97ba1d919507796e07d054cd5098b1036b575982eefc24f38af231df7cfd4"
+    },
+    {
+      "path": "prototype/contracts/screens/SCR-064.md",
+      "size": 3539,
+      "sha256": "4075c44510765d26b6dbd5a84d988e89f2ba1bc98fbf07012ef326a7352558c3"
+    },
+    {
+      "path": "prototype/contracts/screens/SCR-065.md",
+      "size": 3600,
+      "sha256": "1df86adcec735d3f50dc137791803277dd04f03aa84b4e146ae37b28edb2ef0a"
+    },
+    {
+      "path": "prototype/contracts/screens/SCR-066.md",
+      "size": 3778,
+      "sha256": "0a2ee96d6487b1774a06ebd82f7474db1417d9b31ead04a6106dad6b46a88fd0"
+    },
+    {
+      "path": "prototype/contracts/screens/SCR-067.md",
+      "size": 3620,
+      "sha256": "b0cbf5a7d71e9aa8ee0486d1960af4f3ce05fbbd4b5f275e740ae2e843c8924e"
+    },
+    {
+      "path": "prototype/contracts/screens/SCR-068.md",
+      "size": 3609,
+      "sha256": "691fcc40baf3ac684e7e4b45eae85ba34ee0283166ae0aa419e276b2e452c6b4"
+    },
+    {
+      "path": "prototype/contracts/screens/SCR-069.md",
+      "size": 3593,
+      "sha256": "594fd0f48568d7e3585e990711531f934a2cd595527c043dbc1a5625ff25c4e2"
+    },
+    {
+      "path": "prototype/contracts/screens/SCR-070.md",
+      "size": 3864,
+      "sha256": "f7f02adf925db5ff4c6e83be0bdce38a2e4dac4006d99c3eefa3401497c8f0da"
+    },
+    {
+      "path": "prototype/contracts/screens/SCR-071.md",
+      "size": 3820,
+      "sha256": "b670d69b88f816e2eeb0656b8a559bae0cd33e6e89392c09516e2867c3dafc05"
+    },
+    {
+      "path": "prototype/contracts/screens/SCR-072.md",
+      "size": 3700,
+      "sha256": "1a6bcbc900babbffce54b18c86c8ba1f98490831b2afbd44fc31b701d005c917"
+    },
+    {
+      "path": "prototype/contracts/screens/SCR-073.md",
+      "size": 3531,
+      "sha256": "6988e26796b38daa213d97ad749c0a1c9bc4757c69333b97485892e8a2e8cec8"
+    },
+    {
+      "path": "prototype/contracts/screens/SCR-074.md",
+      "size": 3693,
+      "sha256": "c9ff14bec8a698c4abbf10db7e8c6a5110ef21dcea958c4341b525108dd14308"
+    },
+    {
+      "path": "prototype/contracts/screens/SCR-075.md",
+      "size": 3761,
+      "sha256": "aaa7d6736e06c0d79ce75b5749e48f9410f403405854be62c00ad92fbb1160ff"
+    },
+    {
+      "path": "prototype/contracts/screens/SCR-076.md",
+      "size": 3717,
+      "sha256": "9e900bb3e58cb4d533705b47500e265cd26e966025099367bdfcd94757f2b28e"
+    },
+    {
+      "path": "prototype/contracts/screens/SCR-077.md",
+      "size": 3564,
+      "sha256": "cd7bfed67de8c186eb7d7c4ea3d8c02ed8a61d5c305ed30335fd457090309a71"
+    },
+    {
+      "path": "prototype/contracts/screens/SCR-078.md",
+      "size": 3809,
+      "sha256": "fa92e2ed16762e9f94f920bb37f8e397b210c569d482e8049846a7e260bb7cb8"
+    },
+    {
+      "path": "prototype/contracts/screens/SCR-079.md",
+      "size": 3952,
+      "sha256": "a66f88eca1dd128f0492dff70d5f1d50956658a9668e79ac683218f81b4e3944"
+    },
+    {
+      "path": "prototype/contracts/screens/SCR-080.md",
+      "size": 4103,
+      "sha256": "25b224d27d366aa6227906271081f6e094b4075dbae8e2c5be3809afa57e7a0c"
+    },
+    {
+      "path": "prototype/contracts/screens/SCR-081.md",
+      "size": 3740,
+      "sha256": "21ee19ae397284c58132364ede4c6e446ffc278a4a2563a01c90544d3ca8d922"
+    },
+    {
+      "path": "prototype/contracts/screens/SCR-082.md",
+      "size": 3853,
+      "sha256": "3b65bd3be3be0d97779908b8b2611b97b07dc44f1ba801f33e6c385bd2a69909"
+    },
+    {
+      "path": "prototype/contracts/screens/SCR-083.md",
+      "size": 4104,
+      "sha256": "8106f10275b30ac1c16b71a312c1ddebb7597b486f1fe88b5c4d8038f3abfd16"
+    },
+    {
+      "path": "prototype/contracts/ui-traceability.json",
+      "size": 30034,
+      "sha256": "d4f6a81db78d272bb468a43cf63cb8e9aceb6fa773e8e531fc2f22a0943dc006"
+    },
+    {
+      "path": "prototype/contracts/validation-report.json",
+      "size": 889,
+      "sha256": "78f619e65921148ceced167172aa3f0e6dc1a0b961d6e77bf21c09acaa2eca64"
+    },
+    {
+      "path": "prototype/contracts/validation-report.md",
+      "size": 832,
+      "sha256": "bc853314bec38a996bd1f18be034497654e5828afbd2356bf66b9b56cfae8452"
+    },
+    {
+      "path": "use-case-manifest.json",
+      "size": 7924,
+      "sha256": "fd8fe5503d3a19f6a5ed448750a367e2ea26ff469d1a8368e84efdffcd772d68"
+    },
+    {
+      "path": "validate_package.py",
+      "size": 10743,
+      "sha256": "771920c3b118c32a7e7eac50eb085fcb2010b5ec552390850f8e168ea54d0510"
+    },
+    {
+      "path": "validate_package.sh",
+      "size": 593,
+      "sha256": "426fffeb677bc145f532dcaadaf3920031f0b109fb00b31712db6c8d71221ef1"
+    },
+    {
+      "path": "validation-report.md",
+      "size": 620,
+      "sha256": "6d831165329ffbdbdd3fb91184d1e30ec5fe9489bde054ef10b58f2664282c68"
+    }
+  ]
+}

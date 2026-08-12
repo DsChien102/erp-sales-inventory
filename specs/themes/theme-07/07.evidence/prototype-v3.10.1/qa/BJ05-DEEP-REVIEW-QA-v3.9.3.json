@@ -1,0 +1,247 @@
+{
+  "version": "3.9.3",
+  "scope": "Wave 2 / BJ05 deep review",
+  "status": "PASS",
+  "passed": 22,
+  "total": 22,
+  "checks": [
+    {
+      "name": "Runtime package identifies v3.9.3",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Product context does not badge raw remaining quantity",
+      "pass": true,
+      "note": "9:41\nLTE  100%\nChi tiết lấy hàng\nNobivac DHPPi\nSP-000184 · hộp\nCòn cần lấy\n20 hộp\nLấy theo lô\n2 lô\nLô DH2507\nCần 4 hộp · Đã lấy 4 hộp\nLô DH2509\nCần 16 hộp · Đã lấy 8 hộp\n\nChọn từng lô để cập nhật lượng đã lấy. Tồn vật lý chỉ giảm sau khi xác nhận bàn giao.\n\nLưu lượng đã lấy"
+    },
+    {
+      "name": "Pick input uses quantity precision contract",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "LOT candidates use server pickable quantity and preserve expiry precision",
+      "pass": true,
+      "note": "Chọn lô thay thế\n\nĐổi lô cần xác nhận đã trả lô cũ và lấy lại đúng lô mới trước khi bàn giao.\n\nLô DH2509\nHSD 09/2027 · Có thể lấy 18 hộp\nLô DH2511\nHSD 2027 · Có thể lấy 22 hộp\nLý do đổi lô *\nBắt buộc để lưu vết thay đổi.\nDùng lô này"
+    },
+    {
+      "name": "Changing LOT creates structured pending physical correction",
+      "pass": true,
+      "note": {
+        "kind": "MANUAL",
+        "status": "PENDING",
+        "oldLot": "DH2507",
+        "returnQty": 4,
+        "newLot": "DH2511",
+        "repickQty": 4,
+        "actor": null,
+        "confirmedAt": null
+      }
+    },
+    {
+      "name": "Entering picked quantity does not auto-clear physical correction",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Explicit correction confirmation records actor and time",
+      "pass": true,
+      "note": {
+        "kind": "MANUAL",
+        "status": "CONFIRMED",
+        "oldLot": "DH2507",
+        "returnQty": 4,
+        "newLot": "DH2511",
+        "repickQty": 4,
+        "actor": "Nguyễn Văn An",
+        "confirmedAt": "16/09/2026 13:06",
+        "actorId": "USR-WH-001"
+      }
+    },
+    {
+      "name": "Partial handover increments consumed without shrinking allocated/picked/requested",
+      "pass": true,
+      "note": {
+        "before": {
+          "allocated": 4,
+          "picked": 4,
+          "requested": 20
+        },
+        "after": {
+          "allocated": 4,
+          "picked": 4,
+          "consumed": 2,
+          "requested": 20,
+          "delivered": 2,
+          "remaining": 18
+        },
+        "result": {
+          "orderId": "SO-260827-21",
+          "customer": "Đại lý An Phú",
+          "handed": 2,
+          "remaining": 24,
+          "full": false,
+          "detail": [
+            {
+              "product": "Nobivac DHPPi",
+              "code": "SP-000184",
+              "uom": "hộp",
+              "lot": "DH2507",
+              "qty": 2
+            }
+          ],
+          "confirmedAt": "16/09/2026 13:08",
+          "evidence": {
+            "handoverId": "HO-SO-260827-21-01",
+            "operationId": "IO-HO-SO26082721-01",
+            "sourceId": "SO-260827-21",
+            "sourceVersion": 7,
+            "warehouse": "Kho chính",
+            "actorId": "USR-WH-001",
+            "actorName": "Nguyễn Văn An",
+            "confirmedAt": "16/09/2026 13:08",
+            "allocationSetId": "AS-21",
+            "allocationVersion": 5,
+            "lines": [
+              {
+                "allocationId": "AL-21-01",
+                "productId": "SP-000184",
+                "uom": "hộp",
+                "baseUom": "hộp",
+                "sourceQty": 2,
+                "actualBaseQty": 2,
+                "lot": "DH2507",
+                "conversionVersion": "UOM-SP000184-v2"
+              }
+            ],
+            "evidenceHash": "sha256:SO-260827-21:5:1"
+          }
+        }
+      }
+    },
+    {
+      "name": "Handover writes immutable evidence identity/actor/source/allocation version",
+      "pass": true,
+      "note": {
+        "handoverId": "HO-SO-260827-21-01",
+        "operationId": "IO-HO-SO26082721-01",
+        "sourceId": "SO-260827-21",
+        "sourceVersion": 7,
+        "warehouse": "Kho chính",
+        "actorId": "USR-WH-001",
+        "actorName": "Nguyễn Văn An",
+        "confirmedAt": "16/09/2026 13:08",
+        "allocationSetId": "AS-21",
+        "allocationVersion": 5,
+        "lines": [
+          {
+            "allocationId": "AL-21-01",
+            "productId": "SP-000184",
+            "uom": "hộp",
+            "baseUom": "hộp",
+            "sourceQty": 2,
+            "actualBaseQty": 2,
+            "lot": "DH2507",
+            "conversionVersion": "UOM-SP000184-v2"
+          }
+        ],
+        "evidenceHash": "sha256:SO-260827-21:5:1"
+      }
+    },
+    {
+      "name": "Result shows authoritative handover timestamp",
+      "pass": true,
+      "note": "9:41\nLTE  100%\nKết quả bàn giao\nĐã bàn giao một phần\n\nĐã ghi giảm tồn theo đúng lượng thực bàn giao. Phần còn lại tiếp tục ở đơn này.\n\nĐơn\nSO-260827-21\nKhách hàng\nĐại lý An Phú\nBàn giao lúc\n16/09/2026 13:08\nBàn giao thực tế\n1 phần hàng\nNobivac DHPPi\nSP-000184 · Lô DH2507\n2 hộp\nCòn lại\n2 dòng hàng\nNobivac DHPPi\nSP-000184 · Còn cần lấy\n18 hộp\nGăng tay khám Nitrile\nSP-000271 · Còn cần lấy\n6 hộp\nTiếp tục phần còn lại"
+    },
+    {
+      "name": "UNKNOWN marks fulfillment VERIFYING and preserves exact operation identity",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "VERIFYING queue row is non-actionable and distinct from waiting",
+      "pass": true,
+      "note": "SO-260827-21\nĐại lý An Phú · Kho chính\nĐang xác minh bàn giao"
+    },
+    {
+      "name": "VERIFYING order cannot reopen pick/handover",
+      "pass": true,
+      "note": [
+        "SCR-025",
+        "SCR-025"
+      ]
+    },
+    {
+      "name": "Representative runtime has no horizontal overflow",
+      "pass": true,
+      "note": {
+        "sw": 402,
+        "cw": 402
+      }
+    },
+    {
+      "name": "No browser errors",
+      "pass": true,
+      "note": []
+    },
+    {
+      "name": "Decision register contains BJ05 locks T7-DR-122..130",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "PickAllocation stores allocated/picked/consumed separately",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "HandoverEvidence is an explicit immutable entity",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Behavioral contract prohibits rewriting pick/allocation history",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Runtime no longer mutates legacy required/qty/picked fields in BJ05",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "UIF-05 documents UNKNOWN verification lock",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Integrated Warehouse Home patch freezes the verifying pick task",
+      "pass": true,
+      "note": ""
+    }
+  ],
+  "browserErrors": [],
+  "captures": [
+    {
+      "file": "01-SCR027-LOT-PICKABLE-PRECISION.png",
+      "label": "LOT candidate uses server pickable quantity and original expiry precision"
+    },
+    {
+      "file": "02-SCR027-PHYSICAL-CORRECTION.png",
+      "label": "Physical correction requires explicit actor assertion"
+    },
+    {
+      "file": "03-SCR029-PARTIAL-IMMUTABLE.png",
+      "label": "Partial handover result includes authoritative handover timestamp"
+    },
+    {
+      "file": "04-SCR029-UNKNOWN-VERIFYING.png",
+      "label": "UNKNOWN freezes handover finality"
+    },
+    {
+      "file": "05-SCR025-VERIFYING-NONACTIONABLE.png",
+      "label": "Verification task is disabled in BJ05 queue"
+    }
+  ]
+}

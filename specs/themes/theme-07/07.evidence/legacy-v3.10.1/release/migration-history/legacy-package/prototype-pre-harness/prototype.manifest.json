@@ -1,0 +1,26 @@
+{
+  "version": "4.1.0",
+  "evidence_level": "STATIC_VALIDATED",
+  "authority": "prototype/contracts/screen-catalog.json",
+  "entrypoint": "index.html",
+  "mobile_first": {
+    "design_width_px": 390,
+    "minimum_supported_width_px": 360
+  },
+  "separation": {
+    "controller": "[data-prototype-only] — không thuộc sản phẩm",
+    "expected_product_ui": "[data-design-viewport] — thuộc sản phẩm",
+    "trace": "[data-trace-only] — không thuộc sản phẩm"
+  },
+  "coverage": {
+    "screen_groups": 14,
+    "screens": 83,
+    "states": 479,
+    "actions": 33
+  },
+  "constraints": [
+    "Không gọi API hoặc tải tài nguyên ngoài.",
+    "Không phải bằng chứng backend đã triển khai.",
+    "Mọi Screen, State và Action được sinh từ cùng screen catalog với UI Contracts."
+  ]
+}

@@ -1,0 +1,7 @@
+{
+  "status": "PASS",
+  "renders": 89,
+  "failures": [],
+  "errors": [],
+  "regressionRunner": "v3.8.3 gate logic rerun against v3.9.0 package"
+}

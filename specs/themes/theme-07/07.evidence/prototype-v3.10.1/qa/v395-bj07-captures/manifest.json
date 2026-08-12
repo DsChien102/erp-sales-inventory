@@ -1,0 +1,22 @@
+[
+  {
+    "file": "01-SCR036-SOURCE-OWNED-QUEUE.png",
+    "label": "Supplier-return work appears from source sync without a fake state-mutation action"
+  },
+  {
+    "file": "02-SCR037-SOURCE-SLICE.png",
+    "label": "Only ambiguous stock-state composition asks the warehouse user to identify the source stock"
+  },
+  {
+    "file": "03-SCR037-STRUCTURED-MISMATCH-WAITING.png",
+    "label": "Physical mismatch is an observation and the warehouse task waits read-only for a new source version"
+  },
+  {
+    "file": "04-SCR039-FINAL-HANDOVER-REVIEW.png",
+    "label": "Final handover review contains business context and only the source-state fact the user had to resolve"
+  },
+  {
+    "file": "05-SCR041-SOURCE-AGNOSTIC-EVIDENCE-RESULT.png",
+    "label": "Completed handover shows business finality and timestamp while evidence remains authoritative behind the result"
+  }
+]

@@ -1,0 +1,1083 @@
+[
+  {
+    "uc": "UC-01-01",
+    "bj": "BJ-01",
+    "bcs": [
+      "BC-IO-01",
+      "BC-IO-14",
+      "SBC-COM-02",
+      "SBC-COM-03"
+    ],
+    "screens": [
+      "SCR-001"
+    ],
+    "be_slice": "BE-01-01"
+  },
+  {
+    "uc": "UC-01-02",
+    "bj": "BJ-01",
+    "bcs": [
+      "BC-IO-01",
+      "SBC-COM-02",
+      "SBC-COM-03"
+    ],
+    "screens": [
+      "SCR-003",
+      "SCR-004"
+    ],
+    "be_slice": "BE-01-02"
+  },
+  {
+    "uc": "UC-01-03",
+    "bj": "BJ-01",
+    "bcs": [
+      "BC-IO-01",
+      "SBC-COM-02",
+      "SBC-COM-03"
+    ],
+    "screens": [
+      "SCR-003",
+      "SCR-005"
+    ],
+    "be_slice": "BE-01-03"
+  },
+  {
+    "uc": "UC-01-04",
+    "bj": "BJ-01",
+    "bcs": [
+      "BC-IO-14",
+      "SBC-COM-02",
+      "SBC-COM-03"
+    ],
+    "screens": [
+      "SCR-001",
+      "SCR-003"
+    ],
+    "be_slice": "BE-01-04"
+  },
+  {
+    "uc": "UC-01-05",
+    "bj": "BJ-01",
+    "bcs": [
+      "BC-IO-14",
+      "SBC-COM-02",
+      "SBC-COM-03"
+    ],
+    "screens": [
+      "SCR-001",
+      "SCR-003",
+      "SCR-004"
+    ],
+    "be_slice": "BE-01-05"
+  },
+  {
+    "uc": "UC-02-01",
+    "bj": "BJ-02",
+    "bcs": [
+      "BC-IC-07",
+      "BC-IO-16",
+      "SBC-COM-01",
+      "SBC-COM-02",
+      "SBC-COM-03",
+      "SBC-COM-04"
+    ],
+    "screens": [
+      "SCR-006",
+      "SCR-007",
+      "SCR-009",
+      "SCR-010",
+      "SCR-084"
+    ],
+    "be_slice": "BE-02-01"
+  },
+  {
+    "uc": "UC-02-02",
+    "bj": "BJ-02",
+    "bcs": [
+      "BC-IC-07",
+      "BC-IO-16",
+      "SBC-COM-01",
+      "SBC-COM-02",
+      "SBC-COM-03",
+      "SBC-COM-04"
+    ],
+    "screens": [
+      "SCR-006",
+      "SCR-008",
+      "SCR-009",
+      "SCR-010",
+      "SCR-084"
+    ],
+    "be_slice": "BE-02-02"
+  },
+  {
+    "uc": "UC-02-03",
+    "bj": "BJ-02",
+    "bcs": [
+      "BC-IC-06",
+      "SBC-COM-01",
+      "SBC-COM-02",
+      "SBC-COM-03",
+      "SBC-COM-04"
+    ],
+    "screens": [
+      "SCR-010",
+      "SCR-011"
+    ],
+    "be_slice": "BE-02-03"
+  },
+  {
+    "uc": "UC-02-04",
+    "bj": "BJ-02",
+    "bcs": [
+      "BC-IO-02",
+      "SBC-COM-01",
+      "SBC-COM-02",
+      "SBC-COM-03",
+      "SBC-COM-04"
+    ],
+    "screens": [
+      "SCR-012"
+    ],
+    "be_slice": "BE-02-04"
+  },
+  {
+    "uc": "UC-02-05",
+    "bj": "BJ-02",
+    "bcs": [
+      "BC-IO-02",
+      "SBC-COM-01",
+      "SBC-COM-03",
+      "SBC-COM-04"
+    ],
+    "screens": [
+      "SCR-012",
+      "SCR-013"
+    ],
+    "be_slice": "BE-02-05"
+  },
+  {
+    "uc": "UC-03-01",
+    "bj": "BJ-03",
+    "bcs": [
+      "BC-IV-01",
+      "BC-IV-05",
+      "SBC-COM-01",
+      "SBC-COM-02",
+      "SBC-COM-03",
+      "SBC-COM-04"
+    ],
+    "screens": [
+      "SCR-014",
+      "SCR-015"
+    ],
+    "be_slice": "BE-03-01"
+  },
+  {
+    "uc": "UC-03-02",
+    "bj": "BJ-03",
+    "bcs": [
+      "BC-IV-01",
+      "BC-IV-05",
+      "SBC-COM-01",
+      "SBC-COM-02",
+      "SBC-COM-03",
+      "SBC-COM-04"
+    ],
+    "screens": [
+      "SCR-015",
+      "SCR-016",
+      "SCR-017"
+    ],
+    "be_slice": "BE-03-02"
+  },
+  {
+    "uc": "UC-03-03",
+    "bj": "BJ-03",
+    "bcs": [
+      "BC-IV-01",
+      "SBC-COM-01",
+      "SBC-COM-02",
+      "SBC-COM-03",
+      "SBC-COM-04"
+    ],
+    "screens": [
+      "SCR-017",
+      "SCR-019"
+    ],
+    "be_slice": "BE-03-03"
+  },
+  {
+    "uc": "UC-04-01",
+    "bj": "BJ-04",
+    "bcs": [
+      "BC-IO-03"
+    ],
+    "screens": [
+      "SCR-021"
+    ],
+    "be_slice": "BE-04-01"
+  },
+  {
+    "uc": "UC-04-02",
+    "bj": "BJ-04",
+    "bcs": [
+      "BC-IO-06"
+    ],
+    "screens": [
+      "SCR-021"
+    ],
+    "be_slice": "BE-04-02"
+  },
+  {
+    "uc": "UC-04-03",
+    "bj": "BJ-04",
+    "bcs": [
+      "BC-IO-06"
+    ],
+    "screens": [
+      "SCR-021"
+    ],
+    "be_slice": "BE-04-03"
+  },
+  {
+    "uc": "UC-04-04",
+    "bj": "BJ-04",
+    "bcs": [
+      "BC-IO-06"
+    ],
+    "screens": [
+      "SCR-021"
+    ],
+    "be_slice": "BE-04-04"
+  },
+  {
+    "uc": "UC-05-01",
+    "bj": "BJ-05",
+    "bcs": [
+      "BC-IO-15",
+      "SBC-COM-01",
+      "SBC-COM-02",
+      "SBC-COM-03",
+      "SBC-COM-04"
+    ],
+    "screens": [
+      "SCR-025",
+      "SCR-026"
+    ],
+    "be_slice": "BE-05-01"
+  },
+  {
+    "uc": "UC-05-02",
+    "bj": "BJ-05",
+    "bcs": [
+      "BC-IO-15",
+      "SBC-COM-01",
+      "SBC-COM-02",
+      "SBC-COM-03",
+      "SBC-COM-04"
+    ],
+    "screens": [
+      "SCR-027"
+    ],
+    "be_slice": "BE-05-02"
+  },
+  {
+    "uc": "UC-05-03",
+    "bj": "BJ-05",
+    "bcs": [
+      "BC-IO-05",
+      "SBC-COM-01",
+      "SBC-COM-02",
+      "SBC-COM-03",
+      "SBC-COM-04"
+    ],
+    "screens": [
+      "SCR-028",
+      "SCR-029"
+    ],
+    "be_slice": "BE-05-03"
+  },
+  {
+    "uc": "UC-05-04",
+    "bj": "BJ-05",
+    "bcs": [
+      "BC-IO-06",
+      "BC-IO-15",
+      "SBC-COM-01",
+      "SBC-COM-02",
+      "SBC-COM-03",
+      "SBC-COM-04"
+    ],
+    "screens": [
+      "SCR-026",
+      "SCR-027"
+    ],
+    "be_slice": "BE-05-04"
+  },
+  {
+    "uc": "UC-05-05",
+    "bj": "BJ-05",
+    "bcs": [
+      "BC-IO-04",
+      "BC-IO-05",
+      "SBC-COM-01",
+      "SBC-COM-02",
+      "SBC-COM-03",
+      "SBC-COM-04"
+    ],
+    "screens": [
+      "SCR-028",
+      "SCR-029"
+    ],
+    "be_slice": "BE-05-05"
+  },
+  {
+    "uc": "UC-06-01",
+    "bj": "BJ-06",
+    "bcs": [
+      "BC-IO-07",
+      "SBC-COM-01",
+      "SBC-COM-02",
+      "SBC-COM-03",
+      "SBC-COM-04"
+    ],
+    "screens": [
+      "SCR-030",
+      "SCR-031"
+    ],
+    "be_slice": "BE-06-01"
+  },
+  {
+    "uc": "UC-06-02",
+    "bj": "BJ-06",
+    "bcs": [
+      "BC-IO-07",
+      "SBC-COM-01",
+      "SBC-COM-02",
+      "SBC-COM-03",
+      "SBC-COM-04"
+    ],
+    "screens": [
+      "SCR-031",
+      "SCR-032",
+      "SCR-034"
+    ],
+    "be_slice": "BE-06-02"
+  },
+  {
+    "uc": "UC-06-03",
+    "bj": "BJ-06",
+    "bcs": [
+      "BC-IO-07",
+      "SBC-COM-01",
+      "SBC-COM-02",
+      "SBC-COM-03",
+      "SBC-COM-04"
+    ],
+    "screens": [
+      "SCR-031",
+      "SCR-032",
+      "SCR-035"
+    ],
+    "be_slice": "BE-06-03"
+  },
+  {
+    "uc": "UC-06-04",
+    "bj": "BJ-06",
+    "bcs": [
+      "BC-IO-08",
+      "SBC-COM-01",
+      "SBC-COM-02",
+      "SBC-COM-03",
+      "SBC-COM-04"
+    ],
+    "screens": [
+      "SCR-033",
+      "SCR-035"
+    ],
+    "be_slice": "BE-06-04"
+  },
+  {
+    "uc": "UC-07-01",
+    "bj": "BJ-07",
+    "bcs": [
+      "BC-IO-17",
+      "SBC-COM-01",
+      "SBC-COM-02",
+      "SBC-COM-03",
+      "SBC-COM-04"
+    ],
+    "screens": [
+      "SCR-036",
+      "SCR-037"
+    ],
+    "be_slice": "BE-07-01"
+  },
+  {
+    "uc": "UC-07-02",
+    "bj": "BJ-07",
+    "bcs": [
+      "BC-IO-17",
+      "SBC-COM-01",
+      "SBC-COM-02",
+      "SBC-COM-03",
+      "SBC-COM-04"
+    ],
+    "screens": [
+      "SCR-036",
+      "SCR-037",
+      "SCR-038"
+    ],
+    "be_slice": "BE-07-02"
+  },
+  {
+    "uc": "UC-07-03",
+    "bj": "BJ-07",
+    "bcs": [
+      "BC-IO-17",
+      "SBC-COM-01",
+      "SBC-COM-02",
+      "SBC-COM-03",
+      "SBC-COM-04"
+    ],
+    "screens": [
+      "SCR-036",
+      "SCR-037"
+    ],
+    "be_slice": "BE-07-03"
+  },
+  {
+    "uc": "UC-07-04",
+    "bj": "BJ-07",
+    "bcs": [
+      "BC-IO-09",
+      "SBC-COM-01",
+      "SBC-COM-02",
+      "SBC-COM-03",
+      "SBC-COM-04"
+    ],
+    "screens": [
+      "SCR-039",
+      "SCR-041"
+    ],
+    "be_slice": "BE-07-04"
+  },
+  {
+    "uc": "UC-08-01",
+    "bj": "BJ-08",
+    "bcs": [
+      "BC-IC-01"
+    ],
+    "screens": [
+      "SCR-042",
+      "SCR-043"
+    ],
+    "be_slice": "BE-08-01"
+  },
+  {
+    "uc": "UC-08-02",
+    "bj": "BJ-08",
+    "bcs": [
+      "BC-IC-02"
+    ],
+    "screens": [
+      "SCR-044",
+      "SCR-046"
+    ],
+    "be_slice": "BE-08-02"
+  },
+  {
+    "uc": "UC-08-03",
+    "bj": "BJ-08",
+    "bcs": [
+      "BC-IC-02"
+    ],
+    "screens": [
+      "SCR-045"
+    ],
+    "be_slice": "BE-08-03"
+  },
+  {
+    "uc": "UC-08-04",
+    "bj": "BJ-08",
+    "bcs": [
+      "BC-IC-03"
+    ],
+    "screens": [
+      "SCR-046",
+      "SCR-047"
+    ],
+    "be_slice": "BE-08-04"
+  },
+  {
+    "uc": "UC-08-05",
+    "bj": "BJ-08",
+    "bcs": [
+      "BC-IC-08"
+    ],
+    "screens": [
+      "SCR-042",
+      "SCR-044",
+      "SCR-045",
+      "SCR-047"
+    ],
+    "be_slice": "BE-08-05"
+  },
+  {
+    "uc": "UC-09-01",
+    "bj": "BJ-09",
+    "bcs": [
+      "BC-IC-07",
+      "BC-IO-16",
+      "SBC-COM-01",
+      "SBC-COM-02",
+      "SBC-COM-03",
+      "SBC-COM-04"
+    ],
+    "screens": [
+      "SCR-036",
+      "SCR-037",
+      "SCR-038"
+    ],
+    "be_slice": "BE-09-01"
+  },
+  {
+    "uc": "UC-09-02",
+    "bj": "BJ-09",
+    "bcs": [
+      "BC-IC-06",
+      "SBC-COM-01",
+      "SBC-COM-02",
+      "SBC-COM-03",
+      "SBC-COM-04"
+    ],
+    "screens": [
+      "SCR-038",
+      "SCR-041"
+    ],
+    "be_slice": "BE-09-02"
+  },
+  {
+    "uc": "UC-09-03",
+    "bj": "BJ-09",
+    "bcs": [
+      "BC-IO-10",
+      "SBC-COM-01",
+      "SBC-COM-02",
+      "SBC-COM-03",
+      "SBC-COM-04"
+    ],
+    "screens": [
+      "SCR-036",
+      "SCR-037",
+      "SCR-041"
+    ],
+    "be_slice": "BE-09-03"
+  },
+  {
+    "uc": "UC-09-04",
+    "bj": "BJ-09",
+    "bcs": [
+      "BC-IO-10",
+      "SBC-COM-01",
+      "SBC-COM-02",
+      "SBC-COM-03",
+      "SBC-COM-04"
+    ],
+    "screens": [
+      "SCR-038",
+      "SCR-041",
+      "SCR-056"
+    ],
+    "be_slice": "BE-09-04"
+  },
+  {
+    "uc": "UC-10-01",
+    "bj": "BJ-10",
+    "bcs": [
+      "BC-IC-07",
+      "BC-IO-16",
+      "SBC-COM-01",
+      "SBC-COM-02",
+      "SBC-COM-03",
+      "SBC-COM-04"
+    ],
+    "screens": [
+      "SCR-036",
+      "SCR-037",
+      "SCR-040"
+    ],
+    "be_slice": "BE-10-01"
+  },
+  {
+    "uc": "UC-10-02",
+    "bj": "BJ-10",
+    "bcs": [
+      "BC-IC-06",
+      "SBC-COM-01",
+      "SBC-COM-02",
+      "SBC-COM-03",
+      "SBC-COM-04"
+    ],
+    "screens": [
+      "SCR-040"
+    ],
+    "be_slice": "BE-10-02"
+  },
+  {
+    "uc": "UC-10-03",
+    "bj": "BJ-10",
+    "bcs": [
+      "BC-IO-11",
+      "SBC-COM-01",
+      "SBC-COM-02",
+      "SBC-COM-03",
+      "SBC-COM-04"
+    ],
+    "screens": [
+      "SCR-040"
+    ],
+    "be_slice": "BE-10-03"
+  },
+  {
+    "uc": "UC-10-04",
+    "bj": "BJ-10",
+    "bcs": [
+      "BC-IO-11",
+      "SBC-COM-01",
+      "SBC-COM-02",
+      "SBC-COM-03",
+      "SBC-COM-04"
+    ],
+    "screens": [
+      "SCR-041"
+    ],
+    "be_slice": "BE-10-04"
+  },
+  {
+    "uc": "UC-11-01",
+    "bj": "BJ-11",
+    "bcs": [
+      "BC-IC-07",
+      "BC-IO-16",
+      "SBC-COM-01",
+      "SBC-COM-02",
+      "SBC-COM-03",
+      "SBC-COM-04"
+    ],
+    "screens": [
+      "SCR-048",
+      "SCR-049",
+      "SCR-050"
+    ],
+    "be_slice": "BE-11-01"
+  },
+  {
+    "uc": "UC-11-02",
+    "bj": "BJ-11",
+    "bcs": [
+      "BC-IO-12",
+      "SBC-COM-01",
+      "SBC-COM-02",
+      "SBC-COM-03",
+      "SBC-COM-04"
+    ],
+    "screens": [
+      "SCR-052",
+      "SCR-053"
+    ],
+    "be_slice": "BE-11-02"
+  },
+  {
+    "uc": "UC-11-03",
+    "bj": "BJ-11",
+    "bcs": [
+      "BC-IC-07",
+      "BC-IO-16",
+      "SBC-COM-01",
+      "SBC-COM-02",
+      "SBC-COM-03",
+      "SBC-COM-04"
+    ],
+    "screens": [
+      "SCR-049",
+      "SCR-052"
+    ],
+    "be_slice": "BE-11-03"
+  },
+  {
+    "uc": "UC-11-04",
+    "bj": "BJ-11",
+    "bcs": [
+      "BC-IC-06",
+      "SBC-COM-01",
+      "SBC-COM-02",
+      "SBC-COM-03",
+      "SBC-COM-04"
+    ],
+    "screens": [
+      "SCR-051",
+      "SCR-053"
+    ],
+    "be_slice": "BE-11-04"
+  },
+  {
+    "uc": "UC-11-05",
+    "bj": "BJ-11",
+    "bcs": [
+      "BC-IO-13",
+      "SBC-COM-01",
+      "SBC-COM-02",
+      "SBC-COM-03",
+      "SBC-COM-04"
+    ],
+    "screens": [
+      "SCR-049",
+      "SCR-053"
+    ],
+    "be_slice": "BE-11-05"
+  },
+  {
+    "uc": "UC-12-01",
+    "bj": "BJ-12",
+    "bcs": [
+      "BC-IC-09",
+      "SBC-COM-01",
+      "SBC-COM-02",
+      "SBC-COM-03",
+      "SBC-COM-04"
+    ],
+    "screens": [
+      "SCR-066",
+      "SCR-067",
+      "SCR-068"
+    ],
+    "be_slice": "BE-12-01"
+  },
+  {
+    "uc": "UC-12-02",
+    "bj": "BJ-12",
+    "bcs": [
+      "BC-IC-06",
+      "SBC-COM-01",
+      "SBC-COM-02",
+      "SBC-COM-03",
+      "SBC-COM-04"
+    ],
+    "screens": [
+      "SCR-069",
+      "SCR-070"
+    ],
+    "be_slice": "BE-12-02"
+  },
+  {
+    "uc": "UC-12-03",
+    "bj": "BJ-12",
+    "bcs": [
+      "BC-IC-04",
+      "SBC-COM-01",
+      "SBC-COM-02",
+      "SBC-COM-03",
+      "SBC-COM-04"
+    ],
+    "screens": [
+      "SCR-070",
+      "SCR-071"
+    ],
+    "be_slice": "BE-12-03"
+  },
+  {
+    "uc": "UC-13-01",
+    "bj": "BJ-13",
+    "bcs": [
+      "BC-IV-06",
+      "SBC-COM-01",
+      "SBC-COM-02",
+      "SBC-COM-03",
+      "SBC-COM-04"
+    ],
+    "screens": [
+      "SCR-085",
+      "SCR-086"
+    ],
+    "be_slice": "BE-13-01"
+  },
+  {
+    "uc": "UC-13-02",
+    "bj": "BJ-13",
+    "bcs": [
+      "BC-IV-06",
+      "SBC-COM-01",
+      "SBC-COM-02",
+      "SBC-COM-03",
+      "SBC-COM-04"
+    ],
+    "screens": [
+      "SCR-087"
+    ],
+    "be_slice": "BE-13-02"
+  },
+  {
+    "uc": "UC-13-03",
+    "bj": "BJ-13",
+    "bcs": [
+      "BC-IV-04",
+      "SBC-COM-01",
+      "SBC-COM-02",
+      "SBC-COM-03",
+      "SBC-COM-04"
+    ],
+    "screens": [
+      "SCR-088",
+      "SCR-089"
+    ],
+    "be_slice": "BE-13-03"
+  },
+  {
+    "uc": "UC-14-01",
+    "bj": "BJ-14",
+    "bcs": [
+      "BC-IV-02",
+      "SBC-COM-01",
+      "SBC-COM-02",
+      "SBC-COM-03",
+      "SBC-COM-04"
+    ],
+    "screens": [
+      "SCR-072",
+      "SCR-073"
+    ],
+    "be_slice": "BE-14-01"
+  },
+  {
+    "uc": "UC-14-02",
+    "bj": "BJ-14",
+    "bcs": [
+      "BC-IV-02",
+      "SBC-COM-01",
+      "SBC-COM-02",
+      "SBC-COM-03",
+      "SBC-COM-04"
+    ],
+    "screens": [
+      "SCR-074"
+    ],
+    "be_slice": "BE-14-02"
+  },
+  {
+    "uc": "UC-14-03",
+    "bj": "BJ-14",
+    "bcs": [
+      "SBC-COM-01",
+      "SBC-COM-02",
+      "SBC-COM-03",
+      "SBC-COM-04"
+    ],
+    "screens": [
+      "SCR-074",
+      "SCR-076"
+    ],
+    "be_slice": "BE-14-03"
+  },
+  {
+    "uc": "UC-14-04",
+    "bj": "BJ-14",
+    "bcs": [
+      "BC-IV-03",
+      "SBC-COM-01",
+      "SBC-COM-02",
+      "SBC-COM-03",
+      "SBC-COM-04"
+    ],
+    "screens": [
+      "SCR-076",
+      "SCR-077"
+    ],
+    "be_slice": "BE-14-04"
+  },
+  {
+    "uc": "UC-15-01",
+    "bj": "BJ-15",
+    "bcs": [
+      "BC-IO-01",
+      "SBC-COM-02",
+      "SBC-COM-03"
+    ],
+    "screens": [
+      "SCR-054"
+    ],
+    "be_slice": "BE-15-01"
+  },
+  {
+    "uc": "UC-15-02",
+    "bj": "BJ-15",
+    "bcs": [
+      "BC-IO-01",
+      "SBC-COM-02",
+      "SBC-COM-03"
+    ],
+    "screens": [
+      "SCR-055"
+    ],
+    "be_slice": "BE-15-02"
+  },
+  {
+    "uc": "UC-15-03",
+    "bj": "BJ-15",
+    "bcs": [
+      "BC-IO-01",
+      "SBC-COM-02",
+      "SBC-COM-03"
+    ],
+    "screens": [
+      "SCR-055",
+      "SCR-056",
+      "SCR-057"
+    ],
+    "be_slice": "BE-15-03"
+  },
+  {
+    "uc": "UC-15-04",
+    "bj": "BJ-15",
+    "bcs": [
+      "BC-IO-01",
+      "SBC-COM-02",
+      "SBC-COM-03"
+    ],
+    "screens": [
+      "SCR-058",
+      "SCR-059"
+    ],
+    "be_slice": "BE-15-04"
+  },
+  {
+    "uc": "UC-16-01",
+    "bj": "BJ-16",
+    "bcs": [
+      "BC-IC-05",
+      "SBC-COM-01",
+      "SBC-COM-02",
+      "SBC-COM-03",
+      "SBC-COM-04"
+    ],
+    "screens": [
+      "SCR-078"
+    ],
+    "be_slice": "BE-16-01"
+  },
+  {
+    "uc": "UC-16-02",
+    "bj": "BJ-16",
+    "bcs": [
+      "BC-IC-05",
+      "SBC-COM-01",
+      "SBC-COM-02",
+      "SBC-COM-03",
+      "SBC-COM-04"
+    ],
+    "screens": [
+      "SCR-079",
+      "SCR-080"
+    ],
+    "be_slice": "BE-16-02"
+  },
+  {
+    "uc": "UC-16-03",
+    "bj": "BJ-16",
+    "bcs": [
+      "BC-IC-05",
+      "SBC-COM-01",
+      "SBC-COM-02",
+      "SBC-COM-03",
+      "SBC-COM-04"
+    ],
+    "screens": [
+      "SCR-079",
+      "SCR-080"
+    ],
+    "be_slice": "BE-16-03"
+  },
+  {
+    "uc": "UC-16-04",
+    "bj": "BJ-16",
+    "bcs": [
+      "BC-IC-05",
+      "SBC-COM-01",
+      "SBC-COM-02",
+      "SBC-COM-03",
+      "SBC-COM-04"
+    ],
+    "screens": [
+      "SCR-082",
+      "SCR-083"
+    ],
+    "be_slice": "BE-16-04"
+  },
+  {
+    "uc": "UC-17-01",
+    "bj": "BJ-17",
+    "bcs": [
+      "BC-IC-05",
+      "SBC-COM-01",
+      "SBC-COM-02",
+      "SBC-COM-03",
+      "SBC-COM-04"
+    ],
+    "screens": [
+      "SCR-078",
+      "SCR-079"
+    ],
+    "be_slice": "BE-17-01"
+  },
+  {
+    "uc": "UC-17-02",
+    "bj": "BJ-17",
+    "bcs": [
+      "BC-IC-05",
+      "SBC-COM-01",
+      "SBC-COM-02",
+      "SBC-COM-03",
+      "SBC-COM-04"
+    ],
+    "screens": [
+      "SCR-080",
+      "SCR-082",
+      "SCR-083"
+    ],
+    "be_slice": "BE-17-02"
+  },
+  {
+    "uc": "UC-17-03",
+    "bj": "BJ-17",
+    "bcs": [
+      "BC-IC-05",
+      "SBC-COM-01",
+      "SBC-COM-02",
+      "SBC-COM-03",
+      "SBC-COM-04"
+    ],
+    "screens": [
+      "SCR-080",
+      "SCR-082",
+      "SCR-083"
+    ],
+    "be_slice": "BE-17-03"
+  },
+  {
+    "uc": "UC-17-04",
+    "bj": "BJ-17",
+    "bcs": [
+      "BC-IC-05",
+      "SBC-COM-01",
+      "SBC-COM-02",
+      "SBC-COM-03",
+      "SBC-COM-04"
+    ],
+    "screens": [
+      "SCR-079",
+      "SCR-083"
+    ],
+    "be_slice": "BE-17-04"
+  }
+]

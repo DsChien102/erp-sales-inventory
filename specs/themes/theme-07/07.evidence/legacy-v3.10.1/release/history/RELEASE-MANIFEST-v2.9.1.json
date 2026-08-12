@@ -1,0 +1,43 @@
+{
+  "version": "2.9.1",
+  "parent": "2.9.0",
+  "status": "BJ07_UX_HIERARCHY_CORRECTED_REVIEW_READY",
+  "scope": [
+    "BJ07 flat homogeneous supplier-return queue",
+    "BJ07 Product+UOM versus LOT/allocation hierarchy correction",
+    "BJ07 handover/result evidence hierarchy correction",
+    "preserve v2.9.0 business behavior and prior migrated BJ behavior"
+  ],
+  "productViewport": {
+    "width": 402,
+    "height": 874
+  },
+  "reviewDeviceBorderBox": {
+    "width": 418,
+    "height": 890,
+    "bezel": 8
+  },
+  "businessBehaviorChanged": false,
+  "newFeatureComponentsCreated": 0,
+  "productWiring": [
+    "UIF-01",
+    "UIF-02",
+    "UIF-04",
+    "UIF-05",
+    "UIF-06",
+    "UIF-07",
+    "UIF-08"
+  ],
+  "qa": {
+    "bj07FigmaDsUx": "PASS 52/52",
+    "allFlowRuntime": "PASS 85/85 · 0 browser errors",
+    "priorBjRegression": "PASS 23/23",
+    "bj05Bj06Regression": "PASS 32/32",
+    "deviceFrame": "PASS 7/7 · 85 screens checked",
+    "reviewWorkbenchFit": "PASS 3/3",
+    "mobilePrototypeValidator": "PASS · 0 findings",
+    "javascriptSyntax": "PASS",
+    "visualReview": "PASS · 9 captures"
+  },
+  "summary": "BJ07 UX hierarchy correction: one homogeneous queue, distinct Product+UOM parent versus LOT child, and scan-friendly handover/result evidence using live Figma DS components."
+}

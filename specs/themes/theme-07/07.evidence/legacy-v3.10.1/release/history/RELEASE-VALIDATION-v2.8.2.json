@@ -1,0 +1,885 @@
+{
+  "version": "2.8.2",
+  "parentVersion": "2.8.1",
+  "status": "PASS",
+  "reviewReady": true,
+  "gates": {
+    "bj05Bj06Ux": {
+      "status": "PASS",
+      "passed": 32,
+      "total": 32,
+      "checks": [
+        {
+          "name": "SCR027 renders one canonical Navigation row per LOT",
+          "pass": true,
+          "note": 2
+        },
+        {
+          "name": "SCR027 LOT rows share exact 76px geometry",
+          "pass": true,
+          "note": [
+            76,
+            76
+          ]
+        },
+        {
+          "name": "SCR027 main overview has no inline quantity field",
+          "pass": true,
+          "note": ""
+        },
+        {
+          "name": "SCR027 LOT rows expose required and picked quantity without prose blocks",
+          "pass": true,
+          "note": ""
+        },
+        {
+          "name": "LOT editor uses canonical VBottomSheet",
+          "pass": true,
+          "note": ""
+        },
+        {
+          "name": "LOT editor has canonical 48x4 handle",
+          "pass": true,
+          "note": ""
+        },
+        {
+          "name": "LOT editor has no close X",
+          "pass": true,
+          "note": ""
+        },
+        {
+          "name": "LOT editor exposes one quantity field, not duplicate LOT forms",
+          "pass": true,
+          "note": ""
+        },
+        {
+          "name": "LOT editor content-hugs and does not become near-full-screen",
+          "pass": true,
+          "note": 348
+        },
+        {
+          "name": "Updating one LOT returns to compact overview",
+          "pass": true,
+          "note": ""
+        },
+        {
+          "name": "Many-LOT stress remains one 76px row per allocation",
+          "pass": true,
+          "note": {
+            "count": 8,
+            "heights": [
+              76,
+              76,
+              76,
+              76,
+              76,
+              76,
+              76,
+              76
+            ],
+            "fields": 0,
+            "overflow": 0,
+            "scrollable": true
+          }
+        },
+        {
+          "name": "Many-LOT stress does not multiply inline fields",
+          "pass": true,
+          "note": {
+            "count": 8,
+            "heights": [
+              76,
+              76,
+              76,
+              76,
+              76,
+              76,
+              76,
+              76
+            ],
+            "fields": 0,
+            "overflow": 0,
+            "scrollable": true
+          }
+        },
+        {
+          "name": "Many-LOT stress uses natural vertical scroll with no horizontal overflow",
+          "pass": true,
+          "note": {
+            "count": 8,
+            "heights": [
+              76,
+              76,
+              76,
+              76,
+              76,
+              76,
+              76,
+              76
+            ],
+            "fields": 0,
+            "overflow": 0,
+            "scrollable": true
+          }
+        },
+        {
+          "name": "Cần phân loại enters SCR033 directly",
+          "pass": true,
+          "note": "SCR-033"
+        },
+        {
+          "name": "SCR033 uses compact request context instead of three-row metadata block",
+          "pass": true,
+          "note": ""
+        },
+        {
+          "name": "Classification editor is canonical VBottomSheet",
+          "pass": true,
+          "note": ""
+        },
+        {
+          "name": "Classification editor uses one progress row and four fields",
+          "pass": true,
+          "note": ""
+        },
+        {
+          "name": "Classification fields avoid repeated helper copy",
+          "pass": true,
+          "note": ""
+        },
+        {
+          "name": "Classification sheet remains compact enough for one viewport",
+          "pass": true,
+          "note": 646
+        },
+        {
+          "name": "Back from classification returns maker queue",
+          "pass": true,
+          "note": "SCR-030"
+        },
+        {
+          "name": "Back from classification never enters approver SCR034",
+          "pass": true,
+          "note": ""
+        },
+        {
+          "name": "Receipt request enters SCR031",
+          "pass": true,
+          "note": ""
+        },
+        {
+          "name": "SCR031 uses compact request context",
+          "pass": true,
+          "note": ""
+        },
+        {
+          "name": "Receipt line enters SCR032",
+          "pass": true,
+          "note": ""
+        },
+        {
+          "name": "Back SCR032 returns owning SCR031",
+          "pass": true,
+          "note": ""
+        },
+        {
+          "name": "Back SCR031 returns SCR030",
+          "pass": true,
+          "note": ""
+        },
+        {
+          "name": "UIF06 review catalog keeps maker route before independent approver",
+          "pass": true,
+          "note": [
+            "SCR-030",
+            "SCR-031",
+            "SCR-032",
+            "SCR-033",
+            "SCR-035",
+            "SCR-034"
+          ]
+        },
+        {
+          "name": "SCR031 has at most one footer primary action",
+          "pass": true,
+          "note": [
+            "Ghi nhận hàng trả"
+          ]
+        },
+        {
+          "name": "SCR033 has one footer completion action",
+          "pass": true,
+          "note": [
+            "Hoàn tất phân loại"
+          ]
+        },
+        {
+          "name": "SCR035 intermediate retains explicit classify-now and defer choices",
+          "pass": true,
+          "note": [
+            "Để sau",
+            "Phân loại ngay"
+          ]
+        },
+        {
+          "name": "All BJ06 representative screens stay 402x874 with no app-content horizontal overflow",
+          "pass": true,
+          "note": [
+            {
+              "sid": "SCR-030",
+              "app": [
+                402,
+                874
+              ],
+              "overflow": 0,
+              "bodyOverflow": 16
+            },
+            {
+              "sid": "SCR-031",
+              "app": [
+                402,
+                874
+              ],
+              "overflow": 0,
+              "bodyOverflow": 0
+            },
+            {
+              "sid": "SCR-032",
+              "app": [
+                402,
+                874
+              ],
+              "overflow": 0,
+              "bodyOverflow": 0
+            },
+            {
+              "sid": "SCR-033",
+              "app": [
+                402,
+                874
+              ],
+              "overflow": 0,
+              "bodyOverflow": 0
+            },
+            {
+              "sid": "SCR-034",
+              "app": [
+                402,
+                874
+              ],
+              "overflow": 0,
+              "bodyOverflow": 0
+            },
+            {
+              "sid": "SCR-035",
+              "app": [
+                402,
+                874
+              ],
+              "overflow": 0,
+              "bodyOverflow": 0
+            }
+          ]
+        },
+        {
+          "name": "No browser errors",
+          "pass": true,
+          "note": []
+        }
+      ],
+      "browserErrors": []
+    },
+    "allFlowRuntime": {
+      "status": "PASS",
+      "renders": 85,
+      "failures": [],
+      "errors": []
+    },
+    "priorBjRegression": {
+      "status": "PASS",
+      "passed": 23,
+      "total": 23,
+      "checks": [
+        {
+          "flow": "UIF-01",
+          "screen": "SCR-001",
+          "pass": true,
+          "metrics": {
+            "root": {
+              "ow": 402,
+              "oh": 874,
+              "sw": 402
+            },
+            "content": {
+              "sw": 402,
+              "cw": 402
+            }
+          }
+        },
+        {
+          "flow": "UIF-01",
+          "screen": "SCR-003",
+          "pass": true,
+          "metrics": {
+            "root": {
+              "ow": 402,
+              "oh": 874,
+              "sw": 402
+            },
+            "content": {
+              "sw": 402,
+              "cw": 402
+            }
+          }
+        },
+        {
+          "flow": "UIF-02",
+          "screen": "SCR-006",
+          "pass": true,
+          "metrics": {
+            "root": {
+              "ow": 402,
+              "oh": 874,
+              "sw": 402
+            },
+            "content": {
+              "sw": 402,
+              "cw": 402
+            }
+          }
+        },
+        {
+          "flow": "UIF-02",
+          "screen": "SCR-007",
+          "pass": true,
+          "metrics": {
+            "root": {
+              "ow": 402,
+              "oh": 874,
+              "sw": 402
+            },
+            "content": {
+              "sw": 402,
+              "cw": 402
+            }
+          }
+        },
+        {
+          "flow": "UIF-02",
+          "screen": "SCR-008",
+          "pass": true,
+          "metrics": {
+            "root": {
+              "ow": 402,
+              "oh": 874,
+              "sw": 402
+            },
+            "content": {
+              "sw": 402,
+              "cw": 402
+            }
+          }
+        },
+        {
+          "flow": "UIF-02",
+          "screen": "SCR-009",
+          "pass": true,
+          "metrics": {
+            "root": {
+              "ow": 402,
+              "oh": 874,
+              "sw": 402
+            },
+            "content": {
+              "sw": 402,
+              "cw": 402
+            }
+          }
+        },
+        {
+          "flow": "UIF-02",
+          "screen": "SCR-084",
+          "pass": true,
+          "metrics": {
+            "root": {
+              "ow": 402,
+              "oh": 874,
+              "sw": 402
+            },
+            "content": {
+              "sw": 402,
+              "cw": 402
+            }
+          }
+        },
+        {
+          "flow": "UIF-02",
+          "screen": "SCR-010",
+          "pass": true,
+          "metrics": {
+            "root": {
+              "ow": 402,
+              "oh": 874,
+              "sw": 402
+            },
+            "content": {
+              "sw": 402,
+              "cw": 402
+            }
+          }
+        },
+        {
+          "flow": "UIF-02",
+          "screen": "SCR-011",
+          "pass": true,
+          "metrics": {
+            "root": {
+              "ow": 402,
+              "oh": 874,
+              "sw": 402
+            },
+            "content": {
+              "sw": 402,
+              "cw": 402
+            }
+          }
+        },
+        {
+          "flow": "UIF-02",
+          "screen": "SCR-012",
+          "pass": true,
+          "metrics": {
+            "root": {
+              "ow": 402,
+              "oh": 874,
+              "sw": 402
+            },
+            "content": {
+              "sw": 402,
+              "cw": 402
+            }
+          }
+        },
+        {
+          "flow": "UIF-02",
+          "screen": "SCR-013",
+          "pass": true,
+          "metrics": {
+            "root": {
+              "ow": 402,
+              "oh": 874,
+              "sw": 402
+            },
+            "content": {
+              "sw": 402,
+              "cw": 402
+            }
+          }
+        },
+        {
+          "flow": "UIF-04",
+          "screen": "SCR-021",
+          "pass": true,
+          "metrics": {
+            "root": {
+              "ow": 402,
+              "oh": 874,
+              "sw": 402
+            },
+            "content": {
+              "sw": 402,
+              "cw": 402
+            }
+          }
+        },
+        {
+          "flow": "UIF-05",
+          "screen": "SCR-025",
+          "pass": true,
+          "metrics": {
+            "root": {
+              "ow": 402,
+              "oh": 874,
+              "sw": 402
+            },
+            "content": {
+              "sw": 402,
+              "cw": 402
+            }
+          }
+        },
+        {
+          "flow": "UIF-05",
+          "screen": "SCR-026",
+          "pass": true,
+          "metrics": {
+            "root": {
+              "ow": 402,
+              "oh": 874,
+              "sw": 402
+            },
+            "content": {
+              "sw": 402,
+              "cw": 402
+            }
+          }
+        },
+        {
+          "flow": "UIF-05",
+          "screen": "SCR-027",
+          "pass": true,
+          "metrics": {
+            "root": {
+              "ow": 402,
+              "oh": 874,
+              "sw": 402
+            },
+            "content": {
+              "sw": 402,
+              "cw": 402
+            }
+          }
+        },
+        {
+          "flow": "UIF-05",
+          "screen": "SCR-028",
+          "pass": true,
+          "metrics": {
+            "root": {
+              "ow": 402,
+              "oh": 874,
+              "sw": 402
+            },
+            "content": {
+              "sw": 402,
+              "cw": 402
+            }
+          }
+        },
+        {
+          "flow": "UIF-05",
+          "screen": "SCR-029",
+          "pass": true,
+          "metrics": {
+            "root": {
+              "ow": 402,
+              "oh": 874,
+              "sw": 402
+            },
+            "content": {
+              "sw": 402,
+              "cw": 402
+            }
+          }
+        },
+        {
+          "flow": "UIF-08",
+          "screen": "SCR-042",
+          "pass": true,
+          "metrics": {
+            "root": {
+              "ow": 402,
+              "oh": 874,
+              "sw": 402
+            },
+            "content": {
+              "sw": 402,
+              "cw": 402
+            }
+          }
+        },
+        {
+          "flow": "UIF-08",
+          "screen": "SCR-043",
+          "pass": true,
+          "metrics": {
+            "root": {
+              "ow": 402,
+              "oh": 874,
+              "sw": 402
+            },
+            "content": {
+              "sw": 402,
+              "cw": 402
+            }
+          }
+        },
+        {
+          "flow": "UIF-08",
+          "screen": "SCR-044",
+          "pass": true,
+          "metrics": {
+            "root": {
+              "ow": 402,
+              "oh": 874,
+              "sw": 402
+            },
+            "content": {
+              "sw": 402,
+              "cw": 402
+            }
+          }
+        },
+        {
+          "flow": "UIF-08",
+          "screen": "SCR-045",
+          "pass": true,
+          "metrics": {
+            "root": {
+              "ow": 402,
+              "oh": 874,
+              "sw": 402
+            },
+            "content": {
+              "sw": 402,
+              "cw": 402
+            }
+          }
+        },
+        {
+          "flow": "UIF-08",
+          "screen": "SCR-046",
+          "pass": true,
+          "metrics": {
+            "root": {
+              "ow": 402,
+              "oh": 874,
+              "sw": 402
+            },
+            "content": {
+              "sw": 402,
+              "cw": 402
+            }
+          }
+        },
+        {
+          "flow": "UIF-08",
+          "screen": "SCR-047",
+          "pass": true,
+          "metrics": {
+            "root": {
+              "ow": 402,
+              "oh": 874,
+              "sw": 402
+            },
+            "content": {
+              "sw": 402,
+              "cw": 402
+            }
+          }
+        }
+      ],
+      "browserErrors": []
+    },
+    "deviceFrame": {
+      "status": "PASS",
+      "passed": 7,
+      "total": 7,
+      "checks": [
+        {
+          "name": "Decorative phone border-box is 418x890",
+          "pass": true,
+          "note": {
+            "deviceOffset": [
+              418,
+              890
+            ],
+            "deviceClient": [
+              402,
+              874
+            ],
+            "appOffset": [
+              402,
+              874
+            ],
+            "border": [
+              8,
+              8,
+              8,
+              8
+            ],
+            "scale": 0.8202247191011236,
+            "alignment": {
+              "left": 3.086047229317046e-05,
+              "right": 3.086047229317046e-05,
+              "top": 3.428941397487506e-07,
+              "bottom": 6.137805041817046e-05
+            }
+          }
+        },
+        {
+          "name": "Decorative phone content-box is exact Product 402x874",
+          "pass": true,
+          "note": {
+            "deviceOffset": [
+              418,
+              890
+            ],
+            "deviceClient": [
+              402,
+              874
+            ],
+            "appOffset": [
+              402,
+              874
+            ],
+            "border": [
+              8,
+              8,
+              8,
+              8
+            ],
+            "scale": 0.8202247191011236,
+            "alignment": {
+              "left": 3.086047229317046e-05,
+              "right": 3.086047229317046e-05,
+              "top": 3.428941397487506e-07,
+              "bottom": 6.137805041817046e-05
+            }
+          }
+        },
+        {
+          "name": "Product app remains exact 402x874",
+          "pass": true,
+          "note": {
+            "deviceOffset": [
+              418,
+              890
+            ],
+            "deviceClient": [
+              402,
+              874
+            ],
+            "appOffset": [
+              402,
+              874
+            ],
+            "border": [
+              8,
+              8,
+              8,
+              8
+            ],
+            "scale": 0.8202247191011236,
+            "alignment": {
+              "left": 3.086047229317046e-05,
+              "right": 3.086047229317046e-05,
+              "top": 3.428941397487506e-07,
+              "bottom": 6.137805041817046e-05
+            }
+          }
+        },
+        {
+          "name": "Product app aligns inside bezel on all four edges",
+          "pass": true,
+          "note": {
+            "left": 3.086047229317046e-05,
+            "right": 3.086047229317046e-05,
+            "top": 3.428941397487506e-07,
+            "bottom": 6.137805041817046e-05
+          }
+        },
+        {
+          "name": "All 85 active screens preserve exact unclipped Product shell",
+          "pass": true,
+          "note": []
+        },
+        {
+          "name": "SCR-030 List Row has symmetric 16px Product edge",
+          "pass": true,
+          "note": {
+            "left": 15.999926423373287,
+            "right": 16.00000083609803
+          }
+        },
+        {
+          "name": "No browser errors",
+          "pass": true,
+          "note": []
+        }
+      ],
+      "screensChecked": 85,
+      "browserErrors": []
+    },
+    "reviewWorkbenchFit": {
+      "status": "PASS",
+      "passed": 3,
+      "total": 3,
+      "checks": [
+        {
+          "viewport": "1366x768",
+          "pass": true,
+          "product": [
+            402,
+            874
+          ],
+          "document": [
+            1366,
+            768
+          ],
+          "device": {
+            "x": 530.57080078125,
+            "y": 162,
+            "width": 280.8583984375,
+            "height": 598
+          },
+          "reviewScale": 0.6719101123595506
+        },
+        {
+          "viewport": "1600x900",
+          "pass": true,
+          "product": [
+            402,
+            874
+          ],
+          "document": [
+            1600,
+            900
+          ],
+          "device": {
+            "x": 616.5730590820312,
+            "y": 162,
+            "width": 342.85394287109375,
+            "height": 730
+          },
+          "reviewScale": 0.8202247191011236
+        },
+        {
+          "viewport": "1920x1080",
+          "pass": true,
+          "product": [
+            402,
+            874
+          ],
+          "document": [
+            1920,
+            1080
+          ],
+          "device": {
+            "x": 739,
+            "y": 162,
+            "width": 418,
+            "height": 890
+          },
+          "reviewScale": 1
+        }
+      ]
+    },
+    "mobilePrototypeValidator": {
+      "status": "PASS",
+      "manifest": "/mnt/data/VET45-Theme7-Prototype-Harness-v2.8.2/specs/themes/theme-07/prototype/html/prototype.manifest.json",
+      "counts": {
+        "BLOCKER": 0,
+        "HIGH": 0,
+        "MEDIUM": 0,
+        "LOW": 0
+      },
+      "findings": []
+    }
+  },
+  "visualReview": {
+    "bj06CanonicalScreens": 6,
+    "contactSheet": "specs/themes/theme-07/prototype/html/qa/v282-bj06-all/contact-sheet.jpg"
+  },
+  "businessBehaviorChanged": false
+}

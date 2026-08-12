@@ -1,0 +1,102 @@
+schema_version: "1.1"
+map_id: "SG-05-UI-COMPOSITION"
+status: "STATIC_VALIDATED_DERIVED"
+screen_group: "SG-05"
+name: "POS online"
+journeys:
+  - "T5-BJ-CHECKOUT-POS"
+principles:
+  - "Mỗi Screen có base tree; state chỉ ghi delta."
+  - "CTA mutation luôn có Action ID, BC chính và API chính."
+  - "Controller/trace của prototype không thuộc sản phẩm."
+  - "Mobile-first 390 px; tên Screen hiển thị trước khi chọn."
+shared_shell:
+  component_id: "layout.page-scaffold"
+  component: "VPageScaffold"
+  children:
+    - {role: "GlobalAppBar", component_id: "navigation.app-bar", component: "VAppBar"}
+    - {role: "ScreenContent", component_id: "layout.section", component: "VSection"}
+    - {role: "Feedback", component_id: "status.result-panel", component: "VResultPanel"}
+screens:
+  SCR-05-01:
+    name: "Tìm hoặc quét sản phẩm"
+    route: "#/sg-05/scr-01"
+    archetype: "list"
+    base_tree:
+      - {role: "search", component_id: "input.search", component: "input.search"}
+      - {role: "select", component_id: "input.select", component: "input.select"}
+      - {role: "list", component_id: "data.list", component: "data.list"}
+    state_deltas:
+      READY: {message_key: "ui.sg-05.scr-05-01.ready", preserve_input: false}
+      LOADING: {message_key: "ui.sg-05.scr-05-01.loading", preserve_input: false}
+      EMPTY: {message_key: "ui.sg-05.scr-05-01.empty", preserve_input: false}
+      FILTER_EMPTY: {message_key: "ui.sg-05.scr-05-01.filter_empty", preserve_input: false}
+      PERMISSION_DENIED: {message_key: "ui.sg-05.scr-05-01.permission_denied", preserve_input: false}
+      NETWORK_REQUIRED: {message_key: "ui.sg-05.scr-05-01.network_required", preserve_input: false}
+  SCR-05-02:
+    name: "Giỏ hàng"
+    route: "#/sg-05/scr-02"
+    archetype: "form"
+    base_tree:
+      - {role: "section", component_id: "layout.section", component: "layout.section"}
+      - {role: "field-group", component_id: "input.field-group", component: "input.field-group"}
+      - {role: "validation-summary", component_id: "status.validation-summary", component: "status.validation-summary"}
+    state_deltas:
+      READY: {message_key: "ui.sg-05.scr-05-02.ready", preserve_input: false}
+      VALIDATION_ERROR: {message_key: "ui.sg-05.scr-05-02.validation_error", preserve_input: true}
+      CONFLICT: {message_key: "ui.sg-05.scr-05-02.conflict", preserve_input: true}
+      LOCKED: {message_key: "ui.sg-05.scr-05-02.locked", preserve_input: false}
+      PERMISSION_DENIED: {message_key: "ui.sg-05.scr-05-02.permission_denied", preserve_input: false}
+      INSUFFICIENT_AVAILABLE: {message_key: "ui.sg-05.scr-05-02.insufficient_available", preserve_input: false}
+  SCR-05-03:
+    name: "Xác nhận lô đề xuất"
+    route: "#/sg-05/scr-03"
+    archetype: "detail"
+    base_tree:
+      - {role: "card", component_id: "container.card", component: "container.card"}
+      - {role: "key-value", component_id: "data.key-value", component: "data.key-value"}
+      - {role: "banner", component_id: "status.banner", component: "status.banner"}
+    state_deltas:
+      READY: {message_key: "ui.sg-05.scr-05-03.ready", preserve_input: false}
+      LOADING: {message_key: "ui.sg-05.scr-05-03.loading", preserve_input: false}
+      CONFLICT: {message_key: "ui.sg-05.scr-05-03.conflict", preserve_input: true}
+      LOCKED: {message_key: "ui.sg-05.scr-05-03.locked", preserve_input: false}
+      PERMISSION_DENIED: {message_key: "ui.sg-05.scr-05-03.permission_denied", preserve_input: false}
+      LOT_SCAN_REQUIRED: {message_key: "ui.sg-05.scr-05-03.lot_scan_required", preserve_input: false}
+  SCR-05-04:
+    name: "Rà soát thanh toán"
+    route: "#/sg-05/scr-04"
+    archetype: "review"
+    base_tree:
+      - {role: "review-summary", component_id: "data.review-summary", component: "data.review-summary"}
+      - {role: "confirm-dialog", component_id: "overlay.confirm-dialog", component: "overlay.confirm-dialog"}
+      - {role: "button", component_id: "action.button", component: "action.button"}
+      - {role: "PrimaryAction", component_id: "action.button", component: "VButton", action_id: "ACT-05-CHECKOUT", bc_id: "BC-IO-04", api_id: "API-C-04"}
+    state_deltas:
+      READY: {message_key: "ui.sg-05.scr-05-04.ready", preserve_input: false}
+      VALIDATION_ERROR: {message_key: "ui.sg-05.scr-05-04.validation_error", preserve_input: true}
+      APPROVAL_REQUIRED: {message_key: "ui.sg-05.scr-05-04.approval_required", preserve_input: false}
+      PERMISSION_DENIED: {message_key: "ui.sg-05.scr-05-04.permission_denied", preserve_input: false}
+  SCR-05-05:
+    name: "Kết quả bán hàng"
+    route: "#/sg-05/scr-05"
+    archetype: "result"
+    base_tree:
+      - {role: "result-panel", component_id: "status.result-panel", component: "status.result-panel"}
+      - {role: "next-step", component_id: "action.next-step", component: "action.next-step"}
+      - {role: "PrimaryAction", component_id: "action.button", component: "VButton", action_id: "ACT-05-CHECKOUT", bc_id: "BC-IO-04", api_id: "API-C-04"}
+    state_deltas:
+      COMPLETED: {message_key: "ui.sg-05.scr-05-05.completed", preserve_input: false}
+      UNKNOWN: {message_key: "ui.sg-05.scr-05-05.unknown", preserve_input: true}
+      REJECTED_EXECUTION: {message_key: "ui.sg-05.scr-05-05.rejected_execution", preserve_input: false}
+      PERMISSION_DENIED: {message_key: "ui.sg-05.scr-05-05.permission_denied", preserve_input: false}
+      UNKNOWN_CHECKOUT: {message_key: "ui.sg-05.scr-05-05.unknown_checkout", preserve_input: false}
+responsive_deltas:
+  desktop: {layout: "controller + 390px design viewport + trace"}
+  mobile: {breakpoint: "920px", layout: "controller → design viewport → trace", min_test_width: "360px"}
+quality_gates:
+  all_screens_declared: true
+  all_states_declared: true
+  orphan_actions_allowed: false
+  prototype_only_controls_marked: true
+  sensitive_values_in_dom_without_permission: false

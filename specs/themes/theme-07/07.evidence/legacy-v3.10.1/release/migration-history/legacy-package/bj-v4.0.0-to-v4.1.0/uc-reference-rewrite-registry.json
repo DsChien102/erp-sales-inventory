@@ -1,0 +1,794 @@
+[
+  {
+    "source_journey": "BJ-01",
+    "source_ref": "UC-01-01",
+    "source_link": "../05-use-cases/BJ-01-xem-ton-va-kha-dung/UC-01-01-xac-dinh-ngu-canh-va-san-pham.md",
+    "action": "KEEP_REWRITE",
+    "target_ref": "UC-01-01",
+    "note": "BJ-01 current-view source"
+  },
+  {
+    "source_journey": "BJ-01",
+    "source_ref": "UC-01-02",
+    "source_link": "../05-use-cases/BJ-01-xem-ton-va-kha-dung/UC-01-02-xem-ton-va-kha-dung.md",
+    "action": "KEEP_REWRITE",
+    "target_ref": "UC-01-02",
+    "note": "BJ-01 current-view source"
+  },
+  {
+    "source_journey": "BJ-01",
+    "source_ref": "UC-01-03",
+    "source_link": "../05-use-cases/BJ-01-xem-ton-va-kha-dung/UC-01-03-truy-nguyen-bien-dong.md",
+    "action": "KEEP_REWRITE",
+    "target_ref": "UC-01-03",
+    "note": "BJ-01 current-view source"
+  },
+  {
+    "source_journey": "BJ-02",
+    "source_ref": "UC-02-01",
+    "source_link": "../05-use-cases/BJ-02-nhan-hang-mua/UC-02-01-chuan-bi-nhan-theo-chung-tu.md",
+    "action": "KEEP_REWRITE",
+    "target_ref": "UC-02-01",
+    "note": "Re-ID with owning internal Journey"
+  },
+  {
+    "source_journey": "BJ-02",
+    "source_ref": "UC-02-02",
+    "source_link": "../05-use-cases/BJ-02-nhan-hang-mua/UC-02-02-chuan-bi-nhap-hang-nhanh.md",
+    "action": "KEEP_REWRITE",
+    "target_ref": "UC-02-02",
+    "note": "Re-ID with owning internal Journey"
+  },
+  {
+    "source_journey": "BJ-02",
+    "source_ref": "UC-02-03",
+    "source_link": "../05-use-cases/BJ-02-nhan-hang-mua/UC-02-03-phe-duyet-yeu-cau-nhan-hang.md",
+    "action": "KEEP_REWRITE",
+    "target_ref": "UC-02-03",
+    "note": "Re-ID with owning internal Journey"
+  },
+  {
+    "source_journey": "BJ-02",
+    "source_ref": "UC-02-04",
+    "source_link": "../05-use-cases/BJ-02-nhan-hang-mua/UC-02-04-ghi-nhan-hang-vao-ton-vat-ly.md",
+    "action": "KEEP_REWRITE",
+    "target_ref": "UC-02-04",
+    "note": "Re-ID with owning internal Journey"
+  },
+  {
+    "source_journey": "BJ-02",
+    "source_ref": "UC-02-05",
+    "source_link": "../05-use-cases/BJ-02-nhan-hang-mua/UC-02-05-doi-soat-ket-qua-nhan-hang.md",
+    "action": "KEEP_REWRITE",
+    "target_ref": "UC-02-05",
+    "note": "Re-ID with owning internal Journey"
+  },
+  {
+    "source_journey": "BJ-03",
+    "source_ref": "UC-03-01",
+    "source_link": "../05-use-cases/BJ-03-xac-nhan-gia-tri-hang-nhan/UC-03-01-chon-pham-vi-can-dinh-gia.md",
+    "action": "KEEP_REWRITE",
+    "target_ref": "UC-03-01",
+    "note": "Re-ID with owning internal Journey"
+  },
+  {
+    "source_journey": "BJ-03",
+    "source_ref": "UC-03-02",
+    "source_link": "../05-use-cases/BJ-03-xac-nhan-gia-tri-hang-nhan/UC-03-02-xac-dinh-gia-nhap-thuc-te.md",
+    "action": "KEEP_REWRITE",
+    "target_ref": "UC-03-02",
+    "note": "Re-ID with owning internal Journey"
+  },
+  {
+    "source_journey": "BJ-03",
+    "source_ref": "UC-03-03",
+    "source_link": "../05-use-cases/BJ-03-xac-nhan-gia-tri-hang-nhan/UC-03-03-xac-nhan-gia-tri.md",
+    "action": "KEEP_REWRITE",
+    "target_ref": "UC-03-03",
+    "note": "Re-ID with owning internal Journey"
+  },
+  {
+    "source_journey": "BJ-04",
+    "source_ref": "UC-04-01",
+    "source_link": "../05-use-cases/BJ-04-quan-ly-vong-doi-giu-hang/UC-04-01-tao-reservation.md",
+    "action": "KEEP_REWRITE",
+    "target_ref": "UC-04-01",
+    "note": "Re-ID with owning internal Journey"
+  },
+  {
+    "source_journey": "BJ-04",
+    "source_ref": "UC-04-02",
+    "source_link": "../05-use-cases/BJ-04-quan-ly-vong-doi-giu-hang/UC-04-02-dieu-chinh-reservation.md",
+    "action": "KEEP_REWRITE",
+    "target_ref": "UC-04-02",
+    "note": "Re-ID with owning internal Journey"
+  },
+  {
+    "source_journey": "BJ-04",
+    "source_ref": "UC-04-03",
+    "source_link": "../05-use-cases/BJ-04-quan-ly-vong-doi-giu-hang/UC-04-03-ket-thuc-va-giai-phong.md",
+    "action": "KEEP_REWRITE",
+    "target_ref": "UC-04-03",
+    "note": "Re-ID with owning internal Journey"
+  },
+  {
+    "source_journey": "BJ-04",
+    "source_ref": "UC-04-04",
+    "source_link": "../05-use-cases/BJ-04-quan-ly-vong-doi-giu-hang/UC-04-04-danh-gia-lai-va-xu-ly-thieu.md",
+    "action": "KEEP_REWRITE",
+    "target_ref": "UC-04-04",
+    "note": "Re-ID with owning internal Journey"
+  },
+  {
+    "source_journey": "BJ-05",
+    "source_ref": "UC-05-01",
+    "source_link": "../05-use-cases/BJ-05-checkout-pos-truc-tuyen/UC-05-01-kiem-tra-dieu-kien-xuat.md",
+    "action": "MOVE",
+    "target_ref": "T5-UC-CP-01",
+    "note": "Checkout orchestration moves to Theme 5"
+  },
+  {
+    "source_journey": "BJ-05",
+    "source_ref": "UC-05-02",
+    "source_link": "../05-use-cases/BJ-05-checkout-pos-truc-tuyen/UC-05-02-chon-hang-va-ghi-xuat.md",
+    "action": "MOVE",
+    "target_ref": "T5-UC-CP-02",
+    "note": "Checkout orchestration moves to Theme 5"
+  },
+  {
+    "source_journey": "BJ-05",
+    "source_ref": "UC-05-03",
+    "source_link": "../05-use-cases/BJ-05-checkout-pos-truc-tuyen/UC-05-03-phuc-hoi-finality.md",
+    "action": "MOVE",
+    "target_ref": "T5-UC-CP-03",
+    "note": "Checkout orchestration moves to Theme 5"
+  },
+  {
+    "source_journey": "BJ-05",
+    "source_ref": "UC-05-04",
+    "source_link": "../05-use-cases/BJ-05-checkout-pos-truc-tuyen/UC-05-04-ghi-xuat-kho-nguyen-tu.md",
+    "action": "MOVE_PROVIDER",
+    "target_ref": "UC-05-05",
+    "note": "Atomic inventory issue remains in Theme 7"
+  },
+  {
+    "source_journey": "BJ-06",
+    "source_ref": "UC-06-01",
+    "source_link": "../05-use-cases/BJ-06-lay-hang-va-ban-giao/UC-06-01-lap-allocation.md",
+    "action": "KEEP_REWRITE",
+    "target_ref": "UC-05-01",
+    "note": "Re-ID with owning internal Journey"
+  },
+  {
+    "source_journey": "BJ-06",
+    "source_ref": "UC-06-02",
+    "source_link": "../05-use-cases/BJ-06-lay-hang-va-ban-giao/UC-06-02-xac-nhan-hang-da-lay.md",
+    "action": "KEEP_REWRITE",
+    "target_ref": "UC-05-02",
+    "note": "Re-ID with owning internal Journey"
+  },
+  {
+    "source_journey": "BJ-06",
+    "source_ref": "UC-06-03",
+    "source_link": "../05-use-cases/BJ-06-lay-hang-va-ban-giao/UC-06-03-ban-giao-hang.md",
+    "action": "KEEP_REWRITE",
+    "target_ref": "UC-05-03",
+    "note": "Re-ID with owning internal Journey"
+  },
+  {
+    "source_journey": "BJ-06",
+    "source_ref": "UC-06-04",
+    "source_link": "../05-use-cases/BJ-06-lay-hang-va-ban-giao/UC-06-04-phuc-hoi-allocation-stale.md",
+    "action": "KEEP_REWRITE",
+    "target_ref": "UC-05-04",
+    "note": "Re-ID with owning internal Journey"
+  },
+  {
+    "source_journey": "BJ-06",
+    "source_ref": "UC-05-04",
+    "source_link": "../05-use-cases/BJ-05-checkout-pos-truc-tuyen/UC-05-04-ghi-xuat-kho-nguyen-tu.md",
+    "action": "REFERENCE_REWRITE",
+    "target_ref": "UC-05-05",
+    "note": "Shared atomic issue is renumbered in target BJ-05"
+  },
+  {
+    "source_journey": "BJ-07",
+    "source_ref": "UC-07-01",
+    "source_link": "../05-use-cases/BJ-07-tiep-nhan-va-phan-loai-hang-khach-tra/UC-07-01-xac-minh-hang-duoc-phep-nhan-tra.md",
+    "action": "KEEP_REWRITE",
+    "target_ref": "UC-06-01",
+    "note": "Re-ID with owning internal Journey"
+  },
+  {
+    "source_journey": "BJ-07",
+    "source_ref": "UC-07-02",
+    "source_link": "../05-use-cases/BJ-07-tiep-nhan-va-phan-loai-hang-khach-tra/UC-07-02-xu-ly-ngoai-le-truy-vet.md",
+    "action": "KEEP_REWRITE",
+    "target_ref": "UC-06-02",
+    "note": "Re-ID with owning internal Journey"
+  },
+  {
+    "source_journey": "BJ-07",
+    "source_ref": "UC-07-03",
+    "source_link": "../05-use-cases/BJ-07-tiep-nhan-va-phan-loai-hang-khach-tra/UC-07-03-ghi-nhan-hang-khach-tra.md",
+    "action": "KEEP_REWRITE",
+    "target_ref": "UC-06-03",
+    "note": "Re-ID with owning internal Journey"
+  },
+  {
+    "source_journey": "BJ-07",
+    "source_ref": "UC-07-04",
+    "source_link": "../05-use-cases/BJ-07-tiep-nhan-va-phan-loai-hang-khach-tra/UC-07-04-phan-loai-hang-thuc-nhan.md",
+    "action": "KEEP_REWRITE",
+    "target_ref": "UC-06-04",
+    "note": "Re-ID with owning internal Journey"
+  },
+  {
+    "source_journey": "BJ-08",
+    "source_ref": "UC-08-01",
+    "source_link": "../05-use-cases/BJ-08-tra-hang-cho-nha-cung-cap/UC-08-01-xac-minh-pham-vi-tra.md",
+    "action": "KEEP_REWRITE",
+    "target_ref": "UC-07-01",
+    "note": "Re-ID with owning internal Journey"
+  },
+  {
+    "source_journey": "BJ-08",
+    "source_ref": "UC-08-02",
+    "source_link": "../05-use-cases/BJ-08-tra-hang-cho-nha-cung-cap/UC-08-02-dua-hang-vao-cho-tra.md",
+    "action": "KEEP_REWRITE",
+    "target_ref": "UC-07-02",
+    "note": "Re-ID with owning internal Journey"
+  },
+  {
+    "source_journey": "BJ-08",
+    "source_ref": "UC-08-03",
+    "source_link": "../05-use-cases/BJ-08-tra-hang-cho-nha-cung-cap/UC-08-03-dieu-chinh-hoac-huy-truoc-ban-giao.md",
+    "action": "KEEP_REWRITE",
+    "target_ref": "UC-07-03",
+    "note": "Re-ID with owning internal Journey"
+  },
+  {
+    "source_journey": "BJ-08",
+    "source_ref": "UC-08-04",
+    "source_link": "../05-use-cases/BJ-08-tra-hang-cho-nha-cung-cap/UC-08-04-ghi-nhan-ban-giao-tra-nha-cung-cap.md",
+    "action": "KEEP_REWRITE",
+    "target_ref": "UC-07-04",
+    "note": "Re-ID with owning internal Journey"
+  },
+  {
+    "source_journey": "BJ-09",
+    "source_ref": "UC-09-01",
+    "source_link": "../05-use-cases/BJ-09-kiem-ke-va-dieu-chinh-chenh-lech/UC-09-01-mo-va-khoa-pham-vi.md",
+    "action": "KEEP_REWRITE",
+    "target_ref": "UC-08-01",
+    "note": "Re-ID with owning internal Journey"
+  },
+  {
+    "source_journey": "BJ-09",
+    "source_ref": "UC-09-02",
+    "source_link": "../05-use-cases/BJ-09-kiem-ke-va-dieu-chinh-chenh-lech/UC-09-02-ghi-nhan-lan-dem-mu.md",
+    "action": "KEEP_REWRITE",
+    "target_ref": "UC-08-02",
+    "note": "Re-ID with owning internal Journey"
+  },
+  {
+    "source_journey": "BJ-09",
+    "source_ref": "UC-09-03",
+    "source_link": "../05-use-cases/BJ-09-kiem-ke-va-dieu-chinh-chenh-lech/UC-09-03-dem-lai-va-hoan-thien-bang-chung.md",
+    "action": "KEEP_REWRITE",
+    "target_ref": "UC-08-03",
+    "note": "Re-ID with owning internal Journey"
+  },
+  {
+    "source_journey": "BJ-09",
+    "source_ref": "UC-09-04",
+    "source_link": "../05-use-cases/BJ-09-kiem-ke-va-dieu-chinh-chenh-lech/UC-09-04-duyet-va-dieu-chinh.md",
+    "action": "KEEP_REWRITE",
+    "target_ref": "UC-08-04",
+    "note": "Re-ID with owning internal Journey"
+  },
+  {
+    "source_journey": "BJ-09",
+    "source_ref": "UC-09-05",
+    "source_link": "../05-use-cases/BJ-09-kiem-ke-va-dieu-chinh-chenh-lech/UC-09-05-huy-phien-kiem-ke.md",
+    "action": "KEEP_REWRITE",
+    "target_ref": "UC-08-05",
+    "note": "Re-ID with owning internal Journey"
+  },
+  {
+    "source_journey": "BJ-10",
+    "source_ref": "UC-10-01",
+    "source_link": "../05-use-cases/BJ-10-quan-ly-trang-thai-hang/UC-10-01-chuan-bi-thay-doi-trang-thai.md",
+    "action": "KEEP_REWRITE",
+    "target_ref": "UC-09-01",
+    "note": "Re-ID with owning internal Journey"
+  },
+  {
+    "source_journey": "BJ-10",
+    "source_ref": "UC-10-02",
+    "source_link": "../05-use-cases/BJ-10-quan-ly-trang-thai-hang/UC-10-02-phe-duyet-thay-doi-trang-thai.md",
+    "action": "KEEP_REWRITE",
+    "target_ref": "UC-09-02",
+    "note": "Re-ID with owning internal Journey"
+  },
+  {
+    "source_journey": "BJ-10",
+    "source_ref": "UC-10-03",
+    "source_link": "../05-use-cases/BJ-10-quan-ly-trang-thai-hang/UC-10-03-xac-dinh-hang-het-han.md",
+    "action": "KEEP_REWRITE",
+    "target_ref": "UC-09-03",
+    "note": "Re-ID with owning internal Journey"
+  },
+  {
+    "source_journey": "BJ-10",
+    "source_ref": "UC-10-04",
+    "source_link": "../05-use-cases/BJ-10-quan-ly-trang-thai-hang/UC-10-04-ghi-state-movement.md",
+    "action": "KEEP_REWRITE",
+    "target_ref": "UC-09-04",
+    "note": "Re-ID with owning internal Journey"
+  },
+  {
+    "source_journey": "BJ-11",
+    "source_ref": "UC-11-01",
+    "source_link": "../05-use-cases/BJ-11-tieu-huy-hang/UC-11-01-chuan-bi-yeu-cau-tieu-huy.md",
+    "action": "KEEP_REWRITE",
+    "target_ref": "UC-10-01",
+    "note": "Re-ID with owning internal Journey"
+  },
+  {
+    "source_journey": "BJ-11",
+    "source_ref": "UC-11-02",
+    "source_link": "../05-use-cases/BJ-11-tieu-huy-hang/UC-11-02-phe-duyet-tieu-huy.md",
+    "action": "KEEP_REWRITE",
+    "target_ref": "UC-10-02",
+    "note": "Re-ID with owning internal Journey"
+  },
+  {
+    "source_journey": "BJ-11",
+    "source_ref": "UC-11-03",
+    "source_link": "../05-use-cases/BJ-11-tieu-huy-hang/UC-11-03-xac-nhan-da-tieu-huy.md",
+    "action": "KEEP_REWRITE",
+    "target_ref": "UC-10-03",
+    "note": "Re-ID with owning internal Journey"
+  },
+  {
+    "source_journey": "BJ-11",
+    "source_ref": "UC-11-04",
+    "source_link": "../05-use-cases/BJ-11-tieu-huy-hang/UC-11-04-ghi-giam-hang-tieu-huy.md",
+    "action": "KEEP_REWRITE",
+    "target_ref": "UC-10-04",
+    "note": "Re-ID with owning internal Journey"
+  },
+  {
+    "source_journey": "BJ-12",
+    "source_ref": "UC-12-01",
+    "source_link": "../05-use-cases/BJ-12-huy-va-sua-sai-nghiep-vu-kho/UC-12-01-xac-dinh-duong-xu-ly.md",
+    "action": "KEEP_REWRITE",
+    "target_ref": "UC-11-01",
+    "note": "Re-ID with owning internal Journey"
+  },
+  {
+    "source_journey": "BJ-12",
+    "source_ref": "UC-12-02",
+    "source_link": "../05-use-cases/BJ-12-huy-va-sua-sai-nghiep-vu-kho/UC-12-02-huy-operation-chua-thuc-thi.md",
+    "action": "KEEP_REWRITE",
+    "target_ref": "UC-11-02",
+    "note": "Re-ID with owning internal Journey"
+  },
+  {
+    "source_journey": "BJ-12",
+    "source_ref": "UC-12-03",
+    "source_link": "../05-use-cases/BJ-12-huy-va-sua-sai-nghiep-vu-kho/UC-12-03-chuan-bi-phuong-an-correction.md",
+    "action": "KEEP_REWRITE",
+    "target_ref": "UC-11-03",
+    "note": "Re-ID with owning internal Journey"
+  },
+  {
+    "source_journey": "BJ-12",
+    "source_ref": "UC-12-04",
+    "source_link": "../05-use-cases/BJ-12-huy-va-sua-sai-nghiep-vu-kho/UC-12-04-phe-duyet-correction.md",
+    "action": "KEEP_REWRITE",
+    "target_ref": "UC-11-04",
+    "note": "Re-ID with owning internal Journey"
+  },
+  {
+    "source_journey": "BJ-12",
+    "source_ref": "UC-12-05",
+    "source_link": "../05-use-cases/BJ-12-huy-va-sua-sai-nghiep-vu-kho/UC-12-05-ghi-correction-chain.md",
+    "action": "KEEP_REWRITE",
+    "target_ref": "UC-11-05",
+    "note": "Re-ID with owning internal Journey"
+  },
+  {
+    "source_journey": "BJ-13",
+    "source_ref": "UC-13-01",
+    "source_link": "../05-use-cases/BJ-13-khoi-tao-so-du-ton-kho-dau-ky/UC-13-01-nap-va-kiem-tra-batch-dau-ky.md",
+    "action": "KEEP_REWRITE",
+    "target_ref": "UC-12-01",
+    "note": "Re-ID with owning internal Journey"
+  },
+  {
+    "source_journey": "BJ-13",
+    "source_ref": "UC-13-02",
+    "source_link": "../05-use-cases/BJ-13-khoi-tao-so-du-ton-kho-dau-ky/UC-13-02-ra-soat-va-duyet-batch.md",
+    "action": "KEEP_REWRITE",
+    "target_ref": "UC-12-02",
+    "note": "Re-ID with owning internal Journey"
+  },
+  {
+    "source_journey": "BJ-13",
+    "source_ref": "UC-13-03",
+    "source_link": "../05-use-cases/BJ-13-khoi-tao-so-du-ton-kho-dau-ky/UC-13-03-commit-va-kich-hoat-ton-kho.md",
+    "action": "KEEP_REWRITE",
+    "target_ref": "UC-12-03",
+    "note": "Re-ID with owning internal Journey"
+  },
+  {
+    "source_journey": "BJ-14",
+    "source_ref": "UC-14-01",
+    "source_link": "../05-use-cases/BJ-14-ghi-nhan-chi-phi-mua-bo-sung/UC-14-01-xac-dinh-nguon-va-pham-vi.md",
+    "action": "KEEP_REWRITE",
+    "target_ref": "UC-13-01",
+    "note": "Re-ID with owning internal Journey"
+  },
+  {
+    "source_journey": "BJ-14",
+    "source_ref": "UC-14-02",
+    "source_link": "../05-use-cases/BJ-14-ghi-nhan-chi-phi-mua-bo-sung/UC-14-02-tinh-va-phan-bo-chi-phi.md",
+    "action": "KEEP_REWRITE",
+    "target_ref": "UC-13-02",
+    "note": "Re-ID with owning internal Journey"
+  },
+  {
+    "source_journey": "BJ-14",
+    "source_ref": "UC-14-03",
+    "source_link": "../05-use-cases/BJ-14-ghi-nhan-chi-phi-mua-bo-sung/UC-14-03-xac-nhan-ghi-nhan-chi-phi.md",
+    "action": "KEEP_REWRITE",
+    "target_ref": "UC-13-03",
+    "note": "Re-ID with owning internal Journey"
+  },
+  {
+    "source_journey": "BJ-15",
+    "source_ref": "UC-15-01",
+    "source_link": "../05-use-cases/BJ-15-tinh-va-cong-bo-gia-von/UC-15-01-xac-dinh-ky-pham-vi-va-chinh-sach.md",
+    "action": "KEEP_REWRITE",
+    "target_ref": "UC-14-01",
+    "note": "Re-ID with owning internal Journey"
+  },
+  {
+    "source_journey": "BJ-15",
+    "source_ref": "UC-15-02",
+    "source_link": "../05-use-cases/BJ-15-tinh-va-cong-bo-gia-von/UC-15-02-tinh-gia-von-va-phat-hien-blocker.md",
+    "action": "KEEP_REWRITE",
+    "target_ref": "UC-14-02",
+    "note": "Re-ID with owning internal Journey"
+  },
+  {
+    "source_journey": "BJ-15",
+    "source_ref": "UC-15-03",
+    "source_link": "../05-use-cases/BJ-15-tinh-va-cong-bo-gia-von/UC-15-03-ra-soat-ket-qua.md",
+    "action": "KEEP_REWRITE",
+    "target_ref": "UC-14-03",
+    "note": "Re-ID with owning internal Journey"
+  },
+  {
+    "source_journey": "BJ-15",
+    "source_ref": "UC-15-04",
+    "source_link": "../05-use-cases/BJ-15-tinh-va-cong-bo-gia-von/UC-15-04-cong-bo-gia-von.md",
+    "action": "KEEP_REWRITE",
+    "target_ref": "UC-14-04",
+    "note": "Re-ID with owning internal Journey"
+  },
+  {
+    "source_journey": "BJ-16",
+    "source_ref": "UC-16-01",
+    "source_link": "../05-use-cases/BJ-16-cau-hinh-chinh-sach-ton-va-can-han/UC-16-01-cau-hinh-nguong-ton-san-pham.md",
+    "action": "RECLASSIFY",
+    "target_ref": "CAP-01-OP-01",
+    "note": "UC becomes capability operation"
+  },
+  {
+    "source_journey": "BJ-16",
+    "source_ref": "UC-16-02",
+    "source_link": "../05-use-cases/BJ-16-cau-hinh-chinh-sach-ton-va-can-han/UC-16-02-cau-hinh-can-han-mac-dinh.md",
+    "action": "RECLASSIFY",
+    "target_ref": "CAP-01-OP-02",
+    "note": "UC becomes capability operation"
+  },
+  {
+    "source_journey": "BJ-16",
+    "source_ref": "UC-16-03",
+    "source_link": "../05-use-cases/BJ-16-cau-hinh-chinh-sach-ton-va-can-han/UC-16-03-ghi-de-can-han-theo-san-pham.md",
+    "action": "RECLASSIFY",
+    "target_ref": "CAP-01-OP-03",
+    "note": "UC becomes capability operation"
+  },
+  {
+    "source_journey": "BJ-17",
+    "source_ref": "UC-17-01",
+    "source_link": "../05-use-cases/BJ-17-theo-doi-ton-thap-can-han-va-luong-goi-y/UC-17-01-xac-dinh-pham-vi-theo-doi.md",
+    "action": "MERGE_REWRITE",
+    "target_ref": "UC-01-01",
+    "note": "Merged into BJ-01 monitoring scope"
+  },
+  {
+    "source_journey": "BJ-17",
+    "source_ref": "UC-17-02",
+    "source_link": "../05-use-cases/BJ-17-theo-doi-ton-thap-can-han-va-luong-goi-y/UC-17-02-xem-ton-thap-va-luong-goi-y.md",
+    "action": "MERGE_REWRITE",
+    "target_ref": "UC-01-04",
+    "note": "Merged into BJ-01 monitoring scope"
+  },
+  {
+    "source_journey": "BJ-17",
+    "source_ref": "UC-17-03",
+    "source_link": "../05-use-cases/BJ-17-theo-doi-ton-thap-can-han-va-luong-goi-y/UC-17-03-xem-hang-can-han-va-het-han.md",
+    "action": "MERGE_REWRITE",
+    "target_ref": "UC-01-05",
+    "note": "Merged into BJ-01 monitoring scope"
+  },
+  {
+    "source_journey": "BJ-18",
+    "source_ref": "UC-18-01",
+    "source_link": "../05-use-cases/BJ-18-tra-cuu-bao-cao-ton-va-the-kho/UC-18-01-xac-dinh-bao-cao-va-pham-vi.md",
+    "action": "KEEP_REWRITE",
+    "target_ref": "UC-15-01",
+    "note": "Re-ID with owning internal Journey"
+  },
+  {
+    "source_journey": "BJ-18",
+    "source_ref": "UC-18-02",
+    "source_link": "../05-use-cases/BJ-18-tra-cuu-bao-cao-ton-va-the-kho/UC-18-02-xem-bao-cao-ton-kho.md",
+    "action": "KEEP_REWRITE",
+    "target_ref": "UC-15-02",
+    "note": "Re-ID with owning internal Journey"
+  },
+  {
+    "source_journey": "BJ-18",
+    "source_ref": "UC-18-03",
+    "source_link": "../05-use-cases/BJ-18-tra-cuu-bao-cao-ton-va-the-kho/UC-18-03-xem-the-kho-va-lich-su.md",
+    "action": "KEEP_REWRITE",
+    "target_ref": "UC-15-03",
+    "note": "Re-ID with owning internal Journey"
+  },
+  {
+    "source_journey": "BJ-18",
+    "source_ref": "UC-18-04",
+    "source_link": "../05-use-cases/BJ-18-tra-cuu-bao-cao-ton-va-the-kho/UC-18-04-xuat-bao-cao.md",
+    "action": "KEEP_REWRITE",
+    "target_ref": "UC-15-04",
+    "note": "Re-ID with owning internal Journey"
+  },
+  {
+    "source_journey": "BJ-19",
+    "source_ref": "UC-19-01",
+    "source_link": "../05-use-cases/BJ-19-dieu-tra-va-doi-soat-sai-lech/UC-19-01-mo-va-phan-loai-ho-so-doi-soat.md",
+    "action": "KEEP_REWRITE",
+    "target_ref": "UC-16-01",
+    "note": "Re-ID with owning internal Journey"
+  },
+  {
+    "source_journey": "BJ-19",
+    "source_ref": "UC-19-02",
+    "source_link": "../05-use-cases/BJ-19-dieu-tra-va-doi-soat-sai-lech/UC-19-02-bao-ve-pham-vi-rui-ro.md",
+    "action": "KEEP_REWRITE",
+    "target_ref": "UC-16-02",
+    "note": "Re-ID with owning internal Journey"
+  },
+  {
+    "source_journey": "BJ-19",
+    "source_ref": "UC-19-03",
+    "source_link": "../05-use-cases/BJ-19-dieu-tra-va-doi-soat-sai-lech/UC-19-03-dieu-tra-va-xac-dinh-nguyen-nhan.md",
+    "action": "KEEP_REWRITE",
+    "target_ref": "UC-16-03",
+    "note": "Re-ID with owning internal Journey"
+  },
+  {
+    "source_journey": "BJ-19",
+    "source_ref": "UC-19-04",
+    "source_link": "../05-use-cases/BJ-19-dieu-tra-va-doi-soat-sai-lech/UC-19-04-xac-minh-va-cap-nhat-ket-qua-doi-soat.md",
+    "action": "KEEP_REWRITE",
+    "target_ref": "UC-16-04",
+    "note": "Re-ID with owning internal Journey"
+  },
+  {
+    "source_journey": "BJ-20",
+    "source_ref": "UC-20-01",
+    "source_link": "../05-use-cases/BJ-20-phuc-hoi-nghiep-vu-ket-qua-chua-xac-dinh/UC-20-01-thu-thap-va-danh-gia-bang-chung.md",
+    "action": "KEEP_REWRITE",
+    "target_ref": "UC-17-01",
+    "note": "Re-ID with owning internal Journey"
+  },
+  {
+    "source_journey": "BJ-20",
+    "source_ref": "UC-20-02",
+    "source_link": "../05-use-cases/BJ-20-phuc-hoi-nghiep-vu-ket-qua-chua-xac-dinh/UC-20-02-xac-lap-operation-da-hoan-tat.md",
+    "action": "KEEP_REWRITE",
+    "target_ref": "UC-17-02",
+    "note": "Re-ID with owning internal Journey"
+  },
+  {
+    "source_journey": "BJ-20",
+    "source_ref": "UC-20-03",
+    "source_link": "../05-use-cases/BJ-20-phuc-hoi-nghiep-vu-ket-qua-chua-xac-dinh/UC-20-03-tiep-tuc-cung-operation-identity.md",
+    "action": "KEEP_REWRITE",
+    "target_ref": "UC-17-03",
+    "note": "Re-ID with owning internal Journey"
+  },
+  {
+    "source_journey": "BJ-20",
+    "source_ref": "UC-20-04",
+    "source_link": "../05-use-cases/BJ-20-phuc-hoi-nghiep-vu-ket-qua-chua-xac-dinh/UC-20-04-giu-chua-xac-dinh-va-escalated.md",
+    "action": "KEEP_REWRITE",
+    "target_ref": "UC-17-04",
+    "note": "Re-ID with owning internal Journey"
+  },
+  {
+    "source_journey": "BJ-21",
+    "source_ref": "UC-21-01",
+    "source_link": "../05-use-cases/BJ-21-dung-lai-du-lieu-dan-xuat-tu-so-kho/UC-21-01-chuan-bi-pham-vi-dung-lai.md",
+    "action": "RECLASSIFY",
+    "target_ref": "PROC-01-STEP-01",
+    "note": "UC becomes technical procedure step"
+  },
+  {
+    "source_journey": "BJ-21",
+    "source_ref": "UC-21-02",
+    "source_link": "../05-use-cases/BJ-21-dung-lai-du-lieu-dan-xuat-tu-so-kho/UC-21-02-bao-ve-phien-ban-du-lieu-dan-xuat.md",
+    "action": "RECLASSIFY",
+    "target_ref": "PROC-01-STEP-02",
+    "note": "UC becomes technical procedure step"
+  },
+  {
+    "source_journey": "BJ-21",
+    "source_ref": "UC-21-03",
+    "source_link": "../05-use-cases/BJ-21-dung-lai-du-lieu-dan-xuat-tu-so-kho/UC-21-03-dung-lai-tu-ledger.md",
+    "action": "RECLASSIFY",
+    "target_ref": "PROC-01-STEP-03",
+    "note": "UC becomes technical procedure step"
+  },
+  {
+    "source_journey": "BJ-21",
+    "source_ref": "UC-21-04",
+    "source_link": "../05-use-cases/BJ-21-dung-lai-du-lieu-dan-xuat-tu-so-kho/UC-21-04-xac-minh-va-cong-bo-ket-qua.md",
+    "action": "RECLASSIFY",
+    "target_ref": "PROC-01-STEP-04",
+    "note": "UC becomes technical procedure step"
+  },
+  {
+    "source_journey": "BJ-22",
+    "source_ref": "UC-22-01",
+    "source_link": "../05-use-cases/BJ-22-lap-kich-ban-chiet-khau-mua-hang/UC-22-01-tao-gia-dinh-kich-ban.md",
+    "action": "MOVE",
+    "target_ref": "T10-UC-DS-01",
+    "note": "Moves to Theme 10 — Mua hàng"
+  },
+  {
+    "source_journey": "BJ-22",
+    "source_ref": "UC-22-02",
+    "source_link": "../05-use-cases/BJ-22-lap-kich-ban-chiet-khau-mua-hang/UC-22-02-quy-doi-quyen-loi-du-kien.md",
+    "action": "MOVE",
+    "target_ref": "T10-UC-DS-02",
+    "note": "Moves to Theme 10 — Mua hàng"
+  },
+  {
+    "source_journey": "BJ-22",
+    "source_ref": "UC-22-03",
+    "source_link": "../05-use-cases/BJ-22-lap-kich-ban-chiet-khau-mua-hang/UC-22-03-ra-soat-va-so-sanh-kich-ban.md",
+    "action": "MOVE",
+    "target_ref": "T10-UC-DS-03",
+    "note": "Moves to Theme 10 — Mua hàng"
+  },
+  {
+    "source_journey": "BJ-22",
+    "source_ref": "UC-22-04",
+    "source_link": "../05-use-cases/BJ-22-lap-kich-ban-chiet-khau-mua-hang/UC-22-04-ban-giao-ket-qua-du-kien.md",
+    "action": "MOVE",
+    "target_ref": "T10-UC-DS-04",
+    "note": "Moves to Theme 10 — Mua hàng"
+  },
+  {
+    "source_journey": "BJ-23",
+    "source_ref": "UC-23-01",
+    "source_link": "../05-use-cases/BJ-23-chuan-bi-gia-ban-tu-gia-von-tham-chieu/UC-23-01-chon-nguon-gia-von-tham-chieu.md",
+    "action": "MOVE",
+    "target_ref": "T2-UC-PB-01",
+    "note": "Moves to Theme 2 pricing basis"
+  },
+  {
+    "source_journey": "BJ-23",
+    "source_ref": "UC-23-02",
+    "source_link": "../05-use-cases/BJ-23-chuan-bi-gia-ban-tu-gia-von-tham-chieu/UC-23-02-kiem-tra-nguon-goc-dinh-gia.md",
+    "action": "MOVE",
+    "target_ref": "T2-UC-PB-02",
+    "note": "Moves to Theme 2 pricing basis"
+  },
+  {
+    "source_journey": "BJ-23",
+    "source_ref": "UC-23-03",
+    "source_link": "../05-use-cases/BJ-23-chuan-bi-gia-ban-tu-gia-von-tham-chieu/UC-23-03-cong-bo-gia-von-tham-chieu-dinh-gia.md",
+    "action": "MOVE",
+    "target_ref": "T2-UC-PB-03",
+    "note": "Moves to Theme 2 pricing basis"
+  },
+  {
+    "source_journey": "BJ-23",
+    "source_ref": "UC-23-04",
+    "source_link": "../05-use-cases/BJ-23-chuan-bi-gia-ban-tu-gia-von-tham-chieu/UC-23-04-tao-du-thao-gia-ban.md",
+    "action": "MOVE",
+    "target_ref": "T2-UC-PB-04",
+    "note": "Moves to Theme 2 pricing basis"
+  },
+  {
+    "source_journey": "BJ-24",
+    "source_ref": "UC-24-01",
+    "source_link": "../05-use-cases/BJ-24-ra-soat-nguon-dinh-gia-sau-chot-ky/UC-24-01-mo-dot-ra-soat-dinh-gia.md",
+    "action": "MOVE_REWRITE",
+    "target_ref": "T2-UC-PR-01",
+    "note": "Moves to Theme 2 pricing review"
+  },
+  {
+    "source_journey": "BJ-24",
+    "source_ref": "UC-23-02",
+    "source_link": "../05-use-cases/BJ-23-chuan-bi-gia-ban-tu-gia-von-tham-chieu/UC-23-02-kiem-tra-nguon-goc-dinh-gia.md",
+    "action": "REUSE",
+    "target_ref": "T2-UC-PB-02",
+    "note": "Shared provenance check remains owned by pricing-basis Journey"
+  },
+  {
+    "source_journey": "BJ-24",
+    "source_ref": "UC-24-02",
+    "source_link": "../05-use-cases/BJ-24-ra-soat-nguon-dinh-gia-sau-chot-ky/UC-24-02-xu-ly-nhom-dung-official-cost.md",
+    "action": "MOVE_REWRITE",
+    "target_ref": "T2-UC-PR-02",
+    "note": "Moves to Theme 2 pricing review"
+  },
+  {
+    "source_journey": "BJ-24",
+    "source_ref": "UC-24-03",
+    "source_link": "../05-use-cases/BJ-24-ra-soat-nguon-dinh-gia-sau-chot-ky/UC-24-03-quyet-dinh-cho-nguon-du-kien.md",
+    "action": "MOVE_REWRITE",
+    "target_ref": "T2-UC-PR-03",
+    "note": "Moves to Theme 2 pricing review"
+  },
+  {
+    "source_journey": "BJ-24",
+    "source_ref": "UC-24-04",
+    "source_link": "../05-use-cases/BJ-24-ra-soat-nguon-dinh-gia-sau-chot-ky/UC-24-04-hoan-tat-ket-qua-ra-soat.md",
+    "action": "MOVE_REWRITE",
+    "target_ref": "T2-UC-PR-04",
+    "note": "Moves to Theme 2 pricing review"
+  },
+  {
+    "source_journey": "BJ-25",
+    "source_ref": "UC-25-01",
+    "source_link": "../05-use-cases/BJ-25-so-sanh-ba-cach-nhin-loi-nhuan/UC-25-01-xac-dinh-pham-vi-phan-tich.md",
+    "action": "MOVE",
+    "target_ref": "RPT-UC-PV-01",
+    "note": "Moves to Reporting/Analytics"
+  },
+  {
+    "source_journey": "BJ-25",
+    "source_ref": "UC-25-02",
+    "source_link": "../05-use-cases/BJ-25-so-sanh-ba-cach-nhin-loi-nhuan/UC-25-02-hop-nhat-nguon-co-provenance.md",
+    "action": "MOVE",
+    "target_ref": "RPT-UC-PV-02",
+    "note": "Moves to Reporting/Analytics"
+  },
+  {
+    "source_journey": "BJ-25",
+    "source_ref": "UC-25-03",
+    "source_link": "../05-use-cases/BJ-25-so-sanh-ba-cach-nhin-loi-nhuan/UC-25-03-hien-thi-ba-cach-nhin-loi-nhuan.md",
+    "action": "MOVE",
+    "target_ref": "RPT-UC-PV-03",
+    "note": "Moves to Reporting/Analytics"
+  },
+  {
+    "source_journey": "BJ-25",
+    "source_ref": "UC-25-04",
+    "source_link": "../05-use-cases/BJ-25-so-sanh-ba-cach-nhin-loi-nhuan/UC-25-04-truy-nguyen-va-xuat-ket-qua.md",
+    "action": "MOVE",
+    "target_ref": "RPT-UC-PV-04",
+    "note": "Moves to Reporting/Analytics"
+  }
+]

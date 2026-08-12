@@ -1,0 +1,30 @@
+schema_version: "1.0"
+required_files:
+  - harness-execution-profile.yaml
+  - contract-registry.json
+  - trace-index.json
+  - validation-rules.yaml
+  - test-catalog.json
+  - coverage-matrix.csv
+  - fixture-registry.json
+  - implementation-questions.json
+  - source-checksums.json
+  - srs-inventory.json
+  - validation-report.json
+  - validation-report.md
+  - executive-handoff.md
+  - run-report.md
+  - representative-samples.md
+  - residual-risk-register.md
+  - artifact-index.md
+  - run-manifest.json
+rules:
+  placeholder_policy: "fail"
+  unique_ids: true
+  atomic_coverage_columns: true
+  exact_source_assertion: true
+  fixtures_require_expected_result: true
+  p0_assertion_dimensions: 8
+  evidence_verdict_honesty: true
+  false_ready_forbidden: true
+  contract_test_mapping_complete: true

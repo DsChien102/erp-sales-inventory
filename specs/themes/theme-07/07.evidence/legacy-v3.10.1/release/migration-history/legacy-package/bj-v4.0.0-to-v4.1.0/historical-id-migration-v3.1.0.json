@@ -1,0 +1,886 @@
+{
+  "version": "3.1.0",
+  "business_journeys": [
+    {
+      "number": 1,
+      "old_id": "BJ-AVL-01",
+      "new_id": "BJ-01",
+      "old_file": "01-BJ-AVL-01-xem-ton-va-kha-dung.md",
+      "new_file": "01-BJ-01-xem-ton-va-kha-dung.md",
+      "kind": "Nội miền"
+    },
+    {
+      "number": 2,
+      "old_id": "BJ-REC-01",
+      "new_id": "BJ-02",
+      "old_file": "02-BJ-REC-01-nhan-hang-mua.md",
+      "new_file": "02-BJ-02-nhan-hang-mua.md",
+      "kind": "Nội miền"
+    },
+    {
+      "number": 3,
+      "old_id": "BJ-VAL-01",
+      "new_id": "BJ-03",
+      "old_file": "03-BJ-VAL-01-xac-nhan-gia-tri-hang-nhan.md",
+      "new_file": "03-BJ-03-xac-nhan-gia-tri-hang-nhan.md",
+      "kind": "Nội miền"
+    },
+    {
+      "number": 4,
+      "old_id": "BJ-RES-01",
+      "new_id": "BJ-04",
+      "old_file": "04-BJ-RES-01-quan-ly-vong-doi-giu-hang.md",
+      "new_file": "04-BJ-04-quan-ly-vong-doi-giu-hang.md",
+      "kind": "Nội miền"
+    },
+    {
+      "number": 5,
+      "old_id": "XBJ-POS-01",
+      "new_id": "BJ-05",
+      "old_file": "05-XBJ-POS-01-checkout-pos-truc-tuyen.md",
+      "new_file": "05-BJ-05-checkout-pos-truc-tuyen.md",
+      "kind": "Liên miền"
+    },
+    {
+      "number": 6,
+      "old_id": "XBJ-FUL-01",
+      "new_id": "BJ-06",
+      "old_file": "06-XBJ-FUL-01-lay-hang-va-ban-giao.md",
+      "new_file": "06-BJ-06-lay-hang-va-ban-giao.md",
+      "kind": "Liên miền"
+    },
+    {
+      "number": 7,
+      "old_id": "XBJ-CRT-01",
+      "new_id": "BJ-07",
+      "old_file": "07-XBJ-CRT-01-tiep-nhan-va-phan-loai-hang-khach-tra.md",
+      "new_file": "07-BJ-07-tiep-nhan-va-phan-loai-hang-khach-tra.md",
+      "kind": "Liên miền"
+    },
+    {
+      "number": 8,
+      "old_id": "XBJ-SRT-01",
+      "new_id": "BJ-08",
+      "old_file": "08-XBJ-SRT-01-tra-hang-cho-nha-cung-cap.md",
+      "new_file": "08-BJ-08-tra-hang-cho-nha-cung-cap.md",
+      "kind": "Liên miền"
+    },
+    {
+      "number": 9,
+      "old_id": "BJ-CNT-01",
+      "new_id": "BJ-09",
+      "old_file": "09-BJ-CNT-01-kiem-ke-va-dieu-chinh-chenh-lech.md",
+      "new_file": "09-BJ-09-kiem-ke-va-dieu-chinh-chenh-lech.md",
+      "kind": "Nội miền"
+    },
+    {
+      "number": 10,
+      "old_id": "BJ-STA-01",
+      "new_id": "BJ-10",
+      "old_file": "10-BJ-STA-01-quan-ly-trang-thai-hang.md",
+      "new_file": "10-BJ-10-quan-ly-trang-thai-hang.md",
+      "kind": "Nội miền"
+    },
+    {
+      "number": 11,
+      "old_id": "BJ-DSP-01",
+      "new_id": "BJ-11",
+      "old_file": "11-BJ-DSP-01-tieu-huy-hang.md",
+      "new_file": "11-BJ-11-tieu-huy-hang.md",
+      "kind": "Nội miền"
+    },
+    {
+      "number": 12,
+      "old_id": "BJ-COR-01",
+      "new_id": "BJ-12",
+      "old_file": "12-BJ-COR-01-huy-va-sua-sai-nghiep-vu-kho.md",
+      "new_file": "12-BJ-12-huy-va-sua-sai-nghiep-vu-kho.md",
+      "kind": "Nội miền"
+    },
+    {
+      "number": 13,
+      "old_id": "BJ-OPN-01",
+      "new_id": "BJ-13",
+      "old_file": "13-BJ-OPN-01-khoi-tao-so-du-ton-kho-dau-ky.md",
+      "new_file": "13-BJ-13-khoi-tao-so-du-ton-kho-dau-ky.md",
+      "kind": "Nội miền"
+    },
+    {
+      "number": 14,
+      "old_id": "BJ-LCV-01",
+      "new_id": "BJ-14",
+      "old_file": "14-BJ-LCV-01-ghi-nhan-chi-phi-mua-bo-sung.md",
+      "new_file": "14-BJ-14-ghi-nhan-chi-phi-mua-bo-sung.md",
+      "kind": "Nội miền"
+    },
+    {
+      "number": 15,
+      "old_id": "BJ-CST-01",
+      "new_id": "BJ-15",
+      "old_file": "15-BJ-CST-01-tinh-va-cong-bo-gia-von.md",
+      "new_file": "15-BJ-15-tinh-va-cong-bo-gia-von.md",
+      "kind": "Nội miền"
+    },
+    {
+      "number": 16,
+      "old_id": "BJ-POL-01",
+      "new_id": "BJ-16",
+      "old_file": "16-BJ-POL-01-cau-hinh-chinh-sach-ton-va-can-han.md",
+      "new_file": "16-BJ-16-cau-hinh-chinh-sach-ton-va-can-han.md",
+      "kind": "Nội miền"
+    },
+    {
+      "number": 17,
+      "old_id": "BJ-MON-01",
+      "new_id": "BJ-17",
+      "old_file": "17-BJ-MON-01-theo-doi-ton-thap-can-han-va-luong-goi-y.md",
+      "new_file": "17-BJ-17-theo-doi-ton-thap-can-han-va-luong-goi-y.md",
+      "kind": "Nội miền"
+    },
+    {
+      "number": 18,
+      "old_id": "BJ-RPT-01",
+      "new_id": "BJ-18",
+      "old_file": "18-BJ-RPT-01-tra-cuu-bao-cao-ton-va-the-kho.md",
+      "new_file": "18-BJ-18-tra-cuu-bao-cao-ton-va-the-kho.md",
+      "kind": "Nội miền"
+    },
+    {
+      "number": 19,
+      "old_id": "BJ-RCN-01",
+      "new_id": "BJ-19",
+      "old_file": "19-BJ-RCN-01-dieu-tra-va-doi-soat-sai-lech.md",
+      "new_file": "19-BJ-19-dieu-tra-va-doi-soat-sai-lech.md",
+      "kind": "Nội miền"
+    },
+    {
+      "number": 20,
+      "old_id": "BJ-RCV-01",
+      "new_id": "BJ-20",
+      "old_file": "20-BJ-RCV-01-phuc-hoi-nghiep-vu-ket-qua-chua-xac-dinh.md",
+      "new_file": "20-BJ-20-phuc-hoi-nghiep-vu-ket-qua-chua-xac-dinh.md",
+      "kind": "Nội miền"
+    },
+    {
+      "number": 21,
+      "old_id": "BJ-RCV-02",
+      "new_id": "BJ-21",
+      "old_file": "21-BJ-RCV-02-dung-lai-du-lieu-dan-xuat-tu-so-kho.md",
+      "new_file": "21-BJ-21-dung-lai-du-lieu-dan-xuat-tu-so-kho.md",
+      "kind": "Nội miền"
+    },
+    {
+      "number": 22,
+      "old_id": "XBJ-PUR-01",
+      "new_id": "BJ-22",
+      "old_file": "22-XBJ-PUR-01-lap-kich-ban-chiet-khau-mua-hang.md",
+      "new_file": "22-BJ-22-lap-kich-ban-chiet-khau-mua-hang.md",
+      "kind": "Liên miền"
+    },
+    {
+      "number": 23,
+      "old_id": "XBJ-PRC-01",
+      "new_id": "BJ-23",
+      "old_file": "23-XBJ-PRC-01-chuan-bi-gia-ban-tu-gia-von-tham-chieu.md",
+      "new_file": "23-BJ-23-chuan-bi-gia-ban-tu-gia-von-tham-chieu.md",
+      "kind": "Liên miền"
+    },
+    {
+      "number": 24,
+      "old_id": "XBJ-PRC-02",
+      "new_id": "BJ-24",
+      "old_file": "24-XBJ-PRC-02-ra-soat-nguon-dinh-gia-sau-chot-ky.md",
+      "new_file": "24-BJ-24-ra-soat-nguon-dinh-gia-sau-chot-ky.md",
+      "kind": "Liên miền"
+    },
+    {
+      "number": 25,
+      "old_id": "XBJ-ANA-01",
+      "new_id": "BJ-25",
+      "old_file": "25-XBJ-ANA-01-so-sanh-ba-cach-nhin-loi-nhuan.md",
+      "new_file": "25-BJ-25-so-sanh-ba-cach-nhin-loi-nhuan.md",
+      "kind": "Liên miền"
+    }
+  ],
+  "use_cases": [
+    {
+      "old_id": "UC-AVL-01",
+      "new_id": "UC-01-01",
+      "old_file": "01-UC-AVL-01-xac-dinh-ngu-canh-va-san-pham.md",
+      "new_file": "BJ-01-xem-ton-va-kha-dung/UC-01-01-xac-dinh-ngu-canh-va-san-pham.md",
+      "shared_behavior": false
+    },
+    {
+      "old_id": "UC-AVL-02",
+      "new_id": "UC-01-02",
+      "old_file": "02-UC-AVL-02-xem-ton-va-kha-dung.md",
+      "new_file": "BJ-01-xem-ton-va-kha-dung/UC-01-02-xem-ton-va-kha-dung.md",
+      "shared_behavior": false
+    },
+    {
+      "old_id": "UC-AVL-03",
+      "new_id": "UC-01-03",
+      "old_file": "03-UC-AVL-03-truy-nguyen-bien-dong.md",
+      "new_file": "BJ-01-xem-ton-va-kha-dung/UC-01-03-truy-nguyen-bien-dong.md",
+      "shared_behavior": false
+    },
+    {
+      "old_id": "UC-REC-01",
+      "new_id": "UC-02-01",
+      "old_file": "04-UC-REC-01-chuan-bi-nhan-theo-chung-tu.md",
+      "new_file": "BJ-02-nhan-hang-mua/UC-02-01-chuan-bi-nhan-theo-chung-tu.md",
+      "shared_behavior": false
+    },
+    {
+      "old_id": "UC-REC-02",
+      "new_id": "UC-02-02",
+      "old_file": "05-UC-REC-02-chuan-bi-nhap-hang-nhanh.md",
+      "new_file": "BJ-02-nhan-hang-mua/UC-02-02-chuan-bi-nhap-hang-nhanh.md",
+      "shared_behavior": false
+    },
+    {
+      "old_id": "UC-REC-03",
+      "new_id": "UC-02-03",
+      "old_file": "06-UC-REC-03-phe-duyet-ngoai-le.md",
+      "new_file": "BJ-02-nhan-hang-mua/UC-02-03-phe-duyet-yeu-cau-nhan-hang.md",
+      "shared_behavior": false
+    },
+    {
+      "old_id": "SUC-REC-01",
+      "new_id": "UC-02-04",
+      "old_file": "07-SUC-REC-01-ghi-nhan-hang-vao-ton-vat-ly.md",
+      "new_file": "BJ-02-nhan-hang-mua/UC-02-04-ghi-nhan-hang-vao-ton-vat-ly.md",
+      "shared_behavior": true
+    },
+    {
+      "old_id": "UC-REC-04",
+      "new_id": "UC-02-05",
+      "old_file": "08-UC-REC-04-doi-soat-ket-qua-nhan-hang.md",
+      "new_file": "BJ-02-nhan-hang-mua/UC-02-05-doi-soat-ket-qua-nhan-hang.md",
+      "shared_behavior": false
+    },
+    {
+      "old_id": "UC-VAL-01",
+      "new_id": "UC-03-01",
+      "old_file": "09-UC-VAL-01-chon-pham-vi-can-dinh-gia.md",
+      "new_file": "BJ-03-xac-nhan-gia-tri-hang-nhan/UC-03-01-chon-pham-vi-can-dinh-gia.md",
+      "shared_behavior": false
+    },
+    {
+      "old_id": "UC-VAL-02",
+      "new_id": "UC-03-02",
+      "old_file": "10-UC-VAL-02-xac-dinh-gia-nhap-thuc-te.md",
+      "new_file": "BJ-03-xac-nhan-gia-tri-hang-nhan/UC-03-02-xac-dinh-gia-nhap-thuc-te.md",
+      "shared_behavior": false
+    },
+    {
+      "old_id": "UC-VAL-03",
+      "new_id": "UC-03-03",
+      "old_file": "11-UC-VAL-03-xac-nhan-gia-tri.md",
+      "new_file": "BJ-03-xac-nhan-gia-tri-hang-nhan/UC-03-03-xac-nhan-gia-tri.md",
+      "shared_behavior": false
+    },
+    {
+      "old_id": "UC-RES-01",
+      "new_id": "UC-04-01",
+      "old_file": "12-UC-RES-01-tao-reservation.md",
+      "new_file": "BJ-04-quan-ly-vong-doi-giu-hang/UC-04-01-tao-reservation.md",
+      "shared_behavior": false
+    },
+    {
+      "old_id": "UC-RES-02",
+      "new_id": "UC-04-02",
+      "old_file": "13-UC-RES-02-dieu-chinh-reservation.md",
+      "new_file": "BJ-04-quan-ly-vong-doi-giu-hang/UC-04-02-dieu-chinh-reservation.md",
+      "shared_behavior": false
+    },
+    {
+      "old_id": "UC-RES-03",
+      "new_id": "UC-04-03",
+      "old_file": "14-UC-RES-03-ket-thuc-va-giai-phong.md",
+      "new_file": "BJ-04-quan-ly-vong-doi-giu-hang/UC-04-03-ket-thuc-va-giai-phong.md",
+      "shared_behavior": false
+    },
+    {
+      "old_id": "UC-RES-04",
+      "new_id": "UC-04-04",
+      "old_file": "15-UC-RES-04-danh-gia-lai-va-xu-ly-thieu.md",
+      "new_file": "BJ-04-quan-ly-vong-doi-giu-hang/UC-04-04-danh-gia-lai-va-xu-ly-thieu.md",
+      "shared_behavior": false
+    },
+    {
+      "old_id": "UC-POS-01",
+      "new_id": "UC-05-01",
+      "old_file": "16-UC-POS-01-kiem-tra-dieu-kien-xuat.md",
+      "new_file": "BJ-05-checkout-pos-truc-tuyen/UC-05-01-kiem-tra-dieu-kien-xuat.md",
+      "shared_behavior": false
+    },
+    {
+      "old_id": "UC-POS-02",
+      "new_id": "UC-05-02",
+      "old_file": "17-UC-POS-02-chon-hang-va-ghi-xuat.md",
+      "new_file": "BJ-05-checkout-pos-truc-tuyen/UC-05-02-chon-hang-va-ghi-xuat.md",
+      "shared_behavior": false
+    },
+    {
+      "old_id": "UC-POS-03",
+      "new_id": "UC-05-03",
+      "old_file": "18-UC-POS-03-phuc-hoi-finality.md",
+      "new_file": "BJ-05-checkout-pos-truc-tuyen/UC-05-03-phuc-hoi-finality.md",
+      "shared_behavior": false
+    },
+    {
+      "old_id": "SUC-ISS-01",
+      "new_id": "UC-05-04",
+      "old_file": "19-SUC-ISS-01-ghi-xuat-kho-nguyen-tu.md",
+      "new_file": "BJ-05-checkout-pos-truc-tuyen/UC-05-04-ghi-xuat-kho-nguyen-tu.md",
+      "shared_behavior": true
+    },
+    {
+      "old_id": "UC-FUL-01",
+      "new_id": "UC-06-01",
+      "old_file": "20-UC-FUL-01-lap-allocation.md",
+      "new_file": "BJ-06-lay-hang-va-ban-giao/UC-06-01-lap-allocation.md",
+      "shared_behavior": false
+    },
+    {
+      "old_id": "UC-FUL-02",
+      "new_id": "UC-06-02",
+      "old_file": "21-UC-FUL-02-xac-nhan-hang-da-lay.md",
+      "new_file": "BJ-06-lay-hang-va-ban-giao/UC-06-02-xac-nhan-hang-da-lay.md",
+      "shared_behavior": false
+    },
+    {
+      "old_id": "UC-FUL-03",
+      "new_id": "UC-06-03",
+      "old_file": "22-UC-FUL-03-ban-giao-hang.md",
+      "new_file": "BJ-06-lay-hang-va-ban-giao/UC-06-03-ban-giao-hang.md",
+      "shared_behavior": false
+    },
+    {
+      "old_id": "UC-FUL-04",
+      "new_id": "UC-06-04",
+      "old_file": "23-UC-FUL-04-phuc-hoi-allocation-stale.md",
+      "new_file": "BJ-06-lay-hang-va-ban-giao/UC-06-04-phuc-hoi-allocation-stale.md",
+      "shared_behavior": false
+    },
+    {
+      "old_id": "UC-CRT-01",
+      "new_id": "UC-07-01",
+      "old_file": "24-UC-CRT-01-xac-minh-hang-duoc-phep-nhan-tra.md",
+      "new_file": "BJ-07-tiep-nhan-va-phan-loai-hang-khach-tra/UC-07-01-xac-minh-hang-duoc-phep-nhan-tra.md",
+      "shared_behavior": false
+    },
+    {
+      "old_id": "UC-CRT-02",
+      "new_id": "UC-07-02",
+      "old_file": "25-UC-CRT-02-xu-ly-ngoai-le-truy-vet.md",
+      "new_file": "BJ-07-tiep-nhan-va-phan-loai-hang-khach-tra/UC-07-02-xu-ly-ngoai-le-truy-vet.md",
+      "shared_behavior": false
+    },
+    {
+      "old_id": "SUC-CRT-01",
+      "new_id": "UC-07-03",
+      "old_file": "26-SUC-CRT-01-ghi-nhan-hang-khach-tra.md",
+      "new_file": "BJ-07-tiep-nhan-va-phan-loai-hang-khach-tra/UC-07-03-ghi-nhan-hang-khach-tra.md",
+      "shared_behavior": true
+    },
+    {
+      "old_id": "UC-CRT-03",
+      "new_id": "UC-07-04",
+      "old_file": "27-UC-CRT-03-phan-loai-hang-thuc-nhan.md",
+      "new_file": "BJ-07-tiep-nhan-va-phan-loai-hang-khach-tra/UC-07-04-phan-loai-hang-thuc-nhan.md",
+      "shared_behavior": false
+    },
+    {
+      "old_id": "UC-SRT-01",
+      "new_id": "UC-08-01",
+      "old_file": "28-UC-SRT-01-xac-minh-pham-vi-tra.md",
+      "new_file": "BJ-08-tra-hang-cho-nha-cung-cap/UC-08-01-xac-minh-pham-vi-tra.md",
+      "shared_behavior": false
+    },
+    {
+      "old_id": "UC-SRT-02",
+      "new_id": "UC-08-02",
+      "old_file": "29-UC-SRT-02-dua-hang-vao-cho-tra.md",
+      "new_file": "BJ-08-tra-hang-cho-nha-cung-cap/UC-08-02-dua-hang-vao-cho-tra.md",
+      "shared_behavior": false
+    },
+    {
+      "old_id": "UC-SRT-03",
+      "new_id": "UC-08-03",
+      "old_file": "30-UC-SRT-03-dieu-chinh-hoac-huy-truoc-ban-giao.md",
+      "new_file": "BJ-08-tra-hang-cho-nha-cung-cap/UC-08-03-dieu-chinh-hoac-huy-truoc-ban-giao.md",
+      "shared_behavior": false
+    },
+    {
+      "old_id": "SUC-SRT-01",
+      "new_id": "UC-08-04",
+      "old_file": "31-SUC-SRT-01-ghi-nhan-ban-giao-tra-nha-cung-cap.md",
+      "new_file": "BJ-08-tra-hang-cho-nha-cung-cap/UC-08-04-ghi-nhan-ban-giao-tra-nha-cung-cap.md",
+      "shared_behavior": true
+    },
+    {
+      "old_id": "UC-CNT-01",
+      "new_id": "UC-09-01",
+      "old_file": "32-UC-CNT-01-mo-va-khoa-pham-vi.md",
+      "new_file": "BJ-09-kiem-ke-va-dieu-chinh-chenh-lech/UC-09-01-mo-va-khoa-pham-vi.md",
+      "shared_behavior": false
+    },
+    {
+      "old_id": "UC-CNT-02",
+      "new_id": "UC-09-02",
+      "old_file": "33-UC-CNT-02-ghi-nhan-lan-dem-mu.md",
+      "new_file": "BJ-09-kiem-ke-va-dieu-chinh-chenh-lech/UC-09-02-ghi-nhan-lan-dem-mu.md",
+      "shared_behavior": false
+    },
+    {
+      "old_id": "UC-CNT-03",
+      "new_id": "UC-09-03",
+      "old_file": "34-UC-CNT-03-dem-lai-va-hoan-thien-bang-chung.md",
+      "new_file": "BJ-09-kiem-ke-va-dieu-chinh-chenh-lech/UC-09-03-dem-lai-va-hoan-thien-bang-chung.md",
+      "shared_behavior": false
+    },
+    {
+      "old_id": "UC-CNT-04",
+      "new_id": "UC-09-04",
+      "old_file": "35-UC-CNT-04-duyet-va-dieu-chinh.md",
+      "new_file": "BJ-09-kiem-ke-va-dieu-chinh-chenh-lech/UC-09-04-duyet-va-dieu-chinh.md",
+      "shared_behavior": false
+    },
+    {
+      "old_id": "UC-CNT-05",
+      "new_id": "UC-09-05",
+      "old_file": "36-UC-CNT-05-huy-phien-kiem-ke.md",
+      "new_file": "BJ-09-kiem-ke-va-dieu-chinh-chenh-lech/UC-09-05-huy-phien-kiem-ke.md",
+      "shared_behavior": false
+    },
+    {
+      "old_id": "UC-STA-01",
+      "new_id": "UC-10-01",
+      "old_file": "37-UC-STA-01-chuan-bi-thay-doi-trang-thai.md",
+      "new_file": "BJ-10-quan-ly-trang-thai-hang/UC-10-01-chuan-bi-thay-doi-trang-thai.md",
+      "shared_behavior": false
+    },
+    {
+      "old_id": "UC-STA-02",
+      "new_id": "UC-10-02",
+      "old_file": "38-UC-STA-02-phe-duyet-thay-doi-trang-thai.md",
+      "new_file": "BJ-10-quan-ly-trang-thai-hang/UC-10-02-phe-duyet-thay-doi-trang-thai.md",
+      "shared_behavior": false
+    },
+    {
+      "old_id": "UC-STA-03",
+      "new_id": "UC-10-03",
+      "old_file": "39-UC-STA-03-xac-dinh-hang-het-han.md",
+      "new_file": "BJ-10-quan-ly-trang-thai-hang/UC-10-03-xac-dinh-hang-het-han.md",
+      "shared_behavior": false
+    },
+    {
+      "old_id": "SUC-STA-01",
+      "new_id": "UC-10-04",
+      "old_file": "40-SUC-STA-01-ghi-state-movement.md",
+      "new_file": "BJ-10-quan-ly-trang-thai-hang/UC-10-04-ghi-state-movement.md",
+      "shared_behavior": true
+    },
+    {
+      "old_id": "UC-DSP-01",
+      "new_id": "UC-11-01",
+      "old_file": "41-UC-DSP-01-chuan-bi-yeu-cau-tieu-huy.md",
+      "new_file": "BJ-11-tieu-huy-hang/UC-11-01-chuan-bi-yeu-cau-tieu-huy.md",
+      "shared_behavior": false
+    },
+    {
+      "old_id": "UC-DSP-02",
+      "new_id": "UC-11-02",
+      "old_file": "42-UC-DSP-02-phe-duyet-tieu-huy.md",
+      "new_file": "BJ-11-tieu-huy-hang/UC-11-02-phe-duyet-tieu-huy.md",
+      "shared_behavior": false
+    },
+    {
+      "old_id": "UC-DSP-03",
+      "new_id": "UC-11-03",
+      "old_file": "43-UC-DSP-03-xac-nhan-da-tieu-huy.md",
+      "new_file": "BJ-11-tieu-huy-hang/UC-11-03-xac-nhan-da-tieu-huy.md",
+      "shared_behavior": false
+    },
+    {
+      "old_id": "SUC-DSP-01",
+      "new_id": "UC-11-04",
+      "old_file": "44-SUC-DSP-01-ghi-giam-hang-tieu-huy.md",
+      "new_file": "BJ-11-tieu-huy-hang/UC-11-04-ghi-giam-hang-tieu-huy.md",
+      "shared_behavior": true
+    },
+    {
+      "old_id": "UC-COR-01",
+      "new_id": "UC-12-01",
+      "old_file": "45-UC-COR-01-xac-dinh-duong-xu-ly.md",
+      "new_file": "BJ-12-huy-va-sua-sai-nghiep-vu-kho/UC-12-01-xac-dinh-duong-xu-ly.md",
+      "shared_behavior": false
+    },
+    {
+      "old_id": "UC-COR-02",
+      "new_id": "UC-12-02",
+      "old_file": "46-UC-COR-02-huy-operation-chua-thuc-thi.md",
+      "new_file": "BJ-12-huy-va-sua-sai-nghiep-vu-kho/UC-12-02-huy-operation-chua-thuc-thi.md",
+      "shared_behavior": false
+    },
+    {
+      "old_id": "UC-COR-03",
+      "new_id": "UC-12-03",
+      "old_file": "47-UC-COR-03-chuan-bi-phuong-an-correction.md",
+      "new_file": "BJ-12-huy-va-sua-sai-nghiep-vu-kho/UC-12-03-chuan-bi-phuong-an-correction.md",
+      "shared_behavior": false
+    },
+    {
+      "old_id": "UC-COR-04",
+      "new_id": "UC-12-04",
+      "old_file": "48-UC-COR-04-phe-duyet-correction.md",
+      "new_file": "BJ-12-huy-va-sua-sai-nghiep-vu-kho/UC-12-04-phe-duyet-correction.md",
+      "shared_behavior": false
+    },
+    {
+      "old_id": "SUC-COR-01",
+      "new_id": "UC-12-05",
+      "old_file": "49-SUC-COR-01-ghi-correction-chain.md",
+      "new_file": "BJ-12-huy-va-sua-sai-nghiep-vu-kho/UC-12-05-ghi-correction-chain.md",
+      "shared_behavior": true
+    },
+    {
+      "old_id": "UC-OPN-01",
+      "new_id": "UC-13-01",
+      "old_file": "50-UC-OPN-01-nap-va-kiem-tra-batch-dau-ky.md",
+      "new_file": "BJ-13-khoi-tao-so-du-ton-kho-dau-ky/UC-13-01-nap-va-kiem-tra-batch-dau-ky.md",
+      "shared_behavior": false
+    },
+    {
+      "old_id": "UC-OPN-02",
+      "new_id": "UC-13-02",
+      "old_file": "51-UC-OPN-02-ra-soat-va-duyet-batch.md",
+      "new_file": "BJ-13-khoi-tao-so-du-ton-kho-dau-ky/UC-13-02-ra-soat-va-duyet-batch.md",
+      "shared_behavior": false
+    },
+    {
+      "old_id": "UC-OPN-03",
+      "new_id": "UC-13-03",
+      "old_file": "52-UC-OPN-03-commit-va-kich-hoat-ton-kho.md",
+      "new_file": "BJ-13-khoi-tao-so-du-ton-kho-dau-ky/UC-13-03-commit-va-kich-hoat-ton-kho.md",
+      "shared_behavior": false
+    },
+    {
+      "old_id": "UC-LCV-01",
+      "new_id": "UC-14-01",
+      "old_file": "53-UC-LCV-01-xac-dinh-nguon-va-pham-vi.md",
+      "new_file": "BJ-14-ghi-nhan-chi-phi-mua-bo-sung/UC-14-01-xac-dinh-nguon-va-pham-vi.md",
+      "shared_behavior": false
+    },
+    {
+      "old_id": "UC-LCV-02",
+      "new_id": "UC-14-02",
+      "old_file": "54-UC-LCV-02-tinh-va-phan-bo-chi-phi.md",
+      "new_file": "BJ-14-ghi-nhan-chi-phi-mua-bo-sung/UC-14-02-tinh-va-phan-bo-chi-phi.md",
+      "shared_behavior": false
+    },
+    {
+      "old_id": "UC-LCV-03",
+      "new_id": "UC-14-03",
+      "old_file": "55-UC-LCV-03-xac-nhan-ghi-nhan-chi-phi.md",
+      "new_file": "BJ-14-ghi-nhan-chi-phi-mua-bo-sung/UC-14-03-xac-nhan-ghi-nhan-chi-phi.md",
+      "shared_behavior": false
+    },
+    {
+      "old_id": "UC-CST-01",
+      "new_id": "UC-15-01",
+      "old_file": "56-UC-CST-01-xac-dinh-ky-pham-vi-va-chinh-sach.md",
+      "new_file": "BJ-15-tinh-va-cong-bo-gia-von/UC-15-01-xac-dinh-ky-pham-vi-va-chinh-sach.md",
+      "shared_behavior": false
+    },
+    {
+      "old_id": "UC-CST-02",
+      "new_id": "UC-15-02",
+      "old_file": "57-UC-CST-02-tinh-gia-von-va-phat-hien-blocker.md",
+      "new_file": "BJ-15-tinh-va-cong-bo-gia-von/UC-15-02-tinh-gia-von-va-phat-hien-blocker.md",
+      "shared_behavior": false
+    },
+    {
+      "old_id": "UC-CST-03",
+      "new_id": "UC-15-03",
+      "old_file": "58-UC-CST-03-ra-soat-ket-qua.md",
+      "new_file": "BJ-15-tinh-va-cong-bo-gia-von/UC-15-03-ra-soat-ket-qua.md",
+      "shared_behavior": false
+    },
+    {
+      "old_id": "UC-CST-04",
+      "new_id": "UC-15-04",
+      "old_file": "59-UC-CST-04-cong-bo-gia-von.md",
+      "new_file": "BJ-15-tinh-va-cong-bo-gia-von/UC-15-04-cong-bo-gia-von.md",
+      "shared_behavior": false
+    },
+    {
+      "old_id": "UC-POL-01",
+      "new_id": "UC-16-01",
+      "old_file": "60-UC-POL-01-cau-hinh-nguong-ton-san-pham.md",
+      "new_file": "BJ-16-cau-hinh-chinh-sach-ton-va-can-han/UC-16-01-cau-hinh-nguong-ton-san-pham.md",
+      "shared_behavior": false
+    },
+    {
+      "old_id": "UC-POL-02",
+      "new_id": "UC-16-02",
+      "old_file": "61-UC-POL-02-cau-hinh-can-han-mac-dinh.md",
+      "new_file": "BJ-16-cau-hinh-chinh-sach-ton-va-can-han/UC-16-02-cau-hinh-can-han-mac-dinh.md",
+      "shared_behavior": false
+    },
+    {
+      "old_id": "UC-POL-03",
+      "new_id": "UC-16-03",
+      "old_file": "62-UC-POL-03-ghi-de-can-han-theo-san-pham.md",
+      "new_file": "BJ-16-cau-hinh-chinh-sach-ton-va-can-han/UC-16-03-ghi-de-can-han-theo-san-pham.md",
+      "shared_behavior": false
+    },
+    {
+      "old_id": "UC-MON-01",
+      "new_id": "UC-17-01",
+      "old_file": "63-UC-MON-01-xac-dinh-pham-vi-theo-doi.md",
+      "new_file": "BJ-17-theo-doi-ton-thap-can-han-va-luong-goi-y/UC-17-01-xac-dinh-pham-vi-theo-doi.md",
+      "shared_behavior": false
+    },
+    {
+      "old_id": "UC-MON-02",
+      "new_id": "UC-17-02",
+      "old_file": "64-UC-MON-02-xem-ton-thap-va-luong-goi-y.md",
+      "new_file": "BJ-17-theo-doi-ton-thap-can-han-va-luong-goi-y/UC-17-02-xem-ton-thap-va-luong-goi-y.md",
+      "shared_behavior": false
+    },
+    {
+      "old_id": "UC-MON-03",
+      "new_id": "UC-17-03",
+      "old_file": "65-UC-MON-03-xem-hang-can-han-va-het-han.md",
+      "new_file": "BJ-17-theo-doi-ton-thap-can-han-va-luong-goi-y/UC-17-03-xem-hang-can-han-va-het-han.md",
+      "shared_behavior": false
+    },
+    {
+      "old_id": "UC-RPT-01",
+      "new_id": "UC-18-01",
+      "old_file": "66-UC-RPT-01-xac-dinh-bao-cao-va-pham-vi.md",
+      "new_file": "BJ-18-tra-cuu-bao-cao-ton-va-the-kho/UC-18-01-xac-dinh-bao-cao-va-pham-vi.md",
+      "shared_behavior": false
+    },
+    {
+      "old_id": "UC-RPT-02",
+      "new_id": "UC-18-02",
+      "old_file": "67-UC-RPT-02-xem-bao-cao-ton-kho.md",
+      "new_file": "BJ-18-tra-cuu-bao-cao-ton-va-the-kho/UC-18-02-xem-bao-cao-ton-kho.md",
+      "shared_behavior": false
+    },
+    {
+      "old_id": "UC-RPT-03",
+      "new_id": "UC-18-03",
+      "old_file": "68-UC-RPT-03-xem-the-kho-va-lich-su.md",
+      "new_file": "BJ-18-tra-cuu-bao-cao-ton-va-the-kho/UC-18-03-xem-the-kho-va-lich-su.md",
+      "shared_behavior": false
+    },
+    {
+      "old_id": "UC-RPT-04",
+      "new_id": "UC-18-04",
+      "old_file": "69-UC-RPT-04-xuat-bao-cao.md",
+      "new_file": "BJ-18-tra-cuu-bao-cao-ton-va-the-kho/UC-18-04-xuat-bao-cao.md",
+      "shared_behavior": false
+    },
+    {
+      "old_id": "UC-RCN-01",
+      "new_id": "UC-19-01",
+      "old_file": "70-UC-RCN-01-mo-va-phan-loai-ho-so-doi-soat.md",
+      "new_file": "BJ-19-dieu-tra-va-doi-soat-sai-lech/UC-19-01-mo-va-phan-loai-ho-so-doi-soat.md",
+      "shared_behavior": false
+    },
+    {
+      "old_id": "SUC-RCN-01",
+      "new_id": "UC-19-02",
+      "old_file": "71-SUC-RCN-01-bao-ve-pham-vi-rui-ro.md",
+      "new_file": "BJ-19-dieu-tra-va-doi-soat-sai-lech/UC-19-02-bao-ve-pham-vi-rui-ro.md",
+      "shared_behavior": true
+    },
+    {
+      "old_id": "UC-RCN-02",
+      "new_id": "UC-19-03",
+      "old_file": "72-UC-RCN-02-dieu-tra-va-xac-dinh-nguyen-nhan.md",
+      "new_file": "BJ-19-dieu-tra-va-doi-soat-sai-lech/UC-19-03-dieu-tra-va-xac-dinh-nguyen-nhan.md",
+      "shared_behavior": false
+    },
+    {
+      "old_id": "UC-RCN-03",
+      "new_id": "UC-19-04",
+      "old_file": "73-UC-RCN-03-xac-minh-va-cap-nhat-ket-qua-doi-soat.md",
+      "new_file": "BJ-19-dieu-tra-va-doi-soat-sai-lech/UC-19-04-xac-minh-va-cap-nhat-ket-qua-doi-soat.md",
+      "shared_behavior": false
+    },
+    {
+      "old_id": "UC-UNK-01",
+      "new_id": "UC-20-01",
+      "old_file": "74-UC-UNK-01-thu-thap-va-danh-gia-bang-chung.md",
+      "new_file": "BJ-20-phuc-hoi-nghiep-vu-ket-qua-chua-xac-dinh/UC-20-01-thu-thap-va-danh-gia-bang-chung.md",
+      "shared_behavior": false
+    },
+    {
+      "old_id": "UC-UNK-02",
+      "new_id": "UC-20-02",
+      "old_file": "75-UC-UNK-02-xac-lap-operation-da-hoan-tat.md",
+      "new_file": "BJ-20-phuc-hoi-nghiep-vu-ket-qua-chua-xac-dinh/UC-20-02-xac-lap-operation-da-hoan-tat.md",
+      "shared_behavior": false
+    },
+    {
+      "old_id": "SUC-UNK-01",
+      "new_id": "UC-20-03",
+      "old_file": "76-SUC-UNK-01-tiep-tuc-cung-operation-identity.md",
+      "new_file": "BJ-20-phuc-hoi-nghiep-vu-ket-qua-chua-xac-dinh/UC-20-03-tiep-tuc-cung-operation-identity.md",
+      "shared_behavior": true
+    },
+    {
+      "old_id": "UC-UNK-03",
+      "new_id": "UC-20-04",
+      "old_file": "77-UC-UNK-03-giu-chua-xac-dinh-va-escalated.md",
+      "new_file": "BJ-20-phuc-hoi-nghiep-vu-ket-qua-chua-xac-dinh/UC-20-04-giu-chua-xac-dinh-va-escalated.md",
+      "shared_behavior": false
+    },
+    {
+      "old_id": "UC-PRJ-01",
+      "new_id": "UC-21-01",
+      "old_file": "78-UC-PRJ-01-chuan-bi-pham-vi-dung-lai.md",
+      "new_file": "BJ-21-dung-lai-du-lieu-dan-xuat-tu-so-kho/UC-21-01-chuan-bi-pham-vi-dung-lai.md",
+      "shared_behavior": false
+    },
+    {
+      "old_id": "SUC-PRJ-01",
+      "new_id": "UC-21-02",
+      "old_file": "79-SUC-PRJ-01-bao-ve-phien-ban-du-lieu-dan-xuat.md",
+      "new_file": "BJ-21-dung-lai-du-lieu-dan-xuat-tu-so-kho/UC-21-02-bao-ve-phien-ban-du-lieu-dan-xuat.md",
+      "shared_behavior": true
+    },
+    {
+      "old_id": "UC-PRJ-02",
+      "new_id": "UC-21-03",
+      "old_file": "80-UC-PRJ-02-dung-lai-tu-ledger.md",
+      "new_file": "BJ-21-dung-lai-du-lieu-dan-xuat-tu-so-kho/UC-21-03-dung-lai-tu-ledger.md",
+      "shared_behavior": false
+    },
+    {
+      "old_id": "UC-PRJ-03",
+      "new_id": "UC-21-04",
+      "old_file": "81-UC-PRJ-03-xac-minh-va-cong-bo-ket-qua.md",
+      "new_file": "BJ-21-dung-lai-du-lieu-dan-xuat-tu-so-kho/UC-21-04-xac-minh-va-cong-bo-ket-qua.md",
+      "shared_behavior": false
+    },
+    {
+      "old_id": "UC-PUR-01",
+      "new_id": "UC-22-01",
+      "old_file": "82-UC-PUR-01-tao-gia-dinh-kich-ban.md",
+      "new_file": "BJ-22-lap-kich-ban-chiet-khau-mua-hang/UC-22-01-tao-gia-dinh-kich-ban.md",
+      "shared_behavior": false
+    },
+    {
+      "old_id": "SUC-PUR-01",
+      "new_id": "UC-22-02",
+      "old_file": "83-SUC-PUR-01-quy-doi-quyen-loi-du-kien.md",
+      "new_file": "BJ-22-lap-kich-ban-chiet-khau-mua-hang/UC-22-02-quy-doi-quyen-loi-du-kien.md",
+      "shared_behavior": true
+    },
+    {
+      "old_id": "UC-PUR-02",
+      "new_id": "UC-22-03",
+      "old_file": "84-UC-PUR-02-ra-soat-va-so-sanh-kich-ban.md",
+      "new_file": "BJ-22-lap-kich-ban-chiet-khau-mua-hang/UC-22-03-ra-soat-va-so-sanh-kich-ban.md",
+      "shared_behavior": false
+    },
+    {
+      "old_id": "UC-PUR-03",
+      "new_id": "UC-22-04",
+      "old_file": "85-UC-PUR-03-ban-giao-ket-qua-du-kien.md",
+      "new_file": "BJ-22-lap-kich-ban-chiet-khau-mua-hang/UC-22-04-ban-giao-ket-qua-du-kien.md",
+      "shared_behavior": false
+    },
+    {
+      "old_id": "UC-PRC-01",
+      "new_id": "UC-23-01",
+      "old_file": "86-UC-PRC-01-chon-nguon-gia-von-tham-chieu.md",
+      "new_file": "BJ-23-chuan-bi-gia-ban-tu-gia-von-tham-chieu/UC-23-01-chon-nguon-gia-von-tham-chieu.md",
+      "shared_behavior": false
+    },
+    {
+      "old_id": "SUC-PRC-01",
+      "new_id": "UC-23-02",
+      "old_file": "87-SUC-PRC-01-kiem-tra-nguon-goc-dinh-gia.md",
+      "new_file": "BJ-23-chuan-bi-gia-ban-tu-gia-von-tham-chieu/UC-23-02-kiem-tra-nguon-goc-dinh-gia.md",
+      "shared_behavior": true
+    },
+    {
+      "old_id": "UC-PRC-02",
+      "new_id": "UC-23-03",
+      "old_file": "88-UC-PRC-02-cong-bo-gia-von-tham-chieu-dinh-gia.md",
+      "new_file": "BJ-23-chuan-bi-gia-ban-tu-gia-von-tham-chieu/UC-23-03-cong-bo-gia-von-tham-chieu-dinh-gia.md",
+      "shared_behavior": false
+    },
+    {
+      "old_id": "UC-PRC-03",
+      "new_id": "UC-23-04",
+      "old_file": "89-UC-PRC-03-tao-du-thao-gia-ban.md",
+      "new_file": "BJ-23-chuan-bi-gia-ban-tu-gia-von-tham-chieu/UC-23-04-tao-du-thao-gia-ban.md",
+      "shared_behavior": false
+    },
+    {
+      "old_id": "UC-PRC-04",
+      "new_id": "UC-24-01",
+      "old_file": "90-UC-PRC-04-mo-dot-ra-soat-dinh-gia.md",
+      "new_file": "BJ-24-ra-soat-nguon-dinh-gia-sau-chot-ky/UC-24-01-mo-dot-ra-soat-dinh-gia.md",
+      "shared_behavior": false
+    },
+    {
+      "old_id": "UC-PRC-05",
+      "new_id": "UC-24-02",
+      "old_file": "91-UC-PRC-05-xu-ly-nhom-dung-official-cost.md",
+      "new_file": "BJ-24-ra-soat-nguon-dinh-gia-sau-chot-ky/UC-24-02-xu-ly-nhom-dung-official-cost.md",
+      "shared_behavior": false
+    },
+    {
+      "old_id": "UC-PRC-06",
+      "new_id": "UC-24-03",
+      "old_file": "92-UC-PRC-06-quyet-dinh-cho-nguon-du-kien.md",
+      "new_file": "BJ-24-ra-soat-nguon-dinh-gia-sau-chot-ky/UC-24-03-quyet-dinh-cho-nguon-du-kien.md",
+      "shared_behavior": false
+    },
+    {
+      "old_id": "UC-PRC-07",
+      "new_id": "UC-24-04",
+      "old_file": "93-UC-PRC-07-hoan-tat-ket-qua-ra-soat.md",
+      "new_file": "BJ-24-ra-soat-nguon-dinh-gia-sau-chot-ky/UC-24-04-hoan-tat-ket-qua-ra-soat.md",
+      "shared_behavior": false
+    },
+    {
+      "old_id": "UC-ANA-01",
+      "new_id": "UC-25-01",
+      "old_file": "94-UC-ANA-01-xac-dinh-pham-vi-phan-tich.md",
+      "new_file": "BJ-25-so-sanh-ba-cach-nhin-loi-nhuan/UC-25-01-xac-dinh-pham-vi-phan-tich.md",
+      "shared_behavior": false
+    },
+    {
+      "old_id": "SUC-ANA-01",
+      "new_id": "UC-25-02",
+      "old_file": "95-SUC-ANA-01-hop-nhat-nguon-co-provenance.md",
+      "new_file": "BJ-25-so-sanh-ba-cach-nhin-loi-nhuan/UC-25-02-hop-nhat-nguon-co-provenance.md",
+      "shared_behavior": true
+    },
+    {
+      "old_id": "UC-ANA-02",
+      "new_id": "UC-25-03",
+      "old_file": "96-UC-ANA-02-hien-thi-ba-cach-nhin-loi-nhuan.md",
+      "new_file": "BJ-25-so-sanh-ba-cach-nhin-loi-nhuan/UC-25-03-hien-thi-ba-cach-nhin-loi-nhuan.md",
+      "shared_behavior": false
+    },
+    {
+      "old_id": "UC-ANA-03",
+      "new_id": "UC-25-04",
+      "old_file": "97-UC-ANA-03-truy-nguyen-va-xuat-ket-qua.md",
+      "new_file": "BJ-25-so-sanh-ba-cach-nhin-loi-nhuan/UC-25-04-truy-nguyen-va-xuat-ket-qua.md",
+      "shared_behavior": false
+    }
+  ]
+}

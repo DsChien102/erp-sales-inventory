@@ -1,0 +1,108 @@
+{
+  "status": "PASS",
+  "passed": 20,
+  "total": 20,
+  "checks": [
+    {
+      "name": "BJ05 lot replacement is canonical VBottomSheet, not Form Sheet",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Normal BJ05 lot sheet has no top-right close Icon Button",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Lot sheet still dismisses from backdrop contract",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "All VBottomSheet claims use canonical Figma node 4695:6353",
+      "pass": true,
+      "note": "11"
+    },
+    {
+      "name": "Cross-BJ product typography is hard-gated through Figma sans token",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "SCR-028 uses clearer handover wording",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "SCR-028 product units are grouped surfaces with allocation separators",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "SCR-028 root is 402px product width",
+      "pass": true,
+      "note": "{'w': 402, 'h': 874, 'x': 507, 'y': 192, 'font': 'Inter, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif', 'size': '14px', 'line': '21.7px', 'weight': '400', 'opacity': '1', 'display': 'flex', 'overflowX': 0}"
+    },
+    {
+      "name": "SCR-028 renders grouped handover product surface",
+      "pass": true,
+      "note": "1"
+    },
+    {
+      "name": "SCR-028 product surface is 370px and contained",
+      "pass": true,
+      "note": "{'w': 370, 'h': 384, 'x': 523, 'y': 694, 'font': 'Inter, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif', 'size': '14px', 'line': '21.7px', 'weight': '400', 'opacity': '1', 'display': 'flex', 'overflowX': 0}"
+    },
+    {
+      "name": "SCR-028 handover inputs fit 338px inner content",
+      "pass": true,
+      "note": "[{'w': 338, 'h': 44}, {'w': 338, 'h': 44}]"
+    },
+    {
+      "name": "BJ05 lot sheet hugs content below near-full Form Sheet height",
+      "pass": true,
+      "note": "{'w': 402, 'h': 563.9999389648438, 'x': 507, 'y': 517.3152465820312, 'font': 'Inter, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif', 'size': '14px', 'line': '21.7px', 'weight': '400', 'opacity': '0.659662', 'display': 'flex', 'overflowX': 0}"
+    },
+    {
+      "name": "BJ05 lot sheet has no close control",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Lot sheet VTextarea remains canonical 370x88 14/22",
+      "pass": true,
+      "note": "{'w': 370, 'h': 88, 'x': 539, 'y': 850.831298828125, 'font': 'Inter, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif', 'size': '14px', 'line': '22px', 'weight': '400', 'opacity': '1', 'display': 'block', 'overflowX': 0}"
+    },
+    {
+      "name": "Lot sheet title is Figma H3 18/24 Semi Bold",
+      "pass": true,
+      "note": "{'w': 370, 'h': 24, 'x': 523, 'y': 540.51708984375, 'font': 'Inter, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif', 'size': '18px', 'line': '24px', 'weight': '600', 'opacity': '1', 'display': 'block', 'overflowX': 0}"
+    },
+    {
+      "name": "Disabled CTA is canonical 370x44 with 0.4 opacity",
+      "pass": true,
+      "note": "{'w': 370, 'h': 44, 'x': 539, 'y': 972.51708984375, 'font': 'Inter, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif', 'size': '14px', 'line': '20px', 'weight': '600', 'opacity': '0.4', 'display': 'flex', 'overflowX': 0}"
+    },
+    {
+      "name": "All 85 built screens avoid UA serif fallback",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "All 85 built screens avoid product-root horizontal overflow",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "No known DS text container is clipped across built screens",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "No browser errors during cross-BJ fidelity QA",
+      "pass": true,
+      "note": ""
+    }
+  ],
+  "browserErrors": []
+}

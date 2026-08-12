@@ -1,0 +1,628 @@
+{
+  "version": "3.9.5",
+  "scope": "Wave 2 / BJ07 deep review",
+  "status": "PASS",
+  "passed": 52,
+  "total": 52,
+  "checks": [
+    {
+      "name": "Runtime prototype identifies v3.9.5",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ07 queue search names request, supplier and source document",
+      "pass": true,
+      "note": "Tìm mã yêu cầu, NCC hoặc chứng từ"
+    },
+    {
+      "name": "BJ07 queue has no manual RTV_PENDING mutation CTA",
+      "pass": true,
+      "note": "9:41\nLTE  100%\nHàng chờ trả nhà cung cấp\nTất cả\nCần chuẩn bị\nSẵn sàng\nĐang chờ\nRTV-260827-02\nMinh Dũng · YCTN-260827-02\nCần chuẩn bị\nRTV-260827-04\nAn Việt · YCTN-260827-04\nCần kiểm lại\nRTV-260903-03\nThú Y Hoàng Gia · YCTN-260903-03\nSẵn sàng\nRTV-260903-05\nPhú Nông · YCTN-260903-05\nChờ cập nhật"
+    },
+    {
+      "name": "Source document participates in queue search",
+      "pass": true,
+      "note": [
+        "RTV-260827-04\nAn Việt · YCTN-260827-04\nCần kiểm lại"
+      ]
+    },
+    {
+      "name": "Supplier return carries stable source request/line/allocation identities",
+      "pass": true,
+      "note": {
+        "sourceRequestId": "YCTN-260827-02",
+        "line": "SRC-LINE-RTV-G1",
+        "allocation": "RTV-A1",
+        "candidates": [
+          {
+            "state": "SELLABLE",
+            "available": 3,
+            "balanceId": "BAL-RTVA1-SELLABLE",
+            "balanceVersion": 12
+          },
+          {
+            "state": "DAMAGED",
+            "available": 2,
+            "balanceId": "BAL-RTVA1-DAMAGED",
+            "balanceVersion": 7
+          }
+        ],
+        "slices": [],
+        "op": "IO-RTV-260827-02"
+      }
+    },
+    {
+      "name": "Operation identity exists before final handover for same-operation recovery",
+      "pass": true,
+      "note": "IO-RTV-260827-02"
+    },
+    {
+      "name": "Ambiguous allocation exposes multiple original-state candidates but no guessed slice initially",
+      "pass": true,
+      "note": {
+        "sourceRequestId": "YCTN-260827-02",
+        "line": "SRC-LINE-RTV-G1",
+        "allocation": "RTV-A1",
+        "candidates": [
+          {
+            "state": "SELLABLE",
+            "available": 3,
+            "balanceId": "BAL-RTVA1-SELLABLE",
+            "balanceVersion": 12
+          },
+          {
+            "state": "DAMAGED",
+            "available": 2,
+            "balanceId": "BAL-RTVA1-DAMAGED",
+            "balanceVersion": 7
+          }
+        ],
+        "slices": [],
+        "op": "IO-RTV-260827-02"
+      }
+    },
+    {
+      "name": "Ambiguous source composition progressively exposes Xác định nguồn tồn",
+      "pass": true,
+      "note": "Kiểm hàng thực tế\nNobivac DHPPi\nSP-00142 · hộp\nCần kiểm\nCần chuẩn bị\n4 hộp\nLô theo yêu cầu\nDH2507\nHạn dùng\n30/11/2026\nLô thực tế (không bắt buộc)\nChỉ đối chiếu với lô theo yêu cầu.\nXác định nguồn tồn\n0/4 hộp\n\nCùng lô đang nằm ở nhiều trạng thái. Chọn đúng lượng thực tế cần trả từ từng trạng thái.\n\nBán được\nTối đa 3 hộp\nHỏng\nTối đa 2 hộp\nChưa đủ nguồn tồn\nCần phân bổ đúng 4 hộp.\nKhông khớp\nĐúng hàng"
+    },
+    {
+      "name": "Handover verification remains blocked until exact source slices sum to allocation quantity",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Exact multi-state composition enables physical verification",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Verified allocation locks exact source slices and original stock-state lineage",
+      "pass": true,
+      "note": {
+        "verified": true,
+        "user": true,
+        "total": 4,
+        "states": [
+          "SELLABLE",
+          "DAMAGED"
+        ]
+      }
+    },
+    {
+      "name": "Deterministic source-state composition is system-resolved with no extra user step",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "LOT comparison shows a concrete source-vs-actual mismatch",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Mismatch sheet uses approved structured taxonomy",
+      "pass": true,
+      "note": "Ghi nhận chênh lệch\n\nChỉ ghi nhận điều nhìn thấy thực tế. Kho không tự sửa yêu cầu trả hoặc thay lô.\n\nSai số lượng\nSai lô\nKhông thấy hàng\nKhác\nHủy\nGửi chênh lệch"
+    },
+    {
+      "name": "Actual LOT is preserved when converting mismatch into an observation",
+      "pass": true,
+      "note": "ZZ2609"
+    },
+    {
+      "name": "Structured LOT observation can be sent without inventing photo evidence",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Mismatch becomes immutable source-allocation observation with no stock effect",
+      "pass": true,
+      "note": {
+        "observationId": "OBS-RTV-A2-001",
+        "sourceRequestId": "YCTN-260827-02",
+        "sourceVersion": 3,
+        "sourceLineId": "SRC-LINE-RTV-G1",
+        "sourceAllocationId": "RTV-A2",
+        "mismatchType": "LOT",
+        "expectedQuantity": 2,
+        "actualQuantity": null,
+        "expectedLot": "DH2511",
+        "actualLot": "ZZ2609",
+        "note": "",
+        "actorId": "USR-WH-021",
+        "actor": "Trần Huy · Thủ kho",
+        "observedAt": "2026-09-16T08:42:15.392Z",
+        "stockEffect": "NONE",
+        "status": "OPEN",
+        "observationHash": "8ef295788422d8d08ef295788422d8d08ef295788422d8d08ef295788422d8d0"
+      }
+    },
+    {
+      "name": "Mismatch task moves to source-update waiting state while preserving unaffected verification",
+      "pass": true,
+      "note": {
+        "queue": "WAITING",
+        "awaiting": true,
+        "obs": {
+          "observationId": "OBS-RTV-A2-001",
+          "sourceRequestId": "YCTN-260827-02",
+          "sourceVersion": 3,
+          "sourceLineId": "SRC-LINE-RTV-G1",
+          "sourceAllocationId": "RTV-A2",
+          "mismatchType": "LOT",
+          "expectedQuantity": 2,
+          "actualQuantity": null,
+          "expectedLot": "DH2511",
+          "actualLot": "ZZ2609",
+          "note": "",
+          "actorId": "USR-WH-021",
+          "actor": "Trần Huy · Thủ kho",
+          "observedAt": "2026-09-16T08:42:15.392Z",
+          "stockEffect": "NONE",
+          "status": "OPEN",
+          "observationHash": "8ef295788422d8d08ef295788422d8d08ef295788422d8d08ef295788422d8d0"
+        },
+        "a1": true
+      }
+    },
+    {
+      "name": "WAITING detail is true read-only and explains source-owner next step",
+      "pass": true,
+      "note": "9:41\nLTE  100%\nChuẩn bị hàng trả\nRTV-260827-02\nMinh Dũng · YCTN-260827-02\nChờ cập nhật\nChờ cập nhật yêu cầu\nĐã gửi chênh lệch thực tế. Đang chờ Mua hàng cập nhật yêu cầu.\nHàng cần chuẩn bị\n3 nhóm sản phẩm\nNobivac DHPPi\nSP-00142 · hộp\n1/2 đã kiểm\nLô DH2507\n4 hộp · HSD 30/11/2026 · Đã kiểm · Nguồn tồn: Bán được 3 · Hỏng 1\nLô DH2511\n2 hộp · HSD 31/03/2027 · Chờ cập nhật\nNobivac DHPPi\nSP-00142 · lọ\n1/1 đã kiểm\nLô DH2507\n6 lọ · HSD 30/11/2026 · Đã kiểm\nGăng tay khám Nitrile\nSP-00618 · hộp\n0/1 đã kiểm\nKhông theo lô\n5 hộp"
+    },
+    {
+      "name": "Source amendment increments source version and keeps stable allocation identity",
+      "pass": true,
+      "note": {
+        "v": 4,
+        "queue": "ACTIONABLE",
+        "changes": [
+          "Nobivac DHPPi · hộp: lô DH2511 → ZZ2609."
+        ],
+        "a1": true,
+        "a2": false,
+        "a3": true,
+        "obs": {
+          "observationId": "OBS-RTV-A2-001",
+          "sourceRequestId": "YCTN-260827-02",
+          "sourceVersion": 3,
+          "sourceLineId": "SRC-LINE-RTV-G1",
+          "sourceAllocationId": "RTV-A2",
+          "mismatchType": "LOT",
+          "expectedQuantity": 2,
+          "actualQuantity": null,
+          "expectedLot": "DH2511",
+          "actualLot": "ZZ2609",
+          "note": "",
+          "actorId": "USR-WH-021",
+          "actor": "Trần Huy · Thủ kho",
+          "observedAt": "2026-09-16T08:42:15.392Z",
+          "stockEffect": "NONE",
+          "status": "RESOLVED_BY_SOURCE_VERSION",
+          "observationHash": "8ef295788422d8d08ef295788422d8d08ef295788422d8d08ef295788422d8d0",
+          "resolvedSourceVersion": 4
+        }
+      }
+    },
+    {
+      "name": "Only affected allocation is invalidated; verified unaffected allocations stay verified",
+      "pass": true,
+      "note": {
+        "v": 4,
+        "queue": "ACTIONABLE",
+        "changes": [
+          "Nobivac DHPPi · hộp: lô DH2511 → ZZ2609."
+        ],
+        "a1": true,
+        "a2": false,
+        "a3": true,
+        "obs": {
+          "observationId": "OBS-RTV-A2-001",
+          "sourceRequestId": "YCTN-260827-02",
+          "sourceVersion": 3,
+          "sourceLineId": "SRC-LINE-RTV-G1",
+          "sourceAllocationId": "RTV-A2",
+          "mismatchType": "LOT",
+          "expectedQuantity": 2,
+          "actualQuantity": null,
+          "expectedLot": "DH2511",
+          "actualLot": "ZZ2609",
+          "note": "",
+          "actorId": "USR-WH-021",
+          "actor": "Trần Huy · Thủ kho",
+          "observedAt": "2026-09-16T08:42:15.392Z",
+          "stockEffect": "NONE",
+          "status": "RESOLVED_BY_SOURCE_VERSION",
+          "observationHash": "8ef295788422d8d08ef295788422d8d08ef295788422d8d08ef295788422d8d0",
+          "resolvedSourceVersion": 4
+        }
+      }
+    },
+    {
+      "name": "Observation is resolved by the exact new source version",
+      "pass": true,
+      "note": {
+        "observationId": "OBS-RTV-A2-001",
+        "sourceRequestId": "YCTN-260827-02",
+        "sourceVersion": 3,
+        "sourceLineId": "SRC-LINE-RTV-G1",
+        "sourceAllocationId": "RTV-A2",
+        "mismatchType": "LOT",
+        "expectedQuantity": 2,
+        "actualQuantity": null,
+        "expectedLot": "DH2511",
+        "actualLot": "ZZ2609",
+        "note": "",
+        "actorId": "USR-WH-021",
+        "actor": "Trần Huy · Thủ kho",
+        "observedAt": "2026-09-16T08:42:15.392Z",
+        "stockEffect": "NONE",
+        "status": "RESOLVED_BY_SOURCE_VERSION",
+        "observationHash": "8ef295788422d8d08ef295788422d8d08ef295788422d8d08ef295788422d8d0",
+        "resolvedSourceVersion": 4
+      }
+    },
+    {
+      "name": "Source delta is concrete business fact, not generic stale/version language",
+      "pass": true,
+      "note": "9:41\nLTE  100%\nChuẩn bị hàng trả\nRTV-260827-02\nMinh Dũng · YCTN-260827-02\n2/4\nYêu cầu đã cập nhật\nNobivac DHPPi · hộp: lô DH2511 → ZZ2609.\nHàng cần chuẩn bị\n3 nhóm sản phẩm\nNobivac DHPPi\nSP-00142 · hộp\n1/2 đã kiểm\nLô DH2507\n4 hộp · HSD 30/11/2026 · Đã kiểm · Nguồn tồn: Bán được 3 · Hỏng 1\nLô ZZ2609\n2 hộp · HSD 31/03/2027 · Cần kiểm lại\nNobivac DHPPi\nSP-00142 · lọ\n1/1 đã kiểm\nLô DH2507\n6 lọ · HSD 30/11/2026 · Đã kiểm\nGăng tay khám Nitrile\nSP-00618 · hộp\n0/1 đã kiểm\nKhông theo lô\n5 hộp\nRà soát bàn giao"
+    },
+    {
+      "name": "All current allocations are reviewable only after current-source verification",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Final review shows supplier, return request, source document and warehouse",
+      "pass": true,
+      "note": "9:41\nLTE  100%\nBàn giao trả nhà cung cấp\nThông tin bàn giao\nNhà cung cấp\nMinh Dũng\nYêu cầu trả\nRTV-260827-02\nChứng từ nguồn\nYCTN-260827-02\nKho\nKho chính\nHàng sẽ bàn giao\n3 nhóm sản phẩm\nNobivac DHPPi\nSP-00142 · hộp\nĐã kiểm\nLô DH2507 · HSD 30/11/2026\n4 hộp\nNguồn tồn\nBán được 3 · Hỏng 1\nLô ZZ2609 · HSD 31/03/2027\n2 hộp\nNobivac DHPPi\nSP-00142 · lọ\nĐã kiểm\nLô DH2507 · HSD 30/11/2026\n6 lọ\nGăng tay khám Nitrile\nSP-00618 · hộp\nĐã kiểm\nKhông theo lô\n5 hộp\nXác nhận đã bàn giao"
+    },
+    {
+      "name": "Final review does not expose raw source version or commercial price",
+      "pass": true,
+      "note": "9:41\nLTE  100%\nBàn giao trả nhà cung cấp\nThông tin bàn giao\nNhà cung cấp\nMinh Dũng\nYêu cầu trả\nRTV-260827-02\nChứng từ nguồn\nYCTN-260827-02\nKho\nKho chính\nHàng sẽ bàn giao\n3 nhóm sản phẩm\nNobivac DHPPi\nSP-00142 · hộp\nĐã kiểm\nLô DH2507 · HSD 30/11/2026\n4 hộp\nNguồn tồn\nBán được 3 · Hỏng 1\nLô ZZ2609 · HSD 31/03/2027\n2 hộp\nNobivac DHPPi\nSP-00142 · lọ\nĐã kiểm\nLô DH2507 · HSD 30/11/2026\n6 lọ\nGăng tay khám Nitrile\nSP-00618 · hộp\nĐã kiểm\nKhông theo lô\n5 hộp\nXác nhận đã bàn giao"
+    },
+    {
+      "name": "Only user-resolved multi-state source composition is surfaced in review",
+      "pass": true,
+      "note": "9:41\nLTE  100%\nBàn giao trả nhà cung cấp\nThông tin bàn giao\nNhà cung cấp\nMinh Dũng\nYêu cầu trả\nRTV-260827-02\nChứng từ nguồn\nYCTN-260827-02\nKho\nKho chính\nHàng sẽ bàn giao\n3 nhóm sản phẩm\nNobivac DHPPi\nSP-00142 · hộp\nĐã kiểm\nLô DH2507 · HSD 30/11/2026\n4 hộp\nNguồn tồn\nBán được 3 · Hỏng 1\nLô ZZ2609 · HSD 31/03/2027\n2 hộp\nNobivac DHPPi\nSP-00142 · lọ\nĐã kiểm\nLô DH2507 · HSD 30/11/2026\n6 lọ\nGăng tay khám Nitrile\nSP-00618 · hộp\nĐã kiểm\nKhông theo lô\n5 hộp\nXác nhận đã bàn giao"
+    },
+    {
+      "name": "Completed result exposes authoritative handover timestamp",
+      "pass": true,
+      "note": "9:41\nLTE  100%\nKết quả trả nhà cung cấp\nĐã bàn giao cho nhà cung cấp\n\nTồn vật lý và giá trị đã giảm theo đúng hàng bàn giao.\n\nThông tin trả hàng\nNhà cung cấp\nMinh Dũng\nYêu cầu trả\nRTV-260827-02\nChứng từ nguồn\nYCTN-260827-02\nBàn giao lúc\n15:42:16 16/9/2026\nHàng đã bàn giao\n3 nhóm sản phẩm\nNobivac DHPPi\nSP-00142 · hộp\nĐã bàn giao\nLô DH2507 · HSD 30/11/2026\n4 hộp\nNguồn tồn\nBán được 3 · Hỏng 1\nLô ZZ2609 · HSD 31/03/2027\n2 hộp\nNobivac DHPPi\nSP-00142 · lọ\nĐã bàn giao\nLô DH2507 · HSD 30/11/2026\n6 lọ\nGăng tay khám Nitrile\nSP-00618 · hộp\nĐã bàn giao\nKhông theo lô\n5 hộp\nVề hàng chờ trả"
+    },
+    {
+      "name": "Result remains keyed by business source and does not show operation/version internals",
+      "pass": true,
+      "note": "9:41\nLTE  100%\nKết quả trả nhà cung cấp\nĐã bàn giao cho nhà cung cấp\n\nTồn vật lý và giá trị đã giảm theo đúng hàng bàn giao.\n\nThông tin trả hàng\nNhà cung cấp\nMinh Dũng\nYêu cầu trả\nRTV-260827-02\nChứng từ nguồn\nYCTN-260827-02\nBàn giao lúc\n15:42:16 16/9/2026\nHàng đã bàn giao\n3 nhóm sản phẩm\nNobivac DHPPi\nSP-00142 · hộp\nĐã bàn giao\nLô DH2507 · HSD 30/11/2026\n4 hộp\nNguồn tồn\nBán được 3 · Hỏng 1\nLô ZZ2609 · HSD 31/03/2027\n2 hộp\nNobivac DHPPi\nSP-00142 · lọ\nĐã bàn giao\nLô DH2507 · HSD 30/11/2026\n6 lọ\nGăng tay khám Nitrile\nSP-00618 · hộp\nĐã bàn giao\nKhông theo lô\n5 hộp\nVề hàng chờ trả"
+    },
+    {
+      "name": "HandoverEvidence is source-agnostic with shared required facts",
+      "pass": true,
+      "note": {
+        "handoverEvidenceId": "HE-IO-RTV-260827-02",
+        "operationId": "IO-RTV-260827-02",
+        "sourceType": "SUPPLIER_RETURN",
+        "sourceDocumentId": "YCTN-260827-02",
+        "sourceVersion": 4,
+        "sourceContext": {
+          "sourceRequestId": "YCTN-260827-02",
+          "inventoryRequestId": "RTV-260827-02"
+        },
+        "warehouseId": "WH-MAIN",
+        "actorId": "USR-WH-021",
+        "actor": "Trần Huy · Thủ kho",
+        "confirmedAt": "2026-09-16T08:42:16.241Z",
+        "lineEvidence": [
+          {
+            "sourceLineId": "SRC-LINE-RTV-G1",
+            "sourceAllocationId": "RTV-A1",
+            "productCode": "SP-00142",
+            "uom": "hộp",
+            "lot": "DH2507",
+            "quantity": 4,
+            "sourceSlices": [
+              {
+                "state": "SELLABLE",
+                "qty": 3,
+                "balanceId": "BAL-RTVA1-SELLABLE",
+                "balanceVersion": 12
+              },
+              {
+                "state": "DAMAGED",
+                "qty": 1,
+                "balanceId": "BAL-RTVA1-DAMAGED",
+                "balanceVersion": 7
+              }
+            ]
+          },
+          {
+            "sourceLineId": "SRC-LINE-RTV-G1",
+            "sourceAllocationId": "RTV-A2",
+            "productCode": "SP-00142",
+            "uom": "hộp",
+            "lot": "ZZ2609",
+            "quantity": 2,
+            "sourceSlices": [
+              {
+                "state": "DAMAGED",
+                "qty": 2,
+                "balanceId": "BAL-RTVA2-DAMAGED",
+                "balanceVersion": 5
+              }
+            ]
+          },
+          {
+            "sourceLineId": "SRC-LINE-RTV-G2",
+            "sourceAllocationId": "RTV-A3",
+            "productCode": "SP-00142",
+            "uom": "lọ",
+            "lot": "DH2507",
+            "quantity": 6,
+            "sourceSlices": [
+              {
+                "state": "SELLABLE",
+                "qty": 6,
+                "balanceId": "BAL-RTVA3-SELLABLE",
+                "balanceVersion": 5
+              }
+            ]
+          },
+          {
+            "sourceLineId": "SRC-LINE-RTV-G3",
+            "sourceAllocationId": "RTV-A4",
+            "productCode": "SP-00618",
+            "uom": "hộp",
+            "lot": null,
+            "quantity": 5,
+            "sourceSlices": [
+              {
+                "state": "SELLABLE",
+                "qty": 5,
+                "balanceId": "BAL-RTVA4-SELLABLE",
+                "balanceVersion": 5
+              }
+            ]
+          }
+        ],
+        "evidenceHash": "61a2de97cee4d79961a2de97cee4d79961a2de97cee4d79961a2de97cee4d799"
+      }
+    },
+    {
+      "name": "HandoverEvidence preserves source allocation and source-slice lineage",
+      "pass": true,
+      "note": [
+        {
+          "sourceLineId": "SRC-LINE-RTV-G1",
+          "sourceAllocationId": "RTV-A1",
+          "productCode": "SP-00142",
+          "uom": "hộp",
+          "lot": "DH2507",
+          "quantity": 4,
+          "sourceSlices": [
+            {
+              "state": "SELLABLE",
+              "qty": 3,
+              "balanceId": "BAL-RTVA1-SELLABLE",
+              "balanceVersion": 12
+            },
+            {
+              "state": "DAMAGED",
+              "qty": 1,
+              "balanceId": "BAL-RTVA1-DAMAGED",
+              "balanceVersion": 7
+            }
+          ]
+        },
+        {
+          "sourceLineId": "SRC-LINE-RTV-G1",
+          "sourceAllocationId": "RTV-A2",
+          "productCode": "SP-00142",
+          "uom": "hộp",
+          "lot": "ZZ2609",
+          "quantity": 2,
+          "sourceSlices": [
+            {
+              "state": "DAMAGED",
+              "qty": 2,
+              "balanceId": "BAL-RTVA2-DAMAGED",
+              "balanceVersion": 5
+            }
+          ]
+        },
+        {
+          "sourceLineId": "SRC-LINE-RTV-G2",
+          "sourceAllocationId": "RTV-A3",
+          "productCode": "SP-00142",
+          "uom": "lọ",
+          "lot": "DH2507",
+          "quantity": 6,
+          "sourceSlices": [
+            {
+              "state": "SELLABLE",
+              "qty": 6,
+              "balanceId": "BAL-RTVA3-SELLABLE",
+              "balanceVersion": 5
+            }
+          ]
+        },
+        {
+          "sourceLineId": "SRC-LINE-RTV-G3",
+          "sourceAllocationId": "RTV-A4",
+          "productCode": "SP-00618",
+          "uom": "hộp",
+          "lot": null,
+          "quantity": 5,
+          "sourceSlices": [
+            {
+              "state": "SELLABLE",
+              "qty": 5,
+              "balanceId": "BAL-RTVA4-SELLABLE",
+              "balanceVersion": 5
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Physical handover completes without any supplier-price input or second commercial approval",
+      "pass": true,
+      "note": "9:41\nLTE  100%\nKết quả trả nhà cung cấp\nĐã bàn giao cho nhà cung cấp\n\nTồn vật lý và giá trị đã giảm theo đúng hàng bàn giao.\n\nThông tin trả hàng\nNhà cung cấp\nMinh Dũng\nYêu cầu trả\nRTV-260827-02\nChứng từ nguồn\nYCTN-260827-02\nBàn giao lúc\n15:42:16 16/9/2026\nHàng đã bàn giao\n3 nhóm sản phẩm\nNobivac DHPPi\nSP-00142 · hộp\nĐã bàn giao\nLô DH2507 · HSD 30/11/2026\n4 hộp\nNguồn tồn\nBán được 3 · Hỏng 1\nLô ZZ2609 · HSD 31/03/2027\n2 hộp\nNobivac DHPPi\nSP-00142 · lọ\nĐã bàn giao\nLô DH2507 · HSD 30/11/2026\n6 lọ\nGăng tay khám Nitrile\nSP-00618 · hộp\nĐã bàn giao\nKhông theo lô\n5 hộp\nVề hàng chờ trả"
+    },
+    {
+      "name": "SCR-041 terminal result has no Back navigation",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "UNKNOWN has no blind retry and exposes BJ17 verification handoff",
+      "pass": true,
+      "note": "9:41\nLTE  100%\nXác minh kết quả\nĐang xác minh kết quả\n\nKhông gửi lại bàn giao. Hệ thống đang xác minh đúng lần xử lý này bằng cùng operation identity.\n\nYêu cầu\nRTV-260827-04\nChứng từ nguồn\nYCTN-260827-04\nTồn vật lý\nChưa kết luận\nChuyển sang xác minh"
+    },
+    {
+      "name": "UNKNOWN handoff carries the exact same operation identity",
+      "pass": true,
+      "note": [
+        "IO-RTV-260827-04",
+        "IO-RTV-260827-04"
+      ]
+    },
+    {
+      "name": "UNKNOWN transitions to BJ17 recovery",
+      "pass": true,
+      "note": {
+        "flow": "UIF-17",
+        "screen": "SCR-079"
+      }
+    },
+    {
+      "name": "Representative BJ07 runtime has no horizontal overflow",
+      "pass": true,
+      "note": {
+        "sw": 402,
+        "cw": 402
+      }
+    },
+    {
+      "name": "No browser page errors",
+      "pass": true,
+      "note": []
+    },
+    {
+      "name": "No browser console errors",
+      "pass": true,
+      "note": []
+    },
+    {
+      "name": "Decision register contains approved BJ07 locks T7-DR-138..143",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BC-IO-17 owns system supplier-return synchronization into RTV_PENDING",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BC-IO-10 trace is limited to BJ-09, not BJ-07",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BC-IO-09 actual handover has no commercial-price or second-approval blocker",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "InventoryOperationLine carries supplier-return source allocation/balance/original-state fields",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "HandoverEvidence shared schema is source-agnostic and BJ05 fields are optional extensions",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "SupplierReturnPhysicalObservation is a first-class immutable entity",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Technical contract exposes BC-IO-17 synchronization handler/event and transaction boundary",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ07/UC source sync explicitly removes warehouse mutation UI",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ07 flow documents source slices, observation and commercial-price-independent handover",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Runtime overlay implements all approved BJ07 semantic primitives",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ07 current screens carry v3.9.5 deep-review trace",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Current presentation registries identify v3.9.5",
+      "pass": true,
+      "note": ""
+    }
+  ],
+  "browserErrors": [],
+  "consoleErrors": [],
+  "captures": [
+    {
+      "file": "01-SCR036-SOURCE-OWNED-QUEUE.png",
+      "label": "Supplier-return work appears from source sync without a fake state-mutation action"
+    },
+    {
+      "file": "02-SCR037-SOURCE-SLICE.png",
+      "label": "Only ambiguous stock-state composition asks the warehouse user to identify the source stock"
+    },
+    {
+      "file": "03-SCR037-STRUCTURED-MISMATCH-WAITING.png",
+      "label": "Physical mismatch is an observation and the warehouse task waits read-only for a new source version"
+    },
+    {
+      "file": "04-SCR039-FINAL-HANDOVER-REVIEW.png",
+      "label": "Final handover review contains business context and only the source-state fact the user had to resolve"
+    },
+    {
+      "file": "05-SCR041-SOURCE-AGNOSTIC-EVIDENCE-RESULT.png",
+      "label": "Completed handover shows business finality and timestamp while evidence remains authoritative behind the result"
+    }
+  ]
+}

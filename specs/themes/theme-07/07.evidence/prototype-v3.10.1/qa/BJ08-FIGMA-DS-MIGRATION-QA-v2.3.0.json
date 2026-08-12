@@ -1,0 +1,198 @@
+{
+  "result": "PASS",
+  "passed": 38,
+  "checks": 38,
+  "browserErrors": [],
+  "details": [
+    {
+      "name": "SCR-042 maps to Mobile / Nested List",
+      "pass": true,
+      "detail": "Mobile / Nested List"
+    },
+    {
+      "name": "SCR-042 has no horizontal overflow",
+      "pass": true,
+      "detail": "{\"w\": 402, \"h\": 874, \"scroll\": 402, \"client\": 402}"
+    },
+    {
+      "name": "SCR-043 maps to Mobile / Form",
+      "pass": true,
+      "detail": "Mobile / Form"
+    },
+    {
+      "name": "SCR-043 has no horizontal overflow",
+      "pass": true,
+      "detail": "{\"w\": 402, \"h\": 874, \"scroll\": 402, \"client\": 402}"
+    },
+    {
+      "name": "SCR-044 maps to Mobile / Form",
+      "pass": true,
+      "detail": "Mobile / Form"
+    },
+    {
+      "name": "SCR-044 has no horizontal overflow",
+      "pass": true,
+      "detail": "{\"w\": 402, \"h\": 874, \"scroll\": 402, \"client\": 402}"
+    },
+    {
+      "name": "SCR-045 maps to Mobile / Form",
+      "pass": true,
+      "detail": "Mobile / Form"
+    },
+    {
+      "name": "SCR-045 has no horizontal overflow",
+      "pass": true,
+      "detail": "{\"w\": 402, \"h\": 874, \"scroll\": 402, \"client\": 402}"
+    },
+    {
+      "name": "SCR-046 maps to Mobile / Detail",
+      "pass": true,
+      "detail": "Mobile / Detail"
+    },
+    {
+      "name": "SCR-046 has no horizontal overflow",
+      "pass": true,
+      "detail": "{\"w\": 402, \"h\": 874, \"scroll\": 402, \"client\": 402}"
+    },
+    {
+      "name": "SCR-047 maps to Mobile / Detail",
+      "pass": true,
+      "detail": "Mobile / Detail"
+    },
+    {
+      "name": "SCR-047 has no horizontal overflow",
+      "pass": true,
+      "detail": "{\"w\": 402, \"h\": 874, \"scroll\": 402, \"client\": 402}"
+    },
+    {
+      "name": "canonical Product canvas is 402x874",
+      "pass": true,
+      "detail": "{\"w\": 402, \"h\": 874}"
+    },
+    {
+      "name": "BJ08 form fields fit 370px content boundary",
+      "pass": true,
+      "detail": "[{\"w\": 370, \"name\": \"VSelect\"}, {\"w\": 179, \"name\": \"VDatePicker\"}, {\"w\": 179, \"name\": \"Theme7TimeField\"}, {\"w\": 370, \"name\": \"VTextarea\"}]"
+    },
+    {
+      "name": "SCR-043 exposes VTimePicker gap explicitly",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "SCR-043 open uses canonical Confirmation Sheet",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "Confirmation Sheet shell radius is 16px",
+      "pass": true,
+      "detail": "16px"
+    },
+    {
+      "name": "blind-count DOM contains no book/variance payload",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "blind-count Product DOM does not use legacy VNumberField",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "blind-count Product DOM does not use VQuantitySelector",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "blind-count Product DOM does not depend on generic VCard",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "quantity trigger opens VNumericKeypadSheet",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "VNumericKeypadSheet geometry is 402x512 / radius16",
+      "pass": true,
+      "detail": "{\"w\": 402, \"h\": 512, \"radius\": \"16px\"}"
+    },
+    {
+      "name": "add actual item uses Select Sheet rather than Product quick-create",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "unexpected physical line is explicitly marked",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "recount reveals book/first/variance only after first submit",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "price-basis gap blocks submit without invented price input",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "blocked recount exposes contextual cancellation",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "cancellation uses danger Confirmation Sheet with reason",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "approval surface has approve + request-review",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "approval surface does not mix session cancellation",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "both approval affordances trace to same stable decision action",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "request-review returns to SCR-045",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "approve requires Confirmation Sheet",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "approved decision lands on terminal SCR-047",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "SCR-047 has no mutation action-contract",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "permission-denied approval DOM contains no financial risk value",
+      "pass": true,
+      "detail": "09:45\n5g\nduyệt kết quả kiểm kê\nkhông có quyền truy cập\n\ndữ liệu nghiệp vụ không được tải vào màn hình này. liên hệ quản trị viên nếu cần cấp quyền."
+    },
+    {
+      "name": "no browser page errors",
+      "pass": true,
+      "detail": "[]"
+    }
+  ]
+}

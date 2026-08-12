@@ -1,0 +1,113 @@
+{
+  "version": "3.9.2",
+  "status": "PASS",
+  "passed": 21,
+  "total": 21,
+  "checks": [
+    {
+      "name": "root package identifies v3.9.2",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "prototype metadata identifies v3.9.2 and parent v3.9.1",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "current BJ02 presentation registries identify v3.9.2",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "v3.9.2 stylesheet and JS load after v3.9.1",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "canonical Product viewport remains 402x874",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Figma DS remains UI authority",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ02 deep-review gate passes",
+      "pass": true,
+      "note": "51/51"
+    },
+    {
+      "name": "full-theme end-user regression passes",
+      "pass": true,
+      "note": "19/19"
+    },
+    {
+      "name": "semantic flow/logic regression passes",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "all-flow runtime smoke passes",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "runtime UI regression passes",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "device-frame regression passes",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "representative coherence regression passes",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ02 focused visual evidence contains six captures",
+      "pass": true,
+      "note": 6
+    },
+    {
+      "name": "runtime no longer carries ambiguous sourceExpected or hard-coded priceBasisVnd",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ02 overlay uses accepted physical base quantity for risk and approval",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Quick receipt has no hard-coded DOCX/10MB policy",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "UNKNOWN recovery keeps explicit handoff to BJ17",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "legacy representative seeder does not overwrite explicit BJ02 draft data",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ02 active screens carry current deep-review trace",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "v3.9.2 release assets exist",
+      "pass": true,
+      "note": ""
+    }
+  ]
+}

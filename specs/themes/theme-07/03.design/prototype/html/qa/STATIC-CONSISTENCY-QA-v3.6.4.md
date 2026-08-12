@@ -1,0 +1,43 @@
+# Static Consistency QA — v3.6.4
+
+**Result: 37/39 PASS**
+
+- PASS — 17 business journeys + 1 supporting capability
+- PASS — 89 canonical flow-screen occurrences
+- PASS — 77 active unique screens
+- PASS — every active screen has a screen contract
+- PASS — every active flow/support capability has a flow document
+- PASS — active screen registry/workbench names and states aligned
+- FAIL — registry/workbench version v3.6.4: wb=3.7.0 reg=3.7.0
+- PASS — runtime-state registry synchronized
+- PASS — runtime registry covers 518 route-states
+- PASS — SCR-062 supporting screen remains rendered
+- PASS — SCR-063 supporting screen remains rendered
+- PASS — SCR-064 supporting screen remains rendered
+- PASS — SCR-065 supporting screen remains rendered
+- PASS — BJ08 cancellation removed from browse-list contract
+- PASS — BJ08 cancellation owned by opened-session contract
+- PASS — v3.6 CSS cascade preserved
+- PASS — v3.6 JS cascade preserved
+- PASS — v3.6.2 list rhythm patch preserved
+- PASS — v3.6.3 disabled Navigation state preserved
+- PASS — v3.6.3 navigation runtime patch preserved
+- PASS — v3.6.4 radio/helper runtime patch exists
+- PASS — v3.6.4 helper text background guard exists
+- PASS — UIF-03 waiting peer stays Navigation + Disabled
+- PASS — UIF-13 waiting peer stays Navigation + Disabled
+- PASS — global cross-UIF rule documented
+- PASS — UX pattern registry documents homogeneous Navigation list
+- PASS — CAP-01 effective renderers declared
+- PASS — BJ08 active-session cancel correction exists
+- PASS — representative-state coherence correction exists
+- PASS — feedback/toast semantic layer exists
+- PASS — single-row chip lock preserved
+- FAIL — HTML manifests identify v3.6.4: {'manifest': '3.8.3', 'parent': '3.8.2', 'prototype': '3.8.3'}
+- PASS — authority separates business, Figma DS and HTML prototype roles
+- PASS — CAP-01 doc preserves BG-006 integration uncertainty
+- PASS — SCR-062 contract exists
+- PASS — SCR-063 contract exists
+- PASS — SCR-064 contract exists
+- PASS — SCR-065 contract exists
+- PASS — representative result defaults are stable

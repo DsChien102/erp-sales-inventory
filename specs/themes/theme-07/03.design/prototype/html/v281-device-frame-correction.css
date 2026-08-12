@@ -1,0 +1,21 @@
+/*
+ * VET45 Theme 7 v2.8.1 — shared review-device frame correction.
+ * Product canvas authority: 402x874. The decorative 8px phone bezel lives
+ * OUTSIDE that Product canvas, therefore review device border-box = 418x890.
+ * This layer corrects the v2.8.0 regression that forced the border-box itself
+ * to 402x874 and clipped 8px from the Product canvas on the right/bottom.
+ */
+@media (min-width: 841px) {
+  .device-preview:not(.is-wide) {
+    width: 418px !important;
+    height: 890px !important;
+    min-height: 890px !important;
+    box-sizing: border-box !important;
+  }
+  .device-preview:not(.is-wide) > .app-screen {
+    width: 402px !important;
+    height: 874px !important;
+    min-width: 402px !important;
+    min-height: 874px !important;
+  }
+}

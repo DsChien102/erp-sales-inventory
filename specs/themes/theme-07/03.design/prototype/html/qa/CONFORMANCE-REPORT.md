@@ -1,0 +1,240 @@
+# BJ-02 / UIF-02 HTML v0.2.9 — QA Conformance
+
+- Checks: **221**
+- Passed: **161**
+- Failed: **60**
+
+## Result
+
+**FAIL**
+
+## Checks
+
+- [ ] manifest version 0.2.9
+- [x] manifest has 17 flows
+- [ ] manifest has 80 active workbench screens
+- [ ] manifest calibration is BJ-02/UIF-02
+- [x] app.js parses
+- [ ] Harness bootstrap exists
+- [x] Inspect state declarations exist
+- [x] active UIF body scope is set
+- [x] mobile workbench label 402x874
+- [ ] pilot badge is v0.2.9
+- [x] UIF-02 exists
+- [x] UIF-02 screen order includes SCR-084
+- [ ] workbench contains 80 screen objects
+- [x] workbench contains SCR-084 exactly once
+- [x] flow documents Quick SCR-008 to SCR-009
+- [x] flow documents Document SCR-007 to SCR-009
+- [ ] flow documents SCR-009 to SCR-084
+- [ ] flow documents Quick add item to SCR-084
+- [ ] flow documents document not-received action
+- [x] flow declares one supplier
+- [x] flow forbids master creation
+- [x] flow declares different UOM as separate lines
+- [x] machine flow registry has 9 BJ02 screens
+- [x] machine flow registry has 21 BJ02 transitions
+- [x] BJ UI map includes SCR-084
+- [x] SCR-006 renderer exists
+- [x] SCR-006 has no badge
+- [ ] SCR-006 uses neutral card icon tone
+- [ ] SCR-006 uses same nav chevron on both cards
+- [x] SCR-007 renderer exists
+- [x] SCR-007 document fixture exposes two products
+- [x] SCR-007 avoids source quantity aggregate
+- [ ] SCR-007 uses one nav chevron contract
+- [x] SCR-007 cards have no ready badge
+- [x] SCR-007 uses VSearchBar
+- [x] SCR-007 FILTER_EMPTY uses VEmptyState with search retained
+- [x] SCR-008 renderer exists
+- [x] SCR-008 is receipt-header-only
+- [x] SCR-008 has no Product editor
+- [ ] SCR-008 supplier uses VCombobox
+- [x] SCR-008 supplier no-result has no create CTA
+- [x] SCR-008 routes to SCR-009
+- [x] SCR-008 requires existing exact supplier
+- [x] SCR-008 optional note has no redundant optional copy
+- [ ] SCR-008 supplier result has code and phone
+- [x] SCR-008 requires selected supplier master ID
+- [x] SCR-008 unresolved supplier guidance is inline
+- [x] SCR-009 renderer exists
+- [ ] SCR-009 displays receipt progress
+- [x] SCR-009 Quick empty state
+- [ ] SCR-009 Quick add product is secondary
+- [x] SCR-009 review waits until every item handled
+- [x] SCR-009 opens line cards via shared helper
+- [x] SCR-009 EMPTY is actual VEmptyState
+- [x] SCR-009 read-only hides Quick add and review mutation
+- [ ] SCR-009 item summary has two-level hierarchy
+- [x] SCR-084 renderer exists
+- [x] SCR-084 has canonical title
+- [x] SCR-084 primary action is Xong
+- [x] SCR-084 supports document not-received
+- [x] SCR-084 duplicate blocker exists
+- [x] SCR-084 duplicate blocker suppresses editor
+- [x] SCR-084 document source expectation contextual
+- [x] SCR-084 Quick existing item can be removed
+- [x] SCR-084 true read-only hides mutation footer
+- [ ] SCR-084 document not-received remains available with existing data
+- [x] SCR-084 Back without edits preserves completed status
+- [ ] Quick Product picker is VCombobox
+- [x] Product no-result has no create CTA
+- [ ] Product identity is compact read-only VCard
+- [x] UOM select appears only when >1 UOM
+- [x] UOM selector is Quick-new-item only
+- [x] selected identity shows UOM once and hides selector
+- [x] Product search result compact metadata
+- [x] single UOM auto-select
+- [x] same Product+UOM duplicate guard
+- [ ] non-LOT asks total actual once
+- [ ] exception classification is progressive
+- [ ] accepted is derived from total minus exceptions
+- [ ] LOT section exists without LOT badge
+- [x] LOT supports add lot secondary
+- [x] LOT accordion can toggle manually
+- [x] LOT extra rows expose delete
+- [x] Add lot opens new lot
+- [ ] Lot removal uses VConfirmDialog for data
+- [x] Duplicate lot code blocked with open-existing CTA
+- [x] LOT requires code
+- [x] LOT expiry required/optional by Product policy
+- [x] LOT manufacture date progressive optional
+- [ ] LOT total is entered per lot
+- [ ] line validation blocks exception sum > total
+- [x] LOT validation requires all lot drafts
+- [x] LOT validation requires expiry only when policy requires
+- [ ] LOT derived total summary exists
+- [x] LOT delete is inside expanded content
+- [ ] existing classification exceptions auto-expand
+- [x] Document under-source uses info feedback
+- [x] Document over-source uses warning feedback
+- [x] Document exact receipt suppresses redundant banner
+- [ ] Cross-field exception overflow uses error feedback
+- [x] Live validation updates Xong button
+- [ ] Quick line delete uses VConfirmDialog
+- [x] SCR-010 renderer exists
+- [ ] SCR-010 uses per-item review
+- [x] SCR-010 no cross-UOM total quantity
+- [x] SCR-010 Quick approval label
+- [x] SCR-010 no-approval label
+- [ ] SCR-010 reviews actual LOT identity
+- [ ] SCR-010 Quick mandatory approval is info
+- [x] SCR-010 suppresses duplicate APPROVAL_REQUIRED banner
+- [ ] SCR-010 shows Quick note only when present
+- [x] SCR-010 price and approver blockers remain draft feedback
+- [x] SCR-011 renderer exists
+- [x] SCR-011 only approve/reject outcomes
+- [ ] SCR-011 uses per-item summary
+- [x] SCR-011 supports financial masking
+- [ ] SCR-011 includes receiving context
+- [ ] SCR-011 reviews actual LOT identity
+- [x] SCR-011 normal Quick approval reason is info
+- [x] SCR-011 suppresses duplicate APPROVAL_REQUIRED banner
+- [x] SCR-012 renderer exists
+- [x] SCR-012 has no receive mutation CTA
+- [x] SCR-012 unknown tells user not to repeat
+- [ ] SCR-012 result is per-item
+- [x] SCR-012 uses VEmptyState result
+- [ ] SCR-012 result group wording handles zero-receipt items
+- [ ] SCR-012 result includes actual LOT identity
+- [x] SCR-012 valuation banner is state-specific
+- [x] SCR-013 renderer exists
+- [x] SCR-013 same receipt recovery copy
+- [x] SCR-013 no blind retry CTA
+- [x] SCR-013 EMPTY uses VEmptyState
+- [x] SCR-013 PROCESSING_OR_UNKNOWN has no duplicate state warning
+- [x] SCR-013 keeps at most one user-facing receipt reference
+- [x] product viewport avoids technical copy: Phase 1
+- [x] product viewport avoids technical copy: operation identity
+- [x] product viewport avoids technical copy: authoritative
+- [x] product viewport avoids technical copy: finality
+- [x] product viewport avoids technical copy: price basis
+- [x] product viewport avoids technical copy: tracking policy
+- [x] product viewport no English create-new CTA
+- [x] mobile width 402
+- [x] mobile height 874
+- [x] BJ02 new CSS is UIF scoped
+- [x] v0.2.9 item hierarchy CSS is UIF scoped
+- [x] v0.2.9 quantity context CSS is UIF scoped
+- [x] footer primary profile medium
+- [x] permission uses VEmptyState
+- [x] success icon maps circle-check
+- [x] circle-check-big geometry absent
+- [ ] VToast leading VIconBox
+- [ ] VToast close uses plain VIcons.close
+- [x] VToast close CSS no circular decoration
+- [x] VBanner warning semantic CSS
+- [x] VBanner error semantic CSS
+- [x] reject overlay uses VBottomSheet
+- [x] SCR-006 v0.2.9 screen contract
+- [x] SCR-007 v0.2.9 screen contract
+- [ ] SCR-008 v0.2.9 screen contract
+- [ ] SCR-009 v0.2.9 screen contract
+- [ ] SCR-084 v0.2.9 screen contract
+- [x] SCR-010 v0.2.9 screen contract
+- [x] SCR-011 v0.2.9 screen contract
+- [x] SCR-012 v0.2.9 screen contract
+- [x] SCR-013 v0.2.9 screen contract
+- [x] SCR-008 contract is header only
+- [x] SCR-009 contract shared Document+Quick
+- [ ] SCR-084 contract one item editor
+- [ ] SCR-084 contract forbids quick create
+- [ ] SCR-084 contract forbids document UOM selector
+- [ ] SCR-084 contract defines LOT accordion/delete
+- [ ] SCR-084 contract defines partial/over feedback
+- [x] SCR-008 contract defines compact Supplier result
+- [x] SCR-007 contract defines document search
+- [x] SCR-009 contract defines true read-only
+- [ ] SCR-084 contract defines contextual source total
+- [x] SCR-010 contract requires actual LOT review
+- [x] SCR-011 contract requires receiving context
+- [ ] SCR-012 contract uses result group title
+- [x] SCR-013 contract removes technical log
+- [ ] component usage version 0.2.9
+- [x] component usage includes SCR-084
+- [ ] component usage one supplier guard
+- [ ] component usage no master create
+- [ ] component usage mixed UOM separate items
+- [ ] component usage document zero receipt
+- [x] UIF-02 component usage YAML parses
+- [x] BJ02 amendment v0.2.8
+- [x] BJ02 locks one supplier
+- [x] BJ02 forbids Product/Supplier creation
+- [x] BJ02 defines multi-product
+- [x] BJ02 defines receipt item/UOM
+- [x] BJ02 defines technical-line expansion
+- [x] BJ02 defines not received this time
+- [x] UC02-01 maps SCR-084
+- [x] UC02-01 contains multi-product source acceptance
+- [x] UC02-01 defines valid partial receipt
+- [x] UC02-01 defines over-source warning
+- [x] UC02-02 maps SCR-009 and SCR-084
+- [x] UC02-02 no create Product/Supplier
+- [x] UC02-02 mixed UOM separate item
+- [x] UC02-03 pilot clarification v0.2.8
+- [x] UC02-03 no supplement outcome
+- [x] shared behavior carries supplier/item grouping
+- [x] data entity has supplier_id
+- [x] data entity has supplier_version_id
+- [x] data entity has receipt_item_ref
+- [x] data entity clarifies item vs technical line
+- [x] decision register contains T7-DR-103
+- [x] decision register contains T7-DR-104
+- [x] decision register contains T7-DR-105
+- [x] decision 103 one supplier/no-create
+- [x] decision 104 multi-product/UOM
+- [x] decision 105 complete source-item handling
+- [x] glossary defines Receipt item
+- [x] wiki references new decisions
+- [x] wiki no legacy supplement decision
+- [ ] screen registry has 84 entries
+- [x] screen registry IDs unique
+- [x] screen registry contains SCR-084
+- [ ] screen registry version marks BJ02 pilot
+
+## QA boundary
+
+- Scope is BJ-02/UIF-02 redesign plus the shared source-of-truth documents intentionally amended by BJ-02 decisions.
+- Non-BJ02 UIF flow/component/screen artifacts are validated separately by the isolation report.
+- Static renderer/business/contract/DS-source conformance is automated here.
+- Browser visual regression is a separate gate; this report does not claim pixel parity solely from static checks.

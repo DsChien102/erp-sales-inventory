@@ -1,0 +1,35 @@
+/* VET45 Theme 7 v3.2.0 — Audit & Control UI correction */
+
+/* Root list screens are flat list experiences: search/filter/list, no ad-hoc heading above the collection. */
+.ac320-session-record { width:370px; margin:0; padding:0; }
+.ac320-session-record .ds24-list-row { margin:0 !important; }
+
+/* Count metadata uses the existing List Top Bar responsibility instead of a free-standing heading. */
+.ac320-list-meta {
+  box-sizing:border-box;
+  width:370px;
+  min-height:32px;
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;
+  padding:0 4px;
+  color:var(--vet45-v2-text-secondary,#6b7480);
+  font:400 12px/16px Inter,system-ui,sans-serif;
+}
+
+/* Chip rows should feel intentionally scrollable, not accidentally clipped by 1–9px. */
+body:is([data-active-uif="UIF-08"],[data-active-uif="UIF-09"],[data-active-uif="UIF-11"],[data-active-uif="UIF-16"],[data-active-uif="UIF-17"]) .figma-calibrated-shell .ds24-chip-scroll {
+  width:370px !important;
+  max-width:370px !important;
+  box-sizing:border-box !important;
+  overflow-x:auto !important;
+  overflow-y:hidden !important;
+  scrollbar-width:none;
+  padding-right:16px !important;
+  scroll-padding-inline:0 16px;
+  -webkit-overflow-scrolling:touch;
+}
+body:is([data-active-uif="UIF-08"],[data-active-uif="UIF-09"],[data-active-uif="UIF-11"],[data-active-uif="UIF-16"],[data-active-uif="UIF-17"]) .figma-calibrated-shell .ds24-chip-scroll::-webkit-scrollbar { display:none; }
+
+/* Keep actions semantically separated from browse lists. */
+body[data-active-uif="UIF-08"] .figma-calibrated-shell[data-ds-prop-title="Kiểm kê kho"] .ac310-danger-text { display:none !important; }

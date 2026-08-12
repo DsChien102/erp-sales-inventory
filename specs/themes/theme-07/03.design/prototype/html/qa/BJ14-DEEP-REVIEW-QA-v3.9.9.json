@@ -1,0 +1,378 @@
+{
+  "version": "3.9.9",
+  "scope": "Wave 3 / BJ14 deep forensic review",
+  "status": "PASS",
+  "passed": 72,
+  "total": 72,
+  "checks": [
+    {
+      "name": "Decision register is v4.2.4 costing-run amendment",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Approved decisions T7-DR-164..170 are registered",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Decision chain preserves prior 001..163",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ14 locks unified valuation timeline",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ14 locks ProductCostResult as authoritative per Product",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ14 successor posts incremental reconciliation only",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ14 separates run/calculation/posting periods",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ14 forbids Official Cost backdate before publication",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ14 dirty scope is exact Product + posting-period set",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ14 edge cases include negative and NO_NEW_COST_BASIS",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "InventoryMovement has common valuation ordering",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "InventoryValueMovement shares common valuation ordering",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "CostCalculationRun stores run type and separate periods",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "CostCalculationRun stores authoritative dirty scope and cutoff",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "ProductCostResult entity exists",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "ProductCostResult stores baseline/target/delta hashes",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "OfficialCostVersion no-backdate rule exists",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "ValuationAdjustmentBatch snapshots reconciliation cutoff/baseline",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BC-IV-02 is calculate-only/no ledger mutation",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BC-IV-02 calculates both methods on ordered timeline",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BC-IV-03 publishes per-Product incremental deltas",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BC-IV-03 only creates non-zero adjustment lines",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BC-IV-03 clears exact dirty causes",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BC-IV-03 blocks backdated effective time",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "UC14-03 is read-only API-Q-10",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "UC14-03 does not own BC-IV-03",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "UC14-03 has no mutation UNKNOWN in deep-review lock",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "UC14-04 owns BC-IV-03 publish",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "UC14-04 rechecks hashes/period/effective time",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "UIF14 active route excludes SCR-075",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "UIF14 review is navigation then publish mutation",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "UIF14 guard says dirty scope source-owned",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "SCR072 contract traces authoritative dirty work",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "SCR073 contract locks dirty scope/read-only",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "SCR074 contract exposes ProductCostResult aggregation",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "SCR076 contract is read-only final review",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "SCR077 contract is authoritative result/UNKNOWN-safe",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "ACT-14-CALCULATE remains BC-IV-02",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "ACT-14-PUBLISH remains BC-IV-03",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Harness BC-IV-03 trace owns UC14-04 only",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Harness API-Q-10 now traces UC14-03",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Harness API-C-22 publish traces UC14-04 only",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Trace index UC14-03 has no mutation behavioral contract",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Trace index UC14-03 points to API-Q-10",
+      "pass": true,
+      "note": "[{'uc': 'UC-14-03', 'bj': 'BJ-14', 'decisions': ['T7-DR-049', 'T7-DR-050', 'T7-DR-052', 'T7-DR-053', 'T7-DR-056', 'T7-DR-058', 'T7-DR-059', 'T7-DR-060'], 'bc': None, 'api': 'API-Q-10', 'screen_group': 'SG-14', 'tests': ['TST-AS-UC-14-03-01', 'TST-AS-UC-14-03-02', 'TST-AS-UC-14-03-03', 'TST-AS-UC-14-03-04'], 'decision_basis': 'INHERITED_FROM_OWNING_BJ_TARGET_TRACE', 'source_decision_freeze_id': 'T7-BASELINE-FREEZE-v4.0.0'}]"
+    },
+    {
+      "name": "Current manifest identifies BJ14 lock candidate",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "v399 assets load after v398 assets",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Runtime overlay declares approved BJ14 decision set",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Runtime overlay materializes ProductCostResult sample semantics",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Runtime overlay binds runInputHash/productResultSetHash",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Runtime overlay uses authoritative dirty scope",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Runtime overlay publishes command-authoritative result fields",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Runtime overlay no longer backdates ready run",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "v399 runtime overlay loaded",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "SCR072 shows dirty work in business terms",
+      "pass": true,
+      "note": "9:41\nLTE  100%\nGiá vốn\nTháng 08/2026\n184 sản phẩm · Bình quân cuối kỳ\nSẵn sàng công bố\nCập nhật 03/09/2026\n3 sản phẩm · 3 nguyên nhân cần đối soát\nCần tính lại\nTháng 09/2026\nToàn bộ sản phẩm · Bình quân cuối kỳ\nBị chặn\nTạo lần tính"
+    },
+    {
+      "name": "SCR072 does not expose hashes/sequences",
+      "pass": true,
+      "note": "9:41\nLTE  100%\nGiá vốn\nTháng 08/2026\n184 sản phẩm · Bình quân cuối kỳ\nSẵn sàng công bố\nCập nhật 03/09/2026\n3 sản phẩm · 3 nguyên nhân cần đối soát\nCần tính lại\nTháng 09/2026\nToàn bộ sản phẩm · Bình quân cuối kỳ\nBị chặn\nTạo lần tính"
+    },
+    {
+      "name": "Dirty row opens setup",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "SCR073 dirty scope is read-only information group",
+      "pass": true,
+      "note": "9:41\nLTE  100%\nThiết lập lần tính\nDữ liệu đã thay đổi\nLần tính mới dùng phạm vi hiện hành; lần cũ được giữ để truy vết.\nLoại lần tính\nChốt kỳ\nTính toàn kỳ theo thời điểm chốt kế toán\nCập nhật trong kỳ\nChỉ tính phạm vi cần cập nhật\nKỳ\n08/2026\n09/2026\nPhạm vi cần tính lại\nNguồn phạm vi\nĐiều chỉnh định giá đã ghi\nSản phẩm\n3\nNguyên nhân cần đối soát\n3\nChính sách áp dụng\nThời điểm chốt\n17/09/2026 · 08:41\nPhương pháp công bố\nBình quân liên hoàn\nKỳ tính\n09/2026\nKỳ ghi nhận\n09/2026\nTính giá vốn"
+    },
+    {
+      "name": "SCR073 separates calculation/posting period language",
+      "pass": true,
+      "note": "9:41\nLTE  100%\nThiết lập lần tính\nDữ liệu đã thay đổi\nLần tính mới dùng phạm vi hiện hành; lần cũ được giữ để truy vết.\nLoại lần tính\nChốt kỳ\nTính toàn kỳ theo thời điểm chốt kế toán\nCập nhật trong kỳ\nChỉ tính phạm vi cần cập nhật\nKỳ\n08/2026\n09/2026\nPhạm vi cần tính lại\nNguồn phạm vi\nĐiều chỉnh định giá đã ghi\nSản phẩm\n3\nNguyên nhân cần đối soát\n3\nChính sách áp dụng\nThời điểm chốt\n17/09/2026 · 08:41\nPhương pháp công bố\nBình quân liên hoàn\nKỳ tính\n09/2026\nKỳ ghi nhận\n09/2026\nTính giá vốn"
+    },
+    {
+      "name": "SCR074 presents Product result counts",
+      "pass": true,
+      "note": "9:41\nLTE  100%\nKết quả lần tính\nTháng 08/2026\nKỳ 08/2026 · 184 sản phẩm\nSẵn sàng công bố\nThông tin lần tính\nThời điểm chốt\n31/08/2026 · 23:59\nPhương pháp công bố\nBình quân cuối kỳ\nKỳ tính\n08/2026\nKỳ ghi nhận\n08/2026\nPhạm vi tính\nKỳ tính\n08/2026\nKỳ ghi nhận\n08/2026\nSản phẩm\n184\nCó thay đổi\n37\nĐối chiếu hai phương pháp\nBình quân liên hoàn\nGiữ để đối chiếu\n1.242.800.000 đ\nGiá trị tồn cuối\nGiá vốn xuất 488.120.000 đ\nBình quân cuối kỳ\nDùng để công bố theo chính sách\nTheo chính sách\n1.245.920.000 đ\nGiá trị tồn cuối\nGiá vốn xuất 486.300.000 đ\nChênh lệch cần ghi\nGiá vốn xuất\n− 1.820.000 đ\nGiá trị tồn cuối\n3.120.000 đ\nHiệu lực giá vốn\nKhi công bố\nKết quả theo sản phẩm\n37 có thay đổi\nNobivac DHPPi\nGiá đề xuất 81.700 đ/lọ\n550.000 đ\nChênh lệch ròng\nAmoxicillin 500mg\nGiá đề xuất 12.380 đ/viên\n750.000 đ\nChênh lệch ròng\nGăng tay khám\nKhông có căn cứ giá mới\n0 đ\nKhông điều chỉnh\nRà soát công bố"
+    },
+    {
+      "name": "SCR074 presents per-product result rows",
+      "pass": true,
+      "note": "9:41\nLTE  100%\nKết quả lần tính\nTháng 08/2026\nKỳ 08/2026 · 184 sản phẩm\nSẵn sàng công bố\nThông tin lần tính\nThời điểm chốt\n31/08/2026 · 23:59\nPhương pháp công bố\nBình quân cuối kỳ\nKỳ tính\n08/2026\nKỳ ghi nhận\n08/2026\nPhạm vi tính\nKỳ tính\n08/2026\nKỳ ghi nhận\n08/2026\nSản phẩm\n184\nCó thay đổi\n37\nĐối chiếu hai phương pháp\nBình quân liên hoàn\nGiữ để đối chiếu\n1.242.800.000 đ\nGiá trị tồn cuối\nGiá vốn xuất 488.120.000 đ\nBình quân cuối kỳ\nDùng để công bố theo chính sách\nTheo chính sách\n1.245.920.000 đ\nGiá trị tồn cuối\nGiá vốn xuất 486.300.000 đ\nChênh lệch cần ghi\nGiá vốn xuất\n− 1.820.000 đ\nGiá trị tồn cuối\n3.120.000 đ\nHiệu lực giá vốn\nKhi công bố\nKết quả theo sản phẩm\n37 có thay đổi\nNobivac DHPPi\nGiá đề xuất 81.700 đ/lọ\n550.000 đ\nChênh lệch ròng\nAmoxicillin 500mg\nGiá đề xuất 12.380 đ/viên\n750.000 đ\nChênh lệch ròng\nGăng tay khám\nKhông có căn cứ giá mới\n0 đ\nKhông điều chỉnh\nRà soát công bố"
+    },
+    {
+      "name": "SCR074 presents incremental differences",
+      "pass": true,
+      "note": "9:41\nLTE  100%\nKết quả lần tính\nTháng 08/2026\nKỳ 08/2026 · 184 sản phẩm\nSẵn sàng công bố\nThông tin lần tính\nThời điểm chốt\n31/08/2026 · 23:59\nPhương pháp công bố\nBình quân cuối kỳ\nKỳ tính\n08/2026\nKỳ ghi nhận\n08/2026\nPhạm vi tính\nKỳ tính\n08/2026\nKỳ ghi nhận\n08/2026\nSản phẩm\n184\nCó thay đổi\n37\nĐối chiếu hai phương pháp\nBình quân liên hoàn\nGiữ để đối chiếu\n1.242.800.000 đ\nGiá trị tồn cuối\nGiá vốn xuất 488.120.000 đ\nBình quân cuối kỳ\nDùng để công bố theo chính sách\nTheo chính sách\n1.245.920.000 đ\nGiá trị tồn cuối\nGiá vốn xuất 486.300.000 đ\nChênh lệch cần ghi\nGiá vốn xuất\n− 1.820.000 đ\nGiá trị tồn cuối\n3.120.000 đ\nHiệu lực giá vốn\nKhi công bố\nKết quả theo sản phẩm\n37 có thay đổi\nNobivac DHPPi\nGiá đề xuất 81.700 đ/lọ\n550.000 đ\nChênh lệch ròng\nAmoxicillin 500mg\nGiá đề xuất 12.380 đ/viên\n750.000 đ\nChênh lệch ròng\nGăng tay khám\nKhông có căn cứ giá mới\n0 đ\nKhông điều chỉnh\nRà soát công bố"
+    },
+    {
+      "name": "SCR074 effective copy is not backdated",
+      "pass": true,
+      "note": "9:41\nLTE  100%\nKết quả lần tính\nTháng 08/2026\nKỳ 08/2026 · 184 sản phẩm\nSẵn sàng công bố\nThông tin lần tính\nThời điểm chốt\n31/08/2026 · 23:59\nPhương pháp công bố\nBình quân cuối kỳ\nKỳ tính\n08/2026\nKỳ ghi nhận\n08/2026\nPhạm vi tính\nKỳ tính\n08/2026\nKỳ ghi nhận\n08/2026\nSản phẩm\n184\nCó thay đổi\n37\nĐối chiếu hai phương pháp\nBình quân liên hoàn\nGiữ để đối chiếu\n1.242.800.000 đ\nGiá trị tồn cuối\nGiá vốn xuất 488.120.000 đ\nBình quân cuối kỳ\nDùng để công bố theo chính sách\nTheo chính sách\n1.245.920.000 đ\nGiá trị tồn cuối\nGiá vốn xuất 486.300.000 đ\nChênh lệch cần ghi\nGiá vốn xuất\n− 1.820.000 đ\nGiá trị tồn cuối\n3.120.000 đ\nHiệu lực giá vốn\nKhi công bố\nKết quả theo sản phẩm\n37 có thay đổi\nNobivac DHPPi\nGiá đề xuất 81.700 đ/lọ\n550.000 đ\nChênh lệch ròng\nAmoxicillin 500mg\nGiá đề xuất 12.380 đ/viên\n750.000 đ\nChênh lệch ròng\nGăng tay khám\nKhông có căn cứ giá mới\n0 đ\nKhông điều chỉnh\nRà soát công bố"
+    },
+    {
+      "name": "SCR076 review opens only after ready result",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "SCR076 states effective-time guard",
+      "pass": true,
+      "note": "9:41\nLTE  100%\nRà soát công bố\nTháng 08/2026\nKỳ 08/2026 · 184 sản phẩm\nSẵn sàng công bố\nThông tin lần tính\nThời điểm chốt\n31/08/2026 · 23:59\nPhương pháp công bố\nBình quân cuối kỳ\nKỳ tính\n08/2026\nKỳ ghi nhận\n08/2026\nPhạm vi tính\nKỳ tính\n08/2026\nKỳ ghi nhận\n08/2026\nSản phẩm\n184\nCó thay đổi\n37\nChênh lệch sẽ ghi\nGiá vốn xuất\n− 1.820.000 đ\nGiá trị tồn cuối\n3.120.000 đ\nHiệu lực giá vốn\nKhi công bố\nSau công bố\nSản phẩm đối soát\n184\nPhiên bản giá vốn mới\n2\nHiệu lực\nKhông sớm hơn thời điểm công bố\nCông bố giá vốn"
+    },
+    {
+      "name": "SCR076 has one publish action",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "SCR076 has no method override control",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Stale run cannot publish and requires successor",
+      "pass": true,
+      "note": "9:41\nLTE  100%\nRà soát công bố\nDữ liệu đầu vào đã thay đổi\nKhông thể công bố lần tính cũ. Tạo một lần tính kế tiếp từ dữ liệu hiện hành.\nTháng 08/2026\nKỳ 08/2026 · 184 sản phẩm\nChưa tính\nThông tin lần tính\nThời điểm chốt\n31/08/2026 · 23:59\nPhương pháp công bố\nBình quân cuối kỳ\nKỳ tính\n08/2026\nKỳ ghi nhận\n08/2026\nTạo lần tính kế tiếp"
+    },
+    {
+      "name": "Publish reaches terminal SCR077",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "SCR077 uses command-authoritative publication facts",
+      "pass": true,
+      "note": "9:41\nLTE  100%\nKết quả công bố\nĐã công bố giá vốn\n\nChênh lệch và phiên bản giá vốn đã được ghi từ kết quả đã chốt của lần tính.\n\nKết quả\nLần tính\nCOST-0826\nKỳ ghi nhận\n08/2026\nPhương pháp\nBình quân cuối kỳ\nSản phẩm đã đối soát\n184\nPhiên bản giá vốn mới\n2\nHiệu lực\n17/09/2026 · 08:41\nGiá vốn xuất\n− 1.820.000 đ\nGiá trị tồn cuối\n3.120.000 đ\nVề giá vốn"
+    },
+    {
+      "name": "SCR077 effective timestamp is publication time",
+      "pass": true,
+      "note": "9:41\nLTE  100%\nKết quả công bố\nĐã công bố giá vốn\n\nChênh lệch và phiên bản giá vốn đã được ghi từ kết quả đã chốt của lần tính.\n\nKết quả\nLần tính\nCOST-0826\nKỳ ghi nhận\n08/2026\nPhương pháp\nBình quân cuối kỳ\nSản phẩm đã đối soát\n184\nPhiên bản giá vốn mới\n2\nHiệu lực\n17/09/2026 · 08:41\nGiá vốn xuất\n− 1.820.000 đ\nGiá trị tồn cuối\n3.120.000 đ\nVề giá vốn"
+    },
+    {
+      "name": "UNKNOWN explicitly forbids resubmission",
+      "pass": true,
+      "note": "9:41\nLTE  100%\nĐang xác minh kết quả\nChưa xác định giá vốn đã được công bố hay chưa\n\nKhông gửi lại lệnh công bố. Chuyển đúng lần công bố này sang xác minh kết quả.\n\nLần tính\nCOST-0826\nTrạng thái\nĐang xác minh\nChuyển sang xác minh"
+    },
+    {
+      "name": "BJ14 runtime has no browser/page errors",
+      "pass": true,
+      "note": "{'page': [], 'console': []}"
+    }
+  ],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "captures": [
+    "SCR-072-READY.png",
+    "SCR-073-DIRTY.png",
+    "SCR-074-READY.png",
+    "SCR-076-READY.png",
+    "SCR-077-COMPLETED.png"
+  ]
+}

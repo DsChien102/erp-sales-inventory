@@ -1,0 +1,9 @@
+{
+  "version": "3.9.6",
+  "status": "PASS",
+  "baseline": "3.9.5",
+  "filesCompared": 108,
+  "added": [],
+  "removed": [],
+  "changed": []
+}

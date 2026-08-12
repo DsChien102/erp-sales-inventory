@@ -1,0 +1,77 @@
+# BJ01 + BJ02 Figma DS correction QA — v2.5.1
+
+**Result: PASS · 66/66 checks**
+
+- Browser errors: **0**
+- Product canvas: **402 × 874**
+- Figma authority: live Components + Patterns/Templates; computed-style geometry is checked in browser.
+- Gate explicitly re-checks BJ01 Key-value Row `525:358` and BJ02 form/list/overlay/numeric/review structures.
+
+## Checks
+
+- [x] BJ01 detail has exactly 4 Key-value rows — `4`
+- [x] BJ01 Emphasis Key-value Row is 338x44 — `{'x': 539, 'y': 378, 'w': 338, 'h': 44, 'right': 877, 'pad': '0px 12px', 'pt': '0px', 'pb': '0px', 'pl': '12px', 'pr': '12px', 'gap': 'normal 8px', 'r': '8px', 'ff': 'Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif', 'fs': '14px', 'lh': '21.7px', 'fw': '400', 'disp': 'flex', 'jc': 'space-between', 'wrap': 'normal', 'bd': 'none', 'bw': '0px', 'bg': 'rgb(235, 244, 236)', 'op': '1'}`
+- [x] BJ01 Emphasis uses Figma Inter 16/22 value — `{'x': 803.890625, 'y': 389, 'w': 61, 'h': 22, 'right': 865, 'pad': '0px', 'pt': '0px', 'pb': '0px', 'pl': '0px', 'pr': '0px', 'gap': 'normal', 'r': '0px', 'ff': 'Inter, system-ui, sans-serif', 'fs': '16px', 'lh': '22px', 'fw': '600', 'disp': 'block', 'jc': 'normal', 'wrap': 'nowrap', 'bd': 'none', 'bw': '0px', 'bg': 'rgba(0, 0, 0, 0)', 'op': '1'}`
+- [x] BJ01 has 3 Default Key-value rows — `3`
+- [x] BJ01 Default row 1 is 338x44/space-between — `[338, 44, 'space-between']`
+- [x] BJ01 Default row 1 value is Mono 14/22 nowrap — `{'right': 877, 'ff': '"JetBrains Mono", ui-monospace, monospace', 'fs': '14px', 'lh': '22px', 'wrap': 'nowrap'}`
+- [x] BJ01 Default row 2 is 338x44/space-between — `[338, 44, 'space-between']`
+- [x] BJ01 Default row 2 value is Mono 14/22 nowrap — `{'right': 877, 'ff': '"JetBrains Mono", ui-monospace, monospace', 'fs': '14px', 'lh': '22px', 'wrap': 'nowrap'}`
+- [x] BJ01 Default row 3 is 338x44/space-between — `[338, 44, 'space-between']`
+- [x] BJ01 Default row 3 value is Mono 14/22 nowrap — `{'right': 877, 'ff': '"JetBrains Mono", ui-monospace, monospace', 'fs': '14px', 'lh': '22px', 'wrap': 'nowrap'}`
+- [x] BJ01 supporting values share one right edge — `[877, 877, 877]`
+- [x] BJ01 availability block does not use Info Row
+- [x] BJ01 no horizontal overflow
+- [x] BJ02 SCR006 List Row exact 370x76 — `{'x': 523, 'y': 288, 'w': 370, 'h': 76, 'right': 893, 'pad': '0px 24px 0px 16px', 'pt': '0px', 'pb': '0px', 'pl': '16px', 'pr': '24px', 'gap': '12px', 'r': '12px', 'ff': 'Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif', 'fs': '14px', 'lh': '21.7px', 'fw': '400', 'disp': 'flex', 'jc': 'normal', 'wrap': 'normal', 'bd': 'solid', 'bw': '1px', 'bg': 'rgb(255, 255, 255)', 'op': '1'}`
+- [x] BJ02 SCR006 no horizontal overflow
+- [x] BJ02 SCR007 does not show meaningless READY badge
+- [x] BJ02 SCR007 Record Card exact 370x116 — `{'x': 523, 'y': 344, 'w': 370, 'h': 116, 'right': 893, 'pad': '12px', 'pt': '12px', 'pb': '12px', 'pl': '12px', 'pr': '12px', 'gap': '4px', 'r': '12px', 'ff': 'Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif', 'fs': '14px', 'lh': '21.7px', 'fw': '400', 'disp': 'flex', 'jc': 'normal', 'wrap': 'normal', 'bd': 'solid', 'bw': '1px', 'bg': 'rgb(255, 255, 255)', 'op': '1'}`
+- [x] BJ02 SCR008 Supplier is VSelect
+- [x] BJ02 SCR008 Warehouse is disabled VSelect
+- [x] BJ02 SCR008 has no fake inline Search Results Dropdown
+- [x] BJ02 SCR008 VFileDropZone exact 310x116 — `{'x': 553, 'y': 640, 'w': 310, 'h': 116, 'right': 863, 'pad': '20px 0px', 'pt': '20px', 'pb': '20px', 'pl': '0px', 'pr': '0px', 'gap': '8px', 'r': '12px', 'ff': 'Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif', 'fs': '14px', 'lh': '20px', 'fw': '600', 'disp': 'flex', 'jc': 'center', 'wrap': 'normal', 'bd': 'dashed', 'bw': '1px', 'bg': 'rgb(255, 255, 255)', 'op': '1'}`
+- [x] BJ02 SCR008 VFileDropZone keeps dashed Default after file selected — `{'x': 553, 'y': 640, 'w': 310, 'h': 116, 'right': 863, 'pad': '20px 0px', 'pt': '20px', 'pb': '20px', 'pl': '0px', 'pr': '0px', 'gap': '8px', 'r': '12px', 'ff': 'Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif', 'fs': '14px', 'lh': '20px', 'fw': '600', 'disp': 'flex', 'jc': 'center', 'wrap': 'normal', 'bd': 'dashed', 'bw': '1px', 'bg': 'rgb(255, 255, 255)', 'op': '1'}`
+- [x] BJ02 SCR008 upload uses approved cloud-upload slot
+- [x] BJ02 Sticky Footer exact 402x92/12/24 — `{'x': 507, 'y': 974, 'w': 402, 'h': 92, 'right': 909, 'pad': '12px 16px 24px', 'pt': '12px', 'pb': '24px', 'pl': '16px', 'pr': '16px', 'gap': '8px', 'r': '0px', 'ff': 'Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif', 'fs': '14px', 'lh': '21.7px', 'fw': '400', 'disp': 'flex', 'jc': 'normal', 'wrap': 'normal', 'bd': 'none', 'bw': '0px', 'bg': 'rgb(255, 255, 255)', 'op': '1'}`
+- [x] BJ02 Sticky Footer action exact 44px — `{'x': 523, 'y': 992, 'w': 370, 'h': 44, 'right': 893, 'pad': '0px 16px', 'pt': '0px', 'pb': '0px', 'pl': '16px', 'pr': '16px', 'gap': '8px', 'r': '8px', 'ff': 'Inter, system-ui, sans-serif', 'fs': '14px', 'lh': '20px', 'fw': '600', 'disp': 'flex', 'jc': 'center', 'wrap': 'normal', 'bd': 'solid', 'bw': '1px', 'bg': 'rgb(59, 148, 72)', 'op': '1'}`
+- [x] BJ02 SCR008 no horizontal overflow
+- [x] BJ02 Supplier Select Sheet exact 402x560 — `{'x': 507, 'y': 506, 'w': 402, 'h': 560, 'right': 909, 'pad': '12px 16px 44px', 'pt': '12px', 'pb': '44px', 'pl': '16px', 'pr': '16px', 'gap': '12px', 'r': '20px 20px 0px 0px', 'ff': 'Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif', 'fs': '14px', 'lh': '21.7px', 'fw': '400', 'disp': 'flex', 'jc': 'normal', 'wrap': 'normal', 'bd': 'none', 'bw': '0px', 'bg': 'rgb(255, 255, 255)', 'op': '1'}`
+- [x] BJ02 Supplier Select Sheet uses 370x76 Selection rows — `{'x': 523, 'y': 630, 'w': 370, 'h': 76, 'right': 893, 'pad': '0px 24px 0px 16px', 'pt': '0px', 'pb': '0px', 'pl': '16px', 'pr': '24px', 'gap': '12px', 'r': '12px', 'ff': 'Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif', 'fs': '14px', 'lh': '21.7px', 'fw': '400', 'disp': 'flex', 'jc': 'normal', 'wrap': 'normal', 'bd': 'solid', 'bw': '1px', 'bg': 'rgb(235, 244, 236)', 'op': '1'}`
+- [x] BJ02 Supplier Select Sheet uses VSearchBar
+- [x] BJ02 SCR009 context uses Info Row
+- [x] BJ02 SCR009 does not use Summary Card
+- [x] BJ02 SCR009 products use Record Card
+- [x] BJ02 SCR009 no horizontal overflow
+- [x] BJ02 SCR084 product identity is flat VSection not card — `{'x': 523, 'y': 288, 'w': 370, 'h': 44, 'right': 893, 'pad': '0px', 'pt': '0px', 'pb': '0px', 'pl': '0px', 'pr': '0px', 'gap': '12px', 'r': '0px', 'ff': 'Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif', 'fs': '14px', 'lh': '21.7px', 'fw': '400', 'disp': 'flex', 'jc': 'space-between', 'wrap': 'normal', 'bd': 'none', 'bw': '0px', 'bg': 'rgba(0, 0, 0, 0)', 'op': '1'}`
+- [x] BJ02 SCR084 has exactly 4 authoritative quantity hit areas — `4`
+- [x] BJ02 SCR084 does not use VTextField for classification quantities
+- [x] BJ02 SCR084 quantity hit area exact 338x44 — `{'x': 556, 'y': 730, 'w': 338, 'h': 44, 'right': 894, 'pad': '0px', 'pt': '0px', 'pb': '0px', 'pl': '0px', 'pr': '0px', 'gap': 'normal', 'r': '8px', 'ff': 'Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif', 'fs': '14px', 'lh': '21.7px', 'fw': '400', 'disp': 'block', 'jc': 'normal', 'wrap': 'normal', 'bd': 'none', 'bw': '0px', 'bg': 'rgba(0, 0, 0, 0)', 'op': '1'}`
+- [x] BJ02 SCR084 has no editable total field
+- [x] BJ02 SCR084 derived total uses Emphasis Key-value Row
+- [x] BJ02 Numeric Keypad Sheet exact 402x512 — `{'x': 507, 'y': 554, 'w': 402, 'h': 512, 'right': 909, 'pad': '12px 16px 42px', 'pt': '12px', 'pb': '42px', 'pl': '16px', 'pr': '16px', 'gap': '12px', 'r': '24px 24px 0px 0px', 'ff': 'Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif', 'fs': '14px', 'lh': '21.7px', 'fw': '400', 'disp': 'flex', 'jc': 'normal', 'wrap': 'normal', 'bd': 'none', 'bw': '0px', 'bg': 'rgb(255, 255, 255)', 'op': '1'}`
+- [x] BJ02 Numeric Keypad key exact 118x52 — `{'x': 523, 'y': 716, 'w': 118, 'h': 52, 'right': 641, 'pad': '0px', 'pt': '0px', 'pb': '0px', 'pl': '0px', 'pr': '0px', 'gap': 'normal', 'r': '12px', 'ff': 'Inter, system-ui, sans-serif', 'fs': '22px', 'lh': '28px', 'fw': '700', 'disp': 'flex', 'jc': 'center', 'wrap': 'normal', 'bd': 'solid', 'bw': '1px', 'bg': 'rgb(255, 255, 255)', 'op': '1'}`
+- [x] BJ02 Numeric Keypad actions exact 181x44 — `{'x': 523, 'y': 960, 'w': 181, 'h': 44, 'right': 704, 'pad': '0px 16px', 'pt': '0px', 'pb': '0px', 'pl': '16px', 'pr': '16px', 'gap': '8px', 'r': '8px', 'ff': 'Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif', 'fs': '14px', 'lh': '22px', 'fw': '600', 'disp': 'flex', 'jc': 'center', 'wrap': 'normal', 'bd': 'solid', 'bw': '1px', 'bg': 'rgb(255, 255, 255)', 'op': '1'}`
+- [x] BJ02 Numeric Keypad preserves source value until Lưu — `118 -> 118`
+- [x] BJ02 SCR010 has no legacy review-card
+- [x] BJ02 SCR010 uses flat VSection review composition
+- [x] BJ02 SCR010 uses Key-value rows for receipt quantities
+- [x] BJ02 SCR010 meaningful fixture shows 120 hộp
+- [x] BJ02 SCR010 no horizontal overflow
+- [x] BJ02 routine Quick approval banner is Compact 72px — `{'x': 523, 'y': 288, 'w': 370, 'h': 72, 'right': 893, 'pad': '12px 16px', 'pt': '12px', 'pb': '12px', 'pl': '16px', 'pr': '16px', 'gap': '12px', 'r': '12px', 'ff': 'Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif', 'fs': '14px', 'lh': '21.7px', 'fw': '400', 'disp': 'flex', 'jc': 'normal', 'wrap': 'normal', 'bd': 'solid', 'bw': '1px', 'bg': 'rgb(232, 240, 252)', 'op': '1'}`
+- [x] BJ02 Quick review uses actor handoff copy
+- [x] BJ02 Quick review meaningful fixture shows 23 hộp
+- [x] BJ02 SCR011 has exactly approve + reject decision actions
+- [x] BJ02 SCR011 has no editable receipt inputs
+- [x] BJ02 SCR011 Dual Footer exact 402x92 — `{'x': 507, 'y': 974, 'w': 402, 'h': 92, 'right': 909, 'pad': '12px 16px 24px', 'pt': '12px', 'pb': '24px', 'pl': '16px', 'pr': '16px', 'gap': '8px', 'r': '0px', 'ff': 'Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif', 'fs': '14px', 'lh': '21.7px', 'fw': '400', 'disp': 'grid', 'jc': 'normal', 'wrap': 'normal', 'bd': 'none', 'bw': '0px', 'bg': 'rgb(255, 255, 255)', 'op': '1'}`
+- [x] BJ02 SCR011 decision buttons 181x44 — `{'x': 523, 'y': 992, 'w': 181, 'h': 44, 'right': 704, 'pad': '0px 16px', 'pt': '0px', 'pb': '0px', 'pl': '16px', 'pr': '16px', 'gap': '8px', 'r': '8px', 'ff': 'Inter, system-ui, sans-serif', 'fs': '14px', 'lh': '20px', 'fw': '600', 'disp': 'flex', 'jc': 'center', 'wrap': 'normal', 'bd': 'solid', 'bw': '1px', 'bg': 'rgb(255, 255, 255)', 'op': '1'}`
+- [x] BJ02 SCR011 actor handoff visible
+- [x] BJ02 SCR011 no horizontal overflow
+- [x] BJ02 SCR012 no receive mutation CTA
+- [x] BJ02 SCR012 no legacy review-card
+- [x] BJ02 SCR013 UNKNOWN has no blind retry
+- [x] BJ02 SCR013 preserves same-operation guidance
+- [x] BJ02 source has no VCombobox fake identity
+- [x] BJ02 source has no VTextFormField fake identity
+- [x] BJ02 source creates no Theme7 shared component identity
+- [x] BJ02 V-first dependencies present
+- [x] Browser runtime errors = 0 — `[]`

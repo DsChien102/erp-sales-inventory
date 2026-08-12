@@ -1,0 +1,645 @@
+{
+  "version": "3.10.1",
+  "status": "PASS",
+  "passed": 127,
+  "total": 127,
+  "scope": "Wave 4 / BJ09 forensic semantic, authority-chain, trace, runtime and interaction review",
+  "checks": [
+    {
+      "name": "candidate manifest is v3.10.1 on direct parent v3.10.0",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "both prototype manifests identify v3.10.1 parent v3.10.0",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "canonical UI registries identify v3.10.1",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "workbench identifies v3.10.1",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "v3.10.1 BJ09 overlay loads exactly once",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "v3.10.1 overlay loads after v3.10.0 overlay",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "root launcher/readme identify v3.10.1",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "active loaded JavaScript contains no TRIAL enum",
+      "pass": true,
+      "note": "[]"
+    },
+    {
+      "name": "DR-178 exists and is ACTIVE",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "DR-179 exists and is ACTIVE",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "DR-180 exists and is ACTIVE",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "DR-181 exists and is ACTIVE",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "DR-182 exists and is ACTIVE",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "DR-183 exists and is ACTIVE",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "DR-184 exists and is ACTIVE",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "DR-178 carries its semantic invariant",
+      "pass": true,
+      "note": "[]"
+    },
+    {
+      "name": "DR-179 carries its semantic invariant",
+      "pass": true,
+      "note": "[]"
+    },
+    {
+      "name": "DR-180 carries its semantic invariant",
+      "pass": true,
+      "note": "[]"
+    },
+    {
+      "name": "DR-181 carries its semantic invariant",
+      "pass": true,
+      "note": "[]"
+    },
+    {
+      "name": "DR-182 carries its semantic invariant",
+      "pass": true,
+      "note": "[]"
+    },
+    {
+      "name": "DR-183 carries its semantic invariant",
+      "pass": true,
+      "note": "[]"
+    },
+    {
+      "name": "DR-184 carries its semantic invariant",
+      "pass": true,
+      "note": "[]"
+    },
+    {
+      "name": "BJ09 canonical taxonomy is explicit",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ09 policy is immutable and versioned",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ09 partial quantity remains user input",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ09 exact source slices are server-resolved",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ09 ambiguous composition is blocked",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ09 state transfer preserves valuation state",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ09 state transfer creates no value movement",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ09 approval binds immutable basis",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ09 approval itself does not write stock",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ09 system executor owns final commit",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ09 expiry is system-derived",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ09 reservation reconcile is atomic",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ09 does not silently rewrite PickAllocation",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ09 protects states owned by other journeys",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ09 keeps technical basis facts out of product UI",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "UC09-01 has v3.10.1 deep-review amendment",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "UC09-01 canonicalizes DEMO and retires active TRIAL",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "UC09-01 binds immutable StateChangeBasis exact slices",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "UC09-01 keeps valuation state system-owned",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "UC09-01 blocks ambiguous partial source composition",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "UC09-02 has v3.10.1 deep-review amendment",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "UC09-02 canonicalizes DEMO and retires active TRIAL",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "UC09-02 binds immutable StateChangeBasis exact slices",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "UC09-02 keeps valuation state system-owned",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "UC09-02 blocks ambiguous partial source composition",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "UC09-03 has v3.10.1 deep-review amendment",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "UC09-03 canonicalizes DEMO and retires active TRIAL",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "UC09-03 binds immutable StateChangeBasis exact slices",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "UC09-03 keeps valuation state system-owned",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "UC09-03 blocks ambiguous partial source composition",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "UC09-04 has v3.10.1 deep-review amendment",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "UC09-04 canonicalizes DEMO and retires active TRIAL",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "UC09-04 binds immutable StateChangeBasis exact slices",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "UC09-04 keeps valuation state system-owned",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "UC09-04 blocks ambiguous partial source composition",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "UC09-01 uses draft + submit contracts",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "UC09-01 submit technical trace includes API-C-26",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "UC09-02 approval result is decision, not stock mutation",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "UC09-02 requires reject reason and blocks self-approval",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "UC09-03 expiry is system behavior",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "UC09-03 technical trace uses API-C-10",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "UC09-04 is system-owned execution with no ACT-08-STATE CTA",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "UC09-04 technical trace uses API-C-10",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Inventory Control catalog owns 11 entities",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "entity catalog contains ENT-IC-10 StateTransitionPolicyVersion",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "entity catalog contains ENT-IC-11 StateChangeBasis",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "policy entity has immutable version identity",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "policy entity stores canonical transition rules",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "policy entity stores canonical SHA-256 hash",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "basis entity has immutable basis identity",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "basis stores exact source balance slice snapshot",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "basis stores policy version and policy hash",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "basis snapshots reason evidence date expiry and reservation",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "basis stores canonical SHA-256 basis hash",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "basis is append-only and not updateable after submit",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "InventoryMovement preserves valuation state for STATE_TRANSFER",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "basis destination excludes system/other-BJ states",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "ApprovalCase data model supports STATE_CHANGE subject",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BC-IO-10 locks exact basis and source balances",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BC-IO-10 appends STATE_TRANSFER per source slice",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BC-IO-10 preserves valuation state",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BC-IO-10 reconciles reservation atomically",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BC-IO-10 does not rewrite active PickAllocation",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BC-IO-10 has ambiguity/stale/policy/basis errors",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BC-IC-06 binds state-change approval to exact basis",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BC-IC-07 creates basis before approval/system route",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BC-IC-07 says state movement remains system-executed",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "API-C-10 is ChangeInventoryState with exact basis recheck",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "technical contract blocks ambiguous source slice",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "technical contract includes basis/policy/approval stale errors",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "technical success writes valuation snapshot with no value movement",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "EVT-IO-08 carries basis/policy/slice/reservation evidence",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "technical contract rejects manual expiry destination",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "technical contract preserves same identity for UNKNOWN/retry",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "UIF09 submit transition routes immutable basis before execution",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "UIF09 approver transition decides exact basis without stock write",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "UIF09 execution transition is SYSTEM",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "UIF09 explicitly has no user-facing ACT-08-STATE CTA",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "SCR038 current state is server-authoritative read-only",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "SCR038 destination is server-policy validated",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "SCR038 exposes STATE_CHANGE_BASIS_STALE recovery state",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "SCR038 canonical destination copy maps DEMO to Dùng thử",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "SCR038 marks ACT-08-STATE trace-only system",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "SCR041 PROCESSING means system executor recheck",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "component usage carries v3.10.1 state-change amendment",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "component usage YAML carries v3.10.1 basis/policy mapping",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "trace UC09-01 includes DR178..184 and new entities",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "trace UC09-02 includes DR178..184 and new entities",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "trace UC09-03 includes DR178..184 and new entities",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "trace UC09-04 includes DR178..184 and new entities",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "contract registry BC-IO-10 is v4.2.6 amendment",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "contract registry BC-IC-06/07 are v4.2.6 amendments",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "contract registry contains ENT-IC-10 and ENT-IC-11",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "ACT-08-STATE registry is system trace-only",
+      "pass": true,
+      "note": "{'id': 'ACT-08-STATE', 'label': 'Hệ thống ghi chuyển trạng thái', 'bc': 'BC-IO-10', 'api': 'API-C-10', 'permission': 'Quyền theo hợp đồng kỹ thuật, tenant và warehouse scope; máy chủ kiểm tra lại', 'confirmation': 'Không có CTA trực tiếp; confirmation thuộc submit/approval task', 'effect': 'System executor recheck StateChangeBasis rồi ghi STATE_TRANSFER, preserve valuation state, reconcile reservation; không tạo value movement', 'screen_ids': ['SCR-038', 'SCR-041'], 'evidence_level': 'BJ09_DEEP_REVIEW_v3.10.1', 'ui_visibility': 'TRACE_ONLY_SYSTEM'}"
+    },
+    {
+      "name": "runtime list renders Dùng thử and no Trial leakage",
+      "pass": true,
+      "note": "9:41\nLTE  100%\nTình trạng hàng\nTất cả\nBán được\nCách ly\nHỏng\nDùng thử\nHết hạn\nAmox 500\nSP-00128 · Lô L2407-A\nBán được\n18 hộp\nGăng tay M\nSP-00410 · Lô L2405-M\nCách ly\n6 hộp\nVitamin C\nSP-00231 · Lô L2310-C\nHết hạn\n4 hộp\nDầu sát khuẩn\nSP-00606 · Lô L2406-T\nDùng thử\n2 chai"
+    },
+    {
+      "name": "runtime current state is read-only and EXPIRED is not a destination",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "runtime missing reason fails validation without mutation",
+      "pass": true,
+      "note": "{'screen': 'SCR-038', 'state': 'VALIDATION_ERROR'}"
+    },
+    {
+      "name": "runtime approval submit locks exact basis and creates no movement",
+      "pass": true,
+      "note": "{'basisId': 'SCB-1709-001', 'itemId': 'amox', 'product': 'Amox 500', 'lot': 'L2407-A', 'from': 'SELLABLE', 'to': 'QUARANTINE', 'quantity': 5, 'uom': 'hộp', 'sourceSlices': [{'balanceId': 'BAL-AMOX-C', 'version': 7, 'valuationState': 'VALUATION_CONFIRMED', 'qty': 12, 'quantity': 5}], 'policyVersionId': 'STPOL-V7-20260917-01', 'policyHash': 'fixture-sha256-policy-v7', 'reason': 'Bao bì rách', 'evidence': '', 'businessDate': '17/09/2026', 'expiry': '30/11/2026', 'reservationImpact': {'before': 10, 'after': 7, 'shortfall': 3, 'allocationReviewRequired': True}, 'basisHash': 'fixture-ce8ac1fd'}"
+    },
+    {
+      "name": "runtime approver records decision before stock execution",
+      "pass": true,
+      "note": "({'decision': 'APPROVE', 'basisHash': 'fixture-ce8ac1fd', 'actor': 'approver', 'decidedAt': '17/09/2026 15:04'}, {'screen': 'SCR-041', 'state': 'PROCESSING'})"
+    },
+    {
+      "name": "runtime system executor commits movement after recheck",
+      "pass": true,
+      "note": "({'screen': 'SCR-041', 'state': 'COMPLETED'}, {'id': 'MOV-STATE-002', 'product': 'Amox 500', 'lot': 'L2407-A', 'from': 'SELLABLE', 'to': 'QUARANTINE', 'quantity': 5, 'uom': 'hộp', 'remainingSource': 13, 'sourceSlices': [{'balanceId': 'BAL-AMOX-C', 'version': 7, 'valuationState': 'VALUATION_CONFIRMED', 'qty': 12, 'quantity': 5, 'valuationStateSnapshot': 'VALUATION_CONFIRMED'}], 'valuationPreserved': True, 'valueMovementCreated': False, 'reservationImpact': {'before': 10, 'after': 7, 'shortfall': 3, 'allocationReviewRequired': True}, 'recordedAt': '17/09/2026 · 15:04'})"
+    },
+    {
+      "name": "runtime movement preserves valuation and creates no value movement",
+      "pass": true,
+      "note": "{'id': 'MOV-STATE-002', 'product': 'Amox 500', 'lot': 'L2407-A', 'from': 'SELLABLE', 'to': 'QUARANTINE', 'quantity': 5, 'uom': 'hộp', 'remainingSource': 13, 'sourceSlices': [{'balanceId': 'BAL-AMOX-C', 'version': 7, 'valuationState': 'VALUATION_CONFIRMED', 'qty': 12, 'quantity': 5, 'valuationStateSnapshot': 'VALUATION_CONFIRMED'}], 'valuationPreserved': True, 'valueMovementCreated': False, 'reservationImpact': {'before': 10, 'after': 7, 'shortfall': 3, 'allocationReviewRequired': True}, 'recordedAt': '17/09/2026 · 15:04'}"
+    },
+    {
+      "name": "runtime eligibility reduction reconciles reservation atomically",
+      "pass": true,
+      "note": "{'before': 10, 'after': 7, 'shortfall': 3, 'allocationReviewRequired': True}"
+    },
+    {
+      "name": "runtime direct DEMO route completes without synthetic approval",
+      "pass": true,
+      "note": "({'screen': 'SCR-041', 'state': 'COMPLETED'}, {'id': 'MOV-STATE-002', 'product': 'Amox 500', 'lot': 'L2407-A', 'from': 'SELLABLE', 'to': 'DEMO', 'quantity': 2, 'uom': 'hộp', 'remainingSource': 16, 'sourceSlices': [{'balanceId': 'BAL-AMOX-C', 'version': 7, 'valuationState': 'VALUATION_CONFIRMED', 'qty': 12, 'quantity': 2, 'valuationStateSnapshot': 'VALUATION_CONFIRMED'}], 'valuationPreserved': True, 'valueMovementCreated': False, 'reservationImpact': {'before': 10, 'after': 10, 'shortfall': 0, 'allocationReviewRequired': False}, 'recordedAt': '17/09/2026 · 15:04'}, None)"
+    },
+    {
+      "name": "runtime reject requires reason, re-enables CTA, and has zero stock effect",
+      "pass": true,
+      "note": "(True, True, {'screen': 'SCR-041', 'state': 'REJECTED_EXECUTION'})"
+    },
+    {
+      "name": "runtime stale basis blocks execution and focused browser has no errors",
+      "pass": true,
+      "note": "({'screen': 'SCR-041', 'state': 'STATE_CHANGE_BASIS_STALE'}, [])"
+    }
+  ],
+  "browserErrors": []
+}

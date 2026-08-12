@@ -1,0 +1,74 @@
+{
+  "version": "3.9.7",
+  "status": "PASS",
+  "passed": 13,
+  "total": 13,
+  "checks": [
+    {
+      "name": "Operator can distinguish actionable vs waiting work without source-architecture explanation",
+      "pass": true,
+      "note": "9:41\nLTE  100%\nHàng chờ xác nhận giá nhập\nTất cả\nCó thể xử lý\nĐang chờ\nPN-260816-04\nMinh Dũng · 2 dòng hàng · Chờ 19 ngày\nCần đối chiếu\nPN-260816-02\nAn Việt · 1 dòng hàng · Chờ 19 ngày\nChờ căn cứ\nPN-260901-03\nPhương Nam · 1 dòng hàng · Chờ 3 ngày\nCó thể xử lý\nPN-260902-07\nVietVet · 2 dòng hàng · Chờ 2 ngày\nCó thể xử lý"
+    },
+    {
+      "name": "Scope screen tells user what can be selected next",
+      "pass": true,
+      "note": "9:41\nLTE  100%\nChọn hàng cần xác nhận giá\nPN-260816-04\nMinh Dũng · Kho chính · Nhận 16/08/2026\nCần đối chiếu\nHàng cần xác nhận giá\n4 phạm vi đang chờ\nNobivac DHPPi\nSP-00142 · hộp\nĐủ căn cứ\nLô DH2507\nĐủ điều kiện bán · Chờ giá 50 hộp\nLô DH2509\nĐủ điều kiện bán · Chờ giá 46 hộp\nLô DH2509\nCách ly · Chờ giá 4 hộp\nAmoxicillin LA\nSP-00088 · chai\nCần đối chiếu\nKhông theo lô\nĐủ điều kiện bán · Chờ giá 24 chai\nRà soát xác nhận"
+    },
+    {
+      "name": "Technical tokens are not exposed on scope screen",
+      "pass": true,
+      "note": "9:41\nLTE  100%\nChọn hàng cần xác nhận giá\nPN-260816-04\nMinh Dũng · Kho chính · Nhận 16/08/2026\nCần đối chiếu\nHàng cần xác nhận giá\n4 phạm vi đang chờ\nNobivac DHPPi\nSP-00142 · hộp\nĐủ căn cứ\nLô DH2507\nĐủ điều kiện bán · Chờ giá 50 hộp\nLô DH2509\nĐủ điều kiện bán · Chờ giá 46 hộp\nLô DH2509\nCách ly · Chờ giá 4 hộp\nAmoxicillin LA\nSP-00088 · chai\nCần đối chiếu\nKhông theo lô\nĐủ điều kiện bán · Chờ giá 24 chai\nRà soát xác nhận"
+    },
+    {
+      "name": "Review answers cost, basis, scope and availability consequence in one mental task",
+      "pass": true,
+      "note": "9:41\nLTE  100%\nRà soát xác nhận giá\nPhiếu nhận\nPhiếu\nPN-260816-04\nNhà cung cấp\nMinh Dũng\nTổng giá trị sẽ ghi\n4.085.000 đ\nNội dung sẽ xác nhận\n1 nhóm căn cứ\nNobivac DHPPi\nSP-00142 · hộp\n4.085.000 đ\nGiá nhập thực tế\n81.700 đ/hộp\nQuy đổi lọ\n8.170 đ/lọ\nCăn cứ giá\nCăn cứ tổng hợp PO-2608-041\nLô DH2507\nĐủ điều kiện bán · 50 hộp\nKhả dụng\n+50 hộp\nXem căn cứ giá và cách tính\nXác nhận giá trị"
+    },
+    {
+      "name": "Review has one commit CTA",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Review avoids normal-state badge noise",
+      "pass": true,
+      "note": "9:41\nLTE  100%\nRà soát xác nhận giá\nPhiếu nhận\nPhiếu\nPN-260816-04\nNhà cung cấp\nMinh Dũng\nTổng giá trị sẽ ghi\n4.085.000 đ\nNội dung sẽ xác nhận\n1 nhóm căn cứ\nNobivac DHPPi\nSP-00142 · hộp\n4.085.000 đ\nGiá nhập thực tế\n81.700 đ/hộp\nQuy đổi lọ\n8.170 đ/lọ\nCăn cứ giá\nCăn cứ tổng hợp PO-2608-041\nLô DH2507\nĐủ điều kiện bán · 50 hộp\nKhả dụng\n+50 hộp\nXem căn cứ giá và cách tính\nXác nhận giá trị"
+    },
+    {
+      "name": "Normalized base-UOM consequence is visible only when it changes meaning",
+      "pass": true,
+      "note": "9:41\nLTE  100%\nRà soát xác nhận giá\nPhiếu nhận\nPhiếu\nPN-260816-04\nNhà cung cấp\nMinh Dũng\nTổng giá trị sẽ ghi\n4.085.000 đ\nNội dung sẽ xác nhận\n1 nhóm căn cứ\nNobivac DHPPi\nSP-00142 · hộp\n4.085.000 đ\nGiá nhập thực tế\n81.700 đ/hộp\nQuy đổi lọ\n8.170 đ/lọ\nCăn cứ giá\nCăn cứ tổng hợp PO-2608-041\nLô DH2507\nĐủ điều kiện bán · 50 hộp\nKhả dụng\n+50 hộp\nXem căn cứ giá và cách tính\nXác nhận giá trị"
+    },
+    {
+      "name": "Result is authoritative and final rather than a transient toast",
+      "pass": true,
+      "note": "9:41\nLTE  100%\nKết quả xác nhận giá\nĐã xác nhận giá\n\nGiá trị đã được ghi cho đúng phạm vi đã chọn.\n\nKết quả\nPhiếu nhận\nPN-260816-04\nNgày nghiệp vụ\n16/08/2026\nGhi nhận lúc\n16/09/2026 16:25\nGiá trị đã ghi\n4.085.000 đ\nPhạm vi đã ghi\nNobivac DHPPi\nSP-00142 · hộp · VAL03-R1-ITEM-1\n4.085.000 đ\nGiá nhập thực tế\n81.700 đ/hộp\nQuy đổi lọ\n8.170 đ/lọ\nLô DH2507\nĐủ điều kiện bán · 50 hộp · 4.085.000 đ\nKhả dụng\n+50 hộp\nTiếp tục xác nhận"
+    },
+    {
+      "name": "Result separates business time from recording time",
+      "pass": true,
+      "note": "9:41\nLTE  100%\nKết quả xác nhận giá\nĐã xác nhận giá\n\nGiá trị đã được ghi cho đúng phạm vi đã chọn.\n\nKết quả\nPhiếu nhận\nPN-260816-04\nNgày nghiệp vụ\n16/08/2026\nGhi nhận lúc\n16/09/2026 16:25\nGiá trị đã ghi\n4.085.000 đ\nPhạm vi đã ghi\nNobivac DHPPi\nSP-00142 · hộp · VAL03-R1-ITEM-1\n4.085.000 đ\nGiá nhập thực tế\n81.700 đ/hộp\nQuy đổi lọ\n8.170 đ/lọ\nLô DH2507\nĐủ điều kiện bán · 50 hộp · 4.085.000 đ\nKhả dụng\n+50 hộp\nTiếp tục xác nhận"
+    },
+    {
+      "name": "Result does not expose raw technical operation/hash/version tokens",
+      "pass": true,
+      "note": "9:41\nLTE  100%\nKết quả xác nhận giá\nĐã xác nhận giá\n\nGiá trị đã được ghi cho đúng phạm vi đã chọn.\n\nKết quả\nPhiếu nhận\nPN-260816-04\nNgày nghiệp vụ\n16/08/2026\nGhi nhận lúc\n16/09/2026 16:25\nGiá trị đã ghi\n4.085.000 đ\nPhạm vi đã ghi\nNobivac DHPPi\nSP-00142 · hộp · VAL03-R1-ITEM-1\n4.085.000 đ\nGiá nhập thực tế\n81.700 đ/hộp\nQuy đổi lọ\n8.170 đ/lọ\nLô DH2507\nĐủ điều kiện bán · 50 hộp · 4.085.000 đ\nKhả dụng\n+50 hộp\nTiếp tục xác nhận"
+    },
+    {
+      "name": "Conflict path asks for a business decision, not technical recovery",
+      "pass": true,
+      "note": "Đối chiếu căn cứ giá\nCần hoàn tất căn cứ giá\nChọn căn cứ có thẩm quyền và ghi lý do cho phần đang mâu thuẫn.\nAmoxicillin LA\nSP-00088 · chai\nCăn cứ giá đang mâu thuẫn\nChọn một căn cứ giá hoàn chỉnh có thẩm quyền và ghi lý do.\nCăn cứ theo PO-2608-041\n120.000 đ/chai\nCăn cứ theo xác nhận NCC 02/09\n121.000 đ/chai\nLý do chọn căn cứ *\nXong"
+    },
+    {
+      "name": "Conflict has no silent preselection",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Fresh-eye browser has no page errors",
+      "pass": true,
+      "note": []
+    }
+  ],
+  "browserErrors": []
+}

@@ -1,0 +1,662 @@
+{
+  "release": "2.7.3",
+  "status": "PASS",
+  "passed": 24,
+  "total": 24,
+  "migratedScreensReviewed": 23,
+  "checks": [
+    {
+      "name": "v2.7.4 hardening CSS uses semantic tokens only",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "Summary Card is no longer claimed for BJ01/BJ05 product identity",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "List Row Disabled state is implemented centrally",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "BJ05 queue waiting state stays Navigation rather than changing type",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "All 23 migrated BJ screens render at exact 402x874",
+      "pass": true,
+      "detail": [
+        {
+          "uif": "UIF-01",
+          "screen": "SCR-001",
+          "state": "READY",
+          "root": {
+            "w": 402,
+            "h": 874,
+            "sw": 402,
+            "cw": 402
+          },
+          "clips": []
+        },
+        {
+          "uif": "UIF-01",
+          "screen": "SCR-003",
+          "state": "READY",
+          "root": {
+            "w": 402,
+            "h": 874,
+            "sw": 402,
+            "cw": 402
+          },
+          "clips": []
+        },
+        {
+          "uif": "UIF-02",
+          "screen": "SCR-006",
+          "state": "READY",
+          "root": {
+            "w": 402,
+            "h": 874,
+            "sw": 402,
+            "cw": 402
+          },
+          "clips": []
+        },
+        {
+          "uif": "UIF-02",
+          "screen": "SCR-007",
+          "state": "READY",
+          "root": {
+            "w": 402,
+            "h": 874,
+            "sw": 402,
+            "cw": 402
+          },
+          "clips": []
+        },
+        {
+          "uif": "UIF-02",
+          "screen": "SCR-008",
+          "state": "READY",
+          "root": {
+            "w": 402,
+            "h": 874,
+            "sw": 402,
+            "cw": 402
+          },
+          "clips": []
+        },
+        {
+          "uif": "UIF-02",
+          "screen": "SCR-009",
+          "state": "READY",
+          "root": {
+            "w": 402,
+            "h": 874,
+            "sw": 402,
+            "cw": 402
+          },
+          "clips": []
+        },
+        {
+          "uif": "UIF-02",
+          "screen": "SCR-084",
+          "state": "READY",
+          "root": {
+            "w": 402,
+            "h": 874,
+            "sw": 402,
+            "cw": 402
+          },
+          "clips": []
+        },
+        {
+          "uif": "UIF-02",
+          "screen": "SCR-010",
+          "state": "READY",
+          "root": {
+            "w": 402,
+            "h": 874,
+            "sw": 402,
+            "cw": 402
+          },
+          "clips": []
+        },
+        {
+          "uif": "UIF-02",
+          "screen": "SCR-011",
+          "state": "READY",
+          "root": {
+            "w": 402,
+            "h": 874,
+            "sw": 402,
+            "cw": 402
+          },
+          "clips": []
+        },
+        {
+          "uif": "UIF-02",
+          "screen": "SCR-012",
+          "state": "READY",
+          "root": {
+            "w": 402,
+            "h": 874,
+            "sw": 402,
+            "cw": 402
+          },
+          "clips": []
+        },
+        {
+          "uif": "UIF-02",
+          "screen": "SCR-013",
+          "state": "READY",
+          "root": {
+            "w": 402,
+            "h": 874,
+            "sw": 402,
+            "cw": 402
+          },
+          "clips": []
+        },
+        {
+          "uif": "UIF-04",
+          "screen": "SCR-021",
+          "state": "READY",
+          "root": {
+            "w": 402,
+            "h": 874,
+            "sw": 402,
+            "cw": 402
+          },
+          "clips": []
+        },
+        {
+          "uif": "UIF-05",
+          "screen": "SCR-025",
+          "state": "READY",
+          "root": {
+            "w": 402,
+            "h": 874,
+            "sw": 402,
+            "cw": 402
+          },
+          "clips": []
+        },
+        {
+          "uif": "UIF-05",
+          "screen": "SCR-026",
+          "state": "READY",
+          "root": {
+            "w": 402,
+            "h": 874,
+            "sw": 402,
+            "cw": 402
+          },
+          "clips": []
+        },
+        {
+          "uif": "UIF-05",
+          "screen": "SCR-027",
+          "state": "READY",
+          "root": {
+            "w": 402,
+            "h": 874,
+            "sw": 402,
+            "cw": 402
+          },
+          "clips": []
+        },
+        {
+          "uif": "UIF-05",
+          "screen": "SCR-028",
+          "state": "READY",
+          "root": {
+            "w": 402,
+            "h": 874,
+            "sw": 402,
+            "cw": 402
+          },
+          "clips": []
+        },
+        {
+          "uif": "UIF-05",
+          "screen": "SCR-029",
+          "state": "READY",
+          "root": {
+            "w": 402,
+            "h": 874,
+            "sw": 402,
+            "cw": 402
+          },
+          "clips": []
+        },
+        {
+          "uif": "UIF-08",
+          "screen": "SCR-042",
+          "state": "READY",
+          "root": {
+            "w": 402,
+            "h": 874,
+            "sw": 402,
+            "cw": 402
+          },
+          "clips": []
+        },
+        {
+          "uif": "UIF-08",
+          "screen": "SCR-043",
+          "state": "READY",
+          "root": {
+            "w": 402,
+            "h": 874,
+            "sw": 402,
+            "cw": 402
+          },
+          "clips": []
+        },
+        {
+          "uif": "UIF-08",
+          "screen": "SCR-044",
+          "state": "BLIND_COUNT",
+          "root": {
+            "w": 402,
+            "h": 874,
+            "sw": 402,
+            "cw": 402
+          },
+          "clips": []
+        },
+        {
+          "uif": "UIF-08",
+          "screen": "SCR-045",
+          "state": "RECOUNT_REQUIRED",
+          "root": {
+            "w": 402,
+            "h": 874,
+            "sw": 402,
+            "cw": 402
+          },
+          "clips": []
+        },
+        {
+          "uif": "UIF-08",
+          "screen": "SCR-046",
+          "state": "APPROVAL_REQUIRED",
+          "root": {
+            "w": 402,
+            "h": 874,
+            "sw": 402,
+            "cw": 402
+          },
+          "clips": []
+        },
+        {
+          "uif": "UIF-08",
+          "screen": "SCR-047",
+          "state": "READY",
+          "root": {
+            "w": 402,
+            "h": 874,
+            "sw": 402,
+            "cw": 402
+          },
+          "clips": []
+        }
+      ]
+    },
+    {
+      "name": "All 23 migrated BJ screens have no root horizontal overflow",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "name": "No visible clipped text in migrated canonical renders outside intentional horizontal scrollers",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "name": "SCR-025 peer order rows all remain Navigation/Default-density 370x76 with chevron",
+      "pass": true,
+      "detail": [
+        {
+          "type": "Navigation",
+          "state": "Default",
+          "density": "Default",
+          "w": 370,
+          "h": 76,
+          "tag": "BUTTON",
+          "disabled": false,
+          "aria": null,
+          "chev": true
+        },
+        {
+          "type": "Navigation",
+          "state": "Disabled",
+          "density": "Default",
+          "w": 370,
+          "h": 76,
+          "tag": "BUTTON",
+          "disabled": true,
+          "aria": "true",
+          "chev": true
+        }
+      ]
+    },
+    {
+      "name": "SCR-025 waiting order uses true Disabled Navigation state",
+      "pass": true,
+      "detail": [
+        {
+          "type": "Navigation",
+          "state": "Default",
+          "density": "Default",
+          "w": 370,
+          "h": 76,
+          "tag": "BUTTON",
+          "disabled": false,
+          "aria": null,
+          "chev": true
+        },
+        {
+          "type": "Navigation",
+          "state": "Disabled",
+          "density": "Default",
+          "w": 370,
+          "h": 76,
+          "tag": "BUTTON",
+          "disabled": true,
+          "aria": "true",
+          "chev": true
+        }
+      ]
+    },
+    {
+      "name": "SCR-025 actionable order stays enabled Navigation peer",
+      "pass": true,
+      "detail": [
+        {
+          "type": "Navigation",
+          "state": "Default",
+          "density": "Default",
+          "w": 370,
+          "h": 76,
+          "tag": "BUTTON",
+          "disabled": false,
+          "aria": null,
+          "chev": true
+        },
+        {
+          "type": "Navigation",
+          "state": "Disabled",
+          "density": "Default",
+          "w": 370,
+          "h": 76,
+          "tag": "BUTTON",
+          "disabled": true,
+          "aria": "true",
+          "chev": true
+        }
+      ]
+    },
+    {
+      "name": "SCR-026 waiting collection remains same Navigation/Default geometry and chevrons",
+      "pass": true,
+      "detail": [
+        {
+          "type": "Navigation",
+          "state": "Disabled",
+          "density": "Default",
+          "w": 370,
+          "h": 76,
+          "disabled": true,
+          "chev": true
+        },
+        {
+          "type": "Navigation",
+          "state": "Disabled",
+          "density": "Default",
+          "w": 370,
+          "h": 76,
+          "disabled": true,
+          "chev": true
+        }
+      ]
+    },
+    {
+      "name": "BJ01 identity uses canonical Status/Compact List Row 370x52",
+      "pass": true,
+      "detail": {
+        "x": 523,
+        "y": 320,
+        "w": 370,
+        "h": 52,
+        "right": 893,
+        "bottom": 372,
+        "opacity": "1",
+        "overflow": "clip",
+        "overflowX": "clip",
+        "overflowY": "clip"
+      }
+    },
+    {
+      "name": "BJ01 supporting quantities are grouped in content-sized 370px information surface",
+      "pass": true,
+      "detail": {
+        "x": 523,
+        "y": 384,
+        "w": 370,
+        "h": 158,
+        "right": 893,
+        "bottom": 542,
+        "opacity": "1",
+        "overflow": "visible",
+        "overflowX": "visible",
+        "overflowY": "visible"
+      }
+    },
+    {
+      "name": "BJ01 product detail contains no product Summary Card",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "BJ02 real line editor uses Status/Compact List Row for product context",
+      "pass": true,
+      "detail": {
+        "x": 523,
+        "y": 288,
+        "w": 370,
+        "h": 52,
+        "right": 893,
+        "bottom": 340,
+        "opacity": "1",
+        "overflow": "clip",
+        "overflowX": "clip",
+        "overflowY": "clip"
+      }
+    },
+    {
+      "name": "BJ02 selected-product context has no fixed Summary Card blank space",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "BJ02 line editor has no horizontal overflow",
+      "pass": true,
+      "detail": {
+        "w": 402,
+        "h": 874,
+        "sw": 402,
+        "cw": 402
+      }
+    },
+    {
+      "name": "BJ02 receipt record cards no longer have inherited 2px internal overflow",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "name": "BJ05 product identity uses Status/Compact List Row 370x52",
+      "pass": true,
+      "detail": {
+        "x": 523,
+        "y": 288,
+        "w": 370,
+        "h": 52,
+        "right": 893,
+        "bottom": 340,
+        "opacity": "1",
+        "overflow": "clip",
+        "overflowX": "clip",
+        "overflowY": "clip"
+      }
+    },
+    {
+      "name": "BJ05 picking detail no longer uses fixed Summary Card for sparse identity",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "Every rendered Compact List Row in migrated scope matches live Figma 370x52/p4-16/gap8/r8",
+      "pass": true,
+      "detail": [
+        {
+          "uif": "UIF-01",
+          "screen": "SCR-003",
+          "w": 370,
+          "h": 52,
+          "pad": "4px 16px",
+          "gap": "8px",
+          "radius": "8px"
+        },
+        {
+          "uif": "UIF-02",
+          "screen": "SCR-084",
+          "w": 370,
+          "h": 52,
+          "pad": "4px 16px",
+          "gap": "8px",
+          "radius": "8px"
+        },
+        {
+          "uif": "UIF-02",
+          "screen": "SCR-010",
+          "w": 370,
+          "h": 52,
+          "pad": "4px 16px",
+          "gap": "8px",
+          "radius": "8px"
+        },
+        {
+          "uif": "UIF-02",
+          "screen": "SCR-010",
+          "w": 370,
+          "h": 52,
+          "pad": "4px 16px",
+          "gap": "8px",
+          "radius": "8px"
+        },
+        {
+          "uif": "UIF-02",
+          "screen": "SCR-011",
+          "w": 370,
+          "h": 52,
+          "pad": "4px 16px",
+          "gap": "8px",
+          "radius": "8px"
+        },
+        {
+          "uif": "UIF-02",
+          "screen": "SCR-011",
+          "w": 370,
+          "h": 52,
+          "pad": "4px 16px",
+          "gap": "8px",
+          "radius": "8px"
+        },
+        {
+          "uif": "UIF-02",
+          "screen": "SCR-012",
+          "w": 370,
+          "h": 52,
+          "pad": "4px 16px",
+          "gap": "8px",
+          "radius": "8px"
+        },
+        {
+          "uif": "UIF-02",
+          "screen": "SCR-012",
+          "w": 370,
+          "h": 52,
+          "pad": "4px 16px",
+          "gap": "8px",
+          "radius": "8px"
+        },
+        {
+          "uif": "UIF-05",
+          "screen": "SCR-027",
+          "w": 370,
+          "h": 52,
+          "pad": "4px 16px",
+          "gap": "8px",
+          "radius": "8px"
+        }
+      ]
+    },
+    {
+      "name": "SCR-028 last content remains reachable above sticky footer at max scroll",
+      "pass": true,
+      "detail": {
+        "last": {
+          "x": 523,
+          "y": 71,
+          "w": 370,
+          "h": 887,
+          "right": 893,
+          "bottom": 958,
+          "opacity": "1",
+          "overflow": "visible",
+          "overflowX": "visible",
+          "overflowY": "visible"
+        },
+        "footer": {
+          "x": 507,
+          "y": 974,
+          "w": 402,
+          "h": 92,
+          "right": 909,
+          "bottom": 1066,
+          "opacity": "1",
+          "overflow": "visible",
+          "overflowX": "visible",
+          "overflowY": "visible"
+        }
+      }
+    },
+    {
+      "name": "Disabled Navigation uses DS parent opacity 0.4 without anatomy change",
+      "pass": true,
+      "detail": {
+        "x": 523,
+        "y": 508,
+        "w": 370,
+        "h": 76,
+        "right": 893,
+        "bottom": 584,
+        "opacity": "0.4",
+        "overflow": "visible",
+        "overflowX": "visible",
+        "overflowY": "visible"
+      }
+    },
+    {
+      "name": "No browser page errors during cross-BJ review",
+      "pass": true,
+      "detail": []
+    }
+  ],
+  "browserErrors": []
+}

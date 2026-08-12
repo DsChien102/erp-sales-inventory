@@ -1,0 +1,194 @@
+{
+  "status": "FAIL",
+  "passed": 23,
+  "total": 32,
+  "checks": [
+    {
+      "name": "v2.9.2 correction CSS has no raw color literals",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "v2.9.2 CSS only targets migrated UIF05/06/07",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Raw BJ07 Product heading helper is retired",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ07 Product summary reuses canonical Status/Compact List Row",
+      "pass": false,
+      "note": ""
+    },
+    {
+      "name": "No raw VSection+VText+VBadge Product header markup remains",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "SCR036 remains one flat request collection",
+      "pass": true,
+      "note": 4
+    },
+    {
+      "name": "Queue rows remain Navigation/Default 370x76",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Waiting queue peer remains Disabled Navigation with chevron",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "SCR037 renders one coherent surface per Product+UOM",
+      "pass": false,
+      "note": 3
+    },
+    {
+      "name": "Product+UOM parent is canonical List Row Status/Compact",
+      "pass": false,
+      "note": 3
+    },
+    {
+      "name": "Product summary carries real VBadge trailing status",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "LOT/non-LOT children remain Navigation/Default",
+      "pass": false,
+      "note": 4
+    },
+    {
+      "name": "Parent and child have distinct density and visual weight",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Same product with different UOM remains separate",
+      "pass": true,
+      "note": [
+        "Nobivac DHPPi\nSP-00142 · hộp\n0/2 đã kiểm",
+        "Nobivac DHPPi\nSP-00142 · lọ\n0/1 đã kiểm",
+        "Găng tay khám Nitrile\nSP-00618 · hộp\n0/1 đã kiểm"
+      ]
+    },
+    {
+      "name": "Preparation stays 402x874 with no horizontal overflow",
+      "pass": true,
+      "note": {
+        "app": [
+          402,
+          874
+        ],
+        "x": 0
+      }
+    },
+    {
+      "name": "Many-LOT stress remains compact vertical rows",
+      "pass": false,
+      "note": {
+        "count": 12,
+        "all76": false,
+        "fields": 0,
+        "scroll": true,
+        "x": 0
+      }
+    },
+    {
+      "name": "Verification stays canonical VBottomSheet 402px",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Normal VBottomSheet has 48x4 handle and no close X",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "SCR039 Product groups are coherent bordered 370px surfaces",
+      "pass": false,
+      "note": 3
+    },
+    {
+      "name": "Final-review Product parent is Status/Compact List Row 338x52",
+      "pass": false,
+      "note": 3
+    },
+    {
+      "name": "Product quantities stay exact Product+UOM scoped",
+      "pass": false,
+      "note": [
+        "Đã kiểm",
+        "Đã kiểm",
+        "Đã kiểm"
+      ]
+    },
+    {
+      "name": "Allocation evidence remains canonical Key-value Row 338x44",
+      "pass": true,
+      "note": 4
+    },
+    {
+      "name": "Final review contains no cross-UOM grand total",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Final review retains exactly one primary commit",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Final review has no horizontal overflow",
+      "pass": true,
+      "note": {
+        "x": 0
+      }
+    },
+    {
+      "name": "Confirm transitions to terminal SCR041",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Completed result reuses exact same Product summary primitive",
+      "pass": false,
+      "note": ""
+    },
+    {
+      "name": "Completed result keeps allocation facts below parent",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Completed result has no Back",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Last result surface remains reachable above sticky footer",
+      "pass": true,
+      "note": {
+        "reachable": true,
+        "scrollTop": 6,
+        "max": 6
+      }
+    },
+    {
+      "name": "UNKNOWN keeps no blind retry",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "No browser errors",
+      "pass": true,
+      "note": []
+    }
+  ],
+  "browserErrors": []
+}

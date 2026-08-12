@@ -1,0 +1,27 @@
+{
+  "version": "3.5.1",
+  "parentVersion": "3.5.0",
+  "scope": "Cumulative Theme 7 UI/prototype correctness correction across all 17 Business Journeys; business flow/logic baseline from v3.5.0 preserved.",
+  "flows": 17,
+  "screens": 85,
+  "activeStateRenders": 500,
+  "auditControlStateRenders": 272,
+  "canonicalCanvas": "402x874",
+  "uiAuthority": "Live Figma Design System in QVJolM5tAdFKkhP7RIwe3y",
+  "businessAuthority": "BJ/UC/Decision/Behavioral/UI contracts",
+  "newCoreComponents": 0,
+  "businessBehaviorChanged": false,
+  "qa": {
+    "static": "specs/themes/theme-07/prototype/html/qa/STATIC-CONSISTENCY-QA-v3.5.1.json",
+    "semantic": "specs/themes/theme-07/prototype/html/qa/FLOW-LOGIC-E2E-QA-v3.5.1.json",
+    "runtimeUi": "specs/themes/theme-07/prototype/html/qa/RUNTIME-UI-QA-v3.5.1.json",
+    "allFlowSmoke": "85/85 renders; 0 failures; 0 browser errors",
+    "deviceFrame": "7/7 PASS across 85 screens",
+    "priorBjRegression": "23/23 PASS",
+    "valuationIntegration": "14/14 PASS",
+    "reviewFit": "3/3 PASS",
+    "visual": "specs/themes/theme-07/prototype/html/qa/v351-visual-captures/V351-LIST-CHIP-NAV-CONTACT-SHEET.png",
+    "releaseValidation": "RELEASE-VALIDATION-v3.5.1.md"
+  },
+  "boundary": "Browser prototype only; backend transactional atomicity requires integration QA."
+}

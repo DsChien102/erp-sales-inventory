@@ -1,0 +1,39 @@
+{
+  "release": "2.5.5",
+  "parent": "2.5.4",
+  "scope": [
+    "BJ02 SCR-010 maker review changed from expanded data dump to compact progressive-disclosure summaries",
+    "BJ02 SCR-011 approval reuses the same dense review anatomy",
+    "Existing DS v2 / List Row Type=Status Density=Compact, VBadge, VBottomSheet, Info Row and VSection reused; no new Theme7 component",
+    "BJ02 v2.5.4 input semantics and quick-flow corrections retained"
+  ],
+  "businessBehaviorChanged": false,
+  "migration": {
+    "newlyMigrated": [],
+    "corrected": [
+      "UIF-02"
+    ],
+    "migratedCumulative": [
+      "UIF-01",
+      "UIF-02",
+      "UIF-08"
+    ],
+    "newFeatureComponentsCreated": 0,
+    "sharedDsRefresh": []
+  },
+  "qa": {
+    "bj02ReviewDensity": "PASS 18/18",
+    "allFlowRuntime": "PASS 85/85",
+    "browserErrors": 0,
+    "javascriptSyntax": "PASS"
+  },
+  "designAuthority": {
+    "business": "BJ/UC/Decision/Behavioral/UI contracts",
+    "ui": "Live Figma Design System canonical surface",
+    "reviewComposition": "DS v2 / List Row 525:519 + VBadge 525:309 + VBottomSheet 4695:6353 + Info Row 525:351 + VSection"
+  },
+  "registryPreservation": {
+    "actionRegistrySha256": "35f59f04480d6a41f24e1735a88ac14e478319bc57f85e842ac5ff885f6b332a",
+    "screenRegistrySha256": "20d3abc7a229ba54aaa436942ffa767f9914b9af2e8c8e6f901b4049ceab5ebf"
+  }
+}

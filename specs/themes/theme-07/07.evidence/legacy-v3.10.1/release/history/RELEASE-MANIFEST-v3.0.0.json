@@ -1,0 +1,83 @@
+{
+  "version": "3.0.0",
+  "parent": "2.9.4",
+  "status": "INVENTORY_VALUATION_CLUSTER_REVIEW_READY",
+  "cluster": "Inventory Valuation",
+  "businessJourneys": [
+    "BJ03",
+    "BJ13",
+    "BJ14"
+  ],
+  "scope": [
+    "BJ03 — Xác nhận giá trị ban đầu: Product/UOM is the primary context; LOT/non-LOT + physical-state scopes are nested rows; partial quantity remains contextual; source conflict stays unselected until user decides; evidence/provenance lives in VBottomSheet.",
+    "BJ13 — Chi phí mua đến muộn: source context, multi-target scope, allocation method, allocation preview, period effect, final review/result use one grouped surface per homogeneous collection and canonical financial rows.",
+    "BJ14 — Tính và công bố giá vốn: immutable cost-run list/setup/calculation/blocker/review/result; policy method is display-only; two run-kind choices use VRadio rather than a custom two-option segmented control."
+  ],
+  "businessBehaviorChanged": false,
+  "businessTopologyChanged": false,
+  "newCoreDesignSystemComponentsCreated": 0,
+  "canonicalActiveRoutes": {
+    "BJ03": [
+      "SCR-014",
+      "SCR-015",
+      "SCR-017",
+      "SCR-019"
+    ],
+    "BJ13": [
+      "SCR-085",
+      "SCR-086",
+      "SCR-087",
+      "SCR-088",
+      "SCR-089"
+    ],
+    "BJ14": [
+      "SCR-072",
+      "SCR-073",
+      "SCR-074",
+      "SCR-076",
+      "SCR-077"
+    ]
+  },
+  "retiredSupportRoutes": [
+    "SCR-016",
+    "SCR-075"
+  ],
+  "productViewport": "402x874",
+  "reviewDevice": "418x890",
+  "mobileEdge": 16,
+  "contentWidth": 370,
+  "figmaAuthority": {
+    "fileKey": "QVJolM5tAdFKkhP7RIwe3y",
+    "components": {
+      "List Row": "525:519",
+      "Info Row": "525:351",
+      "Key-value Row": "525:358",
+      "VBadge": "525:309",
+      "VRadio": "522:7410",
+      "VSelect": "522:7291",
+      "VBottomSheet": "4695:6353",
+      "VAppBar": "547:1594"
+    }
+  },
+  "principles": [
+    "Business document decides meaning and behavior; Figma DS decides presentation.",
+    "Do not model parent and child business entities as peer cards.",
+    "One homogeneous collection gets at most one dominant surface.",
+    "Money and quantity are values, not statuses.",
+    "Entry/orchestration explanations stay outside Product UI.",
+    "No new core component when existing DS primitives/compositions cover the responsibility."
+  ],
+  "qa": {
+    "valuationCluster": "PASS 28/28 · 14 active valuation screens · 0 browser errors",
+    "valuationScenarios": "PASS 27/27",
+    "valuationEndUser": "PASS 54/54",
+    "valuationIntegration": "PASS 14/14",
+    "allFlowRuntime": "PASS 85/85 renders · 0 browser errors",
+    "deviceFrame": "PASS 7/7 · 85 screens checked · 0 browser errors",
+    "priorBjRegression": "PASS 23/23 · 0 browser errors",
+    "bj07ProductLotRegression": "PASS 21/21",
+    "reviewWorkbenchFit": "PASS 3/3",
+    "javascriptSyntax": "PASS",
+    "focusedVisualReview": "PASS · SCR-014, SCR-015, evidence sheet, populated SCR-017, SCR-087/088/089, SCR-072/073/074/076 at 402x874"
+  }
+}

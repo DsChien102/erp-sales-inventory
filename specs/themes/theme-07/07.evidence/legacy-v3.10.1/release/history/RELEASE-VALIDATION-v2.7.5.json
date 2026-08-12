@@ -1,0 +1,37 @@
+{
+  "status": "FAIL",
+  "passed": 5,
+  "total": 6,
+  "checks": [
+    {
+      "name": "Cross-BJ Figma fidelity",
+      "pass": true,
+      "note": "20/20"
+    },
+    {
+      "name": "All-flow runtime smoke",
+      "pass": true,
+      "note": "85 renders"
+    },
+    {
+      "name": "Prototype manifest version",
+      "pass": true,
+      "note": "2.7.5"
+    },
+    {
+      "name": "Release manifest exists",
+      "pass": true,
+      "note": "yes"
+    },
+    {
+      "name": "BJ05 lot sheet no Form Sheet claim",
+      "pass": true,
+      "note": "canonical VBottomSheet"
+    },
+    {
+      "name": "BJ05 lot sheet no close CTA",
+      "pass": false,
+      "note": "no X"
+    }
+  ]
+}

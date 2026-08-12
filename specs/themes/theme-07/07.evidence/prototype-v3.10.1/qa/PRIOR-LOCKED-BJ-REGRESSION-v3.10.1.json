@@ -1,0 +1,218 @@
+{
+  "version": "3.10.1",
+  "scope": "Prior locked regression: BJ01 + Wave 2 + Wave 3 (BJ03/BJ13/BJ14) + BJ08",
+  "status": "PASS",
+  "passed": 37,
+  "total": 37,
+  "checks": [
+    {
+      "name": "BJ01 single-list stock entry remains available",
+      "pass": true,
+      "note": "9:41\nLTE  100%\nTồn kho\n\nKho trung tâm · Dữ liệu đến 09:42, 27/08/2026\n\nTất cả\nHết hàng\nTồn thấp\nCận hạn\nHết hạn\nNobivac DHPPi · SP-000184\n106 hộp khả dụng · Có lô cận hạn\nAmox 500 · SP-000066\n42 hộp khả dụng · Tồn thấp\nEnrofloxacin 10% · SP-000091\n0 chai khả dụng · Hết hàng\nTylosin 20% · SP-000122\n4 lọ khả dụng · Có lô hết hạn\nOxytetracycline LA · SP-000147\n26 chai khả dụng · Chưa có ngưỡng tồn"
+    },
+    {
+      "name": "BJ01 detail still separates physical/eligible/reserved/available facts",
+      "pass": true,
+      "note": "9:41\nLTE  100%\nChi tiết tồn kho\n\nKho trung tâm · Dữ liệu đến 09:42, 27/08/2026\n\nNobivac DHPPi\nSP-000184 · hộp\nKhả dụng\n106 hộp\nTồn vật lý\n120 hộp\nĐủ điều kiện bán\n118 hộp\nĐã giữ\n12 hộp\nKhông đủ điều kiện bán\nCách ly\n2 hộp\nLô và hạn dùng\n2 lô\nLô DH2507\nHSD 30/11/2026 · Tồn 70 hộp\nLô DH2509\nHSD 15/09/2026 · Tồn 50 hộp · Cận hạn\nNguồn và thời điểm cập nhật\nXem nguồn số liệu và lịch sử"
+    },
+    {
+      "name": "BJ02 review READY fixture remains actionable",
+      "pass": true,
+      "note": "9:41\nLTE  100%\nRà soát nhận hàng\nThông tin lần nhận\nĐổi chứng từ\nChứng từ\nPN-260816-04\nNhà cung cấp\nMinh Dũng\nKho nhận\nKho trung tâm\nNgày chứng từ\n16/08/2026\nNgày nhận\n16/09/2026\nHàng thực nhận\n2 mặt hàng · 2 dòng\nSửa\nMặt hàng đã xử lý\n2 mặt hàng\nDòng nhận hàng\n2 dòng\nNobivac DHPPi\nNOB-DHPP · hộp · 1 lô · 120 hộp\nĐã xong\nAmoxicillin LA\nAMX-LA · chai · 1 lô · 24 chai\nĐã xong\nXác nhận nhận hàng"
+    },
+    {
+      "name": "BJ02 approval READY remains actionable without English leakage",
+      "pass": true,
+      "note": "9:41\nLTE  100%\nPhê duyệt yêu cầu nhận hàng\nViệc dành cho người phê duyệt · Nguyễn Văn An gửi\nLý do cần duyệt\nLượng vào tồn vật lý vượt chứng từ nguồn.\nThông tin lần nhận\nChứng từ\nPN-260816-04\nNhà cung cấp\nMinh Dũng\nKho nhận\nKho trung tâm\nNgày chứng từ\n16/08/2026\nNgày nhận\n16/09/2026\nXem chứng từ giao nhận\nThông tin yêu cầu\nNgười gửi\nNguyễn Văn An\nGửi lúc\n16/09/2026 · 09:41\nTổng giá trị rủi ro\n13.165.000 đ\nHàng thực nhận\n2 mặt hàng · 2 dòng\nNobivac DHPPi\nNOB-DHPP · hộp · 1 lô · 121 hộp\nVượt chứng từ\nAmoxicillin LA\nAMX-LA · chai · 1 lô · 24 chai\nĐã xong\nTừ chối\nDuyệt"
+    },
+    {
+      "name": "BJ05 pick editor still uses explicit quantity precision",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ05 UNKNOWN preserves exact operation identity",
+      "pass": true,
+      "note": [
+        "IO-HO-SO26082721-01",
+        "IO-HO-SO26082721-01"
+      ]
+    },
+    {
+      "name": "BJ05 VERIFYING row remains non-actionable",
+      "pass": true,
+      "note": "SO-260827-21\nĐại lý An Phú · Kho chính\nĐang xác minh bàn giao"
+    },
+    {
+      "name": "BJ06 current ReturnExchangeLine authorization caps receipt",
+      "pass": true,
+      "note": "9:41\nLTE  100%\nChi tiết hàng trả\nNobivac DHPPi\nSP-000184 · hộp\nCăn cứ trả hàng\nĐược phép nhận lần này\n3 hộp\nTình trạng khai báo\nCòn nguyên bao bì\nLô đã giao\nDH2507\nSố lượng thực nhận *\nTối đa theo yêu cầu trả hiện tại: 3 hộp\nLô thực nhận\nLô DH2507\nĐúng lô đã giao\nLô khác\nThực nhận khác lô đã giao\nXong"
+    },
+    {
+      "name": "BJ06 WAITING request is true read-only",
+      "pass": true,
+      "note": "9:41\nLTE  100%\nKiểm hàng khách trả\nRET-260827-07\nNhà thuốc thú y Hòa Bình · SO-260820-08\n1/1 đã kiểm\nĐang chờ duyệt 1 ngoại lệ lô\nCác dòng đã kiểm được giữ nguyên; hiện chưa thể ghi nhận.\nHàng thực nhận\nNobivac DHPPi\nSP-000184 · hộp\n3 hộp\nChờ duyệt lô\nLô giao\nDH2507\nLô thực nhận\nDH2509\n\nChỉ ghi nhận khi tất cả dòng hợp lệ; tồn kho chưa đổi trong lúc kiểm."
+    },
+    {
+      "name": "BJ06 expired quantity remains system-derived and non-editable",
+      "pass": true,
+      "note": "9:41\nLTE  100%\nPhân loại hàng trả\nRET-260827-05\nĐại lý Nam Việt · SO-260815-19\n1/2 đã xong\nHàng cần phân loại\nNobivac DHPPi\nSP-000184 · Lô DH2408\n4 hộp\nHết hạn\nGăng tay khám Nitrile\nSP-000271 · Không theo lô\n5 hộp\nHoàn tất phân loại"
+    },
+    {
+      "name": "BJ06 UNKNOWN preserves exact operation identity and BJ17 handoff",
+      "pass": true,
+      "note": [
+        "IO-CRET-001",
+        "IO-CRET-001"
+      ]
+    },
+    {
+      "name": "No browser errors across BJ01/BJ02/BJ05/BJ06 regression",
+      "pass": true,
+      "note": []
+    },
+    {
+      "name": "BJ07 queue remains source-owned with no fake RTV_PENDING CTA",
+      "pass": true,
+      "note": "9:41\nLTE  100%\nHàng chờ trả nhà cung cấp\nTất cả\nCần chuẩn bị\nSẵn sàng\nĐang chờ\nRTV-260827-02\nMinh Dũng · YCTN-260827-02\nCần chuẩn bị\nRTV-260827-04\nAn Việt · YCTN-260827-04\nCần kiểm lại\nRTV-260903-03\nThú Y Hoàng Gia · YCTN-260903-03\nSẵn sàng\nRTV-260903-05\nPhú Nông · YCTN-260903-05\nChờ cập nhật"
+    },
+    {
+      "name": "BJ07 physical verification still uses source allocation identity",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ07 UNKNOWN remains non-blind-retry recovery",
+      "pass": true,
+      "note": "9:41\nLTE  100%\nXác minh kết quả\nĐang xác minh kết quả\n\nKhông gửi lại bàn giao. Hệ thống đang xác minh đúng lần xử lý này bằng cùng operation identity.\n\nYêu cầu\nRTV-260827-02\nChứng từ nguồn\nYCTN-260827-02\nTồn vật lý\nChưa kết luận\nChuyển sang xác minh"
+    },
+    {
+      "name": "BJ04 reservation remains read-only current projection",
+      "pass": true,
+      "note": "9:41\nLTE  100%\nGiữ hàng theo đơn\nĐơn SO-260827-18\nThông tin đơn\nKho\nKho chính\nTrạng thái đơn\nĐã xác nhận · Có giữ hàng\nChưa giữ đủ\n2 dòng còn thiếu. Đơn bán sẽ quyết định tiếp tục, giảm lượng hoặc chờ hàng.\nTình trạng giữ hàng\n3 dòng đang giữ\nNobivac DHPPi · SP-000184\nCần giữ còn lại 16 hộp · Đang giữ 16 hộp\nAmox 500 · SP-000066\nCần giữ còn lại 50 hộp · Đang giữ 42 hộp\nThiếu 8 hộp\nBộ chăm sóc cơ bản · CB-0007\nCần giữ còn lại 3 bộ · Đang giữ 2 bộ · 3 bộ theo combo\nThiếu 1 bộ\nVitamin ADE · SP-000099\nĐã bàn giao 6 chai · Không còn giữ\nĐã bàn giao"
+    },
+    {
+      "name": "BJ04 has no manual mutation action",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ03 scope still separates presentation group from valuation basis",
+      "pass": true,
+      "note": "9:41\nLTE  100%\nChọn hàng cần xác nhận giá\nPN-260816-04\nMinh Dũng · Kho chính · Nhận 16/08/2026\nCần đối chiếu\nHàng cần xác nhận giá\n4 phạm vi đang chờ\nNobivac DHPPi\nSP-00142 · hộp\nĐủ căn cứ\nLô DH2507\nĐủ điều kiện bán · Chờ giá 50 hộp\nLô DH2509\nĐủ điều kiện bán · Chờ giá 46 hộp\nLô DH2509\nCách ly · Chờ giá 4 hộp\nAmoxicillin LA\nSP-00088 · chai\nCần đối chiếu\nKhông theo lô\nĐủ điều kiện bán · Chờ giá 24 chai\nRà soát xác nhận"
+    },
+    {
+      "name": "BJ03 review still shows normalized base-UOM consequence",
+      "pass": true,
+      "note": "9:41\nLTE  100%\nRà soát xác nhận giá\nPhiếu nhận\nPhiếu\nPN-260816-04\nNhà cung cấp\nMinh Dũng\nTổng giá trị sẽ ghi\n4.085.000 đ\nNội dung sẽ xác nhận\n1 nhóm căn cứ\nNobivac DHPPi\nSP-00142 · hộp\n4.085.000 đ\nGiá nhập thực tế\n81.700 đ/hộp\nQuy đổi lọ\n8.170 đ/lọ\nCăn cứ giá\nCăn cứ tổng hợp PO-2608-041\nLô DH2507\nĐủ điều kiện bán · 50 hộp\nKhả dụng\n+50 hộp\nXem căn cứ giá và cách tính\nXác nhận giá trị"
+    },
+    {
+      "name": "BJ03 historical SCR-016 remains outside active UIF03 route",
+      "pass": true,
+      "note": [
+        "SCR-014",
+        "SCR-015",
+        "SCR-017",
+        "SCR-019"
+      ]
+    },
+    {
+      "name": "BJ13 actionable late-cost task remains available",
+      "pass": true,
+      "note": "VC-8842 · dòng 1\nChi phí vận chuyển · Vận tải An Phát"
+    },
+    {
+      "name": "BJ13 fixed source scope remains non-arbitrary",
+      "pass": true,
+      "note": "9:41\nLTE  100%\nNguồn và phạm vi chi phí\nHóa đơn vận chuyển VC-8842 · dòng 1\nChi phí vận chuyển · Vận tải An Phát\nChi tiết nguồn\nGiá trị nguồn\n1.200.000 VND\nSau chuẩn hóa\n1.200.000 đ\nPhạm vi liên quan\n3 dòng theo chứng từ nguồn\nNobivac DHPPi\nPN-260816-04 · SP-00142 · 50 hộp · Lô DH2507\nAmoxicillin LA\nPN-260816-04 · SP-00088 · 24 chai\nVaccine Canine X\nPN-260821-03 · SP-00421 · 40 lọ · Lô CX2608\nTiếp tục phân bổ"
+    },
+    {
+      "name": "BJ13 allocation still reconciles full source amount",
+      "pass": true,
+      "note": "9:41\nLTE  100%\nPhân bổ chi phí\nChi phí cần phân bổ\nGiá trị nguồn\n1.200.000 VND\nSau chuẩn hóa\n1.200.000 đ\nCăn cứ phân bổ\nCăn cứ phân bổ\nChọn căn cứ phân bổ\nTheo giá trị hàng nhận\nTheo lượng nhận\nKết quả phân bổ\n3 dòng\nNobivac DHPPi\nPN-260816-04 · 50 hộp · Lô DH2507\n446.651 đ\nAmoxicillin LA\nPN-260816-04 · 24 chai\n314.897 đ\nVaccine Canine X\nPN-260821-03 · 40 lọ · Lô CX2608\n438.452 đ\nTổng phân bổ\n1.200.000 đ\nCó chi phí ghi ở kỳ mở\nKỳ gốc đã khóa vẫn được giữ để truy vết; adjustment được ghi ở kỳ mở theo policy.\nKỳ ghi nhận\nGhi nhận 09/2026\n3 dòng · từ kỳ 08/2026\nRà soát ghi chi phí"
+    },
+    {
+      "name": "BJ13 review retains a single commit CTA",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ13 result still marks valuation work dirty",
+      "pass": true,
+      "note": "9:41\nLTE  100%\nKết quả ghi chi phí\nĐã ghi chi phí mua bổ sung\n\nChi phí đã được ghi theo đúng phạm vi và kỳ đã xác nhận.\n\nKết quả\nChứng từ\nHóa đơn vận chuyển VC-8842 · dòng 1\nChi phí đã ghi\n1.200.000 đ\nKỳ ghi nhận\n09/2026\nCần tính lại\nNobivac DHPPi · 09/2026; Amoxicillin LA · 09/2026; Vaccine Canine X · 09/2026\nPhân bổ đã ghi\nNobivac DHPPi\nPN-260816-04 · 50 hộp · Lô DH2507\n446.651 đ\nAmoxicillin LA\nPN-260816-04 · 24 chai\n314.897 đ\nVaccine Canine X\nPN-260821-03 · 40 lọ · Lô CX2608\n438.452 đ\nVề chi phí mua bổ sung"
+    },
+    {
+      "name": "No browser errors across prior locked BJ regression including BJ13",
+      "pass": true,
+      "note": []
+    },
+    {
+      "name": "BJ14 calculation result remains product-based and reviewable",
+      "pass": true,
+      "note": "9:41\nLTE  100%\nKết quả lần tính\nTháng 08/2026\nKỳ 08/2026 · 184 sản phẩm\nSẵn sàng công bố\nThông tin lần tính\nThời điểm chốt\n31/08/2026 · 23:59\nPhương pháp công bố\nBình quân cuối kỳ\nKỳ tính\n08/2026\nKỳ ghi nhận\n08/2026\nPhạm vi tính\nKỳ tính\n08/2026\nKỳ ghi nhận\n08/2026\nSản phẩm\n184\nCó thay đổi\n37\nĐối chiếu hai phương pháp\nBình quân liên hoàn\nGiữ để đối chiếu\n1.242.800.000 đ\nGiá trị tồn cuối\nGiá vốn xuất 488.120.000 đ\nBình quân cuối kỳ\nDùng để công bố theo chính sách\nTheo chính sách\n1.245.920.000 đ\nGiá trị tồn cuối\nGiá vốn xuất 486.300.000 đ\nChênh lệch cần ghi\nGiá vốn xuất\n− 1.820.000 đ\nGiá trị tồn cuối\n3.120.000 đ\nHiệu lực giá vốn\nKhi công bố\nKết quả theo sản phẩm\n37 có thay đổi\nNobivac DHPPi\nGiá đề xuất 81.700 đ/lọ\n550.000 đ\nChênh lệch ròng\nAmoxicillin 500mg\nGiá đề xuất 12.380 đ/viên\n750.000 đ\nChênh lệch ròng\nGăng tay khám\nKhông có căn cứ giá mới\n0 đ\nKhông điều chỉnh\nRà soát công bố"
+    },
+    {
+      "name": "BJ14 publication review remains forward-effective",
+      "pass": true,
+      "note": "9:41\nLTE  100%\nRà soát công bố\nTháng 08/2026\nKỳ 08/2026 · 184 sản phẩm\nSẵn sàng công bố\nThông tin lần tính\nThời điểm chốt\n31/08/2026 · 23:59\nPhương pháp công bố\nBình quân cuối kỳ\nKỳ tính\n08/2026\nKỳ ghi nhận\n08/2026\nPhạm vi tính\nKỳ tính\n08/2026\nKỳ ghi nhận\n08/2026\nSản phẩm\n184\nCó thay đổi\n37\nChênh lệch sẽ ghi\nGiá vốn xuất\n− 1.820.000 đ\nGiá trị tồn cuối\n3.120.000 đ\nHiệu lực giá vốn\nKhi công bố\nSau công bố\nSản phẩm đối soát\n184\nPhiên bản giá vốn mới\n2\nHiệu lực\nKhông sớm hơn thời điểm công bố\nCông bố giá vốn"
+    },
+    {
+      "name": "BJ14 UNKNOWN preserves verification handoff",
+      "pass": true,
+      "note": 1
+    },
+    {
+      "name": "BJ08 list remains actionable and has no contextual cancel on browse",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ08 blind count still hides book and variance",
+      "pass": true,
+      "note": "9:41\nLTE  100%\nĐếm mù\nĐếm mù\nSố lượng theo sổ chỉ xuất hiện sau khi nộp lần đếm đầu.\nPhiên\nKK-1709-01\nKho\nKho trung tâm\nNgười đếm\nNguyễn An\nHàng trong phạm vi\nAmox 500\nSP-00128 · Lô L2407-A · Bán được · hộp\nSố lượng thực tế\n—\nhộp\nGăng tay M\nSP-00410 · Lô L2405-M · Cách ly · hộp\nSố lượng thực tế\n—\nhộp\nThêm hàng thực tế\nHủy phiên\nNộp kết quả đếm"
+    },
+    {
+      "name": "BJ08 zero variance still completes without approval",
+      "pass": true,
+      "note": {
+        "screen": "SCR-047",
+        "state": "COMPLETED"
+      }
+    },
+    {
+      "name": "BJ08 nonzero recount still routes to independent approval",
+      "pass": true,
+      "note": {
+        "screen": "SCR-042",
+        "state": "PENDING_APPROVAL"
+      }
+    },
+    {
+      "name": "BJ08 contributor self-approval remains blocked",
+      "pass": true,
+      "note": {
+        "screen": "SCR-046",
+        "state": "SELF_APPROVAL_NOT_ALLOWED"
+      }
+    },
+    {
+      "name": "BJ08 contextual cancel still produces authoritative cancelled result",
+      "pass": true,
+      "note": {
+        "screen": "SCR-047",
+        "state": "CANCELLED"
+      }
+    },
+    {
+      "name": "BJ08 UNKNOWN still preserves exact operation identity",
+      "pass": true,
+      "note": "KK-1709-01"
+    },
+    {
+      "name": "No browser errors across prior locked BJ regression including BJ08",
+      "pass": true,
+      "note": []
+    }
+  ],
+  "browserErrors": []
+}

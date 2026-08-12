@@ -1,0 +1,17 @@
+{
+  "version": "3.9.6",
+  "parent": "3.9.5",
+  "status": "PASS",
+  "entry": "index.html",
+  "prototypeEntry": "specs/themes/theme-07/prototype/html/index.html",
+  "scope": "Wave 2 / BJ04 reservation deep-review semantic hardening and Inventory Operations cross-BJ consolidation: explicit Advanced-Stock reservation policy, transaction-UOM lineage, current-held versus consumed quantity, deterministic priority, ReservationGroup atomic combo, BJ04/BJ05 ownership boundary and per-line current projection.",
+  "qa": {
+    "focused": "specs/themes/theme-07/prototype/html/qa/BJ04-DEEP-REVIEW-QA-v3.9.6.md",
+    "wave": "specs/themes/theme-07/prototype/html/qa/WAVE-2-CROSS-BJ-AUDIT-v3.9.6.md",
+    "priorRegression": "specs/themes/theme-07/prototype/html/qa/PRIOR-LOCKED-BJ-REGRESSION-v3.9.6.md",
+    "frozenSource": "specs/themes/theme-07/prototype/html/qa/FROZEN-SOURCE-IMMUTABILITY-QA-v3.9.6.md",
+    "package": "specs/themes/theme-07/prototype/html/qa/CURRENT-PACKAGE-VALIDATION-v3.9.6.md",
+    "release": "RELEASE-VALIDATION-v3.9.6.md"
+  },
+  "captures": "specs/themes/theme-07/prototype/html/qa/v396-bj04-captures"
+}

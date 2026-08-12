@@ -1,0 +1,42 @@
+{
+  "version": "2.9.4",
+  "parent": "2.9.3",
+  "status": "PRODUCT_LOT_HIERARCHY_CORRECTION_REVIEW_READY",
+  "scope": [
+    "BJ07 SCR-037 Product/UOM versus LOT/non-LOT visual hierarchy correction",
+    "BJ07 SCR-039 and SCR-041 hierarchy alignment with the same Product group-header composition",
+    "remove remaining card-like ambiguity without creating a new core Design System component",
+    "preserve exact-source verification, source-change invalidation, handover finality and recovery behavior"
+  ],
+  "productViewport": {"width": 402, "height": 874},
+  "reviewDeviceBorderBox": {"width": 418, "height": 890, "bezel": 8},
+  "businessBehaviorChanged": false,
+  "newCoreDesignSystemComponentsCreated": 0,
+  "productWiring": ["UIF-01", "UIF-02", "UIF-04", "UIF-05", "UIF-06", "UIF-07", "UIF-08"],
+  "figmaAuthority": {
+    "fileKey": "QVJolM5tAdFKkhP7RIwe3y",
+    "componentRefs": [
+      "DS v2 / Info Row 525:351",
+      "DS v2 / Key-value Row 525:358",
+      "VBadge 525:309",
+      "VBanner 526:4215",
+      "VBottomSheet 4695:6353",
+      "VAppBar 547:1594"
+    ],
+    "compositionRule": "Use existing generic DS primitives and compositions; do not create a new core component when the same responsibility can be expressed by composition.",
+    "priorThemeReferences": [
+      "Theme 1 / TA-D-01 Quyen so huu & vong doi 267:3444"
+    ]
+  },
+  "qa": {
+    "productLotHierarchy": "PASS 21/21",
+    "allFlowRuntime": "PASS 85/85 renders · 0 browser errors",
+    "deviceFrame": "PASS 7/7 · 85 screens checked · 0 browser errors",
+    "priorBjRegression": "PASS 23/23 · 0 browser errors",
+    "bj05Bj06Regression": "PASS 32/32",
+    "reviewWorkbenchFit": "PASS 3/3",
+    "javascriptSyntax": "PASS",
+    "focusedVisualReview": "PASS · SCR-037, verification sheet, SCR-039 and SCR-041 at 402x874"
+  },
+  "summary": "Product/UOM is now visually a parent group header; LOT/non-LOT allocations are nested flat rows inside one surface. The change removes repeated card-like rows and duplicated package icons while keeping review/result evidence and business behavior intact."
+}

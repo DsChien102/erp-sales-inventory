@@ -1,0 +1,99 @@
+{
+  "version": "3.6.3",
+  "status": "PASS",
+  "passed": 15,
+  "total": 15,
+  "checks": [
+    {
+      "name": "root package identifies v3.6.3",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "prototype metadata identifies v3.6.3",
+      "pass": true,
+      "note": {
+        "prototype": "3.6.3",
+        "workbench": "3.6.3",
+        "screenRegistry": "3.6.3",
+        "runtime": "3.6.3"
+      }
+    },
+    {
+      "name": "v3.6.3 patch files load after v3.6.2",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "canonical device remains 402x874",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "prototype authority identifies Figma DS as UI authority",
+      "pass": true,
+      "note": {
+        "business": "Product documents / BJ / flow / decision / contract decide business requirements, UX flow, business rules, information and user behavior.",
+        "figmaDesignSystem": "Figma Design System is the UI authority for component, pattern, template, token, typography, spacing, state, interaction convention and visual rule.",
+        "htmlPrototype": "HTML prototype is the design/verification medium implementing the product documents and Figma Design System; it does not invent business rules or UI conventions.",
+        "implementation": "Production code decides technical implementation."
+      }
+    },
+    {
+      "name": "static consistency gate passes",
+      "pass": true,
+      "note": "37/37"
+    },
+    {
+      "name": "list navigation-state gate passes across all declared states",
+      "pass": true,
+      "note": {
+        "checks": "15/15",
+        "states": 518
+      }
+    },
+    {
+      "name": "list/card rhythm regression passes",
+      "pass": true,
+      "note": {
+        "states": 518,
+        "collisions": 0
+      }
+    },
+    {
+      "name": "footer regression gate passes",
+      "pass": true,
+      "note": "11/11"
+    },
+    {
+      "name": "semantic flow/logic gate passes",
+      "pass": true,
+      "note": "21/21"
+    },
+    {
+      "name": "full-theme completion gate passes",
+      "pass": true,
+      "note": "14/14"
+    },
+    {
+      "name": "representative coherence gate passes",
+      "pass": true,
+      "note": "8/8"
+    },
+    {
+      "name": "runtime UI gate passes",
+      "pass": true,
+      "note": "14/14 states=518"
+    },
+    {
+      "name": "all-flow runtime smoke passes",
+      "pass": true,
+      "note": "renders=89 failures=0 errors=0"
+    },
+    {
+      "name": "device frame gate passes",
+      "pass": true,
+      "note": "7/7"
+    }
+  ]
+}

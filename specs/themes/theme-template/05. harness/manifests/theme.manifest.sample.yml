@@ -1,0 +1,42 @@
+theme: theme-07
+sample: UC-02-02-pilot
+sample_status: NON_CANONICAL_EXAMPLE
+
+architecture:
+  - id: FND-01
+    type: foundation
+    status: FROZEN_FOR_SAMPLE
+  - id: AGG-IO-01
+    type: aggregate
+    status: DRAFT
+    depends_on: [FND-01]
+
+slices:
+  - id: SA-IO-01
+    type: sa
+    owner: SA
+    status: DRAFT
+    produces: [AGG-IO-01]
+    depends_on: [FND-01]
+
+  - id: BE-02-02
+    type: be
+    owner: SE
+    status: BLOCKED
+    anchor: UC-02-02
+    depends_on: [AGG-IO-01, FND-01]
+    blockers: [SPEC-BOUNDARY-UC-02-02-SUBMIT]
+
+  - id: FE-SCR-009-QUICK
+    type: fe
+    owner: SE
+    status: DRAFT
+    anchor: SCR-009
+    depends_on: [BE-02-02]
+
+blockers:
+  - id: SPEC-BOUNDARY-UC-02-02-SUBMIT
+    owner: BA
+    reason: >-
+      BJ/UC hiện mô tả UC-02-02 đi tới PENDING_APPROVAL,
+      trong khi UIF-02-T13 gán Submit cho UC-02-03.

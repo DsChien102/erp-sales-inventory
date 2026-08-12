@@ -1,0 +1,45 @@
+{
+  "version": "3.6.1",
+  "parentVersion": "3.6.0",
+  "date": "2026-09-15",
+  "status": "DUAL_STICKY_FOOTER_CORRECTION_QA_PASS",
+  "scope": "Full Theme 7 browser prototype UI correction for two-action Sticky Footer composition; 17 BJ + CAP-01.",
+  "businessJourneys": 17,
+  "supportingCapabilities": 1,
+  "canonicalRouteOccurrences": 89,
+  "activeUniqueScreens": 77,
+  "declaredRouteStateRenders": 518,
+  "canonicalCanvas": "402x874",
+  "change": {
+    "businessRuleChanges": false,
+    "stateChanges": false,
+    "actionChanges": false,
+    "navigationChanges": false,
+    "newCoreDsComponents": 0,
+    "dualFooterRule": "Secondary/Destructive | Primary; 402x92; 181/8/181; 44px actions",
+    "baselineDualFooterOccurrences": 17,
+    "baselineVerticalStackViolations": 11,
+    "postFixHorizontalViolations": 0,
+    "destructiveSemanticCorrection": "Reject/cancel/delete/remove intent in dual footer uses canonical danger secondary hierarchy."
+  },
+  "authority": {
+    "business": "Product documents / BJ / flow / decision / contract",
+    "ui": "Figma Design System",
+    "prototype": "HTML design/verification medium",
+    "implementation": "Production code technical implementation"
+  },
+  "qa": {
+    "footerBaseline": "specs/themes/theme-07/prototype/html/qa/FOOTER-ACTION-BASELINE-v3.6.0.json",
+    "footerAction": "specs/themes/theme-07/prototype/html/qa/FOOTER-ACTION-QA-v3.6.1.json",
+    "static": "specs/themes/theme-07/prototype/html/qa/STATIC-CONSISTENCY-QA-v3.6.1.json",
+    "semanticFlowLogic": "specs/themes/theme-07/prototype/html/qa/FLOW-LOGIC-E2E-QA-v3.6.1.json",
+    "fullThemeCompletion": "specs/themes/theme-07/prototype/html/qa/FULL-THEME-COMPLETION-QA-v3.6.1.json",
+    "representativeCoherence": "specs/themes/theme-07/prototype/html/qa/REPRESENTATIVE-COHERENCE-QA-v3.6.1.json",
+    "runtimeUi": "specs/themes/theme-07/prototype/html/qa/RUNTIME-UI-QA-v3.6.1.json",
+    "allFlowSmoke": "specs/themes/theme-07/prototype/html/qa/ALL-FLOWS-RUNTIME-SMOKE-v3.6.1.json",
+    "deviceFrame": "specs/themes/theme-07/prototype/html/qa/DEVICE-FRAME-QA-v3.6.1.json",
+    "packageValidation": "specs/themes/theme-07/prototype/html/qa/CURRENT-PACKAGE-VALIDATION-v3.6.1.json",
+    "visualContactSheet": "specs/themes/theme-07/prototype/html/qa/v361-footer-captures/V361-DUAL-FOOTER-CONTACT-SHEET.png"
+  },
+  "evidenceBoundary": "Browser prototype only; production backend transaction/database/outbox/network/concurrency/crash-restart atomicity requires backend/integration QA."
+}

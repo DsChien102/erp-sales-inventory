@@ -1,0 +1,120 @@
+{
+  "release": "2.4.3",
+  "parent": "2.4.2",
+  "scope": [
+    "BJ01 existing-component-first availability correction",
+    "Theme 7 component-creation guard strengthened"
+  ],
+  "businessBehaviorChanged": false,
+  "componentSelectionPriority": [
+    "semantically valid V_component",
+    "existing canonical non-V component",
+    "existing Pattern/Template",
+    "ordinary layout composition of existing DS assets",
+    "new component only after proven reusable responsibility gap"
+  ],
+  "qa": {
+    "bj01DsReuse": "PASS 27/27",
+    "allFlowRuntime": "PASS 85/85",
+    "browserErrors": 0,
+    "zipIntegrity": "PASS"
+  },
+  "files": [
+    {
+      "path": "README.md",
+      "sha256": "94e735459a374519285b02c625172d9befe15a2145456e7aeebbebe914f26c1c"
+    },
+    {
+      "path": "RELEASE-VALIDATION-v2.4.3.md",
+      "sha256": "6f61a39477a266f6a846f5417f9282f3b897a607f6aa95bf1cc89f58d24f9511"
+    },
+    {
+      "path": "RELEASE-VALIDATION-v2.4.3.json",
+      "sha256": "f4a019b09c69148d91a4affcc46551fc361ed35fbe80a02fb8a2b1641500f911"
+    },
+    {
+      "path": "index.html",
+      "sha256": "6b33a79ea43a61f4230ee7b8536ba77eb850c71f3b05039c8da3d820cf4f1441"
+    },
+    {
+      "path": "specs/themes/theme-07/prototype/html/index.html",
+      "sha256": "b744bc3287cde33e1f2d818e60d4a843569e87d3e7986f3cb0f74c1eac7ae650"
+    },
+    {
+      "path": "specs/themes/theme-07/prototype/html/app.js",
+      "sha256": "80498ccc3cba1d4a24c196e431f8f1f9150068d979c65c4b2faab26b3598b1ec"
+    },
+    {
+      "path": "specs/themes/theme-07/prototype/html/bj01-ds-fidelity.css",
+      "sha256": "2e8f4263b7df7c6dc31ece544f6d8f138d5a357129c503cf1e2156d9cb4524e1"
+    },
+    {
+      "path": "specs/themes/theme-07/prototype/html/figma-ds-runtime-map.js",
+      "sha256": "0fde09446c8edb1e3176f72a4677370514a250af9f01220c645376b753062d94"
+    },
+    {
+      "path": "specs/themes/theme-07/prototype/html/qa/BJ01-DS-REUSE-QA-v2.4.3.md",
+      "sha256": "e16b4f3e1a40fd4c1f9d65089db625ef01f33ebf9484f0d79a7025e9abe9e4a3"
+    },
+    {
+      "path": "specs/themes/theme-07/prototype/html/qa/BJ01-DS-REUSE-QA-v2.4.3.json",
+      "sha256": "8cedcd14c7194f89c5f5c9e96050928fad758b6ee2e4fc062c85d340c8073a7a"
+    },
+    {
+      "path": "specs/themes/theme-07/prototype/html/qa/ALL-FLOWS-RUNTIME-SMOKE-v2.4.3.md",
+      "sha256": "219ba91a4ac70e1eac8aa5cc4e266cb9610c49ad54746372bbb3160c04c37dd2"
+    },
+    {
+      "path": "specs/themes/theme-07/prototype/html/qa/ALL-FLOWS-RUNTIME-SMOKE-v2.4.3.json",
+      "sha256": "f2d55d6b6d5c8fdca42c825a28776629dbb1e609007b3658cbff425e284e04ed"
+    },
+    {
+      "path": "specs/themes/theme-07/prototype/contracts/FIGMA-DS-LOCK.json",
+      "sha256": "3662c704b80b083cf16788bad8ccdac0421d1590f9ae89b8c9a59234ddc488a2"
+    },
+    {
+      "path": "specs/themes/theme-07/prototype/contracts/THEME-07-COMPONENT-USAGE-PROFILE.md",
+      "sha256": "cdcb1720e73b692edda1796a297ed9a6a2a763658097e04888245edf18445dea"
+    },
+    {
+      "path": "specs/themes/theme-07/prototype/contracts/THEME-07-COMPONENT-USAGE-PROFILE.yaml",
+      "sha256": "b04f5bab03db8d315e968ee9f30aa4dd010c66a862348de45722ae1d59467769"
+    },
+    {
+      "path": "specs/themes/theme-07/prototype/contracts/component-usage/UIF-01-COMPONENT-USAGE.md",
+      "sha256": "d0df38b812550ca8119ec83b99555916909ebb13ec76734cfd2c3a6cd6520581"
+    },
+    {
+      "path": "specs/themes/theme-07/prototype/contracts/component-usage/UIF-01-COMPONENT-USAGE.yaml",
+      "sha256": "2bc4cd2182fdeb02c1515273b4188da9f83648066c6716548a9fb41b64a36a31"
+    },
+    {
+      "path": "specs/themes/theme-07/prototype/contracts/figma-ds/BJ01-MIGRATION-CONTRACT-v2.4.3.md",
+      "sha256": "9487dc6046d27d8b5b687cb3e2fe1c21f28ad88d2ae9a94c066647de81ca78ee"
+    },
+    {
+      "path": "specs/themes/theme-07/prototype/contracts/figma-ds/BJ01-EXISTING-COMPONENT-CORRECTION-v2.4.3.md",
+      "sha256": "45ba5429b3210c27bd1f12857990587f017404367932a3fd1e1690abfbd9dfec"
+    },
+    {
+      "path": "specs/themes/theme-07/prototype/contracts/figma-ds/UIF-MIGRATION-STATUS.json",
+      "sha256": "e0ecb026e01af2bd9853c14e6f120b4dc50d211ba47e1591d6e9ed232c255f02"
+    },
+    {
+      "path": "specs/themes/theme-07/prototype/contracts/figma-ds/html-figma-ds-mapping.json",
+      "sha256": "e2469e7cb20f5a0c8fdf9bf3d3770ca1506ac0b8dbe963c58d980ae9747541f5"
+    },
+    {
+      "path": "specs/themes/theme-07/prototype/contracts/screens/SCR-003.md",
+      "sha256": "948ec27e53961f6ad893f30d59cb97725524d7f61faec337be57971ad620a019"
+    },
+    {
+      "path": "specs/themes/theme-07/prototype/contracts/screens/SCR-004.md",
+      "sha256": "5af26ac63c7a318912dc7df0bd1f3e7ec43455fd366c30c96ab2db1ef67750e4"
+    },
+    {
+      "path": "specs/themes/theme-07/prototype/flows/UIF-01-BJ-01.md",
+      "sha256": "923f2c9d2d3a84aed58f12c3783e12084c677fb0d52b41a690e4c2c46b95b5eb"
+    }
+  ]
+}

@@ -1,0 +1,138 @@
+{
+  "version": "3.9.4",
+  "status": "PASS",
+  "passed": 26,
+  "total": 26,
+  "checks": [
+    {
+      "name": "root package identifies v3.9.4",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "prototype metadata identifies v3.9.4 with parent v3.9.3",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "current registries identify v3.9.4",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "v3.9.4 BJ06 CSS/JS load after v3.9.3 BJ05 hardening",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "canonical viewport remains 402x874",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "Figma DS remains UI authority",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ06 focused deep-review passes",
+      "pass": true,
+      "note": "40/40"
+    },
+    {
+      "name": "prior locked BJ regression passes",
+      "pass": true,
+      "note": "8/8"
+    },
+    {
+      "name": "frozen-source immutability passes",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "full-theme end-user regression passes",
+      "pass": true,
+      "note": "19/19"
+    },
+    {
+      "name": "flow logic regression passes",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "all-flow runtime smoke passes",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "runtime UI regression passes",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "representative coherence passes",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "device-frame regression passes",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "approved decision pack T7-DR-131..137 is present",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "ApprovalCase supports line-exception subject cardinality",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "customer-return authorization/partial contract is explicit",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "classification owns system-derived expiry",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "UNKNOWN recovery is same-operation and no blind retry",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "evidence runtime binds content, version and identity",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "result UI does not invent RR receipt identity",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ06 active screens carry validated v3.9.4 deep-review trace",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "BJ01/BJ02/BJ05 deep-review traces remain locked",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "name": "focused visual evidence contains six captures",
+      "pass": true,
+      "note": 6
+    },
+    {
+      "name": "v3.9.4 release assets exist",
+      "pass": true,
+      "note": ""
+    }
+  ]
+}

@@ -1,0 +1,64 @@
+{
+  "status": "PASS",
+  "passed": 3,
+  "total": 3,
+  "checks": [
+    {
+      "viewport": "1366x768",
+      "pass": true,
+      "product": [
+        402,
+        874
+      ],
+      "document": [
+        1366,
+        768
+      ],
+      "device": {
+        "x": 533.6876220703125,
+        "y": 162,
+        "width": 274.624755859375,
+        "height": 597.0696411132812
+      },
+      "reviewScale": 0.6831460674157304
+    },
+    {
+      "viewport": "1600x900",
+      "pass": true,
+      "product": [
+        402,
+        874
+      ],
+      "document": [
+        1600,
+        900
+      ],
+      "device": {
+        "x": 620.8764038085938,
+        "y": 162,
+        "width": 334.2471923828125,
+        "height": 726.6965942382812
+      },
+      "reviewScale": 0.8314606741573034
+    },
+    {
+      "viewport": "1920x1080",
+      "pass": true,
+      "product": [
+        402,
+        874
+      ],
+      "document": [
+        1920,
+        1080
+      ],
+      "device": {
+        "x": 747,
+        "y": 162,
+        "width": 402,
+        "height": 874
+      },
+      "reviewScale": 1
+    }
+  ]
+}
