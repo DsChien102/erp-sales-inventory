@@ -4,7 +4,7 @@ import 'package:vet45_design_system/design_system.dart';
 
 void main() {
   testWidgets(
-    'VCompactSearchableDropdown mounts in ListView accordion without hasSize error',
+    'VSearchableDropdown mounts in ListView accordion without hasSize error',
     (tester) async {
       await tester.binding.setSurfaceSize(const Size(390, 844));
       FlutterErrorDetails? caught;
@@ -52,10 +52,9 @@ void main() {
                                         ),
                                         const SizedBox(width: 16),
                                         Expanded(
-                                          child: VCompactSearchableDropdown<String>(
+                                          child: VSearchableDropdown<String>(
                                             value: null,
                                             hintText: 'Chon',
-                                            stickyActionsReserve: 72,
                                             items: [
                                               for (var i = 0; i < 34; i++)
                                                 DropdownMenuEntry(
@@ -102,11 +101,6 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.byType(DropdownMenu<String>), findsOneWidget);
-
-      final menu = tester.widget<DropdownMenu<String>>(
-        find.byType(DropdownMenu<String>),
-      );
-      expect(menu.expandedInsets, EdgeInsets.zero);
     },
   );
 

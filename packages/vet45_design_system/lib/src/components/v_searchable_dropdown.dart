@@ -9,6 +9,13 @@ import '../tokens/v_spacing.dart';
 import '../tokens/v_typography.dart';
 
 class VSearchableDropdown<T> extends StatelessWidget {
+  /// Control height used by [inputDecorationTheme] constraints.
+  static const double controlHeight = 44;
+
+  static const EdgeInsets contentPadding = EdgeInsets.symmetric(
+    horizontal: VSpacing.space3,
+  );
+
   const VSearchableDropdown({
     super.key,
     required this.value,
@@ -90,9 +97,7 @@ class VSearchableDropdown<T> extends StatelessWidget {
                 inputDecorationTheme: InputDecorationTheme(
                   filled: true,
                   fillColor: isEnabled ? colors.surface : colors.surfaceAlt,
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: VSpacing.space3,
-                  ),
+                  contentPadding: contentPadding,
                   hintStyle: VTypography.bodyDefault.copyWith(
                     color: colors.textMuted,
                   ),
@@ -102,7 +107,10 @@ class VSearchableDropdown<T> extends StatelessWidget {
                   ),
                   disabledBorder: VBorders.outlineInput(colors.borderDefault),
                   focusedBorder: VBorders.outlineInput(colors.borderStrong),
-                  constraints: const BoxConstraints(minHeight: 44, maxHeight: 44),
+                  constraints: const BoxConstraints(
+                    minHeight: controlHeight,
+                    maxHeight: controlHeight,
+                  ),
                 ),
                 onSelected: onChanged,
                 dropdownMenuEntries: items,

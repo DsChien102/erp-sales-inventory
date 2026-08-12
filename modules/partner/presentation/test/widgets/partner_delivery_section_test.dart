@@ -49,7 +49,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byKey(const Key('input_delivery_province')), findsOneWidget);
-    expect(find.byType(VCompactSearchableDropdown<String>), findsWidgets);
+    expect(find.byType(VSearchableDropdown<String>), findsWidgets);
     expect(
       find.descendant(
         of: find.byKey(const Key('input_delivery_commune')),

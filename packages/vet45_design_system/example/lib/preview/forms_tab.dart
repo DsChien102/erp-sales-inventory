@@ -367,20 +367,6 @@ class _FormsPreviewTabState extends State<FormsPreviewTab> {
                   onChanged: (v) => setState(() => _requiredSelect = v),
                 ),
               ),
-              PreviewStateRow(
-                label: 'Searchable',
-                child: VSelect<String>(
-                  label: 'Tỉnh/Thành',
-                  value: _searchableSelect,
-                  searchable: true,
-                  items: const [
-                    DropdownMenuItem(value: 'hcm', child: Text('Hồ Chí Minh')),
-                    DropdownMenuItem(value: 'hn', child: Text('Hà Nội')),
-                    DropdownMenuItem(value: 'dn', child: Text('Đà Nẵng')),
-                  ],
-                  onChanged: (v) => setState(() => _searchableSelect = v),
-                ),
-              ),
             ],
           ),
         ),
