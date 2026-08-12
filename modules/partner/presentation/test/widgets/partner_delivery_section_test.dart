@@ -32,11 +32,11 @@ void main() {
     );
   }
 
-  DropdownMenu<String> communeMenu(WidgetTester tester) {
-    return tester.widget<DropdownMenu<String>>(
+  VCombobox<String> communeCombobox(WidgetTester tester) {
+    return tester.widget<VCombobox<String>>(
       find.descendant(
         of: find.byKey(const Key('input_delivery_commune')),
-        matching: find.byType(DropdownMenu<String>),
+        matching: find.byType(VCombobox<String>),
       ),
     );
   }
@@ -49,7 +49,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byKey(const Key('input_delivery_province')), findsOneWidget);
-    expect(find.byType(VSearchableDropdown<String>), findsWidgets);
+    expect(find.byType(VCombobox<String>), findsWidgets);
     expect(
       find.descendant(
         of: find.byKey(const Key('input_delivery_commune')),
@@ -57,7 +57,7 @@ void main() {
       ),
       findsOneWidget,
     );
-    expect(communeMenu(tester).enabled, isFalse);
+    expect(communeCombobox(tester).enabled, isFalse);
   });
 
   testWidgets('selecting province enables ward dropdown', (tester) async {
@@ -78,7 +78,7 @@ void main() {
       ),
       findsOneWidget,
     );
-    expect(communeMenu(tester).enabled, isTrue);
+    expect(communeCombobox(tester).enabled, isTrue);
   });
 
   testWidgets('typing in ward field opens dropdown, filters, and selects', (

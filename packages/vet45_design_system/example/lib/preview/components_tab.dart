@@ -17,7 +17,6 @@ class _ComponentsPreviewTabState extends State<ComponentsPreviewTab> {
   bool _switch = false;
   String? _radio = 'a';
   String? _dropdownValue = 'r1';
-  String? _searchableValue = 'hcm';
   int _quantity = 2;
   int _tabIndex = 0;
   int _tabDisabledIndex = 0;
@@ -663,41 +662,8 @@ class _ComponentsPreviewTabState extends State<ComponentsPreviewTab> {
           ),
         ),
         PreviewSection(
-          title: 'VSearchableDropdown',
-          description: 'Direct component demo (not via VSelect).',
+          title: 'VCheckbox / VRadio / VSwitch',
           child: Column(
-            children: [
-              PreviewStateRow(
-                label: 'Default',
-                child: VSearchableDropdown<String>(
-                  label: 'Province',
-                  value: _searchableValue,
-                  hintText: 'Search…',
-                  items: const [
-                    DropdownMenuEntry(value: 'hcm', label: 'Hồ Chí Minh'),
-                    DropdownMenuEntry(value: 'hn', label: 'Hà Nội'),
-                    DropdownMenuEntry(value: 'dn', label: 'Đà Nẵng'),
-                  ],
-                  onChanged: (v) => setState(() => _searchableValue = v),
-                ),
-              ),
-              PreviewStateRow(
-                label: 'Disabled',
-                child: VSearchableDropdown<String>(
-                  label: 'Province',
-                  value: 'hcm',
-                  enabled: false,
-                  items: const [
-                    DropdownMenuEntry(value: 'hcm', label: 'Hồ Chí Minh'),
-                  ],
-                  onChanged: (_) {},
-                ),
-              ),
-            ],
-          ),
-        ),
-        PreviewSection(
-          title: 'VCheckbox / VRadio / VSwitch',          child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               PreviewStateRow(

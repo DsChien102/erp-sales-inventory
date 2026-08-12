@@ -324,7 +324,7 @@ class _EditProfileViewState extends State<_EditProfileView> {
                     children: [
                       _SearchDropdownField(
                         label: 'Tỉnh / thành phố',
-                        child: VSearchableDropdown<String>(
+                        child: VCombobox<String>(
                           value: selectedProvince?.code,
                           hintText: 'Chọn tỉnh / thành phố',
                           items: provinceItems,
@@ -339,7 +339,7 @@ class _EditProfileViewState extends State<_EditProfileView> {
                       const VGap.md(),
                       _SearchDropdownField(
                         label: 'Xã / phường',
-                        child: VSearchableDropdown<String>(
+                        child: VCombobox<String>(
                           value: wardItems.any((i) => i.value == _selectedCommuneCode)
                               ? _selectedCommuneCode
                               : null,

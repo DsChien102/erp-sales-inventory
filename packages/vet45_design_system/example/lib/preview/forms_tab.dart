@@ -371,6 +371,40 @@ class _FormsPreviewTabState extends State<FormsPreviewTab> {
           ),
         ),
         PreviewSection(
+          title: 'VCombobox',
+          description: 'Searchable single-select; input chrome matches VTextField.',
+          child: Column(
+            children: [
+              PreviewStateRow(
+                label: 'Searchable',
+                child: VCombobox<String>(
+                  label: 'Tỉnh/Thành',
+                  value: _searchableSelect,
+                  hintText: 'Tìm tỉnh/thành...',
+                  items: const [
+                    DropdownMenuEntry(value: 'hcm', label: 'Hồ Chí Minh'),
+                    DropdownMenuEntry(value: 'hn', label: 'Hà Nội'),
+                    DropdownMenuEntry(value: 'dn', label: 'Đà Nẵng'),
+                  ],
+                  onChanged: (v) => setState(() => _searchableSelect = v),
+                ),
+              ),
+              PreviewStateRow(
+                label: 'Disabled',
+                child: VCombobox<String>(
+                  label: 'Tỉnh/Thành',
+                  value: 'hcm',
+                  enabled: false,
+                  items: const [
+                    DropdownMenuEntry(value: 'hcm', label: 'Hồ Chí Minh'),
+                  ],
+                  onChanged: (_) {},
+                ),
+              ),
+            ],
+          ),
+        ),
+        PreviewSection(
           title: 'VChoiceList',
           child: Column(
             children: [

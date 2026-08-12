@@ -533,10 +533,10 @@ const List<VComponentAuditEntry> vComponentAuditEntries = [
   ),
   VComponentAuditEntry(
     category: 'components',
-    exportPath: 'src/components/v_searchable_dropdown.dart',
+    exportPath: 'src/components/v_combobox.dart',
     exists: true,
-    classNames: ['VSearchableDropdown'],
-    primaryClass: 'VSearchableDropdown',
+    classNames: ['VCombobox'],
+    primaryClass: 'VCombobox',
     role: 'input',
     hasSemantics: true,
     hasTone: true,

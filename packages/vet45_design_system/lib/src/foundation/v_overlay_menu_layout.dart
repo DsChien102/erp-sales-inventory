@@ -1,10 +1,13 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 
+import '../tokens/v_spacing.dart';
 import 'v_route_overlay_guard.dart';
 
 /// Shared layout helpers for anchored dropdown menus above keyboard/sticky bars.
 abstract final class VOverlayMenuLayout {
-  static const Offset alignmentOffset = Offset(0, 4);
+  static const Offset alignmentOffset = Offset(0, VSpacing.space2);
   static const AlignmentGeometry alignment = AlignmentDirectional.bottomStart;
 
   static const double defaultMenuHeight = 180;
@@ -55,6 +58,62 @@ abstract final class VOverlayMenuLayout {
     return available;
   }
 
+  /// Panel sizing for fixed-shell menus with an inner scroll viewport.
+  static VOverlayMenuPanelMetrics panelMetrics({
+    required int itemCount,
+    required double menuMaxHeight,
+    required double itemHeight,
+    required double menuPadding,
+  }) {
+    final listMaxHeight = menuMaxHeight - (menuPadding * 2);
+    final contentHeight = itemCount * itemHeight;
+    final needsScroll = contentHeight > listMaxHeight;
+    final listViewportHeight = needsScroll ? listMaxHeight : contentHeight;
+    final shellHeight = (contentHeight + menuPadding * 2).clamp(0.0, menuMaxHeight);
+
+    return VOverlayMenuPanelMetrics(
+      shellHeight: shellHeight,
+      listViewportHeight: listViewportHeight,
+      needsScroll: needsScroll,
+    );
+  }
+
+  /// Layout padding so [BoxShadow] on a child [DecoratedBox] is not clipped by
+  /// [MenuAnchor]'s overlay (shadow paints outside the child's layout bounds).
+  static EdgeInsets shadowBleedPadding(List<BoxShadow> shadows) {
+    if (shadows.isEmpty) {
+      return EdgeInsets.zero;
+    }
+
+    var top = 0.0;
+    var left = 0.0;
+    var right = 0.0;
+    var bottom = 0.0;
+
+    for (final shadow in shadows) {
+      final blur = shadow.blurRadius;
+      final spread = shadow.spreadRadius;
+      top = math.max(top, blur + spread - shadow.offset.dy);
+      bottom = math.max(bottom, blur + spread + shadow.offset.dy);
+      left = math.max(left, blur + spread - shadow.offset.dx);
+      right = math.max(right, blur + spread + shadow.offset.dx);
+    }
+
+    return EdgeInsets.fromLTRB(left, top, right, bottom);
+  }
+
+  /// [shadowBleedPadding] plus default overlay safe inset for [MenuAnchor].
+  static EdgeInsets menuReservedPadding(List<BoxShadow> shadows) {
+    const overlayInset = EdgeInsets.all(VSpacing.space2);
+    final bleed = shadowBleedPadding(shadows);
+    return EdgeInsets.fromLTRB(
+      bleed.left + overlayInset.left,
+      bleed.top + overlayInset.top,
+      bleed.right + overlayInset.right,
+      bleed.bottom + overlayInset.bottom,
+    );
+  }
+
   static Future<void> ensureOpensDownward(
     BuildContext context, {
     double stickyActionsReserve = 0,
@@ -73,4 +132,17 @@ abstract final class VOverlayMenuLayout {
       alignment: hasKeyboard || anticipateKeyboard ? 0.02 : 0.12,
     );
   }
+}
+
+/// Resolved heights for [VOverlayMenuLayout.panelMetrics].
+class VOverlayMenuPanelMetrics {
+  const VOverlayMenuPanelMetrics({
+    required this.shellHeight,
+    required this.listViewportHeight,
+    required this.needsScroll,
+  });
+
+  final double shellHeight;
+  final double listViewportHeight;
+  final bool needsScroll;
 }

@@ -23,6 +23,7 @@ export 'src/foundations/icons/v_icons.dart';
 export 'src/foundation/v_text_normalizer.dart';
 export 'src/foundation/v_route_overlay_guard.dart';
 export 'src/foundation/v_overlay_menu_layout.dart';
+export 'src/foundation/v_overlay_menu_shell.dart';
 export 'src/foundation/v_dropdown_filter.dart';
 export 'src/audit/v_component_audit_snapshot.dart';
 
@@ -63,7 +64,7 @@ export 'src/components/v_empty_state.dart';
 export 'src/components/v_file_drop_zone.dart';
 export 'src/components/v_toast.dart';
 export 'src/components/v_dropdown.dart';
-export 'src/components/v_searchable_dropdown.dart';
+export 'src/components/v_combobox.dart';
 export 'src/components/v_quantity_selector.dart';
 export 'src/components/v_date_picker_field.dart';
 export 'src/components/v_home_header.dart';
