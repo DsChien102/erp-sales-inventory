@@ -1,8 +1,8 @@
 # Component Audit Report
 
-- Generated at: `2026-07-29T10:42:46.149714`
+- Generated at: `2026-08-13T09:30:31.129845`
 - Matrix: `docs/audit/contract_matrix.yaml`
-- Scope: primitives / components / patterns / forms widgets
+- Scope: primitives / components / business / patterns / forms widgets
 
 | Category | Class | Role | Tone | Emphasis | State | semanticLabel | Semantics |
 |---|---|---|---|---|---|---|---|
@@ -14,20 +14,18 @@
 | components | `VButton` | action | Pass (required) | Pass (required) | Pass (preferred) | Pass (required) | Yes |
 | components | `VCard` | container | Pass (optional) | Pass (optional) | N/A (na) | — (optional) | No |
 | components | `VCheckbox` | toggle | Pass (optional) | — (optional) | Pass (required) | Pass (required) | Yes |
+| components | `VCombobox` | unmapped | Pass (optional) | Pass (optional) | Pass (optional) | Pass (optional) | Yes |
 | components | `VDatePickerField` | input | Pass (preferred) | Pass (preferred) | Pass (required) | Pass (required) | Yes |
 | components | `VEmptyState` | status_display | Pass (optional) | Pass (optional) | N/A (na) | Pass (preferred) | Yes |
 | components | `VFileDropZone` | input | — (optional) | — (optional) | Pass (required) | Pass (required) | Yes |
 | components | `VFloatingActionButton` | action | Pass (preferred) | Pass (preferred) | Pass (preferred) | Pass (required) | Yes |
-| components | `VHomeHeader` | navigation_chrome | N/A (na) | N/A (na) | N/A (na) | — (optional) | No |
 | components | `VLoading` | status_display | — (optional) | N/A (na) | N/A (na) | Pass (required) | Yes |
 | components | `VConfirmDialog` | overlay_shell | Pass (optional) | — (optional) | N/A (na) | Pass (preferred) | Yes |
 | components | `VNumericKeypadSheet` | overlay_shell | Pass (preferred) | Pass (preferred) | Pass (optional) | Pass (preferred) | Yes |
 | components | `VProgress` | status_display | — (optional) | N/A (na) | N/A (na) | Pass (required) | Yes |
 | components | `VQuantitySelector` | input | Pass (preferred) | Pass (preferred) | Pass (required) | Pass (required) | Yes |
-| components | `VQuickActionButton` | action | Pass (preferred) | Pass (preferred) | Pass (preferred) | Pass (required) | Yes |
 | components | `VRadio` | toggle | Pass (optional) | — (optional) | Pass (required) | Pass (required) | Yes |
 | components | `VSearchBar` | input | Pass (preferred) | Pass (preferred) | Pass (required) | Pass (required) | Yes |
-| components | `VCombobox` | input | Pass (preferred) | Pass (preferred) | Pass (required) | Pass (required) | Yes |
 | components | `VSegmentedControl` | navigation_chrome | Pass (preferred) | Pass (preferred) | Pass (preferred) | Pass (preferred) | Yes |
 | components | `VSteps` | navigation_chrome | — (optional) | N/A (na) | N/A (na) | Pass (required) | Yes |
 | components | `VSwipeActionRecord` | business_chrome | Pass (preferred) | Pass (preferred) | Pass (preferred) | Pass (preferred) | Yes |
@@ -37,6 +35,7 @@
 | components | `VTextField` | input | Pass (preferred) | Pass (preferred) | Pass (required) | Pass (required) | Yes |
 | components | `VTextFormField` | unmapped | Pass (optional) | Pass (optional) | Pass (optional) | Pass (optional) | Yes |
 | components | `VToast` | status_display | Pass (required) | Pass (optional) | N/A (na) | Pass (preferred) | Yes |
+| components | `VVerificationCodeField` | unmapped | Pass (optional) | Pass (optional) | Pass (optional) | Pass (optional) | Yes |
 | forms | `VChoiceList` | input | Pass (preferred) | Pass (preferred) | Pass (required) | Pass (required) | Yes |
 | forms | `VEmailField` | input | Pass (preferred) | Pass (preferred) | Pass (required) | Pass (required) | No |
 | forms | `VMoneyField` | input | Pass (preferred) | Pass (preferred) | Pass (required) | Pass (required) | No |

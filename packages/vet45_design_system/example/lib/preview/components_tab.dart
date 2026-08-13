@@ -1279,34 +1279,6 @@ class _ComponentsPreviewTabState extends State<ComponentsPreviewTab> {
           ),
         ),
         PreviewSection(
-          title: 'VHomeHeader',
-          child: VHomeHeader(
-            userName: 'Lan',
-            branchName: 'CN Biên Hoà',
-            hasNotification: true,
-            onBranchTap: () {},
-            onNotificationTap: () {},
-            searchBar: VSearchBar(hintText: 'Search…', onTap: () {}),
-          ),
-        ),
-        PreviewSection(
-          title: 'VQuickActionButton',
-          child: PreviewStateWrap(
-            children: [
-              VQuickActionButton(
-                icon: const Icon(Icons.receipt_long),
-                label: 'Orders',
-                onTap: () {},
-              ),
-              VQuickActionButton(
-                icon: const Icon(Icons.people),
-                label: 'Customers',
-                onTap: () {},
-              ),
-            ],
-          ),
-        ),
-        PreviewSection(
           title: 'VBottomNavigationBar',
           child: VBottomNavigationBar(
             currentIndex: _navIndex,

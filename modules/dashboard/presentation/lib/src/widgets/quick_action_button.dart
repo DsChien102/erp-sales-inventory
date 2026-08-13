@@ -1,12 +1,8 @@
 import 'package:flutter/material.dart';
-import '../tokens/v_borders.dart';
-import '../tokens/v_spacing.dart';
-import '../tokens/v_radius.dart';
-import '../tokens/v_typography.dart';
-import '../foundation/v_context_extensions.dart';
-import '../foundation/v_component_contracts.dart';
+import 'package:vet45_design_system/design_system.dart';
 
-class VQuickActionButton extends StatelessWidget {
+/// Dashboard shortcut tile (feature-specific action chrome).
+class QuickActionButton extends StatelessWidget {
   final Widget icon;
   final String label;
   final VoidCallback? onTap;
@@ -15,7 +11,7 @@ class VQuickActionButton extends StatelessWidget {
   final VComponentState? state;
   final String? semanticLabel;
 
-  const VQuickActionButton({
+  const QuickActionButton({
     super.key,
     required this.icon,
     required this.label,

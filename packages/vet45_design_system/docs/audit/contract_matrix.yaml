@@ -60,13 +60,6 @@ VFloatingActionButton:
   state: preferred
   semanticLabel: required
 
-VQuickActionButton:
-  role: action
-  tone: preferred
-  emphasis: preferred
-  state: preferred
-  semanticLabel: required
-
 # --- Input ---
 VTextField:
   role: input
@@ -285,13 +278,6 @@ VTable:
   semanticLabel: preferred
 
 VAppBar:
-  role: navigation_chrome
-  tone: na
-  emphasis: na
-  state: na
-  semanticLabel: optional
-
-VHomeHeader:
   role: navigation_chrome
   tone: na
   emphasis: na
