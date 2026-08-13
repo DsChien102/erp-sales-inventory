@@ -35,7 +35,7 @@ Future<void> showLogoutConfirmationBottomSheet({
               Expanded(
                 child: VButton(
                   label: 'Quay lại',
-                  variant: VButtonVariant.outline,
+                  variant: VButtonVariant.secondary,
                   size: VButtonSize.large,
                   fullWidth: true,
                   onPressed: () => Navigator.of(context).pop(),
@@ -45,7 +45,8 @@ Future<void> showLogoutConfirmationBottomSheet({
               Expanded(
                 child: VButton(
                   label: 'Đăng xuất',
-                  variant: VButtonVariant.danger,
+                  variant: VButtonVariant.primary,
+                  tone: VComponentTone.danger,
                   size: VButtonSize.large,
                   fullWidth: true,
                   onPressed: () {

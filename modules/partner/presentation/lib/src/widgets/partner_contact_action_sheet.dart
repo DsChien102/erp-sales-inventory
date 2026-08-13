@@ -88,7 +88,7 @@ class PartnerContactActionSheet extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(horizontal: VSpacing.space4),
                 child: VButton(
                   label: 'Hủy',
-                  variant: VButtonVariant.outline,
+                  variant: VButtonVariant.secondary,
                   foregroundColor: colors.textPrimary,
                   onPressed: () => Navigator.of(context).pop(),
                 ),

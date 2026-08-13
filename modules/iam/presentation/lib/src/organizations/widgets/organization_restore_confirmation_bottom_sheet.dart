@@ -64,7 +64,7 @@ class _OrganizationRestoreConfirmationBottomSheetState
           const VGap.lg(),
           VButton(
             label: 'Quay lại',
-            variant: VButtonVariant.outline,
+            variant: VButtonVariant.secondary,
             fullWidth: true,
             onPressed: () => Navigator.of(context).pop(),
           ),

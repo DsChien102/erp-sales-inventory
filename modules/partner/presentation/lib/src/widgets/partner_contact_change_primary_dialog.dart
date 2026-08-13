@@ -79,7 +79,7 @@ class PartnerContactChangePrimaryDialog extends StatelessWidget {
                     Expanded(
                       child: VButton(
                         label: 'Quay lại',
-                        variant: VButtonVariant.outline,
+                        variant: VButtonVariant.secondary,
                         foregroundColor: colors.success,
                         onPressed: () => Navigator.of(context).pop(false),
                       ),

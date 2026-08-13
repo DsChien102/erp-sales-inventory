@@ -221,7 +221,7 @@ class _EditProfileViewState extends State<_EditProfileView> {
                 Expanded(
                   child: VButton(
                     label: 'Hủy',
-                    variant: VButtonVariant.outline,
+                    variant: VButtonVariant.secondary,
                     fullWidth: true,
                     onPressed: state.isSubmittingProfile ? null : () => Navigator.of(context).pop(),
                   ),

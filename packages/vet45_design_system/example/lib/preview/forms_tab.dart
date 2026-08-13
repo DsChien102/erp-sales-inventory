@@ -116,7 +116,7 @@ class _FormsPreviewTabState extends State<FormsPreviewTab> {
                     const SizedBox(height: VSpacing.space2),
                     VButton(
                       label: 'Set external error',
-                      variant: VButtonVariant.outline,
+                      variant: VButtonVariant.secondary,
                       size: VButtonSize.small,
                       onPressed: () {
                         setState(() {
@@ -200,7 +200,7 @@ class _FormsPreviewTabState extends State<FormsPreviewTab> {
                     const SizedBox(height: VSpacing.space2),
                     VButton(
                       label: 'Set external error',
-                      variant: VButtonVariant.outline,
+                      variant: VButtonVariant.secondary,
                       size: VButtonSize.small,
                       onPressed: () {
                         setState(() {
@@ -253,7 +253,7 @@ class _FormsPreviewTabState extends State<FormsPreviewTab> {
                     const SizedBox(height: VSpacing.space2),
                     VButton(
                       label: 'Set external error',
-                      variant: VButtonVariant.outline,
+                      variant: VButtonVariant.secondary,
                       size: VButtonSize.small,
                       onPressed: () {
                         setState(() {

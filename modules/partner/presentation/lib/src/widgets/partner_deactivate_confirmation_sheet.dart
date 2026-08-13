@@ -137,7 +137,7 @@ class _PartnerDeactivateConfirmationSheetState extends State<PartnerDeactivateCo
                     child: VButton(
                       key: const Key('deactivate_cancel'),
                       label: 'Hủy',
-                      variant: VButtonVariant.outline,
+                      variant: VButtonVariant.secondary,
                       foregroundColor: colors.success,
                       onPressed: () => Navigator.of(context).pop(),
                     ),

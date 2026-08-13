@@ -109,7 +109,7 @@ class PartnerContactAddMethodSheet extends StatelessWidget {
             const VGap.md(),
             VButton(
               label: 'Hủy',
-              variant: VButtonVariant.outline,
+              variant: VButtonVariant.secondary,
               onPressed: () => Navigator.of(context).pop(),
             ),
           ],

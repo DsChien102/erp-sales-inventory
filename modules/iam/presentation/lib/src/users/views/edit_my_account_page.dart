@@ -404,7 +404,7 @@ class _EditFormScaffold extends StatelessWidget {
               Expanded(
                 child: VButton(
                   label: 'Hủy',
-                  variant: VButtonVariant.outline,
+                  variant: VButtonVariant.secondary,
                   fullWidth: true,
                   onPressed: isSaving ? null : onCancel,
                 ),

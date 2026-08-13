@@ -110,7 +110,7 @@ class PartnerDetailActionSheet extends StatelessWidget {
                 child: VButton(
                   key: const Key('action_sheet_cancel'),
                   label: 'Hủy',
-                  variant: VButtonVariant.outline,
+                  variant: VButtonVariant.secondary,
                   foregroundColor: colors.textPrimary,
                   onPressed: () => Navigator.of(context).pop(),
                 ),

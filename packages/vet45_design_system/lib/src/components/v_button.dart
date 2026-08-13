@@ -10,12 +10,12 @@ import '../patterns/v_gap.dart';
 
 enum VButtonVariant {
   primary,
+
+  /// Bordered secondary action (formerly outline).
   secondary,
-  outline,
-  ghost,
-  danger,
-  dangerOutline,
-  warning,
+
+  /// Borderless tertiary action (formerly ghost).
+  tertiary,
 
   /// Text-only action: no fill/splash/padding; underline on hover, focus, or press.
   link,
@@ -116,82 +116,77 @@ class VButton extends StatelessWidget {
         break;
     }
 
-    final VComponentTone resolvedTone =
-        tone ??
-        switch (variant) {
-          VButtonVariant.warning => VComponentTone.warning,
-          VButtonVariant.danger || VButtonVariant.dangerOutline => VComponentTone.danger,
-          _ => VComponentTone.primary,
-        };
+    final VComponentTone resolvedTone = tone ?? VComponentTone.primary;
 
-    // Colors mapping based on variant and state
+    // Colors mapping based on variant × tone and state
     Color? getBgColor(Set<WidgetState> states) {
-      if (states.contains(WidgetState.disabled)) {
+      final disabled = states.contains(WidgetState.disabled);
+      final pressed = states.contains(WidgetState.pressed);
+      final hovered = states.contains(WidgetState.hovered);
+
+      if (disabled) {
         switch (variant) {
-          case VButtonVariant.outline:
-          case VButtonVariant.ghost:
+          case VButtonVariant.secondary:
+          case VButtonVariant.tertiary:
             return Colors.transparent;
-          case VButtonVariant.dangerOutline:
-            return dynamicColors.dangerBg;
-          case VButtonVariant.danger:
-            return dynamicColors.dangerBg;
-          case VButtonVariant.warning:
-            return dynamicColors.warningBg;
-          default:
-            return dynamicColors.borderStrong;
+          case VButtonVariant.primary:
+            if (resolvedTone == VComponentTone.danger) {
+              return dynamicColors.dangerBg;
+            }
+            if (resolvedTone == VComponentTone.warning) {
+              return dynamicColors.warningBg;
+            }
+            return dynamicColors.primaryDisabled;
+          case VButtonVariant.link:
+            return Colors.transparent;
         }
       }
+
+      // pressed && hovered is for web behavior
+      // pressed || hovered is for mobile behavior
       switch (variant) {
         case VButtonVariant.primary:
           if (resolvedTone == VComponentTone.warning) {
-            if (states.contains(WidgetState.pressed) || states.contains(WidgetState.hovered)) {
-              return dynamicColors.warning.withValues(alpha: 0.8);
-            }
+            if (pressed && hovered) return dynamicColors.warningPressed;
+            if (pressed || hovered) return dynamicColors.warningHover;
             return dynamicColors.warning;
           }
           if (resolvedTone == VComponentTone.danger) {
-            if (states.contains(WidgetState.pressed) || states.contains(WidgetState.hovered)) {
-              return dynamicColors.danger.withValues(alpha: 0.85);
-            }
+            if (pressed && hovered) return dynamicColors.dangerPressed;
+            if (pressed || hovered) return dynamicColors.dangerHover;
             return dynamicColors.danger;
           }
-          if (states.contains(WidgetState.pressed) || states.contains(WidgetState.hovered)) {
-            return dynamicColors.primaryPressed;
-          }
+          if (pressed && hovered) return dynamicColors.primaryPressed;
+          if (pressed || hovered) return dynamicColors.primaryHover;
           return dynamicColors.primary;
         case VButtonVariant.secondary:
-          if (states.contains(WidgetState.pressed) || states.contains(WidgetState.hovered)) {
-            return dynamicColors.surfaceBrand;
+          if (resolvedTone == VComponentTone.danger) {
+            if (pressed && hovered) return dynamicColors.dangerBgPressed;
+            if (pressed || hovered) return dynamicColors.dangerBg;
+            return Colors.transparent;
           }
-          if (emphasis == VComponentEmphasis.subtle) {
-            return dynamicColors.surface;
+          if (resolvedTone == VComponentTone.warning) {
+            if (pressed && hovered) return dynamicColors.warningBgPressed;
+            if (pressed || hovered) return dynamicColors.warningBg;
+            return Colors.transparent;
           }
-          return dynamicColors.surfaceBrand;
-        case VButtonVariant.outline:
-          if (states.contains(WidgetState.pressed) || states.contains(WidgetState.hovered)) {
-            return dynamicColors.surfaceAlt;
-          }
+          if (pressed) return dynamicColors.surfacePressed;
+          if (hovered) return dynamicColors.surfaceHover;
           return dynamicColors.surface;
-        case VButtonVariant.ghost:
-          if (states.contains(WidgetState.pressed) || states.contains(WidgetState.hovered)) {
-            return dynamicColors.surfaceAlt;
+        case VButtonVariant.tertiary:
+          if (resolvedTone == VComponentTone.danger) {
+            if (pressed && hovered) return dynamicColors.dangerBgPressed;
+            if (pressed || hovered) return dynamicColors.dangerBg;
+            return Colors.transparent;
           }
+          if (resolvedTone == VComponentTone.warning) {
+            if (pressed && hovered) return dynamicColors.warningBgPressed;
+            if (pressed || hovered) return dynamicColors.warningBg;
+            return Colors.transparent;
+          }
+          if (pressed && hovered) return dynamicColors.successBgPressed;
+          if (pressed || hovered) return dynamicColors.successBg;
           return Colors.transparent;
-        case VButtonVariant.dangerOutline:
-          if (states.contains(WidgetState.pressed) || states.contains(WidgetState.hovered)) {
-            return dynamicColors.dangerBg;
-          }
-          return Colors.transparent;
-        case VButtonVariant.danger:
-          if (states.contains(WidgetState.pressed) || states.contains(WidgetState.hovered)) {
-            return dynamicColors.danger.withValues(alpha: 0.85);
-          }
-          return dynamicColors.danger;
-        case VButtonVariant.warning:
-          if (states.contains(WidgetState.pressed) || states.contains(WidgetState.hovered)) {
-            return dynamicColors.warning.withValues(alpha: 0.8);
-          }
-          return dynamicColors.warning;
         case VButtonVariant.link:
           // Unreachable: link uses `_VButtonLink` early return.
           return Colors.transparent;
@@ -200,10 +195,10 @@ class VButton extends StatelessWidget {
 
     Color getFgColor(Set<WidgetState> states) {
       if (states.contains(WidgetState.disabled)) {
-        if (variant == VButtonVariant.danger) {
+        if (variant == VButtonVariant.primary && resolvedTone == VComponentTone.danger) {
           return dynamicColors.danger.withValues(alpha: 0.5);
         }
-        if (variant == VButtonVariant.dangerOutline) {
+        if (variant == VButtonVariant.secondary && resolvedTone == VComponentTone.danger) {
           return dynamicColors.danger.withValues(alpha: 0.6);
         }
         return dynamicColors.textMuted;
@@ -213,33 +208,51 @@ class VButton extends StatelessWidget {
       }
       switch (variant) {
         case VButtonVariant.primary:
-        case VButtonVariant.danger:
-        case VButtonVariant.warning:
-          return Colors.white;
-        case VButtonVariant.secondary:
+          return dynamicColors.textInverse;
         case VButtonVariant.link:
           return dynamicColors.primary;
-        case VButtonVariant.dangerOutline:
-          return dynamicColors.danger;
-        case VButtonVariant.outline:
-        case VButtonVariant.ghost:
+        case VButtonVariant.secondary:
+          if (resolvedTone == VComponentTone.danger) {
+            return dynamicColors.danger;
+          }
+          if (resolvedTone == VComponentTone.warning) {
+            return dynamicColors.warning;
+          }
           return dynamicColors.textPrimary;
+        case VButtonVariant.tertiary:
+          if (resolvedTone == VComponentTone.danger) {
+            return dynamicColors.danger;
+          }
+          if (resolvedTone == VComponentTone.warning) {
+            return dynamicColors.warning;
+          }
+          return dynamicColors.textBrand;
       }
     }
 
     BorderSide getBorderSide(Set<WidgetState> states) {
-      if (variant == VButtonVariant.outline) {
-        return VBorders.side(dynamicColors.borderDefault);
-      }
-      if (variant == VButtonVariant.dangerOutline) {
-        if (states.contains(WidgetState.disabled)) {
-          return VBorders.side(dynamicColors.danger.withValues(alpha: 0.2));
+      final disabled = states.contains(WidgetState.disabled);
+
+      if (variant == VButtonVariant.secondary) {
+        if (resolvedTone == VComponentTone.danger) {
+          if (disabled) {
+            return VBorders.side(dynamicColors.danger.withValues(alpha: 0.2));
+          }
+          return VBorders.side(dynamicColors.danger);
         }
-        return VBorders.side(dynamicColors.danger);
+        if (resolvedTone == VComponentTone.warning) {
+          if (disabled) {
+            return VBorders.side(dynamicColors.warning.withValues(alpha: 0.2));
+          }
+          return VBorders.side(dynamicColors.warning);
+        }
+        return VBorders.side(dynamicColors.borderStrong);
       }
-      if (variant == VButtonVariant.danger && states.contains(WidgetState.disabled)) {
+
+      if (variant == VButtonVariant.primary && resolvedTone == VComponentTone.danger && disabled) {
         return VBorders.side(dynamicColors.danger.withValues(alpha: 0.15));
       }
+
       return BorderSide.none;
     }
 

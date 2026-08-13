@@ -318,7 +318,7 @@ class _PriceRuleHistoryViewState extends State<PriceRuleHistoryView> {
                 ],
                 VButton(
                   label: 'Xóa lọc',
-                  variant: VButtonVariant.ghost,
+                  variant: VButtonVariant.tertiary,
                   size: VButtonSize.small,
                   foregroundColor: colors.danger,
                   onPressed: _resetAllFilters,

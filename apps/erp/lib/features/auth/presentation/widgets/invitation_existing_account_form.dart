@@ -83,7 +83,7 @@ class _InvitationExistingAccountFormState
             const VGap.lg(),
             VButton(
               label: 'Huỷ',
-              variant: VButtonVariant.outline,
+              variant: VButtonVariant.secondary,
               fullWidth: true,
               onPressed: () => Navigator.of(context).pop(false),
             ),
@@ -91,7 +91,8 @@ class _InvitationExistingAccountFormState
             VButton(
               key: const Key('invitation_decline_submit'),
               label: 'Từ chối lời mời',
-              variant: VButtonVariant.dangerOutline,
+              variant: VButtonVariant.secondary,
+              tone: VComponentTone.danger,
               fullWidth: true,
               onPressed: () => Navigator.of(context).pop(true),
             ),
@@ -158,7 +159,7 @@ class _InvitationExistingAccountFormState
         const VGap.sm(),
         VButton(
           label: 'Từ chối lời mời',
-          variant: VButtonVariant.outline,
+          variant: VButtonVariant.secondary,
           fullWidth: true,
           onPressed: widget.isSubmitting ? null : _decline,
         ),

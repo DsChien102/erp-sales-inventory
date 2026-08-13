@@ -54,7 +54,7 @@ class PartnerFormSection extends StatelessWidget {
                     VButton(
                       key: const Key('btn_skip'),
                       label: 'Bỏ qua',
-                      variant: VButtonVariant.ghost,
+                      variant: VButtonVariant.tertiary,
                       foregroundColor: colors.primary,
                       onPressed: onSkip,
                     ),

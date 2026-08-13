@@ -142,7 +142,7 @@ class _PartnerSoftDeleteConfirmationSheetState extends State<PartnerSoftDeleteCo
                     child: VButton(
                       key: const Key('soft_delete_cancel'),
                       label: 'Hủy',
-                      variant: VButtonVariant.outline,
+                      variant: VButtonVariant.secondary,
                       foregroundColor: colors.textPrimary,
                       onPressed: () => Navigator.of(context).pop(),
                     ),
@@ -152,7 +152,8 @@ class _PartnerSoftDeleteConfirmationSheetState extends State<PartnerSoftDeleteCo
                     child: VButton(
                       key: const Key('soft_delete_confirm'),
                       label: 'Xóa hồ sơ',
-                      variant: VButtonVariant.danger,
+                      variant: VButtonVariant.primary,
+                      tone: VComponentTone.danger,
                       onPressed: () {
                         Navigator.of(context).pop(
                           _reasonController.text.trim(),

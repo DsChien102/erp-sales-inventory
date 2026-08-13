@@ -72,7 +72,7 @@ class PartnerTransformConfirmationDialog extends StatelessWidget {
                   child: VButton(
                     key: const Key('transform_confirmation_back'),
                     label: 'Quay lại',
-                    variant: VButtonVariant.outline,
+                    variant: VButtonVariant.secondary,
                     foregroundColor: colors.success,
                     onPressed: onBack,
                   ),

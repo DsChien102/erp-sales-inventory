@@ -13,8 +13,7 @@ class InvitationFilterCriteria {
     this.timeRange = 'Tất cả',
   });
 
-  bool get isFilterActive =>
-      status != 'Tất cả' || sendResult != 'Tất cả' || timeRange != 'Tất cả';
+  bool get isFilterActive => status != 'Tất cả' || sendResult != 'Tất cả' || timeRange != 'Tất cả';
 
   InvitationFilterCriteria copyWith({
     String? status,
@@ -53,12 +52,10 @@ class InvitationFilterBottomSheet extends StatefulWidget {
   });
 
   @override
-  State<InvitationFilterBottomSheet> createState() =>
-      _InvitationFilterBottomSheetState();
+  State<InvitationFilterBottomSheet> createState() => _InvitationFilterBottomSheetState();
 }
 
-class _InvitationFilterBottomSheetState
-    extends State<InvitationFilterBottomSheet> {
+class _InvitationFilterBottomSheetState extends State<InvitationFilterBottomSheet> {
   late InvitationFilterCriteria _currentCriteria;
 
   static const List<String> _statusOptions = [
@@ -160,8 +157,7 @@ class _InvitationFilterBottomSheetState
                 isSelected: isSelected,
                 onTap: () {
                   setState(() {
-                    _currentCriteria =
-                        _currentCriteria.copyWith(sendResult: opt);
+                    _currentCriteria = _currentCriteria.copyWith(sendResult: opt);
                   });
                 },
               );
@@ -182,8 +178,7 @@ class _InvitationFilterBottomSheetState
                 isSelected: isSelected,
                 onTap: () {
                   setState(() {
-                    _currentCriteria =
-                        _currentCriteria.copyWith(timeRange: opt);
+                    _currentCriteria = _currentCriteria.copyWith(timeRange: opt);
                   });
                 },
               );
@@ -197,7 +192,7 @@ class _InvitationFilterBottomSheetState
               Expanded(
                 child: VButton(
                   label: 'Đặt lại',
-                  variant: VButtonVariant.outline,
+                  variant: VButtonVariant.secondary,
                   fullWidth: true,
                   onPressed: _resetFilter,
                 ),
@@ -265,10 +260,10 @@ class _SelectableFilterChip extends StatelessWidget {
           vertical: VSpacing.space2,
         ),
         decoration: BoxDecoration(
-          color: isSelected ? VColors.successBg : colors.surface,
+          color: isSelected ? colors.successBg : colors.surface,
           borderRadius: BorderRadius.circular(VRadius.pill),
           border: Border.all(
-            color: isSelected ? VColors.success : colors.borderDefault,
+            color: isSelected ? colors.success : colors.borderDefault,
             width: 1.0,
           ),
         ),
@@ -276,7 +271,7 @@ class _SelectableFilterChip extends StatelessWidget {
           label,
           variant: VTextVariant.bodySmall,
           style: TextStyle(
-            color: isSelected ? VColors.success : colors.textPrimary,
+            color: isSelected ? colors.success : colors.textPrimary,
             fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
           ),
         ),

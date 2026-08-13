@@ -102,7 +102,7 @@ void main() {
           subtitle: 'hoặc',
           action: VButton(
             label: 'Chọn file từ thiết bị',
-            variant: VButtonVariant.outline,
+            variant: VButtonVariant.secondary,
             onPressed: () => picked = true,
           ),
         ),

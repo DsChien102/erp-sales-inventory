@@ -23,9 +23,6 @@ class VConfirmDialog extends StatelessWidget {
     this.semanticLabel,
   });
 
-  VComponentTone get _resolvedTone =>
-      tone ?? (isDestructive ? VComponentTone.danger : VComponentTone.neutral);
-
   @override
   Widget build(BuildContext context) {
     final dynamicColors = context.vColors;
@@ -64,14 +61,14 @@ class VConfirmDialog extends StatelessWidget {
                 children: [
                   VButton(
                     label: cancelLabel,
-                    variant: VButtonVariant.ghost,
+                    variant: VButtonVariant.tertiary,
                     onPressed: () => Navigator.of(context).pop(),
                   ),
                   const SizedBox(width: VSpacing.space2),
                   VButton(
                     label: actionLabel,
-                    variant: isDestructive ? VButtonVariant.danger : VButtonVariant.primary,
-                    tone: _resolvedTone == VComponentTone.danger ? VComponentTone.danger : null,
+                    variant: VButtonVariant.primary,
+                    tone: isDestructive ? VComponentTone.danger : tone,
                     onPressed: () {
                       Navigator.of(context).pop();
                       onAction();

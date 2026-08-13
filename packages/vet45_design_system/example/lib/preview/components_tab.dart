@@ -253,7 +253,7 @@ class _ComponentsPreviewTabState extends State<ComponentsPreviewTab> {
                   subtitle: 'hoặc',
                   action: VButton(
                     label: 'Chọn file từ thiết bị',
-                    variant: VButtonVariant.outline,
+                    variant: VButtonVariant.secondary,
                     size: VButtonSize.small,
                     onPressed: () {},
                   ),
@@ -267,7 +267,7 @@ class _ComponentsPreviewTabState extends State<ComponentsPreviewTab> {
                   subtitle: 'Chỉ nhận file .xlsx',
                   action: VButton(
                     label: 'Chọn file từ thiết bị',
-                    variant: VButtonVariant.outline,
+                    variant: VButtonVariant.secondary,
                     size: VButtonSize.small,
                     onPressed: () {},
                   ),
@@ -281,7 +281,7 @@ class _ComponentsPreviewTabState extends State<ComponentsPreviewTab> {
                   subtitle: 'Chỉ nhận file .xlsx đúng mẫu',
                   action: VButton(
                     label: 'Chọn file từ thiết bị',
-                    variant: VButtonVariant.outline,
+                    variant: VButtonVariant.secondary,
                     size: VButtonSize.small,
                     onPressed: () {},
                   ),
@@ -310,8 +310,8 @@ class _ComponentsPreviewTabState extends State<ComponentsPreviewTab> {
         PreviewSection(
           title: 'VButton',
           description:
-              'Variants (incl. link: underline on hover/focus/press), '
-              'sizes, loading, disabled.',
+              'Variants: primary / secondary (bordered) / tertiary (ex-ghost) / link. '
+              'Semantic via tone (danger, warning). Link underlines on hover/focus/press.',
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -337,6 +337,31 @@ class _ComponentsPreviewTabState extends State<ComponentsPreviewTab> {
                         onPressed: () {},
                         isLoading: _loading,
                       ),
+                  ],
+                ),
+              ),
+              PreviewStateRow(
+                label: 'Tone × variant',
+                child: PreviewStateWrap(
+                  children: [
+                    for (final v in const [
+                      VButtonVariant.primary,
+                      VButtonVariant.secondary,
+                      VButtonVariant.tertiary,
+                    ]) ...[
+                      for (final t in const [
+                        VComponentTone.primary,
+                        VComponentTone.danger,
+                        VComponentTone.warning,
+                      ])
+                        VButton(
+                          label: '${v.name}/${t.name}',
+                          variant: v,
+                          tone: t,
+                          size: VButtonSize.small,
+                          onPressed: () {},
+                        ),
+                    ],
                   ],
                 ),
               ),
@@ -616,7 +641,7 @@ class _ComponentsPreviewTabState extends State<ComponentsPreviewTab> {
                       const SizedBox(width: 8),
                       VButton(
                         label: 'Reset Form',
-                        variant: VButtonVariant.outline,
+                        variant: VButtonVariant.secondary,
                         onPressed: () {
                           _formKey.currentState?.reset();
                         },
@@ -987,7 +1012,7 @@ class _ComponentsPreviewTabState extends State<ComponentsPreviewTab> {
                           child: VButton(
                             label: 'Sửa',
                             size: VButtonSize.small,
-                            variant: VButtonVariant.outline,
+                            variant: VButtonVariant.secondary,
                             onPressed: () {},
                           ),
                         ),
@@ -1132,7 +1157,7 @@ class _ComponentsPreviewTabState extends State<ComponentsPreviewTab> {
                 VButton(
                   label: type.name,
                   size: VButtonSize.small,
-                  variant: VButtonVariant.outline,
+                  variant: VButtonVariant.secondary,
                   onPressed: () {
                     VToast.show(
                       context,
@@ -1426,7 +1451,7 @@ class _ComponentsPreviewTabState extends State<ComponentsPreviewTab> {
           child: VSection(
             title: 'Thông tin chung',
             subtitle: 'Mã SKU, tên hiển thị',
-            trailing: VButton(label: 'Sửa', variant: VButtonVariant.ghost, onPressed: () {}),
+            trailing: VButton(label: 'Sửa', variant: VButtonVariant.tertiary, onPressed: () {}),
             child: VCard(
               child: VText('Section content', variant: VTextVariant.bodyDefault),
             ),

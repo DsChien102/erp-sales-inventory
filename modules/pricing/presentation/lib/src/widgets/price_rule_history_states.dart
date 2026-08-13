@@ -47,7 +47,7 @@ class PriceRuleHistoryEmptyView extends StatelessWidget {
             const VGap.lg(),
             VButton(
               label: 'Đặt lại bộ lọc',
-              variant: VButtonVariant.outline,
+              variant: VButtonVariant.secondary,
               onPressed: onReset,
             ),
           ],
@@ -85,7 +85,7 @@ class PriceRuleHistoryEmptyView extends StatelessWidget {
           if (onBack != null)
             VButton(
               label: 'Quay lại chi tiết',
-              variant: VButtonVariant.outline,
+              variant: VButtonVariant.secondary,
               onPressed: onBack,
             ),
         ],
@@ -147,7 +147,7 @@ class PriceRuleHistorySystemStateView extends StatelessWidget {
             if (onPressed != null)
               VButton(
                 label: buttonLabel,
-                variant: VButtonVariant.outline,
+                variant: VButtonVariant.secondary,
                 onPressed: onPressed,
               ),
           ],

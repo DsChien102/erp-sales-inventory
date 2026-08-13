@@ -50,7 +50,7 @@ class PartnerContactRemoveDialog extends StatelessWidget {
                   Expanded(
                     child: VButton(
                       label: 'Quay lại',
-                      variant: VButtonVariant.outline,
+                      variant: VButtonVariant.secondary,
                       foregroundColor: colors.success,
                       onPressed: () => Navigator.of(context).pop(false),
                     ),
@@ -59,7 +59,8 @@ class PartnerContactRemoveDialog extends StatelessWidget {
                   Expanded(
                     child: VButton(
                       label: 'Gỡ liên hệ',
-                      variant: VButtonVariant.danger,
+                      variant: VButtonVariant.primary,
+                      tone: VComponentTone.danger,
                       onPressed: () => Navigator.of(context).pop(true),
                     ),
                   ),

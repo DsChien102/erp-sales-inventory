@@ -110,7 +110,7 @@ class PartnerTransformPreviewView extends StatelessWidget {
                   child: VButton(
                     key: const Key('transform_preview_back'),
                     label: 'Quay lại',
-                    variant: VButtonVariant.outline,
+                    variant: VButtonVariant.secondary,
                     foregroundColor: colors.success,
                     onPressed: onBack,
                   ),

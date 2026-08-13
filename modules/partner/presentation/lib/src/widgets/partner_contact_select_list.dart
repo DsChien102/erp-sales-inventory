@@ -132,7 +132,7 @@ class _PartnerContactSelectListState extends State<PartnerContactSelectList> {
                   Expanded(
                     child: VButton(
                       label: 'Hủy',
-                      variant: VButtonVariant.outline,
+                      variant: VButtonVariant.secondary,
                       foregroundColor: colors.success,
                       onPressed: widget.onCancel,
                     ),

@@ -429,7 +429,7 @@ class _PartnerDetailPageState extends State<PartnerDetailPage> {
                               Expanded(
                                 child: VButton(
                                   label: 'Chỉnh sửa',
-                                  variant: VButtonVariant.outline,
+                                  variant: VButtonVariant.secondary,
                                   foregroundColor: colors.success,
                                   onPressed:
                                       dto.availableActions.contains(

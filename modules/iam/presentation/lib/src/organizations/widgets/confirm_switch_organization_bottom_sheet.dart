@@ -39,7 +39,7 @@ class ConfirmSwitchOrganizationBottomSheet extends StatelessWidget {
             width: double.infinity,
             child: VButton(
               label: 'Quay lại',
-              variant: VButtonVariant.outline,
+              variant: VButtonVariant.secondary,
               tone: VComponentTone.neutral,
               onPressed: () => Navigator.of(context).pop(false),
             ),

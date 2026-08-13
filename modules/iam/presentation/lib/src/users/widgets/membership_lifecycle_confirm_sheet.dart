@@ -72,7 +72,7 @@ class _MembershipLifecycleConfirmSheetState
           const VGap.xl(),
           VButton(
             label: 'Quay lại',
-            variant: VButtonVariant.outline,
+            variant: VButtonVariant.secondary,
             tone: VComponentTone.neutral,
             fullWidth: true,
             onPressed: _submitting ? null : () => Navigator.of(context).pop(),
@@ -81,7 +81,7 @@ class _MembershipLifecycleConfirmSheetState
           VButton(
             label: widget.confirmLabel,
             variant: widget.confirmDanger
-                ? VButtonVariant.dangerOutline
+                ? VButtonVariant.secondary
                 : VButtonVariant.primary,
             tone: widget.confirmDanger
                 ? VComponentTone.danger

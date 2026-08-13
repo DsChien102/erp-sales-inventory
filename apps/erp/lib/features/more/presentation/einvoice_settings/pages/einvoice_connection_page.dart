@@ -325,7 +325,7 @@ class _EInvoiceConnectionPageState extends State<EInvoiceConnectionPage> {
                             color: colors.textPrimary,
                             size: 18,
                           ),
-                          variant: VButtonVariant.outline,
+                          variant: VButtonVariant.secondary,
                           fullWidth: true,
                           isLoading: state.isSubmitting,
                           onPressed: state.isSubmitting ? null : _retestConnection,

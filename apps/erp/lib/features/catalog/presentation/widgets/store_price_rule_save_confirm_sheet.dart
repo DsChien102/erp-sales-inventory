@@ -63,7 +63,7 @@ class StorePriceRuleSaveConfirmSheet extends StatelessWidget {
                     key: const Key('btn_store_price_rule_confirm_cancel'),
                     label: 'Hủy',
                     onPressed: () => Navigator.of(context).pop(false),
-                    variant: VButtonVariant.outline,
+                    variant: VButtonVariant.secondary,
                   ),
                 ),
                 const SizedBox(width: VSpacing.space4),

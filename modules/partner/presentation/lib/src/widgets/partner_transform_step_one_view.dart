@@ -254,7 +254,7 @@ class _TransformActions extends StatelessWidget {
             child: VButton(
               key: const Key('transform_cancel'),
               label: 'Bỏ qua',
-              variant: VButtonVariant.outline,
+              variant: VButtonVariant.secondary,
               foregroundColor: context.vColors.success,
               onPressed: onCancel,
             ),

@@ -49,7 +49,7 @@ class ProductConversionUnitDeleteBlockedDialog extends StatelessWidget {
                   child: VButton(
                     label: 'Đóng',
                     onPressed: () => Navigator.of(context).pop(),
-                    variant: VButtonVariant.outline,
+                    variant: VButtonVariant.secondary,
                   ),
                 ),
                 const SizedBox(width: VSpacing.space4),

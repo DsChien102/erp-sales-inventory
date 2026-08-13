@@ -114,7 +114,7 @@ class PartnerDeleteBlockedSheet extends StatelessWidget {
                       child: VButton(
                         key: const Key('delete_blocked_back'),
                         label: 'Quay lại',
-                        variant: VButtonVariant.outline,
+                        variant: VButtonVariant.secondary,
                         foregroundColor: colors.success,
                         onPressed: () => Navigator.of(context).pop(
                           PartnerDeleteBlockedResult.dismissed,
@@ -137,7 +137,7 @@ class PartnerDeleteBlockedSheet extends StatelessWidget {
                 VButton(
                   key: const Key('delete_blocked_back'),
                   label: 'Quay lại',
-                  variant: VButtonVariant.outline,
+                  variant: VButtonVariant.secondary,
                   foregroundColor: colors.success,
                   onPressed: () => Navigator.of(context).pop(
                     PartnerDeleteBlockedResult.dismissed,

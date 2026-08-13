@@ -65,7 +65,7 @@ class OrganizationPreviewRoleChangePage extends StatelessWidget {
             Expanded(
               child: VButton(
                 label: 'Quay lại',
-                variant: VButtonVariant.outline,
+                variant: VButtonVariant.secondary,
                 tone: VComponentTone.neutral,
                 fullWidth: true,
                 onPressed: () => context.pop(),

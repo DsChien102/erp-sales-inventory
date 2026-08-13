@@ -87,7 +87,7 @@ class PriceRuleImportChooseFileView extends StatelessWidget {
                         ? null
                         : VButton(
                             label: 'Chọn file từ thiết bị',
-                            variant: VButtonVariant.outline,
+                            variant: VButtonVariant.secondary,
                             size: VButtonSize.small,
                             onPressed: interactive ? onPickFile : null,
                           ),

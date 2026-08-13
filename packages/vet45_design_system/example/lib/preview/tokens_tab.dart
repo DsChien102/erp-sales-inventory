@@ -88,19 +88,6 @@ class TokensPreviewTab extends StatelessWidget {
           ]),
         ),
         PreviewSection(
-          title: 'Colors — Semantics',
-          child: _colorGrid([
-            _tile('success', VColors.success, VColors.neutral0),
-            _tile('successBg', VColors.successBg, VColors.success),
-            _tile('warning', VColors.warning, VColors.neutral0),
-            _tile('warningBg', VColors.warningBg, VColors.warning),
-            _tile('danger', VColors.danger, VColors.neutral0),
-            _tile('dangerBg', VColors.dangerBg, VColors.danger),
-            _tile('info', VColors.info, VColors.neutral0),
-            _tile('infoBg', VColors.infoBg, VColors.info),
-          ]),
-        ),
-        PreviewSection(
           title: 'Typography',
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,

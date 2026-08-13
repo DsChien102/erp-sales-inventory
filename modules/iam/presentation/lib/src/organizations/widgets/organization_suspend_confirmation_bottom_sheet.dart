@@ -79,14 +79,15 @@ class _OrganizationSuspendConfirmationBottomSheetState
           const VGap.lg(),
           VButton(
             label: 'Quay lại',
-            variant: VButtonVariant.outline,
+            variant: VButtonVariant.secondary,
             fullWidth: true,
             onPressed: () => Navigator.of(context).pop(),
           ),
           const VGap.sm(),
           VButton(
             label: 'Tạm ngừng',
-            variant: VButtonVariant.dangerOutline,
+            variant: VButtonVariant.secondary,
+            tone: VComponentTone.danger,
             fullWidth: true,
             onPressed: _submit,
           ),

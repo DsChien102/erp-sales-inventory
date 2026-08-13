@@ -53,7 +53,7 @@ class ProductImageDeleteDialog extends StatelessWidget {
                 Expanded(
                   child: VButton(
                     label: 'Hủy',
-                    variant: VButtonVariant.outline,
+                    variant: VButtonVariant.secondary,
                     onPressed: () => Navigator.of(context).pop(false),
                   ),
                 ),
@@ -61,7 +61,8 @@ class ProductImageDeleteDialog extends StatelessWidget {
                 Expanded(
                   child: VButton(
                     label: 'Xóa ảnh',
-                    variant: VButtonVariant.danger,
+                    variant: VButtonVariant.primary,
+                    tone: VComponentTone.danger,
                     onPressed: () => Navigator.of(context).pop(true),
                   ),
                 ),

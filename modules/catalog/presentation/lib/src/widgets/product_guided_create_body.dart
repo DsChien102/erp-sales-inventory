@@ -212,7 +212,7 @@ class ProductGuidedCreateBody extends StatelessWidget {
             Expanded(
               child: VButton(
                 label: 'Huỷ',
-                variant: VButtonVariant.outline,
+                variant: VButtonVariant.secondary,
                 onPressed: state.status == ProductGuidedCreateStatus.loading ? null : onCancel,
               ),
             ),

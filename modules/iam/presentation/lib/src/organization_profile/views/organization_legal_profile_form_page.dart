@@ -299,7 +299,7 @@ class _LegalProfileFormViewState extends State<_LegalProfileFormView> {
                 Expanded(
                   child: VButton(
                     label: 'Hủy',
-                    variant: VButtonVariant.outline,
+                    variant: VButtonVariant.secondary,
                     fullWidth: true,
                     onPressed: state.isSubmittingLegal
                         ? null

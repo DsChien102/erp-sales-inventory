@@ -73,7 +73,7 @@ class PartnerDeletePrimaryContactBlockedSheet extends StatelessWidget {
                   child: VButton(
                     key: const Key('delete_blocked_close'),
                     label: 'Đóng',
-                    variant: VButtonVariant.outline,
+                    variant: VButtonVariant.secondary,
                     foregroundColor: colors.success,
                     onPressed: () => Navigator.of(context).pop(
                       PartnerDeletePrimaryContactBlockedAction.close,
