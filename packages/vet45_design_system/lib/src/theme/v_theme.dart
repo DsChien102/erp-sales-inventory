@@ -24,7 +24,7 @@ class VTheme {
       highlightColor: Colors.transparent,
       colorScheme: const ColorScheme.light(
         primary: VColors.primary500,
-        error: VColors.danger,
+        error: VColors.red500,
         surface: VColors.neutral0,
       ),
       extensions: [
@@ -51,9 +51,9 @@ class VTheme {
           VColors.primary500,
           width: VBorders.thick,
         ),
-        errorBorder: VBorders.outlineInput(VColors.danger),
+        errorBorder: VBorders.outlineInput(VColors.red500),
         focusedErrorBorder: VBorders.outlineInput(
-          VColors.danger,
+          VColors.red500,
           width: VBorders.thick,
         ),
       ),
@@ -94,7 +94,7 @@ class VTheme {
       highlightColor: Colors.transparent,
       colorScheme: const ColorScheme.dark(
         primary: VColors.primary400,
-        error: VColors.danger,
+        error: VColors.red500,
         surface: VColors.neutral700,
       ),
       extensions: [
@@ -121,9 +121,9 @@ class VTheme {
           VColors.primary400,
           width: VBorders.thick,
         ),
-        errorBorder: VBorders.outlineInput(VColors.danger),
+        errorBorder: VBorders.outlineInput(VColors.red500),
         focusedErrorBorder: VBorders.outlineInput(
-          VColors.danger,
+          VColors.red500,
           width: VBorders.thick,
         ),
       ),
