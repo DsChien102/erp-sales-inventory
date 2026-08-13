@@ -68,6 +68,8 @@ class VCheckbox extends StatelessWidget {
 
     if (label != null) {
       return InkWell(
+        splashColor: Colors.transparent,
+        highlightColor: Colors.transparent,
         onTap: isEnabled ? () => onChanged(!value) : null,
         borderRadius: BorderRadius.circular(VRadius.r4),
         child: Padding(

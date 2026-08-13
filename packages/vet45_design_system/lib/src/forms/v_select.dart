@@ -67,6 +67,8 @@ class _VSelectState<T> extends State<VSelect<T>> {
 
   String? get _effectiveError => widget.errorText ?? _internalError;
 
+  bool _triggerHighlighted = false;
+
   bool get _canInteract => widget.enabled && widget.state != VComponentState.disabled;
 
   @override
@@ -253,12 +255,24 @@ class _VSelectState<T> extends State<VSelect<T>> {
     return Material(
       color: Colors.transparent,
       child: InkWell(
+        splashColor: Colors.transparent,
+        highlightColor: Colors.transparent,
         onTap: isEnabled ? _toggleMenu : null,
+        onHighlightChanged: isEnabled
+            ? (highlighted) {
+                if (_triggerHighlighted == highlighted) return;
+                setState(() => _triggerHighlighted = highlighted);
+              }
+            : null,
         borderRadius: BorderRadius.circular(VRadius.input),
         child: Ink(
           height: VTextField.controlHeight,
           decoration: BoxDecoration(
-            color: isEnabled ? colors.surface : colors.surfaceAlt,
+            color: !isEnabled
+                ? colors.surfaceAlt
+                : _triggerHighlighted
+                ? colors.surfacePressed
+                : colors.surface,
             borderRadius: BorderRadius.circular(VRadius.input),
             border: Border.all(color: borderColor, width: borderWidth),
           ),

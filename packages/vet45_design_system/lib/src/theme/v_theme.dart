@@ -19,6 +19,9 @@ class VTheme {
       brightness: Brightness.light,
       scaffoldBackgroundColor: VColors.neutral25,
       fontFamily: VTypography.fontFamily,
+      splashFactory: NoSplash.splashFactory,
+      splashColor: Colors.transparent,
+      highlightColor: Colors.transparent,
       colorScheme: const ColorScheme.light(
         primary: VColors.primary500,
         error: VColors.danger,
@@ -59,6 +62,7 @@ class VTheme {
           backgroundColor: VColors.primary500,
           foregroundColor: Colors.white,
           elevation: 0,
+          overlayColor: Colors.transparent,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(VRadius.button),
           ),
@@ -85,6 +89,9 @@ class VTheme {
       brightness: Brightness.dark,
       scaffoldBackgroundColor: VColors.neutral900,
       fontFamily: VTypography.fontFamily,
+      splashFactory: NoSplash.splashFactory,
+      splashColor: Colors.transparent,
+      highlightColor: Colors.transparent,
       colorScheme: const ColorScheme.dark(
         primary: VColors.primary400,
         error: VColors.danger,
@@ -125,6 +132,7 @@ class VTheme {
           backgroundColor: VColors.primary400,
           foregroundColor: Colors.white,
           elevation: 0,
+          overlayColor: Colors.transparent,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(VRadius.button),
           ),

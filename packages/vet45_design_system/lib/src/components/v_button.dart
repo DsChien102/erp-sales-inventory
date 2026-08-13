@@ -310,12 +310,7 @@ class VButton extends StatelessWidget {
             borderRadius: BorderRadius.circular(VRadius.button),
           ),
         ),
-        overlayColor: WidgetStateProperty.resolveWith((states) {
-          if (states.contains(WidgetState.pressed)) {
-            return getFgColor(states).withValues(alpha: 0.1);
-          }
-          return null;
-        }),
+        overlayColor: const WidgetStatePropertyAll(Colors.transparent),
       ),
       child: buttonChild,
     );

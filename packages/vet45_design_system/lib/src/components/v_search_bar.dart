@@ -244,6 +244,8 @@ class _VSearchBarState extends State<VSearchBar> {
         ),
         child: widget.onTap != null
             ? InkWell(
+                splashColor: Colors.transparent,
+                highlightColor: Colors.transparent,
                 onTap: widget.onTap,
                 borderRadius: BorderRadius.circular(VRadius.searchBar),
                 child: content,

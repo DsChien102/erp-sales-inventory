@@ -122,6 +122,8 @@ class VIconBox extends StatelessWidget {
 
     if (onTap != null) {
       return InkWell(
+        splashColor: Colors.transparent,
+        highlightColor: Colors.transparent,
         onTap: onTap,
         customBorder: isCircular
             ? const CircleBorder()

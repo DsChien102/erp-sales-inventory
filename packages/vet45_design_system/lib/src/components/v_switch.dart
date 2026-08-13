@@ -61,6 +61,8 @@ class VSwitch extends StatelessWidget {
 
     if (label != null) {
       return InkWell(
+        splashColor: Colors.transparent,
+        highlightColor: Colors.transparent,
         onTap: isEnabled ? () => onChanged!(!value) : null,
         child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 4.0),

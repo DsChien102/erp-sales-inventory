@@ -13,11 +13,7 @@ import '../tokens/v_borders.dart';
 import '../tokens/v_radius.dart';
 import '../tokens/v_spacing.dart';
 
-class VDatePicker extends StatelessWidget {
-  /// Lets [InkWell] splash confirm/fade before [showDatePicker] pushes a route
-  /// (which otherwise cancels the Material ink mid-animation).
-  static const Duration _inkSplashSettle = Duration(milliseconds: 220);
-
+class VDatePicker extends StatefulWidget {
   final DateTime? value;
   final String label;
   final String hintText;
@@ -54,32 +50,34 @@ class VDatePicker extends StatelessWidget {
     this.semanticLabel,
   });
 
+  @override
+  State<VDatePicker> createState() => _VDatePickerState();
+}
+
+class _VDatePickerState extends State<VDatePicker> {
+  bool _highlighted = false;
+
   VComponentState _resolveState() {
-    if (state != null) return state!;
-    if (!enabled) return VComponentState.disabled;
+    if (widget.state != null) return widget.state!;
+    if (!widget.enabled) return VComponentState.disabled;
     return VComponentState.enabled;
   }
 
-  void _handleTap(BuildContext context) {
+  void _handleTap() {
     // Keep this sync — do not await in the InkWell gesture callback.
-    unawaited(
-      Future<void>.delayed(_inkSplashSettle, () async {
-        if (!context.mounted) return;
-        await _openPicker(context);
-      }),
-    );
+    unawaited(_openPicker());
   }
 
-  Future<void> _openPicker(BuildContext context) async {
-    if (onTap != null) {
-      onTap!();
+  Future<void> _openPicker() async {
+    if (widget.onTap != null) {
+      widget.onTap!();
       return;
     }
 
     final now = DateTime.now();
-    final first = firstDate ?? DateTime(1900);
-    final last = lastDate ?? DateTime(2100);
-    var initial = initialDate ?? value ?? now;
+    final first = widget.firstDate ?? DateTime(1900);
+    final last = widget.lastDate ?? DateTime(2100);
+    var initial = widget.initialDate ?? widget.value ?? now;
     if (initial.isBefore(first)) initial = first;
     if (initial.isAfter(last)) initial = last;
 
@@ -90,7 +88,7 @@ class VDatePicker extends StatelessWidget {
       lastDate: last,
     );
     if (picked != null) {
-      onChanged?.call(picked);
+      widget.onChanged?.call(picked);
     }
   }
 
@@ -99,24 +97,29 @@ class VDatePicker extends StatelessWidget {
     final dynamicColors = context.vColors;
     final resolvedState = _resolveState();
     final isEnabled = resolvedState == VComponentState.enabled;
+    final value = widget.value;
     final dateText = value != null
-        ? '${value!.day.toString().padLeft(2, '0')}/${value!.month.toString().padLeft(2, '0')}/${value!.year}'
-        : hintText;
+        ? '${value.day.toString().padLeft(2, '0')}/${value.month.toString().padLeft(2, '0')}/${value.year}'
+        : widget.hintText;
 
-    final borderColor = switch (tone) {
+    final borderColor = switch (widget.tone) {
       VComponentTone.primary => dynamicColors.primary,
       VComponentTone.danger => dynamicColors.danger,
       _ => dynamicColors.borderDefault,
     };
 
-    final borderWidth = VBorders.widthFor(emphasis);
+    final borderWidth = VBorders.widthFor(widget.emphasis);
     final radius = BorderRadius.circular(VRadius.input);
-    final fillColor = !isEnabled ? dynamicColors.surfaceAlt : dynamicColors.surface;
+    final fillColor = !isEnabled
+        ? dynamicColors.surfaceAlt
+        : _highlighted
+        ? dynamicColors.surfacePressed
+        : dynamicColors.surface;
 
     return Semantics(
       button: true,
       enabled: isEnabled,
-      label: semanticLabel ?? label,
+      label: widget.semanticLabel ?? widget.label,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
@@ -130,12 +133,12 @@ class VDatePicker extends StatelessWidget {
               ),
               const VGap.sm(),
               VText(
-                label,
+                widget.label,
                 variant: VTextVariant.bodyDefault,
                 style: const TextStyle(fontWeight: FontWeight.w600),
                 color: dynamicColors.textPrimary,
               ),
-              if (required) ...[
+              if (widget.required) ...[
                 const VGap.xs(),
                 VText(
                   '*',
@@ -150,7 +153,15 @@ class VDatePicker extends StatelessWidget {
           Material(
             color: Colors.transparent,
             child: InkWell(
-              onTap: isEnabled ? () => _handleTap(context) : null,
+              splashColor: Colors.transparent,
+              highlightColor: Colors.transparent,
+              onTap: isEnabled ? _handleTap : null,
+              onHighlightChanged: isEnabled
+                  ? (highlighted) {
+                      if (_highlighted == highlighted) return;
+                      setState(() => _highlighted = highlighted);
+                    }
+                  : null,
               borderRadius: radius,
               child: Ink(
                 height: VTextField.controlHeight,
