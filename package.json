@@ -1,0 +1,15 @@
+{
+  "name": "vet45-railway-iac",
+  "private": true,
+  "description": "Railway TypeScript SDK so `railway config` can evaluate .railway/railway.ts. Not used by the Dart/Flutter apps.",
+  "engines": {
+    "node": "22.x"
+  },
+  "scripts": {
+    "railway:plan": "bash scripts/railway-config.sh plan",
+    "railway:apply": "bash scripts/railway-config.sh apply"
+  },
+  "devDependencies": {
+    "railway": "^3.8.1"
+  }
+}

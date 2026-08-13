@@ -13,7 +13,7 @@ stages:
         - packages/vet45_shared/**/*
         - pubspec.yaml
         - pubspec.lock
-        - railway.toml
+        - .railway/railway.ts
         - .dockerignore
 
 verify:messaging_worker:
@@ -45,7 +45,7 @@ deploy:messaging_worker:production:
         - packages/vet45_shared/**/*
         - pubspec.yaml
         - pubspec.lock
-        - railway.toml
+        - .railway/railway.ts
         - .dockerignore
   script:
     - ./apps/messaging_worker/scripts/deploy.sh --env production --secrets --ci

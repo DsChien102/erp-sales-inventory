@@ -6,7 +6,6 @@ resolution: workspace
 
 environment:
   sdk: ^3.11.1
-
 dependencies:
   flutter:
     sdk: flutter
@@ -51,8 +50,14 @@ dev_dependencies:
   flutter_lints: ^6.0.0
   mocktail: ^1.0.4
   vet45_shared_testing: ^0.0.1
+  flutter_launcher_icons: ^0.14.4
 
 flutter:
   uses-material-design: true
   assets:
     - assets/data/vn_administrative_units.json
+
+flutter_launcher_icons:
+  android: "launcher_icon"
+  ios: true
+  image_path: "assets/icon/app_icon.png"

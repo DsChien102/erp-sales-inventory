@@ -1,7 +1,11 @@
 #!/usr/bin/env bash
-# Push messaging worker secrets to Railway for the target environment.
+# Push messaging worker *secrets* to Railway for the target environment.
+# Knobs (WORKER_LOG_LEVEL, batch sizes, tick intervals) are owned by
+# `.railway/railway.ts` — do not set them here.
+#
 # Local: reads worker env file from Vet45 manifest (--env staging|production)
 # CI:    pass --ci and set SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, WORKER_TICK_SECRET
+# Optional: RESEND_API_KEY, RESEND_FROM_DOMAIN, APP_LINK_BASE_URL (skipped if empty)
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
@@ -61,26 +65,28 @@ export RAILWAY_AGENT_SESSION="${RAILWAY_AGENT_SESSION:-vet45-messaging-worker-de
 
 cd "$ROOT"
 
-printf '%s' "$SUPABASE_URL" | railway variable set SUPABASE_URL --stdin \
-  --service "$SERVICE" --environment "$RAILWAY_ENV"
-printf '%s' "$SUPABASE_SERVICE_ROLE_KEY" | railway variable set SUPABASE_SERVICE_ROLE_KEY --stdin \
-  --service "$SERVICE" --environment "$RAILWAY_ENV"
-printf '%s' "$WORKER_TICK_SECRET" | railway variable set WORKER_TICK_SECRET --stdin \
-  --service "$SERVICE" --environment "$RAILWAY_ENV"
+set_secret() {
+  local key="$1"
+  local val="$2"
+  printf '%s' "$val" | railway variable set "$key" --stdin \
+    --service "$SERVICE" --environment "$RAILWAY_ENV"
+}
 
-railway variable set "WORKER_TENANT_BATCH_SIZE=${WORKER_TENANT_BATCH_SIZE:-20}" \
-  --service "$SERVICE" --environment "$RAILWAY_ENV"
-railway variable set "WORKER_MODULE_BATCH_SIZE=${WORKER_MODULE_BATCH_SIZE:-10}" \
-  --service "$SERVICE" --environment "$RAILWAY_ENV"
-railway variable set "WORKER_MAX_ROUNDS_PER_TICK=${WORKER_MAX_ROUNDS_PER_TICK:-5}" \
-  --service "$SERVICE" --environment "$RAILWAY_ENV"
-railway variable set "WORKER_TICK_ACTIVE_SECONDS=${WORKER_TICK_ACTIVE_SECONDS:-3}" \
-  --service "$SERVICE" --environment "$RAILWAY_ENV"
-railway variable set "WORKER_TICK_IDLE_SECONDS=${WORKER_TICK_IDLE_SECONDS:-15}" \
-  --service "$SERVICE" --environment "$RAILWAY_ENV"
-railway variable set "WORKER_TICK_MAX_IDLE_SECONDS=${WORKER_TICK_MAX_IDLE_SECONDS:-30}" \
-  --service "$SERVICE" --environment "$RAILWAY_ENV"
-railway variable set "WORKER_LOG_LEVEL=${WORKER_LOG_LEVEL:-WARNING}" \
-  --service "$SERVICE" --environment "$RAILWAY_ENV"
+set_optional_secret() {
+  local key="$1"
+  local val="${!key:-}"
+  if [[ -z "$val" ]]; then
+    echo "skip ${key} (unset)"
+    return 0
+  fi
+  set_secret "$key" "$val"
+}
 
-echo "Railway variables set for ${SERVICE} (${RAILWAY_ENV})."
+set_secret SUPABASE_URL "$SUPABASE_URL"
+set_secret SUPABASE_SERVICE_ROLE_KEY "$SUPABASE_SERVICE_ROLE_KEY"
+set_secret WORKER_TICK_SECRET "$WORKER_TICK_SECRET"
+set_optional_secret RESEND_API_KEY
+set_optional_secret RESEND_FROM_DOMAIN
+set_optional_secret APP_LINK_BASE_URL
+
+echo "Railway secrets set for ${SERVICE} (${RAILWAY_ENV})."
