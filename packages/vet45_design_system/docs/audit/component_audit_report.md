@@ -1,6 +1,6 @@
 # Component Audit Report
 
-- Generated at: `2026-08-13T09:30:31.129845`
+- Generated at: `2026-08-13T10:27:49.540960`
 - Matrix: `docs/audit/contract_matrix.yaml`
 - Scope: primitives / components / business / patterns / forms widgets
 
@@ -15,7 +15,6 @@
 | components | `VCard` | container | Pass (optional) | Pass (optional) | N/A (na) | — (optional) | No |
 | components | `VCheckbox` | toggle | Pass (optional) | — (optional) | Pass (required) | Pass (required) | Yes |
 | components | `VCombobox` | unmapped | Pass (optional) | Pass (optional) | Pass (optional) | Pass (optional) | Yes |
-| components | `VDatePickerField` | input | Pass (preferred) | Pass (preferred) | Pass (required) | Pass (required) | Yes |
 | components | `VEmptyState` | status_display | Pass (optional) | Pass (optional) | N/A (na) | Pass (preferred) | Yes |
 | components | `VFileDropZone` | input | — (optional) | — (optional) | Pass (required) | Pass (required) | Yes |
 | components | `VFloatingActionButton` | action | Pass (preferred) | Pass (preferred) | Pass (preferred) | Pass (required) | Yes |
@@ -37,6 +36,7 @@
 | components | `VToast` | status_display | Pass (required) | Pass (optional) | N/A (na) | Pass (preferred) | Yes |
 | components | `VVerificationCodeField` | unmapped | Pass (optional) | Pass (optional) | Pass (optional) | Pass (optional) | Yes |
 | forms | `VChoiceList` | input | Pass (preferred) | Pass (preferred) | Pass (required) | Pass (required) | Yes |
+| forms | `VDatePicker` | input | Pass (preferred) | Pass (preferred) | Pass (required) | Pass (required) | Yes |
 | forms | `VEmailField` | input | Pass (preferred) | Pass (preferred) | Pass (required) | Pass (required) | No |
 | forms | `VMoneyField` | input | Pass (preferred) | Pass (preferred) | Pass (required) | Pass (required) | No |
 | forms | `VNumberField` | input | Pass (preferred) | Pass (preferred) | Pass (required) | Pass (required) | No |

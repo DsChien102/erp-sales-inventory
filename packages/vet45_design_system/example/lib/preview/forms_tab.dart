@@ -31,6 +31,7 @@ class _FormsPreviewTabState extends State<FormsPreviewTab> {
   String? _selectValue;
   String? _requiredSelect;
   String? _searchableSelect;
+  DateTime? _date;
   List<String> _companySelected = const ['hidden'];
   List<String> _notifSelected = const ['email'];
   List<String> _requiredChoice = const [];
@@ -333,6 +334,32 @@ class _FormsPreviewTabState extends State<FormsPreviewTab> {
                   max: 100,
                   suffixText: '%',
                   onChanged: (v) => setState(() => _decimalValue = v),
+                ),
+              ),
+            ],
+          ),
+        ),
+        PreviewSection(
+          title: 'VDatePicker',
+          child: Column(
+            children: [
+              PreviewStateRow(
+                label: 'Empty',
+                child: VDatePicker(
+                  value: null,
+                  label: 'Invoice date',
+                  required: true,
+                  onChanged: (picked) => setState(() => _date = picked),
+                ),
+              ),
+              PreviewStateRow(
+                label: 'Filled',
+                child: VDatePicker(
+                  value: _date ?? DateTime(2026, 6, 3),
+                  label: 'Invoice date',
+                  firstDate: DateTime(2020),
+                  lastDate: DateTime(2035),
+                  onChanged: (picked) => setState(() => _date = picked),
                 ),
               ),
             ],

@@ -96,7 +96,7 @@ VCompactSearchableDropdown:
   state: required
   semanticLabel: required
 
-VDatePickerField:
+VDatePicker:
   role: input
   tone: preferred
   emphasis: preferred

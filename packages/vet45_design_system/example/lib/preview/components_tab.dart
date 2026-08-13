@@ -22,7 +22,6 @@ class _ComponentsPreviewTabState extends State<ComponentsPreviewTab> {
   double _progressValue = 0.4;
   int _currentStepIndex = 1;
   int _navIndex = 0;
-  DateTime? _date;
   bool _centerTitle = false;
   int _segmentIndex = 0;
   int _orderLineQty = 1;
@@ -703,40 +702,6 @@ class _ComponentsPreviewTabState extends State<ComponentsPreviewTab> {
                     onTap: () {},
                   ),
                 ),
-            ],
-          ),
-        ),
-        PreviewSection(
-          title: 'VDatePickerField',
-          child: Column(
-            children: [
-              PreviewStateRow(
-                label: 'Empty',
-                child: VDatePickerField(
-                  value: null,
-                  label: 'Invoice date',
-                  required: true,
-                  onTap: () {},
-                ),
-              ),
-              PreviewStateRow(
-                label: 'Filled',
-                child: VDatePickerField(
-                  value: _date ?? DateTime(2026, 6, 3),
-                  label: 'Invoice date',
-                  onTap: () async {
-                    final picked = await showDatePicker(
-                      context: context,
-                      initialDate: _date ?? DateTime.now(),
-                      firstDate: DateTime(2020),
-                      lastDate: DateTime(2035),
-                    );
-                    if (picked != null && mounted) {
-                      setState(() => _date = picked);
-                    }
-                  },
-                ),
-              ),
             ],
           ),
         ),

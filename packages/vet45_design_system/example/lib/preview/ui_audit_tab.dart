@@ -48,7 +48,6 @@ class UIAuditTab extends StatelessWidget {
     'VSegmentedControl',
     'VSwipeActionRecord',
     'VNumericKeypadSheet',
-    'VDatePickerField',
     'VBottomNavigationBar',
     'VConfirmDialog',
     'VBottomSheet',
@@ -70,6 +69,7 @@ class UIAuditTab extends StatelessWidget {
     'VNumberField',
     'VSelect',
     'VChoiceList',
+    'VDatePicker',
   };
 
   @override
@@ -161,7 +161,7 @@ class UIAuditTab extends StatelessWidget {
         const SizedBox(height: VSpacing.space3),
         PreviewSectionNote(
           text:
-              'Forms covered in example: ${_exampleCoverage.where((n) => n.contains('Field') || n == 'VSelect' || n == 'VChoiceList').join(', ')}',
+              'Forms covered in example: ${_exampleCoverage.where((n) => n.contains('Field') || n == 'VSelect' || n == 'VChoiceList' || n == 'VDatePicker').join(', ')}',
         ),
       ],
     );
