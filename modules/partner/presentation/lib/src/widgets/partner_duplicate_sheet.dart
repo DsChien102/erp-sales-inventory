@@ -94,7 +94,7 @@ class PartnerDuplicateSheet extends StatelessWidget {
               key: const Key('btn_back_from_duplicate'),
               label: 'Quay lại',
               fullWidth: true,
-              variant: VButtonVariant.outline,
+              variant: VButtonVariant.secondary,
               onPressed: onBack,
             ),
           ] else ...[
@@ -109,7 +109,7 @@ class PartnerDuplicateSheet extends StatelessWidget {
               key: const Key('btn_view_duplicate_detail'),
               label: 'Xem chi tiết',
               fullWidth: true,
-              variant: VButtonVariant.outline,
+              variant: VButtonVariant.secondary,
               onPressed: onOpenExisting,
             ),
           ],

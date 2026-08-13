@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
-// contract: na tone/emphasis/state
-import '../tokens/v_spacing.dart';
-import '../tokens/v_typography.dart';
-import '../foundation/v_context_extensions.dart';
+import 'package:vet45_design_system/design_system.dart';
 
-class VHomeHeader extends StatelessWidget {
+/// Dashboard greeting / branch / notification chrome (feature-specific).
+class HomeHeader extends StatelessWidget {
   final String userName;
   final String branchName;
   final bool hasNotification;
@@ -12,7 +10,7 @@ class VHomeHeader extends StatelessWidget {
   final VoidCallback? onNotificationTap;
   final Widget? searchBar;
 
-  const VHomeHeader({
+  const HomeHeader({
     super.key,
     this.userName = 'Lan',
     this.branchName = 'Thú y Minh Phát · CN Biên Hoà',

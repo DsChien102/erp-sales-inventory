@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:vet45_design_system/src/patterns/v_gap.dart';
 
 import '../foundation/v_context_extensions.dart';
 import '../foundation/v_component_contracts.dart';
@@ -28,12 +29,13 @@ class VRadio<T> extends StatelessWidget {
   Widget build(BuildContext context) {
     final dynamicColors = context.vColors;
     final registry = RadioGroup.maybeOf<T>(context);
-    final resolvedState = state ??
+    final resolvedState =
+        state ??
         (!enabled
             ? VComponentState.disabled
             : (onChanged != null || registry != null
-                ? VComponentState.enabled
-                : VComponentState.disabled));
+                  ? VComponentState.enabled
+                  : VComponentState.disabled));
     final isEnabled = resolvedState == VComponentState.enabled;
 
     final activeColor = switch (tone) {
@@ -70,6 +72,8 @@ class VRadio<T> extends StatelessWidget {
 
     if (label != null) {
       return InkWell(
+        splashColor: Colors.transparent,
+        highlightColor: Colors.transparent,
         onTap: isEnabled && (onChanged != null || registry != null) ? select : null,
         borderRadius: BorderRadius.circular(4),
         child: Padding(
@@ -78,14 +82,12 @@ class VRadio<T> extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               radio,
-              const SizedBox(width: 8),
+              const VGap.sm(),
               Flexible(
                 child: Text(
                   label!,
                   style: VTypography.bodyDefault.copyWith(
-                    color: isEnabled
-                        ? dynamicColors.textPrimary
-                        : dynamicColors.textMuted,
+                    color: isEnabled ? dynamicColors.textPrimary : dynamicColors.textMuted,
                   ),
                 ),
               ),

@@ -149,6 +149,8 @@ class VChip extends StatelessWidget {
       child: Material(
         color: Colors.transparent,
         child: InkWell(
+          splashColor: Colors.transparent,
+          highlightColor: Colors.transparent,
           onTap: _isEnabled && onTap != null ? onTap : null,
           borderRadius: BorderRadius.circular(VRadius.r16),
           child: chipBody,

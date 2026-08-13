@@ -125,7 +125,7 @@ class PlatformOnboardingStepOrganization extends StatelessWidget {
               children: [
                 _SearchDropdownField(
                   label: 'Tỉnh / thành phố',
-                  child: VCompactSearchableDropdown<String>(
+                  child: VCombobox<String>(
                     value: provinceValue,
                     hintText: hasError
                         ? 'Không tải được tỉnh / thành phố'
@@ -147,7 +147,7 @@ class PlatformOnboardingStepOrganization extends StatelessWidget {
                 const VGap.sm(),
                 _SearchDropdownField(
                   label: 'Xã / phường',
-                  child: VCompactSearchableDropdown<String>(
+                  child: VCombobox<String>(
                     value: wardValue,
                     hintText: province == null ? 'Chọn tỉnh / thành phố trước' : 'Chọn xã / phường',
                     enabled: !isLoading && !hasError && province != null,

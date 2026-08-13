@@ -83,7 +83,7 @@ class PartnerTransformBlockedState extends StatelessWidget {
               ),
               label: isNoPermission ? 'Quay lại' : 'Tải lại',
               onPressed: onActionPressed,
-              variant: VButtonVariant.outline,
+              variant: VButtonVariant.secondary,
               foregroundColor: colors.success,
               size: VButtonSize.medium,
             ),

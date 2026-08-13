@@ -82,7 +82,7 @@ void main() {
     final button = tester.widget<VButton>(
       find.byKey(const Key('transform_blocked_back')),
     );
-    expect(button.variant, VButtonVariant.outline);
+    expect(button.variant, VButtonVariant.secondary);
     expect(button.foregroundColor, VColorScheme.light.success);
   });
 }

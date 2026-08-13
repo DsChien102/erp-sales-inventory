@@ -120,7 +120,7 @@ class _ActivateTenantSheetBodyState extends State<_ActivateTenantSheetBody> {
           const VGap.lg(),
           VButton(
             label: 'Để sau',
-            variant: VButtonVariant.outline,
+            variant: VButtonVariant.secondary,
             tone: VComponentTone.neutral,
             fullWidth: true,
             onPressed: _submitting ? null : () => Navigator.of(context).pop(false),

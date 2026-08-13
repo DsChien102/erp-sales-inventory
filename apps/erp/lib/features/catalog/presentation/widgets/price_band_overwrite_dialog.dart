@@ -98,7 +98,7 @@ class PriceBandOverwriteBottomSheet extends StatelessWidget {
                     key: const Key('btn_price_band_overwrite_cancel'),
                     label: 'Hủy',
                     onPressed: () => Navigator.of(context).pop(false),
-                    variant: VButtonVariant.outline,
+                    variant: VButtonVariant.secondary,
                   ),
                 ),
                 const SizedBox(width: VSpacing.space4),

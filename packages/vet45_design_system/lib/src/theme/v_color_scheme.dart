@@ -14,10 +14,12 @@ class VColorScheme extends ThemeExtension<VColorScheme> {
   final Color textSecondary;
   final Color textMuted;
   final Color textBrand;
+  final Color textInverse;
   final Color primary;
   final Color primaryHover;
   final Color primaryPressed;
   final Color primaryFocus;
+  final Color primaryDisabled;
   final Color surfaceHover;
   final Color surfacePressed;
   final Color focusRing;
@@ -31,12 +33,22 @@ class VColorScheme extends ThemeExtension<VColorScheme> {
   // Semantic and status colors
   final Color success;
   final Color successBg;
+  final Color successBgPressed;
   final Color warning;
+  final Color warningHover;
+  final Color warningPressed;
   final Color warningBg;
+  final Color warningBgPressed;
   final Color danger;
+  final Color dangerHover;
+  final Color dangerPressed;
   final Color dangerBg;
+  final Color dangerBgPressed;
   final Color info;
+  final Color infoHover;
+  final Color infoPressed;
   final Color infoBg;
+  final Color infoBgPressed;
 
   const VColorScheme({
     required this.background,
@@ -49,10 +61,12 @@ class VColorScheme extends ThemeExtension<VColorScheme> {
     required this.textSecondary,
     required this.textMuted,
     required this.textBrand,
+    required this.textInverse,
     required this.primary,
     required this.primaryHover,
     required this.primaryPressed,
     required this.primaryFocus,
+    required this.primaryDisabled,
     required this.surfaceHover,
     required this.surfacePressed,
     required this.focusRing,
@@ -62,12 +76,22 @@ class VColorScheme extends ThemeExtension<VColorScheme> {
     required this.toastSurface,
     required this.success,
     required this.successBg,
+    required this.successBgPressed,
     required this.warning,
+    required this.warningHover,
+    required this.warningPressed,
     required this.warningBg,
+    required this.warningBgPressed,
     required this.danger,
+    required this.dangerHover,
+    required this.dangerPressed,
     required this.dangerBg,
+    required this.dangerBgPressed,
     required this.info,
+    required this.infoHover,
+    required this.infoPressed,
     required this.infoBg,
+    required this.infoBgPressed,
   });
 
   // Light theme color scheme mapping
@@ -82,10 +106,12 @@ class VColorScheme extends ThemeExtension<VColorScheme> {
     textSecondary: VColors.neutral500,
     textMuted: VColors.neutral400,
     textBrand: VColors.primary700,
+    textInverse: VColors.neutral0,
     primary: VColors.primary500,
     primaryHover: VColors.primary600,
-    primaryPressed: VColors.primary600,
+    primaryPressed: VColors.primary700,
     primaryFocus: VColors.primary500,
+    primaryDisabled: VColors.neutral200,
     surfaceHover: VColors.neutral50,
     surfacePressed: VColors.neutral100,
     focusRing: VColors.primary200,
@@ -93,14 +119,24 @@ class VColorScheme extends ThemeExtension<VColorScheme> {
     disabledBorder: VColors.neutral200,
     disabledFg: VColors.neutral400,
     toastSurface: VColors.neutral900,
-    success: VColors.success,
-    successBg: VColors.successBg,
-    warning: VColors.warning,
-    warningBg: VColors.warningBg,
-    danger: VColors.danger,
-    dangerBg: VColors.dangerBg,
-    info: VColors.info,
-    infoBg: VColors.infoBg,
+    success: VColors.primary500,
+    successBg: VColors.primary50,
+    successBgPressed: VColors.primary100,
+    warning: VColors.yellow500,
+    warningHover: VColors.yellow600,
+    warningPressed: VColors.yellow700,
+    warningBg: VColors.yellow50,
+    warningBgPressed: VColors.yellow100,
+    danger: VColors.red500,
+    dangerHover: VColors.red600,
+    dangerPressed: VColors.red700,
+    dangerBg: VColors.red50,
+    dangerBgPressed: VColors.red100,
+    info: VColors.blue500,
+    infoHover: VColors.blue600,
+    infoPressed: VColors.blue700,
+    infoBg: VColors.blue50,
+    infoBgPressed: VColors.blue100,
   );
 
   // Dark theme color scheme mapping
@@ -115,10 +151,12 @@ class VColorScheme extends ThemeExtension<VColorScheme> {
     textSecondary: VColors.neutral300,
     textMuted: VColors.neutral400,
     textBrand: VColors.primary300,
+    textInverse: VColors.primary900,
     primary: VColors.primary400,
     primaryHover: VColors.primary300,
     primaryPressed: VColors.primary300,
     primaryFocus: VColors.primary400,
+    primaryDisabled: VColors.primary800,
     surfaceHover: VColors.neutral600,
     surfacePressed: VColors.neutral500,
     focusRing: VColors.primary700,
@@ -126,14 +164,24 @@ class VColorScheme extends ThemeExtension<VColorScheme> {
     disabledBorder: VColors.neutral600,
     disabledFg: VColors.neutral500,
     toastSurface: VColors.neutral0,
-    success: VColors.success,
+    success: VColors.primary500,
     successBg: VColors.neutral700,
-    warning: VColors.warning,
+    successBgPressed: VColors.neutral600,
+    warning: VColors.yellow500,
+    warningHover: VColors.yellow400,
+    warningPressed: VColors.yellow300,
     warningBg: VColors.neutral700,
-    danger: VColors.danger,
+    warningBgPressed: VColors.neutral600,
+    danger: VColors.red500,
+    dangerHover: VColors.red400,
+    dangerPressed: VColors.red300,
     dangerBg: VColors.neutral700,
-    info: VColors.info,
+    dangerBgPressed: VColors.neutral600,
+    info: VColors.blue500,
+    infoHover: VColors.blue400,
+    infoPressed: VColors.blue300,
     infoBg: VColors.neutral700,
+    infoBgPressed: VColors.neutral600,
   );
 
   @override
@@ -148,10 +196,12 @@ class VColorScheme extends ThemeExtension<VColorScheme> {
     Color? textSecondary,
     Color? textMuted,
     Color? textBrand,
+    Color? textInverse,
     Color? primary,
     Color? primaryHover,
     Color? primaryPressed,
     Color? primaryFocus,
+    Color? primaryDisabled,
     Color? surfaceHover,
     Color? surfacePressed,
     Color? focusRing,
@@ -161,12 +211,22 @@ class VColorScheme extends ThemeExtension<VColorScheme> {
     Color? toastSurface,
     Color? success,
     Color? successBg,
+    Color? successBgPressed,
     Color? warning,
+    Color? warningHover,
+    Color? warningPressed,
     Color? warningBg,
+    Color? warningBgPressed,
     Color? danger,
+    Color? dangerHover,
+    Color? dangerPressed,
     Color? dangerBg,
+    Color? dangerBgPressed,
     Color? info,
+    Color? infoHover,
+    Color? infoPressed,
     Color? infoBg,
+    Color? infoBgPressed,
   }) {
     return VColorScheme(
       background: background ?? this.background,
@@ -179,10 +239,12 @@ class VColorScheme extends ThemeExtension<VColorScheme> {
       textSecondary: textSecondary ?? this.textSecondary,
       textMuted: textMuted ?? this.textMuted,
       textBrand: textBrand ?? this.textBrand,
+      textInverse: textInverse ?? this.textInverse,
       primary: primary ?? this.primary,
       primaryHover: primaryHover ?? this.primaryHover,
       primaryPressed: primaryPressed ?? this.primaryPressed,
       primaryFocus: primaryFocus ?? this.primaryFocus,
+      primaryDisabled: primaryDisabled ?? this.primaryDisabled,
       surfaceHover: surfaceHover ?? this.surfaceHover,
       surfacePressed: surfacePressed ?? this.surfacePressed,
       focusRing: focusRing ?? this.focusRing,
@@ -192,12 +254,22 @@ class VColorScheme extends ThemeExtension<VColorScheme> {
       toastSurface: toastSurface ?? this.toastSurface,
       success: success ?? this.success,
       successBg: successBg ?? this.successBg,
+      successBgPressed: successBgPressed ?? this.successBgPressed,
       warning: warning ?? this.warning,
+      warningHover: warningHover ?? this.warningHover,
+      warningPressed: warningPressed ?? this.warningPressed,
       warningBg: warningBg ?? this.warningBg,
+      warningBgPressed: warningBgPressed ?? this.warningBgPressed,
       danger: danger ?? this.danger,
+      dangerHover: dangerHover ?? this.dangerHover,
+      dangerPressed: dangerPressed ?? this.dangerPressed,
       dangerBg: dangerBg ?? this.dangerBg,
+      dangerBgPressed: dangerBgPressed ?? this.dangerBgPressed,
       info: info ?? this.info,
+      infoHover: infoHover ?? this.infoHover,
+      infoPressed: infoPressed ?? this.infoPressed,
       infoBg: infoBg ?? this.infoBg,
+      infoBgPressed: infoBgPressed ?? this.infoBgPressed,
     );
   }
 
@@ -217,10 +289,12 @@ class VColorScheme extends ThemeExtension<VColorScheme> {
       textSecondary: Color.lerp(textSecondary, other.textSecondary, t)!,
       textMuted: Color.lerp(textMuted, other.textMuted, t)!,
       textBrand: Color.lerp(textBrand, other.textBrand, t)!,
+      textInverse: Color.lerp(textInverse, other.textInverse, t)!,
       primary: Color.lerp(primary, other.primary, t)!,
       primaryHover: Color.lerp(primaryHover, other.primaryHover, t)!,
       primaryPressed: Color.lerp(primaryPressed, other.primaryPressed, t)!,
       primaryFocus: Color.lerp(primaryFocus, other.primaryFocus, t)!,
+      primaryDisabled: Color.lerp(primaryDisabled, other.primaryDisabled, t)!,
       surfaceHover: Color.lerp(surfaceHover, other.surfaceHover, t)!,
       surfacePressed: Color.lerp(surfacePressed, other.surfacePressed, t)!,
       focusRing: Color.lerp(focusRing, other.focusRing, t)!,
@@ -230,12 +304,22 @@ class VColorScheme extends ThemeExtension<VColorScheme> {
       toastSurface: Color.lerp(toastSurface, other.toastSurface, t)!,
       success: Color.lerp(success, other.success, t)!,
       successBg: Color.lerp(successBg, other.successBg, t)!,
+      successBgPressed: Color.lerp(successBgPressed, other.successBgPressed, t)!,
       warning: Color.lerp(warning, other.warning, t)!,
+      warningHover: Color.lerp(warningHover, other.warningHover, t)!,
+      warningPressed: Color.lerp(warningPressed, other.warningPressed, t)!,
       warningBg: Color.lerp(warningBg, other.warningBg, t)!,
+      warningBgPressed: Color.lerp(warningBgPressed, other.warningBgPressed, t)!,
       danger: Color.lerp(danger, other.danger, t)!,
+      dangerHover: Color.lerp(dangerHover, other.dangerHover, t)!,
+      dangerPressed: Color.lerp(dangerPressed, other.dangerPressed, t)!,
       dangerBg: Color.lerp(dangerBg, other.dangerBg, t)!,
+      dangerBgPressed: Color.lerp(dangerBgPressed, other.dangerBgPressed, t)!,
       info: Color.lerp(info, other.info, t)!,
+      infoHover: Color.lerp(infoHover, other.infoHover, t)!,
+      infoPressed: Color.lerp(infoPressed, other.infoPressed, t)!,
       infoBg: Color.lerp(infoBg, other.infoBg, t)!,
+      infoBgPressed: Color.lerp(infoBgPressed, other.infoBgPressed, t)!,
     );
   }
 }

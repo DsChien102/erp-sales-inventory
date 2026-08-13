@@ -51,14 +51,12 @@ class _PartnerDeliverySectionState extends State<PartnerDeliverySection> {
             children: [
               _LabeledSearchDropdown(
                 label: 'Tỉnh / Thành phố',
-                child: VCompactSearchableDropdown<String>(
+                child: VCombobox<String>(
                   key: const Key('input_delivery_province'),
                   value: state.deliveryProvince.isEmpty
                       ? null
                       : state.deliveryProvince,
                   hintText: 'Nhập tỉnh / thành phố',
-                  stickyActionsReserve: 72,
-                  menuHeight: VOverlayMenuLayout.defaultMenuHeight,
                   items: units
                       .map(
                         (province) => DropdownMenuEntry<String>(
@@ -215,7 +213,7 @@ class _DeliverySectionLoading extends StatelessWidget {
             _LabeledSearchDropdown(
               label: label,
               child: SizedBox(
-                height: VCompactSearchableDropdown.controlHeight,
+                height: VCombobox.controlHeight,
                 child: DecoratedBox(
                   decoration: BoxDecoration(
                     color: context.vColors.surfaceAlt,

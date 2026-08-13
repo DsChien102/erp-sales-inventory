@@ -340,7 +340,7 @@ class _PlatformOnboardingStepOwnerState extends State<PlatformOnboardingStepOwne
           if (!_isSearching && widget.allowNewOwnerCreation)
             VButton(
               label: 'Tạo mới',
-              variant: VButtonVariant.outline,
+              variant: VButtonVariant.secondary,
               fullWidth: true,
               onPressed: () => widget.onToggleNewOwner(true),
             )

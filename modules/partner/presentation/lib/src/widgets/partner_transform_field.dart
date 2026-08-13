@@ -128,7 +128,7 @@ class PartnerTransformLabeledDropdown<T> extends StatelessWidget {
           isRequired: isRequired,
         ),
         const VGap.sm(),
-        VDropdown<T>(
+        VSelect<T>(
           value: value,
           items: items,
           hintText: hintText ?? 'Chọn...',

@@ -84,6 +84,8 @@ class _Key extends StatelessWidget {
       color: colors.surface,
       borderRadius: BorderRadius.circular(VRadius.card),
       child: InkWell(
+        splashColor: Colors.transparent,
+        highlightColor: Colors.transparent,
         onTap: onTap,
         borderRadius: BorderRadius.circular(VRadius.card),
         child: Container(

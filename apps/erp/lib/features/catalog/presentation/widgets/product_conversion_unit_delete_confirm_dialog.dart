@@ -51,7 +51,7 @@ class ProductConversionUnitDeleteConfirmDialog extends StatelessWidget {
                   child: VButton(
                     label: 'Huỷ',
                     onPressed: () => Navigator.of(context).pop(),
-                    variant: VButtonVariant.outline,
+                    variant: VButtonVariant.secondary,
                   ),
                 ),
                 const SizedBox(width: VSpacing.space4),
@@ -63,7 +63,8 @@ class ProductConversionUnitDeleteConfirmDialog extends StatelessWidget {
                       Navigator.of(context).pop();
                       onConfirm();
                     },
-                    variant: VButtonVariant.danger,
+                    variant: VButtonVariant.primary,
+                    tone: VComponentTone.danger,
                   ),
                 ),
               ],

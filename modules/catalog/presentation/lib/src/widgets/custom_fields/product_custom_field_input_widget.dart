@@ -153,26 +153,20 @@ class _ProductCustomFieldInputWidgetState extends State<ProductCustomFieldInputW
             : null,
       );
     } else if (widget.field.fieldType == CustomFieldType.date.name) {
-      return VDatePickerField(
+      return VDatePicker(
         label: widget.field.name,
         required: widget.field.isRequired,
         value: widget.input.dateValue,
-        onTap: () async {
-          if (!widget.field.isActive) return;
-          final date = await showDatePicker(
-            context: context,
-            initialDate: widget.input.dateValue ?? DateTime.now(),
-            firstDate: DateTime(2000),
-            lastDate: DateTime(2100),
+        enabled: widget.field.isActive,
+        firstDate: DateTime(2000),
+        lastDate: DateTime(2100),
+        onChanged: (date) {
+          widget.onChanged(
+            ProductCustomFieldValueInput(
+              fieldId: widget.field.fieldId,
+              dateValue: date,
+            ),
           );
-          if (date != null) {
-            widget.onChanged(
-              ProductCustomFieldValueInput(
-                fieldId: widget.field.fieldId,
-                dateValue: date,
-              ),
-            );
-          }
         },
       );
     } else {

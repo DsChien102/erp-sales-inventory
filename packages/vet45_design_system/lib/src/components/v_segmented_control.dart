@@ -119,6 +119,8 @@ class _Segment extends StatelessWidget {
         color: selected ? selectedBg : colors.surface,
         borderRadius: BorderRadius.circular(VRadius.r8),
         child: InkWell(
+          splashColor: Colors.transparent,
+          highlightColor: Colors.transparent,
           onTap: enabled ? onTap : null,
           borderRadius: BorderRadius.circular(VRadius.r8),
           child: Container(

@@ -79,7 +79,7 @@ class ResetPasswordVerifyCodeStep extends StatelessWidget {
           label: secondsRemaining > 0
               ? 'Gửi lại mã sau 00:${secondsRemaining.toString().padLeft(2, '0')}'
               : 'Gửi lại mã',
-          variant: VButtonVariant.outline,
+          variant: VButtonVariant.secondary,
           fullWidth: true,
           onPressed: secondsRemaining == 0 ? onResend : null,
         ),

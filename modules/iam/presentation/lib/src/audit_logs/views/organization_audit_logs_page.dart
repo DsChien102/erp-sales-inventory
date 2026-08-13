@@ -214,7 +214,7 @@ class _AuditLogsViewState extends State<_AuditLogsView> {
                   ? const VLoading(size: 28)
                   : VButton(
                       label: 'Tải thêm',
-                      variant: VButtonVariant.outline,
+                      variant: VButtonVariant.secondary,
                       onPressed: () =>
                           context.read<TenantAuditLogsCubit>().loadNextPage(),
                     ),

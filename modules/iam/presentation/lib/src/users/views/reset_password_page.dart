@@ -473,7 +473,7 @@ class _PasswordBottomBar extends StatelessWidget {
             Expanded(
               child: VButton(
                 label: 'Quay lại',
-                variant: VButtonVariant.outline,
+                variant: VButtonVariant.secondary,
                 fullWidth: true,
                 onPressed: isLoading ? null : onBack,
               ),

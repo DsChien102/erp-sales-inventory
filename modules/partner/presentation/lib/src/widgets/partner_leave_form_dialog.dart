@@ -43,7 +43,7 @@ class _PartnerLeaveFormSheet extends StatelessWidget {
                 Expanded(
                   child: VButton(
                     label: 'Ở lại chỉnh sửa',
-                    variant: VButtonVariant.outline,
+                    variant: VButtonVariant.secondary,
                     onPressed: () => Navigator.of(context).pop(),
                   ),
                 ),
@@ -51,7 +51,8 @@ class _PartnerLeaveFormSheet extends StatelessWidget {
                 Expanded(
                   child: VButton(
                     label: 'Rời khỏi',
-                    variant: VButtonVariant.danger,
+                    variant: VButtonVariant.primary,
+                    tone: VComponentTone.danger,
                     onPressed: () {
                       Navigator.of(context).pop();
                       onLeave();

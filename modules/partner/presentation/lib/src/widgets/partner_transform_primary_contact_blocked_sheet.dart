@@ -73,7 +73,7 @@ class PartnerTransformPrimaryContactBlockedSheet extends StatelessWidget {
                   child: VButton(
                     key: const Key('transform_blocked_close'),
                     label: 'Đóng',
-                    variant: VButtonVariant.outline,
+                    variant: VButtonVariant.secondary,
                     foregroundColor: colors.success,
                     onPressed: () => Navigator.of(context).pop(
                       PartnerTransformPrimaryContactBlockedAction.close,

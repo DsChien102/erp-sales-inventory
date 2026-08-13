@@ -141,7 +141,7 @@ class PartnerOperationFeedbackState extends StatelessWidget {
               key: Key(defaults.actionKey),
               label: resolvedAction,
               onPressed: onActionPressed,
-              variant: VButtonVariant.outline,
+              variant: VButtonVariant.secondary,
               foregroundColor: colors.success,
               size: VButtonSize.medium,
             ),

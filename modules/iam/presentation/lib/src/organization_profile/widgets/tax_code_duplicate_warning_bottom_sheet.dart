@@ -100,7 +100,7 @@ class TaxCodeDuplicateWarningBottomSheet extends StatelessWidget {
           const VGap.sm(),
           VButton(
             label: 'Kiểm tra lại',
-            variant: VButtonVariant.outline,
+            variant: VButtonVariant.secondary,
             fullWidth: true,
             onPressed: () {
               Navigator.of(context).pop();

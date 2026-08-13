@@ -198,7 +198,7 @@ class _InviteMemberViewState extends State<_InviteMemberView> {
                 Expanded(
                   child: VButton(
                     label: 'Hủy',
-                    variant: VButtonVariant.outline,
+                    variant: VButtonVariant.secondary,
                     fullWidth: true,
                     onPressed: state.isSubmitting
                         ? null
@@ -242,7 +242,7 @@ class _InviteMemberViewState extends State<_InviteMemberView> {
                       .emailChanged,
                 ),
                 const VGap.md(),
-                VDropdown<String>(
+                VSelect<String>(
                   label: 'Vai trò ban đầu',
                   hintText: 'Chọn vai trò',
                   value: state.selectedRoleId,

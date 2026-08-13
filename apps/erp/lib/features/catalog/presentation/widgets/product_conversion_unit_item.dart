@@ -151,7 +151,7 @@ class _ProductConversionUnitItemState extends State<ProductConversionUnitItem> {
                         child: VButton(
                           key: Key('btn_toggle_conversion_unit_${unit.id}'),
                           label: unit.isActive ? 'Tắt đơn vị' : 'Bật đơn vị',
-                          variant: VButtonVariant.outline,
+                          variant: VButtonVariant.secondary,
                           size: VButtonSize.small,
                           fullWidth: true,
                           onPressed: () {
@@ -185,7 +185,8 @@ class _ProductConversionUnitItemState extends State<ProductConversionUnitItem> {
                         child: VButton(
                           key: Key('btn_delete_conversion_unit_${unit.id}'),
                           label: 'Xoá',
-                          variant: VButtonVariant.danger,
+                          variant: VButtonVariant.primary,
+                          tone: VComponentTone.danger,
                           size: VButtonSize.small,
                           fullWidth: true,
                           onPressed: () {
@@ -205,7 +206,7 @@ class _ProductConversionUnitItemState extends State<ProductConversionUnitItem> {
                       const SizedBox(width: VSpacing.space2),
                       VButton(
                         label: 'Đóng',
-                        variant: VButtonVariant.ghost,
+                        variant: VButtonVariant.tertiary,
                         size: VButtonSize.small,
                         foregroundColor: dynamicColors.textSecondary,
                         onPressed: _collapse,

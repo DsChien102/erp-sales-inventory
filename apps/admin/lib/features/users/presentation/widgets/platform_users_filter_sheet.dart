@@ -81,7 +81,7 @@ Future<PlatformUsersFilterResult?> showPlatformUsersFilterSheet({
                   Expanded(
                     child: VButton(
                       label: 'Đặt lại',
-                      variant: VButtonVariant.outline,
+                      variant: VButtonVariant.secondary,
                       onPressed: () => setSheetState(() => temp = null),
                     ),
                   ),

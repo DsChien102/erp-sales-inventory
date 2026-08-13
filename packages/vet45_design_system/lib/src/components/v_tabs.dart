@@ -48,6 +48,8 @@ class VTabs extends StatelessWidget {
         enabled: !isDisabled,
         label: label,
         child: InkWell(
+          splashColor: Colors.transparent,
+          highlightColor: Colors.transparent,
           onTap: isDisabled ? null : () => onTabSelected(index),
           child: Container(
             padding: const EdgeInsets.symmetric(

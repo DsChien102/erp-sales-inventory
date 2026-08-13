@@ -128,25 +128,6 @@ class _PriceRuleFormBodyState extends State<PriceRuleFormBody> {
     }
   }
 
-  Future<void> _pickEffectiveFrom() async {
-    final form = widget.form;
-    final today = _calendarDate(DateTime.now());
-    final preferred = form.effectiveFrom == null
-        ? today
-        : _calendarDate(form.effectiveFrom!);
-    // Không cho chọn ngày đã qua — clamp initialDate ≥ firstDate.
-    final initialDate = preferred.isBefore(today) ? today : preferred;
-    final date = await showDatePicker(
-      context: context,
-      initialDate: initialDate,
-      firstDate: today,
-      lastDate: DateTime(2100),
-    );
-    if (date != null) {
-      widget.cubit.updateDates(effectiveFrom: _calendarDate(date));
-    }
-  }
-
   Future<void> _pickEffectiveTo() async {
     final form = widget.form;
     final action = await showVBottomSheet<String>(
@@ -305,14 +286,18 @@ class _PriceRuleFormBodyState extends State<PriceRuleFormBody> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                VDatePickerField(
+                VDatePicker(
                   label: 'Từ ngày',
                   value: form.effectiveFrom,
                   required: true,
-                  onTap: _pickEffectiveFrom,
+                  firstDate: _calendarDate(DateTime.now()),
+                  lastDate: DateTime(2100),
+                  onChanged: (date) {
+                    widget.cubit.updateDates(effectiveFrom: _calendarDate(date));
+                  },
                 ),
                 const VGap.md(),
-                VDatePickerField(
+                VDatePicker(
                   label: 'Đến ngày',
                   value: form.effectiveTo,
                   hintText: 'Không giới hạn',

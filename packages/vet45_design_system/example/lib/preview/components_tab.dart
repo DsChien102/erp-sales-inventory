@@ -16,16 +16,12 @@ class _ComponentsPreviewTabState extends State<ComponentsPreviewTab> {
   bool _checkbox = true;
   bool _switch = false;
   String? _radio = 'a';
-  String? _dropdownValue = 'r1';
-  String? _searchableValue = 'hcm';
-  String? _compactSearchableValue = 'hn';
   int _quantity = 2;
   int _tabIndex = 0;
   int _tabDisabledIndex = 0;
   double _progressValue = 0.4;
   int _currentStepIndex = 1;
   int _navIndex = 0;
-  DateTime? _date;
   bool _centerTitle = false;
   int _segmentIndex = 0;
   int _orderLineQty = 1;
@@ -257,7 +253,7 @@ class _ComponentsPreviewTabState extends State<ComponentsPreviewTab> {
                   subtitle: 'hoặc',
                   action: VButton(
                     label: 'Chọn file từ thiết bị',
-                    variant: VButtonVariant.outline,
+                    variant: VButtonVariant.secondary,
                     size: VButtonSize.small,
                     onPressed: () {},
                   ),
@@ -271,7 +267,7 @@ class _ComponentsPreviewTabState extends State<ComponentsPreviewTab> {
                   subtitle: 'Chỉ nhận file .xlsx',
                   action: VButton(
                     label: 'Chọn file từ thiết bị',
-                    variant: VButtonVariant.outline,
+                    variant: VButtonVariant.secondary,
                     size: VButtonSize.small,
                     onPressed: () {},
                   ),
@@ -285,7 +281,7 @@ class _ComponentsPreviewTabState extends State<ComponentsPreviewTab> {
                   subtitle: 'Chỉ nhận file .xlsx đúng mẫu',
                   action: VButton(
                     label: 'Chọn file từ thiết bị',
-                    variant: VButtonVariant.outline,
+                    variant: VButtonVariant.secondary,
                     size: VButtonSize.small,
                     onPressed: () {},
                   ),
@@ -314,8 +310,8 @@ class _ComponentsPreviewTabState extends State<ComponentsPreviewTab> {
         PreviewSection(
           title: 'VButton',
           description:
-              'Variants (incl. link: underline on hover/focus/press), '
-              'sizes, loading, disabled.',
+              'Variants: primary / secondary (bordered) / tertiary (ex-ghost) / link. '
+              'Semantic via tone (danger, warning). Link underlines on hover/focus/press.',
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -341,6 +337,31 @@ class _ComponentsPreviewTabState extends State<ComponentsPreviewTab> {
                         onPressed: () {},
                         isLoading: _loading,
                       ),
+                  ],
+                ),
+              ),
+              PreviewStateRow(
+                label: 'Tone × variant',
+                child: PreviewStateWrap(
+                  children: [
+                    for (final v in const [
+                      VButtonVariant.primary,
+                      VButtonVariant.secondary,
+                      VButtonVariant.tertiary,
+                    ]) ...[
+                      for (final t in const [
+                        VComponentTone.primary,
+                        VComponentTone.danger,
+                        VComponentTone.warning,
+                      ])
+                        VButton(
+                          label: '${v.name}/${t.name}',
+                          variant: v,
+                          tone: t,
+                          size: VButtonSize.small,
+                          onPressed: () {},
+                        ),
+                    ],
                   ],
                 ),
               ),
@@ -620,7 +641,7 @@ class _ComponentsPreviewTabState extends State<ComponentsPreviewTab> {
                       const SizedBox(width: 8),
                       VButton(
                         label: 'Reset Form',
-                        variant: VButtonVariant.outline,
+                        variant: VButtonVariant.secondary,
                         onPressed: () {
                           _formKey.currentState?.reset();
                         },
@@ -630,116 +651,6 @@ class _ComponentsPreviewTabState extends State<ComponentsPreviewTab> {
                 ),
               ],
             ),
-          ),
-        ),
-        PreviewSection(
-          title: 'VDropdown',
-          child: Column(
-            children: [
-              PreviewStateRow(
-                label: 'Default',
-                child: VDropdown<String>(
-                  label: 'Reason',
-                  value: _dropdownValue,
-                  items: const [
-                    DropdownMenuItem(value: 'r1', child: Text('Defective')),
-                    DropdownMenuItem(value: 'r2', child: Text('Return')),
-                  ],
-                  onChanged: (v) => setState(() => _dropdownValue = v),
-                ),
-              ),
-              PreviewStateRow(
-                label: 'Disabled',
-                child: VDropdown<String>(
-                  label: 'Reason',
-                  value: 'r1',
-                  enabled: false,
-                  items: const [
-                    DropdownMenuItem(value: 'r1', child: Text('Defective')),
-                  ],
-                  onChanged: (_) {},
-                ),
-              ),
-            ],
-          ),
-        ),
-        PreviewSection(
-          title: 'VSearchableDropdown',
-          description: 'Direct component demo (not via VSelect).',
-          child: Column(
-            children: [
-              PreviewStateRow(
-                label: 'Default',
-                child: VSearchableDropdown<String>(
-                  label: 'Province',
-                  value: _searchableValue,
-                  hintText: 'Search…',
-                  items: const [
-                    DropdownMenuEntry(value: 'hcm', label: 'Hồ Chí Minh'),
-                    DropdownMenuEntry(value: 'hn', label: 'Hà Nội'),
-                    DropdownMenuEntry(value: 'dn', label: 'Đà Nẵng'),
-                  ],
-                  onChanged: (v) => setState(() => _searchableValue = v),
-                ),
-              ),
-              PreviewStateRow(
-                label: 'Disabled',
-                child: VSearchableDropdown<String>(
-                  label: 'Province',
-                  value: 'hcm',
-                  enabled: false,
-                  items: const [
-                    DropdownMenuEntry(value: 'hcm', label: 'Hồ Chí Minh'),
-                  ],
-                  onChanged: (_) {},
-                ),
-              ),
-            ],
-          ),
-        ),
-        PreviewSection(
-          title: 'VCompactSearchableDropdown',
-          description: 'Dense 40px searchable dropdown for ERP forms.',
-          child: Column(
-            children: [
-              PreviewStateRow(
-                label: 'Builtin trailing',
-                child: VCompactSearchableDropdown<String>(
-                  value: _compactSearchableValue,
-                  hintText: 'Chọn tỉnh / thành phố',
-                  items: const [
-                    DropdownMenuEntry(value: 'hcm', label: 'Hồ Chí Minh'),
-                    DropdownMenuEntry(value: 'hn', label: 'Hà Nội'),
-                    DropdownMenuEntry(value: 'dn', label: 'Đà Nẵng'),
-                  ],
-                  onChanged: (v) => setState(() => _compactSearchableValue = v),
-                ),
-              ),
-              PreviewStateRow(
-                label: 'External trailing',
-                child: VCompactSearchableDropdown<String>(
-                  value: 'hn',
-                  trailingMode: VCompactDropdownTrailingMode.external,
-                  items: const [
-                    DropdownMenuEntry(value: 'hn', label: 'Hà Nội'),
-                    DropdownMenuEntry(value: 'hcm', label: 'Hồ Chí Minh'),
-                  ],
-                  onChanged: (_) {},
-                ),
-              ),
-              PreviewStateRow(
-                label: 'Disabled',
-                child: VCompactSearchableDropdown<String>(
-                  value: null,
-                  enabled: false,
-                  hintText: 'Chọn tỉnh / thành phố trước',
-                  items: const [
-                    DropdownMenuEntry(value: 'hn', label: 'Hà Nội'),
-                  ],
-                  onChanged: (_) {},
-                ),
-              ),
-            ],
           ),
         ),
         PreviewSection(
@@ -816,40 +727,6 @@ class _ComponentsPreviewTabState extends State<ComponentsPreviewTab> {
                     onTap: () {},
                   ),
                 ),
-            ],
-          ),
-        ),
-        PreviewSection(
-          title: 'VDatePickerField',
-          child: Column(
-            children: [
-              PreviewStateRow(
-                label: 'Empty',
-                child: VDatePickerField(
-                  value: null,
-                  label: 'Invoice date',
-                  required: true,
-                  onTap: () {},
-                ),
-              ),
-              PreviewStateRow(
-                label: 'Filled',
-                child: VDatePickerField(
-                  value: _date ?? DateTime(2026, 6, 3),
-                  label: 'Invoice date',
-                  onTap: () async {
-                    final picked = await showDatePicker(
-                      context: context,
-                      initialDate: _date ?? DateTime.now(),
-                      firstDate: DateTime(2020),
-                      lastDate: DateTime(2035),
-                    );
-                    if (picked != null && mounted) {
-                      setState(() => _date = picked);
-                    }
-                  },
-                ),
-              ),
             ],
           ),
         ),
@@ -1135,7 +1012,7 @@ class _ComponentsPreviewTabState extends State<ComponentsPreviewTab> {
                           child: VButton(
                             label: 'Sửa',
                             size: VButtonSize.small,
-                            variant: VButtonVariant.outline,
+                            variant: VButtonVariant.secondary,
                             onPressed: () {},
                           ),
                         ),
@@ -1280,7 +1157,7 @@ class _ComponentsPreviewTabState extends State<ComponentsPreviewTab> {
                 VButton(
                   label: type.name,
                   size: VButtonSize.small,
-                  variant: VButtonVariant.outline,
+                  variant: VButtonVariant.secondary,
                   onPressed: () {
                     VToast.show(
                       context,
@@ -1387,34 +1264,6 @@ class _ComponentsPreviewTabState extends State<ComponentsPreviewTab> {
                     ),
                   ),
                 ),
-              ),
-            ],
-          ),
-        ),
-        PreviewSection(
-          title: 'VHomeHeader',
-          child: VHomeHeader(
-            userName: 'Lan',
-            branchName: 'CN Biên Hoà',
-            hasNotification: true,
-            onBranchTap: () {},
-            onNotificationTap: () {},
-            searchBar: VSearchBar(hintText: 'Search…', onTap: () {}),
-          ),
-        ),
-        PreviewSection(
-          title: 'VQuickActionButton',
-          child: PreviewStateWrap(
-            children: [
-              VQuickActionButton(
-                icon: const Icon(Icons.receipt_long),
-                label: 'Orders',
-                onTap: () {},
-              ),
-              VQuickActionButton(
-                icon: const Icon(Icons.people),
-                label: 'Customers',
-                onTap: () {},
               ),
             ],
           ),
@@ -1602,7 +1451,7 @@ class _ComponentsPreviewTabState extends State<ComponentsPreviewTab> {
           child: VSection(
             title: 'Thông tin chung',
             subtitle: 'Mã SKU, tên hiển thị',
-            trailing: VButton(label: 'Sửa', variant: VButtonVariant.ghost, onPressed: () {}),
+            trailing: VButton(label: 'Sửa', variant: VButtonVariant.tertiary, onPressed: () {}),
             child: VCard(
               child: VText('Section content', variant: VTextVariant.bodyDefault),
             ),

@@ -42,7 +42,7 @@ class PartnerContactsErrorBody extends StatelessWidget {
             const VGap.md(),
             VButton(
               label: 'Quay lại',
-              variant: VButtonVariant.outline,
+              variant: VButtonVariant.secondary,
               foregroundColor: colors.success,
               onPressed: () => context.pop(),
             ),

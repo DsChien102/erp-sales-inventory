@@ -59,6 +59,8 @@ class VChoiceListTile<T> extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             InkWell(
+              splashColor: Colors.transparent,
+              highlightColor: Colors.transparent,
               onTap: isInteractive ? () => onChanged(!isSelected) : null,
               borderRadius: BorderRadius.circular(VRadius.input),
               child: Padding(

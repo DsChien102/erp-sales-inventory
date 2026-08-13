@@ -355,7 +355,7 @@ class _PlatformOnboardingViewState extends State<_PlatformOnboardingView> {
                               Expanded(
                                 child: VButton(
                                   label: 'Quay lại',
-                                  variant: VButtonVariant.outline,
+                                  variant: VButtonVariant.secondary,
                                   onPressed: submitting ? null : _onBackPressed,
                                 ),
                               ),

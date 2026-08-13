@@ -98,7 +98,7 @@ class _CustomFieldFilterSheetState extends State<CustomFieldFilterSheet> {
                 child: VButton(
                   key: const Key('btn_filter_reset'),
                   label: 'Bỏ lọc',
-                  variant: VButtonVariant.outline,
+                  variant: VButtonVariant.secondary,
                   fullWidth: true,
                   onPressed: () {
                     setState(() {

@@ -91,6 +91,7 @@ Future<void> showPlatformUserConfirmSheet({
   required String description,
   required String actionLabel,
   required VButtonVariant actionVariant,
+  VComponentTone? actionTone,
   required Future<bool> Function(String reason) onConfirm,
   bool requireReason = false,
   String? localError,
@@ -103,6 +104,7 @@ Future<void> showPlatformUserConfirmSheet({
       description: description,
       actionLabel: actionLabel,
       actionVariant: actionVariant,
+      actionTone: actionTone,
       onConfirm: onConfirm,
       requireReason: requireReason,
     ),
@@ -116,6 +118,7 @@ class _PlatformUserConfirmSheetBody extends StatefulWidget {
     required this.description,
     required this.actionLabel,
     required this.actionVariant,
+    this.actionTone,
     required this.onConfirm,
     required this.requireReason,
   });
@@ -125,6 +128,7 @@ class _PlatformUserConfirmSheetBody extends StatefulWidget {
   final String description;
   final String actionLabel;
   final VButtonVariant actionVariant;
+  final VComponentTone? actionTone;
   final Future<bool> Function(String reason) onConfirm;
   final bool requireReason;
 
@@ -223,7 +227,7 @@ class _PlatformUserConfirmSheetBodyState
           const VGap.lg(),
           VButton(
             label: 'Quay lại',
-            variant: VButtonVariant.outline,
+            variant: VButtonVariant.secondary,
             fullWidth: true,
             onPressed: _submitting ? null : () => Navigator.pop(context),
           ),
@@ -231,6 +235,7 @@ class _PlatformUserConfirmSheetBodyState
           VButton(
             label: widget.actionLabel,
             variant: widget.actionVariant,
+            tone: widget.actionTone,
             fullWidth: true,
             isLoading: _submitting,
             onPressed: _submitting ? null : _submit,

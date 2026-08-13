@@ -221,7 +221,7 @@ class _EditProfileViewState extends State<_EditProfileView> {
                 Expanded(
                   child: VButton(
                     label: 'Hủy',
-                    variant: VButtonVariant.outline,
+                    variant: VButtonVariant.secondary,
                     fullWidth: true,
                     onPressed: state.isSubmittingProfile ? null : () => Navigator.of(context).pop(),
                   ),
@@ -324,10 +324,9 @@ class _EditProfileViewState extends State<_EditProfileView> {
                     children: [
                       _SearchDropdownField(
                         label: 'Tỉnh / thành phố',
-                        child: VCompactSearchableDropdown<String>(
+                        child: VCombobox<String>(
                           value: selectedProvince?.code,
                           hintText: 'Chọn tỉnh / thành phố',
-                          collapsedWhenUnfocused: false,
                           items: provinceItems,
                           onChanged: (code) {
                             setState(() {
@@ -340,12 +339,11 @@ class _EditProfileViewState extends State<_EditProfileView> {
                       const VGap.md(),
                       _SearchDropdownField(
                         label: 'Xã / phường',
-                        child: VCompactSearchableDropdown<String>(
+                        child: VCombobox<String>(
                           value: wardItems.any((i) => i.value == _selectedCommuneCode)
                               ? _selectedCommuneCode
                               : null,
                           hintText: 'Chọn xã / phường',
-                          collapsedWhenUnfocused: false,
                           items: wardItems,
                           onChanged: (code) {
                             setState(() => _selectedCommuneCode = code);

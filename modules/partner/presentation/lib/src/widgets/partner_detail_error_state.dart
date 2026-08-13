@@ -136,7 +136,7 @@ class PartnerDetailErrorState extends StatelessWidget {
             child: VButton(
               label: actionLabel,
               onPressed: onActionPressed,
-              variant: VButtonVariant.outline,
+              variant: VButtonVariant.secondary,
               foregroundColor: colors.success,
               size: VButtonSize.medium,
             ),

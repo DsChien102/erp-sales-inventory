@@ -134,7 +134,7 @@ class ProductDeleteConfirmDialog extends StatelessWidget {
               VButton(
                 label: 'Đóng',
                 onPressed: () => Navigator.of(context).pop(),
-                variant: VButtonVariant.outline,
+                variant: VButtonVariant.secondary,
               ),
             ],
           ),
@@ -210,7 +210,7 @@ class ProductDeleteConfirmDialog extends StatelessWidget {
                   child: VButton(
                     label: 'Huỷ',
                     onPressed: () => Navigator.of(context).pop(),
-                    variant: VButtonVariant.outline,
+                    variant: VButtonVariant.secondary,
                   ),
                 ),
                 const SizedBox(width: VSpacing.space4),
@@ -223,7 +223,8 @@ class ProductDeleteConfirmDialog extends StatelessWidget {
                         confirmAcknowledgeWarnings: hasWarnings,
                       );
                     },
-                    variant: VButtonVariant.danger,
+                    variant: VButtonVariant.primary,
+                    tone: VComponentTone.danger,
                   ),
                 ),
               ],

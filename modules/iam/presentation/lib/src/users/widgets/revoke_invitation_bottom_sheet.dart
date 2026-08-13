@@ -104,14 +104,15 @@ class _RevokeInvitationSheetBodyState extends State<_RevokeInvitationSheetBody> 
           const VGap.lg(),
           VButton(
             label: 'Quay lại',
-            variant: VButtonVariant.outline,
+            variant: VButtonVariant.secondary,
             fullWidth: true,
             onPressed: _submitting ? null : () => Navigator.of(context).pop(),
           ),
           const VGap.sm(),
           VButton(
             label: 'Thu hồi lời mời',
-            variant: VButtonVariant.dangerOutline,
+            variant: VButtonVariant.secondary,
+            tone: VComponentTone.danger,
             fullWidth: true,
             isLoading: _submitting,
             onPressed: _submitting ? null : _confirm,

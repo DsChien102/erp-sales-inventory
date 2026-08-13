@@ -231,7 +231,7 @@ class PriceRuleActivityDetailSheet extends StatelessWidget {
                       ),
                       VButton(
                         label: 'Xem chứng từ',
-                        variant: VButtonVariant.outline,
+                        variant: VButtonVariant.secondary,
                         onPressed: () {
                           PriceRuleSourceOrderDetailSheet.show(
                             context: context,

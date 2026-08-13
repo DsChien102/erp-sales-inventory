@@ -166,6 +166,8 @@ class VFileDropZone extends StatelessWidget {
         color: Colors.transparent,
         child: _isInteractive
             ? InkWell(
+                splashColor: Colors.transparent,
+                highlightColor: Colors.transparent,
                 onTap: onTap,
                 borderRadius: radius,
                 child: content,

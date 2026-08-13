@@ -13,8 +13,7 @@ class MemberFilterCriteria {
     this.sort = 'Tất cả',
   });
 
-  bool get isFilterActive =>
-      status != 'Tất cả' || role != 'Tất cả' || sort != 'Tất cả';
+  bool get isFilterActive => status != 'Tất cả' || role != 'Tất cả' || sort != 'Tất cả';
 
   MemberFilterCriteria copyWith({
     String? status,
@@ -53,8 +52,7 @@ class MemberFilterBottomSheet extends StatefulWidget {
   });
 
   @override
-  State<MemberFilterBottomSheet> createState() =>
-      _MemberFilterBottomSheetState();
+  State<MemberFilterBottomSheet> createState() => _MemberFilterBottomSheetState();
 }
 
 class _MemberFilterBottomSheetState extends State<MemberFilterBottomSheet> {
@@ -193,7 +191,7 @@ class _MemberFilterBottomSheetState extends State<MemberFilterBottomSheet> {
               Expanded(
                 child: VButton(
                   label: 'Đặt lại',
-                  variant: VButtonVariant.outline,
+                  variant: VButtonVariant.secondary,
                   fullWidth: true,
                   onPressed: _resetFilter,
                 ),
@@ -261,10 +259,10 @@ class _SelectableFilterChip extends StatelessWidget {
           vertical: VSpacing.space2,
         ),
         decoration: BoxDecoration(
-          color: isSelected ? VColors.successBg : colors.surface,
+          color: isSelected ? colors.successBg : colors.surface,
           borderRadius: BorderRadius.circular(VRadius.pill),
           border: Border.all(
-            color: isSelected ? VColors.success : colors.borderDefault,
+            color: isSelected ? colors.success : colors.borderDefault,
             width: 1.0,
           ),
         ),
@@ -272,7 +270,7 @@ class _SelectableFilterChip extends StatelessWidget {
           label,
           variant: VTextVariant.bodySmall,
           style: TextStyle(
-            color: isSelected ? VColors.success : colors.textPrimary,
+            color: isSelected ? colors.success : colors.textPrimary,
             fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
           ),
         ),

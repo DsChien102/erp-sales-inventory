@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:vet45_design_system/design_system.dart';
 
 /// Dense single-line field for [PartnerFormFieldRow] — wraps [VTextField]
-/// with [VCompactSearchableDropdown] control metrics.
+/// with [VCombobox] control metrics.
 class PartnerCompactTextField extends StatefulWidget {
   const PartnerCompactTextField({
     super.key,
@@ -55,7 +55,7 @@ class _PartnerCompactTextFieldState extends State<PartnerCompactTextField> {
   Widget build(BuildContext context) {
     final colors = context.vColors;
     return SizedBox(
-      height: VCompactSearchableDropdown.controlHeight,
+      height: VCombobox.controlHeight,
       width: double.infinity,
       child: VTextField(
         controller: _controller,
@@ -187,7 +187,7 @@ class PartnerCompactDropdown<T> extends StatelessWidget {
     // Constrain outside MenuAnchor so the row centers the 40px control
     // against the label (MenuAnchor alone can report a taller intrinsic size).
     return SizedBox(
-      height: VCompactSearchableDropdown.controlHeight,
+      height: VCombobox.controlHeight,
       width: double.infinity,
       child: LayoutBuilder(
         builder: (context, constraints) {
@@ -217,9 +217,9 @@ class PartnerCompactDropdown<T> extends StatelessWidget {
                     style: MenuItemButton.styleFrom(
                       minimumSize: Size(
                         constraints.maxWidth,
-                        VCompactSearchableDropdown.controlHeight,
+                        VCombobox.controlHeight,
                       ),
-                      padding: VCompactSearchableDropdown.contentPadding,
+                      padding: VCombobox.contentPadding,
                     ),
                     onPressed: enabled ? () => onChanged?.call(item.value) : null,
                     child: DefaultTextStyle(
@@ -257,7 +257,7 @@ class PartnerCompactDropdown<T> extends StatelessWidget {
                       ),
                     ),
                     child: Padding(
-                      padding: VCompactSearchableDropdown.contentPadding,
+                      padding: VCombobox.contentPadding,
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
@@ -287,6 +287,3 @@ class PartnerCompactDropdown<T> extends StatelessWidget {
     );
   }
 }
-
-/// Thin alias — prefer [VCompactSearchableDropdown] directly in new code.
-typedef PartnerCompactSearchableDropdown<T> = VCompactSearchableDropdown<T>;

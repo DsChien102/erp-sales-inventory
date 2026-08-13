@@ -71,7 +71,7 @@ class ProductImageAddSheet extends StatelessWidget {
               const SizedBox(height: VSpacing.space6),
               VButton(
                 label: 'Hủy',
-                variant: VButtonVariant.outline,
+                variant: VButtonVariant.secondary,
                 onPressed: () => Navigator.of(context).pop(),
               ),
             ],

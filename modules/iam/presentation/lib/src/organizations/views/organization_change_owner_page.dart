@@ -185,7 +185,7 @@ class _OrganizationChangeOwnerPageState extends State<OrganizationChangeOwnerPag
               Expanded(
                 child: VButton(
                   label: 'Hủy',
-                  variant: VButtonVariant.outline,
+                  variant: VButtonVariant.secondary,
                   fullWidth: true,
                   onPressed: () => Navigator.of(context).pop(),
                 ),

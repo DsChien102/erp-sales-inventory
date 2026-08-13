@@ -31,6 +31,7 @@ class _FormsPreviewTabState extends State<FormsPreviewTab> {
   String? _selectValue;
   String? _requiredSelect;
   String? _searchableSelect;
+  DateTime? _date;
   List<String> _companySelected = const ['hidden'];
   List<String> _notifSelected = const ['email'];
   List<String> _requiredChoice = const [];
@@ -115,7 +116,7 @@ class _FormsPreviewTabState extends State<FormsPreviewTab> {
                     const SizedBox(height: VSpacing.space2),
                     VButton(
                       label: 'Set external error',
-                      variant: VButtonVariant.outline,
+                      variant: VButtonVariant.secondary,
                       size: VButtonSize.small,
                       onPressed: () {
                         setState(() {
@@ -199,7 +200,7 @@ class _FormsPreviewTabState extends State<FormsPreviewTab> {
                     const SizedBox(height: VSpacing.space2),
                     VButton(
                       label: 'Set external error',
-                      variant: VButtonVariant.outline,
+                      variant: VButtonVariant.secondary,
                       size: VButtonSize.small,
                       onPressed: () {
                         setState(() {
@@ -252,7 +253,7 @@ class _FormsPreviewTabState extends State<FormsPreviewTab> {
                     const SizedBox(height: VSpacing.space2),
                     VButton(
                       label: 'Set external error',
-                      variant: VButtonVariant.outline,
+                      variant: VButtonVariant.secondary,
                       size: VButtonSize.small,
                       onPressed: () {
                         setState(() {
@@ -339,6 +340,32 @@ class _FormsPreviewTabState extends State<FormsPreviewTab> {
           ),
         ),
         PreviewSection(
+          title: 'VDatePicker',
+          child: Column(
+            children: [
+              PreviewStateRow(
+                label: 'Empty',
+                child: VDatePicker(
+                  value: null,
+                  label: 'Invoice date',
+                  required: true,
+                  onChanged: (picked) => setState(() => _date = picked),
+                ),
+              ),
+              PreviewStateRow(
+                label: 'Filled',
+                child: VDatePicker(
+                  value: _date ?? DateTime(2026, 6, 3),
+                  label: 'Invoice date',
+                  firstDate: DateTime(2020),
+                  lastDate: DateTime(2035),
+                  onChanged: (picked) => setState(() => _date = picked),
+                ),
+              ),
+            ],
+          ),
+        ),
+        PreviewSection(
           title: 'VSelect',
           child: Column(
             children: [
@@ -367,18 +394,38 @@ class _FormsPreviewTabState extends State<FormsPreviewTab> {
                   onChanged: (v) => setState(() => _requiredSelect = v),
                 ),
               ),
+            ],
+          ),
+        ),
+        PreviewSection(
+          title: 'VCombobox',
+          description: 'Searchable single-select; input chrome matches VTextField.',
+          child: Column(
+            children: [
               PreviewStateRow(
                 label: 'Searchable',
-                child: VSelect<String>(
+                child: VCombobox<String>(
                   label: 'Tỉnh/Thành',
                   value: _searchableSelect,
-                  searchable: true,
+                  hintText: 'Tìm tỉnh/thành...',
                   items: const [
-                    DropdownMenuItem(value: 'hcm', child: Text('Hồ Chí Minh')),
-                    DropdownMenuItem(value: 'hn', child: Text('Hà Nội')),
-                    DropdownMenuItem(value: 'dn', child: Text('Đà Nẵng')),
+                    DropdownMenuEntry(value: 'hcm', label: 'Hồ Chí Minh'),
+                    DropdownMenuEntry(value: 'hn', label: 'Hà Nội'),
+                    DropdownMenuEntry(value: 'dn', label: 'Đà Nẵng'),
                   ],
                   onChanged: (v) => setState(() => _searchableSelect = v),
+                ),
+              ),
+              PreviewStateRow(
+                label: 'Disabled',
+                child: VCombobox<String>(
+                  label: 'Tỉnh/Thành',
+                  value: 'hcm',
+                  enabled: false,
+                  items: const [
+                    DropdownMenuEntry(value: 'hcm', label: 'Hồ Chí Minh'),
+                  ],
+                  onChanged: (_) {},
                 ),
               ),
             ],

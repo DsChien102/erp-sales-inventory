@@ -88,7 +88,7 @@ class _VLifecycleBottomSheetContent extends StatelessWidget {
                 Expanded(
                   child: VButton(
                     label: cancelLabel,
-                    variant: VButtonVariant.outline,
+                    variant: VButtonVariant.secondary,
                     onPressed: () => Navigator.of(context).pop(),
                   ),
                 ),
@@ -96,7 +96,8 @@ class _VLifecycleBottomSheetContent extends StatelessWidget {
                 Expanded(
                   child: VButton(
                     label: actionLabel,
-                    variant: isDestructive ? VButtonVariant.danger : VButtonVariant.primary,
+                    variant: VButtonVariant.primary,
+                    tone: isDestructive ? VComponentTone.danger : null,
                     onPressed: () {
                       Navigator.of(context).pop();
                       onAction();

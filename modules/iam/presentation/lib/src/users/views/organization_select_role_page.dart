@@ -109,7 +109,7 @@ class _OrganizationSelectRolePageState extends State<OrganizationSelectRolePage>
             Expanded(
               child: VButton(
                 label: 'Hủy',
-                variant: VButtonVariant.outline,
+                variant: VButtonVariant.secondary,
                 tone: VComponentTone.neutral,
                 fullWidth: true,
                 onPressed: () => context.pop(),

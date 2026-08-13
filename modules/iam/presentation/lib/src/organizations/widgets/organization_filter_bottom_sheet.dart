@@ -208,7 +208,7 @@ class _OrganizationFilterBottomSheetState
               Expanded(
                 child: VButton(
                   label: 'Đặt lại',
-                  variant: VButtonVariant.outline,
+                  variant: VButtonVariant.secondary,
                   fullWidth: true,
                   onPressed: _resetFilter,
                 ),

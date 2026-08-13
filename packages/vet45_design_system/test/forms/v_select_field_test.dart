@@ -84,25 +84,103 @@ void main() {
         MaterialApp(
           theme: VTheme.lightTheme,
           home: Scaffold(
-            body: VSelect<String>(
-              label: 'Trạng thái',
-              value: null,
-              items: const [
-                DropdownMenuItem(value: 'a', child: Text('Active')),
-                DropdownMenuItem(value: 'b', child: Text('Inactive')),
-              ],
-              onChanged: (val) => selected = val,
+            body: Padding(
+              padding: const EdgeInsets.all(24),
+              child: VSelect<String>(
+                label: 'Trạng thái',
+                value: null,
+                items: const [
+                  DropdownMenuItem(value: 'a', child: Text('Active')),
+                  DropdownMenuItem(value: 'b', child: Text('Inactive')),
+                ],
+                onChanged: (val) => selected = val,
+              ),
             ),
           ),
         ),
       );
 
-      await tester.tap(find.byType(PopupMenuButton<String>));
+      await tester.tap(find.byType(MenuAnchor));
       await tester.pumpAndSettle();
-      await tester.tap(find.text('Active'));
+      await tester.tap(find.text('Active').last);
       await tester.pumpAndSettle();
 
       expect(selected, 'a');
+    });
+
+    testWidgets('menu shrinks to fit few items', (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: VTheme.lightTheme,
+          home: Scaffold(
+            body: Padding(
+              padding: const EdgeInsets.all(24),
+              child: VSelect<String>(
+                value: null,
+                hintText: 'Chọn',
+                items: const [
+                  DropdownMenuItem(value: 'a', child: Text('Alpha')),
+                  DropdownMenuItem(value: 'b', child: Text('Beta')),
+                ],
+                onChanged: (_) {},
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byType(MenuAnchor));
+      await tester.pumpAndSettle();
+
+      expect(
+        find.descendant(
+          of: find.byType(MenuAnchor),
+          matching: find.byType(ListView),
+        ),
+        findsNothing,
+      );
+
+      final metrics = VOverlayMenuLayout.panelMetrics(
+        itemCount: 2,
+        menuMaxHeight: 300,
+        itemHeight: VCombobox.controlHeight,
+        menuPadding: VSpacing.space2,
+      );
+      expect(metrics.needsScroll, isFalse);
+      expect(metrics.shellHeight, VCombobox.controlHeight * 2 + VSpacing.space2 * 2);
+    });
+
+    testWidgets('unfocuses when tapping outside while menu is open', (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: VTheme.lightTheme,
+          home: Scaffold(
+            body: Padding(
+              padding: const EdgeInsets.all(24),
+              child: VSelect<String>(
+                value: null,
+                hintText: 'Chọn',
+                items: const [
+                  DropdownMenuItem(value: 'a', child: Text('Alpha')),
+                  DropdownMenuItem(value: 'b', child: Text('Beta')),
+                ],
+                onChanged: (_) {},
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byType(MenuAnchor));
+      await tester.pumpAndSettle();
+      expect(find.text('Alpha'), findsOneWidget);
+
+      await tester.tapAt(const Offset(8, 8));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Alpha'), findsNothing);
     });
   });
 }

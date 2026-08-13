@@ -126,7 +126,8 @@ class _PlatformUserDetailView extends StatelessWidget {
                     description:
                         'Người dùng sẽ không thể đăng nhập hoặc truy cập tổ chức. Dữ liệu vẫn được giữ lại.',
                     actionLabel: 'Tạm ngừng',
-                    actionVariant: VButtonVariant.dangerOutline,
+                    actionVariant: VButtonVariant.secondary,
+                    actionTone: VComponentTone.danger,
                     requireReason: true,
                     onConfirm: (reason) => cubit.suspend(reason: reason),
                     successFallback: 'Đã tạm ngừng tài khoản thành công.',
@@ -170,6 +171,7 @@ class _PlatformUserDetailView extends StatelessWidget {
     required String description,
     required String actionLabel,
     required VButtonVariant actionVariant,
+    VComponentTone? actionTone,
     required Future<bool> Function(String reason) onConfirm,
     required String successFallback,
     bool requireReason = false,
@@ -182,6 +184,7 @@ class _PlatformUserDetailView extends StatelessWidget {
       description: description,
       actionLabel: actionLabel,
       actionVariant: actionVariant,
+      actionTone: actionTone,
       requireReason: requireReason,
       onConfirm: onConfirm,
     );

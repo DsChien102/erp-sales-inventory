@@ -42,7 +42,7 @@ class ProductFormBottomBar extends StatelessWidget {
             Expanded(
               child: VButton(
                 label: cancelLabel,
-                variant: VButtonVariant.outline,
+                variant: VButtonVariant.secondary,
                 onPressed: onCancel,
               ),
             ),

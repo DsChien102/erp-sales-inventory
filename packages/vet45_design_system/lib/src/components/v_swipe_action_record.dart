@@ -85,6 +85,8 @@ class VSwipeActionRecord extends StatelessWidget {
         actionsBuilder: (context, close) => Material(
           color: _actionBg(colors),
           child: InkWell(
+            splashColor: Colors.transparent,
+            highlightColor: Colors.transparent,
             onTap: _isEnabled && onAction != null
                 ? () {
                     onAction!();

@@ -288,7 +288,7 @@ class _PartnerContactFormState extends State<PartnerContactForm> {
                     Expanded(
                       child: VButton(
                         label: 'Hủy',
-                        variant: VButtonVariant.outline,
+                        variant: VButtonVariant.secondary,
                         foregroundColor: colors.success,
                         onPressed: widget.isSubmitting ? null : widget.onCancel,
                       ),

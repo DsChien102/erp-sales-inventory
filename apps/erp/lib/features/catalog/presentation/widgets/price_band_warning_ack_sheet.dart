@@ -41,7 +41,7 @@ class PriceBandWarningAckSheet extends StatelessWidget {
                 Expanded(
                   child: VButton(
                     label: 'Hủy',
-                    variant: VButtonVariant.outline,
+                    variant: VButtonVariant.secondary,
                     onPressed: () => Navigator.of(context).pop(false),
                   ),
                 ),

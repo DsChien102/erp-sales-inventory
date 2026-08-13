@@ -291,7 +291,7 @@ class _StickyActions extends StatelessWidget {
           Expanded(
             child: VButton(
               label: 'Hủy',
-              variant: VButtonVariant.outline,
+              variant: VButtonVariant.secondary,
               onPressed: isLoading ? null : onCancel,
             ),
           ),

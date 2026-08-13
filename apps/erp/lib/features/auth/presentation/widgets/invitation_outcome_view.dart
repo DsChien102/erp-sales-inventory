@@ -72,7 +72,7 @@ class InvitationOutcomeView extends StatelessWidget {
           const VGap.sm(),
           VButton(
             label: 'Thử lại sau',
-            variant: VButtonVariant.outline,
+            variant: VButtonVariant.secondary,
             fullWidth: true,
             onPressed: onRetryLater,
           ),

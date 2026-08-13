@@ -82,7 +82,7 @@ class ProductControlCenterSectionCard extends StatelessWidget {
             ),
             VButton(
               label: actionText,
-              variant: VButtonVariant.ghost,
+              variant: VButtonVariant.tertiary,
               size: VButtonSize.small,
               onPressed: onEdit,
             ),

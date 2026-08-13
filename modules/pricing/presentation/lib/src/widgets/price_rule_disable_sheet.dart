@@ -166,7 +166,8 @@ class _PriceRuleDisableSheetState extends State<PriceRuleDisableSheet> {
                   Expanded(
                     child: VButton(
                       label: _isSubmitting ? 'Đang tắt...' : 'Tắt giá riêng',
-                      variant: VButtonVariant.danger,
+                      variant: VButtonVariant.primary,
+                      tone: VComponentTone.danger,
                       fullWidth: true,
                       onPressed: _isSubmitting ? null : _onDisable,
                     ),

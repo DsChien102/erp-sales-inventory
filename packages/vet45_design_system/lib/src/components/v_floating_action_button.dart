@@ -79,6 +79,8 @@ class VFloatingActionButton extends StatelessWidget {
           child: Material(
             color: Colors.transparent,
             child: InkWell(
+              splashColor: Colors.transparent,
+              highlightColor: Colors.transparent,
               onTap: isEnabled ? onTap : null,
               customBorder: const CircleBorder(),
               child: Center(

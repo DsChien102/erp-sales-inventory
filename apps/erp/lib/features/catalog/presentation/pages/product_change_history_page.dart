@@ -117,7 +117,7 @@ class _ProductChangeHistoryViewState extends State<_ProductChangeHistoryView> {
                     onPressed: () =>
                         context.read<ProductChangeHistoryCubit>().refresh(widget.productId),
                     label: 'Thử lại',
-                    variant: VButtonVariant.outline,
+                    variant: VButtonVariant.secondary,
                   ),
                 ],
               ),

@@ -114,7 +114,7 @@ void showChangeRoleConfirmBottomSheet({
           const VGap.xl(),
           VButton(
             label: 'Quay lại',
-            variant: VButtonVariant.outline,
+            variant: VButtonVariant.secondary,
             tone: VComponentTone.neutral,
             fullWidth: true,
             onPressed: () => Navigator.of(context).pop(),
@@ -193,7 +193,7 @@ void showSuspendConfirmBottomSheet({
           const VGap.xl(),
           VButton(
             label: 'Quay lại',
-            variant: VButtonVariant.outline,
+            variant: VButtonVariant.secondary,
             tone: VComponentTone.neutral,
             fullWidth: true,
             onPressed: () => Navigator.of(context).pop(),
@@ -201,7 +201,8 @@ void showSuspendConfirmBottomSheet({
           const VGap.sm(),
           VButton(
             label: 'Tạm ngừng',
-            variant: VButtonVariant.dangerOutline,
+            variant: VButtonVariant.secondary,
+            tone: VComponentTone.danger,
             fullWidth: true,
             onPressed: () {
               Navigator.of(context).pop();
@@ -271,7 +272,7 @@ void showReactivateConfirmBottomSheet({
           const VGap.xl(),
           VButton(
             label: 'Quay lại',
-            variant: VButtonVariant.outline,
+            variant: VButtonVariant.secondary,
             tone: VComponentTone.neutral,
             fullWidth: true,
             onPressed: () => Navigator.of(context).pop(),
@@ -350,7 +351,7 @@ void showRemoveConfirmBottomSheet({
           const VGap.xl(),
           VButton(
             label: 'Quay lại',
-            variant: VButtonVariant.outline,
+            variant: VButtonVariant.secondary,
             tone: VComponentTone.neutral,
             fullWidth: true,
             onPressed: () => Navigator.of(context).pop(),
@@ -358,7 +359,8 @@ void showRemoveConfirmBottomSheet({
           const VGap.sm(),
           VButton(
             label: 'Loại thành viên',
-            variant: VButtonVariant.dangerOutline,
+            variant: VButtonVariant.secondary,
+            tone: VComponentTone.danger,
             fullWidth: true,
             onPressed: () {
               Navigator.of(context).pop();

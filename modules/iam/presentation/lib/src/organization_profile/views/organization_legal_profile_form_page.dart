@@ -299,7 +299,7 @@ class _LegalProfileFormViewState extends State<_LegalProfileFormView> {
                 Expanded(
                   child: VButton(
                     label: 'Hủy',
-                    variant: VButtonVariant.outline,
+                    variant: VButtonVariant.secondary,
                     fullWidth: true,
                     onPressed: state.isSubmittingLegal
                         ? null
@@ -330,10 +330,11 @@ class _LegalProfileFormViewState extends State<_LegalProfileFormView> {
                 color: colors.textSecondary,
               ),
               const VGap.md(),
-              VDropdown<String>(
+              VSelect<String>(
                 label: 'Loại chủ thể',
                 hintText: 'Chọn loại chủ thể',
                 value: _selectedEntityType,
+                errorText: _entityTypeError,
                 tone: _entityTypeError != null
                     ? VComponentTone.danger
                     : VComponentTone.neutral,
@@ -354,14 +355,6 @@ class _LegalProfileFormViewState extends State<_LegalProfileFormView> {
                   });
                 },
               ),
-              if (_entityTypeError != null) ...[
-                const VGap.xs(),
-                VText(
-                  _entityTypeError!,
-                  variant: VTextVariant.bodySmall,
-                  color: colors.danger,
-                ),
-              ],
               const VGap.md(),
               VTextField(
                 label: 'Tên pháp lý',
@@ -422,10 +415,9 @@ class _LegalProfileFormViewState extends State<_LegalProfileFormView> {
                     children: [
                       _SearchDropdownField(
                         label: 'Tỉnh / thành phố',
-                        child: VCompactSearchableDropdown<String>(
+                        child: VCombobox<String>(
                           value: selectedProvince?.code,
                           hintText: 'Chọn tỉnh / thành phố',
-                          collapsedWhenUnfocused: false,
                           items: provinceItems,
                           onChanged: (code) {
                             setState(() {
@@ -438,7 +430,7 @@ class _LegalProfileFormViewState extends State<_LegalProfileFormView> {
                       const VGap.md(),
                       _SearchDropdownField(
                         label: 'Xã / phường',
-                        child: VCompactSearchableDropdown<String>(
+                        child: VCombobox<String>(
                           value: wardItems.any((i) => i.value == _selectedCommuneCode)
                               ? _selectedCommuneCode
                               : null,
@@ -446,7 +438,6 @@ class _LegalProfileFormViewState extends State<_LegalProfileFormView> {
                               ? 'Chọn xã / phường'
                               : 'Chọn tỉnh / thành phố trước',
                           enabled: _selectedProvinceCode != null,
-                          collapsedWhenUnfocused: false,
                           items: wardItems,
                           onChanged: (code) {
                             setState(() => _selectedCommuneCode = code);

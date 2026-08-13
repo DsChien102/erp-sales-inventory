@@ -75,7 +75,7 @@ class _ConfirmActivateOrganizationBottomSheetState
             width: double.infinity,
             child: VButton(
               label: 'Để sau',
-              variant: VButtonVariant.outline,
+              variant: VButtonVariant.secondary,
               tone: VComponentTone.neutral,
               onPressed: () => Navigator.of(context).pop(false),
             ),

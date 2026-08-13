@@ -103,6 +103,8 @@ class VToast extends StatelessWidget {
             liveRegion: true,
             label: semanticLabel ?? title,
             child: InkWell(
+              splashColor: Colors.transparent,
+              highlightColor: Colors.transparent,
               onTap: onTap,
               child: Padding(
                 padding: const EdgeInsets.symmetric(
