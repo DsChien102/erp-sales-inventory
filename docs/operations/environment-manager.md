@@ -22,7 +22,7 @@ Melos-centric workflow to keep ERP, messaging worker, and Supabase targets align
 
 ### Discovery
 
-`vet45` loads `vet45.workspace.json`, then globs `scan.include` for `vet45.target.json` files. Profiles are **not** listed in the workspace file — they are discovered as immediate children of `.vet45/profiles/`. Adding a new app means committing `apps/<name>/vet45.target.json`.
+`vet45` loads `vet45.workspace.json`, then globs `scan.include` for `vet45.target.json` files. Profiles are **not** listed in the workspace file — they are discovered as immediate children of `.vet45/profiles/`. Adding a new app means committing `apps/<name>/vet45.target.json` (hoặc `packages/**` / `modules/**` cho example catalog).
 
 ## Configuration profiles
 
@@ -58,6 +58,7 @@ Each **target** (registered directory/app) declares which secrets it needs. Sync
 | `admin` | `apps/admin/vet45.target.json` | `apps/admin/.env*` | same as erp (no messaging poll flag) |
 | `worker` | `apps/messaging_worker/vet45.target.json` | `apps/messaging_worker/.env*` | `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `WORKER_TICK_SECRET` (+ optional tuning) |
 | `deploy` | `deploy/vet45.target.json` | none (secrets-only) | `APP_STORE_CONNECT_*` in `deploy/deploy.env` |
+| `design_system` | `packages/vet45_design_system/example/vet45.target.json` | none (`writeEnvFile: false`) | — |
 
 Key specs live in each `vet45.target.json` (`required`, `default`, `from` rename, `fromManifest`, `autoGenerate`). Per-env bindings in the same file set `envFile`, `flavor`, `appEnv`, etc.
 

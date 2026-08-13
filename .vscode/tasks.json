@@ -197,6 +197,21 @@
       "problemMatcher": []
     },
     {
+      "label": "partner-presentation:example pub get",
+      "type": "shell",
+      "command": "flutter pub get",
+      "options": {
+        "cwd": "${workspaceFolder}/modules/partner/presentation/example"
+      },
+      "presentation": {
+        "reveal": "silent",
+        "panel": "shared",
+        "showReuseMessage": false,
+        "close": true
+      },
+      "problemMatcher": []
+    },
+    {
       "label": "melos run design-system:example",
       "type": "shell",
       "command": "melos run design-system:example",

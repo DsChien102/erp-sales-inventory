@@ -10,8 +10,28 @@ alwaysApply: false
 
 - **Pages/screens:** `apps/erp/lib/features/<feature>/presentation/pages/`
 - **Reusable dialogs/widgets:** `modules/<module>/presentation/lib/src/widgets/`
+- **Module presentation example (preview/audit):** `modules/<module>/presentation/example/` — Flutter catalog app; xem widget trước khi gắn ERP page
 
 `apps/erp` may import `vet45_<module>_presentation`. Module presentation must not import `apps/erp`.
+
+## Module presentation example
+
+Path: `modules/<module>/presentation/example/` (app name `vet45_<module>_presentation_example`). **Không** thêm vào root Melos `workspace:` — path-dep tới `../` presentation + `vet45_design_system` (giống DS example).
+
+| Layer | Catalog |
+| --- | --- |
+| Design system primitives | `packages/vet45_design_system/example` — `melos run design-system:example` |
+| Bounded-context widgets | `modules/<module>/presentation/example` — vd. `vet45 run partner_presentation debug` |
+
+Hard rules:
+
+1. Public reusable widget mới trong `modules/*/presentation/lib` → cùng PR thêm `PreviewSection` (+ states loading/empty/error/filled nếu API có) trong `example/`.
+2. Example chỉ import `vet45_<module>_presentation` + `vet45_design_system` (+ application **testing/fakes** nếu cần). **Cấm** `apps/erp`, live Supabase, `env:doctor`.
+3. DS example = primitives only; module example = BC widgets — không nhét domain widget vào DS example.
+4. Clone layout từ `modules/partner/presentation/example` khi module bắt đầu ship FE widgets (catalog/pricing/sales).
+5. Preview helpers (`PreviewSection` / `PreviewStateRow`) hiện local trong từng example; extract shared kit khi ≥2 module có example.
+
+Golden: `modules/partner/presentation/example/`.
 
 ## Hard rules
 
@@ -48,5 +68,6 @@ alwaysApply: false
 2. Read Polaris spec + checklist (links above)
 3. Read UI artifacts in FR/US spec — create widget manifest first
 4. Implement widgets/dialogs before the page
-5. Nếu tích hợp async query, đọc `packages/vet45_async_query/docs/AGENT_INTEGRATION_PLAYBOOK.md`
-6. Verify: `./scripts/ci/verify_harness.sh` + `./scripts/ci/guard_design_system_usage.sh`
+5. Thêm / cập nhật `PreviewSection` trong `modules/<module>/presentation/example/` trước hoặc cùng PR với widget public
+6. Nếu tích hợp async query, đọc `packages/vet45_async_query/docs/AGENT_INTEGRATION_PLAYBOOK.md`
+7. Verify: `./scripts/ci/verify_harness.sh` + `./scripts/ci/guard_design_system_usage.sh` (+ `vet45 run <module>_presentation debug` smoke khi đổi catalog)

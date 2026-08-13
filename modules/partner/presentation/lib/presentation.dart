@@ -62,3 +62,4 @@ export 'src/widgets/partner_contact_change_primary_dialog.dart';
 export 'src/widgets/partner_contact_remove_dialog.dart';
 export 'src/widgets/partner_contact_form.dart';
 export 'src/widgets/partner_contact_select_list.dart';
+export 'src/data/vn_administrative_unit.dart';

@@ -1,0 +1,35 @@
+{
+  "version": 1,
+  "id": "partner_presentation",
+  "description": "Partner presentation widget preview (example app)",
+  "kind": "flutter",
+  "writeEnvFile": false,
+  "keys": [],
+  "environments": {
+    "development": {},
+    "local": {},
+    "staging": {},
+    "production": {}
+  },
+  "actions": {
+    "debug": {
+      "description": "Flutter run (device/simulator)",
+      "command": "flutter",
+      "args": ["run"],
+      "cwd": "."
+    },
+    "debug:web": {
+      "description": "Flutter run on Chrome",
+      "command": "flutter",
+      "args": ["run", "-d", "chrome"],
+      "cwd": "."
+    },
+    "debug:ios": {
+      "description": "Flutter run on iOS (macOS only)",
+      "command": "flutter",
+      "args": ["run", "-d", "ios"],
+      "cwd": ".",
+      "platforms": ["macos"]
+    }
+  }
+}

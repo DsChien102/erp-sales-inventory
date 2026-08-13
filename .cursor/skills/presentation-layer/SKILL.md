@@ -37,6 +37,7 @@ Infrastructure triển khai kỹ thuật (RPC, views, cache, workers).
 | Feature state (optional) | `apps/erp/lib/features/<feature>/presentation/bloc/` | `partner_detail_cubit.dart` |
 | Dialog / widget tái dùng | `modules/<module>/presentation/lib/src/widgets/` | `deactivate_partner_dialog.dart` |
 | Widget chỉ dùng trong feature | `apps/erp/lib/features/<feature>/presentation/widgets/` | `partner_profile_header.dart` |
+| Module example catalog | `modules/<module>/presentation/example/` | `modules/partner/presentation/example/` |
 
 **Import rule:**
 
@@ -44,9 +45,13 @@ Infrastructure triển khai kỹ thuật (RPC, views, cache, workers).
 apps/erp MAY import vet45_<module>_presentation
 modules/<module>/presentation MUST NOT import apps/erp
 modules/<module>/presentation MAY import vet45_<module>_application (DTO, facade)
+modules/<module>/presentation/example MAY import presentation + design_system (+ application testing/fakes)
+modules/<module>/presentation/example MUST NOT import apps/erp or live Supabase
 ```
 
 Mutations/reads: `IExecutionContext` → `IModuleMediator` — không bypass qua Supabase từ widget.
+
+**DS vs module catalog:** `packages/vet45_design_system/example` = primitives; module `example/` = BC widgets. Clone partner example khi module mới bắt đầu FE.
 
 ---
 
@@ -86,10 +91,13 @@ Tạo file rỗng / class stub theo manifest — tránh gom tất cả vào mộ
 ### 4. Implement widgets trước, page cuối
 
 ```text
-dialogs/sections (modules/partner/presentation + apps/erp/widgets)
+dialogs/sections (modules/<module>/presentation + apps/erp/widgets)
+  → PreviewSection trong modules/<module>/presentation/example/
   → page compose imports
   → bloc/cubit wire mediator calls
 ```
+
+Public reusable widget mới → cùng PR cập nhật module example catalog (loading/empty/error/filled khi API có).
 
 ### 5. Widget test (khi FR có SCN dialog)
 
@@ -106,6 +114,9 @@ Test id: wgt_e{epic}_u{us}_fr{fr}_{nn}
 ```bash
 ./scripts/ci/verify_harness.sh
 cd apps/erp && flutter test test/features/<feature>/
+# khi đổi module widgets / example catalog:
+vet45 run partner_presentation debug   # hoặc target tương ứng khi module có example
+cd modules/<module>/presentation/example && flutter analyze
 ```
 
 ---
@@ -119,6 +130,7 @@ Copy pattern từ Product Control Center (DS-compliant page + widgets tách file
 | `apps/erp/lib/features/catalog/presentation/pages/product_control_center_page.dart` | `VPageScaffold`, Bloc wire |
 | `apps/erp/lib/features/catalog/presentation/widgets/product_control_center_body.dart` | Scroll body + `VGap` |
 | `apps/erp/lib/features/catalog/presentation/widgets/product_control_center_section_card.dart` | Section card pattern |
+| `modules/partner/presentation/example/` | Per-module widget preview catalog (template) |
 
 Dashboard (page mỏng cũ): `apps/erp/lib/features/dashboard/presentation/dashboard_page.dart`
 
@@ -132,6 +144,8 @@ Dashboard (page mỏng cũ): `apps/erp/lib/features/dashboard/presentation/dashb
 - Direct PostgREST / `Supabase.instance` từ widget
 - Business rule trong `build()` hoặc dialog callback (thuộc domain/application)
 - Import `package:.../src/...` từ package khác
+- Widget BC demo trong `vet45_design_system/example` (sai boundary)
+- Module example phụ thuộc `apps/erp` / live Supabase / `env:doctor`
 
 ---
 

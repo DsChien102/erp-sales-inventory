@@ -227,6 +227,33 @@
       "deviceId": "ios",
       "preLaunchTask": "design-system:example pub get"
     },
+    // ── Partner presentation example (no env sync required) ──────────────────
+    {
+      "name": "Partner presentation · example",
+      "type": "dart",
+      "request": "launch",
+      "cwd": "${workspaceFolder}/modules/partner/presentation/example",
+      "program": "lib/main.dart",
+      "preLaunchTask": "partner-presentation:example pub get"
+    },
+    {
+      "name": "Partner presentation · example · web",
+      "type": "dart",
+      "request": "launch",
+      "cwd": "${workspaceFolder}/modules/partner/presentation/example",
+      "program": "lib/main.dart",
+      "deviceId": "chrome",
+      "preLaunchTask": "partner-presentation:example pub get"
+    },
+    {
+      "name": "Partner presentation · example · iOS",
+      "type": "dart",
+      "request": "launch",
+      "cwd": "${workspaceFolder}/modules/partner/presentation/example",
+      "program": "lib/main.dart",
+      "deviceId": "ios",
+      "preLaunchTask": "partner-presentation:example pub get"
+    },
     // ── melos built-in ────────────────────────────────────────────────────────
     {
       "name": "melos · bootstrap",

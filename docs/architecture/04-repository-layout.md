@@ -14,6 +14,8 @@ vet45/
 │   │   ├── infrastructure/
 │   │   ├── integration_events/
 │   │   └── presentation/       # optional (catalog, sales, partner)
+│   │       ├── lib/            # reusable BC widgets / cubits
+│   │       └── example/        # Flutter catalog — preview/audit widgets (not in Melos workspace)
 │   ├── iam/
 │   ├── catalog/
 │   ├── sales/

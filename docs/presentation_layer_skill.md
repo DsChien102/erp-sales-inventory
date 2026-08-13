@@ -25,12 +25,16 @@ Infrastructure implements how the module talks to the outside world.
 | Feature-only widgets | `apps/erp/lib/features/<feature>/presentation/widgets/` |
 | Feature state (optional) | `apps/erp/lib/features/<feature>/presentation/bloc/` |
 | Reusable dialogs/widgets | `modules/<module>/presentation/lib/src/widgets/` |
+| Module example catalog | `modules/<module>/presentation/example/` |
 
 **Import rules:**
 
 - `apps/erp` **may** import `vet45_<module>_presentation`
 - `modules/<module>/presentation` **must not** import `apps/erp`
+- Module `example/` **may** import presentation + `vet45_design_system` (+ application testing/fakes); **must not** import `apps/erp` or live Supabase
 - Mutations/reads: `IExecutionContext` → `IModuleMediator` — no direct Supabase from widgets
+
+**DS vs module catalog:** `packages/vet45_design_system/example` = primitives (`melos run design-system:example` / `vet45 run design_system debug`); module `example/` = BC widgets (`vet45 run partner_presentation debug`). Clone partner example when another module starts FE widgets. Public reusable widget → same-PR `PreviewSection` in module example.
 
 ---
 
@@ -52,13 +56,16 @@ Small private widgets (e.g. `_SectionHeader`) in the same file are OK if the pag
 1. Read FR + **UI artifacts** table from product spec
 2. Create **widget manifest** (file paths) before coding
 3. Scaffold empty files per manifest
-4. Implement dialogs/sections first, page last
+4. Implement dialogs/sections first → `PreviewSection` in module `example/` → page last
 5. Widget tests for confirmation dialogs (when FR has SCN)
 6. Verify:
 
 ```bash
 ./scripts/ci/verify_harness.sh
 cd apps/erp && flutter test test/features/<feature>/
+# when changing module widgets / example catalog:
+vet45 run partner_presentation debug   # or matching module target when present
+cd modules/<module>/presentation/example && flutter analyze
 ```
 
 ---
@@ -69,6 +76,7 @@ cd apps/erp && flutter test test/features/<feature>/
 | ---- | ---- |
 | `apps/erp/lib/features/dashboard/presentation/dashboard_page.dart` | Thin page, tab composition |
 | `apps/erp/lib/features/dashboard/presentation/widgets/dashboard_header.dart` | Extracted `const` section |
+| `modules/partner/presentation/example/` | Per-module widget preview catalog (template) |
 
 ---
 
@@ -80,6 +88,8 @@ cd apps/erp && flutter test test/features/<feature>/
 - Direct PostgREST / `Supabase.instance` from widgets
 - Business rules in `build()` or dialog callbacks
 - Cross-package `import 'package:.../src/...'`
+- BC widget demos inside `vet45_design_system/example` (wrong boundary)
+- Module example depending on `apps/erp` / live Supabase / `env:doctor`
 
 ---
 
