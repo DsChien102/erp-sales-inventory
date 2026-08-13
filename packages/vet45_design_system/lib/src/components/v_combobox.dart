@@ -11,7 +11,6 @@ import '../patterns/v_gap.dart';
 import '../primitives/v_icon_box.dart';
 import '../tokens/v_borders.dart';
 import '../tokens/v_radius.dart';
-import '../tokens/v_shadows.dart';
 import '../tokens/v_spacing.dart';
 import '../tokens/v_typography.dart';
 import 'v_text_field.dart';
@@ -23,8 +22,8 @@ import 'v_text_field_focus_ring.dart';
 /// Input chrome matches [VTextField] (borders + [VTextFieldFocusRing]).
 /// Menu panel uses [VOverlayMenuShell] for pixel-perfect bottom shadow.
 class VCombobox<T> extends StatefulWidget {
-  /// Control height used by [inputDecorationTheme] constraints and dense forms.
-  static const double controlHeight = 44;
+  /// Control height — matches [VTextField.controlHeight].
+  static const double controlHeight = VTextField.controlHeight;
 
   /// Same inset as [VTextField.padding].
   static const EdgeInsets contentPadding = VTextField.padding;
@@ -221,6 +220,8 @@ class _VComboboxState<T> extends State<VCombobox<T>> {
     return VIconBox(
       backgroundColor: Colors.transparent,
       icon: VIcons.arrowDropDown,
+      size: VSpacing.space6,
+      iconSize: 20,
       borderRadius: VRadius.input - VSpacing.space1 / 2,
       iconColor: open ? colors.textBrand : colors.textMuted,
       onTap: isEnabled ? () => _toggleMenu(controller) : null,

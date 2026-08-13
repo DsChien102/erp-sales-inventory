@@ -27,6 +27,12 @@ class VTextField extends StatefulWidget {
     vertical: VSpacing.space1,
   );
 
+  /// Single-line control height shared with [VSelect] / [VCombobox].
+  ///
+  /// Matches the measured default [TextField] + outlined decoration height under
+  /// [VTheme] (Material interactive minimum), so form rows align.
+  static const double controlHeight = 48;
+
   final TextEditingController? controller;
   final String? label;
   final String? hintText;
@@ -248,6 +254,12 @@ class _VTextFieldState extends State<VTextField> {
           hasPrefix: widget.prefixIcon != null,
           hasSuffix: resolvedSuffix != null,
         ),
+        constraints: isDense
+            ? null
+            : const BoxConstraints(
+                minHeight: VTextField.controlHeight,
+                maxHeight: VTextField.controlHeight,
+              ),
         border: restingBorder,
         enabledBorder: restingBorder,
         focusedBorder: focusBorder,

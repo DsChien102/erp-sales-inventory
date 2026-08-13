@@ -330,10 +330,11 @@ class _LegalProfileFormViewState extends State<_LegalProfileFormView> {
                 color: colors.textSecondary,
               ),
               const VGap.md(),
-              VDropdown<String>(
+              VSelect<String>(
                 label: 'Loại chủ thể',
                 hintText: 'Chọn loại chủ thể',
                 value: _selectedEntityType,
+                errorText: _entityTypeError,
                 tone: _entityTypeError != null
                     ? VComponentTone.danger
                     : VComponentTone.neutral,
@@ -354,14 +355,6 @@ class _LegalProfileFormViewState extends State<_LegalProfileFormView> {
                   });
                 },
               ),
-              if (_entityTypeError != null) ...[
-                const VGap.xs(),
-                VText(
-                  _entityTypeError!,
-                  variant: VTextVariant.bodySmall,
-                  color: colors.danger,
-                ),
-              ],
               const VGap.md(),
               VTextField(
                 label: 'Tên pháp lý',

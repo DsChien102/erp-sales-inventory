@@ -16,7 +16,6 @@ class _ComponentsPreviewTabState extends State<ComponentsPreviewTab> {
   bool _checkbox = true;
   bool _switch = false;
   String? _radio = 'a';
-  String? _dropdownValue = 'r1';
   int _quantity = 2;
   int _tabIndex = 0;
   int _tabDisabledIndex = 0;
@@ -628,37 +627,6 @@ class _ComponentsPreviewTabState extends State<ComponentsPreviewTab> {
                 ),
               ],
             ),
-          ),
-        ),
-        PreviewSection(
-          title: 'VDropdown',
-          child: Column(
-            children: [
-              PreviewStateRow(
-                label: 'Default',
-                child: VDropdown<String>(
-                  label: 'Reason',
-                  value: _dropdownValue,
-                  items: const [
-                    DropdownMenuItem(value: 'r1', child: Text('Defective')),
-                    DropdownMenuItem(value: 'r2', child: Text('Return')),
-                  ],
-                  onChanged: (v) => setState(() => _dropdownValue = v),
-                ),
-              ),
-              PreviewStateRow(
-                label: 'Disabled',
-                child: VDropdown<String>(
-                  label: 'Reason',
-                  value: 'r1',
-                  enabled: false,
-                  items: const [
-                    DropdownMenuItem(value: 'r1', child: Text('Defective')),
-                  ],
-                  onChanged: (_) {},
-                ),
-              ),
-            ],
           ),
         ),
         PreviewSection(

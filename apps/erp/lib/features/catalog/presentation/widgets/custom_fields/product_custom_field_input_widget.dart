@@ -109,7 +109,7 @@ class _ProductCustomFieldInputWidgetState extends State<ProductCustomFieldInputW
         },
       );
     } else if (widget.field.fieldType == CustomFieldType.singleSelect.name) {
-      return VDropdown<String>(
+      return VSelect<String>(
         label: widget.field.name,
         value: widget.input.optionId,
         hintText: '— Chọn —',

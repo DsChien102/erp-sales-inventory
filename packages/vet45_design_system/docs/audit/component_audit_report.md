@@ -15,7 +15,6 @@
 | components | `VCard` | container | Pass (optional) | Pass (optional) | N/A (na) | — (optional) | No |
 | components | `VCheckbox` | toggle | Pass (optional) | — (optional) | Pass (required) | Pass (required) | Yes |
 | components | `VDatePickerField` | input | Pass (preferred) | Pass (preferred) | Pass (required) | Pass (required) | Yes |
-| components | `VDropdown` | input | Pass (preferred) | Pass (preferred) | Pass (required) | Pass (required) | Yes |
 | components | `VEmptyState` | status_display | Pass (optional) | Pass (optional) | N/A (na) | Pass (preferred) | Yes |
 | components | `VFileDropZone` | input | — (optional) | — (optional) | Pass (required) | Pass (required) | Yes |
 | components | `VFloatingActionButton` | action | Pass (preferred) | Pass (preferred) | Pass (preferred) | Pass (required) | Yes |
@@ -43,7 +42,7 @@
 | forms | `VMoneyField` | input | Pass (preferred) | Pass (preferred) | Pass (required) | Pass (required) | No |
 | forms | `VNumberField` | input | Pass (preferred) | Pass (preferred) | Pass (required) | Pass (required) | No |
 | forms | `VPasswordField` | unmapped | Pass (optional) | Pass (optional) | Pass (optional) | Pass (optional) | No |
-| forms | `VSelect` | input | Pass (preferred) | Pass (preferred) | Pass (required) | Pass (required) | No |
+| forms | `VSelect` | input | Pass (preferred) | Pass (preferred) | Pass (required) | Pass (required) | Yes |
 | patterns | `VContentWidth` | unmapped | — (optional) | — (optional) | — (optional) | — (optional) | No |
 | patterns | `VGap` | layout_pattern | N/A (na) | N/A (na) | N/A (na) | N/A (na) | No |
 | patterns | `VPagePadding` | layout_pattern | N/A (na) | N/A (na) | N/A (na) | N/A (na) | No |

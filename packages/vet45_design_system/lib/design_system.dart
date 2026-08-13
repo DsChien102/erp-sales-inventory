@@ -63,7 +63,6 @@ export 'src/components/v_tabs.dart';
 export 'src/components/v_empty_state.dart';
 export 'src/components/v_file_drop_zone.dart';
 export 'src/components/v_toast.dart';
-export 'src/components/v_dropdown.dart';
 export 'src/components/v_combobox.dart';
 export 'src/components/v_quantity_selector.dart';
 export 'src/components/v_date_picker_field.dart';
