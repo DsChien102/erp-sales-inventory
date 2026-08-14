@@ -70,6 +70,10 @@ firebase.json
 .vercel
 functions/node_modules/
 .env*.local
+.meinvoice_token.local
+**/meinvoice_token.local
+**/.meinvoice_token.local
+
 build/flutter_assets
 linux/flutter
 windows/flutter

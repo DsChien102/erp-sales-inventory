@@ -14,6 +14,7 @@ workspace:
   - packages/vet45_annotations
   - packages/vet45_adapters
   - packages/vet45_resend
+  - packages/vet45_misa
   - packages/vet45_generator
   - packages/vet45_shared/application
   - packages/vet45_shared/domain
