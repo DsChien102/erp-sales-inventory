@@ -60,6 +60,10 @@ Khi agent fail cùng lỗi docs/ID → cập nhật file này + guard/doc, khôn
 
 `packages/vet45_misa` — Phase A: `listInvoiceTemplates`, `previewUnpublished`, `publish`, `getStatus`, `download`, `previewPublished`, `sendEmail`. Map vào worker jobs — xem [03-architecture-and-flows.md §8](03-architecture-and-flows.md).
 
+## Presentation example catalog
+
+Audit scaffold (38 SRS §6.5 specimens, SG tabs placeholder): [modules/einvoice/presentation/example/README.md](../../../modules/einvoice/presentation/example/README.md) — chạy `vet45 run einvoice_presentation debug:web`.
+
 ## Harness maturity (2026-08-17)
 
 - S0 docs ingest: **done**

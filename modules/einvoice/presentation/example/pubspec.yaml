@@ -1,0 +1,50 @@
+name: vet45_einvoice_presentation_example
+description: Preview catalog for E-Invoice bounded-context presentation widgets.
+publish_to: 'none'
+version: 0.1.0+1
+
+environment:
+  sdk: '>=3.11.1 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  vet45_design_system:
+    path: ../../../../packages/vet45_design_system
+  vet45_einvoice_presentation:
+    path: ../
+  vet45_einvoice_application:
+    path: ../../application
+  vet45_einvoice_domain:
+    path: ../../domain
+  vet45_shared_application:
+    path: ../../../../packages/vet45_shared/application
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+# Outside Melos workspace — override publish_to:none workspace packages.
+dependency_overrides:
+  vet45_annotations:
+    path: ../../../../packages/vet45_annotations
+  vet45_design_system:
+    path: ../../../../packages/vet45_design_system
+  vet45_einvoice_application:
+    path: ../../application
+  vet45_einvoice_domain:
+    path: ../../domain
+  vet45_einvoice_integration_events:
+    path: ../../integration_events
+  vet45_einvoice_presentation:
+    path: ../
+  vet45_shared_application:
+    path: ../../../../packages/vet45_shared/application
+  vet45_shared_domain:
+    path: ../../../../packages/vet45_shared/domain
+  vet45_shared_infrastructure:
+    path: ../../../../packages/vet45_shared/infrastructure
+
+flutter:
+  uses-material-design: true

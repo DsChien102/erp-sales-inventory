@@ -96,6 +96,7 @@ Deferred (chưa lên slice, đã ghi rationale trong §11): realtime broadcast s
 
 ### FE lane
 
+- [ ] Example catalog scaffolded — [modules/einvoice/presentation/example/README.md](../../../modules/einvoice/presentation/example/README.md) (38 specimen audit; BC widgets pending per slice)
 - [ ] Pages/widgets tách file — không God Widget
 - [ ] `IModuleMediator` wiring — không direct PostgREST
 - [ ] Fake scenarios khớp 07 `scenario_id`
