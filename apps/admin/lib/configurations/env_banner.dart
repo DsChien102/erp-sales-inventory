@@ -11,6 +11,7 @@ class EnvBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.vColors;
     final label = Env.environmentBannerLabel;
     if (label == null) {
       return child;
@@ -19,7 +20,7 @@ class EnvBanner extends StatelessWidget {
     return Banner(
       message: label,
       location: BannerLocation.topEnd,
-      color: Env.isStaging ? VColors.warning : VColors.info,
+      color: Env.isStaging ? colors.warning : colors.info,
       textStyle: VTypography.bodySmall.copyWith(
         color: Colors.white,
         fontWeight: FontWeight.w700,
