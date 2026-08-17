@@ -2,7 +2,7 @@
 
 Thứ tự đọc khi implement một slice. Platform CQRS/module layout: [docs/architecture/README.md](../../../architecture/README.md).
 
-Canonical đã ingest; US flat như TH-03 (`Epic-*/US-*.md`). Status deliver vẫn `planned` cho đến slice code đầu.
+Canonical đã ingest; US flat như TH-03 (`Epic-*/US-*.md`). Status deliver: `in_progress` — Contract toàn theme + BE S1 done; FE/E2E S1 vẫn todo.
 
 ## Trước khi code
 

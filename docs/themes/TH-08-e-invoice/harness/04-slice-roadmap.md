@@ -10,11 +10,11 @@ Contracts: [07-api-contracts.md](07-api-contracts.md) · Traceability: [05-trace
 | #   | Slice                                                                                                                                                                                                                                                                             | Type     | Contract | BE   | FE   | E2E  | Parallel group | E2E blocked by      |
 | --- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- | -------- | ---- | ---- | ---- | -------------- | ------------------- |
 | S0  | Docs ingest (canonical → Epic/US + harness)                                                                                                                                                                                                                                       | docs     | done     | n/a  | n/a  | n/a  | —              | —                   |
-| S1  | EP-01 — [US-01](../Epic-01-provider-connection-config/US-01.md) connection + [US-02](../Epic-01-provider-connection-config/US-02.md) profile + [US-03](../Epic-01-provider-connection-config/US-03.md) policy + [US-04](../Epic-01-provider-connection-config/US-04.md) readiness | vertical | todo     | todo | todo | todo | A              | —                   |
-| S2  | EP-02 — [US-01](../Epic-02-issue-from-sales-order/US-01.md) preview + [US-02](../Epic-02-issue-from-sales-order/US-02.md) manual issue                                                                                                                                            | vertical | todo     | todo | todo | todo | B              | S1 Contract+BE      |
-| S3  | EP-02 — [US-03](../Epic-02-issue-from-sales-order/US-03.md) auto issue + [US-04](../Epic-02-issue-from-sales-order/US-04.md) result + [US-05](../Epic-02-issue-from-sales-order/US-05.md) retry                                                                                   | vertical | todo     | todo | todo | todo | B              | S2                  |
-| S4  | EP-03 — [US-01](../Epic-03-issued-invoice-documents/US-01.md) official view + [US-02](../Epic-03-issued-invoice-documents/US-02.md) documents + [US-03](../Epic-03-issued-invoice-documents/US-03.md) observation                                                                 | vertical | todo     | todo | todo | todo | C              | S2 (issued invoice) |
-| S5  | EP-04 — [US-01](../Epic-04-send-resend-einvoice/US-01.md) auto send + [US-02](../Epic-04-send-resend-einvoice/US-02.md) manual send + [US-03](../Epic-04-send-resend-einvoice/US-03.md) delivery result                                                                           | vertical | todo     | todo | todo | todo | C              | S2 (issued invoice) |
+| S1  | EP-01 — [US-01](../Epic-01-provider-connection-config/US-01.md) connection + [US-02](../Epic-01-provider-connection-config/US-02.md) profile + [US-03](../Epic-01-provider-connection-config/US-03.md) policy + [US-04](../Epic-01-provider-connection-config/US-04.md) readiness | vertical | done     | todo | todo | todo | A              | —                   |
+| S2  | EP-02 — [US-01](../Epic-02-issue-from-sales-order/US-01.md) preview + [US-02](../Epic-02-issue-from-sales-order/US-02.md) manual issue                                                                                                                                            | vertical | done     | todo | todo | todo | B              | S1 Contract+BE      |
+| S3  | EP-02 — [US-03](../Epic-02-issue-from-sales-order/US-03.md) auto issue + [US-04](../Epic-02-issue-from-sales-order/US-04.md) result + [US-05](../Epic-02-issue-from-sales-order/US-05.md) retry                                                                                   | vertical | done     | todo | todo | todo | B              | S2                  |
+| S4  | EP-03 — [US-01](../Epic-03-issued-invoice-documents/US-01.md) official view + [US-02](../Epic-03-issued-invoice-documents/US-02.md) documents + [US-03](../Epic-03-issued-invoice-documents/US-03.md) observation                                                                 | vertical | done     | todo | todo | todo | C              | S2 (issued invoice) |
+| S5  | EP-04 — [US-01](../Epic-04-send-resend-einvoice/US-01.md) auto send + [US-02](../Epic-04-send-resend-einvoice/US-02.md) manual send + [US-03](../Epic-04-send-resend-einvoice/US-03.md) delivery result                                                                           | vertical | done     | todo | todo | todo | C              | S2 (issued invoice) |
 
 
 
@@ -67,10 +67,10 @@ Deferred (chưa lên slice, đã ghi rationale trong §11): realtime broadcast s
 
 ### Contract lane
 
-- [ ] §S sections trong 07 có symbol Dart, input summary, success DTO, error codes
-- [ ] RPC names `einvoice.*` liệt kê status `drafted`
-- [ ] Worker mapping + fake scenarios ≥ happy + error path
-- [ ] Row CONTRACT trong 05-traceability cập nhật
+- [x] §S sections trong 07 có symbol Dart, input summary, success DTO, error codes
+- [x] RPC names `einvoice.*` liệt kê status `drafted`
+- [x] Worker mapping + fake scenarios ≥ happy + error path
+- [x] Row CONTRACT trong 05-traceability cập nhật
 
 
 

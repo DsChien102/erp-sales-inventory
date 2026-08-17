@@ -52,6 +52,10 @@ guarded_areas=(
   "modules/iam/application/lib/src/identity"
   "modules/iam/application/lib/src/platform"
   "modules/iam/application/lib/src/notification"
+  "modules/einvoice/application/lib/src/configuration"
+  "modules/einvoice/application/lib/src/issuance"
+  "modules/einvoice/application/lib/src/electronic_invoice"
+  "modules/einvoice/application/lib/src/delivery"
 )
 
 # Non-use-case dirs allowed beside commands/queries/shared (skill layout).

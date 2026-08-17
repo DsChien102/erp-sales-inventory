@@ -6,7 +6,7 @@ Canonical boundaries: [Theme-8-e-invoice.md](../Theme-8-e-invoice.md) §1.5 · d
 
 | Module | Vai trò | Package | Status |
 | ------ | ------- | ------- | ------ |
-| **einvoice** | **Owner** — configuration, issuance, electronic invoice, delivery | `modules/einvoice/` | greenfield — chưa scaffold |
+| **einvoice** | **Owner** — configuration, issuance, electronic invoice, delivery | `modules/einvoice/` | contract — domain + application + integration_events |
 | iam / TH-01 | Supporting — tenant, permission, hồ sơ pháp lý bên bán | `modules/iam/` | golden |
 | sales / TH-05 | Supporting — SalesOrder, BuyerInvoiceSnapshot, màn nguồn | `modules/sales/` | scaffold |
 | partner / TH-03 | Supporting — resolve completion buyer (trước khóa) | `modules/partner/` | greenfield |

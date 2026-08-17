@@ -1,0 +1,1 @@
+enum SendInvoiceSheetMode { send, resend }

@@ -20,6 +20,7 @@ Khi agent fail cùng lỗi docs/ID → cập nhật file này + guard/doc, khôn
 | Permission constants | `EInvoicePermissions.*` | Xem [02-module-map.md](02-module-map.md) |
 | Test id pattern | `scn_e0x_u0y_*`, `wgt_*`, `e2e_*` | SC trong US giữ `SC-*`; map khi implement |
 | Fake module | `FakeEInvoiceModule` | Scenario ids khớp 07-api-contracts |
+| Q-02 `GetProviderConnectionStatusQuery` | **Removed** — merged into Q-01 `GetProviderConnectionScreenQuery` in 07 §S1a |
 | E2E vendor | `FakeMeInvoiceClient` | Không gọi MISA live trong CI |
 | Status feedback | Poll projection qua RPC | Realtime deferred — [03 §11](03-architecture-and-flows.md) |
 
@@ -63,4 +64,4 @@ Khi agent fail cùng lỗi docs/ID → cập nhật file này + guard/doc, khôn
 
 - S0 docs ingest: **done**
 - Harness 00–07 exemplar-complete (symbol + RPC drafted + traceability): **done**
-- Slice code S1+: **todo** — cập nhật README deliver status khi bắt đầu S1
+- Slice code S1+: **Contract lane done** (toàn S1–S5, 2026-08-17) — **BE S1 done**; FE/E2E S1 todo

@@ -361,7 +361,7 @@ Shared technical (không authoritative business state): `provider_interaction_re
 | Query                               | CMD  | Epic/US        | Ghi chú                                     |
 | ----------------------------------- | ---- | -------------- | ------------------------------------------- |
 | `GetProviderConnectionScreenQuery`  | Q-01 | EP-01/US-01    | Legal profile read-only + connection status |
-| `GetProviderConnectionStatusQuery`  | Q-02 | EP-01/US-01    | Status + last check result                  |
+| `GetProviderConnectionStatusQuery`  | Q-02 | EP-01/US-01    | **Deprecated** — merged into Q-01 screen query (07 §S1a); không implement symbol riêng |
 | `ListProviderTemplatesQuery`        | Q-03 | EP-01/US-02    | Templates từ provider                       |
 | `GetIssuanceProfileQuery`           | Q-04 | EP-01/US-02    | Current default config                      |
 | `GetAutomationPolicyQuery`          | Q-05 | EP-01/US-03    | Auto flags + policy version                 |
