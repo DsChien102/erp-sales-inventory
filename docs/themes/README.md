@@ -65,4 +65,5 @@ docs/themes/TH-xx-{{slug}}/
 TH-04 (Giá bán) → pricing (owner) + catalog + partner + sales + iam (supporting)
 TH-02 (Sản phẩm)  →  catalog (owner) + inventory + costing + iam
 TH-03 (Đối tác)   →  partner (owner) + sales/inventory/accounting (event publishers)
+TH-08 (HĐĐT)      →  einvoice (owner TBD) + sales/partner/catalog/accounting/iam
 ```
